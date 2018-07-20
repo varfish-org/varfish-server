@@ -6,16 +6,15 @@ from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
 urlpatterns = [
-    url("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    url("", include('sirloin.main.urls', namespace='sirloin')),
+    #url("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     url(
         "about/",
         TemplateView.as_view(template_name="pages/about.html"),
         name="about",
     ),
     # Your stuff: custom urls includes go here
-] + static(
-    settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
-)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit
@@ -41,4 +40,6 @@ if settings.DEBUG:
     if "debug_toolbar" in settings.INSTALLED_APPS:
         import debug_toolbar
 
-        urlpatterns = [url("__debug__/", include(debug_toolbar.urls))] + urlpatterns
+        urlpatterns = [
+            url("__debug__/", include(debug_toolbar.urls))
+        ] + urlpatterns
