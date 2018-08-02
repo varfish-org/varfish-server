@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load dict %}
+
+{% block content %}
+
+<p>
+Variants: {{ main|length }}
+</p>
+
+<table class="display" id="main">
+    <thead>
+        <tr>
+            <th>Position</th>
+            <th>Ref</th>
+            <th>Alt</th>
+            <th>Frequency</th>
+            <th>Hom</th>
+            <th>Gene</th>
+            <th>Effect</th>
+            {% for member in form.pedigree %}
+                <th>{{ member.patient }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in main %}
+        <tr>
+            <td>{{ entry.chromosome }}:{{ entry.position }}</td>
+            <td>{{ entry.reference }}</td>
+            <td>{{ entry.alternative }}</td>
+            <td>{{ entry.frequency }}</td>
+            <td>{{ entry.homozygous }}</td>
+            <td>{{ entry.gene_name }}</td>
+            <td>{{ entry.effect|join:", " }}</td>
+            <td>{{ entry.gt_index }}</td>
+            <td>{{ entry.gt_mother }}</td>
+            <td>{{ entry.gt_father }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

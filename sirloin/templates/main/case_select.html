@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load dict %}
+
+{% block content %}
+
+<h1>Select case</h1>
+<ul>
+{% for entry in object_list %}
+    <li><a href="case/{{ entry }}/">{{ entry }}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}

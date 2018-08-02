@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load dict %}
+
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+    {{ form.frequency_filter|as_crispy_field }}
+    {{ form.remove_homozygous|as_crispy_field }}
+    <table>
+        <tr>
+            <td>{{ form.effect_coding_transcript_intron_variant|as_crispy_field }}</td>
+            <td>{{ form.effect_complex_substitution|as_crispy_field }}</td>
+            <td>{{ form.effect_direct_tandem_duplication|as_crispy_field }}</td>
+            <td>{{ form.effect_disruptive_inframe_deletion|as_crispy_field }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.effect_disruptive_inframe_insertion|as_crispy_field }}</td>
+            <td>{{ form.effect_downstream_gene_variant|as_crispy_field }}</td>
+            <td>{{ form.effect_feature_truncation|as_crispy_field }}</td>    
+            <td>{{ form.effect_five_prime_UTR_exon_variant|as_crispy_field }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.effect_five_prime_UTR_intron_variant|as_crispy_field }}</td>
+            <td>{{ form.effect_frameshift_elongation|as_crispy_field }}</td>    
+            <td>{{ form.effect_frameshift_truncation|as_crispy_field }}</td>
+            <td>{{ form.effect_frameshift_variant|as_crispy_field }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.effect_inframe_deletion|as_crispy_field }}</td>    
+            <td>{{ form.effect_inframe_insertion|as_crispy_field }}</td>
+            <td>{{ form.effect_intergenic_variant|as_crispy_field }}</td>
+            <td>{{ form.effect_internal_feature_elongation|as_crispy_field }}</td>    
+        </tr>
+        <tr>
+            <td>{{ form.effect_missense_variant|as_crispy_field }}</td>
+            <td>{{ form.effect_mnv|as_crispy_field }}</td>
+            <td>{{ form.effect_non_coding_transcript_exon_variant|as_crispy_field }}</td>    
+            <td>{{ form.effect_non_coding_transcript_intron_variant|as_crispy_field }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.effect_splice_acceptor_variant|as_crispy_field }}</td>
+            <td>{{ form.effect_splice_donor_variant|as_crispy_field }}</td>    
+            <td>{{ form.effect_splice_region_variant|as_crispy_field }}</td>
+            <td>{{ form.effect_start_lost|as_crispy_field }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.effect_stop_gained|as_crispy_field }}</td>    
+            <td>{{ form.effect_stop_lost|as_crispy_field }}</td>
+            <td>{{ form.effect_stop_retained_variant|as_crispy_field }}</td>
+            <td>{{ form.effect_structural_variant|as_crispy_field }}</td>    
+        </tr>
+        <tr>
+            <td>{{ form.effect_synonymous_variant|as_crispy_field }}</td>
+            <td>{{ form.effect_three_prime_UTR_exon_variant|as_crispy_field }}</td>
+            <td>{{ form.effect_three_prime_UTR_intron_variant|as_crispy_field }}</td>    
+            <td>{{ form.effect_transcript_ablation|as_crispy_field }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.effect_upstream_gene_variant|as_crispy_field }}</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th>Patient</th>
+            <th>Role</th>
+            <th>GT</th>
+            <th>min DP</th>
+            <th>min AB</th>
+            <th>min GQ</th>
+            <th>min AD</th>
+            <th>on FAIL</th>
+        </tr>
+        {% for member in form.pedigree %}
+        <tr>
+            <td>{{ member.patient }}</td>
+            <td>{{ member.role }}</td>
+            <td>{% with x=member.fields|keyvalue:"gt" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=member.fields|keyvalue:"dp" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=member.fields|keyvalue:"ab" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=member.fields|keyvalue:"gq" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=member.fields|keyvalue:"ad" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=member.fields|keyvalue:"fail" %}{{ form|keyvalue:x }}{% endwith %}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <input type="submit" value="Submit" class="tbn" />
+</form>
+
+<p>
+Variants: {{ main|length }}
+</p>
+
+<table class="display" id="main">
+    <thead>
+        <tr>
+            <th>Position</th>
+            <th>Ref</th>
+            <th>Alt</th>
+            <th>Frequency</th>
+            <th>Hom</th>
+            <th>Gene</th>
+            <th>Effect</th>
+            {% for member in form.pedigree %}
+                <th>{{ member.patient }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in main %}
+        <tr>
+            <td>{{ entry.chromosome }}:{{ entry.position }}</td>
+            <td>{{ entry.reference }}</td>
+            <td>{{ entry.alternative }}</td>
+            <td>{{ entry.frequency }}</td>
+            <td>{{ entry.homozygous }}</td>
+            <td>{{ entry.gene_name }}</td>
+            <td>{{ entry.effect|join:", " }}</td>
+            {% for member in form.pedigree %}
+                <td>{{ entry.gt|keyvalue:member.patient }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+        
+{% endblock %}
