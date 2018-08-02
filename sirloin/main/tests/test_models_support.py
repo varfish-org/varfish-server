@@ -1,12 +1,12 @@
 from django.test import TestCase
 from ..models import Main, Pedigree, Annotation
 from ..private import query_to_list, obj_to_dict
-from ..views import (
+from ..models_support import (
     build_frequency_term,
     build_homozygous_term,
     build_case_term,
     build_effects_term,
-    build_genotype_terms,
+    build_genotype_term_list,
     build_genotype_term,
     build_genotype_quality_term,
     build_genotype_ad_term,
@@ -305,7 +305,7 @@ class Test(TestCase):
 
     def test_genotype_quality_drop_and_nocall(self):
         conditions = [
-            build_genotype_terms(
+            build_genotype_term_list(
                 {
                     "genotype": [
                         {
@@ -369,7 +369,7 @@ class Test(TestCase):
             build_homozygous_term(kwargs),
             build_case_term(kwargs),
             build_effects_term(kwargs),
-            build_genotype_terms(kwargs),
+            build_genotype_term_list(kwargs),
         ]
 
         _results = Main.objects.raw(build_top_level_query(conditions))

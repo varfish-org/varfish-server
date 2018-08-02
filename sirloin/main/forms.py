@@ -1,5 +1,4 @@
 from django import forms
-from .models import Pedigree
 
 
 INHERITANCE = [
@@ -178,3 +177,50 @@ class FilterForm(forms.Form):
                 required=False,
                 initial="ignore",
             )
+
+    translate_effects = {
+        "effect_coding_transcript_intron_variant": "coding_transcript_intron_variant",
+        "effect_complex_substitution": "complex_substitution",
+        "effect_direct_tandem_duplication": "direct_tandem_duplication",
+        "effect_disruptive_inframe_deletion": "disruptive_inframe_deletion",
+        "effect_disruptive_inframe_insertion": "disruptive_inframe_insertion",
+        "effect_downstream_gene_variant": "downstream_gene_variant",
+        "effect_feature_truncation": "feature_truncation",
+        "effect_five_prime_UTR_exon_variant": "5_prime_UTR_exon_variant",
+        "effect_five_prime_UTR_intron_variant": "5_prime_UTR_intron_variant",
+        "effect_frameshift_elongation": "frameshift_elongation",
+        "effect_frameshift_truncation": "frameshift_truncation",
+        "effect_frameshift_variant": "frameshift_variant",
+        "effect_inframe_deletion": "inframe_deletion",
+        "effect_inframe_insertion": "inframe_insertion",
+        "effect_intergenic_variant": "intergenic_variant",
+        "effect_internal_feature_elongation": "internal_feature_elongation",
+        "effect_missense_variant": "missense_variant",
+        "effect_mnv": "mnv",
+        "effect_non_coding_transcript_exon_variant": "non_coding_transcript_exon_variant",
+        "effect_non_coding_transcript_intron_variant": "non_coding_transcript_intron_variant",
+        "effect_splice_acceptor_variant": "splice_acceptor_variant",
+        "effect_splice_donor_variant": "splice_donor_variant",
+        "effect_splice_region_variant": "splice_region_variant",
+        "effect_start_lost": "start_lost",
+        "effect_stop_gained": "stop_gained",
+        "effect_stop_lost": "stop_lost",
+        "effect_stop_retained_variant": "stop_retained_variant",
+        "effect_structural_variant": "structural_variant",
+        "effect_synonymous_variant": "synonymous_variant",
+        "effect_three_prime_UTR_exon_variant": "3_prime_UTR_exon_variant",
+        "effect_three_prime_UTR_intron_variant": "3_prime_UTR_intron_variant",
+        "effect_transcript_ablation": "transcript_ablation",
+        "effect_upstream_gene_variant": "upstream_gene_variant",
+    }
+
+    translate_inheritance = {
+        "any": None,
+        "ref": ("0/0"),
+        "het": ("0/1"),
+        "hom": ("1/1"),
+        "variant": ("0/1", "1/1"),
+        "non-variant": ("0/0", "./."),
+        "non-reference": ("0/1", "1/1", "./."),
+    }
+
