@@ -10,7 +10,7 @@ class Main(models.Model):
     position = models.IntegerField()
     reference = models.CharField(max_length=512)
     alternative = models.CharField(max_length=512)
-    case_id = models.CharField(max_length=512)
+    case = models.ForeignKey("Pedigree", to_field="case")
     frequency = models.FloatField(null=True)
     homozygous = models.IntegerField(null=True)
     effect = ArrayField(models.CharField(max_length=64, null=True))
@@ -19,10 +19,15 @@ class Main(models.Model):
     objects = CopyManager()
 
     class Meta:
+        unique_together = (
+            "chromosome",
+            "position",
+            "reference",
+            "alternative",
+            "case",
+        )
         indexes = [
-            models.Index(
-                fields=["case_id", "frequency", "homozygous", "effect"]
-            ),
+            models.Index(fields=["case", "frequency", "homozygous", "effect"]),
             models.Index(
                 fields=["chromosome", "position", "reference", "alternative"]
             ),
@@ -30,15 +35,52 @@ class Main(models.Model):
 
 
 class Pedigree(models.Model):
-    case_id = models.CharField(max_length=512)
+    case = models.CharField(max_length=512, unique=True)
     pedigree = JSONField()
     objects = CopyManager()
 
     class Meta:
-        indexes = [models.Index(fields=["case_id"])]
-    
+        indexes = [models.Index(fields=["case"])]
+
     def __str__(self):
-        return self.case_id
+        return self.case
+
+
+class Annotation(models.Model):
+    release = models.CharField(max_length=32)
+    chromosome = models.CharField(max_length=32)
+    position = models.IntegerField()
+    reference = models.CharField(max_length=512)
+    alternative = models.CharField(max_length=512)
+    effect = ArrayField(models.CharField(max_length=64, null=True))
+    impact = models.CharField(max_length=64, null=True)
+    gene_name = models.CharField(max_length=64, null=True)
+    gene_id = models.CharField(max_length=64, null=True)
+    feature_type = models.CharField(max_length=64, null=True)
+    feature_id = models.CharField(max_length=64, null=True)
+    transcript_biotype = models.CharField(max_length=64, null=True)
+    rank = models.CharField(max_length=64, null=True)
+    hgvs_c = models.CharField(max_length=512, null=True)
+    hgvs_p = models.CharField(max_length=512, null=True)
+    cdna_pos_length = models.CharField(max_length=64, null=True)
+    cds_pos_length = models.CharField(max_length=64, null=True)
+    aa_pos_length = models.CharField(max_length=64, null=True)
+    distance = models.CharField(max_length=64, null=True)
+    errors = models.CharField(max_length=512, null=True)
+
+    class Meta:
+        unique_together = (
+            "release",
+            "chromosome",
+            "position",
+            "reference",
+            "alternative",
+        )
+        indexes = [
+            models.Index(
+                fields=["chromosome", "position", "reference", "alternative"]
+            )
+        ]
 
 
 class ImportInfo(models.Model):
@@ -49,6 +91,7 @@ class ImportInfo(models.Model):
 
 
 class Exac(models.Model):
+    release = models.CharField(max_length=32)
     chromosome = models.CharField(max_length=32)
     position = models.IntegerField()
     reference = models.CharField(max_length=512)
@@ -102,36 +145,13 @@ class Exac(models.Model):
     objects = CopyManager()
 
     class Meta:
-        indexes = [
-            models.Index(
-                fields=["chromosome", "position", "reference", "alternative"]
-            )
-        ]
-
-
-class Annotation(models.Model):
-    chromosome = models.CharField(max_length=32)
-    position = models.IntegerField()
-    reference = models.CharField(max_length=512)
-    alternative = models.CharField(max_length=512)
-    effect = ArrayField(models.CharField(max_length=64, null=True))
-    impact = models.CharField(max_length=64, null=True)
-    gene_name = models.CharField(max_length=64, null=True)
-    gene_id = models.CharField(max_length=64, null=True)
-    feature_type = models.CharField(max_length=64, null=True)
-    feature_id = models.CharField(max_length=64, null=True)
-    transcript_biotype = models.CharField(max_length=64, null=True)
-    rank = models.CharField(max_length=64, null=True)
-    hgvs_c = models.CharField(max_length=512, null=True)
-    hgvs_p = models.CharField(max_length=512, null=True)
-    cdna_pos_length = models.CharField(max_length=64, null=True)
-    cds_pos_length = models.CharField(max_length=64, null=True)
-    aa_pos_length = models.CharField(max_length=64, null=True)
-    distance = models.CharField(max_length=64, null=True)
-    errors = models.CharField(max_length=512, null=True)
-    objects = CopyManager()
-
-    class Meta:
+        unique_together = (
+            "release",
+            "chromosome",
+            "position",
+            "reference",
+            "alternative",
+        )
         indexes = [
             models.Index(
                 fields=["chromosome", "position", "reference", "alternative"]

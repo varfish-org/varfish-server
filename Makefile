@@ -16,6 +16,8 @@ migrate:
 	$(MANAGE) makemigrations
 	$(MANAGE) migrate
 
+shell:
+	$(MANAGE) shell
 
 import_samples: $(SAMPLES)
 $(SAMPLES):
@@ -40,5 +42,8 @@ import_hpo: ../tenderloin/hpo/phenotype.header.hpoa
 
 import_omim: ../tenderloin/omim/mim2gene_medgen.header
 	$(MANAGE) import --path $< --database omim --release "2018-07-19"
+
+test:
+	$(MANAGE) test
 
 import: import_exac import_hgnc import_samples import_annotations import_pedigrees import_hpo import_omim

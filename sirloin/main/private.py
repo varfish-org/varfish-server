@@ -7,5 +7,6 @@ def obj_to_dict(obj, remove_id=True):
     for key, value in vars(obj).items():
         if key.startswith("_") or (remove_id and key == "id"):
             continue
+        key = key.rstrip("_id")
         result[key] = value
     return result

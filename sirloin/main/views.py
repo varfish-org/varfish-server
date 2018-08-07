@@ -48,11 +48,11 @@ class FilterView(FormView):
 
         if not self.pedigree_object:
             self.pedigree_object = model_to_dict(
-                Pedigree.objects.get(case_id=self.kwargs["case_id"])
+                Pedigree.objects.get(case=self.kwargs["case"])
             )
         pedigree_object = self.pedigree_object
 
-        index = pedigree_object["case_id"]
+        index = pedigree_object["case"]
 
         for member in pedigree_object["pedigree"]:
             if member["patient"] == index:
@@ -96,7 +96,7 @@ class FilterView(FormView):
                 selected_effects.append(effect)
 
         kwargs = {
-            "case_id": self.kwargs["case_id"],
+            "case": self.kwargs["case"],
             "max_frequency": form.cleaned_data["frequency_filter"],
             "remove_homozygous": form.cleaned_data["remove_homozygous"],
             "effects": selected_effects,

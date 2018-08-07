@@ -31,31 +31,22 @@ class FilterForm(forms.Form):
         label="coding transcript intron variant", required=False
     )
     effect_complex_substitution = forms.BooleanField(
-        label="complex substitution", required=True, initial=True, disabled=True
+        label="complex substitution", required=False, initial=True
     )
     effect_direct_tandem_duplication = forms.BooleanField(
-        label="direct tandem duplication",
-        required=True,
-        initial=True,
-        disabled=True,
+        label="direct tandem duplication", required=False, initial=True
     )
     effect_disruptive_inframe_deletion = forms.BooleanField(
-        label="disruptive inframe deletion",
-        required=True,
-        initial=True,
-        disabled=True,
+        label="disruptive inframe deletion", required=False, initial=True
     )
     effect_disruptive_inframe_insertion = forms.BooleanField(
-        label="disruptive inframe insertion",
-        required=True,
-        initial=True,
-        disabled=True,
+        label="disruptive inframe insertion", required=False, initial=True
     )
     effect_downstream_gene_variant = forms.BooleanField(
         label="downstream gene variant", required=False
     )
     effect_feature_truncation = forms.BooleanField(
-        label="feature truncation", required=True, initial=True, disabled=True
+        label="feature truncation", required=False, initial=True
     )
     effect_five_prime_UTR_exon_variant = forms.BooleanField(
         label="5' UTR exon variant", required=False
@@ -64,25 +55,19 @@ class FilterForm(forms.Form):
         label="5' UTR intron variant", required=False
     )
     effect_frameshift_elongation = forms.BooleanField(
-        label="frameshift elongation",
-        required=True,
-        initial=True,
-        disabled=True,
+        label="frameshift elongation", required=False, initial=True
     )
     effect_frameshift_truncation = forms.BooleanField(
-        label="frameshift truncation",
-        required=True,
-        initial=True,
-        disabled=True,
+        label="frameshift truncation", required=False, initial=True
     )
     effect_frameshift_variant = forms.BooleanField(
-        label="frameshift variant", required=True, initial=True, disabled=True
+        label="frameshift variant", required=False, initial=True
     )
     effect_inframe_deletion = forms.BooleanField(
-        label="inframe deletion", required=True, initial=True, disabled=True
+        label="inframe deletion", required=False, initial=True
     )
     effect_inframe_insertion = forms.BooleanField(
-        label="inframe insertion", required=True, initial=True, disabled=True
+        label="inframe insertion", required=False, initial=True
     )
     effect_intergenic_variant = forms.BooleanField(
         label="intergenic variant", required=False
@@ -91,11 +76,9 @@ class FilterForm(forms.Form):
         label="internal feature elongation", required=False
     )
     effect_missense_variant = forms.BooleanField(
-        label="missense variant", required=True, initial=True, disabled=True
+        label="missense variant", required=False, initial=True
     )
-    effect_mnv = forms.BooleanField(
-        label="mnv", required=True, initial=True, disabled=True
-    )
+    effect_mnv = forms.BooleanField(label="mnv", required=False, initial=True)
     effect_non_coding_transcript_exon_variant = forms.BooleanField(
         label="non-coding transcript exon variant", required=False
     )
@@ -103,37 +86,28 @@ class FilterForm(forms.Form):
         label="non-coding transcript intron variant", required=False
     )
     effect_splice_acceptor_variant = forms.BooleanField(
-        label="splice acceptor variant",
-        required=True,
-        initial=True,
-        disabled=True,
+        label="splice acceptor variant", required=False, initial=True
     )
     effect_splice_donor_variant = forms.BooleanField(
-        label="splice donor variant", required=True, initial=True, disabled=True
+        label="splice donor variant", required=False, initial=True
     )
     effect_splice_region_variant = forms.BooleanField(
-        label="splice region variant",
-        required=True,
-        initial=True,
-        disabled=True,
+        label="splice region variant", required=False, initial=True
     )
     effect_start_lost = forms.BooleanField(
-        label="start lost", required=True, initial=True, disabled=True
+        label="start lost", required=False, initial=True
     )
     effect_stop_gained = forms.BooleanField(
-        label="stop gained", required=True, initial=True, disabled=True
+        label="stop gained", required=False, initial=True
     )
     effect_stop_lost = forms.BooleanField(
-        label="stop lost", required=True, initial=True, disabled=True
+        label="stop lost", required=False, initial=True
     )
     effect_stop_retained_variant = forms.BooleanField(
-        label="stop retained variant",
-        required=True,
-        initial=True,
-        disabled=True,
+        label="stop retained variant", required=False, initial=True
     )
     effect_structural_variant = forms.BooleanField(
-        label="structural variant", required=True, initial=True, disabled=True
+        label="structural variant", required=False, initial=True
     )
     effect_synonymous_variant = forms.BooleanField(
         label="synonymous variant", required=False
@@ -145,7 +119,7 @@ class FilterForm(forms.Form):
         label="3' UTR intron variant", required=False
     )
     effect_transcript_ablation = forms.BooleanField(
-        label="transcript ablation", required=True, initial=True, disabled=True
+        label="transcript ablation", required=False, initial=True
     )
     effect_upstream_gene_variant = forms.BooleanField(
         label="upstream gene variant", required=False
