@@ -3,17 +3,21 @@ from django.db.models import Q
 
 def build_base_query():
     return r"""
-        SELECT main_main.id, chromosome, position, reference, alternative,
-            main_main.frequency, homozygous, main_main.effect, genotype,
-            main_main.case_id, main_annotation.gene_name, main_pedigree.pedigree
-        FROM main_main
-        LEFT OUTER JOIN main_pedigree ON (main_main.case_id = main_pedigree.case)
-        LEFT OUTER JOIN main_annotation USING (chromosome, position, reference, alternative)
+        SELECT m.id, chromosome, position, reference, alternative, m.frequency,
+            homozygous, m.effect, genotype, m.case_id, a.gene_name, p.pedigree
+        FROM main_main m
+        LEFT OUTER JOIN main_pedigree p USING (case_id)
+        LEFT OUTER JOIN main_annotation a USING (
+            chromosome,
+            position,
+            reference,
+            alternative
+        )
     """
 
 
 def build_frequency_term(kwargs):
-    return "main_main.frequency <= {max_frequency}".format(**kwargs)
+    return "m.frequency <= {max_frequency}".format(**kwargs)
 
 
 def build_homozygous_term(kwargs):
@@ -21,11 +25,11 @@ def build_homozygous_term(kwargs):
 
 
 def build_case_term(kwargs):
-    return "main_main.case_id = '{case}'".format(**kwargs)
+    return "m.case_id = '{case_id}'".format(**kwargs)
 
 
 def build_effects_term(kwargs):
-    return "main_main.effect && ARRAY[{effects}]::VARCHAR[]".format(
+    return "m.effect && ARRAY[{effects}]::VARCHAR[]".format(
         effects=",".join("'{}'".format(effect) for effect in kwargs["effects"])
     )
 

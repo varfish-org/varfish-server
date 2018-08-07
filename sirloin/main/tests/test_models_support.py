@@ -1,6 +1,6 @@
 from django.test import TestCase
 from ..models import Main, Pedigree, Annotation
-from ..private import query_to_list, obj_to_dict
+from django.forms import model_to_dict
 from ..models_support import (
     build_frequency_term,
     build_homozygous_term,
@@ -23,7 +23,7 @@ main_entry1 = {
     "position": 100,
     "reference": "A",
     "alternative": "G",
-    "case": "A",
+    "case_id": "A",
     "frequency": 0.001,
     "homozygous": 3,
     "effect": ["missense_variant"],
@@ -41,7 +41,7 @@ main_entry2 = {
     "position": 200,
     "reference": "C",
     "alternative": "T",
-    "case": "A",
+    "case_id": "A",
     "frequency": 0.05,
     "homozygous": 0,
     "effect": ["synonymous_variant"],
@@ -59,7 +59,7 @@ main_entry3 = {
     "position": 300,
     "reference": "C",
     "alternative": "T",
-    "case": "A",
+    "case_id": "A",
     "frequency": 0.01,
     "homozygous": 0,
     "effect": ["missense_variant", "stop_lost"],
@@ -73,7 +73,7 @@ main_entry3 = {
 
 
 pedigree_entry1 = {
-    "case": "A",
+    "case_id": "A",
     "pedigree": [
         {"sex": 2, "father": "0", "mother": "0", "patient": "C", "affected": 0},
         {"sex": 1, "father": "0", "mother": "0", "patient": "D", "affected": 0},
@@ -82,7 +82,7 @@ pedigree_entry1 = {
 }
 
 pedigree_entry2 = {
-    "case": "B",
+    "case_id": "B",
     "pedigree": [
         {"sex": 2, "father": "0", "mother": "0", "patient": "C", "affected": 0},
         {"sex": 1, "father": "0", "mother": "0", "patient": "D", "affected": 0},
@@ -157,45 +157,25 @@ annotation_entry3 = {
     "errors": None,
 }
 
-KEYS = (
-    "chromosome",
-    "position",
-    "reference",
-    "alternative",
-    "frequency",
-    "homozygous",
-    "effect",
-    "genotype",
-    "case",
-    "gene_name",
-    "pedigree",
-)
-
-
 
 class Test(TestCase):
     def setUp(self):
         # set extended diff report
         self.maxDiff = None
 
-        # build comparison data
-        _entry1 = {**main_entry1, **pedigree_entry1, **annotation_entry1}
-        _entry2 = {**main_entry2, **pedigree_entry1, **annotation_entry2}
-        _entry3 = {**main_entry3, **pedigree_entry1, **annotation_entry3}
-        self.entry1 = {key: _entry1[key] for key in KEYS}
-        self.entry2 = {key: _entry2[key] for key in KEYS}
-        self.entry3 = {key: _entry3[key] for key in KEYS}
-
         # insert objects into test database
         p1, _ = Pedigree.objects.get_or_create(**pedigree_entry1)
         p2, _ = Pedigree.objects.get_or_create(**pedigree_entry2)
         # replace case string by pedigree object
-        main_entry1["case"] = p1
-        main_entry2["case"] = p1
-        main_entry3["case"] = p1
-        Main.objects.get_or_create(**main_entry1)
-        Main.objects.get_or_create(**main_entry2)
-        Main.objects.get_or_create(**main_entry3)
+        _main_entry1 = dict(main_entry1)
+        _main_entry2 = dict(main_entry2)
+        _main_entry3 = dict(main_entry3)
+        _main_entry1["case_id"] = p1
+        _main_entry2["case_id"] = p1
+        _main_entry3["case_id"] = p1
+        Main.objects.get_or_create(**_main_entry1)
+        Main.objects.get_or_create(**_main_entry2)
+        Main.objects.get_or_create(**_main_entry3)
         Annotation.objects.get_or_create(**annotation_entry1)
         Annotation.objects.get_or_create(**annotation_entry2)
         Annotation.objects.get_or_create(**annotation_entry3)
@@ -203,64 +183,82 @@ class Test(TestCase):
     def test_max_frequency_001(self):
         conditions = [build_frequency_term({"max_frequency": 0.01})]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry1, self.entry3]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry1, main_entry3]
         self.assertEquals(results, expected)
 
     def test_remove_homozygous(self):
         conditions = [build_homozygous_term({"remove_homozygous": True})]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry2, self.entry3]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry2, main_entry3]
         self.assertEquals(results, expected)
 
     def test_effects_missense_variant(self):
         conditions = [build_effects_term({"effects": ["missense_variant"]})]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry1, self.entry3]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry1, main_entry3]
         self.assertEquals(results, expected)
 
     def test_case_A(self):
-        conditions = [build_case_term({"case": "A"})]
+        conditions = [build_case_term({"case_id": "A"})]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry1, self.entry2, self.entry3]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry1, main_entry2, main_entry3]
         self.assertEquals(results, expected)
 
     def test_gt_ref_A(self):
         conditions = [build_genotype_gt_term({"member": "A", "gt": "0/0"})]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry1]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry1]
         self.assertEquals(results, expected)
 
     def test_gq_40_A(self):
         conditions = [build_genotype_gq_term({"member": "A", "gq": 40})]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry2, self.entry3]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry2, main_entry3]
         self.assertEquals(results, expected)
 
     def test_dp_20_A(self):
         conditions = [build_genotype_dp_term({"member": "A", "dp": 20})]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry1, self.entry2, self.entry3]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry1, main_entry2, main_entry3]
         self.assertEquals(results, expected)
 
     def test_ad_10_A(self):
         conditions = [build_genotype_ad_term({"member": "A", "ad": 10})]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry3]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry3]
         self.assertEquals(results, expected)
 
     def test_ab_02_A(self):
         conditions = [build_genotype_ab_term({"member": "A", "ab": 0.2})]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry2, self.entry3]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry2, main_entry3]
         self.assertEquals(results, expected)
 
     def test_quality_complete_condition(self):
@@ -270,8 +268,10 @@ class Test(TestCase):
             )
         ]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry3]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry3]
         self.assertEquals(results, expected)
 
     def test_genotype_and_quality_drop(self):
@@ -289,8 +289,10 @@ class Test(TestCase):
             )
         ]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry3]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry3]
         self.assertEquals(results, expected)
 
     def test_genotype_and_quality_nocall(self):
@@ -308,8 +310,10 @@ class Test(TestCase):
             )
         ]
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry1, self.entry2]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry1, main_entry2]
         self.assertEquals(results, expected)
 
     def test_genotype_quality_drop_and_nocall(self):
@@ -341,8 +345,10 @@ class Test(TestCase):
         ]
 
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry1]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry1]
         self.assertEquals(results, expected)
 
     def test_complete_query(self):
@@ -350,7 +356,7 @@ class Test(TestCase):
             "max_frequency": 0.01,
             "remove_homozygous": False,
             "effects": ["missense_variant"],
-            "case": "A",
+            "case_id": "A",
             "genotype": [
                 {
                     "member": "A",
@@ -370,9 +376,9 @@ class Test(TestCase):
                     "gt": "0/1",
                     "fail": "drop-variant",
                 },
-            ]
+            ],
         }
-        
+
         conditions = [
             build_frequency_term(kwargs),
             build_homozygous_term(kwargs),
@@ -382,6 +388,8 @@ class Test(TestCase):
         ]
 
         _results = Main.objects.raw(build_top_level_query(conditions))
-        results = query_to_list(_results)
-        expected = [self.entry1]
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry1]
         self.assertEquals(results, expected)

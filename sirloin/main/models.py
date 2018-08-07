@@ -10,7 +10,7 @@ class Main(models.Model):
     position = models.IntegerField()
     reference = models.CharField(max_length=512)
     alternative = models.CharField(max_length=512)
-    case = models.ForeignKey("Pedigree", to_field="case")
+    case_id = models.CharField(max_length=512)
     frequency = models.FloatField(null=True)
     homozygous = models.IntegerField(null=True)
     effect = ArrayField(models.CharField(max_length=64, null=True))
@@ -24,10 +24,10 @@ class Main(models.Model):
             "position",
             "reference",
             "alternative",
-            "case",
+            "case_id",
         )
         indexes = [
-            models.Index(fields=["case", "frequency", "homozygous", "effect"]),
+            models.Index(fields=["case_id", "frequency", "homozygous", "effect"]),
             models.Index(
                 fields=["chromosome", "position", "reference", "alternative"]
             ),
@@ -35,15 +35,15 @@ class Main(models.Model):
 
 
 class Pedigree(models.Model):
-    case = models.CharField(max_length=512, unique=True)
+    case_id = models.CharField(max_length=512, unique=True)
     pedigree = JSONField()
     objects = CopyManager()
 
     class Meta:
-        indexes = [models.Index(fields=["case"])]
+        indexes = [models.Index(fields=["case_id"])]
 
     def __str__(self):
-        return self.case
+        return self.case_id
 
 
 class Annotation(models.Model):
