@@ -1,21 +1,8 @@
 from django.test import TestCase
 from ..models import Main, Pedigree, Annotation
 from django.forms import model_to_dict
-from ..models_support import (
-    build_frequency_term,
-    build_homozygous_term,
-    build_case_term,
-    build_effects_term,
-    build_genotype_term_list,
-    build_genotype_term,
-    build_genotype_quality_term,
-    build_genotype_ad_term,
-    build_genotype_dp_term,
-    build_genotype_gq_term,
-    build_genotype_ab_term,
-    build_genotype_gt_term,
-    build_top_level_query,
-)
+from ..models_support import QueryBuilder
+
 
 main_entry1 = {
     "release": "GRCh37",
@@ -181,8 +168,10 @@ class Test(TestCase):
         Annotation.objects.get_or_create(**annotation_entry3)
 
     def test_max_frequency_001(self):
-        conditions = [build_frequency_term({"max_frequency": 0.01})]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        frequency_condition = qb.build_frequency_term({"max_frequency": 0.01})
+        term, args = qb.build_top_level_query([frequency_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -190,8 +179,12 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_remove_homozygous(self):
-        conditions = [build_homozygous_term({"remove_homozygous": True})]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        homozygous_condition = qb.build_homozygous_term(
+            {"remove_homozygous": True}
+        )
+        term, args = qb.build_top_level_query([homozygous_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -199,8 +192,12 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_effects_missense_variant(self):
-        conditions = [build_effects_term({"effects": ["missense_variant"]})]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        effect_condition = qb.build_effects_term(
+            {"effects": ["missense_variant"]}
+        )
+        term, args = qb.build_top_level_query([effect_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -208,8 +205,10 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_case_A(self):
-        conditions = [build_case_term({"case_id": "A"})]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        case_condition = qb.build_case_term({"case_id": "A"})
+        term, args = qb.build_top_level_query([case_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -217,17 +216,45 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_gt_ref_A(self):
-        conditions = [build_genotype_gt_term({"member": "A", "gt": "0/0"})]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        gt_condition = qb.build_genotype_gt_term({"member": "A", "gt": ["0/0"]})
+        term, args = qb.build_top_level_query([gt_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
         expected = [main_entry1]
         self.assertEquals(results, expected)
 
+    def test_gt_None_ref_A(self):
+        qb = QueryBuilder()
+        gt_condition = qb.build_genotype_gt_term({"member": "A", "gt": None})
+        term, args = qb.build_top_level_query([gt_condition])
+        _results = Main.objects.raw(term, args)
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry1, main_entry2, main_entry3]
+        self.assertEquals(results, expected)
+
+    def test_gt_variant_ref_A(self):
+        qb = QueryBuilder()
+        gt_condition = qb.build_genotype_gt_term(
+            {"member": "A", "gt": ["0/0", "0/1"]}
+        )
+        term, args = qb.build_top_level_query([gt_condition])
+        _results = Main.objects.raw(term, args)
+        results = [
+            model_to_dict(_result, exclude=["id"]) for _result in _results
+        ]
+        expected = [main_entry1, main_entry2, main_entry3]
+        self.assertEquals(results, expected)
+
     def test_gq_40_A(self):
-        conditions = [build_genotype_gq_term({"member": "A", "gq": 40})]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        gq_condition = qb.build_genotype_gq_term({"member": "A", "gq": 40})
+        term, args = qb.build_top_level_query([gq_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -235,8 +262,10 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_dp_20_A(self):
-        conditions = [build_genotype_dp_term({"member": "A", "dp": 20})]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        dp_condition = qb.build_genotype_dp_term({"member": "A", "dp": 20})
+        term, args = qb.build_top_level_query([dp_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -244,8 +273,10 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_ad_10_A(self):
-        conditions = [build_genotype_ad_term({"member": "A", "ad": 10})]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        ad_condition = qb.build_genotype_ad_term({"member": "A", "ad": 10})
+        term, args = qb.build_top_level_query([ad_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -253,8 +284,10 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_ab_02_A(self):
-        conditions = [build_genotype_ab_term({"member": "A", "ab": 0.2})]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        ab_condition = qb.build_genotype_ab_term({"member": "A", "ab": 0.2})
+        term, args = qb.build_top_level_query([ab_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -262,12 +295,12 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_quality_complete_condition(self):
-        conditions = [
-            build_genotype_quality_term(
-                {"member": "A", "dp": 20, "ad": 10, "ab": 0.2, "gq": 40}
-            )
-        ]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        genotype_condition = qb.build_genotype_quality_term(
+            {"member": "A", "dp": 20, "ad": 10, "ab": 0.2, "gq": 40}
+        )
+        term, args = qb.build_top_level_query([genotype_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -275,20 +308,20 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_genotype_and_quality_drop(self):
-        conditions = [
-            build_genotype_term(
-                {
-                    "member": "A",
-                    "dp": 20,
-                    "ad": 10,
-                    "ab": 0.2,
-                    "gq": 40,
-                    "gt": "0/1",
-                    "fail": "drop-variant",
-                }
-            )
-        ]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        genotype_condition = qb.build_genotype_term(
+            {
+                "member": "A",
+                "dp": 20,
+                "ad": 10,
+                "ab": 0.2,
+                "gq": 40,
+                "gt": ["0/1"],
+                "fail": "drop-variant",
+            }
+        )
+        term, args = qb.build_top_level_query([genotype_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -296,20 +329,20 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_genotype_and_quality_nocall(self):
-        conditions = [
-            build_genotype_term(
-                {
-                    "member": "A",
-                    "dp": 20,
-                    "ad": 10,
-                    "ab": 0.2,
-                    "gq": 40,
-                    "gt": "0/0",
-                    "fail": "no-call",
-                }
-            )
-        ]
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        genotype_condition = qb.build_genotype_term(
+            {
+                "member": "A",
+                "dp": 20,
+                "ad": 10,
+                "ab": 0.2,
+                "gq": 40,
+                "gt": ["0/0"],
+                "fail": "no-call",
+            }
+        )
+        term, args = qb.build_top_level_query([genotype_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -317,34 +350,33 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_genotype_quality_drop_and_nocall(self):
-        conditions = [
-            build_genotype_term_list(
-                {
-                    "genotype": [
-                        {
-                            "member": "A",
-                            "dp": 20,
-                            "ad": 10,
-                            "ab": 0.2,
-                            "gq": 40,
-                            "gt": "0/0",
-                            "fail": "no-call",
-                        },
-                        {
-                            "member": "C",
-                            "dp": 20,
-                            "ad": 10,
-                            "ab": 0.2,
-                            "gq": 40,
-                            "gt": "0/1",
-                            "fail": "drop-variant",
-                        },
-                    ]
-                }
-            )
-        ]
-
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        qb = QueryBuilder()
+        genotype_condition = qb.build_genotype_term_list(
+            {
+                "genotype": [
+                    {
+                        "member": "A",
+                        "dp": 20,
+                        "ad": 10,
+                        "ab": 0.2,
+                        "gq": 40,
+                        "gt": ["0/0"],
+                        "fail": "no-call",
+                    },
+                    {
+                        "member": "C",
+                        "dp": 20,
+                        "ad": 10,
+                        "ab": 0.2,
+                        "gq": 40,
+                        "gt": ["0/1"],
+                        "fail": "drop-variant",
+                    },
+                ]
+            }
+        )
+        term, args = qb.build_top_level_query([genotype_condition])
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]
@@ -352,6 +384,7 @@ class Test(TestCase):
         self.assertEquals(results, expected)
 
     def test_complete_query(self):
+        qb = QueryBuilder()
         kwargs = {
             "max_frequency": 0.01,
             "remove_homozygous": False,
@@ -364,7 +397,7 @@ class Test(TestCase):
                     "ad": 10,
                     "ab": 0.2,
                     "gq": 20,
-                    "gt": "0/0",
+                    "gt": ["0/0"],
                     "fail": "no-call",
                 },
                 {
@@ -373,21 +406,22 @@ class Test(TestCase):
                     "ad": 10,
                     "ab": 0.2,
                     "gq": 40,
-                    "gt": "0/1",
+                    "gt": ["0/1"],
                     "fail": "drop-variant",
                 },
             ],
         }
 
         conditions = [
-            build_frequency_term(kwargs),
-            build_homozygous_term(kwargs),
-            build_case_term(kwargs),
-            build_effects_term(kwargs),
-            build_genotype_term_list(kwargs),
+            qb.build_frequency_term(kwargs),
+            qb.build_homozygous_term(kwargs),
+            qb.build_case_term(kwargs),
+            qb.build_effects_term(kwargs),
+            qb.build_genotype_term_list(kwargs),
         ]
 
-        _results = Main.objects.raw(build_top_level_query(conditions))
+        term, args = qb.build_top_level_query(conditions)
+        _results = Main.objects.raw(term, args)
         results = [
             model_to_dict(_result, exclude=["id"]) for _result in _results
         ]

@@ -8,21 +8,7 @@ from django.contrib import messages
 from django.forms.models import model_to_dict
 from .forms import FilterForm
 from .models import Main, Pedigree
-from .models_support import (
-    build_frequency_term,
-    build_homozygous_term,
-    build_case_term,
-    build_effects_term,
-    build_genotype_term_list,
-    build_genotype_term,
-    build_genotype_quality_term,
-    build_genotype_ad_term,
-    build_genotype_dp_term,
-    build_genotype_gq_term,
-    build_genotype_ab_term,
-    build_genotype_gt_term,
-    build_top_level_query,
-)
+from .models_support import QueryBuilder
 
 
 class MainView(ListView):
@@ -48,11 +34,11 @@ class FilterView(FormView):
 
         if not self.pedigree_object:
             self.pedigree_object = model_to_dict(
-                Pedigree.objects.get(case=self.kwargs["case"])
+                Pedigree.objects.get(case_id=self.kwargs["case_id"])
             )
         pedigree_object = self.pedigree_object
 
-        index = pedigree_object["case"]
+        index = pedigree_object["case_id"]
 
         for member in pedigree_object["pedigree"]:
             if member["patient"] == index:
@@ -90,13 +76,14 @@ class FilterView(FormView):
     def form_valid(self, form):
         pedigree = self.get_form_kwargs()["pedigree"]
         selected_effects = list()
+        qb = QueryBuilder()
 
         for field_name, effect in form.translate_effects.items():
             if form.cleaned_data[field_name]:
                 selected_effects.append(effect)
 
         kwargs = {
-            "case": self.kwargs["case"],
+            "case_id": self.kwargs["case_id"],
             "max_frequency": form.cleaned_data["frequency_filter"],
             "remove_homozygous": form.cleaned_data["remove_homozygous"],
             "effects": selected_effects,
@@ -119,15 +106,15 @@ class FilterView(FormView):
             )
 
         conditions = [
-            build_frequency_term(kwargs),
-            build_homozygous_term(kwargs),
-            build_case_term(kwargs),
-            build_effects_term(kwargs),
-            build_genotype_term_list(kwargs),
+            qb.build_frequency_term(kwargs),
+            qb.build_homozygous_term(kwargs),
+            qb.build_case_term(kwargs),
+            qb.build_effects_term(kwargs),
+            qb.build_genotype_term_list(kwargs),
         ]
 
-        query = build_top_level_query(conditions)
-        main = list(Main.objects.raw(query))
+        query, args = qb.build_top_level_query(conditions)
+        main = list(Main.objects.raw(query, args))
 
         for entry in main:
             entry.effect = set(entry.effect) & set(selected_effects)
@@ -140,8 +127,3 @@ class FilterView(FormView):
         return render(
             self.request, self.template_name, self.get_context_data(main=main)
         )
-
-
-# for later with django F() operator
-# reduce(operators.and_, conditions)
-
