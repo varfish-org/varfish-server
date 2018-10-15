@@ -1,0 +1,53 @@
+# Wheel 0.25+ needed to install certain packages on CPython 3.5+
+# like Pillow and psycopg2
+# See http://bitly.com/wheel-building-fails-CPython-35
+# Verified bug on Python 3.5.1
+wheel==0.30.0
+
+
+# Conservative Django
+django==1.11.10 # pyup: <2.0
+
+# Configuration
+django-environ==0.4.4
+whitenoise==3.3.1
+
+
+# Forms
+django-crispy-forms==1.7.0
+
+# Models
+django-model-utils==3.1.1
+
+# Images
+Pillow==5.0.0
+
+# Password storage
+argon2-cffi==18.1.0
+
+# For user registration, either via email or social
+# Well-built with regular release cycles!
+django-allauth==0.34.0
+
+
+# Python-PostgreSQL Database Adapter
+psycopg2==2.7.3.2
+
+# Unicode slugification
+awesome-slugify==1.6.5
+
+# Time zones support
+pytz==2017.3
+
+# Redis support
+django-redis==4.8.0
+redis>=2.10.5
+
+
+
+
+
+# Your custom requirements go here
+#-e git://github.com/mikkonie/django-plugins.git@1bc07181e6ab68b0f9ed3a00382eb1f6519e1009#egg=django-plugins
+#-e git+ssh://git@cubi-gitlab.bihealth.org/CUBI_Engineering/CUBI_Data_Mgmt/sodar_core.git@v0.2.1#egg=django-sodar-core
+
