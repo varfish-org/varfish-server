@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load dict %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item" aria-current="page">
+      <i class="fas fa-home"></i> Home
+    </li>
+  </ol>
+</nav>
+
+<h1>Select case</h1>
+<ul>
+{% for entry in object_list %}
+    <li><a href="case/{{ entry }}/">{{ entry }}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title">ClinVar</h5>
+  </div>
+  <div class="card-body">
+    <div class="card-text">
+      {% if clinvar %}
+      <table class="table">
+        <thead>
+        <tr>
+          <th>Clinical Significance</th>
+          <th>All Traits</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for entry in clinvar %}
+        <tr>
+          <td>{{ entry.clinical_significance }}</td>
+          <td>{{ entry.all_traits|join:", " }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      No data.
+      {% endif %}
+    </div>
+  </div>
+</div>

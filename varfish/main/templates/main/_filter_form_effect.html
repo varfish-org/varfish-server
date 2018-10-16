@@ -1,0 +1,78 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+
+<div class="row pb-3 pt-3">
+  <h5 class="col-12">Effect Groups</h5>
+  <div class="col-2">
+    <div class="form-check">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_all">
+      <label class="form-check-label" for="id_effect_group_all">all</label>
+    </div>
+  </div>
+  <div class="col-2">
+    <div class="form-check">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_nonsynonymous">
+      <label class="form-check-label" for="id_effect_group_nonsynonymous">nonsynonymous</label>
+    </div>
+  </div>
+  <div class="col-2">
+    <div class="form-check">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_splicing">
+      <label class="form-check-label" for="id_effect_group_splicing">splicing</label>
+    </div>
+  </div>
+  <div class="col-2">
+    <div class="form-check">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_coding">
+      <label class="form-check-label" for="id_effect_group_coding">coding</label>
+    </div>
+  </div>
+  <div class="col-2">
+    <div class="form-check">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_utr_intronic">
+      <label class="form-check-label" for="id_effect_group_utr_intronic">UTR/intronic</label>
+    </div>
+  </div>
+  <div class="col-2">
+    <div class="form-check">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_noncoding">
+      <label class="form-check-label" for="id_effect_group_noncoding">non-coding</label>
+    </div>
+  </div>
+</div>
+<div class="row pb-3 pt-3">
+  <h5 class="col-12">Detailed Effects</h5>
+  <div class="col-3">{{ form.effect_coding_transcript_intron_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_complex_substitution|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_direct_tandem_duplication|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_disruptive_inframe_deletion|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_disruptive_inframe_insertion|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_downstream_gene_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_feature_truncation|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_five_prime_UTR_exon_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_five_prime_UTR_intron_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_frameshift_elongation|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_frameshift_truncation|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_frameshift_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_inframe_deletion|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_inframe_insertion|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_intergenic_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_internal_feature_elongation|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_missense_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_mnv|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_non_coding_transcript_exon_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_non_coding_transcript_intron_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_splice_acceptor_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_splice_donor_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_splice_region_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_start_lost|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_stop_gained|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_stop_lost|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_stop_retained_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_structural_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_synonymous_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_three_prime_UTR_exon_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_three_prime_UTR_intron_variant|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_transcript_ablation|as_crispy_field }}</div>
+  <div class="col-3">{{ form.effect_upstream_gene_variant|as_crispy_field }}</div>
+</div>

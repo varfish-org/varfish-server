@@ -1,0 +1,109 @@
+{% load humanize %}
+
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title">
+      1000 genomes
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="card-text">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Population</th>
+            <th>Allele Count</th>
+            <th>Allele Number</th>
+            <th>#Hom</th>
+            <th>#Hemi</th>
+            <th>#Het</th>
+            <th>Allele Frequency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>AFR</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>{{ thousandgenomes.af_afr|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>AMR</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>{{ thousandgenomes.af_amr|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>ASJ</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>EAS</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>{{ thousandgenomes.af_eas|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>FIN</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>EUR</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>{{ thousandgenomes.af_fin|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>OTH</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+          <tr>
+            <td>SAS</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>{{ thousandgenomes.af_sas|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>Total</td>
+            <td>{{ thousandgenomes.ac|default:0|intcomma }}</td>
+            <td>{{ thousandgenomes.an|default:0|intcomma }}</td>
+            <td>{{ thousandgenomes.hom|default:0|intcomma }}</td>
+            <td>-</td>
+            <td>{{ thousandgenomes.het|default:0|intcomma }}</td>
+            <td>{{ thousandgenomes.af|default:0|floatformat:6 }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

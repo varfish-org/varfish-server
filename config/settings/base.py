@@ -37,6 +37,7 @@ DJANGO_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',  # Handy template tags
 
     # Useful template tags:
     # 'django.contrib.humanize',
@@ -59,6 +60,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     # custom users app
     'varfish.users.apps.UsersConfig',
+    'varfish.main.apps.MainConfig',
     # Your stuff: custom apps go here
 ]
 

@@ -1,0 +1,33 @@
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title">AA Conservation</h5>
+  </div>
+  <div class="card-body">
+    {% if knowngeneaa %}
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Chromosome</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Alignment</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for entry in knowngeneaa %}
+      <tr>
+        <td>{{ entry.chromosome }}</td>
+        <td>{{ entry.start }}</td>
+        <td>{{ entry.end }}</td>
+        <td>
+          <code>{{ entry.alignment }}</code>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    No data.
+    {% endif %}
+  </div>
+</div>

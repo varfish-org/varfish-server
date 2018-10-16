@@ -1,0 +1,112 @@
+{% load humanize %}
+
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title">
+      gnomAD exomes
+      <a href="http://gnomad.broadinstitute.org/variant/{{ chromosome }}-{{ position }}-{{ reference }}-{{ alternative }}" class="btn btn-primary btn-sm" target="_blank">
+        <i class="fa fa-external-link-alt"></i>
+      </a>
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="card-text">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Population</th>
+            <th>Allele Count</th>
+            <th>Allele Number</th>
+            <th>#Hom</th>
+            <th>#Hemi</th>
+            <th>#Het</th>
+            <th>Allele Frequency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>AFR</td>
+            <td>{{ gnomadexomes.ac_afr|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.an_afr|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hom_afr|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hemi_afr|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.het_afr|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.af_afr|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>AMR</td>
+            <td>{{ gnomadexomes.ac_amr|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.an_amr|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hom_amr|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hemi_amr|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.het_amr|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.af_amr|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>ASJ</td>
+            <td>{{ gnomadexomes.ac_asj|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.an_asj|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hom_asj|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hemi_asj|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.het_asj|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.af_asj|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>EAS</td>
+            <td>{{ gnomadexomes.ac_eas|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.an_eas|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hom_eas|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hemi_eas|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.het_eas|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.af_eas|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>FIN</td>
+            <td>{{ gnomadexomes.ac_fin|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.an_fin|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hom_fin|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hemi_fin|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.het_fin|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.af_fin|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>NFE</td>
+            <td>{{ gnomadexomes.ac_nfe|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.an_nfe|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hom_nfe|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hemi_nfe|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.het_nfe|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.af_nfe|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>OTH</td>
+            <td>{{ gnomadexomes.ac_oth|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.an_oth|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hom_oth|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hemi_oth|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.het_oth|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.af_oth|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>SAS</td>
+            <td>{{ gnomadexomes.ac_sas|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.an_sas|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hom_sas|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hemi_sas|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.het_sas|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.af_sas|default:0|floatformat:6 }}</td>
+          </tr>
+          <tr>
+            <td>Total</td>
+            <td>{{ gnomadexomes.ac|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.an|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hom|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.hemi|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.het|default:0|intcomma }}</td>
+            <td>{{ gnomadexomes.af|default:0|floatformat:6 }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

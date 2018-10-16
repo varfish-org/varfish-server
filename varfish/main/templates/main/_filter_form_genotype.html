@@ -1,0 +1,39 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+
+<div class="row">
+  <div class="col">
+    <table class="table table-striped table-hover mt-3">
+      <thead>
+        <tr>
+          <th class="col-2">Individual</th>
+          <th class="col-2">Trio Role</th>
+          <th class="col-2">Father</th>
+          <th class="col-2">Mother</th>
+          <th class="col-2">Gender</th>
+          <th class="col-2">Affected</th>
+          <th class="col-2" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='text-left'><ul class='pl-3'><li><strong>any</strong>: don't apply genotype filter</li><li><strong>variant</strong>: allows genotypes '0/1' and '1/1'</li><li><strong>non-variant</strong>: allows genotypes '0/0' and './.'</li><li><strong>non-reference</strong>: allows genotypes that are a variant or './.'</li></ul></div>">Genotype</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for member in form.pedigree %}
+        <tr>
+          <td>{{ member.patient }}</td>
+          <td>{{ member.role }}</td>
+          <td>{{ member.father|default:"0" }}</td>
+          <td>{{ member.mother|default:"0" }}</td>
+          <td><i class="fa {% if member.gender %}fa-venus{% else %}fa-mars{% endif %}"></i></td>
+          <td><i class="fa {% if member.affected %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
+          <td>{% with x=member.fields|keyvalue:"gt" %}{{ form|keyvalue:x }}{% endwith %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="row">
+  <h5 class="col-12">Compound Heterozygous Settings</h5>
+  <div class="col-4" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='text-left'>Disabled if trio is not complete.<br />Disables genotype filter settings, quality settings apply.<br />Filters instead for variants that are present in one gene (identified by transcipt database gene identifier) with the following constraints:<br /><ul class='pl-3'><li>at least one variant is heterozygous in mother and index and homozygous reference in the father</li><li>at least one variant is heterozygous in father and index and homozygous in the mother</li></ul></div>">
+    {{ form.compound_recessive_enabled|as_crispy_field }}
+  </div>
+</div>
