@@ -116,7 +116,7 @@
                   href="#"
                   class="btn btn-secondary btn-sm"
                   {% endif %}
-                >GeneCards <i class="fa fa-external-link-alt"></i></a>
+                >GeneCards <i class="fa fa-external-link"></i></a>
                 <a
                   {% if hgnc.ucsc_id %}
                   href="{{ hgnc.ucsc_id }}"
@@ -126,7 +126,7 @@
                   href="#"
                   class="btn btn-secondary btn-sm"
                   {% endif %}
-                >UCSC <i class="fa fa-external-link-alt"></i></a>
+                >UCSC <i class="fa fa-external-link"></i></a>
                 <a
                   {% if hgnc.entrez_id %}
                   href="https://www.ncbi.nlm.nih.gov/gene/?term={{ hgnc.entrez_id }}"
@@ -136,7 +136,7 @@
                   href="#"
                   class="btn btn-secondary btn-sm"
                   {% endif %}
-                >RefSeq <i class="fa fa-external-link-alt"></i></a>
+                >RefSeq <i class="fa fa-external-link"></i></a>
                 <a
                   {% if hgnc.cosmic %}
                   href="https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln={{ hgnc.cosmic }}"
@@ -146,7 +146,7 @@
                   href="#"
                   class="btn btn-secondary btn-sm"
                   {% endif %}
-                >COSMIC <i class="fa fa-external-link-alt"></i></a>
+                >COSMIC <i class="fa fa-external-link"></i></a>
                 <a
                   {% if hgnc.omim_id %}
                   href="https://www.omim.org/entry/{{ hgnc.omim_id }}"
@@ -156,7 +156,7 @@
                   href="#"
                   class="btn btn-secondary btn-sm"
                   {% endif %}
-                >OMIM <i class="fa fa-external-link-alt"></i></a>
+                >OMIM <i class="fa fa-external-link"></i></a>
                 <a
                   {% if hgnc.ensembl_gene_id %}
                   href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g={{ hgnc.ensembl_gene_id }}"
@@ -166,7 +166,7 @@
                   href="#"
                   class="btn btn-secondary btn-sm"
                   {% endif %}
-                >EnsEMBL <i class="fa fa-external-link-alt"></i></a>
+                >EnsEMBL <i class="fa fa-external-link"></i></a>
               </div>
               <div class="btn-group">
                 <form target="_blank" method="POST" action="http://www.mutationtaster.org/cgi-bin/MutationTaster/MT_ChrPos.cgi">
@@ -174,7 +174,7 @@
                   <input type="hidden" name="position" value="{{ position }}">
                   <input type="hidden" name="ref" value="{{ reference }}">
                   <input type="hidden" name="alt" value="{{ alternative }}">
-                  <button type="submit" class="btn btn-primary btn-sm">MutationTaster <i class="fa fa-external-link-alt"></i></button>
+                  <button type="submit" class="btn btn-primary btn-sm">MutationTaster <i class="fa fa-external-link"></i></button>
                 </form>
               </div>
             </td>

@@ -8,7 +8,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     urls = urlpatterns
     # ...
 
-    icon = 'rocket'
+    icon = 'ship'
 
     entry_point_url_id = 'main:main'
 
@@ -30,7 +30,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     details_template = 'main/temp.html'
 
     #: App card title for the project details page
-    details_title = 'Example Project App Overview'
+    details_title = 'VarFish App Overview'
 
     #: Position in plugin ordering
     plugin_ordering = 100

@@ -24,7 +24,9 @@ from varfish.main.models import (
     Clinvar,
     KnowngeneAA,
 )
+from projectroles.models import Project
 from ._private import TsvReader
+from django.core.exceptions import ObjectDoesNotExist
 
 
 Table = namedtuple("Database", "table null release_required deduplicate")
@@ -73,6 +75,9 @@ class Command(BaseCommand):
         parser.add_argument(
             "--comment", help="Comment for the imported database"
         )
+        parser.add_argument(
+            "--uuid", help="define uuid for case and smallvariant import"
+        )
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -96,12 +101,26 @@ class Command(BaseCommand):
             except IntegrityError:
                 sys.exit("This import already exists!")
 
-
         # we have to import the case database manually such that django sets
         # the uuid field itself
         if options["database"] == "case":
+            if not options["uuid"]:
+                sys.exit(
+                    "Please specify --uuid when importing {}".format(
+                        options["database"]
+                    )
+                )
+
+            try:
+                project = Project.objects.get(sodar_uuid=options["uuid"])
+            except ObjectDoesNotExist:
+                sys.exit(
+                    "Project with UUID {} does not exist".format(options["uuid"])
+                )
+
             with TsvReader(options["path"], json_fields=["pedigree"]) as reader:
                 for entry in reader:
+                    entry["project"] = project
                     database.table.objects.get_or_create(**entry)
                 return
 

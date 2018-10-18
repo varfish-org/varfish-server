@@ -48,15 +48,15 @@ class SmallVariant(models.Model):
     #    before_change = models.IntegerField(null=True)
     #    after_change = models.IntegerField(null=True)
     #    inserted_bases = models.CharField(max_length=512, null=True)
-    project = models.ForeignKey(
-        Project,
-        help_text='Project in which this objects belongs',
-    )
-    sodar_uuid = models.UUIDField(
-        default=uuid_object.uuid4,
-        unique=True,
-        help_text='SmallVariant SODAR UUID',
-    )
+    # project = models.ForeignKey(
+    #     Project,
+    #     help_text='Project in which this objects belongs',
+    # )
+    # sodar_uuid = models.UUIDField(
+    #     default=uuid_object.uuid4,
+    #     unique=True,
+    #     help_text='SmallVariant SODAR UUID',
+    # )
     objects = CopyManager()
 
     class Meta:
@@ -144,18 +144,13 @@ class SmallVariant(models.Model):
 
 
 class Case(models.Model):
-    uuid = models.UUIDField(default=uuid_object.uuid4, unique=True)
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text='Case SODAR UUID')
     name = models.CharField(max_length=512)
     index = models.CharField(max_length=32)
     pedigree = JSONField()
     project = models.ForeignKey(
         Project,
         help_text='Project in which this objects belongs',
-    )
-    sodar_uuid = models.UUIDField(
-        default=uuid_object.uuid4,
-        unique=True,
-        help_text='Case SODAR UUID',
     )
 
     class Meta:

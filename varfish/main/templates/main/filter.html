@@ -1,23 +1,29 @@
-{% extends "base.html" %}
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
 {% load crispy_forms_tags %}
 {% load dict %}
 {% load humanize %}
 {% load static %}
 
-{% block content %}
+{% block projectroles_extend %}
+
+{% has_perm 'varfish.main.view_data' request.user project as can_view_data %}
+
+{% if can_view_data %}
 
 <nav aria-label="breadcrumb pt-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item" aria-current="page">
       <a href="{% url 'main:main' project=project.sodar_uuid %}">
-        <i class="fas fa-home"></i> Home
+        <i class="fa fa-home"></i> Home
       </a>
     </li>
     <li class="breadcrumb-item" aria-current="page">
         <a href="{% url 'main:main' project=project.sodar_uuid %}">
           Cases
         </a>
-    </li>"
+    </li>
     <li class="breadcrumb-item active" aria-current="page">
         {{ case_name }}
     </li>
@@ -100,7 +106,7 @@
       <tbody>
       {% for entry in main %}
       <tr>
-        <td class="clickable extend" counter="{{ forloop.counter0 }}" url="/api/extend/{{ entry.release }}-{{ entry.chromosome }}-{{ entry.position }}-{{ entry.reference }}-{{ entry.alternative }}" data-toggle="collapse" data-target="#expand{{ forloop.counter0 }}" aria-expanded="false" aria-controls="expand{{ forloop.counter0 }}" aria-hidden="true"><i class="fa fa-chevron-right"></i></td>
+        <td class="clickable extend" counter="{{ forloop.counter0 }}" url="{% url 'main:extend' project=project.sodar_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" data-toggle="collapse" data-target="#expand{{ forloop.counter0 }}" aria-expanded="false" aria-controls="expand{{ forloop.counter0 }}" aria-hidden="true"><i class="fa fa-chevron-right"></i></td>
         <td>chr{{ entry.chromosome }}:{{ entry.position|intcomma }}</td>
         <td>{{ entry.reference|truncatechars:9 }}</td>
         <td>{{ entry.alternative|truncatechars:9 }}</td>
@@ -308,10 +314,10 @@
           <div class="row align-right">
             <div class="col">
               <div class="btn-group">
-                <a class="btn btn-primary btn-sm" href="/variant/{{ form.database_select.data }}-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.position }}-{{ entry.reference }}-{{ entry.alternative }}" target="_blank">
+                <a class="btn btn-primary btn-sm" href="{% url 'main:variant' project=project.sodar_uuid database=form.database_select.data release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" target="_blank">
                   Detail view
                 </a>
-                <a class="btn btn-primary btn-sm" href="/gene/{{ entry.gene_id }}" target="_blank">
+                <a class="btn btn-primary btn-sm" href="{% url 'main:gene' project=project.sodar_uuid gene_id=entry.gene_id %}" target="_blank">
                   Gene view
                 </a>
               </div>
@@ -325,6 +331,8 @@
     {% endif %}
   </div>
 </div>
+
+{% endif %}
 
 {% endblock %}
 

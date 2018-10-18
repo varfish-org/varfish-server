@@ -3,8 +3,6 @@ from django.views.generic import FormView, ListView, TemplateView, View
 from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
 from django.contrib import messages
 from django.forms.models import model_to_dict
 from .forms import FilterForm
@@ -69,12 +67,14 @@ class FrequencyMixin:
 class MainView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin,
                 ProjectContextMixin, ListView):
     template_name = "main/case_select.html"
-    permission_required = 'vatfish.main.view_data'
+    permission_required = 'varfish.main.view_data'
     model = Case
 
 
-class FilterView(FormView):
+class FilterView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin,
+                ProjectContextMixin, FormView):
     template_name = "main/filter.html"
+    permission_required = 'varfish.main.view_data'
     form_class = FilterForm
     success_url = "."
 
@@ -243,7 +243,9 @@ class FilterView(FormView):
         return context
 
 
-class GeneView(TemplateView):
+class GeneView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin,
+                ProjectContextMixin, TemplateView):
+    permission_required = 'varfish.main.view_data'
     template_name = "main/gene.html"
 
     def get(self, *args, **kwargs):
@@ -281,8 +283,10 @@ class GeneView(TemplateView):
         )
 
 
-class VariantView(FrequencyMixin, TemplateView):
+class VariantView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin,
+                ProjectContextMixin, FrequencyMixin, TemplateView):
     template_name = "main/variant.html"
+    permission_required = 'varfish.main.view_data'
 
     def get(self, *args, **kwargs):
         self.kwargs = kwargs
@@ -418,9 +422,9 @@ class VariantView(FrequencyMixin, TemplateView):
 
 # Switch to API view when integrating in SODAR
 #class ExtendAPIView(APIView):
-class ExtendAPIView(FrequencyMixin, View):
-    #authentication_classes = (BasicAuthentication,)
-    #permission_classes = (IsAuthenticated,)
+class ExtendAPIView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin,
+                ProjectContextMixin, FrequencyMixin, View):
+    permission_required = 'varfish.main.view_data'
 
     def get(self, *args, **kwargs):
         self.kwargs = kwargs

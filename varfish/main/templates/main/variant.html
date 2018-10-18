@@ -1,20 +1,26 @@
-{% extends "base.html" %}
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
 {% load crispy_forms_tags %}
 {% load dict %}
 {% load humanize %}
 {% load static %}
 
-{% block content %}
+{% block projectroles_extend %}
+
+{% has_perm 'varfish.main.view_data' request.user project as can_view_data %}
+
+{% if can_view_data %}
 
 <nav aria-label="breadcrumb pt-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item" aria-current="page">
-      <a href="{% url 'main:main' %}">
-        <i class="fas fa-home"></i> Home
+      <a href="{% url 'main:main' project=project.sodar_uuid %}">
+        <i class="fa fa-home"></i> Home
       </a>
     </li>
     <li class="breadcrumb-item" aria-current="page">
-      <a href="{% url 'main:main' %}">
+      <a href="{% url 'main:main' project=project.sodar_uuid %}">
         Variant
       </a>
     </li>
@@ -29,7 +35,7 @@
   {% if rsid %}
   <span class="badge badge-success">{{ rsid }}</span>
   <a target="_blank" class="btn btn-primary btn-sm" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ rsid|slice:'2:' }}">
-    dbSNP <i class="fa fa-external-link-alt"></i>
+    dbSNP <i class="fa fa-external-link"></i>
   </a>
   {% endif %}
 </h3>
@@ -71,5 +77,7 @@
     {% include "main/_card_clinvar.html" %}
   </div>
 </div>
+
+{% endif %}
 
 {% endblock %}
