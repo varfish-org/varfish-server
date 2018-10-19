@@ -1,23 +1,19 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.generic import FormView, ListView, TemplateView, View
 from django.http import HttpResponse
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django.contrib import messages
+#from rest_framework.views import APIView
+#from rest_framework.response import Response
+#from django.contrib import messages
 from django.forms.models import model_to_dict
 from .forms import FilterForm
 from .models import SmallVariant, Case, Hgnc, Annotation, Exac, Clinvar, GnomadExomes, EnsemblToKegg, RefseqToKegg, KeggInfo, \
     Mim2geneMedgen, Hpo, Dbsnp, KnowngeneAA, GnomadGenomes, ThousandGenomes
 from .models_support import QueryBuilder
-import re
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from projectroles.views import LoggedInPermissionMixin, \
     ProjectContextMixin, ProjectPermissionMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-
-#REGEX = re.compile("c\.(\d+)[ACGT]+>[ACGT]+")
 
 
 class FrequencyMixin:

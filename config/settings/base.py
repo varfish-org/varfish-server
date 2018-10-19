@@ -60,8 +60,16 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     # custom users app
     'varfish.users.apps.UsersConfig',
-    'varfish.main.apps.MainConfig',
     # Your stuff: custom apps go here
+    'varfish.annotation.apps.AnnotationConfig',
+    'varfish.clinvar.apps.ClinvarConfig',
+    'varfish.conservation.apps.ConservationConfig',
+    'varfish.dbsnp.apps.DbsnpConfig',
+    'varfish.frequencies.apps.FrequenciesConfig',
+    'varfish.geneinfo.apps.GeneinfoConfig',
+    'varfish.importer.apps.ImporterConfig',
+    'varfish.pathways.apps.PathwaysConfig',
+    'varfish.variants.apps.VariantsConfig',
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
