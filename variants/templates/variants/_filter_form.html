@@ -1,0 +1,83 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+{% load humanize %}
+
+<form id="filterForm" method="post">{% csrf_token %}
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-3">Filter Settings</h5>
+
+      <ul class="nav nav-tabs card-header-tabs" style="border-bottom: 0;">
+        <li class="nav-item">
+          <a class="nav-link active" id="frequency-tab" data-toggle="tab" href="#panel-frequency" role="tab">Frequency</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="effect-tab" data-toggle="tab" href="#panel-effect" role="tab">Effect</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="genotype-tab" data-toggle="tab" href="#panel-genotype" role="tab">Genotype</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="quality-tab" data-toggle="tab" href="#panel-quality" role="tab">Quality</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="blacklist-tab" data-toggle="tab" href="#panel-blacklist" role="tab">Gene Blacklist</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="settings-tab" data-toggle="tab" href="#panel-settings" role="tab">Settings JSON</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card-body">
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="panel-frequency" role="tabpanel" aria-labelledby="frequency-tab">
+          {% include "variants/_filter_form_frequency.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-effect" role="tabpanel" aria-labelledby="effect-tab">
+          {% include "variants/_filter_form_effect.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-genotype" role="tabpanel" aria-labelledby="genotype-tab">
+          {% include "variants/_filter_form_genotype.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-quality" role="tabpanel" aria-labelledby="quality-tab">
+          {% include "variants/_filter_form_quality.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-blacklist" role="tabpanel" aria-labelledby="blacklist-tab">
+          {% include "variants/_filter_form_blacklist.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-settings" role="tabpanel" arial-labelledby="settings-tab">
+          {% include "variants/_filter_form_settings.html" %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-left">
+          <div class="btn-group btn-group-toggle pr-5" data-toggle="buttons">
+            {% for radio in form.database_select %}
+            <label class="btn btn-outline-secondary {% if radio.data.selected %}active{% endif %}" for="{{ radio.id_for_label }}" data-toggle="tooltip" title="Select {{ radio.choice_label }} transcripts">
+              {{ radio.tag }} {{ radio.choice_label }}
+            </label>
+            {% endfor %}
+          </div>
+          <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            <label for="{{ form.var_type_mnv.id_for_label }}" class="btn btn-outline-secondary {% if form.var_type_mnv.value %}active{% endif %}" data-toggle="tooltip" title="Select MNVs">
+              {{ form.var_type_mnv }} {{ form.var_type_mnv.label }}
+            </label>
+            <label for="{{ form.var_type_snv.id_for_label }}" class="btn btn-outline-secondary {% if form.var_type_snv.value %}active{% endif %}" data-toggle="tooltip" title="Select SNVs">
+              {{ form.var_type_snv }} {{ form.var_type_snv.label }}
+            </label>
+            <label for="{{ form.var_type_indel.id_for_label }}" class="btn btn-outline-secondary {% if form.var_type_indel.value %}active{% endif %}" data-toggle="tooltip" title="Select InDels">
+              {{ form.var_type_indel }} {{ form.var_type_indel.label }}
+            </label>
+          </div>
+        </div>
+        <div class="col text-right">
+          <input name="submit" type="submit" value="Submit" class="btn btn-primary" />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

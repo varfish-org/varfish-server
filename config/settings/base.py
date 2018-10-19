@@ -61,15 +61,16 @@ LOCAL_APPS = [
     # custom users app
     'varfish.users.apps.UsersConfig',
     # Your stuff: custom apps go here
-    'varfish.annotation.apps.AnnotationConfig',
-    'varfish.clinvar.apps.ClinvarConfig',
-    'varfish.conservation.apps.ConservationConfig',
-    'varfish.dbsnp.apps.DbsnpConfig',
-    'varfish.frequencies.apps.FrequenciesConfig',
-    'varfish.geneinfo.apps.GeneinfoConfig',
-    'varfish.importer.apps.ImporterConfig',
-    'varfish.pathways.apps.PathwaysConfig',
-    'varfish.variants.apps.VariantsConfig',
+    'annotation.apps.AnnotationConfig',
+    'clinvar.apps.ClinvarConfig',
+    'conservation.apps.ConservationConfig',
+    'dbsnp.apps.DbsnpConfig',
+    'frequencies.apps.FrequenciesConfig',
+    'geneinfo.apps.GeneinfoConfig',
+    'importer.apps.ImporterConfig',
+    'pathways.apps.PathwaysConfig',
+    'variants.apps.VariantsConfig',
+    'templatetags.apps.TemplatetagsConfig',
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

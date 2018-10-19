@@ -1,0 +1,660 @@
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
+{% load crispy_forms_tags %}
+{% load dict %}
+{% load humanize %}
+{% load static %}
+
+{% block projectroles_extend %}
+
+{% has_perm 'variants.view_data' request.user project as can_view_data %}
+
+{% if can_view_data %}
+
+<nav aria-label="breadcrumb pt-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item" aria-current="page">
+      <a href="{% url 'variants:case' project=project.sodar_uuid %}">
+        <i class="fa fa-home"></i> Home
+      </a>
+    </li>
+    <li class="breadcrumb-item" aria-current="page">
+        <a href="{% url 'variants:case' project=project.sodar_uuid %}">
+          Cases
+        </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">
+        {{ case_name }}
+    </li>
+  </ol>
+</nav>
+
+<div class="row mb-3">
+  <div class="col">
+    {% include "variants/_filter_form.html" %}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    {% if not main %}
+    <h2>
+      Empty Result Set
+      <small class="text-muted">
+        Try again with different settings?
+      </small>
+    </h2>
+    {% else %}
+    <h2>
+      Results
+      <span class="badge badge-pill badge-success">{{ main|length }}</span>
+      <span class="badge badge-pill badge-warning">
+        {% if form.database_select.data == "refseq" %}
+        RefSeq
+        {% elif form.database_select.data == "ensembl" %}
+        EnsEMBL
+        {% endif %}
+      </span>
+      {% if form.thousand_genomes_enabled.data %}
+      <span class="badge badge-pill badge-secondary">1000 genomes</span>
+      {% endif %}
+      {% if form.gnomad_exomes_enabled.data %}
+      <span class="badge badge-pill badge-secondary">gnomAD exomes</span>
+      {% endif %}
+      {% if form.gnomad_genomes_enabled.data %}
+      <span class="badge badge-pill badge-secondary">gnomAD genomes</span>
+      {% endif %}
+      {% if form.exac_enabled.data %}
+      <span class="badge badge-pill badge-secondary">ExAC</span>
+      {% endif %}
+      {% if form.var_type_mnv.data %}
+      <span class="badge badge-pill badge-info">MNV</span>
+      {% endif %}
+      {% if form.var_type_snv.data %}
+      <span class="badge badge-pill badge-info">SNV</span>
+      {% endif %}
+      {% if form.var_type_indel.data %}
+      <span class="badge badge-pill badge-info">InDel</span>
+      {% endif %}
+    </h2>
+    <table class="table" id="main">
+      <thead>
+      <tr>
+        <th></th>
+        <th>Position</th>
+        <th>Ref</th>
+        <th>Alt</th>
+        <th>dbSNP</th>
+        <th class="rotate"><div>Frq ExAC</div></th>
+        <th class="rotate"><div>Frq gnomAD exomes</div></th>
+        <th class="rotate"><div>Frq gnomAD genomes</div></th>
+        <th class="rotate"><div>Frq 1000G</div></th>
+        <th class="rotate"><div>Hom ExAC</div></th>
+        <th class="rotate"><div>Hom gnomAD exomes</div></th>
+        <th class="rotate"><div>Hom gnomAD genomes</div></th>
+        <th class="rotate"><div>Hom 1000G</div></th>
+        <th class="rotate"><div>Gene</div></th>
+        <th class="rotate"><div>Effect</div></th>
+        {% for member in form.pedigree %}
+        <th class="rotate"><div>{{ member.patient }}</div></th>
+        {% endfor %}
+        <th></th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for entry in main %}
+      <tr>
+        <td class="clickable extend" counter="{{ forloop.counter0 }}" url="{% url 'variants:extend' project=project.sodar_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" data-toggle="collapse" data-target="#expand{{ forloop.counter0 }}" aria-expanded="false" aria-controls="expand{{ forloop.counter0 }}" aria-hidden="true"><i class="fa fa-chevron-right"></i></td>
+        <td>chr{{ entry.chromosome }}:{{ entry.position|intcomma }}</td>
+        <td>{{ entry.reference|truncatechars:9 }}</td>
+        <td>{{ entry.alternative|truncatechars:9 }}</td>
+        <td>
+          {% if entry.rsid %}
+          <a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ entry.rsid|slice:'2:' }}">
+            {{ entry.rsid }}
+          </a>
+          {% else %}
+          -
+          {% endif %}
+        </td>
+        <td>{{ entry.exac_frequency|floatformat:5|default:"-" }}</td>
+        <td>{{ entry.gnomad_exomes_frequency|floatformat:5|default:"-" }}</td>
+        <td>{{ entry.gnomad_genomes_frequency|floatformat:5|default:"-" }}</td>
+        <td>{{ entry.thousand_genomes_frequency|floatformat:5|default:"-" }}</td>
+        <td>{{ entry.exac_homozygous|default_if_none:"-" }}</td>
+        <td>{{ entry.gnomad_exomes_homozygous|default_if_none:"-" }}</td>
+        <td>{{ entry.gnomad_genomes_homozygous|default_if_none:"-" }}</td>
+        <td>{{ entry.thousand_genomes_homozygous|default_if_none:"-" }}</td>
+        <td>
+          {% if not entry.symbol %}
+            -
+          {% else %}
+            <div class="btn-group">
+              <button
+                type="button"
+                title="Go to locus in IGV"
+                class="btn btn-outline-dark btn-sm">
+                {{ entry.symbol|default:"." }}
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="https://www.omim.org/search/?search={{ entry.symbol }}" target="_blank">
+                  Gene @OMIM
+                </a>
+                <a class="dropdown-item" href="https://www.genecards.org/cgi-bin/carddisp.pl?gene={{ entry.symbol }}" target="_blank">
+                  Gene @GeneCards
+                </a>
+                <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/gene/?term=({{ entry.symbol }}+AND+&quot;Homo+sapiens&quot;)" target="_blank">
+                  Gene @Entrez
+                </a>
+                <a class="dropdown-item" href="https://www.genenames.org/cgi-bin/gene_symbol_report?match={{ entry.symbol }}" target="_blank">
+                  Gene @HGNC
+                </a>
+              </div>
+            </div>
+          {% endif %}
+        </td>
+        <td>
+          <span data-toggle="tooltip" title="{{ entry.effect|join:', ' }}">
+            {{ entry.hgvs_p }}
+          </span>
+        </td>
+        {% for member in form.pedigree %}
+        <td>
+          <span data-toggle="tooltip" data-html="true" title="
+            GT quality: {{ entry.gq|keyvalue:member.patient }}
+            <br />
+            variant reads: {{ entry.ad|keyvalue:member.patient }} /
+            {{ entry.dp|keyvalue:member.patient }}
+            ">
+            {{ entry.gt|keyvalue:member.patient }}
+          </span>
+        </td>
+        {% endfor %}
+        <td>
+          <div class="btn-group pr-2">
+            <a
+              href="javascript:mutationTaster('chr{{ entry.chromosome }}', {{ entry.position }}, '{{ entry.reference }}', '{{ entry.alternative }}');"
+              target="_blank"
+              title="Open variant in MutationTaster"
+              class="btn btn-primary btn-sm">
+              MT
+            </a>
+            <button
+              type="button"
+              onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }}'})"
+              title="Go to locus in IGV"
+              class="btn btn-secondary btn-sm">
+              IGV
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg19&position={{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }}" target="_blank">
+                Locus @UCSC
+              </a>
+              <a class="dropdown-item" href="http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/?name={{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }};search=Search" target="_blank">
+                Locus @DGV
+              </a>
+            </div>
+          </div>
+        </td>
+        <td>
+          {% if entry.in_clinvar %}
+          <i title="Present in ClinVar" class="fa fa-medkit text-danger"></i>
+          {% endif %}
+        </td>
+      </tr>
+      <tr id="expand{{ forloop.counter0 }}" class="collapse">
+        <td colspan='{{ form.pedigree|length|add:"17" }}'>
+          <div class="row pb-3">
+            <div class="col-4">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">Transcript information</h5>
+                </div>
+                <div class="card-body">
+                  <table class="table">
+                    <tbody>
+                    <tr>
+                      <td>Effects</td>
+                      <td>
+                        {% for effect in entry.effect %}
+                        <span class="badge badge-pill color-effect">{{ effect }}</span>
+                        {% endfor %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>HGVS_C</td>
+                      <td>{{ entry.hgvs_c }}</td>
+                    </tr>
+                    <tr>
+                      <td>HGVS_P</td>
+                      <td>{{ entry.hgvs_p }}</td>
+                    </tr>
+                    <tr>
+                      <td>Coding</td>
+                      <td>{% if entry.transcript_coding %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-ban"></i>{% endif %}</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-8">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">Frequencies</h5>
+                </div>
+                <div class="card-body" id="frequency{{ forloop.counter0 }}">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row pb-3">
+            <div class="col-4">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">ClinVar</h5>
+                </div>
+                <div class="card-body" id="clinvar{{ forloop.counter0 }}">
+                </div>
+              </div>
+            </div>
+            <div class="col-8">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">Genotype information</h5>
+                </div>
+                <div class="card-body">
+                  <table class="table">
+                    <thead>
+                    <tr>
+                      <th></th>
+                      {% for member in form.pedigree %}
+                      <th>{{ member.patient }}</th>
+                      {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                      <td>GT quality</td>
+                      {% for member in form.pedigree %}
+                      <td>{{ entry.gq|keyvalue:member.patient }}</td>
+                      {% endfor %}
+                    </tr>
+                    <tr>
+                      <td>variant reads</td>
+                      {% for member in form.pedigree %}
+                      <td>{{ entry.ad|keyvalue:member.patient }}</td>
+                      {% endfor %}
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row pb-3">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">AA Conservation</h5>
+                </div>
+                <div class="card-body" id="knowngeneaa{{ forloop.counter0 }}">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row align-right">
+            <div class="col">
+              <div class="btn-group">
+                <a class="btn btn-primary btn-sm" href="{% url 'annotation:variant' project=project.sodar_uuid database=form.database_select.data release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" target="_blank">
+                  Detail view
+                </a>
+                <a class="btn btn-primary btn-sm" href="{% url 'geneinfo:gene' project=project.sodar_uuid gene_id=entry.gene_id %}" target="_blank">
+                  Gene view
+                </a>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+</div>
+
+{% endif %}
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+
+<script type="text/javascript">
+var effectGroups = {
+  all: [
+  ],
+  nonsynonymous: [
+    "complex_substitution",
+    "direct_tandem_duplication",
+    "disruptive_inframe_deletion",
+    "disruptive_inframe_insertion",
+    "feature_truncation",
+    "frameshift_elongation",
+    "frameshift_truncation",
+    "frameshift_variant",
+    "inframe_deletion",
+    "inframe_insertion",
+    "internal_feature_elongation",
+    "missense_variant",
+    "mnv",
+    "start_lost",
+    "stop_gained",
+    "stop_lost",
+    "structural_variant",
+    "transcript_ablation"
+  ],
+  splicing: [
+    "splice_acceptor_variant",
+    "splice_donor_variant",
+    "splice_region_variant"
+  ],
+  coding: [
+    "stop_retained_variant",
+    "synonymous_variant"
+  ],
+  utr_intronic: [
+    "coding_transcript_intron_variant",
+    "five_prime_UTR_exon_variant",
+    "five_prime_UTR_intron_variant",
+    "three_prime_UTR_exon_variant",
+    "three_prime_UTR_intron_variant"
+  ],
+  noncoding: [
+    "downstream_gene_variant",
+    "intergenic_variant",
+    "downstream_gene_variant",
+    "downstream_gene_variant",
+    "non_coding_transcript_exon_variant",
+    "non_coding_transcript_intron_variant",
+    "upstream_gene_variant"
+  ],
+};
+
+effectGroups.all = effectGroups.nonsynonymous
+  .concat(effectGroups.splicing)
+  .concat(effectGroups.coding)
+  .concat(effectGroups.utr_intronic)
+  .concat(effectGroups.noncoding);
+
+function updateEffectGroup(group) {
+  let all = _.every(effectGroups[group], function (s) { return $("#id_effect_" + s).prop("checked"); });
+  let none = _.every(effectGroups[group], function (s) { return !$("#id_effect_" + s).prop("checked"); });
+  if (all) {
+    $("#id_effect_group_" + group).prop("checked", true);
+    $("#id_effect_group_" + group).prop("indeterminate", false);
+  } else if (none) {
+    $("#id_effect_group_" + group).prop("checked", false);
+    $("#id_effect_group_" + group).prop("indeterminate", false);
+  } else {
+    $("#id_effect_group_" + group).prop("checked", false);
+    $("#id_effect_group_" + group).prop("indeterminate", true);
+  }
+}
+
+function updateCheckboxes(event) {
+  if (this.blocked) {
+    return;
+  } else {
+    this.blocked = true;
+  }
+
+  if (event !== null && $(this).attr('id').startsWith('id_effect_group_')) {
+      // Clicked one of the group buttons itself.
+      let id = $(this).attr('id').substring("id_effect_group_".length);
+      let checked = $(this).prop('checked');
+      for (value in effectGroups[id]) {
+        $("#id_effect_" + effectGroups[id][value]).prop("checked", checked);
+      }
+
+      for (group in effectGroups) {
+        if (group != id) {
+          updateEffectGroup(group);
+        }
+      }
+  } else {
+    for (key in effectGroups) {
+      // Clicked one of the detailed buttons.
+      updateEffectGroup(key);
+    }
+  }
+
+  this.blocked = false;
+}
+updateCheckboxes.blocked = false;
+
+$(document).ready(function() {
+  updateCheckboxes(null);
+  $(".checkboxinput").change(updateCheckboxes);
+});
+
+function mutationTaster(chromosome, position, ref, alt) {
+    let form = $('<form target="_blank" method="POST" action="http://www.mutationtaster.org/cgi-bin/MutationTaster/MT_ChrPos.cgi">');
+    form.append($('<input type="hidden" name="chromosome" value="' + chromosome + '">'));
+    form.append($('<input type="hidden" name="position" value="' + position + '">'));
+    form.append($('<input type="hidden" name="ref" value="' + ref + '">'));
+    form.append($('<input type="hidden" name="alt" value="' + alt + '">'));
+    $('body').append(form);
+    form.submit();
+}
+
+function default0(value) {
+  return (Object.is(value, undefined) ? 0 : value);
+}
+
+$('.extend').click(function() {
+  var counter = $(this).attr('counter');
+  $("i", this).toggleClass('fa-chevron-right');
+  $("i", this).toggleClass('fa-chevron-down');
+  if (!$(this).hasClass('ajax-executed')) {
+    $.ajax({
+      url: $(this).attr('url'),
+      method: 'GET',
+      dataType: 'json',
+      error: function(xhr) {
+        alert('Request Status: ' + xhr.status + '\nStatus Text: ' + xhr.statusText + '\nResponse Text: ' + xhr.responseText);
+      }
+    }).done(function (data) {
+      var table = '<table class="table">';
+      table += '<thead><tr><th colspan=2></th><th>AFR</th><th>AMR</th><th>ASJ</th><th>EAS</th><th>FIN</th><th>NFE</th><th>OTH</th><th>SAS</th><th>Total</th></tr></thead>';
+      var pops = ["afr", "amr", "asj", "eas", "fin", "nfe", "oth", "sas"];
+      var dbs = ["gnomadexomes", "gnomadgenomes", "exac", "thousandgenomes"];
+      var dbs_head = ["gnomAD exomes", "gnomAD genomes", "ExAC", "1000 genomes"];
+      var typs = ["af", "hom", "het"];
+      var typs_head = ["Frq", "Hom", "Het"];
+      for (var i=0; i<dbs.length; ++i) {
+        table += '<tr>';
+        table += '<td rowspan=3><a href="http://' + dbs[i] + '.broadinstitute.org/variant/' + data["chromosome"] + '-' + data["position"] + '-' + data["reference"] + '-' + data["alternative"] + '" class="btn btn-primary btn-sm" target="_blank">' + dbs_head[i] + ' <i class="fa fa-external-link-alt"></i></a></td>';
+        for (var j=0; j<typs.length; ++j) {
+          if (j > 0) {
+            table += '</tr><tr>';
+          }
+          table += '<td>' + typs_head[j] + '</td>';
+          for (var k=0; k<pops.length; ++k) {
+            if (dbs[i] == "exac" && pops[k] == "asj") {
+              table += '<td>-</td>';
+            }
+            else if (dbs[i] == "gnomadgenomes" && pops[k] == "sas") {
+              table += '<td>-</td>';
+            }
+            else if (dbs[i] == "thousandgenomes" && (pops[k] == "asj" || pops[k] == "fin" || pops[k] == "oth" || pops[k] == "nfe")) {
+              if (pops[k] == "nfe") {
+                table += '<td>' + default0(data[dbs[i]][typs[j] + '_eur']) + '</td>';
+              }
+              else {
+                table += '<td>-</td>';
+              }
+            }
+            else {
+              table += '<td>' + default0(data[dbs[i]][typs[j] + '_' + pops[k]]) + '</td>';
+            }
+          }
+          table += '<td>' + default0(data[dbs[i]][typs[j]]) + '</td>';
+        }
+        table += '</tr></tbody></thead>';
+      }
+      $("#frequency" + counter).append(table);
+      var clinvar = 'No data.';
+      if (data["clinvar"].length > 0) {
+        clinvar = '<table class="table">';
+        clinvar += '<thead><tr><th>Clinical Significance</th><th>All Traits</th></tr></thead>';
+        clinvar += '<tbody>';
+        for (let i=0; i < data["clinvar"].length; ++i) {
+          clinvar += '<tr>';
+          clinvar += '<td>' + data["clinvar"][i]["clinical_significance"] + '</td>';
+          clinvar += '<td>';
+          clinvar += data["clinvar"][i]["all_traits"].join(",");
+          clinvar += '</td>';
+          clinvar += '</tr>';
+        }
+        clinvar += '</tbody></table>';
+      }
+      $("#clinvar" + counter).append(clinvar);
+      var knowngeneaa = 'No data.';
+      if (data["knowngeneaa"].length > 0) {
+        knowngeneaa = '<table class="table">';
+        knowngeneaa += '<thead><tr><th>Chromosome</th><th>Start</th><th>End</th><th>Alignment</th></tr></thead>';
+        knowngeneaa += '<tbody>';
+        for (let i=0; i < data["knowngeneaa"].length; ++i) {
+          knowngeneaa += '<tr>';
+          knowngeneaa += '<td>' + data["knowngeneaa"][i]["chromosome"] + '</td>';
+          knowngeneaa += '<td>' + data["knowngeneaa"][i]["start"] + '</td>';
+          knowngeneaa += '<td>' + data["knowngeneaa"][i]["end"] + '</td>';
+          knowngeneaa += '<td><code>' + data["knowngeneaa"][i]["alignment"] + '</code></td>';
+          knowngeneaa += '</tr>';
+        }
+        knowngeneaa += '</tbody></table>';
+      }
+      $("#knowngeneaa" + counter).append(knowngeneaa);
+    });
+  }
+  $(this).addClass('ajax-executed');
+});
+
+$("#settingsDownload").click(
+  function() {
+    var dump = $("#settingsDump").val();
+    $(this).attr('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(dump));
+    $(this).attr('download', 'settings_dump.json');
+  }
+);
+
+function activateClass(o) {
+  if (!$(o).hasClass("active")) {
+    $(o).addClass("active");
+  }
+}
+
+function updateSettings() {
+  var settings = JSON.parse($("#settingsDump").val());
+  var endings = ["_gt", "_dp", "_ad", "_gq", "_fail", "_ab"];
+  var failed = [];
+  for (var key in settings) {
+    for (var j = 0; j < endings.length; ++j) {
+      if (key.endsWith(endings[j]) && !$("#filterForm").find("input[name=" + key + "], select[name=" + key + "]").length) {
+        patient = key.slice(0, key.length - endings[j].length);
+        if (!failed.includes(patient)) {
+          failed.push(patient);
+        }
+      }
+    }
+    $("#filterForm").find("input[name=" + key + "], select[name=" + key + "], textarea[name=" + key + "]").each(
+      function(i) {
+        if ($(this).is(":radio")) {
+          label = "label[for='id_" + key + "_" + i + "']";
+          if ($(this).val() == settings[key]) {
+            activateClass(label);
+            $(this).prop("checked", true);
+          }
+          else {
+            $(this).prop("checked", false);
+            $(label).removeClass("active");
+          }
+        }
+        else if ($(this).is(":checkbox")) {
+          label = "label[for='id_" + key + "']";
+          if (settings[key]) {
+            activateClass(label);
+          }
+          else {
+            $(label).removeClass("active");
+          }
+          $(this).prop("checked", settings[key]);
+        }
+        else {
+          // also valid for select and textarea
+          $(this).val(settings[key]);
+        }
+      }
+    );
+  }
+  if (failed.length) {
+    alert("The following patients do not exist in pedigree: " + failed.join(", ") + ".\nPlease check your JSON input.");
+  }
+}
+
+$("#settingsSet").click(updateSettings);
+//$("#settingsGet").click(updateSettingsDump);
+//$("#settingsDump").change(updateSettings);
+
+function updateSettingsDump() {
+  var settings = {};
+  $("#filterForm").find("input, select, textarea").each(
+    function() {
+      if ($(this).is(":radio")) {
+        if ($(this).is(":checked")) {
+          settings[$(this).attr("name")] = $(this).val();
+        }
+      }
+      else if ($(this).is(":checkbox")) {
+        settings[$(this).attr("name")] = $(this).is(":checked");
+      }
+      else if ($(this).is("select")) {
+        settings[$(this).attr("name")] = $(this).find("option:selected").val();
+      }
+      else {
+        if ($(this).attr("name") == "settingsDump") {
+          return true;
+        }
+        settings[$(this).attr("name")] = $(this).val();
+      }
+    }
+  );
+  delete settings["csrfmiddlewaretoken"];
+  delete settings["undefined"];
+  delete settings["submit"];
+  $("#settingsDump").val(JSON.stringify(settings, null, 2));
+}
+
+$(document).ready(
+  function() {
+    if ($("#settingsDump").val() != "") {
+      updateSettings();
+    }
+    $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
+    updateSettingsDump();
+  }
+);
+
+</script>
+
+{% endblock javascript %}

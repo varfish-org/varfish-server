@@ -5,6 +5,7 @@ DB_PATH = $(VARFISH_ANNO)/databases
 SMALLVARIANTS = $(filter-out $(wildcard $(DB_PATH)/smallvariant/*.fk.tsv),$(wildcard $(DB_PATH)/smallvariant/*.tsv))
 CASES = $(wildcard $(DB_PATH)/case/*.tsv)
 ANNOTATIONS = $(wildcard $(DB_PATH)/annotation/*.tsv)
+UUID =
 
 .PHONY: $(SMALLVARIANTS) $(CASES) $(ANNOTATIONS) $(DB_PATH)/kegg/genetokegg.fk.tsv
 
@@ -24,14 +25,14 @@ migrate:
 shell:
 	$(MANAGE) shell
 
-import_smallvariants: $(SMALLVARIANTS)
+import_smallvariants: import_cases $(SMALLVARIANTS)
 $(SMALLVARIANTS):
 	$(MANAGE) replace_fk_in_tsv --in $@ --out $(patsubst %.tsv,%.fk.tsv,$@) --table case --field name
 	$(MANAGE) import --path $(patsubst %.tsv,%.fk.tsv,$@) --database smallvariant
 
 import_cases: $(CASES)
 $(CASES):
-	$(MANAGE) import --path $@ --database case
+	$(MANAGE) import --path $@ --database case --uuid $(UUID)
 
 import_annotations: $(ANNOTATIONS)
 $(ANNOTATIONS):
@@ -91,4 +92,4 @@ import_databases: import_exac import_dbsnp import_gnomadexomes import_hgnc impor
 test:
 	$(MANAGE) test
 
-import: import_smallvariants import_databases
+import: import_smallvariants import_annotations import_databases
