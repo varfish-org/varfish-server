@@ -22,6 +22,9 @@ class MainView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMix
     permission_required = 'variants.view_data'
     model = Case
 
+    def get_queryset(self):
+        return super().get_queryset().filter(project__sodar_uuid=self.kwargs["project"])
+
 
 class FilterView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin,
                 ProjectContextMixin, FormView):
