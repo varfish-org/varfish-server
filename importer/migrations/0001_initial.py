@@ -9,18 +9,22 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ImportInfo',
+            name="ImportInfo",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('table', models.CharField(max_length=16)),
-                ('timestamp', models.DateTimeField(editable=False)),
-                ('release', models.CharField(max_length=16)),
-                ('comment', models.CharField(max_length=1024)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("table", models.CharField(max_length=16)),
+                ("timestamp", models.DateTimeField(editable=False)),
+                ("release", models.CharField(max_length=16)),
+                ("comment", models.CharField(max_length=1024)),
             ],
-        ),
+        )
     ]

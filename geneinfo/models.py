@@ -87,7 +87,4 @@ class Hpo(models.Model):
     objects = CopyManager()
 
     class Meta:
-        indexes = [
-            models.Index(fields=["database_id"]),
-        ]
-
+        indexes = [models.Index(fields=["database_id"])]

@@ -3,29 +3,13 @@ from collections import namedtuple
 from django.core.management.base import BaseCommand
 from django.db import transaction, IntegrityError
 from django.utils import timezone
-from variants.models import (
-    SmallVariant,
-    Case,
-)
+from variants.models import SmallVariant, Case
 from annotation.models import Annotation
-from frequencies.models import (
-    Exac,
-    GnomadExomes,
-    GnomadGenomes,
-    ThousandGenomes,
-)
+from frequencies.models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes
 from dbsnp.models import Dbsnp
-from geneinfo.models import (
-    Hgnc,
-    Mim2geneMedgen,
-    Hpo,
-)
+from geneinfo.models import Hgnc, Mim2geneMedgen, Hpo
 from importer.models import ImportInfo
-from pathways.models import (
-    EnsemblToKegg,
-    RefseqToKegg,
-    KeggInfo,
-)
+from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from projectroles.models import Project
@@ -68,20 +52,11 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--path", help="Input file path", required=True)
         parser.add_argument(
-            "--database",
-            help="Input database",
-            choices=self.databases.keys(),
-            required=True,
+            "--database", help="Input database", choices=self.databases.keys(), required=True
         )
-        parser.add_argument(
-            "--release", help="Release version of the imported database"
-        )
-        parser.add_argument(
-            "--comment", help="Comment for the imported database"
-        )
-        parser.add_argument(
-            "--uuid", help="define uuid for case and smallvariant import"
-        )
+        parser.add_argument("--release", help="Release version of the imported database")
+        parser.add_argument("--comment", help="Comment for the imported database")
+        parser.add_argument("--uuid", help="define uuid for case and smallvariant import")
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -89,11 +64,7 @@ class Command(BaseCommand):
 
         if database.release_required:
             if not options["release"]:
-                sys.exit(
-                    "Please specify --release when importing {}".format(
-                        options["database"]
-                    )
-                )
+                sys.exit("Please specify --release when importing {}".format(options["database"]))
 
             try:
                 ImportInfo.objects.create(
@@ -109,18 +80,12 @@ class Command(BaseCommand):
         # the uuid field itself
         if options["database"] == "case":
             if not options["uuid"]:
-                sys.exit(
-                    "Please specify --uuid when importing {}".format(
-                        options["database"]
-                    )
-                )
+                sys.exit("Please specify --uuid when importing {}".format(options["database"]))
 
             try:
                 project = Project.objects.get(sodar_uuid=options["uuid"])
             except ObjectDoesNotExist:
-                sys.exit(
-                    "Project with UUID {} does not exist".format(options["uuid"])
-                )
+                sys.exit("Project with UUID {} does not exist".format(options["uuid"]))
 
             with TsvReader(options["path"], json_fields=["pedigree"]) as reader:
                 for entry in reader:
@@ -129,9 +94,10 @@ class Command(BaseCommand):
                 return
 
         database.table.objects.from_csv(
-            options["path"], delimiter="\t",
+            options["path"],
+            delimiter="\t",
             null=database.null,
             ignore_conflicts=database.deduplicate,
             drop_constraints=not database.deduplicate,
-            drop_indexes=not database.deduplicate
+            drop_indexes=not database.deduplicate,
         )

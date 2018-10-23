@@ -6,10 +6,7 @@ from django.forms.models import model_to_dict
 from ._private import TsvReader
 
 
-tables = {
-    "case": Case,
-    "kegginfo": KeggInfo,
-}
+tables = {"case": Case, "kegginfo": KeggInfo}
 
 
 class Command(BaseCommand):
@@ -18,8 +15,14 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--in", help="Input file path", required=True)
         parser.add_argument("--out", help="Output file path", required=True)
-        parser.add_argument("--table", help="Table that is to be linked", choices=tables.keys(), required=True)
-        parser.add_argument("--field", help="Fieldname in <table> that links the two tables in (fieldname in <in> is `<table>_id`", required=True)
+        parser.add_argument(
+            "--table", help="Table that is to be linked", choices=tables.keys(), required=True
+        )
+        parser.add_argument(
+            "--field",
+            help="Fieldname in <table> that links the two tables in (fieldname in <in> is `<table>_id`",
+            required=True,
+        )
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -33,7 +36,9 @@ class Command(BaseCommand):
         with open(options["out"], "w") as fh, TsvReader(options["in"]) as reader:
             fh.write("\t".join(reader.header) + "\n")
             for line in reader:
-                line[options["table"] + "_id"] = str(mapping.get(line[options["table"] + "_id"], line[options["table"] + "_id"]))
+                line[options["table"] + "_id"] = str(
+                    mapping.get(line[options["table"] + "_id"], line[options["table"] + "_id"])
+                )
                 fh.write("\t".join(line[field] for field in reader.header) + "\n")
 
     # @transaction.atomic

@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from projectroles.views import LoggedInPermissionMixin, \
-    ProjectContextMixin, ProjectPermissionMixin
+from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms.models import model_to_dict
 from django.views.generic import TemplateView
@@ -9,9 +8,14 @@ from .models import Hgnc, Mim2geneMedgen, Hpo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 
 
-class GeneView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin,
-                ProjectContextMixin, TemplateView):
-    permission_required = 'geneinfo.view_data'
+class GeneView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    TemplateView,
+):
+    permission_required = "geneinfo.view_data"
     template_name = "geneinfo/gene.html"
 
     def get(self, *args, **kwargs):
@@ -44,6 +48,4 @@ class GeneView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMix
                 hpo_list.append(Hpo.objects.filter(database_id="OMIM:{}".format(entry.omim_id)))
             kwargs["omim"] = hpo_list
 
-        return render(
-            self.request, self.template_name, self.get_context_data(**kwargs)
-        )
+        return render(self.request, self.template_name, self.get_context_data(**kwargs))

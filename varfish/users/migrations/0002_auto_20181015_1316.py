@@ -8,18 +8,13 @@ import uuid
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('users', '0001_initial'),
-    ]
+    dependencies = [("users", "0001_initial")]
 
     operations = [
-        migrations.AlterModelOptions(
-            name='user',
-            options={},
-        ),
+        migrations.AlterModelOptions(name="user", options={}),
         migrations.AddField(
-            model_name='user',
-            name='sodar_uuid',
-            field=models.UUIDField(default=uuid.uuid4, help_text='User SODAR UUID', unique=True),
+            model_name="user",
+            name="sodar_uuid",
+            field=models.UUIDField(default=uuid.uuid4, help_text="User SODAR UUID", unique=True),
         ),
     ]

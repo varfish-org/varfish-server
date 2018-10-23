@@ -54,31 +54,49 @@ class QueryBuilder:
                 (position = %({})s) AND
                 (reference = %({})s) AND
                 (alternative = %({})s))
-            """.format(selector, table, name_rel, name_chr, name_pos, name_ref, name_alt),
+            """.format(
+                selector, table, name_rel, name_chr, name_pos, name_ref, name_alt
+            ),
             {
                 name_rel: kwargs["release"],
                 name_chr: kwargs["chromosome"],
                 name_pos: kwargs["position"],
                 name_ref: kwargs["reference"],
                 name_alt: kwargs["alternative"],
-            }
+            },
         )
 
     def build_gnomadgenomes_query(self, kwargs):
-        return self._build_frequency_query(kwargs, "gnomadgenomes", fields=("af", "an", "ac", "hom", "hemi", "het"),
-                                           populations=("afr", "amr", "asj", "eas", "fin", "nfe", "oth"))
+        return self._build_frequency_query(
+            kwargs,
+            "gnomadgenomes",
+            fields=("af", "an", "ac", "hom", "hemi", "het"),
+            populations=("afr", "amr", "asj", "eas", "fin", "nfe", "oth"),
+        )
 
     def build_gnomadexomes_query(self, kwargs):
-        return self._build_frequency_query(kwargs, "gnomadexomes", fields=("af", "an", "ac", "hom", "hemi", "het"),
-                                           populations=("afr", "amr", "asj", "eas", "fin", "nfe", "oth", "sas"))
+        return self._build_frequency_query(
+            kwargs,
+            "gnomadexomes",
+            fields=("af", "an", "ac", "hom", "hemi", "het"),
+            populations=("afr", "amr", "asj", "eas", "fin", "nfe", "oth", "sas"),
+        )
 
     def build_exac_query(self, kwargs):
-        return self._build_frequency_query(kwargs, "exac", fields=("af", "an", "ac", "hom", "hemi", "het"),
-                                           populations=("afr", "amr", "eas", "fin", "nfe", "oth", "sas"))
+        return self._build_frequency_query(
+            kwargs,
+            "exac",
+            fields=("af", "an", "ac", "hom", "hemi", "het"),
+            populations=("afr", "amr", "eas", "fin", "nfe", "oth", "sas"),
+        )
 
     def build_thousandgenomes_query(self, kwargs):
-        return self._build_frequency_query(kwargs, "thousandgenomes", fields=("af", "an", "ac", "hom", "het"),
-                                           populations=("afr", "amr", "eas", "eur", "sas"))
+        return self._build_frequency_query(
+            kwargs,
+            "thousandgenomes",
+            fields=("af", "an", "ac", "hom", "het"),
+            populations=("afr", "amr", "eas", "eur", "sas"),
+        )
 
     def build_knowngeneaa_query(self, kwargs):
         name_chr = self._next_name()
@@ -94,12 +112,14 @@ class QueryBuilder:
                 (start <= %({})s) AND
                 ("end" >= %({})s)
             )
-            """.format(name_chr, name_end, name_start),
+            """.format(
+                name_chr, name_end, name_start
+            ),
             {
                 name_chr: kwargs["chromosome"],
                 name_start: int(kwargs["position"]),
                 name_end: int(kwargs["position"]) + len(kwargs["reference"]) - 1,
-            }
+            },
         )
 
     def build_comphet_query(self, kwargs):
@@ -149,8 +169,10 @@ class QueryBuilder:
             WHERE
                 (p1_c > 0) AND
                 (p2_c > 0);
-            """.format(database=database, hgnc=hgnc, query=query),
-            args
+            """.format(
+                database=database, hgnc=hgnc, query=query
+            ),
+            args,
         )
 
     def build_comphet_query_part(self, gt_father, gt_mother, kwargs):
@@ -171,9 +193,7 @@ class QueryBuilder:
             condition_list.append(condition)
             args_merged = {**args_merged, **args}
 
-        conditions_joined = " AND ".join(
-            "({})".format(condition) for condition in condition_list
-        )
+        conditions_joined = " AND ".join("({})".format(condition) for condition in condition_list)
 
         roles = dict()
         for member in kwargs["pedigree"]:
@@ -206,24 +226,23 @@ class QueryBuilder:
                 conditions=conditions_joined,
                 gt_father=gt_father,
                 gt_mother=gt_mother,
-                as_p1=0 if gt_father == '0/0' else 1,
-                as_p2=0 if gt_mother == '0/0' else 1,
+                as_p1=0 if gt_father == "0/0" else 1,
+                as_p2=0 if gt_mother == "0/0" else 1,
             ),
             {
                 **args_merged,
                 name_index: roles["index"],
                 name_mother: roles["mother"],
                 name_father: roles["father"],
-            }
-
+            },
         )
 
     def build_comphet_gt_query(self, kwargs):
         return self._build_gt_inner(self.build_genotype_quality_term, kwargs)
 
     def build_comphet_sub_query(self, kwargs):
-        query_p1, args_p1 = self.build_comphet_query_part('0/1', '0/0', kwargs)
-        query_p2, args_p2 = self.build_comphet_query_part('0/0', '0/1', kwargs)
+        query_p1, args_p1 = self.build_comphet_query_part("0/1", "0/0", kwargs)
+        query_p2, args_p2 = self.build_comphet_query_part("0/0", "0/1", kwargs)
 
         if not kwargs["database_select"] in ("refseq", "ensembl"):
             return "FALSE"
@@ -238,8 +257,10 @@ class QueryBuilder:
                 UNION
                 ({query_p2})
             ) AS a
-            """.format(database=kwargs["database_select"], query_p1=query_p1, query_p2=query_p2),
-            {**args_p1, **args_p2}
+            """.format(
+                database=kwargs["database_select"], query_p1=query_p1, query_p2=query_p2
+            ),
+            {**args_p1, **args_p2},
         )
 
     def build_base_query(self, kwargs):
@@ -256,8 +277,7 @@ class QueryBuilder:
             database = "ensembl"
             hgnc = "USING (ensembl_gene_id)"
 
-        return (
-            r"""
+        return r"""
             SELECT
                 sv.id,
                 sv.release, sv.chromosome, sv.position, sv.reference, sv.alternative,
@@ -285,7 +305,8 @@ class QueryBuilder:
             LEFT OUTER JOIN variants_case c ON (sv.case_id = c.id)
             LEFT OUTER JOIN dbsnp_dbsnp d USING (release, chromosome, position, reference, alternative)
             LEFT OUTER JOIN geneinfo_hgnc h {hgnc}
-            """.format(database=database, hgnc=hgnc)
+            """.format(
+            database=database, hgnc=hgnc
         )
 
     def build_vartype_term(self, kwargs):
@@ -298,25 +319,29 @@ class QueryBuilder:
         if kwargs["var_type_indel"]:
             values.append("'indel'")
 
-        return (
-            "(sv.var_type in ({}))".format(",".join(values)),
-            {}
-        )
+        return ("(sv.var_type in ({}))".format(",".join(values)), {})
 
     def build_frequency_term(self, kwargs):
         name_gnomad_exomes = self._next_name()
         name_gnomad_genomes = self._next_name()
         name_exac = self._next_name()
         name_thousand_genomes = self._next_name()
-        query_string = " AND ".join([
-            "(sv.exac_frequency <= %({exac})s)" if (kwargs["exac_enabled"] and kwargs["exac_frequency"]) else "TRUE",
-            "(sv.gnomad_exomes_frequency <= %({gnomad_exomes})s)" if (
-                kwargs["gnomad_exomes_enabled"] and kwargs["gnomad_exomes_frequency"]) else "TRUE",
-            "(sv.gnomad_genomes_frequency <= %({gnomad_genomes})s)" if (
-                kwargs["gnomad_genomes_enabled"] and kwargs["gnomad_genomes_frequency"]) else "TRUE",
-            "(sv.thousand_genomes_frequency <= %({thousand_genomes})s)" if (
-                kwargs["thousand_genomes_enabled"] and kwargs["thousand_genomes_frequency"]) else "TRUE",
-        ])
+        query_string = " AND ".join(
+            [
+                "(sv.exac_frequency <= %({exac})s)"
+                if (kwargs["exac_enabled"] and kwargs["exac_frequency"])
+                else "TRUE",
+                "(sv.gnomad_exomes_frequency <= %({gnomad_exomes})s)"
+                if (kwargs["gnomad_exomes_enabled"] and kwargs["gnomad_exomes_frequency"])
+                else "TRUE",
+                "(sv.gnomad_genomes_frequency <= %({gnomad_genomes})s)"
+                if (kwargs["gnomad_genomes_enabled"] and kwargs["gnomad_genomes_frequency"])
+                else "TRUE",
+                "(sv.thousand_genomes_frequency <= %({thousand_genomes})s)"
+                if (kwargs["thousand_genomes_enabled"] and kwargs["thousand_genomes_frequency"])
+                else "TRUE",
+            ]
+        )
 
         return (
             query_string.format(
@@ -338,17 +363,31 @@ class QueryBuilder:
         name_gnomad_genomes = self._next_name()
         name_gnomad_exomes = self._next_name()
         name_thousand_genomes = self._next_name()
-        query_string = " AND ".join([
-            "(sv.exac_homozygous <= %({exac})s)" if (
-                kwargs["exac_enabled"] and not kwargs["exac_homozygous"] is None) else "TRUE",
-            "(sv.gnomad_genomes_homozygous <= %({gnomad_genomes})s)" if (
-                kwargs["gnomad_genomes_enabled"] and not kwargs["gnomad_genomes_homozygous"] is None) else "TRUE",
-            "(sv.gnomad_exomes_homozygous <= %({gnomad_exomes})s)" if (
-                kwargs["gnomad_exomes_enabled"] and not kwargs["gnomad_exomes_homozygous"] is None) else "TRUE",
-            "(sv.thousand_genomes_homozygous <= %({thousand_genomes})s)" if (
-                kwargs["thousand_genomes_enabled"] and not kwargs[
-                                                               "thousand_genomes_homozygous"] is None) else "TRUE",
-        ])
+        query_string = " AND ".join(
+            [
+                "(sv.exac_homozygous <= %({exac})s)"
+                if (kwargs["exac_enabled"] and not kwargs["exac_homozygous"] is None)
+                else "TRUE",
+                "(sv.gnomad_genomes_homozygous <= %({gnomad_genomes})s)"
+                if (
+                    kwargs["gnomad_genomes_enabled"]
+                    and not kwargs["gnomad_genomes_homozygous"] is None
+                )
+                else "TRUE",
+                "(sv.gnomad_exomes_homozygous <= %({gnomad_exomes})s)"
+                if (
+                    kwargs["gnomad_exomes_enabled"]
+                    and not kwargs["gnomad_exomes_homozygous"] is None
+                )
+                else "TRUE",
+                "(sv.thousand_genomes_homozygous <= %({thousand_genomes})s)"
+                if (
+                    kwargs["thousand_genomes_enabled"]
+                    and not kwargs["thousand_genomes_homozygous"] is None
+                )
+                else "TRUE",
+            ]
+        )
 
         return (
             query_string.format(
@@ -362,7 +401,7 @@ class QueryBuilder:
                 name_gnomad_genomes: kwargs["gnomad_genomes_homozygous"],
                 name_gnomad_exomes: kwargs["gnomad_exomes_homozygous"],
                 name_thousand_genomes: kwargs["thousand_genomes_homozygous"],
-            }
+            },
         )
 
     def build_heterozygous_term(self, kwargs):
@@ -370,17 +409,31 @@ class QueryBuilder:
         name_gnomad_genomes = self._next_name()
         name_gnomad_exomes = self._next_name()
         name_thousand_genomes = self._next_name()
-        query_string = " AND ".join([
-            "(sv.exac_heterozygous <= %({exac})s)" if (
-                kwargs["exac_enabled"] and not kwargs["exac_heterozygous"] is None) else "TRUE",
-            "(sv.gnomad_genomes_heterozygous <= %({gnomad_genomes})s)" if (
-                kwargs["gnomad_genomes_enabled"] and not kwargs["gnomad_genomes_heterozygous"] is None) else "TRUE",
-            "(sv.gnomad_exomes_heterozygous <= %({gnomad_exomes})s)" if (
-                kwargs["gnomad_exomes_enabled"] and not kwargs["gnomad_exomes_heterozygous"] is None) else "TRUE",
-            "(sv.thousand_genomes_heterozygous <= %({thousand_genomes})s)" if (
-                kwargs["thousand_genomes_enabled"] and not kwargs[
-                                                               "thousand_genomes_heterozygous"] is None) else "TRUE",
-        ])
+        query_string = " AND ".join(
+            [
+                "(sv.exac_heterozygous <= %({exac})s)"
+                if (kwargs["exac_enabled"] and not kwargs["exac_heterozygous"] is None)
+                else "TRUE",
+                "(sv.gnomad_genomes_heterozygous <= %({gnomad_genomes})s)"
+                if (
+                    kwargs["gnomad_genomes_enabled"]
+                    and not kwargs["gnomad_genomes_heterozygous"] is None
+                )
+                else "TRUE",
+                "(sv.gnomad_exomes_heterozygous <= %({gnomad_exomes})s)"
+                if (
+                    kwargs["gnomad_exomes_enabled"]
+                    and not kwargs["gnomad_exomes_heterozygous"] is None
+                )
+                else "TRUE",
+                "(sv.thousand_genomes_heterozygous <= %({thousand_genomes})s)"
+                if (
+                    kwargs["thousand_genomes_enabled"]
+                    and not kwargs["thousand_genomes_heterozygous"] is None
+                )
+                else "TRUE",
+            ]
+        )
 
         return (
             query_string.format(
@@ -394,7 +447,7 @@ class QueryBuilder:
                 name_gnomad_genomes: kwargs["gnomad_genomes_heterozygous"],
                 name_gnomad_exomes: kwargs["gnomad_exomes_heterozygous"],
                 name_thousand_genomes: kwargs["thousand_genomes_heterozygous"],
-            }
+            },
         )
 
     def build_case_term(self, kwargs):
@@ -438,24 +491,23 @@ class QueryBuilder:
             tmpl += " OR ({gt})" if kwargs["gt"] else ""
         else:
             tmpl = "({gt})" if kwargs["gt"] else "TRUE"
-        tmpl = '({})'.format(tmpl)
+        tmpl = "({})".format(tmpl)
 
-        return (
-            tmpl.format(quality=quality_term, gt=gt_term),
-            {**gt_args, **quality_args},
-        )
+        return (tmpl.format(quality=quality_term, gt=gt_term), {**gt_args, **quality_args})
 
     def build_gene_blacklist_term(self, kwargs):
         args = {}
-        if kwargs['gene_blacklist']:
+        if kwargs["gene_blacklist"]:
             vals = []
-            for gene in kwargs['gene_blacklist']:
+            for gene in kwargs["gene_blacklist"]:
                 name = self._next_name()
-                vals.append('%({})s'.format(name))
+                vals.append("%({})s".format(name))
                 args[name] = gene
-            qry = '(NOT (ARRAY[h.symbol]::VARCHAR[] && ARRAY[{}]::VARCHAR[]))'.format(", ".join(vals))
+            qry = "(NOT (ARRAY[h.symbol]::VARCHAR[] && ARRAY[{}]::VARCHAR[]))".format(
+                ", ".join(vals)
+            )
         else:
-            qry = '(TRUE)'
+            qry = "(TRUE)"
         return (qry, args)
 
     def build_genotype_quality_term(self, kwargs):
@@ -465,9 +517,7 @@ class QueryBuilder:
         ab_term, ab_args = self.build_genotype_ab_term(kwargs)
 
         return (
-            " AND ".join(
-                "({})".format(x) for x in [ad_term, dp_term, gq_term, ab_term]
-            ),
+            " AND ".join("({})".format(x) for x in [ad_term, dp_term, gq_term, ab_term]),
             {**ad_args, **dp_args, **gq_args, **ab_args},
         )
 
@@ -492,9 +542,7 @@ class QueryBuilder:
         name1 = self._next_name()
         name2 = self._next_name()
         return (
-            "(genotype->%({member})s->>'dp')::int >= %({dp})s".format(
-                member=name1, dp=name2
-            ),
+            "(genotype->%({member})s->>'dp')::int >= %({dp})s".format(member=name1, dp=name2),
             {name1: kwargs["member"], name2: kwargs["dp"]},
         )
 
@@ -502,9 +550,7 @@ class QueryBuilder:
         name1 = self._next_name()
         name2 = self._next_name()
         return (
-            "(genotype->%({member})s->>'gq')::int >= %({gq})s".format(
-                member=name1, gq=name2
-            ),
+            "(genotype->%({member})s->>'gq')::int >= %({gq})s".format(member=name1, gq=name2),
             {name1: kwargs["member"], name2: kwargs["gq"]},
         )
 
@@ -539,9 +585,7 @@ class QueryBuilder:
         args = {self._next_name(): gt for gt in kwargs["gt"]}
         name_member = self._next_name()
         term = " OR ".join(
-            "(genotype->%({member})s->>'gt' = %({gt})s)".format(
-                member=name_member, gt=gt
-            )
+            "(genotype->%({member})s->>'gt' = %({gt})s)".format(member=name_member, gt=gt)
             for gt in args
         )
         args[name_member] = kwargs["member"]
@@ -555,9 +599,7 @@ class QueryBuilder:
             condition_list.append(condition)
             args_merged = {**args_merged, **args}
 
-        conditions_joined = " AND ".join(
-            "({})".format(condition) for condition in condition_list
-        )
+        conditions_joined = " AND ".join("({})".format(condition) for condition in condition_list)
 
         return (
             "{base} WHERE {condition} ORDER BY chromosome, position".format(

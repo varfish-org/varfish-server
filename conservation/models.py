@@ -11,13 +11,6 @@ class KnowngeneAA(models.Model):
     objects = CopyManager()
 
     class Meta:
-        unique_together = (
-            "chromosome",
-            "start",
-            "end",
-            "transcript_id",
-        )
+        unique_together = ("chromosome", "start", "end", "transcript_id")
 
-        indexes = [
-            models.Index(fields=["chromosome", "start", "end"])
-        ]
+        indexes = [models.Index(fields=["chromosome", "start", "end"])]

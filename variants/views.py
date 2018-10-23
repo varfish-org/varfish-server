@@ -2,8 +2,7 @@ import json
 
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from projectroles.views import LoggedInPermissionMixin, \
-    ProjectContextMixin, ProjectPermissionMixin
+from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import SmallVariant, Case
 from frequencies.views import FrequencyMixin
@@ -16,20 +15,30 @@ from clinvar.models import Clinvar
 from django.http import HttpResponse
 
 
-class MainView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin,
-                ProjectContextMixin, ListView):
+class MainView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    ListView,
+):
     template_name = "variants/case_select.html"
-    permission_required = 'variants.view_data'
+    permission_required = "variants.view_data"
     model = Case
 
     def get_queryset(self):
         return super().get_queryset().filter(project__sodar_uuid=self.kwargs["project"])
 
 
-class FilterView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin,
-                ProjectContextMixin, FormView):
+class FilterView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
     template_name = "variants/filter.html"
-    permission_required = 'variants.view_data'
+    permission_required = "variants.view_data"
     form_class = FilterForm
     success_url = "."
 
@@ -41,9 +50,7 @@ class FilterView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionM
         kwargs = super().get_form_kwargs()
 
         if not self.case_object:
-            self.case_object = model_to_dict(
-                Case.objects.get(name=self.kwargs["case_name"])
-            )
+            self.case_object = model_to_dict(Case.objects.get(name=self.kwargs["case_name"]))
         case_object = self.case_object
 
         index = case_object["index"]
@@ -98,23 +105,45 @@ class FilterView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionM
 
         kwargs = {
             "case_name": self.kwargs["case_name"],
-            "exac_frequency": float(form.cleaned_data["exac_frequency"]) if form.cleaned_data["exac_frequency"] else None,
-            "exac_homozygous": int(form.cleaned_data["exac_homozygous"]) if form.cleaned_data["exac_homozygous"] else None,
-            "exac_heterozygous": int(form.cleaned_data["exac_heterozygous"]) if form.cleaned_data["exac_heterozygous"] else None,
-            "gnomad_genomes_frequency": float(form.cleaned_data["gnomad_genomes_frequency"]) if form.cleaned_data["gnomad_genomes_frequency"] else None,
-            "gnomad_genomes_homozygous": int(form.cleaned_data["gnomad_genomes_homozygous"]) if form.cleaned_data["gnomad_genomes_homozygous"] else None,
-            "gnomad_genomes_heterozygous": int(form.cleaned_data["gnomad_genomes_heterozygous"]) if form.cleaned_data["gnomad_genomes_heterozygous"] else None,
-            "gnomad_exomes_frequency": float(form.cleaned_data["gnomad_exomes_frequency"]) if form.cleaned_data["gnomad_exomes_frequency"] else None,
-            "gnomad_exomes_homozygous": int(form.cleaned_data["gnomad_exomes_homozygous"]) if form.cleaned_data["gnomad_exomes_homozygous"] else None,
-            "gnomad_exomes_heterozygous": int(form.cleaned_data["gnomad_exomes_heterozygous"]) if form.cleaned_data["gnomad_exomes_heterozygous"] else None,
-            "thousand_genomes_frequency": float(form.cleaned_data["thousand_genomes_frequency"]) if form.cleaned_data["thousand_genomes_frequency"] else None,
-            "thousand_genomes_homozygous": int(form.cleaned_data["thousand_genomes_homozygous"]) if form.cleaned_data["thousand_genomes_homozygous"] else None,
-            "thousand_genomes_heterozygous": int(form.cleaned_data["thousand_genomes_heterozygous"]) if form.cleaned_data["thousand_genomes_heterozygous"] else None,
+            "exac_frequency": float(form.cleaned_data["exac_frequency"])
+            if form.cleaned_data["exac_frequency"]
+            else None,
+            "exac_homozygous": int(form.cleaned_data["exac_homozygous"])
+            if form.cleaned_data["exac_homozygous"]
+            else None,
+            "exac_heterozygous": int(form.cleaned_data["exac_heterozygous"])
+            if form.cleaned_data["exac_heterozygous"]
+            else None,
+            "gnomad_genomes_frequency": float(form.cleaned_data["gnomad_genomes_frequency"])
+            if form.cleaned_data["gnomad_genomes_frequency"]
+            else None,
+            "gnomad_genomes_homozygous": int(form.cleaned_data["gnomad_genomes_homozygous"])
+            if form.cleaned_data["gnomad_genomes_homozygous"]
+            else None,
+            "gnomad_genomes_heterozygous": int(form.cleaned_data["gnomad_genomes_heterozygous"])
+            if form.cleaned_data["gnomad_genomes_heterozygous"]
+            else None,
+            "gnomad_exomes_frequency": float(form.cleaned_data["gnomad_exomes_frequency"])
+            if form.cleaned_data["gnomad_exomes_frequency"]
+            else None,
+            "gnomad_exomes_homozygous": int(form.cleaned_data["gnomad_exomes_homozygous"])
+            if form.cleaned_data["gnomad_exomes_homozygous"]
+            else None,
+            "gnomad_exomes_heterozygous": int(form.cleaned_data["gnomad_exomes_heterozygous"])
+            if form.cleaned_data["gnomad_exomes_heterozygous"]
+            else None,
+            "thousand_genomes_frequency": float(form.cleaned_data["thousand_genomes_frequency"])
+            if form.cleaned_data["thousand_genomes_frequency"]
+            else None,
+            "thousand_genomes_homozygous": int(form.cleaned_data["thousand_genomes_homozygous"])
+            if form.cleaned_data["thousand_genomes_homozygous"]
+            else None,
+            "thousand_genomes_heterozygous": int(form.cleaned_data["thousand_genomes_heterozygous"])
+            if form.cleaned_data["thousand_genomes_heterozygous"]
+            else None,
             "effects": selected_effects,
             "genotype": list(),
-            "gene_blacklist": [
-                x.strip() for x in form.cleaned_data["gene_blacklist"].split()
-            ],
+            "gene_blacklist": [x.strip() for x in form.cleaned_data["gene_blacklist"].split()],
             "database_select": form.cleaned_data["database_select"],
             "exac_enabled": form.cleaned_data["exac_enabled"],
             "gnomad_exomes_enabled": form.cleaned_data["gnomad_exomes_enabled"],
@@ -188,9 +217,7 @@ class FilterView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionM
             entry.ad = ad_data
             entry.gq = gq_data
 
-        return render(
-            self.request, self.template_name, self.get_context_data(main=main)
-        )
+        return render(self.request, self.template_name, self.get_context_data(main=main))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -198,9 +225,15 @@ class FilterView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionM
         return context
 
 
-class ExtendAPIView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin,
-                ProjectContextMixin, FrequencyMixin, View):
-    permission_required = 'variants.view_data'
+class ExtendAPIView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FrequencyMixin,
+    View,
+):
+    permission_required = "variants.view_data"
 
     def get(self, *args, **kwargs):
         self.kwargs = kwargs
@@ -219,12 +252,14 @@ class ExtendAPIView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissi
         knowngeneaa_list = list()
         if len(knowngeneaa) > 0:
             for entry in knowngeneaa:
-                knowngeneaa_list.append({
-                    'chromosome': entry.chromosome,
-                    'start': entry.start,
-                    'end': entry.end,
-                    'alignment': entry.alignment,
-                })
+                knowngeneaa_list.append(
+                    {
+                        "chromosome": entry.chromosome,
+                        "start": entry.start,
+                        "end": entry.end,
+                        "alignment": entry.alignment,
+                    }
+                )
 
         self.kwargs["knowngeneaa"] = knowngeneaa_list
 
@@ -232,18 +267,20 @@ class ExtendAPIView(LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissi
 
         try:
             filter_key = dict(key)
-            filter_key['position'] = int(filter_key['position']) - 1
+            filter_key["position"] = int(filter_key["position"]) - 1
             clinvar_list = list()
             clinvar = list(Clinvar.objects.filter(**filter_key))
             for entry in clinvar:
-                clinvar_list.append({
-                    "clinical_significance": entry.clinical_significance,
-                    "all_traits": list({trait.lower() for trait in entry.all_traits})
-                })
+                clinvar_list.append(
+                    {
+                        "clinical_significance": entry.clinical_significance,
+                        "all_traits": list({trait.lower() for trait in entry.all_traits}),
+                    }
+                )
             self.kwargs["clinvar"] = clinvar_list
             # response["clinvar"] = [model_to_dict(m) for m in clinvar]
         except ObjectDoesNotExist:
             self.kwargs["clinvar"] = None
 
-        #return Response(response)
-        return HttpResponse(json.dumps(self.kwargs), content_type='application/json')
+        # return Response(response)
+        return HttpResponse(json.dumps(self.kwargs), content_type="application/json")

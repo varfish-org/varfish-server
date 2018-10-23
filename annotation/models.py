@@ -29,13 +29,6 @@ class Annotation(models.Model):
         )
         indexes = [
             models.Index(
-                fields=[
-                    "release",
-                    "chromosome",
-                    "position",
-                    "reference",
-                    "alternative",
-                    "gene_id",
-                ]
+                fields=["release", "chromosome", "position", "reference", "alternative", "gene_id"]
             )
         ]

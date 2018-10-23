@@ -6,4 +6,3 @@ class ImportInfo(models.Model):
     timestamp = models.DateTimeField(editable=False)
     release = models.CharField(max_length=16)
     comment = models.CharField(max_length=1024)
-

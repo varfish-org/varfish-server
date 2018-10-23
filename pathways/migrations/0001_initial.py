@@ -9,48 +9,60 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='EnsemblToKegg',
+            name="EnsemblToKegg",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('gene_id', models.CharField(max_length=32)),
-                ('kegginfo_id', models.IntegerField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("gene_id", models.CharField(max_length=32)),
+                ("kegginfo_id", models.IntegerField()),
             ],
         ),
         migrations.CreateModel(
-            name='KeggInfo',
+            name="KeggInfo",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('kegg_id', models.CharField(max_length=16)),
-                ('name', models.CharField(max_length=512)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("kegg_id", models.CharField(max_length=16)),
+                ("name", models.CharField(max_length=512)),
             ],
         ),
         migrations.CreateModel(
-            name='RefseqToKegg',
+            name="RefseqToKegg",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('gene_id', models.CharField(max_length=32)),
-                ('kegginfo_id', models.IntegerField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("gene_id", models.CharField(max_length=32)),
+                ("kegginfo_id", models.IntegerField()),
             ],
         ),
         migrations.AddIndex(
-            model_name='refseqtokegg',
-            index=models.Index(fields=['gene_id'], name='pathways_re_gene_id_86cbb2_idx'),
+            model_name="refseqtokegg",
+            index=models.Index(fields=["gene_id"], name="pathways_re_gene_id_86cbb2_idx"),
         ),
         migrations.AlterUniqueTogether(
-            name='refseqtokegg',
-            unique_together=set([('gene_id', 'kegginfo_id')]),
+            name="refseqtokegg", unique_together=set([("gene_id", "kegginfo_id")])
         ),
         migrations.AddIndex(
-            model_name='ensembltokegg',
-            index=models.Index(fields=['gene_id'], name='pathways_en_gene_id_20f7c2_idx'),
+            model_name="ensembltokegg",
+            index=models.Index(fields=["gene_id"], name="pathways_en_gene_id_20f7c2_idx"),
         ),
         migrations.AlterUniqueTogether(
-            name='ensembltokegg',
-            unique_together=set([('gene_id', 'kegginfo_id')]),
+            name="ensembltokegg", unique_together=set([("gene_id", "kegginfo_id")])
         ),
     ]

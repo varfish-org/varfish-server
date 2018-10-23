@@ -9,27 +9,33 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='KnowngeneAA',
+            name="KnowngeneAA",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('chromosome', models.CharField(max_length=16)),
-                ('start', models.IntegerField()),
-                ('end', models.IntegerField()),
-                ('transcript_id', models.CharField(max_length=16)),
-                ('alignment', models.CharField(max_length=100)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("chromosome", models.CharField(max_length=16)),
+                ("start", models.IntegerField()),
+                ("end", models.IntegerField()),
+                ("transcript_id", models.CharField(max_length=16)),
+                ("alignment", models.CharField(max_length=100)),
             ],
         ),
         migrations.AddIndex(
-            model_name='knowngeneaa',
-            index=models.Index(fields=['chromosome', 'start', 'end'], name='conservatio_chromos_a742d8_idx'),
+            model_name="knowngeneaa",
+            index=models.Index(
+                fields=["chromosome", "start", "end"], name="conservatio_chromos_a742d8_idx"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='knowngeneaa',
-            unique_together=set([('chromosome', 'start', 'end', 'transcript_id')]),
+            name="knowngeneaa",
+            unique_together=set([("chromosome", "start", "end", "transcript_id")]),
         ),
     ]

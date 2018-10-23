@@ -57,23 +57,9 @@ class Exac(models.Model):
     objects = CopyManager()
 
     class Meta:
-        unique_together = (
-            "release",
-            "chromosome",
-            "position",
-            "reference",
-            "alternative",
-        )
+        unique_together = ("release", "chromosome", "position", "reference", "alternative")
         indexes = [
-            models.Index(
-                fields=[
-                    "release",
-                    "chromosome",
-                    "position",
-                    "reference",
-                    "alternative",
-                ]
-            )
+            models.Index(fields=["release", "chromosome", "position", "reference", "alternative"])
         ]
 
 
@@ -137,23 +123,9 @@ class GnomadExomes(models.Model):
     objects = CopyManager()
 
     class Meta:
-        unique_together = (
-            "release",
-            "chromosome",
-            "position",
-            "reference",
-            "alternative",
-        )
+        unique_together = ("release", "chromosome", "position", "reference", "alternative")
         indexes = [
-            models.Index(
-                fields=[
-                    "release",
-                    "chromosome",
-                    "position",
-                    "reference",
-                    "alternative",
-                ]
-            )
+            models.Index(fields=["release", "chromosome", "position", "reference", "alternative"])
         ]
 
 
@@ -212,23 +184,9 @@ class GnomadGenomes(models.Model):
     objects = CopyManager()
 
     class Meta:
-        unique_together = (
-            "release",
-            "chromosome",
-            "position",
-            "reference",
-            "alternative",
-        )
+        unique_together = ("release", "chromosome", "position", "reference", "alternative")
         indexes = [
-            models.Index(
-                fields=[
-                    "release",
-                    "chromosome",
-                    "position",
-                    "reference",
-                    "alternative",
-                ]
-            )
+            models.Index(fields=["release", "chromosome", "position", "reference", "alternative"])
         ]
 
 
@@ -251,22 +209,7 @@ class ThousandGenomes(models.Model):
     objects = CopyManager()
 
     class Meta:
-        unique_together = (
-            "release",
-            "chromosome",
-            "position",
-            "reference",
-            "alternative",
-        )
+        unique_together = ("release", "chromosome", "position", "reference", "alternative")
         indexes = [
-            models.Index(
-                fields=[
-                    "release",
-                    "chromosome",
-                    "position",
-                    "reference",
-                    "alternative",
-                ]
-            )
+            models.Index(fields=["release", "chromosome", "position", "reference", "alternative"])
         ]
-

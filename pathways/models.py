@@ -9,11 +9,7 @@ class EnsemblToKegg(models.Model):
 
     class Meta:
         unique_together = ["gene_id", "kegginfo_id"]
-        indexes = [
-            models.Index(
-                fields=["gene_id"]
-            )
-        ]
+        indexes = [models.Index(fields=["gene_id"])]
 
 
 class RefseqToKegg(models.Model):
@@ -23,15 +19,10 @@ class RefseqToKegg(models.Model):
 
     class Meta:
         unique_together = ["gene_id", "kegginfo_id"]
-        indexes = [
-            models.Index(
-                fields=["gene_id"]
-            )
-        ]
+        indexes = [models.Index(fields=["gene_id"])]
 
 
 class KeggInfo(models.Model):
     kegg_id = models.CharField(max_length=16)
     name = models.CharField(max_length=512)
     objects = CopyManager()
-

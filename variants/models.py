@@ -69,7 +69,7 @@ class SmallVariant(models.Model):
                     "gnomad_exomes_homozygous",
                     "gnomad_genomes_homozygous",
                     "thousand_genomes_homozygous",
-                    "refseq_effect"
+                    "refseq_effect",
                 ]
             ),
             models.Index(
@@ -86,15 +86,7 @@ class SmallVariant(models.Model):
                 ]
             ),
             # for join with clinvar, dbsnp
-            models.Index(
-                fields=[
-                    "release",
-                    "chromosome",
-                    "position",
-                    "reference",
-                    "alternative",
-                ],
-            ),
+            models.Index(fields=["release", "chromosome", "position", "reference", "alternative"]),
             # for join with annotation
             models.Index(
                 fields=[
@@ -104,7 +96,7 @@ class SmallVariant(models.Model):
                     "reference",
                     "alternative",
                     "ensembl_gene_id",
-                ],
+                ]
             ),
             models.Index(
                 fields=[
@@ -114,37 +106,27 @@ class SmallVariant(models.Model):
                     "reference",
                     "alternative",
                     "refseq_gene_id",
-                ],
+                ]
             ),
             # for join with hgnc
-            models.Index(
-                fields=["ensembl_gene_id"]
-            ),
-            models.Index(
-                fields=["refseq_gene_id"]
-            ),
+            models.Index(fields=["ensembl_gene_id"]),
+            models.Index(fields=["refseq_gene_id"]),
             # for join with case
-            models.Index(
-                fields=["case_id"]
-            )
+            models.Index(fields=["case_id"]),
         ]
 
 
 class Case(models.Model):
-    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text='Case SODAR UUID')
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
+    )
     name = models.CharField(max_length=512)
     index = models.CharField(max_length=32)
     pedigree = JSONField()
-    project = models.ForeignKey(
-        Project,
-        help_text='Project in which this objects belongs',
-    )
+    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
 
     class Meta:
-        unique_together = (
-            "name",
-            "index",
-        )
+        unique_together = ("name", "index")
         indexes = [models.Index(fields=["name"])]
 
     def __str__(self):

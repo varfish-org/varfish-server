@@ -13,111 +13,195 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('projectroles', '0005_update_uuid'),
-    ]
+    dependencies = [("projectroles", "0005_update_uuid")]
 
     operations = [
         migrations.CreateModel(
-            name='Case',
+            name="Case",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sodar_uuid', models.UUIDField(default=uuid.uuid4, help_text='Case SODAR UUID', unique=True)),
-                ('name', models.CharField(max_length=512)),
-                ('index', models.CharField(max_length=32)),
-                ('pedigree', django.contrib.postgres.fields.jsonb.JSONField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "sodar_uuid",
+                    models.UUIDField(default=uuid.uuid4, help_text="Case SODAR UUID", unique=True),
+                ),
+                ("name", models.CharField(max_length=512)),
+                ("index", models.CharField(max_length=32)),
+                ("pedigree", django.contrib.postgres.fields.jsonb.JSONField()),
             ],
         ),
         migrations.CreateModel(
-            name='SmallVariant',
+            name="SmallVariant",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('release', models.CharField(max_length=32)),
-                ('chromosome', models.CharField(max_length=32)),
-                ('position', models.IntegerField()),
-                ('reference', models.CharField(max_length=512)),
-                ('alternative', models.CharField(max_length=512)),
-                ('var_type', models.CharField(max_length=8)),
-                ('case_id', models.IntegerField()),
-                ('genotype', django.contrib.postgres.fields.jsonb.JSONField()),
-                ('in_clinvar', models.NullBooleanField()),
-                ('exac_frequency', models.FloatField(null=True)),
-                ('exac_homozygous', models.IntegerField(null=True)),
-                ('exac_heterozygous', models.IntegerField(null=True)),
-                ('exac_hemizygous', models.IntegerField(null=True)),
-                ('thousand_genomes_frequency', models.FloatField(null=True)),
-                ('thousand_genomes_homozygous', models.IntegerField(null=True)),
-                ('thousand_genomes_heterozygous', models.IntegerField(null=True)),
-                ('thousand_genomes_hemizygous', models.IntegerField(null=True)),
-                ('gnomad_exomes_frequency', models.FloatField(null=True)),
-                ('gnomad_exomes_homozygous', models.IntegerField(null=True)),
-                ('gnomad_exomes_heterozygous', models.IntegerField(null=True)),
-                ('gnomad_exomes_hemizygous', models.IntegerField(null=True)),
-                ('gnomad_genomes_frequency', models.FloatField(null=True)),
-                ('gnomad_genomes_homozygous', models.IntegerField(null=True)),
-                ('gnomad_genomes_heterozygous', models.IntegerField(null=True)),
-                ('gnomad_genomes_hemizygous', models.IntegerField(null=True)),
-                ('refseq_gene_id', models.CharField(max_length=16, null=True)),
-                ('refseq_transcript_id', models.CharField(max_length=16, null=True)),
-                ('refseq_transcript_coding', models.NullBooleanField()),
-                ('refseq_hgvs_c', models.CharField(max_length=512, null=True)),
-                ('refseq_hgvs_p', models.CharField(max_length=512, null=True)),
-                ('refseq_effect', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=64), null=True, size=None)),
-                ('ensembl_gene_id', models.CharField(max_length=16, null=True)),
-                ('ensembl_transcript_id', models.CharField(max_length=16, null=True)),
-                ('ensembl_transcript_coding', models.NullBooleanField()),
-                ('ensembl_hgvs_c', models.CharField(max_length=512, null=True)),
-                ('ensembl_hgvs_p', models.CharField(max_length=512, null=True)),
-                ('ensembl_effect', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=64, null=True), size=None)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("release", models.CharField(max_length=32)),
+                ("chromosome", models.CharField(max_length=32)),
+                ("position", models.IntegerField()),
+                ("reference", models.CharField(max_length=512)),
+                ("alternative", models.CharField(max_length=512)),
+                ("var_type", models.CharField(max_length=8)),
+                ("case_id", models.IntegerField()),
+                ("genotype", django.contrib.postgres.fields.jsonb.JSONField()),
+                ("in_clinvar", models.NullBooleanField()),
+                ("exac_frequency", models.FloatField(null=True)),
+                ("exac_homozygous", models.IntegerField(null=True)),
+                ("exac_heterozygous", models.IntegerField(null=True)),
+                ("exac_hemizygous", models.IntegerField(null=True)),
+                ("thousand_genomes_frequency", models.FloatField(null=True)),
+                ("thousand_genomes_homozygous", models.IntegerField(null=True)),
+                ("thousand_genomes_heterozygous", models.IntegerField(null=True)),
+                ("thousand_genomes_hemizygous", models.IntegerField(null=True)),
+                ("gnomad_exomes_frequency", models.FloatField(null=True)),
+                ("gnomad_exomes_homozygous", models.IntegerField(null=True)),
+                ("gnomad_exomes_heterozygous", models.IntegerField(null=True)),
+                ("gnomad_exomes_hemizygous", models.IntegerField(null=True)),
+                ("gnomad_genomes_frequency", models.FloatField(null=True)),
+                ("gnomad_genomes_homozygous", models.IntegerField(null=True)),
+                ("gnomad_genomes_heterozygous", models.IntegerField(null=True)),
+                ("gnomad_genomes_hemizygous", models.IntegerField(null=True)),
+                ("refseq_gene_id", models.CharField(max_length=16, null=True)),
+                ("refseq_transcript_id", models.CharField(max_length=16, null=True)),
+                ("refseq_transcript_coding", models.NullBooleanField()),
+                ("refseq_hgvs_c", models.CharField(max_length=512, null=True)),
+                ("refseq_hgvs_p", models.CharField(max_length=512, null=True)),
+                (
+                    "refseq_effect",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(max_length=64), null=True, size=None
+                    ),
+                ),
+                ("ensembl_gene_id", models.CharField(max_length=16, null=True)),
+                ("ensembl_transcript_id", models.CharField(max_length=16, null=True)),
+                ("ensembl_transcript_coding", models.NullBooleanField()),
+                ("ensembl_hgvs_c", models.CharField(max_length=512, null=True)),
+                ("ensembl_hgvs_p", models.CharField(max_length=512, null=True)),
+                (
+                    "ensembl_effect",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(max_length=64, null=True), size=None
+                    ),
+                ),
             ],
         ),
         migrations.AddIndex(
-            model_name='smallvariant',
-            index=models.Index(fields=['exac_frequency', 'gnomad_exomes_frequency', 'gnomad_genomes_frequency', 'thousand_genomes_frequency', 'exac_homozygous', 'gnomad_exomes_homozygous', 'gnomad_genomes_homozygous', 'thousand_genomes_homozygous', 'refseq_effect'], name='variants_sm_exac_fr_f91f1b_idx'),
+            model_name="smallvariant",
+            index=models.Index(
+                fields=[
+                    "exac_frequency",
+                    "gnomad_exomes_frequency",
+                    "gnomad_genomes_frequency",
+                    "thousand_genomes_frequency",
+                    "exac_homozygous",
+                    "gnomad_exomes_homozygous",
+                    "gnomad_genomes_homozygous",
+                    "thousand_genomes_homozygous",
+                    "refseq_effect",
+                ],
+                name="variants_sm_exac_fr_f91f1b_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='smallvariant',
-            index=models.Index(fields=['exac_frequency', 'gnomad_exomes_frequency', 'gnomad_genomes_frequency', 'thousand_genomes_frequency', 'exac_homozygous', 'gnomad_exomes_homozygous', 'gnomad_genomes_homozygous', 'thousand_genomes_homozygous', 'ensembl_effect'], name='variants_sm_exac_fr_b0171c_idx'),
+            model_name="smallvariant",
+            index=models.Index(
+                fields=[
+                    "exac_frequency",
+                    "gnomad_exomes_frequency",
+                    "gnomad_genomes_frequency",
+                    "thousand_genomes_frequency",
+                    "exac_homozygous",
+                    "gnomad_exomes_homozygous",
+                    "gnomad_genomes_homozygous",
+                    "thousand_genomes_homozygous",
+                    "ensembl_effect",
+                ],
+                name="variants_sm_exac_fr_b0171c_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='smallvariant',
-            index=models.Index(fields=['release', 'chromosome', 'position', 'reference', 'alternative'], name='variants_sm_release_7dfe83_idx'),
+            model_name="smallvariant",
+            index=models.Index(
+                fields=["release", "chromosome", "position", "reference", "alternative"],
+                name="variants_sm_release_7dfe83_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='smallvariant',
-            index=models.Index(fields=['release', 'chromosome', 'position', 'reference', 'alternative', 'ensembl_gene_id'], name='variants_sm_release_a0d99d_idx'),
+            model_name="smallvariant",
+            index=models.Index(
+                fields=[
+                    "release",
+                    "chromosome",
+                    "position",
+                    "reference",
+                    "alternative",
+                    "ensembl_gene_id",
+                ],
+                name="variants_sm_release_a0d99d_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='smallvariant',
-            index=models.Index(fields=['release', 'chromosome', 'position', 'reference', 'alternative', 'refseq_gene_id'], name='variants_sm_release_d3c4f3_idx'),
+            model_name="smallvariant",
+            index=models.Index(
+                fields=[
+                    "release",
+                    "chromosome",
+                    "position",
+                    "reference",
+                    "alternative",
+                    "refseq_gene_id",
+                ],
+                name="variants_sm_release_d3c4f3_idx",
+            ),
         ),
         migrations.AddIndex(
-            model_name='smallvariant',
-            index=models.Index(fields=['ensembl_gene_id'], name='variants_sm_ensembl_97f665_idx'),
+            model_name="smallvariant",
+            index=models.Index(fields=["ensembl_gene_id"], name="variants_sm_ensembl_97f665_idx"),
         ),
         migrations.AddIndex(
-            model_name='smallvariant',
-            index=models.Index(fields=['refseq_gene_id'], name='variants_sm_refseq__54639f_idx'),
+            model_name="smallvariant",
+            index=models.Index(fields=["refseq_gene_id"], name="variants_sm_refseq__54639f_idx"),
         ),
         migrations.AddIndex(
-            model_name='smallvariant',
-            index=models.Index(fields=['case_id'], name='variants_sm_case_id_6f9d8c_idx'),
+            model_name="smallvariant",
+            index=models.Index(fields=["case_id"], name="variants_sm_case_id_6f9d8c_idx"),
         ),
         migrations.AlterUniqueTogether(
-            name='smallvariant',
-            unique_together=set([('release', 'chromosome', 'position', 'reference', 'alternative', 'case_id', 'ensembl_gene_id', 'refseq_gene_id')]),
+            name="smallvariant",
+            unique_together=set(
+                [
+                    (
+                        "release",
+                        "chromosome",
+                        "position",
+                        "reference",
+                        "alternative",
+                        "case_id",
+                        "ensembl_gene_id",
+                        "refseq_gene_id",
+                    )
+                ]
+            ),
         ),
         migrations.AddField(
-            model_name='case',
-            name='project',
-            field=models.ForeignKey(help_text='Project in which this objects belongs', on_delete=django.db.models.deletion.CASCADE, to='projectroles.Project'),
+            model_name="case",
+            name="project",
+            field=models.ForeignKey(
+                help_text="Project in which this objects belongs",
+                on_delete=django.db.models.deletion.CASCADE,
+                to="projectroles.Project",
+            ),
         ),
         migrations.AddIndex(
-            model_name='case',
-            index=models.Index(fields=['name'], name='variants_ca_name_89b7c1_idx'),
+            model_name="case",
+            index=models.Index(fields=["name"], name="variants_ca_name_89b7c1_idx"),
         ),
-        migrations.AlterUniqueTogether(
-            name='case',
-            unique_together=set([('name', 'index')]),
-        ),
+        migrations.AlterUniqueTogether(name="case", unique_together=set([("name", "index")])),
     ]
