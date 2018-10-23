@@ -22,7 +22,7 @@
 <h1>Select case</h1>
 <ul>
 {% for entry in object_list %}
-  <li><a href="{% url 'variants:filter' project=project.sodar_uuid case_name=entry %}">{{ entry }}</a></li>
+  <li><a href="{% url 'variants:filter' project=project.sodar_uuid case=entry.sodar_uuid %}">{{ entry.name }}</a></li>
 {% endfor %}
 </ul>
 

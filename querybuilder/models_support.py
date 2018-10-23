@@ -452,7 +452,7 @@ class QueryBuilder:
 
     def build_case_term(self, kwargs):
         name = self._next_name()
-        return ("c.name = %({})s".format(name), {name: kwargs["case_name"]})
+        return ("c.sodar_uuid = %({})s".format(name), {name: kwargs["case"]})
 
     def build_effects_term(self, kwargs):
         if not kwargs["database_select"] in ("refseq", "ensembl"):

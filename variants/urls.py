@@ -6,7 +6,7 @@ app_name = "variants"
 urlpatterns = [
     url(regex=r"^(?P<project>[0-9a-f-]+)$", view=views.MainView.as_view(), name="case"),
     url(
-        regex=r"^(?P<project>[0-9a-f-]+)/case/(?P<case_name>[A-Za-z0-9-_]+)/$",
+        regex=r"^(?P<project>[0-9a-f-]+)/case/(?P<case>[0-9a-f-]+)/$",
         view=views.FilterView.as_view(),
         name="filter",
     ),

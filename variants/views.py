@@ -50,7 +50,7 @@ class FilterView(
         kwargs = super().get_form_kwargs()
 
         if not self.case_object:
-            self.case_object = model_to_dict(Case.objects.get(name=self.kwargs["case_name"]))
+            self.case_object = model_to_dict(Case.objects.get(sodar_uuid=self.kwargs["case"]))
         case_object = self.case_object
 
         index = case_object["index"]
@@ -104,7 +104,7 @@ class FilterView(
                 selected_effects.append(effect)
 
         kwargs = {
-            "case_name": self.kwargs["case_name"],
+            "case": self.kwargs["case"],
             "exac_frequency": float(form.cleaned_data["exac_frequency"])
             if form.cleaned_data["exac_frequency"]
             else None,
@@ -221,7 +221,7 @@ class FilterView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["case_name"] = self.kwargs["case_name"]
+        context["case_name"] = self.case_object["name"]
         return context
 
 
