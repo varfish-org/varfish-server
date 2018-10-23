@@ -1,0 +1,43 @@
+image: python:3.6
+
+services:
+- postgres:9.5
+
+variables:
+  POSTGRES_DB: varfish_web
+  POSTGRES_USER: varfish_web
+  POSTGRES_PASSWORD: varfish_web
+  DATABASE_URL: postgres://varfish_web:varfish_web@postgres/varfish_web
+
+before_script:
+# SSH setup taken from https://gitlab.com/gitlab-examples/ssh-private-key
+#
+# install ssh-agent
+- 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+# run ssh-agent
+- eval $(ssh-agent -s)
+# add ssh key stored in SSH_PRIVATE_KEY variable to the agent store
+- echo -n "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+# disable host key checking (NOTE: makes you susceptible to man-in-the-middle attacks)
+# WARNING: use only in docker container, if you use it with shell you will overwrite your user's ssh config
+- mkdir -p ~/.ssh
+- chmod 700 ~/.ssh
+- echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+
+- sh ./utility/install_os_gitlab.sh
+- sh ./utility/install_chrome_gitlab.sh
+- pip3 install virtualenv
+- virtualenv env
+- source env/bin/activate
+- sh ./utility/install_python_dependencies.sh
+
+all_tests:
+  script:
+  # Run tests for Django app.
+  - python manage.py collectstatic --noinput
+  - coverage run --source="." manage.py test -v2 --settings=config.settings.test
+  - coverage report
+  # Run syntax checks and static code analysis.
+  - black -l 100 --check
+  # - flake8
+  when: on_success

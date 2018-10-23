@@ -16,3 +16,5 @@ selenium==3.14.0
 
 # BeautifulSoup for HTML testing
 beautifulsoup4==4.6.3
+
+black

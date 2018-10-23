@@ -16,3 +16,5 @@ ipdb==0.11
 
 pytest-django==3.4.2
 pytest-sugar==0.9.1
+
+black
