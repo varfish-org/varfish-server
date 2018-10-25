@@ -8,10 +8,6 @@
 
 {% block projectroles_extend %}
 
-{% has_perm 'variants.view_data' request.user project as can_view_data %}
-
-{% if can_view_data %}
-
 <nav aria-label="breadcrumb pt-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item" aria-current="page">
@@ -332,12 +328,12 @@
   </div>
 </div>
 
-{% endif %}
-
-{% endblock %}
+{% endblock projectroles_extend %}
 
 {% block javascript %}
 {{ block.super }}
+
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
 
 <script type="text/javascript">
 var effectGroups = {
@@ -613,8 +609,6 @@ function updateSettings() {
 }
 
 $("#settingsSet").click(updateSettings);
-//$("#settingsGet").click(updateSettingsDump);
-//$("#settingsDump").change(updateSettings);
 
 function updateSettingsDump() {
   var settings = {};
