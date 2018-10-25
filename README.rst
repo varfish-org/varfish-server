@@ -94,4 +94,32 @@ The following details how to deploy this application.
 
 
 
+Celery
+^^^^^^
 
+This app comes with Celery.
+
+To run a celery worker:
+
+.. code-block:: bash
+
+    cd varfish-web
+    celery -A taskapp worker -l info
+
+For local development, this requires to have Redis installed, e.g.:
+
+.. code-block:: bash
+
+    sudo apt install -q redis-server
+
+Also, ``CELERY_BROKER_URL`` has to be set
+
+.. code-block:: bash
+
+    export CELERY_BROKER_URL=redis://localhost:6379/0
+
+Please note: For Celery's import magic to work, it is important *where* the celery commands are run. If you are in the same folder with *manage.py*, you should be right.
+
+.. code-block:: bash
+
+    make celery

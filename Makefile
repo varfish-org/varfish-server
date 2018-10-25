@@ -25,6 +25,9 @@ migrate:
 shell:
 	$(MANAGE) shell
 
+celery:
+	celery worker -A config.celery_app -l info --concurrency=4
+
 import_smallvariants: import_cases $(SMALLVARIANTS)
 $(SMALLVARIANTS):
 	$(MANAGE) replace_fk_in_tsv --in $@ --out $(patsubst %.tsv,%.fk.tsv,$@) --table case --field name

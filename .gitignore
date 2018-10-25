@@ -346,3 +346,5 @@ mailhog
 varfish/media/
 
 src/
+
+celerybeat-schedule
