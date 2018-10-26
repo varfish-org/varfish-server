@@ -15,6 +15,16 @@ FAIL = [("ignore", "ignore"), ("drop-variant", "drop variant"), ("no-call", "no-
 
 
 class FilterForm(forms.Form):
+    result_type = forms.ChoiceField(
+        initial="render",
+        widget=forms.HiddenInput(),
+        choices=(
+            ("render", "Render HTML table"),
+            ("xlsx", "Create XLSX file"),
+            ("tsv", "Create TSV file"),
+        ),
+    )
+
     exac_enabled = forms.BooleanField(label="", required=False, initial=True)
     exac_frequency = forms.DecimalField(
         label="",

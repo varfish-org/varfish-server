@@ -1,9 +1,12 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
+from django.core.urlresolvers import reverse
 from projectroles.models import Project
 from postgres_copy import CopyManager
 import uuid as uuid_object
+
+from bgjobs.models import BackgroundJob, JOB_STATE_DONE, JOB_STATE_FAILED, JOB_STATE_RUNNING
 
 
 class SmallVariant(models.Model):
@@ -128,5 +131,77 @@ class Case(models.Model):
     class Meta:
         indexes = [models.Index(fields=["name"])]
 
+    def get_filter_url(self):
+        """Return absolute URL for the filtration view of this case."""
+        return reverse(
+            "variants:filter", kwargs={"project": self.project.sodar_uuid, "case": self.sodar_uuid}
+        )
+
     def __str__(self):
         return self.name
+
+
+#: File type choices for ``ExportFileBgJob``.
+EXPORT_TYPE_CHOICE_TSV = "tsv"
+EXPORT_TYPE_CHOICE_XLSX = "xlsx"
+EXPORT_FILE_TYPE_CHOICES = (
+    (EXPORT_TYPE_CHOICE_TSV, "TSV File"),
+    (EXPORT_TYPE_CHOICE_XLSX, "Excel File (XLSX)"),
+)
+
+
+class ExportFileBgJob(models.Model):
+    """Background job for exporting query results as a TSV or Excel file."""
+
+    # Fields required by SODAR
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
+    )
+    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+
+    bg_job = models.ForeignKey(BackgroundJob, null=False, help_text="Background job for state etc.")
+    case = models.ForeignKey(Case, null=False, help_text="The case to export")
+    query_args = JSONField(null=False, help_text="(Validated) query parameters")
+    file_type = models.CharField(
+        max_length=32, choices=EXPORT_FILE_TYPE_CHOICES, help_text="File types for exported file"
+    )
+
+    def mark_start(self):
+        """Mark the export job as started."""
+        self.bg_job.status = JOB_STATE_RUNNING
+        self.bg_job.add_log_entry("Starting export to file")
+        self.bg_job.save()
+
+    def mark_error(self, msg):
+        """Mark the export job as complete successfully."""
+        self.bg_job.status = JOB_STATE_FAILED
+        self.bg_job.add_log_entry("Exporting to file failed: {}".format(msg))
+        self.bg_job.save()
+
+    def mark_success(self):
+        """Mark the export job as complete successfully."""
+        self.bg_job.status = JOB_STATE_DONE
+        self.bg_job.add_log_entry("Exporting to file succeeded")
+        self.bg_job.save()
+
+    def add_log_entry(self, *args, **kwargs):
+        return self.bg_job.add_log_entry(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:export-job-view",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
+
+
+class ExportFileJobResult(models.Model):
+    """Result of ``ExportFileBgJob``."""
+
+    job = models.OneToOneField(
+        ExportFileBgJob,
+        related_name="export_result",
+        null=False,
+        help_text="Related file export job",
+    )
+    expiry_time = models.DateTimeField(help_text="Time at which the file download expires")
+    payload = models.BinaryField(help_text="Resulting exported file")

@@ -3,6 +3,7 @@
 {% load humanize %}
 
 <form id="filterForm" method="post">{% csrf_token %}
+  {{ form.result_type }}
   <div class="card">
     <div class="card-header">
       <h5 class="mb-3">Filter Settings</h5>
@@ -75,9 +76,30 @@
           </div>
         </div>
         <div class="col text-right">
-          <input name="submit" type="submit" value="Submit" class="btn btn-primary" />
+          <div class="btn-group">
+              <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" data-toggle-second="tooltip" aria-haspopup="true" aria-expanded="false" title="Filter the variants again and download the results as a file">
+                <i class="fa fa-cloud-download"></i> Download
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="#" onclick="javascript:$('#id_result_type').val('xlsx');$('#filterForm').submit();">
+                  <i class="fa fa-file-excel-o"></i>
+                  Excel File (<tt>.xlsx</tt>)
+                </a>
+                <a class="dropdown-item" href="#" onclick="javascript:$('#id_result_type').val('tsv');$('#filterForm').submit();">
+                  <i class="fa fa-file-text-o"></i>
+                  TSV File (text; <tt>.tsv</tt>)
+                </a>
+              </div>
+          </div>
+          <button href="#" onclick="javascript:$('#id_result_type').val('render');$('#filterForm').submit();" type="button" class="btn btn-primary">
+            <i class="fa fa-refresh"></i> Filter
+          </button>
         </div>
       </div>
     </div>
   </div>
 </form>
+
+<script type="text/javascript">
+  $('[data-toggle-second="tooltip"]').tooltip();
+</script>

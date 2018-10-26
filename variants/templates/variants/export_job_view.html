@@ -1,0 +1,70 @@
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
+{% load crispy_forms_tags %}
+{% load dict %}
+{% load humanize %}
+{% load static %}
+{% load json %}
+
+{% block projectroles_extend %}
+
+  <h3>
+    Background File Creation Job
+    <small class="text-muted">{{ object.bg_job.name }}</small>
+  </h3>
+
+  <ul>
+    <li>
+      <a href="{{ object.case.get_filter_url }}">
+        Return to case filter form
+      </a>
+    </li>
+    <li>
+      Status: {{ object.bg_job.status }}
+    </li>
+    <li>
+      Parameters:
+      <textarea rows="4" cols="50">{{ object.query_args|pretty_json }}</textarea>
+    </li>
+    <li>
+      File Type:
+      {{ object.file_type }}
+    </li>
+  </ul>
+
+  <h4>Result</h4>
+
+  {% if object.export_result %}
+    <a href="{% url "variants:export-job-download" project=object.project.sodar_uuid job=object.sodar_uuid %}">
+      <i class="fa fa-download"></i>
+      Download File
+    </a>
+
+  {% else %}
+    <p>
+      No result yet or file expired.
+    </p>
+  {% endif %}
+
+  <h4>Log Entries</h4>
+
+  {% if object.bg_job.log_entries.all %}
+    <dl class="log-entries">
+      {% for entry in object.bg_job.log_entries.all %}
+        <dt class="log-level-{{ entry.level }}">{{ entry.level }}</dt>
+        <dd class="log-message">
+          <span class="log-created-at">
+            {{ entry.date_created }}:
+          </span>
+          {{ entry.message }}
+        </dd>
+      {% endfor %}
+    </dl>
+  {% else %}
+    <p>
+      No log entries yet.
+    </p>
+  {% endif %}
+
+{% endblock %}
