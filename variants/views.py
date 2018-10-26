@@ -12,9 +12,9 @@ from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
-from querybuilder.models_support import QueryBuilder
+from querybuilder.models_support import QueryBuilder, FilterQueryRunner
 
-from .models import SmallVariant, Case, ExportFileBgJob
+from .models import Case, ExportFileBgJob
 from .forms import FilterForm
 from .tasks import export_file_task
 
@@ -49,192 +49,29 @@ class FilterView(
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._case_object = None
+        self._populator = None
 
     def get_case_object(self):
         if not self._case_object:
             self._case_object = Case.objects.get(sodar_uuid=self.kwargs["case"])
         return self._case_object
 
+    def get_populator(self, form):
+        if not self._populator:
+            self._populator = FilterQueryRunner(self.get_case_object(), form.cleaned_data)
+        return self._populator
+
     def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-
-        index = self.get_case_object().index
-        father = ""
-        mother = ""
-
-        for member in self.get_case_object().pedigree:
-            if member["patient"] == index:
-                father = member["father"]
-                mother = member["mother"]
-
-        kwargs["pedigree"] = list()
-        for member in self.get_case_object().pedigree:
-            name = member["patient"]
-            if name == father:
-                role = "father"
-            elif name == index:
-                role = "index"
-            elif name == mother:
-                role = "mother"
-            else:
-                role = "tbd"
-            kwargs["pedigree"].append(
-                {
-                    "patient": name,
-                    "father": member["father"],
-                    "mother": member["mother"],
-                    "gender": member["sex"] == 2,
-                    "affected": member["affected"] == 2,
-                    "role": role,
-                    "fields": {
-                        "gt": "%s_gt" % name,
-                        "dp": "%s_dp" % name,
-                        "ab": "%s_ab" % name,
-                        "gq": "%s_gq" % name,
-                        "ad": "%s_ad" % name,
-                        "fail": "%s_fail" % name,
-                    },
-                }
-            )
-
-        return kwargs
+        result = super().get_form_kwargs()
+        result["pedigree"] = list(FilterQueryRunner.build_pedigree(self.get_case_object()))
+        return result
 
     def form_valid(self, form):
         """Main branching point either render result or create an asychronous job."""
         if form.cleaned_data["result_type"] in ("tsv", "xlsx"):
             return self._form_valid_file(form)
         else:
-            return self._form_valid_render(form, list(self._collect_select_effects(form)))
-
-    def _collect_select_effects(self, form):
-        """Yield the selected effects."""
-        for field_name, effect in form.translate_effects.items():
-            if form.cleaned_data[field_name]:
-                yield effect
-
-    def _build_query_kwargs(self, form, selected_effects):
-        """Build the ``kwargs`` variable for ``form_valid`` and friends."""
-        pedigree = self.get_form_kwargs()["pedigree"]
-        kwargs = {
-            "case": self.kwargs["case"],
-            "exac_frequency": float(form.cleaned_data["exac_frequency"])
-            if form.cleaned_data["exac_frequency"]
-            else None,
-            "exac_homozygous": int(form.cleaned_data["exac_homozygous"])
-            if form.cleaned_data["exac_homozygous"]
-            else None,
-            "exac_heterozygous": int(form.cleaned_data["exac_heterozygous"])
-            if form.cleaned_data["exac_heterozygous"]
-            else None,
-            "gnomad_genomes_frequency": float(form.cleaned_data["gnomad_genomes_frequency"])
-            if form.cleaned_data["gnomad_genomes_frequency"]
-            else None,
-            "gnomad_genomes_homozygous": int(form.cleaned_data["gnomad_genomes_homozygous"])
-            if form.cleaned_data["gnomad_genomes_homozygous"]
-            else None,
-            "gnomad_genomes_heterozygous": int(form.cleaned_data["gnomad_genomes_heterozygous"])
-            if form.cleaned_data["gnomad_genomes_heterozygous"]
-            else None,
-            "gnomad_exomes_frequency": float(form.cleaned_data["gnomad_exomes_frequency"])
-            if form.cleaned_data["gnomad_exomes_frequency"]
-            else None,
-            "gnomad_exomes_homozygous": int(form.cleaned_data["gnomad_exomes_homozygous"])
-            if form.cleaned_data["gnomad_exomes_homozygous"]
-            else None,
-            "gnomad_exomes_heterozygous": int(form.cleaned_data["gnomad_exomes_heterozygous"])
-            if form.cleaned_data["gnomad_exomes_heterozygous"]
-            else None,
-            "thousand_genomes_frequency": float(form.cleaned_data["thousand_genomes_frequency"])
-            if form.cleaned_data["thousand_genomes_frequency"]
-            else None,
-            "thousand_genomes_homozygous": int(form.cleaned_data["thousand_genomes_homozygous"])
-            if form.cleaned_data["thousand_genomes_homozygous"]
-            else None,
-            "thousand_genomes_heterozygous": int(form.cleaned_data["thousand_genomes_heterozygous"])
-            if form.cleaned_data["thousand_genomes_heterozygous"]
-            else None,
-            "effects": selected_effects,
-            "genotype": list(),
-            "gene_blacklist": [x.strip() for x in form.cleaned_data["gene_blacklist"].split()],
-            "database_select": form.cleaned_data["database_select"],
-            "exac_enabled": form.cleaned_data["exac_enabled"],
-            "gnomad_exomes_enabled": form.cleaned_data["gnomad_exomes_enabled"],
-            "gnomad_genomes_enabled": form.cleaned_data["gnomad_genomes_enabled"],
-            "thousand_genomes_enabled": form.cleaned_data["thousand_genomes_enabled"],
-            "var_type_snv": form.cleaned_data["var_type_snv"],
-            "var_type_mnv": form.cleaned_data["var_type_mnv"],
-            "var_type_indel": form.cleaned_data["var_type_indel"],
-            "compound_recessive_enabled": form.cleaned_data["compound_recessive_enabled"],
-            "pedigree": pedigree,
-        }
-        return kwargs
-
-    def _build_query_args(self, kwargs, form, pedigree):
-        """Build the query from the postprocessed ``kwargs`` and the ``form`` instance."""
-        qb = QueryBuilder()
-        for member in pedigree:
-            gt = form.cleaned_data[member["fields"]["gt"]]
-
-            kwargs["genotype"].append(
-                {
-                    "member": member["patient"],
-                    "dp": form.cleaned_data[member["fields"]["dp"]],
-                    "ad": form.cleaned_data[member["fields"]["ad"]],
-                    "gq": form.cleaned_data[member["fields"]["gq"]],
-                    "ab": form.cleaned_data[member["fields"]["ab"]],
-                    "gt": form.translate_inheritance[gt],
-                    "fail": form.cleaned_data[member["fields"]["fail"]],
-                }
-            )
-
-        if kwargs["compound_recessive_enabled"]:
-            return qb.build_comphet_query(kwargs)
-        else:
-            base = qb.build_base_query(kwargs)
-            conditions = [
-                qb.build_vartype_term(kwargs),
-                qb.build_frequency_term(kwargs),
-                qb.build_homozygous_term(kwargs),
-                qb.build_heterozygous_term(kwargs),
-                qb.build_case_term(kwargs),
-                qb.build_effects_term(kwargs),
-                qb.build_genotype_term_list(kwargs),
-                qb.build_gene_blacklist_term(kwargs),
-            ]
-            return qb.build_top_level_query(base, conditions)
-
-    def _transform_entry_interpret_database(self, kwargs, entry):
-        """Transform result entry and set ``effect``, ``hgvs_p``, ``hgvs_c``, and
-        ``transcript_coding`` attributes based on selecting RefSeq/ENSEMBL.
-        """
-        if kwargs["database_select"] == "refseq":
-            entry.effect = set(entry.refseq_effect)
-            entry.hgvs_p = entry.refseq_hgvs_p
-            entry.hgvs_c = entry.refseq_hgvs_c
-            entry.transcript_coding = entry.refseq_transcript_coding
-        elif kwargs["database_select"] == "ensembl":
-            entry.effect = set(entry.ensembl_effect)
-            entry.hgvs_p = entry.ensembl_hgvs_p
-            entry.hgvs_c = entry.ensembl_hgvs_c
-            entry.transcript_coding = entry.ensembl_transcript_coding
-        return entry
-
-    def _transform_entry_gt_fields(self, entry):
-        """Transform result entry and set ``gt``, ``dp``, ``ad``, ``gq``."""
-        genotype_data = dict()
-        dp_data = dict()
-        ad_data = dict()
-        gq_data = dict()
-        for patient, data in entry.genotype.items():
-            genotype_data[patient] = data["gt"]
-            dp_data[patient] = data["dp"]
-            ad_data[patient] = data["ad"]
-            gq_data[patient] = data["gq"]
-        entry.gt = genotype_data
-        entry.dp = dp_data
-        entry.ad = ad_data
-        entry.gq = gq_data
-        return entry
+            return self._form_valid_render(form)
 
     def _form_valid_file(self, form):
         """The form is valid, we want to asynchronously build a file for later download."""
@@ -261,19 +98,10 @@ class FilterView(
         export_file_task.delay(export_job_pk=export_job.pk)
         return redirect(export_job.get_absolute_url())
 
-    def _form_valid_render(self, form, selected_effects):
+    def _form_valid_render(self, form):
         """The form is valid, we are supposed to render an HTML table with the results."""
-        pedigree = self.get_form_kwargs()["pedigree"]
-        kwargs = self._build_query_kwargs(form, selected_effects)
-        query, args = self._build_query_args(kwargs, form, pedigree)
-
-        main = list(SmallVariant.objects.raw(query, args))
-
-        for entry in main:
-            self._transform_entry_interpret_database(kwargs, entry)
-            self._transform_entry_gt_fields(entry)
-
-        return render(self.request, self.template_name, self.get_context_data(main=main))
+        populator = self.get_populator(form)
+        return render(self.request, self.template_name, self.get_context_data(main=populator.run()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

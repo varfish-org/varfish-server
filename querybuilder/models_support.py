@@ -1,3 +1,7 @@
+from variants.models import SmallVariant
+from variants.forms import FILTER_FORM_TRANSLATE_EFFECTS, FILTER_FORM_TRANSLATE_INHERITANCE
+
+
 class QueryBuilder:
     def __init__(self):
         self.count = 0
@@ -610,3 +614,190 @@ class QueryBuilder:
             ),
             args_merged,
         )
+
+
+class FilterQueryRunner:
+    """Wrapper for ``QueryBuilder`` for using ``QueryBuilder`` from form ``kwargs``."""
+
+    def __init__(self, case, cleaned_data):
+        self.case = case
+        self.cleaned_data = cleaned_data
+        self.pedigree = list(self.__class__.build_pedigree(self.case))
+
+    @staticmethod
+    def build_pedigree(case):
+        index = case.index
+        father = ""
+        mother = ""
+        for member in case.pedigree:
+            if member["patient"] == index:
+                father = member["father"]
+                mother = member["mother"]
+
+        for member in case.pedigree:
+            name = member["patient"]
+            if name == father:
+                role = "father"
+            elif name == index:
+                role = "index"
+            elif name == mother:
+                role = "mother"
+            else:
+                role = "tbd"
+            yield {
+                    "patient": name,
+                    "father": member["father"],
+                    "mother": member["mother"],
+                    "gender": member["sex"] == 2,
+                    "affected": member["affected"] == 2,
+                    "role": role,
+                    "fields": {
+                        "gt": "%s_gt" % name,
+                        "dp": "%s_dp" % name,
+                        "ab": "%s_ab" % name,
+                        "gq": "%s_gq" % name,
+                        "ad": "%s_ad" % name,
+                        "fail": "%s_fail" % name,
+                    },
+                }
+
+    def _collect_select_effects(self):
+        """Yield the selected effects."""
+        for field_name, effect in FILTER_FORM_TRANSLATE_EFFECTS.items():
+            if self.cleaned_data[field_name]:
+                yield effect
+
+    def _build_query_kwargs(self):
+        """Build the ``kwargs`` variable for ``form_valid`` and friends."""
+        selected_effects = self._collect_select_effects()
+        pedigree = self.pedigree
+        kwargs = {
+            "case": self.case.sodar_uuid,
+            "exac_frequency": float(self.cleaned_data["exac_frequency"])
+            if self.cleaned_data["exac_frequency"]
+            else None,
+            "exac_homozygous": int(self.cleaned_data["exac_homozygous"])
+            if self.cleaned_data["exac_homozygous"]
+            else None,
+            "exac_heterozygous": int(self.cleaned_data["exac_heterozygous"])
+            if self.cleaned_data["exac_heterozygous"]
+            else None,
+            "gnomad_genomes_frequency": float(self.cleaned_data["gnomad_genomes_frequency"])
+            if self.cleaned_data["gnomad_genomes_frequency"]
+            else None,
+            "gnomad_genomes_homozygous": int(self.cleaned_data["gnomad_genomes_homozygous"])
+            if self.cleaned_data["gnomad_genomes_homozygous"]
+            else None,
+            "gnomad_genomes_heterozygous": int(self.cleaned_data["gnomad_genomes_heterozygous"])
+            if self.cleaned_data["gnomad_genomes_heterozygous"]
+            else None,
+            "gnomad_exomes_frequency": float(self.cleaned_data["gnomad_exomes_frequency"])
+            if self.cleaned_data["gnomad_exomes_frequency"]
+            else None,
+            "gnomad_exomes_homozygous": int(self.cleaned_data["gnomad_exomes_homozygous"])
+            if self.cleaned_data["gnomad_exomes_homozygous"]
+            else None,
+            "gnomad_exomes_heterozygous": int(self.cleaned_data["gnomad_exomes_heterozygous"])
+            if self.cleaned_data["gnomad_exomes_heterozygous"]
+            else None,
+            "thousand_genomes_frequency": float(self.cleaned_data["thousand_genomes_frequency"])
+            if self.cleaned_data["thousand_genomes_frequency"]
+            else None,
+            "thousand_genomes_homozygous": int(self.cleaned_data["thousand_genomes_homozygous"])
+            if self.cleaned_data["thousand_genomes_homozygous"]
+            else None,
+            "thousand_genomes_heterozygous": int(self.cleaned_data["thousand_genomes_heterozygous"])
+            if self.cleaned_data["thousand_genomes_heterozygous"]
+            else None,
+            "effects": selected_effects,
+            "genotype": list(),
+            "gene_blacklist": [x.strip() for x in self.cleaned_data["gene_blacklist"].split()],
+            "database_select": self.cleaned_data["database_select"],
+            "exac_enabled": self.cleaned_data["exac_enabled"],
+            "gnomad_exomes_enabled": self.cleaned_data["gnomad_exomes_enabled"],
+            "gnomad_genomes_enabled": self.cleaned_data["gnomad_genomes_enabled"],
+            "thousand_genomes_enabled": self.cleaned_data["thousand_genomes_enabled"],
+            "var_type_snv": self.cleaned_data["var_type_snv"],
+            "var_type_mnv": self.cleaned_data["var_type_mnv"],
+            "var_type_indel": self.cleaned_data["var_type_indel"],
+            "compound_recessive_enabled": self.cleaned_data["compound_recessive_enabled"],
+            "pedigree": pedigree,
+        }
+        return kwargs
+
+    def _build_query_args(self, kwargs):
+        """Build the query from the postprocessed ``kwargs`` and the ``form`` instance."""
+        for member in self.pedigree:
+            gt = self.cleaned_data[member["fields"]["gt"]]
+
+            kwargs["genotype"].append(
+                {
+                    "member": member["patient"],
+                    "dp": self.cleaned_data[member["fields"]["dp"]],
+                    "ad": self.cleaned_data[member["fields"]["ad"]],
+                    "gq": self.cleaned_data[member["fields"]["gq"]],
+                    "ab": self.cleaned_data[member["fields"]["ab"]],
+                    "gt": FILTER_FORM_TRANSLATE_INHERITANCE[gt],
+                    "fail": self.cleaned_data[member["fields"]["fail"]],
+                }
+            )
+
+        qb = QueryBuilder()
+        if kwargs["compound_recessive_enabled"]:
+            return qb.build_comphet_query(kwargs)
+        else:
+            base = qb.build_base_query(kwargs)
+            conditions = [
+                qb.build_vartype_term(kwargs),
+                qb.build_frequency_term(kwargs),
+                qb.build_homozygous_term(kwargs),
+                qb.build_heterozygous_term(kwargs),
+                qb.build_case_term(kwargs),
+                qb.build_effects_term(kwargs),
+                qb.build_genotype_term_list(kwargs),
+                qb.build_gene_blacklist_term(kwargs),
+            ]
+            return qb.build_top_level_query(base, conditions)
+
+    def _transform_entry_interpret_database(self, kwargs, entry):
+        """Transform result entry and set ``effect``, ``hgvs_p``, ``hgvs_c``, and
+        ``transcript_coding`` attributes based on selecting RefSeq/ENSEMBL.
+        """
+        if kwargs["database_select"] == "refseq":
+            entry.effect = set(entry.refseq_effect)
+            entry.hgvs_p = entry.refseq_hgvs_p
+            entry.hgvs_c = entry.refseq_hgvs_c
+            entry.transcript_coding = entry.refseq_transcript_coding
+        elif kwargs["database_select"] == "ensembl":
+            entry.effect = set(entry.ensembl_effect)
+            entry.hgvs_p = entry.ensembl_hgvs_p
+            entry.hgvs_c = entry.ensembl_hgvs_c
+            entry.transcript_coding = entry.ensembl_transcript_coding
+        return entry
+
+    def _transform_entry_gt_fields(self, entry):
+        """Transform result entry and set ``gt``, ``dp``, ``ad``, ``gq``."""
+        genotype_data = dict()
+        dp_data = dict()
+        ad_data = dict()
+        gq_data = dict()
+        for patient, data in entry.genotype.items():
+            genotype_data[patient] = data["gt"]
+            dp_data[patient] = data["dp"]
+            ad_data[patient] = data["ad"]
+            gq_data[patient] = data["gq"]
+        entry.gt = genotype_data
+        entry.dp = dp_data
+        entry.ad = ad_data
+        entry.gq = gq_data
+        return entry
+
+    def run(self):
+        kwargs = self._build_query_kwargs()
+        query, args = self._build_query_args(kwargs)
+
+        entries = list(SmallVariant.objects.raw(query, args))
+        for entry in entries:
+            self._transform_entry_interpret_database(kwargs, entry)
+            self._transform_entry_gt_fields(entry)
+        return entries
