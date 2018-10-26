@@ -69,6 +69,7 @@ LOCAL_APPS = [
     "importer.apps.ImporterConfig",
     "pathways.apps.PathwaysConfig",
     "variants.apps.VariantsConfig",
+    "bgjobs.apps.BgjobsConfig",
     "templatetags.apps.TemplatetagsConfig",
 ]
 
