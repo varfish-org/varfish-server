@@ -68,7 +68,8 @@ class FilterView(
 
     def form_valid(self, form):
         """Main branching point either render result or create an asychronous job."""
-        if form.cleaned_data["result_type"] in ("tsv", "xlsx"):
+        print(form.cleaned_data)
+        if form.cleaned_data["submit"] == "download":
             return self._form_valid_file(form)
         else:
             return self._form_valid_render(form)
@@ -78,7 +79,7 @@ class FilterView(
         with transaction.atomic():
             bg_job = BackgroundJob.objects.create(
                 name="Create {} file for case {}".format(
-                    form.cleaned_data["result_type"], self.get_case_object().name
+                    form.cleaned_data["file_type"], self.get_case_object().name
                 ),
                 project=self._get_project(self.request, self.kwargs),
                 job_type="variants.export_file_bg_job",
@@ -88,7 +89,7 @@ class FilterView(
                 bg_job=bg_job,
                 case=self.get_case_object(),
                 query_args=json.dumps(form.cleaned_data),
-                file_type=form.cleaned_data["result_type"],
+                file_type=form.cleaned_data["file_type"],
             )
         messages.info(
             self.request,

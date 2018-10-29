@@ -3,7 +3,6 @@
 {% load humanize %}
 
 <form id="filterForm" method="post">{% csrf_token %}
-  {{ form.result_type }}
   <div class="card">
     <div class="card-header">
       <h5 class="mb-3">Filter Settings</h5>
@@ -25,7 +24,10 @@
           <a class="nav-link" id="blacklist-tab" data-toggle="tab" href="#panel-blacklist" role="tab">Gene Blacklist</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="settings-tab" data-toggle="tab" href="#panel-settings" role="tab">Settings JSON</a>
+          <a class="nav-link" id="export-tab" data-toggle="tab" href="#panel-export" role="tab">Export Config</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="settings-tab" data-toggle="tab" href="#panel-settings" role="tab">Settings Import/Export</a>
         </li>
       </ul>
     </div>
@@ -46,6 +48,9 @@
         </div>
         <div class="tab-pane fade" id="panel-blacklist" role="tabpanel" aria-labelledby="blacklist-tab">
           {% include "variants/_filter_form_blacklist.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-export" role="tabpanel" arial-labelledby="export-tab">
+          {% include "variants/_filter_form_export.html" %}
         </div>
         <div class="tab-pane fade" id="panel-settings" role="tabpanel" arial-labelledby="settings-tab">
           {% include "variants/_filter_form_settings.html" %}
@@ -77,23 +82,17 @@
         </div>
         <div class="col text-right">
           <div class="btn-group">
-              <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" data-toggle-second="tooltip" aria-haspopup="true" aria-expanded="false" title="Filter the variants again and download the results as a file">
-                <i class="fa fa-cloud-download"></i> Download
-              </button>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="#" onclick="javascript:$('#id_result_type').val('xlsx');$('#filterForm').submit();">
-                  <i class="fa fa-file-excel-o"></i>
-                  Excel File (<tt>.xlsx</tt>)
-                </a>
-                <a class="dropdown-item" href="#" onclick="javascript:$('#id_result_type').val('tsv');$('#filterForm').submit();">
-                  <i class="fa fa-file-text-o"></i>
-                  TSV File (text; <tt>.tsv</tt>)
-                </a>
-              </div>
+            <button type="submit" name="submit" value="download" class="btn btn-secondary" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false"
+                    title="Create downloadable file in the background of <b>all</b> variants with current settings.">
+              <i class="fa fa-cloud-download"></i>
+              Download
+            </button>
+            <button type="submit" name="submit" value="display" class="btn btn-primary"data-toggle="tooltip" aria-haspopup="true" aria-expanded="false"
+                    title="Filter variants again with current settings and display in table below">
+              <i class="fa fa-refresh"></i>
+              Filter
+            </button>
           </div>
-          <button href="#" onclick="javascript:$('#id_result_type').val('render');$('#filterForm').submit();" type="button" class="btn btn-primary">
-            <i class="fa fa-refresh"></i> Filter
-          </button>
         </div>
       </div>
     </div>

@@ -75,26 +75,49 @@ def export_case_tsv(job):
     """
     tmp_file = TemporaryFile()
     job.add_log_entry("Writing to TSV file...")
+    query_args = json.loads(job.query_args)
     query_runner = FilterQueryRunner(
-        job.case, json.loads(job.query_args), include_conservation=True
+        job.case, query_args, include_conservation=True
     )
-    header = HEADER_FIXED
+    # Get names of selected pedigree members.
+    members = [
+        m["patient"]
+        for m in query_runner.pedigree
+        if query_args.get('%s_export' % m["patient"], False)
+    ]
+    header_ext = []
+    for member in members:
+        for key in ("gt", "gq", "ad", "dp", "aaf"):
+            header_ext.append("%s.%s" % (member, key))
+    # Generate output
+    header = HEADER_FIXED + header_ext
     tmp_file.write(line(header).encode())
     prev_chrom = None
-    for small_var in query_runner.run():
+    job.add_log_entry("Executing database query...")
+    result = query_runner.run()
+    job.add_log_entry("Writing output file...")
+    for small_var in result:
         if small_var.chromosome != prev_chrom:
             job.add_log_entry("Now on chromosome chr{}".format(small_var.chromosome))
             prev_chrom = small_var.chromosome
         # Build first, fixed-number columns.
         row = [getattr(small_var, name) for name in HEADER_FIXED]
         row[0] = "chr" + row[0]
-        row += [str(small_var.gt)]
         # Add further, dynamic columns.
+        for header in header_ext:
+            member, field = header.rsplit('.', 1)
+            if field == 'aaf':
+                ad = small_var.ad.get(member, 0)
+                dp = small_var.dp.get(member, 0)
+                if dp == 0:
+                    aaf = 0.0
+                else:
+                    aaf = ad / dp
+                row.append(str(aaf))
+            else:
+                row.append(to_str(getattr(small_var, field, {}).get(member, '.')))
+        # Write row to output.
         tmp_file.write(line(row).encode())
-        # gt
-        # gq
-        # var
-        # dp
     tmp_file.seek(0)
     return tmp_file
 

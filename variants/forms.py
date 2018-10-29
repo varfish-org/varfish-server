@@ -62,14 +62,17 @@ FILTER_FORM_TRANSLATE_INHERITANCE = {
 
 
 class FilterForm(forms.Form):
-    result_type = forms.ChoiceField(
-        initial="render",
-        widget=forms.HiddenInput(),
+    file_type = forms.ChoiceField(
+        initial="xlsx",
+        choices=(("xlsx", "Excel (.xlsx)"), ("tsv", "TSV (.tsv)"), ("vcf", "VCF (.vcf.gz)")),
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+
+    submit = forms.ChoiceField(
         choices=(
-            ("render", "Render HTML table"),
-            ("xlsx", "Create XLSX file"),
-            ("tsv", "Create TSV file"),
-        ),
+            ("display", "Display results in table"),
+            ("download", "Generate downloadable file in background"),
+        )
     )
 
     exac_enabled = forms.BooleanField(label="", required=False, initial=True)
@@ -296,3 +299,6 @@ class FilterForm(forms.Form):
             )
             if member["role"] == "index" and (member["father"] == "0" or member["mother"] == "0"):
                 self.fields["compound_recessive_enabled"].disabled = True
+            self.fields[member["fields"]["export"]] = forms.BooleanField(
+                label=member["patient"], required=False, initial=True
+            )

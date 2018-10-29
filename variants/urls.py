@@ -16,12 +16,17 @@ urlpatterns = [
         name="extend",
     ),
     url(
-        regex=r"^(?P<project>[0-9a-f-]+)/export-job/(?P<job>[0-9a-f-]+)/$",
+        regex=r"^(?P<project>[0-9a-f-]+)/export-job/create/$",
+        view=views.ExportFileJobDetailView.as_view(),
+        name="export-job-",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/export-job/view/(?P<job>[0-9a-f-]+)/$",
         view=views.ExportFileJobDetailView.as_view(),
         name="export-job-view",
     ),
     url(
-        regex=r"^(?P<project>[0-9a-f-]+)/export-job-download/(?P<job>[0-9a-f-]+)/$",
+        regex=r"^(?P<project>[0-9a-f-]+)/export-job/download/(?P<job>[0-9a-f-]+)/$",
         view=views.ExportFileJobDownloadView.as_view(),
         name="export-job-download",
     ),
