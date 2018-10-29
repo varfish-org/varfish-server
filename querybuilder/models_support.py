@@ -126,7 +126,7 @@ class QueryBuilder:
             },
         )
 
-    def build_comphet_query(self, kwargs):
+    def build_comphet_query(self, kwargs, include_conservation=False):
         query, args = self.build_comphet_sub_query(kwargs)
 
         if not kwargs["database_select"] in ("refseq", "ensembl"):
@@ -142,38 +142,47 @@ class QueryBuilder:
             database = "ensembl"
             hgnc = "USING (ensembl_gene_id)"
 
-        return (
-            r"""
+        result_tpl = r"""
             SELECT
+                %(conservation_distinct)s
                 1 AS id,
-                release, chromosome, position, reference, alternative,
-                exac_frequency,
-                gnomad_exomes_frequency,
-                gnomad_genomes_frequency,
-                thousand_genomes_frequency,
-                exac_homozygous,
-                gnomad_exomes_homozygous,
-                gnomad_genomes_homozygous,
-                thousand_genomes_homozygous,
-                genotype,
-                pedigree,
-                index,
-                case_id,
-                in_clinvar,
+                sv_outer.release,
+                sv_outer.chromosome,
+                sv_outer.position,
+                sv_outer.reference,
+                sv_outer.alternative,
+                sv_outer.exac_frequency,
+                sv_outer.gnomad_exomes_frequency,
+                sv_outer.gnomad_genomes_frequency,
+                sv_outer.thousand_genomes_frequency,
+                sv_outer.exac_homozygous,
+                sv_outer.gnomad_exomes_homozygous,
+                sv_outer.gnomad_genomes_homozygous,
+                sv_outer.thousand_genomes_homozygous,
+                sv_outer.genotype,
+                sv_outer.pedigree,
+                sv_outer.index,
+                sv_outer.case_id,
+                sv_outer.in_clinvar,
                 h.symbol,
                 d.rsid,
-                {database}_hgvs_p,
-                {database}_hgvs_c,
-                {database}_transcript_coding,
-                {database}_effect,
-                {database}_gene_id AS gene_id
-            FROM ({query}) sv
+                sv_outer.{database}_hgvs_p,
+                sv_outer.{database}_hgvs_c,
+                sv_outer.{database}_transcript_coding,
+                sv_outer.{database}_effect,
+                sv_outer.{database}_gene_id AS gene_id
+                %(conservation_alignment)s
+            FROM ({query}) sv_outer
             LEFT OUTER JOIN dbsnp_dbsnp d USING (release, chromosome, position, reference, alternative)
             LEFT OUTER JOIN geneinfo_hgnc h {hgnc}
+            %(conservation_left_join)s
             WHERE
                 (p1_c > 0) AND
-                (p2_c > 0);
-            """.format(
+                (p2_c > 0)
+            %(conservation_group_by)s;
+            """
+        return (
+            (result_tpl % self._build_feature_args(include_conservation=include_conservation, sv_name='sv_outer', group_by_sv_id=False)).format(
                 database=database, hgnc=hgnc, query=query
             ),
             args,
@@ -267,7 +276,7 @@ class QueryBuilder:
             {**args_p1, **args_p2},
         )
 
-    def build_base_query(self, kwargs):
+    def build_base_query(self, kwargs, include_conservation=False):
         if not kwargs["database_select"] in ("refseq", "ensembl"):
             return "FALSE"
 
@@ -281,8 +290,9 @@ class QueryBuilder:
             database = "ensembl"
             hgnc = "USING (ensembl_gene_id)"
 
-        return r"""
+        result_tpl = r"""
             SELECT
+                %(conservation_distinct)s
                 sv.id,
                 sv.release, sv.chromosome, sv.position, sv.reference, sv.alternative,
                 sv.exac_frequency,
@@ -305,13 +315,85 @@ class QueryBuilder:
                 sv.{database}_transcript_coding,
                 sv.{database}_effect,
                 sv.{database}_gene_id AS gene_id
+                %(conservation_alignment)s
             FROM variants_smallvariant sv
             LEFT OUTER JOIN variants_case c ON (sv.case_id = c.id)
             LEFT OUTER JOIN dbsnp_dbsnp d USING (release, chromosome, position, reference, alternative)
             LEFT OUTER JOIN geneinfo_hgnc h {hgnc}
-            """.format(
+            %(conservation_left_join)s
+            WHERE %%(where)s
+            %(conservation_group_by)s
+            ORDER BY %%(order_by)s
+            """
+        return (result_tpl % self._build_feature_args(include_conservation)).format(
             database=database, hgnc=hgnc
         )
+
+    def _build_feature_args(self, include_conservation, sv_name="sv", group_by_sv_id=True):
+        if include_conservation:
+            return {
+                'conservation_distinct': r"""
+                    DISTINCT(
+                        %(sv_name)s.release,
+                        %(sv_name)s.chromosome,
+                        %(sv_name)s.position,
+                        %(sv_name)s.reference,
+                        %(sv_name)s.alternative
+                    ),
+                """ % {'sv_name': sv_name},
+                'conservation_alignment': r"""
+                , string_agg(kgaa.alignment, ' / ') as known_gene_aa
+                """,
+                'conservation_left_join': r"""
+                LEFT OUTER JOIN conservation_knowngeneaa AS kgaa
+                    ON (
+                        %(sv_name)s.chromosome = kgaa.chromosome AND
+                        (%(sv_name)s.position - 1 + LENGTH(%(sv_name)s.reference)) >= kgaa.start AND
+                        (%(sv_name)s.position - 1) < kgaa.end AND
+                        -- This is hacky, will not work for versions >9
+                        LEFT(h.ucsc_id, -2) = LEFT(kgaa.transcript_id, -2)
+                    )
+                """ % {'sv_name': sv_name},
+                'conservation_group_by': r"""
+                GROUP BY
+                    %(sv_id)s
+                    %(sv_name)s.release,
+                    %(sv_name)s.chromosome,
+                    %(sv_name)s.position,
+                    %(sv_name)s.reference,
+                    %(sv_name)s.alternative,
+                    %(sv_name)s.exac_frequency,
+                    %(sv_name)s.gnomad_exomes_frequency,
+                    %(sv_name)s.gnomad_genomes_frequency,
+                    %(sv_name)s.thousand_genomes_frequency,
+                    %(sv_name)s.exac_homozygous,
+                    %(sv_name)s.gnomad_exomes_homozygous,
+                    %(sv_name)s.gnomad_genomes_homozygous,
+                    %(sv_name)s.thousand_genomes_homozygous,
+                    %(sv_name)s.genotype,
+                    %(sv_name)s.case_id,
+                    %(sv_name)s.in_clinvar,
+                    symbol,
+                    pedigree,
+                    index,
+                    rsid,
+                    %(sv_name)s.{database}_hgvs_p,
+                    %(sv_name)s.{database}_hgvs_c,
+                    %(sv_name)s.{database}_transcript_coding,
+                    %(sv_name)s.{database}_effect,
+                    %(sv_name)s.{database}_gene_id
+                """ % {
+                    'sv_id': '%s.id,' % sv_name if group_by_sv_id else '',
+                    'sv_name': sv_name,
+                },
+            }
+        else:
+            return {
+                'conservation_distinct': '',
+                'conservation_alignment': '',
+                'conservation_left_join': '',
+                'conservation_group_by': '',
+            }
 
     def build_vartype_term(self, kwargs):
         values = list()
@@ -609,9 +691,7 @@ class QueryBuilder:
         conditions_joined = " AND ".join("({})".format(condition) for condition in condition_list)
 
         return (
-            "{base} WHERE {condition} ORDER BY chromosome, position".format(
-                base=base, condition=conditions_joined
-            ),
+            base % {'where': conditions_joined, 'order_by': 'chromosome, position'},
             args_merged,
         )
 
@@ -619,10 +699,12 @@ class QueryBuilder:
 class FilterQueryRunner:
     """Wrapper for ``QueryBuilder`` for using ``QueryBuilder`` from form ``kwargs``."""
 
-    def __init__(self, case, cleaned_data):
+    def __init__(self, case, cleaned_data, include_conservation=False):
         self.case = case
         self.cleaned_data = cleaned_data
         self.pedigree = list(self.__class__.build_pedigree(self.case))
+        #: Whether or not to include the ``knownGeneAA`` conservation information.
+        self.include_conservation = include_conservation
 
     @staticmethod
     def build_pedigree(case):
@@ -658,6 +740,7 @@ class FilterQueryRunner:
                         "gq": "%s_gq" % name,
                         "ad": "%s_ad" % name,
                         "fail": "%s_fail" % name,
+                        "export": "%s_export" % name,
                     },
                 }
 
@@ -744,9 +827,9 @@ class FilterQueryRunner:
 
         qb = QueryBuilder()
         if kwargs["compound_recessive_enabled"]:
-            return qb.build_comphet_query(kwargs)
+            return qb.build_comphet_query(kwargs, include_conservation=self.include_conservation)
         else:
-            base = qb.build_base_query(kwargs)
+            base = qb.build_base_query(kwargs, include_conservation=self.include_conservation)
             conditions = [
                 qb.build_vartype_term(kwargs),
                 qb.build_frequency_term(kwargs),
