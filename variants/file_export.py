@@ -240,9 +240,6 @@ class CaseExporterTsv(CaseExporterBase):
 class CaseExporterXlsx(CaseExporterBase):
     """Export a case to Excel (XLSX) format."""
 
-    def _get_named_temporary_file_args(self):
-        return {"suffix": ".xlsx"}
-
     def __init__(self, job):
         super().__init__(job)
         #: The ``Workbook`` object to use for writing.
@@ -251,6 +248,9 @@ class CaseExporterXlsx(CaseExporterBase):
         self.variant_sheet = None
         #: The sheet with the meta data.
         self.meta_data_sheet = None
+
+    def _get_named_temporary_file_args(self):
+        return {"suffix": ".xlsx"}
 
     def _open(self):
         self.workbook = xlsxwriter.Workbook(self.tmp_file.name)
@@ -332,6 +332,95 @@ class CaseExporterXlsx(CaseExporterBase):
 
 class CaseExporterVcf(CaseExporterBase):
     """Export a case to VCF format."""
+
+    def __init__(self, job):
+        super().__init__(job)
+        #: The ``vcfpy.Writer`` to use for writing the VCF file.
+        self.vcf_writer = None
+
+    def _get_named_temporary_file_args(self):
+        return {"suffix": ".vcf.gz"}
+
+    def _open(self):
+        # Setup header
+        lines = [
+            vcfpy.HeaderLine("fileformat", "VCFv4.2"),
+            vcfpy.FormatHeaderLine.from_mapping(
+                {
+                    "ID": "AD",
+                    "Number": "R",
+                    "Type": "Integer",
+                    "Description": "Allelic depths for the ref and alt alleles in the order listed",
+                }
+            ),
+            vcfpy.FormatHeaderLine.from_mapping(
+                {
+                    "ID": "DP",
+                    "Number": "1",
+                    "Type": "Integer",
+                    "Description": "Approximate read depth at the locus",
+                }
+            ),
+            vcfpy.FormatHeaderLine.from_mapping(
+                {
+                    "ID": "GQ",
+                    "Number": "1",
+                    "Type": "Integer",
+                    "Description": "Phred-scaled genotype quality",
+                }
+            ),
+            vcfpy.FormatHeaderLine.from_mapping(
+                {"ID": "GT", "Number": "1", "Type": "String", "Description": "Genotype"}
+            ),
+        ]
+        # Add header lines for contigs.
+        # TODO: switch based on release in case
+        for name, length in CONTIGS_GRCH37:
+            lines.append(vcfpy.ContigHeaderLine.from_mapping({"ID": name, "length": length}))
+        header = vcfpy.Header(lines=lines, samples=vcfpy.SamplesInfos(self.members))
+        # Open VCF writer
+        self.vcf_writer = vcfpy.Writer.from_path(self.tmp_file.name, header)
+
+    def _end_write_variants(self):
+        self.vcf_writer.close()
+
+    def _write_variants_data(self):
+        for small_var in self._yield_smallvars():
+            # Get variant type
+            if len(small_var.reference) == 1 and len(small_var.alternative) == 1:
+                var_type = vcfpy.SNV
+            elif len(small_var.reference) == len(small_var.alternative):
+                var_type = vcfpy.MNV
+            else:
+                var_type = vcfpy.INDEL
+            # Build list of calls
+            calls = [
+                vcfpy.Call(
+                    member,
+                    {
+                        "GT": small_var.gt.get(member, "./."),
+                        "GQ": small_var.gq.get(member, None),
+                        "AD": [small_var.ad.get(member, None)],
+                        "DP": small_var.dp.get(member, None),
+                    },
+                )
+                for member in self.members
+            ]
+            # Construct and write out the VCF ``Record`` object
+            self.vcf_writer.write_record(
+                vcfpy.Record(
+                    small_var.chromosome,
+                    small_var.position,
+                    [],
+                    small_var.reference,
+                    [vcfpy.Substitution(var_type, small_var.alternative)],
+                    None,
+                    [],
+                    {},
+                    ["GT", "GQ", "AD", "DP"],
+                    calls,
+                )
+            )
 
 
 #: Dict mapping file type to writer class.

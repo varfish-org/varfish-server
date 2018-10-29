@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, Http404
 from django.db import transaction
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View
 import simplejson as json
 
@@ -212,11 +213,19 @@ class ExportFileJobDownloadView(
         try:
             content_types = {
                 "tsv": " text/tab-separated-values",
+                "vcf": "text/plain+gzip",
                 "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             }
+            extensions = {"tsv": ".tsv", "vcf": ".vcf.gz", "xlsx": ".xlsx"}
             obj = self.get_object()
-            return HttpResponse(
+            response = HttpResponse(
                 obj.export_result.payload, content_type=content_types[obj.file_type]
             )
+            response["Content-Disposition"] = 'attachment; filename="%(name)s%(ext)s"' % {
+                "name": "varfish_%s_%s"
+                % (timezone.now().strftime("%Y-%m-%d_%H:%M:%S.%f"), obj.case.sodar_uuid),
+                "ext": extensions[obj.file_type],
+            }
+            return response
         except ObjectDoesNotExist as e:
             raise Http404("File has not been generated (yet)!") from e
