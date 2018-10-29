@@ -252,7 +252,17 @@ class FilterForm(forms.Form):
     effect_upstream_gene_variant = forms.BooleanField(label="upstream gene variant", required=False)
 
     compound_recessive_enabled = forms.BooleanField(
-        label="enable compound het. mode", required=False
+        label="enable comp. het. mode",
+        required=False,
+        help_text=(
+            "Compound recessive filtration only works for complete trios. "
+            "Enabling the comp. het. filter disables the individual genotype filter settings above but quality "
+            "settings still apply. "
+            "Filters for variants that are present in one gene (identified by transcript database gene identifier) "
+            "with the following constraints: "
+            "(1) at least one variant is heterozygous in mother and index and homozygous reference in the father, and "
+            "(2) at least one variant is heterozygous in father and index and homozygous in the mother."
+        ),
     )
 
     gene_blacklist = forms.CharField(

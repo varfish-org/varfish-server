@@ -2,8 +2,9 @@
 {% load dict %}
 
 <div class="row">
-  <div class="col">
-    <table class="table table-striped table-hover mt-3">
+  <h5 class="col-12">Individual Genotype Settings</h5>
+  <div class="col-12">
+    <table class="table table-striped table">
       <thead>
         <tr>
           <th class="col-2">Individual</th>
@@ -32,8 +33,8 @@
   </div>
 </div>
 <div class="row">
-  <h5 class="col-12">Compound Heterozygous Settings</h5>
-  <div class="col-4" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='text-left'>Disabled if trio is not complete.<br />Disables genotype filter settings, quality settings apply.<br />Filters instead for variants that are present in one gene (identified by transcipt database gene identifier) with the following constraints:<br /><ul class='pl-3'><li>at least one variant is heterozygous in mother and index and homozygous reference in the father</li><li>at least one variant is heterozygous in father and index and homozygous in the mother</li></ul></div>">
+  <h5 class="col-12 pt-2">Compound Heterozygous Settings</h5>
+  <div class="col-12">
     {{ form.compound_recessive_enabled|as_crispy_field }}
   </div>
 </div>
