@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, Http404
 from django.db import transaction
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View
 import simplejson as json
@@ -16,7 +16,7 @@ from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, Pro
 from querybuilder.models_support import QueryBuilder, FilterQueryRunner
 
 from .models import Case, ExportFileBgJob
-from .forms import FilterForm
+from .forms import FilterForm, ResubmitForm
 from .tasks import export_file_task
 
 
@@ -84,6 +84,7 @@ class FilterView(
                 ),
                 project=self._get_project(self.request, self.kwargs),
                 job_type="variants.export_file_bg_job",
+                user=self.request.user,
             )
             export_job = ExportFileBgJob.objects.create(
                 project=self._get_project(self.request, self.kwargs),
@@ -187,6 +188,46 @@ class ExportFileJobDetailView(
     model = ExportFileBgJob
     slug_url_kwarg = "job"
     slug_field = "sodar_uuid"
+
+    def get_context_data(self, *args, **kwargs):
+        result = super().get_context_data(*args, **kwargs)
+        result["resubmit_form"] = ResubmitForm()
+        return result
+
+
+class ExportFileJobResubmitView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
+    """Display status and further details of the file export background job.
+    """
+
+    permission_required = "variants.view_data"
+    form_class = ResubmitForm
+
+    def form_valid(self, form):
+        job = get_object_or_404(ExportFileBgJob, sodar_uuid=self.kwargs["job"])
+        with transaction.atomic():
+            bg_job = BackgroundJob.objects.create(
+                name="Create {} file for case {} (Resubmission)".format(
+                    form.cleaned_data["file_type"], job.case
+                ),
+                project=job.bg_job.project,
+                job_type="variants.export_file_bg_job",
+                user=self.request.user,
+            )
+            export_job = ExportFileBgJob.objects.create(
+                project=job.project,
+                bg_job=bg_job,
+                case=job.case,
+                query_args=job.query_args,
+                file_type=form.cleaned_data["file_type"],
+            )
+        export_file_task.delay(export_job_pk=export_job.pk)
+        return redirect(export_job.get_absolute_url())
 
 
 class ExportFileJobDownloadView(

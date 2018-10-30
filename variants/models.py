@@ -159,7 +159,12 @@ class ExportFileBgJob(models.Model):
     )
     project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
 
-    bg_job = models.ForeignKey(BackgroundJob, null=False, help_text="Background job for state etc.")
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="export_file_bg_job",
+        help_text="Background job for state etc.",
+    )
     case = models.ForeignKey(Case, null=False, help_text="The case to export")
     query_args = JSONField(null=False, help_text="(Validated) query parameters")
     file_type = models.CharField(

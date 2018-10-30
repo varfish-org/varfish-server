@@ -8,63 +8,155 @@
 {% load json %}
 
 {% block projectroles_extend %}
+  <div class="row sodar-subtitle-container bg-white sticky-top">
+    <h3>
+      <i class="fa fa-tasks"></i>
+      Background File Creation Job
+      <small class="text-muted">{{ object.bg_job.name }}</small>
+    </h3>
+    {% include 'variants/_exportjob_view_buttons.html' with project=project folder=folder %}
+  </div>
 
-  <h3>
-    Background File Creation Job
-    <small class="text-muted">{{ object.bg_job.name }}</small>
-  </h3>
+  <div class="card sodar-va-export-job-base-details"
+       id="card sodar-va-export-job-base-details">
+    <div class="card-header">
+      <h4>
+        Results &amp; Resubmit
+      </h4>
+    </div>
+    <div class="card-body p-0">
+      <ul class="list-group">
+        <li class="list-group-item row d-flex">
+          <div class="col-2 p-1"><strong>Download Result</strong></div>
+          <div class="col-10 p-1">
+            {% if object.export_result %}
+              <a href="{% url "variants:export-job-download" project=object.project.sodar_uuid job=object.sodar_uuid %}">
+                <i class="fa fa-download"></i>
+                Download {{ object.file_type }} File ({{ object.export_result.payload|length|filesizeformat }})
+              </a>
+            {% else %}
+              No result yet or file expired.
+            {% endif %}
+          </div>
+        </li>
+        <li class="list-group-item row d-flex">
+          <div class="col-2 p-1"><strong>Re-Submit</strong></div>
+          <div class="col-10 p-1">
+            <form class="form-inline" action="{% url "variants:export-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}" method="post">
+              {% csrf_token %}
+              <div class="form-group mx-sm-2">
+                <label for="id_file_type" class="mr-3">File Type:</label>
+                {{ resubmit_form.file_type }}
+              </div>
+              <div class="form-group mx-sm-2">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa fa-cloud-download"></i>
+                  Re-run with File Type
+                </button>
+              </div>
+              <small class="form-text text-muted">
+                Use this form to create a new job that uses the same filter settings but a different
+                <strong>file type</strong>.
+              </small>
+            </form>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
 
-  <ul>
-    <li>
-      <a href="{{ object.case.get_filter_url }}">
-        Return to case filter form
-      </a>
-    </li>
-    <li>
-      Status: {{ object.bg_job.status }}
-    </li>
-    <li>
-      Parameters:
-      <textarea rows="4" cols="50">{{ object.query_args|pretty_json }}</textarea>
-    </li>
-    <li>
-      File Type:
-      {{ object.file_type }}
-    </li>
-  </ul>
+  <div class="card sodar-va-export-job-base-details"
+     id="card sodar-va-export-job-base-details">
+    <div class="card-header">
+      <h4>
+        Base Details
+      </h4>
+    </div>
+    <div class="card-body p-0">
+      <ul class="list-group">
+        <li class="list-group-item row d-flex">
+          <div class="col-2 p-1"><strong>Created</strong></div>
+          <div class="col-10 p-1">{{ object.bg_job.date_created }}</div>
+        </li>
+        <li class="list-group-item row d-flex">
+          <div class="col-2 p-1"><strong>Updated</strong></div>
+          <div class="col-10 p-1">{{ object.bg_job.date_modified }}</div>
+        </li>
+        <li class="list-group-item row d-flex">
+          <div class="col-2 p-1"><strong>Creator</strong></div>
+          <div class="col-10 p-1">{{ object.bg_job.user }}</div>
+        </li>
+        <li class="list-group-item row d-flex">
+          <div class="col-2 p-1"><strong>Title</strong></div>
+          <div class="col-10 p-1">{{ object.bg_job.name }}</div>
+        </li>
+        <li class="list-group-item row d-flex">
+          <div class="col-2 p-1"><strong>Description</strong></div>
+          <div class="col-10 p-1">{{ object.bg_job.description|default:"-" }}</div>
+        </li>
+        <li class="list-group-item row d-flex">
+          <div class="col-2 p-1"><strong>Status</strong></div>
+          <div class="col-10 p-1">{{ object.bg_job.status }}</div>
+        </li>
+      </ul>
+    </div>
+  </div>
 
-  <h4>Result</h4>
+  <div class="card sodar-va-export-job-base-details"
+       id="card sodar-va-export-job-base-details">
+    <div class="card-header">
+      <h4>
+        Export Job Details
+      </h4>
+    </div>
+    <div class="card-body p-0">
+      <ul class="list-group">
+        <li class="list-group-item row d-flex">
+          <div class="col-2 p-1"><strong>Case</strong></div>
+          <div class="col-10 p-1">
+            <a href="{{ object.case.get_filter_url }}">
+              {{ object.case.name }}
+            </a>
+          </div>
+        </li>
+        <li class="list-group-item row d-flex">
+          <div class="col-2 p-1"><strong>Query Arguments</strong></div>
+          <div class="col-10 p-1">
+            <textarea class="form-control" cols="40" rows="5" readonly="true">{{ object.query_args|pretty_json }}</textarea>
+          </div>
+        </li>
+        <li class="list-group-item row d-flex">
+          <div class="col-2 p-1"><strong>File Type</strong></div>
+          <div class="col-10 p-1">{{ object.file_type }}</div>
+        </li>
+      </ul>
+    </div>
+  </div>
 
-  {% if object.export_result %}
-    <a href="{% url "variants:export-job-download" project=object.project.sodar_uuid job=object.sodar_uuid %}">
-      <i class="fa fa-download"></i>
-      Download File
-    </a>
-
-  {% else %}
-    <p>
-      No result yet or file expired.
-    </p>
-  {% endif %}
-
-  <h4>Log Entries</h4>
-
-  {% if object.bg_job.log_entries.all %}
-    <dl class="log-entries">
-      {% for entry in object.bg_job.log_entries.all %}
-        <dt class="log-level-{{ entry.level }}">{{ entry.level }}</dt>
-        <dd class="log-message">
-          <span class="log-created-at">
-            {{ entry.date_created }}:
-          </span>
-          {{ entry.message }}
-        </dd>
-      {% endfor %}
-    </dl>
-  {% else %}
-    <p>
-      No log entries yet.
-    </p>
-  {% endif %}
+  <div class="card sodar-va-export-job-base-details"
+       id="card sodar-va-export-job-base-details">
+    <div class="card-header">
+      <h4>
+        Log Message
+      </h4>
+    </div>
+    <div class="card-body p-0">
+      <ul class="list-group">
+        {% if object.bg_job.log_entries.all %}
+          {% for entry in object.bg_job.log_entries.all %}
+            <li class="list-group-item row d-flex">
+              <div class="col-2"><strong>{{ entry.date_created }}</strong></div>
+              <div class="col-1"><strong>{{ entry.level }}</strong></div>
+              <div class="col-9">{{ entry.message }}</div>
+            </li>
+          {% endfor %}
+        {% else %}
+          <li class="list-group-item bg-faded font-italic text-center">
+            No log entries yet.
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
 
 {% endblock %}

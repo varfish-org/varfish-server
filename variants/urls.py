@@ -16,9 +16,9 @@ urlpatterns = [
         name="extend",
     ),
     url(
-        regex=r"^(?P<project>[0-9a-f-]+)/export-job/create/$",
-        view=views.ExportFileJobDetailView.as_view(),
-        name="export-job-",
+        regex=r"^(?P<project>[0-9a-f-]+)/export-job/resubmit/(?P<job>[0-9a-f-]+)/$",
+        view=views.ExportFileJobResubmitView.as_view(),
+        name="export-job-resubmit",
     ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/export-job/view/(?P<job>[0-9a-f-]+)/$",

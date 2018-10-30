@@ -1,0 +1,40 @@
+{# BackgroundJob list #}
+<div id="varfish-bj-job-list" class="card mb-3">
+  <div class="card-body p-0">
+    <table id="varfish-bg-table" class="table table-striped sodar-card-table">
+      <thead>
+        <tr>
+          <th>Started</th>
+          <th>Last Change</th>
+          <th>State</th>
+          <th>Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in object_list %}
+          <tr id="varfish-bg-table-row-{{ job.sodar_uuid }}">
+            <td>{{ job.date_created|date:"Y/m/d h:m" }}</td>
+            <td>{{ job.date_modified|date:"Y/m/d h:m" }}</td>
+            <td>{{ job.status }}</td>
+            <td>
+              {% if job.export_file_bg_job.all %}
+                <a href="{{ job.export_file_bg_job.first.get_absolute_url }}">
+                  {{ job.name }}
+                </a>
+              {% else %}
+                {{ job.name }}
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        {% if not object_list %}
+          <tr>
+             <td class="bg-faded font-italic text-center" colspan="4">
+               No background jobs found.
+             </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>

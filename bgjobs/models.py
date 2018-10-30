@@ -1,5 +1,6 @@
 import uuid as uuid_object
 
+from django.conf import settings
 from django.db import models
 
 from projectroles.models import Project
@@ -30,11 +31,15 @@ LOG_LEVEL_CHOICES = (
 )
 
 
+# Access Django user model
+AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
+
+
 class BackgroundJob(models.Model):
     """Common background job information."""
 
     #: DateTime of creation
-    # created_at = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
     #: DateTime of last modification
     date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
 
@@ -42,6 +47,7 @@ class BackgroundJob(models.Model):
         default=uuid_object.uuid4, unique=True, help_text="BG Job SODAR UUID"
     )
     project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+    user = models.ForeignKey(AUTH_USER_MODEL, null=False, related_name="background_jobs")
     job_type = models.CharField(max_length=512, null=False, help_text="Type of the job")
 
     name = models.CharField(max_length=512)

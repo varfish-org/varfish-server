@@ -61,6 +61,14 @@ FILTER_FORM_TRANSLATE_INHERITANCE = {
 }
 
 
+class ResubmitForm(forms.Form):
+    file_type = forms.ChoiceField(
+        initial="xlsx",
+        choices=(("xlsx", "Excel (.xlsx)"), ("tsv", "TSV (.tsv)"), ("vcf", "VCF (.vcf.gz)")),
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+
+
 class FilterForm(forms.Form):
     file_type = forms.ChoiceField(
         initial="xlsx",

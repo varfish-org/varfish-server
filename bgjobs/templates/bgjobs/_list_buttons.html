@@ -1,0 +1,31 @@
+{% load rules %}
+
+{% has_perm 'bgjobs.can_clear_own_zones' request.user project as can_clear_own_zones %}
+{% has_perm 'bgjobs.can_clear_all_zones' request.user project as can_clear_all_zones %}
+
+<div class="btn-group ml-auto" id="sodar-lz-buttons-list">
+  <button class="btn btn-primary dropdown-toggle"
+          type="button" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+    Background Job Operations
+  </button>
+  <div class="dropdown-menu dropdown-menu-right">
+
+    {# Clear owned jobs #}
+    {% if can_clear_own_zones %}
+      <a class="dropdown-item"
+         href="{% url 'bgjobs:clear-own' project=project.sodar_uuid %}">
+        <i class="fa fa-fw fa-trash"></i> Clear Own Jobs
+      </a>
+    {% endif %}
+
+    {# Clear all jobs #}
+    {% if can_clear_all_zones %}
+      <a class="dropdown-item"
+         href="{% url 'bgjobs:clear-all' project=project.sodar_uuid %}">
+        <i class="fa fa-fw fa-trash"></i> Clear All Jobs
+      </a>
+    {% endif %}
+
+  </div>
+</div>
