@@ -29,7 +29,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     search_template = None
 
     #: App card template for the project details page
-    details_template = "bgjobs/temp.html"
+    details_template = "bgjobs/_details_card.html"
 
     #: App card title for the project details page
     details_title = "Background Jobs App Overview"

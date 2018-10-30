@@ -1,0 +1,14 @@
+<tr id="varfish-bg-table-row-{{ item.sodar_uuid }}">
+  <td>{{ item.date_created|date:"Y/m/d h:m" }}</td>
+  <td>{{ item.date_modified|date:"Y/m/d h:m" }}</td>
+  <td>{{ item.status }}</td>
+  <td>
+    {% if item.export_file_bg_job.all %}
+      <a href="{{ item.export_file_bg_job.first.get_absolute_url }}">
+        {{ item.name }}
+      </a>
+    {% else %}
+      {{ item.name }}
+    {% endif %}
+  </td>
+</tr>
