@@ -1,0 +1,34 @@
+{# BackgroundJob list #}
+<div id="varfish-va-case-list" class="card mb-3">
+  <div class="card-body p-0">
+    <table id="varfish-va-table" class="table table-striped sodar-card-table">
+      <thead>
+        <tr>
+          <th>Created</th>
+          <th>Name</th>
+          <th>Individuals</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for case in object_list %}
+          <tr id="varfish-bg-table-row-{{ job.sodar_uuid }}">
+            <td>{{ job.date_created|date:"Y/m/d h:m" }}</td>
+            <td>
+              <a href="{{ case.get_filter_url }}">
+                {{ case.name }}
+              </a>
+            </td>
+            <td>{{ case.get_members|join:", " }}</td>
+          </tr>
+        {% endfor %}
+        {% if not object_list %}
+          <tr>
+             <td class="bg-faded font-italic text-center" colspan="3">
+               No cases added yet.
+             </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>

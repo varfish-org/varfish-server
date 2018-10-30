@@ -1,10 +1,14 @@
+import json
+import uuid as uuid_object
+
+from postgres_copy import CopyManager
+
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.core.urlresolvers import reverse
+
 from projectroles.models import Project
-from postgres_copy import CopyManager
-import uuid as uuid_object
 
 from bgjobs.models import BackgroundJob, JOB_STATE_DONE, JOB_STATE_FAILED, JOB_STATE_RUNNING
 
@@ -136,6 +140,9 @@ class Case(models.Model):
         return reverse(
             "variants:filter", kwargs={"project": self.project.sodar_uuid, "case": self.sodar_uuid}
         )
+
+    def get_members(self):
+        return [x["patient"] for x in self.pedigree]
 
     def __str__(self):
         return self.name

@@ -7,25 +7,14 @@
 
 {% block projectroles_extend %}
 
-{% has_perm 'variants.view_data' request.user project as can_view_data %}
+  {% has_perm 'variants.view_data' request.user project as can_view_data %}
 
-{% if can_view_data %}
+  <div class="row sodar-subtitle-container bg-white sticky-top">
+    <h3><i class="fa fa-users"></i> Cases</h3>
+  </div>
 
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item" aria-current="page">
-      <i class="fa fa-home"></i> Home
-    </li>
-  </ol>
-</nav>
-
-<h1>Select case</h1>
-<ul>
-{% for entry in object_list %}
-  <li><a href="{% url 'variants:filter' project=project.sodar_uuid case=entry.sodar_uuid %}">{{ entry.name }}</a></li>
-{% endfor %}
-</ul>
-
-{% endif %}
+  <div class="container-fluid sodar-page-container">
+    {% include 'variants/_case_list.html' %}
+  </div>
 
 {% endblock %}

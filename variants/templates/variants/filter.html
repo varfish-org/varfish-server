@@ -8,24 +8,6 @@
 
 {% block projectroles_extend %}
 
-<nav aria-label="breadcrumb pt-3">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item" aria-current="page">
-      <a href="{% url 'variants:case' project=project.sodar_uuid %}">
-        <i class="fa fa-home"></i> Home
-      </a>
-    </li>
-    <li class="breadcrumb-item" aria-current="page">
-        <a href="{% url 'variants:case' project=project.sodar_uuid %}">
-          Cases
-        </a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">
-        {{ case_name }}
-    </li>
-  </ol>
-</nav>
-
 <div class="row mb-3">
   <div class="col">
     {% include "variants/_filter_form.html" %}
