@@ -2,11 +2,33 @@
 {% load projectroles_common_tags %}
 {% load rules %}
 {% load crispy_forms_tags %}
-{% load dict %}
-{% load humanize %}
 {% load static %}
 
 {% block projectroles_extend %}
+
+{% block css %}
+  {{ block.super }}
+  <style type="text/css">
+  .display-exac .detail-gnomad-exomes,
+  .display-exac .detail-gnomad-genomes,
+  .display-exac .detail-thousand-genomes,
+  .display-gnomad-exomes .detail-exac,
+  .display-gnomad-exomes .detail-gnomad-genomes,
+  .display-gnomad-exomes .detail-thousand-genomes,
+  .display-gnomad-genomes .detail-exac,
+  .display-gnomad-genomes .detail-gnomad-exomes,
+  .display-gnomad-genomes .detail-thousand-genomes,
+  .display-thousand-genomes .detail-exac,
+  .display-thousand-genomes .detail-gnomad-exomes,
+  .display-thousand-genomes .detail-gnomad-genomes {
+    display: none;
+  }
+
+  .varfish-variant-table th {
+    text-align: center;
+  }
+  </style>
+{% endblock %}
 
 <div class="row mb-3">
   <div class="col">
@@ -24,288 +46,71 @@
       </small>
     </h2>
     {% else %}
-    <h2>
-      Results
-      <span class="badge badge-pill badge-success">{{ main|length }}</span>
-      <span class="badge badge-pill badge-warning">
-        {% if form.database_select.data == "refseq" %}
-        RefSeq
-        {% elif form.database_select.data == "ensembl" %}
-        EnsEMBL
+    <div class="sodar-subtitle-container bg-white sticky-top">
+      <h2>
+        Results
+        <span class="badge badge-pill badge-success">{{ main|length }}</span>
+        <span class="badge badge-pill badge-warning">
+          {% if form.database_select.data == "refseq" %}
+          RefSeq
+          {% elif form.database_select.data == "ensembl" %}
+          EnsEMBL
+          {% endif %}
+        </span>
+        {% if form.thousand_genomes_enabled.data %}
+        <span class="badge badge-pill badge-secondary">1000 genomes</span>
         {% endif %}
-      </span>
-      {% if form.thousand_genomes_enabled.data %}
-      <span class="badge badge-pill badge-secondary">1000 genomes</span>
-      {% endif %}
-      {% if form.gnomad_exomes_enabled.data %}
-      <span class="badge badge-pill badge-secondary">gnomAD exomes</span>
-      {% endif %}
-      {% if form.gnomad_genomes_enabled.data %}
-      <span class="badge badge-pill badge-secondary">gnomAD genomes</span>
-      {% endif %}
-      {% if form.exac_enabled.data %}
-      <span class="badge badge-pill badge-secondary">ExAC</span>
-      {% endif %}
-      {% if form.var_type_mnv.data %}
-      <span class="badge badge-pill badge-info">MNV</span>
-      {% endif %}
-      {% if form.var_type_snv.data %}
-      <span class="badge badge-pill badge-info">SNV</span>
-      {% endif %}
-      {% if form.var_type_indel.data %}
-      <span class="badge badge-pill badge-info">InDel</span>
-      {% endif %}
-    </h2>
-    <table class="table" id="main">
-      <thead>
-      <tr>
-        <th></th>
-        <th>Position</th>
-        <th>Ref</th>
-        <th>Alt</th>
-        <th>dbSNP</th>
-        <th class="rotate"><div>Frq ExAC</div></th>
-        <th class="rotate"><div>Frq gnomAD exomes</div></th>
-        <th class="rotate"><div>Frq gnomAD genomes</div></th>
-        <th class="rotate"><div>Frq 1000G</div></th>
-        <th class="rotate"><div>Hom ExAC</div></th>
-        <th class="rotate"><div>Hom gnomAD exomes</div></th>
-        <th class="rotate"><div>Hom gnomAD genomes</div></th>
-        <th class="rotate"><div>Hom 1000G</div></th>
-        <th class="rotate"><div>Gene</div></th>
-        <th class="rotate"><div>Effect</div></th>
-        {% for member in form.pedigree %}
-        <th class="rotate"><div>{{ member.patient }}</div></th>
+        {% if form.gnomad_exomes_enabled.data %}
+        <span class="badge badge-pill badge-secondary">gnomAD exomes</span>
+        {% endif %}
+        {% if form.gnomad_genomes_enabled.data %}
+        <span class="badge badge-pill badge-secondary">gnomAD genomes</span>
+        {% endif %}
+        {% if form.exac_enabled.data %}
+        <span class="badge badge-pill badge-secondary">ExAC</span>
+        {% endif %}
+        {% if form.var_type_mnv.data %}
+        <span class="badge badge-pill badge-info">MNV</span>
+        {% endif %}
+        {% if form.var_type_snv.data %}
+        <span class="badge badge-pill badge-info">SNV</span>
+        {% endif %}
+        {% if form.var_type_indel.data %}
+        <span class="badge badge-pill badge-info">InDel</span>
+        {% endif %}
+      </h2>
+      <div class="form-inline pl-2 pr-2">
+        <div class="form-group">
+          <strong>
+            Display Settings
+          </strong>
+        </div>
+        <div class="p-2 form-group">
+          <label class="mr-2" for="result-display-frequencies">
+            Frequencies
+          </label>
+          <select class="custom-select" id="result-display-frequencies" onchange="javascript: updateTableDisplay();">
+            <option value="exac" selected>ExAC</option>
+            <option value="thousand-genomes">1000 genomes</option>
+            <option value="gnomad-exomes">gnomAD exomes</option>
+            <option value="gnomad-genomes">gnomAD genomes</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="table-config">
+      <table class="table table-hover table-sm varfish-variant-table" id="main">
+        <thead>
+          {% include "variants/_filter_table_header.html" %}
+        </thead>
+        <tbody>
+        {% for entry in main %}
+          {% include "variants/_filter_table_row.html" %}
+          {% include "variants/_filter_table_card.html" %}
         {% endfor %}
-        <th></th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody>
-      {% for entry in main %}
-      <tr>
-        <td class="clickable extend" counter="{{ forloop.counter0 }}" url="{% url 'variants:extend' project=project.sodar_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" data-toggle="collapse" data-target="#expand{{ forloop.counter0 }}" aria-expanded="false" aria-controls="expand{{ forloop.counter0 }}" aria-hidden="true"><i class="fa fa-chevron-right"></i></td>
-        <td>chr{{ entry.chromosome }}:{{ entry.position|intcomma }}</td>
-        <td>{{ entry.reference|truncatechars:9 }}</td>
-        <td>{{ entry.alternative|truncatechars:9 }}</td>
-        <td>
-          {% if entry.rsid %}
-          <a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ entry.rsid|slice:'2:' }}">
-            {{ entry.rsid }}
-          </a>
-          {% else %}
-          -
-          {% endif %}
-        </td>
-        <td>{{ entry.exac_frequency|floatformat:5|default:"-" }}</td>
-        <td>{{ entry.gnomad_exomes_frequency|floatformat:5|default:"-" }}</td>
-        <td>{{ entry.gnomad_genomes_frequency|floatformat:5|default:"-" }}</td>
-        <td>{{ entry.thousand_genomes_frequency|floatformat:5|default:"-" }}</td>
-        <td>{{ entry.exac_homozygous|default_if_none:"-" }}</td>
-        <td>{{ entry.gnomad_exomes_homozygous|default_if_none:"-" }}</td>
-        <td>{{ entry.gnomad_genomes_homozygous|default_if_none:"-" }}</td>
-        <td>{{ entry.thousand_genomes_homozygous|default_if_none:"-" }}</td>
-        <td>
-          {% if not entry.symbol %}
-            -
-          {% else %}
-            <div class="btn-group">
-              <button
-                type="button"
-                title="Go to locus in IGV"
-                class="btn btn-outline-dark btn-sm">
-                {{ entry.symbol|default:"." }}
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="sr-only">Toggle Dropdown</span>
-              </button>
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="https://www.omim.org/search/?search={{ entry.symbol }}" target="_blank">
-                  Gene @OMIM
-                </a>
-                <a class="dropdown-item" href="https://www.genecards.org/cgi-bin/carddisp.pl?gene={{ entry.symbol }}" target="_blank">
-                  Gene @GeneCards
-                </a>
-                <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/gene/?term=({{ entry.symbol }}+AND+&quot;Homo+sapiens&quot;)" target="_blank">
-                  Gene @Entrez
-                </a>
-                <a class="dropdown-item" href="https://www.genenames.org/cgi-bin/gene_symbol_report?match={{ entry.symbol }}" target="_blank">
-                  Gene @HGNC
-                </a>
-              </div>
-            </div>
-          {% endif %}
-        </td>
-        <td>
-          <span data-toggle="tooltip" title="{{ entry.effect|join:', ' }}">
-            {{ entry.hgvs_p }}
-          </span>
-        </td>
-        {% for member in form.pedigree %}
-        <td>
-          <span data-toggle="tooltip" data-html="true" title="
-            GT quality: {{ entry.gq|keyvalue:member.patient }}
-            <br />
-            variant reads: {{ entry.ad|keyvalue:member.patient }} /
-            {{ entry.dp|keyvalue:member.patient }}
-            ">
-            {{ entry.gt|keyvalue:member.patient }}
-          </span>
-        </td>
-        {% endfor %}
-        <td>
-          <div class="btn-group pr-2">
-            <a
-              href="javascript:mutationTaster('chr{{ entry.chromosome }}', {{ entry.position }}, '{{ entry.reference }}', '{{ entry.alternative }}');"
-              target="_blank"
-              title="Open variant in MutationTaster"
-              class="btn btn-primary btn-sm">
-              MT
-            </a>
-            <button
-              type="button"
-              onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }}'})"
-              title="Go to locus in IGV"
-              class="btn btn-secondary btn-sm">
-              IGV
-            </button>
-            <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span class="sr-only">Toggle Dropdown</span>
-            </button>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg19&position={{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }}" target="_blank">
-                Locus @UCSC
-              </a>
-              <a class="dropdown-item" href="http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/?name={{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }};search=Search" target="_blank">
-                Locus @DGV
-              </a>
-            </div>
-          </div>
-        </td>
-        <td>
-          {% if entry.in_clinvar %}
-          <i title="Present in ClinVar" class="fa fa-medkit text-danger"></i>
-          {% endif %}
-        </td>
-      </tr>
-      <tr id="expand{{ forloop.counter0 }}" class="collapse">
-        <td colspan='{{ form.pedigree|length|add:"17" }}'>
-          <div class="row pb-3">
-            <div class="col-4">
-              <div class="card">
-                <div class="card-header">
-                  <h5 class="card-title">Transcript information</h5>
-                </div>
-                <div class="card-body">
-                  <table class="table">
-                    <tbody>
-                    <tr>
-                      <td>Effects</td>
-                      <td>
-                        {% for effect in entry.effect %}
-                        <span class="badge badge-pill color-effect">{{ effect }}</span>
-                        {% endfor %}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>HGVS_C</td>
-                      <td>{{ entry.hgvs_c }}</td>
-                    </tr>
-                    <tr>
-                      <td>HGVS_P</td>
-                      <td>{{ entry.hgvs_p }}</td>
-                    </tr>
-                    <tr>
-                      <td>Coding</td>
-                      <td>{% if entry.transcript_coding %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-ban"></i>{% endif %}</td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            <div class="col-8">
-              <div class="card">
-                <div class="card-header">
-                  <h5 class="card-title">Frequencies</h5>
-                </div>
-                <div class="card-body" id="frequency{{ forloop.counter0 }}">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row pb-3">
-            <div class="col-4">
-              <div class="card">
-                <div class="card-header">
-                  <h5 class="card-title">ClinVar</h5>
-                </div>
-                <div class="card-body" id="clinvar{{ forloop.counter0 }}">
-                </div>
-              </div>
-            </div>
-            <div class="col-8">
-              <div class="card">
-                <div class="card-header">
-                  <h5 class="card-title">Genotype information</h5>
-                </div>
-                <div class="card-body">
-                  <table class="table">
-                    <thead>
-                    <tr>
-                      <th></th>
-                      {% for member in form.pedigree %}
-                      <th>{{ member.patient }}</th>
-                      {% endfor %}
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                      <td>GT quality</td>
-                      {% for member in form.pedigree %}
-                      <td>{{ entry.gq|keyvalue:member.patient }}</td>
-                      {% endfor %}
-                    </tr>
-                    <tr>
-                      <td>variant reads</td>
-                      {% for member in form.pedigree %}
-                      <td>{{ entry.ad|keyvalue:member.patient }}</td>
-                      {% endfor %}
-                    </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row pb-3">
-            <div class="col-12">
-              <div class="card">
-                <div class="card-header">
-                  <h5 class="card-title">AA Conservation</h5>
-                </div>
-                <div class="card-body" id="knowngeneaa{{ forloop.counter0 }}">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row align-right">
-            <div class="col">
-              <div class="btn-group">
-                <a class="btn btn-primary btn-sm" href="{% url 'annotation:variant' project=project.sodar_uuid database=form.database_select.data release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" target="_blank">
-                  Detail view
-                </a>
-                <a class="btn btn-primary btn-sm" href="{% url 'geneinfo:gene' project=project.sodar_uuid gene_id=entry.gene_id %}" target="_blank">
-                  Gene view
-                </a>
-              </div>
-            </div>
-          </div>
-        </td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
     {% endif %}
   </div>
 </div>
@@ -318,6 +123,15 @@
 <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
 
 <script type="text/javascript">
+
+function updateTableDisplay() {
+  $("#table-config").attr("class",
+    "display-" + $("#result-display-frequencies").val()
+  );
+}
+
+updateTableDisplay();
+
 var effectGroups = {
   all: [
   ],
@@ -426,13 +240,12 @@ $(document).ready(function() {
 });
 
 function mutationTaster(chromosome, position, ref, alt) {
-    let form = $('<form target="_blank" method="POST" action="http://www.mutationtaster.org/cgi-bin/MutationTaster/MT_ChrPos.cgi">');
+    var form = $('<form target="_blank" method="POST" action="http://www.mutationtaster.org/cgi-bin/MutationTaster/MT_ChrPos.cgi">');
     form.append($('<input type="hidden" name="chromosome" value="' + chromosome + '">'));
     form.append($('<input type="hidden" name="position" value="' + position + '">'));
     form.append($('<input type="hidden" name="ref" value="' + ref + '">'));
     form.append($('<input type="hidden" name="alt" value="' + alt + '">'));
-    $('body').append(form);
-    form.submit();
+    form.appendTo('body').submit();
 }
 
 function default0(value) {

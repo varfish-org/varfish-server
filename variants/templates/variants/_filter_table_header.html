@@ -1,0 +1,46 @@
+{# Variant filter table header #}
+<tr>
+  <th></th> {# fold-out #}
+  <th></th> {# position #}
+  <th></th> {# ref #}
+  <th></th> {# alt #}
+  <th></th> {# dbsnp #}
+  <th colspan="2" class="detail-exac">ExAC</th>
+  <th colspan="2" class="detail-gnomad-exomes">gnomAD exomes</th>
+  <th colspan="2" class="detail-gnomad-genomes">gnomAD genomes</th>
+  <th colspan="2" class="detail-thousand-genomes">1000 genomes</th>
+  <th></th>{# gene #}
+  <th></th>{# effect #}
+  {# pedigree members #}
+  {% for member in form.pedigree %}
+    <th></th>
+  {% endfor %}
+  <th></th> {# link-outs #}
+  <th></th> {# clin-var #}
+</tr>
+<tr>
+  <th></th> {# fold-out #}
+  <th>position</th>
+  <th>ref</th>
+  <th>alt</th>
+  <th>dbSNP</th>
+  <th class="detail-exac">frequency</th>
+  <th class="detail-gnomad-exomes">frequency</th>
+  <th class="detail-gnomad-genomes">frequency</th>
+  <th class="detail-thousand-genomes">frequency</th>
+  <th class="detail-exac"># hom.</th>
+  <th class="detail-gnomad-exomes"># hom.</th>
+  <th class="detail-gnomad-genomes"># hom.</th>
+  <th class="detail-thousand-genomes"># hom.</th>
+  <th>gene</th>
+  <th>effect</th>
+  {% for member in form.pedigree %}
+  <th style="max-width: 80px;">
+    <div class="sodar-overflow-container sodar-overflow-hover">
+      {{ member.patient }}
+    </div>
+  </th>
+  {% endfor %}
+  <th></th> {# link-outs #}
+  <th></th> {# clin-var #}
+</tr>

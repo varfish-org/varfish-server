@@ -1,0 +1,144 @@
+{# Variant filter table expanded card #}
+
+{% load humanize %}
+{% load dict %}
+
+<tr id="expand{{ forloop.counter0 }}" class="collapse">
+  <td colspan='{{ form.pedigree|length|add:"11" }}'>
+    <div class="row pb-3">
+      <div class="col-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Transcript information</h5>
+          </div>
+          <div class="card-body">
+            <table class="table">
+              <tbody>
+              <tr>
+                <td>Effects</td>
+                <td>
+                  {% for effect in entry.effect %}
+                  <span class="badge badge-pill color-effect">{{ effect }}</span>
+                  {% endfor %}
+                </td>
+              </tr>
+              <tr>
+                <td>HGVS_C</td>
+                <td>{{ entry.hgvs_c }}</td>
+              </tr>
+              <tr>
+                <td>HGVS_P</td>
+                <td>{{ entry.hgvs_p }}</td>
+              </tr>
+              <tr>
+                <td>Coding</td>
+                <td>{% if entry.transcript_coding %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-ban"></i>{% endif %}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-8">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Variant call details</h5>
+          </div>
+          <div class="card-body">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th></th>
+                  {% for member in form.pedigree %}
+                  <th style="max-width: 120px;">
+                    <div class="sodar-overflow-container sodar-overflow-hover">
+                      {{ member.patient }}
+                    </div>
+                  </th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th>Genotype</th>
+                  {% for member in form.pedigree %}
+                    <td class="text-center">
+                      {{ entry.gt|keyvalue:member.patient }}
+                    </td>
+                  {% endfor %}
+                </tr>
+                <tr>
+                  <th>Genotype Quality</th>
+                  {% for member in form.pedigree %}
+                    <td class="text-right">
+                      {{ entry.gq|keyvalue:member.patient }}
+                    </td>
+                  {% endfor %}
+                </tr>
+                <tr>
+                  <th>Variant reads</th>
+                  {% for member in form.pedigree %}
+                    <td class="text-right">
+                      {{ entry.ad|keyvalue:member.patient }}
+                    </td>
+                  {% endfor %}
+                </tr>
+                <tr>
+                  <th>Total reads</th>
+                  {% for member in form.pedigree %}
+                    <td class="text-right">
+                      {{ entry.dp|keyvalue:member.patient }}
+                    </td>
+                  {% endfor %}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row pb-3">
+      <div class="col-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">ClinVar</h5>
+          </div>
+          <div class="card-body" id="clinvar{{ forloop.counter0 }}">
+          </div>
+        </div>
+      </div>
+      <div class="col-8">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Frequencies</h5>
+          </div>
+          <div class="card-body" id="frequency{{ forloop.counter0 }}">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row pb-3">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">100 Vertebrate Amino Acid Conservation</h5>
+          </div>
+          <div class="card-body" id="knowngeneaa{{ forloop.counter0 }}">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row align-right">
+      <div class="col">
+        <div class="btn-group">
+          <a class="btn btn-primary btn-sm" href="{% url 'annotation:variant' project=project.sodar_uuid database=form.database_select.data release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" target="_blank">
+            Detail view
+          </a>
+          <a class="btn btn-primary btn-sm" href="{% url 'geneinfo:gene' project=project.sodar_uuid gene_id=entry.gene_id %}" target="_blank">
+            Gene view
+          </a>
+        </div>
+      </div>
+    </div>
+  </td>
+</tr>

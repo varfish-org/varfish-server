@@ -1,0 +1,125 @@
+{# Variant filter table row #}
+
+{% load humanize %}
+{% load dict %}
+
+<tr>
+  <td class="clickable extend" counter="{{ forloop.counter0 }}" url="{% url 'variants:extend' project=project.sodar_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" data-toggle="collapse" data-target="#expand{{ forloop.counter0 }}" aria-expanded="false" aria-controls="expand{{ forloop.counter0 }}" aria-hidden="true"><i class="fa fa-chevron-right"></i></td>
+  <td>chr{{ entry.chromosome }}:{{ entry.position|intcomma }}</td>
+  <td>{{ entry.reference|truncatechars:9 }}</td>
+  <td>{{ entry.alternative|truncatechars:9 }}</td>
+  <td>
+    {% if entry.rsid %}
+    <a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ entry.rsid|slice:'2:' }}">
+      {{ entry.rsid }}
+    </a>
+    {% else %}
+    -
+    {% endif %}
+  </td>
+  <td class="detail-exac">
+    {{ entry.exac_frequency|floatformat:5|default:"-" }}
+  </td>
+  <td class="detail-gnomad-exomes">
+    {{ entry.gnomad_exomes_frequency|floatformat:5|default:"-" }}
+  </td>
+  <td class="detail-gnomad-genomes">
+    {{ entry.gnomad_genomes_frequency|floatformat:5|default:"-" }}
+  </td>
+  <td class="detail-thousand-genomes">
+    {{ entry.thousand_genomes_frequency|floatformat:5|default:"-" }}
+  </td>
+  <td class="detail-exac text-right">
+    {{ entry.exac_homozygous|default_if_none:"-" }}
+  </td>
+  <td class="detail-gnomad-exomes text-right">
+    {{ entry.gnomad_exomes_homozygous|default_if_none:"-" }}
+  </td>
+  <td class="detail-gnomad-genomes text-right">
+    {{ entry.gnomad_genomes_homozygous|default_if_none:"-" }}
+  </td>
+  <td class="detail-thousand-genomes text-right">
+    {{ entry.thousand_genomes_homozygous|default_if_none:"-" }}
+  </td>
+  <td class="pl-3 pr-3">
+    {% if not entry.symbol %}
+      -
+    {% else %}
+      <div class="btn-group">
+        <button
+          type="button"
+          title="Go to locus in IGV"
+          class="btn btn-outline-dark btn-sm">
+          {{ entry.symbol|default:"." }}
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="https://www.omim.org/search/?search={{ entry.symbol }}" target="_blank">
+            Gene @OMIM
+          </a>
+          <a class="dropdown-item" href="https://www.genecards.org/cgi-bin/carddisp.pl?gene={{ entry.symbol }}" target="_blank">
+            Gene @GeneCards
+          </a>
+          <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/gene/?term=({{ entry.symbol }}+AND+&quot;Homo+sapiens&quot;)" target="_blank">
+            Gene @Entrez
+          </a>
+          <a class="dropdown-item" href="https://www.genenames.org/cgi-bin/gene_symbol_report?match={{ entry.symbol }}" target="_blank">
+            Gene @HGNC
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </td>
+  <td>
+    <span data-toggle="tooltip" title="{{ entry.effect|join:', ' }}">
+      {{ entry.hgvs_p|default:"-" }}
+    </span>
+  </td>
+  {% for member in form.pedigree %}
+  <td class="text-center">
+    <span data-toggle="tooltip" data-html="true" title="
+      GT quality: {{ entry.gq|keyvalue:member.patient }}
+      <br />
+      variant reads: {{ entry.ad|keyvalue:member.patient }} /
+      {{ entry.dp|keyvalue:member.patient }}
+      ">
+      {{ entry.gt|keyvalue:member.patient }}
+    </span>
+  </td>
+  {% endfor %}
+  <td>
+    <div class="btn-group pr-2">
+      <a
+        href="javascript:mutationTaster('chr{{ entry.chromosome }}', {{ entry.position }}, '{{ entry.reference }}', '{{ entry.alternative }}');"
+        title="Open variant in MutationTaster"
+        class="btn btn-primary btn-sm">
+        MT
+      </a>
+      <button
+        type="button"
+        onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }}'})"
+        title="Go to locus in IGV"
+        class="btn btn-secondary btn-sm">
+        IGV
+      </button>
+      <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="sr-only">Toggle Dropdown</span>
+      </button>
+      <div class="dropdown-menu">
+        <a class="dropdown-item" href="https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg19&position={{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }}" target="_blank">
+          Locus @UCSC
+        </a>
+        <a class="dropdown-item" href="http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/?name={{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }};search=Search" target="_blank">
+          Locus @DGV
+        </a>
+      </div>
+    </div>
+  </td>
+  <td>
+    {% if entry.in_clinvar %}
+    <i title="Present in ClinVar" class="fa fa-hospital-o text-danger"></i>
+    {% endif %}
+  </td>
+</tr>
