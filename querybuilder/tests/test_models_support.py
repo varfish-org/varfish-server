@@ -576,7 +576,9 @@ class TestHelperMixin:
         if function_name:
             fun = getattr(qb, function_name)
             conditions = [fun(kwargs)]
-            query, args = qb.build_top_level_query(base, conditions)
+        else:
+            conditions = [('TRUE', {})]
+        query, args = qb.build_top_level_query(base, conditions)
         results = self.database.objects.raw(query, args)
         # check only length of results
         self.assertEquals(length, len(list(results)))
