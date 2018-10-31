@@ -40,3 +40,21 @@
   margin-bottom: 0;
   padding-top: 2px;
 }
+
+/* Change title bar, sidebar and project navbar colours */
+
+.sodar-base-navbar {
+  background-color: #182e65 !important;
+}
+
+.sodar-pr-sidebar {
+  background-color: #182e65 !important;
+}
+
+.sodar-pr-sidebar-nav {
+  background-color: #182e65 !important;
+}
+
+.sodar-pr-navbar {
+  background-color: #6884cb !important;
+}
