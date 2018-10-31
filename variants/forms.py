@@ -220,22 +220,22 @@ class FilterForm(forms.Form):
 
         for member in self.pedigree:
             self.fields[member["fields"]["gt"]] = forms.CharField(
-                label="", widget=forms.Select(choices=INHERITANCE)
+                label="", required=True, widget=forms.Select(choices=INHERITANCE)
             )
             self.fields[member["fields"]["dp"]] = forms.IntegerField(
-                label="", required=False, initial=10, min_value=0
+                label="", required=True, initial=10, min_value=0
             )  # relaxed: 8
             self.fields[member["fields"]["ab"]] = forms.FloatField(
-                label="", required=False, initial=0.3, min_value=0, max_value=1
+                label="", required=True, initial=0.3, min_value=0, max_value=1
             )  # relaxed: 0.2
             self.fields[member["fields"]["gq"]] = forms.IntegerField(
-                label="", required=False, initial=30, min_value=0
+                label="", required=True, initial=30, min_value=0
             )  # relaxed: 20
             self.fields[member["fields"]["ad"]] = forms.IntegerField(
-                label="", required=False, initial=10, min_value=0
+                label="", required=True, initial=10, min_value=0
             )  # ???
             self.fields[member["fields"]["fail"]] = forms.CharField(
-                label="", widget=forms.Select(choices=FAIL), required=False, initial="drop-variant"
+                label="", widget=forms.Select(choices=FAIL), required=True, initial="drop-variant"
             )
             if member["role"] == "index" and (member["father"] == "0" or member["mother"] == "0"):
                 self.fields["compound_recessive_enabled"].disabled = True
@@ -279,7 +279,7 @@ class FilterForm(forms.Form):
     translate_inheritance = {
         "any": None,
         "ref": ("0/0",),
-        "het": ("0/1",),
+        "het": ("0/1", "1/0"),
         "hom": ("1/1",),
         "variant": ("1/0", "0/1", "1/1"),
         "non-variant": ("0/0", "./."),

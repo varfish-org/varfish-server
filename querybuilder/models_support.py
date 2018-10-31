@@ -319,6 +319,9 @@ class QueryBuilder:
         if kwargs["var_type_indel"]:
             values.append("'indel'")
 
+        if not values:
+            values = ["''"]
+
         return ("(sv.var_type in ({}))".format(",".join(values)), {})
 
     def build_frequency_term(self, kwargs):
@@ -329,16 +332,16 @@ class QueryBuilder:
         query_string = " AND ".join(
             [
                 "(sv.exac_frequency <= %({exac})s)"
-                if (kwargs["exac_enabled"] and kwargs["exac_frequency"])
+                if (kwargs["exac_enabled"] and not kwargs["exac_frequency"] is None)
                 else "TRUE",
                 "(sv.gnomad_exomes_frequency <= %({gnomad_exomes})s)"
-                if (kwargs["gnomad_exomes_enabled"] and kwargs["gnomad_exomes_frequency"])
+                if (kwargs["gnomad_exomes_enabled"] and not kwargs["gnomad_exomes_frequency"] is None)
                 else "TRUE",
                 "(sv.gnomad_genomes_frequency <= %({gnomad_genomes})s)"
-                if (kwargs["gnomad_genomes_enabled"] and kwargs["gnomad_genomes_frequency"])
+                if (kwargs["gnomad_genomes_enabled"] and not kwargs["gnomad_genomes_frequency"] is None)
                 else "TRUE",
                 "(sv.thousand_genomes_frequency <= %({thousand_genomes})s)"
-                if (kwargs["thousand_genomes_enabled"] and kwargs["thousand_genomes_frequency"])
+                if (kwargs["thousand_genomes_enabled"] and not kwargs["thousand_genomes_frequency"] is None)
                 else "TRUE",
             ]
         )

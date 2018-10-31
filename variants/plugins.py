@@ -5,7 +5,7 @@ from .urls import urlpatterns
 class ProjectAppPlugin(ProjectAppPluginPoint):
     """Plugin for registering app with Projectroles"""
 
-    name = "varfish"
+    name = "variants"
     title = "VarFish"
     urls = urlpatterns
     # ...

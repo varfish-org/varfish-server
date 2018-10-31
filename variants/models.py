@@ -126,7 +126,6 @@ class Case(models.Model):
     project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
 
     class Meta:
-        unique_together = ("name", "index")
         indexes = [models.Index(fields=["name"])]
 
     def __str__(self):
