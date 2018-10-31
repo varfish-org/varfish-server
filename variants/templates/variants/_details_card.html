@@ -1,1 +1,23 @@
+{% load variants_tags %}
 
+<table class="table table-striped sodar-card-table sodar-bj-detail-table">
+  <thead>
+    <tr>
+      <th>Created</th>
+      <th id="sodar-vars-list-header-name">Name</th>
+      <th id="sodar-vars-list-header-individuals">Individuals</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% get_details_cases project as cases %}
+    {% if cases.count > 0 %}
+      {% for case in cases %}
+        {% include 'variants/_case_item.html' with item=case details_card_mode=True %}
+      {% endfor %}
+    {% else %}
+        <tr>
+          <td class="bg-faded font-italic text-center" colspan="4">No cases (yet)</td>
+        </tr>
+    {% endif %}
+  </tbody>
+</table>

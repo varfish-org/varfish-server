@@ -11,15 +11,7 @@
       </thead>
       <tbody>
         {% for case in object_list %}
-          <tr id="varfish-bg-table-row-{{ job.sodar_uuid }}">
-            <td>{{ case.date_created|date:"Y/m/d H:i" }}</td>
-            <td>
-              <a href="{{ case.get_filter_url }}">
-                {{ case.name }}
-              </a>
-            </td>
-            <td>{{ case.get_members|join:", " }}</td>
-          </tr>
+          {% include "variants/_case_item.html" with item=case details_card_mode=False %}
         {% endfor %}
         {% if not object_list %}
           <tr>

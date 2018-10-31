@@ -11,7 +11,7 @@
     </tr>
   </thead>
   <tbody>
-    {% get_details_backgroundjobs project request.user as backgroundjobs %}
+    {% get_details_backgroundjobs project as backgroundjobs %}
     {% if backgroundjobs.count > 0 %}
       {% for backgroundjob in backgroundjobs %}
         {% include 'bgjobs/_backgroundjob_item.html' with item=backgroundjob details_card_mode=True %}
