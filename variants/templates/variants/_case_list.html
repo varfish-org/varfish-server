@@ -12,7 +12,7 @@
       <tbody>
         {% for case in object_list %}
           <tr id="varfish-bg-table-row-{{ job.sodar_uuid }}">
-            <td>{{ job.date_created|date:"Y/m/d h:m" }}</td>
+            <td>{{ case.date_created|date:"Y/m/d H:i" }}</td>
             <td>
               <a href="{{ case.get_filter_url }}">
                 {{ case.name }}
