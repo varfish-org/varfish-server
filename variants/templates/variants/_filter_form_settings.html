@@ -1,18 +1,17 @@
 {% load crispy_forms_tags %}
 {% load dict %}
 
-<div class="row justify-content-center pb-2">
-  <div class="col">
-    <textarea id="settingsDump" name="settingsDump" class="form-control" rows="10"></textarea>
-  </div>
+<div class="container-fluid p-3">
+  <textarea id="settingsDump" name="settingsDump" class="form-control" rows="10"></textarea>
 </div>
-<div class="row">
-  <div class="col text-left">
+
+<div class="row pb-2">
+  <div class="col-md-7 text-left">
     <span class="text-secondary">
-      Field updates itself when settings are changed. To import settings, paste JSON code in this field and click<br />'JSON&nbsp;<i class="fa fa-arrow-right"></i>&nbsp;Settings'.
+      Field updates itself when settings are changed. To import settings, paste JSON code in this field and click 'JSON&nbsp;<i class="fa fa-arrow-right"></i>&nbsp;Settings'.
     </span>
   </div>
-  <div class="col text-right">
+  <div class="col-md-5 text-right">
     <div class="btn-group">
       <a href="#" id="settingsSet" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Import JSON settings from text field.">JSON <i class="fa fa-arrow-right"></i> Settings</a>
       <!--<a href="#" id="settingsGet" class="btn btn-secondary">Settings <i class="fa fa-arrow-right"></i> JSON</a>-->

@@ -2,111 +2,109 @@
 
 <div class="card">
   <div class="card-header">
-    <h5 class="card-title">
+    <h5 class="card-title mb-0">
       gnomAD genomes
-      <a href="http://gnomad.broadinstitute.org/variant/{{ chromosome }}-{{ position }}-{{ reference }}-{{ alternative }}" class="btn btn-primary btn-sm" target="_blank">
+      <a href="http://gnomad.broadinstitute.org/variant/{{ chromosome }}-{{ position }}-{{ reference }}-{{ alternative }}" class="btn btn-primary btn-sm sodar-list-btn" target="_blank">
         <i class="fa fa-external-link"></i>
       </a>
     </h5>
   </div>
-  <div class="card-body">
-    <div class="card-text">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Population</th>
-            <th>Allele Count</th>
-            <th>Allele Number</th>
-            <th>#Hom</th>
-            <th>#Hemi</th>
-            <th>#Het</th>
-            <th>Allele Frequency</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>AFR</td>
-            <td>{{ gnomadgenomes.ac_afr|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.an_afr|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hom_afr|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hemi_afr|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.het_afr|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.af_afr|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>AMR</td>
-            <td>{{ gnomadgenomes.ac_amr|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.an_amr|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hom_amr|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hemi_amr|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.het_amr|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.af_amr|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>ASJ</td>
-            <td>{{ gnomadgenomes.ac_asj|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.an_asj|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hom_asj|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hemi_asj|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.het_asj|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.af_asj|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>EAS</td>
-            <td>{{ gnomadgenomes.ac_eas|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.an_eas|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hom_eas|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hemi_eas|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.het_eas|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.af_eas|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>FIN</td>
-            <td>{{ gnomadgenomes.ac_fin|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.an_fin|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hom_fin|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hemi_fin|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.het_fin|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.af_fin|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>NFE</td>
-            <td>{{ gnomadgenomes.ac_nfe|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.an_nfe|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hom_nfe|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hemi_nfe|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.het_nfe|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.af_nfe|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>OTH</td>
-            <td>{{ gnomadgenomes.ac_oth|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.an_oth|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hom_oth|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hemi_oth|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.het_oth|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.af_oth|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>SAS</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-          </tr>
-          <tr>
-            <td>Total</td>
-            <td>{{ gnomadgenomes.ac|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.an|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hom|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.hemi|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.het|default:0|intcomma }}</td>
-            <td>{{ gnomadgenomes.af|default:0|floatformat:6 }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="card-body p-0">
+    <table class="table sodar-card-table">
+      <thead>
+        <tr>
+          <th>Population</th>
+          <th>Allele Count</th>
+          <th>Allele Number</th>
+          <th>#Hom</th>
+          <th>#Hemi</th>
+          <th>#Het</th>
+          <th>Allele Frequency</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AFR</td>
+          <td>{{ gnomadgenomes.ac_afr|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.an_afr|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hom_afr|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hemi_afr|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.het_afr|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.af_afr|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>AMR</td>
+          <td>{{ gnomadgenomes.ac_amr|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.an_amr|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hom_amr|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hemi_amr|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.het_amr|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.af_amr|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>ASJ</td>
+          <td>{{ gnomadgenomes.ac_asj|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.an_asj|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hom_asj|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hemi_asj|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.het_asj|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.af_asj|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>EAS</td>
+          <td>{{ gnomadgenomes.ac_eas|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.an_eas|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hom_eas|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hemi_eas|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.het_eas|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.af_eas|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>FIN</td>
+          <td>{{ gnomadgenomes.ac_fin|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.an_fin|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hom_fin|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hemi_fin|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.het_fin|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.af_fin|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>NFE</td>
+          <td>{{ gnomadgenomes.ac_nfe|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.an_nfe|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hom_nfe|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hemi_nfe|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.het_nfe|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.af_nfe|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>OTH</td>
+          <td>{{ gnomadgenomes.ac_oth|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.an_oth|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hom_oth|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hemi_oth|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.het_oth|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.af_oth|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>SAS</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Total</td>
+          <td>{{ gnomadgenomes.ac|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.an|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hom|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.hemi|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.het|default:0|intcomma }}</td>
+          <td>{{ gnomadgenomes.af|default:0|floatformat:6 }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

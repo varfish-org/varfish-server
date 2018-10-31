@@ -39,78 +39,78 @@
 <div class="row">
   <div class="col">
     {% if not main %}
-    <h2>
-      Empty Result Set
-      <small class="text-muted">
-        Try again with different settings?
-      </small>
-    </h2>
-    {% else %}
-    <div class="sodar-subtitle-container bg-white sticky-top">
       <h2>
-        Results
-        <span class="badge badge-pill badge-success">{{ main|length }}</span>
-        <span class="badge badge-pill badge-warning">
-          {% if form.database_select.data == "refseq" %}
-          RefSeq
-          {% elif form.database_select.data == "ensembl" %}
-          EnsEMBL
-          {% endif %}
-        </span>
-        {% if form.thousand_genomes_enabled.data %}
-        <span class="badge badge-pill badge-secondary">1000 genomes</span>
-        {% endif %}
-        {% if form.gnomad_exomes_enabled.data %}
-        <span class="badge badge-pill badge-secondary">gnomAD exomes</span>
-        {% endif %}
-        {% if form.gnomad_genomes_enabled.data %}
-        <span class="badge badge-pill badge-secondary">gnomAD genomes</span>
-        {% endif %}
-        {% if form.exac_enabled.data %}
-        <span class="badge badge-pill badge-secondary">ExAC</span>
-        {% endif %}
-        {% if form.var_type_mnv.data %}
-        <span class="badge badge-pill badge-info">MNV</span>
-        {% endif %}
-        {% if form.var_type_snv.data %}
-        <span class="badge badge-pill badge-info">SNV</span>
-        {% endif %}
-        {% if form.var_type_indel.data %}
-        <span class="badge badge-pill badge-info">InDel</span>
-        {% endif %}
+        Empty Result Set
+        <small class="text-muted">
+          Try again with different settings?
+        </small>
       </h2>
-      <div class="form-inline pl-2 pr-2">
-        <div class="form-group">
-          <strong>
-            Display Settings
-          </strong>
-        </div>
-        <div class="p-2 form-group">
-          <label class="mr-2" for="result-display-frequencies">
-            Frequencies
-          </label>
-          <select class="custom-select" id="result-display-frequencies" onchange="javascript: updateTableDisplay();">
-            <option value="exac" selected>ExAC</option>
-            <option value="thousand-genomes">1000 genomes</option>
-            <option value="gnomad-exomes">gnomAD exomes</option>
-            <option value="gnomad-genomes">gnomAD genomes</option>
-          </select>
+    {% else %}
+      <div class="sodar-subtitle-container bg-white sticky-top">
+        <h2>
+          Results
+          <span class="badge badge-pill badge-success">{{ main|length }}</span>
+          <span class="badge badge-pill badge-warning">
+            {% if form.database_select.data == "refseq" %}
+            RefSeq
+            {% elif form.database_select.data == "ensembl" %}
+            EnsEMBL
+            {% endif %}
+          </span>
+          {% if form.thousand_genomes_enabled.data %}
+          <span class="badge badge-pill badge-secondary">1000 genomes</span>
+          {% endif %}
+          {% if form.gnomad_exomes_enabled.data %}
+          <span class="badge badge-pill badge-secondary">gnomAD exomes</span>
+          {% endif %}
+          {% if form.gnomad_genomes_enabled.data %}
+          <span class="badge badge-pill badge-secondary">gnomAD genomes</span>
+          {% endif %}
+          {% if form.exac_enabled.data %}
+          <span class="badge badge-pill badge-secondary">ExAC</span>
+          {% endif %}
+          {% if form.var_type_mnv.data %}
+          <span class="badge badge-pill badge-info">MNV</span>
+          {% endif %}
+          {% if form.var_type_snv.data %}
+          <span class="badge badge-pill badge-info">SNV</span>
+          {% endif %}
+          {% if form.var_type_indel.data %}
+          <span class="badge badge-pill badge-info">InDel</span>
+          {% endif %}
+        </h2>
+        <div class="form-inline pl-2 pr-2">
+          <div class="form-group">
+            <strong>
+              Display Settings
+            </strong>
+          </div>
+          <div class="p-2 form-group">
+            <label class="mr-2" for="result-display-frequencies">
+              Frequencies
+            </label>
+            <select class="custom-select" id="result-display-frequencies" onchange="javascript: updateTableDisplay();">
+              <option value="exac" selected>ExAC</option>
+              <option value="thousand-genomes">1000 genomes</option>
+              <option value="gnomad-exomes">gnomAD exomes</option>
+              <option value="gnomad-genomes">gnomAD genomes</option>
+            </select>
+          </div>
         </div>
       </div>
-    </div>
-    <div id="table-config">
-      <table class="table table-hover table-sm varfish-variant-table" id="main">
-        <thead>
-          {% include "variants/_filter_table_header.html" %}
-        </thead>
-        <tbody>
-        {% for entry in main %}
-          {% include "variants/_filter_table_row.html" %}
-          {% include "variants/_filter_table_card.html" %}
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
+      <div id="table-config">
+        <table class="table table-hover table-sm varfish-variant-table" id="main">
+          <thead>
+            {% include "variants/_filter_table_header.html" %}
+          </thead>
+          <tbody>
+          {% for entry in main %}
+            {% include "variants/_filter_table_row.html" %}
+            {% include "variants/_filter_table_card.html" %}
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
     {% endif %}
   </div>
 </div>

@@ -2,111 +2,109 @@
 
 <div class="card">
   <div class="card-header">
-    <h5 class="card-title">
+    <h5 class="card-title mb-0">
       ExAC
-      <a href="http://exac.broadinstitute.org/variant/{{ chromosome }}-{{ position }}-{{ reference }}-{{ alternative }}" class="btn btn-primary btn-sm" target="_blank">
+      <a href="http://exac.broadinstitute.org/variant/{{ chromosome }}-{{ position }}-{{ reference }}-{{ alternative }}" class="btn btn-primary btn-sm sodar-list-btn" target="_blank">
         <i class="fa fa-external-link"></i>
       </a>
     </h5>
   </div>
-  <div class="card-body">
-    <div class="card-text">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Population</th>
-            <th>Allele Count</th>
-            <th>Allele Number</th>
-            <th>#Hom</th>
-            <th>#Hemi</th>
-            <th>#Het</th>
-            <th>Allele Frequency</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>AFR</td>
-            <td>{{ exac.ac_afr|default:0|intcomma }}</td>
-            <td>{{ exac.an_afr|default:0|intcomma }}</td>
-            <td>{{ exac.hom_afr|default:0|intcomma }}</td>
-            <td>{{ exac.hemi_afr|default:0|intcomma }}</td>
-            <td>{{ exac.het_afr|default:0|intcomma }}</td>
-            <td>{{ exac.af_afr|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>AMR</td>
-            <td>{{ exac.ac_amr|default:0|intcomma }}</td>
-            <td>{{ exac.an_amr|default:0|intcomma }}</td>
-            <td>{{ exac.hom_amr|default:0|intcomma }}</td>
-            <td>{{ exac.hemi_amr|default:0|intcomma }}</td>
-            <td>{{ exac.het_amr|default:0|intcomma }}</td>
-            <td>{{ exac.af_amr|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>ASJ</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-            <td>-</td>
-          </tr>
-          <tr>
-            <td>EAS</td>
-            <td>{{ exac.ac_eas|default:0|intcomma }}</td>
-            <td>{{ exac.an_eas|default:0|intcomma }}</td>
-            <td>{{ exac.hom_eas|default:0|intcomma }}</td>
-            <td>{{ exac.hemi_eas|default:0|intcomma }}</td>
-            <td>{{ exac.het_eas|default:0|intcomma }}</td>
-            <td>{{ exac.af_eas|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>FIN</td>
-            <td>{{ exac.ac_fin|default:0|intcomma }}</td>
-            <td>{{ exac.an_fin|default:0|intcomma }}</td>
-            <td>{{ exac.hom_fin|default:0|intcomma }}</td>
-            <td>{{ exac.hemi_fin|default:0|intcomma }}</td>
-            <td>{{ exac.het_fin|default:0|intcomma }}</td>
-            <td>{{ exac.af_fin|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>NFE</td>
-            <td>{{ exac.ac_nfe|default:0|intcomma }}</td>
-            <td>{{ exac.an_nfe|default:0|intcomma }}</td>
-            <td>{{ exac.hom_nfe|default:0|intcomma }}</td>
-            <td>{{ exac.hemi_nfe|default:0|intcomma }}</td>
-            <td>{{ exac.het_nfe|default:0|intcomma }}</td>
-            <td>{{ exac.af_nfe|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>OTH</td>
-            <td>{{ exac.ac_oth|default:0|intcomma }}</td>
-            <td>{{ exac.an_oth|default:0|intcomma }}</td>
-            <td>{{ exac.hom_oth|default:0|intcomma }}</td>
-            <td>{{ exac.hemi_oth|default:0|intcomma }}</td>
-            <td>{{ exac.het_oth|default:0|intcomma }}</td>
-            <td>{{ exac.af_oth|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>SAS</td>
-            <td>{{ exac.ac_sas|default:0|intcomma }}</td>
-            <td>{{ exac.an_sas|default:0|intcomma }}</td>
-            <td>{{ exac.hom_sas|default:0|intcomma }}</td>
-            <td>{{ exac.hemi_sas|default:0|intcomma }}</td>
-            <td>{{ exac.het_sas|default:0|intcomma }}</td>
-            <td>{{ exac.af_sas|default:0|floatformat:6 }}</td>
-          </tr>
-          <tr>
-            <td>Total</td>
-            <td>{{ exac.ac|default:0|intcomma }}</td>
-            <td>{{ exac.an|default:0|intcomma }}</td>
-            <td>{{ exac.hom|default:0|intcomma }}</td>
-            <td>{{ exac.hemi|default:0|intcomma }}</td>
-            <td>{{ exac.het|default:0|intcomma }}</td>
-            <td>{{ exac.af|default:0|floatformat:6 }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="card-body p-0">
+    <table class="table sodar-card-table">
+      <thead>
+        <tr>
+          <th>Population</th>
+          <th>Allele Count</th>
+          <th>Allele Number</th>
+          <th>#Hom</th>
+          <th>#Hemi</th>
+          <th>#Het</th>
+          <th>Allele Frequency</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>AFR</td>
+          <td>{{ exac.ac_afr|default:0|intcomma }}</td>
+          <td>{{ exac.an_afr|default:0|intcomma }}</td>
+          <td>{{ exac.hom_afr|default:0|intcomma }}</td>
+          <td>{{ exac.hemi_afr|default:0|intcomma }}</td>
+          <td>{{ exac.het_afr|default:0|intcomma }}</td>
+          <td>{{ exac.af_afr|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>AMR</td>
+          <td>{{ exac.ac_amr|default:0|intcomma }}</td>
+          <td>{{ exac.an_amr|default:0|intcomma }}</td>
+          <td>{{ exac.hom_amr|default:0|intcomma }}</td>
+          <td>{{ exac.hemi_amr|default:0|intcomma }}</td>
+          <td>{{ exac.het_amr|default:0|intcomma }}</td>
+          <td>{{ exac.af_amr|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>ASJ</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>EAS</td>
+          <td>{{ exac.ac_eas|default:0|intcomma }}</td>
+          <td>{{ exac.an_eas|default:0|intcomma }}</td>
+          <td>{{ exac.hom_eas|default:0|intcomma }}</td>
+          <td>{{ exac.hemi_eas|default:0|intcomma }}</td>
+          <td>{{ exac.het_eas|default:0|intcomma }}</td>
+          <td>{{ exac.af_eas|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>FIN</td>
+          <td>{{ exac.ac_fin|default:0|intcomma }}</td>
+          <td>{{ exac.an_fin|default:0|intcomma }}</td>
+          <td>{{ exac.hom_fin|default:0|intcomma }}</td>
+          <td>{{ exac.hemi_fin|default:0|intcomma }}</td>
+          <td>{{ exac.het_fin|default:0|intcomma }}</td>
+          <td>{{ exac.af_fin|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>NFE</td>
+          <td>{{ exac.ac_nfe|default:0|intcomma }}</td>
+          <td>{{ exac.an_nfe|default:0|intcomma }}</td>
+          <td>{{ exac.hom_nfe|default:0|intcomma }}</td>
+          <td>{{ exac.hemi_nfe|default:0|intcomma }}</td>
+          <td>{{ exac.het_nfe|default:0|intcomma }}</td>
+          <td>{{ exac.af_nfe|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>OTH</td>
+          <td>{{ exac.ac_oth|default:0|intcomma }}</td>
+          <td>{{ exac.an_oth|default:0|intcomma }}</td>
+          <td>{{ exac.hom_oth|default:0|intcomma }}</td>
+          <td>{{ exac.hemi_oth|default:0|intcomma }}</td>
+          <td>{{ exac.het_oth|default:0|intcomma }}</td>
+          <td>{{ exac.af_oth|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>SAS</td>
+          <td>{{ exac.ac_sas|default:0|intcomma }}</td>
+          <td>{{ exac.an_sas|default:0|intcomma }}</td>
+          <td>{{ exac.hom_sas|default:0|intcomma }}</td>
+          <td>{{ exac.hemi_sas|default:0|intcomma }}</td>
+          <td>{{ exac.het_sas|default:0|intcomma }}</td>
+          <td>{{ exac.af_sas|default:0|floatformat:6 }}</td>
+        </tr>
+        <tr>
+          <td>Total</td>
+          <td>{{ exac.ac|default:0|intcomma }}</td>
+          <td>{{ exac.an|default:0|intcomma }}</td>
+          <td>{{ exac.hom|default:0|intcomma }}</td>
+          <td>{{ exac.hemi|default:0|intcomma }}</td>
+          <td>{{ exac.het|default:0|intcomma }}</td>
+          <td>{{ exac.af|default:0|floatformat:6 }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

@@ -8,12 +8,12 @@
       </h4>
     </div>
     <div class="collapse show" id="body-gene" aria-labelledby="card-gene" data-parent="#accordion">
-      <div class="card-text">
-        <table class="table">
+      <div class="card-body p-0">
+        <table class="table sodar-card-table">
           <tbody>
           <tr>
-            <td>Symbol</td>
-            <td>{{ hgnc.symbol|default:"-" }}</td>
+            <td class="border-top-0">Symbol</td>
+            <td class="border-top-0">{{ hgnc.symbol|default:"-" }}</td>
           </tr>
           <tr>
             <td>Name</td>
@@ -104,8 +104,7 @@
             </td>
           </tr>
           <tr>
-            <td></td>
-            <td>
+            <td class="text-right" colspan="2">
               <div class="btn-group">
                 <a
                   {% if hgnc.symbol %}

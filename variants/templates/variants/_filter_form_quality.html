@@ -1,35 +1,38 @@
 {% load crispy_forms_tags %}
 {% load dict %}
 
-<div class="row">
-  <div class="col">
-    <table class="table table-striped table-hover">
-      <thead>
-        <tr>
-          <th class="col-2">Individual</th>
-          <th class="col-2">Father</th>
-          <th class="col-2">Mother</th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal read depth">min DP</th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal allelic balance, with <sup>AD</sup>&frasl;<sub>DP</sub> > X and <sup>AD</sup>&frasl;<sub>DP</sub> < 1-X if site is heterozygous">min AB</th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal genotype quality">min GQ</th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal allelic depth, i.e. the coverage of the alternative allele. Only applies if genotype is not '0/0'">min AD</th>
-          <th data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='text-left'><ul class='pl-3'><li><strong>ignore</strong>: don't apply quality filters at all</li><li><strong>drop-variant</strong>: remove variant from result list if at least one quality filter fails</li><li><strong>no-call</strong>: don't filter for genotype if at least one quality filter fails</li></ul></div>">on FAIL</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for member in form.pedigree %}
-        <tr>
-            <td>{{ member.patient }}</td>
-            <td>{{ member.father|default:"0" }}</td>
-            <td>{{ member.mother|default:"0" }}</td>
-            <td>{% with x=member.fields|keyvalue:"dp" %}{{ form|keyvalue:x }}{% endwith %}</td>
-            <td>{% with x=member.fields|keyvalue:"ab" %}{{ form|keyvalue:x }}{% endwith %}</td>
-            <td>{% with x=member.fields|keyvalue:"gq" %}{{ form|keyvalue:x }}{% endwith %}</td>
-            <td>{% with x=member.fields|keyvalue:"ad" %}{{ form|keyvalue:x }}{% endwith %}</td>
-            <td>{% with x=member.fields|keyvalue:"fail" %}{{ form|keyvalue:x }}{% endwith %}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+<!-- Prevent table overflow -->
+<style type="text/css">
+  table#quality-filter-table tbody tr td input {
+      width: 5em !important;
+  }
+</style>
+
+<table class="table table-striped table-hover sodar-card-table" id="quality-filter-table">
+  <thead>
+    <tr>
+      <th class="col-2">Individual</th>
+      <th class="col-2">Father</th>
+      <th class="col-2">Mother</th>
+      <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal read depth">min DP</th>
+      <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal allelic balance, with <sup>AD</sup>&frasl;<sub>DP</sub> > X and <sup>AD</sup>&frasl;<sub>DP</sub> < 1-X if site is heterozygous">min AB</th>
+      <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal genotype quality">min GQ</th>
+      <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal allelic depth, i.e. the coverage of the alternative allele. Only applies if genotype is not '0/0'">min AD</th>
+      <th data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='text-left'><ul class='pl-3'><li><strong>ignore</strong>: don't apply quality filters at all</li><li><strong>drop-variant</strong>: remove variant from result list if at least one quality filter fails</li><li><strong>no-call</strong>: don't filter for genotype if at least one quality filter fails</li></ul></div>">on FAIL</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for member in form.pedigree %}
+    <tr>
+      <td>{{ member.patient }}</td>
+      <td>{{ member.father|default:"0" }}</td>
+      <td>{{ member.mother|default:"0" }}</td>
+      <td>{% with x=member.fields|keyvalue:"dp" %}{{ form|keyvalue:x }}{% endwith %}</td>
+      <td>{% with x=member.fields|keyvalue:"ab" %}{{ form|keyvalue:x }}{% endwith %}</td>
+      <td>{% with x=member.fields|keyvalue:"gq" %}{{ form|keyvalue:x }}{% endwith %}</td>
+      <td>{% with x=member.fields|keyvalue:"ad" %}{{ form|keyvalue:x }}{% endwith %}</td>
+      <td>{% with x=member.fields|keyvalue:"fail" %}{{ form|keyvalue:x }}{% endwith %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

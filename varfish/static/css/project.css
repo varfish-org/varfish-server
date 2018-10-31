@@ -19,3 +19,24 @@
 [hidden][style="display: block;"] {
   display: block !important;
 }
+
+/*
+  Workaround for a bug in SODAR Core <= v0.3.0. Can be removed once upgrading
+  to v0.3.1+
+ */
+.sodar-list-btn-group {
+  height: 1.75em !important;
+}
+
+.sodar-list-btn {
+  padding-top: 0.5px !important;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+  height: 1.75em !important;
+}
+
+.sodar-list-dropdown {
+  height: 2.0em !important;
+  margin-bottom: 0;
+  padding-top: 2px;
+}

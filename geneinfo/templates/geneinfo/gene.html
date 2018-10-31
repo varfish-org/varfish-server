@@ -10,32 +10,32 @@
 
 {% has_perm 'geneinfo.view_data' request.user project as can_view_data %}
 
-{% if can_view_data %}
+<div class="container-fluid sodar-page-container">
 
-<nav aria-label="breadcrumb pt-3">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item" aria-current="page">
-      <a href="{% url 'variants:case' project=project.sodar_uuid %}">
-        <i class="fa fa-home"></i> Home
-      </a>
-    </li>
-    <li class="breadcrumb-item" aria-current="page">
-      <a href="{% url 'variants:case' project=project.sodar_uuid %}">
-        Gene
-      </a>
-    </li>
-    <li class="breadcrumb-item active" aria-current="page">
-      {{ ensembl_gene_id }}
-    </li>
-  </ol>
-</nav>
+  {% if can_view_data %}
 
-<div class="row">
-  <div class="col">
+    <nav aria-label="breadcrumb pt-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item" aria-current="page">
+          <a href="{% url 'variants:case' project=project.sodar_uuid %}">
+           <i class="fa fa-home"></i> Home
+          </a>
+        </li>
+        <li class="breadcrumb-item" aria-current="page">
+          <a href="{% url 'variants:case' project=project.sodar_uuid %}">
+            Gene
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ ensembl_gene_id }}
+        </li>
+      </ol>
+    </nav>
+
     {% include "geneinfo/_card_gene.html" %}
-  </div>
-</div>
 
-{% endif %}
+  {% endif %}
+
+</div>
 
 {% endblock %}
