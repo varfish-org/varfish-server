@@ -1,0 +1,8 @@
+{% load projectroles_common_tags %}
+
+{% get_setting 'SITE_TITLE' as site_title %}
+
+<div class="text-sm-center">
+  Developed by BIH CUBI. For support and feedback, please contact <a href="mailto:oliver.stolpe@bihealth.de">Oliver Stolpe</a>.
+  {{ site_title }} v{% site_version %}
+</div>
