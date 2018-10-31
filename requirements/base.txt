@@ -60,7 +60,7 @@ mistune>=0.8.3, <0.9
 
 django-postgres-copy
 
--e git+ssh://git@cubi-gitlab.bihealth.org/CUBI_Engineering/CUBI_Data_Mgmt/sodar_core.git@v0.2.1#egg=django-sodar-core
+-e git+ssh://git@cubi-gitlab.bihealth.org/CUBI_Engineering/CUBI_Data_Mgmt/sodar_core.git@v0.3.0#egg=django-sodar-core
 
 # Simplejson is more advanced than then built-in one.
 simplejson >=2.1
