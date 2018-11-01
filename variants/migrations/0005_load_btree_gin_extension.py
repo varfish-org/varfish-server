@@ -6,12 +6,9 @@ from django.db import migrations
 
 from django.contrib.postgres.operations import BtreeGinExtension
 
+
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('variants', '0004_auto_20181031_1607'),
-    ]
+    dependencies = [("variants", "0004_auto_20181031_1607")]
 
-    operations = [
-        BtreeGinExtension()
-    ]
+    operations = [BtreeGinExtension()]

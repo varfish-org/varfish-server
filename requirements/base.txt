@@ -74,3 +74,6 @@ xlsxwriter ==1.1.2
 # Writing of VCF files
 vcfpy
 pysam
+
+# Filter query generation
+sqlalchemy ==1.2.13

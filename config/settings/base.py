@@ -124,6 +124,35 @@ MANAGERS = ADMINS
 DATABASES = {"default": env.db("DATABASE_URL", default="postgres:///varfish")}
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
+# ALDJEMY CONFIGURATION
+# ------------------------------------------------------------------------------
+# We have to do some fixes to the Aldjemy data types...
+
+
+def fixed_array_type(field):
+    import aldjemy.table
+    import sqlalchemy.dialects.postgresql
+    data_types = aldjemy.table.DATA_TYPES
+    internal_type = field.base_field.get_internal_type()
+
+    # currently no support for multi-dimensional arrays
+    if internal_type in data_types and internal_type != 'ArrayField':
+        sub_type = data_types[internal_type](field)
+    else:
+        raise RuntimeError('Unsupported array element type')
+
+    return sqlalchemy.dialects.postgresql.ARRAY(sub_type)
+
+
+import sqlalchemy.dialects.postgresql
+
+ALDJEMY_DATA_TYPES = {
+    'ArrayField': lambda field: fixed_array_type(field),
+    'UUIDField': lambda _: sqlalchemy.dialects.postgresql.UUID(as_uuid=True),
+    'JSONField': lambda _: sqlalchemy.dialects.postgresql.JSONB(),
+    'BinaryField': lambda _:sqlalchemy.dialects.postgresql.BYTEA(),
+}
+
 
 # GENERAL CONFIGURATION
 # ------------------------------------------------------------------------------
