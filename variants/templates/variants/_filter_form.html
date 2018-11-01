@@ -60,7 +60,7 @@
 
     <div class="card-footer">
       <div class="row">
-        <div class="col text-left">
+        <div class="col text-left p-0">
           <div class="btn-group btn-group-toggle pr-5" data-toggle="buttons">
             {% for radio in form.database_select %}
             <label class="btn btn-outline-secondary {% if radio.data.selected %}active{% endif %}" for="{{ radio.id_for_label }}" data-toggle="tooltip" title="Select {{ radio.choice_label }} transcripts">
@@ -80,7 +80,7 @@
             </label>
           </div>
         </div>
-        <div class="col text-right">
+        <div class="col text-right p-0">
           <div class="btn-group">
             <button type="submit" name="submit" value="download" class="btn btn-secondary" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
                     title="Create downloadable file in the background of <i><b>all</b></i> variants with current settings.">

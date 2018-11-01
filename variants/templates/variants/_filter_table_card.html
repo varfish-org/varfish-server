@@ -6,17 +6,17 @@
 <tr id="expand{{ forloop.counter0 }}" class="collapse">
   <td colspan='{{ form.pedigree|length|add:"11" }}'>
     <div class="row pb-3">
-      <div class="col-4">
+      <div class="col-4 pl-0">
         <div class="card">
           <div class="card-header">
-            <h5 class="card-title">Transcript information</h5>
+            <h5 class="card-title mb-0">Transcript information</h5>
           </div>
-          <div class="card-body">
-            <table class="table">
+          <div class="card-body p-0">
+            <table class="table sodar-card-table">
               <tbody>
               <tr>
-                <td>Effects</td>
-                <td>
+                <td class="border-top-0">Effects</td>
+                <td class="border-top-0">
                   {% for effect in entry.effect %}
                   <span class="badge badge-pill color-effect">{{ effect }}</span>
                   {% endfor %}
@@ -39,13 +39,13 @@
           </div>
         </div>
       </div>
-      <div class="col-8">
+      <div class="col-8 pr-0">
         <div class="card">
           <div class="card-header">
-            <h5 class="card-title">Variant call details</h5>
+            <h5 class="card-title mb-0">Variant call details</h5>
           </div>
-          <div class="card-body">
-            <table class="table table-striped">
+          <div class="card-body p-0">
+            <table class="table table-striped sodar-card-table">
               <thead>
                 <tr>
                   <th></th>
@@ -98,32 +98,32 @@
       </div>
     </div>
     <div class="row pb-3">
-      <div class="col-4">
+      <div class="col-4 pl-0">
         <div class="card">
           <div class="card-header">
-            <h5 class="card-title">ClinVar</h5>
+            <h5 class="card-title mb-0">ClinVar</h5>
           </div>
-          <div class="card-body" id="clinvar{{ forloop.counter0 }}">
+          <div class="card-body p-0" id="clinvar{{ forloop.counter0 }}">
           </div>
         </div>
       </div>
-      <div class="col-8">
+      <div class="col-8 pr-0">
         <div class="card">
           <div class="card-header">
-            <h5 class="card-title">Frequencies</h5>
+            <h5 class="card-title mb-0">Frequencies</h5>
           </div>
-          <div class="card-body" id="frequency{{ forloop.counter0 }}">
+          <div class="card-body p-0" id="frequency{{ forloop.counter0 }}">
           </div>
         </div>
       </div>
     </div>
     <div class="row pb-3">
-      <div class="col-12">
+      <div class="col-12 px-0">
         <div class="card">
           <div class="card-header">
-            <h5 class="card-title">100 Vertebrate Amino Acid Conservation</h5>
+            <h5 class="card-title mb-0">100 Vertebrate Amino Acid Conservation</h5>
           </div>
-          <div class="card-body" id="knowngeneaa{{ forloop.counter0 }}">
+          <div class="card-body p-0" id="knowngeneaa{{ forloop.counter0 }}">
           </div>
         </div>
       </div>

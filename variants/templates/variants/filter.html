@@ -30,23 +30,21 @@
   </style>
 {% endblock %}
 
-<div class="row mb-3">
-  <div class="col">
+  <div class="container-fluid sodar-page-container">
     {% include "variants/_filter_form.html" %}
   </div>
-</div>
 
-<div class="row">
-  <div class="col">
     {% if not main %}
+      <div class="container-fluid sodar-page-container">
       <h2>
         Empty Result Set
         <small class="text-muted">
           Try again with different settings?
         </small>
       </h2>
+      </div>
     {% else %}
-      <div class="sodar-subtitle-container bg-white sticky-top">
+      <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0">
         <h2>
           Results
           <span class="badge badge-pill badge-success">{{ main|length }}</span>
@@ -98,6 +96,10 @@
           </div>
         </div>
       </div>
+
+     <div class="container-fluid sodar-page-container">
+
+
       <div id="table-config">
         <table class="table table-hover table-sm varfish-variant-table" id="main">
           <thead>
@@ -111,9 +113,10 @@
           </tbody>
         </table>
       </div>
+
+      </div> <!-- sodar-page-container -->
     {% endif %}
-  </div>
-</div>
+
 
 {% endblock projectroles_extend %}
 
@@ -265,7 +268,7 @@ $('.extend').click(function() {
         alert('Request Status: ' + xhr.status + '\nStatus Text: ' + xhr.statusText + '\nResponse Text: ' + xhr.responseText);
       }
     }).done(function (data) {
-      var table = '<table class="table">';
+      var table = '<table class="table sodar-card-table">';
       table += '<thead><tr><th colspan=2></th><th>AFR</th><th>AMR</th><th>ASJ</th><th>EAS</th><th>FIN</th><th>NFE</th><th>OTH</th><th>SAS</th><th>Total</th></tr></thead>';
       var pops = ["afr", "amr", "asj", "eas", "fin", "nfe", "oth", "sas"];
       var dbs = ["gnomadexomes", "gnomadgenomes", "exac", "thousandgenomes"];
@@ -306,7 +309,7 @@ $('.extend').click(function() {
       $("#frequency" + counter).append(table);
       var clinvar = 'No data.';
       if (data["clinvar"].length > 0) {
-        clinvar = '<table class="table">';
+        clinvar = '<table class="table sodar-card-table">';
         clinvar += '<thead><tr><th>Clinical Significance</th><th>All Traits</th></tr></thead>';
         clinvar += '<tbody>';
         for (let i=0; i < data["clinvar"].length; ++i) {
@@ -322,7 +325,7 @@ $('.extend').click(function() {
       $("#clinvar" + counter).append(clinvar);
       var knowngeneaa = 'No data.';
       if (data["knowngeneaa"].length > 0) {
-        knowngeneaa = '<table class="table">';
+        knowngeneaa = '<table class="table sodar-card-table">';
         knowngeneaa += '<thead><tr><th>Chromosome</th><th>Start</th><th>End</th><th>Alignment</th></tr></thead>';
         knowngeneaa += '<tbody>';
         for (let i=0; i < data["knowngeneaa"].length; ++i) {

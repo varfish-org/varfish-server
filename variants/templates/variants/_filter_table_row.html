@@ -4,7 +4,7 @@
 {% load dict %}
 
 <tr>
-  <td class="clickable extend" counter="{{ forloop.counter0 }}" url="{% url 'variants:extend' project=project.sodar_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" data-toggle="collapse" data-target="#expand{{ forloop.counter0 }}" aria-expanded="false" aria-controls="expand{{ forloop.counter0 }}" aria-hidden="true"><i class="fa fa-chevron-right"></i></td>
+  <td class="clickable extend" counter="{{ forloop.counter0 }}" url="{% url 'variants:extend' project=project.sodar_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" data-toggle="collapse" data-target="#expand{{ forloop.counter0 }}" aria-expanded="false" aria-controls="expand{{ forloop.counter0 }}" aria-hidden="true"><i class="fa fa-fw fa-chevron-right"></i></td>
   <td>chr{{ entry.chromosome }}:{{ entry.position|intcomma }}</td>
   <td>{{ entry.reference|truncatechars:9 }}</td>
   <td>{{ entry.alternative|truncatechars:9 }}</td>
@@ -45,17 +45,17 @@
     {% if not entry.symbol %}
       -
     {% else %}
-      <div class="btn-group">
+      <div class="btn-group sodar-list-btn-group">
         <button
           type="button"
           title="Go to locus in IGV"
-          class="btn btn-outline-dark btn-sm">
+          class="btn btn-outline-dark sodar-list-btn">
           {{ entry.symbol|default:"." }}
         </button>
         <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span class="sr-only">Toggle Dropdown</span>
         </button>
-        <div class="dropdown-menu">
+        <div class="dropdown-menu dropdown-menu-right">
           <a class="dropdown-item" href="https://www.omim.org/search/?search={{ entry.symbol }}" target="_blank">
             Gene @OMIM
           </a>
@@ -90,24 +90,24 @@
   </td>
   {% endfor %}
   <td>
-    <div class="btn-group pr-2">
+    <div class="btn-group sodar-list-btn-group pr-2">
       <a
         href="javascript:mutationTaster('chr{{ entry.chromosome }}', {{ entry.position }}, '{{ entry.reference }}', '{{ entry.alternative }}');"
         title="Open variant in MutationTaster"
-        class="btn btn-primary btn-sm">
+        class="btn btn-primary sodar-list-btn">
         MT
       </a>
       <button
         type="button"
         onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }}'})"
         title="Go to locus in IGV"
-        class="btn btn-secondary btn-sm">
+        class="btn btn-secondary sodar-list-btn">
         IGV
       </button>
-      <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split sodar-list-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <span class="sr-only">Toggle Dropdown</span>
       </button>
-      <div class="dropdown-menu">
+      <div class="dropdown-menu dropdown-menu-right">
         <a class="dropdown-item" href="https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg19&position={{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }}" target="_blank">
           Locus @UCSC
         </a>
