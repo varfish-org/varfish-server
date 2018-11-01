@@ -8,18 +8,18 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('variants', '0002_exportfilebgjob_exportfilejobresult'),
-    ]
+    dependencies = [("variants", "0002_exportfilebgjob_exportfilejobresult")]
 
     operations = [
         migrations.AlterField(
-            model_name='exportfilebgjob',
-            name='bg_job',
-            field=models.ForeignKey(help_text='Background job for state etc.', on_delete=django.db.models.deletion.CASCADE, related_name='export_file_bg_job', to='bgjobs.BackgroundJob'),
+            model_name="exportfilebgjob",
+            name="bg_job",
+            field=models.ForeignKey(
+                help_text="Background job for state etc.",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="export_file_bg_job",
+                to="bgjobs.BackgroundJob",
+            ),
         ),
-        migrations.AlterUniqueTogether(
-            name='case',
-            unique_together=set([]),
-        ),
+        migrations.AlterUniqueTogether(name="case", unique_together=set([])),
     ]
