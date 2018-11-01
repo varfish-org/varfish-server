@@ -474,7 +474,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(FilterTestBase):
     setup_case_in_db = fixture_setup_case2
     base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE2
 
-    cleaned_data_patch = {"compound_enabled": True}
+    cleaned_data_patch = {"compound_recessive_enabled": True}
 
     def test_query_compound_het_filter(self):
         res = self.run_filter_query(RenderFilterQuery, self.cleaned_data_patch, 2)
@@ -487,4 +487,4 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(FilterTestBase):
         self.assertEqual(res[1].position, 103)
 
     def test_query_compound_het_count(self):
-        self.run_count_query(CountOnlyFilterQuery, self.cleaned_data_patch, 1)
+        self.run_count_query(CountOnlyFilterQuery, self.cleaned_data_patch, 2)

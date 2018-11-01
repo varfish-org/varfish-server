@@ -1,4 +1,4 @@
-from sqlalchemy.sql import select, func, and_, not_, or_, cast
+from sqlalchemy.sql import select, func, and_, not_, or_, cast, union, literal_column
 from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
 
 from variants.models import Case, SmallVariant
@@ -31,28 +31,111 @@ class FilterQueryBase:
 
     def run(self, kwargs):
         """Perform the query with the given ``kwargs``."""
-        stmt = (
-            select(self._get_fields(kwargs))
-            .select_from(self._from(kwargs))
-            .where(self._where(kwargs))
-        )
-        stmt = self._add_trailing(stmt, kwargs)
+        if kwargs.get("compound_recessive_enabled", False):
+            stmt = self._build_comp_het_stmt(kwargs)
+        else:
+            stmt = self._build_simple_stmt(kwargs)
         if False:
             import sqlparse
+
             sql = stmt.compile(self.connection.engine).string
             print(sqlparse.format(sql, reindent=True, keyword_case="upper"))
         return self.connection.execute(stmt)
 
-    def _get_fields(self, _kwargs):
-        """Return fields to ``select()`` with SQLAlchemy."""
+    def _get_trio_names(self):
+        """Return (index, father, mother) names from trio"""
+        index_lines = [rec for rec in self.case.pedigree if rec["patient"] == self.case.index]
+        if len(index_lines) != 1:
+            raise RuntimeError("Could not find index line from pedigree")
+        return index_lines[0]["patient"], index_lines[0]["father"], index_lines[0]["mother"]
+
+    def _build_comp_het_stmt(self, kwargs):
+        """Build the comp.-het. statement"""
+        index, father, mother = self._get_trio_names()
+        # Build inner query, variant inherited from father
+        gt_patterns = {index: "het", father: "het", mother: "ref"}
+        inner_father_stmt = (
+            select(
+                self._get_fields(kwargs, "inner")
+                + [
+                    literal_column("1", Integer).label("father_marker"),
+                    literal_column("0", Integer).label("mother_marker"),
+                ]
+            )
+            .select_from(self._from(kwargs))
+            .where(self._where(kwargs, gt_patterns))
+        )
+        inner_father_stmt = self._add_trailing(inner_father_stmt, kwargs)
+        # Build inner query, variant inherited from mother
+        gt_patterns = {index: "het", father: "ref", mother: "het"}
+        inner_mother_stmt = (
+            select(
+                self._get_fields(kwargs, "inner")
+                + [
+                    literal_column("0", Integer).label("father_marker"),
+                    literal_column("1", Integer).label("mother_marker"),
+                ]
+            )
+            .select_from(self._from(kwargs))
+            .where(self._where(kwargs, gt_patterns))
+        )
+        inner_mother_stmt = self._add_trailing(inner_mother_stmt, kwargs)
+        # Build the union statement
+        union_stmt = union(inner_father_stmt, inner_mother_stmt).alias("the_union")
+        # Build the outer statement
+        middle_stmt = (
+            select(
+                [
+                    "*",
+                    func.sum(union_stmt.c.father_marker)
+                    .over(partition_by=union_stmt.c.gene_id)
+                    .label("father_count"),
+                    func.sum(union_stmt.c.mother_marker)
+                    .over(partition_by=union_stmt.c.gene_id)
+                    .label("mother_count"),
+                ]
+            )
+            .select_from(union_stmt)
+            .alias("the_middle")
+        )
+        # Build the outer statement
+        return (
+            select(self._get_fields(kwargs, "outer"))
+            .select_from(middle_stmt)
+            .where(and_(middle_stmt.c.father_count > 0, middle_stmt.c.mother_count > 0))
+        )
+
+    def _build_simple_stmt(self, kwargs):
+        """Build the simple, non-comp.-het. statement"""
+        stmt = (
+            select(self._get_fields(kwargs, "single"))
+            .select_from(self._from(kwargs))
+            .where(self._where(kwargs))
+        )
+        stmt = self._add_trailing(stmt, kwargs)
+        return stmt
+
+    def _get_fields(self, _kwargs, _which):
+        """Return fields to ``select()`` with SQLAlchemy.
+
+        ``_which`` is "outer" or "inner".
+        """
         raise NotImplementedError("Override me!")
 
     def _from(self, _kwargs):
         """Return the selectable object (e.g., a ``Join``)."""
         raise NotImplementedError("Override me!")
 
-    def _where(self, kwargs):
-        """Add WHERE clause to the ``_stmt``."""
+    def _where(self, _kwargs, _gt_patterns=None):
+        """Add WHERE clause to the ``_stmt``.
+
+        If ``_gt_pattern`` is given then the selected individual's genotype will be forced
+        as given in this parameter.  Examples for the values are:
+
+        - ``{}`` -- empty
+        - ``{"child": "het", "father": "het", "mother": "hom"}``
+        - ``{"child": "het", "father": "hom", "mother": "het"}``
+        """
         raise NotImplementedError("Override me!")
 
     def _add_trailing(self, stmt, _kwargs):
@@ -83,7 +166,7 @@ class FromAndWhereMixin:
                 Hgnc.sa, SmallVariant.sa.ensembl_gene_id == Hgnc.sa.ensembl_gene_id
             )
 
-    def _where(self, kwargs):
+    def _where(self, kwargs, gt_patterns=None):
         return and_(
             # Select only variants from the current case, of course.
             SmallVariant.sa.case_id == self.case.pk,
@@ -93,7 +176,7 @@ class FromAndWhereMixin:
             self._build_population_db_term(kwargs, "homozygous"),
             self._build_population_db_term(kwargs, "heterozygous"),
             self._build_effects_term(kwargs),
-            and_(*self._yield_genotype_terms(kwargs)),
+            and_(*self._yield_genotype_terms(kwargs, gt_patterns)),
             self._build_gene_blacklist_term(kwargs),
         )
 
@@ -123,14 +206,28 @@ class FromAndWhereMixin:
         else:  # kwargs["database_select"] == "ensembl"
             return SmallVariant.sa.ensembl_effect.overlap(effects)
 
-    def _yield_genotype_terms(self, kwargs):
+    def _yield_genotype_terms(self, kwargs, gt_patterns=None):
         """Build term for checking called genotypes and genotype qualities"""
-        for m in self.case.pedigree:
-            quality_term = self._build_genotype_quality_term(m["patient"], kwargs)
-            genotype_term = self._build_genotype_gt_term(m["patient"], kwargs)
-            if kwargs["%s_fail" % m["patient"]] == "drop-variant":
+        # Limit members to those in ``gt_patterns`` if given and use all members from pedigree
+        # otherwise.
+        if gt_patterns:
+            members = [m for m in self.case.pedigree if m["patient"] in gt_patterns]
+        else:
+            members = self.case.pedigree
+        for m in members:
+            name = m["patient"]
+            # Use genotype pattern ``gt_patterns`` override if given and use the patterns from
+            # ``kwargs`` otherwise.
+            if name in (gt_patterns or ()):
+                gt_list = FILTER_FORM_TRANSLATE_INHERITANCE[gt_patterns[name]]
+            else:
+                gt_list = FILTER_FORM_TRANSLATE_INHERITANCE[kwargs["%s_gt" % name]]
+            # Build quality and genotype term and combine as configured in ``kwargs``.
+            quality_term = self._build_genotype_quality_term(name, kwargs)
+            genotype_term = self._build_genotype_gt_term(name, gt_list)
+            if kwargs["%s_fail" % name] == "drop-variant":
                 yield and_(quality_term, genotype_term)
-            elif kwargs["%s_fail" % m["patient"]] == "no-call":
+            elif kwargs["%s_fail" % name] == "no-call":
                 yield or_(not_(quality_term), genotype_term)  # implication
             else:  # elif kwargs["%s_fail" % name] == "ignore"
                 yield genotype_term
@@ -170,8 +267,7 @@ class FromAndWhereMixin:
             ),
         )
 
-    def _build_genotype_gt_term(self, name, kwargs):
-        gt_list = FILTER_FORM_TRANSLATE_INHERITANCE[kwargs["%s_gt" % name]]
+    def _build_genotype_gt_term(self, name, gt_list):
         if gt_list:
             return SmallVariant.sa.genotype[name]["gt"].astext.in_(gt_list)
         else:
@@ -184,68 +280,78 @@ class FromAndWhereMixin:
 class FilterQueryStandardFieldsMixin(FromAndWhereMixin):
     """Mixin for selecting the standard fields for the filter query."""
 
-    def _get_fields(self, kwargs):
-        result = [
-            SmallVariant.sa.release,
-            SmallVariant.sa.chromosome,
-            SmallVariant.sa.position,
-            SmallVariant.sa.reference,
-            SmallVariant.sa.alternative,
-            SmallVariant.sa.exac_frequency,
-            SmallVariant.sa.gnomad_exomes_frequency,
-            SmallVariant.sa.gnomad_genomes_frequency,
-            SmallVariant.sa.thousand_genomes_frequency,
-            SmallVariant.sa.exac_homozygous,
-            SmallVariant.sa.gnomad_exomes_homozygous,
-            SmallVariant.sa.gnomad_genomes_homozygous,
-            SmallVariant.sa.thousand_genomes_homozygous,
-            SmallVariant.sa.genotype,
-            SmallVariant.sa.case_id,
-            SmallVariant.sa.in_clinvar,
-            Hgnc.sa.symbol,
-            Dbsnp.sa.rsid,
-        ]
-        # TODO: getattr, but only with check for "refseq", "ensembl"
-        if kwargs["database_select"] == "refseq":
-            result += [
-                SmallVariant.sa.refseq_hgvs_p,
-                SmallVariant.sa.refseq_hgvs_c,
-                SmallVariant.sa.refseq_transcript_coding,
-                SmallVariant.sa.refseq_effect,
-                SmallVariant.sa.refseq_gene_id.label("gene_id"),
+    def _get_fields(self, kwargs, which):
+        if which == "outer":
+            return "*"  # Early return.
+        else:
+            result = [
+                SmallVariant.sa.release,
+                SmallVariant.sa.chromosome,
+                SmallVariant.sa.position,
+                SmallVariant.sa.reference,
+                SmallVariant.sa.alternative,
+                SmallVariant.sa.exac_frequency,
+                SmallVariant.sa.gnomad_exomes_frequency,
+                SmallVariant.sa.gnomad_genomes_frequency,
+                SmallVariant.sa.thousand_genomes_frequency,
+                SmallVariant.sa.exac_homozygous,
+                SmallVariant.sa.gnomad_exomes_homozygous,
+                SmallVariant.sa.gnomad_genomes_homozygous,
+                SmallVariant.sa.thousand_genomes_homozygous,
+                SmallVariant.sa.genotype,
+                SmallVariant.sa.case_id,
+                SmallVariant.sa.in_clinvar,
+                Hgnc.sa.symbol,
+                Dbsnp.sa.rsid,
             ]
-        else:  # if kwargs["database_select"] == "ensembl":
-            result += [
-                SmallVariant.sa.ensembl_hgvs_p,
-                SmallVariant.sa.ensembl_hgvs_c,
-                SmallVariant.sa.ensembl_transcript_coding,
-                SmallVariant.sa.ensembl_effect,
-                SmallVariant.sa.refseq_gene_id.label("gene_id"),
-            ]
-        return result
+            # TODO: getattr, but only with check for "refseq", "ensembl"
+            if kwargs["database_select"] == "refseq":
+                result += [
+                    SmallVariant.sa.refseq_hgvs_p,
+                    SmallVariant.sa.refseq_hgvs_c,
+                    SmallVariant.sa.refseq_transcript_coding,
+                    SmallVariant.sa.refseq_effect,
+                    SmallVariant.sa.refseq_gene_id.label("gene_id"),
+                ]
+            else:  # if kwargs["database_select"] == "ensembl":
+                result += [
+                    SmallVariant.sa.ensembl_hgvs_p,
+                    SmallVariant.sa.ensembl_hgvs_c,
+                    SmallVariant.sa.ensembl_transcript_coding,
+                    SmallVariant.sa.ensembl_effect,
+                    SmallVariant.sa.refseq_gene_id.label("gene_id"),
+                ]
+            return result
 
 
-class FilterQueryAddConservationFieldMixin(FromAndWhereMixin):
+class FilterQueryAddConservationFieldMixin(FilterQueryStandardFieldsMixin, FromAndWhereMixin):
     """Adds the conservation fields to the filter query."""
 
-    def _get_fields(self, _small_variants):
-        return super()._get_fields() + ["string_agg(kgaa.alignment, ' / ') as known_gene_aa"]
+    def _get_fields(self, kwargs, which):
+        # TODO: write me!
+        if which == "outer":
+            return "*"
+        else:
+            return super()._get_fields(
+                kwargs, which
+            )  # + ["string_agg(kgaa.alignment, ' / ') as known_gene_aa"]
 
 
-class FilterQueryCountRecordsMixin(FromAndWhereMixin):
+class FilterQueryCountRecordsMixin(FilterQueryStandardFieldsMixin, FromAndWhereMixin):
     """Mixin for selecting the number of records (``COUNT(*)``) only."""
 
-    def _get_fields(self, _small_variants):
-        return [func.count()]
+    def _get_fields(self, kwargs, which):
+        if which == "inner":
+            return super()._get_fields(kwargs, which)
+        else:
+            return [func.count()]
 
 
 class RenderFilterQuery(FilterQueryStandardFieldsMixin, FilterQueryBase):
     """Run filter query for the interactive filtration form."""
 
 
-class ExportFileFilterQuery(
-    FilterQueryStandardFieldsMixin, FilterQueryAddConservationFieldMixin, FilterQueryBase
-):
+class ExportFileFilterQuery(FilterQueryAddConservationFieldMixin, FilterQueryBase):
     """Run filter query for creating file to export."""
 
 

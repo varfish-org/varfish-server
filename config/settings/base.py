@@ -53,6 +53,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "knox",
     "projectroles.apps.ProjectrolesConfig",
+    "aldjemy",
 ]
 
 # Apps specific for this project go here.
