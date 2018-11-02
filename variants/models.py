@@ -146,8 +146,6 @@ class Case(models.Model):
         )
 
     def get_members(self):
-        for x in self.pedigree:
-            print(x)
         return [x["patient"] for x in self.pedigree]
 
     def get_trio_roles(self):

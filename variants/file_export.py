@@ -56,7 +56,7 @@ HEADER_FIXED = (
     ("effect", "Most pathogenic variant effect", str),
     ("hgvs_p", "Protein HGVS change", str),
     ("hgvs_c", "Nucleotide HGVS change", str),
-    # ("known_gene_aa", "100 Vertebrate AA conservation", str),
+    ("known_gene_aa", "100 Vertebrate AA conservation", str),
 )
 
 

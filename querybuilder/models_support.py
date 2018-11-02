@@ -1,11 +1,14 @@
 from contextlib import contextmanager
 import json
+
 import psycopg2.extras
-from sqlalchemy.sql import select, func, and_, not_, or_, cast, union, literal_column
+from sqlalchemy.sql import select, func, and_, not_, or_, cast, union, literal_column, outerjoin
 from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
+import sqlparse
 
 from variants.models import Case, SmallVariant
 from geneinfo.models import Hgnc
+from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from variants.forms import FILTER_FORM_TRANSLATE_EFFECTS, FILTER_FORM_TRANSLATE_INHERITANCE
 
@@ -39,22 +42,18 @@ class FilterQueryBase:
         [trailing such as ORDER BY or LIMIT]
     """
 
-    def __init__(self, case, connection):
+    def __init__(self, case, connection, debug=False):
         #: The case that the query is for.
         self.case = case
         #: The Aldjemy connection to use
         self.connection = connection
+        #: Whether or not to print queries before issuing them
+        self.debug = debug
 
     def run(self, kwargs):
         """Perform the query with the given ``kwargs``."""
-        if kwargs.get("compound_recessive_enabled", False):
-            stmt = self._build_comp_het_stmt(kwargs)
-        else:
-            stmt = self._build_simple_stmt(kwargs)
-        stmt = self._add_trailing(stmt, kwargs)
-        if False:
-            import sqlparse
-
+        stmt = self._build_stmt(kwargs)
+        if self.debug:
             sql = stmt.compile(self.connection.engine).string
             print(sqlparse.format(sql, reindent=True, keyword_case="upper"))
         with disable_json_psycopg2():
@@ -66,6 +65,14 @@ class FilterQueryBase:
         if len(index_lines) != 1:
             raise RuntimeError("Could not find index line from pedigree")
         return index_lines[0]["patient"], index_lines[0]["father"], index_lines[0]["mother"]
+
+    def _build_stmt(self, kwargs):
+        """Build the statement, both simple and compound recessive"""
+        if kwargs.get("compound_recessive_enabled", False):
+            stmt = self._build_comp_het_stmt(kwargs)
+        else:
+            stmt = self._build_simple_stmt(kwargs)
+        return self._add_trailing(stmt, kwargs)
 
     def _build_comp_het_stmt(self, kwargs):
         """Build the comp.-het. statement"""
@@ -104,7 +111,7 @@ class FilterQueryBase:
         middle_stmt = (
             select(
                 [
-                    "*",
+                    *union_stmt.c,
                     func.sum(union_stmt.c.father_marker)
                     .over(partition_by=union_stmt.c.gene_id)
                     .label("father_count"),
@@ -118,7 +125,7 @@ class FilterQueryBase:
         )
         # Build the outer statement
         return (
-            select(self._get_fields(kwargs, "outer"))
+            select(self._get_fields(kwargs, "outer", middle_stmt))
             .select_from(middle_stmt)
             .where(and_(middle_stmt.c.father_count > 0, middle_stmt.c.mother_count > 0))
         )
@@ -133,7 +140,7 @@ class FilterQueryBase:
         stmt = self._add_trailing(stmt, kwargs)
         return stmt
 
-    def _get_fields(self, _kwargs, _which):
+    def _get_fields(self, _kwargs, _which, _inner=None):
         """Return fields to ``select()`` with SQLAlchemy.
 
         ``_which`` is "outer" or "inner".
@@ -298,9 +305,12 @@ class FromAndWhereMixin:
 class FilterQueryStandardFieldsMixin(FromAndWhereMixin):
     """Mixin for selecting the standard fields for the filter query."""
 
-    def _get_fields(self, kwargs, which):
+    def _get_fields(self, kwargs, which, inner=None):
         if which == "outer":
-            return "*"
+            if inner is not None:
+                return [*inner.c]
+            else:
+                return "*"
         else:
             result = [
                 SmallVariant.sa.release,
@@ -336,7 +346,7 @@ class FilterQueryStandardFieldsMixin(FromAndWhereMixin):
                     SmallVariant.sa.ensembl_hgvs_c.label("hgvs_c"),
                     SmallVariant.sa.ensembl_transcript_coding.label("transcript_coding"),
                     SmallVariant.sa.ensembl_effect.label("effect"),
-                    SmallVariant.sa.refseq_gene_id.label("gene_id"),
+                    SmallVariant.sa.ensembl_gene_id.label("gene_id"),
                 ]
             return result
 
@@ -344,19 +354,89 @@ class FilterQueryStandardFieldsMixin(FromAndWhereMixin):
 class FilterQueryFieldsForExportMixin(FilterQueryStandardFieldsMixin, FromAndWhereMixin):
     """Adds the fields for exporting to the query."""
 
-    def _get_fields(self, kwargs, which):
+    def _build_stmt(self, kwargs):
+        inner = super()._build_stmt(kwargs).alias("inner")
+        middle = (
+            select(
+                [
+                    *inner.c,
+                    KnowngeneAA.sa.start.label("kgaa_start"),
+                    KnowngeneAA.sa.alignment.label("kgaa_alignment"),
+                ]
+            )
+            .select_from(
+                inner.outerjoin(
+                    KnowngeneAA.sa.table,
+                    and_(
+                        KnowngeneAA.sa.chromosome == inner.c.chromosome,
+                        KnowngeneAA.sa.start
+                        <= (inner.c.position - 1 + func.length(inner.c.reference)),
+                        KnowngeneAA.sa.end > (inner.c.position - 1),
+                        # TODO: using "LEFT(, -2)" here breaks if version > 9
+                        func.left(KnowngeneAA.sa.transcript_id, -2)
+                        == func.left(inner.c.ucsc_id, -2),
+                    ),
+                )
+            )
+            .order_by(inner.c.chromosome, KnowngeneAA.sa.start)
+            .alias("middle")
+        )
+        # Collect names of middle fields after grouping
+        middle_fields = [c for c in middle.c if not c.name.startswith("kgaa_")]
+        outer = (
+            select(
+                [
+                    *middle_fields,
+                    func.string_agg(middle.c.kgaa_alignment, " / ").label("known_gene_aa"),
+                ]
+            )
+            .select_from(middle)
+            .group_by(*middle_fields)
+            .order_by(middle.c.chromosome, middle.c.position)
+        )
+        return outer
+
+    def _get_fields(self, kwargs, which, inner=None):
+        """Add a few fields for file export"""
         if which == "outer":
-            return "*"
+            if inner is not None:
+                return [*inner.c]
+            else:
+                return ["*"]
         else:
-            return super()._get_fields(kwargs, which) + [SmallVariant.sa.var_type]
+            return super()._get_fields(kwargs, which, inner) + [
+                SmallVariant.sa.var_type,
+                SmallVariant.sa.ensembl_transcript_id,
+                Hgnc.sa.ucsc_id,
+                # literal_column("'missing'", Integer).label("conservation"),
+                # self._get_conservation_field(),
+            ]
+
+    def _get_conservation_field(self):
+        return (
+            select([literal_column("1", Integer).label("conservation")])
+            .select_from(KnowngeneAA.sa.table)
+            .where(
+                and_(
+                    KnowngeneAA.sa.chromosome == SmallVariant.sa.chromosome,
+                    KnowngeneAA.sa.start
+                    <= (SmallVariant.sa.position - 1 + func.length(SmallVariant.sa.reference)),
+                    KnowngeneAA.sa.end > (SmallVariant.sa.position - 1),
+                    # TODO: using "LEFT(, -2)" here breaks if version > 9
+                    # func.left(KnowngeneAA.sa.transcript_id, -2)
+                    # == func.left(SmallVariant.sa.ensembl_transcript_id, -2),
+                )
+            )
+            .alias("conservation")
+        )
 
 
 class FilterQueryCountRecordsMixin(FilterQueryStandardFieldsMixin, FromAndWhereMixin):
     """Mixin for selecting the number of records (``COUNT(*)``) only."""
 
-    def _get_fields(self, kwargs, which):
+    def _get_fields(self, kwargs, which, inner=None):
         if which == "inner":
-            return super()._get_fields(kwargs, which)
+            return super()._get_fields(kwargs, which, inner)
         else:
             return [func.count()]
 
