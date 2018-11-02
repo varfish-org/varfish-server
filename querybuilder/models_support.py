@@ -1,3 +1,6 @@
+from contextlib import contextmanager
+import json
+import psycopg2.extras
 from sqlalchemy.sql import select, func, and_, not_, or_, cast, union, literal_column
 from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
 
@@ -5,6 +8,19 @@ from variants.models import Case, SmallVariant
 from geneinfo.models import Hgnc
 from dbsnp.models import Dbsnp
 from variants.forms import FILTER_FORM_TRANSLATE_EFFECTS, FILTER_FORM_TRANSLATE_INHERITANCE
+
+
+@contextmanager
+def disable_json_psycopg2():
+    """Context manager for temporarily switching off automated JSON decoding in psycopg2.
+
+    SQL Alchemy does not like this.
+    """
+    psycopg2.extras.register_default_json(loads=lambda x: x)
+    psycopg2.extras.register_default_jsonb(loads=lambda x: x)
+    yield
+    psycopg2.extras.register_default_json(loads=json.loads)
+    psycopg2.extras.register_default_jsonb(loads=json.loads)
 
 
 class FilterQueryBase:
@@ -35,12 +51,14 @@ class FilterQueryBase:
             stmt = self._build_comp_het_stmt(kwargs)
         else:
             stmt = self._build_simple_stmt(kwargs)
+        stmt = self._add_trailing(stmt, kwargs)
         if False:
             import sqlparse
 
             sql = stmt.compile(self.connection.engine).string
             print(sqlparse.format(sql, reindent=True, keyword_case="upper"))
-        return self.connection.execute(stmt)
+        with disable_json_psycopg2():
+            return self.connection.execute(stmt)
 
     def _get_trio_names(self):
         """Return (index, father, mother) names from trio"""
@@ -282,7 +300,7 @@ class FilterQueryStandardFieldsMixin(FromAndWhereMixin):
 
     def _get_fields(self, kwargs, which):
         if which == "outer":
-            return "*"  # Early return.
+            return "*"
         else:
             result = [
                 SmallVariant.sa.release,
@@ -304,37 +322,33 @@ class FilterQueryStandardFieldsMixin(FromAndWhereMixin):
                 Hgnc.sa.symbol,
                 Dbsnp.sa.rsid,
             ]
-            # TODO: getattr, but only with check for "refseq", "ensembl"
             if kwargs["database_select"] == "refseq":
                 result += [
-                    SmallVariant.sa.refseq_hgvs_p,
-                    SmallVariant.sa.refseq_hgvs_c,
-                    SmallVariant.sa.refseq_transcript_coding,
-                    SmallVariant.sa.refseq_effect,
+                    SmallVariant.sa.refseq_hgvs_p.label("hgvs_p"),
+                    SmallVariant.sa.refseq_hgvs_c.label("hgvs_c"),
+                    SmallVariant.sa.refseq_transcript_coding.label("transcript_coding"),
+                    SmallVariant.sa.refseq_effect.label("effect"),
                     SmallVariant.sa.refseq_gene_id.label("gene_id"),
                 ]
             else:  # if kwargs["database_select"] == "ensembl":
                 result += [
-                    SmallVariant.sa.ensembl_hgvs_p,
-                    SmallVariant.sa.ensembl_hgvs_c,
-                    SmallVariant.sa.ensembl_transcript_coding,
-                    SmallVariant.sa.ensembl_effect,
+                    SmallVariant.sa.ensembl_hgvs_p.label("hgvs_p"),
+                    SmallVariant.sa.ensembl_hgvs_c.label("hgvs_c"),
+                    SmallVariant.sa.ensembl_transcript_coding.label("transcript_coding"),
+                    SmallVariant.sa.ensembl_effect.label("effect"),
                     SmallVariant.sa.refseq_gene_id.label("gene_id"),
                 ]
             return result
 
 
-class FilterQueryAddConservationFieldMixin(FilterQueryStandardFieldsMixin, FromAndWhereMixin):
-    """Adds the conservation fields to the filter query."""
+class FilterQueryFieldsForExportMixin(FilterQueryStandardFieldsMixin, FromAndWhereMixin):
+    """Adds the fields for exporting to the query."""
 
     def _get_fields(self, kwargs, which):
-        # TODO: write me!
         if which == "outer":
             return "*"
         else:
-            return super()._get_fields(
-                kwargs, which
-            )  # + ["string_agg(kgaa.alignment, ' / ') as known_gene_aa"]
+            return super()._get_fields(kwargs, which) + [SmallVariant.sa.var_type]
 
 
 class FilterQueryCountRecordsMixin(FilterQueryStandardFieldsMixin, FromAndWhereMixin):
@@ -351,8 +365,10 @@ class RenderFilterQuery(FilterQueryStandardFieldsMixin, FilterQueryBase):
     """Run filter query for the interactive filtration form."""
 
 
-class ExportFileFilterQuery(FilterQueryAddConservationFieldMixin, FilterQueryBase):
+class ExportFileFilterQuery(FilterQueryFieldsForExportMixin, FilterQueryBase):
     """Run filter query for creating file to export."""
+
+    # TODO: add conservation?
 
 
 class CountOnlyFilterQuery(FilterQueryCountRecordsMixin, FilterQueryBase):

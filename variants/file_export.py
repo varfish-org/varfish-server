@@ -1,17 +1,21 @@
 """This module contains the code for file export"""
 
 import datetime
-import json
-
 from datetime import timedelta
+import json
 from tempfile import NamedTemporaryFile
 
+import aldjemy
 from django.utils import timezone
 import xlsxwriter
 import vcfpy
 
 from .models import ExportFileJobResult
-from .views import FilterQueryRunner
+from querybuilder.models_support import ExportFileFilterQuery
+
+#: The SQL Alchemy engine to use
+SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+
 
 #: Constant that determines how many days generated files should stay.  Note for the actual removal, a separate
 #: Celery job must be ran.
@@ -52,7 +56,7 @@ HEADER_FIXED = (
     ("effect", "Most pathogenic variant effect", str),
     ("hgvs_p", "Protein HGVS change", str),
     ("hgvs_c", "Nucleotide HGVS change", str),
-    ("known_gene_aa", "100 Vertebrate AA conservation", str),
+    # ("known_gene_aa", "100 Vertebrate AA conservation", str),
 )
 
 
@@ -102,20 +106,27 @@ class CaseExporterBase:
     def __init__(self, job):
         #: The ``ExportFileBgJob`` to use for obtaining case and query arguments.
         self.job = job
+        #: The SQL Alchemy connection to use.
+        self._alchemy_connection = None
         #: The query arguments.
-        self.query_args = json.loads(job.query_args)
+        self.query_args = job.query_args
         #: The named temporary file object to use for file handling.
         self.tmp_file = None
         #: The wrapper for running queries.
-        self.query_runner = FilterQueryRunner(job.case, self.query_args, include_conservation=True)
+        self.query = ExportFileFilterQuery(job.case, self.get_alchemy_connection())
         #: The name of the selected members.
         self.members = list(self._yield_members())
         #: The column information.
         self.columns = list(self._yield_columns(self.members))
 
+    def get_alchemy_connection(self):
+        if not self._alchemy_connection:
+            self._alchemy_connection = SQLALCHEMY_ENGINE.connect()
+        return self._alchemy_connection
+
     def _yield_members(self):
         """Get list of selected members."""
-        for m in self.query_runner.pedigree:
+        for m in self.job.case.pedigree:
             if self.query_args.get("%s_export" % m["patient"], False):
                 yield m["patient"]
 
@@ -136,7 +147,7 @@ class CaseExporterBase:
         """Use this for yielding the resulting small variants one-by-one."""
         prev_chrom = None
         self.job.add_log_entry("Executing database query...")
-        result = self.query_runner.run()
+        result = self.query.run(self.query_args)
         self.job.add_log_entry("Writing output file...")
         for small_var in result:
             if small_var.chromosome != prev_chrom:
@@ -296,7 +307,7 @@ class CaseExporterXlsx(CaseExporterBase):
                 "",
                 "",
             ]
-            + list(map(self.__class__._unblank, self.query_args.values())),
+            + list(map(self.__class__._unblank, map(str, self.query_args.values()))),
         )
 
     def _write_variants_header(self):
@@ -312,19 +323,19 @@ class CaseExporterXlsx(CaseExporterBase):
                 if column["name"] == "chromosome":
                     row.append("chr" + getattr(small_var, "chromosome"))
                 elif column["fixed"]:
-                    row.append(getattr(small_var, column["name"]))
+                    row.append(small_var[column["name"]])
                 else:
                     member, field = column["name"].rsplit(".", 1)
                     if field == "aaf":
-                        ad = small_var.ad.get(member, 0)
-                        dp = small_var.dp.get(member, 0)
+                        ad = small_var["genotype"].get(member, {}).get("ad", 0)
+                        dp = small_var["genotype"].get(member, {}).get("dp", 0)
                         aaf = ad / dp if dp != 0 else 0.0
                         row.append(aaf)
                     else:
-                        row.append(getattr(small_var, field, {}).get(member, "."))
+                        row.append(small_var["genotype"].get(member, {}).get(field, "."))
                 if isinstance(row[-1], set):
                     row[-1] = to_str(row[-1])
-            self.variant_sheet.write_row(1 + num_rows, 0, row)
+            self.variant_sheet.write_row(1 + num_rows, 0, list(map(str, row)))
         # Freeze first row and first four columns and setup auto-filter.
         self.variant_sheet.freeze_panes(1, 4)
         self.variant_sheet.autofilter(0, 0, num_rows + 1, len(self.columns))

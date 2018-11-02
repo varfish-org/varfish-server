@@ -293,30 +293,64 @@ class FilterForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        self.pedigree = kwargs.pop("pedigree")
+        case = kwargs.pop("case")
         super().__init__(*args, **kwargs)
 
+        # Get pedigree, used for rendering the form
+        self.pedigree = case.pedigree
+        # Get trio role to member mapping
+        trio_roles = case.get_trio_roles()
+        # Build mapping from member to role, used for rendering the form
+        self.member_roles = {}
         for member in self.pedigree:
-            self.fields[member["fields"]["gt"]] = forms.CharField(
+            if member["patient"] == trio_roles.get("index"):
+                self.member_roles[member["patient"]] = "index"
+                self.member_roles[member["father"]] = "father"
+                self.member_roles[member["mother"]] = "mother"
+            elif member["patient"] not in self.member_roles:
+                self.member_roles[member["patient"]] = "N/A"
+        # Build field name mapping for all members
+        self.field_names = {}
+        for member in self.pedigree:
+            for key in ("gt", "dp", "ab", "gq", "ad", "fail", "export"):
+                self.field_names.setdefault(member["patient"], {})[key] = "%s_%s" % (
+                    member["patient"],
+                    key,
+                )
+
+        # Disable compound recessive checkbox if no full trio present.
+        if len(set(("index", "father", "mother")) & set(trio_roles.keys())) != 3:
+            self.fields["compound_recessive_enabled"].disabled = True
+
+        # Dynamically add the fields based on the pedigree
+        for member in self.pedigree:
+            name = member["patient"]
+            self.fields[self.field_names[name]["gt"]] = forms.CharField(
                 label="", required=True, widget=forms.Select(choices=INHERITANCE)
             )
-            self.fields[member["fields"]["dp"]] = forms.IntegerField(
+            self.fields[self.field_names[name]["dp"]] = forms.IntegerField(
                 label="", required=True, initial=10, min_value=0
             )  # relaxed: 8
-            self.fields[member["fields"]["ab"]] = forms.FloatField(
+            self.fields[self.field_names[name]["ab"]] = forms.FloatField(
                 label="", required=True, initial=0.3, min_value=0, max_value=1
             )  # relaxed: 0.2
-            self.fields[member["fields"]["gq"]] = forms.IntegerField(
+            self.fields[self.field_names[name]["gq"]] = forms.IntegerField(
                 label="", required=True, initial=30, min_value=0
             )  # relaxed: 20
-            self.fields[member["fields"]["ad"]] = forms.IntegerField(
+            self.fields[self.field_names[name]["ad"]] = forms.IntegerField(
                 label="", required=True, initial=10, min_value=0
             )  # ???
-            self.fields[member["fields"]["fail"]] = forms.CharField(
+            self.fields[self.field_names[name]["fail"]] = forms.CharField(
                 label="", widget=forms.Select(choices=FAIL), required=True, initial="drop-variant"
             )
-            if member["role"] == "index" and (member["father"] == "0" or member["mother"] == "0"):
-                self.fields["compound_recessive_enabled"].disabled = True
-            self.fields[member["fields"]["export"]] = forms.BooleanField(
-                label=member["patient"], required=False, initial=True
+            self.fields[self.field_names[name]["export"]] = forms.BooleanField(
+                label=name, required=False, initial=True
             )
+
+    def clean(self):
+        """Translate effect field names into ``effects`` key list"""
+        cleaned_data = super().clean()
+        cleaned_data["effects"] = [
+            effect for name, effect in FILTER_FORM_TRANSLATE_EFFECTS.items() if cleaned_data[name]
+        ]
+        return cleaned_data

@@ -27,11 +27,13 @@
       <td>{{ member.patient }}</td>
       <td>{{ member.father|default:"0" }}</td>
       <td>{{ member.mother|default:"0" }}</td>
-      <td>{% with x=member.fields|keyvalue:"dp" %}{{ form|keyvalue:x }}{% endwith %}</td>
-      <td>{% with x=member.fields|keyvalue:"ab" %}{{ form|keyvalue:x }}{% endwith %}</td>
-      <td>{% with x=member.fields|keyvalue:"gq" %}{{ form|keyvalue:x }}{% endwith %}</td>
-      <td>{% with x=member.fields|keyvalue:"ad" %}{{ form|keyvalue:x }}{% endwith %}</td>
-      <td>{% with x=member.fields|keyvalue:"fail" %}{{ form|keyvalue:x }}{% endwith %}</td>
+      {% with field_names=form.field_names|keyvalue:member.patient %}
+        <td>{% with x=field_names|keyvalue:"dp" %}{{ form|keyvalue:x }}{% endwith %}</td>
+        <td>{% with x=field_names|keyvalue:"ab" %}{{ form|keyvalue:x }}{% endwith %}</td>
+        <td>{% with x=field_names|keyvalue:"gq" %}{{ form|keyvalue:x }}{% endwith %}</td>
+        <td>{% with x=field_names|keyvalue:"ad" %}{{ form|keyvalue:x }}{% endwith %}</td>
+        <td>{% with x=field_names|keyvalue:"fail" %}{{ form|keyvalue:x }}{% endwith %}</td>
+      {% endwith %}
     </tr>
     {% endfor %}
   </tbody>

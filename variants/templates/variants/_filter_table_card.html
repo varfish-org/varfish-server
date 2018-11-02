@@ -63,7 +63,7 @@
                   <th>Genotype</th>
                   {% for member in form.pedigree %}
                     <td class="text-center">
-                      {{ entry.gt|keyvalue:member.patient }}
+                      {{ entry.genotype|keyvalue:member.patient|keyvalue:"gt" }}
                     </td>
                   {% endfor %}
                 </tr>
@@ -71,7 +71,7 @@
                   <th>Genotype Quality</th>
                   {% for member in form.pedigree %}
                     <td class="text-right">
-                      {{ entry.gq|keyvalue:member.patient }}
+                      {{ entry.genotype|keyvalue:member.patient|keyvalue:"gq" }}
                     </td>
                   {% endfor %}
                 </tr>
@@ -79,7 +79,7 @@
                   <th>Variant reads</th>
                   {% for member in form.pedigree %}
                     <td class="text-right">
-                      {{ entry.ad|keyvalue:member.patient }}
+                      {{ entry.genotype|keyvalue:member.patient|keyvalue:"ad" }}
                     </td>
                   {% endfor %}
                 </tr>
@@ -87,7 +87,7 @@
                   <th>Total reads</th>
                   {% for member in form.pedigree %}
                     <td class="text-right">
-                      {{ entry.dp|keyvalue:member.patient }}
+                      {{ entry.genotype|keyvalue:member.patient|keyvalue:"dp" }}
                     </td>
                   {% endfor %}
                 </tr>

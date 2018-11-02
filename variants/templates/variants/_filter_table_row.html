@@ -80,12 +80,14 @@
   {% for member in form.pedigree %}
   <td class="text-center">
     <span data-toggle="tooltip" data-html="true" title="
-      GT quality: {{ entry.gq|keyvalue:member.patient }}
-      <br />
-      variant reads: {{ entry.ad|keyvalue:member.patient }} /
-      {{ entry.dp|keyvalue:member.patient }}
-      ">
-      {{ entry.gt|keyvalue:member.patient }}
+      {% with genotype=entry.genotype|keyvalue:member.patient %}
+        GT quality: {{ genotype|keyvalue:"gq" }}
+        <br />
+        variant reads: {{ genotype|keyvalue:"ad" }} /
+        {{ genotype|keyvalue:"dp" }}
+        ">
+        {{ genotype|keyvalue:"gt" }}
+      {% endwith %}
     </span>
   </td>
   {% endfor %}

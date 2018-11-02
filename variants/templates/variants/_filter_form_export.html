@@ -27,7 +27,9 @@
     </label>
     <div class="col-sm-10">
       {% for member in form.pedigree %}
-      {% with x=member.fields|keyvalue:"export" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}
+        {% with x=form.field_names|keyvalue:member.patient|keyvalue:"export" %}
+          {{ form|keyvalue:x|as_crispy_field }}
+        {% endwith %}
       {% endfor %}
     </div>
   </div>

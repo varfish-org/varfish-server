@@ -19,12 +19,12 @@
       {% for member in form.pedigree %}
       <tr>
         <td>{{ member.patient }}</td>
-        <td>{{ member.role }}</td>
+        <td>{{ form.member_roles|keyvalue:member.patient }}</td>
         <td>{{ member.father|default:"0" }}</td>
         <td>{{ member.mother|default:"0" }}</td>
         <td><i class="fa {% if member.gender %}fa-venus{% else %}fa-mars{% endif %}"></i></td>
         <td><i class="fa {% if member.affected %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
-        <td>{% with x=member.fields|keyvalue:"gt" %}{{ form|keyvalue:x }}{% endwith %}</td>
+        <td>{% with x=form.field_names|keyvalue:member.patient|keyvalue:"gt" %}{{ form|keyvalue:x }}{% endwith %}</td>
       </tr>
       {% endfor %}
     </tbody>

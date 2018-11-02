@@ -1,4 +1,3 @@
-import json
 import uuid as uuid_object
 
 from postgres_copy import CopyManager
@@ -147,7 +146,21 @@ class Case(models.Model):
         )
 
     def get_members(self):
+        for x in self.pedigree:
+            print(x)
         return [x["patient"] for x in self.pedigree]
+
+    def get_trio_roles(self):
+        """Returns a dict with keys mapping ``index``, ``mother``, ``father`` to pedigree member names if present.
+        """
+        result = {"index": self.index}
+        for member in self.pedigree:
+            if member["patient"] == self.index:
+                if member["father"] != "0":
+                    result["father"] = member["father"]
+                if member["mother"] != "0":
+                    result["mother"] = member["mother"]
+        return result
 
     def __str__(self):
         return self.name

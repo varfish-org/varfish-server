@@ -1,3 +1,6 @@
+import decimal
+import aldjemy.core
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,11 +16,14 @@ from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
-from querybuilder.models_support import QueryBuilder, FilterQueryRunner
+from querybuilder.models_support import RenderFilterQuery
 
 from .models import Case, ExportFileBgJob
 from .forms import FilterForm, ResubmitForm
 from .tasks import export_file_task
+
+#: The SQL Alchemy engine to use
+SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 
 class MainView(
@@ -35,6 +41,17 @@ class MainView(
         return super().get_queryset().filter(project__sodar_uuid=self.kwargs["project"])
 
 
+def _undecimal(the_dict):
+    """Helper to replace Decimal values in a dict."""
+    result = {}
+    for key, value in the_dict.items():
+        if isinstance(value, decimal.Decimal):
+            result[key] = float(value)
+        else:
+            result[key] = value
+    return result
+
+
 class FilterView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
@@ -50,26 +67,25 @@ class FilterView(
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._case_object = None
-        self._populator = None
+        self._alchemy_connection = None
 
     def get_case_object(self):
         if not self._case_object:
             self._case_object = Case.objects.get(sodar_uuid=self.kwargs["case"])
         return self._case_object
 
-    def get_populator(self, form):
-        if not self._populator:
-            self._populator = FilterQueryRunner(self.get_case_object(), form.cleaned_data)
-        return self._populator
+    def get_alchemy_connection(self):
+        if not self._alchemy_connection:
+            self._alchemy_connection = SQLALCHEMY_ENGINE.connect()
+        return self._alchemy_connection
 
     def get_form_kwargs(self):
         result = super().get_form_kwargs()
-        result["pedigree"] = list(FilterQueryRunner.build_pedigree(self.get_case_object()))
+        result["case"] = self.get_case_object()
         return result
 
     def form_valid(self, form):
         """Main branching point either render result or create an asychronous job."""
-        print(form.cleaned_data)
         if form.cleaned_data["submit"] == "download":
             return self._form_valid_file(form)
         else:
@@ -78,6 +94,7 @@ class FilterView(
     def _form_valid_file(self, form):
         """The form is valid, we want to asynchronously build a file for later download."""
         with transaction.atomic():
+            # Construct background job objects
             bg_job = BackgroundJob.objects.create(
                 name="Create {} file for case {}".format(
                     form.cleaned_data["file_type"], self.get_case_object().name
@@ -90,7 +107,7 @@ class FilterView(
                 project=self._get_project(self.request, self.kwargs),
                 bg_job=bg_job,
                 case=self.get_case_object(),
-                query_args=json.dumps(form.cleaned_data),
+                query_args=_undecimal(form.cleaned_data),
                 file_type=form.cleaned_data["file_type"],
             )
         messages.info(
@@ -103,8 +120,9 @@ class FilterView(
 
     def _form_valid_render(self, form):
         """The form is valid, we are supposed to render an HTML table with the results."""
-        populator = self.get_populator(form)
-        return render(self.request, self.template_name, self.get_context_data(main=populator.run()))
+        qb = RenderFilterQuery(self.get_case_object(), self.get_alchemy_connection())
+        result = qb.run(form.cleaned_data)
+        return render(self.request, self.template_name, self.get_context_data(main=result))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
