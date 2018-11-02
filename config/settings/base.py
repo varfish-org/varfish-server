@@ -129,7 +129,6 @@ DATABASES["default"]["ATOMIC_REQUESTS"] = False
 # ------------------------------------------------------------------------------
 # We have to do some fixes to the Aldjemy data types...
 
-
 def fixed_array_type(field):
     import aldjemy.table
     import sqlalchemy.dialects.postgresql
@@ -150,8 +149,20 @@ import sqlalchemy.dialects.postgresql
 ALDJEMY_DATA_TYPES = {
     'ArrayField': lambda field: fixed_array_type(field),
     'UUIDField': lambda _: sqlalchemy.dialects.postgresql.UUID(as_uuid=True),
-    'JSONField': lambda _: sqlalchemy.dialects.postgresql.JSONB(),
-    'BinaryField': lambda _:sqlalchemy.dialects.postgresql.BYTEA(),
+    'JSONField': lambda _: sqlalchemy.dialects.postgresql.JSONB,
+    'BinaryField': lambda _:sqlalchemy.dialects.postgresql.BYTEA,
+}
+
+# Disable automatic decoding in psycopg2, SQL Alchemy does not like it :(
+import psycopg2.extras
+psycopg2.extras.register_default_json(loads=lambda x: x)
+psycopg2.extras.register_default_jsonb(loads=lambda x: x)
+
+
+# We need to tell Aldjemy that we're using the psycopg2 driver so the correct
+# SQL Alchemy connection dialect is used.
+ALDJEMY_ENGINES = {
+    'postgres': 'postgresql+psycopg2',
 }
 
 
