@@ -679,6 +679,8 @@ INCLUSIVE_CLEANED_DATA_CASE1 = {
     "A_ab": 0,
     "A_gq": 0,
     "A_ad": 0,
+    "transcripts_coding": True,
+    "transcripts_noncoding": True,
 }
 
 
@@ -1755,6 +1757,8 @@ INCLUSIVE_CLEANED_DATA_CASE2 = {
     "M_ab": 0,
     "M_gq": 0,
     "M_ad": 0,
+    "transcripts_coding": True,
+    "transcripts_noncoding": True,
 }
 
 

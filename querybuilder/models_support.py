@@ -204,6 +204,7 @@ class FromAndWhereMixin:
             self._build_effects_term(kwargs),
             and_(*self._yield_genotype_terms(kwargs, gt_patterns)),
             self._build_gene_blacklist_term(kwargs),
+            self._build_transcripts_coding_term(kwargs)
         )
 
     def _build_vartype_term(self, kwargs):
@@ -301,6 +302,18 @@ class FromAndWhereMixin:
 
     def _build_gene_blacklist_term(self, kwargs):
         return not_(Hgnc.sa.symbol.in_(kwargs["gene_blacklist"]))
+
+    def _build_transcripts_coding_term(self, kwargs):
+        sub_terms = []
+        if kwargs["database_select"] == "refseq":
+            field = SmallVariant.sa.refseq_transcript_coding
+        else:
+            field = SmallVariant.sa.ensembl_transcript_coding
+        if not kwargs['transcripts_coding']:
+            sub_terms.append(field == False)  # equality from SQL Alchemy
+        if not kwargs['transcripts_noncoding']:
+            sub_terms.append(field == True)  # equality from SQL Alchemy
+        return and_(*sub_terms)
 
 
 class FilterQueryStandardFieldsMixin(FromAndWhereMixin):
