@@ -478,18 +478,18 @@ class KnownGeneAAQuery:
             KnowngeneAA.sa.start,
             KnowngeneAA.sa.end,
         ]
-        query = select(distinct_fields + [KnowngeneAA.sa.alignment]).select_from(
-            KnowngeneAA.sa.table
-        ).where(
-            and_(
-                KnowngeneAA.sa.chromosome == kwargs["chromosome"],
-                KnowngeneAA.sa.start < int(kwargs["position"]) - 1 + len(kwargs["reference"]),
-                KnowngeneAA.sa.end > int(kwargs["position"]) - 1,
+        query = (
+            select(distinct_fields + [KnowngeneAA.sa.alignment])
+            .select_from(KnowngeneAA.sa.table)
+            .where(
+                and_(
+                    KnowngeneAA.sa.chromosome == kwargs["chromosome"],
+                    KnowngeneAA.sa.start < int(kwargs["position"]) - 1 + len(kwargs["reference"]),
+                    KnowngeneAA.sa.end > int(kwargs["position"]) - 1,
+                )
             )
-        ).order_by(
-            KnowngeneAA.sa.start
-        ).distinct(
-            *distinct_fields
+            .order_by(KnowngeneAA.sa.start)
+            .distinct(*distinct_fields)
         )
         return list(self.connection.execute(query))
 
@@ -504,10 +504,7 @@ FREQUENCY_DB_INFO = {
         "model": GnomadGenomes,
         "populations": ("afr", "amr", "asj", "eas", "fin", "nfe", "oth"),
     },
-    "exac": {
-        "model": Exac,
-        "populations": ("afr", "amr", "eas", "fin", "nfe", "oth", "sas"),
-    },
+    "exac": {"model": Exac, "populations": ("afr", "amr", "eas", "fin", "nfe", "oth", "sas")},
     "thousandgenomes": {
         "model": ThousandGenomes,
         "populations": ("afr", "amr", "eas", "eur", "sas"),
@@ -529,15 +526,19 @@ class FrequencyQuery:
         # TODO: Replace kwargs with actual parameters
         model = FREQUENCY_DB_INFO[self.database]["model"]
         populations = FREQUENCY_DB_INFO[self.database]["populations"]
-        query = select(
-            list(self._yield_fields())
-        ).select_from(model.sa.table).where(and_(
-            model.sa.release == kwargs["release"],
-            model.sa.chromosome == kwargs["release"],
-            model.sa.position == kwargs["position"],
-            model.sa.reference == kwargs["reference"],
-            model.sa.alternative == kwargs["alternative"],
-        ))
+        query = (
+            select(list(self._yield_fields()))
+            .select_from(model.sa.table)
+            .where(
+                and_(
+                    model.sa.release == kwargs["release"],
+                    model.sa.chromosome == kwargs["release"],
+                    model.sa.position == kwargs["position"],
+                    model.sa.reference == kwargs["reference"],
+                    model.sa.alternative == kwargs["alternative"],
+                )
+            )
+        )
         return list(self.connection.execute(query))
 
     def _yield_fields(self):

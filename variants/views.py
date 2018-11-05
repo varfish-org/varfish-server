@@ -154,7 +154,9 @@ class ExtendAPIView(
         # TODO(holtgrewe): don't use self.kwargs for passing around values
         self.kwargs = {**kwargs}
         self.kwargs["knowngeneaa"] = self._load_knowngene_aa(kwargs)
-        self.kwargs.update(self.get_frequencies(self.get_alchemy_connection(), kwargs, fields=("af", "hom", "het")))
+        self.kwargs.update(
+            self.get_frequencies(self.get_alchemy_connection(), kwargs, fields=("af", "hom", "het"))
+        )
         self.kwargs["clinvar"] = self._load_clinvar(kwargs)
         return HttpResponse(json.dumps(self.kwargs), content_type="application/json")
 
