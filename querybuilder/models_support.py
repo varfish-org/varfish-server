@@ -221,7 +221,7 @@ class FromAndWhereMixin:
         terms = []
         for db in ("exac", "thousand_genomes", "gnomad_exomes", "gnomad_genomes"):
             field_name = "%s_%s" % (db, metric)
-            if kwargs["%s_enabled" % db] and kwargs.get(field_name, None):
+            if kwargs["%s_enabled" % db] and kwargs.get(field_name, None) is not None:
                 terms.append(getattr(SmallVariant.sa, field_name) <= kwargs[field_name])
         return and_(*terms)
 
