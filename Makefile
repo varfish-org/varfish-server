@@ -29,7 +29,7 @@ shell:
 	$(MANAGE) shell
 
 celery:
-	celery worker -A config.celery_app -l info --concurrency=4
+	celery worker -A config.celery_app -l info --concurrency=4 --beat
 
 import_smallvariants: import_cases $(SMALLVARIANTS)
 $(SMALLVARIANTS):
