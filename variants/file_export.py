@@ -2,7 +2,6 @@
 
 import datetime
 from datetime import timedelta
-import json
 from tempfile import NamedTemporaryFile
 
 import aldjemy
@@ -11,11 +10,14 @@ import xlsxwriter
 import vcfpy
 
 from .models import ExportFileJobResult
+from projectroles.plugins import get_backend_api
 from querybuilder.models_support import ExportFileFilterQuery
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
+#: API to use for communicating with timeline SODAR backend app
+timeline = get_backend_api("timeline_backend")
 
 #: Constant that determines how many days generated files should stay.  Note for the actual removal, a separate
 #: Celery job must be ran.
@@ -441,6 +443,15 @@ EXPORTERS = {"tsv": CaseExporterTsv, "vcf": CaseExporterVcf, "xlsx": CaseExporte
 def export_case(job):
     """Export a ``Case`` object, store result in a new ``ExportFileJobResult``."""
     job.mark_start()
+    if timeline:
+        timeline.add_event(
+            project=job.project,
+            app_name="variants",
+            user=job.bg_job.user,
+            event_name="case_export",
+            description="Export of filtration results for {} to file started".format(job.case.name),
+            status_type="INIT",
+        )
     try:
         klass = EXPORTERS[job.file_type]
         with klass(job) as exporter:
@@ -451,9 +462,31 @@ def export_case(job):
             )
     except Exception as e:
         job.mark_error(e)
+        if timeline:
+            timeline.add_event(
+                project=job.project,
+                app_name="variants",
+                user=job.bg_job.user,
+                event_name="case_export",
+                description="Export of filtration results for {} to file failed".format(
+                    job.case.name
+                ),
+                status_type="FAILED",
+            )
         raise
     else:
         job.mark_success()
+        if timeline:
+            timeline.add_event(
+                project=job.project,
+                app_name="variants",
+                user=job.bg_job.user,
+                event_name="case_export",
+                description="Export of filtration results for {} to file complete".format(
+                    job.case.name
+                ),
+                status_type="OK",
+            )
 
 
 def clear_expired_exported_files():

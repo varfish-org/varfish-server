@@ -52,8 +52,9 @@ THIRD_PARTY_APPS = [
     "markupfield",
     "rest_framework",
     "knox",
-    "projectroles.apps.ProjectrolesConfig",
     "aldjemy",
+    "projectroles.apps.ProjectrolesConfig",
+    "timeline.apps.TimelineConfig",
 ]
 
 # Apps specific for this project go here.
@@ -351,7 +352,8 @@ PROJECTROLES_SITE_MODE = env.str('PROJECTROLES_SITE_MODE', 'TARGET')
 PROJECTROLES_TARGET_CREATE = env.bool('PROJECTROLES_TARGET_CREATE', True)
 PROJECTROLES_ADMIN_OWNER = env.str('PROJECTROLES_ADMIN_OWNER', 'admin')
 
-ENABLED_BACKEND_PLUGINS = env.list("ENABLED_BACKEND_PLUGINS", None, [])
+ENABLED_BACKEND_PLUGINS = ["timeline_backend"]
+ENABLED_BACKEND_PLUGINS += env.list("ENABLED_BACKEND_PLUGINS", None, [])
 
 
 def set_logging(debug):
