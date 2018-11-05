@@ -432,6 +432,11 @@ class FilterQueryFieldsForExportMixin(FilterQueryStandardFieldsMixin, FromAndWhe
         )
 
 
+class OrderByChromosomalPositionMixin:
+    def _add_trailing(self, stmt, _kwargs):
+        return stmt.order_by(stmt.c.chromosome, stmt.c.position)
+
+
 class FilterQueryCountRecordsMixin(FilterQueryStandardFieldsMixin, FromAndWhereMixin):
     """Mixin for selecting the number of records (``COUNT(*)``) only."""
 
@@ -442,11 +447,15 @@ class FilterQueryCountRecordsMixin(FilterQueryStandardFieldsMixin, FromAndWhereM
             return [func.count()]
 
 
-class RenderFilterQuery(FilterQueryStandardFieldsMixin, FilterQueryBase):
+class RenderFilterQuery(
+    FilterQueryStandardFieldsMixin, OrderByChromosomalPositionMixin, FilterQueryBase
+):
     """Run filter query for the interactive filtration form."""
 
 
-class ExportFileFilterQuery(FilterQueryFieldsForExportMixin, FilterQueryBase):
+class ExportFileFilterQuery(
+    FilterQueryFieldsForExportMixin, OrderByChromosomalPositionMixin, FilterQueryBase
+):
     """Run filter query for creating file to export."""
 
     # TODO: add conservation?
