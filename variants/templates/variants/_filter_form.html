@@ -27,6 +27,9 @@
           <a class="nav-link" id="export-tab" data-toggle="tab" href="#panel-export" role="tab">Export Config</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" id="misc-tab" data-toggle="tab" href="#panel-misc" role="tab">Miscellaneous</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" id="settings-tab" data-toggle="tab" href="#panel-settings" role="tab">Settings Import/Export</a>
         </li>
       </ul>
@@ -51,6 +54,9 @@
         </div>
         <div class="tab-pane fade" id="panel-export" role="tabpanel" arial-labelledby="export-tab">
           {% include "variants/_filter_form_export.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-misc" role="tabpanel" arial-labelledby="misc-tab">
+          {% include "variants/_filter_form_misc.html" %}
         </div>
         <div class="tab-pane fade" id="panel-settings" role="tabpanel" arial-labelledby="settings-tab">
           {% include "variants/_filter_form_settings.html" %}
@@ -83,12 +89,12 @@
         <div class="col text-right p-0">
           <div class="btn-group">
             <button type="submit" name="submit" value="download" class="btn btn-secondary" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
-                    title="Create downloadable file in the background of <i><b>all</b></i> variants with current settings.">
+                    title="Create downloadable file in the background of <i><b>all</b></i> variants with current settings (ignoring result count limit).">
               <i class="fa fa-cloud-download"></i>
               Download
             </button>
             <button type="submit" name="submit" value="display" class="btn btn-primary"data-toggle="tooltip" aria-haspopup="true" aria-expanded="false"
-                    title="Filter variants again with current settings and display in table below">
+                    title="Filter variants again with current settings, limited to <i><b>Misc. / Result Count</b></i> results and display in table below">
               <i class="fa fa-refresh"></i>
               Filter
             </button>

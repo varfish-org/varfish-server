@@ -273,6 +273,16 @@ class FilterForm(forms.Form):
         ),
     )
 
+    result_rows_limit = forms.IntegerField(
+        label="Result row limit",
+        required=True,
+        initial=80,
+        help_text=(
+            "Maximal number of rows displayed when rendering on the website.  "
+            "This setting is <b>not</b> used when creating a file for export."
+        ),
+    )
+
     gene_blacklist = forms.CharField(
         label="Gene Blacklist",
         help_text="Enter a list of genes to blacklist in the results, separated by spaces or line breaks.",

@@ -133,7 +133,7 @@ class FilterView(
         qb = RenderFilterQuery(self.get_case_object(), self.get_alchemy_connection())
         result = qb.run(form.cleaned_data)
         num_results = result.rowcount
-        rows = result.fetchmany(100)
+        rows = list(result.fetchmany(form.cleaned_data["result_rows_limit"]))
         elapsed = timezone.now() - before
         return render(
             self.request,

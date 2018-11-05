@@ -34,7 +34,8 @@
     {% include "variants/_filter_form.html" %}
   </div>
 
-    {% if not result_rows %}
+    {% if result_rows is None %}
+    {% elif not result_rows %}
       <div class="container-fluid sodar-page-container">
       <h2>
         Empty Result Set
@@ -47,7 +48,7 @@
       <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0">
         <h2>
           Results
-          <span class="badge badge-pill badge-success">{{ result_count }}</span>
+          <span class="badge badge-pill badge-success">{{ result_rows|length }}/{{ result_count }}</span>
           <span class="badge badge-pill badge-warning">
             {% if form.database_select.data == "refseq" %}
             RefSeq
@@ -80,6 +81,8 @@
 
         <p class="text-muted">
           <small>
+            Displaying the first <strong>{{ result_rows|length }} of {{ result_count }}</strong> records.
+            Create an TSV/Excel/VCF file for download for getting all {{ result_count }} rows.
             Query completed in {{ elapsed_seconds }} sec.
           </small>
         </p>
