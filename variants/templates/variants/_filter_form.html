@@ -12,7 +12,7 @@
           <a class="nav-link active" id="frequency-tab" data-toggle="tab" href="#panel-frequency" role="tab">Frequency</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="effect-tab" data-toggle="tab" href="#panel-effect" role="tab">Effect</a>
+          <a class="nav-link" id="effect-tab" data-toggle="tab" href="#panel-effect" role="tab">Variants &amp; Effect</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" id="genotype-tab" data-toggle="tab" href="#panel-genotype" role="tab">Genotype</a>
@@ -74,17 +74,6 @@
             </label>
             {% endfor %}
           </div>
-          <div class="btn-group btn-group-toggle" data-toggle="buttons">
-            <label for="{{ form.var_type_mnv.id_for_label }}" class="btn btn-outline-secondary {% if form.var_type_mnv.value %}active{% endif %}" data-toggle="tooltip" title="Select MNVs">
-              {{ form.var_type_mnv }} {{ form.var_type_mnv.label }}
-            </label>
-            <label for="{{ form.var_type_snv.id_for_label }}" class="btn btn-outline-secondary {% if form.var_type_snv.value %}active{% endif %}" data-toggle="tooltip" title="Select SNVs">
-              {{ form.var_type_snv }} {{ form.var_type_snv.label }}
-            </label>
-            <label for="{{ form.var_type_indel.id_for_label }}" class="btn btn-outline-secondary {% if form.var_type_indel.value %}active{% endif %}" data-toggle="tooltip" title="Select InDels">
-              {{ form.var_type_indel }} {{ form.var_type_indel.label }}
-            </label>
-          </div>
         </div>
         <div class="col text-right p-0">
           <div class="btn-group">
@@ -93,8 +82,8 @@
               <i class="fa fa-cloud-download"></i>
               Download
             </button>
-            <button type="submit" name="submit" value="display" class="btn btn-primary"data-toggle="tooltip" aria-haspopup="true" aria-expanded="false"
-                    title="Filter variants again with current settings, limited to <i><b>Misc. / Result Count</b></i> results and display in table below">
+            <button type="submit" name="submit" value="display" class="btn btn-primary"data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
+                    title="Filter variants again with current settings, limited to <i><b>Miscellaneous / Result row limit</b></i> results and display in table below">
               <i class="fa fa-refresh"></i>
               Filter
             </button>

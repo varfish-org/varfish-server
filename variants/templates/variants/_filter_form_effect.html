@@ -2,6 +2,27 @@
 {% load dict %}
 
 <div class="row pb-3 pt-3">
+  <h5 class="col-12">
+    Variant Types
+  </h5>
+  <div class="col-12 pb-2 mb-2 border-bottom">
+    <div class="row">
+      <div class="col-2">{{ form.var_type_snv|as_crispy_field }}</div>
+      <div class="col-2">{{ form.var_type_mnv|as_crispy_field }}</div>
+      <div class="col-2">{{ form.var_type_indel|as_crispy_field }}</div>
+    </div>
+{#    <div class="btn-group btn-group-toggle" data-toggle="buttons">#}
+{#      <label for="{{ form.var_type_mnv.id_for_label }}" class="btn btn-outline-secondary {% if form.var_type_mnv.value %}active{% endif %}" data-toggle="tooltip" title="Select MNVs">#}
+{#        {{ form.var_type_mnv }} {{ form.var_type_mnv.label }}#}
+{#      </label>#}
+{#      <label for="{{ form.var_type_snv.id_for_label }}" class="btn btn-outline-secondary {% if form.var_type_snv.value %}active{% endif %}" data-toggle="tooltip" title="Select SNVs">#}
+{#        {{ form.var_type_snv }} {{ form.var_type_snv.label }}#}
+{#      </label>#}
+{#      <label for="{{ form.var_type_indel.id_for_label }}" class="btn btn-outline-secondary {% if form.var_type_indel.value %}active{% endif %}" data-toggle="tooltip" title="Select InDels">#}
+{#        {{ form.var_type_indel }} {{ form.var_type_indel.label }}#}
+{#      </label>#}
+{#    </div>#}
+  </div>
   <h5 class="col-12">Effect Groups</h5>
   <div class="col-2">
     <div class="form-check">
