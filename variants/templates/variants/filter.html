@@ -34,7 +34,7 @@
     {% include "variants/_filter_form.html" %}
   </div>
 
-    {% if not main %}
+    {% if not result_rows %}
       <div class="container-fluid sodar-page-container">
       <h2>
         Empty Result Set
@@ -47,7 +47,7 @@
       <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0">
         <h2>
           Results
-          <span class="badge badge-pill badge-success">{{ main|length }}</span>
+          <span class="badge badge-pill badge-success">{{ result_count }}</span>
           <span class="badge badge-pill badge-warning">
             {% if form.database_select.data == "refseq" %}
             RefSeq
@@ -77,6 +77,13 @@
           <span class="badge badge-pill badge-info">InDel</span>
           {% endif %}
         </h2>
+
+        <p class="text-muted">
+          <small>
+            Query completed in {{ elapsed_seconds }} sec.
+          </small>
+        </p>
+
         <div class="form-inline pl-2 pr-2">
           <div class="form-group">
             <strong>
@@ -106,7 +113,7 @@
             {% include "variants/_filter_table_header.html" %}
           </thead>
           <tbody>
-          {% for entry in main %}
+          {% for entry in result_rows %}
             {% include "variants/_filter_table_row.html" %}
             {% include "variants/_filter_table_card.html" %}
           {% endfor %}

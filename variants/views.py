@@ -129,9 +129,19 @@ class FilterView(
 
     def _form_valid_render(self, form):
         """The form is valid, we are supposed to render an HTML table with the results."""
+        before = timezone.now()
         qb = RenderFilterQuery(self.get_case_object(), self.get_alchemy_connection())
         result = qb.run(form.cleaned_data)
-        return render(self.request, self.template_name, self.get_context_data(main=result))
+        num_results = result.rowcount
+        rows = result.fetchmany(100)
+        elapsed = timezone.now() - before
+        return render(
+            self.request,
+            self.template_name,
+            self.get_context_data(
+                result_rows=rows, result_count=num_results, elapsed_seconds=elapsed.total_seconds()
+            ),
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
