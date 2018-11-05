@@ -11,7 +11,7 @@ from pathways.models import KeggInfo, RefseqToKegg, EnsemblToKegg
 from clinvar.models import Clinvar
 from geneinfo.models import Hgnc, Mim2geneMedgen, Hpo
 from django.views.generic import TemplateView
-from querybuilder.models_support import QueryBuilder
+from querybuilder.models_support import KnownGeneAAQuery
 
 
 class VariantView(

@@ -2,14 +2,15 @@ from contextlib import contextmanager
 import json
 
 import psycopg2.extras
-from sqlalchemy.sql import select, func, and_, not_, or_, cast, union, literal_column, outerjoin
+from sqlalchemy.sql import select, func, and_, not_, or_, cast, union, literal_column
 from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
 import sqlparse
 
-from variants.models import Case, SmallVariant
-from geneinfo.models import Hgnc
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
+from geneinfo.models import Hgnc
+from variants.models import Case, SmallVariant
+from frequencies.models import GnomadExomes, GnomadGenomes, Exac, ThousandGenomes
 from variants.forms import FILTER_FORM_TRANSLATE_EFFECTS, FILTER_FORM_TRANSLATE_INHERITANCE
 
 
@@ -458,9 +459,90 @@ class CountOnlyFilterQuery(FilterQueryCountRecordsMixin, FilterQueryBase):
         return super().run(kwargs).first()[0]
 
 
-class QueryBuilder:
-    pass
+class KnownGeneAAQuery:
+    """Query database for the ``knownGeneAA`` information."""
+
+    def __init__(self, connection):
+        #: The Aldjemy connection to use
+        self.connection = connection
+
+    def run(self, kwargs):
+        """Execute the query."""
+        # TODO: Replace kwargs with actual parameters
+        #
+        # TODO: we should load the alignment based on UCSC transcript ID (without version) and then post-filter
+        # TODO: by column...
+        distinct_fields = [
+            # TODO: add release
+            KnowngeneAA.sa.chromosome,
+            KnowngeneAA.sa.start,
+            KnowngeneAA.sa.end,
+        ]
+        query = select(distinct_fields + [KnowngeneAA.sa.alignment]).select_from(
+            KnowngeneAA.sa.table
+        ).where(
+            and_(
+                KnowngeneAA.sa.chromosome == kwargs["chromosome"],
+                KnowngeneAA.sa.start < int(kwargs["position"]) - 1 + len(kwargs["reference"]),
+                KnowngeneAA.sa.end > int(kwargs["position"]) - 1,
+            )
+        ).order_by(
+            KnowngeneAA.sa.start
+        ).distinct(
+            *distinct_fields
+        )
+        return list(self.connection.execute(query))
 
 
-class FilterQueryRunner:
-    pass
+#: Information about frequency databases used in ``FrequencyQuery``.
+FREQUENCY_DB_INFO = {
+    "gnomadexomes": {
+        "model": GnomadExomes,
+        "populations": ("afr", "amr", "asj", "eas", "fin", "nfe", "oth", "sas"),
+    },
+    "gnomadgenomes": {
+        "model": GnomadGenomes,
+        "populations": ("afr", "amr", "asj", "eas", "fin", "nfe", "oth"),
+    },
+    "exac": {
+        "model": Exac,
+        "populations": ("afr", "amr", "eas", "fin", "nfe", "oth", "sas"),
+    },
+    "thousandgenomes": {
+        "model": ThousandGenomes,
+        "populations": ("afr", "amr", "eas", "eur", "sas"),
+    },
+}
+
+
+class FrequencyQuery:
+    """Query database for frequency information"""
+
+    def __init__(self, connection, database):
+        #: The Aldjemy connection to use
+        self.connection = connection
+        #: Name of the frequency database to query.
+        self.database = database
+
+    def run(self, kwargs):
+        """Execute the query."""
+        # TODO: Replace kwargs with actual parameters
+        model = FREQUENCY_DB_INFO[self.database]["model"]
+        populations = FREQUENCY_DB_INFO[self.database]["populations"]
+        query = select(
+            list(self._yield_fields())
+        ).select_from(model.sa.table).where(and_(
+            model.sa.release == kwargs["release"],
+            model.sa.chromosome == kwargs["release"],
+            model.sa.position == kwargs["position"],
+            model.sa.reference == kwargs["reference"],
+            model.sa.alternative == kwargs["alternative"],
+        ))
+        return list(self.connection.execute(query))
+
+    def _yield_fields(self):
+        """Yield the fields to select, based on selected frequency database."""
+        # TODO: complete me
+        model = FREQUENCY_DB_INFO[self.database]["model"]
+        # populations = FREQUENCY_DB_INFO[self.database]["populations"]
+        yield model.sa.ac

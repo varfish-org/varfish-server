@@ -331,7 +331,7 @@ $('.extend').click(function() {
         for (let i=0; i < data["knowngeneaa"].length; ++i) {
           knowngeneaa += '<tr>';
           knowngeneaa += '<td>' + data["knowngeneaa"][i]["chromosome"] + '</td>';
-          knowngeneaa += '<td>' + data["knowngeneaa"][i]["start"] + '</td>';
+          knowngeneaa += '<td>' + data["knowngeneaa"][i]["start"] + 1 + '</td>';
           knowngeneaa += '<td>' + data["knowngeneaa"][i]["end"] + '</td>';
           knowngeneaa += '<td><code>' + data["knowngeneaa"][i]["alignment"] + '</code></td>';
           knowngeneaa += '</tr>';

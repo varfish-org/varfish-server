@@ -1,48 +1,27 @@
 from .models import GnomadGenomes, GnomadExomes, Exac, ThousandGenomes
-from querybuilder.models_support import QueryBuilder
+from querybuilder.models_support import FREQUENCY_DB_INFO, FrequencyQuery
 
 
 class FrequencyMixin:
-    def get_frequencies(self, fields=("af", "an", "ac", "hom", "het", "hemi")):
+    def get_frequencies(self, alchemy_connection, query_kwargs, fields=("af", "an", "ac", "hom", "het", "hemi")):
         key = {
-            "release": self.kwargs["release"],
-            "chromosome": self.kwargs["chromosome"],
-            "position": int(self.kwargs["position"]),
-            "reference": self.kwargs["reference"],
-            "alternative": self.kwargs["alternative"],
+            "release": query_kwargs["release"],
+            "chromosome": query_kwargs["chromosome"],
+            "position": int(query_kwargs["position"]),
+            "reference": query_kwargs["reference"],
+            "alternative": query_kwargs["alternative"],
         }
 
-        qb = QueryBuilder()
-        dbs = (
-            (
-                GnomadExomes,
-                qb.build_gnomadexomes_query(key),
-                "gnomadexomes",
-                ("afr", "amr", "asj", "eas", "fin", "nfe", "oth", "sas"),
-            ),
-            (
-                GnomadGenomes,
-                qb.build_gnomadgenomes_query(key),
-                "gnomadgenomes",
-                ("afr", "amr", "asj", "eas", "fin", "nfe", "oth"),
-            ),
-            (
-                Exac,
-                qb.build_exac_query(key),
-                "exac",
-                ("afr", "amr", "eas", "fin", "nfe", "oth", "sas"),
-            ),
-            (
-                ThousandGenomes,
-                qb.build_thousandgenomes_query(key),
-                "thousandgenomes",
-                ("afr", "amr", "eas", "eur", "sas"),
-            ),
-        )
-
-        for db, query, name, populations in dbs:
-            self.kwargs[name] = dict()
-            results = list(db.objects.raw(*query))
+        result = {key: {} for key in FREQUENCY_DB_INFO}
+        for db_name in FREQUENCY_DB_INFO:
+            query = FrequencyQuery(alchemy_connection, db_name)
+            results = list(query.run(key))
+            # FIXME: remove these dummy entry setting and fix query instead
+            for pop in FREQUENCY_DB_INFO[db_name]["populations"]:
+                for field in fields:
+                    result[db_name]["%s_%s" % (field, pop)] = -1
+            continue
+            # FIXME end
 
             if len(results) == 0:
                 continue
@@ -53,14 +32,16 @@ class FrequencyMixin:
             results = results[0]
 
             for typ in fields:
-                if name == "thousandgenomes" and typ == "hemi":
+                if db_name == "thousandgenomes" and typ == "hemi":
                     continue
 
-                self.kwargs[name][typ] = getattr(results, typ)
+                query_kwargs[db_name][typ] = getattr(results, typ)
 
-                if name == "thousandgenomes" and not typ == "af":
+                if db_name == "thousandgenomes" and not typ == "af":
                     continue
 
-                for population in populations:
+                for population in FREQUENCY_DB_INFO[db_name]["populations"]:
                     typpop = "{}_{}".format(typ, population)
-                    self.kwargs[name][typpop] = getattr(results, typpop)
+                    result[db_name][typpop] = getattr(results, typpop)
+
+        return result

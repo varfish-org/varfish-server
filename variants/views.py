@@ -16,7 +16,7 @@ from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
-from querybuilder.models_support import RenderFilterQuery
+from querybuilder.models_support import RenderFilterQuery, KnownGeneAAQuery
 
 from .models import Case, ExportFileBgJob
 from .forms import FilterForm, ResubmitForm
@@ -24,6 +24,19 @@ from .tasks import export_file_task
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+
+
+class AlchemyConnectionMixin:
+    """Cached alchemy connection for CBVs."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._alchemy_connection = None
+
+    def get_alchemy_connection(self):
+        if not self._alchemy_connection:
+            self._alchemy_connection = SQLALCHEMY_ENGINE.connect()
+        return self._alchemy_connection
 
 
 class MainView(
@@ -57,6 +70,7 @@ class FilterView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
+    AlchemyConnectionMixin,
     FormView,
 ):
     template_name = "variants/filter.html"
@@ -73,11 +87,6 @@ class FilterView(
         if not self._case_object:
             self._case_object = Case.objects.get(sodar_uuid=self.kwargs["case"])
         return self._case_object
-
-    def get_alchemy_connection(self):
-        if not self._alchemy_connection:
-            self._alchemy_connection = SQLALCHEMY_ENGINE.connect()
-        return self._alchemy_connection
 
     def get_form_kwargs(self):
         result = super().get_form_kwargs()
@@ -136,59 +145,55 @@ class ExtendAPIView(
     ProjectPermissionMixin,
     ProjectContextMixin,
     FrequencyMixin,
+    AlchemyConnectionMixin,
     View,
 ):
     permission_required = "variants.view_data"
 
     def get(self, *args, **kwargs):
-        self.kwargs = kwargs
-        qb = QueryBuilder()
+        # TODO(holtgrewe): don't use self.kwargs for passing around values
+        self.kwargs = {**kwargs}
+        self.kwargs["knowngeneaa"] = self._load_knowngene_aa(kwargs)
+        self.kwargs.update(self.get_frequencies(self.get_alchemy_connection(), kwargs, fields=("af", "hom", "het")))
+        self.kwargs["clinvar"] = self._load_clinvar(kwargs)
+        return HttpResponse(json.dumps(self.kwargs), content_type="application/json")
 
-        key = {
-            "release": self.kwargs["release"],
-            "chromosome": self.kwargs["chromosome"],
-            "position": self.kwargs["position"],
-            "reference": self.kwargs["reference"],
-            "alternative": self.kwargs["alternative"],
+    def _load_knowngene_aa(self, query_kwargs):
+        """Load the UCSC knownGeneAA conservation alignment information."""
+        query = KnownGeneAAQuery(self.get_alchemy_connection())
+        result = []
+        for entry in query.run(query_kwargs):
+            result.append(
+                {
+                    "chromosome": entry.chromosome,
+                    "start": entry.start,
+                    "end": entry.end,
+                    "alignment": entry.alignment,
+                }
+            )
+        return result
+
+    def _load_clinvar(self, query_kwargs):
+        """Load clinvar information"""
+        filter_args = {
+            "release": query_kwargs["release"],
+            "chromosome": query_kwargs["chromosome"],
+            "position": int(query_kwargs["position"]) - 1,
+            "reference": query_kwargs["reference"],
+            "alternative": query_kwargs["alternative"],
         }
-
-        query = qb.build_knowngeneaa_query(self.kwargs)
-        knowngeneaa = list(KnowngeneAA.objects.raw(*query))
-        knowngeneaa_list = list()
-        if len(knowngeneaa) > 0:
-            for entry in knowngeneaa:
-                knowngeneaa_list.append(
-                    {
-                        "chromosome": entry.chromosome,
-                        "start": entry.start,
-                        "end": entry.end,
-                        "alignment": entry.alignment,
-                    }
-                )
-
-        self.kwargs["knowngeneaa"] = knowngeneaa_list
-
-        self.get_frequencies(fields=("af", "hom", "het"))
-
+        result = []
         try:
-            filter_key = dict(key)
-            filter_key["position"] = int(filter_key["position"]) - 1
-            clinvar_list = list()
-            clinvar = list(Clinvar.objects.filter(**filter_key))
-            for entry in clinvar:
-                clinvar_list.append(
+            for entry in Clinvar.objects.filter(**filter_args):
+                result.append(
                     {
                         "clinical_significance": entry.clinical_significance,
                         "all_traits": list({trait.lower() for trait in entry.all_traits}),
                     }
                 )
-            self.kwargs["clinvar"] = clinvar_list
-            # response["clinvar"] = [model_to_dict(m) for m in clinvar]
+            return result
         except ObjectDoesNotExist:
-            self.kwargs["clinvar"] = None
-
-        # return Response(response)
-        return HttpResponse(json.dumps(self.kwargs), content_type="application/json")
+            return None
 
 
 class ExportFileJobDetailView(
