@@ -59,7 +59,7 @@ class VariantView(
         except ObjectDoesNotExist:
             self.kwargs["rsid"] = None
 
-        self.get_frequencies(fields=("af", "an", "ac", "hom", "het", "hemi"))
+        self.kwargs.update(self.get_frequencies(key))
 
         try:
             if self.kwargs["database"] == "ensembl":

@@ -56,6 +56,38 @@ class Exac(models.Model):
     af_sas = models.FloatField(null=True)
     objects = CopyManager()
 
+    @property
+    def het(self):
+        return self.ac - (2 * self.hom) - (self.hemi if self.hemi is not None else 0)
+
+    @property
+    def het_afr(self):
+        return self.ac_afr - (2 * self.hom_afr) - (self.hemi_afr if self.hemi_afr is not None else 0)
+
+    @property
+    def het_amr(self):
+        return self.ac_amr - (2 * self.hom_amr) - (self.hemi_amr if self.hemi_amr is not None else 0)
+
+    @property
+    def het_eas(self):
+        return self.ac_eas - (2 * self.hom_eas) - (self.hemi_eas if self.hemi_eas is not None else 0)
+
+    @property
+    def het_fin(self):
+        return self.ac_fin - (2 * self.hom_fin) - (self.hemi_fin if self.hemi_fin is not None else 0)
+
+    @property
+    def het_nfe(self):
+        return self.ac_nfe - (2 * self.hom_nfe) - (self.hemi_nfe if self.hemi_nfe is not None else 0)
+
+    @property
+    def het_oth(self):
+        return self.ac_oth - (2 * self.hom_oth) - (self.hemi_oth if self.hemi_oth is not None else 0)
+
+    @property
+    def het_sas(self):
+        return self.ac_sas - (2 * self.hom_sas) - (self.hemi_sas if self.hemi_sas is not None else 0)
+
     class Meta:
         unique_together = ("release", "chromosome", "position", "reference", "alternative")
         indexes = [
@@ -122,6 +154,42 @@ class GnomadExomes(models.Model):
     af_sas = models.FloatField(null=True)
     objects = CopyManager()
 
+    @property
+    def het(self):
+        return self.ac - (2 * self.hom) - (self.hemi if self.hemi is not None else 0)
+
+    @property
+    def het_afr(self):
+        return self.ac_afr - (2 * self.hom_afr) - (self.hemi_afr if self.hemi_afr is not None else 0)
+
+    @property
+    def het_amr(self):
+        return self.ac_amr - (2 * self.hom_amr) - (self.hemi_amr if self.hemi_amr is not None else 0)
+
+    @property
+    def het_asj(self):
+        return self.ac_asj - (2 * self.hom_asj) - (self.hemi_asj if self.hemi_asj is not None else 0)
+
+    @property
+    def het_eas(self):
+        return self.ac_eas - (2 * self.hom_eas) - (self.hemi_eas if self.hemi_eas is not None else 0)
+
+    @property
+    def het_fin(self):
+        return self.ac_fin - (2 * self.hom_fin) - (self.hemi_fin if self.hemi_fin is not None else 0)
+
+    @property
+    def het_nfe(self):
+        return self.ac_nfe - (2 * self.hom_nfe) - (self.hemi_nfe if self.hemi_nfe is not None else 0)
+
+    @property
+    def het_oth(self):
+        return self.ac_oth - (2 * self.hom_oth) - (self.hemi_oth if self.hemi_oth is not None else 0)
+
+    @property
+    def het_sas(self):
+        return self.ac_sas - (2 * self.hom_sas) - (self.hemi_sas if self.hemi_sas is not None else 0)
+
     class Meta:
         unique_together = ("release", "chromosome", "position", "reference", "alternative")
         indexes = [
@@ -182,6 +250,38 @@ class GnomadGenomes(models.Model):
     af_nfe = models.FloatField(null=True)
     af_oth = models.FloatField(null=True)
     objects = CopyManager()
+
+    @property
+    def het(self):
+        return self.ac - (2 * self.hom) - (self.hemi if self.hemi is not None else 0)
+
+    @property
+    def het_afr(self):
+        return self.ac_afr - (2 * self.hom_afr) - (self.hemi_afr if self.hemi_afr is not None else 0)
+
+    @property
+    def het_amr(self):
+        return self.ac_amr - (2 * self.hom_amr) - (self.hemi_amr if self.hemi_amr is not None else 0)
+
+    @property
+    def het_asj(self):
+        return self.ac_asj - (2 * self.hom_asj) - (self.hemi_asj if self.hemi_asj is not None else 0)
+
+    @property
+    def het_eas(self):
+        return self.ac_eas - (2 * self.hom_eas) - (self.hemi_eas if self.hemi_eas is not None else 0)
+
+    @property
+    def het_fin(self):
+        return self.ac_fin - (2 * self.hom_fin) - (self.hemi_fin if self.hemi_fin is not None else 0)
+
+    @property
+    def het_nfe(self):
+        return self.ac_nfe - (2 * self.hom_nfe) - (self.hemi_nfe if self.hemi_nfe is not None else 0)
+
+    @property
+    def het_oth(self):
+        return self.ac_oth - (2 * self.hom_oth) - (self.hemi_oth if self.hemi_oth is not None else 0)
 
     class Meta:
         unique_together = ("release", "chromosome", "position", "reference", "alternative")

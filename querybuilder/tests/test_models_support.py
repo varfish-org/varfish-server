@@ -1,9 +1,10 @@
 import aldjemy.core
 from django.test import TestCase
 
-from variants.models import SmallVariant, Case
+from frequencies.models import Exac, ThousandGenomes, GnomadExomes, GnomadGenomes
 from geneinfo.models import Hgnc
 from projectroles.models import Project
+from variants.models import SmallVariant, Case
 
 from ..models_support import ExportFileFilterQuery, CountOnlyFilterQuery, RenderFilterQuery
 
@@ -14,11 +15,7 @@ SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 # Test Helpers and Generic Test Data
 # ---------------------------------------------------------------------------
 
-
-class FilterTestBase(TestCase):
-    """Base class for running the test for the ``SmallVariant`` filter queries.
-    """
-
+class TestBase(TestCase):
     #: Callable that sets up the database with the case to use in the test
     setup_case_in_db = None
     #: Set this value to the base cleaned data to patch
@@ -27,6 +24,11 @@ class FilterTestBase(TestCase):
     def setUp(self):
         self.maxDiff = None  # show full diff
         self.__class__.setup_case_in_db()
+
+
+class FilterTestBase(TestBase):
+    """Base class for running the test for the ``SmallVariant`` filter queries.
+    """
 
     def _get_fetch_and_query(self, query_class, cleaned_data_patch):
         connection = SQLALCHEMY_ENGINE.connect()
@@ -75,6 +77,21 @@ class FilterTestBase(TestCase):
             result = fetch_case_and_query()
             self.assertEquals(length, result)
             return result
+
+
+class QueryTestBase(TestBase):
+    def run_get_query(self, model, cleaned_data_patch, assert_raises=None):
+        patched_data = {**self.base_cleaned_data, **cleaned_data_patch}
+        if assert_raises:
+            with self.assertRaises(assert_raises):
+                model.objects.get(**patched_data)
+        else:
+            model.objects.get(**patched_data)
+            self.assertEquals(1, 1)
+
+    def run_filter_query(self, model, cleaned_data_patch, length):
+        results = model.objects.filter(**{**self.base_cleaned_data, **cleaned_data_patch})
+        self.assertEquals(length, len(results))
 
 
 #: Shared data for ``Project`` to use for all test cases.
@@ -1800,3 +1817,126 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(FilterTestBase):
 
     def test_query_compound_het_count(self):
         self.run_count_query(CountOnlyFilterQuery, self.cleaned_data_patch, 2)
+
+
+def fixture_setup_frequency():
+    """Setup test case 1 -- a singleton with variants for gene blacklist filter."""
+    # Basic variant settings.
+    basic_var = {
+        "release": "GRCh37",
+        "chromosome": "1",
+        "position": 100,
+        "reference": "A",
+        "alternative": "G",
+        "ac": None,
+        "ac_afr": 1,
+        "ac_amr": 0,
+        "ac_eas": 0,
+        "ac_fin": 0,
+        "ac_nfe": 0,
+        "ac_oth": 0,
+        "an": None,
+        "an_afr": 8726,
+        "an_amr": 838,
+        "an_eas": 1620,
+        "an_fin": 3464,
+        "an_nfe": 14996,
+        "an_oth": 982,
+        "hemi": None,
+        "hemi_afr": None,
+        "hemi_amr": None,
+        "hemi_eas": None,
+        "hemi_fin": None,
+        "hemi_nfe": None,
+        "hemi_oth": None,
+        "hom": 0,
+        "hom_afr": 0,
+        "hom_amr": 0,
+        "hom_eas": 0,
+        "hom_fin": 0,
+        "hom_nfe": 0,
+        "hom_oth": 0,
+        "popmax": "AFR",
+        "ac_popmax": 1,
+        "an_popmax": 8726,
+        "af_popmax": 0.0001146,
+        "hemi_popmax": None,
+        "hom_popmax": 0,
+        "af": None,
+        "af_afr": 0.0001146,
+        "af_amr": 0.0,
+        "af_eas": 0.0,
+        "af_fin": 0.0,
+        "af_nfe": 0.0,
+        "af_oth": 0.0,
+    }
+
+    Exac.objects.create(**{**basic_var, **{
+        "ac_sas": 0,
+        "an_sas": 323,
+        "hemi_sas": None,
+        "hom_sas": 0,
+        "af_sas": 0.0
+    }})
+    ThousandGenomes.objects.create(
+        release="GRCh37",
+        chromosome="1",
+        position=100,
+        reference="A",
+        alternative="G",
+        ac=3,
+        an=5008,
+        het=3,
+        hom=0,
+        af=0.000058,
+        af_afr=0.0,
+        af_amr=0.0054,
+        af_eas=0.0,
+        af_eur=0.0,
+        af_sas=0.0
+    )
+    GnomadExomes.objects.create(**{**basic_var, **{
+        "ac_asj": 0,
+        "ac_sas": 0,
+        "an_asj": 323,
+        "an_sas": 932,
+        "hemi_asj": None,
+        "hemi_sas": None,
+        "hom_asj": 0,
+        "hom_sas": 0,
+        "af_asj": 0.0,
+        "af_sas": 0.0
+    }})
+    GnomadGenomes.objects.create(**{**basic_var, **{
+        "ac_asj": 0,
+        "an_asj": 323,
+        "hemi_asj": None,
+        "hom_asj": 0,
+        "af_asj": 0.0
+    }})
+
+
+class TestFrequencyQuery(QueryTestBase):
+    """Test the queries for compound recessive heterozygous hypothesis"""
+
+    setup_case_in_db = fixture_setup_frequency
+    base_cleaned_data = {
+        "release": "GRCh37",
+        "chromosome": "1",
+        "position": 100,
+        "reference": "A",
+        "alternative": "G",
+    }
+
+    def test_frequency_exac(self):
+        self.run_get_query(Exac, {})
+
+    def test_frequency_thousand_genomes(self):
+        self.run_get_query(ThousandGenomes, {})
+
+    def test_frequency_gnomad_exomes(self):
+        self.run_get_query(GnomadExomes, {})
+
+    def test_frequency_gnomad_genomes(self):
+        self.run_get_query(GnomadGenomes, {})
+
