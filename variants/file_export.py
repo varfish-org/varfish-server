@@ -454,3 +454,8 @@ def export_case(job):
         raise
     else:
         job.mark_success()
+
+
+def clear_expired_exported_files():
+    """Clear expired exported files."""
+    ExportFileJobResult.objects.filter(expiry_time__lt=timezone.now()).delete()
