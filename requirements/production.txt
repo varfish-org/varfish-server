@@ -4,6 +4,11 @@
 -r ldap.txt
 
 
+# Whitenoise for static files
+# ------------------------------------------------
+whitenoise==4.1
+
+
 # WSGI Handler
 # ------------------------------------------------
 gevent==1.2.2
