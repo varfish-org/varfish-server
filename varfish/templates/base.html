@@ -1,4 +1,7 @@
-{# Example of a site base template can be found in projectroles/base.html #}
-{# TODO: Extend it as below, copy here and modify, or use your own template #}
-
 {% extends 'projectroles/base_site.html' %}
+
+{% load static %}
+
+{% block head_extend %}
+    <link rel="icon" type="image/png" href="{% static 'images/favicon/favicon-32x32.png' %}" sizes="32x32" />
+{% endblock head_extend %}
