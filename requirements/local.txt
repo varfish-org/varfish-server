@@ -10,6 +10,7 @@ django-test-plus==1.1.1
 factory-boy==2.11.1
 
 django-debug-toolbar==1.9.1
+django-debug-toolbar-sqlalchemy==0.1.0
 
 # improved REPL
 ipdb==0.11
