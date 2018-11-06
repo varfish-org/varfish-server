@@ -418,31 +418,18 @@ class FilterQueryFieldsForExportMixin(FilterQueryStandardFieldsMixin, FromAndWhe
             else:
                 return ["*"]
         else:
+            # Return additional fields for downloadable files.  When rendered, this additional
+            # information is loaded on demand by AJAX.
             return super()._get_fields(kwargs, which, inner) + [
+                # Required for joining conservation
+                Hgnc.sa.ucsc_id,
+                # Additional information for display in downloaded file
                 SmallVariant.sa.var_type,
                 SmallVariant.sa.ensembl_transcript_id,
-                Hgnc.sa.ucsc_id,
-                # literal_column("'missing'", Integer).label("conservation"),
-                # self._get_conservation_field(),
+                Hgnc.sa.name.label("hgnc_gene_name"),
+                Hgnc.sa.gene_family.label("hgnc_gene_family"),
+                Hgnc.sa.pubmed_id.label("hgnc_pubmed_id"),
             ]
-
-    def _get_conservation_field(self):
-        return (
-            select([literal_column("1", Integer).label("conservation")])
-            .select_from(KnowngeneAA.sa.table)
-            .where(
-                and_(
-                    KnowngeneAA.sa.chromosome == SmallVariant.sa.chromosome,
-                    KnowngeneAA.sa.start
-                    <= (SmallVariant.sa.position - 1 + func.length(SmallVariant.sa.reference)),
-                    KnowngeneAA.sa.end > (SmallVariant.sa.position - 1),
-                    # TODO: using "LEFT(, -2)" here breaks if version > 9
-                    # func.left(KnowngeneAA.sa.transcript_id, -2)
-                    # == func.left(SmallVariant.sa.ensembl_transcript_id, -2),
-                )
-            )
-            .alias("conservation")
-        )
 
 
 class OrderByChromosomalPositionMixin:

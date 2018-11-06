@@ -59,8 +59,10 @@ HEADER_FIXED = (
     ("hgvs_p", "Protein HGVS change", str),
     ("hgvs_c", "Nucleotide HGVS change", str),
     ("known_gene_aa", "100 Vertebrate AA conservation", str),
+    ("hgnc_gene_name", "Gene Name", str),
+    ("hgnc_gene_family", "Gene Family", str),
+    ("hgnc_pubmed_id", "Gene Pubmed ID", str),
 )
-
 
 #: Per-sample headers.
 HEADER_FORMAT = (
@@ -319,6 +321,7 @@ class CaseExporterXlsx(CaseExporterBase):
     def _write_variants_data(self):
         """Fill with actions to write the variant data."""
         # Write data to Excel sheet
+        num_rows = 0
         for num_rows, small_var in enumerate(self._yield_smallvars()):
             row = []
             for column in self.columns:
@@ -335,7 +338,7 @@ class CaseExporterXlsx(CaseExporterBase):
                         row.append(aaf)
                     else:
                         row.append(small_var["genotype"].get(member, {}).get(field, "."))
-                if isinstance(row[-1], set):
+                if isinstance(row[-1], list):
                     row[-1] = to_str(row[-1])
             self.variant_sheet.write_row(1 + num_rows, 0, list(map(str, row)))
         # Freeze first row and first four columns and setup auto-filter.
