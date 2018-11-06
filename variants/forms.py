@@ -259,8 +259,12 @@ class FilterForm(forms.Form):
     )
     effect_upstream_gene_variant = forms.BooleanField(label="upstream gene variant", required=False)
 
-    transcripts_coding = forms.BooleanField(label="coding transcripts", required=False, initial=True)
-    transcripts_noncoding = forms.BooleanField(label="non-coding transcripts", required=False, initial=True)
+    transcripts_coding = forms.BooleanField(
+        label="coding transcripts", required=False, initial=True
+    )
+    transcripts_noncoding = forms.BooleanField(
+        label="non-coding transcripts", required=False, initial=True
+    )
 
     compound_recessive_enabled = forms.BooleanField(
         label="enable comp. het. mode",

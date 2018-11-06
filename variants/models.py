@@ -143,10 +143,18 @@ class Case(models.Model):
     class Meta:
         indexes = [models.Index(fields=["name"])]
 
+    def get_absolute_url(self):
+        """Return absolute URL for the detail view of this case."""
+        return reverse(
+            "variants:case-detail",
+            kwargs={"project": self.project.sodar_uuid, "case": self.sodar_uuid},
+        )
+
     def get_filter_url(self):
         """Return absolute URL for the filtration view of this case."""
         return reverse(
-            "variants:filter", kwargs={"project": self.project.sodar_uuid, "case": self.sodar_uuid}
+            "variants:case-filter",
+            kwargs={"project": self.project.sodar_uuid, "case": self.sodar_uuid},
         )
 
     def get_members(self):

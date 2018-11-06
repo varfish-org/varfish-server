@@ -12,7 +12,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     icon = "ship"
 
-    entry_point_url_id = "variants:case"
+    entry_point_url_id = "variants:case-list"
 
     description = "VarFish"
 
@@ -35,4 +35,4 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     details_title = "VarFish App Overview"
 
     #: Position in plugin ordering
-    plugin_ordering = 100
+    plugin_ordering = 10

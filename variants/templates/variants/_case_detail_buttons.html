@@ -1,0 +1,10 @@
+<div class="btn-group ml-auto">
+  <a class="btn btn-secondary" href="{{ object.project.get_absolute_url }}">
+    <i class="fa fa-arrow-left"></i>
+    Case List
+  </a>
+  <a class="btn btn-primary" href="{% url 'variants:case-filter' project=project.sodar_uuid case=object.sodar_uuid %}">
+    <i class="fa fa-filter"></i>
+    Filter Case
+  </a>
+</div>

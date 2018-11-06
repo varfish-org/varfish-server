@@ -1,0 +1,124 @@
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
+{% load dict %}
+{% load rules %}
+
+{% block projectroles_extend %}
+
+  <div class="row sodar-subtitle-container bg-white sticky-top">
+    <h3>Case: {{ object.name }}</h3>
+    {% include "variants/_case_detail_buttons.html" %}
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+
+    <div class="card varfish-vars-case-details"
+         id="card-varfish-vars-case-details">
+      <div class="card-header">
+        <h4>
+          <i class="fa fa-address-card-o"></i>
+          Details
+        </h4>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          <div class="row">
+            <span class="col-2"><strong>
+              Created At
+            </strong></span>
+            <span class="col-10">
+              {{ object.date_created|date:"Y/m/d H:i" }}
+            </span>
+          </div>
+        </li>
+        <li class="list-group-item">
+          <div class="row">
+            <span class="col-2"><strong>
+              Case Name
+            </strong></span>
+            <span class="col-10">
+              {{ object.name }}
+            </span>
+          </div>
+        </li>
+        <li class="list-group-item">
+          <div class="row">
+            <span class="col-2"><strong>
+              Individuals
+            </strong></span>
+            <span class="col-10">
+              {{ object.get_members|join:", " }}
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card varfish-vars-case-details"
+         id="card-varfish-vars-case-details">
+      <div class="card-header">
+        <h4>
+          <i class="fa fa-users"></i>
+          Pedigree
+        </h4>
+      </div>
+      <table class="table tabled-striped table-hover">
+        <thead>
+          <tr>
+            <th class="col-2">Name</th>
+            <th class="col-2">Father</th>
+            <th class="col-2">Mother</th>
+            <th class="col-1">Sex</th>
+            <th class="col-5">Affected</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in object.pedigree %}
+            <tr>
+              <td>{{ item.patient }}</td>
+              <td>{{ item.father }}</td>
+              <td>{{ item.mother }}</td>
+              <td><i class="fa {% if item.sex == 1 %}fa-venus{% else %}fa-mars{% endif %}"></i></td>
+              <td><i class="fa {% if item.affected == 2 %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card varfish-vars-case-details"
+         id="card-varfish-vars-case-details">
+      <div class="card-header">
+        <h4>
+          <i class="fa fa-tasks"></i>
+          Background Jobs
+        </h4>
+      </div>
+      <div class="card-body p-0">
+        <table id="varfish-bg-table" class="table table-striped sodar-card-table">
+          <thead>
+            <tr>
+              <th class="col-2">Started</th>
+              <th class="col-2">Last Change</th>
+              <th class="col-1">State</th>
+              <th class="col-5">Name</th>
+              <th class="col-2">Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in object.exportfilebgjob_set.all %}
+              {% include 'variants/_exportfilebgjob_item.html' with item=job details_card_mode=False %}
+            {% endfor %}
+            {% if not object.exportfilebgjob_set.all %}
+              <tr>
+                 <td class="bg-faded font-italic text-center" colspan="4">
+                   No background jobs found.
+                 </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+  </div>
+{% endblock %}

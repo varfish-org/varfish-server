@@ -1,7 +1,7 @@
 <tr id="varfish-bg-table-row-{{ job.sodar_uuid }}">
   <td>{{ item.date_created|date:"Y/m/d H:i" }}</td>
   <td>
-    <a href="{{ item.get_filter_url }}">
+    <a href="{{ item.get_absolute_url }}">
       {{ item.name }}
     </a>
   </td>

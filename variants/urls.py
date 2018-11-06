@@ -4,11 +4,16 @@ from . import views
 
 app_name = "variants"
 urlpatterns = [
-    url(regex=r"^(?P<project>[0-9a-f-]+)$", view=views.MainView.as_view(), name="case"),
+    url(regex=r"^(?P<project>[0-9a-f-]+)/$", view=views.CaseListView.as_view(), name="case-list"),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/(?P<case>[0-9a-f-]+)/$",
-        view=views.FilterView.as_view(),
-        name="filter",
+        view=views.CaseDetailView.as_view(),
+        name="case-detail",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/filter/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseFilterView.as_view(),
+        name="case-filter",
     ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/api/extend/(?P<release>(GRCh37|GRCh38))-(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT]))-(?P<position>[0-9]+)-(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/$",

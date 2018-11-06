@@ -204,7 +204,7 @@ class FromAndWhereMixin:
             self._build_effects_term(kwargs),
             and_(*self._yield_genotype_terms(kwargs, gt_patterns)),
             self._build_gene_blacklist_term(kwargs),
-            self._build_transcripts_coding_term(kwargs)
+            self._build_transcripts_coding_term(kwargs),
         )
 
     def _build_vartype_term(self, kwargs):
@@ -309,9 +309,9 @@ class FromAndWhereMixin:
             field = SmallVariant.sa.refseq_transcript_coding
         else:
             field = SmallVariant.sa.ensembl_transcript_coding
-        if not kwargs['transcripts_coding']:
+        if not kwargs["transcripts_coding"]:
             sub_terms.append(field == False)  # equality from SQL Alchemy
-        if not kwargs['transcripts_noncoding']:
+        if not kwargs["transcripts_noncoding"]:
             sub_terms.append(field == True)  # equality from SQL Alchemy
         return and_(*sub_terms)
 

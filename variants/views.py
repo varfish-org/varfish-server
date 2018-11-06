@@ -39,14 +39,16 @@ class AlchemyConnectionMixin:
         return self._alchemy_connection
 
 
-class MainView(
+class CaseListView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
     ListView,
 ):
-    template_name = "variants/case_select.html"
+    """Display list of all cases"""
+
+    template_name = "variants/case_list.html"
     permission_required = "variants.view_data"
     model = Case
 
@@ -65,7 +67,23 @@ def _undecimal(the_dict):
     return result
 
 
-class FilterView(
+class CaseDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display a case in detail."""
+
+    template_name = "variants/case_detail.html"
+    permission_required = "variants.view_data"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+
+class CaseFilterView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
@@ -73,7 +91,7 @@ class FilterView(
     AlchemyConnectionMixin,
     FormView,
 ):
-    template_name = "variants/filter.html"
+    template_name = "variants/case_filter.html"
     permission_required = "variants.view_data"
     form_class = FilterForm
     success_url = "."
@@ -145,7 +163,7 @@ class FilterView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["case_name"] = self.get_case_object().name
+        context["object"] = self.get_case_object()
         return context
 
 

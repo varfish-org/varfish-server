@@ -1,5 +1,5 @@
 <div class="btn-group ml-auto">
-  <a class="btn btn-secondary" href="{{ object.case.get_filter_url }}">
+  <a class="btn btn-secondary" href="{{ object.case.get_absolute_url }}">
     <i class="fa fa-arrow-left"></i>
     Return to Case
   </a>
@@ -10,7 +10,6 @@
       Operation
     </button>
     <div class="dropdown-menu dropdown-menu-right">
-      {# Folder #}
       <a class="dropdown-item" href="#">
         <i class="fa fa-fw fa-trash"></i> Remove Job
       </a>

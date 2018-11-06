@@ -1,0 +1,23 @@
+<tr id="varfish-bg-table-row-{{ item.sodar_uuid }}">
+  <td>{{ item.bg_job.date_created|date:"Y/m/d h:m" }}</td>
+  <td>{{ item.bg_job.date_modified|date:"Y/m/d h:m" }}</td>
+  <td>{{ item.bg_job.status }}</td>
+  <td>
+    <a href="{{ item.get_absolute_url }}">
+      {{ item.bg_job.name }}
+    </a>
+  </td>
+  <td>
+    {% if item.export_result %}
+      <a href="{% url "variants:export-job-download" project=item.project.sodar_uuid job=object.sodar_uuid %}">
+        <i class="fa fa-download"></i>
+        ({{ item.file_type }}, {{ item.export_result.payload|length|filesizeformat }})
+      </a>
+    {% else %}
+      <span class="text-muted" data-toggle="tooltip" data-placement="top" title="File expired or not ready yet">
+        <i class="fa fa-download"></i>
+        ({{ item.file_type }}, -)
+      </span>
+    {% endif %}
+  </td>
+</tr>

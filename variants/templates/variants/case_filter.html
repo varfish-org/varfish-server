@@ -30,102 +30,115 @@
   </style>
 {% endblock %}
 
+  <div class="row sodar-subtitle-container bg-white">
+    <h3>
+      <i class="fa fa-filter"></i>
+      Filter Case: {{ object.name }}
+    </h3>
+    <div class="ml-auto">
+      <a class="btn btn-secondary" href="{% url 'variants:case-detail' project=project.sodar_uuid case=object.sodar_uuid %}">
+        <i class="fa fa-arrow-left"></i>
+        Case Details
+      </a>
+    </div>
+  </div>
+
   <div class="container-fluid sodar-page-container">
     {% include "variants/_filter_form.html" %}
   </div>
 
-    {% if result_rows is None %}
-    {% elif not result_rows %}
-      <div class="container-fluid sodar-page-container">
+  {% if result_rows is None %}
+  {% elif not result_rows %}
+    <div class="container-fluid sodar-page-container">
+    <h2>
+      Empty Result Set
+      <small class="text-muted">
+        Try again with different settings?
+      </small>
+    </h2>
+    </div>
+  {% else %}
+    <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0">
       <h2>
-        Empty Result Set
-        <small class="text-muted">
-          Try again with different settings?
-        </small>
+        Results
+        <span class="badge badge-pill badge-success">{{ result_rows|length }}/{{ result_count }}</span>
+        <span class="badge badge-pill badge-warning">
+          {% if form.database_select.data == "refseq" %}
+          RefSeq
+          {% elif form.database_select.data == "ensembl" %}
+          EnsEMBL
+          {% endif %}
+        </span>
+        {% if form.thousand_genomes_enabled.data %}
+        <span class="badge badge-pill badge-secondary">1000 genomes</span>
+        {% endif %}
+        {% if form.gnomad_exomes_enabled.data %}
+        <span class="badge badge-pill badge-secondary">gnomAD exomes</span>
+        {% endif %}
+        {% if form.gnomad_genomes_enabled.data %}
+        <span class="badge badge-pill badge-secondary">gnomAD genomes</span>
+        {% endif %}
+        {% if form.exac_enabled.data %}
+        <span class="badge badge-pill badge-secondary">ExAC</span>
+        {% endif %}
+        {% if form.var_type_mnv.data %}
+        <span class="badge badge-pill badge-info">MNV</span>
+        {% endif %}
+        {% if form.var_type_snv.data %}
+        <span class="badge badge-pill badge-info">SNV</span>
+        {% endif %}
+        {% if form.var_type_indel.data %}
+        <span class="badge badge-pill badge-info">InDel</span>
+        {% endif %}
       </h2>
-      </div>
-    {% else %}
-      <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0">
-        <h2>
-          Results
-          <span class="badge badge-pill badge-success">{{ result_rows|length }}/{{ result_count }}</span>
-          <span class="badge badge-pill badge-warning">
-            {% if form.database_select.data == "refseq" %}
-            RefSeq
-            {% elif form.database_select.data == "ensembl" %}
-            EnsEMBL
-            {% endif %}
-          </span>
-          {% if form.thousand_genomes_enabled.data %}
-          <span class="badge badge-pill badge-secondary">1000 genomes</span>
-          {% endif %}
-          {% if form.gnomad_exomes_enabled.data %}
-          <span class="badge badge-pill badge-secondary">gnomAD exomes</span>
-          {% endif %}
-          {% if form.gnomad_genomes_enabled.data %}
-          <span class="badge badge-pill badge-secondary">gnomAD genomes</span>
-          {% endif %}
-          {% if form.exac_enabled.data %}
-          <span class="badge badge-pill badge-secondary">ExAC</span>
-          {% endif %}
-          {% if form.var_type_mnv.data %}
-          <span class="badge badge-pill badge-info">MNV</span>
-          {% endif %}
-          {% if form.var_type_snv.data %}
-          <span class="badge badge-pill badge-info">SNV</span>
-          {% endif %}
-          {% if form.var_type_indel.data %}
-          <span class="badge badge-pill badge-info">InDel</span>
-          {% endif %}
-        </h2>
 
-        <p class="text-muted">
-          <small>
-            Displaying the first <strong>{{ result_rows|length }} of {{ result_count }}</strong> records.
-            Create an TSV/Excel/VCF file for download for getting all {{ result_count }} rows.
-            Query completed in {{ elapsed_seconds }} sec.
-          </small>
-        </p>
+      <p class="text-muted">
+        <small>
+          Displaying the first <strong>{{ result_rows|length }} of {{ result_count }}</strong> records.
+          Create an TSV/Excel/VCF file for download for getting all {{ result_count }} rows.
+          Query completed in {{ elapsed_seconds }} sec.
+        </small>
+      </p>
 
-        <div class="form-inline pl-2 pr-2">
-          <div class="form-group">
-            <strong>
-              Display Settings
-            </strong>
-          </div>
-          <div class="p-2 form-group">
-            <label class="mr-2" for="result-display-frequencies">
-              Frequencies
-            </label>
-            <select class="custom-select" id="result-display-frequencies" onchange="javascript: updateTableDisplay();">
-              <option value="exac" selected>ExAC</option>
-              <option value="thousand-genomes">1000 genomes</option>
-              <option value="gnomad-exomes">gnomAD exomes</option>
-              <option value="gnomad-genomes">gnomAD genomes</option>
-            </select>
-          </div>
+      <div class="form-inline pl-2 pr-2">
+        <div class="form-group">
+          <strong>
+            Display Settings
+          </strong>
+        </div>
+        <div class="p-2 form-group">
+          <label class="mr-2" for="result-display-frequencies">
+            Frequencies
+          </label>
+          <select class="custom-select" id="result-display-frequencies" onchange="javascript: updateTableDisplay();">
+            <option value="exac" selected>ExAC</option>
+            <option value="thousand-genomes">1000 genomes</option>
+            <option value="gnomad-exomes">gnomAD exomes</option>
+            <option value="gnomad-genomes">gnomAD genomes</option>
+          </select>
         </div>
       </div>
+    </div>
 
-     <div class="container-fluid sodar-page-container">
+   <div class="container-fluid sodar-page-container">
 
 
-      <div id="table-config">
-        <table class="table table-hover table-sm varfish-variant-table" id="main">
-          <thead>
-            {% include "variants/_filter_table_header.html" %}
-          </thead>
-          <tbody>
-          {% for entry in result_rows %}
-            {% include "variants/_filter_table_row.html" %}
-            {% include "variants/_filter_table_card.html" %}
-          {% endfor %}
-          </tbody>
-        </table>
-      </div>
+    <div id="table-config">
+      <table class="table table-hover table-sm varfish-variant-table" id="main">
+        <thead>
+          {% include "variants/_filter_table_header.html" %}
+        </thead>
+        <tbody>
+        {% for entry in result_rows %}
+          {% include "variants/_filter_table_row.html" %}
+          {% include "variants/_filter_table_card.html" %}
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-      </div> <!-- sodar-page-container -->
-    {% endif %}
+    </div> <!-- sodar-page-container -->
+  {% endif %}
 
 
 {% endblock projectroles_extend %}
