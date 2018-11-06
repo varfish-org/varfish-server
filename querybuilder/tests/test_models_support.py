@@ -15,6 +15,7 @@ SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 # Test Helpers and Generic Test Data
 # ---------------------------------------------------------------------------
 
+
 class TestBase(TestCase):
     #: Callable that sets up the database with the case to use in the test
     setup_case_in_db = None
@@ -1871,13 +1872,12 @@ def fixture_setup_frequency():
         "af_oth": 0.0,
     }
 
-    Exac.objects.create(**{**basic_var, **{
-        "ac_sas": 0,
-        "an_sas": 323,
-        "hemi_sas": None,
-        "hom_sas": 0,
-        "af_sas": 0.0
-    }})
+    Exac.objects.create(
+        **{
+            **basic_var,
+            **{"ac_sas": 0, "an_sas": 323, "hemi_sas": None, "hom_sas": 0, "af_sas": 0.0},
+        }
+    )
     ThousandGenomes.objects.create(
         release="GRCh37",
         chromosome="1",
@@ -1893,27 +1893,31 @@ def fixture_setup_frequency():
         af_amr=0.0054,
         af_eas=0.0,
         af_eur=0.0,
-        af_sas=0.0
+        af_sas=0.0,
     )
-    GnomadExomes.objects.create(**{**basic_var, **{
-        "ac_asj": 0,
-        "ac_sas": 0,
-        "an_asj": 323,
-        "an_sas": 932,
-        "hemi_asj": None,
-        "hemi_sas": None,
-        "hom_asj": 0,
-        "hom_sas": 0,
-        "af_asj": 0.0,
-        "af_sas": 0.0
-    }})
-    GnomadGenomes.objects.create(**{**basic_var, **{
-        "ac_asj": 0,
-        "an_asj": 323,
-        "hemi_asj": None,
-        "hom_asj": 0,
-        "af_asj": 0.0
-    }})
+    GnomadExomes.objects.create(
+        **{
+            **basic_var,
+            **{
+                "ac_asj": 0,
+                "ac_sas": 0,
+                "an_asj": 323,
+                "an_sas": 932,
+                "hemi_asj": None,
+                "hemi_sas": None,
+                "hom_asj": 0,
+                "hom_sas": 0,
+                "af_asj": 0.0,
+                "af_sas": 0.0,
+            },
+        }
+    )
+    GnomadGenomes.objects.create(
+        **{
+            **basic_var,
+            **{"ac_asj": 0, "an_asj": 323, "hemi_asj": None, "hom_asj": 0, "af_asj": 0.0},
+        }
+    )
 
 
 class TestFrequencyQuery(QueryTestBase):
@@ -1939,4 +1943,3 @@ class TestFrequencyQuery(QueryTestBase):
 
     def test_frequency_gnomad_genomes(self):
         self.run_get_query(GnomadGenomes, {})
-

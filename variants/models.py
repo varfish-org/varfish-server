@@ -5,6 +5,7 @@ from postgres_copy import CopyManager
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.indexes import GinIndex
 from django.core.urlresolvers import reverse
 
 from projectroles.models import Project
@@ -119,6 +120,9 @@ class SmallVariant(models.Model):
             models.Index(fields=["refseq_gene_id"]),
             # for join with case
             models.Index(fields=["case_id"]),
+            # for filter query
+            GinIndex(fields=["case_id", "refseq_effect"]),
+            GinIndex(fields=["case_id", "ensembl_effect"]),
         ]
 
 

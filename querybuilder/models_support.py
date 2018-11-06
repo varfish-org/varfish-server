@@ -9,9 +9,9 @@ import sqlparse
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from geneinfo.models import Hgnc
-from variants.models import Case, SmallVariant
+from variants.models import SmallVariant
 from frequencies.models import GnomadExomes, GnomadGenomes, Exac, ThousandGenomes
-from variants.forms import FILTER_FORM_TRANSLATE_EFFECTS, FILTER_FORM_TRANSLATE_INHERITANCE
+from variants.forms import FILTER_FORM_TRANSLATE_INHERITANCE
 
 
 @contextmanager
