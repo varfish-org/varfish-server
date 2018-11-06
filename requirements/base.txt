@@ -31,6 +31,9 @@ awesome-slugify>=1.6.5, <1.7
 # Time zones support
 pytz>=2018.5
 
+# Versioning
+versioneer ==0.18
+
 # Online documentation via django-docs.
 Sphinx>=1.7.9, <1.8
 django-docs>=0.3.0, <0.4
