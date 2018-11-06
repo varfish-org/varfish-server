@@ -119,7 +119,7 @@ EMAIL_SUBJECT_PREFIX = env('EMAIL_SUBJECT_PREFIX', default='')
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#admins
 ADMINS = [
     ("""Oliver Stolpe""", "oliver.stolpe@bihealth.de"),
-    ("""Manuel Holtgrewe""", "manue.holtgrewe@bihealth.de"),
+    ("""Manuel Holtgrewe""", "manuel.holtgrewe@bihealth.de"),
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#managers
