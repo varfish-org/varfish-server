@@ -99,21 +99,15 @@ INSTALLED_APPS += ["gunicorn"]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
-# EMAIL
+# EMAIL CONFIGURATION
 # ------------------------------------------------------------------------------
-DEFAULT_FROM_EMAIL = env(
-    "DJANGO_DEFAULT_FROM_EMAIL", default="VarFish <noreply@varfish.bihealth.org>"
-)
-EMAIL_SUBJECT_PREFIX = env("DJANGO_EMAIL_SUBJECT_PREFIX", default="[VarFish]")
-SERVER_EMAIL = env("DJANGO_SERVER_EMAIL", default=DEFAULT_FROM_EMAIL)
+EMAIL_URL = env.email_url('EMAIL_URL', 'smtp://0.0.0.0')
 
-# Anymail with Mailgun
-# INSTALLED_APPS += ["anymail"]
-# ANYMAIL = {
-#     "MAILGUN_API_KEY": env("DJANGO_MAILGUN_API_KEY"),
-#     "MAILGUN_SENDER_DOMAIN": env("MAILGUN_SENDER_DOMAIN"),
-# }
-# EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+EMAIL_HOST = EMAIL_URL['EMAIL_HOST']
+EMAIL_PORT = EMAIL_URL['EMAIL_PORT']
+EMAIL_BACKEND = EMAIL_URL['EMAIL_BACKEND']
+EMAIL_HOST_USER = EMAIL_URL['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = EMAIL_URL['EMAIL_HOST_PASSWORD']
 
 # TEMPLATE CONFIGURATION
 # ------------------------------------------------------------------------------
