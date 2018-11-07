@@ -460,6 +460,159 @@ function updateSettingsDump() {
   $("#settingsDump").val(JSON.stringify(settings, null, 2));
 }
 
+const defaultPresetsIds = {
+  // Frequency
+  "thousand_genomes_enabled": true,
+  "thousand_genomes_homozygous": 10,
+  "thousand_genomes_heterozygous": null,
+  "thousand_genomes_frequency": null,
+
+  "exac_enabled": true,
+  "exac_homozygous": 10,
+  "exac_heterozygous": null,
+  "exac_frequency": 0.01,
+
+  "gnomad_exomes_enabled": true,
+  "gnomad_exomes_homozygous": 10,
+  "gnomad_exomes_heterozygous": null,
+  "gnomad_exomes_frequency": 0.01,
+
+  "gnomad_genomes_enabled": true,
+  "gnomad_genomes_homozygous": null,
+  "gnomad_genomes_heterozygous": null,
+  "gnomad_genomes_frequency": 0.01,
+
+  // Variants & Effect
+  "var_type_snv": true,
+  "var_type_mnv": true,
+  "var_type_indel": true,
+
+  "transcripts_coding": true,
+  "transcripts_noncoding": true,
+
+  "effect_complex_substitution": true,
+  "effect_direct_tandem_duplication": true,
+  "effect_disruptive_inframe_deletion": true,
+  "effect_disruptive_inframe_insertion": true,
+  "effect_feature_truncation": true,
+  "effect_frameshift_elongation": true,
+  "effect_frameshift_truncation": true,
+  "effect_frameshift_variant": true,
+  "effect_inframe_deletion": true,
+  "effect_inframe_insertion": true,
+  "effect_internal_feature_elongation": true,
+  "effect_missense_variant": true,
+  "effect_mnv": true,
+  "effect_start_lost": true,
+  "effect_stop_gained": true,
+  "effect_stop_lost": true,
+  "effect_structural_variant": true,
+  "effect_transcript_ablation": true,
+  "effect_splice_acceptor_variant": true,
+  "effect_splice_donor_variant": true,
+  "effect_splice_region_variant": true,
+  "effect_stop_retained_variant": true,
+  "effect_synonymous_variant": false,
+  "effect_coding_transcript_intron_variant": false,
+  "effect_five_prime_UTR_exon_variant": true,
+  "effect_five_prime_UTR_intron_variant": false,
+  "effect_three_prime_UTR_exon_variant": true,
+  "effect_three_prime_UTR_intron_variant": false,
+  "effect_downstream_gene_variant": false,
+  "effect_intergenic_variant": false,
+  "effect_non_coding_transcript_exon_variant": false,
+  "effect_non_coding_transcript_intron_variant": false,
+  "effect_upstream_gene_variant": false
+};
+
+const defaultPresetsClasses = {
+  "quality-field-dp": 10,
+  "quality-field-ab": 0.3,
+  "quality-field-gq": 30,
+  "quality-field-ad": 10
+};
+
+const medgenPresetsIds = {
+  // Hard-code all values from "Frequency" tab
+  "thousand_genomes_enabled": true,
+  "thousand_genomes_homozygous": 10,
+  "thousand_genomes_heterozygous": null,
+  "thousand_genomes_frequency": null,
+
+  "exac_enabled": true,
+  "exac_homozygous": 10,
+  "exac_heterozygous": null,
+  "exac_frequency": null,
+
+  "gnomad_exomes_enabled": false,
+  "gnomad_exomes_homozygous": null,
+  "gnomad_exomes_heterozygous": null,
+  "gnomad_exomes_frequency": null,
+
+  "gnomad_genomes_enabled": false,
+  "gnomad_genomes_homozygous": null,
+  "gnomad_genomes_heterozygous": null,
+  "gnomad_genomes_frequency": null,
+
+  // Only override some from the "Variants & Effects" tab
+  "transcripts_noncoding": false,
+};
+
+const medgenPresetsClasses = {
+};
+
+const presets = {
+  "default": {
+    "ids": defaultPresetsIds,
+    "classes": defaultPresetsClasses,
+  },
+  "medgen-strict": {
+    "ids": Object.assign({}, defaultPresetsIds, medgenPresetsIds, {
+      "effect_five_prime_UTR_exon_variant": false,
+      "effect_three_prime_UTR_exon_variant": false
+    }),
+    "classes": Object.assign({}, defaultPresetsClasses, medgenPresetsClasses, {
+      "quality-field-dp": 10,
+      "quality-field-ab": 0.3,
+      "quality-field-gq": 30,
+      "quality-field-ad": 5,
+      "quality-field-fail": "drop-variant"
+    }),
+  },
+  "medgen-relaxed": {
+    "ids": Object.assign({}, defaultPresetsIds, medgenPresetsIds, {}),
+    "classes": Object.assign({}, defaultPresetsIds, medgenPresetsClasses, {
+      "quality-field-dp": 8,
+      "quality-field-ab": 0.2,
+      "quality-field-gq": 20,
+      "quality-field-ad": 4,
+      "quality-field-fail": "drop-variant"
+    }),
+  }
+};
+
+function loadPresets(e) {
+  const presetsName = $(e.currentTarget).data("preset-name");
+
+  for (var key in presets[presetsName]["ids"]) {
+    const val = presets[presetsName]["ids"][key];
+    const tag = $("#id_" + key);
+    const inputType = tag.attr("type");
+    if (inputType == "checkbox") {
+      tag.prop("checked", val);
+    } else {
+      tag.prop("value", val);
+    }
+  }
+  updateCheckboxes(null);
+
+  for (var key in presets[presetsName]["classes"]) {
+    const val = presets[presetsName]["classes"][key];
+    const tag = $("." + key);
+    tag.prop("value", val);
+  }
+}
+
 $(document).ready(
   function() {
     if ($("#settingsDump").val() != "") {
@@ -467,6 +620,7 @@ $(document).ready(
     }
     $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
     updateSettingsDump();
+    $(".load-presets").click(loadPresets);
   }
 );
 

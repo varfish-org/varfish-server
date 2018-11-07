@@ -5,7 +5,22 @@
 <form id="filterForm" method="post">{% csrf_token %}
   <div class="card">
     <div class="card-header">
-      <h5 class="mb-3">Filter Settings</h5>
+      <div class="row">
+        <h5 class="mb-3">
+          Filter Settings
+        </h5>
+        <div class="ml-auto">
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="presets-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Load Presets
+            </button>
+            <div class="dropdown-menu" aria-labelledby="presets-menu-button">
+              <a class="dropdown-item load-presets" href="#" data-preset-name="medgen-strict">Med. Gen: Strict</a>
+              <a class="dropdown-item load-presets" href="#" data-preset-name="medgen-relaxed">Med. Gen: Relaxed</a>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <ul class="nav nav-tabs card-header-tabs" style="border-bottom: 0;">
         <li class="nav-item">

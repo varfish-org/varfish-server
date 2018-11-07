@@ -195,7 +195,7 @@ class FilterForm(forms.Form):
         label="feature truncation", required=False, initial=True
     )
     effect_five_prime_UTR_exon_variant = forms.BooleanField(
-        label="5' UTR exon variant", required=False
+        label="5' UTR exon variant", required=False, initial=True
     )
     effect_five_prime_UTR_intron_variant = forms.BooleanField(
         label="5' UTR intron variant", required=False
@@ -249,7 +249,7 @@ class FilterForm(forms.Form):
     )
     effect_synonymous_variant = forms.BooleanField(label="synonymous variant", required=False)
     effect_three_prime_UTR_exon_variant = forms.BooleanField(
-        label="3' UTR exon variant", required=False
+        label="3' UTR exon variant", required=False, initial=True
     )
     effect_three_prime_UTR_intron_variant = forms.BooleanField(
         label="3' UTR intron variant", required=False
@@ -346,19 +346,39 @@ class FilterForm(forms.Form):
                 label="", required=True, widget=forms.Select(choices=INHERITANCE)
             )
             self.fields[self.field_names[name]["dp"]] = forms.IntegerField(
-                label="", required=True, initial=10, min_value=0
+                label="",
+                required=True,
+                initial=10,
+                min_value=0,
+                widget=forms.NumberInput(attrs={"class": "quality-field-dp"}),
             )  # relaxed: 8
             self.fields[self.field_names[name]["ab"]] = forms.FloatField(
-                label="", required=True, initial=0.3, min_value=0, max_value=1
+                label="",
+                required=True,
+                initial=0.3,
+                min_value=0,
+                max_value=1,
+                widget=forms.NumberInput(attrs={"class": "quality-field-ab"}),
             )  # relaxed: 0.2
             self.fields[self.field_names[name]["gq"]] = forms.IntegerField(
-                label="", required=True, initial=30, min_value=0
+                label="",
+                required=True,
+                initial=30,
+                min_value=0,
+                widget=forms.NumberInput(attrs={"class": "quality-field-gq"}),
             )  # relaxed: 20
             self.fields[self.field_names[name]["ad"]] = forms.IntegerField(
-                label="", required=True, initial=10, min_value=0
+                label="",
+                required=True,
+                initial=10,
+                min_value=0,
+                widget=forms.NumberInput(attrs={"class": "quality-field-ad"}),
             )  # ???
             self.fields[self.field_names[name]["fail"]] = forms.CharField(
-                label="", widget=forms.Select(choices=FAIL), required=True, initial="drop-variant"
+                label="",
+                widget=forms.Select(choices=FAIL, attrs={"class": "quality-field-fail"}),
+                required=True,
+                initial="drop-variant",
             )
             self.fields[self.field_names[name]["export"]] = forms.BooleanField(
                 label=name, required=False, initial=True
