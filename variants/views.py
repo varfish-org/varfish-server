@@ -118,6 +118,9 @@ class CaseFilterView(
         else:
             return self._form_valid_render(form)
 
+    def form_invalid(self, form):
+        raise Exception("Form is not valid:\n{}".format(form.errors))
+
     def _form_valid_file(self, form):
         """The form is valid, we want to asynchronously build a file for later download."""
         with transaction.atomic():
@@ -180,7 +183,7 @@ class ExtendAPIView(
 
     def get(self, *args, **kwargs):
         # TODO(holtgrewe): don't use self.kwargs for passing around values
-        self.kwargs = {**kwargs}
+        self.kwargs = dict(kwargs)
         self.kwargs["knowngeneaa"] = self._load_knowngene_aa(kwargs)
         self.kwargs.update(self.get_frequencies(kwargs))
         self.kwargs["clinvar"] = self._load_clinvar(kwargs)

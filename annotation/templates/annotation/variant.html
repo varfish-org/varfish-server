@@ -8,28 +8,7 @@
 
 {% block projectroles_extend %}
 
-{% has_perm 'annotation.view_data' request.user project as can_view_data %}
-
 <div class="container-fluid sodar-page-container">
-  {% if can_view_data %}
-
-  <nav aria-label="breadcrumb pt-3">
-    <ol class="breadcrumb">
-     <li class="breadcrumb-item" aria-current="page">
-         <a href="{% url 'variants:case' project=project.sodar_uuid %}">
-          <i class="fa fa-home"></i> Home
-        </a>
-      </li>
-      <li class="breadcrumb-item" aria-current="page">
-        <a href="{% url 'variants:case' project=project.sodar_uuid %}">
-          Variant
-        </a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ release }}-{{ chromosome }}-{{ position }}-{{ reference }}-{{ alternative }}
-      </li>
-    </ol>
-  </nav>
 
   <h3>
     {{ chromosome }}:{{ position }}{{ reference }}>{{ alternative }}
@@ -78,8 +57,6 @@
       {% include "annotation/_card_clinvar.html" %}
     </div>
   </div>
-
-  {% endif %}
 
 </div> <!-- sodar-page-container -->
 

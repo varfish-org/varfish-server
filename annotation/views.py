@@ -1,10 +1,8 @@
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
+from projectroles.views import ProjectContextMixin
 from .models import Annotation
 from django.forms.models import model_to_dict
-from conservation.models import KnowngeneAA
 from frequencies.views import FrequencyMixin
 from dbsnp.models import Dbsnp
 from pathways.models import KeggInfo, RefseqToKegg, EnsemblToKegg
@@ -12,18 +10,12 @@ from clinvar.models import Clinvar
 from geneinfo.models import Hgnc, Mim2geneMedgen, Hpo
 from django.views.generic import TemplateView
 from querybuilder.models_support import KnownGeneAAQuery
+from variants.views import AlchemyConnectionMixin
 
 
-class VariantView(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    FrequencyMixin,
-    TemplateView,
-):
+class VariantView(ProjectContextMixin, FrequencyMixin, AlchemyConnectionMixin, TemplateView):
+
     template_name = "annotation/variant.html"
-    permission_required = "annotation.view_data"
 
     def get(self, *args, **kwargs):
         self.kwargs = kwargs
@@ -35,22 +27,20 @@ class VariantView(
             "alternative": self.kwargs["alternative"],
         }
 
-        qb = QueryBuilder()
         annotation = list(Annotation.objects.filter(**key, database=self.kwargs["database"]))
-        knowngeneaa_query = qb.build_knowngeneaa_query(self.kwargs)
-        knowngeneaa = list(KnowngeneAA.objects.raw(*knowngeneaa_query))
+        annotation = [model_to_dict(entry) for entry in annotation]
+        knowngeneaa_query = KnownGeneAAQuery(self.get_alchemy_connection())
         knowngeneaa_list = list()
 
-        if len(knowngeneaa) > 0:
-            for entry in knowngeneaa:
-                knowngeneaa_list.append(
-                    {
-                        "chromosome": entry.chromosome,
-                        "start": entry.start,
-                        "end": entry.end,
-                        "alignment": entry.alignment,
-                    }
-                )
+        for entry in knowngeneaa_query.run(self.kwargs):
+            knowngeneaa_list.append(
+                {
+                    "chromosome": entry.chromosome,
+                    "start": entry.start,
+                    "end": entry.end,
+                    "alignment": entry.alignment,
+                }
+            )
 
         self.kwargs["knowngeneaa"] = knowngeneaa_list
 
@@ -61,22 +51,23 @@ class VariantView(
 
         self.kwargs.update(self.get_frequencies(key))
 
+        if not annotation:
+            raise Exception("Annotation is missing?")
+
+        gene_id = annotation[0]["gene_id"]
+
         try:
             if self.kwargs["database"] == "ensembl":
-                self.kwargs["hgnc"] = model_to_dict(
-                    Hgnc.objects.get(ensembl_gene_id=annotation[0].gene_id)
-                )
+                self.kwargs["hgnc"] = model_to_dict(Hgnc.objects.get(ensembl_gene_id=gene_id))
             elif self.kwargs["database"] == "refseq":
-                self.kwargs["hgnc"] = model_to_dict(
-                    Hgnc.objects.get(entrez_id=annotation[0].gene_id)
-                )
+                self.kwargs["hgnc"] = model_to_dict(Hgnc.objects.get(entrez_id=gene_id))
         except ObjectDoesNotExist:
             self.kwargs["hgnc"] = None
 
         if self.kwargs["database"] == "ensembl":
-            kegg = EnsemblToKegg.objects.filter(gene_id=annotation[0].gene_id)
+            kegg = EnsemblToKegg.objects.filter(gene_id=gene_id)
         elif self.kwargs["database"] == "refseq":
-            kegg = RefseqToKegg.objects.filter(gene_id=annotation[0].gene_id)
+            kegg = RefseqToKegg.objects.filter(gene_id=gene_id)
 
         kegg_list = list()
         for entry in kegg:
@@ -102,15 +93,22 @@ class VariantView(
             )
 
         self.kwargs["clinvar"] = clinvar_list
-        self.kwargs["mim2genemedgen"] = {
-            omim.omim_id: Hpo.objects.filter(database_id="OMIM:{}".format(omim.omim_id))
-            for omim in Mim2geneMedgen.objects.filter(entrez_id=self.kwargs["hgnc"]["entrez_id"])
-        }
-        self.kwargs["hgncomim"] = {
-            self.kwargs["hgnc"]["omim_id"]: Hpo.objects.filter(
-                database_id="OMIM:{}".format(self.kwargs["hgnc"]["omim_id"])
-            )
-        }
+
+        if not self.kwargs["hgnc"]:
+            self.kwargs["mim2genemedgen"] = None
+            self.kwargs["hgncomim"] = None
+        else:
+            self.kwargs["mim2genemedgen"] = {
+                omim.omim_id: Hpo.objects.filter(database_id="OMIM:{}".format(omim.omim_id))
+                for omim in Mim2geneMedgen.objects.filter(
+                    entrez_id=self.kwargs["hgnc"]["entrez_id"]
+                )
+            }
+            self.kwargs["hgncomim"] = {
+                self.kwargs["hgnc"]["omim_id"]: Hpo.objects.filter(
+                    database_id="OMIM:{}".format(self.kwargs["hgnc"]["omim_id"])
+                )
+            }
 
         return render(
             self.request, self.template_name, self.get_context_data(data=annotation, **self.kwargs)
