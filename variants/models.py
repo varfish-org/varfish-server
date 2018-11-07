@@ -7,6 +7,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.urlresolvers import reverse
+from django.dispatch import receiver
+from django.db.models.signals import pre_delete
 
 from projectroles.models import Project
 
@@ -174,6 +176,12 @@ class Case(models.Model):
 
     def __str__(self):
         return self.name
+
+
+@receiver(pre_delete)
+def delete_case_cascaded(sender, instance, **kwargs):
+    if sender == Case:
+        SmallVariant.objects.filter(case_id=instance.id).delete()
 
 
 #: File type choices for ``ExportFileBgJob``.
