@@ -9,7 +9,7 @@
   </td>
   <td>
     {% if item.export_result %}
-      <a href="{% url "variants:export-job-download" project=item.project.sodar_uuid job=object.sodar_uuid %}">
+      <a href="{% url "variants:export-job-download" project=item.project.sodar_uuid job=item.sodar_uuid %}">
         <i class="fa fa-download"></i>
         ({{ item.file_type }}, {{ item.export_result.payload|length|filesizeformat }})
       </a>

@@ -181,6 +181,18 @@ class Case(models.Model):
 
 @receiver(pre_delete)
 def delete_case_cascaded(sender, instance, **kwargs):
+    """Signal handler when attempting to delete a case
+
+    Bulk deletes are atomic transactions, including pre/post delete signals.
+    Comment From their code base in `contrib/contenttypes/fields.py`:
+
+    ```
+    if bulk:
+        # `QuerySet.delete()` creates its own atomic block which
+        # contains the `pre_delete` and `post_delete` signal handlers.
+        queryset.delete()
+    ```
+    """
     if sender == Case:
         SmallVariant.objects.filter(case_id=instance.id).delete()
 

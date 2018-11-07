@@ -96,6 +96,6 @@ import_clinvar: import_clinvar_single import_clinvar_multi
 import_databases: import_exac import_dbsnp import_gnomadexomes import_hgnc import_hpo import_omim import_kegg import_clinvar import_knowngeneaa
 
 test:
-	$(MANAGE) test
+	DJANGO_SETTINGS_MODULE=config.settings.test $(MANAGE) test
 
 import: import_smallvariants import_annotations import_databases

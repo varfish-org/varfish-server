@@ -19,8 +19,8 @@ from projectroles.models import Project
 
 class ExportFileTaskTest(TestCase):
     def setUp(self):
-        test_views.fixture_setup_case()
         self.user = self.make_user("superuser")
+        test_views.fixture_setup_case(self.user)
         self.bg_job = BackgroundJob.objects.create(
             name="job name",
             project=Project.objects.first(),

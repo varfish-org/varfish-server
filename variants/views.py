@@ -118,9 +118,6 @@ class CaseFilterView(
         else:
             return self._form_valid_render(form)
 
-    def form_invalid(self, form):
-        raise Exception("Form is not valid:\n{}".format(form.errors))
-
     def _form_valid_file(self, form):
         """The form is valid, we want to asynchronously build a file for later download."""
         with transaction.atomic():
@@ -307,7 +304,7 @@ class ExportFileJobDownloadView(
     def get(self, request, *args, **kwargs):
         try:
             content_types = {
-                "tsv": " text/tab-separated-values",
+                "tsv": "text/tab-separated-values",
                 "vcf": "text/plain+gzip",
                 "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             }

@@ -1,18 +1,17 @@
 """Tests for the filter view"""
 
-from urllib.parse import urlencode
-
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
+from django.utils import timezone
 from test_plus.test import TestCase
 
 from projectroles.models import Project
-from variants.models import SmallVariant
+from variants.models import SmallVariant, ExportFileBgJob, Case, ExportFileJobResult
 from frequencies.models import Exac, GnomadGenomes, GnomadExomes, ThousandGenomes
 
-from .. import views
 import json
 
+# Shared project settings
 PROJECT_DICT = {
     "title": "project",
     "type": "PROJECT",
@@ -23,6 +22,7 @@ PROJECT_DICT = {
     "sodar_uuid": "7c599407-6c44-4d9e-81aa-cd8cf3d817a4",
 }
 
+# Default form settings
 DEFAULT_FILTER_FORM_SETTING = {
     "database_select": "refseq",
     "A_fail": "ignore",
@@ -99,8 +99,82 @@ DEFAULT_FILTER_FORM_SETTING = {
     "submit": "display",
 }
 
+DEFAULT_RESUBMIT_SETTING = {
+    "database_select": "refseq",
+    "A_fail": "ignore",
+    "A_gt": "any",
+    "A_dp_het": 0,
+    "A_dp_hom": 0,
+    "A_gq": 0,
+    "A_ad": 0,
+    "A_ab": 0.0,
+    "compound_recessive_enabled": False,
+    "effects": [
+        "coding_transcript_intron_variant",
+        "complex_substitution",
+        "direct_tandem_duplication",
+        "disruptive_inframe_deletion",
+        "disruptive_inframe_insertion",
+        "downstream_gene_variant",
+        "feature_truncation",
+        "five_prime_UTR_exon_variant",
+        "five_prime_UTR_intron_variant",
+        "frameshift_elongation",
+        "frameshift_truncation",
+        "frameshift_variant",
+        "inframe_deletion",
+        "inframe_insertion",
+        "intergenic_variant",
+        "internal_feature_elongation",
+        "missense_variant",
+        "mnv",
+        "non_coding_transcript_exon_variant",
+        "non_coding_transcript_intron_variant",
+        "splice_acceptor_variant",
+        "splice_donor_variant",
+        "splice_region_variant",
+        "start_lost",
+        "stop_gained",
+        "stop_lost",
+        "stop_retained_variant",
+        "structural_variant",
+        "synonymous_variant",
+        "three_prime_UTR_exon_variant",
+        "three_prime_UTR_intron_variant",
+        "transcript_ablation",
+        "upstream_gene_variant",
+    ],
+    "exac_enabled": False,
+    "exac_frequency": 1.0,
+    "exac_heterozygous": 1000,
+    "exac_homozygous": 1000,
+    "file_type": "xlsx",
+    "gene_blacklist": "",
+    "gnomad_exomes_enabled": False,
+    "gnomad_exomes_frequency": 1.0,
+    "gnomad_exomes_heterozygous": 1000,
+    "gnomad_exomes_homozygous": 1000,
+    "gnomad_genomes_enabled": False,
+    "gnomad_genomes_frequency": 1.0,
+    "gnomad_genomes_heterozygous": 1000,
+    "gnomad_genomes_homozygous": 1000,
+    "result_rows_limit": 80,
+    "thousand_genomes_enabled": False,
+    "thousand_genomes_frequency": 1.0,
+    "thousand_genomes_heterozygous": 1000,
+    "thousand_genomes_homozygous": 1000,
+    "var_type_indel": True,
+    "var_type_mnv": True,
+    "var_type_snv": True,
+    "transcripts_noncoding": True,
+    "transcripts_coding": True,
+    "require_in_clinvar": False,
+    "submit": "display",
+}
 
-def fixture_setup_case():
+
+def fixture_setup_case(user):
+    """Set up test case for filter tests. Contains a case with three variants."""
     project = Project.objects.create(**PROJECT_DICT)
     case = project.case_set.create(
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
@@ -156,16 +230,13 @@ def fixture_setup_case():
     SmallVariant.objects.create(**{**basic_var, **{"position": 200}})
     SmallVariant.objects.create(**{**basic_var, **{"position": 300}})
 
-    return project.sodar_uuid, case.sodar_uuid
-
 
 class TestViewBase(TestCase):
+    """Base class for view testing (and file export)"""
 
     setup_case_in_db = None
 
     def setUp(self):
-        self.project_id, self.case_id = self.__class__.setup_case_in_db()
-
         self.request_factory = RequestFactory()
 
         # setup super user
@@ -174,51 +245,118 @@ class TestViewBase(TestCase):
         self.user.is_superuser = True
         self.user.save()
 
+        # some fixtures need the created user
+        self.__class__.setup_case_in_db(self.user)
+
 
 class TestCaseListView(TestViewBase):
+    """Test case list view"""
 
     setup_case_in_db = fixture_setup_case
 
     def test_render(self):
+        """Test display of case list page."""
         with self.login(self.user):
+            project = Project.objects.first()
             response = self.client.get(
-                reverse("variants:case-list", kwargs={"project": self.project_id})
+                reverse("variants:case-list", kwargs={"project": project.sodar_uuid})
             )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["case_list"]), 1)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.context["case_list"]), 1)
+
+
+class TestCaseDetailView(TestViewBase):
+    """Test case detail view"""
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_render(self):
+        """Test display of case detail view page."""
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+
+            response = self.client.get(
+                reverse(
+                    "variants:case-detail",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["object"].name, "A")
 
 
 class TestCaseFilterView(TestViewBase):
+    """Test case filter view"""
 
     setup_case_in_db = fixture_setup_case
 
     def test_get(self):
+        """Test display of the filter forms, no form applied."""
         with self.login(self.user):
+            case = Case.objects.select_related("project").first()
             response = self.client.get(
                 reverse(
                     "variants:case-filter",
-                    kwargs={"project": self.project_id, "case": self.case_id},
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
                 )
             )
 
-        self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, 200)
 
-    def test_post(self):
+    def test_form_valid_post_display(self):
+        """Test form submit to display results table."""
         with self.login(self.user):
+            case = Case.objects.select_related("project").first()
             response = self.client.post(
                 reverse(
                     "variants:case-filter",
-                    kwargs={"project": self.project_id, "case": self.case_id},
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
                 ),
-                data=DEFAULT_FILTER_FORM_SETTING,
+                DEFAULT_FILTER_FORM_SETTING,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.context["form"].is_valid())
+            self.assertEqual(response.context["result_count"], 3)
+
+    def test_form_invalid_post_display(self):
+        """Test invalid form submit."""
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+            response = self.client.post(
+                reverse(
+                    "variants:case-filter",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {**DEFAULT_FILTER_FORM_SETTING, "gnomad_exomes_heterozygous": None},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertFalse(response.context["form"].is_valid())
+
+    def test_post_download(self):
+        """Test form submit for download as file."""
+        with self.login(self.user):
+            self.assertEquals(ExportFileBgJob.objects.count(), 0)
+            case = Case.objects.select_related("project").first()
+            response = self.client.post(
+                reverse(
+                    "variants:case-filter",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {**DEFAULT_FILTER_FORM_SETTING, "submit": "download"},
+            )
+            self.assertEquals(ExportFileBgJob.objects.count(), 1)
+            created_job = ExportFileBgJob.objects.first()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:export-job-view",
+                    kwargs={"project": case.project.sodar_uuid, "job": created_job.sodar_uuid},
+                ),
             )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["result_count"], 3)
 
-
-def fixture_setup_expand():
-    """Setup test case 1 -- a singleton with variants for gene blacklist filter."""
+def fixture_setup_expand(user):
+    """Setup test case for expand view. Contains project and frequency objects"""
     project = Project.objects.create(**PROJECT_DICT)
     basic_var = {
         "release": "GRCh37",
@@ -316,23 +454,21 @@ def fixture_setup_expand():
         }
     )
 
-    return project.sodar_uuid, None
-
 
 class TestExpandView(TestViewBase):
+    """Test table expansion view"""
 
     setup_case_in_db = fixture_setup_expand
 
-    def setUp(self):
-        super().setUp()
-
     def test_render(self):
+        """Test rendering of the expansion"""
         with self.login(self.user):
+            project = Project.objects.first()
             response = self.client.get(
                 reverse(
                     "variants:extend",
                     kwargs={
-                        "project": self.project_id,
+                        "project": project.sodar_uuid,
                         "release": "GRCh37",
                         "chromosome": "1",
                         "position": 100,
@@ -341,11 +477,150 @@ class TestExpandView(TestViewBase):
                     },
                 )
             )
-        content = json.loads(response.content.decode("utf-8"))
+            self.assertEqual(response.status_code, 200)
+            content = json.loads(response.content.decode("utf-8"))
+            self.assertEqual(content["position"], "100")
+            self.assertEqual(content["gnomadexomes"]["an_sas"], 932)
+            self.assertEqual(content["exac"]["an_sas"], 323)
+            self.assertEqual(content["gnomadgenomes"]["an_asj"], 323)
+            self.assertEqual(content["thousandgenomes"]["af_amr"], 0.0054)
+            # TODO: test clinvar and knowngeneaa
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(content["position"], "100")
-        self.assertEqual(content["gnomadexomes"]["an_sas"], 932)
-        self.assertEqual(content["exac"]["an_sas"], 323)
-        self.assertEqual(content["gnomadgenomes"]["an_asj"], 323)
-        self.assertEqual(content["thousandgenomes"]["af_amr"], 0.0054)
+
+def fixture_setup_bgjob(user):
+    """Setup for background job database (no associated file is generated!)"""
+    project = Project.objects.create(**PROJECT_DICT)
+    case = project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
+        name="A",
+        index="A",
+        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+    )
+    job = project.backgroundjob_set.create(
+        sodar_uuid="97a65500-377b-4aa0-880d-9ba56d06a961", user=user, job_type="type"
+    )
+    return project.exportfilebgjob_set.create(
+        sodar_uuid="10aabb75-7d61-46a9-955a-f385824b3200",
+        bg_job=job,
+        case=case,
+        query_args=DEFAULT_RESUBMIT_SETTING,
+        file_type="xlsx",
+    )
+
+
+class TestExportFileJobDetailView(TestViewBase):
+    """Test export file job detail view"""
+
+    setup_case_in_db = fixture_setup_bgjob
+
+    def test_render(self):
+        with self.login(self.user):
+            created_job = ExportFileBgJob.objects.select_related("project").first()
+            response = self.client.get(
+                reverse(
+                    "variants:export-job-view",
+                    kwargs={
+                        "project": created_job.project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+
+
+class TestExportFileJobResubmitView(TestViewBase):
+    """Test export file job resubmit view"""
+
+    setup_case_in_db = fixture_setup_bgjob
+
+    def test_resubmission(self):
+        """Test if file resubmission works."""
+        with self.login(self.user):
+            self.assertEquals(ExportFileBgJob.objects.count(), 1)
+            existing_job = ExportFileBgJob.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:export-job-resubmit",
+                    kwargs={
+                        "project": existing_job.project.sodar_uuid,
+                        "job": existing_job.sodar_uuid,
+                    },
+                ),
+                {"file_type": "xlsx"},
+            )
+            self.assertEquals(ExportFileBgJob.objects.count(), 2)
+            created_job = ExportFileBgJob.objects.last()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:export-job-view",
+                    kwargs={
+                        "project": created_job.project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
+                ),
+            )
+
+    def test_render_detail_view(self):
+        """Test if rendering works."""
+        with self.login(self.user):
+            existing_job = ExportFileBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:export-job-view",
+                    kwargs={
+                        "project": existing_job.project.sodar_uuid,
+                        "job": existing_job.sodar_uuid,
+                    },
+                )
+            )
+            self.assertEquals(response.status_code, 200)
+
+
+class TestExportFileJobDownloadView(TestViewBase):
+    """Test export file job download view"""
+
+    setup_case_in_db = fixture_setup_bgjob
+
+    def test_no_file(self):
+        """Test if database entries exist, but no file is generated"""
+        with self.login(self.user):
+            created_job = ExportFileBgJob.objects.select_related("project").first()
+            response = self.client.get(
+                reverse(
+                    "variants:export-job-download",
+                    kwargs={
+                        "project": created_job.project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
+                )
+            )
+            self.assertEqual(response.status_code, 404)
+
+
+def fixture_setup_bgjob_result(user):
+    job = fixture_setup_bgjob(user)
+
+    ExportFileJobResult.objects.create(job=job, expiry_time=timezone.now(), payload=b"Testcontent")
+
+
+class TestExportFileJobDownloadViewResult(TestViewBase):
+    """Test export file download view"""
+
+    setup_case_in_db = fixture_setup_bgjob_result
+
+    def test_download(self):
+        """Test file download"""
+        with self.login(self.user):
+            created_job = ExportFileBgJob.objects.select_related("project").first()
+            response = self.client.get(
+                reverse(
+                    "variants:export-job-download",
+                    kwargs={
+                        "project": created_job.project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.content, b"Testcontent")
