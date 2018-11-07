@@ -19,3 +19,54 @@ Issues with the above approach:
 4. Undocumented: No mention in the documentation, or it's too hard for me to find
 */
 $('.form-group').removeClass('row');
+
+var effect_levels = {
+  "coding_transcript_intron_variant": 1,
+  "complex_substitution": 3,
+  "direct_tandem_duplication": 1,
+  "disruptive_inframe_deletion": 2,
+  "disruptive_inframe_insertion": 2,
+  "downstream_gene_variant": 1,
+  "feature_truncation": 3,
+  "five_prime_UTR_exon_variant": 1,
+  "five_prime_UTR_intron_variant": 1,
+  "frameshift_elongation": 3,
+  "frameshift_truncation": 3,
+  "frameshift_variant": 3,
+  "inframe_deletion": 2,
+  "inframe_insertion": 2,
+  "intergenic_variant": 1,
+  "internal_feature_elongation": 3,
+  "missense_variant": 2,
+  "mnv": 3,
+  "non_coding_transcript_exon_variant": 1,
+  "non_coding_transcript_intron_variant": 1,
+  "splice_acceptor_variant": 3,
+  "splice_donor_variant": 3,
+  "splice_region_variant": 2,
+  "start_lost": 3,
+  "stop_gained": 3,
+  "stop_lost": 3,
+  "stop_retained_variant": 1,
+  "structural_variant": 1,
+  "synonymous_variant": 1,
+  "three_prime_UTR_exon_variant": 1,
+  "three_prime_UTR_intron_variant": 1,
+  "transcript_ablation": 3,
+  "upstream_gene_variant": 1,
+};
+
+$(document).ready(function() {
+  $('.color-effect').each(function(index) {
+    var text = $(this).text();
+    if (effect_levels[text] == 3) {
+      $(this).addClass('badge-danger');
+    }
+    else if (effect_levels[text] == 2) {
+      $(this).addClass('badge-warning');
+    }
+    else {
+      $(this).addClass('badge-secondary');
+    }
+  });
+});
