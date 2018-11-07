@@ -1,21 +1,13 @@
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
-from django.contrib.auth.mixins import LoginRequiredMixin
+from projectroles.views import ProjectContextMixin
 from django.forms.models import model_to_dict
 from django.views.generic import TemplateView
 from .models import Hgnc, Mim2geneMedgen, Hpo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 
 
-class GeneView(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    TemplateView,
-):
-    permission_required = "geneinfo.view_data"
+class GeneView(ProjectContextMixin, TemplateView):
     template_name = "geneinfo/gene.html"
 
     def get(self, *args, **kwargs):

@@ -7,13 +7,11 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('geneinfo', '0001_initial'),
-    ]
+    dependencies = [("geneinfo", "0001_initial")]
 
     operations = [
         migrations.AddIndex(
-            model_name='hgnc',
-            index=models.Index(fields=['entrez_id'], name='geneinfo_hg_entrez__91b58b_idx'),
-        ),
+            model_name="hgnc",
+            index=models.Index(fields=["entrez_id"], name="geneinfo_hg_entrez__91b58b_idx"),
+        )
     ]
