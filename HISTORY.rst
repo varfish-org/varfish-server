@@ -2,6 +2,20 @@
 VarFish Web UI - History
 ========================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- The "AD" form field was split into one for het. and one for hom. variants.
+
+Full Change List
+================
+
+- Splitting "${person}_ad" field into "\*_ad_het" and "\*ad_hom", also adjusting tests etc.
+
 ------
 v0.4.0
 ------

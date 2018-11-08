@@ -675,7 +675,8 @@ INCLUSIVE_CLEANED_DATA_CASE1 = {
     "gnomad_genomes_homozygous": 0,
     "A_fail": "ignore",
     "A_gt": "any",
-    "A_dp": 0,
+    "A_dp_het": 0,
+    "A_dp_hom": 0,
     "A_ab": 0,
     "A_gq": 0,
     "A_ad": 0,
@@ -1470,14 +1471,29 @@ class TestCaseOneQueryGenotype(FilterTestBase):
     def test_genotype_ab_limits_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_ab": 0.3}, 6)
 
-    def test_genotype_dp_limits_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_dp": 20}, 7)
+    def test_genotype_dp_het_limits_filter(self):
+        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 21}, 7)
+        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8)
 
-    def test_genotype_dp_limits_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_dp": 20}, 7)
+    def test_genotype_dp_het_limits_export(self):
+        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 21}, 7)
+        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8)
 
-    def test_genotype_dp_limits_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_dp": 20}, 7)
+    def test_genotype_dp_het_limits_count(self):
+        self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 21}, 7)
+        self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8)
+
+    def test_genotype_dp_hom_limits_filter(self):
+        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 31}, 6)
+        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8)
+
+    def test_genotype_dp_hom_limits_export(self):
+        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 31}, 6)
+        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8)
+
+    def test_genotype_dp_hom_limits_count(self):
+        self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 31}, 6)
+        self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8)
 
     def test_genotype_gq_limits_filter(self):
         self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_gq": 66}, 7)
@@ -1741,19 +1757,22 @@ INCLUSIVE_CLEANED_DATA_CASE2 = {
     "thousand_genomes_homozygous": 0,
     "C_fail": "drop-variant",
     "C_gt": "any",  # ensure complex queries are used
-    "C_dp": 0,
+    "C_dp_het": 0,
+    "C_dp_hom": 0,
     "C_ab": 0,
     "C_gq": 0,
     "C_ad": 0,
     "F_fail": "drop-variant",  # ensure complex queries are used
     "F_gt": "any",
-    "F_dp": 0,
+    "F_dp_het": 0,
+    "F_dp_hom": 0,
     "F_ab": 0,
     "F_gq": 0,
     "F_ad": 0,
     "M_fail": "drop-variant",  # ensure complex queries are used
     "M_gt": "any",
-    "M_dp": 0,
+    "M_dp_het": 0,
+    "M_dp_hom": 0,
     "M_ab": 0,
     "M_gq": 0,
     "M_ad": 0,

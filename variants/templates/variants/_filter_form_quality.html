@@ -14,8 +14,9 @@
       <th class="col-2">Individual</th>
       <th class="col-2">Father</th>
       <th class="col-2">Mother</th>
-      <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal read depth">min DP</th>
-      <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal allelic balance, with <sup>AD</sup>&frasl;<sub>DP</sub> > X and <sup>AD</sup>&frasl;<sub>DP</sub> < 1-X if site is heterozygous">min AB</th>
+      <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal read depth for heterozygous (and hemizygous) variants">min DP het.</th>
+      <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal read depth for homozygous variants">min DP hom.</th>
+      <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal allelic balance for heterozygous variants, with <sup>AD</sup>&frasl;<sub>DP</sub> > X and <sup>AD</sup>&frasl;<sub>DP</sub> < 1-X if site is heterozygous">min AB</th>
       <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal genotype quality">min GQ</th>
       <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal allelic depth, i.e. the coverage of the alternative allele. Only applies if genotype is not '0/0'">min AD</th>
       <th data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='text-left'><ul class='pl-3'><li><strong>ignore</strong>: don't apply quality filters at all</li><li><strong>drop-variant</strong>: remove variant from result list if at least one quality filter fails</li><li><strong>no-call</strong>: don't filter for genotype if at least one quality filter fails</li></ul></div>">on FAIL</th>
@@ -28,7 +29,8 @@
       <td>{{ member.father|default:"0" }}</td>
       <td>{{ member.mother|default:"0" }}</td>
       {% with field_names=form.field_names|keyvalue:member.patient %}
-        <td>{% with x=field_names|keyvalue:"dp" %}{{ form|keyvalue:x }}{% endwith %}</td>
+        <td>{% with x=field_names|keyvalue:"dp_het" %}{{ form|keyvalue:x }}{% endwith %}</td>
+        <td>{% with x=field_names|keyvalue:"dp_hom" %}{{ form|keyvalue:x }}{% endwith %}</td>
         <td>{% with x=field_names|keyvalue:"ab" %}{{ form|keyvalue:x }}{% endwith %}</td>
         <td>{% with x=field_names|keyvalue:"gq" %}{{ form|keyvalue:x }}{% endwith %}</td>
         <td>{% with x=field_names|keyvalue:"ad" %}{{ form|keyvalue:x }}{% endwith %}</td>

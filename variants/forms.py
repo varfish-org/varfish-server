@@ -329,7 +329,7 @@ class FilterForm(forms.Form):
         # Build field name mapping for all members
         self.field_names = {}
         for member in self.pedigree:
-            for key in ("gt", "dp", "ab", "gq", "ad", "fail", "export"):
+            for key in ("gt", "dp_het", "dp_hom", "ab", "gq", "ad", "fail", "export"):
                 self.field_names.setdefault(member["patient"], {})[key] = "%s_%s" % (
                     member["patient"],
                     key,
@@ -345,13 +345,20 @@ class FilterForm(forms.Form):
             self.fields[self.field_names[name]["gt"]] = forms.CharField(
                 label="", required=True, widget=forms.Select(choices=INHERITANCE)
             )
-            self.fields[self.field_names[name]["dp"]] = forms.IntegerField(
+            self.fields[self.field_names[name]["dp_het"]] = forms.IntegerField(
                 label="",
                 required=True,
                 initial=10,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-dp"}),
-            )  # relaxed: 8
+                widget=forms.NumberInput(attrs={"class": "quality-field-dp-het"}),
+            )
+            self.fields[self.field_names[name]["dp_hom"]] = forms.IntegerField(
+                label="",
+                required=True,
+                initial=5,
+                min_value=0,
+                widget=forms.NumberInput(attrs={"class": "quality-field-dp-hom"}),
+            )
             self.fields[self.field_names[name]["ab"]] = forms.FloatField(
                 label="",
                 required=True,
@@ -359,21 +366,21 @@ class FilterForm(forms.Form):
                 min_value=0,
                 max_value=1,
                 widget=forms.NumberInput(attrs={"class": "quality-field-ab"}),
-            )  # relaxed: 0.2
+            )
             self.fields[self.field_names[name]["gq"]] = forms.IntegerField(
                 label="",
                 required=True,
                 initial=30,
                 min_value=0,
                 widget=forms.NumberInput(attrs={"class": "quality-field-gq"}),
-            )  # relaxed: 20
+            )
             self.fields[self.field_names[name]["ad"]] = forms.IntegerField(
                 label="",
                 required=True,
-                initial=10,
+                initial=3,
                 min_value=0,
                 widget=forms.NumberInput(attrs={"class": "quality-field-ad"}),
-            )  # ???
+            )
             self.fields[self.field_names[name]["fail"]] = forms.CharField(
                 label="",
                 widget=forms.Select(choices=FAIL, attrs={"class": "quality-field-fail"}),

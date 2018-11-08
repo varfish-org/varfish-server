@@ -261,8 +261,31 @@ class FromAndWhereMixin:
 
     def _build_genotype_quality_term(self, name, kwargs):
         return and_(
-            SmallVariant.sa.genotype[name]["dp"].astext.cast(Integer) >= kwargs["%s_dp" % name],
+            # Genotype quality is simple.
             SmallVariant.sa.genotype[name]["gq"].astext.cast(Integer) >= kwargs["%s_gq" % name],
+            # The depth setting depends on whether the variant is in homozygous or heterozygous state.
+            or_(  # heterozygous or hemizygous state
+                not_(
+                    or_(
+                        SmallVariant.sa.genotype[name]["gt"].astext == "0/1",
+                        SmallVariant.sa.genotype[name]["gt"].astext == "1/0",
+                        SmallVariant.sa.genotype[name]["gt"].astext == "1",
+                        # TODO: recognize hemizygous from 'sex="M" and chr="X" and gt="1/1"'?
+                    )
+                ),
+                SmallVariant.sa.genotype[name]["dp"].astext.cast(Integer)
+                >= kwargs["%s_dp_het" % name],
+            ),
+            or_(  # homozygous state
+                not_(
+                    or_(
+                        SmallVariant.sa.genotype[name]["gt"].astext == "0/0",
+                        SmallVariant.sa.genotype[name]["gt"].astext == "1/1",
+                    )
+                ),
+                SmallVariant.sa.genotype[name]["dp"].astext.cast(Integer)
+                >= kwargs["%s_dp_hom" % name],
+            ),
             # Allelic depth is only checked in case of het.
             or_(
                 SmallVariant.sa.genotype[name]["gt"].astext == "0/0",
@@ -457,8 +480,6 @@ class ExportFileFilterQuery(
     FilterQueryFieldsForExportMixin, OrderByChromosomalPositionMixin, FilterQueryBase
 ):
     """Run filter query for creating file to export."""
-
-    # TODO: add conservation?
 
 
 class CountOnlyFilterQuery(FilterQueryCountRecordsMixin, FilterQueryBase):

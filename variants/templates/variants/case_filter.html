@@ -383,7 +383,7 @@ function activateClass(o) {
 
 function updateSettings() {
   var settings = JSON.parse($("#settingsDump").val());
-  var endings = ["_gt", "_dp", "_ad", "_gq", "_fail", "_ab"];
+  var endings = ["_gt", "_dp_het", "_dp_hom", "_ad", "_gq", "_fail", "_ab"];
   var failed = [];
   for (var key in settings) {
     for (var j = 0; j < endings.length; ++j) {
@@ -526,7 +526,8 @@ const defaultPresetsIds = {
 };
 
 const defaultPresetsClasses = {
-  "quality-field-dp": 10,
+  "quality-field-dp-het": 10,
+  "quality-field-dp-hom": 5,
   "quality-field-ab": 0.3,
   "quality-field-gq": 30,
   "quality-field-ad": 10
@@ -572,20 +573,22 @@ const presets = {
       "effect_three_prime_UTR_exon_variant": false
     }),
     "classes": Object.assign({}, defaultPresetsClasses, medgenPresetsClasses, {
-      "quality-field-dp": 10,
+      "quality-field-dp-het": 10,
+      "quality-field-dp-hom": 5,
       "quality-field-ab": 0.3,
       "quality-field-gq": 30,
-      "quality-field-ad": 5,
+      "quality-field-ad": 3,
       "quality-field-fail": "drop-variant"
     }),
   },
   "medgen-relaxed": {
     "ids": Object.assign({}, defaultPresetsIds, medgenPresetsIds, {}),
     "classes": Object.assign({}, defaultPresetsIds, medgenPresetsClasses, {
-      "quality-field-dp": 8,
+      "quality-field-dp-het": 8,
+      "quality-field-dp-hom": 4,
       "quality-field-ab": 0.2,
       "quality-field-gq": 20,
-      "quality-field-ad": 4,
+      "quality-field-ad": 2,
       "quality-field-fail": "drop-variant"
     }),
   }
