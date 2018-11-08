@@ -6,6 +6,7 @@ from sqlalchemy.sql import select, func, and_, not_, or_, cast, union, literal_c
 from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
 import sqlparse
 
+from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from geneinfo.models import Hgnc
@@ -125,11 +126,12 @@ class FilterQueryBase:
             .alias("the_middle")
         )
         # Build the outer statement
-        return (
+        stmt = (
             select(self._get_fields(kwargs, "outer", middle_stmt))
             .select_from(middle_stmt)
             .where(and_(middle_stmt.c.father_count > 0, middle_stmt.c.mother_count > 0))
         )
+        return self._add_trailing(stmt, kwargs)
 
     def _build_simple_stmt(self, kwargs):
         """Build the simple, non-comp.-het. statement"""
@@ -138,8 +140,7 @@ class FilterQueryBase:
             .select_from(self._from(kwargs))
             .where(self._where(kwargs))
         )
-        stmt = self._add_trailing(stmt, kwargs)
-        return stmt
+        return self._add_trailing(stmt, kwargs)
 
     def _get_fields(self, _kwargs, _which, _inner=None):
         """Return fields to ``select()`` with SQLAlchemy.
@@ -405,6 +406,7 @@ class FilterQueryFieldsForExportMixin(FilterQueryStandardFieldsMixin, FromAndWhe
                 inner.outerjoin(
                     KnowngeneAA.sa.table,
                     and_(
+                        # TODO: add release?
                         KnowngeneAA.sa.chromosome == inner.c.chromosome,
                         KnowngeneAA.sa.start
                         <= (inner.c.position - 1 + func.length(inner.c.reference)),
@@ -429,9 +431,8 @@ class FilterQueryFieldsForExportMixin(FilterQueryStandardFieldsMixin, FromAndWhe
             )
             .select_from(middle)
             .group_by(*middle_fields)
-            .order_by(middle.c.chromosome, middle.c.position)
         )
-        return outer
+        return self._add_trailing(outer, kwargs)
 
     def _get_fields(self, kwargs, which, inner=None):
         """Add a few fields for file export"""
@@ -460,24 +461,105 @@ class OrderByChromosomalPositionMixin:
         return stmt.order_by(stmt.c.chromosome, stmt.c.position)
 
 
-class FilterQueryCountRecordsMixin(FilterQueryStandardFieldsMixin, FromAndWhereMixin):
+class FilterQueryClinvarMixin(FromAndWhereMixin):
+    """Add functionality for filtering with required in ClinVar"""
+
+    patho_keys = (
+        "pathogenic",
+        "likely_pathogenic",
+        "uncertain_significance",
+        "likely_benign",
+        "benign",
+    )
+
+    def _build_stmt(self, kwargs):
+        """Override statement building to add the join with Clinvar information."""
+        inner = super()._build_stmt(kwargs)
+        if not kwargs["require_in_clinvar"]:
+            return inner
+        else:
+            return self._extend_stmt_clinvar(inner, kwargs)
+
+    def _extend_stmt_clinvar(self, inner, kwargs):
+        """Extend the inner statement and augment with Clinvar information."""
+        if not hasattr(inner.c, "release"):
+            import ipdb
+
+            ipdb.set_trace()
+        inner = inner.alias("inner_clinvar")
+        stmt = (
+            select(
+                [
+                    *inner.c,
+                    *(
+                        func.sum(getattr(Clinvar.sa, key)).label("clinvar_%s" % key)
+                        for key in self.patho_keys
+                    ),
+                ]
+            )
+            .select_from(
+                inner.outerjoin(
+                    Clinvar.sa.table,
+                    and_(
+                        Clinvar.sa.release == inner.c.release,
+                        Clinvar.sa.chromosome == inner.c.chromosome,
+                        Clinvar.sa.position == inner.c.position,
+                        Clinvar.sa.reference == inner.c.reference,
+                        Clinvar.sa.alternative == inner.c.alternative,
+                    ),
+                )
+            )
+            .group_by(*inner.c)
+        )
+        stmt = stmt.having(self._outer_having_condition(inner, kwargs))
+        return self._add_trailing(stmt, kwargs)
+
+    def _outer_having_condition(self, inner, kwargs):
+        """Build HAVING condition for outermost query."""
+        terms = []
+        for key in self.patho_keys:
+            if kwargs["clinvar_include_%s" % key]:
+                terms.append(func.sum(getattr(Clinvar.sa, key)) > 0)
+        return or_(*terms)
+
+    def _where(self, kwargs, gt_patterns=None):
+        """Extend WHERE part of the query"""
+        return and_(
+            super()._where(kwargs, gt_patterns),
+            # Potentially limit to variants that are present in ClinVar.
+            self._build_in_clinvar_term(kwargs),
+        )
+
+    def _build_in_clinvar_term(self, kwargs):
+        if kwargs["require_in_clinvar"]:
+            return SmallVariant.sa.in_clinvar
+        else:
+            return True
+
+
+class FilterQueryCountRecordsMixin(
+    FilterQueryClinvarMixin, FilterQueryStandardFieldsMixin, FromAndWhereMixin
+):
     """Mixin for selecting the number of records (``COUNT(*)``) only."""
 
-    def _get_fields(self, kwargs, which, inner=None):
-        if which == "inner":
-            return super()._get_fields(kwargs, which, inner)
-        else:
-            return [func.count()]
+    def _build_stmt(self, kwargs):
+        return select([func.count()]).select_from(super()._build_stmt(kwargs).alias("inner_count"))
 
 
 class RenderFilterQuery(
-    FilterQueryStandardFieldsMixin, OrderByChromosomalPositionMixin, FilterQueryBase
+    FilterQueryClinvarMixin,
+    FilterQueryStandardFieldsMixin,
+    OrderByChromosomalPositionMixin,
+    FilterQueryBase,
 ):
     """Run filter query for the interactive filtration form."""
 
 
 class ExportFileFilterQuery(
-    FilterQueryFieldsForExportMixin, OrderByChromosomalPositionMixin, FilterQueryBase
+    FilterQueryClinvarMixin,
+    OrderByChromosomalPositionMixin,
+    FilterQueryFieldsForExportMixin,
+    FilterQueryBase,
 ):
     """Run filter query for creating file to export."""
 

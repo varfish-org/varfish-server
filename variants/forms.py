@@ -290,6 +290,31 @@ class FilterForm(forms.Form):
         ),
     )
 
+    require_in_clinvar = forms.BooleanField(
+        label="Clinvar membership required",
+        required=False,
+        initial=False,
+        help_text="Require variant to be present in Clinvar.",
+    )
+
+    clinvar_include_benign = forms.BooleanField(label="benign", required=False, initial=False)
+
+    clinvar_include_likely_benign = forms.BooleanField(
+        label="likely benign", required=False, initial=False
+    )
+
+    clinvar_include_uncertain_significance = forms.BooleanField(
+        label="uncertain significance", required=False, initial=False
+    )
+
+    clinvar_include_likely_pathogenic = forms.BooleanField(
+        label="likely pathogenic", required=False, initial=False
+    )
+
+    clinvar_include_pathogenic = forms.BooleanField(
+        label="pathogenic", required=False, initial=False
+    )
+
     gene_blacklist = forms.CharField(
         label="Gene Blacklist",
         help_text="Enter a list of genes to blacklist in the results, separated by spaces or line breaks.",
@@ -343,7 +368,9 @@ class FilterForm(forms.Form):
         for member in self.pedigree:
             name = member["patient"]
             self.fields[self.field_names[name]["gt"]] = forms.CharField(
-                label="", required=True, widget=forms.Select(choices=INHERITANCE)
+                label="",
+                required=True,
+                widget=forms.Select(choices=INHERITANCE, attrs={"class": "genotype-field-gt"}),
             )
             self.fields[self.field_names[name]["dp_het"]] = forms.IntegerField(
                 label="",

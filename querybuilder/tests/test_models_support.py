@@ -1,6 +1,7 @@
 import aldjemy.core
 from django.test import TestCase
 
+from clinvar.models import Clinvar
 from frequencies.models import Exac, ThousandGenomes, GnomadExomes, GnomadGenomes
 from geneinfo.models import Hgnc
 from projectroles.models import Project
@@ -682,6 +683,12 @@ INCLUSIVE_CLEANED_DATA_CASE1 = {
     "A_ad": 0,
     "transcripts_coding": True,
     "transcripts_noncoding": True,
+    "require_in_clinvar": False,
+    "clinvar_include_benign": False,
+    "clinvar_include_likely_benign": False,
+    "clinvar_include_uncertain_significance": False,
+    "clinvar_include_likely_pathogenic": True,
+    "clinvar_include_pathogenic": True,
 }
 
 
@@ -1729,7 +1736,7 @@ def fixture_setup_case2():
     )
 
 
-#: A value for filtration form ``cleaned_data`` to be used for "Case 1" that lets
+#: A value for filtration form ``cleaned_data`` to be used for "Case 2" that lets
 #: all variants through.
 INCLUSIVE_CLEANED_DATA_CASE2 = {
     "case_uuid": "9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
@@ -1778,6 +1785,12 @@ INCLUSIVE_CLEANED_DATA_CASE2 = {
     "M_ad": 0,
     "transcripts_coding": True,
     "transcripts_noncoding": True,
+    "require_in_clinvar": False,
+    "clinvar_include_benign": False,
+    "clinvar_include_likely_benign": False,
+    "clinvar_include_uncertain_significance": False,
+    "clinvar_include_likely_pathogenic": True,
+    "clinvar_include_pathogenic": True,
 }
 
 
@@ -1841,6 +1854,318 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(FilterTestBase):
 
     def test_query_compound_het_count(self):
         self.run_count_query(CountOnlyFilterQuery, self.cleaned_data_patch, 2)
+
+
+# ---------------------------------------------------------------------------
+# Tests for Case 3
+# ---------------------------------------------------------------------------
+
+# Case 3 is a singleton test case and meant for testing the Clinvar
+# membership queries.  We create a new test case for this as we might be able
+# to allow the user to filter out benign variants or variants of unknown
+# significance.
+
+
+def fixture_setup_case3():
+    """Setup test case 3 -- for clinvar testing."""
+    project = Project.objects.create(**PROJECT_DICT)
+    case = project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
+        name="A",
+        index="A",
+        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+    )
+    # Basic variant settings.
+    basic_var = {
+        "case_id": case.pk,
+        "release": "GRCh37",
+        "chromosome": "1",
+        "position": None,
+        "reference": "A",
+        "alternative": "G",
+        "var_type": "snv",
+        "genotype": None,
+        "in_clinvar": False,
+        # frequencies
+        "exac_frequency": 0.01,
+        "exac_homozygous": 0,
+        "exac_heterozygous": 0,
+        "exac_hemizygous": 0,
+        "thousand_genomes_frequency": 0.01,
+        "thousand_genomes_homozygous": 0,
+        "thousand_genomes_heterozygous": 0,
+        "thousand_genomes_hemizygous": 0,
+        "gnomad_exomes_frequency": 0.01,
+        "gnomad_exomes_homozygous": 0,
+        "gnomad_exomes_heterozygous": 0,
+        "gnomad_exomes_hemizygous": 0,
+        "gnomad_genomes_frequency": 0.01,
+        "gnomad_genomes_homozygous": 0,
+        "gnomad_genomes_heterozygous": 0,
+        "gnomad_genomes_hemizygous": 0,
+        # RefSeq
+        "refseq_gene_id": None,
+        "refseq_transcript_id": "NR_00001.1",
+        "refseq_transcript_coding": False,
+        "refseq_hgvs_c": "n.111+2T>C",
+        "refseq_hgvs_p": "p.=",
+        "refseq_effect": ["synonymous_variant"],
+        # ENSEMBL
+        "ensembl_gene_id": None,
+        "ensembl_transcript_id": "ENST00001",
+        "ensembl_transcript_coding": False,
+        "ensembl_hgvs_c": "n.111+2T>C",
+        "ensembl_hgvs_p": "p.=",
+        "ensembl_effect": ["synonymous_variant"],
+    }
+    # Variant that should be passing for clinvar membership but has no Clinvar entry.
+    SmallVariant.objects.create(
+        **{
+            **basic_var,
+            **{
+                "position": 100,
+                "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+                "refseq_gene_id": "1",
+                "ensembl_gene_id": "ENGS1",
+                "in_clinvar": True,
+            },
+        }
+    )
+    # Variant that should not be passing for clinvar membership
+    SmallVariant.objects.create(
+        **{
+            **basic_var,
+            **{
+                "position": 101,
+                "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+                "refseq_gene_id": "2",
+                "ensembl_gene_id": "ENGS2",
+            },
+        }
+    )
+
+    # Variants that have Clinvar entries with different pathogenicities
+    basic_clinvar = {
+        "release": "GRCh37",
+        "chromosome": "1",
+        "position": None,
+        "reference": "A",
+        "alternative": "G",
+        "start": None,
+        "stop": None,
+        "strand": "+",
+        "variation_type": "Variant",
+        "variation_id": 12345,
+        "rcv": "RCV12345",
+        "scv": ["RCV12345"],
+        "allele_id": 12345,
+        "symbol": "ENSG2",
+        "hgvs_c": "some-hgvs-c",
+        "hgvs_p": "home-hgvs-p",
+        "molecular_consequence": "some-molecular-consequence",
+        "clinical_significance": None,
+        "clinical_significance_ordered": None,
+        "pathogenic": 0,
+        "likely_pathogenic": 0,
+        "uncertain_significance": 0,
+        "likely_benign": 0,
+        "benign": 0,
+        "review_status": "single submitter",
+        "review_status_ordered": ["criteria provided"],
+        "last_evaluated": "2016-06-14",
+        "all_submitters": ["Some Submitter"],
+        "submitters_ordered": ["Some Submitter"],
+        "all_traits": ["Some trait"],
+        "all_pmids": [12345],
+        "inheritance_modes": "",
+        "age_of_onset": "",
+        "prevalence": "",
+        "disease_mechanism": "",
+        "origin": ["germline"],
+        "xrefs": ["Some xref"],
+        "dates_ordered": ["2016-06-14"],
+        "multi": 1,
+    }
+    patho_keys = (
+        "pathogenic",
+        "likely_pathogenic",
+        "uncertain_significance",
+        "likely_benign",
+        "benign",
+    )
+    for i, key in enumerate(patho_keys):
+        SmallVariant.objects.create(
+            **{
+                **basic_var,
+                **{
+                    "position": 102 + i,
+                    "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+                    "refseq_gene_id": "2",
+                    "ensembl_gene_id": "ENGS2",
+                    "in_clinvar": True,
+                },
+            }
+        )
+        Clinvar.objects.create(
+            **{
+                **basic_clinvar,
+                **{
+                    "position": 102 + i,
+                    "start": 102 + i,
+                    "stop": 102 + i,
+                    "clinical_significance": key,
+                    "clinical_significance_ordered": [key],
+                    key: 1,
+                },
+            }
+        )
+
+
+#: A value for filtration form ``cleaned_data`` to be used for "Case 3" that lets
+#: all variants through.
+INCLUSIVE_CLEANED_DATA_CASE3 = {
+    "case_uuid": "9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
+    "effects": ["synonymous_variant"],
+    "gene_blacklist": [],
+    "database_select": "refseq",
+    "var_type_snv": True,
+    "var_type_mnv": True,
+    "var_type_indel": True,
+    "exac_enabled": False,
+    "exac_frequency": 0.0,
+    "exac_heterozygous": 0,
+    "exac_homozygous": 0,
+    "thousand_genomes_enabled": False,
+    "thousand_genomes_frequency": 0.0,
+    "thousand_genomes_heterozygous": 0,
+    "thousand_genomes_homozygous": 0,
+    "gnomad_exomes_enabled": False,
+    "gnomad_exomes_frequency": 0.0,
+    "gnomad_exomes_heterozygous": 0,
+    "gnomad_exomes_homozygous": 0,
+    "gnomad_genomes_enabled": False,
+    "gnomad_genomes_frequency": 0.0,
+    "gnomad_genomes_heterozygous": 0,
+    "gnomad_genomes_homozygous": 0,
+    "A_fail": "ignore",
+    "A_gt": "any",
+    "A_dp_het": 0,
+    "A_dp_hom": 0,
+    "A_ab": 0,
+    "A_gq": 0,
+    "A_ad": 0,
+    "transcripts_coding": True,
+    "transcripts_noncoding": True,
+    "require_in_clinvar": False,
+    "clinvar_include_benign": False,
+    "clinvar_include_likely_benign": False,
+    "clinvar_include_uncertain_significance": False,
+    "clinvar_include_likely_pathogenic": False,
+    "clinvar_include_pathogenic": False,
+}
+
+
+class CaseThreeClinvarMembershipFilterTestMixin:
+    """Base class for testing query with ClinvarMembership filter."""
+
+    #: Tests should be run on sub classes
+    __test__ = False
+
+    setup_case_in_db = fixture_setup_case3
+    base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE3
+
+    check_result_rows = None
+    query_class = None
+    run_query_function = None
+
+    def test_render_query_do_not_require_membership(self):
+        self.run_query_function(self.query_class, {}, 7)
+
+    def test_render_query_require_membership_include_none(self):
+        self.run_query_function(self.query_class, {"require_in_clinvar": True}, 6)
+
+    def test_render_query_require_membership_include_pathogenic(self):
+        res = self.run_query_function(
+            self.query_class, {"require_in_clinvar": True, "clinvar_include_pathogenic": True}, 1
+        )
+        if self.check_result_rows:
+            self.assertEqual(res[0].position, 102)
+
+    def test_render_query_require_membership_include_likely_pathogenic(self):
+        res = self.run_query_function(
+            self.query_class,
+            {"require_in_clinvar": True, "clinvar_include_likely_pathogenic": True},
+            1,
+        )
+        if self.check_result_rows:
+            self.assertEqual(res[0].position, 103)
+
+    def test_render_query_require_membership_include_uncertain_significance(self):
+        res = self.run_query_function(
+            self.query_class,
+            {"require_in_clinvar": True, "clinvar_include_uncertain_significance": True},
+            1,
+        )
+        if self.check_result_rows:
+            self.assertEqual(res[0].position, 104)
+
+    def test_render_query_require_membership_include_likely_benign(self):
+        res = self.run_query_function(
+            self.query_class, {"require_in_clinvar": True, "clinvar_include_likely_benign": True}, 1
+        )
+        if self.check_result_rows:
+            self.assertEqual(res[0].position, 105)
+
+    def test_render_query_require_membership_include_benign(self):
+        res = self.run_query_function(
+            self.query_class, {"require_in_clinvar": True, "clinvar_include_benign": True}, 1
+        )
+        if self.check_result_rows:
+            self.assertEqual(res[0].position, 106)
+
+
+class RenderQueryTestCaseThreeClinvarMembershipFilter(
+    CaseThreeClinvarMembershipFilterTestMixin, FilterTestBase
+):
+    """Test clinvar membership using RenderFilterQuery."""
+
+    check_result_rows = True
+    query_class = RenderFilterQuery
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.run_query_function = self.run_filter_query
+
+
+class ExportFileFilterQueryTestCaseThreeClinvarMembershipFilter(
+    CaseThreeClinvarMembershipFilterTestMixin, FilterTestBase
+):
+    """Test clinvar membership using ExportFileFilterQuery."""
+
+    check_result_rows = True
+    query_class = ExportFileFilterQuery
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.run_query_function = self.run_filter_query
+
+
+class CountOnlyFilterQueryTestCaseThreeClinvarMembershipFilter(
+    CaseThreeClinvarMembershipFilterTestMixin, FilterTestBase
+):
+    """Test clinvar membership using CountOnlyFilterQuery."""
+
+    check_result_rows = False
+    query_class = CountOnlyFilterQuery
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.run_query_function = self.run_count_query
+
+
+# ---------------------------------------------------------------------------
+# Tests for querying frequency tables
+# ---------------------------------------------------------------------------
 
 
 def fixture_setup_frequency():

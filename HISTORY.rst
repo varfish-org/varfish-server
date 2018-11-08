@@ -11,10 +11,13 @@ End-User Summary
 
 - The "AD" form field was split into one for het. and one for hom. variants.
 - Clinvar entries are now properly displayed.
+- Enabling filtering for clinvar membership and pathogenicity.
 
 Full Change List
 ================
 
+- Adding support for filtering presence in Clinvar.
+  The user has to enable the filter and can then select the
 - Fixing pedigree display in filter form
 - Splitting "${person}_ad" field into "\*_ad_het" and "\*ad_hom", also adjusting tests etc.
 - Fixing clinvar queries (was a ``+/-1`` error)

@@ -90,6 +90,12 @@ DEFAULT_FILTER_FORM_SETTING = {
     "var_type_snv": True,
     "transcripts_noncoding": True,
     "transcripts_coding": True,
+    "require_in_clinvar": False,
+    "clinvar_include_benign": False,
+    "clinvar_include_likely_benign": False,
+    "clinvar_include_uncertain_significance": False,
+    "clinvar_include_likely_pathogenic": True,
+    "clinvar_include_pathogenic": True,
     "submit": "display",
 }
 

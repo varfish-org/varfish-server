@@ -4,3 +4,33 @@
 <div class="p-3">
   {{ form.result_rows_limit|as_crispy_field }}
 </div>
+
+<h5 class="pl-3">ClinVar</h5>
+
+<div class="pl-3 pr-3">
+  {{ form.require_in_clinvar|as_crispy_field }}
+</div>
+
+<div class="row">
+  <div class="col-12 text-muted">
+    <small>
+      Include variants flagged with the following effect.
+      This filter is only applied if <strong>Clinvar membership required</strong> above is checked.
+    </small>
+  </div>
+  <div class="col-2">
+    {{ form.clinvar_include_benign|as_crispy_field }}
+  </div>
+  <div class="col-2">
+    {{ form.clinvar_include_likely_benign|as_crispy_field }}
+  </div>
+  <div class="col-2">
+    {{ form.clinvar_include_uncertain_significance|as_crispy_field }}
+  </div>
+  <div class="col-2">
+    {{ form.clinvar_include_likely_pathogenic|as_crispy_field }}
+  </div>
+  <div class="col-2">
+    {{ form.clinvar_include_pathogenic|as_crispy_field }}
+  </div>
+</div>

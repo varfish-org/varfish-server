@@ -125,6 +125,7 @@ class SmallVariant(models.Model):
             # for filter query
             GinIndex(fields=["case_id", "refseq_effect"]),
             GinIndex(fields=["case_id", "ensembl_effect"]),
+            models.Index(fields=["case_id", "in_clinvar"]),
         ]
 
 

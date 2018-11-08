@@ -522,7 +522,10 @@ const defaultPresetsIds = {
   "effect_intergenic_variant": false,
   "effect_non_coding_transcript_exon_variant": false,
   "effect_non_coding_transcript_intron_variant": false,
-  "effect_upstream_gene_variant": false
+  "effect_upstream_gene_variant": false,
+
+  // Clinvar
+  "require_in_clinvar": false
 };
 
 const defaultPresetsClasses = {
@@ -591,6 +594,26 @@ const presets = {
       "quality-field-ad": 2,
       "quality-field-fail": "drop-variant"
     }),
+  },
+  "medgen-clinvar": {
+    "ids": Object.assign({}, defaultPresetsIds, {
+      "thousand_genomes_enabled": false,
+      "exac_enabled": false,
+      "gnomad_exomes_enabled": false,
+      "gnomad_genomes_enabled": false,
+
+      "require_in_clinvar": true,
+      "clinvar_include_pathogenic": true,
+      "clinvar_include_likely_pathogenic": true,
+      "clinvar_include_uncertain_significance": false,
+      "clinvar_include_likely_benign": false,
+      "clinvar_include_benign": false,
+
+      "effect_group_all": true
+    }),
+    "classes": {
+      "quality-field-fail": "ignore"
+    }
   }
 };
 
@@ -602,7 +625,12 @@ function loadPresets(e) {
     const tag = $("#id_" + key);
     const inputType = tag.attr("type");
     if (inputType == "checkbox") {
-      tag.prop("checked", val);
+      if (key == "effect_group_all") {
+        tag.prop("checked", false);
+        tag.click();
+      } else {
+        tag.prop("checked", val);
+      }
     } else {
       tag.prop("value", val);
     }
