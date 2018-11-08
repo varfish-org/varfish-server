@@ -81,7 +81,7 @@ class VariantView(ProjectContextMixin, FrequencyMixin, AlchemyConnectionMixin, T
         # clinvar is not in the main query, because it inflates the datatables. I just need the clinvar entries once,
         # not #transcript-times.
         key2 = dict(key)
-        key2["position"] = key2["position"] - 1
+        key2["position"] = key2["position"]
         clinvar = Clinvar.objects.filter(**key2)
         clinvar_list = list()
         for entry in clinvar:

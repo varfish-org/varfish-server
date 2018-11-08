@@ -209,7 +209,7 @@ class ExtendAPIView(
         filter_args = {
             "release": query_kwargs["release"],
             "chromosome": query_kwargs["chromosome"],
-            "position": int(query_kwargs["position"]) - 1,
+            "position": int(query_kwargs["position"]),
             "reference": query_kwargs["reference"],
             "alternative": query_kwargs["alternative"],
         }
