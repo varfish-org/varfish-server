@@ -14,6 +14,7 @@ End-User Summary
 Full Change List
 ================
 
+- Fixing pedigree display in filter form
 - Splitting "${person}_ad" field into "\*_ad_het" and "\*ad_hom", also adjusting tests etc.
 
 ------

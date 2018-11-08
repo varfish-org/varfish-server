@@ -16,15 +16,15 @@
       </tr>
     </thead>
     <tbody>
-      {% for member in form.pedigree %}
+      {% for item in form.pedigree %}
       <tr>
-        <td>{{ member.patient }}</td>
-        <td>{{ form.member_roles|keyvalue:member.patient }}</td>
-        <td>{{ member.father|default:"0" }}</td>
-        <td>{{ member.mother|default:"0" }}</td>
-        <td><i class="fa {% if member.gender %}fa-venus{% else %}fa-mars{% endif %}"></i></td>
-        <td><i class="fa {% if member.affected %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
-        <td>{% with x=form.field_names|keyvalue:member.patient|keyvalue:"gt" %}{{ form|keyvalue:x }}{% endwith %}</td>
+        <td>{{ item.patient }}</td>
+        <td>{{ form.member_roles|keyvalue:item.patient }}</td>
+        <td>{{ item.father|default:"0" }}</td>
+        <td>{{ item.mother|default:"0" }}</td>
+        <td><i class="fa {% if item.sex == 1 %}fa-venus{% else %}fa-mars{% endif %}"></i></td>
+        <td><i class="fa {% if item.affected == 2 %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
+        <td>{% with x=form.field_names|keyvalue:item.patient|keyvalue:"gt" %}{{ form|keyvalue:x }}{% endwith %}</td>
       </tr>
       {% endfor %}
     </tbody>
