@@ -2069,9 +2069,6 @@ INCLUSIVE_CLEANED_DATA_CASE3 = {
 class CaseThreeClinvarMembershipFilterTestMixin:
     """Base class for testing query with ClinvarMembership filter."""
 
-    #: Tests should be run on sub classes
-    __test__ = False
-
     setup_case_in_db = fixture_setup_case3
     base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE3
 

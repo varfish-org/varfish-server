@@ -12,6 +12,7 @@ End-User Summary
 - The "AD" form field was split into one for het. and one for hom. variants.
 - Clinvar entries are now properly displayed.
 - Enabling filtering for clinvar membership and pathogenicity.
+- Fixing file export.
 
 Full Change List
 ================
@@ -21,6 +22,8 @@ Full Change List
 - Fixing pedigree display in filter form
 - Splitting "${person}_ad" field into "\*_ad_het" and "\*ad_hom", also adjusting tests etc.
 - Fixing clinvar queries (was a ``+/-1`` error)
+- Adding more comprehensive tests for views and query.
+- Fixing bug in ``file_export`` module caused by not adjusting to SQL Alchemy filter querying.
 
 ------
 v0.4.0

@@ -16,9 +16,6 @@ from querybuilder.models_support import ExportFileFilterQuery
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
-#: API to use for communicating with timeline SODAR backend app
-timeline = get_backend_api("timeline_backend")
-
 #: Constant that determines how many days generated files should stay.  Note for the actual removal, a separate
 #: Celery job must be ran.
 EXPIRY_DAYS = 14
@@ -242,12 +239,12 @@ class CaseExporterTsv(CaseExporterBase):
                 else:
                     member, field = column["name"].rsplit(".", 1)
                     if field == "aaf":
-                        ad = small_var.ad.get(member, 0)
-                        dp = small_var.dp.get(member, 0)
+                        ad = small_var.genotype.get(member, {}).get("ad", 0)
+                        dp = small_var.genotype.get(member, {}).get("dp", 0)
                         aaf = ad / dp if dp != 0 else 0
                         row.append(str(aaf))
                     else:
-                        row.append(to_str(getattr(small_var, field, {}).get(member, ".")))
+                        row.append(small_var.genotype.get(member, {}).get(field, "."))
             line = "\t".join(map(lambda s: to_str(s), row)) + "\n"
             self.tmp_file.write(line.encode("utf-8"))
 
@@ -414,10 +411,13 @@ class CaseExporterVcf(CaseExporterBase):
                 vcfpy.Call(
                     member,
                     {
-                        "GT": small_var.gt.get(member, "./."),
-                        "GQ": small_var.gq.get(member, None),
-                        "AD": [small_var.ad.get(member, None)],
-                        "DP": small_var.dp.get(member, None),
+                        key.upper(): f(small_var.genotype.get(member, {}).get(key, default_value))
+                        for key, default_value, f in (
+                            ("gt", "./.", lambda x: x),
+                            ("gq", None, lambda x: x),
+                            ("ad", None, lambda x: None if x is None else [x]),
+                            ("dp", None, lambda x: x),
+                        )
                     },
                 )
                 for member in self.members
@@ -446,6 +446,7 @@ EXPORTERS = {"tsv": CaseExporterTsv, "vcf": CaseExporterVcf, "xlsx": CaseExporte
 def export_case(job):
     """Export a ``Case`` object, store result in a new ``ExportFileJobResult``."""
     job.mark_start()
+    timeline = get_backend_api("timeline_backend")
     if timeline:
         timeline.add_event(
             project=job.project,

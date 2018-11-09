@@ -17,4 +17,8 @@ selenium==3.14.0
 # BeautifulSoup for HTML testing
 beautifulsoup4==4.6.3
 
+# Code formatting and format checking.
 black
+
+# Reading of XLSX files for tests
+openpyxl ==2.5.9
