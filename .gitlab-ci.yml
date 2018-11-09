@@ -2,12 +2,14 @@ image: python:3.6
 
 services:
 - postgres:9.5
+- redis:latest
 
 variables:
   POSTGRES_DB: varfish_web
   POSTGRES_USER: varfish_web
   POSTGRES_PASSWORD: varfish_web
   DATABASE_URL: postgres://varfish_web:varfish_web@postgres/varfish_web
+  CELERY_BROKER_URL: redis://redis:6379/0
 
 before_script:
 # SSH setup taken from https://gitlab.com/gitlab-examples/ssh-private-key
