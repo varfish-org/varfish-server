@@ -7,22 +7,25 @@ from .models import Hgnc, Mim2geneMedgen, Hpo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 
 
-class GeneView(ProjectContextMixin, TemplateView):
-    template_name = "geneinfo/gene.html"
+class GeneCardMixin:
+    """Mixin for filling the different parts of the gene card template"""
 
-    def get(self, *args, **kwargs):
+    def _fill_hgnc_info(self, transcript_database, gene_id):
+        """Fill the HGNC info"""
         try:
-            if kwargs["gene_id"].startswith("ENSG"):
-                kwargs["hgnc"] = model_to_dict(Hgnc.objects.get(ensembl_gene_id=kwargs["gene_id"]))
+            if transcript_database == "ensembl":
+                return model_to_dict(Hgnc.objects.get(ensembl_gene_id=gene_id))
             else:
-                kwargs["hgnc"] = model_to_dict(Hgnc.objects.get(entrez_id=kwargs["gene_id"]))
+                return model_to_dict(Hgnc.objects.get(entrez_id=gene_id))
         except ObjectDoesNotExist:
-            kwargs["hgnc"] = None
+            return None
 
-        if kwargs["gene_id"].startswith("ENSG"):
-            kegg = EnsemblToKegg.objects.filter(gene_id=kwargs["gene_id"])
-        else:
-            kegg = RefseqToKegg.objects.filter(gene_id=kwargs["gene_id"])
+    def _fill_kegg_info(self, transcript_database, gene_id):
+        """Fill the kegg info"""
+        if transcript_database == "ensembl":
+            kegg = EnsemblToKegg.objects.filter(gene_id=gene_id)
+        else:  # transcript_database == "refseq"
+            kegg = RefseqToKegg.objects.filter(gene_id=gene_id)
 
         kegg_list = list()
         for entry in kegg:
@@ -30,14 +33,44 @@ class GeneView(ProjectContextMixin, TemplateView):
                 kegg_list.append(model_to_dict(KeggInfo.objects.get(id=entry.kegginfo_id)))
             except ObjectDoesNotExist:
                 pass
+        return kegg_list
 
-        kwargs["kegg"] = kegg_list
+    def _fill_omim_info(self, hgnc):
+        """Fill the HPO/OMIM info"""
+        mim2genemedgen = None
+        hgncomim = None
 
-        if not kwargs["gene_id"].startswith("ENSG"):
-            omim = Mim2geneMedgen.objects.filter(entrez_id=kwargs["gene_id"])
-            hpo_list = list()
-            for entry in omim:
-                hpo_list.append(Hpo.objects.filter(database_id="OMIM:{}".format(entry.omim_id)))
-            kwargs["omim"] = hpo_list
+        if hgnc:
+            # we can have multiple OMIM ids in this case
+            mim2genemedgen = dict()
+            for omim in Mim2geneMedgen.objects.filter(entrez_id=hgnc["entrez_id"]):
+                mimhpo_result = Hpo.objects.filter(database_id="OMIM:{}".format(omim.omim_id))
+                if mimhpo_result:
+                    mim2genemedgen[str(omim.omim_id)] = [
+                        model_to_dict(hpo) for hpo in mimhpo_result
+                    ]
 
-        return render(self.request, self.template_name, self.get_context_data(**kwargs))
+            # in this case we just have a single omim id.
+            hgncomim = dict()
+            omimhpo_result = Hpo.objects.filter(database_id="OMIM:{}".format(hgnc["omim_id"]))
+            if omimhpo_result:
+                hgncomim[hgnc["omim_id"]] = [model_to_dict(hpo) for hpo in omimhpo_result]
+
+        return mim2genemedgen, hgncomim
+
+
+class GeneView(ProjectContextMixin, GeneCardMixin, TemplateView):
+    template_name = "geneinfo/gene.html"
+
+    def get(self, *args, **kwargs):
+        kwargs_copy = dict(kwargs)
+        gene_id = kwargs_copy["gene_id"]
+        transcript_database = "ensembl" if kwargs_copy["gene_id"].startswith("ENSG") else "refseq"
+
+        kwargs_copy["hgnc"] = self._fill_hgnc_info(transcript_database, gene_id)
+        kwargs_copy["kegg"] = self._fill_kegg_info(transcript_database, gene_id)
+        kwargs_copy["mim2genemedgen"], kwargs_copy["hgncomim"] = self._fill_omim_info(
+            kwargs_copy["hgnc"]
+        )
+
+        return render(self.request, self.template_name, self.get_context_data(**kwargs_copy))
