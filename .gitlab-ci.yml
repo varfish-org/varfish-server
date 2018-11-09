@@ -37,7 +37,7 @@ all_tests:
   script:
   # Run tests for Django app.
   - python manage.py collectstatic --noinput
-  - coverage run --source="." manage.py test -v2 --settings=config.settings.test
+  - coverage run manage.py test -v2 --settings=config.settings.test
   - coverage report
   # Run syntax checks and static code analysis.
   - black -l 100 --check
