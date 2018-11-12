@@ -6,15 +6,15 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     """Plugin for registering app with Projectroles"""
 
     name = "variants"
-    title = "VarFish"
+    title = "Cases"
     urls = urlpatterns
     # ...
 
-    icon = "ship"
+    icon = "hospital-o"
 
     entry_point_url_id = "variants:case-list"
 
-    description = "VarFish"
+    description = "Cases"
 
     #: Required permission for accessing the app
     app_permission = "variants.view_data"

@@ -250,7 +250,7 @@ class ExportFileBgJob(models.Model):
 
     def get_absolute_url(self):
         return reverse(
-            "variants:export-job-view",
+            "variants:export-job-detail",
             kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
         )
 

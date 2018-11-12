@@ -7,13 +7,19 @@
 {% load static %}
 {% load json %}
 
-{% block projectroles_extend %}
-  <div class="row sodar-subtitle-container bg-white sticky-top">
-    <h3>
-      <i class="fa fa-tasks"></i>
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
+  <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.case.sodar_uuid %}">{{ object.case.name }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url "variants:export-job-list" project=project.sodar_uuid case=object.case.sodar_uuid %}">Jobs</a></li>
+  <li class="breadcrumb-item active">{{ object.bg_job.name }}</li>
+{% endblock %}
+
+{% block projectroles %}
+  <div class="row sodar-pr-content-title pb-2">
+    <h2 class="sodar-pr-content-title">
       Background File Creation Job
       <small class="text-muted">{{ object.bg_job.name }}</small>
-    </h3>
+    </h2>
     {% include 'variants/_exportjob_view_buttons.html' with project=project folder=folder %}
   </div>
 

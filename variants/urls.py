@@ -4,6 +4,7 @@ from . import views
 
 app_name = "variants"
 urlpatterns = [
+    # Views for Case
     url(regex=r"^(?P<project>[0-9a-f-]+)/$", view=views.CaseListView.as_view(), name="case-list"),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/(?P<case>[0-9a-f-]+)/$",
@@ -15,10 +16,16 @@ urlpatterns = [
         view=views.CaseFilterView.as_view(),
         name="case-filter",
     ),
+    # Views for export background jobs
     url(
-        regex=r"^(?P<project>[0-9a-f-]+)/api/extend/(?P<release>(GRCh37|GRCh38))-(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT]))-(?P<position>[0-9]+)-(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/$",
-        view=views.ExtendAPIView.as_view(),
-        name="extend",
+        regex=r"^(?P<project>[0-9a-f-]+)/export-job/list/(?P<case>[0-9a-f-]+)/$",
+        view=views.ExportFileJobListView.as_view(),
+        name="export-job-list",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/export-job/detail/(?P<job>[0-9a-f-]+)/$",
+        view=views.ExportFileJobDetailView.as_view(),
+        name="export-job-detail",
     ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/export-job/resubmit/(?P<job>[0-9a-f-]+)/$",
@@ -26,13 +33,16 @@ urlpatterns = [
         name="export-job-resubmit",
     ),
     url(
-        regex=r"^(?P<project>[0-9a-f-]+)/export-job/view/(?P<job>[0-9a-f-]+)/$",
-        view=views.ExportFileJobDetailView.as_view(),
-        name="export-job-view",
-    ),
-    url(
         regex=r"^(?P<project>[0-9a-f-]+)/export-job/download/(?P<job>[0-9a-f-]+)/$",
         view=views.ExportFileJobDownloadView.as_view(),
         name="export-job-download",
+    ),
+    # API for expanding details in result list
+    url(
+        regex=(r"^(?P<project>[0-9a-f-]+)/api/extend/(?P<release>(GRCh37|GRCh38))-"
+               r"(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT]))-(?P<position>[0-9]+)-"
+               r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/$"),
+        view=views.ExtendAPIView.as_view(),
+        name="extend",
     ),
 ]

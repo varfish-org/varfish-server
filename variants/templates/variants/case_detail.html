@@ -4,10 +4,17 @@
 {% load dict %}
 {% load rules %}
 
-{% block projectroles_extend %}
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
+  <li class="breadcrumb-item active">{{ object.name }}</li>
+{% endblock %}
 
-  <div class="row sodar-subtitle-container bg-white sticky-top">
-    <h3>Case: {{ object.name }}</h3>
+{% block projectroles %}
+
+  <div class="row sodar-pr-content-title pb-2">
+    <h2 class="sodar-pr-content-title">
+      Case &quot;{{ object.name }}&quot;
+    </h2>
     {% include "variants/_case_detail_buttons.html" %}
   </div>
 
@@ -92,7 +99,7 @@
       <div class="card-header">
         <h4>
           <i class="fa fa-tasks"></i>
-          Background Jobs
+          Background Jobs Overview
         </h4>
       </div>
       <div class="card-body p-0">
@@ -107,12 +114,12 @@
             </tr>
           </thead>
           <tbody>
-            {% for job in object.exportfilebgjob_set.all %}
+            {% for job in object.exportfilebgjob_set.all|slice:":10" %}
               {% include 'variants/_exportfilebgjob_item.html' with item=job details_card_mode=False %}
             {% endfor %}
             {% if not object.exportfilebgjob_set.all %}
               <tr>
-                 <td class="bg-faded font-italic text-center" colspan="4">
+                 <td class="bg-faded font-italic text-center" colspan="5">
                    No background jobs found.
                  </td>
               </tr>
@@ -120,5 +127,11 @@
           </tbody>
         </table>
       </div>
+      {% if object.exportfilebgjob_set.all %}
+        <div class="card-footer text-center">
+          <a href="{% url "variants:export-job-list" project=project.sodar_uuid case=object.sodar_uuid %}">List all jobs</a>
+        </div>
+      {% endif %}
+    </div>
   </div>
 {% endblock %}

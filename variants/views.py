@@ -9,6 +9,7 @@ from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View
+from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
 import simplejson as json
 
 from bgjobs.models import BackgroundJob
@@ -224,6 +225,29 @@ class ExtendAPIView(
             return None
 
 
+class ExportFileJobListView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    ListView,
+):
+    """Display list of export jobs for case.
+    """
+
+    permission_required = "variants.view_data"
+    template_name = "variants/export_job_list.html"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def get(self, *args, **kwargs):
+        self.object = self.get_object()
+        return super().get(*args, **kwargs)
+
+
 class ExportFileJobDetailView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
@@ -235,7 +259,7 @@ class ExportFileJobDetailView(
     """
 
     permission_required = "variants.view_data"
-    template_name = "variants/export_job_view.html"
+    template_name = "variants/export_job_detail.html"
     model = ExportFileBgJob
     slug_url_kwarg = "job"
     slug_field = "sodar_uuid"
@@ -296,7 +320,7 @@ class ExportFileJobDownloadView(
     http_method_names = ["get"]
 
     permission_required = "variants.view_data"
-    template_name = "variants/export_job_view.html"
+    template_name = "variants/export_job_detail.html"
     model = ExportFileBgJob
     slug_url_kwarg = "job"
     slug_field = "sodar_uuid"

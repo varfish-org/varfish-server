@@ -1,10 +1,15 @@
 <div class="btn-group ml-auto">
-  <a class="btn btn-secondary" href="{{ object.project.get_absolute_url }}">
-    <i class="fa fa-arrow-left"></i>
-    Case List
-  </a>
-  <a class="btn btn-primary" href="{% url 'variants:case-filter' project=project.sodar_uuid case=object.sodar_uuid %}">
-    <i class="fa fa-filter"></i>
-    Filter Case
-  </a>
+  <div class="btn-group" id="sodar-ej-buttons-list">
+    <button class="btn btn-primary dropdown-toggle"
+            type="button" data-toggle="dropdown"
+            aria-haspopup="true" aria-expanded="false">
+      Operations
+    </button>
+    <div class="dropdown-menu dropdown-menu-right">
+      <a class="dropdown-item" href="{% url "variants:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
+        <i class="fa fa-filter"></i>
+        Filter Case
+      </a>
+    </div>
+  </div>
 </div>

@@ -4,7 +4,13 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
-{% block projectroles_extend %}
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
+  <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.sodar_uuid %}">{{ object.name }}</a></li>
+  <li class="breadcrumb-item active">Filter</li>
+{% endblock %}
+
+{% block projectroles %}
 
 {% block css %}
   {{ block.super }}
@@ -30,17 +36,10 @@
   </style>
 {% endblock %}
 
-  <div class="row sodar-subtitle-container bg-white">
-    <h3>
-      <i class="fa fa-filter"></i>
+  <div class="row sodar-pr-content-title pb-2">
+    <h2 class="sodar-pr-content-title">
       Filter Case: {{ object.name }}
-    </h3>
-    <div class="ml-auto">
-      <a class="btn btn-secondary" href="{% url 'variants:case-detail' project=project.sodar_uuid case=object.sodar_uuid %}">
-        <i class="fa fa-arrow-left"></i>
-        Case Details
-      </a>
-    </div>
+    </h2>
   </div>
 
   <div class="container-fluid sodar-page-container">
@@ -141,7 +140,7 @@
   {% endif %}
 
 
-{% endblock projectroles_extend %}
+{% endblock projectroles %}
 
 {% block javascript %}
 {{ block.super }}

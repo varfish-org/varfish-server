@@ -349,7 +349,7 @@ class TestCaseFilterView(TestViewBase):
             self.assertRedirects(
                 response,
                 reverse(
-                    "variants:export-job-view",
+                    "variants:export-job-detail",
                     kwargs={"project": case.project.sodar_uuid, "job": created_job.sodar_uuid},
                 ),
             )
@@ -518,7 +518,7 @@ class TestExportFileJobDetailView(TestViewBase):
             created_job = ExportFileBgJob.objects.select_related("project").first()
             response = self.client.get(
                 reverse(
-                    "variants:export-job-view",
+                    "variants:export-job-detail",
                     kwargs={
                         "project": created_job.project.sodar_uuid,
                         "job": created_job.sodar_uuid,
@@ -553,7 +553,7 @@ class TestExportFileJobResubmitView(TestViewBase):
             self.assertRedirects(
                 response,
                 reverse(
-                    "variants:export-job-view",
+                    "variants:export-job-detail",
                     kwargs={
                         "project": created_job.project.sodar_uuid,
                         "job": created_job.sodar_uuid,
@@ -567,7 +567,7 @@ class TestExportFileJobResubmitView(TestViewBase):
             existing_job = ExportFileBgJob.objects.first()
             response = self.client.get(
                 reverse(
-                    "variants:export-job-view",
+                    "variants:export-job-detail",
                     kwargs={
                         "project": existing_job.project.sodar_uuid,
                         "job": existing_job.sodar_uuid,

@@ -5,12 +5,16 @@
 {% load dict %}
 {% load rules %}
 
-{% block projectroles_extend %}
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item active">Cases</li>
+{% endblock %}
 
-  {% has_perm 'variants.view_data' request.user project as can_view_data %}
+{% block projectroles %}
 
-  <div class="row sodar-subtitle-container bg-white sticky-top">
-    <h3><i class="fa fa-users"></i> Cases</h3>
+  <div class="row sodar-pr-content-title pb-2">
+    <h2 class="sodar-pr-content-title">
+      Cases
+    </h2>
   </div>
 
   <div class="container-fluid sodar-page-container">
