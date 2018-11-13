@@ -1,5 +1,5 @@
 {# Variant filter table expanded card #}
-
+{% load variants_tags %}
 {% load humanize %}
 {% load dict %}
 
@@ -52,7 +52,7 @@
                   {% for member in form.pedigree %}
                   <th style="max-width: 120px;">
                     <div class="sodar-overflow-container sodar-overflow-hover">
-                      {{ member.patient }}
+                      {{ member.patient|only_source_name }}
                     </div>
                   </th>
                   {% endfor %}

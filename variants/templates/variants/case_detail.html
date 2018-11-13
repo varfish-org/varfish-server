@@ -3,6 +3,7 @@
 {% load rules %}
 {% load dict %}
 {% load rules %}
+{% load variants_tags %}
 
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
@@ -55,7 +56,9 @@
               Individuals
             </strong></span>
             <span class="col-10">
-              {{ object.get_members|join:", " }}
+              {% for member in object.get_members %}
+                {{ member|only_source_name }}{% if not forloop.last %},{% endif %}
+              {% endfor %}
             </span>
           </div>
         </li>
@@ -83,9 +86,9 @@
         <tbody>
           {% for item in object.pedigree %}
             <tr>
-              <td>{{ item.patient }}</td>
-              <td>{{ item.father }}</td>
-              <td>{{ item.mother }}</td>
+              <td>{{ item.patient|only_source_name }}</td>
+              <td>{{ item.father|only_source_name }}</td>
+              <td>{{ item.mother|only_source_name }}</td>
               <td><i class="fa {% if item.sex == 1 %}fa-venus{% else %}fa-mars{% endif %}"></i></td>
               <td><i class="fa {% if item.affected == 2 %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
             </tr>
