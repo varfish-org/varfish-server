@@ -1,32 +1,28 @@
-import aldjemy.core
-from django.test import TestCase
+"""Tests for the ``models_support`` module."""
 
 from clinvar.models import Clinvar
-from frequencies.models import Exac, ThousandGenomes, GnomadExomes, GnomadGenomes
-from geneinfo.models import Hgnc, Mim2geneMedgen, Hpo
-from pathways.models import KeggInfo, EnsemblToKegg, RefseqToKegg
+from geneinfo.models import Hgnc
 from projectroles.models import Project
 from variants.models import SmallVariant, Case
 
-from ..models_support import ExportFileFilterQuery, CountOnlyFilterQuery, RenderFilterQuery
-
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+from ._helpers import TestBase, SQLALCHEMY_ENGINE
+from ._fixtures import (
+    PROJECT_DICT,
+    fixture_setup_case1_simple,
+    SMALL_VARIANT_CASE1_DEFAULTS,
+    CLINVAR_DEFAULTS,
+    CLINVAR_FORM_DEFAULTS,
+)
+from ..models_support import (
+    ClinvarReportQuery,
+    ExportFileFilterQuery,
+    CountOnlyFilterQuery,
+    RenderFilterQuery,
+)
 
 # ---------------------------------------------------------------------------
 # Test Helpers and Generic Test Data
 # ---------------------------------------------------------------------------
-
-
-class TestBase(TestCase):
-    #: Callable that sets up the database with the case to use in the test
-    setup_case_in_db = None
-    #: Set this value to the base cleaned data to patch
-    base_cleaned_data = None
-
-    def setUp(self):
-        self.maxDiff = None  # show full diff
-        self.__class__.setup_case_in_db()
 
 
 class FilterTestBase(TestBase):
@@ -82,91 +78,14 @@ class FilterTestBase(TestBase):
             return result
 
 
-class QueryTestBase(TestBase):
-    def run_get_query(self, model, cleaned_data_patch, assert_raises=None):
-        patched_data = {**self.base_cleaned_data, **cleaned_data_patch}
-        if assert_raises:
-            with self.assertRaises(assert_raises):
-                model.objects.get(**patched_data)
-        else:
-            return model.objects.get(**patched_data)
+class ClinvarReportQueryTestCaseFour(TestBase):
+    """Base class for running the tests for the ```ClinvarReportQuery`` class.
+    """
 
-    def run_filter_query(self, model, cleaned_data_patch, length):
-        results = model.objects.filter(**{**self.base_cleaned_data, **cleaned_data_patch})
-        self.assertEquals(length, len(results))
-        return results
-
-
-#: Shared data for ``Project`` to use for all test cases.
-PROJECT_DICT = {
-    "title": "project",
-    "type": "PROJECT",
-    "parent_id": None,
-    "description": "",
-    "readme": "",
-    "submit_status": "OK",
-    "sodar_uuid": "7c599407-6c44-4d9e-81aa-cd8cf3d817a4",
-}
 
 # ---------------------------------------------------------------------------
-# Tests for Case 1
+# XFilterQuery: Tests for Case 1
 # ---------------------------------------------------------------------------
-
-# Case 1 is a singleton with a single variant.  Here, we perform tests for
-# the basic queries.
-
-
-def fixture_setup_case1_simple():
-    """Setup test case 1 -- a singleton with one variant only."""
-    project = Project.objects.create(**PROJECT_DICT)
-    case = project.case_set.create(
-        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
-        name="A",
-        index="A",
-        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
-    )
-    SmallVariant.objects.create(
-        case_id=case.pk,
-        release="GRCh37",
-        chromosome="1",
-        position=100,
-        reference="A",
-        alternative="G",
-        var_type="snv",
-        genotype={"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
-        in_clinvar=False,
-        # frequencies
-        exac_frequency=0.01,
-        exac_homozygous=0,
-        exac_heterozygous=0,
-        exac_hemizygous=0,
-        thousand_genomes_frequency=0.01,
-        thousand_genomes_homozygous=0,
-        thousand_genomes_heterozygous=0,
-        thousand_genomes_hemizygous=0,
-        gnomad_exomes_frequency=0.01,
-        gnomad_exomes_homozygous=0,
-        gnomad_exomes_heterozygous=0,
-        gnomad_exomes_hemizygous=0,
-        gnomad_genomes_frequency=0.01,
-        gnomad_genomes_homozygous=0,
-        gnomad_genomes_heterozygous=0,
-        gnomad_genomes_hemizygous=0,
-        # RefSeq
-        refseq_gene_id="1234",
-        refseq_transcript_id="NR_00001.1",
-        refseq_transcript_coding=False,
-        refseq_hgvs_c="n.111+2T>C",
-        refseq_hgvs_p="p.=",
-        refseq_effect=["synonymous_variant"],
-        # ENSEMBL
-        ensembl_gene_id="ENGS00001",
-        ensembl_transcript_id="ENST00001",
-        ensembl_transcript_coding=False,
-        ensembl_hgvs_c="n.111+2T>C",
-        ensembl_hgvs_p="p.=",
-        ensembl_effect=["synonymous_variant"],
-    )
 
 
 def fixture_setup_case1_var_type():
@@ -240,48 +159,7 @@ def fixture_setup_case1_frequency():
         pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
     )
     # Basic variant settings.
-    basic_var = {
-        "case_id": case.pk,
-        "release": "GRCh37",
-        "chromosome": "1",
-        "position": None,
-        "reference": "A",
-        "alternative": "G",
-        "var_type": "snv",
-        "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
-        "in_clinvar": False,
-        # frequencies
-        "exac_frequency": 0.01,
-        "exac_homozygous": 0,
-        "exac_heterozygous": 0,
-        "exac_hemizygous": 0,
-        "thousand_genomes_frequency": 0.01,
-        "thousand_genomes_homozygous": 0,
-        "thousand_genomes_heterozygous": 0,
-        "thousand_genomes_hemizygous": 0,
-        "gnomad_exomes_frequency": 0.01,
-        "gnomad_exomes_homozygous": 0,
-        "gnomad_exomes_heterozygous": 0,
-        "gnomad_exomes_hemizygous": 0,
-        "gnomad_genomes_frequency": 0.01,
-        "gnomad_genomes_homozygous": 0,
-        "gnomad_genomes_heterozygous": 0,
-        "gnomad_genomes_hemizygous": 0,
-        # RefSeq
-        "refseq_gene_id": "1234",
-        "refseq_transcript_id": "NR_00001.1",
-        "refseq_transcript_coding": False,
-        "refseq_hgvs_c": "n.111+2T>C",
-        "refseq_hgvs_p": "p.=",
-        "refseq_effect": ["synonymous_variant"],
-        # ENSEMBL
-        "ensembl_gene_id": "ENSG0001",
-        "ensembl_transcript_id": "ENST00001",
-        "ensembl_transcript_coding": False,
-        "ensembl_hgvs_c": "n.111+2T>C",
-        "ensembl_hgvs_p": "p.=",
-        "ensembl_effect": ["synonymous_variant"],
-    }
+    basic_var = {**SMALL_VARIANT_CASE1_DEFAULTS, **{"case_id": case.pk}}
 
     # Variant that should be passing gnomad genomes frequency enabled setting
     SmallVariant.objects.create(
@@ -1608,7 +1486,7 @@ class TestCaseOneQueryBlacklist(FilterTestBase):
 
 
 # ---------------------------------------------------------------------------
-# Tests for Case 2
+# XFilterQuery: Tests for Case 2
 # ---------------------------------------------------------------------------
 
 # Case 2 is a trio with affected child and unaffected parents. We test that
@@ -1858,7 +1736,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(FilterTestBase):
 
 
 # ---------------------------------------------------------------------------
-# Tests for Case 3
+# XFilterQuery: Tests for Case 3
 # ---------------------------------------------------------------------------
 
 # Case 3 is a singleton test case and meant for testing the Clinvar
@@ -1947,45 +1825,11 @@ def fixture_setup_case3():
 
     # Variants that have Clinvar entries with different pathogenicities
     basic_clinvar = {
-        "release": "GRCh37",
-        "chromosome": "1",
-        "position": None,
-        "reference": "A",
-        "alternative": "G",
-        "start": None,
-        "stop": None,
-        "strand": "+",
-        "variation_type": "Variant",
-        "variation_id": 12345,
-        "rcv": "RCV12345",
-        "scv": ["RCV12345"],
-        "allele_id": 12345,
-        "symbol": "ENSG2",
-        "hgvs_c": "some-hgvs-c",
-        "hgvs_p": "home-hgvs-p",
-        "molecular_consequence": "some-molecular-consequence",
-        "clinical_significance": None,
-        "clinical_significance_ordered": None,
-        "pathogenic": 0,
-        "likely_pathogenic": 0,
-        "uncertain_significance": 0,
-        "likely_benign": 0,
-        "benign": 0,
-        "review_status": "single submitter",
-        "review_status_ordered": ["criteria provided"],
-        "last_evaluated": "2016-06-14",
-        "all_submitters": ["Some Submitter"],
-        "submitters_ordered": ["Some Submitter"],
-        "all_traits": ["Some trait"],
-        "all_pmids": [12345],
-        "inheritance_modes": "",
-        "age_of_onset": "",
-        "prevalence": "",
-        "disease_mechanism": "",
-        "origin": ["germline"],
-        "xrefs": ["Some xref"],
-        "dates_ordered": ["2016-06-14"],
-        "multi": 1,
+        **CLINVAR_DEFAULTS,
+        "clinical_significance": "pathogenic",
+        "clinical_significance_ordered": ["pathogenic"],
+        "review_status": "practice guideline",
+        "review_status_ordered": ["practice guideline"],
     }
     patho_keys = (
         "pathogenic",
@@ -2162,318 +2006,215 @@ class CountOnlyFilterQueryTestCaseThreeClinvarMembershipFilter(
 
 
 # ---------------------------------------------------------------------------
-# Tests for querying frequency tables
+# ClinvarReportQuery: Case 4
 # ---------------------------------------------------------------------------
 
+# We use the singleton case 1 and construct different cases with clinvar annotation.
 
-def fixture_setup_frequency():
-    """Setup test case 1 -- a singleton with variants for gene blacklist filter."""
-    # Basic variant settings.
-    basic_var = {
-        "release": "GRCh37",
-        "chromosome": "1",
-        "position": 100,
-        "reference": "A",
-        "alternative": "G",
-        "ac": None,
-        "ac_afr": 1,
-        "ac_amr": 0,
-        "ac_eas": 0,
-        "ac_fin": 0,
-        "ac_nfe": 0,
-        "ac_oth": 0,
-        "an": None,
-        "an_afr": 8726,
-        "an_amr": 838,
-        "an_eas": 1620,
-        "an_fin": 3464,
-        "an_nfe": 14996,
-        "an_oth": 982,
-        "hemi": None,
-        "hemi_afr": None,
-        "hemi_amr": None,
-        "hemi_eas": None,
-        "hemi_fin": None,
-        "hemi_nfe": None,
-        "hemi_oth": None,
-        "hom": 0,
-        "hom_afr": 0,
-        "hom_amr": 0,
-        "hom_eas": 0,
-        "hom_fin": 0,
-        "hom_nfe": 0,
-        "hom_oth": 0,
-        "popmax": "AFR",
-        "ac_popmax": 1,
-        "an_popmax": 8726,
-        "af_popmax": 0.0001146,
-        "hemi_popmax": None,
-        "hom_popmax": 0,
-        "af": None,
-        "af_afr": 0.0001146,
-        "af_amr": 0.0,
-        "af_eas": 0.0,
-        "af_fin": 0.0,
-        "af_nfe": 0.0,
-        "af_oth": 0.0,
-    }
+#: Defaults including all variants for case 4.
+INCLUSIVE_CLEANED_DATA_CLINVAR_CASE4 = {
+    **CLINVAR_FORM_DEFAULTS,
+    "case_uuid": "9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
+}
 
-    Exac.objects.create(
-        **{
-            **basic_var,
-            **{"ac_sas": 0, "an_sas": 323, "hemi_sas": None, "hom_sas": 0, "af_sas": 0.0},
+
+class ClinvarReportQueryTestCaseFour(ClinvarReportQueryTestCaseFour):
+
+    setup_case_in_db = fixture_setup_case1_simple
+    base_cleaned_data = INCLUSIVE_CLEANED_DATA_CLINVAR_CASE4
+
+    def _setupClinvarEntry(self, cleaned_data_patch):
+        """Setup patched Clinvar entry with values from ``clinvar_patch``.
+
+        This function will take care of patching the correct position into the defaults.
+        """
+        clinvar_values = {
+            **CLINVAR_DEFAULTS,
+            "position": 100,
+            "start": 100,
+            "stop": 100,
+            **cleaned_data_patch,
         }
-    )
-    ThousandGenomes.objects.create(
-        release="GRCh37",
-        chromosome="1",
-        position=100,
-        reference="A",
-        alternative="G",
-        ac=3,
-        an=5008,
-        het=3,
-        hom=0,
-        af=0.000058,
-        af_afr=0.0,
-        af_amr=0.0054,
-        af_eas=0.0,
-        af_eur=0.0,
-        af_sas=0.0,
-    )
-    GnomadExomes.objects.create(
-        **{
-            **basic_var,
-            **{
-                "ac_asj": 0,
-                "ac_sas": 0,
-                "an_asj": 323,
-                "an_sas": 932,
-                "hemi_asj": None,
-                "hemi_sas": None,
-                "hom_asj": 0,
-                "hom_sas": 0,
-                "af_asj": 0.0,
-                "af_sas": 0.0,
-            },
-        }
-    )
-    GnomadGenomes.objects.create(
-        **{
-            **basic_var,
-            **{"ac_asj": 0, "an_asj": 323, "hemi_asj": None, "hom_asj": 0, "af_asj": 0.0},
-        }
-    )
+        # Fill in significance and review status if missing (not included in patch)
+        if not clinvar_values["clinical_significance_ordered"]:
+            clinvar_values["clinical_significance_ordered"] = ["pathogenic"]
+        if not clinvar_values["clinical_significance"]:
+            clinvar_values["clinical_significance"] = "pathogenic"
+        if not clinvar_values["review_status_ordered"]:
+            clinvar_values["review_status_ordered"] = ["practice guideline"]
+        if not clinvar_values["review_status"]:
+            clinvar_values["review_status"] = clinvar_values["review_status_ordered"][0]
+        Clinvar.objects.create(**clinvar_values)
 
+    def _runTest(self, clinvar_patch, form_data_patch, expected_result_count):
+        """Helper function for setting up the database, form data, and then running the test"""
+        # Test-specific set-up
+        self._setupClinvarEntry(clinvar_patch)
+        # Call function under test
+        connection = SQLALCHEMY_ENGINE.connect()
+        patched_cleaned_data = {**self.base_cleaned_data, **form_data_patch}
+        case = Case.objects.get(sodar_uuid=patched_cleaned_data["case_uuid"])
+        query = ClinvarReportQuery(case, connection)
+        result = list(query.run(patched_cleaned_data))
+        # Compare result.
+        self.assertEquals(len(result), expected_result_count)
 
-class TestFrequencyQuery(QueryTestBase):
-    """Test the queries for compound recessive heterozygous hypothesis"""
+    def testPathogenicInclude(self):
+        self._runTest({"pathogenic": 1}, {"clinvar_include_pathogenic": True}, 1)
 
-    setup_case_in_db = fixture_setup_frequency
-    base_cleaned_data = {
-        "release": "GRCh37",
-        "chromosome": "1",
-        "position": 100,
-        "reference": "A",
-        "alternative": "G",
-    }
+    def testPathogenicNoInclude(self):
+        self._runTest({"pathogenic": 0}, {"clinvar_include_pathogenic": True}, 0)
 
-    def test_frequency_exac(self):
-        obj = self.run_get_query(Exac, {})
-        self.assertEquals(obj.position, 100)
+    def testLikelyPathogenicInclude(self):
+        self._runTest({"likely_pathogenic": 1}, {"clinvar_include_likely_pathogenic": True}, 1)
 
-    def test_frequency_exac_fail(self):
-        self.run_get_query(Exac, {"position": 200}, Exac.DoesNotExist)
+    def testLikelyPathogenicNoInclude(self):
+        self._runTest({"likely_pathogenic": 0}, {"clinvar_include_likely_pathogenic": True}, 0)
 
-    def test_frequency_thousand_genomes(self):
-        obj = self.run_get_query(ThousandGenomes, {})
-        self.assertEquals(obj.position, 100)
+    def testUncertainSignificanceInclude(self):
+        self._runTest(
+            {"uncertain_significance": 1}, {"clinvar_include_uncertain_significance": True}, 1
+        )
 
-    def test_frequency_thousand_genomes_fail(self):
-        self.run_get_query(ThousandGenomes, {"position": 200}, ThousandGenomes.DoesNotExist)
+    def testUncertainSignificanceNoInclude(self):
+        self._runTest(
+            {"uncertain_significance": 0}, {"clinvar_include_uncertain_significance": True}, 0
+        )
 
-    def test_frequency_gnomad_exomes(self):
-        obj = self.run_get_query(GnomadExomes, {})
-        self.assertEquals(obj.position, 100)
+    def testLikelyBenignInclude(self):
+        self._runTest({"likely_benign": 1}, {"clinvar_include_likely_benign": True}, 1)
 
-    def test_frequency_gnomad_exomes_fail(self):
-        self.run_get_query(GnomadExomes, {"position": 200}, GnomadExomes.DoesNotExist)
+    def testLikelyBenignNoInclude(self):
+        self._runTest({"likely_benign": 0}, {"clinvar_include_likely_benign": True}, 0)
 
-    def test_frequency_gnomad_genomes(self):
-        obj = self.run_get_query(GnomadGenomes, {})
-        self.assertEquals(obj.position, 100)
+    def testBenignInclude(self):
+        self._runTest({"benign": 1}, {"clinvar_include_benign": True}, 1)
 
-    def test_frequency_gnomad_genomes_fail(self):
-        self.run_get_query(GnomadGenomes, {"position": 200}, GnomadGenomes.DoesNotExist)
+    def testBenignNoInclude(self):
+        self._runTest({"benign": 0}, {"clinvar_include_benign": True}, 0)
 
+    def testGermlineInclude(self):
+        self._runTest(
+            {"origin": ["germline"]},
+            {"clinvar_origin_germline": True, "clinvar_origin_somatic": False},
+            1,
+        )
 
-def fixture_setup_clinvar():
-    # Variants that have Clinvar entries with different pathogenicities
-    basic_clinvar = {
-        "release": "GRCh37",
-        "chromosome": "1",
-        "position": None,
-        "reference": "A",
-        "alternative": "G",
-        "start": None,
-        "stop": None,
-        "strand": "+",
-        "variation_type": "Variant",
-        "variation_id": 12345,
-        "rcv": "RCV12345",
-        "scv": ["RCV12345"],
-        "allele_id": 12345,
-        "symbol": "ENSG2",
-        "hgvs_c": "some-hgvs-c",
-        "hgvs_p": "home-hgvs-p",
-        "molecular_consequence": "some-molecular-consequence",
-        "clinical_significance": "benign",
-        "clinical_significance_ordered": ["benign"],
-        "pathogenic": 0,
-        "likely_pathogenic": 0,
-        "uncertain_significance": 0,
-        "likely_benign": 0,
-        "benign": 0,
-        "review_status": "single submitter",
-        "review_status_ordered": ["criteria provided"],
-        "last_evaluated": "2016-06-14",
-        "all_submitters": ["Some Submitter"],
-        "submitters_ordered": ["Some Submitter"],
-        "all_traits": ["Some trait"],
-        "all_pmids": [12345],
-        "inheritance_modes": "",
-        "age_of_onset": "",
-        "prevalence": "",
-        "disease_mechanism": "",
-        "origin": ["germline"],
-        "xrefs": ["Some xref"],
-        "dates_ordered": ["2016-06-14"],
-        "multi": 1,
-    }
-    Clinvar.objects.create(**{**basic_clinvar, **{"position": 100, "start": 100, "stop": 100}})
-    Clinvar.objects.create(**{**basic_clinvar, **{"position": 200, "start": 200, "stop": 200}})
+    def testGermlineNoInclude(self):
+        self._runTest(
+            {"origin": ["germline"]},
+            {"clinvar_origin_germline": False, "clinvar_origin_somatic": True},
+            0,
+        )
 
+    def testSomaticInclude(self):
+        self._runTest(
+            {"origin": ["somatic"]},
+            {"clinvar_origin_germline": False, "clinvar_origin_somatic": True},
+            1,
+        )
 
-class TestClinvarQuery(QueryTestBase):
-    """Test querying for clinvar"""
+    def testSomaticNoInclude(self):
+        self._runTest(
+            {"origin": ["somatic"]},
+            {"clinvar_origin_germline": True, "clinvar_origin_somatic": False},
+            0,
+        )
 
-    setup_case_in_db = fixture_setup_clinvar
-    base_cleaned_data = {
-        "release": "GRCh37",
-        "chromosome": "1",
-        "position": 100,
-        "reference": "A",
-        "alternative": "G",
-    }
+    def testPracticeGuidelineInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["practice guideline"]},
+            {"clinvar_status_practice_guideline": True},
+            1,
+        )
 
-    def test_clinvar_query(self):
-        obj = self.run_get_query(Clinvar, {})
-        self.assertEquals(obj.position, 100)
+    def testPracticeGuidelineNoInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["practice guideline"]},
+            {"clinvar_status_practice_guideline": False},
+            0,
+        )
 
-    def test_clinvar_query_fail(self):
-        self.run_get_query(Clinvar, {"position": 300}, Clinvar.DoesNotExist)
+    def testExpertPanelInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["reviewed by expert panel"]},
+            {"clinvar_status_expert_panel": True},
+            1,
+        )
 
+    def testExpertPanelNoInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["reviewed by expert panel"]},
+            {"clinvar_status_expert_panel": False},
+            0,
+        )
 
-def fixture_setup_geneinfo():
-    Hgnc.objects.create(
-        hgnc_id="HGNC:1", symbol="AAA", name="AAA gene", entrez_id="123", ensembl_gene_id="ENSG1"
-    )
-    Hgnc.objects.create(
-        hgnc_id="HGNC:2", symbol="BBB", name="CCC gene", entrez_id="456", ensembl_gene_id="ENSG2"
-    )
-    Hgnc.objects.create(
-        hgnc_id="HGNC:3", symbol="CCC", name="BBB gene", entrez_id="789", ensembl_gene_id="ENSG3"
-    )
-    Mim2geneMedgen.objects.create(omim_id=1, entrez_id="123")
-    Mim2geneMedgen.objects.create(omim_id=2, entrez_id="123")
-    Mim2geneMedgen.objects.create(omim_id=3, entrez_id="789")
-    Hpo.objects.create(database_id="OMIM:1", hpo_id="HP:001")
-    Hpo.objects.create(database_id="OMIM:1", hpo_id="HP:002")
-    Hpo.objects.create(database_id="OMIM:3", hpo_id="HP:003")
+    def testMultipleNoConflictInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["criteria provided, multiple submitters, no conflicts"]},
+            {"clinvar_status_multiple_no_conflict": True},
+            1,
+        )
 
+    def testMultipleNoConflictNoInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["criteria provided, multiple submitters, no conflicts"]},
+            {"clinvar_status_multiple_no_conflict": False},
+            0,
+        )
 
-class TestGeneinfoQuery(QueryTestBase):
-    """Test querying Hgnc"""
+    def testSingleInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["criteria provided, single submitter"]},
+            {"clinvar_status_single": True},
+            1,
+        )
 
-    setup_case_in_db = fixture_setup_geneinfo
-    base_cleaned_data = {}
+    def testSingleNoInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["criteria provided, single submitter"]},
+            {"clinvar_status_single": False},
+            0,
+        )
 
-    def test_hgnc_query_refseq(self):
-        """Test hgnc query with refseq id"""
-        obj = self.run_get_query(Hgnc, {"entrez_id": "123"})
-        self.assertEquals(obj.symbol, "AAA")
+    def testConflictInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["criteria provided, conflicting interpretations"]},
+            {"clinvar_status_conflict": True},
+            1,
+        )
 
-    def test_hgnc_query_refseq_fail(self):
-        """Test hgnc query with refseq id failing"""
-        self.run_get_query(Hgnc, {"entrez_id": "000"}, Hgnc.DoesNotExist)
+    def testConflictNoInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["criteria provided, conflicting interpretations"]},
+            {"clinvar_status_conflict": False},
+            0,
+        )
 
-    def test_hgnc_query_ensembl(self):
-        """Test hgnc query with ensembl gene id"""
-        obj = self.run_get_query(Hgnc, {"ensembl_gene_id": "ENSG1"})
-        self.assertEquals(obj.symbol, "AAA")
+    def testNoCriteriaInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["no assertion criteria provided"]},
+            {"clinvar_status_no_criteria": True},
+            1,
+        )
 
-    def test_hgnc_query_ensembl_fail(self):
-        """Test hgnc query with ensembl gene id failing"""
-        self.run_get_query(Hgnc, {"ensembl_gene_id": "ENSG0"}, Hgnc.DoesNotExist)
+    def testNoCriteriaNoInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["no assertion criteria provided"]},
+            {"clinvar_status_no_criteria": False},
+            0,
+        )
 
-    def test_mim2genemedgen(self):
-        """Test mim2gene medgen query. only works with refseq id"""
-        self.run_filter_query(Mim2geneMedgen, {"entrez_id": "123"}, 2)
+    def testNoAssertionInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["no assertion provided"]},
+            {"clinvar_status_no_assertion": True},
+            1,
+        )
 
-    def test_mim2genemedgen_empty_list(self):
-        """Test mem2gene medgen query with no results"""
-        self.run_filter_query(Mim2geneMedgen, {"entrez_id": "000"}, 0)
-
-    def test_hpo(self):
-        """Test hpo query"""
-        self.run_filter_query(Hpo, {"database_id": "OMIM:1"}, 2)
-
-    def test_hpo_empty(self):
-        """Test hpo query with empty results"""
-        self.run_filter_query(Hpo, {"database_id": "OMIM:2"}, 0)
-
-
-def fixture_setup_pathways():
-    """Setup case for pathway tests"""
-    kegginfo1 = KeggInfo.objects.create(kegg_id="hsa1", name="Pathway1")
-    kegginfo2 = KeggInfo.objects.create(kegg_id="hsa2", name="Pathway2")
-    EnsemblToKegg.objects.create(gene_id="ENSG1", kegginfo_id=kegginfo1.pk)
-    EnsemblToKegg.objects.create(gene_id="ENSG1", kegginfo_id=kegginfo2.pk)
-    EnsemblToKegg.objects.create(gene_id="ENSG2", kegginfo_id=kegginfo2.pk)
-    RefseqToKegg.objects.create(gene_id="123", kegginfo_id=kegginfo1.pk)
-    RefseqToKegg.objects.create(gene_id="456", kegginfo_id=kegginfo1.pk)
-    RefseqToKegg.objects.create(gene_id="456", kegginfo_id=kegginfo2.pk)
-
-
-class TestPathwayQuery(QueryTestBase):
-    """Test pathways query"""
-
-    setup_case_in_db = fixture_setup_pathways
-    base_cleaned_data = {}
-
-    def test_ensembltokegg_query(self):
-        self.run_filter_query(EnsemblToKegg, {"gene_id": "ENSG1"}, 2)
-
-    def test_ensembltokegg_empty(self):
-        self.run_filter_query(EnsemblToKegg, {"gene_id": "ENSG0"}, 0)
-
-    def test_refseqtokegg_query(self):
-        self.run_filter_query(RefseqToKegg, {"gene_id": "123"}, 1)
-
-    def test_refseqtokegg_empty(self):
-        self.run_filter_query(RefseqToKegg, {"gene_id": "000"}, 0)
-
-    def test_kegginfo_ensembl_query(self):
-        ensemblkegg = EnsemblToKegg.objects.filter(gene_id="ENSG1").first()
-        obj = self.run_get_query(KeggInfo, {"id": ensemblkegg.kegginfo_id})
-        self.assertEquals(obj.name, "Pathway1")
-
-    def test_kegginfo_refseq_query(self):
-        refseqkegg = RefseqToKegg.objects.filter(gene_id="456")
-        obj = self.run_get_query(KeggInfo, {"id": refseqkegg[0].kegginfo_id})
-        self.assertEquals(obj.name, "Pathway1")
-        obj = self.run_get_query(KeggInfo, {"id": refseqkegg[1].kegginfo_id})
-        self.assertEquals(obj.name, "Pathway2")
-
-    def test_kegginfo_fail(self):
-        self.run_get_query(KeggInfo, {"id": 12345678}, KeggInfo.DoesNotExist)
+    def testNoAssertionNoInclude(self):
+        self._runTest(
+            {"review_status_ordered": ["no assertion provided"]},
+            {"clinvar_status_no_assertion": False},
+            0,
+        )

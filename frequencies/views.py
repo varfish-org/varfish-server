@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.forms.models import model_to_dict
 
-from querybuilder.models_support import FREQUENCY_DB_INFO
+from variants.models_support import FREQUENCY_DB_INFO
 
 
 class FrequencyMixin:

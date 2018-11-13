@@ -11,7 +11,7 @@ import vcfpy
 
 from .models import ExportFileJobResult
 from projectroles.plugins import get_backend_api
-from querybuilder.models_support import ExportFileFilterQuery
+from variants.models_support import ExportFileFilterQuery
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()

@@ -16,6 +16,11 @@ urlpatterns = [
         view=views.CaseFilterView.as_view(),
         name="case-filter",
     ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/clinvar/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseClinvarReportView.as_view(),
+        name="case-clinvar",
+    ),
     # Views for export background jobs
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/export-job/list/(?P<case>[0-9a-f-]+)/$",
@@ -39,9 +44,11 @@ urlpatterns = [
     ),
     # API for expanding details in result list
     url(
-        regex=(r"^(?P<project>[0-9a-f-]+)/api/extend/(?P<release>(GRCh37|GRCh38))-"
-               r"(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT]))-(?P<position>[0-9]+)-"
-               r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/$"),
+        regex=(
+            r"^(?P<project>[0-9a-f-]+)/api/extend/(?P<release>(GRCh37|GRCh38))-"
+            r"(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT]))-(?P<position>[0-9]+)-"
+            r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/$"
+        ),
         view=views.ExtendAPIView.as_view(),
         name="extend",
     ),

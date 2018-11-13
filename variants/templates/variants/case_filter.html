@@ -38,7 +38,7 @@
 
   <div class="row sodar-pr-content-title pb-2">
     <h2 class="sodar-pr-content-title">
-      Filter Case: {{ object.name }}
+      &quot;{{ object.name }}&quot; &mdash; Variant Filter
     </h2>
   </div>
 
@@ -49,60 +49,19 @@
   {% if result_rows is None %}
   {% elif not result_rows %}
     <div class="container-fluid sodar-page-container">
-    <h2>
-      Empty Result Set
-      <small class="text-muted">
-        Try again with different settings?
-      </small>
-    </h2>
+      <h2>
+        Empty Result Set
+        <small class="text-muted">
+          Try again with different settings?
+        </small>
+      </h2>
     </div>
   {% else %}
-    <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0">
-      <h2>
-        Results
-        <span class="badge badge-pill badge-success">{{ result_rows|length }}/{{ result_count }}</span>
-        <span class="badge badge-pill badge-warning">
-          {% if form.database_select.data == "refseq" %}
-          RefSeq
-          {% elif form.database_select.data == "ensembl" %}
-          EnsEMBL
-          {% endif %}
-        </span>
-        {% if form.thousand_genomes_enabled.data %}
-        <span class="badge badge-pill badge-secondary">1000 genomes</span>
-        {% endif %}
-        {% if form.gnomad_exomes_enabled.data %}
-        <span class="badge badge-pill badge-secondary">gnomAD exomes</span>
-        {% endif %}
-        {% if form.gnomad_genomes_enabled.data %}
-        <span class="badge badge-pill badge-secondary">gnomAD genomes</span>
-        {% endif %}
-        {% if form.exac_enabled.data %}
-        <span class="badge badge-pill badge-secondary">ExAC</span>
-        {% endif %}
-        {% if form.var_type_mnv.data %}
-        <span class="badge badge-pill badge-info">MNV</span>
-        {% endif %}
-        {% if form.var_type_snv.data %}
-        <span class="badge badge-pill badge-info">SNV</span>
-        {% endif %}
-        {% if form.var_type_indel.data %}
-        <span class="badge badge-pill badge-info">InDel</span>
-        {% endif %}
-      </h2>
-
-      <p class="text-muted">
-        <small>
-          Displaying the first <strong>{{ result_rows|length }} of {{ result_count }}</strong> records.
-          Create an TSV/Excel/VCF file for download for getting all {{ result_count }} rows.
-          Query completed in {{ elapsed_seconds }} sec.
-        </small>
-      </p>
-
-      <div class="form-inline pl-2 pr-2">
-        <div class="form-group">
-          <strong>
-            Display Settings
+    <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0 pb-0">
+      <div class="form-inline pl-2 pr-2 row">
+        <div class="p-2">
+          <strong style="font-size: 140%;">
+            Results
           </strong>
         </div>
         <div class="p-2 form-group">
@@ -116,13 +75,25 @@
             <option value="gnomad-genomes">gnomAD genomes</option>
           </select>
         </div>
+        <div class="pl-3">
+          First <strong>{{ result_rows|length }} of {{ result_count }}</strong> records
+          <i class="fa fa-info-circle" data-toggle="tooltip"
+             title="Use the &quot;Result row limit&quot; to see more columns. Pro-tip: TSV/Excel/VCF file downloads will contain all all {{ result_count }} rows."></i>.
+        </div>
+        <div class="pl-3">
+          Using
+          {% if form.cleaned_data.database_select == "refseq" %}
+            <strong>RefSeq</strong>
+          {% else %}
+            <strong>ENSEMBL</strong>
+          {% endif %}
+          transcripts.
+        </div>
       </div>
     </div>
 
    <div class="container-fluid sodar-page-container">
-
-
-    <div id="table-config">
+     <div id="table-config">
       <table class="table table-hover table-sm varfish-variant-table" id="main">
         <thead>
           {% include "variants/_filter_table_header.html" %}
@@ -136,7 +107,11 @@
       </table>
     </div>
 
-    </div> <!-- sodar-page-container -->
+    <p>
+      Query completed in {{ elapsed_seconds }} sec.
+    </p>
+
+  </div> <!-- sodar-page-container -->
   {% endif %}
 
 

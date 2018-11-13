@@ -7,7 +7,10 @@ from test_plus.test import TestCase
 
 from projectroles.models import Project
 from variants.models import SmallVariant, ExportFileBgJob, Case, ExportFileJobResult
+from clinvar.models import Clinvar
 from frequencies.models import Exac, GnomadGenomes, GnomadExomes, ThousandGenomes
+
+from ._fixtures import CLINVAR_DEFAULTS, CLINVAR_FORM_DEFAULTS
 
 import json
 
@@ -227,8 +230,21 @@ def fixture_setup_case(user):
     }
 
     SmallVariant.objects.create(**{**basic_var, **{"position": 100}})
-    SmallVariant.objects.create(**{**basic_var, **{"position": 200}})
+    SmallVariant.objects.create(**{**basic_var, **{"position": 200, "in_clinvar": True}})
     SmallVariant.objects.create(**{**basic_var, **{"position": 300}})
+
+    Clinvar.objects.create(
+        **{
+            **CLINVAR_DEFAULTS,
+            "position": 200,
+            "start": 200,
+            "stop": 200,
+            "clinical_significance": "pathogenic",
+            "clinical_significance_ordered": ["pathogenic"],
+            "review_status": ["practice guideline"],
+            "review_status_ordered": ["practice guideline"],
+        }
+    )
 
 
 class TestViewBase(TestCase):
@@ -353,6 +369,40 @@ class TestCaseFilterView(TestViewBase):
                     kwargs={"project": case.project.sodar_uuid, "job": created_job.sodar_uuid},
                 ),
             )
+
+
+class TestCaseClinvarReportView(TestViewBase):
+    """Test case Clinvar report view"""
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_get_renders_form(self):
+        """Test that GET returns the form"""
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+            response = self.client.get(
+                reverse(
+                    "variants:case-clinvar",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.context[-1].get("form"))
+
+    def test_post_returns_report(self):
+        """Test that an appropriate POST returns a report"""
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+            response = self.client.post(
+                reverse(
+                    "variants:case-clinvar",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {**CLINVAR_FORM_DEFAULTS, "submit": "display"},
+            )
+            self.assertEqual(response.status_code, 200)
+            result_rows = list(response.context[-1].get("result_rows"))
+            self.assertEquals(len(result_rows), 1)
 
 
 def fixture_setup_expand(user):

@@ -10,7 +10,7 @@ UUID =
 .PHONY: $(SMALLVARIANTS) $(CASES) $(ANNOTATIONS) $(DB_PATH)/kegg/genetokegg.fk.tsv
 
 black:
-	black -l 100 bgjobs variants querybuilder importer annotation geneinfo
+	black -l 100 bgjobs variants importer annotation geneinfo
 
 serve:
 	$(MANAGE) runserver
@@ -83,10 +83,10 @@ import_refseqtokegg: $(DB_PATH)/kegg/refseqtokegg.fk.tsv
 	$(MANAGE) import --path $< --database refseqtokegg --release "2018-08-14"
 
 import_clinvar_multi: $(wildcard $(DB_PATH)/clinvar/*.multi.*.tsv)
-	$(MANAGE) import --path $< --database clinvar --release "2018-08-14"
+	$(MANAGE) import --path $< --database clinvar --release "2018-11-12"
 
 import_clinvar_single: $(wildcard $(DB_PATH)/clinvar/*.single.*.tsv)
-	$(MANAGE) import --path $< --database clinvar --release "2018-08-14"
+	$(MANAGE) import --path $< --database clinvar --release "2018-11-12"
 
 import_knowngeneaa: $(wildcard $(DB_PATH)/knowngeneaa/*.tsv)
 	$(MANAGE) import --path $< --database knowngeneaa --release "2018-09-24"
@@ -96,6 +96,7 @@ import_clinvar: import_clinvar_single import_clinvar_multi
 import_databases: import_exac import_dbsnp import_gnomadexomes import_hgnc import_hpo import_omim import_kegg import_clinvar import_knowngeneaa
 
 test:
-	python manage.py test -v2 --settings=config.settings.test
+	coverage run manage.py test -v2 --settings=config.settings.test
+	coverage report
 
 import: import_smallvariants import_annotations import_databases

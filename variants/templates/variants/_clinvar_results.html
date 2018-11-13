@@ -1,0 +1,62 @@
+{% load dict %}
+
+{% if result_rows is None %}
+{% elif not result_rows %}
+  <div class="container-fluid sodar-page-container">
+    <h2>
+      Empty Result Set
+      <small class="text-muted">
+        Try again with different settings?
+      </small>
+    </h2>
+  </div>
+{% else %}
+  <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0 pb-0">
+    <div class="form-inline pl-2 pr-2 row">
+      <div class="p-2">
+        <strong style="font-size: 140%;">
+          Results
+        </strong>
+      </div>
+      <div class="pl-3">
+        <i class="fa fa-hashtag"></i>
+        Showing <strong>{{ grouped_rows|length }}</strong> variants based on
+        <strong>
+          {{ result_rows|length }}
+          {% if result_rows|length != result_count %}
+             of {{ result_count }}
+          {% endif %}
+        </strong>
+        Clinvar records.
+        {% if result_rows|length != result_count %}
+          <span class="text-warning">
+            <i class="fa fa-warning" data-toggle="tooltip"
+               title="Use the &quot;Result row limit&quot; to see more columns. Report a bug if you need more."></i>.
+          </span>
+        {% endif %}
+      </div>
+      <div class="pl-3">
+        <i class="fa fa-sort"></i>
+        Variants are first sorted by ClinVar significance (pathogenic to benign), then by status/reliability.
+      </div>
+    </div>
+  </div>
+
+  <div class="row pt-3">
+    {% for entry in grouped_rows %}
+      {% ifchanged %}
+        <div class="col-12 border-bottom mb-2">
+          <h4 class="pb-0">ClinVar Significance: {{ entry.max_significance }}</h4>
+        </div>
+      {% endifchanged %}
+
+      {% include "variants/_clinvar_result_item.html" %}
+    {% endfor %}
+  </div>
+
+  <p>
+    Query completed in {{ elapsed_seconds }} sec.
+  </p>
+
+</div> <!-- sodar-page-container -->
+{% endif %}

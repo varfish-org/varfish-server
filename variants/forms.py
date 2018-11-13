@@ -61,6 +61,127 @@ FILTER_FORM_TRANSLATE_INHERITANCE = {
 }
 
 
+#: Mapping from form ``BooleanField`` to value in database for Clinvar status.
+FILTER_FORM_TRANSLATE_CLINVAR_STATUS = {
+    "clinvar_status_practice_guideline": "practice guideline",
+    "clinvar_status_expert_panel": "reviewed by expert panel",
+    "clinvar_status_multiple_no_conflict": "criteria provided, multiple submitters, no conflicts",
+    "clinvar_status_conflict": "criteria provided, conflicting interpretations",
+    "clinvar_status_single": "criteria provided, single submitter",
+    "clinvar_status_no_criteria": "no assertion criteria provided",
+    "clinvar_status_no_assertion": "no assertion provided",
+}
+
+
+#: Mapping from form ``BooleanField`` to value in database for Clinvar significance.
+FILTER_FORM_TRANSLATE_SIGNIFICANCE = {
+    "clinvar_include_pathogenic": "pathogenic",
+    "clinvar_include_likely_pathogenic": "likely pathogenic",
+    "clinvar_include_uncertain_significance": "uncertain significance",
+    "clinvar_include_likely_benign": "likely benign",
+    "clinvar_include_benign": "benign",
+}
+
+
+class ClinvarForm(forms.Form):
+    """Form used for creating Clinvar report."""
+
+    result_rows_limit = forms.IntegerField(
+        label="Result row limit",
+        required=True,
+        initial=500,
+        help_text=(
+            "Currently hard-coded limit when querying Clinvar. Report a bug if you need more than 500 rows."
+        ),
+        widget=forms.HiddenInput(),
+    )
+
+    clinvar_include_benign = forms.BooleanField(label="benign", required=False, initial=False)
+    clinvar_include_likely_benign = forms.BooleanField(
+        label="likely benign", required=False, initial=False
+    )
+    clinvar_include_uncertain_significance = forms.BooleanField(
+        label="uncertain significance", required=False, initial=True
+    )
+    clinvar_include_likely_pathogenic = forms.BooleanField(
+        label="likely pathogenic", required=False, initial=True
+    )
+    clinvar_include_pathogenic = forms.BooleanField(
+        label="pathogenic", required=False, initial=True
+    )
+
+    clinvar_origin_germline = forms.BooleanField(label="germline", required=False, initial=True)
+    clinvar_origin_somatic = forms.BooleanField(label="somatic", required=False, initial=False)
+
+    clinvar_status_practice_guideline = forms.BooleanField(
+        label="practice guideline (4 stars)", required=False, initial=True
+    )
+    clinvar_status_expert_panel = forms.BooleanField(
+        label="reviewed by expert panel (3 stars)", required=False, initial=True
+    )
+    clinvar_status_multiple_no_conflict = forms.BooleanField(
+        label="criteria provided, multiple submitters, no conflicts (2 stars)",
+        required=False,
+        initial=True,
+    )
+    clinvar_status_conflict = forms.BooleanField(
+        label="criteria provided, conflicting interpretations (1 stars)",
+        required=False,
+        initial=True,
+    )
+    clinvar_status_single = forms.BooleanField(
+        label="criteria provided, single submitter (1 stars)", required=False, initial=True
+    )
+    clinvar_status_no_criteria = forms.BooleanField(
+        label="no assertion criteria provided (0 stars)", required=False, initial=True
+    )
+    clinvar_status_no_assertion = forms.BooleanField(
+        label="no assertion provided (0 stars)", required=False, initial=True
+    )
+
+    DATABASE_SELECT_CHOICES = [("refseq", "RefSeq"), ("ensembl", "EnsEMBL")]
+    database_select = forms.ChoiceField(
+        choices=DATABASE_SELECT_CHOICES,
+        widget=forms.RadioSelect(),
+        initial=DATABASE_SELECT_CHOICES[0],
+    )
+
+    def __init__(self, *args, **kwargs):
+        case = kwargs.pop("case")
+        super().__init__(*args, **kwargs)
+
+        # Get pedigree, used for rendering the form
+        self.pedigree = case.pedigree
+        # Get trio role to member mapping
+        trio_roles = case.get_trio_roles()
+        # Build mapping from member to role, used for rendering the form
+        self.member_roles = {}
+        for member in self.pedigree:
+            if member["patient"] == trio_roles.get("index"):
+                self.member_roles[member["patient"]] = "index"
+                self.member_roles[member["father"]] = "father"
+                self.member_roles[member["mother"]] = "mother"
+            elif member["patient"] not in self.member_roles:
+                self.member_roles[member["patient"]] = "N/A"
+        # Build field name mapping for all members
+        self.field_names = {}
+        for member in self.pedigree:
+            for key in ("gt", "dp_het", "dp_hom", "ab", "gq", "ad", "fail", "export"):
+                self.field_names.setdefault(member["patient"], {})[key] = "%s_%s" % (
+                    member["patient"],
+                    key,
+                )
+
+        # Dynamically add the fields based on the pedigree
+        for member in self.pedigree:
+            name = member["patient"]
+            self.fields[self.field_names[name]["gt"]] = forms.CharField(
+                label="",
+                required=True,
+                widget=forms.Select(choices=INHERITANCE, attrs={"class": "genotype-field-gt"}),
+            )
+
+
 class ResubmitForm(forms.Form):
     file_type = forms.ChoiceField(
         initial="xlsx",

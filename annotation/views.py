@@ -5,12 +5,10 @@ from .models import Annotation
 from django.forms.models import model_to_dict
 from frequencies.views import FrequencyMixin
 from dbsnp.models import Dbsnp
-from pathways.models import KeggInfo, RefseqToKegg, EnsemblToKegg
 from clinvar.models import Clinvar
-from geneinfo.models import Hgnc, Mim2geneMedgen, Hpo
 from geneinfo.views import GeneCardMixin
 from django.views.generic import TemplateView
-from querybuilder.models_support import KnownGeneAAQuery
+from variants.models_support import KnownGeneAAQuery
 from variants.views import AlchemyConnectionMixin
 
 

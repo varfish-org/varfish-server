@@ -1,0 +1,56 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+{% load humanize %}
+
+<form id="filterForm" method="post">{% csrf_token %}
+  {{ form.result_rows_limit }}
+  <div class="card">
+    <div class="card-header">
+      <div class="row">
+        <h5 class="mb-3">
+          Filter Settings
+        </h5>
+      </div>
+
+      <ul class="nav nav-tabs card-header-tabs" style="border-bottom: 0;">
+        <li class="nav-item">
+          <a class="nav-link active" id="genotype-tab" data-toggle="tab" href="#panel-genotype" role="tab">Genotype</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="clinvar-tab" data-toggle="tab" href="#panel-clinvar" role="tab">ClinVar</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="panel-genotype" role="tabpanel" aria-labelledby="genotype-tab">
+          {% include "variants/_filter_form_genotype.html" with clinvar_form=True %}
+        </div>
+        <div class="tab-pane fade" id="panel-clinvar" role="tabpanel" aria-labelledby="clinvar-tab">
+          {% include "variants/_clinvar_form_clinvar.html" %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-left p-0">
+          <div class="btn-group btn-group-toggle pr-5" data-toggle="buttons">
+            {% for radio in form.database_select %}
+            <label class="btn btn-outline-secondary {% if radio.data.selected %}active{% endif %}" for="{{ radio.id_for_label }}" data-toggle="tooltip" title="Select {{ radio.choice_label }} transcripts">
+              {{ radio.tag }} {{ radio.choice_label }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="col text-right p-0">
+            <button type="submit" name="submit" value="display" class="btn btn-primary">
+              <i class="fa fa-refresh"></i>
+              Filter &amp; Display
+            </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

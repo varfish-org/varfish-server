@@ -1,3 +1,5 @@
+from itertools import groupby, chain
+
 import decimal
 import aldjemy.core
 
@@ -14,13 +16,18 @@ import simplejson as json
 
 from bgjobs.models import BackgroundJob
 from clinvar.models import Clinvar
-from conservation.models import KnowngeneAA
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
-from querybuilder.models_support import RenderFilterQuery, KnownGeneAAQuery
+from variants.models_support import ClinvarReportQuery, RenderFilterQuery, KnownGeneAAQuery
 
 from .models import Case, ExportFileBgJob
-from .forms import FilterForm, ResubmitForm
+from .forms import (
+    ClinvarForm,
+    FilterForm,
+    ResubmitForm,
+    FILTER_FORM_TRANSLATE_SIGNIFICANCE,
+    FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
+)
 from .tasks import export_file_task
 
 #: The SQL Alchemy engine to use
@@ -161,6 +168,120 @@ class CaseFilterView(
                 result_rows=rows, result_count=num_results, elapsed_seconds=elapsed.total_seconds()
             ),
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object"] = self.get_case_object()
+        return context
+
+
+def status_level(status):
+    """Return int level of highest clinvar status/pathogenicity from iterable of clinvar status strings."""
+    for i, ref in enumerate(FILTER_FORM_TRANSLATE_CLINVAR_STATUS.values()):
+        if ref == status:
+            return i
+    return len(FILTER_FORM_TRANSLATE_CLINVAR_STATUS.values())
+
+
+def sig_level(significance):
+    """Return int level of highest pathogenicity from iterable of pathogenicity strings."""
+    for i, ref in enumerate(FILTER_FORM_TRANSLATE_SIGNIFICANCE.values()):
+        if ref == significance:
+            return i
+    return len(FILTER_FORM_TRANSLATE_SIGNIFICANCE.values())
+
+
+class CaseClinvarReportView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    FormView,
+):
+    template_name = "variants/case_clinvar.html"
+    permission_required = "variants.view_data"
+    form_class = ClinvarForm
+    success_url = "."
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._case_object = None
+        self._alchemy_connection = None
+
+    def get_case_object(self):
+        if not self._case_object:
+            self._case_object = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        return self._case_object
+
+    def get_form_kwargs(self):
+        result = super().get_form_kwargs()
+        result["case"] = self.get_case_object()
+        return result
+
+    def form_valid(self, form):
+        """The form is valid, we are supposed to render an HTML table with the results."""
+        # TODO: refactor grouping
+        before = timezone.now()
+        qb = ClinvarReportQuery(self.get_case_object(), self.get_alchemy_connection())
+        result = qb.run(form.cleaned_data)
+        elapsed = timezone.now() - before
+        num_results = result.rowcount
+        rows = list(result.fetchmany(form.cleaned_data["result_rows_limit"]))
+        grouped_rows = {
+            (r["max_significance_lvl"], r["max_clinvar_status_lvl"], key): r
+            for key, r in self._yield_grouped_rows(rows)
+        }
+        sorted_grouped_rows = [v for k, v in sorted(grouped_rows.items())]
+        return render(
+            self.request,
+            self.template_name,
+            self.get_context_data(
+                result_rows=rows,
+                grouped_rows=sorted_grouped_rows,
+                result_count=num_results,
+                elapsed_seconds=elapsed.total_seconds(),
+            ),
+        )
+
+    def _yield_grouped_rows(self, rows):
+        grouped = groupby(
+            rows, lambda x: (x.release, x.chromosome, x.position, x.reference, x.alternative)
+        )
+        for k, vs in grouped:
+            key = "-".join(map(str, k))
+            vs = list(vs)
+            row = {"entries": vs, "clinvars": []}
+            for v in vs:
+                row["clinvars"].append(
+                    {
+                        "rcv": v.rcv,
+                        "clinical_significance_ordered": v.clinical_significance_ordered,
+                        "review_status_orderd": v.review_status_ordered,
+                        "all_traits": v.all_traits,
+                        # "dates_ordered": v.dates_ordered,
+                        "origin": v.origin,
+                    }
+                )
+                candidates = []
+                for sig, status in zip(v.clinical_significance_ordered, v.review_status_ordered):
+                    sig_lvl = sig_level(sig)
+                    status_lvl = status_level(status)
+                    candidates.append((sig_lvl, status_lvl, sig, status))
+                    print(candidates[-1])
+                # update dict
+                keys = [
+                    "max_significance_lvl",
+                    "max_clinvar_status_lvl",
+                    "max_significance",
+                    "max_clinvar_status",
+                ]
+                if candidates:
+                    values = min(candidates)
+                else:
+                    values = (sig_level(None), status_level(None), None, None)
+                row = {**row, **(dict(zip(keys, values)))}
+            yield key, row
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

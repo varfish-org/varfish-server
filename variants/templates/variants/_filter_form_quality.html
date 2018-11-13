@@ -1,5 +1,6 @@
 {% load crispy_forms_tags %}
 {% load dict %}
+{% load variants_tags %}
 
 <!-- Prevent table overflow -->
 <style type="text/css">
@@ -26,8 +27,8 @@
     {% for member in form.pedigree %}
     <tr>
       <td>{{ member.patient }}</td>
-      <td>{{ member.father|default:"0" }}</td>
-      <td>{{ member.mother|default:"0" }}</td>
+      <td>{{ member.father|default:"0"|only_source_name }}</td>
+      <td>{{ member.mother|default:"0"|only_source_name }}</td>
       {% with field_names=form.field_names|keyvalue:member.patient %}
         <td>{% with x=field_names|keyvalue:"dp_het" %}{{ form|keyvalue:x }}{% endwith %}</td>
         <td>{% with x=field_names|keyvalue:"dp_hom" %}{{ form|keyvalue:x }}{% endwith %}</td>

@@ -1,0 +1,109 @@
+{% load dict %}
+{% load humanize %}
+{% load variants_tags %}
+
+<div class="card col-12">
+  <div class="card-header d-flex">
+    <h5 class="card-title mb-0">
+      <a class="badge badge-dark" href="#clinvar-entry-{{ forloop.counter }}" id="clinvar-entry-{{ forloop.counter }}">
+        #{{ forloop.counter }} / {{ grouped_rows|length }}
+      </a>
+      chr{{ entry.entries.0.chromosome }}-{{ entry.entries.0.position|intcomma }}-{{ entry.entries.0.reference }}-{{ entry.entries.0.alternative }}
+      <small class="text-muted">
+        ({{ entry.entries.0.release }})
+      </small>
+    </h5>
+    <div class="ml-auto">
+      <span class="badge badge-{{ entry.max_significance|significance_color }}">
+        {{ entry.max_significance }}
+      </span>
+      <span class="badge badge-dark" data-toggle="tooltip" data-placement="top" title="{{ entry.max_clinvar_status }}">
+        {% for i in "1234" %}
+          {% if forloop.counter <= entry.max_clinvar_status|status_stars %}
+            <i class="fa fa-star"></i>
+          {% else %}
+            <i class="fa fa-star-o"></i>
+          {% endif %}
+        {% endfor %}
+      </span>
+    </div>
+  </div>
+  <div class="card-body pt-0 pl-0 pr-0 pb-3">
+    <div class="row">
+      <div class="col-2 pt-2 pb-2">
+        <strong>effect</strong><br>
+        {{ entry.entries.0.effect|join:", " }}
+      </div>
+      <div class="col-2 pt-2 pb-2">
+        <strong>gene symbol</strong><br>
+        {{ entry.entries.0.symbol }}
+      </div>
+      <div class="col-2 pt-2 pb-2">
+        <strong>gene name</strong><br>
+        {{ entry.entries.0.gene_name }}
+      </div>
+      <div class="col-2 pt-2 pb-2">
+        <strong>transcript change</strong><br>
+        {{ entry.entries.0.transcript_id }}:{{ entry.entries.0.hgvs_c }}
+      </div>
+      <div class="col-2 pt-2 pb-2">
+        <strong>protein change</strong><br>
+        {{ entry.entries.0.symbol }}:{{ entry.entries.0.hgvs_p }}
+      </div>
+      <div class="col-2 pt-2 pb-2">
+        <strong>gene family</strong><br>
+        {{ entry.entries.0.gene_family }}
+      </div>
+      <div class="col-4 pt-2 pb-2">
+        <table class="table table-sm table-striped">
+          <thead class="thead-light">
+            <tr>
+              <th style="width: 0px;">ID</th>
+              {% for member in form.pedigree %}
+                <th class="text-center">{{ member.patient|only_source_name }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th style="width: 0px;">GT</th>
+              {% for member in form.pedigree %}
+                <td class="text-center">{{ entry.entries.0.genotype|keyvalue:member.patient|keyvalue:"gt" }}</td>
+              {% endfor %}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-12">
+        <table class="table table-sm table-striped table-hover">
+          <thead class="thead-light">
+          <tr>
+            <th class="text-center">ClinVar</th>
+            <th class="text-center">sig</th>
+            <th class="text-center">status</th>
+            <th class="text-center">traits</th>
+            <th class="text-center">origin</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for clinvar in entry.clinvars %}
+            <tr>
+              {% for col in clinvar.values %}
+                {% if forloop.first %}
+                  <td>
+                    <a href="https://www.ncbi.nlm.nih.gov/clinvar/{{ col }}/">
+                      {{ col }}
+                    </a>
+                  </td>
+                {% else %}
+                  <td>{{ col|join:"<br>" }}</td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
