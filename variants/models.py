@@ -6,13 +6,18 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.dispatch import receiver
+from django.conf import settings
 from django.db.models.signals import pre_delete
 
 from projectroles.models import Project
 
 from bgjobs.models import BackgroundJob, JOB_STATE_DONE, JOB_STATE_FAILED, JOB_STATE_RUNNING
+
+#: Django user model.
+AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
 
 class SmallVariant(models.Model):
@@ -54,6 +59,15 @@ class SmallVariant(models.Model):
     ensembl_hgvs_p = models.CharField(max_length=512, null=True)
     ensembl_effect = ArrayField(models.CharField(max_length=64, null=True))
     objects = CopyManager()
+
+    def get_description(self):
+        """Return simple string description of variant"""
+        return "-".join(
+            map(
+                str,
+                (self.release, self.chromosome, self.position, self.reference, self.alternative),
+            )
+        )
 
     class Meta:
         unique_together = (
@@ -266,3 +280,167 @@ class ExportFileJobResult(models.Model):
     )
     expiry_time = models.DateTimeField(help_text="Time at which the file download expires")
     payload = models.BinaryField(help_text="Resulting exported file")
+
+
+class SmallVariantComment(models.Model):
+    """Model for commenting on a ``SmallVariant``."""
+
+    #: User who created the comment.
+    user = models.ForeignKey(
+        AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="small_variant_comments",
+        help_text="User who created the comment",
+    )
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+    #: DateTime of last modification
+    date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
+    #: Small variant flags UUID
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Small variant flags SODAR UUID"
+    )
+
+    #: The genome release of the small variant coordinate.
+    release = models.CharField(max_length=32)
+    #: The chromosome of the small variant coordinate.
+    chromosome = models.CharField(max_length=32)
+    #: The position of the small variant coordinate.
+    position = models.IntegerField()
+    #: The reference bases of the small variant coordinate.
+    reference = models.CharField(max_length=512)
+    #: The alternative bases of the small variant coordinate.
+    alternative = models.CharField(max_length=512)
+
+    #: The related case.
+    case = models.ForeignKey(
+        Case,
+        null=False,
+        related_name="small_variant_comments",
+        help_text="Case that this variant is flagged in",
+    )
+
+    #: The comment text.
+    text = models.TextField(help_text="The comment text", null=False, blank=False)
+
+    def clean(self):
+        """Make sure that the case has such a variant"""
+        # TODO: unit test me
+        try:
+            SmallVariant.objects.get(
+                case_id=self.case.pk,
+                release=self.release,
+                chromosome=self.chromosome,
+                position=self.position,
+                reference=self.reference,
+                alternative=self.alternative,
+            )
+        except SmallVariant.DoesNotExit as e:
+            raise ValidationError("No corresponding variant in case") from e
+
+
+#: Choices for visual inspect, wet-lab validation, or clinical/phenotype flag statuses.
+VARIANT_RATING_CHOICES = (
+    ("positive", "positive"),
+    ("uncertain", "uncertain"),
+    ("negative", "negative"),
+    ("empty", "empty"),
+)
+
+
+class SmallVariantFlags(models.Model):
+    """Small variant flag models, at most one per variant of each model."""
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+    #: DateTime of last modification
+    date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
+    #: Small variant flags UUID
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Small variant flags SODAR UUID"
+    )
+
+    #: The genome release of the small variant coordinate.
+    release = models.CharField(max_length=32)
+    #: The chromosome of the small variant coordinate.
+    chromosome = models.CharField(max_length=32)
+    #: The position of the small variant coordinate.
+    position = models.IntegerField()
+    #: The reference bases of the small variant coordinate.
+    reference = models.CharField(max_length=512)
+    #: The alternative bases of the small variant coordinate.
+    alternative = models.CharField(max_length=512)
+
+    #: The related case.
+    case = models.ForeignKey(
+        Case,
+        null=False,
+        related_name="small_variant_flags",
+        help_text="Case that this variant is flagged in",
+    )
+
+    # Boolean fields for checking
+
+    #: Bookmarked: saved for later
+    flag_bookmarked = models.BooleanField(default=False, null=False)
+    #: Candidate variant
+    flag_candidate = models.BooleanField(default=False, null=False)
+    #: Finally selected causative variant
+    flag_final_causative = models.BooleanField(default=False, null=False)
+    #: Selected for wet-lab validation
+    flag_for_validation = models.BooleanField(default=False, null=False)
+
+    # Choice fields for gradual rating
+
+    #: Visual inspection flag.
+    flag_visual = models.CharField(
+        max_length=32, choices=VARIANT_RATING_CHOICES, default="empty", null=False
+    )
+    #: Wet-lab validation flag.
+    flag_validation = models.CharField(
+        max_length=32, choices=VARIANT_RATING_CHOICES, default="empty", null=False
+    )
+    #: Phenotype/clinic suitability flag
+    flag_phenotype_match = models.CharField(
+        max_length=32, choices=VARIANT_RATING_CHOICES, default="empty", null=False
+    )
+
+    def no_flags_set(self):
+        """Return true if no flags are set and the model can be deleted."""
+        # TODO: unit test me
+        return not any(
+            (
+                self.flag_bookmarked,
+                self.flag_candidate,
+                self.flag_final_causative,
+                self.flag_for_validation,
+                self.flag_visual != "empty",
+                self.flag_validation != "empty",
+                self.flag_phenotype_match != "empty",
+            )
+        )
+
+    def clean(self):
+        """Make sure that the case has such a variant"""
+        # TODO: unit test me
+        try:
+            SmallVariant.objects.get(
+                case_id=self.case.pk,
+                release=self.release,
+                chromosome=self.chromosome,
+                position=self.position,
+                reference=self.reference,
+                alternative=self.alternative,
+            )
+        except SmallVariant.DoesNotExit as e:
+            raise ValidationError("No corresponding variant in case") from e
+
+    class Meta:
+        unique_together = ("release", "chromosome", "position", "reference", "alternative", "case")
+        indexes = [
+            # index for base query
+            models.Index(fields=["release", "chromosome", "position", "reference", "alternative"])
+        ]

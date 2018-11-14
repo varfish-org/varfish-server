@@ -14,6 +14,12 @@
       </small>
     </h5>
     <div class="ml-auto">
+      <span class="bookmark pl-0 pr-0">
+        <i class="fa fa-fw text-muted {% if entry.entries.0.flag_count %}fa-bookmark{% else %}fa-bookmark-o{% endif %} text-muted variant-bookmark"
+           data-variant="{{ entry.entries.0|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ object.sodar_uuid }}"></i>
+        <i class="fa fa-fw text-muted {% if entry.entries.0.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
+           data-variant="{{ entry.entries.0|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ object.sodar_uuid }}"></i>
+      </span>
       <span class="badge badge-{{ entry.max_significance|significance_color }}">
         {{ entry.max_significance }}
       </span>

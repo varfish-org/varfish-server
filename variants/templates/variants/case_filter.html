@@ -628,7 +628,10 @@ $(document).ready(
     $(".load-presets").click(loadPresets);
   }
 );
-
 </script>
+
+
+{% include "variants/_script_flags_comments.html" %}
+{% include "variants/_variant_flag_form_tpl.html" %}
 
 {% endblock javascript %}

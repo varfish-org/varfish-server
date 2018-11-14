@@ -3,6 +3,7 @@
 {% load rules %}
 {% load dict %}
 {% load rules %}
+{% load humanize %}
 {% load variants_tags %}
 
 {% block navi_sub_project_extend %}
@@ -91,6 +92,81 @@
               <td>{{ item.mother|only_source_name }}</td>
               <td><i class="fa {% if item.sex == 1 %}fa-venus{% else %}fa-mars{% endif %}"></i></td>
               <td><i class="fa {% if item.affected == 2 %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card varfish-vars-case-details"
+         id="card-varfish-vars-case-details">
+      <div class="card-header">
+        <h4>
+          <i class="fa fa-flag"></i>
+          Flagged Variants
+        </h4>
+      </div>
+      <table class="table tabled-striped table-hover">
+        <thead>
+          <tr>
+            <th class="col-2">Variant</th>
+            <th class="col-10">Flags</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for flagged_variant in case.small_variant_flags.all %}
+            <tr>
+              <td>
+                chr{{ flagged_variant.chromosome }}:{{ flagged_variant.position|intcomma }}-{{ flagged_variant.reference }}-{{ flagged_variant.alternative }}
+              </td>
+              <td>
+                generic:
+                <i class="fa fa-fw fa-star {% if not flagged_variant.flag_bookmarked %}text-muted{% endif %}"></i>
+                <i class="fa fa-fw fa-flask {% if not flagged_variant.flag_for_validation %}text-muted{% endif %}"></i>
+                <i class="fa fa-fw fa-heart {% if not flagged_variant.flag_candidate %}text-muted{% endif %}"></i>
+                <i class="fa fa-fw fa-flag-checkered {% if not flagged_variant.flag_final_causative %}text-muted{% endif %}"></i>
+                <span class="pl-3">visual:</span>
+                <i class="fa fa-fw {{ flagged_variant.flag_visual|flag_value_to_fa }}"></i>
+                <span class="pl-3">validation:</span>
+                <i class="fa fa-fw {{ flagged_variant.flag_validation|flag_value_to_fa }}"></i>
+                <span class="pl-3">phenotype:</span>
+                <i class="fa fa-fw {{ flagged_variant.flag_phenotype_match|flag_value_to_fa }}"></i>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+      <div class="card varfish-vars-case-details"
+         id="card-varfish-vars-case-details">
+      <div class="card-header">
+        <h4>
+          <i class="fa fa-comment"></i>
+          Commented Variants
+        </h4>
+      </div>
+      <table class="table tabled-striped table-hover">
+        <thead>
+          <tr>
+            <th class="col-4">Variant</th>
+            <th class="col-8">Comments</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for variant_comment in case.small_variant_comments.all %}
+            <tr>
+              <td>
+                chr{{ variant_comment.chromosome }}:{{ variant_comment.position|intcomma }}-{{ variant_comment.reference }}-{{ variant_comment.alternative }}
+              </td>
+              <td>
+                <strong>{{ variant_comment.user }}</strong>
+                <small>
+                  commented at
+                  {{ variant_comment.date_created }}:
+                </small>
+                <em>{{ variant_comment.text }}</em>
+              </td>
             </tr>
           {% endfor %}
         </tbody>

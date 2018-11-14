@@ -1,4 +1,6 @@
 from itertools import groupby, chain
+import json
+import uuid
 
 import decimal
 import aldjemy.core
@@ -6,6 +8,7 @@ import aldjemy.core
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
@@ -20,15 +23,28 @@ from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from variants.models_support import ClinvarReportQuery, RenderFilterQuery, KnownGeneAAQuery
 
-from .models import Case, ExportFileBgJob
+from .models import Case, ExportFileBgJob, SmallVariantFlags, SmallVariantComment
 from .forms import (
     ClinvarForm,
     FilterForm,
     ResubmitForm,
+    SmallVariantFlagsForm,
+    SmallVariantCommentForm,
     FILTER_FORM_TRANSLATE_SIGNIFICANCE,
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
 )
 from .tasks import export_file_task
+
+
+class UUIDEncoder(json.JSONEncoder):
+    """JSON encoder for UUIds"""
+
+    def default(self, obj):
+        if isinstance(obj, uuid.UUID):
+            # if the obj is uuid, we simply return the value of uuid
+            return obj.hex
+        return json.JSONEncoder.default(self, obj)
+
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
@@ -268,7 +284,6 @@ class CaseClinvarReportView(
                     sig_lvl = sig_level(sig)
                     status_lvl = status_level(status)
                     candidates.append((sig_lvl, status_lvl, sig, status))
-                    print(candidates[-1])
                 # update dict
                 keys = [
                     "max_significance_lvl",
@@ -466,3 +481,86 @@ class ExportFileJobDownloadView(
             return response
         except ObjectDoesNotExist as e:
             raise Http404("File has not been generated (yet)!") from e
+
+
+class SmallVariantFlagsApiView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+    View,
+):
+    """A view that returns JSON for the ``SmallVariantFlags`` for a variant of a case and allows updates."""
+
+    # TODO: create new permission
+    permission_required = "variants.view_data"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def _model_to_dict(self, flags):
+        """Helper that calls ``model_to_dict()`` and then replaces the case PK with the SODAR UUID."""
+        return {**model_to_dict(flags), "case": str(self.get_object().sodar_uuid)}
+
+    def get(self, *_args, **_kwargs):
+        case = self.get_object()
+        small_var_flags = get_object_or_404(
+            case.small_variant_flags,
+            release=self.request.GET.get("release"),
+            chromosome=self.request.GET.get("chromosome"),
+            position=self.request.GET.get("position"),
+            reference=self.request.GET.get("reference"),
+            alternative=self.request.GET.get("alternative"),
+        )
+        return HttpResponse(
+            json.dumps(self._model_to_dict(small_var_flags), cls=UUIDEncoder),
+            content_type="application/json",
+        )
+
+    def post(self, *_args, **_kwargs):
+        case = self.get_object()
+        try:
+            flags = case.small_variant_flags.get(
+                release=self.request.POST.get("release"),
+                chromosome=self.request.POST.get("chromosome"),
+                position=self.request.POST.get("position"),
+                reference=self.request.POST.get("reference"),
+                alternative=self.request.POST.get("alternative"),
+            )
+        except SmallVariantFlags.DoesNotExist:
+            flags = SmallVariantFlags(case=case, sodar_uuid=uuid.uuid4())
+        form = SmallVariantFlagsForm(self.request.POST, instance=flags)
+        flags = form.save()
+        if flags.no_flags_set():
+            flags.delete()
+            result = {"message": "erased"}
+        else:
+            result = self._model_to_dict(flags)
+        return HttpResponse(json.dumps(result, cls=UUIDEncoder), content_type="application/json")
+
+
+class SmallVariantCommentApiView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+    View,
+):
+    """A view that allows to create a new comment."""
+
+    # TODO: create new permission
+    permission_required = "variants.view_data"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, *_args, **_kwargs):
+        case = self.get_object()
+        comment = SmallVariantComment(case=case, user=self.request.user, sodar_uuid=uuid.uuid4())
+        form = SmallVariantCommentForm(self.request.POST, instance=comment)
+        form.save()
+        return HttpResponse(json.dumps({"result": "OK"}), content_type="application/json")

@@ -10,7 +10,7 @@ from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from geneinfo.models import Hgnc
-from variants.models import SmallVariant
+from variants.models import SmallVariant, SmallVariantComment, SmallVariantFlags
 from frequencies.models import GnomadExomes, GnomadGenomes, Exac, ThousandGenomes
 from variants.forms import (
     FILTER_FORM_TRANSLATE_INHERITANCE,
@@ -556,7 +556,53 @@ class FilterQueryCountRecordsMixin(
         return select([func.count()]).select_from(super()._build_stmt(kwargs).alias("inner_count"))
 
 
+class FilterQueryFlagsCommentsMixin:
+    """Add information about flags and comments for filter queries."""
+
+    def _build_stmt(self, kwargs):
+        """Override statement building to add the join with Clinvar information."""
+        inner = super()._build_stmt(kwargs)
+        return self._extend_stmt_comments_flags(inner, kwargs)
+
+    def _extend_stmt_comments_flags(self, inner, kwargs):
+        """Extend the inner statement and augment flag and comments information."""
+        inner = inner.alias("inner_comments_flags")
+        stmt = (
+            select(
+                [
+                    *inner.c,
+                    func.count(SmallVariantFlags.sa.id).label("flag_count"),
+                    func.count(SmallVariantComment.sa.id).label("comment_count"),
+                ]
+            )
+            .select_from(
+                inner.outerjoin(
+                    SmallVariantFlags.sa.table,
+                    and_(
+                        SmallVariantFlags.sa.release == inner.c.release,
+                        SmallVariantFlags.sa.chromosome == inner.c.chromosome,
+                        SmallVariantFlags.sa.position == inner.c.position,
+                        SmallVariantFlags.sa.reference == inner.c.reference,
+                        SmallVariantFlags.sa.alternative == inner.c.alternative,
+                    ),
+                ).outerjoin(
+                    SmallVariantComment.sa.table,
+                    and_(
+                        SmallVariantComment.sa.release == inner.c.release,
+                        SmallVariantComment.sa.chromosome == inner.c.chromosome,
+                        SmallVariantComment.sa.position == inner.c.position,
+                        SmallVariantComment.sa.reference == inner.c.reference,
+                        SmallVariantComment.sa.alternative == inner.c.alternative,
+                    ),
+                )
+            )
+            .group_by(*inner.c)
+        )
+        return self._add_trailing(stmt, kwargs)
+
+
 class RenderFilterQuery(
+    FilterQueryFlagsCommentsMixin,
     FilterQueryClinvarMixin,
     FilterQueryStandardFieldsMixin,
     OrderByChromosomalPositionMixin,
@@ -682,6 +728,7 @@ class ClinvarReportFieldsMixin(FilterQueryStandardFieldsMixin):
 
 
 class ClinvarReportQuery(
+    FilterQueryFlagsCommentsMixin,
     ClinvarReportFromAndWhereMixin,
     ClinvarReportFieldsMixin,
     OrderByChromosomalPositionMixin,

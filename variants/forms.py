@@ -1,4 +1,5 @@
 from django import forms
+from .models import SmallVariantComment, SmallVariantFlags
 
 
 INHERITANCE = [
@@ -546,3 +547,25 @@ class FilterForm(forms.Form):
             effect for name, effect in FILTER_FORM_TRANSLATE_EFFECTS.items() if cleaned_data[name]
         ]
         return cleaned_data
+
+
+class SmallVariantFlagsForm(forms.ModelForm):
+    """Form for validating small variant flags."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = SmallVariantFlags
+        exclude = ("case", "sodar_uuid")
+
+
+class SmallVariantCommentForm(forms.ModelForm):
+    """Form for validating small variant comments."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = SmallVariantComment
+        exclude = ("case", "sodar_uuid", "user")

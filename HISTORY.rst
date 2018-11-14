@@ -13,6 +13,8 @@ End-User Summary
 - Clinvar entries are now properly displayed.
 - Enabling filtering for clinvar membership and pathogenicity.
 - Fixing file export.
+- Allowing to mark variants with flags and add comments to them.
+- Adding clinvar-centric report.
 
 Full Change List
 ================
@@ -24,6 +26,9 @@ Full Change List
 - Fixing clinvar queries (was a ``+/-1`` error)
 - Adding more comprehensive tests for views and query.
 - Fixing bug in ``file_export`` module caused by not adjusting to SQL Alchemy filter querying.
+- Added various tests and fixed smaller bugs.
+- Adding ``VariantSmallComment`` and ``VariantFlags`` models for user annotation of variants.
+- Adding clinvar-centric support for easily screening variants for relevant Clinvar entries.
 
 ------
 v0.4.0

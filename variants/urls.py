@@ -42,6 +42,17 @@ urlpatterns = [
         view=views.ExportFileJobDownloadView.as_view(),
         name="export-job-download",
     ),
+    # API for accessing small variant flags and comments.
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-flags/(?P<case>[0-9a-f-]+)/$",
+        view=views.SmallVariantFlagsApiView.as_view(),
+        name="small-variant-flags-api",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-comment/(?P<case>[0-9a-f-]+)/$",
+        view=views.SmallVariantCommentApiView.as_view(),
+        name="small-variant-comment-api",
+    ),
     # API for expanding details in result list
     url(
         regex=(

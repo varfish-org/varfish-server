@@ -1,0 +1,122 @@
+{% verbatim %}
+  {# Bookmark for the variant bookmark popup #}
+  <script id="bookmark-flags-popup" type="text/x-jsrender">
+    <form style="width: 25em;">
+      <input type="hidden" name="release" value="{{:release}}" />
+      <input type="hidden" name="chromosome" value="{{:chromosome}}" />
+      <input type="hidden" name="position" value="{{:position}}" />
+      <input type="hidden" name="reference" value="{{:reference}}" />
+      <input type="hidden" name="alternative" value="{{:alternative}}" />
+      <div class="form-group mb-1 row">
+        <label class="pr-3">
+          <i class="fa fa-fw fa-flag pr-1"></i>
+          Flags
+        </label>
+        <div class="ml-auto">
+          <div class="form-check form-check-inline" title="Enable/disable bookmark flag">
+            <input class="form-check-input" id="comment-check-bookmark-{{:variant}}" type="checkbox" name="flag_bookmarked" value="checked" {{if flag_bookmarked}}checked{{/if}} />
+            <label for="comment-check-bookmark-{{:variant}}" class="m-0"><i class="fa fa-fw fa-star"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="Enable/disable selected for validation flag">
+            <input class="form-check-input" id="comment-check-flag-{{:variant}}" type="checkbox" name="flag_for_validation" value="checked" {{if flag_for_validation}}checked{{/if}} />
+            <label for="comment-check-flag-{{:variant}}" class="m-0"><i class="fa fa-fw fa-flask"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="Enable/disable candidate flag">
+            <input class="form-check-input" id="comment-check-candidate-{{:variant}}" type="checkbox" name="flag_candidate" value="checked" {{if flag_candidate}}checked{{/if}} />
+            <label for="comment-check-candidate-{{:variant}}" class="m-0"><i class="fa fa-fw fa-heart"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="Enable/disable final causative flag">
+            <input class="form-check-input" id="comment-check-causative-{{:variant}}" type="checkbox" name="flag_final_causative" value="checked" {{if flag_final_causative}}checked{{/if}} />
+            <label for="comment-check-causative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-flag-checkered"></i></label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group mb-1 row">
+        <label class="pr-3">
+          <i class="fa fa-fw fa-eye pr-1"></i>
+          Visual
+        </label>
+        <div class="ml-auto">
+          <div class="form-check form-check-inline" title="Flag as looking good by visual inspection (IGV)">
+            <input class="form-check-input" id="comment-radio-visual-positive-{{:variant}}" type="radio" name="flag_visual" value="positive" {{if flag_visual == "positive"}}checked{{/if}}/>
+            <label for="comment-radio-visual-positive-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-up text-success"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="Flag as doubtful by visual inspection (IGV)">
+            <input class="form-check-input" id="comment-radio-visual-uncertain-{{:variant}}" type="radio" name="flag_visual" value="uncertain" {{if flag_visual == "uncertain"}}checked{{/if}} />
+            <label for="comment-radio-visual-uncertain-{{:variant}}" class="m-0"><i class="fa fa-fw fa-question text-info"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="Flag as artifact by visual inspection (IGV)">
+            <input class="form-check-input" id="comment-radio-visual-negative-{{:variant}}" type="radio" name="flag_visual" value="negative" {{if flag_visual == "negative"}}checked{{/if}}/>
+            <label for="comment-radio-visual-negative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-down"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="No visual inspection flag">
+            <input class="form-check-input" id="comment-radio-visual-empty-{{:variant}}" type="radio" name="flag_visual" value="empty" {{if flag_visual == "empty"}}checked{{/if}} />
+            <label for="comment-radio-visual-empty-{{:variant}}" class="m-0"><i class="fa fa-fw fa-remove text-secondary"></i></label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group mb-1 row">
+        <label class="pr-3">
+          <i class="fa fa-fw fa-flask pr-1"></i>
+          Validation
+        </label>
+        <div class="ml-auto">
+          <div class="form-check form-check-inline" title="Flag as looking good wet-lab validation">
+            <input class="form-check-input" id="comment-radio-validation-positive-{{:variant}}" type="radio" name="flag_validation" value="positive" {{if flag_validation == "positive"}}checked{{/if}} />
+            <label for="comment-radio-validation-positive-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-up text-success"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="Flag as doubtful by wet-lab validation">
+            <input class="form-check-input" id="comment-radio-validation-uncertain-{{:variant}}" type="radio" name="flag_validation" value="uncertain" {{if flag_validation == "uncertain"}}checked{{/if}} />
+            <label for="comment-radio-validation-uncertain-{{:variant}}" class="m-0"><i class="fa fa-fw fa-question text-info"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="Flag as artifact wet-lab validation">
+            <input class="form-check-input" id="comment-radio-validation-negative-{{:variant}}" type="radio" name="flag_validation" value="negative" {{if flag_validation == "negative"}}checked{{/if}} />
+            <label for="comment-radio-validation-negative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-down"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="No wet-lab validation flag">
+            <input class="form-check-input" id="comment-radio-validation-empty-{{:variant}}" type="radio" name="flag_validation" value="empty" {{if flag_validation == "empty"}}checked{{/if}} />
+            <label for="comment-radio-validation-empty-{{:variant}}" class="m-0"><i class="fa fa-fw fa-remove text-secondary"></i></label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group mb-1 row">
+        <label class="pr-3">
+          <i class="fa fa-fw fa-user-md pr-1"></i>
+          Phenotype
+        </label>
+        <div class="ml-auto">
+          <div class="form-check form-check-inline" title="Flag as looking good phenotype-wise">
+            <input class="form-check-input" id="comment-radio-clinic-positive-{{:variant}}" type="radio" name="flag_phenotype_match" value="positive" {{if flag_phenotype_match == "positive"}}checked{{/if}} />
+            <label for="comment-radio-clinic-positive-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-up text-success"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="Flag as doubtful by phenotype-wise">
+            <input class="form-check-input" id="comment-radio-clinic-uncertain-{{:variant}}" type="radio" name="flag_phenotype_match" value="uncertain" {{if flag_phenotype_match == "uncertain"}}checked{{/if}} />
+            <label for="comment-radio-clinic-uncertain-{{:variant}}" class="m-0"><i class="fa fa-fw fa-question text-info"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="Flag as artifact phenotype-wise">
+            <input class="form-check-input" id="comment-radio-clinic-negative-{{:variant}}" type="radio" name="flag_phenotype_match" value="negative" {{if flag_phenotype_match == "negative"}}checked{{/if}} />
+            <label for="comment-radio-clinic-negative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-down"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="No phenotype-wise flag">
+            <input class="form-check-input" id="comment-radio-clinic-empty-{{:variant}}" type="radio" name="flag_phenotype_match" value="empty" {{if flag_phenotype_match == "empty"}}checked{{/if}} />
+            <label for="comment-radio-clinic-empty-{{:variant}}" class="m-0"><i class="fa fa-fw fa-remove text-secondary"></i></label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group mb-1">
+        <label for="comment-textarea-{{:variant}}">Add Comment</label>
+        <textarea class="form-control form-control-sm comment-text" id="comment-textarea-{{:variant}}" rows="3" name="text" placeholder="Enter any comment here."></textarea>
+        <small class="form-text text-muted">
+          Clicking <span class="badge badge-primary">Save</span> below will <strong>override</strong> the current flags
+          and <strong>add a new comment</strong> (if any comment text is given).
+        </small>
+      </div>
+      <div class="row">
+        <div class="ml-auto">
+          <button class="btn btn-sm btn-secondary cancel">Cancel</button>
+          <button type="submit" class="btn btn-sm btn-primary save">Save</button>
+        </div>
+      </div>
+    </form>
+  </script>
+{% endverbatim %}

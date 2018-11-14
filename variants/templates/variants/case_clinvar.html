@@ -49,3 +49,10 @@
   {% include "variants/_clinvar_results.html" %}
 
 {% endblock projectroles %}
+
+{% block javascript %}
+  {{ block.super }}
+
+  {% include "variants/_script_flags_comments.html" %}
+  {% include "variants/_variant_flag_form_tpl.html" %}
+{% endblock javascript %}

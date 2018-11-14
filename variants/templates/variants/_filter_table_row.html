@@ -2,9 +2,16 @@
 
 {% load humanize %}
 {% load dict %}
+{% load variants_tags %}
 
 <tr>
-  <td class="clickable extend" counter="{{ forloop.counter0 }}" url="{% url 'variants:extend' project=project.sodar_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" data-toggle="collapse" data-target="#expand{{ forloop.counter0 }}" aria-expanded="false" aria-controls="expand{{ forloop.counter0 }}" aria-hidden="true"><i class="fa fa-fw fa-chevron-right"></i></td>
+  <td class="clickable extend pl-0 pr-0" counter="{{ forloop.counter0 }}" url="{% url 'variants:extend' project=project.sodar_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" data-toggle="collapse" data-target="#expand{{ forloop.counter0 }}" aria-expanded="false" aria-controls="expand{{ forloop.counter0 }}" aria-hidden="true"><i class="fa fa-fw fa-chevron-right"></i></td>
+  <td class="bookmark pl-0 pr-0">
+    <i class="fa fa-fw text-muted {% if entry.flag_count %}fa-bookmark{% else %}fa-bookmark-o{% endif %} text-muted variant-bookmark"
+       data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ object.sodar_uuid }}"></i>
+    <i class="fa fa-fw text-muted {% if entry.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
+       data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ object.sodar_uuid }}"></i>
+  </td>
   <td>chr{{ entry.chromosome }}:{{ entry.position|intcomma }}</td>
   <td>{{ entry.reference|truncatechars:9 }}</td>
   <td>{{ entry.alternative|truncatechars:9 }}</td>

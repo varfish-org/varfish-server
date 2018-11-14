@@ -50,3 +50,27 @@ COLOURS = {
 @register.filter
 def significance_color(sig):
     return COLOURS.get(sig, "secondary")
+
+
+@register.filter
+def smallvar_description(entry):
+    """Return small variant description from query result"""
+    keys = ("release", "chromosome", "position", "reference", "alternative")
+    if isinstance(entry, dict):
+        return "-".join(map(str, (entry[key] for key in keys)))
+    else:
+        return "-".join(map(str, (getattr(entry, key) for key in keys)))
+
+
+#: Mapping of small variant flag value to font awesome icon.
+FLAG_VALUE_TO_FA = {
+    "positive": "fa-thumbs-up",
+    "uncertain": "fa-question",
+    "negative": "fa-thumbs-up",
+    "empty": "fa-remove",
+}
+
+
+@register.filter
+def flag_value_to_fa(value):
+    return FLAG_VALUE_TO_FA.get(value, "fa-remove")
