@@ -398,7 +398,7 @@ class SmallVariantComment(models.Model):
                 reference=self.reference,
                 alternative=self.alternative,
             )
-        except SmallVariant.DoesNotExit as e:
+        except SmallVariant.DoesNotExist as e:
             raise ValidationError("No corresponding variant in case") from e
 
 
@@ -495,7 +495,7 @@ class SmallVariantFlags(models.Model):
                 reference=self.reference,
                 alternative=self.alternative,
             )
-        except SmallVariant.DoesNotExit as e:
+        except SmallVariant.DoesNotExist as e:
             raise ValidationError("No corresponding variant in case") from e
 
     class Meta:
