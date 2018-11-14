@@ -2,12 +2,17 @@
 VarFish Web UI - History
 ========================
 
------------------
-HEAD (unreleased)
------------------
+------
+v0.5.0
+------
 
 End-User Summary
 ================
+
+This is a major upgrade in terms of features and usability.
+Please note that this a "dot zero" release, we will fix broken things in a timely manner.
+
+Major changes include:
 
 - The "AD" form field was split into one for het. and one for hom. variants.
 - Clinvar entries are now properly displayed.
