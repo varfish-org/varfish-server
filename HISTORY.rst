@@ -33,6 +33,8 @@ Full Change List
 - The importer now also writes ``"has_gt_fields"`` key to Pedigree lines.
 - The templates, views, and query generation now also heed ``"has_gt_fields"`` field.
 - Adding migration that automatically adds the ``"has_gt_fields"``.
+- Integrating search functionality for ``variants`` app.
+- Self-hosting CSS, JS, etc. now.
 
 ------
 v0.4.0
