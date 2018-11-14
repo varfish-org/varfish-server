@@ -40,7 +40,8 @@ function clickVariantBookmark() {
     chromosome: arrVariant[1],
     position: arrVariant[2],
     reference: arrVariant[3],
-    alternative: arrVariant[4]
+    alternative: arrVariant[4],
+    ensembl_gene_id: arrVariant[5],
   };
 
   // Function callback for showing the form.
@@ -124,6 +125,7 @@ function clickVariantBookmark() {
         position: arrVariant[2],
         reference: arrVariant[3],
         alternative: arrVariant[4],
+        ensembl_gene_id: arrVariant[5],
         flag_bookmarked: true,
         flag_for_validation: false,
         flag_candidate: false,

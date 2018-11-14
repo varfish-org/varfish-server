@@ -513,6 +513,7 @@ class SmallVariantFlagsApiView(
             position=self.request.GET.get("position"),
             reference=self.request.GET.get("reference"),
             alternative=self.request.GET.get("alternative"),
+            ensembl_gene_id=self.request.GET.get("ensembl_gene_id"),
         )
         return HttpResponse(
             json.dumps(self._model_to_dict(small_var_flags), cls=UUIDEncoder),
@@ -528,11 +529,15 @@ class SmallVariantFlagsApiView(
                 position=self.request.POST.get("position"),
                 reference=self.request.POST.get("reference"),
                 alternative=self.request.POST.get("alternative"),
+                ensembl_gene_id=self.request.POST.get("ensembl_gene_id"),
             )
         except SmallVariantFlags.DoesNotExist:
             flags = SmallVariantFlags(case=case, sodar_uuid=uuid.uuid4())
         form = SmallVariantFlagsForm(self.request.POST, instance=flags)
-        flags = form.save()
+        try:
+            flags = form.save()
+        except ValueError as e:
+            raise Exception(str(form.errors)) from e
         if flags.no_flags_set():
             flags.delete()
             result = {"message": "erased"}

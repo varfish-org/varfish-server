@@ -372,6 +372,7 @@ class FilterQueryStandardFieldsMixin(FilterFromAndWhereMixin):
                 SmallVariant.sa.position,
                 SmallVariant.sa.reference,
                 SmallVariant.sa.alternative,
+                SmallVariant.sa.ensembl_gene_id.label("ensembl_gene_id"),
                 SmallVariant.sa.exac_frequency,
                 SmallVariant.sa.gnomad_exomes_frequency,
                 SmallVariant.sa.gnomad_genomes_frequency,
@@ -590,6 +591,7 @@ class FilterQueryFlagsCommentsMixin:
                         SmallVariantFlags.sa.position == inner.c.position,
                         SmallVariantFlags.sa.reference == inner.c.reference,
                         SmallVariantFlags.sa.alternative == inner.c.alternative,
+                        SmallVariantFlags.sa.ensembl_gene_id == inner.c.ensembl_gene_id,
                     ),
                 ).outerjoin(
                     SmallVariantComment.sa.table,
@@ -599,6 +601,7 @@ class FilterQueryFlagsCommentsMixin:
                         SmallVariantComment.sa.position == inner.c.position,
                         SmallVariantComment.sa.reference == inner.c.reference,
                         SmallVariantComment.sa.alternative == inner.c.alternative,
+                        SmallVariantComment.sa.ensembl_gene_id == inner.c.ensembl_gene_id,
                     ),
                 )
             )

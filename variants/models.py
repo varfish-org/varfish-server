@@ -374,6 +374,8 @@ class SmallVariantComment(models.Model):
     reference = models.CharField(max_length=512)
     #: The alternative bases of the small variant coordinate.
     alternative = models.CharField(max_length=512)
+    #: The annotated gene.
+    ensembl_gene_id = models.CharField(max_length=64)
 
     #: The related case.
     case = models.ForeignKey(
@@ -397,9 +399,13 @@ class SmallVariantComment(models.Model):
                 position=self.position,
                 reference=self.reference,
                 alternative=self.alternative,
+                ensembl_gene_id=self.ensembl_gene_id,
             )
         except SmallVariant.DoesNotExist as e:
             raise ValidationError("No corresponding variant in case") from e
+
+    class Meta:
+        unique_together = ("release", "chromosome", "position", "reference", "alternative", "case", "ensembl_gene_id")
 
 
 #: Choices for visual inspect, wet-lab validation, or clinical/phenotype flag statuses.
@@ -433,6 +439,8 @@ class SmallVariantFlags(models.Model):
     reference = models.CharField(max_length=512)
     #: The alternative bases of the small variant coordinate.
     alternative = models.CharField(max_length=512)
+    #: The annotated gene.
+    ensembl_gene_id = models.CharField(max_length=64)
 
     #: The related case.
     case = models.ForeignKey(
@@ -494,13 +502,10 @@ class SmallVariantFlags(models.Model):
                 position=self.position,
                 reference=self.reference,
                 alternative=self.alternative,
+                ensembl_gene_id=self.ensembl_gene_id,
             )
         except SmallVariant.DoesNotExist as e:
             raise ValidationError("No corresponding variant in case") from e
 
     class Meta:
-        unique_together = ("release", "chromosome", "position", "reference", "alternative", "case")
-        indexes = [
-            # index for base query
-            models.Index(fields=["release", "chromosome", "position", "reference", "alternative"])
-        ]
+        unique_together = ("release", "chromosome", "position", "reference", "alternative", "case", "ensembl_gene_id")
