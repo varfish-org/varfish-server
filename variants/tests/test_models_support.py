@@ -95,7 +95,16 @@ def fixture_setup_case1_var_type():
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
         name="A",
         index="A",
-        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
     )
     # Basic variant settings.
     basic_var = {
@@ -156,7 +165,16 @@ def fixture_setup_case1_frequency():
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
         name="A",
         index="A",
-        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
     )
     # Basic variant settings.
     basic_var = {**SMALL_VARIANT_CASE1_DEFAULTS, **{"case_id": case.pk}}
@@ -231,7 +249,16 @@ def fixture_setup_case1_effects():
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
         name="A",
         index="A",
-        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
     )
     # Basic variant settings.
     basic_var = {
@@ -299,7 +326,16 @@ def fixture_setup_case1_effects():
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
         name="A",
         index="A",
-        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
     )
     # Basic variant settings.
     basic_var = {
@@ -367,7 +403,16 @@ def fixture_setup_case1_genotype():
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
         name="A",
         index="A",
-        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
     )
     # Basic variant settings.
     basic_var = {
@@ -470,7 +515,16 @@ def fixture_setup_case1_blacklist():
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
         name="A",
         index="A",
-        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
     )
     Hgnc.objects.create(hgnc_id="HGNC:1", symbol="AAA", name="AAA gene", entrez_id="123")
     Hgnc.objects.create(hgnc_id="HGNC:2", symbol="BBB", name="CCC gene", entrez_id="456")
@@ -1502,9 +1556,30 @@ def fixture_setup_case2():
         name="C",
         index="C",
         pedigree=[
-            {"sex": 1, "father": "F", "mother": "M", "patient": "C", "affected": 2},
-            {"sex": 1, "father": "0", "mother": "0", "patient": "F", "affected": 1},
-            {"sex": 2, "father": "0", "mother": "0", "patient": "M", "affected": 1},
+            {
+                "sex": 1,
+                "father": "F",
+                "mother": "M",
+                "patient": "C",
+                "affected": 2,
+                "has_gt_entries": True,
+            },
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "F",
+                "affected": 1,
+                "has_gt_entries": True,
+            },
+            {
+                "sex": 2,
+                "father": "0",
+                "mother": "0",
+                "patient": "M",
+                "affected": 1,
+                "has_gt_entries": True,
+            },
         ],
     )
     # Basic variant settings.
@@ -1752,7 +1827,16 @@ def fixture_setup_case3():
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
         name="A",
         index="A",
-        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
     )
     # Basic variant settings.
     basic_var = {

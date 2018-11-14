@@ -15,6 +15,7 @@ End-User Summary
 - Fixing file export.
 - Allowing to mark variants with flags and add comments to them.
 - Adding clinvar-centric report.
+- Filtration now also works for pedigrees containing samples without genotypes.
 
 Full Change List
 ================
@@ -29,6 +30,9 @@ Full Change List
 - Added various tests and fixed smaller bugs.
 - Adding ``VariantSmallComment`` and ``VariantFlags`` models for user annotation of variants.
 - Adding clinvar-centric support for easily screening variants for relevant Clinvar entries.
+- The importer now also writes ``"has_gt_fields"`` key to Pedigree lines.
+- The templates, views, and query generation now also heed ``"has_gt_fields"`` field.
+- Adding migration that automatically adds the ``"has_gt_fields"``.
 
 ------
 v0.4.0

@@ -147,7 +147,16 @@ def fixture_setup_case1_simple():
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
         name="A",
         index="A",
-        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
     )
     SmallVariant.objects.create(
         case_id=case.pk,

@@ -81,7 +81,8 @@
             <th class="col-2">Father</th>
             <th class="col-2">Mother</th>
             <th class="col-1">Sex</th>
-            <th class="col-5">Affected</th>
+            <th class="col-1">Affected</th>
+            <th class="col-4">Variants?</th>
           </tr>
         </thead>
         <tbody>
@@ -92,6 +93,7 @@
               <td>{{ item.mother|only_source_name }}</td>
               <td><i class="fa {% if item.sex == 1 %}fa-venus{% else %}fa-mars{% endif %}"></i></td>
               <td><i class="fa {% if item.affected == 2 %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
+              <td><i class="fa {% if item.has_gt_entries %}fa-check{% else %}fa-ban{% endif %}"></i></td>
             </tr>
           {% endfor %}
         </tbody>

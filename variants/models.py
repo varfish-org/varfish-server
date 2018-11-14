@@ -177,6 +177,16 @@ class Case(models.Model):
     def get_members(self):
         return [x["patient"] for x in self.pedigree]
 
+    def get_filtered_pedigree_with_samples(self):
+        """Return filtered pedigree lines with members with ``has_gt_entries``."""
+        # TODO: unit test me
+        return [x for x in self.pedigree if x["has_gt_entries"]]
+
+    def get_members_with_samples(self):
+        """Returns names of members that genotype information / samples in imported VCF file."""
+        # TODO: unit test me
+        return [x["patient"] for x in self.get_filtered_pedigree_with_samples()]
+
     def get_trio_roles(self):
         """Returns a dict with keys mapping ``index``, ``mother``, ``father`` to pedigree member names if present.
         """

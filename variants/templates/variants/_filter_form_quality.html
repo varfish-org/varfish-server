@@ -29,14 +29,20 @@
       <td>{{ member.patient }}</td>
       <td>{{ member.father|default:"0"|only_source_name }}</td>
       <td>{{ member.mother|default:"0"|only_source_name }}</td>
-      {% with field_names=form.field_names|keyvalue:member.patient %}
-        <td>{% with x=field_names|keyvalue:"dp_het" %}{{ form|keyvalue:x }}{% endwith %}</td>
-        <td>{% with x=field_names|keyvalue:"dp_hom" %}{{ form|keyvalue:x }}{% endwith %}</td>
-        <td>{% with x=field_names|keyvalue:"ab" %}{{ form|keyvalue:x }}{% endwith %}</td>
-        <td>{% with x=field_names|keyvalue:"gq" %}{{ form|keyvalue:x }}{% endwith %}</td>
-        <td>{% with x=field_names|keyvalue:"ad" %}{{ form|keyvalue:x }}{% endwith %}</td>
-        <td>{% with x=field_names|keyvalue:"fail" %}{{ form|keyvalue:x }}{% endwith %}</td>
-      {% endwith %}
+      {% if member.has_gt_entries %}
+        {% with field_names=form.field_names|keyvalue:member.patient %}
+          <td>{% with x=field_names|keyvalue:"dp_het" %}{{ form|keyvalue:x }}{% endwith %}</td>
+          <td>{% with x=field_names|keyvalue:"dp_hom" %}{{ form|keyvalue:x }}{% endwith %}</td>
+          <td>{% with x=field_names|keyvalue:"ab" %}{{ form|keyvalue:x }}{% endwith %}</td>
+          <td>{% with x=field_names|keyvalue:"gq" %}{{ form|keyvalue:x }}{% endwith %}</td>
+          <td>{% with x=field_names|keyvalue:"ad" %}{{ form|keyvalue:x }}{% endwith %}</td>
+          <td>{% with x=field_names|keyvalue:"fail" %}{{ form|keyvalue:x }}{% endwith %}</td>
+        {% endwith %}
+      {% else %}
+        <td colspan="6" class="text-centered">
+          <em>no genotypes</em>
+        </td>
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>

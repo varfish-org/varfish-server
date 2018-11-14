@@ -65,7 +65,7 @@
           <thead class="thead-light">
             <tr>
               <th style="width: 0px;">ID</th>
-              {% for member in form.pedigree %}
+              {% for member in form.pedigree_with_samples %}
                 <th class="text-center">{{ member.patient|only_source_name }}</th>
               {% endfor %}
             </tr>
@@ -73,7 +73,7 @@
           <tbody>
             <tr>
               <th style="width: 0px;">GT</th>
-              {% for member in form.pedigree %}
+              {% for member in form.pedigree_with_samples %}
                 <td class="text-center">{{ entry.entries.0.genotype|keyvalue:member.patient|keyvalue:"gt" }}</td>
               {% endfor %}
             </tr>

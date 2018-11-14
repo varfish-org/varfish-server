@@ -15,7 +15,7 @@
   <th></th>{# gene #}
   <th></th>{# effect #}
   {# pedigree members #}
-  {% for member in form.pedigree %}
+  {% for member in form.pedigree_with_samples  %}
     <th></th>
   {% endfor %}
   <th></th> {# link-outs #}
@@ -38,12 +38,12 @@
   <th class="detail-thousand-genomes"># hom.</th>
   <th>gene</th>
   <th>effect</th>
-  {% for member in form.pedigree %}
-  <th style="max-width: 80px;">
-    <div class="sodar-overflow-container sodar-overflow-hover">
-      {{ member.patient|only_source_name }}
-    </div>
-  </th>
+  {% for member in form.pedigree_with_samples  %}
+    <th style="max-width: 80px;">
+      <div class="sodar-overflow-container sodar-overflow-hover">
+        {{ member.patient|only_source_name }}
+      </div>
+    </th>
   {% endfor %}
   <th></th> {# link-outs #}
   <th></th> {# clin-var #}

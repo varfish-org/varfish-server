@@ -183,7 +183,16 @@ def fixture_setup_case(user):
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
         name="A",
         index="A",
-        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
     )
 
     basic_var = {
@@ -544,7 +553,16 @@ def fixture_setup_bgjob(user):
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
         name="A",
         index="A",
-        pedigree=[{"sex": 1, "father": "0", "mother": "0", "patient": "A", "affected": 1}],
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
     )
     job = project.backgroundjob_set.create(
         sodar_uuid="97a65500-377b-4aa0-880d-9ba56d06a961", user=user, job_type="type"

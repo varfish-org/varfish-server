@@ -127,7 +127,7 @@ class CaseExporterBase:
 
     def _yield_members(self):
         """Get list of selected members."""
-        for m in self.job.case.pedigree:
+        for m in self.job.case.get_filtered_pedigree_with_samples():
             if self.query_args.get("%s_export" % m["patient"], False):
                 yield m["patient"]
 

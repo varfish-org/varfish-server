@@ -1,5 +1,6 @@
 """Django command for importing a case after annotation with ``varfish-annotator``."""
 
+import json
 import tempfile
 
 from django.contrib.auth import get_user_model
@@ -58,8 +59,13 @@ class Command(BaseCommand):
                 )
             ) from e
         project = self._get_project(options["project_uuid"])
+        samples_in_genotypes = self._get_samples_in_genotypes(options["path_genotypes"])
         case = self._create_case(
-            project, options["case_name"], options["index_name"], options["path_ped"]
+            project,
+            options["case_name"],
+            options["index_name"],
+            options["path_ped"],
+            samples_in_genotypes,
         )
         self._import_variants(options["path_variants"])
         self._import_genotypes(case, options["path_genotypes"])
@@ -80,7 +86,15 @@ class Command(BaseCommand):
         except ObjectDoesNotExist:
             raise CommandError("Project with UUID {} does not exist".format(project_uuid))
 
-    def _create_case(self, project, case_name, index_name, path_ped):
+    def _get_samples_in_genotypes(self, path_genotypes):
+        """Return names from samples present in genotypes column."""
+        with open(path_genotypes, "rt") as tsv:
+            header = tsv.readline().split("\t")
+            first = tsv.readline().replace('"""', '"').split("\t")
+            values = dict(zip(header, first))
+            return list(json.loads(values["genotype"]).keys())
+
+    def _create_case(self, project, case_name, index_name, path_ped, samples_in_genotypes):
         """Create ``Case`` object."""
         self.stdout.write("Reading PED and creating case...")
         # Build Pedigree.
@@ -100,6 +114,7 @@ class Command(BaseCommand):
                         "mother": mother,
                         "sex": sex,
                         "affected": affected,
+                        "has_gt_entries": patient in samples_in_genotypes,
                     }
                 )
         if not seen_index:

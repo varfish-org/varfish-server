@@ -67,7 +67,11 @@ class FilterQueryBase:
 
     def _get_trio_names(self):
         """Return (index, father, mother) names from trio"""
-        index_lines = [rec for rec in self.case.pedigree if rec["patient"] == self.case.index]
+        index_lines = [
+            rec
+            for rec in self.case.pedigree
+            if rec["patient"] == self.case.index and rec["has_gt_entries"]
+        ]
         if len(index_lines) != 1:  # pragma: no cover
             raise RuntimeError("Could not find index line from pedigree")
         return index_lines[0]["patient"], index_lines[0]["father"], index_lines[0]["mother"]
@@ -185,9 +189,11 @@ class GenotypeTermMixin:
         # Limit members to those in ``gt_patterns`` if given and use all members from pedigree
         # otherwise.
         if gt_patterns:
-            members = [m for m in self.case.pedigree if m["patient"] in gt_patterns]
+            members = [
+                m for m in self.case.pedigree if m["patient"] in gt_patterns and m["has_gt_entries"]
+            ]
         else:
-            members = self.case.pedigree
+            members = self.case.get_filtered_pedigree_with_samples()
         for m in members:
             name = m["patient"]
             # Use genotype pattern ``gt_patterns`` override if given and use the patterns from

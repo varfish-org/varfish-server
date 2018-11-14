@@ -84,19 +84,19 @@
       {{ entry.hgvs_p|default:"-" }}
     </span>
   </td>
-  {% for member in form.pedigree %}
-  <td class="text-center">
-    <span data-toggle="tooltip" data-html="true" title="
-      {% with genotype=entry.genotype|keyvalue:member.patient %}
-        GT quality: {{ genotype|keyvalue:"gq" }}
-        <br />
-        variant reads: {{ genotype|keyvalue:"ad" }} /
-        {{ genotype|keyvalue:"dp" }}
-        ">
-        {{ genotype|keyvalue:"gt" }}
-      {% endwith %}
-    </span>
-  </td>
+  {% for member in form.pedigree_with_samples %}
+    <td class="text-center">
+      <span data-toggle="tooltip" data-html="true" title="
+        {% with genotype=entry.genotype|keyvalue:member.patient %}
+          GT quality: {{ genotype|keyvalue:"gq" }}
+          <br />
+          variant reads: {{ genotype|keyvalue:"ad" }} /
+          {{ genotype|keyvalue:"dp" }}
+          ">
+          {{ genotype|keyvalue:"gt" }}
+        {% endwith %}
+      </span>
+      </td>
   {% endfor %}
   <td>
     <div class="btn-group sodar-list-btn-group pr-2">

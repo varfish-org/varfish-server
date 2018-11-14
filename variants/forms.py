@@ -153,6 +153,7 @@ class ClinvarForm(forms.Form):
 
         # Get pedigree, used for rendering the form
         self.pedigree = case.pedigree
+        self.pedigree_with_samples = case.get_filtered_pedigree_with_samples()
         # Get trio role to member mapping
         trio_roles = case.get_trio_roles()
         # Build mapping from member to role, used for rendering the form
@@ -166,7 +167,7 @@ class ClinvarForm(forms.Form):
                 self.member_roles[member["patient"]] = "N/A"
         # Build field name mapping for all members
         self.field_names = {}
-        for member in self.pedigree:
+        for member in self.pedigree_with_samples:
             for key in ("gt", "dp_het", "dp_hom", "ab", "gq", "ad", "fail", "export"):
                 self.field_names.setdefault(member["patient"], {})[key] = "%s_%s" % (
                     member["patient"],
@@ -174,7 +175,7 @@ class ClinvarForm(forms.Form):
                 )
 
         # Dynamically add the fields based on the pedigree
-        for member in self.pedigree:
+        for member in self.pedigree_with_samples:
             name = member["patient"]
             self.fields[self.field_names[name]["gt"]] = forms.CharField(
                 label="",
@@ -462,6 +463,7 @@ class FilterForm(forms.Form):
 
         # Get pedigree, used for rendering the form
         self.pedigree = case.pedigree
+        self.pedigree_with_samples = case.get_filtered_pedigree_with_samples()
         # Get trio role to member mapping
         trio_roles = case.get_trio_roles()
         # Build mapping from member to role, used for rendering the form
@@ -475,7 +477,7 @@ class FilterForm(forms.Form):
                 self.member_roles[member["patient"]] = "N/A"
         # Build field name mapping for all members
         self.field_names = {}
-        for member in self.pedigree:
+        for member in self.pedigree_with_samples:
             for key in ("gt", "dp_het", "dp_hom", "ab", "gq", "ad", "fail", "export"):
                 self.field_names.setdefault(member["patient"], {})[key] = "%s_%s" % (
                     member["patient"],
@@ -487,7 +489,7 @@ class FilterForm(forms.Form):
             self.fields["compound_recessive_enabled"].disabled = True
 
         # Dynamically add the fields based on the pedigree
-        for member in self.pedigree:
+        for member in self.pedigree_with_samples:
             name = member["patient"]
             self.fields[self.field_names[name]["gt"]] = forms.CharField(
                 label="",
