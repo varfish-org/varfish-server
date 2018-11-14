@@ -16,6 +16,7 @@ End-User Summary
 - Allowing to mark variants with flags and add comments to them.
 - Adding clinvar-centric report.
 - Filtration now also works for pedigrees containing samples without genotypes.
+- Adding functionality to search for samples.
 
 Full Change List
 ================
@@ -33,8 +34,10 @@ Full Change List
 - The importer now also writes ``"has_gt_fields"`` key to Pedigree lines.
 - The templates, views, and query generation now also heed ``"has_gt_fields"`` field.
 - Adding migration that automatically adds the ``"has_gt_fields"``.
+- Adding back display of search bar.
 - Integrating search functionality for ``variants`` app.
 - Self-hosting CSS, JS, etc. now.
+- Adding ``search_tokens`` to ``Case`` with lower-case IDs.
 
 ------
 v0.4.0

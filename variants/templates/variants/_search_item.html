@@ -1,0 +1,34 @@
+{# Projectroles dependency #}
+{% load projectroles_common_tags %}
+{% load variants_tags %}
+
+<tr class="sodar-ff-search-item" id="sodar-ff-search-item-{{ item.sodar_uuid }}">
+  {# Name & link column #}
+  <td>
+    <div class="sodar-overflow-container">
+      {% highlight_search_term item.name search_term as item_display_name %}
+      <a href="{{ item.get_absolute_url }}">
+        {% autoescape off %}{{ item_display_name }}{% endautoescape %}
+      </a>
+    </div>
+  </td>
+  {# Project column #}
+  <td>
+    <div class="sodar-overflow-container">
+      <a href="{% url 'projectroles:detail' project=item.project.sodar_uuid %}">
+        {% autoescape off %}
+          {# NOTE: No highlight here as project is not searched for here #}
+          {{ item.project.title }}
+        {% endautoescape %}
+      </a>
+    </div>
+  </td>
+  {# Individuals #}
+  <td class="sodar-overflow-container">
+    {% autoescape off %}
+      {% for entry in item.pedigree %}
+        {% highlight_search_term entry.patient|only_source_name search_term %}{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    {% endautoescape %}
+  </td>
+</tr>

@@ -6,7 +6,7 @@ import logging
 from django.db import migrations
 
 
-def forwards(apps, schema_editor):
+def forwards(apps, _schema_editor):
     """Add ``has_gt_entries"`` key to pedigree members, based on them having a genotype call in the small variants."""
     Case = apps.get_model("variants", "Case")
     SmallVariant = apps.get_model("variants", "SmallVariant")

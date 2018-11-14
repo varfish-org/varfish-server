@@ -1,0 +1,86 @@
+{% load rules %}
+
+{# Projectroles dependency #}
+{% load projectroles_common_tags %}
+
+{#<style type="text/css">#}
+{#  .table#sodar-ff-search-table thead tr th:nth-child(2) {#}
+{#    width: 75px !important;#}
+{#  }#}
+{##}
+{#  .table#sodar-ff-search-table tbody tr td:nth-child(2) {#}
+{#    width: 75px !important;#}
+{#  }#}
+{##}
+{#  .table#sodar-ff-search-table thead tr th:nth-child(4) {#}
+{#    width: 75px !important;#}
+{#  }#}
+{##}
+{#  .table#sodar-ff-search-table tbody tr td:nth-child(4) {#}
+{#    width: 75px !important;#}
+{#  }#}
+{##}
+{#  /* Responsive modifications */#}
+{#  @media screen and (max-width: 1300px) {#}
+{#    .table#sodar-ff-search-table tr th:nth-child(4) {#}
+{#      display: none;#}
+{#    }#}
+{##}
+{#    .table#sodar-ff-search-table tr td:nth-child(4) {#}
+{#      display: none;#}
+{#    }#}
+{#  }#}
+{##}
+{#  @media screen and (max-width: 1100px) {#}
+{#    .table#sodar-ff-search-table tr th:nth-child(2) {#}
+{#      display: none;#}
+{#    }#}
+{##}
+{#    .table#sodar-ff-search-table tr td:nth-child(2) {#}
+{#      display: none;#}
+{#    }#}
+{#  }#}
+{##}
+{#  @media screen and (max-width: 900px) {#}
+{#    .table#sodar-ff-search-table tr th:nth-child(5) {#}
+{#      display: none;#}
+{#    }#}
+{##}
+{#    .table#sodar-ff-search-table tr td:nth-child(5) {#}
+{#      display: none;#}
+{#    }#}
+{#  }#}
+{##}
+{#  @media screen and (max-width: 600px) {#}
+{#    .table#sodar-ff-search-table tr th:nth-child(3) {#}
+{#      display: none;#}
+{#    }#}
+{##}
+{#    .table#sodar-ff-search-table tr td:nth-child(3) {#}
+{#      display: none;#}
+{#    }#}
+{#  }#}
+{#</style>#}
+
+{% if search_results.all.items|length > 0 %}
+
+  {% include 'projectroles/_search_header.html' with search_title=search_results.all.title result_count=search_results.all.items|length %}
+
+  <table class="table table-striped sodar-card-table sodar-search-table" id="sodar-ff-search-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Project</th>
+        <th>Individuals</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in search_results.all.items %}
+        {% include 'variants/_search_item.html' %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% include 'projectroles/_search_footer.html' %}
+
+{% endif %}

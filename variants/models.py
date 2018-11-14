@@ -1,8 +1,10 @@
+import re
 import uuid as uuid_object
 
 from postgres_copy import CopyManager
 
 from django.db import models
+from django.db.models import Q
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
@@ -143,6 +145,25 @@ class SmallVariant(models.Model):
         ]
 
 
+class CaseManager(models.Manager):
+    """Manager for custom table-level Case queries"""
+
+    # TODO: properly test searching..
+
+    def find(self, search_term, _keywords=None):
+        """
+        Return objects or links matching the query.
+        :param search_term: Search term (string)
+        :param keywords: Optional search keywords as key/value pairs (dict)
+        :return: Python list of BaseFilesfolderClass objects
+        """
+        objects = super().get_queryset().order_by("name")
+        objects = objects.filter(
+            Q(name__iexact=search_term) | Q(search_tokens__contains=[search_term])
+        )
+        return objects
+
+
 class Case(models.Model):
     #: DateTime of creation
     date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
@@ -156,6 +177,35 @@ class Case(models.Model):
     index = models.CharField(max_length=32)
     pedigree = JSONField()
     project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+
+    # Set manager for custom queries
+    objects = CaseManager()
+
+    #: List of additional tokens to search for, for aiding search
+    search_tokens = ArrayField(
+        models.CharField(max_length=128, blank=True),
+        default=list,
+        db_index=True,
+        help_text="Search tokens",
+    )
+
+    def save(self, *args, **kwargs):
+        """Override save() to automatically update ``self.search_tokens``"""
+        self._update_search_tokens()
+        super().save(*args, **kwargs)
+
+    def _update_search_tokens(self):
+        """Force-update ``self.search_tokens``, will enable ``.save()`` call to always save."""
+        # Get all IDs
+        self.search_tokens = [self.name] + [x["patient"] for x in self.pedigree if x.get("patient")]
+        # Remove -N1-DNA1-WES1 etc.
+        self.search_tokens = [
+            re.sub(r"-\S+\d+-\S+\d+-[^-]+\d+$", "", x) for x in self.search_tokens
+        ]
+        # Convert to lower case
+        self.search_tokens = [x.lower() for x in self.search_tokens]
+        # Strip non-alphanumeric characters
+        self.search_tokens = [re.sub(r"[^a-zA-Z0-9]", "", x) for x in self.search_tokens]
 
     class Meta:
         indexes = [models.Index(fields=["name"])]
