@@ -24,6 +24,9 @@ def update_search_tokens(apps, _schema_editor):
         set_search_tokens(case)
         case.save()
 
+def do_nothing(apps, _schema_editor):
+    pass
+
 
 class Migration(migrations.Migration):
 
@@ -41,5 +44,5 @@ class Migration(migrations.Migration):
                 size=None,
             ),
         ),
-        migrations.RunPython(update_search_tokens),
+        migrations.RunPython(update_search_tokens, do_nothing),
     ]

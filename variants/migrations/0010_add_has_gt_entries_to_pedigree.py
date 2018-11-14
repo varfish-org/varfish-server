@@ -22,12 +22,10 @@ def forwards(apps, _schema_editor):
             )
             continue
         gt_samples = set(first_var.genotype.keys())
-        pedigree = case.pedigree
-        for line in pedigree:
+        for line in case.pedigree:
             if line["patient"] in gt_samples:
                 line["has_gt_entries"] = True
-        case.pedigree = pedigree
-        case.save()
+        case.save(force_update=True)
 
 
 def backwards(apps, schema_editor):
