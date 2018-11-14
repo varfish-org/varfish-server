@@ -13,6 +13,6 @@ def setup_periodic_tasks(sender, **_kwargs):
     """Register periodic tasks"""
     # Synchronize from projectroles every 10 minutes
     sender.add_periodic_task(
-        schedule=crontab(minute=10), signature=sodar_sync_remote.s(),
+        schedule=crontab(minute='*/10'), signature=sodar_sync_remote.s(),
         name="Synchronize from remote SODAR site",
     )
