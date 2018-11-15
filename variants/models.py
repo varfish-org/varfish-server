@@ -83,62 +83,11 @@ class SmallVariant(models.Model):
             "refseq_gene_id",
         )
         indexes = [
-            # index for base query
-            models.Index(
-                fields=[
-                    "exac_frequency",
-                    "gnomad_exomes_frequency",
-                    "gnomad_genomes_frequency",
-                    "thousand_genomes_frequency",
-                    "exac_homozygous",
-                    "gnomad_exomes_homozygous",
-                    "gnomad_genomes_homozygous",
-                    "thousand_genomes_homozygous",
-                    "refseq_effect",
-                ]
-            ),
-            models.Index(
-                fields=[
-                    "exac_frequency",
-                    "gnomad_exomes_frequency",
-                    "gnomad_genomes_frequency",
-                    "thousand_genomes_frequency",
-                    "exac_homozygous",
-                    "gnomad_exomes_homozygous",
-                    "gnomad_genomes_homozygous",
-                    "thousand_genomes_homozygous",
-                    "ensembl_effect",
-                ]
-            ),
-            # for join with clinvar, dbsnp
-            models.Index(fields=["release", "chromosome", "position", "reference", "alternative"]),
-            # for join with annotation
-            models.Index(
-                fields=[
-                    "release",
-                    "chromosome",
-                    "position",
-                    "reference",
-                    "alternative",
-                    "ensembl_gene_id",
-                ]
-            ),
-            models.Index(
-                fields=[
-                    "release",
-                    "chromosome",
-                    "position",
-                    "reference",
-                    "alternative",
-                    "refseq_gene_id",
-                ]
-            ),
-            # for join with hgnc
-            models.Index(fields=["ensembl_gene_id"]),
-            models.Index(fields=["refseq_gene_id"]),
-            # for join with case
+            # For query: select all variants for a case.
             models.Index(fields=["case_id"]),
-            # for filter query
+            # Filter query: the most important thing is to reduce the variants for a case quickly. It's questionable
+            # how much adding homozygous/frequency really adds here.  Adding them back should only done when we
+            # know that it helps.
             GinIndex(fields=["case_id", "refseq_effect"]),
             GinIndex(fields=["case_id", "ensembl_effect"]),
             models.Index(fields=["case_id", "in_clinvar"]),
