@@ -597,6 +597,14 @@ class FilterQueryFlagsCommentsMixin:
                     func.count(SmallVariantFlags.sa.id).label("flag_count"),
                     func.count(SmallVariantComment.sa.id).label("comment_count"),
                     # TODO: actually it would be better to use DISTINCT ON which requires more sorting...
+                    func.bool_or(SmallVariantFlags.sa.flag_bookmarked).label("flag_bookmarked"),
+                    func.bool_or(SmallVariantFlags.sa.flag_candidate).label("flag_candidate"),
+                    func.bool_or(SmallVariantFlags.sa.flag_final_causative).label(
+                        "flag_final_causative"
+                    ),
+                    func.bool_or(SmallVariantFlags.sa.flag_for_validation).label(
+                        "flag_for_validation"
+                    ),
                     func.max(SmallVariantFlags.sa.flag_visual).label("flag_visual"),
                     func.max(SmallVariantFlags.sa.flag_validation).label("flag_validation"),
                     func.max(SmallVariantFlags.sa.flag_phenotype_match).label(
@@ -669,6 +677,7 @@ class RenderFilterQuery(
 
 
 class ExportFileFilterQuery(
+    FilterQueryFlagsCommentsMixin,
     FilterQueryClinvarMixin,
     OrderByChromosomalPositionMixin,
     FilterQueryFieldsForExportMixin,

@@ -9,9 +9,27 @@ from django.utils import timezone
 import xlsxwriter
 import vcfpy
 
-from .models import ExportFileJobResult
+from .models import ExportFileJobResult, SmallVariantComment
+from .templatetags.variants_tags import flag_class
 from projectroles.plugins import get_backend_api
 from variants.models_support import ExportFileFilterQuery
+
+#: Color to use for variants flagged as positive.
+BG_COLOR_POSITIVE = "#29a847"
+
+#: Color to use for variants flagged as uncertain.
+BG_COLOR_UNCERTAIN = "#ffc105"
+
+#: Color to use for variants flagged as negative.
+BG_COLOR_NEGATIVE = "#dc3848"
+
+#: Map of flag value to color.
+BG_COLORS = {
+    "positive": BG_COLOR_POSITIVE,
+    "uncertain": BG_COLOR_UNCERTAIN,
+    "negative": BG_COLOR_NEGATIVE,
+}
+
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
@@ -60,6 +78,21 @@ HEADER_FIXED = (
     ("hgnc_gene_family", "Gene Family", str),
     ("hgnc_pubmed_id", "Gene Pubmed ID", str),
 )
+
+#: Header fields for flags.
+HEADER_FLAGS = (
+    ("flag_bookmarked", "Flag: bookmarked", str),
+    ("flag_candidate", "Flag: selected as candidate disease-causing", str),
+    ("flag_final_causative", "Flag: selected as final causative variant", str),
+    ("flag_for_validation", "Flag: selected for validation", str),
+    ("flag_visual", "Rating: visual inspection of alignment", str),
+    ("flag_validation", "Rating: validation result", str),
+    ("flag_phenotype_match", "Rating: clinic/phenotype/biology", str),
+    ("flag_summary", "Rating: manual summary", str),
+)
+
+#: Header fields for comments.
+HEADER_COMMENTS = (("comment_count", "Comment count", int),)
 
 #: Per-sample headers.
 HEADER_FORMAT = (
@@ -133,7 +166,12 @@ class CaseExporterBase:
 
     def _yield_columns(self, members):
         """Yield column information."""
-        for lst in HEADER_FIXED:
+        header = HEADER_FIXED
+        if self.query_args["export_flags"]:
+            header += HEADER_FLAGS
+        if self.query_args["export_comments"]:
+            header += HEADER_COMMENTS
+        for lst in header:
             yield dict(zip(("name", "title", "type", "fixed"), list(lst) + [True]))
         for member in members:
             for name, title, type_ in HEADER_FORMAT:
@@ -260,17 +298,25 @@ class CaseExporterXlsx(CaseExporterBase):
         self.variant_sheet = None
         #: The sheet with the meta data.
         self.meta_data_sheet = None
+        #: The sheet with comments
+        self.comment_sheet = None
 
     def _get_named_temporary_file_args(self):
         return {"suffix": ".xlsx"}
 
     def _open(self):
-        self.workbook = xlsxwriter.Workbook(self.tmp_file.name)
+        self.workbook = xlsxwriter.Workbook(self.tmp_file.name, {"remove_timezone": True})
         # setup formats
         self.header_format = self.workbook.add_format({"bold": True})
         # setup sheets
         self.variant_sheet = self.workbook.add_worksheet("Variants")
+        if self.query_args["export_comments"]:
+            self.comment_sheet = self.workbook.add_worksheet("Comments")
         self.meta_data_sheet = self.workbook.add_worksheet("Metadata")
+        # setup styles
+        self.styles = {}
+        for name, color in BG_COLORS.items():
+            self.styles[name] = self.workbook.add_format({"bg_color": color})
 
     def _end_write_variants(self):
         self.workbook.close()
@@ -289,6 +335,41 @@ class CaseExporterXlsx(CaseExporterBase):
             return x
 
     def _write_leading(self):
+        if self.query_args["export_comments"]:
+            self._write_comment_sheet()
+        self._write_metadata_sheet()
+
+    def _write_comment_sheet(self):
+        # Write out meta data sheet.
+        self.comment_sheet.write_row(
+            0,
+            0,
+            [
+                "Chromosome",
+                "Position",
+                "Reference",
+                "Alternative",
+                "Date",
+                "ENSEMBL Gene ID",
+                "Author",
+                "Comment",
+            ],
+            self.header_format,
+        )
+        for i, comment in enumerate(SmallVariantComment.objects.filter(case=self.job.case)):
+            row = [
+                comment.chromosome,
+                comment.position,
+                comment.reference,
+                comment.alternative,
+                comment.date_created,
+                comment.ensembl_gene_id,
+                comment.user.username,
+                comment.text,
+            ]
+            self.variant_sheet.write_row(1 + i, 0, row)
+
+    def _write_metadata_sheet(self):
         # Write out meta data sheet.
         self.meta_data_sheet.write_column(
             0,
@@ -337,7 +418,11 @@ class CaseExporterXlsx(CaseExporterBase):
                         row.append(small_var["genotype"].get(member, {}).get(field, "."))
                 if isinstance(row[-1], list):
                     row[-1] = to_str(row[-1])
-            self.variant_sheet.write_row(1 + num_rows, 0, list(map(str, row)))
+            fmt = (
+                self.styles.get(flag_class(small_var)) if self.query_args["export_flags"] else None
+            )
+            print(flag_class(small_var))
+            self.variant_sheet.write_row(1 + num_rows, 0, list(map(str, row)), fmt)
         # Freeze first row and first four columns and setup auto-filter.
         self.variant_sheet.freeze_panes(1, 4)
         self.variant_sheet.autofilter(0, 0, num_rows + 1, len(self.columns))

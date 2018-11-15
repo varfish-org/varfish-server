@@ -265,6 +265,19 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         widget=forms.Select(attrs={"class": "form-control"}),
     )
 
+    export_flags = forms.BooleanField(
+        label="Export flags",
+        initial=True,
+        required=False,
+        help_text="Export flags and label rows by summary.",
+    )
+    export_comments = forms.BooleanField(
+        label="Export comments",
+        initial=True,
+        required=False,
+        help_text="Include comments in export.",
+    )
+
     submit = forms.ChoiceField(
         choices=(
             ("display", "Display results in table"),
@@ -622,8 +635,12 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         cleaned_data["effects"] = [
             effect for name, effect in FILTER_FORM_TRANSLATE_EFFECTS.items() if cleaned_data[name]
         ]
-        cleaned_data["gene_blacklist"] = [s.strip() for s in cleaned_data["gene_blacklist"].strip().split() if s.strip()]
-        cleaned_data["gene_whitelist"] = [s.strip() for s in cleaned_data["gene_whitelist"].strip().split() if s.strip()]
+        cleaned_data["gene_blacklist"] = [
+            s.strip() for s in cleaned_data["gene_blacklist"].strip().split() if s.strip()
+        ]
+        cleaned_data["gene_whitelist"] = [
+            s.strip() for s in cleaned_data["gene_whitelist"].strip().split() if s.strip()
+        ]
         return cleaned_data
 
 

@@ -37,7 +37,7 @@ class ExportTestBase(TestCase):
             project=self.bg_job.project,
             bg_job=self.bg_job,
             case=Case.objects.first(),
-            query_args={},
+            query_args={"export_flags": True, "export_comments": True},
             file_type="xlsx",
         )
 
@@ -63,7 +63,8 @@ class CaseExporterTest(ExportTestBase):
 
     def _test_tabular(self, arrs, has_trailing):
         self.assertEquals(len(arrs), 4 + int(has_trailing))
-        self.assertEquals(len(arrs[0]), 29)
+        # TODO: also test without flags and comments
+        self.assertEquals(len(arrs[0]), 38)
         self.assertSequenceEqual(arrs[0][:3], ["Chromosome", "Position", "Reference bases"])
         self.assertSequenceEqual(
             arrs[0][-5:],
@@ -116,7 +117,8 @@ class CaseExporterTest(ExportTestBase):
             temp_file.write(result)
             temp_file.flush()
             workbook = openpyxl.load_workbook(temp_file.name)
-            self.assertEquals(workbook.sheetnames, ["Variants", "Metadata"])
+            # TODO: also test without commments
+            self.assertEquals(workbook.sheetnames, ["Variants", "Comments", "Metadata"])
             variants_sheet = workbook["Variants"]
             arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
             self._test_tabular(arrs, False)

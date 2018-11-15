@@ -23,7 +23,7 @@
 <div class="form-group">
   <div class="row">
     <label class="col-sm-2 col-form-label">
-      Include in Export
+      Donors to Export
     </label>
     <div class="col-sm-10 compact-form-groups">
       {% for member in form.pedigree %}
@@ -33,6 +33,20 @@
           {% endwith %}
         {% endif %}
       {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="form-group">
+  <div class="row">
+    <label for="id_file_type" class="col-sm-2 col-form-label">
+      Flags & Comments
+    </label>
+    <div class="col-sm-3">
+      {{ form.export_flags|as_crispy_field }}
+    </div>
+    <div class="col-sm-3">
+      {{ form.export_comments|as_crispy_field }}
     </div>
   </div>
 </div>
