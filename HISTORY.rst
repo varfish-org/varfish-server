@@ -2,6 +2,26 @@
 VarFish Web UI - History
 ========================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Various smaller bug fixes.
+- Adding summary flag for colouring result lines.
+- Allow filtering variants by flags.
+
+Full Change List
+================
+
+- Allowing Javascript to access CSRF token, enables AJAX in production.
+- ``SmallVariant``s are now also identified by the ``ensembl_gene_id``.
+  This fixes an annotation error.
+- Adding ``flag_summary`` to ``SmallVariantFlags`` for giving an overall summary.
+- Extending filtration form to filter by flags.
+
 ------
 v0.5.0
 ------

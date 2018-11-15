@@ -14,25 +14,11 @@
 
 {% block css %}
   {{ block.super }}
-  <style type="text/css">
-  .display-exac .detail-gnomad-exomes,
-  .display-exac .detail-gnomad-genomes,
-  .display-exac .detail-thousand-genomes,
-  .display-gnomad-exomes .detail-exac,
-  .display-gnomad-exomes .detail-gnomad-genomes,
-  .display-gnomad-exomes .detail-thousand-genomes,
-  .display-gnomad-genomes .detail-exac,
-  .display-gnomad-genomes .detail-gnomad-exomes,
-  .display-gnomad-genomes .detail-thousand-genomes,
-  .display-thousand-genomes .detail-exac,
-  .display-thousand-genomes .detail-gnomad-exomes,
-  .display-thousand-genomes .detail-gnomad-genomes {
-    display: none;
-  }
 
-  .varfish-variant-table th {
-    text-align: center;
-  }
+  <style type="text/css">
+    .variant-row-positive { background-color: #28a74533; }
+    .variant-row-uncertain { background-color: #ffc10733; }
+    .variant-row-negative { background-color: #dc354533; }
   </style>
 {% endblock %}
 

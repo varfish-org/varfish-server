@@ -2,7 +2,7 @@
 {% load humanize %}
 {% load variants_tags %}
 
-<div class="card col-12">
+<div class="card col-12 variant-row variant-row-{{ entry.entries.0|flag_class }}">
   <div class="card-header d-flex">
     <h5 class="card-title mb-0">
       <a class="badge badge-dark" href="#clinvar-entry-{{ forloop.counter }}" id="clinvar-entry-{{ forloop.counter }}">

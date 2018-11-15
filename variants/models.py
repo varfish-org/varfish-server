@@ -405,7 +405,15 @@ class SmallVariantComment(models.Model):
             raise ValidationError("No corresponding variant in case") from e
 
     class Meta:
-        unique_together = ("release", "chromosome", "position", "reference", "alternative", "case", "ensembl_gene_id")
+        unique_together = (
+            "release",
+            "chromosome",
+            "position",
+            "reference",
+            "alternative",
+            "case",
+            "ensembl_gene_id",
+        )
 
 
 #: Choices for visual inspect, wet-lab validation, or clinical/phenotype flag statuses.
@@ -475,6 +483,10 @@ class SmallVariantFlags(models.Model):
     flag_phenotype_match = models.CharField(
         max_length=32, choices=VARIANT_RATING_CHOICES, default="empty", null=False
     )
+    #: Summary/colour code flag
+    flag_summary = models.CharField(
+        max_length=32, choices=VARIANT_RATING_CHOICES, default="empty", null=False
+    )
 
     def no_flags_set(self):
         """Return true if no flags are set and the model can be deleted."""
@@ -488,6 +500,7 @@ class SmallVariantFlags(models.Model):
                 self.flag_visual != "empty",
                 self.flag_validation != "empty",
                 self.flag_phenotype_match != "empty",
+                self.flag_summary != "empty",
             )
         )
 
@@ -508,4 +521,12 @@ class SmallVariantFlags(models.Model):
             raise ValidationError("No corresponding variant in case") from e
 
     class Meta:
-        unique_together = ("release", "chromosome", "position", "reference", "alternative", "case", "ensembl_gene_id")
+        unique_together = (
+            "release",
+            "chromosome",
+            "position",
+            "reference",
+            "alternative",
+            "case",
+            "ensembl_gene_id",
+        )

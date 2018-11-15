@@ -584,6 +584,7 @@ def fixture_setup_case1_blacklist():
 #: A value for filtration form ``cleaned_data`` to be used for "Case 1" that lets
 #: all variants through.
 INCLUSIVE_CLEANED_DATA_CASE1 = {
+    **CLINVAR_FORM_DEFAULTS,
     "case_uuid": "9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
     "effects": ["synonymous_variant"],
     "gene_blacklist": [],
@@ -1693,6 +1694,7 @@ def fixture_setup_case2():
 #: A value for filtration form ``cleaned_data`` to be used for "Case 2" that lets
 #: all variants through.
 INCLUSIVE_CLEANED_DATA_CASE2 = {
+    **CLINVAR_FORM_DEFAULTS,
     "case_uuid": "9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
     "effects": ["synonymous_variant"],
     "gene_blacklist": [],
@@ -1953,6 +1955,7 @@ def fixture_setup_case3():
 #: A value for filtration form ``cleaned_data`` to be used for "Case 3" that lets
 #: all variants through.
 INCLUSIVE_CLEANED_DATA_CASE3 = {
+    **CLINVAR_FORM_DEFAULTS,
     "case_uuid": "9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
     "effects": ["synonymous_variant"],
     "gene_blacklist": [],

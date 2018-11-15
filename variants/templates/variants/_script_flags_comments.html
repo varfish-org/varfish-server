@@ -23,6 +23,28 @@ function getCookie(name) {
 }
 
 // --------------------------------------------------------------------------
+// Summarize VariantFlags flags
+// --------------------------------------------------------------------------
+
+function summarizeFlags(data) {
+    if (data["flag_summary"] != "empty") {
+        return data["flag_summary"];
+    }
+    var values = ["negative", "uncertain", "positive", "empty"];
+    var flags = ["visual", "validation", "phenotype_match"];
+    var indexes = [];
+    for (var i = 0; i < flags.length; ++i) {
+        var flagName = "flag_" + flags[i];
+        var flagValue = data[flagName];
+        if (flagValue != "empty") {
+            indexes.push(values.indexOf(flagValue));
+        }
+    }
+    indexes.push(4);
+    return Math.min(...indexes);
+}
+
+// --------------------------------------------------------------------------
 // Variant Bookmark Popover / AJAX Form
 // --------------------------------------------------------------------------
 
@@ -72,6 +94,10 @@ function clickVariantBookmark() {
         } else {
           $(outerThis).addClass("fa-bookmark-o");
         }
+        // update row color
+        var variantRow = $(outerThis).closest(".variant-row");
+        variantRow.removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty");
+        variantRow.addClass("variant-row-" + summarizeFlags(data));
       }).fail(function(xhr) {
         // failed, notify user
         alert("Updating variant flags failed");
@@ -132,7 +158,8 @@ function clickVariantBookmark() {
         flag_final_causative: false,
         flag_visual: "empty",
         flag_validation: "empty",
-        flag_phenotype_match: "empty"
+        flag_phenotype_match: "empty",
+        flag_summary: "empty",
       };
       showPopup(data);
     } else {

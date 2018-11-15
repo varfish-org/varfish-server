@@ -42,6 +42,28 @@ CLINVAR_FORM_DEFAULTS = form_data = {
     "A_gt": "variant",
     # Limit on number of rows
     "result_rows_limit": 500,
+    # Filter selection for form.
+    "flag_bookmarked": True,
+    "flag_candidate": True,
+    "flag_final_causative": True,
+    "flag_for_validation": True,
+    "flag_phenotype_match_empty": True,
+    "flag_phenotype_match_negative": True,
+    "flag_phenotype_match_positive": True,
+    "flag_phenotype_match_uncertain": True,
+    "flag_simple_empty": True,
+    "flag_summary_empty": True,
+    "flag_summary_negative": True,
+    "flag_summary_positive": True,
+    "flag_summary_uncertain": True,
+    "flag_validation_empty": True,
+    "flag_validation_negative": True,
+    "flag_validation_positive": True,
+    "flag_validation_uncertain": True,
+    "flag_visual_empty": True,
+    "flag_visual_negative": True,
+    "flag_visual_positive": True,
+    "flag_visual_uncertain": True,
 }
 
 

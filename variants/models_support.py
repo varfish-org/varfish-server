@@ -580,6 +580,13 @@ class FilterQueryFlagsCommentsMixin:
                     *inner.c,
                     func.count(SmallVariantFlags.sa.id).label("flag_count"),
                     func.count(SmallVariantComment.sa.id).label("comment_count"),
+                    # TODO: actually it would be better to use DISTINCT ON which requires more sorting...
+                    func.max(SmallVariantFlags.sa.flag_visual).label("flag_visual"),
+                    func.max(SmallVariantFlags.sa.flag_validation).label("flag_validation"),
+                    func.max(SmallVariantFlags.sa.flag_phenotype_match).label(
+                        "flag_phenotype_match"
+                    ),
+                    func.max(SmallVariantFlags.sa.flag_summary).label("flag_summary"),
                 ]
             )
             .select_from(
@@ -605,9 +612,34 @@ class FilterQueryFlagsCommentsMixin:
                     ),
                 )
             )
+            .where(self._build_where(kwargs))
             .group_by(*inner.c)
         )
         return self._add_trailing(stmt, kwargs)
+
+    def _build_where(self, kwargs):
+        """Build WHERE clause for the query based on the ``SmallVariantFlags``."""
+        terms = []
+        # Add terms for the simple, boolean-valued flags.
+        flag_names = ("bookmarked", "candidate", "final_causative", "for_validation")
+        for flag in flag_names:
+            flag_name = "flag_%s" % flag
+            if kwargs[flag_name]:
+                terms.append(getattr(SmallVariantFlags.sa, flag_name))
+        if kwargs["flag_simple_empty"]:
+            terms.append(and_(not getattr(SmallVariantFlags.sa, "flag_%s" % flag)))
+        # Add terms for the valued flags.
+        flag_names = ("visual", "validation", "phenotype_match", "summary")
+        for flag in flag_names:
+            flag_name = "flag_%s" % flag
+            for value in ("positive", "uncertain", "negative", "empty"):
+                field_name = "%s_%s" % (flag_name, value)
+                if kwargs[field_name]:
+                    terms.append(getattr(SmallVariantFlags.sa, flag_name) == value)
+                    if value == "empty":
+                        # SQL Alchemy wants '== None' instead of 'is None' here
+                        terms.append(getattr(SmallVariantFlags.sa, flag_name) == None)
+        return or_(*terms)
 
 
 class RenderFilterQuery(

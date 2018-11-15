@@ -84,7 +84,73 @@ FILTER_FORM_TRANSLATE_SIGNIFICANCE = {
 }
 
 
-class ClinvarForm(forms.Form):
+class SmallVariantFlagsFilterFormMixin(forms.Form):
+    """Fields for filtering to ``SmallVariantFlags``."""
+
+    # Simple, boolean-valued flags.
+
+    flag_bookmarked = forms.BooleanField(label="bookmarked", required=False, initial=True)
+    flag_candidate = forms.BooleanField(label="candidate", required=False, initial=True)
+    flag_final_causative = forms.BooleanField(label="final causative", required=False, initial=True)
+    flag_for_validation = forms.BooleanField(label="for validation", required=False, initial=True)
+    flag_simple_empty = forms.BooleanField(label="no simple flag", required=False, initial=True)
+
+    # Flags with value positive/uncertain/negative
+
+    # Visual inspection
+    flag_visual_positive = forms.BooleanField(
+        label="visual: positive", required=False, initial=True
+    )
+    flag_visual_uncertain = forms.BooleanField(
+        label="visual: uncertain", required=False, initial=True
+    )
+    flag_visual_negative = forms.BooleanField(
+        label="visual: negative", required=False, initial=True
+    )
+    flag_visual_empty = forms.BooleanField(label="visual: empty", required=False, initial=True)
+
+    # Validation
+    flag_validation_positive = forms.BooleanField(
+        label="validation: positive", required=False, initial=True
+    )
+    flag_validation_uncertain = forms.BooleanField(
+        label="validation: uncertain", required=False, initial=True
+    )
+    flag_validation_negative = forms.BooleanField(
+        label="validation: negative", required=False, initial=True
+    )
+    flag_validation_empty = forms.BooleanField(
+        label="validation: empty", required=False, initial=True
+    )
+
+    # Phenotype match / clinical
+    flag_phenotype_match_positive = forms.BooleanField(
+        label="phenotype_match: positive", required=False, initial=True
+    )
+    flag_phenotype_match_uncertain = forms.BooleanField(
+        label="phenotype_match: uncertain", required=False, initial=True
+    )
+    flag_phenotype_match_negative = forms.BooleanField(
+        label="phenotype_match: negative", required=False, initial=True
+    )
+    flag_phenotype_match_empty = forms.BooleanField(
+        label="phenotype_match: empty", required=False, initial=True
+    )
+
+    # Summary flag, overrides other multi-valued flags
+    flag_summary_positive = forms.BooleanField(
+        label="summary: positive", required=False, initial=True
+    )
+    flag_summary_uncertain = forms.BooleanField(
+        label="summary: uncertain", required=False, initial=True
+    )
+    flag_summary_negative = forms.BooleanField(
+        label="summary: negative", required=False, initial=True
+    )
+    flag_summary_empty = forms.BooleanField(label="summary: empty", required=False, initial=True)
+
+
+class ClinvarForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     """Form used for creating Clinvar report."""
 
     result_rows_limit = forms.IntegerField(
@@ -192,7 +258,7 @@ class ResubmitForm(forms.Form):
     )
 
 
-class FilterForm(forms.Form):
+class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     file_type = forms.ChoiceField(
         initial="xlsx",
         choices=(("xlsx", "Excel (.xlsx)"), ("tsv", "TSV (.tsv)"), ("vcf", "VCF (.vcf.gz)")),

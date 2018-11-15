@@ -104,6 +104,30 @@
           </div>
         </div>
       </div>
+      <div class="form-group mb-1 row">
+        <label class="pr-3">
+          <i class="fa fa-fw fa-paint-brush pr-1"></i>
+          Summary
+        </label>
+        <div class="ml-auto">
+          <div class="form-check form-check-inline" title="Flag as overall pathogenic">
+            <input class="form-check-input" id="comment-radio-summary-positive-{{:variant}}" type="radio" name="flag_summary" value="positive" {{if flag_summary == "positive"}}checked{{/if}} />
+            <label for="comment-radio-summary-positive-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-up text-success"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="Flag as overall doubtful">
+            <input class="form-check-input" id="comment-radio-summary-uncertain-{{:variant}}" type="radio" name="flag_summary" value="uncertain" {{if flag_summary == "uncertain"}}checked{{/if}} />
+            <label for="comment-radio-summary-uncertain-{{:variant}}" class="m-0"><i class="fa fa-fw fa-question text-warning"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="Flag as overall benign">
+            <input class="form-check-input" id="comment-radio-summary-negative-{{:variant}}" type="radio" name="flag_summary" value="negative" {{if flag_summary == "negative"}}checked{{/if}} />
+            <label for="comment-radio-summary-negative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-down text-danger"></i></label>
+          </div>
+          <div class="form-check form-check-inline" title="No overall flag">
+            <input class="form-check-input" id="comment-radio-summary-empty-{{:variant}}" type="radio" name="flag_summary" value="empty" {{if flag_summary == "empty"}}checked{{/if}} />
+            <label for="comment-radio-summary-empty-{{:variant}}" class="m-0"><i class="fa fa-fw fa-remove text-secondary"></i></label>
+          </div>
+        </div>
+      </div>
       <div class="form-group mb-1">
         <label for="comment-textarea-{{:variant}}">Add Comment</label>
         <textarea class="form-control form-control-sm comment-text" id="comment-textarea-{{:variant}}" rows="3" name="text" placeholder="Enter any comment here."></textarea>

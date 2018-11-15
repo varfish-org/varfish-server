@@ -40,6 +40,9 @@
           <a class="nav-link" id="blacklist-tab" data-toggle="tab" href="#panel-blacklist" role="tab">Gene Blacklist</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" id="flags-tab" data-toggle="tab" href="#panel-flags" role="tab">Flags &amp; Comments</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" id="export-tab" data-toggle="tab" href="#panel-export" role="tab">Export Config</a>
         </li>
         <li class="nav-item">
@@ -67,6 +70,9 @@
         </div>
         <div class="tab-pane fade" id="panel-blacklist" role="tabpanel" aria-labelledby="blacklist-tab">
           {% include "variants/_filter_form_blacklist.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-flags" role="tabpanel" aria-labelledby="flags-tab">
+          {% include "variants/_filter_form_flags.html" %}
         </div>
         <div class="tab-pane fade" id="panel-export" role="tabpanel" arial-labelledby="export-tab">
           {% include "variants/_filter_form_export.html" %}

@@ -7,33 +7,54 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('variants', '0011_case_search_tokens'),
-    ]
+    dependencies = [("variants", "0011_case_search_tokens")]
 
     operations = [
         migrations.RemoveIndex(
-            model_name='smallvariantflags',
-            name='variants_sm_release_82b900_idx',
+            model_name="smallvariantflags", name="variants_sm_release_82b900_idx"
         ),
         migrations.AddField(
-            model_name='smallvariantcomment',
-            name='ensembl_gene_id',
-            field=models.CharField(default='ENSGEMPTY', max_length=64),
+            model_name="smallvariantcomment",
+            name="ensembl_gene_id",
+            field=models.CharField(default="ENSGEMPTY", max_length=64),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='smallvariantflags',
-            name='ensembl_gene_id',
-            field=models.CharField(default='ENSGEMPTY', max_length=64),
+            model_name="smallvariantflags",
+            name="ensembl_gene_id",
+            field=models.CharField(default="ENSGEMPTY", max_length=64),
             preserve_default=False,
         ),
         migrations.AlterUniqueTogether(
-            name='smallvariantcomment',
-            unique_together=set([('release', 'chromosome', 'position', 'reference', 'alternative', 'case', 'ensembl_gene_id')]),
+            name="smallvariantcomment",
+            unique_together=set(
+                [
+                    (
+                        "release",
+                        "chromosome",
+                        "position",
+                        "reference",
+                        "alternative",
+                        "case",
+                        "ensembl_gene_id",
+                    )
+                ]
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='smallvariantflags',
-            unique_together=set([('release', 'chromosome', 'position', 'reference', 'alternative', 'case', 'ensembl_gene_id')]),
+            name="smallvariantflags",
+            unique_together=set(
+                [
+                    (
+                        "release",
+                        "chromosome",
+                        "position",
+                        "reference",
+                        "alternative",
+                        "case",
+                        "ensembl_gene_id",
+                    )
+                ]
+            ),
         ),
     ]

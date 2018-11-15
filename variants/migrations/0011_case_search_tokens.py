@@ -24,6 +24,7 @@ def update_search_tokens(apps, _schema_editor):
         set_search_tokens(case)
         case.save()
 
+
 def do_nothing(apps, _schema_editor):
     pass
 

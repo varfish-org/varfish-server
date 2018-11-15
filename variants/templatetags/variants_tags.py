@@ -74,3 +74,24 @@ FLAG_VALUE_TO_FA = {
 @register.filter
 def flag_value_to_fa(value):
     return FLAG_VALUE_TO_FA.get(value, "fa-remove")
+
+
+@register.filter
+def flag_class(row):
+    """Return CSS class to used based on the flag of ``row``.
+
+    Overall, select the flag value of {visual, validation, phenotype_match}
+    with the lowest scoring that is not "empty".  If the summary flag has been
+    set, use this value.
+    """
+    if row.flag_summary != "empty":
+        return row.flag_summary  # short-circuit
+    values = ("negative", "uncertain", "positive", "empty")
+    flags = ("visual", "validation", "phenotype_match")
+    indexes = []
+    for flag in flags:
+        flag_name = "flag_%s" % flag
+        flag_value = getattr(row, flag_name)
+        if flag_value != "empty":
+            indexes.append(values.index(flag_value))
+    return values[min(indexes, default=4)]
