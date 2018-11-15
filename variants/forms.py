@@ -506,10 +506,18 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
 
     gene_blacklist = forms.CharField(
         label="Gene Blacklist",
-        help_text="Enter a list of genes to blacklist in the results, separated by spaces or line breaks.",
-        widget=forms.Textarea(attrs={"placeholder": "Your Gene Symbols Here"}),
+        help_text="Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break",
+        widget=forms.Textarea(attrs={"placeholder": "Enter genes to black-list here", "rows": 3}),
         required=False,
-        max_length=1000,
+        max_length=5000,
+    )
+
+    gene_whitelist = forms.CharField(
+        label="Gene Whitelist",
+        help_text="Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break",
+        widget=forms.Textarea(attrs={"placeholder": "Enter genes to white-list here", "rows": 3}),
+        required=False,
+        max_length=5000,
     )
 
     var_type_mnv = forms.BooleanField(label="MNV", required=False, initial=True)
@@ -614,6 +622,8 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         cleaned_data["effects"] = [
             effect for name, effect in FILTER_FORM_TRANSLATE_EFFECTS.items() if cleaned_data[name]
         ]
+        cleaned_data["gene_blacklist"] = [s.strip() for s in cleaned_data["gene_blacklist"].strip().split() if s.strip()]
+        cleaned_data["gene_whitelist"] = [s.strip() for s in cleaned_data["gene_whitelist"].strip().split() if s.strip()]
         return cleaned_data
 
 

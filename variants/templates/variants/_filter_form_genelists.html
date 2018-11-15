@@ -1,0 +1,14 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+
+<div class="p-3 compact-form-groups">
+  {{ form.gene_blacklist|as_crispy_field }}
+  {{ form.gene_whitelist|as_crispy_field }}
+  <p class="text-muted">
+    <small>
+      Enter lists of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break.
+      If any white-list gene is given, only variants in a white-listed gene are shown.
+      Variants in black-listed genes are excluded.
+    </small>
+  </p>
+</div>

@@ -99,6 +99,10 @@ DEFAULT_FILTER_FORM_SETTING = {
     "clinvar_include_uncertain_significance": False,
     "clinvar_include_likely_pathogenic": True,
     "clinvar_include_pathogenic": True,
+    # Gene lists
+    "gene_blacklist": "",
+    "gene_whitelist": "",
+    # Submit buttons
     "submit": "display",
 }
 

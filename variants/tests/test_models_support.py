@@ -623,6 +623,9 @@ INCLUSIVE_CLEANED_DATA_CASE1 = {
     "clinvar_include_uncertain_significance": False,
     "clinvar_include_likely_pathogenic": True,
     "clinvar_include_pathogenic": True,
+    # Gene lists
+    "gene_blacklist": "",
+    "gene_whitelist": "",
 }
 
 
@@ -1747,6 +1750,9 @@ INCLUSIVE_CLEANED_DATA_CASE2 = {
     "clinvar_include_uncertain_significance": False,
     "clinvar_include_likely_pathogenic": True,
     "clinvar_include_pathogenic": True,
+    # Gene lists
+    "gene_blacklist": "",
+    "gene_whitelist": "",
 }
 
 
@@ -1994,6 +2000,9 @@ INCLUSIVE_CLEANED_DATA_CASE3 = {
     "clinvar_include_uncertain_significance": False,
     "clinvar_include_likely_pathogenic": False,
     "clinvar_include_pathogenic": False,
+    # Gene lists
+    "gene_blacklist": "",
+    "gene_whitelist": "",
 }
 
 

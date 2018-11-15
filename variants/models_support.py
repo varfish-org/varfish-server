@@ -253,6 +253,7 @@ class FilterFromAndWhereMixin(GenotypeTermMixin):
             self._build_effects_term(kwargs),
             and_(*self._yield_genotype_terms(kwargs, gt_patterns)),
             self._build_gene_blacklist_term(kwargs),
+            self._build_gene_whitelist_term(kwargs),
             self._build_transcripts_coding_term(kwargs),
         )
 
@@ -341,7 +342,21 @@ class FilterFromAndWhereMixin(GenotypeTermMixin):
         )
 
     def _build_gene_blacklist_term(self, kwargs):
-        return not_(Hgnc.sa.symbol.in_(kwargs["gene_blacklist"]))
+        return and_(
+            not_(Hgnc.sa.symbol.in_(kwargs["gene_blacklist"])),
+            not_(SmallVariant.sa.ensembl_gene_id.in_(kwargs["gene_blacklist"])),
+            not_(SmallVariant.sa.refseq_gene_id.in_(kwargs["gene_blacklist"])),
+        )
+
+    def _build_gene_whitelist_term(self, kwargs):
+        if not kwargs["gene_whitelist"]:
+            return True
+        else:
+            return or_(
+                Hgnc.sa.symbol.in_(kwargs["gene_whitelist"]),
+                SmallVariant.sa.ensembl_gene_id.in_(kwargs["gene_whitelist"]),
+                SmallVariant.sa.refseq_gene_id.in_(kwargs["gene_whitelist"]),
+            )
 
     def _build_transcripts_coding_term(self, kwargs):
         sub_terms = []
@@ -373,6 +388,7 @@ class FilterQueryStandardFieldsMixin(FilterFromAndWhereMixin):
                 SmallVariant.sa.reference,
                 SmallVariant.sa.alternative,
                 SmallVariant.sa.ensembl_gene_id.label("ensembl_gene_id"),
+                SmallVariant.sa.refseq_gene_id.label("entrez_id"),
                 SmallVariant.sa.exac_frequency,
                 SmallVariant.sa.gnomad_exomes_frequency,
                 SmallVariant.sa.gnomad_genomes_frequency,
