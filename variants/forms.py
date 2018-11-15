@@ -1,6 +1,6 @@
 from django import forms
 from .models import SmallVariantComment, SmallVariantFlags
-
+from .templatetags.variants_tags import only_source_name
 
 INHERITANCE = [
     ("any", "any"),
@@ -605,7 +605,7 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
                 initial="drop-variant",
             )
             self.fields[self.field_names[name]["export"]] = forms.BooleanField(
-                label=name, required=False, initial=True
+                label=only_source_name(name), required=False, initial=True
             )
 
     def clean(self):

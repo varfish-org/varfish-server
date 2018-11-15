@@ -26,7 +26,7 @@
   <tbody>
     {% for member in form.pedigree %}
     <tr>
-      <td>{{ member.patient }}</td>
+      <td>{{ member.patient|only_source_name }}</td>
       <td>{{ member.father|default:"0"|only_source_name }}</td>
       <td>{{ member.mother|default:"0"|only_source_name }}</td>
       {% if member.has_gt_entries %}

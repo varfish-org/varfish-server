@@ -1,7 +1,7 @@
 {% load crispy_forms_tags %}
 {% load dict %}
 
-<div class="row pb-3 pt-3">
+<div class="row pb-2 pt-2 compact-form-groups">
   <div class="col-6 pl-0">
     <div class="row">
       <h5 class="col-12">
@@ -65,7 +65,7 @@
     </div>
   </div>
 </div>
-<div class="row pb-3 pt-3">
+<div class="row pb-2 pt-2 border-top compact-form-groups">
   <h5 class="col-12">Detailed Effects</h5>
   <div class="col-3">{{ form.effect_coding_transcript_intron_variant|as_crispy_field }}</div>
   <div class="col-3">{{ form.effect_complex_substitution|as_crispy_field }}</div>
