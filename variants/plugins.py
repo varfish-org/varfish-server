@@ -1,6 +1,6 @@
 from projectroles.plugins import ProjectAppPluginPoint
 
-from .models import Case
+from .models import Case, SmallVariantComment, SmallVariantFlags
 from .urls import urlpatterns
 
 
@@ -59,3 +59,22 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             items = Case.objects.find(search_term, keywords).order_by("name")
 
         return {"all": {"title": "Cases", "search_types": ["case"], "items": items}}
+
+    def get_object_link(self, model_str, uuid):
+        """
+        Return URL for referring to a object used by the app, along with a
+        label to be shown to the user for linking.
+        :param model_str: Object class (string)
+        :param uuid: sodar_uuid of the referred object
+        :return: Dict or None if not found
+        """
+        obj = self.get_object(eval(model_str), uuid)
+
+        if isinstance(obj, SmallVariantComment):
+            return {"url": obj.get_absolute_url(), "label": obj.shortened_text()}
+        elif isinstance(obj, SmallVariantFlags):
+            return {"url": obj.get_absolute_url(), "label": obj.human_readable()}
+        elif isinstance(obj, Case):
+            return {"url": obj.get_absolute_url(), "label": obj.name}
+
+        return None

@@ -14,6 +14,7 @@ End-User Summary
 - Allow filtering variants by flags.
 - Integrating flags etc. also into downloadable TSV/Excel files.
 - Adding new annotation: HGMD public via ENSEMBL.
+- Adding comments and flags now appears in the timeline.
 
 Full Change List
 ================
@@ -26,6 +27,8 @@ Full Change List
 - Added new app ``hgmd`` for ``HGMD_PUBLIC`` data from ENSEMBL.
 - Adding ``make black`` to ``Makefile``.
 - Changed default frequencies.
+- Improving integration of comments and flags with the timeline app.
+- Also properly integrating import of cases etc. with timeline app.
 
 ------
 v0.5.0

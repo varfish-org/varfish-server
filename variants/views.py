@@ -21,6 +21,7 @@ from bgjobs.models import BackgroundJob
 from clinvar.models import Clinvar
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
+from projectroles.plugins import get_backend_api
 from variants.models_support import ClinvarReportQuery, RenderFilterQuery, KnownGeneAAQuery
 
 from .models import Case, ExportFileBgJob, SmallVariantFlags, SmallVariantComment
@@ -538,6 +539,22 @@ class SmallVariantFlagsApiView(
             flags = form.save()
         except ValueError as e:
             raise Exception(str(form.errors)) from e
+        timeline = get_backend_api("timeline_backend")
+        if timeline:
+            variant = "{chromosome}-{position}-{reference}-{alternative}".format(
+                **form.cleaned_data
+            )
+            tl_event = timeline.add_event(
+                project=self._get_project(self.request, self.kwargs),
+                app_name="variants",
+                user=self.request.user,
+                event_name="flags_set",
+                description="set flags for variant %s in case {case} to {flags}"
+                % flags.get_variant_description(),
+                status_type="OK",
+            )
+            tl_event.add_object(obj=case, label="case", name=case.name)
+            tl_event.add_object(obj=flags, label="flags", name=flags.human_readable())
         if flags.no_flags_set():
             flags.delete()
             result = {"message": "erased"}
@@ -567,5 +584,18 @@ class SmallVariantCommentApiView(
         case = self.get_object()
         comment = SmallVariantComment(case=case, user=self.request.user, sodar_uuid=uuid.uuid4())
         form = SmallVariantCommentForm(self.request.POST, instance=comment)
-        form.save()
+        comment = form.save()
+        timeline = get_backend_api("timeline_backend")
+        if timeline:
+            tl_event = timeline.add_event(
+                project=self._get_project(self.request, self.kwargs),
+                app_name="variants",
+                user=self.request.user,
+                event_name="comment_add",
+                description="add comment for variant %s in case {case}: {text}"
+                % comment.get_variant_description(),
+                status_type="OK",
+            )
+            tl_event.add_object(obj=case, label="case", name=case.name)
+            tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
         return HttpResponse(json.dumps({"result": "OK"}), content_type="application/json")

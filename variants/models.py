@@ -337,6 +337,14 @@ class SmallVariantComment(models.Model):
     #: The comment text.
     text = models.TextField(help_text="The comment text", null=False, blank=False)
 
+    def get_variant_description(self):
+        return "-".join(
+            map(
+                str,
+                (self.release, self.chromosome, self.position, self.reference, self.alternative),
+            )
+        )
+
     def clean(self):
         """Make sure that the case has such a variant"""
         # TODO: unit test me
@@ -363,6 +371,29 @@ class SmallVariantComment(models.Model):
             "case",
             "ensembl_gene_id",
         )
+        indexes = (
+            models.Index(
+                fields=[
+                    "release",
+                    "chromosome",
+                    "position",
+                    "reference",
+                    "alternative",
+                    "case",
+                    "ensembl_gene_id",
+                ]
+            ),
+        )
+
+    def shortened_text(self, max_chars=50):
+        """Shorten ``text`` to ``max_chars`` characters if longer."""
+        if len(self.text) > max_chars:
+            return self.text[:max_chars] + "..."
+        else:
+            return self.text
+
+    def get_absolute_url(self):
+        return self.case.get_absolute_url() + "#comment-%s" % self.sodar_uuid
 
 
 #: Choices for visual inspect, wet-lab validation, or clinical/phenotype flag statuses.
@@ -436,6 +467,32 @@ class SmallVariantFlags(models.Model):
     flag_summary = models.CharField(
         max_length=32, choices=VARIANT_RATING_CHOICES, default="empty", null=False
     )
+
+    def human_readable(self):
+        """Return human-redable version of flags"""
+        if self.no_flags_set():
+            return "no flags set"
+        else:
+            flag_desc = []
+            for name in ("bookmarked", "for_validation", "candidate", "final causative"):
+                if getattr(self, "flag_%s" % name.replace(" ", "_")):
+                    flag_desc.append(name)
+            for name in ("visual", "validation", "phenotype_match", "summary"):
+                field = getattr(self, "flag_%s" % name)
+                if field and field != "empty":
+                    flag_desc.append("%s rating is %s" % (name.split("_")[0], field))
+            return ", ".join(flag_desc)
+
+    def get_variant_description(self):
+        return "-".join(
+            map(
+                str,
+                (self.release, self.chromosome, self.position, self.reference, self.alternative),
+            )
+        )
+
+    def get_absolute_url(self):
+        return self.case.get_absolute_url() + "#flags-" + self.get_variant_description()
 
     def no_flags_set(self):
         """Return true if no flags are set and the model can be deleted."""

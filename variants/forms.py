@@ -493,9 +493,7 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     )
 
     require_in_clinvar = forms.BooleanField(
-        label="Clinvar membership required",
-        required=False,
-        initial=False,
+        label="Clinvar membership required", required=False, initial=False
     )
 
     require_in_hgmd_public = forms.BooleanField(
@@ -526,7 +524,13 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     gene_blacklist = forms.CharField(
         label="Gene Blacklist",
         help_text="Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break",
-        widget=forms.Textarea(attrs={"placeholder": "Enter genes to black-list here", "rows": 3, "class": "form-control"}),
+        widget=forms.Textarea(
+            attrs={
+                "placeholder": "Enter genes to black-list here",
+                "rows": 3,
+                "class": "form-control",
+            }
+        ),
         required=False,
         max_length=5000,
     )
@@ -534,7 +538,13 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     gene_whitelist = forms.CharField(
         label="Gene Whitelist",
         help_text="Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break",
-        widget=forms.Textarea(attrs={"placeholder": "Enter genes to white-list here", "rows": 3, "class": "form-control"}),
+        widget=forms.Textarea(
+            attrs={
+                "placeholder": "Enter genes to white-list here",
+                "rows": 3,
+                "class": "form-control",
+            }
+        ),
         required=False,
         max_length=5000,
     )

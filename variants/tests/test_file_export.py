@@ -146,7 +146,7 @@ class ExportCaseTest(ExportTestBase):
         self.assertIsNotNone(self.export_job.export_result)
         self.assertEquals(self.export_job.export_result.payload, _fake_generate(self))
         # Check side effects
-        self.assertEquals(ProjectEvent.objects.count(), 2)
+        self.assertEquals(ProjectEvent.objects.count(), 1)
 
     @patch.object(file_export.CaseExporterTsv, "generate", new=_fake_generate, create=True)
     def test_export_tsv(self):

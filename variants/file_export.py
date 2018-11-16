@@ -533,14 +533,15 @@ def export_case(job):
     job.mark_start()
     timeline = get_backend_api("timeline_backend")
     if timeline:
-        timeline.add_event(
+        tl_event = timeline.add_event(
             project=job.project,
             app_name="variants",
             user=job.bg_job.user,
             event_name="case_export",
-            description="Export of filtration results for {} to file started".format(job.case.name),
+            description="export filtration results for case {case_name}",
             status_type="INIT",
         )
+        tl_event.add_object(obj=job.case, label="case_name", name=job.case.name)
     try:
         klass = EXPORTERS[job.file_type]
         with klass(job) as exporter:
@@ -552,30 +553,12 @@ def export_case(job):
     except Exception as e:
         job.mark_error(e)
         if timeline:
-            timeline.add_event(
-                project=job.project,
-                app_name="variants",
-                user=job.bg_job.user,
-                event_name="case_export",
-                description="Export of filtration results for {} to file failed".format(
-                    job.case.name
-                ),
-                status_type="FAILED",
-            )
+            tl_event.set_status("FAILED", "export complete for {case_name}")
         raise
     else:
         job.mark_success()
         if timeline:
-            timeline.add_event(
-                project=job.project,
-                app_name="variants",
-                user=job.bg_job.user,
-                event_name="case_export",
-                description="Export of filtration results for {} to file complete".format(
-                    job.case.name
-                ),
-                status_type="OK",
-            )
+            tl_event.set_status("OK", "export complete for {case_name}")
 
 
 def clear_expired_exported_files():
