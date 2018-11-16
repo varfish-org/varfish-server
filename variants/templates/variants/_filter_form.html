@@ -4,15 +4,63 @@
 
 <form id="filterForm" method="post">{% csrf_token %}
   <div class="card">
-    <div class="card-header">
-      <div class="row">
-        <h5 class="mb-3">
-          Filter Settings
-        </h5>
+    <div class="card-header row pb-1 border-bottom-0 pt-1">
+        <ul class="nav nav-tabs card-header-tabs">
+          <li class="nav-item">
+            <a class="nav-link active" id="genotype-tab" data-toggle="tab" href="#panel-genotype" role="tab"
+               data-tooltip="tooltip" title="Require genotypes in individuals">Genotype</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="frequency-tab" data-toggle="tab" href="#panel-frequency" role="tab"
+              data-tooltip="tooltip" title="Population frequencies and het./hom. counts">Frequency</a>
+          </li>
+          <li class="nav-item d-none d-md-block">
+            <a class="nav-link" id="effect-tab" data-toggle="tab" href="#panel-effect" role="tab"
+              data-tooltip="tooltip" title="Variant types/effects, coding/non-coding transcripts">Variants &amp; Effects</a>
+          </li>
+          <li class="nav-item d-none d-md-block">
+            <a class="nav-link" id="effect-tab" data-toggle="tab" href="#panel-quality" role="tab"
+              data-tooltip="tooltip" title="Quality, allelic balance, coverage">Quality</a>
+          </li>
+          <li class="nav-item d-none d-lg-block">
+            <a class="nav-link" id="quality-tab" data-toggle="tab" href="#panel-blacklist" role="tab"
+              data-tooltip="tooltip" title="White-list and black-list genes">Gene Lists</a>
+          </li>
+          <li class="nav-item d-none d-xl-block">
+            <a class="nav-link" id="blacklist-tab" data-toggle="tab" href="#panel-flags" role="tab"
+              data-tooltip="tooltip" title="Filter for user flags and comments">Flags &amp; Comments</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">More ...</a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item d-md-none" id="effect-tab" data-toggle="tab" href="#panel-effect" role="tab"
+                data-tooltip="tooltip" title="Variant types/effects, coding/non-coding transcripts" data-placement="left">Variants &amp; Effect</a>
+              <a class="dropdown-item d-md-none" id="quality-tab" data-toggle="tab" href="#panel-quality" role="tab"
+                data-tooltip="tooltip" title="Quality, allelic balance, coverage" data-placement="left">Quality</a>
+              <a class="dropdown-item d-lg-none" id="blacklist-tab" data-toggle="tab" href="#panel-blacklist" role="tab"
+                data-tooltip="tooltip" title="White-list and black-list genes" data-placement="left">Gene Lists</a>
+              <a class="dropdown-item d-xl-none" id="flags-tab" data-toggle="tab" href="#panel-flags" role="tab"
+                data-tooltip="tooltip" title="Filter for user flags and comments" data-placement="left">Flags &amp; Comments</a>
+              <a class="dropdown-item" id="clinvar-tab" data-toggle="tab" href="#panel-clinvar" role="tab"
+                data-tooltip="tooltip" title="Filter using Clinvar/HGMD membership" data-placement="left">Clinvar & HGMD</a>
+              <a class="dropdown-item" id="export-tab" data-toggle="tab" href="#panel-export" role="tab"
+                data-tooltip="tooltip" title="Configure downloadable file creation" data-placement="left">Configure Downloads</a>
+              <a class="dropdown-item" id="misc-tab" data-toggle="tab" href="#panel-misc" role="tab"
+                data-tooltip="tooltip" title="Various settings" data-placement="left">Miscellaneous</a>
+              <a class="dropdown-item" id="settings-tab" data-toggle="tab" href="#panel-settings" role="tab"
+                data-tooltip="tooltip" title="Save current filter settings" data-placement="left">Filter Import/Export</a>
+            </div>
+          </li>
+        </ul>
         <div class="ml-auto">
           <div class="dropdown">
             <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="presets-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Load Presets
+              <span class="d-none d-sm-inline">
+                Load Presets
+              </span>
+              <span class="d-inline d-sm-none">
+                <i class="fa fa-sliders"></i>
+              </span>
             </button>
             <div class="dropdown-menu" aria-labelledby="presets-menu-button">
               <a class="dropdown-item load-presets" href="#" data-preset-name="medgen-strict">Med. Gen: Strict</a>
@@ -21,49 +69,18 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <ul class="nav nav-tabs card-header-tabs" style="border-bottom: 0;">
-        <li class="nav-item">
-          <a class="nav-link active" id="frequency-tab" data-toggle="tab" href="#panel-frequency" role="tab">Frequency</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="effect-tab" data-toggle="tab" href="#panel-effect" role="tab">Variants &amp; Effect</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="genotype-tab" data-toggle="tab" href="#panel-genotype" role="tab">Genotype</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="quality-tab" data-toggle="tab" href="#panel-quality" role="tab">Quality</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="blacklist-tab" data-toggle="tab" href="#panel-blacklist" role="tab">Gene Lists</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="flags-tab" data-toggle="tab" href="#panel-flags" role="tab">Flags &amp; Comments</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="export-tab" data-toggle="tab" href="#panel-export" role="tab">Export Config</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="misc-tab" data-toggle="tab" href="#panel-misc" role="tab">Miscellaneous</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="settings-tab" data-toggle="tab" href="#panel-settings" role="tab">Settings Import/Export</a>
-        </li>
-      </ul>
     </div>
 
     <div class="card-body p-0">
       <div class="tab-content">
-        <div class="tab-pane fade show active" id="panel-frequency" role="tabpanel" aria-labelledby="frequency-tab">
+        <div class="tab-pane fade show active" id="panel-genotype" role="tabpanel" aria-labelledby="genotype-tab">
+          {% include "variants/_filter_form_genotype.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-frequency" role="tabpanel" aria-labelledby="frequency-tab">
           {% include "variants/_filter_form_frequency.html" %}
         </div>
         <div class="tab-pane fade" id="panel-effect" role="tabpanel" aria-labelledby="effect-tab">
           {% include "variants/_filter_form_effect.html" %}
-        </div>
-        <div class="tab-pane fade" id="panel-genotype" role="tabpanel" aria-labelledby="genotype-tab">
-          {% include "variants/_filter_form_genotype.html" %}
         </div>
         <div class="tab-pane fade" id="panel-quality" role="tabpanel" aria-labelledby="quality-tab">
           {% include "variants/_filter_form_quality.html" %}
@@ -73,6 +90,9 @@
         </div>
         <div class="tab-pane fade" id="panel-flags" role="tabpanel" aria-labelledby="flags-tab">
           {% include "variants/_filter_form_flags.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-clinvar" role="tabpanel" aria-labelledby="clinvar-tab">
+          {% include "variants/_filter_form_clinvar_hgmd.html" %}
         </div>
         <div class="tab-pane fade" id="panel-export" role="tabpanel" arial-labelledby="export-tab">
           {% include "variants/_filter_form_export.html" %}
@@ -123,4 +143,6 @@
 
 <script type="text/javascript">
   $('[data-toggle-second="tooltip"]').tooltip();
+  const anchor = window.location.hash;
+  $(`a[href="${anchor}"]`).tab('show')
 </script>

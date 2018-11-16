@@ -9,7 +9,7 @@ HEAD (unreleased)
 End-User Summary
 ================
 
-- Various smaller bug fixes.
+- Various smaller bug fixes and user interface improvements.
 - Adding summary flag for colouring result lines.
 - Allow filtering variants by flags.
 - Integrating flags etc. also into downloadable TSV/Excel files.
@@ -25,6 +25,7 @@ Full Change List
 - Extending filtration form to filter by flags.
 - Added new app ``hgmd`` for ``HGMD_PUBLIC`` data from ENSEMBL.
 - Adding ``make black`` to ``Makefile``.
+- Changed default frequencies.
 
 ------
 v0.5.0

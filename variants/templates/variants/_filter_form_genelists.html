@@ -1,9 +1,15 @@
 {% load crispy_forms_tags %}
 {% load dict %}
 
-<div class="p-3 compact-form-groups">
-  {{ form.gene_blacklist|as_crispy_field }}
-  {{ form.gene_whitelist|as_crispy_field }}
+<div class="pt-3 pl-3 pr-3 compact-form-groups">
+  <h5 class="card-title mb-1">Gene Blacklist</h5>
+
+  {{ form.gene_blacklist }}
+
+  <h5 class="card-title mb-1 mt-2">Gene Whitelist</h5>
+
+  {{ form.gene_whitelist }}
+
   <p class="text-muted">
     <small>
       Enter lists of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break.

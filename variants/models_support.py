@@ -522,6 +522,7 @@ class FilterQueryHgmdMixin:
                 [
                     *inner.c,
                     func.count(HgmdPublicLocus.sa.variation_name).label("hgmd_public_overlap"),
+                    func.max(HgmdPublicLocus.sa.variation_name).label("hgmd_accession"),
                 ]
             )
             .select_from(

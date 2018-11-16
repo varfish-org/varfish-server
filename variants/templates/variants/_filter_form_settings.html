@@ -1,21 +1,30 @@
 {% load crispy_forms_tags %}
 {% load dict %}
 
-<div class="container-fluid p-3">
-  <textarea id="settingsDump" name="settingsDump" class="form-control" rows="10"></textarea>
+<div class="row">
+  <div class="col-12 pt-3">
+    <h5 class="card-title">
+      Filter Import / Export
+    </h5>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12 pb-3">
+    <textarea id="settingsDump" name="settingsDump" class="form-control" rows="10"></textarea>
+  </div>
 </div>
 
 <div class="row pb-2">
-  <div class="col-md-7 text-left">
-    <span class="text-secondary">
-      Field updates itself when settings are changed. To import settings, paste JSON code in this field and click 'JSON&nbsp;<i class="fa fa-arrow-right"></i>&nbsp;Settings'.
-    </span>
+  <div class="col-md-8 text-left">
+    <small class="text-muted">
+      Changing the filter settings updates the JSON in the field above.<br>
+      To import settings, paste JSON code into the field above and click &quot;JSON&nbsp;<i class="fa fa-angle-double-right"></i>&nbsp;Settings&quot;.
+    </small>
   </div>
-  <div class="col-md-5 text-right">
-    <div class="btn-group">
-      <a href="#" id="settingsSet" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Import JSON settings from text field.">JSON <i class="fa fa-arrow-right"></i> Settings</a>
+    <div class="btn-group ml-auto pr-3">
+      <a href="#" id="settingsSet" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Import JSON settings from text field.">JSON <i class="fa fa-angle-double-right"></i> Settings</a>
       <!--<a href="#" id="settingsGet" class="btn btn-secondary">Settings <i class="fa fa-arrow-right"></i> JSON</a>-->
       <a href="#" id="settingsDownload" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Export settings as JSON file."><i class="fa fa-download"></i> Download JSON</a>
     </div>
-  </div>
 </div>

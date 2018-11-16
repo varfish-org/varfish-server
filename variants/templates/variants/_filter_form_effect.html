@@ -4,7 +4,7 @@
 <div class="row pb-2 pt-2 compact-form-groups">
   <div class="col-6 pl-0">
     <div class="row">
-      <h5 class="col-12">
+      <h5 class="col-12 card-title">
         Variant Types
       </h5>
       <div class="col-12">
@@ -18,7 +18,7 @@
   </div>
   <div class="col-6 pl-0">
     <div class="row">
-      <h5 class="col-12">Transcript Type</h5>
+      <h5 class="col-12 card-title">Transcript Type</h5>
       <div class="col-6">
         {{ form.transcripts_coding|as_crispy_field }}
       </div>
@@ -27,7 +27,7 @@
       </div>
     </div>
   </div>
-  <h5 class="col-12 pt-2 mt-2 border-top">Effect Groups</h5>
+  <h5 class="col-12 pt-2 mt-2 border-top card-title">Effect Groups</h5>
   <div class="col-2">
     <div class="form-check">
       <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_all">
@@ -66,7 +66,7 @@
   </div>
 </div>
 <div class="row pb-2 pt-2 border-top compact-form-groups">
-  <h5 class="col-12">Detailed Effects</h5>
+  <h5 class="col-12 card-title">Detailed Effects</h5>
   <div class="col-3">{{ form.effect_coding_transcript_intron_variant|as_crispy_field }}</div>
   <div class="col-3">{{ form.effect_complex_substitution|as_crispy_field }}</div>
   <div class="col-3">{{ form.effect_direct_tandem_duplication|as_crispy_field }}</div>

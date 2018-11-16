@@ -296,7 +296,7 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     )
     exac_homozygous = forms.IntegerField(
         label="",
-        initial=0,
+        initial=20,
         required=False,
         widget=forms.NumberInput(attrs={"placeholder": "Maximal hom. count in ExAC"}),
     )
@@ -319,7 +319,7 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     )
     gnomad_exomes_homozygous = forms.IntegerField(
         label="",
-        initial=0,
+        initial=30,
         required=False,
         widget=forms.NumberInput(attrs={"placeholder": "Maximal hom. count in gnomAD exomes"}),
     )
@@ -342,7 +342,7 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     )
     gnomad_genomes_homozygous = forms.IntegerField(
         label="",
-        initial=0,
+        initial=20,
         required=False,
         widget=forms.NumberInput(attrs={"placeholder": "Maximal hom. count in gnomAD genomes"}),
     )
@@ -365,7 +365,7 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     )
     thousand_genomes_homozygous = forms.IntegerField(
         label="",
-        initial=0,
+        initial=10,
         required=False,
         widget=forms.NumberInput(attrs={"placeholder": "Maximal hom. count in 1000 genomes"}),
     )
@@ -496,7 +496,6 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         label="Clinvar membership required",
         required=False,
         initial=False,
-        help_text="Require variant to be present in Clinvar.",
     )
 
     require_in_hgmd_public = forms.BooleanField(
@@ -527,7 +526,7 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     gene_blacklist = forms.CharField(
         label="Gene Blacklist",
         help_text="Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break",
-        widget=forms.Textarea(attrs={"placeholder": "Enter genes to black-list here", "rows": 3}),
+        widget=forms.Textarea(attrs={"placeholder": "Enter genes to black-list here", "rows": 3, "class": "form-control"}),
         required=False,
         max_length=5000,
     )
@@ -535,7 +534,7 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     gene_whitelist = forms.CharField(
         label="Gene Whitelist",
         help_text="Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break",
-        widget=forms.Textarea(attrs={"placeholder": "Enter genes to white-list here", "rows": 3}),
+        widget=forms.Textarea(attrs={"placeholder": "Enter genes to white-list here", "rows": 3, "class": "form-control"}),
         required=False,
         max_length=5000,
     )
