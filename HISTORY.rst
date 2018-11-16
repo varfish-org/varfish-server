@@ -12,6 +12,8 @@ End-User Summary
 - Various smaller bug fixes.
 - Adding summary flag for colouring result lines.
 - Allow filtering variants by flags.
+- Integrating flags etc. also into downloadable TSV/Excel files.
+- Adding new annotation: HGMD public via ENSEMBL.
 
 Full Change List
 ================
@@ -21,6 +23,7 @@ Full Change List
   This fixes an annotation error.
 - Adding ``flag_summary`` to ``SmallVariantFlags`` for giving an overall summary.
 - Extending filtration form to filter by flags.
+- Added new app ``hgmd`` for ``HGMD_PUBLIC`` data from ENSEMBL.
 - Adding ``make black`` to ``Makefile``.
 
 ------

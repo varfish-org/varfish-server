@@ -618,6 +618,7 @@ INCLUSIVE_CLEANED_DATA_CASE1 = {
     "transcripts_coding": True,
     "transcripts_noncoding": True,
     "require_in_clinvar": False,
+    "require_in_hgmd_public": False,
     "clinvar_include_benign": False,
     "clinvar_include_likely_benign": False,
     "clinvar_include_uncertain_significance": False,
@@ -1745,6 +1746,7 @@ INCLUSIVE_CLEANED_DATA_CASE2 = {
     "transcripts_coding": True,
     "transcripts_noncoding": True,
     "require_in_clinvar": False,
+    "require_in_hgmd_public": False,
     "clinvar_include_benign": False,
     "clinvar_include_likely_benign": False,
     "clinvar_include_uncertain_significance": False,
@@ -1995,6 +1997,7 @@ INCLUSIVE_CLEANED_DATA_CASE3 = {
     "transcripts_coding": True,
     "transcripts_noncoding": True,
     "require_in_clinvar": False,
+    "require_in_hgmd_public": False,
     "clinvar_include_benign": False,
     "clinvar_include_likely_benign": False,
     "clinvar_include_uncertain_significance": False,
@@ -2008,6 +2011,8 @@ INCLUSIVE_CLEANED_DATA_CASE3 = {
 
 class CaseThreeClinvarMembershipFilterTestMixin:
     """Base class for testing query with ClinvarMembership filter."""
+
+    # TODO: add similar tests for HgmdPublicLocus
 
     setup_case_in_db = fixture_setup_case3
     base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE3

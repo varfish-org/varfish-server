@@ -96,6 +96,7 @@ DEFAULT_FILTER_FORM_SETTING = {
     "transcripts_noncoding": True,
     "transcripts_coding": True,
     "require_in_clinvar": False,
+    "require_in_hgmd_public": False,
     "clinvar_include_benign": False,
     "clinvar_include_likely_benign": False,
     "clinvar_include_uncertain_significance": False,
@@ -202,6 +203,7 @@ DEFAULT_RESUBMIT_SETTING = {
     "transcripts_noncoding": True,
     "transcripts_coding": True,
     "require_in_clinvar": False,
+    "require_in_hgmd_public": False,
     "submit": "display",
 }
 

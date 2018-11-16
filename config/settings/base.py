@@ -67,6 +67,7 @@ LOCAL_APPS = [
     "conservation.apps.ConservationConfig",
     "dbsnp.apps.DbsnpConfig",
     "frequencies.apps.FrequenciesConfig",
+    "hgmd.apps.HgmdConfig",
     "geneinfo.apps.GeneinfoConfig",
     "importer.apps.ImporterConfig",
     "pathways.apps.PathwaysConfig",

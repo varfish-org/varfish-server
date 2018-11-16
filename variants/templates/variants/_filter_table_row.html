@@ -7,23 +7,65 @@
 <tr class="variant-row variant-row-{{ entry|flag_class }}">
   <td class="clickable extend pl-0 pr-0" counter="{{ forloop.counter0 }}" url="{% url 'variants:extend' project=project.sodar_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" data-toggle="collapse" data-target="#expand{{ forloop.counter0 }}" aria-expanded="false" aria-controls="expand{{ forloop.counter0 }}" aria-hidden="true"><i class="fa fa-fw fa-chevron-right"></i></td>
   <td class="bookmark pl-0 pr-0">
-    <i class="fa fa-fw text-muted {% if entry.flag_count %}fa-bookmark{% else %}fa-bookmark-o{% endif %} text-muted variant-bookmark"
+    <i class="fa fa-fw {% if entry.flag_count %}fa-bookmark{% else %}fa-bookmark-o{% endif %} text-muted variant-bookmark"
        data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ object.sodar_uuid }}"></i>
-    <i class="fa fa-fw text-muted {% if entry.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
+    <i class="fa fa-fw {% if entry.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
        data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ object.sodar_uuid }}"></i>
+    &nbsp;
+
+    {# dbSNP Indicator #}
+    {% if entry.rsid %}
+      <a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ entry.rsid|slice:'2:' }}">
+    {% endif %}
+      <i class="text-muted fa fa-fw fa-database"
+        {% if entry.rsid %}
+          data-toggle="tooltip"
+          data-placement="top"
+          title="See {{ entry.rsid }} in dbSNP"
+       {% else %}
+        style="opacity: 0.2"
+       {% endif %}
+      ></i>
+    {% if entry.rsid %}
+      </a>
+    {% endif %}
+
+    {# Clinvar Indicator #}
+    <i
+      {% if entry.in_clinvar %}
+        data-toggle="tooltip"
+        data-placement="top"
+        title="Variant present in ClinVar"
+      {% endif %}
+      class="text-muted fa fa-hospital-o"
+      {% if not entry.in_clinvar %}
+      style="opacity: 0.2"
+      {% endif %}
+    ></i>
+
+    {# HGMD Public Indicator #}
+    <i
+      class="text-muted fa fa-pie-chart fa-rotate-90
+        {% if entry.hgmd_public_overlap %}
+          hgmd-popover
+        {% endif %}
+        "
+      {% if entry.hgmd_public_overlap %}
+        hgmd-popover"
+        data-tooltip="tooltip"
+        {# tabindex here is required for popover to work with auto-dismiss#}
+        data-toggle="popover"
+        data-content="<a class=&quot;btn btn-sm btn-secondary&quot; href=&quot;http://www.hgmd.cf.ac.uk/ac/gene.php?gene={{ entry.symbol }}&quot;><i class=&quot;fa fa-fw fa-globe&quot;></i>HGMD public: {{ entry.symbol }}</a>"
+        data-title="Locus in HGMD"
+        data-html="true"
+      {% else %}
+      style="opacity: 0.2"
+      {% endif %}
+    ></i>
   </td>
   <td>chr{{ entry.chromosome }}:{{ entry.position|intcomma }}</td>
   <td>{{ entry.reference|truncatechars:9 }}</td>
   <td>{{ entry.alternative|truncatechars:9 }}</td>
-  <td>
-    {% if entry.rsid %}
-    <a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ entry.rsid|slice:'2:' }}">
-      {{ entry.rsid }}
-    </a>
-    {% else %}
-    -
-    {% endif %}
-  </td>
   <td class="detail-exac">
     {{ entry.exac_frequency|floatformat:5|default:"-" }}
   </td>
@@ -125,10 +167,5 @@
         </a>
       </div>
     </div>
-  </td>
-  <td>
-    {% if entry.in_clinvar %}
-    <i title="Present in ClinVar" class="fa fa-hospital-o text-danger"></i>
-    {% endif %}
   </td>
 </tr>

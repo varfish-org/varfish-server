@@ -506,8 +506,9 @@ const defaultPresetsIds = {
   "effect_non_coding_transcript_intron_variant": false,
   "effect_upstream_gene_variant": false,
 
-  // Clinvar
-  "require_in_clinvar": false
+  // Clinvar/HGMD
+  "require_in_clinvar": false,
+  "require_in_hgmd_public": false,
 };
 
 const defaultPresetsClasses = {
@@ -585,6 +586,7 @@ const presets = {
       "gnomad_genomes_enabled": false,
 
       "require_in_clinvar": true,
+      "require_in_hgmd_public": true,
       "clinvar_include_pathogenic": true,
       "clinvar_include_likely_pathogenic": true,
       "clinvar_include_uncertain_significance": false,
@@ -638,6 +640,14 @@ $(document).ready(
 );
 </script>
 
+<script type="text/javascript">
+  $(function () {
+    $('[data-toggle="popover"]').popover()
+  })
+  $('.popover-dismiss').popover({
+    trigger: 'focus'
+  });
+</script>
 
 {% include "variants/_script_flags_comments.html" %}
 {% include "variants/_variant_flag_form_tpl.html" %}

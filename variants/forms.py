@@ -499,6 +499,13 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         help_text="Require variant to be present in Clinvar.",
     )
 
+    require_in_hgmd_public = forms.BooleanField(
+        label="HGMD public membership required",
+        required=False,
+        initial=False,
+        help_text="Require variant to be present in HGMD public (ENSEMBL track).",
+    )
+
     clinvar_include_benign = forms.BooleanField(label="benign", required=False, initial=False)
 
     clinvar_include_likely_benign = forms.BooleanField(

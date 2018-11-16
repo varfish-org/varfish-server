@@ -10,6 +10,7 @@ from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from geneinfo.models import Hgnc
+from hgmd.models import HgmdPublicLocus
 from variants.models import SmallVariant, SmallVariantComment, SmallVariantFlags
 from frequencies.models import GnomadExomes, GnomadGenomes, Exac, ThousandGenomes
 from variants.forms import (
@@ -498,6 +499,56 @@ class OrderByChromosomalPositionMixin:
         return stmt.order_by(stmt.c.chromosome, stmt.c.position)
 
 
+class FilterQueryHgmdMixin:
+    """Add functionality for annotation with ``HgmdPublicLocus`` and filtering for it.
+
+    This class uses ``Hgmd`` and not ``HgmdPublicLocus`` as name part as at some point support for HGMD professional
+    could be added and this would be the right place.
+    """
+
+    def _build_stmt(self, kwargs):
+        """Override statement building to add the join with Clinvar information."""
+        inner = super()._build_stmt(kwargs)
+        if not kwargs["require_in_hgmd_public"]:
+            return inner
+        else:
+            return self._extend_stmt_hgmd(inner, kwargs)
+
+    def _extend_stmt_hgmd(self, inner, kwargs):
+        """Extend the inner statement and augment with HgmdPublicLocus information."""
+        inner = inner.alias("inner_hgmd")
+        stmt = (
+            select(
+                [
+                    *inner.c,
+                    func.count(HgmdPublicLocus.sa.variation_name).label("hgmd_public_overlap"),
+                ]
+            )
+            .select_from(
+                inner.outerjoin(
+                    HgmdPublicLocus.sa.table,
+                    and_(
+                        HgmdPublicLocus.sa.release == inner.c.release,
+                        HgmdPublicLocus.sa.chromosome == inner.c.chromosome,
+                        HgmdPublicLocus.sa.start
+                        <= (inner.c.position - 1 + func.length(inner.c.reference)),
+                        HgmdPublicLocus.sa.end > (inner.c.position - 1),
+                    ),
+                )
+            )
+            .group_by(*inner.c)
+        )
+        stmt = self._add_outer_having_condition(inner, stmt, kwargs)
+        return self._add_trailing(stmt, kwargs)
+
+    def _add_outer_having_condition(self, inner, stmt, kwargs):
+        """Build HAVING condition for outermost query."""
+        if kwargs["require_in_hgmd_public"]:
+            return stmt.having(func.count(HgmdPublicLocus.sa.variation_name) > 0)
+        else:
+            return stmt
+
+
 class FilterQueryClinvarMixin(FilterFromAndWhereMixin):
     """Add functionality for filtering with required in ClinVar"""
 
@@ -668,6 +719,7 @@ class FilterQueryFlagsCommentsMixin:
 
 class RenderFilterQuery(
     FilterQueryFlagsCommentsMixin,
+    FilterQueryHgmdMixin,
     FilterQueryClinvarMixin,
     FilterQueryStandardFieldsMixin,
     OrderByChromosomalPositionMixin,
@@ -678,6 +730,7 @@ class RenderFilterQuery(
 
 class ExportFileFilterQuery(
     FilterQueryFlagsCommentsMixin,
+    FilterQueryHgmdMixin,
     FilterQueryClinvarMixin,
     OrderByChromosomalPositionMixin,
     FilterQueryFieldsForExportMixin,

@@ -1,20 +1,23 @@
 import sys
 from collections import namedtuple
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
 from django.db import transaction, IntegrityError
 from django.utils import timezone
-from variants.models import SmallVariant, Case
+
 from annotation.models import Annotation
-from frequencies.models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes
-from dbsnp.models import Dbsnp
-from geneinfo.models import Hgnc, Mim2geneMedgen, Hpo
-from importer.models import ImportInfo
-from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
+from dbsnp.models import Dbsnp
+from frequencies.models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes
+from geneinfo.models import Hgnc, Mim2geneMedgen, Hpo
+from hgmd.models import HgmdPublicLocus
+from importer.models import ImportInfo
+from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 from projectroles.models import Project
+from variants.models import SmallVariant, Case
 from ._private import TsvReader
-from django.core.exceptions import ObjectDoesNotExist
 
 
 Table = namedtuple("Database", "table null release_required deduplicate")
@@ -37,6 +40,7 @@ class Command(BaseCommand):
         "exac": Table(Exac, ".", True, False),
         "gnomadexomes": Table(GnomadExomes, ".", True, False),
         "gnomadgenomes": Table(GnomadGenomes, ".", True, False),
+        "hgmd_public": Table(HgmdPublicLocus, "", True, False),
         "thousandgenomes": Table(ThousandGenomes, ".", True, False),
         "omim": Table(Mim2geneMedgen, "-", True, False),
         "hgnc": Table(Hgnc, "", True, False),
