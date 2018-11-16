@@ -21,6 +21,7 @@ Full Change List
   This fixes an annotation error.
 - Adding ``flag_summary`` to ``SmallVariantFlags`` for giving an overall summary.
 - Extending filtration form to filter by flags.
+- Adding ``make black`` to ``Makefile``.
 
 ------
 v0.5.0

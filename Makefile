@@ -10,7 +10,7 @@ UUID =
 .PHONY: $(SMALLVARIANTS) $(CASES) $(ANNOTATIONS) $(DB_PATH)/kegg/genetokegg.fk.tsv
 
 black:
-	black -l 100 bgjobs variants importer annotation geneinfo
+	black -l 100 bgjobs variants importer annotation geneinfo hgmd
 
 serve:
 	$(MANAGE) runserver
@@ -91,9 +91,12 @@ import_clinvar_single: $(wildcard $(DB_PATH)/clinvar/*.single.*.tsv)
 import_knowngeneaa: $(wildcard $(DB_PATH)/knowngeneaa/*.tsv)
 	$(MANAGE) import --path $< --database knowngeneaa --release "2018-09-24"
 
+import_hgmd_public: $(DB_PATH)/hgmd/hgmd_public.bed
+	$(MANAGE) import --path $< --database hgmd_public --release "2018-11-16"
+
 import_clinvar: import_clinvar_single import_clinvar_multi
 
-import_databases: import_exac import_dbsnp import_gnomadexomes import_hgnc import_hpo import_omim import_kegg import_clinvar import_knowngeneaa
+import_databases: import_exac import_dbsnp import_gnomadexomes import_hgnc import_hpo import_omim import_kegg import_clinvar import_knowngeneaa import_hgmd_public
 
 test:
 	coverage run manage.py test -v2 --settings=config.settings.test
