@@ -536,3 +536,57 @@ class SmallVariantFlags(models.Model):
             "case",
             "ensembl_gene_id",
         )
+
+
+class SmallVariantQuery(models.Model):
+    """Allow saving of queries to the ``SmallVariant`` model.
+
+    Saving the query settings is implemented as a JSON plus a version field.  This design was chosen to allow for
+    less rigid upgrade paths of the form schema itself.  Further, we will need a mechanism for upgrading the form
+    "schemas" automatically and then storing the user settings.
+    """
+
+    #: DateTime of query.
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+
+    #: Query UUID.
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Small variant flags SODAR UUID"
+    )
+
+    #: The related case.
+    case = models.ForeignKey(
+        Case,
+        null=False,
+        related_name="small_variant_queries",
+        help_text="The case that the query relates to",
+    )
+
+    #: User who created the query.
+    user = models.ForeignKey(
+        AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="small_variant_queries",
+        help_text="User who created the query",
+    )
+
+    #: The identifier of the form
+    form_id = models.CharField(max_length=100, null=False, help_text="Identifier of the form")
+
+    #: The version of the form when saving.
+    form_version = models.IntegerField(null=False, help_text="Version of form when saving")
+
+    #: The query settings as JSON.
+    query_settings = JSONField(null=False, help_text="The query settings")
+
+    #: Optional, user-assign query name.
+    name = models.CharField(
+        max_length=100, null=True, default=None, help_text="Optional user-assigned name"
+    )
+
+    #: Flag for being public or not.
+    public = models.BooleanField(
+        null=False, default=False, help_text="Case is flagged as public or not"
+    )

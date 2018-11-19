@@ -7,6 +7,7 @@ import aldjemy.core
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
@@ -24,7 +25,7 @@ from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, Pro
 from projectroles.plugins import get_backend_api
 from variants.models_support import ClinvarReportQuery, RenderFilterQuery, KnownGeneAAQuery
 
-from .models import Case, ExportFileBgJob, SmallVariantFlags, SmallVariantComment
+from .models import Case, ExportFileBgJob, SmallVariantFlags, SmallVariantComment, SmallVariantQuery
 from .forms import (
     ClinvarForm,
     FilterForm,
@@ -172,6 +173,15 @@ class CaseFilterView(
 
     def _form_valid_render(self, form):
         """The form is valid, we are supposed to render an HTML table with the results."""
+        # Save query parameters.
+        stored_query = SmallVariantQuery.objects.create(
+            case=self.get_case_object(),
+            user=self.request.user,
+            form_id=form.form_id,
+            form_version=form.form_version,
+            query_settings=_undecimal(form.cleaned_data),
+        )
+        # Perform query while recording time.
         before = timezone.now()
         qb = RenderFilterQuery(self.get_case_object(), self.get_alchemy_connection())
         result = qb.run(form.cleaned_data)
@@ -186,7 +196,29 @@ class CaseFilterView(
             ),
         )
 
+    def get_initial(self):
+        """Put initial data in the form from the previous query if any and push information into template for the
+        "welcome back" message."""
+        result = self.initial.copy()
+        previous_query = (
+            self.get_case_object()
+            .small_variant_queries.filter(user=self.request.user)
+            .order_by("-date_created")
+            .first()
+        )
+        if self.request.method == "GET" and previous_query:
+            # TODO: the code for version conversion needs to be hooked in here
+            messages.info(
+                self.request,
+                ("Welcome back! We have restored your previous query settings from {}.").format(
+                    naturaltime(previous_query.date_created)
+                ),
+            )
+            result.update(previous_query.query_settings)
+        return result
+
     def get_context_data(self, **kwargs):
+        """Put the ``Case`` object into the context."""
         context = super().get_context_data(**kwargs)
         context["object"] = self.get_case_object()
         return context
@@ -238,12 +270,22 @@ class CaseClinvarReportView(
 
     def form_valid(self, form):
         """The form is valid, we are supposed to render an HTML table with the results."""
-        # TODO: refactor grouping
+        # Save query parameters.
+        stored_query = SmallVariantQuery.objects.create(
+            case=self.get_case_object(),
+            user=self.request.user,
+            form_id=form.form_id,
+            form_version=form.form_version,
+            query_settings=_undecimal(form.cleaned_data),
+        )
+        # Perform query while recording time.
         before = timezone.now()
         qb = ClinvarReportQuery(self.get_case_object(), self.get_alchemy_connection())
         result = qb.run(form.cleaned_data)
         elapsed = timezone.now() - before
         num_results = result.rowcount
+        # Group results.
+        # TODO: refactor grouping of results
         rows = list(result.fetchmany(form.cleaned_data["result_rows_limit"]))
         grouped_rows = {
             (r["max_significance_lvl"], r["max_clinvar_status_lvl"], key): r
@@ -298,6 +340,21 @@ class CaseClinvarReportView(
                     values = (sig_level(None), status_level(None), None, None)
                 row = {**row, **(dict(zip(keys, values)))}
             yield key, row
+
+    def get_initial(self):
+        """Put initial data in the form from the previous query if any and push information into template for the
+        "welcome back" message."""
+        result = self.initial.copy()
+        previous_query = (
+            self.get_case_object()
+            .small_variant_queries.filter(user=self.request.user)
+            .order_by("-date_created")
+            .first()
+        )
+        if self.request.method == "GET" and previous_query:
+            result.update(previous_query)
+            self.get_context_data()["query_loaded"] = True
+        return result
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

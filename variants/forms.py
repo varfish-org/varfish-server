@@ -131,6 +131,11 @@ class SmallVariantFlagsFilterFormMixin(forms.Form):
 class ClinvarForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     """Form used for creating Clinvar report."""
 
+    #: Version of the form, used for versioning saved queries.
+    form_version = 1
+    #: Identifier of the form in database.
+    form_id = "variants.clinvar_form"
+
     result_rows_limit = forms.IntegerField(
         label="Result row limit",
         required=True,
@@ -256,6 +261,12 @@ class ResubmitForm(forms.Form):
 
 
 class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
+
+    #: Version of the form, used for versioning saved queries.
+    form_version = 1
+    #: Identifier of the form in database.
+    form_id = "variants.small_variant_filter_form"
+
     file_type = forms.ChoiceField(
         initial="xlsx",
         choices=(("xlsx", "Excel (.xlsx)"), ("tsv", "TSV (.tsv)"), ("vcf", "VCF (.vcf.gz)")),

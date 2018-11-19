@@ -15,6 +15,7 @@ End-User Summary
 - Integrating flags etc. also into downloadable TSV/Excel files.
 - Adding new annotation: HGMD public via ENSEMBL.
 - Adding comments and flags now appears in the timeline.
+- Varfish stores your previous settings automatically and restores them on the next form view.
 
 Full Change List
 ================
@@ -29,6 +30,7 @@ Full Change List
 - Changed default frequencies.
 - Improving integration of comments and flags with the timeline app.
 - Also properly integrating import of cases etc. with timeline app.
+- Added ``SmallVariantQuery`` model and integrated it for automatically storing form queries and restoring them.
 
 ------
 v0.5.0
