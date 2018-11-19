@@ -20,6 +20,8 @@
         <i class="fa fa-fw text-muted {% if entry.entries.0.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
            data-variant="{{ entry.entries.0|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ object.sodar_uuid }}"></i>
       </span>
+      {% include "variants/filter_result/clinvar_indicator.html" with entry=entry.entries.0 %}
+      {% include "variants/filter_result/hgmd_public_indicator.html" with entry=entry.entries.0 %}
       <span class="badge badge-{{ entry.max_significance|significance_color }}">
         {{ entry.max_significance }}
       </span>

@@ -509,7 +509,7 @@ class FilterQueryHgmdMixin:
     def _build_stmt(self, kwargs):
         """Override statement building to add the join with Clinvar information."""
         inner = super()._build_stmt(kwargs)
-        if not kwargs["require_in_hgmd_public"]:
+        if not kwargs["require_in_hgmd_public"] and not kwargs["display_hgmd_public_membership"]:
             return inner
         else:
             return self._extend_stmt_hgmd(inner, kwargs)
@@ -550,7 +550,7 @@ class FilterQueryHgmdMixin:
             return stmt
 
 
-class FilterQueryClinvarMixin(FilterFromAndWhereMixin):
+class FilterQueryClinvarMixin:
     """Add functionality for filtering with required in ClinVar"""
 
     patho_keys = (
@@ -733,8 +733,8 @@ class ExportFileFilterQuery(
     FilterQueryFlagsCommentsMixin,
     FilterQueryHgmdMixin,
     FilterQueryClinvarMixin,
-    OrderByChromosomalPositionMixin,
     FilterQueryFieldsForExportMixin,
+    OrderByChromosomalPositionMixin,
     FilterQueryBase,
 ):
     """Run filter query for creating file to export."""
@@ -849,6 +849,8 @@ class ClinvarReportFieldsMixin(FilterQueryStandardFieldsMixin):
 
 class ClinvarReportQuery(
     FilterQueryFlagsCommentsMixin,
+    FilterQueryHgmdMixin,
+    FilterQueryClinvarMixin,
     ClinvarReportFromAndWhereMixin,
     ClinvarReportFieldsMixin,
     OrderByChromosomalPositionMixin,

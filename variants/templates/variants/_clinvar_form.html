@@ -28,13 +28,13 @@
     <div class="card-body p-0">
       <div class="tab-content">
         <div class="tab-pane fade show active" id="panel-genotype" role="tabpanel" aria-labelledby="genotype-tab">
-          {% include "variants/_filter_form_genotype.html" with clinvar_form=True %}
+          {% include "variants/filter_form/genotype.html" with clinvar_form=True %}
         </div>
         <div class="tab-pane fade" id="panel-clinvar" role="tabpanel" aria-labelledby="clinvar-tab">
           {% include "variants/_clinvar_form_clinvar.html" %}
         </div>
         <div class="tab-pane fade show" id="panel-flags" role="tabpanel" aria-labelledby="flags-tab">
-          {% include "variants/_filter_form_flags.html" with clinvar_form=True %}
+          {% include "variants/filter_form/flags.html" with clinvar_form=True %}
         </div>
       </div>
     </div>

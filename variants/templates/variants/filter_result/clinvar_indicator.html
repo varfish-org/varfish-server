@@ -1,0 +1,11 @@
+<i
+  {% if entry.in_clinvar %}
+    data-toggle="tooltip"
+    data-placement="top"
+    title="Variant present in ClinVar"
+  {% endif %}
+  class="text-muted fa fa-hospital-o"
+  {% if not entry.in_clinvar %}
+  style="opacity: 0.2"
+  {% endif %}
+></i>

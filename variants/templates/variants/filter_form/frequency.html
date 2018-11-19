@@ -6,36 +6,36 @@
     <tr>
       <th></th>
       <th></th>
-      <th data-toggle="tooltip" data-placement="top" title="Maximal allowed homozygous count">Homozygous count</th>
-      <th data-toggle="tooltip" data-placement="top" title="Maximal allowed heterozygous count">Heterozygous count</th>
-      <th data-toggle="tooltip" data-placement="top" title="Maximal allowed frequency [0-1]">Frequency</th>
+      <th class="text-center" data-toggle="tooltip" title="Maximal allowed homozygous count">Homozygous count</th>
+      <th class="text-center" data-toggle="tooltip" title="Maximal allowed heterozygous count">Heterozygous count</th>
+      <th class="text-center" data-toggle="tooltip" title="Maximal allowed frequency (in any sub population if applicable)">Frequency</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>{{ form.thousand_genomes_enabled|as_crispy_field }}</td>
-      <td>1000 Genomes</td>
+      <td data-toggle="tooltip" title="Phase 3 data (healthy individuals; no sub populations)">1000 Genomes</td>
       <td>{{ form.thousand_genomes_homozygous|as_crispy_field }}</td>
       <td>{{ form.thousand_genomes_heterozygous|as_crispy_field }}</td>
       <td>{{ form.thousand_genomes_frequency|as_crispy_field }}</td>
     </tr>
     <tr>
       <td>{{ form.exac_enabled|as_crispy_field }}</td>
-      <td>ExAC</td>
+      <td data-toggle="tooltip" title="Exomes; project attempts to exclude pediatric disease cases">ExAC</td>
       <td>{{ form.exac_homozygous|as_crispy_field }}</td>
       <td>{{ form.exac_heterozygous|as_crispy_field }}</td>
       <td>{{ form.exac_frequency|as_crispy_field }}</td>
     </tr>
     <tr>
       <td>{{ form.gnomad_exomes_enabled|as_crispy_field }}</td>
-      <td>gnomAD exomes</td>
+      <td data-toggle="tooltip" title="ExAC follow-up; exomes; project attempts to exclude pediatric cases">gnomAD exomes</td>
       <td>{{ form.gnomad_exomes_homozygous|as_crispy_field }}</td>
       <td>{{ form.gnomad_exomes_heterozygous|as_crispy_field }}</td>
       <td>{{ form.gnomad_exomes_frequency|as_crispy_field }}</td>
     </tr>
     <tr>
       <td>{{ form.gnomad_genomes_enabled|as_crispy_field }}</td>
-      <td>gnomAD genomes</td>
+      <td data-toggle="tooltip" title="ExAC follow-up; genomes; project attempts to exclude pediatric cases">gnomAD genomes</td>
       <td>{{ form.gnomad_genomes_homozygous|as_crispy_field }}</td>
       <td>{{ form.gnomad_genomes_heterozygous|as_crispy_field }}</td>
       <td>{{ form.gnomad_genomes_frequency|as_crispy_field }}</td>

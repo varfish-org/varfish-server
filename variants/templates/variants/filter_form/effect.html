@@ -1,0 +1,324 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+
+<div class="row pb-2 pt-2 compact-form-groups">
+  <div class="col-6 pl-0">
+    <div class="row">
+      <h5 class="col-12 card-title">
+        Variant Types
+      </h5>
+      <div class="col-12 pr-0">
+        <div class="row">
+          <div class="col-2 pl-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Single Nucleotide Variants, e.g. A>C, C>T">
+              {{ form.var_type_snv }}
+              <label class="form-check-label" for="id_var_type_snv">
+                SNV
+              </label>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Insertion/Deletion, e.g., A>CT, CT>A, AAC>CGG">
+              {{ form.var_type_indel }}
+              <label class="form-check-label" for="id_var_type_indel">
+                Indel
+              </label>
+            </div>
+          </div>
+          <div class="col-2">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Multi-Nucleotide Variants, e.g. AC>CG, ACG>CGT">
+              {{ form.var_type_mnv }}
+              <label class="form-check-label" for="id_var_type_mnv">
+                MNV
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 pl-0">
+    <div class="row">
+      <h5 class="col-12 card-title">Transcript Type</h5>
+      <div class="col-6">
+        {{ form.transcripts_coding|as_crispy_field }}
+      </div>
+      <div class="col-6">
+        {{ form.transcripts_noncoding|as_crispy_field }}
+      </div>
+    </div>
+  </div>
+  <h5 class="col-12 pt-2 mt-2 border-top card-title">Effect Groups</h5>
+  <div class="col-2">
+    <div class="form-check pr-0" data-toggle="tooltip" title="All variants">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_all">
+      <label class="form-check-label" for="id_effect_group_all">all</label>
+    </div>
+  </div>
+  <div class="col-2">
+    <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Variants affecting the protein sequence, e.g., missense">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_nonsynonymous">
+      <label class="form-check-label" for="id_effect_group_nonsynonymous">nonsynonymous</label>
+    </div>
+  </div>
+  <div class="col-2">
+    <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Variants (potentially) affecting splicing: splice donor/acceptor, splice region variant">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_splicing">
+      <label class="form-check-label" for="id_effect_group_splicing">splicing</label>
+    </div>
+  </div>
+  <div class="col-2">
+    <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Coding variants, e.g., missense, splice site">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_coding">
+      <label class="form-check-label" for="id_effect_group_coding">coding</label>
+    </div>
+  </div>
+  <div class="col-2">
+    <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="UTR or intronic variants">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_utr_intronic">
+      <label class="form-check-label" for="id_effect_group_utr_intronic">UTR/intronic</label>
+    </div>
+  </div>
+  <div class="col-2">
+    <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Non-coding variants, e.g., intronic, intergenic, non-coding transcripts">
+      <input class="form-check-input checkboxinput" type="checkbox" value="" id="id_effect_group_noncoding">
+      <label class="form-check-label" for="id_effect_group_noncoding">non-coding</label>
+    </div>
+  </div>
+  <div class="col-12">
+    <p class="text-muted"><small>
+      Note that the effect groups are overlapping, e.g., UTR and intronic variants are a subset of non-coding variants.
+    </small></p>
+  </div>
+</div>
+
+<div class="row pb-2 pt-2 border-top compact-form-groups">
+  <h5 class="col-12 card-title">Detailed Effects</h5>
+
+  <div class="col-6">
+    <div class="row pl-0 pr-0">
+      <div class="col-12 pl-0 pr-0">
+        <strong>Coding</strong>
+      </div>
+      <div class="col-4 pl-0 pr-0">
+        <div class="row">
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001826] An inframe decrease in cds length that deletes bases from the coding sequence starting within an existing codon.">
+              {{ form.effect_disruptive_inframe_deletion }}
+              <label class="form-check-label" for="id_effect_disruptive_inframe_deletion">disruptive in-frame deletion</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001824] An inframe increase in cds length that inserts one or more codons into the coding sequence within an existing codon.">
+              {{ form.effect_disruptive_inframe_insertion }}
+              <label class="form-check-label" for="id_effect_disruptive_inframe_insertion">disruptive in-frame insertion</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001906] A sequence variant that causes the reduction of a genomic feature, with regard to the reference sequence.">
+              {{ form.effect_feature_truncation }}
+              <label class="form-check-label" for="id_effect_feature_truncation">feature truncation</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001909] A frameshift variant that causes the translational reading frame to be extended relative to the reference feature.">
+              {{ form.effect_frameshift_elongation }}
+              <label class="form-check-label" for="id_effect_frameshift_elongation">frameshift elongation</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001910] A frameshift variant that causes the translational reading frame to be shortened relative to the reference feature.">
+              {{ form.effect_frameshift_truncation }}
+              <label class="form-check-label" for="id_effect_frameshift_truncation">frameshift truncation</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001910] Used for frameshift variants that keep the feature size constant or remove the stop codon.">
+              {{ form.effect_frameshift_variant }}
+              <label class="form-check-label" for="id_effect_frameshift_variant">frameshift variant</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-4 pl-0 pr-0">
+        <div class="row">
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001822] An inframe non synonymous variant that deletes bases from the coding sequence.">
+              {{ form.effect_inframe_deletion }}
+              <label class="form-check-label" for="id_effect_inframe_deletion">inframe deletion</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001821] An inframe non synonymous variant that inserts bases into in the coding sequence.">
+              {{ form.effect_inframe_insertion }}
+              <label class="form-check-label" for="id_effect_inframe_insertion">inframe insertion</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001908] A sequence variant that causes the extension of a genomic feature from within the feature rather than from the terminus of the feature, with regard to the reference sequence.">
+              {{ form.effect_internal_feature_elongation }}
+              <label class="form-check-label" for="id_effect_internal_feature_elongation">internal elongation</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001583] A sequence variant, that changes one or more bases, resulting in a different amino acid sequence but where the length is preserved.">
+              {{ form.effect_missense_variant }}
+              <label class="form-check-label" for="id_effect_missense_variant">missense</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0002007] An MNV is a multiple nucleotide variant (substitution) in which the inserted sequence is the same length as the replaced sequence.">
+              {{ form.effect_mnv }}
+              <label class="form-check-label" for="id_effect_mnv">MNV</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0002012] A codon variant that changes at least one base of the canonical start codon.">
+              {{ form.effect_start_lost }}
+              <label class="form-check-label" for="id_effect_start_lost">start lost</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-4 pl-0 pr-0">
+        <div class="row">
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001587] A sequence variant whereby at least one base of a codon is changed, resulting in a premature stop codon, leading to a shortened transcript.">
+              {{ form.effect_stop_gained }}
+              <label class="form-check-label" for="id_effect_stop_gained">stop gained</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001567] A sequence variant where at least one base in the terminator codon is changed, but the terminator remains.">
+              {{ form.effect_stop_retained_variant }}
+              <label class="form-check-label" for="effect_stop_retained_variant">stop retained</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001578] A sequence variant where at least one base of the terminator codon (stop) is changed, resulting in an elongated transcript.">
+              {{ form.effect_stop_lost }}
+              <label class="form-check-label" for="id_effect_stop_lost">stop lost</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001819] A sequence variant where there is no resulting change to the encoded amino acid.">
+              {{ form.effect_synonymous_variant }}
+              <label class="form-check-label" for="id_effect_synonymous_variant">synonymous</label>
+            </div>
+          </div>
+          <div class="col-12 pl-0 pr-0">
+            <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:1000039] A tandem duplication where the individual regions are in the same orientation.">
+              {{ form.effect_direct_tandem_duplication }}
+              <label class="form-check-label" for="id_effect_tandem_duplication">tandem duplication</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="col-6">
+    <div class="row">
+      <div class="col-12 pl-0 pr-0">
+        <strong>Off-Exome</strong>
+      </div>
+      <div class="col-3 pl-0">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001632] A sequence variant located 3' of a gene.">
+          {{ form.effect_downstream_gene_variant }}
+          <label class="form-check-label" for="id_effect_downstream_gene_variant">downstream</label>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001969] A transcript variant occurring within an intron of a coding transcript.">
+          {{ form.effect_coding_transcript_intron_variant }}
+          <label class="form-check-label" for="id_effect_">intronic (coding)</label>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="">
+          {{ form.effect_intergenic_variant }}
+          <label class="form-check-label" for="id_effect_intergenic_variant">intergenic</label>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001631] A sequence variant located 5' of a gene.">
+          {{ form.effect_upstream_gene_variant }}
+          <label class="form-check-label" for="id_effect_upstream_gene_variant">upstream</label>
+        </div>
+      </div>
+      <div class="col-12 pl-0 pr-0">
+        <strong>Non-Coding</strong>
+      </div>
+      <div class="col-3 pl-0">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0002089 ]A UTR variant of the 3' UTR.">
+          {{ form.effect_three_prime_UTR_exon_variant }}
+          <label class="form-check-label" for="id_effect_three_prime_UTR_exon_variant">3' UTR exonic</label>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0002090] A UTR variant between 3' UTRs.">
+          {{ form.effect_three_prime_UTR_intron_variant }}
+          <label class="form-check-label" for="id_effect_three_prime_UTR_intron_variant">3' UTR intronic</label>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001792] A sequence variant that changes non-coding exon sequence in a non-coding transcript.">
+          {{ form.effect_non_coding_transcript_exon_variant }}
+          <label class="form-check-label" for="id_effect_non_coding_transcript_exon_variant">nc exonic</label>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001970] A transcript variant occurring within an intron of a non coding transcript.">
+          {{ form.effect_non_coding_transcript_intron_variant }}
+          <label class="form-check-label" for="id_effect_non_coding_transcript_intron_variant">nc intronic</label>
+        </div>
+      </div>
+      <div class="col-12 pl-0 pr-0">
+        <strong>Splicing</strong>
+      </div>
+      <div class="col-3 pl-0">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001574] A splice variant that changes the 2 base region at the 3' end of an intron.">
+          {{ form.effect_splice_acceptor_variant }}
+          <label class="form-check-label" for="id_effect_splice_acceptor_variant">splice acceptor</label>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001575] A splice variant that changes the 2 base pair region at the 5' end of an intron.">
+          {{ form.effect_splice_donor_variant }}
+          <label class="form-check-label" for="id_effect_splice_donor_variant">splice donor</label>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001568] A sequence variant in which a change has occurred within the region of the splice site, either within 1-3 bases of the exon or 3-8 bases of the intron.">
+          {{ form.effect_splice_region_variant }}
+          <label class="form-check-label" for="id_effect_splice_region_variant">splice region</label>
+        </div>
+      </div>
+      <div class="col-12 pl-0 pr-0">
+        <strong>Structural</strong>
+      </div>
+      <div class="col-3 pl-0">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001537] A sequence variant that changes one or more sequence features.">
+          {{ form.effect_structural_variant }}
+          <label class="form-check-label" for="id_effect_structural_variant">structural</label>
+        </div>
+      </div>
+      <div class="col-3">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001893] A feature ablation whereby the deleted region includes a transcript feature.">
+          {{ form.effect_transcript_ablation }}
+          <label class="form-check-label" for="id_effect_transcript_ablation">transcript ablation</label>
+        </div>
+      </div>
+      <div class="col-12 pl-0 pr-0">
+        <strong>Extra Annotation</strong>
+      </div>
+      <div class="col-4 pl-0">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:1000005] Extra annotation for variants where multiple events can explain variant.">
+          {{ form.effect_complex_substitution }}
+          <label class="form-check-label" for="id_effect_complex_substitution">complex substitution</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -102,6 +102,7 @@ DEFAULT_FILTER_FORM_SETTING = {
     "clinvar_include_uncertain_significance": False,
     "clinvar_include_likely_pathogenic": True,
     "clinvar_include_pathogenic": True,
+    "display_hgmd_public_membership": False,
     # Gene lists
     "gene_blacklist": "",
     "gene_whitelist": "",

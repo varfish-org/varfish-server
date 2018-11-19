@@ -104,12 +104,12 @@
      <div id="table-config">
       <table class="table table-hover table-sm varfish-variant-table" id="main">
         <thead>
-          {% include "variants/_filter_table_header.html" %}
+          {% include "variants/filter_result/header.html" %}
         </thead>
         <tbody>
         {% for entry in result_rows %}
-          {% include "variants/_filter_table_row.html" %}
-          {% include "variants/_filter_table_card.html" %}
+          {% include "variants/filter_result/row.html" %}
+          {% include "variants/filter_result/card.html" %}
         {% endfor %}
         </tbody>
       </table>

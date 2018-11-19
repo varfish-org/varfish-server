@@ -4,7 +4,7 @@
 
 <form id="filterForm" method="post">{% csrf_token %}
   <div class="card">
-    <div class="card-header row pb-1 border-bottom-0 pt-1">
+    <div class="card-header row border-bottom-0 pt-1 pr-1">
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
             <a class="nav-link active" id="genotype-tab" data-toggle="tab" href="#panel-genotype" role="tab"
@@ -54,7 +54,7 @@
         </ul>
         <div class="ml-auto">
           <div class="dropdown">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="presets-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="presets-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="d-none d-sm-inline">
                 Load Presets
               </span>
@@ -74,34 +74,34 @@
     <div class="card-body p-0">
       <div class="tab-content">
         <div class="tab-pane fade show active" id="panel-genotype" role="tabpanel" aria-labelledby="genotype-tab">
-          {% include "variants/_filter_form_genotype.html" %}
+          {% include "variants/filter_form/genotype.html" %}
         </div>
         <div class="tab-pane fade" id="panel-frequency" role="tabpanel" aria-labelledby="frequency-tab">
-          {% include "variants/_filter_form_frequency.html" %}
+          {% include "variants/filter_form/frequency.html" %}
         </div>
         <div class="tab-pane fade" id="panel-effect" role="tabpanel" aria-labelledby="effect-tab">
-          {% include "variants/_filter_form_effect.html" %}
+          {% include "variants/filter_form/effect.html" %}
         </div>
         <div class="tab-pane fade" id="panel-quality" role="tabpanel" aria-labelledby="quality-tab">
-          {% include "variants/_filter_form_quality.html" %}
+          {% include "variants/filter_form/quality.html" %}
         </div>
         <div class="tab-pane fade" id="panel-blacklist" role="tabpanel" aria-labelledby="blacklist-tab">
-          {% include "variants/_filter_form_genelists.html" %}
+          {% include "variants/filter_form/genelists.html" %}
         </div>
         <div class="tab-pane fade" id="panel-flags" role="tabpanel" aria-labelledby="flags-tab">
-          {% include "variants/_filter_form_flags.html" %}
+          {% include "variants/filter_form/flags.html" %}
         </div>
         <div class="tab-pane fade" id="panel-clinvar" role="tabpanel" aria-labelledby="clinvar-tab">
-          {% include "variants/_filter_form_clinvar_hgmd.html" %}
+          {% include "variants/filter_form/clinvar_hgmd_indicator.html" %}
         </div>
         <div class="tab-pane fade" id="panel-export" role="tabpanel" arial-labelledby="export-tab">
-          {% include "variants/_filter_form_export.html" %}
+          {% include "variants/filter_form/export.html" %}
         </div>
         <div class="tab-pane fade" id="panel-misc" role="tabpanel" arial-labelledby="misc-tab">
-          {% include "variants/_filter_form_misc.html" %}
+          {% include "variants/filter_form/misc.html" %}
         </div>
         <div class="tab-pane fade" id="panel-settings" role="tabpanel" arial-labelledby="settings-tab">
-          {% include "variants/_filter_form_settings.html" %}
+          {% include "variants/filter_form/settings.html" %}
         </div>
       </div>
     </div>

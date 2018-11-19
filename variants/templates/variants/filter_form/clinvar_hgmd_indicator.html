@@ -3,7 +3,7 @@
 
 <div class="row compact-form-groups">
   <div class="col-12 pt-3">
-    <h5 class="card-title">HGMD Public</h5>
+    <h5 class="card-title">HGMD Public Membership</h5>
   </div>
 
   <div class="col-12">
@@ -11,7 +11,7 @@
   </div>
 
   <div class="col-12">
-    <h5 class="card-title">ClinVar</h5>
+    <h5 class="card-title">ClinVar Membership</h5>
   </div>
 
   <div class="col-12">
@@ -19,13 +19,16 @@
   </div>
 
   <div class="col-12">
+    <h5 class="card-title">
+      ClinVar Status
+      <small class="text-muted">
+        Only applied if membership required.
+      </small>
+    </h5>
+  </div>
+
+  <div class="col-12">
     <div class="row">
-      <div class="col-12 pl-0 text-muted">
-        <small>
-          Include variants flagged with the following effect.
-          This filter is only applied if <strong>Clinvar membership required</strong> above is checked.
-        </small>
-      </div>
       <div class="col-2 pl-0 pt-0">
         {{ form.clinvar_include_benign|as_crispy_field }}
       </div>

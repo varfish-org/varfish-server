@@ -98,56 +98,34 @@ class SmallVariantFlagsFilterFormMixin(forms.Form):
     # Flags with value positive/uncertain/negative
 
     # Visual inspection
-    flag_visual_positive = forms.BooleanField(
-        label="visual: positive", required=False, initial=True
-    )
-    flag_visual_uncertain = forms.BooleanField(
-        label="visual: uncertain", required=False, initial=True
-    )
-    flag_visual_negative = forms.BooleanField(
-        label="visual: negative", required=False, initial=True
-    )
-    flag_visual_empty = forms.BooleanField(label="visual: empty", required=False, initial=True)
+    flag_visual_positive = forms.BooleanField(label="positive", required=False, initial=True)
+    flag_visual_uncertain = forms.BooleanField(label="uncertain", required=False, initial=True)
+    flag_visual_negative = forms.BooleanField(label="negative", required=False, initial=True)
+    flag_visual_empty = forms.BooleanField(label="empty", required=False, initial=True)
 
     # Validation
-    flag_validation_positive = forms.BooleanField(
-        label="validation: positive", required=False, initial=True
-    )
-    flag_validation_uncertain = forms.BooleanField(
-        label="validation: uncertain", required=False, initial=True
-    )
-    flag_validation_negative = forms.BooleanField(
-        label="validation: negative", required=False, initial=True
-    )
-    flag_validation_empty = forms.BooleanField(
-        label="validation: empty", required=False, initial=True
-    )
+    flag_validation_positive = forms.BooleanField(label="positive", required=False, initial=True)
+    flag_validation_uncertain = forms.BooleanField(label="uncertain", required=False, initial=True)
+    flag_validation_negative = forms.BooleanField(label="negative", required=False, initial=True)
+    flag_validation_empty = forms.BooleanField(label="empty", required=False, initial=True)
 
     # Phenotype match / clinical
     flag_phenotype_match_positive = forms.BooleanField(
-        label="phenotype_match: positive", required=False, initial=True
+        label="positive", required=False, initial=True
     )
     flag_phenotype_match_uncertain = forms.BooleanField(
-        label="phenotype_match: uncertain", required=False, initial=True
+        label="uncertain", required=False, initial=True
     )
     flag_phenotype_match_negative = forms.BooleanField(
-        label="phenotype_match: negative", required=False, initial=True
+        label="negative", required=False, initial=True
     )
-    flag_phenotype_match_empty = forms.BooleanField(
-        label="phenotype_match: empty", required=False, initial=True
-    )
+    flag_phenotype_match_empty = forms.BooleanField(label="empty", required=False, initial=True)
 
     # Summary flag, overrides other multi-valued flags
-    flag_summary_positive = forms.BooleanField(
-        label="summary: positive", required=False, initial=True
-    )
-    flag_summary_uncertain = forms.BooleanField(
-        label="summary: uncertain", required=False, initial=True
-    )
-    flag_summary_negative = forms.BooleanField(
-        label="summary: negative", required=False, initial=True
-    )
-    flag_summary_empty = forms.BooleanField(label="summary: empty", required=False, initial=True)
+    flag_summary_positive = forms.BooleanField(label="positive", required=False, initial=True)
+    flag_summary_uncertain = forms.BooleanField(label="uncertain", required=False, initial=True)
+    flag_summary_negative = forms.BooleanField(label="negative", required=False, initial=True)
+    flag_summary_empty = forms.BooleanField(label="empty", required=False, initial=True)
 
 
 class ClinvarForm(SmallVariantFlagsFilterFormMixin, forms.Form):
@@ -206,6 +184,20 @@ class ClinvarForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         label="no assertion provided (0 stars)", required=False, initial=True
     )
 
+    require_in_clinvar = forms.BooleanField(
+        label="Clinvar membership required", required=False, initial=False
+    )
+
+    require_in_hgmd_public = forms.BooleanField(
+        label="HGMD public membership required",
+        required=False,
+        initial=False,
+        help_text=(
+            "Require variant to be present in HGMD public (ENSEMBL track).  "
+            "Please note that this data is several years old!"
+        ),
+    )
+
     DATABASE_SELECT_CHOICES = [("refseq", "RefSeq"), ("ensembl", "EnsEMBL")]
     database_select = forms.ChoiceField(
         choices=DATABASE_SELECT_CHOICES,
@@ -248,6 +240,11 @@ class ClinvarForm(SmallVariantFlagsFilterFormMixin, forms.Form):
                 required=True,
                 widget=forms.Select(choices=INHERITANCE, attrs={"class": "genotype-field-gt"}),
             )
+
+    def clean(self):
+        result = super().clean()
+        result["display_hgmd_public_membership"] = True
+        return result
 
 
 class ResubmitForm(forms.Form):
@@ -487,7 +484,7 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         required=True,
         initial=80,
         help_text=(
-            "Maximal number of rows displayed when rendering on the website.  "
+            "Maximal number of rows displayed <b>when rendering on the website</b>.  "
             "This setting is <b>not</b> used when creating a file for export."
         ),
     )
@@ -500,7 +497,10 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         label="HGMD public membership required",
         required=False,
         initial=False,
-        help_text="Require variant to be present in HGMD public (ENSEMBL track).",
+        help_text=(
+            "Require variant to be present in HGMD public (ENSEMBL track).  "
+            "Please note that this data is several years old!"
+        ),
     )
 
     clinvar_include_benign = forms.BooleanField(label="benign", required=False, initial=False)
@@ -549,9 +549,9 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         max_length=5000,
     )
 
-    var_type_mnv = forms.BooleanField(label="MNV", required=False, initial=True)
     var_type_snv = forms.BooleanField(label="SNV", required=False, initial=True)
     var_type_indel = forms.BooleanField(label="InDel", required=False, initial=True)
+    var_type_mnv = forms.BooleanField(label="MNV", required=False, initial=True)
 
     DATABASE_SELECT_CHOICES = [("refseq", "RefSeq"), ("ensembl", "EnsEMBL")]
     database_select = forms.ChoiceField(
@@ -657,6 +657,7 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         cleaned_data["gene_whitelist"] = [
             s.strip() for s in cleaned_data["gene_whitelist"].strip().split() if s.strip()
         ]
+        cleaned_data["display_hgmd_public_membership"] = True
         return cleaned_data
 
 

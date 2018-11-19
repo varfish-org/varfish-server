@@ -1,0 +1,18 @@
+<i
+  class="text-muted fa fa-pie-chart fa-rotate-90
+    {% if entry.hgmd_public_overlap %}
+      hgmd-popover
+    {% endif %}
+    "
+  {% if entry.hgmd_public_overlap %}
+    hgmd-popover"
+    data-tooltip="tooltip"
+    {# tabindex here is required for popover to work with auto-dismiss#}
+    data-toggle="popover"
+    data-content="<a class=&quot;btn btn-sm btn-secondary&quot; href=&quot;http://www.hgmd.cf.ac.uk/ac/gene.php?gene={{ entry.symbol }}&amp;accession={{ entry.hgmd_accession }}&quot;><i class=&quot;fa fa-fw fa-globe&quot;></i>HGMD public: {{ entry.symbol }}</a>"
+    data-title="Locus in HGMD"
+    data-html="true"
+  {% else %}
+  style="opacity: 0.2"
+  {% endif %}
+></i>
