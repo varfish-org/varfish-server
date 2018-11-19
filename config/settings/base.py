@@ -55,6 +55,7 @@ THIRD_PARTY_APPS = [
     "aldjemy",
     "projectroles.apps.ProjectrolesConfig",
     "timeline.apps.TimelineConfig",
+    'docs',  # For the online user documentation/manual
 ]
 
 # Apps specific for this project go here.
@@ -78,6 +79,14 @@ LOCAL_APPS = [
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
+# Django-docs Settings
+# ------------------------------------------------------------------------------
+
+# Note: for serving to work, the docs have to be built after deployment.
+DOCS_ROOT = ROOT_DIR.path('docs_manual/_build/html/')
+# DOCS_ACCESS = 'public'  # default
+
 
 # MIDDLEWARE CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -330,6 +339,7 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 60
 
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.BasicAuthentication",

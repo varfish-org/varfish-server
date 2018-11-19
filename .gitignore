@@ -1,4 +1,7 @@
 ### Python template
+# Sphinx
+docs_*/_build
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
