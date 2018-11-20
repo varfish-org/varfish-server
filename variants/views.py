@@ -214,7 +214,11 @@ class CaseFilterView(
                     naturaltime(previous_query.date_created)
                 ),
             )
-            result.update(previous_query.query_settings)
+            for key, value in previous_query.query_settings.items():
+                if isinstance(value, list):
+                    result[key] = " ".join(value)
+                else:
+                    result[key] = value
         return result
 
     def get_context_data(self, **kwargs):
@@ -345,6 +349,10 @@ class CaseClinvarReportView(
         """Put initial data in the form from the previous query if any and push information into template for the
         "welcome back" message."""
         result = self.initial.copy()
+        for key, value in result.items():
+            if isinstance(value, list):
+                print(key, value)
+                result[key] = " ".join(" ".join(json.loads(value)))
         previous_query = (
             self.get_case_object()
             .small_variant_queries.filter(user=self.request.user)
