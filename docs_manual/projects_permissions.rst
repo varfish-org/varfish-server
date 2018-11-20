@@ -4,10 +4,6 @@
 Project Access Control
 ======================
 
-.. note::
-
-    TODO: add screenshots with examples here once the user interface has stabilized.
-
 In VarFish, access to data is organized in **Projects**.
 Projects can be grouped into possibly nested **Categories** and access.
 Users are assigned **Roles** in projects and get access to the project's data through these role assignments.
@@ -30,6 +26,14 @@ Here, you can see its README information, the overview from the further VarFish 
 
     Most importantly use the :guilabel:`Cases` link to see the full list of cases in a project.
 
+.. figure:: figures/project_details.png
+    :alt: Details view for the demo project.
+    :width: 60%
+    :align: center
+
+    This figure shows the project details of the demo project.
+    On the left, you can see the navigation bar to the different apps active for the project.
+    On the right, you can see the project overview showing up to the five most recent entries only.
 
 **VarFishApp Overview**
     See the latest imported cases.

@@ -1,12 +1,8 @@
 .. _variants_clinvar:
 
 ==============
-Clinvar Report
+ClinVar Report
 ==============
-
-.. note::
-
-    TODO: add screenshots with examples here once the user interface has stabilized.
 
 Besides filtering all variants based on the various criteria described in :ref:`variants_filtration`, you can also perform a Clinvar-centric search.
 On the Case Details Page, you can reach the filter mask using the :guilabel:`ClinVar Report` button on the top right.
@@ -35,10 +31,24 @@ The form has the following components:
 :guilabel:`Genotype` Tab
 ========================
 
+.. figure:: figures/clinvar_genotype_tab.png
+    :alt: The Genotype form tab on the ClinVar report.
+    :width: 80%
+    :align: center
+
+    The ClinVar form showing the :guilabel:`Genotype` tab.
+
 This is the same as the :ref:`variants_filtration_genotype_tab` in the :ref:`variants_filtration` tab.
 
 :guilabel:`ClinVar` Tab
 ========================
+
+.. figure:: figures/clinvar_clinvar_tab.png
+    :alt: The ClinVar form tab on the ClinVar report.
+    :width: 80%
+    :align: center
+
+    The ClinVar form showing the :guilabel:`ClinVar` tab.
 
 This tab allows you to perform a fine-granular select of the variants to include in the form.
 
@@ -62,6 +72,13 @@ This tab allows you to perform a fine-granular select of the variants to include
 
 :guilabel:`Flags` Tab
 =====================
+
+.. figure:: figures/clinvar_genotype_tab.png
+    :alt: The Genotype form tab on the ClinVar report.
+    :width: 80%
+    :align: center
+
+    The ClinVar form showing the :guilabel:`Flags` tab.
 
 Here, you can limit the reported variants to those with a specific flag or rating.
 See :ref:`variants_flagging` for an explanation of flags and ratings.
@@ -119,7 +136,7 @@ The review status of the submission with the highest pathogenicity rating will b
 For each entry, the rank and total number of entries is displayed as ``#$rank / $total items`` (e.g., "#1/42").
 Next, a description of the change as ``$chrom-$position-$ref_bases-$alt_bases`` is displayed (e.g., "chr1-12,061,532-C-T").
 
-All of this is followed by the following variant properties (see :ref:`variatns_filtration` for their description):
+All of this is followed by the following variant properties (see :ref:`variants_filtration` for their description):
 
 - Sequence Ontology variant effect with highest pathogenicity
 - HGNC-approved gene name

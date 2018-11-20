@@ -6,6 +6,21 @@ VarFish Web UI - History
 HEAD (unreleased)
 -----------------
 
+- Extended documentation, added screenshots.
+
+------
+v0.6.1
+------
+
+End-User Summary
+================
+
+- Adding forgotten help link to title bar.
+
+------
+v0.6.0
+------
+
 End-User Summary
 ================
 

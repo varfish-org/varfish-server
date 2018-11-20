@@ -14,3 +14,11 @@ You can use the search bar on the top to search the VarFish site for projects an
     - Matches are performed case-insensitive ("example" will match "Example").
     - Non-alphanumeric characters are removed ("#12-345" will match "12345").
     - Matches have to be end-to-end ("12345" will not match "id12345").
+
+.. figure:: figures/search_results.png
+    :alt: Search result with one matching case.
+    :width: 100%
+    :align: center
+
+    Case insensitive search results.
+

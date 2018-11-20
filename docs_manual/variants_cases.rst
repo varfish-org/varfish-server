@@ -4,10 +4,6 @@
 Variants & Cases
 ================
 
-.. note::
-
-    TODO: add screenshots with examples here once the user interface has stabilized.
-
 The variants are assigned to **Cases**.
 Use the :guilabel:`Cases` link on the left to see all cases in a project.
 Then, click on the case name to go to the case's detail view.
@@ -32,6 +28,14 @@ On the case detail view, you can see the following information:
 
 **Background Jobs Overview**
     List of background job for this case, e.g., for file export generation.
+
+.. figure:: figures/case_details.png
+    :alt: The details view for a case.
+    :width: 80%
+    :align: center
+
+    The case details view for the demo case.
+    Note the details on the different aspects of the case and in particular the :guilabel:`Filter Case` and :guilabel:`ClinVar Report` buttons on the top right.
 
 Case Detail View Actions
 ========================
