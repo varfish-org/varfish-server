@@ -6,6 +6,7 @@ VarFish Web UI - History
 HEAD (unreleased)
 -----------------
 
+- Fixing search bug with upper/lower case normalization.
 - Extended documentation, added screenshots.
 
 ------

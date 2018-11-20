@@ -108,7 +108,7 @@ class CaseManager(models.Manager):
         """
         objects = super().get_queryset().order_by("name")
         objects = objects.filter(
-            Q(name__iexact=search_term) | Q(search_tokens__contains=[search_term])
+            Q(name__iexact=search_term) | Q(search_tokens__icontains=[search_term])
         )
         return objects
 
