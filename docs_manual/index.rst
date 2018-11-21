@@ -45,6 +45,15 @@ It is developed by the Core Unit Bioinformatics at the Berlin Institute of Healt
     variants_comments
     variants_flagging
 
+.. toctree::
+    :maxdepth: 1
+    :caption: Project Info
+    :name: project-info
+    :hidden:
+    :titlesonly:
+
+    contributors
+    history
 
 Indices and tables
 ==================

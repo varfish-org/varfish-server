@@ -1,6 +1,12 @@
-========================
-VarFish Web UI - History
-========================
+===================
+History / Changelog
+===================
+
+=================
+HEAD (unreleased)
+=================
+
+- Including authors and changelog in manual.
 
 ------
 v0.6.2
