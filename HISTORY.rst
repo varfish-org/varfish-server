@@ -2,9 +2,14 @@
 VarFish Web UI - History
 ========================
 
------------------
-HEAD (unreleased)
------------------
+------
+v0.6.2
+------
+
+A bugfix release.
+
+End-User Summary
+================
 
 - Fixing search bug with upper/lower case normalization.
 - Fixed bug with whitelist/blacklist when restoring settings.
