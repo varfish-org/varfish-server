@@ -2,6 +2,12 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+- Pinning redis, cf. https://github.com/celery/celery/issues/5175
+
 ------
 v0.6.3
 ------
