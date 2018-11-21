@@ -53,6 +53,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "knox",
     "aldjemy",
+    "adminalerts",
     "projectroles.apps.ProjectrolesConfig",
     "timeline.apps.TimelineConfig",
     'docs',  # For the online user documentation/manual

@@ -614,7 +614,7 @@ class SmallVariantFlagsApiView(
                 description="set flags for variant %s in case {case}: {extra-flag_values}"
                 % flags.get_variant_description(),
                 status_type="OK",
-                extra_data={"flag_values": flags.human_readable()}
+                extra_data={"flag_values": flags.human_readable()},
             )
             tl_event.add_object(obj=case, label="case", name=case.name)
         if flags.no_flags_set():

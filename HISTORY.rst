@@ -6,6 +6,7 @@ History / Changelog
 HEAD (unreleased)
 =================
 
+- Enabling SODAR-core adminalerts app.
 - Including authors and changelog in manual.
 
 ------

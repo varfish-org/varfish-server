@@ -21,11 +21,14 @@ urlpatterns = [
     # url(r'^users/', include('varfish.users.urls', namespace='users')),
     # Your stuff: custom urls includes go here
     url(r"api/auth/", include("knox.urls")),
-    url(r"^project/", include("projectroles.urls")),
-    url(r'^timeline/', include('timeline.urls')),
     url(r"^$", HomeView.as_view(), name="home"),
     url(r"^login/$", auth_views.LoginView.as_view(template_name="users/login.html"), name="login"),
     url(r"^logout/$", auth_views.logout_then_login, name="logout"),
+
+    # SODAR-core
+    url(r"^project/", include("projectroles.urls")),
+    url(r'^timeline/', include('timeline.urls')),
+    url(r'^alerts/', include('adminalerts.urls')),
 
     # The rendered Sphinx-based manual.
     url(r'^manual/', include('docs.urls')),
