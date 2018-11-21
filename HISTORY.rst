@@ -2,11 +2,21 @@
 History / Changelog
 ===================
 
-=================
-HEAD (unreleased)
-=================
+------
+v0.6.3
+------
+
+A bugfix release.
+
+End-User Summary
+================
 
 - Fixing bug that caused the clinvar report to fail when restoring previous query.
+
+Full Change List
+================
+
+- Making sure returning to clinvar report works again.
 - Enabling SODAR-core adminalerts app.
 - Including authors and changelog in manual.
 
