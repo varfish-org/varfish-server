@@ -6,6 +6,7 @@ History / Changelog
 HEAD (unreleased)
 =================
 
+- Fixing bug that caused the clinvar report to fail when restoring previous query.
 - Enabling SODAR-core adminalerts app.
 - Including authors and changelog in manual.
 

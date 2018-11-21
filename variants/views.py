@@ -349,10 +349,6 @@ class CaseClinvarReportView(
         """Put initial data in the form from the previous query if any and push information into template for the
         "welcome back" message."""
         result = self.initial.copy()
-        for key, value in result.items():
-            if isinstance(value, list):
-                print(key, value)
-                result[key] = " ".join(" ".join(json.loads(value)))
         previous_query = (
             self.get_case_object()
             .small_variant_queries.filter(user=self.request.user)
@@ -360,8 +356,18 @@ class CaseClinvarReportView(
             .first()
         )
         if self.request.method == "GET" and previous_query:
-            result.update(previous_query)
-            self.get_context_data()["query_loaded"] = True
+            # TODO: the code for version conversion needs to be hooked in here
+            messages.info(
+                self.request,
+                ("Welcome back! We have restored your previous query settings from {}.").format(
+                    naturaltime(previous_query.date_created)
+                ),
+            )
+            for key, value in previous_query.query_settings.items():
+                if isinstance(value, list):
+                    result[key] = " ".join(value)
+                else:
+                    result[key] = value
         return result
 
     def get_context_data(self, **kwargs):
