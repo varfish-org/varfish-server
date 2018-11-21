@@ -9,6 +9,7 @@ HEAD (unreleased)
 - Fixing search bug with upper/lower case normalization.
 - Fixed bug with whitelist/blacklist when restoring settings.
 - Extended documentation, added screenshots.
+- Previous flag state is now properly written to the timeline.
 
 ------
 v0.6.1

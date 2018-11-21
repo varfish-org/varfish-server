@@ -606,20 +606,17 @@ class SmallVariantFlagsApiView(
             raise Exception(str(form.errors)) from e
         timeline = get_backend_api("timeline_backend")
         if timeline:
-            variant = "{chromosome}-{position}-{reference}-{alternative}".format(
-                **form.cleaned_data
-            )
             tl_event = timeline.add_event(
                 project=self._get_project(self.request, self.kwargs),
                 app_name="variants",
                 user=self.request.user,
                 event_name="flags_set",
-                description="set flags for variant %s in case {case} to {flags}"
+                description="set flags for variant %s in case {case}: {extra-flag_values}"
                 % flags.get_variant_description(),
                 status_type="OK",
+                extra_data={"flag_values": flags.human_readable()}
             )
             tl_event.add_object(obj=case, label="case", name=case.name)
-            tl_event.add_object(obj=flags, label="flags", name=flags.human_readable())
         if flags.no_flags_set():
             flags.delete()
             result = {"message": "erased"}

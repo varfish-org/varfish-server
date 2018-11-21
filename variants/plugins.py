@@ -60,6 +60,13 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
         return {"all": {"title": "Cases", "search_types": ["case"], "items": items}}
 
+    def get_extra_data_link(self, extra_data, name):
+        """Return link for the given label that started with ``"extra-"``."""
+        if name == "extra-flag_values":
+            return extra_data["flag_values"]
+        else:
+            return "(unknown %s)" % name
+
     def get_object_link(self, model_str, uuid):
         """
         Return URL for referring to a object used by the app, along with a
