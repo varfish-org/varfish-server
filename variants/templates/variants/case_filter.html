@@ -598,6 +598,22 @@ const presets = {
     "classes": {
       "quality-field-fail": "ignore"
     }
+  },
+  "full-exome": {
+    "ids": Object.assign({}, defaultPresetsIds, {
+      "thousand_genomes_enabled": false,
+      "exac_enabled": false,
+      "gnomad_exomes_enabled": false,
+      "gnomad_genomes_enabled": false,
+
+      "require_in_clinvar": false,
+      "require_in_hgmd_public": false,
+
+      "effect_group_all": true
+    }),
+    "classes": {
+      "quality-field-fail": "ignore"
+    }
   }
 };
 
