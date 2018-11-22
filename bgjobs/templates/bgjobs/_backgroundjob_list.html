@@ -6,6 +6,7 @@
         <tr>
           <th>Started</th>
           <th>Last Change</th>
+          <th>Type</th>
           <th>State</th>
           <th>Name</th>
         </tr>
@@ -16,8 +17,8 @@
         {% endfor %}
         {% if not object_list %}
           <tr>
-             <td class="bg-faded font-italic text-center" colspan="4">
-               No background jobs found.
+             <td class="bg-faded font-italic text-center" colspan="5">
+               No background jobs found for project.
              </td>
           </tr>
         {% endif %}

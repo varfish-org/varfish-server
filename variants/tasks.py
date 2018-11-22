@@ -3,6 +3,15 @@ from celery.schedules import crontab
 
 from . import models
 from . import file_export
+from . import submit_external
+
+
+@app.task(bind=True)
+def distiller_submission_task(_self, submission_job_pk):
+    """Task to submit a case to MutationDistiller"""
+    submit_external.submit_distiller(
+        models.DistillerSubmissionBgJob.objects.get(pk=submission_job_pk)
+    )
 
 
 @app.task(bind=True)

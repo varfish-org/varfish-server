@@ -1,14 +1,19 @@
-<tr id="varfish-bg-table-row-{{ item.sodar_uuid }}">
-  <td>{{ item.date_created|date:"Y/m/d h:m" }}</td>
-  <td>{{ item.date_modified|date:"Y/m/d h:m" }}</td>
-  <td>{{ item.status }}</td>
-  <td>
-    {% if item.export_file_bg_job.all %}
-      <a href="{{ item.export_file_bg_job.first.get_absolute_url }}">
-        {{ item.name }}
-      </a>
-    {% else %}
-      {{ item.name }}
-    {% endif %}
-  </td>
-</tr>
+{% load bgjobs_tags %}
+
+{% with item=item|specialize_job %}
+  <tr id="varfish-bg-table-row-{{ item.sodar_uuid }}">
+    <td>{{ item.bg_job.date_created|date:"Y/m/d h:m" }}</td>
+    <td>{{ item.bg_job.date_modified|date:"Y/m/d h:m" }}</td>
+    <td>{{ item.get_human_readable_type }}</td>
+    <td>{{ item.bg_job.status }}</td>
+    <td>
+      {% if item.get_absolute_url %}
+        <a href="{{ item.get_absolute_url }}">
+          {{ item.bg_job.name }}
+        </a>
+      {% else %}
+        {{ item.bg_job.name }}
+      {% endif %}
+    </td>
+  </tr>
+{% endwith %}

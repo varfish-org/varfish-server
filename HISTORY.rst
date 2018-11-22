@@ -6,6 +6,7 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+- Adding option to submit data to MutationDistiller.
 - Pinning redis, cf. https://github.com/celery/celery/issues/5175
 
 ------

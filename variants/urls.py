@@ -42,6 +42,17 @@ urlpatterns = [
         view=views.ExportFileJobDownloadView.as_view(),
         name="export-job-download",
     ),
+    # Views for MutationDistiller submission jobs
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/distiller-job/detail/(?P<job>[0-9a-f-]+)/$",
+        view=views.DistillerSubmissionJobDetailView.as_view(),
+        name="distiller-job-detail",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/distiller-job/detail/(?P<job>[0-9a-f-]+)/$",
+        view=views.DistillerSubmissionJobResubmitView.as_view(),
+        name="distiller-job-resubmit",
+    ),
     # API for accessing small variant flags and comments.
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-flags/(?P<case>[0-9a-f-]+)/$",

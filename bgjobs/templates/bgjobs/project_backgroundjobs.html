@@ -4,17 +4,18 @@
 {% load crispy_forms_tags %}
 {% load dict %}
 {% load rules %}
+{% load bgjobs_tags %}
 
 {% block projectroles %}
 
 {% has_perm 'bgjobs.view_data' request.user project as can_view_data %}
 
-{% has_perm 'bgjobs.can_clear_own_zones' request.user project as can_clear_own_zones %}
-{% has_perm 'bgjobs.can_clear_all_zones' request.user project as can_clear_all_zones %}
+{% has_perm 'bgjobs.clear_own_jobs' request.user project as can_clear_own_jobs %}
+{% has_perm 'bgjobs.clear_all_jobs' request.user project as can_clear_all_jobs %}
 
 <div class="row sodar-pr-content-title pb-2">
   <h2 class="sodar-pr-content-title">Background Jobs</h2>
-  {% if can_clear_own_zones or can_clear_all_zones %}
+  {% if can_clear_own_jobs or can_clear_all_jobs %}
     {% include 'bgjobs/_list_buttons.html' %}
   {% endif %}
 </div>

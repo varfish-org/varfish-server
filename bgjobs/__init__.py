@@ -1,2 +1,1 @@
-# -*- coding: utf-8 -*-
-"""Django app with UI for displaying background jobs."""
+"""Django app with models, views, and plugin points for a common background job infrastructure."""

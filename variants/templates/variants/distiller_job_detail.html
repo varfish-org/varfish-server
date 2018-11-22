@@ -17,7 +17,7 @@
 {% block projectroles %}
   <div class="row sodar-pr-content-title pb-2">
     <h2 class="sodar-pr-content-title">
-      Background File Creation Job
+      Background MutationDistiller Submission Job
       <small class="text-muted">{{ object.bg_job.name }}</small>
     </h2>
     {% include 'variants/_job_view_buttons.html' with project=project folder=folder %}
@@ -37,35 +37,31 @@
           <li class="list-group-item row d-flex">
             <div class="col-2 p-1"><strong>Download Result</strong></div>
             <div class="col-10 p-1">
-              {% if object.export_result %}
-                <a href="{% url "variants:export-job-download" project=object.project.sodar_uuid job=object.sodar_uuid %}">
-                  <i class="fa fa-download"></i>
-                  Download {{ object.file_type }} File ({{ object.export_result.payload|length|filesizeformat }})
+              {% if object.distiller_project_id %}
+                <a href="{{ object.get_distiller_project_url }}">
+                  <i class="fa fa-external-link-square"></i>
+                  MutationDistiller project: {{ object.distiller_project_id }}
                 </a>
               {% else %}
-                No result yet or file expired.
+                No MutationDistiller project ID assigned (yet).
               {% endif %}
             </div>
           </li>
           <li class="list-group-item row d-flex">
             <div class="col-2 p-1"><strong>Re-Submit</strong></div>
-            <div class="col-10 p-1">
-              <form class="form-inline" action="{% url "variants:export-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}" method="post">
+            <div class="col-10 pt-1 pb-1 pr-1 pl-0">
+              <form class="form-inline" action="{% url "variants:distiller-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}" method="post">
                {% csrf_token %}
-                <div class="form-group mx-sm-2">
-                  <label for="id_file_type" class="mr-3">File Type:</label>
-                  {{ resubmit_form.file_type }}
-                </div>
-                <div class="form-group mx-sm-2">
-                  <button type="submit" class="btn btn-primary">
-                    <i class="fa fa-cloud-download"></i>
-                    Re-run with File Type
+                <div class="form-group ml-0 mr-2">
+                  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#confirm-submit-mutationdistiller">
+                    <i class="fa fa-mail-forward"></i>
+                    Re-Submit
                   </button>
                 </div>
                 <small class="form-text text-muted">
-                  Use this form to create a new job that uses the same filter settings but a different
-                  <strong>file type</strong>.
+                  Re-submit to MutationTaster.org with the same settings, e.g., if MutationTaster.org was offline.
                 </small>
+                {% include "variants/_distiller_resubmit_modal.html" %}
               </form>
             </div>
           </li>

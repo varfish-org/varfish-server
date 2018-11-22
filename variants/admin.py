@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from .models import (
     Case,
+    DistillerSubmissionBgJob,
     SmallVariant,
     ExportFileBgJob,
     ExportFileJobResult,
@@ -18,3 +19,4 @@ admin.site.register(ExportFileJobResult)
 admin.site.register(SmallVariantFlags)
 admin.site.register(SmallVariantComment)
 admin.site.register(SmallVariantQuery)
+admin.site.register(DistillerSubmissionBgJob)

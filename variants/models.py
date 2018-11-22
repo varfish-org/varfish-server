@@ -16,7 +16,7 @@ from django.db.models.signals import pre_delete
 
 from projectroles.models import Project
 
-from bgjobs.models import BackgroundJob, JOB_STATE_DONE, JOB_STATE_FAILED, JOB_STATE_RUNNING
+from bgjobs.models import BackgroundJob, JobModelMessageMixin
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
@@ -229,8 +229,11 @@ EXPORT_FILE_TYPE_CHOICES = (
 )
 
 
-class ExportFileBgJob(models.Model):
+class ExportFileBgJob(JobModelMessageMixin, models.Model):
     """Background job for exporting query results as a TSV or Excel file."""
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.export_file_bg_job"
 
     # Fields required by SODAR
     sodar_uuid = models.UUIDField(
@@ -250,26 +253,9 @@ class ExportFileBgJob(models.Model):
         max_length=32, choices=EXPORT_FILE_TYPE_CHOICES, help_text="File types for exported file"
     )
 
-    def mark_start(self):
-        """Mark the export job as started."""
-        self.bg_job.status = JOB_STATE_RUNNING
-        self.bg_job.add_log_entry("Starting export to file")
-        self.bg_job.save()
-
-    def mark_error(self, msg):
-        """Mark the export job as complete successfully."""
-        self.bg_job.status = JOB_STATE_FAILED
-        self.bg_job.add_log_entry("Exporting to file failed: {}".format(msg))
-        self.bg_job.save()
-
-    def mark_success(self):
-        """Mark the export job as complete successfully."""
-        self.bg_job.status = JOB_STATE_DONE
-        self.bg_job.add_log_entry("Exporting to file succeeded")
-        self.bg_job.save()
-
-    def add_log_entry(self, *args, **kwargs):
-        return self.bg_job.add_log_entry(*args, **kwargs)
+    def get_human_readable_type(self):
+        """Implement to implement a human-readable type in the views."""
+        return "File Export"
 
     def get_absolute_url(self):
         return reverse(
@@ -289,6 +275,57 @@ class ExportFileJobResult(models.Model):
     )
     expiry_time = models.DateTimeField(help_text="Time at which the file download expires")
     payload = models.BinaryField(help_text="Resulting exported file")
+
+
+class DistillerSubmissionBgJob(JobModelMessageMixin, models.Model):
+    """Background job for submitting variants to MutationDistiller."""
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.export_file_bg_job"
+
+    # Fields required by SODAR
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
+    )
+    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="distiller_submission_bg_job",
+        help_text="Background job for state etc.",
+    )
+    case = models.ForeignKey(Case, null=False, help_text="The case to export")
+    query_args = JSONField(null=False, help_text="(Validated) query parameters")
+
+    distiller_project_id = models.CharField(
+        max_length=100,
+        null=True,
+        help_text="The project ID that MutationDistiller assigned on submission",
+    )
+
+    def get_human_readable_type(self):
+        """Implement to implement a human-readable type in the views."""
+        return "MutationDistiller Submission"
+
+    def get_distiller_project_url(self):
+        """Returns URL to MutationDistiller project if ``distiller_project_id`` is set.
+
+        Returns ``None`` otherwise.
+        """
+        if self.distiller_project_id:
+            return (
+                "https://mutationdistiller.org/temp/QE/vcf_%s/progress.html"
+                % self.distiller_project_id
+            )
+        else:
+            return None
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:distiller-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
 
 
 class SmallVariantComment(models.Model):

@@ -25,17 +25,25 @@ from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, Pro
 from projectroles.plugins import get_backend_api
 from variants.models_support import ClinvarReportQuery, RenderFilterQuery, KnownGeneAAQuery
 
-from .models import Case, ExportFileBgJob, SmallVariantFlags, SmallVariantComment, SmallVariantQuery
+from .models import (
+    Case,
+    ExportFileBgJob,
+    DistillerSubmissionBgJob,
+    SmallVariantFlags,
+    SmallVariantComment,
+    SmallVariantQuery,
+)
 from .forms import (
     ClinvarForm,
+    DistillerSubmissionResubmitForm,
     FilterForm,
-    ResubmitForm,
+    ExportFileResubmitForm,
     SmallVariantFlagsForm,
     SmallVariantCommentForm,
     FILTER_FORM_TRANSLATE_SIGNIFICANCE,
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
 )
-from .tasks import export_file_task
+from .tasks import export_file_task, distiller_submission_task
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -141,6 +149,8 @@ class CaseFilterView(
         """Main branching point either render result or create an asychronous job."""
         if form.cleaned_data["submit"] == "download":
             return self._form_valid_file(form)
+        elif form.cleaned_data["submit"] == "submit-mutationdistiller":
+            return self._form_valid_mutation_distiller(form)
         else:
             return self._form_valid_render(form)
 
@@ -163,13 +173,38 @@ class CaseFilterView(
                 query_args=_undecimal(form.cleaned_data),
                 file_type=form.cleaned_data["file_type"],
             )
+        export_file_task.delay(export_job_pk=export_job.pk)
         messages.info(
             self.request,
             "Created background job for your file download. "
             "After the file has been generated, you will be able to download it here.",
         )
-        export_file_task.delay(export_job_pk=export_job.pk)
         return redirect(export_job.get_absolute_url())
+
+    def _form_valid_mutation_distiller(self, form):
+        """The form is valid, we are supposed to submit to MutationDistiller."""
+        with transaction.atomic():
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Submitting case {} to MutationDistiller".format(self.get_case_object().name),
+                project=self._get_project(self.request, self.kwargs),
+                job_type="variants.distiller_submission_bg_job",
+                user=self.request.user,
+            )
+            submission_job = DistillerSubmissionBgJob.objects.create(
+                project=self._get_project(self.request, self.kwargs),
+                bg_job=bg_job,
+                case=self.get_case_object(),
+                query_args=_undecimal(form.cleaned_data),
+            )
+        distiller_submission_task.delay(submission_job_pk=submission_job.pk)
+        messages.info(
+            self.request,
+            "Created background job for your MutationDistiller submission. "
+            "You can find the link to the MutationDistiller job on this site. "
+            "We put your email into the MutationDistiller job so you will get an email once it is done.",
+        )
+        return redirect(submission_job.get_absolute_url())
 
     def _form_valid_render(self, form):
         """The form is valid, we are supposed to render an HTML table with the results."""
@@ -474,7 +509,7 @@ class ExportFileJobDetailView(
 
     def get_context_data(self, *args, **kwargs):
         result = super().get_context_data(*args, **kwargs)
-        result["resubmit_form"] = ResubmitForm()
+        result["resubmit_form"] = ExportFileResubmitForm()
         return result
 
 
@@ -485,11 +520,10 @@ class ExportFileJobResubmitView(
     ProjectContextMixin,
     FormView,
 ):
-    """Display status and further details of the file export background job.
-    """
+    """Resubmit export file job."""
 
     permission_required = "variants.view_data"
-    form_class = ResubmitForm
+    form_class = ExportFileResubmitForm
 
     def form_valid(self, form):
         job = get_object_or_404(ExportFileBgJob, sodar_uuid=self.kwargs["job"])
@@ -553,6 +587,57 @@ class ExportFileJobDownloadView(
             return response
         except ObjectDoesNotExist as e:
             raise Http404("File has not been generated (yet)!") from e
+
+
+class DistillerSubmissionJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of the MutationDistiller submission background job."""
+
+    permission_required = "variants.view_data"
+    template_name = "variants/distiller_job_detail.html"
+    model = DistillerSubmissionBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+
+    def get_context_data(self, *args, **kwargs):
+        result = super().get_context_data(*args, **kwargs)
+        result["resubmit_form"] = DistillerSubmissionResubmitForm()
+        return result
+
+
+class DistillerSubmissionJobResubmitView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
+    """Resubmit to MutationDistiller."""
+
+    permission_required = "variants.view_data"
+    form_class = DistillerSubmissionResubmitForm
+
+    def form_valid(self, form):
+        job = get_object_or_404(DistillerSubmissionBgJob, sodar_uuid=self.kwargs["job"])
+        with transaction.atomic():
+            bg_job = BackgroundJob.objects.create(
+                name="Resubmitting case {} to MutationDistiller".format(
+                    self.get_case_object().name
+                ),
+                project=job.bg_job.project,
+                job_type="variants.distiller_submission_bg_job",
+                user=self.request.user,
+            )
+            submission_job = ExportFileBgJob.objects.create(
+                project=job.project, bg_job=bg_job, case=job.case, query_args=job.query_args
+            )
+            distiller_submission_task.delay(export_job_pk=submission_job.pk)
+        return redirect(submission_job.get_absolute_url())
 
 
 class SmallVariantFlagsApiView(

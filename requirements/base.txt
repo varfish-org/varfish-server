@@ -86,3 +86,8 @@ SQLAlchemy ==1.2.13
 aldjemy ==0.8.0
 
 sqlparse
+
+# Kenneth Reitz's wonderful HTTP library.
+requests ==2.18.4
+# Parsing of HTML
+beautifulsoup4 ==4.6.3

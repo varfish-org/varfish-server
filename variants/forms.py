@@ -252,12 +252,16 @@ class ClinvarForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         return result
 
 
-class ResubmitForm(forms.Form):
+class ExportFileResubmitForm(forms.Form):
     file_type = forms.ChoiceField(
         initial="xlsx",
         choices=(("xlsx", "Excel (.xlsx)"), ("tsv", "TSV (.tsv)"), ("vcf", "VCF (.vcf.gz)")),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
+
+
+class DistillerSubmissionResubmitForm(forms.Form):
+    pass
 
 
 class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
@@ -290,6 +294,7 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
         choices=(
             ("display", "Display results in table"),
             ("download", "Generate downloadable file in background"),
+            ("submit-mutationdistiller", "Submit to MutationDistiller"),
         )
     )
 
@@ -669,6 +674,17 @@ class FilterForm(SmallVariantFlagsFilterFormMixin, forms.Form):
             s.strip() for s in cleaned_data["gene_whitelist"].strip().split() if s.strip()
         ]
         cleaned_data["display_hgmd_public_membership"] = True
+        # If submit is "submit-mutationdistiller" then only one sample can be checked for export.
+        if cleaned_data["submit"] == "submit-mutationdistiller":
+            seen_first = False
+            for member in self.pedigree_with_samples:
+                if cleaned_data[self.field_names[member["patient"]]["export"]]:
+                    if seen_first:
+                        raise forms.ValidationError(
+                            "MutationDistiller only supports export of a single individual. "
+                            'Please only select on sample the in "Configure Downloads" tab.'
+                        )
+                    seen_first = True
         return cleaned_data
 
 

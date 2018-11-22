@@ -1,3 +1,5 @@
+"""Application configuration for ``bgjobs`` app."""
+
 from django.apps import AppConfig
 
 

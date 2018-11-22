@@ -138,7 +138,7 @@ class CaseExporterBase:
     """
 
     def __init__(self, job):
-        #: The ``ExportFileBgJob`` to use for obtaining case and query arguments.
+        #: The ``ExportFileBgJob`` or ``DistillerSubmissionBgJob`` to use for obtaining case and query arguments.
         self.job = job
         #: The SQL Alchemy connection to use.
         self._alchemy_connection = None
@@ -211,12 +211,16 @@ class CaseExporterBase:
 
     def generate(self):
         """Perform data generation and return all data."""
+        return self.write_tmp_file().read()
+
+    def write_tmp_file(self):
+        """Write generated data to temporary file and return file-like object for reading data from."""
         self._write_leading()
         self._write_variants()
         self._write_trailing()
-        #: Rewind temporary file to beginning, read everything and return it.
+        #: Rewind temporary file to beginning and return it.
         self.tmp_file.seek(0)
-        return self.tmp_file.read()
+        return self.tmp_file
 
     def _open(self):
         """Override with action on opening the file."""

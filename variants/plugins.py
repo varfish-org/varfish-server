@@ -1,6 +1,13 @@
 from projectroles.plugins import ProjectAppPluginPoint
+from bgjobs.plugins import BackgroundJobsPluginPoint
 
-from .models import Case, SmallVariantComment, SmallVariantFlags
+from .models import (
+    Case,
+    SmallVariantComment,
+    SmallVariantFlags,
+    ExportFileBgJob,
+    DistillerSubmissionBgJob,
+)
 from .urls import urlpatterns
 
 
@@ -85,3 +92,18 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             return {"url": obj.get_absolute_url(), "label": obj.name}
 
         return None
+
+
+class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
+    """Plugin for registering background jobs with ``bgjobs`` app."""
+
+    #: Slug used in URLs and similar places.
+    name = "variants"
+    #: Human-readable title.
+    title = "Variants Background Jobs"
+
+    #: Return name-to-class mapping for background job class specializations.
+    job_specs = {
+        "variants.export_file_bg_job": ExportFileBgJob,
+        "variants.distiller_submission_bg_job": DistillerSubmissionBgJob,
+    }

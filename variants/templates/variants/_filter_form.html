@@ -2,6 +2,21 @@
 {% load dict %}
 {% load humanize %}
 
+{% if form.errors %}
+    {% for field in form %}
+        {% for error in field.errors %}
+            <div class="alert alert-danger">
+                <strong>{{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+        </div>
+    {% endfor %}
+{% endif %}
+
 <form id="filterForm" method="post">{% csrf_token %}
   <div class="card">
     <div class="card-header row border-bottom-0 pt-1 pr-1">
@@ -127,11 +142,17 @@
             <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="sr-only">Toggle Dropdown</span>
             </button>
-            <div class="dropdown-menu">
+            <div class="dropdown-menu" style="z-index: 1030;">
               <button type="submit" name="submit" value="download" class="dropdown-item btn-secondary" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
                     title="Create downloadable file in the background of <i><b>all</b></i> variants with current settings (ignoring result count limit).">
                 <i class="fa fa-cloud-download"></i>
                 Download as File
+              </button>
+              <button type="button" class="dropdown-item btn-secondary" data-toggle="modal" data-target="#confirm-submit-mutationdistiller"
+                    data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
+                    title="Submit to MutationDistiller (only supports single-sample VCF at the moment)">
+                <i class="fa fa-mail-forward"></i>
+                Submit to MutationDistiller
               </button>
             </div>
           </div>
@@ -139,6 +160,8 @@
       </div>
     </div>
   </div>
+
+  {% include "variants/_distiller_resubmit_modal.html" %}
 </form>
 
 <script type="text/javascript">

@@ -1,3 +1,5 @@
+"""Rule definitions for the ``bgjobs`` app."""
+
 import rules
 from projectroles import rules as pr_rules  # To access common predicates
 
@@ -51,17 +53,12 @@ rules.add_perm(
     rules.is_superuser
     | pr_rules.is_project_owner
     | pr_rules.is_project_delegate
-    | pr_rules.is_project_contributor,
+    | pr_rules.is_project_contributor
+    | pr_rules.is_project_guest,
 )
 
 # Allow modifying or deleting all background jobs
 rules.add_perm(
     "bgjobs.update_bgjob_all",
-    rules.is_superuser | pr_rules.is_project_owner | pr_rules.is_project_delegate,
-)
-
-# Allow update and deletion fo background jobs
-rules.add_perm(
-    "bgjobs.remove_bgjob",
     rules.is_superuser | pr_rules.is_project_owner | pr_rules.is_project_delegate,
 )
