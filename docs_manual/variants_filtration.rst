@@ -44,7 +44,7 @@ Note that some form tabs will be hidden below the :guilabel:`More...` tab depend
 - :guilabel:`Load Presets` button
 - :guilabel:`RefSeq / ENSEMBL` switch
 - :guilabel:`Filter & Display` button
-    - The little triangle on the right gives access to the :guilabel:`Download as File` menu entry.
+    - The little triangle on the right gives access to the :guilabel:`Download as File` and :guilabel:`Submit to MutationDistiller` menu entries.
 
 .. _variants_filtration_genotype_tab:
 
@@ -277,6 +277,35 @@ Use this button to perform a new query with the current form settings and displa
 When clicking on the little triangle next to the :guilabel:`Filter & Display` you can select the :guilabel:`Download as File` menu item.
 This will start a background job on the server to create a downloadable file from your current form settings.
 Note that the values from the :guilabel:`Configure Downloads` will be used for configuring the exported files while the row limit from the :guilabel:`Miscalleneous` will not be applied.
+
+:guilabel:`Download as File`
+============================
+
+When clicking on the little triangle next to the :guilabel:`Filter & Display` you can select the :guilabel:`Download as File` menu item.
+This will start a background job on the server to create a downloadable file from your current form settings.
+Note that the values from the :guilabel:`Configure Downloads` will be used for configuring the exported files while the row limit from the :guilabel:`Miscalleneous` will not be applied.
+
+.. _submit-to-mutation-distiller:
+
+:guilabel:`Submit to MutationDistiller`
+=======================================
+
+Also, the little triangle next to the :guilabel:`Filter & Display` gives you access to the :guilabel:`Submit to MutationDistiller` action.
+This is similar to generating a downloadable VCF file.
+However, clicking the button will submit the data to MutationDistiller after confirming this once again in popup window.
+
+Here are the actions to create the recommended settings for submitting to MutationDistiller:
+
+- Select the appropriate Genotype configuration that you want to submit to MutationDistiller.
+- Note that MutationDistiller only supports single-sample VCF files at the moment.
+  Go to the :guilabel:`Configure Downloads` tab via :menuselection:`More ... --> Configure Downloads` and unselect all but the one individual that is to be exported.
+- Load presets for pulling **all** variants from the original VCF file via :menuselection:`Load Presets --> Full Exome`.
+- Exporting all variant, even intergenic ones, is very time-consuming.
+  Possibly go to the :guilabel:`Variants & Effects` tab and disable the :guilabel:`non-coding` Effect Group to remove variants far off the exons.
+- Click the little triangle next to :guilabel:`Filter & Display`, then click :guilabel:`Submit to MutationDistiller`.
+- A confirmation popup appears.
+  Read the text carefully and then confirm the submission.
+- This will create a background job that first generates a VCF file with all selected variants and then submits this file to MutationDistiller.
 
 --------------------------
 Variant Filtration Results
