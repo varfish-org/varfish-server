@@ -21,12 +21,13 @@ urlpatterns = [
         view=views.CaseClinvarReportView.as_view(),
         name="case-clinvar",
     ),
-    # Views for export background jobs
+    # View for list background jobs
     url(
-        regex=r"^(?P<project>[0-9a-f-]+)/export-job/list/(?P<case>[0-9a-f-]+)/$",
-        view=views.ExportFileJobListView.as_view(),
-        name="export-job-list",
+        regex=r"^(?P<project>[0-9a-f-]+)/jobs/list/(?P<case>[0-9a-f-]+)/$",
+        view=views.BackgroundJobListView.as_view(),
+        name="job-list",
     ),
+    # Views for file export jobs.
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/export-job/detail/(?P<job>[0-9a-f-]+)/$",
         view=views.ExportFileJobDetailView.as_view(),
@@ -49,7 +50,7 @@ urlpatterns = [
         name="distiller-job-detail",
     ),
     url(
-        regex=r"^(?P<project>[0-9a-f-]+)/distiller-job/detail/(?P<job>[0-9a-f-]+)/$",
+        regex=r"^(?P<project>[0-9a-f-]+)/distiller-job/resubmit/(?P<job>[0-9a-f-]+)/$",
         view=views.DistillerSubmissionJobResubmitView.as_view(),
         name="distiller-job-resubmit",
     ),

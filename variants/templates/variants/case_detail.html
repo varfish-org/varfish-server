@@ -210,7 +210,7 @@
       </div>
       {% if object.exportfilebgjob_set.all %}
         <div class="card-footer text-center">
-          <a href="{% url "variants:export-job-list" project=project.sodar_uuid case=object.sodar_uuid %}">List all jobs</a>
+          <a href="{% url "variants:job-list" project=project.sodar_uuid case=object.sodar_uuid %}">List all jobs</a>
         </div>
       {% endif %}
     </div>

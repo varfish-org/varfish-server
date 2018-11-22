@@ -18,7 +18,7 @@
         {% if not object_list %}
           <tr>
              <td class="bg-faded font-italic text-center" colspan="5">
-               No background jobs found for project.
+               No background jobs found for {% if related_type  %}{{ related_type }}{% else %}project{% endif %}.
              </td>
           </tr>
         {% endif %}

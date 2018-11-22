@@ -173,6 +173,12 @@ class Case(models.Model):
             kwargs={"project": self.project.sodar_uuid, "case": self.sodar_uuid},
         )
 
+    def get_background_jobs(self):
+        # TODO: need to be more dynamic here?
+        return BackgroundJob.objects.filter(
+            Q(export_file_bg_job__case=self) | Q(distiller_submission_bg_job__case=self)
+        )
+
     def get_members(self):
         return [x["patient"] for x in self.pedigree]
 
@@ -232,6 +238,9 @@ EXPORT_FILE_TYPE_CHOICES = (
 class ExportFileBgJob(JobModelMessageMixin, models.Model):
     """Background job for exporting query results as a TSV or Excel file."""
 
+    #: Task description for logging.
+    task_desc = "Exporting to file"
+
     #: String identifying model in BackgroundJob.
     spec_name = "variants.export_file_bg_job"
 
@@ -254,7 +263,6 @@ class ExportFileBgJob(JobModelMessageMixin, models.Model):
     )
 
     def get_human_readable_type(self):
-        """Implement to implement a human-readable type in the views."""
         return "File Export"
 
     def get_absolute_url(self):
@@ -279,6 +287,9 @@ class ExportFileJobResult(models.Model):
 
 class DistillerSubmissionBgJob(JobModelMessageMixin, models.Model):
     """Background job for submitting variants to MutationDistiller."""
+
+    #: Task description for logging.
+    task_desc = "Submission to MutationDistiller"
 
     #: String identifying model in BackgroundJob.
     spec_name = "variants.export_file_bg_job"
@@ -305,7 +316,6 @@ class DistillerSubmissionBgJob(JobModelMessageMixin, models.Model):
     )
 
     def get_human_readable_type(self):
-        """Implement to implement a human-readable type in the views."""
         return "MutationDistiller Submission"
 
     def get_distiller_project_url(self):

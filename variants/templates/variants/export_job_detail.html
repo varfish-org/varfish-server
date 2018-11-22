@@ -10,7 +10,7 @@
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
   <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.case.sodar_uuid %}">{{ object.case.name }}</a></li>
-  <li class="breadcrumb-item"><a href="{% url "variants:export-job-list" project=project.sodar_uuid case=object.case.sodar_uuid %}">Jobs</a></li>
+  <li class="breadcrumb-item"><a href="{% url "variants:job-list" project=project.sodar_uuid case=object.case.sodar_uuid %}">Jobs</a></li>
   <li class="breadcrumb-item active">{{ object.bg_job.name }}</li>
 {% endblock %}
 

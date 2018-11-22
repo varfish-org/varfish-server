@@ -468,7 +468,7 @@ class ExtendAPIView(
             return None
 
 
-class ExportFileJobListView(
+class BackgroundJobListView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
     SingleObjectMixin,
@@ -481,7 +481,7 @@ class ExportFileJobListView(
     """
 
     permission_required = "variants.view_data"
-    template_name = "variants/export_job_list.html"
+    template_name = "variants/background_job_list.html"
     model = Case
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
@@ -626,17 +626,15 @@ class DistillerSubmissionJobResubmitView(
         job = get_object_or_404(DistillerSubmissionBgJob, sodar_uuid=self.kwargs["job"])
         with transaction.atomic():
             bg_job = BackgroundJob.objects.create(
-                name="Resubmitting case {} to MutationDistiller".format(
-                    self.get_case_object().name
-                ),
+                name="Resubmitting case {} to MutationDistiller".format(job.case),
                 project=job.bg_job.project,
                 job_type="variants.distiller_submission_bg_job",
                 user=self.request.user,
             )
-            submission_job = ExportFileBgJob.objects.create(
+            submission_job = DistillerSubmissionBgJob.objects.create(
                 project=job.project, bg_job=bg_job, case=job.case, query_args=job.query_args
             )
-            distiller_submission_task.delay(export_job_pk=submission_job.pk)
+            distiller_submission_task.delay(submission_job_pk=submission_job.pk)
         return redirect(submission_job.get_absolute_url())
 
 
