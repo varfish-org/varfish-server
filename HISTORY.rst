@@ -2,13 +2,26 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+------
+v0.7.0
+------
+
+This release has one main feature: it adds support for submitting variants to MutationDistiller.
+
+End-User Summary
+================
+
+- Added support for submitting variants to MutationDistiller from the Variant Filtration Form.
+- Added "Full Exome" filter preset for including all variants passing genotype filter.
+- Greatly speeded up VCF export.
+
+Full Change List
+================
 
 - Adding "Full Exome" filter preset.
-- Adding option to submit data to MutationDistiller.
+- Adding support for submitting filtration results to MutationDistiller.
 - Pinning redis, cf. https://github.com/celery/celery/issues/5175
+- Pinning celery, cf. https://github.com/celery/celery/issues/4878
 - Refactoring query building to a mixin-based architecture to make code more reuseable and allow better reusability.
 - Adding ``ExportVcfFileFilterQuery`` for faster VCF export.
 
