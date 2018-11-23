@@ -4,6 +4,8 @@
 ClinVar Report
 ==============
 
+.. contents::
+
 Besides filtering all variants based on the various criteria described in :ref:`variants_filtration`, you can also perform a Clinvar-centric search.
 On the Case Details Page, you can reach the filter mask using the :guilabel:`ClinVar Report` button on the top right.
 This will take you to the **ClinVarReport View**.

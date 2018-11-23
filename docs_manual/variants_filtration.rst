@@ -4,9 +4,7 @@
 Variant Filtration
 ==================
 
-.. note::
-
-    TODO: add screenshots with examples here once the user interface has stabilized.
+.. contents::
 
 This view allows you to filter variants to a number of criteria.
 Further, you can trigger an export of the variants with your current criteria to a downloadable VCF, Excel, or TSV file.
@@ -48,8 +46,8 @@ Note that some form tabs will be hidden below the :guilabel:`More...` tab depend
 
 .. _variants_filtration_genotype_tab:
 
-:guilabel:`Genotype` tab
-========================
+Genotype
+========
 
 .. figure:: figures/filtration_genotype_tab.png
     :alt: The Genotype form tab on the Variant Filtration form.
@@ -95,8 +93,8 @@ Instead, the list of variants will be filtered as follows:
     The compound heterozygous mode currently only works if you have a full trio in your data set (father/mother/child).
     Further, only the genotypes of these three individuals will be considered in the filtration.
 
-:guilabel:`Frequency` tab
-=========================
+Frequency
+=========
 
 .. figure:: figures/filtration_frequency_tab.png
     :alt: The Frequency form tab on the Variant Filtration form.
@@ -117,8 +115,8 @@ For example, setting ``0.01`` for *ExAC*, you will exclude all variants occuring
 
 In all homozygous/heterozygous/frequency fields, you can disable the corresponding filter by leaving the field empty.
 
-:guilabel:`Variants & Effects` tab
-==================================
+Variants & Effects
+==================
 
 .. figure:: figures/filtration_effects_tab.png
     :alt: The Variants & Effects form tab on the Variant Filtration form.
@@ -134,8 +132,8 @@ The **Transcript Type** section allows you to select whether to include coding a
 In the **Detailed Effects** section, you can perform selection of variants on the finest level of granularity.
 The **Effect Groups** allow you to quickly select and unselect fields from the Detailed Effects section.
 
-:guilabel:`Quality` tab
-=======================
+Quality
+=======
 
 .. figure:: figures/filtration_quality_tab.png
     :alt: The Quality form tab on the Variant Filtration form.
@@ -171,8 +169,8 @@ The "on FAIL" column determines the action to take for variants that don't pass 
     The variant in this individual is counted as "no-call" in the :guilabel:`Genotype` filter settings.
 
 
-:guilabel:`Gene Lists` tab
-==========================
+Gene Lists
+==========
 
 .. figure:: figures/filtration_gene_lists_tab.png
     :alt: The Gene Lists form tab on the Variant Filtration form.
@@ -185,8 +183,8 @@ If a variant affects more than one gene, blacklisting one of them will not black
 Similarly, enter any Entrez gene ID, ENSEMBL gene ID, HGNC/HUGO gene symbol into the Gene Whitelist field to limit variants to those in the white-listed genes.
 Leave the whitelist empty to not apply any white-listing.
 
-:guilabel:`Flags & Comments` tab
-================================
+Flags & Comments
+================
 
 .. figure:: figures/filtration_flags_tab.png
     :alt: The Flags & Comments form tab on the Variant Filtration form.
@@ -197,8 +195,8 @@ Here you can filter your variants based on the user-provided flags.
 
 .. _variants_filtration_clinvar_hgmd_tab:
 
-:guilabel:`ClinVar & HGMD` tab
-==============================
+ClinVar & HGMD
+==============
 
 .. figure:: figures/filtration_clinvar_hgmd_tab.png
     :alt: The ClinVar & HGMD form tab on the Variant Filtration form.
@@ -210,8 +208,8 @@ When requiring ClinVar membership, you can limit the reported variants to those 
 
 Note that the HGMD Public data is taken from the ENSEMBL browser and is several years behind the current HGMD Public and Professional versions.
 
-:guilabel:`Configure Downloads` tab
-===================================
+Configure Downloads
+===================
 
 .. figure:: figures/filtration_configure_download_tab.png
     :alt: The Configure Downloads form tab on the Variant Filtration form.
@@ -226,8 +224,8 @@ This is useful for generating single-individual VCF files if you want to use too
 
 Also, you can select whether you want to export your flags and comments.
 
-:guilabel:`Miscalleneous` tab
-=============================
+Miscalleneous
+=============
 
 .. figure:: figures/filtration_miscalleneous_tab.png
     :alt: The Miscalleneous form tab on the Variant Filtration form.
@@ -238,8 +236,8 @@ Here you can select a row limit on the online variant display.
 
 This limit will not be applied to your file downloads.
 
-:guilabel:`Filter Import Export` tab
-====================================
+Filter Import Export
+====================
 
 .. figure:: figures/filtration_settings_import_export_tab.png
     :alt: The Filter Import Export form tab on the Variant Filtration form.
@@ -253,42 +251,49 @@ Click the :guilabel:`Download JSON` button to download a text file with the valu
 Clicking the :guilabel:`JSON >> Settings` button applies the changes from the text area to the form.
 The text area is automatically updated to reflect the current form settings when you change any form field.
 
-:guilabel:`Load Presets` button
-===============================
+Load Presets
+============
 
 Here you find shortcuts to several presets.
 Note that these are "factory" defaults at the moment.
 Currently, it is not possible to create your own presets.
 This will be possible in a future version.
 
-:guilabel:`RefSeq / ENSEMBL` switch
-===================================
+RefSeq / ENSEMBL switch
+=======================
 
 Use this to choose between RefSeq and ENSEMBL transcripts when filtering for variant effects.
 
-:guilabel:`Filter & Display` button
-===================================
+Filter & Display Button
+=======================
 
 Use this button to perform a new query with the current form settings and display the results below.
 
-:guilabel:`Download as File`
-============================
+.. _download-as-file:
+
+Download as File
+----------------
 
 When clicking on the little triangle next to the :guilabel:`Filter & Display` you can select the :guilabel:`Download as File` menu item.
 This will start a background job on the server to create a downloadable file from your current form settings.
 Note that the values from the :guilabel:`Configure Downloads` will be used for configuring the exported files while the row limit from the :guilabel:`Miscalleneous` will not be applied.
 
-:guilabel:`Download as File`
-============================
+.. note::
 
-When clicking on the little triangle next to the :guilabel:`Filter & Display` you can select the :guilabel:`Download as File` menu item.
-This will start a background job on the server to create a downloadable file from your current form settings.
-Note that the values from the :guilabel:`Configure Downloads` will be used for configuring the exported files while the row limit from the :guilabel:`Miscalleneous` will not be applied.
+    VCF exports are meant for exporting whole exomes from VarFish (thousands of rows).
+    In contrast, Excel and TSV exports are meant for exporting exomes filtered to "interesting" variant sets (up to hundreds of rows)
+
+    VCF export is much faster than Excel and TSV export.
+    For performance reasons, filtration of VCF file exports is limited to the basics.
+    Filtration, for genotype, frequency, variant effect etc., gene white-/blacklist work as well as basic ClinVar membership.
+    Filtration for HGMD public membership, clinvar details, user comments and flags is not applied to VCF exports.
+
+    Exports to TSV and Excel use the same filters as displayed when clicking on :guilabel:`Filter & Display`.
 
 .. _submit-to-mutation-distiller:
 
-:guilabel:`Submit to MutationDistiller`
-=======================================
+Submit to MutationDistiller
+---------------------------
 
 Also, the little triangle next to the :guilabel:`Filter & Display` gives you access to the :guilabel:`Submit to MutationDistiller` action.
 This is similar to generating a downloadable VCF file.
@@ -300,12 +305,15 @@ Here are the actions to create the recommended settings for submitting to Mutati
 - Note that MutationDistiller only supports single-sample VCF files at the moment.
   Go to the :guilabel:`Configure Downloads` tab via :menuselection:`More ... --> Configure Downloads` and unselect all but the one individual that is to be exported.
 - Load presets for pulling **all** variants from the original VCF file via :menuselection:`Load Presets --> Full Exome`.
-- Exporting all variant, even intergenic ones, is very time-consuming.
-  Possibly go to the :guilabel:`Variants & Effects` tab and disable the :guilabel:`non-coding` Effect Group to remove variants far off the exons.
 - Click the little triangle next to :guilabel:`Filter & Display`, then click :guilabel:`Submit to MutationDistiller`.
 - A confirmation popup appears.
   Read the text carefully and then confirm the submission.
 - This will create a background job that first generates a VCF file with all selected variants and then submits this file to MutationDistiller.
+
+.. note::
+
+    The MutationDistiller submission uses the same feature as th VarFish VCF export.
+    Thus, the limitations described in :ref:`download-as-file` apply.
 
 --------------------------
 Variant Filtration Results

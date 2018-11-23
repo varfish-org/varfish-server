@@ -26,6 +26,7 @@ def disable_json_psycopg2():
 
     SQL Alchemy does not like this.
     """
+    # TODO: this has to be done on a per-connection limit, otherwise concurrent queries in same thread break in JSON through Django ORM
     psycopg2.extras.register_default_json(loads=lambda x: x)
     psycopg2.extras.register_default_jsonb(loads=lambda x: x)
     yield
@@ -33,12 +34,17 @@ def disable_json_psycopg2():
     psycopg2.extras.register_default_jsonb(loads=json.loads)
 
 
-class FilterQueryBase:
-    """Base class for running different variants of filter queries.
+class SingleCaseFilterQueryBase:
+    """Base class for running different variants of filter queries on one case only.
 
     For each particular query, a sub class is created that implements and/or overrides some fields.
 
-    The basic form of each query is:
+    All filter queries contain a "core" part that consists of the central table ``variants_smallvariant``, joins to
+    other tables such as the HGNC information, table and conditions on this. These are constructed with the
+    ``_core_where`` functions.
+
+    Through subclassing (including mixin), the ``_build_stmt()`` can be overridden such that more nested statements
+    can be built.
 
     ::
 
@@ -99,7 +105,7 @@ class FilterQueryBase:
                 ]
             )
             .select_from(self._from(kwargs))
-            .where(self._where(kwargs, gt_patterns))
+            .where(self._core_where(kwargs, gt_patterns))
         )
         inner_father_stmt = self._add_trailing(inner_father_stmt, kwargs)
         # Build inner query, variant inherited from mother
@@ -113,7 +119,7 @@ class FilterQueryBase:
                 ]
             )
             .select_from(self._from(kwargs))
-            .where(self._where(kwargs, gt_patterns))
+            .where(self._core_where(kwargs, gt_patterns))
         )
         inner_mother_stmt = self._add_trailing(inner_mother_stmt, kwargs)
         # Build the union statement
@@ -147,7 +153,7 @@ class FilterQueryBase:
         stmt = (
             select(self._get_fields(kwargs, "single"))
             .select_from(self._from(kwargs))
-            .where(self._where(kwargs))
+            .where(self._core_where(kwargs))
         )
         return self._add_trailing(stmt, kwargs)
 
@@ -162,8 +168,8 @@ class FilterQueryBase:
         """Return the selectable object (e.g., a ``Join``)."""
         raise NotImplementedError("Override me!")
 
-    def _where(self, _kwargs, _gt_patterns=None):
-        """Add WHERE clause to the ``_stmt``.
+    def _core_where(self, _kwargs, _gt_patterns=None):
+        """Return ``WHERE`` clause for the core.
 
         If ``_gt_pattern`` is given then the selected individual's genotype will be forced
         as given in this parameter.  Examples for the values are:
@@ -171,8 +177,10 @@ class FilterQueryBase:
         - ``{}`` -- empty
         - ``{"child": "het", "father": "het", "mother": "hom"}``
         - ``{"child": "het", "father": "hom", "mother": "het"}``
+
+        The default implementation queries for variants for the particular case only.
         """
-        raise NotImplementedError("Override me!")
+        return SmallVariant.sa.case_id == self.case.pk
 
     def _add_trailing(self, stmt, _kwargs):
         """Optionally add trailing parts of statement.
@@ -182,8 +190,18 @@ class FilterQueryBase:
         return stmt
 
 
-class GenotypeTermMixin:
-    """Mixin providing genotype term creation."""
+# Query class mixins that add to the WHERE clause.
+
+
+class GenotypeTermWhereMixin:
+    """Mixin providing genotype term creation for WHERE clause."""
+
+    def _core_where(self, kwargs, gt_patterns=None):
+        """Extend super class' WHERE term with genotype and genotype quality terms."""
+        return and_(
+            super()._core_where(kwargs, gt_patterns),
+            *self._yield_genotype_terms(kwargs, gt_patterns)
+        )
 
     def _yield_genotype_terms(self, kwargs, gt_patterns=None):
         """Build term for checking called genotypes and genotype qualities"""
@@ -218,71 +236,6 @@ class GenotypeTermMixin:
             return SmallVariant.sa.genotype[name]["gt"].astext.in_(gt_list)
         else:
             return True
-
-
-class FilterFromAndWhereMixin(GenotypeTermMixin):
-    """Mixin for generating the ``FROM`` and ``WHERE`` clauses for the filter queries.
-    """
-
-    def _from(self, kwargs):
-        tmp = SmallVariant.sa.table.outerjoin(
-            Dbsnp.sa,
-            and_(
-                SmallVariant.sa.release == Dbsnp.sa.release,
-                SmallVariant.sa.chromosome == Dbsnp.sa.chromosome,
-                SmallVariant.sa.position == Dbsnp.sa.position,
-                SmallVariant.sa.reference == Dbsnp.sa.reference,
-                SmallVariant.sa.alternative == Dbsnp.sa.alternative,
-            ),
-        )
-        if kwargs["database_select"] == "refseq":
-            return tmp.outerjoin(Hgnc.sa, SmallVariant.sa.refseq_gene_id == Hgnc.sa.entrez_id)
-        else:  # kwargs["database_select"] == "ensembl"
-            return tmp.outerjoin(
-                Hgnc.sa, SmallVariant.sa.ensembl_gene_id == Hgnc.sa.ensembl_gene_id
-            )
-
-    def _where(self, kwargs, gt_patterns=None):
-        return and_(
-            # Select only variants from the current case, of course.
-            SmallVariant.sa.case_id == self.case.pk,
-            # Filter variants down to the criteria provided by the user.
-            self._build_vartype_term(kwargs),
-            self._build_population_db_term(kwargs, "frequency"),
-            self._build_population_db_term(kwargs, "homozygous"),
-            self._build_population_db_term(kwargs, "heterozygous"),
-            self._build_effects_term(kwargs),
-            and_(*self._yield_genotype_terms(kwargs, gt_patterns)),
-            self._build_gene_blacklist_term(kwargs),
-            self._build_gene_whitelist_term(kwargs),
-            self._build_transcripts_coding_term(kwargs),
-        )
-
-    def _build_vartype_term(self, kwargs):
-        values = list()
-        if kwargs["var_type_snv"]:
-            values.append("snv")
-        if kwargs["var_type_mnv"]:
-            values.append("mnv")
-        if kwargs["var_type_indel"]:
-            values.append("indel")
-        return SmallVariant.sa.var_type.in_(values)
-
-    def _build_population_db_term(self, kwargs, metric):
-        """Build term to limit by frequency or homozygous or heterozygous count."""
-        terms = []
-        for db in ("exac", "thousand_genomes", "gnomad_exomes", "gnomad_genomes"):
-            field_name = "%s_%s" % (db, metric)
-            if kwargs["%s_enabled" % db] and kwargs.get(field_name, None) is not None:
-                terms.append(getattr(SmallVariant.sa, field_name) <= kwargs[field_name])
-        return and_(*terms)
-
-    def _build_effects_term(self, kwargs):
-        effects = cast(kwargs["effects"], ARRAY(VARCHAR()))
-        if kwargs["database_select"] == "refseq":
-            return SmallVariant.sa.refseq_effect.overlap(effects)
-        else:  # kwargs["database_select"] == "ensembl"
-            return SmallVariant.sa.ensembl_effect.overlap(effects)
 
     def _build_genotype_quality_term(self, name, kwargs):
         return and_(
@@ -342,22 +295,66 @@ class FilterFromAndWhereMixin(GenotypeTermMixin):
             ),
         )
 
-    def _build_gene_blacklist_term(self, kwargs):
+
+class FrequencyTermWhereMixin:
+    """Mixin that adds the frequency part and homozygous/heterozygous counts to the WHERE query."""
+
+    def _core_where(self, kwargs, gt_patterns=None):
         return and_(
-            not_(Hgnc.sa.symbol.in_(kwargs["gene_blacklist"])),
-            not_(SmallVariant.sa.ensembl_gene_id.in_(kwargs["gene_blacklist"])),
-            not_(SmallVariant.sa.refseq_gene_id.in_(kwargs["gene_blacklist"])),
+            super()._core_where(kwargs, gt_patterns),
+            self._build_population_db_term(kwargs, "frequency"),
+            self._build_population_db_term(kwargs, "homozygous"),
+            self._build_population_db_term(kwargs, "heterozygous"),
         )
 
-    def _build_gene_whitelist_term(self, kwargs):
-        if not kwargs["gene_whitelist"]:
-            return True
-        else:
-            return or_(
-                Hgnc.sa.symbol.in_(kwargs["gene_whitelist"]),
-                SmallVariant.sa.ensembl_gene_id.in_(kwargs["gene_whitelist"]),
-                SmallVariant.sa.refseq_gene_id.in_(kwargs["gene_whitelist"]),
-            )
+    def _build_population_db_term(self, kwargs, metric):
+        """Build term to limit by frequency or homozygous or heterozygous count."""
+        terms = []
+        for db in ("exac", "thousand_genomes", "gnomad_exomes", "gnomad_genomes"):
+            field_name = "%s_%s" % (db, metric)
+            if kwargs["%s_enabled" % db] and kwargs.get(field_name, None) is not None:
+                terms.append(getattr(SmallVariant.sa, field_name) <= kwargs[field_name])
+        return and_(*terms)
+
+
+class VariantTypeTermWhereMixin:
+    """Mixin that adds the variant type part to the WHERE query."""
+
+    def _core_where(self, kwargs, gt_patterns=None):
+        return and_(super()._core_where(kwargs, gt_patterns), self._build_vartype_term(kwargs))
+
+    def _build_vartype_term(self, kwargs):
+        values = list()
+        if kwargs["var_type_snv"]:
+            values.append("snv")
+        if kwargs["var_type_mnv"]:
+            values.append("mnv")
+        if kwargs["var_type_indel"]:
+            values.append("indel")
+        return SmallVariant.sa.var_type.in_(values)
+
+
+class VariantEffectTermWhereMixin:
+    """Mixin that adds the effect type part to the WHERE query."""
+
+    def _core_where(self, kwargs, gt_patterns=None):
+        return and_(super()._core_where(kwargs, gt_patterns), self._build_effects_term(kwargs))
+
+    def _build_effects_term(self, kwargs):
+        effects = cast(kwargs["effects"], ARRAY(VARCHAR()))
+        if kwargs["database_select"] == "refseq":
+            return SmallVariant.sa.refseq_effect.overlap(effects)
+        else:  # kwargs["database_select"] == "ensembl"
+            return SmallVariant.sa.ensembl_effect.overlap(effects)
+
+
+class TranscriptCodingTermWhereMixin:
+    """Mixin that adds the transcript coding/non-coding part to the WHERE query."""
+
+    def _core_where(self, kwargs, gt_patterns=None):
+        return and_(
+            super()._core_where(kwargs, gt_patterns), self._build_transcripts_coding_term(kwargs)
+        )
 
     def _build_transcripts_coding_term(self, kwargs):
         sub_terms = []
@@ -372,8 +369,110 @@ class FilterFromAndWhereMixin(GenotypeTermMixin):
         return and_(*sub_terms)
 
 
-class FilterQueryStandardFieldsMixin(FilterFromAndWhereMixin):
-    """Mixin for selecting the standard fields for the filter query."""
+class GeneListsTermWhereMixin:
+    """Mixin that adds the gene whitelist/blacklist part to the WHERE query."""
+
+    def _core_where(self, kwargs, gt_patterns=None):
+        return and_(
+            super()._core_where(kwargs, gt_patterns),
+            self._build_gene_blacklist_term(kwargs["gene_blacklist"]),
+            self._build_gene_whitelist_term(kwargs["gene_whitelist"]),
+        )
+
+    def _build_gene_blacklist_term(self, gene_list):
+        if not gene_list:
+            return True
+        else:
+            return not_(self._build_gene_whitelist_term(gene_list))
+
+    def _build_gene_whitelist_term(self, gene_list):
+        if not gene_list:
+            return True
+        else:
+            return or_(
+                SmallVariant.sa.ensembl_gene_id.in_(
+                    self._build_gene_sub_query("ensembl_gene_id", gene_list)
+                ),
+                SmallVariant.sa.refseq_gene_id.in_(
+                    self._build_gene_sub_query("entrez_id", gene_list)
+                ),
+            )
+
+    def _build_gene_sub_query(self, hgnc_field, gene_list):
+        """Return query that selects gene ID from ENSEMBL in gene list.
+
+        Will query for ENSEMBL gene ID, Entrez ID, and HUGO symbol.
+        """
+        return (
+            select([getattr(Hgnc.sa, hgnc_field)])
+            .select_from(Hgnc.sa.table)
+            .where(
+                and_(
+                    or_(
+                        Hgnc.sa.ensembl_gene_id.in_(gene_list),
+                        Hgnc.sa.entrez_id.in_(gene_list),
+                        Hgnc.sa.symbol.in_(gene_list),
+                    ),
+                    getattr(Hgnc.sa, hgnc_field) != None,  # SQL Alchemy forces us to use ``!=``
+                )
+            )
+            .distinct()
+        )
+
+
+class InClinvarTermWhereMixin:
+    """Mixin that adds the "is in clinvar" table."""
+
+    def _core_where(self, kwargs, gt_patterns=None):
+        return and_(super()._core_where(kwargs, gt_patterns), self._build_in_clinvar_term(kwargs))
+
+    def _build_in_clinvar_term(self, kwargs):
+        if kwargs["require_in_clinvar"]:
+            return SmallVariant.sa.in_clinvar
+        else:
+            return True
+
+
+class BaseTableQueriesMixin(
+    GenotypeTermWhereMixin,
+    FrequencyTermWhereMixin,
+    VariantTypeTermWhereMixin,
+    VariantEffectTermWhereMixin,
+    TranscriptCodingTermWhereMixin,
+    GeneListsTermWhereMixin,
+    InClinvarTermWhereMixin,
+):
+    """Helper mixin that adds all criteria that can be answered by the base star table."""
+
+
+# Query class mixins providing fields, possibly joining the extended tables.
+
+
+class JoinDbsnpAndHgncMixin:
+    """Mixin for generating the ``FROM`` and ``WHERE`` clauses for the filter queries.
+    """
+
+    def _from(self, kwargs):
+        tmp = SmallVariant.sa.table.outerjoin(
+            Dbsnp.sa,
+            and_(
+                SmallVariant.sa.release == Dbsnp.sa.release,
+                SmallVariant.sa.chromosome == Dbsnp.sa.chromosome,
+                SmallVariant.sa.position == Dbsnp.sa.position,
+                SmallVariant.sa.reference == Dbsnp.sa.reference,
+                SmallVariant.sa.alternative == Dbsnp.sa.alternative,
+            ),
+        )
+        if kwargs["database_select"] == "refseq":
+            return tmp.outerjoin(Hgnc.sa, SmallVariant.sa.refseq_gene_id == Hgnc.sa.entrez_id)
+        else:  # kwargs["database_select"] == "ensembl"
+            return tmp.outerjoin(
+                Hgnc.sa, SmallVariant.sa.ensembl_gene_id == Hgnc.sa.ensembl_gene_id
+            )
+
+
+class FilterQueryRenderFieldsMixin(JoinDbsnpAndHgncMixin):
+    """Mixin for selecting the standard fields for rendering the query reports in the web app."""
 
     def _get_fields(self, kwargs, which, inner=None):
         if which == "outer":
@@ -427,7 +526,7 @@ class FilterQueryStandardFieldsMixin(FilterFromAndWhereMixin):
             return result
 
 
-class FilterQueryFieldsForExportMixin(FilterQueryStandardFieldsMixin, FilterFromAndWhereMixin):
+class JoinKnownGeneAaMixin(FilterQueryRenderFieldsMixin):
     """Adds the fields for exporting to the query."""
 
     def _build_stmt(self, kwargs):
@@ -494,11 +593,6 @@ class FilterQueryFieldsForExportMixin(FilterQueryStandardFieldsMixin, FilterFrom
             ]
 
 
-class OrderByChromosomalPositionMixin:
-    def _add_trailing(self, stmt, _kwargs):
-        return stmt.order_by(stmt.c.chromosome, stmt.c.position)
-
-
 class FilterQueryHgmdMixin:
     """Add functionality for annotation with ``HgmdPublicLocus`` and filtering for it.
 
@@ -550,8 +644,11 @@ class FilterQueryHgmdMixin:
             return stmt
 
 
-class FilterQueryClinvarMixin:
-    """Add functionality for filtering with required in ClinVar"""
+class FilterQueryClinvarDetailsMixin(InClinvarTermWhereMixin):
+    """Add functionality for filtering that goes beyond the "present in ClinVar" query.
+
+    For this, the Clinvar database table must be joint to the central table.
+    """
 
     patho_keys = (
         "pathogenic",
@@ -606,29 +703,6 @@ class FilterQueryClinvarMixin:
             if kwargs["clinvar_include_%s" % key]:
                 terms.append(func.sum(getattr(Clinvar.sa, key)) > 0)
         return or_(*terms)
-
-    def _where(self, kwargs, gt_patterns=None):
-        """Extend WHERE part of the query"""
-        return and_(
-            super()._where(kwargs, gt_patterns),
-            # Potentially limit to variants that are present in ClinVar.
-            self._build_in_clinvar_term(kwargs),
-        )
-
-    def _build_in_clinvar_term(self, kwargs):
-        if kwargs["require_in_clinvar"]:
-            return SmallVariant.sa.in_clinvar
-        else:
-            return True
-
-
-class FilterQueryCountRecordsMixin(
-    FilterQueryClinvarMixin, FilterQueryStandardFieldsMixin, FilterFromAndWhereMixin
-):
-    """Mixin for selecting the number of records (``COUNT(*)``) only."""
-
-    def _build_stmt(self, kwargs):
-        return select([func.count()]).select_from(super()._build_stmt(kwargs).alias("inner_count"))
 
 
 class FilterQueryFlagsCommentsMixin:
@@ -688,13 +762,13 @@ class FilterQueryFlagsCommentsMixin:
                     ),
                 )
             )
-            .where(self._build_where(kwargs))
+            .where(self._flags_comments_where(kwargs))
             .group_by(*inner.c)
         )
         return self._add_trailing(stmt, kwargs)
 
-    def _build_where(self, kwargs):
-        """Build WHERE clause for the query based on the ``SmallVariantFlags``."""
+    def _flags_comments_where(self, kwargs, gt_patterns=None):
+        """Build WHERE clause for the query based on the ``SmallVariantFlags`` and ``SmallVariantComment``."""
         terms = []
         # Add terms for the simple, boolean-valued flags.
         flag_names = ("bookmarked", "candidate", "final_causative", "for_validation")
@@ -718,36 +792,108 @@ class FilterQueryFlagsCommentsMixin:
         return or_(*terms)
 
 
+class JoinAndQueryCommonAdditionalTables(
+    FilterQueryFlagsCommentsMixin, FilterQueryHgmdMixin, FilterQueryClinvarDetailsMixin
+):
+    """Join to common common additional tables and query.
+
+    - ClinVar
+    - HGMD
+    - User comments and flags
+    """
+
+
+# Helper query class mixins.
+
+
+class OrderByChromosomalPositionMixin:
+    def _add_trailing(self, stmt, _kwargs):
+        return stmt.order_by(stmt.c.chromosome, stmt.c.position)
+
+
+class FilterQueryCountRecordsMixin(FilterQueryClinvarDetailsMixin, FilterQueryRenderFieldsMixin):
+    """Mixin for selecting the number of records (``COUNT(*)``) only."""
+
+    def _build_stmt(self, kwargs):
+        return select([func.count()]).select_from(super()._build_stmt(kwargs).alias("inner_count"))
+
+
+# Actual Query classes, composed from base query class and mixins.
+
+
 class RenderFilterQuery(
-    FilterQueryFlagsCommentsMixin,
-    FilterQueryHgmdMixin,
-    FilterQueryClinvarMixin,
-    FilterQueryStandardFieldsMixin,
     OrderByChromosomalPositionMixin,
-    FilterQueryBase,
+    JoinAndQueryCommonAdditionalTables,
+    FilterQueryRenderFieldsMixin,
+    BaseTableQueriesMixin,
+    SingleCaseFilterQueryBase,
 ):
     """Run filter query for the interactive filtration form."""
 
 
-class ExportFileFilterQuery(
-    FilterQueryFlagsCommentsMixin,
-    FilterQueryHgmdMixin,
-    FilterQueryClinvarMixin,
-    FilterQueryFieldsForExportMixin,
+class ExportTableFileFilterQuery(
     OrderByChromosomalPositionMixin,
-    FilterQueryBase,
+    JoinAndQueryCommonAdditionalTables,
+    JoinKnownGeneAaMixin,
+    FilterQueryRenderFieldsMixin,
+    BaseTableQueriesMixin,
+    SingleCaseFilterQueryBase,
 ):
-    """Run filter query for creating file to export."""
+    """Run filter query for creating tabular file (TSV, Excel) to export.
+
+    Compared to ``RenderFilterQuery``, this only adds the ``knownGeneAA`` information.
+    """
 
 
-class CountOnlyFilterQuery(FilterQueryCountRecordsMixin, FilterQueryBase):
+class ExportVcfFileFilterQuery(
+    OrderByChromosomalPositionMixin, BaseTableQueriesMixin, SingleCaseFilterQueryBase
+):
+    """Run filter query for TSV file with minimal information only for performance.
+
+    Only supports query for genotype, frequency, quality, and gene lists.
+    """
+
+    def _from(self, kwargs):
+        return SmallVariant.sa.table
+
+    def _get_fields(self, kwargs, which, inner=None):
+        if which == "outer":
+            if inner is not None:
+                return [*inner.c]
+            else:
+                return "*"
+        else:
+            result = [
+                SmallVariant.sa.release,
+                SmallVariant.sa.chromosome,
+                SmallVariant.sa.position,
+                SmallVariant.sa.reference,
+                SmallVariant.sa.alternative,
+                SmallVariant.sa.genotype,
+            ]
+            if kwargs["database_select"] == "refseq":
+                result.append(SmallVariant.sa.refseq_gene_id.label("gene_id"))
+            else:  # if kwargs["database_select"] == "ensembl":
+                result.append(SmallVariant.sa.ensembl_gene_id.label("gene_id"))
+            return result
+
+
+class CountOnlyFilterQuery(
+    FilterQueryCountRecordsMixin,
+    JoinAndQueryCommonAdditionalTables,
+    BaseTableQueriesMixin,
+    SingleCaseFilterQueryBase,
+):
     """Run filter query but only count number of results."""
 
     def run(self, kwargs):
         return super().run(kwargs).first()[0]
 
 
-class ClinvarReportFromAndWhereMixin(GenotypeTermMixin):
+# Clinvar report query mixins and classes.
+
+
+class ClinvarReportFromAndWhereMixin(GenotypeTermWhereMixin):
     """Mixin for generating the ``FROM`` and ``WHERE`` clauses for the clinvar report query.
     """
 
@@ -778,10 +924,9 @@ class ClinvarReportFromAndWhereMixin(GenotypeTermMixin):
                 Hgnc.sa, SmallVariant.sa.ensembl_gene_id == Hgnc.sa.ensembl_gene_id
             )
 
-    def _where(self, kwargs, gt_patterns=None):
+    def _core_where(self, kwargs, gt_patterns=None):
         return and_(
-            # Select only variants from the current case, of course.
-            SmallVariant.sa.case_id == self.case.pk,
+            super()._core_where(kwargs, gt_patterns),
             # Filter variants to those with matching genotype.
             and_(*self._yield_genotype_terms(kwargs, gt_patterns)),
             # Filter variants to those in Clinvar.
@@ -828,7 +973,7 @@ class ClinvarReportFromAndWhereMixin(GenotypeTermMixin):
         return Clinvar.sa.review_status_ordered.overlap(review_statuses)
 
 
-class ClinvarReportFieldsMixin(FilterQueryStandardFieldsMixin):
+class ClinvarReportFieldsMixin(FilterQueryRenderFieldsMixin):
     """Mixin for selecting the standard fields for the filter query."""
 
     def _get_fields(self, kwargs, which, inner=None):
@@ -850,13 +995,16 @@ class ClinvarReportFieldsMixin(FilterQueryStandardFieldsMixin):
 class ClinvarReportQuery(
     FilterQueryFlagsCommentsMixin,
     FilterQueryHgmdMixin,
-    FilterQueryClinvarMixin,
+    FilterQueryClinvarDetailsMixin,
     ClinvarReportFromAndWhereMixin,
     ClinvarReportFieldsMixin,
     OrderByChromosomalPositionMixin,
-    FilterQueryBase,
+    SingleCaseFilterQueryBase,
 ):
     """Run query for clinvar report."""
+
+
+# Query for obtaining the knownGene alignments (used from JSON query).
 
 
 class KnownGeneAAQuery:

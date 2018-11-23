@@ -9,6 +9,8 @@ HEAD (unreleased)
 - Adding "Full Exome" filter preset.
 - Adding option to submit data to MutationDistiller.
 - Pinning redis, cf. https://github.com/celery/celery/issues/5175
+- Refactoring query building to a mixin-based architecture to make code more reuseable and allow better reusability.
+- Adding ``ExportVcfFileFilterQuery`` for faster VCF export.
 
 ------
 v0.6.3

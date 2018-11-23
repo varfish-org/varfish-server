@@ -29,6 +29,15 @@
         <div class="col-sm-10">
           {{ form.file_type }}
         </div>
+        <div class="col-12">
+          <small class="form-text text-muted">
+            The VCF file export contains the bare minimum information (genomic variant and genotype, coverage, allelic depth, genotype call quality score).
+            Most filters work but
+            <strong>
+              please note that the HGMD public membership filtration is ignored as well as any filters for flags, comments, and ClinVar details.
+            </strong>
+          </small>
+        </div>
       </div>
     </div>
   </div>

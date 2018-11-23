@@ -4,6 +4,8 @@
 Variants & Cases
 ================
 
+.. contents::
+
 The variants are assigned to **Cases**.
 Use the :guilabel:`Cases` link on the left to see all cases in a project.
 Then, click on the case name to go to the case's detail view.

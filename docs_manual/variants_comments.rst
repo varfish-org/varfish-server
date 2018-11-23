@@ -8,6 +8,8 @@ Variant Comments
 
     Updating or modifying comments will be added in a future version.
 
+.. contents::
+
 -----------------
 Creating Comments
 -----------------

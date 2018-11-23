@@ -1,4 +1,10 @@
-"""Tests for the ``models_support`` module."""
+"""Tests for the ``models_support`` module.
+
+Remarks:
+
+- VCF export is only tested for case one at the moment, as it shares a major part of the implementation with
+  the render and tabular file export query.
+"""
 
 from clinvar.models import Clinvar
 from geneinfo.models import Hgnc
@@ -15,9 +21,10 @@ from ._fixtures import (
 )
 from ..models_support import (
     ClinvarReportQuery,
-    ExportFileFilterQuery,
+    ExportTableFileFilterQuery,
     CountOnlyFilterQuery,
     RenderFilterQuery,
+    ExportVcfFileFilterQuery,
 )
 
 # ---------------------------------------------------------------------------
@@ -76,11 +83,6 @@ class FilterTestBase(TestBase):
             result = fetch_case_and_query()
             self.assertEquals(length, result)
             return result
-
-
-class ClinvarReportQueryTestCaseFour(TestBase):
-    """Base class for running the tests for the ```ClinvarReportQuery`` class.
-    """
 
 
 # ---------------------------------------------------------------------------
@@ -526,9 +528,15 @@ def fixture_setup_case1_blacklist():
             }
         ],
     )
-    Hgnc.objects.create(hgnc_id="HGNC:1", symbol="AAA", name="AAA gene", entrez_id="123")
-    Hgnc.objects.create(hgnc_id="HGNC:2", symbol="BBB", name="CCC gene", entrez_id="456")
-    Hgnc.objects.create(hgnc_id="HGNC:3", symbol="CCC", name="BBB gene", entrez_id="789")
+    Hgnc.objects.create(
+        hgnc_id="HGNC:1", symbol="AAA", name="AAA gene", entrez_id="123", ensembl_gene_id="ENSGAAA"
+    )
+    Hgnc.objects.create(
+        hgnc_id="HGNC:2", symbol="BBB", name="CCC gene", entrez_id="456", ensembl_gene_id="ENSGCCC"
+    )
+    Hgnc.objects.create(
+        hgnc_id="HGNC:3", symbol="CCC", name="BBB gene", entrez_id="789", ensembl_gene_id="ENSGBBB"
+    )
     # Basic variant settings.
     basic_var = {
         "case_id": case.pk,
@@ -573,12 +581,24 @@ def fixture_setup_case1_blacklist():
         "ensembl_effect": ["synonymous_variant"],
     }
 
-    SmallVariant.objects.create(**{**basic_var, **{"position": 100, "refseq_gene_id": "123"}})
-    SmallVariant.objects.create(**{**basic_var, **{"position": 200, "refseq_gene_id": "456"}})
-    SmallVariant.objects.create(**{**basic_var, **{"position": 201, "refseq_gene_id": "456"}})
-    SmallVariant.objects.create(**{**basic_var, **{"position": 300, "refseq_gene_id": "789"}})
-    SmallVariant.objects.create(**{**basic_var, **{"position": 301, "refseq_gene_id": "789"}})
-    SmallVariant.objects.create(**{**basic_var, **{"position": 302, "refseq_gene_id": "789"}})
+    SmallVariant.objects.create(
+        **{**basic_var, **{"position": 100, "refseq_gene_id": "123", "ensembl_gene_id": "ENSGAAA"}}
+    )
+    SmallVariant.objects.create(
+        **{**basic_var, **{"position": 200, "refseq_gene_id": "456", "ensembl_gene_id": "ENSGCCC"}}
+    )
+    SmallVariant.objects.create(
+        **{**basic_var, **{"position": 201, "refseq_gene_id": "456", "ensembl_gene_id": "ENSGCCC"}}
+    )
+    SmallVariant.objects.create(
+        **{**basic_var, **{"position": 300, "refseq_gene_id": "789", "ensembl_gene_id": "ENSGBBB"}}
+    )
+    SmallVariant.objects.create(
+        **{**basic_var, **{"position": 301, "refseq_gene_id": "789", "ensembl_gene_id": "ENSGBBB"}}
+    )
+    SmallVariant.objects.create(
+        **{**basic_var, **{"position": 302, "refseq_gene_id": "789", "ensembl_gene_id": "ENSGBBB"}}
+    )
 
 
 #: A value for filtration form ``cleaned_data`` to be used for "Case 1" that lets
@@ -641,7 +661,10 @@ class TestCaseOneQueryDatabaseSwitch(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"database_select": "refseq"}, 1)
 
     def test_base_query_refseq_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"database_select": "refseq"}, 1)
+        self.run_filter_query(ExportTableFileFilterQuery, {"database_select": "refseq"}, 1)
+
+    def test_base_query_refseq_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"database_select": "refseq"}, 1)
 
     def test_base_query_refseq_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"database_select": "refseq"}, 1)
@@ -650,7 +673,10 @@ class TestCaseOneQueryDatabaseSwitch(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"database_select": "ensembl"}, 1)
 
     def test_base_query_ensembl_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"database_select": "refseq"}, 1)
+        self.run_filter_query(ExportTableFileFilterQuery, {"database_select": "refseq"}, 1)
+
+    def test_base_query_ensembl_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"database_select": "ensembl"}, 1)
 
     def test_base_query_ensembl_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"database_select": "ensembl"}, 1)
@@ -666,7 +692,10 @@ class TestCaseOneQueryCase(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {}, 1)
 
     def test_query_case_correct_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {}, 1)
+        self.run_filter_query(ExportTableFileFilterQuery, {}, 1)
+
+    def test_query_case_correct_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {}, 1)
 
     def test_query_case_correct_count(self):
         self.run_count_query(CountOnlyFilterQuery, {}, 1)
@@ -681,7 +710,15 @@ class TestCaseOneQueryCase(FilterTestBase):
 
     def test_query_case_incorrect_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {"case_uuid": "88888888-8888-8888-8888-888888888888"},
+            1,
+            Case.DoesNotExist,
+        )
+
+    def test_query_case_incorrect_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {"case_uuid": "88888888-8888-8888-8888-888888888888"},
             1,
             Case.DoesNotExist,
@@ -711,7 +748,14 @@ class TestCaseOneVarTypeSwitch(FilterTestBase):
 
     def test_var_type_none_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {"var_type_snv": False, "var_type_mnv": False, "var_type_indel": False},
+            0,
+        )
+
+    def test_var_type_none_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {"var_type_snv": False, "var_type_mnv": False, "var_type_indel": False},
             0,
         )
@@ -730,7 +774,12 @@ class TestCaseOneVarTypeSwitch(FilterTestBase):
 
     def test_var_type_mnv_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery, {"var_type_snv": False, "var_type_indel": False}, 1
+            ExportTableFileFilterQuery, {"var_type_snv": False, "var_type_indel": False}, 1
+        )
+
+    def test_var_type_mnv_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery, {"var_type_snv": False, "var_type_indel": False}, 1
         )
 
     def test_var_type_mnv_count(self):
@@ -745,7 +794,12 @@ class TestCaseOneVarTypeSwitch(FilterTestBase):
 
     def test_var_type_snv_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery, {"var_type_mnv": False, "var_type_indel": False}, 1
+            ExportTableFileFilterQuery, {"var_type_mnv": False, "var_type_indel": False}, 1
+        )
+
+    def test_var_type_snv_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery, {"var_type_mnv": False, "var_type_indel": False}, 1
         )
 
     def test_var_type_snv_count(self):
@@ -758,7 +812,12 @@ class TestCaseOneVarTypeSwitch(FilterTestBase):
 
     def test_var_type_indel_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery, {"var_type_snv": False, "var_type_mnv": False}, 1
+            ExportTableFileFilterQuery, {"var_type_snv": False, "var_type_mnv": False}, 1
+        )
+
+    def test_var_type_indel_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery, {"var_type_snv": False, "var_type_mnv": False}, 1
         )
 
     def test_var_type_indel_count(self):
@@ -770,7 +829,10 @@ class TestCaseOneVarTypeSwitch(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {}, 3)
 
     def test_var_type_all_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {}, 3)
+        self.run_filter_query(ExportTableFileFilterQuery, {}, 3)
+
+    def test_var_type_all_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {}, 3)
 
     def test_var_type_all_count(self):
         self.run_count_query(CountOnlyFilterQuery, {}, 3)
@@ -795,7 +857,10 @@ class TestCaseOneQueryFrequency(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {}, 3)
 
     def test_frequency_filters_disabled_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {}, 3)
+        self.run_filter_query(ExportTableFileFilterQuery, {}, 3)
+
+    def test_frequency_filters_disabled_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {}, 3)
 
     def test_frequency_filters_disabled_count(self):
         self.run_count_query(CountOnlyFilterQuery, {}, 3)
@@ -804,7 +869,10 @@ class TestCaseOneQueryFrequency(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"thousand_genomes_enabled": True}, 0)
 
     def test_frequency_thousand_genomes_enabled_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"thousand_genomes_enabled": True}, 0)
+        self.run_filter_query(ExportTableFileFilterQuery, {"thousand_genomes_enabled": True}, 0)
+
+    def test_frequency_thousand_genomes_enabled_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"thousand_genomes_enabled": True}, 0)
 
     def test_frequency_thousand_genomes_enabled_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"thousand_genomes_enabled": True}, 0)
@@ -813,7 +881,10 @@ class TestCaseOneQueryFrequency(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"exac_enabled": True}, 0)
 
     def test_frequency_exac_enabled_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"exac_enabled": True}, 0)
+        self.run_filter_query(ExportTableFileFilterQuery, {"exac_enabled": True}, 0)
+
+    def test_frequency_exac_enabled_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"exac_enabled": True}, 0)
 
     def test_frequency_exac_enabled_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"exac_enabled": True}, 0)
@@ -822,7 +893,10 @@ class TestCaseOneQueryFrequency(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"gnomad_exomes_enabled": True}, 0)
 
     def test_frequency_gnomad_exomes_enabled_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"gnomad_exomes_enabled": True}, 0)
+        self.run_filter_query(ExportTableFileFilterQuery, {"gnomad_exomes_enabled": True}, 0)
+
+    def test_frequency_gnomad_exomes_enabled_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"gnomad_exomes_enabled": True}, 0)
 
     def test_frequency_gnomad_exomes_enabled_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"gnomad_exomes_enabled": True}, 0)
@@ -831,7 +905,10 @@ class TestCaseOneQueryFrequency(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"gnomad_genomes_enabled": True}, 0)
 
     def test_frequency_gnomad_genomes_enabled_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"gnomad_genomes_enabled": True}, 0)
+        self.run_filter_query(ExportTableFileFilterQuery, {"gnomad_genomes_enabled": True}, 0)
+
+    def test_frequency_gnomad_genomes_enabled_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"gnomad_genomes_enabled": True}, 0)
 
     def test_frequency_gnomad_genomes_enabled_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"gnomad_genomes_enabled": True}, 0)
@@ -850,7 +927,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_frequency_thousand_genomes_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "thousand_genomes_enabled": True,
+                "thousand_genomes_frequency": 0.01,
+                "thousand_genomes_homozygous": None,
+                "thousand_genomes_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_frequency_thousand_genomes_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": 0.01,
@@ -886,7 +975,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_frequency_exac_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "exac_enabled": True,
+                "exac_frequency": 0.01,
+                "exac_homozygous": None,
+                "exac_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_frequency_exac_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": 0.01,
@@ -922,7 +1023,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_frequency_gnomad_exomes_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "gnomad_exomes_enabled": True,
+                "gnomad_exomes_frequency": 0.01,
+                "gnomad_exomes_homozygous": None,
+                "gnomad_exomes_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_frequency_gnomad_exomes_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": 0.01,
@@ -958,7 +1071,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_frequency_gnomad_genomes_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "gnomad_genomes_enabled": True,
+                "gnomad_genomes_frequency": 0.01,
+                "gnomad_genomes_homozygous": None,
+                "gnomad_genomes_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_frequency_gnomad_genomes_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": 0.01,
@@ -994,7 +1119,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_homozygous_thousand_genomes_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "thousand_genomes_enabled": True,
+                "thousand_genomes_frequency": None,
+                "thousand_genomes_homozygous": 2,
+                "thousand_genomes_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_homozygous_thousand_genomes_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
@@ -1030,7 +1167,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_homozygous_exac_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "exac_enabled": True,
+                "exac_frequency": None,
+                "exac_homozygous": 2,
+                "exac_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_homozygous_exac_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": None,
@@ -1066,7 +1215,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_homozygous_gnomad_exomes_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "gnomad_exomes_enabled": True,
+                "gnomad_exomes_frequency": None,
+                "gnomad_exomes_homozygous": 2,
+                "gnomad_exomes_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_homozygous_gnomad_exomes_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
@@ -1102,7 +1263,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_homozygous_gnomad_genomes_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "gnomad_genomes_enabled": True,
+                "gnomad_genomes_frequency": None,
+                "gnomad_genomes_homozygous": 2,
+                "gnomad_genomes_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_homozygous_gnomad_genomes_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": None,
@@ -1138,7 +1311,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_heterozygous_thousand_genomes_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "thousand_genomes_enabled": True,
+                "thousand_genomes_frequency": None,
+                "thousand_genomes_homozygous": None,
+                "thousand_genomes_heterozygous": 2,
+            },
+            2,
+        )
+
+    def test_heterozygous_thousand_genomes_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
@@ -1174,7 +1359,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_heterozygous_exac_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "exac_enabled": True,
+                "exac_frequency": None,
+                "exac_homozygous": None,
+                "exac_heterozygous": 2,
+            },
+            2,
+        )
+
+    def test_heterozygous_exac_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": None,
@@ -1210,7 +1407,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_heterozygous_gnomad_exomes_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "gnomad_exomes_enabled": True,
+                "gnomad_exomes_frequency": None,
+                "gnomad_exomes_homozygous": None,
+                "gnomad_exomes_heterozygous": 2,
+            },
+            2,
+        )
+
+    def test_heterozygous_gnomad_exomes_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
@@ -1246,7 +1455,19 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_heterozygous_gnomad_genomes_limits_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {
+                "gnomad_genomes_enabled": True,
+                "gnomad_genomes_frequency": None,
+                "gnomad_genomes_homozygous": None,
+                "gnomad_genomes_heterozygous": 2,
+            },
+            2,
+        )
+
+    def test_heterozygous_gnomad_genomes_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": None,
@@ -1279,7 +1500,10 @@ class TestCaseOneQueryEffects(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"effects": []}, 0)
 
     def test_effects_none_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"effects": []}, 0)
+        self.run_filter_query(ExportTableFileFilterQuery, {"effects": []}, 0)
+
+    def test_effects_none_export(self):
+        self.run_filter_query(ExportTableFileFilterQuery, {"effects": []}, 0)
 
     def test_effects_none_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"effects": []}, 0)
@@ -1288,7 +1512,10 @@ class TestCaseOneQueryEffects(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"effects": ["missense_variant"]}, 2)
 
     def test_effects_one_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"effects": ["missense_variant"]}, 2)
+        self.run_filter_query(ExportTableFileFilterQuery, {"effects": ["missense_variant"]}, 2)
+
+    def test_effects_one_export(self):
+        self.run_filter_query(ExportTableFileFilterQuery, {"effects": ["missense_variant"]}, 2)
 
     def test_effects_one_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"effects": ["missense_variant"]}, 2)
@@ -1300,7 +1527,12 @@ class TestCaseOneQueryEffects(FilterTestBase):
 
     def test_effects_two_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3
+            ExportTableFileFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3
+        )
+
+    def test_effects_two_export(self):
+        self.run_filter_query(
+            ExportTableFileFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3
         )
 
     def test_effects_two_count(self):
@@ -1317,7 +1549,14 @@ class TestCaseOneQueryEffects(FilterTestBase):
 
     def test_effects_all_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {"effects": ["missense_variant", "stop_lost", "frameshift_variant"]},
+            3,
+        )
+
+    def test_effects_all_export(self):
+        self.run_filter_query(
+            ExportTableFileFilterQuery,
             {"effects": ["missense_variant", "stop_lost", "frameshift_variant"]},
             3,
         )
@@ -1340,7 +1579,10 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_gt": "any"}, 8)
 
     def test_genotype_gt_any_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_gt": "any"}, 8)
+        self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "any"}, 8)
+
+    def test_genotype_gt_any_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"A_gt": "any"}, 8)
 
     def test_genotype_gt_any_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "any"}, 8)
@@ -1349,7 +1591,10 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_gt": "ref"}, 1)
 
     def test_genotype_gt_ref_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_gt": "ref"}, 1)
+        self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "ref"}, 1)
+
+    def test_genotype_gt_ref_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"A_gt": "ref"}, 1)
 
     def test_genotype_gt_ref_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "ref"}, 1)
@@ -1358,7 +1603,10 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_gt": "het"}, 5)
 
     def test_genotype_gt_het_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_gt": "het"}, 5)
+        self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "het"}, 5)
+
+    def test_genotype_gt_het_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"A_gt": "het"}, 5)
 
     def test_genotype_gt_het_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "het"}, 5)
@@ -1367,7 +1615,10 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_gt": "hom"}, 1)
 
     def test_genotype_gt_hom_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_gt": "hom"}, 1)
+        self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "hom"}, 1)
+
+    def test_genotype_gt_hom_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"A_gt": "hom"}, 1)
 
     def test_genotype_gt_hom_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "hom"}, 1)
@@ -1376,7 +1627,10 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_gt": "variant"}, 6)
 
     def test_genotype_gt_variant_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_gt": "variant"}, 6)
+        self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "variant"}, 6)
+
+    def test_genotype_gt_variant_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"A_gt": "variant"}, 6)
 
     def test_genotype_gt_variant_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "variant"}, 6)
@@ -1385,7 +1639,10 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_gt": "non-variant"}, 2)
 
     def test_genotype_gt_non_variant_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_gt": "non-variant"}, 2)
+        self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "non-variant"}, 2)
+
+    def test_genotype_gt_non_variant_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"A_gt": "non-variant"}, 2)
 
     def test_genotype_gt_non_variant_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "non-variant"}, 2)
@@ -1394,7 +1651,10 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_gt": "non-reference"}, 7)
 
     def test_genotype_gt_non_reference_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_gt": "non-reference"}, 7)
+        self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "non-reference"}, 7)
+
+    def test_genotype_gt_non_reference_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"A_gt": "non-reference"}, 7)
 
     def test_genotype_gt_non_reference_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "non-reference"}, 7)
@@ -1403,7 +1663,10 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_ad": 15}, 5)
 
     def test_genotype_ad_limits_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_ad": 15}, 5)
+        self.run_filter_query(ExportTableFileFilterQuery, {"A_fail": "drop-variant", "A_ad": 15}, 5)
+
+    def test_genotype_ad_limits_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"A_fail": "drop-variant", "A_ad": 15}, 5)
 
     def test_genotype_ad_limits_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_ad": 15}, 5)
@@ -1412,7 +1675,12 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_ab": 0.3}, 6)
 
     def test_genotype_ab_limits_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_ab": 0.3}, 6)
+        self.run_filter_query(
+            ExportTableFileFilterQuery, {"A_fail": "drop-variant", "A_ab": 0.3}, 6
+        )
+
+    def test_genotype_ab_limits_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"A_fail": "drop-variant", "A_ab": 0.3}, 6)
 
     def test_genotype_ab_limits_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_ab": 0.3}, 6)
@@ -1422,8 +1690,20 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8)
 
     def test_genotype_dp_het_limits_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 21}, 7)
-        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8)
+        self.run_filter_query(
+            ExportTableFileFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 21}, 7
+        )
+        self.run_filter_query(
+            ExportTableFileFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8
+        )
+
+    def test_genotype_dp_het_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 21}, 7
+        )
+        self.run_filter_query(
+            ExportTableFileFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8
+        )
 
     def test_genotype_dp_het_limits_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 21}, 7)
@@ -1434,8 +1714,20 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8)
 
     def test_genotype_dp_hom_limits_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 31}, 6)
-        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8)
+        self.run_filter_query(
+            ExportTableFileFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 31}, 6
+        )
+        self.run_filter_query(
+            ExportTableFileFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8
+        )
+
+    def test_genotype_dp_hom_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 31}, 6
+        )
+        self.run_filter_query(
+            ExportTableFileFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8
+        )
 
     def test_genotype_dp_hom_limits_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 31}, 6)
@@ -1445,7 +1737,10 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_gq": 66}, 7)
 
     def test_genotype_gq_limits_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "drop-variant", "A_gq": 66}, 7)
+        self.run_filter_query(ExportTableFileFilterQuery, {"A_fail": "drop-variant", "A_gq": 66}, 7)
+
+    def test_genotype_gq_limits_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"A_fail": "drop-variant", "A_gq": 66}, 7)
 
     def test_genotype_gq_limits_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_gq": 66}, 7)
@@ -1454,7 +1749,10 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"A_fail": "ignore"}, 8)
 
     def test_genotype_fail_ignore_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"A_fail": "ignore"}, 8)
+        self.run_filter_query(ExportTableFileFilterQuery, {"A_fail": "ignore"}, 8)
+
+    def test_genotype_fail_ignore_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"A_fail": "ignore"}, 8)
 
     def test_genotype_fail_ignore_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "ignore"}, 8)
@@ -1468,7 +1766,14 @@ class TestCaseOneQueryGenotype(FilterTestBase):
 
     def test_genotype_fail_drop_variant_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {"A_fail": "drop-variant", "A_dp": 20, "A_ab": 0.3, "A_gq": 20, "A_ad": 15},
+            4,
+        )
+
+    def test_genotype_fail_drop_variant_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {"A_fail": "drop-variant", "A_dp": 20, "A_ab": 0.3, "A_gq": 20, "A_ad": 15},
             4,
         )
@@ -1489,7 +1794,14 @@ class TestCaseOneQueryGenotype(FilterTestBase):
 
     def test_genotype_fail_no_call_export(self):
         self.run_filter_query(
-            ExportFileFilterQuery,
+            ExportTableFileFilterQuery,
+            {"A_fail": "no-call", "A_dp": 20, "A_ab": 0.3, "A_gq": 20, "A_ad": 15, "A_gt": "het"},
+            6,
+        )
+
+    def test_genotype_fail_no_call_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
             {"A_fail": "no-call", "A_dp": 20, "A_ab": 0.3, "A_gq": 20, "A_ad": 15, "A_gt": "het"},
             6,
         )
@@ -1512,7 +1824,10 @@ class TestCaseOneQueryBlacklist(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"gene_blacklist": []}, 6)
 
     def test_blacklist_empty_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"gene_blacklist": []}, 6)
+        self.run_filter_query(ExportTableFileFilterQuery, {"gene_blacklist": []}, 6)
+
+    def test_blacklist_empty_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"gene_blacklist": []}, 6)
 
     def test_blacklist_empty_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"gene_blacklist": []}, 6)
@@ -1521,7 +1836,10 @@ class TestCaseOneQueryBlacklist(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"gene_blacklist": ["AAA"]}, 5)
 
     def test_blacklist_one_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"gene_blacklist": ["AAA"]}, 5)
+        self.run_filter_query(ExportTableFileFilterQuery, {"gene_blacklist": ["AAA"]}, 5)
+
+    def test_blacklist_one_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"gene_blacklist": ["AAA"]}, 5)
 
     def test_blacklist_one_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"gene_blacklist": ["AAA"]}, 5)
@@ -1530,7 +1848,10 @@ class TestCaseOneQueryBlacklist(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"gene_blacklist": ["AAA", "BBB"]}, 3)
 
     def test_blacklist_two_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"gene_blacklist": ["AAA", "BBB"]}, 3)
+        self.run_filter_query(ExportTableFileFilterQuery, {"gene_blacklist": ["AAA", "BBB"]}, 3)
+
+    def test_blacklist_two_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"gene_blacklist": ["AAA", "BBB"]}, 3)
 
     def test_blacklist_two_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"gene_blacklist": ["AAA", "BBB"]}, 3)
@@ -1539,7 +1860,14 @@ class TestCaseOneQueryBlacklist(FilterTestBase):
         self.run_filter_query(RenderFilterQuery, {"gene_blacklist": ["AAA", "BBB", "CCC"]}, 0)
 
     def test_blacklist_all_export(self):
-        self.run_filter_query(ExportFileFilterQuery, {"gene_blacklist": ["AAA", "BBB", "CCC"]}, 0)
+        self.run_filter_query(
+            ExportTableFileFilterQuery, {"gene_blacklist": ["AAA", "BBB", "CCC"]}, 0
+        )
+
+    def test_blacklist_all_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery, {"gene_blacklist": ["AAA", "BBB", "CCC"]}, 0
+        )
 
     def test_blacklist_all_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"gene_blacklist": ["AAA", "BBB", "CCC"]}, 0)
@@ -1773,7 +2101,7 @@ class TestCaseTwoDominantQuery(FilterTestBase):
         self.assertEqual(res[0].position, 100)
 
     def test_query_de_novo_export(self):
-        res = self.run_filter_query(ExportFileFilterQuery, self.cleaned_data_patch, 1)
+        res = self.run_filter_query(ExportTableFileFilterQuery, self.cleaned_data_patch, 1)
         self.assertEqual(res[0].position, 100)
 
     def test_query_de_novo_count(self):
@@ -1793,7 +2121,7 @@ class TestCaseTwoRecessiveHomozygousQuery(FilterTestBase):
         self.assertEqual(res[0].position, 101)
 
     def test_query_recessive_hom_export(self):
-        res = self.run_filter_query(ExportFileFilterQuery, self.cleaned_data_patch, 1)
+        res = self.run_filter_query(ExportTableFileFilterQuery, self.cleaned_data_patch, 1)
         self.assertEqual(res[0].position, 101)
 
     def test_query_recessive_hom_count(self):
@@ -1814,7 +2142,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(FilterTestBase):
         self.assertEqual(res[1].position, 103)
 
     def test_query_compound_het_export(self):
-        res = self.run_filter_query(ExportFileFilterQuery, self.cleaned_data_patch, 2)
+        res = self.run_filter_query(ExportTableFileFilterQuery, self.cleaned_data_patch, 2)
         self.assertEqual(res[0].position, 102)
         self.assertEqual(res[1].position, 103)
 
@@ -2088,7 +2416,7 @@ class ExportFileFilterQueryTestCaseThreeClinvarMembershipFilter(
     """Test clinvar membership using ExportFileFilterQuery."""
 
     check_result_rows = True
-    query_class = ExportFileFilterQuery
+    query_class = ExportTableFileFilterQuery
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2121,12 +2449,12 @@ INCLUSIVE_CLEANED_DATA_CLINVAR_CASE4 = {
 }
 
 
-class ClinvarReportQueryTestCaseFour(ClinvarReportQueryTestCaseFour):
+class ClinvarReportQueryTestCaseFour(TestBase):
 
     setup_case_in_db = fixture_setup_case1_simple
     base_cleaned_data = INCLUSIVE_CLEANED_DATA_CLINVAR_CASE4
 
-    def _setupClinvarEntry(self, cleaned_data_patch):
+    def _setup_clinvar_entry(self, cleaned_data_patch):
         """Setup patched Clinvar entry with values from ``clinvar_patch``.
 
         This function will take care of patching the correct position into the defaults.
@@ -2149,10 +2477,10 @@ class ClinvarReportQueryTestCaseFour(ClinvarReportQueryTestCaseFour):
             clinvar_values["review_status"] = clinvar_values["review_status_ordered"][0]
         Clinvar.objects.create(**clinvar_values)
 
-    def _runTest(self, clinvar_patch, form_data_patch, expected_result_count):
+    def _run_test(self, clinvar_patch, form_data_patch, expected_result_count):
         """Helper function for setting up the database, form data, and then running the test"""
         # Test-specific set-up
-        self._setupClinvarEntry(clinvar_patch)
+        self._setup_clinvar_entry(clinvar_patch)
         # Call function under test
         connection = SQLALCHEMY_ENGINE.connect()
         patched_cleaned_data = {**self.base_cleaned_data, **form_data_patch}
@@ -2162,161 +2490,163 @@ class ClinvarReportQueryTestCaseFour(ClinvarReportQueryTestCaseFour):
         # Compare result.
         self.assertEquals(len(result), expected_result_count)
 
+    # TODO: conver to use ``test_snake_case``
+
     def testPathogenicInclude(self):
-        self._runTest({"pathogenic": 1}, {"clinvar_include_pathogenic": True}, 1)
+        self._run_test({"pathogenic": 1}, {"clinvar_include_pathogenic": True}, 1)
 
     def testPathogenicNoInclude(self):
-        self._runTest({"pathogenic": 0}, {"clinvar_include_pathogenic": True}, 0)
+        self._run_test({"pathogenic": 0}, {"clinvar_include_pathogenic": True}, 0)
 
     def testLikelyPathogenicInclude(self):
-        self._runTest({"likely_pathogenic": 1}, {"clinvar_include_likely_pathogenic": True}, 1)
+        self._run_test({"likely_pathogenic": 1}, {"clinvar_include_likely_pathogenic": True}, 1)
 
     def testLikelyPathogenicNoInclude(self):
-        self._runTest({"likely_pathogenic": 0}, {"clinvar_include_likely_pathogenic": True}, 0)
+        self._run_test({"likely_pathogenic": 0}, {"clinvar_include_likely_pathogenic": True}, 0)
 
     def testUncertainSignificanceInclude(self):
-        self._runTest(
+        self._run_test(
             {"uncertain_significance": 1}, {"clinvar_include_uncertain_significance": True}, 1
         )
 
     def testUncertainSignificanceNoInclude(self):
-        self._runTest(
+        self._run_test(
             {"uncertain_significance": 0}, {"clinvar_include_uncertain_significance": True}, 0
         )
 
     def testLikelyBenignInclude(self):
-        self._runTest({"likely_benign": 1}, {"clinvar_include_likely_benign": True}, 1)
+        self._run_test({"likely_benign": 1}, {"clinvar_include_likely_benign": True}, 1)
 
     def testLikelyBenignNoInclude(self):
-        self._runTest({"likely_benign": 0}, {"clinvar_include_likely_benign": True}, 0)
+        self._run_test({"likely_benign": 0}, {"clinvar_include_likely_benign": True}, 0)
 
     def testBenignInclude(self):
-        self._runTest({"benign": 1}, {"clinvar_include_benign": True}, 1)
+        self._run_test({"benign": 1}, {"clinvar_include_benign": True}, 1)
 
     def testBenignNoInclude(self):
-        self._runTest({"benign": 0}, {"clinvar_include_benign": True}, 0)
+        self._run_test({"benign": 0}, {"clinvar_include_benign": True}, 0)
 
     def testGermlineInclude(self):
-        self._runTest(
+        self._run_test(
             {"origin": ["germline"]},
             {"clinvar_origin_germline": True, "clinvar_origin_somatic": False},
             1,
         )
 
     def testGermlineNoInclude(self):
-        self._runTest(
+        self._run_test(
             {"origin": ["germline"]},
             {"clinvar_origin_germline": False, "clinvar_origin_somatic": True},
             0,
         )
 
     def testSomaticInclude(self):
-        self._runTest(
+        self._run_test(
             {"origin": ["somatic"]},
             {"clinvar_origin_germline": False, "clinvar_origin_somatic": True},
             1,
         )
 
     def testSomaticNoInclude(self):
-        self._runTest(
+        self._run_test(
             {"origin": ["somatic"]},
             {"clinvar_origin_germline": True, "clinvar_origin_somatic": False},
             0,
         )
 
     def testPracticeGuidelineInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["practice guideline"]},
             {"clinvar_status_practice_guideline": True},
             1,
         )
 
     def testPracticeGuidelineNoInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["practice guideline"]},
             {"clinvar_status_practice_guideline": False},
             0,
         )
 
     def testExpertPanelInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["reviewed by expert panel"]},
             {"clinvar_status_expert_panel": True},
             1,
         )
 
     def testExpertPanelNoInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["reviewed by expert panel"]},
             {"clinvar_status_expert_panel": False},
             0,
         )
 
     def testMultipleNoConflictInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["criteria provided, multiple submitters, no conflicts"]},
             {"clinvar_status_multiple_no_conflict": True},
             1,
         )
 
     def testMultipleNoConflictNoInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["criteria provided, multiple submitters, no conflicts"]},
             {"clinvar_status_multiple_no_conflict": False},
             0,
         )
 
     def testSingleInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["criteria provided, single submitter"]},
             {"clinvar_status_single": True},
             1,
         )
 
     def testSingleNoInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["criteria provided, single submitter"]},
             {"clinvar_status_single": False},
             0,
         )
 
     def testConflictInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["criteria provided, conflicting interpretations"]},
             {"clinvar_status_conflict": True},
             1,
         )
 
     def testConflictNoInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["criteria provided, conflicting interpretations"]},
             {"clinvar_status_conflict": False},
             0,
         )
 
     def testNoCriteriaInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["no assertion criteria provided"]},
             {"clinvar_status_no_criteria": True},
             1,
         )
 
     def testNoCriteriaNoInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["no assertion criteria provided"]},
             {"clinvar_status_no_criteria": False},
             0,
         )
 
     def testNoAssertionInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["no assertion provided"]},
             {"clinvar_status_no_assertion": True},
             1,
         )
 
     def testNoAssertionNoInclude(self):
-        self._runTest(
+        self._run_test(
             {"review_status_ordered": ["no assertion provided"]},
             {"clinvar_status_no_assertion": False},
             0,

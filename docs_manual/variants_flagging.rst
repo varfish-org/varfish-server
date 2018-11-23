@@ -4,6 +4,8 @@
 Variant Flagging
 ================
 
+.. contents::
+
 -------------
 Setting Flags
 -------------

@@ -12,7 +12,7 @@ import vcfpy
 from .models import ExportFileJobResult, SmallVariantComment
 from .templatetags.variants_tags import flag_class
 from projectroles.plugins import get_backend_api
-from variants.models_support import ExportFileFilterQuery
+from variants.models_support import ExportTableFileFilterQuery, ExportVcfFileFilterQuery
 
 #: Color to use for variants flagged as positive.
 BG_COLOR_POSITIVE = "#29a847"
@@ -137,6 +137,9 @@ class CaseExporterBase:
     """Base class for export of (filtered) case data.
     """
 
+    #: The query class to use for building queries.
+    query_class = None
+
     def __init__(self, job):
         #: The ``ExportFileBgJob`` or ``DistillerSubmissionBgJob`` to use for obtaining case and query arguments.
         self.job = job
@@ -147,7 +150,7 @@ class CaseExporterBase:
         #: The named temporary file object to use for file handling.
         self.tmp_file = None
         #: The wrapper for running queries.
-        self.query = ExportFileFilterQuery(job.case, self.get_alchemy_connection())
+        self.query = self.query_class(job.case, self.get_alchemy_connection())
         #: The name of the selected members.
         self.members = list(self._yield_members())
         #: The column information.
@@ -264,6 +267,8 @@ class CaseExporterBase:
 class CaseExporterTsv(CaseExporterBase):
     """Export a case to TSV format."""
 
+    query_class = ExportTableFileFilterQuery
+
     def _write_variants_header(self):
         """Fill with actions to write the variant header."""
         line = "\t".join([x["title"] for x in self.columns]) + "\n"
@@ -293,6 +298,8 @@ class CaseExporterTsv(CaseExporterBase):
 
 class CaseExporterXlsx(CaseExporterBase):
     """Export a case to Excel (XLSX) format."""
+
+    query_class = ExportTableFileFilterQuery
 
     def __init__(self, job):
         super().__init__(job)
@@ -434,6 +441,8 @@ class CaseExporterXlsx(CaseExporterBase):
 
 class CaseExporterVcf(CaseExporterBase):
     """Export a case to VCF format."""
+
+    query_class = ExportVcfFileFilterQuery
 
     def __init__(self, job):
         super().__init__(job)
