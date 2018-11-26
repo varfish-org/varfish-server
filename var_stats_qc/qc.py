@@ -1,11 +1,12 @@
 """QC metric computation contained in this package."""
 
+from itertools import chain
 import json
 from contextlib import contextmanager
 
 import numpy as np
 import psycopg2.extras
-from sqlalchemy.sql import select, and_, not_
+from sqlalchemy.sql import select, and_, not_, func
 
 from .models import ReferenceSite
 
@@ -151,6 +152,98 @@ def compute_relatedness(connection, variant_model, case, min_depth=7, n_sites=10
         # Skip if depth not sufficient.
         # TODO: will fail without depth annotation
         gt_depths = np.asarray([row.genotype[sample]["dp"] for sample in samples])
+        if any(gt_depths < min_depth):
+            continue  # skip, coverage too low
+        # Compute statistics
+        for sample in samples:
+            het[sample] += gts[sample] in ("0/1", "1/0")
+        for s, t in sample_pairs:
+            gt1 = gts[s]
+            gt2 = gts[t]
+            gt_set = {gt1, gt2}
+            if len(gt_set) == 1:
+                ibs2[(s, t)] += 1
+                if gt1 == "0/1":
+                    het_shared[(s, t)] += 1
+            elif gt_set == {"0/0", "1/1"}:
+                ibs0[(s, t)] += 1
+            else:
+                ibs1[(s, t)] += 1
+        kept += 1
+        if kept > n_sites:
+            break
+
+    # Return result.
+    return het, het_shared, ibs0, ibs1, ibs2
+
+
+def _compute_relatedness_stmt_many(variant_model, cases):
+    """Build SQL Alchemy statement given the variant model class and multiple case objects."""
+    return (
+        select([func.jsonb_agg(variant_model.sa.genotype).label("genotype")])
+        .select_from(
+            variant_model.sa.table.join(
+                ReferenceSite.sa.table,
+                and_(
+                    ReferenceSite.sa.release == variant_model.sa.release,
+                    ReferenceSite.sa.chromosome == variant_model.sa.chromosome,
+                    ReferenceSite.sa.position == variant_model.sa.position,
+                ),
+            )
+        )
+        .where(
+            and_(
+                variant_model.sa.case_id.in_([case.pk for case in cases]),
+                not_(variant_model.sa.chromosome.in_(("X", "Y"))),
+            )
+        )
+        .group_by(
+            variant_model.sa.chromosome,
+            variant_model.sa.position,
+            variant_model.sa.reference,
+            variant_model.sa.alternative,
+        )
+    )
+
+
+def compute_relatedness_many(connection, variant_model, cases, min_depth=7, n_sites=10000):
+    """Compute relatedness between pairs over a set of cases.
+
+    Return ``het, het_shared, ibs0, ibs1, ibs2``.
+    """
+    # Obtain the genotypes.
+    stmt = _compute_relatedness_stmt_many(variant_model, cases)
+    with _disable_json_psycopg2():
+        result = connection.execute(stmt)
+
+    # Collect project-wide samples and sample pairs.
+    samples = set(chain(*(case.get_members_with_samples() for case in cases)))
+    sample_pairs = [(s, t) for i, s in enumerate(samples) for j, t in enumerate(samples) if i > j]
+
+    # Statistics.
+    het = {s: 0 for s in samples}
+    het_shared = {p: 0 for p in sample_pairs}
+    ibs0 = {p: 0 for p in sample_pairs}
+    ibs1 = {p: 0 for p in sample_pairs}
+    ibs2 = {p: 0 for p in sample_pairs}
+
+    # Iterate over genotypes of pseudo-autosomal regions on chrX.
+    kept = 0
+    for row in result.fetchall():
+        # Merge the genotype dictionaries.
+        genotype = {}
+        for part in json.loads(row.genotype):
+            genotype = {**genotype, **part}
+        # Skip if too few samples are called.
+        gts = {
+            sample: _normalize_gt(genotype.get(sample, {}).get("gt", "./.")) for sample in samples
+        }
+        nocalls = [gt for gt in gts if gt == "./."]
+        if len(nocalls) / len(gts) > 0.5:
+            continue  # skip, too few calls
+        # Skip if depth not sufficient.
+        # TODO: will fail without depth annotation
+        gt_depths = np.asarray([genotype.get(sample, {}).get("dp", -1) for sample in samples])
         if any(gt_depths < min_depth):
             continue  # skip, coverage too low
         # Compute statistics

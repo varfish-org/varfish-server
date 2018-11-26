@@ -7,6 +7,7 @@ from .models import (
     SmallVariantFlags,
     ExportFileBgJob,
     DistillerSubmissionBgJob,
+    ComputeProjectVariantsStatsBgJob,
 )
 from .urls import urlpatterns
 
@@ -106,4 +107,5 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
     job_specs = {
         "variants.export_file_bg_job": ExportFileBgJob,
         "variants.distiller_submission_bg_job": DistillerSubmissionBgJob,
+        "variants.compute_project_variants_stats": ComputeProjectVariantsStatsBgJob,
     }

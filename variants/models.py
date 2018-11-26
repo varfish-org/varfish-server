@@ -205,7 +205,9 @@ class Case(models.Model):
         """Return list of ``BackgroundJob`` objects."""
         # TODO: need to be more dynamic here?
         return BackgroundJob.objects.filter(
-            Q(export_file_bg_job__case=self) | Q(distiller_submission_bg_job__case=self)
+            Q(export_file_bg_job__case=self)
+            | Q(distiller_submission_bg_job__case=self)
+            | Q(compute_project_variants_stats__case=self)
         )
 
     def get_members(self):
@@ -289,7 +291,7 @@ class Case(models.Model):
         """Returns dict mapping sample to list of relationship errors."""
         ped_entries = {m["patient"]: m for m in self.pedigree}
         result = {}
-        for rel_stats in self.variant_stats.pedigree_relatedness.all():
+        for rel_stats in self.variant_stats.relatedness.all():
             relationship = "other"
             if (
                 ped_entries[rel_stats.sample1]["father"] == ped_entries[rel_stats.sample2]["father"]
@@ -821,16 +823,11 @@ class SampleVariantStatistics(models.Model):
         ordering = ("sample_name",)
 
 
-class PedigreeRelatedness(models.Model):
-    """Store relatedness information between two donors."""
+class BaseRelatedness(models.Model):
+    """Shared functionality of relatedness of individuals in a collective.
 
-    #: The related ``CaseVariantStats``.
-    stats = models.ForeignKey(
-        CaseVariantStats,
-        null=False,
-        related_name="pedigree_relatedness",
-        help_text="Pedigree relatdness information",
-    )
+    This could be a pedigree or a project.
+    """
 
     #: First sample.
     sample1 = models.CharField(max_length=200, null=False)
@@ -855,4 +852,119 @@ class PedigreeRelatedness(models.Model):
         return (self.het_1_2 - 2 * self.n_ibs0) * 2 / math.sqrt(self.het_1 * self.het_2)
 
     class Meta:
+        abstract = True
         ordering = ("sample1", "sample2")
+
+
+class PedigreeRelatedness(BaseRelatedness):
+    """Store relatedness information between two donors in a pedigree/``Case``.."""
+
+    #: The related ``CaseVariantStats``.
+    stats = models.ForeignKey(
+        CaseVariantStats,
+        null=False,
+        related_name="relatedness",
+        help_text="Pedigree relatedness information",
+    )
+
+
+class CaseAwareProject(Project):
+    """A project that is aware of its cases"""
+
+    class Meta:
+        proxy = True
+
+    @lru_cache()
+    def pedigree(self):
+        """Concatenate the pedigrees of project's cases."""
+        result = []
+        seen = set()
+        for case in self.case_set.all():
+            for line in case.pedigree:
+                if line["patient"] not in seen:
+                    result.append(line)
+                seen.add(line["patient"])
+        return result
+
+    @lru_cache()
+    def sample_to_case(self):
+        """Compute sample-to-case mapping."""
+        result = {}
+        for case in self.case_set.all():
+            for line in case.pedigree:
+                if line["patient"] not in result:
+                    result[line["patient"]] = case
+        return result
+
+    @lru_cache()
+    def chrx_het_hom_ratio(self, sample):
+        """Forward to appropriate case"""
+        case = self.sample_to_case().get(sample)
+        if not case:
+            return 0.0
+        else:
+            return case.chrx_het_hom_ratio(sample)
+
+    @lru_cache()
+    def sex_errors(self):
+        """Concatenate all contained case's sex errors dicts"""
+        result = {}
+        for case in self.case_set.all():
+            result.update(case.sex_errors())
+        return result
+
+
+class ProjectVariantStats(models.Model):
+    """Statistics on various aspects of variants of all cases in a project."""
+
+    #: The related ``Project``.
+    project = models.OneToOneField(
+        Project,
+        null=False,
+        related_name="variant_stats",
+        help_text="The variant statistics object for this projects",
+    )
+
+
+class ProjectRelatedness(BaseRelatedness):
+    """Store relatedness information between two donors in a case/``Case``.."""
+
+    #: The related ``CaseVariantStats``.
+    stats = models.ForeignKey(
+        ProjectVariantStats,
+        null=False,
+        related_name="relatedness",
+        help_text="Pedigree relatedness information",
+    )
+
+
+class ComputeProjectVariantsStatsBgJob(JobModelMessageMixin, models.Model):
+    """Background job for computing project variants statistics."""
+
+    #: Task description for logging.
+    task_desc = "Compute project-wide variants statistics"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.compute_project_variants_stats"
+
+    # Fields required by SODAR
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Job Specialization SODAR UUID"
+    )
+    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="compute_project_variants_stats",
+        help_text="Background job for state etc.",
+    )
+
+    def get_human_readable_type(self):
+        return "Project-wide Variant Statistics Computation"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:project-stats-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )

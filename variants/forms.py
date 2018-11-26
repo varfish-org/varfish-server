@@ -708,3 +708,7 @@ class SmallVariantCommentForm(forms.ModelForm):
     class Meta:
         model = SmallVariantComment
         exclude = ("case", "sodar_uuid", "user")
+
+
+class ProjectStatsJobForm(forms.Form):
+    """Form class used for confirmation of recomputing project-wide statistics."""

@@ -29,6 +29,17 @@
     {% include "variants/case/detail_qc.html" %}
   </div>
 
+  <script type="text/javascript">
+    /** Plot after loading is complete. */
+    $(function() {
+      plotVariantTypes();
+      plotVariantEffects();
+      plotRelatedness();
+      plotSexChrxHetHom();
+      plotIndelSizes();
+      plotVarDps();
+    });
+  </script>
 {% endblock %}
 
 {% block javascript %}

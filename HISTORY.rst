@@ -2,6 +2,15 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+The aim of this release is to add cohort-wide approach to the data by performing project-wide queries.
+
+- Added models for storing project-wide statistics, job code for creating this, views for viewing etc.
+- Adjusting the existing plot and model code to accomodate for this.
+
 ------
 v0.8.0
 ------

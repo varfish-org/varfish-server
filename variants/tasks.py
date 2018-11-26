@@ -1,9 +1,15 @@
 from config.celery import app
 from celery.schedules import crontab
 
-from . import models
+import aldjemy.core
+
 from . import file_export
+from . import models
 from . import submit_external
+from . import variant_stats
+
+#: The SQL Alchemy engine to use
+SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 
 @app.task(bind=True)
@@ -23,6 +29,14 @@ def export_file_task(_self, export_job_pk):
 @app.task(bind=True)
 def clear_expired_exported_files(_self):
     file_export.clear_expired_exported_files()
+
+
+@app.task(bind=True)
+def compute_project_variants_stats(_self, export_job_pk):
+    variant_stats.rebuild_project_variant_stats(
+        SQLALCHEMY_ENGINE.connect(),
+        models.ComputeProjectVariantsStatsBgJob.objects.get(pk=export_job_pk),
+    )
 
 
 @app.on_after_configure.connect

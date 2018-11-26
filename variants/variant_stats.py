@@ -3,10 +3,11 @@
 from django.db import transaction
 import numpy as np
 
-from var_stats_qc.qc import compute_het_hom_chrx, compute_relatedness
+from projectroles.plugins import get_backend_api
+from var_stats_qc.qc import compute_het_hom_chrx, compute_relatedness, compute_relatedness_many
 
 from .forms import FILTER_FORM_TRANSLATE_EFFECTS
-from .models import SmallVariant, CaseVariantStats
+from .models import SmallVariant, CaseVariantStats, ProjectVariantStats
 
 
 #: Effects to ignore when computing stats.
@@ -185,3 +186,58 @@ def rebuild_case_variant_stats(connection, case):
                 n_ibs2=ibs2[pair],
             )
         return stats
+
+
+def rebuild_project_variant_stats(connection, stats_job):
+    """Rebuild the ``ProjectVariantStats`` for the given ``project"""
+    timeline = get_backend_api("timeline_backend")
+    print("timeline", timeline)
+    if timeline:
+        tl_event = timeline.add_event(
+            project=stats_job.project,
+            app_name="variants",
+            user=stats_job.bg_job.user,
+            event_name="project_stats_build",
+            description="build project-wide variant statistics",
+            status_type="INIT",
+        )
+        stats_job.mark_start()
+    project = stats_job.project
+    cases = project.case_set.all()
+    het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness_many(connection, SmallVariant, cases)
+    stats_job.add_log_entry("Done computing relatedness, now saving to DB")
+    try:
+        with transaction.atomic():
+            # Remove existing record if any.
+            try:
+                project.variant_stats.delete()
+            except ProjectVariantStats.DoesNotExist:
+                pass  # swallow, nothing to delete
+            else:
+                stats_job.add_log_entry("Done removing old statistics")
+
+            # Create statistics object.
+            stats = ProjectVariantStats.objects.create(project=project)
+            # Insert relatedness information
+            for pair in het_shared.keys():
+                stats.relatedness.create(
+                    sample1=pair[0],
+                    sample2=pair[1],
+                    het_1_2=het_shared[pair],
+                    het_1=het[pair[0]],
+                    het_2=het[pair[1]],
+                    n_ibs0=ibs0[pair],
+                    n_ibs1=ibs1[pair],
+                    n_ibs2=ibs2[pair],
+                )
+            if timeline:
+                tl_event.set_status("OK", "finished storing new project-wide variant statistics")
+            stats_job.mark_success()
+            return stats
+    except Exception as e:
+        if timeline:
+            tl_event.set_status(
+                "FAILED", "could not update project-wide variant statistics: {}".format(e)
+            )
+        stats_job.mark_error("problem updating project-wide variant statistics: {}".format(e))
+        raise

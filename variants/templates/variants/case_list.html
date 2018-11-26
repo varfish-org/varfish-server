@@ -10,15 +10,62 @@
 {% endblock %}
 
 {% block projectroles %}
-
   <div class="row sodar-pr-content-title pb-2">
     <h2 class="sodar-pr-content-title">
       Cases
     </h2>
+    {% include "variants/_case_list_buttons.html" %}
   </div>
 
   <div class="container-fluid sodar-page-container">
+    <div id="varfish-va-case-list" class="card mb-3">
+      <h5 class="card-header">
+        <i class="fa fa-bar-chart"></i>
+        Project-wide Variant Statistics
+      </h5>
+      <div class="card-body p-0">
+        {% if project.variant_stats %}
+          <div class="row">
+            <div class="col-12 col-md-6 col-lg-4">
+              <canvas id="plot-relatedness"></canvas>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+              <canvas id="plot-sex-chrx-het-hom"></canvas>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+              <canvas id="plot-var-dps"></canvas>
+            </div>
+          </div>
+        {% else %}
+          <p class="pt-3 text-muted text-center">
+            No project-wide variant statistics yet.
+            Use
+            <span class="badge badge-primary">
+              <i class="fa fa-refresh"></i>
+              Recompute Project-Wide Stats
+            </span>
+            to compute.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="pt-0 container-fluid sodar-page-container">
     {% include 'variants/case/list.html' %}
   </div>
 
+  <script type="text/javascript">
+    /** Plot after loading is complete. */
+    $(function() {
+      plotRelatedness();
+      plotSexChrxHetHom();
+      plotVarDps();
+    });
+  </script>
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  {% include "variants/case/script_detail_plots.html" with view_mode="project_wide" object=project %}
 {% endblock %}

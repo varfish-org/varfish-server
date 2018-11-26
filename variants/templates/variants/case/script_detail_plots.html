@@ -36,6 +36,7 @@ function largeValueLabel(tooltipItem, data) {
   return label;
 }
 
+{% if view_mode != "project_wide" %}
 /** Plot variant types. */
 function plotVariantTypes() {
   const seq = palette('tol', {{ samples|length }});
@@ -189,6 +190,68 @@ function plotVariantEffects() {
   });
 }
 
+/** Plot indel size distribution. */
+function plotIndelSizes() {
+  const seq = palette('tol', {{ samples|length }});
+  const barChartData = {
+    labels: [
+      {% for key in indel_sizes_keys %}
+        {% if key == -10 %}
+          "\u2264-10",
+        {% elif key == 10 %}
+          "\u226510"
+        {% else %}
+          "{{ key }}",
+        {% endif %}
+      {% endfor %}
+    ],
+    datasets: [
+      {% for sample in samples %}
+        {
+          label: "{{ sample|only_source_name }}",
+          backgroundColor: "#" + seq[{{ forloop.counter0 }}],
+          borderColor: "#" + seq[{{ forloop.counter0 }}],
+          borderWidth: 1,
+          data: [
+            {% for key in indel_sizes_keys %}
+              {{ indel_sizes|keyvalue:sample|keyvalue:key|default:0 }}
+              {% if not forloop.last %},{% endif %}
+            {% endfor %}
+          ]
+        }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  };
+
+  const ctx = document.getElementById('plot-indel-sizes').getContext('2d');
+  window.varTypeChart = new Chart(ctx, {
+    type: 'bar',
+    data: barChartData,
+    options: {
+      legend: {
+        display: false
+      },
+      {#responsive: true,#}
+      animation: false,
+      aspectRatio: 1.5,
+      {#maintainAspectRatio: true,#}
+      title: {
+        display: true,
+        text: 'Indel Size'
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            callback: largeValueTick
+          }
+        }]
+      }
+    }
+  });
+}
+
+{% endif %}  {#  if view_mode != "project_wide" #}
+
 /** Helper for creating tooltip labels for relatedness entries. */
 function relatednessLabel(tooltipItem, data) {
   return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].sample0 + "-" +
@@ -216,7 +279,7 @@ function plotRelatedness() {
   };
 
   const relData = [
-    {% for rel in object.variant_stats.pedigree_relatedness.all %}
+    {% for rel in object.variant_stats.relatedness.all %}
       {
         sample0: "{{ rel.sample1|only_source_name }}",
         sample1: "{{ rel.sample2|only_source_name }}",
@@ -519,66 +582,6 @@ function plotSexChrxHetHom() {
   });
 }
 
-/** Plot indel size distribution. */
-function plotIndelSizes() {
-  const seq = palette('tol', {{ samples|length }});
-  const barChartData = {
-    labels: [
-      {% for key in indel_sizes_keys %}
-        {% if key == -10 %}
-          "\u2264-10",
-        {% elif key == 10 %}
-          "\u226510"
-        {% else %}
-          "{{ key }}",
-        {% endif %}
-      {% endfor %}
-    ],
-    datasets: [
-      {% for sample in samples %}
-        {
-          label: "{{ sample|only_source_name }}",
-          backgroundColor: "#" + seq[{{ forloop.counter0 }}],
-          borderColor: "#" + seq[{{ forloop.counter0 }}],
-          borderWidth: 1,
-          data: [
-            {% for key in indel_sizes_keys %}
-              {{ indel_sizes|keyvalue:sample|keyvalue:key|default:0 }}
-              {% if not forloop.last %},{% endif %}
-            {% endfor %}
-          ]
-        }{% if not forloop.last %},{% endif %}
-      {% endfor %}
-    ]
-  };
-
-  const ctx = document.getElementById('plot-indel-sizes').getContext('2d');
-  window.varTypeChart = new Chart(ctx, {
-    type: 'bar',
-    data: barChartData,
-    options: {
-      legend: {
-        display: false
-      },
-      {#responsive: true,#}
-      animation: false,
-      aspectRatio: 1.5,
-      {#maintainAspectRatio: true,#}
-      title: {
-        display: true,
-        text: 'Indel Size'
-      },
-      scales: {
-        yAxes: [{
-          ticks: {
-            callback: largeValueTick
-          }
-        }]
-      }
-    }
-  });
-}
-
 function varDpLabel(item, data) {
   return data.datasets[item.datasetIndex].data[item.index].sample || "(unknown)";
 }
@@ -714,15 +717,5 @@ function plotVarDps() {
     }
   });
 }
-
-/** Plot after loading is complete. */
-$(function() {
-  plotVariantTypes();
-  plotVariantEffects();
-  plotRelatedness();
-  plotSexChrxHetHom();
-  plotIndelSizes();
-  plotVarDps();
-});
 
 </script>

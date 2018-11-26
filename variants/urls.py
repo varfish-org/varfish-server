@@ -54,6 +54,17 @@ urlpatterns = [
         view=views.DistillerSubmissionJobResubmitView.as_view(),
         name="distiller-job-resubmit",
     ),
+    # Views for Project-wide Statistics Computation submission jobs
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-stats-job/create/$",
+        view=views.ProjectStatsJobCreateView.as_view(),
+        name="project-stats-job-create",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-stats-job/detail/(?P<job>[0-9a-f-]+)/$",
+        view=views.ProjectStatsJobDetailView.as_view(),
+        name="project-stats-job-detail",
+    ),
     # API for accessing small variant flags and comments.
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-flags/(?P<case>[0-9a-f-]+)/$",

@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
 from django.db import transaction
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
@@ -30,6 +30,8 @@ from .models import (
     Case,
     ExportFileBgJob,
     DistillerSubmissionBgJob,
+    ComputeProjectVariantsStatsBgJob,
+    CaseAwareProject,
     SmallVariantFlags,
     SmallVariantComment,
     SmallVariantQuery,
@@ -37,15 +39,16 @@ from .models import (
 from .forms import (
     ClinvarForm,
     DistillerSubmissionResubmitForm,
-    FilterForm,
     ExportFileResubmitForm,
+    FilterForm,
+    ProjectStatsJobForm,
     SmallVariantFlagsForm,
     SmallVariantCommentForm,
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
     FILTER_FORM_TRANSLATE_EFFECTS,
     FILTER_FORM_TRANSLATE_SIGNIFICANCE,
 )
-from .tasks import export_file_task, distiller_submission_task
+from .tasks import export_file_task, distiller_submission_task, compute_project_variants_stats
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -93,8 +96,38 @@ class CaseListView(
 
     def get_context_data(self, *args, **kwargs):
         result = super().get_context_data(*args, **kwargs)
-        case = result["object_list"].first()
-        case.sex_errors()
+        result["project"] = CaseAwareProject.objects.get(pk=result["project"].pk)
+        print("XXX", result["project"].pedigree())
+        cases = result["object_list"]
+        result["samples"] = list(
+            sorted(set(chain(*(case.get_members_with_samples() for case in cases))))
+        )
+        result["dps"] = {
+            stats.sample_name: {int(key): value for key, value in stats.ontarget_dps.items()}
+            for case in cases
+            for stats in case.variant_stats.sample_variant_stats.all()
+        }
+        dp_medians = [
+            stats.ontarget_dp_quantiles[2]
+            for case in cases
+            for stats in case.variant_stats.sample_variant_stats.all()
+        ]
+        result["dp_quantiles"] = list(np.percentile(np.asarray(dp_medians), [0, 25, 50, 100]))
+        result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
+        result["sample_stats"] = {
+            stats.sample_name: stats
+            for case in cases
+            for stats in case.variant_stats.sample_variant_stats.all()
+        }
+        het_ratios = [
+            stats.het_ratio
+            for case in cases
+            for stats in case.variant_stats.sample_variant_stats.all()
+        ]
+        result["het_ratio_quantiles"] = list(
+            np.percentile(np.asarray(het_ratios), [0, 25, 50, 100])
+        )
+
         return result
 
 
@@ -692,6 +725,54 @@ class DistillerSubmissionJobResubmitView(
             )
             distiller_submission_task.delay(submission_job_pk=submission_job.pk)
         return redirect(submission_job.get_absolute_url())
+
+
+class ProjectStatsJobCreateView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
+    """Confirm creating a new project statistics computation job.
+    """
+
+    permission_required = "variants.view_data"
+    template_name = "variants/project_stats_job_create.html"
+    form_class = ProjectStatsJobForm
+
+    def form_valid(self, form):
+        with transaction.atomic():
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Recreate variant statistic for whole project",
+                project=self._get_project(self.request, self.kwargs),
+                job_type="variants.compute_project_variants_stats",
+                user=self.request.user,
+            )
+            recreate_job = ComputeProjectVariantsStatsBgJob.objects.create(
+                project=self._get_project(self.request, self.kwargs), bg_job=bg_job
+            )
+        compute_project_variants_stats.delay(export_job_pk=recreate_job.pk)
+        messages.info(self.request, "Created background job to recreate project-wide statistics.")
+        return redirect(recreate_job.get_absolute_url())
+
+
+class ProjectStatsJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of project-wide statistics computation job.
+    """
+
+    permission_required = "variants.view_data"
+    template_name = "variants/project_stats_job_detail.html"
+    model = ComputeProjectVariantsStatsBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
 
 
 class SmallVariantFlagsApiView(
