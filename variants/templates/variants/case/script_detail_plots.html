@@ -448,24 +448,26 @@ function plotSexChrxHetHom() {
   }
 
   {% for item in object.pedigree %}
-    {% if item.patient.sex == 0 %}
-      dataUnknown.push({
-        "sample": "{{ item.patient|only_source_name }}",
-        "x": 1.5 + random() * 0.3 - 0.15,
-        "y": {% chrx_het_hom_ratio object item.patient %},
-      });
-    {% elif item.patient not in object.sex_errors %}
-      dataOk.push({
-        "sample": "{{ item.patient|only_source_name }}",
-        "x": [1.5, 1.0, 2.0][{{ item.sex }}] + random() * 0.4 - 0.2,
-        "y": {% chrx_het_hom_ratio object item.patient %},
-      });
-    {% else %}
-      dataError.push({
-        "sample": "{{ item.patient|only_source_name }}",
-        "x": [1.5, 1.0, 2.0][{{ item.sex }}] + random() * 0.4 - 0.2,
-        "y": {% chrx_het_hom_ratio object item.patient %},
-      });
+    {% if item.has_gt_entries %}
+      {% if item.sex == 0 %}
+        dataUnknown.push({
+          "sample": "{{ item.patient|only_source_name }}",
+          "x": 1.5 + random() * 0.3 - 0.15,
+          "y": {% chrx_het_hom_ratio object item.patient %},
+        });
+      {% elif item.patient not in object.sex_errors %}
+        dataOk.push({
+          "sample": "{{ item.patient|only_source_name }}",
+          "x": [1.5, 1.0, 2.0][{{ item.sex }}] + random() * 0.4 - 0.2,
+          "y": {% chrx_het_hom_ratio object item.patient %},
+        });
+      {% else %}
+        dataError.push({
+          "sample": "{{ item.patient|only_source_name }}",
+          "x": [1.5, 1.0, 2.0][{{ item.sex }}] + random() * 0.4 - 0.2,
+          "y": {% chrx_het_hom_ratio object item.patient %},
+        });
+      {% endif %}
     {% endif %}
   {% endfor %}
   console.log(dataOk, dataUnknown, dataError)
