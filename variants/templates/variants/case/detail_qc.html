@@ -1,0 +1,174 @@
+{% load dict %}
+{% load humanize %}
+{% load variants_tags %}
+
+<div class="card varfish-vars-case-details"
+   id="card-varfish-vars-case-details">
+  <div class="card-header">
+    <h4>
+      <i class="fa fa-search"></i>
+      Quality Control
+    </h4>
+  </div>
+
+  <div class="card-body">
+    <h5>Per-Sample Metrics</h5>
+
+    <table class="table tabled-striped table-hover">
+      <thead>
+        <tr>
+          <th>Sample</th>
+          <th>Ts</th>
+          <th>Tv</th>
+          <th>Ts/Tv</th>
+          <th>SNVs</th>
+          <th>Indels</th>
+          <th>MNVs</th>
+          <th>X hom./het.</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in object.variant_stats.sample_variant_stats.all %}
+          <tr>
+            <td>{{ item.sample_name|only_source_name }}</td>
+            <td class="text-right">{{ item.ontarget_transitions|intcomma }}</td>
+            <td class="text-right">{{ item.ontarget_transversions|intcomma }}</td>
+            <td class="text-right">
+              {% if item.ontarget_ts_tv_ratio < 2.0 and item.ontarget_ts_tv_ratio > 2.9 %}
+                <i class="fa fa-exclamation-triangle text-danger"
+                   data-toggle="tooltip" data-placement="top"
+                   title="On-target Ts/Tv ratio should be within 2.0-2.9, but is {{ item.ontarget_ts_tv_ratio }}"
+                ></i>
+              {% endif %}
+              {{ item.ontarget_ts_tv_ratio|floatformat:2 }}
+            </td>
+            <td class="text-right">{{ item.ontarget_snvs|intcomma }}</td>
+            <td class="text-right">{{ item.ontarget_indels|intcomma }}</td>
+            <td class="text-right">{{ item.ontarget_mnvs|intcomma }}</td>
+            <td class="text-right">{{ item.chrx_het_hom|floatformat:4 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h5>Effects</h5>
+
+    <table class="table tabled-striped table-hover">
+      <thead>
+        <tr>
+          <th>Effect</th>
+          {% for sample in samples %}
+            <th>{{ sample|only_source_name }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for effect in effects %}
+          <tr>
+            <td>{{ effect }}</td>
+            {% for sample in samples %}
+              <td class="text-right">
+                {{ ontarget_effect_counts|keyvalue:sample|keyvalue:effect|intcomma }}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h5>Indel Sizes</h5>
+
+    <table class="table tabled-striped table-hover">
+      <thead>
+        <tr>
+          <th>Indel Size</th>
+          {% for sample in samples %}
+            <th>{{ sample|only_source_name }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for key in indel_sizes_keys %}
+          <tr>
+            {% if key == -10 %}
+              <td>&leq; -10</td>
+            {% elif key == 10 %}
+              <td>&geq; 10</td>
+            {% else %}
+              <td>{{ key }}</td>
+            {% endif %}
+            {% for sample in samples %}
+              <td class="text-right">
+                {{ indel_sizes|keyvalue:sample|keyvalue:key|default:0|intcomma }}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h5>Site Depths</h5>
+
+    <table class="table tabled-striped table-hover">
+      <thead>
+        <tr>
+          <th>Depth</th>
+          {% for sample in samples %}
+            <th>{{ sample|only_source_name }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for key in dps_keys %}
+          <tr>
+            {% if key == "-10" %}
+              <td>&lt;= -10</td>
+            {% elif key == "10" %}
+              <td>&gt;= 10/td>
+            {% else %}
+              <td>{{ key }}</td>
+            {% endif %}
+            {% for sample in samples %}
+              <td class="text-right">
+                {{ dps|keyvalue:sample|keyvalue:key|default:0|intcomma }}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h5>Relatedness</h5>
+
+    <table class="table tabled-striped table-hover">
+      <thead>
+        <tr>
+          <th>Sample 1</th>
+          <th>Sample 2</th>
+          <th>Het<sub>1,2</sub></th>
+          <th>Het<sub>1</sub></th>
+          <th>Het<sub>2</sub></th>
+          <th>n<sub>IBS0</sub></th>
+          <th>n<sub>IBS1</sub></th>
+          <th>n<sub>IBS2</sub></th>
+          <th>relatedness</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rel in object.variant_stats.pedigree_relatedness.all %}
+          <tr>
+            <td>{{ rel.sample1|only_source_name }}</td>
+            <td>{{ rel.sample2|only_source_name }}</td>
+            <td class="text-right">{{ rel.het_1_2|intcomma }}</td>
+            <td class="text-right">{{ rel.het_1|intcomma }}</td>
+            <td class="text-right">{{ rel.het_2|intcomma }}</td>
+            <td class="text-right">{{ rel.n_ibs0|intcomma }}</td>
+            <td class="text-right">{{ rel.n_ibs1|intcomma }}</td>
+            <td class="text-right">{{ rel.n_ibs2|intcomma }}</td>
+            <td class="text-right">{{ rel.relatedness|floatformat:4 }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

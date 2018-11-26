@@ -10,7 +10,7 @@ UUID =
 .PHONY: $(SMALLVARIANTS) $(CASES) $(ANNOTATIONS) $(DB_PATH)/kegg/genetokegg.fk.tsv
 
 black:
-	black -l 100 bgjobs variants importer annotation geneinfo hgmd docs_manual
+	black -l 100 bgjobs variants importer annotation geneinfo hgmd docs_manual var_stats_qc
 
 serve:
 	$(MANAGE) runserver

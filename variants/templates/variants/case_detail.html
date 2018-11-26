@@ -1,10 +1,8 @@
 {% extends 'projectroles/project_base.html' %}
 {% load projectroles_common_tags %}
 {% load rules %}
-{% load dict %}
 {% load rules %}
 {% load humanize %}
-{% load variants_tags %}
 
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
@@ -12,7 +10,6 @@
 {% endblock %}
 
 {% block projectroles %}
-
   <div class="row sodar-pr-content-title pb-2">
     <h2 class="sodar-pr-content-title">
       Case &quot;{{ object.name }}&quot;
@@ -21,198 +18,20 @@
   </div>
 
   <div class="container-fluid sodar-page-container">
+    {% include "variants/case/detail_overview.html" %}
+    {% include "variants/case/detail_pedigree.html" %}
+    {% include "variants/case/detail_qc_plots.html" %}
 
-    <div class="card varfish-vars-case-details"
-         id="card-varfish-vars-case-details">
-      <div class="card-header">
-        <h4>
-          <i class="fa fa-address-card-o"></i>
-          Details
-        </h4>
-      </div>
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item">
-          <div class="row">
-            <span class="col-2"><strong>
-              Created At
-            </strong></span>
-            <span class="col-10">
-              {{ object.date_created|date:"Y/m/d H:i" }}
-            </span>
-          </div>
-        </li>
-        <li class="list-group-item">
-          <div class="row">
-            <span class="col-2"><strong>
-              Case Name
-            </strong></span>
-            <span class="col-10">
-              {{ object.name }}
-            </span>
-          </div>
-        </li>
-        <li class="list-group-item">
-          <div class="row">
-            <span class="col-2"><strong>
-              Individuals
-            </strong></span>
-            <span class="col-10">
-              {% for member in object.get_members %}
-                {{ member|only_source_name }}{% if not forloop.last %},{% endif %}
-              {% endfor %}
-            </span>
-          </div>
-        </li>
-      </ul>
-    </div>
+    {% include "variants/case/detail_comments.html" %}
+    {% include "variants/case/detail_flags.html" %}
+    {% include "variants/case/detail_bg_jobs.html" %}
 
-    <div class="card varfish-vars-case-details"
-         id="card-varfish-vars-case-details">
-      <div class="card-header">
-        <h4>
-          <i class="fa fa-users"></i>
-          Pedigree
-        </h4>
-      </div>
-      <table class="table tabled-striped table-hover">
-        <thead>
-          <tr>
-            <th class="col-2">Name</th>
-            <th class="col-2">Father</th>
-            <th class="col-2">Mother</th>
-            <th class="col-1">Sex</th>
-            <th class="col-1">Affected</th>
-            <th class="col-4">Variants?</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in object.pedigree %}
-            <tr>
-              <td>{{ item.patient|only_source_name }}</td>
-              <td>{{ item.father|only_source_name }}</td>
-              <td>{{ item.mother|only_source_name }}</td>
-              <td><i class="fa {% if item.sex == 1 %}fa-venus{% else %}fa-mars{% endif %}"></i></td>
-              <td><i class="fa {% if item.affected == 2 %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
-              <td><i class="fa {% if item.has_gt_entries %}fa-check{% else %}fa-ban{% endif %}"></i></td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card varfish-vars-case-details"
-         id="card-varfish-vars-case-details">
-      <div class="card-header">
-        <h4>
-          <i class="fa fa-flag"></i>
-          Flagged Variants
-        </h4>
-      </div>
-      <table class="table tabled-striped table-hover">
-        <thead>
-          <tr>
-            <th class="col-2">Variant</th>
-            <th class="col-10">Flags</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for flagged_variant in case.small_variant_flags.all %}
-            <tr id="flags-{{ flagged_variant.get_variant_description }}">
-              <td>
-                chr{{ flagged_variant.chromosome }}:{{ flagged_variant.position|intcomma }}-{{ flagged_variant.reference }}-{{ flagged_variant.alternative }}
-              </td>
-              <td>
-                generic:
-                <i class="fa fa-fw fa-star {% if not flagged_variant.flag_bookmarked %}text-muted{% endif %}"></i>
-                <i class="fa fa-fw fa-flask {% if not flagged_variant.flag_for_validation %}text-muted{% endif %}"></i>
-                <i class="fa fa-fw fa-heart {% if not flagged_variant.flag_candidate %}text-muted{% endif %}"></i>
-                <i class="fa fa-fw fa-flag-checkered {% if not flagged_variant.flag_final_causative %}text-muted{% endif %}"></i>
-                <span class="pl-3">visual:</span>
-                <i class="fa fa-fw {{ flagged_variant.flag_visual|flag_value_to_fa }}"></i>
-                <span class="pl-3">validation:</span>
-                <i class="fa fa-fw {{ flagged_variant.flag_validation|flag_value_to_fa }}"></i>
-                <span class="pl-3">phenotype:</span>
-                <i class="fa fa-fw {{ flagged_variant.flag_phenotype_match|flag_value_to_fa }}"></i>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-      <div class="card varfish-vars-case-details"
-         id="card-varfish-vars-case-details">
-      <div class="card-header">
-        <h4>
-          <i class="fa fa-comment"></i>
-          Commented Variants
-        </h4>
-      </div>
-      <table class="table tabled-striped table-hover">
-        <thead>
-          <tr>
-            <th class="col-4">Variant</th>
-            <th class="col-8">Comments</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for variant_comment in case.small_variant_comments.all %}
-            <tr>
-              <td id="comment-{{ variant_comment.sodar_uuid }}">
-                chr{{ variant_comment.chromosome }}:{{ variant_comment.position|intcomma }}-{{ variant_comment.reference }}-{{ variant_comment.alternative }}
-              </td>
-              <td>
-                <strong>{{ variant_comment.user }}</strong>
-                <small>
-                  commented at
-                  {{ variant_comment.date_created }}:
-                </small>
-                <em>{{ variant_comment.text }}</em>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card varfish-vars-case-details"
-         id="card-varfish-vars-case-details">
-      <div class="card-header">
-        <h4>
-          <i class="fa fa-tasks"></i>
-          Background Jobs Overview
-        </h4>
-      </div>
-      <div class="card-body p-0">
-        <table id="varfish-bg-table" class="table table-striped sodar-card-table">
-          <thead>
-            <tr>
-              <th class="col-2">Started</th>
-              <th class="col-2">Last Change</th>
-              <th class="col-1">State</th>
-              <th class="col-5">Name</th>
-              <th class="col-2">Download</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for job in object.exportfilebgjob_set.all|slice:":10" %}
-              {% include 'variants/_exportfilebgjob_item.html' with item=job details_card_mode=False %}
-            {% endfor %}
-            {% if not object.exportfilebgjob_set.all %}
-              <tr>
-                 <td class="bg-faded font-italic text-center" colspan="5">
-                   No background jobs found.
-                 </td>
-              </tr>
-            {% endif %}
-          </tbody>
-        </table>
-      </div>
-      {% if object.exportfilebgjob_set.all %}
-        <div class="card-footer text-center">
-          <a href="{% url "variants:job-list" project=project.sodar_uuid case=object.sodar_uuid %}">List all jobs</a>
-        </div>
-      {% endif %}
-    </div>
+    {% include "variants/case/detail_qc.html" %}
   </div>
+
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
+  {% include "variants/case/script_detail_plots.html" %}
 {% endblock %}

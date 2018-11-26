@@ -1,5 +1,6 @@
 """Tests for the filter view"""
 
+import aldjemy.core
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.utils import timezone
@@ -7,12 +8,16 @@ from test_plus.test import TestCase
 
 from projectroles.models import Project
 from variants.models import SmallVariant, ExportFileBgJob, Case, ExportFileJobResult
+from variants.variant_stats import rebuild_case_variant_stats
 from clinvar.models import Clinvar
 from frequencies.models import Exac, GnomadGenomes, GnomadExomes, ThousandGenomes
 
 from ._fixtures import CLINVAR_DEFAULTS, CLINVAR_FORM_DEFAULTS
 
 import json
+
+#: The SQL Alchemy engine to use
+SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 # Shared project settings
 PROJECT_DICT = {
@@ -274,6 +279,8 @@ def fixture_setup_case(user):
     SmallVariant.objects.create(**{**basic_var, **{"position": 100}})
     SmallVariant.objects.create(**{**basic_var, **{"position": 200, "in_clinvar": True}})
     SmallVariant.objects.create(**{**basic_var, **{"position": 300}})
+
+    rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case)
 
     Clinvar.objects.create(
         **{

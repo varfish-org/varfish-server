@@ -40,6 +40,7 @@ It is developed by the Core Unit Bioinformatics at the Berlin Institute of Healt
     :titlesonly:
 
     variants_cases
+    variants_stats_qc
     variants_filtration
     variants_clinvar
     variants_comments

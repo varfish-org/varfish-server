@@ -1,0 +1,47 @@
+{% load variants_tags %}
+
+<div class="card varfish-vars-case-details"
+     id="card-varfish-vars-case-details">
+  <div class="card-header">
+    <h4>
+      <i class="fa fa-address-card-o"></i>
+      Details
+    </h4>
+  </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item">
+      <div class="row">
+        <span class="col-2"><strong>
+          Created At
+        </strong></span>
+        <span class="col-10">
+          {{ object.date_created|date:"Y/m/d H:i" }}
+        </span>
+      </div>
+    </li>
+    <li class="list-group-item">
+      <div class="row">
+        <span class="col-2"><strong>
+          Case Name
+        </strong></span>
+        <span class="col-10">
+          {{ object.name }}
+          {% include "variants/case/indicator_sex_error.html" with item=object %}
+          {% include "variants/case/indicator_rel_error.html" with item=object %}
+        </span>
+      </div>
+    </li>
+    <li class="list-group-item">
+      <div class="row">
+        <span class="col-2"><strong>
+          Individuals
+        </strong></span>
+        <span class="col-10">
+          {% for member in object.get_members %}
+            {{ member|only_source_name }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        </span>
+      </div>
+    </li>
+  </ul>
+</div>

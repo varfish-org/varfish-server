@@ -6,6 +6,8 @@
     <a href="{{ item.get_absolute_url }}">
       {{ item.name }}
     </a>
+    {% include "variants/case/indicator_sex_error.html" %}
+    {% include "variants/case/indicator_rel_error.html" %}
   </td>
   <td>
     {% for member in item.get_members %}

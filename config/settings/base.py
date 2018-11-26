@@ -75,6 +75,7 @@ LOCAL_APPS = [
     "pathways.apps.PathwaysConfig",
     "variants.apps.VariantsConfig",
     "bgjobs.apps.BgjobsConfig",
+    "var_stats_qc.apps.VarStatsQcConfig",
     "templatetags.apps.TemplatetagsConfig",
 ]
 

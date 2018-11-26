@@ -1,0 +1,26 @@
+{% load dict %}
+
+{% if item.sex_errors %}
+  <span class="fa-stack fa-md">
+    <i class="fa fa-fw fa-square fa-stack-2x text-danger"></i>
+    <i class="fa fa-fw fa-venus-mars fa-inverse fa-stack-1x"
+       data-tooltip="tooltip"
+       data-toggle="popover" data-html="true"
+       title="Sex assignment problem (click for details)!"
+       data-content="
+        <ul>
+          {% if sample %}
+            {% for message in item.sex_errors|keyvalue:sample %}
+              <li>{{ sample }}: {{ message }}</li>
+            {% endfor %}
+          {% else %}
+            {% for sample, messages in item.sex_errors.items %}
+              {% for message in messages %}
+                <li>{{ sample }}: {{ message }}</li>
+              {% endfor %}
+            {% endfor %}
+          {% endif %}
+        </ul>"
+      ></i>
+  </span>
+{% endif %}

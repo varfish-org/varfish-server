@@ -37,3 +37,12 @@
 .sodar-pr-navbar {
   background-color: #6884cb !important;
 }
+
+/** stacking */
+.fa-sm {
+    font-size:0.63em;
+}
+
+.fa-md {
+    font-size:0.8em;
+}

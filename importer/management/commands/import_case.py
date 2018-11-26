@@ -3,6 +3,7 @@
 import json
 import tempfile
 
+import aldjemy
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
@@ -13,11 +14,17 @@ from annotation.models import Annotation
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
 from variants.models import SmallVariant, Case
+from variants.variant_stats import rebuild_case_variant_stats
 
 timeline = get_backend_api("timeline_backend")
 
 
+#: The User model to use.
 User = get_user_model()
+
+
+#: The SQL Alchemy engine to use
+SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 
 class Command(BaseCommand):
@@ -69,6 +76,7 @@ class Command(BaseCommand):
         )
         self._import_variants(options["path_variants"])
         self._import_genotypes(case, options["path_genotypes"])
+        self._rebuild_stats(case)
         if timeline:
             timeline.add_event(
                 project=project,
@@ -169,3 +177,9 @@ class Command(BaseCommand):
                 drop_indexes=False,
             )
             self.stdout.write(self.style.SUCCESS("Finished importing genotypes"))
+
+    def _rebuild_stats(self, case):
+        """Import variant statistics."""
+        self.stdout.write("Computing variant statistics...")
+        rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case)
+        self.stdout.write(self.style.SUCCESS("Finished computing variant statistics"))

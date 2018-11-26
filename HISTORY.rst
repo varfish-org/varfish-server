@@ -2,6 +2,17 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+The focus of the upcoming release is adding display of variant statistics for cases.
+
+- Gathering the following statistics for each individuals in a case:
+    - transition to transversion ratio for on-target variants
+- Adding ``var_qc_stats`` module with analysis algorithms similar to (Pedersen and Quinlan, 2017).
+- Display statistics results on case detail page.
+
 ------
 v0.7.0
 ------

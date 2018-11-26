@@ -1,3 +1,6 @@
+from functools import lru_cache
+from itertools import chain
+import math
 import re
 import uuid as uuid_object
 
@@ -20,6 +23,18 @@ from bgjobs.models import BackgroundJob, JobModelMessageMixin
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
+
+#: Threshold for hom/het ratio for identifying sex.
+CHRX_HET_HOM_THRESH = 1.0
+#: Threshold for relatedness between parent and children.
+THRESH_PARENT = 0.6
+#: Threshold for relatedness between siblings.
+THRESH_SIBLING = 0.6
+
+#: Pedigree value for male.
+PED_MALE = 1
+#: Pedigree value for female.
+PED_FEMALE = 2
 
 
 class SmallVariant(models.Model):
@@ -114,22 +129,29 @@ class CaseManager(models.Manager):
 
 
 class Case(models.Model):
+    """Stores information about a (germline) case."""
+
     #: DateTime of creation
     date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
     #: DateTime of last modification
     date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
 
+    #: UUID used for identification throughout SODAR.
     sodar_uuid = models.UUIDField(
         default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
     )
+    #: Name of the case.
     name = models.CharField(max_length=512)
+    #: Identifier of the index in ``pedigree``.
     index = models.CharField(max_length=32)
+    #: Pedigree information, ``list`` of ``dict`` with the information.
     pedigree = JSONField()
+
+    #: The project containing this case.
     project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
 
-    # Set manager for custom queries
+    #: Case manager with custom queries, supporting ``find()`` for the search.
     objects = CaseManager()
-
     #: List of additional tokens to search for, for aiding search
     search_tokens = ArrayField(
         models.CharField(max_length=128, blank=True),
@@ -156,6 +178,12 @@ class Case(models.Model):
         # Strip non-alphanumeric characters
         self.search_tokens = [re.sub(r"[^a-zA-Z0-9]", "", x) for x in self.search_tokens]
 
+    def get_sex(self, sample):
+        """Return ``int``-value sex for the given ``sample`` in ``pedigree``."""
+        for line in self.pedigree:
+            if line["patient"] == sample:
+                return line["sex"]
+
     class Meta:
         indexes = [models.Index(fields=["name"])]
 
@@ -174,12 +202,14 @@ class Case(models.Model):
         )
 
     def get_background_jobs(self):
+        """Return list of ``BackgroundJob`` objects."""
         # TODO: need to be more dynamic here?
         return BackgroundJob.objects.filter(
             Q(export_file_bg_job__case=self) | Q(distiller_submission_bg_job__case=self)
         )
 
     def get_members(self):
+        """Return list of members in ``pedigree``."""
         return [x["patient"] for x in self.pedigree]
 
     def get_filtered_pedigree_with_samples(self):
@@ -204,7 +234,92 @@ class Case(models.Model):
                     result["mother"] = member["mother"]
         return result
 
+    @lru_cache()
+    def sex_errors_pedigree(self):
+        """Return dict of sample to error messages indicating sex assignment errors that can be derived from the
+        pedigree information.
+
+        Inconsistencies can be determined from father/mother name and sex.
+        """
+        fathers = set([m["father"] for m in self.pedigree])
+        mothers = set([m["mother"] for m in self.pedigree])
+        result = {}
+        for m in self.pedigree:
+            if m["patient"] in fathers and m["sex"] != PED_MALE:
+                result[m["patient"]] = ["used as father in pedigree but not male"]
+            if m["patient"] in mothers and m["sex"] != PED_FEMALE:
+                result[m["patient"]] = ["used as mother in pedigree not male"]
+        return result
+
+    @lru_cache()
+    def chrx_het_hom_ratio(self, sample):
+        """Return het./hom. ratio on chrX for ``sample``."""
+        sample_stats = self.variant_stats.sample_variant_stats.get(sample_name=sample)
+        return sample_stats.chrx_het_hom
+
+    @lru_cache()
+    def sex_errors_variant_stats(self):
+        """Return dict of sample to error messages indicating sex assignment errors that can be derived from
+        het/hom ratio on chrX.
+        """
+        ped_sex = {m["patient"]: m["sex"] for m in self.pedigree}
+        result = {}
+        for sample_stats in self.variant_stats.sample_variant_stats.all():
+            sample = sample_stats.sample_name
+            stats_sex = 1 if sample_stats.chrx_het_hom < CHRX_HET_HOM_THRESH else 2
+            if stats_sex != ped_sex[sample]:
+                result[sample] = [
+                    "sex from pedigree conflicts with one derived from het/hom ratio on chrX"
+                ]
+        return result
+
+    @lru_cache()
+    def sex_errors(self):
+        """Returns dict mapping sample to error messages from both pedigree and variant statistics."""
+        result = {}
+        for sample, msgs in chain(
+            self.sex_errors_pedigree().items(), self.sex_errors_variant_stats().items()
+        ):
+            result.setdefault(sample, [])
+            result[sample] += msgs
+        return result
+
+    @lru_cache()
+    def rel_errors(self):
+        """Returns dict mapping sample to list of relationship errors."""
+        ped_entries = {m["patient"]: m for m in self.pedigree}
+        result = {}
+        for rel_stats in self.variant_stats.pedigree_relatedness.all():
+            relationship = "other"
+            if (
+                ped_entries[rel_stats.sample1]["father"] == ped_entries[rel_stats.sample2]["father"]
+                and ped_entries[rel_stats.sample1]["mother"]
+                == ped_entries[rel_stats.sample2]["mother"]
+                and ped_entries[rel_stats.sample1]["father"] != "0"
+                and ped_entries[rel_stats.sample1]["mother"] != "0"
+            ):
+                relationship = "sib-sib"
+            elif (
+                ped_entries[rel_stats.sample1]["father"] == rel_stats.sample2
+                or ped_entries[rel_stats.sample1]["mother"] == rel_stats.sample2
+                or ped_entries[rel_stats.sample2]["father"] == rel_stats.sample1
+                or ped_entries[rel_stats.sample2]["mother"] == rel_stats.sample1
+            ):
+                relationship = "parent-child"
+            if (relationship == "sib-sib" and rel_stats.relatedness() < THRESH_SIBLING) or (
+                relationship == "parent-child" and rel_stats.relatedness() < THRESH_PARENT
+            ):
+                for sample in (rel_stats.sample1, rel_stats.sample2):
+                    result.setdefault(sample, []).append(
+                        (
+                            "pedigree shows parent-child relation for {} and {} but variants show low degree "
+                            "of relatedness"
+                        ).format(rel_stats.sample1, rel_stats.sample2)
+                    )
+        return result
+
     def __str__(self):
+        """Return case name as human-readable description."""
         return self.name
 
 
@@ -637,3 +752,107 @@ class SmallVariantQuery(models.Model):
     public = models.BooleanField(
         null=False, default=False, help_text="Case is flagged as public or not"
     )
+
+
+class CaseVariantStats(models.Model):
+    """Statistics on various aspects of variants of a case:
+
+    - Ts/Tv ratio
+    """
+
+    #: The related ``Case``.
+    case = models.OneToOneField(
+        Case,
+        null=False,
+        related_name="variant_stats",
+        help_text="The variant statistics object for this case",
+    )
+
+
+class SampleVariantStatistics(models.Model):
+    """Single-number variant statistics for donors in a ``Case`` via ``CaseVariantStats``."""
+
+    #: The related ``CaseVariantStats``.
+    stats = models.ForeignKey(
+        CaseVariantStats,
+        null=False,
+        related_name="sample_variant_stats",
+        help_text="Single-value variant statistics for one individual",
+    )
+
+    #: The name of the donor.
+    sample_name = models.CharField(max_length=200, null=False)
+
+    #: The number of on-target transitions (A <-> G, C <-> T).
+    ontarget_transitions = models.IntegerField(null=False)
+    #: The number of on-target transversions.
+    ontarget_transversions = models.IntegerField(null=False)
+
+    #: The number of on-target SNVs
+    ontarget_snvs = models.IntegerField(null=False)
+    #: The number of on-target Indels
+    ontarget_indels = models.IntegerField(null=False)
+    #: The number of on-target MNVs
+    ontarget_mnvs = models.IntegerField(null=False)
+
+    #: Counts for the different variant effects
+    ontarget_effect_counts = JSONField(null=False)
+
+    #: Histogram of indel sizes.
+    ontarget_indel_sizes = JSONField(null=False)
+    #: Histogram of read depths.
+    ontarget_dps = JSONField(null=False)
+    #: 5-value summary of on-target read depths.
+    ontarget_dp_quantiles = ArrayField(models.FloatField(), size=5)
+
+    #: Overall het ratio.
+    het_ratio = models.FloatField(null=False)
+    #: Hom/het ratio on chrX in PAR1 and PAR2, for sex checking.
+    chrx_het_hom = models.FloatField(null=False)
+
+    def ontarget_ts_tv_ratio(self):
+        """Compute Ts/Tv ratio."""
+        if not self.ontarget_transversions:
+            return 0.0
+        else:
+            return self.ontarget_transitions / self.ontarget_transversions
+
+    class Meta:
+        ordering = ("sample_name",)
+
+
+class PedigreeRelatedness(models.Model):
+    """Store relatedness information between two donors."""
+
+    #: The related ``CaseVariantStats``.
+    stats = models.ForeignKey(
+        CaseVariantStats,
+        null=False,
+        related_name="pedigree_relatedness",
+        help_text="Pedigree relatdness information",
+    )
+
+    #: First sample.
+    sample1 = models.CharField(max_length=200, null=False)
+    #: Second sample.
+    sample2 = models.CharField(max_length=200, null=False)
+
+    #: The Het_1_2 statistic
+    het_1_2 = models.IntegerField(null=False)
+    #: The Het_1 statistic
+    het_1 = models.IntegerField(null=False)
+    #: The Het_2 statistic
+    het_2 = models.IntegerField(null=False)
+    #: The N_IBS0 statistic
+    n_ibs0 = models.IntegerField(null=False)
+    #: The N_IBS1 statistic
+    n_ibs1 = models.IntegerField(null=False)
+    #: The N_IBS2 statistic
+    n_ibs2 = models.IntegerField(null=False)
+
+    def relatedness(self):
+        """Return relatedness following Pedersen and Quinlan (2017)."""
+        return (self.het_1_2 - 2 * self.n_ibs0) * 2 / math.sqrt(self.het_1 * self.het_2)
+
+    class Meta:
+        ordering = ("sample1", "sample2")

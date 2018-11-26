@@ -1,0 +1,36 @@
+{% load humanize %}
+
+<div class="card varfish-vars-case-details"
+     id="card-varfish-vars-case-details">
+  <div class="card-header">
+    <h4>
+      <i class="fa fa-comment"></i>
+      Commented Variants
+    </h4>
+  </div>
+  <table class="table tabled-striped table-hover">
+    <thead>
+      <tr>
+        <th class="col-4">Variant</th>
+        <th class="col-8">Comments</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for variant_comment in case.small_variant_comments.all %}
+        <tr>
+          <td id="comment-{{ variant_comment.sodar_uuid }}">
+            chr{{ variant_comment.chromosome }}:{{ variant_comment.position|intcomma }}-{{ variant_comment.reference }}-{{ variant_comment.alternative }}
+          </td>
+          <td>
+            <strong>{{ variant_comment.user }}</strong>
+            <small>
+              commented at
+              {{ variant_comment.date_created }}:
+            </small>
+            <em>{{ variant_comment.text }}</em>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

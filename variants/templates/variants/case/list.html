@@ -11,11 +11,11 @@
       </thead>
       <tbody>
         {% for case in object_list %}
-          {% include "variants/_case_item.html" with item=case details_card_mode=False %}
+          {% include "variants/case/item.html" with item=case details_card_mode=False %}
         {% endfor %}
         {% if not object_list %}
           <tr>
-             <td class="bg-faded font-italic text-center" colspan="3">
+             <td class="bg-faded font-italic text-center" colspan="4">
                No cases added yet.
              </td>
           </tr>

@@ -4,6 +4,7 @@ import uuid
 
 import decimal
 import aldjemy.core
+import numpy as np
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -23,7 +24,7 @@ from clinvar.models import Clinvar
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from projectroles.plugins import get_backend_api
-from variants.models_support import ClinvarReportQuery, RenderFilterQuery, KnownGeneAAQuery
+from .models_support import ClinvarReportQuery, RenderFilterQuery, KnownGeneAAQuery
 
 from .models import (
     Case,
@@ -40,8 +41,9 @@ from .forms import (
     ExportFileResubmitForm,
     SmallVariantFlagsForm,
     SmallVariantCommentForm,
-    FILTER_FORM_TRANSLATE_SIGNIFICANCE,
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
+    FILTER_FORM_TRANSLATE_EFFECTS,
+    FILTER_FORM_TRANSLATE_SIGNIFICANCE,
 )
 from .tasks import export_file_task, distiller_submission_task
 
@@ -89,6 +91,12 @@ class CaseListView(
     def get_queryset(self):
         return super().get_queryset().filter(project__sodar_uuid=self.kwargs["project"])
 
+    def get_context_data(self, *args, **kwargs):
+        result = super().get_context_data(*args, **kwargs)
+        case = result["object_list"].first()
+        case.sex_errors()
+        return result
+
 
 def _undecimal(the_dict):
     """Helper to replace Decimal values in a dict."""
@@ -106,6 +114,7 @@ class CaseDetailView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
+    AlchemyConnectionMixin,  # XXX
     DetailView,
 ):
     """Display a case in detail."""
@@ -115,6 +124,53 @@ class CaseDetailView(
     model = Case
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
+
+    def get_context_data(self, *args, **kwargs):
+        result = super().get_context_data(*args, **kwargs)
+        case = result["object"]
+        result["samples"] = case.get_members_with_samples()
+        result["effects"] = list(FILTER_FORM_TRANSLATE_EFFECTS.values())
+        result["ontarget_effect_counts"] = {
+            stats.sample_name: stats.ontarget_effect_counts
+            for stats in case.variant_stats.sample_variant_stats.all()
+        }
+        result["indel_sizes"] = {
+            stats.sample_name: {
+                int(key): value for key, value in stats.ontarget_indel_sizes.items()
+            }
+            for stats in case.variant_stats.sample_variant_stats.all()
+        }
+        result["indel_sizes_keys"] = list(
+            sorted(
+                set(
+                    chain(
+                        *list(
+                            map(int, indel_sizes.keys())
+                            for indel_sizes in result["indel_sizes"].values()
+                        )
+                    )
+                )
+            )
+        )
+        result["dps"] = {
+            stats.sample_name: {int(key): value for key, value in stats.ontarget_dps.items()}
+            for stats in case.variant_stats.sample_variant_stats.all()
+        }
+        dp_medians = [
+            stats.ontarget_dp_quantiles[2]
+            for stats in case.variant_stats.sample_variant_stats.all()
+        ]
+        result["dp_quantiles"] = list(np.percentile(np.asarray(dp_medians), [0, 25, 50, 100]))
+        result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
+        result["sample_stats"] = {
+            stats.sample_name: stats for stats in case.variant_stats.sample_variant_stats.all()
+        }
+        het_ratios = [stats.het_ratio for stats in case.variant_stats.sample_variant_stats.all()]
+        result["het_ratio_quantiles"] = list(
+            np.percentile(np.asarray(het_ratios), [0, 25, 50, 100])
+        )
+
+        return result
 
 
 class CaseFilterView(

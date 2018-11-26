@@ -1,0 +1,728 @@
+{% load dict %}
+{% load static %}
+{% load variants_tags %}
+
+<script type="text/javascript" src="{% static 'js/vendor/Chart-2.4.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/vendor/palette-1.1.0.js' %}"></script>
+
+<script type="text/javascript">
+
+/** Helper for creating tick labels for large numbers. */
+function largeValueTick(value, _index, _values) {
+  if (value > 1000*1000 && value % (1000*1000) == 0) {
+    return Math.round(value / 1000 / 1000) + "M";
+  } else if (value > 1000 && value % 1000 == 0) {
+    return Math.round(value / 1000) + "k";
+  } else if (value > 1000 && value % 500 == 0) {
+    return (value / 1000).toFixed(1) + "k";
+  } else {
+    return value;
+  }
+}
+
+/** Helper for creating tooltip labels for large values. */
+function largeValueLabel(tooltipItem, data) {
+  var label = data.datasets[tooltipItem.datasetIndex].label || '';
+  if (label) {
+    label += ": ";
+  }
+  if (tooltipItem.yLabel > 1000*1000) {
+    label += (tooltipItem.yLabel / 1000 / 1000).toFixed(2) + "M";
+  } else if (tooltipItem.yLabel > 1000) {
+    label += (tooltipItem.yLabel / 1000).toFixed(2) + "k";
+  } else {
+    label += tooltipItem.yLabel;
+  }
+  return label;
+}
+
+/** Plot variant types. */
+function plotVariantTypes() {
+  const seq = palette('tol', {{ samples|length }});
+  const varTypes = ["SNV", "Indel", "MNV"];
+  const barChartData = {
+    labels: varTypes,
+    datasets: [
+      {% for item in object.variant_stats.sample_variant_stats.all %}
+        {
+          label: "{{ item.sample_name|only_source_name }}",
+          backgroundColor: "#" + seq[{{ forloop.counter0 }}],
+          borderColor: "#" + seq[{{ forloop.counter0 }}],
+          borderWidth: 1,
+          data: [
+            {{ item.ontarget_snvs }},
+            {{ item.ontarget_indels }},
+            {{ item.ontarget_mnvs }}
+          ]
+        }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ],
+  };
+
+  const ctx = document.getElementById('plot-var-types').getContext('2d');
+  window.varTypeChart = new Chart(ctx, {
+    type: 'bar',
+    data: barChartData,
+    options: {
+      {#responsive: true,#}
+      animation: false,
+      aspectRatio: 1.5,
+      {#maintainAspectRatio: true,#}
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: 'Variant Type'
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            callback: largeValueTick
+          }
+        }]
+      },
+      tooltips: {
+        callbacks: {
+          label: largeValueLabel
+        }
+      }
+    }
+  });
+}
+
+/** Plot selected variant effects. */
+function plotVariantEffects() {
+  const seq = palette('tol', {{ samples|length }});
+  const varEffectMap = {
+    "synonymous_variant": "synonymous",
+    "missense_variant": "missense",
+    "5_prime_UTR_exon_variant": "UTR",
+    "3_prime_UTR_exon_variant": "UTR",
+    "start_lost": "start lost",
+    "stop_gained": "nonsense",
+    "stop_lost": "stop lost",
+    "splice_region_variant": "splice region",
+    "splice_donor_variant": "splice consensus",
+    "splice_acceptor_variant": "splice consensus",
+    "inframe_deletion": "inframe indel",
+    "inframe_insertion": "inframe indel",
+    "direct_tandem_duplication": "inframe_indel",
+    "frameshift_variant": "frameshift",
+    "frameshift_truncation": "frameshift",
+    "frameshift_elongation": "frameshift",
+  };
+
+  var varEffects = [
+    "synonymous",
+    "missense",
+    "UTR",
+    "splc. region",
+    "splc. motif",
+    "start lost",
+    "nonsense",
+    "stop lost",
+    "infrm. indel",
+    "frameshift"
+  ];
+
+  const barChartData = {
+    labels: varEffects,
+    datasets: [
+      {% for sample in samples %}
+        {
+          label: "{{ sample|only_source_name }}",
+          backgroundColor: "#" + seq[{{ forloop.counter0 }}],
+          borderColor: "#" + seq[{{ forloop.counter0 }}],
+          borderWidth: 1,
+          data: [
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"synonymous_variant" }},
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"missense_variant" }},
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"5_prime_UTR_exon_variant" }} +
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"3_prime_UTR_exon_variant" }},
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"splice_donor_variant" }} +
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"splice_region_variant" }},
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"splice_acceptor_variant" }},
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"start_lost" }},
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"stop_gained" }},
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"stop_lost" }},
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"inframe_deletion" }} +
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"inframe_insertion" }},
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"frameshift_variant" }} +
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"frameshift_truncation" }} +
+            {{ ontarget_effect_counts|keyvalue:sample|keyvalue:"frameshift_elongation" }}
+          ]
+        }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ],
+  };
+
+  const ctx = document.getElementById('plot-var-effects').getContext('2d');
+  window.varTypeChart = new Chart(ctx, {
+    type: 'bar',
+    data: barChartData,
+    options: {
+      {#responsive: true,#}
+      animation: false,
+      aspectRatio: 1.5,
+      {#maintainAspectRatio: true,#}
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: 'Variant Effects'
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            callback: largeValueTick
+          }
+        }]
+      },
+      tooltips: {
+        callbacks: {
+          label: largeValueLabel
+        }
+      }
+    }
+  });
+}
+
+/** Helper for creating tooltip labels for relatedness entries. */
+function relatednessLabel(tooltipItem, data) {
+  return data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].sample0 + "-" +
+    data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].sample1;
+}
+
+/** Convert foreground to background color (setting alpha to 0.2). */
+function colorFgToBg(col) {
+  return "rgb(" +
+    parseInt(col.substring(0, 2), 16) + ", " +
+    parseInt(col.substring(2, 4), 16) + ", " +
+    parseInt(col.substring(4, 6), 16) + ", 0.2)";
+}
+
+/** Plot relatedness. */
+function plotRelatedness() {
+  const ped = {
+    {% for item in object.pedigree %}
+      "{{ item.patient }}": {
+        father: "{{ item.father }}",
+        mother: "{{ item.mother }}",
+        sex: {{ item.sex }},
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  };
+
+  const relData = [
+    {% for rel in object.variant_stats.pedigree_relatedness.all %}
+      {
+        sample0: "{{ rel.sample1|only_source_name }}",
+        sample1: "{{ rel.sample2|only_source_name }}",
+        parentChild: (
+          ped["{{ rel.sample1 }}"].father == "{{ rel.sample2 }}" ||
+          ped["{{ rel.sample1 }}"].mother == "{{ rel.sample2 }}" ||
+          ped["{{ rel.sample2 }}"].father == "{{ rel.sample1 }}" ||
+          ped["{{ rel.sample2 }}"].mother == "{{ rel.sample1 }}"
+        ),
+        sibSib: (
+          ped["{{ rel.sample1 }}"].father != "0" &&
+          ped["{{ rel.sample2 }}"].father != "0" &&
+          ped["{{ rel.sample1 }}"].mother != "0" &&
+          ped["{{ rel.sample2 }}"].mother != "0" &&
+          (
+            ped["{{ rel.sample1 }}"].father == ped["{{ rel.sample2 }}"].father ||
+            ped["{{ rel.sample1 }}"].mother == ped["{{ rel.sample2 }}"].mother
+          )
+        ),
+        ibs0: {{ rel.n_ibs0 }},
+        rel: {{ rel.relatedness }},
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  const clsRelData = {sibSib: [], parentChild: [], other: []};
+  for (var i = 0; i < relData.length; ++i) {
+    const point = {x: relData[i].ibs0, y: relData[i].rel, sample0: relData[i].sample0, sample1: relData[i].sample1};
+    if (relData[i].parentChild) {
+      clsRelData.parentChild.push(point);
+    } else if (relData[i].sibSib) {
+      clsRelData.sibSib.push(point);
+    } else {
+      clsRelData.other.push(point);
+    }
+  }
+
+  const pal = palette("mpn65", 3);
+  const scatterPlotData = {datasets: []};
+  if (clsRelData.sibSib.length) {
+    scatterPlotData.datasets.push({
+      label: "0.5 (sibling-sibling)",
+      fill: false,
+      showLine: false,
+      pointBackgroundColor: colorFgToBg(pal[0]),
+      pointBorderColor: "#" + pal[0],
+      pointBorderWidth: 1,
+      backgroundColor: colorFgToBg(pal[0]),
+      borderColor: "#" + pal[0],
+      borderWidth: 1,
+      pointStyle: "triangle",
+      radius: 6,
+      hitRadius: 5,
+      hoverRadius: 6,
+      data: clsRelData.sibSib
+    });
+  }
+  if (clsRelData.parentChild.length) {
+    scatterPlotData.datasets.push({
+      label: "0.5 (parent-child)",
+      fill: false,
+      showLine: false,
+      pointBackgroundColor: colorFgToBg(pal[1]),
+      pointBorderColor: "#" + pal[1],
+      pointBorderWidth: 1,
+      backgroundColor: colorFgToBg(pal[1]),
+      borderColor: "#" + pal[1],
+      borderWidth: 1,
+      pointStyle: "rect",
+      radius: 5,
+      hitRadius: 5,
+      hoverRadius: 5,
+      data: clsRelData.parentChild
+    });
+  }
+  if (clsRelData.other.length) {
+    scatterPlotData.datasets.push({
+      label: "0.0 (other)",
+      fill: false,
+      showLine: false,
+      pointBackgroundColor: colorFgToBg(pal[2]),
+      pointBorderColor: "#" + pal[2],
+      pointBorderWidth: 1,
+      backgroundColor: colorFgToBg(pal[2]),
+      borderColor: "#" + pal[2],
+      borderWidth: 1,
+      pointStyle: "circle",
+      radius: 5,
+      hitRadius: 5,
+      hoverRadius: 5,
+      data: clsRelData.other
+    });
+  }
+
+  const ctx = document.getElementById('plot-relatedness').getContext('2d');
+  window.varTypeChart = new Chart(ctx, {
+    type: 'scatter',
+    data: scatterPlotData,
+    options: {
+      {#responsive: true,#}
+      animation: false,
+      aspectRatio: 1.5,
+      {#maintainAspectRatio: true,#}
+      legend: {
+        position: "bottom",
+        usePointStyle: true
+      },
+      title: {
+        display: true,
+        text: 'Relatedness vs. IBS0'
+      },
+      scales: {
+        xAxes: [{
+          type: "linear",
+          position: "bottom",
+          scaleLabel: {
+            display: true,
+            labelString: "IBS0 (vars without shared allele)"
+          }
+        }],
+        yAxes: [{
+          type: "linear",
+          position: "left",
+          scaleLabel: {
+            display: true,
+            labelString: "relatedness coefficient"
+          }
+        }]
+      },
+      tooltips: {
+        callbacks: {
+          label: relatednessLabel
+        }
+      }
+    }
+  });
+}
+
+
+function sexChrxHetHomLabel(item, data) {
+  return data.datasets[item.datasetIndex].data[item.index].sample || "(unknown)";
+}
+
+/** Plot QC data for sex */
+function plotSexChrxHetHom() {
+  const pal = palette("mpn65", 3);
+
+  const ped = {
+    {% for item in object.pedigree %}
+      "{{ item.patient }}": {
+        father: "{{ item.father }}",
+        mother: "{{ item.mother }}",
+        sex: {{ item.sex }},
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  };
+
+  var dataOk = [];
+  var dataUnknown = [];
+  var dataError = [];
+
+  var seed = 1;
+  function random() {
+      var x = Math.sin(seed++) * 10000;
+      return x - Math.floor(x);
+  }
+
+  {% for item in object.pedigree %}
+    {% if item.patient.sex == 0 %}
+      dataUnknown.push({
+        "sample": "{{ item.patient|only_source_name }}",
+        "x": 1.5 + random() * 0.3 - 0.15,
+        "y": {% chrx_het_hom_ratio object item.patient %},
+      });
+    {% elif item.patient not in object.sex_errors %}
+      dataOk.push({
+        "sample": "{{ item.patient|only_source_name }}",
+        "x": [1.5, 1.0, 2.0][{{ item.sex }}] + random() * 0.4 - 0.2,
+        "y": {% chrx_het_hom_ratio object item.patient %},
+      });
+    {% else %}
+      dataError.push({
+        "sample": "{{ item.patient|only_source_name }}",
+        "x": [1.5, 1.0, 2.0][{{ item.sex }}] + random() * 0.4 - 0.2,
+        "y": {% chrx_het_hom_ratio object item.patient %},
+      });
+    {% endif %}
+  {% endfor %}
+  console.log(dataOk, dataUnknown, dataError)
+
+  const scatterPlotData = {
+    labels: ["female", "unknown", "male"],
+    datasets: [
+      {
+        label: "OK",
+        fill: false,
+        showLine: false,
+        pointBackgroundColor: colorFgToBg(pal[2]),
+        pointBorderColor: "#" + pal[2],
+        pointBorderWidth: 1,
+        backgroundColor: colorFgToBg(pal[2]),
+        borderColor: "#" + pal[2],
+        borderWidth: 1,
+        pointStyle: "circle",
+        radius: 6,
+        hitRadius: 5,
+        hoverRadius: 6,
+        data: dataOk
+      },
+      {
+        label: "unknown",
+        fill: false,
+        showLine: false,
+        pointBackgroundColor: colorFgToBg(pal[1]),
+        pointBorderColor: "#" + pal[1],
+        pointBorderWidth: 1,
+        backgroundColor: colorFgToBg(pal[1]),
+        borderColor: "#" + pal[1],
+        borderWidth: 1,
+        pointStyle: "circle",
+        radius: 6,
+        hitRadius: 5,
+        hoverRadius: 6,
+        data: dataUnknown
+      },
+      {
+        label: "error",
+        fill: false,
+        showLine: false,
+        pointBackgroundColor: colorFgToBg(pal[0]),
+        pointBorderColor: "#" + pal[0],
+        pointBorderWidth: 1,
+        backgroundColor: colorFgToBg(pal[0]),
+        borderColor: "#" + pal[0],
+        borderWidth: 1,
+        pointStyle: "circle",
+        radius: 6,
+        hitRadius: 5,
+        hoverRadius: 6,
+        data: dataError
+      },
+    ]
+  };
+
+  const ctx = document.getElementById('plot-sex-chrx-het-hom').getContext('2d');
+  window.varDpChart = new Chart(ctx, {
+    type: 'scatter',
+    data: scatterPlotData,
+    options: {
+      {#responsive: true,#}
+      animation: false,
+      aspectRatio: 1.5,
+      {#maintainAspectRatio: true,#}
+      legend: {
+        position: "bottom",
+        usePointStyle: true
+      },
+      title: {
+        display: true,
+        text: "Rate of het. calls on chrX"
+      },
+      scales: {
+        xAxes: [{
+          type: "linear",
+          position: "bottom",
+          ticks: {
+            min: 0.6,
+            max: 2.4,
+            stepSize: 0.5,
+            callback: function(value, index, values) {
+              if (value == 1) {
+                return "female";
+              } else if (value == 1.5) {
+                return "unknown";
+              } else if (value == 2.0) {
+                return "male";
+              }
+            }
+          },
+          scaleLabel: {
+            display: true,
+            labelString: "sex from pedigree"
+          }
+        }],
+        yAxes: [{
+          type: "linear",
+          position: "left",
+          scaleLabel: {
+            display: true,
+            labelString: "het./hom. alt. ratio"
+          }
+        }]
+      },
+      tooltips: {
+        callbacks: {
+          label: sexChrxHetHomLabel
+        }
+      }
+    }
+  });
+}
+
+/** Plot indel size distribution. */
+function plotIndelSizes() {
+  const seq = palette('tol', {{ samples|length }});
+  const barChartData = {
+    labels: [
+      {% for key in indel_sizes_keys %}
+        {% if key == -10 %}
+          "\u2264-10",
+        {% elif key == 10 %}
+          "\u226510"
+        {% else %}
+          "{{ key }}",
+        {% endif %}
+      {% endfor %}
+    ],
+    datasets: [
+      {% for sample in samples %}
+        {
+          label: "{{ sample|only_source_name }}",
+          backgroundColor: "#" + seq[{{ forloop.counter0 }}],
+          borderColor: "#" + seq[{{ forloop.counter0 }}],
+          borderWidth: 1,
+          data: [
+            {% for key in indel_sizes_keys %}
+              {{ indel_sizes|keyvalue:sample|keyvalue:key|default:0 }}
+              {% if not forloop.last %},{% endif %}
+            {% endfor %}
+          ]
+        }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  };
+
+  const ctx = document.getElementById('plot-indel-sizes').getContext('2d');
+  window.varTypeChart = new Chart(ctx, {
+    type: 'bar',
+    data: barChartData,
+    options: {
+      legend: {
+        display: false
+      },
+      {#responsive: true,#}
+      animation: false,
+      aspectRatio: 1.5,
+      {#maintainAspectRatio: true,#}
+      title: {
+        display: true,
+        text: 'Indel Size'
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            callback: largeValueTick
+          }
+        }]
+      }
+    }
+  });
+}
+
+function varDpLabel(item, data) {
+  return data.datasets[item.datasetIndex].data[item.index].sample || "(unknown)";
+}
+
+/** Plot variant depth to het ratios. */
+function plotVarDps() {
+  const pal = palette("mpn65", 3);
+
+  const dpQuantiles = {{ dp_quantiles }};
+  const dpIqr = dpQuantiles[3] - dpQuantiles[1];
+  const hetRatioQuantiles = {{ het_ratio_quantiles }};
+  const hetRatioIqr = hetRatioQuantiles[3] - hetRatioQuantiles[1];
+
+  const dataAll = [{% for sample in samples %}
+      {
+        {% with sample_stats|keyvalue:sample as stats %}
+          sample: "{{ sample|only_source_name }}",
+          x: {{ stats.ontarget_dp_quantiles|slice:"2:3" }}[0],
+          y: {{ stats.het_ratio }}
+        {% endwith %}
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  var dataOk = [];
+  var dataBadDp = [];
+  var dataBadRatio = [];
+
+  for (var i = 0; i < dataAll.length; ++i) {
+    let data = dataAll[i];
+    if (Math.abs(dpQuantiles[2] - data.x) > 3 * dpIqr) {
+      dataBadDp.push(data)
+    } else if (Math.abs(hetRatioQuantiles[2] - data.y) > 3 * hetRatioIqr) {
+      dataBadRatio.push(data);
+    } else {
+      dataOk.push(data);
+    }
+  }
+
+  const scatterPlotData = {
+    datasets: [
+      {
+        label: "OK",
+        fill: false,
+        showLine: false,
+        pointBackgroundColor: colorFgToBg(pal[2]),
+        pointBorderColor: "#" + pal[2],
+        pointBorderWidth: 1,
+        backgroundColor: colorFgToBg(pal[2]),
+        borderColor: "#" + pal[2],
+        borderWidth: 1,
+        pointStyle: "circle",
+        radius: 6,
+        hitRadius: 5,
+        hoverRadius: 6,
+        data: dataOk
+      },
+      {
+        label: "depth outlier",
+        fill: false,
+        showLine: false,
+        pointBackgroundColor: colorFgToBg(pal[1]),
+        pointBorderColor: "#" + pal[1],
+        pointBorderWidth: 1,
+        backgroundColor: colorFgToBg(pal[1]),
+        borderColor: "#" + pal[1],
+        borderWidth: 1,
+        pointStyle: "circle",
+        radius: 6,
+        hitRadius: 5,
+        hoverRadius: 6,
+        data: dataBadDp
+      },
+      {
+        label: "ratio-outlier",
+        fill: false,
+        showLine: false,
+        pointBackgroundColor: colorFgToBg(pal[0]),
+        pointBorderColor: "#" + pal[0],
+        pointBorderWidth: 1,
+        backgroundColor: colorFgToBg(pal[0]),
+        borderColor: "#" + pal[0],
+        borderWidth: 1,
+        pointStyle: "circle",
+        radius: 6,
+        hitRadius: 5,
+        hoverRadius: 6,
+        data: dataBadRatio
+      },
+    ]
+  };
+
+  const ctx = document.getElementById('plot-var-dps').getContext('2d');
+  window.varDpChart = new Chart(ctx, {
+    type: 'scatter',
+    data: scatterPlotData,
+    options: {
+      {#responsive: true,#}
+      animation: false,
+      aspectRatio: 1.5,
+      {#maintainAspectRatio: true,#}
+      legend: {
+        position: "bottom",
+        usePointStyle: true
+      },
+      title: {
+        display: true,
+        text: 'Depth and Heterozygosity'
+      },
+      scales: {
+        xAxes: [{
+          type: "linear",
+          position: "bottom",
+          scaleLabel: {
+            display: true,
+            labelString: "median depth"
+          }
+        }],
+        yAxes: [{
+          type: "linear",
+          position: "left",
+          scaleLabel: {
+            display: true,
+            labelString: "het. genotype ratio"
+          }
+        }]
+      },
+      tooltips: {
+        callbacks: {
+          label: varDpLabel
+        }
+      }
+    }
+  });
+}
+
+/** Plot after loading is complete. */
+$(function() {
+  plotVariantTypes();
+  plotVariantEffects();
+  plotRelatedness();
+  plotSexChrxHetHom();
+  plotIndelSizes();
+  plotVarDps();
+});
+
+</script>

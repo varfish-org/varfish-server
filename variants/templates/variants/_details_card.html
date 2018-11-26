@@ -12,7 +12,7 @@
     {% get_details_cases project as cases %}
     {% if cases.count > 0 %}
       {% for case in cases %}
-        {% include 'variants/_case_item.html' with item=case details_card_mode=True %}
+        {% include 'variants/case/item.html' with item=case details_card_mode=True %}
       {% endfor %}
     {% else %}
         <tr>

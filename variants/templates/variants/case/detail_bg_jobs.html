@@ -1,0 +1,39 @@
+<div class="card varfish-vars-case-details"
+     id="card-varfish-vars-case-details">
+  <div class="card-header">
+    <h4>
+      <i class="fa fa-tasks"></i>
+      Background Jobs Overview
+    </h4>
+  </div>
+  <div class="card-body p-0">
+    <table id="varfish-bg-table" class="table table-striped sodar-card-table">
+      <thead>
+        <tr>
+          <th class="col-2">Started</th>
+          <th class="col-2">Last Change</th>
+          <th class="col-1">State</th>
+          <th class="col-5">Name</th>
+          <th class="col-2">Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in object.exportfilebgjob_set.all|slice:":10" %}
+          {% include 'variants/_exportfilebgjob_item.html' with item=job details_card_mode=False %}
+        {% endfor %}
+        {% if not object.exportfilebgjob_set.all %}
+          <tr>
+             <td class="bg-faded font-italic text-center" colspan="5">
+               No background jobs found.
+             </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+  {% if object.exportfilebgjob_set.all %}
+    <div class="card-footer text-center">
+      <a href="{% url "variants:job-list" project=project.sodar_uuid case=object.sodar_uuid %}">List all jobs</a>
+    </div>
+  {% endif %}
+</div>

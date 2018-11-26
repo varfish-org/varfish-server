@@ -95,3 +95,9 @@ def flag_class(row):
         if flag_value != "empty":
             indexes.append(values.index(flag_value))
     return values[min(indexes, default=4)]
+
+
+@register.simple_tag
+def chrx_het_hom_ratio(case, sample):
+    """Return het./hom. ratio of ``sample`` in ``case``."""
+    return case.chrx_het_hom_ratio(sample)

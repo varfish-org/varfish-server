@@ -1,0 +1,73 @@
+{% load variants_tags %}
+
+<div class="card varfish-vars-case-details"
+     id="card-varfish-vars-case-details">
+  <div class="card-header">
+    <h4>
+      <i class="fa fa-users"></i>
+      Pedigree
+    </h4>
+  </div>
+  <table class="table tabled-striped table-hover">
+    <thead>
+      <tr>
+        <th class="col-2">Name</th>
+        <th class="col-2">Father</th>
+        <th class="col-2">Mother</th>
+        <th class="col-1">Sex</th>
+        <th class="col-1">Affected</th>
+        <th class="col-4">Variants?</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in object.pedigree %}
+        <tr>
+          <td>{{ item.patient|only_source_name }}</td>
+          <td>
+            {{ item.father|only_source_name }}
+            {% if item.father in object.rel_errors %}
+              {% include "variants/case/indicator_rel_error.html" with item=object sample=item.father %}
+            {% endif %}
+          </td>
+          <td>
+            {{ item.mother|only_source_name }}
+            {% if item.mother in object.rel_errors %}
+              {% include "variants/case/indicator_rel_error.html" with item=object sample=item.father %}
+            {% endif %}
+          </td>
+          <td>
+            <i class="fa fa-fw {% if item.sex == 1 %}fa-venus{% else %}fa-mars{% endif %}"></i>
+            {% if item.patient in case.sex_errors %}
+              {% include "variants/case/indicator_sex_error.html" with item=object sample=item.patient %}
+            {% endif %}
+          </td>
+          <td><i class="fa a-fw {% if item.affected == 2 %}fa-check{% else %}fa-times{% endif %}"></i></td>
+          <td><i class="fa a-fw {% if item.has_gt_entries %}fa-check{% else %}fa-ban{% endif %}"></i></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="card-body">
+    {% if object.sex_errors %}
+      {% for sample, messages in object.sex_errors.items %}
+        {% for message in messages %}
+          <div class="alert alert-danger" role="alert">
+            <strong>Issue with sex consistency!</strong>
+            {{ sample }} {{ message }}
+          </div>
+        {% endfor %}
+      {% endfor %}
+    {% endif %}
+    {% if object.rel_errors %}
+      {% for sample, messages in object.rel_errors.items %}
+        {% for message in messages %}
+          <div class="alert alert-danger" role="alert">
+            <strong>Issue with relationship consistency!</strong>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>
