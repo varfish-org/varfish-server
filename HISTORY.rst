@@ -2,16 +2,27 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+------
+v0.8.0
+------
 
-The focus of the upcoming release is adding display of variant statistics for cases.
+This release added variant statistics and quality control features.
 
-- Gathering the following statistics for each individuals in a case:
-    - transition to transversion ratio for on-target variants
+End-User Summary
+================
+
+- Gathering an extended set of statistics for each individuals in a case.
+- Inconsistencies within pedigree and between pedigree and variant information displayed throughout UI.
+- Several statistics and quality control plots are displayed on the case details page.
+
+Full Change List
+================
+
 - Adding ``var_qc_stats`` module with analysis algorithms similar to (Pedersen and Quinlan, 2017).
-- Display statistics results on case detail page.
+- Adding models for gathering per-sample and per-sample-pair statistics.
+- Display statistics results on case detail page in tableas and plots.
+- Highlighting of consistency and sanity check errors throughout the views.
+- Importer computes statistics for new cases, migration adds them to existing cases.
 
 ------
 v0.7.0
