@@ -365,7 +365,7 @@ class Case(models.Model):
                 and ped_entries[rel_stats.sample1]["father"] != "0"
                 and ped_entries[rel_stats.sample1]["mother"] != "0"
             ):
-                relationship = "sib-sib"
+                relationship = "sibling-sibling"
             elif (
                 ped_entries[rel_stats.sample1]["father"] == rel_stats.sample2
                 or ped_entries[rel_stats.sample1]["mother"] == rel_stats.sample2
@@ -373,15 +373,15 @@ class Case(models.Model):
                 or ped_entries[rel_stats.sample2]["mother"] == rel_stats.sample1
             ):
                 relationship = "parent-child"
-            if (relationship == "sib-sib" and rel_stats.relatedness() < THRESH_SIBLING) or (
+            if (relationship == "sibling-sibling" and rel_stats.relatedness() < THRESH_SIBLING) or (
                 relationship == "parent-child" and rel_stats.relatedness() < THRESH_PARENT
             ):
                 for sample in (rel_stats.sample1, rel_stats.sample2):
                     result.setdefault(sample, []).append(
                         (
-                            "pedigree shows parent-child relation for {} and {} but variants show low degree "
+                            "pedigree shows {} relation for {} and {} but variants show low degree "
                             "of relatedness"
-                        ).format(rel_stats.sample1, rel_stats.sample2)
+                        ).format(relationship, rel_stats.sample1, rel_stats.sample2)
                     )
         return result
 

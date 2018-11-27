@@ -2,6 +2,12 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+- Putting "sibling-sibling" instead of "parent-child" where it belongs.
+
 ------
 v0.9.1
 ------
