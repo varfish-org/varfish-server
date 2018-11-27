@@ -126,7 +126,10 @@ class CaseListView(
             for case in cases
             for stats in case.variant_stats.sample_variant_stats.all()
         ]
-        result["dp_quantiles"] = list(np.percentile(np.asarray(dp_medians), [0, 25, 50, 100]))
+        if not dp_medians:
+            result["dp_quantiles"] = [0] * 5
+        else:
+            result["dp_quantiles"] = list(np.percentile(np.asarray(dp_medians), [0, 25, 50, 100]))
         result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
         result["sample_stats"] = {
             stats.sample_name: stats
@@ -138,9 +141,12 @@ class CaseListView(
             for case in cases
             for stats in case.variant_stats.sample_variant_stats.all()
         ]
-        result["het_ratio_quantiles"] = list(
-            np.percentile(np.asarray(het_ratios), [0, 25, 50, 100])
-        )
+        if not het_ratios:
+            result["het_ratio_quantiles"] = [0] * 5
+        else:
+            result["het_ratio_quantiles"] = list(
+                np.percentile(np.asarray(het_ratios), [0, 25, 50, 100])
+            )
 
         return result
 

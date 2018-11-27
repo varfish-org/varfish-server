@@ -6,6 +6,7 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+- Fixing error in displaying variants statistics for empty project.
 - Improving relationship error display.
 - Putting "sibling-sibling" instead of "parent-child" where it belongs.
 
