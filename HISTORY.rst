@@ -10,6 +10,7 @@ HEAD (unrelease)
 - Fixing counting in project-wide statistics computation.
 - Fixing references to ``pedigree_relatedness``.
 - Fixing sex display in template, sex error message "male" where "female should be".
+- Fixing sex assignment in sex scatter plot.
 
 ------
 v0.9.0

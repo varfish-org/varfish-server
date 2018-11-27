@@ -553,11 +553,11 @@ function plotSexChrxHetHom() {
             stepSize: 0.5,
             callback: function(value, index, values) {
               if (value == 1) {
-                return "female";
+                return "male";
               } else if (value == 1.5) {
                 return "unknown";
               } else if (value == 2.0) {
-                return "male";
+                return "female";
               }
             }
           },
