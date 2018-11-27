@@ -239,7 +239,7 @@ def compute_relatedness_many(connection, variant_model, cases, min_depth=7, n_si
             sample: _normalize_gt(genotype.get(sample, {}).get("gt", "./.")) for sample in samples
         }
         nocalls = [gt for gt in gts if gt == "./."]
-        if len(nocalls) / len(gts) > 0.5:
+        if len(nocalls) / len(gts) > 0.1 and len(gts) - len(nocalls) > 5:
             continue  # skip, too few calls
         # Skip if depth not sufficient.
         # TODO: will fail without depth annotation
