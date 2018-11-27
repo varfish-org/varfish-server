@@ -1,6 +1,10 @@
 <div class="ml-auto">
   <a class="btn btn-primary" href="{% url "variants:project-stats-job-create" project=project.sodar_uuid %}">
     <i class="fa fa-refresh"></i>
-    Recompute Project-Wide Stats
+    Recompute Stats
+  </a>
+  <a class="btn btn-primary" href="{% url "variants:filter-project-cases" project=project.sodar_uuid %}">
+    <i class="fa fa-filter"></i>
+    Joint Filtration
   </a>
 </div>

@@ -890,6 +890,20 @@ class CountOnlyFilterQuery(
         return super().run(kwargs).first()[0]
 
 
+# Filter query to run against multiple cases within the same project.
+
+
+class ProjectCasesFilterQuery(
+    # XXX
+    OrderByChromosomalPositionMixin,
+    JoinAndQueryCommonAdditionalTables,
+    FilterQueryRenderFieldsMixin,
+    BaseTableQueriesMixin,
+    SingleCaseFilterQueryBase,
+):
+    """Run filter query for the interactive filtration form."""
+
+
 # Clinvar report query mixins and classes.
 
 

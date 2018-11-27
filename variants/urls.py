@@ -21,6 +21,12 @@ urlpatterns = [
         view=views.CaseClinvarReportView.as_view(),
         name="case-clinvar",
     ),
+    # Project-wide case filtration.
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/filter-cases/$",
+        view=views.ProjectCasesFilterView.as_view(),
+        name="filter-project-cases",
+    ),
     # View for list background jobs
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/jobs/list/(?P<case>[0-9a-f-]+)/$",

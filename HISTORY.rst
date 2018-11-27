@@ -10,6 +10,7 @@ The aim of this release is to add cohort-wide approach to the data by performing
 
 - Added models for storing project-wide statistics, job code for creating this, views for viewing etc.
 - Adjusting the existing plot and model code to accomodate for this.
+- Refactoring filtration form class into composition from multiple mixins.
 
 ------
 v0.8.0

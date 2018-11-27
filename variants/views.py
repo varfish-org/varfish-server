@@ -24,7 +24,12 @@ from clinvar.models import Clinvar
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from projectroles.plugins import get_backend_api
-from .models_support import ClinvarReportQuery, RenderFilterQuery, KnownGeneAAQuery
+from .models_support import (
+    ClinvarReportQuery,
+    RenderFilterQuery,
+    ProjectCasesFilterQuery,
+    KnownGeneAAQuery,
+)
 
 from .models import (
     Case,
@@ -40,13 +45,14 @@ from .forms import (
     ClinvarForm,
     DistillerSubmissionResubmitForm,
     ExportFileResubmitForm,
-    FilterForm,
-    ProjectStatsJobForm,
-    SmallVariantFlagsForm,
-    SmallVariantCommentForm,
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
     FILTER_FORM_TRANSLATE_EFFECTS,
     FILTER_FORM_TRANSLATE_SIGNIFICANCE,
+    FilterForm,
+    ProjectCasesFilterForm,
+    ProjectStatsJobForm,
+    SmallVariantCommentForm,
+    SmallVariantFlagsForm,
 )
 from .tasks import export_file_task, distiller_submission_task, compute_project_variants_stats
 
@@ -350,6 +356,83 @@ class CaseFilterView(
         context = super().get_context_data(**kwargs)
         context["object"] = self.get_case_object()
         return context
+
+
+class ProjectCasesFilterView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    FormView,
+):
+    """Filter all cases in a project at once.
+
+    This allows to take a cohort-based view on the data, e.g., screening certain genes in all
+    donors of a cohort.
+    """
+
+    template_name = "variants/project_cases_filter.html"
+    permission_required = "variants.view_data"
+    form_class = ProjectCasesFilterForm
+    success_url = "."
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._alchemy_connection = None
+
+    def form_valid(self, form):
+        """The form is valid, we are supposed to render an HTML table with the results."""
+        # Save query parameters.
+        # TODO: store!
+        # stored_query = SmallVariantQuery.objects.create(
+        #     case=self.get_case_object(),
+        #     user=self.request.user,
+        #     form_id=form.form_id,
+        #     form_version=form.form_version,
+        #     query_settings=_undecimal(form.cleaned_data),
+        # )
+        # Perform query while recording time.
+        before = timezone.now()
+        qb = ProjectCasesFilterQuery(
+            self._get_project(self.request, self.kwargs), self.get_alchemy_connection()
+        )
+        result = qb.run(form.cleaned_data)
+        num_results = result.rowcount
+        rows = list(result.fetchmany(form.cleaned_data["result_rows_limit"]))
+        elapsed = timezone.now() - before
+        return render(
+            self.request,
+            self.template_name,
+            self.get_context_data(
+                result_rows=rows, result_count=num_results, elapsed_seconds=elapsed.total_seconds()
+            ),
+        )
+
+    def XXX_get_initial(self):
+        """Put initial data in the form from the previous query if any and push information into template for the
+        "welcome back" message."""
+        result = self.initial.copy()
+        previous_query = (
+            self.get_case_object()
+            .small_variant_queries.filter(user=self.request.user)
+            .order_by("-date_created")
+            .first()
+        )
+        if self.request.method == "GET" and previous_query:
+            # TODO: the code for version conversion needs to be hooked in here
+            messages.info(
+                self.request,
+                ("Welcome back! We have restored your previous query settings from {}.").format(
+                    naturaltime(previous_query.date_created)
+                ),
+            )
+            for key, value in previous_query.query_settings.items():
+                if isinstance(value, list):
+                    result[key] = " ".join(value)
+                else:
+                    result[key] = value
+        return result
 
 
 def status_level(status):

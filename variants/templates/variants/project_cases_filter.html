@@ -6,8 +6,7 @@
 
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
-  <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.sodar_uuid %}">{{ object.name }}</a></li>
-  <li class="breadcrumb-item active">Filter</li>
+  <li class="breadcrumb-item active">Joint Filtration</li>
 {% endblock %}
 
 {% block projectroles %}
@@ -46,7 +45,7 @@
 
   <div class="row sodar-pr-content-title pb-2">
     <h2 class="sodar-pr-content-title">
-      &quot;{{ object.name }}&quot; &mdash; Variant Filter
+      Joint Filtration in Project &quot;{{ project.title }}&quot;
     </h2>
   </div>
 
@@ -122,7 +121,9 @@
   {% endif %}
 {% endblock projectroles %}
 
+{% comment %}
 {% block javascript %}
   {{ block.super }}
   {% include "variants/script_filter_form.html" %}
 {% endblock javascript %}
+{% endcomment %}
