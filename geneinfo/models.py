@@ -55,7 +55,12 @@ class Hgnc(models.Model):
     objects = CopyManager()
 
     class Meta:
-        indexes = [models.Index(fields=["ensembl_gene_id"]), models.Index(fields=["entrez_id"])]
+        indexes = [
+            models.Index(fields=["ensembl_gene_id"]),
+            models.Index(fields=["entrez_id"]),
+            models.Index(fields=["symbol"]),
+            models.Index(fields=["ensembl_gene_id", "entrez_id", "symbol"]),
+        ]
 
 
 class Mim2geneMedgen(models.Model):

@@ -13,6 +13,7 @@ The aim of this release is to add cohort-wide approach to the data by performing
 - Refactoring filtration form class into composition from multiple mixins.
 - Refactoring small variant query model to use abstract base class and add query model for project-wide queries.
 - Implementing download as tabular data for project-wide filtration.
+- Improving index structure for project-wide queries with gene white-lists.
 
 ------
 v0.8.0
