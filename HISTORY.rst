@@ -2,6 +2,13 @@
 History / Changelog
 ===================
 
+----------------
+HEAD (unrelease)
+----------------
+
+- Adding missing dependency on ``django_redis``.
+- Fixing counting in project-wide statistics computation.
+
 ------
 v0.9.0
 ------

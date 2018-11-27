@@ -239,28 +239,34 @@ def compute_relatedness_many(connection, variant_model, cases, min_depth=7, n_si
             sample: _normalize_gt(genotype.get(sample, {}).get("gt", "./.")) for sample in samples
         }
         nocalls = [gt for gt in gts if gt == "./."]
-        if len(nocalls) / len(gts) > 0.1 and len(gts) - len(nocalls) > 5:
+        if len(nocalls) / len(gts) > 0.1 and len(gts) - len(nocalls) < 5:
             continue  # skip, too few calls
         # Skip if depth not sufficient.
         # TODO: will fail without depth annotation
         gt_depths = np.asarray([genotype.get(sample, {}).get("dp", -1) for sample in samples])
-        if any(gt_depths < min_depth):
-            continue  # skip, coverage too low
         # Compute statistics
         for sample in samples:
-            het[sample] += gts[sample] in ("0/1", "1/0")
+            if gts[sample] == "1/0":
+                gts[sample] = "0/1"
+            het[sample] += gts[sample] == "0/1"
         for s, t in sample_pairs:
             gt1 = gts[s]
             gt2 = gts[t]
+            if gt1 == "./." and gt2 == "./.":
+                continue  # skip if both no-call
+            if gt1 == "./.":  # assume HOM_REF
+                gt1 = "0/0"
+            if gt2 == "./.":  # assume HOM_REF
+                gt2 = "0/0"
             gt_set = {gt1, gt2}
             if len(gt_set) == 1:
                 ibs2[(s, t)] += 1
                 if gt1 == "0/1":
                     het_shared[(s, t)] += 1
-            elif gt_set == {"0/0", "1/1"}:
-                ibs0[(s, t)] += 1
-            else:
+            elif gt_set in ({"0/0", "0/1"}, {"1/1", "0/1"}):
                 ibs1[(s, t)] += 1
+            else:
+                ibs0[(s, t)] += 1
         kept += 1
         if kept > n_sites:
             break
