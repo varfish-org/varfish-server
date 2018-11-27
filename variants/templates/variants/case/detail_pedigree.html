@@ -36,7 +36,7 @@
             {% endif %}
           </td>
           <td>
-            <i class="fa fa-fw {% if item.sex == 1 %}fa-venus{% else %}fa-mars{% endif %}"></i>
+            <i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% else %}fa-mars{% endif %}"></i>
             {% if item.patient in case.sex_errors %}
               {% include "variants/case/indicator_sex_error.html" with item=object sample=item.patient %}
             {% endif %}

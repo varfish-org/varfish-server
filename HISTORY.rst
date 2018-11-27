@@ -9,6 +9,7 @@ HEAD (unrelease)
 - Adding missing dependency on ``django_redis``.
 - Fixing counting in project-wide statistics computation.
 - Fixing references to ``pedigree_relatedness``.
+- Fixing sex display in template.
 
 ------
 v0.9.0
