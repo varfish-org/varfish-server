@@ -6,6 +6,7 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+- Improving relationship error display.
 - Putting "sibling-sibling" instead of "parent-child" where it belongs.
 
 ------

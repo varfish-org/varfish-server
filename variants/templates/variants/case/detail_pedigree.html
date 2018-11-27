@@ -22,19 +22,14 @@
     <tbody>
       {% for item in object.pedigree %}
         <tr>
-          <td>{{ item.patient|only_source_name }}</td>
           <td>
-            {{ item.father|only_source_name }}
-            {% if item.father in object.rel_errors %}
-              {% include "variants/case/indicator_rel_error.html" with item=object sample=item.father %}
+            {{ item.patient|only_source_name }}
+            {% if item.patient in object.rel_errors %}
+              {% include "variants/case/indicator_rel_error.html" with item=object sample=item.patient %}
             {% endif %}
           </td>
-          <td>
-            {{ item.mother|only_source_name }}
-            {% if item.mother in object.rel_errors %}
-              {% include "variants/case/indicator_rel_error.html" with item=object sample=item.father %}
-            {% endif %}
-          </td>
+          <td>{{ item.father|only_source_name }}</td>
+          <td>{{ item.mother|only_source_name }}</td>
           <td>
             <i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% else %}fa-mars{% endif %}"></i>
             {% if item.patient in case.sex_errors %}
