@@ -149,12 +149,14 @@
                 <i class="fa fa-cloud-download"></i>
                 Download as File
               </button>
-              <button type="button" class="dropdown-item btn-secondary" data-toggle="modal" data-target="#confirm-submit-mutationdistiller"
-                    data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
-                    title="Submit to MutationDistiller (only supports single-sample VCF at the moment)">
-                <i class="fa fa-mail-forward"></i>
-                Submit to MutationDistiller
-              </button>
+              {% if allow_md_submittion %}
+                <button type="button" class="dropdown-item btn-secondary" data-toggle="modal" data-target="#confirm-submit-mutationdistiller"
+                      data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
+                      title="Submit to MutationDistiller (only supports single-sample VCF at the moment)">
+                  <i class="fa fa-mail-forward"></i>
+                  Submit to MutationDistiller
+                </button>
+              {% endif %}
             </div>
           </div>
         </div>

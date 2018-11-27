@@ -11,7 +11,7 @@ from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from geneinfo.models import Hgnc
 from hgmd.models import HgmdPublicLocus
-from variants.models import SmallVariant, SmallVariantComment, SmallVariantFlags
+from variants.models import Case, SmallVariant, SmallVariantComment, SmallVariantFlags
 from frequencies.models import GnomadExomes, GnomadGenomes, Exac, ThousandGenomes
 from variants.forms import (
     FILTER_FORM_TRANSLATE_INHERITANCE,
@@ -168,6 +168,14 @@ class SingleCaseFilterQueryBase:
         """Return the selectable object (e.g., a ``Join``)."""
         raise NotImplementedError("Override me!")
 
+    def _get_pedigree(self):
+        """Return list with lines from pedigree."""
+        return self.case.pedigree
+
+    def _get_filtered_pedigree_with_samples(self):
+        """Return list with lines from pedigree that have samples."""
+        return self.case.get_filtered_pedigree_with_samples()
+
     def _core_where(self, _kwargs, _gt_patterns=None):
         """Return ``WHERE`` clause for the core.
 
@@ -190,6 +198,85 @@ class SingleCaseFilterQueryBase:
         return stmt
 
 
+class ProjectCasesFilterQueryBase:
+    """Base class for running different variants of filter queries on all cases of a project.
+
+    The architecture is very similar to the one of ``SingleCaseFilterQueryBase`` and most mixins in this module
+    are written to be re-useable.  See that class' docstring for more information.
+
+    The main difference is that more than one case is selected.  Note that additional postprocessing is required
+    as the returned rows can have different keys in the "genotype" column (e.g., splitting of the rows such that
+    there is one row for each genotype entry or merging rows with the same variant.
+
+    Further, compound heterozygous queries are not supported when performing queries across cohorts.
+    """
+
+    def __init__(self, project, connection, debug=False):
+        #: The project that the query is for.
+        self.project = project
+        #: The Aldjemy connection to use
+        self.connection = connection
+        #: Whether or not to print queries before issuing them
+        self.debug = debug
+
+    def run(self, kwargs):
+        """Perform the query with the given ``kwargs``."""
+        stmt = self._build_stmt(kwargs)
+        if self.debug:  # pragma: no cover
+            sql = stmt.compile(self.connection.engine).string
+            print(sqlparse.format(sql, reindent=True, keyword_case="upper"))
+        with disable_json_psycopg2():
+            return self.connection.execute(stmt)
+
+    def _build_stmt(self, kwargs):
+        stmt = (
+            select(self._get_fields(kwargs, "single"))
+            .select_from(self._from(kwargs))
+            .where(self._core_where(kwargs))
+        )
+        return self._add_trailing(stmt, kwargs)
+
+    def _get_fields(self, _kwargs, _which, _inner=None):
+        """Return fields to ``select()`` with SQLAlchemy.
+
+        ``_which`` is "outer" or "inner".
+        """
+        raise NotImplementedError("Override me!")
+
+    def _from(self, _kwargs):
+        """Return the selectable object (e.g., a ``Join``)."""
+        raise NotImplementedError("Override me!")
+
+    def _core_where(self, _kwargs, _gt_patterns=None):
+        """Return ``WHERE`` clause for the core.
+
+        If ``_gt_pattern`` is given then the selected individual's genotype will be forced
+        as given in this parameter.  Examples for the values are:
+
+        - ``{}`` -- empty
+        - ``{"child": "het", "father": "het", "mother": "hom"}``
+        - ``{"child": "het", "father": "hom", "mother": "het"}``
+
+        The default implementation queries for variants for the particular case only.
+        """
+        return SmallVariant.sa.case_id.in_(self.project.get_case_pks())
+
+    def _add_trailing(self, stmt, _kwargs):
+        """Optionally add trailing parts of statement.
+
+        The default implementation does not change ``stmt``.
+        """
+        return stmt
+
+    def _get_pedigree(self):
+        """Return list with lines from pedigree."""
+        return self.project.get_pedigree()
+
+    def _get_filtered_pedigree_with_samples(self):
+        """Return list with lines from pedigree that have samples."""
+        return self.project.get_filtered_pedigree_with_samples()
+
+
 # Query class mixins that add to the WHERE clause.
 
 
@@ -205,14 +292,15 @@ class GenotypeTermWhereMixin:
 
     def _yield_genotype_terms(self, kwargs, gt_patterns=None):
         """Build term for checking called genotypes and genotype qualities"""
-        # Limit members to those in ``gt_patterns`` if given and use all members from pedigree
-        # otherwise.
+        # Limit members to those in ``gt_patterns`` if given and use all members from pedigree otherwise.
         if gt_patterns:
             members = [
-                m for m in self.case.pedigree if m["patient"] in gt_patterns and m["has_gt_entries"]
+                m
+                for m in self._get_pedigree()
+                if m["patient"] in gt_patterns and m["has_gt_entries"]
             ]
         else:
-            members = self.case.get_filtered_pedigree_with_samples()
+            members = self._get_filtered_pedigree_with_samples()
         for m in members:
             name = m["patient"]
             # Use genotype pattern ``gt_patterns`` override if given and use the patterns from
@@ -232,13 +320,25 @@ class GenotypeTermWhereMixin:
                 yield genotype_term
 
     def _build_genotype_gt_term(self, name, gt_list):
+        """Build genotype term for the given sample.
+
+        In the case that ``name`` does not have an entry in the ``genotype`` column, no check is performed.  Otherwise,
+        this would exclude the variant if the sample name is not in the ``genotype`` dict.
+        """
         if gt_list:
-            return SmallVariant.sa.genotype[name]["gt"].astext.in_(gt_list)
+            return or_(
+                SmallVariant.sa.genotype[name] == None,  # SQL Alchemy forces "== None" here
+                SmallVariant.sa.genotype[name]["gt"].astext.in_(gt_list),
+            )
         else:
             return True
 
     def _build_genotype_quality_term(self, name, kwargs):
-        return and_(
+        """Build genotype quality term for the given sample.
+
+        Similar to ``_build_genotype_gt_term()``, only sample that have the ``genotype`` set are checked for.
+        """
+        rhs = and_(
             # Genotype quality is simple.
             SmallVariant.sa.genotype[name]["gq"].astext.cast(Integer) >= kwargs["%s_gq" % name],
             # The depth setting depends on whether the variant is in homozygous or heterozygous state.
@@ -294,6 +394,7 @@ class GenotypeTermWhereMixin:
                 ),
             ),
         )
+        return or_(SmallVariant.sa.genotype[name] == None, rhs)  # SQL Alchemy forces "== None" here
 
 
 class FrequencyTermWhereMixin:
@@ -474,6 +575,9 @@ class JoinDbsnpAndHgncMixin:
 class FilterQueryRenderFieldsMixin(JoinDbsnpAndHgncMixin):
     """Mixin for selecting the standard fields for rendering the query reports in the web app."""
 
+    def _from(self, kwargs):
+        return super()._from(kwargs).join(Case.sa.table, Case.sa.id == SmallVariant.sa.case_id)
+
     def _get_fields(self, kwargs, which, inner=None):
         if which == "outer":
             if inner is not None:
@@ -504,6 +608,7 @@ class FilterQueryRenderFieldsMixin(JoinDbsnpAndHgncMixin):
                 Hgnc.sa.name.label("gene_name"),
                 Hgnc.sa.gene_family.label("gene_family"),
                 Dbsnp.sa.rsid,
+                Case.sa.sodar_uuid.label("case_uuid"),
             ]
             if kwargs["database_select"] == "refseq":
                 result += [
@@ -807,8 +912,12 @@ class JoinAndQueryCommonAdditionalTables(
 
 
 class OrderByChromosomalPositionMixin:
+    """Order by chromosomal position and reference/alternative allele string."""
+
     def _add_trailing(self, stmt, _kwargs):
-        return stmt.order_by(stmt.c.chromosome, stmt.c.position)
+        return stmt.order_by(
+            stmt.c.chromosome, stmt.c.position, stmt.c.reference, stmt.c.alternative
+        )
 
 
 class FilterQueryCountRecordsMixin(FilterQueryClinvarDetailsMixin, FilterQueryRenderFieldsMixin):
@@ -839,7 +948,7 @@ class ExportTableFileFilterQuery(
     BaseTableQueriesMixin,
     SingleCaseFilterQueryBase,
 ):
-    """Run filter query for creating tabular file (TSV, Excel) to export.
+    """Run filter query for creating tabular file (TSV, Excel) to export for a single case.
 
     Compared to ``RenderFilterQuery``, this only adds the ``knownGeneAA`` information.
     """
@@ -890,18 +999,31 @@ class CountOnlyFilterQuery(
         return super().run(kwargs).first()[0]
 
 
-# Filter query to run against multiple cases within the same project.
+# Filter query to run against all cases within the same project.
 
 
-class ProjectCasesFilterQuery(
-    # XXX
+class ProjectCasesRenderFilterQuery(
     OrderByChromosomalPositionMixin,
     JoinAndQueryCommonAdditionalTables,
     FilterQueryRenderFieldsMixin,
     BaseTableQueriesMixin,
-    SingleCaseFilterQueryBase,
+    ProjectCasesFilterQueryBase,
 ):
     """Run filter query for the interactive filtration form."""
+
+
+class ProjectCasesExportTableFilterQuery(
+    OrderByChromosomalPositionMixin,
+    JoinAndQueryCommonAdditionalTables,
+    JoinKnownGeneAaMixin,
+    FilterQueryRenderFieldsMixin,
+    BaseTableQueriesMixin,
+    ProjectCasesFilterQueryBase,
+):
+    """Run filter query for creating tabular file (TSV, Excel) to export for multiple cases.
+
+    Compared to ``ProjectCasesRenderFilterQuery``, this only adds the ``knownGeneAA`` information.
+    """
 
 
 # Clinvar report query mixins and classes.

@@ -9,8 +9,10 @@ HEAD (unreleased)
 The aim of this release is to add cohort-wide approach to the data by performing project-wide queries.
 
 - Added models for storing project-wide statistics, job code for creating this, views for viewing etc.
-- Adjusting the existing plot and model code to accomodate for this.
+- Adjusting the existing plot and model code to accommodate for this.
 - Refactoring filtration form class into composition from multiple mixins.
+- Refactoring small variant query model to use abstract base class and add query model for project-wide queries.
+- Implementing download as tabular data for project-wide filtration.
 
 ------
 v0.8.0

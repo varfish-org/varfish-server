@@ -56,7 +56,7 @@ class CaseExporterTest(ExportTestBase):
         self.export_job.save()
 
     def test_export_tsv(self):
-        with file_export.CaseExporterTsv(self.export_job) as exporter:
+        with file_export.CaseExporterTsv(self.export_job, self.export_job.case) as exporter:
             result = str(exporter.generate(), "utf-8")
         arrs = [line.split("\t") for line in result.split("\n")]
         self._test_tabular(arrs, True)
@@ -86,7 +86,7 @@ class CaseExporterTest(ExportTestBase):
             self.assertSequenceEqual(arrs[4], [""])
 
     def test_export_vcf(self):
-        with file_export.CaseExporterVcf(self.export_job) as exporter:
+        with file_export.CaseExporterVcf(self.export_job, self.export_job.case) as exporter:
             result = exporter.generate()
         unzipped = gzip.GzipFile(fileobj=io.BytesIO(result), mode="rb").read()
         lines = str(unzipped, "utf-8").split("\n")
@@ -111,7 +111,7 @@ class CaseExporterTest(ExportTestBase):
         self.assertEquals(content[3], "")
 
     def test_export_xlsx(self):
-        with file_export.CaseExporterXlsx(self.export_job) as exporter:
+        with file_export.CaseExporterXlsx(self.export_job, self.export_job.case) as exporter:
             result = exporter.generate()
         with tempfile.NamedTemporaryFile(suffix=".xlsx") as temp_file:
             temp_file.write(result)

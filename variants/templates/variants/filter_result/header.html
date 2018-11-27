@@ -13,10 +13,15 @@
   <th colspan="2" class="detail-thousand-genomes">1000 genomes</th>
   <th></th>{# gene #}
   <th></th>{# effect #}
-  {# pedigree members #}
-  {% for member in form.pedigree_with_samples  %}
+  {% if query_type == "case" %}
+    {# pedigree members #}
+    {% for member in form.get_pedigree_with_samples  %}
+      <th></th>
+    {% endfor %}
+  {% else %}  {# query_type == "project" #}
     <th></th>
-  {% endfor %}
+    <th></th>
+  {% endif %}
   <th></th> {# link-outs #}
 </tr>
 <tr>
@@ -35,13 +40,18 @@
   <th class="detail-thousand-genomes"># hom.</th>
   <th>gene</th>
   <th>effect</th>
-  {% for member in form.pedigree_with_samples  %}
-    <th style="max-width: 80px;">
-      <div class="sodar-overflow-container sodar-overflow-hover">
-        {{ member.patient|only_source_name }}
-      </div>
-    </th>
-  {% endfor %}
+  {% if query_type == "case" %}
+    {% for member in form.get_pedigree_with_samples  %}
+      <th style="max-width: 80px;">
+        <div class="sodar-overflow-container sodar-overflow-hover">
+          {{ member.patient|only_source_name }}
+        </div>
+      </th>
+    {% endfor %}
+  {% else %}  {# query_type == "project #}
+    <th>sample</th>
+    <th>genotype</th>
+  {% endif %}
   <th></th> {# link-outs #}
   <th></th> {# clin-var #}
 </tr>

@@ -4,7 +4,11 @@
 {% load dict %}
 
 <tr id="expand{{ forloop.counter0 }}" class="collapse">
-  <td colspan='{{ form.pedigree_with_samples|length|add:"11" }}'>
+  {% if query_type == "case" %}
+    <td colspan='{{ form.pedigree_with_samples|length|add:"11" }}'>
+  {% else %}  {# query_type == "project" #}
+    <td colspan='{{ 2|add:"11" }}'>
+  {% endif %}
     <div class="row pb-3">
       <div class="col-4 pl-0">
         <div class="card">

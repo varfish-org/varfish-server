@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
 from django.db import transaction
-from django.shortcuts import render, redirect, reverse, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
@@ -27,24 +27,26 @@ from projectroles.plugins import get_backend_api
 from .models_support import (
     ClinvarReportQuery,
     RenderFilterQuery,
-    ProjectCasesFilterQuery,
+    ProjectCasesRenderFilterQuery,
     KnownGeneAAQuery,
 )
-
 from .models import (
     Case,
     ExportFileBgJob,
+    ExportProjectCasesFileBgJob,
     DistillerSubmissionBgJob,
     ComputeProjectVariantsStatsBgJob,
     CaseAwareProject,
     SmallVariantFlags,
     SmallVariantComment,
     SmallVariantQuery,
+    ProjectCasesSmallVariantQuery,
 )
 from .forms import (
     ClinvarForm,
     DistillerSubmissionResubmitForm,
     ExportFileResubmitForm,
+    ExportProjectCasesFileResubmitForm,
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
     FILTER_FORM_TRANSLATE_EFFECTS,
     FILTER_FORM_TRANSLATE_SIGNIFICANCE,
@@ -54,7 +56,13 @@ from .forms import (
     SmallVariantCommentForm,
     SmallVariantFlagsForm,
 )
-from .tasks import export_file_task, distiller_submission_task, compute_project_variants_stats
+from .tasks import (
+    export_file_task,
+    export_project_cases_file_task,
+    distiller_submission_task,
+    compute_project_variants_stats,
+)
+from .file_export import RowWithSampleProxy
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -258,7 +266,7 @@ class CaseFilterView(
                     form.cleaned_data["file_type"], self.get_case_object().name
                 ),
                 project=self._get_project(self.request, self.kwargs),
-                job_type="variants.export_file_bg_job",
+                job_type=ExportFileBgJob.spec_name,
                 user=self.request.user,
             )
             export_job = ExportFileBgJob.objects.create(
@@ -283,7 +291,7 @@ class CaseFilterView(
             bg_job = BackgroundJob.objects.create(
                 name="Submitting case {} to MutationDistiller".format(self.get_case_object().name),
                 project=self._get_project(self.request, self.kwargs),
-                job_type="variants.distiller_submission_bg_job",
+                job_type=DistillerSubmissionBgJob.spec_name,
                 user=self.request.user,
             )
             submission_job = DistillerSubmissionBgJob.objects.create(
@@ -304,7 +312,7 @@ class CaseFilterView(
     def _form_valid_render(self, form):
         """The form is valid, we are supposed to render an HTML table with the results."""
         # Save query parameters.
-        stored_query = SmallVariantQuery.objects.create(
+        SmallVariantQuery.objects.create(
             case=self.get_case_object(),
             user=self.request.user,
             form_id=form.form_id,
@@ -355,6 +363,7 @@ class CaseFilterView(
         """Put the ``Case`` object into the context."""
         context = super().get_context_data(**kwargs)
         context["object"] = self.get_case_object()
+        context["allow_md_submittion"] = True
         return context
 
 
@@ -372,6 +381,9 @@ class ProjectCasesFilterView(
     donors of a cohort.
     """
 
+    #: Use Project proxy model that is aware of cases.
+    project_class = CaseAwareProject
+
     template_name = "variants/project_cases_filter.html"
     permission_required = "variants.view_data"
     form_class = ProjectCasesFilterForm
@@ -381,25 +393,60 @@ class ProjectCasesFilterView(
         super().__init__(*args, **kwargs)
         self._alchemy_connection = None
 
+    def get_form_kwargs(self):
+        result = super().get_form_kwargs()
+        result["project"] = self._get_project(self.request, self.kwargs)
+        return result
+
     def form_valid(self, form):
+        """Main branching point either render result or create an asychronous job."""
+        if form.cleaned_data["submit"] == "download":
+            return self._form_valid_file(form)
+        else:
+            return self._form_valid_render(form)
+
+    def _form_valid_file(self, form):
+        """The form is valid, we want to asynchronously build a file for later download."""
+        with transaction.atomic():
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Create {} file for cases in project".format(form.cleaned_data["file_type"]),
+                project=self._get_project(self.request, self.kwargs),
+                job_type=ExportProjectCasesFileBgJob.spec_name,
+                user=self.request.user,
+            )
+            export_job = ExportProjectCasesFileBgJob.objects.create(
+                project=self._get_project(self.request, self.kwargs),
+                bg_job=bg_job,
+                query_args=_undecimal(form.cleaned_data),
+                file_type=form.cleaned_data["file_type"],
+            )
+        export_project_cases_file_task.delay(export_job_pk=export_job.pk)
+        messages.info(
+            self.request,
+            "Created background job for your file download. "
+            "After the file has been generated, you will be able to download it here.",
+        )
+        return redirect(export_job.get_absolute_url())
+
+    def _form_valid_render(self, form):
         """The form is valid, we are supposed to render an HTML table with the results."""
         # Save query parameters.
-        # TODO: store!
-        # stored_query = SmallVariantQuery.objects.create(
-        #     case=self.get_case_object(),
-        #     user=self.request.user,
-        #     form_id=form.form_id,
-        #     form_version=form.form_version,
-        #     query_settings=_undecimal(form.cleaned_data),
-        # )
+        ProjectCasesSmallVariantQuery.objects.create(
+            project=self._get_project(self.request, self.kwargs),
+            user=self.request.user,
+            form_id=form.form_id,
+            form_version=form.form_version,
+            query_settings=_undecimal(form.cleaned_data),
+        )
         # Perform query while recording time.
         before = timezone.now()
-        qb = ProjectCasesFilterQuery(
+        qb = ProjectCasesRenderFilterQuery(
             self._get_project(self.request, self.kwargs), self.get_alchemy_connection()
         )
         result = qb.run(form.cleaned_data)
         num_results = result.rowcount
-        rows = list(result.fetchmany(form.cleaned_data["result_rows_limit"]))
+        rows = self._split_rows_per_sample(result.fetchmany(form.cleaned_data["result_rows_limit"]))
         elapsed = timezone.now() - before
         return render(
             self.request,
@@ -409,14 +456,21 @@ class ProjectCasesFilterView(
             ),
         )
 
-    def XXX_get_initial(self):
+    def _split_rows_per_sample(self, rows):
+        """Create one row for each sample, adding the ``sample`` colum entry."""
+        result = []
+        for row in rows:
+            for sample in sorted(row.genotype.keys()):
+                result.append(RowWithSampleProxy(row, sample))
+        return result
+
+    def get_initial(self):
         """Put initial data in the form from the previous query if any and push information into template for the
         "welcome back" message."""
         result = self.initial.copy()
         previous_query = (
-            self.get_case_object()
+            self._get_project(self.request, self.kwargs)
             .small_variant_queries.filter(user=self.request.user)
-            .order_by("-date_created")
             .first()
         )
         if self.request.method == "GET" and previous_query:
@@ -482,7 +536,7 @@ class CaseClinvarReportView(
     def form_valid(self, form):
         """The form is valid, we are supposed to render an HTML table with the results."""
         # Save query parameters.
-        stored_query = SmallVariantQuery.objects.create(
+        SmallVariantQuery.objects.create(
             case=self.get_case_object(),
             user=self.request.user,
             form_id=form.form_id,
@@ -705,7 +759,7 @@ class ExportFileJobResubmitView(
                     form.cleaned_data["file_type"], job.case
                 ),
                 project=job.bg_job.project,
-                job_type="variants.export_file_bg_job",
+                job_type=ExportFileBgJob.spec_name,
                 user=self.request.user,
             )
             export_job = ExportFileBgJob.objects.create(
@@ -716,6 +770,103 @@ class ExportFileJobResubmitView(
                 file_type=form.cleaned_data["file_type"],
             )
         export_file_task.delay(export_job_pk=export_job.pk)
+        return redirect(export_job.get_absolute_url())
+
+
+class ExportProjectCasesFileJobDownloadView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Download the file generated, if generated.
+
+    Otherwise, thrown 404.
+    """
+
+    http_method_names = ["get"]
+
+    permission_required = "variants.view_data"
+    template_name = "variants/export_project_cases_job_detail.html"
+    model = ExportProjectCasesFileBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+
+    def get(self, request, *args, **kwargs):
+        try:
+            content_types = {
+                "tsv": "text/tab-separated-values",
+                "vcf": "text/plain+gzip",
+                "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            }
+            extensions = {"tsv": ".tsv", "vcf": ".vcf.gz", "xlsx": ".xlsx"}
+            obj = self.get_object()
+            response = HttpResponse(
+                obj.export_result.payload, content_type=content_types[obj.file_type]
+            )
+            response["Content-Disposition"] = 'attachment; filename="%(name)s%(ext)s"' % {
+                "name": "varfish_%s_%s"
+                % (timezone.now().strftime("%Y-%m-%d_%H:%M:%S.%f"), obj.project.sodar_uuid),
+                "ext": extensions[obj.file_type],
+            }
+            return response
+        except ObjectDoesNotExist as e:
+            raise Http404("File has not been generated (yet)!") from e
+
+
+class ExportProjectCasesFileJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of the file export background job.
+    """
+
+    permission_required = "variants.view_data"
+    template_name = "variants/export_project_cases_job_detail.html"
+    model = ExportProjectCasesFileBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+
+    def get_context_data(self, *args, **kwargs):
+        result = super().get_context_data(*args, **kwargs)
+        result["resubmit_form"] = ExportProjectCasesFileResubmitForm()
+        return result
+
+
+class ExportProjectCasesFileJobResubmitView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
+    """Resubmit export file job."""
+
+    permission_required = "variants.view_data"
+    form_class = ExportProjectCasesFileResubmitForm
+
+    def form_valid(self, form):
+        job = get_object_or_404(ExportProjectCasesFileBgJob, sodar_uuid=self.kwargs["job"])
+        with transaction.atomic():
+            bg_job = BackgroundJob.objects.create(
+                name="Create {} file for all cases in project (Resubmission)".format(
+                    form.cleaned_data["file_type"]
+                ),
+                project=job.bg_job.project,
+                job_type=ExportProjectCasesFileBgJob.spec_name,
+                user=self.request.user,
+            )
+            export_job = ExportProjectCasesFileBgJob.objects.create(
+                project=job.project,
+                bg_job=bg_job,
+                query_args=job.query_args,
+                file_type=form.cleaned_data["file_type"],
+            )
+        export_project_cases_file_task.delay(export_job_pk=export_job.pk)
         return redirect(export_job.get_absolute_url())
 
 
@@ -800,7 +951,7 @@ class DistillerSubmissionJobResubmitView(
             bg_job = BackgroundJob.objects.create(
                 name="Resubmitting case {} to MutationDistiller".format(job.case),
                 project=job.bg_job.project,
-                job_type="variants.distiller_submission_bg_job",
+                job_type=DistillerSubmissionBgJob.spec_name,
                 user=self.request.user,
             )
             submission_job = DistillerSubmissionBgJob.objects.create(
@@ -830,7 +981,7 @@ class ProjectStatsJobCreateView(
             bg_job = BackgroundJob.objects.create(
                 name="Recreate variant statistic for whole project",
                 project=self._get_project(self.request, self.kwargs),
-                job_type="variants.compute_project_variants_stats",
+                job_type=ComputeProjectVariantsStatsBgJob.spec_name,
                 user=self.request.user,
             )
             recreate_job = ComputeProjectVariantsStatsBgJob.objects.create(

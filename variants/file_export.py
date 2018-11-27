@@ -6,13 +6,24 @@ from tempfile import NamedTemporaryFile
 
 import aldjemy
 from django.utils import timezone
-import xlsxwriter
 import vcfpy
+import wrapt
+import xlsxwriter
 
-from .models import ExportFileJobResult, SmallVariantComment
+from .models import (
+    Case,
+    CaseAwareProject,
+    ExportFileJobResult,
+    ExportProjectCasesFileBgJobResult,
+    SmallVariantComment,
+)
 from .templatetags.variants_tags import flag_class
 from projectroles.plugins import get_backend_api
-from variants.models_support import ExportTableFileFilterQuery, ExportVcfFileFilterQuery
+from variants.models_support import (
+    ExportTableFileFilterQuery,
+    ExportVcfFileFilterQuery,
+    ProjectCasesExportTableFilterQuery,
+)
 
 #: Color to use for variants flagged as positive.
 BG_COLOR_POSITIVE = "#29a847"
@@ -133,16 +144,52 @@ CONTIGS_GRCH37 = (
 )
 
 
+class RowWithSampleProxy(wrapt.ObjectProxy):
+    """Allow setting sample name into a result row."""
+
+    def __init__(self, wrapped, sample_name):
+        super().__init__(wrapped)
+        self._self_sample_name = sample_name
+
+    @property
+    def sample_name(self):
+        return self._self_sample_name
+
+    @property
+    def genotype(self):
+        patch = {"sample": self.__wrapped__.genotype[self.sample_name]}
+        return {**self.__wrapped__.genotype, **patch}
+
+    def __getitem__(self, key):
+        if key == "sample_name":
+            return self._self_sample_name
+        elif key == "genotype":
+            return self.genotype
+        else:
+            return self.__wrapped__.__getitem__(key)
+
+
 class CaseExporterBase:
-    """Base class for export of (filtered) case data.
+    """Base class for export of (filtered) case data from single case or all cases of a project.
     """
 
-    #: The query class to use for building queries.
-    query_class = None
+    #: The query class to use for building single-case queries.
+    query_class_single_case = None
+    #: The query class to use for building project-wide queries.
+    query_class_project_cases = None
 
-    def __init__(self, job):
-        #: The ``ExportFileBgJob`` or ``DistillerSubmissionBgJob`` to use for obtaining case and query arguments.
+    def __init__(self, job, case_or_project):
+        #: The ``ExportFileBgJob`` or ``DistillerSubmissionBgJob`` to use for logging.  Variants are obtained
+        #: from ``case_or_project``.
         self.job = job
+        #: The case to export for, if any.
+        self.case = None
+        #: The project to export for, if any.
+        self.project = None
+        if isinstance(case_or_project, Case):
+            self.case = case_or_project
+        else:
+            self.project = case_or_project
         #: The SQL Alchemy connection to use.
         self._alchemy_connection = None
         #: The query arguments.
@@ -150,7 +197,11 @@ class CaseExporterBase:
         #: The named temporary file object to use for file handling.
         self.tmp_file = None
         #: The wrapper for running queries.
-        self.query = self.query_class(job.case, self.get_alchemy_connection())
+        self.query = None
+        if self.project:
+            self.query = self.query_class_project_cases(self.project, self.get_alchemy_connection())
+        else:
+            self.query = self.query_class_single_case(self.case, self.get_alchemy_connection())
         #: The name of the selected members.
         self.members = list(self._yield_members())
         #: The column information.
@@ -163,13 +214,20 @@ class CaseExporterBase:
 
     def _yield_members(self):
         """Get list of selected members."""
-        for m in self.job.case.get_filtered_pedigree_with_samples():
-            if self.query_args.get("%s_export" % m["patient"], False):
-                yield m["patient"]
+        if self.project:
+            yield "sample"
+        else:
+            for m in self.job.case.get_filtered_pedigree_with_samples():
+                if self.query_args.get("%s_export" % m["patient"], False):
+                    yield m["patient"]
 
     def _yield_columns(self, members):
         """Yield column information."""
-        header = HEADER_FIXED
+        if self.project:
+            header = [("sample_name", "Sample", str)]
+        else:
+            header = []
+        header += HEADER_FIXED
         if self.query_args["export_flags"]:
             header += HEADER_FLAGS
         if self.query_args["export_comments"]:
@@ -195,7 +253,11 @@ class CaseExporterBase:
             if small_var.chromosome != prev_chrom:
                 self.job.add_log_entry("Now on chromosome chr{}".format(small_var.chromosome))
                 prev_chrom = small_var.chromosome
-            yield small_var
+            if self.project:
+                for sample in sorted(small_var.genotype.keys()):
+                    yield RowWithSampleProxy(small_var, sample)
+            else:
+                yield small_var
 
     def _get_named_temporary_file_args(self):
         return {}
@@ -267,7 +329,8 @@ class CaseExporterBase:
 class CaseExporterTsv(CaseExporterBase):
     """Export a case to TSV format."""
 
-    query_class = ExportTableFileFilterQuery
+    query_class_single_case = ExportTableFileFilterQuery
+    query_class_project_cases = ProjectCasesExportTableFilterQuery
 
     def _write_variants_header(self):
         """Fill with actions to write the variant header."""
@@ -299,10 +362,11 @@ class CaseExporterTsv(CaseExporterBase):
 class CaseExporterXlsx(CaseExporterBase):
     """Export a case to Excel (XLSX) format."""
 
-    query_class = ExportTableFileFilterQuery
+    query_class_single_case = ExportTableFileFilterQuery
+    query_class_project_cases = ProjectCasesExportTableFilterQuery
 
-    def __init__(self, job):
-        super().__init__(job)
+    def __init__(self, job, case_or_project):
+        super().__init__(job, case_or_project)
         #: The ``Workbook`` object to use for writing.
         self.workbook = None
         #: The sheet with the variants.
@@ -352,10 +416,15 @@ class CaseExporterXlsx(CaseExporterBase):
 
     def _write_comment_sheet(self):
         # Write out meta data sheet.
+        if self.project:
+            header_prefix = ["Case"]
+        else:
+            header_prefix = []
         self.comment_sheet.write_row(
             0,
             0,
-            [
+            header_prefix
+            + [
                 "Chromosome",
                 "Position",
                 "Reference",
@@ -367,18 +436,27 @@ class CaseExporterXlsx(CaseExporterBase):
             ],
             self.header_format,
         )
-        for i, comment in enumerate(SmallVariantComment.objects.filter(case=self.job.case)):
-            row = [
-                comment.chromosome,
-                comment.position,
-                comment.reference,
-                comment.alternative,
-                comment.date_created,
-                comment.ensembl_gene_id,
-                comment.user.username,
-                comment.text,
-            ]
-            self.variant_sheet.write_row(1 + i, 0, row)
+        if self.case:
+            cases = [self.case]
+        else:
+            cases = [case for case in self.project.case_set.all()]
+        offset = 1
+        for case in cases:
+            for comment in SmallVariantComment.objects.filter(case=case):
+                row = [
+                    comment.chromosome,
+                    comment.position,
+                    comment.reference,
+                    comment.alternative,
+                    comment.date_created,
+                    comment.ensembl_gene_id,
+                    comment.user.username,
+                    comment.text,
+                ]
+                if self.project:
+                    row.insert(0, case.name)
+                self.variant_sheet.write_row(offset, 0, row)
+                offset += 1
 
     def _write_metadata_sheet(self):
         # Write out meta data sheet.
@@ -432,7 +510,6 @@ class CaseExporterXlsx(CaseExporterBase):
             fmt = (
                 self.styles.get(flag_class(small_var)) if self.query_args["export_flags"] else None
             )
-            print(flag_class(small_var))
             self.variant_sheet.write_row(1 + num_rows, 0, list(map(str, row)), fmt)
         # Freeze first row and first four columns and setup auto-filter.
         self.variant_sheet.freeze_panes(1, 4)
@@ -442,10 +519,11 @@ class CaseExporterXlsx(CaseExporterBase):
 class CaseExporterVcf(CaseExporterBase):
     """Export a case to VCF format."""
 
-    query_class = ExportVcfFileFilterQuery
+    query_class_single_case = ExportVcfFileFilterQuery
+    query_class_project_cases = ProjectCasesExportTableFilterQuery  # TODO!
 
-    def __init__(self, job):
-        super().__init__(job)
+    def __init__(self, job, case_or_project):
+        super().__init__(job, case_or_project)
         #: The ``vcfpy.Writer`` to use for writing the VCF file.
         self.vcf_writer = None
 
@@ -557,7 +635,7 @@ def export_case(job):
         tl_event.add_object(obj=job.case, label="case_name", name=job.case.name)
     try:
         klass = EXPORTERS[job.file_type]
-        with klass(job) as exporter:
+        with klass(job, job.case) as exporter:
             ExportFileJobResult.objects.create(
                 job=job,
                 expiry_time=timezone.now() + timedelta(days=EXPIRY_DAYS),
@@ -566,7 +644,7 @@ def export_case(job):
     except Exception as e:
         job.mark_error(e)
         if timeline:
-            tl_event.set_status("FAILED", "export complete for {case_name}")
+            tl_event.set_status("FAILED", "export failed for {case_name}")
         raise
     else:
         job.mark_success()
@@ -577,3 +655,37 @@ def export_case(job):
 def clear_expired_exported_files():
     """Clear expired exported files."""
     ExportFileJobResult.objects.filter(expiry_time__lt=timezone.now()).delete()
+    ExportProjectCasesFileBgJobResult.objects.filter(expiry_time__lt=timezone.now()).delete()
+
+
+def export_project_cases(job):
+    """Export a ``Case`` object, store result in a new ``ExportProjectCasesFileBgJobResult``."""
+    job.mark_start()
+    timeline = get_backend_api("timeline_backend")
+    if timeline:
+        tl_event = timeline.add_event(
+            project=job.project,
+            app_name="variants",
+            user=job.bg_job.user,
+            event_name="project_cases_export",
+            description="export filtration results for all cases in project",
+            status_type="INIT",
+        )
+    try:
+        klass = EXPORTERS[job.file_type]
+        project = CaseAwareProject.objects.get(pk=job.project.pk)
+        with klass(job, project) as exporter:
+            ExportProjectCasesFileBgJobResult.objects.create(
+                job=job,
+                expiry_time=timezone.now() + timedelta(days=EXPIRY_DAYS),
+                payload=exporter.generate(),
+            )
+    except Exception as e:
+        job.mark_error(e)
+        if timeline:
+            tl_event.set_status("FAILED", "export failed for all cases in project")
+        raise
+    else:
+        job.mark_success()
+        if timeline:
+            tl_event.set_status("OK", "export complete for all case in project")

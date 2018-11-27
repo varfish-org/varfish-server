@@ -6,11 +6,11 @@
 
 <tr class="variant-row variant-row-{{ entry|flag_class }}">
   <td class="clickable extend pl-0 pr-0" counter="{{ forloop.counter0 }}" url="{% url 'variants:extend' project=project.sodar_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative %}" data-toggle="collapse" data-target="#expand{{ forloop.counter0 }}" aria-expanded="false" aria-controls="expand{{ forloop.counter0 }}" aria-hidden="true"><i class="fa fa-fw fa-chevron-right"></i></td>
-  <td class="bookmark pl-0 pr-0">
+  <td class="bookmark pl-0 pr-0" style="white-space: nowrap;">
     <i class="fa fa-fw {% if entry.flag_count %}fa-bookmark{% else %}fa-bookmark-o{% endif %} text-muted variant-bookmark"
-       data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ object.sodar_uuid }}"></i>
+       data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}"></i>
     <i class="fa fa-fw {% if entry.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
-       data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ object.sodar_uuid }}"></i>
+       data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}"></i>
     &nbsp;
 
     {# dbSNP Indicator #}
@@ -96,20 +96,19 @@
       {{ entry.hgvs_p|default:"-" }}
     </span>
   </td>
-  {% for member in form.pedigree_with_samples %}
-    <td class="text-center">
-      <span data-toggle="tooltip" data-html="true" title="
-        {% with genotype=entry.genotype|keyvalue:member.patient %}
-          GT quality: {{ genotype|keyvalue:"gq" }}
-          <br />
-          variant reads: {{ genotype|keyvalue:"ad" }} /
-          {{ genotype|keyvalue:"dp" }}
-          ">
-          {{ genotype|keyvalue:"gt" }}
-        {% endwith %}
-      </span>
-      </td>
-  {% endfor %}
+  {% if query_type == "case" %}
+    {# pedigree members #}
+    {% for member in form.get_pedigree_with_samples  %}
+      {% include "variants/filter_result/_gt_field.html" with name=member.patient %}
+    {% endfor %}
+  {% else %}  {# query_type == "project" #}
+    <td style="max-width: 120px;">
+      <div class="sodar-overflow-container sodar-overflow-hover">
+        {{ entry.sample_name|only_source_name }}
+      </div>
+    </td>
+    {% include "variants/filter_result/_gt_field.html" with name=entry.sample_name %}
+  {% endif %}
   <td>
     <div class="btn-group sodar-list-btn-group pr-2">
       <a

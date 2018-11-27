@@ -37,6 +37,69 @@ PED_MALE = 1
 PED_FEMALE = 2
 
 
+class CaseAwareProject(Project):
+    """A project that is aware of its cases"""
+
+    class Meta:
+        proxy = True
+
+    @lru_cache()
+    def pedigree(self):
+        """Concatenate the pedigrees of project's cases."""
+        result = []
+        seen = set()
+        for case in self.case_set.all():
+            for line in case.pedigree:
+                if line["patient"] not in seen:
+                    result.append(line)
+                seen.add(line["patient"])
+        return result
+
+    @lru_cache()
+    def get_filtered_pedigree_with_samples(self):
+        """Concatenate the pedigrees of project's cases that have samples."""
+        result = []
+        seen = set()
+        for case in self.case_set.all():
+            for line in case.get_filtered_pedigree_with_samples():
+                if line["patient"] not in seen:
+                    result.append(line)
+                seen.add(line["patient"])
+        return result
+
+    @lru_cache()
+    def sample_to_case(self):
+        """Compute sample-to-case mapping."""
+        result = {}
+        for case in self.case_set.all():
+            for line in case.pedigree:
+                if line["patient"] not in result:
+                    result[line["patient"]] = case
+        return result
+
+    @lru_cache()
+    def chrx_het_hom_ratio(self, sample):
+        """Forward to appropriate case"""
+        case = self.sample_to_case().get(sample)
+        if not case:
+            return 0.0
+        else:
+            return case.chrx_het_hom_ratio(sample)
+
+    @lru_cache()
+    def sex_errors(self):
+        """Concatenate all contained case's sex errors dicts"""
+        result = {}
+        for case in self.case_set.all():
+            result.update(case.sex_errors())
+        return result
+
+    @lru_cache()
+    def get_case_pks(self):
+        """Return PKs for cases."""
+        return [case.pk for case in self.case_set.all()]
+
+
 class SmallVariant(models.Model):
     release = models.CharField(max_length=32)
     chromosome = models.CharField(max_length=32)
@@ -205,7 +268,7 @@ class Case(models.Model):
         """Return list of ``BackgroundJob`` objects."""
         # TODO: need to be more dynamic here?
         return BackgroundJob.objects.filter(
-            Q(export_file_bg_job__case=self)
+            Q(variants_exportfilebgjob__case=self)
             | Q(distiller_submission_bg_job__case=self)
             | Q(compute_project_variants_stats__case=self)
         )
@@ -346,41 +409,63 @@ def delete_case_cascaded(sender, instance, **kwargs):
 #: File type choices for ``ExportFileBgJob``.
 EXPORT_TYPE_CHOICE_TSV = "tsv"
 EXPORT_TYPE_CHOICE_XLSX = "xlsx"
+EXPORT_TYPE_CHOICE_VCF = "vcf"
 EXPORT_FILE_TYPE_CHOICES = (
     (EXPORT_TYPE_CHOICE_TSV, "TSV File"),
     (EXPORT_TYPE_CHOICE_XLSX, "Excel File (XLSX)"),
+    (EXPORT_TYPE_CHOICE_VCF, "VCF File"),
 )
 
 
-class ExportFileBgJob(JobModelMessageMixin, models.Model):
-    """Background job for exporting query results as a TSV or Excel file."""
+class ExportFileBgJobBase(JobModelMessageMixin, models.Model):
+    """Base class for background file export jobs."""
 
-    #: Task description for logging.
-    task_desc = "Exporting to file"
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
 
-    #: String identifying model in BackgroundJob.
-    spec_name = "variants.export_file_bg_job"
-
-    # Fields required by SODAR
+    #: UUID of the job
     sodar_uuid = models.UUIDField(
         default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
     )
+    #: The project that the job belongs to.
     project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
 
+    #: The background job that is specialized.
     bg_job = models.ForeignKey(
         BackgroundJob,
         null=False,
-        related_name="export_file_bg_job",
+        related_name="%(app_label)s_%(class)s_related",
         help_text="Background job for state etc.",
     )
-    case = models.ForeignKey(Case, null=False, help_text="The case to export")
+
+    #: The query arguments.
     query_args = JSONField(null=False, help_text="(Validated) query parameters")
+    #: The file type to create.
     file_type = models.CharField(
         max_length=32, choices=EXPORT_FILE_TYPE_CHOICES, help_text="File types for exported file"
     )
 
+    class Meta:
+        ordering = ("-date_created",)
+        abstract = True
+
+
+class ExportFileBgJob(ExportFileBgJobBase):
+    """Background job for exporting query results for a single case as a file."""
+
+    # TODO: rename to reflect single-case purpose
+
+    #: Task description for logging.
+    task_desc = "Exporting single case to file"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.export_file_bg_job"
+
+    #: The case to export.
+    case = models.ForeignKey(Case, null=False, help_text="The case to export")
+
     def get_human_readable_type(self):
-        return "File Export"
+        return "Single-case File Export"
 
     def get_absolute_url(self):
         return reverse(
@@ -394,6 +479,40 @@ class ExportFileJobResult(models.Model):
 
     job = models.OneToOneField(
         ExportFileBgJob,
+        related_name="export_result",
+        null=False,
+        help_text="Related file export job",
+    )
+    expiry_time = models.DateTimeField(help_text="Time at which the file download expires")
+    payload = models.BinaryField(help_text="Resulting exported file")
+
+
+class ExportProjectCasesFileBgJob(ExportFileBgJobBase):
+    """Background job for exporting query results for all cases in a project as a file."""
+
+    # TODO: rename to reflect single-case purpose
+
+    #: Task description for logging.
+    task_desc = "Exporting all project cases to file"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.project_cases_export_file_bg_job"
+
+    def get_human_readable_type(self):
+        return "Project-wide Case File Export"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:project-cases-export-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
+
+
+class ExportProjectCasesFileBgJobResult(models.Model):
+    """Result of ``ExportProjectCasesFileBgJob``."""
+
+    job = models.OneToOneField(
+        ExportProjectCasesFileBgJob,
         related_name="export_result",
         null=False,
         help_text="Related file export job",
@@ -702,8 +821,8 @@ class SmallVariantFlags(models.Model):
         )
 
 
-class SmallVariantQuery(models.Model):
-    """Allow saving of queries to the ``SmallVariant`` model.
+class SmallVariantQueryBase(models.Model):
+    """Base class for models storing queries to the ``SmallVariant`` model.
 
     Saving the query settings is implemented as a JSON plus a version field.  This design was chosen to allow for
     less rigid upgrade paths of the form schema itself.  Further, we will need a mechanism for upgrading the form
@@ -718,21 +837,13 @@ class SmallVariantQuery(models.Model):
         default=uuid_object.uuid4, unique=True, help_text="Small variant flags SODAR UUID"
     )
 
-    #: The related case.
-    case = models.ForeignKey(
-        Case,
-        null=False,
-        related_name="small_variant_queries",
-        help_text="The case that the query relates to",
-    )
-
     #: User who created the query.
     user = models.ForeignKey(
         AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name="small_variant_queries",
+        related_name="%(app_label)s_%(class)s_related",
         help_text="User who created the query",
     )
 
@@ -753,6 +864,39 @@ class SmallVariantQuery(models.Model):
     #: Flag for being public or not.
     public = models.BooleanField(
         null=False, default=False, help_text="Case is flagged as public or not"
+    )
+
+    class Meta:
+        abstract = True
+        ordering = ("-date_created",)
+
+
+class SmallVariantQuery(SmallVariantQueryBase):
+    """Allow saving of single-case queries to the ``SmallVariant`` model.
+    """
+
+    # TODO: rename to reflect single-case
+
+    #: The related case.
+    case = models.ForeignKey(
+        Case,
+        null=False,
+        related_name="small_variant_queries",
+        help_text="The case that the query relates to",
+    )
+
+
+class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):
+    """Allow saving of whole-project queries to the ``SmallVariant`` model.
+
+    """
+
+    #: The related case.
+    project = models.ForeignKey(
+        CaseAwareProject,
+        null=False,
+        related_name="small_variant_queries",
+        help_text="The case that the query relates to",
     )
 
 
@@ -866,52 +1010,6 @@ class PedigreeRelatedness(BaseRelatedness):
         related_name="relatedness",
         help_text="Pedigree relatedness information",
     )
-
-
-class CaseAwareProject(Project):
-    """A project that is aware of its cases"""
-
-    class Meta:
-        proxy = True
-
-    @lru_cache()
-    def pedigree(self):
-        """Concatenate the pedigrees of project's cases."""
-        result = []
-        seen = set()
-        for case in self.case_set.all():
-            for line in case.pedigree:
-                if line["patient"] not in seen:
-                    result.append(line)
-                seen.add(line["patient"])
-        return result
-
-    @lru_cache()
-    def sample_to_case(self):
-        """Compute sample-to-case mapping."""
-        result = {}
-        for case in self.case_set.all():
-            for line in case.pedigree:
-                if line["patient"] not in result:
-                    result[line["patient"]] = case
-        return result
-
-    @lru_cache()
-    def chrx_het_hom_ratio(self, sample):
-        """Forward to appropriate case"""
-        case = self.sample_to_case().get(sample)
-        if not case:
-            return 0.0
-        else:
-            return case.chrx_het_hom_ratio(sample)
-
-    @lru_cache()
-    def sex_errors(self):
-        """Concatenate all contained case's sex errors dicts"""
-        result = {}
-        for case in self.case_set.all():
-            result.update(case.sex_errors())
-        return result
 
 
 class ProjectVariantStats(models.Model):

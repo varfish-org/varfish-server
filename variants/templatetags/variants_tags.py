@@ -94,7 +94,7 @@ def flag_class(row):
         flag_value = getattr(row, flag_name)
         if flag_value != "empty":
             indexes.append(values.index(flag_value))
-    return values[min(indexes, default=4)]
+    return values[min(indexes, default=3)]
 
 
 @register.simple_tag

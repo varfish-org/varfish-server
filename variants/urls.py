@@ -33,7 +33,7 @@ urlpatterns = [
         view=views.BackgroundJobListView.as_view(),
         name="job-list",
     ),
-    # Views for file export jobs.
+    # Views for single-case file export jobs.
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/export-job/detail/(?P<job>[0-9a-f-]+)/$",
         view=views.ExportFileJobDetailView.as_view(),
@@ -48,6 +48,22 @@ urlpatterns = [
         regex=r"^(?P<project>[0-9a-f-]+)/export-job/download/(?P<job>[0-9a-f-]+)/$",
         view=views.ExportFileJobDownloadView.as_view(),
         name="export-job-download",
+    ),
+    # Views for project-wide cases file export jobs.
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases-export-job/detail/(?P<job>[0-9a-f-]+)/$",
+        view=views.ExportProjectCasesFileJobDetailView.as_view(),
+        name="project-cases-export-job-detail",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases-export-job/resubmit/(?P<job>[0-9a-f-]+)/$",
+        view=views.ExportProjectCasesFileJobResubmitView.as_view(),
+        name="project-cases-export-job-resubmit",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases-export-job/download/(?P<job>[0-9a-f-]+)/$",
+        view=views.ExportProjectCasesFileJobDownloadView.as_view(),
+        name="project-cases-export-job-download",
     ),
     # Views for MutationDistiller submission jobs
     url(

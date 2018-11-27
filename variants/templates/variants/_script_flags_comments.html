@@ -56,6 +56,7 @@ function clickVariantBookmark() {
 
   // Get variant description from triggering bookmark icon.
   var dataVariant = $(this).data("variant");
+  var caseUuid = $(this).data("case");
   var arrVariant = dataVariant.split("-");
   var queryArgs = {
     release: arrVariant[0],
@@ -83,7 +84,7 @@ function clickVariantBookmark() {
       var formData = $(this).closest("form").serialize();
       $.ajax({
         type: "POST",
-        url: "{% url 'variants:small-variant-flags-api' project=project.sodar_uuid case=object.sodar_uuid %}",
+        url: "{% url 'variants:small-variant-flags-api' project=project.sodar_uuid case="--abcef--" %}".replace("--abcef--", caseUuid),
         data: formData + "&csrfmiddlewaretoken=" + getCookie("csrftoken"),
         dataType: "json",
       }).done(function(data) {
@@ -108,7 +109,7 @@ function clickVariantBookmark() {
       if (commentText) {
         $.ajax({
           type: "POST",
-          url: "{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case=object.sodar_uuid %}",
+          url: "{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case="--abcef--" %}".replace("--abcef--", caseUuid),
           data: formData + "&csrfmiddlewaretoken=" + getCookie("csrftoken"),
           dataType: "json",
         }).done(function(data) {
@@ -135,7 +136,7 @@ function clickVariantBookmark() {
 
   // Retrieve current small variant flags from server via AJAX.
   $.ajax({
-    url: "{% url 'variants:small-variant-flags-api' project=project.sodar_uuid case=object.sodar_uuid %}",
+    url: "{% url 'variants:small-variant-flags-api' project=project.sodar_uuid case="--abcef--" %}".replace("--abcef--", caseUuid),
     data: queryArgs,
     dataType: "json"
   }).done(function(data) {

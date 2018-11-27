@@ -22,8 +22,16 @@ def distiller_submission_task(_self, submission_job_pk):
 
 @app.task(bind=True)
 def export_file_task(_self, export_job_pk):
-    """Task to export a file"""
+    """Task to export single case to a file"""
     file_export.export_case(models.ExportFileBgJob.objects.get(pk=export_job_pk))
+
+
+@app.task(bind=True)
+def export_project_cases_file_task(_self, export_job_pk):
+    """Tax to export all project's cases to a file"""
+    file_export.export_project_cases(
+        models.ExportProjectCasesFileBgJob.objects.get(pk=export_job_pk)
+    )
 
 
 @app.task(bind=True)

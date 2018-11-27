@@ -1,6 +1,6 @@
 from functools import lru_cache
 from django import forms
-from .models import SmallVariantComment, SmallVariantFlags
+from .models import SmallVariantComment, SmallVariantFlags, CaseAwareProject
 from .templatetags.variants_tags import only_source_name
 
 INHERITANCE = [
@@ -295,6 +295,18 @@ class ExportFileResubmitForm(forms.Form):
     file_type = forms.ChoiceField(
         initial="xlsx",
         choices=(("xlsx", "Excel (.xlsx)"), ("tsv", "TSV (.tsv)"), ("vcf", "VCF (.vcf.gz)")),
+        widget=forms.Select(attrs={"class": "form-control"}),
+    )
+
+
+class ExportProjectCasesFileResubmitForm(forms.Form):
+    file_type = forms.ChoiceField(
+        initial="xlsx",
+        choices=(
+            ("xlsx", "Excel (.xlsx)"),
+            ("tsv", "TSV (.tsv)"),
+            # ("vcf", "VCF (.vcf.gz)"),
+        ),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
 
@@ -705,7 +717,7 @@ class SmallVariantInheritanceFilterFormMixin:
                 member_roles[member["patient"]] = "index"
                 member_roles[member["father"]] = "father"
                 member_roles[member["mother"]] = "mother"
-            elif member["patient"] not in self.member_roles:
+            elif member["patient"] not in member_roles:
                 member_roles[member["patient"]] = "N/A"
         return member_roles
 
@@ -816,17 +828,17 @@ class FilterForm(
     #: Identifier of the form in database.
     form_id = "variants.small_variant_filter_form"
 
+    submit = forms.ChoiceField(
+        choices=(
+            ("display", "Display results in table"),
+            ("download", "Generate downloadable file in background"),
+            ("submit-mutationdistiller", "Submit to MutationDistiller"),
+        )
+    )
+
     def __init__(self, *args, **kwargs):
         self.case = kwargs.pop("case")
         super().__init__(*args, **kwargs)
-
-        self.fields["submit"] = forms.ChoiceField(
-            choices=(
-                ("display", "Display results in table"),
-                ("download", "Generate downloadable file in background"),
-                ("submit-mutationdistiller", "Submit to MutationDistiller"),
-            )
-        )
 
     def get_pedigree(self):
         """Return ``list`` of ``dict`` with pedigree information."""
@@ -851,7 +863,7 @@ class FilterForm(
         if cleaned_data["submit"] == "submit-mutationdistiller":
             seen_first = False
             for member in self.get_pedigree_with_samples():
-                if cleaned_data[self.field_names[member["patient"]]["export"]]:
+                if cleaned_data[self.get_pedigree_field_names()[member["patient"]]["export"]]:
                     if seen_first:
                         raise forms.ValidationError(
                             "MutationDistiller only supports export of a single individual. "
@@ -861,7 +873,18 @@ class FilterForm(
         return cleaned_data
 
 
-class ProjectCasesFilterForm(forms.Form):
+class ProjectCasesFilterForm(
+    SmallVariantFlagsFilterFormMixin,
+    SmallVariantExportFilterFormMixin,
+    SmallVariantFrequencyFilterFormMixin,
+    SmallVariantVariantEffectFilterFormMixin,
+    SmallVariantMiscFilterFormMixin,
+    SmallVariantClinvarHgmdFilterFormMixin,
+    SmallVariantGeneListFilterFormMixin,
+    SmallVariantTranscriptSourceFilterFormMixin,
+    SmallVariantInheritanceFilterFormMixin,
+    forms.Form,
+):
     """Form for filtering multiple cases at once."""
 
     #: Version of the form, used for versioning saved queries.
@@ -872,22 +895,39 @@ class ProjectCasesFilterForm(forms.Form):
     submit = forms.ChoiceField(
         choices=(
             ("display", "Display results in table"),
-            # ("download", "Generate downloadable file in background"),
+            ("download", "Generate downloadable file in background"),
         )
     )
 
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project")
+        super().__init__(*args, **kwargs)
+
     def get_pedigree(self):
         """Return ``list`` of ``dict`` with pedigree information."""
-        assert False
+        return self.project.pedigree()
 
     def get_pedigree_with_samples(self):
         """Return ``list`` of ``dict`` with pedigree information of samples that have variants."""
-        assert False
+        return self.project.get_filtered_pedigree_with_samples()
 
-    @lru_cache()
     def get_trio_roles(self):
-        """Get trior ole to member mapping"""
-        assert False
+        """Return empty dict as there is no trio role assignment when querying across project."""
+        return {}
+
+    def clean(self):
+        """Perform data cleaning and cross-field validation.
+
+        Currently, ensures only that only one sample is selected for export in case of MutationDistiller submission.
+        """
+        cleaned_data = super().clean()
+        # Check that only the download file type is not VCF for project-wide queries.
+        if cleaned_data["submit"] == "download":
+            if cleaned_data["file_type"] == "vcf":
+                raise forms.ValidationError(
+                    "VCF export for project-wide queries not implemented yet!"
+                )
+        return cleaned_data
 
 
 class SmallVariantFlagsForm(forms.ModelForm):

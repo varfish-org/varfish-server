@@ -657,7 +657,7 @@ class TestExportFileJobResubmitView(TestViewBase):
                 {"file_type": "xlsx"},
             )
             self.assertEquals(ExportFileBgJob.objects.count(), 2)
-            created_job = ExportFileBgJob.objects.last()
+            created_job = ExportFileBgJob.objects.first()
             self.assertRedirects(
                 response,
                 reverse(

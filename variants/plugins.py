@@ -6,6 +6,7 @@ from .models import (
     SmallVariantComment,
     SmallVariantFlags,
     ExportFileBgJob,
+    ExportProjectCasesFileBgJob,
     DistillerSubmissionBgJob,
     ComputeProjectVariantsStatsBgJob,
 )
@@ -105,7 +106,8 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
 
     #: Return name-to-class mapping for background job class specializations.
     job_specs = {
-        "variants.export_file_bg_job": ExportFileBgJob,
-        "variants.distiller_submission_bg_job": DistillerSubmissionBgJob,
-        "variants.compute_project_variants_stats": ComputeProjectVariantsStatsBgJob,
+        ExportFileBgJob.spec_name: ExportFileBgJob,
+        DistillerSubmissionBgJob.spec_name: DistillerSubmissionBgJob,
+        ComputeProjectVariantsStatsBgJob.spec_name: ComputeProjectVariantsStatsBgJob,
+        ExportProjectCasesFileBgJob.spec_name: ExportProjectCasesFileBgJob,
     }

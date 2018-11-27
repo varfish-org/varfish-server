@@ -1,0 +1,14 @@
+{% load dict %}
+
+<td class="text-center">
+  <span data-toggle="tooltip" data-html="true" title="
+    {% with genotype=entry.genotype|keyvalue:name %}
+      GT quality: {{ genotype|keyvalue:"gq" }}
+      <br />
+      variant reads: {{ genotype|keyvalue:"ad" }} /
+      {{ genotype|keyvalue:"dp" }}
+      ">
+      {{ genotype|keyvalue:"gt" }}
+    {% endwith %}
+  </span>
+</td>
