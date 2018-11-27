@@ -9,6 +9,8 @@ Variant Filtration
 This view allows you to filter variants to a number of criteria.
 Further, you can trigger an export of the variants with your current criteria to a downloadable VCF, Excel, or TSV file.
 
+You can open the variant filtration view for each case by first navigating to the case's detail page and then clicking then :guilabel:`Filter Case` button on the top right.
+
 On the top of the page, you can see the **Variant Filtration Form** for setting the parameters for creating your filtration.
 Below, the results will be displayed after submitting the form.
 

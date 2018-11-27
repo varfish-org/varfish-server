@@ -43,6 +43,8 @@ It is developed by the Core Unit Bioinformatics at the Berlin Institute of Healt
     variants_stats_qc
     variants_filtration
     variants_clinvar
+    variants_project_wide
+    variants_flagging
     variants_comments
     variants_flagging
 

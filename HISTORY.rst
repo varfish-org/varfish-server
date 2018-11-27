@@ -2,11 +2,20 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+------
+v0.9.0
+------
 
-The aim of this release is to add cohort-wide approach to the data by performing project-wide queries.
+This release adds project-wide statistics and variant querying.
+
+End-User Summary
+================
+
+- You can now see project-wide case QC statistics plots on your project's Case List.
+- You can now perform project-wide queries to your variants and also export them to TSV and Excel files.
+
+Full Change List
+================
 
 - Added models for storing project-wide statistics, job code for creating this, views for viewing etc.
 - Adjusting the existing plot and model code to accommodate for this.
@@ -19,7 +28,7 @@ The aim of this release is to add cohort-wide approach to the data by performing
 v0.8.0
 ------
 
-This release added variant statistics and quality control features.
+This release adds variant statistics and quality control features.
 
 End-User Summary
 ================
