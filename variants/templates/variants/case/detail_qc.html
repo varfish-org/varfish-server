@@ -155,7 +155,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for rel in object.variant_stats.pedigree_relatedness.all %}
+        {% for rel in object.variant_stats.relatedness.all %}
           <tr>
             <td>{{ rel.sample1|only_source_name }}</td>
             <td>{{ rel.sample2|only_source_name }}</td>

@@ -175,7 +175,7 @@ def rebuild_case_variant_stats(connection, case):
             )
         # Insert relatedness information
         for pair in het_shared.keys():
-            stats.pedigree_relatedness.create(
+            stats.relatedness.create(
                 sample1=pair[0],
                 sample2=pair[1],
                 het_1_2=het_shared[pair],
