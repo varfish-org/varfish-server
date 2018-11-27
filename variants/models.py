@@ -315,7 +315,7 @@ class Case(models.Model):
             if m["patient"] in fathers and m["sex"] != PED_MALE:
                 result[m["patient"]] = ["used as father in pedigree but not male"]
             if m["patient"] in mothers and m["sex"] != PED_FEMALE:
-                result[m["patient"]] = ["used as mother in pedigree not male"]
+                result[m["patient"]] = ["used as mother in pedigree not female"]
         return result
 
     @lru_cache()
