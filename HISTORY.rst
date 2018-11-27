@@ -2,9 +2,14 @@
 History / Changelog
 ===================
 
-----------------
-HEAD (unrelease)
-----------------
+------
+v0.9.1
+------
+
+This release fixes some bugs introduced in v0.9.0.
+
+Full Change List
+================
 
 - Adding missing dependency on ``django_redis``.
 - Fixing counting in project-wide statistics computation.
