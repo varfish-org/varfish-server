@@ -2,9 +2,11 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+------
+v0.9.2
+------
+
+This is a bugfix release.
 
 - Fixing error in displaying variants statistics for empty project.
 - Improving relationship error display.
