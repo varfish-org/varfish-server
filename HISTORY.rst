@@ -11,6 +11,7 @@ HEAD (unreleased)
 - Putting "sibling-sibling" instead of "parent-child" where it belongs.
 - Fixing problem with MutationDistiller submission.
 - Fixing ClinVar form.
+- Adding gene link-out to HGMD.
 
 ------
 v0.9.1
