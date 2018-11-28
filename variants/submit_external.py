@@ -40,7 +40,7 @@ def submit_distiller(job):
         }
         if job.bg_job.user.email:
             data["email"] = job.bg_job.user.email
-        with CaseExporterVcf(job) as exporter:
+        with CaseExporterVcf(job, job.case) as exporter:
             job.add_log_entry("Creating temporary VCF file...")
             files = {"filename": exporter.write_tmp_file()}
             job.add_log_entry("Done creating temporary VCF file.")
