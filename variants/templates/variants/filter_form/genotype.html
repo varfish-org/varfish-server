@@ -25,7 +25,7 @@
         <td><i class="fa {% if item.sex == 1 %}fa-venus{% else %}fa-mars{% endif %}"></i></td>
         <td><i class="fa {% if item.affected == 2 %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
         {% if item.has_gt_entries %}
-          <td>{% with x=form.get_pedigree_field_names|keyvalue:item.patient|keyvalue:"gt" %}{{ form|keyvalue:x }}{% endwith %}</td>
+          <td>{% with x=form.get_genotype_field_names|keyvalue:item.patient|keyvalue:"gt" %}{{ form|keyvalue:x }}{% endwith %}</td>
         {% else %}
           <td class="text-centered">
             <em>no genotypes</em>
@@ -37,9 +37,7 @@
   </table>
 </div>
 
-{% if not clinvar_form %}
-  <div class="p-2 mt-2 border-top compact-form-groups">
-    <h5>Compound Heterozygous Settings</h5>
-    {{ form.compound_recessive_enabled|as_crispy_field }}
-  </div>
-{% endif %}
+<div class="p-2 mt-2 border-top compact-form-groups">
+  <h5>Compound Heterozygous Settings</h5>
+  {{ form.compound_recessive_enabled|as_crispy_field }}
+</div>

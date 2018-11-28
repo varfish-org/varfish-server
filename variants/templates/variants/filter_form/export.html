@@ -53,7 +53,7 @@
         <div class="col-sm-10 compact-form-groups">
           {% for member in form.get_pedigree_with_samples %}
             {% if member.has_gt_entries %}
-              {% with x=form.get_pedigree_field_names|keyvalue:member.patient|keyvalue:"export" %}
+              {% with x=form.get_quality_field_names|keyvalue:member.patient|keyvalue:"export" %}
                 {{ form|keyvalue:x|as_crispy_field }}
               {% endwith %}
             {% endif %}

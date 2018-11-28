@@ -167,7 +167,142 @@ class SmallVariantFlagsFilterFormMixin:
         )
 
 
-class ClinvarForm(SmallVariantFlagsFilterFormMixin, forms.Form):
+class SmallVariantGenotypeFilterFormMixin:
+    """Form mixin for inheritance/genotype fields"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.update_genotype_fields()
+
+    @lru_cache()
+    def get_member_roles(self):
+        """Return mapping from donor name to trio role.
+
+        Used for comp. het. filter.
+        """
+        # Build mapping from member to role, used for rendering the form
+        member_roles = {}
+        for member in self.get_pedigree():
+            if member["patient"] == self.get_trio_roles().get("index"):
+                member_roles[member["patient"]] = "index"
+                member_roles[member["father"]] = "father"
+                member_roles[member["mother"]] = "mother"
+            elif member["patient"] not in member_roles:
+                member_roles[member["patient"]] = "N/A"
+        return member_roles
+
+    @lru_cache()
+    def get_genotype_field_names(self):
+        """Return mapping from patient and key to field name."""
+        field_names = {}
+        for member in self.get_pedigree_with_samples():
+            field_names.setdefault(member["patient"], {})["gt"] = "%s_gt" % member["patient"]
+        return field_names
+
+    def update_genotype_fields(self):
+        """Add and update genotype fields."""
+        self.fields["compound_recessive_enabled"] = forms.BooleanField(
+            label="enable comp. het. mode",
+            required=False,
+            help_text=(
+                "Compound recessive filtration only works for complete trios. "
+                "Enabling the comp. het. filter disables the individual genotype filter settings above but quality "
+                "settings still apply. "
+                "Filters for variants that are present in one gene (identified by transcript database gene identifier) "
+                "with the following constraints: "
+                "(1) at least one variant is heterozygous in mother and index and homozygous reference in the father, "
+                "and (2) at least one variant is heterozygous in father and index and homozygous in the mother."
+            ),
+        )
+
+        # Disable compound recessive checkbox if no full trio present.
+        if len(set(("index", "father", "mother")) & set(self.get_trio_roles().keys())) != 3:
+            self.fields["compound_recessive_enabled"].disabled = True
+
+        # Dynamically add the fields based on the pedigree
+        for member in self.get_pedigree_with_samples():
+            name = member["patient"]
+            self.fields[self.get_genotype_field_names()[name]["gt"]] = forms.CharField(
+                label="",
+                required=True,
+                widget=forms.Select(choices=INHERITANCE, attrs={"class": "genotype-field-gt"}),
+            )
+
+
+class SmallVariantQualityFilterFormMixin:
+    """Form mixin for inheritance/genotype fields"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.update_quality_fields()
+
+    @lru_cache()
+    def get_quality_field_names(self):
+        """Return mapping from patient and key to field name."""
+        field_names = {}
+        for member in self.get_pedigree_with_samples():
+            for key in ("gt", "dp_het", "dp_hom", "ab", "gq", "ad", "fail", "export"):
+                field_names.setdefault(member["patient"], {})[key] = "%s_%s" % (
+                    member["patient"],
+                    key,
+                )
+        return field_names
+
+    def update_quality_fields(self):
+        """Add and update pedigree fields."""
+        # Dynamically add the fields based on the pedigree
+        for member in self.get_pedigree_with_samples():
+            name = member["patient"]
+            self.fields[self.get_quality_field_names()[name]["dp_het"]] = forms.IntegerField(
+                label="",
+                required=True,
+                initial=10,
+                min_value=0,
+                widget=forms.NumberInput(attrs={"class": "quality-field-dp-het"}),
+            )
+            self.fields[self.get_quality_field_names()[name]["dp_hom"]] = forms.IntegerField(
+                label="",
+                required=True,
+                initial=5,
+                min_value=0,
+                widget=forms.NumberInput(attrs={"class": "quality-field-dp-hom"}),
+            )
+            self.fields[self.get_quality_field_names()[name]["ab"]] = forms.FloatField(
+                label="",
+                required=True,
+                initial=0.3,
+                min_value=0,
+                max_value=1,
+                widget=forms.NumberInput(attrs={"class": "quality-field-ab"}),
+            )
+            self.fields[self.get_quality_field_names()[name]["gq"]] = forms.IntegerField(
+                label="",
+                required=True,
+                initial=30,
+                min_value=0,
+                widget=forms.NumberInput(attrs={"class": "quality-field-gq"}),
+            )
+            self.fields[self.get_quality_field_names()[name]["ad"]] = forms.IntegerField(
+                label="",
+                required=True,
+                initial=3,
+                min_value=0,
+                widget=forms.NumberInput(attrs={"class": "quality-field-ad"}),
+            )
+            self.fields[self.get_quality_field_names()[name]["fail"]] = forms.CharField(
+                label="",
+                widget=forms.Select(choices=FAIL, attrs={"class": "quality-field-fail"}),
+                required=True,
+                initial="drop-variant",
+            )
+            self.fields[self.get_quality_field_names()[name]["export"]] = forms.BooleanField(
+                label=only_source_name(name), required=False, initial=True
+            )
+
+
+class ClinvarForm(
+    SmallVariantGenotypeFilterFormMixin, SmallVariantFlagsFilterFormMixin, forms.Form
+):
     """Form used for creating Clinvar report."""
 
     #: Version of the form, used for versioning saved queries.
@@ -250,40 +385,30 @@ class ClinvarForm(SmallVariantFlagsFilterFormMixin, forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        case = kwargs.pop("case")
+        self.case = kwargs.pop("case")
         super().__init__(*args, **kwargs)
-
-        # Get pedigree, used for rendering the form
-        self.pedigree = case.pedigree
-        self.pedigree_with_samples = case.get_filtered_pedigree_with_samples()
-        # Get trio role to member mapping
-        trio_roles = case.get_trio_roles()
-        # Build mapping from member to role, used for rendering the form
-        self.member_roles = {}
-        for member in self.pedigree:
-            if member["patient"] == trio_roles.get("index"):
-                self.member_roles[member["patient"]] = "index"
-                self.member_roles[member["father"]] = "father"
-                self.member_roles[member["mother"]] = "mother"
-            elif member["patient"] not in self.member_roles:
-                self.member_roles[member["patient"]] = "N/A"
-        # Build field name mapping for all members
-        self.field_names = {}
-        for member in self.pedigree_with_samples:
-            for key in ("gt", "dp_het", "dp_hom", "ab", "gq", "ad", "fail", "export"):
-                self.field_names.setdefault(member["patient"], {})[key] = "%s_%s" % (
-                    member["patient"],
-                    key,
-                )
-
         # Dynamically add the fields based on the pedigree
-        for member in self.pedigree_with_samples:
+        for member in self.get_pedigree_with_samples():
             name = member["patient"]
-            self.fields[self.field_names[name]["gt"]] = forms.CharField(
+            self.fields[self.get_genotype_field_names()[name]["gt"]] = forms.CharField(
                 label="",
                 required=True,
                 widget=forms.Select(choices=INHERITANCE, attrs={"class": "genotype-field-gt"}),
             )
+        print("fields", list(self.fields.keys()))
+
+    def get_pedigree(self):
+        """Return ``list`` of ``dict`` with pedigree information."""
+        return self.case.pedigree
+
+    def get_pedigree_with_samples(self):
+        """Return ``list`` of ``dict`` with pedigree information of samples that have variants."""
+        return self.case.get_filtered_pedigree_with_samples()
+
+    @lru_cache()
+    def get_trio_roles(self):
+        """Get trior ole to member mapping"""
+        return self.case.get_trio_roles()
 
     def clean(self):
         result = super().clean()
@@ -697,118 +822,6 @@ class SmallVariantTranscriptSourceFilterFormMixin:
         )
 
 
-class SmallVariantInheritanceFilterFormMixin:
-    """Form mixin for inheritance/genotype fields"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.update_pedigree_fields()
-
-    @lru_cache()
-    def get_member_roles(self):
-        """Return mapping from donor name to trio role.
-
-        Used for comp. het. filter.
-        """
-        # Build mapping from member to role, used for rendering the form
-        member_roles = {}
-        for member in self.get_pedigree():
-            if member["patient"] == self.get_trio_roles().get("index"):
-                member_roles[member["patient"]] = "index"
-                member_roles[member["father"]] = "father"
-                member_roles[member["mother"]] = "mother"
-            elif member["patient"] not in member_roles:
-                member_roles[member["patient"]] = "N/A"
-        return member_roles
-
-    @lru_cache()
-    def get_pedigree_field_names(self):
-        """Return mapping from patient and key to field name."""
-        field_names = {}
-        for member in self.get_pedigree_with_samples():
-            for key in ("gt", "dp_het", "dp_hom", "ab", "gq", "ad", "fail", "export"):
-                field_names.setdefault(member["patient"], {})[key] = "%s_%s" % (
-                    member["patient"],
-                    key,
-                )
-        return field_names
-
-    def update_pedigree_fields(self):
-        """Add and update pedigree fields."""
-
-        self.fields["compound_recessive_enabled"] = forms.BooleanField(
-            label="enable comp. het. mode",
-            required=False,
-            help_text=(
-                "Compound recessive filtration only works for complete trios. "
-                "Enabling the comp. het. filter disables the individual genotype filter settings above but quality "
-                "settings still apply. "
-                "Filters for variants that are present in one gene (identified by transcript database gene identifier) "
-                "with the following constraints: "
-                "(1) at least one variant is heterozygous in mother and index and homozygous reference in the father, "
-                "and (2) at least one variant is heterozygous in father and index and homozygous in the mother."
-            ),
-        )
-
-        # Disable compound recessive checkbox if no full trio present.
-        if len(set(("index", "father", "mother")) & set(self.get_trio_roles().keys())) != 3:
-            self.fields["compound_recessive_enabled"].disabled = True
-
-        # Dynamically add the fields based on the pedigree
-        for member in self.get_pedigree_with_samples():
-            name = member["patient"]
-            self.fields[self.get_pedigree_field_names()[name]["gt"]] = forms.CharField(
-                label="",
-                required=True,
-                widget=forms.Select(choices=INHERITANCE, attrs={"class": "genotype-field-gt"}),
-            )
-            self.fields[self.get_pedigree_field_names()[name]["dp_het"]] = forms.IntegerField(
-                label="",
-                required=True,
-                initial=10,
-                min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-dp-het"}),
-            )
-            self.fields[self.get_pedigree_field_names()[name]["dp_hom"]] = forms.IntegerField(
-                label="",
-                required=True,
-                initial=5,
-                min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-dp-hom"}),
-            )
-            self.fields[self.get_pedigree_field_names()[name]["ab"]] = forms.FloatField(
-                label="",
-                required=True,
-                initial=0.3,
-                min_value=0,
-                max_value=1,
-                widget=forms.NumberInput(attrs={"class": "quality-field-ab"}),
-            )
-            self.fields[self.get_pedigree_field_names()[name]["gq"]] = forms.IntegerField(
-                label="",
-                required=True,
-                initial=30,
-                min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-gq"}),
-            )
-            self.fields[self.get_pedigree_field_names()[name]["ad"]] = forms.IntegerField(
-                label="",
-                required=True,
-                initial=3,
-                min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-ad"}),
-            )
-            self.fields[self.get_pedigree_field_names()[name]["fail"]] = forms.CharField(
-                label="",
-                widget=forms.Select(choices=FAIL, attrs={"class": "quality-field-fail"}),
-                required=True,
-                initial="drop-variant",
-            )
-            self.fields[self.get_pedigree_field_names()[name]["export"]] = forms.BooleanField(
-                label=only_source_name(name), required=False, initial=True
-            )
-
-
 class FilterForm(
     SmallVariantFlagsFilterFormMixin,
     SmallVariantExportFilterFormMixin,
@@ -818,7 +831,8 @@ class FilterForm(
     SmallVariantClinvarHgmdFilterFormMixin,
     SmallVariantGeneListFilterFormMixin,
     SmallVariantTranscriptSourceFilterFormMixin,
-    SmallVariantInheritanceFilterFormMixin,
+    SmallVariantQualityFilterFormMixin,
+    SmallVariantGenotypeFilterFormMixin,
     forms.Form,
 ):
     """This form is used for filtering a single case."""
@@ -863,7 +877,7 @@ class FilterForm(
         if cleaned_data["submit"] == "submit-mutationdistiller":
             seen_first = False
             for member in self.get_pedigree_with_samples():
-                if cleaned_data[self.get_pedigree_field_names()[member["patient"]]["export"]]:
+                if cleaned_data[self.get_quality_field_names()[member["patient"]]["export"]]:
                     if seen_first:
                         raise forms.ValidationError(
                             "MutationDistiller only supports export of a single individual. "
@@ -882,7 +896,8 @@ class ProjectCasesFilterForm(
     SmallVariantClinvarHgmdFilterFormMixin,
     SmallVariantGeneListFilterFormMixin,
     SmallVariantTranscriptSourceFilterFormMixin,
-    SmallVariantInheritanceFilterFormMixin,
+    SmallVariantQualityFilterFormMixin,
+    SmallVariantGenotypeFilterFormMixin,
     forms.Form,
 ):
     """Form for filtering multiple cases at once."""

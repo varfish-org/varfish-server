@@ -45,6 +45,7 @@ CLINVAR_FORM_DEFAULTS = form_data = {
     "database_select": "refseq",
     # Genotypes
     "A_gt": "variant",
+    "compound_recessive_enabled": False,
     # Limit on number of rows
     "result_rows_limit": 500,
     # Filter selection for form.

@@ -10,6 +10,7 @@ HEAD (unreleased)
 - Improving relationship error display.
 - Putting "sibling-sibling" instead of "parent-child" where it belongs.
 - Fixing problem with MutationDistiller submission.
+- Fixing ClinVar form.
 
 ------
 v0.9.1

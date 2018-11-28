@@ -111,7 +111,6 @@ class CaseListView(
     def get_context_data(self, *args, **kwargs):
         result = super().get_context_data(*args, **kwargs)
         result["project"] = CaseAwareProject.objects.get(pk=result["project"].pk)
-        print("XXX", result["project"].pedigree())
         cases = result["object_list"]
         result["samples"] = list(
             sorted(set(chain(*(case.get_members_with_samples() for case in cases))))

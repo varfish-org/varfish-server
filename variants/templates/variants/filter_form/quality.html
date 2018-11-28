@@ -31,7 +31,7 @@
         <td>{{ member.father|default:"0"|only_source_name }}</td>
         <td>{{ member.mother|default:"0"|only_source_name }}</td>
         {% if member.has_gt_entries %}
-          {% with field_names=form.get_pedigree_field_names|keyvalue:member.patient %}
+          {% with field_names=form.get_quality_field_names|keyvalue:member.patient %}
             <td>{% with x=field_names|keyvalue:"dp_het" %}{{ form|keyvalue:x }}{% endwith %}</td>
             <td>{% with x=field_names|keyvalue:"dp_hom" %}{{ form|keyvalue:x }}{% endwith %}</td>
             <td>{% with x=field_names|keyvalue:"ab" %}{{ form|keyvalue:x }}{% endwith %}</td>
