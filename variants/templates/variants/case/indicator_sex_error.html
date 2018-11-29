@@ -1,4 +1,5 @@
 {% load dict %}
+{% load variants_tags %}
 
 {% if item.sex_errors %}
   <span class="fa-stack fa-md">
@@ -11,12 +12,12 @@
         <ul>
           {% if sample %}
             {% for message in item.sex_errors|keyvalue:sample %}
-              <li>{{ sample }}: {{ message }}</li>
+              <li>{{ sample|only_source_name }}: {{ message }}</li>
             {% endfor %}
           {% else %}
             {% for sample, messages in item.sex_errors.items %}
               {% for message in messages %}
-                <li>{{ sample }}: {{ message }}</li>
+                <li>{{ sample|only_source_name }}: {{ message }}</li>
               {% endfor %}
             {% endfor %}
           {% endif %}

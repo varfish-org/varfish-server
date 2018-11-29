@@ -19,6 +19,7 @@ from django.db.models.signals import pre_delete
 
 from projectroles.models import Project
 
+from .templatetags.variants_tags import only_source_name
 from bgjobs.models import BackgroundJob, JobModelMessageMixin
 
 #: Django user model.
@@ -381,7 +382,11 @@ class Case(models.Model):
                         (
                             "pedigree shows {} relation for {} and {} but variants show low degree "
                             "of relatedness"
-                        ).format(relationship, rel_stats.sample1, rel_stats.sample2)
+                        ).format(
+                            relationship,
+                            only_source_name(rel_stats.sample1),
+                            only_source_name(rel_stats.sample2),
+                        )
                     )
         return result
 

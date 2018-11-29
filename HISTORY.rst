@@ -2,6 +2,12 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+- Improving display of sex errors.
+
 ------
 v0.9.2
 ------
