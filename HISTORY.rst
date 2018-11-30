@@ -2,9 +2,11 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+------
+v0.9.4
+------
+
+Yet another bug fix release.
 
 - Adding missing 5' UTR fields to forms.
 - Adding command for rebuilding project stats.
