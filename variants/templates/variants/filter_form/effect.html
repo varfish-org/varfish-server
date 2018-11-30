@@ -251,18 +251,30 @@
         <strong>Non-Coding</strong>
       </div>
       <div class="col-3 pl-0">
-        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0002089 ]A UTR variant of the 3' UTR.">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0002089] An exon UTR variant of the 3' UTR.">
           {{ form.effect_three_prime_UTR_exon_variant }}
           <label class="form-check-label" for="id_effect_three_prime_UTR_exon_variant">3' UTR exonic</label>
         </div>
       </div>
       <div class="col-3">
-        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0002090] A UTR variant between 3' UTRs.">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0002090] An intron UTR variant between 3' UTRs.">
           {{ form.effect_three_prime_UTR_intron_variant }}
           <label class="form-check-label" for="id_effect_three_prime_UTR_intron_variant">3' UTR intronic</label>
         </div>
       </div>
+      <div class="col-3 pl-0">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0002092] An exon UTR variant of the 5' UTR.">
+          {{ form.effect_five_prime_UTR_exon_variant }}
+          <label class="form-check-label" for="id_effect_five_prime_UTR_exon_variant">5' UTR exonic</label>
+        </div>
+      </div>
       <div class="col-3">
+        <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0002091] An intron UTR variant between 5' UTRs.">
+          {{ form.effect_five_prime_UTR_intron_variant }}
+          <label class="form-check-label" for="id_effect_five_prime_UTR_intron_variant">5' UTR intronic</label>
+        </div>
+      </div>
+      <div class="col-3 pl-0">
         <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="[SO:0001792] A sequence variant that changes non-coding exon sequence in a non-coding transcript.">
           {{ form.effect_non_coding_transcript_exon_variant }}
           <label class="form-check-label" for="id_effect_non_coding_transcript_exon_variant">nc exonic</label>
