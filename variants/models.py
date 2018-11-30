@@ -576,7 +576,7 @@ class DistillerSubmissionBgJob(JobModelMessageMixin, models.Model):
         """
         if self.distiller_project_id:
             return (
-                "https://mutationdistiller.org/temp/QE/vcf_%s/progress.html"
+                "https://www.mutationdistiller.org/temp/QE/vcf_%s/progress.html"
                 % self.distiller_project_id
             )
         else:

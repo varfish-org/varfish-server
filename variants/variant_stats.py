@@ -245,6 +245,7 @@ def rebuild_project_variant_stats(connection, project, user, log_func=None):
 
 def execute_rebuild_project_variant_stats_job(connection, stats_job):
     """Rebuild the ``ProjectVariantStats`` for the given ``project"""
+    stats_job.mark_start()
     try:
         stats = rebuild_project_variant_stats(
             connection, stats_job.project, stats_job.bg_job.user, stats_job.add_log_entry

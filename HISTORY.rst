@@ -6,6 +6,8 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+- Project-wide variant recreation registers started state now correctly.
+- Fixing URL for MutationDistiller Links.
 - Using HTTPS links for ENSEMBL and MutationTaster.
 
 ------
