@@ -6,6 +6,7 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+- Removing restriction on single comment per variant.
 - Improving display of sex errors.
 
 ------

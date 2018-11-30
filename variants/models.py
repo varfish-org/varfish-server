@@ -19,7 +19,6 @@ from django.db.models.signals import pre_delete
 
 from projectroles.models import Project
 
-from .templatetags.variants_tags import only_source_name
 from bgjobs.models import BackgroundJob, JobModelMessageMixin
 
 #: Django user model.
@@ -36,6 +35,15 @@ THRESH_SIBLING = 0.6
 PED_MALE = 1
 #: Pedigree value for female.
 PED_FEMALE = 2
+
+
+def only_source_name(full_name):
+    """Helper function that strips SNAPPY suffixes for samples."""
+    if full_name.count("-") >= 3:
+        tokens = full_name.split("-")
+        return "-".join(tokens[:-3])
+    else:
+        return full_name
 
 
 class CaseAwareProject(Project):
@@ -652,15 +660,6 @@ class SmallVariantComment(models.Model):
             raise ValidationError("No corresponding variant in case") from e
 
     class Meta:
-        unique_together = (
-            "release",
-            "chromosome",
-            "position",
-            "reference",
-            "alternative",
-            "case",
-            "ensembl_gene_id",
-        )
         indexes = (
             models.Index(
                 fields=[
