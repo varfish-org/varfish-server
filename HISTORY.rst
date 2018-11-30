@@ -2,6 +2,13 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+- Computing cohort statistics in a transaction.
+  This should get rid of possible inconsistencies.
+
 ------
 v0.9.3
 ------
