@@ -317,18 +317,18 @@ function plotRelatedness() {
     }
   }
 
-  const pal = palette("mpn65", 3);
+  const pal = palette("mpn65", 4);
   const scatterPlotData = {datasets: []};
   if (clsRelData.sibSib.length) {
     scatterPlotData.datasets.push({
-      label: "0.5 (sibling-sibling)",
+      label: "sibling-sibling",
       fill: false,
       showLine: false,
-      pointBackgroundColor: colorFgToBg(pal[0]),
-      pointBorderColor: "#" + pal[0],
+      pointBackgroundColor: colorFgToBg(pal[3]),
+      pointBorderColor: "#" + pal[3],
       pointBorderWidth: 1,
-      backgroundColor: colorFgToBg(pal[0]),
-      borderColor: "#" + pal[0],
+      backgroundColor: colorFgToBg(pal[3]),
+      borderColor: "#" + pal[3],
       borderWidth: 1,
       pointStyle: "triangle",
       radius: 6,
@@ -339,7 +339,7 @@ function plotRelatedness() {
   }
   if (clsRelData.parentChild.length) {
     scatterPlotData.datasets.push({
-      label: "0.5 (parent-child)",
+      label: "parent-child",
       fill: false,
       showLine: false,
       pointBackgroundColor: colorFgToBg(pal[1]),
@@ -357,7 +357,7 @@ function plotRelatedness() {
   }
   if (clsRelData.other.length) {
     scatterPlotData.datasets.push({
-      label: "0.0 (other)",
+      label: "other",
       fill: false,
       showLine: false,
       pointBackgroundColor: colorFgToBg(pal[2]),

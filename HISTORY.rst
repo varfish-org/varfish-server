@@ -6,6 +6,7 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+- Changing display color of relatedness (red indicates error).
 - Computing cohort statistics in a transaction.
   This should get rid of possible inconsistencies.
 
