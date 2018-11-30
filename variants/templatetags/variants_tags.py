@@ -1,6 +1,6 @@
 from django import template
 
-from ..models import Case
+from ..models import Case, only_source_name as _models_only_source_name
 
 register = template.Library()
 
@@ -13,11 +13,7 @@ def get_details_cases(project):
 
 @register.filter
 def only_source_name(full_name):
-    if full_name.count("-") >= 3:
-        tokens = full_name.split("-")
-        return "-".join(tokens[:-3])
-    else:
-        return full_name
+    return _models_only_source_name(full_name)
 
 
 #: Clinvar status to stars.
