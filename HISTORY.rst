@@ -2,9 +2,11 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+------
+v0.9.3
+------
+
+This is a bug fix release.
 
 - Removing restriction on single comment per variant.
 - Improving display of sex errors.
