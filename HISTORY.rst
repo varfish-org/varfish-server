@@ -2,6 +2,12 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+- Using HTTPS links for ENSEMBL and MutationTaster.
+
 ------
 v0.9.4
 ------

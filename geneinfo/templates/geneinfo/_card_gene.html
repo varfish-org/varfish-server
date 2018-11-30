@@ -158,7 +158,7 @@
                 >OMIM <i class="fa fa-external-link"></i></a>
                 <a
                   {% if hgnc.ensembl_gene_id %}
-                  href="http://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g={{ hgnc.ensembl_gene_id }}"
+                  href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g={{ hgnc.ensembl_gene_id }}"
                   class="btn btn-primary btn-sm"
                   target="_blank"
                   {% else %}
@@ -168,7 +168,7 @@
                 >EnsEMBL <i class="fa fa-external-link"></i></a>
               </div>
               <div class="btn-group">
-                <form target="_blank" method="POST" action="http://www.mutationtaster.org/cgi-bin/MutationTaster/MT_ChrPos.cgi">
+                <form target="_blank" method="POST" action="https://www.mutationtaster.org/cgi-bin/MutationTaster/MT_ChrPos.cgi">
                   <input type="hidden" name="chromosome" value="{{ chromosome }}">
                   <input type="hidden" name="position" value="{{ position }}">
                   <input type="hidden" name="ref" value="{{ reference }}">
