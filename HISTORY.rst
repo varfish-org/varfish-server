@@ -6,6 +6,7 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+- Adding command for rebuilding project stats.
 - Changing display color of relatedness (red indicates error).
 - Computing cohort statistics in a transaction.
   This should get rid of possible inconsistencies.

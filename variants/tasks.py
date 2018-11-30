@@ -41,7 +41,7 @@ def clear_expired_exported_files(_self):
 
 @app.task(bind=True)
 def compute_project_variants_stats(_self, export_job_pk):
-    variant_stats.rebuild_project_variant_stats(
+    variant_stats.execute_rebuild_project_variant_stats_job(
         SQLALCHEMY_ENGINE.connect(),
         models.ComputeProjectVariantsStatsBgJob.objects.get(pk=export_job_pk),
     )

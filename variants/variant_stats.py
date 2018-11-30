@@ -189,24 +189,24 @@ def rebuild_case_variant_stats(connection, case):
         return stats
 
 
-def rebuild_project_variant_stats(connection, stats_job):
-    """Rebuild the ``ProjectVariantStats`` for the given ``project"""
+def rebuild_project_variant_stats(connection, project, user, log_func=None):
     timeline = get_backend_api("timeline_backend")
-    print("timeline", timeline)
     if timeline:
         tl_event = timeline.add_event(
-            project=stats_job.project,
+            project=project,
             app_name="variants",
-            user=stats_job.bg_job.user,
+            user=user,
             event_name="project_stats_build",
             description="build project-wide variant statistics",
             status_type="INIT",
         )
-        stats_job.mark_start()
-    project = stats_job.project
     cases = project.case_set.all()
-    het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness_many(connection, SmallVariant, cases)
-    stats_job.add_log_entry("Done computing relatedness, now saving to DB")
+    with transaction.atomic():
+        het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness_many(
+            connection, SmallVariant, cases
+        )
+    if log_func:
+        log_func("Done computing relatedness, now saving to DB")
     try:
         with transaction.atomic():
             # Remove existing record if any.
@@ -215,7 +215,8 @@ def rebuild_project_variant_stats(connection, stats_job):
             except ProjectVariantStats.DoesNotExist:
                 pass  # swallow, nothing to delete
             else:
-                stats_job.add_log_entry("Done removing old statistics")
+                if log_func:
+                    log_func("Done removing old statistics")
 
             # Create statistics object.
             stats = ProjectVariantStats.objects.create(project=project)
@@ -233,12 +234,23 @@ def rebuild_project_variant_stats(connection, stats_job):
                 )
             if timeline:
                 tl_event.set_status("OK", "finished storing new project-wide variant statistics")
-            stats_job.mark_success()
             return stats
     except Exception as e:
         if timeline:
             tl_event.set_status(
                 "FAILED", "could not update project-wide variant statistics: {}".format(e)
             )
+        raise
+
+
+def execute_rebuild_project_variant_stats_job(connection, stats_job):
+    """Rebuild the ``ProjectVariantStats`` for the given ``project"""
+    try:
+        stats = rebuild_project_variant_stats(
+            connection, stats_job.project, stats_job.bg_job.user, stats_job.add_log_entry
+        )
+        stats_job.mark_success()
+        return stats
+    except Exception as e:
         stats_job.mark_error("problem updating project-wide variant statistics: {}".format(e))
         raise
