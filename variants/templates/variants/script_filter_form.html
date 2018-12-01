@@ -126,6 +126,89 @@ function mutationTaster(chromosome, position, ref, alt) {
     form.appendTo('body').submit();
 }
 
+function polyPhen2(gene, hgvsP) {
+    const regex = /^p.([A-Z])(\d+)([A-Z])$/;
+    const found = hgvsP.match(regex);
+    const seqvar1 = found[1];
+    const seqpos = found[2];
+    const seqvar2 = found[3];
+
+    var form = $('<form target="_blank" method="POST" action="http://genetics.bwh.harvard.edu/cgi-bin/ggi/ggi2.cgi">');
+    form.append($('<input type="hidden" name="_ggi_project" value="PPHWeb2">'));
+    form.append($('<input type="hidden" name="_ggi_origin" value="query">'));
+    form.append($('<input type="hidden" name="_ggi_target_submit" value="1">'));
+    form.append($('<input type="hidden" name="accid" value="' + gene + '">'));
+    form.append($('<input type="hidden" name="seqpos" value="' + seqpos + '">'));
+    form.append($('<input type="hidden" name="seqvar1" value="' + seqvar1 + '">'));
+    form.append($('<input type="hidden" name="seqvar2" value="' + seqvar2 + '">'));
+    form.appendTo('body').submit();
+}
+
+function humanSpliceFinder(gene, hgvsC) {
+    var form = $('<form target="_blank" method="POST" action="http://www.umd.be/HSF3/4DACTION/input_SSF">');
+    form.append($('<input type="hidden" name="champlibre" value="' + gene + '">'));
+    form.append($('<input type="hidden" name="batch" value="' + hgvsC + '">'));
+    form.append($('<input type="hidden" name="choix_analyse" value="ssf_batch">'));
+    form.append($('<input type="hidden" name="autoselect" value="yes">'));
+    form.append($('<input type="hidden" name="snp_select" value="no">'));
+    form.append($('<input type="hidden" name="showonly" value="yes">'));
+    form.append($('<input type="hidden" name="geneStatus" value="all">'));
+    form.append($('<input type="hidden" name="transcriptStatus" value="all">'));
+    form.append($('<input type="hidden" name="nuclposition" value="100">'));
+    form.append($('<input type="hidden" name="nuclposition5" value="">'));
+    form.append($('<input type="hidden" name="nuclposition3" value="">'));
+    form.append($('<input type="hidden" name="choix_bdd" value="gene_name">'));
+    form.append($('<input type="hidden" name="exon_number" value="">'));
+    form.append($('<input type="hidden" name="intron_number" value="">'));
+    form.append($('<input type="hidden" name="remLentext" value="2500">'));
+    form.append($('<input type="hidden" name="sequenceWT" value="">'));
+    form.append($('<input type="hidden" name="remLentextmut" value="2500">'));
+    form.append($('<input type="hidden" name="sequenceMut" value="">'));
+    form.append($('<input type="hidden" name="Firstnucleotide" value="">'));
+    form.append($('<input type="hidden" name="Lastnucleotide" value="">'));
+    form.append($('<input type="hidden" name="remLentextBP" value="100">'));
+    form.append($('<input type="hidden" name="sequenceBP" value="">'));
+    form.append($('<input type="hidden" name="MDE_sequences" value="">'));
+    form.append($('<input type="hidden" name="paramfulltables" value="onlyvariants">'));
+    form.append($('<input type="hidden" name="fenetreintron" value="yes">'));
+    form.append($('<input type="hidden" name="fenetretaille" value="24">'));
+    form.append($('<input type="hidden" name="paramimages" value="no">'));
+    form.append($('<input type="hidden" name="matrice_3" value="no">'));
+    form.append($('<input type="hidden" name="Matrice" value="PSS">'));
+    form.append($('<input type="hidden" name="Matrice" value="maxent">'));
+    form.append($('<input type="hidden" name="seuil_maxent5" value="3">'));
+    form.append($('<input type="hidden" name="seuil_maxent3" value="3">'));
+    form.append($('<input type="hidden" name="seuil_nnsplice5" value="0.4">'));
+    form.append($('<input type="hidden" name="seuil_nnsplice3" value="0.4">'));
+    form.append($('<input type="hidden" name="Matrice" value="BPS">'));
+    form.append($('<input type="hidden" name="Matrice" value="ESE+Finder">'));
+    form.append($('<input type="hidden" name="seuil_sf2" value="72.98">'));
+    form.append($('<input type="hidden" name="seuil_sf2_esef" value="1.956">'));
+    form.append($('<input type="hidden" name="seuil_sf2ig" value="70.51">'));
+    form.append($('<input type="hidden" name="seuil_sf2ig_esef" value="1.867">'));
+    form.append($('<input type="hidden" name="seuil_sc35" value="75.05">'));
+    form.append($('<input type="hidden" name="seuil_sc35_esef" value="2.383">'));
+    form.append($('<input type="hidden" name="seuil_srp40" value="78.08">'));
+    form.append($('<input type="hidden" name="seuil_srp40_esef" value="2.67">'));
+    form.append($('<input type="hidden" name="seuil_srp55" value="73.86">'));
+    form.append($('<input type="hidden" name="seuil_srp55_esef" value="2.676">'));
+    form.append($('<input type="hidden" name="Matrice" value="RESCUE+ESE">'));
+    form.append($('<input type="hidden" name="Matrice" value="ESE+New">'));
+    form.append($('<input type="hidden" name="seuil_9g8" value="59.245">'));
+    form.append($('<input type="hidden" name="seuil_tra2" value="75.964">'));
+    form.append($('<input type="hidden" name="Matrice" value="Sironi">'));
+    form.append($('<input type="hidden" name="seuil_sironi1" value="60">'));
+    form.append($('<input type="hidden" name="seuil_sironi2" value="60">'));
+    form.append($('<input type="hidden" name="seuil_sironi3" value="60">'));
+    form.append($('<input type="hidden" name="Matrice" value="Decamers">'));
+    form.append($('<input type="hidden" name="Matrice" value="ESS+hnRNP">'));
+    form.append($('<input type="hidden" name="seuil_hnrnpa1" value="65.476">'));
+    form.append($('<input type="hidden" name="Matrice" value="PESE">'));
+    form.append($('<input type="hidden" name="Matrice" value="ESR">'));
+    form.append($('<input type="hidden" name="Matrice" value="EIE">'));
+    form.appendTo('body').submit();
+}
+
 function default0(value) {
   return (Object.is(value, undefined) ? 0 : value);
 }

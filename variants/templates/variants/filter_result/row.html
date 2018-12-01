@@ -116,6 +116,7 @@
     <div class="btn-group sodar-list-btn-group pr-2">
       <a
         href="javascript:mutationTaster('chr{{ entry.chromosome }}', {{ entry.position }}, '{{ entry.reference }}', '{{ entry.alternative }}');"
+        data-toggle="tooltip"
         title="Open variant in MutationTaster"
         class="btn btn-primary sodar-list-btn">
         MT
@@ -137,6 +138,31 @@
         <a class="dropdown-item" href="http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/?name={{ entry.chromosome }}:{{ entry.position }}-{{ entry.position }};search=Search" target="_blank">
           Locus @DGV
         </a>
+        <a href="javascript:humanSpliceFinder('{{ entry.symbol }}', '{{ entry.hgvs_c }}');"
+          data-toggle="tooltip"
+          title="Query Human Splice Finder"
+          class="dropdown-item">
+          Human Splice Finder
+        </a>
+        <a href="https://varseak.bio/ssp.php?gene={{ entry.symbol }}&hgvs={{ entry.hgvs_c }}"
+          data-toggle="tooltip"
+          title="Query varSEAK Splice Site Prediction"
+          target="_blank"
+          class="dropdown-item">
+          varSEAK Splice Site Prediction
+        </a>
+        {% if "missense_variant" in entry.effect %}
+          <a href="javascript:polyPhen2('{{ entry.symbol }}', '{{ entry.hgvs_p }}');"
+            data-toggle="tooltip"
+            title="Query PolyPhen 2"
+            class="dropdown-item">
+            PolyPhen 2
+          </a>
+        {% else %}
+          <span class="dropdown-item deactive">
+              PolyPhen 2 missense only
+          </span>
+        {% endif %}
       </div>
     </div>
   </td>
