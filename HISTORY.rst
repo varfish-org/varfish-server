@@ -6,6 +6,7 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+- Adding link-out to loci in Ensemble, gnomAD, and ExAC.
 - Adding link-out for Polyphen 2, Human Splicing Finder, and varSEAK Splicing.
 - Project-wide variant recreation registers started state now correctly.
 - Fixing URL for MutationDistiller Links.
