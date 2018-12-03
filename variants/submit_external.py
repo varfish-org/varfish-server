@@ -12,7 +12,7 @@ from .file_export import CaseExporterVcf
 
 
 #: URL to MutationDistiller submission form
-DISTILLER_POST_URL = "http://mutationdistiller.org/QE/MT/MTQE_start.cgi"
+DISTILLER_POST_URL = "https://www.mutationdistiller.org/QE/MT/MTQE_start.cgi"
 
 
 def submit_distiller(job):
