@@ -2,6 +2,12 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+- Fixing celery setup; syncing projects and roles regularly now.
+
 ------
 v0.9.5
 ------
