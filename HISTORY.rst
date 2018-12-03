@@ -2,13 +2,23 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+-------
+v0.10.0
+-------
+
+Accumulation of previous updates.
+The main new feature is the improved variant details card below variant rows.
+
+End-User Summary
+================
 
 - Fixing variant detail cards below results row.
-- Rendering variant details cards on the server instead of filling them out in JS.
 - Adding row numbers in more places.
+
+Full Change List
+================
+
+- Rendering variant details cards on the server instead of filling them out in JS.
 
 ------
 v0.9.6
