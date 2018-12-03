@@ -2,9 +2,11 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+------
+v0.9.6
+------
+
+This release fixes project-roles synchronization from SODAR site.
 
 - Fixing celery setup; syncing projects and roles regularly now.
 
