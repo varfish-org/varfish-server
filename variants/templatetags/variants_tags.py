@@ -80,7 +80,7 @@ def flag_class(row):
     with the lowest scoring that is not "empty".  If the summary flag has been
     set, use this value.
     """
-    if row.flag_summary != "empty":
+    if row.flag_summary and row.flag_summary != "empty":
         return row.flag_summary  # short-circuit
     values = ("negative", "uncertain", "positive", "empty")
     flags = ("visual", "validation", "phenotype_match")
@@ -88,7 +88,7 @@ def flag_class(row):
     for flag in flags:
         flag_name = "flag_%s" % flag
         flag_value = getattr(row, flag_name)
-        if flag_value != "empty":
+        if flag_value and flag_value != "empty":
             indexes.append(values.index(flag_value))
     return values[min(indexes, default=3)]
 

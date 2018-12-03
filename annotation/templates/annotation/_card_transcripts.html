@@ -1,6 +1,6 @@
 <div class="card">
   <div class="card-header">
-    <h4 class="card-title">Transcript information</h4>
+    <h4 class="card-title pb-2">Transcript information</h4>
     <ul class="nav nav-tabs card-header-tabs" style="border-bottom: 0;">
       {% for entry in data %}
       <li class="nav-item">
@@ -13,10 +13,10 @@
     <div class="tab-content">
       {% for entry in data %}
       <div class="tab-pane fade{% if forloop.counter0 == 0 %} show active{% endif %}" id="panel{{ forloop.counter0 }}" role="tabpanel" aria-labelledby="tab{{ forloop.counter0 }}">
-        <table class="table sodar-card-table">
+        <table class="card-body table sodar-card-table table-striped table-sm">
           <tbody>
           <tr>
-            <td class="border-top-0">Effects</td>
+            <th class="border-top-0">Effects</th>
             <td class="border-top-0">
               {% for effect in entry.effect %}
               <span class="badge badge-pill color-effect">{{ effect }}</span>
@@ -24,15 +24,15 @@
             </td>
           </tr>
           <tr>
-            <td>Coding</td>
+            <th>Coding</th>
             <td>{% if entry.transcript_coding %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-ban"></i>{% endif %}</td>
           </tr>
           <tr>
-            <td>HGVS_C</td>
+            <th>HGVS (nucleotide)</th>
             <td>{{ entry.hgvs_c }}</td>
           </tr>
           <tr>
-            <td>HGVS_P</td>
+            <th>HGV (protein)</th>
             <td>{{ entry.hgvs_p }}</td>
           </tr>
           <!--<tr>-->

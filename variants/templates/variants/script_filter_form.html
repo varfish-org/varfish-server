@@ -213,93 +213,10 @@ function default0(value) {
   return (Object.is(value, undefined) ? 0 : value);
 }
 
-$('.extend').click(function() {
-  var counter = $(this).attr('counter');
+$('.toggle-variant-details').click(function() {
   $("i", this).toggleClass('fa-chevron-right');
   $("i", this).toggleClass('fa-chevron-down');
-  if (!$(this).hasClass('ajax-executed')) {
-    $.ajax({
-      url: $(this).attr('url'),
-      method: 'GET',
-      dataType: 'json',
-      error: function(xhr) {
-        alert('Request Status: ' + xhr.status + '\nStatus Text: ' + xhr.statusText + '\nResponse Text: ' + xhr.responseText);
-      }
-    }).done(function (data) {
-      var table = '<table class="table sodar-card-table">';
-      table += '<thead><tr><th colspan=2></th><th>AFR</th><th>AMR</th><th>ASJ</th><th>EAS</th><th>FIN</th><th>NFE</th><th>OTH</th><th>SAS</th><th>Total</th></tr></thead>';
-      var pops = ["afr", "amr", "asj", "eas", "fin", "nfe", "oth", "sas"];
-      var dbs = ["gnomadexomes", "gnomadgenomes", "exac", "thousandgenomes"];
-      var dbs_head = ["gnomAD exomes", "gnomAD genomes", "ExAC", "1000 genomes"];
-      var typs = ["af", "hom", "het"];
-      var typs_head = ["Frq", "Hom", "Het"];
-      for (var i=0; i<dbs.length; ++i) {
-        table += '<tr>';
-        table += '<td rowspan=3><a href="http://' + dbs[i] + '.broadinstitute.org/variant/' + data["chromosome"] + '-' + data["position"] + '-' + data["reference"] + '-' + data["alternative"] + '" class="btn btn-primary btn-sm" target="_blank">' + dbs_head[i] + ' <i class="fa fa-external-link-alt"></i></a></td>';
-        for (var j=0; j<typs.length; ++j) {
-          if (j > 0) {
-            table += '</tr><tr>';
-          }
-          table += '<td>' + typs_head[j] + '</td>';
-          for (var k=0; k<pops.length; ++k) {
-            if (dbs[i] == "exac" && pops[k] == "asj") {
-              table += '<td>-</td>';
-            }
-            else if (dbs[i] == "gnomadgenomes" && pops[k] == "sas") {
-              table += '<td>-</td>';
-            }
-            else if (dbs[i] == "thousandgenomes" && (pops[k] == "asj" || pops[k] == "fin" || pops[k] == "oth" || pops[k] == "nfe")) {
-              if (pops[k] == "nfe") {
-                table += '<td>' + default0(data[dbs[i]][typs[j] + '_eur']) + '</td>';
-              }
-              else {
-                table += '<td>-</td>';
-              }
-            }
-            else {
-              table += '<td>' + default0(data[dbs[i]][typs[j] + '_' + pops[k]]) + '</td>';
-            }
-          }
-          table += '<td>' + default0(data[dbs[i]][typs[j]]) + '</td>';
-        }
-        table += '</tr></tbody></thead>';
-      }
-      $("#frequency" + counter).append(table);
-      var clinvar = 'No data.';
-      if (data["clinvar"].length > 0) {
-        clinvar = '<table class="table sodar-card-table">';
-        clinvar += '<thead><tr><th>Clinical Significance</th><th>All Traits</th></tr></thead>';
-        clinvar += '<tbody>';
-        for (let i=0; i < data["clinvar"].length; ++i) {
-          clinvar += '<tr>';
-          clinvar += '<td>' + data["clinvar"][i]["clinical_significance"] + '</td>';
-          clinvar += '<td>';
-          clinvar += data["clinvar"][i]["all_traits"].join(",");
-          clinvar += '</td>';
-          clinvar += '</tr>';
-        }
-        clinvar += '</tbody></table>';
-      }
-      $("#clinvar" + counter).append(clinvar);
-      var knowngeneaa = 'No data.';
-      if (data["knowngeneaa"].length > 0) {
-        knowngeneaa = '<table class="table sodar-card-table">';
-        knowngeneaa += '<thead><tr><th>Chromosome</th><th>Start</th><th>End</th><th>Alignment</th></tr></thead>';
-        knowngeneaa += '<tbody>';
-        for (let i=0; i < data["knowngeneaa"].length; ++i) {
-          knowngeneaa += '<tr>';
-          knowngeneaa += '<td>' + data["knowngeneaa"][i]["chromosome"] + '</td>';
-          knowngeneaa += '<td>' + data["knowngeneaa"][i]["start"] + 1 + '</td>';
-          knowngeneaa += '<td>' + data["knowngeneaa"][i]["end"] + '</td>';
-          knowngeneaa += '<td><code>' + data["knowngeneaa"][i]["alignment"] + '</code></td>';
-          knowngeneaa += '</tr>';
-        }
-        knowngeneaa += '</tbody></table>';
-      }
-      $("#knowngeneaa" + counter).append(knowngeneaa);
-    });
-  }
-  $(this).addClass('ajax-executed');
+  $($(this).data("target") + " .variant-details").load($(this).data("url"));
 });
 
 $("#settingsDownload").click(

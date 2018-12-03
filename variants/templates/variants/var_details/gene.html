@@ -1,0 +1,40 @@
+{% load dict %}
+{% load humanize %}
+
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Gene</h4>
+  </div>
+  <table class="card-body table table-striped table-sm">
+    <tbody>
+      <tr>
+        <th>Entrez ID</th>
+        <td>{{ gene.entrez_id }}</td>
+      </tr>
+      <tr>
+        <th>ENSEMBL Gene ID</th>
+        <td>{{ gene.ensembl_gene_id }}</td>
+      </tr>
+      <tr>
+        <th>Symbol</th>
+        <td>{{ gene.symbol }}</td>
+      </tr>
+      <tr>
+        <th>Alias Symbol</th>
+        <td>{{ gene.alias_symbol|default:"-" }}</td>
+      </tr>
+      <tr>
+        <th>Name</th>
+        <td>{{ gene.name }}</td>
+      </tr>
+      <tr>
+        <th>Alias Names</th>
+        <td>{{ gene.alias_name|default:"-" }}</td>
+      </tr>
+      <tr>
+        <th>Gene Family</th>
+        <td>{{ gene.gene_family|default:"-" }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

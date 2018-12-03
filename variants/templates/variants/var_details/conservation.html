@@ -1,0 +1,16 @@
+{% load humanize %}
+
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">UCSC 100 Vertebrate Conservation</h4>
+  </div>
+  <div class="card-body">
+    {% if knowngeneaa %}
+    <pre><b><u>chr  start       end          |  alignment                                                                                           </u></b>
+{% for row in knowngeneaa %}{{ row.chromosome|stringformat:" 3s " }} {{ row.start|intcomma|stringformat:"11s" }}-{{ row.end|intcomma|stringformat:"-11s" }}  |  {{ row.alignment }}
+{% endfor %}</pre>
+  {% else %}
+      <p class="text-muted text-center"><i>No conservation information available.</i></p>
+  {% endif %}
+    </div>
+</div>

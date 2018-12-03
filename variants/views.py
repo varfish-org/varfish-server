@@ -21,9 +21,12 @@ import simplejson as json
 
 from bgjobs.models import BackgroundJob
 from clinvar.models import Clinvar
+from geneinfo.models import Hgnc
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from projectroles.plugins import get_backend_api
+from annotation.models import Annotation
+from .models import SmallVariant
 from .models_support import (
     ClinvarReportQuery,
     RenderFilterQuery,
@@ -642,24 +645,22 @@ class CaseClinvarReportView(
         return context
 
 
-class ExtendAPIView(
+class SmallVariantDetails(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
     FrequencyMixin,
     AlchemyConnectionMixin,
-    View,
+    DetailView,
 ):
-    permission_required = "variants.view_data"
+    """Render details card of small variants."""
 
-    def get(self, *args, **kwargs):
-        # TODO(holtgrewe): don't use self.kwargs for passing around values
-        self.kwargs = dict(kwargs)
-        self.kwargs["knowngeneaa"] = self._load_knowngene_aa(kwargs)
-        self.kwargs.update(self.get_frequencies(kwargs))
-        self.kwargs["clinvar"] = self._load_clinvar(kwargs)
-        return HttpResponse(json.dumps(self.kwargs), content_type="application/json")
+    permission_required = "variants.view_data"
+    template_name = "variants/variant_details.html"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
 
     def _load_knowngene_aa(self, query_kwargs):
         """Load the UCSC knownGeneAA conservation alignment information."""
@@ -696,7 +697,76 @@ class ExtendAPIView(
                 )
             return result
         except ObjectDoesNotExist:
-            return None
+            return []
+
+    def _load_small_var(self, kwargs):
+        return SmallVariant.objects.filter(
+            case_id=self.object.pk,
+            release=kwargs["release"],
+            chromosome=kwargs["chromosome"],
+            position=kwargs["position"],
+            reference=kwargs["reference"],
+            alternative=kwargs["alternative"],
+        ).first()
+
+    def _load_molecular_impact(self, kwargs):
+        filter_kwargs = {
+            key: kwargs[key]
+            for key in ("release", "chromosome", "position", "reference", "alternative")
+        }
+        return [
+            model_to_dict(entry)
+            for entry in Annotation.objects.filter(**filter_kwargs, database="refseq")
+        ]
+
+    def _get_population_freqs(self, kwargs):
+        result = {
+            "populations": ("AFR", "AMR", "ASJ", "EAS", "FIN", "NFE", "OTH", "SAS"),
+            "pop_freqs": {},
+        }
+        db_infos = {
+            "gnomadexomes": "gnomAD Exomes",
+            "gnomadgenomes": "gnomAD Exomes",
+            "exac": "ExAC",
+            "thousandgenomes": "1000GP",
+        }
+        frequencies = self.get_frequencies(kwargs)
+        for key, label in db_infos.items():
+            pop_freqs = {}
+            for pop in result["populations"]:
+                pop_freqs.setdefault(pop, {})["hom"] = frequencies[key].get("hom_%s" % pop.lower())
+                pop_freqs.setdefault(pop, {})["het"] = frequencies[key].get("het_%s" % pop.lower())
+                pop_freqs.setdefault(pop, {})["hemi"] = frequencies[key].get(
+                    "hemi_%s" % pop.lower()
+                )
+                pop_freqs.setdefault(pop, {})["af"] = frequencies[key].get("af_%s" % pop.lower())
+            result["pop_freqs"][label] = pop_freqs
+        return result
+
+    def _get_gene_infos(self, kwargs):
+        if kwargs["database"] == "refseq":
+            gene = Hgnc.objects.filter(entrez_id=kwargs["gene_id"]).first()
+        else:
+            gene = Hgnc.objects.filter(ensembl_gene_id=kwargs["gene_id"]).first()
+        if not gene:
+            return {"gene_id": kwargs["gene_id"]}
+        else:
+            return gene
+
+    def get_context_data(self, object):
+        result = super().get_context_data(*self.args, **self.kwargs)
+        result["database"] = self.kwargs["database"]
+        result["clinvar"] = self._load_clinvar(self.kwargs)
+        result["knowngeneaa"] = self._load_knowngene_aa(self.kwargs)
+        result["small_var"] = self._load_small_var(self.kwargs)
+        result["effect_details"] = self._load_molecular_impact(self.kwargs)
+        if self.request.GET.get("render_full", "no").lower() in ("yes", "true"):
+            result["base_template"] = "projectroles/project_base.html"
+        else:
+            result["base_template"] = "empty_base.html"
+        result.update(self._get_population_freqs(self.kwargs))
+        result["gene"] = self._get_gene_infos(self.kwargs)
+        return result
 
 
 class BackgroundJobListView(

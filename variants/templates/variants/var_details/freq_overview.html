@@ -1,0 +1,54 @@
+{% load dict %}
+{% load humanize %}
+
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Frequency Details</h4>
+  </div>
+  <table class="card-body table table-striped table-sm">
+    <thead>
+      <tr>
+        <th></th>
+        {% for pop in populations %}
+          <th class="text-center">{{ pop }}</th>
+        {% endfor %}
+        <th class="text-center">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for name, db in pop_freqs.items %}
+        <tr>
+          <th rowspan="3">{{ name }}</th>
+          <th class="text-center">Freq</th>
+          {% for pop in populations %}
+            {% if db|keyvalue:pop|keyvalue:"af" %}
+              <td class="text-right">{{ db|keyvalue:pop|keyvalue:"af"|default:0|floatformat:5 }}</td>
+            {% else %}
+              <td class="text-right text-muted">0.0000</td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+        <tr>
+          <th class="text-center">Hom</th>
+          {% for pop in populations %}
+            {% if db|keyvalue:pop|keyvalue:"hom" %}
+              <td class="text-right">{{ db|keyvalue:pop|keyvalue:"hom"|default:0|intcomma }}</td>
+            {% else %}
+              <td class="text-right text-muted">0</td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+        <tr>
+          <th class="text-center">Het</th>
+          {% for pop in populations %}
+            {% if db|keyvalue:pop|keyvalue:"het" %}
+              <td class="text-right">{{ db|keyvalue:pop|keyvalue:"het"|default:0|intcomma }}</td>
+            {% else %}
+              <td class="text-right text-muted">0</td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

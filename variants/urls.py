@@ -98,14 +98,14 @@ urlpatterns = [
         view=views.SmallVariantCommentApiView.as_view(),
         name="small-variant-comment-api",
     ),
-    # API for expanding details in result list
+    # Render details row
     url(
         regex=(
-            r"^(?P<project>[0-9a-f-]+)/api/extend/(?P<release>(GRCh37|GRCh38))-"
-            r"(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT]))-(?P<position>[0-9]+)-"
-            r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/$"
+            r"^(?P<project>[0-9a-f-]+)/case/small-variant-details/(?P<case>[0-9a-f-]+)/"
+            r"(?P<release>(GRCh37|GRCh38))-(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT]))-(?P<position>[0-9]+)-"
+            r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/(?P<database>[^/]+)/(?P<gene_id>[^/]+)$"
         ),
-        view=views.ExtendAPIView.as_view(),
-        name="extend",
+        view=views.SmallVariantDetails.as_view(),
+        name="small-variant-details",
     ),
 ]

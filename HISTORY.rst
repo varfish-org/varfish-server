@@ -6,6 +6,8 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+- Fixing variant detail cards below results row.
+- Rendering variant details cards on the server instead of filling them out in JS.
 - Adding row numbers in more places.
 
 ------

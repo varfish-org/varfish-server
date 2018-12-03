@@ -81,7 +81,6 @@ DEFAULT_FILTER_FORM_SETTING = {
     "file_type": "xlsx",
     "export_flags": True,
     "export_comments": True,
-    "gene_blacklist": "",
     "gnomad_exomes_enabled": False,
     "gnomad_exomes_frequency": 1.0,
     "gnomad_exomes_heterozygous": 1000,
@@ -190,6 +189,7 @@ DEFAULT_RESUBMIT_SETTING = {
     "export_flags": True,
     "export_comments": True,
     "gene_blacklist": "",
+    "gene_whitelist": "",
     "gnomad_exomes_enabled": False,
     "gnomad_exomes_frequency": 1.0,
     "gnomad_exomes_heterozygous": 1000,
@@ -454,10 +454,70 @@ class TestCaseClinvarReportView(TestViewBase):
             self.assertEquals(len(result_rows), 1)
 
 
-def fixture_setup_expand(user):
+def fixture_setup_small_variant_details(user):
     """Setup test case for expand view. Contains project and frequency objects"""
     project = Project.objects.create(**PROJECT_DICT)
+    case = project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
+        name="A",
+        index="A",
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
+    )
+
     basic_var = {
+        "case_id": case.pk,
+        "release": "GRCh37",
+        "chromosome": "1",
+        "position": None,
+        "reference": "A",
+        "alternative": "G",
+        "var_type": "snv",
+        "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+        "in_clinvar": False,
+        # frequencies
+        "exac_frequency": 0.01,
+        "exac_homozygous": 0,
+        "exac_heterozygous": 0,
+        "exac_hemizygous": 0,
+        "thousand_genomes_frequency": 0.01,
+        "thousand_genomes_homozygous": 0,
+        "thousand_genomes_heterozygous": 0,
+        "thousand_genomes_hemizygous": 0,
+        "gnomad_exomes_frequency": 0.01,
+        "gnomad_exomes_homozygous": 0,
+        "gnomad_exomes_heterozygous": 0,
+        "gnomad_exomes_hemizygous": 0,
+        "gnomad_genomes_frequency": 0.01,
+        "gnomad_genomes_homozygous": 0,
+        "gnomad_genomes_heterozygous": 0,
+        "gnomad_genomes_hemizygous": 0,
+        # RefSeq
+        "refseq_gene_id": "1234",
+        "refseq_transcript_id": "NR_00001.1",
+        "refseq_transcript_coding": False,
+        "refseq_hgvs_c": "n.111+2T>C",
+        "refseq_hgvs_p": "p.=",
+        "refseq_effect": ["synonymous_variant"],
+        # ENSEMBL
+        "ensembl_gene_id": "ENSG0001",
+        "ensembl_transcript_id": "ENST00001",
+        "ensembl_transcript_coding": False,
+        "ensembl_hgvs_c": "n.111+2T>C",
+        "ensembl_hgvs_p": "p.=",
+        "ensembl_effect": ["synonymous_variant"],
+    }
+    SmallVariant.objects.create(**{**basic_var, **{"position": 100}})
+
+    basic_pop = {
         "release": "GRCh37",
         "chromosome": "1",
         "position": 100,
@@ -508,7 +568,7 @@ def fixture_setup_expand(user):
 
     Exac.objects.create(
         **{
-            **basic_var,
+            **basic_pop,
             **{"ac_sas": 0, "an_sas": 323, "hemi_sas": None, "hom_sas": 0, "af_sas": 0.0},
         }
     )
@@ -531,7 +591,7 @@ def fixture_setup_expand(user):
     )
     GnomadExomes.objects.create(
         **{
-            **basic_var,
+            **basic_pop,
             **{
                 "ac_asj": 0,
                 "ac_sas": 0,
@@ -548,42 +608,40 @@ def fixture_setup_expand(user):
     )
     GnomadGenomes.objects.create(
         **{
-            **basic_var,
+            **basic_pop,
             **{"ac_asj": 0, "an_asj": 323, "hemi_asj": None, "hom_asj": 0, "af_asj": 0.0},
         }
     )
 
 
-class TestExpandView(TestViewBase):
-    """Test table expansion view"""
+class TestSmallVariantsDetailsView(TestViewBase):
+    """Test variant details view"""
 
-    setup_case_in_db = fixture_setup_expand
+    setup_case_in_db = fixture_setup_small_variant_details
 
     def test_render(self):
-        """Test rendering of the expansion"""
+        """Test rendering of the variant detail view"""
         with self.login(self.user):
             project = Project.objects.first()
+            case = Case.objects.first()
             response = self.client.get(
                 reverse(
-                    "variants:extend",
+                    "variants:small-variant-details",
                     kwargs={
                         "project": project.sodar_uuid,
+                        "case": case.sodar_uuid,
                         "release": "GRCh37",
                         "chromosome": "1",
                         "position": 100,
                         "reference": "A",
                         "alternative": "G",
+                        "database": "refseq",
+                        "gene_id": "12345",
                     },
                 )
             )
             self.assertEqual(response.status_code, 200)
-            content = json.loads(response.content.decode("utf-8"))
-            self.assertEqual(content["position"], "100")
-            self.assertEqual(content["gnomadexomes"]["an_sas"], 932)
-            self.assertEqual(content["exac"]["an_sas"], 323)
-            self.assertEqual(content["gnomadgenomes"]["an_asj"], 323)
-            self.assertEqual(content["thousandgenomes"]["af_amr"], 0.0054)
-            # TODO: test clinvar and knowngeneaa
+            # TODO: actually test returned values
 
 
 def fixture_setup_bgjob(user):

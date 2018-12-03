@@ -1,0 +1,45 @@
+{% load dict %}
+
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Genotype and Call Infos</h4>
+  </div>
+  <table class="card-body table table-striped table-sm">
+    <thead>
+      <tr>
+        <th class="text-center">Sample</th>
+        {% for row in object.get_filtered_pedigree_with_samples %}
+          <th class="text-center">{{ row.patient }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th class="text-center">Genotype</th>
+        {% for row in object.get_filtered_pedigree_with_samples %}
+          <td class="text-center">{{ small_var.genotype|keyvalue:row.patient|keyvalue:"gt" }}</td>
+        {% endfor %}
+      </tr>
+      <tr>
+        <th class="text-center">Coverage (DP)</th>
+        {% for row in object.get_filtered_pedigree_with_samples %}
+          {% if small_var.genotype|keyvalue:row.patient|keyvalue:"dp" == -1 %}
+            <td class="text-center">.</td>
+          {% else %}
+            <td class="text-center">{{ small_var.genotype|keyvalue:row.patient|keyvalue:"dp" }}</td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+      <tr>
+        <th class="text-center">Alt. Depth (AD)</th>
+        {% for row in object.get_filtered_pedigree_with_samples %}
+          {% if small_var.genotype|keyvalue:row.patient|keyvalue:"dp" == -1 %}
+            <td class="text-center">.</td>
+          {% else %}
+            <td class="text-center">{{ small_var.genotype|keyvalue:row.patient|keyvalue:"ad"|default:"0" }}</td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+</div>
