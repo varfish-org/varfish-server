@@ -2,9 +2,11 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+------
+v0.9.5
+------
+
+Small additions, fixing MutationDistiller integration.
 
 - Adding link-out to loci in Ensemble, gnomAD, and ExAC.
 - Adding link-out for Polyphen 2, Human Splicing Finder, and varSEAK Splicing.
