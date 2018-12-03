@@ -13,6 +13,7 @@
   <table class="table table-striped table-hover sodar-card-table" id="quality-filter-table">
     <thead>
       <tr>
+        <th class="text-muted" style="width: 10px">#</th>
         <th class="col-2">Individual</th>
         <th class="col-2">Father</th>
         <th class="col-2">Mother</th>
@@ -27,6 +28,7 @@
     <tbody>
       {% for member in form.get_pedigree %}
       <tr>
+        <td class="text-right text-muted">{{ forloop.counter }}</td>
         <td>{{ member.patient|only_source_name }}</td>
         <td>{{ member.father|default:"0"|only_source_name }}</td>
         <td>{{ member.mother|default:"0"|only_source_name }}</td>

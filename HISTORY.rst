@@ -2,6 +2,12 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+- Adding row numbers in more places.
+
 ------
 v0.9.6
 ------
