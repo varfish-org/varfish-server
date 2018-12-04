@@ -21,7 +21,7 @@ import simplejson as json
 
 from bgjobs.models import BackgroundJob
 from clinvar.models import Clinvar
-from geneinfo.models import Hgnc
+from geneinfo.models import Hgnc, NcbiGeneInfo, NcbiGeneRif
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from projectroles.plugins import get_backend_api
@@ -766,6 +766,9 @@ class SmallVariantDetails(
             result["base_template"] = "empty_base.html"
         result.update(self._get_population_freqs(self.kwargs))
         result["gene"] = self._get_gene_infos(self.kwargs)
+        entrez_id = result["small_var"].refseq_gene_id
+        result["ncbi_summary"] = NcbiGeneInfo.objects.filter(entrez_id=entrez_id).first()
+        result["ncbi_gene_rifs"] = NcbiGeneRif.objects.filter(entrez_id=entrez_id).order_by("pk")
         return result
 
 

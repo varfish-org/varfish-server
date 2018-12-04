@@ -9,26 +9,27 @@
 {% load json %}
 
 {% block projectroles_extend %}
-
-  <div class="row">
-    <div class="col-12 col-xl-4">
-      {% include "variants/var_details/gene.html" %}
+  <div style="font-size: .9em;">
+    <div class="row">
+      <div class="col-12 col-xl-6">
+        {% include "variants/var_details/gene.html" %}
+      </div>
+      <div class="col-12 col-xl-6">
+        {% include "variants/var_details/freq_overview.html" %}
+      </div>
     </div>
-    <div class="col-12 col-xl-8">
-      {% include "variants/var_details/freq_overview.html" %}
+    <div class="row">
+      <div class="col-12 col-xl-4">
+        {% include "annotation/_card_transcripts.html" with data=effect_details %}
+      </div>
+      <div class="col-12 col-xl-8">
+        {% include "variants/var_details/call_details.html" %}
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-12 col-xl-4">
-      {% include "annotation/_card_transcripts.html" with data=effect_details %}
-    </div>
-    <div class="col-12 col-xl-8">
-      {% include "variants/var_details/call_details.html" %}
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-12">
-      {% include "variants/var_details/conservation.html" %}
+    <div class="row">
+      <div class="col-12">
+        {% include "variants/var_details/conservation.html" %}
+      </div>
     </div>
   </div>
 

@@ -2,6 +2,23 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+This release adds more textual information about genes to the database and displays it.
+
+End-User Summary
+================
+
+- Adding gene summaries and reference-into-function from NCBI Gene database.
+
+Full Change List
+================
+
+- Adding models ``NcbiGeneInfo`` and ``NcbiGeneInfo`` in ``geneinfo`` app.
+- Displaying this information in the gene details page.
+
 -------
 v0.10.0
 -------

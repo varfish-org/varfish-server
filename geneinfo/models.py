@@ -93,3 +93,33 @@ class Hpo(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=["database_id"])]
+
+
+class NcbiGeneInfo(models.Model):
+    """Store gene information taken from NCBI Gene database."""
+
+    #: The Entrez ID of the gene.
+    entrez_id = models.CharField(max_length=16, null=False)
+    #: The summary text
+    summary = models.TextField(null=True)
+
+    #: Allow bulk import into database.
+    objects = CopyManager()
+
+    class Meta:
+        indexes = [models.Index(fields=["entrez_id"])]
+
+
+class NcbiGeneRif(models.Model):
+    """Store Gene Reference-Into-Function information taken from NCBI Gene database."""
+
+    #: The Entrez ID of the gene.
+    entrez_id = models.CharField(max_length=16, null=False)
+    #: The summary text
+    rif_text = models.TextField(null=False)
+
+    #: Allow bulk import into database.
+    objects = CopyManager()
+
+    class Meta:
+        indexes = [models.Index(fields=["entrez_id"])]

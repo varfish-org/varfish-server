@@ -11,7 +11,7 @@ from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from frequencies.models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes
-from geneinfo.models import Hgnc, Mim2geneMedgen, Hpo
+from geneinfo.models import Hgnc, Mim2geneMedgen, Hpo, NcbiGeneInfo, NcbiGeneRif
 from hgmd.models import HgmdPublicLocus
 from importer.models import ImportInfo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
@@ -51,6 +51,8 @@ class Command(BaseCommand):
         "kegginfo": Table(KeggInfo, "", True, False),
         "clinvar": Table(Clinvar, "", True, False),
         "knowngeneaa": Table(KnowngeneAA, "", True, False),
+        "gene_info": Table(NcbiGeneInfo, "", True, False),
+        "gene_rif": Table(NcbiGeneRif, "", True, False),
     }
 
     def add_arguments(self, parser):

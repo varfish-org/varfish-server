@@ -12,7 +12,7 @@
         <td>{{ gene.entrez_id }}</td>
       </tr>
       <tr>
-        <th>ENSEMBL Gene ID</th>
+        <th>ENSEMBL ID</th>
         <td>{{ gene.ensembl_gene_id }}</td>
       </tr>
       <tr>
@@ -34,6 +34,30 @@
       <tr>
         <th>Gene Family</th>
         <td>{{ gene.gene_family|default:"-" }}</td>
+      </tr>
+      <tr>
+        <th>NCBI Summary</th>
+        <td>
+          <div style="max-height: 150px; overflow-y: auto;">
+            {{ ncbi_summary.summary|default:"-" }}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th>Gene RIFs</th>
+        <td>
+          {% if ncbi_gene_rifs %}
+            <ul class="pl-3" style="max-height: 150px; overflow-y: auto;">
+              {% for gene_rif in ncbi_gene_rifs %}
+                <li>{{ gene_rif.rif_text }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-center text-muted">
+              <i>No Reference-into-Function Information</i>
+            </p>
+          {% endif %}
+        </td>
       </tr>
     </tbody>
   </table>
