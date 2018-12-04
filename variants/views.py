@@ -726,7 +726,7 @@ class SmallVariantDetails(
         }
         db_infos = {
             "gnomadexomes": "gnomAD Exomes",
-            "gnomadgenomes": "gnomAD Exomes",
+            "gnomadgenomes": "gnomAD Genomes",
             "exac": "ExAC",
             "thousandgenomes": "1000GP",
         }

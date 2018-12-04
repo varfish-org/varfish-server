@@ -3,6 +3,12 @@ History / Changelog
 ===================
 
 -------
+v0.11.1
+-------
+
+- Fixing frequency display, including gnomAD genomes.
+
+-------
 v0.11.0
 -------
 
