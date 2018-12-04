@@ -2,9 +2,9 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+-------
+v0.11.0
+-------
 
 This release adds more textual information about genes to the database and displays it.
 
