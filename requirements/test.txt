@@ -22,3 +22,7 @@ black
 
 # Reading of XLSX files for tests
 openpyxl ==2.5.9
+
+# Selenium UI tests
+selenium == 3.141.0
+

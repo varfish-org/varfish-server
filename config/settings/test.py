@@ -10,7 +10,7 @@ from .base import *  # noqa
 # DEBUG
 # ------------------------------------------------------------------------------
 # Turn debug off so tests run faster
-DEBUG = False
+DEBUG = True
 TEMPLATES[0]["OPTIONS"]["debug"] = True  # coverage needs this
 
 # SECRET CONFIGURATION

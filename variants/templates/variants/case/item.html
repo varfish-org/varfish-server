@@ -1,6 +1,6 @@
 {% load variants_tags %}
 
-<tr id="varfish-bg-table-row-{{ job.sodar_uuid }}">
+<tr id="varfish-bg-table-row-{{ item.sodar_uuid }}">
   <td class="text-right text-muted">{{ forloop.counter }}</td>
   <td>{{ item.date_created|date:"Y/m/d H:i" }}</td>
   <td>
