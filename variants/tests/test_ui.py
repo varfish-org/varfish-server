@@ -2,6 +2,7 @@
 
 import socket
 from urllib.parse import urlencode
+import json
 
 from django.contrib import auth
 from django.test import LiveServerTestCase, override_settings
@@ -164,7 +165,7 @@ class TestUIBase(
             ec.presence_of_element_located(
                 (By.ID, 'sodar-navbar-user-dropdown')))
 
-    def compile_url_and_login(self, kwargs):
+    def compile_url_and_login(self, kwargs={}):
         patched_kwargs = {**self.kwargs, **kwargs}
         self.login_and_redirect(self.superuser, reverse(self.view, kwargs=patched_kwargs))
 
@@ -187,6 +188,7 @@ class TestUIBase(
                 self.selenium.find_element_by_id(element_id)
 
 
+#: Information for building a project
 PROJECT_DICT = {
     "title": "project",
     "type": "PROJECT",
@@ -199,6 +201,7 @@ PROJECT_DICT = {
 
 
 def fixture_setup_project_case():
+    """Fixture setup for a project with a single case and according variant statistics."""
     project = Project.objects.create(**PROJECT_DICT)
     case = project.case_set.create(
         sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
@@ -289,6 +292,7 @@ class TestVariantsCaseDetailView(TestUIBase):
 
 
 def fixture_setup_single_variant():
+    """Fixture setup for a single individual with a single variant (based on fixture_setup_project_case)"""
     case = fixture_setup_project_case()
     basic_var = {
         "case_id": case.pk,
@@ -336,6 +340,43 @@ def fixture_setup_single_variant():
     SmallVariant.objects.create(**{**basic_var, **{"position": 100}})
 
 
+EFFECT_FIELDS = {
+    'id_effect_disruptive_inframe_deletion': False,
+    'id_effect_disruptive_inframe_insertion': False,
+    'id_effect_feature_truncation': False,
+    'id_effect_frameshift_elongation': False,
+    'id_effect_frameshift_truncation': False,
+    'id_effect_frameshift_variant': False,
+    'id_effect_inframe_deletion': False,
+    'id_effect_inframe_insertion': False,
+    'id_effect_internal_feature_elongation': False,
+    'id_effect_missense_variant': False,
+    'id_effect_mnv': False,
+    'id_effect_start_lost': False,
+    'id_effect_stop_gained': False,
+    'id_effect_stop_retained_variant': False,
+    'id_effect_stop_lost': False,
+    'id_effect_synonymous_variant': False,
+    'id_effect_direct_tandem_duplication': False,
+    'id_effect_downstream_gene_variant': False,
+    'id_effect_coding_transcript_intron_variant': False,
+    'id_effect_intergenic_variant': False,
+    'id_effect_upstream_gene_variant': False,
+    'id_effect_three_prime_UTR_exon_variant': False,
+    'id_effect_three_prime_UTR_intron_variant': False,
+    'id_effect_five_prime_UTR_exon_variant': False,
+    'id_effect_five_prime_UTR_intron_variant': False,
+    'id_effect_non_coding_transcript_exon_variant': False,
+    'id_effect_non_coding_transcript_intron_variant': False,
+    'id_effect_splice_acceptor_variant': False,
+    'id_effect_splice_donor_variant': False,
+    'id_effect_splice_region_variant': False,
+    'id_effect_structural_variant': False,
+    'id_effect_transcript_ablation': False,
+    'id_effect_complex_substitution': False,
+}
+
+
 #from django.test import override_settings
 #@override_settings(DEBUG=True)
 class TestVariantsCaseFilterView(TestUIBase):
@@ -348,19 +389,180 @@ class TestVariantsCaseFilterView(TestUIBase):
     }
     fixture_setup = fixture_setup_single_variant
 
-    def test_variant_filter_case(self):
-        """Test"""
-        self.compile_url_and_login({})
+    def _disable_effect_groups(self):
+        """Helper function to disable all effect checkboxes by activating and deactivating the 'all' checkbox."""
+        checkbox = self.selenium.find_element_by_id('id_effect_group_all')
+        if checkbox.is_selected():
+            checkbox.click()
+        else:  # checkbox might be 'indeterminate'. disable all checkboxes by activating and deactivating 'all' box
+            checkbox.click()
+            checkbox.click()
+
+    def _check_effect_groups(self, group, effect_fields_patch):
+        """Helper function for testing the performance of the effect group checkboxes."""
+        # login
+        self.compile_url_and_login()
+        # disable effect groups
+        self._disable_effect_groups()
+        # patch effect fields
+        patched_effect_fields = {**EFFECT_FIELDS, **effect_fields_patch}
+        # select checkbox effects, if group is provided
+        if group:
+            self.selenium.find_element_by_id(group).click()
+        # check for ticked checkboxes
+        for field, value in patched_effect_fields.items():
+            self.assertEqual(self.selenium.find_element_by_id(field).is_selected(), value)
+
+    def test_variant_filter_case_display(self):
+        """Test if submitting the filter yields the exptected results."""
+        # login
+        self.compile_url_and_login()
+        # disable exac and thousand genomes frequency filter
         self.selenium.find_element_by_xpath("//input[@name='exac_enabled']").click()
         self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
+        # disable quality filters
         self.selenium.find_element_by_xpath("//option[@value='ignore']").click()
-        self.selenium.find_element_by_xpath(
-            '//button[@name="submit" and @value="display"]').click()
-
-        # Wait for redirect
+        # hit submit button
+        self.selenium.find_element_by_xpath('//button[@name="submit" and @value="display"]').click()
+        # wait for redirect
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located(
                 (By.ID, 'variant-details-0')))
+
+    def test_variant_filter_case_effects_form_select_all(self):
+        """Test if effect group checkbox 'all' disables all effects if activated and deactivated."""
+        self._check_effect_groups(None, {})
+
+    def test_variant_filter_case_effects_form_select_none(self):
+        """Test if effect group checkbox 'all' selects all effect checkboxes."""
+        self._check_effect_groups('id_effect_group_all', {effect: True for effect in EFFECT_FIELDS})
+
+    def test_variant_filter_case_effects_form_select_nonsynonymous(self):
+        """Test if effect group checkbox 'nonsynonymous' selects the correct effect checkboxes."""
+        self._check_effect_groups(
+            'id_effect_group_nonsynonymous',
+            {
+                'id_effect_disruptive_inframe_deletion': True,
+                'id_effect_disruptive_inframe_insertion': True,
+                'id_effect_feature_truncation': True,
+                'id_effect_frameshift_elongation': True,
+                'id_effect_frameshift_truncation': True,
+                'id_effect_frameshift_variant': True,
+                'id_effect_inframe_deletion': True,
+                'id_effect_inframe_insertion': True,
+                'id_effect_internal_feature_elongation': True,
+                'id_effect_missense_variant': True,
+                'id_effect_mnv': True,
+                'id_effect_start_lost': True,
+                'id_effect_stop_gained': True,
+                'id_effect_stop_lost': True,
+                'id_effect_direct_tandem_duplication': True,
+                'id_effect_structural_variant': True,
+                'id_effect_transcript_ablation': True,
+                'id_effect_complex_substitution': True,
+            })
+
+    def test_variant_filter_case_effects_form_select_splicing(self):
+        """Test if effect group checkbox 'splicing' selects the correct effect checkboxes."""
+        self._check_effect_groups(
+            'id_effect_group_splicing',
+            {
+                'id_effect_splice_acceptor_variant': True,
+                'id_effect_splice_donor_variant': True,
+                'id_effect_splice_region_variant': True,
+            })
+
+    def test_variant_filter_case_effects_form_select_coding(self):
+        """Test if effect group checkbox 'coding' selects the correct effect checkboxes."""
+        self._check_effect_groups(
+            'id_effect_group_coding',
+            {
+                'id_effect_stop_retained_variant': True,
+                'id_effect_synonymous_variant': True,
+            })
+
+    def test_variant_filter_case_effects_form_select_utr_intronic(self):
+        """Test if effect group checkbox 'UTR/intronic' selects the correct effect checkboxes."""
+        self._check_effect_groups('id_effect_group_utr_intronic',
+            {
+                'id_effect_coding_transcript_intron_variant': True,
+                'id_effect_three_prime_UTR_exon_variant': True,
+                'id_effect_three_prime_UTR_intron_variant': True,
+                'id_effect_five_prime_UTR_exon_variant': True,
+                'id_effect_five_prime_UTR_intron_variant': True,
+            })
+
+    def test_variant_filter_case_effects_form_select_noncoding(self):
+        """Test if effect group checkbox 'noncoding' selects the correct effect checkboxes."""
+        self._check_effect_groups(
+            'id_effect_group_noncoding',
+            {
+                'id_effect_downstream_gene_variant': True,
+                'id_effect_intergenic_variant': True,
+                'id_effect_upstream_gene_variant': True,
+                'id_effect_non_coding_transcript_exon_variant': True,
+                'id_effect_non_coding_transcript_intron_variant': True,
+            })
+
+    def test_variant_filter_case_settings_initial_database(self):
+        """Test if the initial form settings correspond to the JSON dump textarea by checking the database setting."""
+        # login
+        self.compile_url_and_login()
+        # obtain initial settings from textarea
+        settings = json.loads(self.selenium.find_element_by_id('settingsDump').get_attribute('value'))
+        # check if database_select switch is set as expected to refseq
+        self.assertEqual(settings['database_select'], 'refseq')
+        # check if initial setting is as expected
+        self.assertTrue(
+            self.selenium.find_element_by_xpath('//input[@name="database_select" and @value="refseq"]').is_selected())
+
+    def test_variant_filter_case_settings_export_database_refseq_to_ensembl(self):
+        """Test the settings dump export by selecting 'ensembl' in the database selector form."""
+        # login
+        self.compile_url_and_login()
+        # select ensembl as transcript database
+        self.selenium.find_element_by_xpath('//input[@name="database_select" and @value="ensembl"]').click()
+        # obtain settings textarea and check if new setting was applied
+        settings = json.loads(self.selenium.find_element_by_id('settingsDump').get_attribute('value'))
+        self.assertEqual(settings['database_select'], 'ensembl')
+
+    def test_variant_filter_case_settings_import_database_refseq_to_ensembl(self):
+        """Test the settings dump import by changing JSON field to 'ensembl' in the textarea."""
+        # login
+        self.compile_url_and_login()
+        # obtain initial settings from textarea
+        settings_element = self.selenium.find_element_by_id('settingsDump')
+        settings_json = json.loads(settings_element.get_attribute('value'))
+        # change value
+        settings_json['database_select'] = 'ensembl'
+        settings_element.clear()
+        settings_element.send_keys(json.dumps(settings_json))
+        self.selenium.find_element_by_id('settingsSet').click()
+        # check if setting was applied
+        self.assertTrue(
+            self.selenium.find_element_by_xpath('//input[@name="database_select" and @value="ensembl"]').is_selected())
+
+
+    # def test_variant_filter_case_download(self):
+    #     """Test"""
+    #     # login
+    #     self.compile_url_and_login({})
+    #     # disable exac and thousand genomes frequency filter
+    #     self.selenium.find_element_by_xpath("//input[@name='exac_enabled']").click()
+    #     self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
+    #     # disable quality filters
+    #     self.selenium.find_element_by_xpath("//option[@value='ignore']").click()
+    #     # hit submit button
+    #     self.selenium.find_element_by_xpath('//button[@name="submit" and @value="download"]').click()
+    #     # wait for redirect
+    #     WebDriverWait(self.selenium, 10)
+    #     print(self.selenium.page_source)
+    #     WebDriverWait(self.selenium, 10)
+    #     print(self.selenium.page_source)
+    #
+    #     WebDriverWait(self.selenium, self.wait_time).until(
+    #         ec.presence_of_element_located(
+    #             (By.XPATH, '//div[contains(text(), "{}")]'.format("Exporting single case to file started"))))
 
     # def test_variant_filter_case(self):
     #     """Test"""
