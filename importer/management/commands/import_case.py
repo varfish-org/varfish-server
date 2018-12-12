@@ -146,13 +146,14 @@ class Command(BaseCommand):
     def _import_variants(self, path_variants):
         """Import variants TSV file into database."""
         self.stdout.write("Importing variants...")
-        Annotation.objects.from_csv(
-            path_variants,
-            delimiter="\t",
-            ignore_conflicts=True,
-            drop_constraints=False,
-            drop_indexes=False,
-        )
+        with open_file(path_variants, 'rt') as tsv
+            Annotation.objects.from_csv(
+                tsv,
+                delimiter="\t",
+                ignore_conflicts=True,
+                drop_constraints=False,
+                drop_indexes=False,
+            )
         self.stdout.write(self.style.SUCCESS("Finished importing variants"))
 
     def _import_genotypes(self, case, path_genotypes):
