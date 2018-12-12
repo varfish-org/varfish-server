@@ -1,5 +1,6 @@
 """Django command for importing a case after annotation with ``varfish-annotator``."""
 
+import gzip
 import json
 import tempfile
 
@@ -16,8 +17,6 @@ from projectroles.plugins import get_backend_api
 from variants.models import SmallVariant, Case
 from variants.variant_stats import rebuild_case_variant_stats
 
-timeline = get_backend_api("timeline_backend")
-
 
 #: The User model to use.
 User = get_user_model()
@@ -25,6 +24,14 @@ User = get_user_model()
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+
+
+def open_file(path, mode):
+    """Open gzip or normal file."""
+    try:
+        return gzip.open(path, mode)
+    except:
+        return open(path, mode)
 
 
 class Command(BaseCommand):
@@ -77,6 +84,7 @@ class Command(BaseCommand):
         self._import_variants(options["path_variants"])
         self._import_genotypes(case, options["path_genotypes"])
         self._rebuild_stats(case)
+        timeline = get_backend_api("timeline_backend")
         if timeline:
             timeline.add_event(
                 project=project,
@@ -96,7 +104,8 @@ class Command(BaseCommand):
 
     def _get_samples_in_genotypes(self, path_genotypes):
         """Return names from samples present in genotypes column."""
-        with open(path_genotypes, "rt") as tsv:
+
+        with open_file(path_genotypes, "rt") as tsv:
             header = tsv.readline().split("\t")
             first = tsv.readline().replace('"""', '"').split("\t")
             values = dict(zip(header, first))

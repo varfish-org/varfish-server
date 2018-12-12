@@ -2,6 +2,8 @@
 History / Changelog
 ===================
 
+- The importer now supports gzip-ed files.
+
 -------
 v0.11.1
 -------
