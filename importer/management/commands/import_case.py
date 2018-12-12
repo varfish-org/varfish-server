@@ -146,7 +146,7 @@ class Command(BaseCommand):
     def _import_variants(self, path_variants):
         """Import variants TSV file into database."""
         self.stdout.write("Importing variants...")
-        with open_file(path_variants, 'rt') as tsv
+        with open_file(path_variants, "rt") as tsv:
             Annotation.objects.from_csv(
                 tsv,
                 delimiter="\t",
@@ -160,7 +160,7 @@ class Command(BaseCommand):
         """Import variants TSV file into database."""
         self.stdout.write("Creating temporary genotype file...")
         with tempfile.NamedTemporaryFile("w+t") as tempf:
-            with open(path_genotypes, "rt") as inputf:
+            with open_file(path_genotypes, "rt") as inputf:
                 header = inputf.readline().strip()
                 try:
                     replace_idx = header.split("\t").index("case_id")
