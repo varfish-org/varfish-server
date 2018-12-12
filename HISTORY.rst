@@ -2,6 +2,21 @@
 History / Changelog
 ===================
 
+-------
+v0.11.2
+-------
+
+This is a bug fix release.
+
+End-User Summary
+================
+
+- Removed an internal restriction that prevented data import.
+
+Full Change List
+================
+
+- Making id fields for ``SmallVariant`` and ``Annotation`` into big integers.
 - The importer now supports gzip-ed files.
 
 -------
