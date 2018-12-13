@@ -2,10 +2,13 @@ SHELL = /bin/bash
 MANAGE = time python manage.py
 VARFISH_ANNO = /vol/local/data/varfish-anno
 DB_PATH = $(VARFISH_ANNO)/databases
-SMALLVARIANTS = $(filter-out $(wildcard $(DB_PATH)/smallvariant/*.fk.tsv),$(wildcard $(DB_PATH)/smallvariant/*.tsv))
-CASES = $(wildcard $(DB_PATH)/case/*.tsv)
-ANNOTATIONS = $(wildcard $(DB_PATH)/annotation/*.tsv)
+# those variables have to be passed when importing a case, e.g. via commanline
 UUID =
+CASE =
+VARIANTS_PATH =
+GENOTYPES_PATH =
+PED_PATH =
+
 
 .PHONY: $(SMALLVARIANTS) $(CASES) $(ANNOTATIONS) $(DB_PATH)/kegg/genetokegg.fk.tsv
 
@@ -31,18 +34,15 @@ shell:
 celery:
 	celery worker -A config.celery_app -l info --concurrency=4 --beat
 
-import_smallvariants: import_cases $(SMALLVARIANTS)
-$(SMALLVARIANTS):
-	$(MANAGE) replace_fk_in_tsv --in $@ --out $(patsubst %.tsv,%.fk.tsv,$@) --table case --field name
-	$(MANAGE) import --path $(patsubst %.tsv,%.fk.tsv,$@) --database smallvariant
-
-import_cases: $(CASES)
-$(CASES):
-	$(MANAGE) import --path $@ --database case --uuid $(UUID)
-
-import_annotations: $(ANNOTATIONS)
-$(ANNOTATIONS):
-	$(MANAGE) import --path $@ --database annotation
+# cases have to be imported individualy
+import_case: $(VARIANTS_PATH) $(GENOTYPES_PATH) $(PED_PATH)
+	$(MANAGE) import_case \
+		--project-uuid $(UUID) \
+		--case-name $(CASE) \
+		--index-name $(INDEX) \
+		--path-variants $(VARIANTS_PATH) \
+		--path-genotypes $(GENOTYPE_PATH) \
+		--path-ped $(PED_PATH)
 
 import_dbsnp: $(wildcard $(DB_PATH)/dbsnp/*.tsv)
 	$(MANAGE) import --path $< --database dbsnp --release "b151"
@@ -96,10 +96,8 @@ import_hgmd_public: $(DB_PATH)/hgmd/hgmd_public.bed
 
 import_clinvar: import_clinvar_single import_clinvar_multi
 
-import_databases: import_exac import_dbsnp import_gnomadexomes import_hgnc import_hpo import_omim import_kegg import_clinvar import_knowngeneaa import_hgmd_public
+import: import_exac import_dbsnp import_gnomadexomes import_hgnc import_hpo import_omim import_kegg import_clinvar import_knowngeneaa import_hgmd_public
 
 test:
 	coverage run manage.py test -v2 --settings=config.settings.test
 	coverage report
-
-import: import_smallvariants import_annotations import_databases

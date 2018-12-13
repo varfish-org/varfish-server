@@ -27,28 +27,20 @@
               data-tooltip="tooltip" title="Variant types/effects, coding/non-coding transcripts">Variants &amp; Effects</a>
           </li>
           <li class="nav-item d-none d-md-block">
-            <a class="nav-link" id="effect-tab" data-toggle="tab" href="#panel-quality" role="tab"
+            <a class="nav-link" id="quality-tab" data-toggle="tab" href="#panel-quality" role="tab"
               data-tooltip="tooltip" title="Quality, allelic balance, coverage">Quality</a>
           </li>
           <li class="nav-item d-none d-lg-block">
-            <a class="nav-link" id="quality-tab" data-toggle="tab" href="#panel-blacklist" role="tab"
+            <a class="nav-link" id="blacklist-tab" data-toggle="tab" href="#panel-blacklist" role="tab"
               data-tooltip="tooltip" title="White-list and black-list genes">Gene Lists</a>
           </li>
           <li class="nav-item d-none d-xl-block">
-            <a class="nav-link" id="blacklist-tab" data-toggle="tab" href="#panel-flags" role="tab"
+            <a class="nav-link" id="flags-tab" data-toggle="tab" href="#panel-flags" role="tab"
               data-tooltip="tooltip" title="Filter for user flags and comments">Flags &amp; Comments</a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">More ...</a>
+            <a class="nav-link dropdown-toggle" id="more-tab" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">More ...</a>
             <div class="dropdown-menu">
-              <a class="dropdown-item d-md-none" id="effect-tab" data-toggle="tab" href="#panel-effect" role="tab"
-                data-tooltip="tooltip" title="Variant types/effects, coding/non-coding transcripts" data-placement="left">Variants &amp; Effect</a>
-              <a class="dropdown-item d-md-none" id="quality-tab" data-toggle="tab" href="#panel-quality" role="tab"
-                data-tooltip="tooltip" title="Quality, allelic balance, coverage" data-placement="left">Quality</a>
-              <a class="dropdown-item d-lg-none" id="blacklist-tab" data-toggle="tab" href="#panel-blacklist" role="tab"
-                data-tooltip="tooltip" title="White-list and black-list genes" data-placement="left">Gene Lists</a>
-              <a class="dropdown-item d-xl-none" id="flags-tab" data-toggle="tab" href="#panel-flags" role="tab"
-                data-tooltip="tooltip" title="Filter for user flags and comments" data-placement="left">Flags &amp; Comments</a>
               <a class="dropdown-item" id="clinvar-tab" data-toggle="tab" href="#panel-clinvar" role="tab"
                 data-tooltip="tooltip" title="Filter using Clinvar/HGMD membership" data-placement="left">Clinvar & HGMD</a>
               <a class="dropdown-item" id="export-tab" data-toggle="tab" href="#panel-export" role="tab"
@@ -128,12 +120,13 @@
         </div>
         <div class="col text-right p-0">
           <div class="btn-group">
-            <button type="submit" name="submit" value="display" class="btn btn-primary"data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
+            <button type="submit" name="submit" value="display" class="btn btn-primary" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
                     title="Filter variants again with current settings, limited to <i><b>Miscellaneous / Result row limit</b></i> results and display in table below">
               <i class="fa fa-refresh"></i>
               Filter &amp; Display
             </button>
-            <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                    id="submit-menu">
               <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div class="dropdown-menu" style="z-index: 1030;">

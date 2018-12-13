@@ -395,7 +395,6 @@ class ClinvarForm(
                 required=True,
                 widget=forms.Select(choices=INHERITANCE, attrs={"class": "genotype-field-gt"}),
             )
-        print("fields", list(self.fields.keys()))
 
     def get_pedigree(self):
         """Return ``list`` of ``dict`` with pedigree information."""

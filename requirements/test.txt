@@ -11,9 +11,6 @@ django-coverage-plugin==1.5.0
 pytest-django==3.4.2
 pytest-sugar==0.9.1
 
-# Selenium for UI testing
-selenium==3.14.0
-
 # BeautifulSoup for HTML testing
 beautifulsoup4==4.6.3
 
@@ -24,5 +21,5 @@ black
 openpyxl ==2.5.9
 
 # Selenium UI tests
-selenium == 3.141.0
+selenium == 3.14.0
 
