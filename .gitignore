@@ -351,3 +351,5 @@ varfish/media/
 src/
 
 celerybeat-schedule
+
+staticfiles.bak/
