@@ -137,9 +137,7 @@ class TestUIBase(LiveUserMixin, ProjectMixin, RoleAssignmentMixin, LiveServerTes
                 signout_button.click()
 
                 # Wait for redirect
-                self.pending().until(
-                    ec.presence_of_element_located((By.ID, "sodar-form-login"))
-                )
+                self.pending().until(ec.presence_of_element_located((By.ID, "sodar-form-login")))
 
             except NoSuchElementException:
                 pass
@@ -164,9 +162,7 @@ class TestUIBase(LiveUserMixin, ProjectMixin, RoleAssignmentMixin, LiveServerTes
         self.selenium.find_element_by_xpath('//button[contains(., "Log In")]').click()
 
         # Wait for redirect
-        self.pending().until(
-            ec.presence_of_element_located((By.ID, "sodar-navbar-user-dropdown"))
-        )
+        self.pending().until(ec.presence_of_element_located((By.ID, "sodar-navbar-user-dropdown")))
 
     def compile_url_and_login(self, kwargs={}):
         patched_kwargs = {**self.kwargs, **kwargs}
@@ -563,15 +559,15 @@ class TestVariantsCaseFilterView(TestUIBase):
         # login
         self.compile_url_and_login()
         # switch tab
-        self.selenium.find_element_by_id('frequency-tab').click()
+        self.selenium.find_element_by_id("frequency-tab").click()
         exac = self.selenium.find_element_by_xpath("//input[@name='exac_enabled']")
         self.pending().until(ec.visibility_of(exac))
         # disable exac and thousand genomes frequency filter
         exac.click()
         self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
         # switch tab
-        self.selenium.find_element_by_id('quality-tab').click()
-        dropdown = self.selenium.find_element_by_id('id_A_fail')
+        self.selenium.find_element_by_id("quality-tab").click()
+        dropdown = self.selenium.find_element_by_id("id_A_fail")
         self.pending().until(ec.visibility_of(dropdown))
         # disable quality filters
         dropdown.click()
@@ -589,15 +585,15 @@ class TestVariantsCaseFilterView(TestUIBase):
         # login
         self.compile_url_and_login()
         # switch tab
-        self.selenium.find_element_by_id('frequency-tab').click()
+        self.selenium.find_element_by_id("frequency-tab").click()
         exac = self.selenium.find_element_by_xpath("//input[@name='exac_enabled']")
         self.pending().until(ec.visibility_of(exac))
         # disable exac and thousand genomes frequency filter
         exac.click()
         self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
         # switch tab
-        self.selenium.find_element_by_id('quality-tab').click()
-        dropdown = self.selenium.find_element_by_id('id_A_fail')
+        self.selenium.find_element_by_id("quality-tab").click()
+        dropdown = self.selenium.find_element_by_id("id_A_fail")
         self.pending().until(ec.visibility_of(dropdown))
         # disable quality filters
         dropdown.click()
@@ -605,12 +601,18 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.pending().until(ec.visibility_of(option))
         option.click()
         # find and hit download button
-        self.selenium.find_element_by_id('submit-menu').click()
-        download = self.selenium.find_element_by_xpath('//button[@name="submit" and @value="download"]')
+        self.selenium.find_element_by_id("submit-menu").click()
+        download = self.selenium.find_element_by_xpath(
+            '//button[@name="submit" and @value="download"]'
+        )
         self.pending().until(ec.visibility_of(download))
         download.click()
         # wait for redirect and refresh page for elements to show up
-        self.pending().until(ec.presence_of_element_located((By.XPATH, '//h2[contains(text(), "{}")]'.format('Background File Creation Job'))))
+        self.pending().until(
+            ec.presence_of_element_located(
+                (By.XPATH, '//h2[contains(text(), "{}")]'.format("Background File Creation Job"))
+            )
+        )
         # time.sleep(10)
         # self.selenium.refresh()
         # print(self.selenium.page_source)
