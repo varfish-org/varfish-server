@@ -620,74 +620,36 @@ class TestVariantsCaseFilterView(TestUIBase):
         #     ec.presence_of_element_located(
         #         (By.XPATH, '//div[contains(text(), "{}")]'.format("Exporting single case to file started"))))
 
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:clinvar'
-    #     )
-    #
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:filter-project-cases'
-    #     )
-    #
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:job-list'
-    #     )
-    #
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:export-job-detail'
-    #     )
-    #
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:export-job-resubmit'
-    #     )
-    #
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:export-job-download'
-    #     )
-    #
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:distiller-job-detail'
-    #     )
-    #
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:distiller-job-resubmit'
-    #     )
-    #
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:project-stats-job-create'
-    #     )
-    #
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:projects-stats-job-detail'
-    #     )
-    #
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:export-job-download'
-    #     )
-    #
-    # def test_variant_filter_case(self):
-    #     """Test"""
-    #     url = reverse(
-    #         'variants:export-job-download'
-    #     )
+    def test_preset_medgen_relaxed_on_quality_settings(self):
+        """Test medgen relaxed preset on a quality setting"""
+        # login
+        self.compile_url_and_login()
+        # select medgen relaxed preset
+        self.selenium.find_element_by_id("presets-menu-button").click()
+        self.selenium.find_element_by_xpath("//a[@data-preset-name='medgen-relaxed']").click()
+        # verify correctness
+        self.assertEquals(
+            self.selenium.find_element_by_id("id_A_dp_het").get_attribute("value"), "8"
+        )
+
+    def test_preset_medgen_clinvar_on_quality_settings(self):
+        """Test medgen clinvar preset on a quality setting"""
+        # login
+        self.compile_url_and_login()
+        # select medgen clinvar preset
+        self.selenium.find_element_by_id("presets-menu-button").click()
+        self.selenium.find_element_by_xpath("//a[@data-preset-name='medgen-clinvar']").click()
+        # verify correctness
+        self.assertEqual(
+            self.selenium.find_element_by_id("id_A_fail").get_attribute("value"), "ignore"
+        )
+
+    def test_preset_full_exome_on_effect_settings(self):
+        """Test full exome preset on the all effect setting"""
+        # login
+        self.compile_url_and_login()
+        # select full exome preset
+        self.selenium.find_element_by_id("presets-menu-button").click()
+        self.selenium.find_element_by_xpath("//a[@data-preset-name='full-exome']").click()
+        # verify correctness
+        self.assertTrue(self.selenium.find_element_by_id("id_effect_group_all").is_selected())
