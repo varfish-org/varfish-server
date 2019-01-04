@@ -110,43 +110,84 @@ class CaseAwareProject(Project):
 
 
 class SmallVariant(models.Model):
+    """"Information of a single variant, knows its case."""
+
+    #: Genome build
     release = models.CharField(max_length=32)
+    #: Variant coordinates - chromosome
     chromosome = models.CharField(max_length=32)
+    #: Variant coordinates - position
     position = models.IntegerField()
+    #: Variant coordinates - reference
     reference = models.CharField(max_length=512)
+    #: Variant coordinates - alternative
     alternative = models.CharField(max_length=512)
+    #: Variant type
     var_type = models.CharField(max_length=8)
+    #: Link to case ID
     case_id = models.IntegerField()
+    #: Genotype information as JSONB
     genotype = JSONField()
+    #: Flag if in clinvar
     in_clinvar = models.NullBooleanField()
+    #: Total ExAC allele frequency
     exac_frequency = models.FloatField(null=True)
+    #: Total ExAC homoyzgous count
     exac_homozygous = models.IntegerField(null=True)
+    #: Total ExAC heterozygous count
     exac_heterozygous = models.IntegerField(null=True)
+    #: Total ExAC hemizgous count
     exac_hemizygous = models.IntegerField(null=True)
+    #: Total thousand genomes frequency count
     thousand_genomes_frequency = models.FloatField(null=True)
+    #: Total thousand genomes homozygous count
     thousand_genomes_homozygous = models.IntegerField(null=True)
+    #: Total thousand genomes heterozygous count
     thousand_genomes_heterozygous = models.IntegerField(null=True)
+    #: Total thousand genomes hemizygous count
     thousand_genomes_hemizygous = models.IntegerField(null=True)
+    #: Total gnomAD exomes frequency
     gnomad_exomes_frequency = models.FloatField(null=True)
+    #: Total gnomAD exomes homozygous count
     gnomad_exomes_homozygous = models.IntegerField(null=True)
+    #: Total gnomAD exomes heterozygous count
     gnomad_exomes_heterozygous = models.IntegerField(null=True)
+    #: Total gnomAD exomes hemizygous count
     gnomad_exomes_hemizygous = models.IntegerField(null=True)
+    #: Total gnomAD genomes frequency
     gnomad_genomes_frequency = models.FloatField(null=True)
+    #: Total gnomAD genomes homozygous count
     gnomad_genomes_homozygous = models.IntegerField(null=True)
+    #: Total gnomAD genomes heterozygous count
     gnomad_genomes_heterozygous = models.IntegerField(null=True)
+    #: Total gnomAD genomes hemizygous count
     gnomad_genomes_hemizygous = models.IntegerField(null=True)
+    #: RefSeq gene ID
     refseq_gene_id = models.CharField(max_length=16, null=True)
+    #: RefSeq transcript ID
     refseq_transcript_id = models.CharField(max_length=16, null=True)
+    #: Flag RefSeq transcript coding
     refseq_transcript_coding = models.NullBooleanField()
+    #: RefSeq HGVS coding sequence
     refseq_hgvs_c = models.CharField(max_length=512, null=True)
+    #: RefSeq HGVS protein sequence
     refseq_hgvs_p = models.CharField(max_length=512, null=True)
+    #: RefSeq variant effect list
     refseq_effect = ArrayField(models.CharField(max_length=64), null=True)
+    #: EnsEMBL gene ID
     ensembl_gene_id = models.CharField(max_length=16, null=True)
+    #: EnsEMBL transcript ID
     ensembl_transcript_id = models.CharField(max_length=16, null=True)
+    #: Flag EnsEMBL transcript coding
     ensembl_transcript_coding = models.NullBooleanField()
+    #: EnsEMBL HGVS coding sequence
     ensembl_hgvs_c = models.CharField(max_length=512, null=True)
+    #: EnsEMBL HGVS protein sequence
     ensembl_hgvs_p = models.CharField(max_length=512, null=True)
+    #: EnsEMBL variant effect list
     ensembl_effect = ArrayField(models.CharField(max_length=64, null=True))
+
+    #: Allow bulk import
     objects = CopyManager()
 
     def get_description(self):

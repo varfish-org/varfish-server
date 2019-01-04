@@ -5,7 +5,10 @@ from variants.models_support import FREQUENCY_DB_INFO
 
 
 class FrequencyMixin:
+    """Mixin for returing variant frequencies from all frequency databases."""
+
     def get_frequencies(self, query_kwargs):
+        """Given a variant, return the corresponding variant frequencies."""
         key = {
             "release": query_kwargs["release"],
             "chromosome": query_kwargs["chromosome"],

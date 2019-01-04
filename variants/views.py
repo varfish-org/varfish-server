@@ -236,6 +236,8 @@ class CaseFilterView(
     AlchemyConnectionMixin,
     FormView,
 ):
+    """Display the filter form for a case."""
+
     template_name = "variants/case_filter.html"
     permission_required = "variants.view_data"
     form_class = FilterForm
@@ -521,6 +523,8 @@ class CaseClinvarReportView(
     AlchemyConnectionMixin,
     FormView,
 ):
+    """Display clinvar report for a case."""
+    
     template_name = "variants/case_clinvar.html"
     permission_required = "variants.view_data"
     form_class = ClinvarForm

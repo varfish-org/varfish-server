@@ -60,6 +60,8 @@ class GeneCardMixin:
 
 
 class GeneView(ProjectContextMixin, GeneCardMixin, TemplateView):
+    """View for the gene information."""
+
     template_name = "geneinfo/gene.html"
 
     def get(self, *args, **kwargs):

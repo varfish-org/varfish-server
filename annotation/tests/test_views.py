@@ -28,7 +28,7 @@ PROJECT_DICT = {
 
 
 class TestViewBase(TestCase):
-
+    """Base class for view testing."""
     setup_case_in_db = None
 
     def setUp(self):
@@ -95,7 +95,6 @@ def fixture_setup_annotation():
         "af_nfe": 0.0,
         "af_oth": 0.0,
     }
-
     Exac.objects.create(
         **{
             **basic_var,
@@ -162,13 +161,13 @@ def fixture_setup_annotation():
 
 
 class TestVariantView(TestViewBase):
+    """Test the variant view."""
 
+    #: Fixture for setup
     setup_case_in_db = fixture_setup_annotation
 
-    def setUp(self):
-        super().setUp()
-
     def test_render(self):
+        """Test rendering the annotation variant view."""
         with self.login(self.user):
             response = self.client.get(
                 reverse(
@@ -185,7 +184,9 @@ class TestVariantView(TestViewBase):
                 )
             )
 
+        # check for correct response code
         self.assertEqual(response.status_code, 200)
+        # check for correct values
         self.assertEqual(response.context["position"], "100")
         self.assertEqual(response.context["gnomadexomes"]["an_sas"], 932)
         self.assertEqual(response.context["exac"]["an_sas"], 323)

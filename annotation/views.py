@@ -15,6 +15,7 @@ from variants.views import AlchemyConnectionMixin
 class VariantView(
     ProjectContextMixin, FrequencyMixin, GeneCardMixin, AlchemyConnectionMixin, TemplateView
 ):
+    """View for the annotation information of a variant"""
 
     template_name = "annotation/variant.html"
 

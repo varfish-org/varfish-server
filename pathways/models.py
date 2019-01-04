@@ -3,8 +3,14 @@ from postgres_copy import CopyManager
 
 
 class EnsemblToKegg(models.Model):
+    """Linking ensembl gene id and kegg id."""
+
+    #: Ensembl gene ID
     gene_id = models.CharField(max_length=32)
+    #: Kegg info ID
     kegginfo_id = models.IntegerField()
+
+    #: Allow bulk import
     objects = CopyManager()
 
     class Meta:
@@ -13,8 +19,14 @@ class EnsemblToKegg(models.Model):
 
 
 class RefseqToKegg(models.Model):
+    """Linking refseq id and kegg id."""
+
+    #: Refseq ID
     gene_id = models.CharField(max_length=32)
+    #: Kegg info ID
     kegginfo_id = models.IntegerField()
+
+    #: Allow bulk import
     objects = CopyManager()
 
     class Meta:
@@ -23,6 +35,12 @@ class RefseqToKegg(models.Model):
 
 
 class KeggInfo(models.Model):
+    """Kegg information."""
+
+    #: Kegg ID
     kegg_id = models.CharField(max_length=16)
+    #: Kegg name
     name = models.CharField(max_length=512)
+
+    #: Allow bulk import
     objects = CopyManager()
