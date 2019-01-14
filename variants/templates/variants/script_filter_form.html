@@ -118,7 +118,7 @@ $(document).ready(function() {
 });
 
 function mutationTaster(chromosome, position, ref, alt) {
-    var form = $('<form target="_blank" method="POST" action="https://www.mutationtaster.org/cgi-bin/MutationTaster/MT_ChrPos.cgi">');
+    var form = $('<form target="_blank" method="POST" action="http://www.mutationtaster.org/cgi-bin/MutationTaster/MT_ChrPos.cgi">');
     form.append($('<input type="hidden" name="chromosome" value="' + chromosome + '">'));
     form.append($('<input type="hidden" name="position" value="' + position + '">'));
     form.append($('<input type="hidden" name="ref" value="' + ref + '">'));
