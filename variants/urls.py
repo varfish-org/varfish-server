@@ -1,5 +1,6 @@
 from django.conf.urls import url
 from . import views
+from django.views.generic import TemplateView
 
 
 app_name = "variants"
@@ -17,15 +18,25 @@ urlpatterns = [
         name="case-filter",
     ),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/filter/(?P<case>[0-9a-f-]+)/job/(?P<job>[0-9a-f-]+)/$",
+        view=views.CaseFilterView.as_view(),
+        name="case-filter-job",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/clinvar/(?P<case>[0-9a-f-]+)/$",
         view=views.CaseClinvarReportView.as_view(),
         name="case-clinvar",
     ),
     # Project-wide case filtration.
     url(
-        regex=r"^(?P<project>[0-9a-f-]+)/filter-cases/$",
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter/$",
         view=views.ProjectCasesFilterView.as_view(),
         name="filter-project-cases",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter/job/(?P<job>[0-9a-f-]+)/$",
+        view=views.ProjectCasesFilterView.as_view(),
+        name="project-cases-filter-job",
     ),
     # View for list background jobs
     url(
@@ -98,6 +109,48 @@ urlpatterns = [
         view=views.SmallVariantCommentApiView.as_view(),
         name="small-variant-comment-api",
     ),
+    # Views for filtering and storing case query results jobs
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/filter-results/(?P<case>[0-9a-f-]+)/$",
+        view=views.CasePrefetchFilterView.as_view(),
+        name="case-filter-results",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/filter-job/detail/(?P<job>[0-9a-f-]+)/$",
+        view=views.FilterJobDetailView.as_view(),
+        name="filter-job-detail",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/filter-job/resubmit/(?P<job>[0-9a-f-]+)/$",
+        view=views.FilterJobResubmitView.as_view(),
+        name="filter-job-resubmit",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/load-filter-results/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseLoadPrefetchedFilterView.as_view(),
+        name="case-load-filter-results",
+    ),
+    # Views for filtering and storing project cases query results jobs
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter-results/$",
+        view=views.ProjectCasesPrefetchFilterView.as_view(),
+        name="project-cases-filter-results",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases-filter-job/detail/(?P<job>[0-9a-f-]+)/$",
+        view=views.ProjectCasesFilterJobDetailView.as_view(),
+        name="project-cases-filter-job-detail",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases-filter-job/resubmit/(?P<job>[0-9a-f-]+)/$",
+        view=views.ProjectCasesFilterJobResubmitView.as_view(),
+        name="project-cases-filter-job-resubmit",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/load-filter-results/$",
+        view=views.ProjectCasesLoadPrefetchedFilterView.as_view(),
+        name="project-cases-load-filter-results",
+    ),
     # Render details row
     url(
         regex=(
@@ -107,5 +160,11 @@ urlpatterns = [
         ),
         view=views.SmallVariantDetails.as_view(),
         name="small-variant-details",
+    ),
+    # Loading wheel
+    url(
+        regex=r"loading-wheel",
+        view=TemplateView.as_view(template_name="variants/filter_result/loading_wheel.html"),
+        name="loading-wheel",
     ),
 ]

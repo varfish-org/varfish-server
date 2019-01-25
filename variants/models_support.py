@@ -6,18 +6,27 @@ from sqlalchemy.sql import select, func, and_, not_, or_, cast, union, literal_c
 from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
 import sqlparse
 
+from aldjemy.core import get_tables
+
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from geneinfo.models import Hgnc
 from hgmd.models import HgmdPublicLocus
-from variants.models import Case, SmallVariant, SmallVariantComment, SmallVariantFlags
+from variants.models import (
+    Case,
+    SmallVariant,
+    SmallVariantComment,
+    SmallVariantFlags,
+    SmallVariantQuery,
+)
 from frequencies.models import GnomadExomes, GnomadGenomes, Exac, ThousandGenomes
 from variants.forms import (
     FILTER_FORM_TRANSLATE_INHERITANCE,
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
     FILTER_FORM_TRANSLATE_SIGNIFICANCE,
 )
+from django.core.exceptions import ImproperlyConfigured
 
 
 @contextmanager
@@ -54,6 +63,8 @@ class SingleCaseFilterQueryBase:
         WHERE <conditions>
         [trailing such as ORDER BY or LIMIT]
     """
+    #: Table that the query is based on
+    base_table = None
 
     def __init__(self, case, connection, debug=False):
         #: The case that the query is for.
@@ -197,6 +208,41 @@ class SingleCaseFilterQueryBase:
         """
         return stmt
 
+    def get_base_table(self):
+        """Return base_table"""
+        if self.base_table is None:
+            raise ImproperlyConfigured("Set base_table or override get_base_table().")
+        else:
+            return self.base_table
+
+
+class SingleCasePrefetchFilterQueryBase(SingleCaseFilterQueryBase):
+    #: Table that the query is based on
+    base_table = SmallVariant.sa.table
+
+
+class SingleCaseLoadPrefetchedFilterQueryBase(SingleCaseFilterQueryBase):
+    """Class to load previous filter results
+    """
+
+    def __init__(self, case, connection, smallvariantquery_pk, debug=False):
+        """Constructor"""
+        super().__init__(case, connection, debug=False)
+        #: Store the smallvariantquery id to access previous results in 'where' part of the statement
+        self.smallvariantquery_pk = smallvariantquery_pk
+        #: Get the intermediate table where Django stores the ManyToMany relation / query results
+        self.query_results = get_tables()["variants_smallvariantquery_query_results"]
+
+    def get_base_table(self):
+        """Render the base table by joining the smallvariant entries by id onto the stored result ids"""
+        return self.query_results.join(
+            SmallVariant.sa.table, self.query_results.c.smallvariant_id == SmallVariant.sa.id
+        )
+
+    def _core_where(self, _kwargs, _gt_patterns=None):
+        """OVERRIDE the where clause"""
+        return self.query_results.c.smallvariantquery_id == self.smallvariantquery_pk
+
 
 class ProjectCasesFilterQueryBase:
     """Base class for running different variants of filter queries on all cases of a project.
@@ -210,6 +256,8 @@ class ProjectCasesFilterQueryBase:
 
     Further, compound heterozygous queries are not supported when performing queries across cohorts.
     """
+    #: Table that the query is based on
+    base_table = None
 
     def __init__(self, project, connection, debug=False):
         #: The project that the query is for.
@@ -275,6 +323,34 @@ class ProjectCasesFilterQueryBase:
     def _get_filtered_pedigree_with_samples(self):
         """Return list with lines from pedigree that have samples."""
         return self.project.get_filtered_pedigree_with_samples()
+
+
+class ProjectCasesPrefetchFilterQueryBase(ProjectCasesFilterQueryBase):
+    #: Table that the query is based on
+    base_table = SmallVariant.sa.table
+
+
+class ProjectCasesLoadPrefetchedFilterQueryBase(ProjectCasesFilterQueryBase):
+    def __init__(self, case, connection, projectcasessmallvariantquery_pk, debug=False):
+        """Constructor"""
+        super().__init__(case, connection, debug=False)
+        #: Store the smallvariantquery id to access previous results in 'where' part of the statement
+        self.projectcasessmallvariantquery_pk = projectcasessmallvariantquery_pk
+        #: Get the intermediate table where Django stores the ManyToMany relation / query results
+        self.query_results = get_tables()["variants_projectcasessmallvariantquery_query_results"]
+
+    def get_base_table(self):
+        """Render the base table by joining the smallvariant entries by id onto the stored result ids"""
+        return self.query_results.join(
+            SmallVariant.sa.table, self.query_results.c.smallvariant_id == SmallVariant.sa.id
+        )
+
+    def _core_where(self, _kwargs, _gt_patterns=None):
+        """OVERRIDE the where clause"""
+        return (
+            self.query_results.c.projectcasessmallvariantquery_id
+            == self.projectcasessmallvariantquery_pk
+        )
 
 
 # Query class mixins that add to the WHERE clause.
@@ -413,7 +489,7 @@ class FrequencyTermWhereMixin:
         terms = []
         for db in ("exac", "thousand_genomes", "gnomad_exomes", "gnomad_genomes"):
             field_name = "%s_%s" % (db, metric)
-            if kwargs["%s_enabled" % db] and kwargs.get(field_name, None) is not None:
+            if kwargs["%s_enabled" % db] and kwargs.get(field_name) is not None:
                 terms.append(getattr(SmallVariant.sa, field_name) <= kwargs[field_name])
         return and_(*terms)
 
@@ -554,7 +630,7 @@ class JoinDbsnpAndHgncMixin:
     """
 
     def _from(self, kwargs):
-        tmp = SmallVariant.sa.table.outerjoin(
+        tmp = self.get_base_table().outerjoin(
             Dbsnp.sa,
             and_(
                 SmallVariant.sa.release == Dbsnp.sa.release,
@@ -586,6 +662,7 @@ class FilterQueryRenderFieldsMixin(JoinDbsnpAndHgncMixin):
                 return "*"
         else:
             result = [
+                SmallVariant.sa.id,
                 SmallVariant.sa.release,
                 SmallVariant.sa.chromosome,
                 SmallVariant.sa.position,
@@ -708,7 +785,9 @@ class FilterQueryHgmdMixin:
     def _build_stmt(self, kwargs):
         """Override statement building to add the join with Clinvar information."""
         inner = super()._build_stmt(kwargs)
-        if not kwargs["require_in_hgmd_public"] and not kwargs["display_hgmd_public_membership"]:
+        if not kwargs.get("require_in_hgmd_public") and not kwargs.get(
+            "display_hgmd_public_membership"
+        ):
             return inner
         else:
             return self._extend_stmt_hgmd(inner, kwargs)
@@ -879,9 +958,9 @@ class FilterQueryFlagsCommentsMixin:
         flag_names = ("bookmarked", "candidate", "final_causative", "for_validation")
         for flag in flag_names:
             flag_name = "flag_%s" % flag
-            if kwargs[flag_name]:
+            if kwargs.get(flag_name):
                 terms.append(getattr(SmallVariantFlags.sa, flag_name))
-        if kwargs["flag_simple_empty"]:
+        if kwargs.get("flag_simple_empty"):
             terms.append(and_(not getattr(SmallVariantFlags.sa, "flag_%s" % flag)))
         # Add terms for the valued flags.
         flag_names = ("visual", "validation", "phenotype_match", "summary")
@@ -889,7 +968,7 @@ class FilterQueryFlagsCommentsMixin:
             flag_name = "flag_%s" % flag
             for value in ("positive", "uncertain", "negative", "empty"):
                 field_name = "%s_%s" % (flag_name, value)
-                if kwargs[field_name]:
+                if kwargs.get(field_name):
                     terms.append(getattr(SmallVariantFlags.sa, flag_name) == value)
                     if value == "empty":
                         # SQL Alchemy wants '== None' instead of 'is None' here
@@ -930,12 +1009,12 @@ class FilterQueryCountRecordsMixin(FilterQueryClinvarDetailsMixin, FilterQueryRe
 # Actual Query classes, composed from base query class and mixins.
 
 
-class RenderFilterQuery(
+class PrefetchFilterQuery(
     OrderByChromosomalPositionMixin,
     JoinAndQueryCommonAdditionalTables,
     FilterQueryRenderFieldsMixin,
     BaseTableQueriesMixin,
-    SingleCaseFilterQueryBase,
+    SingleCasePrefetchFilterQueryBase,
 ):
     """Run filter query for the interactive filtration form."""
 
@@ -946,7 +1025,7 @@ class ExportTableFileFilterQuery(
     JoinKnownGeneAaMixin,
     FilterQueryRenderFieldsMixin,
     BaseTableQueriesMixin,
-    SingleCaseFilterQueryBase,
+    SingleCasePrefetchFilterQueryBase,
 ):
     """Run filter query for creating tabular file (TSV, Excel) to export for a single case.
 
@@ -991,7 +1070,7 @@ class CountOnlyFilterQuery(
     FilterQueryCountRecordsMixin,
     JoinAndQueryCommonAdditionalTables,
     BaseTableQueriesMixin,
-    SingleCaseFilterQueryBase,
+    SingleCasePrefetchFilterQueryBase,
 ):
     """Run filter query but only count number of results."""
 
@@ -999,15 +1078,33 @@ class CountOnlyFilterQuery(
         return super().run(kwargs).first()[0]
 
 
+class LoadPrefetchedFilterQuery(
+    OrderByChromosomalPositionMixin,
+    JoinAndQueryCommonAdditionalTables,
+    FilterQueryRenderFieldsMixin,
+    SingleCaseLoadPrefetchedFilterQueryBase,
+):
+    """Load results from previous single case filter query and join information."""
+
+
 # Filter query to run against all cases within the same project.
 
 
-class ProjectCasesRenderFilterQuery(
+class ProjectCasesLoadPrefetchedFilterQuery(
+    OrderByChromosomalPositionMixin,
+    JoinAndQueryCommonAdditionalTables,
+    FilterQueryRenderFieldsMixin,
+    ProjectCasesLoadPrefetchedFilterQueryBase,
+):
+    """Load results from previous joint project filter query and join information."""
+
+
+class ProjectCasesPrefetchFilterQuery(
     OrderByChromosomalPositionMixin,
     JoinAndQueryCommonAdditionalTables,
     FilterQueryRenderFieldsMixin,
     BaseTableQueriesMixin,
-    ProjectCasesFilterQueryBase,
+    ProjectCasesPrefetchFilterQueryBase,
 ):
     """Run filter query for the interactive filtration form."""
 
@@ -1018,7 +1115,7 @@ class ProjectCasesExportTableFilterQuery(
     JoinKnownGeneAaMixin,
     FilterQueryRenderFieldsMixin,
     BaseTableQueriesMixin,
-    ProjectCasesFilterQueryBase,
+    ProjectCasesPrefetchFilterQueryBase,
 ):
     """Run filter query for creating tabular file (TSV, Excel) to export for multiple cases.
 

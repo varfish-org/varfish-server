@@ -6,7 +6,6 @@ Test settings for VarFish project.
 
 from .base import *  # noqa
 
-
 # DEBUG
 # ------------------------------------------------------------------------------
 # Turn debug off so tests run faster
@@ -30,13 +29,16 @@ EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
 # CACHING
 # ------------------------------------------------------------------------------
-# Speed advantages of in-memory caching without having to run Memcached
 CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "LOCATION": ""}}
 
 # TESTING
 # ------------------------------------------------------------------------------
 TEST_RUNNER = "django.test.runner.DiscoverRunner"
 
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-always-eager
+CELERY_TASK_ALWAYS_EAGER = True
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-eager-propagates
+CELERY_TASK_EAGER_PROPAGATES = True
 
 # PASSWORD HASHING
 # ------------------------------------------------------------------------------

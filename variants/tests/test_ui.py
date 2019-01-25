@@ -14,6 +14,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from projectroles.models import Role, SODAR_CONSTANTS, Project
 from projectroles.plugins import get_active_plugins
@@ -90,7 +91,11 @@ class TestUIBase(LiveUserMixin, ProjectMixin, RoleAssignmentMixin, LiveServerTes
         options = webdriver.ChromeOptions()
         options.add_argument("headless")
         options.add_argument("no-sandbox")  # For Gitlab-CI compatibility
-        self.selenium = webdriver.Chrome(chrome_options=options)
+        # Add logging capabilities to fetch the console log of the browser
+        d = DesiredCapabilities.CHROME
+        d["loggingPrefs"] = {"browser": "ALL"}
+        # Set WebDriver
+        self.selenium = webdriver.Chrome(chrome_options=options, desired_capabilities=d)
         self.pending = lambda n=self.wait_time: WebDriverWait(self.selenium, n)
 
         # Prevent ElementNotVisibleException
@@ -184,6 +189,12 @@ class TestUIBase(LiveUserMixin, ProjectMixin, RoleAssignmentMixin, LiveServerTes
         else:
             with self.assertRaises(NoSuchElementException):
                 self.selenium.find_element_by_id(element_id)
+
+    def print_log(self):
+        """Print the console log of the browser"""
+        print("---")
+        for i in self.selenium.get_log("browser"):
+            print(i)
 
 
 #: Information for building a project
@@ -581,7 +592,6 @@ class TestVariantsCaseFilterView(TestUIBase):
 
     def test_variant_filter_case_download(self):
         """Test if submitting the download filter is kicked off."""
-        # TODO Right now the job seems not to do anything, but the page is redirected properly
         # login
         self.compile_url_and_login()
         # switch tab
@@ -613,12 +623,16 @@ class TestVariantsCaseFilterView(TestUIBase):
                 (By.XPATH, '//h2[contains(text(), "{}")]'.format("Background File Creation Job"))
             )
         )
-        # time.sleep(10)
-        # self.selenium.refresh()
-        # print(self.selenium.page_source)
-        # self.pending().until(
-        #     ec.presence_of_element_located(
-        #         (By.XPATH, '//div[contains(text(), "{}")]'.format("Exporting single case to file started"))))
+        time.sleep(5)
+        self.selenium.refresh()
+        self.pending().until(
+            ec.presence_of_element_located(
+                (
+                    By.XPATH,
+                    '//div[contains(text(), "{}")]'.format("Exporting single case to file started"),
+                )
+            )
+        )
 
     def test_preset_medgen_relaxed_on_quality_settings(self):
         """Test medgen relaxed preset on a quality setting"""

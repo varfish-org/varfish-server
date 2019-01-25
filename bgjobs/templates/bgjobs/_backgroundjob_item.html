@@ -2,8 +2,8 @@
 
 {% with item=item|specialize_job %}
   <tr id="varfish-bg-table-row-{{ item.sodar_uuid }}">
-    <td>{{ item.bg_job.date_created|date:"Y/m/d h:m" }}</td>
-    <td>{{ item.bg_job.date_modified|date:"Y/m/d h:m" }}</td>
+    <td>{{ item.bg_job.date_created|date:"Y/m/d H:i" }}</td>
+    <td>{{ item.bg_job.date_modified|date:"Y/m/d H:i" }}</td>
     <td>{{ item.get_human_readable_type }}</td>
     <td>{{ item.bg_job.status }}</td>
     <td>

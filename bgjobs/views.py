@@ -65,7 +65,7 @@ class BackgroundJobClearViewBase(
             timeline = get_backend_api("timeline_backend")
             if timeline:
                 timeline.add_event(
-                    project=self._get_project(self.request, self.kwargs),
+                    project=self.get_project(self.request, self.kwargs),
                     app_name="bgjobs",
                     user=self.request.user,
                     event_name="clear_bg_jobs",

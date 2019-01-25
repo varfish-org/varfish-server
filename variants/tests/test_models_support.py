@@ -9,7 +9,13 @@ Remarks:
 from clinvar.models import Clinvar
 from geneinfo.models import Hgnc
 from projectroles.models import Project
-from variants.models import SmallVariant, Case
+from variants.models import (
+    SmallVariant,
+    Case,
+    CaseAwareProject,
+    SmallVariantQuery,
+    ProjectCasesSmallVariantQuery,
+)
 
 from ._helpers import TestBase, SQLALCHEMY_ENGINE
 from ._fixtures import (
@@ -23,8 +29,10 @@ from ..models_support import (
     ClinvarReportQuery,
     ExportTableFileFilterQuery,
     CountOnlyFilterQuery,
-    RenderFilterQuery,
+    PrefetchFilterQuery,
     ExportVcfFileFilterQuery,
+    LoadPrefetchedFilterQuery,
+    ProjectCasesLoadPrefetchedFilterQuery,
 )
 
 # ---------------------------------------------------------------------------
@@ -36,7 +44,7 @@ class FilterTestBase(TestBase):
     """Base class for running the test for the ``SmallVariant`` filter queries.
     """
 
-    def _get_fetch_and_query(self, query_class, cleaned_data_patch):
+    def _get_fetch_and_query(self, query_class, cleaned_data_patch, query_type):
         connection = SQLALCHEMY_ENGINE.connect()
         patched_cleaned_data = {**self.base_cleaned_data, **cleaned_data_patch}
 
@@ -44,12 +52,23 @@ class FilterTestBase(TestBase):
             """Helper function that fetches the ``case`` by UUID and then generates the
             appropriate query.
             """
-            case = Case.objects.get(sodar_uuid=patched_cleaned_data["case_uuid"])
-            return query_class(case, connection).run(patched_cleaned_data)
+            if query_type == "case":
+                obj = Case.objects.get(sodar_uuid=patched_cleaned_data["case_uuid"])
+                previous_query = patched_cleaned_data.get("smallvariantquery_id", None)
+            else:  # query_type == "project"
+                obj = CaseAwareProject.objects.first()
+                previous_query = patched_cleaned_data.get("projectcasessmallvariantquery_id", None)
+            if previous_query:
+                query = query_class(obj, connection, previous_query)
+            else:
+                query = query_class(obj, connection)
+            return query.run(patched_cleaned_data)
 
         return fetch_case_and_query
 
-    def run_filter_query(self, query_class, cleaned_data_patch, length, assert_raises=None):
+    def run_filter_query(
+        self, query_class, cleaned_data_patch, length, assert_raises=None, query_type="case"
+    ):
         """Run query returning a collection of filtration results with ``query_class``.
 
         This is a helper to be called in all ``test_*()`` functions.  It is a shortcut
@@ -64,7 +83,9 @@ class FilterTestBase(TestBase):
           length and returning a list of elements, assert that an exception of type
           ``assert_raises`` is raised.
         """
-        fetch_case_and_query = self._get_fetch_and_query(query_class, cleaned_data_patch)
+        fetch_case_and_query = self._get_fetch_and_query(
+            query_class, cleaned_data_patch, query_type
+        )
         if assert_raises:
             with self.assertRaises(assert_raises):
                 fetch_case_and_query()
@@ -73,9 +94,11 @@ class FilterTestBase(TestBase):
             self.assertEquals(length, len(results))
             return results
 
-    def run_count_query(self, query_class, kwargs_patch, length, assert_raises=None):
+    def run_count_query(
+        self, query_class, kwargs_patch, length, assert_raises=None, query_type="case"
+    ):
         """Run query returning a result record count instead of result records."""
-        fetch_case_and_query = self._get_fetch_and_query(query_class, kwargs_patch)
+        fetch_case_and_query = self._get_fetch_and_query(query_class, kwargs_patch, query_type)
         if assert_raises:
             with self.assertRaises(assert_raises):
                 fetch_case_and_query()
@@ -601,6 +624,89 @@ def fixture_setup_case1_blacklist():
     )
 
 
+def fixture_setup_case1_load():
+    """Setup test case 1 -- a singleton with variants for gene blacklist filter."""
+    project = CaseAwareProject.objects.create(**PROJECT_DICT)
+    case = project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
+        name="A",
+        index="A",
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
+    )
+    # Basic variant settings.
+    basic_var = {
+        "case_id": case.pk,
+        "release": "GRCh37",
+        "chromosome": "1",
+        "position": None,
+        "reference": "A",
+        "alternative": "G",
+        "var_type": "snv",
+        "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+        "in_clinvar": False,
+        # frequencies
+        "exac_frequency": 0.01,
+        "exac_homozygous": 0,
+        "exac_heterozygous": 0,
+        "exac_hemizygous": 0,
+        "thousand_genomes_frequency": 0.01,
+        "thousand_genomes_homozygous": 0,
+        "thousand_genomes_heterozygous": 0,
+        "thousand_genomes_hemizygous": 0,
+        "gnomad_exomes_frequency": 0.01,
+        "gnomad_exomes_homozygous": 0,
+        "gnomad_exomes_heterozygous": 0,
+        "gnomad_exomes_hemizygous": 0,
+        "gnomad_genomes_frequency": 0.01,
+        "gnomad_genomes_homozygous": 0,
+        "gnomad_genomes_heterozygous": 0,
+        "gnomad_genomes_hemizygous": 0,
+        # RefSeq
+        "refseq_gene_id": "1234",
+        "refseq_transcript_id": "NR_00001.1",
+        "refseq_transcript_coding": False,
+        "refseq_hgvs_c": "n.111+2T>C",
+        "refseq_hgvs_p": "p.=",
+        "refseq_effect": ["synonymous_variant"],
+        # ENSEMBL
+        "ensembl_gene_id": "ENSG0001",
+        "ensembl_transcript_id": "ENST00001",
+        "ensembl_transcript_coding": False,
+        "ensembl_hgvs_c": "n.111+2T>C",
+        "ensembl_hgvs_p": "p.=",
+        "ensembl_effect": ["synonymous_variant"],
+    }
+
+    a = SmallVariant.objects.create(
+        **{**basic_var, **{"position": 100, "refseq_gene_id": "123", "ensembl_gene_id": "ENSGAAA"}}
+    )
+    b = SmallVariant.objects.create(
+        **{**basic_var, **{"position": 200, "refseq_gene_id": "456", "ensembl_gene_id": "ENSGCCC"}}
+    )
+    c = SmallVariant.objects.create(
+        **{**basic_var, **{"position": 201, "refseq_gene_id": "456", "ensembl_gene_id": "ENSGCCC"}}
+    )
+
+    smallvariantquery = SmallVariantQuery.objects.create(
+        case=case, form_id="123", form_version=1, query_settings=[], name="test", public=False
+    )
+    smallvariantquery.query_results.add(a, c)
+
+    projectcasessmallvariantquery = ProjectCasesSmallVariantQuery.objects.create(
+        project=project, form_id="123", form_version=1, query_settings=[], name="test", public=False
+    )
+    projectcasessmallvariantquery.query_results.add(a, b)
+
+
 #: A value for filtration form ``cleaned_data`` to be used for "Case 1" that lets
 #: all variants through.
 INCLUSIVE_CLEANED_DATA_CASE1 = {
@@ -651,6 +757,25 @@ INCLUSIVE_CLEANED_DATA_CASE1 = {
 }
 
 
+class TestCaseOneLoadResults(FilterTestBase):
+
+    setup_case_in_db = fixture_setup_case1_load
+    base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE1
+
+    def test_load_case_results(self):
+        smallvariantquery = SmallVariantQuery.objects.first()
+        self.run_filter_query(LoadPrefetchedFilterQuery, {"smallvariantquery_id": smallvariantquery.id}, 2)
+
+    def test_load_project_cases_results(self):
+        projectcasessmallvariantquery = ProjectCasesSmallVariantQuery.objects.first()
+        self.run_filter_query(
+            ProjectCasesLoadPrefetchedFilterQuery,
+            {"projectcasessmallvariantquery_id": projectcasessmallvariantquery.id},
+            2,
+            query_type="project",
+        )
+
+
 class TestCaseOneQueryDatabaseSwitch(FilterTestBase):
     """Test whether both RefSeq and ENSEMBL databases work."""
 
@@ -658,7 +783,7 @@ class TestCaseOneQueryDatabaseSwitch(FilterTestBase):
     base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE1
 
     def test_base_query_refseq_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"database_select": "refseq"}, 1)
+        self.run_filter_query(PrefetchFilterQuery, {"database_select": "refseq"}, 1)
 
     def test_base_query_refseq_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"database_select": "refseq"}, 1)
@@ -670,7 +795,7 @@ class TestCaseOneQueryDatabaseSwitch(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"database_select": "refseq"}, 1)
 
     def test_base_query_ensembl_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"database_select": "ensembl"}, 1)
+        self.run_filter_query(PrefetchFilterQuery, {"database_select": "ensembl"}, 1)
 
     def test_base_query_ensembl_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"database_select": "refseq"}, 1)
@@ -689,7 +814,7 @@ class TestCaseOneQueryCase(FilterTestBase):
     base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE1
 
     def test_query_case_correct_filter(self):
-        self.run_filter_query(RenderFilterQuery, {}, 1)
+        self.run_filter_query(PrefetchFilterQuery, {}, 1)
 
     def test_query_case_correct_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {}, 1)
@@ -702,7 +827,7 @@ class TestCaseOneQueryCase(FilterTestBase):
 
     def test_query_case_incorrect_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {"case_uuid": "88888888-8888-8888-8888-888888888888"},
             1,
             Case.DoesNotExist,
@@ -741,7 +866,7 @@ class TestCaseOneVarTypeSwitch(FilterTestBase):
 
     def test_var_type_none_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {"var_type_snv": False, "var_type_mnv": False, "var_type_indel": False},
             0,
         )
@@ -769,7 +894,7 @@ class TestCaseOneVarTypeSwitch(FilterTestBase):
 
     def test_var_type_mnv_filter(self):
         self.run_filter_query(
-            RenderFilterQuery, {"var_type_snv": False, "var_type_indel": False}, 1
+            PrefetchFilterQuery, {"var_type_snv": False, "var_type_indel": False}, 1
         )
 
     def test_var_type_mnv_export(self):
@@ -789,7 +914,7 @@ class TestCaseOneVarTypeSwitch(FilterTestBase):
 
     def test_var_type_snv_filter(self):
         self.run_filter_query(
-            RenderFilterQuery, {"var_type_mnv": False, "var_type_indel": False}, 1
+            PrefetchFilterQuery, {"var_type_mnv": False, "var_type_indel": False}, 1
         )
 
     def test_var_type_snv_export(self):
@@ -808,7 +933,9 @@ class TestCaseOneVarTypeSwitch(FilterTestBase):
         )
 
     def test_var_type_indel_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"var_type_snv": False, "var_type_mnv": False}, 1)
+        self.run_filter_query(
+            PrefetchFilterQuery, {"var_type_snv": False, "var_type_mnv": False}, 1
+        )
 
     def test_var_type_indel_export(self):
         self.run_filter_query(
@@ -826,7 +953,7 @@ class TestCaseOneVarTypeSwitch(FilterTestBase):
         )
 
     def test_var_type_all_filter(self):
-        self.run_filter_query(RenderFilterQuery, {}, 3)
+        self.run_filter_query(PrefetchFilterQuery, {}, 3)
 
     def test_var_type_all_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {}, 3)
@@ -854,7 +981,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
     base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE1
 
     def test_frequency_filters_disabled_filter(self):
-        self.run_filter_query(RenderFilterQuery, {}, 3)
+        self.run_filter_query(PrefetchFilterQuery, {}, 3)
 
     def test_frequency_filters_disabled_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {}, 3)
@@ -866,7 +993,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {}, 3)
 
     def test_frequency_thousand_genomes_enabled_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"thousand_genomes_enabled": True}, 0)
+        self.run_filter_query(PrefetchFilterQuery, {"thousand_genomes_enabled": True}, 0)
 
     def test_frequency_thousand_genomes_enabled_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"thousand_genomes_enabled": True}, 0)
@@ -878,7 +1005,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"thousand_genomes_enabled": True}, 0)
 
     def test_frequency_exac_enabled_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"exac_enabled": True}, 0)
+        self.run_filter_query(PrefetchFilterQuery, {"exac_enabled": True}, 0)
 
     def test_frequency_exac_enabled_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"exac_enabled": True}, 0)
@@ -890,7 +1017,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"exac_enabled": True}, 0)
 
     def test_frequency_gnomad_exomes_enabled_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"gnomad_exomes_enabled": True}, 0)
+        self.run_filter_query(PrefetchFilterQuery, {"gnomad_exomes_enabled": True}, 0)
 
     def test_frequency_gnomad_exomes_enabled_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"gnomad_exomes_enabled": True}, 0)
@@ -902,7 +1029,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"gnomad_exomes_enabled": True}, 0)
 
     def test_frequency_gnomad_genomes_enabled_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"gnomad_genomes_enabled": True}, 0)
+        self.run_filter_query(PrefetchFilterQuery, {"gnomad_genomes_enabled": True}, 0)
 
     def test_frequency_gnomad_genomes_enabled_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"gnomad_genomes_enabled": True}, 0)
@@ -915,7 +1042,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_frequency_thousand_genomes_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": 0.01,
@@ -963,7 +1090,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_frequency_exac_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": 0.01,
@@ -1011,7 +1138,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_frequency_gnomad_exomes_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": 0.01,
@@ -1059,7 +1186,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_frequency_gnomad_genomes_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": 0.01,
@@ -1107,7 +1234,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_homozygous_thousand_genomes_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
@@ -1155,7 +1282,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_homozygous_exac_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": None,
@@ -1203,7 +1330,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_homozygous_gnomad_exomes_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
@@ -1251,7 +1378,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_homozygous_gnomad_genomes_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": None,
@@ -1299,7 +1426,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_heterozygous_thousand_genomes_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
@@ -1347,7 +1474,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_heterozygous_exac_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": None,
@@ -1395,7 +1522,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_heterozygous_gnomad_exomes_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
@@ -1443,7 +1570,7 @@ class TestCaseOneQueryFrequency(FilterTestBase):
 
     def test_heterozygous_gnomad_genomes_limits_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": None,
@@ -1497,7 +1624,7 @@ class TestCaseOneQueryEffects(FilterTestBase):
     base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE1
 
     def test_effects_none_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"effects": []}, 0)
+        self.run_filter_query(PrefetchFilterQuery, {"effects": []}, 0)
 
     def test_effects_none_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"effects": []}, 0)
@@ -1509,7 +1636,7 @@ class TestCaseOneQueryEffects(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"effects": []}, 0)
 
     def test_effects_one_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"effects": ["missense_variant"]}, 2)
+        self.run_filter_query(PrefetchFilterQuery, {"effects": ["missense_variant"]}, 2)
 
     def test_effects_one_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"effects": ["missense_variant"]}, 2)
@@ -1522,7 +1649,7 @@ class TestCaseOneQueryEffects(FilterTestBase):
 
     def test_effects_two_filter(self):
         self.run_filter_query(
-            RenderFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3
+            PrefetchFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3
         )
 
     def test_effects_two_export(self):
@@ -1542,7 +1669,7 @@ class TestCaseOneQueryEffects(FilterTestBase):
 
     def test_effects_all_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {"effects": ["missense_variant", "stop_lost", "frameshift_variant"]},
             3,
         )
@@ -1576,7 +1703,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
     base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE1
 
     def test_genotype_gt_any_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_gt": "any"}, 8)
+        self.run_filter_query(PrefetchFilterQuery, {"A_gt": "any"}, 8)
 
     def test_genotype_gt_any_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "any"}, 8)
@@ -1588,7 +1715,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "any"}, 8)
 
     def test_genotype_gt_ref_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_gt": "ref"}, 1)
+        self.run_filter_query(PrefetchFilterQuery, {"A_gt": "ref"}, 1)
 
     def test_genotype_gt_ref_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "ref"}, 1)
@@ -1600,7 +1727,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "ref"}, 1)
 
     def test_genotype_gt_het_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_gt": "het"}, 5)
+        self.run_filter_query(PrefetchFilterQuery, {"A_gt": "het"}, 5)
 
     def test_genotype_gt_het_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "het"}, 5)
@@ -1612,7 +1739,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "het"}, 5)
 
     def test_genotype_gt_hom_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_gt": "hom"}, 1)
+        self.run_filter_query(PrefetchFilterQuery, {"A_gt": "hom"}, 1)
 
     def test_genotype_gt_hom_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "hom"}, 1)
@@ -1624,7 +1751,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "hom"}, 1)
 
     def test_genotype_gt_variant_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_gt": "variant"}, 6)
+        self.run_filter_query(PrefetchFilterQuery, {"A_gt": "variant"}, 6)
 
     def test_genotype_gt_variant_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "variant"}, 6)
@@ -1636,7 +1763,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "variant"}, 6)
 
     def test_genotype_gt_non_variant_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_gt": "non-variant"}, 2)
+        self.run_filter_query(PrefetchFilterQuery, {"A_gt": "non-variant"}, 2)
 
     def test_genotype_gt_non_variant_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "non-variant"}, 2)
@@ -1648,7 +1775,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "non-variant"}, 2)
 
     def test_genotype_gt_non_reference_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_gt": "non-reference"}, 7)
+        self.run_filter_query(PrefetchFilterQuery, {"A_gt": "non-reference"}, 7)
 
     def test_genotype_gt_non_reference_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"A_gt": "non-reference"}, 7)
@@ -1660,7 +1787,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_gt": "non-reference"}, 7)
 
     def test_genotype_ad_limits_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_ad": 15}, 5)
+        self.run_filter_query(PrefetchFilterQuery, {"A_fail": "drop-variant", "A_ad": 15}, 5)
 
     def test_genotype_ad_limits_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"A_fail": "drop-variant", "A_ad": 15}, 5)
@@ -1672,7 +1799,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_ad": 15}, 5)
 
     def test_genotype_ab_limits_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_ab": 0.3}, 6)
+        self.run_filter_query(PrefetchFilterQuery, {"A_fail": "drop-variant", "A_ab": 0.3}, 6)
 
     def test_genotype_ab_limits_export(self):
         self.run_filter_query(
@@ -1686,8 +1813,12 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_ab": 0.3}, 6)
 
     def test_genotype_dp_het_limits_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 21}, 7)
-        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8)
+        self.run_filter_query(
+            PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 21}, 7
+        )
+        self.run_filter_query(
+            PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8
+        )
 
     def test_genotype_dp_het_limits_export(self):
         self.run_filter_query(
@@ -1710,8 +1841,12 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8)
 
     def test_genotype_dp_hom_limits_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 31}, 6)
-        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8)
+        self.run_filter_query(
+            PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 31}, 6
+        )
+        self.run_filter_query(
+            PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8
+        )
 
     def test_genotype_dp_hom_limits_export(self):
         self.run_filter_query(
@@ -1734,7 +1869,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8)
 
     def test_genotype_gq_limits_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_fail": "drop-variant", "A_gq": 66}, 7)
+        self.run_filter_query(PrefetchFilterQuery, {"A_fail": "drop-variant", "A_gq": 66}, 7)
 
     def test_genotype_gq_limits_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"A_fail": "drop-variant", "A_gq": 66}, 7)
@@ -1746,7 +1881,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_gq": 66}, 7)
 
     def test_genotype_fail_ignore_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"A_fail": "ignore"}, 8)
+        self.run_filter_query(PrefetchFilterQuery, {"A_fail": "ignore"}, 8)
 
     def test_genotype_fail_ignore_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"A_fail": "ignore"}, 8)
@@ -1759,7 +1894,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
 
     def test_genotype_fail_drop_variant_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {"A_fail": "drop-variant", "A_dp": 20, "A_ab": 0.3, "A_gq": 20, "A_ad": 15},
             4,
         )
@@ -1787,7 +1922,7 @@ class TestCaseOneQueryGenotype(FilterTestBase):
 
     def test_genotype_fail_no_call_filter(self):
         self.run_filter_query(
-            RenderFilterQuery,
+            PrefetchFilterQuery,
             {"A_fail": "no-call", "A_dp": 20, "A_ab": 0.3, "A_gq": 20, "A_ad": 15, "A_gt": "het"},
             6,
         )
@@ -1821,7 +1956,7 @@ class TestCaseOneQueryBlacklist(FilterTestBase):
     base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE1
 
     def test_blacklist_empty_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"gene_blacklist": []}, 6)
+        self.run_filter_query(PrefetchFilterQuery, {"gene_blacklist": []}, 6)
 
     def test_blacklist_empty_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"gene_blacklist": []}, 6)
@@ -1833,7 +1968,7 @@ class TestCaseOneQueryBlacklist(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"gene_blacklist": []}, 6)
 
     def test_blacklist_one_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"gene_blacklist": ["AAA"]}, 5)
+        self.run_filter_query(PrefetchFilterQuery, {"gene_blacklist": ["AAA"]}, 5)
 
     def test_blacklist_one_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"gene_blacklist": ["AAA"]}, 5)
@@ -1845,7 +1980,7 @@ class TestCaseOneQueryBlacklist(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"gene_blacklist": ["AAA"]}, 5)
 
     def test_blacklist_two_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"gene_blacklist": ["AAA", "BBB"]}, 3)
+        self.run_filter_query(PrefetchFilterQuery, {"gene_blacklist": ["AAA", "BBB"]}, 3)
 
     def test_blacklist_two_export(self):
         self.run_filter_query(ExportTableFileFilterQuery, {"gene_blacklist": ["AAA", "BBB"]}, 3)
@@ -1857,7 +1992,9 @@ class TestCaseOneQueryBlacklist(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"gene_blacklist": ["AAA", "BBB"]}, 3)
 
     def test_blacklist_all_filter(self):
-        self.run_filter_query(RenderFilterQuery, {"gene_blacklist": ["AAA", "BBB", "CCC"]}, 0)
+        self.run_filter_query(
+            PrefetchFilterQuery, {"gene_blacklist": ["AAA", "BBB", "CCC"]}, 0
+        )
 
     def test_blacklist_all_export(self):
         self.run_filter_query(
@@ -2097,7 +2234,7 @@ class TestCaseTwoDominantQuery(FilterTestBase):
     cleaned_data_patch = {"C_gt": "het", "F_gt": "ref", "M_gt": "ref"}
 
     def test_query_de_novo_filter(self):
-        res = self.run_filter_query(RenderFilterQuery, self.cleaned_data_patch, 1)
+        res = self.run_filter_query(PrefetchFilterQuery, self.cleaned_data_patch, 1)
         self.assertEqual(res[0].position, 100)
 
     def test_query_de_novo_export(self):
@@ -2117,7 +2254,7 @@ class TestCaseTwoRecessiveHomozygousQuery(FilterTestBase):
     cleaned_data_patch = {"C_gt": "hom", "F_gt": "het", "M_gt": "het"}
 
     def test_query_recessive_hom_filter(self):
-        res = self.run_filter_query(RenderFilterQuery, self.cleaned_data_patch, 1)
+        res = self.run_filter_query(PrefetchFilterQuery, self.cleaned_data_patch, 1)
         self.assertEqual(res[0].position, 101)
 
     def test_query_recessive_hom_export(self):
@@ -2137,7 +2274,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(FilterTestBase):
     cleaned_data_patch = {"compound_recessive_enabled": True}
 
     def test_query_compound_het_filter(self):
-        res = self.run_filter_query(RenderFilterQuery, self.cleaned_data_patch, 2)
+        res = self.run_filter_query(PrefetchFilterQuery, self.cleaned_data_patch, 2)
         self.assertEqual(res[0].position, 102)
         self.assertEqual(res[1].position, 103)
 
@@ -2403,7 +2540,7 @@ class RenderQueryTestCaseThreeClinvarMembershipFilter(
     """Test clinvar membership using RenderFilterQuery."""
 
     check_result_rows = True
-    query_class = RenderFilterQuery
+    query_class = PrefetchFilterQuery
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

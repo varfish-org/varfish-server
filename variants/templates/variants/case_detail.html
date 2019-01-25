@@ -12,7 +12,8 @@
 {% block projectroles %}
   <div class="row sodar-pr-content-title pb-2">
     <h2 class="sodar-pr-content-title">
-      Case &quot;{{ object.name }}&quot;
+      Case
+      <small class="text-muted">{{ object.name }}</small>
     </h2>
     {% include "variants/_case_detail_buttons.html" %}
   </div>

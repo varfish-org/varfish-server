@@ -4,8 +4,9 @@
 <tr>
   <th class="p-0 m-0"></th> {# fold-out #}
   <th class="p-0 m-0"></th> {# bookmark #}
-  <th></th> {# databases #}
+  <th class="p-0 m-0"></th> {# databases #}
   <th></th> {# position #}
+  <th></th> {# ref #}
   <th></th> {# alt #}
   <th colspan="2" class="detail-exac">ExAC</th>
   <th colspan="2" class="detail-gnomad-exomes">gnomAD exomes</th>
@@ -15,7 +16,7 @@
   <th></th>{# effect #}
   {% if query_type == "case" %}
     {# pedigree members #}
-    {% for member in form.get_pedigree_with_samples  %}
+    {% for member in pedigree %}
       <th></th>
     {% endfor %}
   {% else %}  {# query_type == "project" #}
@@ -27,6 +28,7 @@
 <tr>
   <th class="p-0 m-0"></th> {# fold-out #}
   <th class="p-0 m-0"></th> {# bookmark #}
+  <th class="p-0 m-0"></th> {# databases #}
   <th>position</th>
   <th>ref</th>
   <th>alt</th>
@@ -41,7 +43,7 @@
   <th>gene</th>
   <th>effect</th>
   {% if query_type == "case" %}
-    {% for member in form.get_pedigree_with_samples  %}
+    {% for member in pedigree %}
       <th style="max-width: 80px;">
         <div class="sodar-overflow-container sodar-overflow-hover">
           {{ member.patient|only_source_name }}

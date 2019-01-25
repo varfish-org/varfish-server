@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404
 from django.db import transaction
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
@@ -29,9 +29,10 @@ from annotation.models import Annotation
 from .models import SmallVariant
 from .models_support import (
     ClinvarReportQuery,
-    RenderFilterQuery,
-    ProjectCasesRenderFilterQuery,
+    ProjectCasesPrefetchFilterQuery,
     KnownGeneAAQuery,
+    LoadPrefetchedFilterQuery,
+    ProjectCasesLoadPrefetchedFilterQuery,
 )
 from .models import (
     Case,
@@ -39,22 +40,26 @@ from .models import (
     ExportProjectCasesFileBgJob,
     DistillerSubmissionBgJob,
     ComputeProjectVariantsStatsBgJob,
+    FilterBgJob,
     CaseAwareProject,
     SmallVariantFlags,
     SmallVariantComment,
     SmallVariantQuery,
     ProjectCasesSmallVariantQuery,
+    ProjectCasesFilterBgJob,
 )
 from .forms import (
     ClinvarForm,
-    DistillerSubmissionResubmitForm,
+    EmptyForm,
     ExportFileResubmitForm,
     ExportProjectCasesFileResubmitForm,
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
     FILTER_FORM_TRANSLATE_EFFECTS,
     FILTER_FORM_TRANSLATE_SIGNIFICANCE,
     FilterForm,
+    EmptyForm,
     ProjectCasesFilterForm,
+    EmptyForm,
     ProjectStatsJobForm,
     SmallVariantCommentForm,
     SmallVariantFlagsForm,
@@ -64,6 +69,8 @@ from .tasks import (
     export_project_cases_file_task,
     distiller_submission_task,
     compute_project_variants_stats,
+    filter_task,
+    project_cases_filter_task,
 )
 from .file_export import RowWithSampleProxy
 
@@ -238,10 +245,11 @@ class CaseFilterView(
 ):
     """Display the filter form for a case."""
 
-    template_name = "variants/case_filter.html"
+    template_name = "variants/filter.html"
     permission_required = "variants.view_data"
     form_class = FilterForm
     success_url = "."
+    query_type = "case"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -264,8 +272,6 @@ class CaseFilterView(
             return self._form_valid_file(form)
         elif form.cleaned_data["submit"] == "submit-mutationdistiller":
             return self._form_valid_mutation_distiller(form)
-        else:
-            return self._form_valid_render(form)
 
     def _form_valid_file(self, form):
         """The form is valid, we want to asynchronously build a file for later download."""
@@ -275,12 +281,12 @@ class CaseFilterView(
                 name="Create {} file for case {}".format(
                     form.cleaned_data["file_type"], self.get_case_object().name
                 ),
-                project=self._get_project(self.request, self.kwargs),
+                project=self.get_project(self.request, self.kwargs),
                 job_type=ExportFileBgJob.spec_name,
                 user=self.request.user,
             )
             export_job = ExportFileBgJob.objects.create(
-                project=self._get_project(self.request, self.kwargs),
+                project=self.get_project(self.request, self.kwargs),
                 bg_job=bg_job,
                 case=self.get_case_object(),
                 query_args=_undecimal(form.cleaned_data),
@@ -300,12 +306,12 @@ class CaseFilterView(
             # Construct background job objects
             bg_job = BackgroundJob.objects.create(
                 name="Submitting case {} to MutationDistiller".format(self.get_case_object().name),
-                project=self._get_project(self.request, self.kwargs),
+                project=self.get_project(self.request, self.kwargs),
                 job_type=DistillerSubmissionBgJob.spec_name,
                 user=self.request.user,
             )
             submission_job = DistillerSubmissionBgJob.objects.create(
-                project=self._get_project(self.request, self.kwargs),
+                project=self.get_project(self.request, self.kwargs),
                 bg_job=bg_job,
                 case=self.get_case_object(),
                 query_args=_undecimal(form.cleaned_data),
@@ -319,41 +325,21 @@ class CaseFilterView(
         )
         return redirect(submission_job.get_absolute_url())
 
-    def _form_valid_render(self, form):
-        """The form is valid, we are supposed to render an HTML table with the results."""
-        # Save query parameters.
-        SmallVariantQuery.objects.create(
-            case=self.get_case_object(),
-            user=self.request.user,
-            form_id=form.form_id,
-            form_version=form.form_version,
-            query_settings=_undecimal(form.cleaned_data),
-        )
-        # Perform query while recording time.
-        before = timezone.now()
-        qb = RenderFilterQuery(self.get_case_object(), self.get_alchemy_connection())
-        result = qb.run(form.cleaned_data)
-        num_results = result.rowcount
-        rows = list(result.fetchmany(form.cleaned_data["result_rows_limit"]))
-        elapsed = timezone.now() - before
-        return render(
-            self.request,
-            self.template_name,
-            self.get_context_data(
-                result_rows=rows, result_count=num_results, elapsed_seconds=elapsed.total_seconds()
-            ),
-        )
-
     def get_initial(self):
         """Put initial data in the form from the previous query if any and push information into template for the
         "welcome back" message."""
         result = self.initial.copy()
-        previous_query = (
-            self.get_case_object()
-            .small_variant_queries.filter(user=self.request.user)
-            .order_by("-date_created")
-            .first()
-        )
+        if "job" in self.kwargs:
+            previous_query = FilterBgJob.objects.get(
+                sodar_uuid=self.kwargs["job"]
+            ).smallvariantquery
+        else:
+            previous_query = (
+                self.get_case_object()
+                .small_variant_queries.filter(user=self.request.user)
+                .order_by("-date_created")
+                .first()
+            )
         if self.request.method == "GET" and previous_query:
             # TODO: the code for version conversion needs to be hooked in here
             messages.info(
@@ -374,7 +360,223 @@ class CaseFilterView(
         context = super().get_context_data(**kwargs)
         context["object"] = self.get_case_object()
         context["allow_md_submittion"] = True
+        # Construct the URL that is assigned to the submit button for the ajax request
+        context["submit_button_url"] = reverse(
+            "variants:case-filter-results",
+            kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},
+        )
+        context["load_data_url"] = reverse(
+            "variants:case-load-filter-results",
+            kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},
+        )
+        # Pass UUID of last filter job to restore query results when entering the page (if available)
+        if "job" in self.kwargs:
+            filter_job = FilterBgJob.objects.get(sodar_uuid=self.kwargs["job"])
+        else:
+            filter_job = (
+                FilterBgJob.objects.filter(smallvariantquery__user=self.request.user)
+                .order_by("-bg_job__date_created")
+                .first()
+            )
+        if filter_job:
+            smallvariantquery = filter_job.smallvariantquery.sodar_uuid
+        else:
+            smallvariantquery = ""
+
+        context["previous_query_uuid"] = smallvariantquery
+        context["query_type"] = self.query_type
         return context
+
+
+class CasePrefetchFilterView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    """View for displaying filter results.
+
+    This will be rendered when the database request finishes and delivered via ajax.
+    """
+
+    template_name = "variants/filter_result/table.html"
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+    query_type = "case"
+
+    def post(self, request, *args, **kwargs):
+        """process the post request. important: data is not cleaned automatically, we must initiate it here."""
+
+        # get case object
+        case_object = Case.objects.get(sodar_uuid=kwargs["case"])
+
+        # clean data first
+        form = FilterForm(request.POST, case=case_object)
+
+        if form.is_valid():
+            # form is valid, we are supposed to render an HTML table with the results
+            with transaction.atomic():
+                # Save query parameters
+                small_variant_query = SmallVariantQuery.objects.create(
+                    case=case_object,
+                    user=request.user,
+                    form_id=form.form_id,
+                    form_version=form.form_version,
+                    query_settings=_undecimal(form.cleaned_data),
+                )
+                # Construct background job objects
+                bg_job = BackgroundJob.objects.create(
+                    name="Running filter query for case {}".format(case_object.name),
+                    project=self.get_project(request, kwargs),
+                    job_type=FilterBgJob.spec_name,
+                    user=request.user,
+                )
+                filter_job = FilterBgJob.objects.create(
+                    project=self.get_project(request, kwargs),
+                    bg_job=bg_job,
+                    case=case_object,
+                    smallvariantquery=small_variant_query,
+                )
+
+            # Take time while job is running
+            before = timezone.now()
+            # Submit job
+            filter_job_running = filter_task.delay(
+                filter_job_pk=filter_job.pk, small_variant_query_pk=small_variant_query.pk
+            )
+            # Wait for job to end
+            rows, num_results = filter_job_running.wait()
+            elapsed = timezone.now() - before
+
+            return render(
+                request,
+                self.template_name,
+                self.get_context_data(
+                    result_rows=rows,
+                    result_count=num_results,
+                    elapsed_seconds=elapsed.total_seconds(),
+                    database=small_variant_query.query_settings["database_select"],
+                    pedigree=small_variant_query.case.get_filtered_pedigree_with_samples(),
+                    query_type=self.query_type,
+                ),
+            )
+
+        # TODO: what to return when validation failed?
+        return render(request, self.template_name, {})
+
+
+class CaseLoadPrefetchedFilterView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    """View for displaying filter results.
+
+    This will be rendered when the database request finishes and delivered via ajax.
+    """
+
+    template_name = "variants/filter_result/table.html"
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+    query_type = "case"
+
+    def post(self, request, *args, **kwargs):
+        """process the post request. important: data is not cleaned automatically, we must initiate it here."""
+
+        # Get SmallVariantQuery object
+        smallvariantquery = SmallVariantQuery.objects.get(
+            sodar_uuid=request.POST["previous_query_uuid"]
+        )
+
+        # Take time while job is running
+        before = timezone.now()
+        # Get and run query
+        query = LoadPrefetchedFilterQuery(
+            smallvariantquery.case, SQLALCHEMY_ENGINE.connect(), smallvariantquery.id
+        )
+        results = query.run(smallvariantquery.query_settings)
+        num_results = results.rowcount
+        # Get first N rows. This will pop the first N rows! results list will be decreased by N.
+        rows = results.fetchmany(smallvariantquery.query_settings["result_rows_limit"])
+        elapsed = timezone.now() - before
+
+        return render(
+            request,
+            self.template_name,
+            self.get_context_data(
+                result_rows=rows,
+                result_count=num_results,
+                elapsed_seconds=elapsed.total_seconds(),
+                database=smallvariantquery.query_settings["database_select"],
+                pedigree=smallvariantquery.case.get_filtered_pedigree_with_samples(),
+                query_type=self.query_type,
+            ),
+        )
+
+
+class ProjectCasesLoadPrefetchedFilterView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    """View for displaying filter results.
+
+    This will be rendered when the database request finishes and delivered via ajax.
+    """
+
+    template_name = "variants/filter_result/table.html"
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+    query_type = "project"
+
+    def post(self, request, *args, **kwargs):
+        """process the post request. important: data is not cleaned automatically, we must initiate it here."""
+
+        # Get ProjectCasesSmallVariantQuery object
+        projectcasessmallvariantquery = ProjectCasesSmallVariantQuery.objects.get(
+            sodar_uuid=request.POST["previous_query_uuid"]
+        )
+
+        # Take time while job is running
+        before = timezone.now()
+        # Get and run query
+        query = ProjectCasesLoadPrefetchedFilterQuery(
+            projectcasessmallvariantquery.project,
+            SQLALCHEMY_ENGINE.connect(),
+            projectcasessmallvariantquery.id,
+        )
+        results = query.run(projectcasessmallvariantquery.query_settings)
+        num_results = results.rowcount
+        # Get first N rows. This will pop the first N rows! results list will be decreased by N.
+        _rows = results.fetchmany(projectcasessmallvariantquery.query_settings["result_rows_limit"])
+        rows = []
+        for row in _rows:
+            for sample in sorted(row.genotype.keys()):
+                rows.append(RowWithSampleProxy(row, sample))
+        elapsed = timezone.now() - before
+
+        return render(
+            request,
+            self.template_name,
+            self.get_context_data(
+                result_rows=rows,
+                result_count=num_results,
+                elapsed_seconds=elapsed.total_seconds(),
+                database=projectcasessmallvariantquery.query_settings["database_select"],
+                query_type=self.query_type,
+            ),
+        )
 
 
 class ProjectCasesFilterView(
@@ -394,10 +596,11 @@ class ProjectCasesFilterView(
     #: Use Project proxy model that is aware of cases.
     project_class = CaseAwareProject
 
-    template_name = "variants/project_cases_filter.html"
+    template_name = "variants/filter.html"
     permission_required = "variants.view_data"
     form_class = ProjectCasesFilterForm
     success_url = "."
+    query_type = "project"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -405,15 +608,13 @@ class ProjectCasesFilterView(
 
     def get_form_kwargs(self):
         result = super().get_form_kwargs()
-        result["project"] = self._get_project(self.request, self.kwargs)
+        result["project"] = self.get_project(self.request, self.kwargs)
         return result
 
     def form_valid(self, form):
         """Main branching point either render result or create an asychronous job."""
         if form.cleaned_data["submit"] == "download":
             return self._form_valid_file(form)
-        else:
-            return self._form_valid_render(form)
 
     def _form_valid_file(self, form):
         """The form is valid, we want to asynchronously build a file for later download."""
@@ -421,12 +622,12 @@ class ProjectCasesFilterView(
             # Construct background job objects
             bg_job = BackgroundJob.objects.create(
                 name="Create {} file for cases in project".format(form.cleaned_data["file_type"]),
-                project=self._get_project(self.request, self.kwargs),
+                project=self.get_project(self.request, self.kwargs),
                 job_type=ExportProjectCasesFileBgJob.spec_name,
                 user=self.request.user,
             )
             export_job = ExportProjectCasesFileBgJob.objects.create(
-                project=self._get_project(self.request, self.kwargs),
+                project=self.get_project(self.request, self.kwargs),
                 bg_job=bg_job,
                 query_args=_undecimal(form.cleaned_data),
                 file_type=form.cleaned_data["file_type"],
@@ -438,33 +639,6 @@ class ProjectCasesFilterView(
             "After the file has been generated, you will be able to download it here.",
         )
         return redirect(export_job.get_absolute_url())
-
-    def _form_valid_render(self, form):
-        """The form is valid, we are supposed to render an HTML table with the results."""
-        # Save query parameters.
-        ProjectCasesSmallVariantQuery.objects.create(
-            project=self._get_project(self.request, self.kwargs),
-            user=self.request.user,
-            form_id=form.form_id,
-            form_version=form.form_version,
-            query_settings=_undecimal(form.cleaned_data),
-        )
-        # Perform query while recording time.
-        before = timezone.now()
-        qb = ProjectCasesRenderFilterQuery(
-            self._get_project(self.request, self.kwargs), self.get_alchemy_connection()
-        )
-        result = qb.run(form.cleaned_data)
-        num_results = result.rowcount
-        rows = self._split_rows_per_sample(result.fetchmany(form.cleaned_data["result_rows_limit"]))
-        elapsed = timezone.now() - before
-        return render(
-            self.request,
-            self.template_name,
-            self.get_context_data(
-                result_rows=rows, result_count=num_results, elapsed_seconds=elapsed.total_seconds()
-            ),
-        )
 
     def _split_rows_per_sample(self, rows):
         """Create one row for each sample, adding the ``sample`` colum entry."""
@@ -479,7 +653,7 @@ class ProjectCasesFilterView(
         "welcome back" message."""
         result = self.initial.copy()
         previous_query = (
-            self._get_project(self.request, self.kwargs)
+            self.get_project(self.request, self.kwargs)
             .small_variant_queries.filter(user=self.request.user)
             .first()
         )
@@ -497,6 +671,114 @@ class ProjectCasesFilterView(
                 else:
                     result[key] = value
         return result
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["submit_button_url"] = reverse(
+            "variants:project-cases-filter-results",
+            kwargs={"project": context["project"].sodar_uuid},
+        )
+        context["load_data_url"] = reverse(
+            "variants:project-cases-load-filter-results",
+            kwargs={"project": context["project"].sodar_uuid},
+        )
+        if "job" in self.kwargs:
+            filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=self.kwargs["job"])
+        else:
+            filter_job = (
+                ProjectCasesFilterBgJob.objects.filter(
+                    projectcasessmallvariantquery__user=self.request.user
+                )
+                .order_by("-bg_job__date_created")
+                .first()
+            )
+        if filter_job:
+            projectcasessmallvariantquery = filter_job.projectcasessmallvariantquery.sodar_uuid
+        else:
+            projectcasessmallvariantquery = ""
+
+        context["previous_query_uuid"] = projectcasessmallvariantquery
+        context["query_type"] = self.query_type
+        return context
+
+
+class ProjectCasesPrefetchFilterView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    """View for displaying joint project filter results.
+
+    This will be rendered when the database request finishes and delivered via ajax.
+    """
+
+    template_name = "variants/filter_result/table.html"
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+    query_type = "project"
+
+    def post(self, request, *args, **kwargs):
+        """process the post request. important: data is not cleaned automatically, we must initiate it here."""
+
+        # get current CaseAwareProject
+        project = CaseAwareProject.objects.get(pk=self.get_project(self.request, self.kwargs).pk)
+
+        # clean data first
+        form = ProjectCasesFilterForm(request.POST, project=project)
+
+        if form.is_valid():
+            # form is valid, we are supposed to render an HTML table with the results
+            with transaction.atomic():
+                # Save query parameters
+                small_variant_query = ProjectCasesSmallVariantQuery.objects.create(
+                    project=project,
+                    user=self.request.user,
+                    form_id=form.form_id,
+                    form_version=form.form_version,
+                    query_settings=_undecimal(form.cleaned_data),
+                )
+                # Construct background job objects
+                bg_job = BackgroundJob.objects.create(
+                    name="Running filter query for project",
+                    project=project,
+                    job_type=ProjectCasesFilterBgJob.spec_name,
+                    user=request.user,
+                )
+                filter_job = ProjectCasesFilterBgJob.objects.create(
+                    project=project,
+                    bg_job=bg_job,
+                    projectcasessmallvariantquery=small_variant_query,
+                )
+
+            # Take time while job is running
+            before = timezone.now()
+            # Submit job
+            filter_job_running = project_cases_filter_task.delay(
+                project_cases_filter_job_pk=filter_job.pk,
+                project_cases_small_variant_query_pk=small_variant_query.pk,
+            )
+            # Wait for job to end
+            rows, num_results = filter_job_running.wait()
+            elapsed = timezone.now() - before
+
+            return render(
+                request,
+                self.template_name,
+                self.get_context_data(
+                    result_rows=rows,
+                    result_count=num_results,
+                    elapsed_seconds=elapsed.total_seconds(),
+                    database=small_variant_query.query_settings["database_select"],
+                    query_type=self.query_type,
+                ),
+            )
+
+        # TODO: what to return when validation failed?
+        return render(request, self.template_name, {})
 
 
 def status_level(status):
@@ -524,7 +806,7 @@ class CaseClinvarReportView(
     FormView,
 ):
     """Display clinvar report for a case."""
-    
+
     template_name = "variants/case_clinvar.html"
     permission_required = "variants.view_data"
     form_class = ClinvarForm
@@ -1011,7 +1293,7 @@ class DistillerSubmissionJobDetailView(
 
     def get_context_data(self, *args, **kwargs):
         result = super().get_context_data(*args, **kwargs)
-        result["resubmit_form"] = DistillerSubmissionResubmitForm()
+        result["resubmit_form"] = EmptyForm()
         return result
 
 
@@ -1025,7 +1307,7 @@ class DistillerSubmissionJobResubmitView(
     """Resubmit to MutationDistiller."""
 
     permission_required = "variants.view_data"
-    form_class = DistillerSubmissionResubmitForm
+    form_class = EmptyForm
 
     def form_valid(self, form):
         job = get_object_or_404(DistillerSubmissionBgJob, sodar_uuid=self.kwargs["job"])
@@ -1041,6 +1323,128 @@ class DistillerSubmissionJobResubmitView(
             )
             distiller_submission_task.delay(submission_job_pk=submission_job.pk)
         return redirect(submission_job.get_absolute_url())
+
+
+class FilterJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of the FilterBgJob background job."""
+
+    permission_required = "variants.view_data"
+    template_name = "variants/filter_job_detail.html"
+    model = FilterBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+    query_type = "case"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["query_type"] = self.query_type
+        return context
+
+
+class ProjectCasesFilterJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of the FilterBgJob background job."""
+
+    permission_required = "variants.view_data"
+    template_name = "variants/filter_job_detail.html"
+    model = ProjectCasesFilterBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+    query_type = "project"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["query_type"] = self.query_type
+        return context
+
+
+class FilterJobResubmitView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
+    """Resubmit the filter query job and redirect to filter view."""
+
+    permission_required = "variants.view_data"
+    form_class = EmptyForm
+
+    def form_valid(self, form):
+        job = get_object_or_404(FilterBgJob, sodar_uuid=self.kwargs["job"])
+        with transaction.atomic():
+            bg_job = BackgroundJob.objects.create(
+                name="Resubmitting filter case {}".format(job.case),
+                project=job.bg_job.project,
+                job_type=FilterBgJob.spec_name,
+                user=self.request.user,
+            )
+            filter_job = FilterBgJob.objects.create(
+                project=job.project,
+                bg_job=bg_job,
+                case=job.case,
+                smallvariantquery=job.smallvariantquery,
+            )
+            filter_task.delay(
+                filter_job_pk=filter_job.pk, small_variant_query_pk=job.smallvariantquery.pk
+            )
+
+        return redirect(
+            reverse(
+                "variants:filter-job-detail",
+                kwargs={"project": job.project.sodar_uuid, "job": filter_job.sodar_uuid},
+            )
+        )
+
+
+class ProjectCasesFilterJobResubmitView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
+    """Resubmit the filter query job and redirect to filter view."""
+
+    permission_required = "variants.view_data"
+    form_class = EmptyForm
+
+    def form_valid(self, form):
+        job = get_object_or_404(ProjectCasesFilterBgJob, sodar_uuid=self.kwargs["job"])
+        with transaction.atomic():
+            bg_job = BackgroundJob.objects.create(
+                name="Resubmitting filter project",
+                project=job.bg_job.project,
+                job_type=ProjectCasesFilterBgJob.spec_name,
+                user=self.request.user,
+            )
+            filter_job = ProjectCasesFilterBgJob.objects.create(
+                project=job.project,
+                bg_job=bg_job,
+                projectcasessmallvariantquery=job.projectcasessmallvariantquery,
+            )
+            project_cases_filter_task.delay(
+                project_cases_filter_job_pk=filter_job.pk,
+                project_cases_small_variant_query_pk=job.projectcasessmallvariantquery.pk,
+            )
+
+        return redirect(
+            reverse(
+                "variants:project-cases-filter-job-detail",
+                kwargs={"project": job.project.sodar_uuid, "job": filter_job.sodar_uuid},
+            )
+        )
 
 
 class ProjectStatsJobCreateView(
@@ -1062,12 +1466,12 @@ class ProjectStatsJobCreateView(
             # Construct background job objects
             bg_job = BackgroundJob.objects.create(
                 name="Recreate variant statistic for whole project",
-                project=self._get_project(self.request, self.kwargs),
+                project=self.get_project(self.request, self.kwargs),
                 job_type=ComputeProjectVariantsStatsBgJob.spec_name,
                 user=self.request.user,
             )
             recreate_job = ComputeProjectVariantsStatsBgJob.objects.create(
-                project=self._get_project(self.request, self.kwargs), bg_job=bg_job
+                project=self.get_project(self.request, self.kwargs), bg_job=bg_job
             )
         compute_project_variants_stats.delay(export_job_pk=recreate_job.pk)
         messages.info(self.request, "Created background job to recreate project-wide statistics.")
@@ -1149,7 +1553,7 @@ class SmallVariantFlagsApiView(
         timeline = get_backend_api("timeline_backend")
         if timeline:
             tl_event = timeline.add_event(
-                project=self._get_project(self.request, self.kwargs),
+                project=self.get_project(self.request, self.kwargs),
                 app_name="variants",
                 user=self.request.user,
                 event_name="flags_set",
@@ -1192,7 +1596,7 @@ class SmallVariantCommentApiView(
         timeline = get_backend_api("timeline_backend")
         if timeline:
             tl_event = timeline.add_event(
-                project=self._get_project(self.request, self.kwargs),
+                project=self.get_project(self.request, self.kwargs),
                 app_name="variants",
                 user=self.request.user,
                 event_name="comment_add",

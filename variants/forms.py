@@ -435,7 +435,7 @@ class ExportProjectCasesFileResubmitForm(forms.Form):
     )
 
 
-class DistillerSubmissionResubmitForm(forms.Form):
+class EmptyForm(forms.Form):
     pass
 
 

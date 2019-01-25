@@ -9,6 +9,8 @@ from .models import (
     ExportProjectCasesFileBgJob,
     DistillerSubmissionBgJob,
     ComputeProjectVariantsStatsBgJob,
+    FilterBgJob,
+    ProjectCasesFilterBgJob,
 )
 from .urls import urlpatterns
 
@@ -110,4 +112,6 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
         DistillerSubmissionBgJob.spec_name: DistillerSubmissionBgJob,
         ComputeProjectVariantsStatsBgJob.spec_name: ComputeProjectVariantsStatsBgJob,
         ExportProjectCasesFileBgJob.spec_name: ExportProjectCasesFileBgJob,
+        FilterBgJob.spec_name: FilterBgJob,
+        ProjectCasesFilterBgJob.spec_name: ProjectCasesFilterBgJob,
     }

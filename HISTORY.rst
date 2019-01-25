@@ -3,6 +3,34 @@ History / Changelog
 ===================
 
 -------
+v0.11.3
+-------
+
+This release impoves the user experience by pushing filter jobs to the background and
+load them asynchronously.
+
+End-User Summary
+================
+
+- Push filter jobs to the background and povide them via AJAX to not block the UI during execution
+- Storing of filter query results
+- Load previous filter query results upon filter form page entry
+
+Full Change List
+================
+
+- Adapted to SODAR core version 0.4.2
+- Unified several empty forms
+- Adapted database query for loading previous results
+- Unified filter form templates
+- Fixed bug in accessing dict without checking availability of key.
+- Removed two view tests that have to be replaced in the future for ajax request.
+- Fixed bug in displaying time in background job list overview + ordering by timestamp
+- Pushing filter job to background
+- Loading filter results via AJAX (single case and joint project)
+- Loading of previous filter results when entering the filter form
+
+-------
 v0.11.2
 -------
 

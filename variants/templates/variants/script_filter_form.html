@@ -8,8 +8,6 @@ function updateTableDisplay() {
   );
 }
 
-updateTableDisplay();
-
 var effectGroups = {
   all: [
   ],
@@ -213,7 +211,8 @@ function default0(value) {
   return (Object.is(value, undefined) ? 0 : value);
 }
 
-$('.toggle-variant-details').click(function() {
+// we can't employ .click here because the html that it will work on is loaded afterwards.
+$(document).on('click', '.toggle-variant-details', function() {
   $("i", this).toggleClass('fa-chevron-right');
   $("i", this).toggleClass('fa-chevron-down');
   $($(this).data("target") + " .variant-details").load($(this).data("url"));
@@ -226,6 +225,82 @@ $("#settingsDownload").click(
     $(this).attr('download', 'settings_dump.json');
   }
 );
+
+$("#submitFilter").click(
+  function() {
+    // empty previous results first
+    let results_table = $("#resultsTable");
+    results_table.empty();
+    // load spinning wheel into table space
+    results_table.load($(this).data("url-wheel"));
+    // start spinning icon on submit button
+    let icon = $("i", this);
+    icon.addClass("fa-spin");
+    // form data, serialized into an JSON array and transformed into a JSON dict
+    let data = $("#filterForm").serializeArray().reduce(
+      // arrow function to transform array to dict
+      (accumulator, current) => (accumulator[current.name] = current.value, accumulator),
+      // start with an empty dict as initial accumulator
+      {}
+    );
+    // add submit button to form, the django form needs it for validation
+    data[$(this).attr("name")] = $(this).attr("value");
+    // initiate query - load uses a post when the second argument is provided (data)
+    results_table.load(
+      // query url
+      $(this).data("url"),
+      // form data
+      data,
+      // callback when finished (success or not): apply table settings and stop spinning
+      function(responseText, textStatus, request) {
+        // print on console when an error occurred
+        if (textStatus == "error") {
+          console.log("responseText: " + responseText);
+          console.log("textStatus: " + textStatus);
+          console.log("request: " + JSON.stringify(request));
+        }
+        // update table settings
+        updateTableDisplay();
+        // stop spinning
+        icon.removeClass("fa-spin");
+      }
+    );
+  }
+);
+
+var previous_query_uuid = "{{ previous_query_uuid }}";
+
+function load_filter_results() {
+  if (previous_query_uuid) {
+    let results_table = $("#resultsTable");
+    let submit_button = $("#submitFilter");
+    // load spinning wheel into table space
+    results_table.load(submit_button.data("url-wheel"));
+    // construct data object for post request
+    let data = {
+      "previous_query_uuid": previous_query_uuid,
+      "csrfmiddlewaretoken": "{{ csrf_token }}"
+    };
+    data[submit_button.attr("name")] = submit_button.attr("value");
+    // initiate query by passing the last jobs uuid
+    results_table.load(
+      // query url
+      submit_button.data("url-reload"),
+      // pass past jobs uuid and csrf token (otherwise request is not valid)
+      data,
+      // callback function
+      function(responseText, textStatus, request) {
+        if (textStatus == "error") {
+          console.log("responseText: " + responseText);
+          console.log("textStatus: " + textStatus);
+          console.log("request: " + JSON.stringify(request));
+        }
+        // update table settings
+        updateTableDisplay();
+      }
+    );
+  }
+}
 
 function activateClass(o) {
   if (!$(o).hasClass("active")) {
@@ -379,6 +454,7 @@ const defaultPresetsIds = {
   // Clinvar/HGMD
   "require_in_clinvar": false,
   "require_in_hgmd_public": false,
+  "display_hgmd_public_membership": false,
 };
 
 const defaultPresetsClasses = {
@@ -457,6 +533,7 @@ const presets = {
 
       "require_in_clinvar": true,
       "require_in_hgmd_public": true,
+      "display_hgmd_public_membership": true,
       "clinvar_include_pathogenic": true,
       "clinvar_include_likely_pathogenic": true,
       "clinvar_include_uncertain_significance": false,
@@ -478,6 +555,7 @@ const presets = {
 
       "require_in_clinvar": false,
       "require_in_hgmd_public": false,
+      "display_hgmd_public_membership": false,
 
       "effect_group_all": true
     }),
@@ -522,6 +600,7 @@ $(document).ready(
     $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
     updateSettingsDump();
     $(".load-presets").click(loadPresets);
+    load_filter_results();
   }
 );
 </script>

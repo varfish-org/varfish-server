@@ -1,0 +1,186 @@
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
+{% load crispy_forms_tags %}
+{% load dict %}
+{% load humanize %}
+{% load static %}
+{% load json %}
+
+{% block navi_sub_project_extend %}
+  {% if query_type == "case" %}
+    <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
+    <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.case.sodar_uuid %}">{{ object.case.name }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url "variants:job-list" project=project.sodar_uuid case=object.case.sodar_uuid %}">Jobs</a></li>
+    <li class="breadcrumb-item active">{{ object.bg_job.name }}</li>
+  {% else %}
+    <li class="breadcrumb-item"><a href="{% url "bgjobs:jobs-list" project=project.sodar_uuid %}">Jobs</a></li>
+    <li class="breadcrumb-item active">{{ object.bg_job.name }}</li>
+  {% endif %}
+{% endblock %}
+
+{% block projectroles %}
+  <div class="row sodar-pr-content-title pb-2">
+    <h2 class="sodar-pr-content-title">
+      Background Filter Job
+      <small class="text-muted">{{ object.bg_job.name }}</small>
+    </h2>
+    {% include 'variants/_job_view_buttons.html' with project=project folder=folder %}
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+
+    <div class="card sodar-va-export-job-base-details"
+         id="card sodar-va-export-job-base-details">
+      <div class="card-header">
+        <h4>
+          Results &amp; Resubmit
+        </h4>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group">
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Results</strong></div>
+            <div class="col-10 p-1">
+              <a
+                {% if query_type == "case" %}
+                  href="{% url "variants:case-filter-job" project=object.project.sodar_uuid case=object.case.sodar_uuid job=object.sodar_uuid %}"
+                {% else %} {# query_type == "project" #}
+                  href="{% url "variants:project-cases-filter-job" project=object.project.sodar_uuid job=object.sodar_uuid %}"
+                {% endif %}
+                class="btn btn-primary">
+                <i class="fa fa-eye"></i>
+                  View Results
+              </a>
+            </div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Re-Submit</strong></div>
+            <div class="col-10 p-1">
+              <form class="form-inline"
+                    {% if query_type == "case" %}
+                      action="{% url "variants:filter-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}"
+                    {% else %} {# query_type == "project" #}
+                      action="{% url "variants:project-cases-filter-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}"
+                    {% endif %}
+                    method="post">
+               {% csrf_token %}
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa fa-refresh"></i>
+                  Re-run filter
+                </button>
+                <div class="col-12 p-0">
+                  <small class="form-text text-muted">
+                    Use this form to create a new job that uses the same filter settings. This is for the case the job failed.
+                    To view results, click <span class="badge badge-primary"><i class="fa fa-eye"></i>View Results</span>, this is much faster.
+                  </small>
+                </div>
+              </form>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card sodar-va-export-job-base-details"
+       id="card sodar-va-export-job-base-details">
+      <div class="card-header">
+        <h4>
+          Base Details
+        </h4>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group">
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Created</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.date_created }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Updated</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.date_modified }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Creator</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.user }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Title</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.name }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Description</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.description|default:"-" }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Status</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.status }}</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card sodar-va-export-job-base-details"
+         id="card sodar-va-export-job-base-details">
+      <div class="card-header">
+        <h4>
+          Filter Job Details
+        </h4>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group">
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Case</strong></div>
+            <div class="col-10 p-1">
+                <a
+                  {% if query_type == "case" %}
+                  href="{% url "variants:case-filter-job" project=object.project.sodar_uuid case=object.case.sodar_uuid job=object.sodar_uuid %}"
+                  {% else %}
+                  href="{% url "variants:project-cases-filter-job" project=object.project.sodar_uuid job=object.sodar_uuid %}"
+                  {% endif %}
+                >
+                  {{ object.case.name }}
+                </a>
+            </div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Query Arguments</strong></div>
+            <div class="col-10 p-1">
+            {# no linebreaks in textarea block, they will be visible in the end result #}
+              <textarea class="form-control" cols="40" rows="5" readonly="true"
+                {% if query_type == "case" %}>{{ object.smallvariantquery.query_settings|pretty_json }}</textarea>
+                {% else %}>{{ object.projectcasessmallvariantquery.query_settings|pretty_json }}</textarea>{% endif %}
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+   <div class="card sodar-va-export-job-base-details"
+        id="card sodar-va-export-job-base-details">
+      <div class="card-header">
+        <h4>
+          Log Message
+        </h4>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group">
+          {% if object.bg_job.log_entries.all %}
+            {% for entry in object.bg_job.log_entries.all %}
+              <li class="list-group-item row d-flex">
+                <div class="col-2"><strong>{{ entry.date_created }}</strong></div>
+                <div class="col-1"><strong>{{ entry.level }}</strong></div>
+                <div class="col-9">{{ entry.message }}</div>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li class="list-group-item bg-faded font-italic text-center">
+              No log entries yet.
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+  </div> <!-- sodar-page-container -->
+
+{% endblock %}

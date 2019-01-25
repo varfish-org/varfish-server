@@ -29,6 +29,7 @@ PROJECT_DICT = {
 
 class TestViewBase(TestCase):
     """Base class for view testing."""
+
     setup_case_in_db = None
 
     def setUp(self):

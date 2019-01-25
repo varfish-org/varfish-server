@@ -5,18 +5,21 @@
 {% load variants_tags %}
 
 <tr class="variant-row variant-row-{{ entry|flag_class }}">
+  {# fold-out #}
   <td class="clickable toggle-variant-details pl-0 pr-0"
-      data-url="{% url 'variants:small-variant-details' project=project.sodar_uuid case=entry.case_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative database=form.cleaned_data|keyvalue:"database_select" gene_id=entry.gene_id %}"
+      data-url="{% url 'variants:small-variant-details' project=project.sodar_uuid case=entry.case_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative database=database gene_id=entry.gene_id %}"
       data-toggle="collapse" data-target="#variant-details-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="variant-details-{{ forloop.counter0 }}" aria-hidden="true">
     <i class="fa fa-fw fa-chevron-right"></i>
   </td>
+  {# bookmark #}
   <td class="bookmark pl-0 pr-0" style="white-space: nowrap;">
     <i class="fa fa-fw {% if entry.flag_count %}fa-bookmark{% else %}fa-bookmark-o{% endif %} text-muted variant-bookmark"
        data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}"></i>
     <i class="fa fa-fw {% if entry.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
        data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}"></i>
-    &nbsp;
-
+  </td>
+  {# databases #}
+  <td class="pl-0 pr-0">
     {# dbSNP Indicator #}
     {% if entry.rsid %}
       <a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ entry.rsid|slice:'2:' }}">
@@ -105,7 +108,7 @@
   </td>
   {% if query_type == "case" %}
     {# pedigree members #}
-    {% for member in form.get_pedigree_with_samples  %}
+    {% for member in pedigree %}
       {% include "variants/filter_result/_gt_field.html" with name=member.patient %}
     {% endfor %}
   {% else %}  {# query_type == "project" #}

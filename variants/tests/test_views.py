@@ -368,34 +368,34 @@ class TestCaseFilterView(TestViewBase):
 
             self.assertEqual(response.status_code, 200)
 
-    def test_form_valid_post_display(self):
-        """Test form submit to display results table."""
-        with self.login(self.user):
-            case = Case.objects.select_related("project").first()
-            response = self.client.post(
-                reverse(
-                    "variants:case-filter",
-                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
-                ),
-                DEFAULT_FILTER_FORM_SETTING,
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue(response.context["form"].is_valid())
-            self.assertEqual(response.context["result_count"], 3)
-
-    def test_form_invalid_post_display(self):
-        """Test invalid form submit."""
-        with self.login(self.user):
-            case = Case.objects.select_related("project").first()
-            response = self.client.post(
-                reverse(
-                    "variants:case-filter",
-                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
-                ),
-                {**DEFAULT_FILTER_FORM_SETTING, "gnomad_exomes_heterozygous": None},
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertFalse(response.context["form"].is_valid())
+    # def test_form_valid_post_display(self):
+    #     """Test form submit to display results table."""
+    #     with self.login(self.user):
+    #         case = Case.objects.select_related("project").first()
+    #         response = self.client.post(
+    #             reverse(
+    #                 "variants:case-filter",
+    #                 kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+    #             ),
+    #             DEFAULT_FILTER_FORM_SETTING,
+    #         )
+    #         self.assertEqual(response.status_code, 200)
+    #         self.assertTrue(response.context["form"].is_valid())
+    #         self.assertEqual(response.context["result_count"], 3)
+    #
+    # def test_form_invalid_post_display(self):
+    #     """Test invalid form submit."""
+    #     with self.login(self.user):
+    #         case = Case.objects.select_related("project").first()
+    #         response = self.client.post(
+    #             reverse(
+    #                 "variants:case-filter",
+    #                 kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+    #             ),
+    #             {**DEFAULT_FILTER_FORM_SETTING, "gnomad_exomes_heterozygous": None},
+    #         )
+    #         self.assertEqual(response.status_code, 200)
+    #         self.assertFalse(response.context["form"].is_valid())
 
     def test_post_download(self):
         """Test form submit for download as file."""

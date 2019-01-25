@@ -98,6 +98,7 @@ import_clinvar: import_clinvar_single import_clinvar_multi
 
 import: import_exac import_dbsnp import_gnomadexomes import_hgnc import_hpo import_omim import_kegg import_clinvar import_knowngeneaa import_hgmd_public
 
+# Remember to execute 'python manage.py collectstatic' before executing tests the first time
 test:
 	coverage run manage.py test -v2 --settings=config.settings.test
 	coverage report

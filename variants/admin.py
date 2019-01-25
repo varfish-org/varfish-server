@@ -9,6 +9,8 @@ from .models import (
     SmallVariantFlags,
     SmallVariantQuery,
     SmallVariantComment,
+    FilterBgJob,
+    ProjectCasesFilterBgJob,
 )
 
 # Register your models here.
@@ -20,3 +22,5 @@ admin.site.register(SmallVariantFlags)
 admin.site.register(SmallVariantComment)
 admin.site.register(SmallVariantQuery)
 admin.site.register(DistillerSubmissionBgJob)
+admin.site.register(FilterBgJob)
+admin.site.register(ProjectCasesFilterBgJob)

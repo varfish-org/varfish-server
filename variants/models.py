@@ -323,6 +323,7 @@ class Case(models.Model):
             Q(variants_exportfilebgjob__case=self)
             | Q(distiller_submission_bg_job__case=self)
             | Q(compute_project_variants_stats__case=self)
+            | Q(filter_bg_job__case=self)
         )
 
     def get_members(self):
@@ -584,7 +585,7 @@ class DistillerSubmissionBgJob(JobModelMessageMixin, models.Model):
     task_desc = "Submission to MutationDistiller"
 
     #: String identifying model in BackgroundJob.
-    spec_name = "variants.export_file_bg_job"
+    spec_name = "variants.distiller_submission_bg_job"
 
     # Fields required by SODAR
     sodar_uuid = models.UUIDField(
@@ -903,6 +904,9 @@ class SmallVariantQueryBase(models.Model):
     #: The query settings as JSON.
     query_settings = JSONField(null=False, help_text="The query settings")
 
+    #: Many-to-Many relationship with SmallVariant to store query results for faster future retrieval
+    query_results = models.ManyToManyField(SmallVariant)
+
     #: Optional, user-assign query name.
     name = models.CharField(
         max_length=100, null=True, default=None, help_text="Optional user-assigned name"
@@ -945,6 +949,82 @@ class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):
         related_name="small_variant_queries",
         help_text="The case that the query relates to",
     )
+
+
+class FilterBgJob(JobModelMessageMixin, models.Model):
+    """Background job for processing single case filter query and storing query results in table SmallVariantQueryBase."""
+
+    #: Task description for logging.
+    task_desc = "Single case filter query and store results"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.filter_bg_job"
+
+    #: Fields required by SODAR
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
+    )
+    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="filter_bg_job",
+        help_text="Background job for filtering and storing query results",
+    )
+
+    case = models.ForeignKey(Case, null=False, help_text="The case to filter")
+
+    #: Link to the smallvariantquery object. Holds query arguments and results
+    smallvariantquery = models.ForeignKey(
+        SmallVariantQuery, null=False, help_text="Query that is executed."
+    )
+
+    def get_human_readable_type(self):
+        return "Single-case query results"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:filter-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
+
+
+class ProjectCasesFilterBgJob(JobModelMessageMixin, models.Model):
+    """Background job for processing joint project filter query and storing query results in table SmallVariantQueryBase."""
+
+    #: Task description for logging.
+    task_desc = "Joint project filter query and store results."
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.project_cases_filter_bg_job"
+
+    #: Fields required by SODAR
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
+    )
+    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="project_cases_filter_bg_job",
+        help_text="Background job for filtering joint project and storing query results.",
+    )
+
+    #: Link to the ProjectCaseSmallVariantQuery object. Holds query arguments and results.
+    projectcasessmallvariantquery = models.ForeignKey(
+        ProjectCasesSmallVariantQuery, null=False, help_text="Query that is executed."
+    )
+
+    def get_human_readable_type(self):
+        return "Joint Project query results"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:project-cases-filter-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
 
 
 class CaseVariantStats(models.Model):

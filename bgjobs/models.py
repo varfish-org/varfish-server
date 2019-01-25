@@ -87,6 +87,9 @@ class BackgroundJob(models.Model):
     #: The job status.
     status = models.CharField(max_length=50, choices=JOB_STATE_CHOICES, default=JOB_STATE_INITIAL)
 
+    class Meta:
+        ordering = ["-date_created"]
+
     def get_human_readable_type(self):
         """Also implement in your sub classes to show human-readable type in the views."""
         return "(generic job)"

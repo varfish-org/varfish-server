@@ -7,14 +7,8 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('geneinfo', '0004_auto_20181204_1027'),
-    ]
+    dependencies = [("geneinfo", "0004_auto_20181204_1027")]
 
     operations = [
-        migrations.RenameField(
-            model_name='hgnc',
-            old_name='namit_trnadb',
-            new_name='mamit_trnadb',
-        ),
+        migrations.RenameField(model_name="hgnc", old_name="namit_trnadb", new_name="mamit_trnadb")
     ]
