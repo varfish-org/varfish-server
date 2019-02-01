@@ -2,11 +2,25 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+In development.
+
+End-User Summary
+================
+
+Full Change List
+================
+
+- Allow skipping Selenium tests
+
 -------
 v0.11.3
 -------
 
-This release impoves the user experience by pushing filter jobs to the background and
+This release improves the user experience by pushing filter jobs to the background and
 load them asynchronously.
 
 End-User Summary
