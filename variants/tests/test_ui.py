@@ -1,9 +1,11 @@
 """UI tests for the projectroles app"""
 
+import os
 import socket
 from urllib.parse import urlencode
 import json
 import time
+from unittest import skipIf
 
 from django.contrib import auth
 from django.test import LiveServerTestCase, override_settings
@@ -48,6 +50,10 @@ PROJECT_LINK_IDS = [
 
 
 User = auth.get_user_model()
+
+
+SKIP_SELENIUM = '1' == os.environ.get('SKIP_SELENIUM', '0')
+SKIP_SELENIUM_MESSAGE = "Selenium tests disabled"
 
 
 class LiveUserMixin:
@@ -254,6 +260,7 @@ class TestVariantsCaseListView(TestUIBase):
     kwargs = {"project": "7c599407-6c44-4d9e-81aa-cd8cf3d817a4"}
     fixture_setup = fixture_setup_project_case
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_case_list_item_exists(self):
         """Test if list with case is rendered."""
         self.assert_element_exists(
@@ -271,30 +278,37 @@ class TestVariantsCaseDetailView(TestUIBase):
     }
     fixture_setup = fixture_setup_project_case
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_case_detail_overview_card_exists(self):
         """Test if the variant details view gets rendered"""
         self.assert_element_exists({}, "card-varfish-vars-case-details-overview", True)
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_case_detail_pedigree_card_exists(self):
         """Test if the variant details view gets rendered"""
         self.assert_element_exists({}, "card-varfish-vars-case-details-pedigree", True)
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_case_detail_qc_plots_card_exists(self):
         """Test if the variant details view gets rendered"""
         self.assert_element_exists({}, "card-varfish-vars-case-details-qc-plots", True)
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_case_detail_comments_card_exists(self):
         """Test if the variant details view gets rendered"""
         self.assert_element_exists({}, "card-varfish-vars-case-details-comments", True)
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_case_detail_flags_card_exists(self):
         """Test if the variant details view gets rendered"""
         self.assert_element_exists({}, "card-varfish-vars-case-details-flags", True)
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_case_detail_bg_jobs_card_exists(self):
         """Test if the variant details view gets rendered"""
         self.assert_element_exists({}, "card-varfish-vars-case-details-bg-jobs", True)
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_case_detail_qc_card_exists(self):
         """Test if the variant details view gets rendered"""
         self.assert_element_exists({}, "card-varfish-vars-case-details-qc", True)
@@ -433,14 +447,17 @@ class TestVariantsCaseFilterView(TestUIBase):
         for field, value in patched_effect_fields.items():
             self.assertEqual(self.selenium.find_element_by_id(field).is_selected(), value)
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_effects_form_select_none(self):
         """Test if effect group checkbox 'all' disables all effects if activated and deactivated."""
         self._check_effect_groups(None, {})
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_effects_form_select_all(self):
         """Test if effect group checkbox 'all' selects all effect checkboxes."""
         self._check_effect_groups("id_effect_group_all", {effect: True for effect in EFFECT_FIELDS})
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_effects_form_select_nonsynonymous(self):
         """Test if effect group checkbox 'nonsynonymous' selects the correct effect checkboxes."""
         self._check_effect_groups(
@@ -467,6 +484,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             },
         )
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_effects_form_select_splicing(self):
         """Test if effect group checkbox 'splicing' selects the correct effect checkboxes."""
         self._check_effect_groups(
@@ -478,6 +496,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             },
         )
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_effects_form_select_coding(self):
         """Test if effect group checkbox 'coding' selects the correct effect checkboxes."""
         self._check_effect_groups(
@@ -485,6 +504,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             {"id_effect_stop_retained_variant": True, "id_effect_synonymous_variant": True},
         )
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_effects_form_select_utr_intronic(self):
         """Test if effect group checkbox 'UTR/intronic' selects the correct effect checkboxes."""
         self._check_effect_groups(
@@ -498,6 +518,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             },
         )
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_effects_form_select_noncoding(self):
         """Test if effect group checkbox 'noncoding' selects the correct effect checkboxes."""
         self._check_effect_groups(
@@ -511,6 +532,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             },
         )
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_settings_initial_database(self):
         """Test if the initial form settings correspond to the JSON dump textarea by checking the database setting."""
         # login
@@ -528,6 +550,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             ).is_selected()
         )
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_settings_export_database_refseq_to_ensembl(self):
         """Test the settings dump export by selecting 'ensembl' in the database selector form."""
         # login
@@ -540,6 +563,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         )
         self.assertEqual(settings["database_select"], "ensembl")
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_settings_import_database_refseq_to_ensembl(self):
         """Test the settings dump import by changing JSON field to 'ensembl' in the textarea."""
         # login
@@ -565,6 +589,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             ).is_selected()
         )
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_display(self):
         """Test if submitting the filter yields the exptected results."""
         # login
@@ -590,6 +615,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # wait for redirect
         self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_download(self):
         """Test if submitting the download filter is kicked off."""
         # login
@@ -634,6 +660,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             )
         )
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_preset_medgen_relaxed_on_quality_settings(self):
         """Test medgen relaxed preset on a quality setting"""
         # login
@@ -646,6 +673,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             self.selenium.find_element_by_id("id_A_dp_het").get_attribute("value"), "8"
         )
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_preset_medgen_clinvar_on_quality_settings(self):
         """Test medgen clinvar preset on a quality setting"""
         # login
@@ -658,6 +686,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             self.selenium.find_element_by_id("id_A_fail").get_attribute("value"), "ignore"
         )
 
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_preset_full_exome_on_effect_settings(self):
         """Test full exome preset on the all effect setting"""
         # login

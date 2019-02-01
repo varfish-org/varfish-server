@@ -102,3 +102,6 @@ import: import_exac import_dbsnp import_gnomadexomes import_hgnc import_hpo impo
 test:
 	coverage run manage.py test -v2 --settings=config.settings.test
 	coverage report
+
+test-noselenium:
+	SKIP_SELENIUM=1 coverage run manage.py test -v2 --settings=config.settings.test
