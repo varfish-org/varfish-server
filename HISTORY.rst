@@ -11,9 +11,15 @@ In development.
 End-User Summary
 ================
 
+- Zooming in QC plot is now supported.
+
 Full Change List
 ================
 
+- Replacing Chart.js components by plotly.
+  This has the major advantage that zooming into charts is now supported.
+  Further, users can now enable and disable plotting of certain data points by clicking.
+  This is hugely useful for debugging meta data.
 - Allow skipping Selenium tests
 
 -------
