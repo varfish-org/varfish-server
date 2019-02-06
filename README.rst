@@ -32,6 +32,28 @@ Setting Up Your Users
 
 For convenience, you can keep your normal user logged in on Chrome and your superuser logged in on Firefox (or similar), so that you can see how the site behaves for both kinds of users.
 
+Importing Cases
+^^^^^^^^^^^^^^^
+
+The following command imports a single case. The UUID of the project must be known::
+
+    $ python manage.py import_case \
+        --project-uuid PROJECT_UUID \
+        --case-name CASE_NAME \
+        --index-name INDEX_NAME \
+        --path-variants PATH_TO_VARS_FILE \
+        --path-genotypes PATH_TO_GTS_FILE \
+        --path-ped PATH_TO_PED_FILE
+
+Importing Databases
+^^^^^^^^^^^^^^^^^^^
+
+The following command imports the databases. The files have to be downloaded and prepared with the Varfish DB Downloader tool::
+
+    $ python manage.py import_tables \
+        --tables-path PATH_TO_VARFISH_DB_DOWNLOADER_INSTANCE
+
+
 Test coverage
 ^^^^^^^^^^^^^
 
@@ -54,7 +76,6 @@ Live reloading and Sass CSS compilation
 Moved to `Live reloading and SASS compilation`_.
 
 .. _`Live reloading and SASS compilation`: http://cookiecutter-django.readthedocs.io/en/latest/live-reloading-and-sass-compilation.html
-
 
 
 

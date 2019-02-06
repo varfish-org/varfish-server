@@ -2,6 +2,23 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+In development.
+
+End-User Summary
+================
+
+- Databases import now as Django manage command.
+
+Full Change List
+================
+
+- Databases import is now a Django manage command and import commands are removed from the Makefile.
+  Instead of one command for each database, a single command imports all databases stated in a config file.
+
 -------
 v0.11.4
 -------

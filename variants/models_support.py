@@ -63,6 +63,7 @@ class SingleCaseFilterQueryBase:
         WHERE <conditions>
         [trailing such as ORDER BY or LIMIT]
     """
+
     #: Table that the query is based on
     base_table = None
 
@@ -256,6 +257,7 @@ class ProjectCasesFilterQueryBase:
 
     Further, compound heterozygous queries are not supported when performing queries across cohorts.
     """
+
     #: Table that the query is based on
     base_table = None
 

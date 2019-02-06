@@ -764,7 +764,9 @@ class TestCaseOneLoadResults(FilterTestBase):
 
     def test_load_case_results(self):
         smallvariantquery = SmallVariantQuery.objects.first()
-        self.run_filter_query(LoadPrefetchedFilterQuery, {"smallvariantquery_id": smallvariantquery.id}, 2)
+        self.run_filter_query(
+            LoadPrefetchedFilterQuery, {"smallvariantquery_id": smallvariantquery.id}, 2
+        )
 
     def test_load_project_cases_results(self):
         projectcasessmallvariantquery = ProjectCasesSmallVariantQuery.objects.first()
@@ -1813,12 +1815,8 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_ab": 0.3}, 6)
 
     def test_genotype_dp_het_limits_filter(self):
-        self.run_filter_query(
-            PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 21}, 7
-        )
-        self.run_filter_query(
-            PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8
-        )
+        self.run_filter_query(PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 21}, 7)
+        self.run_filter_query(PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8)
 
     def test_genotype_dp_het_limits_export(self):
         self.run_filter_query(
@@ -1841,12 +1839,8 @@ class TestCaseOneQueryGenotype(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"A_fail": "drop-variant", "A_dp_het": 20}, 8)
 
     def test_genotype_dp_hom_limits_filter(self):
-        self.run_filter_query(
-            PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 31}, 6
-        )
-        self.run_filter_query(
-            PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8
-        )
+        self.run_filter_query(PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 31}, 6)
+        self.run_filter_query(PrefetchFilterQuery, {"A_fail": "drop-variant", "A_dp_hom": 30}, 8)
 
     def test_genotype_dp_hom_limits_export(self):
         self.run_filter_query(
@@ -1992,9 +1986,7 @@ class TestCaseOneQueryBlacklist(FilterTestBase):
         self.run_count_query(CountOnlyFilterQuery, {"gene_blacklist": ["AAA", "BBB"]}, 3)
 
     def test_blacklist_all_filter(self):
-        self.run_filter_query(
-            PrefetchFilterQuery, {"gene_blacklist": ["AAA", "BBB", "CCC"]}, 0
-        )
+        self.run_filter_query(PrefetchFilterQuery, {"gene_blacklist": ["AAA", "BBB", "CCC"]}, 0)
 
     def test_blacklist_all_export(self):
         self.run_filter_query(

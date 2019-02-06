@@ -119,37 +119,51 @@ class Exac(models.Model):
     @property
     def het_afr(self):
         """Heterozygous count african population"""
-        return self.ac_afr - (2 * self.hom_afr) - (self.hemi_afr if self.hemi_afr is not None else 0)
+        return (
+            self.ac_afr - (2 * self.hom_afr) - (self.hemi_afr if self.hemi_afr is not None else 0)
+        )
 
     @property
     def het_amr(self):
         """Heterozygous count american population"""
-        return self.ac_amr - (2 * self.hom_amr) - (self.hemi_amr if self.hemi_amr is not None else 0)
+        return (
+            self.ac_amr - (2 * self.hom_amr) - (self.hemi_amr if self.hemi_amr is not None else 0)
+        )
 
     @property
     def het_eas(self):
         """Heterozygous count east asian population"""
-        return self.ac_eas - (2 * self.hom_eas) - (self.hemi_eas if self.hemi_eas is not None else 0)
+        return (
+            self.ac_eas - (2 * self.hom_eas) - (self.hemi_eas if self.hemi_eas is not None else 0)
+        )
 
     @property
     def het_fin(self):
         """Heterozygous count finnish population"""
-        return self.ac_fin - (2 * self.hom_fin) - (self.hemi_fin if self.hemi_fin is not None else 0)
+        return (
+            self.ac_fin - (2 * self.hom_fin) - (self.hemi_fin if self.hemi_fin is not None else 0)
+        )
 
     @property
     def het_nfe(self):
         """Heterozygous count european (non-finnish) population"""
-        return self.ac_nfe - (2 * self.hom_nfe) - (self.hemi_nfe if self.hemi_nfe is not None else 0)
+        return (
+            self.ac_nfe - (2 * self.hom_nfe) - (self.hemi_nfe if self.hemi_nfe is not None else 0)
+        )
 
     @property
     def het_oth(self):
         """Heterozygous count other populations"""
-        return self.ac_oth - (2 * self.hom_oth) - (self.hemi_oth if self.hemi_oth is not None else 0)
+        return (
+            self.ac_oth - (2 * self.hom_oth) - (self.hemi_oth if self.hemi_oth is not None else 0)
+        )
 
     @property
     def het_sas(self):
         """Heterozygous count south asian population"""
-        return self.ac_sas - (2 * self.hom_sas) - (self.hemi_sas if self.hemi_sas is not None else 0)
+        return (
+            self.ac_sas - (2 * self.hom_sas) - (self.hemi_sas if self.hemi_sas is not None else 0)
+        )
 
     class Meta:
         unique_together = ("release", "chromosome", "position", "reference", "alternative")
@@ -285,42 +299,58 @@ class GnomadExomes(models.Model):
     @property
     def het_afr(self):
         """Heterozygous count african population"""
-        return self.ac_afr - (2 * self.hom_afr) - (self.hemi_afr if self.hemi_afr is not None else 0)
+        return (
+            self.ac_afr - (2 * self.hom_afr) - (self.hemi_afr if self.hemi_afr is not None else 0)
+        )
 
     @property
     def het_amr(self):
         """Heterozygous count american population"""
-        return self.ac_amr - (2 * self.hom_amr) - (self.hemi_amr if self.hemi_amr is not None else 0)
+        return (
+            self.ac_amr - (2 * self.hom_amr) - (self.hemi_amr if self.hemi_amr is not None else 0)
+        )
 
     @property
     def het_asj(self):
         """Heterozygous count ashkenazi jewish population"""
-        return self.ac_asj - (2 * self.hom_asj) - (self.hemi_asj if self.hemi_asj is not None else 0)
+        return (
+            self.ac_asj - (2 * self.hom_asj) - (self.hemi_asj if self.hemi_asj is not None else 0)
+        )
 
     @property
     def het_eas(self):
         """Heterozygous count east asian population"""
-        return self.ac_eas - (2 * self.hom_eas) - (self.hemi_eas if self.hemi_eas is not None else 0)
+        return (
+            self.ac_eas - (2 * self.hom_eas) - (self.hemi_eas if self.hemi_eas is not None else 0)
+        )
 
     @property
     def het_fin(self):
         """Heterozygous count finnish population"""
-        return self.ac_fin - (2 * self.hom_fin) - (self.hemi_fin if self.hemi_fin is not None else 0)
+        return (
+            self.ac_fin - (2 * self.hom_fin) - (self.hemi_fin if self.hemi_fin is not None else 0)
+        )
 
     @property
     def het_nfe(self):
         """Heterozygous count european (non-finnish) population"""
-        return self.ac_nfe - (2 * self.hom_nfe) - (self.hemi_nfe if self.hemi_nfe is not None else 0)
+        return (
+            self.ac_nfe - (2 * self.hom_nfe) - (self.hemi_nfe if self.hemi_nfe is not None else 0)
+        )
 
     @property
     def het_oth(self):
         """Heterozygous count other populations"""
-        return self.ac_oth - (2 * self.hom_oth) - (self.hemi_oth if self.hemi_oth is not None else 0)
+        return (
+            self.ac_oth - (2 * self.hom_oth) - (self.hemi_oth if self.hemi_oth is not None else 0)
+        )
 
     @property
     def het_sas(self):
         """Heterozygous count south asian population"""
-        return self.ac_sas - (2 * self.hom_sas) - (self.hemi_sas if self.hemi_sas is not None else 0)
+        return (
+            self.ac_sas - (2 * self.hom_sas) - (self.hemi_sas if self.hemi_sas is not None else 0)
+        )
 
     class Meta:
         unique_together = ("release", "chromosome", "position", "reference", "alternative")
@@ -446,37 +476,51 @@ class GnomadGenomes(models.Model):
     @property
     def het_afr(self):
         """Heterozygous count african population"""
-        return self.ac_afr - (2 * self.hom_afr) - (self.hemi_afr if self.hemi_afr is not None else 0)
+        return (
+            self.ac_afr - (2 * self.hom_afr) - (self.hemi_afr if self.hemi_afr is not None else 0)
+        )
 
     @property
     def het_amr(self):
         """Heterozygous count american population"""
-        return self.ac_amr - (2 * self.hom_amr) - (self.hemi_amr if self.hemi_amr is not None else 0)
+        return (
+            self.ac_amr - (2 * self.hom_amr) - (self.hemi_amr if self.hemi_amr is not None else 0)
+        )
 
     @property
     def het_asj(self):
         """Heterozygous count ashkenazi jewish population"""
-        return self.ac_asj - (2 * self.hom_asj) - (self.hemi_asj if self.hemi_asj is not None else 0)
+        return (
+            self.ac_asj - (2 * self.hom_asj) - (self.hemi_asj if self.hemi_asj is not None else 0)
+        )
 
     @property
     def het_eas(self):
         """Heterozygous count east asian population"""
-        return self.ac_eas - (2 * self.hom_eas) - (self.hemi_eas if self.hemi_eas is not None else 0)
+        return (
+            self.ac_eas - (2 * self.hom_eas) - (self.hemi_eas if self.hemi_eas is not None else 0)
+        )
 
     @property
     def het_fin(self):
         """Heterozygous count finnish population"""
-        return self.ac_fin - (2 * self.hom_fin) - (self.hemi_fin if self.hemi_fin is not None else 0)
+        return (
+            self.ac_fin - (2 * self.hom_fin) - (self.hemi_fin if self.hemi_fin is not None else 0)
+        )
 
     @property
     def het_nfe(self):
         """Heterozygous count european (non-finnish) population"""
-        return self.ac_nfe - (2 * self.hom_nfe) - (self.hemi_nfe if self.hemi_nfe is not None else 0)
+        return (
+            self.ac_nfe - (2 * self.hom_nfe) - (self.hemi_nfe if self.hemi_nfe is not None else 0)
+        )
 
     @property
     def het_oth(self):
         """Heterozygous count other populations"""
-        return self.ac_oth - (2 * self.hom_oth) - (self.hemi_oth if self.hemi_oth is not None else 0)
+        return (
+            self.ac_oth - (2 * self.hom_oth) - (self.hemi_oth if self.hemi_oth is not None else 0)
+        )
 
     class Meta:
         unique_together = ("release", "chromosome", "position", "reference", "alternative")

@@ -9,6 +9,9 @@ class ImportInfo(models.Model):
     #: Timestamp of import
     timestamp = models.DateTimeField(editable=False)
     #: Data release
-    release = models.CharField(max_length=16)
+    release = models.CharField(max_length=512)
     #: Further comments
     comment = models.CharField(max_length=1024)
+
+    class Meta:
+        unique_together = ("table", "release")

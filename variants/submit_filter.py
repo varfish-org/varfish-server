@@ -66,7 +66,9 @@ class ProjectCasesFilter(FilterBase):
 
     def _get_query(self):
         """Render filter query for a project"""
-        return ProjectCasesPrefetchFilterQuery(self.previous_query.project, self.get_alchemy_connection())
+        return ProjectCasesPrefetchFilterQuery(
+            self.previous_query.project, self.get_alchemy_connection()
+        )
 
 
 def case_filter(job, smallvariantquery):

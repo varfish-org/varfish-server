@@ -52,7 +52,7 @@ PROJECT_LINK_IDS = [
 User = auth.get_user_model()
 
 
-SKIP_SELENIUM = '1' == os.environ.get('SKIP_SELENIUM', '0')
+SKIP_SELENIUM = "1" == os.environ.get("SKIP_SELENIUM", "0")
 SKIP_SELENIUM_MESSAGE = "Selenium tests disabled"
 
 
