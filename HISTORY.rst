@@ -6,9 +6,8 @@ History / Changelog
 v0.11.4
 -------
 
-This is a quick release to fix a bug in retrieving the results from
-a filter job. This was caused by the celery worker in the production system
-configuration.
+This is a quick release to fix a bug in retrieving the results from a filter job.
+This was caused by the celery worker in the production system configuration.
 
 End-User Summary
 ================
