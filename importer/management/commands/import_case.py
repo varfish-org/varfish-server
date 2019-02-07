@@ -14,8 +14,9 @@ from django.conf import settings
 from annotation.models import Annotation
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
-from variants.models import SmallVariant, Case
+from variants.models import SmallVariant, Case, AnnotationReleaseInfo
 from variants.variant_stats import rebuild_case_variant_stats
+from ..helpers.tsv_reader import tsv_reader
 
 
 #: The User model to use.
@@ -28,9 +29,9 @@ SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 def open_file(path, mode):
     """Open gzip or normal file."""
-    try:
+    if path.endswith('.gz'):
         return gzip.open(path, mode)
-    except:
+    else:
         return open(path, mode)
 
 
@@ -57,12 +58,17 @@ class Command(BaseCommand):
         parser.add_argument("--path-genotypes", help="Path to genotypes TSV file", required=True)
         parser.add_argument("--path-variants", help="Path to variants TSV file", required=True)
         parser.add_argument(
+            "--path-db-info", help="Path to database import info TSV file", required=True
+        )
+        parser.add_argument(
             "--project-uuid", help="UUID of the project to add the case to", required=True
         )
+        parser.add_argument("--update-case", help="Replace imported case", action="store_true")
 
     @transaction.atomic
     def handle(self, *args, **options):
         """Perform the import of the case."""
+
         try:
             self.stdout.write("Importing as admin: {}".format(settings.PROJECTROLES_ADMIN_OWNER))
             admin = User.objects.get(username=settings.PROJECTROLES_ADMIN_OWNER)
@@ -72,7 +78,22 @@ class Command(BaseCommand):
                     settings.PROJECTROLES_ADMIN_OWNER
                 )
             ) from e
+
         project = self._get_project(options["project_uuid"])
+        current_case = Case.objects.filter(name=options["case_name"], project=project)
+
+        if options["update_case"]:
+            if not current_case.exists():
+                raise CommandError(
+                    "Unable to update case that doesn't exist. Please remove --update-case flag to import case."
+                )
+            current_case.delete()
+        else:
+            if current_case.exists():
+                raise CommandError(
+                    "Case already imported. To update case, use the --udpate-case flag."
+                )
+
         samples_in_genotypes = self._get_samples_in_genotypes(options["path_genotypes"])
         case = self._create_case(
             project,
@@ -80,6 +101,7 @@ class Command(BaseCommand):
             options["index_name"],
             options["path_ped"],
             samples_in_genotypes,
+            options["path_db_info"],
         )
         self._import_variants(options["path_variants"])
         self._import_genotypes(case, options["path_genotypes"])
@@ -111,7 +133,9 @@ class Command(BaseCommand):
             values = dict(zip(header, first))
             return list(json.loads(values["genotype"]).keys())
 
-    def _create_case(self, project, case_name, index_name, path_ped, samples_in_genotypes):
+    def _create_case(
+        self, project, case_name, index_name, path_ped, samples_in_genotypes, path_db_info
+    ):
         """Create ``Case`` object."""
         self.stdout.write("Reading PED and creating case...")
         # Build Pedigree.
@@ -140,6 +164,19 @@ class Command(BaseCommand):
         case = Case.objects.create(
             name=case_name, index=index_name, pedigree=pedigree, project=project
         )
+        # Import the release info.
+        AnnotationReleaseInfo.objects.bulk_create(
+            [
+                AnnotationReleaseInfo(
+                    genomebuild=entry["genomebuild"],
+                    table=entry["db_name"],
+                    release=entry["release"],
+                    case=case,
+                )
+                for entry in tsv_reader(path_db_info)
+            ]
+        )
+
         self.stdout.write(self.style.SUCCESS("Done creating case"))
         return case
 

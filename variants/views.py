@@ -50,14 +50,12 @@ from .models import (
 )
 from .forms import (
     ClinvarForm,
-    EmptyForm,
     ExportFileResubmitForm,
     ExportProjectCasesFileResubmitForm,
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
     FILTER_FORM_TRANSLATE_EFFECTS,
     FILTER_FORM_TRANSLATE_SIGNIFICANCE,
     FilterForm,
-    EmptyForm,
     ProjectCasesFilterForm,
     EmptyForm,
     ProjectStatsJobForm,

@@ -3,7 +3,6 @@ import tempfile
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import IntegrityError, transaction
-from django.utils import timezone
 
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
@@ -11,8 +10,9 @@ from dbsnp.models import Dbsnp
 from frequencies.models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes
 from geneinfo.models import Hgnc, Mim2geneMedgen, Hpo, NcbiGeneInfo, NcbiGeneRif
 from hgmd.models import HgmdPublicLocus
-from importer.models import ImportInfo
+from ...models import ImportInfo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
+from ..helpers.tsv_reader import tsv_reader
 
 
 #: One entry in the TABLES variable is structured as follows:
@@ -56,7 +56,7 @@ class Command(BaseCommand):
         if not os.path.isfile(path_import_versions):
             raise CommandError("Require version import info file {}.".format(path_import_versions))
 
-        for import_info in self._read_info_file(path_import_versions):
+        for import_info in tsv_reader(path_import_versions):
             table_group = import_info["table_group"]
             version_path = os.path.join(
                 options["tables_path"], import_info["build"], table_group, import_info["version"]
@@ -94,18 +94,7 @@ class Command(BaseCommand):
         :param path: Path to the release info file
         :return: Dict with column names as keys and the values as values
         """
-        return next(self._read_info_file(path))
-
-    def _read_info_file(self, path):
-        """Read any info file in TSV format with first line as header.
-
-        :param path: Path to the info file.
-        :return: Yield dict with column names as keys and the values as values
-        """
-        with open(path, "r") as fh:
-            keys = next(fh).rstrip("\n").split("\t")
-            for line in fh:
-                yield dict(zip(keys, line.rstrip("\n").split("\t")))
+        return next(tsv_reader(path))
 
     @transaction.atomic
     def _import(self, path, release_info, table, import_info=True):
@@ -119,20 +108,25 @@ class Command(BaseCommand):
         """
 
         self.stdout.write(
-            "Importing {} {} (source: {}) ...".format(table.__name__, release_info["version"], path)
+            "Importing {} {} ({}, source: {}) ...".format(
+                table.__name__, release_info["version"], release_info["genomebuild"], path
+            )
         )
+
+        if not release_info["table"] == table.__name__:
+            CommandError("Table name in release_info file does not match table name.")
+
         if import_info:
             try:
                 ImportInfo.objects.create(
+                    genomebuild=release_info["genomebuild"],
                     table=table.__name__,
-                    timestamp=timezone.now(),
                     release=release_info["version"],
-                    comment="",
                 )
-            except IntegrityError:
+            except IntegrityError as e:
                 self.stdout.write(
-                    "Skipping {} {}. Already imported.".format(
-                        release_info["table"], release_info["version"]
+                    "Skipping {table} {version} ({genomebuild}). Already imported.".format(
+                        **release_info
                     )
                 )
                 return False

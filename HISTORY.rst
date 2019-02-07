@@ -3,6 +3,25 @@ History / Changelog
 ===================
 
 -------
+v0.11.8
+-------
+
+Case importer command improved.
+
+End-User Summary
+================
+
+- Case import command registers database version that was used during annotation.
+
+Full Change List
+================
+
+- Case import also imports annotation release infos into new table.
+- Import information now also recognizes the genomebuild.
+- Tests for case importer.
+- Fixed bug that didn't distinguish gzipped from plain text import files.
+
+-------
 v0.11.7
 -------
 

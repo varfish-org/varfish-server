@@ -463,6 +463,25 @@ def delete_case_cascaded(sender, instance, **kwargs):
         SmallVariant.objects.filter(case_id=instance.id).delete()
 
 
+class AnnotationReleaseInfo(models.Model):
+    """Model to track the database releases used during annotation of a case.
+    """
+
+    #: Release of genomebuild
+    genomebuild = models.CharField(max_length=32, default="GRCh37")
+    #: Name of imported table
+    table = models.CharField(max_length=16)
+    #: Timestamp of import
+    timestamp = models.DateTimeField(auto_now_add=True, editable=False)
+    #: Data release
+    release = models.CharField(max_length=512)
+    #: Link to case
+    case = models.ForeignKey(Case)
+
+    class Meta:
+        unique_together = ("genomebuild", "table", "release", "case")
+
+
 #: File type choices for ``ExportFileBgJob``.
 EXPORT_TYPE_CHOICE_TSV = "tsv"
 EXPORT_TYPE_CHOICE_XLSX = "xlsx"
