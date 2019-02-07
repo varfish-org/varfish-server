@@ -2,16 +2,19 @@
 History / Changelog
 ===================
 
-----
-HEAD
-----
+-------
+v0.11.4
+-------
 
-In development.
+This is a quick release to fix a bug in retrieving the results from
+a filter job. This was caused by the celery worker in the production system
+configuration.
 
 End-User Summary
 ================
 
 - Zooming in QC plot is now supported.
+- Fixing bug in delivering filter results.
 
 Full Change List
 ================
@@ -21,6 +24,7 @@ Full Change List
   Further, users can now enable and disable plotting of certain data points by clicking.
   This is hugely useful for debugging meta data.
 - Allow skipping Selenium tests
+- Fixing bug with celery worker for submitting filter jobs affecting production system.
 
 -------
 v0.11.3

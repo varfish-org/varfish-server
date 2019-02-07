@@ -73,6 +73,7 @@ from .tasks import (
     project_cases_filter_task,
 )
 from .file_export import RowWithSampleProxy
+from . import submit_filter
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -444,11 +445,13 @@ class CasePrefetchFilterView(
             # Take time while job is running
             before = timezone.now()
             # Submit job
-            filter_job_running = filter_task.delay(
-                filter_job_pk=filter_job.pk, small_variant_query_pk=small_variant_query.pk
-            )
+            # filter_job_running = filter_task.delay(
+            #     filter_job_pk=filter_job.pk, small_variant_query_pk=small_variant_query.pk
+            # )
+            # rows, num_results = filter_job_running.wait()
+            # Run job TODO replace by asyncronous call again
+            rows, num_results = submit_filter.case_filter(filter_job, small_variant_query)
             # Wait for job to end
-            rows, num_results = filter_job_running.wait()
             elapsed = timezone.now() - before
 
             return render(
