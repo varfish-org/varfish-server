@@ -1,20 +1,37 @@
 """Tests for the filter view"""
 
+import json
+
 import aldjemy.core
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.utils import timezone
 from test_plus.test import TestCase
+from requests_mock import Mocker
 
 from projectroles.models import Project
-from variants.models import SmallVariant, ExportFileBgJob, Case, ExportFileJobResult
+from variants.models import (
+    Case,
+    SmallVariant,
+    ExportFileBgJob,
+    ExportFileJobResult,
+    FilterBgJob,
+    ProjectCasesFilterBgJob,
+    ExportProjectCasesFileBgJob,
+    ExportProjectCasesFileBgJobResult,
+    SmallVariantQuery,
+    ProjectCasesSmallVariantQuery,
+    DistillerSubmissionBgJob,
+    ComputeProjectVariantsStatsBgJob,
+    SmallVariantFlags,
+    SmallVariantComment,
+)
 from variants.variant_stats import rebuild_case_variant_stats
 from clinvar.models import Clinvar
 from frequencies.models import Exac, GnomadGenomes, GnomadExomes, ThousandGenomes
+from conservation.models import KnowngeneAA
 
 from ._fixtures import CLINVAR_DEFAULTS, CLINVAR_FORM_DEFAULTS
-
-import json
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
@@ -40,6 +57,120 @@ DEFAULT_FILTER_FORM_SETTING = {
     "A_gq": 0,
     "A_ad": 0,
     "A_ab": 0.0,
+    "A_export": True,
+    "compound_recessive_enabled": False,
+    "effect_coding_transcript_intron_variant": True,
+    "effect_complex_substitution": True,
+    "effect_direct_tandem_duplication": True,
+    "effect_disruptive_inframe_deletion": True,
+    "effect_disruptive_inframe_insertion": True,
+    "effect_downstream_gene_variant": True,
+    "effect_feature_truncation": True,
+    "effect_five_prime_UTR_exon_variant": True,
+    "effect_five_prime_UTR_intron_variant": True,
+    "effect_frameshift_elongation": True,
+    "effect_frameshift_truncation": True,
+    "effect_frameshift_variant": True,
+    "effect_inframe_deletion": True,
+    "effect_inframe_insertion": True,
+    "effect_intergenic_variant": True,
+    "effect_internal_feature_elongation": True,
+    "effect_missense_variant": True,
+    "effect_mnv": True,
+    "effect_non_coding_transcript_exon_variant": True,
+    "effect_non_coding_transcript_intron_variant": True,
+    "effect_splice_acceptor_variant": True,
+    "effect_splice_donor_variant": True,
+    "effect_splice_region_variant": True,
+    "effect_start_lost": True,
+    "effect_stop_gained": True,
+    "effect_stop_lost": True,
+    "effect_stop_retained_variant": True,
+    "effect_structural_variant": True,
+    "effect_synonymous_variant": True,
+    "effect_three_prime_UTR_exon_variant": True,
+    "effect_three_prime_UTR_intron_variant": True,
+    "effect_transcript_ablation": True,
+    "effect_upstream_gene_variant": True,
+    "exac_enabled": False,
+    "exac_frequency": 1.0,
+    "exac_heterozygous": 1000,
+    "exac_homozygous": 1000,
+    "file_type": "xlsx",
+    "export_flags": True,
+    "export_comments": True,
+    "gnomad_exomes_enabled": False,
+    "gnomad_exomes_frequency": 1.0,
+    "gnomad_exomes_heterozygous": 1000,
+    "gnomad_exomes_homozygous": 1000,
+    "gnomad_genomes_enabled": False,
+    "gnomad_genomes_frequency": 1.0,
+    "gnomad_genomes_heterozygous": 1000,
+    "gnomad_genomes_homozygous": 1000,
+    "result_rows_limit": 80,
+    "thousand_genomes_enabled": False,
+    "thousand_genomes_frequency": 1.0,
+    "thousand_genomes_heterozygous": 1000,
+    "thousand_genomes_homozygous": 1000,
+    "var_type_indel": True,
+    "var_type_mnv": True,
+    "var_type_snv": True,
+    "transcripts_noncoding": True,
+    "transcripts_coding": True,
+    "require_in_clinvar": False,
+    "require_in_hgmd_public": False,
+    "clinvar_include_benign": False,
+    "clinvar_include_likely_benign": False,
+    "clinvar_include_uncertain_significance": False,
+    "clinvar_include_likely_pathogenic": True,
+    "clinvar_include_pathogenic": True,
+    "display_hgmd_public_membership": False,
+    # Gene lists
+    "gene_blacklist": "",
+    "gene_whitelist": "",
+    # Flags
+    "flag_bookmarked": True,
+    "flag_candidate": True,
+    "flag_final_causative": True,
+    "flag_for_validation": True,
+    "flag_phenotype_match_empty": True,
+    "flag_phenotype_match_negative": True,
+    "flag_phenotype_match_positive": True,
+    "flag_phenotype_match_uncertain": True,
+    "flag_simple_empty": True,
+    "flag_summary_empty": True,
+    "flag_summary_negative": True,
+    "flag_summary_positive": True,
+    "flag_summary_uncertain": True,
+    "flag_validation_empty": True,
+    "flag_validation_negative": True,
+    "flag_validation_positive": True,
+    "flag_validation_uncertain": True,
+    "flag_visual_empty": True,
+    "flag_visual_negative": True,
+    "flag_visual_positive": True,
+    "flag_visual_uncertain": True,
+    # Submit buttons
+    "submit": "display",
+}
+
+# Default joint filter form settings
+DEFAULT_JOINT_FILTER_FORM_SETTING = {
+    "database_select": "refseq",
+    "A_fail": "ignore",
+    "A_gt": "any",
+    "A_dp_het": 0,
+    "A_dp_hom": 0,
+    "A_gq": 0,
+    "A_ad": 0,
+    "A_ab": 0.0,
+    "B_fail": "ignore",
+    "B_gt": "any",
+    "B_dp_het": 0,
+    "B_dp_hom": 0,
+    "B_gq": 0,
+    "B_ad": 0,
+    "B_ab": 0.0,
     "compound_recessive_enabled": False,
     "effect_coding_transcript_intron_variant": True,
     "effect_complex_substitution": True,
@@ -145,6 +276,94 @@ DEFAULT_RESUBMIT_SETTING = {
     "A_gq": 0,
     "A_ad": 0,
     "A_ab": 0.0,
+    "A_export": True,
+    "compound_recessive_enabled": False,
+    "effects": [
+        "coding_transcript_intron_variant",
+        "complex_substitution",
+        "direct_tandem_duplication",
+        "disruptive_inframe_deletion",
+        "disruptive_inframe_insertion",
+        "downstream_gene_variant",
+        "feature_truncation",
+        "five_prime_UTR_exon_variant",
+        "five_prime_UTR_intron_variant",
+        "frameshift_elongation",
+        "frameshift_truncation",
+        "frameshift_variant",
+        "inframe_deletion",
+        "inframe_insertion",
+        "intergenic_variant",
+        "internal_feature_elongation",
+        "missense_variant",
+        "mnv",
+        "non_coding_transcript_exon_variant",
+        "non_coding_transcript_intron_variant",
+        "splice_acceptor_variant",
+        "splice_donor_variant",
+        "splice_region_variant",
+        "start_lost",
+        "stop_gained",
+        "stop_lost",
+        "stop_retained_variant",
+        "structural_variant",
+        "synonymous_variant",
+        "three_prime_UTR_exon_variant",
+        "three_prime_UTR_intron_variant",
+        "transcript_ablation",
+        "upstream_gene_variant",
+    ],
+    "exac_enabled": False,
+    "exac_frequency": 1.0,
+    "exac_heterozygous": 1000,
+    "exac_homozygous": 1000,
+    "file_type": "xlsx",
+    "export_flags": True,
+    "export_comments": True,
+    "gene_blacklist": "",
+    "gene_whitelist": "",
+    "gnomad_exomes_enabled": False,
+    "gnomad_exomes_frequency": 1.0,
+    "gnomad_exomes_heterozygous": 1000,
+    "gnomad_exomes_homozygous": 1000,
+    "gnomad_genomes_enabled": False,
+    "gnomad_genomes_frequency": 1.0,
+    "gnomad_genomes_heterozygous": 1000,
+    "gnomad_genomes_homozygous": 1000,
+    "result_rows_limit": 80,
+    "thousand_genomes_enabled": False,
+    "thousand_genomes_frequency": 1.0,
+    "thousand_genomes_heterozygous": 1000,
+    "thousand_genomes_homozygous": 1000,
+    "var_type_indel": True,
+    "var_type_mnv": True,
+    "var_type_snv": True,
+    "transcripts_noncoding": True,
+    "transcripts_coding": True,
+    "require_in_clinvar": False,
+    "require_in_hgmd_public": False,
+    "submit": "display",
+}
+
+
+DEFAULT_JOINT_RESUBMIT_SETTING = {
+    "database_select": "refseq",
+    "A_fail": "ignore",
+    "A_gt": "any",
+    "A_dp_het": 0,
+    "A_dp_hom": 0,
+    "A_gq": 0,
+    "A_ad": 0,
+    "A_ab": 0.0,
+    "A_export": True,
+    "B_fail": "ignore",
+    "B_gt": "any",
+    "B_dp_het": 0,
+    "B_dp_hom": 0,
+    "B_gq": 0,
+    "B_ad": 0,
+    "B_ab": 0.0,
+    "B_export": True,
     "compound_recessive_enabled": False,
     "effects": [
         "coding_transcript_intron_variant",
@@ -276,9 +495,9 @@ def fixture_setup_case(user):
         "ensembl_effect": ["synonymous_variant"],
     }
 
-    SmallVariant.objects.create(**{**basic_var, **{"position": 100}})
-    SmallVariant.objects.create(**{**basic_var, **{"position": 200, "in_clinvar": True}})
-    SmallVariant.objects.create(**{**basic_var, **{"position": 300}})
+    a = SmallVariant.objects.create(**{**basic_var, **{"position": 100}})
+    b = SmallVariant.objects.create(**{**basic_var, **{"position": 200, "in_clinvar": True}})
+    c = SmallVariant.objects.create(**{**basic_var, **{"position": 300}})
 
     rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case)
 
@@ -293,6 +512,183 @@ def fixture_setup_case(user):
             "review_status": ["practice guideline"],
             "review_status_ordered": ["practice guideline"],
         }
+    )
+
+    job = project.backgroundjob_set.create(
+        sodar_uuid="97a65500-377b-4aa0-880d-9ba56d06a962", user=user, job_type="type"
+    )
+
+    smallvariantquery = SmallVariantQuery.objects.create(
+        case=case,
+        user=user,
+        form_id="1",
+        form_version=1,
+        query_settings=DEFAULT_RESUBMIT_SETTING,
+        public=False,
+    )
+
+    smallvariantquery.query_results.add(a, c)
+
+    return project.filterbgjob_set.create(
+        sodar_uuid="10aabb75-7d61-46a9-955a-f385824b3201",
+        bg_job=job,
+        case=case,
+        smallvariantquery=smallvariantquery,
+    )
+
+
+def fixture_setup_projectcases(user):
+    """Set up test case for filter tests. Contains a case with three variants."""
+    project = Project.objects.create(**PROJECT_DICT)
+    case1 = project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e4",
+        name="A",
+        index="A",
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
+    )
+    case2 = project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e5",
+        name="B",
+        index="B",
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "B",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
+    )
+
+    basic_var = {
+        "case_id": None,
+        "release": "GRCh37",
+        "chromosome": "1",
+        "position": None,
+        "reference": "A",
+        "alternative": "G",
+        "var_type": "snv",
+        "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+        "in_clinvar": False,
+        # frequencies
+        "exac_frequency": 0.01,
+        "exac_homozygous": 0,
+        "exac_heterozygous": 0,
+        "exac_hemizygous": 0,
+        "thousand_genomes_frequency": 0.01,
+        "thousand_genomes_homozygous": 0,
+        "thousand_genomes_heterozygous": 0,
+        "thousand_genomes_hemizygous": 0,
+        "gnomad_exomes_frequency": 0.01,
+        "gnomad_exomes_homozygous": 0,
+        "gnomad_exomes_heterozygous": 0,
+        "gnomad_exomes_hemizygous": 0,
+        "gnomad_genomes_frequency": 0.01,
+        "gnomad_genomes_homozygous": 0,
+        "gnomad_genomes_heterozygous": 0,
+        "gnomad_genomes_hemizygous": 0,
+        # RefSeq
+        "refseq_gene_id": "1234",
+        "refseq_transcript_id": "NR_00001.1",
+        "refseq_transcript_coding": False,
+        "refseq_hgvs_c": "n.111+2T>C",
+        "refseq_hgvs_p": "p.=",
+        "refseq_effect": ["synonymous_variant"],
+        # ENSEMBL
+        "ensembl_gene_id": "ENSG0001",
+        "ensembl_transcript_id": "ENST00001",
+        "ensembl_transcript_coding": False,
+        "ensembl_hgvs_c": "n.111+2T>C",
+        "ensembl_hgvs_p": "p.=",
+        "ensembl_effect": ["synonymous_variant"],
+    }
+
+    a = SmallVariant.objects.create(**{**basic_var, "case_id": case1.pk, "position": 100})
+    b = SmallVariant.objects.create(
+        **{**basic_var, "case_id": case1.pk, "position": 200, "in_clinvar": True}
+    )
+    c = SmallVariant.objects.create(**{**basic_var, "case_id": case1.pk, "position": 300})
+    d = SmallVariant.objects.create(**{**basic_var, "case_id": case2.pk, "position": 100})
+    e = SmallVariant.objects.create(
+        **{**basic_var, "case_id": case2.pk, "position": 200, "in_clinvar": True}
+    )
+    f = SmallVariant.objects.create(**{**basic_var, "case_id": case2.pk, "position": 300})
+
+    # rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case1)
+    # rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case2)
+
+    Clinvar.objects.create(
+        **{
+            **CLINVAR_DEFAULTS,
+            "position": 200,
+            "start": 200,
+            "stop": 200,
+            "clinical_significance": "pathogenic",
+            "clinical_significance_ordered": ["pathogenic"],
+            "review_status": ["practice guideline"],
+            "review_status_ordered": ["practice guideline"],
+        }
+    )
+
+    job = project.backgroundjob_set.create(
+        sodar_uuid="97a65500-377b-4aa0-880d-9ba56d06a963", user=user, job_type="type"
+    )
+
+    projectcasessmallvariantquery = ProjectCasesSmallVariantQuery.objects.create(
+        project=project,
+        user=user,
+        form_id="1",
+        form_version=1,
+        query_settings=DEFAULT_JOINT_RESUBMIT_SETTING,
+        public=False,
+    )
+
+    projectcasessmallvariantquery.query_results.add(a, c, d, e, f)
+
+    return project.projectcasesfilterbgjob_set.create(
+        sodar_uuid="10aabb75-7d61-46a9-955a-f385824b3202",
+        bg_job=job,
+        projectcasessmallvariantquery=projectcasessmallvariantquery,
+    )
+
+
+def fixture_setup_distiller(user):
+    """Create setup for distiller job submission testing."""
+    project = Project.objects.create(**PROJECT_DICT)
+
+    case = project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e6",
+        name="A",
+        index="A",
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
+    )
+
+    job = project.backgroundjob_set.create(
+        sodar_uuid="97a65500-377b-4aa0-880d-9ba56d06a967", user=user, job_type="type"
+    )
+
+    project.distillersubmissionbgjob_set.create(
+        case=case, query_args=DEFAULT_RESUBMIT_SETTING, distiller_project_id="12345", bg_job=job
     )
 
 
@@ -318,6 +714,10 @@ class TestCaseListView(TestViewBase):
     """Test case list view"""
 
     setup_case_in_db = fixture_setup_case
+
+    # TODO
+    #   dp_medians = null
+    #   dp_medians = null
 
     def test_render(self):
         """Test display of case list page."""
@@ -355,8 +755,8 @@ class TestCaseFilterView(TestViewBase):
 
     setup_case_in_db = fixture_setup_case
 
-    def test_get(self):
-        """Test display of the filter forms, no form applied."""
+    def test_status_code_200(self):
+        """Test display of the filter forms, no submit."""
         with self.login(self.user):
             case = Case.objects.select_related("project").first()
             response = self.client.get(
@@ -367,35 +767,6 @@ class TestCaseFilterView(TestViewBase):
             )
 
             self.assertEqual(response.status_code, 200)
-
-    # def test_form_valid_post_display(self):
-    #     """Test form submit to display results table."""
-    #     with self.login(self.user):
-    #         case = Case.objects.select_related("project").first()
-    #         response = self.client.post(
-    #             reverse(
-    #                 "variants:case-filter",
-    #                 kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
-    #             ),
-    #             DEFAULT_FILTER_FORM_SETTING,
-    #         )
-    #         self.assertEqual(response.status_code, 200)
-    #         self.assertTrue(response.context["form"].is_valid())
-    #         self.assertEqual(response.context["result_count"], 3)
-    #
-    # def test_form_invalid_post_display(self):
-    #     """Test invalid form submit."""
-    #     with self.login(self.user):
-    #         case = Case.objects.select_related("project").first()
-    #         response = self.client.post(
-    #             reverse(
-    #                 "variants:case-filter",
-    #                 kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
-    #             ),
-    #             {**DEFAULT_FILTER_FORM_SETTING, "gnomad_exomes_heterozygous": None},
-    #         )
-    #         self.assertEqual(response.status_code, 200)
-    #         self.assertFalse(response.context["form"].is_valid())
 
     def test_post_download(self):
         """Test form submit for download as file."""
@@ -419,11 +790,501 @@ class TestCaseFilterView(TestViewBase):
                 ),
             )
 
+    @Mocker()
+    def test_post_mutation_distiller(self, mock):
+        with self.login(self.user):
+            from ..submit_external import DISTILLER_POST_URL
+
+            mock.post(
+                DISTILLER_POST_URL,
+                status_code=200,
+                text=(
+                    '\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\n<HTM'
+                    'L>\n<HEAD>\n<TITLE>testsubmission - QueryEngine initialising</TITLE>\n<meta http-equiv="refresh" content="5; U'
+                    'RL=/temp/QE/vcf_10585_21541/progress.html">\n<link href="/MutationTaster/css.css" rel="stylesheet" type="text/'
+                    'css">\n</head><body>\n\n\t\t<table  border="0" width="100%" cellspacing="20">\n\t\t\t<tr>\n\t\t\t\t<td style="'
+                    'text-align:center"><img src="/MutationTaster/MutationTaster_small.png" alt="Yum, tasty mutations..." align="le'
+                    'ft"></td>\n\t\t\t\t<td ><h1>testsubmission - QueryEngine initialising</h1></td>\n\t\t\t\t<td><A HREF="/Mutatio'
+                    'nTaster/info/MTQE_documentation.html" TARGET="_blank">MTQE documentation</A></td>\n\t\t\t</tr>\n\t\t</table> <'
+                    "h1>testsubmission - QueryEngine initialising</h1>\n<h2>We are uploading your file. NEVER press reload or F5 - "
+                    "unless you want to start from the very beginning. </h2>MutationTaster QueryEngine: vcf number 10585<br>"
+                ),
+            )
+            self.assertEquals(DistillerSubmissionBgJob.objects.count(), 0)
+            case = Case.objects.select_related("project").first()
+
+            response = self.client.post(
+                reverse(
+                    "variants:case-filter",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {**DEFAULT_FILTER_FORM_SETTING, "submit": "submit-mutationdistiller"},
+            )
+            self.assertEquals(DistillerSubmissionBgJob.objects.count(), 1)
+            created_job = DistillerSubmissionBgJob.objects.first()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:distiller-job-detail",
+                    kwargs={"project": case.project.sodar_uuid, "job": created_job.sodar_uuid},
+                ),
+            )
+
+
+class TestCasePrefetchFilterView(TestViewBase):
+    """Tests for CasePrefetchFilterView.
+    """
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_count_results(self):
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+            response = self.client.post(
+                reverse(
+                    "variants:case-filter-results",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                DEFAULT_FILTER_FORM_SETTING,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
+                str(FilterBgJob.objects.last().sodar_uuid),
+            )
+
+    def test_invalid_form(self):
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+            response = self.client.post(
+                reverse(
+                    "variants:case-filter-results",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {**DEFAULT_FILTER_FORM_SETTING, "exac_frequency": "I am supposed to be a float."},
+            )
+
+            self.assertEqual(response.status_code, 400)
+            self.assertTrue("exac_frequency" in json.loads(response.content.decode("utf-8")))
+
+
+class TestCaseFilterJobView(TestViewBase):
+    """Tests for CaseFilterJobView.
+    """
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_status_code_200(self):
+        # Add a BackgroundJob/SmallVAriantQuery entry that this operation can work on.
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+            bgjob = FilterBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:case-filter-job",
+                    kwargs={
+                        "project": case.project.sodar_uuid,
+                        "case": case.sodar_uuid,
+                        "job": bgjob.sodar_uuid,
+                    },
+                ),
+                DEFAULT_FILTER_FORM_SETTING,
+            )
+            self.assertEqual(response.status_code, 200)
+
+
+class TestCaseLoadPrefetchedFilterView(TestViewBase):
+    """Tests for CaseLoadPrefetchedFilterView.
+    """
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_count_results(self):
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+            response = self.client.post(
+                reverse(
+                    "variants:case-load-filter-results",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {
+                    **DEFAULT_FILTER_FORM_SETTING,
+                    "filter_job_uuid": FilterBgJob.objects.first().sodar_uuid,
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["result_count"], 2)
+
+
+class TestFilterJobDetailView(TestViewBase):
+    """Tests for FilterJobDetailView.
+    """
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_status_code_200(self):
+        with self.login(self.user):
+            bgjob = FilterBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:filter-job-detail",
+                    kwargs={"project": bgjob.project.sodar_uuid, "job": bgjob.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_correct_case_name(self):
+        with self.login(self.user):
+            bgjob = FilterBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:filter-job-detail",
+                    kwargs={"project": bgjob.project.sodar_uuid, "job": bgjob.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.context["object"].case.name, "A")
+
+
+class TestFilterJobResubmitView(TestViewBase):
+    """Tests for FilterJobResubmitView.
+    """
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_redirect(self):
+        with self.login(self.user):
+            bgjob = FilterBgJob.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:filter-job-resubmit",
+                    kwargs={"project": bgjob.project.sodar_uuid, "job": bgjob.sodar_uuid},
+                )
+            )
+            created_job = FilterBgJob.objects.last()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:filter-job-detail",
+                    kwargs={
+                        "project": created_job.project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
+                ),
+            )
+
+
+class TestFilterJobGetStatus(TestViewBase):
+    """Tests for FilterJobGetStatusView.
+    """
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_getting_status_valid_uuid(self):
+        with self.login(self.user):
+            bgjob = FilterBgJob.objects.first()
+            response = self.client.post(
+                reverse("variants:filter-job-status", kwargs={"project": bgjob.project.sodar_uuid}),
+                {"filter_job_uuid": bgjob.sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["status"], "initial")
+
+    def test_getting_status_invalid_uuid(self):
+        with self.login(self.user):
+            bgjob = FilterBgJob.objects.first()
+            response = self.client.post(
+                reverse("variants:filter-job-status", kwargs={"project": bgjob.project.sodar_uuid}),
+                {"filter_job_uuid": "cccccccc-cccc-cccc-cccc-cccccccccccc"},
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
+
+    def test_getting_status_missing_uuid(self):
+        with self.login(self.user):
+            bgjob = FilterBgJob.objects.first()
+            response = self.client.post(
+                reverse("variants:filter-job-status", kwargs={"project": bgjob.project.sodar_uuid}),
+                {"filter_job_uuid": None},
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
+
+
+class TestFilterJobGetPrevious(TestViewBase):
+    """Tests for FilterJobGetPreviousView.
+    """
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_getting_previous_job_existing(self):
+        with self.login(self.user):
+            bgjob = FilterBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:filter-job-previous",
+                    kwargs={"project": bgjob.project.sodar_uuid, "case": bgjob.case.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
+                str(bgjob.sodar_uuid),
+            )
+
+    def test_getting_previous_job_non_existing(self):
+        with self.login(self.user):
+            bgjob = FilterBgJob.objects.first()
+            project = bgjob.project.sodar_uuid
+            case = bgjob.case.sodar_uuid
+            bgjob.delete()
+            response = self.client.get(
+                reverse("variants:filter-job-previous", kwargs={"project": project, "case": case})
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["filter_job_uuid"], None)
+
+
+class TestProjectCasesFilterJobGetStatus(TestViewBase):
+    """Tests for ProjectCasesFilterJobGetStatusView.
+    """
+
+    setup_case_in_db = fixture_setup_projectcases
+
+    def test_getting_status_valid_uuid(self):
+        with self.login(self.user):
+            bgjob = ProjectCasesFilterBgJob.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-filter-job-status",
+                    kwargs={"project": bgjob.project.sodar_uuid},
+                ),
+                {"filter_job_uuid": bgjob.sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["status"], "initial")
+
+    def test_getting_status_invalid_uuid(self):
+        with self.login(self.user):
+            bgjob = ProjectCasesFilterBgJob.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-filter-job-status",
+                    kwargs={"project": bgjob.project.sodar_uuid},
+                ),
+                {"filter_job_uuid": "cccccccc-cccc-cccc-cccc-cccccccccccc"},
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
+
+    def test_getting_status_missing_uuid(self):
+        with self.login(self.user):
+            bgjob = ProjectCasesFilterBgJob.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-filter-job-status",
+                    kwargs={"project": bgjob.project.sodar_uuid},
+                ),
+                {"filter_job_uuid": None},
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
+
+
+class TestProjectCasesFilterJobGetPrevious(TestViewBase):
+    """Tests for ProjectCasesFilterJobGetPreviousView.
+    """
+
+    setup_case_in_db = fixture_setup_projectcases
+
+    def test_getting_previous_job_existing(self):
+        with self.login(self.user):
+            bgjob = ProjectCasesFilterBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-job-previous",
+                    kwargs={"project": bgjob.project.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
+                str(bgjob.sodar_uuid),
+            )
+
+    def test_getting_previous_job_non_existing(self):
+        with self.login(self.user):
+            bgjob = ProjectCasesFilterBgJob.objects.first()
+            project = bgjob.project.sodar_uuid
+            bgjob.delete()
+            response = self.client.get(
+                reverse("variants:project-cases-filter-job-previous", kwargs={"project": project})
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["filter_job_uuid"], None)
+
+
+class TestProjectCasesFilterView(TestViewBase):
+    """Tests for FilterProjectCasesFilterView.
+    """
+
+    setup_case_in_db = fixture_setup_projectcases
+
+    def test_status_code_200(self):
+        """Test display of the filter forms, no submit."""
+        with self.login(self.user):
+            project = Project.objects.first()
+            response = self.client.get(
+                reverse("variants:project-cases-filter", kwargs={"project": project.sodar_uuid})
+            )
+
+            self.assertEqual(response.status_code, 200)
+
+    def test_post_download(self):
+        """Test form submit for download as file."""
+        with self.login(self.user):
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 0)
+            project = Project.objects.first()
+            response = self.client.post(
+                reverse("variants:project-cases-filter", kwargs={"project": project.sodar_uuid}),
+                {**DEFAULT_JOINT_FILTER_FORM_SETTING, "submit": "download"},
+            )
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 1)
+            created_job = ExportProjectCasesFileBgJob.objects.first()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:project-cases-export-job-detail",
+                    kwargs={"project": project.sodar_uuid, "job": created_job.sodar_uuid},
+                ),
+            )
+
+
+class TestProjectCasesPrefetchFilterView(TestViewBase):
+    """Tests for FilterProjectCasesPrefetchFilterView.
+    """
+
+    setup_case_in_db = fixture_setup_projectcases
+
+    def test_count_results(self):
+        with self.login(self.user):
+            project = Project.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-filter-results", kwargs={"project": project.sodar_uuid}
+                ),
+                DEFAULT_JOINT_FILTER_FORM_SETTING,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
+                str(ProjectCasesFilterBgJob.objects.last().sodar_uuid),
+            )
+
+    def test_invalid_form(self):
+        with self.login(self.user):
+            project = Project.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-filter-results", kwargs={"project": project.sodar_uuid}
+                ),
+                {
+                    **DEFAULT_JOINT_FILTER_FORM_SETTING,
+                    "exac_frequency": "I am supposed to be a float.",
+                },
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertTrue("exac_frequency" in json.loads(response.content.decode("utf-8")))
+
+
+class TestProjectCasesFilterJobDetailView(TestViewBase):
+    """Tests for ProjectCasesFilterJobDetailView.
+    """
+
+    setup_case_in_db = fixture_setup_projectcases
+
+    def test_status_code_200(self):
+        with self.login(self.user):
+            bgjob = ProjectCasesFilterBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-job-detail",
+                    kwargs={"project": bgjob.project.sodar_uuid, "job": bgjob.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_correct_project_name(self):
+        with self.login(self.user):
+            bgjob = ProjectCasesFilterBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-job-detail",
+                    kwargs={"project": bgjob.project.sodar_uuid, "job": bgjob.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.context["object"].project.title, "project")
+
+
+class TestProjectCasesLoadPrefetchedFilterView(TestViewBase):
+    """Tests for ProjectCasesLoadPrefetchedFilterView.
+    """
+
+    setup_case_in_db = fixture_setup_projectcases
+
+    def test_count_results(self):
+        with self.login(self.user):
+            project = Project.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-load-filter-results",
+                    kwargs={"project": project.sodar_uuid},
+                ),
+                {
+                    **DEFAULT_JOINT_FILTER_FORM_SETTING,
+                    "filter_job_uuid": ProjectCasesFilterBgJob.objects.first().sodar_uuid,
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["result_count"], 5)
+
+
+class TestProjectCasesFilterJobResubmitView(TestViewBase):
+    """Tests for ProjectCasesFilterJobResubmitView.
+    """
+
+    setup_case_in_db = fixture_setup_projectcases
+
+    def test_redirect(self):
+        with self.login(self.user):
+            bgjob = ProjectCasesFilterBgJob.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-filter-job-resubmit",
+                    kwargs={"project": bgjob.project.sodar_uuid, "job": bgjob.sodar_uuid},
+                )
+            )
+            created_job = ProjectCasesFilterBgJob.objects.last()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:project-cases-filter-job-detail",
+                    kwargs={
+                        "project": created_job.project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
+                ),
+            )
+
 
 class TestCaseClinvarReportView(TestViewBase):
     """Test case Clinvar report view"""
 
     setup_case_in_db = fixture_setup_case
+
+    # TODO
+    #   _yield_grouped_rows: when candidates = null
+    #     status_level(status): when status not found
+    #     sig_level(significance): when significance not found
 
     def test_get_renders_form(self):
         """Test that GET returns the form"""
@@ -452,6 +1313,92 @@ class TestCaseClinvarReportView(TestViewBase):
             self.assertEqual(response.status_code, 200)
             result_rows = list(response.context[-1].get("result_rows"))
             self.assertEquals(len(result_rows), 1)
+
+
+class TestDistillerSubmissionJobDetailView(TestViewBase):
+    """Tests for DistillerSubmissionJobDetailView.
+    """
+
+    setup_case_in_db = fixture_setup_distiller
+
+    def test_status_code_200(self):
+        with self.login(self.user):
+            bgjob = DistillerSubmissionBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:distiller-job-detail",
+                    kwargs={"project": bgjob.project.sodar_uuid, "job": bgjob.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_correct_case_name(self):
+        with self.login(self.user):
+            bgjob = DistillerSubmissionBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:distiller-job-detail",
+                    kwargs={"project": bgjob.project.sodar_uuid, "job": bgjob.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.context["object"].case.name, "A")
+
+
+class TestDistillerSubmissionJobResubmitView(TestViewBase):
+    """Tests for DistillerSubmissionJobResubmitView.
+    """
+
+    setup_case_in_db = fixture_setup_case
+
+    @Mocker()
+    def test_resubmission(self, mock):
+        with self.login(self.user):
+            # Mock post
+            from ..submit_external import DISTILLER_POST_URL
+
+            mock.post(
+                DISTILLER_POST_URL,
+                status_code=200,
+                text=(
+                    '\n<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\n<HTM'
+                    'L>\n<HEAD>\n<TITLE>testsubmission - QueryEngine initialising</TITLE>\n<meta http-equiv="refresh" content="5; U'
+                    'RL=/temp/QE/vcf_10585_21541/progress.html">\n<link href="/MutationTaster/css.css" rel="stylesheet" type="text/'
+                    'css">\n</head><body>\n\n\t\t<table  border="0" width="100%" cellspacing="20">\n\t\t\t<tr>\n\t\t\t\t<td style="'
+                    'text-align:center"><img src="/MutationTaster/MutationTaster_small.png" alt="Yum, tasty mutations..." align="le'
+                    'ft"></td>\n\t\t\t\t<td ><h1>testsubmission - QueryEngine initialising</h1></td>\n\t\t\t\t<td><A HREF="/Mutatio'
+                    'nTaster/info/MTQE_documentation.html" TARGET="_blank">MTQE documentation</A></td>\n\t\t\t</tr>\n\t\t</table> <'
+                    "h1>testsubmission - QueryEngine initialising</h1>\n<h2>We are uploading your file. NEVER press reload or F5 - "
+                    "unless you want to start from the very beginning. </h2>MutationTaster QueryEngine: vcf number 10585<br>"
+                ),
+            )
+            self.assertEquals(DistillerSubmissionBgJob.objects.count(), 0)
+            case = Case.objects.select_related("project").first()
+            # Create background job
+            self.client.post(
+                reverse(
+                    "variants:case-filter",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {**DEFAULT_FILTER_FORM_SETTING, "submit": "submit-mutationdistiller"},
+            )
+            first_bgjob = DistillerSubmissionBgJob.objects.last()
+            # Re-submit background job
+            response = self.client.post(
+                reverse(
+                    "variants:distiller-job-resubmit",
+                    kwargs={"project": case.project.sodar_uuid, "job": first_bgjob.sodar_uuid},
+                )
+            )
+            # Check existence of resubmitted job
+            self.assertEquals(DistillerSubmissionBgJob.objects.count(), 2)
+            second_bgjob = DistillerSubmissionBgJob.objects.last()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:distiller-job-detail",
+                    kwargs={"project": case.project.sodar_uuid, "job": second_bgjob.sodar_uuid},
+                ),
+            )
 
 
 def fixture_setup_small_variant_details(user):
@@ -612,23 +1559,42 @@ def fixture_setup_small_variant_details(user):
             **{"ac_asj": 0, "an_asj": 323, "hemi_asj": None, "hom_asj": 0, "af_asj": 0.0},
         }
     )
+    KnowngeneAA.objects.create(
+        chromosome="1", start=99, end=101, transcript_id="ENSG0001", alignment="XXX"
+    )
+    Clinvar.objects.create(
+        **{
+            **CLINVAR_DEFAULTS,
+            "position": 100,
+            "start": 100,
+            "stop": 100,
+            "clinical_significance": "pathogenic",
+            "clinical_significance_ordered": ["pathogenic"],
+            "review_status": ["practice guideline"],
+            "review_status_ordered": ["practice guideline"],
+        }
+    )
 
 
-class TestSmallVariantsDetailsView(TestViewBase):
+class TestSmallVariantDetailsView(TestViewBase):
     """Test variant details view"""
 
     setup_case_in_db = fixture_setup_small_variant_details
 
+    # TODO
+    #   _get_gene_infos database refseq
+    #   _get_gene_infos with data from gene
+    #   if self.request.GET.get("render_full", "no").lower() in ("yes", "true"): ... true
+
     def test_render(self):
         """Test rendering of the variant detail view"""
         with self.login(self.user):
-            project = Project.objects.first()
             case = Case.objects.first()
             response = self.client.get(
                 reverse(
                     "variants:small-variant-details",
                     kwargs={
-                        "project": project.sodar_uuid,
+                        "project": case.project.sodar_uuid,
                         "case": case.sodar_uuid,
                         "release": "GRCh37",
                         "chromosome": "1",
@@ -641,7 +1607,34 @@ class TestSmallVariantsDetailsView(TestViewBase):
                 )
             )
             self.assertEqual(response.status_code, 200)
-            # TODO: actually test returned values
+
+    def test_content(self):
+        with self.login(self.user):
+            case = Case.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:small-variant-details",
+                    kwargs={
+                        "project": case.project.sodar_uuid,
+                        "case": case.sodar_uuid,
+                        "release": "GRCh37",
+                        "chromosome": "1",
+                        "position": 100,
+                        "reference": "A",
+                        "alternative": "G",
+                        "database": "refseq",
+                        "gene_id": "12345",
+                    },
+                )
+            )
+            self.assertEqual(response.context["pop_freqs"]["gnomAD Exomes"]["AFR"]["af"], 0.0001146)
+            self.assertEqual(
+                response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["af"], 0.0001146
+            )
+            self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["af"], 0.0001146)
+            self.assertEqual(response.context["pop_freqs"]["1000GP"]["AMR"]["af"], 0.0054)
+            self.assertEqual(response.context["clinvar"][0]["clinical_significance"], "pathogenic")
+            self.assertEqual(response.context["knowngeneaa"][0]["alignment"], "XXX")
 
 
 def fixture_setup_bgjob(user):
@@ -790,3 +1783,376 @@ class TestExportFileJobDownloadViewResult(TestViewBase):
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.content, b"Testcontent")
+
+
+def fixture_setup_projectcases_bgjob(user):
+    """Setup for background job database (no associated file is generated!)"""
+    project = Project.objects.create(**PROJECT_DICT)
+    project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e4",
+        name="A",
+        index="A",
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
+    )
+    project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e5",
+        name="B",
+        index="B",
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "B",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
+    )
+    job = project.backgroundjob_set.create(
+        sodar_uuid="97a65500-377b-4aa0-880d-9ba56d06a961", user=user, job_type="type"
+    )
+    return project.exportprojectcasesfilebgjob_set.create(
+        sodar_uuid="10aabb75-7d61-46a9-955a-f385824b3200",
+        bg_job=job,
+        query_args=DEFAULT_JOINT_RESUBMIT_SETTING,
+        file_type="xlsx",
+    )
+
+
+def fixture_setup_projectcases_bgjob_result(user):
+    job = fixture_setup_projectcases_bgjob(user)
+
+    ExportProjectCasesFileBgJobResult.objects.create(
+        job=job, expiry_time=timezone.now(), payload=b"Testcontent"
+    )
+
+
+class TestExportProjectCasesFileJobResubmitView(TestViewBase):
+    """Test ExportProjectCasesFileJobResubmitView.
+    """
+
+    setup_case_in_db = fixture_setup_projectcases_bgjob
+
+    def test_resubmission(self):
+        """Test if file resubmission works."""
+        with self.login(self.user):
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 1)
+            existing_job = ExportProjectCasesFileBgJob.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-export-job-resubmit",
+                    kwargs={
+                        "project": existing_job.project.sodar_uuid,
+                        "job": existing_job.sodar_uuid,
+                    },
+                ),
+                {"file_type": "xlsx"},
+            )
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 2)
+            created_job = ExportProjectCasesFileBgJob.objects.first()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:project-cases-export-job-detail",
+                    kwargs={
+                        "project": created_job.project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
+                ),
+            )
+
+    def test_render_detail_view(self):
+        """Test if rendering works."""
+        with self.login(self.user):
+            existing_job = ExportProjectCasesFileBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-export-job-detail",
+                    kwargs={
+                        "project": existing_job.project.sodar_uuid,
+                        "job": existing_job.sodar_uuid,
+                    },
+                )
+            )
+            self.assertEquals(response.status_code, 200)
+
+
+class TestExportProjectCasesFileJobDownloadView(TestViewBase):
+    """Test ExportProjectCasesFileJobDownloadView.
+    """
+
+    setup_case_in_db = fixture_setup_projectcases_bgjob
+
+    def test_no_file(self):
+        """Test if database entries exist, but no file is generated"""
+        with self.login(self.user):
+            created_job = ExportProjectCasesFileBgJob.objects.select_related("project").first()
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-export-job-download",
+                    kwargs={
+                        "project": created_job.project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
+                )
+            )
+            self.assertEqual(response.status_code, 404)
+
+
+class TestProjectStatsJobCreateView(TestViewBase):
+    """Test ProjectStatsJobCreateView.
+    """
+
+    setup_case_in_db = fixture_setup_projectcases
+
+    def test_project_stat_job_creation(self):
+        with self.login(self.user):
+            project = Project.objects.last()
+            response = self.client.post(
+                reverse("variants:project-stats-job-create", kwargs={"project": project.sodar_uuid})
+            )
+            created_job = ComputeProjectVariantsStatsBgJob.objects.last()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:project-stats-job-detail",
+                    kwargs={
+                        "project": created_job.project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
+                ),
+            )
+
+
+class TestProjectStatsJobDetailView(TestViewBase):
+    """Test ProjectStatsJobDetailView.
+    """
+
+    setup_case_in_db = fixture_setup_projectcases
+
+    def test_render(self):
+        with self.login(self.user):
+            project = Project.objects.last()
+            self.client.post(
+                reverse("variants:project-stats-job-create", kwargs={"project": project.sodar_uuid})
+            )
+            created_job = ComputeProjectVariantsStatsBgJob.objects.last()
+            response = self.client.get(
+                reverse(
+                    "variants:project-stats-job-detail",
+                    kwargs={"project": project.sodar_uuid, "job": created_job.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.context["object"].bg_job.name,
+                "Recreate variant statistic for whole project",
+            )
+
+
+SMALLVARIANT_FLAGS_FORM_DATA = {
+    "release": "GRCh37",
+    "chromosome": "1",
+    "position": 100,
+    "reference": "A",
+    "alternative": "G",
+    "ensembl_gene_id": "ENSG0001",
+    "flag_bookmarked": True,
+    "flag_candidate": False,
+    "flag_final_causative": False,
+    "flag_for_validation": False,
+    "flag_visual": "empty",
+    "flag_validation": "empty",
+    "flag_phenotype_match": "empty",
+    "flag_summary": "empty",
+}
+
+
+class TestSmallVariantFlagsApiView(TestViewBase):
+    """Test SmallVariantFlagsApiView.
+    """
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_get_json_response_non_existing(self):
+        with self.login(self.user):
+            case = Case.objects.last()
+            self.assertEqual(SmallVariantFlags.objects.count(), 0)
+            response = self.client.get(
+                reverse(
+                    "variants:small-variant-flags-api",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {
+                    "release": "GRCh37",
+                    "chromosome": "1",
+                    "position": 100,
+                    "reference": "A",
+                    "alternative": "G",
+                    "ensembl_gene_id": "ENSG0001",
+                },
+            )
+            self.assertEqual(SmallVariantFlags.objects.count(), 0)
+            self.assertEqual(response.status_code, 404)
+
+    def test_post_json_response_non_existing(self):
+        with self.login(self.user):
+            case = Case.objects.last()
+            self.assertEqual(SmallVariantFlags.objects.count(), 0)
+            response = self.client.post(
+                reverse(
+                    "variants:small-variant-flags-api",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                SMALLVARIANT_FLAGS_FORM_DATA,
+            )
+            self.assertEqual(SmallVariantFlags.objects.count(), 1)
+            self.assertEqual(response.status_code, 200)
+
+    def test_get_json_response_existing(self):
+        with self.login(self.user):
+            case = Case.objects.last()
+            # Create variant
+            self.client.post(
+                reverse(
+                    "variants:small-variant-flags-api",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                SMALLVARIANT_FLAGS_FORM_DATA,
+            )
+            # Query variant
+            response = self.client.get(
+                reverse(
+                    "variants:small-variant-flags-api",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {
+                    "release": "GRCh37",
+                    "chromosome": "1",
+                    "position": 100,
+                    "reference": "A",
+                    "alternative": "G",
+                    "ensembl_gene_id": "ENSG0001",
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(json.loads(response.content.decode("utf-8"))["flag_bookmarked"])
+
+    def test_post_json_response_existing(self):
+        with self.login(self.user):
+            case = Case.objects.last()
+            # Create variant
+            self.client.post(
+                reverse(
+                    "variants:small-variant-flags-api",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                SMALLVARIANT_FLAGS_FORM_DATA,
+            )
+            # Query variant
+            response = self.client.post(
+                reverse(
+                    "variants:small-variant-flags-api",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                SMALLVARIANT_FLAGS_FORM_DATA,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(json.loads(response.content.decode("utf-8"))["flag_bookmarked"])
+
+    def test_post_remove_flags(self):
+        with self.login(self.user):
+            case = Case.objects.last()
+            self.assertEqual(SmallVariantFlags.objects.count(), 0)
+            # Create flags
+            self.client.post(
+                reverse(
+                    "variants:small-variant-flags-api",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                SMALLVARIANT_FLAGS_FORM_DATA,
+            )
+            self.assertEqual(SmallVariantFlags.objects.count(), 1)
+            # Delete flags
+            response = self.client.post(
+                reverse(
+                    "variants:small-variant-flags-api",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {**SMALLVARIANT_FLAGS_FORM_DATA, "flag_bookmarked": False},
+            )
+            self.assertEqual(SmallVariantFlags.objects.count(), 0)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["message"], "erased")
+
+
+SMALLVARIANT_COMMENT_FORM_DATA = {
+    "release": "GRCh37",
+    "chromosome": "1",
+    "position": 100,
+    "reference": "A",
+    "alternative": "G",
+    "ensembl_gene_id": "ENSG0001",
+    "text": "Comment X",
+}
+
+
+class TestSmallVariantCommentApiView(TestViewBase):
+    """Test SmallVariantCommentApiView.
+    """
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_json_response(self):
+        with self.login(self.user):
+            case = Case.objects.last()
+            self.assertEqual(SmallVariantComment.objects.count(), 0)
+            response = self.client.post(
+                reverse(
+                    "variants:small-variant-comment-api",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                SMALLVARIANT_COMMENT_FORM_DATA,
+            )
+            self.assertEqual(SmallVariantComment.objects.count(), 1)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["result"], "OK")
+
+
+class TestBackgroundJobListView(TestViewBase):
+    """Tets BackgroundJobListView.
+    """
+
+    setup_case_in_db = fixture_setup_bgjob
+
+    def test_render(self):
+        with self.login(self.user):
+            case = Case.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:job-list",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_resulting_list_length(self):
+        with self.login(self.user):
+            case = Case.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:job-list",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                )
+            )
+            self.assertEqual(len(response.context["object_list"]), 1)

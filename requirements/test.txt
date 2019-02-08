@@ -23,3 +23,5 @@ openpyxl ==2.5.9
 # Selenium UI tests
 selenium == 3.14.0
 
+# Mock tests
+requests-mock

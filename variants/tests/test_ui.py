@@ -214,6 +214,49 @@ PROJECT_DICT = {
     "sodar_uuid": "7c599407-6c44-4d9e-81aa-cd8cf3d817a4",
 }
 
+BASIC_VAR = {
+    "case_id": None,
+    "release": "GRCh37",
+    "chromosome": "1",
+    "position": None,
+    "reference": "A",
+    "alternative": "G",
+    "var_type": "snv",
+    "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+    "in_clinvar": False,
+    # frequencies
+    "exac_frequency": 0.001,
+    "exac_homozygous": 0,
+    "exac_heterozygous": 0,
+    "exac_hemizygous": 0,
+    "thousand_genomes_frequency": 0.001,
+    "thousand_genomes_homozygous": 0,
+    "thousand_genomes_heterozygous": 0,
+    "thousand_genomes_hemizygous": 0,
+    "gnomad_exomes_frequency": 0.001,
+    "gnomad_exomes_homozygous": 0,
+    "gnomad_exomes_heterozygous": 0,
+    "gnomad_exomes_hemizygous": 0,
+    "gnomad_genomes_frequency": 0.001,
+    "gnomad_genomes_homozygous": 0,
+    "gnomad_genomes_heterozygous": 0,
+    "gnomad_genomes_hemizygous": 0,
+    # RefSeq
+    "refseq_gene_id": "1234",
+    "refseq_transcript_id": "NR_00001.1",
+    "refseq_transcript_coding": False,
+    "refseq_hgvs_c": "n.111+2T>C",
+    "refseq_hgvs_p": "p.=",
+    "refseq_effect": ["missense_variant"],
+    # ENSEMBL
+    "ensembl_gene_id": "ENSG0001",
+    "ensembl_transcript_id": "ENST00001",
+    "ensembl_transcript_coding": False,
+    "ensembl_hgvs_c": "n.111+2T>C",
+    "ensembl_hgvs_p": "p.=",
+    "ensembl_effect": ["missense_variant"],
+}
+
 
 def fixture_setup_project_case():
     """Fixture setup for a project with a single case and according variant statistics."""
@@ -251,6 +294,74 @@ def fixture_setup_project_case():
     )
 
     return case
+
+
+def fixture_setup_project_cases():
+    """Fixture setup for a project with a single case and according variant statistics."""
+    project = Project.objects.create(**PROJECT_DICT)
+    case1 = project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
+        name="A",
+        index="A",
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
+    )
+    casevariantstats = CaseVariantStats.objects.create(case=case1)
+    SampleVariantStatistics.objects.create(
+        stats=casevariantstats,
+        sample_name="A",
+        ontarget_transitions=1,
+        ontarget_transversions=1,
+        ontarget_snvs=1,
+        ontarget_indels=1,
+        ontarget_mnvs=1,
+        ontarget_effect_counts={},
+        ontarget_indel_sizes={},
+        ontarget_dps={},
+        ontarget_dp_quantiles=[0.1, 0.2, 0.3, 0.4, 0.5],
+        het_ratio=1.0,
+        chrx_het_hom=1.0,
+    )
+    case2 = project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e4",
+        name="B",
+        index="B",
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "B",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
+    )
+    casevariantstats = CaseVariantStats.objects.create(case=case2)
+    SampleVariantStatistics.objects.create(
+        stats=casevariantstats,
+        sample_name="B",
+        ontarget_transitions=1,
+        ontarget_transversions=1,
+        ontarget_snvs=1,
+        ontarget_indels=1,
+        ontarget_mnvs=1,
+        ontarget_effect_counts={},
+        ontarget_indel_sizes={},
+        ontarget_dps={},
+        ontarget_dp_quantiles=[0.1, 0.2, 0.3, 0.4, 0.5],
+        het_ratio=1.0,
+        chrx_het_hom=1.0,
+    )
+    return (case1, case2)
 
 
 class TestVariantsCaseListView(TestUIBase):
@@ -317,50 +428,7 @@ class TestVariantsCaseDetailView(TestUIBase):
 def fixture_setup_single_variant():
     """Fixture setup for a single individual with a single variant (based on fixture_setup_project_case)"""
     case = fixture_setup_project_case()
-    basic_var = {
-        "case_id": case.pk,
-        "release": "GRCh37",
-        "chromosome": "1",
-        "position": None,
-        "reference": "A",
-        "alternative": "G",
-        "var_type": "snv",
-        "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
-        "in_clinvar": False,
-        # frequencies
-        "exac_frequency": 0.001,
-        "exac_homozygous": 0,
-        "exac_heterozygous": 0,
-        "exac_hemizygous": 0,
-        "thousand_genomes_frequency": 0.001,
-        "thousand_genomes_homozygous": 0,
-        "thousand_genomes_heterozygous": 0,
-        "thousand_genomes_hemizygous": 0,
-        "gnomad_exomes_frequency": 0.001,
-        "gnomad_exomes_homozygous": 0,
-        "gnomad_exomes_heterozygous": 0,
-        "gnomad_exomes_hemizygous": 0,
-        "gnomad_genomes_frequency": 0.001,
-        "gnomad_genomes_homozygous": 0,
-        "gnomad_genomes_heterozygous": 0,
-        "gnomad_genomes_hemizygous": 0,
-        # RefSeq
-        "refseq_gene_id": "1234",
-        "refseq_transcript_id": "NR_00001.1",
-        "refseq_transcript_coding": False,
-        "refseq_hgvs_c": "n.111+2T>C",
-        "refseq_hgvs_p": "p.=",
-        "refseq_effect": ["missense_variant"],
-        # ENSEMBL
-        "ensembl_gene_id": "ENSG0001",
-        "ensembl_transcript_id": "ENST00001",
-        "ensembl_transcript_coding": False,
-        "ensembl_hgvs_c": "n.111+2T>C",
-        "ensembl_hgvs_p": "p.=",
-        "ensembl_effect": ["missense_variant"],
-    }
-
-    SmallVariant.objects.create(**{**basic_var, **{"position": 100}})
+    SmallVariant.objects.create(**{**BASIC_VAR, **{"case_id": case.pk, "position": 100}})
 
 
 EFFECT_FIELDS = {
@@ -400,10 +468,8 @@ EFFECT_FIELDS = {
 }
 
 
-# from django.test import override_settings
-# @override_settings(DEBUG=True)
 class TestVariantsCaseFilterView(TestUIBase):
-    """Tests for the variants case detail view"""
+    """Tests for the variants case filter view."""
 
     view = "variants:case-filter"
     kwargs = {
@@ -772,3 +838,123 @@ class TestVariantsCaseFilterView(TestUIBase):
         time.sleep(5)
         self.assertNotIn("border-danger", tab.get_attribute("class").split())
         self.assertNotIn("border-danger", field.get_attribute("class").split())
+
+
+def fixture_setup_two_variants():
+    """Fixture setup for a single individual with a single variant (based on fixture_setup_project_case)"""
+    case1, case2 = fixture_setup_project_cases()
+    SmallVariant.objects.create(**{**BASIC_VAR, **{"case_id": case1.pk, "position": 100}})
+    SmallVariant.objects.create(**{**BASIC_VAR, **{"case_id": case2.pk, "position": 200}})
+
+
+class TestVariantsProjectCasesFilterView(TestUIBase):
+    """Tests for the variants joint filter view."""
+
+    view = "variants:project-cases-filter"
+    kwargs = {"project": "7c599407-6c44-4d9e-81aa-cd8cf3d817a4"}
+    fixture_setup = fixture_setup_two_variants
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_joint_filter_display_loading(self):
+        """Test if submitting the filter initiates the loading response."""
+        # login
+        self.compile_url_and_login()
+        # find & hit button
+        button = self.selenium.find_element_by_id("submitFilter")
+        self.assertEqual(button.get_attribute("data-event-type"), "submit")
+        button.click()
+        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.assertEqual(button.get_attribute("data-event-type"), "cancel")
+        # Wait for background job to finish, otherwise database can't be flushed for next test.
+        time.sleep(5)
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_joint_filter_display_cancel(self):
+        """Test if submitting the filter can be canceled."""
+        # login
+        self.compile_url_and_login()
+        # find & hit button
+        button = self.selenium.find_element_by_id("submitFilter")
+        self.assertEqual(button.get_attribute("data-event-type"), "submit")
+        button.click()
+        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.assertEqual(button.get_attribute("data-event-type"), "cancel")
+        button.click()
+        time.sleep(5)
+        with self.assertRaises(NoSuchElementException):
+            self.selenium.find_element_by_id("loadingWheel")
+        self.assertEqual(
+            self.selenium.find_element_by_id("resultsTable").get_attribute("innerHTML"), ""
+        )
+        self.assertEqual(button.get_attribute("data-event-type"), "submit")
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_join_filter_display_results(self):
+        """Test if submitting the filter yields the expected results."""
+        # login
+        self.compile_url_and_login()
+        # switch tab
+        self.selenium.find_element_by_id("frequency-tab").click()
+        exac = self.selenium.find_element_by_xpath("//input[@name='exac_enabled']")
+        self.pending().until(ec.visibility_of(exac))
+        # disable exac and thousand genomes frequency filter
+        exac.click()
+        self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
+        # switch tab
+        self.selenium.find_element_by_id("quality-tab").click()
+        dropdown = self.selenium.find_element_by_id("id_A_fail")
+        self.pending().until(ec.visibility_of(dropdown))
+        # disable quality filters
+        dropdown.click()
+        option = self.selenium.find_element_by_xpath("//option[@value='ignore']")
+        self.pending().until(ec.visibility_of(option))
+        option.click()
+        # hit submit button
+        self.selenium.find_element_by_id("submitFilter").click()
+        # wait for redirect
+        self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_joint_filter_download(self):
+        """Test if submitting the download filter is kicked off."""
+        # login
+        self.compile_url_and_login()
+        # switch tab
+        self.selenium.find_element_by_id("frequency-tab").click()
+        exac = self.selenium.find_element_by_xpath("//input[@name='exac_enabled']")
+        self.pending().until(ec.visibility_of(exac))
+        # disable exac and thousand genomes frequency filter
+        exac.click()
+        self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
+        # switch tab
+        self.selenium.find_element_by_id("quality-tab").click()
+        dropdown = self.selenium.find_element_by_id("id_A_fail")
+        self.pending().until(ec.visibility_of(dropdown))
+        # disable quality filters
+        dropdown.click()
+        option = self.selenium.find_element_by_xpath("//option[@value='ignore']")
+        self.pending().until(ec.visibility_of(option))
+        option.click()
+        # find and hit download button
+        self.selenium.find_element_by_id("submit-menu").click()
+        download = self.selenium.find_element_by_xpath(
+            '//button[@name="submit" and @value="download"]'
+        )
+        self.pending().until(ec.visibility_of(download))
+        download.click()
+        # wait for redirect and refresh page for elements to show up
+        self.pending().until(
+            ec.presence_of_element_located(
+                (By.XPATH, '//h2[contains(text(), "{}")]'.format("Background File Creation Job"))
+            )
+        )
+        time.sleep(5)
+        self.selenium.refresh()
+        self.pending().until(
+            ec.presence_of_element_located(
+                (
+                    By.XPATH,
+                    '//div[contains(text(), "{}")]'.format("Exporting all project cases to file"),
+                )
+            )
+        )

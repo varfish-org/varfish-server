@@ -6,19 +6,25 @@ History / Changelog
 HEAD
 ----
 
-User experience improvement.
+User experience improvement, tests extended.
 
 End-User Summary
 ================
 
 - Filtering jobs can now be aborted.
 - Proper visual error response in forms.
+- Tests for all views completed.
 
 Full Change List
 ================
 
 - Filtering jobs runs now as background job and can be aborted.
 - Invalid fields and affiliated tabs are now marked with a red border.
+- Deleted empty files from apps.
+- Tests for all views completed.
+- Bugfix in rendering download results files for ProjectCases.
+- Bugfix in template for job detail view.
+- Bugfix in listing background jobs for a case.
 
 -------
 v0.11.8

@@ -69,7 +69,7 @@ django-postgres-copy
 simplejson >=2.1
 
 celery <4.2  # pyup: <4.2  # blocker: https://github.com/celery/celery/issues/4878
-redis==2.10.6  # https://github.com/antirez/redis
+redis==3.2.0  # https://github.com/antirez/redis
 
 # Writing of Excel (XLSX) files.
 xlsxwriter ==1.1.2

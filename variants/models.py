@@ -320,9 +320,8 @@ class Case(models.Model):
         """Return list of ``BackgroundJob`` objects."""
         # TODO: need to be more dynamic here?
         return BackgroundJob.objects.filter(
-            Q(variants_exportfilebgjob__case=self)
+            Q(variants_exportfilebgjob_related__case=self)
             | Q(distiller_submission_bg_job__case=self)
-            | Q(compute_project_variants_stats__case=self)
             | Q(filter_bg_job__case=self)
         )
 

@@ -128,20 +128,25 @@
       </div>
       <div class="card-body p-0">
         <ul class="list-group">
+          {% if query_type == "case" %}
           <li class="list-group-item row d-flex">
             <div class="col-2 p-1"><strong>Case</strong></div>
             <div class="col-10 p-1">
-                <a
-                  {% if query_type == "case" %}
-                  href="{% url "variants:case-filter-job" project=object.project.sodar_uuid case=object.case.sodar_uuid job=object.sodar_uuid %}"
-                  {% else %}
-                  href="{% url "variants:project-cases-filter-job" project=object.project.sodar_uuid job=object.sodar_uuid %}"
-                  {% endif %}
-                >
+                <a href="{% url "variants:case-filter-job" project=object.project.sodar_uuid case=object.case.sodar_uuid job=object.sodar_uuid %}">
                   {{ object.case.name }}
                 </a>
             </div>
           </li>
+          {% else %}
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Project</strong></div>
+            <div class="col-10 p-1">
+              <a href="{% url "variants:project-cases-filter-job" project=object.project.sodar_uuid job=object.sodar_uuid %}">
+                {{ object.project.title }}
+              </a>
+            </div>
+          </li>
+          {% endif %}
           <li class="list-group-item row d-flex">
             <div class="col-2 p-1"><strong>Query Arguments</strong></div>
             <div class="col-10 p-1">

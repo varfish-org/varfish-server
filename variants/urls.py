@@ -31,7 +31,7 @@ urlpatterns = [
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter/$",
         view=views.ProjectCasesFilterView.as_view(),
-        name="filter-project-cases",
+        name="project-cases-filter",
     ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter/job/(?P<job>[0-9a-f-]+)/$",

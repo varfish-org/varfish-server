@@ -9,7 +9,7 @@ import numpy as np
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
@@ -29,7 +29,6 @@ from annotation.models import Annotation
 from .models import SmallVariant
 from .models_support import (
     ClinvarReportQuery,
-    ProjectCasesPrefetchFilterQuery,
     KnownGeneAAQuery,
     LoadPrefetchedFilterQuery,
     ProjectCasesLoadPrefetchedFilterQuery,
@@ -434,7 +433,7 @@ class CasePrefetchFilterView(
             # Submit job
             filter_task.delay(filter_job_pk=filter_job.pk)
             return JsonResponse({"filter_job_uuid": filter_job.sodar_uuid})
-        return JsonResponse(data=form.errors, status=400)
+        return JsonResponse(form.errors, status=400)
 
 
 class FilterJobGetStatus(
@@ -450,8 +449,18 @@ class FilterJobGetStatus(
     slug_field = "sodar_uuid"
 
     def post(self, request, *args, **kwargs):
-        filter_job = FilterBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
-        return JsonResponse({"status": filter_job.bg_job.status})
+        try:
+            filter_job = FilterBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
+            return JsonResponse({"status": filter_job.bg_job.status})
+        except ObjectDoesNotExist:
+            return JsonResponse(
+                {"error": "No filter job with UUID {}".format(request.POST["filter_job_uuid"])},
+                status=400,
+            )
+        except ValidationError:
+            return JsonResponse(
+                {"error": "No valid UUID {}".format(request.POST["filter_job_uuid"])}, status=400
+            )
 
 
 class FilterJobGetPrevious(
@@ -649,14 +658,6 @@ class ProjectCasesFilterView(
         )
         return redirect(export_job.get_absolute_url())
 
-    def _split_rows_per_sample(self, rows):
-        """Create one row for each sample, adding the ``sample`` colum entry."""
-        result = []
-        for row in rows:
-            for sample in sorted(row.genotype.keys()):
-                result.append(RowWithSampleProxy(row, sample))
-        return result
-
     def get_initial(self):
         """Put initial data in the form from the previous query if any and push information into template for the
         "welcome back" message."""
@@ -757,7 +758,7 @@ class ProjectCasesPrefetchFilterView(
             # Submit job
             project_cases_filter_task.delay(project_cases_filter_job_pk=filter_job.pk)
             return JsonResponse({"filter_job_uuid": filter_job.sodar_uuid})
-        return JsonResponse(data=form.errors, status=400)
+        return JsonResponse(form.errors, status=400)
 
 
 class ProjectCasesFilterJobGetStatus(
@@ -773,8 +774,20 @@ class ProjectCasesFilterJobGetStatus(
     slug_field = "sodar_uuid"
 
     def post(self, request, *args, **kwargs):
-        filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
-        return JsonResponse({"status": filter_job.bg_job.status})
+        try:
+            filter_job = ProjectCasesFilterBgJob.objects.get(
+                sodar_uuid=request.POST["filter_job_uuid"]
+            )
+            return JsonResponse({"status": filter_job.bg_job.status})
+        except ObjectDoesNotExist:
+            return JsonResponse(
+                {"error": "No filter job with UUID {}".format(request.POST["filter_job_uuid"])},
+                status=400,
+            )
+        except ValidationError:
+            return JsonResponse(
+                {"error": "No valid UUID {}".format(request.POST["filter_job_uuid"])}, status=400
+            )
 
 
 class ProjectCasesFilterJobGetPrevious(
@@ -992,17 +1005,14 @@ class SmallVariantDetails(
             "alternative": query_kwargs["alternative"],
         }
         result = []
-        try:
-            for entry in Clinvar.objects.filter(**filter_args):
-                result.append(
-                    {
-                        "clinical_significance": entry.clinical_significance,
-                        "all_traits": list({trait.lower() for trait in entry.all_traits}),
-                    }
-                )
-            return result
-        except ObjectDoesNotExist:
-            return []
+        for entry in Clinvar.objects.filter(**filter_args):
+            result.append(
+                {
+                    "clinical_significance": entry.clinical_significance,
+                    "all_traits": list({trait.lower() for trait in entry.all_traits}),
+                }
+            )
+        return result
 
     def _load_small_var(self, kwargs):
         return SmallVariant.objects.filter(
@@ -1415,10 +1425,7 @@ class FilterJobResubmitView(
                 case=job.case,
                 smallvariantquery=job.smallvariantquery,
             )
-            filter_task.delay(
-                filter_job_pk=filter_job.pk, small_variant_query_pk=job.smallvariantquery.pk
-            )
-
+            filter_task.delay(filter_job_pk=filter_job.pk)
         return redirect(
             reverse(
                 "variants:filter-job-detail",
@@ -1453,11 +1460,7 @@ class ProjectCasesFilterJobResubmitView(
                 bg_job=bg_job,
                 projectcasessmallvariantquery=job.projectcasessmallvariantquery,
             )
-            project_cases_filter_task.delay(
-                project_cases_filter_job_pk=filter_job.pk,
-                project_cases_small_variant_query_pk=job.projectcasessmallvariantquery.pk,
-            )
-
+            project_cases_filter_task.delay(project_cases_filter_job_pk=filter_job.pk)
         return redirect(
             reverse(
                 "variants:project-cases-filter-job-detail",
