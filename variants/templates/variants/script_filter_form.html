@@ -226,79 +226,194 @@ $("#settingsDownload").click(
   }
 );
 
-$("#submitFilter").click(
-  function() {
-    // empty previous results first
-    let results_table = $("#resultsTable");
-    results_table.empty();
-    // load spinning wheel into table space
-    results_table.load($(this).data("url-wheel"));
-    // start spinning icon on submit button
-    let icon = $("i", this);
-    icon.addClass("fa-spin");
-    // form data, serialized into an JSON array and transformed into a JSON dict
-    let data = $("#filterForm").serializeArray().reduce(
-      // arrow function to transform array to dict
-      (accumulator, current) => (accumulator[current.name] = current.value, accumulator),
-      // start with an empty dict as initial accumulator
-      {}
-    );
-    // add submit button to form, the django form needs it for validation
-    data[$(this).attr("name")] = $(this).attr("value");
-    // initiate query - load uses a post when the second argument is provided (data)
-    results_table.load(
-      // query url
-      $(this).data("url"),
-      // form data
-      data,
-      // callback when finished (success or not): apply table settings and stop spinning
-      function(responseText, textStatus, request) {
-        // print on console when an error occurred
-        if (textStatus == "error") {
-          console.log("responseText: " + responseText);
-          console.log("textStatus: " + textStatus);
-          console.log("request: " + JSON.stringify(request));
+/*
+Build state machine for managing the background filtering job.
+ */
+
+// Define states
+const STATE_INITIAL = 'initial';
+const STATE_IDLE = 'idle';
+const STATE_GET_JOB_ID = 'get-job-id';
+const STATE_WAIT_JOB_RESULTS = 'wait-job-results';
+
+// Define events
+const EVENT_START = 'start';
+const EVENT_GOT_JOB_ID = 'got-job-id';
+const EVENT_STILL_WAITING = 'still-waiting';
+const EVENT_GOT_RESULT = 'got-result';
+const EVENT_CANCEL = 'cancel';
+const EVENT_SUBMIT = 'submit';
+const EVENT_NO_JOB_ID = 'no-job-id';
+const EVENT_ERROR = 'error';
+
+// Other global variables to manage the state machine.
+let currentState = STATE_INITIAL;
+let ajaxCall = null;
+let filterButton = $("#submitFilter");
+let resultsTable = $("#resultsTable");
+
+// Helper function to switch the state of the submit button (make it "Submit").
+function animateFilterButtonSubmit() {
+  let icon = $("i", filterButton).clone();
+  filterButton.text(" Filter & Display");
+  icon.prependTo(filterButton);
+  filterButton.attr("data-event-type", EVENT_SUBMIT);
+  icon.removeClass("fa-spin");
+}
+
+// Helper function to switch the state of the submit button (make it "Cancel").
+function animateSubmitButtonCancel() {
+  let icon = $("i", filterButton).clone();
+  filterButton.text(" Cancel");
+  icon.prependTo(filterButton);
+  filterButton.attr("data-event-type", EVENT_CANCEL);
+  resultsTable.empty();
+  resultsTable.load($(filterButton).data("url-wheel"));
+  icon.addClass("fa-spin");
+}
+
+// Handle state INITIAL
+function handleEventStateInitial(eventType, event) {
+  if (eventType == EVENT_START) {
+    currentState = STATE_GET_JOB_ID;
+    animateSubmitButtonCancel();
+    $.ajax({
+      type: "GET",
+      dataType: "json",
+      url: filterButton.data('url-request-last-job'),
+      success: function(result) {
+        let filter_job_uuid = result['filter_job_uuid'];
+        if (filter_job_uuid) {
+          return handleEvent(EVENT_GOT_JOB_ID, {'filter_job_uuid': filter_job_uuid});
         }
-        // update table settings
+        return handleEvent(EVENT_NO_JOB_ID, null);
+      }
+    });
+  } else {
+    console.log("unexpected event", eventType, event, "in state", currentState);
+  }
+}
+
+// Handle state IDLE
+function handleEventStateIdle(eventType, event) {
+  if (eventType == EVENT_SUBMIT) {
+    currentState = STATE_GET_JOB_ID;
+    animateSubmitButtonCancel();
+    let data = $("#filterForm").serializeArray().reduce(
+      (accumulator, current) => (accumulator[current.name] = current.value, accumulator), {}
+    );
+    data[filterButton.attr("name")] = filterButton.attr("value");
+    ajaxCall = $.ajax({
+      type: "POST",
+      dataType: "json",
+      url: filterButton.data("url"),
+      data: data,
+      success: function (result) {
+        handleEvent(EVENT_GOT_JOB_ID, {'filter_job_uuid': result['filter_job_uuid']});
+      }
+    });
+  } else {
+    console.log("unexpected event", eventType, event, "in state", currentState);
+  }
+}
+
+// Handle state GET_JOB_ID
+function handleEventStateGetJobId(eventType, event) {
+  if (eventType == EVENT_GOT_JOB_ID) {
+    currentState = STATE_WAIT_JOB_RESULTS;
+    ajaxCall = $.ajax({
+      type: "POST",
+      dataType: "json",
+      url: filterButton.data("url-status"),
+      data: event,
+      success: function (data) {
+        if (data['status'] == 'done') {
+          return handleEvent(EVENT_GOT_RESULT, event);
+        }
+        return handleEvent(EVENT_STILL_WAITING, event);
+      },
+      error: function (request, error, exception) {
+        console.log(request, error, exception);
+      },
+    });
+  } else if (eventType == EVENT_NO_JOB_ID) {
+    currentState = STATE_IDLE;
+    animateFilterButtonSubmit();
+    clearTimeout();
+    resultsTable.empty();
+  } else if (eventType == EVENT_CANCEL) {
+    currentState = STATE_IDLE;
+    if (ajaxCall) {
+      ajaxCall.abort("Aborting AJAX call ...");
+      ajaxCall = null;
+    }
+    clearTimeout();
+    resultsTable.empty();
+    animateFilterButtonSubmit();
+  } else if (eventType == EVENT_ERROR) {
+    currentState = STATE_IDLE;
+    animateFilterButtonSubmit();
+    clearTimeout();
+    resultsTable.empty();
+  } else {
+    console.log("unexpected event", eventType, event, "in state", currentState);
+  }
+}
+
+// Handle state WAIT_JOB_RESULTS
+function handleEventStateWaitJobResults(eventType, event) {
+  if (eventType == EVENT_STILL_WAITING) {
+    currentState = STATE_GET_JOB_ID;
+    setTimeout(handleEvent, 5000, EVENT_GOT_JOB_ID, event);
+  } else if (eventType == EVENT_CANCEL) {
+    currentState = STATE_IDLE;
+    clearTimeout();
+    if (ajaxCall) {
+      ajaxCall.abort("Aborting AJAX call ...");
+      ajaxCall = null;
+    }
+    resultsTable.empty();
+    animateFilterButtonSubmit();
+  } else if (eventType == EVENT_ERROR) {
+    currentState = STATE_IDLE;
+    clearTimeout();
+    resultsTable.empty();
+    animateFilterButtonSubmit();
+  } else if (eventType == EVENT_GOT_RESULT) {
+    let data = {
+      "csrfmiddlewaretoken": "{{ csfr_token }}",
+      "filter_job_uuid": event["filter_job_uuid"]
+    };
+    $("#resultsTable").load(
+      filterButton.data("url-reload"),
+      data,
+      function(responseText, textStatus, request) {
+        if (textStatus == "error") {
+          console.log(responseText, textStatus, request);
+        }
+        animateFilterButtonSubmit();
         updateTableDisplay();
-        // stop spinning
-        icon.removeClass("fa-spin");
+        currentState = STATE_IDLE;
       }
     );
   }
-);
+  else {
+    console.log("unexpected event", eventType, event, "in state", currentState);
+  }
+}
 
-var previous_query_uuid = "{{ previous_query_uuid }}";
-
-function load_filter_results() {
-  if (previous_query_uuid) {
-    let results_table = $("#resultsTable");
-    let submit_button = $("#submitFilter");
-    // load spinning wheel into table space
-    results_table.load(submit_button.data("url-wheel"));
-    // construct data object for post request
-    let data = {
-      "previous_query_uuid": previous_query_uuid,
-      "csrfmiddlewaretoken": "{{ csrf_token }}"
-    };
-    data[submit_button.attr("name")] = submit_button.attr("value");
-    // initiate query by passing the last jobs uuid
-    results_table.load(
-      // query url
-      submit_button.data("url-reload"),
-      // pass past jobs uuid and csrf token (otherwise request is not valid)
-      data,
-      // callback function
-      function(responseText, textStatus, request) {
-        if (textStatus == "error") {
-          console.log("responseText: " + responseText);
-          console.log("textStatus: " + textStatus);
-          console.log("request: " + JSON.stringify(request));
-        }
-        // update table settings
-        updateTableDisplay();
-      }
-    );
+// Event handler function
+function handleEvent(eventType, event) {
+  if (currentState == STATE_INITIAL) {
+    return handleEventStateInitial(eventType, event);
+  } else if (currentState == STATE_IDLE) {
+    return handleEventStateIdle(eventType, event);
+  } else if (currentState == STATE_GET_JOB_ID) {
+    return handleEventStateGetJobId(eventType, event);
+  } else if (currentState == STATE_WAIT_JOB_RESULTS) {
+    return handleEventStateWaitJobResults(eventType, event);
+  } else {
+    console.log("unexpected state", currentState)
   }
 }
 
@@ -600,7 +715,15 @@ $(document).ready(
     $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
     updateSettingsDump();
     $(".load-presets").click(loadPresets);
-    load_filter_results();
+    // Assign click handler function to submit button
+    filterButton.click(
+      function() {
+        handleEvent($(this).attr("data-event-type"), null);
+      }
+    );
+    filterButton.attr("data-event-type", EVENT_SUBMIT);
+    // Kick-off state machine.
+    handleEvent(EVENT_START, null);
   }
 );
 </script>

@@ -2,6 +2,22 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+User experience improvement.
+
+End-User Summary
+================
+
+- Filtering jobs can now be aborted.
+
+Full Change List
+================
+
+- Filtering jobs runs now as background job and can be aborted.
+
 -------
 v0.11.8
 -------

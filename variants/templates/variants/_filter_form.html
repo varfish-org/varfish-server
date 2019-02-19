@@ -124,6 +124,8 @@
                     title="Filter variants again with current settings, limited to <i><b>Miscellaneous / Result row limit</b></i> results and display in table below"
                     data-url='{{ submit_button_url }}'
                     data-url-reload='{{ load_data_url }}'
+                    data-url-request-last-job='{{ request_previous_job_url }}'
+                    data-url-status='{{ job_status_url }}'
                     data-url-wheel="{% url "variants:loading-wheel" %}">
               <i class="fa fa-refresh"></i>
               Filter &amp; Display

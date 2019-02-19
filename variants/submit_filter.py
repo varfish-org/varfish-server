@@ -1,7 +1,5 @@
-import itertools
-
 from projectroles.plugins import get_backend_api
-from variants.file_export import SQLALCHEMY_ENGINE, RowWithSampleProxy
+from variants.file_export import SQLALCHEMY_ENGINE
 from .models_support import PrefetchFilterQuery, ProjectCasesPrefetchFilterQuery
 
 
@@ -38,17 +36,12 @@ class FilterBase:
         _query_args = {**self.query_args, **kwargs}
         # Run query
         results = self.query.run(_query_args)
-        # Get results and information before data is consumed by generator function
-        num_results = results.rowcount
-        # Get first N rows. This will pop the first N rows! results list will be decreased by N.
-        rows = results.fetchmany(self.query_args["result_rows_limit"])
         # Obtain smallvariant ids to store them in ManyToMany field
-        smallvariant_pks = [row["id"] for row in itertools.chain(rows, results)]
+        smallvariant_pks = [row["id"] for row in results]
         # Delete previously stored results (note: this only disassociates them, it doesn't delete objects itself.)
         self.previous_query.query_results.clear()
         # Bulk-insert Many-to-Many relationship
         self.previous_query.query_results.add(*smallvariant_pks)
-        return rows, num_results
 
 
 class CaseFilter(FilterBase):
@@ -71,7 +64,7 @@ class ProjectCasesFilter(FilterBase):
         )
 
 
-def case_filter(job, smallvariantquery):
+def case_filter(job):
     """Store the results of a query."""
 
     job.mark_start()
@@ -91,8 +84,7 @@ def case_filter(job, smallvariantquery):
         tl_event.add_object(obj=job.case, label="case_name", name=job.case.name)
     try:
         # Get and run query
-        filter_query = CaseFilter(job, smallvariantquery)
-        rows, num_results = filter_query.run()
+        CaseFilter(job, job.smallvariantquery).run()
     except Exception as e:
         job.mark_error(e)
         if timeline:
@@ -106,11 +98,9 @@ def case_filter(job, smallvariantquery):
             tl_event.set_status(
                 "OK", "Filtering and storing query results complete for case {case_name}"
             )
-        # Return resulting limited rows and number of actual rows
-        return rows, num_results
 
 
-def project_cases_filter(job, projectcasessmallvariantquery):
+def project_cases_filter(job):
     """Store the results of a query."""
 
     job.mark_start()
@@ -129,12 +119,7 @@ def project_cases_filter(job, projectcasessmallvariantquery):
         )
     try:
         # Get and run query
-        filter_query = ProjectCasesFilter(job, projectcasessmallvariantquery)
-        _rows, num_results = filter_query.run()
-        rows = []
-        for row in _rows:
-            for sample in sorted(row.genotype.keys()):
-                rows.append(RowWithSampleProxy(row, sample))
+        ProjectCasesFilter(job, job.projectcasessmallvariantquery).run()
     except Exception as e:
         job.mark_error(e)
         if timeline:
@@ -148,5 +133,3 @@ def project_cases_filter(job, projectcasessmallvariantquery):
             tl_event.set_status(
                 "OK", "Filtering and storing query results complete for case {case_name}"
             )
-        # Return resulting limited rows and number of actual rows
-        return rows, num_results

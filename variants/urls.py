@@ -130,6 +130,16 @@ urlpatterns = [
         view=views.CaseLoadPrefetchedFilterView.as_view(),
         name="case-load-filter-results",
     ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/filter-job/status/$",
+        view=views.FilterJobGetStatus.as_view(),
+        name="filter-job-status",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/filter-job/previous/(?P<case>[0-9a-f-]+)/$",
+        view=views.FilterJobGetPrevious.as_view(),
+        name="filter-job-previous"
+    ),
     # Views for filtering and storing project cases query results jobs
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter-results/$",
@@ -150,6 +160,16 @@ urlpatterns = [
         regex=r"^(?P<project>[0-9a-f-]+)/project-cases/load-filter-results/$",
         view=views.ProjectCasesLoadPrefetchedFilterView.as_view(),
         name="project-cases-load-filter-results",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases-filter-job/status/$",
+        view=views.ProjectCasesFilterJobGetStatus.as_view(),
+        name="project-cases-filter-job-status",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases-filter-job/previous/$",
+        view=views.ProjectCasesFilterJobGetPrevious.as_view(),
+        name="project-cases-filter-job-previous"
     ),
     # Render details row
     url(

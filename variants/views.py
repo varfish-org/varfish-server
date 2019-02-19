@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.utils import timezone
@@ -368,24 +368,14 @@ class CaseFilterView(
             "variants:case-load-filter-results",
             kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},
         )
-        # Pass UUID of last filter job to restore query results when entering the page (if available)
-        if "job" in self.kwargs:
-            filter_job = FilterBgJob.objects.get(sodar_uuid=self.kwargs["job"])
-        else:
-            filter_job = (
-                FilterBgJob.objects.filter(
-                    smallvariantquery__user=self.request.user,
-                    case__sodar_uuid=context["object"].sodar_uuid,
-                )
-                .order_by("-bg_job__date_created")
-                .first()
-            )
-        if filter_job:
-            smallvariantquery = filter_job.smallvariantquery.sodar_uuid
-        else:
-            smallvariantquery = ""
-
-        context["previous_query_uuid"] = smallvariantquery
+        context["request_previous_job_url"] = reverse(
+            "variants:filter-job-previous",
+            kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},
+        )
+        context["job_status_url"] = reverse(
+            "variants:filter-job-status",
+            kwargs={"project": context["project"].sodar_uuid},
+        )
         context["query_type"] = self.query_type
         return context
 
@@ -403,7 +393,6 @@ class CasePrefetchFilterView(
     This will be rendered when the database request finishes and delivered via ajax.
     """
 
-    template_name = "variants/filter_result/table.html"
     permission_required = "variants.view_data"
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
@@ -443,33 +432,53 @@ class CasePrefetchFilterView(
                     smallvariantquery=small_variant_query,
                 )
 
-            # Take time while job is running
-            before = timezone.now()
             # Submit job
-            # filter_job_running = filter_task.delay(
-            #     filter_job_pk=filter_job.pk, small_variant_query_pk=small_variant_query.pk
-            # )
-            # rows, num_results = filter_job_running.wait()
-            # Run job TODO replace by asyncronous call again
-            rows, num_results = submit_filter.case_filter(filter_job, small_variant_query)
-            # Wait for job to end
-            elapsed = timezone.now() - before
+            filter_task.delay(filter_job_pk=filter_job.pk)
+            return JsonResponse({'filter_job_uuid': filter_job.sodar_uuid})
+        return JsonResponse(data=form.errors, status=400)
 
-            return render(
-                request,
-                self.template_name,
-                self.get_context_data(
-                    result_rows=rows,
-                    result_count=num_results,
-                    elapsed_seconds=elapsed.total_seconds(),
-                    database=small_variant_query.query_settings["database_select"],
-                    pedigree=small_variant_query.case.get_filtered_pedigree_with_samples(),
-                    query_type=self.query_type,
-                ),
+
+class FilterJobGetStatus(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, request, *args, **kwargs):
+        filter_job = FilterBgJob.objects.get(sodar_uuid=request.POST['filter_job_uuid'])
+        return JsonResponse({"status": filter_job.bg_job.status})
+
+
+class FilterJobGetPrevious(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def get(self, request, *args, **kwargs):
+        filter_job = (
+            FilterBgJob.objects.filter(
+                smallvariantquery__user=request.user,
+                case__sodar_uuid=kwargs["case"],
             )
-
-        # TODO: what to return when validation failed?
-        return render(request, self.template_name, {})
+            .order_by("-bg_job__date_created")
+            .first()
+        )
+        if filter_job:
+            return JsonResponse({"filter_job_uuid": filter_job.sodar_uuid})
+        return JsonResponse({"filter_job_uuid": None})
 
 
 class CaseLoadPrefetchedFilterView(
@@ -494,21 +503,18 @@ class CaseLoadPrefetchedFilterView(
     def post(self, request, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
 
-        # Get SmallVariantQuery object
-        smallvariantquery = SmallVariantQuery.objects.get(
-            sodar_uuid=request.POST["previous_query_uuid"]
-        )
+        filter_job = FilterBgJob.objects.get(sodar_uuid=request.POST['filter_job_uuid'])
 
         # Take time while job is running
         before = timezone.now()
         # Get and run query
         query = LoadPrefetchedFilterQuery(
-            smallvariantquery.case, SQLALCHEMY_ENGINE.connect(), smallvariantquery.id
+            filter_job.smallvariantquery.case, SQLALCHEMY_ENGINE.connect(), filter_job.smallvariantquery.id
         )
-        results = query.run(smallvariantquery.query_settings)
+        results = query.run(filter_job.smallvariantquery.query_settings)
         num_results = results.rowcount
         # Get first N rows. This will pop the first N rows! results list will be decreased by N.
-        rows = results.fetchmany(smallvariantquery.query_settings["result_rows_limit"])
+        rows = results.fetchmany(filter_job.smallvariantquery.query_settings["result_rows_limit"])
         elapsed = timezone.now() - before
 
         return render(
@@ -518,8 +524,8 @@ class CaseLoadPrefetchedFilterView(
                 result_rows=rows,
                 result_count=num_results,
                 elapsed_seconds=elapsed.total_seconds(),
-                database=smallvariantquery.query_settings["database_select"],
-                pedigree=smallvariantquery.case.get_filtered_pedigree_with_samples(),
+                database=filter_job.smallvariantquery.query_settings["database_select"],
+                pedigree=filter_job.smallvariantquery.case.get_filtered_pedigree_with_samples(),
                 query_type=self.query_type,
             ),
         )
@@ -547,23 +553,20 @@ class ProjectCasesLoadPrefetchedFilterView(
     def post(self, request, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
 
-        # Get ProjectCasesSmallVariantQuery object
-        projectcasessmallvariantquery = ProjectCasesSmallVariantQuery.objects.get(
-            sodar_uuid=request.POST["previous_query_uuid"]
-        )
+        filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=request.POST['filter_job_uuid'])
 
         # Take time while job is running
         before = timezone.now()
         # Get and run query
         query = ProjectCasesLoadPrefetchedFilterQuery(
-            projectcasessmallvariantquery.project,
+            filter_job.projectcasessmallvariantquery.project,
             SQLALCHEMY_ENGINE.connect(),
-            projectcasessmallvariantquery.id,
+            filter_job.projectcasessmallvariantquery.id,
         )
-        results = query.run(projectcasessmallvariantquery.query_settings)
+        results = query.run(filter_job.projectcasessmallvariantquery.query_settings)
         num_results = results.rowcount
         # Get first N rows. This will pop the first N rows! results list will be decreased by N.
-        _rows = results.fetchmany(projectcasessmallvariantquery.query_settings["result_rows_limit"])
+        _rows = results.fetchmany(filter_job.projectcasessmallvariantquery.query_settings["result_rows_limit"])
         rows = []
         for row in _rows:
             for sample in sorted(row.genotype.keys()):
@@ -577,7 +580,7 @@ class ProjectCasesLoadPrefetchedFilterView(
                 result_rows=rows,
                 result_count=num_results,
                 elapsed_seconds=elapsed.total_seconds(),
-                database=projectcasessmallvariantquery.query_settings["database_select"],
+                database=filter_job.projectcasessmallvariantquery.query_settings["database_select"],
                 query_type=self.query_type,
             ),
         )
@@ -686,22 +689,14 @@ class ProjectCasesFilterView(
             "variants:project-cases-load-filter-results",
             kwargs={"project": context["project"].sodar_uuid},
         )
-        if "job" in self.kwargs:
-            filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=self.kwargs["job"])
-        else:
-            filter_job = (
-                ProjectCasesFilterBgJob.objects.filter(
-                    projectcasessmallvariantquery__user=self.request.user
-                )
-                .order_by("-bg_job__date_created")
-                .first()
-            )
-        if filter_job:
-            projectcasessmallvariantquery = filter_job.projectcasessmallvariantquery.sodar_uuid
-        else:
-            projectcasessmallvariantquery = ""
-
-        context["previous_query_uuid"] = projectcasessmallvariantquery
+        context["request_previous_job_url"] = reverse(
+            "variants:project-cases-filter-job-previous",
+            kwargs={"project": context["project"].sodar_uuid},
+        )
+        context["job_status_url"] = reverse(
+            "variants:project-cases-filter-job-status",
+            kwargs={"project": context["project"].sodar_uuid},
+        )
         context["query_type"] = self.query_type
         return context
 
@@ -719,7 +714,6 @@ class ProjectCasesPrefetchFilterView(
     This will be rendered when the database request finishes and delivered via ajax.
     """
 
-    template_name = "variants/filter_result/table.html"
     permission_required = "variants.view_data"
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
@@ -758,31 +752,52 @@ class ProjectCasesPrefetchFilterView(
                     projectcasessmallvariantquery=small_variant_query,
                 )
 
-            # Take time while job is running
-            before = timezone.now()
             # Submit job
-            filter_job_running = project_cases_filter_task.delay(
-                project_cases_filter_job_pk=filter_job.pk,
-                project_cases_small_variant_query_pk=small_variant_query.pk,
-            )
-            # Wait for job to end
-            rows, num_results = filter_job_running.wait()
-            elapsed = timezone.now() - before
+            project_cases_filter_task.delay(project_cases_filter_job_pk=filter_job.pk)
+            return JsonResponse({'filter_job_uuid': filter_job.sodar_uuid})
+        return JsonResponse(data=form.errors, status=400)
 
-            return render(
-                request,
-                self.template_name,
-                self.get_context_data(
-                    result_rows=rows,
-                    result_count=num_results,
-                    elapsed_seconds=elapsed.total_seconds(),
-                    database=small_variant_query.query_settings["database_select"],
-                    query_type=self.query_type,
-                ),
-            )
 
-        # TODO: what to return when validation failed?
-        return render(request, self.template_name, {})
+class ProjectCasesFilterJobGetStatus(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, request, *args, **kwargs):
+        filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=request.POST['filter_job_uuid'])
+        return JsonResponse({"status": filter_job.bg_job.status})
+
+
+class ProjectCasesFilterJobGetPrevious(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def get(self, request, *args, **kwargs):
+        filter_job = (
+            ProjectCasesFilterBgJob.objects.filter(
+                projectcasessmallvariantquery__user=request.user,
+            )
+            .order_by("-bg_job__date_created")
+            .first()
+        )
+        if filter_job:
+            return JsonResponse({"filter_job_uuid": filter_job.sodar_uuid})
+        return JsonResponse({"filter_job_uuid": None})
 
 
 def status_level(status):

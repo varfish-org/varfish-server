@@ -590,8 +590,40 @@ class TestVariantsCaseFilterView(TestUIBase):
         )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
-    def test_variant_filter_case_display(self):
-        """Test if submitting the filter yields the exptected results."""
+    def test_variant_filter_case_display_loading(self):
+        """Test if submitting the filter initiates the loading response."""
+        # login
+        self.compile_url_and_login()
+        # find & hit button
+        button = self.selenium.find_element_by_id("submitFilter")
+        self.assertEqual(button.get_attribute("data-event-type"), "submit")
+        button.click()
+        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.assertEqual(button.get_attribute("data-event-type"), "cancel")
+        # Wait for background job to finish, otherwise database can't be flushed for next test.
+        time.sleep(5)
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_filter_case_display_cancel(self):
+        """Test if submitting the filter can be canceled."""
+        # login
+        self.compile_url_and_login()
+        # find & hit button
+        button = self.selenium.find_element_by_id("submitFilter")
+        self.assertEqual(button.get_attribute("data-event-type"), "submit")
+        button.click()
+        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.assertEqual(button.get_attribute("data-event-type"), "cancel")
+        button.click()
+        time.sleep(5)
+        with self.assertRaises(NoSuchElementException):
+            self.selenium.find_element_by_id("loadingWheel")
+        self.assertEqual(self.selenium.find_element_by_id("resultsTable").get_attribute("innerHTML"), "")
+        self.assertEqual(button.get_attribute("data-event-type"), "submit")
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_filter_case_display_results(self):
+        """Test if submitting the filter yields the expected results."""
         # login
         self.compile_url_and_login()
         # switch tab
@@ -611,7 +643,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.pending().until(ec.visibility_of(option))
         option.click()
         # hit submit button
-        self.selenium.find_element_by_xpath('//button[@name="submit" and @value="display"]').click()
+        self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
         self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
 
