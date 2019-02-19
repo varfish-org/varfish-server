@@ -2,22 +2,26 @@
 History / Changelog
 ===================
 
-----
-HEAD
-----
+-------
+v0.11.5
+-------
 
-In development.
+Bugfix release.
 
 End-User Summary
 ================
 
 - Databases import now as Django manage command.
+- Fixed bug in loading last query results.
+- Fixed bug in setting SmallVariantFlags.
 
 Full Change List
 ================
 
 - Databases import is now a Django manage command and import commands are removed from the Makefile.
   Instead of one command for each database, a single command imports all databases stated in a config file.
+- Fixed bug that displayed last query of user without considering case.
+- Fixed bug that under certain conditions reported two variants when setting a SmallVariantComment/Flag and thus failed.
 
 -------
 v0.11.4
