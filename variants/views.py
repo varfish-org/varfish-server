@@ -377,7 +377,7 @@ class CaseFilterView(
             filter_job = (
                 FilterBgJob.objects.filter(
                     smallvariantquery__user=self.request.user,
-                    case__sodar_uuid=context['object'].sodar_uuid
+                    case__sodar_uuid=context["object"].sodar_uuid,
                 )
                 .order_by("-bg_job__date_created")
                 .first()

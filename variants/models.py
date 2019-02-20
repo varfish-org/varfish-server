@@ -843,18 +843,17 @@ class SmallVariantFlags(models.Model):
     def clean(self):
         """Make sure that the case has such a variant"""
         # TODO: unit test me
-        try:
-            SmallVariant.objects.get(
-                case_id=self.case.pk,
-                release=self.release,
-                chromosome=self.chromosome,
-                position=self.position,
-                reference=self.reference,
-                alternative=self.alternative,
-                ensembl_gene_id=self.ensembl_gene_id,
-            )
-        except SmallVariant.DoesNotExist as e:
-            raise ValidationError("No corresponding variant in case") from e
+        small_vars = SmallVariant.objects.filter(
+            case_id=self.case.pk,
+            release=self.release,
+            chromosome=self.chromosome,
+            position=self.position,
+            reference=self.reference,
+            alternative=self.alternative,
+            ensembl_gene_id=self.ensembl_gene_id,
+        )
+        if not small_vars.exists():
+            raise ValidationError("No corresponding variant in case")
 
     class Meta:
         unique_together = (
