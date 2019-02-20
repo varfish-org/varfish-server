@@ -326,6 +326,13 @@ class ProjectCasesFilterQueryBase:
         """Return list with lines from pedigree that have samples."""
         return self.project.get_filtered_pedigree_with_samples()
 
+    def get_base_table(self):
+        """Return base_table"""
+        if self.base_table is None:
+            raise ImproperlyConfigured("Set base_table or override get_base_table().")
+        else:
+            return self.base_table
+
 
 class ProjectCasesPrefetchFilterQueryBase(ProjectCasesFilterQueryBase):
     #: Table that the query is based on
@@ -929,6 +936,7 @@ class FilterQueryFlagsCommentsMixin:
                 inner.outerjoin(
                     SmallVariantFlags.sa.table,
                     and_(
+                        SmallVariantFlags.sa.case_id == inner.c.case_id,
                         SmallVariantFlags.sa.release == inner.c.release,
                         SmallVariantFlags.sa.chromosome == inner.c.chromosome,
                         SmallVariantFlags.sa.position == inner.c.position,
@@ -939,6 +947,7 @@ class FilterQueryFlagsCommentsMixin:
                 ).outerjoin(
                     SmallVariantComment.sa.table,
                     and_(
+                        SmallVariantComment.sa.case_id == inner.c.case_id,
                         SmallVariantComment.sa.release == inner.c.release,
                         SmallVariantComment.sa.chromosome == inner.c.chromosome,
                         SmallVariantComment.sa.position == inner.c.position,

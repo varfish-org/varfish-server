@@ -3,6 +3,22 @@ History / Changelog
 ===================
 
 -------
+v0.11.7
+-------
+
+Bugfix release.
+
+End-User Summary
+================
+
+- Fixed yet another bug in setting SmallVariantFlags.
+
+Full Change List
+================
+
+- Fixing bug that variant flags are displayed no matter the case.
+
+-------
 v0.11.6
 -------
 
