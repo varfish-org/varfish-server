@@ -227,6 +227,109 @@ $("#settingsDownload").click(
 );
 
 /*
+Handle form error responses from Django AJAX JSON response.
+*/
+
+let INPUT_TAB_AFFILIATION = {
+  'genotype-tab': [
+    /_gt$/
+  ],
+  'frequency-tab': [
+    /^thousand_genomes_/,
+    /^exac_genomes_/,
+    /^gnomad_genomes_/,
+    /^gnomad_exomes_/,
+  ],
+  'effect-tab': [
+  ],
+  'quality-tab': [
+    /_dp_het$/,
+    /_dp_hom$/,
+    /_ab$/,
+    /_gq$/,
+    /_ad$/,
+    /_fail$/
+  ],
+  'blacklist-tab': [
+    /^gene_blacklist$/,
+    /^gene_whitelist$/
+  ],
+  'flags-tab': [
+    /^flag_/
+  ],
+  'clinvar-tab': [
+    /^require_in_/,
+    /^clinvar_include_/
+  ],
+  'export-tab': [
+    /export/,
+    /^file_type$/
+  ],
+  'misc-tab': [
+    /^result_rows_limit$/
+  ],
+  'settings-tab': [
+    /^settingsDump$/
+  ]
+};
+INPUT_TAB_AFFILIATION['more-tab'] = $.merge(
+  $.merge(
+    $.merge(
+      $.merge(
+        [],
+        INPUT_TAB_AFFILIATION['clinvar-tab'],
+      ),
+      INPUT_TAB_AFFILIATION['export-tab']
+    ),
+    INPUT_TAB_AFFILIATION['misc-tab']
+  ),
+  INPUT_TAB_AFFILIATION['settings-tab']
+);
+
+function findTabToInput(input) {
+  let result = [];
+  $.each(INPUT_TAB_AFFILIATION, function(key, value) {
+    $.each(value, function(index, pattern) {
+      if (pattern.test(input)) {
+        result.push(key);
+      }
+    });
+  });
+  return result;
+}
+
+function doVisualErrorResponseOnTabs(data) {
+  $.each(data, function(element_name, error_texts) {
+    let tabs = findTabToInput(element_name);
+    $.each(tabs, function(index, tab) {
+      $("#" + tab).addClass("border border-danger");
+    });
+  });
+}
+
+function doVisualErrorResponseOnForms(data) {
+  $.each(data, function(element_id, error_texts) {
+    let element = $("#id_" + element_id);
+    let text = "";
+    $.each(error_texts, function(index, error) {
+      text += error + "<br />";
+    });
+    element.addClass("border border-danger");
+    element.attr('data-toggle', 'tooltip');
+    element.attr('title', "");
+    element.attr('data-original-title', text);
+    element.attr('data-html', 'true');
+    element.tooltip({trigger : 'hover'});
+  });
+}
+
+function removeVisualErrorResponse() {
+  $(".border, .border-danger").each(function(index) {
+    $(this).removeClass("border border-danger");
+  });
+}
+
+/*
 Build state machine for managing the background filtering job.
  */
 
@@ -299,6 +402,7 @@ function handleEventStateIdle(eventType, event) {
   if (eventType == EVENT_SUBMIT) {
     currentState = STATE_GET_JOB_ID;
     animateSubmitButtonCancel();
+    removeVisualErrorResponse();
     let data = $("#filterForm").serializeArray().reduce(
       (accumulator, current) => (accumulator[current.name] = current.value, accumulator), {}
     );
@@ -310,6 +414,13 @@ function handleEventStateIdle(eventType, event) {
       data: data,
       success: function (result) {
         handleEvent(EVENT_GOT_JOB_ID, {'filter_job_uuid': result['filter_job_uuid']});
+      },
+      error: function(data) {
+        removeVisualErrorResponse();
+        doVisualErrorResponseOnForms(data.responseJSON);
+        doVisualErrorResponseOnTabs(data.responseJSON);
+        animateFilterButtonSubmit();
+        handleEvent(EVENT_ERROR, null);
       }
     });
   } else {
@@ -332,9 +443,10 @@ function handleEventStateGetJobId(eventType, event) {
         }
         return handleEvent(EVENT_STILL_WAITING, event);
       },
-      error: function (request, error, exception) {
-        console.log(request, error, exception);
-      },
+      error: function(data) {
+        animateFilterButtonSubmit();
+        handleEvent(EVENT_ERROR, null);
+      }
     });
   } else if (eventType == EVENT_NO_JOB_ID) {
     currentState = STATE_IDLE;
@@ -388,12 +500,13 @@ function handleEventStateWaitJobResults(eventType, event) {
       filterButton.data("url-reload"),
       data,
       function(responseText, textStatus, request) {
-        if (textStatus == "error") {
-          console.log(responseText, textStatus, request);
-        }
-        animateFilterButtonSubmit();
-        updateTableDisplay();
         currentState = STATE_IDLE;
+        animateFilterButtonSubmit();
+        if (textStatus == "error") {
+          handleEvent(EVENT_ERROR, null);
+        } else {
+          updateTableDisplay();
+        }
       }
     );
   }
@@ -707,8 +820,25 @@ function loadPresets(e) {
   }
 }
 
+function makeNumberFieldsReceiveOnlyDigits() {
+  $("input.numberDecimal[type='text']").keypress(function(data) {
+    if (data.which < 46 || data.which > 57 || data.which === 47) {
+      data.preventDefault();
+    }
+    if (data.which === 46 && /[.]/.test($(this).val())) {
+      data.preventDefault();
+    }
+  }).on("paste", function(data) {data.preventDefault();});
+  $("input.numberInteger[type='text']").keypress(function(data) {
+    if (data.which < 48 || data.which > 57) {
+      data.preventDefault();
+    }
+  }).on("paste", function(data) {data.preventDefault();});
+}
+
 $(document).ready(
   function() {
+    makeNumberFieldsReceiveOnlyDigits();
     if ($("#settingsDump").val() != "") {
       updateSettings();
     }
@@ -717,7 +847,7 @@ $(document).ready(
     $(".load-presets").click(loadPresets);
     // Assign click handler function to submit button
     filterButton.click(
-      function() {
+      function(e) {
         handleEvent($(this).attr("data-event-type"), null);
       }
     );

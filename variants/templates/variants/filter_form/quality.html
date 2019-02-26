@@ -10,7 +10,7 @@
 </style>
 
 <div style="overflow-y: auto; max-height: 400px;">
-  <table class="table table-striped table-hover sodar-card-table" id="quality-filter-table">
+  <table class="table table-striped table-hover sodar-card-table compact-form-groups" id="quality-filter-table">
     <thead>
       <tr>
         <th class="text-muted" style="width: 10px">#</th>
@@ -34,12 +34,12 @@
         <td>{{ member.mother|default:"0"|only_source_name }}</td>
         {% if member.has_gt_entries %}
           {% with field_names=form.get_quality_field_names|keyvalue:member.patient %}
-            <td>{% with x=field_names|keyvalue:"dp_het" %}{{ form|keyvalue:x }}{% endwith %}</td>
-            <td>{% with x=field_names|keyvalue:"dp_hom" %}{{ form|keyvalue:x }}{% endwith %}</td>
-            <td>{% with x=field_names|keyvalue:"ab" %}{{ form|keyvalue:x }}{% endwith %}</td>
-            <td>{% with x=field_names|keyvalue:"gq" %}{{ form|keyvalue:x }}{% endwith %}</td>
-            <td>{% with x=field_names|keyvalue:"ad" %}{{ form|keyvalue:x }}{% endwith %}</td>
-            <td>{% with x=field_names|keyvalue:"fail" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"dp_het" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"dp_hom" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"ab" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"gq" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"ad" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"fail" %}{{ form|keyvalue:x}}{% endwith %}</td>
           {% endwith %}
         {% else %}
           <td colspan="6" class="text-centered">

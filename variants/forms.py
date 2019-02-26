@@ -258,14 +258,14 @@ class SmallVariantQualityFilterFormMixin:
                 required=True,
                 initial=10,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-dp-het"}),
+                widget=forms.TextInput(attrs={"class": "quality-field-dp-het numberInteger"}),
             )
             self.fields[self.get_quality_field_names()[name]["dp_hom"]] = forms.IntegerField(
                 label="",
                 required=True,
                 initial=5,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-dp-hom"}),
+                widget=forms.TextInput(attrs={"class": "quality-field-dp-hom numberInteger"}),
             )
             self.fields[self.get_quality_field_names()[name]["ab"]] = forms.FloatField(
                 label="",
@@ -273,21 +273,21 @@ class SmallVariantQualityFilterFormMixin:
                 initial=0.3,
                 min_value=0,
                 max_value=1,
-                widget=forms.NumberInput(attrs={"class": "quality-field-ab"}),
+                widget=forms.TextInput(attrs={"class": "quality-field-ab numberDecimal"}),
             )
             self.fields[self.get_quality_field_names()[name]["gq"]] = forms.IntegerField(
                 label="",
                 required=True,
                 initial=30,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-gq"}),
+                widget=forms.TextInput(attrs={"class": "quality-field-gq numberInteger"}),
             )
             self.fields[self.get_quality_field_names()[name]["ad"]] = forms.IntegerField(
                 label="",
                 required=True,
                 initial=3,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-ad"}),
+                widget=forms.TextInput(attrs={"class": "quality-field-ad numberInteger"}),
             )
             self.fields[self.get_quality_field_names()[name]["fail"]] = forms.CharField(
                 label="",
@@ -479,19 +479,19 @@ class SmallVariantFrequencyFilterFormMixin:
             min_value=0,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal frequency in one ExAC population"}
+                attrs={"placeholder": "Maximal frequency in one ExAC population", "class": "numberDecimal"}
             ),
         )
         self.fields["exac_homozygous"] = forms.IntegerField(
             label="",
             initial=20,
             required=False,
-            widget=forms.NumberInput(attrs={"placeholder": "Maximal hom. count in ExAC"}),
+            widget=forms.TextInput(attrs={"placeholder": "Maximal hom. count in ExAC", "class": "numberInteger"}),
         )
         self.fields["exac_heterozygous"] = forms.IntegerField(
             label="",
             required=False,
-            widget=forms.NumberInput(attrs={"placeholder": "Maximal het. count in ExAC"}),
+            widget=forms.TextInput(attrs={"placeholder": "Maximal het. count in ExAC", "class": "numberInteger"}),
         )
 
         self.fields["gnomad_exomes_enabled"] = forms.BooleanField(
@@ -504,19 +504,19 @@ class SmallVariantFrequencyFilterFormMixin:
             min_value=0,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal frequency in one gnomAD exomes population"}
+                attrs={"placeholder": "Maximal frequency in one gnomAD exomes population", "class": "numberDecimal"}
             ),
         )
         self.fields["gnomad_exomes_homozygous"] = forms.IntegerField(
             label="",
             initial=30,
             required=False,
-            widget=forms.NumberInput(attrs={"placeholder": "Maximal hom. count in gnomAD exomes"}),
+            widget=forms.TextInput(attrs={"placeholder": "Maximal hom. count in gnomAD exomes", "class": "numberInteger"}),
         )
         self.fields["gnomad_exomes_heterozygous"] = forms.IntegerField(
             label="",
             required=False,
-            widget=forms.NumberInput(attrs={"placeholder": "Maximal het. count in gnomAD exomes"}),
+            widget=forms.TextInput(attrs={"placeholder": "Maximal het. count in gnomAD exomes", "class": "numberInteger"}),
         )
 
         self.fields["gnomad_genomes_enabled"] = forms.BooleanField(
@@ -529,19 +529,19 @@ class SmallVariantFrequencyFilterFormMixin:
             min_value=0,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal frequency in one gnomAD genomes population"}
+                attrs={"placeholder": "Maximal frequency in one gnomAD genomes population", "class": "numberDecimal"}
             ),
         )
         self.fields["gnomad_genomes_homozygous"] = forms.IntegerField(
             label="",
             initial=20,
             required=False,
-            widget=forms.NumberInput(attrs={"placeholder": "Maximal hom. count in gnomAD genomes"}),
+            widget=forms.TextInput(attrs={"placeholder": "Maximal hom. count in gnomAD genomes", "class": "numberInteger"}),
         )
         self.fields["gnomad_genomes_heterozygous"] = forms.IntegerField(
             label="",
             required=False,
-            widget=forms.NumberInput(attrs={"placeholder": "Maximal het. count in gnomAD genomes"}),
+            widget=forms.TextInput(attrs={"placeholder": "Maximal het. count in gnomAD genomes", "class": "numberInteger"}),
         )
 
         self.fields["thousand_genomes_enabled"] = forms.BooleanField(
@@ -554,21 +554,24 @@ class SmallVariantFrequencyFilterFormMixin:
             min_value=0,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal frequency in one 1000 genomes population"}
+                attrs={"placeholder": "Maximal frequency in one 1000 genomes population", "class": "numberDecimal"}
             ),
         )
         self.fields["thousand_genomes_homozygous"] = forms.IntegerField(
             label="",
             initial=10,
             required=False,
-            widget=forms.NumberInput(attrs={"placeholder": "Maximal hom. count in 1000 genomes"}),
+            widget=forms.TextInput(attrs={"placeholder": "Maximal hom. count in 1000 genomes", "class": "numberInteger"}),
         )
         self.fields["thousand_genomes_heterozygous"] = forms.IntegerField(
             label="",
             required=False,
-            widget=forms.NumberInput(attrs={"placeholder": "Maximal het. count in 1000 genomes"}),
+            widget=forms.TextInput(attrs={"placeholder": "Maximal het. count in 1000 genomes", "class": "numberInteger"}),
         )
 
+    def clean(self):
+        cleaned_data = super().clean()
+        return cleaned_data
 
 class SmallVariantVariantEffectFilterFormMixin:
     """Form mixin with variant effect etc. fields."""
@@ -709,6 +712,9 @@ class SmallVariantMiscFilterFormMixin:
             help_text=(
                 "Maximal number of rows displayed <b>when rendering on the website</b>.  "
                 "This setting is <b>not</b> used when creating a file for export."
+            ),
+            widget=forms.TextInput(
+                attrs={"class": "numberInteger"}
             ),
         )
 

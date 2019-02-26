@@ -12,11 +12,13 @@ End-User Summary
 ================
 
 - Filtering jobs can now be aborted.
+- Proper visual error response in forms.
 
 Full Change List
 ================
 
 - Filtering jobs runs now as background job and can be aborted.
+- Invalid fields and affiliated tabs are now marked with a red border.
 
 -------
 v0.11.8

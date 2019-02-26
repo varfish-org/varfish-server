@@ -728,3 +728,45 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.selenium.find_element_by_xpath("//a[@data-preset-name='full-exome']").click()
         # verify correctness
         self.assertTrue(self.selenium.find_element_by_id("id_effect_group_all").is_selected())
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_invalid_form_input_error_rendering(self):
+        """Test if invalid form input triggers visual error response rendering."""
+        self.compile_url_and_login()
+        button = self.selenium.find_element_by_id("submitFilter")
+        # create wrong setting
+        tab = self.selenium.find_element_by_id("frequency-tab")
+        tab.click()
+        field = self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_frequency']")
+        self.pending().until(ec.visibility_of(field))
+        field.clear()
+        field.send_keys("10")
+        # submit
+        button.click()
+        time.sleep(5)
+        # check for correct error rendering
+        self.assertIn("border-danger", tab.get_attribute("class").split())
+        self.assertIn("border-danger", field.get_attribute("class").split())
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_corrected_invalid_form_input_error_rendering(self):
+        """Test if visual error response rendering is removed when correcting invalid input."""
+        self.compile_url_and_login()
+        button = self.selenium.find_element_by_id("submitFilter")
+        # create wrong setting
+        tab = self.selenium.find_element_by_id("frequency-tab")
+        tab.click()
+        field = self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_frequency']")
+        self.pending().until(ec.visibility_of(field))
+        field.clear()
+        field.send_keys("10")
+        # submit
+        button.click()
+        time.sleep(5)
+        # correct invalid input
+        field.clear()
+        field.send_keys("0.1")
+        button.click()
+        time.sleep(5)
+        self.assertNotIn("border-danger", tab.get_attribute("class").split())
+        self.assertNotIn("border-danger", field.get_attribute("class").split())
