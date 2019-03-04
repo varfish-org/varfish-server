@@ -7,20 +7,18 @@ class FilterBase:
     """Base class for filtering and storing case query results.
     """
 
-    def __init__(self, job, previous_query):
+    def __init__(self, job, variant_query):
         """Constructor"""
         #: The ``StoreQueryResultsBgJob`` to use for logging.  Variants are obtained from ``case_or_project``.
         self.job = job
-        #: Previous query object. Either SmallVariantQuery or ProjectCasesSmallVariant
-        self.previous_query = previous_query
+        #: Either SmallVariantQuery or ProjectCasesSmallVariant
+        self.variant_query = variant_query
         #: The SQL Alchemy connection to use.
         self._alchemy_connection = None
-        #: The query arguments.
-        self.query_args = previous_query.query_settings
         #: Is set in inherited classes
-        self.query = self._get_query()
+        self.assembled_query = self._get_assembled_query()
 
-    def _get_query(self):
+    def _get_assembled_query(self):
         """Override me!"""
         pass
 
@@ -33,34 +31,34 @@ class FilterBase:
     def run(self, kwargs={}):
         """Run filter query"""
         # Patch query args, if available
-        _query_args = {**self.query_args, **kwargs}
+        _query_args = {**self.variant_query.query_settings, **kwargs}
         # Run query
-        results = self.query.run(_query_args)
+        results = self.assembled_query.run(_query_args)
         # Obtain smallvariant ids to store them in ManyToMany field
         smallvariant_pks = [row["id"] for row in results]
         # Delete previously stored results (note: this only disassociates them, it doesn't delete objects itself.)
-        self.previous_query.query_results.clear()
+        self.variant_query.query_results.clear()
         # Bulk-insert Many-to-Many relationship
-        self.previous_query.query_results.add(*smallvariant_pks)
+        self.variant_query.query_results.add(*smallvariant_pks)
 
 
 class CaseFilter(FilterBase):
     """Class for storing query results for a single case.
     """
 
-    def _get_query(self):
+    def _get_assembled_query(self):
         """Render filter query for a single case"""
-        return PrefetchFilterQuery(self.previous_query.case, self.get_alchemy_connection())
+        return PrefetchFilterQuery(self.variant_query.case, self.get_alchemy_connection())
 
 
 class ProjectCasesFilter(FilterBase):
     """Class for storing query results for cases of a project.
     """
 
-    def _get_query(self):
+    def _get_assembled_query(self):
         """Render filter query for a project"""
         return ProjectCasesPrefetchFilterQuery(
-            self.previous_query.project, self.get_alchemy_connection()
+            self.variant_query.project, self.get_alchemy_connection()
         )
 
 

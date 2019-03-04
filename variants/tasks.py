@@ -51,15 +51,13 @@ def compute_project_variants_stats(_self, export_job_pk):
 @app.task(bind=True)
 def filter_task(_self, filter_job_pk):
     """Task to submit storing the query results"""
-    return submit_filter.case_filter(
-        models.FilterBgJob.objects.get(pk=filter_job_pk),
-    )
+    return submit_filter.case_filter(models.FilterBgJob.objects.get(pk=filter_job_pk))
 
 
 @app.task(bind=True)
 def project_cases_filter_task(_self, project_cases_filter_job_pk):
     return submit_filter.project_cases_filter(
-        models.ProjectCasesFilterBgJob.objects.get(pk=project_cases_filter_job_pk),
+        models.ProjectCasesFilterBgJob.objects.get(pk=project_cases_filter_job_pk)
     )
 
 

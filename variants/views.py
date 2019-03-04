@@ -373,8 +373,7 @@ class CaseFilterView(
             kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},
         )
         context["job_status_url"] = reverse(
-            "variants:filter-job-status",
-            kwargs={"project": context["project"].sodar_uuid},
+            "variants:filter-job-status", kwargs={"project": context["project"].sodar_uuid}
         )
         context["query_type"] = self.query_type
         return context
@@ -434,7 +433,7 @@ class CasePrefetchFilterView(
 
             # Submit job
             filter_task.delay(filter_job_pk=filter_job.pk)
-            return JsonResponse({'filter_job_uuid': filter_job.sodar_uuid})
+            return JsonResponse({"filter_job_uuid": filter_job.sodar_uuid})
         return JsonResponse(data=form.errors, status=400)
 
 
@@ -451,7 +450,7 @@ class FilterJobGetStatus(
     slug_field = "sodar_uuid"
 
     def post(self, request, *args, **kwargs):
-        filter_job = FilterBgJob.objects.get(sodar_uuid=request.POST['filter_job_uuid'])
+        filter_job = FilterBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
         return JsonResponse({"status": filter_job.bg_job.status})
 
 
@@ -470,8 +469,7 @@ class FilterJobGetPrevious(
     def get(self, request, *args, **kwargs):
         filter_job = (
             FilterBgJob.objects.filter(
-                smallvariantquery__user=request.user,
-                case__sodar_uuid=kwargs["case"],
+                smallvariantquery__user=request.user, case__sodar_uuid=kwargs["case"]
             )
             .order_by("-bg_job__date_created")
             .first()
@@ -503,13 +501,15 @@ class CaseLoadPrefetchedFilterView(
     def post(self, request, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
 
-        filter_job = FilterBgJob.objects.get(sodar_uuid=request.POST['filter_job_uuid'])
+        filter_job = FilterBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
 
         # Take time while job is running
         before = timezone.now()
         # Get and run query
         query = LoadPrefetchedFilterQuery(
-            filter_job.smallvariantquery.case, SQLALCHEMY_ENGINE.connect(), filter_job.smallvariantquery.id
+            filter_job.smallvariantquery.case,
+            SQLALCHEMY_ENGINE.connect(),
+            filter_job.smallvariantquery.id,
         )
         results = query.run(filter_job.smallvariantquery.query_settings)
         num_results = results.rowcount
@@ -553,7 +553,7 @@ class ProjectCasesLoadPrefetchedFilterView(
     def post(self, request, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
 
-        filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=request.POST['filter_job_uuid'])
+        filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
 
         # Take time while job is running
         before = timezone.now()
@@ -566,7 +566,9 @@ class ProjectCasesLoadPrefetchedFilterView(
         results = query.run(filter_job.projectcasessmallvariantquery.query_settings)
         num_results = results.rowcount
         # Get first N rows. This will pop the first N rows! results list will be decreased by N.
-        _rows = results.fetchmany(filter_job.projectcasessmallvariantquery.query_settings["result_rows_limit"])
+        _rows = results.fetchmany(
+            filter_job.projectcasessmallvariantquery.query_settings["result_rows_limit"]
+        )
         rows = []
         for row in _rows:
             for sample in sorted(row.genotype.keys()):
@@ -754,7 +756,7 @@ class ProjectCasesPrefetchFilterView(
 
             # Submit job
             project_cases_filter_task.delay(project_cases_filter_job_pk=filter_job.pk)
-            return JsonResponse({'filter_job_uuid': filter_job.sodar_uuid})
+            return JsonResponse({"filter_job_uuid": filter_job.sodar_uuid})
         return JsonResponse(data=form.errors, status=400)
 
 
@@ -771,7 +773,7 @@ class ProjectCasesFilterJobGetStatus(
     slug_field = "sodar_uuid"
 
     def post(self, request, *args, **kwargs):
-        filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=request.POST['filter_job_uuid'])
+        filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
         return JsonResponse({"status": filter_job.bg_job.status})
 
 
@@ -789,9 +791,7 @@ class ProjectCasesFilterJobGetPrevious(
 
     def get(self, request, *args, **kwargs):
         filter_job = (
-            ProjectCasesFilterBgJob.objects.filter(
-                projectcasessmallvariantquery__user=request.user,
-            )
+            ProjectCasesFilterBgJob.objects.filter(projectcasessmallvariantquery__user=request.user)
             .order_by("-bg_job__date_created")
             .first()
         )

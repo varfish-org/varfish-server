@@ -29,7 +29,7 @@ SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 def open_file(path, mode):
     """Open gzip or normal file."""
-    if path.endswith('.gz'):
+    if path.endswith(".gz"):
         return gzip.open(path, mode)
     else:
         return open(path, mode)

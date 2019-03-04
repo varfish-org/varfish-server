@@ -215,7 +215,14 @@ function default0(value) {
 $(document).on('click', '.toggle-variant-details', function() {
   $("i", this).toggleClass('fa-chevron-right');
   $("i", this).toggleClass('fa-chevron-down');
-  $($(this).data("target") + " .variant-details").load($(this).data("url"));
+  $($(this).data("target") + " .variant-details").load(
+    $(this).data("url"),
+    function(responseText, textStatus, request) {
+      if (textStatus == "error") {
+        console.log("Error during AJAX call: ", request, textStatus, responseText);
+      }
+    }
+  );
 });
 
 $("#settingsDownload").click(
@@ -354,6 +361,7 @@ let currentState = STATE_INITIAL;
 let ajaxCall = null;
 let filterButton = $("#submitFilter");
 let resultsTable = $("#resultsTable");
+let timer = null;
 
 // Helper function to switch the state of the submit button (make it "Submit").
 function animateFilterButtonSubmit() {
@@ -371,7 +379,14 @@ function animateSubmitButtonCancel() {
   icon.prependTo(filterButton);
   filterButton.attr("data-event-type", EVENT_CANCEL);
   resultsTable.empty();
-  resultsTable.load($(filterButton).data("url-wheel"));
+  resultsTable.load(
+    $(filterButton).data("url-wheel"),
+    function(responseText, textStatus, request) {
+      if (textStatus == "error") {
+        console.log("Error during AJAX call: ", request, textStatus, responseText);
+      }
+    }
+  );
   icon.addClass("fa-spin");
 }
 
@@ -390,6 +405,15 @@ function handleEventStateInitial(eventType, event) {
           return handleEvent(EVENT_GOT_JOB_ID, {'filter_job_uuid': filter_job_uuid});
         }
         return handleEvent(EVENT_NO_JOB_ID, null);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        switch (jqXHR.status) {
+          case 0:
+            break;
+          default:
+            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+            handleEvent(EVENT_ERROR, null);
+        }
       }
     });
   } else {
@@ -415,12 +439,21 @@ function handleEventStateIdle(eventType, event) {
       success: function (result) {
         handleEvent(EVENT_GOT_JOB_ID, {'filter_job_uuid': result['filter_job_uuid']});
       },
-      error: function(data) {
-        removeVisualErrorResponse();
-        doVisualErrorResponseOnForms(data.responseJSON);
-        doVisualErrorResponseOnTabs(data.responseJSON);
-        animateFilterButtonSubmit();
-        handleEvent(EVENT_ERROR, null);
+      error: function(jqXHR, textStatus, errorThrown) {
+        switch (jqXHR.status) {
+          case 0:
+            // aborted ajax call.
+            break;
+          case 400:
+            removeVisualErrorResponse();
+            doVisualErrorResponseOnForms(jqXHR.responseJSON);
+            doVisualErrorResponseOnTabs(jqXHR.responseJSON);
+            handleEvent(EVENT_ERROR, null);
+            break;
+          default:
+            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+            handleEvent(EVENT_ERROR, null);
+        }
       }
     });
   } else {
@@ -443,9 +476,14 @@ function handleEventStateGetJobId(eventType, event) {
         }
         return handleEvent(EVENT_STILL_WAITING, event);
       },
-      error: function(data) {
-        animateFilterButtonSubmit();
-        handleEvent(EVENT_ERROR, null);
+      error: function(jqXHR, textStatus, errorThrown) {
+        switch (jqXHR.status) {
+          case 0:
+            break;
+          default:
+            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+            handleEvent(EVENT_ERROR, null);
+        }
       }
     });
   } else if (eventType == EVENT_NO_JOB_ID) {
@@ -475,11 +513,20 @@ function handleEventStateGetJobId(eventType, event) {
 // Handle state WAIT_JOB_RESULTS
 function handleEventStateWaitJobResults(eventType, event) {
   if (eventType == EVENT_STILL_WAITING) {
-    currentState = STATE_GET_JOB_ID;
-    setTimeout(handleEvent, 5000, EVENT_GOT_JOB_ID, event);
+    timer = setTimeout(
+      function(event, eventData) {
+        currentState = STATE_GET_JOB_ID;
+        handleEvent(event, eventData);
+      },
+      5000,
+      EVENT_GOT_JOB_ID, event
+    );
   } else if (eventType == EVENT_CANCEL) {
     currentState = STATE_IDLE;
-    clearTimeout();
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
     if (ajaxCall) {
       ajaxCall.abort("Aborting AJAX call ...");
       ajaxCall = null;
@@ -496,19 +543,26 @@ function handleEventStateWaitJobResults(eventType, event) {
       "csrfmiddlewaretoken": "{{ csfr_token }}",
       "filter_job_uuid": event["filter_job_uuid"]
     };
-    $("#resultsTable").load(
-      filterButton.data("url-reload"),
-      data,
-      function(responseText, textStatus, request) {
+    ajaxCall = $.ajax({
+      url: filterButton.data("url-reload"),
+      method: "POST",
+      data: data,
+      success: function(data) {
         currentState = STATE_IDLE;
         animateFilterButtonSubmit();
-        if (textStatus == "error") {
-          handleEvent(EVENT_ERROR, null);
-        } else {
-          updateTableDisplay();
+        $("#resultsTable").html(data);
+        updateTableDisplay();
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        switch (jqXHR.status) {
+          case 0:
+            break;
+          default:
+            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+            handleEvent(EVENT_ERROR, null);
         }
       }
-    );
+    });
   }
   else {
     console.log("unexpected event", eventType, event, "in state", currentState);

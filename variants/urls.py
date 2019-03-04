@@ -138,7 +138,7 @@ urlpatterns = [
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/filter-job/previous/(?P<case>[0-9a-f-]+)/$",
         view=views.FilterJobGetPrevious.as_view(),
-        name="filter-job-previous"
+        name="filter-job-previous",
     ),
     # Views for filtering and storing project cases query results jobs
     url(
@@ -169,7 +169,7 @@ urlpatterns = [
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/project-cases-filter-job/previous/$",
         view=views.ProjectCasesFilterJobGetPrevious.as_view(),
-        name="project-cases-filter-job-previous"
+        name="project-cases-filter-job-previous",
     ),
     # Render details row
     url(

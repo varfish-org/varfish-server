@@ -40,6 +40,6 @@ all_tests:
   - coverage run manage.py test -v2 --settings=config.settings.test
   - coverage report
   # Run syntax checks and static code analysis.
-  - black -l 100 --check
+  - black -l 100 --check annotation bgjobs clinvar conservation dbsnp frequencies geneinfo hgmd importer pathways templatetags variants var_stats_qc
   # - flake8
   when: on_success

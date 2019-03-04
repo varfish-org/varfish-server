@@ -618,7 +618,9 @@ class TestVariantsCaseFilterView(TestUIBase):
         time.sleep(5)
         with self.assertRaises(NoSuchElementException):
             self.selenium.find_element_by_id("loadingWheel")
-        self.assertEqual(self.selenium.find_element_by_id("resultsTable").get_attribute("innerHTML"), "")
+        self.assertEqual(
+            self.selenium.find_element_by_id("resultsTable").get_attribute("innerHTML"), ""
+        )
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
