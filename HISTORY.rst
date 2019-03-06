@@ -14,6 +14,7 @@ End-User Summary
 - Filtering jobs can now be aborted.
 - Proper visual error response in forms.
 - Tests for all views completed.
+- Variant details now use full table space.
 
 Full Change List
 ================
@@ -25,6 +26,8 @@ Full Change List
 - Bugfix in rendering download results files for ProjectCases.
 - Bugfix in template for job detail view.
 - Bugfix in listing background jobs for a case.
+- Variant details do not load anymore when detail view is closed.
+- Variant details now use full table space.
 
 -------
 v0.11.8
