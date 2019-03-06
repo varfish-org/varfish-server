@@ -1966,7 +1966,6 @@ SMALLVARIANT_FLAGS_FORM_DATA = {
     "position": 100,
     "reference": "A",
     "alternative": "G",
-    "ensembl_gene_id": "ENSG0001",
     "flag_bookmarked": True,
     "flag_candidate": False,
     "flag_final_causative": False,
@@ -1999,7 +1998,6 @@ class TestSmallVariantFlagsApiView(TestViewBase):
                     "position": 100,
                     "reference": "A",
                     "alternative": "G",
-                    "ensembl_gene_id": "ENSG0001",
                 },
             )
             self.assertEqual(SmallVariantFlags.objects.count(), 0)
@@ -2042,7 +2040,6 @@ class TestSmallVariantFlagsApiView(TestViewBase):
                     "position": 100,
                     "reference": "A",
                     "alternative": "G",
-                    "ensembl_gene_id": "ENSG0001",
                 },
             )
             self.assertEqual(response.status_code, 200)
@@ -2102,7 +2099,6 @@ SMALLVARIANT_COMMENT_FORM_DATA = {
     "position": 100,
     "reference": "A",
     "alternative": "G",
-    "ensembl_gene_id": "ENSG0001",
     "text": "Comment X",
 }
 

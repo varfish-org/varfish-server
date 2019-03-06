@@ -942,7 +942,6 @@ class FilterQueryFlagsCommentsMixin:
                         SmallVariantFlags.sa.position == inner.c.position,
                         SmallVariantFlags.sa.reference == inner.c.reference,
                         SmallVariantFlags.sa.alternative == inner.c.alternative,
-                        SmallVariantFlags.sa.ensembl_gene_id == inner.c.ensembl_gene_id,
                     ),
                 ).outerjoin(
                     SmallVariantComment.sa.table,
@@ -953,7 +952,6 @@ class FilterQueryFlagsCommentsMixin:
                         SmallVariantComment.sa.position == inner.c.position,
                         SmallVariantComment.sa.reference == inner.c.reference,
                         SmallVariantComment.sa.alternative == inner.c.alternative,
-                        SmallVariantComment.sa.ensembl_gene_id == inner.c.ensembl_gene_id,
                     ),
                 )
             )

@@ -424,16 +424,7 @@ class CaseExporterXlsx(CaseExporterBase):
             0,
             0,
             header_prefix
-            + [
-                "Chromosome",
-                "Position",
-                "Reference",
-                "Alternative",
-                "Date",
-                "ENSEMBL Gene ID",
-                "Author",
-                "Comment",
-            ],
+            + ["Chromosome", "Position", "Reference", "Alternative", "Date", "Author", "Comment"],
             self.header_format,
         )
         if self.case:
@@ -449,7 +440,6 @@ class CaseExporterXlsx(CaseExporterBase):
                     comment.reference,
                     comment.alternative,
                     comment.date_created,
-                    comment.ensembl_gene_id,
                     comment.user.username,
                     comment.text,
                 ]

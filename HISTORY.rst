@@ -28,6 +28,8 @@ Full Change List
 - Bugfix in listing background jobs for a case.
 - Variant details do not load anymore when detail view is closed.
 - Variant details now use full table space.
+- Flags and comments do not depend on EnsEMBL gene id anymore.
+  All traces where removed, including the database column.
 
 -------
 v0.11.8
