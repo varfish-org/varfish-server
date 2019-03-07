@@ -1140,24 +1140,28 @@ class ClinvarReportFromAndWhereMixin(GenotypeTermWhereMixin):
     """
 
     def _from(self, kwargs):
-        tmp = SmallVariant.sa.table.outerjoin(
-            Clinvar.sa,
-            and_(
-                SmallVariant.sa.release == Clinvar.sa.release,
-                SmallVariant.sa.chromosome == Clinvar.sa.chromosome,
-                SmallVariant.sa.position == Clinvar.sa.position,
-                SmallVariant.sa.reference == Clinvar.sa.reference,
-                SmallVariant.sa.alternative == Clinvar.sa.alternative,
-            ),
-        ).outerjoin(
-            Dbsnp.sa,
-            and_(
-                SmallVariant.sa.release == Dbsnp.sa.release,
-                SmallVariant.sa.chromosome == Dbsnp.sa.chromosome,
-                SmallVariant.sa.position == Dbsnp.sa.position,
-                SmallVariant.sa.reference == Dbsnp.sa.reference,
-                SmallVariant.sa.alternative == Dbsnp.sa.alternative,
-            ),
+        tmp = (
+            self.get_base_table()
+            .outerjoin(
+                Clinvar.sa,
+                and_(
+                    SmallVariant.sa.release == Clinvar.sa.release,
+                    SmallVariant.sa.chromosome == Clinvar.sa.chromosome,
+                    SmallVariant.sa.position == Clinvar.sa.position,
+                    SmallVariant.sa.reference == Clinvar.sa.reference,
+                    SmallVariant.sa.alternative == Clinvar.sa.alternative,
+                ),
+            )
+            .outerjoin(
+                Dbsnp.sa,
+                and_(
+                    SmallVariant.sa.release == Dbsnp.sa.release,
+                    SmallVariant.sa.chromosome == Dbsnp.sa.chromosome,
+                    SmallVariant.sa.position == Dbsnp.sa.position,
+                    SmallVariant.sa.reference == Dbsnp.sa.reference,
+                    SmallVariant.sa.alternative == Dbsnp.sa.alternative,
+                ),
+            )
         )
         if kwargs["database_select"] == "refseq":
             return tmp.outerjoin(Hgnc.sa, SmallVariant.sa.refseq_gene_id == Hgnc.sa.entrez_id)
@@ -1234,14 +1238,54 @@ class ClinvarReportFieldsMixin(FilterQueryRenderFieldsMixin):
             return result
 
 
-class ClinvarReportQuery(
+class PrefetchClinvarReportQueryBase(SingleCaseFilterQueryBase):
+    #: Table that the query is based on
+    base_table = SmallVariant.sa.table
+
+
+class LoadPrefetchedClinvarReportQueryBase(SingleCaseFilterQueryBase):
+    """Class to load previous filter results
+    """
+
+    def __init__(self, case, connection, clinvarquery_pk, debug=False):
+        """Constructor"""
+        super().__init__(case, connection, debug=False)
+        #: Store the smallvariantquery id to access previous results in 'where' part of the statement
+        self.clinvarquery_pk = clinvarquery_pk
+        #: Get the intermediate table where Django stores the ManyToMany relation / query results
+        self.query_results = get_tables()["variants_clinvarquery_query_results"]
+
+    def get_base_table(self):
+        """Render the base table by joining the smallvariant entries by id onto the stored result ids"""
+        return self.query_results.join(
+            SmallVariant.sa.table, self.query_results.c.smallvariant_id == SmallVariant.sa.id
+        )
+
+    def _core_where(self, _kwargs, _gt_patterns=None):
+        """OVERRIDE the where clause"""
+        return self.query_results.c.clinvarquery_id == self.clinvarquery_pk
+
+
+class PrefetchClinvarReportQuery(
     FilterQueryFlagsCommentsMixin,
     FilterQueryHgmdMixin,
     FilterQueryClinvarDetailsMixin,
     ClinvarReportFromAndWhereMixin,
     ClinvarReportFieldsMixin,
     OrderByChromosomalPositionMixin,
-    SingleCaseFilterQueryBase,
+    PrefetchClinvarReportQueryBase,
+):
+    """Run query for clinvar report."""
+
+
+class LoadPrefetchedClinvarReportQuery(
+    FilterQueryFlagsCommentsMixin,
+    FilterQueryHgmdMixin,
+    FilterQueryClinvarDetailsMixin,
+    ClinvarReportFromAndWhereMixin,
+    ClinvarReportFieldsMixin,
+    OrderByChromosomalPositionMixin,
+    LoadPrefetchedClinvarReportQueryBase,
 ):
     """Run query for clinvar report."""
 

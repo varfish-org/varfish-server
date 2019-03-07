@@ -26,7 +26,7 @@ from ._fixtures import (
     CLINVAR_FORM_DEFAULTS,
 )
 from ..models_support import (
-    ClinvarReportQuery,
+    PrefetchClinvarReportQuery,
     ExportTableFileFilterQuery,
     CountOnlyFilterQuery,
     PrefetchFilterQuery,
@@ -2614,7 +2614,7 @@ class ClinvarReportQueryTestCaseFour(TestBase):
         connection = SQLALCHEMY_ENGINE.connect()
         patched_cleaned_data = {**self.base_cleaned_data, **form_data_patch}
         case = Case.objects.get(sodar_uuid=patched_cleaned_data["case_uuid"])
-        query = ClinvarReportQuery(case, connection)
+        query = PrefetchClinvarReportQuery(case, connection)
         result = list(query.run(patched_cleaned_data))
         # Compare result.
         self.assertEquals(len(result), expected_result_count)

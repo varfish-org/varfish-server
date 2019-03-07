@@ -22,10 +22,16 @@ urlpatterns = [
         view=views.CaseFilterView.as_view(),
         name="case-filter-job",
     ),
+    # Views for clinvar
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/clinvar/(?P<case>[0-9a-f-]+)/$",
         view=views.CaseClinvarReportView.as_view(),
         name="case-clinvar",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/clinvar/(?P<case>[0-9a-f-]+)/job/(?P<job>[0-9a-f-]+)/$",
+        view=views.CaseClinvarReportView.as_view(),
+        name="case-clinvar-job",
     ),
     # Project-wide case filtration.
     url(
@@ -139,6 +145,37 @@ urlpatterns = [
         regex=r"^(?P<project>[0-9a-f-]+)/filter-job/previous/(?P<case>[0-9a-f-]+)/$",
         view=views.FilterJobGetPrevious.as_view(),
         name="filter-job-previous",
+    ),
+    # Views for filtering and storing clinvar query results jobs
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/clinvar-results/(?P<case>[0-9a-f-]+)/$",
+        view=views.CasePrefetchClinvarReportView.as_view(),
+        name="clinvar-results",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/clinvar-job/detail/(?P<job>[0-9a-f-]+)/$",
+        view=views.ClinvarReportJobDetailView.as_view(),
+        name="clinvar-job-detail",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/clinvar-job/resubmit/(?P<job>[0-9a-f-]+)/$",
+        view=views.ClinvarReportJobResubmitView.as_view(),
+        name="clinvar-job-resubmit",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/load-clinvar-results/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseLoadPrefetchedClinvarReportView.as_view(),
+        name="load-clinvar-results",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/clinvar-job/status/$",
+        view=views.CaseClinvarReportJobGetStatus.as_view(),
+        name="clinvar-job-status",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/clinvar-job/previous/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseClinvarReportJobGetPrevious.as_view(),
+        name="clinvar-job-previous",
     ),
     # Views for filtering and storing project cases query results jobs
     url(

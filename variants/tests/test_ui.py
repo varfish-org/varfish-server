@@ -2,13 +2,12 @@
 
 import os
 import socket
-from urllib.parse import urlencode
 import json
 import time
 from unittest import skipIf
 
 from django.contrib import auth
-from django.test import LiveServerTestCase, override_settings
+from django.test import LiveServerTestCase
 from django.urls import reverse
 
 from selenium import webdriver
@@ -19,15 +18,12 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from projectroles.models import Role, SODAR_CONSTANTS, Project
-from projectroles.plugins import get_active_plugins
-from projectroles.tests.test_models import (
-    ProjectMixin,
-    RoleAssignmentMixin,
-    ProjectInviteMixin,
-    RemoteTargetMixin,
-)
+from projectroles.tests.test_models import ProjectMixin, RoleAssignmentMixin
 
 from ..models import CaseVariantStats, SampleVariantStatistics, SmallVariant
+from clinvar.models import Clinvar
+
+from ._fixtures import CLINVAR_DEFAULTS
 
 
 # SODAR constants
@@ -223,7 +219,7 @@ BASIC_VAR = {
     "alternative": "G",
     "var_type": "snv",
     "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
-    "in_clinvar": False,
+    "in_clinvar": True,
     # frequencies
     "exac_frequency": 0.001,
     "exac_homozygous": 0,
@@ -428,6 +424,21 @@ class TestVariantsCaseDetailView(TestUIBase):
 def fixture_setup_single_variant():
     """Fixture setup for a single individual with a single variant (based on fixture_setup_project_case)"""
     case = fixture_setup_project_case()
+
+    Clinvar.objects.create(
+        **{
+            **CLINVAR_DEFAULTS,
+            "position": 100,
+            "start": 100,
+            "stop": 100,
+            "clinical_significance": "pathogenic",
+            "clinical_significance_ordered": ["pathogenic"],
+            "pathogenic": 2,
+            "review_status": ["practice guideline"],
+            "review_status_ordered": ["practice guideline"],
+        }
+    )
+
     SmallVariant.objects.create(**{**BASIC_VAR, **{"case_id": case.pk, "position": 100}})
 
 
@@ -958,3 +969,58 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
                 )
             )
         )
+
+
+class TestVariantsCaseClinvarView(TestUIBase):
+    """Tests for the variants case filter view."""
+
+    view = "variants:case-clinvar"
+    kwargs = {
+        "project": "7c599407-6c44-4d9e-81aa-cd8cf3d817a4",
+        "case": "9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
+    }
+    fixture_setup = fixture_setup_single_variant
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_clinvar_display_loading(self):
+        """Test if submitting the filter initiates the loading response."""
+        # login
+        self.compile_url_and_login()
+        # find & hit button
+        button = self.selenium.find_element_by_id("submitFilter")
+        self.assertEqual(button.get_attribute("data-event-type"), "submit")
+        button.click()
+        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.assertEqual(button.get_attribute("data-event-type"), "cancel")
+        # Wait for background job to finish, otherwise database can't be flushed for next test.
+        time.sleep(5)
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_clinvar_display_cancel(self):
+        """Test if submitting the filter can be canceled."""
+        # login
+        self.compile_url_and_login()
+        # find & hit button
+        button = self.selenium.find_element_by_id("submitFilter")
+        self.assertEqual(button.get_attribute("data-event-type"), "submit")
+        button.click()
+        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.assertEqual(button.get_attribute("data-event-type"), "cancel")
+        button.click()
+        time.sleep(5)
+        with self.assertRaises(NoSuchElementException):
+            self.selenium.find_element_by_id("loadingWheel")
+        self.assertEqual(
+            self.selenium.find_element_by_id("resultsTable").get_attribute("innerHTML"), ""
+        )
+        self.assertEqual(button.get_attribute("data-event-type"), "submit")
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_clinvar_display_results(self):
+        """Test if submitting the filter yields the expected results."""
+        # login
+        self.compile_url_and_login()
+        # hit submit button
+        self.selenium.find_element_by_id("submitFilter").click()
+        # wait for redirect
+        self.pending().until(ec.presence_of_element_located((By.ID, "clinvar-entry-1")))

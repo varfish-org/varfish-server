@@ -931,6 +931,19 @@ class SmallVariantQuery(SmallVariantQueryBase):
     )
 
 
+class ClinvarQuery(SmallVariantQueryBase):
+    """Allow saving of clinvar queries.
+    """
+
+    #: The related case.
+    case = models.ForeignKey(
+        Case,
+        null=False,
+        related_name="clinvar_queries",
+        help_text="The case that the query relates to",
+    )
+
+
 class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):
     """Allow saving of whole-project queries to the ``SmallVariant`` model.
 
@@ -941,7 +954,7 @@ class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):
         CaseAwareProject,
         null=False,
         related_name="small_variant_queries",
-        help_text="The case that the query relates to",
+        help_text="The project that the query relates to",
     )
 
 
@@ -980,6 +993,43 @@ class FilterBgJob(JobModelMessageMixin, models.Model):
     def get_absolute_url(self):
         return reverse(
             "variants:filter-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
+
+
+class ClinvarBgJob(JobModelMessageMixin, models.Model):
+    """Background job for processing clinvar filter query and storing query results in table SmallVariantQueryBase."""
+
+    #: Task description for logging.
+    task_desc = "Clinvar query and store results"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.clinvar_bg_job"
+
+    #: Fields required by SODAR
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
+    )
+    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="clinvar_bg_job",
+        help_text="Background job for clinvar filtering and storing query results",
+    )
+
+    case = models.ForeignKey(Case, null=False, help_text="The case to filter")
+
+    #: Link to the smallvariantquery object. Holds query arguments and results
+    clinvarquery = models.ForeignKey(ClinvarQuery, null=False, help_text="Query that is executed.")
+
+    def get_human_readable_type(self):
+        return "Clinvar query results"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:clinvar-job-detail",
             kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
         )
 

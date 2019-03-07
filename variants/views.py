@@ -28,7 +28,7 @@ from projectroles.plugins import get_backend_api
 from annotation.models import Annotation
 from .models import SmallVariant
 from .models_support import (
-    ClinvarReportQuery,
+    LoadPrefetchedClinvarReportQuery,
     KnownGeneAAQuery,
     LoadPrefetchedFilterQuery,
     ProjectCasesLoadPrefetchedFilterQuery,
@@ -46,6 +46,8 @@ from .models import (
     SmallVariantQuery,
     ProjectCasesSmallVariantQuery,
     ProjectCasesFilterBgJob,
+    ClinvarBgJob,
+    ClinvarQuery,
 )
 from .forms import (
     ClinvarForm,
@@ -68,6 +70,7 @@ from .tasks import (
     compute_project_variants_stats,
     filter_task,
     project_cases_filter_task,
+    clinvar_task,
 )
 from .file_export import RowWithSampleProxy
 from . import submit_filter
@@ -859,38 +862,210 @@ class CaseClinvarReportView(
         result["case"] = self.get_case_object()
         return result
 
-    def form_valid(self, form):
-        """The form is valid, we are supposed to render an HTML table with the results."""
-        # Save query parameters.
-        SmallVariantQuery.objects.create(
-            case=self.get_case_object(),
-            user=self.request.user,
-            form_id=form.form_id,
-            form_version=form.form_version,
-            query_settings=_undecimal(form.cleaned_data),
+    def get_initial(self):
+        """Put initial data in the form from the previous query if any and push information into template for the
+        "welcome back" message."""
+        result = self.initial.copy()
+        if " job" in self.kwargs:
+            previous_query = ClinvarBgJob.objects.get(sodar_uuid=self.kwargs["job"]).clinvarquery
+        else:
+            previous_query = (
+                self.get_case_object()
+                .clinvar_queries.filter(user=self.request.user)
+                .order_by("-date_created")
+                .first()
+            )
+        if self.request.method == "GET" and previous_query:
+            # TODO: the code for version conversion needs to be hooked in here
+            messages.info(
+                self.request,
+                ("Welcome back! We have restored your previous query settings from {}.").format(
+                    naturaltime(previous_query.date_created)
+                ),
+            )
+            for key, value in previous_query.query_settings.items():
+                if isinstance(value, list):
+                    result[key] = " ".join(value)
+                else:
+                    result[key] = value
+        return result
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object"] = self.get_case_object()
+        context["submit_button_url"] = reverse(
+            "variants:clinvar-results",
+            kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},
         )
-        # Perform query while recording time.
+        context["load_data_url"] = reverse(
+            "variants:load-clinvar-results",
+            kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},
+        )
+        context["request_previous_job_url"] = reverse(
+            "variants:clinvar-job-previous",
+            kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},
+        )
+        context["job_status_url"] = reverse(
+            "variants:clinvar-job-status", kwargs={"project": context["project"].sodar_uuid}
+        )
+        return context
+
+
+class CasePrefetchClinvarReportView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, request, *args, **kwargs):
+        """process the post request. important: data is not cleaned automatically, we must initiate it here."""
+
+        # get case object
+        case_object = Case.objects.get(sodar_uuid=kwargs["case"])
+
+        # clean data first
+        form = ClinvarForm(request.POST, case=case_object)
+
+        if form.is_valid():
+            # form is valid, we are supposed to render an HTML table with the results
+            with transaction.atomic():
+                # Save query parameters
+                clinvar_query = ClinvarQuery.objects.create(
+                    case=case_object,
+                    user=request.user,
+                    form_id=form.form_id,
+                    form_version=form.form_version,
+                    query_settings=_undecimal(form.cleaned_data),
+                )
+                # Construct background job objects
+                bg_job = BackgroundJob.objects.create(
+                    name="Running filter query for case {}".format(case_object.name),
+                    project=self.get_project(request, kwargs),
+                    job_type=ClinvarBgJob.spec_name,
+                    user=request.user,
+                )
+                clinvar_job = ClinvarBgJob.objects.create(
+                    project=self.get_project(request, kwargs),
+                    bg_job=bg_job,
+                    case=case_object,
+                    clinvarquery=clinvar_query,
+                )
+
+            # Submit job
+            clinvar_task.delay(clinvar_job_pk=clinvar_job.pk)
+            return JsonResponse({"filter_job_uuid": clinvar_job.sodar_uuid})
+        return JsonResponse(form.errors, status=400)
+
+
+class CaseClinvarReportJobGetStatus(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, request, *args, **kwargs):
+        try:
+            clinvar_job = ClinvarBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
+            return JsonResponse({"status": clinvar_job.bg_job.status})
+        except ObjectDoesNotExist:
+            return JsonResponse(
+                {"error": "No filter job with UUID {}".format(request.POST["filter_job_uuid"])},
+                status=400,
+            )
+        except ValidationError:
+            return JsonResponse(
+                {"error": "No valid UUID {}".format(request.POST["filter_job_uuid"])}, status=400
+            )
+
+
+class CaseClinvarReportJobGetPrevious(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def get(self, request, *args, **kwargs):
+        clinvar_job = (
+            ClinvarBgJob.objects.filter(
+                clinvarquery__user=request.user, case__sodar_uuid=kwargs["case"]
+            )
+            .order_by("-bg_job__date_created")
+            .first()
+        )
+        if clinvar_job:
+            return JsonResponse({"filter_job_uuid": clinvar_job.sodar_uuid})
+        return JsonResponse({"filter_job_uuid": None})
+
+
+class CaseLoadPrefetchedClinvarReportView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    AlchemyConnectionMixin,
+    View,
+):
+    """View for displaying filter results.
+
+    This will be rendered when the database request finishes and delivered via ajax.
+    """
+
+    template_name = "variants/clinvar_report/index.html"
+    permission_required = "variants.view_data"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+    query_type = "case"
+
+    def post(self, request, *args, **kwargs):
+        """process the post request. important: data is not cleaned automatically, we must initiate it here."""
+
+        clinvar_job = ClinvarBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
+
+        # Take time while job is running
         before = timezone.now()
-        qb = ClinvarReportQuery(self.get_case_object(), self.get_alchemy_connection())
-        result = qb.run(form.cleaned_data)
-        elapsed = timezone.now() - before
-        num_results = result.rowcount
-        # Group results.
-        # TODO: refactor grouping of results
-        rows = list(result.fetchmany(form.cleaned_data["result_rows_limit"]))
+        # Get and run query
+        query = LoadPrefetchedClinvarReportQuery(
+            clinvar_job.clinvarquery.case, SQLALCHEMY_ENGINE.connect(), clinvar_job.clinvarquery.id
+        )
+        results = query.run(clinvar_job.clinvarquery.query_settings)
+        num_results = results.rowcount
+        # Get first N rows. This will pop the first N rows! results list will be decreased by N.
+        rows = results.fetchmany(clinvar_job.clinvarquery.query_settings["result_rows_limit"])
         grouped_rows = {
             (r["max_significance_lvl"], r["max_clinvar_status_lvl"], key): r
             for key, r in self._yield_grouped_rows(rows)
         }
         sorted_grouped_rows = [v for k, v in sorted(grouped_rows.items())]
+        elapsed = timezone.now() - before
+
         return render(
-            self.request,
+            request,
             self.template_name,
             self.get_context_data(
                 result_rows=rows,
                 grouped_rows=sorted_grouped_rows,
                 result_count=num_results,
                 elapsed_seconds=elapsed.total_seconds(),
+                database=clinvar_job.clinvarquery.query_settings["database_select"],
+                # pedigree=clinvar_job.clinvarquery.case.get_filtered_pedigree_with_samples(),
             ),
         )
 
@@ -932,35 +1107,54 @@ class CaseClinvarReportView(
                 row = {**row, **(dict(zip(keys, values)))}
             yield key, row
 
-    def get_initial(self):
-        """Put initial data in the form from the previous query if any and push information into template for the
-        "welcome back" message."""
-        result = self.initial.copy()
-        previous_query = (
-            self.get_case_object()
-            .small_variant_queries.filter(user=self.request.user)
-            .order_by("-date_created")
-            .first()
-        )
-        if self.request.method == "GET" and previous_query:
-            # TODO: the code for version conversion needs to be hooked in here
-            messages.info(
-                self.request,
-                ("Welcome back! We have restored your previous query settings from {}.").format(
-                    naturaltime(previous_query.date_created)
-                ),
-            )
-            for key, value in previous_query.query_settings.items():
-                if isinstance(value, list):
-                    result[key] = " ".join(value)
-                else:
-                    result[key] = value
-        return result
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["object"] = self.get_case_object()
-        return context
+class ClinvarReportJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of the FilterBgJob background job."""
+
+    permission_required = "variants.view_data"
+    template_name = "variants/filter_job_detail.html"
+    model = ClinvarBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+
+
+class ClinvarReportJobResubmitView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
+    """Resubmit the filter query job and redirect to filter view."""
+
+    permission_required = "variants.view_data"
+    form_class = EmptyForm
+
+    def form_valid(self, form):
+        job = get_object_or_404(ClinvarBgJob, sodar_uuid=self.kwargs["job"])
+        with transaction.atomic():
+            bg_job = BackgroundJob.objects.create(
+                name="Resubmitting clinvar filter for case {}".format(job.case),
+                project=job.bg_job.project,
+                job_type=ClinvarBgJob.spec_name,
+                user=self.request.user,
+            )
+            clinvar_job = ClinvarBgJob.objects.create(
+                project=job.project, bg_job=bg_job, case=job.case, clinvarquery=job.clinvarquery
+            )
+            clinvar_task.delay(clinvar_job_pk=clinvar_job.pk)
+        return redirect(
+            reverse(
+                "variants:clinvar-job-detail",
+                kwargs={"project": job.project.sodar_uuid, "job": clinvar_job.sodar_uuid},
+            )
+        )
 
 
 class SmallVariantDetails(

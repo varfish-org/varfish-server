@@ -1,6 +1,10 @@
 from projectroles.plugins import get_backend_api
 from variants.file_export import SQLALCHEMY_ENGINE
-from .models_support import PrefetchFilterQuery, ProjectCasesPrefetchFilterQuery
+from .models_support import (
+    PrefetchFilterQuery,
+    ProjectCasesPrefetchFilterQuery,
+    PrefetchClinvarReportQuery,
+)
 
 
 class FilterBase:
@@ -62,6 +66,15 @@ class ProjectCasesFilter(FilterBase):
         )
 
 
+class ClinvarFilter(FilterBase):
+    """Class for storing query results for clinvar.
+    """
+
+    def _get_assembled_query(self):
+        """Render clinvar query."""
+        return PrefetchClinvarReportQuery(self.variant_query.case, self.get_alchemy_connection())
+
+
 def case_filter(job):
     """Store the results of a query."""
 
@@ -90,6 +103,40 @@ def case_filter(job):
                 "FAILED", "Filtering and storing query results failed for case {case_name}"
             )
         raise
+    else:
+        job.mark_success()
+        if timeline:
+            tl_event.set_status(
+                "OK", "Filtering and storing query results complete for case {case_name}"
+            )
+
+
+def clinvar_filter(job):
+    """Execute clinvar query and store results."""
+
+    job.mark_start()
+    timeline = get_backend_api("timeline_backend")
+    tl_event = None
+
+    if timeline:
+        tl_event = timeline.add_event(
+            project=job.project,
+            app_name="variants",
+            user=job.bg_job.user,
+            event_name="clinvar_filter",
+            description="run clinvar query and store results for case {case_name}",
+            status_type="INIT",
+        )
+        tl_event.add_object(obj=job.case, label="case_name", name=job.case.name)
+    try:
+        ClinvarFilter(job, job.clinvarquery).run()
+    except Exception as e:
+        job.mark_error(e)
+        if timeline:
+            tl_event.set_status(
+                "FAILED", "Filtering and storing query results failed for case {case_name}"
+            )
+            raise
     else:
         job.mark_success()
         if timeline:

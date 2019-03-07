@@ -25,6 +25,8 @@ from variants.models import (
     ComputeProjectVariantsStatsBgJob,
     SmallVariantFlags,
     SmallVariantComment,
+    ClinvarBgJob,
+    ClinvarQuery,
 )
 from variants.variant_stats import rebuild_case_variant_stats
 from clinvar.models import Clinvar
@@ -346,6 +348,52 @@ DEFAULT_RESUBMIT_SETTING = {
 }
 
 
+CLINVAR_RESUBMIT_SETTING = {
+    "A_gt": "variant",
+    "clinvar_include_benign": False,
+    "clinvar_include_likely_benign": False,
+    "clinvar_include_likely_pathogenic": False,
+    "clinvar_include_pathogenic": False,
+    "clinvar_include_uncertain_significance": False,
+    "clinvar_origin_germline": True,
+    "clinvar_origin_somatic": False,
+    "clinvar_status_conflict": True,
+    "clinvar_status_expert_panel": True,
+    "clinvar_status_multiple_no_conflict": True,
+    "clinvar_status_no_assertion": True,
+    "clinvar_status_no_criteria": True,
+    "clinvar_status_practice_guideline": True,
+    "clinvar_status_single": True,
+    "database_select": "refseq",
+    "flag_bookmarked": True,
+    "flag_candidate": True,
+    "flag_final_causative": True,
+    "flag_for_validation": True,
+    "flag_phenotype_match_empty": True,
+    "flag_phenotype_match_negative": True,
+    "flag_phenotype_match_positive": True,
+    "flag_phenotype_match_uncertain": True,
+    "flag_simple_empty": True,
+    "flag_summary_empty": True,
+    "flag_summary_negative": True,
+    "flag_summary_positive": True,
+    "flag_summary_uncertain": True,
+    "flag_validation_empty": True,
+    "flag_validation_negative": True,
+    "flag_validation_positive": True,
+    "flag_validation_uncertain": True,
+    "flag_visual_empty": True,
+    "flag_visual_negative": True,
+    "flag_visual_positive": True,
+    "flag_visual_uncertain": True,
+    "require_in_clinvar": True,
+    "require_in_hgmd_public": False,
+    "display_hgmd_public_membership": True,
+    "result_rows_limit": 500,
+    "submit": "display",
+}
+
+
 DEFAULT_JOINT_RESUBMIT_SETTING = {
     "database_select": "refseq",
     "A_fail": "ignore",
@@ -528,6 +576,28 @@ def fixture_setup_case(user):
     )
 
     smallvariantquery.query_results.add(a, c)
+
+    clinvarjob = project.backgroundjob_set.create(
+        sodar_uuid="97a65500-377b-4aa0-880d-9ba56d06a963", user=user, job_type="type"
+    )
+
+    clinvarquery = ClinvarQuery.objects.create(
+        case=case,
+        user=user,
+        form_id="1",
+        form_version=1,
+        query_settings=CLINVAR_RESUBMIT_SETTING,
+        public=False,
+    )
+
+    clinvarquery.query_results.add(b)
+
+    project.clinvarbgjob_set.create(
+        sodar_uuid="10aabb75-7d61-46a9-955a-f385824b3202",
+        bg_job=clinvarjob,
+        case=case,
+        clinvarquery=clinvarquery,
+    )
 
     return project.filterbgjob_set.create(
         sodar_uuid="10aabb75-7d61-46a9-955a-f385824b3201",
@@ -837,7 +907,7 @@ class TestCasePrefetchFilterView(TestViewBase):
 
     setup_case_in_db = fixture_setup_case
 
-    def test_count_results(self):
+    def test_get_job_id(self):
         with self.login(self.user):
             case = Case.objects.select_related("project").first()
             response = self.client.post(
@@ -875,7 +945,6 @@ class TestCaseFilterJobView(TestViewBase):
     setup_case_in_db = fixture_setup_case
 
     def test_status_code_200(self):
-        # Add a BackgroundJob/SmallVAriantQuery entry that this operation can work on.
         with self.login(self.user):
             case = Case.objects.select_related("project").first()
             bgjob = FilterBgJob.objects.first()
@@ -1299,20 +1368,187 @@ class TestCaseClinvarReportView(TestViewBase):
             self.assertEqual(response.status_code, 200)
             self.assertTrue(response.context[-1].get("form"))
 
-    def test_post_returns_report(self):
+    def test_get_renders_form_with_given_job(self):
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+            bgjob = ClinvarBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:case-clinvar-job",
+                    kwargs={
+                        "project": case.project.sodar_uuid,
+                        "case": case.sodar_uuid,
+                        "job": bgjob.sodar_uuid,
+                    },
+                ),
+                CLINVAR_FORM_DEFAULTS,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.context[-1].get("form"))
+
+
+class TestCasePrefetchClinvarReportView(TestViewBase):
+    """Test CasePrefetchClinvarReportView"""
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_get_job_id(self):
         """Test that an appropriate POST returns a report"""
         with self.login(self.user):
             case = Case.objects.select_related("project").first()
             response = self.client.post(
                 reverse(
-                    "variants:case-clinvar",
+                    "variants:clinvar-results",
                     kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
                 ),
                 {**CLINVAR_FORM_DEFAULTS, "submit": "display"},
             )
             self.assertEqual(response.status_code, 200)
-            result_rows = list(response.context[-1].get("result_rows"))
-            self.assertEquals(len(result_rows), 1)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
+                str(ClinvarBgJob.objects.last().sodar_uuid),
+            )
+
+
+class TestClinvarReportJobDetailView(TestViewBase):
+    """Test ClinvarReportJobDetailView"""
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_status_code_200(self):
+        with self.login(self.user):
+            bgjob = ClinvarBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:clinvar-job-detail",
+                    kwargs={"project": bgjob.project.sodar_uuid, "job": bgjob.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+
+
+class TestClinvarReportJobResubmitView(TestViewBase):
+    """Test ClinvarReportJobResubmitView"""
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_redirect(self):
+        with self.login(self.user):
+            bgjob = ClinvarBgJob.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:clinvar-job-resubmit",
+                    kwargs={"project": bgjob.project.sodar_uuid, "job": bgjob.sodar_uuid},
+                )
+            )
+            created_job = ClinvarBgJob.objects.last()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:clinvar-job-detail",
+                    kwargs={
+                        "project": created_job.project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
+                ),
+            )
+
+
+class TestCaseLoadPrefetchedClinvarReportView(TestViewBase):
+    """Test CaseLoadPrefetchedClinvarReportView"""
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_count_results(self):
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+            response = self.client.post(
+                reverse(
+                    "variants:load-clinvar-results",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {
+                    **CLINVAR_FORM_DEFAULTS,
+                    "filter_job_uuid": ClinvarBgJob.objects.first().sodar_uuid,
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["result_count"], 1)
+
+
+class TestCaseClinvarReportJobGetStatus(TestViewBase):
+    """Test CaseLoadPrefetchedClinvarReportView"""
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_getting_status_valid_uuid(self):
+        with self.login(self.user):
+            bgjob = ClinvarBgJob.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:clinvar-job-status", kwargs={"project": bgjob.project.sodar_uuid}
+                ),
+                {"filter_job_uuid": bgjob.sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["status"], "initial")
+
+    def test_getting_status_invalid_uuid(self):
+        with self.login(self.user):
+            bgjob = ClinvarBgJob.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:clinvar-job-status", kwargs={"project": bgjob.project.sodar_uuid}
+                ),
+                {"filter_job_uuid": "cccccccc-cccc-cccc-cccc-cccccccccccc"},
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
+
+    def test_getting_status_missing_uuid(self):
+        with self.login(self.user):
+            bgjob = ClinvarBgJob.objects.first()
+            response = self.client.post(
+                reverse(
+                    "variants:clinvar-job-status", kwargs={"project": bgjob.project.sodar_uuid}
+                ),
+                {"filter_job_uuid": None},
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
+
+
+class TestCaseClinvarReportJobGetPrevious(TestViewBase):
+    """Test CaseLoadPrefetchedClinvarReportView"""
+
+    setup_case_in_db = fixture_setup_case
+
+    def test_getting_previous_job_existing(self):
+        with self.login(self.user):
+            bgjob = ClinvarBgJob.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:clinvar-job-previous",
+                    kwargs={"project": bgjob.project.sodar_uuid, "case": bgjob.case.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
+                str(bgjob.sodar_uuid),
+            )
+
+    def test_getting_previous_job_non_existing(self):
+        with self.login(self.user):
+            bgjob = ClinvarBgJob.objects.first()
+            project = bgjob.project.sodar_uuid
+            case = bgjob.case.sodar_uuid
+            bgjob.delete()
+            response = self.client.get(
+                reverse("variants:clinvar-job-previous", kwargs={"project": project, "case": case})
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["filter_job_uuid"], None)
 
 
 class TestDistillerSubmissionJobDetailView(TestViewBase):

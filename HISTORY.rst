@@ -15,6 +15,7 @@ End-User Summary
 - Proper visual error response in forms.
 - Tests for all views completed.
 - Variant details now use full table space.
+- Clinvar report jobs are now using AJAX as well and are running in background.
 
 Full Change List
 ================
@@ -30,6 +31,8 @@ Full Change List
 - Variant details now use full table space.
 - Flags and comments do not depend on EnsEMBL gene id anymore.
   All traces where removed, including the database column.
+- Clinvar jobs now have their own background job model.
+  They also use the AJAX query state machine to control job submission and canceling.
 
 -------
 v0.11.8
