@@ -57,6 +57,8 @@ THIRD_PARTY_APPS = [
     "projectroles.apps.ProjectrolesConfig",
     "timeline.apps.TimelineConfig",
     'docs',  # For the online user documentation/manual
+    'dal',
+    'dal_select2',
 ]
 
 # Apps specific for this project go here.
