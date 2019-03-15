@@ -2,9 +2,9 @@
 History / Changelog
 ===================
 
-----
-HEAD
-----
+-------
+v0.12.0
+-------
 
 User experience improvement, tests extended.
 
@@ -34,6 +34,7 @@ Full Change List
 - Clinvar jobs now have their own background job model.
   They also use the AJAX query state machine to control job submission and canceling.
 - Now using sodar_core v0.4.5
+- Warning appears when Micorsoft Internet Explorer is detected.
 
 -------
 v0.11.8
