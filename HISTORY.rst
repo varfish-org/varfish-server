@@ -3,6 +3,22 @@ History / Changelog
 ===================
 
 -------
+v0.12.1
+-------
+
+Bugfix release.
+
+End-User Summary
+================
+
+- Fix in clinvar job detail view.
+
+Full Change List
+================
+
+- Clinvar job detail view was partially borken and job resubmitting didn't work.
+
+-------
 v0.12.0
 -------
 

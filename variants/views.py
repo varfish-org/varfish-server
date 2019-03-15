@@ -1122,6 +1122,12 @@ class ClinvarReportJobDetailView(
     model = ClinvarBgJob
     slug_url_kwarg = "job"
     slug_field = "sodar_uuid"
+    query_type = "clinvar"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context["query_type"] = self.query_type
+        return context
 
 
 class ClinvarReportJobResubmitView(

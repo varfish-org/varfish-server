@@ -8,7 +8,7 @@
 {% load json %}
 
 {% block navi_sub_project_extend %}
-  {% if query_type == "case" %}
+  {% if query_type == "case" or query_type == "clinvar" %}
     <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
     <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.case.sodar_uuid %}">{{ object.case.name }}</a></li>
     <li class="breadcrumb-item"><a href="{% url "variants:job-list" project=project.sodar_uuid case=object.case.sodar_uuid %}">Jobs</a></li>
@@ -45,6 +45,8 @@
               <a
                 {% if query_type == "case" %}
                   href="{% url "variants:case-filter-job" project=object.project.sodar_uuid case=object.case.sodar_uuid job=object.sodar_uuid %}"
+                {% elif query_type == "clinvar" %}
+                  href="{% url "variants:case-clinvar-job" project=object.project.sodar_uuid case=object.case.sodar_uuid job=object.sodar_uuid %}"
                 {% else %} {# query_type == "project" #}
                   href="{% url "variants:project-cases-filter-job" project=object.project.sodar_uuid job=object.sodar_uuid %}"
                 {% endif %}
@@ -60,6 +62,8 @@
               <form class="form-inline"
                     {% if query_type == "case" %}
                       action="{% url "variants:filter-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}"
+                    {% elif query_type == "clinvar" %}
+                      action="{% url "variants:clinvar-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}"
                     {% else %} {# query_type == "project" #}
                       action="{% url "variants:project-cases-filter-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}"
                     {% endif %}
@@ -137,6 +141,15 @@
                 </a>
             </div>
           </li>
+          {% elif query_type == "clinvar" %}
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Case</strong></div>
+            <div class="col-10 p-1">
+                <a href="{% url "variants:case-clinvar-job" project=object.project.sodar_uuid case=object.case.sodar_uuid job=object.sodar_uuid %}">
+                  {{ object.case.name }}
+                </a>
+            </div>
+          </li>
           {% else %}
           <li class="list-group-item row d-flex">
             <div class="col-2 p-1"><strong>Project</strong></div>
@@ -151,9 +164,13 @@
             <div class="col-2 p-1"><strong>Query Arguments</strong></div>
             <div class="col-10 p-1">
             {# no linebreaks in textarea block, they will be visible in the end result #}
-              <textarea class="form-control" cols="40" rows="5" readonly="true"
-                {% if query_type == "case" %}>{{ object.smallvariantquery.query_settings|pretty_json }}</textarea>
-                {% else %}>{{ object.projectcasessmallvariantquery.query_settings|pretty_json }}</textarea>{% endif %}
+              {% if query_type == "case" %}
+                <textarea class="form-control" cols="40" rows="5" readonly="true">{{ object.smallvariantquery.query_settings|pretty_json }}</textarea>
+              {% elif query_type == "clinvar" %}
+                <textarea class="form-control" cols="40" rows="5" readonly="true">{{ object.clinvarquery.query_settings|pretty_json }}</textarea>
+              {% else %}
+                <textarea class="form-control" cols="40" rows="5" readonly="true">{{ object.projectcasessmallvariantquery.query_settings|pretty_json }}</textarea>
+              {% endif %}
             </div>
           </li>
         </ul>
