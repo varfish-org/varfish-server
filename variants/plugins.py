@@ -11,6 +11,7 @@ from .models import (
     ComputeProjectVariantsStatsBgJob,
     FilterBgJob,
     ProjectCasesFilterBgJob,
+    ClinvarBgJob,
 )
 from .urls import urlpatterns
 
@@ -114,4 +115,5 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
         ExportProjectCasesFileBgJob.spec_name: ExportProjectCasesFileBgJob,
         FilterBgJob.spec_name: FilterBgJob,
         ProjectCasesFilterBgJob.spec_name: ProjectCasesFilterBgJob,
+        ClinvarBgJob.spec_name: ClinvarBgJob,
     }

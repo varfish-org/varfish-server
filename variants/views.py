@@ -945,7 +945,7 @@ class CasePrefetchClinvarReportView(
                 )
                 # Construct background job objects
                 bg_job = BackgroundJob.objects.create(
-                    name="Running filter query for case {}".format(case_object.name),
+                    name="Running clinvar query for case {}".format(case_object.name),
                     project=self.get_project(request, kwargs),
                     job_type=ClinvarBgJob.spec_name,
                     user=request.user,

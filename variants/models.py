@@ -1062,7 +1062,7 @@ class ProjectCasesFilterBgJob(JobModelMessageMixin, models.Model):
     )
 
     def get_human_readable_type(self):
-        return "Joint Project query results"
+        return "Joint project query results"
 
     def get_absolute_url(self):
         return reverse(

@@ -11,6 +11,7 @@ from .models import (
     SmallVariantComment,
     FilterBgJob,
     ProjectCasesFilterBgJob,
+    ClinvarBgJob,
 )
 
 # Register your models here.
@@ -23,4 +24,5 @@ admin.site.register(SmallVariantComment)
 admin.site.register(SmallVariantQuery)
 admin.site.register(DistillerSubmissionBgJob)
 admin.site.register(FilterBgJob)
+admin.site.register(ClinvarBgJob)
 admin.site.register(ProjectCasesFilterBgJob)
