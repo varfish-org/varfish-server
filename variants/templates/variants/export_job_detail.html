@@ -43,7 +43,8 @@
                   Download {{ object.file_type }} File ({{ object.export_result.payload|length|filesizeformat }})
                 </a>
               {% else %}
-                No result yet or file expired.
+                File is not there yet, please refresh page.
+                <button onClick="window.location.reload()" class="btn btn-success">Refresh page</button>
               {% endif %}
             </div>
           </li>
@@ -57,7 +58,7 @@
                   {{ resubmit_form.file_type }}
                 </div>
                 <div class="form-group mx-sm-2">
-                  <button type="submit" class="btn btn-primary">
+                  <button type="submit" class="btn btn-secondary">
                     <i class="fa fa-cloud-download"></i>
                     Re-run with File Type
                   </button>
