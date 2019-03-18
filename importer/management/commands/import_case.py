@@ -63,8 +63,9 @@ class Command(BaseCommand):
         parser.add_argument(
             "--project-uuid", help="UUID of the project to add the case to", required=True
         )
-        parser.add_argument("--update-case", help="Replace imported case", action="store_true")
-
+        parser.add_argument(
+            "--force", help="Replace imported case if it exists", action="store_true"
+        )
     @transaction.atomic
     def handle(self, *args, **options):
         """Perform the import of the case."""
@@ -80,28 +81,24 @@ class Command(BaseCommand):
             ) from e
 
         project = self._get_project(options["project_uuid"])
-        current_case = Case.objects.filter(name=options["case_name"], project=project)
+        existing_cases = Case.objects.filter(name=options["case_name"], project=project)
 
-        if options["update_case"]:
-            if not current_case.exists():
-                raise CommandError(
-                    "Unable to update case that doesn't exist. Please remove --update-case flag to import case."
-                )
-            current_case.delete()
+        if existing_cases.exists():
+            if not options["force"]:
+                raise CommandError("Case already imported. To update case, use the --force flag.")
+            prev_case = existing_cases.first()
         else:
-            if current_case.exists():
-                raise CommandError(
-                    "Case already imported. To update case, use the --udpate-case flag."
-                )
+            prev_case = None
 
         samples_in_genotypes = self._get_samples_in_genotypes(options["path_genotypes"])
-        case = self._create_case(
+        case = self._create_or_update_case(
             project,
             options["case_name"],
             options["index_name"],
             options["path_ped"],
             samples_in_genotypes,
             options["path_db_info"],
+            prev_case,
         )
         self._import_variants(options["path_variants"])
         self._import_genotypes(case, options["path_genotypes"])
@@ -133,10 +130,17 @@ class Command(BaseCommand):
             values = dict(zip(header, first))
             return list(json.loads(values["genotype"]).keys())
 
-    def _create_case(
-        self, project, case_name, index_name, path_ped, samples_in_genotypes, path_db_info
+    def _create_or_update_case(
+         self,
+         project,
+         case_name,
+         index_name,
+         path_ped,
+         samples_in_genotypes,
+         path_db_info,
+         prev_case=None,
     ):
-        """Create ``Case`` object."""
+        """Create ``Case`` object, update if it exists and remove old data associated with it."""
         self.stdout.write("Reading PED and creating case...")
         # Build Pedigree.
         pedigree = []
@@ -161,9 +165,20 @@ class Command(BaseCommand):
         if not seen_index:
             raise CommandError("Index {} not seen in pedigree!".format(index_name))
         # Construct ``Case`` object.
-        case = Case.objects.create(
-            name=case_name, index=index_name, pedigree=pedigree, project=project
-        )
+        if prev_case:
+            case = prev_case
+            case.index = index_name
+            case.pedigree = pedigree
+            case.save()
+            # Remove old data associated with case
+            self.stdout.write("Removing old data associated with the case...")
+            AnnotationReleaseInfo.objects.filter(case=case).delete()
+            SmallVariant.objects.filter(case_id=case.pk).delete()
+            self.stdout.write(self.style.SUCCESS("Done removing old data associated with the case"))
+        else:
+            case = Case.objects.create(
+                name=case_name, project=project, index=index_name, pedigree=pedigree
+            )
         # Import the release info.
         AnnotationReleaseInfo.objects.bulk_create(
             [
@@ -177,7 +192,10 @@ class Command(BaseCommand):
             ]
         )
 
-        self.stdout.write(self.style.SUCCESS("Done creating case"))
+        if prev_case:
+            self.stdout.write(self.style.SUCCESS("Retrieved existing case."))
+        else:
+            self.stdout.write(self.style.SUCCESS("Done creating case."))
         return case
 
     def _import_variants(self, path_variants):
