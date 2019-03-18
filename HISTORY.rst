@@ -3,6 +3,21 @@ History / Changelog
 ===================
 
 -------
+v0.12.2
+-------
+
+Internal import fixes.
+
+End-User Summary
+================
+
+Full Change List
+================
+
+- Case updating only removes variant and genotype info instead of replacing case.
+- Allowing import of gziped db-info files.
+
+-------
 v0.12.1
 -------
 
