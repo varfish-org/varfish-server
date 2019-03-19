@@ -1,5 +1,6 @@
 import gzip
 
+
 def tsv_reader(path):
     """Read any info file in TSV format with first line as header.
 

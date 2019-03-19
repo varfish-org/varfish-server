@@ -2,6 +2,18 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+End-User Summary
+================
+
+Full Change List
+================
+
+- Comments in view class adjusted.
+
 -------
 v0.12.2
 -------

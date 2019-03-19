@@ -73,7 +73,6 @@ from .tasks import (
     clinvar_task,
 )
 from .file_export import RowWithSampleProxy
-from . import submit_filter
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -389,9 +388,9 @@ class CasePrefetchFilterView(
     AlchemyConnectionMixin,
     View,
 ):
-    """View for displaying filter results.
+    """View for starting a background filter job.
 
-    This will be rendered when the database request finishes and delivered via ajax.
+    This view initiates a background filter job and returns its id as JSON.
     """
 
     permission_required = "variants.view_data"
@@ -447,6 +446,11 @@ class FilterJobGetStatus(
     AlchemyConnectionMixin,
     View,
 ):
+    """View for getting a filter job status.
+
+    This view queries the current status of a filter job and returns it as JSON.
+    """
+
     permission_required = "variants.view_data"
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
@@ -474,6 +478,11 @@ class FilterJobGetPrevious(
     AlchemyConnectionMixin,
     View,
 ):
+    """View for getting the ID of the previous filter job.
+
+    This view returns the previous filter job ID (if available) as JSON.
+    """
+
     permission_required = "variants.view_data"
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
@@ -501,7 +510,7 @@ class CaseLoadPrefetchedFilterView(
 ):
     """View for displaying filter results.
 
-    This will be rendered when the database request finishes and delivered via ajax.
+    This view fetches previous query results and renders them in a table.
     """
 
     template_name = "variants/filter_result/table.html"
@@ -551,9 +560,9 @@ class ProjectCasesLoadPrefetchedFilterView(
     AlchemyConnectionMixin,
     View,
 ):
-    """View for displaying filter results.
+    """View for displaying project cases filter results.
 
-    This will be rendered when the database request finishes and delivered via ajax.
+    This view fetches previous query results and renders them in a table.
     """
 
     template_name = "variants/filter_result/table.html"
@@ -715,9 +724,9 @@ class ProjectCasesPrefetchFilterView(
     AlchemyConnectionMixin,
     View,
 ):
-    """View for displaying joint project filter results.
+    """View for starting a background joint filter job.
 
-    This will be rendered when the database request finishes and delivered via ajax.
+    This view initiates a background joint filter job and returns its id as JSON.
     """
 
     permission_required = "variants.view_data"
@@ -772,6 +781,11 @@ class ProjectCasesFilterJobGetStatus(
     AlchemyConnectionMixin,
     View,
 ):
+    """View for getting a joint filter job status.
+
+    This view queries the current status of a joint filter job and returns it as JSON.
+    """
+
     permission_required = "variants.view_data"
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
@@ -801,6 +815,11 @@ class ProjectCasesFilterJobGetPrevious(
     AlchemyConnectionMixin,
     View,
 ):
+    """View for getting the ID of the previous joint filter job.
+
+    This view returns the previous joint filter job ID (if available) as JSON.
+    """
+
     permission_required = "variants.view_data"
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
@@ -840,7 +859,7 @@ class CaseClinvarReportView(
     AlchemyConnectionMixin,
     FormView,
 ):
-    """Display clinvar report for a case."""
+    """Display clinvar report form for a case."""
 
     template_name = "variants/case_clinvar.html"
     permission_required = "variants.view_data"
@@ -919,6 +938,11 @@ class CasePrefetchClinvarReportView(
     AlchemyConnectionMixin,
     View,
 ):
+    """View for starting a background clinvar report job.
+
+    This view initiates a background clinvar report job and returns its id as JSON.
+    """
+
     permission_required = "variants.view_data"
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
@@ -971,6 +995,11 @@ class CaseClinvarReportJobGetStatus(
     AlchemyConnectionMixin,
     View,
 ):
+    """View for getting a clinvar report job status.
+
+    This view queries the current status of a clinvar report job and returns it as JSON.
+    """
+
     permission_required = "variants.view_data"
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
@@ -998,6 +1027,11 @@ class CaseClinvarReportJobGetPrevious(
     AlchemyConnectionMixin,
     View,
 ):
+    """View for getting the ID of the previous clinvar report job.
+
+    This view returns the previous clinvar report job ID (if available) as JSON.
+    """
+
     permission_required = "variants.view_data"
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
@@ -1023,9 +1057,9 @@ class CaseLoadPrefetchedClinvarReportView(
     AlchemyConnectionMixin,
     View,
 ):
-    """View for displaying filter results.
+    """View for displaying clinvar report results.
 
-    This will be rendered when the database request finishes and delivered via ajax.
+    This view fetches previous query results and renders them in a table.
     """
 
     template_name = "variants/clinvar_report/index.html"
@@ -1115,7 +1149,7 @@ class ClinvarReportJobDetailView(
     ProjectContextMixin,
     DetailView,
 ):
-    """Display status and further details of the FilterBgJob background job."""
+    """Display status and further details of the ClinvarBgJob background job."""
 
     permission_required = "variants.view_data"
     template_name = "variants/filter_job_detail.html"
@@ -1137,7 +1171,7 @@ class ClinvarReportJobResubmitView(
     ProjectContextMixin,
     FormView,
 ):
-    """Resubmit the filter query job and redirect to filter view."""
+    """Resubmit the clinvar report query job and redirect to clinvar detail view."""
 
     permission_required = "variants.view_data"
     form_class = EmptyForm

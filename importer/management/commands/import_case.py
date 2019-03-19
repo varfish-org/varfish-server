@@ -66,6 +66,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--force", help="Replace imported case if it exists", action="store_true"
         )
+
     @transaction.atomic
     def handle(self, *args, **options):
         """Perform the import of the case."""
@@ -131,14 +132,14 @@ class Command(BaseCommand):
             return list(json.loads(values["genotype"]).keys())
 
     def _create_or_update_case(
-         self,
-         project,
-         case_name,
-         index_name,
-         path_ped,
-         samples_in_genotypes,
-         path_db_info,
-         prev_case=None,
+        self,
+        project,
+        case_name,
+        index_name,
+        path_ped,
+        samples_in_genotypes,
+        path_db_info,
+        prev_case=None,
     ):
         """Create ``Case`` object, update if it exists and remove old data associated with it."""
         self.stdout.write("Reading PED and creating case...")
