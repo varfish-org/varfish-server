@@ -2,14 +2,14 @@
 History / Changelog
 ===================
 
-----
-HEAD
-----
+-------
+v0.13.0
+-------
 
 End-User Summary
 ================
 
-Adding experimental filtering using the Exomiser REST Prioritiser API.
+Adding initial version of phenotype-based prioritization using the Exomiser REST Prioritiser API.
 
 Full Change List
 ================
