@@ -174,6 +174,21 @@ class Hpo(models.Model):
         indexes = [models.Index(fields=["database_id"])]
 
 
+class HpoName(models.Model):
+    """Mapping of HPO id to name."""
+
+    #: HPO id
+    hpo_id = models.CharField(max_length=16, null=True)
+    #: HPO name
+    name = models.CharField(max_length=512, null=True)
+
+    #: Allow bulk import into database.
+    objects = CopyManager()
+
+    class Meta:
+        indexes = [models.Index(fields=["hpo_id"])]
+
+
 class NcbiGeneInfo(models.Model):
     """Store gene information taken from NCBI Gene database."""
 

@@ -13,6 +13,7 @@ Full Change List
 ================
 
 - Comments in view class adjusted.
+- Added HPO to disease name mapping.
 
 -------
 v0.12.2
