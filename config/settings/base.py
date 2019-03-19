@@ -340,6 +340,16 @@ CELERYD_TASK_TIME_LIMIT = 5 * 60
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-soft-time-limit
 CELERYD_TASK_SOFT_TIME_LIMIT = 60
 
+# Varfish: Exomiser
+# ------------------------------------------------------------------------------
+
+# Enable exomiser configuration, default is disabled.
+VARFISH_ENABLE_EXOMISER_PRIORITISER = env.bool("VARFISH_ENABLE_EXOMISER_PRIORITISER", default=False)
+# Configure URL to API
+VARFISH_EXOMISER_PRIORITISER_API_URL = env.str("VARFISH_EXOMISER_PRIORITISER_API_URL", "")
+# Configure maximal number of genes to send to Exomiser API
+VARFISH_EXOMISER_PRIORITISER_MAX_GENES = env.int("VARFISH_EXOMISER_PRIORITISER_MAX_GENES", 1000)
+
 
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------

@@ -1,0 +1,16 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+{% load variants_tags %}
+
+<div class="row compact-form-groups">
+  <div class="col-12 pt-3">
+    <h5 class="card-title">
+      Variant Prioritization
+    </h5>
+
+    {{ form.prio_enabled|as_crispy_field }}
+    {{ form.prio_algorithm|as_crispy_field }}
+    {{ form.prio_hpo_terms|as_crispy_field }}
+
+  </div>
+</div>

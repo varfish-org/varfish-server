@@ -1,5 +1,10 @@
+import requests
+
+from django.conf import settings
+
 from projectroles.plugins import get_backend_api
 from variants.file_export import SQLALCHEMY_ENGINE
+from variants.models import prioritize_genes
 from .models_support import (
     PrefetchFilterQuery,
     ProjectCasesPrefetchFilterQuery,
@@ -35,15 +40,45 @@ class FilterBase:
     def run(self, kwargs={}):
         """Run filter query"""
         # Patch query args, if available
-        _query_args = {**self.variant_query.query_settings, **kwargs}
-        # Run query
-        results = self.assembled_query.run(_query_args)
+        query_args = {**self.variant_query.query_settings, **kwargs}
+        # Run query, store results, and run prioritization query.
+        results = tuple(self.assembled_query.run(query_args))
+        self._store_results(results)
+        self._prioritize_genes(results)
+
+    def _store_results(self, results):
+        """Store results in ManyToMany field."""
         # Obtain smallvariant ids to store them in ManyToMany field
         smallvariant_pks = [row["id"] for row in results]
         # Delete previously stored results (note: this only disassociates them, it doesn't delete objects itself.)
         self.variant_query.query_results.clear()
         # Bulk-insert Many-to-Many relationship
         self.variant_query.query_results.add(*smallvariant_pks)
+
+    def _prioritize_genes(self, results):
+        """Prioritize genes in ``results`` and store in ``SmallVariantQueryGeneScores``."""
+        if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER:
+            return
+
+        prio_enabled = self.variant_query.query_settings.get("prio_enabled")
+        prio_algorithm = self.variant_query.query_settings.get("prio_algorithm")
+        hpo_terms = tuple(sorted(self.variant_query.query_settings.get("prio_hpo_terms", [])))
+        entrez_ids = tuple(
+            list(sorted(set(map(str, [row["entrez_id"] for row in results if row["entrez_id"]]))))[
+                : settings.VARFISH_EXOMISER_PRIORITISER_MAX_GENES
+            ]
+        )
+        if not all((prio_enabled, prio_algorithm, hpo_terms, entrez_ids)):
+            return  # nothing to do
+
+        # TODO: catch errors and store that there was an error
+        entrez_ids = [row["entrez_id"] for row in results if row["entrez_id"]]
+        for gene_id, gene_symbol, score, priority_type in prioritize_genes(
+            entrez_ids, self.variant_query.query_settings
+        ):
+            self.variant_query.smallvariantquerygenescores_set.create(
+                gene_id=gene_id, gene_symbol=gene_symbol, score=score, priority_type=priority_type
+            )
 
 
 class CaseFilter(FilterBase):
@@ -76,8 +111,7 @@ class ClinvarFilter(FilterBase):
 
 
 def case_filter(job):
-    """Store the results of a query."""
-
+    """Execute query for a single case and store the results."""
     job.mark_start()
 
     timeline = get_backend_api("timeline_backend")

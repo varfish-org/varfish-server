@@ -9,20 +9,27 @@ HEAD
 End-User Summary
 ================
 
+Adding experimental filtering using the Exomiser REST Prioritiser API.
+
 Full Change List
 ================
 
 - Comments in view class adjusted.
 - Added HPO to disease name mapping.
+- Phenotype match scores are added to the file downloads as well.
+- Sorting of variants by phenotype match added.
+- Added annotation of variants with phenotyping variant score.
+- Added tab to the form form entering HPO term IDs.
+- Adding settings for enabling configuring REST API URL through environment variables.
 
 -------
 v0.12.2
 -------
 
-Internal import fixes.
-
 End-User Summary
 ================
+
+Internal import fixes.
 
 Full Change List
 ================

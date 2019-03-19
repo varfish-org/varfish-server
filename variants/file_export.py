@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 
 import aldjemy
 from django.utils import timezone
+from django.conf import settings
 import vcfpy
 import wrapt
 import xlsxwriter
@@ -16,6 +17,8 @@ from .models import (
     ExportFileJobResult,
     ExportProjectCasesFileBgJobResult,
     SmallVariantComment,
+    annotate_with_phenotype_scores,
+    prioritize_genes,
 )
 from .templatetags.variants_tags import flag_class
 from projectroles.plugins import get_backend_api
@@ -88,6 +91,12 @@ HEADER_FIXED = (
     ("hgnc_gene_name", "Gene Name", str),
     ("hgnc_gene_family", "Gene Family", str),
     ("hgnc_pubmed_id", "Gene Pubmed ID", str),
+)
+
+#: Names of the phenotype-scoring header columns.
+HEADERS_PHENO_SCORES = (
+    ("phenotype_score", "Phenotype Score", float),
+    ("phenotype_rank", "Phenotype Rank", int),
 )
 
 #: Header fields for flags.
@@ -212,6 +221,16 @@ class CaseExporterBase:
             self._alchemy_connection = SQLALCHEMY_ENGINE.connect()
         return self._alchemy_connection
 
+    def _is_prioritization_enabled(self):
+        """Return whether prioritization is enabled in this query."""
+        return settings.VARFISH_ENABLE_EXOMISER_PRIORITISER and all(
+            (
+                self.query_args.get("prio_enabled"),
+                self.query_args.get("prio_algorithm"),
+                self.query_args.get("prio_hpo_terms", []),
+            )
+        )
+
     def _yield_members(self):
         """Get list of selected members."""
         if self.project:
@@ -228,6 +247,8 @@ class CaseExporterBase:
         else:
             header = []
         header += HEADER_FIXED
+        if self._is_prioritization_enabled():
+            header += HEADERS_PHENO_SCORES
         if self.query_args["export_flags"]:
             header += HEADER_FLAGS
         if self.query_args["export_comments"]:
@@ -247,7 +268,11 @@ class CaseExporterBase:
         """Use this for yielding the resulting small variants one-by-one."""
         prev_chrom = None
         self.job.add_log_entry("Executing database query...")
-        result = self.query.run(self.query_args)
+        result = list(self.query.run(self.query_args))
+        self.job.add_log_entry("Executing phenotype score query...")
+        if self._is_prioritization_enabled():
+            gene_scores = self._fetch_gene_scores([entry.entrez_id for entry in result])
+            result = annotate_with_phenotype_scores(result, gene_scores)
         self.job.add_log_entry("Writing output file...")
         for small_var in result:
             if small_var.chromosome != prev_chrom:
@@ -258,6 +283,15 @@ class CaseExporterBase:
                     yield RowWithSampleProxy(small_var, sample)
             else:
                 yield small_var
+
+    def _fetch_gene_scores(self, entrez_ids):
+        if self._is_prioritization_enabled():
+            return {
+                str(gene_id): score
+                for gene_id, _, score, _ in prioritize_genes(entrez_ids, self.query_args)
+            }
+        else:
+            return {}
 
     def _get_named_temporary_file_args(self):
         return {}

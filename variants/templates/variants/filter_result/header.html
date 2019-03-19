@@ -13,6 +13,9 @@
   <th colspan="2" class="detail-gnomad-genomes">gnomAD genomes</th>
   <th colspan="2" class="detail-thousand-genomes">1000 genomes</th>
   <th></th>{# gene #}
+  {% if has_phenotype_scores %}
+    <th>phenotype</th>
+  {% endif %}
   <th></th>{# effect #}
   {% if query_type == "case" %}
     {# pedigree members #}
@@ -41,6 +44,9 @@
   <th class="detail-gnomad-genomes"># hom.</th>
   <th class="detail-thousand-genomes"># hom.</th>
   <th>gene</th>
+  {% if has_phenotype_scores %}
+    <th>score/rank</th>
+  {% endif %}
   <th>effect</th>
   {% if query_type == "case" %}
     {% for member in pedigree %}

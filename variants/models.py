@@ -1,13 +1,16 @@
+import wrapt
 from functools import lru_cache
 from itertools import chain
 import math
 import re
+import requests
 import uuid as uuid_object
 
 from postgres_copy import CopyManager
 
 from django.db import models
 from django.db.models import Q
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
@@ -915,6 +918,16 @@ class SmallVariantQueryBase(models.Model):
         abstract = True
         ordering = ("-date_created",)
 
+    def is_prioritization_enabled(self):
+        """Return whether prioritization is enabled in this query."""
+        return all(
+            (
+                self.query_settings.get("prio_enabled"),
+                self.query_settings.get("prio_algorithm"),
+                self.query_settings.get("prio_hpo_terms", []),
+            )
+        )
+
 
 class SmallVariantQuery(SmallVariantQueryBase):
     """Allow saving of single-case queries to the ``SmallVariant`` model.
@@ -956,6 +969,29 @@ class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):
         related_name="small_variant_queries",
         help_text="The project that the query relates to",
     )
+
+
+class SmallVariantQueryGeneScores(models.Model):
+    """Annotate ``SmallVariantQuery`` with gene scores (if configured to do so)."""
+
+    #: The query to annotate.
+    query = models.ForeignKey(SmallVariantQuery)
+
+    #: The Entrez gene ID.
+    gene_id = models.CharField(max_length=64, null=False, blank=False, help_text="Entrez gene ID")
+
+    #: The gene symbol.
+    gene_symbol = models.CharField(
+        max_length=128, null=False, blank=False, help_text="The gene symbol"
+    )
+
+    #: The priority type.
+    priority_type = models.CharField(
+        max_length=64, null=False, blank=False, help_text="The priority type"
+    )
+
+    #: The score.
+    score = models.FloatField(null=False, blank=False, help_text="The gene score")
 
 
 class FilterBgJob(JobModelMessageMixin, models.Model):
@@ -1237,3 +1273,74 @@ class ComputeProjectVariantsStatsBgJob(JobModelMessageMixin, models.Model):
             "variants:project-stats-job-detail",
             kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
         )
+
+
+# TODO: Improve wrapper so we can assign obj.phenotype_rank and score
+class RowWithPhenotypeScore(wrapt.ObjectProxy):
+    """Wrap a result row and add members for phenotype score and rank."""
+
+    def __init__(self, obj):
+        super().__init__(obj)
+        self._self_phenotype_rank = None
+        self._self_phenotype_score = -1
+
+    @property
+    def phenotype_rank(self):
+        return self._self_phenotype_rank
+
+    @property
+    def phenotype_score(self):
+        return self._self_phenotype_score
+
+    def __getitem__(self, key):
+        if key == "phenotype_rank":
+            return self.phenotype_rank
+        elif key == "phenotype_score":
+            return self.phenotype_score
+        else:
+            return self.__wrapped__.__getitem__(key)
+
+
+def annotate_with_phenotype_scores(rows, gene_scores):
+    """Annotate the results in ``rows`` with phenotype scores stored in ``small_variant_query``.
+    """
+    rows = [RowWithPhenotypeScore(row) for row in rows]
+    for row in rows:
+        row._self_phenotype_score = gene_scores.get(row.entrez_id, -1)
+    rows.sort(key=lambda row: (row._self_phenotype_score, row.entrez_id), reverse=True)
+    # Re-compute ranks
+    prev_gene = None
+    rank = 1
+    for row in rows:
+        row._self_phenotype_rank = rank
+        if row.entrez_id != prev_gene:
+            prev_gene = row.entrez_id
+            rank += 1
+    return rows
+
+
+def prioritize_genes(entrez_ids, query_settings):
+    """Perform gene prioritization query.
+
+    Yield quadruples (gene id, gene symbol, score, priority type) for the given gene list and query settings.
+    """
+    if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER:
+        return
+
+    prio_enabled = query_settings.get("prio_enabled")
+    prio_algorithm = query_settings.get("prio_algorithm")
+    hpo_terms = tuple(sorted(query_settings.get("prio_hpo_terms", [])))
+    entrez_ids = tuple(
+        list(sorted(set(entrez_ids)))[: settings.VARFISH_EXOMISER_PRIORITISER_MAX_GENES]
+    )
+    if not all((prio_enabled, prio_algorithm, hpo_terms, entrez_ids)):
+        return  # nothing to do
+
+    res = requests.request(
+        method="get",
+        url=settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
+        params={"phenotypes": hpo_terms, "genes": entrez_ids, "prioritiser": prio_algorithm},
+    )
+
+    for entry in res.json().get("results", ()):
+        yield entry["geneId"], entry["geneSymbol"], entry["score"], entry["priorityType"]

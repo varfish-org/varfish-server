@@ -1,6 +1,8 @@
 from functools import lru_cache
+
+from django.conf import settings
 from django import forms
-from .models import SmallVariantComment, SmallVariantFlags, CaseAwareProject
+from .models import SmallVariantComment, SmallVariantFlags
 from .templatetags.variants_tags import only_source_name
 
 INHERITANCE = [
@@ -83,6 +85,27 @@ FILTER_FORM_TRANSLATE_SIGNIFICANCE = {
     "clinvar_include_likely_benign": "likely benign",
     "clinvar_include_benign": "benign",
 }
+
+
+#: Phenix prioritization value.
+PRIO_PHENIX = "phenix"
+#: Phenix prioritization label.
+PRIO_PHENIX_LABEL = "Phenix"
+#: Phive prioritization value.
+PRIO_PHIVE = "phive"
+#: Phive prioritization label.
+PRIO_PHIVE_LABEL = "Phive"
+#: HiPhive prioritization value.
+PRIO_HIPHIVE = "hiphive"
+#: HiPhive prioritization label.
+PRIO_HIPHIVE_LABEL = "HiPhive"
+
+#: Choices for prioritization algorithms.
+PRIO_ALGORITHM_CHOICES = (
+    (PRIO_PHENIX, PRIO_PHENIX_LABEL),
+    (PRIO_PHIVE, PRIO_PHIVE_LABEL),
+    (PRIO_HIPHIVE, PRIO_HIPHIVE_LABEL),
+)
 
 
 class SmallVariantFlagsFilterFormMixin:
@@ -857,6 +880,62 @@ class SmallVariantGeneListFilterFormMixin:
         return cleaned_data
 
 
+class SmallVariantPrioritizerFormMixin:
+    """Form mixin with prioritizer fields."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["prio_enabled"] = forms.BooleanField(
+            label="Enable phenotype-based prioritization",
+            help_text=(
+                "First try to filter your variants without phenotype-based prioritization before enabling it. "
+                "Note well that only variants in the first %d genes returned by your query will be prioritized!"
+            )
+            % settings.VARFISH_EXOMISER_PRIORITISER_MAX_GENES,
+            required=False,
+            widget=forms.CheckboxInput(),
+        )
+
+        self.fields["prio_algorithm"] = forms.ChoiceField(
+            label="Algorithm",
+            help_text=(
+                "Prioritizer algorithm to use. Phenix uses known human disease gene, Phive also uses information "
+                "from mouse models, and HiPhive also uses zebrafish and protein-protein interaction."
+            ),
+            choices=PRIO_ALGORITHM_CHOICES,
+            required=False,
+        )
+
+        self.fields["prio_hpo_terms"] = forms.CharField(
+            label="HPO Terms",
+            help_text="HPO Term list.",
+            widget=forms.Textarea(
+                attrs={
+                    "placeholder": "Enter list of HPO terms here",
+                    "rows": 3,
+                    "class": "form-control",
+                }
+            ),
+            required=False,
+            max_length=5000,
+        )
+
+    def clean(self):
+        """Tokenize the HPO terms"""
+        cleaned_data = super().clean()
+        cleaned_data["prio_hpo_terms"] = [
+            s.strip()
+            for s in cleaned_data["prio_hpo_terms"]
+            .replace(";", " ")
+            .replace(",", " ")
+            .strip()
+            .split()
+            if s.strip()
+        ]
+        return cleaned_data
+
+
 class SmallVariantTranscriptSourceFilterFormMixin:
     """Form mixin for selecting transcript source."""
 
@@ -879,6 +958,7 @@ class FilterForm(
     SmallVariantVariantEffectFilterFormMixin,
     SmallVariantMiscFilterFormMixin,
     SmallVariantClinvarHgmdFilterFormMixin,
+    SmallVariantPrioritizerFormMixin,
     SmallVariantGeneListFilterFormMixin,
     SmallVariantTranscriptSourceFilterFormMixin,
     SmallVariantQualityFilterFormMixin,

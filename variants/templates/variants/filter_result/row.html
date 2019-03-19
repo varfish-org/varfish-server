@@ -4,6 +4,7 @@
 {% load dict %}
 {% load variants_tags %}
 
+
 <tr class="variant-row variant-row-{{ entry|flag_class }}">
   {# fold-out #}
   <td class="clickable toggle-variant-details pl-0 pr-0"
@@ -101,6 +102,12 @@
       </div>
     {% endif %}
   </td>
+  {% if has_phenotype_scores %}
+    <td>
+      {{ entry.phenotype_score|floatformat:4 }}
+      <span class="text-muted">(#{{ entry.phenotype_rank }})</span>
+    </td>
+  {% endif %}
   <td>
     <span data-toggle="tooltip" title="{{ entry.effect|join:', ' }}">
       {{ entry.hgvs_p|default:"-" }}

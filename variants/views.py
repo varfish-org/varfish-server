@@ -48,6 +48,7 @@ from .models import (
     ProjectCasesFilterBgJob,
     ClinvarBgJob,
     ClinvarQuery,
+    annotate_with_phenotype_scores,
 )
 from .forms import (
     ClinvarForm,
@@ -535,8 +536,17 @@ class CaseLoadPrefetchedFilterView(
         results = query.run(filter_job.smallvariantquery.query_settings)
         num_results = results.rowcount
         # Get first N rows. This will pop the first N rows! results list will be decreased by N.
-        rows = results.fetchmany(filter_job.smallvariantquery.query_settings["result_rows_limit"])
+        rows = list(
+            results.fetchmany(filter_job.smallvariantquery.query_settings["result_rows_limit"])
+        )
         elapsed = timezone.now() - before
+
+        # Annotate with phenotype score if any.
+        gene_scores = {
+            entry.gene_id: entry.score
+            for entry in filter_job.smallvariantquery.smallvariantquerygenescores_set.all()
+        }
+        rows = annotate_with_phenotype_scores(rows, gene_scores)
 
         return render(
             request,
@@ -548,6 +558,7 @@ class CaseLoadPrefetchedFilterView(
                 database=filter_job.smallvariantquery.query_settings["database_select"],
                 pedigree=filter_job.smallvariantquery.case.get_filtered_pedigree_with_samples(),
                 query_type=self.query_type,
+                has_phenotype_scores=bool(gene_scores),
             ),
         )
 
