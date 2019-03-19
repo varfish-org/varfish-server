@@ -25,7 +25,7 @@ FILTER_FORM_TRANSLATE_EFFECTS = {
     "effect_disruptive_inframe_deletion": "disruptive_inframe_deletion",
     "effect_disruptive_inframe_insertion": "disruptive_inframe_insertion",
     "effect_downstream_gene_variant": "downstream_gene_variant",
-    "effect_exon_loss": "exon_loss",
+    "effect_exon_loss_variant": "exon_loss_variant",
     "effect_feature_truncation": "feature_truncation",
     "effect_five_prime_UTR_exon_variant": "5_prime_UTR_exon_variant",
     "effect_five_prime_UTR_intron_variant": "5_prime_UTR_intron_variant",
@@ -668,7 +668,7 @@ class SmallVariantVariantEffectFilterFormMixin:
         self.fields["effect_downstream_gene_variant"] = forms.BooleanField(
             label="downstream gene variant", required=False
         )
-        self.fields["effect_exon_loss"] = forms.BooleanField(
+        self.fields["effect_exon_loss_variant"] = forms.BooleanField(
             label="exon loss", required=False, initial=True
         )
         self.fields["effect_feature_truncation"] = forms.BooleanField(
