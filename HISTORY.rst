@@ -14,6 +14,7 @@ Adding experimental filtering using the Exomiser REST Prioritiser API.
 Full Change List
 ================
 
+- Adding missing field for exon loss variant to form.
 - Comments in view class adjusted.
 - Added HPO to disease name mapping.
 - Phenotype match scores are added to the file downloads as well.
