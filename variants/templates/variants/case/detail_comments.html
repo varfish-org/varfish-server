@@ -1,24 +1,24 @@
 {% load humanize %}
 
 <div class="card varfish-vars-case-details"
-     id="card-varfish-vars-case-details-comments">
+     id="card-varfish-vars-case-details-small-var-comments">
   <div class="card-header">
     <h4>
       <i class="fa fa-comment"></i>
-      Commented Variants
+      Commented Small Variants
     </h4>
   </div>
   <table class="table table-striped table-hover">
     <thead>
       <tr>
-        <th class="col-4">Variant</th>
-        <th class="col-8">Comments</th>
+        <th style="width: 260px;">Variant</th>
+        <th>Comments</th>
       </tr>
     </thead>
     <tbody>
       {% for variant_comment in case.small_variant_comments.all %}
-        <tr>
-          <td id="comment-{{ variant_comment.sodar_uuid }}">
+        <tr id="comment-{{ variant_comment.sodar_uuid }}">
+          <td class="text-nowrap">
             chr{{ variant_comment.chromosome }}:{{ variant_comment.position|intcomma }}-{{ variant_comment.reference }}-{{ variant_comment.alternative }}
           </td>
           <td>
@@ -38,6 +38,45 @@
            </td>
         </tr>
       {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card varfish-vars-case-details"
+     id="card-varfish-vars-case-details-structural-var-comments">
+  <div class="card-header">
+    <h4>
+      <i class="fa fa-comment"></i>
+      Commented Structural Variants
+    </h4>
+  </div>
+  <table class="table tabled-striped table-hover">
+    <thead>
+      <tr>
+        <th style="width:260px;">Location</th>
+        <th style="width:80px;">Type</th>
+        <th>Comments</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sv_comment in case.structural_variant_comments.all %}
+        <tr id="comment-{{ sv_comment.sodar_uuid }}">
+          <td class="text-nowrap">
+            chr{{ sv_comment.chromosome }}:{{ sv_comment.start|intcomma }}-{{ sv_comment.end|intcomma }}
+          </td>
+          <td class="text-nowrap">
+            {{ sv_comment.sv_type }}
+          </td>
+          <td>
+            <strong>{{ sv_comment.user }}</strong>
+            <small>
+              commented at
+              {{ sv_comment.date_created }}:
+            </small>
+            <em>{{ sv_comment.text }}</em>
+          </td>
+        </tr>
+      {% endfor %}
     </tbody>
   </table>
 </div>

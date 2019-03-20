@@ -1,6 +1,14 @@
 import gzip
 
 
+def open_file(path, mode):
+    """Open gzip or normal file."""
+    if path.endswith(".gz"):
+        return gzip.open(path, mode)
+    else:
+        return open(path, mode)
+
+
 def tsv_reader(path):
     """Read any info file in TSV format with first line as header.
 
@@ -14,4 +22,5 @@ def tsv_reader(path):
     with inputf as fh:
         keys = next(fh).rstrip("\n").split("\t")
         for line in fh:
-            yield dict(zip(keys, line.rstrip("\n").split("\t")))
+            if not line.startswith("#"):
+                yield dict(zip(keys, line.rstrip("\n").split("\t")))

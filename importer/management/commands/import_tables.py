@@ -1,6 +1,7 @@
 import os
 import tempfile
 
+import binning
 from django.core.management.base import BaseCommand, CommandError
 from django.db import IntegrityError, transaction
 
@@ -18,10 +19,18 @@ from geneinfo.models import (
     RefseqToHgnc,
     Acmg,
 )
+from genomicfeatures.models import (
+    GeneInterval,
+    EnsemblRegulatoryFeature,
+    TadSet,
+    TadInterval,
+    TadBoundaryInterval,
+    VistaEnhancer,
+)
 from hgmd.models import HgmdPublicLocus
 from ...models import ImportInfo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
-from ..helpers.tsv_reader import tsv_reader
+from ..helpers import open_file, tsv_reader
 
 
 #: One entry in the TABLES variable is structured as follows:
@@ -41,9 +50,28 @@ TABLES = {
     "mim2gene": (Mim2geneMedgen,),
     "thousand_genomes": (ThousandGenomes,),
     "acmg": (Acmg,),
+    "vista": (VistaEnhancer,),
+    "ensembl_regulatory": (EnsemblRegulatoryFeature,),
+    "ensembl_genes": (GeneInterval,),
+    "refseq_genes": (GeneInterval,),
+    "tads_hesc": (TadInterval, TadBoundaryInterval, TadSet),
+    "tads_imr90": (TadInterval, TadBoundaryInterval, TadSet),
 }
 SERVICE_NAME_CHOICES = ["CADD", "Exomiser"]
 SERVICE_GENOMEBUILD_CHOICES = ["GRCh37", "GRCh38"]
+
+
+#: Mapping from file ENSEMBL regulatory features header to field names
+ENSEMBL_REGULATORY_HEADER_MAP = {
+    "Chromosome/scaffold name": "chromosome",
+    "Start (bp)": "start",
+    "End (bp)": "end",
+    "Regulatory stable ID": "stable_id",
+    "Feature type": "feature_type",
+    "Feature type description": "feature_type_description",
+    "SO term accession": "so_term_accession",
+    "SO term name": "so_term_name",
+}
 
 
 class Command(BaseCommand):
@@ -56,6 +84,10 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         """Add the command's argument to the ``parser``."""
         parser.add_argument("--tables-path", help="Path to the varfish-db-downloader folder")
+        parser.add_argument(
+            "--import-versions-path",
+            help="Path to the import_versions.tsv file (optional; defaults to the one in --tables-path)",
+        )
         parser.add_argument("--service", action="store_true", help="Import service data")
         parser.add_argument(
             "--service-name", help="Name for service import", choices=SERVICE_NAME_CHOICES
@@ -66,15 +98,19 @@ class Command(BaseCommand):
             help="Genomebuild for service import",
             choices=SERVICE_GENOMEBUILD_CHOICES,
         )
+        parser.add_argument(
+            "--force", help="Force import, removes old data", action="store_true", default=False
+        )
 
+    @transaction.atomic
     def handle(self, *args, **options):
         """Iterate over genomebuilds, database folders and versions to gather all required information for import.
         """
 
         if not options["service"] and options["tables_path"] is None:
-            raise CommandError("Please set either --tables_path or --service")
+            raise CommandError("Please set either --tables-path or --service")
         if options["tables_path"] and options["service"]:
-            raise CommandError("Please set either --tables_path or --service")
+            raise CommandError("Please set either --tables-path or --service")
         if options["service"] and (
             options["service_name"] is None
             or options["service_version"] is None
@@ -98,7 +134,9 @@ class Command(BaseCommand):
             )
             return
 
-        path_import_versions = os.path.join(options["tables_path"], "import_versions.tsv")
+        path_import_versions = options.get("import_versions_path") or os.path.join(
+            options["tables_path"], "import_versions.tsv"
+        )
 
         if not os.path.isfile(path_import_versions):
             raise CommandError("Require version import info file {}.".format(path_import_versions))
@@ -113,9 +151,205 @@ class Command(BaseCommand):
                 self._import_kegg(version_path, TABLES[table_group])
             elif table_group in ("gnomAD_genomes", "gnomAD_exomes"):
                 self._import_gnomad(version_path, TABLES[table_group])
+            elif table_group == "vista":
+                self._import_vista(version_path, TABLES[table_group], force=options["force"])
+            elif table_group == "ensembl_regulatory":
+                self._import_ensembl_regulatory(
+                    version_path, TABLES[table_group], force=options["force"]
+                )
+            elif table_group == "ensembl_genes":
+                self._import_gene_interval(
+                    version_path, TABLES[table_group], "ensembl", force=options["force"]
+                )
+            elif table_group == "refseq_genes":
+                self._import_gene_interval(
+                    version_path, TABLES[table_group], "refseq", force=options["force"]
+                )
+            elif table_group == "tads_imr90":
+                self._import_tad_set(
+                    version_path, TABLES[table_group], "imr90", force=options["force"]
+                )
+            elif table_group == "tads_hesc":
+                self._import_tad_set(
+                    version_path, TABLES[table_group], "hesc", force=options["force"]
+                )
             else:
                 for table in TABLES[table_group]:
                     self._import(*self._get_table_info(version_path, table.__name__), table)
+
+    def _import_tad_set(self, path, tables, subset_key, force):
+        """TAD import"""
+        release_info = self._get_table_info(path, tables[0].__name__)[1]
+        # release_info["table"] += ":%s" % subset_key
+        if not self._create_import_info(release_info) and not force:
+            return False
+
+        # Clear out old data if any
+        TadSet.objects.filter(release=release_info["genomebuild"], name=subset_key).delete()
+
+        titles = {
+            "hesc": "hESC TADs (Dixon et al., 2019)",
+            "imr90": "IMR90 TADs (Dixon et al., 2019)",
+        }
+
+        # Create the TadSet.
+        tad_set = TadSet.objects.create(
+            release=release_info["genomebuild"],
+            name=subset_key,
+            version=release_info["version"],
+            title=titles[subset_key],
+        )
+
+        # Perform the import of the TADs and boundaries
+        self.stdout.write("Importing TADs %s" % release_info)
+        path_tsv = os.path.join(path, "{}.tsv".format(tables[0].__name__))
+        prev_chromosome = None
+        with open_file(path_tsv, "rt") as inputf:
+            while True:
+                line = inputf.readline().strip()
+                if not line:
+                    break
+                arr = line.split("\t")
+                chromosome, begin, end = arr[:3]
+                begin = int(begin)
+                end = int(end)
+                if prev_chromosome != chromosome:
+                    self.stdout.write("  now on chr%s" % chromosome)
+                    prev_chromosome = chromosome
+                TadInterval.objects.create(
+                    tad_set=tad_set,
+                    bin=binning.assign_bin(begin, end),
+                    containing_bins=binning.containing_bins(begin, end),
+                    release=release_info["genomebuild"],
+                    chromosome=chromosome,
+                    start=begin + 1,
+                    end=end,
+                )
+                PADDING = 10_000
+                if begin > PADDING:
+                    TadBoundaryInterval.objects.create(
+                        tad_set=tad_set,
+                        bin=binning.assign_bin(begin, end),
+                        containing_bins=binning.containing_bins(begin, end),
+                        release=release_info["genomebuild"],
+                        chromosome=chromosome,
+                        start=begin + 1 - PADDING,
+                        end=begin + 1 + PADDING,
+                    )
+        self.stdout.write(self.style.SUCCESS("Finished importing TADs"))
+
+    def _import_gene_interval(self, path, tables, subset_key, force):
+        """Common code for RefSeq and ENSEMBL gene import."""
+        release_info = self._get_table_info(path, tables[0].__name__)[1]
+        release_info["table"] += ":%s" % subset_key
+        if not self._create_import_info(release_info) and not force:
+            return False
+        # Clear out any existing entries for this release/database.
+        GeneInterval.objects.filter(
+            database=subset_key, release=release_info["genomebuild"]
+        ).delete()
+        # Perform the actual data import
+        self.stdout.write("Importing gene intervals")
+        path_tsv = os.path.join(path, "{}.tsv".format(tables[0].__name__))
+        prev_chromosome = None
+        with open_file(path_tsv, "rt") as inputf:
+            while True:
+                line = inputf.readline().strip()
+                if not line:
+                    break
+                arr = line.split("\t")
+                chromosome, begin, end = arr[:3]
+                if prev_chromosome != chromosome:
+                    self.stdout.write("  now on chr%s" % chromosome)
+                    prev_chromosome = chromosome
+                gene_id = arr[3]
+                begin = int(begin)
+                end = int(end)
+                GeneInterval.objects.create(
+                    bin=binning.assign_bin(begin, end),
+                    containing_bins=binning.containing_bins(begin, end),
+                    release=release_info["genomebuild"],
+                    chromosome=chromosome,
+                    start=begin + 1,
+                    end=end,
+                    database=subset_key,
+                    gene_id=gene_id,
+                )
+        self.stdout.write(self.style.SUCCESS("Finished importing gene intervals"))
+
+    def _import_ensembl_regulatory(self, path, tables, force):
+        """Import ENSEMBL regulatory regions."""
+        release_info = self._get_table_info(path, tables[0].__name__)[1]
+        if not self._create_import_info(release_info) and not force:
+            return False
+
+        # Clear out any existing entries for this release/database.
+        self.stdout.write("Removing old ENSEMBL regulatory features (if any)")
+        EnsemblRegulatoryFeature.objects.filter(release=release_info["genomebuild"]).delete()
+        # Perform the actual import
+        self.stdout.write("Importing ENSEMBL regulatory features")
+        path_tsv = os.path.join(path, "{}.tsv".format(tables[0].__name__))
+        prev_chromosome = None
+        with open_file(path_tsv, "rt") as inputf:
+            header = None
+            while True:
+                line = inputf.readline().strip()
+                if not line:
+                    break
+                arr = line.split("\t")
+                if not header:
+                    header = arr
+                else:
+                    values = {ENSEMBL_REGULATORY_HEADER_MAP[k]: v for k, v in zip(header, arr)}
+                    if prev_chromosome != values["chromosome"]:
+                        prev_chromosome = values["chromosome"]
+                        self.stdout.write("  now on chr%s" % prev_chromosome)
+                    values["start"] = int(values["start"])
+                    values["end"] = int(values["end"])
+                    EnsemblRegulatoryFeature.objects.create(
+                        bin=binning.assign_bin(values["start"] - 1, values["end"] - 1),
+                        containing_bins=binning.containing_bins(
+                            values["start"] - 1, values["end"] - 1
+                        ),
+                        release=release_info["genomebuild"],
+                        **values,
+                    )
+        self.stdout.write(self.style.SUCCESS("Finished importing ENSEMBL regulatory features"))
+
+    def _import_vista(self, path, tables, force):
+        """Import VISTA from the given path."""
+        release_info = self._get_table_info(path, tables[0].__name__)[1]
+        if not self._create_import_info(release_info) and not force:
+            return False
+
+        # Clear out any existing entries for this release/database.
+        self.stdout.write("Removing old VISTA experimental results (if any)")
+        VistaEnhancer.objects.filter(release=release_info["genomebuild"]).delete()
+        # Perform the actual import.
+        self.stdout.write("Importing VISTA experimental results")
+        path_tsv = os.path.join(path, "{}.tsv".format(tables[0].__name__))
+        with open_file(path_tsv, "rt") as inputf:
+            header = ("chromosome", "start", "end", "element_id", "validation_result")
+            while True:
+                line = inputf.readline().strip()
+                if not line:
+                    break
+                arr = line.split("\t")
+                if not header:
+                    header = arr
+                else:
+                    values = dict(zip(header, arr))
+                    values["start"] = int(values["start"])
+                    values["end"] = int(values["end"])
+                    VistaEnhancer.objects.create(
+                        bin=binning.assign_bin(values["start"] - 1, values["end"] - 1),
+                        containing_bins=binning.containing_bins(
+                            values["start"] - 1, values["end"] - 1
+                        ),
+                        release=release_info["genomebuild"],
+                        **values,
+                    )
+        self.stdout.write(self.style.SUCCESS("Finished importing VISTA experimental results"))
 
     def _get_table_info(self, path, table_name):
         """Crawl versions of a database table.
@@ -143,7 +377,23 @@ class Command(BaseCommand):
         """
         return next(tsv_reader(path))
 
-    @transaction.atomic
+    def _create_import_info(self, release_info):
+        """Create entry in ImportInfo from the given ``release_info``."""
+        try:
+            ImportInfo.objects.create(
+                genomebuild=release_info["genomebuild"],
+                table=release_info["table"],
+                release=release_info["version"],
+            )
+        except IntegrityError as e:
+            self.stdout.write(
+                "Skipping {table} {version} ({genomebuild}). Already imported.".format(
+                    **release_info
+                )
+            )
+            return False
+        return True
+
     def _import(self, path, release_info, table, import_info=True, service=False):
         """Bulk data into table and add entry to ImportInfo table.
 
@@ -164,18 +414,7 @@ class Command(BaseCommand):
             CommandError("Table name in release_info file does not match table name.")
 
         if import_info:
-            try:
-                ImportInfo.objects.create(
-                    genomebuild=release_info["genomebuild"],
-                    table=release_info["table"],
-                    release=release_info["version"],
-                )
-            except IntegrityError as e:
-                self.stdout.write(
-                    "Skipping {table} {version} ({genomebuild}). Already imported.".format(
-                        **release_info
-                    )
-                )
+            if not self._create_import_info(release_info):
                 return False
 
         if not service:
@@ -193,7 +432,6 @@ class Command(BaseCommand):
         )
         return True
 
-    @transaction.atomic
     def _import_kegg(self, path, tables):
         """Wrapper function to import kegg databases.
 
@@ -243,7 +481,6 @@ class Command(BaseCommand):
             tmp.flush()
             self._import(tmp.name, release_info, table)
 
-    @transaction.atomic
     def _import_gnomad(self, path, tables):
         """Wrapper function to import gnomad tables
 
@@ -259,6 +496,6 @@ class Command(BaseCommand):
                 *self._get_table_info(path, "{}.{}".format(tables[0].__name__, chrom)),
                 tables[0],
                 # Import into info table only once
-                chrom == 1
+                chrom == 1,
             ):
                 break

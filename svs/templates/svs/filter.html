@@ -1,0 +1,75 @@
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
+  {% if query_type == "case" %}
+    <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.sodar_uuid %}">{{ object.name }}</a></li>
+    <li class="breadcrumb-item active">Filter SVs</li>
+  {%  else %}
+    <li class="breadcrumb-item active">Joint SV Filtration</li>
+  {% endif %}
+{% endblock %}
+
+{% block projectroles %}
+
+{% block css %}
+  {{ block.super }}
+  <style type="text/css">
+    .display-exac .detail-gnomad-exomes,
+    .display-exac .detail-gnomad-genomes,
+    .display-exac .detail-thousand-genomes,
+    .display-gnomad-exomes .detail-exac,
+    .display-gnomad-exomes .detail-gnomad-genomes,
+    .display-gnomad-exomes .detail-thousand-genomes,
+    .display-gnomad-genomes .detail-exac,
+    .display-gnomad-genomes .detail-gnomad-exomes,
+    .display-gnomad-genomes .detail-thousand-genomes,
+    .display-thousand-genomes .detail-exac,
+    .display-thousand-genomes .detail-gnomad-exomes,
+    .display-thousand-genomes .detail-gnomad-genomes {
+      display: none;
+    }
+
+    .varfish-variant-table th {
+      text-align: center;
+    }
+
+    .variant-row-positive { background-color: #28a74533; }
+    .variant-row-uncertain { background-color: #ffc10733; }
+    .variant-row-negative { background-color: #dc354533; }
+
+    .compact-form-groups .form-group {
+      margin-bottom: 0;
+    }
+  </style>
+{% endblock %}
+
+  <div class="row sodar-pr-content-title pb-2">
+    <h2 class="sodar-pr-content-title">
+      {% if query_type == "case" %}
+        SV Filter
+        <small class="text-muted">{{ object.name }}</small>
+      {% else %}
+        Joint SV Filtration
+        <small class="text-muted">{{ project.title }}</small>
+      {% endif %}
+    </h2>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    {% include "svs/_filter_form.html" %}
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    {% include "svs/filter_result/table.html" %}
+  </div>
+{% endblock projectroles %}
+
+{% block javascript %}
+  {{ block.super }}
+  {% include "svs/script_filter_form.html" %}
+{% endblock javascript %}

@@ -1,0 +1,15 @@
+{% load dict %}
+
+<td class="text-center">
+  {% with genotype=first_entry.genotype|keyvalue:name %}
+    <span data-html="true" data-tooltip="tooltip" title="
+        genotype quality: {{ genotype|keyvalue:"gq"|default:"0" }}<br/>
+        paired-read cov: {{ genotype|keyvalue:"pec"|default:"0" }}<br/>
+        paired-read ALT: {{ genotype|keyvalue:"pev"|default:"0" }}<br/>
+        split-read cov: {{ genotype|keyvalue:"src"|default:"0" }}<br/>
+        split-read ALT: {{ genotype|keyvalue:"srv"|default:"0" }}
+      ">
+      {{ genotype|keyvalue:"gt" }}
+    </span>
+  {% endwith %}
+</td>

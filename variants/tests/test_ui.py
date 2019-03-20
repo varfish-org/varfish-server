@@ -403,12 +403,12 @@ class TestVariantsCaseDetailView(TestUIBase):
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_case_detail_comments_card_exists(self):
         """Test if the variant details view gets rendered"""
-        self.assert_element_exists({}, "card-varfish-vars-case-details-comments", True)
+        self.assert_element_exists({}, "card-varfish-vars-case-details-small-var-comments", True)
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_case_detail_flags_card_exists(self):
         """Test if the variant details view gets rendered"""
-        self.assert_element_exists({}, "card-varfish-vars-case-details-flags", True)
+        self.assert_element_exists({}, "card-varfish-vars-case-details-small-var-flags", True)
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_case_detail_bg_jobs_card_exists(self):

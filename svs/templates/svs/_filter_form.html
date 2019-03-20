@@ -1,0 +1,123 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+{% load humanize %}
+
+{% if form.errors %}
+  {% for error in form.non_field_errors %}
+    <div class="alert alert-danger">
+      <strong>{{ error|escape }}</strong>
+    </div>
+  {% endfor %}
+{% endif %}
+
+<form id="filterForm" method="post">{% csrf_token %}
+  <div class="card">
+    <div class="card-header row border-bottom-0 pt-1 pr-1">
+      <ul class="nav nav-tabs card-header-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" id="genotype-tab" data-toggle="tab" href="#panel-genotype" role="tab"
+             data-tooltip="tooltip" title="Require genotypes in individuals">Genotype</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="frequency-tab" data-toggle="tab" href="#panel-frequency" role="tab"
+            data-tooltip="tooltip" title="Population frequencies and het./hom. counts">Frequency</a>
+        </li>
+        <li class="nav-item d-none d-md-block">
+          <a class="nav-link" id="effect-tab" data-toggle="tab" href="#panel-effect" role="tab"
+            data-tooltip="tooltip" title="Variant types/effects, coding/non-coding transcripts">Variants &amp; Effects</a>
+        </li>
+        <li class="nav-item d-none d-md-block">
+          <a class="nav-link" id="quality-tab" data-toggle="tab" href="#panel-quality" role="tab"
+            data-tooltip="tooltip" title="Quality, allelic balance, coverage">Quality</a>
+        </li>
+        <li class="nav-item d-none d-lg-block">
+          <a class="nav-link" id="genelists-tab" data-toggle="tab" href="#panel-genelists" role="tab"
+            data-tooltip="tooltip" title="White-list and black-list genes">Gene Lists</a>
+        </li>
+        <li class="nav-item d-none d-lg-block">
+          <a class="nav-link" id="regulatory-tab" data-toggle="tab" href="#panel-regulatory" role="tab"
+            data-tooltip="tooltip" title="Regulatory feature Annotation">Regulatory</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" id="more-tab" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">More ...</a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" id="tads-tab" data-toggle="tab" href="#panel-tads" role="tab"
+              data-tooltip="tooltip" title="Configure interval-based annotation (e.g., TADs)" data-placement="left">TADs</a>
+            <a class="dropdown-item" id="export-tab" data-toggle="tab" href="#panel-export" role="tab"
+              data-tooltip="tooltip" title="Configure downloadable file creation" data-placement="left">Configure Downloads</a>
+            <a class="dropdown-item" id="misc-tab" data-toggle="tab" href="#panel-misc" role="tab"
+              data-tooltip="tooltip" title="Various settings" data-placement="left">Miscellaneous</a>
+            <a class="dropdown-item" id="settings-tab" data-toggle="tab" href="#panel-settings" role="tab"
+              data-tooltip="tooltip" title="Save current filter settings" data-placement="left">Filter Import/Export</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="panel-genotype" role="tabpanel" aria-labelledby="genotype-tab">
+          {% include "svs/filter_form/genotype.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-frequency" role="tabpanel" aria-labelledby="genotype-tab">
+          {% include "svs/filter_form/frequency.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-effect" role="tabpanel" aria-labelledby="effect-tab">
+          {% include "svs/filter_form/effects.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-quality" role="tabpanel" aria-labelledby="quality-tab">
+          {% include "svs/filter_form/quality.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-genelists" role="tabpanel" aria-labelledby="genelists-tab">
+          {% include "svs/filter_form/genelists.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-regulatory" role="tabpanel" aria-labelledby="regulatory-tab">
+          {% include "svs/filter_form/regulatory.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-tads" role="tabpanel" aria-labelledby="tads-tab">
+          {% include "svs/filter_form/tads.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-export" role="tabpanel" aria-labelledby="export-tab">
+          {% include "svs/filter_form/export.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-misc" role="tabpanel" aria-labelledby="misc-tab">
+          {% include "svs/filter_form/misc.html" %}
+        </div>
+        <div class="tab-pane fade" id="panel-settings" role="tabpanel" aria-labelledby="settings-tab">
+          {% include "svs/filter_form/settings.html" %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="row">
+        <div class="col text-left p-0">
+          <div class="btn-group btn-group-toggle pr-5" data-toggle="buttons">
+            {% for radio in form.database_select %}
+            <label class="btn btn-outline-secondary {% if radio.data.selected %}active{% endif %}" for="{{ radio.id_for_label }}" data-toggle="tooltip" title="Select {{ radio.choice_label }} transcripts">
+              {{ radio.tag }} {{ radio.choice_label }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="col text-right p-0">
+          <div class="btn-group">
+            <button type="submit" id="submitFilter" name="submit" value="display" class="btn btn-primary" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
+                    title="Filter variants again with current settings, limited to <i><b>Miscellaneous / Result row limit</b></i> results and display in table below"
+                    data-url='{{ submit_button_url }}'
+                    data-url-reload='{{ load_data_url }}'>
+              <i class="fa fa-refresh"></i>
+              Filter &amp; Display
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{#<script type="text/javascript">#}
+{#  $('[data-toggle-second="tooltip"]').tooltip();#}
+{#  const anchor = window.location.hash;#}
+{#  $(`a[href="${anchor}"]`).tab('show')#}
+{#</script>#}

@@ -1,0 +1,63 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+{% load variants_tags %}
+
+<!-- Prevent table overflow -->
+<style type="text/css">
+  table#quality-filter-table tbody tr td input {
+      width: 5em !important;
+  }
+</style>
+
+<div style="overflow-y: auto; max-height: 400px;">
+  <table class="table table-striped table-hover sodar-card-table" id="quality-filter-table">
+    <thead>
+      <tr>
+        <th class="text-muted" style="width: 10px">#</th>
+        <th class="col-2">Individual</th>
+        <th class="col-2">Father</th>
+        <th class="col-2">Mother</th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal genotype quality">min GQ</th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal split read coverage">min SR cov.</th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal split read variant support">min SR var.</th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Maximal split read variant support">max SR var.</th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal read pair coverage">min PR cov.</th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal read pair variant support">min PR var.</th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Maximal read pair variant support">max PR var.</th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal total (SR+PR) coverage">min SR+PR cov.</th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Minimal total (SR+PR) variant support">min SR+PR var.</th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="Maximal total (SR+PR) variant support">max SR+PR var.</th>
+        <th data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='text-left'><ul class='pl-3'><li><strong>ignore</strong>: don't apply quality filters at all</li><li><strong>drop-variant</strong>: remove variant from result list if at least one quality filter fails</li><li><strong>no-call</strong>: don't filter for genotype if at least one quality filter fails</li></ul></div>">on FAIL</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for member in form.get_pedigree %}
+      <tr>
+        <td class="text-right text-muted">{{ forloop.counter }}</td>
+        <td>{{ member.patient|only_source_name }}</td>
+        <td>{{ member.father|default:"0"|only_source_name }}</td>
+        <td>{{ member.mother|default:"0"|only_source_name }}</td>
+        {% if member.has_gt_entries %}
+          {% with field_names=form.get_quality_field_names|keyvalue:member.patient %}
+            <td>{% with x=field_names|keyvalue:"gq_min" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"src_min" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"srv_min" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"srv_max" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"pec_min" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"pev_min" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"pev_max" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"cov_min" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"var_min" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"var_max" %}{{ form|keyvalue:x }}{% endwith %}</td>
+            <td>{% with x=field_names|keyvalue:"fail" %}{{ form|keyvalue:x }}{% endwith %}</td>
+          {% endwith %}
+        {% else %}
+          <td colspan="7" class="text-centered">
+            <em>no genotypes</em>
+          </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

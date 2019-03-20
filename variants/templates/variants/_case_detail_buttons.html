@@ -7,4 +7,9 @@
     <i class="fa fa-hospital-o"></i>
     ClinVar Report
   </a>
+  &nbsp;
+  <a class="btn btn-primary" href="{% url "svs:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
+    <i class="fa fa-align-center fa-flip-vertical"></i>
+    Filter SVs
+  </a>
 </div>

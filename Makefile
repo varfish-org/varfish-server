@@ -12,9 +12,12 @@ black:
 		dbsnp \
 		frequencies \
 		geneinfo \
+		genomicfeatures \
 		hgmd \
 		importer \
 		pathways \
+		svdbs \
+		svs \
 		templatetags \
 		variants \
 		var_stats_qc

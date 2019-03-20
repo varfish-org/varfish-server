@@ -1,12 +1,12 @@
 from contextlib import contextmanager
 import json
 
+from aldjemy import core, table
 import psycopg2.extras
+from sqlalchemy import Table
 from sqlalchemy.sql import select, func, and_, not_, or_, cast, union, literal_column
 from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
 import sqlparse
-
-from aldjemy.core import get_tables
 
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
@@ -64,6 +64,10 @@ class SingleCaseFilterQueryBase:
         [trailing such as ORDER BY or LIMIT]
     """
 
+    #: The model with variants to query
+    model_class = None
+    #: The model with gene-based annotations to query, fallback is model_class
+    annotated_model_class = None
     #: Table that the query is based on
     base_table = None
 
@@ -84,6 +88,81 @@ class SingleCaseFilterQueryBase:
         with disable_json_psycopg2():
             return self.engine.execute(stmt)
 
+    def _build_stmt(self, kwargs):
+        """Build the statement and reutrn it"""
+        if kwargs.get("compound_recessive_enabled"):
+            raise NotImplementedError("%s does not have het. comp. support!" % self.__class__)
+        return self._add_trailing(self._build_simple_stmt(kwargs), kwargs)
+
+    def _build_simple_stmt(self, kwargs):
+        """Build the simple, non-comp.-het. statement"""
+        # Fields must be computed before "_core_where" in case of sub queries.
+        fields = self._get_fields(kwargs, "single")
+        stmt = select(fields).select_from(self._from(kwargs)).where(self._core_where(kwargs))
+        return self._add_trailing(stmt, kwargs)
+
+    def _get_fields(self, _kwargs, _which, _inner=None):
+        """Return fields to ``select()`` with SQLAlchemy.
+
+        ``_which`` is "outer" or "inner".
+        """
+        return []
+
+    def _from(self, _kwargs):
+        """Return the selectable object (e.g., a ``Join``)."""
+        return self.base_table
+
+    def _core_where(self, _kwargs, _gt_patterns=None):
+        """Return ``WHERE`` clause for the core.
+
+        If ``_gt_pattern`` is given then the selected individual's genotype will be forced
+        as given in this parameter.  Examples for the values are:
+
+        - ``{}`` -- empty
+        - ``{"child": "het", "father": "het", "mother": "hom"}``
+        - ``{"child": "het", "father": "hom", "mother": "het"}``
+
+        The default implementation queries for variants for the particular case only.
+        """
+        return self.model_class.sa.case_id == self.case.pk
+
+    def _add_trailing(self, stmt, _kwargs):
+        """Optionally add trailing parts of statement.
+
+        The default implementation does not change ``stmt``.
+        """
+        return stmt
+
+    def _add_trailing_inner(self, stmt, _kwargs):
+        """Optionally add trailing parts of inner statement.
+
+        The default implementation does not change ``stmt``.
+        """
+        return stmt
+
+    def get_base_table(self):
+        """Return base_table"""
+        if self.base_table is None:
+            raise ImproperlyConfigured("Set base_table or override get_base_table().")
+        else:
+            return self.base_table
+
+    def _get_pedigree(self):
+        """Return list with lines from pedigree."""
+        return self.case.pedigree
+
+    def _get_filtered_pedigree_with_samples(self):
+        """Return list with lines from pedigree that have samples."""
+        return self.case.get_filtered_pedigree_with_samples()
+
+    def is_prefetched(self):
+        """Return if the query is prefetched or not."""
+        return "LoadPrefetched" in type(self).__name__
+
+
+class SingleCaseFilterQueryWithHetCompBase(SingleCaseFilterQueryBase):
+    """Base class for queries with het. comp. query support."""
+
     def _get_trio_names(self):
         """Return (index, father, mother) names from trio"""
         index_lines = [
@@ -98,10 +177,11 @@ class SingleCaseFilterQueryBase:
     def _build_stmt(self, kwargs):
         """Build the statement, both simple and compound recessive"""
         if kwargs.get("compound_recessive_enabled", False) and not self.is_prefetched():
-            stmt = self._build_comp_het_stmt(kwargs)
+            return self._build_comp_het_stmt(kwargs)
         else:
             stmt = self._build_simple_stmt(kwargs)
-        return self._add_trailing(stmt, kwargs)
+            stmt = self._add_trailing_inner(stmt, kwargs)
+            return self._add_trailing(stmt, kwargs)
 
     def _build_comp_het_stmt(self, kwargs):
         """Build the comp.-het. statement"""
@@ -162,83 +242,19 @@ class SingleCaseFilterQueryBase:
         )
         return self._add_trailing(stmt, kwargs)
 
-    def _build_simple_stmt(self, kwargs):
-        """Build the simple, non-comp.-het. statement"""
-        stmt = (
-            select(self._get_fields(kwargs, "inner"))
-            .select_from(self._from(kwargs))
-            .where(self._core_where(kwargs))
-        )
-        stmt = self._add_trailing_inner(stmt, kwargs)
-        return self._add_trailing(stmt, kwargs)
 
-    def _get_fields(self, _kwargs, _which, _inner=None):
-        """Return fields to ``select()`` with SQLAlchemy.
+class SingleCasePrefetchFilterQueryBase(SingleCaseFilterQueryWithHetCompBase):
+    """Base class for the actual query."""
 
-        ``_which`` is "outer" or "inner".
-        """
-        raise NotImplementedError("Override me!")
-
-    def _from(self, _kwargs):
-        """Return the selectable object (e.g., a ``Join``)."""
-        raise NotImplementedError("Override me!")
-
-    def _get_pedigree(self):
-        """Return list with lines from pedigree."""
-        return self.case.pedigree
-
-    def _get_filtered_pedigree_with_samples(self):
-        """Return list with lines from pedigree that have samples."""
-        return self.case.get_filtered_pedigree_with_samples()
-
-    def _core_where(self, _kwargs, _gt_patterns=None):
-        """Return ``WHERE`` clause for the core.
-
-        If ``_gt_pattern`` is given then the selected individual's genotype will be forced
-        as given in this parameter.  Examples for the values are:
-
-        - ``{}`` -- empty
-        - ``{"child": "het", "father": "het", "mother": "hom"}``
-        - ``{"child": "het", "father": "hom", "mother": "het"}``
-
-        The default implementation queries for variants for the particular case only.
-        """
-        return SmallVariant.sa.case_id == self.case.pk
-
-    def _add_trailing(self, stmt, _kwargs):
-        """Optionally add trailing parts of statement.
-
-        The default implementation does not change ``stmt``.
-        """
-        return stmt
-
-    def _add_trailing_inner(self, stmt, _kwargs):
-        """Optionally add trailing parts of inner statement.
-
-        The default implementation does not change ``stmt``.
-        """
-        return stmt
-
-    def get_base_table(self):
-        """Return base_table"""
-        if self.base_table is None:
-            raise ImproperlyConfigured("Set base_table or override get_base_table().")
-        else:
-            return self.base_table
-
-    def is_prefetched(self):
-        """Return if the query is prefetched or not."""
-        return "LoadPrefetched" in type(self).__name__
-
-
-class SingleCasePrefetchFilterQueryBase(SingleCaseFilterQueryBase):
-    #: Table that the query is based on
+    model_class = SmallVariant
     base_table = SmallVariant.sa.table
 
 
-class SingleCaseLoadPrefetchedFilterQueryBase(SingleCaseFilterQueryBase):
-    """Class to load previous filter results
-    """
+class SingleCaseLoadPrefetchedFilterQueryBase(SingleCaseFilterQueryWithHetCompBase):
+    """Class to load previous filter results."""
+
+    model_class = SmallVariant
+    base_table = SmallVariant.sa.table
 
     def __init__(self, case, engine, smallvariantquery_pk, debug=False):
         """Constructor"""
@@ -246,7 +262,7 @@ class SingleCaseLoadPrefetchedFilterQueryBase(SingleCaseFilterQueryBase):
         #: Store the smallvariantquery id to access previous results in 'where' part of the statement
         self.smallvariantquery_pk = smallvariantquery_pk
         #: Get the intermediate table where Django stores the ManyToMany relation / query results
-        self.query_results = get_tables()["variants_smallvariantquery_query_results"]
+        self.query_results = Table("variants_smallvariantquery_query_results", core.get_meta())
 
     def get_base_table(self):
         """Render the base table by joining the smallvariant entries by id onto the stored result ids"""
@@ -272,6 +288,10 @@ class ProjectCasesFilterQueryBase:
     Further, compound heterozygous queries are not supported when performing queries across cohorts.
     """
 
+    #: The model with variants to query
+    model_class = None
+    #: The model with gene-based annotations to query, fallback is model_class
+    annotated_model_class = None
     #: Table that the query is based on
     base_table = None
 
@@ -306,7 +326,7 @@ class ProjectCasesFilterQueryBase:
 
         ``_which`` is "outer" or "inner".
         """
-        raise NotImplementedError("Override me!")
+        return []
 
     def _from(self, _kwargs):
         """Return the selectable object (e.g., a ``Join``)."""
@@ -355,20 +375,29 @@ class ProjectCasesFilterQueryBase:
         else:
             return self.base_table
 
+    def is_prefetched(self):
+        """Return if the query is prefetched or not."""
+        return "LoadPrefetched" in type(self).__name__
+
 
 class ProjectCasesPrefetchFilterQueryBase(ProjectCasesFilterQueryBase):
-    #: Table that the query is based on
+    model_class = SmallVariant
     base_table = SmallVariant.sa.table
 
 
 class ProjectCasesLoadPrefetchedFilterQueryBase(ProjectCasesFilterQueryBase):
+    model_class = SmallVariant
+    base_table = SmallVariant.sa.table
+
     def __init__(self, case, engine, projectcasessmallvariantquery_pk, debug=False):
         """Constructor"""
         super().__init__(case, engine, debug=False)
         #: Store the smallvariantquery id to access previous results in 'where' part of the statement
         self.projectcasessmallvariantquery_pk = projectcasessmallvariantquery_pk
         #: Get the intermediate table where Django stores the ManyToMany relation / query results
-        self.query_results = get_tables()["variants_projectcasessmallvariantquery_query_results"]
+        self.query_results = Table(
+            "variants_projectcasessmallvariantquery_query_results", core.get_meta()
+        )
 
     def get_base_table(self):
         """Render the base table by joining the smallvariant entries by id onto the stored result ids"""
@@ -387,7 +416,7 @@ class ProjectCasesLoadPrefetchedFilterQueryBase(ProjectCasesFilterQueryBase):
 # Query class mixins that add to the WHERE clause.
 
 
-class GenotypeTermWhereMixin:
+class GenotypeTermWhereMixinBase:
     """Mixin providing genotype term creation for WHERE clause."""
 
     def _core_where(self, kwargs, gt_patterns=None):
@@ -410,8 +439,7 @@ class GenotypeTermWhereMixin:
             members = self._get_filtered_pedigree_with_samples()
         for m in members:
             name = m["patient"]
-            # Use genotype pattern ``gt_patterns`` override if given and use the patterns from
-            # ``kwargs`` otherwise.
+            # Use genotype pattern ``gt_patterns`` override if given and use the patterns from ``kwargs`` otherwise.
             if name in (gt_patterns or ()):
                 gt_list = FILTER_FORM_TRANSLATE_INHERITANCE[gt_patterns[name]]
             else:
@@ -434,8 +462,8 @@ class GenotypeTermWhereMixin:
         """
         if gt_list:
             return or_(
-                SmallVariant.sa.genotype[name] == None,  # SQL Alchemy forces "== None" here
-                SmallVariant.sa.genotype[name]["gt"].astext.in_(gt_list),
+                self.model_class.sa.genotype[name].is_(None),
+                self.model_class.sa.genotype[name]["gt"].astext.in_(gt_list),
             )
         else:
             return True
@@ -445,6 +473,13 @@ class GenotypeTermWhereMixin:
 
         Similar to ``_build_genotype_gt_term()``, only sample that have the ``genotype`` set are checked for.
         """
+        raise NotImplementedError("Override me!")
+
+
+class GenotypeTermWhereMixin(GenotypeTermWhereMixinBase):
+    """Implementation of ``GenotypeTermWhereMixinBase`` for ``SmallVariant`` model."""
+
+    def _build_genotype_quality_term(self, name, kwargs):
         rhs = and_(
             # Genotype quality is simple.
             SmallVariant.sa.genotype[name]["gq"].astext.cast(Integer) >= kwargs["%s_gq" % name],
@@ -501,7 +536,7 @@ class GenotypeTermWhereMixin:
                 ),
             ),
         )
-        return or_(SmallVariant.sa.genotype[name] == None, rhs)  # SQL Alchemy forces "== None" here
+        return or_(SmallVariant.sa.genotype[name].is_(None), rhs)
 
 
 class FrequencyTermWhereMixin:
@@ -539,7 +574,7 @@ class VariantTypeTermWhereMixin:
             values.append("mnv")
         if kwargs["var_type_indel"]:
             values.append("indel")
-        return SmallVariant.sa.var_type.in_(values)
+        return or_(SmallVariant.sa.var_type.is_(None), SmallVariant.sa.var_type.in_(values))
 
 
 class VariantEffectTermWhereMixin:
@@ -550,10 +585,11 @@ class VariantEffectTermWhereMixin:
 
     def _build_effects_term(self, kwargs):
         effects = cast(kwargs["effects"], ARRAY(VARCHAR()))
+        model_class = self.annotated_model_class or self.model_class
         if kwargs["database_select"] == "refseq":
-            return SmallVariant.sa.refseq_effect.overlap(effects)
+            return model_class.sa.refseq_effect.overlap(effects)
         else:  # kwargs["database_select"] == "ensembl"
-            return SmallVariant.sa.ensembl_effect.overlap(effects)
+            return model_class.sa.ensembl_effect.overlap(effects)
 
 
 class TranscriptCodingTermWhereMixin:
@@ -566,10 +602,11 @@ class TranscriptCodingTermWhereMixin:
 
     def _build_transcripts_coding_term(self, kwargs):
         sub_terms = []
+        model_class = self.annotated_model_class or self.model_class
         if kwargs["database_select"] == "refseq":
-            field = SmallVariant.sa.refseq_transcript_coding
+            field = model_class.sa.refseq_transcript_coding
         else:
-            field = SmallVariant.sa.ensembl_transcript_coding
+            field = model_class.sa.ensembl_transcript_coding
         if not kwargs["transcripts_coding"]:
             sub_terms.append(field == False)  # equality from SQL Alchemy
         if not kwargs["transcripts_noncoding"]:
@@ -594,14 +631,15 @@ class GeneListsTermWhereMixin:
             return not_(self._build_gene_whitelist_term(gene_list))
 
     def _build_gene_whitelist_term(self, gene_list):
+        model_class = self.annotated_model_class or self.model_class
         if not gene_list:
             return True
         else:
             return or_(
-                SmallVariant.sa.ensembl_gene_id.in_(
+                model_class.sa.ensembl_gene_id.in_(
                     self._build_gene_sub_query("ensembl_gene_id", gene_list)
                 ),
-                SmallVariant.sa.refseq_gene_id.in_(
+                model_class.sa.refseq_gene_id.in_(
                     self._build_gene_sub_query("entrez_id", gene_list)
                 ),
             )
@@ -849,7 +887,7 @@ class FilterQueryRenderFieldsMixin(JoinDbsnpAndHgncMixin):
                 (SmallVariant.sa.ensembl_effect != SmallVariant.sa.refseq_effect).label(
                     "effect_ambiguity"
                 ),
-            ]
+            ] + super()._get_fields(kwargs, which, inner)
             if kwargs["database_select"] == "refseq":
                 result += [
                     SmallVariant.sa.refseq_hgvs_p.label("hgvs_p"),
@@ -875,6 +913,7 @@ class JoinKnownGeneAaMixin(FilterQueryRenderFieldsMixin):
     """Adds the fields for exporting to the query."""
 
     def _build_stmt(self, kwargs):
+
         inner = super()._build_stmt(kwargs).alias("inner")
         middle = (
             select(
@@ -1134,8 +1173,7 @@ class FilterQueryFlagsCommentsMixin:
                 if kwargs.get(field_name):
                     terms.append(getattr(SmallVariantFlags.sa, flag_name) == value)
                     if value == "empty":
-                        # SQL Alchemy wants '== None' instead of 'is None' here
-                        terms.append(getattr(SmallVariantFlags.sa, flag_name) == None)
+                        terms.append(getattr(SmallVariantFlags.sa, flag_name).is_(None))
         return or_(*terms)
 
 
@@ -1188,21 +1226,27 @@ class ExportTableFileFilterQuery(
     JoinKnownGeneAaMixin,
     FilterQueryRenderFieldsMixin,
     BaseTableQueriesMixin,
-    SingleCasePrefetchFilterQueryBase,
+    SingleCaseFilterQueryWithHetCompBase,
 ):
     """Run filter query for creating tabular file (TSV, Excel) to export for a single case.
 
     Compared to ``RenderFilterQuery``, this only adds the ``knownGeneAA`` information.
     """
 
+    model_class = SmallVariant
+    base_table = SmallVariant.sa.table
+
 
 class ExportVcfFileFilterQuery(
-    OrderByChromosomalPositionMixin, BaseTableQueriesMixin, SingleCaseFilterQueryBase
+    OrderByChromosomalPositionMixin, BaseTableQueriesMixin, SingleCaseFilterQueryWithHetCompBase
 ):
     """Run filter query for TSV file with minimal information only for performance.
 
     Only supports query for genotype, frequency, quality, and gene lists.
     """
+
+    model_class = SmallVariant
+    base_table = SmallVariant.sa.table
 
     def _from(self, kwargs):
         return SmallVariant.sa.table
@@ -1221,7 +1265,7 @@ class ExportVcfFileFilterQuery(
                 SmallVariant.sa.reference,
                 SmallVariant.sa.alternative,
                 SmallVariant.sa.genotype,
-            ]
+            ] + super()._get_fields(kwargs, which, inner)
             if kwargs["database_select"] == "refseq":
                 result.append(SmallVariant.sa.refseq_gene_id.label("gene_id"))
             else:  # if kwargs["database_select"] == "ensembl":
@@ -1236,6 +1280,9 @@ class CountOnlyFilterQuery(
     SingleCasePrefetchFilterQueryBase,
 ):
     """Run filter query but only count number of results."""
+
+    model_class = SmallVariant
+    base_table = SmallVariant.sa.table
 
     def run(self, kwargs):
         return super().run(kwargs).first()[0]
@@ -1400,6 +1447,9 @@ class ClinvarReportFieldsMixin(FilterQueryRenderFieldsMixin):
 
 
 class PrefetchClinvarReportQueryBase(SingleCaseFilterQueryBase):
+    model_class = SmallVariant
+    base_table = SmallVariant.sa.table
+
     #: Table that the query is based on
     base_table = SmallVariant.sa.table
 
@@ -1408,13 +1458,17 @@ class LoadPrefetchedClinvarReportQueryBase(SingleCaseFilterQueryBase):
     """Class to load previous filter results
     """
 
+    model_class = SmallVariant
+    base_table = SmallVariant.sa.table
+
     def __init__(self, case, engine, clinvarquery_pk, debug=False):
         """Constructor"""
         super().__init__(case, engine, debug=False)
         #: Store the smallvariantquery id to access previous results in 'where' part of the statement
         self.clinvarquery_pk = clinvarquery_pk
         #: Get the intermediate table where Django stores the ManyToMany relation / query results
-        self.query_results = get_tables()["variants_clinvarquery_query_results"]
+        table.generate_tables(core.get_meta())
+        self.query_results = core.get_meta().tables["variants_clinvarquery_query_results"]
 
     def get_base_table(self):
         """Render the base table by joining the smallvariant entries by id onto the stored result ids"""
@@ -1449,6 +1503,9 @@ class LoadPrefetchedClinvarReportQuery(
     LoadPrefetchedClinvarReportQueryBase,
 ):
     """Run query for clinvar report."""
+
+    model_class = SmallVariant
+    base_table = SmallVariant.sa.table
 
 
 # Query for obtaining the knownGene alignments (used from JSON query).

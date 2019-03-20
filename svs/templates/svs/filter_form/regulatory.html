@@ -1,0 +1,104 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+
+<div class="row pb-2 pt-2 compact-form-groups">
+  <div class="col-12">
+    <h5 class="card-table">
+      ENSEMBL Regulatory Features
+    </h5>
+
+    <div class="col-12 pr-0">
+      <div class="row">
+        <div class="col-2 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Any ENSEMBL regulatory feature">
+            {{ form.regulatory_ensembl_any_feature }}
+            <label class="form-check-label" for="id_regulatory_ensembl_any_feature">
+              any feature
+            </label>
+          </div>
+        </div>
+        <div class="col-2 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="A transcription factor binding site with consensus sequence CCGCGNGGNGGCAG, bound by CCCTF-binding factor.">
+            {{ form.regulatory_ensembl_ctcf_binding_site }}
+            <label class="form-check-label" for="id_regulatory_ensembl_ctcf_binding_site">
+              CTCF binding site
+            </label>
+          </div>
+        </div>
+        <div class="col-2 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="A cis-acting sequence that increases the utilization of (some) eukaryotic promoters, and can function in either orientation and in any location (upstream or downstream) relative to the promoter.">
+            {{ form.regulatory_ensembl_enhancer }}
+            <label class="form-check-label" for="id_regulatory_ensembl_enhancer">
+              enhancer
+            </label>
+          </div>
+        </div>
+        <div class="col-2 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="A DNA sequence that in the normal state of the chromosome corresponds to an unfolded, un-complexed stretch of double-stranded DNA.">
+            {{ form.regulatory_ensembl_open_chromatin_region }}
+            <label class="form-check-label" for="id_regulatory_ensembl_open_chromatin_region">
+              open chromatin region
+            </label>
+          </div>
+        </div>
+        <div class="col-2 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="A regulatory_region composed of the TSS(s) and binding sites for TF complexes of the basal transcription machinery.">
+            {{ form.regulatory_ensembl_promoter }}
+            <label class="form-check-label" for="id_regulatory_ensembl_promoter">
+              promoter
+            </label>
+          </div>
+        </div>
+        <div class="col-2 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="A region immediately adjacent to a promoter which may or may not contain transcription factor binding sites.">
+            {{ form.regulatory_ensembl_promoter_flanking_region }}
+            <label class="form-check-label" for="id_regulatory_ensembl_promoter_flanking_region">
+              promoter flanking region
+            </label>
+          </div>
+        </div>
+        <div class="col-2 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="A region of a nucleotide molecule that binds a Transcription Factor or Transcription Factor complex.">
+            {{ form.regulatory_ensembl_tf_binding_site }}
+            <label class="form-check-label" for="id_regulatory_ensembl_tf_binding_site">
+              TF binding site
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h5 class="card-table">
+      VISTA Enhancer Validation
+    </h5>
+
+    <div class="col-12 pr-0">
+      <div class="row">
+        <div class="col-3 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Any validation result">
+            {{ form.regulatory_vista_any_validation}}
+            <label class="form-check-label" for="id_regulatory_vista_any_validation">
+              any validation result
+            </label>
+          </div>
+        </div>
+        <div class="col-3 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Positive VISTA validation result">
+            {{ form.regulatory_vista_positive }}
+            <label class="form-check-label" for="id_regulatory_vista_positive">
+              positive
+            </label>
+          </div>
+        </div>
+        <div class="col-3 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Negative VISTA validation result">
+            {{ form.regulatory_vista_negative }}
+            <label class="form-check-label" for="id_regulatory_vista_negative">
+              negative
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

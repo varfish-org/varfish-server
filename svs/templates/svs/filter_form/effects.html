@@ -1,0 +1,533 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+
+<div class="row pb-2 pt-2 compact-form-groups">
+  <div class="col-12">
+    <h5 class="card-table">
+      SV Size
+    </h5>
+
+    <div class="col-12 pr-0">
+      <div class="row">
+        <div class="col-3 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="smallest allowed SV size, if any">
+            {{ form.sv_size_min }}
+            <label class="form-check-label" for="id_sv_size_min">
+              min. SV size
+            </label>
+          </div>
+        </div>
+        <div class="col-3 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="largest allowed SV size, if any">
+            {{ form.sv_size_max }}
+            <label class="form-check-label" for="id_sv_size_max">
+              max. SV size
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <h5 class="card-table pt-2 mt-2 border-top">
+      SV Types
+    </h5>
+
+    <div class="col-12 pr-0">
+      <div class="row">
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="DELetion">
+            {{ form.sv_type_del }}
+            <label class="form-check-label" for="id_sv_type_del">
+              DEL
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="DUPlication">
+            {{ form.sv_type_dup }}
+            <label class="form-check-label" for="id_sv_type_dup">
+              DUP
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="INVersion">
+            {{ form.sv_type_inv }}
+            <label class="form-check-label" for="id_sv_type_inv">
+              INV
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="INSertion">
+            {{ form.sv_type_ins }}
+            <label class="form-check-label" for="id_sv_type_ins">
+              INS
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="BreakeND">
+            {{ form.sv_type_bnd }}
+            <label class="form-check-label" for="id_sv_type_bnd">
+              BND
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Copy Number Variation">
+            {{ form.sv_type_cnv }}
+            <label class="form-check-label" for="id_sv_type_cnv">
+              CNV
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <h5 class="card-table pt-2 mt-2 border-top">
+      SV Sub Type
+    </h5>
+
+    <div class="col-12 pr-0">
+      <div class="row">
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="generic deletion">
+            {{ form.sv_sub_type_del }}
+            <label class="form-check-label" for="id_sv_sub_type_del">
+              DEL
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="generic mobile element deletion">
+            {{ form.sv_sub_type_del_me }}
+            <label class="form-check-label" for="id_sv_sub_type_del_me">
+              DEL:ME
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="SVA mobile element deletion">
+            {{ form.sv_sub_type_del_me_sva }}
+            <label class="form-check-label" for="id_sv_sub_type_del_me_sva">
+              DEL:ME:SVA
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="L1 mobile element deletion">
+            {{ form.sv_sub_type_del_me_l1 }}
+            <label class="form-check-label" for="id_sv_sub_type_del_me_l1">
+              DEL:ME:L1
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="ALU mobile element deletion">
+            {{ form.sv_sub_type_del_me_alu }}
+            <label class="form-check-label" for="id_sv_sub_type_del_me_alu">
+              DEL:ME:ALU
+            </label>
+          </div>
+        </div>
+
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="generic duplication">
+            {{ form.sv_sub_type_dup }}
+            <label class="form-check-label" for="id_sv_sub_type_dup">
+              DUP
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="tandem duplication">
+            {{ form.sv_sub_type_dup_tandem }}
+            <label class="form-check-label" for="id_sv_sub_type_dup_tandem">
+              DUP:TANDEMs
+            </label>
+          </div>
+        </div>
+
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="inversion">
+            {{ form.sv_sub_type_inv }}
+            <label class="form-check-label" for="id_sv_sub_type_inv">
+              INV
+            </label>
+          </div>
+        </div>
+
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="generic insertion">
+            {{ form.sv_sub_type_ins }}
+            <label class="form-check-label" for="id_sv_sub_type_ins">
+              INS
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="generic mobile element insertion">
+            {{ form.sv_sub_type_ins_me }}
+            <label class="form-check-label" for="id_sv_sub_type_ins_me">
+              INS:ME
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="SVA mobile element insertion">
+            {{ form.sv_sub_type_ins_me_sva }}
+            <label class="form-check-label" for="id_sv_sub_type_ins_me_sva">
+              INS:ME:SVA
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="L1 mobile element insertion">
+            {{ form.sv_sub_type_ins_me_l1 }}
+            <label class="form-check-label" for="id_sv_sub_type_ins_me_l1">
+              INS:ME:L1
+            </label>
+          </div>
+        </div>
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="ALU mobile element insertion">
+            {{ form.sv_sub_type_ins_me_alu }}
+            <label class="form-check-label" for="id_sv_sub_type_ins_me_alu">
+              INS:ME:ALU
+            </label>
+          </div>
+        </div>
+
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="breakend">
+            {{ form.sv_sub_type_bnd }}
+            <label class="form-check-label" for="id_sv_sub_type_bnd">
+              BND
+            </label>
+          </div>
+        </div>
+
+        <div class="col-1 pl-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="copy number variant">
+            {{ form.sv_sub_type_cnv }}
+            <label class="form-check-label" for="id_sv_sub_type_cnv">
+              CNV
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col-12">
+    <h5 class="card-table pt-2 mt-2 border-top">
+      Transcript Selection
+    </h5>
+
+    <div class="row">
+      <div class="col-2">
+        {{ form.transcripts_coding|as_crispy_field }}
+      </div>
+      <div class="col-2">
+        {{ form.transcripts_noncoding|as_crispy_field }}
+      </div>
+      <div class="col-2">
+        {{ form.require_transcript_overlap|as_crispy_field }}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <h5 class="card-table pt-2 mt-2 border-top">Effects</h5>
+
+    <div class="row">
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="coding sequence variant">
+            {{ form.effect_coding_sequence_variant }}
+            <label class="form-check-label" for="id_effect_coding_sequence_variant">coding sequence variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="coding transcript intron variant">
+            {{ form.effect_coding_transcript_intron_variant }}
+            <label class="form-check-label" for="id_effect_coding_transcript_intron_variant">coding transcript intron variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="coding transcript variant">
+            {{ form.effect_coding_transcript_variant }}
+            <label class="form-check-label" for="id_effect_coding_transcript_variant">coding transcript variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="copy number change">
+            {{ form.effect_copy_number_change }}
+            <label class="form-check-label" for="id_effect_copy_number_change">copy number change</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="direct tandem duplication">
+            {{ form.effect_direct_tandem_duplication }}
+            <label class="form-check-label" for="id_effect_direct_tandem_duplication">direct tandem duplication</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="downstream gene variant">
+            {{ form.effect_downstream_gene_variant }}
+            <label class="form-check-label" for="id_effect_downstream_gene_variant">downstream gene variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="exon loss variant">
+            {{ form.effect_exon_loss_variant }}
+            <label class="form-check-label" for="id_effect_exon_loss_variant">exon loss variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="feature truncation">
+            {{ form.effect_feature_truncation }}
+            <label class="form-check-label" for="id_effect_feature_truncation">feature truncation</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="5' UTR exon variant">
+            {{ form.effect_five_prime_UTR_exon_variant }}
+            <label class="form-check-label" for="id_effect_five_prime_UTR_exon_variant">5' UTR exon variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="5' UTR intron variant">
+            {{ form.effect_five_prime_UTR_intron_variant }}
+            <label class="form-check-label" for="id_effect_five_prime_UTR_intron_variant">5' UTR intron variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="5' UTR truncation">
+            {{ form.effect_five_prime_UTR_truncation }}
+            <label class="form-check-label" for="id_effect_five_prime_UTR_truncation">5' UTR truncation</label>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="frameshift truncation">
+            {{ form.effect_frameshift_truncation }}
+            <label class="form-check-label" for="id_effect_frameshift_truncation">frameshift truncation</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="insertion">
+            {{ form.effect_insertion }}
+            <label class="form-check-label" for="id_effect_insertion">insertion</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="intron variant">
+            {{ form.effect_intron_variant }}
+            <label class="form-check-label" for="id_effect_intron_variant">intron variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="inversion">
+            {{ form.effect_inversion }}
+            <label class="form-check-label" for="id_effect_inversino">inversion</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="mobile element deletion">
+            {{ form.effect_mobile_element_deletion }}
+            <label class="form-check-label" for="id_effect_mobile_element_deletion">mobile element deletion</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="mobile element insertion">
+            {{ form.effect_mobile_element_insertion }}
+            <label class="form-check-label" for="id_effect_mobile_element_insertion">mobile element insertion</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="non-coding transcript exon variant">
+            {{ form.effect_non_coding_transcript_exon_variant }}
+            <label class="form-check-label" for="id_effect_non_coding_transcript_exon_variant">non-coding transcript exon variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="non-coding transcript intron variant">
+            {{ form.effect_non_coding_transcript_intron_variant }}
+            <label class="form-check-label" for="id_effect_non_coding_transcript_intron_variant">non-coding transcript intron variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="non-coding transcript variant">
+            {{ form.effect_non_coding_transcript_variant }}
+            <label class="form-check-label" for="id_effect_non_coding_transcript_variant">non-coding transcript variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="sequence variant">
+            {{ form.effect_sequence_variant }}
+            <label class="form-check-label" for="id_effect_sequence_variant">sequence variant</label>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="start lost">
+            {{ form.effect_start_lost }}
+            <label class="form-check-label" for="id_effect_start_lost">start lost</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="stop lost">
+            {{ form.effect_stop_lost }}
+            <label class="form-check-label" for="id_effect_stop_lost">stop lost</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="structural variant">
+            {{ form.effect_structural_variant }}
+            <label class="form-check-label" for="id_effect_structural_variant">structural variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="3' UTR exon variant">
+            {{ form.effect_three_prime_UTR_exon_variant }}
+            <label class="form-check-label" for="id_effect_three_prime_UTR_exon_variant">3' UTR exon variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="3' UTR intron variant">
+            {{ form.effect_three_prime_UTR_intron_variant }}
+            <label class="form-check-label" for="id_effect_three_prime_UTR_intron_variant">3' UTR intron variant</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="3' UTR truncation">
+            {{ form.effect_three_prime_UTR_truncation }}
+            <label class="form-check-label" for="id_effect_three_prime_UTR_truncation">3' UTR truncation</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="transcript ablation">
+            {{ form.effect_transcript_ablation }}
+            <label class="form-check-label" for="id_effect_transcript_ablation">transcript ablation</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="transcript amplification">
+            {{ form.effect_transcript_amplification }}
+            <label class="form-check-label" for="id_effect_transcript_amplification">transcript amplification</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="translocation">
+            {{ form.effect_translocation }}
+            <label class="form-check-label" for="id_effect_translocation">translocation</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-3">
+        <div class="row pl-0 pr-0">
+          <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="upstream gene variant">
+            {{ form.effect_upstream_gene_variant }}
+            <label class="form-check-label" for="id_effect_upstream_gene_variant">upstream gene variant</label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

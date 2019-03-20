@@ -1,0 +1,110 @@
+{% load crispy_forms_tags %}
+{% load dict %}
+
+<div class="row">
+  <div class="col px-0">
+    <h5 class="card-title px-2 mt-2">
+      Frequencies in Databases
+    </h5>
+    <p class="px-2 mb-0 small text-muted">
+      Configure filter based on frequencies in structural variant databases.
+      For all but 1000G phase 3 data, only carrier counts are available.
+      Note well that dbVar includes variants from rare disease studies.
+    </p>
+
+    <table class="table table-striped table-hover sodar-card-table compact-form-groups">
+      <thead>
+        <tr>
+          <th style="width: 0px;" colspan="2" class="text-center text-nowrap">
+            enable / donors
+          </th>
+          <th style="width: 50%;" class="text-center">min overlap</th>
+          <th style="width: 50%;" class="text-center">max carriers/alleles</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ form.dgv_enabled|as_crispy_field }}</td>
+          <td>DGV</td>
+          <td class="text-nowrap">{{ form.dgv_min_overlap|as_crispy_field }}</td>
+          <td>{{ form.dgv_max_carriers|as_crispy_field }}</td>
+        </tr>
+        <tr>
+          <td>{{ form.dgv_gs_enabled|as_crispy_field }}</td>
+          <td>DGV Gold Standard</td>
+          <td class="text-nowrap">{{ form.dgv_gs_min_overlap|as_crispy_field }}</td>
+          <td>{{ form.dgv_gs_max_carriers|as_crispy_field }}</td>
+        </tr>
+        <tr>
+          <td>{{ form.dbvar_enabled|as_crispy_field }}</td>
+          <td>dbVar</td>
+          <td class="text-nowrap">{{ form.dbvar_min_overlap|as_crispy_field }}</td>
+          <td>{{ form.dbvar_max_carriers|as_crispy_field }}</td>
+        </tr>
+        <tr>
+          <td>{{ form.exac_enabled|as_crispy_field }}</td>
+          <td>ExAC</td>
+          <td class="text-nowrap">{{ form.exac_min_overlap|as_crispy_field }}</td>
+          <td>{{ form.exac_max_carriers|as_crispy_field }}</td>
+        </tr>
+        <tr>
+          <td>{{ form.g1k_enabled|as_crispy_field }}</td>
+          <td class="text-nowrap">1000G</td>
+          <td>{{ form.g1k_min_overlap|as_crispy_field }}</td>
+          <td>{{ form.g1k_max_alleles|as_crispy_field }}</td>
+        </tr>
+        <tr>
+          <td>{{ form.gnomad_enabled|as_crispy_field }}</td>
+          <td class="text-nowrap">gnomAD SV</td>
+          <td>{{ form.gnomad_min_overlap|as_crispy_field }}</td>
+          <td>{{ form.gnomad_max_carriers|as_crispy_field }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col px-0">
+    <h5 class="card-title px-2 mt-2">
+      Frequencies in Analysis Collective
+    </h5>
+
+    <p class="px-2 mb-0 small text-muted">
+      In the following, you can configure structural variant filter setting based on counts within the collective of samples that this case was analyzed within.
+      Leave fields empty to exclude them from the query.
+    </p>
+
+    <table class="table table-striped table-hover sodar-card-table compact-form-groups">
+      <thead>
+        <tr>
+          <th style="width: 0px;" colspan="2" class="text-center">
+            enable / donors
+          </th>
+          <th style="width: 50%;" class="text-center">min carriers</th>
+          <th style="width: 50%;" class="text-center">max carriers</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ form.collective_enabled|as_crispy_field }}</td>
+          <td class="text-nowrap">collective background</td>
+          <td>{{ form.cohort_background_carriers_min|as_crispy_field }}</td>
+          <td>{{ form.cohort_background_carriers_max|as_crispy_field }}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="text-nowrap">pedigree affected</td>
+          <td>{{ form.cohort_affected_carriers_min|as_crispy_field }}</td>
+          <td>{{ form.cohort_affected_carriers_max|as_crispy_field }}</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="text-nowrap">pedigree unaffected</td>
+          <td>{{ form.cohort_unaffected_carriers_min|as_crispy_field }}</td>
+          <td>{{ form.cohort_unaffected_carriers_max|as_crispy_field }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

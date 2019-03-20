@@ -12,11 +12,12 @@ from django.db import transaction
 from django.conf import settings
 
 from annotation.models import Annotation
+from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
 from variants.models import SmallVariant, Case, AnnotationReleaseInfo
 from variants.variant_stats import rebuild_case_variant_stats
-from ..helpers.tsv_reader import tsv_reader
+from ..helpers import tsv_reader
 
 
 #: The User model to use.
@@ -56,7 +57,13 @@ class Command(BaseCommand):
         parser.add_argument("--index-name", help="The name of the index sample", required=True)
         parser.add_argument("--path-ped", help="Path to pedigree input file", required=True)
         parser.add_argument("--path-genotypes", help="Path to genotypes TSV file", required=True)
-        parser.add_argument("--path-variants", help="Path to variants TSV file", required=True)
+        parser.add_argument(
+            "--path-variants", help="Path to variants TSV file (triggers import of small variants)"
+        )
+        parser.add_argument(
+            "--path-feature-effects",
+            help="Path to gene-wise feature effects (triggers import of structural variants)",
+        )
         parser.add_argument(
             "--path-db-info", help="Path to database import info TSV file", required=True
         )
@@ -70,7 +77,13 @@ class Command(BaseCommand):
     @transaction.atomic
     def handle(self, *args, **options):
         """Perform the import of the case."""
+        # Check that mode-triggering flags are mutually exclusive and exactly one is given
+        if (options["path_variants"] is None) == (options["path_feature_effects"] is None):
+            raise CommandError(
+                "Exactly one of --path-variants and --path-feature-effects must be given!"
+            )
 
+        # Fetch ``User`` object to use for the importer/owner
         try:
             self.stdout.write("Importing as admin: {}".format(settings.PROJECTROLES_ADMIN_OWNER))
             admin = User.objects.get(username=settings.PROJECTROLES_ADMIN_OWNER)
@@ -81,6 +94,7 @@ class Command(BaseCommand):
                 )
             ) from e
 
+        # Get project, create case with pedigree.
         project = self._get_project(options["project_uuid"])
         existing_cases = Case.objects.filter(name=options["case_name"], project=project)
 
@@ -101,9 +115,17 @@ class Command(BaseCommand):
             options["path_db_info"],
             prev_case,
         )
-        self._import_variants(options["path_variants"])
-        self._import_genotypes(case, options["path_genotypes"])
-        self._rebuild_stats(case)
+
+        # Import small or structural variants
+        if options["path_variants"]:
+            self._import_small_variants(options["path_variants"])
+            self._import_small_variants_genotypes(case, options["path_genotypes"])
+            self._rebuild_small_variants_stats(case)
+        else:
+            self._import_structural_variants_genotypes(case, options["path_genotypes"])
+            self._import_structural_variants_feature_effects(options["path_feature_effects"])
+
+        # Register import action in the timeline
         timeline = get_backend_api("timeline_backend")
         if timeline:
             timeline.add_event(
@@ -124,10 +146,9 @@ class Command(BaseCommand):
 
     def _get_samples_in_genotypes(self, path_genotypes):
         """Return names from samples present in genotypes column."""
-
         with open_file(path_genotypes, "rt") as tsv:
-            header = tsv.readline().split("\t")
-            first = tsv.readline().replace('"""', '"').split("\t")
+            header = tsv.readline()[:-1].split("\t")
+            first = tsv.readline()[:-1].replace('"""', '"').split("\t")
             values = dict(zip(header, first))
             return list(json.loads(values["genotype"]).keys())
 
@@ -143,7 +164,7 @@ class Command(BaseCommand):
     ):
         """Create ``Case`` object, update if it exists and remove old data associated with it."""
         self.stdout.write("Reading PED and creating case...")
-        # Build Pedigree.
+        # Build pedigree
         pedigree = []
         seen_index = False
         with open(path_ped, "rt") as pedf:
@@ -165,7 +186,7 @@ class Command(BaseCommand):
                 )
         if not seen_index:
             raise CommandError("Index {} not seen in pedigree!".format(index_name))
-        # Construct ``Case`` object.
+        # Construct or retrieve ``Case`` object
         if prev_case:
             case = prev_case
             case.index = index_name
@@ -175,6 +196,17 @@ class Command(BaseCommand):
             self.stdout.write("Removing old data associated with the case...")
             AnnotationReleaseInfo.objects.filter(case=case).delete()
             SmallVariant.objects.filter(case_id=case.pk).delete()
+            connection = SQLALCHEMY_ENGINE.connect()
+            # import ipdb; ipdb.set_trace()
+            from sqlalchemy import delete
+
+            stmt = (
+                delete(StructuralVariantGeneAnnotation.sa)
+                .where(StructuralVariantGeneAnnotation.sa.sv_uuid == StructuralVariant.sa.sv_uuid)
+                .where(StructuralVariant.sa.case_id == case.pk)
+            )
+            connection.execute(stmt)
+            StructuralVariant.objects.filter(case_id=case.pk).delete()
             self.stdout.write(self.style.SUCCESS("Done removing old data associated with the case"))
         else:
             case = Case.objects.create(
@@ -199,8 +231,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("Done creating case."))
         return case
 
-    def _import_variants(self, path_variants):
-        """Import variants TSV file into database."""
+    def _import_small_variants(self, path_variants):
+        """Import small variants TSV file into database."""
         self.stdout.write("Importing variants...")
         with open_file(path_variants, "rt") as tsv:
             Annotation.objects.from_csv(
@@ -212,8 +244,8 @@ class Command(BaseCommand):
             )
         self.stdout.write(self.style.SUCCESS("Finished importing variants"))
 
-    def _import_genotypes(self, case, path_genotypes):
-        """Import variants TSV file into database."""
+    def _import_small_variants_genotypes(self, case, path_genotypes):
+        """Import small variants TSV file into database."""
         self.stdout.write("Creating temporary genotype file...")
         with tempfile.NamedTemporaryFile("w+t") as tempf:
             with open_file(path_genotypes, "rt") as inputf:
@@ -244,8 +276,53 @@ class Command(BaseCommand):
             )
             self.stdout.write(self.style.SUCCESS("Finished importing genotypes"))
 
-    def _rebuild_stats(self, case):
-        """Import variant statistics."""
+    def _rebuild_small_variants_stats(self, case):
+        """Rebuild small variant statistics."""
         self.stdout.write("Computing variant statistics...")
         rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
         self.stdout.write(self.style.SUCCESS("Finished computing variant statistics"))
+
+    def _import_structural_variants_genotypes(self, case, path_genotypes):
+        """Import structural variants TSV file into database."""
+        self.stdout.write("Creating temporary SV genotype file...")
+        with tempfile.NamedTemporaryFile("w+t") as tempf:
+            with open_file(path_genotypes, "rt") as inputf:
+                header = inputf.readline().strip()
+                try:
+                    replace_idx = header.split("\t").index("case_id")
+                except ValueError as e:
+                    raise CommandError("Column 'case_id' not found in genotypes TSV") from e
+                tempf.write(header)
+                tempf.write("\n")
+                while True:
+                    line = inputf.readline().strip()
+                    if not line:
+                        break
+                    arr = line.split("\t")
+                    arr[replace_idx] = str(case.pk)
+                    tempf.write("\t".join(arr))
+                    tempf.write("\n")
+            tempf.flush()
+            self.stdout.write("Importing SV genotype file...")
+            StructuralVariant.objects.from_csv(
+                tempf.name,
+                delimiter="\t",
+                null=".",
+                ignore_conflicts=True,
+                drop_constraints=False,
+                drop_indexes=False,
+            )
+            self.stdout.write(self.style.SUCCESS("Finished importing SV genotypes"))
+
+    def _import_structural_variants_feature_effects(self, path_feature_effects):
+        """Import structural variants TSV file into database."""
+        self.stdout.write("Importing SV feature effects...")
+        with open_file(path_feature_effects, "rt") as tsv:
+            StructuralVariantGeneAnnotation.objects.from_csv(
+                tsv,
+                delimiter="\t",
+                ignore_conflicts=True,
+                drop_constraints=False,
+                drop_indexes=False,
+            )
+        self.stdout.write(self.style.SUCCESS("Finished importing SV feature effects"))

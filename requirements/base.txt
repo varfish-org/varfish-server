@@ -1,3 +1,6 @@
+# Read .env files in Django.
+python-dotenv ==0.9.1
+
 # Wheel 0.25+ needed to install certain packages on CPython 3.5+
 # like Pillow and psycopg2
 # See http://bitly.com/wheel-building-fails-CPython-35
@@ -83,7 +86,7 @@ sqlalchemy ==1.2.13
 
 # SQL Alchemy and Django integrate
 SQLAlchemy ==1.2.13
-aldjemy ==0.8.0
+aldjemy ==0.9.1
 
 sqlparse
 
@@ -99,3 +102,5 @@ pandas ==0.23.4
 # Simple object proxies.
 wrapt == 1.10.11
 
+# Interval binning
+interval-binning ==1.0.0

@@ -1,0 +1,173 @@
+{# Variant filter table row #}
+
+{% load humanize %}
+{% load variants_tags %}
+
+<tr class="variant-row {% if not training_mode %}variant-row-{{ first_entry|flag_class }}{% endif %}">
+  {# fold-out #}
+  <td class="clickable toggle-variant-details pl-0 pr-0"
+      data-url="{% url "svs:gene-details" project=project.sodar_uuid case=object.sodar_uuid %}?genes={{ entry.all_genes|join:"," }}"
+      data-toggle="collapse" data-target="#variant-details-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="variant-details-{{ forloop.counter0 }}" aria-hidden="true">
+    <i class="fa fa-fw fa-chevron-right"></i>
+  </td>
+  {# rank #}
+  <td class="text-nowrap text-right text-muted">
+      #{{ forloop.counter }}
+  </td>
+
+  {# bookmark #}
+  {% if not training_mode %}
+  <td class="bookmark pl-0 pr-0 text-nowrap">
+    <i class="fa fa-fw {% if first_entry.flag_count %}fa-bookmark{% else %}fa-bookmark-o{% endif %} text-muted variant-bookmark"
+       data-sv="{{ first_entry.sv_uuid }}" data-project="{{ project.sodar_uuid }}" data-case="{{ first_entry.case_uuid }}"></i>
+    <i class="fa fa-fw {% if first_entry.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
+       data-sv="{{ first_entry.sv_uuid }}" data-project="{{ project.sodar_uuid }}" data-case="{{ first_entry.case_uuid }}"></i>
+  </td>
+  {% endif %}
+
+  <td class="text-center text-nowrap">
+    {{ first_entry.sv_type }}
+    <span>
+      <i class="fa fa-wrench text-muted" data-tooltip="tooltip" title="SV caller: {{ first_entry.caller }}"></i>
+    </span>
+  </td>
+  <td style="width: 200px;" class="text-nowrap">
+    chr{{ first_entry.chromosome }}:{{ first_entry.start|intcomma }}<span class="text-muted">+</span>{{ first_entry.sv_length|intcomma }}<small class="text-muted">bp</small>
+  </td>
+  <td>
+    {% for entry in entries|slice:":3" %}
+      {% if not entry.symbol %}
+        <span class="text-muted">&empty; genes</span>
+      {% else %}
+        {{ entry.symbol }}{% if not forloop.last %},{% endif %}
+      {% endif %}
+    {% endfor %}
+    {% if entries|length > 3 %}
+      <small>+ {{ entries|length|add:"-3" }} more</small>
+    {% endif %}
+    {% if extra_genes %}
+      <small class="text-muted">+ {{ extra_genes|length }} in TAD</small>
+    {% endif %}
+  </td>
+
+  <td class="text-muted text-nowrap text-center">
+    {% spaceless %}
+    <span class="{% if first_entry.info.affectedCarriers %}text-dark{% endif %}" data-tooltip="tooltip" title="affected carriers (in pedigree)">{{ first_entry.info.affectedCarriers }}</span>
+    <span>/</span>
+    <span class="{% if first_entry.info.unaffectedCarriers %}text-dark{% endif %}" data-tooltip="tooltip" title="unaffected carriers (in pedigree)">{{ first_entry.info.unaffectedCarriers }}</span>
+    <span>/</span>
+    <span class="{% if first_entry.info.backgroundCarriers %}text-dark{% endif %}" data-tooltip="tooltip" title="carriers in background (outside pedigree)">{{ first_entry.info.backgroundCarriers }}</span>
+    {% endspaceless %}
+  </td>
+  <td class="text-center {% if first_entry.g1k_overlap_count %}text-dark{% else %}text-muted{% endif %}">
+    {{ first_entry.g1k_overlap_count|default:0|intcomma }}
+  </td>
+  <td class="text-center {% if first_entry.dbvar_overlap_count %}text-dark{% else %}text-muted{% endif %}">
+    {{ first_entry.dbvar_overlap_count|default:0|intcomma }}
+  </td>
+  <td class="text-center {% if first_entry.exac_carriers %}text-dark{% else %}text-muted{% endif %}">
+    {{ first_entry.exac_carriers|default:0|intcomma }}
+  </td>
+  <td class="text-center {% if first_entry.dgv_overlap_count %}text-dark{% else %}text-muted{% endif %}">
+    {{ first_entry.dgv_overlap_count|default:0|intcomma }}
+  </td>
+  <td class="text-center {% if first_entry.dgv_gs_overlap_count %}text-dark{% else %}text-muted{% endif %}">
+    {{ first_entry.dgv_gs_overlap_count|default:0|intcomma }}
+  </td>
+  <td class="text-center {% if first_entry.gnomad_overlap_count %}text-dark{% else %}text-muted{% endif %}">
+    {{ first_entry.gnomad_overlap_count|default:0|intcomma }}
+  </td>
+
+  <td class="text-muted text-nowrap text-center">
+    <span class="
+          {% if first_entry.vista_positive_count %}
+            text-danger
+          {% elif first_entry.vista_negative_count %}
+            text-info
+          {% else %}
+            text-muted
+          {% endif %}
+        " data-tooltip="tooltip" data-html="true" title="
+        positive: {{ first_entry.vista_positive_count }}<br>
+        negative: {{ first_entry.vista_negative_count }}<br>
+        VISTA validation results
+        ">
+      {{ first_entry.vista_positive_count }}{% if first_entry.vista_negative_count %}<sup>{{ first_entry.vista_negative_count  }}</sup>{% endif %}
+    </span>
+  </td>
+  <td class="text-muted text-nowrap text-center">
+    <span data-tooltip="tooltip" data-html="true" title="
+        enhancer: {{ first_entry.ensembl_enhancer_count }}<br>
+        promoter: {{ first_entry.ensembl_promoter_count }}<br>
+        open chromatin: {{ first_entry.ensembl_open_chromatin_region_count }}<br>
+        TF binding site: {{ first_entry.ensembl_TF_binding_site_count }}<br>
+        CTCF binding site: {{ first_entry.ensembl_CTCF_binding_site_count }}<br>
+        promoter flanking: {{ first_entry.ensembl_promoter_flanking_region_count }}<br>
+        NB: mostly predicted!
+      ">
+      {{ entry.ensembl_sum }}
+    </span>
+  </td>
+  <td class="{% if first_entry.distance_to_center|default:-1 != -1 %}text-right{% else %}text-center{% endif %}">
+    {% if first_entry.distance_to_center|default:-1 != -1 %}
+      <span class="
+          {% if first_entry.distance_to_center < 100 %}
+            text-danger
+          {% elif first_entry.distance_to_center < 1000 %}
+            text-warning
+          {% else %}
+            text-info
+          {% endif %}">
+        {{ first_entry.distance_to_center|intcomma }}<small>bp</small>
+      </span>
+    {% else %}
+      <small class="text-muted" data-tooltip="tooltip" title="TAD boundary more than 10kbp away from SV">&gt;10kbp</small>
+    {% endif %}
+  </td>
+
+  {% if query_type == "case" %}
+    {# pedigree members #}
+    {% for member in pedigree %}
+      {% include "svs/filter_result/_gt_field.html" with name=member.patient %}
+    {% endfor %}
+  {% else %}  {# query_type == "project" #}
+    <td style="max-width: 80px;">
+      <div class="sodar-overflow-container sodar-overflow-hover">
+        {{ first_entry.sample_name|only_source_name }}
+      </div>
+    </td>
+    {% include "svs/filter_result/_gt_field.html" with name=entry.sample_name %}
+  {% endif %}
+
+  <td style="width: 100px;" class="text-right">
+    <div class="btn-group sodar-list-btn-group pr-2">
+      <button
+        type="button"
+        onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ first_entry.chromosome }}:{{ first_entry.start }}-{{ first_entry.end }}'})"
+        title="Go to locus in IGV"
+        class="btn btn-secondary sodar-list-btn">
+        IGV
+      </button>
+      <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split sodar-list-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="sr-only">Toggle Dropdown</span>
+      </button>
+      <div class="dropdown-menu dropdown-menu-right" style="z-index: 1030;">
+        <a class="dropdown-item" href="https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg19&position={{ first_entry.chromosome }}:{{ first_entry.start }}-{{ first_entry.end }}" target="_blank">
+          Locus @UCSC
+        </a>
+        <a class="dropdown-item" href="https://grch37.ensembl.org/Homo_sapiens/Location/View?r={{ first_entry.chromosome }}:{{ first_entry.start }}-{{ first_entry.end }}" target="_blank">
+          Locus @ENSEMBL
+        </a>
+        <a class="dropdown-item" href="http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/?name={{ first_entry.chromosome }}:{{ first_entry.start }}-{{ first_entry.end }};search=Search" target="_blank">
+          Locus @DGV
+        </a>
+        <a class="dropdown-item" href="http://exac.broadinstitute.org/region/{{ first_entry.chromosome }}-{{ first_entry.start }}-{{ first_entry.end }}" target="_blank">
+          Locus @ExAC
+        </a>
+        <a class="dropdown-item" href="http://gnomad.broadinstitute.org/region/{{ first_entry.chromosome }}-{{ first_entry.start }}-{{ first_entry.end }}" target="_blank">
+          Locus @gnomAD
+        </a>
+      </div>
+    </div>
+  </td>
+</tr>

@@ -279,7 +279,7 @@ class SmallVariantQualityFilterFormMixin:
         """Return mapping from patient and key to field name."""
         field_names = {}
         for member in self.get_pedigree_with_samples():
-            for key in ("gt", "dp_het", "dp_hom", "ab", "gq", "ad", "fail", "export"):
+            for key in ("dp_het", "dp_hom", "ab", "gq", "ad", "fail", "export"):
                 field_names.setdefault(member["patient"], {})[key] = "%s_%s" % (
                     member["patient"],
                     key,
@@ -893,8 +893,8 @@ class SmallVariantClinvarHgmdFilterFormMixin:
         return cleaned_data
 
 
-class SmallVariantGeneListFilterFormMixin:
-    """Form mixin with gene blacklist/whitelist fields."""
+class VariantGeneListFilterFormMixin:
+    """Form mixin with gene blacklist/whitelist fields and region list."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -933,6 +933,23 @@ class SmallVariantGeneListFilterFormMixin:
             max_length=5000,
         )
 
+        self.fields["region_whitelist"] = forms.CharField(
+            label="Regions",
+            help_text=(
+                "Enter regions as 'CHR:BEGIN-END' for restricting to, e.g. chr1:1000-2000 or "
+                "1:1,000,000-2,000,000."
+            ),
+            widget=forms.Textarea(
+                attrs={
+                    "placeholder": "Enter regions to filter here, e.g., chr1:1,000,000-2,000,000",
+                    "rows": 3,
+                    "class": "form-control",
+                }
+            ),
+            required=False,
+            max_length=10000,
+        )
+
     def clean(self):
         """Translate effect field names into ``effects`` key list"""
         cleaned_data = super().clean()
@@ -963,6 +980,18 @@ class SmallVariantGeneListFilterFormMixin:
         _check_list("gene_blacklist")
         _check_list("gene_whitelist")
 
+        cleaned_data["region_whitelist"] = [
+            s.strip() for s in cleaned_data["region_whitelist"].strip().split() if s.strip()
+        ]
+        # Validate the region white-list.
+        for region in cleaned_data["region_whitelist"]:
+            try:
+                _, start_end = region.split(":", 1)
+                start, end = start_end.split("-", 1)
+                int(start.replace(",", "").replace("_", ""))
+                int(end.replace(",", "").replace("_", ""))
+            except ValueError as e:
+                raise forms.ValidationError("Invalid region: %s" % region) from e
         return cleaned_data
 
 
@@ -1104,7 +1133,7 @@ class FilterForm(
     SmallVariantMiscFilterFormMixin,
     SmallVariantClinvarHgmdFilterFormMixin,
     SmallVariantPrioritizerFormMixin,
-    SmallVariantGeneListFilterFormMixin,
+    VariantGeneListFilterFormMixin,
     SmallVariantGenomicRegionFilterFormMixin,
     SmallVariantTranscriptSourceFilterFormMixin,
     SmallVariantQualityFilterFormMixin,
@@ -1170,7 +1199,7 @@ class ProjectCasesFilterForm(
     SmallVariantVariantEffectFilterFormMixin,
     SmallVariantMiscFilterFormMixin,
     SmallVariantClinvarHgmdFilterFormMixin,
-    SmallVariantGeneListFilterFormMixin,
+    VariantGeneListFilterFormMixin,
     SmallVariantGenomicRegionFilterFormMixin,
     SmallVariantTranscriptSourceFilterFormMixin,
     SmallVariantQualityFilterFormMixin,
@@ -1230,7 +1259,7 @@ class SmallVariantFlagsForm(forms.ModelForm):
 
     class Meta:
         model = SmallVariantFlags
-        exclude = ("case", "sodar_uuid")
+        exclude = ("case", "sodar_uuid", "date_created", "date_modified")
 
 
 class SmallVariantCommentForm(forms.ModelForm):
@@ -1241,7 +1270,7 @@ class SmallVariantCommentForm(forms.ModelForm):
 
     class Meta:
         model = SmallVariantComment
-        exclude = ("case", "sodar_uuid", "user")
+        exclude = ("case", "sodar_uuid", "user", "date_created", "date_modified")
 
 
 class ProjectStatsJobForm(forms.Form):

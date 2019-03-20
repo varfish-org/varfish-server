@@ -11,12 +11,17 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 import environ
 import sys
 
+from dotenv import load_dotenv
+
 SITE_PACKAGE = "varfish"
 ROOT_DIR = environ.Path(__file__) - 3  # (varfish/config/settings/base.py - 3 = varfish/)
 APPS_DIR = ROOT_DIR.path("varfish")
 
 # Check whether we are running tsts (this is important to use models and not materialized views in tests).
 IS_TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+
+# Load environment from .env file if available.
+load_dotenv()
 
 # Load operating system environment variables and then prepare to use them
 env = environ.Env()
@@ -79,11 +84,14 @@ LOCAL_APPS = [
     "hgmd.apps.HgmdConfig",
     "geneinfo.apps.GeneinfoConfig",
     "importer.apps.ImporterConfig",
+    "genomicfeatures.apps.GenomicFeaturesConfig",
     "pathways.apps.PathwaysConfig",
     "variants.apps.VariantsConfig",
     "bgjobs.apps.BgjobsConfig",
     "var_stats_qc.apps.VarStatsQcConfig",
     "templatetags.apps.TemplatetagsConfig",
+    "svdbs.apps.SvDbsConfig",
+    "svs.apps.SvsConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

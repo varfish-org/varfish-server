@@ -431,24 +431,30 @@ class Case(models.Model):
     @lru_cache()
     def chrx_het_hom_ratio(self, sample):
         """Return het./hom. ratio on chrX for ``sample``."""
-        sample_stats = self.variant_stats.sample_variant_stats.get(sample_name=sample)
-        return sample_stats.chrx_het_hom
+        try:
+            sample_stats = self.variant_stats.sample_variant_stats.get(sample_name=sample)
+            return sample_stats.chrx_het_hom
+        except Case.variant_stats.RelatedObjectDoesNotExist:
+            return -1.0
 
     @lru_cache()
     def sex_errors_variant_stats(self):
         """Return dict of sample to error messages indicating sex assignment errors that can be derived from
         het/hom ratio on chrX.
         """
-        ped_sex = {m["patient"]: m["sex"] for m in self.pedigree}
-        result = {}
-        for sample_stats in self.variant_stats.sample_variant_stats.all():
-            sample = sample_stats.sample_name
-            stats_sex = 1 if sample_stats.chrx_het_hom < CHRX_HET_HOM_THRESH else 2
-            if stats_sex != ped_sex[sample]:
-                result[sample] = [
-                    "sex from pedigree conflicts with one derived from het/hom ratio on chrX"
-                ]
-        return result
+        try:
+            ped_sex = {m["patient"]: m["sex"] for m in self.pedigree}
+            result = {}
+            for sample_stats in self.variant_stats.sample_variant_stats.all():
+                sample = sample_stats.sample_name
+                stats_sex = 1 if sample_stats.chrx_het_hom < CHRX_HET_HOM_THRESH else 2
+                if stats_sex != ped_sex[sample]:
+                    result[sample] = [
+                        "sex from pedigree conflicts with one derived from het/hom ratio on chrX"
+                    ]
+            return result
+        except Case.variant_stats.RelatedObjectDoesNotExist:
+            return {}
 
     @lru_cache()
     def sex_errors(self):
@@ -466,38 +472,42 @@ class Case(models.Model):
         """Returns dict mapping sample to list of relationship errors."""
         ped_entries = {m["patient"]: m for m in self.pedigree}
         result = {}
-        for rel_stats in self.variant_stats.relatedness.all():
-            relationship = "other"
-            if (
-                ped_entries[rel_stats.sample1]["father"] == ped_entries[rel_stats.sample2]["father"]
-                and ped_entries[rel_stats.sample1]["mother"]
-                == ped_entries[rel_stats.sample2]["mother"]
-                and ped_entries[rel_stats.sample1]["father"] != "0"
-                and ped_entries[rel_stats.sample1]["mother"] != "0"
-            ):
-                relationship = "sibling-sibling"
-            elif (
-                ped_entries[rel_stats.sample1]["father"] == rel_stats.sample2
-                or ped_entries[rel_stats.sample1]["mother"] == rel_stats.sample2
-                or ped_entries[rel_stats.sample2]["father"] == rel_stats.sample1
-                or ped_entries[rel_stats.sample2]["mother"] == rel_stats.sample1
-            ):
-                relationship = "parent-child"
-            if (relationship == "sibling-sibling" and rel_stats.relatedness() < THRESH_SIBLING) or (
-                relationship == "parent-child" and rel_stats.relatedness() < THRESH_PARENT
-            ):
-                for sample in (rel_stats.sample1, rel_stats.sample2):
-                    result.setdefault(sample, []).append(
-                        (
-                            "pedigree shows {} relation for {} and {} but variants show low degree "
-                            "of relatedness"
-                        ).format(
-                            relationship,
-                            only_source_name(rel_stats.sample1),
-                            only_source_name(rel_stats.sample2),
+        try:
+            for rel_stats in self.variant_stats.relatedness.all():
+                relationship = "other"
+                if (
+                    ped_entries[rel_stats.sample1]["father"]
+                    == ped_entries[rel_stats.sample2]["father"]
+                    and ped_entries[rel_stats.sample1]["mother"]
+                    == ped_entries[rel_stats.sample2]["mother"]
+                    and ped_entries[rel_stats.sample1]["father"] != "0"
+                    and ped_entries[rel_stats.sample1]["mother"] != "0"
+                ):
+                    relationship = "sibling-sibling"
+                elif (
+                    ped_entries[rel_stats.sample1]["father"] == rel_stats.sample2
+                    or ped_entries[rel_stats.sample1]["mother"] == rel_stats.sample2
+                    or ped_entries[rel_stats.sample2]["father"] == rel_stats.sample1
+                    or ped_entries[rel_stats.sample2]["mother"] == rel_stats.sample1
+                ):
+                    relationship = "parent-child"
+                if (
+                    relationship == "sibling-sibling" and rel_stats.relatedness() < THRESH_SIBLING
+                ) or (relationship == "parent-child" and rel_stats.relatedness() < THRESH_PARENT):
+                    for sample in (rel_stats.sample1, rel_stats.sample2):
+                        result.setdefault(sample, []).append(
+                            (
+                                "pedigree shows {} relation for {} and {} but variants show low degree "
+                                "of relatedness"
+                            ).format(
+                                relationship,
+                                only_source_name(rel_stats.sample1),
+                                only_source_name(rel_stats.sample2),
+                            )
                         )
-                    )
-        return result
+            return result
+        except Case.variant_stats.RelatedObjectDoesNotExist:
+            return {}
 
     def __str__(self):
         """Return case name as human-readable description."""
