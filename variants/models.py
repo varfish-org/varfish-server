@@ -1307,7 +1307,7 @@ def annotate_with_phenotype_scores(rows, gene_scores):
     rows = [RowWithPhenotypeScore(row) for row in rows]
     for row in rows:
         row._self_phenotype_score = gene_scores.get(row.entrez_id, -1)
-    rows.sort(key=lambda row: (row._self_phenotype_score, row.entrez_id), reverse=True)
+    rows.sort(key=lambda row: (row._self_phenotype_score, row.entrez_id or ""), reverse=True)
     # Re-compute ranks
     prev_gene = None
     rank = 1
