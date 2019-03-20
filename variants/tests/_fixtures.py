@@ -4,7 +4,7 @@
 import aldjemy.core
 
 from projectroles.models import Project
-from variants.models import SmallVariant
+from variants.models import SmallVariant, SmallVariantSummary
 from variants.variant_stats import rebuild_case_variant_stats
 
 #: The SQL Alchemy engine to use
@@ -120,6 +120,20 @@ SMALL_VARIANT_CASE1_DEFAULTS = {
     "ensembl_effect": ["synonymous_variant"],
 }
 
+#: Default for creating a small variant summary (in-house DB) summary for Case 1.
+SMALL_VARIANT_SUMMARY_CASE1_DEFAULTS = {
+    "release": "GRCh37",
+    "chromosome": "1",
+    "position": 100,
+    "reference": "A",
+    "alternative": "G",
+    "count_hom_ref": 0,
+    "count_het": 0,
+    "count_hom_alt": 0,
+    "count_hemi_ref": 0,
+    "count_hemi_alt": 0,
+}
+
 #: Default values for Clinvar entries.
 CLINVAR_DEFAULTS = {
     "release": "GRCh37",
@@ -231,6 +245,18 @@ def fixture_setup_case1_simple():
         ensembl_hgvs_c="n.111+2T>C",
         ensembl_hgvs_p="p.=",
         ensembl_effect=["synonymous_variant"],
+    )
+    SmallVariantSummary.objects.create(
+        release="GRCh37",
+        chromosome="1",
+        position=100,
+        reference="A",
+        alternative="G",
+        count_hom_ref=0,
+        count_het=1,
+        count_hom_alt=1,
+        count_hemi_ref=0,
+        count_hemi_alt=0,
     )
 
     rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case)

@@ -15,6 +15,7 @@ from variants.models import (
     CaseAwareProject,
     SmallVariantQuery,
     ProjectCasesSmallVariantQuery,
+    SmallVariantSummary,
 )
 
 from ._helpers import TestBase, SQLALCHEMY_ENGINE
@@ -22,6 +23,7 @@ from ._fixtures import (
     PROJECT_DICT,
     fixture_setup_case1_simple,
     SMALL_VARIANT_CASE1_DEFAULTS,
+    SMALL_VARIANT_SUMMARY_CASE1_DEFAULTS,
     CLINVAR_DEFAULTS,
     CLINVAR_FORM_DEFAULTS,
 )
@@ -225,6 +227,12 @@ def fixture_setup_case1_frequency():
             },
         }
     )
+    SmallVariantSummary.objects.create(
+        **{
+            **SMALL_VARIANT_SUMMARY_CASE1_DEFAULTS,
+            **{"position": 100, "count_het": 1, "count_hom_alt": 1},
+        }
+    )
     SmallVariant.objects.create(
         **{
             **basic_var,
@@ -245,6 +253,12 @@ def fixture_setup_case1_frequency():
             },
         }
     )
+    SmallVariantSummary.objects.create(
+        **{
+            **SMALL_VARIANT_SUMMARY_CASE1_DEFAULTS,
+            **{"position": 200, "count_het": 2, "count_hom_alt": 2},
+        }
+    )
     SmallVariant.objects.create(
         **{
             **basic_var,
@@ -263,6 +277,12 @@ def fixture_setup_case1_frequency():
                 "thousand_genomes_heterozygous": 3,
                 "thousand_genomes_homozygous": 3,
             },
+        }
+    )
+    SmallVariantSummary.objects.create(
+        **{
+            **SMALL_VARIANT_SUMMARY_CASE1_DEFAULTS,
+            **{"position": 300, "count_het": 3, "count_hom_alt": 3},
         }
     )
 
@@ -733,6 +753,10 @@ INCLUSIVE_CLEANED_DATA_CASE1 = {
     "gnomad_genomes_frequency": 0.0,
     "gnomad_genomes_heterozygous": 0,
     "gnomad_genomes_homozygous": 0,
+    "inhouse_enabled": False,
+    "inhouse_carriers": 0,
+    "inhouse_heterozygous": 0,
+    "inhouse_homozygous": 0,
     "A_fail": "ignore",
     "A_gt": "any",
     "A_dp_het": 0,
@@ -1042,6 +1066,18 @@ class TestCaseOneQueryFrequency(FilterTestBase):
     def test_frequency_gnomad_genomes_enabled_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"gnomad_genomes_enabled": True}, 0)
 
+    def test_frequency_inhouse_enabled_filter(self):
+        self.run_filter_query(PrefetchFilterQuery, {"inhouse_enabled": True}, 0)
+
+    def test_frequency_inhouse_enabled_export(self):
+        self.run_filter_query(ExportTableFileFilterQuery, {"inhouse_enabled": True}, 0)
+
+    def test_frequency_inhouse_enabled_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"inhouse_enabled": True}, 0)
+
+    def test_frequency_inhouse_enabled_count(self):
+        self.run_count_query(CountOnlyFilterQuery, {"inhouse_enabled": True}, 0)
+
     def test_frequency_thousand_genomes_limits_filter(self):
         self.run_filter_query(
             PrefetchFilterQuery,
@@ -1230,6 +1266,56 @@ class TestCaseOneQueryFrequency(FilterTestBase):
                 "gnomad_genomes_frequency": 0.01,
                 "gnomad_genomes_homozygous": None,
                 "gnomad_genomes_heterozygous": None,
+            },
+            2,
+        )
+
+    # NB: we use carriers instead of carriers for in-house DB
+
+    def test_carriers_inhouse_limits_filter(self):
+        self.run_filter_query(
+            PrefetchFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": 4,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_carriers_inhouse_limits_export(self):
+        self.run_filter_query(
+            ExportTableFileFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": 4,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_carriers_inhouse_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": 4,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_carriers_inhouse_limits_count(self):
+        self.run_count_query(
+            CountOnlyFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": 4,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": None,
             },
             2,
         )
@@ -1426,6 +1512,54 @@ class TestCaseOneQueryFrequency(FilterTestBase):
             2,
         )
 
+    def test_homozygous_inhouse_limits_filter(self):
+        self.run_filter_query(
+            PrefetchFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_homozygous_inhouse_limits_export(self):
+        self.run_filter_query(
+            ExportTableFileFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_homozygous_inhouse_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            2,
+        )
+
+    def test_homozygous_inhouse_limits_count(self):
+        self.run_count_query(
+            CountOnlyFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            2,
+        )
+
     def test_heterozygous_thousand_genomes_limits_filter(self):
         self.run_filter_query(
             PrefetchFilterQuery,
@@ -1570,50 +1704,98 @@ class TestCaseOneQueryFrequency(FilterTestBase):
             2,
         )
 
-    def test_heterozygous_gnomad_genomes_limits_filter(self):
+    def test_heterozygous_inhouse_limits_filter(self):
         self.run_filter_query(
             PrefetchFilterQuery,
             {
-                "gnomad_genomes_enabled": True,
-                "gnomad_genomes_frequency": None,
-                "gnomad_genomes_homozygous": None,
-                "gnomad_genomes_heterozygous": 2,
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": 2,
             },
             2,
         )
 
-    def test_heterozygous_gnomad_genomes_limits_export(self):
+    def test_heterozygous_inhouse_limits_export(self):
         self.run_filter_query(
             ExportTableFileFilterQuery,
             {
-                "gnomad_genomes_enabled": True,
-                "gnomad_genomes_frequency": None,
-                "gnomad_genomes_homozygous": None,
-                "gnomad_genomes_heterozygous": 2,
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": 2,
             },
             2,
         )
 
-    def test_heterozygous_gnomad_genomes_limits_vcf(self):
+    def test_heterozygous_inhouse_limits_vcf(self):
         self.run_filter_query(
             ExportVcfFileFilterQuery,
             {
-                "gnomad_genomes_enabled": True,
-                "gnomad_genomes_frequency": None,
-                "gnomad_genomes_homozygous": None,
-                "gnomad_genomes_heterozygous": 2,
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": 2,
             },
             2,
         )
 
-    def test_heterozygous_gnomad_genomes_limits_count(self):
+    def test_heterozygous_inhouse_limits_count(self):
         self.run_count_query(
             CountOnlyFilterQuery,
             {
-                "gnomad_genomes_enabled": True,
-                "gnomad_genomes_frequency": None,
-                "gnomad_genomes_homozygous": None,
-                "gnomad_genomes_heterozygous": 2,
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": 2,
+            },
+            2,
+        )
+
+    def test_heterozygous_inhouse_limits_filter(self):
+        self.run_filter_query(
+            PrefetchFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": 2,
+            },
+            2,
+        )
+
+    def test_heterozygous_inhouse_limits_export(self):
+        self.run_filter_query(
+            ExportTableFileFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": 2,
+            },
+            2,
+        )
+
+    def test_heterozygous_inhouse_limits_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": 2,
+            },
+            2,
+        )
+
+    def test_heterozygous_inhouse_limits_count(self):
+        self.run_count_query(
+            CountOnlyFilterQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": 2,
             },
             2,
         )

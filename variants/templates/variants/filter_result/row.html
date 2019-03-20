@@ -68,6 +68,12 @@
   <td class="detail-thousand-genomes text-right">
     {{ entry.thousand_genomes_homozygous|default_if_none:"-" }}
   </td>
+  <td class="detail-inhouse text-right">
+    {{ entry.inhouse_carriers|default_if_none:"-" }}
+  </td>
+  <td class="detail-inhouse text-right">
+    {{ entry.inhouse_hom_alt|default_if_none:"-" }}
+  </td>
   <td class="pl-3 pr-3">
     {% if not entry.symbol %}
       -

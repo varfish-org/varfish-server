@@ -8,7 +8,7 @@
       <th></th>
       <th class="text-center" data-toggle="tooltip" title="Maximal allowed homozygous count">Homozygous count</th>
       <th class="text-center" data-toggle="tooltip" title="Maximal allowed heterozygous count">Heterozygous count</th>
-      <th class="text-center" data-toggle="tooltip" title="Maximal allowed frequency (in any sub population if applicable)">Frequency</th>
+      <th class="text-center" data-toggle="tooltip" title="Maximal allowed frequency (in any sub population if applicable)">Frequency / Carriers</th>
     </tr>
   </thead>
   <tbody>
@@ -39,6 +39,13 @@
       <td>{{ form.gnomad_genomes_homozygous|as_crispy_field }}</td>
       <td>{{ form.gnomad_genomes_heterozygous|as_crispy_field }}</td>
       <td>{{ form.gnomad_genomes_frequency|as_crispy_field }}</td>
+    </tr>
+    <tr>
+      <td>{{ form.inhouse_enabled|as_crispy_field }}</td>
+      <td data-toggle="tooltip" title="In-house database, mostly useful for excluding artifacts">in-house DB</td>
+      <td>{{ form.inhouse_homozygous|as_crispy_field }}</td>
+      <td>{{ form.inhouse_heterozygous|as_crispy_field }}</td>
+      <td>{{ form.inhouse_carriers|as_crispy_field }}</td>
     </tr>
   </tbody>
 </table>

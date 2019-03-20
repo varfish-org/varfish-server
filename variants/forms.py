@@ -642,9 +642,29 @@ class SmallVariantFrequencyFilterFormMixin:
             ),
         )
 
-    def clean(self):
-        cleaned_data = super().clean()
-        return cleaned_data
+        self.fields["inhouse_enabled"] = forms.BooleanField(label="", required=False, initial=False)
+        self.fields["inhouse_homozygous"] = forms.IntegerField(
+            label="",
+            initial=20,
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal in-house hom. count", "class": "numberInteger"}
+            ),
+        )
+        self.fields["inhouse_heterozygous"] = forms.IntegerField(
+            label="",
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal in-house het. count", "class": "numberInteger"}
+            ),
+        )
+        self.fields["inhouse_carriers"] = forms.IntegerField(
+            label="",
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal in-house carriers", "class": "numberInteger"}
+            ),
+        )
 
 
 class SmallVariantVariantEffectFilterFormMixin:
@@ -785,7 +805,7 @@ class SmallVariantMiscFilterFormMixin:
         self.fields["result_rows_limit"] = forms.IntegerField(
             label="Result row limit",
             required=True,
-            initial=80,
+            initial=200,
             help_text=(
                 "Maximal number of rows displayed <b>when rendering on the website</b>.  "
                 "This setting is <b>not</b> used when creating a file for export."

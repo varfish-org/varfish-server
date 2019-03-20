@@ -14,6 +14,11 @@ SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 
 @app.task(bind=True)
+def refresh_variants_smallvariantsummary(_self):
+    models.refresh_variants_smallvariantsummary()
+
+
+@app.task(bind=True)
 def distiller_submission_task(_self, submission_job_pk):
     """Task to submit a case to MutationDistiller"""
     submit_external.submit_distiller(
@@ -74,4 +79,8 @@ def setup_periodic_tasks(sender, **_kwargs):
     # Clear out old files nightly.
     sender.add_periodic_task(
         schedule=crontab(hour=1, minute=11), signature=clear_expired_exported_files.s()
+    )
+    # Rebuild materialized view on sundays.
+    sender.add_periodic_task(
+        schedule=crontab(day_of_week=0), signature=refresh_variants_smallvariantsummary.s()
     )

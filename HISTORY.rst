@@ -9,13 +9,17 @@ HEAD
 End-User Summary
 ================
 
-Added support to filter genomic regions.
+- Added support to filter genomic regions.
+- Added support for querying for counts within the VarFish database.
 
 Full Change List
 ================
 
 - Added additional field to specify multiple genomic regions to restrict query.
 - Fixed mixed up sex display in genotype filter tab.
+- Extended ``SmallVariant`` model to have counts for hom. ref. etc. counts.
+- Adding ``SmallVariantSummary`` materialized view and supporting SQL Alchemy query infastructure.
+- Adding form and view infrastructure for querying against in-house database.
 
 -------
 v0.13.0

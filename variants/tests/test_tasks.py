@@ -5,7 +5,7 @@ separately but that's fine.
 """
 
 from unittest import mock
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 from unittest.mock import patch
 
 from test_plus.test import TestCase
@@ -52,4 +52,9 @@ class SetupPeriodicTasksTest(TestCase):
     def test_calls_correct_function(self):
         sender = Mock()
         tasks.setup_periodic_tasks(sender)
-        sender.add_periodic_task.assert_called_once_with(schedule=mock.ANY, signature=mock.ANY)
+        sender.add_periodic_task.assert_has_calls(
+            [
+                call(schedule=mock.ANY, signature=mock.ANY),
+                call(schedule=mock.ANY, signature=mock.ANY),
+            ]
+        )

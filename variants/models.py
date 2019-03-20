@@ -8,9 +8,8 @@ import uuid as uuid_object
 
 from postgres_copy import CopyManager
 
-from django.db import models
+from django.db import models, transaction, connection, utils
 from django.db.models import Q
-from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
@@ -131,6 +130,16 @@ class SmallVariant(models.Model):
     case_id = models.IntegerField()
     #: Genotype information as JSONB
     genotype = JSONField()
+    #: Number of hom. alt. genotypes
+    num_hom_alt = models.IntegerField(default=0)
+    #: Number of hom. ref. genotypes
+    num_hom_ref = models.IntegerField(default=0)
+    #: Number of het. genotypes
+    num_het = models.IntegerField(default=0)
+    #: Number of hemi alt. genotypes
+    num_hemi_alt = models.IntegerField(default=0)
+    #: Number of hemi ref. genotypes
+    num_hemi_ref = models.IntegerField(default=0)
     #: Flag if in clinvar
     in_clinvar = models.NullBooleanField()
     #: Total ExAC allele frequency
@@ -225,6 +234,53 @@ class SmallVariant(models.Model):
             # Fast white-list queries of gene.
             models.Index(fields=["case_id", "ensembl_gene_id", "refseq_gene_id"]),
         ]
+
+
+class SmallVariantSummary(models.Model):
+    """Summary counts for the small variants.
+
+    In the database, this is a materialized view.
+    """
+
+    #: Genome build
+    release = models.CharField(max_length=32)
+    #: Variant coordinates - chromosome
+    chromosome = models.CharField(max_length=32)
+    #: Variant coordinates - position
+    position = models.IntegerField()
+    #: Variant coordinates - reference
+    reference = models.CharField(max_length=512)
+    #: Variant coordinates - alternative
+    alternative = models.CharField(max_length=512)
+
+    #: Number of hom. ref. genotypes.
+    count_hom_ref = models.IntegerField()
+    #: Number of heterozygous genotypes.
+    count_het = models.IntegerField()
+    #: Number of hom. alt. genotypes.
+    count_hom_alt = models.IntegerField()
+    #: Number of hemi ref. genotypes.
+    count_hemi_ref = models.IntegerField()
+    #: Number of hemi alt. genotypes.
+    count_hemi_alt = models.IntegerField()
+
+    class Meta:
+        managed = not settings.IS_TESTING
+        db_table = "variants_smallvariantsummary"
+
+
+def refresh_variants_smallvariantsummary():
+    """Refresh the ``SmallVariantSummary`` materialized view."""
+    with connection.cursor() as cursor:
+        try:
+            # This will fail if the materialized view is empty.
+            with transaction.atomic():
+                cursor.execute(
+                    "REFRESH MATERIALIZED VIEW CONCURRENTLY variants_smallvariantsummary"
+                )
+        except utils.NotSupportedError:
+            with transaction.atomic():
+                cursor.execute("REFRESH MATERIALIZED VIEW variants_smallvariantsummary")
 
 
 class CaseManager(models.Manager):
