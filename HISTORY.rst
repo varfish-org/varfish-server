@@ -15,6 +15,7 @@ Full Change List
 ================
 
 - Added additional field to specify multiple genomic regions to restrict query.
+- Fixed mixed up sex display in genotype filter tab.
 
 -------
 v0.13.0
