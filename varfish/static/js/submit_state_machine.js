@@ -52,7 +52,8 @@ let INPUT_TAB_AFFILIATION = {
   ],
   'blacklist-tab': [
     /^gene_blacklist$/,
-    /^gene_whitelist$/
+    /^gene_whitelist$/,
+    /^genomic_region$/
   ],
   'flags-tab': [
     /^flag_/

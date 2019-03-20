@@ -5,6 +5,9 @@ from django import forms
 from .models import SmallVariantComment, SmallVariantFlags
 from .templatetags.variants_tags import only_source_name
 
+import re
+
+
 INHERITANCE = [
     ("any", "any"),
     ("ref", "0/0"),
@@ -884,6 +887,40 @@ class SmallVariantGeneListFilterFormMixin:
         return cleaned_data
 
 
+class SmallVariantGenomicRegionFilterFormMixin:
+    """Form mixin with genomic regions field."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["genomic_region"] = forms.CharField(
+            label="Genomic Region",
+            help_text="Enter a list of genomic regions, separated by spaces or line break.",
+            widget=forms.Textarea(
+                attrs={
+                    "placeholder": "Enter genomic regions here",
+                    "rows": 3,
+                    "class": "form-control",
+                }
+            ),
+            required=False,
+            max_length=5000,
+        )
+
+    def clean(self):
+        """Turn entries into lines."""
+        cleaned_data = super().clean()
+        results = []
+        for entry in cleaned_data["genomic_region"].strip().split():
+            entry_ = entry.strip()
+            if entry_:
+                chrom_, start_, end_ = re.split("[:-]", entry_)
+                results.append(
+                    (chrom_.lstrip("chr"), int(start_.replace(",", "")), int(end_.replace(",", "")))
+                )
+        cleaned_data["genomic_region"] = results
+        return cleaned_data
+
+
 class SmallVariantPrioritizerFormMixin:
     """Form mixin with prioritizer fields."""
 
@@ -964,6 +1001,7 @@ class FilterForm(
     SmallVariantClinvarHgmdFilterFormMixin,
     SmallVariantPrioritizerFormMixin,
     SmallVariantGeneListFilterFormMixin,
+    SmallVariantGenomicRegionFilterFormMixin,
     SmallVariantTranscriptSourceFilterFormMixin,
     SmallVariantQualityFilterFormMixin,
     SmallVariantGenotypeFilterFormMixin,
@@ -1029,6 +1067,7 @@ class ProjectCasesFilterForm(
     SmallVariantMiscFilterFormMixin,
     SmallVariantClinvarHgmdFilterFormMixin,
     SmallVariantGeneListFilterFormMixin,
+    SmallVariantGenomicRegionFilterFormMixin,
     SmallVariantTranscriptSourceFilterFormMixin,
     SmallVariantQualityFilterFormMixin,
     SmallVariantGenotypeFilterFormMixin,

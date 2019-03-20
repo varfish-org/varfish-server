@@ -606,6 +606,31 @@ class GeneListsTermWhereMixin:
         )
 
 
+class GenomicRegionTermWhereMixin:
+    """Mixin that limits the search query to a specified region."""
+
+    def _core_where(self, kwargs, gt_patterns=None):
+        return and_(
+            super()._core_where(kwargs, gt_patterns),
+            self._build_genomic_region_term(kwargs["genomic_region"]),
+        )
+
+    def _build_genomic_region_term(self, genomic_region):
+        if not genomic_region:
+            return True
+        else:
+            return or_(
+                *[
+                    and_(
+                        SmallVariant.sa.chromosome == entry[0],
+                        SmallVariant.sa.position >= entry[1],
+                        SmallVariant.sa.position <= entry[2],
+                    )
+                    for entry in genomic_region
+                ]
+            )
+
+
 class InClinvarTermWhereMixin:
     """Mixin that adds the "is in clinvar" table."""
 
@@ -626,6 +651,7 @@ class BaseTableQueriesMixin(
     VariantEffectTermWhereMixin,
     TranscriptCodingTermWhereMixin,
     GeneListsTermWhereMixin,
+    GenomicRegionTermWhereMixin,
     InClinvarTermWhereMixin,
 ):
     """Helper mixin that adds all criteria that can be answered by the base star table."""

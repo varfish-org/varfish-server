@@ -131,6 +131,7 @@ DEFAULT_FILTER_FORM_SETTING = {
     # Gene lists
     "gene_blacklist": "",
     "gene_whitelist": "",
+    "genomic_region": "",
     # Flags
     "flag_bookmarked": True,
     "flag_candidate": True,
@@ -245,6 +246,7 @@ DEFAULT_JOINT_FILTER_FORM_SETTING = {
     # Gene lists
     "gene_blacklist": "",
     "gene_whitelist": "",
+    "genomic_region": "",
     # Flags
     "flag_bookmarked": True,
     "flag_candidate": True,
@@ -326,6 +328,7 @@ DEFAULT_RESUBMIT_SETTING = {
     "export_comments": True,
     "gene_blacklist": "",
     "gene_whitelist": "",
+    "genomic_region": "",
     "gnomad_exomes_enabled": False,
     "gnomad_exomes_frequency": 1.0,
     "gnomad_exomes_heterozygous": 1000,
@@ -459,6 +462,7 @@ DEFAULT_JOINT_RESUBMIT_SETTING = {
     "export_comments": True,
     "gene_blacklist": "",
     "gene_whitelist": "",
+    "genomic_region": "",
     "gnomad_exomes_enabled": False,
     "gnomad_exomes_frequency": 1.0,
     "gnomad_exomes_heterozygous": 1000,

@@ -350,7 +350,9 @@ class CaseFilterView(
                 ),
             )
             for key, value in previous_query.query_settings.items():
-                if isinstance(value, list):
+                if key == "genomic_region":
+                    result[key] = "\n".join("{}:{:,}-{:,}".format(*v) for v in value)
+                elif isinstance(value, list):
                     result[key] = " ".join(value)
                 else:
                     result[key] = value

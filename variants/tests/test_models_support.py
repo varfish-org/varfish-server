@@ -713,7 +713,6 @@ INCLUSIVE_CLEANED_DATA_CASE1 = {
     **CLINVAR_FORM_DEFAULTS,
     "case_uuid": "9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
     "effects": ["synonymous_variant"],
-    "gene_blacklist": [],
     "database_select": "refseq",
     "var_type_snv": True,
     "var_type_mnv": True,
@@ -752,8 +751,9 @@ INCLUSIVE_CLEANED_DATA_CASE1 = {
     "clinvar_include_likely_pathogenic": True,
     "clinvar_include_pathogenic": True,
     # Gene lists
-    "gene_blacklist": "",
-    "gene_whitelist": "",
+    "gene_blacklist": [],
+    "genomic_region": [],
+    "gene_whitelist": [],
 }
 
 
@@ -2001,6 +2001,50 @@ class TestCaseOneQueryBlacklist(FilterTestBase):
     def test_blacklist_all_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"gene_blacklist": ["AAA", "BBB", "CCC"]}, 0)
 
+    def test_genomic_region_empty_filter(self):
+        self.run_filter_query(PrefetchFilterQuery, {"genomic_region": []}, 6)
+
+    def test_genomic_region_empty_export(self):
+        self.run_filter_query(ExportTableFileFilterQuery, {"genomic_region": []}, 6)
+
+    def test_genomic_region_empty_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"genomic_region": []}, 6)
+
+    def test_genomic_region_empty_count(self):
+        self.run_count_query(CountOnlyFilterQuery, {"genomic_region": []}, 6)
+
+    def test_genomic_region_one_region_filter(self):
+        self.run_filter_query(PrefetchFilterQuery, {"genomic_region": [("1", 1, 199)]}, 1)
+
+    def test_genomic_region_one_region_export(self):
+        self.run_filter_query(ExportTableFileFilterQuery, {"genomic_region": [("1", 1, 199)]}, 1)
+
+    def test_genomic_region_one_region_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"genomic_region": [("1", 1, 199)]}, 1)
+
+    def test_genomic_region_one_region_count(self):
+        self.run_count_query(CountOnlyFilterQuery, {"genomic_region": [("1", 1, 199)]}, 1)
+
+    def test_genomic_region_two_regions_filter(self):
+        self.run_filter_query(
+            PrefetchFilterQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4
+        )
+
+    def test_genomic_region_two_regions_export(self):
+        self.run_filter_query(
+            ExportTableFileFilterQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4
+        )
+
+    def test_genomic_region_two_regions_vcf(self):
+        self.run_filter_query(
+            ExportVcfFileFilterQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4
+        )
+
+    def test_genomic_region_two_regions_count(self):
+        self.run_count_query(
+            CountOnlyFilterQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4
+        )
+
 
 # ---------------------------------------------------------------------------
 # XFilterQuery: Tests for Case 2
@@ -2159,7 +2203,6 @@ INCLUSIVE_CLEANED_DATA_CASE2 = {
     **CLINVAR_FORM_DEFAULTS,
     "case_uuid": "9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
     "effects": ["synonymous_variant"],
-    "gene_blacklist": [],
     "database_select": "refseq",
     "var_type_snv": True,
     "var_type_mnv": True,
@@ -2212,8 +2255,9 @@ INCLUSIVE_CLEANED_DATA_CASE2 = {
     "clinvar_include_likely_pathogenic": True,
     "clinvar_include_pathogenic": True,
     # Gene lists
-    "gene_blacklist": "",
-    "gene_whitelist": "",
+    "gene_blacklist": [],
+    "gene_whitelist": [],
+    "genomic_region": [],
 }
 
 
@@ -2425,7 +2469,6 @@ INCLUSIVE_CLEANED_DATA_CASE3 = {
     **CLINVAR_FORM_DEFAULTS,
     "case_uuid": "9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
     "effects": ["synonymous_variant"],
-    "gene_blacklist": [],
     "database_select": "refseq",
     "var_type_snv": True,
     "var_type_mnv": True,
@@ -2463,8 +2506,9 @@ INCLUSIVE_CLEANED_DATA_CASE3 = {
     "clinvar_include_likely_pathogenic": False,
     "clinvar_include_pathogenic": False,
     # Gene lists
-    "gene_blacklist": "",
-    "gene_whitelist": "",
+    "gene_blacklist": [],
+    "gene_whitelist": [],
+    "genomic_region": [],
 }
 
 

@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+End-User Summary
+================
+
+Added support to filter genomic regions.
+
+Full Change List
+================
+
+- Added additional field to specify multiple genomic regions to restrict query.
+
 -------
 v0.13.0
 -------

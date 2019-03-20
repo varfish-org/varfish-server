@@ -74,7 +74,7 @@ def submit_distiller(job):
     except Exception as e:
         job.mark_error(e)
         if timeline:
-            tl_event.set_status("FAILED", "MutationDistiller submission failed for {case_name}")
+            tl_event.set_status("FAILED", "MutationDistiller submission failed for {case_name}: %s")
         raise
     else:
         job.mark_success()
