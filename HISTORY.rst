@@ -11,6 +11,7 @@ End-User Summary
 
 - Added support to filter genomic regions.
 - Added support for querying for counts within the VarFish database.
+- Fixed bug that displayed variants in comphet query results twice.
 
 Full Change List
 ================
@@ -20,6 +21,7 @@ Full Change List
 - Extended ``SmallVariant`` model to have counts for hom. ref. etc. counts.
 - Adding ``SmallVariantSummary`` materialized view and supporting SQL Alchemy query infastructure.
 - Adding form and view infrastructure for querying against in-house database.
+- Fixed bug in comphet query that executed the query on the results again during fetching, which displayed variants twice.
 
 -------
 v0.13.0

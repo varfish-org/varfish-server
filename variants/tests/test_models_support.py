@@ -2491,7 +2491,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(FilterTestBase):
 
     cleaned_data_patch = {"compound_recessive_enabled": True}
 
-    def test_query_compound_het_filter(self):
+    def test_query_compound_het_prefetch_filter(self):
         res = self.run_filter_query(PrefetchFilterQuery, self.cleaned_data_patch, 2)
         self.assertEqual(res[0].position, 102)
         self.assertEqual(res[1].position, 103)
@@ -2503,6 +2503,21 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(FilterTestBase):
 
     def test_query_compound_het_count(self):
         self.run_count_query(CountOnlyFilterQuery, self.cleaned_data_patch, 2)
+
+    def test_query_compound_het_load_prefetched_filter(self):
+        case = Case.objects.first()
+        query = SmallVariantQuery.objects.create(
+            case=case, user=None, form_id="1", form_version=1, query_settings={}, public=False
+        )
+        res = self.run_filter_query(PrefetchFilterQuery, self.cleaned_data_patch, 2)
+        query.query_results.add(res[0].id, res[1].id)
+        res = self.run_filter_query(
+            LoadPrefetchedFilterQuery,
+            {**self.cleaned_data_patch, "smallvariantquery_id": query.id},
+            2,
+        )
+        self.assertEqual(res[0].position, 102)
+        self.assertEqual(res[1].position, 103)
 
 
 # ---------------------------------------------------------------------------

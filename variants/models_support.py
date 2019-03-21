@@ -97,7 +97,7 @@ class SingleCaseFilterQueryBase:
 
     def _build_stmt(self, kwargs):
         """Build the statement, both simple and compound recessive"""
-        if kwargs.get("compound_recessive_enabled", False):
+        if kwargs.get("compound_recessive_enabled", False) and not self.is_prefetched():
             stmt = self._build_comp_het_stmt(kwargs)
         else:
             stmt = self._build_simple_stmt(kwargs)
@@ -215,6 +215,10 @@ class SingleCaseFilterQueryBase:
             raise ImproperlyConfigured("Set base_table or override get_base_table().")
         else:
             return self.base_table
+
+    def is_prefetched(self):
+        """Return if the query is prefetched or not."""
+        return "LoadPrefetched" in type(self).__name__
 
 
 class SingleCasePrefetchFilterQueryBase(SingleCaseFilterQueryBase):
