@@ -10,6 +10,19 @@
     </div>
   {% else %}
     <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0 pb-0">
+      {% if hpoterms %}
+        <div class="pl-2">
+          <span class="pl-2">
+            <strong style="font-size: 120%;">HPO Terms:</strong>
+          </span>
+          <span class="pl-2">
+          {% for hpo_id, hpo_name in hpoterms.items %}
+            <span class="badge badge-secondary">{{ hpo_id }}</span>
+            {{ hpo_name }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+          </span>
+        </div>
+      {% endif %}
       <div class="form-inline pl-2 pr-2 row">
         <div class="p-2">
           <strong style="font-size: 140%;">

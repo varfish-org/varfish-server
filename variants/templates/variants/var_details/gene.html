@@ -59,6 +59,18 @@
           {% endif %}
         </td>
       </tr>
+      <tr>
+        <th>HPO Terms</th>
+        <td>
+          {% if gene.hpo_terms %}
+            {% for hpo_id, hpo_name in gene.hpo_terms %}
+              <span class="badge badge-secondary">{{ hpo_id }}</span> {{ hpo_name }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      </tr>
     </tbody>
   </table>
 </div>

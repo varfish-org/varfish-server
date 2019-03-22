@@ -14,6 +14,7 @@ End-User Summary
 - Added support for querying for counts within the VarFish database.
 - Fixed bug that displayed variants in comphet query results twice.
 - Improved UI response.
+- Added HPO terms to variant detail view.
 
 Full Change List
 ================
@@ -28,6 +29,7 @@ Full Change List
 - Fixed broken tooltip information in results table.
 - Resubmitting a file export job now remembers the file type, if changed.
 - Added integration with in-house CADD REST API (https://github.com/bihealth/cadd-rest-api) similar to Exomiser REST API integration.
+- Added HPO terms to variant detail view and queried HPO terms are added to results table header.
 
 -------
 v0.13.0

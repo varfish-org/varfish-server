@@ -21,12 +21,11 @@ import simplejson as json
 
 from bgjobs.models import BackgroundJob
 from clinvar.models import Clinvar
-from geneinfo.models import Hgnc, NcbiGeneInfo, NcbiGeneRif
+from geneinfo.models import Hgnc, NcbiGeneInfo, NcbiGeneRif, Hpo, HpoName, Mim2geneMedgen
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from projectroles.plugins import get_backend_api
 from annotation.models import Annotation
-from .models import SmallVariant
 from .models_support import (
     LoadPrefetchedClinvarReportQuery,
     KnownGeneAAQuery,
@@ -41,6 +40,7 @@ from .models import (
     ComputeProjectVariantsStatsBgJob,
     FilterBgJob,
     CaseAwareProject,
+    SmallVariant,
     SmallVariantFlags,
     SmallVariantComment,
     SmallVariantQuery,
@@ -574,6 +574,11 @@ class CaseLoadPrefetchedFilterView(
             card_colspan += 2
             rows = annotate_with_joint_scores(rows)
 
+        hpoterms = {
+            hpo: HpoName.objects.filter(hpo_id=hpo).first().name
+            for hpo in filter_job.smallvariantquery.query_settings.get("prio_hpo_terms", [])
+        }
+
         return render(
             request,
             self.template_name,
@@ -583,6 +588,7 @@ class CaseLoadPrefetchedFilterView(
                 elapsed_seconds=elapsed.total_seconds(),
                 database=filter_job.smallvariantquery.query_settings["database_select"],
                 pedigree=pedigree,
+                hpoterms=hpoterms,
                 query_type=self.query_type,
                 has_phenotype_scores=bool(gene_scores),
                 has_pathogenicity_scores=bool(variant_scores),
@@ -1340,7 +1346,21 @@ class SmallVariantDetails(
         if not gene:
             return {"gene_id": kwargs["gene_id"]}
         else:
+            gene = model_to_dict(gene)
+            hpoterms = {self._get_hpo_mapping(gene["omim_id"])}
+            mim2gene = Mim2geneMedgen.objects.filter(entrez_id=gene["entrez_id"])
+            if mim2gene:
+                for entry in mim2gene:
+                    hpoterms.add(self._get_hpo_mapping(entry.omim_id))
+            gene["hpo_terms"] = [h for h in hpoterms if h is not None]
             return gene
+
+    def _get_hpo_mapping(self, omim):
+        hpo = Hpo.objects.filter(database_id="OMIM:{}".format(omim)).first()
+        if hpo:
+            hponame = HpoName.objects.filter(hpo_id=hpo.hpo_id).first()
+            if hponame:
+                return hpo.hpo_id, hponame.name
 
     def get_context_data(self, object):
         result = super().get_context_data(*self.args, **self.kwargs)
