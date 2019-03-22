@@ -12,7 +12,7 @@ End-User Summary
 - Added support to filter genomic regions.
 - Added support for querying for counts within the VarFish database.
 - Fixed bug that displayed variants in comphet query results twice.
-- Improved error response in asynchronous queries.
+- Improved UI response.
 
 Full Change List
 ================
@@ -24,6 +24,7 @@ Full Change List
 - Adding form and view infrastructure for querying against in-house database.
 - Fixed bug in comphet query that executed the query on the results again during fetching, which displayed variants twice.
 - Proper error response in asynchronous queries when server is not reachable.
+- Fixed broken tooltip information in results table.
 
 -------
 v0.13.0

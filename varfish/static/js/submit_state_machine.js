@@ -103,6 +103,8 @@ function updateTableDisplay() {
   $("#table-config").attr("class",
     "display-" + $("#result-display-frequencies").val()
   );
+  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="popover"]').popover();
 }
 
 function displayConnectionError() {
