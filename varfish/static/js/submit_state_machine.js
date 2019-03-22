@@ -36,7 +36,7 @@ let INPUT_TAB_AFFILIATION = {
   ],
   'frequency-tab': [
     /^thousand_genomes_/,
-    /^exac_genomes_/,
+    /^exac_/,
     /^gnomad_genomes_/,
     /^gnomad_exomes_/,
   ],
@@ -105,6 +105,16 @@ function updateTableDisplay() {
   );
 }
 
+function displayConnectionError() {
+  currentState = STATE_IDLE;
+  resultsTable.empty();
+  resultsTable.html(
+    '<div class="alert alert-danger sodar-alert-top">' +
+    '<i class="fa fa-exclamation-triangle"></i> ' +
+    'Error in request. Probably the server is not responding or offline.' +
+    '</div>');
+}
+
 // Helper function to switch the state of the submit button (make it "Submit").
 function animateFilterButtonSubmit() {
   let icon = $("i", filterButton).clone();
@@ -125,7 +135,17 @@ function animateSubmitButtonCancel() {
     $(filterButton).data("url-wheel"),
     function(responseText, textStatus, request) {
       if (textStatus == "error") {
-        console.log("Error during AJAX call: ", request, textStatus, responseText);
+        // stop spinning action on error
+        resultsTable.empty();
+        animateFilterButtonSubmit();
+        currentState = STATE_IDLE;
+        switch (request.status) {
+          case 0:
+            displayConnectionError();
+            break;
+          default:
+            console.log("Error during AJAX call: ", request, textStatus, responseText);
+        }
       }
     }
   );
@@ -168,7 +188,7 @@ function handleEventStateInitial(eventType, event) {
   if (eventType == EVENT_START) {
     currentState = STATE_GET_JOB_ID;
     animateSubmitButtonCancel();
-    $.ajax({
+    ajaxCall = $.ajax({
       type: "GET",
       dataType: "json",
       url: filterButton.data('url-request-last-job'),
@@ -180,8 +200,11 @@ function handleEventStateInitial(eventType, event) {
         return handleEvent(EVENT_NO_JOB_ID, null);
       },
       error: function(jqXHR, textStatus, errorThrown) {
+        resultsTable.empty();
+        animateFilterButtonSubmit();
         switch (jqXHR.status) {
           case 0:
+            displayConnectionError();
             break;
           default:
             console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
@@ -213,8 +236,11 @@ function handleEventStateIdle(eventType, event) {
         handleEvent(EVENT_GOT_JOB_ID, {'filter_job_uuid': result['filter_job_uuid']});
       },
       error: function(jqXHR, textStatus, errorThrown) {
+        resultsTable.empty();
+        animateFilterButtonSubmit();
         switch (jqXHR.status) {
           case 0:
+            displayConnectionError();
             // aborted ajax call.
             break;
           case 400:
@@ -250,8 +276,11 @@ function handleEventStateGetJobId(eventType, event) {
         return handleEvent(EVENT_STILL_WAITING, event);
       },
       error: function(jqXHR, textStatus, errorThrown) {
+        resultsTable.empty();
+        animateFilterButtonSubmit();
         switch (jqXHR.status) {
           case 0:
+            displayConnectionError();
             break;
           default:
             console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
@@ -323,12 +352,15 @@ function handleEventStateWaitJobResults(eventType, event) {
       success: function(data) {
         currentState = STATE_IDLE;
         animateFilterButtonSubmit();
-        $("#resultsTable").html(data);
+        resultsTable.html(data);
         updateTableDisplay();
       },
       error: function(jqXHR, textStatus, errorThrown) {
+        resultsTable.empty();
+        animateFilterButtonSubmit();
         switch (jqXHR.status) {
           case 0:
+            displayConnectionError();
             break;
           default:
             console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
