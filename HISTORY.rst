@@ -25,6 +25,7 @@ Full Change List
 - Fixed bug in comphet query that executed the query on the results again during fetching, which displayed variants twice.
 - Proper error response in asynchronous queries when server is not reachable.
 - Fixed broken tooltip information in results table.
+- Resubmitting a file export job now remembers the file type, if changed.
 
 -------
 v0.13.0

@@ -1375,7 +1375,9 @@ class ExportFileJobDetailView(
 
     def get_context_data(self, *args, **kwargs):
         result = super().get_context_data(*args, **kwargs)
-        result["resubmit_form"] = ExportFileResubmitForm()
+        result["resubmit_form"] = ExportFileResubmitForm(
+            initial={"file_type": result["object"].query_args["file_type"]}
+        )
         return result
 
 
@@ -1406,7 +1408,7 @@ class ExportFileJobResubmitView(
                 project=job.project,
                 bg_job=bg_job,
                 case=job.case,
-                query_args=job.query_args,
+                query_args={**job.query_args, "file_type": form.cleaned_data["file_type"]},
                 file_type=form.cleaned_data["file_type"],
             )
         export_file_task.delay(export_job_pk=export_job.pk)
@@ -1473,7 +1475,9 @@ class ExportProjectCasesFileJobDetailView(
 
     def get_context_data(self, *args, **kwargs):
         result = super().get_context_data(*args, **kwargs)
-        result["resubmit_form"] = ExportProjectCasesFileResubmitForm()
+        result["resubmit_form"] = ExportProjectCasesFileResubmitForm(
+            initial={"file_type": result["object"].query_args["file_type"]}
+        )
         return result
 
 
@@ -1503,7 +1507,7 @@ class ExportProjectCasesFileJobResubmitView(
             export_job = ExportProjectCasesFileBgJob.objects.create(
                 project=job.project,
                 bg_job=bg_job,
-                query_args=job.query_args,
+                query_args={**job.query_args, "file_type": form.cleaned_data["file_type"]},
                 file_type=form.cleaned_data["file_type"],
             )
         export_project_cases_file_task.delay(export_job_pk=export_job.pk)
