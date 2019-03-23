@@ -265,7 +265,7 @@ class SmallVariantSummary(models.Model):
     count_hemi_alt = models.IntegerField()
 
     class Meta:
-        managed = not settings.IS_TESTING
+        managed = settings.IS_TESTING
         db_table = "variants_smallvariantsummary"
 
 
@@ -1050,6 +1050,44 @@ class SmallVariantQueryGeneScores(models.Model):
     score = models.FloatField(null=False, blank=False, help_text="The gene score")
 
 
+class SmallVariantQueryVariantScores(models.Model):
+    """Annotate ``SmallVariantQuery`` with pathogenicity score."""
+
+    #: The query to annotate.
+    query = models.ForeignKey(SmallVariantQuery)
+
+    #: Genome build
+    release = models.CharField(max_length=32, null=False, blank=False)
+
+    #: Variant coordinates - chromosome
+    chromosome = models.CharField(max_length=32, null=False, blank=False)
+
+    #: Variant coordinates - position
+    position = models.IntegerField(null=False, blank=False)
+
+    #: Variant coordinates - reference
+    reference = models.CharField(max_length=512, null=False, blank=False)
+
+    #: Variant coordinates - alternative
+    alternative = models.CharField(max_length=512, null=False, blank=False)
+
+    #: The score type.
+    score_type = models.CharField(
+        max_length=64, null=False, blank=False, help_text="The score type"
+    )
+
+    #: The score.
+    score = models.FloatField(null=False, blank=False, help_text="The variant score")
+
+    def variant_key(self):
+        return "-".join(
+            map(
+                str,
+                [self.release, self.chromosome, self.position, self.reference, self.alternative],
+            )
+        )
+
+
 class FilterBgJob(JobModelMessageMixin, models.Model):
     """Background job for processing single case filter query and storing query results in table SmallVariantQueryBase."""
 
@@ -1359,6 +1397,8 @@ class RowWithPhenotypeScore(wrapt.ObjectProxy):
 
 def annotate_with_phenotype_scores(rows, gene_scores):
     """Annotate the results in ``rows`` with phenotype scores stored in ``small_variant_query``.
+
+    Variants are ranked by the gene scors, automatically ranking them by gene.
     """
     rows = [RowWithPhenotypeScore(row) for row in rows]
     for row in rows:
@@ -1375,28 +1415,184 @@ def annotate_with_phenotype_scores(rows, gene_scores):
     return rows
 
 
-def prioritize_genes(entrez_ids, query_settings):
+# TODO: Improve wrapper so we can assign obj.pathogenicity_rank and score
+class RowWithPathogenicityScore(wrapt.ObjectProxy):
+    """Wrap a result row and add members for pathogenicity score and rank."""
+
+    def __init__(self, obj):
+        super().__init__(obj)
+        self._self_pathogenicity_rank = None
+        self._self_pathogenicity_score = -1
+
+    @property
+    def pathogenicity_rank(self):
+        return self._self_pathogenicity_rank
+
+    @property
+    def pathogenicity_score(self):
+        return self._self_pathogenicity_score
+
+    def __getitem__(self, key):
+        if key == "pathogenicity_rank":
+            return self.pathogenicity_rank
+        elif key == "pathogenicity_score":
+            return self.pathogenicity_score
+        else:
+            return self.__wrapped__.__getitem__(key)
+
+    def variant_key(self):
+        return "-".join(
+            map(
+                str,
+                (self.release, self.chromosome, self.position, self.reference, self.alternative),
+            )
+        )
+
+
+def annotate_with_pathogenicity_scores(rows, variant_scores):
+    """Annotate the results in ``rows`` with pathogenicity scores stored in ``small_variant_query``.
+
+    Variants are score independently but grouped by gene (the highest score of each variant in
+    each gene is used for ranking).
+    """
+    # Get list of rows and assign pathogenicity scores.
+    rows = [RowWithPathogenicityScore(row) for row in rows]
+    for row in rows:
+        key = row.variant_key()
+        row._self_pathogenicity_score = variant_scores.get(key)
+    # Get highest score for each gene.
+    gene_scores = {}
+    for row in rows:
+        gene_scores[row.entrez_id] = max(
+            gene_scores.get(row.entrez_id, 0), row.pathogenicity_score or 0.0
+        )
+
+    # Sort variant by gene score now.
+    def gene_score(row):
+        if row.entrez_id:
+            return (gene_scores[row.entrez_id], row.pathogenicity_score or 0.0)
+        else:
+            return (0.0, 0.0)  # no gene => lowest score
+
+    rows.sort(key=gene_score, reverse=True)
+
+    # Re-compute ranks
+    prev_gene = None
+    rank = 1
+    for row in rows:
+        row._self_pathogenicity_rank = rank
+        if row.entrez_id != prev_gene:
+            prev_gene = row.entrez_id
+            rank += 1
+    return rows
+
+
+# TODO: Improve wrapper so we can assign obj.pathogenicity_rank and score
+class RowWithJointScore(wrapt.ObjectProxy):
+    """Wrap a result row and add members for joint score and rank."""
+
+    def __init__(self, obj):
+        super().__init__(obj)
+        self._self_joint_rank = None
+        self._self_joint_score = -1
+
+    @property
+    def joint_rank(self):
+        return self._self_joint_rank
+
+    @property
+    def joint_score(self):
+        return self._self_joint_score
+
+    def __getitem__(self, key):
+        if key == "joint_rank":
+            return self.joint_rank
+        elif key == "joint_score":
+            return self.joint_score
+        else:
+            return self.__wrapped__.__getitem__(key)
+
+
+def annotate_with_joint_scores(rows):
+    """Annotate the results in ``rows`` with joint scores stored in ``small_variant_query``.
+
+    Variants are score independently but grouped by gene (the highest score of each variant in
+    each gene is used for ranking).
+    """
+    # Get list of rows and assign joint scores.
+    rows = [RowWithJointScore(row) for row in rows]
+    for row in rows:
+        key = "-".join(
+            map(str, [row["chromosome"], row["position"], row["reference"], row["alternative"]])
+        )
+        row._self_joint_score = (row.phenotype_score or 0) * (row.pathogenicity_score or 0)
+    # Get highest score for each gene.
+    gene_scores = {}
+    for row in rows:
+        gene_scores[row.entrez_id] = max(gene_scores.get(row.entrez_id, 0), row.joint_score or 0)
+
+    # Sort variant by gene score now.
+    def gene_score(row):
+        if row.entrez_id:
+            return gene_scores[row.entrez_id]
+        else:
+            return 0.0  # no gene => lowest score
+
+    rows.sort(key=gene_score, reverse=True)
+
+    # Re-compute ranks
+    prev_gene = None
+    rank = 1
+    for row in rows:
+        row._self_joint_rank = rank
+        if row.entrez_id != prev_gene:
+            prev_gene = row.entrez_id
+            rank += 1
+    return rows
+
+
+def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
     """Perform gene prioritization query.
 
     Yield quadruples (gene id, gene symbol, score, priority type) for the given gene list and query settings.
     """
-    if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER:
+    # TODO: properly test
+    if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER or not entrez_ids or not hpo_terms:
         return
-
-    prio_enabled = query_settings.get("prio_enabled")
-    prio_algorithm = query_settings.get("prio_algorithm")
-    hpo_terms = tuple(sorted(query_settings.get("prio_hpo_terms", [])))
-    entrez_ids = tuple(
-        list(sorted(set(entrez_ids)))[: settings.VARFISH_EXOMISER_PRIORITISER_MAX_GENES]
-    )
-    if not all((prio_enabled, prio_algorithm, hpo_terms, entrez_ids)):
-        return  # nothing to do
 
     res = requests.request(
         method="get",
         url=settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
-        params={"phenotypes": hpo_terms, "genes": entrez_ids, "prioritiser": prio_algorithm},
+        params={
+            "phenotypes": ",".join(sorted(set(hpo_terms))),
+            "genes": ",".join(sorted(set(entrez_ids))),
+            "prioritiser": prio_algorithm,
+        },
     )
 
     for entry in res.json().get("results", ()):
         yield entry["geneId"], entry["geneSymbol"], entry["score"], entry["priorityType"]
+
+
+def variant_scores(variants):
+    """Perform variant pathogenicity score query.
+
+    Yield (build, chromosome, position, reference, alternative, score)
+    """
+    # TODO: properly test
+    if not settings.VARFISH_ENABLE_CADD or not variants:
+        return
+
+    res = requests.request(
+        method="post",
+        url=settings.VARFISH_CADD_REST_API_URL,
+        json={
+            "genome_build": "GRCh37",
+            "cadd_release": "v1.4",
+            "variant": ["-".join(map(str, var)) for var in variants],
+        },
+    )
+
+    for var, scores in res.json().get("scores", {}).items():
+        chrom, pos, ref, alt = var.split("-")
+        yield "GRCh37", chrom, int(pos), ref, alt, scores[1]

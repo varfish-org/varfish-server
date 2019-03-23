@@ -18,6 +18,8 @@ from .models import (
     ExportProjectCasesFileBgJobResult,
     SmallVariantComment,
     annotate_with_phenotype_scores,
+    annotate_with_pathogenicity_scores,
+    annotate_with_joint_scores,
     prioritize_genes,
 )
 from .templatetags.variants_tags import flag_class
@@ -103,6 +105,18 @@ HEADER_FIXED = (
 HEADERS_PHENO_SCORES = (
     ("phenotype_score", "Phenotype Score", float),
     ("phenotype_rank", "Phenotype Rank", int),
+)
+
+#: Names of the pathogenicity scoring header columns.
+HEADERS_PATHO_SCORES = (
+    ("pathogenicity_score", "Pathogenicity Score", float),
+    ("pathogenicity_rank", "Pathogenicity Rank", int),
+)
+
+#: Names of the joint scoring header columns.
+HEADERS_JOINT_SCORES = (
+    ("joint_score", "Pheno+Patho Score", float),
+    ("joint_rank", "Pheno+Patho Rank", int),
 )
 
 #: Header fields for flags.
@@ -237,6 +251,12 @@ class CaseExporterBase:
             )
         )
 
+    def _is_pathogenicity_enabled(self):
+        """Return whether pathogenicity scoring is enabled in this query."""
+        return settings.VARFISH_ENABLE_CADD and all(
+            (self.query_args.get("patho_enabled"), self.query_args.get("patho_score"))
+        )
+
     def _yield_members(self):
         """Get list of selected members."""
         if self.project:
@@ -255,6 +275,10 @@ class CaseExporterBase:
         header += HEADER_FIXED
         if self._is_prioritization_enabled():
             header += HEADERS_PHENO_SCORES
+        if self._is_pathogenicity_enabled():
+            header += HEADERS_PATHO_SCORES
+        if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
+            header += HEADERS_JOINT_SCORES
         if self.query_args["export_flags"]:
             header += HEADER_FLAGS
         if self.query_args["export_comments"]:
@@ -279,6 +303,21 @@ class CaseExporterBase:
         if self._is_prioritization_enabled():
             gene_scores = self._fetch_gene_scores([entry.entrez_id for entry in result])
             result = annotate_with_phenotype_scores(result, gene_scores)
+        if self._is_pathogenicity_enabled():
+            variant_scores = self._fetch_variant_scores(
+                [
+                    (
+                        entry["chromosome"],
+                        entry["position"],
+                        entry["reference"],
+                        entry["alternative"],
+                    )
+                    for entry in result
+                ]
+            )
+            result = annotate_with_pathogenicity_scores(result, variant_scores)
+        if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
+            result = annotate_with_joint_scores(result, gene_scores, variant_scores)
         self.job.add_log_entry("Writing output file...")
         for small_var in result:
             if small_var.chromosome != prev_chrom:

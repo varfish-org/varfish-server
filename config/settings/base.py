@@ -355,6 +355,18 @@ VARFISH_EXOMISER_PRIORITISER_API_URL = env.str("VARFISH_EXOMISER_PRIORITISER_API
 # Configure maximal number of genes to send to Exomiser API
 VARFISH_EXOMISER_PRIORITISER_MAX_GENES = env.int("VARFISH_EXOMISER_PRIORITISER_MAX_GENES", 1000)
 
+# Varfish: CADD
+# ------------------------------------------------------------------------------
+
+# Note well that while VarFish is released under a permissive open source license
+# the CADD score is only freely available for non-commercial use.
+
+# Enable CADD configuration, default is disabled.
+VARFISH_ENABLE_CADD = env.bool("VARFISH_ENABLE_CADD", default=False)
+# Configure URL to API
+VARFISH_CADD_REST_API_URL= env.str("VARFISH_CADD_REST_API_URL", "")
+# Configure maximal number of genes to send to Exomiser API
+VARFISH_CADD_MAX_VARS = env.int("VARFISH_CADD_MAX_VARS ", 5000)
 
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------

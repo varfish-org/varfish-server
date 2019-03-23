@@ -4,7 +4,7 @@
 {% load dict %}
 
 <tr id="variant-details-{{ forloop.counter0 }}" class="collapse">
-  <td colspan="{% if query_type == "case" %}{{ pedigree|length|add:"11" }}{% else %}{{ 2|add:"11" }}{% endif %}">
+  <td colspan="{{ card_colspan }}">
     <div class="variant-details" data-loaded="false">
       <div class="text-center py-2">
         <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw"></i>

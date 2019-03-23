@@ -1,16 +1,32 @@
 {% load crispy_forms_tags %}
 {% load dict %}
 {% load variants_tags %}
+{% load projectroles_common_tags %}
+
+{% get_setting 'VARFISH_ENABLE_EXOMISER_PRIORITISER' as exomiser_enabled %}
+{% get_setting 'VARFISH_ENABLE_CADD' as cadd_enabled %}
 
 <div class="row compact-form-groups">
-  <div class="col-12 pt-3">
-    <h5 class="card-title">
-      Variant Prioritization
-    </h5>
+  {% if exomiser_enabled %}
+    <div class="col-6 pt-3">
+      <h5 class="card-title">
+        Phenotype Prioritization
+      </h5>
 
-    {{ form.prio_enabled|as_crispy_field }}
-    {{ form.prio_algorithm|as_crispy_field }}
-    {{ form.prio_hpo_terms|as_crispy_field }}
+      {{ form.prio_enabled|as_crispy_field }}
+      {{ form.prio_algorithm|as_crispy_field }}
+      {{ form.prio_hpo_terms|as_crispy_field }}
+    </div>
+  {% endif %}
 
-  </div>
+  {% if cadd_enabled %}
+    <div class="col-6 pt-3">
+      <h5 class="card-title">
+        Pathogenicity Prioritization
+      </h5>
+
+      {{ form.patho_enabled|as_crispy_field }}
+      {{ form.patho_score|as_crispy_field }}
+    </div>
+  {% endif %}
 </div>

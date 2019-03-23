@@ -49,6 +49,8 @@ from .models import (
     ClinvarBgJob,
     ClinvarQuery,
     annotate_with_phenotype_scores,
+    annotate_with_pathogenicity_scores,
+    annotate_with_joint_scores,
 )
 from .forms import (
     ClinvarForm,
@@ -524,8 +526,14 @@ class CaseLoadPrefetchedFilterView(
 
     def post(self, request, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
-
+        # TODO: properly test prioritization
+        # TODO: refactor, cleanup, break apart
+        # Fetch filter job to display.
         filter_job = FilterBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
+
+        # Compute number of columns in table for the cards.
+        pedigree = filter_job.smallvariantquery.case.get_filtered_pedigree_with_samples()
+        card_colspan = 11 + len(pedigree)
 
         # Take time while job is running
         before = timezone.now()
@@ -548,7 +556,23 @@ class CaseLoadPrefetchedFilterView(
             entry.gene_id: entry.score
             for entry in filter_job.smallvariantquery.smallvariantquerygenescores_set.all()
         }
-        rows = annotate_with_phenotype_scores(rows, gene_scores)
+        if gene_scores:
+            card_colspan += 2
+            rows = annotate_with_phenotype_scores(rows, gene_scores)
+
+        # Annotate with pathogenicity score if any.
+        variant_scores = {
+            entry.variant_key(): entry.score
+            for entry in filter_job.smallvariantquery.smallvariantqueryvariantscores_set.all()
+        }
+        if variant_scores:
+            card_colspan += 2
+            rows = annotate_with_pathogenicity_scores(rows, variant_scores)
+
+        # Annotate with joint scores if any.
+        if gene_scores and variant_scores:
+            card_colspan += 2
+            rows = annotate_with_joint_scores(rows)
 
         return render(
             request,
@@ -558,9 +582,11 @@ class CaseLoadPrefetchedFilterView(
                 result_count=num_results,
                 elapsed_seconds=elapsed.total_seconds(),
                 database=filter_job.smallvariantquery.query_settings["database_select"],
-                pedigree=filter_job.smallvariantquery.case.get_filtered_pedigree_with_samples(),
+                pedigree=pedigree,
                 query_type=self.query_type,
                 has_phenotype_scores=bool(gene_scores),
+                has_pathogenicity_scores=bool(variant_scores),
+                card_colspan=card_colspan,
             ),
         )
 
@@ -618,6 +644,7 @@ class ProjectCasesLoadPrefetchedFilterView(
                 elapsed_seconds=elapsed.total_seconds(),
                 database=filter_job.projectcasessmallvariantquery.query_settings["database_select"],
                 query_type=self.query_type,
+                card_colspan=13,
             ),
         )
 

@@ -9,6 +9,7 @@ HEAD
 End-User Summary
 ================
 
+- Added prioritization by pathogenicity using CADD.
 - Added support to filter genomic regions.
 - Added support for querying for counts within the VarFish database.
 - Fixed bug that displayed variants in comphet query results twice.
@@ -26,6 +27,7 @@ Full Change List
 - Proper error response in asynchronous queries when server is not reachable.
 - Fixed broken tooltip information in results table.
 - Resubmitting a file export job now remembers the file type, if changed.
+- Added integration with in-house CADD REST API (https://github.com/bihealth/cadd-rest-api) similar to Exomiser REST API integration.
 
 -------
 v0.13.0

@@ -3,6 +3,7 @@
 {# Variant filter table header #}
 <tr>
   <th class="p-0 m-0"></th> {# fold-out #}
+  <th class="p-0 m-0"></th> {# fold-out #}
   <th class="p-0 m-0"></th> {# bookmark #}
   <th class="p-0 m-0"></th> {# databases #}
   <th></th> {# position #}
@@ -17,6 +18,12 @@
   {% if has_phenotype_scores %}
     <th>phenotype</th>
   {% endif %}
+  {% if has_pathogenicity_scores %}
+    <th>pathogenicity</th>
+  {% endif %}
+  {% if has_phenotype_scores and has_pathogenicity_scores %}
+    <th>pheno. &amp; patho.</th>
+  {% endif %}
   <th></th>{# effect #}
   {% if query_type == "case" %}
     {# pedigree members #}
@@ -30,6 +37,7 @@
   <th></th> {# link-outs #}
 </tr>
 <tr>
+  <th class="p-0 m-0"></th> {# fold-out #}
   <th class="p-0 m-0"></th> {# fold-out #}
   <th class="p-0 m-0"></th> {# bookmark #}
   <th class="p-0 m-0"></th> {# databases #}
@@ -48,6 +56,12 @@
   <th class="detail-inhouse"># hom.</th>
   <th>gene</th>
   {% if has_phenotype_scores %}
+    <th>score/rank</th>
+  {% endif %}
+  {% if has_pathogenicity_scores %}
+    <th>score/rank</th>
+  {% endif %}
+  {% if has_phenotype_scores and has_pathogenicity_scores %}
     <th>score/rank</th>
   {% endif %}
   <th>effect</th>

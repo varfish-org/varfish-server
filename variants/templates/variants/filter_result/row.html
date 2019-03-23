@@ -12,15 +12,19 @@
       data-toggle="collapse" data-target="#variant-details-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="variant-details-{{ forloop.counter0 }}" aria-hidden="true">
     <i class="fa fa-fw fa-chevron-right"></i>
   </td>
+  {# rank #}
+  <td class="text-nowrap text-right text-muted">
+      #{{ forloop.counter }}
+  </td>
   {# bookmark #}
-  <td class="bookmark pl-0 pr-0" style="white-space: nowrap;">
+  <td class="bookmark pl-0 pr-0 text-nowrap">
     <i class="fa fa-fw {% if entry.flag_count %}fa-bookmark{% else %}fa-bookmark-o{% endif %} text-muted variant-bookmark"
        data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}"></i>
     <i class="fa fa-fw {% if entry.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
        data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}"></i>
   </td>
   {# databases #}
-  <td class="pl-0 pr-0">
+  <td class="pl-0 pr-0 text-nowrap">
     {# dbSNP Indicator #}
     {% if entry.rsid %}
       <a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ entry.rsid|slice:'2:' }}">
@@ -109,14 +113,26 @@
     {% endif %}
   </td>
   {% if has_phenotype_scores %}
-    <td>
-      {{ entry.phenotype_score|floatformat:4 }}
+    <td class="text-nowrap">
+      {{ entry.phenotype_score|floatformat:3 }}
       <span class="text-muted">(#{{ entry.phenotype_rank }})</span>
+    </td>
+  {% endif %}
+  {% if has_pathogenicity_scores %}
+    <td class="text-nowrap">
+      {{ entry.pathogenicity_score|floatformat:1 }}
+      <span class="text-muted">(#{{ entry.pathogenicity_rank }})</span>
+    </td>
+  {% endif %}
+  {% if has_phenotype_scores and has_pathogenicity_scores %}
+    <td class="text-nowrap">
+      {{ entry.joint_score|floatformat:1 }}
+      <span class="text-muted">(#{{ entry.joint_rank }})</span>
     </td>
   {% endif %}
   <td>
     <span data-toggle="tooltip" title="{{ entry.effect|join:', ' }}">
-      {{ entry.hgvs_p|default:"-" }}
+      {{ entry.hgvs_p|default:"-"|truncatechars:15  }}
     </span>
   </td>
   {% if query_type == "case" %}

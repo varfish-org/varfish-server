@@ -1,10 +1,11 @@
-import requests
+import sys
 
+import requests
 from django.conf import settings
 
 from projectroles.plugins import get_backend_api
 from variants.file_export import SQLALCHEMY_ENGINE
-from variants.models import prioritize_genes
+from variants.models import prioritize_genes, variant_scores
 from .models_support import (
     PrefetchFilterQuery,
     ProjectCasesPrefetchFilterQuery,
@@ -44,7 +45,8 @@ class FilterBase:
         # Run query, store results, and run prioritization query.
         results = tuple(self.assembled_query.run(query_args))
         self._store_results(results)
-        self._prioritize_genes(results)
+        self._prioritize_gene_phenotype(results)
+        self._prioritize_variant_pathogenicity(results)
 
     def _store_results(self, results):
         """Store results in ManyToMany field."""
@@ -55,7 +57,7 @@ class FilterBase:
         # Bulk-insert Many-to-Many relationship
         self.variant_query.query_results.add(*smallvariant_pks)
 
-    def _prioritize_genes(self, results):
+    def _prioritize_gene_phenotype(self, results):
         """Prioritize genes in ``results`` and store in ``SmallVariantQueryGeneScores``."""
         if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER:
             return
@@ -74,10 +76,37 @@ class FilterBase:
         # TODO: catch errors and store that there was an error
         entrez_ids = [row["entrez_id"] for row in results if row["entrez_id"]]
         for gene_id, gene_symbol, score, priority_type in prioritize_genes(
-            entrez_ids, self.variant_query.query_settings
+            entrez_ids, hpo_terms, prio_algorithm
         ):
             self.variant_query.smallvariantquerygenescores_set.create(
                 gene_id=gene_id, gene_symbol=gene_symbol, score=score, priority_type=priority_type
+            )
+
+    def _prioritize_variant_pathogenicity(self, results):
+        """Prioritize genes in ``results`` and store in ``SmallVariantQueryVariantScores``."""
+        if not settings.VARFISH_ENABLE_CADD:
+            return
+
+        def get_var(row):
+            """Extract tuple describing variant from row."""
+            return (row["chromosome"], row["position"], row["reference"], row["alternative"])
+
+        patho_enabled = self.variant_query.query_settings.get("patho_enabled")
+        patho_score = self.variant_query.query_settings.get("patho_score")
+        variants = tuple(list(sorted(set(map(get_var, results))))[: settings.VARFISH_CADD_MAX_VARS])
+        if not all((patho_enabled, patho_score, variants)):
+            return  # nothing to do
+
+        # TODO: catch errors and store that there was an error
+        for genomebuild, chromosome, position, ref, alt, score in variant_scores(variants):
+            self.variant_query.smallvariantqueryvariantscores_set.create(
+                release=genomebuild,
+                chromosome=chromosome,
+                position=position,
+                reference=ref,
+                alternative=alt,
+                score_type="CADD_phred",
+                score=score,
             )
 
 

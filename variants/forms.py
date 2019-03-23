@@ -112,6 +112,15 @@ PRIO_ALGORITHM_CHOICES = (
 )
 
 
+#: CADD score value.
+PATHO_CADD = "phenix"
+#: CADD score label.
+PATHO_CADD_LABEL = "CADD"
+
+#: Choices for variant scoring methods.
+PATHO_SCORE_CHOICES = ((PATHO_CADD, PATHO_CADD_LABEL),)
+
+
 class SmallVariantFlagsFilterFormMixin:
     """Fields for filtering to ``SmallVariantFlags``."""
 
@@ -980,6 +989,24 @@ class SmallVariantPrioritizerFormMixin:
             ),
             required=False,
             max_length=5000,
+        )
+
+        self.fields["patho_enabled"] = forms.BooleanField(
+            label="Enable variant pathogenicity-based prioritization",
+            help_text=(
+                "First try to filter your variants without pathogenicity-based prioritization before enabling it. "
+                "Note well that only the first %d variants returned by your query will be prioritized!"
+            )
+            % settings.VARFISH_CADD_MAX_VARS,
+            required=False,
+            widget=forms.CheckboxInput(),
+        )
+
+        self.fields["patho_score"] = forms.ChoiceField(
+            label="Score",
+            help_text="Pathogenicity scoring method to use.",
+            choices=PATHO_SCORE_CHOICES,
+            required=False,
         )
 
     def clean(self):
