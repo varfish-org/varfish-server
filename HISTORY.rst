@@ -3,6 +3,20 @@ History / Changelog
 ===================
 
 -------
+v0.14.1
+-------
+
+End-User Summary
+================
+
+- Bug fix release
+
+Full Change List
+================
+
+- Fixing bug in the case that no HPO term with an HpoName entry is entered.
+
+-------
 v0.14.0
 -------
 

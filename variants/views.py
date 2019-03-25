@@ -574,10 +574,12 @@ class CaseLoadPrefetchedFilterView(
             card_colspan += 2
             rows = annotate_with_joint_scores(rows)
 
-        hpoterms = {
-            hpo: HpoName.objects.filter(hpo_id=hpo).first().name
-            for hpo in filter_job.smallvariantquery.query_settings.get("prio_hpo_terms", [])
-        }
+        # Get mapping from HPO term to HpoName object.
+        hpoterms = {}
+        for hpo in filter_job.smallvariantquery.query_settings.get("prio_hpo_terms", []):
+            matches = HpoName.objects.filter(hpo_id=hpo)
+            if matches:
+                hpo_terms[hpo] = matches.first().name
 
         return render(
             request,
