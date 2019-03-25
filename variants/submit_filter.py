@@ -1,6 +1,3 @@
-import sys
-
-import requests
 from django.conf import settings
 
 from projectroles.plugins import get_backend_api
