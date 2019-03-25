@@ -2,9 +2,9 @@
 History / Changelog
 ===================
 
-----
-HEAD
-----
+-------
+v0.14.0
+-------
 
 End-User Summary
 ================
@@ -30,6 +30,7 @@ Full Change List
 - Resubmitting a file export job now remembers the file type, if changed.
 - Added integration with in-house CADD REST API (https://github.com/bihealth/cadd-rest-api) similar to Exomiser REST API integration.
 - Added HPO terms to variant detail view and queried HPO terms are added to results table header.
+- Added tests for filter jobs, including mocks for CADD and Exomiser requests.
 
 -------
 v0.13.0
