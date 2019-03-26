@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+End-User Summary
+================
+
+- Added strategy to display missing gene symbols
+
+Full Change List
+================
+
+- Added new table with mapping Entrez ID to HGNC ID to improve finding of gene symbols.
+
 -------
 v0.14.1
 -------

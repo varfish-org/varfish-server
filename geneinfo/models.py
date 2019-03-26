@@ -217,3 +217,15 @@ class NcbiGeneRif(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=["entrez_id"])]
+
+
+class RefseqToHgnc(models.Model):
+    """Refseq HGNC mapping."""
+
+    #: Refseq (Entrez) ID
+    entrez_id = models.CharField(max_length=16, null=False)
+    #: HGNC ID
+    hgnc_id = models.CharField(max_length=16, null=False)
+
+    #: Allow bulk import into database.
+    objects = CopyManager()

@@ -21,7 +21,15 @@ import simplejson as json
 
 from bgjobs.models import BackgroundJob
 from clinvar.models import Clinvar
-from geneinfo.models import Hgnc, NcbiGeneInfo, NcbiGeneRif, Hpo, HpoName, Mim2geneMedgen
+from geneinfo.models import (
+    Hgnc,
+    NcbiGeneInfo,
+    NcbiGeneRif,
+    Hpo,
+    HpoName,
+    Mim2geneMedgen,
+    RefseqToHgnc,
+)
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from projectroles.plugins import get_backend_api
@@ -1342,7 +1350,8 @@ class SmallVariantDetails(
 
     def _get_gene_infos(self, kwargs):
         if kwargs["database"] == "refseq":
-            gene = Hgnc.objects.filter(entrez_id=kwargs["gene_id"]).first()
+            hgnc_id = RefseqToHgnc.objects.filter(entrez_id=kwargs["gene_id"]).first()
+            gene = Hgnc.objects.filter(hgnc_id=hgnc_id).first()
         else:
             gene = Hgnc.objects.filter(ensembl_gene_id=kwargs["gene_id"]).first()
         if not gene:

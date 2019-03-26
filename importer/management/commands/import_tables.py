@@ -8,7 +8,15 @@ from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from frequencies.models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes
-from geneinfo.models import Hgnc, Mim2geneMedgen, Hpo, NcbiGeneInfo, NcbiGeneRif, HpoName
+from geneinfo.models import (
+    Hgnc,
+    Mim2geneMedgen,
+    Hpo,
+    NcbiGeneInfo,
+    NcbiGeneRif,
+    HpoName,
+    RefseqToHgnc,
+)
 from hgmd.models import HgmdPublicLocus
 from ...models import ImportInfo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
@@ -24,7 +32,7 @@ TABLES = {
     "gnomAD_exomes": (GnomadExomes,),
     "gnomAD_genomes": (GnomadGenomes,),
     "hgmd_public": (HgmdPublicLocus,),
-    "hgnc": (Hgnc,),
+    "hgnc": (Hgnc, RefseqToHgnc),
     "hpo": (Hpo, HpoName),
     "kegg": (KeggInfo, EnsemblToKegg, RefseqToKegg),
     "knowngeneaa": (KnowngeneAA,),
