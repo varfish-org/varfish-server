@@ -541,7 +541,7 @@ class CaseLoadPrefetchedFilterView(
 
         # Compute number of columns in table for the cards.
         pedigree = filter_job.smallvariantquery.case.get_filtered_pedigree_with_samples()
-        card_colspan = 11 + len(pedigree)
+        card_colspan = 12 + len(pedigree)
 
         # Take time while job is running
         before = timezone.now()
@@ -587,7 +587,7 @@ class CaseLoadPrefetchedFilterView(
         for hpo in filter_job.smallvariantquery.query_settings.get("prio_hpo_terms", []):
             matches = HpoName.objects.filter(hpo_id=hpo)
             if matches:
-                hpo_terms[hpo] = matches.first().name
+                hpoterms[hpo] = matches.first().name
 
         return render(
             request,
@@ -599,6 +599,9 @@ class CaseLoadPrefetchedFilterView(
                 database=filter_job.smallvariantquery.query_settings["database_select"],
                 pedigree=pedigree,
                 hpoterms=hpoterms,
+                training_mode=filter_job.smallvariantquery.query_settings.get(
+                    "training_mode", False
+                ),
                 query_type=self.query_type,
                 has_phenotype_scores=bool(gene_scores),
                 has_pathogenicity_scores=bool(variant_scores),
@@ -658,9 +661,12 @@ class ProjectCasesLoadPrefetchedFilterView(
                 result_rows=rows,
                 result_count=num_results,
                 elapsed_seconds=elapsed.total_seconds(),
+                training_mode=filter_job.projectcasessmallvariantquery.query_settings.get(
+                    "training_mode", False
+                ),
                 database=filter_job.projectcasessmallvariantquery.query_settings["database_select"],
                 query_type=self.query_type,
-                card_colspan=13,
+                card_colspan=14,
             ),
         )
 

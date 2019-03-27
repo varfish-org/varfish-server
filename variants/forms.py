@@ -822,6 +822,16 @@ class SmallVariantMiscFilterFormMixin:
             widget=forms.TextInput(attrs={"class": "numberInteger"}),
         )
 
+        self.fields["training_mode"] = forms.BooleanField(
+            label="Traninig mode",
+            required=False,
+            initial=False,
+            help_text=(
+                "Activating this option hides the bookmark icons and omits the row colouring of flagged variants "
+                "in the results table. It is intended for trainees to check if they can validate previous findings."
+            ),
+        )
+
 
 class SmallVariantClinvarHgmdFilterFormMixin:
     """Form mixin with Clinvar/HGMD Public Fields."""

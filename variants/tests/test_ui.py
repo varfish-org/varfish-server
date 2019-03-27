@@ -729,6 +729,84 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_filter_case_bookmark(self):
+        """Test if submitting the filter yields the expected results."""
+        # login
+        self.compile_url_and_login()
+        # switch tab
+        self.selenium.find_element_by_id("frequency-tab").click()
+        exac = self.selenium.find_element_by_xpath("//input[@name='exac_enabled']")
+        self.pending().until(ec.visibility_of(exac))
+        # disable exac and thousand genomes frequency filter
+        exac.click()
+        self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
+        # switch tab
+        self.selenium.find_element_by_id("quality-tab").click()
+        dropdown = self.selenium.find_element_by_id("id_A_fail")
+        self.pending().until(ec.visibility_of(dropdown))
+        # disable quality filters
+        dropdown.click()
+        option = self.selenium.find_element_by_xpath("//option[@value='ignore']")
+        self.pending().until(ec.visibility_of(option))
+        option.click()
+        # hit submit button
+        self.selenium.find_element_by_id("submitFilter").click()
+        # wait for redirect
+        self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
+        # bookmark variant (there is only one variant)
+        self.selenium.find_element_by_class_name("variant-bookmark").click()
+        # save bookmark
+        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "save")))
+        self.selenium.find_element_by_class_name("save").click()
+        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "fa-bookmark")))
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_filter_case_training_mode(self):
+        """Test if submitting the filter yields the expected results."""
+        # login
+        self.compile_url_and_login()
+        # switch tab
+        self.selenium.find_element_by_id("frequency-tab").click()
+        exac = self.selenium.find_element_by_xpath("//input[@name='exac_enabled']")
+        self.pending().until(ec.visibility_of(exac))
+        # disable exac and thousand genomes frequency filter
+        exac.click()
+        self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
+        # switch tab
+        self.selenium.find_element_by_id("quality-tab").click()
+        dropdown = self.selenium.find_element_by_id("id_A_fail")
+        self.pending().until(ec.visibility_of(dropdown))
+        # disable quality filters
+        dropdown.click()
+        option = self.selenium.find_element_by_xpath("//option[@value='ignore']")
+        self.pending().until(ec.visibility_of(option))
+        option.click()
+        # hit submit button
+        self.selenium.find_element_by_id("submitFilter").click()
+        # wait for redirect
+        self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
+        self.selenium.find_element_by_class_name("variant-bookmark").click()
+        # save bookmark
+        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "save")))
+        self.selenium.find_element_by_class_name("save").click()
+        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "fa-bookmark")))
+        # switch tab
+        self.selenium.find_element_by_id("more-tab").click()
+        tab = self.selenium.find_element_by_id("misc-tab")
+        self.pending().until(ec.visibility_of(tab))
+        tab.click()
+        # enable training mode
+        training = self.selenium.find_element_by_id("id_training_mode")
+        self.pending().until(ec.visibility_of(training))
+        training.click()
+        # hit submit button
+        self.selenium.find_element_by_id("submitFilter").click()
+        # wait for redirect
+        self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
+        with self.assertRaises(NoSuchElementException):
+            self.selenium.find_element_by_class_name("bookmark")
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_download(self):
         """Test if submitting the download filter is kicked off."""
         # login

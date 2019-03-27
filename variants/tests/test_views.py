@@ -111,6 +111,7 @@ DEFAULT_FILTER_FORM_SETTING = {
     "gnomad_genomes_heterozygous": 1000,
     "gnomad_genomes_homozygous": 1000,
     "result_rows_limit": 80,
+    "training_mode": False,
     "thousand_genomes_enabled": False,
     "thousand_genomes_frequency": 1.0,
     "thousand_genomes_heterozygous": 1000,
@@ -226,6 +227,7 @@ DEFAULT_JOINT_FILTER_FORM_SETTING = {
     "gnomad_genomes_heterozygous": 1000,
     "gnomad_genomes_homozygous": 1000,
     "result_rows_limit": 80,
+    "training_mode": False,
     "thousand_genomes_enabled": False,
     "thousand_genomes_frequency": 1.0,
     "thousand_genomes_heterozygous": 1000,
@@ -338,6 +340,7 @@ DEFAULT_RESUBMIT_SETTING = {
     "gnomad_genomes_heterozygous": 1000,
     "gnomad_genomes_homozygous": 1000,
     "result_rows_limit": 80,
+    "training_mode": False,
     "thousand_genomes_enabled": False,
     "thousand_genomes_frequency": 1.0,
     "thousand_genomes_heterozygous": 1000,
@@ -472,6 +475,7 @@ DEFAULT_JOINT_RESUBMIT_SETTING = {
     "gnomad_genomes_heterozygous": 1000,
     "gnomad_genomes_homozygous": 1000,
     "result_rows_limit": 80,
+    "training_mode": False,
     "thousand_genomes_enabled": False,
     "thousand_genomes_frequency": 1.0,
     "thousand_genomes_heterozygous": 1000,
@@ -989,6 +993,25 @@ class TestCaseLoadPrefetchedFilterView(TestViewBase):
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context["result_count"], 2)
+            self.assertEqual(response.context["training_mode"], False)
+
+    def test_training_mode(self):
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+            query = SmallVariantQuery.objects.first()
+            query.query_settings["training_mode"] = True
+            query.save()
+            response = self.client.post(
+                reverse(
+                    "variants:case-load-filter-results",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {
+                    **DEFAULT_FILTER_FORM_SETTING,
+                    "filter_job_uuid": FilterBgJob.objects.first().sodar_uuid,
+                },
+            )
+            self.assertEqual(response.context["training_mode"], True)
 
 
 class TestFilterJobDetailView(TestViewBase):

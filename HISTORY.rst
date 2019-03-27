@@ -11,12 +11,14 @@ End-User Summary
 
 - Added strategy to display missing gene symbols
 - Allow importing into importinfo table without importing data.
+- Added misc option to hide colouring of flagged variant rows.
 
 Full Change List
 ================
 
 - Added new table with mapping Entrez ID to HGNC ID to improve finding of gene symbols.
 - Allow importing of meta information of tables that have no data but are used in microservices.
+- Added misc option that hides colouring of flagged variant rows and also the bookmark icons.
 
 -------
 v0.14.1
