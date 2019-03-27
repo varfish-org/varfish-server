@@ -40,6 +40,8 @@ TABLES = {
     "mim2gene": (Mim2geneMedgen,),
     "thousand_genomes": (ThousandGenomes,),
 }
+SERVICE_NAME_CHOICES = ["CADD", "Exomiser"]
+SERVICE_GENOMEBUILD_CHOICES = ["GRCh37", "GRCh38"]
 
 
 class Command(BaseCommand):
@@ -51,13 +53,48 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         """Add the command's argument to the ``parser``."""
+        parser.add_argument("--tables-path", help="Path to the varfish-db-downloader folder")
+        parser.add_argument("--service", action="store_true", help="Import service data")
         parser.add_argument(
-            "--tables-path", required=True, help="Path to the varfish-db-downloader folder"
+            "--service-name", help="Name for service import", choices=SERVICE_NAME_CHOICES
+        )
+        parser.add_argument("--service-version", help="Version for service import")
+        parser.add_argument(
+            "--service-genomebuild",
+            help="Genomebuild for service import",
+            choices=SERVICE_GENOMEBUILD_CHOICES,
         )
 
     def handle(self, *args, **options):
         """Iterate over genomebuilds, database folders and versions to gather all required information for import.
         """
+
+        if not options["service"] and options["tables_path"] is None:
+            raise CommandError("Please set either --tables_path or --service")
+        if options["tables_path"] and options["service"]:
+            raise CommandError("Please set either --tables_path or --service")
+        if options["service"] and (
+            options["service_name"] is None
+            or options["service_version"] is None
+            or options["service_genomebuild"] is None
+        ):
+            raise CommandError(
+                "Please set --service-name, --service-version and --service-genomebuild when using flag --service"
+            )
+
+        if options["service"]:
+            self._import(
+                None,
+                {
+                    "table": options["service_name"],
+                    "genomebuild": options["service_genomebuild"],
+                    "version": options["service_version"],
+                },
+                None,
+                import_info=True,
+                service=True,
+            )
+            return
 
         path_import_versions = os.path.join(options["tables_path"], "import_versions.tsv")
 
@@ -105,7 +142,7 @@ class Command(BaseCommand):
         return next(tsv_reader(path))
 
     @transaction.atomic
-    def _import(self, path, release_info, table, import_info=True):
+    def _import(self, path, release_info, table, import_info=True, service=False):
         """Bulk data into table and add entry to ImportInfo table.
 
         :param table_path: Path to TSV file to import
@@ -116,19 +153,19 @@ class Command(BaseCommand):
         """
 
         self.stdout.write(
-            "Importing {} {} ({}, source: {}) ...".format(
-                table.__name__, release_info["version"], release_info["genomebuild"], path
+            "Importing {table} {version} ({genomebuild}, source: {path}) ...".format(
+                **release_info, path=path
             )
         )
 
-        if not release_info["table"] == table.__name__:
+        if not service and not release_info["table"] == table.__name__:
             CommandError("Table name in release_info file does not match table name.")
 
         if import_info:
             try:
                 ImportInfo.objects.create(
                     genomebuild=release_info["genomebuild"],
-                    table=table.__name__,
+                    table=release_info["table"],
                     release=release_info["version"],
                 )
             except IntegrityError as e:
@@ -139,18 +176,18 @@ class Command(BaseCommand):
                 )
                 return False
 
-        table.objects.from_csv(
-            path,
-            delimiter="\t",
-            null=release_info["null_value"],
-            ignore_conflicts=False,
-            drop_constraints=True,
-            drop_indexes=True,
-        )
-        self.stdout.write(
-            self.style.SUCCESS(
-                "Finished importing {} {}".format(table.__name__, release_info["version"])
+        if not service:
+            table.objects.from_csv(
+                path,
+                delimiter="\t",
+                null=release_info["null_value"],
+                ignore_conflicts=False,
+                drop_constraints=True,
+                drop_indexes=True,
             )
+
+        self.stdout.write(
+            self.style.SUCCESS("Finished importing {table} {version}".format(**release_info))
         )
         return True
 

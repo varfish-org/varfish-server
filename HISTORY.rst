@@ -10,11 +10,13 @@ End-User Summary
 ================
 
 - Added strategy to display missing gene symbols
+- Allow importing into importinfo table without importing data.
 
 Full Change List
 ================
 
 - Added new table with mapping Entrez ID to HGNC ID to improve finding of gene symbols.
+- Allow importing of meta information of tables that have no data but are used in microservices.
 
 -------
 v0.14.1
