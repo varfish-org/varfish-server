@@ -40,6 +40,7 @@ class FilterBase:
         # Patch query args, if available
         query_args = {**self.variant_query.query_settings, **kwargs}
         # Run query, store results, and run prioritization query.
+        self.job.add_log_entry("Running database query ...")
         results = tuple(self.assembled_query.run(query_args))
         self._store_results(results)
         self._prioritize_gene_phenotype(results)
@@ -47,6 +48,7 @@ class FilterBase:
 
     def _store_results(self, results):
         """Store results in ManyToMany field."""
+        self.job.add_log_entry("Storing results ...")
         # Obtain smallvariant ids to store them in ManyToMany field
         smallvariant_pks = [row["id"] for row in results]
         # Delete previously stored results (note: this only disassociates them, it doesn't delete objects itself.)
@@ -70,14 +72,20 @@ class FilterBase:
         if not all((prio_enabled, prio_algorithm, hpo_terms, entrez_ids)):
             return  # nothing to do
 
-        # TODO: catch errors and store that there was an error
+        self.job.add_log_entry("Prioritize genes with Exomiser ...")
         entrez_ids = [row["entrez_id"] for row in results if row["entrez_id"]]
-        for gene_id, gene_symbol, score, priority_type in prioritize_genes(
-            entrez_ids, hpo_terms, prio_algorithm
-        ):
-            self.variant_query.smallvariantquerygenescores_set.create(
-                gene_id=gene_id, gene_symbol=gene_symbol, score=score, priority_type=priority_type
-            )
+        try:
+            for gene_id, gene_symbol, score, priority_type in prioritize_genes(
+                entrez_ids, hpo_terms, prio_algorithm
+            ):
+                self.variant_query.smallvariantquerygenescores_set.create(
+                    gene_id=gene_id,
+                    gene_symbol=gene_symbol,
+                    score=score,
+                    priority_type=priority_type,
+                )
+        except ConnectionError as e:
+            self.job.add_log_entry(e)
 
     def _prioritize_variant_pathogenicity(self, results):
         """Prioritize genes in ``results`` and store in ``SmallVariantQueryVariantScores``."""
@@ -91,20 +99,24 @@ class FilterBase:
         patho_enabled = self.variant_query.query_settings.get("patho_enabled")
         patho_score = self.variant_query.query_settings.get("patho_score")
         variants = tuple(list(sorted(set(map(get_var, results))))[: settings.VARFISH_CADD_MAX_VARS])
+
         if not all((patho_enabled, patho_score, variants)):
             return  # nothing to do
 
-        # TODO: catch errors and store that there was an error
-        for genomebuild, chromosome, position, ref, alt, score in variant_scores(variants):
-            self.variant_query.smallvariantqueryvariantscores_set.create(
-                release=genomebuild,
-                chromosome=chromosome,
-                position=position,
-                reference=ref,
-                alternative=alt,
-                score_type="CADD_phred",
-                score=score,
-            )
+        self.job.add_log_entry("Prioritize variant pathogenicity with CADD ...")
+        try:
+            for genomebuild, chromosome, position, ref, alt, score in variant_scores(variants):
+                self.variant_query.smallvariantqueryvariantscores_set.create(
+                    release=genomebuild,
+                    chromosome=chromosome,
+                    position=position,
+                    reference=ref,
+                    alternative=alt,
+                    score_type="CADD_phred",
+                    score=score,
+                )
+        except ConnectionError as e:
+            self.job.add_log_entry(e)
 
 
 class CaseFilter(FilterBase):

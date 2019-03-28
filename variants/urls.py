@@ -218,10 +218,4 @@ urlpatterns = [
         view=views.SmallVariantDetails.as_view(),
         name="small-variant-details",
     ),
-    # Loading wheel
-    url(
-        regex=r"loading-wheel",
-        view=TemplateView.as_view(template_name="variants/filter_result/loading_wheel.html"),
-        name="loading-wheel",
-    ),
 ]

@@ -470,8 +470,21 @@ class FilterJobGetStatus(
 
     def post(self, request, *args, **kwargs):
         try:
-            filter_job = FilterBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
-            return JsonResponse({"status": filter_job.bg_job.status})
+            filter_job = FilterBgJob.objects.select_related("bg_job").get(
+                sodar_uuid=request.POST["filter_job_uuid"]
+            )
+            log_entries = reversed(
+                filter_job.bg_job.log_entries.all().order_by("-date_created")[:3]
+            )
+            return JsonResponse(
+                {
+                    "status": filter_job.bg_job.status,
+                    "messages": [
+                        "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
+                        for e in log_entries
+                    ],
+                }
+            )
         except ObjectDoesNotExist:
             return JsonResponse(
                 {"error": "No filter job with UUID {}".format(request.POST["filter_job_uuid"])},
@@ -606,6 +619,10 @@ class CaseLoadPrefetchedFilterView(
                 has_phenotype_scores=bool(gene_scores),
                 has_pathogenicity_scores=bool(variant_scores),
                 card_colspan=card_colspan,
+                logs=[
+                    "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
+                    for e in filter_job.bg_job.log_entries.all().order_by("date_created")
+                ],
             ),
         )
 
@@ -667,6 +684,10 @@ class ProjectCasesLoadPrefetchedFilterView(
                 database=filter_job.projectcasessmallvariantquery.query_settings["database_select"],
                 query_type=self.query_type,
                 card_colspan=14,
+                logs=[
+                    "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
+                    for e in filter_job.bg_job.log_entries.all().order_by("date_created")
+                ],
             ),
         )
 
@@ -854,10 +875,21 @@ class ProjectCasesFilterJobGetStatus(
 
     def post(self, request, *args, **kwargs):
         try:
-            filter_job = ProjectCasesFilterBgJob.objects.get(
+            filter_job = ProjectCasesFilterBgJob.objects.select_related("bg_job").get(
                 sodar_uuid=request.POST["filter_job_uuid"]
             )
-            return JsonResponse({"status": filter_job.bg_job.status})
+            log_entries = reversed(
+                filter_job.bg_job.log_entries.all().order_by("-date_created")[:3]
+            )
+            return JsonResponse(
+                {
+                    "status": filter_job.bg_job.status,
+                    "messages": [
+                        "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
+                        for e in log_entries
+                    ],
+                }
+            )
         except ObjectDoesNotExist:
             return JsonResponse(
                 {"error": "No filter job with UUID {}".format(request.POST["filter_job_uuid"])},
@@ -1068,8 +1100,21 @@ class CaseClinvarReportJobGetStatus(
 
     def post(self, request, *args, **kwargs):
         try:
-            clinvar_job = ClinvarBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
-            return JsonResponse({"status": clinvar_job.bg_job.status})
+            filter_job = ClinvarBgJob.objects.select_related("bg_job").get(
+                sodar_uuid=request.POST["filter_job_uuid"]
+            )
+            log_entries = reversed(
+                filter_job.bg_job.log_entries.all().order_by("-date_created")[:3]
+            )
+            return JsonResponse(
+                {
+                    "status": filter_job.bg_job.status,
+                    "messages": [
+                        "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
+                        for e in log_entries
+                    ],
+                }
+            )
         except ObjectDoesNotExist:
             return JsonResponse(
                 {"error": "No filter job with UUID {}".format(request.POST["filter_job_uuid"])},
@@ -1161,6 +1206,10 @@ class CaseLoadPrefetchedClinvarReportView(
                 result_count=num_results,
                 elapsed_seconds=elapsed.total_seconds(),
                 database=clinvar_job.clinvarquery.query_settings["database_select"],
+                logs=[
+                    "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
+                    for e in clinvar_job.bg_job.log_entries.all().order_by("date_created")
+                ],
                 # pedigree=clinvar_job.clinvarquery.case.get_filtered_pedigree_with_samples(),
             ),
         )

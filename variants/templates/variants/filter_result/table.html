@@ -55,6 +55,11 @@
           {% endif %}
           transcripts.
         </div>
+        <div class="pl-3">
+          <button type="button" id="logPopover" class="btn btn-sm btn-light" data-title="Background job logs" data-container="body" data-toggle="popover" data-placement="top" data-html="true" data-content="<pre>{{ logs|join:"<br>" }}</pre>">
+            <i class="fa fa-list"></i> Show logs
+          </button>
+        </div>
       </div>
     </div>
 

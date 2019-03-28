@@ -15,6 +15,7 @@ End-User Summary
 - Improved effect filter form.
 - Extended gene link-outs.
 - Fixed bug in pheno/patho rank computation.
+- Improved UI responses during requests.
 
 Full Change List
 ================
@@ -25,6 +26,7 @@ Full Change List
 - Added checkbox group 'nonsense' to effect filter form to group-(un)select certain variant effects.
 - Added gene link-out to Human Protein Atlas.
 - Fixed incrementor for rank computation of phenotype and pathogenicity score ranks.
+- Better UI responses with extended logging during asynchronous calls.
 
 -------
 v0.14.1

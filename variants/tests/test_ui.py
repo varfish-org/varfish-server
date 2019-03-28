@@ -677,7 +677,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
-        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.pending().until(ec.presence_of_element_located((By.ID, "logger")))
         self.assertEqual(button.get_attribute("data-event-type"), "cancel")
         # Wait for background job to finish, otherwise database can't be flushed for next test.
         time.sleep(5)
@@ -691,12 +691,12 @@ class TestVariantsCaseFilterView(TestUIBase):
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
-        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.pending().until(ec.presence_of_element_located((By.ID, "logger")))
         self.assertEqual(button.get_attribute("data-event-type"), "cancel")
         button.click()
         time.sleep(5)
         with self.assertRaises(NoSuchElementException):
-            self.selenium.find_element_by_id("loadingWheel")
+            self.selenium.find_element_by_id("logger")
         self.assertEqual(
             self.selenium.find_element_by_id("resultsTable").get_attribute("innerHTML"), ""
         )
@@ -954,7 +954,7 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
-        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.pending().until(ec.presence_of_element_located((By.ID, "logger")))
         self.assertEqual(button.get_attribute("data-event-type"), "cancel")
         # Wait for background job to finish, otherwise database can't be flushed for next test.
         time.sleep(5)
@@ -968,12 +968,12 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
-        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.pending().until(ec.presence_of_element_located((By.ID, "logger")))
         self.assertEqual(button.get_attribute("data-event-type"), "cancel")
         button.click()
         time.sleep(5)
         with self.assertRaises(NoSuchElementException):
-            self.selenium.find_element_by_id("loadingWheel")
+            self.selenium.find_element_by_id("logger")
         self.assertEqual(
             self.selenium.find_element_by_id("resultsTable").get_attribute("innerHTML"), ""
         )
@@ -1070,7 +1070,7 @@ class TestVariantsCaseClinvarView(TestUIBase):
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
-        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.pending().until(ec.presence_of_element_located((By.ID, "logger")))
         self.assertEqual(button.get_attribute("data-event-type"), "cancel")
         # Wait for background job to finish, otherwise database can't be flushed for next test.
         time.sleep(5)
@@ -1084,12 +1084,12 @@ class TestVariantsCaseClinvarView(TestUIBase):
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
-        self.pending().until(ec.presence_of_element_located((By.ID, "loadingWheel")))
+        self.pending().until(ec.presence_of_element_located((By.ID, "logger")))
         self.assertEqual(button.get_attribute("data-event-type"), "cancel")
         button.click()
         time.sleep(5)
         with self.assertRaises(NoSuchElementException):
-            self.selenium.find_element_by_id("loadingWheel")
+            self.selenium.find_element_by_id("logger")
         self.assertEqual(
             self.selenium.find_element_by_id("resultsTable").get_attribute("innerHTML"), ""
         )

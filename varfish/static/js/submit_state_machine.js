@@ -25,7 +25,6 @@ let filterButton = $("#submitFilter");
 let resultsTable = $("#resultsTable");
 let timer = null;
 
-
 /*
 Handle form error responses from Django AJAX JSON response.
 */
@@ -111,10 +110,11 @@ function displayConnectionError() {
   currentState = STATE_IDLE;
   resultsTable.empty();
   resultsTable.html(
-    '<div class="alert alert-danger sodar-alert-top">' +
+    '<div class="alert alert-danger">' +
     '<i class="fa fa-exclamation-triangle"></i> ' +
-    'Error in request. Probably the server is not responding or offline.' +
-    '</div>');
+    '<strong>Error in request. Probably the server is not responding or offline.</strong>' +
+    '</div>'
+  );
 }
 
 // Helper function to switch the state of the submit button (make it "Submit").
@@ -133,25 +133,28 @@ function animateSubmitButtonCancel() {
   icon.prependTo(filterButton);
   filterButton.attr("data-event-type", EVENT_CANCEL);
   resultsTable.empty();
-  resultsTable.load(
-    $(filterButton).data("url-wheel"),
-    function(responseText, textStatus, request) {
-      if (textStatus == "error") {
-        // stop spinning action on error
-        resultsTable.empty();
-        animateFilterButtonSubmit();
-        currentState = STATE_IDLE;
-        switch (request.status) {
-          case 0:
-            displayConnectionError();
-            break;
-          default:
-            console.log("Error during AJAX call: ", request, textStatus, responseText);
-        }
-      }
-    }
+  resultsTable.html(
+    '<div class="alert alert-info">' +
+    '<i class="fa fa-circle-o-notch fa-spin"></i> ' +
+    '<strong id="infoBoxTitle">Loading ...</strong>' +
+    '<div id="logger"></div>' +
+    '</div>'
   );
   icon.addClass("fa-spin");
+}
+
+function setInfoBoxTitle(title) {
+  let infobox = $("#infoBoxTitle");
+  if (infobox.length) {
+    infobox.html(title);
+  }
+}
+
+function stopTimer() {
+  if (timer) {
+    clearTimeout(timer);
+    timer = null;
+  }
 }
 
 function doVisualErrorResponseOnTabs(data) {
@@ -190,6 +193,7 @@ function handleEventStateInitial(eventType, event) {
   if (eventType == EVENT_START) {
     currentState = STATE_GET_JOB_ID;
     animateSubmitButtonCancel();
+    setInfoBoxTitle("Searching for previous job ...");
     ajaxCall = $.ajax({
       type: "GET",
       dataType: "json",
@@ -224,6 +228,7 @@ function handleEventStateIdle(eventType, event) {
   if (eventType == EVENT_SUBMIT) {
     currentState = STATE_GET_JOB_ID;
     animateSubmitButtonCancel();
+    setInfoBoxTitle("Starting filter job ...");
     removeVisualErrorResponse();
     let data = $("#filterForm").serializeArray().reduce(
       (accumulator, current) => (accumulator[current.name] = current.value, accumulator), {}
@@ -265,6 +270,7 @@ function handleEventStateIdle(eventType, event) {
 // Handle state GET_JOB_ID
 function handleEventStateGetJobId(eventType, event) {
   if (eventType == EVENT_GOT_JOB_ID) {
+    setInfoBoxTitle("Running filter job ...");
     currentState = STATE_WAIT_JOB_RESULTS;
     ajaxCall = $.ajax({
       type: "POST",
@@ -272,6 +278,7 @@ function handleEventStateGetJobId(eventType, event) {
       url: filterButton.data("url-status"),
       data: event,
       success: function (data) {
+        $("#logger").html("<pre>" + data["messages"].join("<br>") + "</pre>");
         if (data['status'] == 'done') {
           return handleEvent(EVENT_GOT_RESULT, event);
         }
@@ -293,7 +300,6 @@ function handleEventStateGetJobId(eventType, event) {
   } else if (eventType == EVENT_NO_JOB_ID) {
     currentState = STATE_IDLE;
     animateFilterButtonSubmit();
-    clearTimeout();
     resultsTable.empty();
   } else if (eventType == EVENT_CANCEL) {
     currentState = STATE_IDLE;
@@ -301,13 +307,11 @@ function handleEventStateGetJobId(eventType, event) {
       ajaxCall.abort("Aborting AJAX call ...");
       ajaxCall = null;
     }
-    clearTimeout();
     resultsTable.empty();
     animateFilterButtonSubmit();
   } else if (eventType == EVENT_ERROR) {
     currentState = STATE_IDLE;
     animateFilterButtonSubmit();
-    clearTimeout();
     resultsTable.empty();
   } else {
     console.log("unexpected event", eventType, event, "in state", currentState);
@@ -317,6 +321,7 @@ function handleEventStateGetJobId(eventType, event) {
 // Handle state WAIT_JOB_RESULTS
 function handleEventStateWaitJobResults(eventType, event) {
   if (eventType == EVENT_STILL_WAITING) {
+    setInfoBoxTitle("Running filter job ...");
     timer = setTimeout(
       function(event, eventData) {
         currentState = STATE_GET_JOB_ID;
@@ -327,10 +332,7 @@ function handleEventStateWaitJobResults(eventType, event) {
     );
   } else if (eventType == EVENT_CANCEL) {
     currentState = STATE_IDLE;
-    if (timer) {
-      clearTimeout(timer);
-      timer = null;
-    }
+    stopTimer();
     if (ajaxCall) {
       ajaxCall.abort("Aborting AJAX call ...");
       ajaxCall = null;
@@ -339,10 +341,11 @@ function handleEventStateWaitJobResults(eventType, event) {
     animateFilterButtonSubmit();
   } else if (eventType == EVENT_ERROR) {
     currentState = STATE_IDLE;
-    clearTimeout();
+    stopTimer();
     resultsTable.empty();
     animateFilterButtonSubmit();
   } else if (eventType == EVENT_GOT_RESULT) {
+    setInfoBoxTitle("Rendering results ...");
     let data = {
       "csrfmiddlewaretoken": csfr_token,
       "filter_job_uuid": event["filter_job_uuid"]
@@ -390,3 +393,11 @@ function handleEvent(eventType, event) {
     console.log("unexpected state", currentState)
   }
 }
+
+// Hide popover when clicking outside of popover.
+$('body').on('click', function (e) {
+    let logPopover = $('#logPopover');
+    if (!logPopover.is(e.target) && logPopover.has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+        logPopover.popover('hide');
+    }
+});

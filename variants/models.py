@@ -1560,15 +1560,26 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
     if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER or not entrez_ids or not hpo_terms:
         return
 
-    res = requests.request(
-        method="get",
-        url=settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
-        params={
-            "phenotypes": ",".join(sorted(set(hpo_terms))),
-            "genes": ",".join(sorted(set(entrez_ids))),
-            "prioritiser": prio_algorithm,
-        },
-    )
+    try:
+        res = requests.request(
+            method="get",
+            url=settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
+            params={
+                "phenotypes": ",".join(sorted(set(hpo_terms))),
+                "genes": ",".join(sorted(set(entrez_ids))),
+                "prioritiser": prio_algorithm,
+            },
+        )
+        if not res.status_code == 200:
+            raise ConnectionError(
+                "ERROR: Server responded with status {} and message {}".format(
+                    res.status_code, res.text
+                )
+            )
+    except requests.ConnectionError:
+        raise ConnectionError(
+            "ERROR: Server {} not responding.".format(settings.VARFISH_EXOMISER_PRIORITISER_API_URL)
+        )
 
     for entry in res.json().get("results", ()):
         yield entry["geneId"], entry["geneSymbol"], entry["score"], entry["priorityType"]
@@ -1583,15 +1594,26 @@ def variant_scores(variants):
     if not settings.VARFISH_ENABLE_CADD or not variants:
         return
 
-    res = requests.request(
-        method="post",
-        url=settings.VARFISH_CADD_REST_API_URL,
-        json={
-            "genome_build": "GRCh37",
-            "cadd_release": "v1.4",
-            "variant": ["-".join(map(str, var)) for var in variants],
-        },
-    )
+    try:
+        res = requests.request(
+            method="post",
+            url=settings.VARFISH_CADD_REST_API_URL,
+            json={
+                "genome_build": "GRCh37",
+                "cadd_release": "v1.4",
+                "variant": ["-".join(map(str, var)) for var in variants],
+            },
+        )
+        if not res.status_code == 200:
+            raise ConnectionError(
+                "ERROR: Server responded with status {} and message {}".format(
+                    res.status_code, res.text
+                )
+            )
+    except requests.ConnectionError:
+        raise ConnectionError(
+            "ERROR: Server {} not responding.".format(settings.VARFISH_CADD_REST_API_URL)
+        )
 
     for var, scores in res.json().get("scores", {}).items():
         chrom, pos, ref, alt = var.split("-")

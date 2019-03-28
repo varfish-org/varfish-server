@@ -823,7 +823,7 @@ class SmallVariantMiscFilterFormMixin:
         )
 
         self.fields["training_mode"] = forms.BooleanField(
-            label="Traninig mode",
+            label="Training mode",
             required=False,
             initial=False,
             help_text=(
