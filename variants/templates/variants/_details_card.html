@@ -15,6 +15,13 @@
       {% for case in cases %}
         {% include 'variants/case/item.html' with item=case details_card_mode=True %}
       {% endfor %}
+      <tr>
+        <td class="bg-faded" colspan="4">
+          <a href="{% url 'variants:case-list' project=project.sodar_uuid %}" class="btn btn-secondary btn-small">
+            <i class="fa fa-list"></i> See list of all cases
+          </a>
+        </td>
+      </tr>
     {% else %}
         <tr>
           <td class="bg-faded font-italic text-center" colspan="4">No cases (yet)</td>

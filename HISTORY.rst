@@ -27,6 +27,7 @@ Full Change List
 - Added gene link-out to Human Protein Atlas.
 - Fixed incrementor for rank computation of phenotype and pathogenicity score ranks.
 - Better UI responses with extended logging during asynchronous calls.
+- Project overview now provides link to full cases list.
 
 -------
 v0.14.1

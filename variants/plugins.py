@@ -46,7 +46,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     details_template = "variants/_details_card.html"
 
     #: App card title for the project details page
-    details_title = "VarFish App Overview"
+    details_title = "Cases Overview (latest 5 entries)"
 
     #: Position in plugin ordering
     plugin_ordering = 10
