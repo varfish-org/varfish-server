@@ -14,6 +14,7 @@ End-User Summary
 - Added misc option to hide colouring of flagged variant rows.
 - Improved effect filter form.
 - Extended gene link-outs.
+- Fixed bug in pheno/patho rank computation.
 
 Full Change List
 ================
@@ -23,6 +24,7 @@ Full Change List
 - Added misc option that hides colouring of flagged variant rows and also the bookmark icons.
 - Added checkbox group 'nonsense' to effect filter form to group-(un)select certain variant effects.
 - Added gene link-out to Human Protein Atlas.
+- Fixed incrementor for rank computation of phenotype and pathogenicity score ranks.
 
 -------
 v0.14.1

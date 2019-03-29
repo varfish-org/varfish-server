@@ -1405,13 +1405,13 @@ def annotate_with_phenotype_scores(rows, gene_scores):
         row._self_phenotype_score = gene_scores.get(row.entrez_id, -1)
     rows.sort(key=lambda row: (row._self_phenotype_score, row.entrez_id or ""), reverse=True)
     # Re-compute ranks
-    prev_gene = None
+    prev_gene = rows[0].entrez_id if rows else None
     rank = 1
     for row in rows:
-        row._self_phenotype_rank = rank
         if row.entrez_id != prev_gene:
             prev_gene = row.entrez_id
             rank += 1
+        row._self_phenotype_rank = rank
     return rows
 
 
@@ -1477,13 +1477,13 @@ def annotate_with_pathogenicity_scores(rows, variant_scores):
     rows.sort(key=gene_score, reverse=True)
 
     # Re-compute ranks
-    prev_gene = None
+    prev_gene = rows[0].entrez_id if rows else None
     rank = 1
     for row in rows:
-        row._self_pathogenicity_rank = rank
         if row.entrez_id != prev_gene:
             prev_gene = row.entrez_id
             rank += 1
+        row._self_pathogenicity_rank = rank
     return rows
 
 
@@ -1541,13 +1541,13 @@ def annotate_with_joint_scores(rows):
     rows.sort(key=gene_score, reverse=True)
 
     # Re-compute ranks
-    prev_gene = None
+    prev_gene = rows[0].entrez_id if rows else None
     rank = 1
     for row in rows:
-        row._self_joint_rank = rank
         if row.entrez_id != prev_gene:
             prev_gene = row.entrez_id
             rank += 1
+        row._self_joint_rank = rank
     return rows
 
 
