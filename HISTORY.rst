@@ -12,6 +12,7 @@ End-User Summary
 - Added strategy to display missing gene symbols
 - Allow importing into importinfo table without importing data.
 - Added misc option to hide colouring of flagged variant rows.
+- Improved effect filter form.
 
 Full Change List
 ================
@@ -19,6 +20,7 @@ Full Change List
 - Added new table with mapping Entrez ID to HGNC ID to improve finding of gene symbols.
 - Allow importing of meta information of tables that have no data but are used in microservices.
 - Added misc option that hides colouring of flagged variant rows and also the bookmark icons.
+- Added checkbox group 'nonsense' to effect filter form to group-(un)select certain variant effects.
 
 -------
 v0.14.1

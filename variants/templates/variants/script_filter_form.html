@@ -55,13 +55,24 @@ var effectGroups = {
     "non_coding_transcript_intron_variant",
     "upstream_gene_variant"
   ],
+  nonsense: [
+    "frameshift_elongation",
+    "frameshift_truncation",
+    "frameshift_variant",
+    "start_lost",
+    "stop_gained",
+    "stop_lost",
+    "splice_acceptor_variant",
+    "splice_donor_variant",
+  ],
 };
 
 effectGroups.all = effectGroups.nonsynonymous
   .concat(effectGroups.splicing)
   .concat(effectGroups.coding)
   .concat(effectGroups.utr_intronic)
-  .concat(effectGroups.noncoding);
+  .concat(effectGroups.noncoding)
+  .concat(effectGroups.nonsense);
 
 function updateEffectGroup(group) {
   let all = _.every(effectGroups[group], function (s) { return $("#id_effect_" + s).prop("checked"); });
