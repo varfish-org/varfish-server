@@ -13,6 +13,7 @@ End-User Summary
 - Allow importing into importinfo table without importing data.
 - Added misc option to hide colouring of flagged variant rows.
 - Improved effect filter form.
+- Extended gene link-outs.
 
 Full Change List
 ================
@@ -21,6 +22,7 @@ Full Change List
 - Allow importing of meta information of tables that have no data but are used in microservices.
 - Added misc option that hides colouring of flagged variant rows and also the bookmark icons.
 - Added checkbox group 'nonsense' to effect filter form to group-(un)select certain variant effects.
+- Added gene link-out to Human Protein Atlas.
 
 -------
 v0.14.1
