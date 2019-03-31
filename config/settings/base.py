@@ -50,6 +50,7 @@ DJANGO_APPS = [
     "django.contrib.admin",
 ]
 THIRD_PARTY_APPS = [
+    "raven.contrib.django.raven_compat",
     "crispy_forms",  # Form layouts
     "rules.apps.AutodiscoverRulesConfig",
     "djangoplugins",
@@ -324,6 +325,22 @@ AUTOSLUG_SLUGIFY_FUNCTION = "slugify.slugify"
 
 # Location of root django.contrib.admin URL, use {% url 'admin:index' %}
 ADMIN_URL = r"^admin/"
+
+# Sentry Client
+# ------------------------------------------------------------------------------
+
+if env.bool("ENABLE_SENTRY", False):
+    import os
+    import raven
+
+    RAVEN_CONFIG = {
+        "dsn": "%s?verify_ssl=0" % env.str("SENTRY_DSN"),
+        # If you are using git, you can also automatically configure the
+        # release based on the git info.
+        "release": raven.fetch_git_sha(
+            os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+        ),
+
 
 # Celery
 # ------------------------------------------------------------------------------
