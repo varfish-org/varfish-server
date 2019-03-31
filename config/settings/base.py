@@ -340,6 +340,7 @@ if env.bool("ENABLE_SENTRY", False):
         "release": raven.fetch_git_sha(
             os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
         ),
+    }
 
 
 # Celery
