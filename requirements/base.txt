@@ -44,7 +44,7 @@ sphinx-rtd-theme>=0.4.1, <0.5
 ######################
 
 # Django-plugins (with self-made Django 1.10 support)
--e git://github.com/mikkonie/django-plugins.git@1bc07181e6ab68b0f9ed3a00382eb1f6519e1009#egg=django-plugins
+-e git+https://github.com/mikkonie/django-plugins.git@1bc07181e6ab68b0f9ed3a00382eb1f6519e1009#egg=django-plugins
 
 # Rules for permissions
 rules>=2.0, <2.1
@@ -63,7 +63,7 @@ mistune>=0.8.3, <0.9
 
 django-postgres-copy
 
--e git://github.com/bihealth/sodar_core.git@v0.4.5#egg=django-sodar-core
+-e git+https://github.com/bihealth/sodar_core.git@v0.4.5#egg=django-sodar-core
 
 # Simplejson is more advanced than then built-in one.
 simplejson >=2.1
