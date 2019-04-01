@@ -648,6 +648,19 @@ class InClinvarTermWhereMixin:
             return True
 
 
+class NotInDbsnpMixin:
+    """Mixin that excludes variants that have a clinvar entry."""
+
+    def _core_where(self, kwargs, gt_patterns=None):
+        return and_(super()._core_where(kwargs, gt_patterns), self._build_not_in_dbsnp_term(kwargs))
+
+    def _build_not_in_dbsnp_term(self, kwargs):
+        if kwargs["remove_if_in_dbsnp"]:
+            return Dbsnp.sa.rsid == None
+        else:
+            return True
+
+
 class BaseTableQueriesMixin(
     GenotypeTermWhereMixin,
     FrequencyTermWhereMixin,
@@ -657,6 +670,7 @@ class BaseTableQueriesMixin(
     GeneListsTermWhereMixin,
     GenomicRegionTermWhereMixin,
     InClinvarTermWhereMixin,
+    NotInDbsnpMixin,
 ):
     """Helper mixin that adds all criteria that can be answered by the base star table."""
 

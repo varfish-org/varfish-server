@@ -11,6 +11,14 @@
   </div>
 
   <div class="col-12">
+    <h5 class="card-title">dbSNP Membership</h5>
+  </div>
+
+  <div class="col-12">
+    {{ form.remove_if_in_dbsnp|as_crispy_field }}
+  </div>
+
+  <div class="col-12">
     <h5 class="card-title">ClinVar Membership</h5>
   </div>
 

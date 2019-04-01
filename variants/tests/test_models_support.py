@@ -17,6 +17,7 @@ from variants.models import (
     ProjectCasesSmallVariantQuery,
     SmallVariantSummary,
 )
+from dbsnp.models import Dbsnp
 
 from ._helpers import TestBase, SQLALCHEMY_ENGINE
 from ._fixtures import (
@@ -183,6 +184,82 @@ def fixture_setup_case1_var_type():
     SmallVariant.objects.create(**{**basic_var, **{"position": 200, "var_type": "mnv"}})
     # Variant that should be passing var_type InDel setting
     SmallVariant.objects.create(**{**basic_var, **{"position": 300, "var_type": "indel"}})
+
+
+def fixture_setup_case1_dbsnp():
+    """Setup test case 1 -- a singleton with variants for var type filter."""
+    project = Project.objects.create(**PROJECT_DICT)
+    case = project.case_set.create(
+        sodar_uuid="9b90556b-041e-47f1-bdc7-4d5a4f8357e3",
+        name="A",
+        index="A",
+        pedigree=[
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "A",
+                "affected": 1,
+                "has_gt_entries": True,
+            }
+        ],
+    )
+    coordinates = {
+        "release": "GRCh37",
+        "chromosome": "1",
+        "position": None,
+        "reference": "A",
+        "alternative": "G",
+    }
+    # Basic variant settings.
+    basic_var = {
+        "case_id": case.pk,
+        **coordinates,
+        "var_type": "snv",
+        "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+        "in_clinvar": False,
+        # frequencies
+        "exac_frequency": 0.01,
+        "exac_homozygous": 0,
+        "exac_heterozygous": 0,
+        "exac_hemizygous": 0,
+        "thousand_genomes_frequency": 0.01,
+        "thousand_genomes_homozygous": 0,
+        "thousand_genomes_heterozygous": 0,
+        "thousand_genomes_hemizygous": 0,
+        "gnomad_exomes_frequency": 0.01,
+        "gnomad_exomes_homozygous": 0,
+        "gnomad_exomes_heterozygous": 0,
+        "gnomad_exomes_hemizygous": 0,
+        "gnomad_genomes_frequency": 0.01,
+        "gnomad_genomes_homozygous": 0,
+        "gnomad_genomes_heterozygous": 0,
+        "gnomad_genomes_hemizygous": 0,
+        # RefSeq
+        "refseq_gene_id": "1234",
+        "refseq_transcript_id": "NR_00001.1",
+        "refseq_transcript_coding": False,
+        "refseq_hgvs_c": "n.111+2T>C",
+        "refseq_hgvs_p": "p.=",
+        "refseq_effect": ["synonymous_variant"],
+        # ENSEMBL
+        "ensembl_gene_id": "ENSG0001",
+        "ensembl_transcript_id": "ENST00001",
+        "ensembl_transcript_coding": False,
+        "ensembl_hgvs_c": "n.111+2T>C",
+        "ensembl_hgvs_p": "p.=",
+        "ensembl_effect": ["synonymous_variant"],
+    }
+
+    # Variant that should be passing var_type SNV setting
+    SmallVariant.objects.create(**{**basic_var, "position": 100})
+    # Variant that should be passing var_type MNV setting
+    SmallVariant.objects.create(**{**basic_var, "position": 200})
+    # Variant that should be passing var_type InDel setting
+    SmallVariant.objects.create(**{**basic_var, "position": 300})
+
+    Dbsnp.objects.create(**{**coordinates, "position": 100, "rsid": "rs001"})
+    Dbsnp.objects.create(**{**coordinates, "position": 300, "rsid": "rs003"})
 
 
 def fixture_setup_case1_frequency():
@@ -767,6 +844,7 @@ INCLUSIVE_CLEANED_DATA_CASE1 = {
     "transcripts_coding": True,
     "transcripts_noncoding": True,
     "require_in_clinvar": False,
+    "remove_if_in_dbsnp": False,
     "require_in_hgmd_public": False,
     "display_hgmd_public_membership": False,
     "clinvar_include_benign": False,
@@ -831,6 +909,38 @@ class TestCaseOneQueryDatabaseSwitch(FilterTestBase):
 
     def test_base_query_ensembl_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"database_select": "ensembl"}, 1)
+
+
+class TestCaseOneQueryNotInDbsnp(FilterTestBase):
+    """Test whether both RefSeq and ENSEMBL databases work."""
+
+    setup_case_in_db = fixture_setup_case1_dbsnp
+    base_cleaned_data = INCLUSIVE_CLEANED_DATA_CASE1
+
+    def test_base_query_not_in_dbsnp_filter(self):
+        self.run_filter_query(PrefetchFilterQuery, {"remove_if_in_dbsnp": True}, 1)
+
+    def test_base_query_not_in_dbsnp_export(self):
+        self.run_filter_query(ExportTableFileFilterQuery, {"remove_if_in_dbsnp": True}, 1)
+
+    # ExportVcfFileFilterQuery doesn't join dbsnp, so nothing is returned
+    def test_base_query_not_in_dbsnp_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {"remove_if_in_dbsnp": True}, 0)
+
+    def test_base_query_not_in_dbsnp_count(self):
+        self.run_count_query(CountOnlyFilterQuery, {"remove_if_in_dbsnp": True}, 1)
+
+    def test_base_query_filter(self):
+        self.run_filter_query(PrefetchFilterQuery, {}, 3)
+
+    def test_base_query_export(self):
+        self.run_filter_query(ExportTableFileFilterQuery, {}, 3)
+
+    def test_base_query_vcf(self):
+        self.run_filter_query(ExportVcfFileFilterQuery, {}, 3)
+
+    def test_base_query_count(self):
+        self.run_count_query(CountOnlyFilterQuery, {}, 3)
 
 
 class TestCaseOneQueryCase(FilterTestBase):
@@ -2429,6 +2539,7 @@ INCLUSIVE_CLEANED_DATA_CASE2 = {
     "transcripts_coding": True,
     "transcripts_noncoding": True,
     "require_in_clinvar": False,
+    "remove_if_in_dbsnp": False,
     "require_in_hgmd_public": False,
     "display_hgmd_public_membership": False,
     "clinvar_include_benign": False,
@@ -2696,6 +2807,7 @@ INCLUSIVE_CLEANED_DATA_CASE3 = {
     "transcripts_coding": True,
     "transcripts_noncoding": True,
     "require_in_clinvar": False,
+    "remove_if_in_dbsnp": False,
     "require_in_hgmd_public": False,
     "clinvar_include_benign": False,
     "clinvar_include_likely_benign": False,

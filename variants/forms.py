@@ -403,6 +403,10 @@ class ClinvarForm(
         label="Clinvar membership required", required=False, initial=False
     )
 
+    remove_if_in_dbsnp = forms.BooleanField(
+        label="Remove if in dbSNP", required=False, initial=False
+    )
+
     require_in_hgmd_public = forms.BooleanField(
         label="HGMD public membership required",
         required=False,
@@ -851,6 +855,13 @@ class SmallVariantClinvarHgmdFilterFormMixin:
                 "Require variant to be present in HGMD public (ENSEMBL track).  "
                 "Please note that this data is several years old!"
             ),
+        )
+
+        self.fields["remove_if_in_dbsnp"] = forms.BooleanField(
+            label="Remove if has dbSNP ID",
+            required=False,
+            initial=False,
+            help_text="Remove variant from results list if it has an associated dbSNP ID",
         )
 
         self.fields["clinvar_include_benign"] = forms.BooleanField(

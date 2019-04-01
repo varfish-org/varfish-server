@@ -402,6 +402,7 @@ const defaultPresetsIds = {
 
   // Clinvar/HGMD
   "require_in_clinvar": false,
+  "remove_if_in_dbsnp": false,
   "require_in_hgmd_public": false,
   "display_hgmd_public_membership": false,
 };
@@ -481,7 +482,8 @@ const presets = {
       "gnomad_genomes_enabled": false,
 
       "require_in_clinvar": true,
-      "require_in_hgmd_public": true,
+      "remove_if_in_dbsnp": true,
+      "require_in_hgmd_public": false,
       "display_hgmd_public_membership": true,
       "clinvar_include_pathogenic": true,
       "clinvar_include_likely_pathogenic": true,
@@ -503,6 +505,7 @@ const presets = {
       "gnomad_genomes_enabled": false,
 
       "require_in_clinvar": false,
+      "remove_if_in_dbsnp": false,
       "require_in_hgmd_public": false,
       "display_hgmd_public_membership": false,
 

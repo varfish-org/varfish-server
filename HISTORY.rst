@@ -28,6 +28,7 @@ Full Change List
 - Fixed incrementor for rank computation of phenotype and pathogenicity score ranks.
 - Better UI responses with extended logging during asynchronous calls.
 - Project overview now provides link to full cases list.
+- Added option to display only variants without dbSNP membership.
 
 -------
 v0.14.1

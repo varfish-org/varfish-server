@@ -72,6 +72,7 @@ CLINVAR_FORM_DEFAULTS = form_data = {
     "flag_visual_uncertain": True,
     # Clinvar/HGMD
     "require_in_clinvar": False,
+    "remove_if_in_dbsnp": False,
     "require_in_hgmd_public": False,
     "display_hgmd_public_membership": True,
 }
