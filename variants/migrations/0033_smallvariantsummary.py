@@ -62,7 +62,6 @@ if not settings.IS_TESTING:
                         variants.num_hemi_alt,
                         variants.case_id
                     FROM variants_smallvariant AS variants
-                    LIMIT 1000000
                 ) AS variants_per_case
                 GROUP BY (release, chromosome, position, reference, alternative)
             WITH DATA;
