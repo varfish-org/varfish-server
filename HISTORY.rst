@@ -11,12 +11,14 @@ End-User Summary
 
 - Fixed bug in displaying gene info with refseq ID.
 - Fixed bug in displaying correct number of rows in joint query.
+- User interface error response improved.
 
 Full Change List
 ================
 
 - Fixed bug in gene info with refseq ID and symbol in list is now also "rescued".
 - Fixed bug in displaying correct number of rows in joint query.
+- Improved error response when non-existing genes are entered in white/blacklist.
 
 -------
 v0.14.2

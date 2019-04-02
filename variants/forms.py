@@ -4,6 +4,8 @@ from django.conf import settings
 from django import forms
 from .models import SmallVariantComment, SmallVariantFlags
 from .templatetags.variants_tags import only_source_name
+from geneinfo.models import Hgnc
+from .models import SmallVariant
 
 import re
 
@@ -899,7 +901,10 @@ class SmallVariantGeneListFilterFormMixin:
 
         self.fields["gene_blacklist"] = forms.CharField(
             label="Gene Blacklist",
-            help_text="Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break",
+            help_text=(
+                "Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break."
+                "<strong>The input is case sensitive!</strong>"
+            ),
             widget=forms.Textarea(
                 attrs={
                     "placeholder": "Enter genes to black-list here",
@@ -913,7 +918,10 @@ class SmallVariantGeneListFilterFormMixin:
 
         self.fields["gene_whitelist"] = forms.CharField(
             label="Gene Whitelist",
-            help_text="Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break",
+            help_text=(
+                "Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break."
+                "<strong>The input is case sensitive!</strong>"
+            ),
             widget=forms.Textarea(
                 attrs={
                     "placeholder": "Enter genes to white-list here",
@@ -934,6 +942,20 @@ class SmallVariantGeneListFilterFormMixin:
         cleaned_data["gene_whitelist"] = [
             s.strip() for s in cleaned_data["gene_whitelist"].strip().split() if s.strip()
         ]
+
+        def _check_list(list_name):
+            for gene in cleaned_data[list_name]:
+                refseq = SmallVariant.objects.filter(refseq_gene_id=gene)
+                ensembl = SmallVariant.objects.filter(ensembl_gene_id=gene)
+                symbol = Hgnc.objects.filter(symbol=gene)
+                if not any((refseq, ensembl, symbol)):
+                    self._errors[list_name] = self.error_class(
+                        ["Can't find symbol, Entrez ID or ENSEMBL gene ID."]
+                    )
+
+        _check_list("gene_blacklist")
+        _check_list("gene_whitelist")
+
         return cleaned_data
 
 
