@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+End-User Summary
+================
+
+- Fixed bug in displaying gene info with refseq ID
+
+Full Change List
+================
+
+- Fixed bug in displaying gene info with refseq ID
+
 -------
 v0.14.2
 -------

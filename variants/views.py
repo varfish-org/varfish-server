@@ -1405,8 +1405,8 @@ class SmallVariantDetails(
 
     def _get_gene_infos(self, kwargs):
         if kwargs["database"] == "refseq":
-            hgnc_id = RefseqToHgnc.objects.filter(entrez_id=kwargs["gene_id"]).first()
-            gene = Hgnc.objects.filter(hgnc_id=hgnc_id).first()
+            hgnc = RefseqToHgnc.objects.filter(entrez_id=kwargs["gene_id"]).first()
+            gene = Hgnc.objects.filter(hgnc_id=hgnc.hgnc_id).first()
         else:
             gene = Hgnc.objects.filter(ensembl_gene_id=kwargs["gene_id"]).first()
         if not gene:
