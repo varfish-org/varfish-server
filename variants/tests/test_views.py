@@ -32,6 +32,7 @@ from variants.variant_stats import rebuild_case_variant_stats
 from clinvar.models import Clinvar
 from frequencies.models import Exac, GnomadGenomes, GnomadExomes, ThousandGenomes
 from conservation.models import KnowngeneAA
+from geneinfo.models import RefseqToHgnc
 
 from ._fixtures import CLINVAR_DEFAULTS, CLINVAR_FORM_DEFAULTS
 
@@ -1844,6 +1845,7 @@ def fixture_setup_small_variant_details(user):
             "review_status_ordered": ["practice guideline"],
         }
     )
+    RefseqToHgnc.objects.create(entrez_id="12345", hgnc_id="HGNC:1")
 
 
 class TestSmallVariantDetailsView(TestViewBase):
