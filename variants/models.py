@@ -528,7 +528,7 @@ class AnnotationReleaseInfo(models.Model):
     #: Release of genomebuild
     genomebuild = models.CharField(max_length=32, default="GRCh37")
     #: Name of imported table
-    table = models.CharField(max_length=16)
+    table = models.CharField(max_length=512)
     #: Timestamp of import
     timestamp = models.DateTimeField(auto_now_add=True, editable=False)
     #: Data release

@@ -396,7 +396,12 @@ SODAR_API_MEDIA_TYPE = 'application/vnd.bihealth.sodar+json'
 
 PROJECTROLES_SITE_MODE = env.str('PROJECTROLES_SITE_MODE', 'TARGET')
 PROJECTROLES_TARGET_CREATE = env.bool('PROJECTROLES_TARGET_CREATE', True)
-PROJECTROLES_ADMIN_OWNER = env.str('PROJECTROLES_ADMIN_OWNER', 'admin')
+PROJECTROLES_ADMIN_OWNER = env.str('PROJECTROLES_DEFAULT_ADMIN', 'admin')
+
+# Allow showing and synchronizing local non-admin users
+PROJECTROLES_ALLOW_LOCAL_USERS = env.bool(
+            'PROJECTROLES_ALLOW_LOCAL_USERS', False
+        )
 
 ENABLED_BACKEND_PLUGINS = ["timeline_backend"]
 ENABLED_BACKEND_PLUGINS += env.list("ENABLED_BACKEND_PLUGINS", None, [])

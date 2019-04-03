@@ -2,9 +2,9 @@
 History / Changelog
 ===================
 
-----
-HEAD
-----
+-------
+v0.14.2
+-------
 
 End-User Summary
 ================
@@ -29,6 +29,8 @@ Full Change List
 - Better UI responses with extended logging during asynchronous calls.
 - Project overview now provides link to full cases list.
 - Added option to display only variants without dbSNP membership.
+- Adapted to SODAR Core 0.5.0
+- Fixed length of allowed characters for db info table name.
 
 -------
 v0.14.1
