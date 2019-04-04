@@ -910,6 +910,14 @@ class TestCaseOneQueryDatabaseSwitch(FilterTestBase):
     def test_base_query_ensembl_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"database_select": "ensembl"}, 1)
 
+    def test_base_query_refseq_check_gene_symbol(self):
+        fetch_case_and_query = self._get_fetch_and_query(
+            PrefetchFilterQuery, {"database_select": "refseq"}, "case"
+        )
+        results = list(fetch_case_and_query())
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].symbol, "AAA")
+
 
 class TestCaseOneQueryNotInDbsnp(FilterTestBase):
     """Test whether both RefSeq and ENSEMBL databases work."""

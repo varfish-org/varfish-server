@@ -11,7 +11,7 @@ from aldjemy.core import get_tables
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
-from geneinfo.models import Hgnc
+from geneinfo.models import Hgnc, RefseqToHgnc
 from hgmd.models import HgmdPublicLocus
 from variants.models import (
     Case,
@@ -694,7 +694,9 @@ class JoinDbsnpAndHgncMixin:
             ),
         )
         if kwargs["database_select"] == "refseq":
-            return tmp.outerjoin(Hgnc.sa, SmallVariant.sa.refseq_gene_id == Hgnc.sa.entrez_id)
+            return tmp.outerjoin(
+                RefseqToHgnc.sa, SmallVariant.sa.refseq_gene_id == RefseqToHgnc.sa.entrez_id
+            ).outerjoin(Hgnc.sa, RefseqToHgnc.sa.hgnc_id == Hgnc.sa.hgnc_id)
         else:  # kwargs["database_select"] == "ensembl"
             return tmp.outerjoin(
                 Hgnc.sa, SmallVariant.sa.ensembl_gene_id == Hgnc.sa.ensembl_gene_id

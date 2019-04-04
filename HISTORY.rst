@@ -9,12 +9,12 @@ HEAD
 End-User Summary
 ================
 
-- Fixed bug in displaying gene info with refseq ID
+- Fixed bug in displaying gene info with refseq ID.
 
 Full Change List
 ================
 
-- Fixed bug in displaying gene info with refseq ID
+- Fixed bug in gene info with refseq ID and symbol in list is now also "rescued".
 
 -------
 v0.14.2

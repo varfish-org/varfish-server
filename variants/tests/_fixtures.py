@@ -6,6 +6,7 @@ import aldjemy.core
 from projectroles.models import Project
 from variants.models import SmallVariant, SmallVariantSummary
 from variants.variant_stats import rebuild_case_variant_stats
+from geneinfo.models import Hgnc, RefseqToHgnc
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
@@ -259,5 +260,7 @@ def fixture_setup_case1_simple():
         count_hemi_ref=0,
         count_hemi_alt=0,
     )
+    Hgnc.objects.create(hgnc_id="HGNC:1", symbol="AAA")
+    RefseqToHgnc.objects.create(entrez_id="1234", hgnc_id="HGNC:1")
 
     rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case)
