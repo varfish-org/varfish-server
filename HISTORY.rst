@@ -10,11 +10,13 @@ End-User Summary
 ================
 
 - Fixed bug in displaying gene info with refseq ID.
+- Fixed bug in displaying correct number of rows in joint query.
 
 Full Change List
 ================
 
 - Fixed bug in gene info with refseq ID and symbol in list is now also "rescued".
+- Fixed bug in displaying correct number of rows in joint query.
 
 -------
 v0.14.2

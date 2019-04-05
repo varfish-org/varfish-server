@@ -178,6 +178,13 @@ DEFAULT_JOINT_FILTER_FORM_SETTING = {
     "B_gq": 0,
     "B_ad": 0,
     "B_ab": 0.0,
+    "C_fail": "ignore",
+    "C_gt": "any",
+    "C_dp_het": 0,
+    "C_dp_hom": 0,
+    "C_gq": 0,
+    "C_ad": 0,
+    "C_ab": 0.0,
     "compound_recessive_enabled": False,
     "effect_coding_transcript_intron_variant": True,
     "effect_complex_substitution": True,
@@ -425,6 +432,14 @@ DEFAULT_JOINT_RESUBMIT_SETTING = {
     "B_ad": 0,
     "B_ab": 0.0,
     "B_export": True,
+    "C_fail": "ignore",
+    "C_gt": "any",
+    "C_dp_het": 0,
+    "C_dp_hom": 0,
+    "C_gq": 0,
+    "C_ad": 0,
+    "C_ab": 0.0,
+    "C_export": True,
     "compound_recessive_enabled": False,
     "effects": [
         "coding_transcript_intron_variant",
@@ -653,7 +668,15 @@ def fixture_setup_projectcases(user):
                 "patient": "B",
                 "affected": 1,
                 "has_gt_entries": True,
-            }
+            },
+            {
+                "sex": 1,
+                "father": "0",
+                "mother": "0",
+                "patient": "C",
+                "affected": 1,
+                "has_gt_entries": True,
+            },
         ],
     )
 
@@ -665,7 +688,7 @@ def fixture_setup_projectcases(user):
         "reference": "A",
         "alternative": "G",
         "var_type": "snv",
-        "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+        "genotype": None,
         "in_clinvar": False,
         # frequencies
         "exac_frequency": 0.01,
@@ -700,16 +723,65 @@ def fixture_setup_projectcases(user):
         "ensembl_effect": ["synonymous_variant"],
     }
 
-    a = SmallVariant.objects.create(**{**basic_var, "case_id": case1.pk, "position": 100})
+    a = SmallVariant.objects.create(
+        **{
+            **basic_var,
+            "case_id": case1.pk,
+            "position": 100,
+            "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+        }
+    )
     b = SmallVariant.objects.create(
-        **{**basic_var, "case_id": case1.pk, "position": 200, "in_clinvar": True}
+        **{
+            **basic_var,
+            "case_id": case1.pk,
+            "position": 200,
+            "in_clinvar": True,
+            "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+        }
     )
-    c = SmallVariant.objects.create(**{**basic_var, "case_id": case1.pk, "position": 300})
-    d = SmallVariant.objects.create(**{**basic_var, "case_id": case2.pk, "position": 100})
+    c = SmallVariant.objects.create(
+        **{
+            **basic_var,
+            "case_id": case1.pk,
+            "position": 300,
+            "genotype": {"A": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+        }
+    )
+    d = SmallVariant.objects.create(
+        **{
+            **basic_var,
+            "case_id": case2.pk,
+            "position": 100,
+            "genotype": {
+                "B": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                "C": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+            },
+        }
+    )
     e = SmallVariant.objects.create(
-        **{**basic_var, "case_id": case2.pk, "position": 200, "in_clinvar": True}
+        **{
+            **basic_var,
+            "case_id": case2.pk,
+            "position": 200,
+            "in_clinvar": True,
+            "genotype": {
+                "B": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                "C": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+            },
+        }
     )
-    f = SmallVariant.objects.create(**{**basic_var, "case_id": case2.pk, "position": 300})
+    f = SmallVariant.objects.create(
+        **{
+            **basic_var,
+            "case_id": case2.pk,
+            "position": 300,
+            "genotype": {
+                "B": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                "C": {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+            },
+        }
+    )
 
     # rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case1)
     # rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case2)
@@ -1349,7 +1421,8 @@ class TestProjectCasesLoadPrefetchedFilterView(TestViewBase):
                 },
             )
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.context["result_count"], 5)
+            self.assertEqual(response.context["result_count"], 8)
+            self.assertEqual(len(response.context["result_rows"]), 8)
 
 
 class TestProjectCasesFilterJobResubmitView(TestViewBase):

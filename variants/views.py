@@ -660,11 +660,9 @@ class ProjectCasesLoadPrefetchedFilterView(
             filter_job.projectcasessmallvariantquery.id,
         )
         results = query.run(filter_job.projectcasessmallvariantquery.query_settings)
-        num_results = results.rowcount
-        # Get first N rows. This will pop the first N rows! results list will be decreased by N.
-        _rows = results.fetchmany(
-            filter_job.projectcasessmallvariantquery.query_settings["result_rows_limit"]
-        )
+        # get all rows and then inflate them with all member per case and then cut them down. we can't know the length
+        # of the results beforehand. it looks inefficient, but a quick try showed that it isn't much slower.
+        _rows = results.fetchall()
         rows = []
         for row in _rows:
             for sample in sorted(row.genotype.keys()):
@@ -675,8 +673,10 @@ class ProjectCasesLoadPrefetchedFilterView(
             request,
             self.template_name,
             self.get_context_data(
-                result_rows=rows,
-                result_count=num_results,
+                result_rows=rows[
+                    : filter_job.projectcasessmallvariantquery.query_settings["result_rows_limit"]
+                ],
+                result_count=len(rows),
                 elapsed_seconds=elapsed.total_seconds(),
                 training_mode=filter_job.projectcasessmallvariantquery.query_settings.get(
                     "training_mode", False
