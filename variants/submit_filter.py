@@ -1,3 +1,5 @@
+import contextlib
+
 from django.conf import settings
 
 from projectroles.plugins import get_backend_api
@@ -21,7 +23,7 @@ class FilterBase:
         #: Either SmallVariantQuery or ProjectCasesSmallVariant
         self.variant_query = variant_query
         #: The SQL Alchemy connection to use.
-        self._alchemy_connection = None
+        self._alchemy_engine = None
         #: Is set in inherited classes
         self.assembled_query = self._get_assembled_query()
 
@@ -29,11 +31,11 @@ class FilterBase:
         """Override me!"""
         pass
 
-    def get_alchemy_connection(self):
+    def get_alchemy_engine(self):
         """Construct and return the alchemy connection."""
-        if not self._alchemy_connection:
-            self._alchemy_connection = SQLALCHEMY_ENGINE.connect()
-        return self._alchemy_connection
+        if not self._alchemy_engine:
+            self._alchemy_engine = SQLALCHEMY_ENGINE
+        return self._alchemy_engine
 
     def run(self, kwargs={}):
         """Run filter query"""
@@ -41,10 +43,11 @@ class FilterBase:
         query_args = {**self.variant_query.query_settings, **kwargs}
         # Run query, store results, and run prioritization query.
         self.job.add_log_entry("Running database query ...")
-        results = tuple(self.assembled_query.run(query_args))
-        self._store_results(results)
-        self._prioritize_gene_phenotype(results)
-        self._prioritize_variant_pathogenicity(results)
+        with contextlib.closing(self.assembled_query.run(query_args)) as results:
+            _results = tuple(results)
+            self._store_results(_results)
+            self._prioritize_gene_phenotype(_results)
+            self._prioritize_variant_pathogenicity(_results)
 
     def _store_results(self, results):
         """Store results in ManyToMany field."""
@@ -125,7 +128,7 @@ class CaseFilter(FilterBase):
 
     def _get_assembled_query(self):
         """Render filter query for a single case"""
-        return PrefetchFilterQuery(self.variant_query.case, self.get_alchemy_connection())
+        return PrefetchFilterQuery(self.variant_query.case, self.get_alchemy_engine())
 
 
 class ProjectCasesFilter(FilterBase):
@@ -135,7 +138,7 @@ class ProjectCasesFilter(FilterBase):
     def _get_assembled_query(self):
         """Render filter query for a project"""
         return ProjectCasesPrefetchFilterQuery(
-            self.variant_query.project, self.get_alchemy_connection()
+            self.variant_query.project, self.get_alchemy_engine()
         )
 
 
@@ -145,7 +148,7 @@ class ClinvarFilter(FilterBase):
 
     def _get_assembled_query(self):
         """Render clinvar query."""
-        return PrefetchClinvarReportQuery(self.variant_query.case, self.get_alchemy_connection())
+        return PrefetchClinvarReportQuery(self.variant_query.case, self.get_alchemy_engine())
 
 
 def case_filter(job):

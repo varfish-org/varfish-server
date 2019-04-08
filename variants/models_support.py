@@ -67,11 +67,11 @@ class SingleCaseFilterQueryBase:
     #: Table that the query is based on
     base_table = None
 
-    def __init__(self, case, connection, debug=False):
+    def __init__(self, case, engine, debug=False):
         #: The case that the query is for.
         self.case = case
-        #: The Aldjemy connection to use
-        self.connection = connection
+        #: The Aldjemy engine to use
+        self.engine = engine
         #: Whether or not to print queries before issuing them
         self.debug = debug
 
@@ -79,10 +79,10 @@ class SingleCaseFilterQueryBase:
         """Perform the query with the given ``kwargs``."""
         stmt = self._build_stmt(kwargs)
         if self.debug:  # pragma: no cover
-            sql = stmt.compile(self.connection.engine).string
+            sql = stmt.compile(self.engine).string
             print(sqlparse.format(sql, reindent=True, keyword_case="upper"))
         with disable_json_psycopg2():
-            return self.connection.execute(stmt)
+            return self.engine.execute(stmt)
 
     def _get_trio_names(self):
         """Return (index, father, mother) names from trio"""
@@ -230,9 +230,9 @@ class SingleCaseLoadPrefetchedFilterQueryBase(SingleCaseFilterQueryBase):
     """Class to load previous filter results
     """
 
-    def __init__(self, case, connection, smallvariantquery_pk, debug=False):
+    def __init__(self, case, engine, smallvariantquery_pk, debug=False):
         """Constructor"""
-        super().__init__(case, connection, debug=False)
+        super().__init__(case, engine, debug=False)
         #: Store the smallvariantquery id to access previous results in 'where' part of the statement
         self.smallvariantquery_pk = smallvariantquery_pk
         #: Get the intermediate table where Django stores the ManyToMany relation / query results
@@ -265,11 +265,11 @@ class ProjectCasesFilterQueryBase:
     #: Table that the query is based on
     base_table = None
 
-    def __init__(self, project, connection, debug=False):
+    def __init__(self, project, engine, debug=False):
         #: The project that the query is for.
         self.project = project
-        #: The Aldjemy connection to use
-        self.connection = connection
+        #: The Aldjemy engine to use
+        self.engine = engine
         #: Whether or not to print queries before issuing them
         self.debug = debug
 
@@ -277,10 +277,10 @@ class ProjectCasesFilterQueryBase:
         """Perform the query with the given ``kwargs``."""
         stmt = self._build_stmt(kwargs)
         if self.debug:  # pragma: no cover
-            sql = stmt.compile(self.connection.engine).string
+            sql = stmt.compile(self.engine).string
             print(sqlparse.format(sql, reindent=True, keyword_case="upper"))
         with disable_json_psycopg2():
-            return self.connection.execute(stmt)
+            return self.engine.execute(stmt)
 
     def _build_stmt(self, kwargs):
         stmt = (
@@ -344,9 +344,9 @@ class ProjectCasesPrefetchFilterQueryBase(ProjectCasesFilterQueryBase):
 
 
 class ProjectCasesLoadPrefetchedFilterQueryBase(ProjectCasesFilterQueryBase):
-    def __init__(self, case, connection, projectcasessmallvariantquery_pk, debug=False):
+    def __init__(self, case, engine, projectcasessmallvariantquery_pk, debug=False):
         """Constructor"""
-        super().__init__(case, connection, debug=False)
+        super().__init__(case, engine, debug=False)
         #: Store the smallvariantquery id to access previous results in 'where' part of the statement
         self.projectcasessmallvariantquery_pk = projectcasessmallvariantquery_pk
         #: Get the intermediate table where Django stores the ManyToMany relation / query results
@@ -1380,9 +1380,9 @@ class LoadPrefetchedClinvarReportQueryBase(SingleCaseFilterQueryBase):
     """Class to load previous filter results
     """
 
-    def __init__(self, case, connection, clinvarquery_pk, debug=False):
+    def __init__(self, case, engine, clinvarquery_pk, debug=False):
         """Constructor"""
-        super().__init__(case, connection, debug=False)
+        super().__init__(case, engine, debug=False)
         #: Store the smallvariantquery id to access previous results in 'where' part of the statement
         self.clinvarquery_pk = clinvarquery_pk
         #: Get the intermediate table where Django stores the ManyToMany relation / query results
@@ -1429,9 +1429,9 @@ class LoadPrefetchedClinvarReportQuery(
 class KnownGeneAAQuery:
     """Query database for the ``knownGeneAA`` information."""
 
-    def __init__(self, connection):
-        #: The Aldjemy connection to use
-        self.connection = connection
+    def __init__(self, engine):
+        #: The Aldjemy engine to use
+        self.engine = engine
 
     def run(self, kwargs):
         """Execute the query."""
@@ -1458,7 +1458,7 @@ class KnownGeneAAQuery:
             .order_by(KnowngeneAA.sa.start)
             .distinct(*distinct_fields)
         )
-        return list(self.connection.execute(query))
+        return self.engine.execute(query)
 
 
 #: Information about frequency databases used in ``FrequencyQuery``.

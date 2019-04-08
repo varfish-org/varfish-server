@@ -48,7 +48,7 @@ class FilterTestBase(TestBase):
     """
 
     def _get_fetch_and_query(self, query_class, cleaned_data_patch, query_type):
-        connection = SQLALCHEMY_ENGINE.connect()
+        engine = SQLALCHEMY_ENGINE
         patched_cleaned_data = {**self.base_cleaned_data, **cleaned_data_patch}
 
         def fetch_case_and_query():
@@ -62,9 +62,9 @@ class FilterTestBase(TestBase):
                 obj = CaseAwareProject.objects.first()
                 previous_query = patched_cleaned_data.get("projectcasessmallvariantquery_id", None)
             if previous_query:
-                query = query_class(obj, connection, previous_query)
+                query = query_class(obj, engine, previous_query)
             else:
-                query = query_class(obj, connection)
+                query = query_class(obj, engine)
             return query.run(patched_cleaned_data)
 
         return fetch_case_and_query
@@ -2972,10 +2972,10 @@ class ClinvarReportQueryTestCaseFour(TestBase):
         # Test-specific set-up
         self._setup_clinvar_entry(clinvar_patch)
         # Call function under test
-        connection = SQLALCHEMY_ENGINE.connect()
+        engine = SQLALCHEMY_ENGINE
         patched_cleaned_data = {**self.base_cleaned_data, **form_data_patch}
         case = Case.objects.get(sodar_uuid=patched_cleaned_data["case_uuid"])
-        query = PrefetchClinvarReportQuery(case, connection)
+        query = PrefetchClinvarReportQuery(case, engine)
         result = list(query.run(patched_cleaned_data))
         # Compare result.
         self.assertEquals(len(result), expected_result_count)

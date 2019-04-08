@@ -247,5 +247,5 @@ class Command(BaseCommand):
     def _rebuild_stats(self, case):
         """Import variant statistics."""
         self.stdout.write("Computing variant statistics...")
-        rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case)
+        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
         self.stdout.write(self.style.SUCCESS("Finished computing variant statistics"))

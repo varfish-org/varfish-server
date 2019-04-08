@@ -18,7 +18,7 @@ def rebuild_var_stats(apps, _schema_editor):
     """Rebuild variant statistics for all cases"""
     for case in Case.objects.all():
         logging.info("Updating Case %s (pk %s)", case.name, case.id)
-        rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case)
+        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
 
 
 def do_nothing(_apps, _schema_editor):

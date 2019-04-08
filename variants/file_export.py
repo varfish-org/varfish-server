@@ -3,6 +3,7 @@
 import datetime
 from datetime import timedelta
 from tempfile import NamedTemporaryFile
+import contextlib
 
 import aldjemy
 from django.utils import timezone
@@ -220,7 +221,7 @@ class CaseExporterBase:
         else:
             self.project = case_or_project
         #: The SQL Alchemy connection to use.
-        self._alchemy_connection = None
+        self._alchemy_engine = None
         #: The query arguments.
         self.query_args = job.query_args
         #: The named temporary file object to use for file handling.
@@ -228,18 +229,18 @@ class CaseExporterBase:
         #: The wrapper for running queries.
         self.query = None
         if self.project:
-            self.query = self.query_class_project_cases(self.project, self.get_alchemy_connection())
+            self.query = self.query_class_project_cases(self.project, self.get_alchemy_engine())
         else:
-            self.query = self.query_class_single_case(self.case, self.get_alchemy_connection())
+            self.query = self.query_class_single_case(self.case, self.get_alchemy_engine())
         #: The name of the selected members.
         self.members = list(self._yield_members())
         #: The column information.
         self.columns = list(self._yield_columns(self.members))
 
-    def get_alchemy_connection(self):
-        if not self._alchemy_connection:
-            self._alchemy_connection = SQLALCHEMY_ENGINE.connect()
-        return self._alchemy_connection
+    def get_alchemy_engine(self):
+        if not self._alchemy_engine:
+            self._alchemy_engine = SQLALCHEMY_ENGINE
+        return self._alchemy_engine
 
     def _is_prioritization_enabled(self):
         """Return whether prioritization is enabled in this query."""
@@ -298,36 +299,37 @@ class CaseExporterBase:
         """Use this for yielding the resulting small variants one-by-one."""
         prev_chrom = None
         self.job.add_log_entry("Executing database query...")
-        result = list(self.query.run(self.query_args))
-        self.job.add_log_entry("Executing phenotype score query...")
-        if self._is_prioritization_enabled():
-            gene_scores = self._fetch_gene_scores([entry.entrez_id for entry in result])
-            result = annotate_with_phenotype_scores(result, gene_scores)
-        if self._is_pathogenicity_enabled():
-            variant_scores = self._fetch_variant_scores(
-                [
-                    (
-                        entry["chromosome"],
-                        entry["position"],
-                        entry["reference"],
-                        entry["alternative"],
-                    )
-                    for entry in result
-                ]
-            )
-            result = annotate_with_pathogenicity_scores(result, variant_scores)
-        if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
-            result = annotate_with_joint_scores(result, gene_scores, variant_scores)
-        self.job.add_log_entry("Writing output file...")
-        for small_var in result:
-            if small_var.chromosome != prev_chrom:
-                self.job.add_log_entry("Now on chromosome chr{}".format(small_var.chromosome))
-                prev_chrom = small_var.chromosome
-            if self.project:
-                for sample in sorted(small_var.genotype.keys()):
-                    yield RowWithSampleProxy(small_var, sample)
-            else:
-                yield small_var
+        with contextlib.closing(self.query.run(self.query_args)) as result:
+            self.job.add_log_entry("Executing phenotype score query...")
+            _result = list(result)
+            if self._is_prioritization_enabled():
+                gene_scores = self._fetch_gene_scores([entry.entrez_id for entry in _result])
+                _result = annotate_with_phenotype_scores(_result, gene_scores)
+            if self._is_pathogenicity_enabled():
+                variant_scores = self._fetch_variant_scores(
+                    [
+                        (
+                            entry["chromosome"],
+                            entry["position"],
+                            entry["reference"],
+                            entry["alternative"],
+                        )
+                        for entry in _result
+                    ]
+                )
+                _result = annotate_with_pathogenicity_scores(_result, variant_scores)
+            if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
+                _result = annotate_with_joint_scores(_result, gene_scores, variant_scores)
+            self.job.add_log_entry("Writing output file...")
+            for small_var in _result:
+                if small_var.chromosome != prev_chrom:
+                    self.job.add_log_entry("Now on chromosome chr{}".format(small_var.chromosome))
+                    prev_chrom = small_var.chromosome
+                if self.project:
+                    for sample in sorted(small_var.genotype.keys()):
+                        yield RowWithSampleProxy(small_var, sample)
+                else:
+                    yield small_var
 
     def _fetch_gene_scores(self, entrez_ids):
         if self._is_prioritization_enabled():

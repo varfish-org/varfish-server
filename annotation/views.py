@@ -1,3 +1,5 @@
+import contextlib
+
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
 from projectroles.views import ProjectContextMixin
@@ -9,11 +11,11 @@ from clinvar.models import Clinvar
 from geneinfo.views import GeneCardMixin
 from django.views.generic import TemplateView
 from variants.models_support import KnownGeneAAQuery
-from variants.views import AlchemyConnectionMixin
+from variants.views import AlchemyEngineMixin
 
 
 class VariantView(
-    ProjectContextMixin, FrequencyMixin, GeneCardMixin, AlchemyConnectionMixin, TemplateView
+    ProjectContextMixin, FrequencyMixin, GeneCardMixin, AlchemyEngineMixin, TemplateView
 ):
     """View for the annotation information of a variant"""
 
@@ -42,15 +44,18 @@ class VariantView(
         gene_id = annotation[0]["gene_id"]
 
         # get conservation info
-        kwargs_copy["knowngeneaa"] = [
-            {
-                "chromosome": entry.chromosome,
-                "start": entry.start,
-                "end": entry.end,
-                "alignment": entry.alignment,
-            }
-            for entry in KnownGeneAAQuery(self.get_alchemy_connection()).run(kwargs_copy)
-        ]
+        with contextlib.closing(
+            KnownGeneAAQuery(self.get_alchemy_engine()).run(kwargs_copy)
+        ) as results:
+            kwargs_copy["knowngeneaa"] = [
+                {
+                    "chromosome": entry.chromosome,
+                    "start": entry.start,
+                    "end": entry.end,
+                    "alignment": entry.alignment,
+                }
+                for entry in results
+            ]
 
         # get dbsnp info
         try:

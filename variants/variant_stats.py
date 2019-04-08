@@ -129,12 +129,12 @@ def gather_variant_stats(case):
     )
 
 
-def rebuild_case_variant_stats(connection, case):
+def rebuild_case_variant_stats(engine, case):
     """Rebuild the ``CaseVariantStats`` for the given ``case`` using the SQL Alchemy ``connection``."""
     # Compute statistics.
     with transaction.atomic():
-        het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness(connection, SmallVariant, case)
-        chrx_het_hom = compute_het_hom_chrx(connection, SmallVariant, case)
+        het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness(engine, SmallVariant, case)
+        chrx_het_hom = compute_het_hom_chrx(engine, SmallVariant, case)
         (
             transitions,
             transversions,
@@ -189,7 +189,7 @@ def rebuild_case_variant_stats(connection, case):
         return stats
 
 
-def rebuild_project_variant_stats(connection, project, user, log_func=None):
+def rebuild_project_variant_stats(engine, project, user, log_func=None):
     timeline = get_backend_api("timeline_backend")
     if timeline:
         tl_event = timeline.add_event(
@@ -202,9 +202,7 @@ def rebuild_project_variant_stats(connection, project, user, log_func=None):
         )
     cases = project.case_set.all()
     with transaction.atomic():
-        het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness_many(
-            connection, SmallVariant, cases
-        )
+        het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness_many(engine, SmallVariant, cases)
     if log_func:
         log_func("Done computing relatedness, now saving to DB")
     try:
@@ -243,12 +241,12 @@ def rebuild_project_variant_stats(connection, project, user, log_func=None):
         raise
 
 
-def execute_rebuild_project_variant_stats_job(connection, stats_job):
+def execute_rebuild_project_variant_stats_job(engine, stats_job):
     """Rebuild the ``ProjectVariantStats`` for the given ``project"""
     stats_job.mark_start()
     try:
         stats = rebuild_project_variant_stats(
-            connection, stats_job.project, stats_job.bg_job.user, stats_job.add_log_entry
+            engine, stats_job.project, stats_job.bg_job.user, stats_job.add_log_entry
         )
         stats_job.mark_success()
         return stats

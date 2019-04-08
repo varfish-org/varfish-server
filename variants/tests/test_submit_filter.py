@@ -104,7 +104,7 @@ def fixture_setup_case(user):
     b = SmallVariant.objects.create(**{**basic_var, **{"position": 200, "in_clinvar": True}})
     c = SmallVariant.objects.create(**{**basic_var, **{"position": 300}})
 
-    rebuild_case_variant_stats(SQLALCHEMY_ENGINE.connect(), case)
+    rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
 
     Clinvar.objects.create(
         **{

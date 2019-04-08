@@ -1,6 +1,7 @@
 from itertools import groupby, chain
 import json
 import uuid
+import contextlib
 
 import decimal
 import aldjemy.core
@@ -100,17 +101,17 @@ class UUIDEncoder(json.JSONEncoder):
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 
-class AlchemyConnectionMixin:
+class AlchemyEngineMixin:
     """Cached alchemy connection for CBVs."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._alchemy_connection = None
+        self._alchemy_engine = None
 
-    def get_alchemy_connection(self):
-        if not self._alchemy_connection:
-            self._alchemy_connection = SQLALCHEMY_ENGINE.connect()
-        return self._alchemy_connection
+    def get_alchemy_engine(self):
+        if not self._alchemy_engine:
+            self._alchemy_engine = SQLALCHEMY_ENGINE
+        return self._alchemy_engine
 
 
 class CaseListView(
@@ -187,7 +188,7 @@ class CaseDetailView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,  # XXX
+    AlchemyEngineMixin,  # XXX
     DetailView,
 ):
     """Display a case in detail."""
@@ -251,7 +252,7 @@ class CaseFilterView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     FormView,
 ):
     """Display the filter form for a case."""
@@ -265,7 +266,7 @@ class CaseFilterView(
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._case_object = None
-        self._alchemy_connection = None
+        self._alchemy_engine = None
 
     def get_case_object(self):
         if not self._case_object:
@@ -398,7 +399,7 @@ class CasePrefetchFilterView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for starting a background filter job.
@@ -456,7 +457,7 @@ class FilterJobGetStatus(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for getting a filter job status.
@@ -501,7 +502,7 @@ class FilterJobGetPrevious(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for getting the ID of the previous filter job.
@@ -531,7 +532,7 @@ class CaseLoadPrefetchedFilterView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for displaying filter results.
@@ -560,16 +561,14 @@ class CaseLoadPrefetchedFilterView(
         before = timezone.now()
         # Get and run query
         query = LoadPrefetchedFilterQuery(
-            filter_job.smallvariantquery.case,
-            SQLALCHEMY_ENGINE.connect(),
-            filter_job.smallvariantquery.id,
+            filter_job.smallvariantquery.case, SQLALCHEMY_ENGINE, filter_job.smallvariantquery.id
         )
-        results = query.run(filter_job.smallvariantquery.query_settings)
-        num_results = results.rowcount
-        # Get first N rows. This will pop the first N rows! results list will be decreased by N.
-        rows = list(
-            results.fetchmany(filter_job.smallvariantquery.query_settings["result_rows_limit"])
-        )
+        with contextlib.closing(query.run(filter_job.smallvariantquery.query_settings)) as results:
+            num_results = results.rowcount
+            # Get first N rows. This will pop the first N rows! results list will be decreased by N.
+            rows = list(
+                results.fetchmany(filter_job.smallvariantquery.query_settings["result_rows_limit"])
+            )
         elapsed = timezone.now() - before
 
         # Annotate with phenotype score if any.
@@ -632,7 +631,7 @@ class ProjectCasesLoadPrefetchedFilterView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for displaying project cases filter results.
@@ -656,18 +655,21 @@ class ProjectCasesLoadPrefetchedFilterView(
         # Get and run query
         query = ProjectCasesLoadPrefetchedFilterQuery(
             filter_job.projectcasessmallvariantquery.project,
-            SQLALCHEMY_ENGINE.connect(),
+            SQLALCHEMY_ENGINE,
             filter_job.projectcasessmallvariantquery.id,
         )
-        results = query.run(filter_job.projectcasessmallvariantquery.query_settings)
+
         # get all rows and then inflate them with all member per case and then cut them down. we can't know the length
         # of the results beforehand. it looks inefficient, but a quick try showed that it isn't much slower.
-        _rows = results.fetchall()
-        rows = []
-        for row in _rows:
-            for sample in sorted(row.genotype.keys()):
-                rows.append(RowWithSampleProxy(row, sample))
-        elapsed = timezone.now() - before
+        with contextlib.closing(
+            query.run(filter_job.projectcasessmallvariantquery.query_settings)
+        ) as results:
+            _rows = results.fetchall()
+            rows = []
+            for row in _rows:
+                for sample in sorted(row.genotype.keys()):
+                    rows.append(RowWithSampleProxy(row, sample))
+            elapsed = timezone.now() - before
 
         return render(
             request,
@@ -697,7 +699,7 @@ class ProjectCasesFilterView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     FormView,
 ):
     """Filter all cases in a project at once.
@@ -717,7 +719,7 @@ class ProjectCasesFilterView(
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._alchemy_connection = None
+        self._alchemy_engine = None
 
     def get_form_kwargs(self):
         result = super().get_form_kwargs()
@@ -804,7 +806,7 @@ class ProjectCasesPrefetchFilterView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for starting a background joint filter job.
@@ -861,7 +863,7 @@ class ProjectCasesFilterJobGetStatus(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for getting a joint filter job status.
@@ -906,7 +908,7 @@ class ProjectCasesFilterJobGetPrevious(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for getting the ID of the previous joint filter job.
@@ -950,7 +952,7 @@ class CaseClinvarReportView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     FormView,
 ):
     """Display clinvar report form for a case."""
@@ -963,7 +965,7 @@ class CaseClinvarReportView(
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._case_object = None
-        self._alchemy_connection = None
+        self._alchemy_engine = None
 
     def get_case_object(self):
         if not self._case_object:
@@ -1029,7 +1031,7 @@ class CasePrefetchClinvarReportView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for starting a background clinvar report job.
@@ -1086,7 +1088,7 @@ class CaseClinvarReportJobGetStatus(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for getting a clinvar report job status.
@@ -1131,7 +1133,7 @@ class CaseClinvarReportJobGetPrevious(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for getting the ID of the previous clinvar report job.
@@ -1161,7 +1163,7 @@ class CaseLoadPrefetchedClinvarReportView(
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     View,
 ):
     """View for displaying clinvar report results.
@@ -1184,18 +1186,18 @@ class CaseLoadPrefetchedClinvarReportView(
         before = timezone.now()
         # Get and run query
         query = LoadPrefetchedClinvarReportQuery(
-            clinvar_job.clinvarquery.case, SQLALCHEMY_ENGINE.connect(), clinvar_job.clinvarquery.id
+            clinvar_job.clinvarquery.case, SQLALCHEMY_ENGINE, clinvar_job.clinvarquery.id
         )
-        results = query.run(clinvar_job.clinvarquery.query_settings)
-        num_results = results.rowcount
-        # Get first N rows. This will pop the first N rows! results list will be decreased by N.
-        rows = results.fetchmany(clinvar_job.clinvarquery.query_settings["result_rows_limit"])
-        grouped_rows = {
-            (r["max_significance_lvl"], r["max_clinvar_status_lvl"], key): r
-            for key, r in self._yield_grouped_rows(rows)
-        }
-        sorted_grouped_rows = [v for k, v in sorted(grouped_rows.items())]
-        elapsed = timezone.now() - before
+        with contextlib.closing(query.run(clinvar_job.clinvarquery.query_settings)) as results:
+            num_results = results.rowcount
+            # Get first N rows. This will pop the first N rows! results list will be decreased by N.
+            rows = results.fetchmany(clinvar_job.clinvarquery.query_settings["result_rows_limit"])
+            grouped_rows = {
+                (r["max_significance_lvl"], r["max_clinvar_status_lvl"], key): r
+                for key, r in self._yield_grouped_rows(rows)
+            }
+            sorted_grouped_rows = [v for k, v in sorted(grouped_rows.items())]
+            elapsed = timezone.now() - before
 
         return render(
             request,
@@ -1314,7 +1316,7 @@ class SmallVariantDetails(
     ProjectPermissionMixin,
     ProjectContextMixin,
     FrequencyMixin,
-    AlchemyConnectionMixin,
+    AlchemyEngineMixin,
     DetailView,
 ):
     """Render details card of small variants."""
@@ -1327,17 +1329,18 @@ class SmallVariantDetails(
 
     def _load_knowngene_aa(self, query_kwargs):
         """Load the UCSC knownGeneAA conservation alignment information."""
-        query = KnownGeneAAQuery(self.get_alchemy_connection())
+        query = KnownGeneAAQuery(self.get_alchemy_engine())
         result = []
-        for entry in query.run(query_kwargs):
-            result.append(
-                {
-                    "chromosome": entry.chromosome,
-                    "start": entry.start,
-                    "end": entry.end,
-                    "alignment": entry.alignment,
-                }
-            )
+        with contextlib.closing(query.run(query_kwargs)) as _result:
+            for entry in _result:
+                result.append(
+                    {
+                        "chromosome": entry.chromosome,
+                        "start": entry.start,
+                        "end": entry.end,
+                        "alignment": entry.alignment,
+                    }
+                )
         return result
 
     def _load_clinvar(self, query_kwargs):
