@@ -16,6 +16,7 @@ from geneinfo.models import (
     NcbiGeneRif,
     HpoName,
     RefseqToHgnc,
+    Acmg,
 )
 from hgmd.models import HgmdPublicLocus
 from ...models import ImportInfo
@@ -39,6 +40,7 @@ TABLES = {
     "ncbi_gene": (NcbiGeneInfo, NcbiGeneRif),
     "mim2gene": (Mim2geneMedgen,),
     "thousand_genomes": (ThousandGenomes,),
+    "acmg": (Acmg,),
 }
 SERVICE_NAME_CHOICES = ["CADD", "Exomiser"]
 SERVICE_GENOMEBUILD_CHOICES = ["GRCh37", "GRCh38"]

@@ -11,7 +11,7 @@ from aldjemy.core import get_tables
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
-from geneinfo.models import Hgnc, RefseqToHgnc
+from geneinfo.models import Hgnc, RefseqToHgnc, Acmg
 from hgmd.models import HgmdPublicLocus
 from variants.models import (
     Case,
@@ -163,7 +163,7 @@ class SingleCaseFilterQueryBase:
     def _build_simple_stmt(self, kwargs):
         """Build the simple, non-comp.-het. statement"""
         stmt = (
-            select(self._get_fields(kwargs, "single"))
+            select(self._get_fields(kwargs, "inner"))
             .select_from(self._from(kwargs))
             .where(self._core_where(kwargs))
         )
@@ -284,7 +284,7 @@ class ProjectCasesFilterQueryBase:
 
     def _build_stmt(self, kwargs):
         stmt = (
-            select(self._get_fields(kwargs, "single"))
+            select(self._get_fields(kwargs, "inner"))
             .select_from(self._from(kwargs))
             .where(self._core_where(kwargs))
         )
@@ -694,13 +694,17 @@ class JoinDbsnpAndHgncMixin:
             ),
         )
         if kwargs["database_select"] == "refseq":
-            return tmp.outerjoin(
-                RefseqToHgnc.sa, SmallVariant.sa.refseq_gene_id == RefseqToHgnc.sa.entrez_id
-            ).outerjoin(Hgnc.sa, RefseqToHgnc.sa.hgnc_id == Hgnc.sa.hgnc_id)
+            return (
+                tmp.outerjoin(
+                    RefseqToHgnc.sa, SmallVariant.sa.refseq_gene_id == RefseqToHgnc.sa.entrez_id
+                )
+                .outerjoin(Hgnc.sa, RefseqToHgnc.sa.hgnc_id == Hgnc.sa.hgnc_id)
+                .outerjoin(Acmg.sa, SmallVariant.sa.refseq_gene_id == Acmg.sa.entrez_id)
+            )
         else:  # kwargs["database_select"] == "ensembl"
             return tmp.outerjoin(
                 Hgnc.sa, SmallVariant.sa.ensembl_gene_id == Hgnc.sa.ensembl_gene_id
-            )
+            ).outerjoin(Acmg.sa, SmallVariant.sa.ensembl_gene_id == Acmg.sa.ensembl_gene_id)
 
 
 class FilterQueryRenderFieldsMixin(JoinDbsnpAndHgncMixin):
@@ -743,6 +747,7 @@ class FilterQueryRenderFieldsMixin(JoinDbsnpAndHgncMixin):
                 Hgnc.sa.symbol,
                 Hgnc.sa.name.label("gene_name"),
                 Hgnc.sa.gene_family.label("gene_family"),
+                Acmg.sa.symbol.label("acmg_symbol"),
                 Dbsnp.sa.rsid,
                 Case.sa.sodar_uuid.label("case_uuid"),
             ]
@@ -1275,6 +1280,7 @@ class ClinvarReportFromAndWhereMixin(GenotypeTermWhereMixin):
     def _from(self, kwargs):
         tmp = (
             self.get_base_table()
+            .join(Case.sa.table, Case.sa.id == SmallVariant.sa.case_id)
             .outerjoin(
                 Clinvar.sa,
                 and_(
@@ -1297,11 +1303,17 @@ class ClinvarReportFromAndWhereMixin(GenotypeTermWhereMixin):
             )
         )
         if kwargs["database_select"] == "refseq":
-            return tmp.outerjoin(Hgnc.sa, SmallVariant.sa.refseq_gene_id == Hgnc.sa.entrez_id)
+            return (
+                tmp.outerjoin(
+                    RefseqToHgnc.sa, SmallVariant.sa.refseq_gene_id == RefseqToHgnc.sa.entrez_id
+                )
+                .outerjoin(Hgnc.sa, RefseqToHgnc.sa.hgnc_id == Hgnc.sa.hgnc_id)
+                .outerjoin(Acmg.sa, SmallVariant.sa.refseq_gene_id == Acmg.sa.entrez_id)
+            )
         else:  # kwargs["database_select"] == "ensembl"
             return tmp.outerjoin(
                 Hgnc.sa, SmallVariant.sa.ensembl_gene_id == Hgnc.sa.ensembl_gene_id
-            )
+            ).outerjoin(Acmg.sa, SmallVariant.sa.ensembl_gene_id == Acmg.sa.ensembl_gene_id)
 
     def _core_where(self, kwargs, gt_patterns=None):
         return and_(

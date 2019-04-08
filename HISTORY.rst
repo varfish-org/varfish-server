@@ -12,7 +12,8 @@ End-User Summary
 - Fixed bug in displaying gene info with refseq ID.
 - Fixed bug in displaying correct number of rows in joint query.
 - User interface error response improved.
-- Fixed "too many connections" error
+- Fixed "too many connections" error.
+- Added ACMG annotation.
 
 Full Change List
 ================
@@ -21,6 +22,8 @@ Full Change List
 - Fixed bug in displaying correct number of rows in joint query.
 - Improved error response when non-existing genes are entered in white/blacklist.
 - Using direct database calls instead of connections to prevent connection leaking.
+- New table Acmg added that is joined in main query.
+  A small icon in results indicates existence in ACMG.
 
 -------
 v0.14.2

@@ -118,6 +118,11 @@
         </div>
       </div>
     {% endif %}
+    {% if entry.acmg_symbol %}
+      <i class="pl-2 fa fa-user-md text-danger" data-toggle="tooltip" data-placement="top" title="Gene in ACMG"></i>
+    {% else %}
+      <i class="pl-2 fa fa-user-md text-muted" style="opacity: 0.2"></i>
+    {% endif %}
   </td>
   {% if has_phenotype_scores %}
     <td class="text-nowrap">

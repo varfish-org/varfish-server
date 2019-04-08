@@ -7,7 +7,7 @@ Remarks:
 """
 
 from clinvar.models import Clinvar
-from geneinfo.models import Hgnc
+from geneinfo.models import Hgnc, Acmg
 from projectroles.models import Project
 from variants.models import (
     SmallVariant,
@@ -803,6 +803,8 @@ def fixture_setup_case1_load():
     )
     projectcasessmallvariantquery.query_results.add(a, b)
 
+    Acmg.objects.create(entrez_id="123", ensembl_gene_id="ENSGAAA", symbol="AAA")
+
 
 #: A value for filtration form ``cleaned_data`` to be used for "Case 1" that lets
 #: all variants through.
@@ -866,18 +868,22 @@ class TestCaseOneLoadResults(FilterTestBase):
 
     def test_load_case_results(self):
         smallvariantquery = SmallVariantQuery.objects.first()
-        self.run_filter_query(
+        results = self.run_filter_query(
             LoadPrefetchedFilterQuery, {"smallvariantquery_id": smallvariantquery.id}, 2
         )
+        self.assertEqual(results[0].acmg_symbol, "AAA")
+        self.assertIsNone(results[1].acmg_symbol)
 
     def test_load_project_cases_results(self):
         projectcasessmallvariantquery = ProjectCasesSmallVariantQuery.objects.first()
-        self.run_filter_query(
+        results = self.run_filter_query(
             ProjectCasesLoadPrefetchedFilterQuery,
             {"projectcasessmallvariantquery_id": projectcasessmallvariantquery.id},
             2,
             query_type="project",
         )
+        self.assertEqual(results[0].acmg_symbol, "AAA")
+        self.assertIsNone(results[1].acmg_symbol)
 
 
 class TestCaseOneQueryDatabaseSwitch(FilterTestBase):

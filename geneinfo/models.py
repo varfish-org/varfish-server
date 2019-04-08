@@ -229,3 +229,17 @@ class RefseqToHgnc(models.Model):
 
     #: Allow bulk import into database.
     objects = CopyManager()
+
+
+class Acmg(models.Model):
+    """Acmg recommendation table."""
+
+    #: Refseq/Entrez/NCBI ID
+    entrez_id = models.CharField(max_length=16, null=False)
+    # " EnsEMBL gene ID
+    ensembl_gene_id = models.CharField(max_length=32, null=False)
+    #: HGNC symbol
+    symbol = models.CharField(max_length=32, null=False)
+
+    #: Allow bulk import info database.
+    objects = CopyManager()
