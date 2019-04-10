@@ -922,7 +922,10 @@ class ProjectCasesFilterJobGetPrevious(
 
     def get(self, request, *args, **kwargs):
         filter_job = (
-            ProjectCasesFilterBgJob.objects.filter(projectcasessmallvariantquery__user=request.user)
+            ProjectCasesFilterBgJob.objects.filter(
+                projectcasessmallvariantquery__user=request.user,
+                project__sodar_uuid=kwargs["project"],
+            )
             .order_by("-bg_job__date_created")
             .first()
         )
