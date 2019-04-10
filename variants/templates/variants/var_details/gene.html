@@ -62,9 +62,34 @@
       <tr>
         <th>HPO Terms</th>
         <td>
-          {% if gene.hpo_terms %}
-            {% for hpo_id, hpo_name in gene.hpo_terms %}
-              <span class="badge badge-secondary">{{ hpo_id }}</span> {{ hpo_name }}{% if not forloop.last %},{% endif %}
+          <div class="row">
+            <div class="col-10 pl-0">
+            {% if gene.hpo_terms %}
+              {% for hpo_id, hpo_name in gene.hpo_terms %}
+                <a href="https://hpo.jax.org/app/browse/term/{{ hpo_id }}" target="_blank"><span class="badge-group">
+                  <span class="badge badge-dark">{{ hpo_id }}</span><span class="badge badge-secondary">{{ hpo_name }}</span>
+                </span></a>
+              {% endfor %}
+            {% else %}
+              -
+            {% endif %}
+            </div>
+            <div class="col-2 text-right pr-0">
+            {% if gene.hpo_inheritance %}
+              {% for hpo_id, mode in gene.hpo_inheritance %}
+                <span class="badge badge-info" data-toggle="tooltip" title="{{ hpo_id }}">{{ mode }}</span>
+              {% endfor %}
+            {% endif %}
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th>OMIM</th>
+        <td>
+          {% if gene.omim %}
+            {% for omim in gene.omim %}
+              <a href="https://www.omim.org/entry/{{ omim }}" target="_blank"><span class="badge badge-dark">{{ omim }}</span></a>
             {% endfor %}
           {% else %}
             -

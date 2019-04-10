@@ -32,7 +32,7 @@ from variants.variant_stats import rebuild_case_variant_stats
 from clinvar.models import Clinvar
 from frequencies.models import Exac, GnomadGenomes, GnomadExomes, ThousandGenomes
 from conservation.models import KnowngeneAA
-from geneinfo.models import RefseqToHgnc
+from geneinfo.models import RefseqToHgnc, Hpo, HpoName, Mim2geneMedgen, Hgnc
 
 from ._fixtures import CLINVAR_DEFAULTS, CLINVAR_FORM_DEFAULTS
 
@@ -1916,6 +1916,12 @@ def fixture_setup_small_variant_details(user):
         }
     )
     RefseqToHgnc.objects.create(entrez_id="12345", hgnc_id="HGNC:1")
+    Hpo.objects.create(database_id="OMIM:55555", hpo_id="HP:0000001")
+    Hpo.objects.create(database_id="OMIM:55555", hpo_id="HP:0000007")
+    HpoName.objects.create(hpo_id="HP:0000001", name="All")
+    HpoName.objects.create(hpo_id="HP:0000007", name="Autosomal recessive")
+    Mim2geneMedgen.objects.create(omim_id=55555, omim_type="phenotype")
+    Hgnc.objects.create(hgnc_id="HGNC:1", ensembl_gene_id="ENSG1", symbol="AAA")
 
 
 class TestSmallVariantDetailsView(TestViewBase):
@@ -1950,7 +1956,7 @@ class TestSmallVariantDetailsView(TestViewBase):
             )
             self.assertEqual(response.status_code, 200)
 
-    def test_content(self):
+    def test_content_refseq(self):
         with self.login(self.user):
             case = Case.objects.first()
             response = self.client.get(
@@ -1977,6 +1983,46 @@ class TestSmallVariantDetailsView(TestViewBase):
             self.assertEqual(response.context["pop_freqs"]["1000GP"]["AMR"]["af"], 0.0054)
             self.assertEqual(response.context["clinvar"][0]["clinical_significance"], "pathogenic")
             self.assertEqual(response.context["knowngeneaa"][0]["alignment"], "XXX")
+            self.assertEqual(response.context["gene"]["hpo_terms"][0][0], "HP:0000001")
+            self.assertEqual(response.context["gene"]["hpo_terms"][0][1], "All")
+            self.assertEqual(response.context["gene"]["hpo_inheritance"][0][0], "HP:0000007")
+            self.assertEqual(response.context["gene"]["hpo_inheritance"][0][1], "AR")
+            self.assertEqual(response.context["gene"]["omim"][0], 55555)
+            self.assertEqual(response.context["gene"]["symbol"], "AAA")
+
+    def test_content_ensembl(self):
+        with self.login(self.user):
+            case = Case.objects.first()
+            response = self.client.get(
+                reverse(
+                    "variants:small-variant-details",
+                    kwargs={
+                        "project": case.project.sodar_uuid,
+                        "case": case.sodar_uuid,
+                        "release": "GRCh37",
+                        "chromosome": "1",
+                        "position": 100,
+                        "reference": "A",
+                        "alternative": "G",
+                        "database": "ensembl",
+                        "gene_id": "ENSG1",
+                    },
+                )
+            )
+            self.assertEqual(response.context["pop_freqs"]["gnomAD Exomes"]["AFR"]["af"], 0.0001146)
+            self.assertEqual(
+                response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["af"], 0.0001146
+            )
+            self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["af"], 0.0001146)
+            self.assertEqual(response.context["pop_freqs"]["1000GP"]["AMR"]["af"], 0.0054)
+            self.assertEqual(response.context["clinvar"][0]["clinical_significance"], "pathogenic")
+            self.assertEqual(response.context["knowngeneaa"][0]["alignment"], "XXX")
+            self.assertEqual(response.context["gene"]["hpo_terms"][0][0], "HP:0000001")
+            self.assertEqual(response.context["gene"]["hpo_terms"][0][1], "All")
+            self.assertEqual(response.context["gene"]["hpo_inheritance"][0][0], "HP:0000007")
+            self.assertEqual(response.context["gene"]["hpo_inheritance"][0][1], "AR")
+            self.assertEqual(response.context["gene"]["omim"][0], 55555)
+            self.assertEqual(response.context["gene"]["symbol"], "AAA")
 
 
 def fixture_setup_bgjob(user):

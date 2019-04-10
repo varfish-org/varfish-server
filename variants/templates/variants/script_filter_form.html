@@ -224,18 +224,23 @@ function default0(value) {
 // we can't employ .click here because the html that it will work on is loaded afterwards.
 $(document).on('click', '.toggle-variant-details', function() {
   if ($("i", this).hasClass('fa-chevron-right')) {
-    $($(this).data("target") + " .variant-details").load(
-      $(this).data("url"),
-      function(responseText, textStatus, request) {
-        if (textStatus == "error") {
-          console.log("Error during AJAX call: ", request, textStatus, responseText);
+    let target = $($(this).data("target") + " .variant-details");
+    $.ajax(
+      $(this).data('url'),
+      {
+        success: function (response) {
+          target.html(response);
+          $('[data-toggle="tooltip"]').tooltip();
+          $('[data-toggle="popover"]').popover();
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+          console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
         }
       }
     );
   }
   $("i", this).toggleClass('fa-chevron-right');
   $("i", this).toggleClass('fa-chevron-down');
-
 });
 
 $("#settingsDownload").click(

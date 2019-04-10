@@ -11,12 +11,16 @@ End-User Summary
 
 - Fixed bug in comp het filter.
 - Fixed bug in displaying correct previous joint filter query.
+- Fixed bug in displaying not all HPO terms.
+- Added OMIM terms to variant detail view.
 
 Full Change List
 ================
 
 - Fixed bug in comp. het. filter that was caused by downstream inhouse filter.
 - Fixed bug that selected previous joint filter query of the user, independet of the project.
+- Fixed bug in displaying not all HPO terms.
+- Added OMIM terms to variant detail view.
 
 -------
 v0.14.3

@@ -100,6 +100,16 @@ class UUIDEncoder(json.JSONEncoder):
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
+# Modes of inheritance in HPO: https://hpo.jax.org/app/browse/term/HP:0000005
+HPO_INHERITANCE_MAPPING = {
+    "HP:0000006": "AD",
+    "HP:0000007": "AR",
+    "HP:0010985": "Gonosomal",
+    "HP:0001417": "X-linked",
+    "HP:0001419": "XR",
+    "HP:0001423": "XD",
+}
+
 
 class AlchemyEngineMixin:
     """Cached alchemy connection for CBVs."""
@@ -1421,20 +1431,31 @@ class SmallVariantDetails(
             return {"gene_id": kwargs["gene_id"]}
         else:
             gene = model_to_dict(gene)
-            hpoterms = {self._get_hpo_mapping(gene["omim_id"])}
+            gene["omim"] = []
+            gene["hpo_terms"] = []
+            gene["hpo_inheritance"] = []
             mim2gene = Mim2geneMedgen.objects.filter(entrez_id=gene["entrez_id"])
-            if mim2gene:
-                for entry in mim2gene:
-                    hpoterms.add(self._get_hpo_mapping(entry.omim_id))
-            gene["hpo_terms"] = [h for h in hpoterms if h is not None]
+            gene["omim"] = [mim.omim_id for mim in mim2gene if mim.omim_type == "phenotype"]
+            hpoterms = set()
+            for mim in mim2gene:
+                for entry in self._get_hpo_mapping(mim.omim_id):
+                    if entry is not None:
+                        hpoterms.add(entry)
+            for hpoterm in hpoterms:
+                if hpoterm[0] in HPO_INHERITANCE_MAPPING:
+                    gene["hpo_inheritance"].append(
+                        (hpoterm[0], HPO_INHERITANCE_MAPPING[hpoterm[0]])
+                    )
+                else:
+                    gene["hpo_terms"].append(hpoterm)
             return gene
 
     def _get_hpo_mapping(self, omim):
-        hpo = Hpo.objects.filter(database_id="OMIM:{}".format(omim)).first()
-        if hpo:
-            hponame = HpoName.objects.filter(hpo_id=hpo.hpo_id).first()
+        hpo = Hpo.objects.filter(database_id="OMIM:{}".format(omim))
+        for h in hpo:
+            hponame = HpoName.objects.filter(hpo_id=h.hpo_id).first()
             if hponame:
-                return hpo.hpo_id, hponame.name
+                yield h.hpo_id, hponame.name
 
     def get_context_data(self, object):
         result = super().get_context_data(*self.args, **self.kwargs)
