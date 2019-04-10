@@ -119,6 +119,7 @@ class SingleCaseFilterQueryBase:
             .select_from(self._from(kwargs))
             .where(self._core_where(kwargs, gt_patterns))
         )
+        inner_father_stmt = self._add_trailing_inner(inner_father_stmt, kwargs)
         inner_father_stmt = self._add_trailing(inner_father_stmt, kwargs)
         # Build inner query, variant inherited from mother
         gt_patterns = {index: "het", father: "ref", mother: "het"}
@@ -133,6 +134,7 @@ class SingleCaseFilterQueryBase:
             .select_from(self._from(kwargs))
             .where(self._core_where(kwargs, gt_patterns))
         )
+        inner_mother_stmt = self._add_trailing_inner(inner_mother_stmt, kwargs)
         inner_mother_stmt = self._add_trailing(inner_mother_stmt, kwargs)
         # Build the union statement
         union_stmt = union(inner_father_stmt, inner_mother_stmt).alias("the_union")
@@ -167,6 +169,7 @@ class SingleCaseFilterQueryBase:
             .select_from(self._from(kwargs))
             .where(self._core_where(kwargs))
         )
+        stmt = self._add_trailing_inner(stmt, kwargs)
         return self._add_trailing(stmt, kwargs)
 
     def _get_fields(self, _kwargs, _which, _inner=None):
@@ -204,6 +207,13 @@ class SingleCaseFilterQueryBase:
 
     def _add_trailing(self, stmt, _kwargs):
         """Optionally add trailing parts of statement.
+
+        The default implementation does not change ``stmt``.
+        """
+        return stmt
+
+    def _add_trailing_inner(self, stmt, _kwargs):
+        """Optionally add trailing parts of inner statement.
 
         The default implementation does not change ``stmt``.
         """
@@ -288,6 +298,7 @@ class ProjectCasesFilterQueryBase:
             .select_from(self._from(kwargs))
             .where(self._core_where(kwargs))
         )
+        stmt = self._add_trailing_inner(stmt, kwargs)
         return self._add_trailing(stmt, kwargs)
 
     def _get_fields(self, _kwargs, _which, _inner=None):
@@ -317,6 +328,13 @@ class ProjectCasesFilterQueryBase:
 
     def _add_trailing(self, stmt, _kwargs):
         """Optionally add trailing parts of statement.
+
+        The default implementation does not change ``stmt``.
+        """
+        return stmt
+
+    def _add_trailing_inner(self, stmt, _kwargs):
+        """Optionally add trailing parts of inner statement.
 
         The default implementation does not change ``stmt``.
         """
@@ -661,6 +679,83 @@ class NotInDbsnpMixin:
             return True
 
 
+class FilterInHouseCountsMixin:
+    """Join in-house variants to the results and threshold on the number of heterozygous/homozygous variants."""
+
+    def _add_trailing_inner(self, stmt, kwargs):
+        """Override statement building to add the join with Clinvar information."""
+        inner = super()._add_trailing_inner(stmt, kwargs)
+        return self._extend_stmt_inhouse_db(inner, kwargs)
+
+    def _extend_stmt_inhouse_db(self, inner, kwargs):
+        """Extend the inner statement and augment inhouse count information."""
+        inner = inner.alias("inhouse_inner")
+        middle = (
+            select(
+                [
+                    *inner.c,
+                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hom_ref), 0).label(
+                        "inhouse_hom_ref"
+                    ),
+                    func.coalesce(func.sum(SmallVariantSummary.sa.count_het), 0).label(
+                        "inhouse_het"
+                    ),
+                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hom_alt), 0).label(
+                        "inhouse_hom_alt"
+                    ),
+                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hemi_ref), 0).label(
+                        "inhouse_hemi_ref"
+                    ),
+                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hemi_alt), 0).label(
+                        "inhouse_hemi_alt"
+                    ),
+                    func.coalesce(
+                        func.sum(
+                            SmallVariantSummary.sa.count_het
+                            + SmallVariantSummary.sa.count_hom_alt
+                            + SmallVariantSummary.sa.count_hemi_alt
+                        ),
+                        0,
+                    ).label("inhouse_carriers"),
+                ]
+            )
+            .select_from(
+                inner.outerjoin(
+                    SmallVariantSummary.sa.table,
+                    and_(
+                        SmallVariantSummary.sa.release == inner.c.release,
+                        SmallVariantSummary.sa.chromosome == inner.c.chromosome,
+                        SmallVariantSummary.sa.position == inner.c.position,
+                        SmallVariantSummary.sa.reference == inner.c.reference,
+                        SmallVariantSummary.sa.alternative == inner.c.alternative,
+                    ),
+                )
+            )
+            .group_by(*inner.c)
+            .alias("inhouse_middle")
+        )
+        stmt = select(middle.c).select_from(middle).where(self._where_inhouse_db(kwargs, middle))
+        return self._add_trailing(stmt, kwargs)
+
+    def _where_inhouse_db(self, kwargs, stmt):
+        """Build WHERE clause for the query based on select het/hom counts in inhouse DB."""
+        terms = []
+        if kwargs.get("inhouse_enabled"):
+            if kwargs.get("inhouse_heterozygous") is not None:
+                terms.append(stmt.c.inhouse_het <= kwargs.get("inhouse_heterozygous"))
+            if kwargs.get("inhouse_homozygous") is not None:
+                terms.append(
+                    (stmt.c.inhouse_hom_alt + stmt.c.inhouse_hemi_alt)
+                    <= kwargs.get("inhouse_homozygous")
+                )
+            if kwargs.get("inhouse_carriers") is not None:
+                terms.append(
+                    (stmt.c.inhouse_het + stmt.c.inhouse_hom_alt + stmt.c.inhouse_hemi_alt)
+                    <= kwargs.get("inhouse_carriers")
+                )
+        return and_(*terms)
+
+
 class BaseTableQueriesMixin(
     GenotypeTermWhereMixin,
     FrequencyTermWhereMixin,
@@ -670,6 +765,7 @@ class BaseTableQueriesMixin(
     GeneListsTermWhereMixin,
     GenomicRegionTermWhereMixin,
     InClinvarTermWhereMixin,
+    FilterInHouseCountsMixin,
     NotInDbsnpMixin,
 ):
     """Helper mixin that adds all criteria that can be answered by the base star table."""
@@ -1040,88 +1136,8 @@ class FilterQueryFlagsCommentsMixin:
         return or_(*terms)
 
 
-class FilterInHouseCountsMixin:
-    """Join in-house variants to the results and threshold on the number of heterozygous/homozygous variants."""
-
-    def _build_stmt(self, kwargs):
-        """Override statement building to add the join with Clinvar information."""
-        inner = super()._build_stmt(kwargs)
-        return self._extend_stmt_inhouse_db(inner, kwargs)
-
-    def _extend_stmt_inhouse_db(self, inner, kwargs):
-        """Extend the inner statement and augment inhouse count information."""
-        inner = inner.alias("inhouse_inner")
-        middle = (
-            select(
-                [
-                    *inner.c,
-                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hom_ref), 0).label(
-                        "inhouse_hom_ref"
-                    ),
-                    func.coalesce(func.sum(SmallVariantSummary.sa.count_het), 0).label(
-                        "inhouse_het"
-                    ),
-                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hom_alt), 0).label(
-                        "inhouse_hom_alt"
-                    ),
-                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hemi_ref), 0).label(
-                        "inhouse_hemi_ref"
-                    ),
-                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hemi_alt), 0).label(
-                        "inhouse_hemi_alt"
-                    ),
-                    func.coalesce(
-                        func.sum(
-                            SmallVariantSummary.sa.count_het
-                            + SmallVariantSummary.sa.count_hom_alt
-                            + SmallVariantSummary.sa.count_hemi_alt
-                        ),
-                        0,
-                    ).label("inhouse_carriers"),
-                ]
-            )
-            .select_from(
-                inner.outerjoin(
-                    SmallVariantSummary.sa.table,
-                    and_(
-                        SmallVariantSummary.sa.release == inner.c.release,
-                        SmallVariantSummary.sa.chromosome == inner.c.chromosome,
-                        SmallVariantSummary.sa.position == inner.c.position,
-                        SmallVariantSummary.sa.reference == inner.c.reference,
-                        SmallVariantSummary.sa.alternative == inner.c.alternative,
-                    ),
-                )
-            )
-            .group_by(*inner.c)
-            .alias("inhouse_middle")
-        )
-        stmt = select(middle.c).select_from(middle).where(self._where_inhouse_db(kwargs, middle))
-        return self._add_trailing(stmt, kwargs)
-
-    def _where_inhouse_db(self, kwargs, stmt):
-        """Build WHERE clause for the query based on select het/hom counts in inhouse DB."""
-        terms = []
-        if kwargs.get("inhouse_enabled"):
-            if kwargs.get("inhouse_heterozygous") is not None:
-                terms.append(stmt.c.inhouse_het <= kwargs.get("inhouse_heterozygous"))
-            if kwargs.get("inhouse_homozygous") is not None:
-                terms.append(
-                    (stmt.c.inhouse_hom_alt + stmt.c.inhouse_hemi_alt)
-                    <= kwargs.get("inhouse_homozygous")
-                )
-            if kwargs.get("inhouse_carriers") is not None:
-                terms.append(
-                    (stmt.c.inhouse_het + stmt.c.inhouse_hom_alt + stmt.c.inhouse_hemi_alt)
-                    <= kwargs.get("inhouse_carriers")
-                )
-        return and_(*terms)
-
-
 class JoinAndQueryCommonAdditionalTables(
-    FilterQueryFlagsCommentsMixin,
-    FilterQueryHgmdMixin,
-    FilterQueryClinvarDetailsMixin,
-    FilterInHouseCountsMixin,
+    FilterQueryFlagsCommentsMixin, FilterQueryHgmdMixin, FilterQueryClinvarDetailsMixin
 ):
     """Join to common common additional tables and query.
 
@@ -1178,10 +1194,7 @@ class ExportTableFileFilterQuery(
 
 
 class ExportVcfFileFilterQuery(
-    OrderByChromosomalPositionMixin,
-    FilterInHouseCountsMixin,
-    BaseTableQueriesMixin,
-    SingleCaseFilterQueryBase,
+    OrderByChromosomalPositionMixin, BaseTableQueriesMixin, SingleCaseFilterQueryBase
 ):
     """Run filter query for TSV file with minimal information only for performance.
 

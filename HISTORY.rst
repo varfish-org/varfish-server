@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+End-User Summary
+================
+
+- Fixed bug in comp het filter.
+
+Full Change List
+================
+
+- Fixed bug in comp. het. filter that was caused by downstream inhouse filter.
+
 -------
 v0.14.3
 -------
