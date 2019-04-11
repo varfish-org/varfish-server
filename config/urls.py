@@ -12,7 +12,6 @@ urlpatterns = [
     #    url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name='home'),
     url(r"^geneinfo/", include("geneinfo.urls")),
     url(r"^variants/", include("variants.urls")),
-    url(r"^annotation/", include("annotation.urls")),
     url(r"^bgjobs/", include("bgjobs.urls")),
     url(r"^about/$", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     # Django Admin, use {% url 'admin:index' %}

@@ -13,6 +13,7 @@ End-User Summary
 - Fixed bug in displaying correct previous joint filter query.
 - Fixed bug in displaying not all HPO terms.
 - Added OMIM terms to variant detail view.
+- Fixed bug in variant detail view displaying all het counts as zero.
 
 Full Change List
 ================
@@ -21,6 +22,7 @@ Full Change List
 - Fixed bug that selected previous joint filter query of the user, independet of the project.
 - Fixed bug in displaying not all HPO terms.
 - Added OMIM terms to variant detail view.
+- Fixed bug that the het properties of the frequencies models were not returned when converted to dict.
 
 -------
 v0.14.3

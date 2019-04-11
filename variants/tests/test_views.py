@@ -10,6 +10,7 @@ from test_plus.test import TestCase
 from requests_mock import Mocker
 
 from projectroles.models import Project
+from annotation.models import Annotation
 from variants.models import (
     Case,
     SmallVariant,
@@ -1789,7 +1790,7 @@ def fixture_setup_small_variant_details(user):
         "gnomad_genomes_heterozygous": 0,
         "gnomad_genomes_hemizygous": 0,
         # RefSeq
-        "refseq_gene_id": "1234",
+        "refseq_gene_id": "12345",
         "refseq_transcript_id": "NR_00001.1",
         "refseq_transcript_coding": False,
         "refseq_hgvs_c": "n.111+2T>C",
@@ -1812,7 +1813,7 @@ def fixture_setup_small_variant_details(user):
         "reference": "A",
         "alternative": "G",
         "ac": None,
-        "ac_afr": 1,
+        "ac_afr": 10,
         "ac_amr": 0,
         "ac_eas": 0,
         "ac_fin": 0,
@@ -1833,7 +1834,7 @@ def fixture_setup_small_variant_details(user):
         "hemi_nfe": None,
         "hemi_oth": None,
         "hom": 0,
-        "hom_afr": 0,
+        "hom_afr": 2,
         "hom_amr": 0,
         "hom_eas": 0,
         "hom_fin": 0,
@@ -1857,7 +1858,7 @@ def fixture_setup_small_variant_details(user):
     Exac.objects.create(
         **{
             **basic_pop,
-            **{"ac_sas": 0, "an_sas": 323, "hemi_sas": None, "hom_sas": 0, "af_sas": 0.0},
+            **{"ac_sas": 3, "an_sas": 323, "hemi_sas": None, "hom_sas": 0, "af_sas": 0.0},
         }
     )
     ThousandGenomes.objects.create(
@@ -1881,8 +1882,8 @@ def fixture_setup_small_variant_details(user):
         **{
             **basic_pop,
             **{
-                "ac_asj": 0,
-                "ac_sas": 0,
+                "ac_asj": 4,
+                "ac_sas": 3,
                 "an_asj": 323,
                 "an_sas": 932,
                 "hemi_asj": None,
@@ -1897,7 +1898,7 @@ def fixture_setup_small_variant_details(user):
     GnomadGenomes.objects.create(
         **{
             **basic_pop,
-            **{"ac_asj": 0, "an_asj": 323, "hemi_asj": None, "hom_asj": 0, "af_asj": 0.0},
+            **{"ac_asj": 4, "an_asj": 323, "hemi_asj": None, "hom_asj": 0, "af_asj": 0.0},
         }
     )
     KnowngeneAA.objects.create(
@@ -1921,7 +1922,35 @@ def fixture_setup_small_variant_details(user):
     HpoName.objects.create(hpo_id="HP:0000001", name="All")
     HpoName.objects.create(hpo_id="HP:0000007", name="Autosomal recessive")
     Mim2geneMedgen.objects.create(omim_id=55555, omim_type="phenotype")
-    Hgnc.objects.create(hgnc_id="HGNC:1", ensembl_gene_id="ENSG1", symbol="AAA")
+    Hgnc.objects.create(hgnc_id="HGNC:1", ensembl_gene_id="ENSG0001", symbol="AAA")
+    Annotation.objects.create(
+        release="GRCh37",
+        chromosome="1",
+        position=100,
+        reference="A",
+        alternative="G",
+        database="refseq",
+        effect=[],
+        gene_id="12345",
+        transcript_id="NR_00001.1",
+        transcript_coding=False,
+        hgvs_c=None,
+        hgvs_p=None,
+    )
+    Annotation.objects.create(
+        release="GRCh37",
+        chromosome="1",
+        position=100,
+        reference="A",
+        alternative="G",
+        database="refseq",
+        effect=[],
+        gene_id="12345",
+        transcript_id="NR_00002.1",
+        transcript_coding=False,
+        hgvs_c=None,
+        hgvs_p=None,
+    )
 
 
 class TestSmallVariantDetailsView(TestViewBase):
@@ -1976,10 +2005,16 @@ class TestSmallVariantDetailsView(TestViewBase):
                 )
             )
             self.assertEqual(response.context["pop_freqs"]["gnomAD Exomes"]["AFR"]["af"], 0.0001146)
+            self.assertEqual(response.context["pop_freqs"]["gnomAD Exomes"]["AFR"]["het"], 6)
+            self.assertEqual(response.context["pop_freqs"]["gnomAD Exomes"]["AFR"]["hom"], 2)
             self.assertEqual(
                 response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["af"], 0.0001146
             )
+            self.assertEqual(response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["het"], 6)
+            self.assertEqual(response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["hom"], 2)
             self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["af"], 0.0001146)
+            self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["het"], 6)
+            self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["hom"], 2)
             self.assertEqual(response.context["pop_freqs"]["1000GP"]["AMR"]["af"], 0.0054)
             self.assertEqual(response.context["clinvar"][0]["clinical_significance"], "pathogenic")
             self.assertEqual(response.context["knowngeneaa"][0]["alignment"], "XXX")
@@ -1989,6 +2024,8 @@ class TestSmallVariantDetailsView(TestViewBase):
             self.assertEqual(response.context["gene"]["hpo_inheritance"][0][1], "AR")
             self.assertEqual(response.context["gene"]["omim"][0], 55555)
             self.assertEqual(response.context["gene"]["symbol"], "AAA")
+            self.assertEqual(response.context["effect_details"][0]["transcript_id"], "NR_00001.1")
+            self.assertEqual(response.context["effect_details"][1]["transcript_id"], "NR_00002.1")
 
     def test_content_ensembl(self):
         with self.login(self.user):
@@ -2005,15 +2042,21 @@ class TestSmallVariantDetailsView(TestViewBase):
                         "reference": "A",
                         "alternative": "G",
                         "database": "ensembl",
-                        "gene_id": "ENSG1",
+                        "gene_id": "ENSG0001",
                     },
                 )
             )
             self.assertEqual(response.context["pop_freqs"]["gnomAD Exomes"]["AFR"]["af"], 0.0001146)
+            self.assertEqual(response.context["pop_freqs"]["gnomAD Exomes"]["AFR"]["het"], 6)
+            self.assertEqual(response.context["pop_freqs"]["gnomAD Exomes"]["AFR"]["hom"], 2)
             self.assertEqual(
                 response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["af"], 0.0001146
             )
+            self.assertEqual(response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["het"], 6)
+            self.assertEqual(response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["hom"], 2)
             self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["af"], 0.0001146)
+            self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["het"], 6)
+            self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["hom"], 2)
             self.assertEqual(response.context["pop_freqs"]["1000GP"]["AMR"]["af"], 0.0054)
             self.assertEqual(response.context["clinvar"][0]["clinical_significance"], "pathogenic")
             self.assertEqual(response.context["knowngeneaa"][0]["alignment"], "XXX")
@@ -2023,6 +2066,8 @@ class TestSmallVariantDetailsView(TestViewBase):
             self.assertEqual(response.context["gene"]["hpo_inheritance"][0][1], "AR")
             self.assertEqual(response.context["gene"]["omim"][0], 55555)
             self.assertEqual(response.context["gene"]["symbol"], "AAA")
+            self.assertEqual(response.context["effect_details"][0]["transcript_id"], "NR_00001.1")
+            self.assertEqual(response.context["effect_details"][1]["transcript_id"], "NR_00002.1")
 
 
 def fixture_setup_bgjob(user):

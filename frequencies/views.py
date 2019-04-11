@@ -20,11 +20,9 @@ class FrequencyMixin:
         result = {key: {} for key in FREQUENCY_DB_INFO}
         for db_name in FREQUENCY_DB_INFO:
             try:
-                result[db_name] = model_to_dict(
-                    FREQUENCY_DB_INFO[db_name]["model"].objects.get(**key)
-                )
+                result[db_name] = FREQUENCY_DB_INFO[db_name]["model"].objects.get(**key)
             except ObjectDoesNotExist:
-                result[db_name] = {}
+                result[db_name] = None
             except MultipleObjectsReturned:
                 raise MultipleObjectsReturned
 
