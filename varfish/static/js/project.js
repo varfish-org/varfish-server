@@ -56,19 +56,22 @@ var effect_levels = {
   "upstream_gene_variant": 1,
 };
 
-$(document).ready(function() {
-  $('.color-effect').each(function(index) {
+
+function colorVariantEffects() {
+  $('.color-effect').each(function (index) {
     var text = $(this).text();
     if (effect_levels[text] == 3) {
       $(this).addClass('badge-danger');
-    }
-    else if (effect_levels[text] == 2) {
+    } else if (effect_levels[text] == 2) {
       $(this).addClass('badge-warning');
-    }
-    else {
+    } else {
       $(this).addClass('badge-secondary');
     }
   });
+}
+
+
+$(document).ready(function() {
   /* Add IE note */
   if (navigator.appName === 'Microsoft Internet Explorer' ||
         !!(navigator.userAgent.match(/Trident/) ||

@@ -232,6 +232,7 @@ $(document).on('click', '.toggle-variant-details', function() {
           target.html(response);
           $('[data-toggle="tooltip"]').tooltip();
           $('[data-toggle="popover"]').popover();
+          colorVariantEffects();
         },
         error: function(jqXHR, textStatus, errorThrown) {
           console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);

@@ -14,6 +14,7 @@ End-User Summary
 - Fixed bug in displaying not all HPO terms.
 - Added OMIM terms to variant detail view.
 - Fixed bug in variant detail view displaying all het counts as zero.
+- Fixed colouring of variant effect badges in variant detail view's transcript information.
 
 Full Change List
 ================
@@ -23,6 +24,8 @@ Full Change List
 - Fixed bug in displaying not all HPO terms.
 - Added OMIM terms to variant detail view.
 - Fixed bug that the het properties of the frequencies models were not returned when converted to dict.
+- Removing old templates.
+- Fixed colouring of variant effect badges in variant detail view's transcript information.
 
 -------
 v0.14.3
