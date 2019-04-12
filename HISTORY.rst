@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+End-User Summary
+================
+
+- Added names to OMIM IDs in variant detail view.
+
+Full Change List
+================
+
+- Added names to OMIM IDs in variant detail view.
+
 -------
 v0.14.5
 -------

@@ -1917,8 +1917,12 @@ def fixture_setup_small_variant_details(user):
         }
     )
     RefseqToHgnc.objects.create(entrez_id="12345", hgnc_id="HGNC:1")
-    Hpo.objects.create(database_id="OMIM:55555", hpo_id="HP:0000001")
-    Hpo.objects.create(database_id="OMIM:55555", hpo_id="HP:0000007")
+    Hpo.objects.create(
+        database_id="OMIM:55555",
+        hpo_id="HP:0000001",
+        name="Disease1;;Alternative Description Disease1",
+    )
+    Hpo.objects.create(database_id="OMIM:55555", hpo_id="HP:0000007", name="Disease1; ABBR")
     HpoName.objects.create(hpo_id="HP:0000001", name="All")
     HpoName.objects.create(hpo_id="HP:0000007", name="Autosomal recessive")
     Mim2geneMedgen.objects.create(omim_id=55555, omim_type="phenotype")
@@ -2022,7 +2026,10 @@ class TestSmallVariantDetailsView(TestViewBase):
             self.assertEqual(response.context["gene"]["hpo_terms"][0][1], "All")
             self.assertEqual(response.context["gene"]["hpo_inheritance"][0][0], "HP:0000007")
             self.assertEqual(response.context["gene"]["hpo_inheritance"][0][1], "AR")
-            self.assertEqual(response.context["gene"]["omim"][0], 55555)
+            self.assertEqual(response.context["gene"]["omim"][55555][0], "Disease1")
+            self.assertEqual(
+                response.context["gene"]["omim"][55555][1][0], "Alternative Description Disease1"
+            )
             self.assertEqual(response.context["gene"]["symbol"], "AAA")
             self.assertEqual(response.context["effect_details"][0]["transcript_id"], "NR_00001.1")
             self.assertEqual(response.context["effect_details"][1]["transcript_id"], "NR_00002.1")
@@ -2064,7 +2071,10 @@ class TestSmallVariantDetailsView(TestViewBase):
             self.assertEqual(response.context["gene"]["hpo_terms"][0][1], "All")
             self.assertEqual(response.context["gene"]["hpo_inheritance"][0][0], "HP:0000007")
             self.assertEqual(response.context["gene"]["hpo_inheritance"][0][1], "AR")
-            self.assertEqual(response.context["gene"]["omim"][0], 55555)
+            self.assertEqual(response.context["gene"]["omim"][55555][0], "Disease1")
+            self.assertEqual(
+                response.context["gene"]["omim"][55555][1][0], "Alternative Description Disease1"
+            )
             self.assertEqual(response.context["gene"]["symbol"], "AAA")
             self.assertEqual(response.context["effect_details"][0]["transcript_id"], "NR_00001.1")
             self.assertEqual(response.context["effect_details"][1]["transcript_id"], "NR_00002.1")

@@ -230,8 +230,15 @@ $(document).on('click', '.toggle-variant-details', function() {
       {
         success: function (response) {
           target.html(response);
-          $('[data-toggle="tooltip"]').tooltip();
-          $('[data-toggle="popover"]').popover();
+          $('[data-toggle="tooltip"]').tooltip({container: "body"});
+          $('[data-toggle="popover"]').popover({container: "body"});
+          $('body').on('click', function (e) {
+            let element = $('.omim-popover');
+            // hide any open popovers when the anywhere else in the body is clicked
+            if (!element.is(e.target) && element.has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                element.popover('hide');
+            }
+          });
           colorVariantEffects();
         },
         error: function(jqXHR, textStatus, errorThrown) {

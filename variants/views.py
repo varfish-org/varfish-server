@@ -2,6 +2,7 @@ from itertools import groupby, chain
 import json
 import uuid
 import contextlib
+import re
 
 import decimal
 import aldjemy.core
@@ -85,6 +86,9 @@ from .tasks import (
     clinvar_task,
 )
 from .file_export import RowWithSampleProxy
+
+
+RE_OMIM_PARSER = re.compile("^(?:#\d+ )?(.+)$")
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -1437,31 +1441,46 @@ class SmallVariantDetails(
             return {"gene_id": kwargs["gene_id"]}
         else:
             gene = model_to_dict(gene)
-            gene["omim"] = []
-            gene["hpo_terms"] = []
-            gene["hpo_inheritance"] = []
-            mim2gene = Mim2geneMedgen.objects.filter(entrez_id=gene["entrez_id"])
-            gene["omim"] = [mim.omim_id for mim in mim2gene if mim.omim_type == "phenotype"]
-            hpoterms = set()
-            for mim in mim2gene:
-                for entry in self._get_hpo_mapping(mim.omim_id):
-                    if entry is not None:
-                        hpoterms.add(entry)
-            for hpoterm in hpoterms:
-                if hpoterm[0] in HPO_INHERITANCE_MAPPING:
-                    gene["hpo_inheritance"].append(
-                        (hpoterm[0], HPO_INHERITANCE_MAPPING[hpoterm[0]])
-                    )
-                else:
-                    gene["hpo_terms"].append(hpoterm)
+            hpoterms, hpoinheritance, omim = self._handle_hpo_omim(gene["entrez_id"])
+            gene["omim"] = omim
+            gene["hpo_inheritance"] = list(hpoinheritance)
+            gene["hpo_terms"] = list(hpoterms)
             return gene
 
-    def _get_hpo_mapping(self, omim):
-        hpo = Hpo.objects.filter(database_id="OMIM:{}".format(omim))
-        for h in hpo:
+    def _handle_hpo_omim(self, entrez_id):
+        mim2gene = Mim2geneMedgen.objects.filter(entrez_id=entrez_id)
+        omim = dict()
+        hpoterms = set()
+        hpointeritance = set()
+        for mim in mim2gene:
+            mapping = self._get_hpo_mapping(mim)
+            for record in mapping:
+                if record is not None:
+                    if record[0] in HPO_INHERITANCE_MAPPING:
+                        hpointeritance.add((record[0], HPO_INHERITANCE_MAPPING[record[0]]))
+                    else:
+                        hpoterms.add(record)
+                omim_type, omim_id, omim_name = next(mapping)
+                if omim_type == "phenotype":
+                    if omim_id in omim:
+                        if len(omim[omim_id]) < len(omim_name):
+                            omim[omim_id] = omim_name
+                    else:
+                        omim[omim_id] = omim_name
+        omim = {key: (value[0], value[1:]) for key, value in omim.items() if value}
+        return hpoterms, hpointeritance, omim
+
+    def _get_hpo_mapping(self, mim):
+        for h in Hpo.objects.filter(database_id="OMIM:{}".format(mim.omim_id)):
             hponame = HpoName.objects.filter(hpo_id=h.hpo_id).first()
-            if hponame:
-                yield h.hpo_id, hponame.name
+            yield h.hpo_id, hponame.name if hponame else None
+            yield mim.omim_type, mim.omim_id, list(self._parse_omim_name(h.name))
+
+    def _parse_omim_name(self, name):
+        if name:
+            for s in name.split(";;"):
+                m = re.search(RE_OMIM_PARSER, s.split(";")[0])
+                yield m.group(1)
 
     def get_context_data(self, object):
         result = super().get_context_data(*self.args, **self.kwargs)

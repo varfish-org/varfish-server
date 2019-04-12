@@ -41,9 +41,7 @@
        {% else %}
         style="opacity: 0.2"
        {% endif %}
-      ></i>
-    {% if entry.rsid %}
-      </a>
+      ></i>{% if entry.rsid %}</a>
     {% endif %}
 
     {% include "variants/filter_result/clinvar_indicator.html" %}

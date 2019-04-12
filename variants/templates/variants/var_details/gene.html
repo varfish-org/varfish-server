@@ -88,8 +88,12 @@
         <th>OMIM</th>
         <td>
           {% if gene.omim %}
-            {% for omim in gene.omim %}
-              <a href="https://www.omim.org/entry/{{ omim }}" target="_blank"><span class="badge badge-dark">{{ omim }}</span></a>
+            {% for omim_id, omim_names in gene.omim.items %}
+              <a href="#">
+              <span class="badge-group omim-popover"
+                    data-toggle="popover" title="{% if omim_names.1 %}<ul class='pl-3 pb-0 mb-0'><li>{{ omim_names.1|join:"</li><li>" }}</li></ul>{% else %}<em>No alternative description</em>{% endif %}" data-content="<a href='https://www.omim.org/entry/{{ omim_id }}' target='_blank' class='btn btn-secondary'><i class='fa fa-external-link'></i> View in OMIM</a>" data-html="true">
+              <span class="badge badge-dark">{{ omim_id }}</span>
+              <span class="badge badge-secondary">{{ omim_names.0 }}</span></span></a>
             {% endfor %}
           {% else %}
             -
