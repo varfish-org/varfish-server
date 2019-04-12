@@ -3,6 +3,20 @@ History / Changelog
 ===================
 
 -------
+v0.14.5
+-------
+
+End-User Summary
+================
+
+- Bug fix release.
+
+Full Change List
+================
+
+- Fixed bug that made query slow when black/whitelist filter was used.
+
+-------
 v0.14.4
 -------
 

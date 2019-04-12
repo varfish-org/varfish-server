@@ -5,7 +5,7 @@ from django import forms
 from .models import SmallVariantComment, SmallVariantFlags
 from .templatetags.variants_tags import only_source_name
 from geneinfo.models import Hgnc
-from .models import SmallVariant
+from django.db.models import Q
 
 import re
 
@@ -944,14 +944,21 @@ class SmallVariantGeneListFilterFormMixin:
         ]
 
         def _check_list(list_name):
-            for gene in cleaned_data[list_name]:
-                refseq = SmallVariant.objects.filter(refseq_gene_id=gene)
-                ensembl = SmallVariant.objects.filter(ensembl_gene_id=gene)
-                symbol = Hgnc.objects.filter(symbol=gene)
-                if not any((refseq, ensembl, symbol)):
-                    self._errors[list_name] = self.error_class(
-                        ["Can't find symbol, Entrez ID or ENSEMBL gene ID."]
-                    )
+            mismatches = [
+                gene
+                for gene in cleaned_data[list_name]
+                if not Hgnc.objects.filter(
+                    Q(entrez_id=gene) | Q(ensembl_gene_id=gene) | Q(symbol=gene)
+                )
+            ]
+            if mismatches:
+                self._errors[list_name] = self.error_class(
+                    [
+                        "Can't find symbol, Entrez ID or ENSEMBL gene ID: {}".format(
+                            ",".join(mismatches)
+                        )
+                    ]
+                )
 
         _check_list("gene_blacklist")
         _check_list("gene_whitelist")

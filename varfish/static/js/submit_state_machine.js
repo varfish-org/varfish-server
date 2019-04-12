@@ -175,7 +175,6 @@ function doVisualErrorResponseOnForms(data) {
     });
     element.addClass("border border-danger");
     element.attr('data-toggle', 'tooltip');
-    element.attr('title', "");
     element.attr('data-original-title', text);
     element.attr('data-html', 'true');
     element.tooltip({trigger : 'hover'});
@@ -185,6 +184,9 @@ function doVisualErrorResponseOnForms(data) {
 function removeVisualErrorResponse() {
   $(".border, .border-danger").each(function(index) {
     $(this).removeClass("border border-danger");
+    $(this).removeAttr('data-toggle');
+    $(this).removeAttr("data-original-title");
+    $(this).removeAttr("data-html");
   });
 }
 
