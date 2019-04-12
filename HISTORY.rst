@@ -10,11 +10,13 @@ End-User Summary
 ================
 
 - Added names to OMIM IDs in variant detail view.
+- Added input check for chromosomal region filter.
 
 Full Change List
 ================
 
 - Added names to OMIM IDs in variant detail view.
+- Added input check for chromosomal region filter.
 
 -------
 v0.14.5

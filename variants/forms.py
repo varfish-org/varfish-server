@@ -955,7 +955,7 @@ class SmallVariantGeneListFilterFormMixin:
                 self._errors[list_name] = self.error_class(
                     [
                         "Can't find symbol, Entrez ID or ENSEMBL gene ID: {}".format(
-                            ",".join(mismatches)
+                            "; ".join(mismatches)
                         )
                     ]
                 )
@@ -989,13 +989,20 @@ class SmallVariantGenomicRegionFilterFormMixin:
         """Turn entries into lines."""
         cleaned_data = super().clean()
         results = []
+        malformed = []
         for entry in cleaned_data["genomic_region"].strip().split():
             entry_ = entry.strip()
             if entry_:
-                chrom_, start_, end_ = re.split("[:-]", entry_)
-                results.append(
-                    (chrom_.lstrip("chr"), int(start_.replace(",", "")), int(end_.replace(",", "")))
-                )
+                m = re.match("^(?:chr)?([0-9MTXY])+:([0-9,]+)-([0-9,]+)$", entry_)
+                if m:
+                    results.append((m[0], int(m[1].replace(",", "")), int(m[2].replace(",", ""))))
+                else:
+                    malformed.append(entry_)
+        if malformed:
+            self._errors["genomic_region"] = self.error_class(
+                ["Invalid chromosomal region formatting: {}".format("; ".join(malformed))]
+            )
+
         cleaned_data["genomic_region"] = results
         return cleaned_data
 
