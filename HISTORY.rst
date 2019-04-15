@@ -11,6 +11,7 @@ End-User Summary
 
 - Added names to OMIM IDs in variant detail view.
 - Added input check for chromosomal region filter.
+- User gets informed about database versions during annotation and in VarFish.
 
 Full Change List
 ================
@@ -18,6 +19,8 @@ Full Change List
 - Added names to OMIM IDs in variant detail view.
 - Added input check for chromosomal region filter.
 - Made ImportInfo table not unique for release info.
+- Made annotation release info available in case overview.
+  Made import release info available in site app accessable from user menu.
 
 -------
 v0.14.5

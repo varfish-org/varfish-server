@@ -58,6 +58,7 @@ from .models import (
     ProjectCasesFilterBgJob,
     ClinvarBgJob,
     ClinvarQuery,
+    AnnotationReleaseInfo,
     annotate_with_phenotype_scores,
     annotate_with_pathogenicity_scores,
     annotate_with_joint_scores,
@@ -257,7 +258,7 @@ class CaseDetailView(
         result["het_ratio_quantiles"] = list(
             np.percentile(np.asarray(het_ratios), [0, 25, 50, 100])
         )
-
+        result["release_info"] = AnnotationReleaseInfo.objects.filter(case_id=case.id)
         return result
 
 

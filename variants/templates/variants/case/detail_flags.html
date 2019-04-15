@@ -9,7 +9,7 @@
       Flagged Variants
     </h4>
   </div>
-  <table class="table tabled-striped table-hover">
+  <table class="table table-striped table-hover">
     <thead>
       <tr>
         <th class="col-2">Variant</th>
@@ -37,6 +37,13 @@
           </td>
         </tr>
       {% endfor %}
+      {% if not case.small_variant_flags.all %}
+        <tr>
+           <td class="bg-faded font-italic text-center" colspan="2">
+             No flags found.
+           </td>
+        </tr>
+      {% endif %}
     </tbody>
   </table>
 </div>

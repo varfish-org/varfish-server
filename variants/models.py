@@ -538,7 +538,7 @@ class AnnotationReleaseInfo(models.Model):
     case = models.ForeignKey(Case)
 
     class Meta:
-        unique_together = ("genomebuild", "table", "release", "case")
+        unique_together = ("genomebuild", "table", "case")
 
 
 #: File type choices for ``ExportFileBgJob``.
