@@ -16,4 +16,4 @@ class ImportInfo(models.Model):
     comment = models.CharField(max_length=1024)
 
     class Meta:
-        unique_together = ("genomebuild", "table", "release")
+        unique_together = ("genomebuild", "table")

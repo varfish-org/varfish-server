@@ -17,6 +17,7 @@ Full Change List
 
 - Added names to OMIM IDs in variant detail view.
 - Added input check for chromosomal region filter.
+- Made ImportInfo table not unique for release info.
 
 -------
 v0.14.5
