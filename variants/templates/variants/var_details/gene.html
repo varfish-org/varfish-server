@@ -21,7 +21,7 @@
       </tr>
       <tr>
         <th>Alias Symbol</th>
-        <td>{{ gene.alias_symbol|default:"-" }}</td>
+        <td>{{ gene.alias_symbol|default:"<p class='text-muted text-center'><i>No alias symbol available.</i></p>" }}</td>
       </tr>
       <tr>
         <th>Name</th>
@@ -29,17 +29,38 @@
       </tr>
       <tr>
         <th>Alias Names</th>
-        <td>{{ gene.alias_name|default:"-" }}</td>
+        <td>{{ gene.alias_name|default:"<p class='text-muted text-center'><i>No alias name available.</i></p>" }}</td>
       </tr>
       <tr>
         <th>Gene Family</th>
-        <td>{{ gene.gene_family|default:"-" }}</td>
+        <td>{{ gene.gene_family|default:"<p class='text-muted text-center'><i>No gene family information available.</i></p>" }}</td>
+      </tr>
+      <tr>
+        <th>ClinVar</th>
+        <td>
+          {% if gene.clinvar_pathogenicity %}
+            {% if gene.clinvar_pathogenicity.pathogenic_count %}
+              <span class="badge-group">
+                <span class="badge badge-light"># PATHOGENIC VARIANTS</span>
+                <span class="badge badge-danger">{{ gene.clinvar_pathogenicity.pathogenic_count }}</span>
+              </span>
+            {% endif %}
+            {% if gene.clinvar_pathogenicity.likely_pathogenic_count %}
+              <span class="badge-group">
+                <span class="badge badge-light"># LIKELY PATHOGENIC VARIANTS</span>
+                <span class="badge badge-warning">{{ gene.clinvar_pathogenicity.likely_pathogenic_count }}</span>
+              </span>
+            {% endif %}
+          {% else %}
+            <p class="text-muted text-center"><i>No ClinVar information available.</i></p>
+          {% endif %}
+        </td>
       </tr>
       <tr>
         <th>NCBI Summary</th>
         <td>
           <div style="max-height: 150px; overflow-y: auto;">
-            {{ ncbi_summary.summary|default:"-" }}
+            {{ ncbi_summary.summary|default:"<p class='text-muted text-center'><i>No NCBI information available.</i></p>" }}
           </div>
         </td>
       </tr>
@@ -62,6 +83,9 @@
       <tr>
         <th>HPO Terms</th>
         <td>
+          {% if not gene.hpo_terms and not gene.hpo_inheritance %}
+            <p class="text-muted text-center"><i>No HPO information available.</i></p>
+          {% else %}
           <div class="row">
             <div class="col-10 pl-0">
             {% if gene.hpo_terms %}
@@ -70,8 +94,6 @@
                   <span class="badge badge-dark">{{ hpo_id }}</span><span class="badge badge-secondary">{{ hpo_name }}</span>
                 </span></a>
               {% endfor %}
-            {% else %}
-              -
             {% endif %}
             </div>
             <div class="col-2 text-right pr-0">
@@ -82,6 +104,7 @@
             {% endif %}
             </div>
           </div>
+          {% endif %}
         </td>
       </tr>
       <tr>
@@ -96,7 +119,7 @@
               <span class="badge badge-secondary">{{ omim_names.0 }}</span></span></a>
             {% endfor %}
           {% else %}
-            -
+            <p class="text-muted text-center"><i>No OMIM information available.</i></p>
           {% endif %}
         </td>
       </tr>

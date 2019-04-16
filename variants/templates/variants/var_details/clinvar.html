@@ -1,0 +1,27 @@
+{% load dict %}
+{% load humanize %}
+
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">ClinVar</h4>
+  </div>
+  <table class="card-body table table-striped table-sm">
+    <tbody>
+      <tr>
+        <th>Traits</th>
+        <th>Clinical Significance</th>
+      </tr>
+      {% for item in clinvar %}
+      <tr>
+        <td>{{ item.all_traits|join:", " }}</td>
+        <td>{{ item.clinical_significance }}</td>
+      </tr>
+      {% endfor %}
+      {% if not clinvar %}
+        <tr>
+          <td colspan="2" class="text-muted text-center"><i>No ClinVar information available.</i></td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>

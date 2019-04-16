@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from postgres_copy import CopyManager
+from django.conf import settings
 
 
 class Clinvar(models.Model):
@@ -96,3 +97,15 @@ class Clinvar(models.Model):
         indexes = [
             models.Index(fields=["release", "chromosome", "position", "reference", "alternative"])
         ]
+
+
+class ClinvarPathogenicGenes(models.Model):
+    symbol = models.CharField(max_length=16)
+    entrez_id = models.CharField(max_length=16, null=True)
+    ensembl_gene_id = models.CharField(max_length=16, null=True)
+    pathogenic_count = models.IntegerField()
+    likely_pathogenic_count = models.IntegerField()
+
+    class Meta:
+        managed = settings.IS_TESTING
+        db_table = "clinvar_clinvarpathogenicgenes"

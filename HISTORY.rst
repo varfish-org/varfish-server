@@ -12,6 +12,7 @@ End-User Summary
 - Added names to OMIM IDs in variant detail view.
 - Added input check for chromosomal region filter.
 - User gets informed about database versions during annotation and in VarFish.
+- Added ClinVar information about gene and variant to variant detail view.
 
 Full Change List
 ================
@@ -20,7 +21,10 @@ Full Change List
 - Added input check for chromosomal region filter.
 - Made ImportInfo table not unique for release info.
 - Made annotation release info available in case overview.
-  Made import release info available in site app accessable from user menu.
+- Made import release info available in site app accessable from user menu.
+- Added materialized view to gather information about pathogenic and likely pathogenic variants in ClinVar.
+  This information is displayed in the gene card of the detail view.
+- Added ClinVar information about variant to variant detail view.
 
 -------
 v0.14.5
