@@ -14,6 +14,7 @@ End-User Summary
 - User gets informed about database versions during annotation and in VarFish.
 - Added ClinVar information about gene and variant to variant detail view.
 - Added selector for preset gene filter lists (HLA, MUC, ACMG).
+- Added comments and flags to variant details view.
 
 Full Change List
 ================
@@ -27,6 +28,7 @@ Full Change List
   This information is displayed in the gene card of the detail view.
 - Added ClinVar information about variant to variant detail view.
 - Added selector to gene white/blacklist filter, adding common gene lists (HLA, MUC, ACMG) to the filter field.
+- Added comments and flags to variant details view.
 
 -------
 v0.14.5

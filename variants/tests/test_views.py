@@ -1984,6 +1984,7 @@ class TestSmallVariantDetailsView(TestViewBase):
                         "alternative": "G",
                         "database": "refseq",
                         "gene_id": "12345",
+                        "training_mode": 0,
                     },
                 )
             )
@@ -2005,6 +2006,7 @@ class TestSmallVariantDetailsView(TestViewBase):
                         "alternative": "G",
                         "database": "refseq",
                         "gene_id": "12345",
+                        "training_mode": 0,
                     },
                 )
             )
@@ -2050,6 +2052,7 @@ class TestSmallVariantDetailsView(TestViewBase):
                         "alternative": "G",
                         "database": "ensembl",
                         "gene_id": "ENSG0001",
+                        "training_mode": 0,
                     },
                 )
             )

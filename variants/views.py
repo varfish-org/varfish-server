@@ -628,9 +628,9 @@ class CaseLoadPrefetchedFilterView(
                 database=filter_job.smallvariantquery.query_settings["database_select"],
                 pedigree=pedigree,
                 hpoterms=hpoterms,
-                training_mode=filter_job.smallvariantquery.query_settings.get(
-                    "training_mode", False
-                ),
+                training_mode=1
+                if filter_job.smallvariantquery.query_settings.get("training_mode", False)
+                else 0,
                 query_type=self.query_type,
                 has_phenotype_scores=bool(gene_scores),
                 has_pathogenicity_scores=bool(variant_scores),
@@ -697,9 +697,11 @@ class ProjectCasesLoadPrefetchedFilterView(
                 ],
                 result_count=len(rows),
                 elapsed_seconds=elapsed.total_seconds(),
-                training_mode=filter_job.projectcasessmallvariantquery.query_settings.get(
+                training_mode=1
+                if filter_job.projectcasessmallvariantquery.query_settings.get(
                     "training_mode", False
-                ),
+                )
+                else 0,
                 database=filter_job.projectcasessmallvariantquery.query_settings["database_select"],
                 query_type=self.query_type,
                 card_colspan=14,
@@ -1488,6 +1490,26 @@ class SmallVariantDetails(
                 m = re.search(RE_OMIM_PARSER, s.split(";")[0])
                 yield m.group(1)
 
+    def _load_variant_comments(self):
+        return SmallVariantComment.objects.select_related("user").filter(
+            case=self.object,
+            release=self.kwargs["release"],
+            chromosome=self.kwargs["chromosome"],
+            position=int(self.kwargs["position"]),
+            reference=self.kwargs["reference"],
+            alternative=self.kwargs["alternative"],
+        )
+
+    def _load_variant_flags(self):
+        return SmallVariantFlags.objects.filter(
+            case=self.object,
+            release=self.kwargs["release"],
+            chromosome=self.kwargs["chromosome"],
+            position=int(self.kwargs["position"]),
+            reference=self.kwargs["reference"],
+            alternative=self.kwargs["alternative"],
+        ).first()
+
     def get_context_data(self, object):
         result = super().get_context_data(*self.args, **self.kwargs)
         result["database"] = self.kwargs["database"]
@@ -1504,6 +1526,9 @@ class SmallVariantDetails(
         entrez_id = result["small_var"].refseq_gene_id
         result["ncbi_summary"] = NcbiGeneInfo.objects.filter(entrez_id=entrez_id).first()
         result["ncbi_gene_rifs"] = NcbiGeneRif.objects.filter(entrez_id=entrez_id).order_by("pk")
+        result["comments"] = self._load_variant_comments()
+        result["flags"] = self._load_variant_flags()
+        result["training_mode"] = int(self.kwargs["training_mode"])
         return result
 
 

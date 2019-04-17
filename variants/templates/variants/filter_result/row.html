@@ -8,7 +8,7 @@
 <tr class="variant-row {% if not training_mode %}variant-row-{{ entry|flag_class }}{% endif %}">
   {# fold-out #}
   <td class="clickable toggle-variant-details pl-0 pr-0"
-      data-url="{% url 'variants:small-variant-details' project=project.sodar_uuid case=entry.case_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative database=database gene_id=entry.gene_id %}"
+      data-url="{% url 'variants:small-variant-details' project=project.sodar_uuid case=entry.case_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative database=database gene_id=entry.gene_id training_mode=training_mode %}"
       data-toggle="collapse" data-target="#variant-details-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="variant-details-{{ forloop.counter0 }}" aria-hidden="true">
     <i class="fa fa-fw fa-chevron-right"></i>
   </td>

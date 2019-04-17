@@ -1,0 +1,48 @@
+{% load dict %}
+{% load humanize %}
+{% load variants_tags %}
+
+<div class="card">
+  <div class="card-header">
+    <h4 class="card-title">Comments & Flags</h4>
+  </div>
+  {% if flags %}
+  <div class="row font-weight-bold p-2">
+    <div class="col-1"></div>
+    <div class="col-2">
+      <i class="fa fa-fw fa-star {% if not flags.flag_bookmarked %}text-muted" style="opacity: 0.2;{% endif %}"></i>
+      <i class="fa fa-fw fa-flask {% if not flags.flag_for_validation %}text-muted" style="opacity: 0.2;{% endif %}"></i>
+      <i class="fa fa-fw fa-heart {% if not flags.flag_candidate %}text-muted" style="opacity: 0.2;{% endif %}"></i>
+      <i class="fa fa-fw fa-flag-checkered {% if not flags.flag_final_causative %}text-muted" style="opacity: 0.2;{% endif %}"></i>
+    </div>
+    <div class="col-2">
+      Visual
+      <i class="fa fa-fw {{ flags.flag_visual|flag_value_to_fa }}"></i>
+    </div>
+    <div class="col-2">
+      Validation
+      <i class="fa fa-fw {{ flags.flag_validation|flag_value_to_fa }}"></i>
+    </div>
+    <div class="col-2">
+      Phenotype
+      <i class="fa fa-fw {{ flags.flag_phenotype_match|flag_value_to_fa }}"></i>
+    </div>
+    <div class="col-2">
+      Summary
+      <i class="fa fa-fw {{ flags.flag_summary|flag_value_to_fa }}"></i>
+    </div>
+    <div class="col-1"></div>
+  </div>
+  {% else %}
+    <div class="text-muted text-center p-2"><i>No flags.</i></div>
+  {% endif %}
+  {% for item in comments %}
+    <div class="p-2">
+      <span class="small text-muted">{{ item.date_created|date:"Y/m/d H:i" }}, <strong>{{ item.user.username }}</strong> wrote:</span>
+      <em>{{ item.text }}</em>
+    </div>
+  {% endfor %}
+  {% if not comments %}
+    <div colspan="3" class="text-muted text-center p-2"><i>No comments.</i></div>
+  {% endif %}
+</div>
