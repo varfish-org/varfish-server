@@ -1955,6 +1955,34 @@ def fixture_setup_small_variant_details(user):
         hgvs_c=None,
         hgvs_p=None,
     )
+    Annotation.objects.create(
+        release="GRCh37",
+        chromosome="1",
+        position=100,
+        reference="A",
+        alternative="G",
+        database="ensembl",
+        effect=[],
+        gene_id="12345",
+        transcript_id="ENST0001",
+        transcript_coding=False,
+        hgvs_c=None,
+        hgvs_p=None,
+    )
+    Annotation.objects.create(
+        release="GRCh37",
+        chromosome="1",
+        position=100,
+        reference="A",
+        alternative="G",
+        database="ensembl",
+        effect=[],
+        gene_id="12345",
+        transcript_id="ENST0002",
+        transcript_coding=False,
+        hgvs_c=None,
+        hgvs_p=None,
+    )
 
 
 class TestSmallVariantDetailsView(TestViewBase):
@@ -2079,8 +2107,8 @@ class TestSmallVariantDetailsView(TestViewBase):
                 response.context["gene"]["omim"][55555][1][0], "Alternative Description Disease1"
             )
             self.assertEqual(response.context["gene"]["symbol"], "AAA")
-            self.assertEqual(response.context["effect_details"][0]["transcript_id"], "NR_00001.1")
-            self.assertEqual(response.context["effect_details"][1]["transcript_id"], "NR_00002.1")
+            self.assertEqual(response.context["effect_details"][0]["transcript_id"], "ENST0001")
+            self.assertEqual(response.context["effect_details"][1]["transcript_id"], "ENST0002")
 
 
 def fixture_setup_bgjob(user):

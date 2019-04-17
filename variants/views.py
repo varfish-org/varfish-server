@@ -1401,7 +1401,7 @@ class SmallVariantDetails(
         }
         return [
             model_to_dict(entry)
-            for entry in Annotation.objects.filter(**filter_kwargs, database="refseq")
+            for entry in Annotation.objects.filter(**filter_kwargs, database=kwargs["database"])
         ]
 
     def _get_population_freqs(self, kwargs):

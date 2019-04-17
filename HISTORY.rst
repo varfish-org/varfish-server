@@ -15,6 +15,7 @@ End-User Summary
 - Added ClinVar information about gene and variant to variant detail view.
 - Added selector for preset gene filter lists (HLA, MUC, ACMG).
 - Added comments and flags to variant details view.
+- Fixed bug that transcripts in variant details view were from RefSeq when EnsEMBL was selected.
 
 Full Change List
 ================
@@ -29,6 +30,7 @@ Full Change List
 - Added ClinVar information about variant to variant detail view.
 - Added selector to gene white/blacklist filter, adding common gene lists (HLA, MUC, ACMG) to the filter field.
 - Added comments and flags to variant details view.
+- Fixed bug that transcripts in variant details view were from RefSeq when EnsEMBL was selected.
 
 -------
 v0.14.5
