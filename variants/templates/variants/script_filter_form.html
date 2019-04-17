@@ -530,6 +530,215 @@ const presets = {
   }
 };
 
+let presets_genelist = {
+  "muc": {
+    "field": "gene_blacklist",
+    "data": [
+      "MUCL3",
+      "MUCRX",
+      "MUC1",
+      "MUC2",
+      "MUC3A",
+      "MUC3B",
+      "MUC4",
+      "MUC5AC",
+      "MUC5B",
+      "MUC5B-AS1",
+      "MUC6",
+      "MUC7",
+      "MUC8",
+      "MUC12",
+      "MUC13",
+      "MUC15",
+      "MUC16",
+      "MUC17",
+      "MUC19",
+      "MUC20",
+      "MUC20-OT1",
+      "MUC20P1",
+      "MUC21",
+      "MUC22",
+      "MUCL1"
+    ],
+  },
+  "hla": {
+    "field": "gene_blacklist",
+    "data": [
+      "HLA-A",
+      "HLA-B",
+      "HLA-C",
+      "HLA-DMA",
+      "HLA-DMB",
+      "HLA-DOA",
+      "HLA-DOB",
+      "HLA-DPA1",
+      "HLA-DPA2",
+      "HLA-DPA3",
+      "HLA-DPB1",
+      "HLA-DPB2",
+      "HLA-DQA1",
+      "HLA-DQA2",
+      "HLA-DQB1",
+      "HLA-DQB1-AS1",
+      "HLA-DQB2",
+      "HLA-DQB3",
+      "HLA-DRA",
+      "HLA-DRB1",
+      "HLA-DRB2",
+      "HLA-DRB3",
+      "HLA-DRB4",
+      "HLA-DRB5",
+      "HLA-DRB6",
+      "HLA-DRB7",
+      "HLA-DRB8",
+      "HLA-DRB9",
+      "HLA-E",
+      "HLA-F",
+      "HLA-F-AS1",
+      "HLA-G",
+      "HLA-H",
+      "HLA-J",
+      "HLA-K",
+      "HLA-L",
+      "HLA-N",
+      "HLA-P",
+      "HLA-S",
+      "HLA-T",
+      "HLA-U",
+      "HLA-V",
+      "HLA-W",
+      "HLA-X",
+      "HLA-Y",
+      "HLA-Z"
+    ]
+  },
+  "acmg1": {
+    "field": "gene_whitelist",
+    "data": [
+      "ACTC1",
+      "ACTA2",
+      "APOB",
+      "BRCA1",
+      "CACNA1S",
+      "COL3A1",
+      "MLH1",
+      "DSC2",
+      "DSP",
+      "DSG2",
+      "FBN1",
+      "LMNA",
+      "KCNH2",
+      "MYH11",
+      "MYH7",
+      "MYL2",
+      "MYL3",
+      "RET",
+      "RYR1",
+      "RYR2",
+      "SDHB",
+      "TGFBR1",
+      "TGFBR2",
+      "TPM1",
+      "TNNI3",
+      "TNNT2",
+      "TSC2",
+      "TP53",
+      "GLA",
+      "SCN5A",
+      "BRCA2",
+      "PMS2",
+      "MSH6",
+      "MYBPC3",
+      "PTEN",
+      "STK11",
+      "SDHC",
+      "SDHD",
+      "PRKAG2",
+      "PKP2",
+      "SMAD3",
+      "MUTYH",
+      "TSC1",
+      "LDLR",
+      "WT1",
+      "NF2",
+      "KCNQ1",
+      "PCSK9",
+      "VHL",
+      "MSH2",
+      "APC",
+      "TMEM43",
+      "SDHAF2",
+      "MEN1",
+      "RB1",
+      "MYLK"
+    ],
+  },
+  "acmg2": {
+    "field": "gene_whitelist",
+    "data": [
+      "ACTC1",
+      "ACTA2",
+      "APOB",
+      "BRCA1",
+      "CACNA1S",
+      "COL3A1",
+      "MLH1",
+      "DSC2",
+      "DSP",
+      "DSG2",
+      "FBN1",
+      "LMNA",
+      "KCNH2",
+      "MYH11",
+      "MYH7",
+      "MYL2",
+      "MYL3",
+      "RET",
+      "RYR1",
+      "RYR2",
+      "SDHB",
+      "TGFBR1",
+      "TGFBR2",
+      "TPM1",
+      "TNNI3",
+      "TNNT2",
+      "TSC2",
+      "TP53",
+      "OTC",
+      "GLA",
+      "SCN5A",
+      "BRCA2",
+      "PMS2",
+      "MSH6",
+      "MYBPC3",
+      "SMAD4",
+      "BMPR1A",
+      "PTEN",
+      "STK11",
+      "SDHC",
+      "SDHD",
+      "PRKAG2",
+      "PKP2",
+      "SMAD3",
+      "MUTYH",
+      "TSC1",
+      "ATP7B",
+      "LDLR",
+      "WT1",
+      "NF2",
+      "KCNQ1",
+      "PCSK9",
+      "VHL",
+      "MSH2",
+      "APC",
+      "TMEM43",
+      "SDHAF2",
+      "MEN1",
+      "RB1"
+    ]
+  }
+};
+
 function loadPresets(e) {
   const presetsName = $(e.currentTarget).data("preset-name");
 
@@ -554,6 +763,18 @@ function loadPresets(e) {
     const val = presets[presetsName]["classes"][key];
     const tag = $("." + key);
     tag.prop("value", val);
+  }
+}
+
+function loadGenelistPresets(e) {
+  const presetName = $(e.currentTarget).data("preset-name");
+  const tag = $("#id_" + presets_genelist[presetName]["field"]);
+  let val = tag.val();
+  if (val == "") {
+    tag.val(presets_genelist[presetName]["data"].join(" "));
+  }
+  else {
+    tag.val(val + " " + presets_genelist[presetName]["data"].join(" "));
   }
 }
 
@@ -582,6 +803,8 @@ $(document).ready(
     $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
     updateSettingsDump();
     $(".load-presets").click(loadPresets);
+    $(".load-blacklist").click(loadGenelistPresets);
+    $(".load-whitelist").click(loadGenelistPresets);
     // Assign click handler function to submit button
     filterButton.click(
       function(e) {

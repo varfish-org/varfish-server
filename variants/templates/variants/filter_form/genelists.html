@@ -2,11 +2,43 @@
 {% load dict %}
 
 <div class="pt-3 pl-3 pr-3 compact-form-groups">
-  <h5 class="card-title mb-1">Gene Blacklist</h5>
+  <h5 class="card-title mb-1">
+    Gene Blacklist
+    <div class="d-inline dropdown">
+      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="presets-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="d-none d-sm-inline">
+          Add Preset
+        </span>
+        <span class="d-inline d-sm-none">
+          <i class="fa fa-sliders"></i>
+        </span>
+      </button>
+      <div class="dropdown-menu" aria-labelledby="presets-menu-button">
+        <a class="dropdown-item load-blacklist" href="#" data-preset-name="hla">HLA</a>
+        <a class="dropdown-item load-blacklist" href="#" data-preset-name="muc">MUC</a>
+      </div>
+    </div>
+  </h5>
 
   {{ form.gene_blacklist }}
 
-  <h5 class="card-title mb-1 mt-2">Gene Whitelist</h5>
+  <h5 class="card-title mb-1 mt-2">
+    Gene Whitelist
+    <div class="d-inline dropdown">
+      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="presets-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="d-none d-sm-inline">
+          Add Preset
+        </span>
+        <span class="d-inline d-sm-none">
+          <i class="fa fa-sliders"></i>
+        </span>
+      </button>
+      <div class="dropdown-menu" aria-labelledby="presets-menu-button">
+        <a class="dropdown-item load-whitelist" href="#" data-preset-name="acmg1">ACMG v1</a>
+        <a class="dropdown-item load-whitelist" href="#" data-preset-name="acmg2">ACMG v2</a>
+      </div>
+    </div>
+  </h5>
 
   {{ form.gene_whitelist }}
 
