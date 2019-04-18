@@ -8,6 +8,8 @@ from django.test import RequestFactory
 from django.utils import timezone
 from test_plus.test import TestCase
 from requests_mock import Mocker
+from unittest.mock import patch
+from django.conf import settings
 
 from projectroles.models import Project
 from annotation.models import Annotation
@@ -576,8 +578,10 @@ def fixture_setup_case(user):
     }
 
     a = SmallVariant.objects.create(**{**basic_var, **{"position": 100}})
-    b = SmallVariant.objects.create(**{**basic_var, **{"position": 200, "in_clinvar": True}})
-    c = SmallVariant.objects.create(**{**basic_var, **{"position": 300}})
+    b = SmallVariant.objects.create(
+        **{**basic_var, **{"position": 200, "in_clinvar": True, "refseq_gene_id": "2234"}}
+    )
+    c = SmallVariant.objects.create(**{**basic_var, **{"position": 300, "refseq_gene_id": "2234"}})
 
     rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
 
@@ -1088,6 +1092,97 @@ class TestCaseLoadPrefetchedFilterView(TestViewBase):
                 },
             )
             self.assertEqual(response.context["training_mode"], True)
+
+    @patch("django.conf.settings.VARFISH_ENABLE_EXOMISER_PRIORITISER", True)
+    @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
+    @patch("django.conf.settings.VARFISH_EXOMISER_PRIORITISER_API_URL", "https://exomiser.com")
+    @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
+    @Mocker()
+    def test_ranking_results(self, mock):
+        mock.get(
+            settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
+            status_code=200,
+            text=json.dumps(
+                {
+                    "results": [
+                        {
+                            "geneId": 1234,
+                            "geneSymbol": "API",
+                            "score": "0.1",
+                            "priorityType": "PHENIX_PRIORITY",
+                        },
+                        {
+                            "geneId": 2234,
+                            "geneSymbol": "API",
+                            "score": "0.1",
+                            "priorityType": "PHENIX_PRIORITY",
+                        },
+                    ]
+                }
+            ),
+        )
+        mock.post(
+            settings.VARFISH_CADD_REST_API_URL,
+            status_code=200,
+            text=json.dumps(
+                {
+                    "scores": {
+                        "1-100-A-G": [0.345146, 7.773],
+                        "1-200-A-G": [0.345179, 7.773],
+                        "1-300-A-G": [0.345212, 7.774],
+                    }
+                }
+            ),
+        )
+        with self.login(self.user):
+            case = Case.objects.select_related("project").first()
+            self.client.post(
+                reverse(
+                    "variants:case-filter-results",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {
+                    **DEFAULT_FILTER_FORM_SETTING,
+                    "prio_enabled": True,
+                    "prio_algorithm": "phenix",
+                    "prio_hpo_terms": ["HP:0000001"],
+                    "patho_enabled": True,
+                    "patho_score": "phenix",  # ?
+                },
+            )
+            response = self.client.post(
+                reverse(
+                    "variants:case-load-filter-results",
+                    kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+                ),
+                {
+                    **DEFAULT_FILTER_FORM_SETTING,
+                    "filter_job_uuid": FilterBgJob.objects.last().sodar_uuid,
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["result_count"], 3)
+            self.assertEqual(response.context["training_mode"], False)
+            self.assertEqual(response.context["has_phenotype_scores"], True)
+            self.assertEqual(response.context["has_pathogenicity_scores"], True)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_score, 7.774)
+            self.assertEqual(response.context["result_rows"][0].phenotype_score, 0.1)
+            self.assertEqual(response.context["result_rows"][0].joint_score, 0.1 * 7.774)
+            self.assertEqual(response.context["result_rows"][0].phenotype_rank, 1)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][0].joint_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_score, 7.773)
+            self.assertEqual(response.context["result_rows"][1].phenotype_score, 0.1)
+            self.assertEqual(response.context["result_rows"][1].joint_score, 0.1 * 7.773)
+            self.assertEqual(response.context["result_rows"][1].phenotype_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].joint_rank, 1)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_score, 7.773)
+            self.assertEqual(response.context["result_rows"][2].phenotype_score, 0.1)
+            self.assertEqual(response.context["result_rows"][2].joint_score, 0.1 * 7.773)
+            self.assertEqual(response.context["result_rows"][2].phenotype_rank, 1)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_rank, 2)
+            self.assertEqual(response.context["result_rows"][2].joint_rank, 2)
 
 
 class TestFilterJobDetailView(TestViewBase):

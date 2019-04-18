@@ -17,8 +17,10 @@
           </span>
           <span class="pl-2">
           {% for hpo_id, hpo_name in hpoterms.items %}
-            <span class="badge badge-secondary">{{ hpo_id }}</span>
-            {{ hpo_name }}{% if not forloop.last %},{% endif %}
+            <span class="badge-group">
+              <span class="badge badge-dark">{{ hpo_id }}</span>
+              <span class="badge badge-secondary">{{ hpo_name }}</span>
+            </span>
           {% endfor %}
           </span>
         </div>

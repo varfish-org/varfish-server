@@ -17,6 +17,7 @@ End-User Summary
 - Added comments and flags to variant details view.
 - Fixed bug that transcripts in variant details view were from RefSeq when EnsEMBL was selected.
 - Added icon to variant when RefSeq and EnsEMBL effect predicition differ.
+- Adjusted ranking of genes such that equal scores get the same rank assigned.
 
 Full Change List
 ================
@@ -33,6 +34,9 @@ Full Change List
 - Added comments and flags to variant details view.
 - Fixed bug that transcripts in variant details view were from RefSeq when EnsEMBL was selected.
 - Added icon to variant when RefSeq and EnsEMBL effect predicition for the most pathogenic transcript (in SmallVariant) differ.
+- Adjusted ranking of genes such that equal scores in two genes get the same rank assigned.
+  In case of the pathogenicity and joint score the highest variant score in a gene represents the gene score.
+  The next ranking gene is assigned not the next larger integer but the rank is increased by the number of genes with the same rank.
 
 -------
 v0.14.5

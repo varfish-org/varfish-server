@@ -1417,11 +1417,18 @@ def annotate_with_phenotype_scores(rows, gene_scores):
     rows.sort(key=lambda row: (row._self_phenotype_score, row.entrez_id or ""), reverse=True)
     # Re-compute ranks
     prev_gene = rows[0].entrez_id if rows else None
+    prev_gene_score = rows[0].phenotype_score if rows else None
     rank = 1
+    same_score_count = 1
     for row in rows:
         if row.entrez_id != prev_gene:
+            if prev_gene_score == row.phenotype_score:
+                same_score_count += 1
+            else:
+                rank += same_score_count
+                same_score_count = 1
+            prev_gene_score = row.phenotype_score
             prev_gene = row.entrez_id
-            rank += 1
         row._self_phenotype_rank = rank
     return rows
 
@@ -1489,11 +1496,20 @@ def annotate_with_pathogenicity_scores(rows, variant_scores):
 
     # Re-compute ranks
     prev_gene = rows[0].entrez_id if rows else None
+    prev_gene_score = rows[0].pathogenicity_score if rows else None
     rank = 1
+    same_score_count = 1
     for row in rows:
         if row.entrez_id != prev_gene:
+            if prev_gene_score == row.pathogenicity_score:
+                same_score_count += 1
+            else:
+                rank += same_score_count
+                same_score_count = 1
+            # We get the score of the first variant of a gene, they are ordered by score and thus the first variant is
+            # the highest, representing the gene score.
+            prev_gene_score = row.pathogenicity_score
             prev_gene = row.entrez_id
-            rank += 1
         row._self_pathogenicity_rank = rank
     return rows
 
@@ -1553,11 +1569,18 @@ def annotate_with_joint_scores(rows):
 
     # Re-compute ranks
     prev_gene = rows[0].entrez_id if rows else None
+    prev_gene_score = rows[0].joint_score if rows else None
     rank = 1
+    same_score_count = 1
     for row in rows:
         if row.entrez_id != prev_gene:
+            if prev_gene_score == row.joint_score:
+                same_score_count += 1
+            else:
+                rank += same_score_count
+                same_score_count = 1
+            prev_gene_score = row.joint_score
             prev_gene = row.entrez_id
-            rank += 1
         row._self_joint_rank = rank
     return rows
 

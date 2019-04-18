@@ -2,7 +2,7 @@
 
 import json
 import aldjemy
-from unittest.mock import MagicMock, Mock, patch, sentinel
+from unittest.mock import patch
 from requests_mock import Mocker
 
 from test_plus.test import TestCase
