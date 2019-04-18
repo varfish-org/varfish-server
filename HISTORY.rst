@@ -16,6 +16,7 @@ End-User Summary
 - Added selector for preset gene filter lists (HLA, MUC, ACMG).
 - Added comments and flags to variant details view.
 - Fixed bug that transcripts in variant details view were from RefSeq when EnsEMBL was selected.
+- Added icon to variant when RefSeq and EnsEMBL effect predicition differ.
 
 Full Change List
 ================
@@ -31,6 +32,7 @@ Full Change List
 - Added selector to gene white/blacklist filter, adding common gene lists (HLA, MUC, ACMG) to the filter field.
 - Added comments and flags to variant details view.
 - Fixed bug that transcripts in variant details view were from RefSeq when EnsEMBL was selected.
+- Added icon to variant when RefSeq and EnsEMBL effect predicition for the most pathogenic transcript (in SmallVariant) differ.
 
 -------
 v0.14.5

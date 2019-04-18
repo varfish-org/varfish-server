@@ -15,7 +15,6 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
-from django.db.models import Q, Sum
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View

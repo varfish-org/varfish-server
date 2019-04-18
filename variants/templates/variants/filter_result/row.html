@@ -47,7 +47,12 @@
     {% include "variants/filter_result/clinvar_indicator.html" %}
     {% include "variants/filter_result/hgmd_public_indicator.html" %}
   </td>
-  <td>chr{{ entry.chromosome }}:{{ entry.position|intcomma }}</td>
+  <td>
+    chr{{ entry.chromosome }}:{{ entry.position|intcomma }}
+    {% if entry.effect_ambiguity %}
+      <i class="fa fa-info-circle text-warning" data-toggle="tooltip" title="The impact predictions for RefSeq and ENSEMBL transcripts differ."></i>
+    {% endif %}
+  </td>
   <td>{{ entry.reference|truncatechars:9 }}</td>
   <td>{{ entry.alternative|truncatechars:9 }}</td>
   <td class="detail-exac">

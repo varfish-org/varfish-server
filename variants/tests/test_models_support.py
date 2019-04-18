@@ -784,7 +784,16 @@ def fixture_setup_case1_load():
     }
 
     a = SmallVariant.objects.create(
-        **{**basic_var, **{"position": 100, "refseq_gene_id": "123", "ensembl_gene_id": "ENSGAAA"}}
+        **{
+            **basic_var,
+            **{
+                "position": 100,
+                "refseq_gene_id": "123",
+                "ensembl_gene_id": "ENSGAAA",
+                "ensembl_effect": ["synonymous_variant"],
+                "refseq_effect": ["stop_gained"],
+            },
+        }
     )
     b = SmallVariant.objects.create(
         **{**basic_var, **{"position": 200, "refseq_gene_id": "456", "ensembl_gene_id": "ENSGCCC"}}
@@ -873,6 +882,8 @@ class TestCaseOneLoadResults(FilterTestBase):
         )
         self.assertEqual(results[0].acmg_symbol, "AAA")
         self.assertIsNone(results[1].acmg_symbol)
+        self.assertTrue(results[0].effect_ambiguity)
+        self.assertFalse(results[1].effect_ambiguity)
 
     def test_load_project_cases_results(self):
         projectcasessmallvariantquery = ProjectCasesSmallVariantQuery.objects.first()
@@ -884,6 +895,8 @@ class TestCaseOneLoadResults(FilterTestBase):
         )
         self.assertEqual(results[0].acmg_symbol, "AAA")
         self.assertIsNone(results[1].acmg_symbol)
+        self.assertTrue(results[0].effect_ambiguity)
+        self.assertFalse(results[1].effect_ambiguity)
 
 
 class TestCaseOneQueryDatabaseSwitch(FilterTestBase):

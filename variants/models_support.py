@@ -846,6 +846,9 @@ class FilterQueryRenderFieldsMixin(JoinDbsnpAndHgncMixin):
                 Acmg.sa.symbol.label("acmg_symbol"),
                 Dbsnp.sa.rsid,
                 Case.sa.sodar_uuid.label("case_uuid"),
+                (SmallVariant.sa.ensembl_effect != SmallVariant.sa.refseq_effect).label(
+                    "effect_ambiguity"
+                ),
             ]
             if kwargs["database_select"] == "refseq":
                 result += [
