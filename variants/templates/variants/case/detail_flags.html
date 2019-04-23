@@ -1,5 +1,7 @@
 {% load humanize %}
 {% load variants_tags %}
+{% load projectroles_common_tags %}
+{% get_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
 
 <div class="card varfish-vars-case-details"
      id="card-varfish-vars-case-details-small-var-flags">
@@ -48,42 +50,44 @@
   </table>
 </div>
 
-<div class="card varfish-vars-case-details"
-     id="card-varfish-vars-case-details-structural-var-flags">
-  <div class="card-header">
-    <h4>
-      <i class="fa fa-flag"></i>
-      Flagged Structural Variants
-    </h4>
-  </div>
-  <table class="table tabled-striped table-hover">
-    <thead>
-      <tr>
-        <th style="width: 260px;">Variant</th>
-        <th>Flags</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for flagged_variant in case.structural_variant_flags.all %}
-        <tr id="flags-{{ flagged_variant.get_variant_description }}">
-          <td class="text-nowrap">
-            {{ flagged_variant.get_variant_description }}
-          </td>
-          <td>
-            generic:
-            <i class="fa fa-fw fa-star {% if not flagged_variant.flag_bookmarked %}text-muted{% endif %}"></i>
-            <i class="fa fa-fw fa-flask {% if not flagged_variant.flag_for_validation %}text-muted{% endif %}"></i>
-            <i class="fa fa-fw fa-heart {% if not flagged_variant.flag_candidate %}text-muted{% endif %}"></i>
-            <i class="fa fa-fw fa-flag-checkered {% if not flagged_variant.flag_final_causative %}text-muted{% endif %}"></i>
-            <span class="pl-3">visual:</span>
-            <i class="fa fa-fw {{ flagged_variant.flag_visual|flag_value_to_fa }}"></i>
-            <span class="pl-3">validation:</span>
-            <i class="fa fa-fw {{ flagged_variant.flag_validation|flag_value_to_fa }}"></i>
-            <span class="pl-3">phenotype:</span>
-            <i class="fa fa-fw {{ flagged_variant.flag_phenotype_match|flag_value_to_fa }}"></i>
-          </td>
+{% if svs_enabled %}
+  <div class="card varfish-vars-case-details"
+       id="card-varfish-vars-case-details-structural-var-flags">
+    <div class="card-header">
+      <h4>
+        <i class="fa fa-flag"></i>
+        Flagged Structural Variants
+      </h4>
+    </div>
+    <table class="table tabled-striped table-hover">
+      <thead>
+        <tr>
+          <th style="width: 260px;">Variant</th>
+          <th>Flags</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody>
+        {% for flagged_variant in case.structural_variant_flags.all %}
+          <tr id="flags-{{ flagged_variant.get_variant_description }}">
+            <td class="text-nowrap">
+              {{ flagged_variant.get_variant_description }}
+            </td>
+            <td>
+              generic:
+              <i class="fa fa-fw fa-star {% if not flagged_variant.flag_bookmarked %}text-muted{% endif %}"></i>
+              <i class="fa fa-fw fa-flask {% if not flagged_variant.flag_for_validation %}text-muted{% endif %}"></i>
+              <i class="fa fa-fw fa-heart {% if not flagged_variant.flag_candidate %}text-muted{% endif %}"></i>
+              <i class="fa fa-fw fa-flag-checkered {% if not flagged_variant.flag_final_causative %}text-muted{% endif %}"></i>
+              <span class="pl-3">visual:</span>
+              <i class="fa fa-fw {{ flagged_variant.flag_visual|flag_value_to_fa }}"></i>
+              <span class="pl-3">validation:</span>
+              <i class="fa fa-fw {{ flagged_variant.flag_validation|flag_value_to_fa }}"></i>
+              <span class="pl-3">phenotype:</span>
+              <i class="fa fa-fw {{ flagged_variant.flag_phenotype_match|flag_value_to_fa }}"></i>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}

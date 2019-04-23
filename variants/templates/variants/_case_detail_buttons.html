@@ -1,3 +1,6 @@
+{% load projectroles_common_tags %}
+{% get_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
+
 <div class="ml-auto">
   <a class="btn btn-primary" href="{% url "variants:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
     <i class="fa fa-filter"></i>
@@ -7,9 +10,12 @@
     <i class="fa fa-hospital-o"></i>
     ClinVar Report
   </a>
-  &nbsp;
-  <a class="btn btn-primary" href="{% url "svs:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
-    <i class="fa fa-align-center fa-flip-vertical"></i>
-    Filter SVs
-  </a>
+
+  {% if svs_enabled %}
+    &nbsp;
+    <a class="btn btn-primary" href="{% url "svs:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
+      <i class="fa fa-align-center fa-flip-vertical"></i>
+      Filter SVs
+    </a>
+  {% endif %}
 </div>

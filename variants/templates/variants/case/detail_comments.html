@@ -1,4 +1,6 @@
 {% load humanize %}
+{% load projectroles_common_tags %}
+{% get_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
 
 <div class="card varfish-vars-case-details"
      id="card-varfish-vars-case-details-small-var-comments">
@@ -42,41 +44,43 @@
   </table>
 </div>
 
-<div class="card varfish-vars-case-details"
-     id="card-varfish-vars-case-details-structural-var-comments">
-  <div class="card-header">
-    <h4>
-      <i class="fa fa-comment"></i>
-      Commented Structural Variants
-    </h4>
-  </div>
-  <table class="table tabled-striped table-hover">
-    <thead>
-      <tr>
-        <th style="width:260px;">Location</th>
-        <th style="width:80px;">Type</th>
-        <th>Comments</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for sv_comment in case.structural_variant_comments.all %}
-        <tr id="comment-{{ sv_comment.sodar_uuid }}">
-          <td class="text-nowrap">
-            chr{{ sv_comment.chromosome }}:{{ sv_comment.start|intcomma }}-{{ sv_comment.end|intcomma }}
-          </td>
-          <td class="text-nowrap">
-            {{ sv_comment.sv_type }}
-          </td>
-          <td>
-            <strong>{{ sv_comment.user }}</strong>
-            <small>
-              commented at
-              {{ sv_comment.date_created }}:
-            </small>
-            <em>{{ sv_comment.text }}</em>
-          </td>
+{% if svs_enabled %}
+  <div class="card varfish-vars-case-details"
+       id="card-varfish-vars-case-details-structural-var-comments">
+    <div class="card-header">
+      <h4>
+        <i class="fa fa-comment"></i>
+        Commented Structural Variants
+      </h4>
+    </div>
+    <table class="table tabled-striped table-hover">
+      <thead>
+        <tr>
+          <th style="width:260px;">Location</th>
+          <th style="width:80px;">Type</th>
+          <th>Comments</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+      </thead>
+      <tbody>
+        {% for sv_comment in case.structural_variant_comments.all %}
+          <tr id="comment-{{ sv_comment.sodar_uuid }}">
+            <td class="text-nowrap">
+              chr{{ sv_comment.chromosome }}:{{ sv_comment.start|intcomma }}-{{ sv_comment.end|intcomma }}
+            </td>
+            <td class="text-nowrap">
+              {{ sv_comment.sv_type }}
+            </td>
+            <td>
+              <strong>{{ sv_comment.user }}</strong>
+              <small>
+                commented at
+                {{ sv_comment.date_created }}:
+              </small>
+              <em>{{ sv_comment.text }}</em>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}

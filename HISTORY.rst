@@ -9,6 +9,7 @@ HEAD
 End-User Summary
 ================
 
+- Adding experimental filtration of SVs.
 - Added names to OMIM IDs in variant detail view.
 - Added input check for chromosomal region filter.
 - User gets informed about database versions during annotation and in VarFish.
@@ -22,6 +23,7 @@ End-User Summary
 Full Change List
 ================
 
+- Adding initial support for filtration of SVs and SV databases.
 - Added names to OMIM IDs in variant detail view.
 - Added input check for chromosomal region filter.
 - Made ImportInfo table not unique for release info.

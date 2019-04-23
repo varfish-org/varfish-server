@@ -376,6 +376,12 @@ VARFISH_CADD_REST_API_URL= env.str("VARFISH_CADD_REST_API_URL", "")
 # Configure maximal number of genes to send to Exomiser API
 VARFISH_CADD_MAX_VARS = env.int("VARFISH_CADD_MAX_VARS ", 5000)
 
+# Varfish: SVs
+# ------------------------------------------------------------------------------
+
+# Configure experimental SV filtration feature.
+VARFISH_ENABLE_SVS = env.bool("VARFISH_ENABLE_SVS", default=False)
+
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
@@ -411,9 +417,10 @@ PROJECTROLES_ALLOW_LOCAL_USERS = env.bool(
             'PROJECTROLES_ALLOW_LOCAL_USERS', False
         )
 
+PROJECTROLES_HIDE_APP_LINKS = ["svs"]
+
 ENABLED_BACKEND_PLUGINS = ["timeline_backend"]
 ENABLED_BACKEND_PLUGINS += env.list("ENABLED_BACKEND_PLUGINS", None, [])
-
 
 def set_logging(debug):
     return {
