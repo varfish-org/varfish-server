@@ -114,6 +114,7 @@ class Command(BaseCommand):
             samples_in_genotypes,
             options["path_db_info"],
             prev_case,
+            options["path_variants"] is not None,
         )
 
         # Import small or structural variants
@@ -161,6 +162,7 @@ class Command(BaseCommand):
         samples_in_genotypes,
         path_db_info,
         prev_case=None,
+        is_small_var=True,
     ):
         """Create ``Case`` object, update if it exists and remove old data associated with it."""
         self.stdout.write("Reading PED and creating case...")
@@ -193,37 +195,40 @@ class Command(BaseCommand):
             case.pedigree = pedigree
             case.save()
             # Remove old data associated with case
-            self.stdout.write("Removing old data associated with the case...")
-            AnnotationReleaseInfo.objects.filter(case=case).delete()
-            SmallVariant.objects.filter(case_id=case.pk).delete()
-            connection = SQLALCHEMY_ENGINE.connect()
-            # import ipdb; ipdb.set_trace()
-            from sqlalchemy import delete
+            if is_small_var:
+                self.stdout.write("Removing old small variant data associated with the case...")
+                AnnotationReleaseInfo.objects.filter(case=case).delete()
+                SmallVariant.objects.filter(case_id=case.pk).delete()
+            else:
+                self.stdout.write(
+                    "Removing old structural variant data associated with the case..."
+                )
+                connection = SQLALCHEMY_ENGINE.connect()
+                # import ipdb; ipdb.set_trace()
+                from sqlalchemy import delete
 
-            stmt = (
-                delete(StructuralVariantGeneAnnotation.sa)
-                .where(StructuralVariantGeneAnnotation.sa.sv_uuid == StructuralVariant.sa.sv_uuid)
-                .where(StructuralVariant.sa.case_id == case.pk)
-            )
-            connection.execute(stmt)
-            StructuralVariant.objects.filter(case_id=case.pk).delete()
+                stmt = (
+                    delete(StructuralVariantGeneAnnotation.sa)
+                    .where(
+                        StructuralVariantGeneAnnotation.sa.sv_uuid == StructuralVariant.sa.sv_uuid
+                    )
+                    .where(StructuralVariant.sa.case_id == case.pk)
+                )
+                connection.execute(stmt)
+                StructuralVariant.objects.filter(case_id=case.pk).delete()
             self.stdout.write(self.style.SUCCESS("Done removing old data associated with the case"))
         else:
             case = Case.objects.create(
                 name=case_name, project=project, index=index_name, pedigree=pedigree
             )
         # Import the release info.
-        AnnotationReleaseInfo.objects.bulk_create(
-            [
-                AnnotationReleaseInfo(
-                    genomebuild=entry["genomebuild"],
-                    table=entry["db_name"],
-                    release=entry["release"],
-                    case=case,
-                )
-                for entry in tsv_reader(path_db_info)
-            ]
-        )
+        for entry in tsv_reader(path_db_info):
+            AnnotationReleaseInfo.objects.get_or_create(
+                genomebuild=entry["genomebuild"],
+                table=entry["db_name"],
+                case=case,
+                defaults={"release": entry["release"]},
+            )
 
         if prev_case:
             self.stdout.write(self.style.SUCCESS("Retrieved existing case."))
