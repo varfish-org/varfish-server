@@ -1178,7 +1178,10 @@ class FilterQueryFlagsCommentsMixin:
 
 
 class JoinAndQueryCommonAdditionalTables(
-    FilterQueryFlagsCommentsMixin, FilterQueryHgmdMixin, FilterQueryClinvarDetailsMixin
+    FilterQueryFlagsCommentsMixin,
+    FilterQueryHgmdMixin,
+    FilterQueryClinvarDetailsMixin,
+    FilterInHouseCountsMixin,
 ):
     """Join to common common additional tables and query.
 

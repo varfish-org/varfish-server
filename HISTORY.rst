@@ -3,6 +3,20 @@ History / Changelog
 ===================
 
 -------
+v0.14.7
+-------
+
+End-User Summary
+================
+
+- Bug fix release.
+
+Full Change List
+================
+
+- Fixing bug that inhouse frequencies were not joined to resulting table.
+
+-------
 v0.14.6
 -------
 

@@ -228,7 +228,7 @@ class Command(BaseCommand):
                     start=begin + 1,
                     end=end,
                 )
-                PADDING = 10_000
+                PADDING = 10000
                 if begin > PADDING:
                     TadBoundaryInterval.objects.create(
                         tad_set=tad_set,
