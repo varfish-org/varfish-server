@@ -11,7 +11,7 @@ import sqlparse
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
-from geneinfo.models import Hgnc, RefseqToHgnc, Acmg
+from geneinfo.models import Hgnc, RefseqToHgnc, Acmg, GeneIdToInheritance
 from hgmd.models import HgmdPublicLocus
 from variants.models import (
     Case,
@@ -850,7 +850,44 @@ class JoinDbsnpAndHgncMixin:
             ).outerjoin(Acmg.sa, SmallVariant.sa.ensembl_gene_id == Acmg.sa.ensembl_gene_id)
 
 
-class FilterQueryRenderFieldsMixin(JoinDbsnpAndHgncMixin):
+class JoinModeOfInheritanceMixin:
+    """Mixin to join the mode of inheritance to genes."""
+
+    def _get_fields(self, kwargs, which, inner=None):
+        fields = super()._get_fields(kwargs, which, inner)
+        if kwargs["database_select"] == "refseq":
+            gene_id = GeneIdToInheritance.sa.entrez_id
+        else:
+            gene_id = GeneIdToInheritance.sa.ensembl_gene_id
+        self.inheritance_subquery = (
+            select(
+                [
+                    func.array_agg(GeneIdToInheritance.sa.mode_of_inheritance).label(
+                        "modes_of_inheritance"
+                    ),
+                    gene_id,
+                ]
+            )
+            .select_from(GeneIdToInheritance.sa)
+            .group_by(gene_id)
+        ).alias("grouped_inheritance")
+        return fields + [self.inheritance_subquery.c.modes_of_inheritance]
+
+    def _from(self, kwargs):
+        tmp = super()._from(kwargs)
+        if kwargs["database_select"] == "refseq":
+            return tmp.outerjoin(
+                self.inheritance_subquery,
+                SmallVariant.sa.refseq_gene_id == self.inheritance_subquery.c.entrez_id,
+            )
+        else:
+            return tmp.outerjoin(
+                self.inheritance_subquery,
+                SmallVariant.sa.ensembl_gene_id == self.inheritance_subquery.c.ensembl_gene_id,
+            )
+
+
+class FilterQueryRenderFieldsMixin(JoinModeOfInheritanceMixin, JoinDbsnpAndHgncMixin):
     """Mixin for selecting the standard fields for rendering the query reports in the web app."""
 
     def _from(self, kwargs):
@@ -1365,6 +1402,10 @@ class ProjectCasesExportTableFilterQuery(
 class ClinvarReportFromAndWhereMixin(GenotypeTermWhereMixin):
     """Mixin for generating the ``FROM`` and ``WHERE`` clauses for the clinvar report query.
     """
+
+    def _build_stmt(self, kwargs):
+        kwargs = {**kwargs, **{"require_in_clinvar": True}}
+        return super()._build_stmt(kwargs)
 
     def _from(self, kwargs):
         tmp = (

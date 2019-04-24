@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from postgres_copy import CopyManager
 
 
@@ -67,7 +68,7 @@ class Hgnc(models.Model):
     lsdb = models.CharField(max_length=1024, null=True)
     #: COSMIC ID
     cosmic = models.CharField(max_length=32, null=True)
-    #: OMIM ID
+    #: OMIM IDs (can be multiple, separated by | and in quotes)
     omim_id = models.CharField(max_length=32, null=True)
     #: miRBase ID (microRNA database)
     mirbase = models.CharField(max_length=16, null=True)
@@ -167,12 +168,18 @@ class Hpo(models.Model):
     aspect = models.CharField(max_length=1, null=True)
     #: Curator
     biocuration = models.CharField(max_length=32, null=True)
+    #: OMIM ID
+    omim_id = models.IntegerField(null=True)
+    #: Decipher ID
+    decipher_id = models.IntegerField(null=True)
+    #: Orpha ID
+    orpha_id = models.IntegerField(null=True)
 
     #: Allow bulk import
     objects = CopyManager()
 
     class Meta:
-        indexes = [models.Index(fields=["database_id"])]
+        indexes = [models.Index(fields=["database_id"]), models.Index(fields=["omim_id"])]
 
 
 class HpoName(models.Model):
@@ -240,7 +247,7 @@ class Acmg(models.Model):
 
     #: Refseq/Entrez/NCBI ID
     entrez_id = models.CharField(max_length=16, null=False)
-    # " EnsEMBL gene ID
+    #: EnsEMBL gene ID
     ensembl_gene_id = models.CharField(max_length=32, null=False)
     #: HGNC symbol
     symbol = models.CharField(max_length=32, null=False)
@@ -397,3 +404,42 @@ class RefseqToEnsembl(models.Model):
 
     #: Allow bulk import info database.
     objects = CopyManager()
+
+
+class GeneIdToInheritance(models.Model):
+    """Mode of inheritance to EnsEMBL/RefSeq gene id as materialized view.
+    The modes of inheritance are derived from the following HPO terms. While this table is detached
+    from the HPO terms, the generation of the materialized view is not. Please look into
+    ``migrations/0010_geneidtoinheritance.py`` to learn how the view is created.
+    - HP:0000006: ad
+    - HP:0000007: ar
+    - HP:0001417: x
+    - HP:0001419: xr
+    - HP:0001423: xd
+    Modes of inheritance in HPO: https://hpo.jax.org/app/browse/term/HP:0000005
+    """
+
+    AR = "AR"
+    AD = "AD"
+    X = "X-linked"
+    XR = "XR"
+    XD = "XD"
+
+    MODES_OF_INHERITANCE = (
+        (AR, "Autosomal recessive"),
+        (AD, "Autosomal dominant"),
+        (X, "X-linked"),
+        (XR, "X-linked recessive"),
+        (XD, "X-linked dominant"),
+    )
+
+    #: RefSeq gene ID (the view requires entrez id not to be null.)
+    entrez_id = models.CharField(max_length=16, null=False)
+    #: EnsEMBL gene ID (the view joins via entrez id, so entrez id is never null, but ensembl might be.)
+    ensembl_gene_id = models.CharField(max_length=32)
+    #: Mode of inheritance
+    mode_of_inheritance = models.CharField(choices=MODES_OF_INHERITANCE, default=AR, max_length=8)
+
+    class Meta:
+        managed = settings.IS_TESTING
+        db_table = "geneinfo_geneidtoinheritance"

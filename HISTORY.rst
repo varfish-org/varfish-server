@@ -19,6 +19,7 @@ End-User Summary
 - Adding case and donor counts to project list.
 - QC plots are now loaded asynchronously.
   This should improve page loading time for the case and project overview pages.
+- Adding inheritance mode information to results table.
 
 Full Change List
 ================
@@ -45,6 +46,7 @@ Full Change List
 - Cleaning up and refactoring QC plotting code.
     - Separating plotting JS and data generation Python code.
     - Load data asynchronously.
+- Now displaying inheritance mode information for results, based on HPO terms for inheritance and hgnc information.
 
 -------
 v0.15.1

@@ -13,6 +13,7 @@ from ..models import (
     GnomadConstraints,
     EnsemblToRefseq,
     RefseqToEnsembl,
+    GeneIdToInheritance,
 )
 
 
@@ -171,3 +172,14 @@ class GnomadConstraintsFactory(factory.django.DjangoModelFactory):
     obs_lof = factory.Sequence(lambda n: n)
     lof_z = factory.Sequence(lambda n: 1 / (n + 1))
     oe_lof = factory.Sequence(lambda n: 1 / (n + 1))
+
+
+class GeneIdToInheritanceFactory(factory.django.DjangoModelFactory):
+    """Factory for the ``GeneIdToInheritance`` model/materialized view."""
+
+    class Meta:
+        model = GeneIdToInheritance
+
+    ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
+    entrez_id = factory.Sequence(lambda n: str(n))
+    mode_of_inheritance = factory.Iterator([m for m, v in GeneIdToInheritance.MODES_OF_INHERITANCE])

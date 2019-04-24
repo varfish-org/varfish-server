@@ -41,30 +41,30 @@ from ..helpers import open_file, tsv_reader
 #: One entry in the TABLES variable is structured as follows:
 #: 'table_group': (Table,)
 TABLES = {
+    "acmg": (Acmg,),
     "clinvar": (Clinvar,),
     "dbSNP": (Dbsnp,),
+    "ensembl_genes": (GeneInterval,),
+    "ensembl_regulatory": (EnsemblRegulatoryFeature,),
+    "ensembltorefseq": (EnsemblToRefseq,),
     "ExAC": (Exac,),
     "ExAC_constraints": (ExacConstraints,),
+    "gnomAD_constraints": (GnomadConstraints,),
     "gnomAD_exomes": (GnomadExomes,),
     "gnomAD_genomes": (GnomadGenomes,),
-    "gnomAD_constraints": (GnomadConstraints,),
     "hgmd_public": (HgmdPublicLocus,),
     "hgnc": (Hgnc, RefseqToHgnc),
     "hpo": (Hpo, HpoName),
     "kegg": (KeggInfo, EnsemblToKegg, RefseqToKegg),
     "knowngeneaa": (KnowngeneAA,),
-    "ncbi_gene": (NcbiGeneInfo, NcbiGeneRif),
     "mim2gene": (Mim2geneMedgen,),
-    "thousand_genomes": (ThousandGenomes,),
-    "acmg": (Acmg,),
-    "vista": (VistaEnhancer,),
-    "ensembl_regulatory": (EnsemblRegulatoryFeature,),
-    "ensembl_genes": (GeneInterval,),
+    "ncbi_gene": (NcbiGeneInfo, NcbiGeneRif),
     "refseq_genes": (GeneInterval,),
     "tads_hesc": (TadInterval, TadBoundaryInterval, TadSet),
     "tads_imr90": (TadInterval, TadBoundaryInterval, TadSet),
-    "ensembltorefseq": (EnsemblToRefseq,),
     "refseqtoensembl": (RefseqToEnsembl,),
+    "thousand_genomes": (ThousandGenomes,),
+    "vista": (VistaEnhancer,),
 }
 SERVICE_NAME_CHOICES = ["CADD", "Exomiser"]
 SERVICE_GENOMEBUILD_CHOICES = ["GRCh37", "GRCh38"]

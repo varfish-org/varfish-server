@@ -2,7 +2,10 @@ from django import template
 
 from ..models import Case, only_source_name as _models_only_source_name
 from projectroles.app_settings import AppSettingAPI
+from geneinfo.models import GeneIdToInheritance
 
+
+modes_of_inheritance = dict(GeneIdToInheritance.MODES_OF_INHERITANCE)
 register = template.Library()
 
 
@@ -183,3 +186,14 @@ def allelic_balance(gt):
         return 0.0
     else:
         return gt.get("ad") / gt.get("dp")
+
+
+@register.filter
+def mode_of_inheritance_description(mode_of_inheritance):
+    """Return description for mode of inheritance"""
+    return modes_of_inheritance.get(mode_of_inheritance, "No description available.")
+
+
+@register.filter
+def listsort(l):
+    return sorted(l)

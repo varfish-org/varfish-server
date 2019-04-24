@@ -167,6 +167,12 @@
     {% else %}
       <i class="pl-2 fa fa-user-md text-muted" style="opacity: 0.2"></i>
     {% endif %}
+    &nbsp;
+    {% if entry.modes_of_inheritance %}
+      {% for mode_of_inheritance in entry.modes_of_inheritance|listsort %}
+        <span class="badge badge-info" data-toggle="tooltip" title="{{ mode_of_inheritance|mode_of_inheritance_description }}">{{ mode_of_inheritance }}</span>
+      {% endfor %}
+    {% endif %}
     </nobr>
   </td>
   {% if has_phenotype_scores %}

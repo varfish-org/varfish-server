@@ -6,10 +6,7 @@ import typing
 from aldjemy import core
 import psycopg2.extras
 import attr
-from django.core.exceptions import ImproperlyConfigured
-from sqlalchemy import Table, true, column, union, literal_column
 from sqlalchemy.dialects.postgresql.array import OVERLAP
-from sqlalchemy.sql import select, func, and_, not_, or_, cast
 from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -21,7 +18,7 @@ import sqlparse
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
-from geneinfo.models import Hgnc, RefseqToHgnc, Acmg
+from geneinfo.models import Hgnc, RefseqToHgnc, Acmg, GeneIdToInheritance
 from hgmd.models import HgmdPublicLocus
 from variants.models import (
     Case,
@@ -1040,6 +1037,36 @@ class ExtendQueryPartsAcmgCriteriaJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
+class ExtendQueryPartsModesOfInheritanceJoin(ExtendQueryPartsBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.kwargs["database_select"] == "refseq":
+            gene_id = GeneIdToInheritance.sa.entrez_id
+        else:  # self.kwargs["database_select"] == "ensembl"
+            gene_id = GeneIdToInheritance.sa.ensembl_gene_id
+        self.subquery = (
+            select(
+                [
+                    func.array_agg(GeneIdToInheritance.sa.mode_of_inheritance).label(
+                        "modes_of_inheritance"
+                    )
+                ]
+            )
+            .select_from(GeneIdToInheritance.sa)
+            .where(
+                getattr(SmallVariant.sa, "%s_gene_id" % self.kwargs["database_select"]) == gene_id
+            )
+            .group_by(gene_id)
+            .lateral("modes_of_inheritance_subquery")
+        )
+
+    def extend_fields(self, _query_parts):
+        return [self.subquery.c.modes_of_inheritance]
+
+    def extend_selectable(self, query_parts):
+        return query_parts.selectable.outerjoin(self.subquery, true())
+
+
 extender_classes_base = [
     ExtendQueryPartsCaseJoinAndFilter,
     ExtendQueryPartsDbsnpJoinAndFilter,
@@ -1105,6 +1132,7 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsFlagsJoinAndFilter,
         ExtendQueryPartsCommentsJoin,
         ExtendQueryPartsAcmgCriteriaJoin,
+        ExtendQueryPartsModesOfInheritanceJoin,
     ]
 
 
@@ -1146,6 +1174,7 @@ class ClinvarReportLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsHgncJoin,
         ExtendQueryPartsHgmdJoin,
         ExtendQueryPartsFlagsJoin,
+        ExtendQueryPartsModesOfInheritanceJoin,
     ]
 
 
@@ -1238,7 +1267,7 @@ class CasePrefetchQuery:
 
         if kwargs.get("compound_recessive_enabled", None) and self.query_id is None:
             combiner = CompHetCombiner(self.case_or_cases, self.builder)
-        else:  # compound recessive not kwargs or disabled
+        else:  # compound recessive not in kwargs or disabled
             combiner = DefaultCombiner(self.case_or_cases, self.builder, self.query_id)
 
         stmt = combiner.to_stmt(kwargs, order_by=order_by)

@@ -5,6 +5,8 @@ Remarks:
 - VCF export is only tested for case one at the moment, as it shares a major part of the implementation with
   the render and tabular file export query.
 """
+from django.db import connection
+
 from clinvar.tests.factories import ClinvarFactory
 from conservation.tests.factories import KnownGeneAAFactory
 from hgmd.tests.factories import HgmdPublicLocusFactory
@@ -20,7 +22,13 @@ from variants.queries import (
     ProjectLoadPrefetchedQuery,
     KnownGeneAAQuery,
 )
-from geneinfo.tests.factories import HgncFactory, AcmgFactory
+from geneinfo.tests.factories import (
+    HgncFactory,
+    AcmgFactory,
+    HpoFactory,
+    Mim2geneMedgenFactory,
+    GeneIdToInheritanceFactory,
+)
 from dbsnp.tests.factories import DbsnpFactory
 from .factories import (
     SmallVariantFactory,
@@ -57,6 +65,19 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
             SmallVariantFactory(chromosome="1", case=case),
             SmallVariantFactory(chromosome="1", case=case),
         ]
+        # Prepare mode of inheritance
+        self.modes_of_inheritance = [
+            GeneIdToInheritanceFactory(
+                ensembl_gene_id=small_vars[0].ensembl_gene_id,
+                entrez_id=small_vars[0].refseq_gene_id,
+                mode_of_inheritance="AD",
+            ),
+            GeneIdToInheritanceFactory(
+                ensembl_gene_id=small_vars[0].ensembl_gene_id,
+                entrez_id=small_vars[0].refseq_gene_id,
+                mode_of_inheritance="AR",
+            ),
+        ]
         # Prepare smallvariant query results
         self.smallvariantquery = SmallVariantQueryFactory(case=case)
         self.smallvariantquery.query_results.add(small_vars[0].id, small_vars[1].id)
@@ -74,6 +95,13 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         self.assertIsNone(results[1].acmg_symbol)
         self.assertTrue(results[0].effect_ambiguity)
         self.assertFalse(results[1].effect_ambiguity)
+        self.assertEqual(
+            results[0].modes_of_inheritance,
+            [
+                self.modes_of_inheritance[0].mode_of_inheritance,
+                self.modes_of_inheritance[1].mode_of_inheritance,
+            ],
+        )
 
     def test_load_prefetched_project_cases_results(self):
         results = self.run_query(

@@ -101,6 +101,15 @@ class UUIDEncoder(json.JSONEncoder):
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
+# Modes of inheritance in HPO: https://hpo.jax.org/app/browse/term/HP:0000005
+HPO_INHERITANCE_MAPPING = {
+    "HP:0000006": "AD",
+    "HP:0000007": "AR",
+    "HP:0001417": "X-linked",
+    "HP:0001419": "XR",
+    "HP:0001423": "XD",
+}
+
 
 class AlchemyEngineMixin:
     """Cached alchemy connection for CBVs."""
