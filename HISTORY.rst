@@ -14,7 +14,8 @@ End-User Summary
 Full Change List
 ================
 
-- Fixing bug that inhouse frequencies were not joined to resulting table.
+- Fixed bug that inhouse frequencies were not joined to resulting table.
+- Removed restriction that didn't allow pasting into number fields.
 
 -------
 v0.14.6

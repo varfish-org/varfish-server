@@ -786,12 +786,12 @@ function makeNumberFieldsReceiveOnlyDigits() {
     if (data.which === 46 && /[.]/.test($(this).val())) {
       data.preventDefault();
     }
-  }).on("paste", function(data) {data.preventDefault();});
+  });
   $("input.numberInteger[type='text']").keypress(function(data) {
     if (data.which < 48 || data.which > 57) {
       data.preventDefault();
     }
-  }).on("paste", function(data) {data.preventDefault();});
+  });
 }
 
 $(document).ready(
