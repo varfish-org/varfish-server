@@ -379,20 +379,23 @@ class Command(BaseCommand):
 
     def _create_import_info(self, release_info):
         """Create entry in ImportInfo from the given ``release_info``."""
-        try:
-            ImportInfo.objects.create(
-                genomebuild=release_info["genomebuild"],
-                table=release_info["table"],
-                release=release_info["version"],
-            )
-        except IntegrityError as e:
+        existing = ImportInfo.objects.filter(
+            genomebuild=release_info["genomebuild"], table=release_info["table"]
+        )
+        if existing.all():
             self.stdout.write(
                 "Skipping {table} {version} ({genomebuild}). Already imported.".format(
                     **release_info
                 )
             )
             return False
-        return True
+        else:
+            ImportInfo.objects.create(
+                genomebuild=release_info["genomebuild"],
+                table=release_info["table"],
+                release=release_info["version"],
+            )
+            return True
 
     def _import(self, path, release_info, table, import_info=True, service=False):
         """Bulk data into table and add entry to ImportInfo table.

@@ -31,16 +31,23 @@
       <i class="fa fa-wrench text-muted" data-tooltip="tooltip" title="SV caller: {{ first_entry.caller }}"></i>
     </span>
   </td>
-  <td style="width: 200px;" class="text-nowrap">
-    chr{{ first_entry.chromosome }}:{{ first_entry.start|intcomma }}<span class="text-muted">+</span>{{ first_entry.sv_length|intcomma }}<small class="text-muted">bp</small>
+  <td style="width: 140px;" class="text-nowrap">
+    chr{{ first_entry.chromosome }}:{{ first_entry.start|intcomma }}<span class="text-muted">
+  </td>
+  <td style="width: 50px;" class="text-nowrap text-right">
+    </span>{{ first_entry.sv_length|intcomma }}<small class="text-muted">bp</small>
   </td>
   <td>
     {% for entry in entries|slice:":3" %}
-      {% if not entry.symbol %}
+      {% if entries|length == 1 and not entry.symbol %}
         <span class="text-muted">&empty; genes</span>
+      {% elif not entry.symbol %}
+        {{ entry.gene_id }}{% if not forloop.last %},{% endif %}
       {% else %}
         {{ entry.symbol }}{% if not forloop.last %},{% endif %}
       {% endif %}
+    {% empty %}
+      <span class="text-muted">&empty; genes</span>
     {% endfor %}
     {% if entries|length > 3 %}
       <small>+ {{ entries|length|add:"-3" }} more</small>

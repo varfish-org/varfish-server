@@ -1,11 +1,7 @@
 from projectroles.plugins import ProjectAppPluginPoint
 from bgjobs.plugins import BackgroundJobsPluginPoint
 
-from .models import (
-    Case,
-    StructuralVariantComment,
-    StructuralVariantFlags,
-)
+from .models import Case, StructuralVariantComment, StructuralVariantFlags
 from .urls import urlpatterns
 
 
