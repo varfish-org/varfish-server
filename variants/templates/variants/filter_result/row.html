@@ -49,9 +49,6 @@
   </td>
   <td>
     chr{{ entry.chromosome }}:{{ entry.position|intcomma }}
-    {% if entry.effect_ambiguity %}
-      <i class="fa fa-info-circle text-warning" data-toggle="tooltip" title="The impact predictions for RefSeq and ENSEMBL transcripts differ."></i>
-    {% endif %}
   </td>
   <td>{{ entry.reference|truncatechars:9 }}</td>
   <td>{{ entry.alternative|truncatechars:9 }}</td>
@@ -149,6 +146,9 @@
     <span data-toggle="tooltip" title="{{ entry.effect|join:', ' }}">
       {{ entry.hgvs_p|default:"-"|truncatechars:15  }}
     </span>
+    {% if entry.effect_ambiguity %}
+      <i class="fa fa-info-circle text-warning" data-toggle="tooltip" title="The impact predictions for RefSeq and ENSEMBL transcripts differ."></i>
+    {% endif %}
   </td>
   {% if query_type == "case" %}
     {# pedigree members #}
