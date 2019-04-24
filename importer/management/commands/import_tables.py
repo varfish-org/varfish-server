@@ -102,7 +102,6 @@ class Command(BaseCommand):
             "--force", help="Force import, removes old data", action="store_true", default=False
         )
 
-    @transaction.atomic
     def handle(self, *args, **options):
         """Iterate over genomebuilds, database folders and versions to gather all required information for import.
         """
@@ -142,40 +141,44 @@ class Command(BaseCommand):
             raise CommandError("Require version import info file {}.".format(path_import_versions))
 
         for import_info in tsv_reader(path_import_versions):
-            table_group = import_info["table_group"]
-            version_path = os.path.join(
-                options["tables_path"], import_info["build"], table_group, import_info["version"]
-            )
+            with transaction.atomic():
+                table_group = import_info["table_group"]
+                version_path = os.path.join(
+                    options["tables_path"],
+                    import_info["build"],
+                    table_group,
+                    import_info["version"],
+                )
 
-            if table_group == "kegg":
-                self._import_kegg(version_path, TABLES[table_group])
-            elif table_group in ("gnomAD_genomes", "gnomAD_exomes"):
-                self._import_gnomad(version_path, TABLES[table_group])
-            elif table_group == "vista":
-                self._import_vista(version_path, TABLES[table_group], force=options["force"])
-            elif table_group == "ensembl_regulatory":
-                self._import_ensembl_regulatory(
-                    version_path, TABLES[table_group], force=options["force"]
-                )
-            elif table_group == "ensembl_genes":
-                self._import_gene_interval(
-                    version_path, TABLES[table_group], "ensembl", force=options["force"]
-                )
-            elif table_group == "refseq_genes":
-                self._import_gene_interval(
-                    version_path, TABLES[table_group], "refseq", force=options["force"]
-                )
-            elif table_group == "tads_imr90":
-                self._import_tad_set(
-                    version_path, TABLES[table_group], "imr90", force=options["force"]
-                )
-            elif table_group == "tads_hesc":
-                self._import_tad_set(
-                    version_path, TABLES[table_group], "hesc", force=options["force"]
-                )
-            else:
-                for table in TABLES[table_group]:
-                    self._import(*self._get_table_info(version_path, table.__name__), table)
+                if table_group == "kegg":
+                    self._import_kegg(version_path, TABLES[table_group])
+                elif table_group in ("gnomAD_genomes", "gnomAD_exomes"):
+                    self._import_gnomad(version_path, TABLES[table_group])
+                elif table_group == "vista":
+                    self._import_vista(version_path, TABLES[table_group], force=options["force"])
+                elif table_group == "ensembl_regulatory":
+                    self._import_ensembl_regulatory(
+                        version_path, TABLES[table_group], force=options["force"]
+                    )
+                elif table_group == "ensembl_genes":
+                    self._import_gene_interval(
+                        version_path, TABLES[table_group], "ensembl", force=options["force"]
+                    )
+                elif table_group == "refseq_genes":
+                    self._import_gene_interval(
+                        version_path, TABLES[table_group], "refseq", force=options["force"]
+                    )
+                elif table_group == "tads_imr90":
+                    self._import_tad_set(
+                        version_path, TABLES[table_group], "imr90", force=options["force"]
+                    )
+                elif table_group == "tads_hesc":
+                    self._import_tad_set(
+                        version_path, TABLES[table_group], "hesc", force=options["force"]
+                    )
+                else:
+                    for table in TABLES[table_group]:
+                        self._import(*self._get_table_info(version_path, table.__name__), table)
 
     def _import_tad_set(self, path, tables, subset_key, force):
         """TAD import"""
