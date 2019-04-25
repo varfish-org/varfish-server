@@ -28,6 +28,9 @@ class HgmdPublicLocus(models.Model):
     #: Enable bulk-import.
     objects = CopyManager()
 
+    class Meta:
+        indexes = [models.Index(fields=["release", "chromosome", "start"])]
+
     def __str__(self):
         """String representation, e.g., used in Django admin."""
         values = (self.release, self.chromosome, self.start, self.end, self.variation_name)

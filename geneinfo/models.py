@@ -112,6 +112,7 @@ class Hgnc(models.Model):
             models.Index(fields=["ensembl_gene_id"]),
             models.Index(fields=["entrez_id"]),
             models.Index(fields=["symbol"]),
+            models.Index(fields=["hgnc_id"]),
             models.Index(fields=["ensembl_gene_id", "entrez_id", "symbol"]),
         ]
 
@@ -230,6 +231,9 @@ class RefseqToHgnc(models.Model):
     #: Allow bulk import into database.
     objects = CopyManager()
 
+    class Meta:
+        indexes = [models.Index(fields=["entrez_id"]), models.Index(fields=["hgnc_id"])]
+
 
 class Acmg(models.Model):
     """Acmg recommendation table."""
@@ -243,3 +247,6 @@ class Acmg(models.Model):
 
     #: Allow bulk import info database.
     objects = CopyManager()
+
+    class Meta:
+        indexes = [models.Index(fields=["entrez_id"]), models.Index(fields=["ensembl_gene_id"])]

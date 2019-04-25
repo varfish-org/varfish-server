@@ -31,9 +31,11 @@ serve_public:
 flushdb:
 	$(MANAGE) flush
 
-migrate:
+_migrate:
 	$(MANAGE) makemigrations
 	$(MANAGE) migrate
+
+migrate: _migrate black
 
 shell:
 	$(MANAGE) shell
