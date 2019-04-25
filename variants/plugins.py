@@ -51,6 +51,23 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     #: Position in plugin ordering
     plugin_ordering = 10
 
+    #: No project settings for this app.
+    project_settings = {}
+
+    #: The user settings for this app.
+    user_settings = {
+        "umd_predictor_api_token": {
+            "type": "STRING",  # STRING/INTEGER/BOOLEAN
+            "default": "",
+            "label": "UMD Predictor API Token",
+            "placeholder": "paste your API token here",
+            "description": (
+                "In order to use the UMD score, you will need to create an account in the UMD Predictor site. "
+                "Afterwards, you can obtain your token from your account settings page."
+            ),
+        }
+    }
+
     def search(self, search_term, user, search_type=None, keywords=None):
         """
         Return app items based on a search term, user, optional type and

@@ -9,6 +9,9 @@ HEAD (unreleased)
 End-User Summary
 ================
 
+- Adding link-out to the UMD Predictor (requires users to configure a UMD Predictor API Token).
+- Adding capabilities for user to store settings.
+
 Full Change List
 ================
 
@@ -18,6 +21,7 @@ Full Change List
 - Added command to rebuild variant summary materialized view ``rebuild_variant_summary``.
 - Adding link-out to PubMed with gene symbol and phenotype term names.
 - Improving existing link-out to Entrez Gene if the Entrez gene ID is known.
+- Adding user settings through latest SODAR-core feature.
 - Adding ``ImportInfo`` to django admin.
 
 -------

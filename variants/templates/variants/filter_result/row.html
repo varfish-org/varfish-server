@@ -4,6 +4,7 @@
 {% load dict %}
 {% load variants_tags %}
 
+{% get_user_setting user "variants" "umd_predictor_api_token" as umd_predictor_api_token %}
 
 <tr class="variant-row {% if not training_mode %}variant-row-{{ entry|flag_class }}{% endif %}">
   {# fold-out #}
@@ -232,6 +233,24 @@
         {% else %}
           <span class="dropdown-item disabled">
             PolyPhen 2: missense only
+          </span>
+        {% endif %}
+        {% if entry.reference|length != 1 or entry.alternative|length != 1 %}
+          <span class="dropdown-item disabled" data-toggle="tooltip" title="UMD Predictor can only predict SNVs">
+            UMD Predictor: SNV only
+          </span>
+        {% elif umd_predictor_api_token %}
+          <a href="http://umd-predictor.eu/webservice.php?chromosome=chr{{ entry.chromosome }}&c_position={{ entry.position }}&wt_nucleotide={{ entry.reference }}&mutant_nucleotide={{ entry.alternative }}&token={{ umd_predictor_api_token }}"
+            data-toggle="tooltip"
+            title="Query UMD Predictor"
+            target="_blank"
+            class="dropdown-item">
+            Query UMD Predictor
+          </a>
+          {#   #}
+        {% else %}
+          <span class="dropdown-item disabled" data-toggle="tooltip" title="Configure your UMD Predictor API token in the user settings.">
+            UMD Predictor: no key
           </span>
         {% endif %}
       </div>

@@ -1,6 +1,7 @@
 from django import template
 
 from ..models import Case, only_source_name as _models_only_source_name
+from projectroles.user_settings import get_user_setting as _get_user_setting
 
 register = template.Library()
 
@@ -97,3 +98,10 @@ def flag_class(row):
 def chrx_het_hom_ratio(case, sample):
     """Return het./hom. ratio of ``sample`` in ``case``."""
     return case.chrx_het_hom_ratio(sample)
+
+
+# TODO: move to sodar-core
+@register.simple_tag
+def get_user_setting(user, app_name, setting_name):
+    """Return user setting."""
+    return _get_user_setting(user, app_name, setting_name)

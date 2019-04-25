@@ -30,6 +30,7 @@ urlpatterns = [
     url(r"^project/", include("projectroles.urls")),
     url(r'^timeline/', include('timeline.urls')),
     url(r'^alerts/', include('adminalerts.urls')),
+    url(r'^userprofile/', include('userprofile.urls')),
 
     # The rendered Sphinx-based manual.
     url(r'^manual/', include('docs.urls')),

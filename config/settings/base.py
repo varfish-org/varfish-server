@@ -64,6 +64,7 @@ THIRD_PARTY_APPS = [
     "knox",
     "aldjemy",
     "adminalerts",
+    "userprofile.apps.UserprofileConfig",
     "projectroles.apps.ProjectrolesConfig",
     "timeline.apps.TimelineConfig",
     'docs',  # For the online user documentation/manual
