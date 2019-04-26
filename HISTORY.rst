@@ -2,6 +2,19 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+Full Change List
+================
+
+- Added elapsed time display to ``import_case``
+- Speedup deletion of old data using SQL Alchemy for ``import_case``.
+
 -------
 v0.14.7
 -------

@@ -6,7 +6,6 @@ MANAGE = time python manage.py
 black:
 	black -l 100 \
 		annotation \
-		bgjobs \
 		clinvar \
 		conservation \
 		dbsnp \
@@ -19,6 +18,7 @@ black:
 		svdbs \
 		svs \
 		templatetags \
+		varfish \
 		variants \
 		var_stats_qc
 

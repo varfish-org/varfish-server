@@ -9,4 +9,3 @@ class TestUser(TestCase):
         self.assertEqual(
             self.user.__str__(), "testuser"  # This is the default username for self.make_user()
         )
-

@@ -10,6 +10,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.conf import settings
+from django.utils import timezone
+from sqlalchemy import delete
 
 from annotation.models import Annotation
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
@@ -74,9 +76,19 @@ class Command(BaseCommand):
             "--force", help="Replace imported case if it exists", action="store_true"
         )
 
-    @transaction.atomic
     def handle(self, *args, **options):
+        """The actual implementation is in ``_handle()``, splitting to get commit times."""
+        self._handle(*args, **options)
+        if self.last_now:
+            elapsed = timezone.now() - self.last_now
+            self.stdout.write("Database commit took %.2f s" % elapsed.total_seconds())
+
+    @transaction.atomic
+    def _handle(self, *args, **options):
         """Perform the import of the case."""
+        self.stdout.write("Starting case import")
+        self.stdout.write("options = %s" % options)
+        self.last_now = None
         # Check that mode-triggering flags are mutually exclusive and exactly one is given
         if (options["path_variants"] is None) == (options["path_feature_effects"] is None):
             raise CommandError(
@@ -137,6 +149,7 @@ class Command(BaseCommand):
                 description='Import of case "{}" finished.'.format(case.name),
                 status_type="OK",
             )
+        self.last_now = timezone.now()
 
     def _get_project(self, project_uuid):
         """Get query or raise appropriate exception."""
@@ -197,16 +210,15 @@ class Command(BaseCommand):
             # Remove old data associated with case
             if is_small_var:
                 self.stdout.write("Removing old small variant data associated with the case...")
+                before = timezone.now()
                 AnnotationReleaseInfo.objects.filter(case=case).delete()
-                SmallVariant.objects.filter(case_id=case.pk).delete()
+                stmt = delete(SmallVariant.sa).where(SmallVariant.sa.case_id == case.pk)
+                SQLALCHEMY_ENGINE.execute(stmt)
             else:
                 self.stdout.write(
                     "Removing old structural variant data associated with the case..."
                 )
-                connection = SQLALCHEMY_ENGINE.connect()
-                # import ipdb; ipdb.set_trace()
-                from sqlalchemy import delete
-
+                before = timezone.now()
                 stmt = (
                     delete(StructuralVariantGeneAnnotation.sa)
                     .where(
@@ -214,9 +226,15 @@ class Command(BaseCommand):
                     )
                     .where(StructuralVariant.sa.case_id == case.pk)
                 )
-                connection.execute(stmt)
+                SQLALCHEMY_ENGINE.execute(stmt)
                 StructuralVariant.objects.filter(case_id=case.pk).delete()
-            self.stdout.write(self.style.SUCCESS("Done removing old data associated with the case"))
+            elapsed = timezone.now() - before
+            self.stdout.write(
+                self.style.SUCCESS(
+                    "Done removing old data associated with the case in %.2f s"
+                    % elapsed.total_seconds()
+                )
+            )
         else:
             case = Case.objects.create(
                 name=case_name, project=project, index=index_name, pedigree=pedigree
@@ -238,6 +256,7 @@ class Command(BaseCommand):
 
     def _import_small_variants(self, path_variants):
         """Import small variants TSV file into database."""
+        before = timezone.now()
         self.stdout.write("Importing variants...")
         with open_file(path_variants, "rt") as tsv:
             Annotation.objects.from_csv(
@@ -247,10 +266,14 @@ class Command(BaseCommand):
                 drop_constraints=False,
                 drop_indexes=False,
             )
-        self.stdout.write(self.style.SUCCESS("Finished importing variants"))
+        elapsed = timezone.now() - before
+        self.stdout.write(
+            self.style.SUCCESS("Finished importing variants in %.2f s" % elapsed.total_seconds())
+        )
 
     def _import_small_variants_genotypes(self, case, path_genotypes):
         """Import small variants TSV file into database."""
+        before = timezone.now()
         self.stdout.write("Creating temporary genotype file...")
         with tempfile.NamedTemporaryFile("w+t") as tempf:
             with open_file(path_genotypes, "rt") as inputf:
@@ -270,6 +293,9 @@ class Command(BaseCommand):
                     tempf.write("\t".join(arr))
                     tempf.write("\n")
             tempf.flush()
+            elapsed = timezone.now() - before
+            self.stdout.write("Wrote file in %.2f s" % elapsed.total_seconds())
+            before = timezone.now()
             self.stdout.write("Importing genotype file...")
             SmallVariant.objects.from_csv(
                 tempf.name,
@@ -279,13 +305,24 @@ class Command(BaseCommand):
                 drop_constraints=False,
                 drop_indexes=False,
             )
-            self.stdout.write(self.style.SUCCESS("Finished importing genotypes"))
+            elapsed = timezone.now() - before
+            self.stdout.write(
+                self.style.SUCCESS(
+                    "Finished importing genotypes in %.2f s" % elapsed.total_seconds()
+                )
+            )
 
     def _rebuild_small_variants_stats(self, case):
         """Rebuild small variant statistics."""
+        before = timezone.now()
         self.stdout.write("Computing variant statistics...")
         rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
-        self.stdout.write(self.style.SUCCESS("Finished computing variant statistics"))
+        elapsed = timezone.now() - before
+        self.stdout.write(
+            self.style.SUCCESS(
+                "Finished computing variant statistics in %.2f s" % elapsed.total_seconds()
+            )
+        )
 
     def _import_structural_variants_genotypes(self, case, path_genotypes):
         """Import structural variants TSV file into database."""
