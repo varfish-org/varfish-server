@@ -15,6 +15,7 @@ Full Change List
 - Added elapsed time display to ``import_case``
 - Speedup deletion of old data using SQL Alchemy for ``import_case``.
 - Added indices to hgnc, mim2genemedgen, acmg and hgmd tables.
+- Added command to rebuild variant summary materialized view ``rebuild_variant_summary``.
 
 -------
 v0.14.7
