@@ -17,10 +17,12 @@ from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.utils import timezone
-from django.views.generic import DetailView, FormView, ListView, View
+from django.views.generic import DetailView, FormView, ListView, View, RedirectView
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
 
 import simplejson as json
+from projectroles.user_settings import set_user_setting
+from projectroles.templatetags.projectroles_common_tags import site_version
 
 from bgjobs.models import BackgroundJob
 from clinvar.models import Clinvar, ClinvarPathogenicGenes
@@ -2098,3 +2100,15 @@ class SmallVariantCommentApiView(
             tl_event.add_object(obj=case, label="case", name=case.name)
             tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
         return HttpResponse(json.dumps({"result": "OK"}), content_type="application/json")
+
+
+class NewFeaturesView(LoginRequiredMixin, RedirectView):
+    """Store "latest seen changelog version" for user and redirect."""
+
+    url = "/manual/history.html"
+
+    def get(self, *args, **kwargs):
+        set_user_setting(
+            self.request.user, "variants", "latest_version_seen_changelog", site_version()
+        )
+        return super().get(*args, **kwargs)

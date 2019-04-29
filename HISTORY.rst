@@ -10,7 +10,8 @@ End-User Summary
 ================
 
 - Adding link-out to the UMD Predictor (requires users to configure a UMD Predictor API Token).
-- Adding capabilities for user to store settings.
+- Adding user settings feature.
+- Improving link-out to PubMed.
 
 Full Change List
 ================
@@ -23,6 +24,8 @@ Full Change List
 - Improving existing link-out to Entrez Gene if the Entrez gene ID is known.
 - Adding user settings through latest SODAR-core feature.
 - Adding ``ImportInfo`` to django admin.
+- Adding "New Features" button to to the top navigation bar.
+- Adding link-out to the UMD Predictor (requires users to configure a UMD Predictor API Token).
 
 -------
 v0.14.7

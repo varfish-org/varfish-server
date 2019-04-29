@@ -218,4 +218,7 @@ urlpatterns = [
         view=views.SmallVariantDetails.as_view(),
         name="small-variant-details",
     ),
+    # Set last seen changelog version for user and redirect to changelog.
+    # TODO: move to sodar-core?
+    url(regex=r"^new-features/$", view=views.NewFeaturesView.as_view(), name="new-features"),
 ]

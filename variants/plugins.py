@@ -65,7 +65,12 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "In order to use the UMD score, you will need to create an account in the UMD Predictor site. "
                 "Afterwards, you can obtain your token from your account settings page."
             ),
-        }
+        },
+        "latest_version_seen_changelog": {
+            "type": "STRING",
+            "default": "",
+            "label": "Changelog seen in version",
+        },
     }
 
     def search(self, search_term, user, search_type=None, keywords=None):
