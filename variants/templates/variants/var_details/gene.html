@@ -36,6 +36,89 @@
         <td>{{ gene.gene_family|default:"<div class='text-muted text-center'><i>No gene family information available.</i></div>" }}</td>
       </tr>
       <tr>
+        <th class="text-right">Constraints</th>
+        <td>
+          {% if gene.exac_constraints or gene.gnomad_constraints %}
+            <table class="table">
+              <tr>
+                <th></th>
+                <th>Category</th>
+                <th>Exp. # SNVs</th>
+                <th>Obs. # SNVs</th>
+                <th>Z</th>
+                <th>o/e</th>
+              </tr>
+              {% if gene.exac_constraints %}
+              <tr>
+                <th rowspan="3">ExAC</th>
+                <th>Synonymous</th>
+                <td class="text-right">{{ gene.exac_constraints.exp_syn|floatformat }}</td>
+                <td class="text-right">{{ gene.exac_constraints.n_syn }}</td>
+                <td class="text-right">{{ gene.exac_constraints.syn_z|floatformat }}</td>
+                <td class="text-right">-</td>
+              </tr>
+              <tr>
+                <th>Missense</th>
+                <td class="text-right">{{ gene.exac_constraints.exp_mis|floatformat }}</td>
+                <td class="text-right">{{ gene.exac_constraints.n_mis }}</td>
+                <td class="text-right">{{ gene.exac_constraints.mis_z|floatformat }}</td>
+                <td class="text-right">-</td>
+              </tr>
+              <tr>
+                <th>LoF</th>
+                <td class="text-right">{{ gene.exac_constraints.exp_lof|floatformat }}</td>
+                <td class="text-right">{{ gene.exac_constraints.n_lof }}</td>
+                <td class="text-right">{{ gene.exac_constraints.lof_z|floatformat }}</td>
+                <td class="text-right">-</td>
+              </tr>
+              {% else %}
+              <tr>
+                <th>ExAC</th>
+                <td colspan="5" class="text-center text-muted">
+                  <i>No ExAC constraint information.</i>
+                </td>
+              </tr>
+              {% endif %}
+              {% if gene.gnomad_constraints %}
+              <tr>
+                <th rowspan="3">gnomAD</th>
+                <th>Synonymous</th>
+                <td class="text-right">{{ gene.gnomad_constraints.exp_syn|floatformat }}</td>
+                <td class="text-right">{{ gene.gnomad_constraints.obs_syn }}</td>
+                <td class="text-right">{{ gene.gnomad_constraints.syn_z|floatformat }}</td>
+                <td class="text-right">{{ gene.gnomad_constraints.oe_syn|floatformat }}</td>
+              </tr>
+              <tr>
+                <th>Missense</th>
+                <td class="text-right">{{ gene.gnomad_constraints.exp_mis|floatformat }}</td>
+                <td class="text-right">{{ gene.gnomad_constraints.obs_mis }}</td>
+                <td class="text-right">{{ gene.gnomad_constraints.mis_z|floatformat }}</td>
+                <td class="text-right">{{ gene.gnomad_constraints.oe_mis|floatformat }}</td>
+              </tr>
+              <tr>
+                <th>LoF</th>
+                <td class="text-right">{{ gene.gnomad_constraints.exp_lof|floatformat }}</td>
+                <td class="text-right">{{ gene.gnomad_constraints.obs_lof }}</td>
+                <td class="text-right">{{ gene.gnomad_constraints.lof_z|floatformat }}</td>
+                <td class="text-right">{{ gene.gnomad_constraints.oe_lof|floatformat }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <th>gnomAD</th>
+                <td colspan="5" class="text-center text-muted">
+                  <i>No gnomAD constraint information.</i>
+                </td>
+              </tr>
+              {% endif %}
+            </table>
+          {% else %}
+            <div class="text-center text-muted">
+              <i>No constraint information.</i>
+            </div>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
         <th class="text-right">ClinVar</th>
         <td>
           {% if gene.clinvar_pathogenicity %}

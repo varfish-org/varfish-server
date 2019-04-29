@@ -3,7 +3,7 @@ import tempfile
 
 import binning
 from django.core.management.base import BaseCommand, CommandError
-from django.db import IntegrityError, transaction
+from django.db import transaction
 
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
@@ -18,6 +18,9 @@ from geneinfo.models import (
     HpoName,
     RefseqToHgnc,
     Acmg,
+    GnomadConstraints,
+    ExacConstraints,
+    EnsemblToRefseq,
 )
 from genomicfeatures.models import (
     GeneInterval,
@@ -39,8 +42,10 @@ TABLES = {
     "clinvar": (Clinvar,),
     "dbSNP": (Dbsnp,),
     "ExAC": (Exac,),
+    "ExAC_constraints": (ExacConstraints,),
     "gnomAD_exomes": (GnomadExomes,),
     "gnomAD_genomes": (GnomadGenomes,),
+    "gnomAD_constraints": (GnomadConstraints,),
     "hgmd_public": (HgmdPublicLocus,),
     "hgnc": (Hgnc, RefseqToHgnc),
     "hpo": (Hpo, HpoName),
@@ -56,6 +61,7 @@ TABLES = {
     "refseq_genes": (GeneInterval,),
     "tads_hesc": (TadInterval, TadBoundaryInterval, TadSet),
     "tads_imr90": (TadInterval, TadBoundaryInterval, TadSet),
+    "ensembltorefseq": (EnsemblToRefseq,),
 }
 SERVICE_NAME_CHOICES = ["CADD", "Exomiser"]
 SERVICE_GENOMEBUILD_CHOICES = ["GRCh37", "GRCh38"]

@@ -34,6 +34,9 @@ from geneinfo.models import (
     HpoName,
     Mim2geneMedgen,
     RefseqToHgnc,
+    ExacConstraints,
+    GnomadConstraints,
+    EnsemblToRefseq,
 )
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
@@ -61,7 +64,6 @@ from .models import (
     ProjectCasesFilterBgJob,
     ClinvarBgJob,
     ClinvarQuery,
-    AnnotationReleaseInfo,
     annotate_with_phenotype_scores,
     annotate_with_pathogenicity_scores,
     annotate_with_joint_scores,
@@ -1490,12 +1492,21 @@ class SmallVariantDetails(
             gene = None
             if hgnc:
                 gene = Hgnc.objects.filter(hgnc_id=hgnc.hgnc_id).first()
+            ensembl_to_refseq = EnsemblToRefseq.objects.filter(entrez_id=kwargs["gene_id"]).first()
+            ensembl_gene_id = getattr(ensembl_to_refseq, "ensembl_gene_id", None)
         else:
             gene = Hgnc.objects.filter(ensembl_gene_id=kwargs["gene_id"]).first()
+            ensembl_gene_id = gene.ensembl_gene_id
         if not gene:
             return {"gene_id": kwargs["gene_id"]}
         else:
             gene = model_to_dict(gene)
+            if kwargs["database"] == "refseq":
+                gene["entrez_id"] = kwargs["gene_id"]
+            else:
+                hgnc = RefseqToHgnc.objects.filter(hgnc_id=gene["hgnc_id"]).first()
+                if hgnc:
+                    gene["entrez_id"] = hgnc.entrez_id
             hpoterms, hpoinheritance, omim = self._handle_hpo_omim(gene["entrez_id"])
             gene["omim"] = omim
             gene["hpo_inheritance"] = list(hpoinheritance)
@@ -1503,9 +1514,21 @@ class SmallVariantDetails(
             gene["clinvar_pathogenicity"] = ClinvarPathogenicGenes.objects.filter(
                 entrez_id=gene["entrez_id"]
             ).first()
+            if ensembl_gene_id:
+                gene["exac_constraints"] = self._get_exac_constraints(ensembl_gene_id)
+                gene["gnomad_constraints"] = GnomadConstraints.objects.filter(
+                    ensembl_gene_id=ensembl_gene_id
+                ).first()
             return gene
 
+    def _get_exac_constraints(self, ensembl_gene_id):
+        results = EnsemblToRefseq.objects.filter(ensembl_gene_id=ensembl_gene_id)
+        ensembl_transcripts = [record.ensembl_transcript_id for record in results]
+        return ExacConstraints.objects.filter(ensembl_transcript_id__in=ensembl_transcripts).first()
+
     def _handle_hpo_omim(self, entrez_id):
+        if entrez_id is None:
+            return [], [], None
         mim2gene = Mim2geneMedgen.objects.filter(entrez_id=entrez_id)
         omim = dict()
         hpoterms = set()

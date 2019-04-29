@@ -14,6 +14,8 @@ End-User Summary
 - Improving link-out to PubMed.
 - Adding gene display on case overview for flags and comments.
 - Added warning icon to results table indicating significant differences in frequency databases.
+- Added command to rebuild variant summary materialized view ``rebuild_variant_summary``.
+- Added ExAC and gnomAD constraint information to variant details gene card.
 
 Full Change List
 ================
@@ -31,6 +33,8 @@ Full Change List
 - Overlapping gene IDs now displayed for flags and comments on the case overview/detail view.
 - Added warning icon to results table when a frequency in a non-selected frequency table is > 0.1.
   Or if hom count is > 50. For inhouse it is only hom > 50 as there is no frequency.
+- Added ExAC and gnomAD constraint information to variant details gene card.
+  Two new tables were added, ``GnomadConstraint`` and ``ExacConstraint``.
 
 -------
 v0.14.7

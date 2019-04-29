@@ -1,5 +1,6 @@
 from django.db import models
 from postgres_copy import CopyManager
+from annotation.models import Annotation
 
 
 class Hgnc(models.Model):
@@ -250,3 +251,136 @@ class Acmg(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=["entrez_id"]), models.Index(fields=["ensembl_gene_id"])]
+
+
+class GnomadConstraints(models.Model):
+    """Gnomad Constraints table."""
+
+    #: HGNC symbol
+    symbol = models.CharField(max_length=32)
+    #: EnsEMBL transcript ID
+    ensembl_transcript_id = models.CharField(max_length=16)
+    obs_mis = models.IntegerField(null=True)
+    exp_mis = models.FloatField(null=True)
+    oe_mis = models.FloatField(null=True)
+    mu_mis = models.FloatField(null=True)
+    possible_mis = models.IntegerField(null=True)
+    obs_mis_pphen = models.IntegerField(null=True)
+    exp_mis_pphen = models.FloatField(null=True)
+    oe_mis_pphen = models.FloatField(null=True)
+    possible_mis_pphen = models.IntegerField(null=True)
+    obs_syn = models.IntegerField(null=True)
+    exp_syn = models.FloatField(null=True)
+    oe_syn = models.FloatField(null=True)
+    mu_syn = models.FloatField(null=True)
+    possible_syn = models.IntegerField(null=True)
+    obs_lof = models.IntegerField(null=True)
+    mu_lof = models.FloatField(null=True)
+    possible_lof = models.IntegerField(null=True)
+    exp_lof = models.FloatField(null=True)
+    pLI = models.FloatField(null=True)
+    pNull = models.FloatField(null=True)
+    pRec = models.FloatField(null=True)
+    oe_lof = models.FloatField(null=True)
+    oe_syn_lower = models.FloatField(null=True)
+    oe_syn_upper = models.FloatField(null=True)
+    oe_mis_lower = models.FloatField(null=True)
+    oe_mis_upper = models.FloatField(null=True)
+    oe_lof_lower = models.FloatField(null=True)
+    oe_lof_upper = models.FloatField(null=True)
+    constraint_flag = models.CharField(max_length=64, null=True)
+    syn_z = models.FloatField(null=True)
+    mis_z = models.FloatField(null=True)
+    lof_z = models.FloatField(null=True)
+    oe_lof_upper_rank = models.IntegerField(null=True)
+    oe_lof_upper_bin = models.IntegerField(null=True)
+    oe_lof_upper_bin_6 = models.IntegerField(null=True)
+    n_sites = models.IntegerField(null=True)
+    classic_caf = models.FloatField(null=True)
+    max_af = models.FloatField(null=True)
+    no_lofs = models.IntegerField(null=True)
+    obs_het_lof = models.IntegerField(null=True)
+    obs_hom_lof = models.IntegerField(null=True)
+    defined = models.IntegerField(null=True)
+    p = models.FloatField(null=True)
+    exp_hom_lof = models.FloatField(null=True)
+    classic_caf_afr = models.FloatField(null=True)
+    classic_caf_amr = models.FloatField(null=True)
+    classic_caf_asj = models.FloatField(null=True)
+    classic_caf_eas = models.FloatField(null=True)
+    classic_caf_fin = models.FloatField(null=True)
+    classic_caf_nfe = models.FloatField(null=True)
+    classic_caf_oth = models.FloatField(null=True)
+    classic_caf_sas = models.FloatField(null=True)
+    p_afr = models.FloatField(null=True)
+    p_amr = models.FloatField(null=True)
+    p_asj = models.FloatField(null=True)
+    p_eas = models.FloatField(null=True)
+    p_fin = models.FloatField(null=True)
+    p_nfe = models.FloatField(null=True)
+    p_oth = models.FloatField(null=True)
+    p_sas = models.FloatField(null=True)
+    transcript_type = models.CharField(max_length=16, null=True)
+    ensembl_gene_id = models.CharField(max_length=16, null=True)
+    transcript_level = models.IntegerField(null=True)
+    cds_length = models.IntegerField(null=True)
+    num_coding_exons = models.IntegerField(null=True)
+    gene_type = models.CharField(max_length=16, null=True)
+    gene_length = models.IntegerField(null=True)
+    exac_pLI = models.FloatField(null=True)
+    exac_obs_lof = models.IntegerField(null=True)
+    exac_exp_lof = models.FloatField(null=True)
+    exac_oe_lof = models.FloatField(null=True)
+    brain_expression = models.CharField(max_length=16, null=True)
+    chromosome = models.CharField(max_length=32, null=True)
+    start_position = models.IntegerField(null=True)
+    end_position = models.IntegerField(null=True)
+
+    #: Allow bulk import info database.
+    objects = CopyManager()
+
+
+class ExacConstraints(models.Model):
+    """Exac Constraints table."""
+
+    #: EnsEMBL transcript ID
+    ensembl_transcript_id = models.CharField(max_length=16)
+    #: HGNC symbol
+    symbol = models.CharField(max_length=32)
+    chromosome = models.CharField(max_length=32)
+    n_exons = models.IntegerField()
+    cds_start = models.IntegerField()
+    cds_end = models.IntegerField()
+    bp = models.IntegerField()
+    mu_syn = models.FloatField()
+    mu_mis = models.FloatField()
+    mu_lof = models.FloatField()
+    n_syn = models.IntegerField()
+    n_mis = models.IntegerField()
+    n_lof = models.IntegerField()
+    exp_syn = models.FloatField()
+    exp_mis = models.FloatField()
+    exp_lof = models.FloatField()
+    syn_z = models.FloatField()
+    mis_z = models.FloatField()
+    lof_z = models.FloatField()
+    pLI = models.FloatField()
+    pRec = models.FloatField()
+    pNull = models.FloatField()
+
+    #: Allow bulk import info database.
+    objects = CopyManager()
+
+
+class EnsemblToRefseq(models.Model):
+    """Ensembl gene ID and transcript id to Entrez ID."""
+
+    #: EnsEMBL gene ID
+    ensembl_gene_id = models.CharField(max_length=16)
+    #: EnsEMBL transcript ID
+    ensembl_transcript_id = models.CharField(max_length=16)
+    #: Entrez ID
+    entrez_id = models.CharField(max_length=16, null=True)
+
+    #: Allow bulk import info database.
+    objects = CopyManager()

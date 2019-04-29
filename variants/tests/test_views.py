@@ -2032,7 +2032,7 @@ def fixture_setup_small_variant_details(user):
     Hpo.objects.create(database_id="OMIM:55555", hpo_id="HP:0000007", name="Disease1; ABBR")
     HpoName.objects.create(hpo_id="HP:0000001", name="All")
     HpoName.objects.create(hpo_id="HP:0000007", name="Autosomal recessive")
-    Mim2geneMedgen.objects.create(omim_id=55555, omim_type="phenotype")
+    Mim2geneMedgen.objects.create(omim_id=55555, entrez_id="12345", omim_type="phenotype")
     Hgnc.objects.create(hgnc_id="HGNC:1", ensembl_gene_id="ENSG0001", symbol="AAA")
     Annotation.objects.create(
         release="GRCh37",
