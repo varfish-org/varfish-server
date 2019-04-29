@@ -658,6 +658,17 @@ class CaseLoadPrefetchedFilterView(
                 query_type=self.query_type,
                 has_phenotype_scores=bool(gene_scores),
                 has_pathogenicity_scores=bool(variant_scores),
+                exac_enabled=filter_job.smallvariantquery.query_settings["exac_enabled"],
+                thousand_genomes_enabled=filter_job.smallvariantquery.query_settings[
+                    "thousand_genomes_enabled"
+                ],
+                gnomad_genomes_enabled=filter_job.smallvariantquery.query_settings[
+                    "gnomad_genomes_enabled"
+                ],
+                gnomad_exomes_enabled=filter_job.smallvariantquery.query_settings[
+                    "gnomad_exomes_enabled"
+                ],
+                inhouse_enabled=filter_job.smallvariantquery.query_settings["inhouse_enabled"],
                 card_colspan=card_colspan,
                 logs=[
                     "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
@@ -726,6 +737,21 @@ class ProjectCasesLoadPrefetchedFilterView(
                     "training_mode", False
                 )
                 else 0,
+                exac_enabled=filter_job.projectcasessmallvariantquery.query_settings[
+                    "exac_enabled"
+                ],
+                thousand_genomes_enabled=filter_job.projectcasessmallvariantquery.query_settings[
+                    "thousand_genomes_enabled"
+                ],
+                gnomad_genomes_enabled=filter_job.projectcasessmallvariantquery.query_settings[
+                    "gnomad_genomes_enabled"
+                ],
+                gnomad_exomes_enabled=filter_job.projectcasessmallvariantquery.query_settings[
+                    "gnomad_exomes_enabled"
+                ],
+                inhouse_enabled=filter_job.projectcasessmallvariantquery.query_settings[
+                    "inhouse_enabled"
+                ],
                 database=filter_job.projectcasessmallvariantquery.query_settings["database_select"],
                 query_type=self.query_type,
                 card_colspan=14,

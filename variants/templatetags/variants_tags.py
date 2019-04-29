@@ -95,6 +95,34 @@ def flag_class(row):
 
 
 @register.simple_tag
+def ambiguous_frequency_warning(row, exac, thousandg, gnomad_exomes, gnomad_genomes, inhouse):
+    tables = {
+        "exac": exac,
+        "thousand_genomes": thousandg,
+        "gnomad_exomes": gnomad_exomes,
+        "gnomad_genomes": gnomad_genomes,
+        "inhouse": inhouse,
+    }
+    ambiguous_tables = []
+
+    if all(tables.values()) or not any(tables.values()):
+        return ambiguous_tables
+
+    for table, activated in tables.items():
+        if not activated:
+            if table == "inhouse":
+                hom_field = "inhouse_hom_alt"
+            else:
+                hom_field = "{}_homozygous".format(table)
+            hom_failed = getattr(row, hom_field, 0) > 50
+            freq_failed = getattr(row, "{}_frequency".format(table), 0) > 0.1
+            if freq_failed or hom_failed:
+                ambiguous_tables.append(table)
+
+    return ambiguous_tables
+
+
+@register.simple_tag
 def chrx_het_hom_ratio(case, sample):
     """Return het./hom. ratio of ``sample`` in ``case``."""
     return case.chrx_het_hom_ratio(sample)
