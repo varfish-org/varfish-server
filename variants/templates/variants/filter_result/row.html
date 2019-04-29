@@ -115,6 +115,18 @@
           <a class="dropdown-item" href="https://www.proteinatlas.org/search/{{ entry.symbol }}" target="_blank">
             Gene @ProteinAtlas
           </a>
+          <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ entry.symbol }}" target="_blank">
+            Gene @PubMed
+          </a>
+          {% if hpoterms %}
+            <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ entry.symbol }}{% for _, title in hpoterms.items %}+{{ title|urlencode:"" }}{% endfor %}" target="_blank">
+              Gene+Phenotypes @PubMed
+            </a>
+          {% else %}
+            <span class="dropdown-item disabled" data-toggle="tooltip" title="Enter HPO terms at More &gt; Prioritization">
+              Gene+Phenotypes @PubMed
+            </span>
+          {% endif %}
         </div>
       </div>
     {% endif %}

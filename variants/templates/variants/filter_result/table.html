@@ -10,7 +10,7 @@
     </div>
   {% else %}
     <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0 pb-0">
-      {% if hpoterms %}
+      {% if prio_enabled %}
         <div class="pl-2">
           <span class="pl-2">
             <strong style="font-size: 120%;">HPO Terms:</strong>
@@ -21,6 +21,8 @@
               <span class="badge badge-dark">{{ hpo_id }}</span>
               <span class="badge badge-secondary">{{ hpo_name }}</span>
             </span>
+          {% empty %}
+            <span class="text-muted font-italic">none</span>
           {% endfor %}
           </span>
         </div>

@@ -632,11 +632,12 @@ class CaseLoadPrefetchedFilterView(
 
         # Get mapping from HPO term to HpoName object.
         hpoterms = {}
-        if filter_job.smallvariantquery.query_settings.get("prio_enabled", False):
-            for hpo in filter_job.smallvariantquery.query_settings.get("prio_hpo_terms", []):
-                matches = HpoName.objects.filter(hpo_id=hpo)
-                if matches:
-                    hpoterms[hpo] = matches.first().name
+        for hpo in filter_job.smallvariantquery.query_settings.get("prio_hpo_terms", []):
+            matches = HpoName.objects.filter(hpo_id=hpo)
+            if matches:
+                hpoterms[hpo] = matches.first().name
+            else:
+                hpoterms[hpo] = "unknown HPO term"
 
         return render(
             request,
@@ -648,6 +649,7 @@ class CaseLoadPrefetchedFilterView(
                 database=filter_job.smallvariantquery.query_settings["database_select"],
                 pedigree=pedigree,
                 hpoterms=hpoterms,
+                prio_enabled=filter_job.smallvariantquery.query_settings.get("prio_enabled", False),
                 training_mode=1
                 if filter_job.smallvariantquery.query_settings.get("training_mode", False)
                 else 0,
