@@ -15,6 +15,7 @@
     <thead>
       <tr>
         <th style="width: 260px;">Variant</th>
+        <th style="width: 50px;">Gene(s)</th>
         <th>Flags</th>
       </tr>
     </thead>
@@ -23,6 +24,9 @@
         <tr id="flags-{{ flagged_variant.get_variant_description }}">
           <td class="text-nowrap">
             chr{{ flagged_variant.chromosome }}:{{ flagged_variant.position|intcomma }}-{{ flagged_variant.reference }}-{{ flagged_variant.alternative }}
+          </td>
+          <td>
+            {{ flagged_variant.get_gene_symbols|join:", "|default:"-" }}
           </td>
           <td>
             generic:

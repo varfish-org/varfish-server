@@ -1,3 +1,4 @@
+import binning
 import wrapt
 from functools import lru_cache
 from itertools import chain
@@ -20,8 +21,10 @@ from django.conf import settings
 from django.db.models.signals import pre_delete
 
 from projectroles.models import Project
-
 from bgjobs.models import BackgroundJob, JobModelMessageMixin
+from geneinfo.models import Hgnc
+
+from genomicfeatures.models import GeneInterval
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
@@ -771,6 +774,27 @@ class SmallVariantComment(models.Model):
             )
         )
 
+    def get_gene_symbols(self):
+        """Query for overlapping genes."""
+        # TODO: could be made much nicer with join in DB via SQL Alchemy
+        start = self.position
+        end = self.position + len(self.reference)
+        bins = binning.containing_bins(start, end)
+        gene_intervals = list(
+            GeneInterval.objects.filter(
+                database="ensembl",
+                release=self.release,
+                chromosome=self.chromosome,
+                bin__in=bins,
+                start__lte=end,
+                end__gte=start,
+            )
+        )
+        gene_ids = [itv.gene_id for itv in gene_intervals]
+        return list(
+            sorted({info.symbol for info in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)})
+        )
+
     def clean(self):
         """Make sure that the case has such a variant"""
         # TODO: unit test me
@@ -872,6 +896,27 @@ class SmallVariantFlags(models.Model):
     flag_summary = models.CharField(
         max_length=32, choices=VARIANT_RATING_CHOICES, default="empty", null=False
     )
+
+    def get_gene_symbols(self):
+        """Query for overlapping genes."""
+        # TODO: could be made much nicer with join in DB via SQL Alchemy
+        start = self.position
+        end = self.position + len(self.reference)
+        bins = binning.containing_bins(start, end)
+        gene_intervals = list(
+            GeneInterval.objects.filter(
+                database="ensembl",
+                release=self.release,
+                chromosome=self.chromosome,
+                bin__in=bins,
+                start__lte=end,
+                end__gte=start,
+            )
+        )
+        gene_ids = [itv.gene_id for itv in gene_intervals]
+        return list(
+            sorted({info.symbol for info in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)})
+        )
 
     def human_readable(self):
         """Return human-redable version of flags"""

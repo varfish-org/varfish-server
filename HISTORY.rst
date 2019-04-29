@@ -12,6 +12,7 @@ End-User Summary
 - Adding link-out to the UMD Predictor (requires users to configure a UMD Predictor API Token).
 - Adding user settings feature.
 - Improving link-out to PubMed.
+- Adding gene display on case overview for flags and comments.
 
 Full Change List
 ================
@@ -26,6 +27,7 @@ Full Change List
 - Adding ``ImportInfo`` to django admin.
 - Adding "New Features" button to to the top navigation bar.
 - Adding link-out to the UMD Predictor (requires users to configure a UMD Predictor API Token).
+- Overlapping gene IDs now displayed for flags and comments on the case overview/detail view.
 
 -------
 v0.14.7
