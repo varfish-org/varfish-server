@@ -16,7 +16,8 @@ Full Change List
 - Speedup deletion of old data using SQL Alchemy for ``import_case``.
 - Added indices to hgnc, mim2genemedgen, acmg and hgmd tables.
 - Added command to rebuild variant summary materialized view ``rebuild_variant_summary``.
-- Adding link-out to PubMed with gene name and phenotype term names.
+- Adding link-out to PubMed with gene symbol and phenotype term names.
+- Improving existing link-out to Entrez Gene if the Entrez gene ID is known.
 
 -------
 v0.14.7

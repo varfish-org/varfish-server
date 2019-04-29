@@ -103,7 +103,7 @@
           <a class="dropdown-item" href="https://www.genecards.org/cgi-bin/carddisp.pl?gene={{ entry.symbol }}" target="_blank">
             Gene @GeneCards
           </a>
-          <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/gene/?term=({{ entry.symbol }}+AND+&quot;Homo+sapiens&quot;)" target="_blank">
+          <a class="dropdown-item" href="{% if entry.entrez_id %}https://www.ncbi.nlm.nih.gov/gene/{{ entry.entrez_id }}{% else %}https://www.ncbi.nlm.nih.gov/gene/?term=({{ entry.symbol }}+AND+&quot;Homo+sapiens&quot;){% endif %}" target="_blank">
             Gene @Entrez
           </a>
           <a class="dropdown-item" href="https://www.genenames.org/cgi-bin/gene_symbol_report?match={{ entry.symbol }}" target="_blank">
