@@ -49,10 +49,20 @@
     {% include "variants/filter_result/hgmd_public_indicator.html" %}
   </td>
   <td>
-    chr{{ entry.chromosome }}:{{ entry.position|intcomma }}
+    <div class="sodar-overflow-container sodar-overflow-hover">
+      chr{{ entry.chromosome }}:{{ entry.position|intcomma }}
+    </div>
   </td>
-  <td>{{ entry.reference|truncatechars:9 }}</td>
-  <td>{{ entry.alternative|truncatechars:9 }}</td>
+  <td>
+    <div class="sodar-overflow-container sodar-overflow-hover">
+      {{ entry.reference }}
+    </div>
+  </td>
+  <td>
+    <div class="sodar-overflow-container sodar-overflow-hover">
+      {{ entry.alternative }}
+    </div>
+  </td>
   <td class="detail-exac">
     {{ entry.exac_frequency|floatformat:5|default:"-" }}
   </td>
