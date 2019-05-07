@@ -133,3 +133,12 @@ def chrx_het_hom_ratio(case, sample):
 def get_user_setting(user, app_name, setting_name):
     """Return user setting."""
     return _get_user_setting(user, app_name, setting_name)
+
+
+@register.filter
+def allelic_balance(gt):
+    """Return allelic balance from genotype value."""
+    if not gt.get("dp"):
+        return 0.0
+    else:
+        return gt.get("ad") / gt.get("dp")

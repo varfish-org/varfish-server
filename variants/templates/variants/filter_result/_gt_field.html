@@ -1,12 +1,13 @@
 {% load dict %}
+{% load variants_tags %}
 
 <td class="text-center">
   <span data-toggle="tooltip" data-html="true" title="
     {% with genotype=entry.genotype|keyvalue:name %}
       GT quality: {{ genotype|keyvalue:"gq" }}
       <br />
-      variant reads: {{ genotype|keyvalue:"ad" }} /
-      {{ genotype|keyvalue:"dp" }}
+      variant reads: {{ genotype|keyvalue:"ad" }} / {{ genotype|keyvalue:"dp" }}<br />
+      allelic balance: {{ genotype|allelic_balance|floatformat:2 }}
       ">
       {{ genotype|keyvalue:"gt" }}
     {% endwith %}

@@ -9,18 +9,18 @@
 
 <tr class="variant-row {% if not training_mode %}variant-row-{{ entry|flag_class }}{% endif %}">
   {# fold-out #}
-  <td class="clickable toggle-variant-details pl-0 pr-0"
+  <td style="width: 0px" class="clickable toggle-variant-details pl-0 pr-0"
       data-url="{% url 'variants:small-variant-details' project=project.sodar_uuid case=entry.case_uuid release=entry.release chromosome=entry.chromosome position=entry.position reference=entry.reference alternative=entry.alternative database=database gene_id=entry.gene_id training_mode=training_mode %}"
       data-toggle="collapse" data-target="#variant-details-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="variant-details-{{ forloop.counter0 }}" aria-hidden="true">
     <i class="fa fa-fw fa-chevron-right"></i>
   </td>
   {# rank #}
-  <td class="text-nowrap text-right text-muted">
+  <td style="width: 0px" class="text-nowrap text-right text-muted">
       #{{ forloop.counter }}
   </td>
   {# bookmark #}
   {% if not training_mode %}
-  <td class="bookmark pl-0 pr-0 text-nowrap">
+  <td style="width: 0px" class="bookmark pl-0 pr-0 text-nowrap">
     <i class="fa fa-fw {% if entry.flag_count %}fa-bookmark{% else %}fa-bookmark-o{% endif %} text-muted variant-bookmark"
        data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}"></i>
     <i class="fa fa-fw {% if entry.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
@@ -30,7 +30,7 @@
   <td></td>
   {% endif %}
   {# databases #}
-  <td class="pl-0 pr-0 text-nowrap">
+  <td style="width: 0px" class="pl-20pr-0 text-nowrap">
     {# dbSNP Indicator #}
     {% if entry.rsid %}
       <a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ entry.rsid|slice:'2:' }}">
@@ -49,17 +49,17 @@
     {% include "variants/filter_result/clinvar_indicator.html" %}
     {% include "variants/filter_result/hgmd_public_indicator.html" %}
   </td>
-  <td>
-    <div class="sodar-overflow-container sodar-overflow-hover">
+  <td style="width: 120px;" class="pl-2">
+    <div>
       chr{{ entry.chromosome }}:{{ entry.position|intcomma }}
     </div>
   </td>
-  <td>
+  <td style="max-width: 50px;">
     <div class="sodar-overflow-container sodar-overflow-hover">
       {{ entry.reference }}
     </div>
   </td>
-  <td>
+  <td style="max-width: 50px;">
     <div class="sodar-overflow-container sodar-overflow-hover">
       {{ entry.alternative }}
     </div>

@@ -1,4 +1,5 @@
 {% load dict %}
+{% load variants_tags %}
 
 <div class="card">
   <div class="card-header">
@@ -38,6 +39,14 @@
           {% else %}
             <td class="text-center">{{ small_var.genotype|keyvalue:row.patient|keyvalue:"ad"|default:"0" }}</td>
           {% endif %}
+        {% endfor %}
+      </tr>
+      <tr>
+        <th class="text-center">Allelic Balance</th>
+        {% for row in object.get_filtered_pedigree_with_samples %}
+          <td class="text-center">
+            {{ small_var.genotype|keyvalue:row.patient|allelic_balance|floatformat:2 }}
+          </td>
         {% endfor %}
       </tr>
     </tbody>

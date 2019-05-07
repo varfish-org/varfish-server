@@ -16,6 +16,7 @@ End-User Summary
 - Added warning icon to results table indicating significant differences in frequency databases.
 - Added command to rebuild variant summary materialized view ``rebuild_variant_summary``.
 - Added ExAC and gnomAD constraint information to variant details gene card.
+- Displaying allelic balance in genotype hover and variant detail fold-out.
 
 Full Change List
 ================
@@ -35,6 +36,7 @@ Full Change List
   Or if hom count is > 50. For inhouse it is only hom > 50 as there is no frequency.
 - Added ExAC and gnomAD constraint information to variant details gene card.
   Two new tables were added, ``GnomadConstraint`` and ``ExacConstraint``.
+- Displaying allelic balance in genotype hover and variant detail fold-out.
 
 -------
 v0.14.7
