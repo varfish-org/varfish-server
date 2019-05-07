@@ -37,6 +37,7 @@ Full Change List
 - Added ExAC and gnomAD constraint information to variant details gene card.
   Two new tables were added, ``GnomadConstraint`` and ``ExacConstraint``.
 - Displaying allelic balance in genotype hover and variant detail fold-out.
+- Removing unique constraint on ``SmallVariant``.
 
 -------
 v0.14.7

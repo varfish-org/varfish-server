@@ -215,16 +215,6 @@ class SmallVariant(models.Model):
         )
 
     class Meta:
-        unique_together = (
-            "release",
-            "chromosome",
-            "position",
-            "reference",
-            "alternative",
-            "case_id",
-            "ensembl_gene_id",
-            "refseq_gene_id",
-        )
         indexes = [
             # For query: select all variants for a case.
             models.Index(fields=["case_id"]),
