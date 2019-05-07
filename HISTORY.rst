@@ -2,9 +2,11 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+-------
+v0.14.8
+-------
+
+Multiple steps towards v0.15.0 milestone.
 
 End-User Summary
 ================
