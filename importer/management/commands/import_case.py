@@ -240,8 +240,7 @@ class Command(BaseCommand):
                     .where(SmallVariant.sa.case_id == case.pk)
                 )
                 SQLALCHEMY_ENGINE.execute(
-                    SmallVariant.sa.table.delete()
-                    .where(SmallVariant.sa.case_id == case.pk)
+                    SmallVariant.sa.table.delete().where(SmallVariant.sa.case_id == case.pk)
                 )
             else:
                 self.stdout.write(
