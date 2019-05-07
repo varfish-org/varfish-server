@@ -38,6 +38,7 @@ Full Change List
   Two new tables were added, ``GnomadConstraint`` and ``ExacConstraint``.
 - Displaying allelic balance in genotype hover and variant detail fold-out.
 - Removing unique constraint on ``SmallVariant``.
+- Fixing case update in the case of the variants being referenced from query results.
 
 -------
 v0.14.7

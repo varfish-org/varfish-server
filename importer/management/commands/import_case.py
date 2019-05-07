@@ -17,7 +17,14 @@ from annotation.models import Annotation
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
-from variants.models import SmallVariant, Case, AnnotationReleaseInfo
+from variants.models import (
+    SmallVariant,
+    Case,
+    AnnotationReleaseInfo,
+    ClinvarQuery,
+    SmallVariantQuery,
+    ProjectCasesSmallVariantQuery,
+)
 from variants.variant_stats import rebuild_case_variant_stats
 from ..helpers import tsv_reader
 
@@ -212,8 +219,30 @@ class Command(BaseCommand):
                 self.stdout.write("Removing old small variant data associated with the case...")
                 before = timezone.now()
                 AnnotationReleaseInfo.objects.filter(case=case).delete()
-                stmt = delete(SmallVariant.sa).where(SmallVariant.sa.case_id == case.pk)
-                SQLALCHEMY_ENGINE.execute(stmt)
+                res_s = aldjemy.core.get_meta().tables["variants_smallvariantquery_query_results"]
+                res_c = aldjemy.core.get_meta().tables["variants_clinvarquery_query_results"]
+                res_p = aldjemy.core.get_meta().tables[
+                    "variants_projectcasessmallvariantquery_query_results"
+                ]
+                SQLALCHEMY_ENGINE.execute(
+                    res_s.delete()
+                    .where(res_s.c.smallvariant_id == SmallVariant.sa.id)
+                    .where(SmallVariant.sa.case_id == case.pk)
+                )
+                SQLALCHEMY_ENGINE.execute(
+                    res_c.delete()
+                    .where(res_c.c.smallvariant_id == SmallVariant.sa.id)
+                    .where(SmallVariant.sa.case_id == case.pk)
+                )
+                SQLALCHEMY_ENGINE.execute(
+                    res_p.delete()
+                    .where(res_p.c.smallvariant_id == SmallVariant.sa.id)
+                    .where(SmallVariant.sa.case_id == case.pk)
+                )
+                SQLALCHEMY_ENGINE.execute(
+                    SmallVariant.sa.table.delete()
+                    .where(SmallVariant.sa.case_id == case.pk)
+                )
             else:
                 self.stdout.write(
                     "Removing old structural variant data associated with the case..."
