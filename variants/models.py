@@ -214,6 +214,21 @@ class SmallVariant(models.Model):
             )
         )
 
+    def __repr__(self):
+        return "-".join(
+            map(
+                str,
+                (
+                    self.case_id,
+                    self.release,
+                    self.chromosome,
+                    self.position,
+                    self.reference,
+                    self.alternative,
+                ),
+            )
+        )
+
     class Meta:
         indexes = [
             # For query: select all variants for a case.

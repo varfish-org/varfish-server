@@ -19,7 +19,7 @@ from variants.models import (
 )
 from dbsnp.models import Dbsnp
 
-from ._helpers import TestBase, SQLALCHEMY_ENGINE
+from .helpers import TestBase, SQLALCHEMY_ENGINE
 from ._fixtures import (
     PROJECT_DICT,
     fixture_setup_case1_simple,

@@ -2,6 +2,18 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+Full Change List
+================
+
+- Starting to base fixture creation on factory boy.
+
 -------
 v0.14.8
 -------

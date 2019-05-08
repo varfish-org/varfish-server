@@ -1,6 +1,6 @@
 """Tests for ``variants.models``."""
 
-from ._helpers import TestBase
+from .helpers import TestBase
 from ._fixtures import fixture_setup_case1_simple
 
 from ..models import Case, SmallVariantFlags
