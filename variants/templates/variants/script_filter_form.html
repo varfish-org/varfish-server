@@ -152,7 +152,7 @@ function polyPhen2(gene, hgvsP) {
     form.appendTo('body').submit();
 }
 
-function humanSpliceFinder(gene, hgvsC) {
+function humanSplicingFinder(gene, hgvsC) {
     var form = $('<form target="_blank" method="POST" action="http://www.umd.be/HSF3/4DACTION/input_SSF">');
     form.append($('<input type="hidden" name="champlibre" value="' + gene + '">'));
     form.append($('<input type="hidden" name="batch" value="' + hgvsC + '">'));

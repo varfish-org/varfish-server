@@ -13,6 +13,7 @@ Full Change List
 ================
 
 - Starting to base fixture creation on factory boy.
+- Renamed Human Splice Finder to Human Splicing Finder.
 
 -------
 v0.14.8
