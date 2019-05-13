@@ -27,3 +27,10 @@ selenium == 3.14.0
 
 # Mock tests
 requests-mock
+
+# Parameterize tests
+parameterized
+
+# Classes with less boilerplate code.
+attr
+

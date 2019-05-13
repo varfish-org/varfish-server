@@ -1,11 +1,42 @@
 """Factory Boy factory classes for ``variants``."""
 
-import factory.django
+import factory
 
 from projectroles.models import SODAR_CONSTANTS, Project
 
-from .factories_data import small_var_attribute, small_var_iterator
-from ..models import Case, SmallVariant
+from ..models import (
+    Case,
+    SmallVariant,
+    SmallVariantQuery,
+    ProjectCasesSmallVariantQuery,
+    SmallVariantSummary,
+)
+import typing
+import attr
+
+
+class SmallVariantQueryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SmallVariantQuery
+
+    case = None
+    form_id = factory.Sequence(lambda n: str(n))
+    form_version = factory.Sequence(lambda n: n)
+    query_settings = factory.List([])
+    name = factory.Sequence(lambda n: "SmallVariantQuery%d" % n)
+    public = False
+
+
+class ProjectCasesSmallVariantQueryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProjectCasesSmallVariantQuery
+
+    project = None
+    form_id = factory.Sequence(lambda n: str(n))
+    form_version = factory.Sequence(lambda n: n)
+    query_settings = factory.List([])
+    name = factory.Sequence(lambda n: "ProjectCasesSmallVariantQuery%d" % n)
+    public = False
 
 
 class ProjectFactory(factory.django.DjangoModelFactory):
@@ -18,6 +49,9 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     type = SODAR_CONSTANTS["PROJECT_TYPE_PROJECT"]
     parent = None
     description = factory.Sequence(lambda n: "This is project %03d" % n)
+    projectcasessmallvariantquery = factory.RelatedFactory(
+        ProjectCasesSmallVariantQueryFactory, "project"
+    )
 
 
 class CaseFactory(factory.django.DjangoModelFactory):
@@ -40,6 +74,7 @@ class CaseFactory(factory.django.DjangoModelFactory):
     index = factory.Sequence(lambda n: "index_%03d-N1-DNA1-WES1" % n)
     pedigree = []
     project = factory.SubFactory(ProjectFactory)
+    smallvariantquery = factory.RelatedFactory(SmallVariantQueryFactory, "case")
 
     @factory.lazy_attribute_sequence
     def pedigree(self, n):
@@ -48,7 +83,7 @@ class CaseFactory(factory.django.DjangoModelFactory):
         elif self.structure == "singleton":
             return [
                 {
-                    "patient": self.name,
+                    "patient": self.index,
                     "father": "0",
                     "mother": "0",
                     "sex": self.sex,
@@ -62,7 +97,7 @@ class CaseFactory(factory.django.DjangoModelFactory):
             mother = "mother_%03d-N1-DNA1-WES1" % n
             return [
                 {
-                    "patient": self.name,
+                    "patient": self.index,
                     "father": father,
                     "mother": mother,
                     "sex": self.sex,
@@ -104,10 +139,6 @@ def count_gt(*gts):
     return result
 
 
-#: The gene to create the small variants for.
-SYMBOL = "LAMA1"
-
-
 class SmallVariantFactory(factory.django.DjangoModelFactory):
     """Factory for creating ``SmallVariant`` objects.
 
@@ -129,12 +160,12 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
         kwargs["case_id"] = case.id
         return manager.create(*args, **kwargs)
 
-    release = small_var_attribute(SYMBOL, "release")
-    chromosome = small_var_attribute(SYMBOL, "chromosome")
-    position = small_var_iterator(SYMBOL, "position")
-    reference = small_var_iterator(SYMBOL, "reference")
-    alternative = small_var_iterator(SYMBOL, "alternative")
-    var_type = small_var_iterator(SYMBOL, "var_type")
+    release = "GRCh37"
+    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    position = factory.Sequence(lambda n: n * 100)
+    reference = factory.Iterator("ACGT")
+    alternative = factory.Iterator("CGTA")
+    var_type = "snv"
     #: Model pseudo-attribute, not stored in database.  Instead, ``case_id`` is stored.
     case = factory.SubFactory(CaseFactory)
     #: The actual reference to the case.
@@ -152,32 +183,99 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
     num_het = factory.LazyAttribute(count_gt("0/1", "1/0", "0|1", "1|0"))
     num_hemi_alt = 0
     num_hemi_ref = 0
-    in_clinvar = small_var_iterator(SYMBOL, "in_clinvar")
-    exac_frequency = small_var_iterator(SYMBOL, "exac_frequency")
-    exac_homozygous = small_var_iterator(SYMBOL, "exac_homozygous")
-    exac_heterozygous = small_var_iterator(SYMBOL, "exac_heterozygous")
-    exac_hemizygous = small_var_iterator(SYMBOL, "exac_hemizygous")
-    thousand_genomes_frequency = small_var_iterator(SYMBOL, "thousand_genomes_frequency")
-    thousand_genomes_homozygous = small_var_iterator(SYMBOL, "thousand_genomes_homozygous")
-    thousand_genomes_heterozygous = small_var_iterator(SYMBOL, "thousand_genomes_heterozygous")
-    thousand_genomes_hemizygous = small_var_iterator(SYMBOL, "thousand_genomes_hemizygous")
-    gnomad_exomes_frequency = small_var_iterator(SYMBOL, "gnomad_exomes_frequency")
-    gnomad_exomes_homozygous = small_var_iterator(SYMBOL, "gnomad_exomes_homozygous")
-    gnomad_exomes_heterozygous = small_var_iterator(SYMBOL, "gnomad_exomes_heterozygous")
-    gnomad_exomes_hemizygous = small_var_iterator(SYMBOL, "gnomad_exomes_hemizygous")
-    gnomad_genomes_frequency = small_var_iterator(SYMBOL, "gnomad_genomes_frequency")
-    gnomad_genomes_homozygous = small_var_iterator(SYMBOL, "gnomad_genomes_homozygous")
-    gnomad_genomes_heterozygous = small_var_iterator(SYMBOL, "gnomad_genomes_heterozygous")
-    gnomad_genomes_hemizygous = small_var_iterator(SYMBOL, "gnomad_genomes_hemizygous")
-    refseq_gene_id = small_var_iterator(SYMBOL, "refseq_gene_id")
-    refseq_transcript_id = small_var_iterator(SYMBOL, "refseq_transcript_id")
-    refseq_transcript_coding = small_var_iterator(SYMBOL, "refseq_transcript_coding")
-    refseq_hgvs_c = small_var_iterator(SYMBOL, "refseq_hgvs_c")
-    refseq_hgvs_p = small_var_iterator(SYMBOL, "refseq_hgvs_p")
-    refseq_effect = small_var_iterator(SYMBOL, "refseq_effect")
-    ensembl_gene_id = small_var_iterator(SYMBOL, "ensembl_gene_id")
-    ensembl_transcript_id = small_var_iterator(SYMBOL, "ensembl_transcript_id")
-    ensembl_transcript_coding = small_var_iterator(SYMBOL, "ensembl_transcript_coding")
-    ensembl_hgvs_c = small_var_iterator(SYMBOL, "ensembl_hgvs_c")
-    ensembl_hgvs_p = small_var_iterator(SYMBOL, "ensembl_hgvs_p")
-    ensembl_effect = small_var_iterator(SYMBOL, "ensembl_effect")
+    in_clinvar = False
+    exac_frequency = 0.0001
+    exac_homozygous = 0
+    exac_heterozygous = 0
+    exac_hemizygous = 0
+    thousand_genomes_frequency = 0.0001
+    thousand_genomes_homozygous = 0
+    thousand_genomes_heterozygous = 0
+    thousand_genomes_hemizygous = 0
+    gnomad_exomes_frequency = 0.0001
+    gnomad_exomes_homozygous = 0
+    gnomad_exomes_heterozygous = 0
+    gnomad_exomes_hemizygous = 0
+    gnomad_genomes_frequency = 0.0001
+    gnomad_genomes_homozygous = 0
+    gnomad_genomes_heterozygous = 0
+    gnomad_genomes_hemizygous = 0
+    refseq_gene_id = factory.Sequence(lambda n: str(n))
+    refseq_transcript_id = factory.Sequence(lambda n: "NM_%d" % n)
+    refseq_transcript_coding = True
+    refseq_hgvs_c = "c.123C>T"
+    refseq_hgvs_p = "p.I2T"
+    refseq_effect = factory.List(["synonymous_variant"])
+    ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
+    ensembl_transcript_id = factory.Sequence(lambda n: "ENST%d" % n)
+    ensembl_transcript_coding = True
+    ensembl_hgvs_c = "c.123C>T"
+    ensembl_hgvs_p = "p.I2T"
+    ensembl_effect = factory.List(["synonymous_variant"])
+
+
+class SmallVariantSummaryFactory(factory.django.DjangoModelFactory):
+    """Factory for ``SmallVariantSummary`` model."""
+
+    class Meta:
+        model = SmallVariantSummary
+
+    release = "GRCh37"
+    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    position = factory.Sequence(lambda n: n * 100)
+    reference = factory.Iterator("ACGT")
+    alternative = factory.Iterator("CGTA")
+    count_hom_ref = 0
+    count_het = 0
+    count_hom_alt = 0
+    count_hemi_ref = 0
+    count_hemi_alt = 0
+
+
+@attr.s(auto_attribs=True)
+class FormDataFactory:
+    """Factory for default filter form data.
+
+    The genotype filters are missing as they are added when running the test to fetch the current patient name that is
+    unknown up to then. Same holds true for the case sodar_uuid.
+    """
+
+    effects: typing.List[str] = attr.Factory(lambda: list(["synonymous_variant"]))
+    database_select: str = "refseq"
+    var_type_snv: bool = True
+    var_type_mnv: bool = True
+    var_type_indel: bool = True
+    exac_enabled: bool = False
+    exac_frequency: float = 0.0
+    exac_heterozygous: int = 0
+    exac_homozygous: int = 0
+    thousand_genomes_enabled: bool = False
+    thousand_genomes_frequency: float = 0.0
+    thousand_genomes_heterozygous: int = 0
+    thousand_genomes_homozygous: int = 0
+    gnomad_exomes_enabled: bool = False
+    gnomad_exomes_frequency: float = 0.0
+    gnomad_exomes_heterozygous: int = 0
+    gnomad_exomes_homozygous: int = 0
+    gnomad_genomes_enabled: bool = False
+    gnomad_genomes_frequency: float = 0.0
+    gnomad_genomes_heterozygous: int = 0
+    gnomad_genomes_homozygous: int = 0
+    inhouse_enabled: bool = False
+    inhouse_carriers: int = 0
+    inhouse_heterozygous: int = 0
+    inhouse_homozygous: int = 0
+    transcripts_coding: bool = True
+    transcripts_noncoding: bool = True
+    require_in_clinvar: bool = False
+    remove_if_in_dbsnp: bool = False
+    require_in_hgmd_public: bool = False
+    display_hgmd_public_membership: bool = False
+    clinvar_include_benign: bool = False
+    clinvar_include_likely_benign: bool = False
+    clinvar_include_uncertain_significance: bool = False
+    clinvar_include_likely_pathogenic: bool = True
+    clinvar_include_pathogenic: bool = True
+    gene_blacklist: typing.List[str] = attr.Factory(list)
+    genomic_region: typing.List[str] = attr.Factory(list)
+    gene_whitelist: typing.List[str] = attr.Factory(list)

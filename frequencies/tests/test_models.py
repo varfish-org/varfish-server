@@ -1,7 +1,6 @@
 """Tests for Model queries to the ``frequencies`` models."""
 
 from variants.tests.helpers import QueryTestBase
-from variants.tests.factories_data import SMALL_VARS
 
 from ..models import Exac, ThousandGenomes, GnomadExomes, GnomadGenomes
 from .factories import (

@@ -1,13 +1,9 @@
 """Tests for Modle queries to the ``clinvar`` models."""
 
 from variants.tests.helpers import QueryTestBase
-from variants.tests.factories_data import SMALL_VARS, NUM_VARIANTS
 
 from ..models import Clinvar
 from .factories import ClinvarFactory
-
-#: Symbol of gene to query the variants for.
-SYMBOL = "LAMA1"
 
 
 class ClinvarQuery(QueryTestBase):
