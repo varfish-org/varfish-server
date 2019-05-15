@@ -1,6 +1,7 @@
 """Django command for importing a case after annotation with ``varfish-annotator``."""
 
 import gzip
+import itertools
 import json
 import tempfile
 
@@ -17,14 +18,7 @@ from annotation.models import Annotation
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
-from variants.models import (
-    SmallVariant,
-    Case,
-    AnnotationReleaseInfo,
-    ClinvarQuery,
-    SmallVariantQuery,
-    ProjectCasesSmallVariantQuery,
-)
+from variants.models import SmallVariant, Case, AnnotationReleaseInfo
 from variants.variant_stats import rebuild_case_variant_stats
 from ..helpers import tsv_reader
 
@@ -65,13 +59,23 @@ class Command(BaseCommand):
         parser.add_argument("--case-name", help="Name to assign to the case", required=True)
         parser.add_argument("--index-name", help="The name of the index sample", required=True)
         parser.add_argument("--path-ped", help="Path to pedigree input file", required=True)
-        parser.add_argument("--path-genotypes", help="Path to genotypes TSV file", required=True)
+        parser.add_argument(
+            "--path-genotypes",
+            help="Path to genotypes TSV file",
+            required=True,
+            action="append",
+            default=[],
+            nargs="+",
+        )
         parser.add_argument(
             "--path-variants", help="Path to variants TSV file (triggers import of small variants)"
         )
         parser.add_argument(
             "--path-feature-effects",
             help="Path to gene-wise feature effects (triggers import of structural variants)",
+            action="append",
+            default=[],
+            nargs="+",
         )
         parser.add_argument(
             "--path-db-info", help="Path to database import info TSV file", required=True
@@ -85,6 +89,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """The actual implementation is in ``_handle()``, splitting to get commit times."""
+        # Flatten the nargs="+" arguments.
+        options["path_feature_effects"] = list(itertools.chain(options["path_feature_effects"]))
+        options["path_variants"] = list(itertools.chain(options["path_variants"]))
+        # Perform the actual import.
         self._handle(*args, **options)
         if self.last_now:
             elapsed = timezone.now() - self.last_now
@@ -124,7 +132,7 @@ class Command(BaseCommand):
         else:
             prev_case = None
 
-        samples_in_genotypes = self._get_samples_in_genotypes(options["path_genotypes"])
+        samples_in_genotypes = self._get_samples_in_genotypes(options["path_genotypes"][0])
         case = self._create_or_update_case(
             project,
             options["case_name"],
@@ -139,9 +147,13 @@ class Command(BaseCommand):
         # Import small or structural variants
         if options["path_variants"]:
             self._import_small_variants(options["path_variants"])
-            self._import_small_variants_genotypes(case, options["path_genotypes"])
+            self._import_small_variants_genotypes(case, options["path_genotypes"][0])
             self._rebuild_small_variants_stats(case)
         else:
+            if len(options["path_genotypes"]) != len(options["path_feature_effects"]):
+                raise CommandError(
+                    "Number of files specified by --path-genotypes and --path-feature-effects must be the same"
+                )
             self._import_structural_variants_genotypes(case, options["path_genotypes"])
             self._import_structural_variants_feature_effects(options["path_feature_effects"])
 
@@ -356,22 +368,23 @@ class Command(BaseCommand):
         """Import structural variants TSV file into database."""
         self.stdout.write("Creating temporary SV genotype file...")
         with tempfile.NamedTemporaryFile("w+t") as tempf:
-            with open_file(path_genotypes, "rt") as inputf:
-                header = inputf.readline().strip()
-                try:
-                    replace_idx = header.split("\t").index("case_id")
-                except ValueError as e:
-                    raise CommandError("Column 'case_id' not found in genotypes TSV") from e
-                tempf.write(header)
-                tempf.write("\n")
-                while True:
-                    line = inputf.readline().strip()
-                    if not line:
-                        break
-                    arr = line.split("\t")
-                    arr[replace_idx] = str(case.pk)
-                    tempf.write("\t".join(arr))
+            for current_path in path_genotypes:
+                with open_file(current_path, "rt") as inputf:
+                    header = inputf.readline().strip()
+                    try:
+                        replace_idx = header.split("\t").index("case_id")
+                    except ValueError as e:
+                        raise CommandError("Column 'case_id' not found in genotypes TSV") from e
+                    tempf.write(header)
                     tempf.write("\n")
+                    while True:
+                        line = inputf.readline().strip()
+                        if not line:
+                            break
+                        arr = line.split("\t")
+                        arr[replace_idx] = str(case.pk)
+                        tempf.write("\t".join(arr))
+                        tempf.write("\n")
             tempf.flush()
             self.stdout.write("Importing SV genotype file...")
             StructuralVariant.objects.from_csv(
@@ -387,12 +400,13 @@ class Command(BaseCommand):
     def _import_structural_variants_feature_effects(self, path_feature_effects):
         """Import structural variants TSV file into database."""
         self.stdout.write("Importing SV feature effects...")
-        with open_file(path_feature_effects, "rt") as tsv:
-            StructuralVariantGeneAnnotation.objects.from_csv(
-                tsv,
-                delimiter="\t",
-                ignore_conflicts=True,
-                drop_constraints=False,
-                drop_indexes=False,
-            )
+        for current_path in path_feature_effects:
+            with open_file(current_path, "rt") as tsv:
+                StructuralVariantGeneAnnotation.objects.from_csv(
+                    tsv,
+                    delimiter="\t",
+                    ignore_conflicts=True,
+                    drop_constraints=False,
+                    drop_indexes=False,
+                )
         self.stdout.write(self.style.SUCCESS("Finished importing SV feature effects"))

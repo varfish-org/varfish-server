@@ -9,9 +9,12 @@ HEAD (unreleased)
 End-User Summary
 ================
 
+- Renamed Human Splice Finder to Human Splicing Finder.
+
 Full Change List
 ================
 
+- Allow import for more than one genotypes/feature effects for structural variants.
 - Starting to base fixture creation on factory boy.
 - Renamed Human Splice Finder to Human Splicing Finder.
 
