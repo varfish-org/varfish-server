@@ -10,6 +10,8 @@ End-User Summary
 ================
 
 - Renamed Human Splice Finder to Human Splicing Finder.
+- Added "1" and "0" genotype for "variant", "reference", and "non-reference" genotype.
+- Added support for WGS CNV calling results to SV filtration.
 
 Full Change List
 ================
@@ -17,6 +19,8 @@ Full Change List
 - Allow import for more than one genotypes/feature effects for structural variants.
 - Starting to base fixture creation on factory boy.
 - Renamed Human Splice Finder to Human Splicing Finder.
+- Added "1" and "0" genotype for "variant", "reference", and "non-reference" genotype.
+- Added support for WGS CNV calling results to SV filtration.
 
 -------
 v0.14.8

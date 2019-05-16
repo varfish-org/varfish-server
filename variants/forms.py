@@ -62,12 +62,12 @@ FILTER_FORM_TRANSLATE_EFFECTS = {
 
 FILTER_FORM_TRANSLATE_INHERITANCE = {
     "any": None,
-    "ref": ("0/0",),
+    "ref": ("0/0", "0"),
     "het": ("0/1", "1/0"),
     "hom": ("1/1",),
-    "variant": ("1/0", "0/1", "1/1"),
-    "non-variant": ("0/0", "./."),
-    "non-reference": ("1/0", "0/1", "1/1", "./."),
+    "variant": ("1/0", "0/1", "1/1", "1"),
+    "non-variant": ("0/0", "./.", "0"),
+    "non-reference": ("1/0", "0/1", "1/1", "./.", "1"),
 }
 
 
