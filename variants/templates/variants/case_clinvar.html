@@ -3,6 +3,7 @@
 {% load rules %}
 {% load crispy_forms_tags %}
 {% load static %}
+{% load variants_tags %}
 
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
@@ -16,9 +17,9 @@
   {{ block.super }}
 
   <style type="text/css">
-    .variant-row-positive { background-color: #28a74533; }
-    .variant-row-uncertain { background-color: #ffc10733; }
-    .variant-row-negative { background-color: #dc354533; }
+    .variant-row-positive { background-color: {% get_row_bgcolor "pathogenic" %}; }
+    .variant-row-uncertain { background-color: {% get_row_bgcolor "uncertain" %}; }
+    .variant-row-negative { background-color: {% get_row_bgcolor "benign" %}; }
   </style>
 {% endblock %}
 

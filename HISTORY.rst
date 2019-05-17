@@ -6,6 +6,8 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+The most important change is the change of colors: **Green now means benign and red means pathogenic**.
+
 End-User Summary
 ================
 
@@ -13,6 +15,7 @@ End-User Summary
 - Added "1" and "0" genotype for "variant", "reference", and "non-reference" genotype.
 - Added support for WGS CNV calling results to SV filtration.
 - Simplifying variant selection for SVs as diploid calls unreliable (it's better to distinguish only variant/reference).
+- Changing color meaning: green now means benign/artifact and red means pathogenic/good candidate.
 
 Full Change List
 ================
@@ -24,6 +27,7 @@ Full Change List
 - Added support for WGS CNV calling results to SV filtration.
 - Simplifying selection of variants for SVs.
   Further, also allowing for phased haplotypes (irrelevance in practice until we start interpreting the GATK HC haplotypes in annotator).
+- Changing color meaning: green now means benign/artifact and red means pathogenic/good candidate.
 
 -------
 v0.14.8

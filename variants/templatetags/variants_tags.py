@@ -6,6 +6,21 @@ from projectroles.user_settings import get_user_setting as _get_user_setting
 register = template.Library()
 
 
+# Row colors to use.
+ROW_COLORS = {
+    "pathogenic": "#dc354533",
+    "uncertain": "#ffc10733",
+    "benign": "#28a74533",
+    "__invalid__": "#FF00FF",
+}
+
+
+@register.simple_tag
+def get_row_bgcolor(rating):
+    """Return color to use for row background for rating."""
+    return ROW_COLORS.get(rating, ROW_COLORS["__invalid__"])
+
+
 @register.simple_tag
 def get_details_cases(project):
     """Return active cases for the project details page"""
@@ -61,9 +76,9 @@ def smallvar_description(entry):
 
 #: Mapping of small variant flag value to font awesome icon.
 FLAG_VALUE_TO_FA = {
-    "positive": "fa-thumbs-up",
+    "positive": "fa-exclamation-circle",
     "uncertain": "fa-question",
-    "negative": "fa-thumbs-up",
+    "negative": "fa-minus-circle",
     "empty": "fa-remove",
 }
 
