@@ -142,7 +142,7 @@ class SvAnalysisCollectiveFrequencyMixin:
         )
         self.fields["cohort_unaffected_carriers_max"] = forms.IntegerField(
             label="",
-            initial=0,
+            initial=None,
             min_value=0,
             required=False,
             widget=forms.TextInput(attrs={"placeholder": "Maximal affected carriers in pedigree"}),

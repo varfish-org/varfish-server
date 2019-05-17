@@ -18,6 +18,7 @@ End-User Summary
 - Changing color meaning: green now means benign/artifact and red means pathogenic/good candidate.
 - Adding link-out to varsome
 - Adding support for ACMG criteria annotation
+- SV filtration: do not set max count in background by default
 
 Full Change List
 ================
@@ -33,6 +34,7 @@ Full Change List
 - Adding link-out to varsome
 - Adding support for ACMG criteria annotation
 - Model support tests now running on factory boy.
+- SV filtration: do not set max count in background by default
 
 -------
 v0.14.8
