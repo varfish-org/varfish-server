@@ -32,13 +32,13 @@ from variants.models_support import (
 )
 
 #: Color to use for variants flagged as positive.
-BG_COLOR_POSITIVE = "#29a847"
+BG_COLOR_POSITIVE = "#dc3848"
 
 #: Color to use for variants flagged as uncertain.
 BG_COLOR_UNCERTAIN = "#ffc105"
 
 #: Color to use for variants flagged as negative.
-BG_COLOR_NEGATIVE = "#dc3848"
+BG_COLOR_NEGATIVE = "#29a847"
 
 #: Map of flag value to color.
 BG_COLORS = {
