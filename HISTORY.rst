@@ -16,6 +16,7 @@ End-User Summary
 - Added support for WGS CNV calling results to SV filtration.
 - Simplifying variant selection for SVs as diploid calls unreliable (it's better to distinguish only variant/reference).
 - Changing color meaning: green now means benign/artifact and red means pathogenic/good candidate.
+- Adding link-out to varsome
 
 Full Change List
 ================
@@ -28,6 +29,7 @@ Full Change List
 - Simplifying selection of variants for SVs.
   Further, also allowing for phased haplotypes (irrelevance in practice until we start interpreting the GATK HC haplotypes in annotator).
 - Changing color meaning: green now means benign/artifact and red means pathogenic/good candidate.
+- Adding link-out to varsome
 
 -------
 v0.14.8
