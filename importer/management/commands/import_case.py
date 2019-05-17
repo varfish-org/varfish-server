@@ -78,7 +78,12 @@ class Command(BaseCommand):
             nargs="+",
         )
         parser.add_argument(
-            "--path-db-info", help="Path to database import info TSV file", required=True
+            "--path-db-info",
+            help="Path to database import info TSV file",
+            required=True,
+            action="append",
+            default=[],
+            nargs="+",
         )
         parser.add_argument(
             "--project-uuid", help="UUID of the project to add the case to", required=True
@@ -90,8 +95,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """The actual implementation is in ``_handle()``, splitting to get commit times."""
         # Flatten the nargs="+" arguments.
-        options["path_feature_effects"] = list(itertools.chain(options["path_feature_effects"]))
-        options["path_variants"] = list(itertools.chain(options["path_variants"]))
+        options["path_genotypes"] = list(itertools.chain(*options["path_genotypes"]))
+        options["path_db_info"] = list(itertools.chain(*options["path_db_info"]))
+        if options["path_feature_effects"]:
+            options["path_feature_effects"] = list(
+                itertools.chain(*options["path_feature_effects"])
+            )
+        if options["path_variants"]:
+            options["path_variants"] = list(itertools.chain(*options["path_variants"]))
         # Perform the actual import.
         self._handle(*args, **options)
         if self.last_now:
@@ -150,9 +161,16 @@ class Command(BaseCommand):
             self._import_small_variants_genotypes(case, options["path_genotypes"][0])
             self._rebuild_small_variants_stats(case)
         else:
-            if len(options["path_genotypes"]) != len(options["path_feature_effects"]):
+            if len(
+                {
+                    len(options["path_genotypes"]),
+                    len(options["path_feature_effects"]),
+                    len(options["path_db_info"]),
+                }
+            ) != 1:
                 raise CommandError(
-                    "Number of files specified by --path-genotypes and --path-feature-effects must be the same"
+                    "Number of files specified by --path-genotypes, --path-feature-effects, "
+                    "and --path-db-info must be the same"
                 )
             self._import_structural_variants_genotypes(case, options["path_genotypes"])
             self._import_structural_variants_feature_effects(options["path_feature_effects"])
@@ -280,7 +298,7 @@ class Command(BaseCommand):
                 name=case_name, project=project, index=index_name, pedigree=pedigree
             )
         # Import the release info.
-        for entry in tsv_reader(path_db_info):
+        for entry in tsv_reader(path_db_info[0]):
             AnnotationReleaseInfo.objects.get_or_create(
                 genomebuild=entry["genomebuild"],
                 table=entry["db_name"],
