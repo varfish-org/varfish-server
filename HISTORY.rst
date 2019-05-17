@@ -19,6 +19,7 @@ End-User Summary
 - Adding link-out to varsome
 - Adding support for ACMG criteria annotation
 - SV filtration: do not set max count in background by default
+- SV filtration: display of call properties of XHMM and SV2
 
 Full Change List
 ================
@@ -35,6 +36,7 @@ Full Change List
 - Adding support for ACMG criteria annotation
 - Model support tests now running on factory boy.
 - SV filtration: do not set max count in background by default
+- SV filtration: display of call properties of XHMM and SV2
 
 -------
 v0.14.8

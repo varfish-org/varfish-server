@@ -3,11 +3,55 @@
 <td class="text-center">
   {% with genotype=first_entry.genotype|keyvalue:name %}
     <span data-html="true" data-tooltip="tooltip" title="
-        genotype quality: {{ genotype|keyvalue:"gq"|default:"0" }}<br/>
-        paired-read cov: {{ genotype|keyvalue:"pec"|default:"0" }}<br/>
-        paired-read ALT: {{ genotype|keyvalue:"pev"|default:"0" }}<br/>
-        split-read cov: {{ genotype|keyvalue:"src"|default:"0" }}<br/>
-        split-read ALT: {{ genotype|keyvalue:"srv"|default:"0" }}
+        {# XHMM #}
+        {% if genotype|keyvalue:"dq" is not None %}
+          diploid quality: {{ genotype|keyvalue:"dq"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"ndq" is not None %}
+          non-diploid quality: {{ genotype|keyvalue:"ndq"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"rd" is not None %}
+          normalized read depth (z-score): {{ genotype|keyvalue:"rd"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"pl" is not None %}
+          likelihood diploid, del, dup: {{ genotype|keyvalue:"pl"|join:", " }}<br/>
+        {% endif %}
+
+        {# SV2 #}
+        {% if genotype|keyvalue:"cn" is not None %}
+          copy number estimate: {{ genotype|keyvalue:"cn"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"npe" is not None %}
+          normalized paired-end support: {{ genotype|keyvalue:"npe"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"sre" is not None %}
+          normalized split-read support: {{ genotype|keyvalue:"sre"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"ns" is not None %}
+          number of SNPs over region: {{ genotype|keyvalue:"ns"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"har" is not None %}
+          heterozygous allele ratio: {{ genotype|keyvalue:"har"|default_if_none:"-" }}<br/>
+        {% endif %}
+
+        {# Delly2 #}
+        {% if genotype|keyvalue:"pec" is not None %}
+          paired-read cov: {{ genotype|keyvalue:"pec"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"pev" is not None %}
+          paired-read ALT: {{ genotype|keyvalue:"pev"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"src" is not None %}
+          split-read cov: {{ genotype|keyvalue:"src"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"srv" is not None %}
+          split-read ALT: {{ genotype|keyvalue:"srv"|default_if_none:"-" }}<br/>
+        {% endif %}
+
+        {# all #}
+        {% if genotype|keyvalue:"gq" is not None %}
+          genotype quality: {{ genotype|keyvalue:"gq"|default_if_none:"-" }}
+        {% endif %}
       ">
       {{ genotype|keyvalue:"gt" }}
     </span>
