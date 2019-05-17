@@ -2,9 +2,9 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+-------
+v0.15.0
+-------
 
 The most important change is the change of colors: **Green now means benign and red means pathogenic**.
 
