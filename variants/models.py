@@ -1980,6 +1980,8 @@ class AcmgCriteriaRating(models.Model):
         help_text="Use this field to override the auto-computed class assignment",
     )
 
+    get_gene_symbols = SmallVariantComment.get_gene_symbols
+
     def get_variant_description(self):
         return "-".join(
             map(
