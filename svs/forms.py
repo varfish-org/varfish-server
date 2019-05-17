@@ -70,12 +70,11 @@ FILTER_FORM_TRANSLATE_SV_SUB_TYPES = {
 }
 
 
+#: Specialized set of inheritance for SVs, diploid calls unreliable.
 INHERITANCE = [
     ("any", "any"),
-    ("ref", "0/0"),
-    ("het", "0/1"),
-    ("hom", "1/1"),
     ("variant", "variant"),
+    ("ref", "reference"),
     ("non-variant", "non-variant"),
     ("non-reference", "non-reference"),
 ]
