@@ -17,6 +17,7 @@ End-User Summary
 - Simplifying variant selection for SVs as diploid calls unreliable (it's better to distinguish only variant/reference).
 - Changing color meaning: green now means benign/artifact and red means pathogenic/good candidate.
 - Adding link-out to varsome
+- Adding support for ACMG criteria annotation
 
 Full Change List
 ================
@@ -30,6 +31,7 @@ Full Change List
   Further, also allowing for phased haplotypes (irrelevance in practice until we start interpreting the GATK HC haplotypes in annotator).
 - Changing color meaning: green now means benign/artifact and red means pathogenic/good candidate.
 - Adding link-out to varsome
+- Adding support for ACMG criteria annotation
 
 -------
 v0.14.8

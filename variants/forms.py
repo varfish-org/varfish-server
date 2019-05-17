@@ -2,7 +2,7 @@ from functools import lru_cache
 
 from django.conf import settings
 from django import forms
-from .models import SmallVariantComment, SmallVariantFlags
+from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating
 from .templatetags.variants_tags import only_source_name
 from geneinfo.models import Hgnc
 from django.db.models import Q
@@ -1255,9 +1255,6 @@ class ProjectCasesFilterForm(
 class SmallVariantFlagsForm(forms.ModelForm):
     """Form for validating small variant flags."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     class Meta:
         model = SmallVariantFlags
         exclude = ("case", "sodar_uuid", "date_created", "date_modified")
@@ -1276,3 +1273,11 @@ class SmallVariantCommentForm(forms.ModelForm):
 
 class ProjectStatsJobForm(forms.Form):
     """Form class used for confirmation of recomputing project-wide statistics."""
+
+
+class AcmgCriteriaRatingForm(forms.ModelForm):
+    """Form for giving the ACMG criteria."""
+
+    class Meta:
+        model = AcmgCriteriaRating
+        exclude = ("user", "sodar_uuid", "case", "date_created", "date_modified")

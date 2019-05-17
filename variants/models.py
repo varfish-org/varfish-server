@@ -1702,3 +1702,333 @@ def variant_scores(variants):
     for var, scores in res.json().get("scores", {}).items():
         chrom, pos, ref, alt = var.split("-")
         yield "GRCh37", chrom, int(pos), ref, alt, scores[1]
+
+
+class AcmgCriteriaRating(models.Model):
+    """Store criteria rating given by the ACMG guidelines.
+
+    "Standards and guidelines for the interpretation of sequence variants: a joint consensus recommendation of the
+    American College of Medical Genetics and Genomics and Association for Molecular Pathology (2015)."
+
+    Choices are coded as follows:
+
+    - -1 = [reserved for auto-selected as being the case]
+    - 0 = user did not tick checkbox
+    - 1 = [reserved for auto-selected as not being the case]
+    - 2 = user tick checkbox
+    """
+
+    #: User who created the rating
+    user = models.ForeignKey(
+        AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="acmg_ratings",
+        help_text="User creating the original rating",
+    )
+
+    #: The related case.
+    case = models.ForeignKey(
+        Case,
+        null=False,
+        related_name="acmg_ratings",
+        help_text="Case that this rating was given for",
+    )
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+    #: DateTime of last modification
+    date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
+
+    #: UUID used for identification throughout SODAR.
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
+    )
+
+    #: Genome build
+    release = models.CharField(max_length=32)
+    #: Variant coordinates - chromosome
+    chromosome = models.CharField(max_length=32)
+    #: Variant coordinates - position
+    position = models.IntegerField()
+    #: Variant coordinates - reference
+    reference = models.CharField(max_length=512)
+    #: Variant coordinates - alternative
+    alternative = models.CharField(max_length=512)
+
+    pvs1 = models.IntegerField(
+        default=False,
+        verbose_name="PVS1",
+        help_text=(
+            "null variant (nonsense, frameshift, canonical ±1 or 2 splice sites, initiation codon, single or "
+            "multiexon deletion) in a gene where LOF is a known mechanism of disease",
+        ),
+    )
+
+    ps1 = models.IntegerField(
+        default=0,
+        verbose_name="PS1",
+        help_text=(
+            "Same amino acid change as a previously established pathogenic variant regardless of nucleotide change"
+        ),
+    )
+    ps2 = models.IntegerField(
+        default=0,
+        verbose_name="PS2",
+        help_text=(
+            "De novo (both maternity and paternity confirmed) in a patient with the disease and no family history"
+        ),
+    )
+    ps3 = models.IntegerField(
+        default=0,
+        verbose_name="PS3",
+        help_text=(
+            "Well-established in vitro or in vivo functional studies supportive of a damaging effect on the gene or "
+            "gene product"
+        ),
+    )
+    ps4 = models.IntegerField(
+        default=0,
+        verbose_name="PS4",
+        help_text=(
+            "The prevalence of the variant in affected individuals is significantly increased compared with the "
+            "prevalence in controls"
+        ),
+    )
+
+    pm1 = models.IntegerField(
+        default=0,
+        verbose_name="PM1",
+        help_text=(
+            "Located in a mutational hot spot and/or critical and well-established functional domain (e.g., active "
+            "site of an enzyme) without benign variation"
+        ),
+    )
+    pm2 = models.IntegerField(
+        default=0,
+        verbose_name="PM2",
+        help_text=(
+            "Absent from controls (or at extremely low frequency if recessive) in Exome Sequencing Project, 1000 "
+            "Genomes Project, or Exome Aggregation Consortium"
+        ),
+    )
+    pm3 = models.IntegerField(
+        default=0,
+        verbose_name="PM3",
+        help_text="For recessive disorders, detected in trans with a pathogenic variant",
+    )
+    pm4 = models.IntegerField(
+        default=0,
+        verbose_name="PM4",
+        help_text=(
+            "Protein length changes as a result of in-frame deletions/insertions in a nonrepeat region or stop-loss "
+            "variants"
+        ),
+    )
+    pm5 = models.IntegerField(
+        default=0,
+        verbose_name="PM5",
+        help_text=(
+            "Novel missense change at an amino acid residue where a different missense change determined to be "
+            "pathogenic has been seen before"
+        ),
+    )
+    pm6 = models.IntegerField(
+        default=0,
+        verbose_name="PM6",
+        help_text="Assumed de novo, but without confirmation of paternity and maternity",
+    )
+
+    pp1 = models.IntegerField(
+        default=0,
+        verbose_name="PP1",
+        help_text=(
+            "Cosegregation with disease in multiple affected family members in a gene definitively known to cause "
+            "the disease"
+        ),
+    )
+    pp2 = models.IntegerField(
+        default=0,
+        verbose_name="PP2",
+        help_text=(
+            "Missense variant in a gene that has a low rate of benign missense variation and in which missense "
+            "variants are: a common mechanism of disease"
+        ),
+    )
+    pp3 = models.IntegerField(
+        default=0,
+        verbose_name="PP3",
+        help_text=(
+            "Multiple lines of computational evidence support a deleterious effect on the gene or gene product "
+            "(conservation, evolutionary, splicing impact, etc.)"
+        ),
+    )
+    pp4 = models.IntegerField(
+        default=0,
+        verbose_name="PP4",
+        help_text=(
+            "Patient's phenotype or family history is highly specific for a disease with a single genetic etiology"
+        ),
+    )
+    pp5 = models.IntegerField(
+        default=0,
+        verbose_name="PP5",
+        help_text=(
+            "Reputable source recently reports variant as pathogenic, but the evidence is not available to the "
+            "laboratory to perform an independent evaluation"
+        ),
+    )
+
+    ba1 = models.IntegerField(
+        default=0,
+        verbose_name="BA1",
+        help_text=(
+            "Allele frequency is >5% in Exome Sequencing Project, 1000 Genomes Project, or Exome Aggregation "
+            "Consortium"
+        ),
+    )
+
+    bs1 = models.IntegerField(
+        default=0,
+        verbose_name="BS1",
+        help_text="Allele frequency is greater than expected for disorder (see Table 6)",
+    )
+    bs2 = models.IntegerField(
+        default=0,
+        verbose_name="BS2",
+        help_text=(
+            "Observed in a healthy adult individual for a recessive (homozygous), dominant (heterozygous), or "
+            "X-linked (hemizygous) disorder, with full penetrance expected at an early age"
+        ),
+    )
+    bs3 = models.IntegerField(
+        default=0,
+        verbose_name="BS3",
+        help_text=(
+            "Well-established in vitro or in vivo functional studies show no damaging effect on protein function "
+            "or splicing"
+        ),
+    )
+    bs4 = models.IntegerField(
+        default=0,
+        verbose_name="BS4",
+        help_text="BS4: Lack of segregation in affected members of a family",
+    )
+
+    bp1 = models.IntegerField(
+        default=0,
+        verbose_name="BP1",
+        help_text="Missense variant in a gene for which primarily truncating variants are known to cause disease",
+    )
+    bp2 = models.IntegerField(
+        default=0,
+        verbose_name="BP2",
+        help_text=(
+            "Observed in trans with a pathogenic variant for a fully penetrant dominant gene/disorder or observed in "
+            "cis with a pathogenic variant in any inheritance pattern"
+        ),
+    )
+    bp3 = models.IntegerField(
+        default=0,
+        verbose_name="BP3",
+        help_text="In-frame deletions/insertions in a repetitive region without a known function",
+    )
+    bp4 = models.IntegerField(
+        default=0,
+        verbose_name="BP4",
+        help_text=(
+            "Multiple lines of computational evidence suggest no impact on gene or gene product (conservation, "
+            "evolutionary, splicing impact, etc.)"
+        ),
+    )
+    bp5 = models.IntegerField(
+        default=0,
+        verbose_name="BP5",
+        help_text="Variant found in a case with an alternate molecular basis for disease",
+    )
+    bp6 = models.IntegerField(
+        default=0,
+        verbose_name="BP6",
+        help_text=(
+            "Reputable source recently reports variant as benign, but the evidence is not available to the "
+            "laboratory to perform an independent evaluation"
+        ),
+    )
+    bp7 = models.IntegerField(
+        default=0,
+        verbose_name="BP7",
+        help_text=(
+            "A synonymous (silent) variant for which splicing prediction algorithms predict no impact to the splice "
+            "consensus sequence nor the creation of a new splice site AND the nucleotide is not highly conserved"
+        ),
+    )
+
+    class_auto = models.IntegerField(
+        null=True,
+        blank=True,
+        default=None,
+        verbose_name="ACMG Classification",
+        help_text="Result of the ACMG classification",
+    )
+
+    class_override = models.IntegerField(
+        null=True,
+        blank=True,
+        default=None,
+        verbose_name="Class Override",
+        help_text="Use this field to override the auto-computed class assignment",
+    )
+
+    def get_variant_description(self):
+        return "-".join(
+            map(
+                str,
+                (self.release, self.chromosome, self.position, self.reference, self.alternative),
+            )
+        )
+
+    def get_human_readable(self):
+        """Return human-readable ACMG rating values."""
+
+        def yesno(key):
+            if getattr(self, key) and getattr(self, key) > 0:
+                return "Y"
+            else:
+                return "N"
+
+        keys = (
+            "pvs1",
+            "ps1",
+            "ps2",
+            "ps3",
+            "ps4",
+            "pm1",
+            "pm2",
+            "pm3",
+            "pm4",
+            "pm5",
+            "pm6",
+            "pp1",
+            "pp2",
+            "pp3",
+            "pp4",
+            "pp5",
+            "ba1",
+            "bs1",
+            "bs2",
+            "bs3",
+            "bs4",
+            "bp1",
+            "bp2",
+            "bp3",
+            "bp4",
+            "bp5",
+            "bp6",
+            "bp7",
+        )
+        result = ", ".join(["%s: %s" % (key.upper(), yesno(key)) for key in keys])
+        result += ", ACMG classification: %s" % self.class_auto
+        if self.class_override:
+            result += ", ACMG class. override: %s" % self.class_override
+        return result

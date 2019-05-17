@@ -67,6 +67,7 @@ from .models import (
     annotate_with_phenotype_scores,
     annotate_with_pathogenicity_scores,
     annotate_with_joint_scores,
+    AcmgCriteriaRating,
 )
 from .forms import (
     ClinvarForm,
@@ -81,6 +82,7 @@ from .forms import (
     ProjectStatsJobForm,
     SmallVariantCommentForm,
     SmallVariantFlagsForm,
+    AcmgCriteriaRatingForm,
 )
 from .tasks import (
     export_file_task,
@@ -2149,6 +2151,77 @@ class SmallVariantCommentApiView(
             tl_event.add_object(obj=case, label="case", name=case.name)
             tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
         return HttpResponse(json.dumps({"result": "OK"}), content_type="application/json")
+
+
+class AcmgCriteriaRatingApiView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+    View,
+):
+    """A view that returns JSON for the ``AcmgCriteriaRating`` for a variant of a case and allows updates."""
+
+    # TODO: create new permission
+    permission_required = "variants.view_data"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def _model_to_dict(self, flags):
+        """Helper that calls ``model_to_dict()`` and then replaces the case PK with the SODAR UUID."""
+        return {**model_to_dict(flags), "case": str(self.get_object().sodar_uuid)}
+
+    def get(self, *_args, **_kwargs):
+        case = self.get_object()
+        acmg_ratings = get_object_or_404(
+            case.acmg_ratings,
+            release=self.request.GET.get("release"),
+            chromosome=self.request.GET.get("chromosome"),
+            position=self.request.GET.get("position"),
+            reference=self.request.GET.get("reference"),
+            alternative=self.request.GET.get("alternative"),
+        )
+        return HttpResponse(
+            json.dumps(self._model_to_dict(acmg_ratings), cls=UUIDEncoder),
+            content_type="application/json",
+        )
+
+    def post(self, *_args, **_kwargs):
+        case = self.get_object()
+        try:
+            acmg_ratings = case.acmg_ratings.get(
+                release=self.request.POST.get("release"),
+                chromosome=self.request.POST.get("chromosome"),
+                position=self.request.POST.get("position"),
+                reference=self.request.POST.get("reference"),
+                alternative=self.request.POST.get("alternative"),
+            )
+        except AcmgCriteriaRating.DoesNotExist:
+            acmg_ratings = AcmgCriteriaRating(case=case, sodar_uuid=uuid.uuid4())
+        form = AcmgCriteriaRatingForm(self.request.POST, instance=acmg_ratings)
+        try:
+            acmg_ratings = form.save()
+        except ValueError as e:
+            raise Exception(str(form.errors)) from e
+        timeline = get_backend_api("timeline_backend")
+        if timeline:
+            tl_event = timeline.add_event(
+                project=self.get_project(self.request, self.kwargs),
+                app_name="variants",
+                user=self.request.user,
+                event_name="flags_set",
+                description="set ACMG rating for variant %s in case {case}: {extra-rating_values}"
+                % acmg_ratings.get_variant_description(),
+                status_type="OK",
+                extra_data={"rating_values": acmg_ratings.get_human_readable()},
+            )
+            tl_event.add_object(obj=case, label="case", name=case.name)
+        # TODO: allow erasing?
+        result = self._model_to_dict(acmg_ratings)
+        return HttpResponse(json.dumps(result, cls=UUIDEncoder), content_type="application/json")
 
 
 class NewFeaturesView(LoginRequiredMixin, RedirectView):

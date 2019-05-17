@@ -28,6 +28,31 @@ def get_details_cases(project):
 
 
 @register.filter
+def acmg_classification(entry):
+    """Return ACMG classification from entry, if any"""
+    if entry.acmg_class_override:
+        return entry.acmg_class_override
+    elif entry.acmg_class_auto:
+        return entry.acmg_class_auto
+    else:
+        return None
+
+
+@register.filter
+def acmg_badge_class(entry):
+    """Return ACMG classification from entry, if any"""
+    val = acmg_classification(entry)
+    if not val:
+        return "badge badge-light text-muted"
+    elif val > 3:
+        return "badge badge-danger text-white"
+    elif val == 3:
+        return "badge badge-warning text-black"
+    else:
+        return "badge badge-success text-white"
+
+
+@register.filter
 def only_source_name(full_name):
     return _models_only_source_name(full_name)
 

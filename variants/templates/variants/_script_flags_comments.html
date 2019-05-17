@@ -69,7 +69,7 @@ function clickVariantBookmark() {
   // Function callback for showing the form.
   function showPopup(data) {
     var html = bookmarkPopupTpl.render(data);
-    var html = $(html);
+    html = $(html);
     html.find('[data-toggle="tooltip"]').tooltip();
 
     // Setup the form elements so we can use AJAX for them.
@@ -179,6 +179,201 @@ $('body').on('click', function (e) {
     });
 });
 
+
+// --------------------------------------------------------------------------
+// Variant ACMG Rating Popover / AJAX Form
+// --------------------------------------------------------------------------
+
+function updateAcmgRating(theForm) {
+  const form = $(theForm)
+  const inputClassification = form.find(".acmg-class")
+
+  const pvs = form.find(".pvs:checked").length
+  const ps = form.find(".ps:checked").length
+  const pm = form.find(".pm:checked").length
+  const pp = form.find(".pp:checked").length
+
+  const bas = form.find(".ba:checked").length
+  const bs = form.find(".bs:checked").length
+  const bp = form.find(".bp:checked").length
+
+  const isPathogenic = (
+    (
+      (pvs == 1) && (
+        (ps >= 1) || (pm >= 2) || (pm == 1 && pp == 1) || (pp >= 2)
+      )
+    ) ||
+    (ps >= 2) ||
+    (
+      (ps == 1) && (
+        (pm >= 3) || (pm >= 2 && pp >= 2) || (pm == 1 && pp >= 4)
+      )
+    )
+  )
+  const isLikelyPathogenic = (
+    (pvs == 1 && pm == 1) ||
+    (ps == 1 && pm >= 1 && pm <= 2) ||
+    (ps == 1 && pp >= 2) ||
+    (pm >= 3) ||
+    (pm == 2 && pp >= 2) ||
+    (pm == 1 && pp >= 4)
+  )
+  const isLikelyBenign = ((bs >= 2) && (bp >= 1) || ((bs >= 1) && (bp >= 2)))
+  const isBenign = (bas > 0) || (bs >= 2)
+
+  const isConflicting = (isPathogenic || isLikelyPathogenic) && (isBenign || isLikelyBenign)
+
+  let acmgClass = 3
+  if (isPathogenic) {
+    acmgClass = 5
+  } else if (isLikelyPathogenic) {
+    acmgClass = 4
+  } else if (isBenign) {
+    acmgClass = 1
+  } else if (isLikelyBenign) {
+    acmgClass = 2
+  }
+  if (isConflicting) {
+    acmgClass = 3
+    form.find(".warning-conflict").removeClass("d-none")
+  } else {
+    form.find(".warning-conflict").addClass("d-none")
+  }
+
+  inputClassification.val(acmgClass)
+}
+
+function acmgCriterionChanged(event) {
+  updateAcmgRating(event.target.form)
+}
+
+function clickVariantAcmgRating() {
+  // Compile popup template.
+  var bookmarkPopupTpl = $.templates("#acmg-popup");
+  // Store handle outmost $(this) for later hiding popup again.
+  var outerThis = $(this).closest(".bookmark").find(".variant-acmg");
+
+  // Get variant description from triggering bookmark icon.
+  var dataVariant = $(this).data("variant");
+  var caseUuid = $(this).data("case");
+  var arrVariant = dataVariant.split("-");
+  var queryArgs = {
+    release: arrVariant[0],
+    chromosome: arrVariant[1],
+    position: arrVariant[2],
+    reference: arrVariant[3],
+    alternative: arrVariant[4],
+  };
+
+  // Function callback for showing the form.
+  function showPopup(data) {
+    var html = bookmarkPopupTpl.render(data)
+    html = $(html)
+    html.find('[data-toggle="tooltip"]').tooltip()
+    html.find('input').change(acmgCriterionChanged)
+    updateAcmgRating(html)  // initial computation
+
+    // Setup the form elements so we can use AJAX for them.
+    $(html).find(".cancel").click(function(event) {
+      event.preventDefault();
+      $(outerThis).popover("hide");
+    });
+    $(html).find(".save").click(function(event) {
+      event.preventDefault();  // we will handle everything
+
+      // Save flags
+      const form = $(this).closest("form")
+      let formValues = form.serializeArray()
+      // Because serializeArray() ignores unset checkboxes and radio buttons:
+      formValues = formValues.concat(
+        form.find('input[type=checkbox]:not(:checked)').map(
+          function() { return {"name": this.name, "value": false} }).get())
+      let formData = ""
+      for (let i = 0; i < formValues.length; ++i) {
+        let key = formValues[i].name
+        let value = formValues[i].value
+        if (key.startsWith("pvs") || key.startsWith("ps") || key.startsWith("pm") || key.startsWith("pp") ||
+          key.startsWith("ba") || key.startsWith("bs") || key.startsWith("bp")) {
+          value = value ? 2 : 0
+        }
+        if (formData.length > 0) {
+          formData += "&"
+        }
+        formData += key + "=" + value
+      }
+      $.ajax({
+        type: "POST",
+        url: "{% url 'variants:acmg-rating-api' project=project.sodar_uuid case="--abcef--" %}".replace("--abcef--", caseUuid),
+        data: formData + "&csrfmiddlewaretoken=" + getCookie("csrftoken"),
+        dataType: "json",
+      }).done(function(data) {
+        let acmgClass = data["class_override"] || data["class_auto"]
+        let badge = $(outerThis).closest(".variant-row").find(".variant-acmg")
+
+        if (acmgClass && (acmgClass > 3)) {
+          badge.addClass("badge-danger text-white")
+          badge.removeClass("badge-light badge-warning badge-success text-black text-muted")
+        } else if (acmgClass && (acmgClass == 3)) {
+          badge.addClass("badge-warning text-black")
+          badge.removeClass("badge-light text-muted badge-danger badge-success text-white")
+        } else if (acmgClass) {
+          badge.addClass("badge-success text-white")
+          badge.removeClass("badge-light text-muted badge-danger badge-warning text-black")
+        }
+        badge.text(acmgClass)
+      }).fail(function(xhr) {
+        // failed, notify user
+        alert("Updating ACMG classification failed");
+      });
+
+      // Remove pop-over
+      $(outerThis).popover('hide').popover("dispose");
+    });
+
+    outerThis.popover({
+      title: "ACMG Criteria",
+      html: true,
+      content: html,
+    }).popover("show")
+  }
+
+  // Retrieve current small variant flags from server via AJAX.
+  $.ajax({
+    url: "{% url 'variants:acmg-rating-api' project=project.sodar_uuid case="--abcef--" %}".replace("--abcef--", caseUuid),
+    data: queryArgs,
+    dataType: "json"
+  }).done(function(data) {
+    // found flags, show form with these
+    console.log(data)
+    showPopup(data);
+  }).fail(function(xhr) {
+    if (xhr.status == 404) {
+      // no flags found yet, show form with defaults
+      var data = {
+        variant: dataVariant,
+        release: arrVariant[0],
+        chromosome: arrVariant[1],
+        position: arrVariant[2],
+        reference: arrVariant[3],
+        alternative: arrVariant[4],
+        flag_bookmarked: true,
+        flag_for_validation: false,
+        flag_candidate: false,
+        flag_final_causative: false,
+        flag_visual: "empty",
+        flag_validation: "empty",
+        flag_phenotype_match: "empty",
+        flag_summary: "empty",
+      };
+      showPopup(data);
+    } else {
+      // Non-404 status code, something else failed.
+      alert("Retrieving small variant flags failed");
+    }
+  });
+}
+
 $(document).on("click", ".variant-bookmark", clickVariantBookmark);
 $(document).on("click", ".variant-comment", clickVariantBookmark);
+$(document).on("click", ".variant-acmg", clickVariantAcmgRating);
 </script>

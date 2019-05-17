@@ -115,6 +115,11 @@ urlpatterns = [
         view=views.SmallVariantCommentApiView.as_view(),
         name="small-variant-comment-api",
     ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-acmg-rating/(?P<case>[0-9a-f-]+)/$",
+        view=views.AcmgCriteriaRatingApiView.as_view(),
+        name="acmg-rating-api",
+    ),
     # Views for filtering and storing case query results jobs
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/filter-results/(?P<case>[0-9a-f-]+)/$",

@@ -25,6 +25,10 @@
        data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}"></i>
     <i class="fa fa-fw {% if entry.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
        data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}"></i>
+    <span class="{{ entry|acmg_badge_class }} variant-acmg" style="width: 22px; display: inline-block"
+          data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}">
+      {{ entry|acmg_classification|default:"-" }}
+    </span>
   </td>
   {% else %}
   <td></td>

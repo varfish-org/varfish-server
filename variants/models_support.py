@@ -19,6 +19,7 @@ from variants.models import (
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantSummary,
+    AcmgCriteriaRating,
 )
 from frequencies.models import GnomadExomes, GnomadGenomes, Exac, ThousandGenomes
 from variants.forms import (
@@ -1092,7 +1093,7 @@ class FilterQueryClinvarDetailsMixin(InClinvarTermWhereMixin):
 
 
 class FilterQueryFlagsCommentsMixin:
-    """Add information about flags and comments for filter queries."""
+    """Add information about flags, comments, and ACMG ratings for filter queries."""
 
     def _build_stmt(self, kwargs):
         """Override statement building to add the join with Clinvar information."""
@@ -1123,6 +1124,8 @@ class FilterQueryFlagsCommentsMixin:
                         "flag_phenotype_match"
                     ),
                     func.max(SmallVariantFlags.sa.flag_summary).label("flag_summary"),
+                    func.max(AcmgCriteriaRating.sa.class_auto).label("acmg_class_auto"),
+                    func.max(AcmgCriteriaRating.sa.class_override).label("acmg_class_override"),
                 ]
             )
             .select_from(
@@ -1136,7 +1139,8 @@ class FilterQueryFlagsCommentsMixin:
                         SmallVariantFlags.sa.reference == inner.c.reference,
                         SmallVariantFlags.sa.alternative == inner.c.alternative,
                     ),
-                ).outerjoin(
+                )
+                .outerjoin(
                     SmallVariantComment.sa.table,
                     and_(
                         SmallVariantComment.sa.case_id == inner.c.case_id,
@@ -1145,6 +1149,17 @@ class FilterQueryFlagsCommentsMixin:
                         SmallVariantComment.sa.position == inner.c.position,
                         SmallVariantComment.sa.reference == inner.c.reference,
                         SmallVariantComment.sa.alternative == inner.c.alternative,
+                    ),
+                )
+                .outerjoin(
+                    AcmgCriteriaRating.sa.table,
+                    and_(
+                        AcmgCriteriaRating.sa.case_id == inner.c.case_id,
+                        AcmgCriteriaRating.sa.release == inner.c.release,
+                        AcmgCriteriaRating.sa.chromosome == inner.c.chromosome,
+                        AcmgCriteriaRating.sa.position == inner.c.position,
+                        AcmgCriteriaRating.sa.reference == inner.c.reference,
+                        AcmgCriteriaRating.sa.alternative == inner.c.alternative,
                     ),
                 )
             )
