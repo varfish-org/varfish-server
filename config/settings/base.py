@@ -105,6 +105,8 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 DOCS_ROOT = ROOT_DIR.path('docs_manual/_build/html/')
 # DOCS_ACCESS = 'public'  # default
 
+# Bump the default number of fields in forms.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = env.int("DATA_UPLOAD_MAX_NUMBER_FIELDS", 100_000)
 
 # MIDDLEWARE CONFIGURATION
 # ------------------------------------------------------------------------------

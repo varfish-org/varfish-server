@@ -161,13 +161,16 @@ class Command(BaseCommand):
             self._import_small_variants_genotypes(case, options["path_genotypes"][0])
             self._rebuild_small_variants_stats(case)
         else:
-            if len(
-                {
-                    len(options["path_genotypes"]),
-                    len(options["path_feature_effects"]),
-                    len(options["path_db_info"]),
-                }
-            ) != 1:
+            if (
+                len(
+                    {
+                        len(options["path_genotypes"]),
+                        len(options["path_feature_effects"]),
+                        len(options["path_db_info"]),
+                    }
+                )
+                != 1
+            ):
                 raise CommandError(
                     "Number of files specified by --path-genotypes, --path-feature-effects, "
                     "and --path-db-info must be the same"
