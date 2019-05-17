@@ -389,15 +389,16 @@ class Command(BaseCommand):
         """Import structural variants TSV file into database."""
         self.stdout.write("Creating temporary SV genotype file...")
         with tempfile.NamedTemporaryFile("w+t") as tempf:
-            for current_path in path_genotypes:
+            for file_no, current_path in enumerate(path_genotypes):
                 with open_file(current_path, "rt") as inputf:
                     header = inputf.readline().strip()
                     try:
                         replace_idx = header.split("\t").index("case_id")
                     except ValueError as e:
                         raise CommandError("Column 'case_id' not found in genotypes TSV") from e
-                    tempf.write(header)
-                    tempf.write("\n")
+                    if file_no == 0:
+                        tempf.write(header)
+                        tempf.write("\n")
                     while True:
                         line = inputf.readline().strip()
                         if not line:
