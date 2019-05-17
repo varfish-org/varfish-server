@@ -10,6 +10,7 @@ from ..models import (
     SmallVariantQuery,
     ProjectCasesSmallVariantQuery,
     SmallVariantSummary,
+    ClinvarQuery,
 )
 import typing
 import attr
@@ -24,6 +25,18 @@ class SmallVariantQueryFactory(factory.django.DjangoModelFactory):
     form_version = factory.Sequence(lambda n: n)
     query_settings = factory.List([])
     name = factory.Sequence(lambda n: "SmallVariantQuery%d" % n)
+    public = False
+
+
+class ClinvarQueryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ClinvarQuery
+
+    case = None
+    form_id = factory.Sequence(lambda n: str(n))
+    form_version = factory.Sequence(lambda n: n)
+    query_settings = factory.List([])
+    name = factory.Sequence(lambda n: "ClinvarQuery%d" % n)
     public = False
 
 
@@ -75,6 +88,7 @@ class CaseFactory(factory.django.DjangoModelFactory):
     pedigree = []
     project = factory.SubFactory(ProjectFactory)
     smallvariantquery = factory.RelatedFactory(SmallVariantQueryFactory, "case")
+    clinvarquery = factory.RelatedFactory(ClinvarQueryFactory, "case")
 
     @factory.lazy_attribute_sequence
     def pedigree(self, n):
@@ -162,7 +176,7 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
-    position = factory.Sequence(lambda n: n * 100)
+    position = factory.Sequence(lambda n: (n + 1) * 100)
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
     var_type = "snv"
@@ -222,7 +236,7 @@ class SmallVariantSummaryFactory(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
-    position = factory.Sequence(lambda n: n * 100)
+    position = factory.Sequence(lambda n: (n + 1) * 100)
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
     count_hom_ref = 0

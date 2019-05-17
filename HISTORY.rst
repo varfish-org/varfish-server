@@ -2,6 +2,21 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+End-User Summary
+================
+
+Full Change List
+================
+
+- Increased test coverage to 100% for small variant model support tests.
+- Fixed bug in displaying conservation track for all bases in an AA base triplet.
+  Only two of three bases were decorated with the conservation track information.
+- Fixed bug that Clinvar report didn't support compound heterozygous queries anymore.
+
 -------
 v0.15.0
 -------

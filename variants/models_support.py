@@ -91,9 +91,10 @@ class SingleCaseFilterQueryBase:
 
     def _build_stmt(self, kwargs):
         """Build the statement and reutrn it"""
-        if kwargs.get("compound_recessive_enabled"):
+        # Used only by SV app (would be: raise NotImplementedError("Override me!"))
+        if kwargs.get("compound_recessive_enabled"):  # pragma: no cover
             raise NotImplementedError("%s does not have het. comp. support!" % self.__class__)
-        return self._add_trailing(self._build_simple_stmt(kwargs), kwargs)
+        return self._add_trailing(self._build_simple_stmt(kwargs), kwargs)  # pragma: no cover
 
     def _build_simple_stmt(self, kwargs):
         """Build the simple, non-comp.-het. statement"""
@@ -111,7 +112,8 @@ class SingleCaseFilterQueryBase:
 
     def _from(self, _kwargs):
         """Return the selectable object (e.g., a ``Join``)."""
-        return self.base_table
+        # Used only by SV app (would be: raise NotImplementedError("Override me!"))
+        return self.get_base_table()  # pragma: no cover
 
     def _core_where(self, _kwargs, _gt_patterns=None):
         """Return ``WHERE`` clause for the core.
@@ -132,7 +134,7 @@ class SingleCaseFilterQueryBase:
 
         The default implementation does not change ``stmt``.
         """
-        return stmt
+        return stmt  # pragma: no cover
 
     def _add_trailing_inner(self, stmt, _kwargs):
         """Optionally add trailing parts of inner statement.
@@ -144,7 +146,9 @@ class SingleCaseFilterQueryBase:
     def get_base_table(self):
         """Return base_table"""
         if self.base_table is None:
-            raise ImproperlyConfigured("Set base_table or override get_base_table().")
+            raise ImproperlyConfigured(
+                "Set base_table or override get_base_table()."
+            )  # pragma: no cover
         else:
             return self.base_table
 
@@ -352,7 +356,7 @@ class ProjectCasesFilterQueryBase:
 
         The default implementation does not change ``stmt``.
         """
-        return stmt
+        return stmt  # pragma: no cover
 
     def _add_trailing_inner(self, stmt, _kwargs):
         """Optionally add trailing parts of inner statement.
@@ -361,10 +365,6 @@ class ProjectCasesFilterQueryBase:
         """
         return stmt
 
-    def _get_pedigree(self):
-        """Return list with lines from pedigree."""
-        return self.project.get_pedigree()
-
     def _get_filtered_pedigree_with_samples(self):
         """Return list with lines from pedigree that have samples."""
         return self.project.get_filtered_pedigree_with_samples()
@@ -372,13 +372,11 @@ class ProjectCasesFilterQueryBase:
     def get_base_table(self):
         """Return base_table"""
         if self.base_table is None:
-            raise ImproperlyConfigured("Set base_table or override get_base_table().")
+            raise ImproperlyConfigured(
+                "Set base_table or override get_base_table()."
+            )  # pragma: no cover
         else:
             return self.base_table
-
-    def is_prefetched(self):
-        """Return if the query is prefetched or not."""
-        return "LoadPrefetched" in type(self).__name__
 
 
 class ProjectCasesPrefetchFilterQueryBase(ProjectCasesFilterQueryBase):
@@ -853,7 +851,7 @@ class FilterQueryRenderFieldsMixin(JoinDbsnpAndHgncMixin):
             if inner is not None:
                 return [*inner.c]
             else:
-                return "*"
+                return "*"  # pragma: no cover
         else:
             result = [
                 SmallVariant.sa.id,
@@ -962,7 +960,7 @@ class JoinKnownGeneAaMixin(FilterQueryRenderFieldsMixin):
             if inner is not None:
                 return [*inner.c]
             else:
-                return ["*"]
+                return ["*"]  # pragma: no cover
         else:
             # Return additional fields for downloadable files.  When rendered, this additional
             # information is loaded on demand by AJAX.
@@ -991,7 +989,7 @@ class FilterQueryHgmdMixin:
         if not kwargs.get("require_in_hgmd_public") and not kwargs.get(
             "display_hgmd_public_membership"
         ):
-            return inner
+            return inner  # pragma: no cover
         else:
             return self._extend_stmt_hgmd(inner, kwargs)
 
@@ -1274,7 +1272,7 @@ class ExportVcfFileFilterQuery(
             if inner is not None:
                 return [*inner.c]
             else:
-                return "*"
+                return "*"  # pragma: no cover
         else:
             result = [
                 SmallVariant.sa.release,
@@ -1409,12 +1407,6 @@ class ClinvarReportFromAndWhereMixin(GenotypeTermWhereMixin):
             self._build_review_status_term(kwargs),
         )
 
-    def _build_in_clinvar_term(self, kwargs):
-        if kwargs["require_in_clinvar"]:
-            return SmallVariant.sa.in_clinvar
-        else:
-            return True
-
     def _build_genotype_quality_term(self, _name, _kwargs):
         """Force genotype quality term to pass ``True``."""
         return True
@@ -1464,15 +1456,14 @@ class ClinvarReportFieldsMixin(FilterQueryRenderFieldsMixin):
             return result
 
 
-class PrefetchClinvarReportQueryBase(SingleCaseFilterQueryBase):
+class PrefetchClinvarReportQueryBase(SingleCaseFilterQueryWithHetCompBase):
     model_class = SmallVariant
-    base_table = SmallVariant.sa.table
 
     #: Table that the query is based on
     base_table = SmallVariant.sa.table
 
 
-class LoadPrefetchedClinvarReportQueryBase(SingleCaseFilterQueryBase):
+class LoadPrefetchedClinvarReportQueryBase(SingleCaseFilterQueryWithHetCompBase):
     """Class to load previous filter results
     """
 
@@ -1554,8 +1545,9 @@ class KnownGeneAAQuery:
             .where(
                 and_(
                     KnowngeneAA.sa.chromosome == kwargs["chromosome"],
-                    KnowngeneAA.sa.start < int(kwargs["position"]) - 1 + len(kwargs["reference"]),
-                    KnowngeneAA.sa.end > int(kwargs["position"]) - 1,
+                    KnowngeneAA.sa.start
+                    <= int(kwargs["position"]) + (len(kwargs["reference"]) - 1),
+                    KnowngeneAA.sa.end >= int(kwargs["position"]),
                 )
             )
             .order_by(KnowngeneAA.sa.start)

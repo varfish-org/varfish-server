@@ -13,7 +13,7 @@ class MacArthurFrequenciesFactoryBase(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
     chromosome = factory.Iterator((list(map(str, range(1, 23))) + ["X", "Y"]))
-    position = factory.Sequence(lambda n: n * 100)
+    position = factory.Sequence(lambda n: (n + 1) * 100)
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
 
@@ -111,7 +111,7 @@ class ThousandGenomesFactory(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
     chromosome = factory.Iterator((list(map(str, range(1, 23))) + ["X", "Y"]))
-    position = factory.Sequence(lambda n: n * 100)
+    position = factory.Sequence(lambda n: (n + 1) * 100)
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
 

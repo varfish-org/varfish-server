@@ -77,16 +77,12 @@ class SupportQueryTestBase(TestBase):
                 else:
                     for member in obj.get_members():
                         patched_cleaned_data.update(_create_gt_entry(member))
-                # Patch data AFTER creating the genotype form data for each patient
-                patched_cleaned_data.update(cleaned_data_patch)
-                previous_query = patched_cleaned_data.get("smallvariantquery_id", None)
             else:  # query_type == "project"
                 obj = CaseAwareProject.objects.first()
                 for record in obj.get_filtered_pedigree_with_samples():
                     patched_cleaned_data.update(_create_gt_entry(record["patient"]))
-                # Patch data AFTER creating the genotype form data for each patient
-                patched_cleaned_data.update(cleaned_data_patch)
-                previous_query = patched_cleaned_data.get("projectcasessmallvariantquery_id", None)
+            patched_cleaned_data.update(cleaned_data_patch)
+            previous_query = patched_cleaned_data.get("filter_job_id", None)
             patched_cleaned_data["sodar_uuid"] = obj.sodar_uuid
             if previous_query:
                 query = query_class(obj, engine, previous_query)

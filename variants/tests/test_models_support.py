@@ -5,13 +5,20 @@ Remarks:
 - VCF export is only tested for case one at the moment, as it shares a major part of the implementation with
   the render and tabular file export query.
 """
-
 from clinvar.tests.factories import ClinvarFactory
+from conservation.tests.factories import KnownGeneAAFactory
 from geneinfo.models import Hgnc
-from variants.models import Case, CaseAwareProject, SmallVariantQuery, ProjectCasesSmallVariantQuery
+from hgmd.tests.factories import HgmdPublicLocusFactory
+from variants.models import Case, SmallVariantQuery, ProjectCasesSmallVariantQuery, ClinvarQuery
 from geneinfo.tests.factories import HgncFactory, AcmgFactory
 from dbsnp.tests.factories import DbsnpFactory
-from .factories import SmallVariantFactory, CaseFactory, SmallVariantSummaryFactory
+from .factories import (
+    SmallVariantFactory,
+    CaseFactory,
+    SmallVariantSummaryFactory,
+    ProjectFactory,
+    ProjectCasesSmallVariantQueryFactory,
+)
 from .helpers import TestBase, SupportQueryTestBase, SQLALCHEMY_ENGINE
 from ..models_support import (
     PrefetchClinvarReportQuery,
@@ -21,79 +28,10 @@ from ..models_support import (
     ExportVcfFileFilterQuery,
     LoadPrefetchedFilterQuery,
     ProjectCasesLoadPrefetchedFilterQuery,
+    LoadPrefetchedClinvarReportQuery,
+    KnownGeneAAQuery,
+    ProjectCasesPrefetchFilterQuery,
 )
-
-# ---------------------------------------------------------------------------
-# Test Helpers and Generic Test Data
-# ---------------------------------------------------------------------------
-
-
-class FilterTestBase(TestBase):
-    """Base class for running the test for the ``SmallVariant`` filter queries.
-    """
-
-    def _get_fetch_and_query(self, query_class, cleaned_data_patch, query_type):
-        engine = SQLALCHEMY_ENGINE
-        patched_cleaned_data = {**self.base_cleaned_data, **cleaned_data_patch}
-
-        def fetch_case_and_query():
-            """Helper function that fetches the ``case`` by UUID and then generates the
-            appropriate query.
-            """
-            if query_type == "case":
-                obj = Case.objects.get(sodar_uuid=patched_cleaned_data["case_uuid"])
-                previous_query = patched_cleaned_data.get("smallvariantquery_id", None)
-            else:  # query_type == "project"
-                obj = CaseAwareProject.objects.first()
-                previous_query = patched_cleaned_data.get("projectcasessmallvariantquery_id", None)
-            if previous_query:
-                query = query_class(obj, engine, previous_query)
-            else:
-                query = query_class(obj, engine)
-            return query.run(patched_cleaned_data)
-
-        return fetch_case_and_query
-
-    def run_filter_query(
-        self, query_class, cleaned_data_patch, length, assert_raises=None, query_type="case"
-    ):
-        """Run query returning a collection of filtration results with ``query_class``.
-
-        This is a helper to be called in all ``test_*()`` functions.  It is a shortcut
-        to the following:
-
-        - Create a query kwargs ``dict`` by patching ``self.__class__.base_cleaned_data``
-          with ``patch_cleaned_data``.
-        - Perform the query.
-        - Assert that exactly ``length`` elements are returned (and return list of these
-          elements for further testing).
-        - If ``assert_raises`` evaluates as ``True`` then instead of checking the result
-          length and returning a list of elements, assert that an exception of type
-          ``assert_raises`` is raised.
-        """
-        fetch_case_and_query = self._get_fetch_and_query(
-            query_class, cleaned_data_patch, query_type
-        )
-        if assert_raises:
-            with self.assertRaises(assert_raises):
-                fetch_case_and_query()
-        else:
-            results = list(fetch_case_and_query())
-            self.assertEquals(length, len(results))
-            return results
-
-    def run_count_query(
-        self, query_class, kwargs_patch, length, assert_raises=None, query_type="case"
-    ):
-        """Run query returning a result record count instead of result records."""
-        fetch_case_and_query = self._get_fetch_and_query(query_class, kwargs_patch, query_type)
-        if assert_raises:
-            with self.assertRaises(assert_raises):
-                fetch_case_and_query()
-        else:
-            result = fetch_case_and_query()
-            self.assertEquals(length, result)
-            return result
 
 
 class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
@@ -124,7 +62,7 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
 
     def test_load_case_results(self):
         results = self.run_query(
-            LoadPrefetchedFilterQuery, {"smallvariantquery_id": self.smallvariantquery.id}, 2
+            LoadPrefetchedFilterQuery, {"filter_job_id": self.smallvariantquery.id}, 2
         )
         self.assertEqual(results[0].acmg_symbol, self.acmg.symbol)
         self.assertIsNone(results[1].acmg_symbol)
@@ -134,7 +72,7 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
     def test_load_project_cases_results(self):
         results = self.run_query(
             ProjectCasesLoadPrefetchedFilterQuery,
-            {"projectcasessmallvariantquery_id": self.projectcasessmallvariantquery.id},
+            {"filter_job_id": self.projectcasessmallvariantquery.id},
             2,
             query_type="project",
         )
@@ -1312,6 +1250,106 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
         )
 
 
+class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
+    def setUp(self):
+        super().setUp()
+        case = CaseFactory()
+        SmallVariantFactory(
+            refseq_transcript_coding=False, ensembl_transcript_coding=False, case=case
+        )
+        SmallVariantFactory(
+            refseq_transcript_coding=True, ensembl_transcript_coding=True, case=case
+        )
+
+    def test_transcript_empty_refseq(self):
+        self.run_query(
+            PrefetchFilterQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": False,
+                "transcripts_noncoding": False,
+            },
+            0,
+        )
+
+    def test_transcript_empty_ensembl(self):
+        self.run_query(
+            PrefetchFilterQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": False,
+                "transcripts_noncoding": False,
+            },
+            0,
+        )
+
+    def test_transcript_coding_refseq(self):
+        self.run_query(
+            PrefetchFilterQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": True,
+                "transcripts_noncoding": False,
+            },
+            1,
+        )
+
+    def test_transcript_coding_ensembl(self):
+        self.run_query(
+            PrefetchFilterQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": True,
+                "transcripts_noncoding": False,
+            },
+            1,
+        )
+
+    def test_transcript_noncoding_refseq(self):
+        self.run_query(
+            PrefetchFilterQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": False,
+                "transcripts_noncoding": True,
+            },
+            1,
+        )
+
+    def test_transcript_noncoding_ensembl(self):
+        self.run_query(
+            PrefetchFilterQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": False,
+                "transcripts_noncoding": True,
+            },
+            1,
+        )
+
+    def test_transcript_coding_and_noncoding_refseq(self):
+        self.run_query(
+            PrefetchFilterQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": True,
+                "transcripts_noncoding": True,
+            },
+            2,
+        )
+
+    def test_transcript_coding_and_noncoding_ensembl(self):
+        self.run_query(
+            PrefetchFilterQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": True,
+                "transcripts_noncoding": True,
+            },
+            2,
+        )
+
+
 class TestCaseOneQueryGenotype(SupportQueryTestBase):
     """Test effects settings (just an excerpt. everything else would be madness."""
 
@@ -2159,8 +2197,13 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
         self.assertEqual(res[0].position, self.small_vars[2].position)
         self.assertEqual(res[1].position, self.small_vars[3].position)
 
-    def test_query_compound_het_export(self):
+    def test_query_compound_het_export_tsv(self):
         res = self.run_query(ExportTableFileFilterQuery, {"compound_recessive_enabled": True}, 2)
+        self.assertEqual(res[0].position, self.small_vars[2].position)
+        self.assertEqual(res[1].position, self.small_vars[3].position)
+
+    def test_query_compound_het_export_vcf(self):
+        res = self.run_query(ExportVcfFileFilterQuery, {"compound_recessive_enabled": True}, 2)
         self.assertEqual(res[0].position, self.small_vars[2].position)
         self.assertEqual(res[1].position, self.small_vars[3].position)
 
@@ -2176,7 +2219,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
         # Load Prefetched results
         res = self.run_query(
             LoadPrefetchedFilterQuery,
-            {"compound_recessive_enabled": True, "smallvariantquery_id": query.id},
+            {"compound_recessive_enabled": True, "filter_job_id": query.id},
             2,
         )
         self.assertEqual(res[0].position, self.small_vars[2].position)
@@ -2329,17 +2372,55 @@ class CountOnlyFilterQueryTestCaseThreeClinvarMembershipFilter(
 # We use the singleton case 1 and construct different cases with clinvar annotation.
 
 
+class TestHgmdMembershipQuery(SupportQueryTestBase):
+    """Tests for the HGMD membership query."""
+
+    def setUp(self):
+        """Create a case and two variants: one in HGMD, the other not."""
+        super().setUp()
+        case = CaseFactory()
+        self.small_vars = [SmallVariantFactory(case=case), SmallVariantFactory(case=case)]
+        self.hgmd = HgmdPublicLocusFactory(
+            chromosome=self.small_vars[1].chromosome,
+            start=self.small_vars[1].position - 1,
+            end=self.small_vars[1].position,
+        )
+
+    def test_no_hgmd_query(self):
+        self.run_query(
+            PrefetchFilterQuery,
+            {"require_in_hgmd_public": False, "display_hgmd_public_membership": False},
+            2,
+        )
+
+    def test_require_in_hgmd_query(self):
+        self.run_query(
+            PrefetchFilterQuery,
+            {"require_in_hgmd_public": True, "display_hgmd_public_membership": False},
+            1,
+        )
+
+    def test_display_hgmd_membership_query(self):
+        res = self.run_query(
+            PrefetchFilterQuery,
+            {"require_in_hgmd_public": False, "display_hgmd_public_membership": True},
+            2,
+        )
+        self.assertEqual(res[1].hgmd_accession, self.hgmd.variation_name)
+
+    def test_require_in_hgmd_and_display_membership_query(self):
+        res = self.run_query(
+            PrefetchFilterQuery,
+            {"require_in_hgmd_public": True, "display_hgmd_public_membership": True},
+            1,
+        )
+        self.assertEqual(res[0].hgmd_accession, self.hgmd.variation_name)
+
+
 class ClinvarReportQueryTestCaseFour(SupportQueryTestBase):
     def setUp(self):
         super().setUp()
         self.small_var = SmallVariantFactory(in_clinvar=True)
-        SmallVariantSummaryFactory(
-            release=self.small_var.release,
-            chromosome=self.small_var.chromosome,
-            position=self.small_var.position,
-            reference=self.small_var.reference,
-            alternative=self.small_var.alternative,
-        )
 
     def _setup_clinvar_entry(self, clinvar_patch={}):
         """Setup patched Clinvar entry with values from ``clinvar_patch``.
@@ -2363,6 +2444,10 @@ class ClinvarReportQueryTestCaseFour(SupportQueryTestBase):
         )
 
     # TODO: conver to use ``test_snake_case``
+
+    def testEnsemblTranscripts(self):
+        self._setup_clinvar_entry()
+        self.run_query(PrefetchClinvarReportQuery, {"database_select": "ensembl"}, 1)
 
     def testPathogenicInclude(self):
         self._setup_clinvar_entry({"pathogenic": 1})
@@ -2509,3 +2594,239 @@ class ClinvarReportQueryTestCaseFour(SupportQueryTestBase):
     def testNoAssertionNoInclude(self):
         self._setup_clinvar_entry({"review_status_ordered": ["no assertion provided"]})
         self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_no_assertion": False}, 0)
+
+
+class TestCaseFourClinvarLoadPrefetchedQuery(SupportQueryTestBase):
+    """Test the load prefetched functionality of clinvar report."""
+
+    def setUp(self):
+        super().setUp()
+        case = CaseFactory()
+        self.small_vars = list()
+        for i in range(3):
+            self.small_vars.append(SmallVariantFactory(in_clinvar=True, case=case))
+            ClinvarFactory(
+                release=self.small_vars[-1].release,
+                chromosome=self.small_vars[-1].chromosome,
+                position=self.small_vars[-1].position,
+                reference=self.small_vars[-1].reference,
+                alternative=self.small_vars[-1].alternative,
+                start=self.small_vars[-1].position,
+                stop=self.small_vars[-1].position,
+                review_status="practice guideline",
+                review_status_ordered=["practice guideline"],
+            )
+        self.clinvarquery = ClinvarQuery.objects.first()
+        self.clinvarquery.query_results.add(self.small_vars[0].id, self.small_vars[2].id)
+
+    def test_load_prefetched_clinvar_query(self):
+        self.run_query(LoadPrefetchedClinvarReportQuery, {"filter_job_id": self.clinvarquery.id}, 2)
+
+
+class TestClinvarCompHetQuery(SupportQueryTestBase):
+    """Test the Clinvar Report in compound heterozygous mode."""
+
+    def setUp(self):
+        """Create a case and smallvars with clinvar entries."""
+        super().setUp()
+        case = CaseFactory(structure="trio")
+        self.small_vars = [
+            # Create a de novo variant that is in clinvar
+            SmallVariantFactory(
+                genotype={
+                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                },
+                ensembl_gene_id="ENSG1",
+                case=case,
+                in_clinvar=True,
+            ),
+            # Create a recessive variant that is not in clinvar
+            SmallVariantFactory(
+                genotype={
+                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "1/1"},
+                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                },
+                refseq_gene_id="2",
+                ensembl_gene_id="ENSG2",
+                case=case,
+                in_clinvar=False,
+            ),
+            # Create a pair of comp het variants that are in clinvar
+            SmallVariantFactory(
+                chromosome=3,
+                genotype={
+                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                },
+                refseq_gene_id="3",
+                ensembl_gene_id="ENSG3",
+                case=case,
+                in_clinvar=True,
+            ),
+            SmallVariantFactory(
+                chromosome=3,
+                genotype={
+                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                },
+                case=case,
+                refseq_gene_id="3",
+                ensembl_gene_id="ENSG3",
+                in_clinvar=True,
+            ),
+            # Create a pair of comp het variants that are not in clinvar
+            SmallVariantFactory(
+                chromosome=4,
+                genotype={
+                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                },
+                refseq_gene_id="4",
+                ensembl_gene_id="ENSG4",
+                case=case,
+                in_clinvar=False,
+            ),
+            SmallVariantFactory(
+                chromosome=4,
+                genotype={
+                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                },
+                case=case,
+                refseq_gene_id="4",
+                ensembl_gene_id="ENSG4",
+                in_clinvar=False,
+            ),
+        ]
+        for small_var in self.small_vars:
+            if small_var.in_clinvar:
+                ClinvarFactory(
+                    release=small_var.release,
+                    chromosome=small_var.chromosome,
+                    position=small_var.position,
+                    reference=small_var.reference,
+                    alternative=small_var.alternative,
+                    start=small_var.position,
+                    stop=small_var.position,
+                )
+
+    def test_query_compound_het_prefetch_filter(self):
+        res = self.run_query(PrefetchClinvarReportQuery, {"compound_recessive_enabled": True}, 2)
+        self.assertEqual(res[0].position, self.small_vars[2].position)
+        self.assertEqual(res[1].position, self.small_vars[3].position)
+
+    def test_query_compound_het_load_prefetched_filter(self):
+        # Generate results
+        res = self.run_query(PrefetchClinvarReportQuery, {"compound_recessive_enabled": True}, 2)
+        # Add results to variant query
+        query = ClinvarQuery.objects.first()
+        query.query_results.add(res[0].id, res[1].id)
+        # Load Prefetched results
+        res = self.run_query(
+            LoadPrefetchedClinvarReportQuery,
+            {"compound_recessive_enabled": True, "filter_job_id": query.id},
+            2,
+        )
+        self.assertEqual(res[0].position, self.small_vars[2].position)
+        self.assertEqual(res[1].position, self.small_vars[3].position)
+
+
+class TestCaseFiveQueryProject(SupportQueryTestBase):
+    def setUp(self):
+        super().setUp()
+        project = ProjectFactory()
+        cases = [CaseFactory(project=project), CaseFactory(project=project)]
+        small_vars = [
+            SmallVariantFactory(case=cases[0]),
+            SmallVariantFactory(case=cases[1]),
+            SmallVariantFactory(case=cases[1]),
+        ]
+        projectcasessmallvariantquery = ProjectCasesSmallVariantQueryFactory(project=project)
+        projectcasessmallvariantquery.query_results.add(small_vars[0], small_vars[2])
+
+    def test_query_project_with_two_cases(self):
+        self.run_query(ProjectCasesPrefetchFilterQuery, {}, 3, query_type="project")
+
+    def test_load_project_prefetched_two_cases(self):
+        query_job = ProjectCasesSmallVariantQuery.objects.first()
+        self.run_query(
+            ProjectCasesLoadPrefetchedFilterQuery,
+            {"filter_job_id": query_job.id},
+            2,
+            query_type="project",
+        )
+
+
+class TestKnownGeneAAQuery(TestBase):
+    """Test the knowngeneaa query."""
+
+    def run_query(self, query_class, kwargs, length):
+        query = query_class(SQLALCHEMY_ENGINE)
+        results = list(query.run(kwargs))
+        self.assertEqual(len(results), length)
+
+    def setUp(self):
+        super().setUp()
+        self.knowngene = KnownGeneAAFactory(chromosome="1", start=100)
+
+    def test_query_pre_triplet(self):
+        self.run_query(
+            KnownGeneAAQuery,
+            {
+                "chromosome": self.knowngene.chromosome,
+                "position": self.knowngene.start - 1,
+                "reference": "A",
+            },
+            0,
+        )
+
+    def test_query_first_triplet(self):
+        self.run_query(
+            KnownGeneAAQuery,
+            {
+                "chromosome": self.knowngene.chromosome,
+                "position": self.knowngene.start,
+                "reference": "A",
+            },
+            1,
+        )
+
+    def test_query_second_triplet(self):
+        self.run_query(
+            KnownGeneAAQuery,
+            {
+                "chromosome": self.knowngene.chromosome,
+                "position": self.knowngene.start + 1,
+                "reference": "A",
+            },
+            1,
+        )
+
+    def test_query_third_triplet(self):
+        self.run_query(
+            KnownGeneAAQuery,
+            {
+                "chromosome": self.knowngene.chromosome,
+                "position": self.knowngene.end,
+                "reference": "A",
+            },
+            1,
+        )
+
+    def test_query_post_triplet(self):
+        self.run_query(
+            KnownGeneAAQuery,
+            {
+                "chromosome": self.knowngene.chromosome,
+                "position": self.knowngene.end + 1,
+                "reference": "A",
+            },
+            0,
+        )

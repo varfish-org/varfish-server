@@ -13,7 +13,7 @@ class ClinvarFactory(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
     chromosome = factory.Iterator((list(map(str, range(1, 23))) + ["X", "Y"]))
-    position = factory.Sequence(lambda n: n * 100)
+    position = factory.Sequence(lambda n: (n + 1) * 100)
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
     start = factory.SelfAttribute("position")
@@ -36,8 +36,8 @@ class ClinvarFactory(factory.django.DjangoModelFactory):
     uncertain_significance = 0
     likely_benign = 0
     benign = 0
-    review_status = "single submitter"
-    review_status_ordered = ["criteria provided"]
+    review_status = "practice guideline"
+    review_status_ordered = ["practice guideline"]
     last_evaluated = "2016-06-14"
     all_submitters = ["Some Submitter"]
     submitters_ordered = ["Some Submitter"]
