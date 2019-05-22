@@ -2,7 +2,7 @@
 
 import factory
 
-from ..models import Hgnc, Hpo, Mim2geneMedgen, Acmg, RefseqToHgnc
+from ..models import Hgnc, Hpo, Mim2geneMedgen, Acmg, RefseqToHgnc, HpoName
 
 
 class RefseqToHgncFactory(factory.django.DjangoModelFactory):
@@ -35,14 +35,35 @@ class HgncFactory(factory.django.DjangoModelFactory):
     entrez_id = factory.Sequence(lambda n: str(n))
 
 
+class HpoNameFactory(factory.django.DjangoModelFactory):
+    """Factory for the ``HpoName`` model."""
+
+    class Meta:
+        model = HpoName
+
+    hpo_id = factory.Sequence(lambda n: "HP:%07d" % n)
+    name = factory.Sequence(lambda n: "Phenotype %d" % n)
+
+
 class HpoFactory(factory.django.DjangoModelFactory):
     """Factory for the ``Hpo`` model."""
 
     class Meta:
         model = Hpo
+        exclude = ["hpo_name", "hpo_name_entry"]
+
+    # Dummy argument, passed to HpoName
+    hpo_name = factory.Sequence(lambda n: "Phenotype %d" % n)
+    # Dummy argument, creates HpoName record
+    hpo_name_entry = factory.SubFactory(
+        HpoNameFactory,
+        hpo_id=factory.SelfAttribute("factory_parent.hpo_id"),
+        name=factory.SelfAttribute("factory_parent.hpo_name"),
+    )
 
     database_id = factory.Sequence(lambda n: "OMIM:%d" % n)
     hpo_id = factory.Sequence(lambda n: "HP:%07d" % n)
+    name = factory.Sequence(lambda n: "Disease %d; Gene Symbol;;Alternative Description" % n)
 
 
 class Mim2geneMedgenFactory(factory.django.DjangoModelFactory):
@@ -53,6 +74,7 @@ class Mim2geneMedgenFactory(factory.django.DjangoModelFactory):
 
     omim_id = factory.Sequence(lambda n: n)
     entrez_id = factory.Sequence(lambda n: str(n))
+    omim_type = "phenotype"
 
 
 class AcmgFactory(factory.django.DjangoModelFactory):

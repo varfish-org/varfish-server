@@ -4,7 +4,7 @@ from variants.tests.helpers import QueryTestBase
 
 from ..models import Exac, ThousandGenomes, GnomadExomes, GnomadGenomes
 from .factories import (
-    ExacFrequenciesFactory,
+    ExacFactory,
     ThousandGenomesFactory,
     GnomadExomesFactory,
     GnomadGenomesFactory,
@@ -27,12 +27,12 @@ class TestFrequencyQuery(QueryTestBase):
         return obj, query
 
     def test_frequency_exac(self):
-        created, query = self.create(ExacFrequenciesFactory)
+        created, query = self.create(ExacFactory)
         obj = self.run_get_query(Exac, query)
         self.assertEquals(obj.position, created.position)
 
     def test_frequency_exac_fail(self):
-        created, query = self.create(ExacFrequenciesFactory)
+        created, query = self.create(ExacFactory)
         self.run_get_query(Exac, {**query, **{"position": created.position + 1}}, Exac.DoesNotExist)
 
     def test_frequency_thousand_genomes(self):

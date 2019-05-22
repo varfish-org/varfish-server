@@ -16,6 +16,7 @@ Full Change List
 - Fixed bug in displaying conservation track for all bases in an AA base triplet.
   Only two of three bases were decorated with the conservation track information.
 - Fixed bug that Clinvar report didn't support compound heterozygous queries anymore.
+- Variant view tests are now running on factory boy.
 
 -------
 v0.15.0

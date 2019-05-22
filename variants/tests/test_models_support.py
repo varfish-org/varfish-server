@@ -18,6 +18,8 @@ from .factories import (
     SmallVariantSummaryFactory,
     ProjectFactory,
     ProjectCasesSmallVariantQueryFactory,
+    SmallVariantQueryFactory,
+    ClinvarQueryFactory,
 )
 from .helpers import TestBase, SupportQueryTestBase, SQLALCHEMY_ENGINE
 from ..models_support import (
@@ -54,10 +56,12 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
             SmallVariantFactory(chromosome="1", case=case),
         ]
         # Prepare smallvariant query results
-        self.smallvariantquery = SmallVariantQuery.objects.first()
+        self.smallvariantquery = SmallVariantQueryFactory(case=case)
         self.smallvariantquery.query_results.add(small_vars[0].id, small_vars[1].id)
         # Prepare projectcases smallvariant query results
-        self.projectcasessmallvariantquery = ProjectCasesSmallVariantQuery.objects.first()
+        self.projectcasessmallvariantquery = ProjectCasesSmallVariantQueryFactory(
+            project=case.project
+        )
         self.projectcasessmallvariantquery.query_results.add(small_vars[0].id, small_vars[2].id)
 
     def test_load_case_results(self):
@@ -2214,7 +2218,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
         # Generate results
         res = self.run_query(PrefetchFilterQuery, {"compound_recessive_enabled": True}, 2)
         # Add results to variant query
-        query = SmallVariantQuery.objects.first()
+        query = SmallVariantQueryFactory(case=self.case)
         query.query_results.add(res[0].id, res[1].id)
         # Load Prefetched results
         res = self.run_query(
@@ -2616,7 +2620,7 @@ class TestCaseFourClinvarLoadPrefetchedQuery(SupportQueryTestBase):
                 review_status="practice guideline",
                 review_status_ordered=["practice guideline"],
             )
-        self.clinvarquery = ClinvarQuery.objects.first()
+        self.clinvarquery = ClinvarQueryFactory(case=case)
         self.clinvarquery.query_results.add(self.small_vars[0].id, self.small_vars[2].id)
 
     def test_load_prefetched_clinvar_query(self):
@@ -2629,52 +2633,52 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
     def setUp(self):
         """Create a case and smallvars with clinvar entries."""
         super().setUp()
-        case = CaseFactory(structure="trio")
+        self.case = CaseFactory(structure="trio")
         self.small_vars = [
             # Create a de novo variant that is in clinvar
             SmallVariantFactory(
                 genotype={
-                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
                 ensembl_gene_id="ENSG1",
-                case=case,
+                case=self.case,
                 in_clinvar=True,
             ),
             # Create a recessive variant that is not in clinvar
             SmallVariantFactory(
                 genotype={
-                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "1/1"},
-                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "1/1"},
+                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                 },
                 refseq_gene_id="2",
                 ensembl_gene_id="ENSG2",
-                case=case,
+                case=self.case,
                 in_clinvar=False,
             ),
             # Create a pair of comp het variants that are in clinvar
             SmallVariantFactory(
                 chromosome=3,
                 genotype={
-                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                 },
                 refseq_gene_id="3",
                 ensembl_gene_id="ENSG3",
-                case=case,
+                case=self.case,
                 in_clinvar=True,
             ),
             SmallVariantFactory(
                 chromosome=3,
                 genotype={
-                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
-                case=case,
+                case=self.case,
                 refseq_gene_id="3",
                 ensembl_gene_id="ENSG3",
                 in_clinvar=True,
@@ -2683,23 +2687,23 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
             SmallVariantFactory(
                 chromosome=4,
                 genotype={
-                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                 },
                 refseq_gene_id="4",
                 ensembl_gene_id="ENSG4",
-                case=case,
+                case=self.case,
                 in_clinvar=False,
             ),
             SmallVariantFactory(
                 chromosome=4,
                 genotype={
-                    case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
-                case=case,
+                case=self.case,
                 refseq_gene_id="4",
                 ensembl_gene_id="ENSG4",
                 in_clinvar=False,
@@ -2726,7 +2730,7 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
         # Generate results
         res = self.run_query(PrefetchClinvarReportQuery, {"compound_recessive_enabled": True}, 2)
         # Add results to variant query
-        query = ClinvarQuery.objects.first()
+        query = ClinvarQueryFactory(case=self.case)
         query.query_results.add(res[0].id, res[1].id)
         # Load Prefetched results
         res = self.run_query(

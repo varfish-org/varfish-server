@@ -6,6 +6,7 @@ MANAGE = time python manage.py
 black:
 	black -l 100 \
 		annotation \
+		bgjobs \
 		clinvar \
 		conservation \
 		dbsnp \

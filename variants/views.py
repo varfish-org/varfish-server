@@ -327,6 +327,9 @@ class CaseFilterView(
         elif form.cleaned_data["submit"] == "submit-mutationdistiller":
             return self._form_valid_mutation_distiller(form)
 
+    def form_invalid(self, form):
+        raise ValidationError(form.errors)
+
     def _form_valid_file(self, form):
         """The form is valid, we want to asynchronously build a file for later download."""
         with transaction.atomic():

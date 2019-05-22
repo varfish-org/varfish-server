@@ -18,6 +18,7 @@ class MacArthurFrequenciesFactoryBase(factory.django.DjangoModelFactory):
     alternative = factory.Iterator("CGTA")
 
     ac = 1
+    ac_afr = 1
     ac_amr = 0
     ac_eas = 0
     ac_fin = 0
@@ -59,7 +60,7 @@ class MacArthurFrequenciesFactoryBase(factory.django.DjangoModelFactory):
     af_oth = 0.0
 
 
-class ExacFrequenciesFactory(MacArthurFrequenciesFactoryBase):
+class ExacFactory(MacArthurFrequenciesFactoryBase):
     """Factory for ``Exac`` records."""
 
     class Meta:

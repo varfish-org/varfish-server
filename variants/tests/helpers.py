@@ -1,30 +1,53 @@
 """Common helper code for tests"""
 
 import aldjemy.core
-from django.test import TestCase
+from django.core.exceptions import ImproperlyConfigured
+from django.test import RequestFactory
+from test_plus.test import TestCase
 
-from clinvar.tests.factories import ClinvarFormDataFactory
-from .factories import FormDataFactory
+from clinvar.tests.factories import ProcessedClinvarFormDataFactory
+from .factories import ProcessedFormDataFactory, FormDataFactory
 from ..models import Case, CaseAwareProject
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 
+def _create_gt_entry(name):
+    return {
+        "%s_fail" % name: "ignore",
+        "%s_gt" % name: "any",
+        "%s_dp_het" % name: 0,
+        "%s_dp_hom" % name: 0,
+        "%s_ab" % name: 0,
+        "%s_gq" % name: 0,
+        "%s_ad" % name: 0,
+    }
+
+
 class TestBase(TestCase):
     """Base class for all tests."""
 
-    #: Callable that sets up the database with the case to use in the test
-    # TODO: remove this in favour of factory boy?
     setup_case_in_db = None
-    #: Set this value to the base cleaned data to patch
-    # TODO: remove this in favour of factory boy?
-    base_cleaned_data = None
 
     def setUp(self):
         self.maxDiff = None  # show full diff
         if self.__class__.setup_case_in_db:
             self.__class__.setup_case_in_db()
+
+
+class ViewTestBase(TestBase):
+    """Base class for view testing (and file export)"""
+
+    def setUp(self):
+        super().setUp()
+        self.request_factory = RequestFactory()
+
+        # setup super user
+        self.user = self.make_user("superuser")
+        self.user.is_staff = True
+        self.user.is_superuser = True
+        self.user.save()
 
 
 class QueryTestBase(TestBase):
@@ -49,18 +72,10 @@ class SupportQueryTestBase(TestBase):
     """Base class for model support queries."""
 
     def _get_fetch_and_query(self, query_class, cleaned_data_patch, query_type="case"):
-        def _create_gt_entry(name):
-            return {
-                "%s_fail" % name: "ignore",
-                "%s_gt" % name: "any",
-                "%s_dp_het" % name: 0,
-                "%s_dp_hom" % name: 0,
-                "%s_ab" % name: 0,
-                "%s_gq" % name: 0,
-                "%s_ad" % name: 0,
-            }
-
-        patched_cleaned_data = {**vars(FormDataFactory()), **vars(ClinvarFormDataFactory())}
+        patched_cleaned_data = {
+            **vars(ProcessedFormDataFactory()),
+            **vars(ProcessedClinvarFormDataFactory()),
+        }
         engine = SQLALCHEMY_ENGINE
 
         def fetch_case_and_query():
@@ -72,6 +87,7 @@ class SupportQueryTestBase(TestBase):
                     obj = Case.objects.first()
                 else:
                     obj = Case.objects.get(sodar_uuid=cleaned_data_patch["case_uuid"])
+                # TODO: technically this is not required anymore. ... .... .. ....
                 if obj.name.endswith("singleton"):
                     patched_cleaned_data.update(_create_gt_entry(obj.index))
                 else:
