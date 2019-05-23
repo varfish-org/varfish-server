@@ -101,8 +101,7 @@ class Command(BaseCommand):
             options["path_feature_effects"] = list(
                 itertools.chain(*options["path_feature_effects"])
             )
-        if options["path_variants"]:
-            options["path_variants"] = list(itertools.chain(*options["path_variants"]))
+        options["path_variants"] = list(itertools.chain(*options["path_variants"]))
         # Perform the actual import.
         self._handle(*args, **options)
         if self.last_now:
@@ -116,7 +115,7 @@ class Command(BaseCommand):
         self.stdout.write("options = %s" % options)
         self.last_now = None
         # Check that mode-triggering flags are mutually exclusive and exactly one is given
-        if (options["path_variants"] is None) == (options["path_feature_effects"] is None):
+        if bool(options["path_variants"]) == bool(options["path_feature_effects"]):
             raise CommandError(
                 "Exactly one of --path-variants and --path-feature-effects must be given!"
             )
