@@ -16,9 +16,11 @@ SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 def rebuild_var_stats(apps, _schema_editor):
     """Rebuild variant statistics for all cases"""
-    for case in Case.objects.all():
-        logging.info("Updating Case %s (pk %s)", case.name, case.id)
-        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
+    # NB: Commented out; problem with aldjemy and changed schemas, no deployment before this version in the wild
+    # anyway!
+    # for case in Case.objects.all():
+    #     logging.info("Updating Case %s (pk %s)", case.name, case.id)
+    #     rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
 
 
 def do_nothing(_apps, _schema_editor):

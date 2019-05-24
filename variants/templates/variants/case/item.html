@@ -1,8 +1,23 @@
+{% load humanize %}
 {% load variants_tags %}
 
 <tr id="varfish-bg-table-row-{{ item.sodar_uuid }}">
   <td class="text-right text-muted">{{ forloop.counter }}</td>
-  <td>{{ item.date_created|date:"Y/m/d H:i" }}</td>
+  <td data-order="{{ item.date_modified|date:"U" }}">
+    {% if item.days_since_modification <= 3 %}
+      <span data-toggle="tooltip" title="created {{ item.date_created|date:"Y, M d H:m" }}, updated {{ item.date_modified|date:"Y, M d H:m" }}">
+        {% if item.days_since_modification < 1 %}
+          {{ item.date_modified|naturaltime }}
+        {% else %}
+          {{ item.date_modified|naturalday }}
+        {% endif %}
+      </span>
+    {% else %}
+      <span data-toggle="tooltip" title="created {{ item.date_created|date:"Y, M d H:m" }}, updated {{ item.date_modified|date:"Y, M d H:m" }}">
+        {{ item.date_modified|date:"Y, M d H:m" }}
+      </span>
+    {% endif %}
+  </td>
   <td>
     <a href="{{ item.get_absolute_url }}">
       {{ item.name }}
@@ -14,5 +29,19 @@
     {% for member in item.get_members %}
       {{ member|only_source_name }}{% if not forloop.last %},{% endif %}
     {% endfor %}
+  </td>
+  <td data-order="{{ item.num_small_vars }}" class="text-right">
+    {% if item.num_small_vars is None %}
+      -
+    {% else %}
+      {{ item.num_small_vars|intcomma }}
+    {% endif %}
+  </td>
+  <td data-order="{{ item.num_svs }}" class="text-right">
+    {% if item.num_svs is None %}
+      -
+    {% else %}
+      {{ item.num_svs|intcomma }}
+    {% endif %}
   </td>
 </tr>

@@ -19,10 +19,10 @@
 
   <div class="container-fluid sodar-page-container">
     <div id="varfish-va-project-statistics" class="card mb-3">
-      <h5 class="card-header">
+      <h4 class="card-header">
         <i class="fa fa-bar-chart"></i>
         Project-wide Variant Statistics
-      </h5>
+      </h4>
       <div class="card-body p-0">
         {% if project.variant_stats %}
           <div class="row">
@@ -54,18 +54,59 @@
   <div class="pt-0 container-fluid sodar-page-container">
     {% include 'variants/case/list.html' %}
   </div>
-
-  <script type="text/javascript">
-    /** Plot after loading is complete. */
-    $(function() {
-      plotlyRelatedness();
-      plotlySexChrxHetHom();
-      plotlyVarDps();
-    });
-  </script>
 {% endblock %}
+
+{% block css %}
+  {{ block.super }}
+
+  <!-- DataTables -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/ju/dt-1.10.18/b-1.5.4/datatables.min.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/plug-ins/1.10.18/integration/font-awesome/dataTables.fontAwesome.css" />
+
+  <style type="text/css">
+    table.varfish-card-table {
+      display: inline-table;
+      min-width: 100%;
+      max-width: 100%;
+      width: 100%;
+      border-bottom: 0 !important;
+    }
+  </style>
+{% endblock css %}
 
 {% block javascript %}
   {{ block.super }}
-  {% include "variants/case/script_detail_plots.html" with view_mode="project_wide" object=project %}
+  {% if project.variant_stats %}
+    {% include "variants/case/script_detail_plots.html" with view_mode="project_wide" object=project %}
+
+    <script type="text/javascript">
+      /** Plot after loading is complete. */
+      $(function() {
+        plotlyRelatedness();
+        plotlySexChrxHetHom();
+        plotlyVarDps();
+      });
+    </script>
+  {% endif %}
+
+  <!-- DataTables -->
+  <script type="text/javascript" src="https://cdn.datatables.net/v/ju/dt-1.10.18/b-1.5.4/datatables.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      $("#varfish-case-table").DataTable({
+        paging: false,
+        sDom: "T",
+        "order": [[ 1, "desc" ]]
+      })
+    })
+
+    $('.varfish-case-filter').keyup(function () {
+      const dt = $(this).closest('.varfish-case-list-card').find('table').dataTable()
+      console.log(dt)
+      const v = $(this).val()
+      console.log(v)
+      dt.fnFilter(v)
+    })
+  </script>
 {% endblock %}

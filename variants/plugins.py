@@ -46,7 +46,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     details_template = "variants/_details_card.html"
 
     #: App card title for the project details page
-    details_title = "Cases Overview (latest 5 entries)"
+    details_title = "Cases Overview (top 5 most recently updated)"
 
     #: Position in plugin ordering
     plugin_ordering = 10

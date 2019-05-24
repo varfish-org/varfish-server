@@ -148,13 +148,21 @@ class CaseListView(
     template_name = "variants/case_list.html"
     permission_required = "variants.view_data"
     model = Case
+    ordering = ("-date_modified",)
 
     def get_queryset(self):
-        return super().get_queryset().filter(project__sodar_uuid=self.kwargs["project"])
+        return (
+            super()
+            .get_queryset()
+            .filter(project__sodar_uuid=self.kwargs["project"])
+            .prefetch_related("variant_stats", "variant_stats__sample_variant_stats", "project")
+        )
 
     def get_context_data(self, *args, **kwargs):
         result = super().get_context_data(*args, **kwargs)
-        result["project"] = CaseAwareProject.objects.get(pk=result["project"].pk)
+        result["project"] = CaseAwareProject.objects.prefetch_related("variant_stats").get(
+            pk=result["project"].pk
+        )
         cases = result["object_list"]
         result["samples"] = list(
             sorted(set(chain(*(case.get_members_with_samples() for case in cases))))

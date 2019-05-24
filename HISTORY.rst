@@ -10,6 +10,9 @@ End-User Summary
 ================
 
 - Fixed conservation bug (was shown only in 2/3 of all cases).
+- Showing small and structural variant count for each case.
+- Improving layout of case list (adding sorting and filtering).
+- Improved render speed of case list.
 
 Full Change List
 ================
@@ -21,6 +24,8 @@ Full Change List
 - Variant view tests are now running on factory boy.
 - Adding tests of SV-related code.
 - Also interpreting phased diploid genotypes.
+- Improving layout of case list (adding sorting and filtering).
+- Improved render speed of case list.
 
 -------
 v0.15.0

@@ -20,6 +20,7 @@ from projectroles.models import Project
 from projectroles.plugins import get_backend_api
 from variants.models import SmallVariant, Case, AnnotationReleaseInfo
 from variants.variant_stats import rebuild_case_variant_stats
+from variants.tasks import update_variant_counts
 from ..helpers import tsv_reader
 
 
@@ -176,6 +177,9 @@ class Command(BaseCommand):
                 )
             self._import_structural_variants_genotypes(case, options["path_genotypes"])
             self._import_structural_variants_feature_effects(options["path_feature_effects"])
+
+        # Update small and structural variant counts.
+        update_variant_counts(case)
 
         # Register import action in the timeline
         timeline = get_backend_api("timeline_backend")

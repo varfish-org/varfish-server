@@ -1,6 +1,5 @@
 import binning
 import wrapt
-from functools import lru_cache
 from itertools import chain
 import math
 import re
@@ -19,6 +18,7 @@ from django.core.urlresolvers import reverse
 from django.dispatch import receiver
 from django.conf import settings
 from django.db.models.signals import pre_delete
+from django.utils import timezone
 
 from projectroles.models import Project
 from bgjobs.models import BackgroundJob, JobModelMessageMixin
@@ -57,7 +57,6 @@ class CaseAwareProject(Project):
     class Meta:
         proxy = True
 
-    @lru_cache()
     def pedigree(self):
         """Concatenate the pedigrees of project's cases."""
         result = []
@@ -69,7 +68,6 @@ class CaseAwareProject(Project):
                 seen.add(line["patient"])
         return result
 
-    @lru_cache()
     def get_filtered_pedigree_with_samples(self):
         """Concatenate the pedigrees of project's cases that have samples."""
         result = []
@@ -81,7 +79,6 @@ class CaseAwareProject(Project):
                 seen.add(line["patient"])
         return result
 
-    @lru_cache()
     def sample_to_case(self):
         """Compute sample-to-case mapping."""
         result = {}
@@ -91,7 +88,6 @@ class CaseAwareProject(Project):
                     result[line["patient"]] = case
         return result
 
-    @lru_cache()
     def chrx_het_hom_ratio(self, sample):
         """Forward to appropriate case"""
         case = self.sample_to_case().get(sample)
@@ -100,7 +96,6 @@ class CaseAwareProject(Project):
         else:
             return case.chrx_het_hom_ratio(sample)
 
-    @lru_cache()
     def sex_errors(self):
         """Concatenate all contained case's sex errors dicts"""
         result = {}
@@ -108,7 +103,6 @@ class CaseAwareProject(Project):
             result.update(case.sex_errors())
         return result
 
-    @lru_cache()
     def get_case_pks(self):
         """Return PKs for cases."""
         return [case.pk for case in self.case_set.all()]
@@ -314,6 +308,9 @@ class CaseManager(models.Manager):
 class Case(models.Model):
     """Stores information about a (germline) case."""
 
+    class Meta:
+        ordering = ("-date_modified",)
+
     #: DateTime of creation
     date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
     #: DateTime of last modification
@@ -330,6 +327,23 @@ class Case(models.Model):
     #: Pedigree information, ``list`` of ``dict`` with the information.
     pedigree = JSONField()
 
+    #: The number of small variants, ``None`` if no small variants have been imported.
+    num_small_vars = models.IntegerField(
+        default=None,
+        null=True,
+        blank=True,
+        verbose_name="Small variants",
+        help_text="Number of small variants, empty if no small variants have been imported",
+    )
+    #: The number of structural variants, ``None`` if no structural variants have been imported.
+    num_svs = models.IntegerField(
+        default=None,
+        null=True,
+        blank=True,
+        verbose_name="Structural variants",
+        help_text="Number of structural variants, empty if no structural variants have been imported",
+    )
+
     #: The project containing this case.
     project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
 
@@ -342,6 +356,9 @@ class Case(models.Model):
         db_index=True,
         help_text="Search tokens",
     )
+
+    def days_since_modification(self):
+        return (timezone.now() - self.date_modified).days
 
     def save(self, *args, **kwargs):
         """Override save() to automatically update ``self.search_tokens``"""
@@ -419,7 +436,6 @@ class Case(models.Model):
                     result["mother"] = member["mother"]
         return result
 
-    @lru_cache()
     def sex_errors_pedigree(self):
         """Return dict of sample to error messages indicating sex assignment errors that can be derived from the
         pedigree information.
@@ -436,7 +452,6 @@ class Case(models.Model):
                 result[m["patient"]] = ["used as mother in pedigree not female"]
         return result
 
-    @lru_cache()
     def chrx_het_hom_ratio(self, sample):
         """Return het./hom. ratio on chrX for ``sample``."""
         try:
@@ -445,7 +460,6 @@ class Case(models.Model):
         except Case.variant_stats.RelatedObjectDoesNotExist:
             return -1.0
 
-    @lru_cache()
     def sex_errors_variant_stats(self):
         """Return dict of sample to error messages indicating sex assignment errors that can be derived from
         het/hom ratio on chrX.
@@ -464,7 +478,6 @@ class Case(models.Model):
         except Case.variant_stats.RelatedObjectDoesNotExist:
             return {}
 
-    @lru_cache()
     def sex_errors(self):
         """Returns dict mapping sample to error messages from both pedigree and variant statistics."""
         result = {}
@@ -475,7 +488,6 @@ class Case(models.Model):
             result[sample] += msgs
         return result
 
-    @lru_cache()
     def rel_errors(self):
         """Returns dict mapping sample to list of relationship errors."""
         ped_entries = {m["patient"]: m for m in self.pedigree}

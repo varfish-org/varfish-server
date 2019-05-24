@@ -1,12 +1,14 @@
 {% load variants_tags %}
 
-<table class="table table-striped sodar-card-table sodar-bj-detail-table">
+<table class="table table-striped sodar-card-table sodar-bj-detail-table table-hover">
   <thead>
     <tr>
       <th style="width:10px">#</th>
-      <th>Created</th>
-      <th id="sodar-vars-list-header-name">Name</th>
-      <th id="sodar-vars-list-header-individuals">Individuals</th>
+      <th style="width: 200px">Updated <i class="fa fa-sort-desc"></i></th>
+      <th style="width: 200px" id="sodar-case-list-header-name">Name</th>
+      <th id="sodar-case-list-header-individuals">Individuals</th>
+      <th style="width: 120px" id="sodar-case-list-header-vars">Small Vars</th>
+      <th style="width: 120px" id="sodar-case-list-header-svs">SVs</th>
     </tr>
   </thead>
   <tbody>
@@ -16,7 +18,7 @@
         {% include 'variants/case/item.html' with item=case details_card_mode=True %}
       {% endfor %}
       <tr>
-        <td class="bg-faded" colspan="4">
+        <td class="bg-faded" colspan="6">
           <a href="{% url 'variants:case-list' project=project.sodar_uuid %}" class="btn btn-secondary btn-small">
             <i class="fa fa-list"></i> See list of all cases
           </a>

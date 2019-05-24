@@ -1,8 +1,11 @@
+import aldjemy
+from sqlalchemy import select, func
+
 from config.celery import app
 from celery.schedules import crontab
 
-import aldjemy.core
-
+from svs import models as sv_models
+from variants.models import Case
 from . import file_export
 from . import models
 from . import submit_external
@@ -83,3 +86,25 @@ def setup_periodic_tasks(sender, **_kwargs):
     sender.add_periodic_task(
         schedule=crontab(day_of_week=0), signature=refresh_variants_smallvariantsummary.s()
     )
+
+
+# TODO: move to a helpers module?
+def update_variant_counts(case):
+    """Update the variant counts for the given case.
+
+    This is done without changing the ``date_modified`` field.
+    """
+    stmt = (
+        select([func.count()])
+        .select_from(models.SmallVariant.sa.table)
+        .where(models.SmallVariant.sa.case_id == case.pk)
+    )
+    num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt) or None
+    stmt = (
+        select([func.count()])
+        .select_from(sv_models.StructuralVariant.sa.table)
+        .where(sv_models.StructuralVariant.sa.case_id == case.pk)
+    )
+    num_svs = SQLALCHEMY_ENGINE.scalar(stmt) or None
+    # Use the ``update()`` trick such that ``date_modified`` remains untouched.
+    Case.objects.filter(pk=case.pk).update(num_small_vars=num_small_vars, num_svs=num_svs)

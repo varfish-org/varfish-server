@@ -526,7 +526,7 @@ function plotlyVarDps() {
         {% with sample_stats|keyvalue:sample as stats %}
           sample: "{{ sample|only_source_name }}",
           x: {{ stats.ontarget_dp_quantiles|slice:"2:3" }}[0],
-          y: {{ stats.het_ratio }}
+          y: {{ stats.het_ratio|default:0.0 }}
         {% endwith %}
       }{% if not forloop.last %},{% endif %}
     {% endfor %}

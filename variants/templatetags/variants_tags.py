@@ -23,8 +23,8 @@ def get_row_bgcolor(rating):
 
 @register.simple_tag
 def get_details_cases(project):
-    """Return active cases for the project details page"""
-    return Case.objects.filter(project=project).order_by("-pk")[:5]
+    """Return 5 most recent updated cases for the project details page."""
+    return Case.objects.filter(project=project).order_by("-date_modified")[:5]
 
 
 @register.filter

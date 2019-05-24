@@ -1,17 +1,22 @@
 {# Case list #}
-<div id="varfish-va-case-list" class="card mb-3">
-  <h5 class="card-header">
+<div id="varfish-va-case-list" class="card mb-3 varfish-case-list-card">
+  <h4 class="card-header">
     <i class="fa fa-hospital-o"></i>
     Case List
-  </h5>
+    <div class="input-group sodar-header-input-group sodar-header-input-group-search pull-right" table-id="">
+      <input class="form-control varfish-case-filter" type="text" placeholder="Filter" aria-label="Filter Cases">
+    </div>
+  </h4>
   <div class="card-body p-0">
-    <table id="varfish-va-table" class="table table-striped sodar-card-table">
+    <table id="varfish-case-table" class="table table-striped sodar-card-table varfish-card-table no-footer">
       <thead>
         <tr>
           <th style="width:10px">#</th>
-          <th>Created</th>
-          <th>Name</th>
-          <th>Individuals</th>
+          <th style="width: 200px">Updated <i class="fa fa-sort-desc"></i></th>
+          <th style="width: 200px" id="sodar-case-list-header-name">Name</th>
+          <th id="sodar-case-list-header-individuals">Individuals</th>
+          <th style="width: 120px" id="sodar-case-list-header-vars">Small Vars</th>
+          <th style="width: 120px" id="sodar-case-list-header-svs">SVs</th>
         </tr>
       </thead>
       <tbody>
@@ -20,7 +25,7 @@
         {% endfor %}
         {% if not object_list %}
           <tr>
-             <td class="bg-faded font-italic text-center" colspan="4">
+             <td class="bg-faded font-italic text-center" colspan="6">
                No cases added yet.
              </td>
           </tr>
