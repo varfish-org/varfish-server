@@ -487,7 +487,9 @@ class GenotypeTermWhereMixin(GenotypeTermWhereMixinBase):
                 not_(
                     or_(
                         SmallVariant.sa.genotype[name]["gt"].astext == "0/1",
+                        SmallVariant.sa.genotype[name]["gt"].astext == "0|1",
                         SmallVariant.sa.genotype[name]["gt"].astext == "1/0",
+                        SmallVariant.sa.genotype[name]["gt"].astext == "1|0",
                         SmallVariant.sa.genotype[name]["gt"].astext == "1",
                         # TODO: recognize hemizygous from 'sex="M" and chr="X" and gt="1/1"'?
                     )
@@ -499,7 +501,11 @@ class GenotypeTermWhereMixin(GenotypeTermWhereMixinBase):
                 not_(
                     or_(
                         SmallVariant.sa.genotype[name]["gt"].astext == "0/0",
+                        SmallVariant.sa.genotype[name]["gt"].astext == "0|0",
                         SmallVariant.sa.genotype[name]["gt"].astext == "1/1",
+                        SmallVariant.sa.genotype[name]["gt"].astext == "1|1",
+                        SmallVariant.sa.genotype[name]["gt"].astext == "0",
+                        SmallVariant.sa.genotype[name]["gt"].astext == "1",
                     )
                 ),
                 SmallVariant.sa.genotype[name]["dp"].astext.cast(Integer)
@@ -508,6 +514,8 @@ class GenotypeTermWhereMixin(GenotypeTermWhereMixinBase):
             # Allelic depth is only checked in case of het.
             or_(
                 SmallVariant.sa.genotype[name]["gt"].astext == "0/0",
+                SmallVariant.sa.genotype[name]["gt"].astext == "0|0",
+                SmallVariant.sa.genotype[name]["gt"].astext == "0",
                 SmallVariant.sa.genotype[name]["ad"].astext.cast(Integer) >= kwargs["%s_ad" % name],
             ),
             # Allelic balance is somewhat complicated
@@ -517,7 +525,9 @@ class GenotypeTermWhereMixin(GenotypeTermWhereMixinBase):
                     not_(
                         or_(
                             SmallVariant.sa.genotype[name]["gt"].astext == "0/1",
+                            SmallVariant.sa.genotype[name]["gt"].astext == "0|1",
                             SmallVariant.sa.genotype[name]["gt"].astext == "1/0",
+                            SmallVariant.sa.genotype[name]["gt"].astext == "1|0",
                         )
                     ),
                     and_(

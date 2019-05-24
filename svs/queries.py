@@ -56,9 +56,12 @@ class GenotypeTermWhereMixin(GenotypeTermWhereMixinBase):
         genotype = StructuralVariant.sa.genotype
         is_variant = or_(
             genotype[name]["gt"].astext == "0/1",
+            genotype[name]["gt"].astext == "0|1",
             genotype[name]["gt"].astext == "1/0",
+            genotype[name]["gt"].astext == "1|0",
             genotype[name]["gt"].astext == "1",
             genotype[name]["gt"].astext == "1/1",
+            genotype[name]["gt"].astext == "1|1",
         )
         rhs = and_(
             # Genotype quality
@@ -192,29 +195,6 @@ class StructuralVariantTypeTermWhereMixin:
         )
 
 
-class JoinHgncMixin:
-    """Enrich with HGNC information for the genes."""
-
-    def _from(self, kwargs):
-        if kwargs["database_select"] == "refseq":
-            return (
-                super()
-                ._from(kwargs)
-                .outerjoin(
-                    Hgnc.sa, StructuralVariantGeneAnnotation.sa.refseq_gene_id == Hgnc.sa.entrez_id
-                )
-            )
-        else:  # kwargs["database_select"] == "ensembl"
-            return (
-                super()
-                ._from(kwargs)
-                .outerjoin(
-                    Hgnc.sa,
-                    StructuralVariantGeneAnnotation.sa.ensembl_gene_id == Hgnc.sa.ensembl_gene_id,
-                )
-            )
-
-
 class PublicDatabaseFrequencyTermFilterMixin:
     """Mixin that queries for the public data base frequencies and filters by them"""
 
@@ -251,7 +231,10 @@ class PublicDatabaseFrequencyTermFilterMixin:
                         # StructuralVariant.sa.sv_type == model.sa.sv_type,
                         StructuralVariant.sa.release == model.sa.release,
                         StructuralVariant.sa.chromosome == model.sa.chromosome,
-                        model.sa.bin == any_(StructuralVariant.sa.containing_bins),
+                        or_(
+                            model.sa.bin == any_(StructuralVariant.sa.containing_bins),
+                            any_(model.sa.containing_bins) == StructuralVariant.sa.bin,
+                        ),
                         StructuralVariant.sa.end >= model_start,
                         StructuralVariant.sa.start <= model_end,
                         cast(
@@ -292,9 +275,11 @@ class PublicDatabaseFrequencyTermFilterMixin:
     def _core_where(self, kwargs, gt_patterns=None):
         result = []
         for token in ("dgv", "dgv_gs", "g1k", "exac", "dbvar", "gnomad"):
-            if ("%s_overlap_count" % token) in self.public_db_fields and kwargs.get(
-                "%s_max_carriers" % token
-            ) is not None:
+            if (
+                kwargs.get("%s_enabled" % token, False)
+                and ("%s_overlap_count" % token) in self.public_db_fields
+                and kwargs.get("%s_max_carriers" % token) is not None
+            ):
                 result.append(
                     self.public_db_fields["%s_overlap_count" % token]
                     <= kwargs["%s_max_carriers" % token]
@@ -443,7 +428,7 @@ class GenesInIntervalsTermWhereMixin:
 
         if kwargs["database_select"] == "refseq":
             term_join_gene_id = GeneInterval.sa.gene_id == Hgnc.sa.entrez_id
-        else:
+        else:  # kwargs["database_select"] == "ensembl"
             term_join_gene_id = GeneInterval.sa.gene_id == Hgnc.sa.ensembl_gene_id
 
         # IntervalSet, Interval
@@ -461,7 +446,10 @@ class GenesInIntervalsTermWhereMixin:
                         TadInterval.sa.tad_set_id == set_pk,
                         TadInterval.sa.release == StructuralVariant.sa.release,
                         TadInterval.sa.chromosome == StructuralVariant.sa.chromosome,
-                        TadInterval.sa.bin == any_(StructuralVariant.sa.containing_bins),
+                        or_(
+                            TadInterval.sa.bin == any_(StructuralVariant.sa.containing_bins),
+                            StructuralVariant.sa.bin == any_(TadInterval.sa.containing_bins),
+                        ),
                         TadInterval.sa.end >= StructuralVariant.sa.start,
                         TadInterval.sa.start <= StructuralVariant.sa.end,
                     ),
@@ -472,7 +460,10 @@ class GenesInIntervalsTermWhereMixin:
                     GeneInterval.sa.database == kwargs["database_select"],
                     TadInterval.sa.release == GeneInterval.sa.release,
                     TadInterval.sa.chromosome == GeneInterval.sa.chromosome,
-                    any_(TadInterval.sa.containing_bins) == GeneInterval.sa.bin,
+                    or_(
+                        any_(TadInterval.sa.containing_bins) == GeneInterval.sa.bin,
+                        any_(GeneInterval.sa.containing_bins) == TadInterval.sa.bin,
+                    ),
                     TadInterval.sa.end >= GeneInterval.sa.start,
                     TadInterval.sa.start <= GeneInterval.sa.end,
                 )
@@ -535,7 +526,10 @@ class IntervalCenterDistanceTermWhereMixin:
                     TadBoundaryInterval.sa.tad_set_id == set_pk,
                     TadBoundaryInterval.sa.release == StructuralVariant.sa.release,
                     TadBoundaryInterval.sa.chromosome == StructuralVariant.sa.chromosome,
-                    TadBoundaryInterval.sa.bin == any_(StructuralVariant.sa.containing_bins),
+                    or_(
+                        TadBoundaryInterval.sa.bin == any_(StructuralVariant.sa.containing_bins),
+                        StructuralVariant.sa.bin == any_(TadBoundaryInterval.sa.containing_bins),
+                    ),
                     TadBoundaryInterval.sa.end >= StructuralVariant.sa.start,
                     TadBoundaryInterval.sa.start <= StructuralVariant.sa.end,
                 )
@@ -589,7 +583,12 @@ class EnsemblRegulatoryOverlapsTermWhereMixin:
                 and_(
                     EnsemblRegulatoryFeature.sa.release == StructuralVariant.sa.release,
                     EnsemblRegulatoryFeature.sa.chromosome == StructuralVariant.sa.chromosome,
-                    EnsemblRegulatoryFeature.sa.bin == any_(StructuralVariant.sa.containing_bins),
+                    or_(
+                        EnsemblRegulatoryFeature.sa.bin
+                        == any_(StructuralVariant.sa.containing_bins),
+                        StructuralVariant.sa.bin
+                        == any_(EnsemblRegulatoryFeature.sa.containing_bins),
+                    ),
                     EnsemblRegulatoryFeature.sa.end >= StructuralVariant.sa.start,
                     EnsemblRegulatoryFeature.sa.start <= StructuralVariant.sa.end,
                 )
@@ -657,7 +656,10 @@ class VistaEnhancerOverlapsTermWhereMixin:
                 and_(
                     VistaEnhancer.sa.release == StructuralVariant.sa.release,
                     VistaEnhancer.sa.chromosome == StructuralVariant.sa.chromosome,
-                    VistaEnhancer.sa.bin == any_(StructuralVariant.sa.containing_bins),
+                    or_(
+                        VistaEnhancer.sa.bin == any_(StructuralVariant.sa.containing_bins),
+                        StructuralVariant.sa.bin == any_(VistaEnhancer.sa.containing_bins),
+                    ),
                     VistaEnhancer.sa.end >= StructuralVariant.sa.start,
                     VistaEnhancer.sa.start <= StructuralVariant.sa.end,
                 )
@@ -856,7 +858,10 @@ def best_matching_flags(sa_engine, case_id, sv_uuid, min_overlap=0.95):
                 StructuralVariantFlags.sa.case_id == case_id,
                 StructuralVariantFlags.sa.release == sv.release,
                 StructuralVariantFlags.sa.chromosome == sv.chromosome,
-                StructuralVariantFlags.sa.bin == any_(sv.containing_bins),
+                or_(
+                    StructuralVariantFlags.sa.bin == any_(sv.containing_bins),
+                    any_(StructuralVariantFlags.sa.containing_bins) == sv.bin,
+                ),
                 StructuralVariantFlags.sa.end >= sv.start,
                 StructuralVariantFlags.sa.start <= sv.end,
                 StructuralVariantFlags.sa.sv_type == sv.sv_type,

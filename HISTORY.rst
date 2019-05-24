@@ -9,6 +9,8 @@ HEAD
 End-User Summary
 ================
 
+- Fixed conservation bug (was shown only in 2/3 of all cases).
+
 Full Change List
 ================
 
@@ -17,6 +19,8 @@ Full Change List
   Only two of three bases were decorated with the conservation track information.
 - Fixed bug that Clinvar report didn't support compound heterozygous queries anymore.
 - Variant view tests are now running on factory boy.
+- Adding tests of SV-related code.
+- Also interpreting phased diploid genotypes.
 
 -------
 v0.15.0

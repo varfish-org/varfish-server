@@ -183,9 +183,6 @@ class GeneInterval(_Interval):
     #: Identifier of the gene in the database
     gene_id = models.CharField(max_length=128)
 
-    class Meta:
-        indexes = [models.Index(fields=["gene_id"])]
-
     def __str__(self):
         return "GeneInterval(%s, %s, %s, %s, %s, %s)" % (
             self.release,
@@ -198,6 +195,7 @@ class GeneInterval(_Interval):
 
     class Meta:
         indexes = [
+            models.Index(fields=["gene_id"]),
             models.Index(fields=["database", "release", "chromosome", "bin"]),
             GinIndex(fields=["database", "release", "chromosome", "containing_bins"]),
         ]

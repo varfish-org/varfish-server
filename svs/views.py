@@ -19,7 +19,7 @@ from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, Pro
 
 from .forms import FilterForm, StructuralVariantCommentForm, StructuralVariantFlagsForm
 from .models import StructuralVariantFlags, StructuralVariantComment, StructuralVariant
-from .models_queries import SingleCaseFilterQuery, best_matching_flags
+from .queries import SingleCaseFilterQuery, best_matching_flags
 from geneinfo.models import RefseqToHgnc, Hgnc, Hpo, HpoName, Mim2geneMedgen
 from variants.models import Case
 from variants.views import UUIDEncoder
