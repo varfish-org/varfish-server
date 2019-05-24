@@ -104,9 +104,10 @@ class UUIDEncoder(json.JSONEncoder):
 
     def default(self, obj):
         if isinstance(obj, uuid.UUID):
-            # if the obj is uuid, we simply return the value of uuid
+            # If the obj is uuid, we simply return the value of uuid
             return obj.hex
-        return json.JSONEncoder.default(self, obj)
+        # Default implementation raises not-serializable TypeError exception
+        return json.JSONEncoder.default(self, obj)  # pragma: no cover
 
 
 #: The SQL Alchemy engine to use
@@ -1068,7 +1069,7 @@ class CaseClinvarReportView(
         """Put initial data in the form from the previous query if any and push information into template for the
         "welcome back" message."""
         result = self.initial.copy()
-        if " job" in self.kwargs:
+        if "job" in self.kwargs:
             previous_query = ClinvarBgJob.objects.get(sodar_uuid=self.kwargs["job"]).clinvarquery
         else:
             previous_query = (
@@ -1085,11 +1086,7 @@ class CaseClinvarReportView(
                     naturaltime(previous_query.date_created)
                 ),
             )
-            for key, value in previous_query.query_settings.items():
-                if isinstance(value, list):
-                    result[key] = " ".join(value)
-                else:
-                    result[key] = value
+            result.update(previous_query.query_settings.items())
         return result
 
     def get_context_data(self, **kwargs):
@@ -1501,25 +1498,32 @@ class SmallVariantDetails(
 
     def _get_gene_infos(self, kwargs):
         if kwargs["database"] == "refseq":
+            # Get HGNC entry via intermediate table as HGNC is badly equipped with refseq IDs.
             hgnc = RefseqToHgnc.objects.filter(entrez_id=kwargs["gene_id"]).first()
             gene = None
             if hgnc:
                 gene = Hgnc.objects.filter(hgnc_id=hgnc.hgnc_id).first()
-            ensembl_to_refseq = EnsemblToRefseq.objects.filter(entrez_id=kwargs["gene_id"]).first()
-            ensembl_gene_id = getattr(ensembl_to_refseq, "ensembl_gene_id", None)
         else:
+            # We could also go via EnsemblToRefseq -> RefseqToHgnc -> Hgnc ???
             gene = Hgnc.objects.filter(ensembl_gene_id=kwargs["gene_id"]).first()
-            ensembl_gene_id = gene.ensembl_gene_id
         if not gene:
-            return {"gene_id": kwargs["gene_id"]}
+            return {
+                "entrez_id"
+                if kwargs["database"] == "refseq"
+                else "ensembl_gene_id": kwargs["gene_id"]
+            }
         else:
             gene = model_to_dict(gene)
             if kwargs["database"] == "refseq":
+                ensembl_to_refseq = EnsemblToRefseq.objects.filter(
+                    entrez_id=kwargs["gene_id"]
+                ).first()
+                ensembl_gene_id = getattr(ensembl_to_refseq, "ensembl_gene_id", None)
                 gene["entrez_id"] = kwargs["gene_id"]
             else:
+                ensembl_gene_id = kwargs["gene_id"]
                 hgnc = RefseqToHgnc.objects.filter(hgnc_id=gene["hgnc_id"]).first()
-                if hgnc:
-                    gene["entrez_id"] = hgnc.entrez_id
+                gene["entrez_id"] = getattr(hgnc, "entrez_id", None)
             hpoterms, hpoinheritance, omim = self._handle_hpo_omim(gene["entrez_id"])
             gene["omim"] = omim
             gene["hpo_inheritance"] = list(hpoinheritance)
@@ -2211,7 +2215,9 @@ class AcmgCriteriaRatingApiView(
                 alternative=self.request.POST.get("alternative"),
             )
         except AcmgCriteriaRating.DoesNotExist:
-            acmg_ratings = AcmgCriteriaRating(case=case, sodar_uuid=uuid.uuid4())
+            acmg_ratings = AcmgCriteriaRating(
+                case=case, sodar_uuid=uuid.uuid4(), user=self.request.user
+            )
         form = AcmgCriteriaRatingForm(self.request.POST, instance=acmg_ratings)
         try:
             acmg_ratings = form.save()

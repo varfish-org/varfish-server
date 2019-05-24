@@ -2,7 +2,17 @@
 
 import factory
 
-from ..models import Hgnc, Hpo, Mim2geneMedgen, Acmg, RefseqToHgnc, HpoName
+from ..models import (
+    Hgnc,
+    Hpo,
+    Mim2geneMedgen,
+    Acmg,
+    RefseqToHgnc,
+    HpoName,
+    ExacConstraints,
+    GnomadConstraints,
+    EnsemblToRefseq,
+)
 
 
 class RefseqToHgncFactory(factory.django.DjangoModelFactory):
@@ -86,3 +96,66 @@ class AcmgFactory(factory.django.DjangoModelFactory):
     entrez_id = factory.Sequence(lambda n: str(n))
     ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
     symbol = factory.Sequence(lambda n: "SYMBOL%d" % n)
+
+
+class EnsemblToRefseqFactory(factory.django.DjangoModelFactory):
+    """Factory for the ``EnsemblToRefseqFactory`` model."""
+
+    class Meta:
+        model = EnsemblToRefseq
+
+    ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
+    ensembl_transcript_id = factory.Sequence(lambda n: "ENST%d" % n)
+    entrez_id = factory.Sequence(lambda n: str(n))
+
+
+class ExacConstraintsFactory(factory.django.DjangoModelFactory):
+    """Factory for the ``ExacConstraints`` model."""
+
+    class Meta:
+        model = ExacConstraints
+
+    ensembl_transcript_id = factory.Sequence(lambda n: "ENST%d" % n)
+    symbol = factory.Sequence(lambda n: "SYMBOL%d" % n)
+    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    n_exons = 2
+    cds_start = factory.Sequence(lambda n: n + 1)
+    cds_end = factory.Sequence(lambda n: n + 100)
+    bp = factory.LazyAttribute(lambda o: o.cds_end - o.cds_start + 1)
+    mu_syn = factory.Sequence(lambda n: 1 / (n + 1))
+    mu_mis = factory.Sequence(lambda n: 1 / (n + 1))
+    mu_lof = factory.Sequence(lambda n: 1 / (n + 1))
+    exp_syn = factory.Sequence(lambda n: 1 / (n + 1))
+    n_syn = factory.Sequence(lambda n: n)
+    syn_z = factory.Sequence(lambda n: 1 / (n + 1))
+    exp_mis = factory.Sequence(lambda n: 1 / (n + 1))
+    n_mis = factory.Sequence(lambda n: n)
+    mis_z = factory.Sequence(lambda n: 1 / (n + 1))
+    exp_lof = factory.Sequence(lambda n: 1 / (n + 1))
+    n_lof = factory.Sequence(lambda n: n)
+    lof_z = factory.Sequence(lambda n: 1 / (n + 1))
+    pLI = factory.Sequence(lambda n: 1 / (n + 1))
+    pRec = factory.Sequence(lambda n: 1 / (n + 1))
+    pNull = factory.Sequence(lambda n: 1 / (n + 1))
+
+
+class GnomadConstraintsFactory(factory.django.DjangoModelFactory):
+    """Factory for the ``GnomadConstraints`` model."""
+
+    class Meta:
+        model = GnomadConstraints
+
+    ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
+    symbol = factory.Sequence(lambda n: "SYMBOL%d" % n)
+    exp_syn = factory.Sequence(lambda n: 1 / (n + 1))
+    obs_syn = factory.Sequence(lambda n: n)
+    syn_z = factory.Sequence(lambda n: 1 / (n + 1))
+    oe_syn = factory.Sequence(lambda n: 1 / (n + 1))
+    exp_mis = factory.Sequence(lambda n: 1 / (n + 1))
+    obs_mis = factory.Sequence(lambda n: n)
+    mis_z = factory.Sequence(lambda n: 1 / (n + 1))
+    oe_mis = factory.Sequence(lambda n: 1 / (n + 1))
+    exp_lof = factory.Sequence(lambda n: 1 / (n + 1))
+    obs_lof = factory.Sequence(lambda n: n)
+    lof_z = factory.Sequence(lambda n: 1 / (n + 1))
+    oe_lof = factory.Sequence(lambda n: 1 / (n + 1))

@@ -107,6 +107,10 @@ class CaseAwareProject(Project):
         """Return PKs for cases."""
         return [case.pk for case in self.case_set.all()]
 
+    def get_members(self):
+        """Return concatenated list of members in ``pedigree``."""
+        return [x["patient"] for x in self.get_filtered_pedigree_with_samples()]
+
 
 class SmallVariant(models.Model):
     """"Information of a single variant, knows its case."""
@@ -1770,7 +1774,7 @@ class AcmgCriteriaRating(models.Model):
     alternative = models.CharField(max_length=512)
 
     pvs1 = models.IntegerField(
-        default=False,
+        default=0,
         verbose_name="PVS1",
         help_text=(
             "null variant (nonsense, frameshift, canonical ±1 or 2 splice sites, initiation codon, single or "

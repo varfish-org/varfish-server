@@ -25,6 +25,8 @@ from ..models import (
     ExportFileJobResult,
     ExportProjectCasesFileBgJob,
     ExportProjectCasesFileBgJobResult,
+    SmallVariantFlags,
+    SmallVariantComment,
 )
 import typing
 import attr
@@ -202,7 +204,7 @@ class FormDataFactory(FormDataFactoryBase):
 
 
 @attr.s(auto_attribs=True)
-class SmallVariantFlagsCommentFormDataFactoryBase:
+class ChromosomalPositionFormDataFactoryBase:
     release: str = "GRCh37"
     chromosome: str = None
     position: int = None
@@ -211,7 +213,7 @@ class SmallVariantFlagsCommentFormDataFactoryBase:
 
 
 @attr.s(auto_attribs=True)
-class SmallVariantFlagsFormDataFactory(SmallVariantFlagsCommentFormDataFactoryBase):
+class SmallVariantFlagsFormDataFactory(ChromosomalPositionFormDataFactoryBase):
     flag_bookmarked: bool = True
     flag_candidate: bool = False
     flag_final_causative: bool = False
@@ -223,8 +225,40 @@ class SmallVariantFlagsFormDataFactory(SmallVariantFlagsCommentFormDataFactoryBa
 
 
 @attr.s(auto_attribs=True)
-class SmallVariantCommentFormDataFactory(SmallVariantFlagsCommentFormDataFactoryBase):
+class SmallVariantCommentFormDataFactory(ChromosomalPositionFormDataFactoryBase):
     text: str = "Comment X"
+
+
+@attr.s(auto_attribs=True)
+class AcmgCriteriaRatingFormDataFactory(ChromosomalPositionFormDataFactoryBase):
+    pvs1: int = 0
+    ps1: int = 0
+    ps2: int = 0
+    ps3: int = 0
+    ps4: int = 0
+    pm1: int = 0
+    pm2: int = 0
+    pm3: int = 0
+    pm4: int = 0
+    pm5: int = 0
+    pm6: int = 0
+    pp1: int = 0
+    pp2: int = 0
+    pp3: int = 0
+    pp4: int = 0
+    pp5: int = 0
+    ba1: int = 0
+    bs1: int = 0
+    bs2: int = 0
+    bs3: int = 0
+    bs4: int = 0
+    bp1: int = 0
+    bp2: int = 0
+    bp3: int = 0
+    bp4: int = 0
+    bp5: int = 0
+    bp6: int = 0
+    bp7: int = 0
 
 
 class ProjectFactory(factory.django.DjangoModelFactory):
@@ -343,11 +377,7 @@ class ProjectCasesSmallVariantQueryFactory(factory.django.DjangoModelFactory):
     form_id = factory.Sequence(lambda n: str(n))
     form_version = factory.Sequence(lambda n: n)
     query_settings = factory.LazyAttribute(
-        lambda o: vars(
-            ResubmitFormDataFactory(
-                names=[x["patient"] for x in o.project.get_filtered_pedigree_with_samples()]
-            )
-        )
+        lambda o: vars(ResubmitFormDataFactory(names=o.project.get_members()))
     )
     name = factory.Sequence(lambda n: "ProjectCasesSmallVariantQuery%d" % n)
     public = False
@@ -624,11 +654,7 @@ class ExportProjectCasesFileBgJobFactory(factory.django.DjangoModelFactory):
         user=factory.SelfAttribute("factory_parent.user"),
     )
     query_args = factory.LazyAttribute(
-        lambda o: vars(
-            ResubmitFormDataFactory(
-                names=[x["patient"] for x in o.project.get_filtered_pedigree_with_samples()]
-            )
-        )
+        lambda o: vars(ResubmitFormDataFactory(names=o.project.get_members()))
     )
     file_type = "tsv"
 
@@ -647,3 +673,41 @@ class ExportProjectCasesFileBgJobResultFactory(factory.django.DjangoModelFactory
     )
     payload = b"Testcontent"
     expiry_time = timezone.now()
+
+
+class SmallVariantFlagsFactory(factory.django.DjangoModelFactory):
+    """Factory for ``SmallVariantFlagsFactory`` model."""
+
+    class Meta:
+        model = SmallVariantFlags
+
+    release = "GRCh37"
+    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    position = factory.Sequence(lambda n: (n + 1) * 100)
+    reference = factory.Iterator("ACGT")
+    alternative = factory.Iterator("CGTA")
+    case = factory.SubFactory(CaseFactory)
+    flag_bookmarked = True
+    flag_candidate = False
+    flag_final_causative = False
+    flag_for_validation = False
+    flag_visual = ""
+    flag_validation = ""
+    flag_phenotype_match = ""
+    flag_summary = ""
+
+
+class SmallVariantCommentFactory(factory.django.DjangoModelFactory):
+    """Factory for ``SmallVariantComment`` model."""
+
+    class Meta:
+        model = SmallVariantComment
+
+    release = "GRCh37"
+    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    position = factory.Sequence(lambda n: (n + 1) * 100)
+    reference = factory.Iterator("ACGT")
+    alternative = factory.Iterator("CGTA")
+    user = None
+    text = factory.Sequence(lambda n: "Comment %d" % n)
+    case = factory.SubFactory(CaseFactory)

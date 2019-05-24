@@ -3,16 +3,16 @@
 import json
 
 import aldjemy.core
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.utils import timezone
+from projectroles.templatetags.projectroles_common_tags import site_version
 
 from requests_mock import Mocker
 from unittest.mock import patch
 from django.conf import settings
 
-from projectroles.models import Project
+from projectroles.models import Project, ProjectSetting
 from annotation.models import Annotation
-from bgjobs.tests.factories import BackgroundJobFactory
 from clinvar.tests.factories import (
     ProcessedClinvarFormDataFactory,
     ClinvarFormDataFactory,
@@ -25,25 +25,30 @@ from frequencies.tests.factories import (
     GnomadGenomesFactory,
     ExacFactory,
 )
-from geneinfo.tests.factories import HpoFactory, HgncFactory, Mim2geneMedgenFactory
+from geneinfo.tests.factories import (
+    HpoFactory,
+    HgncFactory,
+    Mim2geneMedgenFactory,
+    HpoNameFactory,
+    GnomadConstraintsFactory,
+    ExacConstraintsFactory,
+    EnsemblToRefseqFactory,
+)
 from variants.models import (
     Case,
     SmallVariant,
     ExportFileBgJob,
-    ExportFileJobResult,
     FilterBgJob,
     ProjectCasesFilterBgJob,
     ExportProjectCasesFileBgJob,
-    ExportProjectCasesFileBgJobResult,
     SmallVariantQuery,
-    ProjectCasesSmallVariantQuery,
     DistillerSubmissionBgJob,
     ComputeProjectVariantsStatsBgJob,
     SmallVariantFlags,
     SmallVariantComment,
     ClinvarBgJob,
     ClinvarQuery,
-    CaseAwareProject,
+    AcmgCriteriaRating,
 )
 from variants.tests.factories import (
     CaseFactory,
@@ -60,15 +65,16 @@ from variants.tests.factories import (
     SmallVariantFlagsFormDataFactory,
     SmallVariantCommentFormDataFactory,
     ExportProjectCasesFileBgJobResultFactory,
+    AcmgCriteriaRatingFormDataFactory,
+    SmallVariantFlagsFactory,
+    SmallVariantCommentFactory,
 )
 from variants.tests.helpers import ViewTestBase
-from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
+from variants.variant_stats import rebuild_case_variant_stats
 from clinvar.models import Clinvar
-from frequencies.models import Exac, GnomadGenomes, GnomadExomes, ThousandGenomes
-from conservation.models import KnowngeneAA
-from geneinfo.models import RefseqToHgnc, Hpo, HpoName, Mim2geneMedgen, Hgnc
+from geneinfo.models import HpoName, Hgnc, RefseqToHgnc
 
-from ._fixtures import CLINVAR_DEFAULTS, CLINVAR_FORM_DEFAULTS
+from ._fixtures import CLINVAR_DEFAULTS
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
@@ -577,10 +583,6 @@ def fixture_setup_case(user):
 class TestCaseListView(ViewTestBase):
     """Test case list view"""
 
-    # TODO
-    #   dp_medians = null
-    #   dp_medians = null
-
     def setUp(self):
         super().setUp()
         self.case = CaseFactory()
@@ -596,13 +598,30 @@ class TestCaseListView(ViewTestBase):
 
     def test_render_with_variant_stats(self):
         """Test display of case list page."""
+        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.case)
         with self.login(self.user):
-            rebuild_project_variant_stats(SQLALCHEMY_ENGINE, self.case.project, self.user)
             response = self.client.get(
                 reverse("variants:case-list", kwargs={"project": self.case.project.sodar_uuid})
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(response.context["case_list"]), 1)
+
+    def test_render_caseless_project(self):
+        project = self.case.project.sodar_uuid
+        self.case.delete()
+        with self.login(self.user):
+            response = self.client.get(reverse("variants:case-list", kwargs={"project": project}))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.context["case_list"]), 0)
+
+    def test_render_caseless_project_with_variant_stats(self):
+        project = self.case.project.sodar_uuid
+        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.case)
+        self.case.delete()
+        with self.login(self.user):
+            response = self.client.get(reverse("variants:case-list", kwargs={"project": project}))
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.context["case_list"]), 0)
 
 
 class TestCaseDetailView(ViewTestBase):
@@ -627,8 +646,7 @@ class TestCaseDetailView(ViewTestBase):
     def test_render_with_variant_stats(self):
         """Test display of case detail view page."""
         with self.login(self.user):
-            case = Case.objects.select_related("project").first()
-            rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
+            rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.case)
             response = self.client.get(
                 reverse(
                     "variants:case-detail",
@@ -658,6 +676,16 @@ class TestCaseFilterView(ViewTestBase):
             )
 
             self.assertEqual(response.status_code, 200)
+
+    def test_provoke_form_error(self):
+        with self.login(self.user), self.assertRaises(ValidationError):
+            self.client.post(
+                reverse(
+                    "variants:case-filter",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(FormDataFactory(thousand_genomes_frequency="I'm supposed to be a float!")),
+            )
 
     def test_post_download(self):
         """Test form submit for download as file."""
@@ -792,6 +820,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
+        self.hpo_id = "HP:0000001"
         self.case = CaseFactory()
         self.small_vars = [
             SmallVariantFactory(chromosome="1", refseq_gene_id="1234", case=self.case),
@@ -800,6 +829,8 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
         ]
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
         self.bgjob.smallvariantquery.query_results.add(self.small_vars[0], self.small_vars[2])
+        self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [self.hpo_id]
+        self.bgjob.smallvariantquery.save()
 
     def test_count_results(self):
         with self.login(self.user):
@@ -813,6 +844,22 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context["result_count"], 2)
             self.assertFalse(response.context["training_mode"])
+            self.assertEqual(response.context["hpoterms"], {self.hpo_id: "unknown HPO term"})
+
+    def test_count_results(self):
+        hpo_name = HpoNameFactory(hpo_id=self.hpo_id)
+        with self.login(self.user):
+            response = self.client.post(
+                reverse(
+                    "variants:case-load-filter-results",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                {"filter_job_uuid": self.bgjob.sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["result_count"], 2)
+            self.assertFalse(response.context["training_mode"])
+            self.assertEqual(response.context["hpoterms"], {self.hpo_id: hpo_name.name})
 
     def test_training_mode(self):
         with self.login(self.user):
@@ -1198,13 +1245,7 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
                     "variants:project-cases-filter-results",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
-                vars(
-                    FormDataFactory(
-                        names=[
-                            x["patient"] for x in self.project.get_filtered_pedigree_with_samples()
-                        ]
-                    )
-                ),
+                vars(FormDataFactory(names=self.project.get_members())),
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -1221,9 +1262,7 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
                 ),
                 vars(
                     FormDataFactory(
-                        names=[
-                            x["patient"] for x in self.project.get_filtered_pedigree_with_samples()
-                        ],
+                        names=self.project.get_members(),
                         exac_frequency="I am supposed to be a float.",
                     )
                 ),
@@ -1328,11 +1367,6 @@ class TestProjectCasesFilterJobResubmitView(ViewTestBase):
 class TestCaseClinvarReportView(ViewTestBase):
     """Test case Clinvar report view"""
 
-    # TODO
-    #   _yield_grouped_rows: when candidates = null
-    #     status_level(status): when status not found
-    #     sig_level(significance): when significance not found
-
     def setUp(self):
         super().setUp()
         self.bgjob = ClinvarBgJobFactory(user=self.user)
@@ -1392,6 +1426,22 @@ class TestCasePrefetchClinvarReportView(ViewTestBase):
                 str(ClinvarBgJob.objects.last().sodar_uuid),
             )
 
+    def test_form_error(self):
+        with self.login(self.user):
+            response = self.client.post(
+                reverse(
+                    "variants:clinvar-results",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    ClinvarFormDataFactory(
+                        result_rows_limit="I'm supposed to be an integer!",
+                        names=self.case.get_members(),
+                    )
+                ),
+            )
+            self.assertEqual(response.status_code, 400)
+
 
 class TestClinvarReportJobDetailView(ViewTestBase):
     """Test ClinvarReportJobDetailView"""
@@ -1446,14 +1496,24 @@ class TestCaseLoadPrefetchedClinvarReportView(ViewTestBase):
         super().setUp()
         self.bgjob = ClinvarBgJobFactory(user=self.user)
         small_var = SmallVariantFactory(in_clinvar=True, case=self.bgjob.case)
+        # Create two entries in the same position to test the grouping.
+        # First entry without any significance information
         ClinvarFactory(
             release=small_var.release,
             chromosome=small_var.chromosome,
             position=small_var.position,
             reference=small_var.reference,
             alternative=small_var.alternative,
-            start=small_var.position,
-            stop=small_var.position,
+        )
+        # Second entry with significance information
+        ClinvarFactory(
+            release=small_var.release,
+            chromosome=small_var.chromosome,
+            position=small_var.position,
+            reference=small_var.reference,
+            alternative=small_var.alternative,
+            clinical_significance_ordered=["pathogenic", "likely_pathogenic"],
+            review_status_ordered=["practice guideline", "practice guideline"],
         )
         self.bgjob.clinvarquery.query_results.add(small_var)
 
@@ -1470,7 +1530,9 @@ class TestCaseLoadPrefetchedClinvarReportView(ViewTestBase):
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.context["result_count"], 1)
+            self.assertEqual(response.context["result_count"], 2)
+            self.assertEqual(len(response.context["grouped_rows"]), 1)
+            self.assertEqual(response.context["grouped_rows"][0]["max_significance"], "pathogenic")
 
 
 class TestCaseClinvarReportJobGetStatus(ViewTestBase):
@@ -1651,48 +1713,30 @@ class TestSmallVariantDetailsView(ViewTestBase):
         super().setUp()
         self.case = CaseFactory()
         self.small_var = SmallVariantFactory(case=self.case)
-        self.thousand_genomes = ThousandGenomesFactory(
-            chromosome=self.small_var.chromosome,
-            position=self.small_var.position,
-            reference=self.small_var.reference,
-            alternative=self.small_var.alternative,
-        )
-        self.exac = ExacFactory(
-            chromosome=self.small_var.chromosome,
-            position=self.small_var.position,
-            reference=self.small_var.reference,
-            alternative=self.small_var.alternative,
-        )
-        self.gnomad_exomes = GnomadExomesFactory(
-            chromosome=self.small_var.chromosome,
-            position=self.small_var.position,
-            reference=self.small_var.reference,
-            alternative=self.small_var.alternative,
-        )
-        self.gnomad_genomes = GnomadGenomesFactory(
-            chromosome=self.small_var.chromosome,
-            position=self.small_var.position,
-            reference=self.small_var.reference,
-            alternative=self.small_var.alternative,
-        )
+        coords = {
+            "chromosome": self.small_var.chromosome,
+            "position": self.small_var.position,
+            "reference": self.small_var.reference,
+            "alternative": self.small_var.alternative,
+        }
+        self.thousand_genomes = ThousandGenomesFactory(**coords)
+        self.exac = ExacFactory(**coords)
+        self.gnomad_exomes = GnomadExomesFactory(**coords)
+        self.gnomad_genomes = GnomadGenomesFactory(**coords)
         self.knowngeneaa = KnownGeneAAFactory(
             chromosome=self.small_var.chromosome,
             start=self.small_var.position,
             transcript_id=self.small_var.ensembl_transcript_id,
         )
-        self.clinvar = ClinvarFactory(
-            release=self.small_var.release,
-            chromosome=self.small_var.chromosome,
-            position=self.small_var.position,
-            reference=self.small_var.reference,
-            alternative=self.small_var.alternative,
-        )
+        self.clinvar = ClinvarFactory(release=self.small_var.release, **coords)
         self.hgnc = HgncFactory(
             ensembl_gene_id=self.small_var.ensembl_gene_id, entrez_id=self.small_var.refseq_gene_id
         )
         self.mim2genemedgen = Mim2geneMedgenFactory(entrez_id=self.small_var.refseq_gene_id)
+        # Fix the both HPO terms to clearly distinguish between inheritance term and no inheritance term.
         self.hpo = HpoFactory(
             database_id="OMIM:%d" % self.mim2genemedgen.omim_id,
+            hpo_id="HP:0000001",
             name="Disease 1;;Alternative Description",
         )
         self.hpo_inheritance = HpoFactory(
@@ -1701,11 +1745,23 @@ class TestSmallVariantDetailsView(ViewTestBase):
             hpo_id="HP:0000007",
             name="Disease 2; AR",
         )
-
-    # TODO
-    #   _get_gene_infos database refseq
-    #   _get_gene_infos with data from gene
-    #   if self.request.GET.get("render_full", "no").lower() in ("yes", "true"): ... true
+        EnsemblToRefseqFactory(
+            ensembl_gene_id=self.small_var.ensembl_gene_id,
+            ensembl_transcript_id=self.small_var.ensembl_transcript_id,
+            entrez_id=self.small_var.refseq_gene_id,
+        )
+        self.gnomadconstraints = GnomadConstraintsFactory(
+            ensembl_gene_id=self.small_var.ensembl_gene_id
+        )
+        self.exacconstraints = ExacConstraintsFactory(
+            ensembl_transcript_id=self.small_var.ensembl_transcript_id
+        )
+        self.smallvariantflags = SmallVariantFlagsFactory(
+            case=self.case, release=self.small_var.release, **coords
+        )
+        self.smallvariantcomment = SmallVariantCommentFactory(
+            case=self.case, user=self.user, release=self.small_var.release, **coords
+        )
 
     def test_render(self):
         """Test rendering of the variant detail view"""
@@ -1728,8 +1784,12 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 )
             )
             self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["base_template"], "empty_base.html")
 
-    def test_content_refseq(self):
+    def test_render_full(self):
+        """Smoke test for rendering in full mode. This was introduced to help debugging
+        and this part of the code is not used in production mode.
+        """
         with self.login(self.user):
             response = self.client.get(
                 reverse(
@@ -1744,6 +1804,30 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "alternative": self.small_var.alternative,
                         "database": "refseq",
                         "gene_id": self.small_var.refseq_gene_id,
+                        "training_mode": 0,
+                    },
+                ),
+                {"render_full": "yes"},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["base_template"], "projectroles/project_base.html")
+
+    def _base_test_content(self, db):
+        """Base function to test both transcript databases, ensembl and refseq."""
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:small-variant-details",
+                    kwargs={
+                        "project": self.case.project.sodar_uuid,
+                        "case": self.case.sodar_uuid,
+                        "release": self.small_var.release,
+                        "chromosome": self.small_var.chromosome,
+                        "position": self.small_var.position,
+                        "reference": self.small_var.reference,
+                        "alternative": self.small_var.alternative,
+                        "database": db,
+                        "gene_id": getattr(self.small_var, "%s_gene_id" % db),
                         "training_mode": 0,
                     },
                 )
@@ -1805,15 +1889,55 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 response.context["gene"]["omim"][self.mim2genemedgen.omim_id][1][0], omim_name[1]
             )
             self.assertEqual(response.context["gene"]["symbol"], self.hgnc.symbol)
-            annotations = Annotation.objects.filter(database="refseq")
+            annotations = Annotation.objects.filter(database=db).order_by("transcript_id")
             self.assertEqual(
                 response.context["effect_details"][0]["transcript_id"], annotations[0].transcript_id
             )
             self.assertEqual(
                 response.context["effect_details"][1]["transcript_id"], annotations[1].transcript_id
             )
+            self.assertEqual(
+                response.context["gene"]["exac_constraints"].exp_syn, self.exacconstraints.exp_syn
+            )
+            self.assertEqual(
+                response.context["gene"]["gnomad_constraints"].exp_syn,
+                self.gnomadconstraints.exp_syn,
+            )
+            self.assertTrue(response.context["flags"].flag_bookmarked)
+            self.assertEqual(response.context["comments"][0].text, self.smallvariantcomment.text)
+            self.assertEqual(response.context["comments"][0].user, self.user)
+
+    def test_content_refseq(self):
+        self._base_test_content("refseq")
 
     def test_content_ensembl(self):
+        self._base_test_content("ensembl")
+
+    def test_content_refseq_missing_hgnc(self):
+        Hgnc.objects.first().delete()
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:small-variant-details",
+                    kwargs={
+                        "project": self.case.project.sodar_uuid,
+                        "case": self.case.sodar_uuid,
+                        "release": self.small_var.release,
+                        "chromosome": self.small_var.chromosome,
+                        "position": self.small_var.position,
+                        "reference": self.small_var.reference,
+                        "alternative": self.small_var.alternative,
+                        "database": "refseq",
+                        "gene_id": self.small_var.refseq_gene_id,
+                        "training_mode": 0,
+                    },
+                )
+            )
+            self.assertEqual(response.context["gene"]["entrez_id"], self.small_var.refseq_gene_id)
+            self.assertFalse("hpo_terms" in response.context["gene"])
+
+    def test_content_ensembl_missing_hgnc(self):
+        Hgnc.objects.first().delete()
         with self.login(self.user):
             response = self.client.get(
                 reverse(
@@ -1833,69 +1957,38 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 )
             )
             self.assertEqual(
-                response.context["pop_freqs"]["gnomAD Exomes"]["AFR"]["af"],
-                self.gnomad_exomes.af_afr,
+                response.context["gene"]["ensembl_gene_id"], self.small_var.ensembl_gene_id
             )
-            self.assertEqual(
-                response.context["pop_freqs"]["gnomAD Exomes"]["AFR"]["het"],
-                self.gnomad_exomes.het_afr,
+            self.assertFalse("hpo_terms" in response.context["gene"])
+
+    # No need to test this for refseq as entrez_id is always available.
+    # The entrez ID, given the ensembl_gene_id, is retrieved via hgnc_id -> RefseqToHgnc.
+    # As every record in RefseqToHgnc has a mapping, this case can only appear when the hgnc_id is not available in RefseqToHgnc.
+    def test_content_ensembl_missing_entrez_id(self):
+        o = RefseqToHgnc.objects.first()
+        o.hgnc_id = "Not existing"
+        o.save()
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:small-variant-details",
+                    kwargs={
+                        "project": self.case.project.sodar_uuid,
+                        "case": self.case.sodar_uuid,
+                        "release": self.small_var.release,
+                        "chromosome": self.small_var.chromosome,
+                        "position": self.small_var.position,
+                        "reference": self.small_var.reference,
+                        "alternative": self.small_var.alternative,
+                        "database": "ensembl",
+                        "gene_id": self.small_var.ensembl_gene_id,
+                        "training_mode": 0,
+                    },
+                )
             )
-            self.assertEqual(
-                response.context["pop_freqs"]["gnomAD Exomes"]["AFR"]["hom"],
-                self.gnomad_exomes.hom_afr,
-            )
-            self.assertEqual(
-                response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["af"],
-                self.gnomad_genomes.af_afr,
-            )
-            self.assertEqual(
-                response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["het"],
-                self.gnomad_genomes.het_afr,
-            )
-            self.assertEqual(
-                response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["hom"],
-                self.gnomad_genomes.hom_afr,
-            )
-            self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["af"], self.exac.af_afr)
-            self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["het"], self.exac.het_afr)
-            self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["hom"], self.exac.hom_afr)
-            self.assertEqual(
-                response.context["pop_freqs"]["1000GP"]["AMR"]["af"], self.thousand_genomes.af_amr
-            )
-            self.assertEqual(
-                response.context["clinvar"][0]["clinical_significance"],
-                self.clinvar.clinical_significance,
-            )
-            self.assertEqual(
-                response.context["knowngeneaa"][0]["alignment"], self.knowngeneaa.alignment
-            )
-            self.assertEqual(response.context["gene"]["hpo_terms"][0][0], self.hpo.hpo_id)
-            self.assertEqual(
-                response.context["gene"]["hpo_terms"][0][1],
-                HpoName.objects.get(hpo_id=self.hpo.hpo_id).name,
-            )
-            self.assertEqual(
-                response.context["gene"]["hpo_inheritance"][0][0], self.hpo_inheritance.hpo_id
-            )
-            self.assertEqual(
-                response.context["gene"]["hpo_inheritance"][0][1],
-                HpoName.objects.get(hpo_id=self.hpo_inheritance.hpo_id).name,
-            )
-            omim_name = self.hpo.name.split(";;")
-            self.assertEqual(
-                response.context["gene"]["omim"][self.mim2genemedgen.omim_id][0], omim_name[0]
-            )
-            self.assertEqual(
-                response.context["gene"]["omim"][self.mim2genemedgen.omim_id][1][0], omim_name[1]
-            )
-            self.assertEqual(response.context["gene"]["symbol"], self.hgnc.symbol)
-            annotations = Annotation.objects.filter(database="ensembl")
-            self.assertEqual(
-                response.context["effect_details"][0]["transcript_id"], annotations[0].transcript_id
-            )
-            self.assertEqual(
-                response.context["effect_details"][1]["transcript_id"], annotations[1].transcript_id
-            )
+            self.assertListEqual(response.context["gene"]["hpo_terms"], [])
+            self.assertListEqual(response.context["gene"]["hpo_inheritance"], [])
+            self.assertIsNone(response.context["gene"]["omim"])
 
 
 class TestExportFileJobDetailView(ViewTestBase):
@@ -1998,7 +2091,6 @@ class TestExportFileJobDownloadViewResult(ViewTestBase):
                     },
                 )
             )
-            # import pdb; pdb.set_trace()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.content, self.results.payload)
 
@@ -2092,7 +2184,6 @@ class TestExportProjectCasesFileJobDownloadViewResult(ViewTestBase):
                     },
                 )
             )
-            # import pdb; pdb.set_trace()
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.content, self.results.payload)
 
@@ -2273,11 +2364,14 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
                         position=self.small_var.position,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
+                        flag_bookmarked=False,
+                        flag_candidate=True,
                     )
                 ),
             )
             self.assertEqual(response.status_code, 200)
-            self.assertTrue(json.loads(response.content.decode("utf-8"))["flag_bookmarked"])
+            self.assertFalse(json.loads(response.content.decode("utf-8"))["flag_bookmarked"])
+            self.assertTrue(json.loads(response.content.decode("utf-8"))["flag_candidate"])
 
     def test_post_remove_flags(self):
         with self.login(self.user):
@@ -2318,7 +2412,25 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
             )
             self.assertEqual(SmallVariantFlags.objects.count(), 0)
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(json.loads(response.content.decode("utf-8"))["message"], "erased")
+
+    def test_post_provoke_form_error(self):
+        with self.login(self.user), self.assertRaises(Exception):
+            self.client.post(
+                reverse(
+                    "variants:small-variant-flags-api",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    SmallVariantFlagsFormDataFactory(
+                        release=self.small_var.release,
+                        chromosome=self.small_var.chromosome,
+                        position=self.small_var.position,
+                        reference=self.small_var.reference,
+                        alternative=self.small_var.alternative,
+                        flag_visual=100,
+                    )
+                ),
+            )
 
 
 class TestSmallVariantCommentApiView(ViewTestBase):
@@ -2354,7 +2466,7 @@ class TestSmallVariantCommentApiView(ViewTestBase):
 
 
 class TestBackgroundJobListView(ViewTestBase):
-    """Tets BackgroundJobListView.
+    """Test BackgroundJobListView.
     """
 
     def setUp(self):
@@ -2386,3 +2498,158 @@ class TestBackgroundJobListView(ViewTestBase):
                 )
             )
             self.assertEqual(len(response.context["object_list"]), 1)
+
+
+class TestAcmgCriteriaRatingApiView(ViewTestBase):
+    """Test AcmgCriteriaRatingApiView"""
+
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory()
+        self.small_var = SmallVariantFactory(case=self.case)
+
+    def test_get_response_not_existing(self):
+        with self.login(self.user):
+            self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
+            response = self.client.get(
+                reverse(
+                    "variants:acmg-rating-api",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                {
+                    "release": self.small_var.release,
+                    "chromosome": self.small_var.chromosome,
+                    "position": self.small_var.position,
+                    "reference": self.small_var.reference,
+                    "alternative": self.small_var.alternative,
+                },
+            )
+            self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
+            self.assertEqual(response.status_code, 404)
+
+    def test_post_response_not_existing(self):
+        with self.login(self.user):
+            self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
+            response = self.client.post(
+                reverse(
+                    "variants:acmg-rating-api",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    AcmgCriteriaRatingFormDataFactory(
+                        release=self.small_var.release,
+                        chromosome=self.small_var.chromosome,
+                        position=self.small_var.position,
+                        reference=self.small_var.reference,
+                        alternative=self.small_var.alternative,
+                    )
+                ),
+            )
+            self.assertEqual(AcmgCriteriaRating.objects.count(), 1)
+            self.assertEqual(response.status_code, 200)
+
+    # TODO extend tests to check computed rating
+    def test_get_response_existing(self):
+        with self.login(self.user):
+            self.client.post(
+                reverse(
+                    "variants:acmg-rating-api",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    AcmgCriteriaRatingFormDataFactory(
+                        release=self.small_var.release,
+                        chromosome=self.small_var.chromosome,
+                        position=self.small_var.position,
+                        reference=self.small_var.reference,
+                        alternative=self.small_var.alternative,
+                        ps1=1,
+                    )
+                ),
+            )
+            response = self.client.get(
+                reverse(
+                    "variants:acmg-rating-api",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                {
+                    "release": self.small_var.release,
+                    "chromosome": self.small_var.chromosome,
+                    "position": self.small_var.position,
+                    "reference": self.small_var.reference,
+                    "alternative": self.small_var.alternative,
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["ps1"], 1)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["user"], self.user.id)
+
+    def test_post_response_existing(self):
+        with self.login(self.user):
+            self.client.post(
+                reverse(
+                    "variants:acmg-rating-api",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    AcmgCriteriaRatingFormDataFactory(
+                        release=self.small_var.release,
+                        chromosome=self.small_var.chromosome,
+                        position=self.small_var.position,
+                        reference=self.small_var.reference,
+                        alternative=self.small_var.alternative,
+                        ps1=1,
+                    )
+                ),
+            )
+            response = self.client.post(
+                reverse(
+                    "variants:acmg-rating-api",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    AcmgCriteriaRatingFormDataFactory(
+                        release=self.small_var.release,
+                        chromosome=self.small_var.chromosome,
+                        position=self.small_var.position,
+                        reference=self.small_var.reference,
+                        alternative=self.small_var.alternative,
+                        ps2=1,
+                    )
+                ),
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["ps1"], 0)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["ps2"], 1)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["user"], self.user.id)
+
+    def test_post_provoke_form_error(self):
+        with self.login(self.user), self.assertRaises(Exception):
+            self.client.post(
+                reverse(
+                    "variants:acmg-rating-api",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    AcmgCriteriaRatingFormDataFactory(
+                        release=self.small_var.release,
+                        chromosome=self.small_var.chromosome,
+                        position=self.small_var.position,
+                        reference=self.small_var.reference,
+                        alternative=self.small_var.alternative,
+                        ps1="I'm supposed to be an integer!",
+                    )
+                ),
+            )
+
+
+class TestNewFeaturesView(ViewTestBase):
+    """Test NewFeaturesView."""
+
+    def test_response(self):
+        with self.login(self.user):
+            response = self.client.get(reverse("variants:new-features"))
+            self.assertEqual(response.status_code, 302)
+            self.assertEqual(response.url, "/manual/history.html")
+            o = ProjectSetting.objects.get(user=self.user, name="latest_version_seen_changelog")
+            self.assertEqual(o.value, site_version())

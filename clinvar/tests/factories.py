@@ -134,8 +134,6 @@ class ProcessedClinvarFormDataFactory:
     database_select: str = "refseq"
     # Genotypes
     compound_recessive_enabled: bool = False
-    # Limit on number of rows
-    result_rows_limit: int = 500
     # Filter selection for form.
     flag_bookmarked: bool = True
     flag_candidate: bool = True
@@ -186,7 +184,7 @@ class ProcessedClinvarFormDataFactory:
 
 @attr.s(auto_attribs=True)
 class ClinvarFormDataFactory(ProcessedClinvarFormDataFactory):
-    result_rows_limit: int = 80
+    result_rows_limit: int = 500
     submit: str = "display"
 
     def __attrs_post_init__(self):

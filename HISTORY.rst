@@ -31,6 +31,7 @@ Full Change List
 - Improved render speed of case list.
 - Fixing UCSC binning overlap queries.
 - Adding "For research use only" to login screen.
+- Increased view test coverage to 100%.
 
 -------
 v0.15.0

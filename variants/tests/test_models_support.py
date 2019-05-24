@@ -2243,8 +2243,6 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
 class CaseThreeClinvarMembershipFilterTestMixin:
     """Base class for testing query with ClinvarMembership filter."""
 
-    # TODO: add similar tests for HgmdPublicLocus
-
     check_result_rows = None
     query_class = None
     run_query_function = None

@@ -1,28 +1,15 @@
 """Common helper code for tests"""
 
 import aldjemy.core
-from django.core.exceptions import ImproperlyConfigured
 from django.test import RequestFactory
 from test_plus.test import TestCase
 
 from clinvar.tests.factories import ProcessedClinvarFormDataFactory
-from .factories import ProcessedFormDataFactory, FormDataFactory
+from .factories import ProcessedFormDataFactory
 from ..models import Case, CaseAwareProject
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
-
-
-def _create_gt_entry(name):
-    return {
-        "%s_fail" % name: "ignore",
-        "%s_gt" % name: "any",
-        "%s_dp_het" % name: 0,
-        "%s_dp_hom" % name: 0,
-        "%s_ab" % name: 0,
-        "%s_gq" % name: 0,
-        "%s_ad" % name: 0,
-    }
 
 
 class TestBase(TestCase):
@@ -72,10 +59,6 @@ class SupportQueryTestBase(TestBase):
     """Base class for model support queries."""
 
     def _get_fetch_and_query(self, query_class, cleaned_data_patch, query_type="case"):
-        patched_cleaned_data = {
-            **vars(ProcessedFormDataFactory()),
-            **vars(ProcessedClinvarFormDataFactory()),
-        }
         engine = SQLALCHEMY_ENGINE
 
         def fetch_case_and_query():
@@ -87,17 +70,13 @@ class SupportQueryTestBase(TestBase):
                     obj = Case.objects.first()
                 else:
                     obj = Case.objects.get(sodar_uuid=cleaned_data_patch["case_uuid"])
-                # TODO: technically this is not required anymore. ... .... .. ....
-                if obj.name.endswith("singleton"):
-                    patched_cleaned_data.update(_create_gt_entry(obj.index))
-                else:
-                    for member in obj.get_members():
-                        patched_cleaned_data.update(_create_gt_entry(member))
             else:  # query_type == "project"
                 obj = CaseAwareProject.objects.first()
-                for record in obj.get_filtered_pedigree_with_samples():
-                    patched_cleaned_data.update(_create_gt_entry(record["patient"]))
-            patched_cleaned_data.update(cleaned_data_patch)
+            patched_cleaned_data = {
+                **vars(ProcessedFormDataFactory(names=obj.get_members())),
+                **vars(ProcessedClinvarFormDataFactory(names=obj.get_members())),
+                **cleaned_data_patch,
+            }
             previous_query = patched_cleaned_data.get("filter_job_id", None)
             patched_cleaned_data["sodar_uuid"] = obj.sodar_uuid
             if previous_query:
