@@ -2,9 +2,11 @@
 History / Changelog
 ===================
 
-----
-HEAD
-----
+-------
+v0.15.1
+-------
+
+A bug fix release for SV filtration (fixing overlaps).
 
 End-User Summary
 ================
