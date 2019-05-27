@@ -13,6 +13,7 @@ End-User Summary
 - Showing small and structural variant count for each case.
 - Improving layout of case list (adding sorting and filtering).
 - Improved render speed of case list.
+- Fixng problem with interval overlaps for structural variant queries.
 
 Full Change List
 ================
@@ -26,6 +27,7 @@ Full Change List
 - Also interpreting phased diploid genotypes.
 - Improving layout of case list (adding sorting and filtering).
 - Improved render speed of case list.
+- Fixing UCSC binning overlap queries.
 
 -------
 v0.15.0

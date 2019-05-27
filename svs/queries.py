@@ -1,5 +1,5 @@
 """SQL Alchemy--based building of queries."""
-
+from sqlalchemy import column
 from sqlalchemy.sql import select, func, and_, or_, not_, true, cast, any_, case
 from sqlalchemy.sql.functions import coalesce
 from sqlalchemy.types import Integer, Float
@@ -231,9 +231,12 @@ class PublicDatabaseFrequencyTermFilterMixin:
                         # StructuralVariant.sa.sv_type == model.sa.sv_type,
                         StructuralVariant.sa.release == model.sa.release,
                         StructuralVariant.sa.chromosome == model.sa.chromosome,
-                        or_(
-                            model.sa.bin == any_(StructuralVariant.sa.containing_bins),
-                            any_(model.sa.containing_bins) == StructuralVariant.sa.bin,
+                        model.sa.bin.in_(
+                            select([column("bin")]).select_from(
+                                func.overlapping_bins(
+                                    StructuralVariant.sa.start - 1, StructuralVariant.sa.end
+                                )
+                            )
                         ),
                         StructuralVariant.sa.end >= model_start,
                         StructuralVariant.sa.start <= model_end,
@@ -295,7 +298,9 @@ def overlap_term(lhs, rhs, min_overlap):
     return and_(
         lhs.sa.release == rhs.sa.release,
         lhs.sa.chromosome == rhs.sa.chromosome,
-        rhs.sa.bin == any_(lhs.sa.containing_bins),
+        rhs.sa.bin.in_(
+            select([column("bin")]).select_from(func.overlapping_bins(lhs.sa.start - 1, lhs.sa.end))
+        ),
         lhs.sa.end >= rhs.sa.start,
         lhs.sa.start <= rhs.sa.end,
         lhs.sa.sv_type == rhs.sa.sv_type,
@@ -446,9 +451,12 @@ class GenesInIntervalsTermWhereMixin:
                         TadInterval.sa.tad_set_id == set_pk,
                         TadInterval.sa.release == StructuralVariant.sa.release,
                         TadInterval.sa.chromosome == StructuralVariant.sa.chromosome,
-                        or_(
-                            TadInterval.sa.bin == any_(StructuralVariant.sa.containing_bins),
-                            StructuralVariant.sa.bin == any_(TadInterval.sa.containing_bins),
+                        TadInterval.sa.bin.in_(
+                            select([column("bin")]).select_from(
+                                func.overlapping_bins(
+                                    StructuralVariant.sa.start - 1, StructuralVariant.sa.end
+                                )
+                            )
                         ),
                         TadInterval.sa.end >= StructuralVariant.sa.start,
                         TadInterval.sa.start <= StructuralVariant.sa.end,
@@ -460,9 +468,10 @@ class GenesInIntervalsTermWhereMixin:
                     GeneInterval.sa.database == kwargs["database_select"],
                     TadInterval.sa.release == GeneInterval.sa.release,
                     TadInterval.sa.chromosome == GeneInterval.sa.chromosome,
-                    or_(
-                        any_(TadInterval.sa.containing_bins) == GeneInterval.sa.bin,
-                        any_(GeneInterval.sa.containing_bins) == TadInterval.sa.bin,
+                    GeneInterval.sa.bin.in_(
+                        select([column("bin")]).select_from(
+                            func.overlapping_bins(TadInterval.sa.start - 1, TadInterval.sa.end)
+                        )
                     ),
                     TadInterval.sa.end >= GeneInterval.sa.start,
                     TadInterval.sa.start <= GeneInterval.sa.end,
@@ -526,9 +535,12 @@ class IntervalCenterDistanceTermWhereMixin:
                     TadBoundaryInterval.sa.tad_set_id == set_pk,
                     TadBoundaryInterval.sa.release == StructuralVariant.sa.release,
                     TadBoundaryInterval.sa.chromosome == StructuralVariant.sa.chromosome,
-                    or_(
-                        TadBoundaryInterval.sa.bin == any_(StructuralVariant.sa.containing_bins),
-                        StructuralVariant.sa.bin == any_(TadBoundaryInterval.sa.containing_bins),
+                    TadBoundaryInterval.sa.bin.in_(
+                        select([column("bin")]).select_from(
+                            func.overlapping_bins(
+                                StructuralVariant.sa.start - 1, StructuralVariant.sa.end
+                            )
+                        )
                     ),
                     TadBoundaryInterval.sa.end >= StructuralVariant.sa.start,
                     TadBoundaryInterval.sa.start <= StructuralVariant.sa.end,
@@ -583,11 +595,12 @@ class EnsemblRegulatoryOverlapsTermWhereMixin:
                 and_(
                     EnsemblRegulatoryFeature.sa.release == StructuralVariant.sa.release,
                     EnsemblRegulatoryFeature.sa.chromosome == StructuralVariant.sa.chromosome,
-                    or_(
-                        EnsemblRegulatoryFeature.sa.bin
-                        == any_(StructuralVariant.sa.containing_bins),
-                        StructuralVariant.sa.bin
-                        == any_(EnsemblRegulatoryFeature.sa.containing_bins),
+                    EnsemblRegulatoryFeature.sa.bin.in_(
+                        select([column("bin")]).select_from(
+                            func.overlapping_bins(
+                                StructuralVariant.sa.start - 1, StructuralVariant.sa.end
+                            )
+                        )
                     ),
                     EnsemblRegulatoryFeature.sa.end >= StructuralVariant.sa.start,
                     EnsemblRegulatoryFeature.sa.start <= StructuralVariant.sa.end,
@@ -656,9 +669,12 @@ class VistaEnhancerOverlapsTermWhereMixin:
                 and_(
                     VistaEnhancer.sa.release == StructuralVariant.sa.release,
                     VistaEnhancer.sa.chromosome == StructuralVariant.sa.chromosome,
-                    or_(
-                        VistaEnhancer.sa.bin == any_(StructuralVariant.sa.containing_bins),
-                        StructuralVariant.sa.bin == any_(VistaEnhancer.sa.containing_bins),
+                    VistaEnhancer.sa.bin.in_(
+                        select([column("bin")]).select_from(
+                            func.overlapping_bins(
+                                StructuralVariant.sa.start - 1, StructuralVariant.sa.end
+                            )
+                        )
                     ),
                     VistaEnhancer.sa.end >= StructuralVariant.sa.start,
                     VistaEnhancer.sa.start <= StructuralVariant.sa.end,
@@ -769,7 +785,6 @@ class FilterQueryRenderFieldsMixin(JoinHgncMixin):
                 StructuralVariant.sa.release,
                 StructuralVariant.sa.chromosome,
                 StructuralVariant.sa.bin,
-                StructuralVariant.sa.containing_bins,
                 StructuralVariant.sa.start,
                 StructuralVariant.sa.end,
                 (StructuralVariant.sa.end - StructuralVariant.sa.start + 1).label("sv_length"),
@@ -858,9 +873,10 @@ def best_matching_flags(sa_engine, case_id, sv_uuid, min_overlap=0.95):
                 StructuralVariantFlags.sa.case_id == case_id,
                 StructuralVariantFlags.sa.release == sv.release,
                 StructuralVariantFlags.sa.chromosome == sv.chromosome,
-                or_(
-                    StructuralVariantFlags.sa.bin == any_(sv.containing_bins),
-                    any_(StructuralVariantFlags.sa.containing_bins) == sv.bin,
+                StructuralVariantFlags.sa.bin.in_(
+                    select([column("bin")]).select_from(
+                        func.overlapping_bins(sv.sa.start - 1, sv.sa.end)
+                    )
                 ),
                 StructuralVariantFlags.sa.end >= sv.start,
                 StructuralVariantFlags.sa.start <= sv.end,
