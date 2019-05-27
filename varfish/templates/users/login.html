@@ -1,1 +1,47 @@
-{% extends 'projectroles/login.html' %}
+{# Custom login page based on SODAR Core v0.4.1 #}
+
+{% extends 'base.html' %}
+{% load static %}
+{% load projectroles_tags %}
+{% load projectroles_common_tags %}
+
+{% get_setting 'SITE_INSTANCE_TITLE' as site_title %}
+
+{% block title %}Login{% endblock title %}
+
+{% block content %}
+<div class="container-fluid">
+
+  {# Django messages / site app messages #}
+  {% include 'projectroles/_messages.html' %}
+
+  {# Display error if login was unsuccessful. #}
+  {% if request.POST %}
+  <div class="alert alert-danger sodar-alert-top">
+     Login failed. Please make sure the user name, domain and password are correct.
+     <a href="#" class="pull-right sodar-alert-close-link"><i class="fa fa-close text-muted"></i></a>
+  </div>
+  {% endif %}
+
+  <div class="col-md-4 mx-auto my-5">
+    <h2 class="sodar-pr-content-title">Log In</h2>
+
+    {% autoescape off %}
+      {% get_login_info %}
+    {% endautoescape %}
+
+    <form class="form-signin" method="post" id="sodar-form-login">
+      {% csrf_token %}
+      <input type="text" name="username" id="sodar-login-username" class="form-control" placeholder="username@DOMAIN" required autofocus>
+      <input type="password" name="password" id="sodar-login-password" class="form-control my-sm-2 mb-sm-2" placeholder="Password" required>
+      <button class="btn btn-md btn-primary btn-block" type="submit" id="sodar-login-submit"><i class="fa fa-sign-in"></i> Log In</button>
+    </form>
+
+    <p class="text-muted text-right mt-3">
+      <small>
+        VarFish v{% site_version %} - For research use only.
+      </small>
+    </p>
+  </div>
+</div>
+{% endblock content %}

@@ -28,6 +28,7 @@ Full Change List
 - Improving layout of case list (adding sorting and filtering).
 - Improved render speed of case list.
 - Fixing UCSC binning overlap queries.
+- Adding "For research use only" to login screen.
 
 -------
 v0.15.0
