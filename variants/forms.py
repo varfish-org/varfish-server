@@ -1025,7 +1025,7 @@ class SmallVariantGenomicRegionFilterFormMixin:
             if entry_:
                 m = re.match("^(?:chr)?([0-9MTXY])+:([0-9,]+)-([0-9,]+)$", entry_)
                 if m:
-                    results.append((m[0], int(m[1].replace(",", "")), int(m[2].replace(",", ""))))
+                    results.append((m[1], int(m[2].replace(",", "")), int(m[3].replace(",", ""))))
                 else:
                     malformed.append(entry_)
         if malformed:

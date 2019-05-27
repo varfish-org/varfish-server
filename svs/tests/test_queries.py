@@ -682,15 +682,15 @@ class GeneInIntervalsAnnotationQueryTest(QueryTestBase):
                 tad_set=self.tad_set,
                 release=self.tad.release,
                 chromosome=self.tad.chromosome,
-                start=self.tad.start - 10_000,
-                end=self.tad.start + 10_000,
+                start=self.tad.start - 10000,
+                end=self.tad.start + 10000,
             ),
             TadBoundaryIntervalFactory(
                 tad_set=self.tad_set,
                 release=self.tad.release,
                 chromosome=self.tad.chromosome,
-                start=self.tad.end - 10_000,
-                end=self.tad.end + 10_000,
+                start=self.tad.end - 10000,
+                end=self.tad.end + 10000,
             ),
         )
         self.svs = [
@@ -698,8 +698,8 @@ class GeneInIntervalsAnnotationQueryTest(QueryTestBase):
                 case=self.case,
                 release=self.tad.release,
                 chromosome=self.tad.chromosome,
-                start=self.tad.start + 10_000,
-                end=self.tad.start + 15_000,
+                start=self.tad.start + 10000,
+                end=self.tad.start + 15000,
             )
         ]
 
@@ -713,8 +713,8 @@ class GeneInIntervalsAnnotationQueryTest(QueryTestBase):
         gene = GeneIntervalFactory(
             release=self.tad.release,
             chromosome=self.tad.chromosome,
-            start=self.tad.start + 20_000,
-            end=self.tad.start + 25_000,
+            start=self.tad.start + 20000,
+            end=self.tad.start + 25000,
             database="refseq",
         )
         hgnc = HgncFactory(entrez_id=gene.gene_id)
@@ -729,8 +729,8 @@ class GeneInIntervalsAnnotationQueryTest(QueryTestBase):
         gene = GeneIntervalFactory(
             release=self.tad.release,
             chromosome=self.tad.chromosome,
-            start=self.tad.start + 20_000,
-            end=self.tad.start + 25_000,
+            start=self.tad.start + 20000,
+            end=self.tad.start + 25000,
             database="refseq",
         )
         hgnc = HgncFactory(entrez_id=gene.gene_id)
@@ -745,8 +745,8 @@ class GeneInIntervalsAnnotationQueryTest(QueryTestBase):
         gene = GeneIntervalFactory(
             release=self.tad.release,
             chromosome=self.tad.chromosome,
-            start=self.tad.start + 20_000,
-            end=self.tad.start + 25_000,
+            start=self.tad.start + 20000,
+            end=self.tad.start + 25000,
             database="ensembl",
         )
         hgnc = HgncFactory(ensembl_gene_id=gene.gene_id)
@@ -761,8 +761,8 @@ class GeneInIntervalsAnnotationQueryTest(QueryTestBase):
         gene = GeneIntervalFactory(
             release=self.tad.release,
             chromosome=self.tad.chromosome,
-            start=self.tad.start + 20_000,
-            end=self.tad.start + 25_000,
+            start=self.tad.start + 20000,
+            end=self.tad.start + 25000,
             database="ensembl",
         )
         hgnc = HgncFactory(ensembl_gene_id=gene.gene_id)
@@ -777,8 +777,8 @@ class GeneInIntervalsAnnotationQueryTest(QueryTestBase):
         GeneIntervalFactory(
             release=self.tad.release,
             chromosome=self.tad.chromosome,
-            start=self.tad.end + 20_000,
-            end=self.tad.end + 25_000,
+            start=self.tad.end + 20000,
+            end=self.tad.end + 25000,
         )
         result = self.run_query(SingleCaseFilterQuery, {}, 1, tad_set=self.tad_set)
         result = list(result)
@@ -799,15 +799,15 @@ class DistanceToTadBoundaryAnnotationQueryTest(QueryTestBase):
                 tad_set=self.tad_set,
                 release=self.tad.release,
                 chromosome=self.tad.chromosome,
-                start=self.tad.start - 10_000,
-                end=self.tad.start + 10_000,
+                start=self.tad.start - 10000,
+                end=self.tad.start + 10000,
             ),
             TadBoundaryIntervalFactory(
                 tad_set=self.tad_set,
                 release=self.tad.release,
                 chromosome=self.tad.chromosome,
-                start=self.tad.end - 10_000,
-                end=self.tad.end + 10_000,
+                start=self.tad.end - 10000,
+                end=self.tad.end + 10000,
             ),
         )
 
@@ -816,8 +816,8 @@ class DistanceToTadBoundaryAnnotationQueryTest(QueryTestBase):
             case=self.case,
             release=self.tad.release,
             chromosome=self.tad.chromosome,
-            start=self.tad_boundaries[0].start - 20_000,
-            end=self.tad_boundaries[0].start - 20_000 + 10,
+            start=self.tad_boundaries[0].start - 20000,
+            end=self.tad_boundaries[0].start - 20000 + 10,
         )
         result = self.run_query(SingleCaseFilterQuery, {}, 1, tad_set=self.tad_set)
         result = list(result)
@@ -841,7 +841,7 @@ class DistanceToTadBoundaryAnnotationQueryTest(QueryTestBase):
             release=self.tad.release,
             chromosome=self.tad.chromosome,
             start=self.tad_boundaries[0].start + 5000,
-            end=self.tad_boundaries[0].start + 15_000,
+            end=self.tad_boundaries[0].start + 15000,
         )
         result = self.run_query(SingleCaseFilterQuery, {}, 1, tad_set=self.tad_set)
         result = list(result)
