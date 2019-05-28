@@ -102,7 +102,7 @@ class Command(BaseCommand):
             options["path_feature_effects"] = list(
                 itertools.chain(*options["path_feature_effects"])
             )
-        options["path_variants"] = list(itertools.chain(*options["path_variants"]))
+        # options["path_variants"] = list(itertools.chain(*options["path_variants"]))
         # Perform the actual import.
         self._handle(*args, **options)
         if self.last_now:

@@ -18,6 +18,7 @@ Full Change List
 - Increased view test coverage to 100%.
 - Unification of gene information display between SVs and small variants.
 - Fixed bug that wrongly parsed genomic regions and resulted in filter reporting nothing while active.
+- Small fix to small variant import.
 
 -------
 v0.15.1
