@@ -56,7 +56,7 @@ class FilterBase:
         smallvariant_pks = [row["id"] for row in results]
         # Delete previously stored results (note: this only disassociates them, it doesn't delete objects itself.)
         self.variant_query.query_results.clear()
-        # Bulk-insert Many-to-Many relationship
+        # Bulk-insert Many-to-Many relationship. THE ORDER IS NOT NECESSARILY PRESERVED!!!
         self.variant_query.query_results.add(*smallvariant_pks)
 
     def _prioritize_gene_phenotype(self, results):

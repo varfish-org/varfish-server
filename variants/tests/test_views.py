@@ -2548,7 +2548,6 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
             self.assertEqual(AcmgCriteriaRating.objects.count(), 1)
             self.assertEqual(response.status_code, 200)
 
-    # TODO extend tests to check computed rating
     def test_get_response_existing(self):
         with self.login(self.user):
             self.client.post(
@@ -2563,7 +2562,7 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
                         position=self.small_var.position,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
-                        ps1=1,
+                        ps1=2,
                     )
                 ),
             )
@@ -2581,7 +2580,7 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
                 },
             )
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(json.loads(response.content.decode("utf-8"))["ps1"], 1)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["ps1"], 2)
             self.assertEqual(json.loads(response.content.decode("utf-8"))["user"], self.user.id)
 
     def test_post_response_existing(self):

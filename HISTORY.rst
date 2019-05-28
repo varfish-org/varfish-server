@@ -2,6 +2,21 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+End-User Summary
+================
+
+- Fixed broken genomic region filter.
+
+Full Change List
+================
+
+- Increased view test coverage to 100%.
+- Fixed bug that wrongly parsed genomic regions and resulted in filter reporting nothing while active.
+
 -------
 v0.15.1
 -------
@@ -16,7 +31,6 @@ End-User Summary
 - Improving layout of case list (adding sorting and filtering).
 - Improved render speed of case list.
 - Fixing problem with interval overlaps for structural variant queries.
-- Fixed broken genomic region filter.
 
 Full Change List
 ================
@@ -32,8 +46,6 @@ Full Change List
 - Improved render speed of case list.
 - Fixing UCSC binning overlap queries.
 - Adding "For research use only" to login screen.
-- Increased view test coverage to 100%.
-- Fixed bug that wrongly parsed genomic regions and resulted in filter reporting nothing while active.
 
 -------
 v0.15.0

@@ -1123,54 +1123,6 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
             2,
         )
 
-    def test_heterozygous_inhouse_limits_filter(self):
-        self.run_query(
-            PrefetchFilterQuery,
-            {
-                "inhouse_enabled": True,
-                "inhouse_carriers": None,
-                "inhouse_homozygous": None,
-                "inhouse_heterozygous": 2,
-            },
-            2,
-        )
-
-    def test_heterozygous_inhouse_limits_export(self):
-        self.run_query(
-            ExportTableFileFilterQuery,
-            {
-                "inhouse_enabled": True,
-                "inhouse_carriers": None,
-                "inhouse_homozygous": None,
-                "inhouse_heterozygous": 2,
-            },
-            2,
-        )
-
-    def test_heterozygous_inhouse_limits_vcf(self):
-        self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "inhouse_enabled": True,
-                "inhouse_carriers": None,
-                "inhouse_homozygous": None,
-                "inhouse_heterozygous": 2,
-            },
-            2,
-        )
-
-    def test_heterozygous_inhouse_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
-            {
-                "inhouse_enabled": True,
-                "inhouse_carriers": None,
-                "inhouse_homozygous": None,
-                "inhouse_heterozygous": 2,
-            },
-            2,
-        )
-
 
 class TestCaseOneQueryEffects(SupportQueryTestBase):
     """Test effects settings (just an excerpt. everything else would be madness."""
@@ -1189,8 +1141,8 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
     def test_effects_none_export(self):
         self.run_query(ExportTableFileFilterQuery, {"effects": []}, 0)
 
-    def test_effects_none_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"effects": []}, 0)
+    def test_effects_none_vcf(self):
+        self.run_query(ExportVcfFileFilterQuery, {"effects": []}, 0)
 
     def test_effects_none_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"effects": []}, 0)
@@ -1201,8 +1153,8 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
     def test_effects_one_export(self):
         self.run_query(ExportTableFileFilterQuery, {"effects": ["missense_variant"]}, 2)
 
-    def test_effects_one_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"effects": ["missense_variant"]}, 2)
+    def test_effects_one_vcf(self):
+        self.run_query(ExportVcfFileFilterQuery, {"effects": ["missense_variant"]}, 2)
 
     def test_effects_one_count(self):
         self.run_count_query(CountOnlyFilterQuery, {"effects": ["missense_variant"]}, 2)
@@ -1215,9 +1167,9 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
             ExportTableFileFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3
         )
 
-    def test_effects_two_export(self):
+    def test_effects_two_vcf(self):
         self.run_query(
-            ExportTableFileFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3
+            ExportVcfFileFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3
         )
 
     def test_effects_two_count(self):
@@ -1239,9 +1191,9 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
             3,
         )
 
-    def test_effects_all_export(self):
+    def test_effects_all_vcf(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            ExportVcfFileFilterQuery,
             {"effects": ["missense_variant", "stop_lost", "frameshift_variant"]},
             3,
         )
