@@ -17,8 +17,14 @@ from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateR
 from projectroles.plugins import get_backend_api
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 
+from geneinfo.views import get_gene_infos
 from .forms import FilterForm, StructuralVariantCommentForm, StructuralVariantFlagsForm
-from .models import StructuralVariantFlags, StructuralVariantComment, StructuralVariant
+from .models import (
+    StructuralVariantFlags,
+    StructuralVariantComment,
+    StructuralVariant,
+    StructuralVariantGeneAnnotation,
+)
 from .queries import SingleCaseFilterQuery, best_matching_flags
 from geneinfo.models import RefseqToHgnc, Hgnc, Hpo, HpoName, Mim2geneMedgen
 from variants.models import Case
@@ -131,21 +137,21 @@ class CaseFilterView(
         context_data = self.get_context_data()
         context_data["rows_by_sv"] = rows_by_sv
         context_data["database"] = form.cleaned_data["database_select"]
-        context_data["card_colspan"] = 16 + len(self.get_case_object().pedigree)
+        context_data["card_colspan"] = 18 + len(self.get_case_object().pedigree)
 
         return context_data
 
 
-class GeneDetailsView(
+class StructuralVariantDetailsView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
     DetailView,
 ):
-    """Display details for a list of genes, for the SV table card fold-out."""
+    """Display details of a structural variant, for SV result tablef old-out."""
 
-    template_name = "svs/gene_details.html"
+    template_name = "svs/sv_details.html"
     permission_required = "svs.view_data"
     model = Case
     slug_url_kwarg = "case"
@@ -153,38 +159,46 @@ class GeneDetailsView(
 
     def get_context_data(self, **kwargs):
         """Query for the gene detail and put into "genes"."""
-        genes_str = self.request.GET.get("genes", "")
-        context = super().get_context_data(**kwargs)
-        context["card_id"] = hashlib.sha224(genes_str.encode("utf-8")).hexdigest()
-        context["genes"] = list(self._yield_gene_infos(genes_str.split(",")))
-        return context
 
-    def _yield_gene_infos(self, entrez_ids):
-        for entrez_id in entrez_ids:
-            hgnc = RefseqToHgnc.objects.filter(entrez_id=entrez_id).first()
-            gene = None
-            # TODO: handle case of ENSEMBL ids?
-            if hgnc:
-                gene = Hgnc.objects.filter(hgnc_id=hgnc.hgnc_id).first()
-
-            if not gene:
-                yield {"entrez_id": entrez_id}
+        def gene_id(sv_anno):
+            """Extract gene ID from ``StructuralVariantGeneAnnotation``."""
+            # TODO: import empty gene annotations as ``None`` and not ``"."``.
+            if database == "refseq":
+                return sv_anno.refseq_gene_id
             else:
-                gene = model_to_dict(gene)
-                hpoterms = {self._get_hpo_mapping(gene["omim_id"])}
-                mim2gene = Mim2geneMedgen.objects.filter(entrez_id=gene["entrez_id"])
-                if mim2gene:
-                    for entry in mim2gene:
-                        hpoterms.add(self._get_hpo_mapping(entry.omim_id))
-                gene["hpo_terms"] = [h for h in hpoterms if h is not None]
-                yield gene
+                sv_anno.ensembl_gene_id
 
-    def _get_hpo_mapping(self, omim):
-        hpo = Hpo.objects.filter(database_id="OMIM:{}".format(omim)).first()
-        if hpo:
-            hponame = HpoName.objects.filter(hpo_id=hpo.hpo_id).first()
-            if hponame:
-                return hpo.hpo_id, hponame.name
+        context = super().get_context_data(**kwargs)
+        database = self.request.GET.get("database", "refseq")
+
+        sv = StructuralVariant.objects.filter(case_id=self.object.id).get(sv_uuid=self.kwargs["sv"])
+        context["card_id"] = hashlib.sha224(str(sv.sv_uuid).encode("utf-8")).hexdigest()
+        context["sv"] = sv
+        context["gt_keys"] = list(sv.genotype.values())[0]
+        context["gt_labels"] = {
+            "dq": "diploid quality",
+            "ndq": "non-diploid quality",
+            "rd": "normalized read-depth (Z-score)",
+            "pl": "likelihood diploid, del, dup",
+            "cn": "copy number estimate",
+            "npe": "normalized paired-endsupport",
+            "sre": "normalized split-read support",
+            "ns": "number of SNPs in region",
+            "har": "heterozygous allele ration",
+            "pec": "paired-read coverage",
+            "pev": "paired-read ALT",
+            "src": "split-read coverage",
+            "srv": "split-read ALT",
+            "gq": "genotype quality",
+        }
+
+        sv_annos = StructuralVariantGeneAnnotation.objects.filter(sv_uuid=self.kwargs["sv"])
+        context["genes"] = [
+            get_gene_infos(database, gene_id(sv_anno))
+            for sv_anno in sv_annos
+            if gene_id(sv_anno) and gene_id(sv_anno) != "."
+        ]
+        return context
 
 
 class StructuralVariantFlagsApiView(

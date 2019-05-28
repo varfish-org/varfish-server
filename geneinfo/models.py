@@ -1,6 +1,5 @@
 from django.db import models
 from postgres_copy import CopyManager
-from annotation.models import Annotation
 
 
 class Hgnc(models.Model):

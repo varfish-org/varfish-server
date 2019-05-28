@@ -2,7 +2,6 @@ from itertools import groupby, chain
 import json
 import uuid
 import contextlib
-import re
 
 import decimal
 import aldjemy.core
@@ -25,19 +24,9 @@ from projectroles.user_settings import set_user_setting
 from projectroles.templatetags.projectroles_common_tags import site_version
 
 from bgjobs.models import BackgroundJob
-from clinvar.models import Clinvar, ClinvarPathogenicGenes
-from geneinfo.models import (
-    Hgnc,
-    NcbiGeneInfo,
-    NcbiGeneRif,
-    Hpo,
-    HpoName,
-    Mim2geneMedgen,
-    RefseqToHgnc,
-    ExacConstraints,
-    GnomadConstraints,
-    EnsemblToRefseq,
-)
+from clinvar.models import Clinvar
+from geneinfo.views import get_gene_infos
+from geneinfo.models import NcbiGeneInfo, NcbiGeneRif, HpoName
 from frequencies.views import FrequencyMixin
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from projectroles.plugins import get_backend_api
@@ -96,9 +85,6 @@ from .tasks import (
 from .file_export import RowWithSampleProxy
 
 
-RE_OMIM_PARSER = re.compile("^(?:#\d+ )?(.+)$")
-
-
 class UUIDEncoder(json.JSONEncoder):
     """JSON encoder for UUIds"""
 
@@ -112,16 +98,6 @@ class UUIDEncoder(json.JSONEncoder):
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
-
-# Modes of inheritance in HPO: https://hpo.jax.org/app/browse/term/HP:0000005
-HPO_INHERITANCE_MAPPING = {
-    "HP:0000006": "AD",
-    "HP:0000007": "AR",
-    "HP:0010985": "Gonosomal",
-    "HP:0001417": "X-linked",
-    "HP:0001419": "XR",
-    "HP:0001423": "XD",
-}
 
 
 class AlchemyEngineMixin:
@@ -1496,90 +1472,6 @@ class SmallVariantDetails(
             result["pop_freqs"][label] = pop_freqs
         return result
 
-    def _get_gene_infos(self, kwargs):
-        if kwargs["database"] == "refseq":
-            # Get HGNC entry via intermediate table as HGNC is badly equipped with refseq IDs.
-            hgnc = RefseqToHgnc.objects.filter(entrez_id=kwargs["gene_id"]).first()
-            gene = None
-            if hgnc:
-                gene = Hgnc.objects.filter(hgnc_id=hgnc.hgnc_id).first()
-        else:
-            # We could also go via EnsemblToRefseq -> RefseqToHgnc -> Hgnc ???
-            gene = Hgnc.objects.filter(ensembl_gene_id=kwargs["gene_id"]).first()
-        if not gene:
-            return {
-                "entrez_id"
-                if kwargs["database"] == "refseq"
-                else "ensembl_gene_id": kwargs["gene_id"]
-            }
-        else:
-            gene = model_to_dict(gene)
-            if kwargs["database"] == "refseq":
-                ensembl_to_refseq = EnsemblToRefseq.objects.filter(
-                    entrez_id=kwargs["gene_id"]
-                ).first()
-                ensembl_gene_id = getattr(ensembl_to_refseq, "ensembl_gene_id", None)
-                gene["entrez_id"] = kwargs["gene_id"]
-            else:
-                ensembl_gene_id = kwargs["gene_id"]
-                hgnc = RefseqToHgnc.objects.filter(hgnc_id=gene["hgnc_id"]).first()
-                gene["entrez_id"] = getattr(hgnc, "entrez_id", None)
-            hpoterms, hpoinheritance, omim = self._handle_hpo_omim(gene["entrez_id"])
-            gene["omim"] = omim
-            gene["hpo_inheritance"] = list(hpoinheritance)
-            gene["hpo_terms"] = list(hpoterms)
-            gene["clinvar_pathogenicity"] = ClinvarPathogenicGenes.objects.filter(
-                entrez_id=gene["entrez_id"]
-            ).first()
-            if ensembl_gene_id:
-                gene["exac_constraints"] = self._get_exac_constraints(ensembl_gene_id)
-                gene["gnomad_constraints"] = GnomadConstraints.objects.filter(
-                    ensembl_gene_id=ensembl_gene_id
-                ).first()
-            return gene
-
-    def _get_exac_constraints(self, ensembl_gene_id):
-        results = EnsemblToRefseq.objects.filter(ensembl_gene_id=ensembl_gene_id)
-        ensembl_transcripts = [record.ensembl_transcript_id for record in results]
-        return ExacConstraints.objects.filter(ensembl_transcript_id__in=ensembl_transcripts).first()
-
-    def _handle_hpo_omim(self, entrez_id):
-        if entrez_id is None:
-            return [], [], None
-        mim2gene = Mim2geneMedgen.objects.filter(entrez_id=entrez_id)
-        omim = dict()
-        hpoterms = set()
-        hpointeritance = set()
-        for mim in mim2gene:
-            mapping = self._get_hpo_mapping(mim)
-            for record in mapping:
-                if record is not None:
-                    if record[0] in HPO_INHERITANCE_MAPPING:
-                        hpointeritance.add((record[0], HPO_INHERITANCE_MAPPING[record[0]]))
-                    else:
-                        hpoterms.add(record)
-                omim_type, omim_id, omim_name = next(mapping)
-                if omim_type == "phenotype":
-                    if omim_id in omim:
-                        if len(omim[omim_id]) < len(omim_name):
-                            omim[omim_id] = omim_name
-                    else:
-                        omim[omim_id] = omim_name
-        omim = {key: (value[0], value[1:]) for key, value in omim.items() if value}
-        return hpoterms, hpointeritance, omim
-
-    def _get_hpo_mapping(self, mim):
-        for h in Hpo.objects.filter(database_id="OMIM:{}".format(mim.omim_id)):
-            hponame = HpoName.objects.filter(hpo_id=h.hpo_id).first()
-            yield h.hpo_id, hponame.name if hponame else None
-            yield mim.omim_type, mim.omim_id, list(self._parse_omim_name(h.name))
-
-    def _parse_omim_name(self, name):
-        if name:
-            for s in name.split(";;"):
-                m = re.search(RE_OMIM_PARSER, s.split(";")[0])
-                yield m.group(1)
-
     def _load_variant_comments(self):
         return SmallVariantComment.objects.select_related("user").filter(
             case=self.object,
@@ -1612,7 +1504,7 @@ class SmallVariantDetails(
         else:
             result["base_template"] = "empty_base.html"
         result.update(self._get_population_freqs(self.kwargs))
-        result["gene"] = self._get_gene_infos(self.kwargs)
+        result["gene"] = get_gene_infos(self.kwargs["database"], self.kwargs["gene_id"])
         entrez_id = result["small_var"].refseq_gene_id
         result["ncbi_summary"] = NcbiGeneInfo.objects.filter(entrez_id=entrez_id).first()
         result["ncbi_gene_rifs"] = NcbiGeneRif.objects.filter(entrez_id=entrez_id).order_by("pk")

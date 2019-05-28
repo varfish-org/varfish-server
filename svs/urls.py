@@ -13,9 +13,9 @@ urlpatterns = [
     ),
     # Gene-wise details for each variant.
     url(
-        regex=r"^(?P<project>[0-9a-f-]+)/gene-details/(?P<case>[0-9a-f-]+)/$",
-        view=views.GeneDetailsView.as_view(),
-        name="gene-details",
+        regex=r"^(?P<project>[0-9a-f-]+)/sv-details/(?P<case>[0-9a-f-]+)/(?P<sv>[0-9a-f-]+)/$",
+        view=views.StructuralVariantDetailsView.as_view(),
+        name="sv-details",
     ),
     # API for accessing structural variant flags and comments.
     url(

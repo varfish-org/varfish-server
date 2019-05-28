@@ -6,7 +6,7 @@
 <tr class="variant-row {% if not training_mode %}variant-row-{{ first_entry|flag_class }}{% endif %}">
   {# fold-out #}
   <td class="clickable toggle-variant-details pl-0 pr-0"
-      data-url="{% url "svs:gene-details" project=project.sodar_uuid case=object.sodar_uuid %}?genes={{ entry.all_genes|join:"," }}"
+      data-url="{% url "svs:sv-details" project=project.sodar_uuid case=object.sodar_uuid sv=first_entry.sv_uuid %}?database={{ database }}"
       data-toggle="collapse" data-target="#variant-details-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="variant-details-{{ forloop.counter0 }}" aria-hidden="true">
     <i class="fa fa-fw fa-chevron-right"></i>
   </td>

@@ -1,0 +1,69 @@
+{% load dict %}
+{% load variants_tags %}
+{% load humanize %}
+
+<div class="row">
+  <div class="col-6">
+    <div class="row">
+      <div class="col mx-0 px-0">
+        <ul class="nav nav-pills mb-3" id="genes-{{ card_id }}-tab" role="tablist">
+          {% for gene in genes %}
+            <li class="nav-item">
+              <a class="nav-link {% if forloop.first %}active{% endif %}" id="genes-{{ card_id }}-{{ gene.entrez_id }}-tab" data-toggle="pill"
+                 href="#genes-{{ card_id }}-{{ gene.entrez_id }}" role="tab" aria-controls="genes-{{ card_id }}-home"
+                 aria-selected="true">{{ gene.symbol|default:gene.entrez_id }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <div class="tab-content" id="genes-{{ card_id }}-tab-content">
+          {% for gene in genes %}
+            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="genes-{{ card_id }}-{{ gene.entrez_id }}" role="tabpanel"
+                 aria-labelledby="genes-{{ card_id }}-{{ gene.entrez_id }}-tab">
+              <div class="row">
+                <div class="col mx-0 px-0">
+                  <div class="card">
+                    <div class="card-header">
+                      <h4 class="card-title">Gene</h4>
+                    </div>
+                    {% include "gene_info/gene_info.html" %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Genotype and Call Infos</h4>
+      </div>
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>Sample</th>
+            {% for sample in sv.genotype.keys %}
+              <th>{{ sample }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for key, title in gt_labels.items %}
+            {% if key in gt_keys %}
+              <tr>
+                <th>{{ title }}</th>
+                {% for genotype in sv.genotype.values %}
+                  <th>{{ genotype|keyvalue:key|default_if_none:"-"|intcomma }}</th>
+                {% endfor %}
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

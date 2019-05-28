@@ -1,78 +1,112 @@
-from django.shortcuts import render
-from django.core.exceptions import ObjectDoesNotExist
-from projectroles.views import ProjectContextMixin
-from django.forms.models import model_to_dict
-from django.views.generic import TemplateView
-from .models import Hgnc, Mim2geneMedgen, Hpo
-from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
+import re
+
+from django.forms import model_to_dict
+
+from clinvar.models import ClinvarPathogenicGenes
+from geneinfo.models import (
+    RefseqToHgnc,
+    EnsemblToRefseq,
+    Hgnc,
+    GnomadConstraints,
+    ExacConstraints,
+    Mim2geneMedgen,
+    Hpo,
+    HpoName,
+)
 
 
-class GeneCardMixin:
-    """Mixin for filling the different parts of the gene card template"""
+RE_OMIM_PARSER = re.compile("^(?:#\d+ )?(.+)$")
 
-    def _fill_hgnc_info(self, transcript_database, gene_id):
-        """Fill the HGNC info"""
-        try:
-            if transcript_database == "ensembl":
-                return model_to_dict(Hgnc.objects.get(ensembl_gene_id=gene_id))
-            else:
-                return model_to_dict(Hgnc.objects.get(entrez_id=gene_id))
-        except ObjectDoesNotExist:
-            return None
 
-    def _fill_kegg_info(self, transcript_database, gene_id):
-        """Fill the kegg info"""
-        if transcript_database == "ensembl":
-            kegg = EnsemblToKegg.objects.filter(gene_id=gene_id)
-        else:  # transcript_database == "refseq"
-            kegg = RefseqToKegg.objects.filter(gene_id=gene_id)
+# Modes of inheritance in HPO: https://hpo.jax.org/app/browse/term/HP:0000005
+HPO_INHERITANCE_MAPPING = {
+    "HP:0000006": "AD",
+    "HP:0000007": "AR",
+    "HP:0010985": "Gonosomal",
+    "HP:0001417": "X-linked",
+    "HP:0001419": "XR",
+    "HP:0001423": "XD",
+}
 
-        kegg_list = list()
-        for entry in kegg:
-            try:
-                kegg_list.append(model_to_dict(KeggInfo.objects.get(id=entry.kegginfo_id)))
-            except ObjectDoesNotExist:
-                pass
-        return kegg_list
 
-    def _fill_omim_info(self, hgnc):
-        """Fill the HPO/OMIM info"""
-        mim2genemedgen = None
-        hgncomim = None
-
+def get_gene_infos(database, gene_id):
+    if database == "refseq":
+        # Get HGNC entry via intermediate table as HGNC is badly equipped with refseq IDs.
+        hgnc = RefseqToHgnc.objects.filter(entrez_id=gene_id).first()
+        gene = None
         if hgnc:
-            # we can have multiple OMIM ids in this case
-            mim2genemedgen = dict()
-            for omim in Mim2geneMedgen.objects.filter(entrez_id=hgnc["entrez_id"]):
-                mimhpo_result = Hpo.objects.filter(database_id="OMIM:{}".format(omim.omim_id))
-                if mimhpo_result:
-                    mim2genemedgen[str(omim.omim_id)] = [
-                        model_to_dict(hpo) for hpo in mimhpo_result
-                    ]
+            gene = Hgnc.objects.filter(hgnc_id=hgnc.hgnc_id).first()
+    else:
+        # We could also go via EnsemblToRefseq -> RefseqToHgnc -> Hgnc ???
+        gene = Hgnc.objects.filter(ensembl_gene_id=gene_id).first()
+    if not gene:
+        return {"entrez_id" if database == "refseq" else "ensembl_gene_id": gene_id}
+    else:
+        gene = model_to_dict(gene)
+        if database == "refseq":
+            ensembl_to_refseq = EnsemblToRefseq.objects.filter(entrez_id=gene_id).first()
+            ensembl_gene_id = getattr(ensembl_to_refseq, "ensembl_gene_id", None)
+            gene["entrez_id"] = gene_id
+        else:
+            ensembl_gene_id = gene_id
+            hgnc = RefseqToHgnc.objects.filter(hgnc_id=gene["hgnc_id"]).first()
+            gene["entrez_id"] = getattr(hgnc, "entrez_id", None)
+        hpoterms, hpoinheritance, omim = _handle_hpo_omim(gene["entrez_id"])
+        gene["omim"] = omim
+        gene["hpo_inheritance"] = list(hpoinheritance)
+        gene["hpo_terms"] = list(hpoterms)
+        gene["clinvar_pathogenicity"] = ClinvarPathogenicGenes.objects.filter(
+            entrez_id=gene["entrez_id"]
+        ).first()
+        if ensembl_gene_id:
+            gene["exac_constraints"] = _get_exac_constraints(ensembl_gene_id)
+            gene["gnomad_constraints"] = GnomadConstraints.objects.filter(
+                ensembl_gene_id=ensembl_gene_id
+            ).first()
+        return gene
 
-            # in this case we just have a single omim id.
-            hgncomim = dict()
-            omimhpo_result = Hpo.objects.filter(database_id="OMIM:{}".format(hgnc["omim_id"]))
-            if omimhpo_result:
-                hgncomim[hgnc["omim_id"]] = [model_to_dict(hpo) for hpo in omimhpo_result]
 
-        return mim2genemedgen, hgncomim
+def _get_exac_constraints(ensembl_gene_id):
+    results = EnsemblToRefseq.objects.filter(ensembl_gene_id=ensembl_gene_id)
+    ensembl_transcripts = [record.ensembl_transcript_id for record in results]
+    return ExacConstraints.objects.filter(ensembl_transcript_id__in=ensembl_transcripts).first()
 
 
-class GeneView(ProjectContextMixin, GeneCardMixin, TemplateView):
-    """View for the gene information."""
+def _handle_hpo_omim(entrez_id):
+    if entrez_id is None:
+        return [], [], None
+    mim2gene = Mim2geneMedgen.objects.filter(entrez_id=entrez_id)
+    omim = dict()
+    hpoterms = set()
+    hpointeritance = set()
+    for mim in mim2gene:
+        mapping = _get_hpo_mapping(mim)
+        for record in mapping:
+            if record is not None:
+                if record[0] in HPO_INHERITANCE_MAPPING:
+                    hpointeritance.add((record[0], HPO_INHERITANCE_MAPPING[record[0]]))
+                else:
+                    hpoterms.add(record)
+            omim_type, omim_id, omim_name = next(mapping)
+            if omim_type == "phenotype":
+                if omim_id in omim:
+                    if len(omim[omim_id]) < len(omim_name):
+                        omim[omim_id] = omim_name
+                else:
+                    omim[omim_id] = omim_name
+    omim = {key: (value[0], value[1:]) for key, value in omim.items() if value}
+    return hpoterms, hpointeritance, omim
 
-    template_name = "geneinfo/gene.html"
 
-    def get(self, *args, **kwargs):
-        kwargs_copy = dict(kwargs)
-        gene_id = kwargs_copy["gene_id"]
-        transcript_database = "ensembl" if kwargs_copy["gene_id"].startswith("ENSG") else "refseq"
+def _get_hpo_mapping(mim):
+    for h in Hpo.objects.filter(database_id="OMIM:{}".format(mim.omim_id)):
+        hponame = HpoName.objects.filter(hpo_id=h.hpo_id).first()
+        yield h.hpo_id, hponame.name if hponame else None
+        yield mim.omim_type, mim.omim_id, list(_parse_omim_name(h.name))
 
-        kwargs_copy["hgnc"] = self._fill_hgnc_info(transcript_database, gene_id)
-        kwargs_copy["kegg"] = self._fill_kegg_info(transcript_database, gene_id)
-        kwargs_copy["mim2genemedgen"], kwargs_copy["hgncomim"] = self._fill_omim_info(
-            kwargs_copy["hgnc"]
-        )
 
-        return render(self.request, self.template_name, self.get_context_data(**kwargs_copy))
+def _parse_omim_name(name):
+    if name:
+        for s in name.split(";;"):
+            m = re.search(RE_OMIM_PARSER, s.split(";")[0])
+            yield m.group(1)

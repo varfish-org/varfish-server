@@ -1,0 +1,200 @@
+{# Render gene details with information from get_gene_infos() #}
+<table class="card-body table table-striped table-sm">
+  <tbody>
+    <tr>
+      <th class="text-right">Entrez ID</th>
+      <td>{{ gene.entrez_id }}</td>
+    </tr>
+    <tr>
+      <th class="text-right">ENSEMBL ID</th>
+      <td>{{ gene.ensembl_gene_id }}</td>
+    </tr>
+    <tr>
+      <th class="text-right">Symbol</th>
+      <td>{{ gene.symbol }}</td>
+    </tr>
+    <tr>
+      <th class="text-right">Alias Symbol</th>
+      <td>{{ gene.alias_symbol|default:"<div class='text-muted text-center'><i>No alias symbol available.</i></div>" }}</td>
+    </tr>
+    <tr>
+      <th class="text-right">Name</th>
+      <td>{{ gene.name }}</td>
+    </tr>
+    <tr>
+      <th class="text-right">Alias Names</th>
+      <td>{{ gene.alias_name|default:"<div class='text-muted text-center'><i>No alias name available.</i></div>" }}</td>
+    </tr>
+    <tr>
+      <th class="text-right">Gene Family</th>
+      <td>{{ gene.gene_family|default:"<div class='text-muted text-center'><i>No gene family information available.</i></div>" }}</td>
+    </tr>
+    <tr>
+      <th class="text-right">Constraints</th>
+      <td>
+        {% if gene.exac_constraints or gene.gnomad_constraints %}
+          <table class="table">
+            <tr>
+              <th></th>
+              <th>Category</th>
+              <th>Exp. # SNVs</th>
+              <th>Obs. # SNVs</th>
+              <th>Z</th>
+              <th>o/e</th>
+            </tr>
+            {% if gene.exac_constraints %}
+            <tr>
+              <th rowspan="3">ExAC</th>
+              <th>Synonymous</th>
+              <td class="text-right">{{ gene.exac_constraints.exp_syn|floatformat }}</td>
+              <td class="text-right">{{ gene.exac_constraints.n_syn }}</td>
+              <td class="text-right">{{ gene.exac_constraints.syn_z|floatformat }}</td>
+              <td class="text-right">-</td>
+            </tr>
+            <tr>
+              <th>Missense</th>
+              <td class="text-right">{{ gene.exac_constraints.exp_mis|floatformat }}</td>
+              <td class="text-right">{{ gene.exac_constraints.n_mis }}</td>
+              <td class="text-right">{{ gene.exac_constraints.mis_z|floatformat }}</td>
+              <td class="text-right">-</td>
+            </tr>
+            <tr>
+              <th>LoF</th>
+              <td class="text-right">{{ gene.exac_constraints.exp_lof|floatformat }}</td>
+              <td class="text-right">{{ gene.exac_constraints.n_lof }}</td>
+              <td class="text-right">{{ gene.exac_constraints.lof_z|floatformat }}</td>
+              <td class="text-right">-</td>
+            </tr>
+            {% else %}
+            <tr>
+              <th>ExAC</th>
+              <td colspan="5" class="text-center text-muted">
+                <i>No ExAC constraint information.</i>
+              </td>
+            </tr>
+            {% endif %}
+            {% if gene.gnomad_constraints %}
+            <tr>
+              <th rowspan="3">gnomAD</th>
+              <th>Synonymous</th>
+              <td class="text-right">{{ gene.gnomad_constraints.exp_syn|floatformat }}</td>
+              <td class="text-right">{{ gene.gnomad_constraints.obs_syn }}</td>
+              <td class="text-right">{{ gene.gnomad_constraints.syn_z|floatformat }}</td>
+              <td class="text-right">{{ gene.gnomad_constraints.oe_syn|floatformat }}</td>
+            </tr>
+            <tr>
+              <th>Missense</th>
+              <td class="text-right">{{ gene.gnomad_constraints.exp_mis|floatformat }}</td>
+              <td class="text-right">{{ gene.gnomad_constraints.obs_mis }}</td>
+              <td class="text-right">{{ gene.gnomad_constraints.mis_z|floatformat }}</td>
+              <td class="text-right">{{ gene.gnomad_constraints.oe_mis|floatformat }}</td>
+            </tr>
+            <tr>
+              <th>LoF</th>
+              <td class="text-right">{{ gene.gnomad_constraints.exp_lof|floatformat }}</td>
+              <td class="text-right">{{ gene.gnomad_constraints.obs_lof }}</td>
+              <td class="text-right">{{ gene.gnomad_constraints.lof_z|floatformat }}</td>
+              <td class="text-right">{{ gene.gnomad_constraints.oe_lof|floatformat }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <th>gnomAD</th>
+              <td colspan="5" class="text-center text-muted">
+                <i>No gnomAD constraint information.</i>
+              </td>
+            </tr>
+            {% endif %}
+          </table>
+        {% else %}
+          <div class="text-center text-muted">
+            <i>No constraint information.</i>
+          </div>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th class="text-right">ClinVar</th>
+      <td>
+        {% if gene.clinvar_pathogenicity %}
+          {% if gene.clinvar_pathogenicity.pathogenic_count %}
+            <span class="badge-group">
+              <span class="badge badge-light"># PATHOGENIC VARIANTS</span>
+              <span class="badge badge-danger">{{ gene.clinvar_pathogenicity.pathogenic_count }}</span>
+            </span>
+          {% endif %}
+          {% if gene.clinvar_pathogenicity.likely_pathogenic_count %}
+            <span class="badge-group">
+              <span class="badge badge-light"># LIKELY PATHOGENIC VARIANTS</span>
+              <span class="badge badge-warning">{{ gene.clinvar_pathogenicity.likely_pathogenic_count }}</span>
+            </span>
+          {% endif %}
+        {% else %}
+          <div class="text-muted text-center"><i>No ClinVar information available.</i></div>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th class="text-right">NCBI Summary</th>
+      <td>
+        <div style="max-height: 150px; overflow-y: auto;">
+          {{ ncbi_summary.summary|default:"<div class='text-muted text-center'><i>No NCBI information available.</i></div>" }}
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th class="text-right">Gene RIFs</th>
+      <td>
+        {% if ncbi_gene_rifs %}
+          <ul class="pl-3" style="max-height: 150px; overflow-y: auto;">
+            {% for gene_rif in ncbi_gene_rifs %}
+              <li>{{ gene_rif.rif_text }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-center text-muted">
+            <i>No Reference-into-Function Information available.</i>
+          </div>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th class="text-right">HPO Terms</th>
+      <td>
+        {% if not gene.hpo_terms and not gene.hpo_inheritance %}
+          <div class="text-muted text-center"><i>No HPO information available.</i></div>
+        {% else %}
+          {% if gene.hpo_inheritance %}
+            <div class="float-right">
+            {% for hpo_id, mode in gene.hpo_inheritance %}
+              <span class="badge badge-info" data-toggle="tooltip" title="{{ hpo_id }}">{{ mode }}</span>
+            {% endfor %}
+            </div>
+          {% endif %}
+          {% if gene.hpo_terms %}
+            {% for hpo_id, hpo_name in gene.hpo_terms %}
+              <a href="https://hpo.jax.org/app/browse/term/{{ hpo_id }}" target="_blank"><span class="badge-group">
+                <span class="badge badge-dark">{{ hpo_id }}</span><span class="badge badge-secondary">{{ hpo_name }}</span>
+              </span></a>
+            {% endfor %}
+          {% endif %}
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th class="text-right">OMIM</th>
+      <td>
+        {% if gene.omim %}
+          {% for omim_id, omim_names in gene.omim.items %}
+            <a href="#">
+            <span class="badge-group omim-popover"
+                  data-toggle="popover" title="{% if omim_names.1 %}<ul class='pl-3 pb-0 mb-0'><li>{{ omim_names.1|join:"</li><li>" }}</li></ul>{% else %}<em>No alternative description</em>{% endif %}" data-content="<a href='https://www.omim.org/entry/{{ omim_id }}' target='_blank' class='btn btn-secondary'><i class='fa fa-external-link'></i> View in OMIM</a>" data-html="true">
+            <span class="badge badge-dark">{{ omim_id }}</span>
+            <span class="badge badge-secondary">{{ omim_names.0 }}</span></span></a>
+          {% endfor %}
+        {% else %}
+          <div class="text-muted text-center"><i>No OMIM information available.</i></div>
+        {% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>

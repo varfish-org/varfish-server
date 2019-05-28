@@ -10,11 +10,13 @@ End-User Summary
 ================
 
 - Fixed broken genomic region filter.
+- Making gene information in SV results consistent with display in small variant results.
 
 Full Change List
 ================
 
 - Increased view test coverage to 100%.
+- Unification of gene information display between SVs and small variants.
 - Fixed bug that wrongly parsed genomic regions and resulted in filter reporting nothing while active.
 
 -------
@@ -46,6 +48,10 @@ Full Change List
 - Improved render speed of case list.
 - Fixing UCSC binning overlap queries.
 - Adding "For research use only" to login screen.
+<<<<<<< HEAD
+=======
+- Increased view test coverage to 100%.
+>>>>>>> Unify code for gene display between SVs and small vars.
 
 -------
 v0.15.0
