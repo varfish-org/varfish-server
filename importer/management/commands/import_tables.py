@@ -2,6 +2,7 @@ import os
 import tempfile
 
 import binning
+from django.core.exceptions import FieldDoesNotExist, FieldError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
@@ -157,9 +158,9 @@ class Command(BaseCommand):
                 )
 
                 if table_group == "kegg":
-                    self._import_kegg(version_path, TABLES[table_group])
+                    self._import_kegg(version_path, TABLES[table_group], force=options["force"])
                 elif table_group in ("gnomAD_genomes", "gnomAD_exomes"):
-                    self._import_gnomad(version_path, TABLES[table_group])
+                    self._import_gnomad(version_path, TABLES[table_group], force=options["force"])
                 elif table_group == "vista":
                     self._import_vista(version_path, TABLES[table_group], force=options["force"])
                 elif table_group == "ensembl_regulatory":
@@ -184,13 +185,17 @@ class Command(BaseCommand):
                     )
                 else:
                     for table in TABLES[table_group]:
-                        self._import(*self._get_table_info(version_path, table.__name__), table)
+                        self._import(
+                            *self._get_table_info(version_path, table.__name__),
+                            table,
+                            force=options["force"],
+                        )
 
     def _import_tad_set(self, path, tables, subset_key, force):
         """TAD import"""
         release_info = self._get_table_info(path, tables[0].__name__)[1]
         # release_info["table"] += ":%s" % subset_key
-        if not self._create_import_info(release_info) and not force:
+        if not force and not self._create_import_info(release_info):
             return False
 
         # Clear out old data if any
@@ -251,7 +256,7 @@ class Command(BaseCommand):
         """Common code for RefSeq and ENSEMBL gene import."""
         release_info = self._get_table_info(path, tables[0].__name__)[1]
         release_info["table"] += ":%s" % subset_key
-        if not self._create_import_info(release_info) and not force:
+        if not force and not self._create_import_info(release_info):
             return False
         # Clear out any existing entries for this release/database.
         GeneInterval.objects.filter(
@@ -289,12 +294,14 @@ class Command(BaseCommand):
     def _import_ensembl_regulatory(self, path, tables, force):
         """Import ENSEMBL regulatory regions."""
         release_info = self._get_table_info(path, tables[0].__name__)[1]
-        if not self._create_import_info(release_info) and not force:
+        if not force and not self._create_import_info(release_info):
             return False
 
         # Clear out any existing entries for this release/database.
-        self.stdout.write("Removing old ENSEMBL regulatory features (if any)")
-        EnsemblRegulatoryFeature.objects.filter(release=release_info["genomebuild"]).delete()
+        o = EnsemblRegulatoryFeature.objects.filter(release=release_info["genomebuild"])
+        if o.count():
+            self.stdout.write("Removing old ENSEMBL regulatory features.")
+            o.delete()
         # Perform the actual import
         self.stdout.write("Importing ENSEMBL regulatory features")
         path_tsv = os.path.join(path, "{}.tsv".format(tables[0].__name__))
@@ -328,12 +335,14 @@ class Command(BaseCommand):
     def _import_vista(self, path, tables, force):
         """Import VISTA from the given path."""
         release_info = self._get_table_info(path, tables[0].__name__)[1]
-        if not self._create_import_info(release_info) and not force:
+        if not force and not self._create_import_info(release_info):
             return False
 
         # Clear out any existing entries for this release/database.
-        self.stdout.write("Removing old VISTA experimental results (if any)")
-        VistaEnhancer.objects.filter(release=release_info["genomebuild"]).delete()
+        o = VistaEnhancer.objects.filter(release=release_info["genomebuild"])
+        if o.count():
+            self.stdout.write("Removing old VISTA experimental results.")
+            o.delete()
         # Perform the actual import.
         self.stdout.write("Importing VISTA experimental results")
         path_tsv = os.path.join(path, "{}.tsv".format(tables[0].__name__))
@@ -406,7 +415,7 @@ class Command(BaseCommand):
             )
             return True
 
-    def _import(self, path, release_info, table, import_info=True, service=False):
+    def _import(self, path, release_info, table, import_info=True, service=False, force=False):
         """Bulk data into table and add entry to ImportInfo table.
 
         :param table_path: Path to TSV file to import
@@ -426,8 +435,16 @@ class Command(BaseCommand):
             CommandError("Table name in release_info file does not match table name.")
 
         if import_info:
-            if not self._create_import_info(release_info):
+            if not force and not self._create_import_info(release_info):
                 return False
+            try:
+                o = table.objects.filter(release=release_info["genomebuild"])
+            except (FieldDoesNotExist, FieldError):
+                o = table.objects.all()
+            if o.count():
+                # Clear out any existing entries for this release/database.
+                self.stdout.write("Removing old {table} results.".format(**release_info))
+                o.delete()
 
         if not service:
             table.objects.from_csv(
@@ -444,7 +461,7 @@ class Command(BaseCommand):
         )
         return True
 
-    def _import_kegg(self, path, tables):
+    def _import_kegg(self, path, tables, force):
         """Wrapper function to import kegg databases.
 
         :param path: Path to kegg tables
@@ -458,14 +475,14 @@ class Command(BaseCommand):
         mapping = {entry.kegg_id: str(entry.id) for entry in KeggInfo.objects.all()}
         # Import EnsembleToKegg
         self._replace_pk_in_kegg_and_import(
-            mapping, *self._get_table_info(path, tables[1].__name__), tables[1]
+            mapping, *self._get_table_info(path, tables[1].__name__), tables[1], force
         )
         # Import RefseqToKegg
         self._replace_pk_in_kegg_and_import(
-            mapping, *self._get_table_info(path, tables[2].__name__), tables[2]
+            mapping, *self._get_table_info(path, tables[2].__name__), tables[2], force
         )
 
-    def _replace_pk_in_kegg_and_import(self, mapping, path, release_info, table):
+    def _replace_pk_in_kegg_and_import(self, mapping, path, release_info, table, force):
         """Wrapper function to replace pk in mapping tables before import (and then import).
 
         :param mapping: Mapping of kegg ids to KeggInfo pks.
@@ -491,9 +508,9 @@ class Command(BaseCommand):
                 tmp.write("\t".join(fields))
                 tmp.write("\n")
             tmp.flush()
-            self._import(tmp.name, release_info, table)
+            self._import(tmp.name, release_info, table, force=force)
 
-    def _import_gnomad(self, path, tables):
+    def _import_gnomad(self, path, tables, force):
         """Wrapper function to import gnomad tables
 
         :param path: Path to gnomad tables
@@ -509,5 +526,6 @@ class Command(BaseCommand):
                 tables[0],
                 # Import into info table only once
                 chrom == 1,
+                force=force,
             ):
                 break

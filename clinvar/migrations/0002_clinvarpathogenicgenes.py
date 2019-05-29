@@ -64,5 +64,9 @@ if not settings.IS_TESTING:
 
 
 class Migration(migrations.Migration):
-    dependencies = [("clinvar", "0001_initial")]
+    dependencies = [
+        ("clinvar", "0001_initial"),
+        ("geneinfo", "0005_auto_20190104_1554"),
+        ("geneinfo", "0007_refseqtohgnc"),
+    ]
     operations = operations

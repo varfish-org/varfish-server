@@ -11,6 +11,7 @@ End-User Summary
 
 - Fixed broken genomic region filter.
 - Making gene information in SV results consistent with display in small variant results.
+- ``--force`` parameter for ``import_tables`` now works on all tables.
 
 Full Change List
 ================
@@ -19,6 +20,8 @@ Full Change List
 - Unification of gene information display between SVs and small variants.
 - Fixed bug that wrongly parsed genomic regions and resulted in filter reporting nothing while active.
 - Small fix to small variant import.
+- Extended ``--force`` parameter for ``import_tables`` command to be applied to all tables.
+- Fixed bug in creating materialized view that prevented setting up database when applying migrations from scratch.
 
 -------
 v0.15.1
