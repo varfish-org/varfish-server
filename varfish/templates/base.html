@@ -12,6 +12,8 @@
   <script type="text/javascript" src="{% static 'js/vendor/jquery-3.2.1.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/popper-1.14.3.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/bootstrap-4.1.3.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/vendor/jquery.dataTables.min.js' %}"></script>
+
 {% endblock head_javascript %}
 
 {% block javascript %}
@@ -49,6 +51,9 @@
 
   <!-- Project CSS -->
   <link rel="stylesheet" type="text/css" href="{% static 'css/project.css' %}" />
+
+  <!-- Datatables CSS -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/vendor/jquery.dataTables.min.css' %}" />
 {% endblock css %}
 
 {% block head_extend %}

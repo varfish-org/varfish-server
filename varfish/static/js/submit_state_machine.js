@@ -24,6 +24,7 @@ let ajaxCall = null;
 let filterButton = $("#submitFilter");
 let resultsTable = $("#resultsTable");
 let timer = null;
+let dt = null;
 
 /*
 Handle form error responses from Django AJAX JSON response.
@@ -360,6 +361,15 @@ function handleEventStateWaitJobResults(eventType, event) {
         currentState = STATE_IDLE;
         animateFilterButtonSubmit();
         resultsTable.html(data);
+        dt = $('#main').DataTable(
+            {
+              "searching": false,
+              'columnDefs': [{
+                'targets': [0,2,3,-1], /* column index */
+                'orderable': false, /* true or false */
+               }]
+            }
+            );
         updateTableDisplay();
       },
       error: function(jqXHR, textStatus, errorThrown) {

@@ -726,7 +726,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
-        self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
+        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "variant-row")))
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_bookmark(self):
@@ -752,7 +752,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
-        self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
+        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "variant-row")))
         # bookmark variant (there is only one variant)
         self.selenium.find_element_by_class_name("variant-bookmark").click()
         # save bookmark
@@ -784,7 +784,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
-        self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
+        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "variant-row")))
         self.selenium.find_element_by_class_name("variant-bookmark").click()
         # save bookmark
         self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "save")))
@@ -802,7 +802,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
-        self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
+        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "variant-row")))
         with self.assertRaises(NoSuchElementException):
             self.selenium.find_element_by_class_name("bookmark")
 
@@ -1003,7 +1003,7 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
-        self.pending().until(ec.presence_of_element_located((By.ID, "variant-details-0")))
+        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "variant-row")))
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_joint_filter_download(self):

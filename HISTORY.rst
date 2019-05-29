@@ -12,6 +12,8 @@ End-User Summary
 - Fixed broken genomic region filter.
 - Making gene information in SV results consistent with display in small variant results.
 - ``--force`` parameter for ``import_tables`` now works on all tables.
+- Resulting table is now sortable.
+- Fixed broken EnsEMBL link-out.
 
 Full Change List
 ================
@@ -22,6 +24,8 @@ Full Change List
 - Small fix to small variant import.
 - Extended ``--force`` parameter for ``import_tables`` command to be applied to all tables.
 - Fixed bug in creating materialized view that prevented setting up database when applying migrations from scratch.
+- Added datatables library to add sorting feature to resulting table.
+- Fixed broken EnsEMBL link-out.
 
 -------
 v0.15.1

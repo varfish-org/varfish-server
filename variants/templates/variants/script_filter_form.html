@@ -223,32 +223,42 @@ function default0(value) {
 
 // we can't employ .click here because the html that it will work on is loaded afterwards.
 $(document).on('click', '.toggle-variant-details', function() {
-  if ($("i", this).hasClass('fa-chevron-right')) {
-    let target = $($(this).data("target") + " .variant-details");
-    $.ajax(
-      $(this).data('url'),
-      {
-        success: function (response) {
-          target.html(response);
-          $('[data-toggle="tooltip"]').tooltip({container: "body"});
-          $('[data-toggle="popover"]').popover({container: "body"});
-          $('body').on('click', function (e) {
-            let element = $('.omim-popover');
-            // hide any open popovers when the anywhere else in the body is clicked
-            if (!element.is(e.target) && element.has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
-                element.popover('hide');
-            }
-          });
-          colorVariantEffects();
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-          console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
-        }
-      }
-    );
-  }
-  $("i", this).toggleClass('fa-chevron-right');
+  var row = dt.row($(this).parent());
+
   $("i", this).toggleClass('fa-chevron-down');
+  $("i", this).toggleClass('fa-chevron-right');
+
+  if (row.child.isShown()) {
+    row.child.hide();
+  }
+  else {
+    if (row.child() && row.child().length) {
+      row.child.show();
+    }
+    else {
+      $.ajax(
+        $(this).data('url'),
+        {
+          success: function (response) {
+            row.child(response).show();
+            $('[data-toggle="tooltip"]').tooltip({container: "body"});
+            $('[data-toggle="popover"]').popover({container: "body"});
+            $('body').on('click', function (e) {
+              let element = $('.omim-popover');
+              // hide any open popovers when the anywhere else in the body is clicked
+              if (!element.is(e.target) && element.has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                element.popover('hide');
+              }
+            });
+            colorVariantEffects();
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+          }
+        }
+      );
+    }
+  }
 });
 
 $("#settingsDownload").click(
