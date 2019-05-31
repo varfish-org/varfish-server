@@ -26,6 +26,8 @@ Full Change List
 - Fixed bug in creating materialized view that prevented setting up database when applying migrations from scratch.
 - Added datatables library to add sorting feature to resulting table.
 - Fixed broken EnsEMBL link-out.
+- Added conversion table RefseqToEnsembl (complementing EnsemblToRefseq).
+  Now used in ExAC/gnomAD constraint information when refseq transcript database is selected.
 
 -------
 v0.15.1

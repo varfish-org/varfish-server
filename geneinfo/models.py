@@ -372,7 +372,7 @@ class ExacConstraints(models.Model):
 
 
 class EnsemblToRefseq(models.Model):
-    """Ensembl gene ID and transcript id to Entrez ID."""
+    """Ensembl gene ID and transcript ID to Entrez ID."""
 
     #: EnsEMBL gene ID
     ensembl_gene_id = models.CharField(max_length=16)
@@ -380,6 +380,20 @@ class EnsemblToRefseq(models.Model):
     ensembl_transcript_id = models.CharField(max_length=16)
     #: Entrez ID
     entrez_id = models.CharField(max_length=16, null=True)
+
+    #: Allow bulk import info database.
+    objects = CopyManager()
+
+
+class RefseqToEnsembl(models.Model):
+    """Entrez ID to Ensembl gene ID and transcript ID."""
+
+    #: Entrez ID
+    entrez_id = models.CharField(max_length=16)
+    #: EnsEMBL gene ID
+    ensembl_gene_id = models.CharField(max_length=16, null=True)
+    #: EnsEMBL transcript ID
+    ensembl_transcript_id = models.CharField(max_length=16, null=True)
 
     #: Allow bulk import info database.
     objects = CopyManager()

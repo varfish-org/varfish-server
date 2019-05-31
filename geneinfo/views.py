@@ -12,6 +12,7 @@ from geneinfo.models import (
     Mim2geneMedgen,
     Hpo,
     HpoName,
+    RefseqToEnsembl,
 )
 
 
@@ -44,8 +45,8 @@ def get_gene_infos(database, gene_id):
     else:
         gene = model_to_dict(gene)
         if database == "refseq":
-            ensembl_to_refseq = EnsemblToRefseq.objects.filter(entrez_id=gene_id).first()
-            ensembl_gene_id = getattr(ensembl_to_refseq, "ensembl_gene_id", None)
+            refseq_to_ensembl = RefseqToEnsembl.objects.filter(entrez_id=gene_id).first()
+            ensembl_gene_id = getattr(refseq_to_ensembl, "ensembl_gene_id", None)
             gene["entrez_id"] = gene_id
         else:
             ensembl_gene_id = gene_id

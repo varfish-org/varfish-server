@@ -12,6 +12,7 @@ from ..models import (
     ExacConstraints,
     GnomadConstraints,
     EnsemblToRefseq,
+    RefseqToEnsembl,
 )
 
 
@@ -107,6 +108,17 @@ class EnsemblToRefseqFactory(factory.django.DjangoModelFactory):
     ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
     ensembl_transcript_id = factory.Sequence(lambda n: "ENST%d" % n)
     entrez_id = factory.Sequence(lambda n: str(n))
+
+
+class RefseqToEnsemblFactory(factory.django.DjangoModelFactory):
+    """Factory for the ``RefseqToEnsemblFactory`` model."""
+
+    class Meta:
+        model = RefseqToEnsembl
+
+    entrez_id = factory.Sequence(lambda n: str(n))
+    ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
+    ensembl_transcript_id = factory.Sequence(lambda n: "ENST%d" % n)
 
 
 class ExacConstraintsFactory(factory.django.DjangoModelFactory):

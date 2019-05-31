@@ -22,6 +22,7 @@ from geneinfo.models import (
     GnomadConstraints,
     ExacConstraints,
     EnsemblToRefseq,
+    RefseqToEnsembl,
 )
 from genomicfeatures.models import (
     GeneInterval,
@@ -63,6 +64,7 @@ TABLES = {
     "tads_hesc": (TadInterval, TadBoundaryInterval, TadSet),
     "tads_imr90": (TadInterval, TadBoundaryInterval, TadSet),
     "ensembltorefseq": (EnsemblToRefseq,),
+    "refseqtoensembl": (RefseqToEnsembl,),
 }
 SERVICE_NAME_CHOICES = ["CADD", "Exomiser"]
 SERVICE_GENOMEBUILD_CHOICES = ["GRCh37", "GRCh38"]

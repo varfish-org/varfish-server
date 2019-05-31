@@ -33,6 +33,7 @@ from geneinfo.tests.factories import (
     GnomadConstraintsFactory,
     ExacConstraintsFactory,
     EnsemblToRefseqFactory,
+    RefseqToEnsemblFactory,
 )
 from variants.models import (
     Case,
@@ -1749,6 +1750,11 @@ class TestSmallVariantDetailsView(ViewTestBase):
             ensembl_gene_id=self.small_var.ensembl_gene_id,
             ensembl_transcript_id=self.small_var.ensembl_transcript_id,
             entrez_id=self.small_var.refseq_gene_id,
+        )
+        RefseqToEnsemblFactory(
+            entrez_id=self.small_var.refseq_gene_id,
+            ensembl_gene_id=self.small_var.ensembl_gene_id,
+            ensembl_transcript_id=self.small_var.ensembl_transcript_id,
         )
         self.gnomadconstraints = GnomadConstraintsFactory(
             ensembl_gene_id=self.small_var.ensembl_gene_id
