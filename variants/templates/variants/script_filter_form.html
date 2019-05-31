@@ -224,22 +224,28 @@ function default0(value) {
 // we can't employ .click here because the html that it will work on is loaded afterwards.
 $(document).on('click', '.toggle-variant-details', function() {
   var row = dt.row($(this).parent());
+  var icon = $("i", this);
 
-  $("i", this).toggleClass('fa-chevron-down');
-  $("i", this).toggleClass('fa-chevron-right');
-
+  // using toggleClass to shorten the code results to erroneous icon behaviour in border cases (e.g. fast opening/closing the details)
   if (row.child.isShown()) {
+    icon.removeClass('fa-chevron-down');
+    icon.addClass('fa-chevron-right');
     row.child.hide();
   }
   else {
+    icon.removeClass('fa-chevron-right');
     if (row.child() && row.child().length) {
+      icon.addClass('fa-chevron-down');
       row.child.show();
     }
     else {
+      icon.addClass('fa-spinner fa-spin');
       $.ajax(
         $(this).data('url'),
         {
           success: function (response) {
+            icon.removeClass('fa-spinner fa-spin');
+            icon.addClass('fa-chevron-down');
             row.child(response).show();
             $('[data-toggle="tooltip"]').tooltip({container: "body"});
             $('[data-toggle="popover"]').popover({container: "body"});
