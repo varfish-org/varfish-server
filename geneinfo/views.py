@@ -52,8 +52,9 @@ def get_gene_infos(database, gene_id):
             ensembl_gene_id = gene_id
             hgnc = RefseqToHgnc.objects.filter(hgnc_id=gene["hgnc_id"]).first()
             gene["entrez_id"] = getattr(hgnc, "entrez_id", None)
-        hpoterms, hpoinheritance, omim = _handle_hpo_omim(gene["entrez_id"])
+        hpoterms, hpoinheritance, omim, omim_genes = _handle_hpo_omim(gene["entrez_id"])
         gene["omim"] = omim
+        gene["omim_genes"] = omim_genes
         gene["hpo_inheritance"] = list(hpoinheritance)
         gene["hpo_terms"] = list(hpoterms)
         gene["clinvar_pathogenicity"] = ClinvarPathogenicGenes.objects.filter(
@@ -75,35 +76,42 @@ def _get_exac_constraints(ensembl_gene_id):
 
 def _handle_hpo_omim(entrez_id):
     if entrez_id is None:
-        return [], [], None
+        return [], [], {}, []
+    # Obtain type (``phenotype`` or ``gene``) and omim ID via entrez ID.
+    # Multiple entries for one entrez ID are possible (also mutiple genes for one entrez ID!).
     mim2gene = Mim2geneMedgen.objects.filter(entrez_id=entrez_id)
     omim = dict()
     hpoterms = set()
-    hpointeritance = set()
+    hpoinheritance = set()
+    omim_genes = set()
     for mim in mim2gene:
-        mapping = _get_hpo_mapping(mim)
-        for record in mapping:
-            if record is not None:
-                if record[0] in HPO_INHERITANCE_MAPPING:
-                    hpointeritance.add((record[0], HPO_INHERITANCE_MAPPING[record[0]]))
+        # Collect omim genes
+        if mim.omim_type == "gene":
+            omim_genes.add(mim.omim_id)
+        # Handle omim phenotypes
+        else:
+            # Get HPO info for the current omim ID
+            for hpo_id, hpo_name, omim_name in _get_hpo_mapping(mim):
+                if hpo_id in HPO_INHERITANCE_MAPPING:
+                    hpoinheritance.add((hpo_id, HPO_INHERITANCE_MAPPING[hpo_id]))
                 else:
-                    hpoterms.add(record)
-            omim_type, omim_id, omim_name = next(mapping)
-            if omim_type == "phenotype":
-                if omim_id in omim:
-                    if len(omim[omim_id]) < len(omim_name):
-                        omim[omim_id] = omim_name
+                    hpoterms.add((hpo_id, hpo_name))
+                # Replace omim name if we encountered a longer name for the same ID.
+                # The longer name likely contains the shorter name.
+                if mim.omim_id in omim:
+                    if len(omim[mim.omim_id]) < len(omim_name):
+                        omim[mim.omim_id] = omim_name
                 else:
-                    omim[omim_id] = omim_name
+                    omim[mim.omim_id] = omim_name
     omim = {key: (value[0], value[1:]) for key, value in omim.items() if value}
-    return hpoterms, hpointeritance, omim
+    return hpoterms, hpoinheritance, omim, omim_genes
 
 
 def _get_hpo_mapping(mim):
+    """Given one omim ID, obtain HPO entries with the associated HPO name and parsed OMIM name."""
     for h in Hpo.objects.filter(database_id="OMIM:{}".format(mim.omim_id)):
         hponame = HpoName.objects.filter(hpo_id=h.hpo_id).first()
-        yield h.hpo_id, hponame.name if hponame else None
-        yield mim.omim_type, mim.omim_id, list(_parse_omim_name(h.name))
+        yield h.hpo_id, hponame.name if hponame else None, list(_parse_omim_name(h.name))
 
 
 def _parse_omim_name(name):

@@ -181,7 +181,7 @@
       </td>
     </tr>
     <tr>
-      <th class="text-right">OMIM</th>
+      <th class="text-right">OMIM Phenotypes</th>
       <td>
         {% if gene.omim %}
           {% for omim_id, omim_names in gene.omim.items %}
@@ -192,7 +192,21 @@
             <span class="badge badge-secondary">{{ omim_names.0 }}</span></span></a>
           {% endfor %}
         {% else %}
-          <div class="text-muted text-center"><i>No OMIM information available.</i></div>
+          <div class="text-muted text-center"><i>No OMIM phenotype information available.</i></div>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th class="text-right">OMIM Genes</th>
+      <td>
+        {% if gene.omim_genes %}
+          {% for omim_id in gene.omim_genes %}
+            <a href='https://www.omim.org/entry/{{ omim_id }}' target='_blank'>
+              <span class="badge badge-dark">{{ omim_id }}</span>
+            </a>
+          {% endfor %}
+        {% else %}
+          <div class="text-muted text-center"><i>No OMIM gene information available.</i></div>
         {% endif %}
       </td>
     </tr>

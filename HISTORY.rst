@@ -14,6 +14,7 @@ End-User Summary
 - ``--force`` parameter for ``import_tables`` now works on all tables.
 - Resulting table is now sortable.
 - Fixed broken EnsEMBL link-out.
+- Added OMIM gene information to gene card in variant details view.
 
 Full Change List
 ================
@@ -28,6 +29,7 @@ Full Change List
 - Fixed broken EnsEMBL link-out.
 - Added conversion table RefseqToEnsembl (complementing EnsemblToRefseq).
   Now used in ExAC/gnomAD constraint information when refseq transcript database is selected.
+- Gene card in variant details view now show OMIM gene information, i.e. when an OMIM entry is marked as gene in Mim2geneMedgen table.
 
 -------
 v0.15.1

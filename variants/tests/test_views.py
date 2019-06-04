@@ -1733,15 +1733,18 @@ class TestSmallVariantDetailsView(ViewTestBase):
         self.hgnc = HgncFactory(
             ensembl_gene_id=self.small_var.ensembl_gene_id, entrez_id=self.small_var.refseq_gene_id
         )
-        self.mim2genemedgen = Mim2geneMedgenFactory(entrez_id=self.small_var.refseq_gene_id)
+        self.mim2genemedgen_pheno = Mim2geneMedgenFactory(entrez_id=self.small_var.refseq_gene_id)
+        self.mim2genemedgen_gene = Mim2geneMedgenFactory(
+            entrez_id=self.small_var.refseq_gene_id, omim_type="gene"
+        )
         # Fix the both HPO terms to clearly distinguish between inheritance term and no inheritance term.
         self.hpo = HpoFactory(
-            database_id="OMIM:%d" % self.mim2genemedgen.omim_id,
+            database_id="OMIM:%d" % self.mim2genemedgen_pheno.omim_id,
             hpo_id="HP:0000001",
             name="Disease 1;;Alternative Description",
         )
         self.hpo_inheritance = HpoFactory(
-            database_id="OMIM:%d" % self.mim2genemedgen.omim_id,
+            database_id="OMIM:%d" % self.mim2genemedgen_pheno.omim_id,
             hpo_name="AR",
             hpo_id="HP:0000007",
             name="Disease 2; AR",
@@ -1889,10 +1892,14 @@ class TestSmallVariantDetailsView(ViewTestBase):
             )
             omim_name = self.hpo.name.split(";;")
             self.assertEqual(
-                response.context["gene"]["omim"][self.mim2genemedgen.omim_id][0], omim_name[0]
+                response.context["gene"]["omim"][self.mim2genemedgen_pheno.omim_id][0], omim_name[0]
             )
             self.assertEqual(
-                response.context["gene"]["omim"][self.mim2genemedgen.omim_id][1][0], omim_name[1]
+                response.context["gene"]["omim"][self.mim2genemedgen_pheno.omim_id][1][0],
+                omim_name[1],
+            )
+            self.assertEqual(
+                list(response.context["gene"]["omim_genes"])[0], self.mim2genemedgen_gene.omim_id
             )
             self.assertEqual(response.context["gene"]["symbol"], self.hgnc.symbol)
             annotations = Annotation.objects.filter(database=db).order_by("transcript_id")
@@ -1994,7 +2001,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
             )
             self.assertListEqual(response.context["gene"]["hpo_terms"], [])
             self.assertListEqual(response.context["gene"]["hpo_inheritance"], [])
-            self.assertIsNone(response.context["gene"]["omim"])
+            self.assertDictEqual(response.context["gene"]["omim"], {})
+            self.assertListEqual(response.context["gene"]["omim_genes"], [])
 
 
 class TestExportFileJobDetailView(ViewTestBase):
