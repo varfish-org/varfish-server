@@ -22,6 +22,8 @@ It is developed by the Core Unit Bioinformatics at the Berlin Institute of Healt
     The VarFish documentation is currently under construction and in **alpha** state.
     Don't hesitate to contact us in case of any questions, unclear points, or requests for extension.
 
+The VarFish logo is created from an `SVG Repo Image <https://www.svgrepo.com/svg/82927/big-starfish>`_.
+
 .. toctree::
     :maxdepth: 1
     :caption: Projects & Navigation
