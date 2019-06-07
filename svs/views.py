@@ -76,7 +76,7 @@ class CaseFilterView(
         # Take time while job is running
         before = timezone.now()
         # Get and run query
-        query = SingleCaseFilterQuery(self.get_case_object(), SQLALCHEMY_ENGINE, debug=False)
+        query = SingleCaseFilterQuery(self.get_case_object(), SQLALCHEMY_ENGINE)
         args = dict(form.cleaned_data)
         # TODO: variant types
         tmp = args.pop("region_whitelist")

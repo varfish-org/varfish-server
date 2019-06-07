@@ -19,13 +19,6 @@ from ..models import SV_TYPE_CHOICES, SV_SUB_TYPE_CHOICES, StructuralVariant
 from ..queries import SingleCaseFilterQuery
 
 
-class SingleCasePrefetchFilterQueryBaseTest(TestCase):
-    def testIsPrefetched(self):
-        case = CaseFactory()
-        query = SingleCaseFilterQuery(case, SQLALCHEMY_ENGINE)
-        self.assertFalse(query.is_prefetched())
-
-
 class SvsInCaseWithDeNovoGenotypeFilterQueryTest(QueryTestBase):
     """Test for a case with a de novo SV inheritance pattern."""
 
@@ -877,6 +870,31 @@ class SvSizeFilterQueryTest(QueryTestBase):
         self.run_query(
             SingleCaseFilterQuery, {"sv_size_max": self.svs[0].end - self.svs[0].start - 2}, 0
         )
+
+
+class BndSizeFilterQueryTest(QueryTestBase):
+    """BNDs have to be handled special for size limits."""
+
+    def setUp(self):
+        super().setUp()
+        case = CaseFactory(structure="trio", inheritance="denovo")
+        self.svs = [
+            StructuralVariantFactory(
+                case=case, sv_type="BND", sv_sub_type="BND", start=1000, end=1000
+            )
+        ]
+
+    def testPassAnyMinSize(self):
+        self.run_query(SingleCaseFilterQuery, {"sv_size_min": -1}, 1)
+        self.run_query(SingleCaseFilterQuery, {"sv_size_min": 0}, 1)
+        result = self.run_query(SingleCaseFilterQuery, {"sv_size_min": 1}, 1)
+        result = list(result)
+        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+
+    def testFailAnyMaxSize(self):
+        self.run_query(SingleCaseFilterQuery, {"sv_size_max": -1}, 0)
+        self.run_query(SingleCaseFilterQuery, {"sv_size_max": 0}, 0)
+        self.run_query(SingleCaseFilterQuery, {"sv_size_max": 10_000_000}, 0)
 
 
 class SvTranscriptCodingFilterQueryTest(QueryTestBase):

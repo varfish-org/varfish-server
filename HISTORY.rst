@@ -69,10 +69,6 @@ Full Change List
 - Improved render speed of case list.
 - Fixing UCSC binning overlap queries.
 - Adding "For research use only" to login screen.
-<<<<<<< HEAD
-=======
-- Increased view test coverage to 100%.
->>>>>>> Unify code for gene display between SVs and small vars.
 
 -------
 v0.15.0

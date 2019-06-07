@@ -11,6 +11,10 @@ from sqlalchemy import Table, true, column, union, literal_column
 from sqlalchemy.dialects.postgresql.array import OVERLAP
 from sqlalchemy.sql import select, func, and_, not_, or_, cast
 from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from sqlalchemy import Table, true, column, union, literal_column
+from sqlalchemy.sql import select, func, and_, not_, or_, cast
 from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
 import sqlparse
 
@@ -289,7 +293,6 @@ class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
 class ExtendQueryPartsClinvarJoinBase(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.patho_keys = (
             "pathogenic",
             "likely_pathogenic",
@@ -469,6 +472,10 @@ class ExtendQueryPartsHgmdJoinAndFilter(ExtendQueryPartsHgmdJoin):
 
 
 class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsBase):
+
+    #: The model to join with.
+    model = SmallVariant
+
     def extend_fields(self, _query_parts):
         return [Case.sa.sodar_uuid.label("case_uuid")]
 
@@ -476,11 +483,14 @@ class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsBase):
         return [Case.sa.id.in_([case.id for case in self.cases])]
 
     def extend_selectable(self, query_parts):
-        return query_parts.selectable.outerjoin(Case.sa, SmallVariant.sa.case_id == Case.sa.id)
+        return query_parts.selectable.outerjoin(Case.sa, self.model.sa.case_id == Case.sa.id)
 
 
 class ExtendQueryPartsGenotypeBase(ExtendQueryPartsBase):
     quality_term_disabled = None
+
+    #: The model to build the term for.
+    model = SmallVariant
 
     def _build_quality_term(self, name):
         if self.quality_term_disabled:
@@ -488,79 +498,78 @@ class ExtendQueryPartsGenotypeBase(ExtendQueryPartsBase):
 
         rhs = and_(
             # Genotype quality is simple.
-            SmallVariant.sa.genotype[name]["gq"].astext.cast(Integer)
-            >= self.kwargs["%s_gq" % name],
+            self.model.sa.genotype[name]["gq"].astext.cast(Integer) >= self.kwargs["%s_gq" % name],
             # The depth setting depends on whether the variant is in homozygous or heterozygous state.
             or_(  # heterozygous or hemizygous state
                 not_(
                     or_(
-                        SmallVariant.sa.genotype[name]["gt"].astext == "0/1",
-                        SmallVariant.sa.genotype[name]["gt"].astext == "0|1",
-                        SmallVariant.sa.genotype[name]["gt"].astext == "1/0",
-                        SmallVariant.sa.genotype[name]["gt"].astext == "1|0",
-                        SmallVariant.sa.genotype[name]["gt"].astext == "1",
+                        self.model.sa.genotype[name]["gt"].astext == "0/1",
+                        self.model.sa.genotype[name]["gt"].astext == "0|1",
+                        self.model.sa.genotype[name]["gt"].astext == "1/0",
+                        self.model.sa.genotype[name]["gt"].astext == "1|0",
+                        self.model.sa.genotype[name]["gt"].astext == "1",
                         # TODO: recognize hemizygous from 'sex="M" and chr="X" and gt="1/1"'?
                     )
                 ),
-                SmallVariant.sa.genotype[name]["dp"].astext.cast(Integer)
+                self.model.sa.genotype[name]["dp"].astext.cast(Integer)
                 >= self.kwargs["%s_dp_het" % name],
             ),
             or_(  # homozygous state
                 not_(
                     or_(
-                        SmallVariant.sa.genotype[name]["gt"].astext == "0/0",
-                        SmallVariant.sa.genotype[name]["gt"].astext == "0|0",
-                        SmallVariant.sa.genotype[name]["gt"].astext == "1/1",
-                        SmallVariant.sa.genotype[name]["gt"].astext == "1|1",
-                        SmallVariant.sa.genotype[name]["gt"].astext == "0",
-                        SmallVariant.sa.genotype[name]["gt"].astext == "1",
+                        self.model.sa.genotype[name]["gt"].astext == "0/0",
+                        self.model.sa.genotype[name]["gt"].astext == "0|0",
+                        self.model.sa.genotype[name]["gt"].astext == "1/1",
+                        self.model.sa.genotype[name]["gt"].astext == "1|1",
+                        self.model.sa.genotype[name]["gt"].astext == "0",
+                        self.model.sa.genotype[name]["gt"].astext == "1",
                     )
                 ),
-                SmallVariant.sa.genotype[name]["dp"].astext.cast(Integer)
+                self.model.sa.genotype[name]["dp"].astext.cast(Integer)
                 >= self.kwargs["%s_dp_hom" % name],
             ),
             # Allelic depth is only checked in case of het.
             or_(
-                SmallVariant.sa.genotype[name]["gt"].astext == "0/0",
-                SmallVariant.sa.genotype[name]["gt"].astext == "0|0",
-                SmallVariant.sa.genotype[name]["gt"].astext == "0",
-                SmallVariant.sa.genotype[name]["ad"].astext.cast(Integer)
+                self.model.sa.genotype[name]["gt"].astext == "0/0",
+                self.model.sa.genotype[name]["gt"].astext == "0|0",
+                self.model.sa.genotype[name]["gt"].astext == "0",
+                self.model.sa.genotype[name]["ad"].astext.cast(Integer)
                 >= self.kwargs["%s_ad" % name],
             ),
             # Allelic balance is somewhat complicated
             and_(
-                SmallVariant.sa.genotype[name]["dp"].astext.cast(Integer) > 0,
+                self.model.sa.genotype[name]["dp"].astext.cast(Integer) > 0,
                 or_(
                     not_(
                         or_(
-                            SmallVariant.sa.genotype[name]["gt"].astext == "0/1",
-                            SmallVariant.sa.genotype[name]["gt"].astext == "0|1",
-                            SmallVariant.sa.genotype[name]["gt"].astext == "1/0",
-                            SmallVariant.sa.genotype[name]["gt"].astext == "1|0",
+                            self.model.sa.genotype[name]["gt"].astext == "0/1",
+                            self.model.sa.genotype[name]["gt"].astext == "0|1",
+                            self.model.sa.genotype[name]["gt"].astext == "1/0",
+                            self.model.sa.genotype[name]["gt"].astext == "1|0",
                         )
                     ),
                     and_(
                         (
-                            SmallVariant.sa.genotype[name]["ad"].astext.cast(Float)
-                            / SmallVariant.sa.genotype[name]["dp"].astext.cast(Float)
+                            self.model.sa.genotype[name]["ad"].astext.cast(Float)
+                            / self.model.sa.genotype[name]["dp"].astext.cast(Float)
                         )
                         >= self.kwargs["%s_ab" % name],
                         (
-                            SmallVariant.sa.genotype[name]["ad"].astext.cast(Float)
-                            / SmallVariant.sa.genotype[name]["dp"].astext.cast(Float)
+                            self.model.sa.genotype[name]["ad"].astext.cast(Float)
+                            / self.model.sa.genotype[name]["dp"].astext.cast(Float)
                         )
                         <= (1.0 - self.kwargs["%s_ab" % name]),
                     ),
                 ),
             ),
         )
-        return or_(SmallVariant.sa.genotype[name].is_(None), rhs)
+        return or_(self.model.sa.genotype[name].is_(None), rhs)
 
     def _build_genotype_term(self, name, gt_list):
         if gt_list:
             return or_(
-                SmallVariant.sa.genotype[name].is_(None),
-                SmallVariant.sa.genotype[name]["gt"].astext.in_(gt_list),
+                self.model.sa.genotype[name].is_(None),
+                self.model.sa.genotype[name]["gt"].astext.in_(gt_list),
             )
         else:
             return True
@@ -1221,7 +1230,7 @@ class CasePrefetchQuery:
 
         stmt = combiner.to_stmt(kwargs, order_by=order_by)
 
-        if False:
+        if settings.DEBUG:
             print(
                 "\n"
                 + sqlparse.format(
