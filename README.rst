@@ -2,7 +2,7 @@
 VarFish
 =======
 
-Fixing for causative coding variants.
+Fishing for causative coding variants.
 
 GitHub is used for public issue tracking.
 Currently, development happens on internal infrastructure.
