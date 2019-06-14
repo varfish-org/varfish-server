@@ -57,3 +57,11 @@ TEMPLATES[0]["OPTIONS"]["loaders"] = [
         ],
     ]
 ]
+
+# Varfish: REST Services
+# ------------------------------------------------------------------------------
+
+# Disable all REST services for testing.
+
+VARFISH_ENABLE_CADD = False
+VARFISH_ENABLE_JANNOVAR = False

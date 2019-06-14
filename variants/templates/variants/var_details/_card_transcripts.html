@@ -1,0 +1,54 @@
+{% if effect_details %}
+  <div class="card">
+    <div class="card-header">
+      <h4 class="card-title pb-2">Transcript information</h4>
+      <ul class="nav nav-tabs card-header-tabs" style="border-bottom: 0;">
+        {% for entry in effect_details %}
+        <li class="nav-item">
+          <a class="nav-link{% if forloop.counter0 == 0 %} active{% endif %}" id="tab{{ forloop.counter0 }}" effect_details-toggle="tab" href="#panel{{ forloop.counter0 }}" role="tab">{{ entry.transcriptId }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="card-body p-0">
+      <div class="tab-content">
+        {% for entry in effect_details %}
+        <div class="tab-pane fade{% if forloop.counter0 == 0 %} show active{% endif %}" id="panel{{ forloop.counter0 }}" role="tabpanel" aria-labelledby="tab{{ forloop.counter0 }}">
+          <table class="card-body table sodar-card-table table-striped table-sm">
+            <tbody>
+            <tr>
+              <th class="border-top-0">Effects</th>
+              <td class="border-top-0">
+                {% for effect in entry.variantEffects %}
+                <span class="badge color-effect">{{ effect }}</span>
+                {% endfor %}
+              </td>
+            </tr>
+            <tr>
+              <th>Coding</th>
+              <td>{% if entry.isCoding %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-ban"></i>{% endif %}</td>
+            </tr>
+            <tr>
+              <th>HGVS (nucleotide)</th>
+              <td>{{ entry.hgvsNucleotides }}</td>
+            </tr>
+            <tr>
+              <th>HGVS (protein)</th>
+              <td>{{ entry.hgvsProtein }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% else %}
+  <div class="card">
+    <div class="card-body">
+      <p class="text-muted text-center">
+        Prediction of effect on all overlapping transcript not enabled.
+      </p>
+    </div>
+  </div>
+{% endif %}

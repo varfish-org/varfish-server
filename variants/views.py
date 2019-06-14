@@ -6,7 +6,9 @@ import contextlib
 import decimal
 import aldjemy.core
 import numpy as np
+import requests
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.humanize.templatetags.humanize import naturaltime
@@ -1379,7 +1381,11 @@ class SmallVariantDetails(
     AlchemyEngineMixin,
     DetailView,
 ):
-    """Render details card of small variants."""
+    """Render details card of small variants.
+
+    Most of this information comes directly from our database but some is also loaded from web services.  If these
+    web services are not configured, this information is not loaded or displayed.
+    """
 
     permission_required = "variants.view_data"
     template_name = "variants/variant_details.html"
@@ -1433,14 +1439,37 @@ class SmallVariantDetails(
         ).first()
 
     def _load_molecular_impact(self, kwargs):
-        filter_kwargs = {
-            key: kwargs[key]
-            for key in ("release", "chromosome", "position", "reference", "alternative")
+        """Load molecular impact from Jannovar REST API if configured."""
+        if not settings.VARFISH_ENABLE_JANNOVAR:
+            return []
+
+        url_tpl = (
+            "%(base_url)sannotate-var/%(database)s/%(genome)s/%(chromosome)s/%(position)s/%(reference)s/"
+            "%(alternative)s"
+        )
+        url = url_tpl % {
+            "base_url": settings.VARFISH_JANNOVAR_REST_API_URL,
+            "database": kwargs["database"],
+            "genome": "hg19",
+            "chromosome": kwargs["chromosome"],
+            "position": kwargs["position"],
+            "reference": kwargs["reference"],
+            "alternative": kwargs["alternative"],
         }
-        return [
-            model_to_dict(entry)
-            for entry in Annotation.objects.filter(**filter_kwargs, database=kwargs["database"])
-        ]
+        try:
+            res = requests.request(method="get", url=url)
+            if not res.status_code == 200:
+                raise ConnectionError(
+                    "ERROR: Server responded with status {} and message {}".format(
+                        res.status_code, res.text
+                    )
+                )
+            else:
+                return res.json()
+        except requests.ConnectionError as e:
+            raise ConnectionError(
+                "ERROR: Server at {} not responding.".format(settings.VARFISH_JANNOVAR_REST_API_URL)
+            ) from e
 
     def _get_population_freqs(self, kwargs):
         result = {

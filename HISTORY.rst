@@ -30,6 +30,7 @@ Full Change List
 - Added conversion table RefseqToEnsembl (complementing EnsemblToRefseq).
   Now used in ExAC/gnomAD constraint information when refseq transcript database is selected.
 - Gene card in variant details view now show OMIM gene information, i.e. when an OMIM entry is marked as gene in Mim2geneMedgen table.
+- "All transcript" annotations now come from Jannovar REST web service instead of the ``Annotation`` model.
 
 -------
 v0.15.1

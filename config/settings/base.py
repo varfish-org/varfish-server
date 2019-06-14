@@ -374,10 +374,18 @@ VARFISH_EXOMISER_PRIORITISER_MAX_GENES = env.int("VARFISH_EXOMISER_PRIORITISER_M
 
 # Enable CADD configuration, default is disabled.
 VARFISH_ENABLE_CADD = env.bool("VARFISH_ENABLE_CADD", default=False)
-# Configure URL to API
+# Configure URL to CADD REST API
 VARFISH_CADD_REST_API_URL= env.str("VARFISH_CADD_REST_API_URL", "")
 # Configure maximal number of genes to send to Exomiser API
 VARFISH_CADD_MAX_VARS = env.int("VARFISH_CADD_MAX_VARS ", 5000)
+
+# Varfish: Jannovar
+# ------------------------------------------------------------------------------
+
+# Enable Jannovar configuration, default is disabled.
+VARFISH_ENABLE_JANNOVAR = env.bool("VARFISH_ENABLE_JANNOVAR", default=False)
+# Configure URL to Jannovar REST API
+VARFISH_JANNOVAR_REST_API_URL = env.str("VARFISH_JANNOVAR_REST_API_URL", "")
 
 # Varfish: SVs
 # ------------------------------------------------------------------------------

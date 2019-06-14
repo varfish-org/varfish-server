@@ -12,7 +12,6 @@ from unittest.mock import patch
 from django.conf import settings
 
 from projectroles.models import Project, ProjectSetting
-from annotation.models import Annotation
 from clinvar.tests.factories import (
     ProcessedClinvarFormDataFactory,
     ClinvarFormDataFactory,
@@ -208,7 +207,6 @@ DEFAULT_FILTER_FORM_SETTING = {
     "submit": "display",
 }
 
-
 # TODO: Still in use by other module
 DEFAULT_RESUBMIT_SETTING = {
     "database_select": "refseq",
@@ -295,7 +293,6 @@ DEFAULT_RESUBMIT_SETTING = {
     "submit": "display",
 }
 
-
 # TODO: Still in use by other module
 CLINVAR_RESUBMIT_SETTING = {
     "A_gt": "variant",
@@ -342,7 +339,6 @@ CLINVAR_RESUBMIT_SETTING = {
     "result_rows_limit": 500,
     "submit": "display",
 }
-
 
 # TODO: Still in use by other module
 DEFAULT_JOINT_RESUBMIT_SETTING = {
@@ -1902,13 +1898,6 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 list(response.context["gene"]["omim_genes"])[0], self.mim2genemedgen_gene.omim_id
             )
             self.assertEqual(response.context["gene"]["symbol"], self.hgnc.symbol)
-            annotations = Annotation.objects.filter(database=db).order_by("transcript_id")
-            self.assertEqual(
-                response.context["effect_details"][0]["transcript_id"], annotations[0].transcript_id
-            )
-            self.assertEqual(
-                response.context["effect_details"][1]["transcript_id"], annotations[1].transcript_id
-            )
             self.assertEqual(
                 response.context["gene"]["exac_constraints"].exp_syn, self.exacconstraints.exp_syn
             )
@@ -2003,6 +1992,81 @@ class TestSmallVariantDetailsView(ViewTestBase):
             self.assertListEqual(response.context["gene"]["hpo_inheritance"], [])
             self.assertDictEqual(response.context["gene"]["omim"], {})
             self.assertListEqual(response.context["gene"]["omim_genes"], [])
+
+    def test_with_jannovar_disabled(self):
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:small-variant-details",
+                    kwargs={
+                        "project": self.case.project.sodar_uuid,
+                        "case": self.case.sodar_uuid,
+                        "release": self.small_var.release,
+                        "chromosome": self.small_var.chromosome,
+                        "position": self.small_var.position,
+                        "reference": self.small_var.reference,
+                        "alternative": self.small_var.alternative,
+                        "database": "ensembl",
+                        "gene_id": self.small_var.ensembl_gene_id,
+                        "training_mode": 0,
+                    },
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["effect_details"], [])
+
+    @patch("django.conf.settings.VARFISH_ENABLE_JANNOVAR", True)
+    @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
+    @Mocker()
+    def test_with_jannovar_enabled(self, mock):
+        with self.login(self.user):
+            mock.get(
+                "https://jannovar.example.com/annotate-var/ensembl/hg19/%s/%s/%s/%s"
+                % (
+                    self.small_var.chromosome,
+                    self.small_var.position,
+                    self.small_var.reference,
+                    self.small_var.alternative,
+                ),
+                status_code=200,
+                json=[
+                    {
+                        "transcriptId": "NM_058167.2",
+                        "variantEffects": ["three_prime_utr_exon_variant"],
+                        "isCoding": True,
+                        "hgvsProtein": "p.(=)",
+                        "hgvsNucleotides": "c.*60G>A",
+                    },
+                    {
+                        "transcriptId": "NM_194315.1",
+                        "variantEffects": ["three_prime_utr_exon_variant"],
+                        "isCoding": True,
+                        "hgvsProtein": "p.(=)",
+                        "hgvsNucleotides": "c.*60G>A",
+                    },
+                ],
+            )
+            response = self.client.get(
+                reverse(
+                    "variants:small-variant-details",
+                    kwargs={
+                        "project": self.case.project.sodar_uuid,
+                        "case": self.case.sodar_uuid,
+                        "release": self.small_var.release,
+                        "chromosome": self.small_var.chromosome,
+                        "position": self.small_var.position,
+                        "reference": self.small_var.reference,
+                        "alternative": self.small_var.alternative,
+                        "database": "ensembl",
+                        "gene_id": self.small_var.ensembl_gene_id,
+                        "training_mode": 0,
+                    },
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.context["effect_details"]), 2)
+            self.assertEqual(response.context["effect_details"][0]["transcriptId"], "NM_058167.2")
+            self.assertEqual(response.context["effect_details"][1]["transcriptId"], "NM_194315.1")
 
 
 class TestExportFileJobDetailView(ViewTestBase):
