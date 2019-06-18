@@ -25,15 +25,14 @@ urlpatterns = [
     url(r"^$", HomeView.as_view(), name="home"),
     url(r"^login/$", auth_views.LoginView.as_view(template_name="users/login.html"), name="login"),
     url(r"^logout/$", auth_views.logout_then_login, name="logout"),
-
     # SODAR-core
     url(r"^project/", include("projectroles.urls")),
-    url(r'^timeline/', include('timeline.urls')),
-    url(r'^alerts/', include('adminalerts.urls')),
-    url(r'^userprofile/', include('userprofile.urls')),
-
+    url(r"^timeline/", include("timeline.urls")),
+    url(r"^alerts/", include("adminalerts.urls")),
+    url(r"^siteinfo/", include("siteinfo.urls")),
+    url(r"^userprofile/", include("userprofile.urls")),
     # The rendered Sphinx-based manual.
-    url(r'^manual/', include('docs.urls')),
+    url(r"^manual/", include("docs.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

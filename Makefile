@@ -8,6 +8,7 @@ black:
 		annotation \
 		bgjobs \
 		clinvar \
+		config \
 		conservation \
 		dbsnp \
 		frequencies \

@@ -18,7 +18,7 @@ ROOT_DIR = environ.Path(__file__) - 3  # (varfish/config/settings/base.py - 3 = 
 APPS_DIR = ROOT_DIR.path("varfish")
 
 # Check whether we are running tsts (this is important to use models and not materialized views in tests).
-IS_TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+IS_TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
 
 # Load environment from .env file if available.
 load_dotenv()
@@ -67,9 +67,10 @@ THIRD_PARTY_APPS = [
     "userprofile.apps.UserprofileConfig",
     "projectroles.apps.ProjectrolesConfig",
     "timeline.apps.TimelineConfig",
-    'docs',  # For the online user documentation/manual
-    'dal',
-    'dal_select2',
+    "siteinfo.apps.SiteinfoConfig",
+    "docs",  # For the online user documentation/manual
+    "dal",
+    "dal_select2",
 ]
 
 # Apps specific for this project go here.
@@ -102,7 +103,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # ------------------------------------------------------------------------------
 
 # Note: for serving to work, the docs have to be built after deployment.
-DOCS_ROOT = ROOT_DIR.path('docs_manual/_build/html/')
+DOCS_ROOT = ROOT_DIR.path("docs_manual/_build/html/")
 # DOCS_ACCESS = 'public'  # default
 
 # Bump the default number of fields in forms.
@@ -137,11 +138,9 @@ FIXTURE_DIRS = (str(APPS_DIR.path("fixtures")),)
 
 # EMAIL CONFIGURATION
 # ------------------------------------------------------------------------------
-EMAIL_BACKEND = env(
-    'DJANGO_EMAIL_BACKEND',
-    default='django.core.mail.backends.smtp.EmailBackend')
-EMAIL_SENDER = env('EMAIL_SENDER', default='noreply@example.com')
-EMAIL_SUBJECT_PREFIX = env('EMAIL_SUBJECT_PREFIX', default='')
+EMAIL_BACKEND = env("DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend")
+EMAIL_SENDER = env("EMAIL_SENDER", default="noreply@example.com")
+EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX", default="")
 
 
 # MANAGER CONFIGURATION
@@ -167,17 +166,19 @@ DATABASES["default"]["ATOMIC_REQUESTS"] = False
 # ------------------------------------------------------------------------------
 # We have to do some fixes to the Aldjemy data types...
 
+
 def fixed_array_type(field):
     import aldjemy.table
     import sqlalchemy.dialects.postgresql
+
     data_types = aldjemy.table.DATA_TYPES
     internal_type = field.base_field.get_internal_type()
 
     # currently no support for multi-dimensional arrays
-    if internal_type in data_types and internal_type != 'ArrayField':
+    if internal_type in data_types and internal_type != "ArrayField":
         sub_type = data_types[internal_type](field)
     else:
-        raise RuntimeError('Unsupported array element type')
+        raise RuntimeError("Unsupported array element type")
 
     return sqlalchemy.dialects.postgresql.ARRAY(sub_type)
 
@@ -185,18 +186,16 @@ def fixed_array_type(field):
 import sqlalchemy.dialects.postgresql
 
 ALDJEMY_DATA_TYPES = {
-    'ArrayField': lambda field: fixed_array_type(field),
-    'UUIDField': lambda _: sqlalchemy.dialects.postgresql.UUID(as_uuid=True),
-    'JSONField': lambda _: sqlalchemy.dialects.postgresql.JSONB,
-    'BinaryField': lambda _:sqlalchemy.dialects.postgresql.BYTEA,
+    "ArrayField": lambda field: fixed_array_type(field),
+    "UUIDField": lambda _: sqlalchemy.dialects.postgresql.UUID(as_uuid=True),
+    "JSONField": lambda _: sqlalchemy.dialects.postgresql.JSONB,
+    "BinaryField": lambda _: sqlalchemy.dialects.postgresql.BYTEA,
 }
 
 
 # We need to tell Aldjemy that we're using the psycopg2 driver so the correct
 # SQL Alchemy connection dialect is used.
-ALDJEMY_ENGINES = {
-    'postgres': 'postgresql+psycopg2',
-}
+ALDJEMY_ENGINES = {"postgres": "postgresql+psycopg2"}
 
 
 # GENERAL CONFIGURATION
@@ -342,15 +341,15 @@ if USE_TZ:
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-timezone
     CELERY_TIMEZONE = TIME_ZONE
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-broker_url
-CELERY_BROKER_URL = env.str('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_BROKER_URL = env.str("CELERY_BROKER_URL", "redis://localhost:6379/0")
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-result_backend
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-accept_content
-CELERY_ACCEPT_CONTENT = ['json']
+CELERY_ACCEPT_CONTENT = ["json"]
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-task_serializer
-CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = "json"
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-result_serializer
-CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = "json"
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-time-limit
 CELERYD_TASK_TIME_LIMIT = 5 * 60
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-soft-time-limit
@@ -375,7 +374,7 @@ VARFISH_EXOMISER_PRIORITISER_MAX_GENES = env.int("VARFISH_EXOMISER_PRIORITISER_M
 # Enable CADD configuration, default is disabled.
 VARFISH_ENABLE_CADD = env.bool("VARFISH_ENABLE_CADD", default=False)
 # Configure URL to CADD REST API
-VARFISH_CADD_REST_API_URL= env.str("VARFISH_CADD_REST_API_URL", "")
+VARFISH_CADD_REST_API_URL = env.str("VARFISH_CADD_REST_API_URL", "")
 # Configure maximal number of genes to send to Exomiser API
 VARFISH_CADD_MAX_VARS = env.int("VARFISH_CADD_MAX_VARS ", 5000)
 
@@ -416,23 +415,22 @@ PROJECTROLES_HELP_HIGHLIGHT_DAYS = 7
 PROJECTROLES_ENABLE_SEARCH = True
 PROJECTROLES_SEARCH_PAGINATION = 5
 
-SODAR_API_DEFAULT_VERSION = '0.1'
-SODAR_API_MEDIA_TYPE = 'application/vnd.bihealth.sodar+json'
+SODAR_API_DEFAULT_VERSION = "0.1"
+SODAR_API_MEDIA_TYPE = "application/vnd.bihealth.sodar+json"
 
-PROJECTROLES_SITE_MODE = env.str('PROJECTROLES_SITE_MODE', 'TARGET')
-PROJECTROLES_TARGET_CREATE = env.bool('PROJECTROLES_TARGET_CREATE', True)
-PROJECTROLES_ADMIN_OWNER = env.str('PROJECTROLES_DEFAULT_ADMIN', 'admin')
-PROJECTROLES_DEFAULT_ADMIN = env.str('PROJECTROLES_DEFAULT_ADMIN', 'admin')
+PROJECTROLES_SITE_MODE = env.str("PROJECTROLES_SITE_MODE", "TARGET")
+PROJECTROLES_TARGET_CREATE = env.bool("PROJECTROLES_TARGET_CREATE", True)
+PROJECTROLES_ADMIN_OWNER = env.str("PROJECTROLES_DEFAULT_ADMIN", "admin")
+PROJECTROLES_DEFAULT_ADMIN = env.str("PROJECTROLES_DEFAULT_ADMIN", "admin")
 
 # Allow showing and synchronizing local non-admin users
-PROJECTROLES_ALLOW_LOCAL_USERS = env.bool(
-            'PROJECTROLES_ALLOW_LOCAL_USERS', False
-        )
+PROJECTROLES_ALLOW_LOCAL_USERS = env.bool("PROJECTROLES_ALLOW_LOCAL_USERS", False)
 
 PROJECTROLES_HIDE_APP_LINKS = ["svs"]
 
 ENABLED_BACKEND_PLUGINS = ["timeline_backend"]
 ENABLED_BACKEND_PLUGINS += env.list("ENABLED_BACKEND_PLUGINS", None, [])
+
 
 def set_logging(debug):
     return {
@@ -454,8 +452,8 @@ def set_logging(debug):
 
 LOGGING = set_logging(DEBUG)
 
-ENABLE_LDAP = env.bool('ENABLE_LDAP', False)
-ENABLE_LDAP_SECONDARY = env.bool('ENABLE_LDAP_SECONDARY', False)
+ENABLE_LDAP = env.bool("ENABLE_LDAP", False)
+ENABLE_LDAP_SECONDARY = env.bool("ENABLE_LDAP_SECONDARY", False)
 
 if ENABLE_LDAP:
     import itertools
@@ -464,42 +462,42 @@ if ENABLE_LDAP:
 
     # Default values
     LDAP_DEFAULT_CONN_OPTIONS = {ldap.OPT_REFERRALS: 0}
-    LDAP_DEFAULT_FILTERSTR = '(sAMAccountName=%(user)s)'
-    LDAP_DEFAULT_ATTR_MAP = {
-        'first_name': 'givenName', 'last_name': 'sn', 'email': 'mail'}
+    LDAP_DEFAULT_FILTERSTR = "(sAMAccountName=%(user)s)"
+    LDAP_DEFAULT_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", "email": "mail"}
 
     # Primary LDAP server
-    AUTH_LDAP_SERVER_URI = env.str('AUTH_LDAP_SERVER_URI', None)
-    AUTH_LDAP_BIND_DN = env.str('AUTH_LDAP_BIND_DN', None)
-    AUTH_LDAP_BIND_PASSWORD = env.str('AUTH_LDAP_BIND_PASSWORD', None)
+    AUTH_LDAP_SERVER_URI = env.str("AUTH_LDAP_SERVER_URI", None)
+    AUTH_LDAP_BIND_DN = env.str("AUTH_LDAP_BIND_DN", None)
+    AUTH_LDAP_BIND_PASSWORD = env.str("AUTH_LDAP_BIND_PASSWORD", None)
     AUTH_LDAP_CONNECTION_OPTIONS = LDAP_DEFAULT_CONN_OPTIONS
 
     AUTH_LDAP_USER_SEARCH = LDAPSearch(
-        env.str('AUTH_LDAP_USER_SEARCH_BASE', None),
-        ldap.SCOPE_SUBTREE, LDAP_DEFAULT_FILTERSTR)
+        env.str("AUTH_LDAP_USER_SEARCH_BASE", None), ldap.SCOPE_SUBTREE, LDAP_DEFAULT_FILTERSTR
+    )
     AUTH_LDAP_USER_ATTR_MAP = LDAP_DEFAULT_ATTR_MAP
-    AUTH_LDAP_USERNAME_DOMAIN = env.str('AUTH_LDAP_USERNAME_DOMAIN', None)
-    AUTH_LDAP_DOMAIN_PRINTABLE = env.str('AUTH_LDAP_DOMAIN_PRINTABLE', None)
+    AUTH_LDAP_USERNAME_DOMAIN = env.str("AUTH_LDAP_USERNAME_DOMAIN", None)
+    AUTH_LDAP_DOMAIN_PRINTABLE = env.str("AUTH_LDAP_DOMAIN_PRINTABLE", None)
 
-    AUTHENTICATION_BACKENDS = tuple(itertools.chain(
-       ('projectroles.auth_backends.PrimaryLDAPBackend',),
-       AUTHENTICATION_BACKENDS,))
+    AUTHENTICATION_BACKENDS = tuple(
+        itertools.chain(("projectroles.auth_backends.PrimaryLDAPBackend",), AUTHENTICATION_BACKENDS)
+    )
 
     # Secondary LDAP server
     if ENABLE_LDAP_SECONDARY:
-        AUTH_LDAP2_SERVER_URI = env.str('AUTH_LDAP2_SERVER_URI', None)
-        AUTH_LDAP2_BIND_DN = env.str('AUTH_LDAP2_BIND_DN', None)
-        AUTH_LDAP2_BIND_PASSWORD = env.str('AUTH_LDAP2_BIND_PASSWORD', None)
+        AUTH_LDAP2_SERVER_URI = env.str("AUTH_LDAP2_SERVER_URI", None)
+        AUTH_LDAP2_BIND_DN = env.str("AUTH_LDAP2_BIND_DN", None)
+        AUTH_LDAP2_BIND_PASSWORD = env.str("AUTH_LDAP2_BIND_PASSWORD", None)
         AUTH_LDAP2_CONNECTION_OPTIONS = LDAP_DEFAULT_CONN_OPTIONS
 
         AUTH_LDAP2_USER_SEARCH = LDAPSearch(
-            env.str('AUTH_LDAP2_USER_SEARCH_BASE', None),
-            ldap.SCOPE_SUBTREE, LDAP_DEFAULT_FILTERSTR)
+            env.str("AUTH_LDAP2_USER_SEARCH_BASE", None), ldap.SCOPE_SUBTREE, LDAP_DEFAULT_FILTERSTR
+        )
         AUTH_LDAP2_USER_ATTR_MAP = LDAP_DEFAULT_ATTR_MAP
-        AUTH_LDAP2_USERNAME_DOMAIN = env.str('AUTH_LDAP2_USERNAME_DOMAIN')
-        AUTH_LDAP2_DOMAIN_PRINTABLE = env.str(
-            'AUTH_LDAP2_DOMAIN_PRINTABLE', None)
+        AUTH_LDAP2_USERNAME_DOMAIN = env.str("AUTH_LDAP2_USERNAME_DOMAIN")
+        AUTH_LDAP2_DOMAIN_PRINTABLE = env.str("AUTH_LDAP2_DOMAIN_PRINTABLE", None)
 
-        AUTHENTICATION_BACKENDS = tuple(itertools.chain(
-            ('projectroles.auth_backends.SecondaryLDAPBackend',),
-            AUTHENTICATION_BACKENDS,))
+        AUTHENTICATION_BACKENDS = tuple(
+            itertools.chain(
+                ("projectroles.auth_backends.SecondaryLDAPBackend",), AUTHENTICATION_BACKENDS
+            )
+        )

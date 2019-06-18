@@ -101,13 +101,13 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # EMAIL CONFIGURATION
 # ------------------------------------------------------------------------------
-EMAIL_URL = env.email_url('EMAIL_URL', 'smtp://0.0.0.0')
+EMAIL_URL = env.email_url("EMAIL_URL", "smtp://0.0.0.0")
 
-EMAIL_HOST = EMAIL_URL['EMAIL_HOST']
-EMAIL_PORT = EMAIL_URL['EMAIL_PORT']
-EMAIL_BACKEND = EMAIL_URL['EMAIL_BACKEND']
-EMAIL_HOST_USER = EMAIL_URL['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = EMAIL_URL['EMAIL_HOST_PASSWORD']
+EMAIL_HOST = EMAIL_URL["EMAIL_HOST"]
+EMAIL_PORT = EMAIL_URL["EMAIL_PORT"]
+EMAIL_BACKEND = EMAIL_URL["EMAIL_BACKEND"]
+EMAIL_HOST_USER = EMAIL_URL["EMAIL_HOST_USER"]
+EMAIL_HOST_PASSWORD = EMAIL_URL["EMAIL_HOST_PASSWORD"]
 
 # TEMPLATE CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -151,43 +151,44 @@ CACHES = {
 
 
 if env("DJANGO_SENTRY_DSN", default=None):
-	# Sentry Configuration
-	SENTRY_DSN = env("DJANGO_SENTRY_DSN")
-	SENTRY_CLIENT = env(
-	    "DJANGO_SENTRY_CLIENT", default="raven.contrib.django.raven_compat.DjangoClient"
-	)
-	LOGGING = {
-	    "version": 1,
-	    "disable_existing_loggers": True,
-	    "root": {"level": "WARNING", "handlers": ["sentry"]},
-	    "formatters": {
-		"verbose": {
-		    "format": "%(levelname)s %(asctime)s %(module)s " "%(process)d %(thread)d %(message)s"
-		}
-	    },
-	    "handlers": {
-		"sentry": {
-		    "level": "ERROR",
-		    "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
-		},
-		"console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "verbose"},
-	    },
-	    "loggers": {
-		"django.db.backends": {"level": "ERROR", "handlers": ["console"], "propagate": False},
-		"raven": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
-		"sentry.errors": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
-		"django.security.DisallowedHost": {
-		    "level": "ERROR",
-		    "handlers": ["console", "sentry"],
-		    "propagate": False,
-		},
-	    },
-	}
-	SENTRY_CELERY_LOGLEVEL = env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO)
-	RAVEN_CONFIG = {
-	    "CELERY_LOGLEVEL": env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO),
-	    "DSN": SENTRY_DSN,
-	}
+    # Sentry Configuration
+    SENTRY_DSN = env("DJANGO_SENTRY_DSN")
+    SENTRY_CLIENT = env(
+        "DJANGO_SENTRY_CLIENT", default="raven.contrib.django.raven_compat.DjangoClient"
+    )
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": True,
+        "root": {"level": "WARNING", "handlers": ["sentry"]},
+        "formatters": {
+            "verbose": {
+                "format": "%(levelname)s %(asctime)s %(module)s "
+                "%(process)d %(thread)d %(message)s"
+            }
+        },
+        "handlers": {
+            "sentry": {
+                "level": "ERROR",
+                "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
+            },
+            "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "verbose"},
+        },
+        "loggers": {
+            "django.db.backends": {"level": "ERROR", "handlers": ["console"], "propagate": False},
+            "raven": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
+            "sentry.errors": {"level": "DEBUG", "handlers": ["console"], "propagate": False},
+            "django.security.DisallowedHost": {
+                "level": "ERROR",
+                "handlers": ["console", "sentry"],
+                "propagate": False,
+            },
+        },
+    }
+    SENTRY_CELERY_LOGLEVEL = env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO)
+    RAVEN_CONFIG = {
+        "CELERY_LOGLEVEL": env.int("DJANGO_SENTRY_LOG_LEVEL", logging.INFO),
+        "DSN": SENTRY_DSN,
+    }
 
 # Custom Admin URL, use {% url 'admin:index' %}
 # ADMIN_URL = env("DJANGO_ADMIN_URL")

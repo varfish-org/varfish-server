@@ -76,6 +76,41 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
         },
     }
 
+    #: Additional columns to display for the projects.
+    project_list_columns = {
+        "cases": {
+            "title": "Cases",
+            "width": 75,
+            "description": "Number of cases in this project",
+            "align": "right",
+            "active": True,
+        },
+        "donors": {
+            "title": "Donors",
+            "width": 75,
+            "description": "Number of donors in this project",
+            "align": "right",
+            "active": True,
+        },
+    }
+
+    def get_project_list_value(self, column_id, project):
+        if column_id == "cases":
+            return Case.objects.filter(project=project).count()
+        elif column_id == "donors":
+            return sum((len(c.pedigree) for c in Case.objects.filter(project=project)))
+        else:
+            return "-"
+
+    def get_statistics(self):
+        return {
+            "case_count": {"label": "Cases", "value": Case.objects.all().count()},
+            "donor_count": {
+                "label": "Donors",
+                "value": sum((len(c.pedigree) for c in Case.objects.all())),
+            },
+        }
+
     def search(self, search_term, user, search_type=None, keywords=None):
         """
         Return app items based on a search term, user, optional type and
