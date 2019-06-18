@@ -1495,15 +1495,17 @@ class TestCaseLoadPrefetchedClinvarReportView(ViewTestBase):
         self.bgjob = ClinvarBgJobFactory(user=self.user)
         small_var = SmallVariantFactory(in_clinvar=True, case=self.bgjob.case)
         # Create two entries in the same position to test the grouping.
-        # First entry without any significance information
+        # First record: \wo any significance information (such record doesn't exist in clinvar).
         ClinvarFactory(
             release=small_var.release,
             chromosome=small_var.chromosome,
             position=small_var.position,
             reference=small_var.reference,
             alternative=small_var.alternative,
+            clinical_significance_ordered=[],
+            review_status_ordered=[],
         )
-        # Second entry with significance information
+        # Second record: \w significance information
         ClinvarFactory(
             release=small_var.release,
             chromosome=small_var.chromosome,
@@ -1528,9 +1530,8 @@ class TestCaseLoadPrefetchedClinvarReportView(ViewTestBase):
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.context["result_count"], 2)
-            self.assertEqual(len(response.context["grouped_rows"]), 1)
-            self.assertEqual(response.context["grouped_rows"][0]["max_significance"], "pathogenic")
+            self.assertEqual(response.context["result_count"], 1)
+            self.assertEqual(response.context["result_rows"][0]["max_significance"], "pathogenic")
 
 
 class TestCaseClinvarReportJobGetStatus(ViewTestBase):

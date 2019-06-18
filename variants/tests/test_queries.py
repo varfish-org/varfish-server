@@ -7,9 +7,19 @@ Remarks:
 """
 from clinvar.tests.factories import ClinvarFactory
 from conservation.tests.factories import KnownGeneAAFactory
-from geneinfo.models import Hgnc
 from hgmd.tests.factories import HgmdPublicLocusFactory
-from variants.models import Case, SmallVariantQuery, ProjectCasesSmallVariantQuery, ClinvarQuery
+from variants.models import Case, ProjectCasesSmallVariantQuery
+from variants.queries import (
+    CasePrefetchQuery,
+    CaseExportTableQuery,
+    CaseExportVcfQuery,
+    CaseLoadPrefetchedQuery,
+    ClinvarReportPrefetchQuery,
+    ClinvarReportLoadPrefetchedQuery,
+    ProjectPrefetchQuery,
+    ProjectLoadPrefetchedQuery,
+    KnownGeneAAQuery,
+)
 from geneinfo.tests.factories import HgncFactory, AcmgFactory
 from dbsnp.tests.factories import DbsnpFactory
 from .factories import (
@@ -22,18 +32,10 @@ from .factories import (
     ClinvarQueryFactory,
 )
 from .helpers import TestBase, SupportQueryTestBase, SQLALCHEMY_ENGINE
-from ..models_support import (
-    PrefetchClinvarReportQuery,
-    ExportTableFileFilterQuery,
-    CountOnlyFilterQuery,
-    PrefetchFilterQuery,
-    ExportVcfFileFilterQuery,
-    LoadPrefetchedFilterQuery,
-    ProjectCasesLoadPrefetchedFilterQuery,
-    LoadPrefetchedClinvarReportQuery,
-    KnownGeneAAQuery,
-    ProjectCasesPrefetchFilterQuery,
-)
+
+
+# TODO: select correct cases from multiple ones
+# TODO: prefetch from multiple cases
 
 
 class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
@@ -64,18 +66,18 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         )
         self.projectcasessmallvariantquery.query_results.add(small_vars[0].id, small_vars[2].id)
 
-    def test_load_case_results(self):
+    def test_load_prefetched_case_results(self):
         results = self.run_query(
-            LoadPrefetchedFilterQuery, {"filter_job_id": self.smallvariantquery.id}, 2
+            CaseLoadPrefetchedQuery, {"filter_job_id": self.smallvariantquery.id}, 2
         )
         self.assertEqual(results[0].acmg_symbol, self.acmg.symbol)
         self.assertIsNone(results[1].acmg_symbol)
         self.assertTrue(results[0].effect_ambiguity)
         self.assertFalse(results[1].effect_ambiguity)
 
-    def test_load_project_cases_results(self):
+    def test_load_prefetched_project_cases_results(self):
         results = self.run_query(
-            ProjectCasesLoadPrefetchedFilterQuery,
+            ProjectLoadPrefetchedQuery,
             {"filter_job_id": self.projectcasessmallvariantquery.id},
             2,
             query_type="project",
@@ -93,34 +95,34 @@ class TestCaseOneQueryDatabaseSwitch(SupportQueryTestBase):
         """Create a case with just one variant and HGNC record."""
         super().setUp()
         small_var = SmallVariantFactory()
-        self.hgnc = HgncFactory(entrez_id=small_var.refseq_gene_id)
+        self.hgnc = HgncFactory(
+            entrez_id=small_var.refseq_gene_id, ensembl_gene_id=small_var.ensembl_gene_id
+        )
 
     def test_base_query_refseq_filter(self):
-        self.run_query(PrefetchFilterQuery, {"database_select": "refseq"}, 1)
+        self.run_query(CasePrefetchQuery, {"database_select": "refseq"}, 1)
 
     def test_base_query_refseq_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"database_select": "refseq"}, 1)
+        self.run_query(CaseExportTableQuery, {"database_select": "refseq"}, 1)
 
     def test_base_query_refseq_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"database_select": "refseq"}, 1)
-
-    def test_base_query_refseq_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"database_select": "refseq"}, 1)
+        self.run_query(CaseExportVcfQuery, {"database_select": "refseq"}, 1)
 
     def test_base_query_ensembl_filter(self):
-        self.run_query(PrefetchFilterQuery, {"database_select": "ensembl"}, 1)
+        self.run_query(CasePrefetchQuery, {"database_select": "ensembl"}, 1)
 
     def test_base_query_ensembl_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"database_select": "refseq"}, 1)
+        self.run_query(CaseExportTableQuery, {"database_select": "ensembl"}, 1)
 
     def test_base_query_ensembl_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"database_select": "ensembl"}, 1)
-
-    def test_base_query_ensembl_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"database_select": "ensembl"}, 1)
+        self.run_query(CaseExportVcfQuery, {"database_select": "ensembl"}, 1)
 
     def test_base_query_refseq_check_gene_symbol(self):
-        results = self.run_query(PrefetchFilterQuery, {"database_select": "refseq"}, 1)
+        results = self.run_query(CasePrefetchQuery, {"database_select": "refseq"}, 1)
+        self.assertEqual(results[0].symbol, self.hgnc.symbol)
+
+    def test_base_query_ensembl_check_gene_symbol(self):
+        results = self.run_query(CasePrefetchQuery, {"database_select": "ensembl"}, 1)
         self.assertEqual(results[0].symbol, self.hgnc.symbol)
 
 
@@ -148,29 +150,22 @@ class TestCaseOneQueryNotInDbsnp(SupportQueryTestBase):
         )
 
     def test_base_query_not_in_dbsnp_filter(self):
-        self.run_query(PrefetchFilterQuery, {"remove_if_in_dbsnp": True}, 1)
+        self.run_query(CasePrefetchQuery, {"remove_if_in_dbsnp": True}, 1)
 
     def test_base_query_not_in_dbsnp_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"remove_if_in_dbsnp": True}, 1)
+        self.run_query(CaseExportTableQuery, {"remove_if_in_dbsnp": True}, 1)
 
-    # ExportVcfFileFilterQuery doesn't join dbsnp, so nothing is returned
     def test_base_query_not_in_dbsnp_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"remove_if_in_dbsnp": True}, 0)
-
-    def test_base_query_not_in_dbsnp_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"remove_if_in_dbsnp": True}, 1)
+        self.run_query(CaseExportVcfQuery, {"remove_if_in_dbsnp": True}, 1)
 
     def test_base_query_filter(self):
-        self.run_query(PrefetchFilterQuery, {}, 3)
+        self.run_query(CasePrefetchQuery, {}, 3)
 
     def test_base_query_export(self):
-        self.run_query(ExportTableFileFilterQuery, {}, 3)
+        self.run_query(CaseExportTableQuery, {}, 3)
 
     def test_base_query_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {}, 3)
-
-    def test_base_query_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {}, 3)
+        self.run_query(CaseExportVcfQuery, {}, 3)
 
 
 class TestCaseOneQueryCase(SupportQueryTestBase):
@@ -182,20 +177,17 @@ class TestCaseOneQueryCase(SupportQueryTestBase):
         SmallVariantFactory()
 
     def test_query_case_correct_filter(self):
-        self.run_query(PrefetchFilterQuery, {}, 1)
+        self.run_query(CasePrefetchQuery, {}, 1)
 
     def test_query_case_correct_export(self):
-        self.run_query(ExportTableFileFilterQuery, {}, 1)
+        self.run_query(CaseExportTableQuery, {}, 1)
 
     def test_query_case_correct_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {}, 1)
-
-    def test_query_case_correct_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {}, 1)
+        self.run_query(CaseExportVcfQuery, {}, 1)
 
     def test_query_case_incorrect_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"case_uuid": "88888888-8888-8888-8888-888888888888"},
             1,
             Case.DoesNotExist,
@@ -203,7 +195,7 @@ class TestCaseOneQueryCase(SupportQueryTestBase):
 
     def test_query_case_incorrect_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {"case_uuid": "88888888-8888-8888-8888-888888888888"},
             1,
             Case.DoesNotExist,
@@ -211,15 +203,7 @@ class TestCaseOneQueryCase(SupportQueryTestBase):
 
     def test_query_case_incorrect_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {"case_uuid": "88888888-8888-8888-8888-888888888888"},
-            1,
-            Case.DoesNotExist,
-        )
-
-    def test_query_case_incorrect_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {"case_uuid": "88888888-8888-8888-8888-888888888888"},
             1,
             Case.DoesNotExist,
@@ -239,95 +223,60 @@ class TestCaseOneQueryVarTypeSwitch(SupportQueryTestBase):
 
     def test_var_type_none_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"var_type_snv": False, "var_type_mnv": False, "var_type_indel": False},
             0,
         )
 
     def test_var_type_none_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {"var_type_snv": False, "var_type_mnv": False, "var_type_indel": False},
             0,
         )
 
     def test_var_type_none_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {"var_type_snv": False, "var_type_mnv": False, "var_type_indel": False},
-            0,
-        )
-
-    def test_var_type_none_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {"var_type_snv": False, "var_type_mnv": False, "var_type_indel": False},
             0,
         )
 
     def test_var_type_mnv_filter(self):
-        self.run_query(PrefetchFilterQuery, {"var_type_snv": False, "var_type_indel": False}, 1)
+        self.run_query(CasePrefetchQuery, {"var_type_snv": False, "var_type_indel": False}, 1)
 
     def test_var_type_mnv_export(self):
-        self.run_query(
-            ExportTableFileFilterQuery, {"var_type_snv": False, "var_type_indel": False}, 1
-        )
+        self.run_query(CaseExportTableQuery, {"var_type_snv": False, "var_type_indel": False}, 1)
 
     def test_var_type_mnv_vcf(self):
-        self.run_query(
-            ExportVcfFileFilterQuery, {"var_type_snv": False, "var_type_indel": False}, 1
-        )
-
-    def test_var_type_mnv_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery, {"var_type_snv": False, "var_type_indel": False}, 1
-        )
+        self.run_query(CaseExportVcfQuery, {"var_type_snv": False, "var_type_indel": False}, 1)
 
     def test_var_type_snv_filter(self):
-        self.run_query(PrefetchFilterQuery, {"var_type_mnv": False, "var_type_indel": False}, 1)
+        self.run_query(CasePrefetchQuery, {"var_type_mnv": False, "var_type_indel": False}, 1)
 
     def test_var_type_snv_export(self):
-        self.run_query(
-            ExportTableFileFilterQuery, {"var_type_mnv": False, "var_type_indel": False}, 1
-        )
+        self.run_query(CaseExportTableQuery, {"var_type_mnv": False, "var_type_indel": False}, 1)
 
     def test_var_type_snv_vcf(self):
-        self.run_query(
-            ExportVcfFileFilterQuery, {"var_type_mnv": False, "var_type_indel": False}, 1
-        )
-
-    def test_var_type_snv_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery, {"var_type_mnv": False, "var_type_indel": False}, 1
-        )
+        self.run_query(CaseExportVcfQuery, {"var_type_mnv": False, "var_type_indel": False}, 1)
 
     def test_var_type_indel_filter(self):
-        self.run_query(PrefetchFilterQuery, {"var_type_snv": False, "var_type_mnv": False}, 1)
+        self.run_query(CasePrefetchQuery, {"var_type_snv": False, "var_type_mnv": False}, 1)
 
     def test_var_type_indel_export(self):
-        self.run_query(
-            ExportTableFileFilterQuery, {"var_type_snv": False, "var_type_mnv": False}, 1
-        )
+        self.run_query(CaseExportTableQuery, {"var_type_snv": False, "var_type_mnv": False}, 1)
 
     def test_var_type_indel_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"var_type_snv": False, "var_type_mnv": False}, 1)
-
-    def test_var_type_indel_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery, {"var_type_snv": False, "var_type_mnv": False}, 1
-        )
+        self.run_query(CaseExportVcfQuery, {"var_type_snv": False, "var_type_mnv": False}, 1)
 
     def test_var_type_all_filter(self):
-        self.run_query(PrefetchFilterQuery, {}, 3)
+        self.run_query(CasePrefetchQuery, {}, 3)
 
     def test_var_type_all_export(self):
-        self.run_query(ExportTableFileFilterQuery, {}, 3)
+        self.run_query(CaseExportTableQuery, {}, 3)
 
     def test_var_type_all_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {}, 3)
-
-    def test_var_type_all_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {}, 3)
+        self.run_query(CaseExportVcfQuery, {}, 3)
 
 
 class TestCaseOneQueryFrequency(SupportQueryTestBase):
@@ -378,80 +327,62 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
             )
 
     def test_frequency_filters_disabled_filter(self):
-        self.run_query(PrefetchFilterQuery, {}, 3)
+        self.run_query(CasePrefetchQuery, {}, 3)
 
     def test_frequency_filters_disabled_export(self):
-        self.run_query(ExportTableFileFilterQuery, {}, 3)
+        self.run_query(CaseExportTableQuery, {}, 3)
 
     def test_frequency_filters_disabled_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {}, 3)
-
-    def test_frequency_filters_disabled_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {}, 3)
+        self.run_query(CaseExportVcfQuery, {}, 3)
 
     def test_frequency_thousand_genomes_enabled_filter(self):
-        self.run_query(PrefetchFilterQuery, {"thousand_genomes_enabled": True}, 0)
+        self.run_query(CasePrefetchQuery, {"thousand_genomes_enabled": True}, 0)
 
     def test_frequency_thousand_genomes_enabled_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"thousand_genomes_enabled": True}, 0)
+        self.run_query(CaseExportTableQuery, {"thousand_genomes_enabled": True}, 0)
 
     def test_frequency_thousand_genomes_enabled_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"thousand_genomes_enabled": True}, 0)
-
-    def test_frequency_thousand_genomes_enabled_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"thousand_genomes_enabled": True}, 0)
+        self.run_query(CaseExportVcfQuery, {"thousand_genomes_enabled": True}, 0)
 
     def test_frequency_exac_enabled_filter(self):
-        self.run_query(PrefetchFilterQuery, {"exac_enabled": True}, 0)
+        self.run_query(CasePrefetchQuery, {"exac_enabled": True}, 0)
 
     def test_frequency_exac_enabled_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"exac_enabled": True}, 0)
+        self.run_query(CaseExportTableQuery, {"exac_enabled": True}, 0)
 
     def test_frequency_exac_enabled_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"exac_enabled": True}, 0)
-
-    def test_frequency_exac_enabled_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"exac_enabled": True}, 0)
+        self.run_query(CaseExportVcfQuery, {"exac_enabled": True}, 0)
 
     def test_frequency_gnomad_exomes_enabled_filter(self):
-        self.run_query(PrefetchFilterQuery, {"gnomad_exomes_enabled": True}, 0)
+        self.run_query(CasePrefetchQuery, {"gnomad_exomes_enabled": True}, 0)
 
     def test_frequency_gnomad_exomes_enabled_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"gnomad_exomes_enabled": True}, 0)
+        self.run_query(CaseExportTableQuery, {"gnomad_exomes_enabled": True}, 0)
 
     def test_frequency_gnomad_exomes_enabled_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"gnomad_exomes_enabled": True}, 0)
-
-    def test_frequency_gnomad_exomes_enabled_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"gnomad_exomes_enabled": True}, 0)
+        self.run_query(CaseExportVcfQuery, {"gnomad_exomes_enabled": True}, 0)
 
     def test_frequency_gnomad_genomes_enabled_filter(self):
-        self.run_query(PrefetchFilterQuery, {"gnomad_genomes_enabled": True}, 0)
+        self.run_query(CasePrefetchQuery, {"gnomad_genomes_enabled": True}, 0)
 
     def test_frequency_gnomad_genomes_enabled_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"gnomad_genomes_enabled": True}, 0)
+        self.run_query(CaseExportTableQuery, {"gnomad_genomes_enabled": True}, 0)
 
     def test_frequency_gnomad_genomes_enabled_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"gnomad_genomes_enabled": True}, 0)
-
-    def test_frequency_gnomad_genomes_enabled_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"gnomad_genomes_enabled": True}, 0)
+        self.run_query(CaseExportVcfQuery, {"gnomad_genomes_enabled": True}, 0)
 
     def test_frequency_inhouse_enabled_filter(self):
-        self.run_query(PrefetchFilterQuery, {"inhouse_enabled": True}, 0)
+        self.run_query(CasePrefetchQuery, {"inhouse_enabled": True}, 0)
 
     def test_frequency_inhouse_enabled_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"inhouse_enabled": True}, 0)
+        self.run_query(CaseExportTableQuery, {"inhouse_enabled": True}, 0)
 
     def test_frequency_inhouse_enabled_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"inhouse_enabled": True}, 0)
-
-    def test_frequency_inhouse_enabled_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"inhouse_enabled": True}, 0)
+        self.run_query(CaseExportVcfQuery, {"inhouse_enabled": True}, 0)
 
     def test_frequency_thousand_genomes_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": 0.01,
@@ -463,7 +394,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_frequency_thousand_genomes_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": 0.01,
@@ -475,19 +406,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_frequency_thousand_genomes_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "thousand_genomes_enabled": True,
-                "thousand_genomes_frequency": 0.01,
-                "thousand_genomes_homozygous": None,
-                "thousand_genomes_heterozygous": None,
-            },
-            2,
-        )
-
-    def test_frequency_thousand_genomes_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": 0.01,
@@ -499,7 +418,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_frequency_exac_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": 0.01,
@@ -511,7 +430,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_frequency_exac_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": 0.01,
@@ -523,19 +442,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_frequency_exac_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "exac_enabled": True,
-                "exac_frequency": 0.01,
-                "exac_homozygous": None,
-                "exac_heterozygous": None,
-            },
-            2,
-        )
-
-    def test_frequency_exac_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": 0.01,
@@ -547,7 +454,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_frequency_gnomad_exomes_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": 0.01,
@@ -559,7 +466,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_frequency_gnomad_exomes_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": 0.01,
@@ -571,19 +478,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_frequency_gnomad_exomes_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "gnomad_exomes_enabled": True,
-                "gnomad_exomes_frequency": 0.01,
-                "gnomad_exomes_homozygous": None,
-                "gnomad_exomes_heterozygous": None,
-            },
-            2,
-        )
-
-    def test_frequency_gnomad_exomes_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": 0.01,
@@ -595,7 +490,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_frequency_gnomad_genomes_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": 0.01,
@@ -607,7 +502,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_frequency_gnomad_genomes_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": 0.01,
@@ -619,19 +514,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_frequency_gnomad_genomes_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "gnomad_genomes_enabled": True,
-                "gnomad_genomes_frequency": 0.01,
-                "gnomad_genomes_homozygous": None,
-                "gnomad_genomes_heterozygous": None,
-            },
-            2,
-        )
-
-    def test_frequency_gnomad_genomes_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": 0.01,
@@ -645,7 +528,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_carriers_inhouse_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "inhouse_enabled": True,
                 "inhouse_carriers": 4,
@@ -657,7 +540,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_carriers_inhouse_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "inhouse_enabled": True,
                 "inhouse_carriers": 4,
@@ -669,19 +552,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_carriers_inhouse_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "inhouse_enabled": True,
-                "inhouse_carriers": 4,
-                "inhouse_homozygous": None,
-                "inhouse_heterozygous": None,
-            },
-            2,
-        )
-
-    def test_carriers_inhouse_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "inhouse_enabled": True,
                 "inhouse_carriers": 4,
@@ -693,7 +564,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_thousand_genomes_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
@@ -705,7 +576,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_thousand_genomes_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
@@ -717,19 +588,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_thousand_genomes_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "thousand_genomes_enabled": True,
-                "thousand_genomes_frequency": None,
-                "thousand_genomes_homozygous": 2,
-                "thousand_genomes_heterozygous": None,
-            },
-            2,
-        )
-
-    def test_homozygous_thousand_genomes_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
@@ -741,7 +600,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_exac_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": None,
@@ -753,7 +612,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_exac_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": None,
@@ -765,19 +624,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_exac_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "exac_enabled": True,
-                "exac_frequency": None,
-                "exac_homozygous": 2,
-                "exac_heterozygous": None,
-            },
-            2,
-        )
-
-    def test_homozygous_exac_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": None,
@@ -789,7 +636,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_gnomad_exomes_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
@@ -801,7 +648,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_gnomad_exomes_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
@@ -813,19 +660,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_gnomad_exomes_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "gnomad_exomes_enabled": True,
-                "gnomad_exomes_frequency": None,
-                "gnomad_exomes_homozygous": 2,
-                "gnomad_exomes_heterozygous": None,
-            },
-            2,
-        )
-
-    def test_homozygous_gnomad_exomes_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
@@ -837,7 +672,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_gnomad_genomes_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": None,
@@ -849,7 +684,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_gnomad_genomes_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": None,
@@ -861,19 +696,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_gnomad_genomes_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "gnomad_genomes_enabled": True,
-                "gnomad_genomes_frequency": None,
-                "gnomad_genomes_homozygous": 2,
-                "gnomad_genomes_heterozygous": None,
-            },
-            2,
-        )
-
-    def test_homozygous_gnomad_genomes_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": None,
@@ -885,7 +708,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_inhouse_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
@@ -897,7 +720,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_inhouse_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
@@ -909,19 +732,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_homozygous_inhouse_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "inhouse_enabled": True,
-                "inhouse_carriers": None,
-                "inhouse_homozygous": 2,
-                "inhouse_heterozygous": None,
-            },
-            2,
-        )
-
-    def test_homozygous_inhouse_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
@@ -933,7 +744,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_thousand_genomes_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
@@ -945,7 +756,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_thousand_genomes_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
@@ -957,19 +768,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_thousand_genomes_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "thousand_genomes_enabled": True,
-                "thousand_genomes_frequency": None,
-                "thousand_genomes_homozygous": None,
-                "thousand_genomes_heterozygous": 2,
-            },
-            2,
-        )
-
-    def test_heterozygous_thousand_genomes_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
@@ -981,7 +780,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_exac_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": None,
@@ -993,7 +792,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_exac_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": None,
@@ -1005,19 +804,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_exac_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "exac_enabled": True,
-                "exac_frequency": None,
-                "exac_homozygous": None,
-                "exac_heterozygous": 2,
-            },
-            2,
-        )
-
-    def test_heterozygous_exac_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "exac_enabled": True,
                 "exac_frequency": None,
@@ -1029,7 +816,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_gnomad_exomes_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
@@ -1041,7 +828,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_gnomad_exomes_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
@@ -1053,19 +840,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_gnomad_exomes_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "gnomad_exomes_enabled": True,
-                "gnomad_exomes_frequency": None,
-                "gnomad_exomes_homozygous": None,
-                "gnomad_exomes_heterozygous": 2,
-            },
-            2,
-        )
-
-    def test_heterozygous_gnomad_exomes_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
@@ -1077,7 +852,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_inhouse_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
@@ -1089,7 +864,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_inhouse_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
@@ -1101,19 +876,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def test_heterozygous_inhouse_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "inhouse_enabled": True,
-                "inhouse_carriers": None,
-                "inhouse_homozygous": None,
-                "inhouse_heterozygous": 2,
-            },
-            2,
-        )
-
-    def test_heterozygous_inhouse_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
@@ -1136,71 +899,49 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
         SmallVariantFactory(refseq_effect=["frameshift_variant"], case=case)
 
     def test_effects_none_filter(self):
-        self.run_query(PrefetchFilterQuery, {"effects": []}, 0)
+        self.run_query(CasePrefetchQuery, {"effects": []}, 0)
 
     def test_effects_none_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"effects": []}, 0)
+        self.run_query(CaseExportTableQuery, {"effects": []}, 0)
 
     def test_effects_none_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"effects": []}, 0)
-
-    def test_effects_none_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"effects": []}, 0)
+        self.run_query(CaseExportVcfQuery, {"effects": []}, 0)
 
     def test_effects_one_filter(self):
-        self.run_query(PrefetchFilterQuery, {"effects": ["missense_variant"]}, 2)
+        self.run_query(CasePrefetchQuery, {"effects": ["missense_variant"]}, 2)
 
     def test_effects_one_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"effects": ["missense_variant"]}, 2)
+        self.run_query(CaseExportTableQuery, {"effects": ["missense_variant"]}, 2)
 
     def test_effects_one_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"effects": ["missense_variant"]}, 2)
-
-    def test_effects_one_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"effects": ["missense_variant"]}, 2)
+        self.run_query(CaseExportVcfQuery, {"effects": ["missense_variant"]}, 2)
 
     def test_effects_two_filter(self):
-        self.run_query(PrefetchFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3)
+        self.run_query(CasePrefetchQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3)
 
     def test_effects_two_export(self):
-        self.run_query(
-            ExportTableFileFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3
-        )
+        self.run_query(CaseExportTableQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3)
 
     def test_effects_two_vcf(self):
-        self.run_query(
-            ExportVcfFileFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3
-        )
-
-    def test_effects_two_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3
-        )
+        self.run_query(CaseExportVcfQuery, {"effects": ["stop_lost", "frameshift_variant"]}, 3)
 
     def test_effects_all_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"effects": ["missense_variant", "stop_lost", "frameshift_variant"]},
             3,
         )
 
     def test_effects_all_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {"effects": ["missense_variant", "stop_lost", "frameshift_variant"]},
             3,
         )
 
     def test_effects_all_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {"effects": ["missense_variant", "stop_lost", "frameshift_variant"]},
-            3,
-        )
-
-    def test_effects_all_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {"effects": ["missense_variant", "stop_lost", "frameshift_variant"]},
             3,
         )
@@ -1217,9 +958,9 @@ class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
             refseq_transcript_coding=True, ensembl_transcript_coding=True, case=case
         )
 
-    def test_transcript_empty_refseq(self):
+    def test_transcript_empty_refseq_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "database_select": "refseq",
                 "transcripts_coding": False,
@@ -1228,9 +969,31 @@ class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
             0,
         )
 
-    def test_transcript_empty_ensembl(self):
+    def test_transcript_empty_refseq_export_table(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CaseExportTableQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": False,
+                "transcripts_noncoding": False,
+            },
+            0,
+        )
+
+    def test_transcript_empty_refseq_export_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": False,
+                "transcripts_noncoding": False,
+            },
+            0,
+        )
+
+    def test_transcript_empty_ensembl_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
             {
                 "database_select": "ensembl",
                 "transcripts_coding": False,
@@ -1239,9 +1002,31 @@ class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
             0,
         )
 
-    def test_transcript_coding_refseq(self):
+    def test_transcript_empty_ensembl_export_table(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CaseExportTableQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": False,
+                "transcripts_noncoding": False,
+            },
+            0,
+        )
+
+    def test_transcript_empty_ensembl_export_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": False,
+                "transcripts_noncoding": False,
+            },
+            0,
+        )
+
+    def test_transcript_coding_refseq_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
             {
                 "database_select": "refseq",
                 "transcripts_coding": True,
@@ -1250,9 +1035,31 @@ class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
             1,
         )
 
-    def test_transcript_coding_ensembl(self):
+    def test_transcript_coding_refseq_export_table(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CaseExportTableQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": True,
+                "transcripts_noncoding": False,
+            },
+            1,
+        )
+
+    def test_transcript_coding_refseq_export_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": True,
+                "transcripts_noncoding": False,
+            },
+            1,
+        )
+
+    def test_transcript_coding_ensembl_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
             {
                 "database_select": "ensembl",
                 "transcripts_coding": True,
@@ -1261,9 +1068,31 @@ class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
             1,
         )
 
-    def test_transcript_noncoding_refseq(self):
+    def test_transcript_coding_ensembl_export_table(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CaseExportTableQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": True,
+                "transcripts_noncoding": False,
+            },
+            1,
+        )
+
+    def test_transcript_coding_ensembl_export_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": True,
+                "transcripts_noncoding": False,
+            },
+            1,
+        )
+
+    def test_transcript_noncoding_refseq_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
             {
                 "database_select": "refseq",
                 "transcripts_coding": False,
@@ -1272,9 +1101,31 @@ class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
             1,
         )
 
-    def test_transcript_noncoding_ensembl(self):
+    def test_transcript_noncoding_refseq_export_table(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CaseExportTableQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": False,
+                "transcripts_noncoding": True,
+            },
+            1,
+        )
+
+    def test_transcript_noncoding_refseq_export_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": False,
+                "transcripts_noncoding": True,
+            },
+            1,
+        )
+
+    def test_transcript_noncoding_ensembl_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
             {
                 "database_select": "ensembl",
                 "transcripts_coding": False,
@@ -1283,9 +1134,31 @@ class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
             1,
         )
 
-    def test_transcript_coding_and_noncoding_refseq(self):
+    def test_transcript_noncoding_ensembl_export_table(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CaseExportTableQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": False,
+                "transcripts_noncoding": True,
+            },
+            1,
+        )
+
+    def test_transcript_noncoding_ensembl_export_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": False,
+                "transcripts_noncoding": True,
+            },
+            1,
+        )
+
+    def test_transcript_coding_and_noncoding_refseq_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
             {
                 "database_select": "refseq",
                 "transcripts_coding": True,
@@ -1294,9 +1167,53 @@ class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
             2,
         )
 
-    def test_transcript_coding_and_noncoding_ensembl(self):
+    def test_transcript_coding_and_noncoding_refseq_export_table(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CaseExportTableQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": True,
+                "transcripts_noncoding": True,
+            },
+            2,
+        )
+
+    def test_transcript_coding_and_noncoding_refseq_export_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "database_select": "refseq",
+                "transcripts_coding": True,
+                "transcripts_noncoding": True,
+            },
+            2,
+        )
+
+    def test_transcript_coding_and_noncoding_ensembl_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": True,
+                "transcripts_noncoding": True,
+            },
+            2,
+        )
+
+    def test_transcript_coding_and_noncoding_ensembl_export_table(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {
+                "database_select": "ensembl",
+                "transcripts_coding": True,
+                "transcripts_noncoding": True,
+            },
+            2,
+        )
+
+    def test_transcript_coding_and_noncoding_ensembl_export_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
             {
                 "database_select": "ensembl",
                 "transcripts_coding": True,
@@ -1340,284 +1257,215 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
         )
 
     def test_genotype_gt_any_filter(self):
-        self.run_query(PrefetchFilterQuery, {"%s_gt" % self.patient: "any"}, 8)
+        self.run_query(CasePrefetchQuery, {"%s_gt" % self.patient: "any"}, 8)
 
     def test_genotype_gt_any_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"%s_gt" % self.patient: "any"}, 8)
+        self.run_query(CaseExportTableQuery, {"%s_gt" % self.patient: "any"}, 8)
 
     def test_genotype_gt_any_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"%s_gt" % self.patient: "any"}, 8)
-
-    def test_genotype_gt_any_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"%s_gt" % self.patient: "any"}, 8)
+        self.run_query(CaseExportVcfQuery, {"%s_gt" % self.patient: "any"}, 8)
 
     def test_genotype_gt_ref_filter(self):
-        self.run_query(PrefetchFilterQuery, {"%s_gt" % self.patient: "ref"}, 1)
+        self.run_query(CasePrefetchQuery, {"%s_gt" % self.patient: "ref"}, 1)
 
     def test_genotype_gt_ref_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"%s_gt" % self.patient: "ref"}, 1)
+        self.run_query(CaseExportTableQuery, {"%s_gt" % self.patient: "ref"}, 1)
 
     def test_genotype_gt_ref_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"%s_gt" % self.patient: "ref"}, 1)
-
-    def test_genotype_gt_ref_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"%s_gt" % self.patient: "ref"}, 1)
+        self.run_query(CaseExportVcfQuery, {"%s_gt" % self.patient: "ref"}, 1)
 
     def test_genotype_gt_het_filter(self):
-        self.run_query(PrefetchFilterQuery, {"%s_gt" % self.patient: "het"}, 5)
+        self.run_query(CasePrefetchQuery, {"%s_gt" % self.patient: "het"}, 5)
 
     def test_genotype_gt_het_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"%s_gt" % self.patient: "het"}, 5)
+        self.run_query(CaseExportTableQuery, {"%s_gt" % self.patient: "het"}, 5)
 
     def test_genotype_gt_het_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"%s_gt" % self.patient: "het"}, 5)
-
-    def test_genotype_gt_het_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"%s_gt" % self.patient: "het"}, 5)
+        self.run_query(CaseExportVcfQuery, {"%s_gt" % self.patient: "het"}, 5)
 
     def test_genotype_gt_hom_filter(self):
-        self.run_query(PrefetchFilterQuery, {"%s_gt" % self.patient: "hom"}, 1)
+        self.run_query(CasePrefetchQuery, {"%s_gt" % self.patient: "hom"}, 1)
 
     def test_genotype_gt_hom_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"%s_gt" % self.patient: "hom"}, 1)
+        self.run_query(CaseExportTableQuery, {"%s_gt" % self.patient: "hom"}, 1)
 
     def test_genotype_gt_hom_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"%s_gt" % self.patient: "hom"}, 1)
-
-    def test_genotype_gt_hom_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"%s_gt" % self.patient: "hom"}, 1)
+        self.run_query(CaseExportVcfQuery, {"%s_gt" % self.patient: "hom"}, 1)
 
     def test_genotype_gt_variant_filter(self):
-        self.run_query(PrefetchFilterQuery, {"%s_gt" % self.patient: "variant"}, 6)
+        self.run_query(CasePrefetchQuery, {"%s_gt" % self.patient: "variant"}, 6)
 
     def test_genotype_gt_variant_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"%s_gt" % self.patient: "variant"}, 6)
+        self.run_query(CaseExportTableQuery, {"%s_gt" % self.patient: "variant"}, 6)
 
     def test_genotype_gt_variant_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"%s_gt" % self.patient: "variant"}, 6)
-
-    def test_genotype_gt_variant_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"%s_gt" % self.patient: "variant"}, 6)
+        self.run_query(CaseExportVcfQuery, {"%s_gt" % self.patient: "variant"}, 6)
 
     def test_genotype_gt_non_variant_filter(self):
-        self.run_query(PrefetchFilterQuery, {"%s_gt" % self.patient: "non-variant"}, 2)
+        self.run_query(CasePrefetchQuery, {"%s_gt" % self.patient: "non-variant"}, 2)
 
     def test_genotype_gt_non_variant_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"%s_gt" % self.patient: "non-variant"}, 2)
+        self.run_query(CaseExportTableQuery, {"%s_gt" % self.patient: "non-variant"}, 2)
 
     def test_genotype_gt_non_variant_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"%s_gt" % self.patient: "non-variant"}, 2)
-
-    def test_genotype_gt_non_variant_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"%s_gt" % self.patient: "non-variant"}, 2)
+        self.run_query(CaseExportVcfQuery, {"%s_gt" % self.patient: "non-variant"}, 2)
 
     def test_genotype_gt_non_reference_filter(self):
-        self.run_query(PrefetchFilterQuery, {"%s_gt" % self.patient: "non-reference"}, 7)
+        self.run_query(CasePrefetchQuery, {"%s_gt" % self.patient: "non-reference"}, 7)
 
     def test_genotype_gt_non_reference_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"%s_gt" % self.patient: "non-reference"}, 7)
+        self.run_query(CaseExportTableQuery, {"%s_gt" % self.patient: "non-reference"}, 7)
 
     def test_genotype_gt_non_reference_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"%s_gt" % self.patient: "non-reference"}, 7)
-
-    def test_genotype_gt_non_reference_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"%s_gt" % self.patient: "non-reference"}, 7)
+        self.run_query(CaseExportVcfQuery, {"%s_gt" % self.patient: "non-reference"}, 7)
 
     def test_genotype_ad_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_ad" % self.patient: 15},
             5,
         )
 
     def test_genotype_ad_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_ad" % self.patient: 15},
             5,
         )
 
     def test_genotype_ad_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {"%s_fail" % self.patient: "drop-variant", "%s_ad" % self.patient: 15},
-            5,
-        )
-
-    def test_genotype_ad_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_ad" % self.patient: 15},
             5,
         )
 
     def test_genotype_ab_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_ab" % self.patient: 0.3},
             6,
         )
 
     def test_genotype_ab_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_ab" % self.patient: 0.3},
             6,
         )
 
     def test_genotype_ab_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {"%s_fail" % self.patient: "drop-variant", "%s_ab" % self.patient: 0.3},
-            6,
-        )
-
-    def test_genotype_ab_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_ab" % self.patient: 0.3},
             6,
         )
 
     def test_genotype_dp_het_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_het" % self.patient: 21},
             7,
         )
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_het" % self.patient: 20},
             8,
         )
 
     def test_genotype_dp_het_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_het" % self.patient: 21},
             7,
         )
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_het" % self.patient: 20},
             8,
         )
 
     def test_genotype_dp_het_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
+            CaseExportVcfQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_het" % self.patient: 21},
             7,
         )
         self.run_query(
-            ExportTableFileFilterQuery,
-            {"%s_fail" % self.patient: "drop-variant", "%s_dp_het" % self.patient: 20},
-            8,
-        )
-
-    def test_genotype_dp_het_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
-            {"%s_fail" % self.patient: "drop-variant", "%s_dp_het" % self.patient: 21},
-            7,
-        )
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportTableQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_het" % self.patient: 20},
             8,
         )
 
     def test_genotype_dp_hom_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_hom" % self.patient: 31},
             6,
         )
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_hom" % self.patient: 30},
             8,
         )
 
     def test_genotype_dp_hom_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_hom" % self.patient: 31},
             6,
         )
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_hom" % self.patient: 30},
             8,
         )
 
     def test_genotype_dp_hom_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
+            CaseExportVcfQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_hom" % self.patient: 31},
             6,
         )
         self.run_query(
-            ExportTableFileFilterQuery,
-            {"%s_fail" % self.patient: "drop-variant", "%s_dp_hom" % self.patient: 30},
-            8,
-        )
-
-    def test_genotype_dp_hom_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
-            {"%s_fail" % self.patient: "drop-variant", "%s_dp_hom" % self.patient: 31},
-            6,
-        )
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportTableQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_dp_hom" % self.patient: 30},
             8,
         )
 
     def test_genotype_gq_limits_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_gq" % self.patient: 66},
             7,
         )
 
     def test_genotype_gq_limits_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_gq" % self.patient: 66},
             7,
         )
 
     def test_genotype_gq_limits_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {"%s_fail" % self.patient: "drop-variant", "%s_gq" % self.patient: 66},
-            7,
-        )
-
-    def test_genotype_gq_limits_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_gq" % self.patient: 66},
             7,
         )
 
     def test_genotype_fail_ignore_filter(self):
-        self.run_query(PrefetchFilterQuery, {"%s_fail" % self.patient: "ignore"}, 8)
+        self.run_query(CasePrefetchQuery, {"%s_fail" % self.patient: "ignore"}, 8)
 
     def test_genotype_fail_ignore_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"%s_fail" % self.patient: "ignore"}, 8)
+        self.run_query(CaseExportTableQuery, {"%s_fail" % self.patient: "ignore"}, 8)
 
     def test_genotype_fail_ignore_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"%s_fail" % self.patient: "ignore"}, 8)
-
-    def test_genotype_fail_ignore_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"%s_fail" % self.patient: "ignore"}, 8)
+        self.run_query(CaseExportVcfQuery, {"%s_fail" % self.patient: "ignore"}, 8)
 
     def test_genotype_fail_drop_variant_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "%s_fail" % self.patient: "drop-variant",
                 "%s_dp" % self.patient: 20,
@@ -1630,7 +1478,7 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
 
     def test_genotype_fail_drop_variant_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "%s_fail" % self.patient: "drop-variant",
                 "%s_dp" % self.patient: 20,
@@ -1643,20 +1491,7 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
 
     def test_genotype_fail_drop_variant_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "%s_fail" % self.patient: "drop-variant",
-                "%s_dp" % self.patient: 20,
-                "%s_ab" % self.patient: 0.3,
-                "%s_gq" % self.patient: 20,
-                "%s_ad" % self.patient: 15,
-            },
-            4,
-        )
-
-    def test_genotype_fail_drop_variant_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "%s_fail" % self.patient: "drop-variant",
                 "%s_dp" % self.patient: 20,
@@ -1669,7 +1504,7 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
 
     def test_genotype_fail_no_call_filter(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "%s_fail" % self.patient: "no-call",
                 "%s_dp" % self.patient: 20,
@@ -1683,7 +1518,7 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
 
     def test_genotype_fail_no_call_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "%s_fail" % self.patient: "no-call",
                 "%s_dp" % self.patient: 20,
@@ -1697,21 +1532,7 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
 
     def test_genotype_fail_no_call_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {
-                "%s_fail" % self.patient: "no-call",
-                "%s_dp" % self.patient: 20,
-                "%s_ab" % self.patient: 0.3,
-                "%s_gq" % self.patient: 20,
-                "%s_ad" % self.patient: 15,
-                "%s_gt" % self.patient: "het",
-            },
-            6,
-        )
-
-    def test_genotype_fail_no_call_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+            CaseExportVcfQuery,
             {
                 "%s_fail" % self.patient: "no-call",
                 "%s_dp" % self.patient: 20,
@@ -1743,183 +1564,129 @@ class TestCaseOneWhitelistBlacklistRegionFilterQuery(SupportQueryTestBase):
             )
 
     def test_blacklist_empty(self):
-        self.run_query(PrefetchFilterQuery, {"gene_blacklist": []}, 6)
+        self.run_query(CasePrefetchQuery, {"gene_blacklist": []}, 6)
 
     def test_blacklist_empty_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"gene_blacklist": []}, 6)
+        self.run_query(CaseExportTableQuery, {"gene_blacklist": []}, 6)
 
     def test_blacklist_empty_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"gene_blacklist": []}, 6)
-
-    def test_blacklist_empty_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"gene_blacklist": []}, 6)
+        self.run_query(CaseExportVcfQuery, {"gene_blacklist": []}, 6)
 
     def test_blacklist_one_filter(self):
-        self.run_query(PrefetchFilterQuery, {"gene_blacklist": [self.hgncs[0].symbol]}, 5)
+        self.run_query(CasePrefetchQuery, {"gene_blacklist": [self.hgncs[0].symbol]}, 5)
 
     def test_blacklist_one_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"gene_blacklist": [self.hgncs[0].symbol]}, 5)
+        self.run_query(CaseExportTableQuery, {"gene_blacklist": [self.hgncs[0].symbol]}, 5)
 
     def test_blacklist_one_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"gene_blacklist": [self.hgncs[0].symbol]}, 5)
-
-    def test_blacklist_one_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"gene_blacklist": [self.hgncs[0].symbol]}, 5)
+        self.run_query(CaseExportVcfQuery, {"gene_blacklist": [self.hgncs[0].symbol]}, 5)
 
     def test_blacklist_two_filter(self):
         self.run_query(
-            PrefetchFilterQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
+            CasePrefetchQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
     def test_blacklist_two_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
-            {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs[:2]]},
-            3,
+            CaseExportTableQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
     def test_blacklist_two_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs[:2]]},
-            3,
-        )
-
-    def test_blacklist_two_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
+            CaseExportVcfQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
     def test_blacklist_all_filter(self):
         self.run_query(
-            PrefetchFilterQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
+            CasePrefetchQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
         )
 
     def test_blacklist_all_export(self):
         self.run_query(
-            ExportTableFileFilterQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
+            CaseExportTableQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
         )
 
     def test_blacklist_all_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
-        )
-
-    def test_blacklist_all_count(self):
-        hgncs = Hgnc.objects.all()
-        self.run_count_query(
-            CountOnlyFilterQuery, {"gene_blacklist": [hgnc.symbol for hgnc in hgncs]}, 0
+            CaseExportVcfQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
         )
 
     def test_whitelist_empty(self):
-        self.run_query(PrefetchFilterQuery, {"gene_whitelist": []}, 6)
+        self.run_query(CasePrefetchQuery, {"gene_whitelist": []}, 6)
 
     def test_whitelist_empty_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"gene_whitelist": []}, 6)
+        self.run_query(CaseExportTableQuery, {"gene_whitelist": []}, 6)
 
     def test_whitelist_empty_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"gene_whitelist": []}, 6)
-
-    def test_whitelist_empty_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"gene_whitelist": []}, 6)
+        self.run_query(CaseExportVcfQuery, {"gene_whitelist": []}, 6)
 
     def test_whitelist_one_filter(self):
-        self.run_query(PrefetchFilterQuery, {"gene_whitelist": [self.hgncs[0].symbol]}, 1)
+        self.run_query(CasePrefetchQuery, {"gene_whitelist": [self.hgncs[0].symbol]}, 1)
 
     def test_whitelist_one_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"gene_whitelist": [self.hgncs[0].symbol]}, 1)
+        self.run_query(CaseExportTableQuery, {"gene_whitelist": [self.hgncs[0].symbol]}, 1)
 
     def test_whitelist_one_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"gene_whitelist": [self.hgncs[0].symbol]}, 1)
-
-    def test_whitelist_one_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"gene_whitelist": [self.hgncs[0].symbol]}, 1)
+        self.run_query(CaseExportVcfQuery, {"gene_whitelist": [self.hgncs[0].symbol]}, 1)
 
     def test_whitelist_two_filter(self):
         self.run_query(
-            PrefetchFilterQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
+            CasePrefetchQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
     def test_whitelist_two_export(self):
         self.run_query(
-            ExportTableFileFilterQuery,
-            {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs[:2]]},
-            3,
+            CaseExportTableQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
     def test_whitelist_two_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery,
-            {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs[:2]]},
-            3,
-        )
-
-    def test_whitelist_two_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
+            CaseExportVcfQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
     def test_whitelist_all_filter(self):
         self.run_query(
-            PrefetchFilterQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs]}, 6
+            CasePrefetchQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs]}, 6
         )
 
     def test_whitelist_all_export(self):
         self.run_query(
-            ExportTableFileFilterQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs]}, 6
+            CaseExportTableQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs]}, 6
         )
 
     def test_whitelist_all_vcf(self):
         self.run_query(
-            ExportVcfFileFilterQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs]}, 6
-        )
-
-    def test_whitelist_all_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs]}, 6
+            CaseExportVcfQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs]}, 6
         )
 
     def test_genomic_region_empty_filter(self):
-        self.run_query(PrefetchFilterQuery, {"genomic_region": []}, 6)
+        self.run_query(CasePrefetchQuery, {"genomic_region": []}, 6)
 
     def test_genomic_region_empty_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"genomic_region": []}, 6)
+        self.run_query(CaseExportTableQuery, {"genomic_region": []}, 6)
 
     def test_genomic_region_empty_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"genomic_region": []}, 6)
-
-    def test_genomic_region_empty_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"genomic_region": []}, 6)
+        self.run_query(CaseExportVcfQuery, {"genomic_region": []}, 6)
 
     def test_genomic_region_one_region_filter(self):
-        self.run_query(PrefetchFilterQuery, {"genomic_region": [("1", 1, 199)]}, 1)
+        self.run_query(CasePrefetchQuery, {"genomic_region": [("1", 1, 199)]}, 1)
 
     def test_genomic_region_one_region_export(self):
-        self.run_query(ExportTableFileFilterQuery, {"genomic_region": [("1", 1, 199)]}, 1)
+        self.run_query(CaseExportTableQuery, {"genomic_region": [("1", 1, 199)]}, 1)
 
     def test_genomic_region_one_region_vcf(self):
-        self.run_query(ExportVcfFileFilterQuery, {"genomic_region": [("1", 1, 199)]}, 1)
-
-    def test_genomic_region_one_region_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"genomic_region": [("1", 1, 199)]}, 1)
+        self.run_query(CaseExportVcfQuery, {"genomic_region": [("1", 1, 199)]}, 1)
 
     def test_genomic_region_two_regions_filter(self):
-        self.run_query(PrefetchFilterQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4)
+        self.run_query(CasePrefetchQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4)
 
     def test_genomic_region_two_regions_export(self):
         self.run_query(
-            ExportTableFileFilterQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4
+            CaseExportTableQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4
         )
 
     def test_genomic_region_two_regions_vcf(self):
-        self.run_query(
-            ExportVcfFileFilterQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4
-        )
-
-    def test_genomic_region_two_regions_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4
-        )
+        self.run_query(CaseExportVcfQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4)
 
 
 # ---------------------------------------------------------------------------
@@ -1981,7 +1748,7 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
 
     def test_query_de_novo_filter(self):
         res = self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "%s_gt" % self.case.pedigree[0]["patient"]: "het",
                 "%s_gt" % self.case.pedigree[0]["father"]: "ref",
@@ -1991,9 +1758,9 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
         )
         self.assertEqual(res[0].position, self.small_vars[0].position)
 
-    def test_query_de_novo_export(self):
+    def test_query_de_novo_export_table(self):
         res = self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "%s_gt" % self.case.pedigree[0]["patient"]: "het",
                 "%s_gt" % self.case.pedigree[0]["father"]: "ref",
@@ -2003,9 +1770,9 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
         )
         self.assertEqual(res[0].position, self.small_vars[0].position)
 
-    def test_query_de_novo_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+    def test_query_de_novo_export_vcf(self):
+        res = self.run_query(
+            CaseExportVcfQuery,
             {
                 "%s_gt" % self.case.pedigree[0]["patient"]: "het",
                 "%s_gt" % self.case.pedigree[0]["father"]: "ref",
@@ -2013,6 +1780,7 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
             },
             1,
         )
+        self.assertEqual(res[0].position, self.small_vars[0].position)
 
 
 class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
@@ -2063,7 +1831,7 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
 
     def test_query_recessive_hom_filter(self):
         res = self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {
                 "%s_gt" % self.case.pedigree[0]["patient"]: "hom",
                 "%s_gt" % self.case.pedigree[0]["father"]: "het",
@@ -2073,9 +1841,9 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
         )
         self.assertEqual(res[0].position, self.small_vars[1].position)
 
-    def test_query_recessive_hom_export(self):
+    def test_query_recessive_hom_export_table(self):
         res = self.run_query(
-            ExportTableFileFilterQuery,
+            CaseExportTableQuery,
             {
                 "%s_gt" % self.case.pedigree[0]["patient"]: "hom",
                 "%s_gt" % self.case.pedigree[0]["father"]: "het",
@@ -2085,9 +1853,9 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
         )
         self.assertEqual(res[0].position, self.small_vars[1].position)
 
-    def test_query_recessive_hom_count(self):
-        self.run_count_query(
-            CountOnlyFilterQuery,
+    def test_query_recessive_hom_export_vcf(self):
+        res = self.run_query(
+            CaseExportVcfQuery,
             {
                 "%s_gt" % self.case.pedigree[0]["patient"]: "hom",
                 "%s_gt" % self.case.pedigree[0]["father"]: "het",
@@ -2095,6 +1863,7 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
             },
             1,
         )
+        self.assertEqual(res[0].position, self.small_vars[1].position)
 
 
 class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
@@ -2149,32 +1918,29 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
         ]
 
     def test_query_compound_het_prefetch_filter(self):
-        res = self.run_query(PrefetchFilterQuery, {"compound_recessive_enabled": True}, 2)
+        res = self.run_query(CasePrefetchQuery, {"compound_recessive_enabled": True}, 2)
         self.assertEqual(res[0].position, self.small_vars[2].position)
         self.assertEqual(res[1].position, self.small_vars[3].position)
 
     def test_query_compound_het_export_tsv(self):
-        res = self.run_query(ExportTableFileFilterQuery, {"compound_recessive_enabled": True}, 2)
+        res = self.run_query(CaseExportTableQuery, {"compound_recessive_enabled": True}, 2)
         self.assertEqual(res[0].position, self.small_vars[2].position)
         self.assertEqual(res[1].position, self.small_vars[3].position)
 
     def test_query_compound_het_export_vcf(self):
-        res = self.run_query(ExportVcfFileFilterQuery, {"compound_recessive_enabled": True}, 2)
+        res = self.run_query(CaseExportVcfQuery, {"compound_recessive_enabled": True}, 2)
         self.assertEqual(res[0].position, self.small_vars[2].position)
         self.assertEqual(res[1].position, self.small_vars[3].position)
 
-    def test_query_compound_het_count(self):
-        self.run_count_query(CountOnlyFilterQuery, {"compound_recessive_enabled": True}, 2)
-
     def test_query_compound_het_load_prefetched_filter(self):
         # Generate results
-        res = self.run_query(PrefetchFilterQuery, {"compound_recessive_enabled": True}, 2)
+        res = self.run_query(CasePrefetchQuery, {"compound_recessive_enabled": True}, 2)
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
         query.query_results.add(res[0].id, res[1].id)
         # Load Prefetched results
         res = self.run_query(
-            LoadPrefetchedFilterQuery,
+            CaseLoadPrefetchedQuery,
             {"compound_recessive_enabled": True, "filter_job_id": query.id},
             2,
         )
@@ -2195,7 +1961,6 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
 class CaseThreeClinvarMembershipFilterTestMixin:
     """Base class for testing query with ClinvarMembership filter."""
 
-    check_result_rows = None
     query_class = None
     run_query_function = None
 
@@ -2244,8 +2009,7 @@ class CaseThreeClinvarMembershipFilterTestMixin:
         res = self.run_query_function(
             self.query_class, {"require_in_clinvar": True, "clinvar_include_pathogenic": True}, 1
         )
-        if self.check_result_rows:
-            self.assertEqual(res[0].position, self.small_vars[2].position)
+        self.assertEqual(res[0].position, self.small_vars[2].position)
 
     def test_render_query_require_membership_include_likely_pathogenic(self):
         res = self.run_query_function(
@@ -2253,8 +2017,7 @@ class CaseThreeClinvarMembershipFilterTestMixin:
             {"require_in_clinvar": True, "clinvar_include_likely_pathogenic": True},
             1,
         )
-        if self.check_result_rows:
-            self.assertEqual(res[0].position, self.small_vars[3].position)
+        self.assertEqual(res[0].position, self.small_vars[3].position)
 
     def test_render_query_require_membership_include_uncertain_significance(self):
         res = self.run_query_function(
@@ -2262,22 +2025,19 @@ class CaseThreeClinvarMembershipFilterTestMixin:
             {"require_in_clinvar": True, "clinvar_include_uncertain_significance": True},
             1,
         )
-        if self.check_result_rows:
-            self.assertEqual(res[0].position, self.small_vars[4].position)
+        self.assertEqual(res[0].position, self.small_vars[4].position)
 
     def test_render_query_require_membership_include_likely_benign(self):
         res = self.run_query_function(
             self.query_class, {"require_in_clinvar": True, "clinvar_include_likely_benign": True}, 1
         )
-        if self.check_result_rows:
-            self.assertEqual(res[0].position, self.small_vars[5].position)
+        self.assertEqual(res[0].position, self.small_vars[5].position)
 
     def test_render_query_require_membership_include_benign(self):
         res = self.run_query_function(
             self.query_class, {"require_in_clinvar": True, "clinvar_include_benign": True}, 1
         )
-        if self.check_result_rows:
-            self.assertEqual(res[0].position, self.small_vars[6].position)
+        self.assertEqual(res[0].position, self.small_vars[6].position)
 
 
 class RenderQueryTestCaseThreeClinvarMembershipFilter(
@@ -2285,8 +2045,7 @@ class RenderQueryTestCaseThreeClinvarMembershipFilter(
 ):
     """Test clinvar membership using RenderFilterQuery."""
 
-    check_result_rows = True
-    query_class = PrefetchFilterQuery
+    query_class = CasePrefetchQuery
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2298,25 +2057,23 @@ class ExportFileFilterQueryTestCaseThreeClinvarMembershipFilter(
 ):
     """Test clinvar membership using ExportFileFilterQuery."""
 
-    check_result_rows = True
-    query_class = ExportTableFileFilterQuery
+    query_class = CaseExportTableQuery
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.run_query_function = self.run_query
 
 
-class CountOnlyFilterQueryTestCaseThreeClinvarMembershipFilter(
+class ExportVcfFilterQueryTestCaseThreeClinvarMembershipFilter(
     CaseThreeClinvarMembershipFilterTestMixin, SupportQueryTestBase
 ):
-    """Test clinvar membership using CountOnlyFilterQuery."""
+    """Test clinvar membership using ExportFileFilterQuery."""
 
-    check_result_rows = False
-    query_class = CountOnlyFilterQuery
+    query_class = CaseExportVcfQuery
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.run_query_function = self.run_count_query
+        self.run_query_function = self.run_query
 
 
 # ---------------------------------------------------------------------------
@@ -2326,6 +2083,7 @@ class CountOnlyFilterQueryTestCaseThreeClinvarMembershipFilter(
 # We use the singleton case 1 and construct different cases with clinvar annotation.
 
 
+# TODO exports are missing
 class TestHgmdMembershipQuery(SupportQueryTestBase):
     """Tests for the HGMD membership query."""
 
@@ -2342,21 +2100,21 @@ class TestHgmdMembershipQuery(SupportQueryTestBase):
 
     def test_no_hgmd_query(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"require_in_hgmd_public": False, "display_hgmd_public_membership": False},
             2,
         )
 
     def test_require_in_hgmd_query(self):
         self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"require_in_hgmd_public": True, "display_hgmd_public_membership": False},
             1,
         )
 
     def test_display_hgmd_membership_query(self):
         res = self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"require_in_hgmd_public": False, "display_hgmd_public_membership": True},
             2,
         )
@@ -2364,13 +2122,14 @@ class TestHgmdMembershipQuery(SupportQueryTestBase):
 
     def test_require_in_hgmd_and_display_membership_query(self):
         res = self.run_query(
-            PrefetchFilterQuery,
+            CasePrefetchQuery,
             {"require_in_hgmd_public": True, "display_hgmd_public_membership": True},
             1,
         )
         self.assertEqual(res[0].hgmd_accession, self.hgmd.variation_name)
 
 
+# TODO clinvar doesn't test genotype
 class ClinvarReportQueryTestCaseFour(SupportQueryTestBase):
     def setUp(self):
         super().setUp()
@@ -2401,56 +2160,56 @@ class ClinvarReportQueryTestCaseFour(SupportQueryTestBase):
 
     def testEnsemblTranscripts(self):
         self._setup_clinvar_entry()
-        self.run_query(PrefetchClinvarReportQuery, {"database_select": "ensembl"}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"database_select": "ensembl"}, 1)
 
     def testPathogenicInclude(self):
         self._setup_clinvar_entry({"pathogenic": 1})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_include_pathogenic": True}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_pathogenic": True}, 1)
 
     def testPathogenicNoInclude(self):
         self._setup_clinvar_entry()
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_include_pathogenic": True}, 0)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_pathogenic": True}, 0)
 
     def testLikelyPathogenicInclude(self):
         self._setup_clinvar_entry({"likely_pathogenic": 1})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_include_likely_pathogenic": True}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_likely_pathogenic": True}, 1)
 
     def testLikelyPathogenicNoInclude(self):
         self._setup_clinvar_entry()
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_include_likely_pathogenic": True}, 0)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_likely_pathogenic": True}, 0)
 
     def testUncertainSignificanceInclude(self):
         self._setup_clinvar_entry({"uncertain_significance": 1})
         self.run_query(
-            PrefetchClinvarReportQuery, {"clinvar_include_uncertain_significance": True}, 1
+            ClinvarReportPrefetchQuery, {"clinvar_include_uncertain_significance": True}, 1
         )
 
     def testUncertainSignificanceNoInclude(self):
         self._setup_clinvar_entry()
         self.run_query(
-            PrefetchClinvarReportQuery, {"clinvar_include_uncertain_significance": True}, 0
+            ClinvarReportPrefetchQuery, {"clinvar_include_uncertain_significance": True}, 0
         )
 
     def testLikelyBenignInclude(self):
         self._setup_clinvar_entry({"likely_benign": 1})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_include_likely_benign": True}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_likely_benign": True}, 1)
 
     def testLikelyBenignNoInclude(self):
         self._setup_clinvar_entry()
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_include_likely_benign": True}, 0)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_likely_benign": True}, 0)
 
     def testBenignInclude(self):
         self._setup_clinvar_entry({"benign": 1})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_include_benign": True}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_benign": True}, 1)
 
     def testBenignNoInclude(self):
         self._setup_clinvar_entry()
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_include_benign": True}, 0)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_benign": True}, 0)
 
     def testGermlineInclude(self):
         self._setup_clinvar_entry({"origin": ["germline"]})
         self.run_query(
-            PrefetchClinvarReportQuery,
+            ClinvarReportPrefetchQuery,
             {"clinvar_origin_germline": True, "clinvar_origin_somatic": False},
             1,
         )
@@ -2458,7 +2217,7 @@ class ClinvarReportQueryTestCaseFour(SupportQueryTestBase):
     def testGermlineNoInclude(self):
         self._setup_clinvar_entry({"origin": ["germline"]})
         self.run_query(
-            PrefetchClinvarReportQuery,
+            ClinvarReportPrefetchQuery,
             {"clinvar_origin_germline": False, "clinvar_origin_somatic": True},
             0,
         )
@@ -2466,7 +2225,7 @@ class ClinvarReportQueryTestCaseFour(SupportQueryTestBase):
     def testSomaticInclude(self):
         self._setup_clinvar_entry({"origin": ["somatic"]})
         self.run_query(
-            PrefetchClinvarReportQuery,
+            ClinvarReportPrefetchQuery,
             {"clinvar_origin_germline": False, "clinvar_origin_somatic": True},
             1,
         )
@@ -2474,80 +2233,80 @@ class ClinvarReportQueryTestCaseFour(SupportQueryTestBase):
     def testSomaticNoInclude(self):
         self._setup_clinvar_entry({"origin": ["somatic"]})
         self.run_query(
-            PrefetchClinvarReportQuery,
+            ClinvarReportPrefetchQuery,
             {"clinvar_origin_germline": True, "clinvar_origin_somatic": False},
             0,
         )
 
     def testPracticeGuidelineInclude(self):
         self._setup_clinvar_entry({"review_status_ordered": ["practice guideline"]})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_practice_guideline": True}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_practice_guideline": True}, 1)
 
     def testPracticeGuidelineNoInclude(self):
         self._setup_clinvar_entry({"review_status_ordered": ["practice guideline"]})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_practice_guideline": False}, 0)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_practice_guideline": False}, 0)
 
     def testExpertPanelInclude(self):
         self._setup_clinvar_entry({"review_status_ordered": ["reviewed by expert panel"]})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_expert_panel": True}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_expert_panel": True}, 1)
 
     def testExpertPanelNoInclude(self):
         self._setup_clinvar_entry({"review_status_ordered": ["reviewed by expert panel"]})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_expert_panel": False}, 0)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_expert_panel": False}, 0)
 
     def testMultipleNoConflictInclude(self):
         self._setup_clinvar_entry(
             {"review_status_ordered": ["criteria provided, multiple submitters, no conflicts"]}
         )
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_multiple_no_conflict": True}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_multiple_no_conflict": True}, 1)
 
     def testMultipleNoConflictNoInclude(self):
         self._setup_clinvar_entry(
             {"review_status_ordered": ["criteria provided, multiple submitters, no conflicts"]}
         )
         self.run_query(
-            PrefetchClinvarReportQuery, {"clinvar_status_multiple_no_conflict": False}, 0
+            ClinvarReportPrefetchQuery, {"clinvar_status_multiple_no_conflict": False}, 0
         )
 
     def testSingleInclude(self):
         self._setup_clinvar_entry(
             {"review_status_ordered": ["criteria provided, single submitter"]}
         )
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_single": True}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_single": True}, 1)
 
     def testSingleNoInclude(self):
         self._setup_clinvar_entry(
             {"review_status_ordered": ["criteria provided, single submitter"]}
         )
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_single": False}, 0)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_single": False}, 0)
 
     def testConflictInclude(self):
         self._setup_clinvar_entry(
             {"review_status_ordered": ["criteria provided, conflicting interpretations"]}
         )
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_conflict": True}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_conflict": True}, 1)
 
     def testConflictNoInclude(self):
         self._setup_clinvar_entry(
             {"review_status_ordered": ["criteria provided, conflicting interpretations"]}
         )
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_conflict": False}, 0)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_conflict": False}, 0)
 
     def testNoCriteriaInclude(self):
         self._setup_clinvar_entry({"review_status_ordered": ["no assertion criteria provided"]})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_no_criteria": True}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_no_criteria": True}, 1)
 
     def testNoCriteriaNoInclude(self):
         self._setup_clinvar_entry({"review_status_ordered": ["no assertion criteria provided"]})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_no_criteria": False}, 0)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_no_criteria": False}, 0)
 
     def testNoAssertionInclude(self):
         self._setup_clinvar_entry({"review_status_ordered": ["no assertion provided"]})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_no_assertion": True}, 1)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_no_assertion": True}, 1)
 
     def testNoAssertionNoInclude(self):
         self._setup_clinvar_entry({"review_status_ordered": ["no assertion provided"]})
-        self.run_query(PrefetchClinvarReportQuery, {"clinvar_status_no_assertion": False}, 0)
+        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_no_assertion": False}, 0)
 
 
 class TestCaseFourClinvarLoadPrefetchedQuery(SupportQueryTestBase):
@@ -2574,7 +2333,7 @@ class TestCaseFourClinvarLoadPrefetchedQuery(SupportQueryTestBase):
         self.clinvarquery.query_results.add(self.small_vars[0].id, self.small_vars[2].id)
 
     def test_load_prefetched_clinvar_query(self):
-        self.run_query(LoadPrefetchedClinvarReportQuery, {"filter_job_id": self.clinvarquery.id}, 2)
+        self.run_query(ClinvarReportLoadPrefetchedQuery, {"filter_job_id": self.clinvarquery.id}, 2)
 
 
 class TestClinvarCompHetQuery(SupportQueryTestBase):
@@ -2672,19 +2431,19 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
                 )
 
     def test_query_compound_het_prefetch_filter(self):
-        res = self.run_query(PrefetchClinvarReportQuery, {"compound_recessive_enabled": True}, 2)
+        res = self.run_query(ClinvarReportPrefetchQuery, {"compound_recessive_enabled": True}, 2)
         self.assertEqual(res[0].position, self.small_vars[2].position)
         self.assertEqual(res[1].position, self.small_vars[3].position)
 
     def test_query_compound_het_load_prefetched_filter(self):
         # Generate results
-        res = self.run_query(PrefetchClinvarReportQuery, {"compound_recessive_enabled": True}, 2)
+        res = self.run_query(ClinvarReportPrefetchQuery, {"compound_recessive_enabled": True}, 2)
         # Add results to variant query
         query = ClinvarQueryFactory(case=self.case)
         query.query_results.add(res[0].id, res[1].id)
         # Load Prefetched results
         res = self.run_query(
-            LoadPrefetchedClinvarReportQuery,
+            ClinvarReportLoadPrefetchedQuery,
             {"compound_recessive_enabled": True, "filter_job_id": query.id},
             2,
         )
@@ -2706,15 +2465,12 @@ class TestCaseFiveQueryProject(SupportQueryTestBase):
         projectcasessmallvariantquery.query_results.add(small_vars[0], small_vars[2])
 
     def test_query_project_with_two_cases(self):
-        self.run_query(ProjectCasesPrefetchFilterQuery, {}, 3, query_type="project")
+        self.run_query(ProjectPrefetchQuery, {}, 3, query_type="project")
 
     def test_load_project_prefetched_two_cases(self):
         query_job = ProjectCasesSmallVariantQuery.objects.first()
         self.run_query(
-            ProjectCasesLoadPrefetchedFilterQuery,
-            {"filter_job_id": query_job.id},
-            2,
-            query_type="project",
+            ProjectLoadPrefetchedQuery, {"filter_job_id": query_job.id}, 2, query_type="project"
         )
 
 

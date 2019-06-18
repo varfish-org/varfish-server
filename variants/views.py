@@ -32,11 +32,11 @@ from frequencies.views import FrequencyMixin
 from projectroles.app_settings import AppSettingAPI
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from projectroles.plugins import get_backend_api
-from .models_support import (
-    LoadPrefetchedClinvarReportQuery,
+from .queries import (
+    CaseLoadPrefetchedQuery,
+    ProjectLoadPrefetchedQuery,
+    ClinvarReportLoadPrefetchedQuery,
     KnownGeneAAQuery,
-    LoadPrefetchedFilterQuery,
-    ProjectCasesLoadPrefetchedFilterQuery,
 )
 from .models import (
     Case,
@@ -591,7 +591,7 @@ class CaseLoadPrefetchedFilterView(
         # Take time while job is running
         before = timezone.now()
         # Get and run query
-        query = LoadPrefetchedFilterQuery(
+        query = CaseLoadPrefetchedQuery(
             filter_job.smallvariantquery.case, SQLALCHEMY_ENGINE, filter_job.smallvariantquery.id
         )
         with contextlib.closing(query.run(filter_job.smallvariantquery.query_settings)) as results:
@@ -698,7 +698,7 @@ class ProjectCasesLoadPrefetchedFilterView(
         # Take time while job is running
         before = timezone.now()
         # Get and run query
-        query = ProjectCasesLoadPrefetchedFilterQuery(
+        query = ProjectLoadPrefetchedQuery(
             filter_job.projectcasessmallvariantquery.project,
             SQLALCHEMY_ENGINE,
             filter_job.projectcasessmallvariantquery.id,
@@ -1007,7 +1007,7 @@ def status_level(status):
 def sig_level(significance):
     """Return int level of highest pathogenicity from iterable of pathogenicity strings."""
     for i, ref in enumerate(FILTER_FORM_TRANSLATE_SIGNIFICANCE.values()):
-        if ref == significance:
+        if ref.replace(" ", "_") == significance:
             return i
     return len(FILTER_FORM_TRANSLATE_SIGNIFICANCE.values())
 
@@ -1246,26 +1246,21 @@ class CaseLoadPrefetchedClinvarReportView(
         # Take time while job is running
         before = timezone.now()
         # Get and run query
-        query = LoadPrefetchedClinvarReportQuery(
+        query = ClinvarReportLoadPrefetchedQuery(
             clinvar_job.clinvarquery.case, SQLALCHEMY_ENGINE, clinvar_job.clinvarquery.id
         )
         with contextlib.closing(query.run(clinvar_job.clinvarquery.query_settings)) as results:
             num_results = results.rowcount
             # Get first N rows. This will pop the first N rows! results list will be decreased by N.
             rows = results.fetchmany(clinvar_job.clinvarquery.query_settings["result_rows_limit"])
-            grouped_rows = {
-                (r["max_significance_lvl"], r["max_clinvar_status_lvl"], key): r
-                for key, r in self._yield_grouped_rows(rows)
-            }
-            sorted_grouped_rows = [v for k, v in sorted(grouped_rows.items())]
+            sorted_rows = [v for k, v in sorted(dict(self._add_max_sig_status(rows)).items())]
             elapsed = timezone.now() - before
 
         return render(
             request,
             self.template_name,
             self.get_context_data(
-                result_rows=rows,
-                grouped_rows=sorted_grouped_rows,
+                result_rows=sorted_rows,
                 result_count=num_results,
                 elapsed_seconds=elapsed.total_seconds(),
                 database=clinvar_job.clinvarquery.query_settings["database_select"],
@@ -1273,47 +1268,71 @@ class CaseLoadPrefetchedClinvarReportView(
                     "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
                     for e in clinvar_job.bg_job.log_entries.all().order_by("date_created")
                 ],
-                # pedigree=clinvar_job.clinvarquery.case.get_filtered_pedigree_with_samples(),
             ),
         )
 
-    def _yield_grouped_rows(self, rows):
-        grouped = groupby(
-            rows, lambda x: (x.release, x.chromosome, x.position, x.reference, x.alternative)
-        )
-        for k, vs in grouped:
-            key = "-".join(map(str, k))
-            vs = list(vs)
-            row = {"entries": vs, "clinvars": []}
-            for v in vs:
-                row["clinvars"].append(
+    def _add_max_sig_status(self, rows):
+        def _find_split_positions(column):
+            split_positions = []
+            prev_position = 0
+            for i, x in enumerate(column):
+                if x == "$":
+                    split_positions.append((prev_position, i))
+                    prev_position = i + 1
+            split_positions.append((prev_position, len(column)))
+            return split_positions
+
+        for row in rows:
+            key = "-".join(
+                map(
+                    str, [row.release, row.chromosome, row.position, row.reference, row.alternative]
+                )
+            )
+            row_clinvar = {"entry": row, "clinvars": []}
+            candidates = []
+            # Find out where a new entry in the array list begins, delimiter is the "$" sign.
+            split_sig = _find_split_positions(row.clinical_significance_ordered)
+            split_status = _find_split_positions(row.review_status_ordered)
+            split_trait = _find_split_positions(row.all_traits)
+            split_origin = _find_split_positions(row.origin)
+            for i, rcv in enumerate(row.rcv):
+                row_clinvar["clinvars"].append(
                     {
-                        "rcv": v.rcv,
-                        "clinical_significance_ordered": v.clinical_significance_ordered,
-                        "review_status_orderd": v.review_status_ordered,
-                        "all_traits": v.all_traits,
-                        # "dates_ordered": v.dates_ordered,
-                        "origin": v.origin,
+                        "rcv": rcv,
+                        "clinical_significance_ordered": row.clinical_significance_ordered[
+                            split_sig[i][0] : split_sig[i][1]
+                        ],
+                        "review_status_ordered": row.review_status_ordered[
+                            split_status[i][0] : split_status[i][1]
+                        ],
+                        "all_traits": row.all_traits[split_trait[i][0] : split_trait[i][1]],
+                        "origin": row.origin[split_origin[i][0] : split_origin[i][1]],
                     }
                 )
-                candidates = []
-                for sig, status in zip(v.clinical_significance_ordered, v.review_status_ordered):
+                for sig, status in zip(
+                    row_clinvar["clinvars"][-1]["clinical_significance_ordered"],
+                    row_clinvar["clinvars"][-1]["review_status_ordered"],
+                ):
                     sig_lvl = sig_level(sig)
                     status_lvl = status_level(status)
                     candidates.append((sig_lvl, status_lvl, sig, status))
-                # update dict
-                keys = [
-                    "max_significance_lvl",
-                    "max_clinvar_status_lvl",
-                    "max_significance",
-                    "max_clinvar_status",
-                ]
-                if candidates:
-                    values = min(candidates)
-                else:
-                    values = (sig_level(None), status_level(None), None, None)
-                row = {**row, **(dict(zip(keys, values)))}
-            yield key, row
+            # update dict
+            keys = [
+                "max_significance_lvl",
+                "max_clinvar_status_lvl",
+                "max_significance",
+                "max_clinvar_status",
+            ]
+            if candidates:
+                values = min(candidates)
+            else:
+                values = (sig_level(None), status_level(None), None, None)
+            row_clinvar = {**row_clinvar, **(dict(zip(keys, values)))}
+            yield (
+                row_clinvar["max_significance_lvl"],
+                row_clinvar["max_clinvar_status_lvl"],
+                key,
+            ), row_clinvar
 
 
 class ClinvarReportJobDetailView(

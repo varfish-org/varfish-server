@@ -15,6 +15,7 @@ End-User Summary
 - Resulting table is now sortable.
 - Fixed broken EnsEMBL link-out.
 - Added OMIM gene information to gene card in variant details view.
+- Refactored database small variant database queries.
 
 Full Change List
 ================
@@ -31,6 +32,9 @@ Full Change List
   Now used in ExAC/gnomAD constraint information when refseq transcript database is selected.
 - Gene card in variant details view now show OMIM gene information, i.e. when an OMIM entry is marked as gene in Mim2geneMedgen table.
 - "All transcript" annotations now come from Jannovar REST web service instead of the ``Annotation`` model.
+- Refactored database small variant database queries.
+  The database queries now make full use of lateral joins to keep the nesting flat.
+  The code generation part now doesn't use the mixin structure anymore that was intransparent and error-prone.
 
 -------
 v0.15.1

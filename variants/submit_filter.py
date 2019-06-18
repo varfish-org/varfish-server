@@ -5,11 +5,7 @@ from django.conf import settings
 from projectroles.plugins import get_backend_api
 from variants.file_export import SQLALCHEMY_ENGINE
 from variants.models import prioritize_genes, variant_scores
-from .models_support import (
-    PrefetchFilterQuery,
-    ProjectCasesPrefetchFilterQuery,
-    PrefetchClinvarReportQuery,
-)
+from .queries import CasePrefetchQuery, ProjectPrefetchQuery, ClinvarReportPrefetchQuery
 
 
 class FilterBase:
@@ -128,7 +124,7 @@ class CaseFilter(FilterBase):
 
     def _get_assembled_query(self):
         """Render filter query for a single case"""
-        return PrefetchFilterQuery(self.variant_query.case, self.get_alchemy_engine())
+        return CasePrefetchQuery(self.variant_query.case, self.get_alchemy_engine())
 
 
 class ProjectCasesFilter(FilterBase):
@@ -137,9 +133,7 @@ class ProjectCasesFilter(FilterBase):
 
     def _get_assembled_query(self):
         """Render filter query for a project"""
-        return ProjectCasesPrefetchFilterQuery(
-            self.variant_query.project, self.get_alchemy_engine()
-        )
+        return ProjectPrefetchQuery(self.variant_query.project, self.get_alchemy_engine())
 
 
 class ClinvarFilter(FilterBase):
@@ -148,7 +142,7 @@ class ClinvarFilter(FilterBase):
 
     def _get_assembled_query(self):
         """Render clinvar query."""
-        return PrefetchClinvarReportQuery(self.variant_query.case, self.get_alchemy_engine())
+        return ClinvarReportPrefetchQuery(self.variant_query.case, self.get_alchemy_engine())
 
 
 def case_filter(job):

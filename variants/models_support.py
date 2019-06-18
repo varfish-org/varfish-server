@@ -77,7 +77,7 @@ class SingleCaseFilterQueryBase:
         self.case = case
         #: The Aldjemy engine to use
         self.engine = engine
-        #: Whether or not to print queries before issuing them
+        #: Whether or not to print queries before issuing themsmallvariantquery
         self.debug = debug
 
     def run(self, kwargs):
@@ -1564,21 +1564,3 @@ class KnownGeneAAQuery:
             .distinct(*distinct_fields)
         )
         return self.engine.execute(query)
-
-
-#: Information about frequency databases used in ``FrequencyQuery``.
-FREQUENCY_DB_INFO = {
-    "gnomadexomes": {
-        "model": GnomadExomes,
-        "populations": ("afr", "amr", "asj", "eas", "fin", "nfe", "oth", "sas"),
-    },
-    "gnomadgenomes": {
-        "model": GnomadGenomes,
-        "populations": ("afr", "amr", "asj", "eas", "fin", "nfe", "oth"),
-    },
-    "exac": {"model": Exac, "populations": ("afr", "amr", "eas", "fin", "nfe", "oth", "sas")},
-    "thousandgenomes": {
-        "model": ThousandGenomes,
-        "populations": ("afr", "amr", "eas", "eur", "sas"),
-    },
-}

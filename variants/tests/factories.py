@@ -27,6 +27,7 @@ from ..models import (
     ExportProjectCasesFileBgJobResult,
     SmallVariantFlags,
     SmallVariantComment,
+    AcmgCriteriaRating,
 )
 import typing
 import attr

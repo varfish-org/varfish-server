@@ -571,3 +571,21 @@ class ThousandGenomes(models.Model):
         indexes = [
             models.Index(fields=["release", "chromosome", "position", "reference", "alternative"])
         ]
+
+
+#: Information about frequency databases used in ``FrequencyQuery``.
+FREQUENCY_DB_INFO = {
+    "gnomadexomes": {
+        "model": GnomadExomes,
+        "populations": ("afr", "amr", "asj", "eas", "fin", "nfe", "oth", "sas"),
+    },
+    "gnomadgenomes": {
+        "model": GnomadGenomes,
+        "populations": ("afr", "amr", "asj", "eas", "fin", "nfe", "oth"),
+    },
+    "exac": {"model": Exac, "populations": ("afr", "amr", "eas", "fin", "nfe", "oth", "sas")},
+    "thousandgenomes": {
+        "model": ThousandGenomes,
+        "populations": ("afr", "amr", "eas", "eur", "sas"),
+    },
+}

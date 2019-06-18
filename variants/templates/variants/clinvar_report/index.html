@@ -20,13 +20,10 @@
       </div>
       <div class="pl-3">
         <i class="fa fa-hashtag"></i>
-        Showing <strong>{{ grouped_rows|length }}</strong> variants based on
-        <strong>
-          {{ result_rows|length }}
+          Showing <strong>{{ result_rows|length }}</strong>
           {% if result_rows|length != result_count %}
-             of {{ result_count }}
+             of <strong>{{ result_count }}</strong>
           {% endif %}
-        </strong>
         Clinvar records.
         {% if result_rows|length != result_count %}
           <span class="text-warning">
@@ -43,7 +40,7 @@
   </div>
 
   <div class="row pt-3">
-    {% for entry in grouped_rows %}
+    {% for entry in result_rows %}
       {% ifchanged %}
         <div class="col-12 border-bottom mb-2">
           <h4 class="pb-0">ClinVar Significance: {{ entry.max_significance }}</h4>
