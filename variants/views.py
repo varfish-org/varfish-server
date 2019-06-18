@@ -22,7 +22,6 @@ from django.views.generic import DetailView, FormView, ListView, View, RedirectV
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
 
 import simplejson as json
-from projectroles.user_settings import set_user_setting
 from projectroles.templatetags.projectroles_common_tags import site_version
 
 from bgjobs.models import BackgroundJob
@@ -30,9 +29,9 @@ from clinvar.models import Clinvar
 from geneinfo.views import get_gene_infos
 from geneinfo.models import NcbiGeneInfo, NcbiGeneRif, HpoName
 from frequencies.views import FrequencyMixin
+from projectroles.app_settings import AppSettingAPI
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from projectroles.plugins import get_backend_api
-from annotation.models import Annotation
 from .models_support import (
     LoadPrefetchedClinvarReportQuery,
     KnownGeneAAQuery,
@@ -2168,7 +2167,8 @@ class NewFeaturesView(LoginRequiredMixin, RedirectView):
     url = "/manual/history.html"
 
     def get(self, *args, **kwargs):
-        set_user_setting(
-            self.request.user, "variants", "latest_version_seen_changelog", site_version()
+        setting_api = AppSettingAPI()
+        setting_api.set_app_setting(
+            "variants", "latest_version_seen_changelog", site_version(), user=self.request.user
         )
         return super().get(*args, **kwargs)

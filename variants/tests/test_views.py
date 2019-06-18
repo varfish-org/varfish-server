@@ -11,7 +11,8 @@ from requests_mock import Mocker
 from unittest.mock import patch
 from django.conf import settings
 
-from projectroles.models import Project, ProjectSetting
+from projectroles.models import Project
+from projectroles.app_settings import AppSettingAPI
 from clinvar.tests.factories import (
     ProcessedClinvarFormDataFactory,
     ClinvarFormDataFactory,
@@ -2728,5 +2729,8 @@ class TestNewFeaturesView(ViewTestBase):
             response = self.client.get(reverse("variants:new-features"))
             self.assertEqual(response.status_code, 302)
             self.assertEqual(response.url, "/manual/history.html")
-            o = ProjectSetting.objects.get(user=self.user, name="latest_version_seen_changelog")
-            self.assertEqual(o.value, site_version())
+            settings_api = AppSettingAPI()
+            value = settings_api.get_app_setting(
+                "variants", "latest_version_seen_changelog", user=self.user
+            )
+            self.assertEqual(value, site_version())

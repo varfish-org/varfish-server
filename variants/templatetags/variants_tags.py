@@ -1,7 +1,7 @@
 from django import template
 
 from ..models import Case, only_source_name as _models_only_source_name
-from projectroles.user_settings import get_user_setting as _get_user_setting
+from projectroles.app_settings import AppSettingAPI
 
 register = template.Library()
 
@@ -172,7 +172,8 @@ def chrx_het_hom_ratio(case, sample):
 @register.simple_tag
 def get_user_setting(user, app_name, setting_name):
     """Return user setting."""
-    return _get_user_setting(user, app_name, setting_name)
+    setting_api = AppSettingAPI()
+    return setting_api.get_app_setting(app_name, setting_name, user=user)
 
 
 @register.filter

@@ -1,3 +1,4 @@
+from projectroles.constants import get_sodar_constants
 from projectroles.plugins import ProjectAppPluginPoint
 from bgjobs.plugins import BackgroundJobsPluginPoint
 
@@ -14,6 +15,9 @@ from .models import (
     ClinvarBgJob,
 )
 from .urls import urlpatterns
+
+# Global SODAR constants
+SODAR_CONSTANTS = get_sodar_constants()
 
 
 class ProjectAppPlugin(ProjectAppPluginPoint):
@@ -51,12 +55,10 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     #: Position in plugin ordering
     plugin_ordering = 10
 
-    #: No project settings for this app.
-    project_settings = {}
-
     #: The user settings for this app.
-    user_settings = {
+    app_settings = {
         "umd_predictor_api_token": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_USER"],
             "type": "STRING",  # STRING/INTEGER/BOOLEAN
             "default": "",
             "label": "UMD Predictor API Token",
@@ -67,6 +69,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             ),
         },
         "latest_version_seen_changelog": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_USER"],
             "type": "STRING",
             "default": "",
             "label": "Changelog seen in version",

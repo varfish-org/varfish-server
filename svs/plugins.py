@@ -28,11 +28,8 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     #: List of search object types for the app
     search_types = []
 
-    #: No project settings for this app.
-    project_settings = {}
-
-    #: No user settings for for this app.
-    user_settings = {}
+    #: No settings for this app.
+    app_settings = {}
 
     def get_object_link(self, model_str, uuid):
         """
