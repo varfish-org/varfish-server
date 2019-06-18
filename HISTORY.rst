@@ -16,6 +16,7 @@ End-User Summary
 - Fixed broken EnsEMBL link-out.
 - Added OMIM gene information to gene card in variant details view.
 - Refactored database small variant database queries.
+- Adding case and donor counts to project list.
 
 Full Change List
 ================
@@ -35,6 +36,9 @@ Full Change List
 - Refactored database small variant database queries.
   The database queries now make full use of lateral joins to keep the nesting flat.
   The code generation part now doesn't use the mixin structure anymore that was intransparent and error-prone.
+- Bumping ``sodar_core`` dependency to ``v0.6.1``
+    - Showing case and donor counts to project listing.
+    - Showing site-wide statistics via ``siteinfo`` app.
 
 -------
 v0.15.1
