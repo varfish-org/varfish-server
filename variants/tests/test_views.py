@@ -71,7 +71,7 @@ from variants.tests.factories import (
     SmallVariantCommentFactory,
 )
 from variants.tests.helpers import ViewTestBase
-from variants.variant_stats import rebuild_case_variant_stats
+from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
 from clinvar.models import Clinvar
 from geneinfo.models import HpoName, Hgnc, RefseqToHgnc
 
@@ -622,6 +622,52 @@ class TestCaseListView(ViewTestBase):
             self.assertEqual(len(response.context["case_list"]), 0)
 
 
+class TestCaseListQcStatsApiView(ViewTestBase):
+    """Test the QC API view for case lists."""
+
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory()
+
+    def test_render_no_variant_stats(self):
+        """Test display of case list page."""
+        with self.login(self.user):
+            response = self.client.get(
+                reverse("variants:api-project-qc", kwargs={"project": self.case.project.sodar_uuid})
+            )
+            self.assertEqual(response.status_code, 200)
+
+            result = response.json()
+            self.assertIn("pedigree", result)
+            self.assertIn("relData", result)
+            self.assertIn("sexErrors", result)
+            self.assertIn("chrXHetHomRatio", result)
+            self.assertIn("dps", result)
+            self.assertIn("dpQuantiles", result)
+            self.assertIn("hetRatioQuantiles", result)
+            self.assertIn("dpHetData", result)
+
+    def test_render_with_variant_stats(self):
+        """Test display of case list page."""
+        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.case)
+        rebuild_project_variant_stats(SQLALCHEMY_ENGINE, self.case.project, self.user)
+        with self.login(self.user):
+            response = self.client.get(
+                reverse("variants:api-project-qc", kwargs={"project": self.case.project.sodar_uuid})
+            )
+            self.assertEqual(response.status_code, 200)
+
+            result = response.json()
+            self.assertIn("pedigree", result)
+            self.assertIn("relData", result)
+            self.assertIn("sexErrors", result)
+            self.assertIn("chrXHetHomRatio", result)
+            self.assertIn("dps", result)
+            self.assertIn("dpQuantiles", result)
+            self.assertIn("hetRatioQuantiles", result)
+            self.assertIn("dpHetData", result)
+
+
 class TestCaseDetailView(ViewTestBase):
     """Test case detail view"""
 
@@ -653,6 +699,63 @@ class TestCaseDetailView(ViewTestBase):
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context["object"].name, self.case.name)
+
+
+class TestCaseDetailQcStatsApiView(ViewTestBase):
+    """Test the QC API view for single case."""
+
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory()
+
+    def test_get_no_variant_stats(self):
+        """Test fetching information through API if there is no variant stats."""
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:api-case-qc",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+
+            result = response.json()
+            self.assertIn("pedigree", result)
+            self.assertIn("relData", result)
+            self.assertIn("sexErrors", result)
+            self.assertIn("chrXHetHomRatio", result)
+            self.assertIn("dps", result)
+            self.assertIn("dpQuantiles", result)
+            self.assertIn("hetRatioQuantiles", result)
+            self.assertIn("dpHetData", result)
+            self.assertIn("variantTypeData", result)
+            self.assertIn("variantEffectData", result)
+            self.assertIn("indelSizeData", result)
+
+    def test_render_with_variant_stats(self):
+        """Test fetching information through API if there are variant stats."""
+        with self.login(self.user):
+            rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.case)
+            response = self.client.get(
+                reverse(
+                    "variants:api-case-qc",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+
+            result = response.json()
+            self.assertIn("pedigree", result)
+            self.assertIn("relData", result)
+            self.assertIn("sexErrors", result)
+            self.assertIn("chrXHetHomRatio", result)
+            self.assertIn("dps", result)
+            self.assertIn("dpQuantiles", result)
+            self.assertIn("hetRatioQuantiles", result)
+            self.assertIn("dpHetData", result)
+            self.assertIn("variantTypeData", result)
+            self.assertIn("variantEffectData", result)
+            self.assertIn("indelSizeData", result)
 
 
 class TestCaseFilterView(ViewTestBase):

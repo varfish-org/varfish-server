@@ -4,6 +4,7 @@
 {% load crispy_forms_tags %}
 {% load dict %}
 {% load rules %}
+{% load static %}
 
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item active">Cases</li>
@@ -27,13 +28,31 @@
         {% if project.variant_stats %}
           <div class="row">
             <div class="col-12 col-md-6 col-lg-4">
-              <div id="plot-relatedness"></div>
+              <div id="plot-relatedness">
+                <div class="placeholder-container">
+                  <div class="placeholder-text">
+                    <i class="fa fa-spin fa-spinner fa-5x"></i>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="col-12 col-md-6 col-lg-4">
-              <div id="plot-sex-chrx-het-hom"></div>
+              <div id="plot-sex-chrx-het-hom">
+                <div class="placeholder-container">
+                  <div class="placeholder-text">
+                    <i class="fa fa-spin fa-spinner fa-5x"></i>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="col-12 col-md-6 col-lg-4">
-              <div id="plot-var-dps"></div>
+              <div id="plot-var-dps">
+                <div class="placeholder-container">
+                  <div class="placeholder-text">
+                    <i class="fa fa-spin fa-spinner fa-5x"></i>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         {% else %}
@@ -71,21 +90,42 @@
       width: 100%;
       border-bottom: 0 !important;
     }
+
+    .placeholder-container {
+      position: relative;
+      margin:0 auto;
+      display: table;
+      width: 100%;
+      height: 300px;
+    }
+
+    .placeholder-text {
+      width: 100%;
+      text-align: center;
+      display: table-cell;
+      vertical-align: middle;
+    }
   </style>
 {% endblock css %}
 
 {% block javascript %}
   {{ block.super }}
   {% if project.variant_stats %}
-    {% include "variants/case/script_detail_plots.html" with view_mode="project_wide" object=project %}
+    <script type="text/javascript" src="{% static 'js/vendor/plotly-v1.44.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/axios-0.18.0.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/vendor/palette-1.1.0.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/qc_plots.js' %}"></script>
 
     <script type="text/javascript">
-      /** Plot after loading is complete. */
-      $(function() {
-        plotlyRelatedness();
-        plotlySexChrxHetHom();
-        plotlyVarDps();
-      });
+    $(function() {
+      axios.get("/variants/{{ project.sodar_uuid }}/api-qc/")
+        .then(function (response) {
+          // Render plots after data has been loaded
+          plotlyRelatedness(response, 'plot-relatedness')
+          plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')
+          plotlyVarDps(response, 'plot-var-dps')
+        })
+    })
     </script>
   {% endif %}
 

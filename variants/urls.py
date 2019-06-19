@@ -1,6 +1,5 @@
 from django.conf.urls import url
 from . import views
-from django.views.generic import TemplateView
 
 
 app_name = "variants"
@@ -8,9 +7,19 @@ urlpatterns = [
     # Views for Case
     url(regex=r"^(?P<project>[0-9a-f-]+)/$", view=views.CaseListView.as_view(), name="case-list"),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/api-qc/$",
+        view=views.CaseListQcStatsApiView.as_view(),
+        name="api-project-qc",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/(?P<case>[0-9a-f-]+)/$",
         view=views.CaseDetailView.as_view(),
         name="case-detail",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/api-qc/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseDetailQcStatsApiView.as_view(),
+        name="api-case-qc",
     ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/filter/(?P<case>[0-9a-f-]+)/$",

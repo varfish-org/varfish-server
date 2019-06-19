@@ -1,5 +1,4 @@
-from itertools import groupby, chain
-import json
+from itertools import chain
 import uuid
 import contextlib
 
@@ -39,12 +38,14 @@ from .queries import (
     KnownGeneAAQuery,
 )
 from .models import (
+    only_source_name,
     Case,
     ExportFileBgJob,
     ExportProjectCasesFileBgJob,
     DistillerSubmissionBgJob,
     ComputeProjectVariantsStatsBgJob,
     FilterBgJob,
+    Project,
     CaseAwareProject,
     SmallVariant,
     SmallVariantFlags,
@@ -141,52 +142,58 @@ class CaseListView(
         result["project"] = CaseAwareProject.objects.prefetch_related("variant_stats").get(
             pk=result["project"].pk
         )
-        cases = result["object_list"]
-        result["samples"] = list(
-            sorted(set(chain(*(case.get_members_with_samples() for case in cases))))
-        )
-        result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
-        try:
-            result["dps"] = {
-                stats.sample_name: {int(key): value for key, value in stats.ontarget_dps.items()}
-                for case in cases
-                for stats in case.variant_stats.sample_variant_stats.all()
-            }
-            dp_medians = [
-                stats.ontarget_dp_quantiles[2]
-                for case in cases
-                for stats in case.variant_stats.sample_variant_stats.all()
-            ]
-            if not dp_medians:
-                result["dp_quantiles"] = [0] * 5
-            else:
-                result["dp_quantiles"] = list(
-                    np.percentile(np.asarray(dp_medians), [0, 25, 50, 100])
-                )
-            result["sample_stats"] = {
-                stats.sample_name: stats
-                for case in cases
-                for stats in case.variant_stats.sample_variant_stats.all()
-            }
-            het_ratios = [
-                stats.het_ratio
-                for case in cases
-                for stats in case.variant_stats.sample_variant_stats.all()
-            ]
-
-            if not het_ratios:
-                result["het_ratio_quantiles"] = [0] * 5
-            else:
-                result["het_ratio_quantiles"] = list(
-                    np.percentile(np.asarray(het_ratios), [0, 25, 50, 100])
-                )
-        except Case.variant_stats.RelatedObjectDoesNotExist:
-            result["dps"] = {}
-            result["dp_quantiles"] = [0] * 5
-            result["sample_stats"] = {}
-            result["het_ratio_quantiles"] = {}
-
         return result
+
+
+class CaseListQcStatsApiView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    ListView,
+):
+    """Render JSON with project-wide case statistics"""
+
+    template_name = "variants/case_list.html"
+    permission_required = "variants.view_data"
+    model = Case
+    ordering = ("-date_modified",)
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(project__sodar_uuid=self.kwargs["project"])
+            .prefetch_related("variant_stats", "variant_stats__sample_variant_stats", "project")
+        )
+
+    def get(self, *args, **kwargs):
+        self.object_list = self.get_queryset()
+        context_data = self.get_context_data()
+        project = CaseAwareProject.objects.prefetch_related("variant_stats").get(
+            pk=context_data["project"].pk
+        )
+        try:
+            rel_data = list(
+                build_rel_data(
+                    list(chain(*[case.pedigree for case in self.get_queryset()])),
+                    project.variant_stats.relatedness.all(),
+                )
+            )
+        except Project.variant_stats.RelatedObjectDoesNotExist:
+            rel_data = []
+        result = {
+            "pedigree": [
+                {**line, "patient": only_source_name(line["patient"])}
+                for case in self.get_queryset()
+                for line in case.pedigree
+            ],
+            "relData": rel_data,
+            **build_sex_data(project),
+            **build_cov_data(list(project.case_set.all())),
+        }
+
+        return JsonResponse(result)
 
 
 def _undecimal(the_dict):
@@ -249,30 +256,204 @@ class CaseDetailView(
                 stats.sample_name: {int(key): value for key, value in stats.ontarget_dps.items()}
                 for stats in case.variant_stats.sample_variant_stats.all()
             }
-            dp_medians = [
-                stats.ontarget_dp_quantiles[2]
-                for stats in case.variant_stats.sample_variant_stats.all()
-            ]
-            result["dp_quantiles"] = list(np.percentile(np.asarray(dp_medians), [0, 25, 50, 100]))
-            result["sample_stats"] = {
-                stats.sample_name: stats for stats in case.variant_stats.sample_variant_stats.all()
-            }
-            het_ratios = [
-                stats.het_ratio for stats in case.variant_stats.sample_variant_stats.all()
-            ]
-            result["het_ratio_quantiles"] = list(
-                np.percentile(np.asarray(het_ratios), [0, 25, 50, 100])
-            )
         except Case.variant_stats.RelatedObjectDoesNotExist:
             result["ontarget_effect_counts"] = {sample: {} for sample in result["samples"]}
             result["indel_sizes"] = {sample: {} for sample in result["samples"]}
             result["indel_sizes_keys"] = []
             result["dps"] = {sample: {} for sample in result["samples"]}
-            result["dp_quantiles"] = [0] * 5
-            result["sample_stats"] = {}
-            result["het_ratio_quantiles"] = {}
 
         return result
+
+
+def build_rel_data(pedigree, relatedness):
+    """Return statistics"""
+    rel_parent_child = set()
+    for line in pedigree:
+        if line["mother"] != "0":
+            rel_parent_child.add((line["patient"], line["mother"]))
+            rel_parent_child.add((line["mother"], line["patient"]))
+        if line["father"] != "0":
+            rel_parent_child.add((line["patient"], line["father"]))
+            rel_parent_child.add((line["father"], line["patient"]))
+    rel_siblings = set()
+    for line1 in pedigree:
+        for line2 in pedigree:
+            if (
+                line1["patient"] != line2["patient"]
+                and line1["mother"] != "0"
+                and line2["mother"] != "0"
+                and line1["father"] != "0"
+                and line2["father"] != "0"
+                and line1["father"] == line2["father"]
+                and line1["mother"] == line2["mother"]
+            ):
+                rel_siblings.add((line1["patient"], line2["patient"]))
+
+    for rel in relatedness:
+        yield {
+            "sample0": only_source_name(rel.sample1),
+            "sample1": only_source_name(rel.sample2),
+            "parentChild": (rel.sample1, rel.sample2) in rel_parent_child,
+            "sibSib": (rel.sample1, rel.sample2) in rel_siblings,
+            "ibs0": rel.n_ibs0,
+            "rel": rel.relatedness(),
+        }
+
+
+def build_sex_data(case_or_project):
+    return {
+        "sexErrors": case_or_project.sex_errors(),
+        "chrXHetHomRatio": {
+            only_source_name(line["patient"]): case_or_project.chrx_het_hom_ratio(line["patient"])
+            for line in case_or_project.get_filtered_pedigree_with_samples()
+        },
+    }
+
+
+def build_cov_data(cases):
+    dp_medians = []
+    het_ratios = []
+    dps = {}
+    dp_het_data = []
+    for case in cases:
+        try:
+            for stats in case.variant_stats.sample_variant_stats.all():
+                dp_medians.append(stats.ontarget_dp_quantiles[2])
+                het_ratios.append(stats.het_ratio)
+                dps[stats.sample_name] = {
+                    int(key): value for key, value in stats.ontarget_dps.items()
+                }
+                dp_het_data.append(
+                    {
+                        "x": stats.ontarget_dp_quantiles[2],
+                        "y": stats.het_ratio or 0.0,
+                        "sample": only_source_name(stats.sample_name),
+                    }
+                )
+        except Case.variant_stats.RelatedObjectDoesNotExist:
+            pass  # swallow
+
+    # Catch against empty lists, numpy will complain otherwise.
+    if not dp_medians:
+        dp_medians = [0]
+    if not het_ratios:
+        het_ratios = [0]
+
+    result = {
+        "dps": dps,
+        "dpQuantiles": list(np.percentile(np.asarray(dp_medians), [0, 25, 50, 100])),
+        "hetRatioQuantiles": list(np.percentile(np.asarray(het_ratios), [0, 25, 50, 100])),
+        "dpHetData": dp_het_data,
+    }
+    return result
+
+
+class CaseDetailQcStatsApiView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Render JSON with the data required for the single-case QC statistics."""
+
+    # template_name = "variants/case_detail.html"
+    permission_required = "variants.view_data"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def get(self, *args, **kwargs):
+        object = self.get_object()
+
+        try:
+            relatedness_set = object.variant_stats.relatedness.all()
+        except Case.variant_stats.RelatedObjectDoesNotExist:
+            relatedness_set = []
+
+        result = {
+            "pedigree": [
+                {**line, "patient": only_source_name(line["patient"])} for line in object.pedigree
+            ],
+            "relData": list(build_rel_data(object.pedigree, relatedness_set)),
+            **build_sex_data(object),
+            **build_cov_data([object]),
+            "variantTypeData": list(self._build_var_type_data(object)),
+            "variantEffectData": list(self._build_var_effect_data(object)),
+            "indelSizeData": list(self._build_indel_size_data(object)),
+        }
+        return JsonResponse(result)
+
+    def _build_var_type_data(self, object):
+        try:
+            for item in object.variant_stats.sample_variant_stats.all():
+                yield {
+                    "name": only_source_name(item.sample_name),
+                    "hovermode": "closest",
+                    "showlegend": "false",
+                    "y": [item.ontarget_snvs, item.ontarget_indels, item.ontarget_mnvs],
+                }
+        except Case.variant_stats.RelatedObjectDoesNotExist:
+            pass  # swallow
+
+    def _build_var_effect_data(self, object):
+        keys = (
+            "synonymous_variant",
+            "missense_variant",
+            "5_prime_UTR_exon_variant",
+            "3_prime_UTR_exon_variant",
+            "splice_donor_variant",
+            "splice_region_variant",
+            "splice_acceptor_variant",
+            "start_lost",
+            "stop_gained",
+            "stop_lost",
+            "inframe_deletion",
+            "inframe_insertion",
+            "frameshift_variant",
+            "frameshift_truncation",
+            "frameshift_elongation",
+        )
+        try:
+            for stats in object.variant_stats.sample_variant_stats.all():
+                yield {
+                    "name": only_source_name(stats.sample_name),
+                    "y": list(map(stats.ontarget_effect_counts.get, keys)),
+                }
+        except Case.variant_stats.RelatedObjectDoesNotExist:
+            pass  # swallow
+
+    def _build_indel_size_data(self, object):
+        try:
+            indel_sizes = {
+                stats.sample_name: {
+                    int(key): value for key, value in stats.ontarget_indel_sizes.items()
+                }
+                for stats in object.variant_stats.sample_variant_stats.all()
+            }
+            indel_sizes_keys = list(
+                sorted(
+                    set(
+                        chain(
+                            *list(
+                                map(int, indel_sizes.keys()) for indel_sizes in indel_sizes.values()
+                            )
+                        )
+                    )
+                )
+            )
+            for line in object.get_filtered_pedigree_with_samples():
+                if line.get("has_gt_entries"):
+                    yield {
+                        "name": only_source_name(line["patient"]),
+                        "x": [
+                            ("\u2264-10" if key == -10 else ("\u226510" if key == 10 else str(key)))
+                            for key in indel_sizes_keys
+                        ],
+                        "y": [indel_sizes[line["patient"]].get(key, 0) for key in indel_sizes_keys],
+                    }
+        except Case.variant_stats.RelatedObjectDoesNotExist:
+            pass  # swallow
 
 
 class CaseFilterView(

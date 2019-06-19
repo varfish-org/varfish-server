@@ -17,6 +17,8 @@ End-User Summary
 - Added OMIM gene information to gene card in variant details view.
 - Refactored database small variant database queries.
 - Adding case and donor counts to project list.
+- QC plots are now loaded asynchronously.
+  This should improve page loading time for the case and project overview pages.
 
 Full Change List
 ================
@@ -40,6 +42,9 @@ Full Change List
     - Showing case and donor counts to project listing.
     - Showing site-wide statistics via ``siteinfo`` app.
 - Adding missing ``release`` column to ``KnownGeneAA`` table + adapting queries accordingly.
+- Cleaning up and refactoring QC plotting code.
+    - Separating plotting JS and data generation Python code.
+    - Load data asynchronously.
 
 -------
 v0.15.1

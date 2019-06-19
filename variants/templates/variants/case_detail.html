@@ -3,6 +3,7 @@
 {% load rules %}
 {% load rules %}
 {% load humanize %}
+{% load static %}
 
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
@@ -33,19 +34,26 @@
   </div>
 
   <script type="text/javascript">
-    /** Plot after loading is complete. */
+    // Load data after the page has loaded
     $(function() {
-      plotlyRelatedness();
-      plotlySexChrxHetHom();
-      plotlyVarDps();
-      plotlyVariantTypes();
-      plotlyVariantEffects();
-      plotlyIndelSizes();
-    });
+      axios.get("/variants/{{ object.project.sodar_uuid }}/case/api-qc/{{ object.sodar_uuid }}/")
+        .then(function (response) {
+          // Render plots after data has been loaded
+          plotlyRelatedness(response, 'plot-relatedness')
+          plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')
+          plotlyVarDps(response, 'plot-var-dps')
+          plotlyVariantTypes(response, 'plot-var-types')
+          plotlyVariantEffects(response, 'plot-var-effects')
+          plotlyIndelSizes(response, 'plot-indel-sizes')
+        })
+    })
   </script>
 {% endblock %}
 
 {% block javascript %}
   {{ block.super }}
-  {% include "variants/case/script_detail_plots.html" %}
+  <script type="text/javascript" src="{% static 'js/vendor/plotly-v1.44.1.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/vendor/axios-0.18.0.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/vendor/palette-1.1.0.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/qc_plots.js' %}"></script>
 {% endblock %}
