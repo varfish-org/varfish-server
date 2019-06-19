@@ -25,11 +25,7 @@ from .models import (
 )
 from .templatetags.variants_tags import flag_class
 from projectroles.plugins import get_backend_api
-from variants.models_support import (
-    ExportTableFileFilterQuery,
-    ExportVcfFileFilterQuery,
-    ProjectCasesExportTableFilterQuery,
-)
+from .queries import CaseExportTableQuery, CaseExportVcfQuery, ProjectExportTableQuery
 
 #: Color to use for variants flagged as positive.
 BG_COLOR_POSITIVE = "#dc3848"
@@ -97,9 +93,9 @@ HEADER_FIXED = (
     ("hgvs_p", "Protein HGVS change", str),
     ("hgvs_c", "Nucleotide HGVS change", str),
     ("known_gene_aa", "100 Vertebrate AA conservation", str),
-    ("hgnc_gene_name", "Gene Name", str),
-    ("hgnc_gene_family", "Gene Family", str),
-    ("hgnc_pubmed_id", "Gene Pubmed ID", str),
+    ("gene_name", "Gene Name", str),
+    ("gene_family", "Gene Family", str),
+    ("pubmed_id", "Gene Pubmed ID", str),
 )
 
 #: Names of the phenotype-scoring header columns.
@@ -410,8 +406,8 @@ class CaseExporterBase:
 class CaseExporterTsv(CaseExporterBase):
     """Export a case to TSV format."""
 
-    query_class_single_case = ExportTableFileFilterQuery
-    query_class_project_cases = ProjectCasesExportTableFilterQuery
+    query_class_single_case = CaseExportTableQuery
+    query_class_project_cases = ProjectExportTableQuery
 
     def _write_variants_header(self):
         """Fill with actions to write the variant header."""
@@ -443,8 +439,8 @@ class CaseExporterTsv(CaseExporterBase):
 class CaseExporterXlsx(CaseExporterBase):
     """Export a case to Excel (XLSX) format."""
 
-    query_class_single_case = ExportTableFileFilterQuery
-    query_class_project_cases = ProjectCasesExportTableFilterQuery
+    query_class_single_case = CaseExportTableQuery
+    query_class_project_cases = ProjectExportTableQuery
 
     def __init__(self, job, case_or_project):
         super().__init__(job, case_or_project)
@@ -590,8 +586,8 @@ class CaseExporterXlsx(CaseExporterBase):
 class CaseExporterVcf(CaseExporterBase):
     """Export a case to VCF format."""
 
-    query_class_single_case = ExportVcfFileFilterQuery
-    query_class_project_cases = ProjectCasesExportTableFilterQuery  # TODO!
+    query_class_single_case = CaseExportVcfQuery
+    query_class_project_cases = ProjectExportTableQuery  # TODO!
 
     def __init__(self, job, case_or_project):
         super().__init__(job, case_or_project)

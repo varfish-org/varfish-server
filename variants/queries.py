@@ -99,6 +99,7 @@ def small_variant_query(_self, kwargs):
             SmallVariant.sa.genotype,
             SmallVariant.sa.case_id,
             SmallVariant.sa.in_clinvar,
+            SmallVariant.sa.var_type,
             (SmallVariant.sa.ensembl_effect != SmallVariant.sa.refseq_effect).label(
                 "effect_ambiguity"
             ),
@@ -184,7 +185,7 @@ class ExtendQueryPartsConservationJoin(ExtendQueryPartsBase):
         )
 
     def extend_fields(self, _query_parts):
-        return [func.coalesce(self.subquery.c.least_alignment, "").label("knowngeneaa_alignment")]
+        return [func.coalesce(self.subquery.c.least_alignment, "").label("known_gene_aa")]
 
     def extend_selectable(self, query_parts):
         return query_parts.selectable.outerjoin(self.subquery, true())
@@ -244,6 +245,7 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
                     func.max(Hgnc.sa.symbol).label("symbol"),
                     func.max(Hgnc.sa.name).label("name"),
                     func.max(Hgnc.sa.gene_family).label("gene_family"),
+                    func.max(Hgnc.sa.pubmed_id).label("pubmed_id"),
                 ]
             )
             .select_from(Hgnc.sa)
@@ -262,6 +264,7 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
             func.coalesce(self.subquery_hgnc.c.symbol, "").label("symbol"),
             func.coalesce(self.subquery_hgnc.c.name, "").label("gene_name"),
             func.coalesce(self.subquery_hgnc.c.gene_family, "").label("gene_family"),
+            func.coalesce(self.subquery_hgnc.c.pubmed_id, "").label("pubmed_id"),
         ]
 
 
@@ -1111,7 +1114,6 @@ class CaseExportTableQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsHgncJoin,
         ExtendQueryPartsAcmgJoin,
         ExtendQueryPartsConservationJoin,
-        # TODO Comments and flags"?
     ]
 
 
@@ -1155,6 +1157,15 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsFlagsJoin,
         ExtendQueryPartsCommentsJoin,
         ExtendQueryPartsAcmgCriteriaJoin,
+    ]
+
+
+class ProjectExportTableQueryPartsBuilder(QueryPartsBuilder):
+    qp_extender_classes = [
+        *extender_classes_base,
+        ExtendQueryPartsHgncJoin,
+        ExtendQueryPartsAcmgJoin,
+        ExtendQueryPartsConservationJoin,
     ]
 
 
@@ -1270,6 +1281,10 @@ class ProjectPrefetchQuery(CasePrefetchQuery):
 
 class ProjectLoadPrefetchedQuery(ProjectPrefetchQuery):
     builder = ProjectLoadPrefetchedQueryPartsBuilder
+
+
+class ProjectExportTableQuery(ProjectPrefetchQuery):
+    builder = ProjectExportTableQueryPartsBuilder
 
 
 # Query for obtaining the knownGene alignments (used from JSON query).
