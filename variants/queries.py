@@ -167,6 +167,7 @@ class ExtendQueryPartsConservationJoin(ExtendQueryPartsBase):
             .select_from(KnowngeneAA.sa)
             .where(
                 and_(
+                    KnowngeneAA.sa.release == SmallVariant.sa.release,
                     KnowngeneAA.sa.chromosome == SmallVariant.sa.chromosome,
                     KnowngeneAA.sa.start
                     <= (SmallVariant.sa.position - 1 + func.length(SmallVariant.sa.reference)),
@@ -176,6 +177,7 @@ class ExtendQueryPartsConservationJoin(ExtendQueryPartsBase):
                 )
             )
             .group_by(
+                KnowngeneAA.sa.release,
                 KnowngeneAA.sa.chromosome,
                 KnowngeneAA.sa.start,
                 KnowngeneAA.sa.end,
@@ -1304,7 +1306,7 @@ class KnownGeneAAQuery:
         # TODO: we should load the alignment based on UCSC transcript ID (without version) and then post-filter
         # TODO: by column...
         distinct_fields = [
-            # TODO: add release
+            KnowngeneAA.sa.release,
             KnowngeneAA.sa.chromosome,
             KnowngeneAA.sa.start,
             KnowngeneAA.sa.end,
@@ -1314,6 +1316,7 @@ class KnownGeneAAQuery:
             .select_from(KnowngeneAA.sa.table)
             .where(
                 and_(
+                    KnowngeneAA.sa.release == kwargs["release"],
                     KnowngeneAA.sa.chromosome == kwargs["chromosome"],
                     KnowngeneAA.sa.start
                     <= int(kwargs["position"]) + (len(kwargs["reference"]) - 1),

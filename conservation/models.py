@@ -5,6 +5,8 @@ from postgres_copy import CopyManager
 class KnowngeneAA(models.Model):
     """Information of KnownGeneExonAA track from UCSC genome browser."""
 
+    #: Genome build
+    release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
     chromosome = models.CharField(max_length=16)
     #: Variant coordinates - start
@@ -20,6 +22,6 @@ class KnowngeneAA(models.Model):
     objects = CopyManager()
 
     class Meta:
-        unique_together = ("chromosome", "start", "end", "transcript_id")
+        unique_together = ("release", "chromosome", "start", "end", "transcript_id")
 
-        indexes = [models.Index(fields=["chromosome", "start", "end"])]
+        indexes = [models.Index(fields=["release", "chromosome", "start", "end"])]

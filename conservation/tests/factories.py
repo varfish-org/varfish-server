@@ -11,6 +11,7 @@ class KnownGeneAAFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = KnowngeneAA
 
+    release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
     start = factory.Sequence(lambda n: n * 100)
     end = factory.LazyAttribute(lambda o: o.start + 2)

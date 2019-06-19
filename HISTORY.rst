@@ -39,6 +39,7 @@ Full Change List
 - Bumping ``sodar_core`` dependency to ``v0.6.1``
     - Showing case and donor counts to project listing.
     - Showing site-wide statistics via ``siteinfo`` app.
+- Adding missing ``release`` column to ``KnownGeneAA`` table + adapting queries accordingly.
 
 -------
 v0.15.1

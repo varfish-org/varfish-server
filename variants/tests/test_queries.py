@@ -2490,6 +2490,7 @@ class TestKnownGeneAAQuery(TestBase):
         self.run_query(
             KnownGeneAAQuery,
             {
+                "release": self.knowngene.release,
                 "chromosome": self.knowngene.chromosome,
                 "position": self.knowngene.start - 1,
                 "reference": "A",
@@ -2501,6 +2502,7 @@ class TestKnownGeneAAQuery(TestBase):
         self.run_query(
             KnownGeneAAQuery,
             {
+                "release": self.knowngene.release,
                 "chromosome": self.knowngene.chromosome,
                 "position": self.knowngene.start,
                 "reference": "A",
@@ -2512,6 +2514,7 @@ class TestKnownGeneAAQuery(TestBase):
         self.run_query(
             KnownGeneAAQuery,
             {
+                "release": self.knowngene.release,
                 "chromosome": self.knowngene.chromosome,
                 "position": self.knowngene.start + 1,
                 "reference": "A",
@@ -2523,6 +2526,7 @@ class TestKnownGeneAAQuery(TestBase):
         self.run_query(
             KnownGeneAAQuery,
             {
+                "release": self.knowngene.release,
                 "chromosome": self.knowngene.chromosome,
                 "position": self.knowngene.end,
                 "reference": "A",
@@ -2534,6 +2538,7 @@ class TestKnownGeneAAQuery(TestBase):
         self.run_query(
             KnownGeneAAQuery,
             {
+                "release": self.knowngene.release,
                 "chromosome": self.knowngene.chromosome,
                 "position": self.knowngene.end + 1,
                 "reference": "A",
