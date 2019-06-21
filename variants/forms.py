@@ -1,13 +1,96 @@
 from functools import lru_cache
+from itertools import chain
 
 from django.conf import settings
 from django import forms
-from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating
+from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case
 from .templatetags.variants_tags import only_source_name
 from geneinfo.models import Hgnc
 from django.db.models import Q
 
 import re
+
+
+class CaseForm(forms.ModelForm):
+    """Form for updating a ``Case``, including its pedigree.
+
+    We need to build the fields dynamically as they depend on the value of the JSON ``pedigree`` field.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        member_choices = tuple(
+            ((i, line["patient"]) for i, line in enumerate(self.instance.pedigree))
+        )
+        parent_choices = tuple(chain(((-1, "0"),), member_choices))
+        name_index = {
+            "0": -1,
+            **{line["patient"]: i for i, line in enumerate(self.instance.pedigree)},
+        }
+
+        # The choices for the index depends, of course, on the pedigree.
+        self.fields["index"] = forms.ChoiceField(
+            initial=self.instance.index, choices=member_choices
+        )
+
+        # Field names for template loop.
+        self.col_names = ("patient", "father", "mother", "sex", "affected")
+        self.ped_field_names = [
+            {key: "member_%d_%s" % (i, key) for key in self.col_names}
+            for i, _ in enumerate(self.instance.pedigree)
+        ]
+
+        # Build the fields for updating the pedigree.
+        for i, line in enumerate(self.instance.pedigree):
+            self.fields[self.ped_field_names[i]["patient"]] = forms.CharField(
+                initial=line["patient"], min_length=1
+            )
+            self.fields[self.ped_field_names[i]["father"]] = forms.ChoiceField(
+                initial=name_index.get(line["father"], -1), choices=parent_choices
+            )
+            self.fields[self.ped_field_names[i]["mother"]] = forms.ChoiceField(
+                initial=name_index.get(line["mother"], -1), choices=parent_choices
+            )
+            self.fields[self.ped_field_names[i]["sex"]] = forms.ChoiceField(
+                initial=self.instance.pedigree[i]["sex"],
+                choices=((0, "unknown"), (1, "male"), (2, "female")),
+            )
+            self.fields[self.ped_field_names[i]["affected"]] = forms.ChoiceField(
+                initial=self.instance.pedigree[i]["affected"],
+                choices=((0, "unknown"), (1, "unaffected"), (2, "affected")),
+            )
+
+    def save(self, commit=True):
+        case = super().save(commit=False)
+
+        # Create a two-level deep copy of the pedigree information.
+        self.instance.pedigree = [dict(line) for line in self.instance.pedigree]
+        # Update non-parent fields first.
+        for i, line in enumerate(self.instance.pedigree):
+            for key in ("patient", "sex", "affected"):
+                self.instance.pedigree[i][key] = self.cleaned_data[self.ped_field_names[i][key]]
+        # Now update parent fields.
+        for i, line in enumerate(self.instance.pedigree):
+            for key in ("father", "mother"):
+                idx = int(self.cleaned_data[self.ped_field_names[i][key]])
+                if idx == -1:
+                    self.instance.pedigree[i][key] = "0"
+                else:
+                    x = self.instance.pedigree
+                    parent_name = self.instance.pedigree[idx]["patient"]
+                    self.instance.pedigree[i][key] = parent_name
+
+        case.index = self.instance.pedigree[int(self.cleaned_data["index"])]["patient"]
+
+        if commit:
+            case.save()
+        return case
+
+    class Meta:
+        model = Case
+        # Only the name field can be used as-is.
+        fields = ("name",)
 
 
 INHERITANCE = [

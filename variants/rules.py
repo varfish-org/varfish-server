@@ -10,3 +10,5 @@ rules.add_perm(
     | pr_rules.is_project_contributor
     | pr_rules.is_project_guest,
 )
+
+rules.add_perm("variants.update_case", rules.is_superuser)

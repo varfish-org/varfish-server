@@ -17,7 +17,7 @@ from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.utils import timezone
-from django.views.generic import DetailView, FormView, ListView, View, RedirectView
+from django.views.generic import DetailView, FormView, ListView, View, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
 
 import simplejson as json
@@ -74,6 +74,7 @@ from .forms import (
     SmallVariantCommentForm,
     SmallVariantFlagsForm,
     AcmgCriteriaRatingForm,
+    CaseForm,
 )
 from .tasks import (
     export_file_task,
@@ -272,6 +273,23 @@ class CaseDetailView(
             result["dps"] = {sample: {} for sample in result["samples"]}
 
         return result
+
+
+class CaseUpdateView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    UpdateView,
+):
+    """Display a case in detail."""
+
+    template_name = "variants/case_update.html"
+    permission_required = "variants.update_case"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+    form_class = CaseForm
 
 
 def build_rel_data(pedigree, relatedness):

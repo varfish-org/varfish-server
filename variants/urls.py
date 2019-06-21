@@ -17,6 +17,11 @@ urlpatterns = [
         name="case-detail",
     ),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/update/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseUpdateView.as_view(),
+        name="case-update",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/api-qc/(?P<case>[0-9a-f-]+)/$",
         view=views.CaseDetailQcStatsApiView.as_view(),
         name="api-case-qc",

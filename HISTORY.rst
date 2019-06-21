@@ -20,6 +20,7 @@ End-User Summary
 - QC plots are now loaded asynchronously.
   This should improve page loading time for the case and project overview pages.
 - Adding inheritance mode information to results table.
+- Admins/super users can now update case information and pedigrees.
 
 Full Change List
 ================
@@ -48,6 +49,7 @@ Full Change List
     - Load data asynchronously.
 - Now displaying inheritance mode information for results, based on HPO terms for inheritance and hgnc information.
 - Not importing ``Annotation`` data any more.
+- Adding view for updating a case.
 
 -------
 v0.15.1

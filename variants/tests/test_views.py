@@ -701,6 +701,64 @@ class TestCaseDetailView(ViewTestBase):
             self.assertEqual(response.context["object"].name, self.case.name)
 
 
+class TestCaseUpdateView(ViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory()
+
+    def test_render_form(self):
+        """Test rendering of update form."""
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:case-update",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["object"].name, self.case.name)
+            self.assertEqual(response.context["form"].instance.name, self.case.name)
+
+    def test_post_form_success(self):
+        """Test update of case with the result."""
+        with self.login(self.user):
+            form_data = {"name": self.case.name + "x", "index": 0}
+            for i, line in enumerate(self.case.pedigree):
+                self.col_names = ("patient", "father", "mother", "sex", "affected")
+                form_data.update(
+                    {
+                        "member_%d_patient" % i: line["patient"] + "x",
+                        "member_%d_father" % i: -1,
+                        "member_%d_mother" % i: -1,
+                        "member_%d_sex" % i: 0,
+                        "member_%d_affected" % i: 0,
+                    }
+                )
+
+            response = self.client.post(
+                reverse(
+                    "variants:case-update",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                form_data,
+            )
+
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:case-detail",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+            )
+
+            case = Case.objects.get(id=self.case.id)
+            self.assertEqual(case.name, form_data["name"])
+            self.assertEqual(case.index, case.pedigree[0]["patient"])
+            self.assertEqual(case.pedigree[0]["patient"], self.case.pedigree[0]["patient"] + "x")
+            self.assertEqual(case.pedigree[0]["affected"], "0")
+            self.assertEqual(case.pedigree[0]["sex"], "0")
+
+
 class TestCaseDetailQcStatsApiView(ViewTestBase):
     """Test the QC API view for single case."""
 
@@ -932,20 +990,6 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
         self.bgjob.smallvariantquery.query_results.add(self.small_vars[0], self.small_vars[2])
         self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [self.hpo_id]
         self.bgjob.smallvariantquery.save()
-
-    def test_count_results(self):
-        with self.login(self.user):
-            response = self.client.post(
-                reverse(
-                    "variants:case-load-filter-results",
-                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
-                ),
-                {"filter_job_uuid": self.bgjob.sodar_uuid},
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.context["result_count"], 2)
-            self.assertFalse(response.context["training_mode"])
-            self.assertEqual(response.context["hpoterms"], {self.hpo_id: "unknown HPO term"})
 
     def test_count_results(self):
         hpo_name = HpoNameFactory(hpo_id=self.hpo_id)

@@ -12,10 +12,16 @@
   </a>
 
   {% if svs_enabled %}
-    &nbsp;
     <a class="btn btn-primary" href="{% url "svs:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
       <i class="fa fa-align-center fa-flip-vertical"></i>
       Filter SVs
+    </a>
+  {% endif %}
+
+  {% if request.user.is_superuser %}
+    <a class="btn btn-danger" href="{% url "variants:case-update" project=project.sodar_uuid case=object.sodar_uuid %}">
+      <i class="fa fa-align-center fa-edit"></i>
+      Edit Pedigree
     </a>
   {% endif %}
 </div>
