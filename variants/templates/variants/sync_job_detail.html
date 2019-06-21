@@ -8,6 +8,7 @@
 {% load json %}
 
 {% block navi_sub_project_extend %}
+  <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
   <li class="breadcrumb-item"><a href="{% url "bgjobs:list" project=project.sodar_uuid %}">Jobs</a></li>
   <li class="breadcrumb-item active">{{ object.bg_job.name }}</li>
 {% endblock %}
@@ -15,7 +16,7 @@
 {% block projectroles %}
   <div class="row sodar-pr-content-title pb-2">
     <h2 class="sodar-pr-content-title">
-      Background Project Statistics Computation Job
+      Background File Creation Job
       <small class="text-muted">{{ object.bg_job.name }}</small>
     </h2>
     {% include 'variants/_job_view_buttons.html' with project=project folder=folder %}
@@ -23,8 +24,8 @@
 
   <div class="container-fluid sodar-page-container">
 
-    <div class="card sodar-va-export-job-base-details"
-       id="card sodar-va-export-job-base-details">
+    <div class="card sodar-va-sync-job-base-details"
+       id="card sodar-va-sync-job-base-details">
       <div class="card-header">
         <h4>
           Base Details
@@ -60,8 +61,8 @@
       </div>
     </div>
 
-    <div class="card sodar-va-export-job-base-details"
-         id="card sodar-va-export-job-base-details">
+    <div class="card sodar-va-sync-job-base-details"
+        id="card sodar-va-sync-job-base-details">
       <div class="card-header">
         <h4>
           Log Message
@@ -87,4 +88,5 @@
     </div>
 
   </div> <!-- sodar-page-container -->
+
 {% endblock %}

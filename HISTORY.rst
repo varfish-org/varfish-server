@@ -50,6 +50,8 @@ Full Change List
 - Now displaying inheritance mode information for results, based on HPO terms for inheritance and hgnc information.
 - Not importing ``Annotation`` data any more.
 - Adding view for updating a case.
+- Implementing "sync with upstream SODAR site" for projects based on background jobs.
+- Removing ``bgjobs`` app in favour of the one from SODAR-core.
 
 -------
 v0.15.1

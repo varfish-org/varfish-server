@@ -3,8 +3,8 @@
 {% load variants_tags %}
 {% load projectroles_common_tags %}
 
-{% get_setting 'VARFISH_ENABLE_EXOMISER_PRIORITISER' as exomiser_enabled %}
-{% get_setting 'VARFISH_ENABLE_CADD' as cadd_enabled %}
+{% get_django_setting 'VARFISH_ENABLE_EXOMISER_PRIORITISER' as exomiser_enabled %}
+{% get_django_setting 'VARFISH_ENABLE_CADD' as cadd_enabled %}
 
 <div class="row compact-form-groups">
   {% if exomiser_enabled %}
