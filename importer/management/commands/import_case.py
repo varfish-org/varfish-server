@@ -14,7 +14,6 @@ from django.conf import settings
 from django.utils import timezone
 from sqlalchemy import delete
 
-from annotation.models import Annotation
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
@@ -157,7 +156,6 @@ class Command(BaseCommand):
 
         # Import small or structural variants
         if options["path_variants"]:
-            self._import_small_variants(options["path_variants"])
             self._import_small_variants_genotypes(case, options["path_genotypes"][0])
             self._rebuild_small_variants_stats(case)
         else:
@@ -317,23 +315,6 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.SUCCESS("Done creating case."))
         return case
-
-    def _import_small_variants(self, path_variants):
-        """Import small variants TSV file into database."""
-        before = timezone.now()
-        self.stdout.write("Importing variants...")
-        with open_file(path_variants, "rt") as tsv:
-            Annotation.objects.from_csv(
-                tsv,
-                delimiter="\t",
-                ignore_conflicts=True,
-                drop_constraints=False,
-                drop_indexes=False,
-            )
-        elapsed = timezone.now() - before
-        self.stdout.write(
-            self.style.SUCCESS("Finished importing variants in %.2f s" % elapsed.total_seconds())
-        )
 
     def _import_small_variants_genotypes(self, case, path_genotypes):
         """Import small variants TSV file into database."""

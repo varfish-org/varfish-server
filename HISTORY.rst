@@ -47,6 +47,7 @@ Full Change List
     - Separating plotting JS and data generation Python code.
     - Load data asynchronously.
 - Now displaying inheritance mode information for results, based on HPO terms for inheritance and hgnc information.
+- Not importing ``Annotation`` data any more.
 
 -------
 v0.15.1
