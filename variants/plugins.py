@@ -13,6 +13,7 @@ from .models import (
     FilterBgJob,
     ProjectCasesFilterBgJob,
     ClinvarBgJob,
+    SyncCaseListBgJob,
 )
 from .urls import urlpatterns
 
@@ -176,4 +177,5 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
         FilterBgJob.spec_name: FilterBgJob,
         ProjectCasesFilterBgJob.spec_name: ProjectCasesFilterBgJob,
         ClinvarBgJob.spec_name: ClinvarBgJob,
+        SyncCaseListBgJob.spec_name: SyncCaseListBgJob,
     }

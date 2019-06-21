@@ -20,7 +20,8 @@ End-User Summary
 - QC plots are now loaded asynchronously.
   This should improve page loading time for the case and project overview pages.
 - Adding inheritance mode information to results table.
-- Admins/super users can now update case information and pedigrees.
+- Admins/superusers can now update case information and pedigrees.
+- Projects can now synchronise (check) with upstream SODAR sites, only admins/superusers can trigger this.
 
 Full Change List
 ================

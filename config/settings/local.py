@@ -11,6 +11,11 @@ Local settings for VarFish project.
 
 from .base import *  # noqa
 
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-always-eager
+CELERY_TASK_ALWAYS_EAGER = True
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-eager-propagates
+CELERY_TASK_EAGER_PROPAGATES = True
+
 # DEBUG
 # ------------------------------------------------------------------------------
 DEBUG = env.bool("DJANGO_DEBUG", default=True)

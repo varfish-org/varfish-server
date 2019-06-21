@@ -1358,6 +1358,10 @@ class ProjectStatsJobForm(forms.Form):
     """Form class used for confirmation of recomputing project-wide statistics."""
 
 
+class SyncProjectJobForm(forms.Form):
+    """Form class used for confirmation of performing sync with remote."""
+
+
 class AcmgCriteriaRatingForm(forms.ModelForm):
     """Form for giving the ACMG criteria."""
 

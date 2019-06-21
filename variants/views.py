@@ -59,6 +59,7 @@ from .models import (
     annotate_with_pathogenicity_scores,
     annotate_with_joint_scores,
     AcmgCriteriaRating,
+    SyncCaseListBgJob,
 )
 from .forms import (
     ClinvarForm,
@@ -75,12 +76,14 @@ from .forms import (
     SmallVariantFlagsForm,
     AcmgCriteriaRatingForm,
     CaseForm,
+    SyncProjectJobForm,
 )
 from .tasks import (
     export_file_task,
     export_project_cases_file_task,
     distiller_submission_task,
     compute_project_variants_stats,
+    sync_project_upstream,
     filter_task,
     project_cases_filter_task,
     clinvar_task,
@@ -153,6 +156,36 @@ class CaseListView(
             pk=result["project"].pk
         )
         return result
+
+
+class CaseListSyncRemoteView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
+    """Confirm creating a new upstream synchronization job."""
+
+    permission_required = "variants.view_data"
+    template_name = "variants/sync_job_create.html"
+    form_class = SyncProjectJobForm
+
+    def form_valid(self, form):
+        with transaction.atomic():
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Sync VarFish project with upstream SODAR",
+                project=self.get_project(self.request, self.kwargs),
+                job_type=SyncCaseListBgJob.spec_name,
+                user=self.request.user,
+            )
+            sync_job = SyncCaseListBgJob.objects.create(
+                project=self.get_project(self.request, self.kwargs), bg_job=bg_job
+            )
+        sync_project_upstream.delay(sync_job_pk=sync_job.pk)
+        messages.info(self.request, "Created background job to sync with upstream SODAR.")
+        return redirect(sync_job.get_absolute_url())
 
 
 class CaseListQcStatsApiView(
@@ -1790,6 +1823,23 @@ class BackgroundJobListView(
     def get(self, *args, **kwargs):
         self.object = self.get_object()
         return super().get(*args, **kwargs)
+
+
+class SyncJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of the sync-project-upstream background job.
+    """
+
+    permission_required = "variants.view_data"
+    template_name = "variants/sync_job_detail.html"
+    model = SyncCaseListBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
 
 
 class ExportFileJobDetailView(

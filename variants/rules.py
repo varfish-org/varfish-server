@@ -12,3 +12,4 @@ rules.add_perm(
 )
 
 rules.add_perm("variants.update_case", rules.is_superuser)
+rules.add_perm("variants.sync_remote", rules.is_superuser)

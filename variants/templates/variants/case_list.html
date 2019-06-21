@@ -18,6 +18,48 @@
     {% include "variants/_case_list_buttons.html" %}
   </div>
 
+  {% if project.is_remote and request.user.is_superuser %}
+  <div class="container-fluid sodar-page-container">
+    <div id="varfish-va-project-statistics" class="card mb-3">
+      <h4 class="card-header">
+        <i class="fa fa-exclamation-triangle"></i>
+        Inconsistencies with Upstream Sample Sheet
+      </h4>
+      <div class="card-body p-3">
+        {% if not project.synccaseresultmessage_set.all %}
+          <p class="text-center text-muted font-italic">No inconsistencies found!</p>
+        {% else %}
+          <ul class="list-inline mb-0">
+            {% for message in project.synccaseresultmessage_set.all %}
+              {% if message.level == "debug" %}
+                <li class="text-seondary">
+                  <i class="fa fa-fw fa-ellipsis-h"></i>
+                  {{ message.message }}
+                </li>
+              {% elif message.level == "warning" %}
+                <li class="text-warning">
+                  <i class="fa fa-fw fa-exclamation-triangle"></i>
+                  {{ message.message }}
+                </li>
+              {% elif message.level == "error" %}
+                <li class="text-danger">
+                  <i class="fa fa-fw fa-exclamation-circle"></i>
+                  {{ message.message }}
+                </li>
+              {% else %}
+                <li class="text-body">
+                  <i class="fa fa-fw fa-info"></i>
+                  {{ message.message }}
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   <div class="container-fluid sodar-page-container">
     <div id="varfish-va-project-statistics" class="card mb-3">
       <h4 class="card-header">

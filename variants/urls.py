@@ -7,6 +7,11 @@ urlpatterns = [
     # Views for Case
     url(regex=r"^(?P<project>[0-9a-f-]+)/$", view=views.CaseListView.as_view(), name="case-list"),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/sync-upstream/$",
+        view=views.CaseListSyncRemoteView.as_view(),
+        name="case-list-sync-remote",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/api-qc/$",
         view=views.CaseListQcStatsApiView.as_view(),
         name="api-project-qc",
@@ -63,6 +68,12 @@ urlpatterns = [
         regex=r"^(?P<project>[0-9a-f-]+)/jobs/list/(?P<case>[0-9a-f-]+)/$",
         view=views.BackgroundJobListView.as_view(),
         name="job-list",
+    ),
+    # Views for project sync export jobs.
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/sync-job/(?P<job>[0-9a-f-]+)/$",
+        view=views.SyncJobDetailView.as_view(),
+        name="sync-job-detail",
     ),
     # Views for single-case file export jobs.
     url(

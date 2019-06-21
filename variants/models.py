@@ -21,7 +21,7 @@ from django.db.models.signals import pre_delete
 from django.utils import timezone
 
 from projectroles.models import Project
-from bgjobs.models import BackgroundJob, JobModelMessageMixin
+from bgjobs.models import BackgroundJob, JobModelMessageMixin, LOG_LEVEL_CHOICES
 from geneinfo.models import Hgnc
 
 from genomicfeatures.models import GeneInterval
@@ -2050,3 +2050,58 @@ class AcmgCriteriaRating(models.Model):
         if self.class_override:
             result += ", ACMG class. override: %s" % self.class_override
         return result
+
+
+class SyncCaseListBgJob(JobModelMessageMixin, models.Model):
+    """Background job for syncing project with remote site."""
+
+    #: Task description for logging.
+    task_desc = "Synchronise project cases with upstream"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.sync_project_upstream"
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+
+    #: UUID of the job
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
+    #: The project that the job belongs to.
+    project = models.ForeignKey(Project, help_text="Project that is to be synced")
+
+    #: The background job that is specialized.
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="%(app_label)s_%(class)s_related",
+        help_text="Background job for state etc.",
+    )
+
+    def get_human_readable_type(self):
+        return "Synchronise with upstream SODAR"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:sync-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
+
+
+class SyncCaseResultMessage(models.Model):
+    """A part of the case list synchronisation."""
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+
+    #: UUID of the message.
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Message UUID")
+    #: The project that the message belongs to.
+    project = models.ForeignKey(Project, help_text="Project for the message")
+
+    #: The entry's log level.
+    level = models.CharField(
+        max_length=50, choices=LOG_LEVEL_CHOICES, help_text="Level of log entry"
+    )
+
+    #: The message contained by the log entry.
+    message = models.TextField(help_text="Log level's message")

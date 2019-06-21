@@ -11,6 +11,7 @@ from . import models
 from . import submit_external
 from . import variant_stats
 from . import submit_filter
+from . import sync_upstream
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
@@ -53,6 +54,11 @@ def compute_project_variants_stats(_self, export_job_pk):
     variant_stats.execute_rebuild_project_variant_stats_job(
         SQLALCHEMY_ENGINE, models.ComputeProjectVariantsStatsBgJob.objects.get(pk=export_job_pk)
     )
+
+
+@app.task(bind=True)
+def sync_project_upstream(_self, sync_job_pk):
+    sync_upstream.execute_sync_case_list_job(models.SyncCaseListBgJob.objects.get(pk=sync_job_pk))
 
 
 @app.task(bind=True)

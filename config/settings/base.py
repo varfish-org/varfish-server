@@ -20,6 +20,11 @@ APPS_DIR = ROOT_DIR.path("varfish")
 # Check whether we are running tsts (this is important to use models and not materialized views in tests).
 IS_TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
 
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-always-eager
+CELERY_TASK_ALWAYS_EAGER = True
+# http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-eager-propagates
+CELERY_TASK_EAGER_PROPAGATES = True
+
 # Load environment from .env file if available.
 load_dotenv()
 
