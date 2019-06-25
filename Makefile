@@ -4,24 +4,7 @@ MANAGE = time python manage.py
 .PHONY: black serve serve_public flushdb migrate shell celery test test-noselenium
 
 black:
-	black -l 100 \
-		annotation \
-		clinvar \
-		config \
-		conservation \
-		dbsnp \
-		frequencies \
-		geneinfo \
-		genomicfeatures \
-		hgmd \
-		importer \
-		pathways \
-		svdbs \
-		svs \
-		templatetags \
-		varfish \
-		variants \
-		var_stats_qc
+	black -l 100 --check --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src)/' .
 
 serve:
 	$(MANAGE) runserver
