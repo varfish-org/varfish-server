@@ -17,8 +17,6 @@ class _Interval(models.Model):
 
     #: The bin for indexing.
     bin = models.IntegerField()
-    #: The overlapping bins for join overlap queries.
-    containing_bins = ArrayField(models.IntegerField())
 
     #: Genome build
     release = models.CharField(
@@ -38,10 +36,7 @@ class _Interval(models.Model):
     class Meta:
         abstract = True
 
-        indexes = [
-            models.Index(fields=["release", "chromosome", "bin"]),
-            GinIndex(fields=["release", "chromosome", "containing_bins"]),
-        ]
+        indexes = [models.Index(fields=["release", "chromosome", "bin"])]
 
     def __str__(self):
         return "{}({}, {:,}, {:,})".format(
@@ -197,5 +192,4 @@ class GeneInterval(_Interval):
         indexes = [
             models.Index(fields=["gene_id"]),
             models.Index(fields=["database", "release", "chromosome", "bin"]),
-            GinIndex(fields=["database", "release", "chromosome", "containing_bins"]),
         ]

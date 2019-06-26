@@ -34,12 +34,10 @@ class _IntervalFactory(factory.django.DjangoModelFactory):
     end = factory.Sequence(lambda n: (n + 1) * 1000 + 100)
 
     bin = 0
-    containing_bins = []
 
     @factory.post_generation
     def fix_bins(obj, *args, **kwargs):
         obj.bin = binning.assign_bin(obj.start - 1, obj.end)
-        obj.containing_bins = binning.containing_bins(obj.start - 1, obj.end)
         obj.save()
 
 

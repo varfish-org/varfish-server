@@ -1,4 +1,5 @@
 """Tests for ``variants.models``."""
+import binning
 
 from .helpers import TestBase
 from ._fixtures import fixture_setup_case1_simple
@@ -17,7 +18,9 @@ class TestSmallVariantFlags(TestBase):
         # Coordinates
         "release": "GRCh37",
         "chromosome": "1",
-        "position": 100,
+        "start": 100,
+        "end": 100,
+        "bin": binning.assign_bin(99, 100),
         "reference": "A",
         "alternative": "G",
         # Related case

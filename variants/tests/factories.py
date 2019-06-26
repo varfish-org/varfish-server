@@ -1,6 +1,7 @@
 """Factory Boy factory classes for ``variants``."""
 import uuid
 
+import binning
 import factory
 from django.utils import timezone
 
@@ -27,7 +28,6 @@ from ..models import (
     ExportProjectCasesFileBgJobResult,
     SmallVariantFlags,
     SmallVariantComment,
-    AcmgCriteriaRating,
 )
 import typing
 import attr
@@ -208,7 +208,9 @@ class FormDataFactory(FormDataFactoryBase):
 class ChromosomalPositionFormDataFactoryBase:
     release: str = "GRCh37"
     chromosome: str = None
-    position: int = None
+    start: int = None
+    end: int = None
+    bin: int = None
     reference: str = None
     alternative: str = None
 
@@ -423,7 +425,9 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
             AnnotationFactory(
                 release=kwargs["release"],
                 chromosome=kwargs["chromosome"],
-                position=kwargs["position"],
+                start=kwargs["start"],
+                end=kwargs["end"],
+                bin=kwargs["bin"],
                 reference=kwargs["reference"],
                 alternative=kwargs["alternative"],
                 database=db,
@@ -434,7 +438,9 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
             AnnotationFactory(
                 release=kwargs["release"],
                 chromosome=kwargs["chromosome"],
-                position=kwargs["position"],
+                start=kwargs["start"],
+                end=kwargs["end"],
+                bin=kwargs["bin"],
                 reference=kwargs["reference"],
                 alternative=kwargs["alternative"],
                 database=db,
@@ -444,7 +450,9 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
-    position = factory.Sequence(lambda n: (n + 1) * 100)
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
+    bin = 0
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
     var_type = "snv"
@@ -457,6 +465,11 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
     def genotype(self):
         """Generate genotype JSON field from already set ``self.case``."""
         return {line["patient"]: gt for line, gt in zip(self.case.pedigree, self.genotypes())}
+
+    @factory.post_generation
+    def fix_bins(obj, *args, **kwargs):
+        obj.bin = binning.assign_bin(obj.start - 1, obj.end)
+        obj.save()
 
     num_hom_alt = factory.LazyAttribute(count_gt("0/0"))
     num_hom_ref = factory.LazyAttribute(count_gt("1/1"))
@@ -502,7 +515,9 @@ class SmallVariantSummaryFactory(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
-    position = factory.Sequence(lambda n: (n + 1) * 100)
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
+    bin = 0
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
     count_hom_ref = 0
@@ -510,6 +525,11 @@ class SmallVariantSummaryFactory(factory.django.DjangoModelFactory):
     count_hom_alt = 0
     count_hemi_ref = 0
     count_hemi_alt = 0
+
+    @factory.post_generation
+    def fix_bins(obj, *args, **kwargs):
+        obj.bin = binning.assign_bin(obj.start - 1, obj.end)
+        obj.save()
 
 
 class FilterBgJobFactory(factory.django.DjangoModelFactory):
@@ -684,7 +704,9 @@ class SmallVariantFlagsFactory(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
-    position = factory.Sequence(lambda n: (n + 1) * 100)
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
+    bin = 0
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
     case = factory.SubFactory(CaseFactory)
@@ -697,6 +719,11 @@ class SmallVariantFlagsFactory(factory.django.DjangoModelFactory):
     flag_phenotype_match = ""
     flag_summary = ""
 
+    @factory.post_generation
+    def fix_bins(obj, *args, **kwargs):
+        obj.bin = binning.assign_bin(obj.start - 1, obj.end)
+        obj.save()
+
 
 class SmallVariantCommentFactory(factory.django.DjangoModelFactory):
     """Factory for ``SmallVariantComment`` model."""
@@ -706,9 +733,16 @@ class SmallVariantCommentFactory(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
-    position = factory.Sequence(lambda n: (n + 1) * 100)
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
+    bin = 0
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
     user = None
     text = factory.Sequence(lambda n: "Comment %d" % n)
     case = factory.SubFactory(CaseFactory)
+
+    @factory.post_generation
+    def fix_bins(obj, *args, **kwargs):
+        obj.bin = binning.assign_bin(obj.start - 1, obj.end)
+        obj.save()

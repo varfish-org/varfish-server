@@ -243,7 +243,6 @@ class StructuralVariantFlagsApiView(
             flags = StructuralVariantFlags(
                 case=case,
                 bin=sv.bin,
-                containing_bins=sv.containing_bins,
                 release=sv.release,
                 chromosome=sv.chromosome,
                 start=sv.start,
@@ -315,7 +314,6 @@ class StructuralVariantCommentApiView(
             case=case,
             user=self.request.user,
             bin=sv.bin,
-            containing_bins=sv.containing_bins,
             release=sv.release,
             chromosome=sv.chromosome,
             start=sv.start,

@@ -22,6 +22,8 @@ class HgmdPublicLocus(models.Model):
     start = models.IntegerField()
     #: The end position, 0-based.
     end = models.IntegerField()
+    #: The UCSC bin.
+    bin = models.IntegerField()
     #: The ``variation_name`` column from ENSEMBL variation table.
     variation_name = models.CharField(max_length=32)
 

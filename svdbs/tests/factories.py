@@ -26,9 +26,6 @@ class DgvGoldStandardSvsFactory(factory.django.DjangoModelFactory):
     end_outer = factory.Sequence(lambda n: (n + 1) * 100 + 110)
 
     bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100 - 11, (n + 1) * 100 + 110))
-    containing_bins = factory.Sequence(
-        lambda n: binning.containing_bins((n + 1) * 100 - 11, (n + 1) * 100 + 110)
-    )
 
     accession = factory.Sequence(lambda n: "DGV-GS-%d" % n)
     sv_type = "DEL"
@@ -65,9 +62,6 @@ class DgvSvsFactory(factory.django.DjangoModelFactory):
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
     bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
-    containing_bins = factory.Sequence(
-        lambda n: binning.containing_bins((n + 1) * 100, (n + 1) * 100 + 100)
-    )
 
     accession = factory.Sequence(lambda n: "DGV-%d" % n)
     sv_type = "DEL"
@@ -91,9 +85,6 @@ class ExacCnvFactory(factory.django.DjangoModelFactory):
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
     bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
-    containing_bins = factory.Sequence(
-        lambda n: binning.containing_bins((n + 1) * 100, (n + 1) * 100 + 100)
-    )
 
     sv_type = "DEL"
     population = factory.Iterator([x[0] for x in EXAC_POP_CHOICES])
@@ -110,9 +101,6 @@ class ThousandGenomesSvFactory(factory.django.DjangoModelFactory):
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
     bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
-    containing_bins = factory.Sequence(
-        lambda n: binning.containing_bins((n + 1) * 100, (n + 1) * 100 + 100)
-    )
 
     start_ci_left = -100
     start_ci_right = 100
@@ -150,9 +138,6 @@ class DbVarSvFactory(factory.django.DjangoModelFactory):
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
     bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
-    containing_bins = factory.Sequence(
-        lambda n: binning.containing_bins((n + 1) * 100, (n + 1) * 100 + 100)
-    )
 
     num_carriers = 1
     sv_type = "DEL"
@@ -177,9 +162,6 @@ class GnomAdSvFactory(factory.django.DjangoModelFactory):
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
     bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
-    containing_bins = factory.Sequence(
-        lambda n: binning.containing_bins((n + 1) * 100, (n + 1) * 100 + 100)
-    )
 
     ref = "N"
     alt = ["<DUP>"]

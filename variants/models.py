@@ -119,8 +119,12 @@ class SmallVariant(models.Model):
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
     chromosome = models.CharField(max_length=32)
-    #: Variant coordinates - position
-    position = models.IntegerField()
+    #: Variant coordinates - 1-based start position
+    start = models.IntegerField()
+    #: Variant coordinates - end position
+    end = models.IntegerField()
+    #: UCSC bin
+    bin = models.IntegerField()
     #: Variant coordinates - reference
     reference = models.CharField(max_length=512)
     #: Variant coordinates - alternative
@@ -206,10 +210,7 @@ class SmallVariant(models.Model):
     def get_description(self):
         """Return simple string description of variant"""
         return "-".join(
-            map(
-                str,
-                (self.release, self.chromosome, self.position, self.reference, self.alternative),
-            )
+            map(str, (self.release, self.chromosome, self.start, self.reference, self.alternative))
         )
 
     def __repr__(self):
@@ -220,7 +221,7 @@ class SmallVariant(models.Model):
                     self.case_id,
                     self.release,
                     self.chromosome,
-                    self.position,
+                    self.start,
                     self.reference,
                     self.alternative,
                 ),
@@ -231,6 +232,8 @@ class SmallVariant(models.Model):
         indexes = [
             # For query: select all variants for a case.
             models.Index(fields=["case_id"]),
+            # For locating variants by coordiante.
+            models.Index(fields=["case_id", "chromosome", "bin"]),
             # Filter query: the most important thing is to reduce the variants for a case quickly. It's questionable
             # how much adding homozygous/frequency really adds here.  Adding them back should only done when we
             # know that it helps.
@@ -253,8 +256,12 @@ class SmallVariantSummary(models.Model):
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
     chromosome = models.CharField(max_length=32)
-    #: Variant coordinates - position
-    position = models.IntegerField()
+    #: Variant coordinates - 1-based start position
+    start = models.IntegerField()
+    #: Variant coordinates - end position
+    end = models.IntegerField()
+    #: UCSC bin
+    bin = models.IntegerField()
     #: Variant coordinates - reference
     reference = models.CharField(max_length=512)
     #: Variant coordinates - alternative
@@ -769,8 +776,12 @@ class SmallVariantComment(models.Model):
     release = models.CharField(max_length=32)
     #: The chromosome of the small variant coordinate.
     chromosome = models.CharField(max_length=32)
-    #: The position of the small variant coordinate.
-    position = models.IntegerField()
+    #: The 1-based start position of the small variant coordinate.
+    start = models.IntegerField()
+    #: The end position of the small variant coordinate.
+    end = models.IntegerField()
+    #: The UCSC bin.
+    bin = models.IntegerField()
     #: The reference bases of the small variant coordinate.
     reference = models.CharField(max_length=512)
     #: The alternative bases of the small variant coordinate.
@@ -789,26 +800,21 @@ class SmallVariantComment(models.Model):
 
     def get_variant_description(self):
         return "-".join(
-            map(
-                str,
-                (self.release, self.chromosome, self.position, self.reference, self.alternative),
-            )
+            map(str, (self.release, self.chromosome, self.start, self.reference, self.alternative))
         )
 
     def get_gene_symbols(self):
         """Query for overlapping genes."""
         # TODO: could be made much nicer with join in DB via SQL Alchemy
-        start = self.position
-        end = self.position + len(self.reference)
-        bins = binning.containing_bins(start, end)
+        bins = binning.containing_bins(self.start, self.end - 1)
         gene_intervals = list(
             GeneInterval.objects.filter(
                 database="ensembl",
                 release=self.release,
                 chromosome=self.chromosome,
                 bin__in=bins,
-                start__lte=end,
-                end__gte=start,
+                start__lte=self.end,
+                end__gte=self.start,
             )
         )
         gene_ids = [itv.gene_id for itv in gene_intervals]
@@ -823,7 +829,7 @@ class SmallVariantComment(models.Model):
             case_id=self.case.pk,
             release=self.release,
             chromosome=self.chromosome,
-            position=self.position,
+            start=self.start,
             reference=self.reference,
             alternative=self.alternative,
         )
@@ -833,7 +839,7 @@ class SmallVariantComment(models.Model):
     class Meta:
         indexes = (
             models.Index(
-                fields=["release", "chromosome", "position", "reference", "alternative", "case"]
+                fields=["release", "chromosome", "start", "reference", "alternative", "case"]
             ),
         )
 
@@ -873,8 +879,12 @@ class SmallVariantFlags(models.Model):
     release = models.CharField(max_length=32)
     #: The chromosome of the small variant coordinate.
     chromosome = models.CharField(max_length=32)
-    #: The position of the small variant coordinate.
-    position = models.IntegerField()
+    #: The 1-based start position of the small variant coordinate.
+    start = models.IntegerField()
+    #: The end position of the small variant coordiantes
+    end = models.IntegerField()
+    #: The UCSC bin.
+    bin = models.IntegerField()
     #: The reference bases of the small variant coordinate.
     reference = models.CharField(max_length=512)
     #: The alternative bases of the small variant coordinate.
@@ -921,17 +931,15 @@ class SmallVariantFlags(models.Model):
     def get_gene_symbols(self):
         """Query for overlapping genes."""
         # TODO: could be made much nicer with join in DB via SQL Alchemy
-        start = self.position
-        end = self.position + len(self.reference)
-        bins = binning.containing_bins(start, end)
+        bins = binning.containing_bins(self.start - 1, self.end)
         gene_intervals = list(
             GeneInterval.objects.filter(
                 database="ensembl",
                 release=self.release,
                 chromosome=self.chromosome,
                 bin__in=bins,
-                start__lte=end,
-                end__gte=start,
+                start__lte=self.end,
+                end__gte=self.start,
             )
         )
         gene_ids = [itv.gene_id for itv in gene_intervals]
@@ -956,10 +964,7 @@ class SmallVariantFlags(models.Model):
 
     def get_variant_description(self):
         return "-".join(
-            map(
-                str,
-                (self.release, self.chromosome, self.position, self.reference, self.alternative),
-            )
+            map(str, (self.release, self.chromosome, self.start, self.reference, self.alternative))
         )
 
     def get_absolute_url(self):
@@ -988,7 +993,7 @@ class SmallVariantFlags(models.Model):
             case_id=self.case.pk,
             release=self.release,
             chromosome=self.chromosome,
-            position=self.position,
+            start=self.start,
             reference=self.reference,
             alternative=self.alternative,
         )
@@ -996,7 +1001,7 @@ class SmallVariantFlags(models.Model):
             raise ValidationError("No corresponding variant in case")
 
     class Meta:
-        unique_together = ("release", "chromosome", "position", "reference", "alternative", "case")
+        unique_together = ("release", "chromosome", "start", "reference", "alternative", "case")
 
 
 class SmallVariantQueryBase(models.Model):
@@ -1139,8 +1144,14 @@ class SmallVariantQueryVariantScores(models.Model):
     #: Variant coordinates - chromosome
     chromosome = models.CharField(max_length=32, null=False, blank=False)
 
-    #: Variant coordinates - position
-    position = models.IntegerField(null=False, blank=False)
+    #: Variant coordinates - 1-based start position.
+    start = models.IntegerField(null=False, blank=False)
+
+    #: Variant coordinates - end position.
+    end = models.IntegerField(null=False, blank=False)
+
+    #: Variant coordinates - UCSC bin.
+    bin = models.IntegerField(null=False, blank=False)
 
     #: Variant coordinates - reference
     reference = models.CharField(max_length=512, null=False, blank=False)
@@ -1158,10 +1169,7 @@ class SmallVariantQueryVariantScores(models.Model):
 
     def variant_key(self):
         return "-".join(
-            map(
-                str,
-                [self.release, self.chromosome, self.position, self.reference, self.alternative],
-            )
+            map(str, [self.release, self.chromosome, self.start, self.reference, self.alternative])
         )
 
 
@@ -1526,10 +1534,7 @@ class RowWithPathogenicityScore(wrapt.ObjectProxy):
 
     def variant_key(self):
         return "-".join(
-            map(
-                str,
-                (self.release, self.chromosome, self.position, self.reference, self.alternative),
-            )
+            map(str, (self.release, self.chromosome, self.start, self.reference, self.alternative))
         )
 
 
@@ -1616,7 +1621,7 @@ def annotate_with_joint_scores(rows):
     rows = [RowWithJointScore(row) for row in rows]
     for row in rows:
         key = "-".join(
-            map(str, [row["chromosome"], row["position"], row["reference"], row["alternative"]])
+            map(str, [row["chromosome"], row["start"], row["reference"], row["alternative"]])
         )
         row._self_joint_score = (row.phenotype_score or 0) * (row.pathogenicity_score or 0)
     # Get highest score for each gene.
@@ -1688,7 +1693,7 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
 def variant_scores(variants):
     """Perform variant pathogenicity score query.
 
-    Yield (build, chromosome, position, reference, alternative, score)
+    Yield (build, chromosome, start, reference, alternative, score)
     """
     # TODO: properly test
     if not settings.VARFISH_ENABLE_CADD or not variants:
@@ -1766,8 +1771,12 @@ class AcmgCriteriaRating(models.Model):
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
     chromosome = models.CharField(max_length=32)
-    #: Variant coordinates - position
-    position = models.IntegerField()
+    #: Variant coordinates - 1-based start position
+    start = models.IntegerField()
+    #: Variant coordinates - end position
+    end = models.IntegerField()
+    #: Variant coordinates - UCSC bin
+    bin = models.IntegerField()
     #: Variant coordinates - reference
     reference = models.CharField(max_length=512)
     #: Variant coordinates - alternative
@@ -2000,10 +2009,7 @@ class AcmgCriteriaRating(models.Model):
 
     def get_variant_description(self):
         return "-".join(
-            map(
-                str,
-                (self.release, self.chromosome, self.position, self.reference, self.alternative),
-            )
+            map(str, (self.release, self.chromosome, self.start, self.reference, self.alternative))
         )
 
     def get_human_readable(self):

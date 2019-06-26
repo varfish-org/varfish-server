@@ -4,6 +4,7 @@ import json
 import aldjemy
 from unittest.mock import patch
 
+import binning
 from requests_mock import Mocker
 
 from test_plus.test import TestCase
@@ -62,7 +63,9 @@ def fixture_setup_case(user):
         "case_id": case.pk,
         "release": "GRCh37",
         "chromosome": "1",
-        "position": None,
+        "start": None,
+        "end": None,
+        "bin": None,
         "reference": "A",
         "alternative": "G",
         "var_type": "snv",
@@ -101,18 +104,27 @@ def fixture_setup_case(user):
         "ensembl_effect": ["synonymous_variant"],
     }
 
-    a = SmallVariant.objects.create(**{**basic_var, **{"position": 100}})
-    b = SmallVariant.objects.create(**{**basic_var, **{"position": 200, "in_clinvar": True}})
-    c = SmallVariant.objects.create(**{**basic_var, **{"position": 300}})
+    a = SmallVariant.objects.create(
+        **{**basic_var, **{"start": 100, "end": 100, "bin": binning.assign_bin(99, 100)}}
+    )
+    b = SmallVariant.objects.create(
+        **{
+            **basic_var,
+            **{"start": 200, "end": 200, "bin": binning.assign_bin(199, 200), "in_clinvar": True},
+        }
+    )
+    c = SmallVariant.objects.create(
+        **{**basic_var, **{"start": 300, "end": 300, "bin": binning.assign_bin(299, 300)}}
+    )
 
     rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
 
     Clinvar.objects.create(
         **{
             **CLINVAR_DEFAULTS,
-            "position": 200,
             "start": 200,
-            "stop": 200,
+            "end": 200,
+            "bin": binning.assign_bin(199, 200),
             "clinical_significance": "pathogenic",
             "clinical_significance_ordered": ["pathogenic"],
             "review_status": ["practice guideline"],
@@ -163,7 +175,9 @@ def fixture_setup_projectcases(user):
         "case_id": None,
         "release": "GRCh37",
         "chromosome": "1",
-        "position": None,
+        "start": None,
+        "end": None,
+        "bin": None,
         "reference": "A",
         "alternative": "G",
         "var_type": "snv",
@@ -202,23 +216,69 @@ def fixture_setup_projectcases(user):
         "ensembl_effect": ["synonymous_variant"],
     }
 
-    a = SmallVariant.objects.create(**{**basic_var, "case_id": case1.pk, "position": 100})
+    a = SmallVariant.objects.create(
+        **{
+            **basic_var,
+            "case_id": case1.pk,
+            "start": 100,
+            "end": 100,
+            "bin": binning.assign_bin(99, 100),
+        }
+    )
     b = SmallVariant.objects.create(
-        **{**basic_var, "case_id": case1.pk, "position": 200, "in_clinvar": True}
+        **{
+            **basic_var,
+            "case_id": case1.pk,
+            "start": 200,
+            "end": 200,
+            "bin": binning.assign_bin(199, 200),
+            "in_clinvar": True,
+        }
     )
-    c = SmallVariant.objects.create(**{**basic_var, "case_id": case1.pk, "position": 300})
-    d = SmallVariant.objects.create(**{**basic_var, "case_id": case2.pk, "position": 100})
+    c = SmallVariant.objects.create(
+        **{
+            **basic_var,
+            "case_id": case1.pk,
+            "start": 300,
+            "end": 300,
+            "bin": binning.assign_bin(299, 300),
+        }
+    )
+    d = SmallVariant.objects.create(
+        **{
+            **basic_var,
+            "case_id": case2.pk,
+            "start": 100,
+            "end": 100,
+            "bin": binning.assign_bin(99, 100),
+        }
+    )
     e = SmallVariant.objects.create(
-        **{**basic_var, "case_id": case2.pk, "position": 200, "in_clinvar": True}
+        **{
+            **basic_var,
+            "case_id": case2.pk,
+            "start": 200,
+            "end": 200,
+            "bin": binning.assign_bin(199, 200),
+            "in_clinvar": True,
+        }
     )
-    f = SmallVariant.objects.create(**{**basic_var, "case_id": case2.pk, "position": 300})
+    f = SmallVariant.objects.create(
+        **{
+            **basic_var,
+            "case_id": case2.pk,
+            "start": 300,
+            "end": 300,
+            "bin": binning.assign_bin(299, 300),
+        }
+    )
 
     Clinvar.objects.create(
         **{
             **CLINVAR_DEFAULTS,
-            "position": 200,
             "start": 200,
-            "stop": 200,
+            "end": 200,
+            "bin": binning.assign_bin(199, 200),
             "clinical_significance": "pathogenic",
             "clinical_significance_ordered": ["pathogenic"],
             "review_status": ["practice guideline"],
@@ -394,4 +454,4 @@ class ClinvarFilterTest(FilterTestBase):
 
         self.assertEqual(ClinvarQuery.objects.count(), 1)
         self.assertEqual(ClinvarQuery.objects.first().query_results.count(), 1)
-        self.assertEqual(ClinvarQuery.objects.first().query_results.first().position, 200)
+        self.assertEqual(ClinvarQuery.objects.first().query_results.first().start, 200)

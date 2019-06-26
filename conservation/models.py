@@ -13,6 +13,8 @@ class KnowngeneAA(models.Model):
     start = models.IntegerField()
     #: Variant coordinates - end
     end = models.IntegerField()
+    #: UCSC bin
+    bin = models.IntegerField()
     #: Transcript ID in UCSC format
     transcript_id = models.CharField(max_length=16)
     #: Multiple AA alignment of 100 species (multiz)

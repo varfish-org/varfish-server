@@ -8,7 +8,7 @@
       <a class="badge badge-dark" href="#clinvar-entry-{{ forloop.counter }}" id="clinvar-entry-{{ forloop.counter }}">
         #{{ forloop.counter }} / {{ grouped_rows|length }}
       </a>
-      chr{{ entry.entry.chromosome }}-{{ entry.entry.position|intcomma }}-{{ entry.entry.reference }}-{{ entry.entry.alternative }}
+      chr{{ entry.entry.chromosome }}-{{ entry.entry.start|intcomma }}-{{ entry.entry.reference }}-{{ entry.entry.alternative }}
       <small class="text-muted">
         ({{ entry.entry.release }})
       </small>

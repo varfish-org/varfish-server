@@ -6,6 +6,7 @@ import json
 import time
 from unittest import skipIf
 
+import binning
 from django.contrib import auth
 from django.test import LiveServerTestCase
 from django.urls import reverse
@@ -214,7 +215,9 @@ BASIC_VAR = {
     "case_id": None,
     "release": "GRCh37",
     "chromosome": "1",
-    "position": None,
+    "start": None,
+    "end": None,
+    "bin": None,
     "reference": "A",
     "alternative": "G",
     "var_type": "snv",
@@ -428,9 +431,9 @@ def fixture_setup_single_variant():
     Clinvar.objects.create(
         **{
             **CLINVAR_DEFAULTS,
-            "position": 100,
             "start": 100,
-            "stop": 100,
+            "end": 100,
+            "bin": binning.assign_bin(99, 100),
             "clinical_significance": "pathogenic",
             "clinical_significance_ordered": ["pathogenic"],
             "pathogenic": 2,
@@ -439,7 +442,12 @@ def fixture_setup_single_variant():
         }
     )
 
-    SmallVariant.objects.create(**{**BASIC_VAR, **{"case_id": case.pk, "position": 100}})
+    SmallVariant.objects.create(
+        **{
+            **BASIC_VAR,
+            **{"case_id": case.pk, "start": 100, "end": 100, "bin": binning.assign_bin(99, 100)},
+        }
+    )
 
 
 EFFECT_FIELDS = {
@@ -934,8 +942,18 @@ class TestVariantsCaseFilterView(TestUIBase):
 def fixture_setup_two_variants():
     """Fixture setup for a single individual with a single variant (based on fixture_setup_project_case)"""
     case1, case2 = fixture_setup_project_cases()
-    SmallVariant.objects.create(**{**BASIC_VAR, **{"case_id": case1.pk, "position": 100}})
-    SmallVariant.objects.create(**{**BASIC_VAR, **{"case_id": case2.pk, "position": 200}})
+    SmallVariant.objects.create(
+        **{
+            **BASIC_VAR,
+            **{"case_id": case1.pk, "start": 100, "end": 100, "bin": binning.assign_bin(99, 100)},
+        }
+    )
+    SmallVariant.objects.create(
+        **{
+            **BASIC_VAR,
+            **{"case_id": case2.pk, "start": 200, "end": 200, "bin": binning.assign_bin(199, 200)},
+        }
+    )
 
 
 class TestVariantsProjectCasesFilterView(TestUIBase):

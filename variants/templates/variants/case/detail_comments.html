@@ -22,7 +22,7 @@
       {% for variant_comment in case.small_variant_comments.all %}
         <tr id="comment-{{ variant_comment.sodar_uuid }}">
           <td class="text-nowrap">
-            chr{{ variant_comment.chromosome }}:{{ variant_comment.position|intcomma }}-{{ variant_comment.reference }}-{{ variant_comment.alternative }}
+            chr{{ variant_comment.chromosome }}:{{ variant_comment.start|intcomma }}-{{ variant_comment.reference }}-{{ variant_comment.alternative }}
           </td>
           <td>
             {{ variant_comment.get_gene_symbols|join:", " }}

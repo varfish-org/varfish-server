@@ -4,6 +4,7 @@ import contextlib
 
 import decimal
 import aldjemy.core
+import binning
 import numpy as np
 import requests
 
@@ -1526,7 +1527,15 @@ class CaseLoadPrefetchedClinvarReportView(
         for row in rows:
             key = "-".join(
                 map(
-                    str, [row.release, row.chromosome, row.position, row.reference, row.alternative]
+                    str,
+                    [
+                        row.release,
+                        row.chromosome,
+                        row.start,
+                        row.end,
+                        row.reference,
+                        row.alternative,
+                    ],
                 )
             )
             row_clinvar = {"entry": row, "clinvars": []}
@@ -1673,7 +1682,8 @@ class SmallVariantDetails(
         filter_args = {
             "release": query_kwargs["release"],
             "chromosome": query_kwargs["chromosome"],
-            "position": int(query_kwargs["position"]),
+            "start": int(query_kwargs["start"]),
+            "end": int(query_kwargs["end"]),
             "reference": query_kwargs["reference"],
             "alternative": query_kwargs["alternative"],
         }
@@ -1692,7 +1702,8 @@ class SmallVariantDetails(
             case_id=self.object.pk,
             release=kwargs["release"],
             chromosome=kwargs["chromosome"],
-            position=kwargs["position"],
+            start=kwargs["start"],
+            end=kwargs["end"],
             reference=kwargs["reference"],
             alternative=kwargs["alternative"],
         ).first()
@@ -1711,7 +1722,7 @@ class SmallVariantDetails(
             "database": kwargs["database"],
             "genome": "hg19",
             "chromosome": kwargs["chromosome"],
-            "position": kwargs["position"],
+            "position": kwargs["start"],
             "reference": kwargs["reference"],
             "alternative": kwargs["alternative"],
         }
@@ -1765,7 +1776,8 @@ class SmallVariantDetails(
             case=self.object,
             release=self.kwargs["release"],
             chromosome=self.kwargs["chromosome"],
-            position=int(self.kwargs["position"]),
+            start=int(self.kwargs["start"]),
+            end=int(self.kwargs["end"]),
             reference=self.kwargs["reference"],
             alternative=self.kwargs["alternative"],
         )
@@ -1775,7 +1787,8 @@ class SmallVariantDetails(
             case=self.object,
             release=self.kwargs["release"],
             chromosome=self.kwargs["chromosome"],
-            position=int(self.kwargs["position"]),
+            start=int(self.kwargs["start"]),
+            end=int(self.kwargs["end"]),
             reference=self.kwargs["reference"],
             alternative=self.kwargs["alternative"],
         ).first()
@@ -2280,7 +2293,8 @@ class SmallVariantFlagsApiView(
             case.small_variant_flags,
             release=self.request.GET.get("release"),
             chromosome=self.request.GET.get("chromosome"),
-            position=self.request.GET.get("position"),
+            start=self.request.GET.get("start"),
+            end=self.request.GET.get("end"),
             reference=self.request.GET.get("reference"),
             alternative=self.request.GET.get("alternative"),
         )
@@ -2295,7 +2309,8 @@ class SmallVariantFlagsApiView(
             flags = case.small_variant_flags.get(
                 release=self.request.POST.get("release"),
                 chromosome=self.request.POST.get("chromosome"),
-                position=self.request.POST.get("position"),
+                start=self.request.POST.get("start"),
+                end=self.request.POST.get("end"),
                 reference=self.request.POST.get("reference"),
                 alternative=self.request.POST.get("alternative"),
             )
@@ -2392,7 +2407,8 @@ class AcmgCriteriaRatingApiView(
             case.acmg_ratings,
             release=self.request.GET.get("release"),
             chromosome=self.request.GET.get("chromosome"),
-            position=self.request.GET.get("position"),
+            start=self.request.GET.get("start"),
+            end=self.request.GET.get("end"),
             reference=self.request.GET.get("reference"),
             alternative=self.request.GET.get("alternative"),
         )
@@ -2407,7 +2423,8 @@ class AcmgCriteriaRatingApiView(
             acmg_ratings = case.acmg_ratings.get(
                 release=self.request.POST.get("release"),
                 chromosome=self.request.POST.get("chromosome"),
-                position=self.request.POST.get("position"),
+                start=self.request.POST.get("start"),
+                end=self.request.POST.get("end"),
                 reference=self.request.POST.get("reference"),
                 alternative=self.request.POST.get("alternative"),
             )

@@ -109,9 +109,6 @@ class DgvGoldStandardImporter:
             bin=binning.assign_bin(
                 int(attributes["outer_start"]) - 1, int(attributes["outer_end"])
             ),
-            containing_bins=binning.containing_bins(
-                int(attributes["outer_start"]) - 1, int(attributes["outer_end"])
-            ),
             accession=attributes["ID"],
             sv_type=attributes["variant_type"],
             sv_sub_type=attributes["variant_sub_type"],
@@ -198,7 +195,6 @@ class DgvImporter:
             start=values["start"],
             end=values["end"],
             bin=binning.assign_bin(int(values["start"]) - 1, int(values["end"])),
-            containing_bins=binning.containing_bins(int(values["start"]) - 1, int(values["end"])),
             accession=values["variantaccession"],
             sv_type=values["varianttype"],
             sv_sub_type=values["variantsubtype"],
@@ -258,7 +254,6 @@ class ExacCnvImporter:
                         start=arr[1],
                         end=arr[2],
                         bin=binning.assign_bin(int(arr[1]) - 1, int(arr[2])),
-                        containing_bins=binning.containing_bins(int(arr[1]) - 1, int(arr[2])),
                         sv_type=var_type,
                         population=arr[3].split("-")[1],
                         phred_score=arr[4],
@@ -383,9 +378,6 @@ class ThousandGenomesImporter:
             start=record.POS,
             end=record.INFO.get("END", record.POS),
             bin=binning.assign_bin(record.POS - 1, record.INFO.get("END", record.POS)),
-            containing_bins=binning.containing_bins(
-                record.POS - 1, record.INFO.get("END", record.POS)
-            ),
             start_ci_left=record.INFO.get("CIPOS", (0, 0))[0],
             start_ci_right=record.INFO.get("CIPOS", (0, 0))[1],
             end_ci_left=record.INFO.get("CIEND", (0, 0))[0],
@@ -502,9 +494,6 @@ class DbVarImporter:
             bin=binning.assign_bin(
                 int(values["outermost_start"]) - 1, int(values["outermost_stop"])
             ),
-            containing_bins=binning.containing_bins(
-                int(values["outermost_start"]) - 1, int(values["outermost_stop"])
-            ),
             num_carriers=values["variant_count"],
             sv_type=values["variant_type"],
             method=values["method"],
@@ -565,7 +554,6 @@ class GnomadSvImporter:
             start=record.POS,
             end=record.INFO.get("END"),
             bin=binning.assign_bin(record.INFO.get("END") - 1, record.POS),
-            containing_bins=binning.containing_bins(record.INFO.get("END") - 1, record.POS),
             ref=record.REF,
             alt=[str(x) for x in record.ALT],
             name=record.ID,

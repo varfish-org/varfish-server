@@ -50,9 +50,6 @@ class StructuralVariantFactory(factory.django.DjangoModelFactory):
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
     bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
-    containing_bins = factory.Sequence(
-        lambda n: binning.containing_bins((n + 1) * 100, (n + 1) * 100 + 100)
-    )
 
     start_ci_left = -100
     start_ci_right = 100
@@ -96,7 +93,6 @@ class StructuralVariantFactory(factory.django.DjangoModelFactory):
     @factory.post_generation
     def fix_bins(obj, *args, **kwargs):
         obj.bin = binning.assign_bin(obj.start - 1, obj.end)
-        obj.containing_bins = binning.containing_bins(obj.start - 1, obj.end)
         obj.save()
 
 
@@ -136,9 +132,6 @@ class _UserAnnotationFactory(factory.django.DjangoModelFactory):
         abstract = True
 
     bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
-    containing_bins = factory.Sequence(
-        lambda n: binning.containing_bins((n + 1) * 100, (n + 1) * 100 + 100)
-    )
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])

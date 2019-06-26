@@ -18,7 +18,11 @@ class ReferenceSite(models.Model):
     #: The chromosome.
     chromosome = models.CharField(max_length=32)
     #: The 1-based position.
-    position = models.IntegerField()
+    start = models.IntegerField()
+    #: The end position
+    end = models.IntegerField()
+    #: UCSC bin
+    bin = models.IntegerField()
     #: The reference allele.
     reference = models.CharField(max_length=1)
     #: The alternative allele.
@@ -28,5 +32,5 @@ class ReferenceSite(models.Model):
     objects = CopyManagerInMigration()
 
     class Meta:
-        unique_together = ("release", "chromosome", "position", "reference", "alternative")
-        indexes = [models.Index(fields=["release", "chromosome", "position"])]
+        unique_together = ("release", "chromosome", "start", "reference", "alternative")
+        indexes = [models.Index(fields=["release", "chromosome", "start"])]

@@ -159,32 +159,38 @@ class Command(BaseCommand):
                     import_info["version"],
                 )
 
+                # Special import routine for kegg
                 if table_group == "kegg":
                     self._import_kegg(version_path, TABLES[table_group], force=options["force"])
+                # Special import routine for gnomaAD
                 elif table_group in ("gnomAD_genomes", "gnomAD_exomes"):
                     self._import_gnomad(version_path, TABLES[table_group], force=options["force"])
-                elif table_group == "vista":
-                    self._import_vista(version_path, TABLES[table_group], force=options["force"])
-                elif table_group == "ensembl_regulatory":
-                    self._import_ensembl_regulatory(
-                        version_path, TABLES[table_group], force=options["force"]
-                    )
-                elif table_group == "ensembl_genes":
+                # Special import routine for gene intervals
+                elif table_group in ("ensembl_genes", "refseq_genes"):
                     self._import_gene_interval(
-                        version_path, TABLES[table_group], "ensembl", force=options["force"]
+                        version_path,
+                        TABLES[table_group],
+                        table_group.rstrip("_genes"),
+                        force=options["force"],
                     )
-                elif table_group == "refseq_genes":
-                    self._import_gene_interval(
-                        version_path, TABLES[table_group], "refseq", force=options["force"]
-                    )
-                elif table_group == "tads_imr90":
+                # Special import routine for tads
+                elif table_group in ("tads_imr90", "tads_hesc"):
                     self._import_tad_set(
-                        version_path, TABLES[table_group], "imr90", force=options["force"]
+                        version_path,
+                        TABLES[table_group],
+                        table_group.lstrip("tads_"),
+                        force=options["force"],
                     )
-                elif table_group == "tads_hesc":
-                    self._import_tad_set(
-                        version_path, TABLES[table_group], "hesc", force=options["force"]
-                    )
+                # Import routine for no-bulk-imports
+                elif table_group in ("ensembl_regulatory", "vista"):
+                    for table in TABLES[table_group]:
+                        self._import(
+                            *self._get_table_info(version_path, table.__name__),
+                            table,
+                            force=options["force"],
+                            bulk=False,
+                        )
+                # Import routine for bulk imports (default)
                 else:
                     for table in TABLES[table_group]:
                         self._import(
@@ -196,7 +202,6 @@ class Command(BaseCommand):
     def _import_tad_set(self, path, tables, subset_key, force):
         """TAD import"""
         release_info = self._get_table_info(path, tables[0].__name__)[1]
-        # release_info["table"] += ":%s" % subset_key
         if not force and not self._create_import_info(release_info):
             return False
 
@@ -220,37 +225,21 @@ class Command(BaseCommand):
         self.stdout.write("Importing TADs %s" % release_info)
         path_tsv = os.path.join(path, "{}.tsv".format(tables[0].__name__))
         prev_chromosome = None
-        with open_file(path_tsv, "rt") as inputf:
-            while True:
-                line = inputf.readline().strip()
-                if not line:
-                    break
-                arr = line.split("\t")
-                chromosome, begin, end = arr[:3]
-                begin = int(begin)
-                end = int(end)
-                if prev_chromosome != chromosome:
-                    self.stdout.write("  now on chr%s" % chromosome)
-                    prev_chromosome = chromosome
-                TadInterval.objects.create(
-                    tad_set=tad_set,
-                    bin=binning.assign_bin(begin, end),
-                    containing_bins=binning.containing_bins(begin, end),
-                    release=release_info["genomebuild"],
-                    chromosome=chromosome,
-                    start=begin + 1,
-                    end=end,
-                )
+        for record in tsv_reader(path_tsv):
+            if prev_chromosome != record["chromosome"]:
+                prev_chromosome = record["chromosome"]
+                self.stdout.write("  now on chr%s" % prev_chromosome)
+                TadInterval.objects.create(tad_set=tad_set, **record)
                 PADDING = 10000
-                if begin > PADDING:
+                if int(record["start"]) > PADDING:
                     TadBoundaryInterval.objects.create(
                         tad_set=tad_set,
-                        bin=binning.assign_bin(begin, end),
-                        containing_bins=binning.containing_bins(begin, end),
-                        release=release_info["genomebuild"],
-                        chromosome=chromosome,
-                        start=begin + 1 - PADDING,
-                        end=begin + 1 + PADDING,
+                        bin=int(record["bin"]),
+                        release=record["release"],
+                        chromosome=record["chromosome"],
+                        start=int(record["start"]) + 1 - PADDING,
+                        # TODO This was "start" ... "end" makes more sense?
+                        end=int(record["end"]) + 1 + PADDING,
                     )
         self.stdout.write(self.style.SUCCESS("Finished importing TADs"))
 
@@ -268,108 +257,12 @@ class Command(BaseCommand):
         self.stdout.write("Importing gene intervals")
         path_tsv = os.path.join(path, "{}.tsv".format(tables[0].__name__))
         prev_chromosome = None
-        with open_file(path_tsv, "rt") as inputf:
-            while True:
-                line = inputf.readline().strip()
-                if not line:
-                    break
-                arr = line.split("\t")
-                chromosome, begin, end = arr[:3]
-                if prev_chromosome != chromosome:
-                    self.stdout.write("  now on chr%s" % chromosome)
-                    prev_chromosome = chromosome
-                gene_id = arr[3]
-                begin = int(begin)
-                end = int(end)
-                GeneInterval.objects.create(
-                    bin=binning.assign_bin(begin, end),
-                    containing_bins=binning.containing_bins(begin, end),
-                    release=release_info["genomebuild"],
-                    chromosome=chromosome,
-                    start=begin + 1,
-                    end=end,
-                    database=subset_key,
-                    gene_id=gene_id,
-                )
+        for record in tsv_reader(path_tsv):
+            if prev_chromosome != record["chromosome"]:
+                prev_chromosome = record["chromosome"]
+                self.stdout.write("  now on chr%s" % prev_chromosome)
+            GeneInterval.objects.create(**record)
         self.stdout.write(self.style.SUCCESS("Finished importing gene intervals"))
-
-    def _import_ensembl_regulatory(self, path, tables, force):
-        """Import ENSEMBL regulatory regions."""
-        release_info = self._get_table_info(path, tables[0].__name__)[1]
-        if not force and not self._create_import_info(release_info):
-            return False
-
-        # Clear out any existing entries for this release/database.
-        o = EnsemblRegulatoryFeature.objects.filter(release=release_info["genomebuild"])
-        if o.count():
-            self.stdout.write("Removing old ENSEMBL regulatory features.")
-            o.delete()
-        # Perform the actual import
-        self.stdout.write("Importing ENSEMBL regulatory features")
-        path_tsv = os.path.join(path, "{}.tsv".format(tables[0].__name__))
-        prev_chromosome = None
-        with open_file(path_tsv, "rt") as inputf:
-            header = None
-            while True:
-                line = inputf.readline().strip()
-                if not line:
-                    break
-                arr = line.split("\t")
-                if not header:
-                    header = arr
-                else:
-                    values = {ENSEMBL_REGULATORY_HEADER_MAP[k]: v for k, v in zip(header, arr)}
-                    if prev_chromosome != values["chromosome"]:
-                        prev_chromosome = values["chromosome"]
-                        self.stdout.write("  now on chr%s" % prev_chromosome)
-                    values["start"] = int(values["start"])
-                    values["end"] = int(values["end"])
-                    EnsemblRegulatoryFeature.objects.create(
-                        bin=binning.assign_bin(values["start"] - 1, values["end"] - 1),
-                        containing_bins=binning.containing_bins(
-                            values["start"] - 1, values["end"] - 1
-                        ),
-                        release=release_info["genomebuild"],
-                        **values,
-                    )
-        self.stdout.write(self.style.SUCCESS("Finished importing ENSEMBL regulatory features"))
-
-    def _import_vista(self, path, tables, force):
-        """Import VISTA from the given path."""
-        release_info = self._get_table_info(path, tables[0].__name__)[1]
-        if not force and not self._create_import_info(release_info):
-            return False
-
-        # Clear out any existing entries for this release/database.
-        o = VistaEnhancer.objects.filter(release=release_info["genomebuild"])
-        if o.count():
-            self.stdout.write("Removing old VISTA experimental results.")
-            o.delete()
-        # Perform the actual import.
-        self.stdout.write("Importing VISTA experimental results")
-        path_tsv = os.path.join(path, "{}.tsv".format(tables[0].__name__))
-        with open_file(path_tsv, "rt") as inputf:
-            header = ("chromosome", "start", "end", "element_id", "validation_result")
-            while True:
-                line = inputf.readline().strip()
-                if not line:
-                    break
-                arr = line.split("\t")
-                if not header:
-                    header = arr
-                else:
-                    values = dict(zip(header, arr))
-                    values["start"] = int(values["start"])
-                    values["end"] = int(values["end"])
-                    VistaEnhancer.objects.create(
-                        bin=binning.assign_bin(values["start"] - 1, values["end"] - 1),
-                        containing_bins=binning.containing_bins(
-                            values["start"] - 1, values["end"] - 1
-                        ),
-                        release=release_info["genomebuild"],
-                        **values,
-                    )
-        self.stdout.write(self.style.SUCCESS("Finished importing VISTA experimental results"))
 
     def _get_table_info(self, path, table_name):
         """Crawl versions of a database table.
@@ -417,7 +310,9 @@ class Command(BaseCommand):
             )
             return True
 
-    def _import(self, path, release_info, table, import_info=True, service=False, force=False):
+    def _import(
+        self, path, release_info, table, import_info=True, service=False, force=False, bulk=True
+    ):
         """Bulk data into table and add entry to ImportInfo table.
 
         :param table_path: Path to TSV file to import
@@ -449,14 +344,18 @@ class Command(BaseCommand):
                 o.delete()
 
         if not service:
-            table.objects.from_csv(
-                path,
-                delimiter="\t",
-                null=release_info["null_value"],
-                ignore_conflicts=False,
-                drop_constraints=True,
-                drop_indexes=True,
-            )
+            if bulk:
+                table.objects.from_csv(
+                    path,
+                    delimiter="\t",
+                    null=release_info["null_value"],
+                    ignore_conflicts=False,
+                    drop_constraints=True,
+                    drop_indexes=True,
+                )
+            else:  # no bulk import
+                for record in tsv_reader(path):
+                    table.objects.create(**record)
 
         self.stdout.write(
             self.style.SUCCESS("Finished importing {table} {version}".format(**release_info))

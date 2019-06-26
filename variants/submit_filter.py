@@ -1,5 +1,6 @@
 import contextlib
 
+import binning
 from django.conf import settings
 
 from projectroles.plugins import get_backend_api
@@ -93,7 +94,7 @@ class FilterBase:
 
         def get_var(row):
             """Extract tuple describing variant from row."""
-            return (row["chromosome"], row["position"], row["reference"], row["alternative"])
+            return (row["chromosome"], row["start"], row["reference"], row["alternative"])
 
         patho_enabled = self.variant_query.query_settings.get("patho_enabled")
         patho_score = self.variant_query.query_settings.get("patho_score")
@@ -104,11 +105,13 @@ class FilterBase:
 
         self.job.add_log_entry("Prioritize variant pathogenicity with CADD ...")
         try:
-            for genomebuild, chromosome, position, ref, alt, score in variant_scores(variants):
+            for release, chromosome, pos, ref, alt, score in variant_scores(variants):
                 self.variant_query.smallvariantqueryvariantscores_set.create(
-                    release=genomebuild,
+                    release=release,
                     chromosome=chromosome,
-                    position=position,
+                    start=pos,
+                    end=pos,
+                    bin=binning.assign_bin(pos - 1, pos),
                     reference=ref,
                     alternative=alt,
                     score_type="CADD_phred",

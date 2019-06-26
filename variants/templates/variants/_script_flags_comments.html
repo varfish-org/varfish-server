@@ -61,10 +61,14 @@ function clickVariantBookmark() {
   var queryArgs = {
     release: arrVariant[0],
     chromosome: arrVariant[1],
-    position: arrVariant[2],
-    reference: arrVariant[3],
-    alternative: arrVariant[4],
+    start: arrVariant[2],
+    end: arrVariant[3],
+    bin: arrVariant[4],
+    reference: arrVariant[5],
+    alternative: arrVariant[6],
   };
+
+  console.log(queryArgs);
 
   // Function callback for showing the form.
   function showPopup(data) {
@@ -149,9 +153,11 @@ function clickVariantBookmark() {
         variant: dataVariant,
         release: arrVariant[0],
         chromosome: arrVariant[1],
-        position: arrVariant[2],
-        reference: arrVariant[3],
-        alternative: arrVariant[4],
+        start: arrVariant[2],
+        end: arrVariant[3],
+        bin: arrVariant[4],
+        reference: arrVariant[5],
+        alternative: arrVariant[6],
         flag_bookmarked: true,
         flag_for_validation: false,
         flag_candidate: false,
@@ -260,9 +266,11 @@ function clickVariantAcmgRating() {
   var queryArgs = {
     release: arrVariant[0],
     chromosome: arrVariant[1],
-    position: arrVariant[2],
-    reference: arrVariant[3],
-    alternative: arrVariant[4],
+    start: arrVariant[2],
+    end: arrVariant[3],
+    bin: arrVariant[4],
+    reference: arrVariant[5],
+    alternative: arrVariant[6],
   };
 
   // Function callback for showing the form.
@@ -353,9 +361,11 @@ function clickVariantAcmgRating() {
         variant: dataVariant,
         release: arrVariant[0],
         chromosome: arrVariant[1],
-        position: arrVariant[2],
-        reference: arrVariant[3],
-        alternative: arrVariant[4],
+        start: arrVariant[2],
+        end: arrVariant[3],
+        bin: arrVariant[4],
+        reference: arrVariant[5],
+        alternative: arrVariant[6],
         flag_bookmarked: true,
         flag_for_validation: false,
         flag_candidate: false,

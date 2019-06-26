@@ -15,16 +15,16 @@ class Clinvar(models.Model):
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
     chromosome = models.CharField(max_length=32)
-    #: Variant coordinates - position
-    position = models.IntegerField()
+    #: Variant coordinates - 1-based start position
+    start = models.IntegerField()
+    #: Variant coordinates - end position
+    end = models.IntegerField()
+    #: Variant coordinates - UCSC bin
+    bin = models.IntegerField()
     #: Variant coordinates - reference
     reference = models.CharField(max_length=512)
     #: Variant coordinates - alternative
     alternative = models.CharField(max_length=512)
-    #: Variant start position according to clinvar
-    start = models.IntegerField()
-    #: Variant end position according to clinvar
-    stop = models.IntegerField()
     #: Strand information
     strand = models.CharField(max_length=1, null=True)
     #: Type of variation
@@ -95,7 +95,7 @@ class Clinvar(models.Model):
 
     class Meta:
         indexes = [
-            models.Index(fields=["release", "chromosome", "position", "reference", "alternative"])
+            models.Index(fields=["release", "chromosome", "start", "reference", "alternative"])
         ]
 
 

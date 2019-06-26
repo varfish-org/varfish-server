@@ -115,8 +115,6 @@ class StructuralVariant(models.Model):
 
     #: The bin for indexing.
     bin = models.IntegerField()
-    #: The overlapping bins for join overlap queries.
-    containing_bins = ArrayField(models.IntegerField())
 
     #: Left boundary of CI of ``start``.
     start_ci_left = models.IntegerField()
@@ -243,8 +241,6 @@ class _UserAnnotation(models.Model):
 
     #: The bin for indexing.
     bin = models.IntegerField()
-    #: The overlapping bins for join overlap queries.
-    containing_bins = ArrayField(models.IntegerField())
 
     #: The genome release of the SV
     release = models.CharField(max_length=32)

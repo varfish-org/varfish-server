@@ -22,6 +22,7 @@ End-User Summary
 - Adding inheritance mode information to results table.
 - Admins/superusers can now update case information and pedigrees.
 - Projects can now synchronise (check) with upstream SODAR sites, only admins/superusers can trigger this.
+- Adapting SmallVariants and SmallVariant DBs to new start-end coordinates and UCSC binning.
 
 Full Change List
 ================
@@ -53,6 +54,11 @@ Full Change List
 - Adding view for updating a case.
 - Implementing "sync with upstream SODAR site" for projects based on background jobs.
 - Removing ``bgjobs`` app in favour of the one from SODAR-core.
+- Removing ``containing_bins`` columns.
+- Removing ``svs`` tests ``_fixtures.py``.
+- Adapting SmallVariants and SmallVariant DBs now containt ``start`` and ``end`` column, replacing ``position``.
+  This is for internal queries only, the outside representation for SmallVariants is still via ``position``.
+  An additional column ``bin`` for the ucsc binning was included.
 
 -------
 v0.15.1

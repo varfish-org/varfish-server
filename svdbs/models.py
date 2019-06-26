@@ -58,8 +58,6 @@ class DgvGoldStandardSvs(models.Model):
     #: Interval bin from ``start_outer`` to ``end_outer``, automatically set
     #: in ``save()``.
     bin = models.IntegerField(default=0)
-    #: The overlapping bins for join overlap queries.
-    containing_bins = ArrayField(models.IntegerField())
 
     #: Identifier of the variant
     accession = models.CharField(max_length=32)
@@ -134,8 +132,6 @@ class DgvSvs(models.Model):
 
     #: Interval bin from ``start`` to ``end``, automatically set in ``save()``.
     bin = models.IntegerField(default=0)
-    #: The overlapping bins for join overlap queries.
-    containing_bins = ArrayField(models.IntegerField())
 
     #: Identifier of the variant
     accession = models.CharField(max_length=32)
@@ -201,8 +197,6 @@ class ExacCnv(models.Model):
 
     #: Interval bin from ``start`` to ``end``, automatically set in ``save()``.
     bin = models.IntegerField(default=0)
-    #: The overlapping bins for join overlap queries.
-    containing_bins = ArrayField(models.IntegerField())
 
     #: SV type (always ``"CNV"``)
     sv_type = models.CharField(max_length=32)
@@ -311,8 +305,6 @@ class ThousandGenomesSv(models.Model):
 
     #: Interval bin from ``start`` to ``end``, automatically set in ``save()``.
     bin = models.IntegerField(default=0)
-    #: The overlapping bins for join overlap queries.
-    containing_bins = ArrayField(models.IntegerField())
 
     #: Left boundary of CI of ``start``.
     start_ci_left = models.IntegerField()
@@ -382,8 +374,6 @@ class DbVarSv(models.Model):
 
     #: Interval bin from ``start`` to ``end``, automatically set ``save()``.
     bin = models.IntegerField(default=0)
-    #: The overlapping bins for join overlap queries.
-    containing_bins = ArrayField(models.IntegerField())
 
     #: Number of observations
     num_carriers = models.IntegerField()
@@ -430,8 +420,6 @@ class GnomAdSv(models.Model):
 
     #: Interval bin from ``start`` to ``end``, automatically set ``save()``.
     bin = models.IntegerField(default=0)
-    #: The overlapping bins for join overlap queries.
-    containing_bins = ArrayField(models.IntegerField())
 
     #: REF allele
     ref = models.CharField(max_length=64, default="N")

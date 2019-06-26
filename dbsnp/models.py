@@ -9,8 +9,12 @@ class Dbsnp(models.Model):
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
     chromosome = models.CharField(max_length=32)
-    #: Variant coordinates - position
-    position = models.IntegerField()
+    #: Variant coordinates - 1-based start position
+    start = models.IntegerField()
+    #: Variant coordinates - end position
+    end = models.IntegerField()
+    #: Variant coordinates - UCSC Bin
+    bin = models.IntegerField()
     #: Variant coordinates - reference
     reference = models.CharField(max_length=512)
     #: Variant coordinates - alternative
@@ -22,7 +26,7 @@ class Dbsnp(models.Model):
     objects = CopyManager()
 
     class Meta:
-        unique_together = ("release", "chromosome", "position", "reference", "alternative")
+        unique_together = ("release", "chromosome", "start", "reference", "alternative")
         indexes = [
-            models.Index(fields=["release", "chromosome", "position", "reference", "alternative"])
+            models.Index(fields=["release", "chromosome", "start", "reference", "alternative"])
         ]

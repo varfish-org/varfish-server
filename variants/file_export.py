@@ -66,7 +66,7 @@ def to_str(val):
 #: Names of the fixed header columns: ``(id/name, title, type)``.
 HEADER_FIXED = (
     ("chromosome", "Chromosome", str),
-    ("position", "Position", int),
+    ("start", "Position", int),
     ("reference", "Reference bases", str),
     ("alternative", "Alternative bases", str),
     ("var_type", "Variant types", list),
@@ -306,7 +306,7 @@ class CaseExporterBase:
                     [
                         (
                             entry["chromosome"],
-                            entry["position"],
+                            entry["start"],
                             entry["reference"],
                             entry["alternative"],
                         )
@@ -513,7 +513,9 @@ class CaseExporterXlsx(CaseExporterBase):
             for comment in SmallVariantComment.objects.filter(case=case):
                 row = [
                     comment.chromosome,
-                    comment.position,
+                    comment.start,
+                    comment.end,
+                    comment.bin,
                     comment.reference,
                     comment.alternative,
                     comment.date_created,
@@ -669,7 +671,7 @@ class CaseExporterVcf(CaseExporterBase):
             self.vcf_writer.write_record(
                 vcfpy.Record(
                     small_var.chromosome,
-                    small_var.position,
+                    small_var.start,
                     [],
                     small_var.reference,
                     [vcfpy.Substitution(var_type, small_var.alternative)],

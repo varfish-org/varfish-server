@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("projectroles", "0009_rename_projectsetting"),
         ("bgjobs", "0005_auto_20190128_1210"),
-        ("variants", "0041_array_cat_agg"),
+        ("variants", "0042_auto_20190619_1636"),
     ]
 
     operations = [

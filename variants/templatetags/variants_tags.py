@@ -95,7 +95,16 @@ def significance_color(sig):
 @register.filter
 def smallvar_description(entry):
     """Return small variant description from query result"""
-    keys = ("release", "chromosome", "position", "reference", "alternative", "ensembl_gene_id")
+    keys = (
+        "release",
+        "chromosome",
+        "start",
+        "end",
+        "bin",
+        "reference",
+        "alternative",
+        "ensembl_gene_id",
+    )
     if isinstance(entry, dict):
         return "-".join(map(str, (entry[key] for key in keys)))
     else:

@@ -2,6 +2,7 @@
 import typing
 
 import attr
+import binning
 import factory
 
 from ..models import Clinvar
@@ -15,12 +16,11 @@ class ClinvarFactory(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
     chromosome = factory.Iterator((list(map(str, range(1, 23))) + ["X", "Y"]))
-    position = factory.Sequence(lambda n: (n + 1) * 100)
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
+    bin = 0
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
-    start = factory.SelfAttribute("position")
-    stop = factory.LazyAttribute(lambda o: o.position + len(o.reference) - len(o.alternative))
-
     strand = "+"
     variation_type = "Variant"
     variation_id = factory.Sequence(lambda n: 12345 + n)
@@ -53,6 +53,11 @@ class ClinvarFactory(factory.django.DjangoModelFactory):
     xrefs = ["Some xref"]
     dates_ordered = ["2016-06-14"]
     multi = 1
+
+    @factory.post_generation
+    def fix_bins(obj, *args, **kwargs):
+        obj.bin = binning.assign_bin(obj.start - 1, obj.end)
+        obj.save()
 
 
 @attr.s(auto_attribs=True)

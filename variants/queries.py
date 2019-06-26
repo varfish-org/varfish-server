@@ -76,7 +76,9 @@ def small_variant_query(_self, kwargs):
             SmallVariant.sa.id,
             SmallVariant.sa.release,
             SmallVariant.sa.chromosome,
-            SmallVariant.sa.position,
+            SmallVariant.sa.start,
+            SmallVariant.sa.end,
+            SmallVariant.sa.bin,
             SmallVariant.sa.reference,
             SmallVariant.sa.alternative,
             SmallVariant.sa.ensembl_gene_id.label("ensembl_gene_id"),
@@ -150,7 +152,8 @@ def same_variant(lhs, rhs):
     return and_(
         lhs.sa.release == rhs.sa.release,
         lhs.sa.chromosome == rhs.sa.chromosome,
-        lhs.sa.position == rhs.sa.position,
+        lhs.sa.start == rhs.sa.start,
+        lhs.sa.end == rhs.sa.end,
         lhs.sa.reference == rhs.sa.reference,
         lhs.sa.alternative == rhs.sa.alternative,
     )
@@ -167,8 +170,8 @@ class ExtendQueryPartsConservationJoin(ExtendQueryPartsBase):
                     KnowngeneAA.sa.release == SmallVariant.sa.release,
                     KnowngeneAA.sa.chromosome == SmallVariant.sa.chromosome,
                     KnowngeneAA.sa.start
-                    <= (SmallVariant.sa.position - 1 + func.length(SmallVariant.sa.reference)),
-                    KnowngeneAA.sa.end > (SmallVariant.sa.position - 1),
+                    <= (SmallVariant.sa.start - 1 + func.length(SmallVariant.sa.reference)),
+                    KnowngeneAA.sa.end > (SmallVariant.sa.start - 1),
                     # TODO: using "LEFT(, -2)" here breaks if version > 9
                     func.left(KnowngeneAA.sa.transcript_id, -2) == func.left(Hgnc.sa.ucsc_id, -2),
                 )
@@ -200,8 +203,8 @@ class ExtendQueryPartsDbsnpJoin(ExtendQueryPartsBase):
             .group_by(
                 Dbsnp.sa.release,
                 Dbsnp.sa.chromosome,
-                Dbsnp.sa.position,
-                Dbsnp.sa.position,
+                Dbsnp.sa.start,
+                Dbsnp.sa.end,
                 Dbsnp.sa.reference,
                 Dbsnp.sa.alternative,
             )
@@ -327,7 +330,8 @@ class ExtendQueryPartsClinvarJoinBase(ExtendQueryPartsBase):
             .group_by(
                 Clinvar.sa.release,
                 Clinvar.sa.chromosome,
-                Clinvar.sa.position,
+                Clinvar.sa.start,
+                Clinvar.sa.end,
                 Clinvar.sa.reference,
                 Clinvar.sa.alternative,
             )
@@ -432,8 +436,8 @@ class ExtendQueryPartsHgmdJoin(ExtendQueryPartsBase):
                     HgmdPublicLocus.sa.release == SmallVariant.sa.release,
                     HgmdPublicLocus.sa.chromosome == SmallVariant.sa.chromosome,
                     HgmdPublicLocus.sa.start
-                    <= (SmallVariant.sa.position - 1 + func.length(SmallVariant.sa.reference)),
-                    HgmdPublicLocus.sa.end > (SmallVariant.sa.position - 1),
+                    <= (SmallVariant.sa.start - 1 + func.length(SmallVariant.sa.reference)),
+                    HgmdPublicLocus.sa.end > (SmallVariant.sa.start - 1),
                 )
             )
             .group_by(
@@ -722,7 +726,8 @@ class ExtendQueryPartsInHouseJoin(ExtendQueryPartsBase):
             .group_by(
                 SmallVariantSummary.sa.release,
                 SmallVariantSummary.sa.chromosome,
-                SmallVariantSummary.sa.position,
+                SmallVariantSummary.sa.start,
+                SmallVariantSummary.sa.end,
                 SmallVariantSummary.sa.reference,
                 SmallVariantSummary.sa.alternative,
             )
@@ -828,8 +833,8 @@ class ExtendQueryPartsGenomicRegionFilter(ExtendQueryPartsBase):
                     *[
                         and_(
                             SmallVariant.sa.chromosome == entry[0],
-                            SmallVariant.sa.position >= entry[1],
-                            SmallVariant.sa.position <= entry[2],
+                            SmallVariant.sa.start >= entry[1],
+                            SmallVariant.sa.start <= entry[2],
                         )
                         for entry in self.kwargs["genomic_region"]
                     ]
@@ -902,8 +907,8 @@ class ExtendQueryPartsCommentsJoin(ExtendQueryPartsBase):
                 SmallVariantComment.sa.case_id,
                 SmallVariantComment.sa.release,
                 SmallVariantComment.sa.chromosome,
-                SmallVariantComment.sa.position,
-                SmallVariantComment.sa.position,
+                SmallVariantComment.sa.start,
+                SmallVariantComment.sa.end,
                 SmallVariantComment.sa.reference,
                 SmallVariantComment.sa.alternative,
             )
@@ -951,8 +956,8 @@ class ExtendQueryPartsFlagsJoin(ExtendQueryPartsBase):
                 SmallVariantFlags.sa.case_id,
                 SmallVariantFlags.sa.release,
                 SmallVariantFlags.sa.chromosome,
-                SmallVariantFlags.sa.position,
-                SmallVariantFlags.sa.position,
+                SmallVariantFlags.sa.start,
+                SmallVariantFlags.sa.end,
                 SmallVariantFlags.sa.reference,
                 SmallVariantFlags.sa.alternative,
             )
@@ -1022,8 +1027,8 @@ class ExtendQueryPartsAcmgCriteriaJoin(ExtendQueryPartsBase):
                 AcmgCriteriaRating.sa.case_id,
                 AcmgCriteriaRating.sa.release,
                 AcmgCriteriaRating.sa.chromosome,
-                AcmgCriteriaRating.sa.position,
-                AcmgCriteriaRating.sa.position,
+                AcmgCriteriaRating.sa.start,
+                AcmgCriteriaRating.sa.end,
                 AcmgCriteriaRating.sa.reference,
                 AcmgCriteriaRating.sa.alternative,
             )
@@ -1260,7 +1265,8 @@ class CasePrefetchQuery:
     def run(self, kwargs):
         order_by = [
             column("chromosome"),
-            column("position"),
+            column("start"),
+            column("end"),
             column("reference"),
             column("alternative"),
         ]
@@ -1347,9 +1353,8 @@ class KnownGeneAAQuery:
                 and_(
                     KnowngeneAA.sa.release == kwargs["release"],
                     KnowngeneAA.sa.chromosome == kwargs["chromosome"],
-                    KnowngeneAA.sa.start
-                    <= int(kwargs["position"]) + (len(kwargs["reference"]) - 1),
-                    KnowngeneAA.sa.end >= int(kwargs["position"]),
+                    KnowngeneAA.sa.start <= int(kwargs["start"]) + (len(kwargs["reference"]) - 1),
+                    KnowngeneAA.sa.end >= int(kwargs["start"]),
                 )
             )
             .order_by(KnowngeneAA.sa.start)

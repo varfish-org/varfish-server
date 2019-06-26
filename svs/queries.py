@@ -92,7 +92,6 @@ def structural_variant_query(_self, kwargs):
             StructuralVariant.sa.start,
             StructuralVariant.sa.end,
             StructuralVariant.sa.bin,
-            StructuralVariant.sa.containing_bins,
             StructuralVariant.sa.start_ci_left,
             StructuralVariant.sa.start_ci_right,
             StructuralVariant.sa.end_ci_left,

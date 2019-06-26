@@ -10,8 +10,12 @@ class Annotation(models.Model):
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
     chromosome = models.CharField(max_length=32)
-    #: Variant coordinates - position
-    position = models.IntegerField()
+    #: Variant coordinates - 1-based start position
+    start = models.IntegerField()
+    #: Variant coordinates - end position
+    end = models.IntegerField()
+    #: Variant coordiantes - UCSC bin
+    bin = models.IntegerField()
     #: Variant coordinates - reference
     reference = models.CharField(max_length=512)
     #: Variant coordinates - alternative
@@ -38,13 +42,13 @@ class Annotation(models.Model):
         unique_together = (
             "release",
             "chromosome",
-            "position",
+            "start",
             "reference",
             "alternative",
             "transcript_id",
         )
         indexes = [
             models.Index(
-                fields=["release", "chromosome", "position", "reference", "alternative", "gene_id"]
+                fields=["release", "chromosome", "start", "reference", "alternative", "gene_id"]
             )
         ]

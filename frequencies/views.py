@@ -11,7 +11,8 @@ class FrequencyMixin:
         key = {
             "release": query_kwargs["release"],
             "chromosome": query_kwargs["chromosome"],
-            "position": int(query_kwargs["position"]),
+            "start": int(query_kwargs["start"]),
+            "end": int(query_kwargs["end"]),
             "reference": query_kwargs["reference"],
             "alternative": query_kwargs["alternative"],
         }

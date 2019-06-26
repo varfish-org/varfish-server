@@ -2,6 +2,7 @@
 """
 
 import aldjemy.core
+import binning
 
 from projectroles.models import Project
 from variants.models import SmallVariant, SmallVariantSummary
@@ -83,7 +84,9 @@ CLINVAR_FORM_DEFAULTS = form_data = {
 SMALL_VARIANT_CASE1_DEFAULTS = {
     "release": "GRCh37",
     "chromosome": "1",
-    "position": None,
+    "start": None,
+    "end": None,
+    "bin": None,
     "reference": "A",
     "alternative": "G",
     "var_type": "snv",
@@ -126,7 +129,9 @@ SMALL_VARIANT_CASE1_DEFAULTS = {
 SMALL_VARIANT_SUMMARY_CASE1_DEFAULTS = {
     "release": "GRCh37",
     "chromosome": "1",
-    "position": 100,
+    "start": 100,
+    "end": 100,
+    "bin": binning.assign_bin(99, 100),
     "reference": "A",
     "alternative": "G",
     "count_hom_ref": 0,
@@ -140,11 +145,11 @@ SMALL_VARIANT_SUMMARY_CASE1_DEFAULTS = {
 CLINVAR_DEFAULTS = {
     "release": "GRCh37",
     "chromosome": "1",
-    "position": None,
+    "start": None,
+    "end": None,
+    "bin": None,
     "reference": "A",
     "alternative": "G",
-    "start": None,
-    "stop": None,
     "strand": "+",
     "variation_type": "Variant",
     "variation_id": 12345,
@@ -210,7 +215,9 @@ def fixture_setup_case1_simple():
         case_id=case.pk,
         release="GRCh37",
         chromosome="1",
-        position=100,
+        start=100,
+        end=100,
+        bin=binning.assign_bin(99, 100),
         reference="A",
         alternative="G",
         var_type="snv",
@@ -251,7 +258,9 @@ def fixture_setup_case1_simple():
     SmallVariantSummary.objects.create(
         release="GRCh37",
         chromosome="1",
-        position=100,
+        start=100,
+        end=100,
+        bin=binning.assign_bin(99, 100),
         reference="A",
         alternative="G",
         count_hom_ref=0,

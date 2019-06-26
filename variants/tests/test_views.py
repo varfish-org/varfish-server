@@ -3,6 +3,7 @@
 import json
 
 import aldjemy.core
+import binning
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from projectroles.templatetags.projectroles_common_tags import site_version
@@ -473,7 +474,9 @@ def fixture_setup_case(user):
         "case_id": case.pk,
         "release": "GRCh37",
         "chromosome": "1",
-        "position": None,
+        "start": None,
+        "end": None,
+        "bin": None,
         "reference": "A",
         "alternative": "G",
         "var_type": "snv",
@@ -512,20 +515,41 @@ def fixture_setup_case(user):
         "ensembl_effect": ["synonymous_variant"],
     }
 
-    a = SmallVariant.objects.create(**{**basic_var, **{"position": 100}})
-    b = SmallVariant.objects.create(
-        **{**basic_var, **{"position": 200, "in_clinvar": True, "refseq_gene_id": "2234"}}
+    a = SmallVariant.objects.create(
+        **{**basic_var, **{"start": 100, "end": 100, "bin": binning.assign_bin(99, 100)}}
     )
-    c = SmallVariant.objects.create(**{**basic_var, **{"position": 300, "refseq_gene_id": "2234"}})
+    b = SmallVariant.objects.create(
+        **{
+            **basic_var,
+            **{
+                "start": 200,
+                "end": 200,
+                "bin": binning.assign_bin(199, 200),
+                "in_clinvar": True,
+                "refseq_gene_id": "2234",
+            },
+        }
+    )
+    c = SmallVariant.objects.create(
+        **{
+            **basic_var,
+            **{
+                "start": 300,
+                "end": 300,
+                "bin": binning.assign_bin(299, 300),
+                "refseq_gene_id": "2234",
+            },
+        }
+    )
 
     rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
 
     Clinvar.objects.create(
         **{
             **CLINVAR_DEFAULTS,
-            "position": 200,
             "start": 200,
-            "stop": 200,
+            "end": 200,
+            "bin": binning.assign_bin(199, 200),
             "clinical_significance": "pathogenic",
             "clinical_significance_ordered": ["pathogenic"],
             "review_status": ["practice guideline"],
@@ -1049,7 +1073,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
         )
 
         def _key_gen(s):
-            return "%s-%d-%s-%s" % (s.chromosome, s.position, s.reference, s.alternative)
+            return "%s-%d-%s-%s" % (s.chromosome, s.start, s.reference, s.alternative)
 
         mock.post(
             settings.VARFISH_CADD_REST_API_URL,
@@ -1646,7 +1670,9 @@ class TestCaseLoadPrefetchedClinvarReportView(ViewTestBase):
         ClinvarFactory(
             release=small_var.release,
             chromosome=small_var.chromosome,
-            position=small_var.position,
+            start=small_var.start,
+            end=small_var.end,
+            bin=small_var.bin,
             reference=small_var.reference,
             alternative=small_var.alternative,
             clinical_significance_ordered=[],
@@ -1656,7 +1682,9 @@ class TestCaseLoadPrefetchedClinvarReportView(ViewTestBase):
         ClinvarFactory(
             release=small_var.release,
             chromosome=small_var.chromosome,
-            position=small_var.position,
+            start=small_var.start,
+            end=small_var.end,
+            bin=small_var.bin,
             reference=small_var.reference,
             alternative=small_var.alternative,
             clinical_significance_ordered=["pathogenic", "likely_pathogenic"],
@@ -1861,7 +1889,9 @@ class TestSmallVariantDetailsView(ViewTestBase):
         self.small_var = SmallVariantFactory(case=self.case)
         coords = {
             "chromosome": self.small_var.chromosome,
-            "position": self.small_var.position,
+            "start": self.small_var.start,
+            "end": self.small_var.end,
+            "bin": self.small_var.bin,
             "reference": self.small_var.reference,
             "alternative": self.small_var.alternative,
         }
@@ -1871,7 +1901,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
         self.gnomad_genomes = GnomadGenomesFactory(**coords)
         self.knowngeneaa = KnownGeneAAFactory(
             chromosome=self.small_var.chromosome,
-            start=self.small_var.position,
+            start=self.small_var.start,
             transcript_id=self.small_var.ensembl_transcript_id,
         )
         self.clinvar = ClinvarFactory(release=self.small_var.release, **coords)
@@ -1928,7 +1958,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "case": self.case.sodar_uuid,
                         "release": self.small_var.release,
                         "chromosome": self.small_var.chromosome,
-                        "position": self.small_var.position,
+                        "start": self.small_var.start,
+                        "end": self.small_var.end,
                         "reference": self.small_var.reference,
                         "alternative": self.small_var.alternative,
                         "database": "refseq",
@@ -1953,7 +1984,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "case": self.case.sodar_uuid,
                         "release": self.small_var.release,
                         "chromosome": self.small_var.chromosome,
-                        "position": self.small_var.position,
+                        "start": self.small_var.start,
+                        "end": self.small_var.end,
                         "reference": self.small_var.reference,
                         "alternative": self.small_var.alternative,
                         "database": "refseq",
@@ -1977,7 +2009,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "case": self.case.sodar_uuid,
                         "release": self.small_var.release,
                         "chromosome": self.small_var.chromosome,
-                        "position": self.small_var.position,
+                        "start": self.small_var.start,
+                        "end": self.small_var.end,
                         "reference": self.small_var.reference,
                         "alternative": self.small_var.alternative,
                         "database": db,
@@ -2075,7 +2108,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "case": self.case.sodar_uuid,
                         "release": self.small_var.release,
                         "chromosome": self.small_var.chromosome,
-                        "position": self.small_var.position,
+                        "start": self.small_var.start,
+                        "end": self.small_var.end,
                         "reference": self.small_var.reference,
                         "alternative": self.small_var.alternative,
                         "database": "refseq",
@@ -2098,7 +2132,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "case": self.case.sodar_uuid,
                         "release": self.small_var.release,
                         "chromosome": self.small_var.chromosome,
-                        "position": self.small_var.position,
+                        "start": self.small_var.start,
+                        "end": self.small_var.end,
                         "reference": self.small_var.reference,
                         "alternative": self.small_var.alternative,
                         "database": "ensembl",
@@ -2128,7 +2163,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "case": self.case.sodar_uuid,
                         "release": self.small_var.release,
                         "chromosome": self.small_var.chromosome,
-                        "position": self.small_var.position,
+                        "start": self.small_var.start,
+                        "end": self.small_var.end,
                         "reference": self.small_var.reference,
                         "alternative": self.small_var.alternative,
                         "database": "ensembl",
@@ -2152,7 +2188,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "case": self.case.sodar_uuid,
                         "release": self.small_var.release,
                         "chromosome": self.small_var.chromosome,
-                        "position": self.small_var.position,
+                        "start": self.small_var.start,
+                        "end": self.small_var.end,
                         "reference": self.small_var.reference,
                         "alternative": self.small_var.alternative,
                         "database": "ensembl",
@@ -2173,7 +2210,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 "https://jannovar.example.com/annotate-var/ensembl/hg19/%s/%s/%s/%s"
                 % (
                     self.small_var.chromosome,
-                    self.small_var.position,
+                    self.small_var.start,
                     self.small_var.reference,
                     self.small_var.alternative,
                 ),
@@ -2203,7 +2240,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "case": self.case.sodar_uuid,
                         "release": self.small_var.release,
                         "chromosome": self.small_var.chromosome,
-                        "position": self.small_var.position,
+                        "start": self.small_var.start,
+                        "end": self.small_var.end,
                         "reference": self.small_var.reference,
                         "alternative": self.small_var.alternative,
                         "database": "ensembl",
@@ -2496,7 +2534,8 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
                 {
                     "release": self.small_var.release,
                     "chromosome": self.small_var.chromosome,
-                    "position": self.small_var.position,
+                    "start": self.small_var.start,
+                    "end": self.small_var.end,
                     "reference": self.small_var.reference,
                     "alternative": self.small_var.alternative,
                 },
@@ -2516,7 +2555,9 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
                     SmallVariantFlagsFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                     )
@@ -2537,7 +2578,9 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
                     SmallVariantFlagsFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                     )
@@ -2552,7 +2595,8 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
                 {
                     "release": self.small_var.release,
                     "chromosome": self.small_var.chromosome,
-                    "position": self.small_var.position,
+                    "start": self.small_var.start,
+                    "end": self.small_var.end,
                     "reference": self.small_var.reference,
                     "alternative": self.small_var.alternative,
                 },
@@ -2572,7 +2616,9 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
                     SmallVariantFlagsFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                     )
@@ -2588,7 +2634,9 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
                     SmallVariantFlagsFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                         flag_bookmarked=False,
@@ -2613,7 +2661,9 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
                     SmallVariantFlagsFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                     )
@@ -2630,7 +2680,9 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
                     SmallVariantFlagsFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                         flag_bookmarked=False,
@@ -2651,7 +2703,9 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
                     SmallVariantFlagsFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                         flag_visual=100,
@@ -2681,7 +2735,9 @@ class TestSmallVariantCommentApiView(ViewTestBase):
                     SmallVariantCommentFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                     )
@@ -2746,7 +2802,8 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
                 {
                     "release": self.small_var.release,
                     "chromosome": self.small_var.chromosome,
-                    "position": self.small_var.position,
+                    "start": self.small_var.start,
+                    "end": self.small_var.end,
                     "reference": self.small_var.reference,
                     "alternative": self.small_var.alternative,
                 },
@@ -2766,7 +2823,9 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
                     AcmgCriteriaRatingFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                     )
@@ -2786,7 +2845,9 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
                     AcmgCriteriaRatingFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                         ps1=2,
@@ -2801,7 +2862,8 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
                 {
                     "release": self.small_var.release,
                     "chromosome": self.small_var.chromosome,
-                    "position": self.small_var.position,
+                    "start": self.small_var.start,
+                    "end": self.small_var.end,
                     "reference": self.small_var.reference,
                     "alternative": self.small_var.alternative,
                 },
@@ -2821,7 +2883,9 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
                     AcmgCriteriaRatingFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                         ps1=1,
@@ -2837,7 +2901,9 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
                     AcmgCriteriaRatingFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                         ps2=1,
@@ -2860,7 +2926,9 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
                     AcmgCriteriaRatingFormDataFactory(
                         release=self.small_var.release,
                         chromosome=self.small_var.chromosome,
-                        position=self.small_var.position,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
                         ps1="I'm supposed to be an integer!",

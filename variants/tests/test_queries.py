@@ -5,7 +5,6 @@ Remarks:
 - VCF export is only tested for case one at the moment, as it shares a major part of the implementation with
   the render and tabular file export query.
 """
-from django.db import connection
 
 from clinvar.tests.factories import ClinvarFactory
 from conservation.tests.factories import KnownGeneAAFactory
@@ -22,13 +21,7 @@ from variants.queries import (
     ProjectLoadPrefetchedQuery,
     KnownGeneAAQuery,
 )
-from geneinfo.tests.factories import (
-    HgncFactory,
-    AcmgFactory,
-    HpoFactory,
-    Mim2geneMedgenFactory,
-    GeneIdToInheritanceFactory,
-)
+from geneinfo.tests.factories import HgncFactory, AcmgFactory, GeneIdToInheritanceFactory
 from dbsnp.tests.factories import DbsnpFactory
 from .factories import (
     SmallVariantFactory,
@@ -165,14 +158,18 @@ class TestCaseOneQueryNotInDbsnp(SupportQueryTestBase):
         DbsnpFactory(
             release=small_vars[0].release,
             chromosome=small_vars[0].chromosome,
-            position=small_vars[0].position,
+            start=small_vars[0].start,
+            end=small_vars[0].end,
+            bin=small_vars[0].bin,
             reference=small_vars[0].reference,
             alternative=small_vars[0].alternative,
         )
         DbsnpFactory(
             release=small_vars[2].release,
             chromosome=small_vars[2].chromosome,
-            position=small_vars[2].position,
+            start=small_vars[2].start,
+            end=small_vars[2].end,
+            bin=small_vars[2].bin,
             reference=small_vars[2].reference,
             alternative=small_vars[2].alternative,
         )
@@ -347,7 +344,9 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
             )
             SmallVariantSummaryFactory(
                 chromosome=small_var.chromosome,
-                position=small_var.position,
+                start=small_var.start,
+                end=small_var.end,
+                bin=small_var.bin,
                 reference=small_var.reference,
                 alternative=small_var.alternative,
                 count_het=count,
@@ -1585,7 +1584,7 @@ class TestCaseOneWhitelistBlacklistRegionFilterQuery(SupportQueryTestBase):
             SmallVariantFactory.create_batch(
                 i + 1,
                 chromosome="1",
-                position=(i + 1) * 100 + i,
+                start=(i + 1) * 100 + i,
                 refseq_gene_id=hgnc.entrez_id,
                 ensembl_gene_id=hgnc.ensembl_gene_id,
                 case=case,
@@ -1784,7 +1783,7 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
             },
             1,
         )
-        self.assertEqual(res[0].position, self.small_vars[0].position)
+        self.assertEqual(res[0].start, self.small_vars[0].start)
 
     def test_query_de_novo_export_table(self):
         res = self.run_query(
@@ -1796,7 +1795,7 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
             },
             1,
         )
-        self.assertEqual(res[0].position, self.small_vars[0].position)
+        self.assertEqual(res[0].start, self.small_vars[0].start)
 
     def test_query_de_novo_export_vcf(self):
         res = self.run_query(
@@ -1808,7 +1807,7 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
             },
             1,
         )
-        self.assertEqual(res[0].position, self.small_vars[0].position)
+        self.assertEqual(res[0].start, self.small_vars[0].start)
 
 
 class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
@@ -1867,7 +1866,7 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
             },
             1,
         )
-        self.assertEqual(res[0].position, self.small_vars[1].position)
+        self.assertEqual(res[0].start, self.small_vars[1].start)
 
     def test_query_recessive_hom_export_table(self):
         res = self.run_query(
@@ -1879,7 +1878,7 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
             },
             1,
         )
-        self.assertEqual(res[0].position, self.small_vars[1].position)
+        self.assertEqual(res[0].start, self.small_vars[1].start)
 
     def test_query_recessive_hom_export_vcf(self):
         res = self.run_query(
@@ -1891,7 +1890,7 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
             },
             1,
         )
-        self.assertEqual(res[0].position, self.small_vars[1].position)
+        self.assertEqual(res[0].start, self.small_vars[1].start)
 
 
 class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
@@ -1947,18 +1946,18 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
 
     def test_query_compound_het_prefetch_filter(self):
         res = self.run_query(CasePrefetchQuery, {"compound_recessive_enabled": True}, 2)
-        self.assertEqual(res[0].position, self.small_vars[2].position)
-        self.assertEqual(res[1].position, self.small_vars[3].position)
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_export_tsv(self):
         res = self.run_query(CaseExportTableQuery, {"compound_recessive_enabled": True}, 2)
-        self.assertEqual(res[0].position, self.small_vars[2].position)
-        self.assertEqual(res[1].position, self.small_vars[3].position)
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_export_vcf(self):
         res = self.run_query(CaseExportVcfQuery, {"compound_recessive_enabled": True}, 2)
-        self.assertEqual(res[0].position, self.small_vars[2].position)
-        self.assertEqual(res[1].position, self.small_vars[3].position)
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_load_prefetched_filter(self):
         # Generate results
@@ -1972,8 +1971,8 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
             {"compound_recessive_enabled": True, "filter_job_id": query.id},
             2,
         )
-        self.assertEqual(res[0].position, self.small_vars[2].position)
-        self.assertEqual(res[1].position, self.small_vars[3].position)
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
 
 
 # ---------------------------------------------------------------------------
@@ -2015,11 +2014,11 @@ class CaseThreeClinvarMembershipFilterTestMixin:
             ClinvarFactory(
                 release=self.small_vars[-1].release,
                 chromosome=self.small_vars[-1].chromosome,
-                position=self.small_vars[-1].position,
+                start=self.small_vars[-1].start,
+                end=self.small_vars[-1].end,
+                bin=self.small_vars[-1].bin,
                 reference=self.small_vars[-1].reference,
                 alternative=self.small_vars[-1].alternative,
-                start=self.small_vars[-1].position,
-                stop=self.small_vars[-1].position,
                 clinical_significance=key,
                 clinical_significance_ordered=[key],
                 review_status="practice guideline",
@@ -2037,7 +2036,7 @@ class CaseThreeClinvarMembershipFilterTestMixin:
         res = self.run_query_function(
             self.query_class, {"require_in_clinvar": True, "clinvar_include_pathogenic": True}, 1
         )
-        self.assertEqual(res[0].position, self.small_vars[2].position)
+        self.assertEqual(res[0].start, self.small_vars[2].start)
 
     def test_render_query_require_membership_include_likely_pathogenic(self):
         res = self.run_query_function(
@@ -2045,7 +2044,7 @@ class CaseThreeClinvarMembershipFilterTestMixin:
             {"require_in_clinvar": True, "clinvar_include_likely_pathogenic": True},
             1,
         )
-        self.assertEqual(res[0].position, self.small_vars[3].position)
+        self.assertEqual(res[0].start, self.small_vars[3].start)
 
     def test_render_query_require_membership_include_uncertain_significance(self):
         res = self.run_query_function(
@@ -2053,19 +2052,19 @@ class CaseThreeClinvarMembershipFilterTestMixin:
             {"require_in_clinvar": True, "clinvar_include_uncertain_significance": True},
             1,
         )
-        self.assertEqual(res[0].position, self.small_vars[4].position)
+        self.assertEqual(res[0].start, self.small_vars[4].start)
 
     def test_render_query_require_membership_include_likely_benign(self):
         res = self.run_query_function(
             self.query_class, {"require_in_clinvar": True, "clinvar_include_likely_benign": True}, 1
         )
-        self.assertEqual(res[0].position, self.small_vars[5].position)
+        self.assertEqual(res[0].start, self.small_vars[5].start)
 
     def test_render_query_require_membership_include_benign(self):
         res = self.run_query_function(
             self.query_class, {"require_in_clinvar": True, "clinvar_include_benign": True}, 1
         )
-        self.assertEqual(res[0].position, self.small_vars[6].position)
+        self.assertEqual(res[0].start, self.small_vars[6].start)
 
 
 class RenderQueryTestCaseThreeClinvarMembershipFilter(
@@ -2122,8 +2121,8 @@ class TestHgmdMembershipQuery(SupportQueryTestBase):
         self.small_vars = [SmallVariantFactory(case=case), SmallVariantFactory(case=case)]
         self.hgmd = HgmdPublicLocusFactory(
             chromosome=self.small_vars[1].chromosome,
-            start=self.small_vars[1].position - 1,
-            end=self.small_vars[1].position,
+            start=self.small_vars[1].start - 1,
+            end=self.small_vars[1].start,
         )
 
     def test_no_hgmd_query(self):
@@ -2176,11 +2175,11 @@ class ClinvarReportQueryTestCaseFour(SupportQueryTestBase):
         ClinvarFactory(
             release=self.small_var.release,
             chromosome=self.small_var.chromosome,
-            position=self.small_var.position,
+            start=self.small_var.start,
+            end=self.small_var.end,
+            bin=self.small_var.bin,
             reference=self.small_var.reference,
             alternative=self.small_var.alternative,
-            start=self.small_var.position,
-            stop=self.small_var.position,
             **patched_data,
         )
 
@@ -2349,11 +2348,11 @@ class TestCaseFourClinvarLoadPrefetchedQuery(SupportQueryTestBase):
             ClinvarFactory(
                 release=self.small_vars[-1].release,
                 chromosome=self.small_vars[-1].chromosome,
-                position=self.small_vars[-1].position,
+                start=self.small_vars[-1].start,
+                end=self.small_vars[-1].end,
+                bin=self.small_vars[-1].bin,
                 reference=self.small_vars[-1].reference,
                 alternative=self.small_vars[-1].alternative,
-                start=self.small_vars[-1].position,
-                stop=self.small_vars[-1].position,
                 review_status="practice guideline",
                 review_status_ordered=["practice guideline"],
             )
@@ -2451,17 +2450,17 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
                 ClinvarFactory(
                     release=small_var.release,
                     chromosome=small_var.chromosome,
-                    position=small_var.position,
+                    start=small_var.start,
+                    end=small_var.end,
+                    bin=small_var.bin,
                     reference=small_var.reference,
                     alternative=small_var.alternative,
-                    start=small_var.position,
-                    stop=small_var.position,
                 )
 
     def test_query_compound_het_prefetch_filter(self):
         res = self.run_query(ClinvarReportPrefetchQuery, {"compound_recessive_enabled": True}, 2)
-        self.assertEqual(res[0].position, self.small_vars[2].position)
-        self.assertEqual(res[1].position, self.small_vars[3].position)
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_load_prefetched_filter(self):
         # Generate results
@@ -2475,8 +2474,8 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
             {"compound_recessive_enabled": True, "filter_job_id": query.id},
             2,
         )
-        self.assertEqual(res[0].position, self.small_vars[2].position)
-        self.assertEqual(res[1].position, self.small_vars[3].position)
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
 
 
 class TestCaseFiveQueryProject(SupportQueryTestBase):
@@ -2520,7 +2519,8 @@ class TestKnownGeneAAQuery(TestBase):
             {
                 "release": self.knowngene.release,
                 "chromosome": self.knowngene.chromosome,
-                "position": self.knowngene.start - 1,
+                "start": self.knowngene.start - 1,
+                "end": self.knowngene.end - 1,
                 "reference": "A",
             },
             0,
@@ -2532,7 +2532,8 @@ class TestKnownGeneAAQuery(TestBase):
             {
                 "release": self.knowngene.release,
                 "chromosome": self.knowngene.chromosome,
-                "position": self.knowngene.start,
+                "start": self.knowngene.start,
+                "end": self.knowngene.start,
                 "reference": "A",
             },
             1,
@@ -2544,7 +2545,8 @@ class TestKnownGeneAAQuery(TestBase):
             {
                 "release": self.knowngene.release,
                 "chromosome": self.knowngene.chromosome,
-                "position": self.knowngene.start + 1,
+                "start": self.knowngene.start + 1,
+                "end": self.knowngene.end + 1,
                 "reference": "A",
             },
             1,
@@ -2556,7 +2558,8 @@ class TestKnownGeneAAQuery(TestBase):
             {
                 "release": self.knowngene.release,
                 "chromosome": self.knowngene.chromosome,
-                "position": self.knowngene.end,
+                "start": self.knowngene.start + 2,
+                "end": self.knowngene.start + 2,
                 "reference": "A",
             },
             1,
@@ -2568,7 +2571,8 @@ class TestKnownGeneAAQuery(TestBase):
             {
                 "release": self.knowngene.release,
                 "chromosome": self.knowngene.chromosome,
-                "position": self.knowngene.end + 1,
+                "start": self.knowngene.start + 3,
+                "end": self.knowngene.end + 3,
                 "reference": "A",
             },
             0,

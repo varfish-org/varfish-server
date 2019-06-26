@@ -35,13 +35,10 @@ def _compute_het_hom_chrx_stmt(variant_model, case):
                 variant_model.sa.case_id == case.pk,
                 variant_model.sa.chromosome == "X",
                 # Exclude pseudoautosomal regions on chrX; works for both GRCh37 and GRCh38.
-                not_(
-                    and_(variant_model.sa.position >= 10000, variant_model.sa.position <= 2_781_479)
-                ),
+                not_(and_(variant_model.sa.start >= 10000, variant_model.sa.start <= 2_781_479)),
                 not_(
                     and_(
-                        variant_model.sa.position >= 154_931_044,
-                        variant_model.sa.position <= 156_030_895,
+                        variant_model.sa.start >= 154_931_044, variant_model.sa.start <= 156_030_895
                     )
                 ),
             )
@@ -101,7 +98,8 @@ def _compute_relatedness_stmt(variant_model, case):
                 and_(
                     ReferenceSite.sa.release == variant_model.sa.release,
                     ReferenceSite.sa.chromosome == variant_model.sa.chromosome,
-                    ReferenceSite.sa.position == variant_model.sa.position,
+                    ReferenceSite.sa.start == variant_model.sa.start,
+                    ReferenceSite.sa.end == variant_model.sa.end,
                 ),
             )
         )
@@ -187,7 +185,8 @@ def _compute_relatedness_stmt_many(variant_model, cases):
                 and_(
                     ReferenceSite.sa.release == variant_model.sa.release,
                     ReferenceSite.sa.chromosome == variant_model.sa.chromosome,
-                    ReferenceSite.sa.position == variant_model.sa.position,
+                    ReferenceSite.sa.start == variant_model.sa.start,
+                    ReferenceSite.sa.end == variant_model.sa.end,
                 ),
             )
         )
@@ -199,7 +198,8 @@ def _compute_relatedness_stmt_many(variant_model, cases):
         )
         .group_by(
             variant_model.sa.chromosome,
-            variant_model.sa.position,
+            variant_model.sa.start,
+            variant_model.sa.end,
             variant_model.sa.reference,
             variant_model.sa.alternative,
         )
