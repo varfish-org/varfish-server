@@ -23,6 +23,7 @@ End-User Summary
 - Admins/superusers can now update case information and pedigrees.
 - Projects can now synchronise (check) with upstream SODAR sites, only admins/superusers can trigger this.
 - Adapting SmallVariants and SmallVariant DBs to new start-end coordinates and UCSC binning.
+- Fixed frequency table in SmallVariant details that had wrong names assigned to columns and ``total`` values were not present.
 
 Full Change List
 ================
@@ -59,6 +60,9 @@ Full Change List
 - Adapting SmallVariants and SmallVariant DBs now containt ``start`` and ``end`` column, replacing ``position``.
   This is for internal queries only, the outside representation for SmallVariants is still via ``position``.
   An additional column ``bin`` for the ucsc binning was included.
+- Frequency table in SmallVariant details had wrong names assigned to columns and ``total`` values were not present.
+  The values in the columns were 1 column behind of its names, and thus the last column had a name that should have had missing values.
+  These missing values were also a bug in that case that ``total`` was not reported (i.e. ``af`` or ``het`` without population).
 
 -------
 v0.15.1

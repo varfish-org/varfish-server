@@ -2032,6 +2032,17 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 self.gnomad_exomes.hom_afr,
             )
             self.assertEqual(
+                response.context["pop_freqs"]["gnomAD Exomes"]["Total"]["af"], self.gnomad_exomes.af
+            )
+            self.assertEqual(
+                response.context["pop_freqs"]["gnomAD Exomes"]["Total"]["het"],
+                self.gnomad_exomes.het,
+            )
+            self.assertEqual(
+                response.context["pop_freqs"]["gnomAD Exomes"]["Total"]["hom"],
+                self.gnomad_exomes.hom,
+            )
+            self.assertEqual(
                 response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["af"],
                 self.gnomad_genomes.af_afr,
             )
@@ -2043,11 +2054,29 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 response.context["pop_freqs"]["gnomAD Genomes"]["AFR"]["hom"],
                 self.gnomad_genomes.hom_afr,
             )
+            self.assertEqual(
+                response.context["pop_freqs"]["gnomAD Genomes"]["Total"]["af"],
+                self.gnomad_genomes.af,
+            )
+            self.assertEqual(
+                response.context["pop_freqs"]["gnomAD Genomes"]["Total"]["het"],
+                self.gnomad_genomes.het,
+            )
+            self.assertEqual(
+                response.context["pop_freqs"]["gnomAD Genomes"]["Total"]["hom"],
+                self.gnomad_genomes.hom,
+            )
             self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["af"], self.exac.af_afr)
             self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["het"], self.exac.het_afr)
             self.assertEqual(response.context["pop_freqs"]["ExAC"]["AFR"]["hom"], self.exac.hom_afr)
+            self.assertEqual(response.context["pop_freqs"]["ExAC"]["Total"]["af"], self.exac.af)
+            self.assertEqual(response.context["pop_freqs"]["ExAC"]["Total"]["het"], self.exac.het)
+            self.assertEqual(response.context["pop_freqs"]["ExAC"]["Total"]["hom"], self.exac.hom)
             self.assertEqual(
                 response.context["pop_freqs"]["1000GP"]["AMR"]["af"], self.thousand_genomes.af_amr
+            )
+            self.assertEqual(
+                response.context["pop_freqs"]["1000GP"]["Total"]["af"], self.thousand_genomes.af
             )
             self.assertEqual(
                 response.context["clinvar"][0]["clinical_significance"],

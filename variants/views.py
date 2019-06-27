@@ -1743,7 +1743,7 @@ class SmallVariantDetails(
 
     def _get_population_freqs(self, kwargs):
         result = {
-            "populations": ("AFR", "AMR", "ASJ", "EAS", "FIN", "NFE", "OTH", "SAS"),
+            "populations": ("AFR", "AMR", "ASJ", "EAS", "FIN", "NFE", "OTH", "SAS", "Total"),
             "pop_freqs": {},
         }
         db_infos = {
@@ -1757,16 +1757,24 @@ class SmallVariantDetails(
             pop_freqs = {}
             for pop in result["populations"]:
                 pop_freqs.setdefault(pop, {})["hom"] = getattr(
-                    frequencies[key], "hom_%s" % pop.lower(), 0
+                    frequencies[key],
+                    "hom%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
+                    0,
                 )
                 pop_freqs.setdefault(pop, {})["het"] = getattr(
-                    frequencies[key], "het_%s" % pop.lower(), 0
+                    frequencies[key],
+                    "het%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
+                    0,
                 )
                 pop_freqs.setdefault(pop, {})["hemi"] = getattr(
-                    frequencies[key], "hemi_%s" % pop.lower(), 0
+                    frequencies[key],
+                    "hemi%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
+                    0,
                 )
                 pop_freqs.setdefault(pop, {})["af"] = getattr(
-                    frequencies[key], "af_%s" % pop.lower(), 0.0
+                    frequencies[key],
+                    "af%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
+                    0.0,
                 )
             result["pop_freqs"][label] = pop_freqs
         return result
