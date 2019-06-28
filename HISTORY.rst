@@ -67,6 +67,7 @@ Full Change List
   These missing values were also a bug in that case that ``total`` was not reported (i.e. ``af`` or ``het`` without population).
 - Constraints information in variant details now shows also pLI score.
 - Now joining constraints information to results table and added selector to display source/metric in one column.
+- Fixed: Ensembl transcript ids in SmallVariant list were truncated because of too short database field.
 
 -------
 v0.15.1

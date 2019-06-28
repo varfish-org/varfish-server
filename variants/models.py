@@ -194,7 +194,7 @@ class SmallVariant(models.Model):
     #: EnsEMBL gene ID
     ensembl_gene_id = models.CharField(max_length=16, null=True)
     #: EnsEMBL transcript ID
-    ensembl_transcript_id = models.CharField(max_length=16, null=True)
+    ensembl_transcript_id = models.CharField(max_length=32, null=True)
     #: Flag EnsEMBL transcript coding
     ensembl_transcript_coding = models.NullBooleanField()
     #: EnsEMBL HGVS coding sequence
