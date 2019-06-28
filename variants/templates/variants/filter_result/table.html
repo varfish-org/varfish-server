@@ -38,11 +38,24 @@
             Frequencies
           </label>
           <select class="custom-select" id="result-display-frequencies" onchange="javascript: updateTableDisplay();">
-            <option value="exac" selected>ExAC</option>
-            <option value="thousand-genomes">1000 genomes</option>
-            <option value="gnomad-exomes">gnomAD exomes</option>
-            <option value="gnomad-genomes">gnomAD genomes</option>
-            <option value="inhouse">in-house DB</option>
+            <option value="frequencies-exac" selected>ExAC</option>
+            <option value="frequencies-thousand-genomes">1000 genomes</option>
+            <option value="frequencies-gnomad-exomes">gnomAD exomes</option>
+            <option value="frequencies-gnomad-genomes">gnomAD genomes</option>
+            <option value="frequencies-inhouse">in-house DB</option>
+          </select>
+        </div>
+        <div class="p-2 form-group">
+          <label class="mr-2" for="result-display-constraints">
+            Constraints
+          </label>
+          <select class="custom-select" id="result-display-constraints" onchange="javascript: updateTableDisplay();">
+            <option value="constraints-gnomad-pli" selected>gnomAD pLI</option>
+            <option value="constraints-gnomad-z-syn">gnomAD Z syn</option>
+            <option value="constraints-gnomad-z-mis">gnomAD Z mis</option>
+            <option value="constraints-exac-pli">ExAC pLI</option>
+            <option value="constraints-exac-z-syn">ExAC Z syn</option>
+            <option value="constraints-exac-z-mis">ExAC Z mis</option>
           </select>
         </div>
         <div class="pl-3">

@@ -21,7 +21,14 @@ from variants.queries import (
     ProjectLoadPrefetchedQuery,
     KnownGeneAAQuery,
 )
-from geneinfo.tests.factories import HgncFactory, AcmgFactory, GeneIdToInheritanceFactory
+from geneinfo.tests.factories import (
+    HgncFactory,
+    AcmgFactory,
+    GeneIdToInheritanceFactory,
+    GnomadConstraintsFactory,
+    ExacConstraintsFactory,
+    RefseqToEnsemblFactory,
+)
 from dbsnp.tests.factories import DbsnpFactory
 from .factories import (
     SmallVariantFactory,
@@ -71,6 +78,13 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
                 mode_of_inheritance="AR",
             ),
         ]
+        # Prepare constraints
+        self.gnomad_constraints = GnomadConstraintsFactory(
+            ensembl_gene_id=small_vars[0].ensembl_gene_id
+        )
+        self.exac_constraints = ExacConstraintsFactory(
+            ensembl_transcript_id=small_vars[0].ensembl_transcript_id
+        )
         # Prepare smallvariant query results
         self.smallvariantquery = SmallVariantQueryFactory(case=case)
         self.smallvariantquery.query_results.add(small_vars[0].id, small_vars[1].id)
@@ -81,6 +95,7 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         self.projectcasessmallvariantquery.query_results.add(small_vars[0].id, small_vars[2].id)
 
     def test_load_prefetched_case_results(self):
+        self.smallvariantquery.save()
         results = self.run_query(
             CaseLoadPrefetchedQuery, {"filter_job_id": self.smallvariantquery.id}, 2
         )
@@ -95,6 +110,8 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
                 self.modes_of_inheritance[1].mode_of_inheritance,
             ],
         )
+        self.assertEqual(results[0].gnomad_pLI, self.gnomad_constraints.pLI)
+        self.assertEqual(results[0].exac_pLI, self.exac_constraints.pLI)
 
     def test_load_prefetched_project_cases_results(self):
         results = self.run_query(

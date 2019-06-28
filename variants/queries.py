@@ -18,7 +18,15 @@ import sqlparse
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
-from geneinfo.models import Hgnc, RefseqToHgnc, Acmg, GeneIdToInheritance
+from geneinfo.models import (
+    Hgnc,
+    RefseqToHgnc,
+    Acmg,
+    GeneIdToInheritance,
+    GnomadConstraints,
+    RefseqToEnsembl,
+    ExacConstraints,
+)
 from hgmd.models import HgmdPublicLocus
 from variants.models import (
     Case,
@@ -1072,6 +1080,53 @@ class ExtendQueryPartsModesOfInheritanceJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
+class ExtendQueryPartsGnomadConstraintsJoin(ExtendQueryPartsBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields = ["pLI", "mis_z", "syn_z"]
+        self.subquery = (
+            select(
+                [
+                    func.max(getattr(GnomadConstraints.sa, field)).label(field)
+                    for field in self.fields
+                ]
+            )
+            .select_from(GnomadConstraints.sa)
+            .where(SmallVariant.sa.ensembl_gene_id == GnomadConstraints.sa.ensembl_gene_id)
+            .group_by(GnomadConstraints.sa.ensembl_gene_id)
+            .lateral("gnomad_constraints_subquery")
+        )
+
+    def extend_fields(self, _query_parts):
+        return [getattr(self.subquery.c, field).label("gnomad_%s" % field) for field in self.fields]
+
+    def extend_selectable(self, query_parts):
+        return query_parts.selectable.outerjoin(self.subquery, true())
+
+
+class ExtendQueryPartsExacConstraintsJoin(ExtendQueryPartsBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields = ["pLI", "mis_z", "syn_z"]
+        self.subquery = (
+            select(
+                [func.max(getattr(ExacConstraints.sa, field)).label(field) for field in self.fields]
+            )
+            .select_from(ExacConstraints.sa)
+            .where(
+                SmallVariant.sa.ensembl_transcript_id == ExacConstraints.sa.ensembl_transcript_id
+            )
+            .group_by(ExacConstraints.sa.ensembl_transcript_id)
+            .lateral("exac_constraints_subquery")
+        )
+
+    def extend_fields(self, _query_parts):
+        return [getattr(self.subquery.c, field).label("exac_%s" % field) for field in self.fields]
+
+    def extend_selectable(self, query_parts):
+        return query_parts.selectable.outerjoin(self.subquery, true())
+
+
 extender_classes_base = [
     ExtendQueryPartsCaseJoinAndFilter,
     ExtendQueryPartsDbsnpJoinAndFilter,
@@ -1138,6 +1193,8 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsCommentsJoin,
         ExtendQueryPartsAcmgCriteriaJoin,
         ExtendQueryPartsModesOfInheritanceJoin,
+        ExtendQueryPartsGnomadConstraintsJoin,
+        ExtendQueryPartsExacConstraintsJoin,
     ]
 
 
@@ -1193,6 +1250,8 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsFlagsJoin,
         ExtendQueryPartsCommentsJoin,
         ExtendQueryPartsAcmgCriteriaJoin,
+        ExtendQueryPartsGnomadConstraintsJoin,
+        ExtendQueryPartsExacConstraintsJoin,
     ]
 
 

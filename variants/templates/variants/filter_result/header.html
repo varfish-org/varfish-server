@@ -9,11 +9,17 @@
   <th></th> {# position #}
   <th></th> {# ref #}
   <th></th> {# alt #}
-  <th colspan="2" class="detail-exac">ExAC</th>
-  <th colspan="2" class="detail-gnomad-exomes">gnomAD exomes</th>
-  <th colspan="2" class="detail-gnomad-genomes">gnomAD genomes</th>
-  <th colspan="2" class="detail-thousand-genomes">1000 genomes</th>
-  <th colspan="2" class="detail-inhouse">in-house</th>
+  <th colspan="2" class="detail-frequencies-exac">ExAC</th>
+  <th colspan="2" class="detail-frequencies-gnomad-exomes">gnomAD exomes</th>
+  <th colspan="2" class="detail-frequencies-gnomad-genomes">gnomAD genomes</th>
+  <th colspan="2" class="detail-frequencies-thousand-genomes">1000 genomes</th>
+  <th colspan="2" class="detail-frequencies-inhouse">in-house</th>
+  <th class="detail-constraints-exac-pli">ExAC</th>
+  <th class="detail-constraints-exac-z-mis">ExAC</th>
+  <th class="detail-constraints-exac-z-syn">ExAC</th>
+  <th class="detail-constraints-gnomad-pli">gnomAD</th>
+  <th class="detail-constraints-gnomad-z-mis">gnomAD</th>
+  <th class="detail-constraints-gnomad-z-syn">gnomAD</th>
   <th></th>{# gene #}
   {% if has_phenotype_scores %}
     <th>phenotype</th>
@@ -44,16 +50,22 @@
   <th>position</th>
   <th>ref</th>
   <th>alt</th>
-  <th class="detail-exac">frequency</th>
-  <th class="detail-gnomad-exomes">frequency</th>
-  <th class="detail-gnomad-genomes">frequency</th>
-  <th class="detail-thousand-genomes">frequency</th>
-  <th class="detail-exac">#hom.</th>
-  <th class="detail-gnomad-exomes">#hom.</th>
-  <th class="detail-gnomad-genomes">#hom.</th>
-  <th class="detail-thousand-genomes">#hom.</th>
-  <th class="detail-inhouse">#carriers</th>
-  <th class="detail-inhouse">#hom.</th>
+  <th class="detail-frequencies-exac">frequency</th>
+  <th class="detail-frequencies-gnomad-exomes">frequency</th>
+  <th class="detail-frequencies-gnomad-genomes">frequency</th>
+  <th class="detail-frequencies-thousand-genomes">frequency</th>
+  <th class="detail-frequencies-exac">#hom.</th>
+  <th class="detail-frequencies-gnomad-exomes">#hom.</th>
+  <th class="detail-frequencies-gnomad-genomes">#hom.</th>
+  <th class="detail-frequencies-thousand-genomes">#hom.</th>
+  <th class="detail-frequencies-inhouse">#carriers</th>
+  <th class="detail-frequencies-inhouse">#hom.</th>
+  <th class="detail-constraints-exac-pli">pLI</th>
+  <th class="detail-constraints-exac-z-mis">Z mis</th>
+  <th class="detail-constraints-exac-z-syn">Z syn</th>
+  <th class="detail-constraints-gnomad-pli">pLI</th>
+  <th class="detail-constraints-gnomad-z-mis">Z mis</th>
+  <th class="detail-constraints-gnomad-z-syn">Z syn</th>
   <th>gene</th>
   {% if has_phenotype_scores %}
     <th>score/rank</th>

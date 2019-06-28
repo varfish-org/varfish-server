@@ -24,6 +24,8 @@ End-User Summary
 - Projects can now synchronise (check) with upstream SODAR sites, only admins/superusers can trigger this.
 - Adapting SmallVariants and SmallVariant DBs to new start-end coordinates and UCSC binning.
 - Fixed frequency table in SmallVariant details that had wrong names assigned to columns and ``total`` values were not present.
+- Added pLI score to variant details constraint information.
+- Added constraints information column with selector to results table.
 
 Full Change List
 ================
@@ -63,6 +65,8 @@ Full Change List
 - Frequency table in SmallVariant details had wrong names assigned to columns and ``total`` values were not present.
   The values in the columns were 1 column behind of its names, and thus the last column had a name that should have had missing values.
   These missing values were also a bug in that case that ``total`` was not reported (i.e. ``af`` or ``het`` without population).
+- Constraints information in variant details now shows also pLI score.
+- Now joining constraints information to results table and added selector to display source/metric in one column.
 
 -------
 v0.15.1

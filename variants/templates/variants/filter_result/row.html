@@ -68,50 +68,68 @@
       {{ entry.alternative }}
     </div>
   </td>
-  <td class="detail-exac">
+  <td class="detail-frequencies-exac">
     {{ entry.exac_frequency|floatformat:5|default:"-" }}
     {% if warning %}
       <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
     {% endif %}
   </td>
-  <td class="detail-gnomad-exomes">
+  <td class="detail-frequencies-gnomad-exomes">
     {{ entry.gnomad_exomes_frequency|floatformat:5|default:"-" }}
     {% if warning %}
       <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
     {% endif %}
   </td>
-  <td class="detail-gnomad-genomes">
+  <td class="detail-frequencies-gnomad-genomes">
     {{ entry.gnomad_genomes_frequency|floatformat:5|default:"-" }}
     {% if warning %}
       <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
     {% endif %}
   </td>
-  <td class="detail-thousand-genomes">
+  <td class="detail-frequencies-thousand-genomes">
     {{ entry.thousand_genomes_frequency|floatformat:5|default:"-" }}
     {% if warning %}
       <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
     {% endif %}
   </td>
-  <td class="detail-exac text-right">
+  <td class="detail-frequencies-exac text-right">
     {{ entry.exac_homozygous|default_if_none:"-" }}
   </td>
-  <td class="detail-gnomad-exomes text-right">
+  <td class="detail-frequencies-gnomad-exomes text-right">
     {{ entry.gnomad_exomes_homozygous|default_if_none:"-" }}
   </td>
-  <td class="detail-gnomad-genomes text-right">
+  <td class="detail-frequencies-gnomad-genomes text-right">
     {{ entry.gnomad_genomes_homozygous|default_if_none:"-" }}
   </td>
-  <td class="detail-thousand-genomes text-right">
+  <td class="detail-frequencies-thousand-genomes text-right">
     {{ entry.thousand_genomes_homozygous|default_if_none:"-" }}
   </td>
-  <td class="detail-inhouse text-right">
+  <td class="detail-frequencies-inhouse text-right">
     {{ entry.inhouse_carriers|default_if_none:"-" }}
     {% if warning %}
       <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
     {% endif %}
   </td>
-  <td class="detail-inhouse text-right">
+  <td class="detail-frequencies-inhouse text-right">
     {{ entry.inhouse_hom_alt|default_if_none:"-" }}
+  </td>
+  <td class="detail-constraints-gnomad-pli text-right">
+    {{ entry.gnomad_pLI|default_if_none:"-" }}
+  </td>
+  <td class="detail-constraints-gnomad-z-mis text-right">
+    {{ entry.gnomad_mis_z|default_if_none:"-" }}
+  </td>
+  <td class="detail-constraints-gnomad-z-syn text-right">
+    {{ entry.gnomad_syn_z|default_if_none:"-" }}
+  </td>
+  <td class="detail-constraints-exac-pli text-right">
+    {{ entry.exac_pLI|default_if_none:"-" }}
+  </td>
+  <td class="detail-constraints-exac-z-mis text-right">
+    {{ entry.exac_mis_z|default_if_none:"-" }}
+  </td>
+  <td class="detail-constraints-exac-z-syn text-right">
+    {{ entry.exac_syn_z|default_if_none:"-" }}
   </td>
   <td class="pl-3 pr-3">
     <nobr>
