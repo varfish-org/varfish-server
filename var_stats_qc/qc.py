@@ -99,7 +99,6 @@ def _compute_relatedness_stmt(variant_model, case):
                     ReferenceSite.sa.release == variant_model.sa.release,
                     ReferenceSite.sa.chromosome == variant_model.sa.chromosome,
                     ReferenceSite.sa.start == variant_model.sa.start,
-                    ReferenceSite.sa.end == variant_model.sa.end,
                 ),
             )
         )
@@ -186,7 +185,6 @@ def _compute_relatedness_stmt_many(variant_model, cases):
                     ReferenceSite.sa.release == variant_model.sa.release,
                     ReferenceSite.sa.chromosome == variant_model.sa.chromosome,
                     ReferenceSite.sa.start == variant_model.sa.start,
-                    ReferenceSite.sa.end == variant_model.sa.end,
                 ),
             )
         )

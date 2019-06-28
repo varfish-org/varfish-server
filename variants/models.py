@@ -1379,7 +1379,10 @@ class BaseRelatedness(models.Model):
 
     def relatedness(self):
         """Return relatedness following Pedersen and Quinlan (2017)."""
-        return (self.het_1_2 - 2 * self.n_ibs0) * 2 / math.sqrt(self.het_1 * self.het_2)
+        if self.het_1 * self.het_2:
+            return (self.het_1_2 - 2 * self.n_ibs0) * 2 / math.sqrt(self.het_1 * self.het_2)
+        else:
+            return 0.0
 
     class Meta:
         abstract = True

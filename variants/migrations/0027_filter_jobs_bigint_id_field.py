@@ -12,15 +12,19 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL(
-            r"""ALTER TABLE "variants_smallvariantquery_query_results" ALTER COLUMN "id" TYPE bigint USING "id"::bigint"""
+            r"""ALTER TABLE "variants_smallvariantquery_query_results" ALTER COLUMN "id" TYPE bigint USING "id"::bigint""",
+            r"""ALTER TABLE "variants_smallvariantquery_query_results" ALTER COLUMN "id" TYPE integer USING "id"::integer""",
         ),
         migrations.RunSQL(
-            r"""ALTER TABLE "variants_smallvariantquery_query_results" ALTER COLUMN "smallvariant_id" TYPE bigint USING "smallvariant_id"::bigint"""
+            r"""ALTER TABLE "variants_smallvariantquery_query_results" ALTER COLUMN "smallvariant_id" TYPE bigint USING "smallvariant_id"::bigint""",
+            r"""ALTER TABLE "variants_smallvariantquery_query_results" ALTER COLUMN "smallvariant_id" TYPE integer USING "smallvariant_id"::integer""",
         ),
         migrations.RunSQL(
-            r"""ALTER TABLE "variants_projectcasessmallvariantquery_query_results" ALTER COLUMN "id" TYPE bigint USING "id"::bigint"""
+            r"""ALTER TABLE "variants_projectcasessmallvariantquery_query_results" ALTER COLUMN "id" TYPE bigint USING "id"::bigint""",
+            r"""ALTER TABLE "variants_projectcasessmallvariantquery_query_results" ALTER COLUMN "id" TYPE integer USING "id"::integer""",
         ),
         migrations.RunSQL(
-            r"""ALTER TABLE "variants_projectcasessmallvariantquery_query_results" ALTER COLUMN "smallvariant_id" TYPE bigint USING "smallvariant_id"::bigint"""
+            r"""ALTER TABLE "variants_projectcasessmallvariantquery_query_results" ALTER COLUMN "smallvariant_id" TYPE bigint USING "smallvariant_id"::bigint""",
+            r"""ALTER TABLE "variants_projectcasessmallvariantquery_query_results" ALTER COLUMN "smallvariant_id" TYPE integer USING "smallvariant_id"::integer""",
         ),
     ]

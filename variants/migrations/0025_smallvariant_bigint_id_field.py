@@ -12,6 +12,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunSQL(
-            r"""ALTER TABLE "variants_smallvariant" ALTER COLUMN "id" TYPE bigint USING "id"::bigint"""
+            r"""ALTER TABLE "variants_smallvariant" ALTER COLUMN "id" TYPE bigint USING "id"::bigint""",
+            r"""ALTER TABLE "variants_smallvariant" ALTER COLUMN "id" TYPE integer USING "id"::integer""",
         )
     ]

@@ -19,10 +19,6 @@ class ReferenceSite(models.Model):
     chromosome = models.CharField(max_length=32)
     #: The 1-based position.
     start = models.IntegerField()
-    #: The end position
-    end = models.IntegerField()
-    #: UCSC bin
-    bin = models.IntegerField()
     #: The reference allele.
     reference = models.CharField(max_length=1)
     #: The alternative allele.
