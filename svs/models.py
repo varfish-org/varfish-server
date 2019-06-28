@@ -96,6 +96,29 @@ INFO_KEY_AFFECTED_CARRIERS = "AFFECTED_CARRIERS "
 INFO_KEY_UNAFFECTED_CARRIERS = "UNAFFECTED_CARRIERS"
 
 
+class StructuralVariantSet(models.Model):
+    """A set of structural variants associated with a case.
+
+    This additional step of redirection is created such that a new set of variants can be imported into the database
+    without affecting existing variants and without using transactions.
+    """
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+    #: DateTime of last modification
+    date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
+
+    #: The case that the variants are for.
+    case = models.ForeignKey(Case, null=False, help_text="The case that this set is for")
+    #: The state of the variant set.
+    state = models.CharField(
+        max_length=16,
+        choices=(("importing", "importing"), ("active", "active"), ("deleting", "deleting")),
+        null=False,
+        blank=False,
+    )
+
+
 class StructuralVariant(models.Model):
     """Represent a structural variant call with its genomic coordinates, genotype calls in a ``Case``, and other
     properties.
@@ -108,6 +131,8 @@ class StructuralVariant(models.Model):
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
     chromosome = models.CharField(max_length=32)
+    #: Chromosome as number
+    chromosome_no = models.IntegerField()
     #: Variant coordinates - start position
     start = models.IntegerField()
     #: Variant coordinates - end position
@@ -127,6 +152,8 @@ class StructuralVariant(models.Model):
 
     #: Foreign key to case ID
     case_id = models.IntegerField()
+    #: The StructuralVariantSet ID
+    set_id = models.IntegerField()
 
     #: UUID used for identification.
     sv_uuid = models.UUIDField(
@@ -162,6 +189,7 @@ class StructuralVariant(models.Model):
     class Meta:
         indexes = (
             models.Index(fields=["case_id"]),
+            models.Index(fields=["set_id"]),
             models.Index(fields=["case_id", "release", "chromosome", "bin"]),
             models.Index(
                 fields=["case_id", "release", "chromosome", "bin", "sv_type", "sv_sub_type"]
@@ -175,6 +203,11 @@ class StructuralVariantGeneAnnotation(models.Model):
     This model describes the impact of a structural variant on one gene.  The description of the structural variant
     itself is done in ``StructuralVariant``.
     """
+
+    #: Foreign key to case ID
+    case_id = models.IntegerField()
+    #: The StructuralVariantSet ID
+    set_id = models.IntegerField()
 
     #: Foreign key into ``StructuralVariant.sodar_uuid``.
     sv_uuid = models.UUIDField(
@@ -202,7 +235,7 @@ class StructuralVariantGeneAnnotation(models.Model):
     objects = CopyManager()
 
     class Meta:
-        indexes = (models.Index(fields=["sv_uuid"]),)
+        indexes = (models.Index(fields=["sv_uuid"]), models.Index(fields=["set_id"]))
 
 
 @receiver(pre_delete)

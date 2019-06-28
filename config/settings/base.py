@@ -360,6 +360,14 @@ CELERYD_TASK_TIME_LIMIT = 5 * 60
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-soft-time-limit
 CELERYD_TASK_SOFT_TIME_LIMIT = 60
 
+# Varfish: Base
+# ------------------------------------------------------------------------------
+
+# Set the number of partitions to create for the "SmallVariants" table.  This
+# setting will be interpreted in the initial migration that creates the small
+# variant table.  It must not be changed afterwards.
+VARFISH_PARTITION_MODULUS_SMALLVARIANT = 1000
+
 # Varfish: Exomiser
 # ------------------------------------------------------------------------------
 

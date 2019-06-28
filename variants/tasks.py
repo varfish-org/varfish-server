@@ -95,15 +95,17 @@ def setup_periodic_tasks(sender, **_kwargs):
 
 
 # TODO: move to a helpers module?
-def update_variant_counts(case):
+def update_variant_counts(case, variant_set=None):
     """Update the variant counts for the given case.
 
     This is done without changing the ``date_modified`` field.
     """
+    if not variant_set:
+        variant_set = case.latest_variant_set()
     stmt = (
         select([func.count()])
         .select_from(models.SmallVariant.sa.table)
-        .where(models.SmallVariant.sa.case_id == case.pk)
+        .where(models.SmallVariant.sa.set_id == variant_set.pk)
     )
     num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt) or None
     stmt = (

@@ -1,7 +1,7 @@
 SHELL = /bin/bash
 MANAGE = time python manage.py
 
-.PHONY: black serve serve_public flushdb migrate shell celery test test-noselenium
+.PHONY: black collectstatic serve serve_public flushdb migrate shell celery test test-noselenium
 
 black:
 	black -l 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src)/' .
@@ -27,8 +27,11 @@ shell:
 celery:
 	celery worker -A config.celery_app -l info --concurrency=4 --beat
 
+collectstatic:
+	python manage.py collectstatic
+
 # Remember to execute 'python manage.py collectstatic' before executing tests the first time
-test:
+test: collectstatic
 	coverage run manage.py test -v2 --settings=config.settings.test
 	coverage report
 

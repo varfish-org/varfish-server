@@ -1,7 +1,5 @@
 """Tests for the complex queries through the ``svs`` module."""
 
-from django.test import TestCase
-
 from geneinfo.tests.factories import HgncFactory
 from genomicfeatures.tests.factories import (
     EnsemblRegulatoryFeatureFactory,
@@ -13,8 +11,12 @@ from genomicfeatures.tests.factories import (
 )
 from svdbs.tests.factories import GnomAdSvFactory
 from variants.tests.factories import CaseFactory
-from .factories import StructuralVariantFactory, StructuralVariantGeneAnnotationFactory
-from .helpers import QueryTestBase, SQLALCHEMY_ENGINE
+from .factories import (
+    StructuralVariantFactory,
+    StructuralVariantGeneAnnotationFactory,
+    StructuralVariantSetFactory,
+)
+from .helpers import QueryTestBase
 from ..models import SV_TYPE_CHOICES, SV_SUB_TYPE_CHOICES, StructuralVariant
 from ..queries import SingleCaseFilterQuery
 
@@ -24,8 +26,11 @@ class SvsInCaseWithDeNovoGenotypeFilterQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory(structure="trio", inheritance="denovo")
-        self.svs = [StructuralVariantFactory(case=self.case)]
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.svs = [StructuralVariantFactory(variant_set=self.variant_set)]
 
     def testQueryAnyGenotype(self):
         results = self.run_query(SingleCaseFilterQuery, {}, 1)
@@ -60,8 +65,11 @@ class GenotypeQualityFilterQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory(structure="trio", inheritance="denovo")
-        self.svs = [StructuralVariantFactory(case=self.case)]
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.svs = [StructuralVariantFactory(variant_set=self.variant_set)]
         self.genotype = self.svs[0].genotype
 
     def testPassGqFilterFailsGenotypeFilter(self):
@@ -382,8 +390,11 @@ class SvTypeFilterQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory(structure="trio", inheritance="denovo")
-        self.svs = [StructuralVariantFactory(case=self.case)]
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.svs = [StructuralVariantFactory(variant_set=self.variant_set)]
         self.genotype = self.svs[0].genotype
 
     def testQueryVariantTypeMatch(self):
@@ -412,8 +423,11 @@ class SvCohortFrequencyFilterQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory(structure="trio", inheritance="denovo")
-        self.svs = [StructuralVariantFactory(case=self.case)]
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.svs = [StructuralVariantFactory(variant_set=self.variant_set)]
         self.genotype = self.svs[0].genotype
 
     def testPassMinAffectedCarriers(self):
@@ -530,8 +544,11 @@ class SvDatabaseFrequencyFilterQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory(structure="trio", inheritance="denovo")
-        self.sv = StructuralVariantFactory(case=self.case)
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
         GnomAdSvFactory(
             release=self.sv.release,
             chromosome=self.sv.chromosome,
@@ -578,8 +595,11 @@ class SvDatabaseFrequencyAnnotationTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory(structure="trio", inheritance="denovo")
-        self.sv = StructuralVariantFactory(case=self.case)
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
         GnomAdSvFactory(
             release=self.sv.release,
             chromosome=self.sv.chromosome,
@@ -601,8 +621,11 @@ class SvDatabaseFrequencyAnnotationTest(QueryTestBase):
 class RegionFilterQueryTest(QueryTestBase):
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory(structure="trio", inheritance="denovo")
-        self.svs = [StructuralVariantFactory(case=self.case)]
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.svs = [StructuralVariantFactory(variant_set=self.variant_set)]
 
     def testPassRegionsChr(self):
         chrom = "chr" + self.svs[0].chromosome.replace("chr", "")
@@ -635,8 +658,11 @@ class GeneListsFilterQueryTest(QueryTestBase):
     def setUp(self):
         super().setUp()
         self.hgnc = HgncFactory()
-        case = CaseFactory(structure="trio", inheritance="denovo")
-        self.svs = [StructuralVariantFactory(case=case)]
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.svs = [StructuralVariantFactory(variant_set=self.variant_set)]
         StructuralVariantGeneAnnotationFactory(
             ensembl_gene_id=self.hgnc.ensembl_gene_id, sv_uuid=self.svs[0].sv_uuid
         )
@@ -667,7 +693,6 @@ class GeneInIntervalsAnnotationQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory(structure="trio", inheritance="denovo")
         self.tad_set = TadSetFactory()
         self.tad = TadIntervalFactory(tad_set=self.tad_set, start=100_000, end=200_000)
         self.tad_boundaries = (
@@ -686,9 +711,13 @@ class GeneInIntervalsAnnotationQueryTest(QueryTestBase):
                 end=self.tad.end + 10000,
             ),
         )
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
         self.svs = [
             StructuralVariantFactory(
-                case=self.case,
+                variant_set=self.variant_set,
                 release=self.tad.release,
                 chromosome=self.tad.chromosome,
                 start=self.tad.start + 10000,
@@ -784,7 +813,10 @@ class DistanceToTadBoundaryAnnotationQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory(structure="trio", inheritance="denovo")
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
         self.tad_set = TadSetFactory()
         self.tad = TadIntervalFactory(tad_set=self.tad_set, start=100_000, end=200_000)
         self.tad_boundaries = (
@@ -806,7 +838,7 @@ class DistanceToTadBoundaryAnnotationQueryTest(QueryTestBase):
 
     def testFarAway(self):
         StructuralVariantFactory(
-            case=self.case,
+            variant_set=self.variant_set,
             release=self.tad.release,
             chromosome=self.tad.chromosome,
             start=self.tad_boundaries[0].start - 20000,
@@ -818,7 +850,7 @@ class DistanceToTadBoundaryAnnotationQueryTest(QueryTestBase):
 
     def testOverlapping(self):
         StructuralVariantFactory(
-            case=self.case,
+            variant_set=self.variant_set,
             release=self.tad.release,
             chromosome=self.tad.chromosome,
             start=self.tad_boundaries[0].start,
@@ -830,7 +862,7 @@ class DistanceToTadBoundaryAnnotationQueryTest(QueryTestBase):
 
     def testOnBoundary(self):
         StructuralVariantFactory(
-            case=self.case,
+            variant_set=self.variant_set,
             release=self.tad.release,
             chromosome=self.tad.chromosome,
             start=self.tad_boundaries[0].start + 5000,
@@ -844,8 +876,11 @@ class DistanceToTadBoundaryAnnotationQueryTest(QueryTestBase):
 class SvSizeFilterQueryTest(QueryTestBase):
     def setUp(self):
         super().setUp()
-        case = CaseFactory(structure="trio", inheritance="denovo")
-        self.svs = [StructuralVariantFactory(case=case)]
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.svs = [StructuralVariantFactory(variant_set=self.variant_set)]
 
     def testPassMinSize(self):
         result = self.run_query(
@@ -877,10 +912,13 @@ class BndSizeFilterQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        case = CaseFactory(structure="trio", inheritance="denovo")
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
         self.svs = [
             StructuralVariantFactory(
-                case=case, sv_type="BND", sv_sub_type="BND", start=1000, end=1000
+                variant_set=self.variant_set, sv_type="BND", sv_sub_type="BND", start=1000, end=1000
             )
         ]
 
@@ -900,8 +938,11 @@ class BndSizeFilterQueryTest(QueryTestBase):
 class SvTranscriptCodingFilterQueryTest(QueryTestBase):
     def setUp(self):
         super().setUp()
-        case = CaseFactory(structure="trio", inheritance="denovo")
-        self.svs = [StructuralVariantFactory(case=case)]
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.svs = [StructuralVariantFactory(variant_set=self.variant_set)]
         StructuralVariantGeneAnnotationFactory(
             sv_uuid=self.svs[0].sv_uuid,
             refseq_transcript_coding=True,
@@ -924,10 +965,13 @@ class _VariantEffectTestBase(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        case = CaseFactory(structure="trio", inheritance="denovo")
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
         self.sv_annos = [
             StructuralVariantGeneAnnotationFactory(
-                sv__case=case,
+                sv__variant_set=self.variant_set,
                 refseq_transcript_coding=True,
                 refseq_effect=["transcript_ablation", "coding_transcript_variant"],
                 ensembl_transcript_coding=True,
@@ -936,7 +980,7 @@ class _VariantEffectTestBase(QueryTestBase):
         ]
         self.svs = [
             StructuralVariant.objects.get(sv_uuid=self.sv_annos[0].sv_uuid),
-            StructuralVariantFactory(case=case),
+            StructuralVariantFactory(variant_set=self.variant_set),
         ]
 
     def testPassVariantEffect(self):
@@ -999,8 +1043,11 @@ class EnsemblRegulatoryOverlapFilterQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        case = CaseFactory(structure="trio", inheritance="denovo")
-        self.sv = StructuralVariantFactory(case=case)
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
         self.region = EnsemblRegulatoryFeatureFactory(
             release=self.sv.release,
             chromosome=self.sv.chromosome,
@@ -1044,8 +1091,11 @@ class EnsemblRegulatoryOverlapAnnotationQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        case = CaseFactory(structure="trio", inheritance="denovo")
-        self.sv = StructuralVariantFactory(case=case)
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
         self.region = EnsemblRegulatoryFeatureFactory(
             release=self.sv.release,
             chromosome=self.sv.chromosome,
@@ -1086,8 +1136,11 @@ class VistaOverlapFilterQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        case = CaseFactory(structure="trio", inheritance="denovo")
-        self.sv = StructuralVariantFactory(case=case)
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
         self.region = VistaEnhancerFactory(
             release=self.sv.release,
             chromosome=self.sv.chromosome,
@@ -1137,8 +1190,11 @@ class VistaOverlapAnnotationQueryTest(QueryTestBase):
 
     def setUp(self):
         super().setUp()
-        case = CaseFactory(structure="trio", inheritance="denovo")
-        self.sv = StructuralVariantFactory(case=case)
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
         self.region = VistaEnhancerFactory(
             release=self.sv.release,
             chromosome=self.sv.chromosome,

@@ -28,6 +28,7 @@ from ..models import (
     ExportProjectCasesFileBgJobResult,
     SmallVariantFlags,
     SmallVariantComment,
+    SmallVariantSet,
 )
 import typing
 import attr
@@ -402,15 +403,23 @@ def count_gt(*gts):
     return result
 
 
-class SmallVariantFactory(factory.django.DjangoModelFactory):
-    """Factory for creating ``SmallVariant`` objects.
+class SmallVariantSetFactory(factory.django.DjangoModelFactory):
+    """Factory for creating ``SmallVariantSet`` objects."""
 
-    Allows creation of a finite set of actual variants from ``LAMA1`` gene.
-    """
+    class Meta:
+        model = SmallVariantSet
+
+    case = factory.SubFactory(CaseFactory)
+    # Fix the state of all created SmallVariantSet objects to ``"active"``.
+    state = "active"
+
+
+class SmallVariantFactory(factory.django.DjangoModelFactory):
+    """Factory for creating ``SmallVariant`` objects."""
 
     class Meta:
         model = SmallVariant
-        exclude = ["case"]
+        exclude = ["case", "variant_set"]
 
     class Params:
         #: The genotypes to create, by default only first is het. the rest is wild-type.
@@ -418,7 +427,6 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
-        """Override to get rid of the ``case`` keyword argument and instead define ``case_id``."""
         manager = cls._get_manager(model_class)
         for db in ("refseq", "ensembl"):
             # Create the associated annotation entry
@@ -450,21 +458,32 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    chromosome_no = factory.Iterator(list(range(1, 25)))
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
     bin = 0
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
     var_type = "snv"
-    #: Model pseudo-attribute, not stored in database.  Instead, ``case_id`` is stored.
-    case = factory.SubFactory(CaseFactory)
-    #: The actual reference to the case.
-    case_id = factory.LazyAttribute(lambda o: o.case.id)
+    #: Model pseudo-attribute, not stored in database.  Instead, ``case_id`` is stored.  Also, the case is taken
+    #: from the ``SmallVariantSet`` that is auto-created via a ``SubFactory``.
+    case = factory.PostGeneration(
+        lambda obj, create, extracted, **kwargs: Case.objects.get(id=obj.case_id)
+    )
+    #: The actual foreign key to the ``Case``.
+    case_id = factory.SelfAttribute("variant_set.case.id")
+    #: Model pseudo-attribute, not stored in database.  Instead, ``set_id`` is stored.
+    variant_set = factory.SubFactory(SmallVariantSetFactory)
+    #: The actual reference to the ``SmallVariantSet``.
+    set_id = factory.LazyAttribute(lambda o: o.variant_set.id)
 
     @factory.lazy_attribute
     def genotype(self):
         """Generate genotype JSON field from already set ``self.case``."""
-        return {line["patient"]: gt for line, gt in zip(self.case.pedigree, self.genotypes())}
+        return {
+            line["patient"]: gt
+            for line, gt in zip(self.variant_set.case.pedigree, self.genotypes())
+        }
 
     @factory.post_generation
     def fix_bins(obj, *args, **kwargs):

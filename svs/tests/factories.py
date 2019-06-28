@@ -10,12 +10,14 @@ from svs.forms import (
     FILTER_FORM_TRANSLATE_SV_SUB_TYPES,
     FILTER_FORM_TRANSLATE_SV_TYPES,
 )
+from variants.models import Case
 from variants.tests.factories import CaseFactory
 from ..models import (
     StructuralVariant,
     StructuralVariantGeneAnnotation,
     StructuralVariantFlags,
     StructuralVariantComment,
+    StructuralVariantSet,
 )
 import typing
 import attr
@@ -28,54 +30,61 @@ def default_genotypes():
         yield "0/0"
 
 
+class StructuralVariantSetFactory(factory.django.DjangoModelFactory):
+    """Factory for creating ``SmallVariantSet`` objects."""
+
+    class Meta:
+        model = StructuralVariantSet
+
+    case = factory.SubFactory(CaseFactory)
+    # Fix the state of all created SmallVariantSet objects to ``"active"``.
+    state = "active"
+
+
 class StructuralVariantFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = StructuralVariant
+        exclude = ["case", "variant_set"]
 
     class Params:
         #: The genotypes to create, by default only first is het. the rest is wild-type.
         genotypes = default_genotypes
 
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        """Override to get rid of the ``case`` keyword argument and instead define ``case_id``."""
-        manager = cls._get_manager(model_class)
-        case = kwargs.pop("case")
-        kwargs["case_id"] = case.id
-        return manager.create(*args, **kwargs)
-
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    chromosome_no = factory.Iterator(list(range(1, 25)))
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
-    bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
+    bin = factory.LazyAttribute(lambda obj: binning.assign_bin(obj.start, obj.end))
 
     start_ci_left = -100
     start_ci_right = 100
     end_ci_left = -100
     end_ci_right = 100
 
-    #: Model pseudo-attribute, not stored in database.  Instead, ``case_id`` is stored.
-    case = factory.SubFactory(CaseFactory)
-    #: The actual reference to the case.
-    case_id = factory.LazyAttribute(lambda o: o.case.id)
+    #: Model pseudo-attribute, not stored in database.  Instead, ``set_id`` is stored.
+    variant_set = factory.SubFactory(StructuralVariantSetFactory)
+    #: The actual reference to the ``StructuralVariantSet``.
+    set_id = factory.LazyAttribute(lambda o: o.variant_set.id)
+    #: Model pseudo-attribute, not stored in database.  Instead ``case_id`` is stored.
+    case = factory.LazyAttribute(lambda obj: Case.objects.get(id=obj.case_id))
+    #: The actual foreign key to the ``Case``.
+    case_id = factory.SelfAttribute("variant_set.case.id")
 
     caller = "DELLYv4001"
     sv_type = "DEL"
     sv_sub_type = "DEL"
 
-    @factory.lazy_attribute
-    def genotype(self):
-        """Generate genotype JSON field from already set ``self.case``."""
-        return {
+    genotype = factory.LazyAttribute(
+        lambda obj: {
             line["patient"]: {"gt": gt, "gq": 10, "src": 10, "srv": 5, "pec": 10, "pev": 5}
-            for line, gt in zip(self.case.pedigree, self.genotypes())
+            for line, gt in zip(obj.case.pedigree, obj.genotypes())
         }
+    )
 
     @factory.lazy_attribute
     def info(self):
-        """Generate info JSON field from already set ``self.case`` and genotypes from self.genotypes()."""
         num_affected = 0
         num_unaffected = 0
         for line, gt in zip(self.case.pedigree, self.genotypes()):
@@ -90,28 +99,25 @@ class StructuralVariantFactory(factory.django.DjangoModelFactory):
             "backgroundCarriers": 0,
         }
 
-    @factory.post_generation
-    def fix_bins(obj, *args, **kwargs):
-        obj.bin = binning.assign_bin(obj.start - 1, obj.end)
-        obj.save()
-
 
 class StructuralVariantGeneAnnotationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = StructuralVariantGeneAnnotation
-
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        """Override to get rid of the ``sv`` keyword argument and instead define ``sv_uuid``."""
-        manager = cls._get_manager(model_class)
-        sv = kwargs.pop("sv")
-        kwargs["sv_uuid"] = sv.sv_uuid
-        return manager.create(*args, **kwargs)
+        exclude = ["sv", "case", "variant_set"]
 
     #: Model pseudo-attribute, not stored in database.  Instead, ``sv_uuid`` is stored.
     sv = factory.SubFactory(StructuralVariantFactory)
     #: The actual reference to the StructuralVariant.
     sv_uuid = factory.LazyAttribute(lambda o: o.sv.sv_uuid)
+
+    #: Model pseudo-attribute, not stored in database.  Instead, ``set_id`` is stored.
+    variant_set = factory.LazyAttribute(lambda o: StructuralVariantSet.objects.get(pk=o.sv.set_id))
+    #: The actual reference to the ``StructuralVariantSet``.
+    set_id = factory.SelfAttribute("sv.set_id")
+    #: Model pseudo-attribute, not stored in database.  Instead ``case_id`` is stored.
+    case = factory.SelfAttribute("variant_set.case")
+    #: The actual foreign key to the ``Case``.
+    case_id = factory.SelfAttribute("variant_set.case.id")
 
     refseq_gene_id = factory.Sequence(lambda n: "REFSEQ_%d" % n)
     refseq_transcript_id = factory.Sequence(lambda n: "NM_%d" % n)

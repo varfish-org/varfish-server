@@ -175,13 +175,13 @@ class ProcessedClinvarFormDataFactory:
         for name in self.names:
             self.__dict__.update(
                 {
-                    "%s_fail" % name: "ignore",
+                    # "%s_fail" % name: "ignore",
                     "%s_gt" % name: "any",
-                    "%s_dp_het" % name: 0,
-                    "%s_dp_hom" % name: 0,
-                    "%s_ab" % name: 0,
-                    "%s_gq" % name: 0,
-                    "%s_ad" % name: 0,
+                    # "%s_dp_het" % name: 0,
+                    # "%s_dp_hom" % name: 0,
+                    # "%s_ab" % name: 0,
+                    # "%s_gq" % name: 0,
+                    # "%s_ad" % name: 0,
                 }
             )
         delattr(self, "names")
@@ -190,12 +190,12 @@ class ProcessedClinvarFormDataFactory:
 @attr.s(auto_attribs=True)
 class ClinvarFormDataFactory(ProcessedClinvarFormDataFactory):
     result_rows_limit: int = 500
-    submit: str = "display"
+    # submit: str = "display"
 
-    def __attrs_post_init__(self):
-        for name in self.names:
-            self.__dict__.update({"%s_export" % name: True})
-        super().__attrs_post_init__()
+    # def __attrs_post_init__(self):
+    #     for name in self.names:
+    #         self.__dict__.update({"%s_export" % name: True})
+    #     super().__attrs_post_init__()
 
 
 @attr.s(auto_attribs=True)

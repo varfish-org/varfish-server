@@ -8,6 +8,7 @@ import numpy as np
 import psycopg2.extras
 from sqlalchemy.sql import select, and_, not_, func
 
+from variants.models import SmallVariantSet
 from .models import ReferenceSite
 
 
@@ -25,14 +26,14 @@ def _disable_json_psycopg2():
     psycopg2.extras.register_default_jsonb(loads=json.loads)
 
 
-def _compute_het_hom_chrx_stmt(variant_model, case):
+def _compute_het_hom_chrx_stmt(variant_model, variant_set):
     """Build SQL Alchemy statement given the variant model class and the case object."""
     return (
         select([variant_model.sa.genotype])
         .select_from(variant_model.sa.table)
         .where(
             and_(
-                variant_model.sa.case_id == case.pk,
+                variant_model.sa.set_id == variant_set.id,
                 variant_model.sa.chromosome == "X",
                 # Exclude pseudoautosomal regions on chrX; works for both GRCh37 and GRCh38.
                 not_(and_(variant_model.sa.start >= 10000, variant_model.sa.start <= 2_781_479)),
@@ -46,15 +47,15 @@ def _compute_het_hom_chrx_stmt(variant_model, case):
     )
 
 
-def compute_het_hom_chrx(connection, variant_model, case, min_depth=7, n_sites=10000):
+def compute_het_hom_chrx(connection, variant_model, variant_set, min_depth=7, n_sites=10000):
     """Compute het/hom ratio on chromosome X from the given ``variant_model``."""
     # Obtain the genotypes.
-    stmt = _compute_het_hom_chrx_stmt(variant_model, case)
+    stmt = _compute_het_hom_chrx_stmt(variant_model, variant_set)
     with _disable_json_psycopg2():
         result = connection.execute(stmt)
 
     # Count hom. ref., het., and hom. alt. genotypes for each sample.
-    samples = case.get_members_with_samples()
+    samples = variant_set.case.get_members_with_samples()
     hom_ref = np.zeros(len(samples), dtype=int)
     het = np.zeros(len(samples), dtype=int)
     hom_alt = np.zeros(len(samples), dtype=int)
@@ -65,7 +66,7 @@ def compute_het_hom_chrx(connection, variant_model, case, min_depth=7, n_sites=1
         # Skip if too few samples are called.
         gts = [row.genotype[sample]["gt"] for sample in samples]
         nocalls = [gt for gt in gts if gt == "./."]
-        if len(nocalls) / len(gts) > 0.5:
+        if not gts or len(nocalls) / len(gts) > 0.5:
             continue  # skip, too few calls
         # Skip if depth not sufficient.
         # TODO: will fail without depth annotation
@@ -88,7 +89,7 @@ def compute_het_hom_chrx(connection, variant_model, case, min_depth=7, n_sites=1
     return {sample: het_ratios[i] for i, sample in enumerate(samples)}
 
 
-def _compute_relatedness_stmt(variant_model, case):
+def _compute_relatedness_stmt(variant_model, variant_set):
     """Build SQL Alchemy statement given the variant model class and the case object."""
     return (
         select([variant_model.sa.genotype])
@@ -104,7 +105,7 @@ def _compute_relatedness_stmt(variant_model, case):
         )
         .where(
             and_(
-                variant_model.sa.case_id == case.pk,
+                variant_model.sa.set_id == variant_set.id,
                 not_(variant_model.sa.chromosome.in_(("X", "Y"))),
             )
         )
@@ -118,18 +119,18 @@ def _normalize_gt(gt):
         return gt
 
 
-def compute_relatedness(connection, variant_model, case, min_depth=7, n_sites=10000):
+def compute_relatedness(connection, variant_model, variant_set, min_depth=7, n_sites=10000):
     """Compute relatedness between pairs following Pedersen & Quinlan (2017).
 
     Return ``het, het_shared, ibs0, ibs1, ibs2``.
     """
     # Obtain the genotypes.
-    stmt = _compute_relatedness_stmt(variant_model, case)
+    stmt = _compute_relatedness_stmt(variant_model, variant_set)
     with _disable_json_psycopg2():
         result = connection.execute(stmt)
 
     # Compute sample pairs to consider.
-    samples = case.get_members_with_samples()
+    samples = variant_set.case.get_members_with_samples()
     sample_pairs = [(s, t) for i, s in enumerate(samples) for j, t in enumerate(samples) if i > j]
     # Statistics.
     het = {s: 0 for s in samples}
@@ -176,6 +177,12 @@ def compute_relatedness(connection, variant_model, case, min_depth=7, n_sites=10
 
 def _compute_relatedness_stmt_many(variant_model, cases):
     """Build SQL Alchemy statement given the variant model class and multiple case objects."""
+    variant_set_ids = []
+    for case in cases:
+        variant_set = case.latest_variant_set()
+        if variant_set:
+            variant_set_ids.append(variant_set.id)
+
     return (
         select([func.jsonb_agg(variant_model.sa.genotype).label("genotype")])
         .select_from(
@@ -190,7 +197,7 @@ def _compute_relatedness_stmt_many(variant_model, cases):
         )
         .where(
             and_(
-                variant_model.sa.case_id.in_([case.pk for case in cases]),
+                variant_model.sa.set_id.in_(variant_set_ids),
                 not_(variant_model.sa.chromosome.in_(("X", "Y"))),
             )
         )

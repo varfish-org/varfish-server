@@ -58,11 +58,14 @@ def fixture_setup_case(user):
             }
         ],
     )
+    variant_set = case.smallvariantset_set.create()
 
     basic_var = {
         "case_id": case.pk,
+        "set_id": variant_set.pk,
         "release": "GRCh37",
         "chromosome": "1",
+        "chromosome_no": 1,
         "start": None,
         "end": None,
         "bin": None,
@@ -117,7 +120,7 @@ def fixture_setup_case(user):
         **{**basic_var, **{"start": 300, "end": 300, "bin": binning.assign_bin(299, 300)}}
     )
 
-    rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
+    rebuild_case_variant_stats(SQLALCHEMY_ENGINE, variant_set)
 
     Clinvar.objects.create(
         **{
@@ -171,10 +174,15 @@ def fixture_setup_projectcases(user):
         ],
     )
 
+    variant_set1 = case1.smallvariantset_set.create()
+    variant_set2 = case2.smallvariantset_set.create()
+
     basic_var = {
         "case_id": None,
+        "set_id": None,
         "release": "GRCh37",
         "chromosome": "1",
+        "chromosome_no": 1,
         "start": None,
         "end": None,
         "bin": None,
@@ -220,6 +228,7 @@ def fixture_setup_projectcases(user):
         **{
             **basic_var,
             "case_id": case1.pk,
+            "set_id": variant_set1.pk,
             "start": 100,
             "end": 100,
             "bin": binning.assign_bin(99, 100),
@@ -229,6 +238,7 @@ def fixture_setup_projectcases(user):
         **{
             **basic_var,
             "case_id": case1.pk,
+            "set_id": variant_set1.pk,
             "start": 200,
             "end": 200,
             "bin": binning.assign_bin(199, 200),
@@ -239,6 +249,7 @@ def fixture_setup_projectcases(user):
         **{
             **basic_var,
             "case_id": case1.pk,
+            "set_id": variant_set1.pk,
             "start": 300,
             "end": 300,
             "bin": binning.assign_bin(299, 300),
@@ -248,6 +259,7 @@ def fixture_setup_projectcases(user):
         **{
             **basic_var,
             "case_id": case2.pk,
+            "set_id": variant_set2.pk,
             "start": 100,
             "end": 100,
             "bin": binning.assign_bin(99, 100),
@@ -257,6 +269,7 @@ def fixture_setup_projectcases(user):
         **{
             **basic_var,
             "case_id": case2.pk,
+            "set_id": variant_set2.pk,
             "start": 200,
             "end": 200,
             "bin": binning.assign_bin(199, 200),
@@ -267,6 +280,7 @@ def fixture_setup_projectcases(user):
         **{
             **basic_var,
             "case_id": case2.pk,
+            "set_id": variant_set2.pk,
             "start": 300,
             "end": 300,
             "bin": binning.assign_bin(299, 300),

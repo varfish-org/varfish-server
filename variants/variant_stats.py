@@ -43,10 +43,10 @@ def _get_dp_bin(dp):
         return 200
 
 
-def gather_variant_stats(case):
-    """Iterate over ``SmallVariant`` objects of ``case`` and collect various statistics."""
+def gather_variant_stats(variant_set):
+    """Iterate over ``SmallVariant`` objects of ``variant_set`` and collect various statistics."""
     # TODO: could be refactored into class with multiple smaller, easier-to-read functions
-    samples = case.get_members_with_samples()
+    samples = variant_set.case.get_members_with_samples()
     transitions = {name: 0 for name in samples}
     transversions = {name: 0 for name in samples}
     snvs = {name: 0 for name in samples}
@@ -63,7 +63,7 @@ def gather_variant_stats(case):
     homs = {name: 0 for name in samples}
 
     ignore_set = set(IGNORE_EFFECTS)
-    for small_var in SmallVariant.objects.filter(case_id=case.pk):
+    for small_var in SmallVariant.objects.filter(set_id=variant_set.pk):
         if not (set(small_var.ensembl_effect) & ignore_set):
             for sample in samples:
                 if small_var.genotype[sample]["gt"].count("1") == 1:
@@ -129,12 +129,12 @@ def gather_variant_stats(case):
     )
 
 
-def rebuild_case_variant_stats(engine, case):
-    """Rebuild the ``CaseVariantStats`` for the given ``case`` using the SQL Alchemy ``connection``."""
+def rebuild_case_variant_stats(engine, variant_set):
+    """Rebuild the ``CaseVariantStats`` for the given ``SmallVariantSet`` using the SQL Alchemy ``connection``."""
     # Compute statistics.
     with transaction.atomic():
-        het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness(engine, SmallVariant, case)
-        chrx_het_hom = compute_het_hom_chrx(engine, SmallVariant, case)
+        het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness(engine, SmallVariant, variant_set)
+        chrx_het_hom = compute_het_hom_chrx(engine, SmallVariant, variant_set)
         (
             transitions,
             transversions,
@@ -146,20 +146,20 @@ def rebuild_case_variant_stats(engine, case):
             read_depths,
             dp_quantiles,
             het_ratio,
-        ) = gather_variant_stats(case)
+        ) = gather_variant_stats(variant_set)
 
     # Rebuild the case variant statistics atomically.
     with transaction.atomic():
         # Remove existing record if any.
         try:
-            case.variant_stats.delete()
+            variant_set.variant_stats.delete()
         except CaseVariantStats.DoesNotExist:
             pass  # swallow, nothing to delete
 
         # Create statistics object.
-        stats = CaseVariantStats.objects.create(case=case)
+        stats = CaseVariantStats.objects.create(variant_set=variant_set)
         # Insert basic information.
-        for sample in case.get_members_with_samples():
+        for sample in variant_set.case.get_members_with_samples():
             stats.sample_variant_stats.create(
                 sample_name=sample,
                 ontarget_transitions=transitions[sample],

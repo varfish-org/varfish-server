@@ -12,7 +12,7 @@ from django.test import LiveServerTestCase
 from django.urls import reverse
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
@@ -21,6 +21,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from projectroles.models import Role, SODAR_CONSTANTS, Project
 from projectroles.tests.test_models import ProjectMixin, RoleAssignmentMixin
 
+from variants.tests.factories import SmallVariantSetFactory
 from ..models import CaseVariantStats, SampleVariantStatistics, SmallVariant
 from clinvar.models import Clinvar
 
@@ -51,6 +52,28 @@ User = auth.get_user_model()
 
 SKIP_SELENIUM = "1" == os.environ.get("SKIP_SELENIUM", "0")
 SKIP_SELENIUM_MESSAGE = "Selenium tests disabled"
+
+
+
+class wait_for_the_attribute_value(object):
+    """https://stackoverflow.com/a/43813210/84349
+
+    Usage:
+
+    self.wait.until(wait_for_the_attribute_value((By.ID, "xxx"), "aria-busy", "false"))
+
+    """
+    def __init__(self, locator, attribute, value):
+        self.locator = locator
+        self.attribute = attribute
+        self.value = value
+
+    def __call__(self, driver):
+        try:
+            element_attribute = ec._find_element(driver, self.locator).get_attribute(self.attribute)
+            return element_attribute == self.value
+        except StaleElementReferenceException:
+            return False
 
 
 class LiveUserMixin:
@@ -215,6 +238,7 @@ BASIC_VAR = {
     "case_id": None,
     "release": "GRCh37",
     "chromosome": "1",
+    "chromosome_no": 1,
     "start": None,
     "end": None,
     "bin": None,
@@ -275,7 +299,8 @@ def fixture_setup_project_case():
             }
         ],
     )
-    casevariantstats = CaseVariantStats.objects.create(case=case)
+    variant_set = SmallVariantSetFactory(case=case)
+    casevariantstats = CaseVariantStats.objects.create(variant_set=variant_set)
     SampleVariantStatistics.objects.create(
         stats=casevariantstats,
         sample_name="A",
@@ -313,7 +338,8 @@ def fixture_setup_project_cases():
             }
         ],
     )
-    casevariantstats = CaseVariantStats.objects.create(case=case1)
+    variant_set1 = SmallVariantSetFactory(case=case1)
+    casevariantstats = CaseVariantStats.objects.create(variant_set=variant_set1)
     SampleVariantStatistics.objects.create(
         stats=casevariantstats,
         sample_name="A",
@@ -344,7 +370,8 @@ def fixture_setup_project_cases():
             }
         ],
     )
-    casevariantstats = CaseVariantStats.objects.create(case=case2)
+    variant_set2 = SmallVariantSetFactory(case=case2)
+    casevariantstats = CaseVariantStats.objects.create(variant_set=variant_set2)
     SampleVariantStatistics.objects.create(
         stats=casevariantstats,
         sample_name="B",
@@ -445,7 +472,13 @@ def fixture_setup_single_variant():
     SmallVariant.objects.create(
         **{
             **BASIC_VAR,
-            **{"case_id": case.pk, "start": 100, "end": 100, "bin": binning.assign_bin(99, 100)},
+            **{
+                "case_id": case.pk,
+                "set_id": case.latest_variant_set_id(),
+                "start": 100,
+                "end": 100,
+                "bin": binning.assign_bin(99, 100),
+            },
         }
     )
 
@@ -945,13 +978,25 @@ def fixture_setup_two_variants():
     SmallVariant.objects.create(
         **{
             **BASIC_VAR,
-            **{"case_id": case1.pk, "start": 100, "end": 100, "bin": binning.assign_bin(99, 100)},
+            **{
+                "case_id": case1.pk,
+                "set_id": case1.latest_variant_set_id(),
+                "start": 100,
+                "end": 100,
+                "bin": binning.assign_bin(99, 100),
+            },
         }
     )
     SmallVariant.objects.create(
         **{
             **BASIC_VAR,
-            **{"case_id": case2.pk, "start": 200, "end": 200, "bin": binning.assign_bin(199, 200)},
+            **{
+                "case_id": case2.pk,
+                "set_id": case2.latest_variant_set_id(),
+                "start": 200,
+                "end": 200,
+                "bin": binning.assign_bin(199, 200),
+            },
         }
     )
 

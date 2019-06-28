@@ -119,6 +119,8 @@ class SmallVariant(models.Model):
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
     chromosome = models.CharField(max_length=32)
+    #: Variant coordinates - chromosome (numeric)
+    chromosome_no = models.IntegerField()
     #: Variant coordinates - 1-based start position
     start = models.IntegerField()
     #: Variant coordinates - end position
@@ -131,8 +133,10 @@ class SmallVariant(models.Model):
     alternative = models.CharField(max_length=512)
     #: Variant type
     var_type = models.CharField(max_length=8)
-    #: Link to case ID
+    # #: Link to Case ID.
     case_id = models.IntegerField()
+    #: Link to VariantSet ID.
+    set_id = models.IntegerField()
     #: Genotype information as JSONB
     genotype = JSONField()
     #: Number of hom. alt. genotypes
@@ -218,7 +222,7 @@ class SmallVariant(models.Model):
             map(
                 str,
                 (
-                    self.case_id,
+                    self.set_id,
                     self.release,
                     self.chromosome,
                     self.start,
@@ -231,19 +235,23 @@ class SmallVariant(models.Model):
     class Meta:
         indexes = [
             # For query: select all variants for a case.
-            models.Index(fields=["case_id"]),
+            models.Index(fields=["set_id"]),
             # For locating variants by coordiante.
-            models.Index(fields=["case_id", "chromosome", "bin"]),
+            models.Index(fields=["set_id", "chromosome", "bin"]),
             # Filter query: the most important thing is to reduce the variants for a case quickly. It's questionable
             # how much adding homozygous/frequency really adds here.  Adding them back should only done when we
             # know that it helps.
-            GinIndex(fields=["case_id", "refseq_effect"]),
-            GinIndex(fields=["case_id", "ensembl_effect"]),
-            models.Index(fields=["case_id", "in_clinvar"]),
+            GinIndex(fields=["set_id", "refseq_effect"]),
+            GinIndex(fields=["set_id", "ensembl_effect"]),
+            models.Index(fields=["set_id", "in_clinvar"]),
             # Fast white-list queries of gene.
-            models.Index(fields=["case_id", "ensembl_gene_id"]),
-            models.Index(fields=["case_id", "refseq_gene_id"]),
+            models.Index(fields=["set_id", "ensembl_gene_id"]),
+            models.Index(fields=["set_id", "refseq_gene_id"]),
         ]
+
+    class Meta:
+        managed = settings.IS_TESTING
+        db_table = "variants_smallvariant"
 
 
 class SmallVariantSummary(models.Model):
@@ -368,6 +376,21 @@ class Case(models.Model):
         help_text="Search tokens",
     )
 
+    def latest_variant_set(self):
+        """Return latest active variant set or ``None`` if there is none."""
+        qs = self.smallvariantset_set.filter(state="active")
+        if not qs:
+            return None
+        else:
+            return qs.order_by("-date_created").first()
+
+    def latest_variant_set_id(self):
+        variant_set = self.latest_variant_set()
+        if variant_set:
+            return variant_set.id
+        else:
+            return -1
+
     def days_since_modification(self):
         return (timezone.now() - self.date_modified).days
 
@@ -466,9 +489,11 @@ class Case(models.Model):
     def chrx_het_hom_ratio(self, sample):
         """Return het./hom. ratio on chrX for ``sample``."""
         try:
-            sample_stats = self.variant_stats.sample_variant_stats.get(sample_name=sample)
+            sample_stats = self.latest_variant_set().variant_stats.sample_variant_stats.get(
+                sample_name=sample
+            )
             return sample_stats.chrx_het_hom
-        except Case.variant_stats.RelatedObjectDoesNotExist:
+        except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             return -1.0
 
     def sex_errors_variant_stats(self):
@@ -478,7 +503,7 @@ class Case(models.Model):
         try:
             ped_sex = {m["patient"]: m["sex"] for m in self.pedigree}
             result = {}
-            for sample_stats in self.variant_stats.sample_variant_stats.all():
+            for sample_stats in self.latest_variant_set().variant_stats.sample_variant_stats.all():
                 sample = sample_stats.sample_name
                 stats_sex = 1 if sample_stats.chrx_het_hom < CHRX_HET_HOM_THRESH else 2
                 if stats_sex != ped_sex[sample]:
@@ -486,7 +511,7 @@ class Case(models.Model):
                         "sex from pedigree conflicts with one derived from het/hom ratio on chrX"
                     ]
             return result
-        except Case.variant_stats.RelatedObjectDoesNotExist:
+        except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             return {}
 
     def sex_errors(self):
@@ -504,7 +529,7 @@ class Case(models.Model):
         ped_entries = {m["patient"]: m for m in self.pedigree}
         result = {}
         try:
-            for rel_stats in self.variant_stats.relatedness.all():
+            for rel_stats in self.latest_variant_set().variant_stats.relatedness.all():
                 relationship = "other"
                 if (
                     ped_entries[rel_stats.sample1]["father"]
@@ -537,7 +562,7 @@ class Case(models.Model):
                             )
                         )
             return result
-        except Case.variant_stats.RelatedObjectDoesNotExist:
+        except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             return {}
 
     def __str__(self):
@@ -561,6 +586,29 @@ def delete_case_cascaded(sender, instance, **kwargs):
     """
     if sender == Case:
         SmallVariant.objects.filter(case_id=instance.id).delete()
+
+
+class SmallVariantSet(models.Model):
+    """A set of small variants associated with a case.
+
+    This additional step of redirection is created such that a new set of variants can be imported into the database
+    without affecting existing variants and without using transactions.
+    """
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+    #: DateTime of last modification
+    date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
+
+    #: The case that the variants are for.
+    case = models.ForeignKey(Case, null=False, help_text="The case that this set is for")
+    #: The state of the variant set.
+    state = models.CharField(
+        max_length=16,
+        choices=(("importing", "importing"), ("active", "active"), ("deleting", "deleting")),
+        null=False,
+        blank=False,
+    )
 
 
 class AnnotationReleaseInfo(models.Model):
@@ -1292,12 +1340,13 @@ class CaseVariantStats(models.Model):
     - Ts/Tv ratio
     """
 
-    #: The related ``Case``.
-    case = models.OneToOneField(
-        Case,
+    #: The related ``SmallVariantSet``.
+    variant_set = models.OneToOneField(
+        SmallVariantSet,
         null=False,
         related_name="variant_stats",
-        help_text="The variant statistics object for this case",
+        help_text="The variant statistics object for this variant set",
+        on_delete=models.CASCADE,
     )
 
 
@@ -1310,6 +1359,7 @@ class SampleVariantStatistics(models.Model):
         null=False,
         related_name="sample_variant_stats",
         help_text="Single-value variant statistics for one individual",
+        on_delete=models.CASCADE,
     )
 
     #: The name of the donor.
@@ -1398,6 +1448,7 @@ class PedigreeRelatedness(BaseRelatedness):
         null=False,
         related_name="relatedness",
         help_text="Pedigree relatedness information",
+        on_delete=models.CASCADE,
     )
 
 
@@ -1410,6 +1461,7 @@ class ProjectVariantStats(models.Model):
         null=False,
         related_name="variant_stats",
         help_text="The variant statistics object for this projects",
+        on_delete=models.CASCADE,
     )
 
 
@@ -1422,6 +1474,7 @@ class ProjectRelatedness(BaseRelatedness):
         null=False,
         related_name="relatedness",
         help_text="Pedigree relatedness information",
+        on_delete=models.CASCADE,
     )
 
 

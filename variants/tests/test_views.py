@@ -70,6 +70,7 @@ from variants.tests.factories import (
     AcmgCriteriaRatingFormDataFactory,
     SmallVariantFlagsFactory,
     SmallVariantCommentFactory,
+    SmallVariantSetFactory,
 )
 from variants.tests.helpers import ViewTestBase
 from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
@@ -450,7 +451,7 @@ class TestViewBase:
     pass
 
 
-# TODO: This function is still used by test_file_export and test_task.
+# TODO: This function is still used by test_file_export.
 def fixture_setup_case(user):
     """Set up test case for filter tests. Contains a case with three variants."""
     project = Project.objects.create(**PROJECT_DICT)
@@ -607,7 +608,8 @@ class TestCaseListView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
 
     def test_render_no_variant_stats(self):
         """Test display of case list page."""
@@ -620,7 +622,7 @@ class TestCaseListView(ViewTestBase):
 
     def test_render_with_variant_stats(self):
         """Test display of case list page."""
-        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.case)
+        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.variant_set)
         with self.login(self.user):
             response = self.client.get(
                 reverse("variants:case-list", kwargs={"project": self.case.project.sodar_uuid})
@@ -638,7 +640,7 @@ class TestCaseListView(ViewTestBase):
 
     def test_render_caseless_project_with_variant_stats(self):
         project = self.case.project.sodar_uuid
-        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.case)
+        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.variant_set)
         self.case.delete()
         with self.login(self.user):
             response = self.client.get(reverse("variants:case-list", kwargs={"project": project}))
@@ -651,7 +653,8 @@ class TestCaseListQcStatsApiView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
 
     def test_render_no_variant_stats(self):
         """Test display of case list page."""
@@ -673,7 +676,7 @@ class TestCaseListQcStatsApiView(ViewTestBase):
 
     def test_render_with_variant_stats(self):
         """Test display of case list page."""
-        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.case)
+        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.variant_set)
         rebuild_project_variant_stats(SQLALCHEMY_ENGINE, self.case.project, self.user)
         with self.login(self.user):
             response = self.client.get(
@@ -697,7 +700,8 @@ class TestCaseDetailView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
 
     def test_render_no_variant_stats(self):
         """Test display of case detail view page."""
@@ -714,7 +718,7 @@ class TestCaseDetailView(ViewTestBase):
     def test_render_with_variant_stats(self):
         """Test display of case detail view page."""
         with self.login(self.user):
-            rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.case)
+            rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.variant_set)
             response = self.client.get(
                 reverse(
                     "variants:case-detail",
@@ -728,7 +732,8 @@ class TestCaseDetailView(ViewTestBase):
 class TestCaseUpdateView(ViewTestBase):
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
 
     def test_render_form(self):
         """Test rendering of update form."""
@@ -788,7 +793,8 @@ class TestCaseDetailQcStatsApiView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
 
     def test_get_no_variant_stats(self):
         """Test fetching information through API if there is no variant stats."""
@@ -817,7 +823,7 @@ class TestCaseDetailQcStatsApiView(ViewTestBase):
     def test_render_with_variant_stats(self):
         """Test fetching information through API if there are variant stats."""
         with self.login(self.user):
-            rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.case)
+            rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.variant_set)
             response = self.client.get(
                 reverse(
                     "variants:api-case-qc",
@@ -845,8 +851,9 @@ class TestCaseFilterView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
-        SmallVariantFactory(case=self.case)
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
+        SmallVariantFactory(variant_set=self.variant_set)
 
     def test_status_code_200(self):
         """Test display of the filter forms, no submit."""
@@ -940,8 +947,9 @@ class TestCasePrefetchFilterView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
-        SmallVariantFactory(case=self.case)
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
+        SmallVariantFactory(variant_set=self.variant_set)
 
     def test_get_job_id(self):
         with self.login(self.user):
@@ -978,7 +986,8 @@ class TestCaseFilterJobView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
 
     def test_status_code_200(self):
@@ -1004,11 +1013,18 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.hpo_id = "HP:0000001"
-        self.case = CaseFactory()
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
         self.small_vars = [
-            SmallVariantFactory(chromosome="1", refseq_gene_id="1234", case=self.case),
-            SmallVariantFactory(chromosome="1", refseq_gene_id="2234", case=self.case),
-            SmallVariantFactory(chromosome="1", refseq_gene_id="2234", case=self.case),
+            SmallVariantFactory(
+                chromosome="1", refseq_gene_id="1234", variant_set=self.variant_set
+            ),
+            SmallVariantFactory(
+                chromosome="1", refseq_gene_id="2234", variant_set=self.variant_set
+            ),
+            SmallVariantFactory(
+                chromosome="1", refseq_gene_id="2234", variant_set=self.variant_set
+            ),
         ]
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
         self.bgjob.smallvariantquery.query_results.add(self.small_vars[0], self.small_vars[2])
@@ -1476,17 +1492,17 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
-        cases = [
-            CaseFactory(project=self.bgjob.project),
-            CaseFactory(project=self.bgjob.project, structure="trio"),
+        variant_sets = [
+            SmallVariantSetFactory(case__project=self.bgjob.project),
+            SmallVariantSetFactory(case__project=self.bgjob.project),
         ]
         small_vars = [
-            SmallVariantFactory(case=cases[0]),
-            SmallVariantFactory(case=cases[0]),
-            SmallVariantFactory(case=cases[0]),
-            SmallVariantFactory(case=cases[1]),
-            SmallVariantFactory(case=cases[1]),
-            SmallVariantFactory(case=cases[1]),
+            SmallVariantFactory(variant_set=variant_sets[0]),
+            SmallVariantFactory(variant_set=variant_sets[0]),
+            SmallVariantFactory(variant_set=variant_sets[0]),
+            SmallVariantFactory(variant_set=variant_sets[1]),
+            SmallVariantFactory(variant_set=variant_sets[1]),
+            SmallVariantFactory(variant_set=variant_sets[1]),
         ]
         self.bgjob.projectcasessmallvariantquery.query_results.add(small_vars[0], *small_vars[2:6])
 
@@ -1500,8 +1516,8 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.context["result_count"], 11)
-            self.assertEqual(len(response.context["result_rows"]), 11)
+            self.assertEqual(response.context["result_count"], 5)
+            self.assertEqual(len(response.context["result_rows"]), 5)
 
 
 class TestProjectCasesFilterJobResubmitView(ViewTestBase):
@@ -1577,7 +1593,8 @@ class TestCasePrefetchClinvarReportView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
 
     def test_get_job_id(self):
         """Test that an appropriate POST returns a report"""
@@ -1821,7 +1838,8 @@ class TestDistillerSubmissionJobResubmitView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
 
     @Mocker()
     def test_resubmission(self, mock):
@@ -1885,8 +1903,9 @@ class TestSmallVariantDetailsView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
-        self.small_var = SmallVariantFactory(case=self.case)
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
+        self.small_var = SmallVariantFactory(variant_set=self.variant_set)
         coords = {
             "chromosome": self.small_var.chromosome,
             "start": self.small_var.start,
@@ -2549,8 +2568,9 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
-        self.small_var = SmallVariantFactory(case=self.case)
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
+        self.small_var = SmallVariantFactory(variant_set=self.variant_set)
 
     def test_get_json_response_non_existing(self):
         with self.login(self.user):
@@ -2749,8 +2769,9 @@ class TestSmallVariantCommentApiView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
-        self.small_var = SmallVariantFactory(case=self.case)
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
+        self.small_var = SmallVariantFactory(variant_set=self.variant_set)
 
     def test_json_response(self):
         with self.login(self.user):
@@ -2817,8 +2838,9 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.case = CaseFactory()
-        self.small_var = SmallVariantFactory(case=self.case)
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
+        self.small_var = SmallVariantFactory(variant_set=self.variant_set)
 
     def test_get_response_not_existing(self):
         with self.login(self.user):

@@ -39,7 +39,7 @@ if not settings.IS_TESTING:
     operations.append(
         migrations.RunSQL(
             """
-            DROP MATERIALIZED VIEW variants_smallvariantsummary;
+            DROP MATERIALIZED VIEW IF EXISTS variants_smallvariantsummary;
 
             CREATE MATERIALIZED VIEW variants_smallvariantsummary
             AS
@@ -83,7 +83,44 @@ if not settings.IS_TESTING:
             );
             """,
             """
-            DROP MATERIALIZED VIEW variants_smallvariantsummary;
+            DROP MATERIALIZED VIEW IF EXISTS variants_smallvariantsummary;
+
+            CREATE MATERIALIZED VIEW variants_smallvariantsummary
+            AS
+                SELECT
+                    row_number() OVER (PARTITION BY true) AS id,
+                    release,
+                    chromosome,
+                    start,
+                    reference,
+                    alternative,
+                    sum(num_hom_ref) AS count_hom_ref,
+                    sum(num_het) AS count_het,
+                    sum(num_hom_alt) AS count_hom_alt,
+                    sum(num_hemi_ref) AS count_hemi_ref,
+                    sum(num_hemi_alt) AS count_hemi_alt
+                FROM (
+                    SELECT DISTINCT
+                        variants.release,
+                        variants.chromosome,
+                        variants.start,
+                        variants.reference,
+                        variants.alternative,
+                        variants.num_hom_ref,
+                        variants.num_het,
+                        variants.num_hom_alt,
+                        variants.num_hemi_ref,
+                        variants.num_hemi_alt,
+                        variants.case_id
+                    FROM variants_smallvariant AS variants
+                ) AS variants_per_case
+                GROUP BY (release, chromosome, start, reference, alternative)
+            WITH DATA;
+
+            CREATE UNIQUE INDEX variants_smallvariantsummary_id ON variants_smallvariantsummary(id);
+            CREATE INDEX variants_smallvariantsummary_coord ON variants_smallvariantsummary(
+                release, chromosome, start, reference, alternative
+            );
             """,
         )
     )

@@ -4,16 +4,17 @@ import gzip
 import io
 from datetime import timedelta
 import tempfile
-from unittest.mock import MagicMock, Mock, patch, sentinel
+from unittest.mock import patch
 
 from django.utils import timezone
 import openpyxl
 from test_plus.test import TestCase
 from timeline.models import ProjectEvent
 
+from variants.tests.factories import SmallVariantSetFactory, SmallVariantFactory, FormDataFactory
 from . import test_views
 from .. import file_export, forms
-from ..models import ExportFileBgJob, Case
+from ..models import ExportFileBgJob
 from bgjobs.models import BackgroundJob
 from projectroles.models import Project
 
@@ -26,7 +27,9 @@ class ExportTestBase(TestCase):
 
     def setUp(self):
         self.user = self.make_user("superuser")
-        test_views.fixture_setup_case(self.user)
+        self.variant_set = SmallVariantSetFactory()
+        self.small_vars = [SmallVariantFactory(variant_set=self.variant_set) for _ in range(3)]
+        self.case = self.variant_set.case
         self.bg_job = BackgroundJob.objects.create(
             name="job name",
             project=Project.objects.first(),
@@ -36,7 +39,7 @@ class ExportTestBase(TestCase):
         self.export_job = ExportFileBgJob.objects.create(
             project=self.bg_job.project,
             bg_job=self.bg_job,
-            case=Case.objects.first(),
+            case=self.case,
             query_args={"export_flags": True, "export_comments": True},
             file_type="xlsx",
         )
@@ -46,7 +49,9 @@ class CaseExporterTest(ExportTestBase):
     def setUp(self):
         super().setUp()
         # Here, the query arguments actually matter
-        self.export_job.query_args = test_views.DEFAULT_FILTER_FORM_SETTING
+        self.export_job.query_args = vars(
+            FormDataFactory(submit="download", names=self.case.get_members())
+        )
         self.export_job.query_args["effects"] = [
             effect
             for name, effect in forms.FILTER_FORM_TRANSLATE_EFFECTS.items()
@@ -69,19 +74,34 @@ class CaseExporterTest(ExportTestBase):
         self.assertSequenceEqual(
             arrs[0][-5:],
             [
-                "A Genotype",
-                "A Gt. Quality",
-                "A Alternative depth",
-                "A Total depth",
-                "A Alternate allele fraction",
+                "%s Genotype" % self.case.pedigree[0]["patient"],
+                "%s Gt. Quality" % self.case.pedigree[0]["patient"],
+                "%s Alternative depth" % self.case.pedigree[0]["patient"],
+                "%s Total depth" % self.case.pedigree[0]["patient"],
+                "%s Alternate allele fraction" % self.case.pedigree[0]["patient"],
             ],
         )
-        self.assertSequenceEqual(arrs[1][:3], ["chr1", "100", "A"])
-        self.assertSequenceEqual(arrs[1][-5:], ["0/1", "99", "15", "30", "0.5"])
-        self.assertSequenceEqual(arrs[2][:3], ["chr1", "200", "A"])
-        self.assertSequenceEqual(arrs[2][-5:], ["0/1", "99", "15", "30", "0.5"])
-        self.assertSequenceEqual(arrs[3][:3], ["chr1", "300", "A"])
-        self.assertSequenceEqual(arrs[3][-5:], ["0/1", "99", "15", "30", "0.5"])
+        for i, small_var in enumerate(self.small_vars):
+            self.assertSequenceEqual(
+                arrs[i + 1][:3],
+                ["chr" + small_var.chromosome, str(small_var.start), small_var.reference],
+            )
+            self.assertSequenceEqual(
+                arrs[i + 1][-5:],
+                list(
+                    map(
+                        str,
+                        [
+                            small_var.genotype[self.case.pedigree[-1]["patient"]]["gt"],
+                            small_var.genotype[self.case.pedigree[-1]["patient"]]["gq"],
+                            small_var.genotype[self.case.pedigree[-1]["patient"]]["ad"],
+                            small_var.genotype[self.case.pedigree[-1]["patient"]]["dp"],
+                            small_var.genotype[self.case.pedigree[-1]["patient"]]["ad"]
+                            / small_var.genotype[self.case.pedigree[-1]["patient"]]["dp"],
+                        ],
+                    )
+                ),
+            )
         if has_trailing:
             self.assertSequenceEqual(arrs[4], [""])
 
@@ -94,20 +114,35 @@ class CaseExporterTest(ExportTestBase):
         content = [l for l in lines if not l.startswith("#")]
         self.assertEquals(len(header), 31)
         self.assertEquals(header[0], "##fileformat=VCFv4.2")
-        self.assertEquals(header[-1], "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tA")
+        self.assertEquals(
+            header[-1],
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s"
+            % self.case.pedigree[0]["patient"],
+        )
         self.assertEquals(len(content), 4)
-        self.assertEquals(
-            content[0].split("\t"),
-            ["1", "100", ".", "A", "G", ".", ".", ".", "GT:GQ:AD:DP", "0/1:99:15:30"],
-        )
-        self.assertEquals(
-            content[1].split("\t"),
-            ["1", "200", ".", "A", "G", ".", ".", ".", "GT:GQ:AD:DP", "0/1:99:15:30"],
-        )
-        self.assertEquals(
-            content[2].split("\t"),
-            ["1", "300", ".", "A", "G", ".", ".", ".", "GT:GQ:AD:DP", "0/1:99:15:30"],
-        )
+        for i, small_var in enumerate(self.small_vars):
+            genotype = small_var.genotype[self.case.pedigree[0]["patient"]]
+            self.assertEquals(
+                content[i].split("\t"),
+                list(
+                    map(
+                        str,
+                        [
+                            small_var.chromosome,
+                            small_var.start,
+                            ".",
+                            small_var.reference,
+                            small_var.alternative,
+                            ".",
+                            ".",
+                            ".",
+                            "GT:GQ:AD:DP",
+                            "%s:%s:%s:%s"
+                            % (genotype["gt"], genotype["gq"], genotype["ad"], genotype["dp"]),
+                        ],
+                    )
+                ),
+            )
         self.assertEquals(content[3], "")
 
     def test_export_xlsx(self):

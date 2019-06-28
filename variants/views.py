@@ -61,6 +61,7 @@ from .models import (
     annotate_with_joint_scores,
     AcmgCriteriaRating,
     SyncCaseListBgJob,
+    SmallVariantSet,
 )
 from .forms import (
     ClinvarForm,
@@ -148,7 +149,11 @@ class CaseListView(
             super()
             .get_queryset()
             .filter(project__sodar_uuid=self.kwargs["project"])
-            .prefetch_related("variant_stats", "variant_stats__sample_variant_stats", "project")
+            .prefetch_related(
+                "smallvariantset_set__variant_stats",
+                "smallvariantset_set__variant_stats__sample_variant_stats",
+                "project",
+            )
         )
 
     def get_context_data(self, *args, **kwargs):
@@ -208,7 +213,11 @@ class CaseListQcStatsApiView(
             super()
             .get_queryset()
             .filter(project__sodar_uuid=self.kwargs["project"])
-            .prefetch_related("variant_stats", "variant_stats__sample_variant_stats", "project")
+            .prefetch_related(
+                "smallvariantset_set__variant_stats",
+                "smallvariantset_set__variant_stats__sample_variant_stats",
+                "project",
+            )
         )
 
     def get(self, *args, **kwargs):
@@ -274,15 +283,16 @@ class CaseDetailView(
         result["effects"] = list(FILTER_FORM_TRANSLATE_EFFECTS.values())
         result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
         try:
+            variant_set = case.latest_variant_set()
             result["ontarget_effect_counts"] = {
                 stats.sample_name: stats.ontarget_effect_counts
-                for stats in case.variant_stats.sample_variant_stats.all()
+                for stats in variant_set.variant_stats.sample_variant_stats.all()
             }
             result["indel_sizes"] = {
                 stats.sample_name: {
                     int(key): value for key, value in stats.ontarget_indel_sizes.items()
                 }
-                for stats in case.variant_stats.sample_variant_stats.all()
+                for stats in variant_set.variant_stats.sample_variant_stats.all()
             }
             result["indel_sizes_keys"] = list(
                 sorted(
@@ -298,9 +308,9 @@ class CaseDetailView(
             )
             result["dps"] = {
                 stats.sample_name: {int(key): value for key, value in stats.ontarget_dps.items()}
-                for stats in case.variant_stats.sample_variant_stats.all()
+                for stats in variant_set.variant_stats.sample_variant_stats.all()
             }
-        except Case.variant_stats.RelatedObjectDoesNotExist:
+        except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             result["ontarget_effect_counts"] = {sample: {} for sample in result["samples"]}
             result["indel_sizes"] = {sample: {} for sample in result["samples"]}
             result["indel_sizes_keys"] = []
@@ -378,7 +388,7 @@ def build_cov_data(cases):
     dp_het_data = []
     for case in cases:
         try:
-            for stats in case.variant_stats.sample_variant_stats.all():
+            for stats in case.latest_variant_set().variant_stats.sample_variant_stats.all():
                 dp_medians.append(stats.ontarget_dp_quantiles[2])
                 het_ratios.append(stats.het_ratio)
                 dps[stats.sample_name] = {
@@ -391,7 +401,7 @@ def build_cov_data(cases):
                         "sample": only_source_name(stats.sample_name),
                     }
                 )
-        except Case.variant_stats.RelatedObjectDoesNotExist:
+        except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             pass  # swallow
 
     # Catch against empty lists, numpy will complain otherwise.
@@ -428,8 +438,8 @@ class CaseDetailQcStatsApiView(
         object = self.get_object()
 
         try:
-            relatedness_set = object.variant_stats.relatedness.all()
-        except Case.variant_stats.RelatedObjectDoesNotExist:
+            relatedness_set = object.latest_variant_set().variant_stats.relatedness.all()
+        except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             relatedness_set = []
 
         result = {
@@ -447,14 +457,14 @@ class CaseDetailQcStatsApiView(
 
     def _build_var_type_data(self, object):
         try:
-            for item in object.variant_stats.sample_variant_stats.all():
+            for item in object.latest_variant_set().variant_stats.sample_variant_stats.all():
                 yield {
                     "name": only_source_name(item.sample_name),
                     "hovermode": "closest",
                     "showlegend": "false",
                     "y": [item.ontarget_snvs, item.ontarget_indels, item.ontarget_mnvs],
                 }
-        except Case.variant_stats.RelatedObjectDoesNotExist:
+        except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             pass  # swallow
 
     def _build_var_effect_data(self, object):
@@ -476,12 +486,12 @@ class CaseDetailQcStatsApiView(
             "frameshift_elongation",
         )
         try:
-            for stats in object.variant_stats.sample_variant_stats.all():
+            for stats in object.latest_variant_set().variant_stats.sample_variant_stats.all():
                 yield {
                     "name": only_source_name(stats.sample_name),
                     "y": list(map(stats.ontarget_effect_counts.get, keys)),
                 }
-        except Case.variant_stats.RelatedObjectDoesNotExist:
+        except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             pass  # swallow
 
     def _build_indel_size_data(self, object):
@@ -490,7 +500,7 @@ class CaseDetailQcStatsApiView(
                 stats.sample_name: {
                     int(key): value for key, value in stats.ontarget_indel_sizes.items()
                 }
-                for stats in object.variant_stats.sample_variant_stats.all()
+                for stats in object.latest_variant_set().variant_stats.sample_variant_stats.all()
             }
             indel_sizes_keys = list(
                 sorted(
@@ -513,7 +523,7 @@ class CaseDetailQcStatsApiView(
                         ],
                         "y": [indel_sizes[line["patient"]].get(key, 0) for key in indel_sizes_keys],
                     }
-        except Case.variant_stats.RelatedObjectDoesNotExist:
+        except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             pass  # swallow
 
 

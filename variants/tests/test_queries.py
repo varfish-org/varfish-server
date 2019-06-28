@@ -38,6 +38,7 @@ from .factories import (
     ProjectCasesSmallVariantQueryFactory,
     SmallVariantQueryFactory,
     ClinvarQueryFactory,
+    SmallVariantSetFactory,
 )
 from .helpers import TestBase, SupportQueryTestBase, SQLALCHEMY_ENGINE
 
@@ -52,7 +53,8 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         As we check the content of the results, make sure they are on the same chromosome to
         avoid ordering issues when we hit the change from chromosome Y to 1."""
         super().setUp()
-        case = CaseFactory()
+        variant_set = SmallVariantSetFactory()
+        case = variant_set.case
         self.acmg = AcmgFactory(entrez_id="1000")
         small_vars = [
             SmallVariantFactory(
@@ -60,10 +62,10 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
                 ensembl_effect=["synonymous_variant"],
                 refseq_effect=["stop_gained"],
                 refseq_gene_id=self.acmg.entrez_id,
-                case=case,
+                variant_set=variant_set,
             ),
-            SmallVariantFactory(chromosome="1", case=case),
-            SmallVariantFactory(chromosome="1", case=case),
+            SmallVariantFactory(chromosome="1", variant_set=variant_set),
+            SmallVariantFactory(chromosome="1", variant_set=variant_set),
         ]
         # Prepare mode of inheritance
         self.modes_of_inheritance = [
@@ -170,8 +172,9 @@ class TestCaseOneQueryNotInDbsnp(SupportQueryTestBase):
     def setUp(self):
         """Create 3 variants and two dbSNP entries."""
         super().setUp()
-        case = CaseFactory()
-        small_vars = SmallVariantFactory.create_batch(3, case=case)
+        variant_set = SmallVariantSetFactory()
+        case = variant_set.case
+        small_vars = SmallVariantFactory.create_batch(3, variant_set=variant_set)
         DbsnpFactory(
             release=small_vars[0].release,
             chromosome=small_vars[0].chromosome,
@@ -258,10 +261,11 @@ class TestCaseOneQueryVarTypeSwitch(SupportQueryTestBase):
     def setUp(self):
         """Create one case with 3 variants of different var_type."""
         super().setUp()
-        case = CaseFactory()
-        SmallVariantFactory(var_type="snv", case=case)
-        SmallVariantFactory(var_type="mnv", case=case)
-        SmallVariantFactory(var_type="indel", case=case)
+        variant_set = SmallVariantSetFactory()
+        case = variant_set.case
+        SmallVariantFactory(var_type="snv", variant_set=variant_set)
+        SmallVariantFactory(var_type="mnv", variant_set=variant_set)
+        SmallVariantFactory(var_type="indel", variant_set=variant_set)
 
     def test_var_type_none_filter(self):
         self.run_query(
@@ -338,7 +342,8 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
         a corresponding variantsummary entry.
         """
         super().setUp()
-        case = CaseFactory()
+        variant_set = SmallVariantSetFactory()
+        case = variant_set.case
         for i in range(3):
             # this emulates 0.001, 0.01 and 0.1 frequency
             freq = 1 / 10 ** (3 - i)
@@ -357,7 +362,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 thousand_genomes_frequency=freq,
                 thousand_genomes_heterozygous=count,
                 thousand_genomes_homozygous=count,
-                case=case,
+                variant_set=variant_set,
             )
             SmallVariantSummaryFactory(
                 chromosome=small_var.chromosome,
@@ -937,10 +942,15 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
     def setUp(self):
         """Create one case and 3 variants with different variant effects for refseq transcripts."""
         super().setUp()
-        case = CaseFactory()
-        SmallVariantFactory(refseq_effect=["missense_variant", "stop_lost"], case=case)
-        SmallVariantFactory(refseq_effect=["missense_variant", "frameshift_variant"], case=case)
-        SmallVariantFactory(refseq_effect=["frameshift_variant"], case=case)
+        variant_set = SmallVariantSetFactory()
+        case = variant_set.case
+        SmallVariantFactory(
+            refseq_effect=["missense_variant", "stop_lost"], variant_set=variant_set
+        )
+        SmallVariantFactory(
+            refseq_effect=["missense_variant", "frameshift_variant"], variant_set=variant_set
+        )
+        SmallVariantFactory(refseq_effect=["frameshift_variant"], variant_set=variant_set)
 
     def test_effects_none_filter(self):
         self.run_query(CasePrefetchQuery, {"effects": []}, 0)
@@ -994,12 +1004,13 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
 class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
     def setUp(self):
         super().setUp()
-        case = CaseFactory()
+        variant_set = SmallVariantSetFactory()
+        case = variant_set.case
         SmallVariantFactory(
-            refseq_transcript_coding=False, ensembl_transcript_coding=False, case=case
+            refseq_transcript_coding=False, ensembl_transcript_coding=False, variant_set=variant_set
         )
         SmallVariantFactory(
-            refseq_transcript_coding=True, ensembl_transcript_coding=True, case=case
+            refseq_transcript_coding=True, ensembl_transcript_coding=True, variant_set=variant_set
         )
 
     def test_transcript_empty_refseq_filter(self):
@@ -1273,31 +1284,40 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
     def setUp(self):
         """Create case and 9 variants with different variant quality and genotype settings."""
         super().setUp()
-        case = CaseFactory()
+        variant_set = SmallVariantSetFactory()
+        case = variant_set.case
         self.patient = case.index
         SmallVariantFactory(
-            genotype={self.patient: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}}, case=case
+            genotype={self.patient: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}},
+            variant_set=variant_set,
         )
         SmallVariantFactory(
-            genotype={self.patient: {"ad": 0, "dp": 30, "gq": 99, "gt": "0/0"}}, case=case
+            genotype={self.patient: {"ad": 0, "dp": 30, "gq": 99, "gt": "0/0"}},
+            variant_set=variant_set,
         )
         SmallVariantFactory(
-            genotype={self.patient: {"ad": 30, "dp": 30, "gq": 99, "gt": "1/1"}}, case=case
+            genotype={self.patient: {"ad": 30, "dp": 30, "gq": 99, "gt": "1/1"}},
+            variant_set=variant_set,
         )
         SmallVariantFactory(
-            genotype={self.patient: {"ad": 0, "dp": 10, "gq": 66, "gt": "./."}}, case=case
+            genotype={self.patient: {"ad": 0, "dp": 10, "gq": 66, "gt": "./."}},
+            variant_set=variant_set,
         )
         SmallVariantFactory(
-            genotype={self.patient: {"ad": 15, "dp": 20, "gq": 33, "gt": "1/0"}}, case=case
+            genotype={self.patient: {"ad": 15, "dp": 20, "gq": 33, "gt": "1/0"}},
+            variant_set=variant_set,
         )
         SmallVariantFactory(
-            genotype={self.patient: {"ad": 21, "dp": 30, "gq": 99, "gt": "0/1"}}, case=case
+            genotype={self.patient: {"ad": 21, "dp": 30, "gq": 99, "gt": "0/1"}},
+            variant_set=variant_set,
         )
         SmallVariantFactory(
-            genotype={self.patient: {"ad": 9, "dp": 30, "gq": 99, "gt": "0/1"}}, case=case
+            genotype={self.patient: {"ad": 9, "dp": 30, "gq": 99, "gt": "0/1"}},
+            variant_set=variant_set,
         )
         SmallVariantFactory(
-            genotype={self.patient: {"ad": 6, "dp": 30, "gq": 99, "gt": "0/1"}}, case=case
+            genotype={self.patient: {"ad": 6, "dp": 30, "gq": 99, "gt": "0/1"}},
+            variant_set=variant_set,
         )
 
     def test_genotype_gt_any_filter(self):
@@ -1595,7 +1615,8 @@ class TestCaseOneWhitelistBlacklistRegionFilterQuery(SupportQueryTestBase):
     def setUp(self):
         """Generate a case, 3 genes and variants: gene i has i variants."""
         super().setUp()
-        case = CaseFactory()
+        variant_set = SmallVariantSetFactory()
+        case = variant_set.case
         self.hgncs = HgncFactory.create_batch(3)
         for i, hgnc in enumerate(self.hgncs):
             SmallVariantFactory.create_batch(
@@ -1604,7 +1625,7 @@ class TestCaseOneWhitelistBlacklistRegionFilterQuery(SupportQueryTestBase):
                 start=(i + 1) * 100 + i,
                 refseq_gene_id=hgnc.entrez_id,
                 ensembl_gene_id=hgnc.ensembl_gene_id,
-                case=case,
+                variant_set=variant_set,
             )
 
     def test_blacklist_empty(self):
@@ -1750,7 +1771,8 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
     def setUp(self):
         """Create a trio case with 4 variants."""
         super().setUp()
-        self.case = CaseFactory(structure="trio")
+        self.variant_set = SmallVariantSetFactory(case__structure="trio")
+        self.case = self.variant_set.case
         self.small_vars = [
             SmallVariantFactory(
                 chromosome="1",
@@ -1759,7 +1781,7 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
-                case=self.case,
+                variant_set=self.variant_set,
             ),
             SmallVariantFactory(
                 chromosome="1",
@@ -1768,7 +1790,7 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                 },
-                case=self.case,
+                variant_set=self.variant_set,
             ),
             SmallVariantFactory(
                 chromosome="1",
@@ -1777,7 +1799,7 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                 },
-                case=self.case,
+                variant_set=self.variant_set,
             ),
             SmallVariantFactory(
                 chromosome="1",
@@ -1786,7 +1808,7 @@ class TestCaseTwoDominantQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
-                case=self.case,
+                variant_set=self.variant_set,
             ),
         ]
 
@@ -1833,7 +1855,8 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
     def setUp(self):
         """Create a trio case with 4 variants."""
         super().setUp()
-        self.case = CaseFactory(structure="trio")
+        self.variant_set = SmallVariantSetFactory(case__structure="trio")
+        self.case = self.variant_set.case
         self.small_vars = [
             SmallVariantFactory(
                 chromosome="1",
@@ -1842,7 +1865,7 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
-                case=self.case,
+                variant_set=self.variant_set,
             ),
             SmallVariantFactory(
                 chromosome="1",
@@ -1851,7 +1874,7 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                 },
-                case=self.case,
+                variant_set=self.variant_set,
             ),
             SmallVariantFactory(
                 chromosome="1",
@@ -1860,7 +1883,7 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                 },
-                case=self.case,
+                variant_set=self.variant_set,
             ),
             SmallVariantFactory(
                 chromosome="1",
@@ -1869,7 +1892,7 @@ class TestCaseTwoRecessiveHomozygousQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
-                case=self.case,
+                variant_set=self.variant_set,
             ),
         ]
 
@@ -1916,7 +1939,8 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
     def setUp(self):
         """Create a trio case with 4 variants and make sure the coordinates in the same gene are on the same chromosome."""
         super().setUp()
-        self.case = CaseFactory(structure="trio")
+        self.variant_set = SmallVariantSetFactory(case__structure="trio")
+        self.case = self.variant_set.case
         self.small_vars = [
             SmallVariantFactory(
                 genotype={
@@ -1925,7 +1949,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
                 ensembl_gene_id="ENSG1",
-                case=self.case,
+                variant_set=self.variant_set,
             ),
             SmallVariantFactory(
                 genotype={
@@ -1935,7 +1959,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
                 },
                 refseq_gene_id="2",
                 ensembl_gene_id="ENSG2",
-                case=self.case,
+                variant_set=self.variant_set,
             ),
             SmallVariantFactory(
                 chromosome=3,
@@ -1946,7 +1970,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
                 },
                 refseq_gene_id="3",
                 ensembl_gene_id="ENSG3",
-                case=self.case,
+                variant_set=self.variant_set,
             ),
             SmallVariantFactory(
                 chromosome=3,
@@ -1955,7 +1979,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
-                case=self.case,
+                variant_set=self.variant_set,
                 refseq_gene_id="3",
                 ensembl_gene_id="ENSG3",
             ),
@@ -2010,10 +2034,10 @@ class CaseThreeClinvarMembershipFilterTestMixin:
 
     def setUp(self):
         super().setUp()
-        case = CaseFactory()
+        variant_set = SmallVariantSetFactory(case__structure="trio")
         self.small_vars = [
-            SmallVariantFactory(chromosome="1", in_clinvar=True, case=case),
-            SmallVariantFactory(chromosome="1", in_clinvar=False, case=case),
+            SmallVariantFactory(chromosome="1", in_clinvar=True, variant_set=variant_set),
+            SmallVariantFactory(chromosome="1", in_clinvar=False, variant_set=variant_set),
         ]
         patho_keys = (
             "pathogenic",
@@ -2025,7 +2049,10 @@ class CaseThreeClinvarMembershipFilterTestMixin:
         for key in patho_keys:
             self.small_vars.append(
                 SmallVariantFactory(
-                    refseq_gene_id="2", ensembl_gene_id="ENSG2", in_clinvar=True, case=case
+                    refseq_gene_id="2",
+                    ensembl_gene_id="ENSG2",
+                    in_clinvar=True,
+                    variant_set=variant_set,
                 )
             )
             ClinvarFactory(
@@ -2134,8 +2161,11 @@ class TestHgmdMembershipQuery(SupportQueryTestBase):
     def setUp(self):
         """Create a case and two variants: one in HGMD, the other not."""
         super().setUp()
-        case = CaseFactory()
-        self.small_vars = [SmallVariantFactory(case=case), SmallVariantFactory(case=case)]
+        variant_set = SmallVariantSetFactory()
+        self.small_vars = [
+            SmallVariantFactory(variant_set=variant_set),
+            SmallVariantFactory(variant_set=variant_set),
+        ]
         self.hgmd = HgmdPublicLocusFactory(
             chromosome=self.small_vars[1].chromosome,
             start=self.small_vars[1].start - 1,
@@ -2499,11 +2529,14 @@ class TestCaseFiveQueryProject(SupportQueryTestBase):
     def setUp(self):
         super().setUp()
         project = ProjectFactory()
-        cases = [CaseFactory(project=project), CaseFactory(project=project)]
+        variant_sets = [
+            SmallVariantSetFactory(case__project=project),
+            SmallVariantSetFactory(case__project=project),
+        ]
         small_vars = [
-            SmallVariantFactory(case=cases[0]),
-            SmallVariantFactory(case=cases[1]),
-            SmallVariantFactory(case=cases[1]),
+            SmallVariantFactory(variant_set=variant_sets[0]),
+            SmallVariantFactory(variant_set=variant_sets[1]),
+            SmallVariantFactory(variant_set=variant_sets[1]),
         ]
         projectcasessmallvariantquery = ProjectCasesSmallVariantQueryFactory(project=project)
         projectcasessmallvariantquery.query_results.add(small_vars[0], small_vars[2])

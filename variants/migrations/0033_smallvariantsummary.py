@@ -72,7 +72,7 @@ if not settings.IS_TESTING:
             );
             """,
             """
-            DROP MATERIALIZED VIEW variants_smallvariantsummary;
+            DROP MATERIALIZED VIEW IF EXISTS variants_smallvariantsummary;
             """,
         )
     )

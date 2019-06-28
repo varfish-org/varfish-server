@@ -104,7 +104,7 @@ def small_variant_query(_self, kwargs):
             SmallVariant.sa.gnomad_genomes_heterozygous,
             SmallVariant.sa.thousand_genomes_heterozygous,
             SmallVariant.sa.genotype,
-            SmallVariant.sa.case_id,
+            SmallVariant.sa.set_id,
             SmallVariant.sa.in_clinvar,
             SmallVariant.sa.var_type,
             (SmallVariant.sa.ensembl_effect != SmallVariant.sa.refseq_effect).label(

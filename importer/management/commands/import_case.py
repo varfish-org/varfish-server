@@ -14,10 +14,10 @@ from django.conf import settings
 from django.utils import timezone
 from sqlalchemy import delete
 
-from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
+from svs.models import StructuralVariant, StructuralVariantGeneAnnotation, StructuralVariantSet
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
-from variants.models import SmallVariant, Case, AnnotationReleaseInfo
+from variants.models import SmallVariant, Case, AnnotationReleaseInfo, SmallVariantSet
 from variants.variant_stats import rebuild_case_variant_stats
 from variants.tasks import update_variant_counts
 from ..helpers import tsv_reader
@@ -68,9 +68,6 @@ class Command(BaseCommand):
             nargs="+",
         )
         parser.add_argument(
-            "--path-variants", help="Path to variants TSV file (triggers import of small variants)"
-        )
-        parser.add_argument(
             "--path-feature-effects",
             help="Path to gene-wise feature effects (triggers import of structural variants)",
             action="append",
@@ -101,24 +98,17 @@ class Command(BaseCommand):
             options["path_feature_effects"] = list(
                 itertools.chain(*options["path_feature_effects"])
             )
-        # options["path_variants"] = list(itertools.chain(*options["path_variants"]))
         # Perform the actual import.
         self._handle(*args, **options)
         if self.last_now:
             elapsed = timezone.now() - self.last_now
             self.stdout.write("Database commit took %.2f s" % elapsed.total_seconds())
 
-    @transaction.atomic
     def _handle(self, *args, **options):
         """Perform the import of the case."""
         self.stdout.write("Starting case import")
         self.stdout.write("options = %s" % options)
         self.last_now = None
-        # Check that mode-triggering flags are mutually exclusive and exactly one is given
-        if bool(options["path_variants"]) == bool(options["path_feature_effects"]):
-            raise CommandError(
-                "Exactly one of --path-variants and --path-feature-effects must be given!"
-            )
 
         # Fetch ``User`` object to use for the importer/owner
         try:
@@ -130,6 +120,8 @@ class Command(BaseCommand):
                     settings.PROJECTROLES_ADMIN_OWNER
                 )
             ) from e
+
+        # TODO: properly implement transactional behaviour for small variants where we are not in a transaction...
 
         # Get project, create case with pedigree.
         project = self._get_project(options["project_uuid"])
@@ -151,13 +143,48 @@ class Command(BaseCommand):
             samples_in_genotypes,
             options["path_db_info"],
             prev_case,
-            options["path_variants"] is not None,
+            options["path_feature_effects"] is None,
         )
 
         # Import small or structural variants
-        if options["path_variants"]:
-            self._import_small_variants_genotypes(case, options["path_genotypes"][0])
-            self._rebuild_small_variants_stats(case)
+        if not options["path_feature_effects"]:
+            smallvariant_table = aldjemy.core.get_meta().tables["variants_smallvariant"]
+            variant_set = case.smallvariantset_set.create(state="importing")
+            try:
+                self._import_small_variants_genotypes(variant_set, options["path_genotypes"][0])
+                self._rebuild_small_variants_stats(variant_set)
+                SmallVariantSet.objects.filter(pk=variant_set.id).update(state="active")
+            except Exception as e:
+                # TODO: need background job to help with deleting old data...
+                self.stdout.write(
+                    self.style.ERROR("Import was not successful. (%s) Rolling back." % e)
+                )
+                SmallVariantSet.objects.filter(pk=variant_set.id).update(state="deleting")
+                SQLALCHEMY_ENGINE.execute(
+                    smallvariant_table.delete().where(smallvariant_table.c.set_id == variant_set.id)
+                )
+                SmallVariantSet.objects.get(pk=variant_set.id).delete()
+                raise e  # re-raise
+            else:
+                self.stdout.write("Removing old variant set")
+                keep = None
+                delete_ids = []
+                with transaction.atomic():
+                    for var_set in SmallVariantSet.objects.order_by("-date_created"):
+                        if var_set.state == "active" and keep is None:
+                            keep = var_set
+                        else:
+                            delete_ids.append(var_set.pk)
+                            var_set.state = "deleting"
+                            var_set.save()
+                SQLALCHEMY_ENGINE.execute(
+                    smallvariant_table.delete().where(smallvariant_table.c.set_id.in_(delete_ids))
+                )
+                with transaction.atomic():
+                    for var_set in SmallVariantSet.objects.filter(id__in=delete_ids):
+                        var_set.delete()
+            # Update small and structural variant counts.
+            update_variant_counts(case, variant_set)
         else:
             if (
                 len(
@@ -173,11 +200,53 @@ class Command(BaseCommand):
                     "Number of files specified by --path-genotypes, --path-feature-effects, "
                     "and --path-db-info must be the same"
                 )
-            self._import_structural_variants_genotypes(case, options["path_genotypes"])
-            self._import_structural_variants_feature_effects(options["path_feature_effects"])
-
-        # Update small and structural variant counts.
-        update_variant_counts(case)
+            sv_table = aldjemy.core.get_meta().tables["variants_structuralvariant"]
+            geneanno_table = aldjemy.core.get_meta().tables[
+                "variants_structuralvariantgeneannotation"
+            ]
+            variant_set = case.structuralvariantset_set.create(state="importing")
+            try:
+                self._import_structural_variants_genotypes(variant_set, options["path_genotypes"])
+                self._import_structural_variants_feature_effects(
+                    variant_set, options["path_feature_effects"]
+                )
+            except Exception as e:
+                # TODO: need background job to help with deleting old data...
+                self.stdout.write(
+                    self.style.ERROR("Import was not successful. (%s) Rolling back." % e)
+                )
+                SmallVariantSet.objects.filter(pk=variant_set.id).update(state="deleting")
+                SQLALCHEMY_ENGINE.execute(
+                    sv_table.delete().where(sv_table.c.set_id == variant_set.id)
+                )
+                SQLALCHEMY_ENGINE.execute(
+                    geneanno_table.delete().where(geneanno_table.c.set_id == variant_set.id)
+                )
+                SmallVariantSet.objects.get(pk=variant_set.id).delete()
+                raise e  # re-raise
+            else:
+                self.stdout.write("Removing old variant set")
+                keep = None
+                delete_ids = []
+                with transaction.atomic():
+                    for var_set in StructuralVariantSet.objects.order_by("-date_created"):
+                        if var_set.state == "active" and keep is None:
+                            keep = var_set
+                        else:
+                            delete_ids.append(var_set.pk)
+                            var_set.state = "deleting"
+                            var_set.save()
+                SQLALCHEMY_ENGINE.execute(
+                    sv_table.delete().where(sv_table.c.set_id.in_(delete_ids))
+                )
+                SQLALCHEMY_ENGINE.execute(
+                    geneanno_table.delete().where(sv_table.c.set_id.in_(delete_ids))
+                )
+                with transaction.atomic():
+                    for var_set in StructuralVariantSet.objects.filter(id__in=delete_ids):
+                        var_set.delete()
+            # Update small and structural variant counts.
+            update_variant_counts(case)
 
         # Register import action in the timeline
         timeline = get_backend_api("timeline_backend")
@@ -316,7 +385,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("Done creating case."))
         return case
 
-    def _import_small_variants_genotypes(self, case, path_genotypes):
+    def _import_small_variants_genotypes(self, variant_set, path_genotypes):
         """Import small variants TSV file into database."""
         before = timezone.now()
         self.stdout.write("Creating temporary genotype file...")
@@ -324,9 +393,12 @@ class Command(BaseCommand):
             with open_file(path_genotypes, "rt") as inputf:
                 header = inputf.readline().strip()
                 try:
-                    replace_idx = header.split("\t").index("case_id")
+                    case_idx = header.split("\t").index("case_id")
+                    set_idx = header.split("\t").index("set_id")
                 except ValueError as e:
-                    raise CommandError("Column 'case_id' not found in genotypes TSV") from e
+                    raise CommandError(
+                        "Column 'case_id' or 'set_id' not found in genotypes TSV"
+                    ) from e
                 tempf.write(header)
                 tempf.write("\n")
                 while True:
@@ -334,7 +406,8 @@ class Command(BaseCommand):
                     if not line:
                         break
                     arr = line.split("\t")
-                    arr[replace_idx] = str(case.pk)
+                    arr[case_idx] = str(variant_set.case.pk)
+                    arr[set_idx] = str(variant_set.pk)
                     tempf.write("\t".join(arr))
                     tempf.write("\n")
             tempf.flush()
@@ -357,11 +430,11 @@ class Command(BaseCommand):
                 )
             )
 
-    def _rebuild_small_variants_stats(self, case):
+    def _rebuild_small_variants_stats(self, variant_set):
         """Rebuild small variant statistics."""
         before = timezone.now()
         self.stdout.write("Computing variant statistics...")
-        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
+        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, variant_set)
         elapsed = timezone.now() - before
         self.stdout.write(
             self.style.SUCCESS(
@@ -369,7 +442,7 @@ class Command(BaseCommand):
             )
         )
 
-    def _import_structural_variants_genotypes(self, case, path_genotypes):
+    def _import_structural_variants_genotypes(self, variant_set, path_genotypes):
         """Import structural variants TSV file into database."""
         self.stdout.write("Creating temporary SV genotype file...")
         with tempfile.NamedTemporaryFile("w+t") as tempf:
@@ -377,9 +450,12 @@ class Command(BaseCommand):
                 with open_file(current_path, "rt") as inputf:
                     header = inputf.readline().strip()
                     try:
-                        replace_idx = header.split("\t").index("case_id")
+                        case_idx = header.split("\t").index("case_id")
+                        set_idx = header.split("\t").index("set_id")
                     except ValueError as e:
-                        raise CommandError("Column 'case_id' not found in genotypes TSV") from e
+                        raise CommandError(
+                            "Column 'case_id' or 'set_id' not found in genotypes TSV"
+                        ) from e
                     if file_no == 0:
                         tempf.write(header)
                         tempf.write("\n")
@@ -388,7 +464,8 @@ class Command(BaseCommand):
                         if not line:
                             break
                         arr = line.split("\t")
-                        arr[replace_idx] = str(case.pk)
+                        arr[case_idx] = str(variant_set.case.pk)
+                        arr[set_idx] = str(variant_set.pk)
                         tempf.write("\t".join(arr))
                         tempf.write("\n")
             tempf.flush()
@@ -403,16 +480,40 @@ class Command(BaseCommand):
             )
             self.stdout.write(self.style.SUCCESS("Finished importing SV genotypes"))
 
-    def _import_structural_variants_feature_effects(self, path_feature_effects):
+    def _import_structural_variants_feature_effects(self, variant_set, path_feature_effects):
         """Import structural variants TSV file into database."""
-        self.stdout.write("Importing SV feature effects...")
-        for current_path in path_feature_effects:
-            with open_file(current_path, "rt") as tsv:
-                StructuralVariantGeneAnnotation.objects.from_csv(
-                    tsv,
-                    delimiter="\t",
-                    ignore_conflicts=True,
-                    drop_constraints=False,
-                    drop_indexes=False,
-                )
-        self.stdout.write(self.style.SUCCESS("Finished importing SV feature effects"))
+        self.stdout.write("Creating temporary SV feature effects file...")
+        with tempfile.NamedTemporaryFile("w+t") as tempf:
+            for file_no, current_path in enumerate(path_feature_effects):
+                with open_file(current_path, "rt") as inputf:
+                    header = inputf.readline().strip()
+                    try:
+                        case_idx = header.split("\t").index("case_id")
+                        set_idx = header.split("\t").index("set_id")
+                    except ValueError as e:
+                        raise CommandError(
+                            "Column 'case_id' or 'set_id' not found in SV feature effects TSV"
+                        ) from e
+                    if file_no == 0:
+                        tempf.write(header)
+                        tempf.write("\n")
+                    while True:
+                        line = inputf.readline().strip()
+                        if not line:
+                            break
+                        arr = line.split("\t")
+                        arr[case_idx] = str(variant_set.case.pk)
+                        arr[set_idx] = str(variant_set.pk)
+                        tempf.write("\t".join(arr))
+                        tempf.write("\n")
+            tempf.flush()
+            self.stdout.write("Importing SV feature effects...")
+            StructuralVariantGeneAnnotation.objects.from_csv(
+                tempf.name,
+                delimiter="\t",
+                null=".",
+                ignore_conflicts=True,
+                drop_constraints=False,
+                drop_indexes=False,
+            )
+            self.stdout.write(self.style.SUCCESS("Finished importing SV feature effects"))
