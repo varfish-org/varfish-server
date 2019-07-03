@@ -1,15 +1,24 @@
 import uuid as uuid_object
+from datetime import datetime, timedelta
 
+import aldjemy
+from bgjobs.models import BackgroundJob
 from postgres_copy import CopyManager
 
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField, JSONField
-from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from django.utils import timezone
+from projectroles.models import Project
+from projectroles.plugins import get_backend_api
 
-from variants.models import Case, VARIANT_RATING_CHOICES
+from variants.models import Case, VARIANT_RATING_CHOICES, JobModelMessageMixin2, VariantImporterBase
+
+#: The SQL Alchemy engine to use
+SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
@@ -407,3 +416,117 @@ class StructuralVariantFlags(_UserAnnotation):
                 self.flag_summary != "empty",
             )
         )
+
+
+class ImportStructuralVariantBgJob(JobModelMessageMixin2, models.Model):
+    """Background job for importing structural variants."""
+
+    #: Task description for logging.
+    task_desc = "Import variants"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "svs.import"
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+
+    #: UUID of the job
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
+    #: The project that the job belongs to.
+    project = models.ForeignKey(Project, help_text="Project that is imported to")
+
+    #: The background job that is specialized.
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="%(app_label)s_%(class)s_related",
+        help_text="Background job for state etc.",
+    )
+
+    #: The case name.
+    case_name = models.CharField(max_length=128, blank=False, null=False, help_text="The case name")
+    #: The index name.
+    index_name = models.CharField(
+        max_length=128, blank=False, null=False, help_text="The index name"
+    )
+    #: The path to the PED file.
+    path_ped = models.CharField(
+        max_length=4096, blank=False, null=False, help_text="Path to PED file"
+    )
+    #: The path to the variant genotype calls TSV.
+    path_genotypes = ArrayField(
+        models.CharField(
+            max_length=4096, blank=False, null=False, help_text="Path to variants TSV file"
+        )
+    )
+    #: The path to the variant feature effects TSV.
+    path_feature_effects = ArrayField(
+        models.CharField(
+            max_length=4096, blank=False, null=False, help_text="Path to feature_effects TSV file"
+        )
+    )
+    #: The path to the db-info TSV file.
+    path_db_info = ArrayField(
+        models.CharField(
+            max_length=4096, blank=False, null=False, help_text="Path to db-info TSV file"
+        )
+    )
+
+    def get_human_readable_type(self):
+        return "Import SVs into VarFish"
+
+    def get_absolute_url(self):
+        return reverse(
+            "svs:import-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
+
+
+class VariantImporter(VariantImporterBase):
+    """Helper class for importing structural variants"""
+
+    variant_set_attribute = "structuralvariantset_set"
+    table_names = ("svs_structuralvariant", "svs_structuralvariantgeneannotation")
+
+    def _perform_import(self, variant_set):
+        self._import_table(variant_set, "SVs", "path_genotypes", StructuralVariant)
+        self._import_table(
+            variant_set,
+            "SV-gene annotation",
+            "path_feature_effects",
+            StructuralVariantGeneAnnotation,
+        )
+
+
+def cleanup_variant_sets(min_age_hours=12):
+    """Cleanup old variant sets."""
+    variant_sets = list(
+        StructuralVariantSet.objects.filter(
+            state__ne="active", entered__gte=datetime.now() - timedelta(hours=min_age_hours)
+        )
+    )
+    table_names = ("svs_structuralvariant", "svs_structuralvariantgeneannotation")
+    for table_name in table_names:
+        table = aldjemy.core.get_meta().tables[table_name]
+        for variant_set in variant_sets:
+            SQLALCHEMY_ENGINE.execute(table.delete().where(table.c.set_id == variant_set.id))
+    variant_set.delete()
+
+
+def run_import_structural_variants_bg_job(pk):
+    timeline = get_backend_api("timeline_backend")
+    import_job = ImportStructuralVariantBgJob.objects.get(pk=pk)
+    started = timezone.now()
+    with import_job.marks():
+        VariantImporter(import_job).run()
+        if timeline:
+            elapsed = timezone.now() - started
+            timeline.add_event(
+                project=import_job.project,
+                app_name="svs",
+                user=import_job.bg_job.user,
+                event_name="case_import",
+                description='Import of SVs for case case "%s" finished in %.2fs.'
+                % (import_job.case_name, elapsed.total_seconds()),
+                status_type="OK",
+            )

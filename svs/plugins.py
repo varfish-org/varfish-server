@@ -1,7 +1,12 @@
 from projectroles.plugins import ProjectAppPluginPoint
 from bgjobs.plugins import BackgroundJobsPluginPoint
 
-from .models import Case, StructuralVariantComment, StructuralVariantFlags
+from .models import (
+    Case,
+    StructuralVariantComment,
+    StructuralVariantFlags,
+    ImportStructuralVariantBgJob,
+)
 from .urls import urlpatterns
 
 
@@ -49,3 +54,15 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             return {"url": obj.get_absolute_url(), "label": obj.name}
 
         return None
+
+
+class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
+    """Plugin for registering background jobs with ``bgjobs`` app."""
+
+    #: Slug used in URLs and similar places.
+    name = "svs"
+    #: Human-readable title.
+    title = "SVs Background Jobs"
+
+    #: Return name-to-class mapping for background job class specializations.
+    job_specs = {ImportStructuralVariantBgJob.spec_name: ImportStructuralVariantBgJob}

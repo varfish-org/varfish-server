@@ -24,10 +24,11 @@ from .models import (
     StructuralVariantComment,
     StructuralVariant,
     StructuralVariantGeneAnnotation,
+    ImportStructuralVariantBgJob,
 )
 from .queries import SingleCaseFilterQuery, best_matching_flags
 from geneinfo.models import RefseqToHgnc, Hgnc, Hpo, HpoName, Mim2geneMedgen
-from variants.models import Case
+from variants.models import Case, ImportVariantsBgJob
 from variants.views import UUIDEncoder
 
 
@@ -338,3 +339,20 @@ class StructuralVariantCommentApiView(
             tl_event.add_object(obj=case, label="case", name=case.name)
             tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
         return HttpResponse(json.dumps({"result": "OK"}), content_type="application/json")
+
+
+class ImportStructuralVariantsJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of the import case background job.
+    """
+
+    permission_required = "variants.view_data"
+    template_name = "svs/import_job_detail.html"
+    model = ImportStructuralVariantBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"

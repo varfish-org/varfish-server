@@ -2284,8 +2284,11 @@ class ImportVariantsBgJob(JobModelMessageMixin2, models.Model):
         )
 
 
-class VariantImporter:
-    """Helper class for importing variants."""
+class VariantImporterBase:
+    """Base class for variant importer helper classes."""
+
+    variant_set_attribute = None
+    table_names = None
 
     def __init__(self, import_job):
         self.import_job = import_job
@@ -2293,30 +2296,28 @@ class VariantImporter:
     def run(self):
         """Perform the variant import."""
         case = self._create_or_update_case()
-        variant_set = case.smallvariantset_set.create(state="importing")
+        variant_set = getattr(case, self.variant_set_attribute).create(state="importing")
         try:
-            self._import_annotation_release_info(variant_set)
-            self._import_small_variants_genotypes(variant_set)
-            self._rebuild_small_variants_stats(variant_set)
+            self._perform_import(variant_set)
             variant_set.state = "active"
             variant_set.save()
             update_variant_counts(variant_set)
             self._clear_old_variant_sets(case, variant_set)
         except Exception as e:
-            self.import_job.add_log_entry(
-                "Problem during small variant import: %s" % e, LOG_LEVEL_ERROR
-            )
+            self.import_job.add_log_entry("Problem during variant import: %s" % e, LOG_LEVEL_ERROR)
             self.import_job.add_log_entry("Rolling back variant set...")
             self._purge_variant_set(variant_set)
-            raise RuntimeError("Problem during small variant import ") from e
+            raise RuntimeError("Problem during variant import ") from e
+
+    def _perform_import(self, variant_set):
+        raise NotImplementedError("Override me!")
 
     def _purge_variant_set(self, variant_set):
-        smallvariant_table = aldjemy.core.get_meta().tables["variants_smallvariant"]
-        SmallVariantSet.objects.filter(pk=variant_set.id).update(state="deleting")
-        SQLALCHEMY_ENGINE.execute(
-            smallvariant_table.delete().where(smallvariant_table.c.set_id == variant_set.id)
-        )
-        SmallVariantSet.objects.filter(pk=variant_set.id).delete()
+        variant_set.__class__.objects.filter(pk=variant_set.id).update(state="deleting")
+        for table_name in self.table_names:
+            table = aldjemy.core.get_meta().tables[table_name]
+            SQLALCHEMY_ENGINE.execute(table.delete().where(table.c.set_id == variant_set.id))
+        variant_set.__class__.objects.filter(pk=variant_set.id).delete()
 
     def _create_or_update_case(self):
         pedigree = list(self._yield_pedigree())
@@ -2363,22 +2364,24 @@ class VariantImporter:
             values = dict(zip(header, first))
             return list(json.loads(values["genotype"]).keys())
 
-    def _import_annotation_release_info(self, variant_set):
-        for entry in tsv_reader(self.import_job.path_db_info[0]):
-            AnnotationReleaseInfo.objects.get_or_create(
-                genomebuild=entry["genomebuild"],
-                table=entry["db_name"],
-                case=variant_set.case,
-                variant_set=variant_set,
-                defaults={"release": entry["release"]},
-            )
-
-    def _import_small_variants_genotypes(self, variant_set):
-        """Import small variants TSV file into database."""
+    def _clear_old_variant_sets(self, case, keep_variant_set):
+        self.import_job.add_log_entry("Starting to purge old variants")
         before = timezone.now()
-        self.import_job.add_log_entry("Creating temporary genotype file...")
+        for variant_set in keep_variant_set.__class__.objects.filter(
+            case=case, state="active", date_created__lt=keep_variant_set.date_created
+        ):
+            if variant_set.id != keep_variant_set.id:
+                self._purge_variant_set(variant_set)
+        elapsed = timezone.now() - before
+        self.import_job.add_log_entry(
+            "Finished purging old variants in %.2f s" % elapsed.total_seconds()
+        )
+
+    def _import_table(self, variant_set, token, path_attr, model_class):
+        before = timezone.now()
+        self.import_job.add_log_entry("Creating temporary %s file..." % token)
         with tempfile.NamedTemporaryFile("w+t") as tempf:
-            for i, path_genotypes in enumerate(self.import_job.path_genotypes):
+            for i, path_genotypes in enumerate(getattr(self.import_job, path_attr)):
                 with open_file(path_genotypes, "rt") as inputf:
                     header = inputf.readline().strip()
                     try:
@@ -2386,7 +2389,7 @@ class VariantImporter:
                         set_idx = header.split("\t").index("set_id")
                     except ValueError as e:
                         raise RuntimeError(
-                            "Column 'case_id' or 'set_id' not found in genotypes TSV"
+                            "Column 'case_id' or 'set_id' not found in %s TSV" % token
                         ) from e
                     if i == 0:
                         tempf.write(header)
@@ -2405,8 +2408,8 @@ class VariantImporter:
             self.import_job.add_log_entry("Wrote file in %.2f s" % elapsed.total_seconds())
 
             before = timezone.now()
-            self.import_job.add_log_entry("Importing genotype file...")
-            SmallVariant.objects.from_csv(
+            self.import_job.add_log_entry("Importing %s file..." % token)
+            model_class.objects.from_csv(
                 tempf.name,
                 delimiter="\t",
                 null=".",
@@ -2416,8 +2419,20 @@ class VariantImporter:
             )
             elapsed = timezone.now() - before
             self.import_job.add_log_entry(
-                "Finished importing genotypes in %.2f s" % elapsed.total_seconds()
+                "Finished importing %s in %.2f s" % (token, elapsed.total_seconds())
             )
+
+
+class VariantImporter(VariantImporterBase):
+    """Helper class for importing variants."""
+
+    variant_set_attribute = "smallvariantset_set"
+    table_names = ("variants_smallvariant",)
+
+    def _perform_import(self, variant_set):
+        self._import_annotation_release_info(variant_set)
+        self._import_table(variant_set, "genotypes", "path_genotypes", SmallVariant)
+        self._rebuild_small_variants_stats(variant_set)
 
     def _rebuild_small_variants_stats(self, variant_set):
         """Rebuild small variant statistics."""
@@ -2432,18 +2447,16 @@ class VariantImporter:
             "Finished computing variant statistics in %.2f s" % elapsed.total_seconds()
         )
 
-    def _clear_old_variant_sets(self, case, keep_variant_set):
-        self.import_job.add_log_entry("Starting to purge old small variants")
-        before = timezone.now()
-        for variant_set in SmallVariantSet.objects.filter(
-            case=case, state="active", date_created__lt=keep_variant_set.date_created
-        ):
-            if variant_set.id != keep_variant_set.id:
-                self._purge_variant_set(variant_set)
-        elapsed = timezone.now() - before
-        self.import_job.add_log_entry(
-            "Finished purging old small variants in %.2f s" % elapsed.total_seconds()
-        )
+    def _import_annotation_release_info(self, variant_set):
+        for path_db_info in self.import_job.path_db_info:
+            for entry in tsv_reader(path_db_info):
+                AnnotationReleaseInfo.objects.get_or_create(
+                    genomebuild=entry["genomebuild"],
+                    table=entry["db_name"],
+                    case=variant_set.case,
+                    variant_set=variant_set,
+                    defaults={"release": entry["release"]},
+                )
 
 
 def run_import_variants_bg_job(pk):
