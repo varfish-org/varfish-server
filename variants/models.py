@@ -262,8 +262,6 @@ class SmallVariant(models.Model):
             models.Index(fields=["set_id", "ensembl_gene_id"]),
             models.Index(fields=["set_id", "refseq_gene_id"]),
         ]
-
-    class Meta:
         managed = settings.IS_TESTING
         db_table = "variants_smallvariant"
 

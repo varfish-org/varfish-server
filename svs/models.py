@@ -204,6 +204,8 @@ class StructuralVariant(models.Model):
                 fields=["case_id", "release", "chromosome", "bin", "sv_type", "sv_sub_type"]
             ),
         )
+        managed = settings.IS_TESTING
+        db_table = "svs_structuralvariant"
 
 
 class StructuralVariantGeneAnnotation(models.Model):
@@ -245,6 +247,8 @@ class StructuralVariantGeneAnnotation(models.Model):
 
     class Meta:
         indexes = (models.Index(fields=["sv_uuid"]), models.Index(fields=["set_id"]))
+        managed = settings.IS_TESTING
+        db_table = "svs_structuralvariantgeneannotation"
 
 
 @receiver(pre_delete)

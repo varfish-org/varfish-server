@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 import django.contrib.postgres.fields
-import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
 import uuid

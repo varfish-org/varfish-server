@@ -6,6 +6,7 @@ from django.db import migrations, models
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.conf import settings
 
+
 operations = [
     migrations.RunSQL(
         r"""SELECT 1""",

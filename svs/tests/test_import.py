@@ -149,7 +149,9 @@ class TestImportOnce(TestCase):
             index_name=self.case.index,
             path_ped=os.path.join(self.data_dir, "%s.ped" % self.case.name),
             path_genotypes=[os.path.join(self.data_dir, "%s.gts.tsv" % self.case.name)],
-            path_feature_effects=[os.path.join(self.data_dir, "%s.feature-effects.tsv" % self.case.name)],
+            path_feature_effects=[
+                os.path.join(self.data_dir, "%s.feature-effects.tsv" % self.case.name)
+            ],
             path_db_info=[os.path.join(self.data_dir, "%s.db-infos.tsv" % self.case.name)],
         )
 
@@ -193,7 +195,9 @@ class TestImportTwice(TestCase):
             index_name=self.case.index,
             path_ped=os.path.join(self.data_dir, "%s.ped" % self.case.name),
             path_genotypes=[os.path.join(self.data_dir, "%s.gts.tsv" % self.case.name)],
-            path_feature_effects=[os.path.join(self.data_dir, "%s.feature-effects.tsv" % self.case.name)],
+            path_feature_effects=[
+                os.path.join(self.data_dir, "%s.feature-effects.tsv" % self.case.name)
+            ],
             path_db_info=[os.path.join(self.data_dir, "%s.db-infos.tsv" % self.case.name)],
         )
 
