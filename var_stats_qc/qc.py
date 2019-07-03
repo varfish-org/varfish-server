@@ -6,6 +6,7 @@ from contextlib import contextmanager
 
 import numpy as np
 import psycopg2.extras
+from sqlalchemy import or_
 from sqlalchemy.sql import select, and_, not_, func
 
 from .models import ReferenceSite
@@ -32,6 +33,7 @@ def _compute_het_hom_chrx_stmt(variant_model, variant_set):
         .select_from(variant_model.sa.table)
         .where(
             and_(
+                variant_model.sa.case_id == variant_set.case.id,
                 variant_model.sa.set_id == variant_set.id,
                 variant_model.sa.chromosome == "X",
                 # Exclude pseudoautosomal regions on chrX; works for both GRCh37 and GRCh38.
@@ -105,6 +107,7 @@ def _compute_relatedness_stmt(variant_model, variant_set):
         .where(
             and_(
                 variant_model.sa.set_id == variant_set.id,
+                variant_model.sa.case_id == variant_set.case.id,
                 not_(variant_model.sa.chromosome.in_(("X", "Y"))),
             )
         )
@@ -176,11 +179,16 @@ def compute_relatedness(connection, variant_model, variant_set, min_depth=7, n_s
 
 def _compute_relatedness_stmt_many(variant_model, cases):
     """Build SQL Alchemy statement given the variant model class and multiple case objects."""
-    variant_set_ids = []
+    variant_set_conditions = []
     for case in cases:
         variant_set = case.latest_variant_set()
         if variant_set:
-            variant_set_ids.append(variant_set.id)
+            variant_set_conditions.append(
+                and_(
+                    variant_model.sa.set_id == variant_set.id,
+                    variant_model.sa.case_id == variant_set.case.id,
+                )
+            )
 
     return (
         select([func.jsonb_agg(variant_model.sa.genotype).label("genotype")])
@@ -195,10 +203,7 @@ def _compute_relatedness_stmt_many(variant_model, cases):
             )
         )
         .where(
-            and_(
-                variant_model.sa.set_id.in_(variant_set_ids),
-                not_(variant_model.sa.chromosome.in_(("X", "Y"))),
-            )
+            and_(or_(*variant_set_conditions), not_(variant_model.sa.chromosome.in_(("X", "Y"))))
         )
         .group_by(
             variant_model.sa.chromosome,

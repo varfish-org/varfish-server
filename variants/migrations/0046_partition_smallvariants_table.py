@@ -189,6 +189,7 @@ if not settings.IS_TESTING:
             CREATE INDEX variants_sm_case_id_5d52f6_idx ON variants_smallvariant USING btree (case_id, ensembl_gene_id);
             CREATE INDEX variants_sm_case_id_6f9d8c_idx ON variants_smallvariant USING btree (case_id);
             CREATE INDEX variants_sm_case_id_a529e8_gin ON variants_smallvariant USING gin (case_id, refseq_effect);
+            CREATE INDEX variants_sm_coordinates ON variants_smallvariant USING btree (release, chromosome, start);
 
             CREATE SEQUENCE variants_smallvariant_id_seq
                 AS integer

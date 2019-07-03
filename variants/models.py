@@ -10,7 +10,7 @@ from itertools import chain
 import math
 import re
 import requests
-from sqlalchemy import select, func
+from sqlalchemy import select, func, and_
 import uuid as uuid_object
 
 from postgres_copy import CopyManager
@@ -2492,7 +2492,12 @@ def update_variant_counts(variant_set):
     stmt = (
         select([func.count()])
         .select_from(sv_models.StructuralVariant.sa.table)
-        .where(sv_models.StructuralVariant.sa.set_id == variant_set.pk)
+        .where(
+            and_(
+                sv_models.StructuralVariant.sa.set_id == variant_set.pk,
+                sv_models.StructuralVariant.sa.case_id == variant_set.case.pk,
+            )
+        )
     )
     num_svs = SQLALCHEMY_ENGINE.scalar(stmt) or None
     # Use the ``update()`` trick such that ``date_modified`` remains untouched.

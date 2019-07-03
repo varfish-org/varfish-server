@@ -1,3 +1,5 @@
+*.prof
+
 ### Python template
 # Sphinx
 docs_*/_build
