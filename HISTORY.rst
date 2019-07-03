@@ -68,6 +68,9 @@ Full Change List
 - Constraints information in variant details now shows also pLI score.
 - Now joining constraints information to results table and added selector to display source/metric in one column.
 - Fixed: Ensembl transcript ids in SmallVariant list were truncated because of too short database field.
+- Importing SVs and small variants is done in a background job now.
+- Small variant and SV tables are now partitioned (by case ID).
+  This should speedup import as indices are smaller and also each partition can be written to independently.
 
 -------
 v0.15.1

@@ -9,7 +9,7 @@ import uuid
 
 
 operations = [
-    migrations.DeleteModel(name="StructuralVariant"),
+    migrations.DeleteModel("StructuralVariant"),
     migrations.CreateModel(
         name="StructuralVariant",
         fields=[
@@ -21,20 +21,16 @@ operations = [
             ),
             ("release", models.CharField(max_length=32)),
             ("chromosome", models.CharField(max_length=32)),
+            ("chromosome_no", models.IntegerField()),
             ("start", models.IntegerField()),
             ("end", models.IntegerField()),
             ("bin", models.IntegerField()),
-            (
-                "containing_bins",
-                django.contrib.postgres.fields.ArrayField(
-                    base_field=models.IntegerField(), size=None
-                ),
-            ),
             ("start_ci_left", models.IntegerField()),
             ("start_ci_right", models.IntegerField()),
             ("end_ci_left", models.IntegerField()),
             ("end_ci_right", models.IntegerField()),
             ("case_id", models.IntegerField()),
+            ("set_id", models.IntegerField()),
             (
                 "sv_uuid",
                 models.UUIDField(
@@ -90,7 +86,7 @@ operations = [
         ],
         options={"db_table": "svs_structuralvariant", "managed": settings.IS_TESTING},
     ),
-    migrations.DeleteModel(name="StructuralVariantGeneAnnotation"),
+    migrations.DeleteModel("StructuralVariantGeneAnnotation"),
     migrations.CreateModel(
         name="StructuralVariantGeneAnnotation",
         fields=[
@@ -100,6 +96,8 @@ operations = [
                     auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
                 ),
             ),
+            ("case_id", models.IntegerField()),
+            ("set_id", models.IntegerField()),
             (
                 "sv_uuid",
                 models.UUIDField(
@@ -143,7 +141,7 @@ if not settings.IS_TESTING:
     operations.append(
         migrations.RunSQL(
             r"""
-            DROP TABLE IF EXISTS svs_structuralvariant;
+            DROP TABLE IF EXISTS svs_structuralvariant CASCADE;
             
             CREATE TABLE svs_structuralvariant (
                 id integer NOT NULL,
@@ -191,7 +189,7 @@ if not settings.IS_TESTING:
             CREATE INDEX svs_structu_set_id_951ec1_idx ON svs_structuralvariant
                 USING btree (set_id);
             
-            DROP TABLE IF EXISTS svs_structuralvariantgeneannotation;
+            DROP TABLE IF EXISTS svs_structuralvariantgeneannotation CASCADE;
 
             CREATE TABLE svs_structuralvariantgeneannotation (
                 id integer NOT NULL,
@@ -229,8 +227,10 @@ if not settings.IS_TESTING:
             """
             + "\n".join(sql_partitions),
             r"""
-            DROP TABLE svs_structuralvariant CASCADE;
-            DROP TABLE svs_structuralvariantgeneannotation CASCADE;
+            DROP TABLE IF EXISTS svs_structuralvariant CASCADE;
+            DROP SEQUENCE IF EXISTS svs_structuralvariant_id_seq CASCADE;
+            DROP TABLE IF EXISTS svs_structuralvariantgeneannotation CASCADE;
+            DROP SEQUENCE IF EXISTS svs_structuralvariantgeneannotation_id_seq CASCADE;
             """,
         )
     )
