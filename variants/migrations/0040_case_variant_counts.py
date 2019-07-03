@@ -5,14 +5,15 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-from variants.tasks import update_variant_counts
+from variants.models import update_variant_counts
 
 
 def forwards(apps, _schema_editor):
     """Update the count for all cases."""
     Case = apps.get_model("variants", "Case")
     for case in Case.objects.all():
-        update_variant_counts(case)
+        if case.latest_variant_set():
+            update_variant_counts(case.latest_variant_set())
 
 
 def backwards(apps, schema_editor):

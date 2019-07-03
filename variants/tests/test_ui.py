@@ -54,7 +54,6 @@ SKIP_SELENIUM = "1" == os.environ.get("SKIP_SELENIUM", "0")
 SKIP_SELENIUM_MESSAGE = "Selenium tests disabled"
 
 
-
 class wait_for_the_attribute_value(object):
     """https://stackoverflow.com/a/43813210/84349
 
@@ -63,6 +62,7 @@ class wait_for_the_attribute_value(object):
     self.wait.until(wait_for_the_attribute_value((By.ID, "xxx"), "aria-busy", "false"))
 
     """
+
     def __init__(self, locator, attribute, value):
         self.locator = locator
         self.attribute = attribute

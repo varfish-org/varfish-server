@@ -1,9 +1,16 @@
+import contextlib
+import tempfile
+from datetime import datetime, timedelta
+import json
+
+import aldjemy
 import binning
 import wrapt
 from itertools import chain
 import math
 import re
 import requests
+from sqlalchemy import select, func
 import uuid as uuid_object
 
 from postgres_copy import CopyManager
@@ -21,10 +28,17 @@ from django.db.models.signals import pre_delete
 from django.utils import timezone
 
 from projectroles.models import Project
-from bgjobs.models import BackgroundJob, JobModelMessageMixin, LOG_LEVEL_CHOICES
+from bgjobs.models import BackgroundJob, JobModelMessageMixin, LOG_LEVEL_CHOICES, LOG_LEVEL_ERROR
+from projectroles.plugins import get_backend_api
+
 from geneinfo.models import Hgnc
 
 from genomicfeatures.models import GeneInterval
+
+#: The SQL Alchemy engine to use
+from importer.management.helpers import open_file, tsv_reader
+
+SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
@@ -489,10 +503,13 @@ class Case(models.Model):
     def chrx_het_hom_ratio(self, sample):
         """Return het./hom. ratio on chrX for ``sample``."""
         try:
-            sample_stats = self.latest_variant_set().variant_stats.sample_variant_stats.get(
-                sample_name=sample
-            )
-            return sample_stats.chrx_het_hom
+            if not self.latest_variant_set():
+                return -1
+            else:
+                sample_stats = self.latest_variant_set().variant_stats.sample_variant_stats.get(
+                    sample_name=sample
+                )
+                return sample_stats.chrx_het_hom
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             return -1.0
 
@@ -503,13 +520,16 @@ class Case(models.Model):
         try:
             ped_sex = {m["patient"]: m["sex"] for m in self.pedigree}
             result = {}
-            for sample_stats in self.latest_variant_set().variant_stats.sample_variant_stats.all():
-                sample = sample_stats.sample_name
-                stats_sex = 1 if sample_stats.chrx_het_hom < CHRX_HET_HOM_THRESH else 2
-                if stats_sex != ped_sex[sample]:
-                    result[sample] = [
-                        "sex from pedigree conflicts with one derived from het/hom ratio on chrX"
-                    ]
+            if self.latest_variant_set():
+                for (
+                    sample_stats
+                ) in self.latest_variant_set().variant_stats.sample_variant_stats.all():
+                    sample = sample_stats.sample_name
+                    stats_sex = 1 if sample_stats.chrx_het_hom < CHRX_HET_HOM_THRESH else 2
+                    if stats_sex != ped_sex[sample]:
+                        result[sample] = [
+                            "sex from pedigree conflicts with one derived from het/hom ratio on chrX"
+                        ]
             return result
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             return {}
@@ -529,38 +549,42 @@ class Case(models.Model):
         ped_entries = {m["patient"]: m for m in self.pedigree}
         result = {}
         try:
-            for rel_stats in self.latest_variant_set().variant_stats.relatedness.all():
-                relationship = "other"
-                if (
-                    ped_entries[rel_stats.sample1]["father"]
-                    == ped_entries[rel_stats.sample2]["father"]
-                    and ped_entries[rel_stats.sample1]["mother"]
-                    == ped_entries[rel_stats.sample2]["mother"]
-                    and ped_entries[rel_stats.sample1]["father"] != "0"
-                    and ped_entries[rel_stats.sample1]["mother"] != "0"
-                ):
-                    relationship = "sibling-sibling"
-                elif (
-                    ped_entries[rel_stats.sample1]["father"] == rel_stats.sample2
-                    or ped_entries[rel_stats.sample1]["mother"] == rel_stats.sample2
-                    or ped_entries[rel_stats.sample2]["father"] == rel_stats.sample1
-                    or ped_entries[rel_stats.sample2]["mother"] == rel_stats.sample1
-                ):
-                    relationship = "parent-child"
-                if (
-                    relationship == "sibling-sibling" and rel_stats.relatedness() < THRESH_SIBLING
-                ) or (relationship == "parent-child" and rel_stats.relatedness() < THRESH_PARENT):
-                    for sample in (rel_stats.sample1, rel_stats.sample2):
-                        result.setdefault(sample, []).append(
-                            (
-                                "pedigree shows {} relation for {} and {} but variants show low degree "
-                                "of relatedness"
-                            ).format(
-                                relationship,
-                                only_source_name(rel_stats.sample1),
-                                only_source_name(rel_stats.sample2),
+            if self.latest_variant_set():
+                for rel_stats in self.latest_variant_set().variant_stats.relatedness.all():
+                    relationship = "other"
+                    if (
+                        ped_entries[rel_stats.sample1]["father"]
+                        == ped_entries[rel_stats.sample2]["father"]
+                        and ped_entries[rel_stats.sample1]["mother"]
+                        == ped_entries[rel_stats.sample2]["mother"]
+                        and ped_entries[rel_stats.sample1]["father"] != "0"
+                        and ped_entries[rel_stats.sample1]["mother"] != "0"
+                    ):
+                        relationship = "sibling-sibling"
+                    elif (
+                        ped_entries[rel_stats.sample1]["father"] == rel_stats.sample2
+                        or ped_entries[rel_stats.sample1]["mother"] == rel_stats.sample2
+                        or ped_entries[rel_stats.sample2]["father"] == rel_stats.sample1
+                        or ped_entries[rel_stats.sample2]["mother"] == rel_stats.sample1
+                    ):
+                        relationship = "parent-child"
+                    if (
+                        relationship == "sibling-sibling"
+                        and rel_stats.relatedness() < THRESH_SIBLING
+                    ) or (
+                        relationship == "parent-child" and rel_stats.relatedness() < THRESH_PARENT
+                    ):
+                        for sample in (rel_stats.sample1, rel_stats.sample2):
+                            result.setdefault(sample, []).append(
+                                (
+                                    "pedigree shows {} relation for {} and {} but variants show low degree "
+                                    "of relatedness"
+                                ).format(
+                                    relationship,
+                                    only_source_name(rel_stats.sample1),
+                                    only_source_name(rel_stats.sample2),
+                                )
                             )
-                        )
             return result
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             return {}
@@ -611,6 +635,21 @@ class SmallVariantSet(models.Model):
     )
 
 
+def cleanup_variant_sets(min_age_hours=12):
+    """Cleanup old variant sets."""
+    variant_sets = list(
+        SmallVariantSet.objects.filter(
+            state__ne="active", entered__gte=datetime.now() - timedelta(hours=min_age_hours)
+        )
+    )
+    smallvariant_table = aldjemy.core.get_meta().tables["variants_smallvariant"]
+    for variant_set in variant_sets:
+        SQLALCHEMY_ENGINE.execute(
+            smallvariant_table.delete().where(smallvariant_table.c.set_id == variant_set.id)
+        )
+        variant_set.delete()
+
+
 class AnnotationReleaseInfo(models.Model):
     """Model to track the database releases used during annotation of a case.
     """
@@ -625,9 +664,11 @@ class AnnotationReleaseInfo(models.Model):
     release = models.CharField(max_length=512)
     #: Link to case
     case = models.ForeignKey(Case)
+    #: Link to variant set
+    variant_set = models.ForeignKey(SmallVariantSet)
 
     class Meta:
-        unique_together = ("genomebuild", "table", "case")
+        unique_together = ("genomebuild", "table", "variant_set")
 
 
 #: File type choices for ``ExportFileBgJob``.
@@ -2167,3 +2208,283 @@ class SyncCaseResultMessage(models.Model):
 
     #: The message contained by the log entry.
     message = models.TextField(help_text="Log level's message")
+
+
+class JobModelMessageMixin2(JobModelMessageMixin):
+    # TODO: remove once added to sodar-core.
+
+    @contextlib.contextmanager
+    def marks(self):
+        """Return a context manager that allows to run tasks between start and success/error marks."""
+        self.mark_start()
+        try:
+            yield
+        except Exception as e:
+            self.mark_error("Error: %s" % e)
+            raise
+        else:
+            self.mark_success()
+
+
+class ImportVariantsBgJob(JobModelMessageMixin2, models.Model):
+    """Background job for importing variants."""
+
+    #: Task description for logging.
+    task_desc = "Import variants"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.import"
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+
+    #: UUID of the job
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
+    #: The project that the job belongs to.
+    project = models.ForeignKey(Project, help_text="Project that is imported to")
+
+    #: The background job that is specialized.
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="%(app_label)s_%(class)s_related",
+        help_text="Background job for state etc.",
+    )
+
+    #: The case name.
+    case_name = models.CharField(max_length=128, blank=False, null=False, help_text="The case name")
+    #: The index name.
+    index_name = models.CharField(
+        max_length=128, blank=False, null=False, help_text="The index name"
+    )
+    #: The path to the PED file.
+    path_ped = models.CharField(
+        max_length=4096, blank=False, null=False, help_text="Path to PED file"
+    )
+    #: The path to the variant genotype calls TSV.
+    path_genotypes = ArrayField(
+        models.CharField(
+            max_length=4096, blank=False, null=False, help_text="Path to variants TSV file"
+        )
+    )
+    #: The path to the db-info TSV file.
+    path_db_info = ArrayField(
+        models.CharField(
+            max_length=4096, blank=False, null=False, help_text="Path to db-info TSV file"
+        )
+    )
+
+    def get_human_readable_type(self):
+        return "Import (small) variants into VarFish"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:import-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
+
+
+class VariantImporter:
+    """Helper class for importing variants."""
+
+    def __init__(self, import_job):
+        self.import_job = import_job
+
+    def run(self):
+        """Perform the variant import."""
+        case = self._create_or_update_case()
+        variant_set = case.smallvariantset_set.create(state="importing")
+        try:
+            self._import_annotation_release_info(variant_set)
+            self._import_small_variants_genotypes(variant_set)
+            self._rebuild_small_variants_stats(variant_set)
+            variant_set.state = "active"
+            variant_set.save()
+            update_variant_counts(variant_set)
+            self._clear_old_variant_sets(case, variant_set)
+        except Exception as e:
+            self.import_job.add_log_entry(
+                "Problem during small variant import: %s" % e, LOG_LEVEL_ERROR
+            )
+            self.import_job.add_log_entry("Rolling back variant set...")
+            self._purge_variant_set(variant_set)
+            raise RuntimeError("Problem during small variant import ") from e
+
+    def _purge_variant_set(self, variant_set):
+        smallvariant_table = aldjemy.core.get_meta().tables["variants_smallvariant"]
+        SmallVariantSet.objects.filter(pk=variant_set.id).update(state="deleting")
+        SQLALCHEMY_ENGINE.execute(
+            smallvariant_table.delete().where(smallvariant_table.c.set_id == variant_set.id)
+        )
+        SmallVariantSet.objects.filter(pk=variant_set.id).delete()
+
+    def _create_or_update_case(self):
+        pedigree = list(self._yield_pedigree())
+        if Case.objects.filter(name=self.import_job.case_name, project=self.import_job.project):
+            case = Case.objects.get(name=self.import_job.case_name, project=self.import_job.project)
+            case.index = self.import_job.index_name
+            case.pedigree = pedigree
+            case.save()
+        else:
+            case = Case.objects.create(
+                name=self.import_job.case_name,
+                project=self.import_job.project,
+                index=self.import_job.index_name,
+                pedigree=pedigree,
+            )
+        return case
+
+    def _yield_pedigree(self):
+        samples_in_genotypes = self._get_samples_in_genotypes()
+        seen_index = False
+        with open(self.import_job.path_ped, "rt") as pedf:
+            for line in pedf:
+                line = line.strip()
+                _, patient, father, mother, sex, affected = line.split("\t")
+                seen_index = seen_index or patient == self.import_job.index_name
+                sex = int(sex)
+                affected = int(affected)
+                yield {
+                    "patient": patient,
+                    "father": father,
+                    "mother": mother,
+                    "sex": sex,
+                    "affected": affected,
+                    "has_gt_entries": patient in samples_in_genotypes,
+                }
+        if not seen_index:
+            raise RuntimeError("Index {} not seen in pedigree!".format(self.import_job.index_name))
+
+    def _get_samples_in_genotypes(self):
+        """Return names from samples present in genotypes column."""
+        with open_file(self.import_job.path_genotypes[0], "rt") as tsv:
+            header = tsv.readline()[:-1].split("\t")
+            first = tsv.readline()[:-1].replace('"""', '"').split("\t")
+            values = dict(zip(header, first))
+            return list(json.loads(values["genotype"]).keys())
+
+    def _import_annotation_release_info(self, variant_set):
+        for entry in tsv_reader(self.import_job.path_db_info[0]):
+            AnnotationReleaseInfo.objects.get_or_create(
+                genomebuild=entry["genomebuild"],
+                table=entry["db_name"],
+                case=variant_set.case,
+                variant_set=variant_set,
+                defaults={"release": entry["release"]},
+            )
+
+    def _import_small_variants_genotypes(self, variant_set):
+        """Import small variants TSV file into database."""
+        before = timezone.now()
+        self.import_job.add_log_entry("Creating temporary genotype file...")
+        with tempfile.NamedTemporaryFile("w+t") as tempf:
+            for i, path_genotypes in enumerate(self.import_job.path_genotypes):
+                with open_file(path_genotypes, "rt") as inputf:
+                    header = inputf.readline().strip()
+                    try:
+                        case_idx = header.split("\t").index("case_id")
+                        set_idx = header.split("\t").index("set_id")
+                    except ValueError as e:
+                        raise RuntimeError(
+                            "Column 'case_id' or 'set_id' not found in genotypes TSV"
+                        ) from e
+                    if i == 0:
+                        tempf.write(header)
+                        tempf.write("\n")
+                    while True:
+                        line = inputf.readline().strip()
+                        if not line:
+                            break
+                        arr = line.split("\t")
+                        arr[case_idx] = str(variant_set.case.pk)
+                        arr[set_idx] = str(variant_set.pk)
+                        tempf.write("\t".join(arr))
+                        tempf.write("\n")
+            tempf.flush()
+            elapsed = timezone.now() - before
+            self.import_job.add_log_entry("Wrote file in %.2f s" % elapsed.total_seconds())
+
+            before = timezone.now()
+            self.import_job.add_log_entry("Importing genotype file...")
+            SmallVariant.objects.from_csv(
+                tempf.name,
+                delimiter="\t",
+                null=".",
+                ignore_conflicts=True,
+                drop_constraints=False,
+                drop_indexes=False,
+            )
+            elapsed = timezone.now() - before
+            self.import_job.add_log_entry(
+                "Finished importing genotypes in %.2f s" % elapsed.total_seconds()
+            )
+
+    def _rebuild_small_variants_stats(self, variant_set):
+        """Rebuild small variant statistics."""
+        # This must be imported here to circumvent cyclic dependencies
+        from .variant_stats import rebuild_case_variant_stats  # noqa
+
+        before = timezone.now()
+        self.import_job.add_log_entry("Computing variant statistics...")
+        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, variant_set)
+        elapsed = timezone.now() - before
+        self.import_job.add_log_entry(
+            "Finished computing variant statistics in %.2f s" % elapsed.total_seconds()
+        )
+
+    def _clear_old_variant_sets(self, case, keep_variant_set):
+        self.import_job.add_log_entry("Starting to purge old small variants")
+        before = timezone.now()
+        for variant_set in SmallVariantSet.objects.filter(
+            case=case, state="active", date_created__lt=keep_variant_set.date_created
+        ):
+            if variant_set.id != keep_variant_set.id:
+                self._purge_variant_set(variant_set)
+        elapsed = timezone.now() - before
+        self.import_job.add_log_entry(
+            "Finished purging old small variants in %.2f s" % elapsed.total_seconds()
+        )
+
+
+def run_import_variants_bg_job(pk):
+    timeline = get_backend_api("timeline_backend")
+    import_job = ImportVariantsBgJob.objects.get(pk=pk)
+    started = timezone.now()
+    with import_job.marks():
+        VariantImporter(import_job).run()
+        if timeline:
+            elapsed = timezone.now() - started
+            timeline.add_event(
+                project=import_job.project,
+                app_name="variants",
+                user=import_job.bg_job.user,
+                event_name="case_import",
+                description='Import of small variants for case case "%s" finished in %.2fs.'
+                % (import_job.case_name, elapsed.total_seconds()),
+                status_type="OK",
+            )
+
+
+def update_variant_counts(variant_set):
+    """Update the variant counts for the given case.
+
+    This is done without changing the ``date_modified`` field.
+    """
+    from svs import models as sv_models  # noqa
+
+    stmt = (
+        select([func.count()])
+        .select_from(SmallVariant.sa.table)
+        .where(SmallVariant.sa.set_id == variant_set.pk)
+    )
+    num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt) or None
+    stmt = (
+        select([func.count()])
+        .select_from(sv_models.StructuralVariant.sa.table)
+        .where(sv_models.StructuralVariant.sa.set_id == variant_set.pk)
+    )
+    num_svs = SQLALCHEMY_ENGINE.scalar(stmt) or None
+    # Use the ``update()`` trick such that ``date_modified`` remains untouched.
+    Case.objects.filter(pk=variant_set.case.pk).update(
+        num_small_vars=num_small_vars, num_svs=num_svs
+    )

@@ -8,7 +8,6 @@ import numpy as np
 import psycopg2.extras
 from sqlalchemy.sql import select, and_, not_, func
 
-from variants.models import SmallVariantSet
 from .models import ReferenceSite
 
 

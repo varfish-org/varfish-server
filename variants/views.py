@@ -62,6 +62,7 @@ from .models import (
     AcmgCriteriaRating,
     SyncCaseListBgJob,
     SmallVariantSet,
+    ImportVariantsBgJob,
 )
 from .forms import (
     ClinvarForm,
@@ -1869,6 +1870,23 @@ class SyncJobDetailView(
     permission_required = "variants.view_data"
     template_name = "variants/sync_job_detail.html"
     model = SyncCaseListBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+
+
+class ImportVariantsJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of the import case background job.
+    """
+
+    permission_required = "variants.view_data"
+    template_name = "variants/import_job_detail.html"
+    model = ImportVariantsBgJob
     slug_url_kwarg = "job"
     slug_field = "sodar_uuid"
 

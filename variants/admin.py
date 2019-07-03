@@ -12,6 +12,10 @@ from .models import (
     FilterBgJob,
     ProjectCasesFilterBgJob,
     ClinvarBgJob,
+    SyncCaseListBgJob,
+    SyncCaseResultMessage,
+    ImportVariantsBgJob,
+    SmallVariantSet,
 )
 
 # Register your models here.
@@ -26,3 +30,7 @@ admin.site.register(DistillerSubmissionBgJob)
 admin.site.register(FilterBgJob)
 admin.site.register(ClinvarBgJob)
 admin.site.register(ProjectCasesFilterBgJob)
+admin.site.register(SyncCaseListBgJob)
+admin.site.register(SyncCaseResultMessage)
+admin.site.register(ImportVariantsBgJob)
+admin.site.register(SmallVariantSet)

@@ -69,11 +69,17 @@ urlpatterns = [
         view=views.BackgroundJobListView.as_view(),
         name="job-list",
     ),
-    # Views for project sync export jobs.
+    # Views for project sync jobs.
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/sync-job/(?P<job>[0-9a-f-]+)/$",
         view=views.SyncJobDetailView.as_view(),
         name="sync-job-detail",
+    ),
+    # Views for variants import job.
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/import/(?P<job>[0-9a-f-]+)/$",
+        view=views.ImportVariantsJobDetailView.as_view(),
+        name="import-job-detail",
     ),
     # Views for single-case file export jobs.
     url(

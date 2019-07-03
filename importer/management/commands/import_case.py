@@ -6,6 +6,7 @@ import json
 import tempfile
 
 import aldjemy
+from bgjobs.models import BackgroundJob
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
@@ -17,9 +18,17 @@ from sqlalchemy import delete
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation, StructuralVariantSet
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
-from variants.models import SmallVariant, Case, AnnotationReleaseInfo, SmallVariantSet
+
+from variants.models import (
+    SmallVariant,
+    Case,
+    AnnotationReleaseInfo,
+    SmallVariantSet,
+    ImportVariantsBgJob,
+    update_variant_counts,
+)
 from variants.variant_stats import rebuild_case_variant_stats
-from variants.tasks import update_variant_counts
+from variants.tasks import run_import_variants_bg_job
 from ..helpers import tsv_reader
 
 
@@ -88,6 +97,9 @@ class Command(BaseCommand):
         parser.add_argument(
             "--force", help="Replace imported case if it exists", action="store_true"
         )
+        parser.add_argument(
+            "--sync", action="store_true", default=False, help="Don't run as background job"
+        )
 
     def handle(self, *args, **options):
         """The actual implementation is in ``_handle()``, splitting to get commit times."""
@@ -106,9 +118,49 @@ class Command(BaseCommand):
 
     def _handle(self, *args, **options):
         """Perform the import of the case."""
+        self.last_now = None
+        if not options["path_feature_effects"]:
+            try:
+                self.stdout.write(
+                    "Creating import variants task as {}".format(settings.PROJECTROLES_ADMIN_OWNER)
+                )
+                admin = User.objects.get(username=settings.PROJECTROLES_ADMIN_OWNER)
+            except User.DoesNotExist as e:
+                raise CommandError(
+                    "Could not get configured admin user for import with username {}".format(
+                        settings.PROJECTROLES_ADMIN_OWNER
+                    )
+                ) from e
+
+            project = Project.objects.get(sodar_uuid=options["project_uuid"])
+            with transaction.atomic():
+                bg_job = BackgroundJob.objects.create(
+                    name="Import of case %s" % options["case_name"],
+                    project=project,
+                    job_type=ImportVariantsBgJob.spec_name,
+                    user=admin,
+                )
+                import_job = ImportVariantsBgJob.objects.create(
+                    bg_job=bg_job,
+                    project=project,
+                    case_name=options["case_name"],
+                    index_name=options["index_name"],
+                    path_ped=options["path_ped"],
+                    path_genotypes=options["path_genotypes"],
+                    path_db_info=options["path_db_info"],
+                )
+            if options["sync"]:
+                run_import_variants_bg_job(import_job.pk)
+            else:
+                run_import_variants_bg_job.delay(import_job.pk)
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        "Created variants import job %s" % import_job.get_absolute_url()
+                    )
+                )
+            return
         self.stdout.write("Starting case import")
         self.stdout.write("options = %s" % options)
-        self.last_now = None
 
         # Fetch ``User`` object to use for the importer/owner
         try:
@@ -184,7 +236,7 @@ class Command(BaseCommand):
                     for var_set in SmallVariantSet.objects.filter(id__in=delete_ids):
                         var_set.delete()
             # Update small and structural variant counts.
-            update_variant_counts(case, variant_set)
+            update_variant_counts(variant_set)
         else:
             if (
                 len(
@@ -246,7 +298,7 @@ class Command(BaseCommand):
                     for var_set in StructuralVariantSet.objects.filter(id__in=delete_ids):
                         var_set.delete()
             # Update small and structural variant counts.
-            update_variant_counts(case)
+            update_variant_counts(variant_set)
 
         # Register import action in the timeline
         timeline = get_backend_api("timeline_backend")

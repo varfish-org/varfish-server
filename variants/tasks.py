@@ -1,11 +1,8 @@
 import aldjemy
-from sqlalchemy import select, func
 
 from config.celery import app
 from celery.schedules import crontab
 
-from svs import models as sv_models
-from variants.models import Case
 from . import file_export
 from . import models
 from . import submit_external
@@ -81,6 +78,18 @@ def project_cases_filter_task(_self, project_cases_filter_job_pk):
     )
 
 
+@app.task(bind=True)
+def clear_inactive_variant_sets(_self):
+    """Task to cleanup variant sets and their variants that are stuck in a non-active status for a long time."""
+    return models.cleanup_variant_sets()
+
+
+@app.task(bind=True)
+def run_import_variants_bg_job(_self, import_variants_bg_job_pk):
+    """Task to execute an ``ImportVariantsBgJob``."""
+    return models.run_import_variants_bg_job(pk=import_variants_bg_job_pk)
+
+
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **_kwargs):
     """Register periodic tasks"""
@@ -88,31 +97,9 @@ def setup_periodic_tasks(sender, **_kwargs):
     sender.add_periodic_task(
         schedule=crontab(hour=1, minute=11), signature=clear_expired_exported_files.s()
     )
+    # Regularly remove old variant that are not active.
+    sender.add_periodic_task(schedule=crontab(minute=11), signature=clear_inactive_variant_sets.s())
     # Rebuild materialized view on sundays.
     sender.add_periodic_task(
         schedule=crontab(day_of_week=0), signature=refresh_variants_smallvariantsummary.s()
     )
-
-
-# TODO: move to a helpers module?
-def update_variant_counts(case, variant_set=None):
-    """Update the variant counts for the given case.
-
-    This is done without changing the ``date_modified`` field.
-    """
-    if not variant_set:
-        variant_set = case.latest_variant_set()
-    stmt = (
-        select([func.count()])
-        .select_from(models.SmallVariant.sa.table)
-        .where(models.SmallVariant.sa.set_id == variant_set.pk)
-    )
-    num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt) or None
-    stmt = (
-        select([func.count()])
-        .select_from(sv_models.StructuralVariant.sa.table)
-        .where(sv_models.StructuralVariant.sa.case_id == case.pk)
-    )
-    num_svs = SQLALCHEMY_ENGINE.scalar(stmt) or None
-    # Use the ``update()`` trick such that ``date_modified`` remains untouched.
-    Case.objects.filter(pk=case.pk).update(num_small_vars=num_small_vars, num_svs=num_svs)
