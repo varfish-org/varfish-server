@@ -12,6 +12,11 @@ class Migration(migrations.Migration):
     dependencies = [("variants", "0044_adjust_smallvariantstats")]
 
     operations = [
+        migrations.AlterField(
+            model_name="smallvariant",
+            name="ensembl_transcript_id",
+            field=models.CharField(max_length=32, null=True),
+        ),
         migrations.CreateModel(
             name="SmallVariantSet",
             fields=[

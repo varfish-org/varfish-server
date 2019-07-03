@@ -5,12 +5,15 @@ from __future__ import unicode_literals
 from django.db import migrations
 from django.conf import settings
 
+
 class Migration(migrations.Migration):
 
     dependencies = [("svs", "0005_importstructuralvariantbgjob")]
 
     operations = [
-        migrations.AlterModelOptions(name="structuralvariant", options={"managed": settings.IS_TESTING}),
+        migrations.AlterModelOptions(
+            name="structuralvariant", options={"managed": settings.IS_TESTING}
+        ),
         migrations.AlterModelOptions(
             name="structuralvariantgeneannotation", options={"managed": settings.IS_TESTING}
         ),

@@ -109,7 +109,7 @@ class Command(BaseCommand):
 
         try:
             self.stdout.write(
-                "Creating SV import task as {}".format(settings.PROJECTROLES_ADMIN_OWNER)
+                "Creating import task as {}".format(settings.PROJECTROLES_ADMIN_OWNER)
             )
             user = User.objects.get(username=settings.PROJECTROLES_ADMIN_OWNER)
         except User.DoesNotExist as e:
