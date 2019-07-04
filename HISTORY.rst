@@ -71,6 +71,9 @@ Full Change List
 - Importing SVs and small variants is done in a background job now.
 - Small variant and SV tables are now partitioned (by case ID).
   This should speedup import as indices are smaller and also each partition can be written to independently.
+- ``import_tables`` improvements:
+    - can now use threads to import multiple tables at once
+    - uses SQL Alchemy instead of Django ORM based deletion
 
 -------
 v0.15.1

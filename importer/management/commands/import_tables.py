@@ -1,7 +1,10 @@
 import os
+import sys
+import traceback
+from multiprocessing.pool import ThreadPool
 import tempfile
 
-import binning
+import aldjemy
 from django.core.exceptions import FieldDoesNotExist, FieldError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
@@ -36,6 +39,9 @@ from hgmd.models import HgmdPublicLocus
 from ...models import ImportInfo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 from ..helpers import open_file, tsv_reader
+
+#: The SQL Alchemy engine to use
+SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 
 #: One entry in the TABLES variable is structured as follows:
@@ -110,6 +116,13 @@ class Command(BaseCommand):
         parser.add_argument(
             "--force", help="Force import, removes old data", action="store_true", default=False
         )
+        parser.add_argument(
+            # Using 8 threads by default as this will make all (currently) large tables import in parallel.
+            "--threads",
+            help="Number of parallel import processes",
+            type=int,
+            default="8",
+        )
 
     def handle(self, *args, **options):
         """Iterate over genomebuilds, database folders and versions to gather all required information for import.
@@ -149,55 +162,75 @@ class Command(BaseCommand):
         if not os.path.isfile(path_import_versions):
             raise CommandError("Require version import info file {}.".format(path_import_versions))
 
-        for import_info in tsv_reader(path_import_versions):
-            with transaction.atomic():
-                table_group = import_info["table_group"]
-                version_path = os.path.join(
-                    options["tables_path"],
-                    import_info["build"],
-                    table_group,
-                    import_info["version"],
-                )
+        import_infos = list(tsv_reader(path_import_versions))
+        if options["threads"] == 0:  # sequential
+            for import_info in import_infos:
+                self._handle_import(import_info, options)
+        else:
+            pool = ThreadPool(processes=options["threads"])
+            for import_info in import_infos:
+                pool.apply_async(self._handle_import_try_catch, (import_info, options))
+            pool.close()
+            pool.join()
 
-                # Special import routine for kegg
-                if table_group == "kegg":
-                    self._import_kegg(version_path, TABLES[table_group], force=options["force"])
-                # Special import routine for gnomaAD
-                elif table_group in ("gnomAD_genomes", "gnomAD_exomes"):
-                    self._import_gnomad(version_path, TABLES[table_group], force=options["force"])
-                # Special import routine for gene intervals
-                elif table_group in ("ensembl_genes", "refseq_genes"):
-                    self._import_gene_interval(
-                        version_path,
-                        TABLES[table_group],
-                        table_group.rstrip("_genes"),
+    def _handle_import_try_catch(self, *args, **kwargs):
+        """Helper that prints exception tracebacks (used for parallel execution)."""
+        try:
+            return self._handle_import(*args, **kwargs)
+        except Exception as e:
+            print(
+                "Caught exception in worker thread with arguments (%s, %s)" % (args, kwargs),
+                file=sys.stderr,
+            )
+            traceback.print_exc(file=sys.stderr)
+            raise e
+
+    def _handle_import(self, import_info, options):
+        with transaction.atomic():
+            table_group = import_info["table_group"]
+            version_path = os.path.join(
+                options["tables_path"], import_info["build"], table_group, import_info["version"]
+            )
+
+            # Special import routine for kegg
+            if table_group == "kegg":
+                self._import_kegg(version_path, TABLES[table_group], force=options["force"])
+            # Special import routine for gnomaAD
+            elif table_group in ("gnomAD_genomes", "gnomAD_exomes"):
+                self._import_gnomad(version_path, TABLES[table_group], force=options["force"])
+            # Special import routine for gene intervals
+            elif table_group in ("ensembl_genes", "refseq_genes"):
+                self._import_gene_interval(
+                    version_path,
+                    TABLES[table_group],
+                    table_group.rstrip("_genes"),
+                    force=options["force"],
+                )
+            # Special import routine for tads
+            elif table_group in ("tads_imr90", "tads_hesc"):
+                self._import_tad_set(
+                    version_path,
+                    TABLES[table_group],
+                    table_group.lstrip("tads_"),
+                    force=options["force"],
+                )
+            # Import routine for no-bulk-imports
+            elif table_group in ("ensembl_regulatory", "vista"):
+                for table in TABLES[table_group]:
+                    self._import(
+                        *self._get_table_info(version_path, table.__name__),
+                        table,
+                        force=options["force"],
+                        bulk=False,
+                    )
+            # Import routine for bulk imports (default)
+            else:
+                for table in TABLES[table_group]:
+                    self._import(
+                        *self._get_table_info(version_path, table.__name__),
+                        table,
                         force=options["force"],
                     )
-                # Special import routine for tads
-                elif table_group in ("tads_imr90", "tads_hesc"):
-                    self._import_tad_set(
-                        version_path,
-                        TABLES[table_group],
-                        table_group.lstrip("tads_"),
-                        force=options["force"],
-                    )
-                # Import routine for no-bulk-imports
-                elif table_group in ("ensembl_regulatory", "vista"):
-                    for table in TABLES[table_group]:
-                        self._import(
-                            *self._get_table_info(version_path, table.__name__),
-                            table,
-                            force=options["force"],
-                            bulk=False,
-                        )
-                # Import routine for bulk imports (default)
-                else:
-                    for table in TABLES[table_group]:
-                        self._import(
-                            *self._get_table_info(version_path, table.__name__),
-                            table,
-                            force=options["force"],
-                        )
 
     def _import_tad_set(self, path, tables, subset_key, force):
         """TAD import"""
@@ -228,7 +261,7 @@ class Command(BaseCommand):
         for record in tsv_reader(path_tsv):
             if prev_chromosome != record["chromosome"]:
                 prev_chromosome = record["chromosome"]
-                self.stdout.write("  now on chr%s" % prev_chromosome)
+                self.stdout.write("tad_set::%s  now on chr%s" % (path_tsv, prev_chromosome))
                 TadInterval.objects.create(tad_set=tad_set, **record)
                 PADDING = 10000
                 if int(record["start"]) > PADDING:
@@ -260,7 +293,7 @@ class Command(BaseCommand):
         for record in tsv_reader(path_tsv):
             if prev_chromosome != record["chromosome"]:
                 prev_chromosome = record["chromosome"]
-                self.stdout.write("  now on chr%s" % prev_chromosome)
+                self.stdout.write("geneinterval::%s  now on chr%s" % (path_tsv, prev_chromosome))
             GeneInterval.objects.create(**record)
         self.stdout.write(self.style.SUCCESS("Finished importing gene intervals"))
 
@@ -323,7 +356,7 @@ class Command(BaseCommand):
         """
 
         self.stdout.write(
-            "Importing {table} {version} ({genomebuild}, source: {path}) ...".format(
+            "{table} -- Importing {table} {version} ({genomebuild}, source: {path}) ...".format(
                 **release_info, path=path
             )
         )
@@ -334,16 +367,18 @@ class Command(BaseCommand):
         if import_info:
             if not force and not self._create_import_info(release_info):
                 return False
-            try:
-                o = table.objects.filter(release=release_info["genomebuild"])
-            except (FieldDoesNotExist, FieldError):
-                o = table.objects.all()
-            if o.count():
-                # Clear out any existing entries for this release/database.
-                self.stdout.write("Removing old {table} results.".format(**release_info))
-                o.delete()
+            # Clear out any existing entries for this release/database.
+            self.stdout.write("{table} -- Removing old {table} results.".format(**release_info))
+            sa_table = aldjemy.core.get_meta().tables[table._meta.db_table]
+            if "release" in sa_table.c:
+                SQLALCHEMY_ENGINE.execute(
+                    sa_table.delete().where(sa_table.c.release == release_info["genomebuild"])
+                )
+            else:
+                SQLALCHEMY_ENGINE.execute(sa_table.delete())
 
         if not service:
+            self.stdout.write("{table} -- Importing new {table} data".format(**release_info))
             if bulk:
                 table.objects.from_csv(
                     path,
@@ -358,7 +393,9 @@ class Command(BaseCommand):
                     table.objects.create(**record)
 
         self.stdout.write(
-            self.style.SUCCESS("Finished importing {table} {version}".format(**release_info))
+            self.style.SUCCESS(
+                "{table} -- Finished importing {table} {version}".format(**release_info)
+            )
         )
         return True
 
