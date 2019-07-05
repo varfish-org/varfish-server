@@ -59,13 +59,13 @@ def sync_project_upstream(_self, sync_job_pk):
 
 
 @app.task(bind=True)
-def filter_task(_self, filter_job_pk):
+def single_case_filter_task(_self, filter_job_pk):
     """Task to submit filter and storing job for single case."""
     return submit_filter.case_filter(models.FilterBgJob.objects.get(pk=filter_job_pk))
 
 
 @app.task(bind=True)
-def clinvar_task(_self, clinvar_job_pk):
+def clinvar_filter_task(_self, clinvar_job_pk):
     """Task to submit filter and storing job for clinvar."""
     return submit_filter.clinvar_filter(models.ClinvarBgJob.objects.get(pk=clinvar_job_pk))
 

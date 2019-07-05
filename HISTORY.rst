@@ -74,6 +74,7 @@ Full Change List
 - ``import_tables`` improvements:
     - can now use threads to import multiple tables at once
     - uses SQL Alchemy instead of Django ORM based deletion
+- Refining celery configuration now, assuming queues "import", "query", and "default".
 
 -------
 v0.15.1

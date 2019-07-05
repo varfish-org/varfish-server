@@ -87,9 +87,9 @@ from .tasks import (
     distiller_submission_task,
     compute_project_variants_stats,
     sync_project_upstream,
-    filter_task,
+    single_case_filter_task,
     project_cases_filter_task,
-    clinvar_task,
+    clinvar_filter_task,
 )
 from .file_export import RowWithSampleProxy
 
@@ -731,7 +731,7 @@ class CasePrefetchFilterView(
                 )
 
             # Submit job
-            filter_task.delay(filter_job_pk=filter_job.pk)
+            single_case_filter_task.delay(filter_job_pk=filter_job.pk)
             return JsonResponse({"filter_job_uuid": filter_job.sodar_uuid})
         return JsonResponse(form.errors, status=400)
 
@@ -1392,7 +1392,7 @@ class CasePrefetchClinvarReportView(
                 )
 
             # Submit job
-            clinvar_task.delay(clinvar_job_pk=clinvar_job.pk)
+            clinvar_filter_task.delay(clinvar_job_pk=clinvar_job.pk)
             return JsonResponse({"filter_job_uuid": clinvar_job.sodar_uuid})
         return JsonResponse(form.errors, status=400)
 
@@ -1642,7 +1642,7 @@ class ClinvarReportJobResubmitView(
             clinvar_job = ClinvarBgJob.objects.create(
                 project=job.project, bg_job=bg_job, case=job.case, clinvarquery=job.clinvarquery
             )
-            clinvar_task.delay(clinvar_job_pk=clinvar_job.pk)
+            clinvar_filter_task.delay(clinvar_job_pk=clinvar_job.pk)
         return redirect(
             reverse(
                 "variants:clinvar-job-detail",
@@ -2210,7 +2210,7 @@ class FilterJobResubmitView(
                 case=job.case,
                 smallvariantquery=job.smallvariantquery,
             )
-            filter_task.delay(filter_job_pk=filter_job.pk)
+            single_case_filter_task.delay(filter_job_pk=filter_job.pk)
         return redirect(
             reverse(
                 "variants:filter-job-detail",
