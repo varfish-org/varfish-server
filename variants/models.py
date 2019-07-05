@@ -2495,7 +2495,12 @@ def update_variant_counts(variant_set):
     stmt = (
         select([func.count()])
         .select_from(SmallVariant.sa.table)
-        .where(SmallVariant.sa.set_id == variant_set.pk)
+        .where(
+            and_(
+                SmallVariant.sa.set_id == variant_set.pk,
+                SmallVariant.sa.case_id == variant_set.case.pk,
+            )
+        )
     )
     num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt) or None
     stmt = (
