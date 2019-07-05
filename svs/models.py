@@ -14,6 +14,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
+from sqlalchemy import and_
 
 from variants.models import Case, VARIANT_RATING_CHOICES, JobModelMessageMixin2, VariantImporterBase
 
@@ -513,7 +514,11 @@ def cleanup_variant_sets(min_age_hours=12):
     for table_name in table_names:
         table = aldjemy.core.get_meta().tables[table_name]
         for variant_set in variant_sets:
-            SQLALCHEMY_ENGINE.execute(table.delete().where(table.c.set_id == variant_set.id))
+            SQLALCHEMY_ENGINE.execute(
+                table.delete().where(
+                    and_(table.c.set_id == variant_set.id, table.c.case_id == variant_set.case.id)
+                )
+            )
     variant_set.delete()
 
 

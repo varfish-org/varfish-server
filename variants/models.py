@@ -643,7 +643,12 @@ def cleanup_variant_sets(min_age_hours=12):
     smallvariant_table = aldjemy.core.get_meta().tables["variants_smallvariant"]
     for variant_set in variant_sets:
         SQLALCHEMY_ENGINE.execute(
-            smallvariant_table.delete().where(smallvariant_table.c.set_id == variant_set.id)
+            smallvariant_table.delete().where(
+                and_(
+                    smallvariant_table.c.set_id == variant_set.id,
+                    smallvariant_table.c.case_id == variant_set.case.id,
+                )
+            )
         )
         variant_set.delete()
 
@@ -2314,7 +2319,11 @@ class VariantImporterBase:
         variant_set.__class__.objects.filter(pk=variant_set.id).update(state="deleting")
         for table_name in self.table_names:
             table = aldjemy.core.get_meta().tables[table_name]
-            SQLALCHEMY_ENGINE.execute(table.delete().where(table.c.set_id == variant_set.id))
+            SQLALCHEMY_ENGINE.execute(
+                table.delete().where(
+                    and_(table.c.set_id == variant_set.id, table.c.case_id == variant_set.case.id)
+                )
+            )
         variant_set.__class__.objects.filter(pk=variant_set.id).delete()
 
     def _create_or_update_case(self):
