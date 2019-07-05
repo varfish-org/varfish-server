@@ -98,6 +98,8 @@ class Command(BaseCommand):
                 itertools.chain(*options["path_feature_effects"])
             )
 
+        self.stdout.write("Starting import with options = %s" % options)
+
         for path in itertools.chain(
             [options["path_ped"]],
             options["path_genotypes"],
@@ -149,8 +151,11 @@ class Command(BaseCommand):
                 path_db_info=options["path_db_info"],
             )
         if options["sync"]:
+            self.stdout.write("Running import job now synchronously")
             run_import_variants_bg_job(import_job.pk)
+            self.stdout.write(self.style.SUCCESS("Done importing."))
         else:
+            self.stdout.write("Running import job as background job")
             run_import_variants_bg_job.delay(import_job.pk)
             self.stdout.write(
                 self.style.SUCCESS("Created variants import job %s" % import_job.get_absolute_url())
@@ -191,8 +196,11 @@ class Command(BaseCommand):
                 path_db_info=options["path_db_info"],
             )
         if options["sync"]:
+            self.stdout.write("Running import job now synchronously")
             run_import_structural_variants_bg_job(import_job.pk)
+            self.stdout.write(self.style.SUCCESS("Done importing."))
         else:
+            self.stdout.write("Running import job as background job")
             run_import_structural_variants_bg_job.delay(import_job.pk)
             self.stdout.write(
                 self.style.SUCCESS("Created SV import job %s" % import_job.get_absolute_url())
