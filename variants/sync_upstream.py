@@ -53,15 +53,26 @@ def process_json(all_data, add_log_entry):
     names_sample = [x["value"] for x in cols_sample]
     table = study_infos["table_data"]
 
+    def strip(x):
+        if hasattr(x, "strip"):
+            return x.strip()
+        else:
+            return x
+
     # Build study info map.
     study_map = {}
     for row in table:
         # Assign fields to table.
-        dict_source = dict(zip(names_source, [x["value"] for x in row[:n_source]]))
+        dict_source = dict(zip(names_source, [strip(x["value"]) for x in row[:n_source]]))
         dict_extraction = dict(
-            zip(names_extraction, [x["value"] for x in row[n_source : n_source + n_extraction]])
+            zip(
+                names_extraction,
+                [strip(x["value"]) for x in row[n_source : n_source + n_extraction]],
+            )
         )
-        dict_sample = dict(zip(names_sample, [x["value"] for x in row[n_source + n_extraction :]]))
+        dict_sample = dict(
+            zip(names_sample, [strip(x["value"]) for x in row[n_source + n_extraction :]])
+        )
         # Extend study_map.
         study_map[dict_source["Name"]] = {
             "Source": dict_source,
