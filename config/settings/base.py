@@ -21,9 +21,9 @@ APPS_DIR = ROOT_DIR.path("varfish")
 IS_TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
 
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-always-eager
-CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_ALWAYS_EAGER = False
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-eager-propagates
-CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_TASK_EAGER_PROPAGATES = False
 
 # Load environment from .env file if available.
 load_dotenv()
