@@ -134,21 +134,20 @@ def gather_variant_stats(variant_set):
 def rebuild_case_variant_stats(engine, variant_set):
     """Rebuild the ``CaseVariantStats`` for the given ``SmallVariantSet`` using the SQL Alchemy ``connection``."""
     # Compute statistics.
-    with transaction.atomic():
-        het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness(engine, SmallVariant, variant_set)
-        chrx_het_hom = compute_het_hom_chrx(engine, SmallVariant, variant_set)
-        (
-            transitions,
-            transversions,
-            snvs,
-            indels,
-            mnvs,
-            effect_counts,
-            indel_sizes,
-            read_depths,
-            dp_quantiles,
-            het_ratio,
-        ) = gather_variant_stats(variant_set)
+    het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness(engine, SmallVariant, variant_set)
+    chrx_het_hom = compute_het_hom_chrx(engine, SmallVariant, variant_set)
+    (
+        transitions,
+        transversions,
+        snvs,
+        indels,
+        mnvs,
+        effect_counts,
+        indel_sizes,
+        read_depths,
+        dp_quantiles,
+        het_ratio,
+    ) = gather_variant_stats(variant_set)
 
     # Rebuild the case variant statistics atomically.
     with transaction.atomic():
