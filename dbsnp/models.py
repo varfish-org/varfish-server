@@ -26,7 +26,5 @@ class Dbsnp(models.Model):
     objects = CopyManager()
 
     class Meta:
+        # The uniqueness constraint will automatically add an index, no need to create a second.
         unique_together = ("release", "chromosome", "start", "reference", "alternative")
-        indexes = [
-            models.Index(fields=["release", "chromosome", "start", "reference", "alternative"])
-        ]

@@ -170,10 +170,8 @@ class Exac(models.Model):
         )
 
     class Meta:
+        # The uniqueness constraint will automatically add an index, no need to create a second.
         unique_together = ("release", "chromosome", "start", "reference", "alternative")
-        indexes = [
-            models.Index(fields=["release", "chromosome", "start", "reference", "alternative"])
-        ]
 
 
 class GnomadExomes(models.Model):
@@ -361,10 +359,8 @@ class GnomadExomes(models.Model):
         )
 
     class Meta:
+        # The uniqueness constraint will automatically add an index, no need to create a second.
         unique_together = ("release", "chromosome", "start", "reference", "alternative")
-        indexes = [
-            models.Index(fields=["release", "chromosome", "start", "reference", "alternative"])
-        ]
 
 
 class GnomadGenomes(models.Model):
@@ -535,10 +531,8 @@ class GnomadGenomes(models.Model):
         )
 
     class Meta:
+        # The uniqueness constraint will automatically add an index, no need to create a second.
         unique_together = ("release", "chromosome", "start", "reference", "alternative")
-        indexes = [
-            models.Index(fields=["release", "chromosome", "start", "reference", "alternative"])
-        ]
 
 
 class ThousandGenomes(models.Model):
@@ -583,10 +577,8 @@ class ThousandGenomes(models.Model):
     objects = CopyManager()
 
     class Meta:
+        # The uniqueness constraint will automatically add an index, no need to create a second.
         unique_together = ("release", "chromosome", "start", "reference", "alternative")
-        indexes = [
-            models.Index(fields=["release", "chromosome", "start", "reference", "alternative"])
-        ]
 
 
 #: Information about frequency databases used in ``FrequencyQuery``.

@@ -75,6 +75,7 @@ Full Change List
     - can now use threads to import multiple tables at once
     - uses SQL Alchemy instead of Django ORM based deletion
 - Refining celery configuration now, assuming queues "import", "query", and "default".
+- Removing some redundant indices on frequencies an dbsnp.
 
 -------
 v0.15.1
