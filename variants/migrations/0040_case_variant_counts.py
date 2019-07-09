@@ -12,8 +12,7 @@ def forwards(apps, _schema_editor):
     """Update the count for all cases."""
     Case = apps.get_model("variants", "Case")
     for case in Case.objects.all():
-        if case.latest_variant_set():
-            update_variant_counts(case.latest_variant_set())
+        update_variant_counts(case)
 
 
 def backwards(apps, schema_editor):

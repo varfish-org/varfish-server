@@ -403,6 +403,21 @@ class Case(models.Model):
         else:
             return -1
 
+    def latest_structural_variant_set(self):
+        """Return latest active structural variant set or ``None`` if there is none."""
+        qs = self.structuralvariantset_set.filter(state="active")
+        if not qs:
+            return None
+        else:
+            return qs.order_by("-date_created").first()
+
+    def latest_structural_variant_set_id(self):
+        structural_variant_set = self.structuralvariantset_set()
+        if structural_variant_set:
+            return structural_variant_set.id
+        else:
+            return -1
+
     def days_since_modification(self):
         return (timezone.now() - self.date_modified).days
 
@@ -2304,7 +2319,7 @@ class VariantImporterBase:
             self._perform_import(variant_set)
             variant_set.state = "active"
             variant_set.save()
-            update_variant_counts(variant_set)
+            update_variant_counts(variant_set.case)
             self._clear_old_variant_sets(case, variant_set)
         except Exception as e:
             self.import_job.add_log_entry("Problem during variant import: %s" % e, LOG_LEVEL_ERROR)
@@ -2485,36 +2500,39 @@ def run_import_variants_bg_job(pk):
             )
 
 
-def update_variant_counts(variant_set):
+def update_variant_counts(case):
     """Update the variant counts for the given case.
 
     This is done without changing the ``date_modified`` field.
-    """
+   """
     from svs import models as sv_models  # noqa
 
+    variant_set = case.latest_variant_set()
+    if variant_set:
+        set_id = variant_set.pk
+    else:
+        set_id = None
     stmt = (
         select([func.count()])
         .select_from(SmallVariant.sa.table)
-        .where(
-            and_(
-                SmallVariant.sa.set_id == variant_set.pk,
-                SmallVariant.sa.case_id == variant_set.case.pk,
-            )
-        )
+        .where(and_(SmallVariant.sa.set_id == set_id, SmallVariant.sa.case_id == case.pk))
     )
     num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt) or None
+    structural_variant_set = case.latest_structural_variant_set()
+    if structural_variant_set:
+        set_id = structural_variant_set.pk
+    else:
+        set_id = None
     stmt = (
         select([func.count()])
         .select_from(sv_models.StructuralVariant.sa.table)
         .where(
             and_(
-                sv_models.StructuralVariant.sa.set_id == variant_set.pk,
-                sv_models.StructuralVariant.sa.case_id == variant_set.case.pk,
+                sv_models.StructuralVariant.sa.set_id == set_id,
+                sv_models.StructuralVariant.sa.case_id == case.pk,
             )
         )
     )
     num_svs = SQLALCHEMY_ENGINE.scalar(stmt) or None
     # Use the ``update()`` trick such that ``date_modified`` remains untouched.
-    Case.objects.filter(pk=variant_set.case.pk).update(
-        num_small_vars=num_small_vars, num_svs=num_svs
-    )
+    Case.objects.filter(pk=case.pk).update(num_small_vars=num_small_vars, num_svs=num_svs)

@@ -3,6 +3,22 @@ History / Changelog
 ===================
 
 -------
+v0.15.3
+-------
+
+Bug-fix release.
+
+End-User Summary
+================
+
+- none
+
+Full Change List
+================
+
+- fixing bug in recomputing small and structural variant counts on importing
+
+-------
 v0.15.2
 -------
 
