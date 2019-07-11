@@ -2,6 +2,19 @@
 History / Changelog
 ===================
 
+
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+Full Change List
+================
+
+- Increased SmallVariant table partitioning to modulo 1024.
+
 -------
 v0.15.3
 -------

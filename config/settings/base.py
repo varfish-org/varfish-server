@@ -366,7 +366,7 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 60
 # Set the number of partitions to create for the "SmallVariants" table.  This
 # setting will be interpreted in the initial migration that creates the small
 # variant table.  It must not be changed afterwards.
-VARFISH_PARTITION_MODULUS_SMALLVARIANT = 1000
+VARFISH_PARTITION_MODULUS_SMALLVARIANT = 1024
 # The same for structural variant tables
 VARFISH_PARTITION_MODULUS_SVS = VARFISH_PARTITION_MODULUS_SMALLVARIANT
 
