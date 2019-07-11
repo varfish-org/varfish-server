@@ -113,23 +113,23 @@
   <td class="detail-frequencies-inhouse text-right">
     {{ entry.inhouse_hom_alt|default_if_none:"-" }}
   </td>
-  <td class="detail-constraints-gnomad-pli text-right">
-    {{ entry.gnomad_pLI|default_if_none:"-" }}
-  </td>
-  <td class="detail-constraints-gnomad-z-mis text-right">
-    {{ entry.gnomad_mis_z|default_if_none:"-" }}
-  </td>
-  <td class="detail-constraints-gnomad-z-syn text-right">
-    {{ entry.gnomad_syn_z|default_if_none:"-" }}
-  </td>
   <td class="detail-constraints-exac-pli text-right">
-    {{ entry.exac_pLI|default_if_none:"-" }}
+    {{ entry.exac_pLI|floatformat:3|default:"-" }}
   </td>
   <td class="detail-constraints-exac-z-mis text-right">
-    {{ entry.exac_mis_z|default_if_none:"-" }}
+    {{ entry.exac_mis_z|floatformat:3|default:"-" }}
   </td>
   <td class="detail-constraints-exac-z-syn text-right">
-    {{ entry.exac_syn_z|default_if_none:"-" }}
+    {{ entry.exac_syn_z|floatformat:3|default:"-" }}
+  </td>
+  <td class="detail-constraints-gnomad-pli text-right">
+    {{ entry.gnomad_pLI|floatformat:3|default:"-" }}
+  </td>
+  <td class="detail-constraints-gnomad-z-mis text-right">
+    {{ entry.gnomad_mis_z|floatformat:3|default:"-" }}
+  </td>
+  <td class="detail-constraints-gnomad-z-syn text-right">
+    {{ entry.gnomad_syn_z|floatformat:3|default:"-" }}
   </td>
   <td class="pl-3 pr-3">
     <nobr>

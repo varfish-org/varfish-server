@@ -10,10 +10,15 @@ HEAD (unreleased)
 End-User Summary
 ================
 
+- ExAC constraints in results table are now displayed.
+- Constraints in results table now show consistenly 3 floating points and are sortable.
+
 Full Change List
 ================
 
 - Increased SmallVariant table partitioning to modulo 1024.
+- ExAC constraints are now joined via ensembl gene id to results table.
+- Constraints in results table now show consistenly 3 floating points and are sortable.
 
 -------
 v0.15.3

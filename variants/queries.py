@@ -1114,7 +1114,8 @@ class ExtendQueryPartsExacConstraintsJoin(ExtendQueryPartsBase):
             )
             .select_from(ExacConstraints.sa)
             .where(
-                SmallVariant.sa.ensembl_transcript_id == ExacConstraints.sa.ensembl_transcript_id
+                func.split_part(SmallVariant.sa.ensembl_transcript_id, ".", 1)
+                == ExacConstraints.sa.ensembl_transcript_id
             )
             .group_by(ExacConstraints.sa.ensembl_transcript_id)
             .lateral("exac_constraints_subquery")

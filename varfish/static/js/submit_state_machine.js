@@ -367,10 +367,12 @@ function handleEventStateWaitJobResults(eventType, event) {
               "searching": false,
               "info": false,
               "paging": false,
-              'columnDefs': [{
-                'targets': [0,2,3,-1], /* column index */
-                'orderable': false, /* true or false */
-               }]
+              'aoColumnDefs': [
+                {
+                  'aTargets': [0,2,3,-1], /* column index */
+                  'bSortable': false, /* true or false */
+                },
+              ]
             }
             );
         updateTableDisplay();
