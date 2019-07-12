@@ -254,7 +254,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("ensembl_gene_id", models.CharField(max_length=16, null=True)),
-                ("ensembl_transcript_id", models.CharField(max_length=16, null=True)),
+                ("ensembl_transcript_id", models.CharField(max_length=32, null=True)),
                 ("ensembl_transcript_coding", models.NullBooleanField()),
                 (
                     "ensembl_effect",

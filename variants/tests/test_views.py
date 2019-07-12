@@ -1983,6 +1983,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "alternative": self.small_var.alternative,
                         "database": "refseq",
                         "gene_id": self.small_var.refseq_gene_id,
+                        "ensembl_transcript_id": self.small_var.ensembl_transcript_id,
                         "training_mode": 0,
                     },
                 )
@@ -2009,6 +2010,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "alternative": self.small_var.alternative,
                         "database": "refseq",
                         "gene_id": self.small_var.refseq_gene_id,
+                        "ensembl_transcript_id": self.small_var.ensembl_transcript_id,
                         "training_mode": 0,
                     },
                 ),
@@ -2034,6 +2036,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "alternative": self.small_var.alternative,
                         "database": db,
                         "gene_id": getattr(self.small_var, "%s_gene_id" % db),
+                        "ensembl_transcript_id": self.small_var.ensembl_transcript_id,
                         "training_mode": 0,
                     },
                 )
@@ -2162,6 +2165,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "alternative": self.small_var.alternative,
                         "database": "refseq",
                         "gene_id": self.small_var.refseq_gene_id,
+                        "ensembl_transcript_id": self.small_var.ensembl_transcript_id,
                         "training_mode": 0,
                     },
                 )
@@ -2186,6 +2190,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "alternative": self.small_var.alternative,
                         "database": "ensembl",
                         "gene_id": self.small_var.ensembl_gene_id,
+                        "ensembl_transcript_id": self.small_var.ensembl_transcript_id,
                         "training_mode": 0,
                     },
                 )
@@ -2217,6 +2222,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "alternative": self.small_var.alternative,
                         "database": "ensembl",
                         "gene_id": self.small_var.ensembl_gene_id,
+                        "ensembl_transcript_id": self.small_var.ensembl_transcript_id,
                         "training_mode": 0,
                     },
                 )
@@ -2242,6 +2248,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "alternative": self.small_var.alternative,
                         "database": "ensembl",
                         "gene_id": self.small_var.ensembl_gene_id,
+                        "ensembl_transcript_id": self.small_var.ensembl_transcript_id,
                         "training_mode": 0,
                     },
                 )
@@ -2294,6 +2301,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
                         "alternative": self.small_var.alternative,
                         "database": "ensembl",
                         "gene_id": self.small_var.ensembl_gene_id,
+                        "ensembl_transcript_id": self.small_var.ensembl_transcript_id,
                         "training_mode": 0,
                     },
                 )

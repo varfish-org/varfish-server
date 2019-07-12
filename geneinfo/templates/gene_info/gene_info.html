@@ -80,21 +80,21 @@
               <td class="text-right">{{ gene.gnomad_constraints.exp_syn|floatformat }}</td>
               <td class="text-right">{{ gene.gnomad_constraints.obs_syn }}</td>
               <td class="text-right">z = {{ gene.gnomad_constraints.syn_z|floatformat:3 }}</td>
-              <td class="text-right">{{ gene.gnomad_constraints.oe_syn|floatformat:3 }} ({{ gene.gnomad_constraints.oe_syn_lower|floatformat:3 }}-{{ gene.gnomad_constraints.oe_syn_upper|floatformat:3 }})</td>
+              <td class="text-right">{{ gene.gnomad_constraints.oe_syn|floatformat:3 }} <span class="small text-muted">({{ gene.gnomad_constraints.oe_syn_lower|floatformat:3 }}-{{ gene.gnomad_constraints.oe_syn_upper|floatformat:3 }})</span></td>
             </tr>
             <tr>
               <th>Missense</th>
               <td class="text-right">{{ gene.gnomad_constraints.exp_mis|floatformat }}</td>
               <td class="text-right">{{ gene.gnomad_constraints.obs_mis }}</td>
               <td class="text-right">z = {{ gene.gnomad_constraints.mis_z|floatformat:3 }}</td>
-              <td class="text-right">{{ gene.gnomad_constraints.oe_mis|floatformat:3 }} ({{ gene.gnomad_constraints.oe_mis_lower|floatformat:3 }}-{{ gene.gnomad_constraints.oe_mis_upper|floatformat:3 }})</td>
+              <td class="text-right">{{ gene.gnomad_constraints.oe_mis|floatformat:3 }} <span class="small text-muted">({{ gene.gnomad_constraints.oe_mis_lower|floatformat:3 }}-{{ gene.gnomad_constraints.oe_mis_upper|floatformat:3 }})</span></td>
             </tr>
             <tr>
               <th>LoF</th>
               <td class="text-right">{{ gene.gnomad_constraints.exp_lof|floatformat }}</td>
               <td class="text-right">{{ gene.gnomad_constraints.obs_lof }}</td>
               <td class="text-right">pLI = {{ gene.gnomad_constraints.pLI|floatformat:3 }}</td>
-              <td class="text-right">{{ gene.gnomad_constraints.oe_lof|floatformat:3 }} ({{ gene.gnomad_constraints.oe_lof_lower|floatformat:3 }}-{{ gene.gnomad_constraints.oe_lof_upper|floatformat:3 }})</td>
+              <td class="text-right">{{ gene.gnomad_constraints.oe_lof|floatformat:3 }} <span class="small text-muted">({{ gene.gnomad_constraints.oe_lof_lower|floatformat:3 }}-{{ gene.gnomad_constraints.oe_lof_upper|floatformat:3 }})</span></td>
             </tr>
             {% else %}
             <tr>

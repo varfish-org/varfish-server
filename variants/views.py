@@ -1824,7 +1824,9 @@ class SmallVariantDetails(
         else:
             result["base_template"] = "empty_base.html"
         result.update(self._get_population_freqs(self.kwargs))
-        result["gene"] = get_gene_infos(self.kwargs["database"], self.kwargs["gene_id"])
+        result["gene"] = get_gene_infos(
+            self.kwargs["database"], self.kwargs["gene_id"], self.kwargs["ensembl_transcript_id"]
+        )
         entrez_id = result["small_var"].refseq_gene_id
         result["ncbi_summary"] = NcbiGeneInfo.objects.filter(entrez_id=entrez_id).first()
         result["ncbi_gene_rifs"] = NcbiGeneRif.objects.filter(entrez_id=entrez_id).order_by("pk")

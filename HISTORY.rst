@@ -19,6 +19,7 @@ Full Change List
 - Increased SmallVariant table partitioning to modulo 1024.
 - ExAC constraints are now joined via ensembl gene id to results table.
 - Constraints in results table now show consistenly 3 floating points and are sortable.
+- ExAC constraints are now consistent with variant details and in results table.
 
 -------
 v0.15.3

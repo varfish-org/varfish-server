@@ -195,7 +195,7 @@ class StructuralVariantDetailsView(
 
         sv_annos = StructuralVariantGeneAnnotation.objects.filter(sv_uuid=self.kwargs["sv"])
         context["genes"] = [
-            get_gene_infos(database, gene_id(sv_anno))
+            get_gene_infos(database, gene_id(sv_anno), sv_anno.ensembl_transcript_id)
             for sv_anno in sv_annos
             if gene_id(sv_anno) and gene_id(sv_anno) != "."
         ]

@@ -249,7 +249,8 @@ urlpatterns = [
         regex=(
             r"^(?P<project>[0-9a-f-]+)/case/small-variant-details/(?P<case>[0-9a-f-]+)/"
             r"(?P<release>(GRCh37|GRCh38))-(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT]))-(?P<start>[0-9]+)-(?P<end>[0-9]+)-"
-            r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/(?P<database>[^/]+)/(?P<gene_id>[^/]+)/(?P<training_mode>[01])/$"
+            r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/(?P<database>[^/]+)/(?P<gene_id>[^/]+)/"
+            r"(?P<ensembl_transcript_id>[^/]+)/(?P<training_mode>[01])/$"
         ),
         view=views.SmallVariantDetails.as_view(),
         name="small-variant-details",

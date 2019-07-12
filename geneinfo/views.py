@@ -30,7 +30,7 @@ HPO_INHERITANCE_MAPPING = {
 }
 
 
-def get_gene_infos(database, gene_id):
+def get_gene_infos(database, gene_id, ensembl_transcript_id):
     if database == "refseq":
         # Get HGNC entry via intermediate table as HGNC is badly equipped with refseq IDs.
         hgnc = RefseqToHgnc.objects.filter(entrez_id=gene_id).first()
@@ -61,17 +61,14 @@ def get_gene_infos(database, gene_id):
             entrez_id=gene["entrez_id"]
         ).first()
         if ensembl_gene_id:
-            gene["exac_constraints"] = _get_exac_constraints(ensembl_gene_id)
             gene["gnomad_constraints"] = GnomadConstraints.objects.filter(
                 ensembl_gene_id=ensembl_gene_id
             ).first()
+        if ensembl_transcript_id:
+            gene["exac_constraints"] = ExacConstraints.objects.filter(
+                ensembl_transcript_id=ensembl_transcript_id.split(".")[0]
+            ).first()
         return gene
-
-
-def _get_exac_constraints(ensembl_gene_id):
-    results = EnsemblToRefseq.objects.filter(ensembl_gene_id=ensembl_gene_id)
-    ensembl_transcripts = [record.ensembl_transcript_id for record in results]
-    return ExacConstraints.objects.filter(ensembl_transcript_id__in=ensembl_transcripts).first()
 
 
 def _handle_hpo_omim(entrez_id):

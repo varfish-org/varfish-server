@@ -10,7 +10,7 @@
 <tr class="variant-row {% if not training_mode %}variant-row-{{ entry|flag_class }}{% endif %}">
   {# fold-out #}
   <td style="width: 0px" class="clickable toggle-variant-details pl-0 pr-0"
-      data-url="{% url 'variants:small-variant-details' project=project.sodar_uuid case=entry.case_uuid release=entry.release chromosome=entry.chromosome start=entry.start end=entry.end reference=entry.reference alternative=entry.alternative database=database gene_id=entry.gene_id training_mode=training_mode %}"
+      data-url="{% url 'variants:small-variant-details' project=project.sodar_uuid case=entry.case_uuid release=entry.release chromosome=entry.chromosome start=entry.start end=entry.end reference=entry.reference alternative=entry.alternative database=database gene_id=entry.gene_id ensembl_transcript_id=entry.ensembl_transcript_id training_mode=training_mode %}"
   >
     <i class="fa fa-fw fa-chevron-right"></i>
   </td>
