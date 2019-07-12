@@ -12,6 +12,7 @@ End-User Summary
 
 - ExAC constraints in results table are now displayed.
 - Constraints in results table now show consistenly 3 floating points and are sortable.
+- Fixing QC plot display.
 
 Full Change List
 ================
@@ -20,6 +21,7 @@ Full Change List
 - ExAC constraints are now joined via ensembl gene id to results table.
 - Constraints in results table now show consistenly 3 floating points and are sortable.
 - ExAC constraints are now consistent with variant details and in results table.
+- Various fixes to QC plot display, some to JS, some to Python/Django views code.
 
 -------
 v0.15.3

@@ -283,6 +283,12 @@ class CaseDetailView(
         result["samples"] = case.get_members_with_samples()
         result["effects"] = list(FILTER_FORM_TRANSLATE_EFFECTS.values())
         result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
+
+        result["ontarget_effect_counts"] = {sample: {} for sample in result["samples"]}
+        result["indel_sizes"] = {sample: {} for sample in result["samples"]}
+        result["indel_sizes_keys"] = []
+        result["dps"] = {sample: {} for sample in result["samples"]}
+
         try:
             variant_set = case.latest_variant_set()
             result["ontarget_effect_counts"] = {
@@ -311,11 +317,8 @@ class CaseDetailView(
                 stats.sample_name: {int(key): value for key, value in stats.ontarget_dps.items()}
                 for stats in variant_set.variant_stats.sample_variant_stats.all()
             }
-        except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
-            result["ontarget_effect_counts"] = {sample: {} for sample in result["samples"]}
-            result["indel_sizes"] = {sample: {} for sample in result["samples"]}
-            result["indel_sizes_keys"] = []
-            result["dps"] = {sample: {} for sample in result["samples"]}
+        except (SmallVariantSet.variant_stats.RelatedObjectDoesNotExist, AttributeError):
+            pass  # swallow, defaults set above
 
         return result
 
@@ -463,6 +466,7 @@ class CaseDetailQcStatsApiView(
                     "name": only_source_name(item.sample_name),
                     "hovermode": "closest",
                     "showlegend": "false",
+                    "x": ["SNVs", "InDels", "MNVs"],
                     "y": [item.ontarget_snvs, item.ontarget_indels, item.ontarget_mnvs],
                 }
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
@@ -490,6 +494,7 @@ class CaseDetailQcStatsApiView(
             for stats in object.latest_variant_set().variant_stats.sample_variant_stats.all():
                 yield {
                     "name": only_source_name(stats.sample_name),
+                    "x": keys,
                     "y": list(map(stats.ontarget_effect_counts.get, keys)),
                 }
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
@@ -519,7 +524,11 @@ class CaseDetailQcStatsApiView(
                     yield {
                         "name": only_source_name(line["patient"]),
                         "x": [
-                            ("\u2264-10" if key == -10 else ("\u226510" if key == 10 else str(key)))
+                            (
+                                "\u2264-10"
+                                if key == -10
+                                else ("\u226510" if key == 10 else "" + str(key))
+                            )
                             for key in indel_sizes_keys
                         ],
                         "y": [indel_sizes[line["patient"]].get(key, 0) for key in indel_sizes_keys],

@@ -31,7 +31,7 @@
           <td>{{ item.father|only_source_name }}</td>
           <td>{{ item.mother|only_source_name }}</td>
           <td>
-            <i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% else %}fa-mars{% endif %}"></i>
+            <i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% elif item.sex == 1 %}fa-mars{% else %}fa-question{% endif %}"></i>
             {% if item.patient in case.sex_errors %}
               {% include "variants/case/indicator_sex_error.html" with item=object sample=item.patient %}
             {% endif %}

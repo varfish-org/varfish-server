@@ -24,8 +24,7 @@
         <td>{{ form.get_member_roles|keyvalue:item.patient }}</td>
         <td>{{ item.father|default:"0"|only_source_name }}</td>
         <td>{{ item.mother|default:"0"|only_source_name }}</td>
-        <td><i class="fa {% if item.sex == 2 %}fa-venus{% else %}fa-mars{% endif %}"></i></td>
-        <td><i class="fa {% if item.affected == 2 %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
+          <i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% elif item.sex == 1 %}fa-mars{% else %}fa-question{% endif %}"></i>        <td><i class="fa {% if item.affected == 2 %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
         {% if item.has_gt_entries %}
           <td>{% with x=form.get_genotype_field_names|keyvalue:item.patient|keyvalue:"gt" %}{{ form|keyvalue:x }}{% endwith %}</td>
         {% else %}

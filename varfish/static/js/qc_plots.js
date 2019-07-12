@@ -44,8 +44,8 @@ function largeValueLabel(tooltipItem, data) {
 /** Plot variant types. */
 function plotlyVariantTypes(response, containerId) {
     const seq = palette('tol', response.data.variantTypeData.length)
-
     const varTypeData = response.data.variantTypeData.map(function (item, index) {
+      console.log(item);
       return {
         type: "bar",
         marker: {
@@ -72,24 +72,6 @@ function plotlyVariantTypes(response, containerId) {
 /** Plot selected variant effects. */
 function plotlyVariantEffects(response, containerId) {
     const seq = palette('tol', response.data.variantEffectData.length)
-    const varEffectMap = {
-      "synonymous_variant": "synonymous",
-      "missense_variant": "missense",
-      "5_prime_UTR_exon_variant": "UTR",
-      "3_prime_UTR_exon_variant": "UTR",
-      "start_lost": "start lost",
-      "stop_gained": "nonsense",
-      "stop_lost": "stop lost",
-      "splice_region_variant": "splice region",
-      "splice_donor_variant": "splice consensus",
-      "splice_acceptor_variant": "splice consensus",
-      "inframe_deletion": "inframe indel",
-      "inframe_insertion": "inframe indel",
-      "direct_tandem_duplication": "inframe_indel",
-      "frameshift_variant": "frameshift",
-      "frameshift_truncation": "frameshift",
-      "frameshift_elongation": "frameshift",
-    }
 
     const varEffects = [
       "synonymous",
@@ -109,7 +91,6 @@ function plotlyVariantEffects(response, containerId) {
         hovermode: "closest",
         showlegend: false,
         type: "bar",
-        x: varEffects,
         marker: {
           color: "#" + seq[index],
           line: {
@@ -152,6 +133,7 @@ function plotlyIndelSizes(response, containerId) {
     title: {
       text: 'Indel sizes'
     },
+    xaxis: { type: 'category' },
     ...baseLayout,
   }
 
