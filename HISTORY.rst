@@ -26,6 +26,7 @@ Full Change List
 - Clinvar pathogenic genes materialized view gets updated when there is new data imported in one of the dependent tables.
 - Making prefetch filter load inhouse counts.
 - Fixing filtration with members that have no genotype.
+- Making prefetch filter load inhouse counts.
 
 -------
 v0.15.3

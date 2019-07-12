@@ -1,3 +1,5 @@
+  {% load humanize %}
+
   {% if result_rows is None %}
   {% elif not result_rows %}
     <div class="container-fluid sodar-page-container">
@@ -60,6 +62,7 @@
         </div>
         <div class="pl-3">
           First <strong>{{ result_rows|length }} of {{ result_count }}</strong> records
+          {% if case %}(case has a total of {{ case.num_small_vars|intcomma }}{% endif %} variants)
           <i class="fa fa-info-circle" data-toggle="tooltip"
              title="Use the &quot;Result row limit&quot; to see more columns. Pro-tip: TSV/Excel/VCF file downloads will contain all all {{ result_count }} rows."></i>.
         </div>

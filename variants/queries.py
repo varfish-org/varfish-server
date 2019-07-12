@@ -1200,6 +1200,7 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsModesOfInheritanceJoin,
         ExtendQueryPartsGnomadConstraintsJoin,
         ExtendQueryPartsExacConstraintsJoin,
+        ExtendQueryPartsInHouseJoinAndFilter,
     ]
 
 

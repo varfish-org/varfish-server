@@ -900,6 +900,7 @@ class CaseLoadPrefetchedFilterView(
             request,
             self.template_name,
             self.get_context_data(
+                case=filter_job.smallvariantquery.case,
                 result_rows=rows,
                 result_count=num_results,
                 elapsed_seconds=elapsed.total_seconds(),
