@@ -605,7 +605,7 @@ class ExtendQueryPartsGenotypeDefaultBase(ExtendQueryPartsGenotypeBase):
     def extend_conditions(self, _query_parts):
         result = []
         for case in self.cases:
-            for member in case.pedigree:
+            for member in case.get_filtered_pedigree_with_samples():
                 name = member["patient"]
                 gt_list = FILTER_FORM_TRANSLATE_INHERITANCE[self.kwargs["%s_gt" % name]]
                 result.append(self._build_full_genotype_term(name, gt_list))
@@ -622,7 +622,9 @@ class ExtendQueryPartsGenotypeCompHetBase(ExtendQueryPartsGenotypeBase):
         else:  # self.gt_type == "father"
             gt_patterns = {index: "het", father: "het", mother: "ref"}
         members = [
-            m for m in self.cases[0].pedigree if m["patient"] in gt_patterns and m["has_gt_entries"]
+            m
+            for m in self.cases[0].get_filtered_pedigree_with_samples()
+            if m["patient"] in gt_patterns
         ]
         result = []
         for member in members:
@@ -635,8 +637,8 @@ class ExtendQueryPartsGenotypeCompHetBase(ExtendQueryPartsGenotypeBase):
         """Return (index, father, mother) names from trio"""
         index_lines = [
             rec
-            for rec in self.cases[0].pedigree
-            if rec["patient"] == self.cases[0].index and rec["has_gt_entries"]
+            for rec in self.cases[0].get_filtered_pedigree_with_samples()
+            if rec["patient"] == self.cases[0].index
         ]
         if len(index_lines) != 1:  # pragma: no cover
             raise RuntimeError("Could not find index line from pedigree")

@@ -2,7 +2,6 @@
 History / Changelog
 ===================
 
-
 -----------------
 HEAD (unreleased)
 -----------------
@@ -13,6 +12,8 @@ End-User Summary
 - ExAC constraints in results table are now displayed.
 - Constraints in results table now show consistenly 3 floating points and are sortable.
 - Fixing QC plot display.
+- Fixing in-house counts in results table (filtering by them worked).
+- Fixing filtration with members that have no genotype.
 
 Full Change List
 ================
@@ -23,6 +24,8 @@ Full Change List
 - ExAC constraints are now consistent with variant details and in results table.
 - Various fixes to QC plot display, some to JS, some to Python/Django views code.
 - Clinvar pathogenic genes materialized view gets updated when there is new data imported in one of the dependent tables.
+- Making prefetch filter load inhouse counts.
+- Fixing filtration with members that have no genotype.
 
 -------
 v0.15.3
