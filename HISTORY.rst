@@ -22,6 +22,7 @@ Full Change List
 - Constraints in results table now show consistenly 3 floating points and are sortable.
 - ExAC constraints are now consistent with variant details and in results table.
 - Various fixes to QC plot display, some to JS, some to Python/Django views code.
+- Clinvar pathogenic genes materialized view gets updated when there is new data imported in one of the dependent tables.
 
 -------
 v0.15.3

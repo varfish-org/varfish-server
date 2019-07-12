@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, connection, transaction, utils
 from django.contrib.postgres.fields import ArrayField
 from postgres_copy import CopyManager
 from django.conf import settings
@@ -109,3 +109,10 @@ class ClinvarPathogenicGenes(models.Model):
     class Meta:
         managed = settings.IS_TESTING
         db_table = "clinvar_clinvarpathogenicgenes"
+
+
+def refresh_clinvar_clinvarpathogenicgenes():
+    """Refresh the ``ClinvarPathogenicGenes`` materialized view."""
+    with connection.cursor() as cursor:
+        with transaction.atomic():
+            cursor.execute("REFRESH MATERIALIZED VIEW clinvar_clinvarpathogenicgenes")

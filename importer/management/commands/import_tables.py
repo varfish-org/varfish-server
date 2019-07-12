@@ -5,10 +5,10 @@ from multiprocessing.pool import ThreadPool
 import tempfile
 
 import aldjemy
-from django.core.exceptions import FieldDoesNotExist, FieldError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
+import clinvar
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
@@ -38,7 +38,7 @@ from genomicfeatures.models import (
 from hgmd.models import HgmdPublicLocus
 from ...models import ImportInfo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
-from ..helpers import open_file, tsv_reader
+from ..helpers import tsv_reader
 
 #: The SQL Alchemy engine to use
 SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
@@ -195,7 +195,7 @@ class Command(BaseCommand):
             # Special import routine for kegg
             if table_group == "kegg":
                 self._import_kegg(version_path, TABLES[table_group], force=options["force"])
-            # Special import routine for gnomaAD
+            # Special import routine for gnomAD
             elif table_group in ("gnomAD_genomes", "gnomAD_exomes"):
                 self._import_gnomad(version_path, TABLES[table_group], force=options["force"])
             # Special import routine for gene intervals
@@ -231,6 +231,10 @@ class Command(BaseCommand):
                         table,
                         force=options["force"],
                     )
+                # Refresh clinvar materialized view if one of the depending tables was updated.
+                # Depending tables: Clinvar, Hgnc, RefseqToHgnc
+                if table_group in ("clinvar", "hgnc"):
+                    clinvar.models.refresh_clinvar_clinvarpathogenicgenes()
 
     def _import_tad_set(self, path, tables, subset_key, force):
         """TAD import"""
