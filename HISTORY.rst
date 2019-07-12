@@ -27,6 +27,7 @@ Full Change List
 - Making prefetch filter load inhouse counts.
 - Fixing filtration with members that have no genotype.
 - Making prefetch filter load inhouse counts.
+- Fixing filtration with members that have no genotype.
 
 -------
 v0.15.3
