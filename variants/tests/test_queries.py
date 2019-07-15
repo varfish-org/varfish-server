@@ -342,8 +342,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
         a corresponding variantsummary entry.
         """
         super().setUp()
-        variant_set = SmallVariantSetFactory()
-        case = variant_set.case
+        self.variant_set = SmallVariantSetFactory()
         for i in range(3):
             # this emulates 0.001, 0.01 and 0.1 frequency
             freq = 1 / 10 ** (3 - i)
@@ -362,7 +361,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 thousand_genomes_frequency=freq,
                 thousand_genomes_heterozygous=count,
                 thousand_genomes_homozygous=count,
-                variant_set=variant_set,
+                variant_set=self.variant_set,
             )
             SmallVariantSummaryFactory(
                 chromosome=small_var.chromosome,
@@ -374,6 +373,26 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 count_het=count,
                 count_hom_alt=count,
             )
+
+    def _setup_additional_variant_with_missing_inhouse_record(self):
+        # Setup an additional variant and make sure it passes the default filter settings.
+        freq = 1 / 10 ** 3  # 0.001
+        count = 1
+        SmallVariantFactory(
+            gnomad_genomes_frequency=freq,
+            gnomad_genomes_heterozygous=count,
+            gnomad_genomes_homozygous=count,
+            gnomad_exomes_frequency=freq,
+            gnomad_exomes_heterozygous=count,
+            gnomad_exomes_homozygous=count,
+            exac_frequency=freq,
+            exac_heterozygous=count,
+            exac_homozygous=count,
+            thousand_genomes_frequency=freq,
+            thousand_genomes_heterozygous=count,
+            thousand_genomes_homozygous=count,
+            variant_set=self.variant_set,
+        )
 
     def test_frequency_filters_disabled_filter(self):
         self.run_query(CasePrefetchQuery, {}, 3)
@@ -611,6 +630,45 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
             2,
         )
 
+    def test_carriers_inhouse_limits_filter_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CasePrefetchQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": 4,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": None,
+            },
+            3,
+        )
+
+    def test_carriers_inhouse_limits_export_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CaseExportTableQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": 4,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": None,
+            },
+            3,
+        )
+
+    def test_carriers_inhouse_limits_vcf_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": 4,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": None,
+            },
+            3,
+        )
+
     def test_homozygous_thousand_genomes_limits_filter(self):
         self.run_query(
             CasePrefetchQuery,
@@ -791,6 +849,45 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
             2,
         )
 
+    def test_homozygous_inhouse_limits_filter_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CasePrefetchQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            3,
+        )
+
+    def test_homozygous_inhouse_limits_export_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CaseExportTableQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            3,
+        )
+
+    def test_homozygous_inhouse_limits_vcf_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            3,
+        )
+
     def test_heterozygous_thousand_genomes_limits_filter(self):
         self.run_query(
             CasePrefetchQuery,
@@ -933,6 +1030,45 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_heterozygous": 2,
             },
             2,
+        )
+
+    def test_heterozygous_inhouse_limits_filter_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CasePrefetchQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": 2,
+            },
+            3,
+        )
+
+    def test_heterozygous_inhouse_limits_export_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CaseExportTableQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": 2,
+            },
+            3,
+        )
+
+    def test_heterozygous_inhouse_limits_vcf_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": 2,
+            },
+            3,
         )
 
 

@@ -36,6 +36,7 @@ Full Change List
 - First adjustments of filter presets for NAMSE analyses.
 - Fixing coalescing when filtering with in-house filter.
 - Changing display to per-transcript effects to table.
+- Extended tests to cover missing in-house filter records for existing variants.
 
 -------
 v0.15.3
