@@ -10,7 +10,7 @@
       <tr>
         <th class="text-center">Sample</th>
         {% for row in object.get_filtered_pedigree_with_samples %}
-          <th class="text-center">{{ row.patient }}</th>
+          <th class="text-center">{{ row.patient|only_source_name }}</th>
         {% endfor %}
       </tr>
     </thead>

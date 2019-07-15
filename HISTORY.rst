@@ -17,6 +17,7 @@ End-User Summary
 - Fixing SV length display.
 - Adjusting filter presets.
 - Fixing filtration for in-house filter.
+- Changing display to per-transcript effects to table.
 
 Full Change List
 ================
@@ -34,6 +35,7 @@ Full Change List
 - Adding back fetching of SV length to queries.
 - First adjustments of filter presets for NAMSE analyses.
 - Fixing coalescing when filtering with in-house filter.
+- Changing display to per-transcript effects to table.
 
 -------
 v0.15.3

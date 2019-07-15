@@ -47,7 +47,7 @@
           <tr>
             <th>Sample</th>
             {% for sample in sv.genotype.keys %}
-              <th>{{ sample }}</th>
+              <th>{{ sample|only_source_name }}</th>
             {% endfor %}
           </tr>
         </thead>
