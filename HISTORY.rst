@@ -17,6 +17,7 @@ Full Change List
 
 - Displaying SV coordinates in detail box.
 - Fixing sex error generation (only using source name).
+- Fixing pedigree editor form to use int for sex & affected.
 
 -------
 v0.15.4

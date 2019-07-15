@@ -68,8 +68,13 @@ class CaseForm(forms.ModelForm):
         self.instance.pedigree = [dict(line) for line in self.instance.pedigree]
         # Update non-parent fields first.
         for i, line in enumerate(self.instance.pedigree):
-            for key in ("patient", "sex", "affected"):
-                self.instance.pedigree[i][key] = self.cleaned_data[self.ped_field_names[i][key]]
+            self.instance.pedigree[i]["patient"] = self.cleaned_data[
+                self.ped_field_names[i]["patient"]
+            ]
+            for key in ("sex", "affected"):
+                self.instance.pedigree[i][key] = int(
+                    self.cleaned_data[self.ped_field_names[i][key]]
+                )
         # Now update parent fields.
         for i, line in enumerate(self.instance.pedigree):
             for key in ("father", "mother"):
