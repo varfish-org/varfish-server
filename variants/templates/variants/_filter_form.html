@@ -73,10 +73,12 @@
               </span>
             </button>
             <div class="dropdown-menu" aria-labelledby="presets-menu-button">
-              <a class="dropdown-item load-presets" href="#" data-preset-name="medgen-strict">Med. Gen: Strict</a>
-              <a class="dropdown-item load-presets" href="#" data-preset-name="medgen-relaxed">Med. Gen: Relaxed</a>
-              <a class="dropdown-item load-presets" href="#" data-preset-name="medgen-clinvar">Med. Gen: Clinvar</a>
-              <a class="dropdown-item load-presets" href="#" data-preset-name="full-exome">Full Exome</a>
+              <a id="load-presets-medgen-strict" class="dropdown-item load-presets" href="#" data-preset-name="medgen-strict">Strict (Default)</a>
+              <a id="load-presets-medgen-recessive" class="dropdown-item load-presets" href="#" data-preset-name="medgen-recessive">Recessive</a>
+              <a id="load-presets-medgen-super-strict" class="dropdown-item load-presets" href="#" data-preset-name="medgen-super-strict">Super Strict</a>
+              <a id="load-presets-medgen-relaxed" class="dropdown-item load-presets" href="#" data-preset-name="medgen-relaxed">Relaxed</a>
+              <a id="load-presets-clinvar" class="dropdown-item load-presets" href="#" data-preset-name="medgen-clinvar">All Clinvar</a>
+              <a id="load-presets-full-exome" class="dropdown-item load-presets" href="#" data-preset-name="full-exome">Full Exome</a>
             </div>
           </div>
         </div>

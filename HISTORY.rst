@@ -15,6 +15,7 @@ End-User Summary
 - Fixing in-house counts in results table (filtering by them worked).
 - Fixing filtration with members that have no genotype.
 - Fixing SV length display.
+- Adjusting filter presets.
 
 Full Change List
 ================
@@ -30,6 +31,7 @@ Full Change List
 - Making prefetch filter load inhouse counts.
 - Fixing filtration with members that have no genotype.
 - Adding back fetching of SV length to queries.
+- First adjustments of filter presets for NAMSE analyses.
 
 -------
 v0.15.3

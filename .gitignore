@@ -1,5 +1,8 @@
 *.prof
 
+/*.ped
+/*.tsv.gz
+
 ### Python template
 # Sphinx
 docs_*/_build
