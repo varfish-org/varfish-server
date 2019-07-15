@@ -91,6 +91,7 @@ def structural_variant_query(_self, kwargs):
             StructuralVariant.sa.chromosome,
             StructuralVariant.sa.start,
             StructuralVariant.sa.end,
+            (StructuralVariant.sa.end - StructuralVariant.sa.start + 1).label("sv_length"),
             StructuralVariant.sa.bin,
             StructuralVariant.sa.start_ci_left,
             StructuralVariant.sa.start_ci_right,

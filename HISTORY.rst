@@ -14,6 +14,7 @@ End-User Summary
 - Fixing QC plot display.
 - Fixing in-house counts in results table (filtering by them worked).
 - Fixing filtration with members that have no genotype.
+- Fixing SV length display.
 
 Full Change List
 ================
@@ -28,6 +29,7 @@ Full Change List
 - Fixing filtration with members that have no genotype.
 - Making prefetch filter load inhouse counts.
 - Fixing filtration with members that have no genotype.
+- Adding back fetching of SV length to queries.
 
 -------
 v0.15.3
