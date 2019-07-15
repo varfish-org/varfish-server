@@ -784,8 +784,8 @@ class TestCaseUpdateView(ViewTestBase):
             self.assertEqual(case.name, form_data["name"])
             self.assertEqual(case.index, case.pedigree[0]["patient"])
             self.assertEqual(case.pedigree[0]["patient"], self.case.pedigree[0]["patient"] + "x")
-            self.assertEqual(case.pedigree[0]["affected"], "0")
-            self.assertEqual(case.pedigree[0]["sex"], "0")
+            self.assertEqual(case.pedigree[0]["affected"], 0)
+            self.assertEqual(case.pedigree[0]["sex"], 0)
 
 
 class TestCaseDetailQcStatsApiView(ViewTestBase):
