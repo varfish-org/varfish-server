@@ -19,7 +19,8 @@
         </strong>
       </div>
       <div class="pl-3">
-        {{ rows_by_sv|length|intcomma }} variants
+        {{ rows_by_sv|length|intcomma }} SV calls
+        {% if object %}(case has a total of {{ object.num_svs|intcomma }}{% endif %} SV calls)
       </div>
         <div class="pl-3">
           Using
