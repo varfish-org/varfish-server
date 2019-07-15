@@ -377,7 +377,7 @@ def build_rel_data(pedigree, relatedness):
 
 def build_sex_data(case_or_project):
     return {
-        "sexErrors": case_or_project.sex_errors(),
+        "sexErrors": {only_source_name(k): v for k, v in case_or_project.sex_errors().items()},
         "chrXHetHomRatio": {
             only_source_name(line["patient"]): case_or_project.chrx_het_hom_ratio(line["patient"])
             for line in case_or_project.get_filtered_pedigree_with_samples()

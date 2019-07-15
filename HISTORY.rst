@@ -10,11 +10,13 @@ End-User Summary
 ================
 
 - Displaying SV coordinates in detail box.
+- Displaying family errors in red in "rate of het. calls on chrX" plot.
 
 Full Change List
 ================
 
 - Displaying SV coordinates in detail box.
+- Fixing sex error generation (only using source name).
 
 -------
 v0.15.4
