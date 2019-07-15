@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Displaying SV coordinates in detail box.
+
+Full Change List
+================
+
+- Displaying SV coordinates in detail box.
+
 -------
 v0.15.4
 -------

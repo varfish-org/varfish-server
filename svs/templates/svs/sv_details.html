@@ -3,6 +3,16 @@
 {% load humanize %}
 
 <div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-body pb-2 pt-2">
+        Precise coordinates: <code>chr{{ sv.chromosome }}:{{ sv.start|intcomma }}-{{ sv.end|intcomma }}</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
   <div class="col-6">
     <div class="row">
       <div class="col mx-0 px-0">
