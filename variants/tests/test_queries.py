@@ -27,12 +27,10 @@ from geneinfo.tests.factories import (
     GeneIdToInheritanceFactory,
     GnomadConstraintsFactory,
     ExacConstraintsFactory,
-    RefseqToEnsemblFactory,
 )
 from dbsnp.tests.factories import DbsnpFactory
 from .factories import (
     SmallVariantFactory,
-    CaseFactory,
     SmallVariantSummaryFactory,
     ProjectFactory,
     ProjectCasesSmallVariantQueryFactory,
@@ -173,7 +171,6 @@ class TestCaseOneQueryNotInDbsnp(SupportQueryTestBase):
         """Create 3 variants and two dbSNP entries."""
         super().setUp()
         variant_set = SmallVariantSetFactory()
-        case = variant_set.case
         small_vars = SmallVariantFactory.create_batch(3, variant_set=variant_set)
         DbsnpFactory(
             release=small_vars[0].release,
@@ -255,6 +252,70 @@ class TestCaseOneQueryCase(SupportQueryTestBase):
         )
 
 
+class TestCaseOneQueryCaseFromTwoCases(SupportQueryTestBase):
+    """Test with correct and incorrect case UUID"""
+
+    def setUp(self):
+        """Create case with just one variant."""
+        super().setUp()
+        self.variant_sets = SmallVariantSetFactory.create_batch(2)
+        SmallVariantFactory(variant_set=self.variant_sets[0])
+        SmallVariantFactory(variant_set=self.variant_sets[1])
+        SmallVariantFactory(variant_set=self.variant_sets[1])
+
+    def test_query_case1_correct_filter(self):
+        self.run_query(CasePrefetchQuery, {"case_uuid": self.variant_sets[0].case.sodar_uuid}, 1)
+
+    def test_query_case1_correct_export(self):
+        self.run_query(CaseExportTableQuery, {"case_uuid": self.variant_sets[0].case.sodar_uuid}, 1)
+
+    def test_query_case1_correct_vcf(self):
+        self.run_query(CaseExportVcfQuery, {"case_uuid": self.variant_sets[0].case.sodar_uuid}, 1)
+
+    def test_query_case2_correct_filter(self):
+        self.run_query(CasePrefetchQuery, {"case_uuid": self.variant_sets[1].case.sodar_uuid}, 2)
+
+    def test_query_case2_correct_export(self):
+        self.run_query(CaseExportTableQuery, {"case_uuid": self.variant_sets[1].case.sodar_uuid}, 2)
+
+    def test_query_case2_correct_vcf(self):
+        self.run_query(CaseExportVcfQuery, {"case_uuid": self.variant_sets[1].case.sodar_uuid}, 2)
+
+
+class TestCaseOneClinvarReportQueryCaseFromTwoCases(SupportQueryTestBase):
+    """Test with correct and incorrect case UUID"""
+
+    def setUp(self):
+        """Create case with just one variant."""
+        super().setUp()
+        self.variant_sets = SmallVariantSetFactory.create_batch(2)
+        small_vars = [
+            SmallVariantFactory(variant_set=self.variant_sets[0], in_clinvar=True),
+            SmallVariantFactory(variant_set=self.variant_sets[1], in_clinvar=True),
+            SmallVariantFactory(variant_set=self.variant_sets[1], in_clinvar=True),
+        ]
+        for small_var in small_vars:
+            ClinvarFactory(
+                release=small_var.release,
+                chromosome=small_var.chromosome,
+                start=small_var.start,
+                end=small_var.end,
+                bin=small_var.bin,
+                reference=small_var.reference,
+                alternative=small_var.alternative,
+            )
+
+    def test_query_case1_correct_filter(self):
+        self.run_query(
+            ClinvarReportPrefetchQuery, {"case_uuid": self.variant_sets[0].case.sodar_uuid}, 1
+        )
+
+    def test_query_case2_correct_filter(self):
+        self.run_query(
+            ClinvarReportPrefetchQuery, {"case_uuid": self.variant_sets[1].case.sodar_uuid}, 2
+        )
+
+
 class TestCaseOneQueryVarTypeSwitch(SupportQueryTestBase):
     """Test switch for variant type (SNV, MNV, InDel)"""
 
@@ -262,7 +323,6 @@ class TestCaseOneQueryVarTypeSwitch(SupportQueryTestBase):
         """Create one case with 3 variants of different var_type."""
         super().setUp()
         variant_set = SmallVariantSetFactory()
-        case = variant_set.case
         SmallVariantFactory(var_type="snv", variant_set=variant_set)
         SmallVariantFactory(var_type="mnv", variant_set=variant_set)
         SmallVariantFactory(var_type="indel", variant_set=variant_set)
@@ -2184,7 +2244,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
 
-class TestCaseTwoCompoundRecessiveHeterozygousQueryWithSiblings(SupportQueryTestBase):
+class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase):
     """Test the queries for compound recessive heterozygous hypothesis with siblings."""
 
     def setUp(self):
@@ -2761,10 +2821,10 @@ class TestCaseFourClinvarLoadPrefetchedQuery(SupportQueryTestBase):
 
     def setUp(self):
         super().setUp()
-        case = CaseFactory()
+        variant_set = SmallVariantSetFactory()
         self.small_vars = list()
         for i in range(3):
-            self.small_vars.append(SmallVariantFactory(in_clinvar=True, case=case))
+            self.small_vars.append(SmallVariantFactory(in_clinvar=True, variant_set=variant_set))
             ClinvarFactory(
                 release=self.small_vars[-1].release,
                 chromosome=self.small_vars[-1].chromosome,
@@ -2776,7 +2836,7 @@ class TestCaseFourClinvarLoadPrefetchedQuery(SupportQueryTestBase):
                 review_status="practice guideline",
                 review_status_ordered=["practice guideline"],
             )
-        self.clinvarquery = ClinvarQueryFactory(case=case)
+        self.clinvarquery = ClinvarQueryFactory(case=variant_set.case)
         self.clinvarquery.query_results.add(self.small_vars[0].id, self.small_vars[2].id)
 
     def test_load_prefetched_clinvar_query(self):
@@ -2789,7 +2849,8 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
     def setUp(self):
         """Create a case and smallvars with clinvar entries."""
         super().setUp()
-        self.case = CaseFactory(structure="trio")
+        variant_set = SmallVariantSetFactory(case__structure="trio")
+        self.case = variant_set.case
         self.small_vars = [
             # Create a de novo variant that is in clinvar
             SmallVariantFactory(
@@ -2799,7 +2860,7 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
                 ensembl_gene_id="ENSG1",
-                case=self.case,
+                variant_set=variant_set,
                 in_clinvar=True,
             ),
             # Create a recessive variant that is not in clinvar
@@ -2811,7 +2872,7 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
                 },
                 refseq_gene_id="2",
                 ensembl_gene_id="ENSG2",
-                case=self.case,
+                variant_set=variant_set,
                 in_clinvar=False,
             ),
             # Create a pair of comp het variants that are in clinvar
@@ -2824,7 +2885,7 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
                 },
                 refseq_gene_id="3",
                 ensembl_gene_id="ENSG3",
-                case=self.case,
+                variant_set=variant_set,
                 in_clinvar=True,
             ),
             SmallVariantFactory(
@@ -2834,9 +2895,9 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
-                case=self.case,
                 refseq_gene_id="3",
                 ensembl_gene_id="ENSG3",
+                variant_set=variant_set,
                 in_clinvar=True,
             ),
             # Create a pair of comp het variants that are not in clinvar
@@ -2849,7 +2910,7 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
                 },
                 refseq_gene_id="4",
                 ensembl_gene_id="ENSG4",
-                case=self.case,
+                variant_set=variant_set,
                 in_clinvar=False,
             ),
             SmallVariantFactory(
@@ -2859,9 +2920,9 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
-                case=self.case,
                 refseq_gene_id="4",
                 ensembl_gene_id="ENSG4",
+                variant_set=variant_set,
                 in_clinvar=False,
             ),
         ]
@@ -2922,7 +2983,8 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
     def setUp(self):
         """Create a case and smallvars with clinvar entries."""
         super().setUp()
-        self.case = CaseFactory(structure="quartet")
+        self.variant_set = SmallVariantSetFactory(case__structure="quartet")
+        self.case = self.variant_set.case
         self.small_vars = [
             # Create a de novo variant that is in clinvar
             SmallVariantFactory(
@@ -2933,7 +2995,7 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
                 ensembl_gene_id="ENSG1",
-                case=self.case,
+                variant_set=self.variant_set,
                 in_clinvar=True,
             ),
             # Create a pair of comp het variants that are in clinvar
@@ -2947,7 +3009,7 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
                 },
                 refseq_gene_id="3",
                 ensembl_gene_id="ENSG3",
-                case=self.case,
+                variant_set=self.variant_set,
                 in_clinvar=True,
             ),
             SmallVariantFactory(
@@ -2958,9 +3020,9 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
-                case=self.case,
                 refseq_gene_id="3",
                 ensembl_gene_id="ENSG3",
+                variant_set=self.variant_set,
                 in_clinvar=True,
             ),
             # Create a pair of comp het variants that are not in clinvar
@@ -2974,7 +3036,7 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
                 },
                 refseq_gene_id="4",
                 ensembl_gene_id="ENSG4",
-                case=self.case,
+                variant_set=self.variant_set,
                 in_clinvar=True,
             ),
             SmallVariantFactory(
@@ -2985,9 +3047,9 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                 },
-                case=self.case,
                 refseq_gene_id="4",
                 ensembl_gene_id="ENSG4",
+                variant_set=self.variant_set,
                 in_clinvar=True,
             ),
         ]

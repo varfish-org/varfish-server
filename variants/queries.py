@@ -1240,6 +1240,7 @@ class CaseExportVcfQueryPartsBuilder(QueryPartsBuilder):
 
 class ClinvarReportPrefetchQueryPartsBuilder(QueryPartsBuilder):
     qp_extender_classes = [
+        ExtendQueryPartsCaseJoinAndFilter,
         ExtendQueryPartsGenotypeGtDefaultFilter,
         ExtendQueryPartsClinvarFullJoinAndFilter,
         ExtendQueryPartsClinvarMembershipRequiredFilter,
@@ -1252,6 +1253,7 @@ class ClinvarReportPrefetchQueryPartsBuilder(QueryPartsBuilder):
 class ClinvarReportLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
     qp_extender_classes = [
         ExtendQueryPartsClinvarReportLoadPrefetched,
+        ExtendQueryPartsCaseJoinAndFilter,
         ExtendQueryPartsClinvarFullJoin,
         ExtendQueryPartsHgncJoin,
         ExtendQueryPartsHgmdJoin,

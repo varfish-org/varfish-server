@@ -1680,8 +1680,10 @@ class TestCaseLoadPrefetchedClinvarReportView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = ClinvarBgJobFactory(user=self.user)
-        small_var = SmallVariantFactory(in_clinvar=True, case=self.bgjob.case)
+        variant_set = SmallVariantSetFactory()
+        self.case = variant_set.case
+        self.bgjob = ClinvarBgJobFactory(user=self.user, case=self.case)
+        small_var = SmallVariantFactory(in_clinvar=True, variant_set=variant_set)
         # Create two entries in the same position to test the grouping.
         # First record: \wo any significance information (such record doesn't exist in clinvar).
         ClinvarFactory(

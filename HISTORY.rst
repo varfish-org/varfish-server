@@ -48,6 +48,7 @@ End-User Summary
 - Fixing filtration for in-house filter.
 - Changing display to per-transcript effects to table.
 - Index patient for compound heterozygous query is now selectable.
+- Fixed bug where clinvar report queries didn't select for the case.
 
 Full Change List
 ================
@@ -69,6 +70,7 @@ Full Change List
 - Extended tests to cover missing in-house filter records for existing variants.
 - Index patient for compound heterozygous query can be selected.
   Only patients that share the same parents as the original index patients are selectable in addition.
+- After reworking the database query structure, clinvar report queries didn't select for the case.
 
 -------
 v0.15.3
