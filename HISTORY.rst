@@ -3,6 +3,18 @@ History / Changelog
 ===================
 
 -------
+HEAD (unreleased)
+-------
+
+End-User Summary
+================
+
+Full Change List
+================
+
+- Removing ``Annotation`` model.
+
+-------
 v0.15.5
 -------
 

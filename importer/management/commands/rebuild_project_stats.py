@@ -1,8 +1,5 @@
 """Django command for rebuilding cohort statistics after import."""
 
-import json
-import tempfile
-
 import aldjemy
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
@@ -10,7 +7,6 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.conf import settings
 
-from annotation.models import Annotation
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
 from variants.variant_stats import rebuild_project_variant_stats

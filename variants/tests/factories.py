@@ -7,7 +7,6 @@ from django.utils import timezone
 
 from projectroles.models import SODAR_CONSTANTS
 
-from annotation.tests.factories import AnnotationFactory
 from bgjobs.tests.factories import BackgroundJobFactory
 from clinvar.tests.factories import ResubmitClinvarFormDataFactory
 from ..models import (
@@ -464,37 +463,6 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
     class Params:
         #: The genotypes to create, by default only first is het. the rest is wild-type.
         genotypes = default_genotypes
-
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        manager = cls._get_manager(model_class)
-        for db in ("refseq", "ensembl"):
-            # Create the associated annotation entry
-            AnnotationFactory(
-                release=kwargs["release"],
-                chromosome=kwargs["chromosome"],
-                start=kwargs["start"],
-                end=kwargs["end"],
-                bin=kwargs["bin"],
-                reference=kwargs["reference"],
-                alternative=kwargs["alternative"],
-                database=db,
-                gene_id=kwargs["%s_gene_id" % db],
-                transcript_id=kwargs["%s_transcript_id" % db],
-            )
-            # Create another entry for this variant, but different transcript
-            AnnotationFactory(
-                release=kwargs["release"],
-                chromosome=kwargs["chromosome"],
-                start=kwargs["start"],
-                end=kwargs["end"],
-                bin=kwargs["bin"],
-                reference=kwargs["reference"],
-                alternative=kwargs["alternative"],
-                database=db,
-                gene_id=kwargs["%s_gene_id" % db],
-            )
-        return manager.create(*args, **kwargs)
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
