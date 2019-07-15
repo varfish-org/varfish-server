@@ -721,15 +721,25 @@ class ExtendQueryPartsInHouseJoin(ExtendQueryPartsBase):
         self.subquery = (
             select(
                 [
-                    func.sum(SmallVariantSummary.sa.count_hom_ref).label("inhouse_hom_ref"),
-                    func.sum(SmallVariantSummary.sa.count_het).label("inhouse_het"),
-                    func.sum(SmallVariantSummary.sa.count_hom_alt).label("inhouse_hom_alt"),
-                    func.sum(SmallVariantSummary.sa.count_hemi_ref).label("inhouse_hemi_ref"),
-                    func.sum(SmallVariantSummary.sa.count_hemi_alt).label("inhouse_hemi_alt"),
+                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hom_ref), 0).label(
+                        "inhouse_hom_ref"
+                    ),
+                    func.coalesce(func.sum(SmallVariantSummary.sa.count_het), 0).label(
+                        "inhouse_het"
+                    ),
+                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hom_alt), 0).label(
+                        "inhouse_hom_alt"
+                    ),
+                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hemi_ref), 0).label(
+                        "inhouse_hemi_ref"
+                    ),
+                    func.coalesce(func.sum(SmallVariantSummary.sa.count_hemi_alt), 0).label(
+                        "inhouse_hemi_alt"
+                    ),
                     func.sum(
-                        SmallVariantSummary.sa.count_het
-                        + SmallVariantSummary.sa.count_hom_alt
-                        + SmallVariantSummary.sa.count_hemi_alt
+                        func.coalesce(SmallVariantSummary.sa.count_het, 0)
+                        + func.coalesce(SmallVariantSummary.sa.count_hom_alt, 0)
+                        + func.coalesce(SmallVariantSummary.sa.count_hemi_alt, 0)
                     ).label("inhouse_carriers"),
                 ]
             )
@@ -766,15 +776,19 @@ class ExtendQueryPartsInHouseJoinAndFilter(ExtendQueryPartsInHouseJoin):
         terms = []
         if self.kwargs.get("inhouse_enabled"):
             if self.kwargs.get("inhouse_heterozygous") is not None:
-                terms.append(column("inhouse_het") <= self.kwargs.get("inhouse_heterozygous"))
+                terms.append(
+                    func.coalesce(self.subquery.c.inhouse_het, 0)
+                    <= self.kwargs.get("inhouse_heterozygous")
+                )
             if self.kwargs.get("inhouse_homozygous") is not None:
                 terms.append(
-                    (column("inhouse_hom_alt") + column("inhouse_hemi_alt"))
+                    func.coalesce(self.subquery.c.inhouse_hom_alt, 0)
+                    + func.coalesce(self.subquery.c.inhouse_hemi_alt, 0)
                     <= self.kwargs.get("inhouse_homozygous")
                 )
             if self.kwargs.get("inhouse_carriers") is not None:
                 terms.append(
-                    (column("inhouse_het") + column("inhouse_hom_alt") + column("inhouse_hemi_alt"))
+                    func.coalesce(self.subquery.c.inhouse_carriers, 0)
                     <= self.kwargs.get("inhouse_carriers")
                 )
         return terms

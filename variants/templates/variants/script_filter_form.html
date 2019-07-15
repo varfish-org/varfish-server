@@ -509,7 +509,7 @@ const presets = {
       "gnomad_genomes_heterozygous": 20,
       "gnomad_genomes_frequency": 0.01,
     }),
-    "classes": Object.assign({}, defaultPresetsIds, {}),
+    "classes": Object.assign({}, defaultPresetsClasses, {}),
   },
   "medgen-clinvar": {
     "ids": Object.assign({}, defaultPresetsIds, {
@@ -531,9 +531,9 @@ const presets = {
 
       "effect_group_all": true
     }),
-    "classes": {
+    "classes": Object.assign({}, defaultPresetsClasses, {
       "quality-field-fail": "ignore"
-    }
+    }),
   },
   "full-exome": {
     "ids": Object.assign({}, defaultPresetsIds, {
@@ -550,9 +550,9 @@ const presets = {
 
       "effect_group_all": true
     }),
-    "classes": {
+    "classes": Object.assign({}, defaultPresetsClasses, {
       "quality-field-fail": "ignore"
-    }
+    }),
   }
 };
 

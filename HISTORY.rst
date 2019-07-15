@@ -16,6 +16,7 @@ End-User Summary
 - Fixing filtration with members that have no genotype.
 - Fixing SV length display.
 - Adjusting filter presets.
+- Fixing filtration for in-house filter.
 
 Full Change List
 ================
@@ -32,6 +33,7 @@ Full Change List
 - Fixing filtration with members that have no genotype.
 - Adding back fetching of SV length to queries.
 - First adjustments of filter presets for NAMSE analyses.
+- Fixing coalescing when filtering with in-house filter.
 
 -------
 v0.15.3
