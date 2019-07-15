@@ -11,7 +11,7 @@
         <th class="col-2">Trio Role</th>
         <th class="col-2">Father</th>
         <th class="col-2">Mother</th>
-        <th class="col-2">Gender</th>
+        <th class="col-2">Sex</th>
         <th class="col-2">Affected</th>
         <th class="col-2" data-toggle="tooltip" data-placement="top" data-html="true" title="<div class='text-left'><ul class='pl-3'><li><strong>any</strong>: don't apply genotype filter</li><li><strong>variant</strong>: allows genotypes '0/1' and '1/1'</li><li><strong>non-variant</strong>: allows genotypes '0/0' and './.'</li><li><strong>non-reference</strong>: allows genotypes that are a variant or './.'</li></ul></div>">Genotype</th>
       </tr>
@@ -24,7 +24,7 @@
         <td>{{ form.get_member_roles|keyvalue:item.patient }}</td>
         <td>{{ item.father|default:"0"|only_source_name }}</td>
         <td>{{ item.mother|default:"0"|only_source_name }}</td>
-          <i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% elif item.sex == 1 %}fa-mars{% else %}fa-question{% endif %}"></i>        <td><i class="fa {% if item.affected == 2 %}fa-check color-danger{% else %}fa-ban{% endif %}"></i></td>
+        <td><i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% elif item.sex == 1 %}fa-mars{% else %}fa-question{% endif %}"></i></td>
         {% if item.has_gt_entries %}
           <td>{% with x=form.get_genotype_field_names|keyvalue:item.patient|keyvalue:"gt" %}{{ form|keyvalue:x }}{% endwith %}</td>
         {% else %}
