@@ -337,9 +337,61 @@ class SmallVariantGenotypeFilterFormMixin:
             ),
         )
 
+        def get_siblings():
+            father = None
+            mother = None
+            index = None
+            siblings = []
+
+            # First, gather mother and father name
+            for patient, role in self.get_member_roles().items():
+                if role == "father":
+                    father = patient
+                elif role == "mother":
+                    mother = patient
+
+            # Second, find all members of pedigree that are not part of the trio
+            for patient, role in self.get_member_roles().items():
+                if role == "index":
+                    index = patient
+                if role == "N/A":
+                    # When there is a potential sibling, check if she shares the same parents as the index patient.
+                    for member in self.get_pedigree():
+                        if (
+                            member["patient"] == patient
+                            and member["father"] == father
+                            and member["mother"] == mother
+                        ):
+                            siblings.append(patient)
+
+            return index, siblings
+
+        # Make index patient selectable for compound het query
+        index, siblings = get_siblings()
+        if index:
+            selection = [(index, "%s (index defined in pedigree)" % index)] + [
+                (sibling, sibling) for sibling in siblings
+            ]
+        else:
+            selection = []
+
+        self.fields["compound_recessive_index"] = forms.CharField(
+            label="index patient for comp. het. mode",
+            help_text=(
+                "This selection overrides the index role defined in the pedigree. "
+                "Lists only patients that share the same parents as the index patient defined in the pedigree, including the original index patient. "
+                "Defaults to the original index patient. "
+                "Only used when comp. het. mode is enabled. "
+            ),
+            required=False,
+            initial=index,
+            widget=forms.Select(choices=selection),
+        )
+
         # Disable compound recessive checkbox if no full trio present.
         if len(set(("index", "father", "mother")) & set(self.get_trio_roles().keys())) != 3:
             self.fields["compound_recessive_enabled"].disabled = True
+            self.fields["compound_recessive_index"].disabled = True
 
         # Dynamically add the fields based on the pedigree
         for member in self.get_pedigree_with_samples():

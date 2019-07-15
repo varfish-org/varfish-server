@@ -41,5 +41,12 @@
 
 <div class="p-2 mt-2 border-top compact-form-groups">
   <h5>Compound Heterozygous Settings</h5>
-  {{ form.compound_recessive_enabled|as_crispy_field }}
+  <div class="row">
+  <div class="col-6">
+    {{ form.compound_recessive_enabled|as_crispy_field }}
+  </div>
+  <div class="col-6">
+    {{ form.compound_recessive_index|as_crispy_field }}
+  </div>
+  </div>
 </div>

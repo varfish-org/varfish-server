@@ -139,6 +139,7 @@ class ProcessedClinvarFormDataFactory:
     database_select: str = "refseq"
     # Genotypes
     compound_recessive_enabled: bool = False
+    compound_recessive_index: str = ""
     # Filter selection for form.
     flag_bookmarked: bool = True
     flag_candidate: bool = True

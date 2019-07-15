@@ -638,7 +638,7 @@ class ExtendQueryPartsGenotypeCompHetBase(ExtendQueryPartsGenotypeBase):
         index_lines = [
             rec
             for rec in self.cases[0].get_filtered_pedigree_with_samples()
-            if rec["patient"] == self.cases[0].index
+            if rec["patient"] == self.kwargs["compound_recessive_index"]
         ]
         if len(index_lines) != 1:  # pragma: no cover
             raise RuntimeError("Could not find index line from pedigree")

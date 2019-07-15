@@ -125,6 +125,7 @@ class FormDataFactory(FormDataFactoryBase):
     """Factory for the data transferred from the filter form."""
 
     compound_recessive_enabled: bool = False
+    compound_recessive_index: str = ""
     effect_coding_transcript_intron_variant: bool = True
     effect_complex_substitution: bool = True
     effect_direct_tandem_duplication: bool = True
@@ -286,7 +287,7 @@ class CaseFactory(factory.django.DjangoModelFactory):
     class Params:
         #: The sex of the index
         sex = 1  # 1: unaffected, 2: affected
-        #: The structure can be "singleton" or "trio" at the moment.
+        #: The structure can be "singleton", "trio" or "quartet" at the moment.
         structure = "singleton"
         #: The supported inheritance patterns are "denovo", "dominant", and "recessive" at the
         #: moment.  This is only used for non-singletons.  When dominant, the father will be
@@ -300,7 +301,7 @@ class CaseFactory(factory.django.DjangoModelFactory):
 
     @factory.lazy_attribute_sequence
     def pedigree(self, n):
-        if self.structure not in ("singleton", "trio"):
+        if self.structure not in ("singleton", "trio", "quartet"):
             raise ValueError("Invalid structure type!")
         elif self.structure == "singleton":
             return [
@@ -313,7 +314,7 @@ class CaseFactory(factory.django.DjangoModelFactory):
                     "has_gt_entries": True,
                 }
             ]
-        else:  # self.structure == "trio"
+        elif self.structure == "trio":
             # Father and mother name
             father = "father_%03d-N1-DNA1-WES1" % n
             mother = "mother_%03d-N1-DNA1-WES1" % n
@@ -323,6 +324,45 @@ class CaseFactory(factory.django.DjangoModelFactory):
                     "father": father,
                     "mother": mother,
                     "sex": self.sex,
+                    "affected": 2,  # always affected
+                    "has_gt_entries": True,
+                },
+                {
+                    "patient": father,
+                    "father": "0",
+                    "mother": "0",
+                    "sex": 1,  # always male
+                    "affected": 2 if self.inheritance == "dominant" else 1,
+                    "has_gt_entries": True,
+                },
+                {
+                    "patient": mother,
+                    "father": "0",
+                    "mother": "0",
+                    "sex": 2,  # always female
+                    "affected": 1,  # never affected
+                    "has_gt_entries": True,
+                },
+            ]
+        else:  # self.structure == "quartet"
+            # Father - Mother - Siblings
+            father = "father_%03d-N1-DNA1-WES1" % n
+            mother = "mother_%03d-N1-DNA1-WES1" % n
+            sibling = "sibling_%03d-N1-DNA1-WES1" % n
+            return [
+                {
+                    "patient": self.index,
+                    "father": father,
+                    "mother": mother,
+                    "sex": self.sex,
+                    "affected": 2,  # always affected
+                    "has_gt_entries": True,
+                },
+                {
+                    "patient": sibling,
+                    "father": father,
+                    "mother": mother,
+                    "sex": (self.sex % 2) + 1,  # make sibling the opposite sex
                     "affected": 2,  # always affected
                     "has_gt_entries": True,
                 },

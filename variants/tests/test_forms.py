@@ -26,7 +26,12 @@ class TestClinvarForm(TestCase):
 
     def testSubmitDefaults(self):
         """Test submission with defaults."""
-        form_data = vars(ClinvarFormDataFactory(names=self.donor_names))
+        form_data = vars(
+            ClinvarFormDataFactory(
+                names=self.donor_names,
+                compound_recessive_index=self.variant_set.case.pedigree[0]["patient"],
+            )
+        )
         form = ClinvarForm(form_data, case=self.variant_set.case)
         self.assertTrue(form.is_valid())
         self.assertEquals(form.cleaned_data, form_data)

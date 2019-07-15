@@ -32,6 +32,7 @@ End-User Summary
 - Adjusting filter presets.
 - Fixing filtration for in-house filter.
 - Changing display to per-transcript effects to table.
+- Index patient for compound heterozygous query is now selectable.
 
 Full Change List
 ================
@@ -51,6 +52,8 @@ Full Change List
 - Fixing coalescing when filtering with in-house filter.
 - Changing display to per-transcript effects to table.
 - Extended tests to cover missing in-house filter records for existing variants.
+- Index patient for compound heterozygous query can be selected.
+  Only patients that share the same parents as the original index patients are selectable in addition.
 
 -------
 v0.15.3
