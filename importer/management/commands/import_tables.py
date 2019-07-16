@@ -239,7 +239,7 @@ class Command(BaseCommand):
     def _import_tad_set(self, path, tables, subset_key, force):
         """TAD import"""
         release_info = self._get_table_info(path, tables[0].__name__)[1]
-        if not force and not self._create_import_info(release_info):
+        if not self._create_import_info(release_info, force):
             return False
 
         # Clear out old data if any
@@ -284,7 +284,7 @@ class Command(BaseCommand):
         """Common code for RefSeq and ENSEMBL gene import."""
         release_info = self._get_table_info(path, tables[0].__name__)[1]
         release_info["table"] += ":%s" % subset_key
-        if not force and not self._create_import_info(release_info):
+        if not self._create_import_info(release_info, force):
             return False
         # Clear out any existing entries for this release/database.
         GeneInterval.objects.filter(
@@ -327,12 +327,12 @@ class Command(BaseCommand):
         """
         return next(tsv_reader(path))
 
-    def _create_import_info(self, release_info):
+    def _create_import_info(self, release_info, force):
         """Create entry in ImportInfo from the given ``release_info``."""
         existing = ImportInfo.objects.filter(
             genomebuild=release_info["genomebuild"], table=release_info["table"]
         )
-        if existing.all():
+        if not force and existing.all():
             self.stdout.write(
                 "Skipping {table} {version} ({genomebuild}). Already imported.".format(
                     **release_info
@@ -340,6 +340,9 @@ class Command(BaseCommand):
             )
             return False
         else:
+            # Remove existing entries, if any
+            existing.delete()
+            # Create new entry
             ImportInfo.objects.create(
                 genomebuild=release_info["genomebuild"],
                 table=release_info["table"],
@@ -369,7 +372,7 @@ class Command(BaseCommand):
             CommandError("Table name in release_info file does not match table name.")
 
         if import_info:
-            if not force and not self._create_import_info(release_info):
+            if not self._create_import_info(release_info, force):
                 return False
             # Clear out any existing entries for this release/database.
             self.stdout.write("{table} -- Removing old {table} results.".format(**release_info))

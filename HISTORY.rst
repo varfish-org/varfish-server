@@ -13,6 +13,7 @@ Full Change List
 ================
 
 - Removing ``Annotation`` model.
+- Fixed importer bug where info wasn't imported when table was newly imported and ``--force`` flag was set.
 
 -------
 v0.15.5
