@@ -300,7 +300,7 @@ class CaseFactory(factory.django.DjangoModelFactory):
 
     @factory.lazy_attribute_sequence
     def pedigree(self, n):
-        if self.structure not in ("singleton", "trio", "quartet"):
+        if self.structure not in ("singleton", "trio", "quartet", "quintet"):
             raise ValueError("Invalid structure type!")
         elif self.structure == "singleton":
             return [
@@ -343,7 +343,7 @@ class CaseFactory(factory.django.DjangoModelFactory):
                     "has_gt_entries": True,
                 },
             ]
-        else:  # self.structure == "quartet"
+        elif self.structure == "quartet":
             # Father - Mother - Siblings
             father = "father_%03d-N1-DNA1-WES1" % n
             mother = "mother_%03d-N1-DNA1-WES1" % n
@@ -375,6 +375,54 @@ class CaseFactory(factory.django.DjangoModelFactory):
                 },
                 {
                     "patient": mother,
+                    "father": "0",
+                    "mother": "0",
+                    "sex": 2,  # always female
+                    "affected": 1,  # never affected
+                    "has_gt_entries": True,
+                },
+            ]
+        else:  # self.structure == "quintet":
+            # Index - Father - Mother - Grandfather - Grandmother
+            father = "father_%03d-N1-DNA1-WES1" % n
+            mother = "mother_%03d-N1-DNA1-WES1" % n
+            grandfather = "grandfather_%03d-N1-DNA1-WES1" % n
+            grandmother = "grandmother_%03d-N1-DNA1-WES1" % n
+            return [
+                {
+                    "patient": self.index,
+                    "father": father,
+                    "mother": mother,
+                    "sex": self.sex,
+                    "affected": 2,  # always affected
+                    "has_gt_entries": True,
+                },
+                {
+                    "patient": father,
+                    "father": grandfather,
+                    "mother": grandmother,
+                    "sex": 1,  # always male
+                    "affected": 2 if self.inheritance == "dominant" else 1,
+                    "has_gt_entries": True,
+                },
+                {
+                    "patient": mother,
+                    "father": "0",
+                    "mother": "0",
+                    "sex": 2,  # always female
+                    "affected": 1,  # never affected
+                    "has_gt_entries": True,
+                },
+                {
+                    "patient": grandfather,
+                    "father": "0",
+                    "mother": "0",
+                    "sex": 1,  # always male
+                    "affected": 2 if self.inheritance == "dominant" else 1,
+                    "has_gt_entries": True,
+                },
+                {
+                    "patient": grandmother,
                     "father": "0",
                     "mother": "0",
                     "sex": 2,  # always female

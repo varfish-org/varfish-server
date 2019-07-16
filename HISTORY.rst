@@ -23,6 +23,7 @@ End-User Summary
 
 - Displaying SV coordinates in detail box.
 - Displaying family errors in red in "rate of het. calls on chrX" plot.
+- Compound het query now allows index selection for all patients with parents, not only sibling of the index.
 
 Full Change List
 ================
@@ -30,6 +31,7 @@ Full Change List
 - Displaying SV coordinates in detail box.
 - Fixing sex error generation (only using source name).
 - Fixing pedigree editor form to use int for sex & affected.
+- Compound het query now allows index selection for all patients with parents, not only sibling of the index.
 
 -------
 v0.15.4

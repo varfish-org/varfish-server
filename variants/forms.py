@@ -342,54 +342,38 @@ class SmallVariantGenotypeFilterFormMixin:
             ),
         )
 
-        def get_siblings():
-            father = None
-            mother = None
-            index = None
-            siblings = []
+        def get_potential_index_patients():
+            default_index = None
+            potential_indices = []
 
-            # First, gather mother and father name
-            for patient, role in self.get_member_roles().items():
-                if role == "father":
-                    father = patient
-                elif role == "mother":
-                    mother = patient
+            # Find all members that have the
+            for member in self.get_pedigree():
+                if not (member["mother"] == "0" or member["father"] == "0"):
+                    if member["patient"] == self.get_trio_roles().get("index"):
+                        default_index = member["patient"]
+                    else:
+                        potential_indices.append(member["patient"])
 
-            # Second, find all members of pedigree that are not part of the trio
-            for patient, role in self.get_member_roles().items():
-                if role == "index":
-                    index = patient
-                if role == "N/A":
-                    # When there is a potential sibling, check if she shares the same parents as the index patient.
-                    for member in self.get_pedigree():
-                        if (
-                            member["patient"] == patient
-                            and member["father"] == father
-                            and member["mother"] == mother
-                        ):
-                            siblings.append(patient)
-
-            return index, siblings
+            return default_index, potential_indices
 
         # Make index patient selectable for compound het query
-        index, siblings = get_siblings()
-        if index:
-            selection = [(index, "%s (index defined in pedigree)" % index)] + [
-                (sibling, sibling) for sibling in siblings
+        default_index, potential_indices = get_potential_index_patients()
+        selection = []
+        if default_index:
+            selection = [(default_index, "%s (index defined in pedigree)" % default_index)] + [
+                (potential_index, potential_index) for potential_index in potential_indices
             ]
-        else:
-            selection = []
 
         self.fields["compound_recessive_index"] = forms.CharField(
             label="index patient for comp. het. mode",
             help_text=(
                 "This selection overrides the index role defined in the pedigree. "
-                "Lists only patients that share the same parents as the index patient defined in the pedigree, including the original index patient. "
+                "Lists only patients that have a mother and father defined in the pedigree. "
                 "Defaults to the original index patient. "
                 "Only used when comp. het. mode is enabled. "
             ),
             required=False,
-            initial=index,
+            initial=default_index,
             widget=forms.Select(choices=selection),
         )
 
