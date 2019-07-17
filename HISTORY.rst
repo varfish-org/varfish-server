@@ -14,6 +14,7 @@ Full Change List
 
 - Removing ``Annotation`` model.
 - Fixed importer bug where info wasn't imported when table was newly imported and ``--force`` flag was set.
+- Removed whitening of table rows from DataTables css to prevent it from overwriting our row colouring feature.
 
 -------
 v0.15.5
