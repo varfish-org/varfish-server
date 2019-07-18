@@ -198,6 +198,9 @@ class Command(BaseCommand):
             # Special import routine for gnomAD
             elif table_group in ("gnomAD_genomes", "gnomAD_exomes"):
                 self._import_gnomad(version_path, TABLES[table_group], force=options["force"])
+            # Special import routine for dbSNP
+            elif table_group == "dbSNP":
+                self._import_dbsnp(version_path, TABLES[table_group], force=options["force"])
             # Special import routine for gene intervals
             elif table_group in ("ensembl_genes", "refseq_genes"):
                 self._import_gene_interval(
@@ -456,6 +459,12 @@ class Command(BaseCommand):
             self._import(tmp.name, release_info, table, force=force)
 
     def _import_gnomad(self, path, tables, force):
+        self._import_chromosome_wise(path, tables, force, list(range(1, 23)) + ["X"])
+
+    def _import_dbsnp(self, path, tables, force):
+        self._import_chromosome_wise(path, tables, force, list(range(1, 23)) + ["X", "Y", "MT"])
+
+    def _import_chromosome_wise(self, path, tables, force, chroms):
         """Wrapper function to import gnomad tables
 
         :param path: Path to gnomad tables
@@ -463,7 +472,7 @@ class Command(BaseCommand):
         :return: Nothing
         """
         # Import file is scattered into chromosome pieces, collect them.
-        for chrom in list(range(1, 23)) + ["X"]:
+        for chrom in chroms:
             # If the first chromosome can't be imported, don't try to import the other chromosomes.
             if not self._import(
                 # Add chromosome to file name
