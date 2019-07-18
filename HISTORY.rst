@@ -16,6 +16,7 @@ Full Change List
 - Fixed importer bug where info wasn't imported when table was newly imported and ``--force`` flag was set.
 - Removed whitening of table rows from DataTables css to prevent it from overwriting our row colouring feature.
 - Doing dbSNP import now chromosome-wise to prevent import from timing out.
+- Removed old style fixtures from UI tests.
 
 -------
 v0.15.5

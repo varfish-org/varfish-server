@@ -24,7 +24,6 @@ from geneinfo.models import (
     Acmg,
     GeneIdToInheritance,
     GnomadConstraints,
-    RefseqToEnsembl,
     ExacConstraints,
 )
 from hgmd.models import HgmdPublicLocus
@@ -370,7 +369,7 @@ class ExtendQueryPartsClinvarJoinBase(ExtendQueryPartsBase):
             origins.append("germline")
         if self.kwargs["clinvar_origin_somatic"]:
             origins.append("somatic")
-        origins = cast(origins, ARRAY(VARCHAR))
+        origins = cast(origins, ARRAY(VARCHAR()))
         return OVERLAP(self.subquery.c.origin, origins)
 
     def _build_review_status_term(self):

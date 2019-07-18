@@ -28,6 +28,8 @@ from ..models import (
     SmallVariantFlags,
     SmallVariantComment,
     SmallVariantSet,
+    CaseVariantStats,
+    SampleVariantStatistics,
 )
 import typing
 import attr
@@ -821,3 +823,38 @@ class SmallVariantCommentFactory(factory.django.DjangoModelFactory):
     def fix_bins(obj, *args, **kwargs):
         obj.bin = binning.assign_bin(obj.start - 1, obj.end)
         obj.save()
+
+
+class CaseVariantStatsFactory(factory.django.DjangoModelFactory):
+    """Factory for ``CaseVariantStatsFactory`` model."""
+
+    class Meta:
+        model = CaseVariantStats
+
+    variant_set = factory.SubFactory(SmallVariantSetFactory)
+
+
+class SampleVariantStatisticsFactory(factory.django.DjangoModelFactory):
+    """Factory for ``SampleVariantStatisticsFactory`` model."""
+
+    class Meta:
+        model = SampleVariantStatistics
+        exclude = ["variant_set"]
+
+    stats = factory.SubFactory(
+        CaseVariantStatsFactory, variant_set=factory.SelfAttribute("factory_parent.variant_set")
+    )
+    sample_name = factory.Sequence(lambda n: "Donor%d" % n)
+    ontarget_transitions = factory.Sequence(lambda n: n + 1)
+    ontarget_transversions = factory.Sequence(lambda n: n + 1)
+    ontarget_snvs = factory.Sequence(lambda n: n + 1)
+    ontarget_indels = factory.Sequence(lambda n: n + 1)
+    ontarget_mnvs = factory.Sequence(lambda n: n + 1)
+    ontarget_effect_counts = {}
+    ontarget_indel_sizes = {}
+    ontarget_dps = {}
+    ontarget_dp_quantiles = [0.1, 0.2, 0.3, 0.4, 0.5]
+    het_ratio = 1.0
+    chrx_het_hom = 1.0
+    # Dummy argument to pass to CaseCariantStatsFactory
+    variant_set = None
