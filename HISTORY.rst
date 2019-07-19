@@ -3,11 +3,13 @@ History / Changelog
 ===================
 
 -------
-HEAD (unreleased)
+v0.15.6
 -------
 
 End-User Summary
 ================
+
+- Row colouring in results table for commented and flagged variants is now back again.
 
 Full Change List
 ================
