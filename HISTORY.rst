@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Genomic regions now also able to filter only by chromosome.
+
+Full Change List
+================
+
+- Genomic regions filter accepts now only chromosome as region, internally setting start/end positions to 0/INT_MAX values.
+
 -------
 v0.15.6
 -------

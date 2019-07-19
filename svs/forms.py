@@ -4,8 +4,12 @@ from django import forms
 from genomicfeatures.models import TadSet
 from svs.models import StructuralVariantFlags, StructuralVariantComment
 
-from variants.forms import VariantGeneListFilterFormMixin, FAIL, only_source_name
-
+from variants.forms import (
+    VariantGeneListFilterFormMixin,
+    FAIL,
+    only_source_name,
+    GenomicRegionFilterFormMixin,
+)
 
 FILTER_FORM_TRANSLATE_EFFECTS = {
     "effect_coding_sequence_variant": "coding_sequence_variant",
@@ -613,6 +617,7 @@ class FilterForm(
     SvGenotypeFilterFormMixin,
     SvQualityFilterFormMixin,
     VariantGeneListFilterFormMixin,
+    GenomicRegionFilterFormMixin,
     SvIntervalsFilterFormMixin,
     RegulatoryFilterFormMixin,
     forms.Form,

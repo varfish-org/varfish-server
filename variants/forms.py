@@ -1038,7 +1038,7 @@ class VariantGeneListFilterFormMixin:
                 }
             ),
             required=False,
-            max_length=5000,
+            max_length=10000,
         )
 
         self.fields["gene_whitelist"] = forms.CharField(
@@ -1050,23 +1050,6 @@ class VariantGeneListFilterFormMixin:
             widget=forms.Textarea(
                 attrs={
                     "placeholder": "Enter genes to white-list here",
-                    "rows": 3,
-                    "class": "form-control",
-                }
-            ),
-            required=False,
-            max_length=5000,
-        )
-
-        self.fields["region_whitelist"] = forms.CharField(
-            label="Regions",
-            help_text=(
-                "Enter regions as 'CHR:BEGIN-END' for restricting to, e.g. chr1:1000-2000 or "
-                "1:1,000,000-2,000,000."
-            ),
-            widget=forms.Textarea(
-                attrs={
-                    "placeholder": "Enter regions to filter here, e.g., chr1:1,000,000-2,000,000",
                     "rows": 3,
                     "class": "form-control",
                 }
@@ -1105,22 +1088,10 @@ class VariantGeneListFilterFormMixin:
         _check_list("gene_blacklist")
         _check_list("gene_whitelist")
 
-        cleaned_data["region_whitelist"] = [
-            s.strip() for s in cleaned_data["region_whitelist"].strip().split() if s.strip()
-        ]
-        # Validate the region white-list.
-        for region in cleaned_data["region_whitelist"]:
-            try:
-                _, start_end = region.split(":", 1)
-                start, end = start_end.split("-", 1)
-                int(start.replace(",", "").replace("_", ""))
-                int(end.replace(",", "").replace("_", ""))
-            except ValueError as e:
-                raise forms.ValidationError("Invalid region: %s" % region) from e
         return cleaned_data
 
 
-class SmallVariantGenomicRegionFilterFormMixin:
+class GenomicRegionFilterFormMixin:
     """Form mixin with genomic regions field."""
 
     def __init__(self, *args, **kwargs):
@@ -1130,13 +1101,13 @@ class SmallVariantGenomicRegionFilterFormMixin:
             help_text="Enter a list of genomic regions, separated by spaces or line break.",
             widget=forms.Textarea(
                 attrs={
-                    "placeholder": "Enter genomic regions here",
+                    "placeholder": "Enter regions to filter here, e.g., chr1:1,000,000-2,000,000 or chrX",
                     "rows": 3,
                     "class": "form-control",
                 }
             ),
             required=False,
-            max_length=5000,
+            max_length=10000,
         )
 
     def clean(self):
@@ -1147,9 +1118,15 @@ class SmallVariantGenomicRegionFilterFormMixin:
         for entry in cleaned_data["genomic_region"].strip().split():
             entry_ = entry.strip()
             if entry_:
-                m = re.match("^(?:chr)?([0-9MTXY])+:([0-9,]+)-([0-9,]+)$", entry_)
+                m = re.match("^(?:chr)?([0-9MTXY])+(?::([0-9,]+)-([0-9,]+))?$", entry_)
                 if m:
-                    results.append((m[1], int(m[2].replace(",", "")), int(m[3].replace(",", ""))))
+                    results.append(
+                        (
+                            m[1],
+                            int(m[2].replace(",", "")) if m[2] else 0,
+                            int(m[3].replace(",", "")) if m[3] else 2 ** 31 - 1,
+                        )
+                    )
                 else:
                     malformed.append(entry_)
         if malformed:
@@ -1259,7 +1236,7 @@ class FilterForm(
     SmallVariantClinvarHgmdFilterFormMixin,
     SmallVariantPrioritizerFormMixin,
     VariantGeneListFilterFormMixin,
-    SmallVariantGenomicRegionFilterFormMixin,
+    GenomicRegionFilterFormMixin,
     SmallVariantTranscriptSourceFilterFormMixin,
     SmallVariantQualityFilterFormMixin,
     SmallVariantGenotypeFilterFormMixin,
@@ -1325,7 +1302,7 @@ class ProjectCasesFilterForm(
     SmallVariantMiscFilterFormMixin,
     SmallVariantClinvarHgmdFilterFormMixin,
     VariantGeneListFilterFormMixin,
-    SmallVariantGenomicRegionFilterFormMixin,
+    GenomicRegionFilterFormMixin,
     SmallVariantTranscriptSourceFilterFormMixin,
     SmallVariantQualityFilterFormMixin,
     SmallVariantGenotypeFilterFormMixin,

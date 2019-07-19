@@ -80,14 +80,6 @@ class CaseFilterView(
         query = SingleCaseFilterQuery(self.get_case_object(), SQLALCHEMY_ENGINE)
         args = dict(form.cleaned_data)
         # TODO: variant types
-        tmp = args.pop("region_whitelist")
-        args["region_whitelist"] = []
-        for entry in tmp:
-            chrom, rng = entry.split(":", 1)
-            start, end = rng.split("-", 1)
-            start = int(start.replace(",", "").replace("_", ""))
-            end = int(end.replace(",", "").replace("_", ""))
-            args["region_whitelist"].append((chrom, start, end))
         with contextlib.closing(query.run(args)) as results:
             context_data = self._fetch_context_data(form, results)
             context_data["elapsed_seconds"] = timezone.now() - before

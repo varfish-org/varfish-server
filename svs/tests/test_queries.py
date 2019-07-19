@@ -631,9 +631,7 @@ class RegionFilterQueryTest(QueryTestBase):
         chrom = "chr" + self.svs[0].chromosome.replace("chr", "")
         start = self.svs[0].start
         end = self.svs[0].end
-        result = self.run_query(
-            SingleCaseFilterQuery, {"region_whitelist": [(chrom, start, end)]}, 1
-        )
+        result = self.run_query(SingleCaseFilterQuery, {"genomic_region": [(chrom, start, end)]}, 1)
         result = list(result)
         self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
@@ -641,9 +639,7 @@ class RegionFilterQueryTest(QueryTestBase):
         chrom = self.svs[0].chromosome.replace("chr", "")
         start = self.svs[0].start
         end = self.svs[0].end
-        result = self.run_query(
-            SingleCaseFilterQuery, {"region_whitelist": [(chrom, start, end)]}, 1
-        )
+        result = self.run_query(SingleCaseFilterQuery, {"genomic_region": [(chrom, start, end)]}, 1)
         result = list(result)
         self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
@@ -651,7 +647,7 @@ class RegionFilterQueryTest(QueryTestBase):
         chrom = self.svs[0].chromosome
         start = self.svs[0].end + 100
         end = start + 100
-        self.run_query(SingleCaseFilterQuery, {"region_whitelist": [(chrom, start, end)]}, 0)
+        self.run_query(SingleCaseFilterQuery, {"genomic_region": [(chrom, start, end)]}, 0)
 
 
 class GeneListsFilterQueryTest(QueryTestBase):

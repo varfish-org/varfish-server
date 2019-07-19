@@ -1949,6 +1949,9 @@ class TestCaseOneWhitelistBlacklistRegionFilterQuery(SupportQueryTestBase):
     def test_genomic_region_two_regions_vcf(self):
         self.run_query(CaseExportVcfQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4)
 
+    def test_genomic_region_only_chromosome(self):
+        self.run_query(CasePrefetchQuery, {"genomic_region": [("1", 0, 2 ** 31 - 1)]}, 6)
+
 
 # ---------------------------------------------------------------------------
 # Tests for Case 2

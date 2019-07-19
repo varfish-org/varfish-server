@@ -232,7 +232,7 @@ class FormDataFactory:
     # gene lists / regions
 
     gene_blacklist: typing.List[str] = attr.Factory(list)
-    region_whitelist: typing.List[str] = attr.Factory(list)
+    genomic_region: typing.List[str] = attr.Factory(list)
     gene_whitelist: typing.List[str] = attr.Factory(list)
 
     # tads

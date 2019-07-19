@@ -240,7 +240,7 @@ class ExtendQueryPartsGenomicRegionFilter(ExtendQueryPartsBase):
             # TODO: properly handle GRCh37 vs. GRCh38
             return chrom.replace("chr", "")
 
-        if self.kwargs["region_whitelist"]:
+        if self.kwargs["genomic_region"]:
             yield or_(
                 *[
                     and_(
@@ -248,7 +248,7 @@ class ExtendQueryPartsGenomicRegionFilter(ExtendQueryPartsBase):
                         StructuralVariant.sa.end >= start,
                         StructuralVariant.sa.start <= end,
                     )
-                    for chrom, start, end in self.kwargs["region_whitelist"]
+                    for chrom, start, end in self.kwargs["genomic_region"]
                 ]
             )
 
