@@ -33,6 +33,7 @@ Full Change List
 - Removed whitening of table rows from DataTables css to prevent it from overwriting our row colouring feature.
 - Doing dbSNP import now chromosome-wise to prevent import from timing out.
 - Removed old style fixtures from UI tests.
+- Structural variant databases are now imported in the same style as the small variant databases.
 
 -------
 v0.15.5

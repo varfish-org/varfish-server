@@ -166,7 +166,7 @@ class GnomAdSvFactory(factory.django.DjangoModelFactory):
     ref = "N"
     alt = ["<DUP>"]
 
-    name = factory.Sequence(lambda n: "DBVAR-SV-%d" % n)
+    name = [factory.Sequence(lambda n: "DBVAR-SV-%d" % n)]
     svtype = "DEL"
     svlen = 100
     filter = ["PASS"]

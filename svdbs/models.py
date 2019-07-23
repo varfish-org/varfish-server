@@ -1,5 +1,6 @@
 """Models for ``svdb``, storage of structural variant databases.
 """
+from postgres_copy import CopyManager
 
 __author__ = "Manuel Holtgrewe <manuel.holtgrewe@bihealth.de>"
 
@@ -108,6 +109,9 @@ class DgvGoldStandardSvs(models.Model):
     #: Number of carriers from Unknown population.
     num_carriers_unknown = models.IntegerField()
 
+    #: Allow bulk import
+    objects = CopyManager()
+
     class Meta:
         indexes = [models.Index(fields=["release", "chromosome", "bin"])]
 
@@ -151,6 +155,9 @@ class DgvSvs(models.Model):
     observed_gains = models.IntegerField()
     #: Observed losses
     observed_losses = models.IntegerField()
+
+    #: Allow bulk import
+    objects = CopyManager()
 
     class Meta:
         indexes = [models.Index(fields=["release", "chromosome", "bin"])]
@@ -204,6 +211,9 @@ class ExacCnv(models.Model):
     population = models.CharField(max_length=3, choices=EXAC_POP_CHOICES)
     #: Phred score of the variant
     phred_score = models.IntegerField()
+
+    #: Allow bulk import
+    objects = CopyManager()
 
     class Meta:
         indexes = [models.Index(fields=["release", "chromosome", "bin"])]
@@ -353,6 +363,9 @@ class ThousandGenomesSv(models.Model):
     #: Number of variant alleles in SAS population.
     num_var_alleles_sas = models.IntegerField()
 
+    #: Allow bulk import
+    objects = CopyManager()
+
     class Meta:
         indexes = [models.Index(fields=["release", "chromosome", "bin"])]
 
@@ -377,15 +390,15 @@ class DbVarSv(models.Model):
 
     #: Number of observations
     num_carriers = models.IntegerField()
-    #: Variant type
+    #: Variant type TODO this should be an array of charfields.
     sv_type = models.CharField(max_length=1024)
-    #: Detection method
+    #: Detection method TODO this should be an array of charfields.
     method = models.CharField(max_length=1024)
-    #: Detection analysis
+    #: Detection analysis TODO this should be an array of charfields.
     analysis = models.CharField(max_length=1024)
-    #: Detection platform
+    #: Detection platform TODO this should be an array of charfields.
     platform = models.CharField(max_length=1024)
-    #: Study
+    #: Study TODO this should be an array of charfields.
     study = models.CharField(max_length=1024)
     # Variant identifiers are not imported
     #: Clinical assertion
@@ -398,6 +411,9 @@ class DbVarSv(models.Model):
     min_ins_length = models.IntegerField(null=True, blank=True)
     #: Maximal insertion length
     max_ins_length = models.IntegerField(null=True, blank=True)
+
+    #: Allow bulk import
+    objects = CopyManager()
 
     class Meta:
         indexes = [models.Index(fields=["release", "chromosome", "bin"])]
@@ -427,7 +443,7 @@ class GnomAdSv(models.Model):
     alt = ArrayField(models.CharField(max_length=64), default=[])
 
     #: SV name in gnomAD SV.
-    name = models.CharField(max_length=64)
+    name = ArrayField(models.CharField(max_length=64))
     #: Type of the SV.
     svtype = models.CharField(max_length=64)
     #: Length of the SV
@@ -598,6 +614,9 @@ class GnomAdSv(models.Model):
     oth_freq_het = models.FloatField()
     #: Frequency of hom. alt. in OTH
     oth_freq_homalt = models.FloatField()
+
+    #: Allow bulk import
+    objects = CopyManager()
 
     class Meta:
         indexes = [models.Index(fields=["release", "chromosome", "bin"])]
