@@ -15,6 +15,8 @@ Full Change List
 ================
 
 - Genomic regions filter accepts now only chromosome as region, internally setting start/end positions to 0/INT_MAX values.
+- Structural variant databases are now imported in the same style as the small variant databases.
+- Removed ``model_support.py`` file from variants app.
 
 -------
 v0.15.6
@@ -33,7 +35,6 @@ Full Change List
 - Removed whitening of table rows from DataTables css to prevent it from overwriting our row colouring feature.
 - Doing dbSNP import now chromosome-wise to prevent import from timing out.
 - Removed old style fixtures from UI tests.
-- Structural variant databases are now imported in the same style as the small variant databases.
 
 -------
 v0.15.5

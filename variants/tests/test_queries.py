@@ -1,4 +1,4 @@
-"""Tests for the ``models_support`` module.
+"""Tests for the ``queries`` module.
 
 Remarks:
 
