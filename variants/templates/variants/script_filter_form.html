@@ -765,6 +765,7 @@ let presets_genelist = {
   }
 };
 
+
 function loadPresets(element) {
   const presetsName = element.data("preset-name");
 
@@ -804,6 +805,16 @@ function loadGenelistPresets(e) {
   }
 }
 
+function loadGenotypePresets(e) {
+  const presetName = $(e.currentTarget).data("preset-name");
+  const preset = presetName.split(":");
+  $(".genotype-field-gt." + preset[0]).each(
+    function () {
+      $(this).val(preset[1]);
+    }
+  )
+}
+
 function makeNumberFieldsReceiveOnlyDigits() {
   $("input.numberDecimal[type='text']").keypress(function(data) {
     if (data.which < 46 || data.which > 57 || data.which === 47) {
@@ -831,6 +842,7 @@ $(document).ready(
     $(".load-presets").click(function (e) { loadPresets($(e.currentTarget)) })
     $(".load-blacklist").click(loadGenelistPresets);
     $(".load-whitelist").click(loadGenelistPresets);
+    $(".load-genotype").click(loadGenotypePresets);
     // Assign click handler function to submit button
     filterButton.click(
       function(e) {

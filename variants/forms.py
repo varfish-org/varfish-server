@@ -385,10 +385,13 @@ class SmallVariantGenotypeFilterFormMixin:
         # Dynamically add the fields based on the pedigree
         for member in self.get_pedigree_with_samples():
             name = member["patient"]
+            affection = "affected" if 2 == member["affected"] else "unaffected"
             self.fields[self.get_genotype_field_names()[name]["gt"]] = forms.CharField(
                 label="",
                 required=True,
-                widget=forms.Select(choices=INHERITANCE, attrs={"class": "genotype-field-gt"}),
+                widget=forms.Select(
+                    choices=INHERITANCE, attrs={"class": "genotype-field-gt %s" % affection}
+                ),
             )
 
 

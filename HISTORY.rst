@@ -10,6 +10,7 @@ End-User Summary
 ================
 
 - Genomic regions now also able to filter only by chromosome.
+- Added preset selector for genotypes, setting affected or unaffected individuals to the selected setting.
 
 Full Change List
 ================
@@ -17,6 +18,7 @@ Full Change List
 - Genomic regions filter accepts now only chromosome as region, internally setting start/end positions to 0/INT_MAX values.
 - Structural variant databases are now imported in the same style as the small variant databases.
 - Removed ``model_support.py`` file from variants app.
+- Added preset selector for genotypes, setting affected or unaffected individuals to the selected setting.
 
 -------
 v0.15.6

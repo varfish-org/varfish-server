@@ -74,7 +74,7 @@ function clickVariantBookmark() {
   function showPopup(data) {
     var html = bookmarkPopupTpl.render(data);
     html = $(html);
-    html.find('[data-toggle="tooltip"]').tooltip();
+    html.find('[data-toggle="tooltip"]').tooltip({container: 'body'});
 
     // Setup the form elements so we can use AJAX for them.
     $(html).find(".cancel").click(function(event) {
@@ -277,7 +277,7 @@ function clickVariantAcmgRating() {
   function showPopup(data) {
     var html = bookmarkPopupTpl.render(data)
     html = $(html)
-    html.find('[data-toggle="tooltip"]').tooltip()
+    html.find('[data-toggle="tooltip"]').tooltip({container: 'body'})
     html.find('input').change(acmgCriterionChanged)
     updateAcmgRating(html)  // initial computation
 

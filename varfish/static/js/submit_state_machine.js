@@ -104,8 +104,8 @@ function updateTableDisplay() {
     "display-" + $("#result-display-frequencies").val() +
     " display-" + $("#result-display-constraints").val()
   );
-  $('[data-toggle="tooltip"]').tooltip();
-  $('[data-toggle="popover"]').popover();
+  $('[data-toggle="tooltip"]').tooltip({container: 'body'});
+  $('[data-toggle="popover"]').popover({container: 'body'});
 }
 
 function displayConnectionError() {

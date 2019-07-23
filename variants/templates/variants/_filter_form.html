@@ -177,7 +177,7 @@
 </form>
 
 <script type="text/javascript">
-  $('[data-toggle-second="tooltip"]').tooltip();
+  $('[data-toggle-second="tooltip"]').tooltip({container: 'body'});
   const anchor = window.location.hash;
   $(`a[href="${anchor}"]`).tab('show')
 </script>
