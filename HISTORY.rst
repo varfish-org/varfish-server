@@ -11,6 +11,8 @@ End-User Summary
 
 - Genomic regions now also able to filter only by chromosome.
 - Added preset selector for genotypes, setting affected or unaffected individuals to the selected setting.
+- dbSNP ID in file export is now set to ``None`` instead of an empty field.
+- Fixed sorting issues with ranks and scores.
 
 Full Change List
 ================
@@ -19,6 +21,10 @@ Full Change List
 - Structural variant databases are now imported in the same style as the small variant databases.
 - Removed ``model_support.py`` file from variants app.
 - Added preset selector for genotypes, setting affected or unaffected individuals to the selected setting.
+- dbSNP ID in file export is now set to ``None`` instead of an empty field.
+- Ranks in the results table are now displayed without the hash tag to make them properly sortable.
+  Pathogenicity and phenotype scores in the results table now sort in a numerical order.
+  Ranks and scores are now in separate fields.
 
 -------
 v0.15.6

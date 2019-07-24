@@ -870,7 +870,7 @@ class CaseLoadPrefetchedFilterView(
             for entry in filter_job.smallvariantquery.smallvariantquerygenescores_set.all()
         }
         if gene_scores:
-            card_colspan += 1
+            card_colspan += 2
             rows = annotate_with_phenotype_scores(rows, gene_scores)
 
         # Annotate with pathogenicity score if any.
@@ -879,12 +879,12 @@ class CaseLoadPrefetchedFilterView(
             for entry in filter_job.smallvariantquery.smallvariantqueryvariantscores_set.all()
         }
         if variant_scores:
-            card_colspan += 1
+            card_colspan += 2
             rows = annotate_with_pathogenicity_scores(rows, variant_scores)
 
         # Annotate with joint scores if any.
         if gene_scores and variant_scores:
-            card_colspan += 1
+            card_colspan += 2
             rows = annotate_with_joint_scores(rows)
 
         # Get mapping from HPO term to HpoName object.

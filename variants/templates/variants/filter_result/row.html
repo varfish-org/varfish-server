@@ -16,7 +16,7 @@
   </td>
   {# rank #}
   <td style="width: 0px" class="text-nowrap text-right text-muted">
-      #{{ forloop.counter }}
+      {{ forloop.counter }}
   </td>
   {# bookmark #}
   {% if not training_mode %}
@@ -194,21 +194,27 @@
     </nobr>
   </td>
   {% if has_phenotype_scores %}
-    <td class="text-nowrap">
+    <td class="text-right">
       {{ entry.phenotype_score|floatformat:3 }}
-      <span class="text-muted">(#{{ entry.phenotype_rank }})</span>
+    </td>
+    <td class="text-muted text-right">
+      {{ entry.phenotype_rank }}
     </td>
   {% endif %}
   {% if has_pathogenicity_scores %}
-    <td class="text-nowrap">
+    <td class="text-right">
       {{ entry.pathogenicity_score|floatformat:1 }}
-      <span class="text-muted">(#{{ entry.pathogenicity_rank }})</span>
+    </td>
+    <td class="text-muted text-right">
+      {{ entry.pathogenicity_rank }}
     </td>
   {% endif %}
   {% if has_phenotype_scores and has_pathogenicity_scores %}
-    <td class="text-nowrap">
+    <td class="text-right">
       {{ entry.joint_score|floatformat:1 }}
-      <span class="text-muted">(#{{ entry.joint_rank }})</span>
+    </td>
+    <td class="text-muted text-right">
+      {{ entry.joint_rank }}
     </td>
   {% endif %}
   <td>

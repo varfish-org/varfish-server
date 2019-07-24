@@ -22,13 +22,13 @@
   <th class="detail-constraints-gnomad-z-syn">gnomAD</th>
   <th></th>{# gene #}
   {% if has_phenotype_scores %}
-    <th>phenotype</th>
+    <th colspan="2">phenotype</th>
   {% endif %}
   {% if has_pathogenicity_scores %}
-    <th>pathogenicity</th>
+    <th colspan="2">pathogenicity</th>
   {% endif %}
   {% if has_phenotype_scores and has_pathogenicity_scores %}
-    <th>pheno. &amp; patho.</th>
+    <th colspan="2">pheno. &amp; patho.</th>
   {% endif %}
   <th></th>{# effect #}
   {% if query_type == "case" %}
@@ -68,13 +68,16 @@
   <th class="detail-constraints-gnomad-z-syn">Z syn</th>
   <th>gene</th>
   {% if has_phenotype_scores %}
-    <th>score/rank</th>
+    <th>score</th>
+    <th>rank</th>
   {% endif %}
   {% if has_pathogenicity_scores %}
-    <th>score/rank</th>
+    <th>score</th>
+    <th>rank</th>
   {% endif %}
   {% if has_phenotype_scores and has_pathogenicity_scores %}
-    <th>score/rank</th>
+    <th>score</th>
+    <th>rank</th>
   {% endif %}
   <th>effect</th>
   {% if query_type == "case" %}

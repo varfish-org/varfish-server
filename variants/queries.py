@@ -221,7 +221,7 @@ class ExtendQueryPartsDbsnpJoin(ExtendQueryPartsBase):
         )
 
     def extend_fields(self, _query_parts):
-        return [func.coalesce(self.subquery.c.rsid, "").label("rsid")]
+        return [func.coalesce(self.subquery.c.rsid, None).label("rsid")]
 
     def extend_selectable(self, query_parts):
         return query_parts.selectable.outerjoin(self.subquery, true())
@@ -828,7 +828,6 @@ class ExtendQueryPartsGeneListsFilter(ExtendQueryPartsBase):
             SmallVariant.sa.ensembl_gene_id.in_(
                 self._build_gene_sub_query("ensembl_gene_id", gene_list)
             ),
-            # TODO go via ReseqToHgnc?
             SmallVariant.sa.refseq_gene_id.in_(self._build_gene_sub_query("entrez_id", gene_list)),
         )
 
