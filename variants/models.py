@@ -249,18 +249,18 @@ class SmallVariant(models.Model):
     class Meta:
         indexes = [
             # For query: select all variants for a case.
-            models.Index(fields=["set_id"]),
+            models.Index(fields=["case_id"]),
             # For locating variants by coordiante.
-            models.Index(fields=["set_id", "chromosome", "bin"]),
+            models.Index(fields=["case_id", "chromosome", "bin"]),
             # Filter query: the most important thing is to reduce the variants for a case quickly. It's questionable
             # how much adding homozygous/frequency really adds here.  Adding them back should only done when we
             # know that it helps.
-            GinIndex(fields=["set_id", "refseq_effect"]),
-            GinIndex(fields=["set_id", "ensembl_effect"]),
+            GinIndex(fields=["case_id", "refseq_effect"]),
+            GinIndex(fields=["case_id", "ensembl_effect"]),
             models.Index(fields=["set_id", "in_clinvar"]),
             # Fast white-list queries of gene.
-            models.Index(fields=["set_id", "ensembl_gene_id"]),
-            models.Index(fields=["set_id", "refseq_gene_id"]),
+            models.Index(fields=["case_id", "ensembl_gene_id"]),
+            models.Index(fields=["case_id", "refseq_gene_id"]),
         ]
         managed = settings.IS_TESTING
         db_table = "variants_smallvariant"

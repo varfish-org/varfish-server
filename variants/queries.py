@@ -34,6 +34,7 @@ from variants.models import (
     SmallVariantFlags,
     SmallVariantComment,
     AcmgCriteriaRating,
+    SmallVariantSet,
 )
 from variants.forms import FILTER_FORM_TRANSLATE_INHERITANCE, FILTER_FORM_TRANSLATE_CLINVAR_STATUS
 
@@ -133,10 +134,10 @@ class ExtendQueryPartsBase:
     def __init__(self, kwargs, case_or_cases, query_id=None):
         self.kwargs = kwargs
         self.query_id = query_id
-        if isinstance(case_or_cases, (list, tuple)):
-            self.cases = tuple(case_or_cases)
-        else:
-            self.cases = (case_or_cases,)
+        try:
+            self.cases = list(iter(case_or_cases))
+        except TypeError:
+            self.cases = [case_or_cases]
 
     def extend(self, query_parts):
         return QueryParts(
@@ -487,6 +488,8 @@ class ExtendQueryPartsHgmdJoinAndFilter(ExtendQueryPartsHgmdJoin):
 
 
 class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsBase):
+    #: The model to retrieve the set ids from.
+    model_set = SmallVariantSet
 
     #: The model to join with.
     model = SmallVariant
@@ -495,7 +498,18 @@ class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsBase):
         return [Case.sa.sodar_uuid.label("case_uuid")]
 
     def extend_conditions(self, _query_parts):
-        return [Case.sa.id.in_([case.id for case in self.cases])]
+        condition = []
+        for case in self.cases:
+            set_ = (
+                self.model_set.objects.filter(case=case, state="active")
+                .order_by("-date_created")
+                .first()
+            )
+            if set_:
+                condition.append(
+                    and_(self.model.sa.case_id == case.id, self.model.sa.set_id == set_.id)
+                )
+        return [or_(*condition)]
 
     def extend_selectable(self, query_parts):
         return query_parts.selectable.outerjoin(Case.sa, self.model.sa.case_id == Case.sa.id)

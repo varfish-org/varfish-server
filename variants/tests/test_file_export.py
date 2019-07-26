@@ -11,7 +11,13 @@ import openpyxl
 from test_plus.test import TestCase
 from timeline.models import ProjectEvent
 
-from variants.tests.factories import SmallVariantSetFactory, SmallVariantFactory, FormDataFactory
+from variants.tests.factories import (
+    SmallVariantSetFactory,
+    SmallVariantFactory,
+    FormDataFactory,
+    ProcessedFormDataFactory,
+    ResubmitFormDataFactory,
+)
 from . import test_views
 from .. import file_export, forms
 from ..models import ExportFileBgJob
@@ -28,7 +34,7 @@ class ExportTestBase(TestCase):
     def setUp(self):
         self.user = self.make_user("superuser")
         self.variant_set = SmallVariantSetFactory()
-        self.small_vars = [SmallVariantFactory(variant_set=self.variant_set) for _ in range(3)]
+        self.small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
         self.case = self.variant_set.case
         self.bg_job = BackgroundJob.objects.create(
             name="job name",
@@ -50,15 +56,8 @@ class CaseExporterTest(ExportTestBase):
         super().setUp()
         # Here, the query arguments actually matter
         self.export_job.query_args = vars(
-            FormDataFactory(submit="download", names=self.case.get_members())
+            ResubmitFormDataFactory(submit="download", names=self.case.get_members())
         )
-        self.export_job.query_args["effects"] = [
-            effect
-            for name, effect in forms.FILTER_FORM_TRANSLATE_EFFECTS.items()
-            if test_views.DEFAULT_FILTER_FORM_SETTING[name]
-        ]
-        self.export_job.query_args["A_export"] = True
-        self.export_job.save()
 
     def test_export_tsv(self):
         with file_export.CaseExporterTsv(self.export_job, self.export_job.case) as exporter:

@@ -25,6 +25,8 @@ Full Change List
 - Ranks in the results table are now displayed without the hash tag to make them properly sortable.
   Pathogenicity and phenotype scores in the results table now sort in a numerical order.
   Ranks and scores are now in separate fields.
+- Small variant filter now considers set id together with case id.
+- Removed remaining fixtures from ``test_submit_filter.py``
 
 -------
 v0.15.6

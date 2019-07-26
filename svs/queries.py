@@ -18,6 +18,7 @@ from .models import (
     StructuralVariantGeneAnnotation,
     StructuralVariantComment,
     StructuralVariantFlags,
+    StructuralVariantSet,
 )
 from genomicfeatures.models import (
     EnsemblRegulatoryFeature,
@@ -120,6 +121,7 @@ class ExtendQueryPartsCaseJoinAndFilter(_ExtendQueryPartsCaseJoinAndFilter):
     """Join structural variants with case and filter for it."""
 
     model = StructuralVariant
+    model_set = StructuralVariantSet
 
 
 class ExtendQueryPartsGenotypeFilter(ExtendQueryPartsGenotypeDefaultBase):
