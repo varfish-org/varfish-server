@@ -815,6 +815,27 @@ function loadGenotypePresets(e) {
   )
 }
 
+
+function transferQualitySettings(e) {
+  const fields = ["dp-het", "dp-hom", "ab", "gq", "ad", "ad-max", "fail"];
+  const affection = $("#qualityTemplateAffectionSelection").val();
+  var subgroup = "";
+  if (affection != "all") {
+    subgroup += "." + affection;
+  }
+  $.each(fields, function (index, field) {
+    $(".quality-field-" + field + subgroup).each(
+      function() {
+        let template_field = $("#template_quality_field_" + field.replace("-", "_"));
+        if (field == "ad-max" || template_field.val() != "") {
+          $(this).val(template_field.val());
+        }
+      }
+    );
+  });
+}
+
+
 function makeNumberFieldsReceiveOnlyDigits() {
   $("input.numberDecimal[type='text']").keypress(function(data) {
     if (data.which < 46 || data.which > 57 || data.which === 47) {
@@ -843,6 +864,7 @@ $(document).ready(
     $(".load-blacklist").click(loadGenelistPresets);
     $(".load-whitelist").click(loadGenelistPresets);
     $(".load-genotype").click(loadGenotypePresets);
+    $("#qualityTemplateApplyButton").click(transferQualitySettings);
     // Assign click handler function to submit button
     filterButton.click(
       function(e) {

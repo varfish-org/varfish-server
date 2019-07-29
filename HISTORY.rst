@@ -17,6 +17,7 @@ End-User Summary
   Default is unset, i.e. filtering behaviour as usual.
   Only quality setting that doesn't require a value.
 - Added main navigation as dropdown menu for smaller screen sizes.
+- Added template settings for quality filter form to copy to each individual, or affectded/unaffected.
 
 Full Change List
 ================
@@ -33,6 +34,7 @@ Full Change List
 - Removed remaining fixtures from ``test_submit_filter.py``
 - Quality filter now can filter variants for max allelic depth.
 - Added main navigation as dropdown menu for smaller screen sizes.
+- Added template settings for quality filter form to copy to each individual, or affectded/unaffected.
 
 -------
 v0.15.6

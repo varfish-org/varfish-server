@@ -419,19 +419,24 @@ class SmallVariantQualityFilterFormMixin:
         # Dynamically add the fields based on the pedigree
         for member in self.get_pedigree_with_samples():
             name = member["patient"]
+            affection = "affected" if 2 == member["affected"] else "unaffected"
             self.fields[self.get_quality_field_names()[name]["dp_het"]] = forms.IntegerField(
                 label="",
                 required=True,
                 initial=10,
                 min_value=0,
-                widget=forms.TextInput(attrs={"class": "quality-field-dp-het numberInteger"}),
+                widget=forms.TextInput(
+                    attrs={"class": "quality-field-dp-het numberInteger %s" % affection}
+                ),
             )
             self.fields[self.get_quality_field_names()[name]["dp_hom"]] = forms.IntegerField(
                 label="",
                 required=True,
                 initial=5,
                 min_value=0,
-                widget=forms.TextInput(attrs={"class": "quality-field-dp-hom numberInteger"}),
+                widget=forms.TextInput(
+                    attrs={"class": "quality-field-dp-hom numberInteger %s" % affection}
+                ),
             )
             self.fields[self.get_quality_field_names()[name]["ab"]] = forms.FloatField(
                 label="",
@@ -439,31 +444,41 @@ class SmallVariantQualityFilterFormMixin:
                 initial=0.3,
                 min_value=0,
                 max_value=1,
-                widget=forms.TextInput(attrs={"class": "quality-field-ab numberDecimal"}),
+                widget=forms.TextInput(
+                    attrs={"class": "quality-field-ab numberDecimal %s" % affection}
+                ),
             )
             self.fields[self.get_quality_field_names()[name]["gq"]] = forms.IntegerField(
                 label="",
                 required=True,
                 initial=30,
                 min_value=0,
-                widget=forms.TextInput(attrs={"class": "quality-field-gq numberInteger"}),
+                widget=forms.TextInput(
+                    attrs={"class": "quality-field-gq numberInteger %s" % affection}
+                ),
             )
             self.fields[self.get_quality_field_names()[name]["ad"]] = forms.IntegerField(
                 label="",
                 required=True,
                 initial=3,
                 min_value=0,
-                widget=forms.TextInput(attrs={"class": "quality-field-ad numberInteger"}),
+                widget=forms.TextInput(
+                    attrs={"class": "quality-field-ad numberInteger %s" % affection}
+                ),
             )
             self.fields[self.get_quality_field_names()[name]["ad_max"]] = forms.IntegerField(
                 label="",
                 required=False,
                 min_value=0,
-                widget=forms.TextInput(attrs={"class": "quality-field-ad-max numberInteger"}),
+                widget=forms.TextInput(
+                    attrs={"class": "quality-field-ad-max numberInteger %s" % affection}
+                ),
             )
             self.fields[self.get_quality_field_names()[name]["fail"]] = forms.CharField(
                 label="",
-                widget=forms.Select(choices=FAIL, attrs={"class": "quality-field-fail"}),
+                widget=forms.Select(
+                    choices=FAIL, attrs={"class": "quality-field-fail %s" % affection}
+                ),
                 required=True,
                 initial="drop-variant",
             )

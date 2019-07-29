@@ -27,6 +27,36 @@
       </tr>
     </thead>
     <tbody>
+      <tr>
+        <td></td>
+        <td class="text-muted">
+          <em>Template Settings</em>
+        </td>
+        <td colspan="2" class="text-muted text-right">
+          <button class="btn btn-sm btn-secondary" type="button" id="qualityTemplateApplyButton">Apply&nbsp;<i class="fa fa-arrow-down"></i></button>
+          &nbsp;
+          to
+          &nbsp;
+          <select id="qualityTemplateAffectionSelection">
+            <option value="all">all</option>
+            <option value="affected">affected</option>
+            <option value="unaffected">unaffected</option>
+          </select>
+        </td>
+        <td><input id="template_quality_field_dp_het" class="numberInteger textinput textInput form-control" type="text" name="template_quality_field_dp_het"></td>
+        <td><input id="template_quality_field_dp_hom" class="numberInteger textinput textInput form-control" type="text" name="template_quality_field_dp_hom"></td>
+        <td><input id="template_quality_field_ab" class="numberInteger textinput textInput form-control" type="text" name="template_quality_field_ab"></td>
+        <td><input id="template_quality_field_gq" class="numberInteger textinput textInput form-control" type="text" name="template_quality_field_gq"></td>
+        <td><input id="template_quality_field_ad" class="numberInteger textinput textInput form-control" type="text" name="template_quality_field_ad"></td>
+        <td><input id="template_quality_field_ad_max" class="numberInteger textinput textInput form-control" type="text" name="template_quality_field_ad_max"></td>
+        <td>
+          <select id="template_quality_field_fail" name="template_quality_field_fail">
+            <option value="ignore">ignore</option>
+            <option value="drop-variant">drop variant</option>
+            <option value="no-call">no-call</option>
+          </select>
+        </td>
+      </tr>
       {% for member in form.get_pedigree %}
       <tr>
         <td class="text-right text-muted">{{ forloop.counter }}</td>
