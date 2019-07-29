@@ -16,6 +16,7 @@ End-User Summary
 - Added quality field to set MAX allelic depth (AD) for filtering variants (hom or ref).
   Default is unset, i.e. filtering behaviour as usual.
   Only quality setting that doesn't require a value.
+- Added main navigation as dropdown menu for smaller screen sizes.
 
 Full Change List
 ================
@@ -31,6 +32,7 @@ Full Change List
 - Small variant filter now considers set id together with case id.
 - Removed remaining fixtures from ``test_submit_filter.py``
 - Quality filter now can filter variants for max allelic depth.
+- Added main navigation as dropdown menu for smaller screen sizes.
 
 -------
 v0.15.6

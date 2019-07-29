@@ -12,6 +12,9 @@
 
 {% block projectroles %}
   <div class="row sodar-pr-content-title pb-2">
+    {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
+    {% include 'projectroles/_project_menu_btn.html' %}
+
     <h2 class="sodar-pr-content-title">
       Cases
     </h2>

@@ -20,6 +20,9 @@
   {% has_perm 'bgjobs.clear_all_jobs' request.user project as can_clear_all_jobs %}
 
   <div class="row sodar-pr-content-title pb-2 background-white sticky-top">
+    {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
+    {% include 'projectroles/_project_menu_btn.html' %}
+
     <h2 class="sodar-pr-content-title">
       Background Jobs
       <small class="text-muted">{{ object.name }}</small>
