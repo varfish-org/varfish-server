@@ -329,9 +329,11 @@ class CaseExporterBase:
 
     def _fetch_gene_scores(self, entrez_ids):
         if self._is_prioritization_enabled():
+            prio_algorithm = self.query_args.get("prio_algorithm")
+            hpo_terms = tuple(sorted(self.query_args.get("prio_hpo_terms", [])))
             return {
                 str(gene_id): score
-                for gene_id, _, score, _ in prioritize_genes(entrez_ids, self.query_args)
+                for gene_id, _, score, _ in prioritize_genes(entrez_ids, hpo_terms, prio_algorithm)
             }
         else:
             return {}

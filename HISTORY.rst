@@ -18,6 +18,7 @@ End-User Summary
   Only quality setting that doesn't require a value.
 - Added main navigation as dropdown menu for smaller screen sizes.
 - Added template settings for quality filter form to copy to each individual, or affectded/unaffected.
+- Fixed bug that occurred during file export with activated gene prioritization.
 
 Full Change List
 ================
@@ -35,6 +36,7 @@ Full Change List
 - Quality filter now can filter variants for max allelic depth.
 - Added main navigation as dropdown menu for smaller screen sizes.
 - Added template settings for quality filter form to copy to each individual, or affectded/unaffected.
+- Fixed function call of gene prioritization function in file export task causing file export to break when gene prioritization was activated.
 
 -------
 v0.15.6

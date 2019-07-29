@@ -335,6 +335,9 @@ function updateSettingsDump() {
   var settings = {};
   $("#filterForm").find("input, select, textarea").each(
     function() {
+      if ($(this).attr("id") && $(this).attr("id").match("^template")) {
+        return;
+      }
       if ($(this).is(":radio")) {
         if ($(this).is(":checked")) {
           settings[$(this).attr("name")] = $(this).val();
