@@ -525,6 +525,7 @@ class ExtendQueryPartsGenotypeBase(ExtendQueryPartsBase):
         if self.quality_term_disabled:
             return True
 
+        ad_max = self.kwargs["%s_ad_max" % name]
         rhs = and_(
             # Genotype quality is simple.
             self.model.sa.genotype[name]["gq"].astext.cast(Integer) >= self.kwargs["%s_gq" % name],
@@ -557,13 +558,18 @@ class ExtendQueryPartsGenotypeBase(ExtendQueryPartsBase):
                 self.model.sa.genotype[name]["dp"].astext.cast(Integer)
                 >= self.kwargs["%s_dp_hom" % name],
             ),
-            # Allelic depth is only checked in case of het.
+            # Allelic depth is checked in case of het or hom.
             or_(
                 self.model.sa.genotype[name]["gt"].astext == "0/0",
                 self.model.sa.genotype[name]["gt"].astext == "0|0",
                 self.model.sa.genotype[name]["gt"].astext == "0",
-                self.model.sa.genotype[name]["ad"].astext.cast(Integer)
-                >= self.kwargs["%s_ad" % name],
+                and_(
+                    self.model.sa.genotype[name]["ad"].astext.cast(Integer)
+                    >= self.kwargs["%s_ad" % name],
+                    self.model.sa.genotype[name]["ad"].astext.cast(Integer) <= ad_max
+                    if ad_max
+                    else True,
+                ),
             ),
             # Allelic balance is somewhat complicated
             and_(

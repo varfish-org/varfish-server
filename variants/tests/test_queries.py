@@ -1600,6 +1600,27 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
             5,
         )
 
+    def test_genotype_ad_max_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {"%s_fail" % self.patient: "drop-variant", "%s_ad_max" % self.patient: 10},
+            4,
+        )
+
+    def test_genotype_ad_max_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {"%s_fail" % self.patient: "drop-variant", "%s_ad_max" % self.patient: 10},
+            4,
+        )
+
+    def test_genotype_ad_max_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {"%s_fail" % self.patient: "drop-variant", "%s_ad_max" % self.patient: 10},
+            4,
+        )
+
     def test_genotype_ab_limits_filter(self):
         self.run_query(
             CasePrefetchQuery,

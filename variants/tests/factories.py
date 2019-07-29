@@ -88,6 +88,7 @@ class FormDataFactoryBase:
                     "%s_ab" % name: 0,
                     "%s_gq" % name: 0,
                     "%s_ad" % name: 0,
+                    "%s_ad_max" % name: "",
                 }
             )
         delattr(self, "names")

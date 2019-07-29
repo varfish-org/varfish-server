@@ -407,7 +407,7 @@ class SmallVariantQualityFilterFormMixin:
         """Return mapping from patient and key to field name."""
         field_names = {}
         for member in self.get_pedigree_with_samples():
-            for key in ("dp_het", "dp_hom", "ab", "gq", "ad", "fail", "export"):
+            for key in ("dp_het", "dp_hom", "ab", "gq", "ad", "ad_max", "fail", "export"):
                 field_names.setdefault(member["patient"], {})[key] = "%s_%s" % (
                     member["patient"],
                     key,
@@ -454,6 +454,12 @@ class SmallVariantQualityFilterFormMixin:
                 initial=3,
                 min_value=0,
                 widget=forms.TextInput(attrs={"class": "quality-field-ad numberInteger"}),
+            )
+            self.fields[self.get_quality_field_names()[name]["ad_max"]] = forms.IntegerField(
+                label="",
+                required=False,
+                min_value=0,
+                widget=forms.TextInput(attrs={"class": "quality-field-ad-max numberInteger"}),
             )
             self.fields[self.get_quality_field_names()[name]["fail"]] = forms.CharField(
                 label="",

@@ -13,6 +13,9 @@ End-User Summary
 - Added preset selector for genotypes, setting affected or unaffected individuals to the selected setting.
 - dbSNP ID in file export is now set to ``None`` instead of an empty field.
 - Fixed sorting issues with ranks and scores.
+- Added quality field to set MAX allelic depth (AD) for filtering variants (hom or ref).
+  Default is unset, i.e. filtering behaviour as usual.
+  Only quality setting that doesn't require a value.
 
 Full Change List
 ================
@@ -27,6 +30,7 @@ Full Change List
   Ranks and scores are now in separate fields.
 - Small variant filter now considers set id together with case id.
 - Removed remaining fixtures from ``test_submit_filter.py``
+- Quality filter now can filter variants for max allelic depth.
 
 -------
 v0.15.6
