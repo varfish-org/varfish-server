@@ -82,7 +82,7 @@ xlsxwriter ==1.1.2
 
 # Writing of VCF files
 vcfpy
-pysam
+pysam==0.15.2
 
 # Filter query generation
 sqlalchemy ==1.2.13

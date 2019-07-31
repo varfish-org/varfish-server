@@ -354,7 +354,7 @@ class Case(models.Model):
     #: Name of the case.
     name = models.CharField(max_length=512)
     #: Identifier of the index in ``pedigree``.
-    index = models.CharField(max_length=32)
+    index = models.CharField(max_length=512)
     #: Pedigree information, ``list`` of ``dict`` with the information.
     pedigree = JSONField()
 

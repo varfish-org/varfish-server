@@ -37,6 +37,7 @@ Full Change List
 - Added main navigation as dropdown menu for smaller screen sizes.
 - Added template settings for quality filter form to copy to each individual, or affectded/unaffected.
 - Fixed function call of gene prioritization function in file export task causing file export to break when gene prioritization was activated.
+- Increased length of ``Case.index`` field from 32 to 512 chars.
 
 -------
 v0.15.6
