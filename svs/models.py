@@ -17,9 +17,8 @@ from projectroles.plugins import get_backend_api
 from sqlalchemy import and_
 
 from variants.models import Case, VARIANT_RATING_CHOICES, JobModelMessageMixin2, VariantImporterBase
+from variants.helpers import SQLALCHEMY_ENGINE
 
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")

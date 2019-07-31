@@ -3,15 +3,11 @@ from __future__ import unicode_literals
 
 import logging
 
-import aldjemy
 from django.db import migrations
 
 from variants.models import Case
 from variants.variant_stats import rebuild_case_variant_stats
-
-
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+from variants.helpers import SQLALCHEMY_ENGINE
 
 
 def rebuild_var_stats(apps, _schema_editor):

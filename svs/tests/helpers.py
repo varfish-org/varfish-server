@@ -6,8 +6,7 @@ from django.test import TestCase
 from genomicfeatures.tests.factories import TadSetFactory
 from variants.models import Case, CaseAwareProject
 from .factories import FormDataFactory
-
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+from variants.helpers import SQLALCHEMY_ENGINE
 
 
 class TestBase(TestCase):

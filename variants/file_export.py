@@ -26,6 +26,7 @@ from .models import (
 from .templatetags.variants_tags import flag_class
 from projectroles.plugins import get_backend_api
 from .queries import CaseExportTableQuery, CaseExportVcfQuery, ProjectExportTableQuery
+from variants.helpers import SQLALCHEMY_ENGINE
 
 #: Color to use for variants flagged as positive.
 BG_COLOR_POSITIVE = "#dc3848"
@@ -43,9 +44,6 @@ BG_COLORS = {
     "negative": BG_COLOR_NEGATIVE,
 }
 
-
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 #: Constant that determines how many days generated files should stay.  Note for the actual removal, a separate
 #: Celery job must be ran.

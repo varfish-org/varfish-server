@@ -3,8 +3,6 @@ import uuid
 import contextlib
 
 import decimal
-import aldjemy.core
-import binning
 import numpy as np
 import requests
 
@@ -92,6 +90,7 @@ from .tasks import (
     clinvar_filter_task,
 )
 from .file_export import RowWithSampleProxy
+from variants.helpers import SQLALCHEMY_ENGINE
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -104,9 +103,6 @@ class UUIDEncoder(json.JSONEncoder):
         # Default implementation raises not-serializable TypeError exception
         return json.JSONEncoder.default(self, obj)  # pragma: no cover
 
-
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 # Modes of inheritance in HPO: https://hpo.jax.org/app/browse/term/HP:0000005
 HPO_INHERITANCE_MAPPING = {

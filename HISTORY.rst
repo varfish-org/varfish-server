@@ -19,6 +19,7 @@ End-User Summary
 - Added main navigation as dropdown menu for smaller screen sizes.
 - Added template settings for quality filter form to copy to each individual, or affectded/unaffected.
 - Fixed bug that occurred during file export with activated gene prioritization.
+- Improved database connection to avoid occasional JSON field retrieval errors.
 
 Full Change List
 ================
@@ -37,6 +38,8 @@ Full Change List
 - Added main navigation as dropdown menu for smaller screen sizes.
 - Added template settings for quality filter form to copy to each individual, or affectded/unaffected.
 - Fixed function call of gene prioritization function in file export task causing file export to break when gene prioritization was activated.
+- Remove switching psycopg2 JSON (de)serializer during database query execution to avoid occasional JSON field retrieval errors.
+  Instead, replace the JSON (de)serializers for sqlalchemy and leave it to psycopg2 to take care of this.
 - Increased length of ``Case.index`` field from 32 to 512 chars.
 
 -------

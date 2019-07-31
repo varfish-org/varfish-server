@@ -17,9 +17,8 @@ from django.db import transaction
 
 from ...models import ImportInfo
 from svdbs.models import DgvGoldStandardSvs, DgvSvs, ExacCnv, ThousandGenomesSv, DbVarSv, GnomAdSv
+from variants.helpers import SQLALCHEMY_ENGINE
 
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 #: One entry in the TABLES variable is structured as follows:
 #: 'genome_build': {'table_group': (Table,), ...}

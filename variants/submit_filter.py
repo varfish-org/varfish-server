@@ -4,7 +4,7 @@ import binning
 from django.conf import settings
 
 from projectroles.plugins import get_backend_api
-from variants.file_export import SQLALCHEMY_ENGINE
+from variants.helpers import SQLALCHEMY_ENGINE
 from variants.models import prioritize_genes, variant_scores
 from .queries import CasePrefetchQuery, ProjectPrefetchQuery, ClinvarReportPrefetchQuery
 

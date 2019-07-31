@@ -1,10 +1,7 @@
-from contextlib import contextmanager
 from itertools import chain
-import json
 import typing
 
 from aldjemy import core
-import psycopg2.extras
 import attr
 from sqlalchemy.dialects.postgresql.array import OVERLAP
 from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
@@ -48,20 +45,6 @@ class _ArrayAppend(GenericFunction):
     name = "array_append"
     identifier = "array_append"
     type = ARRAY(VARCHAR())
-
-
-@contextmanager
-def disable_json_psycopg2():
-    """Context manager for temporarily switching off automated JSON decoding in psycopg2.
-
-    SQL Alchemy does not like this.
-    """
-    # TODO: this has to be done on a per-connection limit, otherwise concurrent queries in same thread break in JSON through Django ORM
-    psycopg2.extras.register_default_json(loads=lambda x: x)
-    psycopg2.extras.register_default_jsonb(loads=lambda x: x)
-    yield
-    psycopg2.extras.register_default_json(loads=json.loads)
-    psycopg2.extras.register_default_jsonb(loads=json.loads)
 
 
 @attr.s(frozen=True, auto_attribs=True)
@@ -1385,8 +1368,7 @@ class CasePrefetchQuery:
                 )
             )
 
-        with disable_json_psycopg2():
-            return self.engine.execute(stmt)
+        return self.engine.execute(stmt)
 
 
 class CaseLoadPrefetchedQuery(CasePrefetchQuery):

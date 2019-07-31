@@ -10,16 +10,13 @@ from django.conf import settings
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
 from variants.variant_stats import rebuild_project_variant_stats
+from variants.helpers import SQLALCHEMY_ENGINE
 
 timeline = get_backend_api("timeline_backend")
 
 
 #: The User model to use.
 User = get_user_model()
-
-
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 
 class Command(BaseCommand):

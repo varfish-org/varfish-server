@@ -39,9 +39,7 @@ from hgmd.models import HgmdPublicLocus
 from ...models import ImportInfo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 from ..helpers import tsv_reader
-
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+from variants.helpers import SQLALCHEMY_ENGINE
 
 
 #: One entry in the TABLES variable is structured as follows:

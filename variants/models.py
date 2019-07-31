@@ -38,7 +38,8 @@ from genomicfeatures.models import GeneInterval
 #: The SQL Alchemy engine to use
 from importer.management.helpers import open_file, tsv_reader
 
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+from variants.helpers import SQLALCHEMY_ENGINE
+
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")

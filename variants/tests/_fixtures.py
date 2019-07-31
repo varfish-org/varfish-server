@@ -8,9 +8,8 @@ from projectroles.models import Project
 from variants.models import SmallVariant, SmallVariantSummary
 from variants.variant_stats import rebuild_case_variant_stats
 from geneinfo.models import Hgnc, RefseqToHgnc
+from variants.helpers import SQLALCHEMY_ENGINE
 
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 #: Shared data for ``Project`` to use for all test cases.
 PROJECT_DICT = {

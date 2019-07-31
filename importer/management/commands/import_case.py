@@ -17,14 +17,11 @@ from projectroles.models import Project
 from svs.tasks import run_import_structural_variants_bg_job
 from variants.models import ImportVariantsBgJob
 from variants.tasks import run_import_variants_bg_job
+from variants.helpers import SQLALCHEMY_ENGINE
 
 
 #: The User model to use.
 User = get_user_model()
-
-
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
 
 
 def open_file(path, mode):

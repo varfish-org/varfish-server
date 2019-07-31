@@ -7,20 +7,14 @@ from test_plus.test import TestCase
 from clinvar.tests.factories import ProcessedClinvarFormDataFactory
 from .factories import ProcessedFormDataFactory
 from ..models import Case, CaseAwareProject
-
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+from variants.helpers import SQLALCHEMY_ENGINE
 
 
 class TestBase(TestCase):
     """Base class for all tests."""
 
-    setup_case_in_db = None
-
     def setUp(self):
         self.maxDiff = None  # show full diff
-        if self.__class__.setup_case_in_db:
-            self.__class__.setup_case_in_db()
 
 
 class ViewTestBase(TestBase):

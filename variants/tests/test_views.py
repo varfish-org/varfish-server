@@ -71,9 +71,7 @@ from variants.tests.factories import (
 from variants.tests.helpers import ViewTestBase
 from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
 from geneinfo.models import HpoName, Hgnc, RefseqToHgnc
-
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+from variants.helpers import SQLALCHEMY_ENGINE
 
 
 # TODO: This base class is still used by geneinfo view tests.

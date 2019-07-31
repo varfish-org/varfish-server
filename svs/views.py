@@ -30,10 +30,7 @@ from .queries import SingleCaseFilterQuery, best_matching_flags
 from geneinfo.models import RefseqToHgnc, Hgnc, Hpo, HpoName, Mim2geneMedgen
 from variants.models import Case, ImportVariantsBgJob
 from variants.views import UUIDEncoder
-
-
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+from variants.helpers import SQLALCHEMY_ENGINE
 
 
 class CaseFilterView(

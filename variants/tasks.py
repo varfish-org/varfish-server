@@ -9,9 +9,7 @@ from . import submit_external
 from . import variant_stats
 from . import submit_filter
 from . import sync_upstream
-
-#: The SQL Alchemy engine to use
-SQLALCHEMY_ENGINE = aldjemy.core.get_engine()
+from variants.helpers import SQLALCHEMY_ENGINE
 
 
 @app.task(bind=True)

@@ -2,28 +2,12 @@
 
 from itertools import chain
 import json
-from contextlib import contextmanager
 
 import numpy as np
-import psycopg2.extras
 from sqlalchemy import or_
 from sqlalchemy.sql import select, and_, not_, func
 
 from .models import ReferenceSite
-
-
-@contextmanager
-def _disable_json_psycopg2():
-    """Context manager for temporarily switching off automated JSON decoding in psycopg2.
-
-    SQL Alchemy does not like this.
-    """
-    # TODO: this has to be done on a per-connection limit, otherwise concurrent queries in same thread break in JSON through Django ORM
-    psycopg2.extras.register_default_json(loads=lambda x: x)
-    psycopg2.extras.register_default_jsonb(loads=lambda x: x)
-    yield
-    psycopg2.extras.register_default_json(loads=json.loads)
-    psycopg2.extras.register_default_jsonb(loads=json.loads)
 
 
 def _compute_het_hom_chrx_stmt(variant_model, variant_set):
@@ -52,8 +36,7 @@ def compute_het_hom_chrx(connection, variant_model, variant_set, min_depth=7, n_
     """Compute het/hom ratio on chromosome X from the given ``variant_model``."""
     # Obtain the genotypes.
     stmt = _compute_het_hom_chrx_stmt(variant_model, variant_set)
-    with _disable_json_psycopg2():
-        result = connection.execute(stmt)
+    result = connection.execute(stmt)
 
     # Count hom. ref., het., and hom. alt. genotypes for each sample.
     samples = variant_set.case.get_members_with_samples()
@@ -128,8 +111,7 @@ def compute_relatedness(connection, variant_model, variant_set, min_depth=7, n_s
     """
     # Obtain the genotypes.
     stmt = _compute_relatedness_stmt(variant_model, variant_set)
-    with _disable_json_psycopg2():
-        result = connection.execute(stmt)
+    result = connection.execute(stmt)
 
     # Compute sample pairs to consider.
     samples = variant_set.case.get_members_with_samples()
@@ -222,8 +204,7 @@ def compute_relatedness_many(connection, variant_model, cases, min_depth=7, n_si
     """
     # Obtain the genotypes.
     stmt = _compute_relatedness_stmt_many(variant_model, cases)
-    with _disable_json_psycopg2():
-        result = connection.execute(stmt)
+    result = connection.execute(stmt)
 
     # Collect project-wide samples and sample pairs.
     samples = set(chain(*(case.get_members_with_samples() for case in cases)))

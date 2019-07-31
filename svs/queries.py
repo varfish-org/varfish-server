@@ -35,7 +35,6 @@ from variants.queries import (
     QueryPartsBuilder,
     ExtendQueryPartsBase,
     ExtendQueryPartsGenotypeDefaultBase,
-    disable_json_psycopg2,
     ExtendQueryPartsCaseJoinAndFilter as _ExtendQueryPartsCaseJoinAndFilter,
 )
 
@@ -829,8 +828,7 @@ class CasePrefetchQuery:
                 file=sys.stderr,
             )
 
-        with disable_json_psycopg2():
-            return self.engine.execute(stmt)
+        return self.engine.execute(stmt)
 
 
 class SingleCaseFilterQuery(CasePrefetchQuery):
