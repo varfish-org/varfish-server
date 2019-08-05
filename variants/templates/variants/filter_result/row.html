@@ -280,7 +280,7 @@
           class="dropdown-item">
           Query Human Splicing Finder
         </a>
-        <a href="https://varseak.bio/ssp.php?gene={{ entry.symbol }}&hgvs={{ entry.hgvs_c|escape }}"
+        <a href="https://varseak.bio/ssp.php?gene={{ entry.symbol|urlencode }}&hgvs={{ entry.hgvs_c|urlencode }}"
           data-toggle="tooltip"
           title="Query varSEAK Splice Site Prediction"
           target="_blank"

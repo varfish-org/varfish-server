@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Fixing problems with link-out to varSEAK.
+
+Full Change List
+================
+
+- URL-escaping ``hgvs_p`` to varSEAK.
+
 -------
 v0.16.1
 -------
