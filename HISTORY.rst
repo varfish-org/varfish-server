@@ -3,7 +3,7 @@ History / Changelog
 ===================
 
 -------
-HEAD (unreleased)
+v0.16.1
 -------
 
 End-User Summary
