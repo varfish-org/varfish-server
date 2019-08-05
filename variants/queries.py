@@ -488,10 +488,11 @@ class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsBase):
                 .order_by("-date_created")
                 .first()
             )
-            if set_:
-                condition.append(
-                    and_(self.model.sa.case_id == case.id, self.model.sa.set_id == set_.id)
-                )
+            if not set_:
+                raise RuntimeError("No variant set to case with id %s found." % case.id)
+            condition.append(
+                and_(self.model.sa.case_id == case.id, self.model.sa.set_id == set_.id)
+            )
         return [or_(*condition)]
 
     def extend_selectable(self, query_parts):

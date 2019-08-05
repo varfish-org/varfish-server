@@ -109,12 +109,17 @@ function updateTableDisplay() {
 }
 
 function displayConnectionError() {
+  displayError("Error in request. Probably the server is not responding or offline.");
+}
+
+function displayError(msg) {
   currentState = STATE_IDLE;
+  animateFilterButtonSubmit();
   resultsTable.empty();
   resultsTable.html(
     '<div class="alert alert-danger">' +
     '<i class="fa fa-exclamation-triangle"></i> ' +
-    '<strong>Error in request. Probably the server is not responding or offline.</strong>' +
+    '<strong>' + msg + '</strong>' +
     '</div>'
   );
 }
@@ -283,10 +288,17 @@ function handleEventStateGetJobId(eventType, event) {
       data: event,
       success: function (data) {
         $("#logger").html("<pre>" + data["messages"].join("<br>") + "</pre>");
+        // possible job states: initial, running, done, failed
         if (data['status'] == 'done') {
           return handleEvent(EVENT_GOT_RESULT, event);
         }
-        return handleEvent(EVENT_STILL_WAITING, event);
+        else if (data['status'] == 'failed') {
+          stopTimer();
+          displayError(data['messages'][data['messages'].length-1]);
+        }
+        else {
+          return handleEvent(EVENT_STILL_WAITING, event);
+        }
       },
       error: function(jqXHR, textStatus, errorThrown) {
         resultsTable.empty();

@@ -25,10 +25,11 @@ from .models import (
     StructuralVariant,
     StructuralVariantGeneAnnotation,
     ImportStructuralVariantBgJob,
+    StructuralVariantSet,
 )
 from .queries import SingleCaseFilterQuery, best_matching_flags
 from geneinfo.models import RefseqToHgnc, Hgnc, Hpo, HpoName, Mim2geneMedgen
-from variants.models import Case, ImportVariantsBgJob
+from variants.models import Case, ImportVariantsBgJob, SmallVariantSet
 from variants.views import UUIDEncoder
 from variants.helpers import SQLALCHEMY_ENGINE
 
@@ -68,6 +69,9 @@ class CaseFilterView(
         context["object"] = self.get_case_object()
         context["query_type"] = "case"
         context["pedigree"] = self.get_case_object().get_filtered_pedigree_with_samples()
+        context["variant_set_exists"] = StructuralVariantSet.objects.filter(
+            case_id=context["object"].id
+        ).exists()
         return context
 
     def form_valid(self, form):

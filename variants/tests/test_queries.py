@@ -9,7 +9,7 @@ Remarks:
 from clinvar.tests.factories import ClinvarFactory
 from conservation.tests.factories import KnownGeneAAFactory
 from hgmd.tests.factories import HgmdPublicLocusFactory
-from variants.models import Case, ProjectCasesSmallVariantQuery
+from variants.models import Case, ProjectCasesSmallVariantQuery, SmallVariantSet
 from variants.queries import (
     CasePrefetchQuery,
     CaseExportTableQuery,
@@ -250,6 +250,18 @@ class TestCaseOneQueryCase(SupportQueryTestBase):
             1,
             Case.DoesNotExist,
         )
+
+    def test_query_case_missing_variant_set_filter(self):
+        SmallVariantSet.objects.all().delete()
+        self.run_query(CasePrefetchQuery, {}, 1, RuntimeError)
+
+    def test_query_case_missing_variant_set_export(self):
+        SmallVariantSet.objects.all().delete()
+        self.run_query(CaseExportTableQuery, {}, 1, RuntimeError)
+
+    def test_query_case_missing_variant_set_vcf(self):
+        SmallVariantSet.objects.all().delete()
+        self.run_query(CaseExportVcfQuery, {}, 1, RuntimeError)
 
 
 class TestCaseOneQueryCaseFromTwoCases(SupportQueryTestBase):

@@ -2,7 +2,6 @@
 
 import json
 
-import aldjemy.core
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from projectroles.templatetags.projectroles_common_tags import site_version
@@ -47,6 +46,7 @@ from variants.models import (
     SmallVariantComment,
     ClinvarBgJob,
     AcmgCriteriaRating,
+    SmallVariantSet,
 )
 from variants.tests.factories import (
     CaseFactory,
@@ -442,6 +442,17 @@ class TestCasePrefetchFilterView(ViewTestBase):
                 str(FilterBgJob.objects.last().sodar_uuid),
             )
 
+    def test_variant_set_missing(self):
+        SmallVariantSet.objects.all().delete()
+        with self.login(self.user), self.assertRaises(RuntimeError):
+            self.client.post(
+                reverse(
+                    "variants:case-filter-results",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(FormDataFactory(names=self.case.get_members())),
+            )
+
     def test_invalid_form(self):
         with self.login(self.user):
             response = self.client.post(
@@ -665,6 +676,7 @@ class TestFilterJobResubmitView(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.bgjob = FilterBgJobFactory(user=self.user)
+        SmallVariantSetFactory(case=self.bgjob.case)
 
     def test_redirect(self):
         with self.login(self.user):
@@ -896,8 +908,7 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.project = ProjectFactory()
-        CaseFactory(project=self.project)
-        CaseFactory(project=self.project)
+        SmallVariantSetFactory.create_batch(2, case__project=self.project)
 
     def test_valid_form(self):
         with self.login(self.user):
@@ -930,6 +941,17 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
             )
             self.assertEqual(response.status_code, 400)
             self.assertTrue("exac_frequency" in json.loads(response.content.decode("utf-8")))
+
+    def test_variant_set_missing(self):
+        SmallVariantSet.objects.all().delete()
+        with self.login(self.user), self.assertRaises(RuntimeError):
+            self.client.post(
+                reverse(
+                    "variants:project-cases-filter-results",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                vars(FormDataFactory(names=self.project.get_members())),
+            )
 
 
 class TestProjectCasesFilterJobDetailView(ViewTestBase):
@@ -995,7 +1017,10 @@ class TestProjectCasesFilterJobResubmitView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
+        project = ProjectFactory()
+        SmallVariantSetFactory(case__project=project)
+        SmallVariantSetFactory(case__project=project)
+        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user, project=project)
 
     def test_redirect(self):
         with self.login(self.user):
@@ -1097,6 +1122,17 @@ class TestCasePrefetchClinvarReportView(ViewTestBase):
             )
             self.assertEqual(response.status_code, 400)
 
+    def test_variant_set_missing(self):
+        SmallVariantSet.objects.all().delete()
+        with self.login(self.user), self.assertRaises(RuntimeError):
+            self.client.post(
+                reverse(
+                    "variants:clinvar-results",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(ClinvarFormDataFactory(names=self.case.get_members())),
+            )
+
 
 class TestClinvarReportJobDetailView(ViewTestBase):
     """Test ClinvarReportJobDetailView"""
@@ -1122,6 +1158,7 @@ class TestClinvarReportJobResubmitView(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.bgjob = ClinvarBgJobFactory(user=self.user)
+        SmallVariantSetFactory(case=self.bgjob.case)
 
     def test_redirect(self):
         with self.login(self.user):
@@ -1807,6 +1844,7 @@ class TestExportFileJobResubmitView(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.bgjob = ExportFileBgJobFactory(user=self.user)
+        SmallVariantSetFactory(case=self.bgjob.case)
 
     def test_resubmission(self):
         """Test if file resubmission works."""
@@ -1894,8 +1932,8 @@ class TestExportProjectCasesFileJobResubmitView(ViewTestBase):
     def setUp(self):
         super().setUp()
         project = ProjectFactory()
-        CaseFactory(project=project)
-        CaseFactory(project=project)
+        SmallVariantSetFactory(case__project=project)
+        SmallVariantSetFactory(case__project=project)
         self.bgjob = ExportProjectCasesFileBgJobFactory(user=self.user, project=project)
 
     def test_resubmission(self):

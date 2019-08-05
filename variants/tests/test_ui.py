@@ -6,7 +6,6 @@ import json
 import time
 from unittest import skipIf
 
-import binning
 from django.contrib import auth
 from django.test import LiveServerTestCase
 from django.urls import reverse
@@ -18,7 +17,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
-from projectroles.models import Role, SODAR_CONSTANTS, Project
+from projectroles.models import Role, SODAR_CONSTANTS
 from projectroles.tests.test_models import ProjectMixin, RoleAssignmentMixin
 
 from clinvar.tests.factories import ClinvarFactory
@@ -26,11 +25,9 @@ from variants.tests.factories import (
     SmallVariantSetFactory,
     SampleVariantStatisticsFactory,
     SmallVariantFactory,
+    ProjectFactory,
 )
-from ..models import CaseVariantStats, SampleVariantStatistics, SmallVariant
-from clinvar.models import Clinvar
-
-from ._fixtures import CLINVAR_DEFAULTS
+from ..models import update_variant_counts
 
 
 # SODAR constants
@@ -222,7 +219,7 @@ class TestUIBase(LiveUserMixin, ProjectMixin, RoleAssignmentMixin, LiveServerTes
         for i in self.selenium.get_log("browser"):
             print(i)
 
-    def _disable_filters(self):
+    def _disable_filters(self, case_or_project):
         # switch tab
         self.selenium.find_element_by_id("frequency-tab").click()
         exac = self.selenium.find_element_by_xpath("//input[@name='exac_enabled']")
@@ -244,7 +241,12 @@ class TestUIBase(LiveUserMixin, ProjectMixin, RoleAssignmentMixin, LiveServerTes
             inhouse.click()
         # switch tab
         self.selenium.find_element_by_id("quality-tab").click()
-        dropdown = self.selenium.find_element_by_id("id_%s_fail" % self.case.index)
+        if case_or_project == "case":
+            dropdown = self.selenium.find_element_by_id("id_%s_fail" % self.case.index)
+        else:
+            dropdown = self.selenium.find_element_by_id(
+                "id_%s_fail" % self.project.case_set.first().index
+            )
         self.pending().until(ec.visibility_of(dropdown))
         # disable quality filters
         dropdown.click()
@@ -636,7 +638,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.compile_url_and_login(
             {"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid}
         )
-        self._disable_filters()
+        self._disable_filters("case")
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
@@ -649,7 +651,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.compile_url_and_login(
             {"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid}
         )
-        self._disable_filters()
+        self._disable_filters("case")
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
@@ -668,7 +670,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.compile_url_and_login(
             {"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid}
         )
-        self._disable_filters()
+        self._disable_filters("case")
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
@@ -842,15 +844,18 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
 
     def setUp(self):
         super().setUp()
-        variant_set = SmallVariantSetFactory()
-        self.case = variant_set.case
-        SmallVariantFactory.create_batch(2, variant_set=variant_set)
+        self.project = ProjectFactory()
+        variant_sets = SmallVariantSetFactory.create_batch(2, case__project=self.project)
+        SmallVariantFactory(variant_set=variant_sets[0])
+        SmallVariantFactory(variant_set=variant_sets[1])
+        for variant_set in variant_sets:
+            update_variant_counts(variant_set.case)
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_joint_filter_display_loading(self):
         """Test if submitting the filter initiates the loading response."""
         # login
-        self.compile_url_and_login({"project": self.case.project.sodar_uuid})
+        self.compile_url_and_login({"project": self.project.sodar_uuid})
         # find & hit button
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
@@ -864,7 +869,7 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
     def test_variant_joint_filter_display_cancel(self):
         """Test if submitting the filter can be canceled."""
         # login
-        self.compile_url_and_login({"project": self.case.project.sodar_uuid})
+        self.compile_url_and_login({"project": self.project.sodar_uuid})
         # find & hit button
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
@@ -884,8 +889,8 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
     def test_variant_join_filter_display_results(self):
         """Test if submitting the filter yields the expected results."""
         # login
-        self.compile_url_and_login({"project": self.case.project.sodar_uuid})
-        self._disable_filters()
+        self.compile_url_and_login({"project": self.project.sodar_uuid})
+        self._disable_filters("project")
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
@@ -895,8 +900,8 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
     def test_variant_joint_filter_download(self):
         """Test if submitting the download filter is kicked off."""
         # login
-        self.compile_url_and_login({"project": self.case.project.sodar_uuid})
-        self._disable_filters()
+        self.compile_url_and_login({"project": self.project.sodar_uuid})
+        self._disable_filters("project")
         # find and hit download button
         self.selenium.find_element_by_id("submit-menu").click()
         download = self.selenium.find_element_by_xpath(

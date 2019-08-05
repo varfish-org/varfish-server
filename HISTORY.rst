@@ -3,6 +3,21 @@ History / Changelog
 ===================
 
 -------
+HEAD (unreleased)
+-------
+
+End-User Summary
+================
+
+- Cases with no variants or no associated variant set can't be filtered anymore.
+
+Full Change List
+================
+
+- Cases with no variants or no associated variant set caused queries to return all variants.
+  This bug was fixed by disabling the filter button (UI) or throwing an error query) if the query is executed.
+
+-------
 v0.16.0
 -------
 

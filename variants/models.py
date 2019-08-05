@@ -2,6 +2,7 @@ import contextlib
 import tempfile
 from datetime import datetime, timedelta
 import json
+from functools import reduce
 
 import aldjemy
 import binning
@@ -125,6 +126,12 @@ class CaseAwareProject(Project):
     def get_members(self):
         """Return concatenated list of members in ``pedigree``."""
         return [x["patient"] for x in self.get_filtered_pedigree_with_samples()]
+
+    def num_small_vars(self):
+        """Return total number of small vars in a project."""
+        return sum(
+            case.num_small_vars for case in self.case_set.all() if case.num_small_vars is not None
+        )
 
 
 class SmallVariant(models.Model):

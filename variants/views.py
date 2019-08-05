@@ -662,6 +662,10 @@ class CaseFilterView(
         """Put the ``Case`` object into the context."""
         context = super().get_context_data(**kwargs)
         context["object"] = self.get_case_object()
+        context["num_small_vars"] = context["object"].num_small_vars
+        context["variant_set_exists"] = SmallVariantSet.objects.filter(
+            case_id=context["object"].id
+        ).exists()
         context["allow_md_submittion"] = True
         # Construct the URL that is assigned to the submit button for the ajax request
         context["submit_button_url"] = reverse(
@@ -1102,6 +1106,11 @@ class ProjectCasesFilterView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["num_small_vars"] = context["project"].num_small_vars()
+        context["variant_set_exists"] = all(
+            SmallVariantSet.objects.filter(case_id=case_id).exists()
+            for case_id in context["project"].get_case_pks()
+        )
         context["submit_button_url"] = reverse(
             "variants:project-cases-filter-results",
             kwargs={"project": context["project"].sodar_uuid},
@@ -1328,6 +1337,10 @@ class CaseClinvarReportView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["object"] = self.get_case_object()
+        context["num_small_vars"] = context["object"].num_small_vars
+        context["variant_set_exists"] = SmallVariantSet.objects.filter(
+            case_id=context["object"].id
+        ).exists()
         context["submit_button_url"] = reverse(
             "variants:clinvar-results",
             kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},

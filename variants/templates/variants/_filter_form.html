@@ -144,12 +144,14 @@
                     data-url='{{ submit_button_url }}'
                     data-url-reload='{{ load_data_url }}'
                     data-url-request-last-job='{{ request_previous_job_url }}'
-                    data-url-status='{{ job_status_url }}'>
+                    data-url-status='{{ job_status_url }}'
+                    {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
               <i class="fa fa-refresh"></i>
               Filter &amp; Display
             </button>
             <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                    id="submit-menu">
+                    id="submit-menu"
+                    {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
               <span class="sr-only">Toggle Dropdown</span>
             </button>
             <div class="dropdown-menu" style="z-index: 1030;">

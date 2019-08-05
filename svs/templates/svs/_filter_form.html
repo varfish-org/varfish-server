@@ -105,7 +105,8 @@
             <button type="submit" id="submitFilter" name="submit" value="display" class="btn btn-primary" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
                     title="Filter variants again with current settings, limited to <i><b>Miscellaneous / Result row limit</b></i> results and display in table below"
                     data-url='{{ submit_button_url }}'
-                    data-url-reload='{{ load_data_url }}'>
+                    data-url-reload='{{ load_data_url }}'
+                    {% if object.num_svs == 0 or not variant_set_exists %}disabled{% endif %}>
               <i class="fa fa-refresh"></i>
               Filter &amp; Display
             </button>
