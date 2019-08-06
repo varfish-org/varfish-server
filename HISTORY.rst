@@ -11,6 +11,7 @@ End-User Summary
 
 - Fixing problems with link-out to varSEAK.
 - UI improvement for the compound heterozygous mode.
+- Fixing bug in genomic region filter form that took only the last character of chromosome names.
 
 Full Change List
 ================
@@ -19,6 +20,8 @@ Full Change List
 - Compound heterozygous mode is now activated via the GT field selection that offers an ``index`` entry for potential index patients.
   This is a UI/Javascript improvement and does not affect the code of the query except that setting an index enables the filter,
   contrary to before where there was an additional boolean field that enabled the mode.
+- Fixing regex bug in genomic region field of the filter form that took only the last charactar of a chromosome name.
+  Therefore it affected regions with chromosome names with more than one character (e.g. '10', '11', ...)
 
 -------
 v0.16.1

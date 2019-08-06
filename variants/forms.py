@@ -1106,7 +1106,7 @@ class GenomicRegionFilterFormMixin:
         for entry in cleaned_data["genomic_region"].strip().split():
             entry_ = entry.strip()
             if entry_:
-                m = re.match("^(?:chr)?([0-9MTXY])+(?::([0-9,]+)-([0-9,]+))?$", entry_)
+                m = re.match("^(?:chr)?([0-9MTXY]+)(?::([0-9,]+)-([0-9,]+))?$", entry_)
                 if m:
                     results.append(
                         (
