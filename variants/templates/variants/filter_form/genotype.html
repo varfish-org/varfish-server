@@ -14,7 +14,7 @@
         <th class="col-2">Sex</th>
         <th class="col-2">Affected</th>
         <th class="col-2">
-          <span data-toggle="tooltip" data-placement="left" data-html="true" title="<div class='text-left'><ul class='pl-3'><li><strong>any</strong>: don't apply genotype filter</li><li><strong>variant</strong>: allows genotypes <em>0/1</em> and <em>1/1</em></li><li><strong>non-variant</strong>: allows genotypes <em>0/0</em> and <em>./.</em></li><li><strong>non-reference</strong>: allows genotypes that are a variant or <em>./.</em></li></ul></div>">Genotype</span>
+          <span data-toggle="tooltip" data-placement="left" data-html="true" title="<div class='text-left'><ul class='pl-3'><li><strong>any</strong>: don't apply genotype filter</li><li><strong>variant</strong>: allows genotypes <em>0/1</em> and <em>1/1</em></li><li><strong>non-variant</strong>: allows genotypes <em>0/0</em> and <em>./.</em></li><li><strong>non-reference</strong>: allows genotypes that are a variant or <em>./.</em></li><li><strong>index</strong>: activate comp het mode for this index patient.</li></ul></div>">Genotype</span>
           &nbsp;
           <div class="dropdown d-inline">
             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="presets-genotype-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -47,7 +47,12 @@
         <td><i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% elif item.sex == 1 %}fa-mars{% else %}fa-question{% endif %}"></i></td>
         <td><i class="fa fa-fw {% if item.affected == 2 %}fa-check color-danger{% elif item.affected == 1 %}fa-times{% else %}fa-question{% endif %}"></i></td>
         {% if item.has_gt_entries %}
-          <td class="text-right">{% with x=form.get_genotype_field_names|keyvalue:item.patient|keyvalue:"gt" %}{{ form|keyvalue:x }}{% endwith %}</td>
+          <td>
+            {% with x=form.get_genotype_field_names|keyvalue:item.patient|keyvalue:"gt" %}
+              {{ form|keyvalue:x }}
+              <em class="text-muted" style="display: none;" id="compound_heterozygous_role_{{ x }}"></em>
+            {% endwith %}
+          </td>
         {% else %}
           <td class="text-centered">
             <em>no genotypes</em>
@@ -59,14 +64,15 @@
   </table>
 </div>
 
-<div class="p-2 mt-2 border-top compact-form-groups">
-  <h5>Compound Heterozygous Settings</h5>
-  <div class="row">
-  <div class="col-6">
-    {{ form.compound_recessive_enabled|as_crispy_field }}
+<div class="row p-2 mt-2 border-top alert-info" style="display: none;" id="compound_heterozygous_warning">
+  <div class="col pt-1">
+    <i class="fa fa-users pr-2"></i>
+    <strong>Compound heterozygous mode activated</strong>
   </div>
-  <div class="col-6">
-    {{ form.compound_recessive_index|as_crispy_field }}
-  </div>
+  <div class="col text-right">
+    <div class="btn btn-sm btn-info" id="compound_heterozygous_disable">
+      <i class="fa fa-times"></i>
+      Disable comp. het. mode
+    </div>
   </div>
 </div>

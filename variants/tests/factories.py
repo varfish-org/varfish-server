@@ -72,6 +72,7 @@ class FormDataFactoryBase:
     clinvar_include_uncertain_significance: bool = False
     clinvar_include_likely_pathogenic: bool = True
     clinvar_include_pathogenic: bool = True
+    compound_recessive_index: str = ""
 
     # This is a dummy attribute to generate the name-dependent fields.
     # It is removed after initialization.
@@ -126,7 +127,6 @@ class ResubmitFormDataFactory(ProcessedFormDataFactory):
 class FormDataFactory(FormDataFactoryBase):
     """Factory for the data transferred from the filter form."""
 
-    compound_recessive_enabled: bool = False
     compound_recessive_index: str = ""
     effect_coding_transcript_intron_variant: bool = True
     effect_complex_substitution: bool = True

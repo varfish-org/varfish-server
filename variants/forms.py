@@ -328,71 +328,35 @@ class SmallVariantGenotypeFilterFormMixin:
 
     def update_genotype_fields(self):
         """Add and update genotype fields."""
-        self.fields["compound_recessive_enabled"] = forms.BooleanField(
-            label="enable comp. het. mode",
-            required=False,
-            help_text=(
-                "Compound recessive filtration only works for complete trios. "
-                "Enabling the comp. het. filter disables the individual genotype filter settings above but quality "
-                "settings still apply. "
-                "Filters for variants that are present in one gene (identified by transcript database gene identifier) "
-                "with the following constraints: "
-                "(1) at least one variant is heterozygous in mother and index and homozygous reference in the father, "
-                "and (2) at least one variant is heterozygous in father and index and homozygous in the mother."
-            ),
-        )
-
-        def get_potential_index_patients():
-            default_index = None
-            potential_indices = []
-
-            # Find all members that have the
-            for member in self.get_pedigree():
-                if not (member["mother"] == "0" or member["father"] == "0"):
-                    if member["patient"] == self.get_trio_roles().get("index"):
-                        default_index = member["patient"]
-                    else:
-                        potential_indices.append(member["patient"])
-
-            return default_index, potential_indices
-
-        # Make index patient selectable for compound het query
-        default_index, potential_indices = get_potential_index_patients()
-        selection = []
-        if default_index:
-            selection = [(default_index, "%s (index defined in pedigree)" % default_index)] + [
-                (potential_index, potential_index) for potential_index in potential_indices
-            ]
-
-        self.fields["compound_recessive_index"] = forms.CharField(
-            label="index patient for comp. het. mode",
-            help_text=(
-                "This selection overrides the index role defined in the pedigree. "
-                "Lists only patients that have a mother and father defined in the pedigree. "
-                "Defaults to the original index patient. "
-                "Only used when comp. het. mode is enabled. "
-            ),
-            required=False,
-            initial=default_index,
-            widget=forms.Select(choices=selection),
-        )
-
-        # Disable compound recessive checkbox if no full trio present.
-        if len(set(("index", "father", "mother")) & set(self.get_trio_roles().keys())) != 3:
-            self.fields["compound_recessive_enabled"].disabled = True
-            self.fields["compound_recessive_index"].disabled = True
 
         # Dynamically add the fields based on the pedigree
         for member in self.get_pedigree_with_samples():
             name = member["patient"]
             affection = "affected" if 2 == member["affected"] else "unaffected"
+            index = []
+            if not (member["mother"] == "0" or member["father"] == "0"):
+                index = [("index", "index")]
             self.fields[self.get_genotype_field_names()[name]["gt"]] = forms.CharField(
                 label="",
                 required=True,
                 widget=forms.Select(
-                    choices=INHERITANCE, attrs={"class": "genotype-field-gt %s" % affection}
+                    choices=INHERITANCE + index,
+                    attrs={
+                        "class": "load-comphet-mode genotype-field-gt %s" % affection,
+                        "data-mother": member["mother"],
+                        "data-father": member["father"],
+                    },
                 ),
             )
+
+    def clean(self):
+        result = super().clean()
+        result["compound_recessive_index"] = ""
+        for member in self.get_pedigree_with_samples():
+            name = member["patient"]
+            if result[self.get_genotype_field_names()[name]["gt"]] == "index":
+                result["compound_recessive_index"] = name
+        return result
 
 
 class SmallVariantQualityFilterFormMixin:

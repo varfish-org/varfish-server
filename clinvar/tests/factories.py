@@ -84,7 +84,7 @@ class ClinvarFormDataFactory:
     # Database
     database_select: str = "refseq"
     # Genotypes
-    compound_recessive_enabled: bool = False
+    compound_recessive_index: str = ""
     # Limit on number of rows
     result_rows_limit: int = 500
     # Filter selection for form.
@@ -138,7 +138,6 @@ class ProcessedClinvarFormDataFactory:
     # Database
     database_select: str = "refseq"
     # Genotypes
-    compound_recessive_enabled: bool = False
     compound_recessive_index: str = ""
     # Filter selection for form.
     flag_bookmarked: bool = True

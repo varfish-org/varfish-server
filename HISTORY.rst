@@ -10,11 +10,15 @@ End-User Summary
 ================
 
 - Fixing problems with link-out to varSEAK.
+- UI improvement for the compound heterozygous mode.
 
 Full Change List
 ================
 
 - URL-escaping ``hgvs_p`` to varSEAK.
+- Compound heterozygous mode is now activated via the GT field selection that offers an ``index`` entry for potential index patients.
+  This is a UI/Javascript improvement and does not affect the code of the query except that setting an index enables the filter,
+  contrary to before where there was an additional boolean field that enabled the mode.
 
 -------
 v0.16.1

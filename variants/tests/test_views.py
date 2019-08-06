@@ -350,7 +350,12 @@ class TestCaseFilterView(ViewTestBase):
                     "variants:case-filter",
                     kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
                 ),
-                vars(FormDataFactory(thousand_genomes_frequency="I'm supposed to be a float!")),
+                vars(
+                    FormDataFactory(
+                        names=self.case.get_members(),
+                        thousand_genomes_frequency="I'm supposed to be a float!",
+                    )
+                ),
             )
 
     def test_post_download(self):
@@ -460,7 +465,11 @@ class TestCasePrefetchFilterView(ViewTestBase):
                     "variants:case-filter-results",
                     kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
                 ),
-                vars(FormDataFactory(exac_frequency="I am supposed to be a float.")),
+                vars(
+                    FormDataFactory(
+                        names=self.case.get_members(), exac_frequency="I am supposed to be a float."
+                    )
+                ),
             )
 
             self.assertEqual(response.status_code, 400)
@@ -516,6 +525,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
         self.bgjob.smallvariantquery.query_results.add(self.small_vars[0], self.small_vars[2])
         self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [self.hpo_id]
+        self.bgjob.smallvariantquery.query_settings["compound_recessive_index"] = self.case.index
         self.bgjob.smallvariantquery.save()
 
     def test_count_results(self):
@@ -530,6 +540,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context["result_count"], 2)
+            self.assertEqual(response.context["compound_recessive_index"], self.case.index)
             self.assertFalse(response.context["training_mode"])
             self.assertEqual(response.context["hpoterms"], {self.hpo_id: hpo_name.name})
 

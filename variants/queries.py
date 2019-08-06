@@ -1354,7 +1354,7 @@ class CasePrefetchQuery:
             column("alternative"),
         ]
 
-        if kwargs.get("compound_recessive_enabled", None) and self.query_id is None:
+        if kwargs.get("compound_recessive_index", None) and self.query_id is None:
             combiner = CompHetCombiner(self.case_or_cases, self.builder)
         else:  # compound recessive not in kwargs or disabled
             combiner = DefaultCombiner(self.case_or_cases, self.builder, self.query_id)

@@ -907,6 +907,9 @@ class CaseLoadPrefetchedFilterView(
                 database=filter_job.smallvariantquery.query_settings["database_select"],
                 pedigree=pedigree,
                 hpoterms=hpoterms,
+                compound_recessive_index=filter_job.smallvariantquery.query_settings[
+                    "compound_recessive_index"
+                ],
                 prio_enabled=filter_job.smallvariantquery.query_settings.get("prio_enabled", False),
                 training_mode=1
                 if filter_job.smallvariantquery.query_settings.get("training_mode", False)
@@ -1535,6 +1538,9 @@ class CaseLoadPrefetchedClinvarReportView(
                 result_rows=sorted_rows,
                 result_count=num_results,
                 elapsed_seconds=elapsed.total_seconds(),
+                compound_recessive_index=clinvar_job.clinvarquery.query_settings[
+                    "compound_recessive_index"
+                ],
                 database=clinvar_job.clinvarquery.query_settings["database_select"],
                 logs=[
                     "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)

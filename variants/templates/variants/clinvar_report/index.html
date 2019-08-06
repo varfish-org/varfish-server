@@ -18,6 +18,15 @@
           Results
         </strong>
       </div>
+      {% if compound_recessive_index %}
+      <div class="p-2">
+        <i class="fa fa-users"
+           data-toggle="tooltip"
+           title="Compound heterozygous mode active on index <strong>{{ compound_recessive_index }}</strong>"
+           data-html="true"
+        ></i>
+      </div>
+      {% endif %}
       <div class="pl-3">
         <i class="fa fa-hashtag"></i>
           Showing <strong>{{ result_rows|length }}</strong>

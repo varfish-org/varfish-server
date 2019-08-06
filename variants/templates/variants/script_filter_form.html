@@ -329,7 +329,6 @@ function updateSettings() {
   }
 }
 
-$("#settingsSet").click(updateSettings);
 
 function updateSettingsDump() {
   var settings = {};
@@ -818,6 +817,124 @@ function loadGenotypePresets(e) {
   )
 }
 
+// Current index patient dropdown element of compound heterozygous mode.
+let compHetCurrentIndex = null;
+
+function restoreAfterCompHetMode(e, value=null) {
+    /**
+     * Function to restore GT values when disabling compound heterozygous mode.
+     *
+     * This function is triggered when a GT field is changed (clicking the comp. het. mode disabling button triggers
+     * a change). It accepts the optional value to be set to: When the user doesn't directly change the field but
+     * it is triggered via the disabling button, we need to send some value.
+     */
+    // Iterate over all GT fields.
+    $("[id^=id_][id$=_gt]").each(
+        function () {
+            // Get the id of the GT field.
+            var id = $(this).attr("id");
+            // Get the id of the associated compound heterozygous info field for this role.
+            var role = $("#compound_heterozygous_role_" + $(this).attr("name"));
+            if (compHetCurrentIndex.attr("id") == id) {
+                // If the GT field is of the selected index patient and we clicked the disable button, set the value to
+                // the value passed to the function. If value is null, the user selected its value and nothing is done.
+                if (value) {
+                    $(this).val(value);
+                }
+                return;
+            }
+            // Make the hidden dropdown fields visible again.
+            $(this).toggle();
+            // Erase the text of the info field.
+            role.text("");
+            // Hide the info field.
+            role.toggle();
+        }
+    );
+    // Hide the disable button info and reset the current index.
+    $("#compound_heterozygous_warning").hide();
+    compHetCurrentIndex = null;
+}
+
+
+function loadCompHetMode(e, value=null) {
+    /**
+     * Function to enable UI decorations for the compound heterozygous mode, if ``index`` is selected.
+     *
+     * Called on every change of the GT field. It checks whether the ``index`` value was selected and hides GT fields
+     * of all other patients and enables the info fields. It accepts the optional value to be set to: When the user
+     * doesn't directly change the field but it is triggered via the disabling button, we need to send some value.
+     */
+    // Get the current element.
+    const target = $(e.currentTarget);
+    // Unassign any restore function that got assigned to the ``change`` handler.
+    target.off("change", restoreAfterCompHetMode);
+    // If called via the disable button, set dropdown to the passed value. Otherwise leave the users choice.
+    // It is important for the case the users clicks the disabling button: This function is called before the restore
+    // function, because they are called in order of assignment, and this function is initially assigned. When we don't
+    // receive a value we change to (which is the case when not selecting via dropdown), the value will stay ``index``
+    // and trigger of the comphet mode once again. To prevent this, we receive the value from the ``change`` triggered
+    // by clicking the disable button.
+    if (value) {
+        target.val(value);
+    }
+    // If the selected value is ``index``, enable all compound het embellishments.
+    if (target.val() == "index") {
+        // Set the global variable to the current element.
+        compHetCurrentIndex = target;
+        // Build a dictionary that maps the mother and father id of the index patient to the info text we will display.
+        let ids = {};
+        ids["id_" + target.data("mother") + "_gt"] = "mother";
+        ids["id_" + target.data("father") + "_gt"] = "father";
+        // Iterate over all GT fields.
+        $("[id^=id_][id$=_gt]").each(
+            function () {
+                // Get the id of the GT field.
+                var id = $(this).attr("id");
+                // Get the id of the associated compound heterozygous info field for this role.
+                var role = $("#compound_heterozygous_role_" + $(this).attr("name"));
+                // The current (index patients) field stays as it is, so do nothing.
+                if (target.attr("id") == id) {
+                    return;
+                }
+                // Hide all other fields.
+                $(this).toggle();
+                // For mother and father, assign the info text, all others get a dash.
+                if (id in ids) {
+                    role.text(ids[id]);
+                }
+                else {
+                    role.text("any");
+                }
+                // Show info field for all other fields.
+                role.toggle();
+            }
+        );
+        // Show the info/disable button.
+        $("#compound_heterozygous_warning").show();
+        // Assign the restore function to the change handler.
+        target.on("change", restoreAfterCompHetMode);
+    }
+}
+
+
+function initCompHetMode() {
+    /**
+     * Function to initialize the comphet mode when reloading the page.
+     *
+     * Loading the comphet mode depends solely on the ``change`` handler of the GT fields. Thus, reloading the page
+     * doesn't trigger the comphet mode check. Simulate this by trigger ``change`` on every GT field without changing
+     * the actual value.
+     */
+    // Iterate over all GT fields.
+    $("[id^=id_][id$=_gt]").each(
+        function () {
+            // Trigger ``change`` handler.
+            $(this).trigger("change");
+        }
+    );
+}
+
 
 function transferQualitySettings(e) {
   const fields = ["dp-het", "dp-hom", "ab", "gq", "ad", "ad-max", "fail"];
@@ -863,11 +980,15 @@ $(document).ready(
     }
     $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
     updateSettingsDump();
-    $(".load-presets").click(function (e) { loadPresets($(e.currentTarget)) })
+    $(".load-presets").click(function (e) { loadPresets($(e.currentTarget)) });
     $(".load-blacklist").click(loadGenelistPresets);
     $(".load-whitelist").click(loadGenelistPresets);
     $(".load-genotype").click(loadGenotypePresets);
+    $(".load-comphet-mode").on("change", loadCompHetMode);
     $("#qualityTemplateApplyButton").click(transferQualitySettings);
+    $("#compound_heterozygous_disable").click(function() { compHetCurrentIndex.trigger("change", ["any"]) });
+    $("#settingsSet").click(updateSettings);
+    $("#settingsSet").click(initCompHetMode);
     // Assign click handler function to submit button
     filterButton.click(
       function(e) {
@@ -876,9 +997,11 @@ $(document).ready(
     );
     filterButton.attr("data-event-type", EVENT_SUBMIT);
     // Load default/strict presets.
-    loadPresets($("#load-presets-medgen-strict"))
+    loadPresets($("#load-presets-medgen-strict"));
     // Kick-off state machine.
     handleEvent(EVENT_START, null);
+    // Load comphet mode (if index is set)
+    initCompHetMode();
   }
 );
 </script>

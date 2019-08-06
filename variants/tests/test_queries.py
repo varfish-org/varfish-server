@@ -2219,36 +2219,21 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
 
     def test_query_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
@@ -2256,12 +2241,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
     def test_query_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2270,7 +2250,6 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_enabled": True,
                 "compound_recessive_index": self.case.pedigree[0]["patient"],
                 "filter_job_id": query.id,
             },
@@ -2362,36 +2341,21 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
 
     def test_query_index_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_index_compound_het_prefetch_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_index_compound_het_prefetch_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
@@ -2399,12 +2363,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
     def test_query_index_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2413,7 +2372,6 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_enabled": True,
                 "compound_recessive_index": self.case.pedigree[0]["patient"],
                 "filter_job_id": query.id,
             },
@@ -2424,36 +2382,21 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
 
     def test_query_sibling_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
-            2,
+            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[4].start)
         self.assertEqual(res[1].start, self.small_vars[5].start)
 
     def test_query_sibling_compound_het_prefetch_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
-            2,
+            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[4].start)
         self.assertEqual(res[1].start, self.small_vars[5].start)
 
     def test_query_sibling_compound_het_prefetch_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
-            2,
+            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[4].start)
         self.assertEqual(res[1].start, self.small_vars[5].start)
@@ -2461,12 +2404,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
     def test_query_sibling_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
-            2,
+            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2475,7 +2413,6 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_enabled": True,
                 "compound_recessive_index": self.case.pedigree[1]["patient"],
                 "filter_job_id": query.id,
             },
@@ -2554,36 +2491,21 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
 
     def test_query_index_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[0].start)
         self.assertEqual(res[1].start, self.small_vars[1].start)
 
     def test_query_index_compound_het_prefetch_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[0].start)
         self.assertEqual(res[1].start, self.small_vars[1].start)
 
     def test_query_index_compound_het_prefetch_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[0].start)
         self.assertEqual(res[1].start, self.small_vars[1].start)
@@ -2591,12 +2513,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
     def test_query_index_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
-            2,
+            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2605,7 +2522,6 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_enabled": True,
                 "compound_recessive_index": self.case.pedigree[0]["patient"],
                 "filter_job_id": query.id,
             },
@@ -2616,36 +2532,21 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
 
     def test_query_father_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
-            2,
+            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_father_compound_het_prefetch_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
-            2,
+            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_father_compound_het_prefetch_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
-            2,
+            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
@@ -2653,12 +2554,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
     def test_query_father_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
-            2,
+            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2667,7 +2563,6 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_enabled": True,
                 "compound_recessive_index": self.case.pedigree[1]["patient"],
                 "filter_job_id": query.id,
             },
@@ -3169,10 +3064,7 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
     def test_query_compound_het_prefetch_filter(self):
         res = self.run_query(
             ClinvarReportPrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
+            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
             2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
@@ -3182,10 +3074,7 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
         # Generate results
         res = self.run_query(
             ClinvarReportPrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
+            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
             2,
         )
         # Add results to variant query
@@ -3195,7 +3084,6 @@ class TestClinvarCompHetQuery(SupportQueryTestBase):
         res = self.run_query(
             ClinvarReportLoadPrefetchedQuery,
             {
-                "compound_recessive_enabled": True,
                 "compound_recessive_index": self.case.pedigree[0]["patient"],
                 "filter_job_id": query.id,
             },
@@ -3296,10 +3184,7 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
     def test_query_index_compound_het_prefetch_filter(self):
         res = self.run_query(
             ClinvarReportPrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
+            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
             2,
         )
         self.assertEqual(res[0].start, self.small_vars[1].start)
@@ -3309,10 +3194,7 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
         # Generate results
         res = self.run_query(
             ClinvarReportPrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
+            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
             2,
         )
         # Add results to variant query
@@ -3322,7 +3204,6 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
         res = self.run_query(
             ClinvarReportLoadPrefetchedQuery,
             {
-                "compound_recessive_enabled": True,
                 "compound_recessive_index": self.case.pedigree[0]["patient"],
                 "filter_job_id": query.id,
             },
@@ -3334,10 +3215,7 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
     def test_query_sibling_compound_het_prefetch_filter(self):
         res = self.run_query(
             ClinvarReportPrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
+            {"compound_recessive_index": self.case.pedigree[1]["patient"]},
             2,
         )
         self.assertEqual(res[0].start, self.small_vars[3].start)
@@ -3347,10 +3225,7 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
         # Generate results
         res = self.run_query(
             ClinvarReportPrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
+            {"compound_recessive_index": self.case.pedigree[1]["patient"]},
             2,
         )
         # Add results to variant query
@@ -3360,7 +3235,6 @@ class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
         res = self.run_query(
             ClinvarReportLoadPrefetchedQuery,
             {
-                "compound_recessive_enabled": True,
                 "compound_recessive_index": self.case.pedigree[1]["patient"],
                 "filter_job_id": query.id,
             },
@@ -3455,10 +3329,7 @@ class TestClinvarCompHetQueryQuintet(SupportQueryTestBase):
     def test_query_index_compound_het_prefetch_filter(self):
         res = self.run_query(
             ClinvarReportPrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
+            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
             2,
         )
         self.assertEqual(res[0].start, self.small_vars[0].start)
@@ -3468,10 +3339,7 @@ class TestClinvarCompHetQueryQuintet(SupportQueryTestBase):
         # Generate results
         res = self.run_query(
             ClinvarReportPrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-            },
+            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
             2,
         )
         # Add results to variant query
@@ -3481,7 +3349,6 @@ class TestClinvarCompHetQueryQuintet(SupportQueryTestBase):
         res = self.run_query(
             ClinvarReportLoadPrefetchedQuery,
             {
-                "compound_recessive_enabled": True,
                 "compound_recessive_index": self.case.pedigree[0]["patient"],
                 "filter_job_id": query.id,
             },
@@ -3493,10 +3360,7 @@ class TestClinvarCompHetQueryQuintet(SupportQueryTestBase):
     def test_query_father_compound_het_prefetch_filter(self):
         res = self.run_query(
             ClinvarReportPrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
+            {"compound_recessive_index": self.case.pedigree[1]["patient"]},
             2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
@@ -3506,10 +3370,7 @@ class TestClinvarCompHetQueryQuintet(SupportQueryTestBase):
         # Generate results
         res = self.run_query(
             ClinvarReportPrefetchQuery,
-            {
-                "compound_recessive_enabled": True,
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-            },
+            {"compound_recessive_index": self.case.pedigree[1]["patient"]},
             2,
         )
         # Add results to variant query
@@ -3519,7 +3380,6 @@ class TestClinvarCompHetQueryQuintet(SupportQueryTestBase):
         res = self.run_query(
             ClinvarReportLoadPrefetchedQuery,
             {
-                "compound_recessive_enabled": True,
                 "compound_recessive_index": self.case.pedigree[1]["patient"],
                 "filter_job_id": query.id,
             },

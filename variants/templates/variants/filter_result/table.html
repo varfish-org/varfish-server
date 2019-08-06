@@ -35,6 +35,15 @@
             Results
           </strong>
         </div>
+        {% if compound_recessive_index %}
+        <div class="p-2">
+          <i class="fa fa-users"
+             data-toggle="tooltip"
+             title="Compound heterozygous mode active on index <strong>{{ compound_recessive_index }}</strong>"
+             data-html="true"
+          ></i>
+        </div>
+        {% endif %}
         <div class="p-2 form-group">
           <label class="mr-2" for="result-display-frequencies">
             Frequencies
@@ -82,7 +91,6 @@
         </div>
       </div>
     </div>
-
     <div class="container-fluid sodar-page-container">
       <div id="table-config">
         <table class="table table-hover table-sm varfish-variant-table" style="width: 100%" id="main">
