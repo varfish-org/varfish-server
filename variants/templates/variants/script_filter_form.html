@@ -972,6 +972,21 @@ function makeNumberFieldsReceiveOnlyDigits() {
   });
 }
 
+
+/**
+ * The following is a hack around the issue that dropdown menus that are inside a container with limited size and
+ * `auto` or  `scroll`overflow behaviour are trapped inside the container and in case they are bigger than the
+ * container, are not completely accessible. https://github.com/twbs/bootstrap/issues/24251#issuecomment-334271729
+ */
+$(document).on('show.bs.dropdown', '#presets-genotype-dropdown', function(e) {
+    var dropdown = $(e.target).find('.dropdown-menu');
+    dropdown.appendTo('body');
+    $(this).on('hidden.bs.dropdown', function () {
+      dropdown.appendTo(e.target);
+    })
+});
+
+
 $(document).ready(
   function() {
     makeNumberFieldsReceiveOnlyDigits();

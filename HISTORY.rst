@@ -13,6 +13,7 @@ End-User Summary
 - UI improvement for the compound heterozygous mode.
 - Fixing bug in genomic region filter form that took only the last character of chromosome names.
 - Fixing overflow bug in genotype and quality tab when presenting more individuals than would fit in the form.
+- Fixing genotype settings pre-selector dropdown that was trapped in parent container and possibly not entirely accessible.
 
 Full Change List
 ================
@@ -24,6 +25,7 @@ Full Change List
 - Fixing regex bug in genomic region field of the filter form that took only the last charactar of a chromosome name.
   Therefore it affected regions with chromosome names with more than one character (e.g. '10', '11', ...)
 - Fixing overflow bug in genotype and quality tab when presenting more individuals than would fit in the form.
+- Fixing genotype settings pre-selector dropdown that was trapped in parent container and possibly not entirely accessible.
 
 -------
 v0.16.1
