@@ -61,7 +61,7 @@ function clickVariantBookmark() {
   // Function callback for showing the form.
   function showPopup(data) {
     let html = $(bookmarkPopupTpl.render(data));
-    html.find('[data-toggle="tooltip"]').tooltip();
+    html.find('[data-toggle="tooltip"]').tooltip({container: 'body'});
 
     // Setup the form elements so we can use AJAX for them.
     $(html).find(".cancel").click(function(event) {

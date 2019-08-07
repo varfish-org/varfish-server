@@ -1008,8 +1008,8 @@ $(document).ready(
 
 <script type="text/javascript">
   $(function () {
-    $('[data-toggle="popover"]').popover();
-    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="popover"]').popover({container: 'body'});
+    $('[data-toggle="tooltip"]').tooltip({container: 'body'});
   });
   $('.popover-dismiss').popover({
     trigger: 'focus'

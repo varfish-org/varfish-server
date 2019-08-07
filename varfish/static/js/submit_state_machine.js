@@ -184,7 +184,7 @@ function doVisualErrorResponseOnForms(data) {
     element.attr('data-toggle', 'tooltip');
     element.attr('data-original-title', text);
     element.attr('data-html', 'true');
-    element.tooltip({trigger : 'hover'});
+    element.tooltip({trigger : 'hover', container: 'body'});
   });
 }
 

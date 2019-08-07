@@ -136,7 +136,7 @@
     <tr>
       <th class="text-right">NCBI Summary</th>
       <td>
-        <div style="max-height: 150px; overflow-y: visible !important;">
+        <div style="max-height: 150px; overflow-y: auto !important;">
           {{ ncbi_summary.summary|default:"<div class='text-muted text-center'><i>No NCBI information available.</i></div>" }}
         </div>
       </td>
@@ -145,7 +145,7 @@
       <th class="text-right">Gene RIFs</th>
       <td>
         {% if ncbi_gene_rifs %}
-          <ul class="pl-3" style="max-height: 150px; overflow-y: visible !important;">
+          <ul class="pl-3" style="max-height: 150px; overflow-y: auto !important;">
             {% for gene_rif in ncbi_gene_rifs %}
               <li>{{ gene_rif.rif_text }}</li>
             {% endfor %}

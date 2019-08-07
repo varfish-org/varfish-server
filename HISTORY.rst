@@ -12,6 +12,7 @@ End-User Summary
 - Fixing problems with link-out to varSEAK.
 - UI improvement for the compound heterozygous mode.
 - Fixing bug in genomic region filter form that took only the last character of chromosome names.
+- Fixing overflow bug in genotype and quality tab when presenting more individuals than would fit in the form.
 
 Full Change List
 ================
@@ -22,6 +23,7 @@ Full Change List
   contrary to before where there was an additional boolean field that enabled the mode.
 - Fixing regex bug in genomic region field of the filter form that took only the last charactar of a chromosome name.
   Therefore it affected regions with chromosome names with more than one character (e.g. '10', '11', ...)
+- Fixing overflow bug in genotype and quality tab when presenting more individuals than would fit in the form.
 
 -------
 v0.16.1
