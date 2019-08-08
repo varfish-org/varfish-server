@@ -3,7 +3,13 @@ from itertools import chain
 
 from django.conf import settings
 from django import forms
-from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case
+from .models import (
+    SmallVariantComment,
+    SmallVariantFlags,
+    AcmgCriteriaRating,
+    Case,
+    CASE_STATUS_CHOICES,
+)
 from .templatetags.variants_tags import only_source_name
 from geneinfo.models import Hgnc
 from django.db.models import Q
@@ -1376,7 +1382,7 @@ class AcmgCriteriaRatingForm(forms.ModelForm):
         exclude = ("user", "sodar_uuid", "case", "date_created", "date_modified")
 
 
-class CaseNotesForm(forms.ModelForm):
+class CaseNotesStatusForm(forms.ModelForm):
     """Form for taking case notes."""
 
     def __init__(self, *args, **kwargs):
@@ -1385,7 +1391,8 @@ class CaseNotesForm(forms.ModelForm):
         self.fields["notes"].widget = forms.Textarea(
             attrs={"rows": 3, "class": "form-control", "maxlength": 2048}
         )
+        self.fields["status"].label = ""
 
     class Meta:
         model = Case
-        fields = ["notes"]
+        fields = ["notes", "status"]

@@ -344,6 +344,14 @@ class CaseManager(models.Manager):
         return objects
 
 
+CASE_STATUS_CHOICES = (
+    ("initial", "initial"),
+    ("active", "active"),
+    ("closed-unsolved", "closed as unsolved"),
+    ("closed-solved", "closed as solved"),
+)
+
+
 class Case(models.Model):
     """Stores information about a (germline) case."""
 
@@ -398,6 +406,10 @@ class Case(models.Model):
 
     #: Note field to summarize the current status
     notes = models.CharField(max_length=2048, default="", null=True, blank=True)
+    #: Status field
+    status = models.CharField(
+        max_length=32, default=CASE_STATUS_CHOICES[0], choices=CASE_STATUS_CHOICES
+    )
 
     def latest_variant_set(self):
         """Return latest active variant set or ``None`` if there is none."""

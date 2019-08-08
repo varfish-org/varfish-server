@@ -269,8 +269,9 @@ class AcmgCriteriaRatingFormDataFactory(ChromosomalPositionFormDataFactoryBase):
 
 
 @attr.s(auto_attribs=True)
-class CaseNotesFormFactory:
+class CaseNotesStatusFormFactory:
     notes: str = "This is some text"
+    status: str = "initial"
 
 
 class ProjectFactory(factory.django.DjangoModelFactory):

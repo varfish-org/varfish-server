@@ -62,6 +62,7 @@ from .models import (
     SyncCaseListBgJob,
     SmallVariantSet,
     ImportVariantsBgJob,
+    CASE_STATUS_CHOICES,
 )
 from .forms import (
     ClinvarForm,
@@ -79,7 +80,7 @@ from .forms import (
     AcmgCriteriaRatingForm,
     CaseForm,
     SyncProjectJobForm,
-    CaseNotesForm,
+    CaseNotesStatusForm,
 )
 from .tasks import (
     export_file_task,
@@ -259,7 +260,7 @@ def _undecimal(the_dict):
     return result
 
 
-class CaseNotesApiView(
+class CaseNotesStatusApiView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
@@ -273,7 +274,7 @@ class CaseNotesApiView(
 
     permission_required = "variants.view_data"
     model = Case
-    form_class = CaseNotesForm
+    form_class = CaseNotesStatusForm
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
 
@@ -282,9 +283,13 @@ class CaseNotesApiView(
         form = self.get_form()
         if form.is_valid():
             case.notes = form.cleaned_data["notes"]
+            case.status = form.cleaned_data["status"]
             case.save()
             return HttpResponse(
-                json.dumps({"notes": form.cleaned_data["notes"]}), content_type="application/json"
+                json.dumps(
+                    {"notes": form.cleaned_data["notes"], "status": form.cleaned_data["status"]}
+                ),
+                content_type="application/json",
             )
 
 
@@ -304,7 +309,7 @@ class CaseDetailView(
     model = Case
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
-    form_class = CaseNotesForm
+    form_class = CaseNotesStatusForm
 
     def get_context_data(self, *args, **kwargs):
         result = super().get_context_data(*args, **kwargs)
@@ -312,8 +317,8 @@ class CaseDetailView(
         result["samples"] = case.get_members_with_samples()
         result["effects"] = list(FILTER_FORM_TRANSLATE_EFFECTS.values())
         result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
-        result["case_notes_save_url"] = reverse(
-            "variants:case-notes-api",
+        result["case_notes_status_save_url"] = reverse(
+            "variants:case-notes-status-api",
             kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
         )
         result["ontarget_effect_counts"] = {sample: {} for sample in result["samples"]}

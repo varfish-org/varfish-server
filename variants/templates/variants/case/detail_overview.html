@@ -12,10 +12,10 @@
     <li class="list-group-item">
       <div class="row">
         <span class="col-2"><strong>
-          Created At
+            Created At <span class="text-muted pl-2">(Last Modified)</span>
         </strong></span>
         <span class="col-10">
-          {{ object.date_created|date:"Y/m/d H:i" }}
+            {{ object.date_created|date:"Y/m/d H:i" }} <span class="text-muted pl-2">({{ object.date_modified|date:"Y/m/d H:i" }})</span>
         </span>
       </div>
     </li>
@@ -46,32 +46,34 @@
     <li class="list-group-item">
       <div class="row">
         <span class="col-2">
-          <strong>Notes</strong>
-          <div id="case-note-button" class="btn btn-sm btn-secondary ml-2">
-              <span id="case-note-button-edit">
+          <strong>Status &amp; Notes</strong>
+          <div id="case-notes-status-button" class="btn btn-sm btn-secondary ml-2">
+              <span id="case-notes-status-button-edit">
                   <i class="fa fa-pencil"></i> Edit
               </span>
-              <span id="case-note-button-cancel" style="display: none;">
+              <span id="case-notes-status-button-cancel" style="display: none;">
                   <i class="fa fa-times"></i> Cancel
               </span>
           </div>
         </span>
-        <span id="case-note-text" class="col-10">
+        <span id="case-notes-status-mode-fixed" class="col-10">
+          <h4><span id="case-notes-status-badge">{{ object.status }}</span></h4>
+          <span id="case-notes-status-text">
           {% if object.notes %}
             {{ object.notes }}
           {% else %}
             <em class="text-muted">No notes taken (yet).</em>
           {% endif %}
+          </span>
         </span>
-        <span id="case-note-edit" class="col-10 text-right" style="display: none;">
-          <form method="post">
-            {% csrf_token %}
+        <span id="case-notes-status-mode-edit" class="col-10" style="display: none;">
+          <form>{% csrf_token %}
             {{ form }}
             <button
               type="button"
-              id="case-note-save"
+              id="case-notes-status-save"
               class="btn btn-sm btn-secondary"
-              data-url-case-notes="{{ case_notes_save_url }}"
+              data-url-case-notes-status="{{ case_notes_status_save_url }}"
             >
               <i class="fa fa-save"></i> Save
             </button>
@@ -83,28 +85,52 @@
 </div>
 
 <script type="text/javascript">
+
+let statusBadgeMapping = {
+    "initial": "badge-info",
+    "active": "badge-warning",
+    "closed-unsolved": "badge-danger",
+    "closed-solved": "badge-success",
+};
+
+function decorateCaseNotesStatusBadge() {
+    var badge = $("#case-notes-status-badge");
+    var status = badge.text();
+    var status_display = $("#id_status option[value='" + status + "']").text();
+
+    if (status in statusBadgeMapping) {
+        badge.removeClass();
+        badge.addClass("badge");
+        badge.addClass(statusBadgeMapping[status]);
+        badge.text(status_display);
+    }
+}
+
 $(document).ready(function() {
-  $("#case-note-button").on("click", function() {
-      $("#case-note-text").toggle();
-      $("#case-note-edit").toggle();
-      $("#case-note-button-edit").toggle();
-      $("#case-note-button-cancel").toggle();
-  });
-  $("#case-note-save").on("click", function() {
-      $.ajax({
-        type: "POST",
-        url: $(this).data("url-case-notes"),
-        data: $(this).closest("form").serialize(),
-        dataType: "json",
-        success: function(data) {
-            $("#case-note-text").text(data["notes"]);
-            $("#case-note-button").trigger("click");
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            alert("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
-            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
-        }
-      });
-  });
+    $("#case-notes-status-button").on("click", function() {
+        $("#case-notes-status-mode-fixed").toggle();
+        $("#case-notes-status-mode-edit").toggle();
+        $("#case-notes-status-button-edit").toggle();
+        $("#case-notes-status-button-cancel").toggle();
+    });
+    $("#case-notes-status-save").on("click", function() {
+        $.ajax({
+            type: "POST",
+            url: $(this).data("url-case-notes-status"),
+            data: $(this).closest("form").serialize(),
+            dataType: "json",
+            success: function(data) {
+                $("#case-notes-status-text").text(data["notes"]);
+                $("#case-notes-status-badge").text(data["status"]);
+                $("#case-notes-status-button").trigger("click");
+                decorateCaseNotesStatusBadge();
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert("Error during AJAX call: " + textStatus + " " + errorThrown);
+                console.log("Error during AJAX call: ", textStatus, errorThrown);
+            }
+        });
+    });
+    decorateCaseNotesStatusBadge();
 });
 </script>
