@@ -1374,3 +1374,18 @@ class AcmgCriteriaRatingForm(forms.ModelForm):
     class Meta:
         model = AcmgCriteriaRating
         exclude = ("user", "sodar_uuid", "case", "date_created", "date_modified")
+
+
+class CaseNotesForm(forms.ModelForm):
+    """Form for taking case notes."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["notes"].label = ""
+        self.fields["notes"].widget = forms.Textarea(
+            attrs={"rows": 3, "class": "form-control", "maxlength": 2048}
+        )
+
+    class Meta:
+        model = Case
+        fields = ["notes"]

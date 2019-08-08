@@ -268,6 +268,11 @@ class AcmgCriteriaRatingFormDataFactory(ChromosomalPositionFormDataFactoryBase):
     bp7: int = 0
 
 
+@attr.s(auto_attribs=True)
+class CaseNotesFormFactory:
+    notes: str = "This is some text"
+
+
 class ProjectFactory(factory.django.DjangoModelFactory):
     """Factory for creating ``projectroles`` ``Project`` objects."""
 

@@ -20,6 +20,7 @@ from django.views.generic import DetailView, FormView, ListView, View, RedirectV
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
 
 import simplejson as json
+from django.views.generic.edit import FormMixin
 from projectroles.templatetags.projectroles_common_tags import site_version
 
 from bgjobs.models import BackgroundJob
@@ -78,6 +79,7 @@ from .forms import (
     AcmgCriteriaRatingForm,
     CaseForm,
     SyncProjectJobForm,
+    CaseNotesForm,
 )
 from .tasks import (
     export_file_task,
@@ -257,12 +259,42 @@ def _undecimal(the_dict):
     return result
 
 
+class CaseNotesApiView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+    FormMixin,
+    View,
+):
+    """API view to save case notes."""
+
+    permission_required = "variants.view_data"
+    model = Case
+    form_class = CaseNotesForm
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, *args, **kwargs):
+        case = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            case.notes = form.cleaned_data["notes"]
+            case.save()
+            return HttpResponse(
+                json.dumps({"notes": form.cleaned_data["notes"]}), content_type="application/json"
+            )
+
+
 class CaseDetailView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
     ProjectContextMixin,
     AlchemyEngineMixin,  # XXX
+    FormMixin,
     DetailView,
 ):
     """Display a case in detail."""
@@ -272,6 +304,7 @@ class CaseDetailView(
     model = Case
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
+    form_class = CaseNotesForm
 
     def get_context_data(self, *args, **kwargs):
         result = super().get_context_data(*args, **kwargs)
@@ -279,7 +312,10 @@ class CaseDetailView(
         result["samples"] = case.get_members_with_samples()
         result["effects"] = list(FILTER_FORM_TRANSLATE_EFFECTS.values())
         result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
-
+        result["case_notes_save_url"] = reverse(
+            "variants:case-notes-api",
+            kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+        )
         result["ontarget_effect_counts"] = {sample: {} for sample in result["samples"]}
         result["indel_sizes"] = {sample: {} for sample in result["samples"]}
         result["indel_sizes_keys"] = []

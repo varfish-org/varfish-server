@@ -14,6 +14,7 @@ End-User Summary
 - Fixing bug in genomic region filter form that took only the last character of chromosome names.
 - Fixing overflow bug in genotype and quality tab when presenting more individuals than would fit in the form.
 - Fixing genotype settings pre-selector dropdown that was trapped in parent container and possibly not entirely accessible.
+- Added editable ``notes`` field to case detail view to enable the user to take a note/summarize the case.
 
 Full Change List
 ================
@@ -26,6 +27,7 @@ Full Change List
   Therefore it affected regions with chromosome names with more than one character (e.g. '10', '11', ...)
 - Fixing overflow bug in genotype and quality tab when presenting more individuals than would fit in the form.
 - Fixing genotype settings pre-selector dropdown that was trapped in parent container and possibly not entirely accessible.
+- Added editable ``notes`` field to ``Case`` model to enable the user in the case detail view to take notes about the case.
 
 -------
 v0.16.1

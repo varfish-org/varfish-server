@@ -151,6 +151,11 @@ urlpatterns = [
         view=views.AcmgCriteriaRatingApiView.as_view(),
         name="acmg-rating-api",
     ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/case-notes/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseNotesApiView.as_view(),
+        name="case-notes-api",
+    ),
     # Views for filtering and storing case query results jobs
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/filter-results/(?P<case>[0-9a-f-]+)/$",

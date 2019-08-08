@@ -67,6 +67,7 @@ from variants.tests.factories import (
     SmallVariantFlagsFactory,
     SmallVariantCommentFactory,
     SmallVariantSetFactory,
+    CaseNotesFormFactory,
 )
 from variants.tests.helpers import ViewTestBase
 from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
@@ -2529,3 +2530,29 @@ class TestNewFeaturesView(ViewTestBase):
                 "variants", "latest_version_seen_changelog", user=self.user
             )
             self.assertEqual(value, site_version())
+
+
+class TestCaseNotesView(ViewTestBase):
+    """Test CaseNotesView."""
+
+    def setUp(self):
+        super().setUp()
+        self.variant_set = SmallVariantSetFactory()
+
+    def test_response(self):
+        with self.login(self.user):
+            form_data = vars(CaseNotesFormFactory())
+            response = self.client.post(
+                reverse(
+                    "variants:case-notes-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                form_data,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["notes"], form_data["notes"]
+            )

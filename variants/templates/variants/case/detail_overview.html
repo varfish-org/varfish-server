@@ -43,5 +43,68 @@
         </span>
       </div>
     </li>
+    <li class="list-group-item">
+      <div class="row">
+        <span class="col-2">
+          <strong>Notes</strong>
+          <div id="case-note-button" class="btn btn-sm btn-secondary ml-2">
+              <span id="case-note-button-edit">
+                  <i class="fa fa-pencil"></i> Edit
+              </span>
+              <span id="case-note-button-cancel" style="display: none;">
+                  <i class="fa fa-times"></i> Cancel
+              </span>
+          </div>
+        </span>
+        <span id="case-note-text" class="col-10">
+          {% if object.notes %}
+            {{ object.notes }}
+          {% else %}
+            <em class="text-muted">No notes taken (yet).</em>
+          {% endif %}
+        </span>
+        <span id="case-note-edit" class="col-10 text-right" style="display: none;">
+          <form method="post">
+            {% csrf_token %}
+            {{ form }}
+            <button
+              type="button"
+              id="case-note-save"
+              class="btn btn-sm btn-secondary"
+              data-url-case-notes="{{ case_notes_save_url }}"
+            >
+              <i class="fa fa-save"></i> Save
+            </button>
+          </form>
+        </span>
+      </div>
+    </li>
   </ul>
 </div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  $("#case-note-button").on("click", function() {
+      $("#case-note-text").toggle();
+      $("#case-note-edit").toggle();
+      $("#case-note-button-edit").toggle();
+      $("#case-note-button-cancel").toggle();
+  });
+  $("#case-note-save").on("click", function() {
+      $.ajax({
+        type: "POST",
+        url: $(this).data("url-case-notes"),
+        data: $(this).closest("form").serialize(),
+        dataType: "json",
+        success: function(data) {
+            $("#case-note-text").text(data["notes"]);
+            $("#case-note-button").trigger("click");
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+        }
+      });
+  });
+});
+</script>

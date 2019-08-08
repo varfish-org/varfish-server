@@ -396,6 +396,9 @@ class Case(models.Model):
         help_text="Search tokens",
     )
 
+    #: Note field to summarize the current status
+    notes = models.CharField(max_length=2048, default="", null=True, blank=True)
+
     def latest_variant_set(self):
         """Return latest active variant set or ``None`` if there is none."""
         qs = self.smallvariantset_set.filter(state="active")
