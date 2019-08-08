@@ -28,6 +28,7 @@ Full Change List
 - Fixing overflow bug in genotype and quality tab when presenting more individuals than would fit in the form.
 - Fixing genotype settings pre-selector dropdown that was trapped in parent container and possibly not entirely accessible.
 - Added editable ``notes`` and ``status`` fields to ``Case`` model to enable the user in the case detail view to take notes and assign a status to the case.
+- Fixed displaying of ``status`` in case detail view when it was never set.
 
 -------
 v0.16.1

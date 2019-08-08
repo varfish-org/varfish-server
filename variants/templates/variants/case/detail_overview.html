@@ -58,13 +58,7 @@
         </span>
         <span id="case-notes-status-mode-fixed" class="col-10">
           <h4><span id="case-notes-status-badge">{{ object.status }}</span></h4>
-          <span id="case-notes-status-text">
-          {% if object.notes %}
-            {{ object.notes }}
-          {% else %}
-            <em class="text-muted">No notes taken (yet).</em>
-          {% endif %}
-          </span>
+          <span id="case-notes-status-text">{% if object.notes %}{{ object.notes }}{% endif %}</span>
         </span>
         <span id="case-notes-status-mode-edit" class="col-10" style="display: none;">
           <form>{% csrf_token %}
@@ -93,10 +87,15 @@ let statusBadgeMapping = {
     "closed-solved": "badge-success",
 };
 
-function decorateCaseNotesStatusBadge() {
+function decorateCaseNotesStatus() {
     var badge = $("#case-notes-status-badge");
+    var text = $("#case-notes-status-text");
     var status = badge.text();
     var status_display = $("#id_status option[value='" + status + "']").text();
+
+    if (text.text().replace(/( |\r\n|\n|\r)/gm, "") == "") {
+      text.html('<em class="text-muted">No notes taken (yet).</em>');
+    }
 
     if (status in statusBadgeMapping) {
         badge.removeClass();
@@ -122,8 +121,9 @@ $(document).ready(function() {
             success: function(data) {
                 $("#case-notes-status-text").text(data["notes"]);
                 $("#case-notes-status-badge").text(data["status"]);
+                console.log(data["status"]);
                 $("#case-notes-status-button").trigger("click");
-                decorateCaseNotesStatusBadge();
+                decorateCaseNotesStatus();
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 alert("Error during AJAX call: " + textStatus + " " + errorThrown);
@@ -131,6 +131,6 @@ $(document).ready(function() {
             }
         });
     });
-    decorateCaseNotesStatusBadge();
+    decorateCaseNotesStatus();
 });
 </script>
