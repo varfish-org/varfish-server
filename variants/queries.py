@@ -67,6 +67,7 @@ def small_variant_query(_self, kwargs):
             SmallVariant.sa.id,
             SmallVariant.sa.release,
             SmallVariant.sa.chromosome,
+            SmallVariant.sa.chromosome_no,
             SmallVariant.sa.start,
             SmallVariant.sa.end,
             SmallVariant.sa.bin,
@@ -1347,7 +1348,7 @@ class CasePrefetchQuery:
 
     def run(self, kwargs):
         order_by = [
-            column("chromosome"),
+            column("chromosome_no"),
             column("start"),
             column("end"),
             column("reference"),

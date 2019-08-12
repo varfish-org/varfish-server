@@ -18,6 +18,7 @@ End-User Summary
 - Added support to add multiple comments by different users to a case in the case detail view.
 - Fixed bug where using genotype presets wasn't fully executed while in comp. het. mode.
 - Fixed bug where the genomic region form wasn't properly reconstructed when only a chromosome was given.
+- Properly sorting results now by chromomsome in order as expected (numerical followed by X, Y, MT).
 
 Full Change List
 ================
@@ -35,6 +36,7 @@ Full Change List
 - Added model ``CaseComments`` to enable assigning comments to a case by different users in the case detail view.
 - Fixed bug where using genotype presets wasn't fully executed while in comp. het. mode.
 - Fixed bug where the genomic region form wasn't properly reconstructed when only a chromosome was given.
+- Sorting results now by the numerical representation of the chromosome.
 
 -------
 v0.16.1

@@ -95,7 +95,6 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         self.projectcasessmallvariantquery.query_results.add(small_vars[0].id, small_vars[2].id)
 
     def test_load_prefetched_case_results(self):
-        self.smallvariantquery.save()
         results = self.run_query(
             CaseLoadPrefetchedQuery, {"filter_job_id": self.smallvariantquery.id}, 2
         )
@@ -124,6 +123,32 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         self.assertIsNone(results[1].acmg_symbol)
         self.assertTrue(results[0].effect_ambiguity)
         self.assertFalse(results[1].effect_ambiguity)
+
+
+class TestCaseLoadPrefetchedSorting(SupportQueryTestBase):
+    def setUp(self):
+        super().setUp()
+        variant_set = SmallVariantSetFactory()
+        self.small_vars = SmallVariantFactory.create_batch(10, variant_set=variant_set)
+        self.small_vars.reverse()
+        self.smallvariantquery = SmallVariantQueryFactory(case=variant_set.case)
+        self.smallvariantquery.query_results.add(*self.small_vars)
+
+    def test_case_load_prefetched_sorted(self):
+        results = self.run_query(
+            CaseLoadPrefetchedQuery, {"filter_job_id": self.smallvariantquery.id}, 10
+        )
+        small_vars_sorted = sorted(self.small_vars, key=lambda x: x.chromosome_no)
+        self.assertEqual(results[0]["chromosome"], small_vars_sorted[0].chromosome)
+        self.assertEqual(results[1]["chromosome"], small_vars_sorted[1].chromosome)
+        self.assertEqual(results[2]["chromosome"], small_vars_sorted[2].chromosome)
+        self.assertEqual(results[3]["chromosome"], small_vars_sorted[3].chromosome)
+        self.assertEqual(results[4]["chromosome"], small_vars_sorted[4].chromosome)
+        self.assertEqual(results[5]["chromosome"], small_vars_sorted[5].chromosome)
+        self.assertEqual(results[6]["chromosome"], small_vars_sorted[6].chromosome)
+        self.assertEqual(results[7]["chromosome"], small_vars_sorted[7].chromosome)
+        self.assertEqual(results[8]["chromosome"], small_vars_sorted[8].chromosome)
+        self.assertEqual(results[9]["chromosome"], small_vars_sorted[9].chromosome)
 
 
 class TestCaseOneQueryDatabaseSwitch(SupportQueryTestBase):
