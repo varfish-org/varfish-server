@@ -1118,8 +1118,8 @@ class GenomicRegionFilterFormMixin:
                     results.append(
                         (
                             m[1],
-                            int(m[2].replace(",", "")) if m[2] else 0,
-                            int(m[3].replace(",", "")) if m[3] else 2 ** 31 - 1,
+                            int(m[2].replace(",", "")) if m[2] else None,
+                            int(m[3].replace(",", "")) if m[3] else None,
                         )
                     )
                 else:

@@ -793,7 +793,14 @@ class CaseFilterView(
             )
             for key, value in previous_query.query_settings.items():
                 if key == "genomic_region":
-                    result[key] = "\n".join("{}:{:,}-{:,}".format(*v) for v in value)
+                    tmp = []
+                    for v in value:
+                        chrom, start, end = v
+                        if start and end:
+                            tmp.append("{}:{:,}-{:,}".format(chrom, start, end))
+                        else:
+                            tmp.append(chrom)
+                    result[key] = "\n".join(tmp)
                 elif isinstance(value, list):
                     result[key] = " ".join(value)
                 else:

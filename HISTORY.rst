@@ -17,6 +17,7 @@ End-User Summary
 - Added editable ``notes`` and ``status`` fields to case detail view to enable the user to take a note/summarize the case.
 - Added support to add multiple comments by different users to a case in the case detail view.
 - Fixed bug where using genotype presets wasn't fully executed while in comp. het. mode.
+- Fixed bug where the genomic region form wasn't properly reconstructed when only a chromosome was given.
 
 Full Change List
 ================
@@ -33,6 +34,7 @@ Full Change List
 - Fixed displaying of ``status`` in case detail view when it was never set.
 - Added model ``CaseComments`` to enable assigning comments to a case by different users in the case detail view.
 - Fixed bug where using genotype presets wasn't fully executed while in comp. het. mode.
+- Fixed bug where the genomic region form wasn't properly reconstructed when only a chromosome was given.
 
 -------
 v0.16.1

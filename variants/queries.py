@@ -861,8 +861,8 @@ class ExtendQueryPartsGenomicRegionFilter(ExtendQueryPartsBase):
                     *[
                         and_(
                             SmallVariant.sa.chromosome == chrom,
-                            SmallVariant.sa.start >= start,
-                            SmallVariant.sa.start <= end,
+                            (SmallVariant.sa.start >= start) if start else True,
+                            (SmallVariant.sa.start <= end) if end else True,
                         )
                         for chrom, start, end in self.kwargs["genomic_region"]
                     ]

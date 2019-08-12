@@ -246,8 +246,8 @@ class ExtendQueryPartsGenomicRegionFilter(ExtendQueryPartsBase):
                 *[
                     and_(
                         StructuralVariant.sa.chromosome == normalize_chrom(chrom),
-                        StructuralVariant.sa.end >= start,
-                        StructuralVariant.sa.start <= end,
+                        (StructuralVariant.sa.end >= start) if start else True,
+                        (StructuralVariant.sa.start <= end) if end else True,
                     )
                     for chrom, start, end in self.kwargs["genomic_region"]
                 ]

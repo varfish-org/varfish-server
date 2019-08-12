@@ -49,4 +49,4 @@ class TestFilterForm(TestFormBase):
         )
         form = FilterForm(form_data, case=self.variant_set.case)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data["genomic_region"], [("X", 0, 2 ** 31 - 1)])
+        self.assertEqual(form.cleaned_data["genomic_region"], [("X", None, None)])
