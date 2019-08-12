@@ -1,0 +1,113 @@
+
+<div class="card varfish-vars-case-details"
+     id="card-varfish-vars-case-details-small-var-comments">
+  <div class="card-header">
+    <h4>
+      <i class="fa fa-comments-o"></i>
+      Comments
+    </h4>
+  </div>
+  <ul class="list-group list-group-flush" style="overflow-y: auto !important; max-height: 300px;" id="case-comment-list">
+    {% for comment in case.case_comments.all %}
+    <li class="list-group-item" data-sodar-uuid="{{ comment.sodar_uuid }}">
+      <strong>{{ comment.user }}</strong>
+      <small>
+        commented at
+        {{ comment.date_created|date:"Y/m/d H:i" }}:
+      </small>
+      <em>{{ comment.comment }}</em>
+      {% if comment.user == request.user or request.user.is_superuser %}
+          <a href="#" class="pl-2 text-secondary case-comment-button-delete">
+              <i class="fa fa-times-circle"></i>
+          </a>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  <div class="card-body" id="case-comment-list-empty" style="display: none;">
+    <p class="text-muted font-italic">
+      No comments yet.
+    </p>
+  </div>
+  <form>{% csrf_token %}
+    <span class="input-group">
+      {{ casecommentsform }}
+      <button
+          type="button"
+          class="btn btn-secondary"
+          id="case-comment-button-submit"
+          data-url-case-comments-submit="{{ case_comments_submit_url }}"
+          data-url-case-comments-delete="{{ case_comments_delete_url }}">
+        <i class="fa fa-plus"></i> Submit
+      </button>
+    </span>
+  </form>
+</div>
+
+<script type="text/javascript">
+let textbox = $("#id_comment");
+let comments = $("#case-comment-list");
+
+function handleEmptyMessage() {
+    if (comments.find("li").length) {
+        $("#case-comment-list-empty").hide();
+    }
+    else {
+        $("#case-comment-list-empty").show();
+    }
+}
+
+function caseCommentDelete() {
+    var list_element = $(this).closest("li");
+    $.ajax({
+        type: "POST",
+        url: $("#case-comment-button-submit").data("url-case-comments-delete"),
+        data: {sodar_uuid: list_element.data("sodar-uuid"), user: {{ request.user.id }}},
+        dataType: "json",
+        success: function (data) {
+            list_element.closest("li").remove();
+            handleEmptyMessage();
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert("Error during AJAX call: " + textStatus + " " + errorThrown);
+            console.log("Error during AJAX call: ", textStatus, errorThrown);
+        }
+    });
+}
+
+$(document).ready(function() {
+    $("#case-comment-button-submit").on("click", function() {
+        if (textbox.val() !== "") {
+            $.ajax({
+                type: "POST",
+                url: $(this).data("url-case-comments-submit"),
+                data: $(this).closest("form").serialize(),
+                dataType: "json",
+                success: function (data) {
+                    comments.append(
+                        "<li class=\"list-group-item\" data-sodar-uuid=\"" + data["sodar_uuid"] + "\">\n" +
+                        "  <strong> " + data["user"] + "</strong>\n" +
+                        "  <small>commented at " + data["date_created"] + ":</small>\n" +
+                        "  <em>" + data["comment"] + "</em>\n" +
+                        "  <a href=\"#\" class=\"pl-2 text-secondary case-comment-button-delete\">" +
+                        "    <i class=\"fa fa-times-circle\"></i>" +
+                        "  </a>" +
+                        "</li>"
+                    );
+                    comments.animate({scrollTop: comments[0].scrollHeight}, 'slow');
+                    textbox.val("");
+                    $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find('a').on("click", caseCommentDelete);
+                    handleEmptyMessage();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Error during AJAX call: " + textStatus + " " + errorThrown);
+                    console.log("Error during AJAX call: ", textStatus, errorThrown);
+                }
+            });
+        }
+    });
+    $(".case-comment-button-delete").on("click", caseCommentDelete);
+    comments.animate({scrollTop: comments[0].scrollHeight}, 'slow');
+    handleEmptyMessage();
+});
+</script>

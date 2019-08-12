@@ -405,7 +405,7 @@ class Case(models.Model):
     )
 
     #: Note field to summarize the current status
-    notes = models.CharField(max_length=2048, default="", null=True, blank=True)
+    notes = models.TextField(default="", null=True, blank=True)
     #: Status field
     status = models.CharField(max_length=32, default="initial", choices=CASE_STATUS_CHOICES)
 
@@ -644,6 +644,34 @@ def delete_case_cascaded(sender, instance, **kwargs):
     """
     if sender == Case:
         SmallVariant.objects.filter(case_id=instance.id).delete()
+
+
+class CaseComments(models.Model):
+    """Comments associated with a case."""
+
+    #: UUID of the job
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
+    )
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+    #: DateTime of last modification
+    date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
+    #: Case for the comment
+    case = models.ForeignKey(
+        Case, null=False, related_name="case_comments", help_text="Case for this comment"
+    )
+    #: User who created the comment
+    user = models.ForeignKey(
+        AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="case_comments",
+        help_text="User who created the comment",
+    )
+    #: User
+    comment = models.TextField()
 
 
 class SmallVariantSet(models.Model):

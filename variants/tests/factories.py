@@ -30,6 +30,7 @@ from ..models import (
     SmallVariantSet,
     CaseVariantStats,
     SampleVariantStatistics,
+    CaseComments,
 )
 import typing
 import attr
@@ -274,6 +275,11 @@ class CaseNotesStatusFormFactory:
     status: str = "initial"
 
 
+@attr.s(auto_attribs=True)
+class CaseCommentsFormFactory:
+    comment: str = "This is some comment"
+
+
 class ProjectFactory(factory.django.DjangoModelFactory):
     """Factory for creating ``projectroles`` ``Project`` objects."""
 
@@ -439,6 +445,15 @@ class CaseFactory(factory.django.DjangoModelFactory):
                     "has_gt_entries": True,
                 },
             ]
+
+
+class CaseCommentsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = CaseComments
+
+    case = factory.SubFactory(CaseFactory)
+    user = None  # TODO Wait for SODAR core to offer a user factory
+    comment = "This is a comment."
 
 
 class SmallVariantQueryFactory(factory.django.DjangoModelFactory):

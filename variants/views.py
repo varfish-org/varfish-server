@@ -31,6 +31,8 @@ from frequencies.views import FrequencyMixin
 from projectroles.app_settings import AppSettingAPI
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 from projectroles.plugins import get_backend_api
+
+from varfish.users.models import User
 from .queries import (
     CaseLoadPrefetchedQuery,
     ProjectLoadPrefetchedQuery,
@@ -62,7 +64,7 @@ from .models import (
     SyncCaseListBgJob,
     SmallVariantSet,
     ImportVariantsBgJob,
-    CASE_STATUS_CHOICES,
+    CaseComments,
 )
 from .forms import (
     ClinvarForm,
@@ -81,6 +83,7 @@ from .forms import (
     CaseForm,
     SyncProjectJobForm,
     CaseNotesStatusForm,
+    CaseCommentsForm,
 )
 from .tasks import (
     export_file_task,
@@ -270,7 +273,7 @@ class CaseNotesStatusApiView(
     FormMixin,
     View,
 ):
-    """API view to save case notes."""
+    """API view to save case notes and status."""
 
     permission_required = "variants.view_data"
     model = Case
@@ -291,6 +294,88 @@ class CaseNotesStatusApiView(
                 ),
                 content_type="application/json",
             )
+
+
+class CaseCommentsSubmitApiView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+    FormMixin,
+    View,
+):
+    """API view to save case comments."""
+
+    permission_required = "variants.view_data"
+    model = Case
+    form_class = CaseCommentsForm
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, *args, **kwargs):
+        case = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            record = CaseComments(
+                case=case, user=self.request.user, comment=form.cleaned_data["comment"]
+            )
+            record.save()
+            return HttpResponse(
+                json.dumps(
+                    {
+                        "comment": record.comment,
+                        "date_created": record.date_created.strftime("%Y/%m/%d %H:%M"),
+                        "user": str(record.user),
+                        "sodar_uuid": record.sodar_uuid.hex,
+                    }
+                ),
+                content_type="application/json",
+            )
+
+
+class CaseCommentsDeleteApiView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+    View,
+):
+    """API view to save case comments."""
+
+    permission_required = "variants.view_data"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, *args, **kwargs):
+        try:
+            user = User.objects.get(id=self.request.POST.get("user"))
+        except ObjectDoesNotExist as e:
+            return HttpResponse(
+                json.dumps({"result": "User not found."}),
+                content_type="application/json",
+                status=403,
+            )
+
+        kwargs = {"sodar_uuid": self.request.POST.get("sodar_uuid")}
+        if not user.is_superuser:
+            kwargs["user"] = user
+
+        try:
+            comment = CaseComments.objects.get(**kwargs)
+        except ObjectDoesNotExist as e:
+            return HttpResponse(
+                json.dumps({"result": "Not authorized to delete comment or no comment found."}),
+                content_type="application/json",
+                status=500,
+            )
+
+        comment.delete()
+        return HttpResponse(json.dumps({"result": "OK"}), content_type="application/json")
 
 
 class CaseDetailView(
@@ -321,10 +406,19 @@ class CaseDetailView(
             "variants:case-notes-status-api",
             kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
         )
+        result["case_comments_submit_url"] = reverse(
+            "variants:case-comments-submit-api",
+            kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+        )
+        result["case_comments_delete_url"] = reverse(
+            "variants:case-comments-delete-api",
+            kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
+        )
         result["ontarget_effect_counts"] = {sample: {} for sample in result["samples"]}
         result["indel_sizes"] = {sample: {} for sample in result["samples"]}
         result["indel_sizes_keys"] = []
         result["dps"] = {sample: {} for sample in result["samples"]}
+        result["casecommentsform"] = CaseCommentsForm()
 
         try:
             variant_set = case.latest_variant_set()
@@ -358,6 +452,13 @@ class CaseDetailView(
             pass  # swallow, defaults set above
 
         return result
+
+    def get_initial(self):
+        """Returns the initial data for the form."""
+        initial = super().get_initial()
+        case = self.get_object()
+        initial.update({"notes": case.notes, "status": case.status})
+        return initial
 
 
 class CaseUpdateView(

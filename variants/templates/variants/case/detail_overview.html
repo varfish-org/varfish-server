@@ -121,7 +121,6 @@ $(document).ready(function() {
             success: function(data) {
                 $("#case-notes-status-text").text(data["notes"]);
                 $("#case-notes-status-badge").text(data["status"]);
-                console.log(data["status"]);
                 $("#case-notes-status-button").trigger("click");
                 decorateCaseNotesStatus();
             },

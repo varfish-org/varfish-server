@@ -9,6 +9,7 @@ from .models import (
     AcmgCriteriaRating,
     Case,
     CASE_STATUS_CHOICES,
+    CaseComments,
 )
 from .templatetags.variants_tags import only_source_name
 from geneinfo.models import Hgnc
@@ -1388,11 +1389,25 @@ class CaseNotesStatusForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["notes"].label = ""
-        self.fields["notes"].widget = forms.Textarea(
-            attrs={"rows": 3, "class": "form-control", "maxlength": 2048}
-        )
+        self.fields["notes"].widget = forms.Textarea(attrs={"rows": 3, "class": "form-control"})
         self.fields["status"].label = ""
 
     class Meta:
         model = Case
         fields = ["notes", "status"]
+
+
+class CaseCommentsForm(forms.ModelForm):
+    """Form for commenting a case."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["comment"].label = ""
+        self.fields["comment"].required = False
+        self.fields["comment"].widget = forms.Textarea(
+            attrs={"rows": 1, "class": "form-control", "placeholder": "Enter comment here"}
+        )
+
+    class Meta:
+        model = CaseComments
+        fields = ["comment"]

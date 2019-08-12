@@ -5,12 +5,13 @@ import json
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from projectroles.templatetags.projectroles_common_tags import site_version
+from projectroles.tests.test_models import RoleAssignmentMixin, PROJECT_ROLE_OWNER
 
 from requests_mock import Mocker
 from unittest.mock import patch
 from django.conf import settings
 
-from projectroles.models import Project
+from projectroles.models import Project, Role
 from projectroles.app_settings import AppSettingAPI
 from clinvar.tests.factories import (
     ProcessedClinvarFormDataFactory,
@@ -68,6 +69,8 @@ from variants.tests.factories import (
     SmallVariantCommentFactory,
     SmallVariantSetFactory,
     CaseNotesStatusFormFactory,
+    CaseCommentsFormFactory,
+    CaseCommentsFactory,
 )
 from variants.tests.helpers import ViewTestBase
 from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
@@ -2558,4 +2561,96 @@ class TestCaseNotesStatusApiView(ViewTestBase):
             )
             self.assertEqual(
                 json.loads(response.content.decode("utf-8"))["status"], form_data["status"]
+            )
+
+
+class TestCaseCommentsSubmitApiView(ViewTestBase):
+    """Test CaseCommentsSubmitApiView."""
+
+    def setUp(self):
+        super().setUp()
+        self.variant_set = SmallVariantSetFactory()
+
+    def test_user_submit_case_comment(self):
+        with self.login(self.user):
+            form_data = vars(CaseCommentsFormFactory())
+            response = self.client.post(
+                reverse(
+                    "variants:case-comments-submit-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                form_data,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["comment"], form_data["comment"]
+            )
+
+
+class TestCaseCommentsDeleteApiView(RoleAssignmentMixin, ViewTestBase):
+    """Test CaseCommentsDeleteApiView."""
+
+    def setUp(self):
+        super().setUp()
+        self.randomuser = self.make_user("randomuser")
+        self.randomuser.save()
+        self.variant_set = SmallVariantSetFactory()
+        self._make_assignment(
+            self.variant_set.case.project,
+            self.randomuser,
+            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+        )
+
+    def test_admin_can_delete_user_case_comment(self):
+        comment = CaseCommentsFactory(case=self.variant_set.case, user=self.randomuser)
+        with self.login(self.user):
+            response = self.client.post(
+                reverse(
+                    "variants:case-comments-delete-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                {"sodar_uuid": comment.sodar_uuid, "user": self.user.id},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["result"], "OK")
+
+    def test_user_can_delete_own_case_comment(self):
+        comment = CaseCommentsFactory(case=self.variant_set.case, user=self.randomuser)
+        with self.login(self.randomuser):
+            response = self.client.post(
+                reverse(
+                    "variants:case-comments-delete-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                {"sodar_uuid": comment.sodar_uuid, "user": self.randomuser.id},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["result"], "OK")
+
+    def test_user_cant_delete_admin_comment(self):
+        comment = CaseCommentsFactory(case=self.variant_set.case, user=self.user)
+        with self.login(self.randomuser):
+            response = self.client.post(
+                reverse(
+                    "variants:case-comments-delete-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                {"sodar_uuid": comment.sodar_uuid, "user": self.randomuser.id},
+            )
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["result"],
+                "Not authorized to delete comment or no comment found.",
             )
