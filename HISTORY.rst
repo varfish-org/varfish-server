@@ -16,6 +16,7 @@ End-User Summary
 - Fixing genotype settings pre-selector dropdown that was trapped in parent container and possibly not entirely accessible.
 - Added editable ``notes`` and ``status`` fields to case detail view to enable the user to take a note/summarize the case.
 - Added support to add multiple comments by different users to a case in the case detail view.
+- Fixed bug where using genotype presets wasn't fully executed while in comp. het. mode.
 
 Full Change List
 ================
@@ -31,6 +32,7 @@ Full Change List
 - Added editable ``notes`` and ``status`` fields to ``Case`` model to enable the user in the case detail view to take notes and assign a status to the case.
 - Fixed displaying of ``status`` in case detail view when it was never set.
 - Added model ``CaseComments`` to enable assigning comments to a case by different users in the case detail view.
+- Fixed bug where using genotype presets wasn't fully executed while in comp. het. mode.
 
 -------
 v0.16.1

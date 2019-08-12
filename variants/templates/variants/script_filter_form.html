@@ -809,6 +809,9 @@ function loadGenelistPresets(e) {
 
 function loadGenotypePresets(e) {
   const presetName = $(e.currentTarget).data("preset-name");
+  if (compHetCurrentIndex) {
+      compHetCurrentIndex.trigger("change", ["any"]);
+  }
   const preset = presetName.split(":");
   $(".genotype-field-gt." + preset[0]).each(
     function () {
