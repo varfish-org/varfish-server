@@ -27,6 +27,7 @@ from geneinfo.tests.factories import (
     GeneIdToInheritanceFactory,
     GnomadConstraintsFactory,
     ExacConstraintsFactory,
+    MgiMappingFactory,
 )
 from dbsnp.tests.factories import DbsnpFactory
 from .factories import (
@@ -85,6 +86,8 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         self.exac_constraints = ExacConstraintsFactory(
             ensembl_transcript_id=small_vars[0].ensembl_transcript_id
         )
+        # Prepare MGI records
+        self.mgi = MgiMappingFactory(human_entrez_id=small_vars[0].refseq_gene_id)
         # Prepare smallvariant query results
         self.smallvariantquery = SmallVariantQueryFactory(case=case)
         self.smallvariantquery.query_results.add(small_vars[0].id, small_vars[1].id)
@@ -111,6 +114,8 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         )
         self.assertEqual(results[0].gnomad_pLI, self.gnomad_constraints.pLI)
         self.assertEqual(results[0].exac_pLI, self.exac_constraints.pLI)
+        self.assertEqual(results[0].mgi_id, self.mgi.mgi_id)
+        self.assertIsNone(results[1].mgi_id)
 
     def test_load_prefetched_project_cases_results(self):
         results = self.run_query(
@@ -121,8 +126,10 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         )
         self.assertEqual(results[0].acmg_symbol, self.acmg.symbol)
         self.assertIsNone(results[1].acmg_symbol)
+        self.assertEqual(results[0].mgi_id, self.mgi.mgi_id)
         self.assertTrue(results[0].effect_ambiguity)
         self.assertFalse(results[1].effect_ambiguity)
+        self.assertIsNone(results[1].mgi_id)
 
 
 class TestCaseLoadPrefetchedSorting(SupportQueryTestBase):

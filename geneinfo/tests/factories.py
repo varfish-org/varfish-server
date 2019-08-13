@@ -14,6 +14,7 @@ from ..models import (
     EnsemblToRefseq,
     RefseqToEnsembl,
     GeneIdToInheritance,
+    MgiMapping,
 )
 
 
@@ -183,3 +184,24 @@ class GeneIdToInheritanceFactory(factory.django.DjangoModelFactory):
     ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
     entrez_id = factory.Sequence(lambda n: str(n))
     mode_of_inheritance = factory.Iterator([m for m, v in GeneIdToInheritance.MODES_OF_INHERITANCE])
+
+
+class MgiMappingFactory(factory.django.DjangoModelFactory):
+    """Factory for the ``MgiMapping`` model/materialized view."""
+
+    class Meta:
+        model = MgiMapping
+
+    hgnc_id = factory.Sequence(lambda n: "HGNC:%d" % n)
+    omim_id = factory.Sequence(lambda n: "OMIM:%d" % n)
+    human_coordinates = "chr1:1-100(+)"
+    human_entrez_id = factory.Sequence(lambda n: str(n))
+    human_nucleotide_refseq_ids = []
+    human_protein_refseq_ids = []
+    human_swissprot_ids = []
+    mgi_id = factory.Sequence(lambda n: "MGI:%d" % n)
+    mouse_coordinates = "chr1:1-100(+)"
+    mouse_entrez_id = factory.Sequence(lambda n: str(n + 100))
+    mouse_nucleotide_refseq_ids = []
+    mouse_protein_refseq_ids = []
+    mouse_swissprot_ids = []

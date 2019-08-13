@@ -168,6 +168,15 @@
           <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ entry.symbol }}" target="_blank">
             Gene @PubMed
           </a>
+          {% if entry.mgi_id %}
+          <a class="dropdown-item" href="http://www.informatics.jax.org/marker/{{ entry.mgi_id }}" target="_blank">
+            Gene @MGI
+          </a>
+          {% else %}
+          <span class="dropdown-item disabled">
+            Gene @MGI
+          </span>
+          {% endif %}
           {% if hpoterms %}
             <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ entry.symbol }}{% for _, title in hpoterms.items %}+{{ title|urlencode:"" }}{% endfor %}" target="_blank">
               Gene+Phenotypes @PubMed

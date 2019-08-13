@@ -22,6 +22,7 @@ from geneinfo.models import (
     GeneIdToInheritance,
     GnomadConstraints,
     ExacConstraints,
+    MgiMapping,
 )
 from hgmd.models import HgmdPublicLocus
 from variants.models import (
@@ -262,6 +263,24 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
             func.coalesce(self.subquery_hgnc.c.gene_family, "").label("gene_family"),
             func.coalesce(self.subquery_hgnc.c.pubmed_id, "").label("pubmed_id"),
         ]
+
+
+class ExtendQueryPartsMgiJoin(ExtendQueryPartsBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.subquery = (
+            select([func.max(MgiMapping.sa.mgi_id).label("mgi_id")])
+            .select_from(MgiMapping.sa)
+            .where(MgiMapping.sa.human_entrez_id == SmallVariant.sa.refseq_gene_id)
+            .group_by(MgiMapping.sa.human_entrez_id)
+            .lateral("mgi_subquery")
+        )
+
+    def extend_fields(self, _query_parts):
+        return [self.subquery.c.mgi_id]
+
+    def extend_selectable(self, query_parts):
+        return query_parts.selectable.outerjoin(self.subquery, true())
 
 
 class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
@@ -1176,6 +1195,7 @@ class QueryPartsBuilder:
         *extender_classes_base,
         ExtendQueryPartsHgncJoin,
         ExtendQueryPartsAcmgJoin,
+        ExtendQueryPartsMgiJoin,
     ]
 
     def __init__(self, case_or_cases, query_id):
@@ -1211,6 +1231,7 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsDbsnpJoin,
         ExtendQueryPartsHgncJoin,
         ExtendQueryPartsAcmgJoin,
+        ExtendQueryPartsMgiJoin,
         ExtendQueryPartsFlagsJoinAndFilter,
         ExtendQueryPartsCommentsJoin,
         ExtendQueryPartsAcmgCriteriaJoin,
@@ -1228,6 +1249,7 @@ class CaseExportTableQueryPartsBuilder(QueryPartsBuilder):
         *extender_classes_base,
         ExtendQueryPartsHgncJoin,
         ExtendQueryPartsAcmgJoin,
+        ExtendQueryPartsMgiJoin,
         ExtendQueryPartsConservationJoin,
     ]
 
@@ -1248,6 +1270,7 @@ class ClinvarReportPrefetchQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsClinvarFullJoinAndFilter,
         ExtendQueryPartsClinvarMembershipRequiredFilter,
         ExtendQueryPartsHgncJoin,
+        ExtendQueryPartsMgiJoin,
         ExtendQueryPartsHgmdJoin,
         ExtendQueryPartsFlagsJoinAndFilter,
     ]
@@ -1259,6 +1282,7 @@ class ClinvarReportLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsCaseJoinAndFilter,
         ExtendQueryPartsClinvarFullJoin,
         ExtendQueryPartsHgncJoin,
+        ExtendQueryPartsMgiJoin,
         ExtendQueryPartsHgmdJoin,
         ExtendQueryPartsFlagsJoin,
         ExtendQueryPartsModesOfInheritanceJoin,
@@ -1271,6 +1295,7 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsCaseJoinAndFilter,
         ExtendQueryPartsDbsnpJoin,
         ExtendQueryPartsHgncJoin,
+        ExtendQueryPartsMgiJoin,
         ExtendQueryPartsAcmgJoin,
         ExtendQueryPartsFlagsJoin,
         ExtendQueryPartsCommentsJoin,
@@ -1285,6 +1310,7 @@ class ProjectExportTableQueryPartsBuilder(QueryPartsBuilder):
         *extender_classes_base,
         ExtendQueryPartsHgncJoin,
         ExtendQueryPartsAcmgJoin,
+        ExtendQueryPartsMgiJoin,
         ExtendQueryPartsConservationJoin,
     ]
 

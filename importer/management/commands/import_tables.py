@@ -8,13 +8,13 @@ import aldjemy
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-import clinvar
-from clinvar.models import Clinvar
+from clinvar.models import Clinvar, refresh_clinvar_clinvarpathogenicgenes
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from frequencies.models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes
 from geneinfo.models import (
     Hgnc,
+    MgiHomMouseHumanSequence,
     Mim2geneMedgen,
     Hpo,
     NcbiGeneInfo,
@@ -26,6 +26,8 @@ from geneinfo.models import (
     ExacConstraints,
     EnsemblToRefseq,
     RefseqToEnsembl,
+    refresh_geneinfo_geneidtoinheritance,
+    refresh_geneinfo_mgimapping,
 )
 from genomicfeatures.models import (
     GeneInterval,
@@ -61,6 +63,7 @@ TABLES = {
     "hpo": (Hpo, HpoName),
     "kegg": (KeggInfo, EnsemblToKegg, RefseqToKegg),
     "knowngeneaa": (KnowngeneAA,),
+    "mgi": (MgiHomMouseHumanSequence,),
     "mim2gene": (Mim2geneMedgen,),
     "ncbi_gene": (NcbiGeneInfo, NcbiGeneRif),
     "refseq_genes": (GeneInterval,),
@@ -235,7 +238,11 @@ class Command(BaseCommand):
                 # Refresh clinvar materialized view if one of the depending tables was updated.
                 # Depending tables: Clinvar, Hgnc, RefseqToHgnc
                 if table_group in ("clinvar", "hgnc"):
-                    clinvar.models.refresh_clinvar_clinvarpathogenicgenes()
+                    refresh_clinvar_clinvarpathogenicgenes()
+                elif table_group == "mgi":
+                    refresh_geneinfo_mgimapping()
+                elif table_group in ("hpo", "mim2gene", "hgnc"):
+                    refresh_geneinfo_geneidtoinheritance()
 
     def _import_tad_set(self, path, tables, subset_key, force):
         """TAD import"""

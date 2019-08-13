@@ -1,4 +1,5 @@
-from django.db import models
+from django.contrib.postgres.fields import ArrayField
+from django.db import models, connection, transaction, utils
 from django.conf import settings
 from postgres_copy import CopyManager
 
@@ -443,3 +444,89 @@ class GeneIdToInheritance(models.Model):
     class Meta:
         managed = settings.IS_TESTING
         db_table = "geneinfo_geneidtoinheritance"
+
+
+def refresh_geneinfo_geneidtoinheritance():
+    """Refresh the ``GeneIdToInheritance`` materialized view."""
+    with connection.cursor() as cursor:
+        with transaction.atomic():
+            cursor.execute("REFRESH MATERIALIZED VIEW geneinfo_geneidtoinheritance")
+
+
+class MgiHomMouseHumanSequence(models.Model):
+    """Model for mouse to human mapping. One record (row) can be either mouse or human.
+    Mapping of a gene is accomplished via ``HomoloGene ID`` column, which contains the same ID in the homologous entries
+    of mouse and human, respectively.
+    """
+
+    #: HomoloGene ID
+    homologene_id = models.IntegerField(null=False)
+    #: Common Organism Name ('human' or 'mouse, laboratory')
+    common_organism_name = models.CharField(max_length=32, null=False)
+    #: NCBI Taxon ID (9606 for human, 10090 for mouse)
+    ncbi_taxon_id = models.CharField(max_length=16, null=False)
+    #: Gene Symbol (seems to differ in capitalization between mouse gene and human homolog)
+    symbol = models.CharField(max_length=32, null=False)
+    #: Entrez Gene ID (differs between mouse gene and human homolog)
+    entrez_id = models.CharField(max_length=16, null=False)
+    #: Mouse MGI ID (only set in mouse record)
+    mgi_id = models.CharField(max_length=16, null=True)
+    #: HGNC ID (only set in human record)
+    hgnc_id = models.CharField(max_length=16, null=True)
+    #: OMIM Gene ID (only set in human record)
+    omim_id = models.CharField(max_length=32, null=True)
+    #: Genetic Location
+    location = models.CharField(max_length=64, null=True)
+    #: Genomic Coordinates
+    coordinates = models.CharField(max_length=128, null=True)
+    #: Nucleotide RefSeq IDs
+    nucleotide_refseq_ids = ArrayField(models.CharField(max_length=16))
+    #: Protein RefSeq IDs
+    protein_refseq_ids = ArrayField(models.CharField(max_length=16))
+    #: SwissProt IDs
+    swissprot_ids = ArrayField(models.CharField(max_length=16))
+
+    #: Allow bulk import info database.
+    objects = CopyManager()
+
+
+class MgiMapping(models.Model):
+    """Materialized view model for easy mapping of MGI ids to various human gene attributes."""
+
+    #: HGNC ID (only set in human record)
+    hgnc_id = models.CharField(max_length=16, null=True)
+    #: OMIM Gene ID (only set in human record)
+    omim_id = models.CharField(max_length=32, null=True)
+    #: coordinates Human
+    human_coordinates = models.CharField(max_length=128, null=True)
+    #: entrez_id Human
+    human_entrez_id = models.CharField(max_length=16, null=True)
+    #: Nucleotide RefSeq IDs Human
+    human_nucleotide_refseq_ids = ArrayField(models.CharField(max_length=16))
+    #: Protein RefSeq IDs Human
+    human_protein_refseq_ids = ArrayField(models.CharField(max_length=16))
+    #: SwissProt IDs Human
+    human_swissprot_ids = ArrayField(models.CharField(max_length=16))
+    #: MGI ID
+    mgi_id = models.CharField(max_length=16, null=True)
+    #: coordinates Mouse
+    mouse_coordinates = models.CharField(max_length=128, null=True)
+    #: entrez_id Mouse
+    mouse_entrez_id = models.CharField(max_length=16, null=True)
+    #: Nucleotide RefSeq IDs Mouse
+    mouse_nucleotide_refseq_ids = ArrayField(models.CharField(max_length=16))
+    #: Protein RefSeq IDs Mouse
+    mouse_protein_refseq_ids = ArrayField(models.CharField(max_length=16))
+    #: SwissProt IDs Mouse
+    mouse_swissprot_ids = ArrayField(models.CharField(max_length=16))
+
+    class Meta:
+        managed = settings.IS_TESTING
+        db_table = "geneinfo_mgimapping"
+
+
+def refresh_geneinfo_mgimapping():
+    """Refresh the ``SmallVariantSummary`` materialized view."""
+    with connection.cursor() as cursor:
+        with transaction.atomic():
+            cursor.execute("REFRESH MATERIALIZED VIEW geneinfo_mgimapping")

@@ -19,6 +19,7 @@ End-User Summary
 - Fixed bug where using genotype presets wasn't fully executed while in comp. het. mode.
 - Fixed bug where the genomic region form wasn't properly reconstructed when only a chromosome was given.
 - Properly sorting results now by chromomsome in order as expected (numerical followed by X, Y, MT).
+- Included MGI mouse gene link-out in gene dropdown menu in result list.
 
 Full Change List
 ================
@@ -37,6 +38,8 @@ Full Change List
 - Fixed bug where using genotype presets wasn't fully executed while in comp. het. mode.
 - Fixed bug where the genomic region form wasn't properly reconstructed when only a chromosome was given.
 - Sorting results now by the numerical representation of the chromosome.
+- Included MGI mouse gene link-out in gene dropdown menu in result list.
+  This is accomplished by introducing new table ``MgiHomMouseHumanSequence`` and a condensing materialized view ``MgiMapping`` that maps ``entrez_id`` to ``MGI ID``.
 
 -------
 v0.16.1
