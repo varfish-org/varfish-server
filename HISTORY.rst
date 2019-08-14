@@ -20,6 +20,7 @@ End-User Summary
 - Fixed bug where the genomic region form wasn't properly reconstructed when only a chromosome was given.
 - Properly sorting results now by chromomsome in order as expected (numerical followed by X, Y, MT).
 - Included MGI mouse gene link-out in gene dropdown menu in result list.
+- Fixed bug where the filter button wasn't disabled when the selected variant set wasn't in state ``active``.
 
 Full Change List
 ================
@@ -41,6 +42,7 @@ Full Change List
 - Included MGI mouse gene link-out in gene dropdown menu in result list.
   This is accomplished by introducing new table ``MgiHomMouseHumanSequence`` and a condensing materialized view ``MgiMapping`` that maps ``entrez_id`` to ``MGI ID``.
 - Removed ``annotation`` app.
+- Fixed bug where the filter button wasn't disabled when the selected variant set wasn't in state ``active``.
 
 -------
 v0.16.1

@@ -813,7 +813,7 @@ class CaseFilterView(
         context["object"] = self.get_case_object()
         context["num_small_vars"] = context["object"].num_small_vars
         context["variant_set_exists"] = SmallVariantSet.objects.filter(
-            case_id=context["object"].id
+            case_id=context["object"].id, state="active"
         ).exists()
         context["allow_md_submittion"] = True
         # Construct the URL that is assigned to the submit button for the ajax request
@@ -1260,7 +1260,7 @@ class ProjectCasesFilterView(
         context = super().get_context_data(**kwargs)
         context["num_small_vars"] = context["project"].num_small_vars()
         context["variant_set_exists"] = all(
-            SmallVariantSet.objects.filter(case_id=case_id).exists()
+            SmallVariantSet.objects.filter(case_id=case_id, state="active").exists()
             for case_id in context["project"].get_case_pks()
         )
         context["submit_button_url"] = reverse(
@@ -1491,7 +1491,7 @@ class CaseClinvarReportView(
         context["object"] = self.get_case_object()
         context["num_small_vars"] = context["object"].num_small_vars
         context["variant_set_exists"] = SmallVariantSet.objects.filter(
-            case_id=context["object"].id
+            case_id=context["object"].id, state="active"
         ).exists()
         context["submit_button_url"] = reverse(
             "variants:clinvar-results",

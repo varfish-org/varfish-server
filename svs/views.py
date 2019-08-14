@@ -70,7 +70,7 @@ class CaseFilterView(
         context["query_type"] = "case"
         context["pedigree"] = self.get_case_object().get_filtered_pedigree_with_samples()
         context["variant_set_exists"] = StructuralVariantSet.objects.filter(
-            case_id=context["object"].id
+            case_id=context["object"].id, state="active"
         ).exists()
         return context
 
