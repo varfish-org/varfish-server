@@ -43,6 +43,7 @@ Full Change List
   This is accomplished by introducing new table ``MgiHomMouseHumanSequence`` and a condensing materialized view ``MgiMapping`` that maps ``entrez_id`` to ``MGI ID``.
 - Removed ``annotation`` app.
 - Fixed bug where the filter button wasn't disabled when the selected variant set wasn't in state ``active``.
+- Added management command ``rebuild_project_case_stats`` to rebuild stats of all cases of a given project.
 
 -------
 v0.16.1
