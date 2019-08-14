@@ -40,6 +40,7 @@ Full Change List
 - Sorting results now by the numerical representation of the chromosome.
 - Included MGI mouse gene link-out in gene dropdown menu in result list.
   This is accomplished by introducing new table ``MgiHomMouseHumanSequence`` and a condensing materialized view ``MgiMapping`` that maps ``entrez_id`` to ``MGI ID``.
+- Removed ``annotation`` app.
 
 -------
 v0.16.1

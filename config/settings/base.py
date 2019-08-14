@@ -83,7 +83,6 @@ LOCAL_APPS = [
     # custom users app
     "varfish.users.apps.UsersConfig",
     # Your stuff: custom apps go here
-    "annotation.apps.AnnotationConfig",
     "clinvar.apps.ClinvarConfig",
     "conservation.apps.ConservationConfig",
     "dbsnp.apps.DbsnpConfig",
