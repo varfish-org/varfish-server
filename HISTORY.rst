@@ -44,6 +44,7 @@ Full Change List
 - Removed ``annotation`` app.
 - Fixed bug where the filter button wasn't disabled when the selected variant set wasn't in state ``active``.
 - Added management command ``rebuild_project_case_stats`` to rebuild stats of all cases of a given project.
+- Import of database tables now handles non-existing entries in a more logical way.
 
 -------
 v0.16.1

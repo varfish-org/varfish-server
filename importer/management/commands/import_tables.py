@@ -166,11 +166,25 @@ class Command(BaseCommand):
         import_infos = list(tsv_reader(path_import_versions))
         if options["threads"] == 0:  # sequential
             for import_info in import_infos:
-                self._handle_import(import_info, options)
+                if import_info["table_group"] in TABLES:
+                    self._handle_import(import_info, options)
+                else:
+                    self.stderr.write(
+                        "Table group {} is no registered table group.".format(
+                            import_info["table_group"]
+                        )
+                    )
         else:
             pool = ThreadPool(processes=options["threads"])
             for import_info in import_infos:
-                pool.apply_async(self._handle_import_try_catch, (import_info, options))
+                if import_info["table_group"] in TABLES:
+                    pool.apply_async(self._handle_import_try_catch, (import_info, options))
+                else:
+                    self.stderr.write(
+                        "Table group {} is no registered table group.".format(
+                            import_info["table_group"]
+                        )
+                    )
             pool.close()
             pool.join()
 
