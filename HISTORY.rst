@@ -21,6 +21,7 @@ End-User Summary
 - Properly sorting results now by chromomsome in order as expected (numerical followed by X, Y, MT).
 - Included MGI mouse gene link-out in gene dropdown menu in result list.
 - Fixed bug where the filter button wasn't disabled when the selected variant set wasn't in state ``active``.
+- Renamed ``index`` field in genotype dropdown to ``c/h index`` to indicate comp het mode.
 
 Full Change List
 ================
@@ -46,6 +47,7 @@ Full Change List
 - Added management command ``rebuild_project_case_stats`` to rebuild stats of all cases of a given project.
 - Import of database tables now handles non-existing entries in a more logical way.
 - Making variant partion count come from environment variable (#368).
+- Renamed ``index`` field in genotype dropdown to ``c/h index`` to indicate comp het mode.
 
 -------
 v0.16.1

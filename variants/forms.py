@@ -342,7 +342,7 @@ class SmallVariantGenotypeFilterFormMixin:
             affection = "affected" if 2 == member["affected"] else "unaffected"
             index = []
             if not (member["mother"] == "0" or member["father"] == "0"):
-                index = [("index", "index")]
+                index = [("index", "c/h index")]
             self.fields[self.get_genotype_field_names()[name]["gt"]] = forms.CharField(
                 label="",
                 required=True,

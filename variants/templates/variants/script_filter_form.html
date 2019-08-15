@@ -887,8 +887,8 @@ function loadCompHetMode(e, value=null) {
         compHetCurrentIndex = target;
         // Build a dictionary that maps the mother and father id of the index patient to the info text we will display.
         let ids = {};
-        ids["id_" + target.data("mother") + "_gt"] = "mother";
-        ids["id_" + target.data("father") + "_gt"] = "father";
+        ids["id_" + target.data("mother") + "_gt"] = "c/h mother";
+        ids["id_" + target.data("father") + "_gt"] = "c/h father";
         // Iterate over all GT fields.
         $("[id^=id_][id$=_gt]").each(
             function () {
