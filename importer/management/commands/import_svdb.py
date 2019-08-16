@@ -16,7 +16,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from ...models import ImportInfo
-from svdbs.models import DgvGoldStandardSvs, DgvSvs, ExacCnv, ThousandGenomesSv, DbVarSv, GnomAdSv
+
 from variants.helpers import SQLALCHEMY_ENGINE
 
 

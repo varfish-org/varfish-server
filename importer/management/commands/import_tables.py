@@ -41,37 +41,44 @@ from hgmd.models import HgmdPublicLocus
 from ...models import ImportInfo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 from ..helpers import tsv_reader
+from svdbs.models import DgvGoldStandardSvs, DgvSvs, ExacCnv, ThousandGenomesSv, DbVarSv, GnomAdSv
 from variants.helpers import SQLALCHEMY_ENGINE
 
 
 #: One entry in the TABLES variable is structured as follows:
-#: 'table_group': (Table,)
+#: 'genome_build': {'table_group': (Table,), ...}
 TABLES = {
-    "acmg": (Acmg,),
-    "clinvar": (Clinvar,),
-    "dbSNP": (Dbsnp,),
-    "ensembl_genes": (GeneInterval,),
-    "ensembl_regulatory": (EnsemblRegulatoryFeature,),
-    "ensembltorefseq": (EnsemblToRefseq,),
-    "ExAC": (Exac,),
-    "ExAC_constraints": (ExacConstraints,),
-    "gnomAD_constraints": (GnomadConstraints,),
-    "gnomAD_exomes": (GnomadExomes,),
-    "gnomAD_genomes": (GnomadGenomes,),
-    "hgmd_public": (HgmdPublicLocus,),
-    "hgnc": (Hgnc, RefseqToHgnc),
-    "hpo": (Hpo, HpoName),
-    "kegg": (KeggInfo, EnsemblToKegg, RefseqToKegg),
-    "knowngeneaa": (KnowngeneAA,),
-    "mgi": (MgiHomMouseHumanSequence,),
-    "mim2gene": (Mim2geneMedgen,),
-    "ncbi_gene": (NcbiGeneInfo, NcbiGeneRif),
-    "refseq_genes": (GeneInterval,),
-    "tads_hesc": (TadInterval, TadBoundaryInterval, TadSet),
-    "tads_imr90": (TadInterval, TadBoundaryInterval, TadSet),
-    "refseqtoensembl": (RefseqToEnsembl,),
-    "thousand_genomes": (ThousandGenomes,),
-    "vista": (VistaEnhancer,),
+    "GRCh37": {
+        "acmg": (Acmg,),
+        "clinvar": (Clinvar,),
+        "dbSNP": (Dbsnp,),
+        "dbVar": (DbVarSv,),
+        "DGV": (DgvGoldStandardSvs, DgvSvs),
+        "ensembl_genes": (GeneInterval,),
+        "ensembl_regulatory": (EnsemblRegulatoryFeature,),
+        "ensembltorefseq": (EnsemblToRefseq,),
+        "ExAC_constraints": (ExacConstraints,),
+        "ExAC": (Exac, ExacCnv),
+        "gnomAD_constraints": (GnomadConstraints,),
+        "gnomAD_exomes": (GnomadExomes,),
+        "gnomAD_genomes": (GnomadGenomes,),
+        "gnomAD_SV": (GnomAdSv,),
+        "hgmd_public": (HgmdPublicLocus,),
+        "hgnc": (Hgnc, RefseqToHgnc),
+        "hpo": (Hpo, HpoName),
+        "kegg": (KeggInfo, EnsemblToKegg, RefseqToKegg),
+        "knowngeneaa": (KnowngeneAA,),
+        "mgi": (MgiHomMouseHumanSequence,),
+        "mim2gene": (Mim2geneMedgen,),
+        "ncbi_gene": (NcbiGeneInfo, NcbiGeneRif),
+        "refseq_genes": (GeneInterval,),
+        "refseqtoensembl": (RefseqToEnsembl,),
+        "tads_hesc": (TadInterval, TadBoundaryInterval, TadSet),
+        "tads_imr90": (TadInterval, TadBoundaryInterval, TadSet),
+        "thousand_genomes": (ThousandGenomes, ThousandGenomesSv),
+        "vista": (VistaEnhancer,),
+    },
+    "GRCh38": {"clinvar": (Clinvar,), "dbVar": (DbVarSv,), "DGV": (DgvSvs,)},
 }
 SERVICE_NAME_CHOICES = ["CADD", "Exomiser"]
 SERVICE_GENOMEBUILD_CHOICES = ["GRCh37", "GRCh38"]
@@ -166,7 +173,7 @@ class Command(BaseCommand):
         import_infos = list(tsv_reader(path_import_versions))
         if options["threads"] == 0:  # sequential
             for import_info in import_infos:
-                if import_info["table_group"] in TABLES:
+                if import_info["table_group"] in TABLES[import_info["build"]]:
                     self._handle_import(import_info, options)
                 else:
                     self.stderr.write(
@@ -177,7 +184,7 @@ class Command(BaseCommand):
         else:
             pool = ThreadPool(processes=options["threads"])
             for import_info in import_infos:
-                if import_info["table_group"] in TABLES:
+                if import_info["table_group"] in TABLES[import_info["build"]]:
                     pool.apply_async(self._handle_import_try_catch, (import_info, options))
                 else:
                     self.stderr.write(
@@ -209,18 +216,24 @@ class Command(BaseCommand):
 
             # Special import routine for kegg
             if table_group == "kegg":
-                self._import_kegg(version_path, TABLES[table_group], force=options["force"])
+                self._import_kegg(
+                    version_path, TABLES[import_info["build"]][table_group], force=options["force"]
+                )
             # Special import routine for gnomAD
             elif table_group in ("gnomAD_genomes", "gnomAD_exomes"):
-                self._import_gnomad(version_path, TABLES[table_group], force=options["force"])
+                self._import_gnomad(
+                    version_path, TABLES[import_info["build"]][table_group], force=options["force"]
+                )
             # Special import routine for dbSNP
             elif table_group == "dbSNP":
-                self._import_dbsnp(version_path, TABLES[table_group], force=options["force"])
+                self._import_dbsnp(
+                    version_path, TABLES[import_info["build"]][table_group], force=options["force"]
+                )
             # Special import routine for gene intervals
             elif table_group in ("ensembl_genes", "refseq_genes"):
                 self._import_gene_interval(
                     version_path,
-                    TABLES[table_group],
+                    TABLES[import_info["build"]][table_group],
                     table_group.rstrip("_genes"),
                     force=options["force"],
                 )
@@ -228,13 +241,13 @@ class Command(BaseCommand):
             elif table_group in ("tads_imr90", "tads_hesc"):
                 self._import_tad_set(
                     version_path,
-                    TABLES[table_group],
+                    TABLES[import_info["build"]][table_group],
                     table_group.lstrip("tads_"),
                     force=options["force"],
                 )
             # Import routine for no-bulk-imports
             elif table_group in ("ensembl_regulatory", "vista"):
-                for table in TABLES[table_group]:
+                for table in TABLES[import_info["build"]][table_group]:
                     self._import(
                         *self._get_table_info(version_path, table.__name__),
                         table,
@@ -243,7 +256,7 @@ class Command(BaseCommand):
                     )
             # Import routine for bulk imports (default)
             else:
-                for table in TABLES[table_group]:
+                for table in TABLES[import_info["build"]][table_group]:
                     self._import(
                         *self._get_table_info(version_path, table.__name__),
                         table,
