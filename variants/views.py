@@ -1009,7 +1009,9 @@ class CaseLoadPrefetchedFilterView(
             num_results = results.rowcount
             # Get first N rows. This will pop the first N rows! results list will be decreased by N.
             rows = list(
-                results.fetchmany(filter_job.smallvariantquery.query_settings["result_rows_limit"])
+                results.fetchmany(
+                    filter_job.smallvariantquery.query_settings.get("result_rows_limit", 200)
+                )
             )
         elapsed = timezone.now() - before
 
@@ -1053,12 +1055,14 @@ class CaseLoadPrefetchedFilterView(
                 result_rows=rows,
                 result_count=num_results,
                 elapsed_seconds=elapsed.total_seconds(),
-                database=filter_job.smallvariantquery.query_settings["database_select"],
+                database=filter_job.smallvariantquery.query_settings.get(
+                    "database_select", "refseq"
+                ),
                 pedigree=pedigree,
                 hpoterms=hpoterms,
-                compound_recessive_index=filter_job.smallvariantquery.query_settings[
-                    "compound_recessive_index"
-                ],
+                compound_recessive_index=filter_job.smallvariantquery.query_settings.get(
+                    "compound_recessive_index", ""
+                ),
                 prio_enabled=filter_job.smallvariantquery.query_settings.get("prio_enabled", False),
                 training_mode=1
                 if filter_job.smallvariantquery.query_settings.get("training_mode", False)
@@ -1066,17 +1070,19 @@ class CaseLoadPrefetchedFilterView(
                 query_type=self.query_type,
                 has_phenotype_scores=bool(gene_scores),
                 has_pathogenicity_scores=bool(variant_scores),
-                exac_enabled=filter_job.smallvariantquery.query_settings["exac_enabled"],
-                thousand_genomes_enabled=filter_job.smallvariantquery.query_settings[
-                    "thousand_genomes_enabled"
-                ],
-                gnomad_genomes_enabled=filter_job.smallvariantquery.query_settings[
-                    "gnomad_genomes_enabled"
-                ],
-                gnomad_exomes_enabled=filter_job.smallvariantquery.query_settings[
-                    "gnomad_exomes_enabled"
-                ],
-                inhouse_enabled=filter_job.smallvariantquery.query_settings["inhouse_enabled"],
+                exac_enabled=filter_job.smallvariantquery.query_settings.get("exac_enabled", False),
+                thousand_genomes_enabled=filter_job.smallvariantquery.query_settings.get(
+                    "thousand_genomes_enabled", False
+                ),
+                gnomad_genomes_enabled=filter_job.smallvariantquery.query_settings.get(
+                    "gnomad_genomes_enabled", False
+                ),
+                gnomad_exomes_enabled=filter_job.smallvariantquery.query_settings.get(
+                    "gnomad_exomes_enabled", False
+                ),
+                inhouse_enabled=filter_job.smallvariantquery.query_settings.get(
+                    "inhouse_enabled", False
+                ),
                 card_colspan=card_colspan,
                 logs=[
                     "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
@@ -1136,7 +1142,9 @@ class ProjectCasesLoadPrefetchedFilterView(
             self.template_name,
             self.get_context_data(
                 result_rows=rows[
-                    : filter_job.projectcasessmallvariantquery.query_settings["result_rows_limit"]
+                    : filter_job.projectcasessmallvariantquery.query_settings.get(
+                        "result_rows_limit", 200
+                    )
                 ],
                 result_count=len(rows),
                 elapsed_seconds=elapsed.total_seconds(),
@@ -1145,22 +1153,24 @@ class ProjectCasesLoadPrefetchedFilterView(
                     "training_mode", False
                 )
                 else 0,
-                exac_enabled=filter_job.projectcasessmallvariantquery.query_settings[
-                    "exac_enabled"
-                ],
-                thousand_genomes_enabled=filter_job.projectcasessmallvariantquery.query_settings[
-                    "thousand_genomes_enabled"
-                ],
-                gnomad_genomes_enabled=filter_job.projectcasessmallvariantquery.query_settings[
-                    "gnomad_genomes_enabled"
-                ],
-                gnomad_exomes_enabled=filter_job.projectcasessmallvariantquery.query_settings[
-                    "gnomad_exomes_enabled"
-                ],
-                inhouse_enabled=filter_job.projectcasessmallvariantquery.query_settings[
-                    "inhouse_enabled"
-                ],
-                database=filter_job.projectcasessmallvariantquery.query_settings["database_select"],
+                exac_enabled=filter_job.projectcasessmallvariantquery.query_settings.get(
+                    "exac_enabled", False
+                ),
+                thousand_genomes_enabled=filter_job.projectcasessmallvariantquery.query_settings.get(
+                    "thousand_genomes_enabled", False
+                ),
+                gnomad_genomes_enabled=filter_job.projectcasessmallvariantquery.query_settings.get(
+                    "gnomad_genomes_enabled", False
+                ),
+                gnomad_exomes_enabled=filter_job.projectcasessmallvariantquery.query_settings.get(
+                    "gnomad_exomes_enabled", False
+                ),
+                inhouse_enabled=filter_job.projectcasessmallvariantquery.query_settings.get(
+                    "inhouse_enabled", False
+                ),
+                database=filter_job.projectcasessmallvariantquery.query_settings.get(
+                    "database_select", False
+                ),
                 query_type=self.query_type,
                 card_colspan=14,
                 logs=[
@@ -1676,7 +1686,9 @@ class CaseLoadPrefetchedClinvarReportView(
         with contextlib.closing(query.run(clinvar_job.clinvarquery.query_settings)) as results:
             num_results = results.rowcount
             # Get first N rows. This will pop the first N rows! results list will be decreased by N.
-            rows = results.fetchmany(clinvar_job.clinvarquery.query_settings["result_rows_limit"])
+            rows = results.fetchmany(
+                clinvar_job.clinvarquery.query_settings.get("result_rows_limit", 500)
+            )
             sorted_rows = [v for k, v in sorted(dict(self._add_max_sig_status(rows)).items())]
             elapsed = timezone.now() - before
 
@@ -1687,10 +1699,10 @@ class CaseLoadPrefetchedClinvarReportView(
                 result_rows=sorted_rows,
                 result_count=num_results,
                 elapsed_seconds=elapsed.total_seconds(),
-                compound_recessive_index=clinvar_job.clinvarquery.query_settings[
-                    "compound_recessive_index"
-                ],
-                database=clinvar_job.clinvarquery.query_settings["database_select"],
+                compound_recessive_index=clinvar_job.clinvarquery.query_settings.get(
+                    "compound_recessive_index", ""
+                ),
+                database=clinvar_job.clinvarquery.query_settings.get("database_select", "refseq"),
                 logs=[
                     "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
                     for e in clinvar_job.bg_job.log_entries.all().order_by("date_created")

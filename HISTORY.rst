@@ -48,6 +48,7 @@ Full Change List
 - Import of database tables now handles non-existing entries in a more logical way.
 - Making variant partion count come from environment variable (#368).
 - Renamed ``index`` field in genotype dropdown to ``c/h index`` to indicate comp het mode.
+- Fixed bug that replaced missing form fields in old queries with default settings.
 
 -------
 v0.16.1
