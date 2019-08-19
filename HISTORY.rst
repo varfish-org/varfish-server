@@ -22,6 +22,7 @@ End-User Summary
 - Included MGI mouse gene link-out in gene dropdown menu in result list.
 - Fixed bug where the filter button wasn't disabled when the selected variant set wasn't in state ``active``.
 - Renamed ``index`` field in genotype dropdown to ``c/h index`` to indicate comp het mode.
+- Fixing bug in retreiving comments on structural variants.
 
 Full Change List
 ================
@@ -50,6 +51,7 @@ Full Change List
 - Renamed ``index`` field in genotype dropdown to ``c/h index`` to indicate comp het mode.
 - Fixed bug that replaced missing form fields in old queries with default settings.
 - Merged ``import_sv_dbs`` into ``import_tables`` manage command.
+- Fixing bug in retreiving comments on structural variants.
 
 -------
 v0.16.1

@@ -866,9 +866,7 @@ def best_matching_flags(sa_engine, case_id, sv_uuid, min_overlap=0.95):
                 StructuralVariantFlags.sa.release == sv.release,
                 StructuralVariantFlags.sa.chromosome == sv.chromosome,
                 StructuralVariantFlags.sa.bin.in_(
-                    select([column("bin")]).select_from(
-                        func.overlapping_bins(sv.sa.start - 1, sv.sa.end)
-                    )
+                    select([column("bin")]).select_from(func.overlapping_bins(sv.start - 1, sv.end))
                 ),
                 StructuralVariantFlags.sa.end >= sv.start,
                 StructuralVariantFlags.sa.start <= sv.end,
