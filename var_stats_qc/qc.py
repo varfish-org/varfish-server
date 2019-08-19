@@ -1,7 +1,6 @@
 """QC metric computation contained in this package."""
 
 from itertools import chain
-import json
 
 import numpy as np
 from sqlalchemy import or_
@@ -222,7 +221,7 @@ def compute_relatedness_many(connection, variant_model, cases, min_depth=7, n_si
     for row in result.fetchall():
         # Merge the genotype dictionaries.
         genotype = {}
-        for part in json.loads(row.genotype):
+        for part in row.genotype:
             genotype = {**genotype, **part}
         # Skip if too few samples are called.
         gts = {

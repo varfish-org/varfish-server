@@ -52,6 +52,7 @@ Full Change List
 - Fixed bug that replaced missing form fields in old queries with default settings.
 - Merged ``import_sv_dbs`` into ``import_tables`` manage command.
 - Fixing bug in retreiving comments on structural variants.
+- Fixing recomputation of variant stats that now properly handles json decoding.
 
 -------
 v0.16.1
