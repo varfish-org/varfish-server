@@ -13,6 +13,7 @@ End-User Summary
 - Fixing saving of ACMG rating.
 - Increasing maximal number of characters in gene whitelist to 1 million.
 - Fixing QC display issues for cases without variants.
+- Fixing UI error where tab wasn't selectable after invalid data input.
 
 Full Change List
 ================
@@ -21,6 +22,7 @@ Full Change List
 - Fixing template, form, and model for ACMG rating (adjust to using start/end/bin fields).
 - Increasing maximal number of characters in gene whitelist to 1 million.
 - Fixing QC display issues for cases without variants.
+- Fixing UI error where tab wasn't selectable after invalid data input.
 
 -------
 v0.17.0

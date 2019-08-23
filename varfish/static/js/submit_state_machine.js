@@ -191,9 +191,11 @@ function doVisualErrorResponseOnForms(data) {
 function removeVisualErrorResponse() {
   $(".border, .border-danger").each(function(index) {
     $(this).removeClass("border border-danger");
-    $(this).removeAttr('data-toggle');
-    $(this).removeAttr("data-original-title");
-    $(this).removeAttr("data-html");
+    if (!$(this).attr("id").endsWith("-tab")) {
+      $(this).removeAttr('data-toggle');
+      $(this).removeAttr("data-original-title");
+      $(this).removeAttr("data-html");
+    }
   });
 }
 

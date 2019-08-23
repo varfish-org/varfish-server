@@ -217,10 +217,6 @@ function humanSplicingFinder(gene, hgvsC) {
     form.appendTo('body').submit();
 }
 
-function default0(value) {
-  return (Object.is(value, undefined) ? 0 : value);
-}
-
 // we can't employ .click here because the html that it will work on is loaded afterwards.
 $(document).on('click', '.toggle-variant-details', function() {
   var row = dt.row($(this).parent());
