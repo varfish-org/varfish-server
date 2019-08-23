@@ -201,22 +201,22 @@ def compare_to_upstream(project, upstream_pedigree, job):
                 level=LOG_LEVEL_ERROR, message=tpl % ", ".join(sorted(upstream_missing))
             )
             job.add_log_entry(tpl % ", ".join(sorted(upstream_missing)))
-        # Do sex and affection status match?
+        # Do sex and affection status and parents match?
         for name in sorted(set(local_pedigree.keys()) & set(upstream_pedigree.keys())):
             local = local_pedigree[name]
             upstream = upstream_pedigree[name]
-            if local.sex != upstream.sex:
-                tpl = "Sex does not match for %s between local project and upstream ."
-                project.synccaseresultmessage_set.create(
-                    level=LOG_LEVEL_WARNING, message=tpl % name
-                )
-                job.add_log_entry(tpl % name)
-            if local.affected != upstream.affected:
-                tpl = "Disease status does not match for %s between local project and upstream ."
-                project.synccaseresultmessage_set.create(
-                    level=LOG_LEVEL_WARNING, message=tpl % name
-                )
-                job.add_log_entry(tpl % name)
+            for key, title in (
+                ("sex", "Sex"),
+                ("affected", "Disease status"),
+                ("father", "Father"),
+                ("mother", "Mother"),
+            ):
+                if getattr(local, key) != getattr(upstream, key):
+                    tpl = "%s does not match for %s between local project and upstream."
+                    project.synccaseresultmessage_set.create(
+                        level=LOG_LEVEL_WARNING, message=tpl % (title, name)
+                    )
+                    job.add_log_entry(tpl % (title, name))
 
 
 def execute_sync_case_list_job(job):

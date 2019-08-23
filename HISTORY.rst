@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Syncing with upstream now also checks parents.
+
+Full Change List
+================
+
+- Syncing with upstream now also checks parents.
+
 -------
 v0.17.0
 -------
