@@ -422,32 +422,35 @@ class CaseDetailView(
 
         try:
             variant_set = case.latest_variant_set()
-            result["ontarget_effect_counts"] = {
-                stats.sample_name: stats.ontarget_effect_counts
-                for stats in variant_set.variant_stats.sample_variant_stats.all()
-            }
-            result["indel_sizes"] = {
-                stats.sample_name: {
-                    int(key): value for key, value in stats.ontarget_indel_sizes.items()
+            if variant_set:
+                result["ontarget_effect_counts"] = {
+                    stats.sample_name: stats.ontarget_effect_counts
+                    for stats in variant_set.variant_stats.sample_variant_stats.all()
                 }
-                for stats in variant_set.variant_stats.sample_variant_stats.all()
-            }
-            result["indel_sizes_keys"] = list(
-                sorted(
-                    set(
-                        chain(
-                            *list(
-                                map(int, indel_sizes.keys())
-                                for indel_sizes in result["indel_sizes"].values()
+                result["indel_sizes"] = {
+                    stats.sample_name: {
+                        int(key): value for key, value in stats.ontarget_indel_sizes.items()
+                    }
+                    for stats in variant_set.variant_stats.sample_variant_stats.all()
+                }
+                result["indel_sizes_keys"] = list(
+                    sorted(
+                        set(
+                            chain(
+                                *list(
+                                    map(int, indel_sizes.keys())
+                                    for indel_sizes in result["indel_sizes"].values()
+                                )
                             )
                         )
                     )
                 )
-            )
-            result["dps"] = {
-                stats.sample_name: {int(key): value for key, value in stats.ontarget_dps.items()}
-                for stats in variant_set.variant_stats.sample_variant_stats.all()
-            }
+                result["dps"] = {
+                    stats.sample_name: {
+                        int(key): value for key, value in stats.ontarget_dps.items()
+                    }
+                    for stats in variant_set.variant_stats.sample_variant_stats.all()
+                }
         except (SmallVariantSet.variant_stats.RelatedObjectDoesNotExist, AttributeError):
             pass  # swallow, defaults set above
 
@@ -530,19 +533,20 @@ def build_cov_data(cases):
     dp_het_data = []
     for case in cases:
         try:
-            for stats in case.latest_variant_set().variant_stats.sample_variant_stats.all():
-                dp_medians.append(stats.ontarget_dp_quantiles[2])
-                het_ratios.append(stats.het_ratio)
-                dps[stats.sample_name] = {
-                    int(key): value for key, value in stats.ontarget_dps.items()
-                }
-                dp_het_data.append(
-                    {
-                        "x": stats.ontarget_dp_quantiles[2],
-                        "y": stats.het_ratio or 0.0,
-                        "sample": only_source_name(stats.sample_name),
+            if case.latest_variant_set():
+                for stats in case.latest_variant_set().variant_stats.sample_variant_stats.all():
+                    dp_medians.append(stats.ontarget_dp_quantiles[2])
+                    het_ratios.append(stats.het_ratio)
+                    dps[stats.sample_name] = {
+                        int(key): value for key, value in stats.ontarget_dps.items()
                     }
-                )
+                    dp_het_data.append(
+                        {
+                            "x": stats.ontarget_dp_quantiles[2],
+                            "y": stats.het_ratio or 0.0,
+                            "sample": only_source_name(stats.sample_name),
+                        }
+                    )
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             pass  # swallow
 
@@ -579,10 +583,12 @@ class CaseDetailQcStatsApiView(
     def get(self, *args, **kwargs):
         object = self.get_object()
 
+        relatedness_set = []
         try:
-            relatedness_set = object.latest_variant_set().variant_stats.relatedness.all()
+            if object.latest_variant_set():
+                relatedness_set = object.latest_variant_set().variant_stats.relatedness.all()
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
-            relatedness_set = []
+            pass  # swallow
 
         result = {
             "pedigree": [
@@ -598,6 +604,8 @@ class CaseDetailQcStatsApiView(
         return JsonResponse(result)
 
     def _build_var_type_data(self, object):
+        if not object.latest_variant_set():
+            return
         try:
             for item in object.latest_variant_set().variant_stats.sample_variant_stats.all():
                 yield {
@@ -611,6 +619,8 @@ class CaseDetailQcStatsApiView(
             pass  # swallow
 
     def _build_var_effect_data(self, object):
+        if not object.latest_variant_set():
+            return
         keys = (
             "synonymous_variant",
             "missense_variant",
@@ -639,6 +649,8 @@ class CaseDetailQcStatsApiView(
             pass  # swallow
 
     def _build_indel_size_data(self, object):
+        if not object.latest_variant_set():
+            return
         try:
             indel_sizes = {
                 stats.sample_name: {
