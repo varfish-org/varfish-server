@@ -2171,6 +2171,10 @@ class AcmgCriteriaRating(models.Model):
 
     get_gene_symbols = SmallVariantComment.get_gene_symbols
 
+    def save(self, *args, **kwargs):
+        self.bin = binning.assign_bin(self.start, self.end - 1)
+        return super().save(*args, **kwargs)
+
     def get_variant_description(self):
         return "-".join(
             map(str, (self.release, self.chromosome, self.start, self.reference, self.alternative))

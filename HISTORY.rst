@@ -10,11 +10,13 @@ End-User Summary
 ================
 
 - Syncing with upstream now also checks parents.
+- Fixing saving of ACMG rating.
 
 Full Change List
 ================
 
 - Syncing with upstream now also checks parents.
+- Fixing template, form, and model for ACMG rating (adjust to using start/end/bin fields).
 
 -------
 v0.17.0

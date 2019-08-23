@@ -1380,7 +1380,7 @@ class AcmgCriteriaRatingForm(forms.ModelForm):
 
     class Meta:
         model = AcmgCriteriaRating
-        exclude = ("user", "sodar_uuid", "case", "date_created", "date_modified")
+        exclude = ("user", "bin", "sodar_uuid", "case", "date_created", "date_modified")
 
 
 class CaseNotesStatusForm(forms.ModelForm):
