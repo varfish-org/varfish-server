@@ -11,12 +11,14 @@ End-User Summary
 
 - Syncing with upstream now also checks parents.
 - Fixing saving of ACMG rating.
+- Increasing maximal number of characters in gene whitelist to 1 million.
 
 Full Change List
 ================
 
 - Syncing with upstream now also checks parents.
 - Fixing template, form, and model for ACMG rating (adjust to using start/end/bin fields).
+- Increasing maximal number of characters in gene whitelist to 1 million.
 
 -------
 v0.17.0

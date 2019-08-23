@@ -1033,7 +1033,7 @@ class VariantGeneListFilterFormMixin:
                 }
             ),
             required=False,
-            max_length=10000,
+            max_length=1_000_000,
         )
 
         self.fields["gene_whitelist"] = forms.CharField(
@@ -1050,7 +1050,7 @@ class VariantGeneListFilterFormMixin:
                 }
             ),
             required=False,
-            max_length=10000,
+            max_length=1_000_000,
         )
 
     def clean(self):
@@ -1102,7 +1102,7 @@ class GenomicRegionFilterFormMixin:
                 }
             ),
             required=False,
-            max_length=10000,
+            max_length=10_000,
         )
 
     def clean(self):
