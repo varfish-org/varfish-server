@@ -2,35 +2,103 @@
 <table class="card-body table table-striped table-sm">
   <tbody>
     <tr>
-      <th class="text-right">Entrez ID</th>
-      <td>{{ gene.entrez_id }}</td>
+      <th class="text-right text-nowrap">Symbol / Name</th>
+      <td>
+        {{ gene.symbol }} / {{ gene.name }}
+      </td>
     </tr>
     <tr>
-      <th class="text-right">ENSEMBL ID</th>
-      <td>{{ gene.ensembl_gene_id }}</td>
-    </tr>
-    <tr>
-      <th class="text-right">Symbol</th>
-      <td>{{ gene.symbol }}</td>
-    </tr>
-    <tr>
-      <th class="text-right">Alias Symbol</th>
-      <td>{{ gene.alias_symbol|default:"<div class='text-muted text-center'><i>No alias symbol available.</i></div>" }}</td>
-    </tr>
-    <tr>
-      <th class="text-right">Name</th>
-      <td>{{ gene.name }}</td>
-    </tr>
-    <tr>
-      <th class="text-right">Alias Names</th>
-      <td>{{ gene.alias_name|default:"<div class='text-muted text-center'><i>No alias name available.</i></div>" }}</td>
-    </tr>
-    <tr>
-      <th class="text-right">Gene Family</th>
+      <th class="text-right text-nowrap">Gene Family</th>
       <td>{{ gene.gene_family|default:"<div class='text-muted text-center'><i>No gene family information available.</i></div>" }}</td>
     </tr>
     <tr>
-      <th class="text-right">Constraints</th>
+      <th class="text-right text-nowrap">NCBI Summary</th>
+      <td>
+        <div style="max-height: 150px; overflow-y: auto !important;">
+          {{ ncbi_summary.summary|default:"<div class='text-muted text-center'><i>No NCBI information available.</i></div>" }}
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th class="text-right text-nowrap">ClinVar for Gene</th>
+      <td>
+        {% if gene.clinvar_pathogenicity %}
+          <a href="https://www.ncbi.nlm.nih.gov/gene/{{ gene.entrez_id }}" target="_blank">
+            {% if gene.clinvar_pathogenicity.pathogenic_count %}
+              <span class="badge-group">
+                <span class="badge badge-light"># PATHOGENIC VARIANTS</span>
+                <span class="badge badge-danger">{{ gene.clinvar_pathogenicity.pathogenic_count }}</span>
+              </span>
+            {% endif %}
+            {% if gene.clinvar_pathogenicity.likely_pathogenic_count %}
+              <span class="badge-group">
+                <span class="badge badge-light"># LIKELY PATHOGENIC VARIANTS</span>
+                <span class="badge badge-warning">{{ gene.clinvar_pathogenicity.likely_pathogenic_count }}</span>
+              </span>
+            {% endif %}
+          </a>
+        {% else %}
+          <div class="text-muted text-center"><i>No ClinVar information available.</i></div>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th class="text-right text-nowrap">HPO Terms</th>
+      <td>
+        {% if not gene.hpo_terms and not gene.hpo_inheritance %}
+          <div class="text-muted text-center"><i>No HPO information available.</i></div>
+        {% else %}
+          {% if gene.hpo_inheritance %}
+            <div class="float-right">
+            {% for hpo_id, mode in gene.hpo_inheritance %}
+              <span class="badge badge-info" data-toggle="tooltip" title="{{ hpo_id }}">{{ mode }}</span>
+            {% endfor %}
+            </div>
+          {% endif %}
+          {% if gene.hpo_terms %}
+            {% for hpo_id, hpo_name in gene.hpo_terms %}
+              <a href="https://hpo.jax.org/app/browse/term/{{ hpo_id }}" target="_blank"><span class="badge-group">
+                <span class="badge badge-dark">{{ hpo_id }}</span><span class="badge badge-secondary">{{ hpo_name }}</span>
+              </span></a>
+            {% endfor %}
+          {% endif %}
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th class="text-right text-nowrap">OMIM Phenotypes</th>
+      <td>
+        {% if gene.omim %}
+          {% for omim_id, omim_names in gene.omim.items %}
+            <a href="https://www.omim.org/entry/{{ omim_id }}">
+            <span class="badge-group omim-popover"
+                  data-toggle="popover" title="{% if omim_names.1 %}<ul class='pl-3 pb-0 mb-0'><li>{{ omim_names.1|join:"</li><li>" }}</li></ul>{% else %}<em>No alternative description</em>{% endif %}" data-content="<a href='https://www.omim.org/entry/{{ omim_id }}' target='_blank' class='btn btn-secondary'><i class='fa fa-external-link'></i> View in OMIM</a>" data-html="true">
+            <span class="badge badge-dark">{{ omim_id }}</span>
+            <span class="badge badge-secondary">{{ omim_names.0 }}</span></span></a>
+          {% endfor %}
+        {% else %}
+          <div class="text-muted text-center"><i>No OMIM phenotype information available.</i></div>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th class="text-right text-nowrap">Gene RIFs</th>
+      <td>
+        {% if ncbi_gene_rifs %}
+          <ul class="pl-3" style="max-height: 150px; overflow-y: auto !important;">
+            {% for gene_rif in ncbi_gene_rifs %}
+              <li>{{ gene_rif.rif_text }}</li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-center text-muted">
+            <i>No Reference-into-Function Information available.</i>
+          </div>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th class="text-right text-nowrap">Constraints</th>
       <td>
         {% if gene.exac_constraints or gene.gnomad_constraints %}
           <table class="table">
@@ -113,96 +181,36 @@
       </td>
     </tr>
     <tr>
-      <th class="text-right">ClinVar</th>
+      <th class="text-right text-nowrap">Entrez ID</th>
       <td>
-        {% if gene.clinvar_pathogenicity %}
-          {% if gene.clinvar_pathogenicity.pathogenic_count %}
-            <span class="badge-group">
-              <span class="badge badge-light"># PATHOGENIC VARIANTS</span>
-              <span class="badge badge-danger">{{ gene.clinvar_pathogenicity.pathogenic_count }}</span>
-            </span>
-          {% endif %}
-          {% if gene.clinvar_pathogenicity.likely_pathogenic_count %}
-            <span class="badge-group">
-              <span class="badge badge-light"># LIKELY PATHOGENIC VARIANTS</span>
-              <span class="badge badge-warning">{{ gene.clinvar_pathogenicity.likely_pathogenic_count }}</span>
-            </span>
-          {% endif %}
-        {% else %}
-          <div class="text-muted text-center"><i>No ClinVar information available.</i></div>
-        {% endif %}
+        <a href="https://www.ncbi.nlm.nih.gov/gene/{{ gene.entrez_id }}">
+          {{ gene.entrez_id }}
+        </a>
       </td>
     </tr>
     <tr>
-      <th class="text-right">NCBI Summary</th>
+      <th class="text-right text-nowrap">ENSEMBL ID</th>
       <td>
-        <div style="max-height: 150px; overflow-y: auto !important;">
-          {{ ncbi_summary.summary|default:"<div class='text-muted text-center'><i>No NCBI information available.</i></div>" }}
-        </div>
+        <a href="www.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.ensembl_gene_id }}">
+          {{ gene.ensembl_gene_id }}
+        </a>
       </td>
     </tr>
     <tr>
-      <th class="text-right">Gene RIFs</th>
-      <td>
-        {% if ncbi_gene_rifs %}
-          <ul class="pl-3" style="max-height: 150px; overflow-y: auto !important;">
-            {% for gene_rif in ncbi_gene_rifs %}
-              <li>{{ gene_rif.rif_text }}</li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <div class="text-center text-muted">
-            <i>No Reference-into-Function Information available.</i>
-          </div>
-        {% endif %}
-      </td>
+      <th class="text-right text-nowrap">Alias Symbol</th>
+      <td>{{ gene.alias_symbol|default:"<div class='text-muted text-center'><i>No alias symbol available.</i></div>" }}</td>
     </tr>
     <tr>
-      <th class="text-right">HPO Terms</th>
-      <td>
-        {% if not gene.hpo_terms and not gene.hpo_inheritance %}
-          <div class="text-muted text-center"><i>No HPO information available.</i></div>
-        {% else %}
-          {% if gene.hpo_inheritance %}
-            <div class="float-right">
-            {% for hpo_id, mode in gene.hpo_inheritance %}
-              <span class="badge badge-info" data-toggle="tooltip" title="{{ hpo_id }}">{{ mode }}</span>
-            {% endfor %}
-            </div>
-          {% endif %}
-          {% if gene.hpo_terms %}
-            {% for hpo_id, hpo_name in gene.hpo_terms %}
-              <a href="https://hpo.jax.org/app/browse/term/{{ hpo_id }}" target="_blank"><span class="badge-group">
-                <span class="badge badge-dark">{{ hpo_id }}</span><span class="badge badge-secondary">{{ hpo_name }}</span>
-              </span></a>
-            {% endfor %}
-          {% endif %}
-        {% endif %}
-      </td>
+      <th class="text-right text-nowrap">Alias Names</th>
+      <td>{{ gene.alias_name|default:"<div class='text-muted text-center'><i>No alias name available.</i></div>" }}</td>
     </tr>
     <tr>
-      <th class="text-right">OMIM Phenotypes</th>
-      <td>
-        {% if gene.omim %}
-          {% for omim_id, omim_names in gene.omim.items %}
-            <a href="#">
-            <span class="badge-group omim-popover"
-                  data-toggle="popover" title="{% if omim_names.1 %}<ul class='pl-3 pb-0 mb-0'><li>{{ omim_names.1|join:"</li><li>" }}</li></ul>{% else %}<em>No alternative description</em>{% endif %}" data-content="<a href='https://www.omim.org/entry/{{ omim_id }}' target='_blank' class='btn btn-secondary'><i class='fa fa-external-link'></i> View in OMIM</a>" data-html="true">
-            <span class="badge badge-dark">{{ omim_id }}</span>
-            <span class="badge badge-secondary">{{ omim_names.0 }}</span></span></a>
-          {% endfor %}
-        {% else %}
-          <div class="text-muted text-center"><i>No OMIM phenotype information available.</i></div>
-        {% endif %}
-      </td>
-    </tr>
-    <tr>
-      <th class="text-right">OMIM Genes</th>
+      <th class="text-right text-nowrap">OMIM Gene</th>
       <td>
         {% if gene.omim_genes %}
           {% for omim_id in gene.omim_genes %}
             <a href='https://www.omim.org/entry/{{ omim_id }}' target='_blank'>
-              <span class="badge badge-dark">{{ omim_id }}</span>
+              {{ omim_id }}
             </a>
           {% endfor %}
         {% else %}

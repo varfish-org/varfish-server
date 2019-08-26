@@ -53,20 +53,29 @@
     {% include "variants/filter_result/clinvar_indicator.html" %}
     {% include "variants/filter_result/hgmd_public_indicator.html" %}
   </td>
-  <td style="width: 120px;" class="pl-2">
+  <td style="width: 120px;" class="pl-2 detail-info-coordinates">
     <div>
       chr{{ entry.chromosome }}:{{ entry.start|intcomma }}
     </div>
   </td>
-  <td style="max-width: 50px;">
+  <td style="max-width: 50px;" class="detail-info-coordinates">
     <div class="sodar-overflow-container sodar-overflow-hover">
       {{ entry.reference }}
     </div>
   </td>
-  <td style="max-width: 50px;">
+  <td style="max-width: 50px;" class="detail-info-coordinates">
     <div class="sodar-overflow-container sodar-overflow-hover">
       {{ entry.alternative }}
     </div>
+  </td>
+  <td style="width: 50px;" class="pl-2 detail-info-clinvar">
+    stars
+  </td>
+  <td style="width: 50px;" class="pl-2 detail-info-clinvar">
+    patho.
+  </td>
+  <td style="width: 120px;" class="pl-2 detail-info-clinvar">
+    phenotype
   </td>
   <td class="detail-frequencies-exac">
     {{ entry.exac_frequency|floatformat:5|default:"-" }}
@@ -228,7 +237,13 @@
   {% endif %}
   <td>
     <span data-toggle="tooltip" title="{{ entry.effect|join:', ' }}">
-      {{ entry.hgvs_p|default:"-"|truncatechars:15  }}
+      {% with entry.hgvs_p|default:"-" as hgvs_p %}
+        {% if hgvs_p == "-" or hgvs_p == "p.?" or hgvs_p == "p.=" %}
+          {{ entry.hgvs_c|default:"-"|truncatechars:15 }}
+        {% else %}
+          {{ entry.hgvs_p|default:"-"|truncatechars:15  }}
+        {% endif %}
+      {% endwith %}
     </span>
     {% if entry.effect_ambiguity %}
       &nbsp;<i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="The impact predictions for RefSeq and ENSEMBL transcripts differ."></i>

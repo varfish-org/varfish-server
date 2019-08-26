@@ -125,6 +125,20 @@ def flag_value_to_fa(value):
     return FLAG_VALUE_TO_FA.get(value, "fa-remove")
 
 
+#: Mapping of small variant flag value to Bootstrap color class.
+FLAG_VALUE_TO_COLOR = {
+    "positive": "text-danger",
+    "uncertain": "text-warning",
+    "negative": "text-success",
+    "empty": "text-dark",
+}
+
+
+@register.filter
+def flag_value_to_color(value):
+    return FLAG_VALUE_TO_COLOR.get(value, "")
+
+
 @register.filter
 def flag_class(row):
     """Return CSS class to used based on the flag of ``row``.

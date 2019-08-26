@@ -45,8 +45,17 @@
         </div>
         {% endif %}
         <div class="p-2 form-group">
-          <label class="mr-2" for="result-display-frequencies">
-            Frequencies
+          <label class="mr-2" for="result-display-details" data-toggle="tooltip" title="Details to display">
+            Details
+          </label>
+          <select class="custom-select" id="result-display-info" onchange="javascript: updateTableDisplay();">
+            <option value="info-coordinates" selected>Coordinates</option>
+{#            <option value="info-clinvar">ClinVar Summary</option>#}
+          </select>
+        </div>
+        <div class="p-2 form-group">
+          <label class="mr-2" for="result-display-frequencies" data-toggle="tooltip" title="Frequency database to display">
+            Frequency
           </label>
           <select class="custom-select" id="result-display-frequencies" onchange="javascript: updateTableDisplay();">
             <option value="frequencies-exac" selected>ExAC</option>
@@ -57,8 +66,8 @@
           </select>
         </div>
         <div class="p-2 form-group">
-          <label class="mr-2" for="result-display-constraints">
-            Constraints
+          <label class="mr-2" for="result-display-frequencies" data-toggle="tooltip" title="Constraint score to display">
+            Constraint
           </label>
           <select class="custom-select" id="result-display-constraints" onchange="javascript: updateTableDisplay();">
             <option value="constraints-exac-pli">ExAC pLI</option>

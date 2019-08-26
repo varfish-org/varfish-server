@@ -102,7 +102,8 @@ function findTabToInput(input) {
 function updateTableDisplay() {
   $("#table-config").attr("class",
     "display-" + $("#result-display-frequencies").val() +
-    " display-" + $("#result-display-constraints").val()
+    " display-" + $("#result-display-constraints").val() +
+    " display-" + $("#result-display-info").val()
   );
   $('[data-toggle="tooltip"]').tooltip({container: 'body'});
   $('[data-toggle="popover"]').popover({container: 'body'});

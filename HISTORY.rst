@@ -14,6 +14,7 @@ End-User Summary
 - Increasing maximal number of characters in gene whitelist to 1 million.
 - Fixing QC display issues for cases without variants.
 - Fixing UI error where tab wasn't selectable after invalid data input.
+- Improving gene and variant detail display.
 
 Full Change List
 ================
@@ -23,6 +24,7 @@ Full Change List
 - Increasing maximal number of characters in gene whitelist to 1 million.
 - Fixing QC display issues for cases without variants.
 - Fixing UI error where tab wasn't selectable after invalid data input.
+- Improving gene and variant detail display.
 
 -------
 v0.17.0
