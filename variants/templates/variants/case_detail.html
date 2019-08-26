@@ -23,17 +23,22 @@
   </div>
 
   <div class="container-fluid sodar-page-container">
-    {% include "variants/case/detail_overview.html" %}
-    {% include "variants/case/detail_pedigree.html" %}
-    {% include "variants/case/detail_case_comments.html" %}
+    <div class="row">
+      <div class="col-6">
+        {% include "variants/case/detail_overview.html" %}
+        {% include "variants/case/detail_pedigree.html" %}
+      </div>
+      <div class="col-6">
+        {% include "variants/case/detail_case_comments.html" %}
+
+        {% include "variants/case/detail_acmg.html" %}
+        {% include "variants/case/detail_comments.html" %}
+        {% include "variants/case/detail_flags.html" %}
+      </div>
+    </div>
     {% include "variants/case/detail_release_info.html" %}
     {% include "variants/case/detail_qc_plots.html" %}
-
-    {% include "variants/case/detail_comments.html" %}
-    {% include "variants/case/detail_flags.html" %}
-    {% include "variants/case/detail_acmg.html" %}
     {% include "variants/case/detail_bg_jobs.html" %}
-
     {% include "variants/case/detail_qc.html" %}
   </div>
 

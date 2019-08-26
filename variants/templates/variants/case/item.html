@@ -5,7 +5,7 @@
   <td class="text-right text-muted">{{ forloop.counter }}</td>
   <td data-order="{{ item.date_modified|date:"U" }}">
     {% if item.days_since_modification <= 3 %}
-      <span data-toggle="tooltip" title="created {{ item.date_created|date:"Y, M d H:m" }}, updated {{ item.date_modified|date:"Y, M d H:m" }}">
+      <span class="text-nowrap" data-toggle="tooltip" title="created {{ item.date_created|date:"Y, M d H:m" }}, updated {{ item.date_modified|date:"Y, M d H:m" }}">
         {% if item.days_since_modification < 1 %}
           {{ item.date_modified|naturaltime }}
         {% else %}
@@ -13,9 +13,22 @@
         {% endif %}
       </span>
     {% else %}
-      <span data-toggle="tooltip" title="created {{ item.date_created|date:"Y, M d H:m" }}, updated {{ item.date_modified|date:"Y, M d H:m" }}">
+      <span class="text-nowrap" data-toggle="tooltip" title="created {{ item.date_created|date:"Y, M d H:m" }}, updated {{ item.date_modified|date:"Y, M d H:m" }}">
         {{ item.date_modified|date:"Y, M d H:m" }}
       </span>
+    {% endif %}
+  </td>
+  <td data-order="{{ item.status|case_status_to_order }}" class="text-nowrap">
+    <i class="fa fa-fw {{ item.status|case_status_to_fa }}" data-toggle="tooltip" title="status: {{ item.status }}"></i>
+    {% if item.notes %}
+      <i class="text-secondary fa fa-fw fa-sticky-note" data-toggle="tooltip" title="note: {{ item.notes }}"></i>
+    {% else %}
+      <i class="text-secondary fa fa-fw fa-sticky-note-o" data-toggle="tooltip" title="no notes"></i>
+    {% endif %}
+    {% if item.case_comments.all|length > 0 %}
+      <i class="text-secondary fa fa-fw fa-comments" data-toggle="tooltip" title="{{ item.case_comments.all|length }} case comment{{ item.case_comments.all|length|pluralize }}"></i>
+    {% else %}
+      <i class="text-secondary fa fa-fw fa-comments-o" data-toggle="tooltip" title="no case comments"></i>
     {% endif %}
   </td>
   <td>

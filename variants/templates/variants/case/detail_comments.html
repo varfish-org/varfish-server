@@ -74,7 +74,7 @@
             <td class="text-nowrap">
               {{ sv_comment.sv_type }}
             </td>
-            <td>
+            <td style="overflow-y: auto !important; max-height: 200px;">
               <strong>{{ sv_comment.user }}</strong>
               <small>
                 commented at
@@ -84,6 +84,13 @@
             </td>
           </tr>
         {% endfor %}
+        {% if not case.structural_variant_comments.all %}
+          <tr>
+             <td class="bg-faded font-italic text-center" colspan="3">
+               No comments yet.
+             </td>
+          </tr>
+        {% endif %}
       </tbody>
     </table>
   </div>

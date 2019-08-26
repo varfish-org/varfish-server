@@ -91,6 +91,13 @@
             </td>
           </tr>
         {% endfor %}
+        {% if not case.small_variant_flags.all %}
+          <tr>
+             <td class="bg-faded font-italic text-center" colspan="3">
+               No flags yet.
+             </td>
+          </tr>
+        {% endif %}
       </tbody>
     </table>
   </div>

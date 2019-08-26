@@ -139,6 +139,27 @@ def flag_value_to_color(value):
     return FLAG_VALUE_TO_COLOR.get(value, "")
 
 
+CASE_STATUS_TO_FA = {
+    "initial": "fa-asterisk text-secondary",
+    "active": "fa-filter text-info",
+    "closed-solved": "fa-check text-success",
+    "closed-unsolved": "fa-question text-warning",
+}
+
+
+@register.filter
+def case_status_to_fa(value):
+    return CASE_STATUS_TO_FA.get(value, "")
+
+
+CASE_STATUS_TO_ORDER = {"initial": 0, "active": 3, "closed-solved": 2, "closed-unsolved": 1}
+
+
+@register.filter
+def case_status_to_order(value):
+    return CASE_STATUS_TO_ORDER.get(value, -1000)
+
+
 @register.filter
 def flag_class(row):
     """Return CSS class to used based on the flag of ``row``.

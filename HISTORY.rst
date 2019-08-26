@@ -2,6 +2,21 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Improving case list and case detail views.
+
+Full Change List
+================
+
+- Shuffling around case detail view a bit.
+- Adding icons for case status.
+
 -------
 v0.17.1
 -------
