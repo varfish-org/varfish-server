@@ -10,12 +10,14 @@ End-User Summary
 ================
 
 - Improving case list and case detail views.
+- Adjusting chrX het threshold for telling male/female apart.
 
 Full Change List
 ================
 
 - Shuffling around case detail view a bit.
 - Adding icons for case status.
+- Adjusting chrX het threshold for telling male/female apart.
 
 -------
 v0.17.1

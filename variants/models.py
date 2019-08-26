@@ -46,7 +46,7 @@ from variants.helpers import SQLALCHEMY_ENGINE
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
 #: Threshold for hom/het ratio for identifying sex.
-CHRX_HET_HOM_THRESH = 1.0
+CHRX_HET_HOM_THRESH = 0.45
 #: Threshold for relatedness between parent and children.
 THRESH_PARENT = 0.6
 #: Threshold for relatedness between siblings.
