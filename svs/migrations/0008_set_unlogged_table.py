@@ -12,7 +12,7 @@ if not settings.IS_TESTING:
             migrations.RunSQL("ALTER TABLE svs_structuralvariantgeneannotation SET UNLOGGED;"),
         ]
         + [
-            migrations.RunSQL("ALTER TABLE variants_smallvariant_%d SET UNLOGGED;" % i)
+            migrations.RunSQL("ALTER TABLE svs_structuralvariant%d SET UNLOGGED;" % i)
             for i in range(settings.VARFISH_PARTITION_MODULUS_SMALLVARIANT)
         ]
         + [
