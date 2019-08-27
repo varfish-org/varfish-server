@@ -14,6 +14,7 @@ End-User Summary
 Full Change List
 ================
 
+- Making the large tables ``UNLOGGED`` to improve bulk insertion performance.
 - Displaying case statistics in project list.
 
 -------
