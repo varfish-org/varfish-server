@@ -4,6 +4,7 @@ from bgjobs.plugins import BackgroundJobsPluginPoint
 
 from .models import (
     Case,
+    CASE_STATUS_CHOICES,
     SmallVariantComment,
     SmallVariantFlags,
     ExportFileBgJob,
@@ -17,6 +18,7 @@ from .models import (
     ImportVariantsBgJob,
 )
 from .urls import urlpatterns
+from .templatetags.variants_tags import case_status_to_color
 
 # Global SODAR constants
 SODAR_CONSTANTS = get_sodar_constants()
@@ -94,6 +96,13 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             "align": "right",
             "active": True,
         },
+        "states": {
+            "title": "States",
+            "width": 75,
+            "description": "Distribution of case states",
+            "align": "center",
+            "active": True,
+        },
     }
 
     def get_project_list_value(self, column_id, project):
@@ -101,8 +110,46 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             return Case.objects.filter(project=project).count()
         elif column_id == "donors":
             return sum((len(c.pedigree) for c in Case.objects.filter(project=project)))
+        elif column_id == "states":
+            return self._get_state_bar_html(project)
         else:
             return "-"
+
+    def _get_state_bar_html(self, project):
+        counts = {key: 0 for key, _ in CASE_STATUS_CHOICES}
+        for case in Case.objects.filter(project=project):
+            counts[case.status] = counts.get(case.status, 0) + 1
+        total_count = sum(counts.values())
+        total_width = 70
+        print({"total_width": total_width, **counts})
+        arr = [
+            (
+                '<div style="width: {total_width}px; height: 1em; margin-top: .1em; margin-bottom: .1em; '
+                'white-space: nowrap;" data-toggle="tooltip" title="initial: %(initial)d, active: %(active)d, '
+                'closed&nbsp;(unsolved): %(closed-unsolved)d, closed&nbsp;(solved): %(closed-solved)d">'
+            )
+            % {"total_width": total_width, **counts}
+        ]
+        width_sum = 0
+        statuses = [k for k, _ in CASE_STATUS_CHOICES if counts.get(k)]  # statuses with counts >0
+        if total_count:
+            for i, key in enumerate(statuses):
+                if i + 1 < len(statuses):
+                    width = int(total_width * (counts.get(key, 0) / total_count))
+                    width_sum += width
+                else:
+                    width = total_width - width_sum
+                arr.append(
+                    '<div style="width:%dpx; height: 100%%; display: inline-block" class="bg-%s"></div>'
+                    % (width, case_status_to_color(key))
+                )
+        else:
+            arr.append(
+                '<div style="width:%dpx; height: 100%%; display: inline-block" class="bg-%s"></div>'
+                % (total_width, case_status_to_color("initial"))
+            )
+        arr.append("</div>")
+        return "".join(arr)
 
     def get_statistics(self):
         return {

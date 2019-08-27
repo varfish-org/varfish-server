@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Displaying case statistics in project list.
+
+Full Change List
+================
+
+- Displaying case statistics in project list.
+
 -------
 v0.17.2
 -------
