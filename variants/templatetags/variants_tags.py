@@ -77,19 +77,44 @@ def status_stars(status):
     return STARS.get(status, 0)
 
 
+@register.filter
+def status_importance(status):
+    return list(STARS.keys()).index(status)
+
+
 #: Clinvar significance to colour.
 COLOURS = {
     "pathogenic": "danger",
-    "likely pathogenic": "warning",
-    "uncertain significance": "important",
-    "likely benign": "secondary",
+    "likely_pathogenic": "warning",
+    "uncertain_significance": "info",
+    "likely_benign": "secondary",
     "benign": "secondary",
 }
+
+
+#: Clinvar significance to text.
+SIGNIFICANCE = {
+    "pathogenic": "pathogenic",
+    "likely_pathogenic": "likely patho.",
+    "uncertain_significance": "uncertain sign.",
+    "likely_benign": "likely benign",
+    "benign": "benign",
+}
+
+
+@register.filter
+def significance_text(sig):
+    return SIGNIFICANCE.get(sig, "undefined")
 
 
 @register.filter
 def significance_color(sig):
     return COLOURS.get(sig, "secondary")
+
+
+@register.filter
+def significance_importance(sig):
+    return list(SIGNIFICANCE.keys()).index(sig)
 
 
 @register.filter

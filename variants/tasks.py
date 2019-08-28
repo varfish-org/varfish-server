@@ -63,12 +63,6 @@ def single_case_filter_task(_self, filter_job_pk):
 
 
 @app.task(bind=True)
-def clinvar_filter_task(_self, clinvar_job_pk):
-    """Task to submit filter and storing job for clinvar."""
-    return submit_filter.clinvar_filter(models.ClinvarBgJob.objects.get(pk=clinvar_job_pk))
-
-
-@app.task(bind=True)
 def project_cases_filter_task(_self, project_cases_filter_job_pk):
     """Task to submit filter and storing job for project."""
     return submit_filter.project_cases_filter(

@@ -308,7 +308,7 @@ class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
-class ExtendQueryPartsClinvarJoinBase(ExtendQueryPartsBase):
+class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.patho_keys = (
@@ -323,17 +323,22 @@ class ExtendQueryPartsClinvarJoinBase(ExtendQueryPartsBase):
         ]
         fields.extend(
             [
-                func.array_cat_agg(func.array_append(Clinvar.sa.review_status_ordered, "$")).label(
-                    "review_status_ordered"
-                ),
-                func.array_cat_agg(
-                    func.array_append(Clinvar.sa.clinical_significance_ordered, "$")
+                func.coalesce(
+                    func.array_cat_agg(func.array_append(Clinvar.sa.review_status_ordered, "$")), []
+                ).label("review_status_ordered"),
+                func.coalesce(
+                    func.array_cat_agg(
+                        func.array_append(Clinvar.sa.clinical_significance_ordered, "$")
+                    ),
+                    [],
                 ).label("clinical_significance_ordered"),
-                func.array_cat_agg(func.array_append(Clinvar.sa.all_traits, "$")).label(
-                    "all_traits"
-                ),
-                func.array_cat_agg(func.array_append(Clinvar.sa.origin, "$")).label("origin"),
-                func.array_agg(Clinvar.sa.rcv).label("rcv"),
+                func.coalesce(
+                    func.array_cat_agg(func.array_append(Clinvar.sa.all_traits, "$")), []
+                ).label("all_traits"),
+                func.coalesce(
+                    func.array_cat_agg(func.array_append(Clinvar.sa.origin, "$")), []
+                ).label("origin"),
+                func.coalesce(func.array_agg(Clinvar.sa.rcv), []).label("rcv"),
             ]
         )
         self.subquery = (
@@ -351,86 +356,70 @@ class ExtendQueryPartsClinvarJoinBase(ExtendQueryPartsBase):
             .lateral("clinvar_subquery")
         )
 
-    def _get_skip_query(self):
-        raise NotImplementedError("Implement Me!")
-
     def extend_selectable(self, query_parts):
-        if self._get_skip_query():
-            return query_parts.selectable
         return query_parts.selectable.outerjoin(self.subquery, true())
 
-    def _build_significance_term(self):
-        terms = []
-        for key in self.patho_keys:
-            if self.kwargs["clinvar_include_%s" % key]:
-                terms.append(getattr(self.subquery.c, "clinvar_%s" % key) > 0)
-        return or_(*terms)
-
-    def _build_origin_term(self):
-        """Build term for variant origin in Clinvar."""
-        origins = []
-        if self.kwargs["clinvar_origin_germline"]:
-            origins.append("germline")
-        if self.kwargs["clinvar_origin_somatic"]:
-            origins.append("somatic")
-        origins = cast(origins, ARRAY(VARCHAR()))
-        return OVERLAP(self.subquery.c.origin, origins)
-
-    def _build_review_status_term(self):
-        """Build term for review status in Clinvar."""
-        review_statuses = [
-            value for key, value in FILTER_FORM_TRANSLATE_CLINVAR_STATUS.items() if self.kwargs[key]
-        ]
-        review_statuses = cast(review_statuses, ARRAY(VARCHAR()))
-        return OVERLAP(self.subquery.c.review_status_ordered, review_statuses)
-
-
-class ExtendQueryPartsClinvarSignificanceJoin(ExtendQueryPartsClinvarJoinBase):
-    def _get_skip_query(self):
-        return not self.kwargs["require_in_clinvar"]
-
-    def extend_fields(self, _query_parts):
-        if self._get_skip_query():
-            return []
-        return [
-            func.coalesce(column("clinvar_%s" % key), 0).label("clinvar_%s" % key)
-            for key in self.patho_keys
-        ]
-
-
-class ExtendQueryPartsClinvarFullJoin(ExtendQueryPartsClinvarJoinBase):
-    def _get_skip_query(self):
-        return False
-
     def extend_fields(self, _query_parts):
         return [
-            column("review_status_ordered"),
-            column("clinical_significance_ordered"),
-            column("all_traits"),
-            column("origin"),
-            column("rcv"),
+            func.coalesce(column("review_status_ordered"), []).label("review_status_ordered"),
+            func.coalesce(column("clinical_significance_ordered"), []).label(
+                "clinical_significance_ordered"
+            ),
+            func.coalesce(column("all_traits"), []).label("all_traits"),
+            func.coalesce(column("origin"), []).label("origin"),
+            func.coalesce(column("rcv"), []).label("rcv"),
         ] + [
             func.coalesce(column("clinvar_%s" % key), 0).label("clinvar_%s" % key)
             for key in self.patho_keys
         ]
 
 
-class ExtendQueryPartsClinvarSignificanceJoinAndFilter(ExtendQueryPartsClinvarSignificanceJoin):
-    def extend_conditions(self, _query_parts):
-        if self._get_skip_query():
-            return []
-        return [self._build_significance_term()]
-
-
-class ExtendQueryPartsClinvarFullJoinAndFilter(ExtendQueryPartsClinvarFullJoin):
+class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
     def extend_conditions(self, _query_parts):
         return [
             and_(
+                self._build_membership_term(),
                 self._build_significance_term(),
                 self._build_origin_term(),
-                self._build_review_status_term(),
             )
         ]
+
+    def _build_membership_term(self):
+        if self.kwargs["require_in_clinvar"]:
+            return SmallVariant.sa.in_clinvar == True
+        else:
+            return True
+
+    def _build_significance_term(self):
+        terms = []
+        if not self.kwargs.get("require_in_clinvar"):
+            return True
+        for key in self.patho_keys:
+            if self.kwargs.get("clinvar_include_%s" % key):
+                terms.append(getattr(self.subquery.c, "clinvar_%s" % key) > 0)
+        return or_(*terms)
+
+    def _build_origin_term(self):
+        """Build term for variant origin in Clinvar."""
+        if self.kwargs.get("require_in_clinvar"):
+            origins = []
+            if self.kwargs.get("clinvar_origin_germline"):
+                origins.append("germline")
+            if self.kwargs.get("clinvar_origin_somatic"):
+                origins.append("somatic")
+            if origins:
+                origins = cast(origins, ARRAY(VARCHAR()))
+                return OVERLAP(self.subquery.c.origin, origins)
+            else:
+                return True
+        else:
+            germline = cast(["germline"], ARRAY(VARCHAR()))
+            somatic = cast(["somatic"], ARRAY(VARCHAR()))
+            return or_(
+                OVERLAP(self.subquery.c.origin, germline),
+                not_(OVERLAP(self.subquery.c.origin, somatic)),
+                self.subquery.c.origin == None,
+            )
 
 
 class ExtendQueryPartsHgmdJoin(ExtendQueryPartsBase):
@@ -891,18 +880,6 @@ class ExtendQueryPartsGenomicRegionFilter(ExtendQueryPartsBase):
         return []
 
 
-class ExtendQueryPartsClinvarMembershipFilter(ExtendQueryPartsBase):
-    def extend_conditions(self, _query_parts):
-        if self.kwargs["require_in_clinvar"]:
-            return [SmallVariant.sa.in_clinvar == True]
-        return []
-
-
-class ExtendQueryPartsClinvarMembershipRequiredFilter(ExtendQueryPartsBase):
-    def extend_conditions(self, _query_parts):
-        return [SmallVariant.sa.in_clinvar == True]
-
-
 class ExtendQueryPartsLoadPrefetchedBase(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -932,11 +909,6 @@ class ExtendQueryPartsCaseLoadPrefetched(ExtendQueryPartsLoadPrefetchedBase):
 class ExtendQueryPartsProjectLoadPrefetched(ExtendQueryPartsLoadPrefetchedBase):
     def _get_query_type(self):
         return "projectcasessmallvariant"
-
-
-class ExtendQueryPartsClinvarReportLoadPrefetched(ExtendQueryPartsLoadPrefetchedBase):
-    def _get_query_type(self):
-        return "clinvar"
 
 
 class ExtendQueryPartsCommentsJoin(ExtendQueryPartsBase):
@@ -1178,8 +1150,7 @@ extender_classes_base = [
     ExtendQueryPartsTranscriptCodingFilter,
     ExtendQueryPartsGeneListsFilter,
     ExtendQueryPartsGenomicRegionFilter,
-    ExtendQueryPartsClinvarMembershipFilter,
-    ExtendQueryPartsClinvarSignificanceJoinAndFilter,
+    ExtendQueryPartsClinvarJoinAndFilter,
     ExtendQueryPartsHgmdJoinAndFilter,
     ExtendQueryPartsGenotypeGtQualityDefaultFilter,
     ExtendQueryPartsFlagsJoinAndFilter,
@@ -1239,6 +1210,7 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsGnomadConstraintsJoin,
         ExtendQueryPartsExacConstraintsJoin,
         ExtendQueryPartsInHouseJoinAndFilter,
+        ExtendQueryPartsClinvarJoin,
     ]
 
 
@@ -1263,32 +1235,6 @@ class CaseExportVcfQueryPartsBuilder(QueryPartsBuilder):
     qp_extender_classes = extender_classes_base
 
 
-class ClinvarReportPrefetchQueryPartsBuilder(QueryPartsBuilder):
-    qp_extender_classes = [
-        ExtendQueryPartsCaseJoinAndFilter,
-        ExtendQueryPartsGenotypeGtDefaultFilter,
-        ExtendQueryPartsClinvarFullJoinAndFilter,
-        ExtendQueryPartsClinvarMembershipRequiredFilter,
-        ExtendQueryPartsHgncJoin,
-        ExtendQueryPartsMgiJoin,
-        ExtendQueryPartsHgmdJoin,
-        ExtendQueryPartsFlagsJoinAndFilter,
-    ]
-
-
-class ClinvarReportLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
-    qp_extender_classes = [
-        ExtendQueryPartsClinvarReportLoadPrefetched,
-        ExtendQueryPartsCaseJoinAndFilter,
-        ExtendQueryPartsClinvarFullJoin,
-        ExtendQueryPartsHgncJoin,
-        ExtendQueryPartsMgiJoin,
-        ExtendQueryPartsHgmdJoin,
-        ExtendQueryPartsFlagsJoin,
-        ExtendQueryPartsModesOfInheritanceJoin,
-    ]
-
-
 class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
     qp_extender_classes = [
         ExtendQueryPartsProjectLoadPrefetched,
@@ -1302,6 +1248,7 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsAcmgCriteriaJoin,
         ExtendQueryPartsGnomadConstraintsJoin,
         ExtendQueryPartsExacConstraintsJoin,
+        ExtendQueryPartsClinvarJoin,
     ]
 
 
@@ -1409,14 +1356,6 @@ class CaseExportTableQuery(CasePrefetchQuery):
 
 class CaseExportVcfQuery(CasePrefetchQuery):
     builder = CaseExportVcfQueryPartsBuilder
-
-
-class ClinvarReportPrefetchQuery(CasePrefetchQuery):
-    builder = ClinvarReportPrefetchQueryPartsBuilder
-
-
-class ClinvarReportLoadPrefetchedQuery(CasePrefetchQuery):
-    builder = ClinvarReportLoadPrefetchedQueryPartsBuilder
 
 
 class ProjectPrefetchQuery(CasePrefetchQuery):

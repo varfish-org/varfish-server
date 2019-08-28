@@ -5,6 +5,10 @@
 <script type="text/javascript">
 
 var csfr_token = "{{ csfr_token }}";
+var settings_restored = false;
+if ({{ settings_restored }} == "1") {
+    settings_restored = true;
+}
 
 var effectGroups = {
   all: [
@@ -433,6 +437,7 @@ const defaultPresetsIds = {
   "remove_if_in_dbsnp": false,
   "require_in_hgmd_public": false,
   "display_hgmd_public_membership": false,
+  "clinvar_origin_germline": true,
 };
 
 const defaultPresetsClasses = {
@@ -526,6 +531,8 @@ const presets = {
       "clinvar_include_uncertain_significance": false,
       "clinvar_include_likely_benign": false,
       "clinvar_include_benign": false,
+      "clinvar_origin_germline": true,
+      "clinvar_origin_somatic": false,
 
       "effect_group_all": true
     }),
@@ -1011,7 +1018,9 @@ $(document).ready(
     );
     filterButton.attr("data-event-type", EVENT_SUBMIT);
     // Load default/strict presets.
-    loadPresets($("#load-presets-medgen-strict"));
+    if (!settings_restored) {
+        loadPresets($("#load-presets-medgen-strict"));
+    }
     // Kick-off state machine.
     handleEvent(EVENT_START, null);
     // Load comphet mode (if index is set)

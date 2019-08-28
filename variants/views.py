@@ -33,12 +33,7 @@ from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, Pro
 from projectroles.plugins import get_backend_api
 
 from varfish.users.models import User
-from .queries import (
-    CaseLoadPrefetchedQuery,
-    ProjectLoadPrefetchedQuery,
-    ClinvarReportLoadPrefetchedQuery,
-    KnownGeneAAQuery,
-)
+from .queries import CaseLoadPrefetchedQuery, ProjectLoadPrefetchedQuery, KnownGeneAAQuery
 from .models import (
     only_source_name,
     Case,
@@ -55,8 +50,6 @@ from .models import (
     SmallVariantQuery,
     ProjectCasesSmallVariantQuery,
     ProjectCasesFilterBgJob,
-    ClinvarBgJob,
-    ClinvarQuery,
     annotate_with_phenotype_scores,
     annotate_with_pathogenicity_scores,
     annotate_with_joint_scores,
@@ -65,9 +58,9 @@ from .models import (
     SmallVariantSet,
     ImportVariantsBgJob,
     CaseComments,
+    RowWithClinvarMax,
 )
 from .forms import (
-    ClinvarForm,
     ExportFileResubmitForm,
     ExportProjectCasesFileResubmitForm,
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
@@ -93,7 +86,6 @@ from .tasks import (
     sync_project_upstream,
     single_case_filter_task,
     project_cases_filter_task,
-    clinvar_filter_task,
 )
 from .file_export import RowWithSampleProxy
 from variants.helpers import SQLALCHEMY_ENGINE
@@ -707,6 +699,22 @@ class CaseFilterView(
         super().__init__(*args, **kwargs)
         self._case_object = None
         self._alchemy_engine = None
+        self._previous_query = None
+
+    def get_previous_query(self):
+        if not self._previous_query:
+            if "job" in self.kwargs:
+                self._previous_query = FilterBgJob.objects.get(
+                    sodar_uuid=self.kwargs["job"]
+                ).smallvariantquery
+            else:
+                self._previous_query = (
+                    self.get_case_object()
+                    .small_variant_queries.filter(user=self.request.user)
+                    .order_by("-date_created")
+                    .first()
+                )
+        return self._previous_query
 
     def get_case_object(self):
         if not self._case_object:
@@ -784,26 +792,15 @@ class CaseFilterView(
         """Put initial data in the form from the previous query if any and push information into template for the
         "welcome back" message."""
         result = self.initial.copy()
-        if "job" in self.kwargs:
-            previous_query = FilterBgJob.objects.get(
-                sodar_uuid=self.kwargs["job"]
-            ).smallvariantquery
-        else:
-            previous_query = (
-                self.get_case_object()
-                .small_variant_queries.filter(user=self.request.user)
-                .order_by("-date_created")
-                .first()
-            )
-        if self.request.method == "GET" and previous_query:
+        if self.request.method == "GET" and self.get_previous_query():
             # TODO: the code for version conversion needs to be hooked in here
             messages.info(
                 self.request,
                 ("Welcome back! We have restored your previous query settings from {}.").format(
-                    naturaltime(previous_query.date_created)
+                    naturaltime(self.get_previous_query().date_created)
                 ),
             )
-            for key, value in previous_query.query_settings.items():
+            for key, value in self.get_previous_query().query_settings.items():
                 if key == "genomic_region":
                     tmp = []
                     for v in value:
@@ -827,7 +824,7 @@ class CaseFilterView(
         context["variant_set_exists"] = SmallVariantSet.objects.filter(
             case_id=context["object"].id, state="active"
         ).exists()
-        context["allow_md_submittion"] = True
+        context["allow_md_submission"] = True
         # Construct the URL that is assigned to the submit button for the ajax request
         context["submit_button_url"] = reverse(
             "variants:case-filter-results",
@@ -845,6 +842,7 @@ class CaseFilterView(
             "variants:filter-job-status", kwargs={"project": context["project"].sodar_uuid}
         )
         context["query_type"] = self.query_type
+        context["settings_restored"] = 1 if self.get_previous_query() else 0
         return context
 
 
@@ -1009,7 +1007,7 @@ class CaseLoadPrefetchedFilterView(
 
         # Compute number of columns in table for the cards.
         pedigree = filter_job.smallvariantquery.case.get_filtered_pedigree_with_samples()
-        card_colspan = 20 + len(pedigree)
+        card_colspan = 13 + len(pedigree)
 
         # Take time while job is running
         before = timezone.now()
@@ -1058,6 +1056,8 @@ class CaseLoadPrefetchedFilterView(
                 hpoterms[hpo] = matches.first().name
             else:
                 hpoterms[hpo] = "unknown HPO term"
+
+        rows = annotate_with_clinvar_max(rows)
 
         return render(
             request,
@@ -1149,6 +1149,8 @@ class ProjectCasesLoadPrefetchedFilterView(
                     rows.append(RowWithSampleProxy(row, sample))
             elapsed = timezone.now() - before
 
+        rows = annotate_with_clinvar_max(rows)
+
         return render(
             request,
             self.template_name,
@@ -1184,7 +1186,7 @@ class ProjectCasesLoadPrefetchedFilterView(
                     "database_select", False
                 ),
                 query_type=self.query_type,
-                card_colspan=14,
+                card_colspan=15,
                 logs=[
                     "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
                     for e in filter_job.bg_job.log_entries.all().order_by("date_created")
@@ -1219,6 +1221,22 @@ class ProjectCasesFilterView(
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._alchemy_engine = None
+        self._previous_query = None
+
+    def get_previous_query(self):
+        if not self._previous_query:
+            if "job" in self.kwargs:
+                self._previous_query = ProjectCasesFilterBgJob.objects.get(
+                    sodar_uuid=self.kwargs["job"]
+                ).projectcasessmallvariantquery
+            else:
+                self._previous_query = (
+                    self.get_project(self.request, self.kwargs)
+                    .small_variant_queries.filter(user=self.request.user)
+                    .order_by("-date_created")
+                    .first()
+                )
+        return self._previous_query
 
     def get_form_kwargs(self):
         result = super().get_form_kwargs()
@@ -1258,20 +1276,15 @@ class ProjectCasesFilterView(
         """Put initial data in the form from the previous query if any and push information into template for the
         "welcome back" message."""
         result = self.initial.copy()
-        previous_query = (
-            self.get_project(self.request, self.kwargs)
-            .small_variant_queries.filter(user=self.request.user)
-            .first()
-        )
-        if self.request.method == "GET" and previous_query:
+        if self.request.method == "GET" and self.get_previous_query():
             # TODO: the code for version conversion needs to be hooked in here
             messages.info(
                 self.request,
                 ("Welcome back! We have restored your previous query settings from {}.").format(
-                    naturaltime(previous_query.date_created)
+                    naturaltime(self.get_previous_query().date_created)
                 ),
             )
-            for key, value in previous_query.query_settings.items():
+            for key, value in self.get_previous_query().query_settings.items():
                 if isinstance(value, list):
                     result[key] = " ".join(value)
                 else:
@@ -1302,6 +1315,7 @@ class ProjectCasesFilterView(
             kwargs={"project": context["project"].sodar_uuid},
         )
         context["query_type"] = self.query_type
+        context["settings_restored"] = 1 if self.get_previous_query() else 0
         return context
 
 
@@ -1454,399 +1468,56 @@ def sig_level(significance):
     return len(FILTER_FORM_TRANSLATE_SIGNIFICANCE.values())
 
 
-class CaseClinvarReportView(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    AlchemyEngineMixin,
-    FormView,
-):
-    """Display clinvar report form for a case."""
+def annotate_with_clinvar_max(rows):
+    def _find_split_positions(column):
+        split_positions = []
+        prev_position = 0
+        for i, x in enumerate(column):
+            if x == "$":
+                split_positions.append((prev_position, i))
+                prev_position = i + 1
+        split_positions.append((prev_position, len(column)))
+        return split_positions
 
-    template_name = "variants/case_clinvar.html"
-    permission_required = "variants.view_data"
-    form_class = ClinvarForm
-    success_url = "."
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._case_object = None
-        self._alchemy_engine = None
-
-    def get_case_object(self):
-        if not self._case_object:
-            self._case_object = Case.objects.get(sodar_uuid=self.kwargs["case"])
-        return self._case_object
-
-    def get_form_kwargs(self):
-        result = super().get_form_kwargs()
-        result["case"] = self.get_case_object()
-        return result
-
-    def get_initial(self):
-        """Put initial data in the form from the previous query if any and push information into template for the
-        "welcome back" message."""
-        result = self.initial.copy()
-        if "job" in self.kwargs:
-            previous_query = ClinvarBgJob.objects.get(sodar_uuid=self.kwargs["job"]).clinvarquery
-        else:
-            previous_query = (
-                self.get_case_object()
-                .clinvar_queries.filter(user=self.request.user)
-                .order_by("-date_created")
-                .first()
-            )
-        if self.request.method == "GET" and previous_query:
-            # TODO: the code for version conversion needs to be hooked in here
-            messages.info(
-                self.request,
-                ("Welcome back! We have restored your previous query settings from {}.").format(
-                    naturaltime(previous_query.date_created)
-                ),
-            )
-            result.update(previous_query.query_settings.items())
-        return result
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["object"] = self.get_case_object()
-        context["num_small_vars"] = context["object"].num_small_vars
-        context["variant_set_exists"] = SmallVariantSet.objects.filter(
-            case_id=context["object"].id, state="active"
-        ).exists()
-        context["submit_button_url"] = reverse(
-            "variants:clinvar-results",
-            kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},
-        )
-        context["load_data_url"] = reverse(
-            "variants:load-clinvar-results",
-            kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},
-        )
-        context["request_previous_job_url"] = reverse(
-            "variants:clinvar-job-previous",
-            kwargs={"project": context["project"].sodar_uuid, "case": context["object"].sodar_uuid},
-        )
-        context["job_status_url"] = reverse(
-            "variants:clinvar-job-status", kwargs={"project": context["project"].sodar_uuid}
-        )
-        return context
-
-
-class CasePrefetchClinvarReportView(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    AlchemyEngineMixin,
-    View,
-):
-    """View for starting a background clinvar report job.
-
-    This view initiates a background clinvar report job and returns its id as JSON.
-    """
-
-    permission_required = "variants.view_data"
-    slug_url_kwarg = "case"
-    slug_field = "sodar_uuid"
-
-    def post(self, request, *args, **kwargs):
-        """process the post request. important: data is not cleaned automatically, we must initiate it here."""
-
-        # get case object
-        case_object = Case.objects.get(sodar_uuid=kwargs["case"])
-
-        # clean data first
-        form = ClinvarForm(request.POST, case=case_object)
-
-        if form.is_valid():
-            # form is valid, we are supposed to render an HTML table with the results
-            with transaction.atomic():
-                # Save query parameters
-                clinvar_query = ClinvarQuery.objects.create(
-                    case=case_object,
-                    user=request.user,
-                    form_id=form.form_id,
-                    form_version=form.form_version,
-                    query_settings=_undecimal(form.cleaned_data),
-                )
-                # Construct background job objects
-                bg_job = BackgroundJob.objects.create(
-                    name="Running clinvar query for case {}".format(case_object.name),
-                    project=self.get_project(request, kwargs),
-                    job_type=ClinvarBgJob.spec_name,
-                    user=request.user,
-                )
-                clinvar_job = ClinvarBgJob.objects.create(
-                    project=self.get_project(request, kwargs),
-                    bg_job=bg_job,
-                    case=case_object,
-                    clinvarquery=clinvar_query,
-                )
-
-            # Submit job
-            clinvar_filter_task.delay(clinvar_job_pk=clinvar_job.pk)
-            return JsonResponse({"filter_job_uuid": clinvar_job.sodar_uuid})
-        return JsonResponse(form.errors, status=400)
-
-
-class CaseClinvarReportJobGetStatus(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    AlchemyEngineMixin,
-    View,
-):
-    """View for getting a clinvar report job status.
-
-    This view queries the current status of a clinvar report job and returns it as JSON.
-    """
-
-    permission_required = "variants.view_data"
-    slug_url_kwarg = "case"
-    slug_field = "sodar_uuid"
-
-    def post(self, request, *args, **kwargs):
-        try:
-            filter_job = ClinvarBgJob.objects.select_related("bg_job").get(
-                sodar_uuid=request.POST["filter_job_uuid"]
-            )
-            log_entries = reversed(
-                filter_job.bg_job.log_entries.all().order_by("-date_created")[:3]
-            )
-            return JsonResponse(
+    rows = [RowWithClinvarMax(row) for row in rows]
+    for row in rows:
+        candidates = []
+        clinvars = []
+        # Find out where a new entry in the array list begins, delimiter is the "$" sign.
+        split_sig = _find_split_positions(row.clinical_significance_ordered)
+        split_status = _find_split_positions(row.review_status_ordered)
+        split_trait = _find_split_positions(row.all_traits)
+        for i, rcv in enumerate(row.rcv):
+            clinvars.append(
                 {
-                    "status": filter_job.bg_job.status,
-                    "messages": [
-                        "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
-                        for e in log_entries
+                    "clinical_significance_ordered": row.clinical_significance_ordered[
+                        split_sig[i][0] : split_sig[i][1]
                     ],
+                    "review_status_ordered": row.review_status_ordered[
+                        split_status[i][0] : split_status[i][1]
+                    ],
+                    "all_traits": list(
+                        {
+                            trait.lower()
+                            for trait in row.all_traits[split_trait[i][0] : split_trait[i][1]]
+                        }
+                    ),
                 }
             )
-        except ObjectDoesNotExist:
-            return JsonResponse(
-                {"error": "No filter job with UUID {}".format(request.POST["filter_job_uuid"])},
-                status=400,
-            )
-        except ValidationError:
-            return JsonResponse(
-                {"error": "No valid UUID {}".format(request.POST["filter_job_uuid"])}, status=400
-            )
-
-
-class CaseClinvarReportJobGetPrevious(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    AlchemyEngineMixin,
-    View,
-):
-    """View for getting the ID of the previous clinvar report job.
-
-    This view returns the previous clinvar report job ID (if available) as JSON.
-    """
-
-    permission_required = "variants.view_data"
-    slug_url_kwarg = "case"
-    slug_field = "sodar_uuid"
-
-    def get(self, request, *args, **kwargs):
-        clinvar_job = (
-            ClinvarBgJob.objects.filter(
-                clinvarquery__user=request.user, case__sodar_uuid=kwargs["case"]
-            )
-            .order_by("-bg_job__date_created")
-            .first()
-        )
-        if clinvar_job:
-            return JsonResponse({"filter_job_uuid": clinvar_job.sodar_uuid})
-        return JsonResponse({"filter_job_uuid": None})
-
-
-class CaseLoadPrefetchedClinvarReportView(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    AlchemyEngineMixin,
-    View,
-):
-    """View for displaying clinvar report results.
-
-    This view fetches previous query results and renders them in a table.
-    """
-
-    template_name = "variants/clinvar_report/index.html"
-    permission_required = "variants.view_data"
-    slug_url_kwarg = "case"
-    slug_field = "sodar_uuid"
-    query_type = "case"
-
-    def post(self, request, *args, **kwargs):
-        """process the post request. important: data is not cleaned automatically, we must initiate it here."""
-
-        clinvar_job = ClinvarBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
-
-        # Take time while job is running
-        before = timezone.now()
-        # Get and run query
-        query = ClinvarReportLoadPrefetchedQuery(
-            clinvar_job.clinvarquery.case, SQLALCHEMY_ENGINE, clinvar_job.clinvarquery.id
-        )
-        with contextlib.closing(query.run(clinvar_job.clinvarquery.query_settings)) as results:
-            num_results = results.rowcount
-            # Get first N rows. This will pop the first N rows! results list will be decreased by N.
-            rows = results.fetchmany(
-                clinvar_job.clinvarquery.query_settings.get("result_rows_limit", 500)
-            )
-            sorted_rows = [v for k, v in sorted(dict(self._add_max_sig_status(rows)).items())]
-            elapsed = timezone.now() - before
-
-        return render(
-            request,
-            self.template_name,
-            self.get_context_data(
-                result_rows=sorted_rows,
-                result_count=num_results,
-                elapsed_seconds=elapsed.total_seconds(),
-                compound_recessive_index=clinvar_job.clinvarquery.query_settings.get(
-                    "compound_recessive_index", ""
-                ),
-                database=clinvar_job.clinvarquery.query_settings.get("database_select", "refseq"),
-                logs=[
-                    "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
-                    for e in clinvar_job.bg_job.log_entries.all().order_by("date_created")
-                ],
-            ),
-        )
-
-    def _add_max_sig_status(self, rows):
-        def _find_split_positions(column):
-            split_positions = []
-            prev_position = 0
-            for i, x in enumerate(column):
-                if x == "$":
-                    split_positions.append((prev_position, i))
-                    prev_position = i + 1
-            split_positions.append((prev_position, len(column)))
-            return split_positions
-
-        for row in rows:
-            key = "-".join(
-                map(
-                    str,
-                    [
-                        row.release,
-                        row.chromosome,
-                        row.start,
-                        row.end,
-                        row.reference,
-                        row.alternative,
-                    ],
-                )
-            )
-            row_clinvar = {"entry": row, "clinvars": []}
-            candidates = []
-            # Find out where a new entry in the array list begins, delimiter is the "$" sign.
-            split_sig = _find_split_positions(row.clinical_significance_ordered)
-            split_status = _find_split_positions(row.review_status_ordered)
-            split_trait = _find_split_positions(row.all_traits)
-            split_origin = _find_split_positions(row.origin)
-            for i, rcv in enumerate(row.rcv):
-                row_clinvar["clinvars"].append(
-                    {
-                        "rcv": rcv,
-                        "clinical_significance_ordered": row.clinical_significance_ordered[
-                            split_sig[i][0] : split_sig[i][1]
-                        ],
-                        "review_status_ordered": row.review_status_ordered[
-                            split_status[i][0] : split_status[i][1]
-                        ],
-                        "all_traits": row.all_traits[split_trait[i][0] : split_trait[i][1]],
-                        "origin": row.origin[split_origin[i][0] : split_origin[i][1]],
-                    }
-                )
-                for sig, status in zip(
-                    row_clinvar["clinvars"][-1]["clinical_significance_ordered"],
-                    row_clinvar["clinvars"][-1]["review_status_ordered"],
-                ):
-                    sig_lvl = sig_level(sig)
-                    status_lvl = status_level(status)
-                    candidates.append((sig_lvl, status_lvl, sig, status))
-            # update dict
-            keys = [
-                "max_significance_lvl",
-                "max_clinvar_status_lvl",
-                "max_significance",
-                "max_clinvar_status",
-            ]
-            if candidates:
-                values = min(candidates)
-            else:
-                values = (sig_level(None), status_level(None), None, None)
-            row_clinvar = {**row_clinvar, **(dict(zip(keys, values)))}
-            yield (
-                row_clinvar["max_significance_lvl"],
-                row_clinvar["max_clinvar_status_lvl"],
-                key,
-            ), row_clinvar
-
-
-class ClinvarReportJobDetailView(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    DetailView,
-):
-    """Display status and further details of the ClinvarBgJob background job."""
-
-    permission_required = "variants.view_data"
-    template_name = "variants/filter_job_detail.html"
-    model = ClinvarBgJob
-    slug_url_kwarg = "job"
-    slug_field = "sodar_uuid"
-    query_type = "clinvar"
-
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context["query_type"] = self.query_type
-        return context
-
-
-class ClinvarReportJobResubmitView(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    FormView,
-):
-    """Resubmit the clinvar report query job and redirect to clinvar detail view."""
-
-    permission_required = "variants.view_data"
-    form_class = EmptyForm
-
-    def form_valid(self, form):
-        job = get_object_or_404(ClinvarBgJob, sodar_uuid=self.kwargs["job"])
-        with transaction.atomic():
-            bg_job = BackgroundJob.objects.create(
-                name="Resubmitting clinvar filter for case {}".format(job.case),
-                project=job.bg_job.project,
-                job_type=ClinvarBgJob.spec_name,
-                user=self.request.user,
-            )
-            clinvar_job = ClinvarBgJob.objects.create(
-                project=job.project, bg_job=bg_job, case=job.case, clinvarquery=job.clinvarquery
-            )
-            clinvar_filter_task.delay(clinvar_job_pk=clinvar_job.pk)
-        return redirect(
-            reverse(
-                "variants:clinvar-job-detail",
-                kwargs={"project": job.project.sodar_uuid, "job": clinvar_job.sodar_uuid},
-            )
-        )
+            for sig, status in zip(
+                clinvars[-1]["clinical_significance_ordered"], clinvars[-1]["review_status_ordered"]
+            ):
+                sig_lvl = sig_level(sig)
+                status_lvl = status_level(status)
+                candidates.append((sig_lvl, status_lvl, sig, status, clinvars[-1]["all_traits"]))
+        if candidates:
+            values = min(candidates)
+        else:
+            values = (sig_level(None), status_level(None), None, None, None)
+        row._self_max_significance = values[2]
+        row._self_max_clinvar_status = values[3]
+        row._self_max_all_traits = values[4]
+    return rows
 
 
 class SmallVariantDetails(

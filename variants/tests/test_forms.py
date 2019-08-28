@@ -2,9 +2,8 @@
 
 from django.test import TestCase
 
-from clinvar.tests.factories import ClinvarFormDataFactory
 from variants.tests.factories import SmallVariantSetFactory, FormDataFactory
-from ..forms import ClinvarForm, FilterForm
+from ..forms import FilterForm
 
 
 class TestFormBase(TestCase):
@@ -12,17 +11,6 @@ class TestFormBase(TestCase):
         super().setUp()
         self.variant_set = SmallVariantSetFactory()
         self.maxDiff = None
-
-
-class TestClinvarForm(TestFormBase):
-    """Tests for ClinvarForm"""
-
-    def testSubmitDefaults(self):
-        """Test submission with defaults."""
-        form_data = vars(ClinvarFormDataFactory(names=self.variant_set.case.get_members()))
-        form = ClinvarForm(form_data, case=self.variant_set.case)
-        self.assertTrue(form.is_valid())
-        self.assertEquals(form.cleaned_data, form_data)
 
 
 class TestFilterForm(TestFormBase):

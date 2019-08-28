@@ -15,8 +15,6 @@ from variants.queries import (
     CaseExportTableQuery,
     CaseExportVcfQuery,
     CaseLoadPrefetchedQuery,
-    ClinvarReportPrefetchQuery,
-    ClinvarReportLoadPrefetchedQuery,
     ProjectPrefetchQuery,
     ProjectLoadPrefetchedQuery,
     KnownGeneAAQuery,
@@ -36,7 +34,6 @@ from .factories import (
     ProjectFactory,
     ProjectCasesSmallVariantQueryFactory,
     SmallVariantQueryFactory,
-    ClinvarQueryFactory,
     SmallVariantSetFactory,
 )
 from .helpers import TestBase, SupportQueryTestBase, SQLALCHEMY_ENGINE
@@ -324,40 +321,6 @@ class TestCaseOneQueryCaseFromTwoCases(SupportQueryTestBase):
 
     def test_query_case2_correct_vcf(self):
         self.run_query(CaseExportVcfQuery, {"case_uuid": self.variant_sets[1].case.sodar_uuid}, 2)
-
-
-class TestCaseOneClinvarReportQueryCaseFromTwoCases(SupportQueryTestBase):
-    """Test with correct and incorrect case UUID"""
-
-    def setUp(self):
-        """Create case with just one variant."""
-        super().setUp()
-        self.variant_sets = SmallVariantSetFactory.create_batch(2)
-        small_vars = [
-            SmallVariantFactory(variant_set=self.variant_sets[0], in_clinvar=True),
-            SmallVariantFactory(variant_set=self.variant_sets[1], in_clinvar=True),
-            SmallVariantFactory(variant_set=self.variant_sets[1], in_clinvar=True),
-        ]
-        for small_var in small_vars:
-            ClinvarFactory(
-                release=small_var.release,
-                chromosome=small_var.chromosome,
-                start=small_var.start,
-                end=small_var.end,
-                bin=small_var.bin,
-                reference=small_var.reference,
-                alternative=small_var.alternative,
-            )
-
-    def test_query_case1_correct_filter(self):
-        self.run_query(
-            ClinvarReportPrefetchQuery, {"case_uuid": self.variant_sets[0].case.sodar_uuid}, 1
-        )
-
-    def test_query_case2_correct_filter(self):
-        self.run_query(
-            ClinvarReportPrefetchQuery, {"case_uuid": self.variant_sets[1].case.sodar_uuid}, 2
-        )
 
 
 class TestCaseOneQueryVarTypeSwitch(SupportQueryTestBase):
@@ -2226,7 +2189,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
                 variant_set=self.variant_set,
             ),
             SmallVariantFactory(
-                chromosome=3,
+                chromosome="3",
                 genotype={
                     self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
@@ -2237,7 +2200,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
                 variant_set=self.variant_set,
             ),
             SmallVariantFactory(
-                chromosome=3,
+                chromosome="3",
                 genotype={
                     self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
@@ -2322,7 +2285,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
                 variant_set=self.variant_set,
             ),
             SmallVariantFactory(
-                chromosome=3,
+                chromosome="3",
                 genotype={
                     self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[1]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
@@ -2334,7 +2297,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
                 variant_set=self.variant_set,
             ),
             SmallVariantFactory(
-                chromosome=3,
+                chromosome="3",
                 genotype={
                     self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[1]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
@@ -2346,7 +2309,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
                 ensembl_gene_id="ENSG3",
             ),
             SmallVariantFactory(
-                chromosome=4,
+                chromosome="4",
                 genotype={
                     self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                     self.case.pedigree[1]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
@@ -2358,7 +2321,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
                 variant_set=self.variant_set,
             ),
             SmallVariantFactory(
-                chromosome=4,
+                chromosome="4",
                 genotype={
                     self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                     self.case.pedigree[1]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
@@ -2464,7 +2427,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
         self.case = self.variant_set.case
         self.small_vars = [
             SmallVariantFactory(
-                chromosome=3,
+                chromosome="3",
                 genotype={
                     self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
@@ -2478,7 +2441,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
                 variant_set=self.variant_set,
             ),
             SmallVariantFactory(
-                chromosome=3,
+                chromosome="3",
                 genotype={
                     self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
@@ -2492,7 +2455,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
                 ensembl_gene_id="ENSG3",
             ),
             SmallVariantFactory(
-                chromosome=4,
+                chromosome="4",
                 genotype={
                     self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
@@ -2506,7 +2469,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
                 variant_set=self.variant_set,
             ),
             SmallVariantFactory(
-                chromosome=4,
+                chromosome="4",
                 genotype={
                     self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
                     self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
@@ -2609,38 +2572,62 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
 # ---------------------------------------------------------------------------
 
 # Case 3 is a singleton test case and meant for testing the Clinvar
-# membership queries.  We create a new test case for this as we might be able
+# membership queries. We create a new test case for this as we might be able
 # to allow the user to filter out benign variants or variants of unknown
 # significance.
 
 
-class CaseThreeClinvarMembershipFilterTestMixin:
-    """Base class for testing query with ClinvarMembership filter."""
+class CaseThreeClinvarFilterTestMixin:
+    """Base class for testing query with Clinvar filter."""
 
     query_class = None
-    run_query_function = None
 
     def setUp(self):
         super().setUp()
         variant_set = SmallVariantSetFactory(case__structure="trio")
         self.small_vars = [
-            SmallVariantFactory(chromosome="1", in_clinvar=True, variant_set=variant_set),
             SmallVariantFactory(chromosome="1", in_clinvar=False, variant_set=variant_set),
+            SmallVariantFactory(chromosome="2", in_clinvar=True, variant_set=variant_set),
         ]
-        patho_keys = (
-            "pathogenic",
-            "likely_pathogenic",
-            "uncertain_significance",
-            "likely_benign",
-            "benign",
+        # Create two entries for first variant that is in clinvar (second variant in total)
+        ClinvarFactory(
+            release=self.small_vars[-1].release,
+            chromosome=self.small_vars[-1].chromosome,
+            start=self.small_vars[-1].start,
+            end=self.small_vars[-1].end,
+            bin=self.small_vars[-1].bin,
+            reference=self.small_vars[-1].reference,
+            alternative=self.small_vars[-1].alternative,
+            clinical_significance="pathogenic",
+            clinical_significance_ordered=["pathogenic"],
+            origin=["somatic"],
+            pathogenic=1,
         )
-        for key in patho_keys:
+        ClinvarFactory(
+            release=self.small_vars[-1].release,
+            chromosome=self.small_vars[-1].chromosome,
+            start=self.small_vars[-1].start,
+            end=self.small_vars[-1].end,
+            bin=self.small_vars[-1].bin,
+            reference=self.small_vars[-1].reference,
+            alternative=self.small_vars[-1].alternative,
+            clinical_significance="likely_pathogenic",
+            clinical_significance_ordered=["likely_pathogenic"],
+            origin=["germline"],
+            likely_pathogenic=1,
+        )
+        patho_keys = (
+            ("pathogenic", ["germline"]),
+            ("likely_pathogenic", ["germline"]),
+            ("uncertain_significance", ["germline", "somatic"]),
+            ("likely_benign", ["somatic"]),
+            ("benign", ["something_else"]),
+        )
+        # Start chromosomes from "3" on
+        for pos, (key, origin) in enumerate(patho_keys):
             self.small_vars.append(
                 SmallVariantFactory(
-                    refseq_gene_id="2",
-                    ensembl_gene_id="ENSG2",
-                    in_clinvar=True,
-                    variant_set=variant_set,
+                    chromosome=str(pos + 3), in_clinvar=True, variant_set=variant_set
                 )
             )
             ClinvarFactory(
@@ -2653,33 +2640,48 @@ class CaseThreeClinvarMembershipFilterTestMixin:
                 alternative=self.small_vars[-1].alternative,
                 clinical_significance=key,
                 clinical_significance_ordered=[key],
-                review_status="practice guideline",
-                review_status_ordered=["practice guideline"],
+                origin=origin,
                 **{key: 1},
             )
 
     def test_render_query_do_not_require_membership(self):
-        self.run_query_function(self.query_class, {}, 7)
+        self.run_query(self.query_class, {}, 6)
 
     def test_render_query_require_membership_include_none(self):
-        self.run_query_function(self.query_class, {"require_in_clinvar": True}, 6)
+        self.run_query(self.query_class, {"require_in_clinvar": True}, 6)
 
     def test_render_query_require_membership_include_pathogenic(self):
-        res = self.run_query_function(
-            self.query_class, {"require_in_clinvar": True, "clinvar_include_pathogenic": True}, 1
+        res = self.run_query(
+            self.query_class, {"require_in_clinvar": True, "clinvar_include_pathogenic": True}, 2
         )
-        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[0].start, self.small_vars[1].start)
+        self.assertEqual(res[1].start, self.small_vars[2].start)
 
     def test_render_query_require_membership_include_likely_pathogenic(self):
-        res = self.run_query_function(
+        res = self.run_query(
             self.query_class,
             {"require_in_clinvar": True, "clinvar_include_likely_pathogenic": True},
-            1,
+            2,
         )
-        self.assertEqual(res[0].start, self.small_vars[3].start)
+        self.assertEqual(res[0].start, self.small_vars[1].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
+
+    def test_render_query_require_membership_include_pathogenic_and_likely_pathogenic(self):
+        res = self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_include_pathogenic": True,
+                "clinvar_include_likely_pathogenic": True,
+            },
+            3,
+        )
+        self.assertEqual(res[0].start, self.small_vars[1].start)
+        self.assertEqual(res[1].start, self.small_vars[2].start)
+        self.assertEqual(res[2].start, self.small_vars[3].start)
 
     def test_render_query_require_membership_include_uncertain_significance(self):
-        res = self.run_query_function(
+        res = self.run_query(
             self.query_class,
             {"require_in_clinvar": True, "clinvar_include_uncertain_significance": True},
             1,
@@ -2687,59 +2689,105 @@ class CaseThreeClinvarMembershipFilterTestMixin:
         self.assertEqual(res[0].start, self.small_vars[4].start)
 
     def test_render_query_require_membership_include_likely_benign(self):
-        res = self.run_query_function(
+        res = self.run_query(
             self.query_class, {"require_in_clinvar": True, "clinvar_include_likely_benign": True}, 1
         )
         self.assertEqual(res[0].start, self.small_vars[5].start)
 
     def test_render_query_require_membership_include_benign(self):
-        res = self.run_query_function(
+        res = self.run_query(
             self.query_class, {"require_in_clinvar": True, "clinvar_include_benign": True}, 1
         )
         self.assertEqual(res[0].start, self.small_vars[6].start)
 
+    def test_render_query_require_membership_origin_both(self):
+        self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_origin_germline": True,
+                "clinvar_origin_somatic": True,
+            },
+            5,
+        )
 
-class RenderQueryTestCaseThreeClinvarMembershipFilter(
-    CaseThreeClinvarMembershipFilterTestMixin, SupportQueryTestBase
-):
+    def test_render_query_require_membership_origin_germline(self):
+        self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_origin_germline": True,
+                "clinvar_origin_somatic": False,
+            },
+            4,
+        )
+
+    def test_render_query_require_membership_origin_somatic(self):
+        self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_origin_germline": False,
+                "clinvar_origin_somatic": True,
+            },
+            3,
+        )
+
+    def test_render_query_require_membership_no_origin(self):
+        self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": True,
+                "clinvar_origin_germline": False,
+                "clinvar_origin_somatic": False,
+            },
+            6,
+        )
+
+    def test_render_query_not_required_and_significance(self):
+        self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": False,
+                "clinvar_origin_germline": True,
+                "clinvar_origin_somatic": True,
+                "clinvar_include_pathogenic": True,
+            },
+            6,
+        )
+
+    def test_render_query_not_required_and_origin(self):
+        self.run_query(
+            self.query_class,
+            {
+                "require_in_clinvar": False,
+                "clinvar_origin_germline": True,
+                "clinvar_origin_somatic": False,
+            },
+            6,
+        )
+
+
+class RenderQueryTestCaseThreeClinvarFilter(CaseThreeClinvarFilterTestMixin, SupportQueryTestBase):
     """Test clinvar membership using RenderFilterQuery."""
 
     query_class = CasePrefetchQuery
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.run_query_function = self.run_query
 
-
-class ExportFileFilterQueryTestCaseThreeClinvarMembershipFilter(
-    CaseThreeClinvarMembershipFilterTestMixin, SupportQueryTestBase
+class ExportFileFilterQueryTestCaseThreeClinvarFilter(
+    CaseThreeClinvarFilterTestMixin, SupportQueryTestBase
 ):
     """Test clinvar membership using ExportFileFilterQuery."""
 
     query_class = CaseExportTableQuery
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.run_query_function = self.run_query
 
-
-class ExportVcfFilterQueryTestCaseThreeClinvarMembershipFilter(
-    CaseThreeClinvarMembershipFilterTestMixin, SupportQueryTestBase
+class ExportVcfFilterQueryTestCaseThreeClinvarFilter(
+    CaseThreeClinvarFilterTestMixin, SupportQueryTestBase
 ):
     """Test clinvar membership using ExportFileFilterQuery."""
 
     query_class = CaseExportVcfQuery
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.run_query_function = self.run_query
-
-
-# ---------------------------------------------------------------------------
-# ClinvarReportQuery: Case 4
-# ---------------------------------------------------------------------------
-
-# We use the singleton case 1 and construct different cases with clinvar annotation.
 
 
 # TODO exports are missing
@@ -2789,636 +2837,6 @@ class TestHgmdMembershipQuery(SupportQueryTestBase):
             1,
         )
         self.assertEqual(res[0].hgmd_accession, self.hgmd.variation_name)
-
-
-# TODO clinvar doesn't test genotype
-class ClinvarReportQueryTestCaseFour(SupportQueryTestBase):
-    def setUp(self):
-        super().setUp()
-        self.small_var = SmallVariantFactory(in_clinvar=True)
-
-    def _setup_clinvar_entry(self, clinvar_patch={}):
-        """Setup patched Clinvar entry with values from ``clinvar_patch``.
-
-        This function will take care of patching the correct position into the defaults.
-        """
-        patched_data = {
-            "review_status": "practice guideline",
-            "review_status_ordered": ["practice guideline"],
-            **clinvar_patch,
-        }
-        ClinvarFactory(
-            release=self.small_var.release,
-            chromosome=self.small_var.chromosome,
-            start=self.small_var.start,
-            end=self.small_var.end,
-            bin=self.small_var.bin,
-            reference=self.small_var.reference,
-            alternative=self.small_var.alternative,
-            **patched_data,
-        )
-
-    # TODO: conver to use ``test_snake_case``
-
-    def testEnsemblTranscripts(self):
-        self._setup_clinvar_entry()
-        self.run_query(ClinvarReportPrefetchQuery, {"database_select": "ensembl"}, 1)
-
-    def testPathogenicInclude(self):
-        self._setup_clinvar_entry({"pathogenic": 1})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_pathogenic": True}, 1)
-
-    def testPathogenicNoInclude(self):
-        self._setup_clinvar_entry()
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_pathogenic": True}, 0)
-
-    def testLikelyPathogenicInclude(self):
-        self._setup_clinvar_entry({"likely_pathogenic": 1})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_likely_pathogenic": True}, 1)
-
-    def testLikelyPathogenicNoInclude(self):
-        self._setup_clinvar_entry()
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_likely_pathogenic": True}, 0)
-
-    def testUncertainSignificanceInclude(self):
-        self._setup_clinvar_entry({"uncertain_significance": 1})
-        self.run_query(
-            ClinvarReportPrefetchQuery, {"clinvar_include_uncertain_significance": True}, 1
-        )
-
-    def testUncertainSignificanceNoInclude(self):
-        self._setup_clinvar_entry()
-        self.run_query(
-            ClinvarReportPrefetchQuery, {"clinvar_include_uncertain_significance": True}, 0
-        )
-
-    def testLikelyBenignInclude(self):
-        self._setup_clinvar_entry({"likely_benign": 1})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_likely_benign": True}, 1)
-
-    def testLikelyBenignNoInclude(self):
-        self._setup_clinvar_entry()
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_likely_benign": True}, 0)
-
-    def testBenignInclude(self):
-        self._setup_clinvar_entry({"benign": 1})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_benign": True}, 1)
-
-    def testBenignNoInclude(self):
-        self._setup_clinvar_entry()
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_include_benign": True}, 0)
-
-    def testGermlineInclude(self):
-        self._setup_clinvar_entry({"origin": ["germline"]})
-        self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"clinvar_origin_germline": True, "clinvar_origin_somatic": False},
-            1,
-        )
-
-    def testGermlineNoInclude(self):
-        self._setup_clinvar_entry({"origin": ["germline"]})
-        self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"clinvar_origin_germline": False, "clinvar_origin_somatic": True},
-            0,
-        )
-
-    def testSomaticInclude(self):
-        self._setup_clinvar_entry({"origin": ["somatic"]})
-        self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"clinvar_origin_germline": False, "clinvar_origin_somatic": True},
-            1,
-        )
-
-    def testSomaticNoInclude(self):
-        self._setup_clinvar_entry({"origin": ["somatic"]})
-        self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"clinvar_origin_germline": True, "clinvar_origin_somatic": False},
-            0,
-        )
-
-    def testPracticeGuidelineInclude(self):
-        self._setup_clinvar_entry({"review_status_ordered": ["practice guideline"]})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_practice_guideline": True}, 1)
-
-    def testPracticeGuidelineNoInclude(self):
-        self._setup_clinvar_entry({"review_status_ordered": ["practice guideline"]})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_practice_guideline": False}, 0)
-
-    def testExpertPanelInclude(self):
-        self._setup_clinvar_entry({"review_status_ordered": ["reviewed by expert panel"]})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_expert_panel": True}, 1)
-
-    def testExpertPanelNoInclude(self):
-        self._setup_clinvar_entry({"review_status_ordered": ["reviewed by expert panel"]})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_expert_panel": False}, 0)
-
-    def testMultipleNoConflictInclude(self):
-        self._setup_clinvar_entry(
-            {"review_status_ordered": ["criteria provided, multiple submitters, no conflicts"]}
-        )
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_multiple_no_conflict": True}, 1)
-
-    def testMultipleNoConflictNoInclude(self):
-        self._setup_clinvar_entry(
-            {"review_status_ordered": ["criteria provided, multiple submitters, no conflicts"]}
-        )
-        self.run_query(
-            ClinvarReportPrefetchQuery, {"clinvar_status_multiple_no_conflict": False}, 0
-        )
-
-    def testSingleInclude(self):
-        self._setup_clinvar_entry(
-            {"review_status_ordered": ["criteria provided, single submitter"]}
-        )
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_single": True}, 1)
-
-    def testSingleNoInclude(self):
-        self._setup_clinvar_entry(
-            {"review_status_ordered": ["criteria provided, single submitter"]}
-        )
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_single": False}, 0)
-
-    def testConflictInclude(self):
-        self._setup_clinvar_entry(
-            {"review_status_ordered": ["criteria provided, conflicting interpretations"]}
-        )
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_conflict": True}, 1)
-
-    def testConflictNoInclude(self):
-        self._setup_clinvar_entry(
-            {"review_status_ordered": ["criteria provided, conflicting interpretations"]}
-        )
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_conflict": False}, 0)
-
-    def testNoCriteriaInclude(self):
-        self._setup_clinvar_entry({"review_status_ordered": ["no assertion criteria provided"]})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_no_criteria": True}, 1)
-
-    def testNoCriteriaNoInclude(self):
-        self._setup_clinvar_entry({"review_status_ordered": ["no assertion criteria provided"]})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_no_criteria": False}, 0)
-
-    def testNoAssertionInclude(self):
-        self._setup_clinvar_entry({"review_status_ordered": ["no assertion provided"]})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_no_assertion": True}, 1)
-
-    def testNoAssertionNoInclude(self):
-        self._setup_clinvar_entry({"review_status_ordered": ["no assertion provided"]})
-        self.run_query(ClinvarReportPrefetchQuery, {"clinvar_status_no_assertion": False}, 0)
-
-
-class TestCaseFourClinvarLoadPrefetchedQuery(SupportQueryTestBase):
-    """Test the load prefetched functionality of clinvar report."""
-
-    def setUp(self):
-        super().setUp()
-        variant_set = SmallVariantSetFactory()
-        self.small_vars = list()
-        for i in range(3):
-            self.small_vars.append(SmallVariantFactory(in_clinvar=True, variant_set=variant_set))
-            ClinvarFactory(
-                release=self.small_vars[-1].release,
-                chromosome=self.small_vars[-1].chromosome,
-                start=self.small_vars[-1].start,
-                end=self.small_vars[-1].end,
-                bin=self.small_vars[-1].bin,
-                reference=self.small_vars[-1].reference,
-                alternative=self.small_vars[-1].alternative,
-                review_status="practice guideline",
-                review_status_ordered=["practice guideline"],
-            )
-        self.clinvarquery = ClinvarQueryFactory(case=variant_set.case)
-        self.clinvarquery.query_results.add(self.small_vars[0].id, self.small_vars[2].id)
-
-    def test_load_prefetched_clinvar_query(self):
-        self.run_query(ClinvarReportLoadPrefetchedQuery, {"filter_job_id": self.clinvarquery.id}, 2)
-
-
-class TestClinvarCompHetQuery(SupportQueryTestBase):
-    """Test the Clinvar Report in compound heterozygous mode."""
-
-    def setUp(self):
-        """Create a case and smallvars with clinvar entries."""
-        super().setUp()
-        variant_set = SmallVariantSetFactory(case__structure="trio")
-        self.case = variant_set.case
-        self.small_vars = [
-            # Create a de novo variant that is in clinvar
-            SmallVariantFactory(
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                },
-                ensembl_gene_id="ENSG1",
-                variant_set=variant_set,
-                in_clinvar=True,
-            ),
-            # Create a recessive variant that is not in clinvar
-            SmallVariantFactory(
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "1/1"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                },
-                refseq_gene_id="2",
-                ensembl_gene_id="ENSG2",
-                variant_set=variant_set,
-                in_clinvar=False,
-            ),
-            # Create a pair of comp het variants that are in clinvar
-            SmallVariantFactory(
-                chromosome=3,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                },
-                refseq_gene_id="3",
-                ensembl_gene_id="ENSG3",
-                variant_set=variant_set,
-                in_clinvar=True,
-            ),
-            SmallVariantFactory(
-                chromosome=3,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                },
-                refseq_gene_id="3",
-                ensembl_gene_id="ENSG3",
-                variant_set=variant_set,
-                in_clinvar=True,
-            ),
-            # Create a pair of comp het variants that are not in clinvar
-            SmallVariantFactory(
-                chromosome=4,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                },
-                refseq_gene_id="4",
-                ensembl_gene_id="ENSG4",
-                variant_set=variant_set,
-                in_clinvar=False,
-            ),
-            SmallVariantFactory(
-                chromosome=4,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                },
-                refseq_gene_id="4",
-                ensembl_gene_id="ENSG4",
-                variant_set=variant_set,
-                in_clinvar=False,
-            ),
-        ]
-        for small_var in self.small_vars:
-            if small_var.in_clinvar:
-                ClinvarFactory(
-                    release=small_var.release,
-                    chromosome=small_var.chromosome,
-                    start=small_var.start,
-                    end=small_var.end,
-                    bin=small_var.bin,
-                    reference=small_var.reference,
-                    alternative=small_var.alternative,
-                )
-
-    def test_query_compound_het_prefetch_filter(self):
-        res = self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
-            2,
-        )
-        self.assertEqual(res[0].start, self.small_vars[2].start)
-        self.assertEqual(res[1].start, self.small_vars[3].start)
-
-    def test_query_compound_het_load_prefetched_filter(self):
-        # Generate results
-        res = self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
-            2,
-        )
-        # Add results to variant query
-        query = ClinvarQueryFactory(case=self.case)
-        query.query_results.add(res[0].id, res[1].id)
-        # Load Prefetched results
-        res = self.run_query(
-            ClinvarReportLoadPrefetchedQuery,
-            {
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-                "filter_job_id": query.id,
-            },
-            2,
-        )
-        self.assertEqual(res[0].start, self.small_vars[2].start)
-        self.assertEqual(res[1].start, self.small_vars[3].start)
-
-
-class TestClinvarCompHetQueryQuartet(SupportQueryTestBase):
-    """Test the Clinvar Report in compound heterozygous mode."""
-
-    def setUp(self):
-        """Create a case and smallvars with clinvar entries."""
-        super().setUp()
-        self.variant_set = SmallVariantSetFactory(case__structure="quartet")
-        self.case = self.variant_set.case
-        self.small_vars = [
-            # Create a de novo variant that is in clinvar
-            SmallVariantFactory(
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[1]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                },
-                ensembl_gene_id="ENSG1",
-                variant_set=self.variant_set,
-                in_clinvar=True,
-            ),
-            # Create a pair of comp het variants that are in clinvar
-            SmallVariantFactory(
-                chromosome=3,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[1]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                },
-                refseq_gene_id="3",
-                ensembl_gene_id="ENSG3",
-                variant_set=self.variant_set,
-                in_clinvar=True,
-            ),
-            SmallVariantFactory(
-                chromosome=3,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[1]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                },
-                refseq_gene_id="3",
-                ensembl_gene_id="ENSG3",
-                variant_set=self.variant_set,
-                in_clinvar=True,
-            ),
-            # Create a pair of comp het variants that are not in clinvar
-            SmallVariantFactory(
-                chromosome=4,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[1]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                },
-                refseq_gene_id="4",
-                ensembl_gene_id="ENSG4",
-                variant_set=self.variant_set,
-                in_clinvar=True,
-            ),
-            SmallVariantFactory(
-                chromosome=4,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[1]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                },
-                refseq_gene_id="4",
-                ensembl_gene_id="ENSG4",
-                variant_set=self.variant_set,
-                in_clinvar=True,
-            ),
-        ]
-        for small_var in self.small_vars:
-            if small_var.in_clinvar:
-                ClinvarFactory(
-                    release=small_var.release,
-                    chromosome=small_var.chromosome,
-                    start=small_var.start,
-                    end=small_var.end,
-                    bin=small_var.bin,
-                    reference=small_var.reference,
-                    alternative=small_var.alternative,
-                )
-
-    def test_query_index_compound_het_prefetch_filter(self):
-        res = self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
-            2,
-        )
-        self.assertEqual(res[0].start, self.small_vars[1].start)
-        self.assertEqual(res[1].start, self.small_vars[2].start)
-
-    def test_query_index_compound_het_load_prefetched_filter(self):
-        # Generate results
-        res = self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
-            2,
-        )
-        # Add results to variant query
-        query = ClinvarQueryFactory(case=self.case)
-        query.query_results.add(res[0].id, res[1].id)
-        # Load Prefetched results
-        res = self.run_query(
-            ClinvarReportLoadPrefetchedQuery,
-            {
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-                "filter_job_id": query.id,
-            },
-            2,
-        )
-        self.assertEqual(res[0].start, self.small_vars[1].start)
-        self.assertEqual(res[1].start, self.small_vars[2].start)
-
-    def test_query_sibling_compound_het_prefetch_filter(self):
-        res = self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"compound_recessive_index": self.case.pedigree[1]["patient"]},
-            2,
-        )
-        self.assertEqual(res[0].start, self.small_vars[3].start)
-        self.assertEqual(res[1].start, self.small_vars[4].start)
-
-    def test_query_sibling_compound_het_load_prefetched_filter(self):
-        # Generate results
-        res = self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"compound_recessive_index": self.case.pedigree[1]["patient"]},
-            2,
-        )
-        # Add results to variant query
-        query = ClinvarQueryFactory(case=self.case)
-        query.query_results.add(res[0].id, res[1].id)
-        # Load Prefetched results
-        res = self.run_query(
-            ClinvarReportLoadPrefetchedQuery,
-            {
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-                "filter_job_id": query.id,
-            },
-            2,
-        )
-        self.assertEqual(res[0].start, self.small_vars[3].start)
-        self.assertEqual(res[1].start, self.small_vars[4].start)
-
-
-class TestClinvarCompHetQueryQuintet(SupportQueryTestBase):
-    """Test the queries for compound recessive heterozygous hypothesis with grandparents."""
-
-    def setUp(self):
-        """Create a quartet case with 4 variants and make sure the coordinates in the same gene are on the same chromosome."""
-        super().setUp()
-        self.variant_set = SmallVariantSetFactory(case__structure="quintet")
-        self.case = self.variant_set.case
-        self.small_vars = [
-            SmallVariantFactory(
-                chromosome=3,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    # self.case.pedigree[1]["patient"] is self.case.pedigree[0]["father"]
-                    self.case.pedigree[1]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[1]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                },
-                refseq_gene_id="3",
-                ensembl_gene_id="ENSG3",
-                variant_set=self.variant_set,
-                in_clinvar=True,
-            ),
-            SmallVariantFactory(
-                chromosome=3,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    # self.case.pedigree[1]["patient"] is self.case.pedigree[0]["father"]
-                    self.case.pedigree[1]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[1]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                },
-                variant_set=self.variant_set,
-                refseq_gene_id="3",
-                ensembl_gene_id="ENSG3",
-                in_clinvar=True,
-            ),
-            SmallVariantFactory(
-                chromosome=4,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    # self.case.pedigree[1]["patient"] is self.case.pedigree[0]["father"]
-                    self.case.pedigree[1]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[1]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                },
-                refseq_gene_id="4",
-                ensembl_gene_id="ENSG4",
-                variant_set=self.variant_set,
-                in_clinvar=True,
-            ),
-            SmallVariantFactory(
-                chromosome=4,
-                genotype={
-                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    self.case.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                    # self.case.pedigree[1]["patient"] is self.case.pedigree[0]["father"]
-                    self.case.pedigree[1]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
-                    self.case.pedigree[1]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
-                },
-                variant_set=self.variant_set,
-                refseq_gene_id="4",
-                ensembl_gene_id="ENSG4",
-                in_clinvar=True,
-            ),
-        ]
-        for small_var in self.small_vars:
-            if small_var.in_clinvar:
-                ClinvarFactory(
-                    release=small_var.release,
-                    chromosome=small_var.chromosome,
-                    start=small_var.start,
-                    end=small_var.end,
-                    bin=small_var.bin,
-                    reference=small_var.reference,
-                    alternative=small_var.alternative,
-                )
-
-    def test_query_index_compound_het_prefetch_filter(self):
-        res = self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
-            2,
-        )
-        self.assertEqual(res[0].start, self.small_vars[0].start)
-        self.assertEqual(res[1].start, self.small_vars[1].start)
-
-    def test_query_index_compound_het_load_prefetched_filter(self):
-        # Generate results
-        res = self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"compound_recessive_index": self.case.pedigree[0]["patient"]},
-            2,
-        )
-        # Add results to variant query
-        query = ClinvarQueryFactory(case=self.case)
-        query.query_results.add(res[0].id, res[1].id)
-        # Load Prefetched results
-        res = self.run_query(
-            ClinvarReportLoadPrefetchedQuery,
-            {
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
-                "filter_job_id": query.id,
-            },
-            2,
-        )
-        self.assertEqual(res[0].start, self.small_vars[0].start)
-        self.assertEqual(res[1].start, self.small_vars[1].start)
-
-    def test_query_father_compound_het_prefetch_filter(self):
-        res = self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"compound_recessive_index": self.case.pedigree[1]["patient"]},
-            2,
-        )
-        self.assertEqual(res[0].start, self.small_vars[2].start)
-        self.assertEqual(res[1].start, self.small_vars[3].start)
-
-    def test_query_father_compound_het_load_prefetched_filter(self):
-        # Generate results
-        res = self.run_query(
-            ClinvarReportPrefetchQuery,
-            {"compound_recessive_index": self.case.pedigree[1]["patient"]},
-            2,
-        )
-        # Add results to variant query
-        query = ClinvarQueryFactory(case=self.case)
-        query.query_results.add(res[0].id, res[1].id)
-        # Load Prefetched results
-        res = self.run_query(
-            ClinvarReportLoadPrefetchedQuery,
-            {
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
-                "filter_job_id": query.id,
-            },
-            2,
-        )
-        self.assertEqual(res[0].start, self.small_vars[2].start)
-        self.assertEqual(res[1].start, self.small_vars[3].start)
 
 
 class TestCaseFiveQueryProject(SupportQueryTestBase):

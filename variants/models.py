@@ -2,7 +2,6 @@ import contextlib
 import tempfile
 from datetime import datetime, timedelta
 import json
-from functools import reduce
 
 import aldjemy
 import binning
@@ -265,7 +264,7 @@ class SmallVariant(models.Model):
             # know that it helps.
             GinIndex(fields=["case_id", "refseq_effect"]),
             GinIndex(fields=["case_id", "ensembl_effect"]),
-            models.Index(fields=["set_id", "in_clinvar"]),
+            models.Index(fields=["case_id", "in_clinvar"]),
             # Fast white-list queries of gene.
             models.Index(fields=["case_id", "ensembl_gene_id"]),
             models.Index(fields=["case_id", "refseq_gene_id"]),
@@ -1238,19 +1237,6 @@ class SmallVariantQuery(SmallVariantQueryBase):
     )
 
 
-class ClinvarQuery(SmallVariantQueryBase):
-    """Allow saving of clinvar queries.
-    """
-
-    #: The related case.
-    case = models.ForeignKey(
-        Case,
-        null=False,
-        related_name="clinvar_queries",
-        help_text="The case that the query relates to",
-    )
-
-
 class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):
     """Allow saving of whole-project queries to the ``SmallVariant`` model.
 
@@ -1364,43 +1350,6 @@ class FilterBgJob(JobModelMessageMixin, models.Model):
     def get_absolute_url(self):
         return reverse(
             "variants:filter-job-detail",
-            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
-        )
-
-
-class ClinvarBgJob(JobModelMessageMixin, models.Model):
-    """Background job for processing clinvar filter query and storing query results in table SmallVariantQueryBase."""
-
-    #: Task description for logging.
-    task_desc = "Clinvar query and store results"
-
-    #: String identifying model in BackgroundJob.
-    spec_name = "variants.clinvar_bg_job"
-
-    #: Fields required by SODAR
-    sodar_uuid = models.UUIDField(
-        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
-    )
-    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
-
-    bg_job = models.ForeignKey(
-        BackgroundJob,
-        null=False,
-        related_name="clinvar_bg_job",
-        help_text="Background job for clinvar filtering and storing query results",
-    )
-
-    case = models.ForeignKey(Case, null=False, help_text="The case to filter")
-
-    #: Link to the smallvariantquery object. Holds query arguments and results
-    clinvarquery = models.ForeignKey(ClinvarQuery, null=False, help_text="Query that is executed.")
-
-    def get_human_readable_type(self):
-        return "Clinvar query results"
-
-    def get_absolute_url(self):
-        return reverse(
-            "variants:clinvar-job-detail",
             kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
         )
 
@@ -1887,6 +1836,39 @@ def variant_scores(variants):
     for var, scores in res.json().get("scores", {}).items():
         chrom, pos, ref, alt = var.split("-")
         yield "GRCh37", chrom, int(pos), ref, alt, scores[1]
+
+
+# TODO: Improve wrapper
+class RowWithClinvarMax(wrapt.ObjectProxy):
+    """Wrap a result row and add members for clinvar max status and max significance."""
+
+    def __init__(self, obj):
+        super().__init__(obj)
+        self._self_max_clinvar_status = None
+        self._self_max_significance = None
+        self._self_max_all_traits = None
+
+    @property
+    def max_clinvar_status(self):
+        return self._self_max_clinvar_status
+
+    @property
+    def max_significance(self):
+        return self._self_max_significance
+
+    @property
+    def max_all_traits(self):
+        return self._self_max_all_traits
+
+    def __getitem__(self, key):
+        if key == "max_clinvar_status":
+            return self.max_clinvar_status
+        elif key == "max_significance":
+            return self.max_significance
+        elif key == "max_all_traits":
+            return self.max_all_traits
+        else:
+            return self.__wrapped__.__getitem__(key)
 
 
 class AcmgCriteriaRating(models.Model):

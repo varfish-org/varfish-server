@@ -34,7 +34,7 @@
   <td></td>
   {% endif %}
   {# databases #}
-  <td style="width: 0px" class="pl-20pr-0 text-nowrap">
+  <td style="width: 0px" class="pl-2 pr-0 text-nowrap">
     {# dbSNP Indicator #}
     {% if entry.rsid %}
       <a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ entry.rsid|slice:'2:' }}">
@@ -53,7 +53,7 @@
     {% include "variants/filter_result/clinvar_indicator.html" %}
     {% include "variants/filter_result/hgmd_public_indicator.html" %}
   </td>
-  <td style="width: 120px;" class="pl-2 detail-info-coordinates">
+  <td style="width: 120px;" class="pl-2 detail-info-coordinates" data-order="{{ entry.chromosome_no|stringformat:"02d" }}-{{ entry.start|stringformat:"09d" }}">
     <div>
       chr{{ entry.chromosome }}:{{ entry.start|intcomma }}
     </div>
@@ -68,15 +68,36 @@
       {{ entry.alternative }}
     </div>
   </td>
-  <td style="width: 50px;" class="pl-2 detail-info-clinvar">
-    stars
+  <td style="width: 50px;" class="pl-2 detail-info-clinvar" data-order="{% if entry.max_significance %}{{ entry.max_significance|significance_importance }}-{{ entry.max_clinvar_status|status_importance }}{% else %}9-9{% endif %}">
+    {% if entry.max_significance %}
+        <span class="badge-group">
+          <span class="badge badge-{{ entry.max_significance|significance_color }}">
+            {{ entry.max_significance|significance_text }}
+          </span>
+          <span class="badge badge-dark" data-toggle="tooltip" data-placement="top" title="{{ entry.max_clinvar_status }}">
+            {% for i in "1234" %}
+              {% if forloop.counter <= entry.max_clinvar_status|status_stars %}
+                <i class="fa fa-star"></i>
+              {% else %}
+                <i class="fa fa-star-o"></i>
+              {% endif %}
+            {% endfor %}
+          </span>
+        </span>
+    {% else %}
+        -
+    {% endif %}
   </td>
-  <td style="width: 50px;" class="pl-2 detail-info-clinvar">
-    patho.
+  <td style="max-width: 80px;" class="pl-2 detail-info-clinvar">
+    <div class="sodar-overflow-container sodar-overflow-hover">
+        {% if entry.max_all_traits %}
+            {{ entry.max_all_traits|join:"; " }}
+        {% else %}
+            -
+        {% endif %}
+    </div>
   </td>
-  <td style="width: 120px;" class="pl-2 detail-info-clinvar">
-    phenotype
-  </td>
+  <td class="detail-info-clinvar p-0"></td>
   <td class="detail-frequencies-exac">
     {{ entry.exac_frequency|floatformat:5|default:"-" }}
     {% if warning %}
@@ -140,8 +161,7 @@
   <td class="detail-constraints-gnomad-z-syn text-right">
     {{ entry.gnomad_syn_z|floatformat:3|default:"-" }}
   </td>
-  <td class="pl-3 pr-3">
-    <nobr>
+  <td class="pl-3 pr-3 text-nowrap" data-order="{% if entry.symbol %}{% if entry.acmg_symbol %}0{% else %}1{% endif %}{% if entry.modes_of_inheritance %}0{% else %}1{% endif %}-{{ entry.symbol }}{% else %}~{% endif %}">
     {% if not entry.symbol %}
       -
     {% else %}
@@ -209,7 +229,6 @@
         <span class="badge badge-info" data-toggle="tooltip" title="{{ mode_of_inheritance|mode_of_inheritance_description }}">{{ mode_of_inheritance }}</span>
       {% endfor %}
     {% endif %}
-    </nobr>
   </td>
   {% if has_phenotype_scores %}
     <td class="text-right">

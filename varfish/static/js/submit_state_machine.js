@@ -382,9 +382,10 @@ function handleEventStateWaitJobResults(eventType, event) {
               "searching": false,
               "info": false,
               "paging": false,
+              "order": [[ 1, "asc" ]],
               'aoColumnDefs': [
                 {
-                  'aTargets': [0,2,3,-1], /* column index */
+                  'aTargets': [0,2,3,5,6,8,9,27,-1], /* column index */
                   'bSortable': false, /* true or false */
                 },
               ]

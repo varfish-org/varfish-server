@@ -8,18 +8,15 @@ from django.utils import timezone
 from projectroles.models import SODAR_CONSTANTS
 
 from bgjobs.tests.factories import BackgroundJobFactory
-from clinvar.tests.factories import ResubmitClinvarFormDataFactory
 from ..models import (
     Case,
     SmallVariant,
     SmallVariantQuery,
     ProjectCasesSmallVariantQuery,
     SmallVariantSummary,
-    ClinvarQuery,
     FilterBgJob,
     ProjectCasesFilterBgJob,
     CaseAwareProject,
-    ClinvarBgJob,
     DistillerSubmissionBgJob,
     ExportFileBgJob,
     ExportFileJobResult,
@@ -64,15 +61,17 @@ class FormDataFactoryBase:
     inhouse_homozygous: int = 0
     transcripts_coding: bool = True
     transcripts_noncoding: bool = True
-    require_in_clinvar: bool = False
     remove_if_in_dbsnp: bool = False
     require_in_hgmd_public: bool = False
     display_hgmd_public_membership: bool = False
+    require_in_clinvar: bool = False
     clinvar_include_benign: bool = False
     clinvar_include_likely_benign: bool = False
     clinvar_include_uncertain_significance: bool = False
-    clinvar_include_likely_pathogenic: bool = True
-    clinvar_include_pathogenic: bool = True
+    clinvar_include_likely_pathogenic: bool = False
+    clinvar_include_pathogenic: bool = False
+    clinvar_origin_germline: bool = False
+    clinvar_origin_somatic: bool = False
     compound_recessive_index: str = ""
 
     # This is a dummy attribute to generate the name-dependent fields.
@@ -470,20 +469,6 @@ class SmallVariantQueryFactory(factory.django.DjangoModelFactory):
     public = False
 
 
-class ClinvarQueryFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = ClinvarQuery
-
-    case = factory.SubFactory(CaseFactory)
-    form_id = factory.Sequence(lambda n: str(n))
-    form_version = factory.Sequence(lambda n: n)
-    query_settings = factory.LazyAttribute(
-        lambda o: vars(ResubmitClinvarFormDataFactory(names=o.case.get_members()))
-    )
-    name = factory.Sequence(lambda n: "ClinvarQuery%d" % n)
-    public = False
-
-
 class ProjectCasesSmallVariantQueryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ProjectCasesSmallVariantQuery
@@ -525,6 +510,9 @@ class SmallVariantSetFactory(factory.django.DjangoModelFactory):
     state = "active"
 
 
+CHROMOSOME_MAPPING = {str(chrom): i + 1 for i, chrom in enumerate(list(range(1, 23)) + ["X", "Y"])}
+
+
 class SmallVariantFactory(factory.django.DjangoModelFactory):
     """Factory for creating ``SmallVariant`` objects."""
 
@@ -537,8 +525,8 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
         genotypes = default_genotypes
 
     release = "GRCh37"
-    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
-    chromosome_no = factory.Iterator(list(range(1, 25)))
+    chromosome = factory.Iterator(list(CHROMOSOME_MAPPING.keys()))
+    chromosome_no = factory.LazyAttribute(lambda o: CHROMOSOME_MAPPING[o.chromosome])
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
     bin = 0
@@ -613,7 +601,7 @@ class SmallVariantSummaryFactory(factory.django.DjangoModelFactory):
         model = SmallVariantSummary
 
     release = "GRCh37"
-    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    chromosome = factory.Iterator(list(CHROMOSOME_MAPPING.keys()))
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
     bin = 0
@@ -649,29 +637,6 @@ class FilterBgJobFactory(factory.django.DjangoModelFactory):
     )
     smallvariantquery = factory.SubFactory(
         SmallVariantQueryFactory,
-        case=factory.SelfAttribute("factory_parent.case"),
-        user=factory.SelfAttribute("factory_parent.user"),
-    )
-
-
-class ClinvarBgJobFactory(factory.django.DjangoModelFactory):
-    """Factory for ``ClinvarBgJob`` model."""
-
-    class Meta:
-        model = ClinvarBgJob
-        exclude = ["user"]
-
-    # Dummy argument ``user`` to pass to subfactory BackgroundJobFactory
-    user = None
-    case = factory.SubFactory(CaseFactory)
-    project = factory.LazyAttribute(lambda o: o.case.project)
-    bg_job = factory.SubFactory(
-        BackgroundJobFactory,
-        project=factory.SelfAttribute("factory_parent.project"),
-        user=factory.SelfAttribute("factory_parent.user"),
-    )
-    clinvarquery = factory.SubFactory(
-        ClinvarQueryFactory,
         case=factory.SelfAttribute("factory_parent.case"),
         user=factory.SelfAttribute("factory_parent.user"),
     )
@@ -802,7 +767,7 @@ class SmallVariantFlagsFactory(factory.django.DjangoModelFactory):
         model = SmallVariantFlags
 
     release = "GRCh37"
-    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    chromosome = factory.Iterator(list(CHROMOSOME_MAPPING.keys()))
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
     bin = 0
@@ -831,7 +796,7 @@ class SmallVariantCommentFactory(factory.django.DjangoModelFactory):
         model = SmallVariantComment
 
     release = "GRCh37"
-    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    chromosome = factory.Iterator(list(CHROMOSOME_MAPPING.keys()))
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
     bin = 0

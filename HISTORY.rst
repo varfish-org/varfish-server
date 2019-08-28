@@ -11,6 +11,11 @@ End-User Summary
 
 - Improving QC plot performance.
 - Displaying case statistics in project list.
+- Removed ClinVar view and added alternative column switch to smallvariant results table.
+- ClinVar settings were extended to allow filtering for origin ``somatic`` and ``germline``.
+- When ClinVar membership is NOT required, variants that have origin ``somatic`` and no ``germline`` in ClinVar, are removed.
+- Improved sorting of results table for ``gene`` and chromosomal position column.
+- Fixed bug where settings of the previous query wasn't restored for certain fields.
 
 Full Change List
 ================
@@ -18,6 +23,15 @@ Full Change List
 - Using ``"scattergl"`` for QC plots which leads to a speedup.
 - Making the large tables ``UNLOGGED`` to improve bulk insertion performance.
 - Displaying case statistics in project list.
+- Removed ClinVar view and added alternative column switch to smallvariant results table.
+  All models, urls, views, queries and templates concerning ClinVar view were removed.
+  SmallVariant queries now join ClinVar information and display them via switch in the UI.
+- ClinVar settings were extended to allow filtering for origin ``somatic`` and ``germline``.
+- When ClinVar membership is NOT required, variants that have origin ``somatic`` and no ``germline`` in ClinVar, are removed.
+- Results table is now sortable by chromosome and position.
+  And by ``gene`` column using the following keys in that given order: ACMG membership, HPO inheritance term, gene name.
+  And by ``sign. & rating`` column using the following keys in that given order: significance, rating.
+- Fixed bug where settings of the previous query were overwritten by a JavaScript routine and appeared to be lost.
 
 -------
 v0.17.2

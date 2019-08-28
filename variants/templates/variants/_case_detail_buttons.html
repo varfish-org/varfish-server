@@ -6,10 +6,6 @@
     <i class="fa fa-filter"></i>
     Filter Case
   </a>
-  <a class="btn btn-primary" href="{% url "variants:case-clinvar" project=project.sodar_uuid case=object.sodar_uuid %}">
-    <i class="fa fa-hospital-o"></i>
-    ClinVar Report
-  </a>
 
   {% if svs_enabled %}
     <a class="btn btn-primary" href="{% url "svs:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">

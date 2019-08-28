@@ -7,17 +7,15 @@ from requests_mock import Mocker
 
 from test_plus.test import TestCase
 
-from clinvar.tests.factories import ClinvarFactory
 from variants.tests.factories import (
     SmallVariantSetFactory,
     SmallVariantFactory,
     FilterBgJobFactory,
-    ClinvarBgJobFactory,
     ProjectCasesFilterBgJobFactory,
     FormDataFactory,
 )
-from ..models import SmallVariantQuery, ProjectCasesSmallVariantQuery, ClinvarQuery
-from ..submit_filter import CaseFilter, ProjectCasesFilter, ClinvarFilter
+from ..models import SmallVariantQuery, ProjectCasesSmallVariantQuery
+from ..submit_filter import CaseFilter, ProjectCasesFilter
 from variants.models import SmallVariantQueryGeneScores
 from variants.models import SmallVariantQueryVariantScores
 from django.conf import settings
@@ -119,34 +117,3 @@ class ProjectCasesFilterTest(TestCase):
 
         self.assertEqual(ProjectCasesSmallVariantQuery.objects.count(), 1)
         self.assertEqual(ProjectCasesSmallVariantQuery.objects.first().query_results.count(), 6)
-
-
-class ClinvarFilterTest(TestCase):
-    """Test running clinvar filter job."""
-
-    def setUp(self):
-        super().setUp()
-        variant_set = SmallVariantSetFactory()
-        user = self.make_user("superuser")
-        SmallVariantFactory(variant_set=variant_set)
-        self.small_var = SmallVariantFactory(in_clinvar=True, variant_set=variant_set)
-        SmallVariantFactory(variant_set=variant_set)
-        ClinvarFactory(
-            release=self.small_var.release,
-            chromosome=self.small_var.chromosome,
-            start=self.small_var.start,
-            end=self.small_var.end,
-            bin=self.small_var.bin,
-            reference=self.small_var.reference,
-            alternative=self.small_var.alternative,
-        )
-        self.bgjob = ClinvarBgJobFactory(case=variant_set.case, user=user)
-
-    def test_submit_clinvar_filter(self):
-        ClinvarFilter(self.bgjob, self.bgjob.clinvarquery).run()
-
-        self.assertEqual(ClinvarQuery.objects.count(), 1)
-        self.assertEqual(ClinvarQuery.objects.first().query_results.count(), 1)
-        self.assertEqual(
-            ClinvarQuery.objects.first().query_results.first().start, self.small_var.start
-        )

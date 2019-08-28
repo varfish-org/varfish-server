@@ -11,7 +11,6 @@ from .models import (
     SmallVariantComment,
     FilterBgJob,
     ProjectCasesFilterBgJob,
-    ClinvarBgJob,
     SyncCaseListBgJob,
     SyncCaseResultMessage,
     ImportVariantsBgJob,
@@ -28,7 +27,6 @@ admin.site.register(SmallVariantComment)
 admin.site.register(SmallVariantQuery)
 admin.site.register(DistillerSubmissionBgJob)
 admin.site.register(FilterBgJob)
-admin.site.register(ClinvarBgJob)
 admin.site.register(ProjectCasesFilterBgJob)
 admin.site.register(SyncCaseListBgJob)
 admin.site.register(SyncCaseResultMessage)

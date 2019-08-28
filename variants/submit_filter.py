@@ -6,7 +6,7 @@ from django.conf import settings
 from projectroles.plugins import get_backend_api
 from variants.helpers import SQLALCHEMY_ENGINE
 from variants.models import prioritize_genes, variant_scores
-from .queries import CasePrefetchQuery, ProjectPrefetchQuery, ClinvarReportPrefetchQuery
+from .queries import CasePrefetchQuery, ProjectPrefetchQuery
 
 
 class FilterBase:
@@ -139,15 +139,6 @@ class ProjectCasesFilter(FilterBase):
         return ProjectPrefetchQuery(self.variant_query.project, self.get_alchemy_engine())
 
 
-class ClinvarFilter(FilterBase):
-    """Class for storing query results for clinvar.
-    """
-
-    def _get_assembled_query(self):
-        """Render clinvar query."""
-        return ClinvarReportPrefetchQuery(self.variant_query.case, self.get_alchemy_engine())
-
-
 def case_filter(job):
     """Execute query for a single case and store the results."""
     job.mark_start()
@@ -175,40 +166,6 @@ def case_filter(job):
                 "FAILED", "Filtering and storing query results failed for case {case_name}"
             )
         raise
-    else:
-        job.mark_success()
-        if timeline:
-            tl_event.set_status(
-                "OK", "Filtering and storing query results complete for case {case_name}"
-            )
-
-
-def clinvar_filter(job):
-    """Execute clinvar query and store results."""
-
-    job.mark_start()
-    timeline = get_backend_api("timeline_backend")
-    tl_event = None
-
-    if timeline:
-        tl_event = timeline.add_event(
-            project=job.project,
-            app_name="variants",
-            user=job.bg_job.user,
-            event_name="clinvar_filter",
-            description="run clinvar query and store results for case {case_name}",
-            status_type="INIT",
-        )
-        tl_event.add_object(obj=job.case, label="case_name", name=job.case.name)
-    try:
-        ClinvarFilter(job, job.clinvarquery).run()
-    except Exception as e:
-        job.mark_error(e)
-        if timeline:
-            tl_event.set_status(
-                "FAILED", "Filtering and storing query results failed for case {case_name}"
-            )
-            raise
     else:
         job.mark_success()
         if timeline:

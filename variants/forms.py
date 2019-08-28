@@ -458,125 +458,6 @@ class SmallVariantQualityFilterFormMixin:
             )
 
 
-class ClinvarForm(
-    SmallVariantGenotypeFilterFormMixin, SmallVariantFlagsFilterFormMixin, forms.Form
-):
-    """Form used for creating Clinvar report."""
-
-    #: Version of the form, used for versioning saved queries.
-    form_version = 1
-    #: Identifier of the form in database.
-    form_id = "variants.clinvar_form"
-
-    result_rows_limit = forms.IntegerField(
-        label="Result row limit",
-        required=True,
-        initial=500,
-        help_text=(
-            "Currently hard-coded limit when querying Clinvar. Report a bug if you need more than 500 rows."
-        ),
-        widget=forms.HiddenInput(),
-    )
-
-    clinvar_include_benign = forms.BooleanField(label="benign", required=False, initial=False)
-    clinvar_include_likely_benign = forms.BooleanField(
-        label="likely benign", required=False, initial=False
-    )
-    clinvar_include_uncertain_significance = forms.BooleanField(
-        label="uncertain significance", required=False, initial=True
-    )
-    clinvar_include_likely_pathogenic = forms.BooleanField(
-        label="likely pathogenic", required=False, initial=True
-    )
-    clinvar_include_pathogenic = forms.BooleanField(
-        label="pathogenic", required=False, initial=True
-    )
-
-    clinvar_origin_germline = forms.BooleanField(label="germline", required=False, initial=True)
-    clinvar_origin_somatic = forms.BooleanField(label="somatic", required=False, initial=False)
-
-    clinvar_status_practice_guideline = forms.BooleanField(
-        label="practice guideline (4 stars)", required=False, initial=True
-    )
-    clinvar_status_expert_panel = forms.BooleanField(
-        label="reviewed by expert panel (3 stars)", required=False, initial=True
-    )
-    clinvar_status_multiple_no_conflict = forms.BooleanField(
-        label="criteria provided, multiple submitters, no conflicts (2 stars)",
-        required=False,
-        initial=True,
-    )
-    clinvar_status_conflict = forms.BooleanField(
-        label="criteria provided, conflicting interpretations (1 stars)",
-        required=False,
-        initial=True,
-    )
-    clinvar_status_single = forms.BooleanField(
-        label="criteria provided, single submitter (1 stars)", required=False, initial=True
-    )
-    clinvar_status_no_criteria = forms.BooleanField(
-        label="no assertion criteria provided (0 stars)", required=False, initial=True
-    )
-    clinvar_status_no_assertion = forms.BooleanField(
-        label="no assertion provided (0 stars)", required=False, initial=True
-    )
-
-    require_in_clinvar = forms.BooleanField(
-        label="Clinvar membership required", required=False, initial=False
-    )
-
-    remove_if_in_dbsnp = forms.BooleanField(
-        label="Remove if in dbSNP", required=False, initial=False
-    )
-
-    require_in_hgmd_public = forms.BooleanField(
-        label="HGMD public membership required",
-        required=False,
-        initial=False,
-        help_text=(
-            "Require variant to be present in HGMD public (ENSEMBL track).  "
-            "Please note that this data is several years old!"
-        ),
-    )
-
-    DATABASE_SELECT_CHOICES = [("refseq", "RefSeq"), ("ensembl", "EnsEMBL")]
-    database_select = forms.ChoiceField(
-        choices=DATABASE_SELECT_CHOICES,
-        widget=forms.RadioSelect(),
-        initial=DATABASE_SELECT_CHOICES[0],
-    )
-
-    def __init__(self, *args, **kwargs):
-        self.case = kwargs.pop("case")
-        super().__init__(*args, **kwargs)
-        # Dynamically add the fields based on the pedigree
-        for member in self.get_pedigree_with_samples():
-            name = member["patient"]
-            self.fields[self.get_genotype_field_names()[name]["gt"]] = forms.CharField(
-                label="",
-                required=True,
-                widget=forms.Select(choices=INHERITANCE, attrs={"class": "genotype-field-gt"}),
-            )
-
-    def get_pedigree(self):
-        """Return ``list`` of ``dict`` with pedigree information."""
-        return self.case.pedigree
-
-    def get_pedigree_with_samples(self):
-        """Return ``list`` of ``dict`` with pedigree information of samples that have variants."""
-        return self.case.get_filtered_pedigree_with_samples()
-
-    @lru_cache()
-    def get_trio_roles(self):
-        """Get trior ole to member mapping"""
-        return self.case.get_trio_roles()
-
-    def clean(self):
-        result = super().clean()
-        result["display_hgmd_public_membership"] = True
-        return result
-
-
 class ExportFileResubmitForm(forms.Form):
     file_type = forms.ChoiceField(
         initial="xlsx",
@@ -1006,6 +887,14 @@ class SmallVariantClinvarHgmdFilterFormMixin:
             label="pathogenic", required=False, initial=False
         )
 
+        self.fields["clinvar_origin_somatic"] = forms.BooleanField(
+            label="somatic", required=False, initial=False
+        )
+
+        self.fields["clinvar_origin_germline"] = forms.BooleanField(
+            label="germline", required=False, initial=True
+        )
+
     def clean(self):
         """Translate effect field names into ``effects`` key list"""
         cleaned_data = super().clean()
@@ -1102,7 +991,7 @@ class GenomicRegionFilterFormMixin:
                 }
             ),
             required=False,
-            max_length=10_000,
+            max_length=10000,
         )
 
     def clean(self):

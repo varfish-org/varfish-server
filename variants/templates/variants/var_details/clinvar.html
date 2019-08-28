@@ -13,7 +13,7 @@
       </tr>
       {% for item in clinvar %}
       <tr>
-        <td>{{ item.all_traits|join:", " }}</td>
+        <td>{{ item.all_traits|join:"; " }}</td>
         <td>{{ item.clinical_significance }}</td>
       </tr>
       {% endfor %}

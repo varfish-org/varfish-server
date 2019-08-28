@@ -13,7 +13,6 @@ from .models import (
     ComputeProjectVariantsStatsBgJob,
     FilterBgJob,
     ProjectCasesFilterBgJob,
-    ClinvarBgJob,
     SyncCaseListBgJob,
     ImportVariantsBgJob,
 )
@@ -224,7 +223,6 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
         ExportProjectCasesFileBgJob.spec_name: ExportProjectCasesFileBgJob,
         FilterBgJob.spec_name: FilterBgJob,
         ProjectCasesFilterBgJob.spec_name: ProjectCasesFilterBgJob,
-        ClinvarBgJob.spec_name: ClinvarBgJob,
         SyncCaseListBgJob.spec_name: SyncCaseListBgJob,
         ImportVariantsBgJob.spec_name: ImportVariantsBgJob,
     }

@@ -13,11 +13,7 @@ from django.conf import settings
 
 from projectroles.models import Project, Role
 from projectroles.app_settings import AppSettingAPI
-from clinvar.tests.factories import (
-    ProcessedClinvarFormDataFactory,
-    ClinvarFormDataFactory,
-    ClinvarFactory,
-)
+from clinvar.tests.factories import ClinvarFactory
 from conservation.tests.factories import KnownGeneAAFactory
 from frequencies.tests.factories import (
     ThousandGenomesFactory,
@@ -45,7 +41,6 @@ from variants.models import (
     ComputeProjectVariantsStatsBgJob,
     SmallVariantFlags,
     SmallVariantComment,
-    ClinvarBgJob,
     AcmgCriteriaRating,
     SmallVariantSet,
 )
@@ -56,7 +51,6 @@ from variants.tests.factories import (
     FilterBgJobFactory,
     ProjectCasesFilterBgJobFactory,
     ProjectFactory,
-    ClinvarBgJobFactory,
     DistillerSubmissionBgJobFactory,
     ExportFileBgJobFactory,
     ExportFileJobResultFactory,
@@ -523,9 +517,33 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                 chromosome="1", refseq_gene_id="2234", variant_set=self.variant_set
             ),
             SmallVariantFactory(
-                chromosome="1", refseq_gene_id="2234", variant_set=self.variant_set
+                chromosome="1", refseq_gene_id="2234", variant_set=self.variant_set, in_clinvar=True
             ),
         ]
+        ClinvarFactory(
+            release=self.small_vars[-1].release,
+            chromosome=self.small_vars[-1].chromosome,
+            start=self.small_vars[-1].start,
+            end=self.small_vars[-1].end,
+            bin=self.small_vars[-1].bin,
+            reference=self.small_vars[-1].reference,
+            alternative=self.small_vars[-1].alternative,
+            clinical_significance="pathogenic",
+            clinical_significance_ordered=["pathogenic"],
+            pathogenic=1,
+        )
+        ClinvarFactory(
+            release=self.small_vars[-1].release,
+            chromosome=self.small_vars[-1].chromosome,
+            start=self.small_vars[-1].start,
+            end=self.small_vars[-1].end,
+            bin=self.small_vars[-1].bin,
+            reference=self.small_vars[-1].reference,
+            alternative=self.small_vars[-1].alternative,
+            clinical_significance="likely_pathogenic",
+            clinical_significance_ordered=["likely_pathogenic"],
+            likely_pathogenic=1,
+        )
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
         self.bgjob.smallvariantquery.query_results.add(self.small_vars[0], self.small_vars[2])
         self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [self.hpo_id]
@@ -547,6 +565,17 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.context["compound_recessive_index"], self.case.index)
             self.assertFalse(response.context["training_mode"])
             self.assertEqual(response.context["hpoterms"], {self.hpo_id: hpo_name.name})
+
+    def test_clinvar(self):
+        with self.login(self.user):
+            response = self.client.post(
+                reverse(
+                    "variants:case-load-filter-results",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                {"filter_job_uuid": self.bgjob.sodar_uuid},
+            )
+            self.assertEqual(response.context["result_rows"][1].max_significance, "pathogenic")
 
     def test_training_mode(self):
         with self.login(self.user):
@@ -1008,9 +1037,34 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
         variant_sets = SmallVariantSetFactory.create_batch(2, case__project=self.bgjob.project)
         small_vars = [
             *SmallVariantFactory.create_batch(3, variant_set=variant_sets[0]),
-            *SmallVariantFactory.create_batch(3, variant_set=variant_sets[1]),
+            *SmallVariantFactory.create_batch(2, variant_set=variant_sets[1]),
+            SmallVariantFactory(variant_set=variant_sets[1], in_clinvar=True),
         ]
         self.bgjob.projectcasessmallvariantquery.query_results.add(small_vars[0], *small_vars[2:6])
+        ClinvarFactory(
+            release=small_vars[-1].release,
+            chromosome=small_vars[-1].chromosome,
+            start=small_vars[-1].start,
+            end=small_vars[-1].end,
+            bin=small_vars[-1].bin,
+            reference=small_vars[-1].reference,
+            alternative=small_vars[-1].alternative,
+            clinical_significance="pathogenic",
+            clinical_significance_ordered=["pathogenic"],
+            pathogenic=1,
+        )
+        ClinvarFactory(
+            release=small_vars[-1].release,
+            chromosome=small_vars[-1].chromosome,
+            start=small_vars[-1].start,
+            end=small_vars[-1].end,
+            bin=small_vars[-1].bin,
+            reference=small_vars[-1].reference,
+            alternative=small_vars[-1].alternative,
+            clinical_significance="likely_pathogenic",
+            clinical_significance_ordered=["likely_pathogenic"],
+            likely_pathogenic=1,
+        )
 
     def test_count_results(self):
         with self.login(self.user):
@@ -1024,6 +1078,17 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context["result_count"], 5)
             self.assertEqual(len(response.context["result_rows"]), 5)
+
+    def test_clinvar(self):
+        with self.login(self.user):
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-load-filter-results",
+                    kwargs={"project": self.bgjob.project.sodar_uuid},
+                ),
+                {"filter_job_uuid": self.bgjob.sodar_uuid},
+            )
+            self.assertEqual(response.context["result_rows"][4].max_significance, "pathogenic")
 
 
 class TestProjectCasesFilterJobResubmitView(ViewTestBase):
@@ -1056,274 +1121,6 @@ class TestProjectCasesFilterJobResubmitView(ViewTestBase):
                     },
                 ),
             )
-
-
-class TestCaseClinvarReportView(ViewTestBase):
-    """Test case Clinvar report view"""
-
-    def setUp(self):
-        super().setUp()
-        self.bgjob = ClinvarBgJobFactory(user=self.user)
-
-    def test_get_renders_form(self):
-        """Test that GET returns the form"""
-        with self.login(self.user):
-            response = self.client.get(
-                reverse(
-                    "variants:case-clinvar",
-                    kwargs={
-                        "project": self.bgjob.case.project.sodar_uuid,
-                        "case": self.bgjob.case.sodar_uuid,
-                    },
-                )
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue(response.context[-1].get("form"))
-
-    def test_get_renders_form_with_given_job(self):
-        with self.login(self.user):
-            response = self.client.get(
-                reverse(
-                    "variants:case-clinvar-job",
-                    kwargs={
-                        "project": self.bgjob.case.project.sodar_uuid,
-                        "case": self.bgjob.case.sodar_uuid,
-                        "job": self.bgjob.sodar_uuid,
-                    },
-                ),
-                vars(ProcessedClinvarFormDataFactory(names=self.bgjob.case.get_members())),
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue(response.context[-1].get("form"))
-
-
-class TestCasePrefetchClinvarReportView(ViewTestBase):
-    """Test CasePrefetchClinvarReportView"""
-
-    def setUp(self):
-        super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
-
-    def test_get_job_id(self):
-        """Test that an appropriate POST returns a report"""
-        with self.login(self.user):
-            response = self.client.post(
-                reverse(
-                    "variants:clinvar-results",
-                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
-                ),
-                vars(ClinvarFormDataFactory(names=self.case.get_members())),
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(
-                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
-                str(ClinvarBgJob.objects.last().sodar_uuid),
-            )
-
-    def test_form_error(self):
-        with self.login(self.user):
-            response = self.client.post(
-                reverse(
-                    "variants:clinvar-results",
-                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
-                ),
-                vars(
-                    ClinvarFormDataFactory(
-                        result_rows_limit="I'm supposed to be an integer!",
-                        names=self.case.get_members(),
-                    )
-                ),
-            )
-            self.assertEqual(response.status_code, 400)
-
-    def test_variant_set_missing(self):
-        SmallVariantSet.objects.all().delete()
-        with self.login(self.user), self.assertRaises(RuntimeError):
-            self.client.post(
-                reverse(
-                    "variants:clinvar-results",
-                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
-                ),
-                vars(ClinvarFormDataFactory(names=self.case.get_members())),
-            )
-
-
-class TestClinvarReportJobDetailView(ViewTestBase):
-    """Test ClinvarReportJobDetailView"""
-
-    def setUp(self):
-        super().setUp()
-        self.bgjob = ClinvarBgJobFactory(user=self.user)
-
-    def test_status_code_200(self):
-        with self.login(self.user):
-            response = self.client.get(
-                reverse(
-                    "variants:clinvar-job-detail",
-                    kwargs={"project": self.bgjob.project.sodar_uuid, "job": self.bgjob.sodar_uuid},
-                )
-            )
-            self.assertEqual(response.status_code, 200)
-
-
-class TestClinvarReportJobResubmitView(ViewTestBase):
-    """Test ClinvarReportJobResubmitView"""
-
-    def setUp(self):
-        super().setUp()
-        self.bgjob = ClinvarBgJobFactory(user=self.user)
-        SmallVariantSetFactory(case=self.bgjob.case)
-
-    def test_redirect(self):
-        with self.login(self.user):
-            response = self.client.post(
-                reverse(
-                    "variants:clinvar-job-resubmit",
-                    kwargs={"project": self.bgjob.project.sodar_uuid, "job": self.bgjob.sodar_uuid},
-                )
-            )
-            created_job = ClinvarBgJob.objects.last()
-            self.assertRedirects(
-                response,
-                reverse(
-                    "variants:clinvar-job-detail",
-                    kwargs={
-                        "project": created_job.project.sodar_uuid,
-                        "job": created_job.sodar_uuid,
-                    },
-                ),
-            )
-
-
-class TestCaseLoadPrefetchedClinvarReportView(ViewTestBase):
-    """Test CaseLoadPrefetchedClinvarReportView"""
-
-    def setUp(self):
-        super().setUp()
-        variant_set = SmallVariantSetFactory()
-        self.case = variant_set.case
-        self.bgjob = ClinvarBgJobFactory(user=self.user, case=self.case)
-        small_var = SmallVariantFactory(in_clinvar=True, variant_set=variant_set)
-        # Create two entries in the same position to test the grouping.
-        # First record: \wo any significance information (such record doesn't exist in clinvar).
-        ClinvarFactory(
-            release=small_var.release,
-            chromosome=small_var.chromosome,
-            start=small_var.start,
-            end=small_var.end,
-            bin=small_var.bin,
-            reference=small_var.reference,
-            alternative=small_var.alternative,
-            clinical_significance_ordered=[],
-            review_status_ordered=[],
-        )
-        # Second record: \w significance information
-        ClinvarFactory(
-            release=small_var.release,
-            chromosome=small_var.chromosome,
-            start=small_var.start,
-            end=small_var.end,
-            bin=small_var.bin,
-            reference=small_var.reference,
-            alternative=small_var.alternative,
-            clinical_significance_ordered=["pathogenic", "likely_pathogenic"],
-            review_status_ordered=["practice guideline", "practice guideline"],
-        )
-        self.bgjob.clinvarquery.query_results.add(small_var)
-
-    def test_count_results(self):
-        with self.login(self.user):
-            response = self.client.post(
-                reverse(
-                    "variants:load-clinvar-results",
-                    kwargs={
-                        "project": self.bgjob.case.project.sodar_uuid,
-                        "case": self.bgjob.case.sodar_uuid,
-                    },
-                ),
-                {"filter_job_uuid": self.bgjob.sodar_uuid},
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.context["result_count"], 1)
-            self.assertEqual(response.context["result_rows"][0]["max_significance"], "pathogenic")
-
-
-class TestCaseClinvarReportJobGetStatus(ViewTestBase):
-    """Test CaseLoadPrefetchedClinvarReportView"""
-
-    def setUp(self):
-        super().setUp()
-        self.bgjob = ClinvarBgJobFactory(user=self.user)
-
-    def test_getting_status_valid_uuid(self):
-        with self.login(self.user):
-            response = self.client.post(
-                reverse(
-                    "variants:clinvar-job-status", kwargs={"project": self.bgjob.project.sodar_uuid}
-                ),
-                {"filter_job_uuid": self.bgjob.sodar_uuid},
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(json.loads(response.content.decode("utf-8"))["status"], "initial")
-
-    def test_getting_status_invalid_uuid(self):
-        with self.login(self.user):
-            response = self.client.post(
-                reverse(
-                    "variants:clinvar-job-status", kwargs={"project": self.bgjob.project.sodar_uuid}
-                ),
-                {"filter_job_uuid": "cccccccc-cccc-cccc-cccc-cccccccccccc"},
-            )
-            self.assertEqual(response.status_code, 400)
-            self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
-
-    def test_getting_status_missing_uuid(self):
-        with self.login(self.user):
-            response = self.client.post(
-                reverse(
-                    "variants:clinvar-job-status", kwargs={"project": self.bgjob.project.sodar_uuid}
-                ),
-                {"filter_job_uuid": None},
-            )
-            self.assertEqual(response.status_code, 400)
-            self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
-
-
-class TestCaseClinvarReportJobGetPrevious(ViewTestBase):
-    """Test CaseLoadPrefetchedClinvarReportView"""
-
-    def setUp(self):
-        super().setUp()
-        self.bgjob = ClinvarBgJobFactory(user=self.user)
-
-    def test_getting_previous_job_existing(self):
-        with self.login(self.user):
-            response = self.client.get(
-                reverse(
-                    "variants:clinvar-job-previous",
-                    kwargs={
-                        "project": self.bgjob.project.sodar_uuid,
-                        "case": self.bgjob.case.sodar_uuid,
-                    },
-                )
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(
-                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
-                str(self.bgjob.sodar_uuid),
-            )
-
-    def test_getting_previous_job_non_existing(self):
-        with self.login(self.user):
-            project = self.bgjob.project.sodar_uuid
-            case = self.bgjob.case.sodar_uuid
-            self.bgjob.delete()
-            response = self.client.get(
-                reverse("variants:clinvar-job-previous", kwargs={"project": project, "case": case})
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(json.loads(response.content.decode("utf-8"))["filter_job_uuid"], None)
 
 
 class TestDistillerSubmissionJobDetailView(ViewTestBase):

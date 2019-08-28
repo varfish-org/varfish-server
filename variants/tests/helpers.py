@@ -4,7 +4,6 @@ import aldjemy.core
 from django.test import RequestFactory
 from test_plus.test import TestCase
 
-from clinvar.tests.factories import ProcessedClinvarFormDataFactory
 from .factories import ProcessedFormDataFactory
 from ..models import Case, CaseAwareProject
 from variants.helpers import SQLALCHEMY_ENGINE
@@ -68,7 +67,6 @@ class SupportQueryTestBase(TestBase):
                 obj = CaseAwareProject.objects.first()
             patched_cleaned_data = {
                 **vars(ProcessedFormDataFactory(names=obj.get_members())),
-                **vars(ProcessedClinvarFormDataFactory(names=obj.get_members())),
                 **cleaned_data_patch,
             }
             previous_query = patched_cleaned_data.get("filter_job_id", None)
