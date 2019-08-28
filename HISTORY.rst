@@ -9,11 +9,13 @@ HEAD (unreleased)
 End-User Summary
 ================
 
+- Improving QC plot performance.
 - Displaying case statistics in project list.
 
 Full Change List
 ================
 
+- Using ``"scattergl"`` for QC plots which leads to a speedup.
 - Making the large tables ``UNLOGGED`` to improve bulk insertion performance.
 - Displaying case statistics in project list.
 

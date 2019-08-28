@@ -181,7 +181,7 @@ function plotlyRelatedness(response, containerId) {
   const scatterPlotData = []
   if (clsRelData.sibSib.x.length) {
     scatterPlotData.push({
-      type: "scatter",
+      type: "scattergl",
       mode: "markers",
       name: "sibling-sibling",
       hoverinfo: "text",
@@ -202,7 +202,7 @@ function plotlyRelatedness(response, containerId) {
   }
   if (clsRelData.parentChild.x.length) {
     scatterPlotData.push({
-      type: "scatter",
+      type: "scattergl",
       mode: "markers",
       name: "parent-child",
       hoverinfo: "text",
@@ -223,7 +223,7 @@ function plotlyRelatedness(response, containerId) {
   }
   if (clsRelData.other.x.length) {
     scatterPlotData.push({
-      type: "scatter",
+      type: "scattergl",
       mode: "markers",
       name: "other",
       hoverinfo: "text",
@@ -313,7 +313,7 @@ function plotlySexChrxHetHom(response, containerId) {
     })
 
   const scatter = {
-    type: "scatter",
+    type: "scattergl",
     mode: "markers",
     hoverinfo: "text",
   }
@@ -431,7 +431,7 @@ function plotlyVarDps(response, containerId) {
   }
 
   const scatter = {
-    type: "scatter",
+    type: "scattergl",
     mode: "markers",
     hoverinfo: "text",
   }
