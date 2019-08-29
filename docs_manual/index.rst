@@ -48,7 +48,6 @@ The VarFish logo is created from an `SVG Repo Image <https://www.svgrepo.com/svg
     variants_project_wide
     variants_flagging
     variants_comments
-    variants_flagging
 
 .. toctree::
     :maxdepth: 1

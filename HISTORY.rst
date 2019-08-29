@@ -49,6 +49,7 @@ End-User Summary
 - Fixing QC display issues for cases without variants.
 - Fixing UI error where tab wasn't selectable after invalid data input.
 - Improving gene and variant detail display.
+- Adding installation manual.
 
 Full Change List
 ================
@@ -59,6 +60,7 @@ Full Change List
 - Fixing QC display issues for cases without variants.
 - Fixing UI error where tab wasn't selectable after invalid data input.
 - Improving gene and variant detail display.
+- Adding installation manual.
 
 -------
 v0.17.0
@@ -106,11 +108,15 @@ Full Change List
 - Added management command ``rebuild_project_case_stats`` to rebuild stats of all cases of a given project.
 - Import of database tables now handles non-existing entries in a more logical way.
 - Making variant partion count come from environment variable (#368).
+<<<<<<< 3d364d66820c6e5fdef7f521d23d6088a1b2bb81
 - Renamed ``index`` field in genotype dropdown to ``c/h index`` to indicate comp het mode.
 - Fixed bug that replaced missing form fields in old queries with default settings.
 - Merged ``import_sv_dbs`` into ``import_tables`` manage command.
 - Fixing bug in retreiving comments on structural variants.
 - Fixing recomputation of variant stats that now properly handles json decoding.
+=======
+- Adding installation manual.
+>>>>>>> Starting out with installation manual.
 
 -------
 v0.16.1
