@@ -18,6 +18,7 @@ End-User Summary
 - Fixed bug where settings of the previous query wasn't restored for certain fields.
 - Fixed bug where ClinVar data could break rendering of results table template.
 - Improved speed of queries.
+- Invalid form data now more prominently placed.
 
 Full Change List
 ================
@@ -36,6 +37,7 @@ Full Change List
 - Fixed bug where settings of the previous query were overwritten by a JavaScript routine and appeared to be lost.
 - Fixed bug where unexpected ClinVar significance crashed the template tags.
 - Added index on ``human_entrez_id`` field to ``MgiMapping`` materialized view to speed up the join to the results table.
+- Invalid form data is now displayed as boxes rather than tooltips.
 
 -------
 v0.17.2

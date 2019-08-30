@@ -168,8 +168,8 @@ function stopTimer() {
 function doVisualErrorResponseOnTabs(data) {
   $.each(data, function(element_name, error_texts) {
     let tabs = findTabToInput(element_name);
-    $.each(tabs, function(index, tab) {
-      $("#" + tab).addClass("border border-danger");
+    $.each(tabs, function(index, tab_name) {
+      $("#" + tab_name).addClass("border border-danger form-error-border");
     });
   });
 }
@@ -181,22 +181,17 @@ function doVisualErrorResponseOnForms(data) {
     $.each(error_texts, function(index, error) {
       text += error + "<br />";
     });
-    element.addClass("border border-danger");
-    element.attr('data-toggle', 'tooltip');
-    element.attr('data-original-title', text);
-    element.attr('data-html', 'true');
-    element.tooltip({trigger : 'hover', container: 'body'});
+    element.addClass("border border-danger form-error-border");
+    element.after("<div class='alert alert-danger form-error-info' role='alert'>" + text + "</div>");
   });
 }
 
 function removeVisualErrorResponse() {
-  $(".border, .border-danger").each(function(index) {
-    $(this).removeClass("border border-danger");
-    if (!$(this).attr("id").endsWith("-tab")) {
-      $(this).removeAttr('data-toggle');
-      $(this).removeAttr("data-original-title");
-      $(this).removeAttr("data-html");
-    }
+  $(".form-error-border").each(function(index) {
+    $(this).removeClass("border border-danger form-error-border");
+  });
+  $(".form-error-info").each(function(index) {
+    $(this).remove();
   });
 }
 
