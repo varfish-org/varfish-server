@@ -16,6 +16,7 @@ End-User Summary
 - When ClinVar membership is NOT required, variants that have origin ``somatic`` and no ``germline`` in ClinVar, are removed.
 - Improved sorting of results table for ``gene`` and chromosomal position column.
 - Fixed bug where settings of the previous query wasn't restored for certain fields.
+- Fixed bug where ClinVar data could break rendering of results table template.
 
 Full Change List
 ================
@@ -32,6 +33,7 @@ Full Change List
   And by ``gene`` column using the following keys in that given order: ACMG membership, HPO inheritance term, gene name.
   And by ``sign. & rating`` column using the following keys in that given order: significance, rating.
 - Fixed bug where settings of the previous query were overwritten by a JavaScript routine and appeared to be lost.
+- Fixed bug where unexpected ClinVar significance crashed the template tags.
 
 -------
 v0.17.2

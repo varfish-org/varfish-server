@@ -79,7 +79,9 @@ def status_stars(status):
 
 @register.filter
 def status_importance(status):
-    return list(STARS.keys()).index(status)
+    if STARS.get(status):
+        return list(STARS.keys()).index(status)
+    return len(STARS)
 
 
 #: Clinvar significance to colour.
@@ -114,7 +116,9 @@ def significance_color(sig):
 
 @register.filter
 def significance_importance(sig):
-    return list(SIGNIFICANCE.keys()).index(sig)
+    if SIGNIFICANCE.get(sig):
+        return list(SIGNIFICANCE.keys()).index(sig)
+    return len(SIGNIFICANCE)
 
 
 @register.filter
