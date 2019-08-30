@@ -19,6 +19,7 @@ End-User Summary
 - Fixed bug where ClinVar data could break rendering of results table template.
 - Improved speed of queries.
 - Invalid form data now more prominently placed.
+- Improved joining of HGNC information for refseq transcripts to not ignore borderd cases.
 
 Full Change List
 ================
@@ -38,6 +39,7 @@ Full Change List
 - Fixed bug where unexpected ClinVar significance crashed the template tags.
 - Added index on ``human_entrez_id`` field to ``MgiMapping`` materialized view to speed up the join to the results table.
 - Invalid form data is now displayed as boxes rather than tooltips.
+- Joining of the HGNC information for RefSeq transcripts additionally directly via HGNC to improve results.
 
 -------
 v0.17.2

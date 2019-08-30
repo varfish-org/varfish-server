@@ -232,7 +232,10 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
                 .lateral("refseqtohgnc_subquery")
             )
             group = Hgnc.sa.entrez_id
-            link = self.subquery_refseqtohgnc.c.hgnc_id == Hgnc.sa.hgnc_id
+            link = or_(
+                self.subquery_refseqtohgnc.c.hgnc_id == Hgnc.sa.hgnc_id,
+                SmallVariant.sa.refseq_gene_id == Hgnc.sa.entrez_id,
+            )
         else:
             group = Hgnc.sa.ensembl_gene_id
             link = SmallVariant.sa.ensembl_gene_id == group
