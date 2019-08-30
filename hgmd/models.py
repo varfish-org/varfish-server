@@ -31,7 +31,7 @@ class HgmdPublicLocus(models.Model):
     objects = CopyManager()
 
     class Meta:
-        indexes = [models.Index(fields=["release", "chromosome", "start"])]
+        indexes = [models.Index(fields=["release", "chromosome", "start", "end"])]
 
     def __str__(self):
         """String representation, e.g., used in Django admin."""
