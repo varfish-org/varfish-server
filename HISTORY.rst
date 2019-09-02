@@ -20,6 +20,7 @@ End-User Summary
 - Improved speed of queries.
 - Invalid form data now more prominently placed.
 - Improved joining of HGNC information for refseq transcripts to not ignore borderd cases.
+- Max AD field in quality filter is now also applied to genotype 0/0.
 
 Full Change List
 ================
@@ -40,6 +41,7 @@ Full Change List
 - Added index on ``human_entrez_id`` field to ``MgiMapping`` materialized view to speed up the join to the results table.
 - Invalid form data is now displayed as boxes rather than tooltips.
 - Joining of the HGNC information for RefSeq transcripts additionally directly via HGNC to improve results.
+- Max AD field in quality filter is now also applied to genotype 0/0.
 
 -------
 v0.17.2

@@ -561,12 +561,10 @@ class ExtendQueryPartsGenotypeBase(ExtendQueryPartsBase):
                 self.model.sa.genotype[name]["gt"].astext == "0",
                 and_(
                     self.model.sa.genotype[name]["ad"].astext.cast(Integer)
-                    >= self.kwargs["%s_ad" % name],
-                    self.model.sa.genotype[name]["ad"].astext.cast(Integer) <= ad_max
-                    if ad_max
-                    else True,
+                    >= self.kwargs["%s_ad" % name]
                 ),
             ),
+            self.model.sa.genotype[name]["ad"].astext.cast(Integer) <= ad_max if ad_max else True,
             # Allelic balance is somewhat complicated
             and_(
                 self.model.sa.genotype[name]["dp"].astext.cast(Integer) > 0,

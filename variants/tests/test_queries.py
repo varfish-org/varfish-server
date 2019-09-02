@@ -1495,7 +1495,7 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
             variant_set=variant_set,
         )
         SmallVariantFactory(
-            genotype={self.patient: {"ad": 0, "dp": 30, "gq": 99, "gt": "0/0"}},
+            genotype={self.patient: {"ad": 10, "dp": 30, "gq": 99, "gt": "0/0"}},
             variant_set=variant_set,
         )
         SmallVariantFactory(
@@ -1613,6 +1613,11 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
             {"%s_fail" % self.patient: "drop-variant", "%s_ad_max" % self.patient: 10},
             4,
         )
+        self.run_query(
+            CasePrefetchQuery,
+            {"%s_fail" % self.patient: "drop-variant", "%s_ad_max" % self.patient: 9},
+            3,
+        )
 
     def test_genotype_ad_max_limits_export(self):
         self.run_query(
@@ -1620,12 +1625,22 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
             {"%s_fail" % self.patient: "drop-variant", "%s_ad_max" % self.patient: 10},
             4,
         )
+        self.run_query(
+            CaseExportTableQuery,
+            {"%s_fail" % self.patient: "drop-variant", "%s_ad_max" % self.patient: 9},
+            3,
+        )
 
     def test_genotype_ad_max_limits_vcf(self):
         self.run_query(
             CaseExportVcfQuery,
             {"%s_fail" % self.patient: "drop-variant", "%s_ad_max" % self.patient: 10},
             4,
+        )
+        self.run_query(
+            CaseExportVcfQuery,
+            {"%s_fail" % self.patient: "drop-variant", "%s_ad_max" % self.patient: 9},
+            3,
         )
 
     def test_genotype_ab_limits_filter(self):
