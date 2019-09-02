@@ -21,6 +21,7 @@ End-User Summary
 - Invalid form data now more prominently placed.
 - Improved joining of HGNC information for refseq transcripts to not ignore borderd cases.
 - Max AD field in quality filter is now also applied to genotype 0/0.
+- Minor fixes in case overview comments/flags/acmg tables.
 
 Full Change List
 ================
@@ -42,6 +43,7 @@ Full Change List
 - Invalid form data is now displayed as boxes rather than tooltips.
 - Joining of the HGNC information for RefSeq transcripts additionally directly via HGNC to improve results.
 - Max AD field in quality filter is now also applied to genotype 0/0.
+- Minor fixes in case overview comments/flags/acmg tables.
 
 -------
 v0.17.2
