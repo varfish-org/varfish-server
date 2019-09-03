@@ -22,6 +22,7 @@ End-User Summary
 - Improved joining of HGNC information for refseq transcripts to not ignore borderd cases.
 - Max AD field in quality filter is now also applied to genotype 0/0.
 - Minor fixes in case overview comments/flags/acmg tables.
+- Fixed issue in SV results table where columns were missing when the genotype was missing.
 
 Full Change List
 ================
@@ -44,6 +45,7 @@ Full Change List
 - Joining of the HGNC information for RefSeq transcripts additionally directly via HGNC to improve results.
 - Max AD field in quality filter is now also applied to genotype 0/0.
 - Minor fixes in case overview comments/flags/acmg tables.
+- Fixed issue in SV results table where columns were missing when the genotype was missing.
 
 -------
 v0.17.2
