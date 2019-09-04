@@ -46,6 +46,7 @@ Full Change List
 - Max AD field in quality filter is now also applied to genotype 0/0.
 - Minor fixes in case overview comments/flags/acmg tables.
 - Fixed issue in SV results table where columns were missing when the genotype was missing.
+- Main JavaScript functionality transferred from HTML to static JS files.
 
 -------
 v0.17.2

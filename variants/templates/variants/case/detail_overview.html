@@ -9,45 +9,47 @@
     </h4>
   </div>
   <ul class="list-group list-group-flush">
-    <li class="list-group-item">
+    <li class="list-group-item pl-0">
       <div class="row">
-        <span class="col-2"><strong>
-            Created At <span class="text-muted pl-2">(Last Modified)</span>
+        <span class="col-3"><strong>
+            Created At<br/>
+            <span class="text-muted">Last Modified</span>
         </strong></span>
-        <span class="col-10">
-            {{ object.date_created|date:"Y/m/d H:i" }} <span class="text-muted pl-2">({{ object.date_modified|date:"Y/m/d H:i" }})</span>
+        <span class="col-9">
+            {{ object.date_created|date:"Y/m/d H:i" }}<br/>
+            <span class="text-muted">{{ object.date_modified|date:"Y/m/d H:i" }}</span>
         </span>
       </div>
     </li>
-    <li class="list-group-item">
+    <li class="list-group-item pl-0">
       <div class="row">
-        <span class="col-2"><strong>
+        <span class="col-3"><strong>
           Case Name
         </strong></span>
-        <span class="col-10">
+        <span class="col-9">
           {{ object.name }}
           {% include "variants/case/indicator_sex_error.html" with item=object %}
           {% include "variants/case/indicator_rel_error.html" with item=object %}
         </span>
       </div>
     </li>
-    <li class="list-group-item">
+    <li class="list-group-item pl-0">
       <div class="row">
-        <span class="col-2"><strong>
+        <span class="col-3"><strong>
           Individuals
         </strong></span>
-        <span class="col-10">
+        <span class="col-9">
           {% for member in object.get_members %}
             {{ member|only_source_name }}{% if not forloop.last %},{% endif %}
           {% endfor %}
         </span>
       </div>
     </li>
-    <li class="list-group-item">
+    <li class="list-group-item pl-0">
       <div class="row">
-        <span class="col-2">
-          <strong>Status &amp; Notes</strong>
-          <div id="case-notes-status-button" class="btn btn-sm btn-secondary ml-2">
+        <span class="col-3">
+          <strong>Status &amp; Notes</strong><br/>
+          <div id="case-notes-status-button" class="btn btn-sm btn-secondary">
               <span id="case-notes-status-button-edit">
                   <i class="fa fa-pencil"></i> Edit
               </span>
@@ -56,11 +58,11 @@
               </span>
           </div>
         </span>
-        <span id="case-notes-status-mode-fixed" class="col-10">
+        <span id="case-notes-status-mode-fixed" class="col-9">
           <h4><span id="case-notes-status-badge">{{ object.status }}</span></h4>
           <span id="case-notes-status-text">{% if object.notes %}{{ object.notes }}{% endif %}</span>
         </span>
-        <span id="case-notes-status-mode-edit" class="col-10" style="display: none;">
+        <span id="case-notes-status-mode-edit" class="col-9" style="display: none;">
           <form>{% csrf_token %}
             {{ form }}
             <button

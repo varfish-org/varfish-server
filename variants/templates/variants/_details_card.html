@@ -19,7 +19,7 @@
         {% include 'variants/case/item.html' with item=case details_card_mode=True %}
       {% endfor %}
       <tr>
-        <td class="bg-faded" colspan="6">
+        <td class="bg-faded" colspan="7">
           <a href="{% url 'variants:case-list' project=project.sodar_uuid %}" class="btn btn-secondary btn-small">
             <i class="fa fa-list"></i> See list of all cases
           </a>
@@ -27,7 +27,7 @@
       </tr>
     {% else %}
         <tr>
-          <td class="bg-faded font-italic text-center" colspan="6">No cases (yet)</td>
+          <td class="bg-faded font-italic text-center" colspan="7">No cases (yet)</td>
         </tr>
     {% endif %}
   </tbody>

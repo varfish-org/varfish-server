@@ -1,26 +1,3 @@
-<script type="text/javascript">
-
-// --------------------------------------------------------------------------
-// Django Cookie Retrieval.
-//
-// See: https://docs.djangoproject.com/en/1.11/ref/csrf/#acquiring-the-token-if-csrf-use-sessions-and-csrf-cookie-httponly-are-false
-// --------------------------------------------------------------------------
-
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
 
 // --------------------------------------------------------------------------
 // Summarize VariantFlags flags
@@ -53,27 +30,29 @@ function clickVariantBookmark() {
   var bookmarkPopupTpl = $.templates("#bookmark-flags-popup");
   // Store handle outmost $(this) for later hiding popup again.
   var outerThis = $(this).closest(".bookmark").find(".variant-bookmark");
+  var caseUuid = $(this).data("case");
 
   // Get variant description from triggering bookmark icon.
-  var dataVariant = $(this).data("variant");
-  var caseUuid = $(this).data("case");
-  var arrVariant = dataVariant.split("-");
-  var queryArgs = {
-    release: arrVariant[0],
-    chromosome: arrVariant[1],
-    start: arrVariant[2],
-    end: arrVariant[3],
-    bin: arrVariant[4],
-    reference: arrVariant[5],
-    alternative: arrVariant[6],
-  };
-
-  console.log(queryArgs);
+  if (structural_or_small == "small") {
+    var dataVariant = $(this).data("variant");
+    var arrVariant = dataVariant.split("-");
+    var queryArgs = {
+      release: arrVariant[0],
+      chromosome: arrVariant[1],
+      start: arrVariant[2],
+      end: arrVariant[3],
+      bin: arrVariant[4],
+      reference: arrVariant[5],
+      alternative: arrVariant[6],
+    };
+  }
+  else {  // structural_or_small == "structural"
+    var svUuid = $(this).data("sv");
+  }
 
   // Function callback for showing the form.
   function showPopup(data) {
-    var html = bookmarkPopupTpl.render(data);
-    html = $(html);
+    var html = $(bookmarkPopupTpl.render(data));
     html.find('[data-toggle="tooltip"]').tooltip({container: 'body'});
 
     // Setup the form elements so we can use AJAX for them.
@@ -86,9 +65,13 @@ function clickVariantBookmark() {
 
       // Save flags
       var formData = $(this).closest("form").serialize();
+      var flags_url = variant_flags_url.replace("--abcef--", caseUuid);
+      if (structural_or_small == "structural") {
+        flags_url = flags_url.replace("--bbccee--", svUuid);
+      }
       $.ajax({
         type: "POST",
-        url: "{% url 'variants:small-variant-flags-api' project=project.sodar_uuid case="--abcef--" %}".replace("--abcef--", caseUuid),
+        url: flags_url,
         data: formData + "&csrfmiddlewaretoken=" + getCookie("csrftoken"),
         dataType: "json",
       }).done(function(data) {
@@ -110,10 +93,14 @@ function clickVariantBookmark() {
 
       // Add comment, if any
       var commentText = $(this).closest("form").find(".comment-text").val();
+      var comment_url = variant_comment_url.replace("--abcef--", caseUuid);
+      if (structural_or_small == "structural") {
+        comment_url = comment_url.replace("--bbccee--", svUuid);
+      }
       if (commentText) {
         $.ajax({
           type: "POST",
-          url: "{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case="--abcef--" %}".replace("--abcef--", caseUuid),
+          url: comment_url,
           data: formData + "&csrfmiddlewaretoken=" + getCookie("csrftoken"),
           dataType: "json",
         }).done(function(data) {
@@ -138,9 +125,14 @@ function clickVariantBookmark() {
     }).popover("show");
   }
 
+  var flags_url = variant_flags_url.replace("--abcef--", caseUuid);
+  if (structural_or_small == "structural") {
+    flags_url = flags_url.replace("--bbccee--", svUuid);
+  }
+
   // Retrieve current small variant flags from server via AJAX.
   $.ajax({
-    url: "{% url 'variants:small-variant-flags-api' project=project.sodar_uuid case="--abcef--" %}".replace("--abcef--", caseUuid),
+    url: flags_url,
     data: queryArgs,
     dataType: "json"
   }).done(function(data) {
@@ -149,28 +141,43 @@ function clickVariantBookmark() {
   }).fail(function(xhr) {
     if (xhr.status == 404) {
       // no flags found yet, show form with defaults
-      var data = {
-        variant: dataVariant,
-        release: arrVariant[0],
-        chromosome: arrVariant[1],
-        start: arrVariant[2],
-        end: arrVariant[3],
-        bin: arrVariant[4],
-        reference: arrVariant[5],
-        alternative: arrVariant[6],
-        flag_bookmarked: true,
-        flag_for_validation: false,
-        flag_candidate: false,
-        flag_final_causative: false,
-        flag_visual: "empty",
-        flag_validation: "empty",
-        flag_phenotype_match: "empty",
-        flag_summary: "empty",
-      };
+      if (structural_or_small == "small") {
+        var data = {
+          variant: dataVariant,
+          release: arrVariant[0],
+          chromosome: arrVariant[1],
+          start: arrVariant[2],
+          end: arrVariant[3],
+          bin: arrVariant[4],
+          reference: arrVariant[5],
+          alternative: arrVariant[6],
+          flag_bookmarked: true,
+          flag_for_validation: false,
+          flag_candidate: false,
+          flag_final_causative: false,
+          flag_visual: "empty",
+          flag_validation: "empty",
+          flag_phenotype_match: "empty",
+          flag_summary: "empty",
+        };
+      }
+      else {  // structural_or_small == "structural"
+        var data = {
+          variant: svUuid,
+          flag_bookmarked: true,
+          flag_for_validation: false,
+          flag_candidate: false,
+          flag_final_causative: false,
+          flag_visual: "empty",
+          flag_validation: "empty",
+          flag_phenotype_match: "empty",
+          flag_summary: "empty",
+        };
+      }
       showPopup(data);
     } else {
       // Non-404 status code, something else failed.
-      alert("Retrieving small variant flags failed");
+      alert("Retrieving variant flags failed");
     }
   });
 }
@@ -191,17 +198,17 @@ $('body').on('click', function (e) {
 // --------------------------------------------------------------------------
 
 function updateAcmgRating(theForm) {
-  const form = $(theForm)
-  const inputClassification = form.find(".acmg-class")
+  const form = $(theForm);
+  const inputClassification = form.find(".acmg-class");
 
-  const pvs = form.find(".pvs:checked").length
-  const ps = form.find(".ps:checked").length
-  const pm = form.find(".pm:checked").length
-  const pp = form.find(".pp:checked").length
+  const pvs = form.find(".pvs:checked").length;
+  const ps = form.find(".ps:checked").length;
+  const pm = form.find(".pm:checked").length;
+  const pp = form.find(".pp:checked").length;
 
-  const bas = form.find(".ba:checked").length
-  const bs = form.find(".bs:checked").length
-  const bp = form.find(".bp:checked").length
+  const bas = form.find(".ba:checked").length;
+  const bs = form.find(".bs:checked").length;
+  const bp = form.find(".bp:checked").length;
 
   const isPathogenic = (
     (
@@ -224,12 +231,12 @@ function updateAcmgRating(theForm) {
     (pm == 2 && pp >= 2) ||
     (pm == 1 && pp >= 4)
   )
-  const isLikelyBenign = ((bs >= 2) && (bp >= 1) || ((bs >= 1) && (bp >= 2)))
-  const isBenign = (bas > 0) || (bs >= 2)
+  const isLikelyBenign = ((bs >= 2) && (bp >= 1) || ((bs >= 1) && (bp >= 2)));
+  const isBenign = (bas > 0) || (bs >= 2);
 
-  const isConflicting = (isPathogenic || isLikelyPathogenic) && (isBenign || isLikelyBenign)
+  const isConflicting = (isPathogenic || isLikelyPathogenic) && (isBenign || isLikelyBenign);
 
-  let acmgClass = 3
+  let acmgClass = 3;
   if (isPathogenic) {
     acmgClass = 5
   } else if (isLikelyPathogenic) {
@@ -240,7 +247,7 @@ function updateAcmgRating(theForm) {
     acmgClass = 2
   }
   if (isConflicting) {
-    acmgClass = 3
+    acmgClass = 3;
     form.find(".warning-conflict").removeClass("d-none")
   } else {
     form.find(".warning-conflict").addClass("d-none")
@@ -311,7 +318,7 @@ function clickVariantAcmgRating() {
       }
       $.ajax({
         type: "POST",
-        url: "{% url 'variants:acmg-rating-api' project=project.sodar_uuid case="--abcef--" %}".replace("--abcef--", caseUuid),
+        url: acmg_rating_url.replace("--abcef--", caseUuid),
         data: formData + "&csrfmiddlewaretoken=" + getCookie("csrftoken"),
         dataType: "json",
       }).done(function(data) {
@@ -347,12 +354,11 @@ function clickVariantAcmgRating() {
 
   // Retrieve current small variant flags from server via AJAX.
   $.ajax({
-    url: "{% url 'variants:acmg-rating-api' project=project.sodar_uuid case="--abcef--" %}".replace("--abcef--", caseUuid),
+    url: acmg_rating_url.replace("--abcef--", caseUuid),
     data: queryArgs,
     dataType: "json"
   }).done(function(data) {
     // found flags, show form with these
-    console.log(data)
     showPopup(data);
   }).fail(function(xhr) {
     if (xhr.status == 404) {
@@ -386,4 +392,3 @@ function clickVariantAcmgRating() {
 $(document).on("click", ".variant-bookmark", clickVariantBookmark);
 $(document).on("click", ".variant-comment", clickVariantBookmark);
 $(document).on("click", ".variant-acmg", clickVariantAcmgRating);
-</script>

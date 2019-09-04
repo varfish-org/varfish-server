@@ -1,15 +1,3 @@
-{% load static %}
-
-<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
-<script type="text/javascript" src="{% static "js/submit_state_machine.js" %}"></script>
-<script type="text/javascript">
-
-var csfr_token = "{{ csfr_token }}";
-var settings_restored = false;
-if ({{ settings_restored }} == "1") {
-    settings_restored = true;
-}
-
 var effectGroups = {
   all: [
   ],
@@ -1025,20 +1013,10 @@ $(document).ready(
     handleEvent(EVENT_START, null);
     // Load comphet mode (if index is set)
     initCompHetMode();
-  }
-);
-</script>
-
-<script type="text/javascript">
-  $(function () {
     $('[data-toggle="popover"]').popover({container: 'body'});
     $('[data-toggle="tooltip"]').tooltip({container: 'body'});
-  });
-  $('.popover-dismiss').popover({
-    trigger: 'focus'
-  });
-</script>
-
-{% include "variants/_script_flags_comments.html" %}
-{% include "variants/_variant_flag_form_tpl.html" %}
-{% include "variants/_acmg_criteria_form_tpl.html" %}
+    $('.popover-dismiss').popover({
+        trigger: 'focus'
+    });
+  }
+);

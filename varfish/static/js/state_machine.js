@@ -361,7 +361,7 @@ function handleEventStateWaitJobResults(eventType, event) {
   } else if (eventType == EVENT_GOT_RESULT) {
     setInfoBoxTitle("Rendering results ...");
     let data = {
-      "csrfmiddlewaretoken": csfr_token,
+      "csrfmiddlewaretoken": getCookie("csrftoken"),
       "filter_job_uuid": event["filter_job_uuid"]
     };
     ajaxCall = $.ajax({
