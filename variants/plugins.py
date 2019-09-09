@@ -15,6 +15,7 @@ from .models import (
     ProjectCasesFilterBgJob,
     SyncCaseListBgJob,
     ImportVariantsBgJob,
+    CaseComments,
 )
 from .urls import urlpatterns
 from .templatetags.variants_tags import case_status_to_color
@@ -201,6 +202,8 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             return {"url": obj.get_absolute_url(), "label": obj.shortened_text()}
         elif isinstance(obj, SmallVariantFlags):
             return {"url": obj.get_absolute_url(), "label": obj.human_readable()}
+        elif isinstance(obj, CaseComments):
+            return {"url": obj.get_absolute_url(), "label": obj.shortened_text()}
         elif isinstance(obj, Case):
             return {"url": obj.get_absolute_url(), "label": obj.name}
 

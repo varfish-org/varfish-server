@@ -276,10 +276,23 @@ class CaseNotesStatusApiView(
     def post(self, *args, **kwargs):
         case = self.get_object()
         form = self.get_form()
+        timeline = get_backend_api("timeline_backend")
         if form.is_valid():
             case.notes = form.cleaned_data["notes"]
             case.status = form.cleaned_data["status"]
             case.save()
+            if timeline:
+                tl_event = timeline.add_event(
+                    project=self.get_project(self.request, self.kwargs),
+                    app_name="variants",
+                    user=self.request.user,
+                    event_name="case_status_notes_submit",
+                    description="submit status and note for case {{case}}: {status}, {text}".format(
+                        status=case.status, text=case.shortened_notes_text()
+                    ),
+                    status_type="OK",
+                )
+                tl_event.add_object(obj=case, label="case", name=case.name)
             return HttpResponse(
                 json.dumps(
                     {"notes": form.cleaned_data["notes"], "status": form.cleaned_data["status"]}
@@ -307,20 +320,69 @@ class CaseCommentsSubmitApiView(
     slug_field = "sodar_uuid"
 
     def post(self, *args, **kwargs):
+        try:
+            user = User.objects.get(id=self.request.user.id)
+        except ObjectDoesNotExist as e:
+            return HttpResponse(
+                json.dumps({"result": "User not found."}),
+                content_type="application/json",
+                status=403,
+            )
+
         case = self.get_object()
         form = self.get_form()
+        timeline = get_backend_api("timeline_backend")
         if form.is_valid():
-            record = CaseComments(
-                case=case, user=self.request.user, comment=form.cleaned_data["comment"]
-            )
-            record.save()
+            if self.request.POST.get("sodar_uuid"):
+                kwargs = {"sodar_uuid": self.request.POST.get("sodar_uuid")}
+                if not user.is_superuser:
+                    kwargs["user"] = user
+                try:
+                    record = CaseComments.objects.get(**kwargs)
+                except ObjectDoesNotExist as e:
+                    return HttpResponse(
+                        json.dumps(
+                            {"result": "Not authorized to delete comment or no comment found."}
+                        ),
+                        content_type="application/json",
+                        status=500,
+                    )
+                record.comment = form.cleaned_data["comment"]
+                record.save()
+                if timeline:
+                    tl_event = timeline.add_event(
+                        project=self.get_project(self.request, self.kwargs),
+                        app_name="variants",
+                        user=self.request.user,
+                        event_name="case_comment_edit",
+                        description="edit comment for case {case}: {text}",
+                        status_type="OK",
+                    )
+                    tl_event.add_object(obj=case, label="case", name=case.name)
+                    tl_event.add_object(obj=record, label="text", name=record.shortened_text())
+            else:
+                record = CaseComments(
+                    case=case, user=self.request.user, comment=form.cleaned_data["comment"]
+                )
+                record.save()
+                if timeline:
+                    tl_event = timeline.add_event(
+                        project=self.get_project(self.request, self.kwargs),
+                        app_name="variants",
+                        user=self.request.user,
+                        event_name="case_comment_add",
+                        description="add comment for case {case}: {text}",
+                        status_type="OK",
+                    )
+                    tl_event.add_object(obj=case, label="case", name=case.name)
+                    tl_event.add_object(obj=record, label="text", name=record.shortened_text())
             return HttpResponse(
                 json.dumps(
                     {
                         "comment": record.comment,
                         "date_created": record.date_created.strftime("%Y/%m/%d %H:%M"),
                         "user": str(record.user),
-                        "sodar_uuid": record.sodar_uuid.hex,
+                        "sodar_uuid": str(record.sodar_uuid),
                     }
                 ),
                 content_type="application/json",
@@ -345,7 +407,7 @@ class CaseCommentsDeleteApiView(
 
     def post(self, *args, **kwargs):
         try:
-            user = User.objects.get(id=self.request.POST.get("user"))
+            user = User.objects.get(id=self.request.user.id)
         except ObjectDoesNotExist as e:
             return HttpResponse(
                 json.dumps({"result": "User not found."}),
@@ -367,6 +429,17 @@ class CaseCommentsDeleteApiView(
             )
 
         comment.delete()
+        timeline = get_backend_api("timeline_backend")
+        if timeline:
+            tl_event = timeline.add_event(
+                project=self.get_project(self.request, self.kwargs),
+                app_name="variants",
+                user=self.request.user,
+                event_name="case_comment_delete",
+                description="delete comment for case {case}",
+                status_type="OK",
+            )
+            tl_event.add_object(obj=self.get_object(), label="case", name=self.get_object().name)
         return HttpResponse(json.dumps({"result": "OK"}), content_type="application/json")
 
 
@@ -394,18 +467,6 @@ class CaseDetailView(
         result["samples"] = case.get_members_with_samples()
         result["effects"] = list(FILTER_FORM_TRANSLATE_EFFECTS.values())
         result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
-        result["case_notes_status_save_url"] = reverse(
-            "variants:case-notes-status-api",
-            kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
-        )
-        result["case_comments_submit_url"] = reverse(
-            "variants:case-comments-submit-api",
-            kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
-        )
-        result["case_comments_delete_url"] = reverse(
-            "variants:case-comments-delete-api",
-            kwargs={"project": case.project.sodar_uuid, "case": case.sodar_uuid},
-        )
         result["ontarget_effect_counts"] = {sample: {} for sample in result["samples"]}
         result["indel_sizes"] = {sample: {} for sample in result["samples"]}
         result["indel_sizes_keys"] = []
@@ -2249,7 +2310,7 @@ class SmallVariantFlagsApiView(
         return HttpResponse(json.dumps(result, cls=UUIDEncoder), content_type="application/json")
 
 
-class SmallVariantCommentApiView(
+class SmallVariantCommentSubmitApiView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
     ProjectPermissionMixin,
@@ -2267,23 +2328,119 @@ class SmallVariantCommentApiView(
     slug_field = "sodar_uuid"
 
     def post(self, *_args, **_kwargs):
+        try:
+            user = User.objects.get(id=self.request.user.id)
+        except ObjectDoesNotExist as e:
+            return HttpResponse(
+                json.dumps({"result": "User not found."}),
+                content_type="application/json",
+                status=403,
+            )
+
         case = self.get_object()
-        comment = SmallVariantComment(case=case, user=self.request.user, sodar_uuid=uuid.uuid4())
-        form = SmallVariantCommentForm(self.request.POST, instance=comment)
-        comment = form.save()
+        timeline = get_backend_api("timeline_backend")
+        if self.request.POST.get("sodar_uuid"):
+            kwargs = {"sodar_uuid": self.request.POST.get("sodar_uuid")}
+            if not user.is_superuser:
+                kwargs["user"] = user
+            try:
+                comment = SmallVariantComment.objects.get(**kwargs)
+            except ObjectDoesNotExist as e:
+                return HttpResponse(
+                    json.dumps({"result": "Not authorized to delete comment or no comment found."}),
+                    content_type="application/json",
+                    status=500,
+                )
+            comment.text = self.request.POST.get("variant_comment")
+            comment.save()
+            if timeline:
+                tl_event = timeline.add_event(
+                    project=self.get_project(self.request, self.kwargs),
+                    app_name="variants",
+                    user=self.request.user,
+                    event_name="variant_comment_edit",
+                    description="edit comment for variant %s in case {case}: {text}"
+                    % comment.get_variant_description(),
+                    status_type="OK",
+                )
+                tl_event.add_object(obj=case, label="case", name=case.name)
+                tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
+        else:
+            comment = SmallVariantComment(
+                case=case, user=self.request.user, sodar_uuid=uuid.uuid4()
+            )
+            form = SmallVariantCommentForm(self.request.POST, instance=comment)
+            comment = form.save()
+            if timeline:
+                tl_event = timeline.add_event(
+                    project=self.get_project(self.request, self.kwargs),
+                    app_name="variants",
+                    user=self.request.user,
+                    event_name="variant_comment_add",
+                    description="add comment for variant %s in case {case}: {text}"
+                    % comment.get_variant_description(),
+                    status_type="OK",
+                )
+                tl_event.add_object(obj=case, label="case", name=case.name)
+                tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
+        return HttpResponse(json.dumps({"comment": comment.text}), content_type="application/json")
+
+
+class SmallVariantCommentDeleteApiView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+    View,
+):
+    """A view that allows to delete a comment."""
+
+    # TODO: create new permission
+    permission_required = "variants.view_data"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, *_args, **_kwargs):
+        case = self.get_object()
+        try:
+            user = User.objects.get(id=self.request.user.id)
+        except ObjectDoesNotExist as e:
+            return HttpResponse(
+                json.dumps({"result": "User not found."}),
+                content_type="application/json",
+                status=403,
+            )
+
+        kwargs = {"sodar_uuid": self.request.POST.get("sodar_uuid")}
+        if not user.is_superuser:
+            kwargs["user"] = user
+
+        try:
+            comment = SmallVariantComment.objects.get(**kwargs)
+        except ObjectDoesNotExist as e:
+            return HttpResponse(
+                json.dumps({"result": "Not authorized to delete comment or no comment found."}),
+                content_type="application/json",
+                status=500,
+            )
+
+        comment.delete()
         timeline = get_backend_api("timeline_backend")
         if timeline:
             tl_event = timeline.add_event(
                 project=self.get_project(self.request, self.kwargs),
                 app_name="variants",
                 user=self.request.user,
-                event_name="comment_add",
-                description="add comment for variant %s in case {case}: {text}"
+                event_name="variant_comment_delete",
+                description="delete comment for variant %s in case {case}"
                 % comment.get_variant_description(),
                 status_type="OK",
             )
             tl_event.add_object(obj=case, label="case", name=case.name)
-            tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
+
         return HttpResponse(json.dumps({"result": "OK"}), content_type="application/json")
 
 

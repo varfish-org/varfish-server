@@ -69,7 +69,7 @@
               type="button"
               id="case-notes-status-save"
               class="btn btn-sm btn-secondary"
-              data-url-case-notes-status="{{ case_notes_status_save_url }}"
+              data-url-case-notes-status="{% url 'variants:case-notes-status-api' project=project.sodar_uuid case=object.sodar_uuid %}"
             >
               <i class="fa fa-save"></i> Save
             </button>

@@ -23,6 +23,8 @@ End-User Summary
 - Max AD field in quality filter is now also applied to genotype 0/0.
 - Minor fixes in case overview comments/flags/acmg tables.
 - Fixed issue in SV results table where columns were missing when the genotype was missing.
+- Comments on variants are now editable and deletable, in the case detail view as well as the variant detail view.
+- Case comments are now edtiable.
 
 Full Change List
 ================
@@ -47,6 +49,9 @@ Full Change List
 - Minor fixes in case overview comments/flags/acmg tables.
 - Fixed issue in SV results table where columns were missing when the genotype was missing.
 - Main JavaScript functionality transferred from HTML to static JS files.
+- Comments on variants are now editable and deletable, in the case detail view as well as the variant detail view.
+- Case comments are now edtiable.
+- Moved and consolidated further JS code from HTML to JS files.
 
 -------
 v0.17.2

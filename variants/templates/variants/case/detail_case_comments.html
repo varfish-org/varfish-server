@@ -1,5 +1,5 @@
 
-<div class="card varfish-vars-case-details"
+<div class="card varfish-vars-case-details comment-group"
      id="card-varfish-vars-case-details-small-var-comments">
   <div class="card-header">
     <h4>
@@ -7,107 +7,76 @@
       Comments
     </h4>
   </div>
-  <ul class="list-group list-group-flush" style="overflow-y: auto !important; max-height: 300px;" id="case-comment-list">
+  <ul
+      class="list-group list-group-flush list"
+      style="overflow-y: auto !important; max-height: 300px;"
+      id="case-comment-list"
+      data-url-submit="{% url 'variants:case-comments-submit-api' project=project.sodar_uuid case=object.sodar_uuid %}"
+      data-url-delete="{% url 'variants:case-comments-delete-api' project=project.sodar_uuid case=object.sodar_uuid %}">
     {% for comment in case.case_comments.all %}
-    <li class="list-group-item" data-sodar-uuid="{{ comment.sodar_uuid }}">
-      <strong>{{ comment.user }}</strong>
-      <small>
-        commented at
-        {{ comment.date_created|date:"Y/m/d H:i" }}:
-      </small>
-      <em>{{ comment.comment }}</em>
-      {% if comment.user == request.user or request.user.is_superuser %}
-          <a href="#" class="pl-2 text-secondary case-comment-button-delete">
-              <i class="fa fa-times-circle"></i>
-          </a>
-      {% endif %}
+    <li id="comment-{{ comment.sodar_uuid }}" class="list-group-item list-item" data-sodar-uuid="{{ comment.sodar_uuid }}">
+      <div id="display-comment-{{ comment.sodar_uuid }}">
+        <span class="small text-muted">
+          <strong>{{ comment.user }}</strong>
+          {{ comment.date_created|date:"Y/m/d H:i" }}:
+        </span>
+        <em>{{ comment.comment }}</em>
+        {% if comment.user == request.user or request.user.is_superuser %}
+          <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="fa fa-pencil"></i></a>
+          <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="fa fa-times-circle"></i></a>
+        {% endif %}
+      </div>
+      <div id="edit-comment-{{ comment.sodar_uuid }}" style="display: none;">
+        <form>
+          <textarea id="text-comment-{{ comment.sodar_uuid }}" name="comment" rows="1" cols="40" class="form-control"></textarea>
+          <span class="btn-group d-flex">
+            <button
+                type="button"
+                class="btn btn-sm btn-primary w-100 comment-button-edit-submit">
+                Submit
+            </button>
+            <button
+                type="button"
+                class="btn btn-sm btn-secondary w-100 comment-button-edit-cancel">
+                Cancel
+            </button>
+          </span>
+        </form>
+      </div>
+      <div id="delete-comment-{{ comment.sodar_uuid }}" style="display: none;">
+        <span class="btn-group d-flex">
+          <button
+              type="button"
+              class="btn btn-sm btn-danger w-100 comment-button-delete-submit">
+              Delete
+          </button>
+          <button
+              type="button"
+              class="btn btn-sm btn-secondary w-100 comment-button-delete-cancel">
+              Cancel
+          </button>
+        </span>
+      </div>
     </li>
     {% endfor %}
   </ul>
-  <div class="card-body" id="case-comment-list-empty" style="display: none;">
+  <div
+      class="card-body"
+      id="case-comment-list-empty"
+      {% if case.case_comments.all %}style="display: none;"{% endif %}>
     <p class="text-muted font-italic">
       No comments yet.
     </p>
   </div>
-  <form>{% csrf_token %}
+  <form>
     <span class="input-group">
       {{ casecommentsform }}
       <button
           type="button"
           class="btn btn-secondary"
-          id="case-comment-button-submit"
-          data-url-case-comments-submit="{{ case_comments_submit_url }}"
-          data-url-case-comments-delete="{{ case_comments_delete_url }}">
+          id="comment-button-submit">
         <i class="fa fa-plus"></i> Submit
       </button>
     </span>
   </form>
 </div>
-
-<script type="text/javascript">
-let textbox = $("#id_comment");
-let comments = $("#case-comment-list");
-
-function handleEmptyMessage() {
-    if (comments.find("li").length) {
-        $("#case-comment-list-empty").hide();
-    }
-    else {
-        $("#case-comment-list-empty").show();
-    }
-}
-
-function caseCommentDelete() {
-    var list_element = $(this).closest("li");
-    $.ajax({
-        type: "POST",
-        url: $("#case-comment-button-submit").data("url-case-comments-delete"),
-        data: {sodar_uuid: list_element.data("sodar-uuid"), user: {{ request.user.id }}},
-        dataType: "json",
-        success: function (data) {
-            list_element.closest("li").remove();
-            handleEmptyMessage();
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            alert("Error during AJAX call: " + textStatus + " " + errorThrown);
-            console.log("Error during AJAX call: ", textStatus, errorThrown);
-        }
-    });
-}
-
-$(document).ready(function() {
-    $("#case-comment-button-submit").on("click", function() {
-        if (textbox.val() !== "") {
-            $.ajax({
-                type: "POST",
-                url: $(this).data("url-case-comments-submit"),
-                data: $(this).closest("form").serialize(),
-                dataType: "json",
-                success: function (data) {
-                    comments.append(
-                        "<li class=\"list-group-item\" data-sodar-uuid=\"" + data["sodar_uuid"] + "\">\n" +
-                        "  <strong> " + data["user"] + "</strong>\n" +
-                        "  <small>commented at " + data["date_created"] + ":</small>\n" +
-                        "  <em>" + data["comment"] + "</em>\n" +
-                        "  <a href=\"#\" class=\"pl-2 text-secondary case-comment-button-delete\">" +
-                        "    <i class=\"fa fa-times-circle\"></i>" +
-                        "  </a>" +
-                        "</li>"
-                    );
-                    comments.animate({scrollTop: comments[0].scrollHeight}, 'slow');
-                    textbox.val("");
-                    $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find('a').on("click", caseCommentDelete);
-                    handleEmptyMessage();
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    alert("Error during AJAX call: " + textStatus + " " + errorThrown);
-                    console.log("Error during AJAX call: ", textStatus, errorThrown);
-                }
-            });
-        }
-    });
-    $(".case-comment-button-delete").on("click", caseCommentDelete);
-    comments.animate({scrollTop: comments[0].scrollHeight}, 'slow');
-    handleEmptyMessage();
-});
-</script>

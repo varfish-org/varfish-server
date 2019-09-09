@@ -244,6 +244,12 @@ $(document).on('click', '.toggle-variant-details', function() {
                 element.popover('hide');
               }
             });
+            $(".comment-button-delete").on("click", commentDeleteToggle);
+            $(".comment-button-delete-cancel").on("click", commentDeleteToggle);
+            $(".comment-button-delete-submit").on("click", commentDeleteSubmit);
+            $(".comment-button-edit").on("click", commentEditToggle);
+            $(".comment-button-edit-cancel").on("click", commentEditToggle);
+            $(".comment-button-edit-submit").on("click", commentEditSubmit);
             colorVariantEffects();
           },
           error: function (jqXHR, textStatus, errorThrown) {

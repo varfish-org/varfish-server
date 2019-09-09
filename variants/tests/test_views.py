@@ -2092,39 +2092,195 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
             )
 
 
-class TestSmallVariantCommentApiView(ViewTestBase):
+class TestSmallVariantCommentSubmitApiView(RoleAssignmentMixin, ViewTestBase):
     """Test SmallVariantCommentApiView.
     """
 
     def setUp(self):
         super().setUp()
+        self.randomuser = self.make_user("randomuser")
+        self.randomuser.save()
         self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self._make_assignment(
+            self.variant_set.case.project,
+            self.randomuser,
+            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+        )
         self.small_var = SmallVariantFactory(variant_set=self.variant_set)
 
-    def test_json_response(self):
-        with self.login(self.user):
-            self.assertEqual(SmallVariantComment.objects.count(), 0)
+    def test_user_submit_case_comment(self):
+        with self.login(self.randomuser):
+            form_data = vars(
+                SmallVariantCommentFormDataFactory(
+                    release=self.small_var.release,
+                    chromosome=self.small_var.chromosome,
+                    start=self.small_var.start,
+                    end=self.small_var.end,
+                    bin=self.small_var.bin,
+                    reference=self.small_var.reference,
+                    alternative=self.small_var.alternative,
+                )
+            )
             response = self.client.post(
                 reverse(
                     "variants:small-variant-comment-api",
-                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
                 ),
-                vars(
-                    SmallVariantCommentFormDataFactory(
-                        release=self.small_var.release,
-                        chromosome=self.small_var.chromosome,
-                        start=self.small_var.start,
-                        end=self.small_var.end,
-                        bin=self.small_var.bin,
-                        reference=self.small_var.reference,
-                        alternative=self.small_var.alternative,
-                    )
-                ),
+                form_data,
             )
-            self.assertEqual(SmallVariantComment.objects.count(), 1)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["comment"], form_data["text"]
+            )
+
+    def test_user_edit_case_comment(self):
+        comment = SmallVariantCommentFactory(
+            release=self.small_var.release,
+            chromosome=self.small_var.chromosome,
+            start=self.small_var.start,
+            end=self.small_var.end,
+            reference=self.small_var.reference,
+            alternative=self.small_var.alternative,
+            bin=self.small_var.bin,
+            case=self.variant_set.case,
+            user=self.randomuser,
+        )
+        with self.login(self.randomuser):
+            form_data = {
+                "release": self.small_var.release,
+                "chromosome": self.small_var.chromosome,
+                "start": self.small_var.start,
+                "end": self.small_var.end,
+                "bin": self.small_var.bin,
+                "reference": self.small_var.reference,
+                "alternative": self.small_var.alternative,
+                "variant_comment": "changed",
+                "sodar_uuid": comment.sodar_uuid,
+            }
+            response = self.client.post(
+                reverse(
+                    "variants:small-variant-comment-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                form_data,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["comment"],
+                form_data["variant_comment"],
+            )
+
+    def test_user_cant_edit_admin_case_comment(self):
+        comment = SmallVariantCommentFactory(
+            release=self.small_var.release,
+            chromosome=self.small_var.chromosome,
+            start=self.small_var.start,
+            end=self.small_var.end,
+            reference=self.small_var.reference,
+            alternative=self.small_var.alternative,
+            bin=self.small_var.bin,
+            case=self.variant_set.case,
+            user=self.user,
+        )
+        with self.login(self.randomuser):
+            form_data = {
+                "release": self.small_var.release,
+                "chromosome": self.small_var.chromosome,
+                "start": self.small_var.start,
+                "end": self.small_var.end,
+                "bin": self.small_var.bin,
+                "reference": self.small_var.reference,
+                "alternative": self.small_var.alternative,
+                "variant_comment": "changed",
+                "sodar_uuid": comment.sodar_uuid,
+            }
+            response = self.client.post(
+                reverse(
+                    "variants:small-variant-comment-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                form_data,
+            )
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["result"],
+                "Not authorized to delete comment or no comment found.",
+            )
+
+
+class TestSmallVariantCommentDeleteApiView(RoleAssignmentMixin, ViewTestBase):
+    """Test CaseCommentsDeleteApiView."""
+
+    def setUp(self):
+        super().setUp()
+        self.randomuser = self.make_user("randomuser")
+        self.randomuser.save()
+        self.variant_set = SmallVariantSetFactory()
+        self._make_assignment(
+            self.variant_set.case.project,
+            self.randomuser,
+            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+        )
+
+    def test_admin_can_delete_user_comment(self):
+        comment = SmallVariantCommentFactory(case=self.variant_set.case, user=self.randomuser)
+        with self.login(self.user):
+            response = self.client.post(
+                reverse(
+                    "variants:small-variant-comment-delete-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                {"sodar_uuid": comment.sodar_uuid},
+            )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(json.loads(response.content.decode("utf-8"))["result"], "OK")
+
+    def test_user_can_delete_own_comment(self):
+        comment = SmallVariantCommentFactory(case=self.variant_set.case, user=self.randomuser)
+        with self.login(self.randomuser):
+            response = self.client.post(
+                reverse(
+                    "variants:small-variant-comment-delete-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                {"sodar_uuid": comment.sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["result"], "OK")
+
+    def test_user_cant_delete_admin_comment(self):
+        comment = SmallVariantCommentFactory(case=self.variant_set.case, user=self.user)
+        with self.login(self.randomuser):
+            response = self.client.post(
+                reverse(
+                    "variants:small-variant-comment-delete-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                {"sodar_uuid": comment.sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["result"],
+                "Not authorized to delete comment or no comment found.",
+            )
 
 
 class TestBackgroundJobListView(ViewTestBase):
@@ -2360,16 +2516,56 @@ class TestCaseNotesStatusApiView(ViewTestBase):
                 json.loads(response.content.decode("utf-8"))["status"], form_data["status"]
             )
 
+    def test_update_status_and_text(self):
+        with self.login(self.user):
+            form_data = vars(CaseNotesStatusFormFactory())
+            self.client.post(
+                reverse(
+                    "variants:case-notes-status-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                form_data,
+            )
+            form_data2 = vars(
+                CaseNotesStatusFormFactory(status="active", notes="Some updated text.")
+            )
+            response = self.client.post(
+                reverse(
+                    "variants:case-notes-status-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                form_data2,
+            )
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["notes"], form_data2["notes"]
+            )
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["status"], form_data2["status"]
+            )
 
-class TestCaseCommentsSubmitApiView(ViewTestBase):
+
+class TestCaseCommentsSubmitApiView(RoleAssignmentMixin, ViewTestBase):
     """Test CaseCommentsSubmitApiView."""
 
     def setUp(self):
         super().setUp()
+        self.randomuser = self.make_user("randomuser")
+        self.randomuser.save()
         self.variant_set = SmallVariantSetFactory()
+        self._make_assignment(
+            self.variant_set.case.project,
+            self.randomuser,
+            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+        )
 
     def test_user_submit_case_comment(self):
-        with self.login(self.user):
+        with self.login(self.randomuser):
             form_data = vars(CaseCommentsFormFactory())
             response = self.client.post(
                 reverse(
@@ -2384,6 +2580,45 @@ class TestCaseCommentsSubmitApiView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
                 json.loads(response.content.decode("utf-8"))["comment"], form_data["comment"]
+            )
+
+    def test_user_edit_case_comment(self):
+        comment = CaseCommentsFactory(case=self.variant_set.case, user=self.randomuser)
+        with self.login(self.randomuser):
+            form_data = {"comment": "changed", "sodar_uuid": comment.sodar_uuid}
+            response = self.client.post(
+                reverse(
+                    "variants:case-comments-submit-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                form_data,
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["comment"], form_data["comment"]
+            )
+
+    def test_user_cant_edit_admin_case_comment(self):
+        comment = CaseCommentsFactory(case=self.variant_set.case, user=self.user)
+        with self.login(self.randomuser):
+            form_data = {"comment": "changed", "sodar_uuid": comment.sodar_uuid}
+            response = self.client.post(
+                reverse(
+                    "variants:case-comments-submit-api",
+                    kwargs={
+                        "project": self.variant_set.case.project.sodar_uuid,
+                        "case": self.variant_set.case.sodar_uuid,
+                    },
+                ),
+                form_data,
+            )
+            self.assertEqual(response.status_code, 500)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["result"],
+                "Not authorized to delete comment or no comment found.",
             )
 
 
@@ -2412,7 +2647,7 @@ class TestCaseCommentsDeleteApiView(RoleAssignmentMixin, ViewTestBase):
                         "case": self.variant_set.case.sodar_uuid,
                     },
                 ),
-                {"sodar_uuid": comment.sodar_uuid, "user": self.user.id},
+                {"sodar_uuid": comment.sodar_uuid},
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(json.loads(response.content.decode("utf-8"))["result"], "OK")
@@ -2428,7 +2663,7 @@ class TestCaseCommentsDeleteApiView(RoleAssignmentMixin, ViewTestBase):
                         "case": self.variant_set.case.sodar_uuid,
                     },
                 ),
-                {"sodar_uuid": comment.sodar_uuid, "user": self.randomuser.id},
+                {"sodar_uuid": comment.sodar_uuid},
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(json.loads(response.content.decode("utf-8"))["result"], "OK")
@@ -2444,7 +2679,7 @@ class TestCaseCommentsDeleteApiView(RoleAssignmentMixin, ViewTestBase):
                         "case": self.variant_set.case.sodar_uuid,
                     },
                 ),
-                {"sodar_uuid": comment.sodar_uuid, "user": self.randomuser.id},
+                {"sodar_uuid": comment.sodar_uuid},
             )
             self.assertEqual(response.status_code, 500)
             self.assertEqual(

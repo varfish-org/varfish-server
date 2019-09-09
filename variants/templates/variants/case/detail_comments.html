@@ -18,9 +18,13 @@
         <th>Comments</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody
+        id="small-variant-comments"
+        class="list"
+        data-url-submit="{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case=object.sodar_uuid %}"
+        data-url-delete="{% url 'variants:small-variant-comment-delete-api' project=project.sodar_uuid case=object.sodar_uuid %}">
       {% for variant_comment in case.small_variant_comments.all %}
-        <tr id="comment-{{ variant_comment.sodar_uuid }}">
+        <tr class="list-item" id="comment-{{ variant_comment.sodar_uuid }}" data-sodar-uuid="{{ variant_comment.sodar_uuid }}">
           <td class="text-nowrap">
             chr{{ variant_comment.chromosome }}:{{ variant_comment.start|intcomma }}-{{ variant_comment.reference }}-{{ variant_comment.alternative }}
           </td>
@@ -28,22 +32,58 @@
             {{ variant_comment.get_gene_symbols|join:", "|default:"-" }}
           </td>
           <td>
-            <strong>{{ variant_comment.user }}</strong>
-            <small>
-              commented at
-              {{ variant_comment.date_created }}:
-            </small>
-            <em>{{ variant_comment.text }}</em>
+            <div id="display-comment-{{ variant_comment.sodar_uuid }}">
+              <span class="small text-muted">
+                <strong>{{ variant_comment.user }}</strong>
+                {{ variant_comment.date_created|date:"Y/m/d H:i" }}:
+              </span>
+              <em>{{ variant_comment.text }}</em>
+              {% if variant_comment.user == request.user or request.user.is_superuser %}
+                <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="fa fa-pencil"></i></a>
+                <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="fa fa-times-circle"></i></a>
+              {% endif %}
+            </div>
+            <div id="edit-comment-{{ variant_comment.sodar_uuid }}" style="display: none;">
+              <form>
+                <textarea id="text-comment-{{ variant_comment.sodar_uuid }}" name="variant_comment" rows="1" cols="40" class="form-control"></textarea>
+                <span class="btn-group d-flex">
+                  <button
+                      type="button"
+                      class="btn btn-sm btn-primary w-100 comment-button-edit-submit">
+                      Submit
+                  </button>
+                  <button
+                      type="button"
+                      class="btn btn-sm btn-secondary w-100 comment-button-edit-cancel">
+                      Cancel
+                  </button>
+                </span>
+              </form>
+            </div>
+            <div id="delete-comment-{{ variant_comment.sodar_uuid }}" style="display: none;">
+              <span class="btn-group d-flex">
+                <button
+                    type="button"
+                    class="btn btn-sm btn-danger w-100 comment-button-delete-submit">
+                    Delete
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary w-100 comment-button-delete-cancel">
+                    Cancel
+                </button>
+              </span>
+            </div>
           </td>
         </tr>
       {% endfor %}
-      {% if not case.small_variant_comments.all %}
-        <tr>
-           <td class="bg-faded font-italic text-center" colspan="3">
-             No comments yet.
-           </td>
-        </tr>
-      {% endif %}
+      <tr
+         id="small-variant-comments-empty"
+         {% if case.small_variant_comments.all %}style="display: none;"{% endif %}>
+         <td class="bg-faded font-italic text-center" colspan="3">
+           No comments yet.
+         </td>
+      </tr>
     </tbody>
   </table>
 </div>
@@ -65,9 +105,13 @@
           <th>Comments</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody
+          id="structural-variant-comments"
+          class="list"
+          data-url-submit="{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case=object.sodar_uuid %}"
+          data-url-delete="{% url 'variants:small-variant-comment-delete-api' project=project.sodar_uuid case=object.sodar_uuid %}">
         {% for sv_comment in case.structural_variant_comments.all %}
-          <tr id="comment-{{ sv_comment.sodar_uuid }}">
+          <tr class="list-item" id="comment-{{ sv_comment.sodar_uuid }}" data-sodar-uuid="{{ sv_comment.sodar_uuid }}">
             <td class="text-nowrap">
               chr{{ sv_comment.chromosome }}:{{ sv_comment.start|intcomma }}-{{ sv_comment.end|intcomma }}
             </td>
@@ -75,23 +119,60 @@
               {{ sv_comment.sv_type }}
             </td>
             <td style="overflow-y: auto !important; max-height: 200px;">
-              <strong>{{ sv_comment.user }}</strong>
-              <small>
-                commented at
-                {{ sv_comment.date_created }}:
-              </small>
-              <em>{{ sv_comment.text }}</em>
+              <div id="display-comment-{{ variant_comment.sodar_uuid }}">
+                <span class="small text-muted">
+                  <strong>{{ sv_comment.user }}</strong>,
+                  {{ sv_comment.date_created|date:"Y/m/d H:i" }}:
+                </span>
+                <em>{{ sv_comment.text }}</em>
+                {% if sv_comment.user == request.user or request.user.is_superuser %}
+                  <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="fa fa-pencil"></i></a>
+                  <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="fa fa-times-circle"></i></a>
+                {% endif %}
+              </div>
+              <div id="edit-comment-{{ sv_comment.sodar_uuid }}" style="display: none;">
+                <form>
+                  <textarea id="text-comment-{{ sv_comment.sodar_uuid }}" name="variant_comment" rows="1" cols="40" class="form-control"></textarea>
+                  <span class="btn-group d-flex">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-primary w-100 comment-button-edit-submit">
+                        Submit
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-secondary w-100 comment-button-edit-cancel">
+                        Cancel
+                    </button>
+                  </span>
+                </form>
+              </div>
+              <div id="delete-comment-{{ sv_comment.sodar_uuid }}" style="display: none;">
+                <span class="btn-group d-flex">
+                  <button
+                      type="button"
+                      class="btn btn-sm btn-danger w-100 comment-button-delete-submit">
+                      Delete
+                  </button>
+                  <button
+                      type="button"
+                      class="btn btn-sm btn-secondary w-100 comment-button-delete-cancel">
+                      Cancel
+                  </button>
+                </span>
+              </div>
             </td>
           </tr>
         {% endfor %}
-        {% if not case.structural_variant_comments.all %}
-          <tr>
-             <td class="bg-faded font-italic text-center" colspan="3">
-               No comments yet.
-             </td>
-          </tr>
-        {% endif %}
+        <tr
+          id="structural-variant-comments-empty"
+          {% if case.structural_variant_comments.all %}style="display: none;"{% endif %}>
+          <td class="bg-faded font-italic text-center" colspan="3">
+            No comments yet.
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
 {% endif %}
+

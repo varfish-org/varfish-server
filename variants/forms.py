@@ -1248,9 +1248,6 @@ class SmallVariantFlagsForm(forms.ModelForm):
 class SmallVariantCommentForm(forms.ModelForm):
     """Form for validating small variant comments."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     class Meta:
         model = SmallVariantComment
         exclude = ("case", "sodar_uuid", "user", "date_created", "date_modified")

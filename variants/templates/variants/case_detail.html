@@ -65,4 +65,17 @@
   <script type="text/javascript" src="{% static 'js/vendor/axios-0.18.0.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/palette-1.1.0.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/qc_plots.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/helpers.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/variant_comments.js' %}"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+        $("#comment-button-submit").on("click", commentSubmit);
+        $(".comment-button-delete").on("click", commentDeleteToggle);
+        $(".comment-button-delete-cancel").on("click", commentDeleteToggle);
+        $(".comment-button-delete-submit").on("click", commentDeleteSubmit);
+        $(".comment-button-edit").on("click", commentEditToggle);
+        $(".comment-button-edit-cancel").on("click", commentEditToggle);
+        $(".comment-button-edit-submit").on("click", commentEditSubmit);
+    });
+  </script>
 {% endblock %}

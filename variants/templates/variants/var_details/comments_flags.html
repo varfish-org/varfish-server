@@ -36,13 +36,65 @@
   {% else %}
     <div class="text-muted text-center p-2"><i>No flags.</i></div>
   {% endif %}
-  {% for item in comments %}
-    <div class="p-2" style="max-height: 150px; overflow-y: auto !important;">
-      <span class="small text-muted">{{ item.date_created|date:"Y/m/d H:i" }}, <strong>{{ item.user.username }}</strong> wrote:</span>
-      <em>{{ item.text }}</em>
-    </div>
-  {% endfor %}
-  {% if not comments %}
-    <div colspan="3" class="text-muted text-center p-2"><i>No comments.</i></div>
-  {% endif %}
+  <ul
+      class="list-group list-group-flush list"
+      style="overflow-y: auto !important; max-height: 300px;"
+      id="comment-list-{{ small_var.chromosome }}-{{ small_var.start }}-{{ small_var.end }}-{{ small_var.reference }}-{{ small_var.alternative }}"
+      data-url-submit="{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case=object.sodar_uuid %}"
+      data-url-delete="{% url 'variants:small-variant-comment-delete-api' project=project.sodar_uuid case=object.sodar_uuid %}">
+    {% for comment in comments %}
+    <li class="list-group-item list-item" data-sodar-uuid="{{ comment.sodar_uuid }}">
+      <div id="display-comment-{{ comment.sodar_uuid }}">
+        <span class="small text-muted">
+          <strong>{{ comment.user }}</strong>
+          {{ comment.date_created|date:"Y/m/d H:i" }}:
+        </span>
+        <em>{{ comment.text }}</em>
+        {% if comment.user == request.user or request.user.is_superuser %}
+          <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="fa fa-pencil"></i></a>
+          <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="fa fa-times-circle"></i></a>
+        {% endif %}
+      </div>
+      <div id="edit-comment-{{ comment.sodar_uuid }}" style="display: none;">
+        <form>
+          <textarea id="text-comment-{{ comment.sodar_uuid }}" name="variant_comment" rows="1" cols="40" class="form-control"></textarea>
+          <span class="btn-group d-flex">
+            <button
+                type="button"
+                class="btn btn-sm btn-primary w-100 comment-button-edit-submit">
+                Submit
+            </button>
+            <button
+                type="button"
+                class="btn btn-sm btn-secondary w-100 comment-button-edit-cancel">
+                Cancel
+            </button>
+          </span>
+        </form>
+      </div>
+      <div id="delete-comment-{{ comment.sodar_uuid }}" style="display: none;">
+        <span class="btn-group d-flex">
+          <button
+              type="button"
+              class="btn btn-sm btn-danger w-100 comment-button-delete-submit">
+              Delete
+          </button>
+          <button
+              type="button"
+              class="btn btn-sm btn-secondary w-100 comment-button-delete-cancel">
+              Cancel
+          </button>
+        </span>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  <div
+      class="card-body"
+      id="comment-list-{{ small_var.chromosome }}-{{ small_var.start }}-{{ small_var.end }}-{{ small_var.reference }}-{{ small_var.alternative }}-empty"
+      {% if comments %}style="display: none;"{% endif %}>
+    <p class="text-muted font-italic text-center">
+      No comments yet.
+    </p>
+  </div>
 </div>

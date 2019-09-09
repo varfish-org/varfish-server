@@ -31,7 +31,7 @@ $(document).on('click', '.toggle-variant-details', function() {
   let variant_comment_url = "{% url 'svs:sv-comment-api' project=project.sodar_uuid case="--abcef--" sv="--bbccee--" %}";
 </script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
-<script type="text/javascript" src="{% static "js/helper.js" %}"></script>
+<script type="text/javascript" src="{% static "js/helpers.js" %}"></script>
 <script type="text/javascript" src="{% static "js/flags_comments.js" %}"></script>
 
 {% include "variants/_variant_flag_form_tpl.html" %}

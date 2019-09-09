@@ -132,8 +132,18 @@ urlpatterns = [
     ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-comment/(?P<case>[0-9a-f-]+)/$",
-        view=views.SmallVariantCommentApiView.as_view(),
+        view=views.SmallVariantCommentSubmitApiView.as_view(),
         name="small-variant-comment-api",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-comment-delete/(?P<case>[0-9a-f-]+)/$",
+        view=views.SmallVariantCommentDeleteApiView.as_view(),
+        name="small-variant-comment-delete-api",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/case-comments-delete/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseCommentsDeleteApiView.as_view(),
+        name="case-comments-delete-api",
     ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-acmg-rating/(?P<case>[0-9a-f-]+)/$",

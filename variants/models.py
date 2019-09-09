@@ -622,6 +622,13 @@ class Case(models.Model):
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             return {}
 
+    def shortened_notes_text(self, max_chars=50):
+        """Shorten ``text`` to ``max_chars`` characters if longer."""
+        if len(self.notes) > max_chars:
+            return self.notes[:max_chars] + "..."
+        else:
+            return self.notes
+
     def __str__(self):
         """Return case name as human-readable description."""
         return self.name
@@ -671,6 +678,19 @@ class CaseComments(models.Model):
     )
     #: User
     comment = models.TextField()
+
+    class Meta:
+        ordering = ["date_created"]
+
+    def shortened_text(self, max_chars=50):
+        """Shorten ``text`` to ``max_chars`` characters if longer."""
+        if len(self.comment) > max_chars:
+            return self.comment[:max_chars] + "..."
+        else:
+            return self.comment
+
+    def get_absolute_url(self):
+        return self.case.get_absolute_url() + "#comment-%s" % self.sodar_uuid
 
 
 class SmallVariantSet(models.Model):
@@ -951,7 +971,7 @@ class SmallVariantComment(models.Model):
     )
 
     #: The comment text.
-    text = models.TextField(help_text="The comment text", null=False, blank=False)
+    text = models.TextField(null=False, blank=False)
 
     def get_variant_description(self):
         return "-".join(
