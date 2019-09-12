@@ -69,6 +69,7 @@
   <th class="detail-constraints-gnomad-z-mis">Z mis</th>
   <th class="detail-constraints-gnomad-z-syn">Z syn</th>
   <th>gene</th>
+  <th>effect</th>
   {% if has_phenotype_scores %}
     <th>score</th>
     <th>rank</th>
@@ -81,7 +82,6 @@
     <th>score</th>
     <th>rank</th>
   {% endif %}
-  <th>effect</th>
   {% if query_type == "case" %}
     {% for member in pedigree %}
       <th style="max-width: 80px;">

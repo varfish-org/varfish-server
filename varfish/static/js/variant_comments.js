@@ -127,7 +127,7 @@ function commentSubmit() {
                 $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-edit").on("click", commentEditToggle);
                 $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-edit-cancel").on("click", commentEditToggle);
                 $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-edit-submit").on("click", commentEditSubmit);
-                handleEmptyMessage();
+                handleEmptyMessage(list.attr("id"));
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert("Error during AJAX call: " + textStatus + " " + errorThrown);

@@ -25,6 +25,7 @@ End-User Summary
 - Fixed issue in SV results table where columns were missing when the genotype was missing.
 - Comments on variants are now editable and deletable, in the case detail view as well as the variant detail view.
 - Case comments are now edtiable.
+- Fixed pathogenicity and phenotype score column headings in results table.
 
 Full Change List
 ================
@@ -52,6 +53,7 @@ Full Change List
 - Comments on variants are now editable and deletable, in the case detail view as well as the variant detail view.
 - Case comments are now edtiable.
 - Moved and consolidated further JS code from HTML to JS files.
+- Fixed pathogenicity and phenotype score column headings in results table.
 
 -------
 v0.17.2

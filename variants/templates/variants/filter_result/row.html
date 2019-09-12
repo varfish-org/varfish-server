@@ -15,8 +15,8 @@
     <i class="fa fa-fw fa-chevron-right"></i>
   </td>
   {# rank #}
-  <td style="width: 0px" class="text-nowrap text-right text-muted">
-      {{ forloop.counter }}
+  <td style="width: 0px" class="text-nowrap text-right text-muted" data-order="{{ forloop.counter }}">
+      #{{ forloop.counter }}
   </td>
   {# bookmark #}
   {% if not training_mode %}
@@ -230,31 +230,7 @@
       {% endfor %}
     {% endif %}
   </td>
-  {% if has_phenotype_scores %}
-    <td class="text-right">
-      {{ entry.phenotype_score|floatformat:3 }}
-    </td>
-    <td class="text-muted text-right">
-      {{ entry.phenotype_rank }}
-    </td>
-  {% endif %}
-  {% if has_pathogenicity_scores %}
-    <td class="text-right">
-      {{ entry.pathogenicity_score|floatformat:1 }}
-    </td>
-    <td class="text-muted text-right">
-      {{ entry.pathogenicity_rank }}
-    </td>
-  {% endif %}
-  {% if has_phenotype_scores and has_pathogenicity_scores %}
-    <td class="text-right">
-      {{ entry.joint_score|floatformat:1 }}
-    </td>
-    <td class="text-muted text-right">
-      {{ entry.joint_rank }}
-    </td>
-  {% endif %}
-  <td>
+  <td class="text-nowrap">
     <span data-toggle="tooltip" title="{{ entry.effect|join:', ' }}">
       {% with entry.hgvs_p|default:"-" as hgvs_p %}
         {% if hgvs_p == "-" or hgvs_p == "p.?" or hgvs_p == "p.=" %}
@@ -265,9 +241,33 @@
       {% endwith %}
     </span>
     {% if entry.effect_ambiguity %}
-      &nbsp;<i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="The impact predictions for RefSeq and ENSEMBL transcripts differ."></i>
+      <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="The impact predictions for RefSeq and ENSEMBL transcripts differ."></i>
     {% endif %}
   </td>
+  {% if has_phenotype_scores %}
+    <td class="text-right">
+      {{ entry.phenotype_score|floatformat:3 }}
+    </td>
+    <td class="text-muted text-right" data-order="{{ entry.phenotype_rank }}">
+      #{{ entry.phenotype_rank }}
+    </td>
+  {% endif %}
+  {% if has_pathogenicity_scores %}
+    <td class="text-right">
+      {{ entry.pathogenicity_score|floatformat:1 }}
+    </td>
+    <td class="text-muted text-right" data-order="{{ entry.pathogenicity_rank }}">
+      #{{ entry.pathogenicity_rank }}
+    </td>
+  {% endif %}
+  {% if has_phenotype_scores and has_pathogenicity_scores %}
+    <td class="text-right">
+      {{ entry.joint_score|floatformat:1 }}
+    </td>
+    <td class="text-muted text-right" data-order="{{ entry.join_rank }}">
+      #{{ entry.joint_rank }}
+    </td>
+  {% endif %}
   {% if query_type == "case" %}
     {# pedigree members #}
     {% for member in pedigree %}
