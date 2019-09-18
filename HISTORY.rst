@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Fixed bug in exporting files when pathogencity scoring is activated.
+
+Full Change List
+================
+
+- Fixed function call to missing function in exporting files when pathogencity scoring is activated.
+
 -------
 v0.17.3
 -------

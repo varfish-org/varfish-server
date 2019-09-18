@@ -22,6 +22,7 @@ from .models import (
     annotate_with_pathogenicity_scores,
     annotate_with_joint_scores,
     prioritize_genes,
+    variant_scores,
 )
 from .templatetags.variants_tags import flag_class
 from projectroles.plugins import get_backend_api
@@ -313,7 +314,7 @@ class CaseExporterBase:
                 )
                 _result = annotate_with_pathogenicity_scores(_result, variant_scores)
             if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
-                _result = annotate_with_joint_scores(_result, gene_scores, variant_scores)
+                _result = annotate_with_joint_scores(_result)
             self.job.add_log_entry("Writing output file...")
             for small_var in _result:
                 if small_var.chromosome != prev_chrom:
@@ -335,6 +336,14 @@ class CaseExporterBase:
             }
         else:
             return {}
+
+    def _fetch_variant_scores(self, variants):
+        if self._is_pathogenicity_enabled():
+            return {
+                "-".join([release, chrom, str(pos), ref, alt]): score
+                for release, chrom, pos, ref, alt, score in variant_scores(variants)
+            }
+        return {}
 
     def _get_named_temporary_file_args(self):
         return {}
