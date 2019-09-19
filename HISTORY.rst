@@ -10,11 +10,13 @@ End-User Summary
 ================
 
 - Fixed bug in exporting files when pathogencity scoring is activated.
+- Added IGV button to small/structural comment list in case overview.
 
 Full Change List
 ================
 
 - Fixed function call to missing function in exporting files when pathogencity scoring is activated.
+- Added IGV button to small/structural comment list in case overview.
 
 -------
 v0.17.3

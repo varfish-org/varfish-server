@@ -27,6 +27,11 @@
         <tr class="list-item" id="comment-{{ variant_comment.sodar_uuid }}" data-sodar-uuid="{{ variant_comment.sodar_uuid }}">
           <td class="text-nowrap">
             chr{{ variant_comment.chromosome }}:{{ variant_comment.start|intcomma }}-{{ variant_comment.reference }}-{{ variant_comment.alternative }}
+            <a href="#"
+              onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ variant_comment.chromosome }}:{{ variant_comment.start }}-{{ variant_comment.end }}'})"
+              class="badge badge-secondary">
+              IGV
+            </a>
           </td>
           <td>
             {{ variant_comment.get_gene_symbols|join:", "|default:"-" }}
@@ -114,6 +119,11 @@
           <tr class="list-item" id="comment-{{ sv_comment.sodar_uuid }}" data-sodar-uuid="{{ sv_comment.sodar_uuid }}">
             <td class="text-nowrap">
               chr{{ sv_comment.chromosome }}:{{ sv_comment.start|intcomma }}-{{ sv_comment.end|intcomma }}
+              <a
+                onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ sv_comment.chromosome }}:{{ sv_comment.start }}-{{ sv_comment.end }}'})"
+                class="badge badge-secondary">
+                IGV
+              </a>
             </td>
             <td class="text-nowrap">
               {{ sv_comment.sv_type }}
