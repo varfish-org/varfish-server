@@ -1,5 +1,6 @@
 import contextlib
 import tempfile
+import time
 from datetime import datetime, timedelta
 import json
 
@@ -1833,25 +1834,51 @@ def variant_scores(variants):
         return
 
     try:
-        res = requests.request(
-            method="post",
-            url=settings.VARFISH_CADD_REST_API_URL,
+        res = requests.post(
+            settings.VARFISH_CADD_REST_API_URL + "/annotate/",
             json={
                 "genome_build": "GRCh37",
                 "cadd_release": "v1.4",
                 "variant": ["-".join(map(str, var)) for var in variants],
             },
         )
+    except requests.ConnectionError:
+        raise ConnectionError(
+            "ERROR: Server {} not responding.".format(settings.VARFISH_CADD_REST_API_URL)
+        )
+
+    # Exit if error is reported
+    if not res.status_code == 200:
+        raise ConnectionError(
+            "ERROR: Server responded with status {} and message {}".format(
+                res.status_code, res.text
+            )
+        )
+    bgjob_uuid = res.json().get("uuid")
+    while True:
+        try:
+            res = requests.post(
+                settings.VARFISH_CADD_REST_API_URL + "/result/", json={"bgjob_uuid": bgjob_uuid}
+            )
+        except requests.ConnectionError:
+            raise ConnectionError(
+                "ERROR: Server {} not responding.".format(settings.VARFISH_CADD_REST_API_URL)
+            )
+
         if not res.status_code == 200:
             raise ConnectionError(
                 "ERROR: Server responded with status {} and message {}".format(
                     res.status_code, res.text
                 )
             )
-    except requests.ConnectionError:
-        raise ConnectionError(
-            "ERROR: Server {} not responding.".format(settings.VARFISH_CADD_REST_API_URL)
-        )
+        if res.json().get("status") == "active":
+            time.sleep(2)
+        elif res.json().get("status") == "failed":
+            raise ConnectionError(
+                "Job failed, leaving the following message: {}".format(res.json().get("result"))
+            )
+        else:  # status == finished
+            break
 
     for var, scores in res.json().get("scores", {}).items():
         chrom, pos, ref, alt = var.split("-")

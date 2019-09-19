@@ -64,15 +64,21 @@ class CaseFilterTest(TestCase):
             ),
         )
         mock.post(
-            settings.VARFISH_CADD_REST_API_URL,
+            settings.VARFISH_CADD_REST_API_URL + "/annotate/",
+            status_code=200,
+            text=json.dumps({"uuid": "xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"}),
+        )
+        mock.post(
+            settings.VARFISH_CADD_REST_API_URL + "/result/",
             status_code=200,
             text=json.dumps(
                 {
+                    "status": "finished",
                     "scores": {
                         "1-100-A-G": [0.345146, 7.772],
                         "1-200-A-G": [0.345179, 7.773],
                         "1-300-A-G": [0.345212, 7.774],
-                    }
+                    },
                 }
             ),
         )

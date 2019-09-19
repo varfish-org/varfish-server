@@ -623,15 +623,21 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             return "%s-%d-%s-%s" % (s.chromosome, s.start, s.reference, s.alternative)
 
         mock.post(
-            settings.VARFISH_CADD_REST_API_URL,
+            settings.VARFISH_CADD_REST_API_URL + "/annotate/",
+            status_code=200,
+            text=json.dumps({"uuid": "xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"}),
+        )
+        mock.post(
+            settings.VARFISH_CADD_REST_API_URL + "/result/",
             status_code=200,
             text=json.dumps(
                 {
+                    "status": "finished",
                     "scores": {
                         _key_gen(self.small_vars[0]): [0.345146, 7.773],
                         _key_gen(self.small_vars[1]): [0.345179, 7.773],
                         _key_gen(self.small_vars[2]): [0.345212, 7.774],
-                    }
+                    },
                 }
             ),
         )
