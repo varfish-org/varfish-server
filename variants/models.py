@@ -159,6 +159,8 @@ class SmallVariant(models.Model):
     case_id = models.IntegerField()
     #: Link to VariantSet ID.
     set_id = models.IntegerField()
+    #: Miscalleneous information as JSONB.
+    info = JSONField(default={})
     #: Genotype information as JSONB
     genotype = JSONField()
     #: Number of hom. alt. genotypes
@@ -217,6 +219,8 @@ class SmallVariant(models.Model):
     refseq_hgvs_p = models.CharField(max_length=512, null=True)
     #: RefSeq variant effect list
     refseq_effect = ArrayField(models.CharField(max_length=64), null=True)
+    #: Distance to next RefSeq exon.
+    refseq_exon_dist = models.IntegerField(null=True)
     #: EnsEMBL gene ID
     ensembl_gene_id = models.CharField(max_length=16, null=True)
     #: EnsEMBL transcript ID
@@ -229,6 +233,8 @@ class SmallVariant(models.Model):
     ensembl_hgvs_p = models.CharField(max_length=512, null=True)
     #: EnsEMBL variant effect list
     ensembl_effect = ArrayField(models.CharField(max_length=64, null=True))
+    #: Distance to next ENSEMBL exon.
+    ensembl_exon_dist = models.IntegerField(null=True)
 
     #: Allow bulk import
     objects = CopyManager()
@@ -2389,6 +2395,8 @@ class VariantImporterBase:
 
     variant_set_attribute = None
     table_names = None
+    #: Fill this with ``field_name: default_tsv_value`` in your sub class to ensure the fields are present.
+    default_values = {}
 
     def __init__(self, import_job):
         self.import_job = import_job
@@ -2488,13 +2496,20 @@ class VariantImporterBase:
             for i, path_genotypes in enumerate(getattr(self.import_job, path_attr)):
                 with open_file(path_genotypes, "rt") as inputf:
                     header = inputf.readline().strip()
+                    header_arr = header.split("\t")
                     try:
-                        case_idx = header.split("\t").index("case_id")
-                        set_idx = header.split("\t").index("set_id")
+                        case_idx = header_arr.index("case_id")
+                        set_idx = header_arr.index("set_id")
                     except ValueError as e:
                         raise RuntimeError(
                             "Column 'case_id' or 'set_id' not found in %s TSV" % token
                         ) from e
+                    # Extend header for fields in self.default_values and build suffix to append to every line.
+                    default_suffix = []
+                    for field, value in self.default_values.items():
+                        if field not in header_arr:
+                            header += "\t%s" % field
+                            default_suffix.append("\t%s" % value)
                     if i == 0:
                         tempf.write(header)
                         tempf.write("\n")
@@ -2505,7 +2520,7 @@ class VariantImporterBase:
                         arr = line.split("\t")
                         arr[case_idx] = str(variant_set.case.pk)
                         arr[set_idx] = str(variant_set.pk)
-                        tempf.write("\t".join(arr))
+                        tempf.write("\t".join(arr + default_suffix))
                         tempf.write("\n")
             tempf.flush()
             elapsed = timezone.now() - before
@@ -2532,6 +2547,9 @@ class VariantImporter(VariantImporterBase):
 
     variant_set_attribute = "smallvariantset_set"
     table_names = ("variants_smallvariant",)
+    # Ensure that the info and {refseq,ensembl}_exon_dist fields are present with default values.  This snippet
+    # can go away once we are certain all TSV files have been created with varfish-annotator >=0.10
+    default_values = {"info": "{}", "refseq_exon_dist": ".", "ensembl_exon_dist": "."}
 
     def _perform_import(self, variant_set):
         self._import_annotation_release_info(variant_set)

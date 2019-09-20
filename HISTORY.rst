@@ -19,6 +19,8 @@ Full Change List
 - Fixed function call to missing function in exporting files when pathogencity scoring is activated.
 - Added IGV button to small/structural comment list in case overview.
 - Adapted to new CADD REST API implementation.
+- Adding generic ``info`` field to small variants and fields for distance to refseq/ensembl exons.
+  The import is augmented such that the fields are filled with appropriate empty/null values when importing TSV files that don't have thish field yet.
 
 -------
 v0.17.3
