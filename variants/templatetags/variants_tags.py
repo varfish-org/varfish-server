@@ -257,6 +257,20 @@ def chrx_het_hom_ratio(case, sample):
     return case.chrx_het_hom_ratio(sample)
 
 
+@register.filter
+def from_bamstats(stats, value):
+    """Return percentage that a part represents of a total."""
+    if value == "total reads":
+        return stats["bamstats"]["sequences"] // 2
+    elif value == "percent duplicates":
+        if stats["bamstats"]["sequences"]:
+            return 100.0 * stats["bamstats"]["reads duplicated"] / stats["bamstats"]["sequences"]
+        else:
+            return 0.0
+    else:
+        return "INVALID"
+
+
 # TODO: move to sodar-core
 @register.simple_tag
 def get_user_setting(user, app_name, setting_name):

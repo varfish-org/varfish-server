@@ -61,6 +61,14 @@ class Command(BaseCommand):
             nargs="+",
         )
         parser.add_argument(
+            "--path-bam-qc",
+            help="Path to BAM QC file.",
+            required=False,
+            action="append",
+            default=[],
+            nargs="+",
+        )
+        parser.add_argument(
             "--path-feature-effects",
             help="Path to gene-wise feature effects (triggers import of structural variants)",
             action="append",
@@ -89,6 +97,7 @@ class Command(BaseCommand):
         """The actual implementation is in ``_handle()``, splitting to get commit times."""
         # Flatten the nargs="+" arguments.
         options["path_genotypes"] = list(itertools.chain(*options["path_genotypes"]))
+        options["path_bam_qc"] = list(itertools.chain(*options["path_bam_qc"]))
         options["path_db_info"] = list(itertools.chain(*options["path_db_info"]))
         if options["path_feature_effects"]:
             options["path_feature_effects"] = list(
@@ -146,6 +155,7 @@ class Command(BaseCommand):
                 path_ped=options["path_ped"],
                 path_genotypes=options["path_genotypes"],
                 path_db_info=options["path_db_info"],
+                path_bam_qc=options["path_bam_qc"],
             )
         if options["sync"]:
             self.stdout.write("Running import job now synchronously")

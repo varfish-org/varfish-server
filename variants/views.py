@@ -504,6 +504,14 @@ class CaseDetailView(
                     }
                     for stats in variant_set.variant_stats.sample_variant_stats.all()
                 }
+                # Build list of properly sorted coverage keys.
+                coverages = set()
+                if hasattr(variant_set, "casealignmentstats"):
+                    for min_covs in variant_set.casealignmentstats.bam_stats.values():
+                        coverages |= set(map(int, min_covs["min_cov_target"]))
+                result["coverages"] = list(map(str, sorted(filter(lambda x: x > 0, coverages))))[
+                    :10
+                ]
         except (SmallVariantSet.variant_stats.RelatedObjectDoesNotExist, AttributeError):
             pass  # swallow, defaults set above
 

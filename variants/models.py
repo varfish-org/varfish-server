@@ -764,6 +764,28 @@ class AnnotationReleaseInfo(models.Model):
         unique_together = ("genomebuild", "table", "variant_set")
 
 
+class CaseAlignmentStats(models.Model):
+    """Store alignment information about alignment statistics for a case."""
+
+    #: Reference to the case.
+    case = models.ForeignKey(Case, null=False)
+    #: Reference to the small variant set.
+    variant_set = models.OneToOneField(SmallVariantSet, null=False)
+    #: The BAM statistics information.  On the top level, there is one entry for each sample.  Below this are the keys
+    #: bamstats, idxstats, min_cov_targets, min_cov_bases.  Below bamstats, there is an entry from "samtools stats"
+    #: metric (as retrieved by ``grep '^SN'`` to the metric value.  Below idxstats, the contig name is mapped to
+    #: a dict with "mapped" and "unmapped" entries.  Below min_cov_targets is a dict mapping coverage to the percentage
+    #: of targets having a minimal coverage of the key value.  Below min_cov_bases is a dict mapping coverage to
+    #: the percentage of *bases* having a minimal coverage of the key value.
+    bam_stats = JSONField(default={}, null=False)
+
+    #: Allow bulk import
+    objects = CopyManager()
+
+    class Meta:
+        indexes = (models.Index(fields=["case"]),)
+
+
 #: File type choices for ``ExportFileBgJob``.
 EXPORT_TYPE_CHOICE_TSV = "tsv"
 EXPORT_TYPE_CHOICE_XLSX = "xlsx"
@@ -2379,6 +2401,13 @@ class ImportVariantsBgJob(JobModelMessageMixin2, models.Model):
             max_length=4096, blank=False, null=False, help_text="Path to db-info TSV file"
         )
     )
+    #: The path to the bam-qc TSV file.
+    path_bam_qc = ArrayField(
+        models.CharField(
+            max_length=4096, blank=False, null=False, help_text="Path to bam-qc TSV file"
+        ),
+        default=[],
+    )
 
     def get_human_readable_type(self):
         return "Import (small) variants into VarFish"
@@ -2553,6 +2582,7 @@ class VariantImporter(VariantImporterBase):
 
     def _perform_import(self, variant_set):
         self._import_annotation_release_info(variant_set)
+        self._import_alignment_stats(variant_set)
         self._import_table(variant_set, "genotypes", "path_genotypes", SmallVariant)
         self._rebuild_small_variants_stats(variant_set)
 
@@ -2578,6 +2608,15 @@ class VariantImporter(VariantImporterBase):
                     case=variant_set.case,
                     variant_set=variant_set,
                     defaults={"release": entry["release"]},
+                )
+
+    def _import_alignment_stats(self, variant_set):
+        for path_bam_qc in self.import_job.path_bam_qc:
+            for entry in tsv_reader(path_bam_qc):
+                CaseAlignmentStats.objects.get_or_create(
+                    case=variant_set.case,
+                    variant_set=variant_set,
+                    bam_stats=json.loads(entry["bam_stats"].replace('"""', '"')),
                 )
 
 

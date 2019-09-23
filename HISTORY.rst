@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- BAM statistics (including target coverage information) can now be imported and displayed.
+
+Full Change List
+================
+
+- Adding code for importing, storing, and displaying BAM quality control values.
+
 -------
 v0.17.4
 -------
@@ -20,7 +34,7 @@ Full Change List
 - Added IGV button to small/structural comment list in case overview.
 - Adapted to new CADD REST API implementation.
 - Adding generic ``info`` field to small variants and fields for distance to refseq/ensembl exons.
-  The import is augmented such that the fields are filled with appropriate empty/null values when importing TSV files that don't have thish field yet.
+  The import is augmented such that the fields are filled with appropriate empty/null values when importing TSV files that don't have this field yet.
 
 -------
 v0.17.3
