@@ -2509,7 +2509,7 @@ class VariantImporterBase:
                     for field, value in self.default_values.items():
                         if field not in header_arr:
                             header += "\t%s" % field
-                            default_suffix.append("\t%s" % value)
+                            default_suffix.append(str(value))
                     if i == 0:
                         tempf.write(header)
                         tempf.write("\n")
