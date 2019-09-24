@@ -10,11 +10,13 @@ End-User Summary
 ================
 
 - BAM statistics (including target coverage information) can now be imported and displayed.
+- Mitochondrial variants can now be properly displayed.
 
 Full Change List
 ================
 
 - Adding code for importing, storing, and displaying BAM quality control values.
+- Fixing ``urls`` configuration bug preventing chrMT matches.
 
 -------
 v0.17.4
