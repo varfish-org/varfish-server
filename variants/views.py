@@ -508,10 +508,11 @@ class CaseDetailView(
                 coverages = set()
                 if hasattr(variant_set, "casealignmentstats"):
                     for min_covs in variant_set.casealignmentstats.bam_stats.values():
-                        coverages |= set(map(int, min_covs["min_cov_target"]))
-                result["coverages"] = list(map(str, sorted(filter(lambda x: x > 0, coverages))))[
-                    :10
-                ]
+                        if "min_cov_target" in min_covs:
+                            coverages |= set(map(int, min_covs["min_cov_target"]))
+                if coverages:
+                    filtered = filter(lambda x: x > 0, coverages)
+                    result["coverages"] = list(map(str, sorted(filtered)))[:10]
         except (SmallVariantSet.variant_stats.RelatedObjectDoesNotExist, AttributeError):
             pass  # swallow, defaults set above
 
