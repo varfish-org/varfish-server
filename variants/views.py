@@ -64,6 +64,7 @@ from .models import (
     ImportVariantsBgJob,
     CaseComments,
     RowWithClinvarMax,
+    _variant_scores_mutationtaster_rank_model,
 )
 from .forms import (
     ExportFileResubmitForm,
@@ -1139,11 +1140,17 @@ class CaseLoadPrefetchedFilterView(
             card_colspan += 2
             rows = annotate_with_phenotype_scores(rows, gene_scores)
 
-        # Annotate with pathogenicity score if any.
-        variant_scores = {
-            entry.variant_key(): entry.score
-            for entry in filter_job.smallvariantquery.smallvariantqueryvariantscores_set.all()
-        }
+        # Annotate with pathogenicity score if any. MutationTaster can have multiple predictions per variant (for each transcript).
+        variant_scores = {}
+        for entry in filter_job.smallvariantquery.smallvariantqueryvariantscores_set.all():
+            key = entry.variant_key()
+            score = variant_scores.get(key)
+            if score:
+                if entry.score > score[0]:
+                    variant_scores[key] = (entry.score, entry.api_result)
+            else:
+                variant_scores[key] = (entry.score, entry.api_result)
+
         if variant_scores:
             card_colspan += 2
             rows = annotate_with_pathogenicity_scores(rows, variant_scores)
@@ -1187,6 +1194,7 @@ class CaseLoadPrefetchedFilterView(
                 query_type=self.query_type,
                 has_phenotype_scores=bool(gene_scores),
                 has_pathogenicity_scores=bool(variant_scores),
+                patho_score=filter_job.smallvariantquery.query_settings.get("patho_score", False),
                 exac_enabled=filter_job.smallvariantquery.query_settings.get("exac_enabled", False),
                 thousand_genomes_enabled=filter_job.smallvariantquery.query_settings.get(
                     "thousand_genomes_enabled", False

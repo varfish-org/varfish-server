@@ -674,7 +674,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
     @patch("django.conf.settings.VARFISH_EXOMISER_PRIORITISER_API_URL", "https://exomiser.com")
     @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
     @Mocker()
-    def test_ranking_results(self, mock):
+    def test_ranking_cadd_and_pheno_results(self, mock):
         mock.get(
             settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
             status_code=200,
@@ -732,7 +732,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                         prio_algorithm="phenix",
                         prio_hpo_terms=["HP:0000001"],
                         patho_enabled=True,
-                        patho_score="phenix",  # ?
+                        patho_score="cadd",
                         names=self.case.get_members(),
                     )
                 ),
@@ -764,6 +764,123 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.context["result_rows"][2].pathogenicity_score, 7.773)
             self.assertEqual(response.context["result_rows"][2].phenotype_score, 0.1)
             self.assertEqual(response.context["result_rows"][2].joint_score, 0.1 * 7.773)
+            self.assertEqual(response.context["result_rows"][2].phenotype_rank, 1)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_rank, 2)
+            self.assertEqual(response.context["result_rows"][2].joint_rank, 2)
+
+    @patch("django.conf.settings.VARFISH_ENABLE_EXOMISER_PRIORITISER", True)
+    @patch("django.conf.settings.VARFISH_EXOMISER_PRIORITISER_API_URL", "https://exomiser.com")
+    @patch("django.conf.settings.VARFISH_MUTATIONTASTER_REST_API_URL", "https://mutationtaster.com")
+    @Mocker()
+    def test_ranking_mutationtaster_and_pheno_results(self, mock):
+        mock.get(
+            settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
+            status_code=200,
+            text=json.dumps(
+                {
+                    "results": [
+                        {
+                            "geneId": self.small_vars[0].refseq_gene_id,
+                            "geneSymbol": "API",
+                            "score": "0.1",
+                            "priorityType": "PHENIX_PRIORITY",
+                        },
+                        {
+                            "geneId": self.small_vars[1].refseq_gene_id,
+                            "geneSymbol": "API",
+                            "score": "0.1",
+                            "priorityType": "PHENIX_PRIORITY",
+                        },
+                    ]
+                }
+            ),
+        )
+
+        return_text = "id\tchr\tpos\tref\talt\ttranscript_stable\tNCBI_geneid\tprediction\tmodel\tbayes_prob_dc\tnote\n"
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "1",
+            self.small_vars[0].chromosome,
+            str(self.small_vars[0].start),
+            self.small_vars[0].reference,
+            self.small_vars[0].alternative,
+            self.small_vars[0].ensembl_transcript_id,
+            "1234",
+            "disease causing",
+            "complex_aae",
+            "998",
+            "-",
+        )
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "2",
+            self.small_vars[1].chromosome,
+            str(self.small_vars[1].start),
+            self.small_vars[1].reference,
+            self.small_vars[1].alternative,
+            self.small_vars[1].ensembl_transcript_id,
+            "4567",
+            "disease causing (automatic)",
+            "complex_aae",
+            "999",
+            "-",
+        )
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "3",
+            self.small_vars[2].chromosome,
+            str(self.small_vars[2].start),
+            self.small_vars[2].reference,
+            self.small_vars[2].alternative,
+            self.small_vars[2].ensembl_transcript_id,
+            "5678",
+            "disease causing",
+            "simple_aae",
+            "999",
+            "-",
+        )
+        mock.post(settings.VARFISH_MUTATIONTASTER_REST_API_URL, status_code=200, text=return_text)
+        with self.login(self.user):
+            self.client.post(
+                reverse(
+                    "variants:case-filter-results",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    FormDataFactory(
+                        prio_enabled=True,
+                        prio_algorithm="phenix",
+                        prio_hpo_terms=["HP:0000001"],
+                        patho_enabled=True,
+                        patho_score="mutationtaster",
+                        names=self.case.get_members(),
+                    )
+                ),
+            )
+            response = self.client.post(
+                reverse(
+                    "variants:case-load-filter-results",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                {"filter_job_uuid": FilterBgJob.objects.last().sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["result_count"], 3)
+            self.assertEqual(response.context["training_mode"], False)
+            self.assertEqual(response.context["has_phenotype_scores"], True)
+            self.assertEqual(response.context["has_pathogenicity_scores"], True)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_score, 4.0999)
+            self.assertEqual(response.context["result_rows"][0].phenotype_score, 0.1)
+            self.assertEqual(response.context["result_rows"][0].joint_score, 0.1 * 4.0999)
+            self.assertEqual(response.context["result_rows"][0].phenotype_rank, 1)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][0].joint_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_score, 3.0999)
+            self.assertEqual(response.context["result_rows"][1].phenotype_score, 0.1)
+            self.assertEqual(response.context["result_rows"][1].joint_score, 0.1 * 3.0999)
+            self.assertEqual(response.context["result_rows"][1].phenotype_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].joint_rank, 1)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_score, 3.0998)
+            self.assertEqual(response.context["result_rows"][2].phenotype_score, 0.1)
+            self.assertEqual(response.context["result_rows"][2].joint_score, 0.1 * 3.0998)
             self.assertEqual(response.context["result_rows"][2].phenotype_rank, 1)
             self.assertEqual(response.context["result_rows"][2].pathogenicity_rank, 2)
             self.assertEqual(response.context["result_rows"][2].joint_rank, 2)

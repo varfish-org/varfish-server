@@ -1,6 +1,10 @@
 from django import template
 
-from ..models import Case, only_source_name as _models_only_source_name
+from ..models import (
+    Case,
+    only_source_name as _models_only_source_name,
+    _variant_scores_mutationtaster_rank_model,
+)
 from projectroles.app_settings import AppSettingAPI
 from geneinfo.models import GeneIdToInheritance
 
@@ -61,7 +65,7 @@ def only_source_name(full_name):
 
 
 #: Clinvar status to stars.
-STARS = {
+CLINVAR_STARS = {
     "practice guideline": 4,
     "reviewed by expert panel": 3,
     "criteria provided, multiple submitters, no conflicts": 2,
@@ -73,15 +77,25 @@ STARS = {
 
 
 @register.filter
+def mutationtaster_stars(data):
+    return _variant_scores_mutationtaster_rank_model(data)
+
+
+@register.filter
+def mutationtaster_scale_bayes(prob):
+    return int(prob) / 1000
+
+
+@register.filter
 def status_stars(status):
-    return STARS.get(status, 0)
+    return CLINVAR_STARS.get(status, 0)
 
 
 @register.filter
 def status_importance(status):
-    if STARS.get(status):
-        return list(STARS.keys()).index(status)
-    return len(STARS)
+    if CLINVAR_STARS.get(status):
+        return list(CLINVAR_STARS.keys()).index(status)
+    return len(CLINVAR_STARS)
 
 
 #: Clinvar significance to colour.

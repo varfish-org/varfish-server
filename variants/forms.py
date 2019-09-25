@@ -205,12 +205,19 @@ PRIO_ALGORITHM_CHOICES = (
 
 
 #: CADD score value.
-PATHO_CADD = "phenix"
+PATHO_CADD = "cadd"
 #: CADD score label.
 PATHO_CADD_LABEL = "CADD"
+#: MutationTaster score value.
+PATHO_MUTATIONTASTER = "mutationtaster"
+#: MutationTaster score label.
+PATHO_MUTATIONTASTER_LABEL = "MutationTaster"
 
 #: Choices for variant scoring methods.
-PATHO_SCORE_CHOICES = ((PATHO_CADD, PATHO_CADD_LABEL),)
+PATHO_SCORE_CHOICES = (
+    (PATHO_CADD, PATHO_CADD_LABEL),
+    (PATHO_MUTATIONTASTER, PATHO_MUTATIONTASTER_LABEL),
+)
 
 
 class SmallVariantFlagsFilterFormMixin:

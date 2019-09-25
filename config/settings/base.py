@@ -392,7 +392,13 @@ VARFISH_ENABLE_CADD = env.bool("VARFISH_ENABLE_CADD", default=False)
 # Configure URL to CADD REST API
 VARFISH_CADD_REST_API_URL = env.str("VARFISH_CADD_REST_API_URL", "")
 # Configure maximal number of genes to send to Exomiser API
-VARFISH_CADD_MAX_VARS = env.int("VARFISH_CADD_MAX_VARS ", 5000)
+VARFISH_CADD_MAX_VARS = env.int("VARFISH_CADD_MAX_VARS", 5000)
+
+# Varfish: MutationTaster URL
+VARFISH_MUTATIONTASTER_REST_API_URL = env.str(
+    "VARFISH_MUTATIONTASTER_REST_API_URL", "https://www.mutationdistiller.org/MTc/MT_API.cgi"
+)
+VARFISH_MUTATIONTASTER_MAX_VARS = env.int("VARFISH_MUTATIONTASTER_MAX_VARS", 30)
 
 # Varfish: Jannovar
 # ------------------------------------------------------------------------------

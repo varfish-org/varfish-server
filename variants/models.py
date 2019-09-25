@@ -1358,6 +1358,9 @@ class SmallVariantQueryVariantScores(models.Model):
     #: The score.
     score = models.FloatField(null=False, blank=False, help_text="The variant score")
 
+    #: Complete result returned by scoring API (if any)
+    api_result = JSONField(default={})
+
     def variant_key(self):
         return "-".join(
             map(str, [self.release, self.chromosome, self.start, self.reference, self.alternative])
@@ -1677,6 +1680,7 @@ class RowWithPathogenicityScore(wrapt.ObjectProxy):
         super().__init__(obj)
         self._self_pathogenicity_rank = None
         self._self_pathogenicity_score = -1
+        self._self_pathogenicity_score_api_result = {}
 
     @property
     def pathogenicity_rank(self):
@@ -1686,11 +1690,17 @@ class RowWithPathogenicityScore(wrapt.ObjectProxy):
     def pathogenicity_score(self):
         return self._self_pathogenicity_score
 
+    @property
+    def pathogenicity_score_api_result(self):
+        return self._self_pathogenicity_score_api_result
+
     def __getitem__(self, key):
         if key == "pathogenicity_rank":
             return self.pathogenicity_rank
         elif key == "pathogenicity_score":
             return self.pathogenicity_score
+        elif key == "pathogenicity_score_api_result":
+            return self.pathogenicity_score_api_result
         else:
             return self.__wrapped__.__getitem__(key)
 
@@ -1710,7 +1720,10 @@ def annotate_with_pathogenicity_scores(rows, variant_scores):
     rows = [RowWithPathogenicityScore(row) for row in rows]
     for row in rows:
         key = row.variant_key()
-        row._self_pathogenicity_score = variant_scores.get(key)
+        score = variant_scores.get(key)
+        if score:
+            row._self_pathogenicity_score = score[0]
+            row._self_pathogenicity_score_api_result = score[1]
     # Get highest score for each gene.
     gene_scores = {}
     for row in rows:
@@ -1852,15 +1865,91 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
         yield entry["geneId"], entry["geneSymbol"], entry["score"], entry["priorityType"]
 
 
-def variant_scores(variants):
+def variant_scores(variants, score_model):
     """Perform variant pathogenicity score query.
 
     Yield (build, chromosome, start, reference, alternative, score)
     """
-    # TODO: properly test
-    if not settings.VARFISH_ENABLE_CADD or not variants:
-        return
 
+    if not variants:
+        return
+    if score_model == "cadd":
+        if not settings.VARFISH_ENABLE_CADD:
+            return
+        yield from _variant_scores_cadd(variants)
+    else:  # score_model == MutationTaster
+        yield from _variant_scores_mutationtaster(variants)
+
+
+def _variant_scores_mutationtaster(variants):
+    batch = []
+    for i, var in enumerate(variants, 1):
+        batch.append("{}:{}{}>{}".format(*var))
+        if i % settings.VARFISH_MUTATIONTASTER_MAX_VARS == 0:
+            yield from _variant_scores_mutationtaster_loop(batch)
+            batch = []
+    else:
+        yield from _variant_scores_mutationtaster_loop(batch)
+
+
+def _variant_scores_mutationtaster_loop(batch):
+    batch_str = ",".join(batch)
+    try:
+        res = requests.post(
+            settings.VARFISH_MUTATIONTASTER_REST_API_URL,
+            dict(format="tsv", debug="0", variants=batch_str),
+        )
+    except requests.ConnectionError:
+        raise ConnectionError(
+            "ERROR: Server {} not responding.".format(settings.VARFISH_MUTATIONTASTER_REST_API_URL)
+        )
+
+    # Exit if error is reported
+    if not res.status_code == 200:
+        raise ConnectionError(
+            "ERROR: Server responded with status {} and message {}".format(
+                res.status_code, res.text
+            )
+        )
+
+    for j, line in enumerate(res.text.split("\n")):
+        if not line:
+            return
+        line = line.split("\t")
+        if j == 0:
+            head = line
+            continue
+        record = dict(zip(head, line))
+        if record["note"] == "error":
+            continue
+        model_rank = _variant_scores_mutationtaster_rank_model(record)
+        score = model_rank + int(record["bayes_prob_dc"]) / 10000
+        chrom = record["chr"]
+        if chrom == "23":
+            chrom = "X"
+        elif chrom == "24":
+            chrom = "Y"
+        elif chrom == "0":
+            chrom = "MT"
+        yield "GRCh37", chrom, int(record["pos"]), record["ref"], record["alt"], score, record
+
+
+def _variant_scores_mutationtaster_rank_model(record):
+    model_rank = 0
+    if record["prediction"] == "disease causing (automatic)":
+        model_rank = 4
+    elif record["prediction"] == "disease causing":
+        if record["model"] in ("simple_aae", "complex_aae"):
+            model_rank = 3
+        elif record["model"] == "without_aae":  # without_aae near splice site
+            model_rank = 2
+        else:  # without_aae -- intronic
+            model_rank = 1
+    return model_rank
+
+
+def _variant_scores_cadd(variants):
+    # TODO: properly test
     try:
         res = requests.post(
             settings.VARFISH_CADD_REST_API_URL + "/annotate/",
@@ -1910,7 +1999,10 @@ def variant_scores(variants):
 
     for var, scores in res.json().get("scores", {}).items():
         chrom, pos, ref, alt = var.split("-")
-        yield "GRCh37", chrom, int(pos), ref, alt, scores[1]
+        yield "GRCh37", chrom, int(pos), ref, alt, scores[1], {
+            "info": res.json().get("info"),
+            "scores": scores,
+        }
 
 
 # TODO: Improve wrapper

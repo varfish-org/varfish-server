@@ -15,6 +15,7 @@ End-User Summary
 - Fixed error response when MutationDistiller submission wasn't submitted with a single individual.
 - Now using 404 & 500 error page from sodar core.
 - Visual error response on tabs is now more prominent.
+- Included MutationTaster as additional pathogenicity score.
 
 Full Change List
 ================
@@ -28,6 +29,7 @@ Full Change List
   All form errors that are raised during submission of file export or to MutationTaster are handled now this way.
 - Now using 404 & 500 error page from sodar core.
 - Visual error response on tabs is now more prominent.
+- Included MutationTaster as additional pathogenicity score.
 
 -------
 v0.17.4

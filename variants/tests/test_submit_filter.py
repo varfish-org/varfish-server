@@ -36,7 +36,7 @@ class CaseFilterTest(TestCase):
                 "prio_algorithm": "phenix",
                 "prio_hpo_terms": ["HP:0000001"],
                 "patho_enabled": True,
-                "patho_score": "phenix",  # ?
+                "patho_score": "cadd",
             }
         )
         self.bgjob.smallvariantquery.save()

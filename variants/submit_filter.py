@@ -4,6 +4,8 @@ import binning
 from django.conf import settings
 
 from projectroles.plugins import get_backend_api
+
+from variants.forms import PATHO_SCORE_CHOICES
 from variants.helpers import SQLALCHEMY_ENGINE
 from variants.models import prioritize_genes, variant_scores
 from .queries import CasePrefetchQuery, ProjectPrefetchQuery
@@ -65,7 +67,7 @@ class FilterBase:
         prio_algorithm = self.variant_query.query_settings.get("prio_algorithm")
         hpo_terms = tuple(sorted(self.variant_query.query_settings.get("prio_hpo_terms", [])))
         entrez_ids = tuple(
-            list(sorted(set(map(str, [row["entrez_id"] for row in results if row["entrez_id"]]))))[
+            sorted(set(map(str, [row["entrez_id"] for row in results if row["entrez_id"]])))[
                 : settings.VARFISH_EXOMISER_PRIORITISER_MAX_GENES
             ]
         )
@@ -89,23 +91,32 @@ class FilterBase:
 
     def _prioritize_variant_pathogenicity(self, results):
         """Prioritize genes in ``results`` and store in ``SmallVariantQueryVariantScores``."""
-        if not settings.VARFISH_ENABLE_CADD:
+        patho_enabled = self.variant_query.query_settings.get("patho_enabled")
+        patho_score = self.variant_query.query_settings.get("patho_score")
+
+        if patho_score == "cadd" and not settings.VARFISH_ENABLE_CADD:
             return
 
         def get_var(row):
             """Extract tuple describing variant from row."""
             return (row["chromosome"], row["start"], row["reference"], row["alternative"])
 
-        patho_enabled = self.variant_query.query_settings.get("patho_enabled")
-        patho_score = self.variant_query.query_settings.get("patho_score")
-        variants = tuple(list(sorted(set(map(get_var, results))))[: settings.VARFISH_CADD_MAX_VARS])
+        variants = tuple(sorted(set(map(get_var, results))))
+        if patho_score == "cadd":
+            variants = variants[: settings.VARFISH_CADD_MAX_VARS]
 
         if not all((patho_enabled, patho_score, variants)):
             return  # nothing to do
 
-        self.job.add_log_entry("Prioritize variant pathogenicity with CADD ...")
+        for value, name in PATHO_SCORE_CHOICES:
+            if value == patho_score:
+                break
+
+        self.job.add_log_entry("Prioritize variant pathogenicity with {} ...".format(name))
         try:
-            for release, chromosome, pos, ref, alt, score in variant_scores(variants):
+            for release, chromosome, pos, ref, alt, score, api_result in variant_scores(
+                variants, patho_score
+            ):
                 self.variant_query.smallvariantqueryvariantscores_set.create(
                     release=release,
                     chromosome=chromosome,
@@ -114,8 +125,9 @@ class FilterBase:
                     bin=binning.assign_bin(pos - 1, pos),
                     reference=ref,
                     alternative=alt,
-                    score_type="CADD_phred",
+                    score_type=name,
                     score=score,
+                    api_result=api_result,
                 )
         except ConnectionError as e:
             self.job.add_log_entry(e)
