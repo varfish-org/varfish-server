@@ -15,6 +15,7 @@ from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404, reverse
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
@@ -33,7 +34,12 @@ from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, Pro
 from projectroles.plugins import get_backend_api
 
 from varfish.users.models import User
-from .queries import CaseLoadPrefetchedQuery, ProjectLoadPrefetchedQuery, KnownGeneAAQuery
+from .queries import (
+    CaseLoadPrefetchedQuery,
+    ProjectLoadPrefetchedQuery,
+    KnownGeneAAQuery,
+    DeleteVariantsQuery,
+)
 from .models import (
     only_source_name,
     Case,
@@ -541,6 +547,32 @@ class CaseUpdateView(
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
     form_class = CaseForm
+
+
+class CaseDeleteView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Delete case."""
+
+    permission_required = "variants.delete_case"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, *args, **kwargs):
+        case = self.get_object()
+        case_uuid = case.sodar_uuid
+        case_name = case.name
+        for query in DeleteVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id):
+            with contextlib.closing(query):
+                pass
+        case.delete()
+        messages.info(self.request, "Deleted case {} with UUID {}.".format(case_name, case_uuid))
+        return redirect("variants:case-list", project=case.project.sodar_uuid)
 
 
 def build_rel_data(pedigree, relatedness):

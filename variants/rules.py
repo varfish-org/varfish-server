@@ -11,5 +11,6 @@ rules.add_perm(
     | pr_rules.is_project_guest,
 )
 
+rules.add_perm("variants.delete_case", rules.is_superuser)
 rules.add_perm("variants.update_case", rules.is_superuser)
 rules.add_perm("variants.sync_remote", rules.is_superuser)

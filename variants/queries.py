@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql.array import OVERLAP
 from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from sqlalchemy import Table, true, column, union, literal_column
+from sqlalchemy import Table, true, column, union, literal_column, delete
 from sqlalchemy.sql import select, func, and_, not_, or_, cast
 from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
 import sqlparse
@@ -25,6 +25,7 @@ from geneinfo.models import (
     MgiMapping,
 )
 from hgmd.models import HgmdPublicLocus
+from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
 from variants.models import (
     Case,
     SmallVariant,
@@ -1410,3 +1411,29 @@ class KnownGeneAAQuery:
             .distinct(*distinct_fields)
         )
         return self.engine.execute(query)
+
+
+# Query for deleting the variants of a case.
+
+
+class DeleteVariantsQuery:
+    def __init__(self, engine):
+        #: The Aldjemy engine to use
+        self.engine = engine
+
+    def run(self, case_id):
+        """Execute the query."""
+        # Delete all structural variant gene annotations.
+        yield self.engine.execute(
+            delete(StructuralVariantGeneAnnotation.sa.table).where(
+                StructuralVariantGeneAnnotation.sa.case_id == case_id
+            )
+        )
+        # Delete all structural variants.
+        yield self.engine.execute(
+            delete(StructuralVariant.sa.table).where(StructuralVariant.sa.case_id == case_id)
+        )
+        # Delete all small variants.
+        yield self.engine.execute(
+            delete(SmallVariant.sa.table).where(SmallVariant.sa.case_id == case_id)
+        )

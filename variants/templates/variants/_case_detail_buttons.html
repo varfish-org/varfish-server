@@ -9,15 +9,49 @@
 
   {% if svs_enabled %}
     <a class="btn btn-primary" href="{% url "svs:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
-      <i class="fa fa-align-center fa-flip-vertical"></i>
+      <i class="fa fa-flip-vertical"></i>
       Filter SVs
     </a>
   {% endif %}
-
   {% if request.user.is_superuser %}
     <a class="btn btn-danger" href="{% url "variants:case-update" project=project.sodar_uuid case=object.sodar_uuid %}">
-      <i class="fa fa-align-center fa-edit"></i>
+      <i class="fa fa-edit"></i>
       Edit Pedigree
     </a>
+  {% endif %}
+  {% if request.user.is_superuser %}
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteCaseModal">
+      <i class="fa fa-trash"></i>
+      Delete Case
+    </button>
+    <div class="modal" tabindex="-1" role="dialog" id="deleteCaseModal">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Deletion of Case</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+            <p>Deleting a case is irreversible and removes the case and its variants. Please confirm if you want to proceed.</p>
+          </div>
+          <div class="modal-footer">
+            <form method="post" action="{% url "variants:case-delete" project=project.sodar_uuid case=object.sodar_uuid %}">{% csrf_token %}
+              <button class="btn btn-danger" type="submit" onclick="$(this).attr('disabled', true); $('#deleteCaseIcon').removeClass('fa-trash').addClass('fa-refresh fa-spin');">
+                <i id="deleteCaseIcon" class="fa fa-trash"></i>
+                Delete Case
+              </button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                <i class="fa fa-times-circle"></i>
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="case-delete-submit" style="display: none">
+    </div>
   {% endif %}
 </div>

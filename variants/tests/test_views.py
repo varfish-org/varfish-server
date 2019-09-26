@@ -31,6 +31,8 @@ from geneinfo.tests.factories import (
     EnsemblToRefseqFactory,
     RefseqToEnsemblFactory,
 )
+from svs.models import StructuralVariant
+from svs.tests.factories import StructuralVariantSetFactory, StructuralVariantFactory
 from variants.models import (
     Case,
     ExportFileBgJob,
@@ -40,9 +42,9 @@ from variants.models import (
     DistillerSubmissionBgJob,
     ComputeProjectVariantsStatsBgJob,
     SmallVariantFlags,
-    SmallVariantComment,
     AcmgCriteriaRating,
     SmallVariantSet,
+    SmallVariant,
 )
 from variants.tests.factories import (
     CaseFactory,
@@ -260,6 +262,81 @@ class TestCaseUpdateView(ViewTestBase):
             self.assertEqual(case.pedigree[0]["patient"], self.case.pedigree[0]["patient"] + "x")
             self.assertEqual(case.pedigree[0]["affected"], 0)
             self.assertEqual(case.pedigree[0]["sex"], 0)
+
+
+class TestCaseDeleteView(RoleAssignmentMixin, ViewTestBase):
+    """Test CaseDeleteView."""
+
+    def setUp(self):
+        super().setUp()
+        self.project = ProjectFactory()
+        # Create first case with small and structural variants
+        self.case_1 = CaseFactory(project=self.project)
+        self.variant_set_1 = SmallVariantSetFactory(case=self.case_1)
+        self.variant_set_sv_1 = StructuralVariantSetFactory(case=self.case_1)
+        self.small_vars_1 = SmallVariantFactory.create_batch(3, variant_set=self.variant_set_1)
+        self.svs_1 = StructuralVariantFactory.create_batch(3, variant_set=self.variant_set_sv_1)
+        # Create second case with small and structural variants
+        self.case_2 = CaseFactory(project=self.project)
+        self.variant_set_2 = SmallVariantSetFactory(case=self.case_2)
+        self.variant_set_sv_2 = StructuralVariantSetFactory(case=self.case_2)
+        self.small_vars_2 = SmallVariantFactory.create_batch(2, variant_set=self.variant_set_2)
+        self.svs_2 = StructuralVariantFactory.create_batch(2, variant_set=self.variant_set_sv_2)
+        # Create a user without superuser rights
+        self.randomuser = self.make_user("randomuser")
+        self.randomuser.save()
+        self._make_assignment(
+            self.project, self.randomuser, Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0]
+        )
+
+    def test_delete_as_admin(self):
+        with self.login(self.user):
+            # Check if the expected amount of objects is in the database.
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(
+                SmallVariant.objects.count(), len(self.small_vars_1) + len(self.small_vars_2)
+            )
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
+            # Delete case.
+            response = self.client.post(
+                reverse(
+                    "variants:case-delete",
+                    kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
+                )
+            )
+            # In case of success redirects to case overview.
+            self.assertRedirects(
+                response, reverse("variants:case-list", kwargs={"project": self.project.sodar_uuid})
+            )
+            # Objects in database of first case should be deleted, the second case should be still there.
+            self.assertEqual(Case.objects.count(), 1)
+            self.assertEqual(Case.objects.first().sodar_uuid, self.case_2.sodar_uuid)
+            self.assertEqual(SmallVariant.objects.count(), len(self.small_vars_2))
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_2))
+
+    def test_delete_as_user_and_fail(self):
+        with self.login(self.randomuser):
+            # Check if the expected amount of objects is in the database.
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(
+                SmallVariant.objects.count(), len(self.small_vars_1) + len(self.small_vars_2)
+            )
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
+            # Try to delete case.
+            response = self.client.post(
+                reverse(
+                    "variants:case-delete",
+                    kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
+                )
+            )
+            # Unrestricted access to a view redirects to home.
+            self.assertRedirects(response, reverse("home"))
+            # Objects should still be in the database.
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(
+                SmallVariant.objects.count(), len(self.small_vars_1) + len(self.small_vars_2)
+            )
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
 
 
 class TestCaseDetailQcStatsApiView(ViewTestBase):
@@ -1041,10 +1118,16 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
         super().setUp()
         self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
         variant_sets = SmallVariantSetFactory.create_batch(2, case__project=self.bgjob.project)
+        # Make sure the variants stay in order as we need to access the clinvar variant by position in list
         small_vars = [
-            *SmallVariantFactory.create_batch(3, variant_set=variant_sets[0]),
-            *SmallVariantFactory.create_batch(2, variant_set=variant_sets[1]),
-            SmallVariantFactory(variant_set=variant_sets[1], in_clinvar=True),
+            SmallVariantFactory(variant_set=variant_sets[0], chromosome="1", start=100),
+            SmallVariantFactory(variant_set=variant_sets[0], chromosome="1", start=200),
+            SmallVariantFactory(variant_set=variant_sets[0], chromosome="1", start=300),
+            SmallVariantFactory(variant_set=variant_sets[1], chromosome="1", start=400),
+            SmallVariantFactory(variant_set=variant_sets[1], chromosome="1", start=500),
+            SmallVariantFactory(
+                variant_set=variant_sets[1], chromosome="1", start=600, in_clinvar=True
+            ),
         ]
         self.bgjob.projectcasessmallvariantquery.query_results.add(small_vars[0], *small_vars[2:6])
         ClinvarFactory(
