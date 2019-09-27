@@ -15,7 +15,6 @@ from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404, reverse
-from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
@@ -571,7 +570,7 @@ class CaseDeleteView(
             with contextlib.closing(query):
                 pass
         case.delete()
-        messages.info(self.request, "Deleted case {} with UUID {}.".format(case_name, case_uuid))
+        messages.success(self.request, "Deleted case {} with UUID {}.".format(case_name, case_uuid))
         return redirect("variants:case-list", project=case.project.sodar_uuid)
 
 
@@ -836,7 +835,11 @@ class CaseFilterView(
             return self._form_valid_mutation_distiller(form)
 
     def form_invalid(self, form):
-        raise ValidationError(form.errors)
+        return render(
+            self.request,
+            self.template_name,
+            self.get_context_data(form=form, form_errors=form.errors.as_json),
+        )
 
     def _form_valid_file(self, form):
         """The form is valid, we want to asynchronously build a file for later download."""

@@ -12,6 +12,7 @@ End-User Summary
 - BAM statistics (including target coverage information) can now be imported and displayed.
 - Mitochondrial variants can now be properly displayed.
 - Added ``Delete Case`` button and functionality to case overview, only visible for superusers.
+- Fixed error response when MutationDistiller submission wasn't submitted with a single individual.
 
 Full Change List
 ================
@@ -20,6 +21,9 @@ Full Change List
 - Fixing ``urls`` configuration bug preventing chrMT matches.
 - Added ``Delete Case`` button and functionality to case overview, only visible for superusers.
   Deletes record from ``Case`` and variants from ``SmallVariant``, ``StructuralVariant`` and ``StructuralVariantGeneAnnotation`` associated with this case.
+- Fixed error response when MutationDistiller submission wasn't submitted with a single individual.
+  Error is now displayed via ``messages`` after reloading the filter page.
+  All form errors that are raised during submission of file export or to MutationTaster are handled now this way.
 
 -------
 v0.17.4

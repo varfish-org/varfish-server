@@ -2,7 +2,6 @@
 
 import json
 
-from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from projectroles.templatetags.projectroles_common_tags import site_version
 from projectroles.tests.test_models import RoleAssignmentMixin, PROJECT_ROLE_OWNER
@@ -419,8 +418,8 @@ class TestCaseFilterView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
     def test_provoke_form_error(self):
-        with self.login(self.user), self.assertRaises(ValidationError):
-            self.client.post(
+        with self.login(self.user):
+            response = self.client.post(
                 reverse(
                     "variants:case-filter",
                     kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
@@ -431,6 +430,9 @@ class TestCaseFilterView(ViewTestBase):
                         thousand_genomes_frequency="I'm supposed to be a float!",
                     )
                 ),
+            )
+            self.assertEqual(
+                response.context["form"].errors["thousand_genomes_frequency"][0], "Enter a number."
             )
 
     def test_post_download(self):

@@ -3,17 +3,11 @@ from itertools import chain
 
 from django.conf import settings
 from django import forms
-from .models import (
-    SmallVariantComment,
-    SmallVariantFlags,
-    AcmgCriteriaRating,
-    Case,
-    CASE_STATUS_CHOICES,
-    CaseComments,
-)
+from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
 from .templatetags.variants_tags import only_source_name
 from geneinfo.models import Hgnc
 from django.db.models import Q
+from django.utils.translation import gettext as _
 
 import re
 
@@ -961,13 +955,14 @@ class VariantGeneListFilterFormMixin:
                 )
             ]
             if mismatches:
-                self._errors[list_name] = self.error_class(
-                    [
-                        "Can't find symbol, Entrez ID or ENSEMBL gene ID: {}".format(
-                            "; ".join(mismatches)
-                        )
-                    ]
+                error = (
+                    forms.ValidationError(
+                        _("Can't find symbol, Entrez ID or ENSEMBL gene ID: %(value)s"),
+                        code="invalid",
+                        params=dict(value="; ".join(mismatches)),
+                    ),
                 )
+                self.add_error(list_name, error)
 
         _check_list("gene_blacklist")
         _check_list("gene_whitelist")
@@ -1014,9 +1009,14 @@ class GenomicRegionFilterFormMixin:
                 else:
                     malformed.append(entry_)
         if malformed:
-            self._errors["genomic_region"] = self.error_class(
-                ["Invalid chromosomal region formatting: {}".format("; ".join(malformed))]
+            error = (
+                forms.ValidationError(
+                    _("Invalid chromosomal region formatting: %(value)s"),
+                    code="invalid",
+                    params=dict(value="; ".join(malformed)),
+                ),
             )
+            self.add_error("genomic_region", error)
 
         cleaned_data["genomic_region"] = results
         return cleaned_data
@@ -1166,15 +1166,20 @@ class FilterForm(
         cleaned_data = super().clean()
         # If submit is "submit-mutationdistiller" then only one sample can be checked for export.
         if cleaned_data["submit"] == "submit-mutationdistiller":
-            seen_first = False
-            for member in self.get_pedigree_with_samples():
-                if cleaned_data[self.get_quality_field_names()[member["patient"]]["export"]]:
-                    if seen_first:
-                        raise forms.ValidationError(
-                            "MutationDistiller only supports export of a single individual. "
-                            'Please only select on sample the in "Configure Downloads" tab.'
-                        )
-                    seen_first = True
+            number_selected = sum(
+                [
+                    cleaned_data[self.get_quality_field_names()[member["patient"]]["export"]]
+                    for member in self.get_pedigree_with_samples()
+                ]
+            )
+            if not number_selected == 1:
+                raise forms.ValidationError(
+                    _(
+                        "MutationDistiller only supports export of a single individual. "
+                        'Please select exactly one donor in "More ..."/"Configure Downloads" tab.'
+                    ),
+                    code="invalid",
+                )
         return cleaned_data
 
 
@@ -1232,7 +1237,7 @@ class ProjectCasesFilterForm(
         if cleaned_data["submit"] == "download":
             if cleaned_data["file_type"] == "vcf":
                 raise forms.ValidationError(
-                    "VCF export for project-wide queries not implemented yet!"
+                    _("VCF export for project-wide queries not implemented yet!"), code="invalid"
                 )
         return cleaned_data
 

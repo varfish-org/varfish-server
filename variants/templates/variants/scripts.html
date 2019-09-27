@@ -3,11 +3,11 @@
 <script type="text/javascript">
   /* This script has the purpose of dynamically rendering the django template variables that we require in JavaScript.
    */
-  let structural_or_small = "small";
-  let variant_flags_url = "{% url 'variants:small-variant-flags-api' project=project.sodar_uuid case="--abcef--" %}";
-  let variant_comment_url = "{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case="--abcef--" %}";
-  let acmg_rating_url = "{% url 'variants:acmg-rating-api' project=project.sodar_uuid case="--abcef--" %}";
-  let settings_restored = false;
+  var structural_or_small = "small";
+  var variant_flags_url = "{% url 'variants:small-variant-flags-api' project=project.sodar_uuid case="--abcef--" %}";
+  var variant_comment_url = "{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case="--abcef--" %}";
+  var acmg_rating_url = "{% url 'variants:acmg-rating-api' project=project.sodar_uuid case="--abcef--" %}";
+  var settings_restored = false;
   if ({{ settings_restored }} == "1") {
       settings_restored = true;
   }
@@ -18,6 +18,21 @@
 <script type="text/javascript" src="{% static "js/filter_form.js" %}"></script>
 <script type="text/javascript" src="{% static "js/flags_comments.js" %}"></script>
 <script type="text/javascript" src="{% static "js/variant_comments.js" %}"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    let data = {};
+    {% for field, errors in form.errors.items %}
+      data["{{ field }}"] = [];
+      {% for error in errors %}
+        data["{{ field }}"].push("{{ error }}");
+      {% endfor %}
+    {% endfor %}
+    if (data) {
+      doVisualErrorResponseOnTabs(data);
+    }
+  });
+</script>
 
 {% include "variants/_variant_flag_form_tpl.html" %}
 {% include "variants/_acmg_criteria_form_tpl.html" %}
