@@ -105,8 +105,8 @@ function updateTableDisplay() {
     " display-" + $("#result-display-constraints").val() +
     " display-" + $("#result-display-info").val()
   );
-  $('[data-toggle="tooltip"]').tooltip({container: 'body'});
-  $('[data-toggle="popover"]').popover({container: 'body'});
+  $('[data-toggle="tooltip"]').tooltip({boundary: 'window', container: 'body'});
+  $('[data-toggle="popover"]').popover({boundary: 'window', container: 'body'});
 }
 
 function displayConnectionError() {

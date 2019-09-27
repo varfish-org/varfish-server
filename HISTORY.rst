@@ -20,6 +20,7 @@ End-User Summary
 - Project-wide filter now applicable when the project contains cases with no small variants (e.g. completely empty or only SVs).
 - Ignoring option `remove if in dbSNP` when `ClinVar membership required` is activated as every ClinVar entry has a dbSNP id.
 - Fixed indices on `SmallVariantFlags` and `SmallVariantComment` and introduced indices for `ExacConstraints` and `GnomadConstraints` that sped up large queries significantly.
+- Fixed issue where gene dropdown menu was overlayed by sticky top.
 
 Full Change List
 ================
@@ -38,6 +39,7 @@ Full Change List
 - Project-wide filter now applicable when the project contains cases with no small variants (e.g. completely empty or only SVs).
 - Ignoring option `remove if in dbSNP` when `ClinVar membership required` is activated as every ClinVar entry has a dbSNP id.
 - Fixed indices on `SmallVariantFlags` and `SmallVariantComment` and introduced indices for `ExacConstraints` and `GnomadConstraints` that sped up large queries significantly.
+- Fixed issue where gene dropdown menu was overlayed by sticky top.
 
 -------
 v0.17.4
