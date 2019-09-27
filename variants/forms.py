@@ -955,14 +955,12 @@ class VariantGeneListFilterFormMixin:
                 )
             ]
             if mismatches:
-                error = (
-                    forms.ValidationError(
-                        _("Can't find symbol, Entrez ID or ENSEMBL gene ID: %(value)s"),
-                        code="invalid",
-                        params=dict(value="; ".join(mismatches)),
+                self.add_error(
+                    list_name,
+                    "Can't find symbol, Entrez ID or ENSEMBL gene ID: {}".format(
+                        "; ".join(mismatches)
                     ),
                 )
-                self.add_error(list_name, error)
 
         _check_list("gene_blacklist")
         _check_list("gene_whitelist")
@@ -1009,14 +1007,10 @@ class GenomicRegionFilterFormMixin:
                 else:
                     malformed.append(entry_)
         if malformed:
-            error = (
-                forms.ValidationError(
-                    _("Invalid chromosomal region formatting: %(value)s"),
-                    code="invalid",
-                    params=dict(value="; ".join(malformed)),
-                ),
+            self.add_error(
+                "genomic_region",
+                "Invalid chromosomal region formatting: {}".format("; ".join(malformed)),
             )
-            self.add_error("genomic_region", error)
 
         cleaned_data["genomic_region"] = results
         return cleaned_data
@@ -1174,11 +1168,8 @@ class FilterForm(
             )
             if not number_selected == 1:
                 raise forms.ValidationError(
-                    _(
-                        "MutationDistiller only supports export of a single individual. "
-                        'Please select exactly one donor in "More ..."/"Configure Downloads" tab.'
-                    ),
-                    code="invalid",
+                    "MutationDistiller only supports export of a single individual. "
+                    'Please select exactly one donor in "More ..."/"Configure Downloads" tab.'
                 )
         return cleaned_data
 
@@ -1237,7 +1228,7 @@ class ProjectCasesFilterForm(
         if cleaned_data["submit"] == "download":
             if cleaned_data["file_type"] == "vcf":
                 raise forms.ValidationError(
-                    _("VCF export for project-wide queries not implemented yet!"), code="invalid"
+                    "VCF export for project-wide queries not implemented yet!"
                 )
         return cleaned_data
 
