@@ -13,6 +13,8 @@ End-User Summary
 - Mitochondrial variants can now be properly displayed.
 - Added ``Delete Case`` button and functionality to case overview, only visible for superusers.
 - Fixed error response when MutationDistiller submission wasn't submitted with a single individual.
+- Now using 404 & 500 error page from sodar core.
+- Visual error response on tabs is now more prominent.
 
 Full Change List
 ================
@@ -24,6 +26,8 @@ Full Change List
 - Fixed error response when MutationDistiller submission wasn't submitted with a single individual.
   Error is now displayed via ``messages`` after reloading the filter page.
   All form errors that are raised during submission of file export or to MutationTaster are handled now this way.
+- Now using 404 & 500 error page from sodar core.
+- Visual error response on tabs is now more prominent.
 
 -------
 v0.17.4

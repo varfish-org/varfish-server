@@ -169,7 +169,7 @@ function doVisualErrorResponseOnTabs(data) {
   $.each(data, function(element_name, error_texts) {
     let tabs = findTabToInput(element_name);
     $.each(tabs, function(index, tab_name) {
-      $("#" + tab_name).addClass("border border-danger form-error-border");
+      $("#" + tab_name).addClass("border border-danger text-white bg-danger form-error-border");
     });
   });
 }
@@ -188,7 +188,7 @@ function doVisualErrorResponseOnForms(data) {
 
 function removeVisualErrorResponse() {
   $(".form-error-border").each(function(index) {
-    $(this).removeClass("border border-danger form-error-border");
+    $(this).removeClass("border border-danger text-white bg-danger form-error-border");
   });
   $(".form-error-info").each(function(index) {
     $(this).remove();
