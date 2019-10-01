@@ -16,6 +16,7 @@ End-User Summary
 - Now using 404 & 500 error page from sodar core.
 - Visual error response on tabs is now more prominent.
 - Included MutationTaster as additional pathogenicity score.
+- Included UMD-Predictor as additional pathogenicity score.
 
 Full Change List
 ================
@@ -30,6 +31,7 @@ Full Change List
 - Now using 404 & 500 error page from sodar core.
 - Visual error response on tabs is now more prominent.
 - Included MutationTaster as additional pathogenicity score.
+- Included UMD-Predictor as additional pathogenicity score.
 
 -------
 v0.17.4

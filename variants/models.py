@@ -40,7 +40,9 @@ from genomicfeatures.models import GeneInterval
 from importer.management.helpers import open_file, tsv_reader
 
 from variants.helpers import SQLALCHEMY_ENGINE
+from projectroles.app_settings import AppSettingAPI
 
+app_settings = AppSettingAPI()
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
@@ -1865,7 +1867,7 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
         yield entry["geneId"], entry["geneSymbol"], entry["score"], entry["priorityType"]
 
 
-def variant_scores(variants, score_model):
+def variant_scores(variants, score_model, user=None):
     """Perform variant pathogenicity score query.
 
     Yield (build, chromosome, start, reference, alternative, score)
@@ -1877,8 +1879,60 @@ def variant_scores(variants, score_model):
         if not settings.VARFISH_ENABLE_CADD:
             return
         yield from _variant_scores_cadd(variants)
-    else:  # score_model == MutationTaster
+    elif score_model == "mutationtaster":
         yield from _variant_scores_mutationtaster(variants)
+    else:  # score_model == "umd":
+        yield from _variant_scores_umd(variants, user)
+
+
+def _variant_scores_umd(variants, user):
+    if not user:
+        return
+
+    token = app_settings.get_app_setting("variants", "umd_predictor_api_token", user=user)
+
+    if not token:
+        return
+
+    try:
+        res = requests.get(
+            settings.VARFISH_UMD_REST_API_URL,
+            params=dict(batch=",".join(["_".join(map(str, var)) for var in variants]), token=token),
+        )
+    except requests.ConnectionError:
+        raise ConnectionError(
+            "ERROR: Server {} not responding.".format(settings.VARFISH_UMD_REST_API_URL)
+        )
+
+        # Exit if error is reported
+    if not res.status_code == 200:
+        raise ConnectionError(
+            "ERROR: Server responded with status {} and message {}".format(
+                res.status_code, res.text
+            )
+        )
+
+    header = [
+        "chromosome",
+        "position",
+        "gene_name",
+        "ensembl_gene_id",
+        "ensembl_transcript_id",
+        "transcript_position",
+        "reference",
+        "alternative",
+        "AA_wildtype",
+        "AA_mutant",
+        "pathogenicity_score",
+        "conclusion",
+    ]
+    for line in res.text.split("\n"):
+        if not line.startswith("chr"):
+            continue
+        record = dict(zip(header, line.split("\t")))
+        yield "GRCh37", record["chromosome"].lstrip("chr"), int(record["position"]), record[
+            "reference"
+        ], record["alternative"], record["pathogenicity_score"], record
 
 
 def _variant_scores_mutationtaster(variants):
@@ -1904,11 +1958,17 @@ def _variant_scores_mutationtaster_loop(batch):
             "ERROR: Server {} not responding.".format(settings.VARFISH_MUTATIONTASTER_REST_API_URL)
         )
 
-    # Exit if error is reported
     if not res.status_code == 200:
         raise ConnectionError(
             "ERROR: Server responded with status {} and message {}".format(
                 res.status_code, res.text
+            )
+        )
+
+    if res.text.startswith("Content-Type: text/plain\n\nERROR: "):
+        raise ConnectionError(
+            "ERROR: Server responded with: {}".format(
+                res.text.lstrip("Content-Type: text/plain\n\nERROR: ")
             )
         )
 
@@ -1920,7 +1980,7 @@ def _variant_scores_mutationtaster_loop(batch):
             head = line
             continue
         record = dict(zip(head, line))
-        if record["note"] == "error":
+        if record["note"] == "error" or not record["bayes_prob_dc"] or not record["prediction"]:
             continue
         model_rank = _variant_scores_mutationtaster_rank_model(record)
         score = model_rank + int(record["bayes_prob_dc"]) / 10000

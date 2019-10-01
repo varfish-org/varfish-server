@@ -254,9 +254,7 @@
   {% endif %}
   {% if has_pathogenicity_scores %}
     <td class="text-right" data-order="{{ entry.pathogenicity_score|default:0.0 }}">
-      {% if patho_score == "cadd" %}
-        {{ entry.pathogenicity_score|floatformat:1|default:0.0 }}
-      {% else %}
+      {% if patho_score == "mutationtaster" %}
         <span class="badge-group">
           <span class="badge badge-dark" data-toggle="tooltip" data-placement="top" data-html="true" title="Prediction: {{ entry.pathogenicity_score_api_result.prediction|default:"-" }}<br/>Model: {{ entry.pathogenicity_score_api_result.model|default:"-" }}">
             {% for i in "1234" %}
@@ -271,6 +269,8 @@
             {{ entry.pathogenicity_score_api_result.bayes_prob_dc|default:0|mutationtaster_scale_bayes|floatformat:3 }}
           </span>
         </span>
+      {% else %}
+        {{ entry.pathogenicity_score|floatformat:1|default:0.0 }}
       {% endif %}
     </td>
     <td class="text-muted text-right" data-order="{{ entry.pathogenicity_rank }}">

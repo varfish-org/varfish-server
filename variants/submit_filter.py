@@ -2,10 +2,11 @@ import contextlib
 
 import binning
 from django.conf import settings
+from django.db import transaction
 
 from projectroles.plugins import get_backend_api
 
-from variants.forms import PATHO_SCORE_CHOICES
+from variants.forms import PATHO_SCORES_MAPPING
 from variants.helpers import SQLALCHEMY_ENGINE
 from variants.models import prioritize_genes, variant_scores
 from .queries import CasePrefetchQuery, ProjectPrefetchQuery
@@ -108,27 +109,26 @@ class FilterBase:
         if not all((patho_enabled, patho_score, variants)):
             return  # nothing to do
 
-        for value, name in PATHO_SCORE_CHOICES:
-            if value == patho_score:
-                break
-
+        name = PATHO_SCORES_MAPPING.get(patho_score)
         self.job.add_log_entry("Prioritize variant pathogenicity with {} ...".format(name))
+
         try:
-            for release, chromosome, pos, ref, alt, score, api_result in variant_scores(
-                variants, patho_score
-            ):
-                self.variant_query.smallvariantqueryvariantscores_set.create(
-                    release=release,
-                    chromosome=chromosome,
-                    start=pos,
-                    end=pos,
-                    bin=binning.assign_bin(pos - 1, pos),
-                    reference=ref,
-                    alternative=alt,
-                    score_type=name,
-                    score=score,
-                    api_result=api_result,
-                )
+            with transaction.atomic():
+                for release, chromosome, pos, ref, alt, score, api_result in variant_scores(
+                    variants, patho_score, self.job.bg_job.user
+                ):
+                    self.variant_query.smallvariantqueryvariantscores_set.create(
+                        release=release,
+                        chromosome=chromosome,
+                        start=pos,
+                        end=pos,
+                        bin=binning.assign_bin(pos - 1, pos),
+                        reference=ref,
+                        alternative=alt,
+                        score_type=name,
+                        score=score,
+                        api_result=api_result,
+                    )
         except ConnectionError as e:
             self.job.add_log_entry(e)
 

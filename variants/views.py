@@ -64,7 +64,6 @@ from .models import (
     ImportVariantsBgJob,
     CaseComments,
     RowWithClinvarMax,
-    _variant_scores_mutationtaster_rank_model,
 )
 from .forms import (
     ExportFileResubmitForm,
@@ -826,6 +825,7 @@ class CaseFilterView(
     def get_form_kwargs(self):
         result = super().get_form_kwargs()
         result["case"] = self.get_case_object()
+        result["user"] = self.request.user
         return result
 
     def form_valid(self, form):
@@ -977,7 +977,7 @@ class CasePrefetchFilterView(
         case_object = Case.objects.get(sodar_uuid=kwargs["case"])
 
         # clean data first
-        form = FilterForm(request.POST, case=case_object)
+        form = FilterForm(request.POST, case=case_object, user=request.user)
 
         if form.is_valid():
             # form is valid, we are supposed to render an HTML table with the results
@@ -1354,6 +1354,7 @@ class ProjectCasesFilterView(
     def get_form_kwargs(self):
         result = super().get_form_kwargs()
         result["project"] = self.get_project(self.request, self.kwargs)
+        result["user"] = self.request.user
         return result
 
     def form_valid(self, form):
@@ -1457,7 +1458,7 @@ class ProjectCasesPrefetchFilterView(
         project = CaseAwareProject.objects.get(pk=self.get_project(self.request, self.kwargs).pk)
 
         # clean data first
-        form = ProjectCasesFilterForm(request.POST, project=project)
+        form = ProjectCasesFilterForm(request.POST, project=project, user=request.user)
 
         if form.is_valid():
             # form is valid, we are supposed to render an HTML table with the results

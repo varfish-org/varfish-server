@@ -885,6 +885,120 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.context["result_rows"][2].pathogenicity_rank, 2)
             self.assertEqual(response.context["result_rows"][2].joint_rank, 2)
 
+    @patch("django.conf.settings.VARFISH_ENABLE_EXOMISER_PRIORITISER", True)
+    @patch("django.conf.settings.VARFISH_EXOMISER_PRIORITISER_API_URL", "https://exomiser.com")
+    @patch("django.conf.settings.VARFISH_UMD_REST_API_URL", "https://umd.com")
+    @Mocker()
+    def test_ranking_umd_and_pheno_results(self, mock):
+        from projectroles.app_settings import AppSettingAPI
+
+        app_settings = AppSettingAPI()
+        app_settings.set_app_setting(
+            "variants", "umd_predictor_api_token", "FAKETOKEN", user=self.user
+        )
+        mock.get(
+            settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
+            status_code=200,
+            text=json.dumps(
+                {
+                    "results": [
+                        {
+                            "geneId": self.small_vars[0].refseq_gene_id,
+                            "geneSymbol": "API",
+                            "score": "0.1",
+                            "priorityType": "PHENIX_PRIORITY",
+                        },
+                        {
+                            "geneId": self.small_vars[1].refseq_gene_id,
+                            "geneSymbol": "API",
+                            "score": "0.1",
+                            "priorityType": "PHENIX_PRIORITY",
+                        },
+                    ]
+                }
+            ),
+        )
+
+        return_text = "This page was created in 0.001 seconds\n\n"
+        return_text += "chr{}\t{}\tXXX\t{}\t{}\t1234\t{}\t{}\tW\tY\t{}\t{}\n".format(
+            self.small_vars[0].chromosome,
+            str(self.small_vars[0].start),
+            self.small_vars[0].ensembl_transcript_id,
+            self.small_vars[0].ensembl_gene_id,
+            self.small_vars[0].reference,
+            self.small_vars[0].alternative,
+            "98",
+            "Likely Pathogenic",
+        )
+        return_text += "chr{}\t{}\tXXX\t{}\t{}\t1234\t{}\t{}\tW\tY\t{}\t{}\n".format(
+            self.small_vars[1].chromosome,
+            str(self.small_vars[1].start),
+            self.small_vars[1].ensembl_transcript_id,
+            self.small_vars[1].ensembl_gene_id,
+            self.small_vars[1].reference,
+            self.small_vars[1].alternative,
+            "100",
+            "Pathogenic",
+        )
+        return_text += "chr{}\t{}\tXXX\t{}\t{}\t1234\t{}\t{}\tW\tY\t{}\t{}\n".format(
+            self.small_vars[2].chromosome,
+            str(self.small_vars[2].start),
+            self.small_vars[2].ensembl_transcript_id,
+            self.small_vars[2].ensembl_gene_id,
+            self.small_vars[2].reference,
+            self.small_vars[2].alternative,
+            "99",
+            "Pathogenic",
+        )
+        mock.get(settings.VARFISH_UMD_REST_API_URL, status_code=200, text=return_text)
+        with self.login(self.user):
+            self.client.post(
+                reverse(
+                    "variants:case-filter-results",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    FormDataFactory(
+                        prio_enabled=True,
+                        prio_algorithm="phenix",
+                        prio_hpo_terms=["HP:0000001"],
+                        patho_enabled=True,
+                        patho_score="umd",
+                        names=self.case.get_members(),
+                    )
+                ),
+            )
+            response = self.client.post(
+                reverse(
+                    "variants:case-load-filter-results",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                {"filter_job_uuid": FilterBgJob.objects.last().sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["result_count"], 3)
+            self.assertEqual(response.context["training_mode"], False)
+            self.assertEqual(response.context["has_phenotype_scores"], True)
+            self.assertEqual(response.context["has_pathogenicity_scores"], True)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_score, 100)
+            self.assertEqual(response.context["result_rows"][0].phenotype_score, 0.1)
+            self.assertEqual(response.context["result_rows"][0].joint_score, 0.1 * 100)
+            self.assertEqual(response.context["result_rows"][0].phenotype_rank, 1)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][0].joint_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_score, 99)
+            self.assertEqual(response.context["result_rows"][1].phenotype_score, 0.1)
+            self.assertEqual(response.context["result_rows"][1].joint_score, 0.1 * 99)
+            self.assertEqual(response.context["result_rows"][1].phenotype_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].joint_rank, 1)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_score, 98)
+            self.assertEqual(response.context["result_rows"][2].phenotype_score, 0.1)
+            self.assertEqual(response.context["result_rows"][2].joint_score, 0.1 * 98)
+            self.assertEqual(response.context["result_rows"][2].phenotype_rank, 1)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_rank, 2)
+            self.assertEqual(response.context["result_rows"][2].joint_rank, 2)
+
 
 class TestFilterJobDetailView(ViewTestBase):
     """Tests for FilterJobDetailView.

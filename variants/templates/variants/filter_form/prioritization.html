@@ -19,14 +19,12 @@
     </div>
   {% endif %}
 
-  {% if cadd_enabled %}
-    <div class="col-6 pt-3">
-      <h5 class="card-title">
-        Pathogenicity Prioritization
-      </h5>
+  <div class="col-6 pt-3">
+    <h5 class="card-title">
+      Pathogenicity Prioritization
+    </h5>
 
-      {{ form.patho_enabled|as_crispy_field }}
-      {{ form.patho_score|as_crispy_field }}
-    </div>
-  {% endif %}
+    {{ form.patho_enabled|as_crispy_field }}
+    {{ form.patho_score|as_crispy_field }}
+  </div>
 </div>

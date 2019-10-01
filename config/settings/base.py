@@ -400,6 +400,11 @@ VARFISH_MUTATIONTASTER_REST_API_URL = env.str(
 )
 VARFISH_MUTATIONTASTER_MAX_VARS = env.int("VARFISH_MUTATIONTASTER_MAX_VARS", 30)
 
+# Varfish: UMD URL
+VARFISH_UMD_REST_API_URL = env.str(
+    "VARFISH_UMD_REST_API_URL", "http://umd-predictor.eu/webservice.php"
+)
+
 # Varfish: Jannovar
 # ------------------------------------------------------------------------------
 

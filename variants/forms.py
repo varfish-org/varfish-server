@@ -7,7 +7,7 @@ from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, 
 from .templatetags.variants_tags import only_source_name
 from geneinfo.models import Hgnc
 from django.db.models import Q
-from django.utils.translation import gettext as _
+from projectroles.app_settings import AppSettingAPI
 
 import re
 
@@ -212,12 +212,17 @@ PATHO_CADD_LABEL = "CADD"
 PATHO_MUTATIONTASTER = "mutationtaster"
 #: MutationTaster score label.
 PATHO_MUTATIONTASTER_LABEL = "MutationTaster"
+#: UMD score value.
+PATHO_UMD = "umd"
+#: UMD score label.
+PATHO_UMD_LABEL = "UMD-Predictor"
 
-#: Choices for variant scoring methods.
-PATHO_SCORE_CHOICES = (
-    (PATHO_CADD, PATHO_CADD_LABEL),
-    (PATHO_MUTATIONTASTER, PATHO_MUTATIONTASTER_LABEL),
-)
+#: The actual choices are defined in the form directly as they are dependent on the current user.
+PATHO_SCORES_MAPPING = {
+    PATHO_CADD: PATHO_CADD_LABEL,
+    PATHO_MUTATIONTASTER: PATHO_MUTATIONTASTER_LABEL,
+    PATHO_UMD: PATHO_UMD_LABEL,
+}
 
 
 class SmallVariantFlagsFilterFormMixin:
@@ -1075,6 +1080,14 @@ class SmallVariantPrioritizerFormMixin:
             widget=forms.CheckboxInput(),
         )
 
+        #: Choices for variant scoring methods.
+        app_settings = AppSettingAPI()
+        PATHO_SCORE_CHOICES = [(PATHO_MUTATIONTASTER, PATHO_MUTATIONTASTER_LABEL)]
+        if settings.VARFISH_ENABLE_CADD:
+            PATHO_SCORE_CHOICES.append((PATHO_CADD, PATHO_CADD_LABEL))
+        if app_settings.get_app_setting("variants", "umd_predictor_api_token", user=self.user):
+            PATHO_SCORE_CHOICES.append((PATHO_UMD, PATHO_UMD_LABEL))
+
         self.fields["patho_score"] = forms.ChoiceField(
             label="Score",
             help_text="Pathogenicity scoring method to use.",
@@ -1144,6 +1157,7 @@ class FilterForm(
 
     def __init__(self, *args, **kwargs):
         self.case = kwargs.pop("case")
+        self.user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
 
     def get_pedigree(self):
@@ -1211,6 +1225,7 @@ class ProjectCasesFilterForm(
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project")
+        self.user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
 
     def get_pedigree(self):
