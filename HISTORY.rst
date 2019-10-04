@@ -17,6 +17,7 @@ End-User Summary
 - Visual error response on tabs is now more prominent.
 - Included MutationTaster as additional pathogenicity score.
 - Included UMD-Predictor as additional pathogenicity score.
+- Project-wide filter now applicable when the project contains cases with no small variants (e.g. completely empty or only SVs).
 
 Full Change List
 ================
@@ -32,6 +33,7 @@ Full Change List
 - Visual error response on tabs is now more prominent.
 - Included MutationTaster as additional pathogenicity score.
 - Included UMD-Predictor as additional pathogenicity score.
+- Project-wide filter now applicable when the project contains cases with no small variants (e.g. completely empty or only SVs).
 
 -------
 v0.17.4

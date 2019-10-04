@@ -44,6 +44,7 @@ from variants.models import (
     AcmgCriteriaRating,
     SmallVariantSet,
     SmallVariant,
+    update_variant_counts,
 )
 from variants.tests.factories import (
     CaseFactory,
@@ -1223,6 +1224,12 @@ class TestProjectCasesFilterView(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
+        self.variant_sets = SmallVariantSetFactory.create_batch(2, case__project=self.bgjob.project)
+        self.cases = [self.variant_sets[0].case, self.variant_sets[1].case]
+        SmallVariantFactory.create_batch(2, variant_set=self.variant_sets[0]),
+        SmallVariantFactory.create_batch(3, variant_set=self.variant_sets[1]),
+        for variant_set in self.variant_sets:
+            update_variant_counts(variant_set.case)
 
     def test_status_code_200(self):
         """Test display of the filter forms, no submit."""
@@ -1235,6 +1242,49 @@ class TestProjectCasesFilterView(ViewTestBase):
             )
 
             self.assertEqual(response.status_code, 200)
+            count = 0
+            # Count the number of rendered samples in the form
+            for key in response.context.get("form").fields.keys():
+                if key.endswith("_gt"):
+                    count += 1
+            self.assertEqual(count, 2)
+
+    def test_correct_member_listing_when_variant_set_is_not_active(self):
+        self.variant_sets[0].state = "importing"
+        self.variant_sets[0].save()
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter",
+                    kwargs={"project": self.bgjob.project.sodar_uuid},
+                )
+            )
+
+            self.assertEqual(response.status_code, 200)
+            count = 0
+            # Count the number of rendered samples in the form
+            for key in response.context.get("form").fields.keys():
+                if key.endswith("_gt"):
+                    count += 1
+            self.assertEqual(count, 1)
+
+    def test_correct_member_listing_when_variant_set_is_deleted(self):
+        self.variant_sets[0].delete()
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter",
+                    kwargs={"project": self.bgjob.project.sodar_uuid},
+                )
+            )
+
+            self.assertEqual(response.status_code, 200)
+            count = 0
+            # Count the number of rendered samples in the form
+            for key in response.context.get("form").fields.keys():
+                if key.endswith("_gt"):
+                    count += 1
+            self.assertEqual(count, 1)
 
     def test_post_download(self):
         """Test form submit for download as file."""
@@ -1245,7 +1295,7 @@ class TestProjectCasesFilterView(ViewTestBase):
                     "variants:project-cases-filter",
                     kwargs={"project": self.bgjob.project.sodar_uuid},
                 ),
-                vars(FormDataFactory(submit="download")),
+                vars(FormDataFactory(submit="download", names=self.bgjob.project.get_members())),
             )
             self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 1)
             created_job = ExportProjectCasesFileBgJob.objects.first()
@@ -1281,7 +1331,7 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
-                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
+                response.json().get("filter_job_uuid"),
                 str(ProjectCasesFilterBgJob.objects.last().sodar_uuid),
             )
 
@@ -1300,18 +1350,20 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
                 ),
             )
             self.assertEqual(response.status_code, 400)
-            self.assertTrue("exac_frequency" in json.loads(response.content.decode("utf-8")))
+            self.assertTrue(response.json().get("exac_frequency"))
 
     def test_variant_set_missing(self):
         SmallVariantSet.objects.all().delete()
-        with self.login(self.user), self.assertRaises(RuntimeError):
-            self.client.post(
+        with self.login(self.user):
+            response = self.client.post(
                 reverse(
                     "variants:project-cases-filter-results",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 vars(FormDataFactory(names=self.project.get_members())),
             )
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.json().get("__all__"), ["No samples to process."])
 
 
 class TestProjectCasesFilterJobDetailView(ViewTestBase):

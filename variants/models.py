@@ -79,7 +79,9 @@ class CaseAwareProject(Project):
         """Concatenate the pedigrees of project's cases."""
         result = []
         seen = set()
-        for case in self.case_set.all():
+        # Only select cases that have an active variant set.
+        # TODO Perspectively, we need to distinguish between Small and Structural VariantSets.
+        for case in self.case_set.filter(smallvariantset__state="active"):
             for line in case.pedigree:
                 if line["patient"] not in seen:
                     result.append(line)
@@ -90,7 +92,9 @@ class CaseAwareProject(Project):
         """Concatenate the pedigrees of project's cases that have samples."""
         result = []
         seen = set()
-        for case in self.case_set.all():
+        # Only select cases that have an active variant set.
+        # TODO Perspectively, we need to distinguish between Small and Structural VariantSets.
+        for case in self.case_set.filter(smallvariantset__state="active"):
             for line in case.get_filtered_pedigree_with_samples():
                 if line["patient"] not in seen:
                     result.append(line)
@@ -100,7 +104,9 @@ class CaseAwareProject(Project):
     def sample_to_case(self):
         """Compute sample-to-case mapping."""
         result = {}
-        for case in self.case_set.all():
+        # Only select cases that have an active variant set.
+        # TODO Perspectively, we need to distinguish between Small and Structural VariantSets.
+        for case in self.case_set.filter(smallvariantset__state="active"):
             for line in case.pedigree:
                 if line["patient"] not in result:
                     result[line["patient"]] = case

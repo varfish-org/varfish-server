@@ -1362,7 +1362,7 @@ class CaseExportVcfQuery(CasePrefetchQuery):
 
 class ProjectPrefetchQuery(CasePrefetchQuery):
     def __init__(self, project, engine, query_id=None):
-        cases = list(project.case_set.all())
+        cases = project.case_set.filter(smallvariantset__state="active")
         super().__init__(cases, engine, query_id)
 
 

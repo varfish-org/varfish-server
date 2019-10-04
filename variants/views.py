@@ -927,9 +927,9 @@ class CaseFilterView(
         context = super().get_context_data(**kwargs)
         context["object"] = self.get_case_object()
         context["num_small_vars"] = context["object"].num_small_vars
-        context["variant_set_exists"] = SmallVariantSet.objects.filter(
-            case_id=context["object"].id, state="active"
-        ).exists()
+        context["variant_set_exists"] = (
+            context["object"].smallvariantset_set.filter(state="active").exists()
+        )
         context["allow_md_submission"] = True
         # Construct the URL that is assigned to the submit button for the ajax request
         context["submit_button_url"] = reverse(
@@ -1408,9 +1408,8 @@ class ProjectCasesFilterView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["num_small_vars"] = context["project"].num_small_vars()
-        context["variant_set_exists"] = all(
-            SmallVariantSet.objects.filter(case_id=case_id, state="active").exists()
-            for case_id in context["project"].get_case_pks()
+        context["variant_set_exists"] = (
+            context["project"].case_set.filter(smallvariantset__state="active").exists()
         )
         context["submit_button_url"] = reverse(
             "variants:project-cases-filter-results",

@@ -341,7 +341,6 @@ class SmallVariantGenotypeFilterFormMixin:
 
     def update_genotype_fields(self):
         """Add and update genotype fields."""
-
         # Dynamically add the fields based on the pedigree
         for member in self.get_pedigree_with_samples():
             name = member["patient"]
@@ -1252,6 +1251,8 @@ class ProjectCasesFilterForm(
                 raise forms.ValidationError(
                     "VCF export for project-wide queries not implemented yet!"
                 )
+        if not self.get_pedigree():
+            raise forms.ValidationError("No samples to process.")
         return cleaned_data
 
 
