@@ -2658,12 +2658,29 @@ class CaseThreeClinvarFilterTestMixin:
                 origin=origin,
                 **{key: 1},
             )
+        DbsnpFactory(
+            release=self.small_vars[0].release,
+            chromosome=self.small_vars[0].chromosome,
+            start=self.small_vars[0].start,
+            end=self.small_vars[0].end,
+            bin=self.small_vars[0].bin,
+            reference=self.small_vars[0].reference,
+            alternative=self.small_vars[0].alternative,
+        )
 
     def test_render_query_do_not_require_membership(self):
         self.run_query(self.query_class, {}, 6)
 
     def test_render_query_require_membership_include_none(self):
         self.run_query(self.query_class, {"require_in_clinvar": True}, 6)
+
+    def test_render_query_remove_if_in_dbsnp_sanity(self):
+        self.run_query(self.query_class, {"remove_if_in_dbsnp": True}, 5)
+
+    def test_render_query_require_membership_ignore_remove_if_in_dbsnp(self):
+        self.run_query(
+            self.query_class, {"require_in_clinvar": True, "remove_if_in_dbsnp": True}, 6
+        )
 
     def test_render_query_require_membership_include_pathogenic(self):
         res = self.run_query(

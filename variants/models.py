@@ -1051,7 +1051,7 @@ class SmallVariantComment(models.Model):
     class Meta:
         indexes = (
             models.Index(
-                fields=["release", "chromosome", "start", "reference", "alternative", "case"]
+                fields=["release", "chromosome", "start", "end", "reference", "alternative", "case"]
             ),
         )
 
@@ -1213,7 +1213,20 @@ class SmallVariantFlags(models.Model):
             raise ValidationError("No corresponding variant in case")
 
     class Meta:
-        unique_together = ("release", "chromosome", "start", "reference", "alternative", "case")
+        unique_together = (
+            "release",
+            "chromosome",
+            "start",
+            "end",
+            "reference",
+            "alternative",
+            "case",
+        )
+        indexes = (
+            models.Index(
+                fields=["release", "chromosome", "start", "end", "reference", "alternative", "case"]
+            ),
+        )
 
 
 class SmallVariantQueryBase(models.Model):

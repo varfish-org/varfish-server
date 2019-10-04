@@ -216,7 +216,8 @@ class ExtendQueryPartsDbsnpJoin(ExtendQueryPartsBase):
 
 class ExtendQueryPartsDbsnpJoinAndFilter(ExtendQueryPartsDbsnpJoin):
     def extend_conditions(self, _query_parts):
-        if self.kwargs["remove_if_in_dbsnp"]:
+        # Do not enable option if clinvar filter is activated as all clinvar variants have a dbsnp entry.
+        if self.kwargs["remove_if_in_dbsnp"] and not self.kwargs["require_in_clinvar"]:
             return [column("rsid") == None]
         return []
 

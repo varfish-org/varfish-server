@@ -869,7 +869,10 @@ class SmallVariantClinvarHgmdFilterFormMixin:
             label="Remove if has dbSNP ID",
             required=False,
             initial=False,
-            help_text="Remove variant from results list if it has an associated dbSNP ID",
+            help_text=(
+                "Remove variant from results list if it has an associated dbSNP ID.",
+                "This option is ignored when ClinVar membership is required!",
+            ),
         )
 
         self.fields["clinvar_include_benign"] = forms.BooleanField(

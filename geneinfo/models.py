@@ -1,5 +1,5 @@
 from django.contrib.postgres.fields import ArrayField
-from django.db import models, connection, transaction, utils
+from django.db import models, connection, transaction
 from django.conf import settings
 from postgres_copy import CopyManager
 
@@ -346,6 +346,9 @@ class GnomadConstraints(models.Model):
     #: Allow bulk import info database.
     objects = CopyManager()
 
+    class Meta:
+        indexes = [models.Index(fields=["ensembl_gene_id"])]
+
 
 class ExacConstraints(models.Model):
     """Exac Constraints table."""
@@ -377,6 +380,9 @@ class ExacConstraints(models.Model):
 
     #: Allow bulk import info database.
     objects = CopyManager()
+
+    class Meta:
+        indexes = [models.Index(fields=["ensembl_transcript_id"])]
 
 
 class EnsemblToRefseq(models.Model):
