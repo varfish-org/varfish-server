@@ -1899,6 +1899,12 @@ def variant_scores(variants, score_model, user=None):
             return
         yield from _variant_scores_cadd(variants)
     elif score_model == "mutationtaster":
+        if len(variants) > settings.VARFISH_MUTATIONTASTER_MAX_VARS:
+            raise ConnectionError(
+                "ERROR: Too many variants to score. Got {}, limit is {}.".format(
+                    len(variants), settings.VARFISH_MUTATIONTASTER_MAX_VARS
+                )
+            )
         yield from _variant_scores_mutationtaster(variants)
     else:  # score_model == "umd":
         yield from _variant_scores_umd(variants, user)
@@ -1956,13 +1962,22 @@ def _variant_scores_umd(variants, user):
 
 def _variant_scores_mutationtaster(variants):
     batch = []
+    ignored_deletions_counter = 0
     for i, var in enumerate(variants, 1):
+        # TODO Ignore deletions. remove once Dominik fixed the deletions bug
+        if len(var[2]) > len(var[3]):
+            ignored_deletions_counter += 1
+            continue
         batch.append("{}:{}{}>{}".format(*var))
-        if i % settings.VARFISH_MUTATIONTASTER_MAX_VARS == 0:
+        if i % settings.VARFISH_MUTATIONTASTER_BATCH_VARS == 0:
             yield from _variant_scores_mutationtaster_loop(batch)
             batch = []
     else:
         yield from _variant_scores_mutationtaster_loop(batch)
+    if ignored_deletions_counter:
+        yield None, None, None, None, None, None, "Ignored {} deletions during prioritizing variant pathogencity due to MutationTaster API bug.".format(
+            ignored_deletions_counter
+        )
 
 
 def _variant_scores_mutationtaster_loop(batch):
@@ -2020,10 +2035,11 @@ def _variant_scores_mutationtaster_rank_model(record):
     elif record["prediction"] == "disease causing":
         if record["model"] in ("simple_aae", "complex_aae"):
             model_rank = 3
-        elif record["model"] == "without_aae":  # without_aae near splice site
-            model_rank = 2
-        else:  # without_aae -- intronic
-            model_rank = 1
+        elif record["model"] == "without_aae":
+            if record["splicesite"] in ("splice site", "splicing impaired"):
+                model_rank = 2
+            else:
+                model_rank = 1
     return model_rank
 
 

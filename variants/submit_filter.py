@@ -117,6 +117,10 @@ class FilterBase:
                 for release, chromosome, pos, ref, alt, score, api_result in variant_scores(
                     variants, patho_score, self.job.bg_job.user
                 ):
+                    # TODO Ignore deletions. remove once Dominik fixed the deletions bug (this part is for logging).
+                    if not any([release, chromosome, pos, ref, alt, score]):
+                        self.job.add_log_entry(api_result)
+                        continue
                     self.variant_query.smallvariantqueryvariantscores_set.create(
                         release=release,
                         chromosome=chromosome,
