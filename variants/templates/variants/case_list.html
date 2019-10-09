@@ -5,6 +5,7 @@
 {% load dict %}
 {% load rules %}
 {% load static %}
+{% load variants_tags %}
 
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item active">Cases</li>
@@ -111,6 +112,20 @@
             to compute.
           </p>
         {% endif %}
+      </div>
+
+      <div class="row mb-3">
+        <div class="col">
+          <h5>Progress</h5>
+          <div class="progress" style="height: 1.5em;">
+            {% for percent, count, total, status in progress %}
+              <div class="progress-bar bg-{{ status|case_status_to_color }}" role="progressbar"
+                   style="width: {{ percent }}%" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100">
+                {{ count }}/{{ total }} ({{ percent }}%) {{ status }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
       </div>
     </div>
   </div>

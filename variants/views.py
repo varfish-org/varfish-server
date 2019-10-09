@@ -64,6 +64,7 @@ from .models import (
     ImportVariantsBgJob,
     CaseComments,
     RowWithClinvarMax,
+    CASE_STATUS_CHOICES,
 )
 from .forms import (
     ExportFileResubmitForm,
@@ -161,6 +162,29 @@ class CaseListView(
         result["project"] = CaseAwareProject.objects.prefetch_related("variant_stats").get(
             pk=result["project"].pk
         )
+        result["progress"] = self._compute_progress(result["project"])
+        return result
+
+    def _compute_progress(self, project):
+        counts = {key: 0 for key, _ in CASE_STATUS_CHOICES}
+        for case in Case.objects.filter(project=project):
+            counts[case.status] = counts.get(case.status, 0) + 1
+        total_count = sum(counts.values())
+
+        result = []
+        statuses = [k for k, _ in CASE_STATUS_CHOICES if counts.get(k)]  # statuses with counts >0
+        width_sum = 0
+        if total_count:
+            for i, key in enumerate(statuses):
+                if i + 1 < len(statuses):
+                    width = int(100 * (counts.get(key, 0) / total_count))
+                    result.append((width, counts.get(key, 0), total_count, key))
+                    width_sum += width
+                else:
+                    width = 100 - width_sum
+                    result.append((width, counts.get(key, 0), total_count, key))
+        else:
+            result.append((100, total_count, total_count, "initial"))
         return result
 
 

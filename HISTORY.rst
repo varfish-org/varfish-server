@@ -21,6 +21,7 @@ End-User Summary
 - Ignoring option `remove if in dbSNP` when `ClinVar membership required` is activated as every ClinVar entry has a dbSNP id.
 - Fixed indices on `SmallVariantFlags` and `SmallVariantComment` and introduced indices for `ExacConstraints` and `GnomadConstraints` that sped up large queries significantly.
 - Fixed issue where gene dropdown menu was overlayed by sticky top.
+- Adding progress bar on top of case list.
 
 Full Change List
 ================
@@ -40,6 +41,7 @@ Full Change List
 - Ignoring option `remove if in dbSNP` when `ClinVar membership required` is activated as every ClinVar entry has a dbSNP id.
 - Fixed indices on `SmallVariantFlags` and `SmallVariantComment` and introduced indices for `ExacConstraints` and `GnomadConstraints` that sped up large queries significantly.
 - Fixed issue where gene dropdown menu was overlayed by sticky top.
+- Adding progress bar on top of case list.
 
 -------
 v0.17.4

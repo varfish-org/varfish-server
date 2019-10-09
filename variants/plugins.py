@@ -121,7 +121,6 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             counts[case.status] = counts.get(case.status, 0) + 1
         total_count = sum(counts.values())
         total_width = 70
-        print({"total_width": total_width, **counts})
         arr = [
             (
                 '<div style="width: {total_width}px; height: 1em; margin-top: .1em; margin-bottom: .1em; '
