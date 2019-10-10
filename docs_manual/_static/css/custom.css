@@ -1,0 +1,4 @@
+/* Prevent paragraphs in tables from blowing up cells with margin. */
+table p {
+  margin: 0;
+}

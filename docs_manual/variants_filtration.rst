@@ -16,7 +16,7 @@ Below, the results will be displayed after submitting the form.
 
 .. note::
 
-    As with the :ref:`variants_clinvar` form, VarFish will store every query that you make.
+    VarFish will store every query that you make.
     When loading the filtration form, your previous form settings will be restored and a notification will be displayed to notify you of this.
 
 .. note::

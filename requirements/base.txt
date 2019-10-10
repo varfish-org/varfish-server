@@ -38,9 +38,9 @@ pytz>=2019.3
 versioneer>=0.18
 
 # Online documentation via django-docs.
-Sphinx>=2.2.0, <2.3
-django-docs>=0.3.1, <0.4
-sphinx-rtd-theme>=0.4.3, <0.5
+Sphinx
+django-docs
+sphinx-rtd-theme
 
 ######################
 # Project app imports

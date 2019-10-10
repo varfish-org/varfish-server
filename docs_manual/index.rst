@@ -14,15 +14,13 @@ Currently, the main focus is on small/sequence variants called from high-througp
 
     The VarFish global "home" screen showing the demo project with the Corpas family quartet.
 
-SODAR is the System for Omics Data Access and Retrieval.
-It is developed by the Core Unit Bioinformatics at the Berlin Institute of Health and used for providing access to Omics experiment raw data, results, and meta data.
+.. important::
 
-.. note::
+    VarFish is *for research use only* software.
 
-    The VarFish documentation is currently under construction and in **alpha** state.
-    Don't hesitate to contact us in case of any questions, unclear points, or requests for extension.
+.. raw:: latex
 
-The VarFish logo is created from an `SVG Repo Image <https://www.svgrepo.com/svg/82927/big-starfish>`_.
+    \part{Projects \& Navigation}
 
 .. toctree::
     :maxdepth: 1
@@ -33,6 +31,10 @@ The VarFish logo is created from an `SVG Repo Image <https://www.svgrepo.com/svg
 
     projects_permissions
     projects_search
+
+.. raw:: latex
+
+    \part{Cases \& Variants}
 
 .. toctree::
     :maxdepth: 1
@@ -54,21 +56,8 @@ The VarFish logo is created from an `SVG Repo Image <https://www.svgrepo.com/svg
     variants_cases
     variants_stats_qc
     variants_filtration
-    variants_clinvar
     variants_project_wide
     variants_annotation
-
-.. toctree::
-    :maxdepth: 1
-    :caption: Administrator Manual
-    :name: admin-manual
-    :hidden:
-    :titlesonly:
-
-    installation
-    setup_core
-    setup_extras
-    setup_tuning
 
 .. toctree::
     :maxdepth: 1
@@ -79,6 +68,42 @@ The VarFish logo is created from an `SVG Repo Image <https://www.svgrepo.com/svg
 
     databases
 
+.. raw:: latex
+
+    \part{Administrator's Manual}
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Administrator's Manual
+    :name: installation-setup
+    :hidden:
+    :titlesonly:
+
+    installation
+    setup_core
+    setup_extras
+    setup_tuning
+
+.. raw:: latex
+
+    \part{Variant Analysis SOPs}
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Variant Analysis SOPs
+    :name: variant-analysis-sop
+    :hidden:
+    :titlesonly:
+
+    sop_introduction
+    sop_supporting
+    sop_filtration
+
+.. raw:: latex
+
+    \appendix
+    \part{Project Information}
+
 .. toctree::
     :maxdepth: 1
     :caption: Project Info
@@ -88,6 +113,7 @@ The VarFish logo is created from an `SVG Repo Image <https://www.svgrepo.com/svg
 
     contributors
     history
+    glossary
 
 Indices and tables
 ==================

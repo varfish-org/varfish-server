@@ -42,12 +42,8 @@ On the case detail view, you can see the following information:
 Case Detail View Actions
 ========================
 
-On the top right, you can see two buttons:
+On the top right, you can see the following button:
 
 :guilabel:`Filter Case`
     This takes you to the :ref:`variants_filtration` view.
     Here you can filter the case's variant by a multitude of criteria including genotype, call quality, and variant effect.
-
-:guilabel:`ClinVar Report`
-    This takes you to the :ref:`variants_clinvar` view.
-    Here you can generate reports based on variants that are also present in ClinVar.
