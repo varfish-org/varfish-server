@@ -23,6 +23,7 @@ End-User Summary
 - Fixed issue where gene dropdown menu was overlayed by sticky top.
 - Adding progress bar on top of case list.
 - Improving case list and detail overview page layout and usability.
+- Upgrade of the SODAR-core library app, includes various improvements such background job pagination and improvements to membership management.
 
 Full Change List
 ================
@@ -44,6 +45,7 @@ Full Change List
 - Fixed issue where gene dropdown menu was overlayed by sticky top.
 - Adding progress bar on top of case list.
 - Improving case list and detail overview page layout and usability.
+- Upgraded to SODAR core v0.7.0.
 
 -------
 v0.17.4

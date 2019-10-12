@@ -42,13 +42,21 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"
 # django-debug-toolbar
 # ------------------------------------------------------------------------------
 MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
-INSTALLED_APPS += ["debug_toolbar", "debug_toolbar_sqlalchemy"]
+INSTALLED_APPS += ["debug_toolbar", "debug_toolbar_alchemy"]
 
 INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]
+
+
+def alchemy_dbs():
+    from variants.helpers import SQLALCHEMY_ENGINE  # noqa
+
+    return {"default": SQLALCHEMY_ENGINE}
+
 
 DEBUG_TOOLBAR_CONFIG = {
     "DISABLE_PANELS": ["debug_toolbar.panels.redirects.RedirectsPanel"],
     "SHOW_TEMPLATE_CONTEXT": True,
+    "ALCHEMY_DB_ALIASES": "config.settings.local.alchemy_dbs",
 }
 
 DEBUG_TOOLBAR_PANELS = [
@@ -66,7 +74,7 @@ DEBUG_TOOLBAR_PANELS = [
     "debug_toolbar.panels.logging.LoggingPanel",
     "debug_toolbar.panels.redirects.RedirectsPanel",
     # Third-party app toolbar panels
-    "debug_toolbar_sqlalchemy.panel.SqlAlchemyDebugPanel",
+    "debug_toolbar_alchemy.panels.sql.SQLPanel",
 ]
 
 
