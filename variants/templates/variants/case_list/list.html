@@ -1,4 +1,20 @@
-  {# Case list #}
+{% load variants_tags %}
+
+<div class="row mb-3">
+  <div class="col pl-0 pr-0">
+    <div class="pull-left mr-3 font-weight-bold">Progress</div>
+    <div class="progress" style="height: 100%;">
+      {% for percent, count, total, status in progress %}
+        <div class="progress-bar bg-{{ status|case_status_to_color }}" role="progressbar"
+             style="width: {{ percent }}%" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100">
+          {{ count }}/{{ total }} ({{ percent }}%) {{ status }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{# Case list #}
 <div id="varfish-va-case-list" class="card mb-3 varfish-case-list-card">
   <h4 class="card-header">
     <i class="fa fa-hospital-o"></i>
