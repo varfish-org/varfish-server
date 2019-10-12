@@ -1294,15 +1294,16 @@ class AcmgCriteriaRatingForm(forms.ModelForm):
 class CaseNotesStatusForm(forms.ModelForm):
     """Form for taking case notes."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["notes"].label = ""
-        self.fields["notes"].widget = forms.Textarea(attrs={"rows": 3, "class": "form-control"})
-        self.fields["status"].label = ""
-
     class Meta:
         model = Case
-        fields = ["notes", "status"]
+        fields = ("status", "notes")
+        labels = {"notes": "", "status": ""}
+        widgets = {
+            "notes": forms.Textarea(
+                attrs={"rows": 3, "class": "form-control form-control-sm mt-2"}
+            ),
+            "status": forms.Select(attrs={"class": "form-control form-control-sm"}),
+        }
 
 
 class CaseCommentsForm(forms.ModelForm):
@@ -1310,12 +1311,18 @@ class CaseCommentsForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["comment"].label = ""
         self.fields["comment"].required = False
-        self.fields["comment"].widget = forms.Textarea(
-            attrs={"rows": 1, "class": "form-control", "placeholder": "Enter comment here"}
-        )
 
     class Meta:
         model = CaseComments
-        fields = ["comment"]
+        fields = ("comment",)
+        labels = {"comment": ""}
+        widgets = {
+            "comment": forms.Textarea(
+                attrs={
+                    "rows": 1,
+                    "class": "form-control from-control-sm",
+                    "placeholder": "Enter comment here",
+                }
+            )
+        }

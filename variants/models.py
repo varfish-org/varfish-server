@@ -2413,6 +2413,10 @@ class AcmgCriteriaRating(models.Model):
         help_text="Use this field to override the auto-computed class assignment",
     )
 
+    @property
+    def acmg_class(self):
+        return self.class_override or self.class_auto
+
     get_gene_symbols = SmallVariantComment.get_gene_symbols
 
     def save(self, *args, **kwargs):

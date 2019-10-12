@@ -292,6 +292,14 @@ def from_bamstats(stats, value):
 
 
 @register.filter(is_safe=True)
+def asint(value):
+    try:
+        return int(value)
+    except ValueError:
+        return -1
+
+
+@register.filter(is_safe=True)
 def bpformat(bp):
     """
     Format the value like a 'human-readable' file size (i.e. 13 Kbp, 4.1 Mbp,

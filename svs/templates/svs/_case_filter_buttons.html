@@ -1,0 +1,16 @@
+{% load projectroles_common_tags %}
+{% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
+
+<div class="ml-auto">
+  <a class="btn btn-secondary" href="{% url "variants:case-detail" project=project.sodar_uuid case=object.sodar_uuid %}">
+    <i class="fa fa-arrow-circle-left"></i>
+    Back to Case
+  </a>
+
+  {% if query_type == "case" %}
+    <a class="btn btn-primary{% if not case.num_small_vars %} disabled{% endif %}" href="{% url "variants:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
+      <i class="fa fa-filter"></i>
+      Filter Variants
+    </a>
+{% endif %}
+</div>

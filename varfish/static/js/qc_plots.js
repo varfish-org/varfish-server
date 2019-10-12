@@ -66,7 +66,7 @@ function plotlyVariantTypes(response, containerId) {
     }
 
     $("#" + containerId + " .placeholder-container").remove()
-    Plotly.newPlot(containerId, varTypeData, layout)
+    Plotly.newPlot(containerId, varTypeData, layout, {responsive: true})
 }
 
 /** Plot selected variant effects. */
@@ -110,7 +110,7 @@ function plotlyVariantEffects(response, containerId) {
     }
 
     $("#" + containerId + " .placeholder-container").remove()
-    Plotly.newPlot(containerId, barChartData, layout)
+    Plotly.newPlot(containerId, barChartData, layout, {responsive: true})
 }
 
 function plotlyIndelSizes(response, containerId) {
@@ -138,7 +138,7 @@ function plotlyIndelSizes(response, containerId) {
   }
 
   $("#" + containerId + " .placeholder-container").remove()
-  Plotly.newPlot(containerId, barChartData, layout)
+  Plotly.newPlot(containerId, barChartData, layout, {responsive: true})
 }
 
 /** Helper for creating tooltip labels for relatedness entries. */
@@ -267,7 +267,7 @@ function plotlyRelatedness(response, containerId) {
   }
 
   $("#" + containerId + " .placeholder-container").remove()
-  Plotly.newPlot(containerId, scatterPlotData, layout)
+  Plotly.newPlot(containerId, scatterPlotData, layout, {responsive: true})
 }
 
 
@@ -393,7 +393,7 @@ function plotlySexChrxHetHom(response, containerId) {
   }
 
   $("#" + containerId + " .placeholder-container").remove()
-  Plotly.newPlot(containerId, scatterPlotData, layout)
+  Plotly.newPlot(containerId, scatterPlotData, layout, {responsive: true})
 }
 
 function varDpLabel(item, data) {
@@ -510,5 +510,5 @@ function plotlyVarDps(response, containerId) {
   }
 
   $("#" + containerId + " .placeholder-container").remove()
-  Plotly.newPlot(containerId, scatterPlotData, layout)
+  Plotly.newPlot(containerId, scatterPlotData, layout, {responsive: true})
 }

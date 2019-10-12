@@ -22,7 +22,9 @@
       {% for acmg_rating in case.acmg_ratings.all %}
         <tr id="flags-{{ acmg_rating.get_variant_description }}">
           <td class="text-nowrap">
-            chr{{ acmg_rating.chromosome }}:{{ acmg_rating.start|intcomma }}-{{ acmg_rating.reference }}-{{ acmg_rating.alternative }}
+            <div class="sodar-overflow-container sodar-overflow-hover" style="max-width: 200px;">
+              chr{{ acmg_rating.chromosome }}:{{ acmg_rating.start|intcomma }}-{{ acmg_rating.reference }}-{{ acmg_rating.alternative }}
+            </div>
           </td>
           <td>
             {{ acmg_rating.get_gene_symbols|join:", "|default:"-" }}

@@ -184,6 +184,7 @@
           plotlyRelatedness(response, 'plot-relatedness')
           plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')
           plotlyVarDps(response, 'plot-var-dps')
+          setTimeout(function() { $(window).trigger('resize') }, 2000);
         })
     })
     </script>

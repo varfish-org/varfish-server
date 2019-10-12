@@ -2,14 +2,19 @@
 {% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
 
 <div class="ml-auto">
+  <a class="btn btn-secondary" href="{% url "variants:case-list" project=project.sodar_uuid %}">
+    <i class="fa fa-arrow-circle-left"></i>
+    Back to List
+  </a>
+
   <a class="btn btn-primary" href="{% url "variants:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
     <i class="fa fa-filter"></i>
-    Filter Case
+    Filter Variants
   </a>
 
   {% if svs_enabled %}
-    <a class="btn btn-primary" href="{% url "svs:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
-      <i class="fa fa-flip-vertical"></i>
+    <a class="btn btn-primary{% if not object.num_svs %} disabled{% endif %}" href="{% url "svs:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
+      <i class="fa fa-align-center fa-flip-vertical"></i>
       Filter SVs
     </a>
   {% endif %}

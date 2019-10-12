@@ -29,7 +29,9 @@
       {% for flagged_variant in case.small_variant_flags.all %}
         <tr id="flags-{{ flagged_variant.get_variant_description }}">
           <td class="text-nowrap">
-            chr{{ flagged_variant.chromosome }}:{{ flagged_variant.start|intcomma }}-{{ flagged_variant.reference }}-{{ flagged_variant.alternative }}
+            <div class="sodar-overflow-container sodar-overflow-hover" style="max-width: 200px;">
+              chr{{ flagged_variant.chromosome }}:{{ flagged_variant.start|intcomma }}-{{ flagged_variant.reference }}-{{ flagged_variant.alternative }}
+            </div>
           </td>
           <td>
             {{ flagged_variant.get_gene_symbols|join:", "|default:"-" }}

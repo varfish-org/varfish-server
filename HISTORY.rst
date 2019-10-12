@@ -22,6 +22,7 @@ End-User Summary
 - Fixed indices on `SmallVariantFlags` and `SmallVariantComment` and introduced indices for `ExacConstraints` and `GnomadConstraints` that sped up large queries significantly.
 - Fixed issue where gene dropdown menu was overlayed by sticky top.
 - Adding progress bar on top of case list.
+- Improving case list and detail overview page layout and usability.
 
 Full Change List
 ================
@@ -42,6 +43,7 @@ Full Change List
 - Fixed indices on `SmallVariantFlags` and `SmallVariantComment` and introduced indices for `ExacConstraints` and `GnomadConstraints` that sped up large queries significantly.
 - Fixed issue where gene dropdown menu was overlayed by sticky top.
 - Adding progress bar on top of case list.
+- Improving case list and detail overview page layout and usability.
 
 -------
 v0.17.4

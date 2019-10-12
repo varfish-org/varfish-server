@@ -22,25 +22,85 @@
     {% include "variants/_case_detail_buttons.html" %}
   </div>
 
-  <div class="container-fluid sodar-page-container">
-    <div class="row">
-      <div class="col-6">
-        {% include "variants/case/detail_overview.html" %}
-        {% include "variants/case/detail_pedigree.html" %}
-      </div>
-      <div class="col-6">
-        {% include "variants/case/detail_case_comments.html" %}
+  <div class="container-fluid sodar-page-container pt-3">
 
-        {% include "variants/case/detail_acmg.html" %}
-        {% include "variants/case/detail_comments.html" %}
-        {% include "variants/case/detail_flags.html" %}
+    <ul class="nav nav-tabs" id="case-tab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="overview-tab" data-toggle="tab" href="#overview" role="tab" aria-controls="overview" aria-selected="true">
+          <i class="fa fa-user"></i>
+          Overview
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="qc-tab" data-toggle="tab" href="#qc" role="tab" aria-controls="qc" aria-selected="false">
+          <i class="fa fa-bar-chart"></i>
+          Quality Control
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="annotation-tab" data-toggle="tab" href="#annotation" role="tab" aria-controls="annotation" aria-selected="false">
+          <i class="fa fa-comment-o"></i>
+          Variant Annotation
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="bg-jobs-tab" data-toggle="tab" href="#bg-jobs" role="tab" aria-controls="bg-jobs" aria-selected="false">
+          <i class="fa fa-tasks"></i>
+          Queries & Jobs
+        </a>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="border border-top-0 tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+        <div class="row pt-3">
+          <div class="col-6">
+            {% include "variants/case/detail_overview.html" %}
+            {% include "variants/case/detail_pedigree.html" %}
+            {% include "variants/case/detail_release_info.html" %}
+          </div>
+          <div class="col-6">
+            {% include "variants/case/detail_case_comments.html" %}
+            {% include "variants/case/overview_var_flags_comments.html" %}
+            {% include "variants/case/overview_qc_bam.html" %}
+          </div>
+        </div>
+      </div>
+      <div class="border border-top-0 tab-pane fade" id="qc" role="tabpanel" aria-labelledby="qc-tab">
+        <div class="row pt-3">
+          <div class="col">
+            {% include "variants/case/detail_qc_plots.html" %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            {% include "variants/case/detail_qc_bam.html" %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            {% include "variants/case/detail_qc.html" %}
+          </div>
+        </div>
+      </div>
+      <div class="border border-top-0 tab-pane fade" id="annotation" role="tabpanel" aria-labelledby="annotation-tab">
+        <div class="row pt-3">
+          <div class="col-6">
+            {% include "variants/case/detail_flags.html" %}
+          </div>
+          <div class="col-6">
+            {% include "variants/case/detail_acmg.html" %}
+            {% include "variants/case/detail_comments.html" %}
+          </div>
+        </div>
+      </div>
+      <div class="border border-top-0 tab-pane fade" id="bg-jobs" role="tabpanel" aria-labelledby="bg-jobs-tab">
+        <div class="row pt-3">
+          <div class="col">
+            {% include "variants/case/detail_bg_jobs.html" %}
+          </div>
+        </div>
       </div>
     </div>
-    {% include "variants/case/detail_release_info.html" %}
-    {% include "variants/case/detail_qc_plots.html" %}
-    {% include "variants/case/detail_qc_bam.html" %}
-    {% include "variants/case/detail_bg_jobs.html" %}
-    {% include "variants/case/detail_qc.html" %}
   </div>
 
   <script type="text/javascript">
@@ -55,6 +115,7 @@
           plotlyVariantTypes(response, 'plot-var-types')
           plotlyVariantEffects(response, 'plot-var-effects')
           plotlyIndelSizes(response, 'plot-indel-sizes')
+          setTimeout(function() { $(window).trigger('resize') }, 2000);
         })
     })
   </script>

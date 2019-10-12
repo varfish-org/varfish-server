@@ -1,4 +1,7 @@
+{% load humanize %}
 {% load variants_tags %}
+{% load projectroles_common_tags %}
+{% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
 
 <div class="card varfish-vars-case-details"
      id="card-varfish-vars-case-details-overview">
@@ -11,34 +14,18 @@
   <ul class="list-group list-group-flush">
     <li class="list-group-item pl-0">
       <div class="row">
-        <span class="col-3"><strong>
-            Created At<br/>
-            <span class="text-muted">Last Modified</span>
-        </strong></span>
-        <span class="col-9">
-            {{ object.date_created|date:"Y/m/d H:i" }}<br/>
-            <span class="text-muted">{{ object.date_modified|date:"Y/m/d H:i" }}</span>
-        </span>
-      </div>
-    </li>
-    <li class="list-group-item pl-0">
-      <div class="row">
-        <span class="col-3"><strong>
+        <span class="col-2 text-nowrap"><strong>
           Case Name
         </strong></span>
-        <span class="col-9">
+        <span class="col-3 text-nowrap">
           {{ object.name }}
           {% include "variants/case/indicator_sex_error.html" with item=object %}
           {% include "variants/case/indicator_rel_error.html" with item=object %}
         </span>
-      </div>
-    </li>
-    <li class="list-group-item pl-0">
-      <div class="row">
-        <span class="col-3"><strong>
+        <span class="col-2"><strong>
           Individuals
         </strong></span>
-        <span class="col-9">
+        <span class="col-5">
           {% for member in object.get_members %}
             {{ member|only_source_name }}{% if not forloop.last %},{% endif %}
           {% endfor %}
@@ -47,16 +34,24 @@
     </li>
     <li class="list-group-item pl-0">
       <div class="row">
+        <span class="col-2 text-nowrap"><strong>
+            Created At
+        </strong></span>
+        <span class="col-3 text-nowrap">
+            {{ object.date_created|date:"Y/m/d H:i" }}
+        </span>
+        <span class="col-2">
+            <span class="text-muted text-nowrap">Last Modified</span>
+        </span>
         <span class="col-3">
+            <span class="text-muted text-nowrap">{{ object.date_modified|date:"Y/m/d H:i" }}</span>
+        </span>
+      </div>
+    </li>
+    <li class="list-group-item pl-0">
+      <div class="row">
+        <span class="col-2 text-nowrap">
           <strong>Status &amp; Notes</strong><br/>
-          <div id="case-notes-status-button" class="btn btn-sm btn-secondary">
-              <span id="case-notes-status-button-edit">
-                  <i class="fa fa-pencil"></i> Edit
-              </span>
-              <span id="case-notes-status-button-cancel" style="display: none;">
-                  <i class="fa fa-times"></i> Cancel
-              </span>
-          </div>
         </span>
         <span id="case-notes-status-mode-fixed" class="col-9">
           <h4><span id="case-notes-status-badge">{{ object.status }}</span></h4>
@@ -65,16 +60,55 @@
         <span id="case-notes-status-mode-edit" class="col-9" style="display: none;">
           <form>{% csrf_token %}
             {{ form }}
-            <button
-              type="button"
-              id="case-notes-status-save"
-              class="btn btn-sm btn-secondary"
-              data-url-case-notes-status="{% url 'variants:case-notes-status-api' project=project.sodar_uuid case=object.sodar_uuid %}"
-            >
-              <i class="fa fa-save"></i> Save
-            </button>
+            <div class="text-right">
+              <div class="btn btn-group pr-0">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-secondary case-notes-status-button"
+                  data-url-case-notes-status="{% url 'variants:case-notes-status-api' project=project.sodar_uuid case=object.sodar_uuid %}"
+                >
+                  <i class="fa fa-times"></i> Cancel
+                </button>
+                <button
+                  type="button"
+                  id="case-notes-status-save"
+                  class="btn btn-sm btn-primary"
+                  data-url-case-notes-status="{% url 'variants:case-notes-status-api' project=project.sodar_uuid case=object.sodar_uuid %}"
+                >
+                  <i class="fa fa-save"></i> Save
+                </button>
+              </div>
+            </div>
           </form>
         </span>
+        <span class="col-1 text-right pr-0">
+          <div class="case-notes-status-button text-secondary">
+            <span id="case-notes-status-button-edit">
+              <i class="fa fa-pencil"></i>
+            </span>
+            <span id="case-notes-status-button-cancel" style="display: none;">
+              <i class="fa fa-times"></i>
+            </span>
+          </div>
+        </span>
+      </div>
+    </li>
+    <li class="list-group-item pl-0">
+      <div class="row">
+        <span class="col-2 text-nowrap"><strong>
+          Called Variants
+        </strong></span>
+        <span class="col-3 text-nowrap">
+          {{ object.num_small_vars|default_if_none:"-"|intcomma }}
+        </span>
+        {% if svs_enabled %}
+          <span class="col-2"><strong>
+            Called SVs
+          </strong></span>
+          <span class="col-3">
+            {{ object.num_svs|default_if_none:"-"|intcomma }}
+          </span>
+        {% endif %}
       </div>
     </li>
   </ul>
@@ -108,7 +142,7 @@ function decorateCaseNotesStatus() {
 }
 
 $(document).ready(function() {
-    $("#case-notes-status-button").on("click", function() {
+    $(".case-notes-status-button").on("click", function() {
         $("#case-notes-status-mode-fixed").toggle();
         $("#case-notes-status-mode-edit").toggle();
         $("#case-notes-status-button-edit").toggle();
@@ -123,7 +157,7 @@ $(document).ready(function() {
             success: function(data) {
                 $("#case-notes-status-text").text(data["notes"]);
                 $("#case-notes-status-badge").text(data["status"]);
-                $("#case-notes-status-button").trigger("click");
+                $(".case-notes-status-button").first().trigger("click");
                 decorateCaseNotesStatus();
             },
             error: function(jqXHR, textStatus, errorThrown) {

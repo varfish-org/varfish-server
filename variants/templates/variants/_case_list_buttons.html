@@ -1,15 +1,18 @@
 <div class="ml-auto">
-  <a class="btn btn-primary" href="{% url "variants:project-stats-job-create" project=project.sodar_uuid %}">
-    <i class="fa fa-refresh"></i>
-    Recompute Stats
+  <a class="btn btn-secondary" href="{% url 'projectroles:detail' project=project.sodar_uuid %}">
+    <i class="fa fa-arrow-circle-left"></i>
+    Back to Project
   </a>
   <a class="btn btn-primary" href="{% url "variants:project-cases-filter" project=project.sodar_uuid %}">
     <i class="fa fa-filter"></i>
     Joint Filtration
   </a>
-
+  <a class="btn btn-primary" href="{% url "variants:project-stats-job-create" project=project.sodar_uuid %}">
+    <i class="fa fa-refresh"></i>
+    Recompute Stats
+  </a>
   {% if request.user.is_superuser and project.is_remote %}
-    <a class="btn btn-secondary" href="{% url "variants:case-list-sync-remote" project=project.sodar_uuid %}">
+    <a class="btn btn-primary" href="{% url "variants:case-list-sync-remote" project=project.sodar_uuid %}">
       <i class="fa fa-align-center fa-cloud-download"></i>
       Sync with Upstream
     </a>

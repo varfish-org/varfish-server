@@ -1,10 +1,9 @@
-
 <div class="card varfish-vars-case-details comment-group"
      id="card-varfish-vars-case-details-small-var-comments">
   <div class="card-header">
     <h4>
       <i class="fa fa-comments-o"></i>
-      Comments
+      Case Comments
     </h4>
   </div>
   <ul
@@ -61,21 +60,21 @@
     {% endfor %}
   </ul>
   <div
-      class="card-body"
+      class="card-body border-bottom"
       id="case-comment-list-empty"
       {% if case.case_comments.all %}style="display: none;"{% endif %}>
-    <p class="text-muted font-italic">
-      No comments yet.
+    <p class="text-muted text-center font-italic">
+      No case comments yet.
     </p>
   </div>
   <form>
-    <span class="input-group">
+    <span class="input-group pl-3 pr-3 mt-3 pb-3">
       {{ casecommentsform }}
       <button
           type="button"
-          class="btn btn-secondary"
+          class="ml-3 btn btn-sm btn-primary"
           id="comment-button-submit">
-        <i class="fa fa-plus"></i> Submit
+        <i class="fa fa-plus"></i> Add Comment
       </button>
     </span>
   </form>

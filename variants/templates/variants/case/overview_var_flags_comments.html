@@ -1,0 +1,91 @@
+{% load humanize %}
+{% load projectroles_common_tags %}
+{% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
+
+<div class="card varfish-vars-case-details"
+     id="card-varfish-vars-case-details-small-var-comments">
+  <div class="card-header">
+    <h4>
+      <i class="fa fa-list"></i>
+      Flag &amp; Comment Summary
+    </h4>
+  </div>
+  <ul class="list-group list-group-flush">
+    {% if case.num_small_vars == 0 and case.num_svs == 0 %}
+      <li class="list-group-item pl-0">
+        <div class="col text-center">
+          This case does not have any variants.
+        </div>
+      </li>
+    {% endif %}
+    {% if case.num_small_vars > 0 %}
+      <li class="list-group-item pl-0">
+        <div class="row">
+          <div class="col-4 text-nowrap"><strong>
+            ACMG-Classified Variants
+          </strong></div>
+          <div class="col-2 text-right">
+            {{ acmg_summary.count }}
+          </div>
+          <div class="col-6">
+            {% if acmg_summary.count %}
+              V:{{ acmg_summary.5 }} &nbsp;
+              IV:{{ acmg_summary.4 }} &nbsp;
+              III:{{ acmg_summary.3 }} &nbsp;
+              II:{{ acmg_summary.2 }} &nbsp;
+              I:{{ acmg_summary.1 }}
+            {% endif %}
+          </div>
+        </div>
+      </li>
+      <li class="list-group-item pl-0">
+        <div class="row">
+          <div class="col-4 text-nowrap"><strong>
+            Flagged Variants
+          </strong></div>
+          <div class="col-2 text-right">
+            {{ flag_summary.count }}
+          </div>
+          <div class="col-6">
+            {% if flag_summary.count %}
+              <i class="fa fa-flag-checkered"></i>:{{ flag_summary.final_causative }} &nbsp;
+              <i class="fa fa-heart"></i>:{{ flag_summary.candidate }}
+            {% endif %}
+          </div>
+        </div>
+      </li>
+      <li class="list-group-item pl-0">
+        <div class="row">
+          <div class="col-4 text-nowrap"><strong>
+            Commented Variants
+          </strong></div>
+          <div class="col-2 text-right">
+            {{ case.small_variant_comments.count }}
+          </div>
+        </div>
+      </li>
+    {% endif %}
+    {% if svs_enabled and case.num_svs > 0 %}
+      <li class="list-group-item pl-0">
+        <div class="row">
+          <div class="col-4 text-nowrap"><strong>
+            Flagged SVs
+          </strong></div>
+          <div class="col-2 text-right">
+            {{ case.structural_variant_flags.count }}
+          </div>
+        </div>
+      </li>
+      <li class="list-group-item pl-0">
+        <div class="row">
+          <div class="col-4 text-nowrap"><strong>
+            Commented SVs
+          </strong></div>
+          <div class="col-2 text-right">
+            {{ case.structural_variant_comments.count }}
+          </div>
+        </div>
+      </li>
+    {% endif %}
+  </ul>
+</div>

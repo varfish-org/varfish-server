@@ -501,6 +501,28 @@ class CaseDetailView(
         result["indel_sizes_keys"] = []
         result["dps"] = {sample: {} for sample in result["samples"]}
         result["casecommentsform"] = CaseCommentsForm()
+        result["acmg_summary"] = {
+            "count": case.acmg_ratings.count(),
+            **{
+                str(i): len(
+                    [rating for rating in case.acmg_ratings.all() if rating.acmg_class == i]
+                )
+                for i in range(1, 6)
+            },
+        }
+        result["flag_summary"] = {
+            "count": case.small_variant_flags.count(),
+            **{
+                key: len(
+                    [
+                        flag
+                        for flag in case.small_variant_flags.all()
+                        if getattr(flag, "flag_%s" % key, None)
+                    ]
+                )
+                for key in ("final_causative", "candidate")
+            },
+        }
 
         try:
             variant_set = case.latest_variant_set()
