@@ -2,6 +2,10 @@
   <h4 class="card-header">
     <i class="fa fa-exclamation-triangle"></i>
     Inconsistencies with Upstream Sample Sheet
+    <a class="btn btn-primary pull-right" href="{% url "variants:case-list-sync-remote" project=project.sodar_uuid %}">
+      <i class="fa fa-align-center fa-cloud-download"></i>
+      Sync with Upstream
+    </a>
   </h4>
   <div class="card-body p-3">
     {% if not project.synccaseresultmessage_set.all %}
