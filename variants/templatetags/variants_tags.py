@@ -1,4 +1,6 @@
 from django import template
+from django.utils import formats
+from django.utils.html import avoid_wrapping
 
 from ..models import (
     Case,
@@ -274,7 +276,11 @@ def chrx_het_hom_ratio(case, sample):
 @register.filter
 def from_bamstats(stats, value):
     """Return percentage that a part represents of a total."""
-    if value == "total reads":
+    if value == "mean target coverage":
+        return stats.get("summary", {}).get("mean coverage")
+    elif value == "total target size":
+        return stats.get("summary", {}).get("total target size")
+    elif value == "total reads":
         return stats["bamstats"]["sequences"] // 2
     elif value == "percent duplicates":
         if stats["bamstats"]["sequences"]:
@@ -283,6 +289,48 @@ def from_bamstats(stats, value):
             return 0.0
     else:
         return "INVALID"
+
+
+@register.filter(is_safe=True)
+def bpformat(bp):
+    """
+    Format the value like a 'human-readable' file size (i.e. 13 Kbp, 4.1 Mbp,
+    102 bp, etc.).
+    """
+    try:
+        bp = int(bp)
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return avoid_wrapping("0 bp")
+
+    def bp_number_format(value):
+        return formats.number_format(round(value, 1), 1)
+
+    kbp = 1 << 10
+    mbp = 1 << 20
+    gbp = 1 << 30
+    tbp = 1 << 40
+    pbp = 1 << 50
+
+    negative = bp < 0
+    if negative:
+        bp = -bp  # Allow formatting of negative numbers.
+
+    if bp < kbp:
+        value = "%(size)d byte" % {"size": bp}
+    elif bp < mbp:
+        value = "%s Kbp" % bp_number_format(bp / kbp)
+    elif bp < gbp:
+        value = "%s Mbp" % bp_number_format(bp / mbp)
+    elif bp < tbp:
+        value = "%s Gbp" % bp_number_format(bp / gbp)
+    elif bp < pbp:
+        value = "%s Tbp" % bp_number_format(bp / tbp)
+    else:
+        value = "%s Pbp" % bp_number_format(bp / bp)
+
+    if negative:
+        value = "-%s" % value
+    return avoid_wrapping(value)
 
 
 # TODO: move to sodar-core
