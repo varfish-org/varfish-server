@@ -12,6 +12,12 @@
     </div>
   {% else %}
     <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0 pb-0">
+      {% if patho_enabled and patho_score == "umd" %}
+        <div class="alert alert-info alert-dismissible">
+          InDels are scored <span class="badge badge-secondary">-1</span> as they are not supported by UMD.
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        </div>
+      {% endif %}
       {% if prio_enabled %}
         <div class="pl-2">
           <span class="pl-2">

@@ -1240,6 +1240,9 @@ class CaseLoadPrefetchedFilterView(
                 query_type=self.query_type,
                 has_phenotype_scores=bool(gene_scores),
                 has_pathogenicity_scores=bool(variant_scores),
+                patho_enabled=filter_job.smallvariantquery.query_settings.get(
+                    "patho_enabled", False
+                ),
                 patho_score=filter_job.smallvariantquery.query_settings.get("patho_score", False),
                 exac_enabled=filter_job.smallvariantquery.query_settings.get("exac_enabled", False),
                 thousand_genomes_enabled=filter_job.smallvariantquery.query_settings.get(
