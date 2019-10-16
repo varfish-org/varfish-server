@@ -29,6 +29,7 @@ End-User Summary
 - Now sorting comments and flags in the case overview by chromosomal position.
 - Now sorting HPO terms in variant detail view alphabetically.
 - Improved pubmed linkout string.
+- Added EnsEMBL and ClinVar linkouts to gene dropdown menu in results list.
 
 Full Change List
 ================
@@ -56,6 +57,7 @@ Full Change List
 - Now sorting comments and flags in the case overview by chromosomal position.
 - Now sorting HPO terms in variant detail view alphabetically.
 - Improved pubmed linkout string.
+- Added EnsEMBL and ClinVar linkouts to gene dropdown menu in results list.
 
 -------
 v0.17.4
