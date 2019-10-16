@@ -107,3 +107,6 @@ wrapt == 1.10.11
 
 # Interval binning
 interval-binning ==1.0.0
+
+# Natural language processing toolkit
+nltk

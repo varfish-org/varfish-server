@@ -1,6 +1,7 @@
 from django import template
 from django.utils import formats
 from django.utils.html import avoid_wrapping
+import nltk
 
 from ..models import (
     Case,
@@ -14,6 +15,8 @@ from geneinfo.models import GeneIdToInheritance
 modes_of_inheritance = dict(GeneIdToInheritance.MODES_OF_INHERITANCE)
 register = template.Library()
 
+nltk.data.path.append("misc/nltk_data")
+stop_words = set(nltk.corpus.stopwords.words("english"))
 
 # Row colors to use.
 ROW_COLORS = {
@@ -371,5 +374,17 @@ def listsort(l):
 
 @register.filter
 def get_symbol(record):
-    print(record)
     return record.symbol or record.gene_symbol or None
+
+
+@register.filter
+def get_pubmed_linkout(record, hpoterms):
+    symbol = record.symbol or record.gene_symbol
+    terms = " OR ".join(
+        [
+            "(%s)"
+            % " AND ".join(list(map(lambda x: x.lower(), nltk.tokenize.word_tokenize(title))))
+            for _, title in hpoterms.items()
+        ]
+    )
+    return "{} AND ({})".format(symbol, terms)

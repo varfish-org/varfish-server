@@ -28,6 +28,7 @@ End-User Summary
 - Added warning about missing UMD indel scoring.
 - Now sorting comments and flags in the case overview by chromosomal position.
 - Now sorting HPO terms in variant detail view alphabetically.
+- Improved pubmed linkout string.
 
 Full Change List
 ================
@@ -54,6 +55,7 @@ Full Change List
 - Added warning about missing UMD indel scoring.
 - Now sorting comments and flags in the case overview by chromosomal position.
 - Now sorting HPO terms in variant detail view alphabetically.
+- Improved pubmed linkout string.
 
 -------
 v0.17.4

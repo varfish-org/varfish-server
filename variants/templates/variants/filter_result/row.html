@@ -208,7 +208,7 @@
           </span>
           {% endif %}
           {% if hpoterms %}
-            <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ symbol }}{% for _, title in hpoterms.items %}+{{ title|urlencode:"" }}{% endfor %}" target="_blank">
+            <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ entry|get_pubmed_linkout:hpoterms }}" target="_blank">
               Gene+Phenotypes @PubMed
             </a>
           {% else %}
