@@ -15,6 +15,8 @@ from ..models import (
     RefseqToEnsembl,
     GeneIdToInheritance,
     MgiMapping,
+    RefseqToGeneSymbol,
+    EnsemblToGeneSymbol,
 )
 
 
@@ -205,3 +207,23 @@ class MgiMappingFactory(factory.django.DjangoModelFactory):
     mouse_nucleotide_refseq_ids = []
     mouse_protein_refseq_ids = []
     mouse_swissprot_ids = []
+
+
+class RefseqToGeneSymbolFactory(factory.django.DjangoModelFactory):
+    """Factory for the ``RefseqToGeneSymbol`` model."""
+
+    class Meta:
+        model = RefseqToGeneSymbol
+
+    entrez_id = factory.Sequence(lambda n: str(n))
+    gene_symbol = factory.Sequence(lambda n: "SYMBOL%d" % n)
+
+
+class EnsemblToGeneSymbolFactory(factory.django.DjangoModelFactory):
+    """Factory for the ``EnsemblToGeneSymbol`` model."""
+
+    class Meta:
+        model = EnsemblToGeneSymbol
+
+    ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
+    gene_symbol = factory.Sequence(lambda n: "SYMBOL%d" % n)

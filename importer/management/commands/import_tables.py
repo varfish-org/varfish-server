@@ -28,6 +28,8 @@ from geneinfo.models import (
     RefseqToEnsembl,
     refresh_geneinfo_geneidtoinheritance,
     refresh_geneinfo_mgimapping,
+    RefseqToGeneSymbol,
+    EnsemblToGeneSymbol,
 )
 from genomicfeatures.models import (
     GeneInterval,
@@ -77,6 +79,8 @@ TABLES = {
         "tads_imr90": (TadInterval, TadBoundaryInterval, TadSet),
         "thousand_genomes": (ThousandGenomes, ThousandGenomesSv),
         "vista": (VistaEnhancer,),
+        "refseqtogenesymbol": (RefseqToGeneSymbol,),
+        "ensembltogenesymbol": (EnsemblToGeneSymbol,),
     },
     "GRCh38": {"clinvar": (Clinvar,), "dbVar": (DbVarSv,), "DGV": (DgvSvs,)},
 }

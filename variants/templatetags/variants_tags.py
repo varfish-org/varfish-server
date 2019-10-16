@@ -367,3 +367,9 @@ def mode_of_inheritance_description(mode_of_inheritance):
 @register.filter
 def listsort(l):
     return sorted(l)
+
+
+@register.filter
+def get_symbol(record):
+    print(record)
+    return record.symbol or record.gene_symbol or None

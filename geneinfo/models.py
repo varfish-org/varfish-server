@@ -531,6 +531,36 @@ class MgiMapping(models.Model):
         db_table = "geneinfo_mgimapping"
 
 
+class RefseqToGeneSymbol(models.Model):
+    """Model to map entrez id to gene symbol."""
+
+    #: Entrez ID
+    entrez_id = models.CharField(max_length=16, null=True)
+    #: Gene symbol
+    gene_symbol = models.CharField(max_length=32)
+
+    #: Allow bulk import info database.
+    objects = CopyManager()
+
+    class Meta:
+        indexes = [models.Index(fields=["entrez_id"])]
+
+
+class EnsemblToGeneSymbol(models.Model):
+    """Model to map ensembl gene id to gene symbol."""
+
+    #: Ensembl Gene ID
+    ensembl_gene_id = models.CharField(max_length=32, null=True)
+    #: Gene symbol
+    gene_symbol = models.CharField(max_length=32)
+
+    #: Allow bulk import info database.
+    objects = CopyManager()
+
+    class Meta:
+        indexes = [models.Index(fields=["ensembl_gene_id"])]
+
+
 def refresh_geneinfo_mgimapping():
     """Refresh the ``SmallVariantSummary`` materialized view."""
     with connection.cursor() as cursor:

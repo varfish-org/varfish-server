@@ -13,6 +13,8 @@ from geneinfo.models import (
     Hpo,
     HpoName,
     RefseqToEnsembl,
+    RefseqToGeneSymbol,
+    EnsemblToGeneSymbol,
 )
 
 
@@ -35,13 +37,24 @@ def get_gene_infos(database, gene_id, ensembl_transcript_id):
         # Get HGNC entry via intermediate table as HGNC is badly equipped with refseq IDs.
         hgnc = RefseqToHgnc.objects.filter(entrez_id=gene_id).first()
         gene = None
+        gene_symbol = None
         if hgnc:
             gene = Hgnc.objects.filter(hgnc_id=hgnc.hgnc_id).first()
+        gene_symbol_mapping = RefseqToGeneSymbol.objects.filter(entrez_id=gene_id).first()
+        if gene_symbol_mapping:
+            gene_symbol = gene_symbol_mapping.gene_symbol
     else:
         # We could also go via EnsemblToRefseq -> RefseqToHgnc -> Hgnc ???
         gene = Hgnc.objects.filter(ensembl_gene_id=gene_id).first()
+        gene_symbol_mapping = EnsemblToGeneSymbol.objects.filter(ensembl_gene_id=gene_id).first()
+        gene_symbol = None
+        if gene_symbol_mapping:
+            gene_symbol = gene_symbol_mapping.gene_symbol
     if not gene:
-        return {"entrez_id" if database == "refseq" else "ensembl_gene_id": gene_id}
+        return {
+            "entrez_id" if database == "refseq" else "ensembl_gene_id": gene_id,
+            "symbol": gene_symbol,
+        }
     else:
         gene = model_to_dict(gene)
         if database == "refseq":
@@ -54,6 +67,9 @@ def get_gene_infos(database, gene_id, ensembl_transcript_id):
             gene["entrez_id"] = getattr(hgnc, "entrez_id", None)
         hpoterms, hpoinheritance, omim, omim_genes = _handle_hpo_omim(gene["entrez_id"])
         gene["omim"] = omim
+        # Overwrite symbol from HGNC with the one derived directly from ncbi/ensembl.
+        if not gene["symbol"]:
+            gene["symbol"] = gene_symbol
         gene["omim_genes"] = omim_genes
         gene["hpo_inheritance"] = list(hpoinheritance)
         gene["hpo_terms"] = list(hpoterms)

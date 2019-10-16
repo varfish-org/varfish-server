@@ -7,6 +7,7 @@
 {% get_user_setting user "variants" "umd_predictor_api_token" as umd_predictor_api_token %}
 {% ambiguous_frequency_warning entry exac_enabled thousand_genomes_enabled gnomad_exomes_enabled gnomad_genomes_enabled inhouse_enabled as warning %}
 
+{% with symbol=entry|get_symbol %}
 <tr class="variant-row {% if not training_mode %}variant-row-{{ entry|flag_class }}{% endif %}">
   {# fold-out #}
   <td style="width: 0px" class="clickable toggle-variant-details pl-0 pr-0"
@@ -161,8 +162,8 @@
   <td class="detail-constraints-gnomad-z-syn text-right">
     {{ entry.gnomad_syn_z|floatformat:3|default:"-" }}
   </td>
-  <td class="pl-3 pr-3 text-nowrap" data-order="{% if entry.symbol %}{% if entry.acmg_symbol %}0{% else %}1{% endif %}{% if entry.modes_of_inheritance %}0{% else %}1{% endif %}-{{ entry.symbol }}{% else %}~{% endif %}">
-    {% if not entry.symbol %}
+  <td class="pl-3 pr-3 text-nowrap" data-order="{% if symbol %}{% if entry.acmg_symbol %}0{% else %}1{% endif %}{% if entry.modes_of_inheritance %}0{% else %}1{% endif %}-{{ symbol }}{% else %}~{% endif %}">
+    {% if not symbol %}
       -
     {% else %}
       <div class="btn-group sodar-list-btn-group">
@@ -170,31 +171,31 @@
           type="button"
           title="Go to locus in IGV"
           class="btn btn-outline-dark sodar-list-btn">
-          {{ entry.symbol|default:"." }}
+          {{ symbol|default:"." }}
         </button>
         <button type="button" class="btn btn-sm btn-outline-dark dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span class="sr-only">Toggle Dropdown</span>
         </button>
         <div class="dropdown-menu dropdown-menu-right" style="z-index: 1031;">
-          <a class="dropdown-item" href="https://www.omim.org/search/?search={{ entry.symbol }}" target="_blank">
+          <a class="dropdown-item" href="https://www.omim.org/search/?search={{ symbol }}" target="_blank">
             Gene @OMIM
           </a>
-          <a class="dropdown-item" href="https://www.genecards.org/cgi-bin/carddisp.pl?gene={{ entry.symbol }}" target="_blank">
+          <a class="dropdown-item" href="https://www.genecards.org/cgi-bin/carddisp.pl?gene={{ symbol }}" target="_blank">
             Gene @GeneCards
           </a>
-          <a class="dropdown-item" href="{% if entry.entrez_id %}https://www.ncbi.nlm.nih.gov/gene/{{ entry.entrez_id }}{% else %}https://www.ncbi.nlm.nih.gov/gene/?term=({{ entry.symbol }}+AND+&quot;Homo+sapiens&quot;){% endif %}" target="_blank">
+          <a class="dropdown-item" href="{% if entry.entrez_id %}https://www.ncbi.nlm.nih.gov/gene/{{ entry.entrez_id }}{% else %}https://www.ncbi.nlm.nih.gov/gene/?term=({{ symbol }}+AND+&quot;Homo+sapiens&quot;){% endif %}" target="_blank">
             Gene @Entrez
           </a>
-          <a class="dropdown-item" href="https://www.genenames.org/cgi-bin/gene_symbol_report?match={{ entry.symbol }}" target="_blank">
+          <a class="dropdown-item" href="https://www.genenames.org/cgi-bin/gene_symbol_report?match={{ symbol }}" target="_blank">
             Gene @HGNC
           </a>
-          <a class="dropdown-item" href="http://www.hgmd.cf.ac.uk/ac/gene.php?gene={{ entry.symbol }}" target="_blank">
+          <a class="dropdown-item" href="http://www.hgmd.cf.ac.uk/ac/gene.php?gene={{ symbol }}" target="_blank">
             Gene @HGMD Public
           </a>
-          <a class="dropdown-item" href="https://www.proteinatlas.org/search/{{ entry.symbol }}" target="_blank">
+          <a class="dropdown-item" href="https://www.proteinatlas.org/search/{{ symbol }}" target="_blank">
             Gene @ProteinAtlas
           </a>
-          <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ entry.symbol }}" target="_blank">
+          <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ symbol }}" target="_blank">
             Gene @PubMed
           </a>
           {% if entry.mgi_id %}
@@ -207,7 +208,7 @@
           </span>
           {% endif %}
           {% if hpoterms %}
-            <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ entry.symbol }}{% for _, title in hpoterms.items %}+{{ title|urlencode:"" }}{% endfor %}" target="_blank">
+            <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ symbol }}{% for _, title in hpoterms.items %}+{{ title|urlencode:"" }}{% endfor %}" target="_blank">
               Gene+Phenotypes @PubMed
             </a>
           {% else %}
@@ -334,13 +335,13 @@
           Locus @gnomAD
         </a>
         <div class="dropdown-divider"></div>
-        <a href="javascript:humanSplicingFinder('{{ entry.symbol }}', '{{ entry.hgvs_c }}');"
+        <a href="javascript:humanSplicingFinder('{{ symbol }}', '{{ entry.hgvs_c }}');"
           data-toggle="tooltip"
           title="Query Human Splicing Finder"
           class="dropdown-item">
           Query Human Splicing Finder
         </a>
-        <a href="https://varseak.bio/ssp.php?gene={{ entry.symbol|urlencode }}&hgvs={{ entry.hgvs_c|urlencode }}"
+        <a href="https://varseak.bio/ssp.php?gene={{ symbol|urlencode }}&hgvs={{ entry.hgvs_c|urlencode }}"
           data-toggle="tooltip"
           title="Query varSEAK Splice Site Prediction"
           target="_blank"
@@ -348,7 +349,7 @@
           Query varSEAK Splicing
         </a>
         {% if "missense_variant" in entry.effect %}
-          <a href="javascript:polyPhen2('{{ entry.symbol }}', '{{ entry.hgvs_p }}');"
+          <a href="javascript:polyPhen2('{{ symbol }}', '{{ entry.hgvs_p }}');"
             data-toggle="tooltip"
             title="Query PolyPhen 2"
             class="dropdown-item">
@@ -388,3 +389,4 @@
     </div>
   </td>
 </tr>
+{% endwith %}

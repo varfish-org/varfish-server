@@ -4,7 +4,13 @@
     <tr>
       <th class="text-right text-nowrap">Symbol / Name</th>
       <td>
-        {{ gene.symbol }} / {{ gene.name }}
+        {% if gene.symbol %}
+          {{ gene.symbol }} / {{ gene.name|default:"<span class='text-muted'><i>No gene name available.</i></span>" }}
+        {% else %}
+          <div class="text-center text-muted">
+            <i>No gene symbol or name available.</i>
+          </div>
+        {% endif %}
       </td>
     </tr>
     <tr>
@@ -183,17 +189,37 @@
     <tr>
       <th class="text-right text-nowrap">Entrez ID</th>
       <td>
-        <a href="https://www.ncbi.nlm.nih.gov/gene/{{ gene.entrez_id }}">
-          {{ gene.entrez_id }}
-        </a>
+        {% if not small_var.refseq_gene_id and not gene.entrez_id %}
+          <div class="text-center text-muted">
+            <i>No RefSeq gene id.</i>
+          </div>
+        {% elif gene.entrez_id %}
+          <a href="https://www.ncbi.nlm.nih.gov/gene/{{ gene.entrez_id }}">
+            {{ gene.entrez_id }}
+          </a>
+        {% else %} {# small_var.refseq_gene_id #}
+          <a href="https://www.ncbi.nlm.nih.gov/gene/{{ small_var.refseq_gene_id }}">
+            {{ small_var.refseq_gene_id }}
+          </a>
+        {% endif %}
       </td>
     </tr>
     <tr>
       <th class="text-right text-nowrap">ENSEMBL ID</th>
       <td>
-        <a href="www.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.ensembl_gene_id }}">
-          {{ gene.ensembl_gene_id }}
-        </a>
+        {% if not small_var.ensembl_gene_id and not gene.ensembl_gene_id %}
+          <div class="text-center text-muted">
+            <i>No EnsEMBL gene id.</i>
+          </div>
+        {% elif gene.ensembl_gene_id %}
+          <a href="www.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.ensembl_gene_id }}">
+            {{ gene.ensembl_gene_id }}
+          </a>
+        {% else %} {# small_var.ensembl_gene_id #}
+          <a href="www.ensembl.org/Homo_sapiens/Gene/Summary?g={{ small_var.ensembl_gene_id }}">
+            {{ small_var.ensembl_gene_id }}
+          </a>
+        {% endif %}
       </td>
     </tr>
     <tr>

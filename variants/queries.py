@@ -23,6 +23,8 @@ from geneinfo.models import (
     GnomadConstraints,
     ExacConstraints,
     MgiMapping,
+    RefseqToGeneSymbol,
+    EnsemblToGeneSymbol,
 )
 from hgmd.models import HgmdPublicLocus
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
@@ -35,7 +37,7 @@ from variants.models import (
     AcmgCriteriaRating,
     SmallVariantSet,
 )
-from variants.forms import FILTER_FORM_TRANSLATE_INHERITANCE, FILTER_FORM_TRANSLATE_CLINVAR_STATUS
+from variants.forms import FILTER_FORM_TRANSLATE_INHERITANCE
 
 
 class _ArrayCatAgg(ReturnTypeFromArgs):
@@ -241,6 +243,7 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
         else:
             group = Hgnc.sa.ensembl_gene_id
             link = SmallVariant.sa.ensembl_gene_id == group
+
         self.subquery_hgnc = (
             select(
                 [
@@ -268,6 +271,32 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
             func.coalesce(self.subquery_hgnc.c.gene_family, "").label("gene_family"),
             func.coalesce(self.subquery_hgnc.c.pubmed_id, "").label("pubmed_id"),
         ]
+
+
+class ExtendQueryPartsGeneSymbolJoin(ExtendQueryPartsBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.kwargs["database_select"] == "refseq":
+            table = RefseqToGeneSymbol
+            group = table.sa.entrez_id
+            link = group == SmallVariant.sa.refseq_gene_id
+        else:  # if self.kwargs["database_select"] == "ensembl"
+            table = EnsemblToGeneSymbol
+            group = table.sa.ensembl_gene_id
+            link = group == SmallVariant.sa.ensembl_gene_id
+        self.subquery = (
+            select([func.max(table.sa.gene_symbol).label("gene_symbol")])
+            .select_from(table.sa)
+            .where(link)
+            .group_by(group)
+            .lateral("genesymbol_subquery")
+        )
+
+    def extend_selectable(self, query_parts):
+        return query_parts.selectable.outerjoin(self.subquery, true())
+
+    def extend_fields(self, _query_parts):
+        return [func.coalesce(self.subquery.c.gene_symbol, "").label("gene_symbol")]
 
 
 class ExtendQueryPartsMgiJoin(ExtendQueryPartsBase):
@@ -1168,6 +1197,7 @@ class QueryPartsBuilder:
     qp_extender_classes = [
         *extender_classes_base,
         ExtendQueryPartsHgncJoin,
+        ExtendQueryPartsGeneSymbolJoin,
         ExtendQueryPartsAcmgJoin,
         ExtendQueryPartsMgiJoin,
     ]
@@ -1204,6 +1234,7 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsCaseJoinAndFilter,
         ExtendQueryPartsDbsnpJoin,
         ExtendQueryPartsHgncJoin,
+        ExtendQueryPartsGeneSymbolJoin,
         ExtendQueryPartsAcmgJoin,
         ExtendQueryPartsMgiJoin,
         ExtendQueryPartsFlagsJoinAndFilter,
@@ -1244,6 +1275,7 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsCaseJoinAndFilter,
         ExtendQueryPartsDbsnpJoin,
         ExtendQueryPartsHgncJoin,
+        ExtendQueryPartsGeneSymbolJoin,
         ExtendQueryPartsMgiJoin,
         ExtendQueryPartsAcmgJoin,
         ExtendQueryPartsFlagsJoin,
@@ -1259,6 +1291,7 @@ class ProjectExportTableQueryPartsBuilder(QueryPartsBuilder):
     qp_extender_classes = [
         *extender_classes_base,
         ExtendQueryPartsHgncJoin,
+        ExtendQueryPartsGeneSymbolJoin,
         ExtendQueryPartsAcmgJoin,
         ExtendQueryPartsMgiJoin,
         ExtendQueryPartsConservationJoin,

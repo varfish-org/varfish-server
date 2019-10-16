@@ -26,6 +26,8 @@ from geneinfo.tests.factories import (
     GnomadConstraintsFactory,
     ExacConstraintsFactory,
     MgiMappingFactory,
+    RefseqToGeneSymbolFactory,
+    EnsemblToGeneSymbolFactory,
 )
 from dbsnp.tests.factories import DbsnpFactory
 from .factories import (
@@ -165,6 +167,10 @@ class TestCaseOneQueryDatabaseSwitch(SupportQueryTestBase):
         self.hgnc = HgncFactory(
             entrez_id=small_var.refseq_gene_id, ensembl_gene_id=small_var.ensembl_gene_id
         )
+        self.ensembltogenesymbol = EnsemblToGeneSymbolFactory(
+            ensembl_gene_id=small_var.ensembl_gene_id
+        )
+        self.refseqtogenesymbol = RefseqToGeneSymbolFactory(entrez_id=small_var.refseq_gene_id)
 
     def test_base_query_refseq_filter(self):
         self.run_query(CasePrefetchQuery, {"database_select": "refseq"}, 1)
@@ -187,10 +193,12 @@ class TestCaseOneQueryDatabaseSwitch(SupportQueryTestBase):
     def test_base_query_refseq_check_gene_symbol(self):
         results = self.run_query(CasePrefetchQuery, {"database_select": "refseq"}, 1)
         self.assertEqual(results[0].symbol, self.hgnc.symbol)
+        self.assertEqual(results[0].gene_symbol, self.refseqtogenesymbol.gene_symbol)
 
-    def test_base_query_ensembl_check_gene_symbol(self):
+    def test_base_query_ensembl_check_gene_symbol_from_hgnc(self):
         results = self.run_query(CasePrefetchQuery, {"database_select": "ensembl"}, 1)
         self.assertEqual(results[0].symbol, self.hgnc.symbol)
+        self.assertEqual(results[0].gene_symbol, self.ensembltogenesymbol.gene_symbol)
 
 
 class TestCaseOneQueryNotInDbsnp(SupportQueryTestBase):

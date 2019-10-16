@@ -29,6 +29,8 @@ from geneinfo.tests.factories import (
     ExacConstraintsFactory,
     EnsemblToRefseqFactory,
     RefseqToEnsemblFactory,
+    EnsemblToGeneSymbolFactory,
+    RefseqToGeneSymbolFactory,
 )
 from svs.models import StructuralVariant
 from svs.tests.factories import StructuralVariantSetFactory, StructuralVariantFactory
@@ -1621,6 +1623,10 @@ class TestSmallVariantDetailsView(ViewTestBase):
         self.hgnc = HgncFactory(
             ensembl_gene_id=self.small_var.ensembl_gene_id, entrez_id=self.small_var.refseq_gene_id
         )
+        self.ensembltogenesymbol = EnsemblToGeneSymbolFactory(
+            ensembl_gene_id=self.small_var.ensembl_gene_id
+        )
+        self.refseqtogenesymbol = RefseqToGeneSymbolFactory(entrez_id=self.small_var.refseq_gene_id)
         self.mim2genemedgen_pheno = Mim2geneMedgenFactory(entrez_id=self.small_var.refseq_gene_id)
         self.mim2genemedgen_gene = Mim2geneMedgenFactory(
             entrez_id=self.small_var.refseq_gene_id, omim_type="gene"
@@ -1865,6 +1871,9 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 )
             )
             self.assertEqual(response.context["gene"]["entrez_id"], self.small_var.refseq_gene_id)
+            self.assertEqual(
+                response.context["gene"]["symbol"], self.refseqtogenesymbol.gene_symbol
+            )
             self.assertFalse("hpo_terms" in response.context["gene"])
 
     def test_content_ensembl_missing_hgnc(self):
@@ -1891,6 +1900,9 @@ class TestSmallVariantDetailsView(ViewTestBase):
             )
             self.assertEqual(
                 response.context["gene"]["ensembl_gene_id"], self.small_var.ensembl_gene_id
+            )
+            self.assertEqual(
+                response.context["gene"]["symbol"], self.ensembltogenesymbol.gene_symbol
             )
             self.assertFalse("hpo_terms" in response.context["gene"])
 
