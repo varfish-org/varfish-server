@@ -117,6 +117,7 @@ def _handle_hpo_omim(entrez_id):
                 else:
                     omim[mim.omim_id] = omim_name
     omim = {key: (value[0], value[1:]) for key, value in omim.items() if value}
+    hpoterms = sorted(hpoterms, key=lambda tup: tup[1])
     return hpoterms, hpoinheritance, omim, omim_genes
 
 

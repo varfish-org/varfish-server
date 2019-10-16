@@ -26,6 +26,8 @@ End-User Summary
 - Upgrade of the SODAR-core library app, includes various improvements such background job pagination and improvements to membership management.
 - Included tables for converting refseq and ensembl gene ids to gene symbols.
 - Added warning about missing UMD indel scoring.
+- Now sorting comments and flags in the case overview by chromosomal position.
+- Now sorting HPO terms in variant detail view alphabetically.
 
 Full Change List
 ================
@@ -50,6 +52,8 @@ Full Change List
 - Upgraded to SODAR core v0.7.0.
 - Included tables ``RefseqToGeneSymbol`` and ``EnsemblToGeneSymbol`` convert gene ids to gene symbols to get a better coverage of gene symbols.
 - Added warning about missing UMD indel scoring.
+- Now sorting comments and flags in the case overview by chromosomal position.
+- Now sorting HPO terms in variant detail view alphabetically.
 
 -------
 v0.17.4

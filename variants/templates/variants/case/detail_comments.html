@@ -13,7 +13,7 @@
   <table class="table table-striped table-hover">
     <thead>
       <tr>
-        <th style="width: 200px;"><div class="sodar-overflow-container sodar-overflow-hover">Variant</div></th>
+        <th colspan="2" style="width: 200px;"><div class="sodar-overflow-container sodar-overflow-hover">Variant</div></th>
         <th style="width: 80px;"><div class="sodar-overflow-container sodar-overflow-hover">Gene(s)</div></th>
         <th>Comments</th>
       </tr>
@@ -29,6 +29,8 @@
             <div class="sodar-overflow-container sodar-overflow-hover" style="max-width: 200px;">
               chr{{ variant_comment.chromosome }}:{{ variant_comment.start|intcomma }}-{{ variant_comment.reference }}-{{ variant_comment.alternative }}
             </div>
+          </td>
+          <td class="pl-0 pr-0">
             <a href="#"
               onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ variant_comment.chromosome }}:{{ variant_comment.start }}-{{ variant_comment.end }}'})"
               class="badge badge-secondary">

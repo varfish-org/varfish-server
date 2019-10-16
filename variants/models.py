@@ -32,7 +32,7 @@ from projectroles.models import Project
 from bgjobs.models import BackgroundJob, JobModelMessageMixin, LOG_LEVEL_CHOICES, LOG_LEVEL_ERROR
 from projectroles.plugins import get_backend_api
 
-from geneinfo.models import Hgnc
+from geneinfo.models import Hgnc, EnsemblToGeneSymbol
 
 from genomicfeatures.models import GeneInterval
 
@@ -1030,9 +1030,11 @@ class SmallVariantComment(models.Model):
             )
         )
         gene_ids = [itv.gene_id for itv in gene_intervals]
-        return list(
-            sorted({info.symbol for info in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)})
-        )
+        symbols1 = {
+            o.gene_symbol for o in EnsemblToGeneSymbol.objects.filter(ensembl_gene_id__in=gene_ids)
+        }
+        symbols2 = {o.symbol for o in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)}
+        return sorted(symbols1 | symbols2)
 
     def clean(self):
         """Make sure that the case has such a variant"""
@@ -1054,6 +1056,7 @@ class SmallVariantComment(models.Model):
                 fields=["release", "chromosome", "start", "end", "reference", "alternative", "case"]
             ),
         )
+        ordering = ["chromosome", "start", "end"]
 
     def shortened_text(self, max_chars=50):
         """Shorten ``text`` to ``max_chars`` characters if longer."""
@@ -1155,9 +1158,11 @@ class SmallVariantFlags(models.Model):
             )
         )
         gene_ids = [itv.gene_id for itv in gene_intervals]
-        return list(
-            sorted({info.symbol for info in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)})
-        )
+        symbols1 = {
+            o.gene_symbol for o in EnsemblToGeneSymbol.objects.filter(ensembl_gene_id__in=gene_ids)
+        }
+        symbols2 = {o.symbol for o in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)}
+        return sorted(symbols1 | symbols2)
 
     def human_readable(self):
         """Return human-redable version of flags"""
@@ -1227,6 +1232,7 @@ class SmallVariantFlags(models.Model):
                 fields=["release", "chromosome", "start", "end", "reference", "alternative", "case"]
             ),
         )
+        ordering = ["chromosome", "start", "end"]
 
 
 class SmallVariantQueryBase(models.Model):
