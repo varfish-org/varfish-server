@@ -1304,33 +1304,69 @@ class CompHetCombiner:
         self.builder = builder
 
     def to_stmt(self, kwargs, order_by=None):
+        # Find out if comp het index has no parents.
+        members = [
+            m
+            for m in self.case.get_filtered_pedigree_with_samples()
+            if m["patient"] == kwargs["compound_recessive_index"]
+        ]
+        if len(members) != 1:
+            raise RuntimeError("Could not find index from pedigree")
+        singleton = members[0]["father"] == "0" and members[0]["mother"] == "0"
         father_stmt = DefaultCombiner(self.case, self.builder).to_stmt(
             kwargs, extender_genotype_class=ExtendQueryPartsGenotypeGtQualityFatherFilter
         )
         mother_stmt = DefaultCombiner(self.case, self.builder).to_stmt(
             kwargs, extender_genotype_class=ExtendQueryPartsGenotypeGtQualityMotherFilter
         )
-        union_stmt = union(father_stmt, mother_stmt).alias("comp_het_union")
-        window_stmt = (
-            select(
-                [
-                    *union_stmt.c,
-                    func.sum(union_stmt.c.father_marker)
-                    .over(partition_by=union_stmt.c.gene_id)
-                    .label("father_count"),
-                    func.sum(union_stmt.c.mother_marker)
-                    .over(partition_by=union_stmt.c.gene_id)
-                    .label("mother_count"),
-                ]
+        if not singleton:
+            union_stmt = union(father_stmt, mother_stmt).alias("comp_het_union")
+            window_stmt = (
+                select(
+                    [
+                        *union_stmt.c,
+                        func.sum(union_stmt.c.father_marker)
+                        .over(partition_by=union_stmt.c.gene_id)
+                        .label("father_count"),
+                        func.sum(union_stmt.c.mother_marker)
+                        .over(partition_by=union_stmt.c.gene_id)
+                        .label("mother_count"),
+                    ]
+                )
+                .select_from(union_stmt)
+                .alias("comp_het_window")
             )
-            .select_from(union_stmt)
-            .alias("comp_het_window")
-        )
-        result = (
-            select([*window_stmt.c])
-            .select_from(window_stmt)
-            .where(and_(window_stmt.c.father_count > 0, window_stmt.c.mother_count > 0))
-        )
+            result = (
+                select([*window_stmt.c])
+                .select_from(window_stmt)
+                .where(and_(window_stmt.c.father_count > 0, window_stmt.c.mother_count > 0))
+            )
+        else:  # singleton
+            # It doesn't matter which parent GT comp het filter we take, as there are no parents.
+            # We need to distinguish the singleton case from the others, because it would match
+            # the same variants twice, using the upper statement.
+            # It sets the gt pattern for the index to het, this is the only thing we require.
+            # Pay attention to be consistent with the marker.
+            singleton_stmt = father_stmt.alias("comp_het_singleton")
+            window_stmt = (
+                select(
+                    [
+                        *singleton_stmt.c,
+                        func.sum(singleton_stmt.c.father_marker)
+                        .over(partition_by=singleton_stmt.c.gene_id)
+                        .label("singleton_count"),
+                    ]
+                )
+                .select_from(singleton_stmt)
+                .alias("comp_het_window")
+            )
+            # As we require at least two variants in a gene, we need to increase the lower limit.
+            result = (
+                select([*window_stmt.c])
+                .select_from(window_stmt)
+                .where(window_stmt.c.singleton_count > 1)
+            )
+
         return result.order_by(*(order_by or []))
 
 
@@ -1364,7 +1400,7 @@ class CasePrefetchQuery:
             column("alternative"),
         ]
 
-        if kwargs.get("compound_recessive_index", None) and self.query_id is None:
+        if kwargs.get("compound_recessive_index") and self.query_id is None:
             combiner = CompHetCombiner(self.case_or_cases, self.builder)
         else:  # compound recessive not in kwargs or disabled
             combiner = DefaultCombiner(self.case_or_cases, self.builder, self.query_id)

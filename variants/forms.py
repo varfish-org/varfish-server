@@ -107,6 +107,7 @@ INHERITANCE = [
     ("variant", "variant"),
     ("non-variant", "non-variant"),
     ("non-reference", "non-reference"),
+    ("index", "c/h index"),
 ]
 
 FAIL = [("ignore", "ignore"), ("drop-variant", "drop variant"), ("no-call", "no-call")]
@@ -354,14 +355,11 @@ class SmallVariantGenotypeFilterFormMixin:
         for member in self.get_pedigree_with_samples():
             name = member["patient"]
             affection = "affected" if 2 == member["affected"] else "unaffected"
-            index = []
-            if not (member["mother"] == "0" or member["father"] == "0"):
-                index = [("index", "c/h index")]
             self.fields[self.get_genotype_field_names()[name]["gt"]] = forms.CharField(
                 label="",
                 required=True,
                 widget=forms.Select(
-                    choices=INHERITANCE + index,
+                    choices=INHERITANCE,
                     attrs={
                         "class": "load-comphet-mode genotype-field-gt %s" % affection,
                         "data-mother": member["mother"],

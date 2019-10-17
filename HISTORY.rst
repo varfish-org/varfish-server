@@ -31,6 +31,7 @@ End-User Summary
 - Improved pubmed linkout string.
 - Added EnsEMBL and ClinVar linkouts to gene dropdown menu in results list.
 - Added 3 more variant flags: no known disease association, variant does segregate, variant doesn't segregate.
+- Compound heterozygous filter is now applicable to singletons and index patients with only one parent.
 
 Full Change List
 ================
@@ -60,6 +61,7 @@ Full Change List
 - Improved pubmed linkout string.
 - Added EnsEMBL and ClinVar linkouts to gene dropdown menu in results list.
 - Added 3 more variant flags: no known disease association, variant does segregate, variant doesn't segregate.
+- Compound heterozygous filter is now applicable to singletons and index patients with only one parent.
 
 -------
 v0.17.4
