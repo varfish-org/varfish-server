@@ -244,6 +244,15 @@ class SmallVariantFlagsFilterFormMixin:
         self.fields["flag_for_validation"] = forms.BooleanField(
             label="for validation", required=False, initial=True
         )
+        self.fields["flag_no_disease_association"] = forms.BooleanField(
+            label="no known disease association", required=False, initial=True
+        )
+        self.fields["flag_segregates"] = forms.BooleanField(
+            label="segregates", required=False, initial=True
+        )
+        self.fields["flag_doesnt_segregate"] = forms.BooleanField(
+            label="doesn't segregate", required=False, initial=True
+        )
         self.fields["flag_simple_empty"] = forms.BooleanField(
             label="no simple flag", required=False, initial=True
         )

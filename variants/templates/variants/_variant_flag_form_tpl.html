@@ -33,7 +33,22 @@
             <label for="comment-check-causative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-flag-checkered"></i></label>
           </div>
         </div>
+        <div class="ml-auto">
+          <div class="form-check form-check-inline" data-toggle="tooltip" title="gene affected by this variant has no known disease association">
+            <input class="form-check-input" id="comment-check-association-{{:variant}}" type="checkbox" name="flag_no_disease_association" value="checked" {{if flag_no_disease_association}}checked{{/if}} />
+            <label for="comment-check-no-disease-association-{{:variant}}" class="m-0"><i class="fa fa-fw fa-chain-broken"></i></label>
+          </div>
+          <div class="form-check form-check-inline" data-toggle="tooltip" title="variant does segregate">
+            <input class="form-check-input" id="comment-check-segregates-{{:variant}}" type="checkbox" name="flag_segregates" value="checked" {{if flag_segregates}}checked{{/if}} />
+            <label for="comment-check-segregates-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-up"></i></label>
+          </div>
+          <div class="form-check form-check-inline" data-toggle="tooltip" title="variant doesn't segregate">
+            <input class="form-check-input" id="comment-check-doesnt-segregate-{{:variant}}" type="checkbox" name="flag_doesnt_segregate" value="checked" {{if flag_doesnt_segregate}}checked{{/if}} />
+            <label for="comment-check-doesnt-segregate-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-down"></i></label>
+          </div>
+        </div>
       </div>
+      <hr />
       <div class="form-group mb-1 row">
         <label class="pr-3" data-toggle="tooltip" title="Visual Inspection (IGV)">
           <i class="fa fa-fw fa-eye pr-1"></i>

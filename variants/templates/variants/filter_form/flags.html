@@ -11,6 +11,12 @@
       <div class="col-2">{{ form.flag_candidate|as_crispy_field }}</div>
       <div class="col-2">{{ form.flag_final_causative|as_crispy_field }}</div>
       <div class="col-2">{{ form.flag_for_validation|as_crispy_field }}</div>
+    </div>
+    <div class="row">
+      <div class="col-2"></div>
+      <div class="col-2">{{ form.flag_no_disease_association|as_crispy_field }}</div>
+      <div class="col-2">{{ form.flag_segregates|as_crispy_field }}</div>
+      <div class="col-2">{{ form.flag_doesnt_segregate|as_crispy_field }}</div>
       <div class="col-2">{{ form.flag_simple_empty|as_crispy_field }}</div>
     </div>
   </div>

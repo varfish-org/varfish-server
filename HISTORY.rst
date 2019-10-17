@@ -30,6 +30,7 @@ End-User Summary
 - Now sorting HPO terms in variant detail view alphabetically.
 - Improved pubmed linkout string.
 - Added EnsEMBL and ClinVar linkouts to gene dropdown menu in results list.
+- Added 3 more variant flags: no known disease association, variant does segregate, variant doesn't segregate.
 
 Full Change List
 ================
@@ -58,6 +59,7 @@ Full Change List
 - Now sorting HPO terms in variant detail view alphabetically.
 - Improved pubmed linkout string.
 - Added EnsEMBL and ClinVar linkouts to gene dropdown menu in results list.
+- Added 3 more variant flags: no known disease association, variant does segregate, variant doesn't segregate.
 
 -------
 v0.17.4

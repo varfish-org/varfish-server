@@ -41,6 +41,9 @@
               <i class="fa fa-fw fa-flask {% if not flagged_variant.flag_for_validation %}text-muted" style="opacity: 0.3{% endif %}"></i>
               <i class="fa fa-fw fa-heart {% if not flagged_variant.flag_candidate %}text-muted" style="opacity: 0.3{% endif %}"></i>
               <i class="fa fa-fw fa-flag-checkered {% if not flagged_variant.flag_final_causative %}text-muted" style="opacity: 0.3{% endif %}"></i>
+              <i class="fa fa-fw fa-chain-broken {% if not flagged_variant.flag_no_disease_association %}text-muted" style="opacity: 0.3{% endif %}"></i>
+              <i class="fa fa-fw fa-thumbs-up {% if not flagged_variant.flag_segregates %}text-muted" style="opacity: 0.3{% endif %}"></i>
+              <i class="fa fa-fw fa-thumbs-down {% if not flagged_variant.flag_doesnt_segregate %}text-muted" style="opacity: 0.3{% endif %}"></i>
           </td>
           <td class="text-center">
             <i class="fa fa-fw {{ flagged_variant.flag_visual|flag_value_to_fa }}"></i>

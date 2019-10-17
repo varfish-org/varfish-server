@@ -367,6 +367,12 @@ class StructuralVariantFlags(_UserAnnotation):
     flag_final_causative = models.BooleanField(default=False, null=False)
     #: Selected for wet-lab validation
     flag_for_validation = models.BooleanField(default=False, null=False)
+    #: Gene affected by this variant has no known disease association
+    flag_no_disease_association = models.BooleanField(default=False, null=False)
+    #: Variant does segregate
+    flag_segregates = models.BooleanField(default=False, null=False)
+    #: Variant does not segregate
+    flag_doesnt_segregate = models.BooleanField(default=False, null=False)
 
     # Choice fields for gradual rating
 
