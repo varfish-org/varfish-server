@@ -1271,7 +1271,7 @@ class SmallVariantFlagsForm(forms.ModelForm):
 
     class Meta:
         model = SmallVariantFlags
-        exclude = ("case", "sodar_uuid", "date_created", "date_modified")
+        exclude = ("case", "sodar_uuid", "date_created", "date_modified", "chromosome_no")
 
 
 class SmallVariantCommentForm(forms.ModelForm):
@@ -1279,7 +1279,7 @@ class SmallVariantCommentForm(forms.ModelForm):
 
     class Meta:
         model = SmallVariantComment
-        exclude = ("case", "sodar_uuid", "user", "date_created", "date_modified")
+        exclude = ("case", "sodar_uuid", "user", "date_created", "date_modified", "chromosome_no")
 
 
 class ProjectStatsJobForm(forms.Form):

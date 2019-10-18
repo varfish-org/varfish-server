@@ -1371,8 +1371,8 @@ class CompHetCombiner:
 
 
 class DefaultCombiner:
-    def __init__(self, case, builder, query_id=None):
-        self.case_or_cases = case
+    def __init__(self, case_or_cases, builder, query_id=None):
+        self.case_or_cases = case_or_cases
         self.builder = builder
         self.query_id = query_id
 

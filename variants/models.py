@@ -59,6 +59,11 @@ PED_MALE = 1
 #: Pedigree value for female.
 PED_FEMALE = 2
 
+#: Create mapping for chromosome as string to chromosome as integer
+CHROMOSOME_STR_TO_CHROMOSOME_INT = {
+    b: a for a, b in enumerate(list(map(str, range(1, 23))) + ["X", "Y", "MT"], 1)
+}
+
 
 def only_source_name(full_name):
     """Helper function that strips SNAPPY suffixes for samples."""
@@ -988,6 +993,8 @@ class SmallVariantComment(models.Model):
     release = models.CharField(max_length=32)
     #: The chromosome of the small variant coordinate.
     chromosome = models.CharField(max_length=32)
+    #: Chromosome as Integer for proper odering
+    chromosome_no = models.IntegerField(default=0)
     #: The 1-based start position of the small variant coordinate.
     start = models.IntegerField()
     #: The end position of the small variant coordinate.
@@ -1050,13 +1057,18 @@ class SmallVariantComment(models.Model):
         if not small_vars.exists():
             raise ValidationError("No corresponding variant in case")
 
+    def save(self, *args, **kwargs):
+        """Save chromosome as integer for proper ordering."""
+        self.chromosome_no = CHROMOSOME_STR_TO_CHROMOSOME_INT.get(self.chromosome, 0)
+        super().save(*args, **kwargs)
+
     class Meta:
         indexes = (
             models.Index(
                 fields=["release", "chromosome", "start", "end", "reference", "alternative", "case"]
             ),
         )
-        ordering = ["chromosome", "start", "end"]
+        ordering = ["chromosome_no", "start", "end"]
 
     def shortened_text(self, max_chars=50):
         """Shorten ``text`` to ``max_chars`` characters if longer."""
@@ -1094,6 +1106,8 @@ class SmallVariantFlags(models.Model):
     release = models.CharField(max_length=32)
     #: The chromosome of the small variant coordinate.
     chromosome = models.CharField(max_length=32)
+    #: Chromosome as Integer for proper odering
+    chromosome_no = models.IntegerField(default=0)
     #: The 1-based start position of the small variant coordinate.
     start = models.IntegerField()
     #: The end position of the small variant coordiantes
@@ -1223,6 +1237,11 @@ class SmallVariantFlags(models.Model):
         if not small_vars.exists():
             raise ValidationError("No corresponding variant in case")
 
+    def save(self, *args, **kwargs):
+        """Save chromosome as integer for proper ordering."""
+        self.chromosome_no = CHROMOSOME_STR_TO_CHROMOSOME_INT.get(self.chromosome, 0)
+        super().save(*args, **kwargs)
+
     class Meta:
         unique_together = (
             "release",
@@ -1238,7 +1257,7 @@ class SmallVariantFlags(models.Model):
                 fields=["release", "chromosome", "start", "end", "reference", "alternative", "case"]
             ),
         )
-        ordering = ["chromosome", "start", "end"]
+        ordering = ["chromosome_no", "start", "end"]
 
 
 class SmallVariantQueryBase(models.Model):

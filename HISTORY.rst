@@ -18,8 +18,8 @@ End-User Summary
 - Included MutationTaster as additional pathogenicity score.
 - Included UMD-Predictor as additional pathogenicity score.
 - Project-wide filter now applicable when the project contains cases with no small variants (e.g. completely empty or only SVs).
-- Ignoring option `remove if in dbSNP` when `ClinVar membership required` is activated as every ClinVar entry has a dbSNP id.
-- Fixed indices on `SmallVariantFlags` and `SmallVariantComment` and introduced indices for `ExacConstraints` and `GnomadConstraints` that sped up large queries significantly.
+- Ignoring option ``remove if in dbSNP`` when ``ClinVar membership required`` is activated as every ClinVar entry has a dbSNP id.
+- Fixed indices on ``SmallVariantFlags`` and ``SmallVariantComment`` and introduced indices for ``ExacConstraints`` and ``GnomadConstraints`` that sped up large queries significantly.
 - Fixed issue where gene dropdown menu was overlayed by sticky top.
 - Adding progress bar on top of case list.
 - Improving case list and detail overview page layout and usability.
@@ -48,8 +48,8 @@ Full Change List
 - Included MutationTaster as additional pathogenicity score.
 - Included UMD-Predictor as additional pathogenicity score.
 - Project-wide filter now applicable when the project contains cases with no small variants (e.g. completely empty or only SVs).
-- Ignoring option `remove if in dbSNP` when `ClinVar membership required` is activated as every ClinVar entry has a dbSNP id.
-- Fixed indices on `SmallVariantFlags` and `SmallVariantComment` and introduced indices for `ExacConstraints` and `GnomadConstraints` that sped up large queries significantly.
+- Ignoring option ``remove if in dbSNP`` when ``ClinVar membership required`` is activated as every ClinVar entry has a dbSNP id.
+- Fixed indices on ``SmallVariantFlags`` and ``SmallVariantComment`` and introduced indices for ``ExacConstraints`` and ``GnomadConstraints`` that sped up large queries significantly.
 - Fixed issue where gene dropdown menu was overlayed by sticky top.
 - Adding progress bar on top of case list.
 - Improving case list and detail overview page layout and usability.
@@ -57,6 +57,7 @@ Full Change List
 - Included tables ``RefseqToGeneSymbol`` and ``EnsemblToGeneSymbol`` convert gene ids to gene symbols to get a better coverage of gene symbols.
 - Added warning about missing UMD indel scoring.
 - Now sorting comments and flags in the case overview by chromosomal position.
+  For this, a ``chromosome_no`` field was introduced in ``SmallVariantComments`` and ``SmallVariantFlags`` that is automatically filled when record is saved, derived from ``chromosome`` field.
 - Now sorting HPO terms in variant detail view alphabetically.
 - Improved pubmed linkout string.
 - Added EnsEMBL and ClinVar linkouts to gene dropdown menu in results list.
