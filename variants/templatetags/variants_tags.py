@@ -82,7 +82,7 @@ CLINVAR_STARS = {
 
 
 @register.filter
-def mutationtaster_stars(data):
+def mutationtaster_rank(data):
     return _variant_scores_mutationtaster_rank_model(data)
 
 

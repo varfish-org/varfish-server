@@ -2,6 +2,23 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- MutationTaster scoring now able to score InDels.
+- MutationTaster rank now displayed as numbers, not as stars, with -1 corresponding to an error during scoring.
+
+Full Change List
+================
+
+- MutationTaster scoring now able to score InDels.
+- MutationTaster rank now displayed as numbers, not as stars.
+  Rank -1 and probability -1 correspond to error during MutationTaster ranking or empty results from MutationTaster.
+
 -------
 v0.17.5
 -------

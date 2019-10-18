@@ -260,21 +260,16 @@
     </td>
   {% endif %}
   {% if has_pathogenicity_scores %}
-    <td class="text-right" data-order="{{ entry.pathogenicity_score|default:0.0 }}">
+    <td class="text-right text-nowrap" data-order="{{ entry.pathogenicity_score|default:0.0 }}">
       {% if patho_score == "mutationtaster" %}
-        <span class="badge-group">
-          <span class="badge badge-dark" data-toggle="tooltip" data-placement="top" data-html="true" title="Prediction: {{ entry.pathogenicity_score_api_result.prediction|default:"-" }}<br/>Model: {{ entry.pathogenicity_score_api_result.model|default:"-" }}">
-            {% for i in "1234" %}
-              {% if forloop.counter <= entry.pathogenicity_score_api_result|mutationtaster_stars %}
-                <i class="fa fa-star"></i>
-              {% else %}
-                <i class="fa fa-star-o"></i>
-              {% endif %}
-            {% endfor %}
-          </span>
-          <span class="badge badge-light">
-            {{ entry.pathogenicity_score_api_result.bayes_prob_dc|default:0|mutationtaster_scale_bayes|floatformat:3 }}
-          </span>
+        <span data-toggle="tooltip" data-placement="top" data-html="true" title="Prediction: {{ entry.pathogenicity_score_api_result.prediction|default:"-" }}<br/>Model: {{ entry.pathogenicity_score_api_result.model|default:"-" }}">
+          {% if not entry.pathogenicity_score_api_result or entry.pathogenicity_score_api_result.note == "error" %}
+            -1 / -1.000
+          {% else %}
+            {{ entry.pathogenicity_score_api_result|mutationtaster_rank }}
+            /
+            {{ entry.pathogenicity_score_api_result.bayes_prob_dc|default:-1|mutationtaster_scale_bayes|floatformat:3 }}
+          {% endif %}
         </span>
       {% else %}
         {{ entry.pathogenicity_score|floatformat:1|default:0.0 }}

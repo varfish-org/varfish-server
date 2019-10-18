@@ -1993,22 +1993,13 @@ def _variant_scores_umd(variants, user):
 
 def _variant_scores_mutationtaster(variants):
     batch = []
-    ignored_deletions_counter = 0
     for i, var in enumerate(variants, 1):
-        # TODO Ignore deletions. remove once Dominik fixed the deletions bug
-        if len(var[2]) > len(var[3]):
-            ignored_deletions_counter += 1
-            continue
         batch.append("{}:{}{}>{}".format(*var))
         if i % settings.VARFISH_MUTATIONTASTER_BATCH_VARS == 0:
             yield from _variant_scores_mutationtaster_loop(batch)
             batch = []
     else:
         yield from _variant_scores_mutationtaster_loop(batch)
-    if ignored_deletions_counter:
-        yield None, None, None, None, None, None, "Ignored {} deletions during prioritizing variant pathogencity due to MutationTaster API bug.".format(
-            ignored_deletions_counter
-        )
 
 
 def _variant_scores_mutationtaster_loop(batch):
@@ -2045,29 +2036,30 @@ def _variant_scores_mutationtaster_loop(batch):
             head = line
             continue
         record = dict(zip(head, line))
-        if record["note"] == "error" or not record["bayes_prob_dc"] or not record["prediction"]:
-            continue
-        model_rank = _variant_scores_mutationtaster_rank_model(record)
-        score = model_rank + int(record["bayes_prob_dc"]) / 10000
-        chrom = record["chr"]
-        if chrom == "23":
-            chrom = "X"
-        elif chrom == "24":
-            chrom = "Y"
-        elif chrom == "0":
-            chrom = "MT"
+        if record["note"] == "error":
+            score = -1
+        else:
+            model_rank = _variant_scores_mutationtaster_rank_model(record)
+            score = model_rank + int(record["bayes_prob_dc"]) / 10000
+            chrom = record["chr"]
+            if chrom == "23":
+                chrom = "X"
+            elif chrom == "24":
+                chrom = "Y"
+            elif chrom == "0":
+                chrom = "MT"
         yield "GRCh37", chrom, int(record["pos"]), record["ref"], record["alt"], score, record
 
 
 def _variant_scores_mutationtaster_rank_model(record):
     model_rank = 0
-    if record["prediction"] == "disease causing (automatic)":
+    if record.get("prediction") == "disease causing (automatic)":
         model_rank = 4
-    elif record["prediction"] == "disease causing":
-        if record["model"] in ("simple_aae", "complex_aae"):
+    elif record.get("prediction") == "disease causing":
+        if record.get("model") in ("simple_aae", "complex_aae"):
             model_rank = 3
-        elif record["model"] == "without_aae":
-            if record["splicesite"] in ("splice site", "splicing impaired"):
+        elif record.get("model") == "without_aae":
+            if record.get("splicesite") in ("splice site", "splicing impaired"):
                 model_rank = 2
             else:
                 model_rank = 1
