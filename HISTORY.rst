@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Added caching for pathogenicity scores api results.
+
+Full Change List
+================
+
+- Added new database tables ``CaddPathogenicityScoreCache``, ``UmdPathogenicityScoreCache``, ``MutationtasterPathogenicityScoreCache`` to cache pathogenicity scores api results.
+
 -------
 v0.17.6
 -------

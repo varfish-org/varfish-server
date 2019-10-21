@@ -12,6 +12,7 @@ from itertools import chain
 import math
 import re
 import requests
+from django.forms import model_to_dict
 from sqlalchemy import select, func, and_
 import uuid as uuid_object
 
@@ -1433,8 +1434,8 @@ class SmallVariantQueryVariantScores(models.Model):
     #: The score.
     score = models.FloatField(null=False, blank=False, help_text="The variant score")
 
-    #: Complete result returned by scoring API (if any)
-    api_result = JSONField(default={})
+    #: Further information.
+    info = JSONField(default={})
 
     def variant_key(self):
         return "-".join(
@@ -1694,6 +1695,85 @@ class ComputeProjectVariantsStatsBgJob(JobModelMessageMixin, models.Model):
         )
 
 
+class PathogenicityScoreCacheBase(models.Model):
+    """Base model class for the pathogenicity scoring caches to store the API results."""
+
+    #: Date of last retrieval
+    last_retrieved = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
+    #: Genome build
+    release = models.CharField(max_length=32)
+    #: Variant coordinates - chromosome
+    chromosome = models.CharField(max_length=32)
+    #: Variant coordinates - 1-based start position
+    start = models.IntegerField()
+    #: Variant coordinates - end position
+    end = models.IntegerField()
+    #: Variant coordinates - UCSC bin
+    bin = models.IntegerField()
+    #: Variant coordinates - reference
+    reference = models.CharField(max_length=512)
+    #: Variant coordinates - alternative
+    alternative = models.CharField(max_length=512)
+
+    class Meta:
+        abstract = True
+
+
+class CaddPathogenicityScoreCache(PathogenicityScoreCacheBase):
+    """Model to cache the CADD pathogenicity API results."""
+
+    #: Info dictionary
+    info = JSONField()
+    #: Tuple of returned scores
+    scores = ArrayField(models.FloatField(), size=2)
+
+
+class UmdPathogenicityScoreCache(PathogenicityScoreCacheBase):
+    """Model to cache the UMD predictor API results."""
+
+    #: Amino acid wildtype
+    aa_wildtype = models.CharField(max_length=512)
+    #: Amino acid mutant
+    aa_mutant = models.CharField(max_length=512)
+    #: Gene symbol
+    gene_name = models.CharField(max_length=512)
+    #: Conclusion
+    conclusion = models.CharField(max_length=512)
+    #: EnsEMBL gene ID
+    ensembl_gene_id = models.CharField(max_length=16)
+    #: EnsEMBL transcript ID
+    ensembl_transcript_id = models.CharField(max_length=32)
+    #: Pathogenicity score
+    pathogenicity_score = models.IntegerField()
+    #: Transcript position
+    transcript_position = models.IntegerField()
+
+
+class MutationTasterPathogenicityScoreCache(PathogenicityScoreCacheBase):
+    """Model to cache the MutationTaster API results."""
+
+    #: Ensembl transcript id
+    transcript_stable = models.CharField(max_length=32, null=True)
+    #: Entrez ID
+    ncbi_geneid = models.CharField(max_length=16, null=True)
+    #: Pathogenicity prediction
+    prediction = models.CharField(max_length=32, null=True)
+    #: Model used for predicition
+    model = models.CharField(max_length=32, null=True)
+    #: Probability from bayes classifier
+    bayes_prob_dc = models.IntegerField(null=True)
+    #: Further information
+    note = models.CharField(max_length=512, null=True)
+    #: Splicesite
+    splicesite = models.CharField(max_length=32, null=True)
+    #: Distance from splicesite
+    distance_from_splicesite = models.IntegerField(null=True)
+    #: Disease database this mutation is registered in (e.g. ClinVar)
+    disease_mutation = models.CharField(max_length=32, null=True)
+    #: Polymorphism database this mutation is registered in (e.g. ExAC)
+    polymorphism = models.CharField(max_length=32, null=True)
+
+
 # TODO: Improve wrapper so we can assign obj.phenotype_rank and score
 class RowWithPhenotypeScore(wrapt.ObjectProxy):
     """Wrap a result row and add members for phenotype score and rank."""
@@ -1755,7 +1835,7 @@ class RowWithPathogenicityScore(wrapt.ObjectProxy):
         super().__init__(obj)
         self._self_pathogenicity_rank = None
         self._self_pathogenicity_score = -1
-        self._self_pathogenicity_score_api_result = {}
+        self._self_pathogenicity_score_info = {}
 
     @property
     def pathogenicity_rank(self):
@@ -1766,16 +1846,16 @@ class RowWithPathogenicityScore(wrapt.ObjectProxy):
         return self._self_pathogenicity_score
 
     @property
-    def pathogenicity_score_api_result(self):
-        return self._self_pathogenicity_score_api_result
+    def pathogenicity_score_info(self):
+        return self._self_pathogenicity_score_info
 
     def __getitem__(self, key):
         if key == "pathogenicity_rank":
             return self.pathogenicity_rank
         elif key == "pathogenicity_score":
             return self.pathogenicity_score
-        elif key == "pathogenicity_score_api_result":
-            return self.pathogenicity_score_api_result
+        elif key == "pathogenicity_score_info":
+            return self.pathogenicity_score_info
         else:
             return self.__wrapped__.__getitem__(key)
 
@@ -1798,7 +1878,7 @@ def annotate_with_pathogenicity_scores(rows, variant_scores):
         score = variant_scores.get(key)
         if score:
             row._self_pathogenicity_score = score[0]
-            row._self_pathogenicity_score_api_result = score[1]
+            row._self_pathogenicity_score_info = score[1]
     # Get highest score for each gene.
     gene_scores = {}
     for row in rows:
@@ -1940,138 +2020,261 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
         yield entry["geneId"], entry["geneSymbol"], entry["score"], entry["priorityType"]
 
 
-def variant_scores(variants, score_model, user=None):
-    """Perform variant pathogenicity score query.
+class VariantScoresFactory:
+    """Factory class for variant scorers."""
 
-    Yield (build, chromosome, start, reference, alternative, score)
-    """
+    def get_scorer(self, score_type, variants, user=None):
+        if score_type == "umd":
+            return VariantScoresUmd(variants, score_type, user)
+        elif score_type == "cadd":
+            return VariantScoresCadd(variants, score_type)
+        elif score_type == "mutationtaster":
+            return VariantScoresMutationTaster(variants, score_type)
 
-    if not variants:
-        return
-    if score_model == "cadd":
-        if not settings.VARFISH_ENABLE_CADD:
-            return
-        yield from _variant_scores_cadd(variants)
-    elif score_model == "mutationtaster":
-        if len(variants) > settings.VARFISH_MUTATIONTASTER_MAX_VARS:
-            raise ConnectionError(
-                "ERROR: Too many variants to score. Got {}, limit is {}.".format(
-                    len(variants), settings.VARFISH_MUTATIONTASTER_MAX_VARS
-                )
+
+class VariantScoresBase:
+    """Variant scoring base class."""
+
+    #: Set PathogenicityCache model (required in child classes)
+    cache_model = None
+
+    def __init__(self, variants, score_type, user=None):
+        self.variants = variants
+        self.user = user
+        self.score_type = score_type
+
+    def score(self):
+        raise NotImplementedError("Implement me!")
+
+    def get_cache_model(self):
+        if not self.cache_model:
+            raise NotImplementedError("Please set ``cache_model``")
+        return self.cache_model
+
+    def _get_cached_and_uncached_variants(self):
+        cached = []
+        uncached = []
+        for variant in self.variants:
+            res = self.get_cache_model().objects.filter(
+                chromosome=variant[0],
+                start=variant[1],
+                reference=variant[2],
+                alternative=variant[3],
             )
-        yield from _variant_scores_mutationtaster(variants)
-    else:  # score_model == "umd":
-        yield from _variant_scores_umd(variants, user)
+            if res:
+                cached.append(res.first())
+            else:
+                uncached.append(variant)
+        return cached, uncached
+
+    def _cache_results(self, results):
+        self.get_cache_model().objects.bulk_create(results)
+
+    def _build_yield_dict(self, record, score, info):
+        yield_dict = {
+            k: record[k]
+            for k in ("release", "chromosome", "start", "end", "bin", "reference", "alternative")
+        }
+        yield_dict["score"] = score
+        yield_dict["info"] = info
+        yield_dict["score_type"] = self.score_type
+        return yield_dict
 
 
-def _variant_scores_umd(variants, user):
-    if not user:
-        return
+class VariantScoresUmd(VariantScoresBase):
+    """Variant scoring class for UMD Predictor."""
 
-    token = app_settings.get_app_setting("variants", "umd_predictor_api_token", user=user)
+    #: Set PathogenicityCache model (required)
+    cache_model = UmdPathogenicityScoreCache
 
-    if not token:
-        return
+    def score(self):
+        if not self.variants or not self.user:
+            return
 
-    try:
-        res = requests.get(
-            settings.VARFISH_UMD_REST_API_URL,
-            params=dict(batch=",".join(["_".join(map(str, var)) for var in variants]), token=token),
-        )
-    except requests.ConnectionError:
-        raise ConnectionError(
-            "ERROR: Server {} not responding.".format(settings.VARFISH_UMD_REST_API_URL)
-        )
+        token = app_settings.get_app_setting("variants", "umd_predictor_api_token", user=self.user)
+
+        if not token:
+            return
+
+        cached, uncached = self._get_cached_and_uncached_variants()
+
+        try:
+            res = requests.get(
+                settings.VARFISH_UMD_REST_API_URL,
+                params=dict(
+                    batch=",".join(["_".join(map(str, var)) for var in uncached]), token=token
+                ),
+            )
+        except requests.ConnectionError:
+            raise ConnectionError(
+                "ERROR: Server {} not responding.".format(settings.VARFISH_UMD_REST_API_URL)
+            )
 
         # Exit if error is reported
-    if not res.status_code == 200:
-        raise ConnectionError(
-            "ERROR: Server responded with status {} and message {}".format(
-                res.status_code, res.text
+        if not res.status_code == 200:
+            raise ConnectionError(
+                "ERROR: Server responded with status {} and message {}".format(
+                    res.status_code, res.text
+                )
             )
-        )
 
-    header = [
-        "chromosome",
-        "position",
-        "gene_name",
-        "ensembl_gene_id",
-        "ensembl_transcript_id",
-        "transcript_position",
-        "reference",
-        "alternative",
-        "AA_wildtype",
-        "AA_mutant",
-        "pathogenicity_score",
-        "conclusion",
-    ]
-    for line in res.text.split("\n"):
-        if not line.startswith("chr"):
-            continue
-        record = dict(zip(header, line.split("\t")))
-        yield "GRCh37", record["chromosome"].lstrip("chr"), int(record["position"]), record[
-            "reference"
-        ], record["alternative"], record["pathogenicity_score"], record
+        # UMD API results do not contain header, so manually assign header information from their web page legend.
+        header = [
+            "chromosome",
+            "position",
+            "gene_name",
+            "ensembl_gene_id",
+            "ensembl_transcript_id",
+            "transcript_position",
+            "reference",
+            "alternative",
+            "aa_wildtype",
+            "aa_mutant",
+            "pathogenicity_score",
+            "conclusion",
+        ]
+        # Yield cached results
+        for item in cached:
+            item = model_to_dict(item)
+            yield self._build_yield_dict(item, item["pathogenicity_score"], {})
+        # Yield API results
+        result = []
+        for line in res.text.split("\n"):
+            if not line:
+                continue
+            if not line.startswith("chr"):
+                continue
+            record = dict(zip(header, line.split("\t")))
+            record["release"] = "GRCh37"
+            record["chromosome"] = record["chromosome"].lstrip("chr")
+            record["start"] = int(record.pop("position"))
+            record["end"] = record["start"] + len(record["reference"]) - 1
+            record["bin"] = binning.assign_bin(record["start"] - 1, record["end"])
+            result.append(self.get_cache_model()(**record))
+            yield self._build_yield_dict(record, record["pathogenicity_score"], {})
+        # Store API results in cache
+        self._cache_results(result)
 
 
-def _variant_scores_mutationtaster(variants):
-    batch = []
-    for i, var in enumerate(variants, 1):
-        batch.append("{}:{}{}>{}".format(*var))
-        if i % settings.VARFISH_MUTATIONTASTER_BATCH_VARS == 0:
-            yield from _variant_scores_mutationtaster_loop(batch)
-            batch = []
-    else:
-        yield from _variant_scores_mutationtaster_loop(batch)
+class VariantScoresMutationTaster(VariantScoresBase):
+    """Variant scoring class for Mutation Taster."""
 
+    #: Set PathogenicityCache model (required)
+    cache_model = MutationTasterPathogenicityScoreCache
 
-def _variant_scores_mutationtaster_loop(batch):
-    batch_str = ",".join(batch)
-    try:
-        res = requests.post(
-            settings.VARFISH_MUTATIONTASTER_REST_API_URL,
-            dict(format="tsv", debug="0", variants=batch_str),
-        )
-    except requests.ConnectionError:
-        raise ConnectionError(
-            "ERROR: Server {} not responding.".format(settings.VARFISH_MUTATIONTASTER_REST_API_URL)
-        )
-
-    if not res.status_code == 200:
-        raise ConnectionError(
-            "ERROR: Server responded with status {} and message {}".format(
-                res.status_code, res.text
-            )
-        )
-
-    if res.text.startswith("Content-Type: text/plain\n\nERROR: "):
-        raise ConnectionError(
-            "ERROR: Server responded with: {}".format(
-                res.text.lstrip("Content-Type: text/plain\n\nERROR: ")
-            )
-        )
-
-    for j, line in enumerate(res.text.split("\n")):
-        if not line:
+    def score(self):
+        if not self.variants:
             return
-        line = line.split("\t")
-        if j == 0:
-            head = line
-            continue
-        record = dict(zip(head, line))
-        if record["note"] == "error":
-            score = -1
+
+        cached, uncached = self._get_cached_and_uncached_variants()
+
+        for item in cached:
+            item = model_to_dict(item)
+            yield self._build_yield_dict(
+                item,
+                _variant_scores_mutationtaster_score(item),
+                _variant_scores_mutationtaster_info(item),
+            )
+
+        batch = []
+        for i, var in enumerate(uncached, 1):
+            batch.append("{}:{}{}>{}".format(*var))
+            if i % settings.VARFISH_MUTATIONTASTER_BATCH_VARS == 0:
+                yield from self._variant_scores_mutationtaster_loop(batch)
+                batch = []
         else:
-            model_rank = _variant_scores_mutationtaster_rank_model(record)
-            score = model_rank + int(record["bayes_prob_dc"]) / 10000
-            chrom = record["chr"]
-            if chrom == "23":
-                chrom = "X"
-            elif chrom == "24":
-                chrom = "Y"
-            elif chrom == "0":
-                chrom = "MT"
-        yield "GRCh37", chrom, int(record["pos"]), record["ref"], record["alt"], score, record
+            if batch:
+                yield from self._variant_scores_mutationtaster_loop(batch)
+
+    def _variant_scores_mutationtaster_loop(self, batch):
+        batch_str = ",".join(batch)
+        try:
+            res = requests.post(
+                settings.VARFISH_MUTATIONTASTER_REST_API_URL,
+                dict(format="tsv", debug="0", variants=batch_str),
+            )
+        except requests.ConnectionError:
+            raise ConnectionError(
+                "ERROR: Server {} not responding.".format(
+                    settings.VARFISH_MUTATIONTASTER_REST_API_URL
+                )
+            )
+
+        if not res.status_code == 200:
+            raise ConnectionError(
+                "ERROR: Server responded with status {} and message {}".format(
+                    res.status_code, res.text
+                )
+            )
+
+        if res.text.startswith("Content-Type: text/plain\n\nERROR: "):
+            raise ConnectionError(
+                "ERROR: Server responded with: {}".format(
+                    res.text.lstrip("Content-Type: text/plain\n\nERROR: ")
+                )
+            )
+
+        result = []
+        lines = res.text.split("\n")
+        if not lines:
+            return
+        head = lines.pop(0).lower().split("\t")
+        for line in lines:
+            if not line:
+                continue
+            line = line.split("\t")
+            record = dict(zip(head, line))
+            # Remove id column as it would collide with the postgres id column. It's not required anyway.
+            record.pop("id")
+            # Convert chromosome identifiers
+            record["chromosome"] = record.pop("chr")
+            if record["chromosome"] == "23":
+                record["chromosome"] = "X"
+            elif record["chromosome"] == "24":
+                record["chromosome"] = "Y"
+            elif record["chromosome"] == "0":
+                record["chromosome"] = "MT"
+            # Re-label columns and convert data types to match postgres columns.
+            record["release"] = "GRCh37"
+            record["start"] = int(record.pop("pos"))
+            record["end"] = record["start"] + len(record["ref"]) - 1
+            record["bin"] = binning.assign_bin(record["start"] - 1, record["end"])
+            record["reference"] = record.pop("ref")
+            record["alternative"] = record.pop("alt")
+            # This looks a bit complicated but is required as int() can't be casted on an empty string.
+            record["bayes_prob_dc"] = (
+                int(record["bayes_prob_dc"]) if record["bayes_prob_dc"] else None
+            )
+            record["distance_from_splicesite"] = (
+                int(record["distance_from_splicesite"])
+                if record["distance_from_splicesite"]
+                else None
+            )
+            result.append(self.get_cache_model()(**record))
+            yield self._build_yield_dict(
+                record,
+                _variant_scores_mutationtaster_score(record),
+                _variant_scores_mutationtaster_info(record),
+            )
+        # Store API results in cache
+        self._cache_results(result)
+
+
+def _variant_scores_mutationtaster_score(record):
+    if record.get("note") == "error":
+        return -1
+    model_rank = _variant_scores_mutationtaster_rank_model(record)
+    return model_rank + int(record.get("bayes_prob_dc")) / 10000
+
+
+def _variant_scores_mutationtaster_info(record):
+    return {
+        "model": record["model"],
+        "prediction": record["prediction"],
+        "splicesite": record["splicesite"],
+        "bayes_prob_dc": record["bayes_prob_dc"],
+        "note": record["note"],
+    }
 
 
 def _variant_scores_mutationtaster_rank_model(record):
@@ -2089,61 +2292,97 @@ def _variant_scores_mutationtaster_rank_model(record):
     return model_rank
 
 
-def _variant_scores_cadd(variants):
-    # TODO: properly test
-    try:
-        res = requests.post(
-            settings.VARFISH_CADD_REST_API_URL + "/annotate/",
-            json={
-                "genome_build": "GRCh37",
-                "cadd_release": "v1.4",
-                "variant": ["-".join(map(str, var)) for var in variants],
-            },
-        )
-    except requests.ConnectionError:
-        raise ConnectionError(
-            "ERROR: Server {} not responding.".format(settings.VARFISH_CADD_REST_API_URL)
-        )
+class VariantScoresCadd(VariantScoresBase):
+    """Variant scoring class for CADD."""
 
-    # Exit if error is reported
-    if not res.status_code == 200:
-        raise ConnectionError(
-            "ERROR: Server responded with status {} and message {}".format(
-                res.status_code, res.text
+    #: Set PathogenicityCache model (required)
+    cache_model = CaddPathogenicityScoreCache
+
+    def score(self):
+        if not self.variants:
+            return
+
+        cached, uncached = self._get_cached_and_uncached_variants()
+
+        if len(uncached) > settings.VARFISH_MUTATIONTASTER_MAX_VARS:
+            raise ConnectionError(
+                "ERROR: Too many variants to score. Got {}, limit is {}.".format(
+                    len(uncached), settings.VARFISH_MUTATIONTASTER_MAX_VARS
+                )
             )
-        )
-    bgjob_uuid = res.json().get("uuid")
-    while True:
+
+        # TODO: properly test
         try:
             res = requests.post(
-                settings.VARFISH_CADD_REST_API_URL + "/result/", json={"bgjob_uuid": bgjob_uuid}
+                settings.VARFISH_CADD_REST_API_URL + "/annotate/",
+                json={
+                    "genome_build": "GRCh37",
+                    "cadd_release": "v1.4",
+                    "variant": ["-".join(map(str, var)) for var in uncached],
+                },
             )
         except requests.ConnectionError:
             raise ConnectionError(
                 "ERROR: Server {} not responding.".format(settings.VARFISH_CADD_REST_API_URL)
             )
 
+        # Exit if error is reported
         if not res.status_code == 200:
             raise ConnectionError(
                 "ERROR: Server responded with status {} and message {}".format(
                     res.status_code, res.text
                 )
             )
-        if res.json().get("status") == "active":
-            time.sleep(2)
-        elif res.json().get("status") == "failed":
-            raise ConnectionError(
-                "Job failed, leaving the following message: {}".format(res.json().get("result"))
-            )
-        else:  # status == finished
-            break
+        bgjob_uuid = res.json().get("uuid")
+        while True:
+            try:
+                res = requests.post(
+                    settings.VARFISH_CADD_REST_API_URL + "/result/", json={"bgjob_uuid": bgjob_uuid}
+                )
+            except requests.ConnectionError:
+                raise ConnectionError(
+                    "ERROR: Server {} not responding.".format(settings.VARFISH_CADD_REST_API_URL)
+                )
 
-    for var, scores in res.json().get("scores", {}).items():
-        chrom, pos, ref, alt = var.split("-")
-        yield "GRCh37", chrom, int(pos), ref, alt, scores[1], {
-            "info": res.json().get("info"),
-            "scores": scores,
-        }
+            if not res.status_code == 200:
+                raise ConnectionError(
+                    "ERROR: Server responded with status {} and message {}".format(
+                        res.status_code, res.text
+                    )
+                )
+            if res.json().get("status") == "active":
+                time.sleep(2)
+            elif res.json().get("status") == "failed":
+                raise ConnectionError(
+                    "Job failed, leaving the following message: {}".format(res.json().get("result"))
+                )
+            else:  # status == finished
+                break
+
+        # Yield cached results
+        for item in cached:
+            item = model_to_dict(item)
+            yield self._build_yield_dict(item, item["scores"][1], {})
+
+        result = []
+        for var, scores in res.json().get("scores", {}).items():
+            chrom, pos, ref, alt = var.split("-")
+            start = int(pos)
+            end = start + len(ref) - 1
+            record = {
+                "release": "GRCh37",
+                "chromosome": chrom,
+                "start": start,
+                "end": end,
+                "bin": binning.assign_bin(start - 1, end),
+                "reference": ref,
+                "alternative": alt,
+                "info": res.json().get("info"),
+                "scores": scores,
+            }
+            result.append(self.get_cache_model()(**record))
+            yield self._build_yield_dict(record, record["scores"][1], {})
+        self._cache_results(result)
 
 
 # TODO: Improve wrapper

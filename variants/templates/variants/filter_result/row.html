@@ -262,13 +262,13 @@
   {% if has_pathogenicity_scores %}
     <td class="text-right text-nowrap" data-order="{{ entry.pathogenicity_score|default:0.0 }}">
       {% if patho_score == "mutationtaster" %}
-        <span data-toggle="tooltip" data-placement="top" data-html="true" title="Prediction: {{ entry.pathogenicity_score_api_result.prediction|default:"-" }}<br/>Model: {{ entry.pathogenicity_score_api_result.model|default:"-" }}">
-          {% if not entry.pathogenicity_score_api_result or entry.pathogenicity_score_api_result.note == "error" %}
+        <span data-toggle="tooltip" data-placement="top" data-html="true" title="Prediction: {{ entry.pathogenicity_score_info.prediction|default:"-" }}<br/>Model: {{ entry.pathogenicity_score_api_result.model|default:"-" }}">
+          {% if not entry.pathogenicity_score_info or entry.pathogenicity_score_info.note == "error" %}
             -1 / -1.000
           {% else %}
-            {{ entry.pathogenicity_score_api_result|mutationtaster_rank }}
+            {{ entry.pathogenicity_score_info|mutationtaster_rank }}
             /
-            {{ entry.pathogenicity_score_api_result.bayes_prob_dc|default:-1|mutationtaster_scale_bayes|floatformat:3 }}
+            {{ entry.pathogenicity_score_info.bayes_prob_dc|default:-1|mutationtaster_scale_bayes|floatformat:3 }}
           {% endif %}
         </span>
       {% else %}

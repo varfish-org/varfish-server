@@ -5,7 +5,6 @@ from datetime import timedelta
 from tempfile import NamedTemporaryFile
 import contextlib
 
-import aldjemy
 from django.utils import timezone
 from django.conf import settings
 import vcfpy
@@ -22,7 +21,7 @@ from .models import (
     annotate_with_pathogenicity_scores,
     annotate_with_joint_scores,
     prioritize_genes,
-    variant_scores,
+    VariantScoresFactory,
 )
 from .templatetags.variants_tags import flag_class
 from projectroles.plugins import get_backend_api
@@ -339,11 +338,23 @@ class CaseExporterBase:
 
     def _fetch_variant_scores(self, variants):
         if self._is_pathogenicity_enabled():
-            return {
-                "-".join([release, chrom, str(pos), ref, alt]): score
-                for release, chrom, pos, ref, alt, score in variant_scores(variants)
-            }
-        return {}
+            patho_score = self.query_args.get("patho_score")
+            scorer_factory = VariantScoresFactory()
+            scorer = scorer_factory.get_scorer(patho_score, variants, self.job.bg_job.user)
+            for score in scorer.score():
+                yield {
+                    "-".join(
+                        [
+                            score["release"],
+                            score["chromosome"],
+                            str(score["start"]),
+                            score["reference"],
+                            score["alternative"],
+                        ]
+                    ): score["score"]
+                }
+        else:
+            return {}
 
     def _get_named_temporary_file_args(self):
         return {}

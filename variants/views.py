@@ -1193,9 +1193,9 @@ class CaseLoadPrefetchedFilterView(
             score = variant_scores.get(key)
             if score:
                 if entry.score > score[0]:
-                    variant_scores[key] = (entry.score, entry.api_result)
+                    variant_scores[key] = (entry.score, entry.info)
             else:
-                variant_scores[key] = (entry.score, entry.api_result)
+                variant_scores[key] = (entry.score, entry.info)
 
         if variant_scores:
             card_colspan += 2

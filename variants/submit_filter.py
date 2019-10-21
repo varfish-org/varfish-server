@@ -1,6 +1,5 @@
 import contextlib
 
-import binning
 from django.conf import settings
 from django.db import transaction
 
@@ -8,7 +7,7 @@ from projectroles.plugins import get_backend_api
 
 from variants.forms import PATHO_SCORES_MAPPING
 from variants.helpers import SQLALCHEMY_ENGINE
-from variants.models import prioritize_genes, variant_scores
+from variants.models import prioritize_genes, VariantScoresFactory
 from .queries import CasePrefetchQuery, ProjectPrefetchQuery
 
 
@@ -114,21 +113,10 @@ class FilterBase:
 
         try:
             with transaction.atomic():
-                for release, chromosome, pos, ref, alt, score, api_result in variant_scores(
-                    variants, patho_score, self.job.bg_job.user
-                ):
-                    self.variant_query.smallvariantqueryvariantscores_set.create(
-                        release=release,
-                        chromosome=chromosome,
-                        start=pos,
-                        end=pos,
-                        bin=binning.assign_bin(pos - 1, pos),
-                        reference=ref,
-                        alternative=alt,
-                        score_type=name,
-                        score=score,
-                        api_result=api_result,
-                    )
+                scorer_factory = VariantScoresFactory()
+                scorer = scorer_factory.get_scorer(patho_score, variants, self.job.bg_job.user)
+                for score in scorer.score():
+                    self.variant_query.smallvariantqueryvariantscores_set.create(**score)
         except ConnectionError as e:
             self.job.add_log_entry(e)
 

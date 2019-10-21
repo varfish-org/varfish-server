@@ -47,6 +47,9 @@ from variants.models import (
     SmallVariantSet,
     SmallVariant,
     update_variant_counts,
+    MutationTasterPathogenicityScoreCache,
+    UmdPathogenicityScoreCache,
+    CaddPathogenicityScoreCache,
 )
 from variants.tests.factories import (
     CaseFactory,
@@ -629,7 +632,6 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
         self.bgjob.smallvariantquery.query_results.add(self.small_vars[0], self.small_vars[2])
         self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [self.hpo_id]
-        self.bgjob.smallvariantquery.query_settings["compound_recessive_index"] = self.case.index
         self.bgjob.smallvariantquery.save()
 
     def test_count_results(self):
@@ -644,7 +646,6 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context["result_count"], 2)
-            self.assertEqual(response.context["compound_recessive_index"], self.case.index)
             self.assertFalse(response.context["training_mode"])
             self.assertEqual(response.context["hpoterms"], {self.hpo_id: hpo_name.name})
 
@@ -715,6 +716,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             text=json.dumps(
                 {
                     "status": "finished",
+                    "info": {"cadd_rest_api_version": 0.1},
                     "scores": {
                         _key_gen(self.small_vars[0]): [0.345146, 7.773],
                         _key_gen(self.small_vars[1]): [0.345179, 7.773],
@@ -770,6 +772,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.context["result_rows"][2].phenotype_rank, 1)
             self.assertEqual(response.context["result_rows"][2].pathogenicity_rank, 2)
             self.assertEqual(response.context["result_rows"][2].joint_rank, 2)
+            self.assertEqual(CaddPathogenicityScoreCache.objects.count(), 3)
 
     @patch("django.conf.settings.VARFISH_ENABLE_EXOMISER_PRIORITISER", True)
     @patch("django.conf.settings.VARFISH_EXOMISER_PRIORITISER_API_URL", "https://exomiser.com")
@@ -799,8 +802,8 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             ),
         )
 
-        return_text = "id\tchr\tpos\tref\talt\ttranscript_stable\tNCBI_geneid\tprediction\tmodel\tbayes_prob_dc\tnote\n"
-        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+        return_text = "id\tchr\tpos\tref\talt\ttranscript_stable\tNCBI_geneid\tprediction\tmodel\tbayes_prob_dc\tnote\tsplicesite\tdistance_from_splicesite\tdisease_mutation\tpolymorphism\n"
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
             "1",
             self.small_vars[0].chromosome,
             str(self.small_vars[0].start),
@@ -811,9 +814,13 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             "disease causing",
             "complex_aae",
             "998",
-            "-",
+            "",
+            "",
+            "",
+            "",
+            "",
         )
-        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
             "2",
             self.small_vars[1].chromosome,
             str(self.small_vars[1].start),
@@ -824,9 +831,13 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             "disease causing (automatic)",
             "complex_aae",
             "999",
-            "-",
+            "",
+            "",
+            "",
+            "",
+            "",
         )
-        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
             "3",
             self.small_vars[2].chromosome,
             str(self.small_vars[2].start),
@@ -837,7 +848,11 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             "disease causing",
             "simple_aae",
             "999",
-            "-",
+            "",
+            "",
+            "",
+            "",
+            "",
         )
         mock.post(settings.VARFISH_MUTATIONTASTER_REST_API_URL, status_code=200, text=return_text)
         with self.login(self.user):
@@ -887,6 +902,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.context["result_rows"][2].phenotype_rank, 1)
             self.assertEqual(response.context["result_rows"][2].pathogenicity_rank, 2)
             self.assertEqual(response.context["result_rows"][2].joint_rank, 2)
+            self.assertEqual(MutationTasterPathogenicityScoreCache.objects.count(), 3)
 
     @patch("django.conf.settings.VARFISH_ENABLE_EXOMISER_PRIORITISER", True)
     @patch("django.conf.settings.VARFISH_EXOMISER_PRIORITISER_API_URL", "https://exomiser.com")
@@ -1001,6 +1017,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.context["result_rows"][2].phenotype_rank, 1)
             self.assertEqual(response.context["result_rows"][2].pathogenicity_rank, 2)
             self.assertEqual(response.context["result_rows"][2].joint_rank, 2)
+            self.assertEqual(UmdPathogenicityScoreCache.objects.count(), 3)
 
 
 class TestFilterJobDetailView(ViewTestBase):
