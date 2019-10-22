@@ -11,6 +11,7 @@ End-User Summary
 
 - MutationTaster scoring now able to score InDels.
 - MutationTaster rank now displayed as numbers, not as stars, with -1 corresponding to an error during scoring.
+- Adding "closed uncertain" state.
 
 Full Change List
 ================
@@ -19,6 +20,7 @@ Full Change List
 - MutationTaster rank now displayed as numbers, not as stars.
   Rank -1 and probability -1 correspond to error during MutationTaster ranking or empty results from MutationTaster.
 - Improving display and logging in alignment QC import.
+- Adding "closed uncertain" state.
 
 -------
 v0.17.5

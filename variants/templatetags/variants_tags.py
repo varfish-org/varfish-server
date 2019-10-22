@@ -191,7 +191,8 @@ CASE_STATUS_TO_COLOR = {
     "initial": "secondary",
     "active": "info",
     "closed-solved": "success",
-    "closed-unsolved": "warning",
+    "closed-uncertain": "warning",
+    "closed-unsolved": "danger",
 }
 
 
@@ -204,7 +205,8 @@ CASE_STATUS_TO_FA = {
     "initial": "fa-asterisk text-secondary",
     "active": "fa-filter text-info",
     "closed-solved": "fa-check text-success",
-    "closed-unsolved": "fa-question text-warning",
+    "closed-uncertain": "fa-question text-warning",
+    "closed-unsolved": "fa-times text-danger",
 }
 
 
@@ -213,7 +215,13 @@ def case_status_to_fa(value):
     return "%s text-%s" % (CASE_STATUS_TO_FA.get(value, ""), case_status_to_color(value))
 
 
-CASE_STATUS_TO_ORDER = {"initial": 0, "active": 3, "closed-solved": 2, "closed-unsolved": 1}
+CASE_STATUS_TO_ORDER = {
+    "initial": 0,
+    "active": 4,
+    "closed-solved": 3,
+    "closed-unsolved": 1,
+    "closed-uncertain": 2,
+}
 
 
 @register.filter

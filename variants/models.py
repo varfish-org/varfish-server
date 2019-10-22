@@ -367,6 +367,7 @@ CASE_STATUS_CHOICES = (
     ("initial", "initial"),
     ("active", "active"),
     ("closed-unsolved", "closed as unsolved"),
+    ("closed-uncertain", "closed as uncertain"),
     ("closed-solved", "closed as solved"),
 )
 

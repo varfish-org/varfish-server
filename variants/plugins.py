@@ -125,7 +125,8 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             (
                 '<div style="width: {total_width}px; height: 1em; margin-top: .1em; margin-bottom: .1em; '
                 'white-space: nowrap;" data-toggle="tooltip" title="initial: %(initial)d, active: %(active)d, '
-                'closed&nbsp;(unsolved): %(closed-unsolved)d, closed&nbsp;(solved): %(closed-solved)d">'
+                "closed&nbsp;(unsolved): %(closed-unsolved)d, closed&nbsp;(uncertain): %(closed-uncertain)d, "
+                'closed&nbsp;(solved): %(closed-solved)d">'
             )
             % {"total_width": total_width, **counts}
         ]
