@@ -18,6 +18,7 @@ Full Change List
 - MutationTaster scoring now able to score InDels.
 - MutationTaster rank now displayed as numbers, not as stars.
   Rank -1 and probability -1 correspond to error during MutationTaster ranking or empty results from MutationTaster.
+- Improving display and logging in alignment QC import.
 
 -------
 v0.17.5

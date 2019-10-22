@@ -81,6 +81,10 @@
             <div class="col-2 p-1"><strong>Path Variants</strong></div>
             <div class="col-10 p-1">{{ object.path_genotypes|join:", " }}</div>
           </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Path Alignment QC</strong></div>
+            <div class="col-10 p-1">{{ object.path_bam_qc|join:", "|default:"-" }}</div>
+          </li>
         </ul>
       </div>
     </div>

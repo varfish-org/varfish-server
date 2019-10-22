@@ -2814,6 +2814,8 @@ class VariantImporter(VariantImporterBase):
         )
 
     def _import_annotation_release_info(self, variant_set):
+        before = timezone.now()
+        self.import_job.add_log_entry("Importing annotation release info...")
         for path_db_info in self.import_job.path_db_info:
             for entry in tsv_reader(path_db_info):
                 AnnotationReleaseInfo.objects.get_or_create(
@@ -2823,15 +2825,27 @@ class VariantImporter(VariantImporterBase):
                     variant_set=variant_set,
                     defaults={"release": entry["release"]},
                 )
+        elapsed = timezone.now() - before
+        self.import_job.add_log_entry(
+            "Finished importing annotation release info in %.2f s" % elapsed.total_seconds()
+        )
 
     def _import_alignment_stats(self, variant_set):
+        before = timezone.now()
+        self.import_job.add_log_entry("Importing alignment statistics...")
         for path_bam_qc in self.import_job.path_bam_qc:
-            for entry in tsv_reader(path_bam_qc):
+            self.import_job.add_log_entry("... importing from %s" % path_bam_qc)
+            for lineno, entry in enumerate(tsv_reader(path_bam_qc)):
                 CaseAlignmentStats.objects.get_or_create(
                     case=variant_set.case,
                     variant_set=variant_set,
                     bam_stats=json.loads(entry["bam_stats"].replace('"""', '"')),
                 )
+            self.import_job.add_log_entry("imported %d entries" % lineno)
+        elapsed = timezone.now() - before
+        self.import_job.add_log_entry(
+            "Finished importing alignment statistics in %.2f s" % elapsed.total_seconds()
+        )
 
 
 def run_import_variants_bg_job(pk):
