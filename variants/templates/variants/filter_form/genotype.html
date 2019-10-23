@@ -7,13 +7,14 @@
     <thead>
       <tr>
         <th class="text-muted" style="width: 10px">#</th>
+        <th class="col-2">Family</th>
         <th class="col-2">Individual</th>
         <th class="col-2">Trio Role</th>
         <th class="col-2">Father</th>
         <th class="col-2">Mother</th>
-        <th class="col-2">Sex</th>
-        <th class="col-2">Affected</th>
-        <th class="col-2">
+        <th class="col-1">Sex</th>
+        <th class="col-1">Affected</th>
+        <th class="col-1">
           <span data-toggle="tooltip" data-placement="left" data-html="true" title="<div class='text-left'><ul class='pl-3'><li><strong>any</strong>: don't apply genotype filter</li><li><strong>variant</strong>: allows genotypes <em>0/1</em> and <em>1/1</em></li><li><strong>non-variant</strong>: allows genotypes <em>0/0</em> and <em>./.</em></li><li><strong>non-reference</strong>: allows genotypes that are a variant or <em>./.</em></li><li><strong>index</strong>: activate comp het mode for this index patient.</li></ul></div>">Genotype</span>
           &nbsp;
           <div class="dropdown d-inline" id="presets-genotype-dropdown">
@@ -37,28 +38,31 @@
       </tr>
     </thead>
     <tbody>
-      {% for item in form.get_pedigree %}
-      <tr>
-        <td class="text-right text-muted">{{ forloop.counter }}</td>
-        <td>{{ item.patient|only_source_name }}</td>
-        <td>{{ form.get_member_roles|keyvalue:item.patient }}</td>
-        <td>{{ item.father|default:"0"|only_source_name }}</td>
-        <td>{{ item.mother|default:"0"|only_source_name }}</td>
-        <td><i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% elif item.sex == 1 %}fa-mars{% else %}fa-question{% endif %}"></i></td>
-        <td><i class="fa fa-fw {% if item.affected == 2 %}fa-check color-danger{% elif item.affected == 1 %}fa-times{% else %}fa-question{% endif %}"></i></td>
-        {% if item.has_gt_entries %}
-          <td>
-            {% with x=form.get_genotype_field_names|keyvalue:item.patient|keyvalue:"gt" %}
-              {{ form|keyvalue:x }}
-              <em class="text-muted" style="display: none;" id="compound_heterozygous_role_{{ x }}"></em>
-            {% endwith %}
-          </td>
-        {% else %}
-          <td class="text-centered">
-            <em>no genotypes</em>
-          </td>
-        {% endif %}
-      </tr>
+      {% for family, pedigree in form.get_family_with_pedigree_with_samples.items %}
+        {% for item in pedigree %}
+          <tr>
+            <td class="text-right text-muted">{{ forloop.parentloop.counter }}.{{ forloop.counter }}</td>
+            <td>{{ family }}</td>
+            <td>{{ item.patient|only_source_name }}</td>
+            <td>{{ form.get_member_roles|keyvalue:item.patient }}</td>
+            <td>{{ item.father|default:"0"|only_source_name }}</td>
+            <td>{{ item.mother|default:"0"|only_source_name }}</td>
+            <td><i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% elif item.sex == 1 %}fa-mars{% else %}fa-question{% endif %}"></i></td>
+            <td><i class="fa fa-fw {% if item.affected == 2 %}fa-check color-danger{% elif item.affected == 1 %}fa-times{% else %}fa-question{% endif %}"></i></td>
+            {% if item.has_gt_entries %}
+              <td>
+                {% with x=form.get_genotype_field_names|keyvalue:item.patient|keyvalue:"gt" %}
+                  {{ form|keyvalue:x }}
+                  <em class="text-muted" style="display: none;" id="compound_heterozygous_role_{{ family }}_{{ x }}"></em>
+                {% endwith %}
+              </td>
+            {% else %}
+              <td class="text-centered">
+                <em>no genotypes</em>
+              </td>
+            {% endif %}
+          </tr>
+        {% endfor %}
       {% endfor %}
     </tbody>
   </table>
@@ -70,9 +74,15 @@
     <strong>Compound heterozygous mode activated</strong>
   </div>
   <div class="col text-right">
-    <div class="btn btn-sm btn-info" id="compound_heterozygous_disable">
-      <i class="fa fa-times"></i>
-      Disable comp. het. mode
-    </div>
+    {% if query_type == "case" %}
+      <div class="btn btn-sm btn-info" id="compound_heterozygous_disable">
+        <i class="fa fa-times"></i>
+        Disable comp. het. mode
+      </div>
+    {% else %} {# query_type == "project" #}
+      {# Technically, we could use the above code for the project filter as it can disable multiple indices. #}
+      {# This is to prevent people from resetting all genotype comp het modes accidentally. #}
+      <em>Please disable comp. het. mode in <strong>Genotype</strong> field for each family separately.</em>
+    {% endif %}
   </div>
 </div>

@@ -119,13 +119,10 @@ def small_variant_query(_self, kwargs):
 
 
 class ExtendQueryPartsBase:
-    def __init__(self, kwargs, case_or_cases, query_id=None):
+    def __init__(self, kwargs, case, query_id=None):
         self.kwargs = kwargs
         self.query_id = query_id
-        try:
-            self.cases = list(iter(case_or_cases))
-        except TypeError:
-            self.cases = [case_or_cases]
+        self.case = case
 
     def extend(self, query_parts):
         return QueryParts(
@@ -525,17 +522,16 @@ class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsBase):
 
     def extend_conditions(self, _query_parts):
         condition = []
-        for case in self.cases:
-            set_ = (
-                self.model_set.objects.filter(case=case, state="active")
-                .order_by("-date_created")
-                .first()
-            )
-            if not set_:
-                raise RuntimeError("No variant set to case with id %s found." % case.id)
-            condition.append(
-                and_(self.model.sa.case_id == case.id, self.model.sa.set_id == set_.id)
-            )
+        set_ = (
+            self.model_set.objects.filter(case=self.case, state="active")
+            .order_by("-date_created")
+            .first()
+        )
+        if not set_:
+            raise RuntimeError("No variant set to case with id %s found." % self.case.id)
+        condition.append(
+            and_(self.model.sa.case_id == self.case.id, self.model.sa.set_id == set_.id)
+        )
         return [or_(*condition)]
 
     def extend_selectable(self, query_parts):
@@ -648,11 +644,10 @@ class ExtendQueryPartsGenotypeBase(ExtendQueryPartsBase):
 class ExtendQueryPartsGenotypeDefaultBase(ExtendQueryPartsGenotypeBase):
     def extend_conditions(self, _query_parts):
         result = []
-        for case in self.cases:
-            for member in case.get_filtered_pedigree_with_samples():
-                name = member["patient"]
-                gt_list = FILTER_FORM_TRANSLATE_INHERITANCE[self.kwargs["%s_gt" % name]]
-                result.append(self._build_full_genotype_term(name, gt_list))
+        for member in self.case.get_filtered_pedigree_with_samples():
+            name = member["patient"]
+            gt_list = FILTER_FORM_TRANSLATE_INHERITANCE[self.kwargs["%s_gt" % name]]
+            result.append(self._build_full_genotype_term(name, gt_list))
         return result
 
 
@@ -666,9 +661,7 @@ class ExtendQueryPartsGenotypeCompHetBase(ExtendQueryPartsGenotypeBase):
         else:  # self.gt_type == "father"
             gt_patterns = {index: "het", father: "het", mother: "ref"}
         members = [
-            m
-            for m in self.cases[0].get_filtered_pedigree_with_samples()
-            if m["patient"] in gt_patterns
+            m for m in self.case.get_filtered_pedigree_with_samples() if m["patient"] in gt_patterns
         ]
         result = []
         for member in members:
@@ -681,7 +674,7 @@ class ExtendQueryPartsGenotypeCompHetBase(ExtendQueryPartsGenotypeBase):
         """Return (index, father, mother) names from trio"""
         index_lines = [
             rec
-            for rec in self.cases[0].get_filtered_pedigree_with_samples()
+            for rec in self.case.get_filtered_pedigree_with_samples()
             if rec["patient"] == self.kwargs["compound_recessive_index"]
         ]
         if len(index_lines) != 1:  # pragma: no cover
@@ -1202,8 +1195,8 @@ class QueryPartsBuilder:
         ExtendQueryPartsMgiJoin,
     ]
 
-    def __init__(self, case_or_cases, query_id):
-        self.case_or_cases = case_or_cases
+    def __init__(self, case, query_id):
+        self.case = case
         self.query_id = query_id
 
     def run(self, kwargs, extender_genotype_class=None):
@@ -1215,13 +1208,11 @@ class QueryPartsBuilder:
                 continue
             if name in extender_names:
                 raise ImproperlyConfigured("Double use of extender class %s" % name)
-            extender = extender_class(
-                kwargs=kwargs, case_or_cases=self.case_or_cases, query_id=self.query_id
-            )
+            extender = extender_class(kwargs=kwargs, case=self.case, query_id=self.query_id)
             query_parts = extender.extend(query_parts)
         if extender_genotype_class is not None:
             extender = extender_genotype_class(
-                kwargs=kwargs, case_or_cases=self.case_or_cases, query_id=self.query_id
+                kwargs=kwargs, case=self.case, query_id=self.query_id
             )
             query_parts = extender.extend(query_parts)
 
@@ -1371,23 +1362,24 @@ class CompHetCombiner:
 
 
 class DefaultCombiner:
-    def __init__(self, case_or_cases, builder, query_id=None):
-        self.case_or_cases = case_or_cases
+    def __init__(self, case, builder, query_id=None):
+        self.case = case
         self.builder = builder
         self.query_id = query_id
 
     def to_stmt(self, kwargs, order_by=None, extender_genotype_class=None):
-        query_parts = self.builder(self.case_or_cases, self.query_id).run(
-            kwargs, extender_genotype_class
-        )
+        query_parts = self.builder(self.case, self.query_id).run(kwargs, extender_genotype_class)
         return query_parts.to_stmt(order_by=order_by)
 
 
 class CasePrefetchQuery:
     builder = QueryPartsBuilder
 
-    def __init__(self, case, engine, query_id=None):
-        self.case_or_cases = case
+    def __init__(self, case_or_cases, engine, query_id=None):
+        try:
+            self.cases = list(iter(case_or_cases))
+        except TypeError:
+            self.cases = [case_or_cases]
         self.engine = engine
         self.query_id = query_id
 
@@ -1399,14 +1391,17 @@ class CasePrefetchQuery:
             column("reference"),
             column("alternative"),
         ]
-
-        if kwargs.get("compound_recessive_index") and self.query_id is None:
-            combiner = CompHetCombiner(self.case_or_cases, self.builder)
-        else:  # compound recessive not in kwargs or disabled
-            combiner = DefaultCombiner(self.case_or_cases, self.builder, self.query_id)
-
-        stmt = combiner.to_stmt(kwargs, order_by=order_by)
-
+        stmts = []
+        for case in self.cases:
+            comp_het_index = kwargs.get("compound_recessive_indices", {}).get(case.name)
+            if comp_het_index and self.query_id is None:
+                # Set the current compound recessive index
+                kwargs["compound_recessive_index"] = comp_het_index
+                combiner = CompHetCombiner(case, self.builder)
+            else:  # compound recessive not in kwargs or disabled
+                combiner = DefaultCombiner(case, self.builder, self.query_id)
+            stmts.append(combiner.to_stmt(kwargs))
+        stmt = union(*stmts).order_by(*order_by)
         if settings.DEBUG:
             print(
                 "\n"
@@ -1414,7 +1409,6 @@ class CasePrefetchQuery:
                     stmt.compile(self.engine).string, reindent=True, keyword_case="upper"
                 )
             )
-
         return self.engine.execute(stmt)
 
 

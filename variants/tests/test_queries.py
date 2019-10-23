@@ -2235,21 +2235,27 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
 
     def test_query_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CaseExportTableQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CaseExportVcfQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
@@ -2257,7 +2263,9 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
     def test_query_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2266,7 +2274,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQuery(SupportQueryTestBase):
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
+                "compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]},
                 "filter_job_id": query.id,
             },
             2,
@@ -2357,21 +2365,27 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
 
     def test_query_index_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_index_compound_het_prefetch_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CaseExportTableQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_index_compound_het_prefetch_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CaseExportVcfQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
@@ -2379,7 +2393,9 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
     def test_query_index_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2388,7 +2404,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
+                "compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]},
                 "filter_job_id": query.id,
             },
             2,
@@ -2398,21 +2414,27 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
 
     def test_query_sibling_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[1]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[4].start)
         self.assertEqual(res[1].start, self.small_vars[5].start)
 
     def test_query_sibling_compound_het_prefetch_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
+            CaseExportTableQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[1]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[4].start)
         self.assertEqual(res[1].start, self.small_vars[5].start)
 
     def test_query_sibling_compound_het_prefetch_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
+            CaseExportVcfQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[1]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[4].start)
         self.assertEqual(res[1].start, self.small_vars[5].start)
@@ -2420,7 +2442,9 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
     def test_query_sibling_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[1]["patient"]}},
+            2,
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2429,7 +2453,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuartet(SupportQueryTestBase)
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
+                "compound_recessive_indices": {self.case.name: self.case.pedigree[1]["patient"]},
                 "filter_job_id": query.id,
             },
             2,
@@ -2507,21 +2531,27 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
 
     def test_query_index_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[0].start)
         self.assertEqual(res[1].start, self.small_vars[1].start)
 
     def test_query_index_compound_het_prefetch_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CaseExportTableQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[0].start)
         self.assertEqual(res[1].start, self.small_vars[1].start)
 
     def test_query_index_compound_het_prefetch_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CaseExportVcfQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[0].start)
         self.assertEqual(res[1].start, self.small_vars[1].start)
@@ -2529,7 +2559,9 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
     def test_query_index_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2538,7 +2570,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
+                "compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]},
                 "filter_job_id": query.id,
             },
             2,
@@ -2548,21 +2580,27 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
 
     def test_query_father_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[1]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_father_compound_het_prefetch_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
+            CaseExportTableQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[1]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_father_compound_het_prefetch_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
+            CaseExportVcfQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[1]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
@@ -2570,7 +2608,9 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
     def test_query_father_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[1]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[1]["patient"]}},
+            2,
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2579,7 +2619,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousQueryQuintet(SupportQueryTestBase)
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_index": self.case.pedigree[1]["patient"],
+                "compound_recessive_indices": {self.case.name: self.case.pedigree[1]["patient"]},
                 "filter_job_id": query.id,
             },
             2,
@@ -2638,21 +2678,27 @@ class TestCaseTwoCompoundRecessiveHeterozygousOneParentQuery(SupportQueryTestBas
 
     def test_query_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CaseExportTableQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CaseExportVcfQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
@@ -2660,7 +2706,9 @@ class TestCaseTwoCompoundRecessiveHeterozygousOneParentQuery(SupportQueryTestBas
     def test_query_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2669,7 +2717,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousOneParentQuery(SupportQueryTestBas
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
+                "compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]},
                 "filter_job_id": query.id,
             },
             2,
@@ -2724,21 +2772,27 @@ class TestCaseTwoCompoundRecessiveHeterozygousSingeltonQuery(SupportQueryTestBas
 
     def test_query_compound_het_prefetch_filter(self):
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_export_tsv(self):
         res = self.run_query(
-            CaseExportTableQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CaseExportTableQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
     def test_query_compound_het_export_vcf(self):
         res = self.run_query(
-            CaseExportVcfQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CaseExportVcfQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         self.assertEqual(res[0].start, self.small_vars[2].start)
         self.assertEqual(res[1].start, self.small_vars[3].start)
@@ -2746,7 +2800,9 @@ class TestCaseTwoCompoundRecessiveHeterozygousSingeltonQuery(SupportQueryTestBas
     def test_query_compound_het_load_prefetched_filter(self):
         # Generate results
         res = self.run_query(
-            CasePrefetchQuery, {"compound_recessive_index": self.case.pedigree[0]["patient"]}, 2
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
         )
         # Add results to variant query
         query = SmallVariantQueryFactory(case=self.case)
@@ -2755,7 +2811,7 @@ class TestCaseTwoCompoundRecessiveHeterozygousSingeltonQuery(SupportQueryTestBas
         res = self.run_query(
             CaseLoadPrefetchedQuery,
             {
-                "compound_recessive_index": self.case.pedigree[0]["patient"],
+                "compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]},
                 "filter_job_id": query.id,
             },
             2,
@@ -3053,6 +3109,154 @@ class TestHgmdMembershipQuery(SupportQueryTestBase):
         self.assertEqual(res[0].hgmd_accession, self.hgmd.variation_name)
 
 
+class TestProjectCompHetQuery(SupportQueryTestBase):
+    def setUp(self):
+        super().setUp()
+        self.project = ProjectFactory()
+        self.variant_sets = [
+            SmallVariantSetFactory(case__project=self.project),
+            SmallVariantSetFactory(case__project=self.project),
+        ]
+        self.case1 = self.variant_sets[0].case
+        self.case2 = self.variant_sets[1].case
+        self.small_vars = [
+            SmallVariantFactory(
+                chromosome="1",
+                genotype={
+                    self.case1.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case1.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    self.case1.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                },
+                ensembl_gene_id="ENSG1",
+                variant_set=self.variant_sets[0],
+            ),
+            SmallVariantFactory(
+                chromosome="2",
+                genotype={
+                    self.case1.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "1/1"},
+                    self.case1.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case1.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                },
+                refseq_gene_id="2",
+                ensembl_gene_id="ENSG2",
+                variant_set=self.variant_sets[0],
+            ),
+            SmallVariantFactory(
+                chromosome="3",
+                genotype={
+                    self.case1.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case1.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    self.case1.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                },
+                refseq_gene_id="3",
+                ensembl_gene_id="ENSG3",
+                variant_set=self.variant_sets[0],
+            ),
+            SmallVariantFactory(
+                chromosome="3",
+                genotype={
+                    self.case1.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case1.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case1.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                },
+                variant_set=self.variant_sets[0],
+                refseq_gene_id="3",
+                ensembl_gene_id="ENSG3",
+            ),
+            SmallVariantFactory(
+                chromosome="4",
+                genotype={
+                    self.case2.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case2.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    self.case2.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                },
+                ensembl_gene_id="ENSG4",
+                variant_set=self.variant_sets[1],
+            ),
+            SmallVariantFactory(
+                chromosome="5",
+                genotype={
+                    self.case2.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "1/1"},
+                    self.case2.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case2.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                },
+                refseq_gene_id="5",
+                ensembl_gene_id="ENSG5",
+                variant_set=self.variant_sets[1],
+            ),
+            SmallVariantFactory(
+                chromosome="6",
+                genotype={
+                    self.case2.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case2.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                    self.case2.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                },
+                refseq_gene_id="6",
+                ensembl_gene_id="ENSG6",
+                variant_set=self.variant_sets[1],
+            ),
+            SmallVariantFactory(
+                chromosome="6",
+                genotype={
+                    self.case2.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case2.pedigree[0]["father"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"},
+                    self.case2.pedigree[0]["mother"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/0"},
+                },
+                variant_set=self.variant_sets[1],
+                refseq_gene_id="6",
+                ensembl_gene_id="ENSG6",
+            ),
+        ]
+
+    def test_query_project_comp_het_with_two_cases(self):
+        res = self.run_query(
+            ProjectPrefetchQuery,
+            {
+                "compound_recessive_indices": {
+                    self.case1.name: self.case1.pedigree[0]["patient"],
+                    self.case2.name: self.case2.pedigree[0]["patient"],
+                }
+            },
+            4,
+            query_type="project",
+        )
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
+        self.assertEqual(res[2].start, self.small_vars[6].start)
+        self.assertEqual(res[3].start, self.small_vars[7].start)
+
+    def test_load_project_prefetched_comp_het_with_two_cases(self):
+        res = self.run_query(
+            ProjectPrefetchQuery,
+            {
+                "compound_recessive_indices": {
+                    self.case1.name: self.case1.pedigree[0]["patient"],
+                    self.case2.name: self.case2.pedigree[0]["patient"],
+                }
+            },
+            4,
+            query_type="project",
+        )
+        query = ProjectCasesSmallVariantQueryFactory(project=self.project)
+        query.query_results.add(res[0].id, res[1].id, res[2].id, res[3].id)
+        res = self.run_query(
+            ProjectLoadPrefetchedQuery,
+            {
+                "filter_job_id": query.id,
+                "compound_recessive_indices": {
+                    self.case1.name: self.case1.pedigree[0]["patient"],
+                    self.case2.name: self.case2.pedigree[0]["patient"],
+                },
+            },
+            4,
+            query_type="project",
+        )
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
+        self.assertEqual(res[2].start, self.small_vars[6].start)
+        self.assertEqual(res[3].start, self.small_vars[7].start)
+
+
 class TestCaseFiveQueryProject(SupportQueryTestBase):
     def setUp(self):
         super().setUp()
@@ -3066,16 +3270,18 @@ class TestCaseFiveQueryProject(SupportQueryTestBase):
             SmallVariantFactory(variant_set=variant_sets[1]),
             SmallVariantFactory(variant_set=variant_sets[1]),
         ]
-        projectcasessmallvariantquery = ProjectCasesSmallVariantQueryFactory(project=project)
-        projectcasessmallvariantquery.query_results.add(small_vars[0], small_vars[2])
+        self.projectcasessmallvariantquery = ProjectCasesSmallVariantQueryFactory(project=project)
+        self.projectcasessmallvariantquery.query_results.add(small_vars[0], small_vars[2])
 
     def test_query_project_with_two_cases(self):
         self.run_query(ProjectPrefetchQuery, {}, 3, query_type="project")
 
     def test_load_project_prefetched_two_cases(self):
-        query_job = ProjectCasesSmallVariantQuery.objects.first()
         self.run_query(
-            ProjectLoadPrefetchedQuery, {"filter_job_id": query_job.id}, 2, query_type="project"
+            ProjectLoadPrefetchedQuery,
+            {"filter_job_id": self.projectcasessmallvariantquery.id},
+            2,
+            query_type="project",
         )
 
 

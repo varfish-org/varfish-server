@@ -3,6 +3,7 @@ import tempfile
 import time
 from datetime import datetime, timedelta
 import json
+from collections import defaultdict
 
 import aldjemy
 import binning
@@ -90,7 +91,7 @@ class CaseAwareProject(Project):
             for line in case.pedigree:
                 if line["patient"] not in seen:
                     result.append(line)
-                seen.add(line["patient"])
+                seen.add((case.name, line["patient"]))
         return result
 
     def get_filtered_pedigree_with_samples(self):
@@ -99,12 +100,25 @@ class CaseAwareProject(Project):
         seen = set()
         # Only select cases that have an active variant set.
         # TODO Perspectively, we need to distinguish between Small and Structural VariantSets.
-        for case in self.case_set.filter(smallvariantset__state="active"):
+        for case in self.get_active_smallvariant_cases():
             for line in case.get_filtered_pedigree_with_samples():
                 if line["patient"] not in seen:
                     result.append(line)
-                seen.add(line["patient"])
+                seen.add((case.name, line["patient"]))
         return result
+
+    def get_family_with_filtered_pedigree_with_samples(self):
+        """Concatenate the pedigrees of project's cases that have samples."""
+        result = defaultdict(list)
+        seen = set()
+        # Only select cases that have an active variant set.
+        # TODO Perspectively, we need to distinguish between Small and Structural VariantSets.
+        for case in self.get_active_smallvariant_cases():
+            for line in case.get_filtered_pedigree_with_samples():
+                if line["patient"] not in seen:
+                    result[case.name].append(line)
+                seen.add((case.name, line["patient"]))
+        return dict(result)
 
     def sample_to_case(self):
         """Compute sample-to-case mapping."""
@@ -139,6 +153,10 @@ class CaseAwareProject(Project):
     def get_members(self):
         """Return concatenated list of members in ``pedigree``."""
         return [x["patient"] for x in self.get_filtered_pedigree_with_samples()]
+
+    def get_active_smallvariant_cases(self):
+        """Return activate cases."""
+        return list(self.case_set.filter(smallvariantset__state="active"))
 
     def num_small_vars(self):
         """Return total number of small vars in a project."""
@@ -520,6 +538,10 @@ class Case(models.Model):
         """Return filtered pedigree lines with members with ``has_gt_entries``."""
         # TODO: unit test me
         return [x for x in self.pedigree if x["has_gt_entries"]]
+
+    def get_family_with_filtered_pedigree_with_samples(self):
+        """Concatenate the pedigrees of project's cases that have samples."""
+        return {self.name: self.get_filtered_pedigree_with_samples()}
 
     def get_members_with_samples(self):
         """Returns names of members that genotype information / samples in imported VCF file."""

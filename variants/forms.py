@@ -352,29 +352,32 @@ class SmallVariantGenotypeFilterFormMixin:
     def update_genotype_fields(self):
         """Add and update genotype fields."""
         # Dynamically add the fields based on the pedigree
-        for member in self.get_pedigree_with_samples():
-            name = member["patient"]
-            affection = "affected" if 2 == member["affected"] else "unaffected"
-            self.fields[self.get_genotype_field_names()[name]["gt"]] = forms.CharField(
-                label="",
-                required=True,
-                widget=forms.Select(
-                    choices=INHERITANCE,
-                    attrs={
-                        "class": "load-comphet-mode genotype-field-gt %s" % affection,
-                        "data-mother": member["mother"],
-                        "data-father": member["father"],
-                    },
-                ),
-            )
+        for family, members in self.get_family_with_pedigree_with_samples().items():
+            for member in members:
+                name = member["patient"]
+                affection = "affected" if 2 == member["affected"] else "unaffected"
+                self.fields[self.get_genotype_field_names()[name]["gt"]] = forms.CharField(
+                    label="",
+                    required=True,
+                    widget=forms.Select(
+                        choices=INHERITANCE,
+                        attrs={
+                            "class": "load-comphet-mode genotype-field-gt %s" % affection,
+                            "data-mother": member["mother"],
+                            "data-father": member["father"],
+                            "data-family": family,
+                        },
+                    ),
+                )
 
     def clean(self):
         result = super().clean()
-        result["compound_recessive_index"] = ""
-        for member in self.get_pedigree_with_samples():
-            name = member["patient"]
-            if result[self.get_genotype_field_names()[name]["gt"]] == "index":
-                result["compound_recessive_index"] = name
+        result["compound_recessive_indices"] = {}
+        for family, members in self.get_family_with_pedigree_with_samples().items():
+            for member in members:
+                name = member["patient"]
+                if result[self.get_genotype_field_names()[name]["gt"]] == "index":
+                    result["compound_recessive_indices"][family] = name
         return result
 
 
@@ -1177,10 +1180,19 @@ class FilterForm(
         """Return ``list`` of ``dict`` with pedigree information of samples that have variants."""
         return self.case.get_filtered_pedigree_with_samples()
 
+    def get_family_with_pedigree_with_samples(self):
+        """Return ``dict`` of ``dict`` with family and pedigree information of samples that have variants and a variant set."""
+        return self.case.get_family_with_filtered_pedigree_with_samples()
+
     @lru_cache()
     def get_trio_roles(self):
         """Get trior ole to member mapping"""
         return self.case.get_trio_roles()
+
+    @lru_cache()
+    def get_active_cases(self):
+        """Return case as a list."""
+        return [self.case]
 
     def clean(self):
         """Perform data cleaning and cross-field validation.
@@ -1242,12 +1254,20 @@ class ProjectCasesFilterForm(
         return self.project.pedigree()
 
     def get_pedigree_with_samples(self):
-        """Return ``list`` of ``dict`` with pedigree information of samples that have variants."""
+        """Return ``dict`` of ``dict`` with family and pedigree information of samples that have variants and a variant set."""
         return self.project.get_filtered_pedigree_with_samples()
+
+    def get_family_with_pedigree_with_samples(self):
+        """Return ``dict`` of ``dict`` with family and pedigree information of samples that have variants and a variant set."""
+        return self.project.get_family_with_filtered_pedigree_with_samples()
 
     def get_trio_roles(self):
         """Return empty dict as there is no trio role assignment when querying across project."""
         return {}
+
+    def get_active_cases(self):
+        """Return active cases in a project."""
+        return self.project.get_active_small_variant_cases()
 
     def clean(self):
         """Perform data cleaning and cross-field validation.

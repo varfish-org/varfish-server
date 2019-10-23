@@ -72,7 +72,7 @@ class FormDataFactoryBase:
     clinvar_include_pathogenic: bool = False
     clinvar_origin_germline: bool = False
     clinvar_origin_somatic: bool = False
-    compound_recessive_index: str = ""
+    compound_recessive_indices: typing.Dict[str, str] = {}
 
     # This is a dummy attribute to generate the name-dependent fields.
     # It is removed after initialization.
@@ -127,7 +127,6 @@ class ResubmitFormDataFactory(ProcessedFormDataFactory):
 class FormDataFactory(FormDataFactoryBase):
     """Factory for the data transferred from the filter form."""
 
-    compound_recessive_index: str = ""
     effect_coding_transcript_intron_variant: bool = True
     effect_complex_substitution: bool = True
     effect_direct_tandem_duplication: bool = True
@@ -198,9 +197,6 @@ class FormDataFactory(FormDataFactoryBase):
     training_mode: bool = False
     submit: str = "display"
     filter_job_uuid: uuid.UUID = None
-    # This is a dummy attribute to generate the name-dependent fields.
-    # It is removed after initialization.
-    names: typing.List[str] = []
 
     def __attrs_post_init__(self):
         for name in self.names:

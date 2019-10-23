@@ -14,6 +14,7 @@
     <thead>
       <tr>
         <th class="text-muted" style="width: 10px">#</th>
+        <th class="col-2">Family</th>
         <th class="col-2">Individual</th>
         <th class="col-2">Father</th>
         <th class="col-2">Mother</th>
@@ -32,7 +33,7 @@
         <td class="text-muted">
           <em>Template Settings</em>
         </td>
-        <td colspan="2" class="text-muted text-right">
+        <td colspan="3" class="text-muted text-right">
           <button class="btn btn-sm btn-secondary" type="button" id="qualityTemplateApplyButton">Apply&nbsp;<i class="fa fa-arrow-down"></i></button>
           &nbsp;
           to
@@ -57,28 +58,31 @@
           </select>
         </td>
       </tr>
-      {% for member in form.get_pedigree %}
-      <tr>
-        <td class="text-right text-muted">{{ forloop.counter }}</td>
-        <td>{{ member.patient|only_source_name }}</td>
-        <td>{{ member.father|default:"0"|only_source_name }}</td>
-        <td>{{ member.mother|default:"0"|only_source_name }}</td>
-        {% if member.has_gt_entries %}
-          {% with field_names=form.get_quality_field_names|keyvalue:member.patient %}
-            <td>{% with x=field_names|keyvalue:"dp_het" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
-            <td>{% with x=field_names|keyvalue:"dp_hom" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
-            <td>{% with x=field_names|keyvalue:"ab" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
-            <td>{% with x=field_names|keyvalue:"gq" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
-            <td>{% with x=field_names|keyvalue:"ad" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
-            <td>{% with x=field_names|keyvalue:"ad_max" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
-            <td>{% with x=field_names|keyvalue:"fail" %}{{ form|keyvalue:x}}{% endwith %}</td>
-          {% endwith %}
-        {% else %}
-          <td colspan="6" class="text-centered">
-            <em>no genotypes</em>
-          </td>
-        {% endif %}
-      </tr>
+      {% for family, pedigree in form.get_family_with_pedigree_with_samples.items %}
+        {% for member in pedigree %}
+          <tr>
+            <td class="text-right text-muted">{{ forloop.parentloop.counter }}.{{ forloop.counter }}</td>
+            <td>{{ family }}</td>
+            <td>{{ member.patient|only_source_name }}</td>
+            <td>{{ member.father|default:"0"|only_source_name }}</td>
+            <td>{{ member.mother|default:"0"|only_source_name }}</td>
+            {% if member.has_gt_entries %}
+              {% with field_names=form.get_quality_field_names|keyvalue:member.patient %}
+                <td>{% with x=field_names|keyvalue:"dp_het" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
+                <td>{% with x=field_names|keyvalue:"dp_hom" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
+                <td>{% with x=field_names|keyvalue:"ab" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
+                <td>{% with x=field_names|keyvalue:"gq" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
+                <td>{% with x=field_names|keyvalue:"ad" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
+                <td>{% with x=field_names|keyvalue:"ad_max" %}{{ form|keyvalue:x|as_crispy_field }}{% endwith %}</td>
+                <td>{% with x=field_names|keyvalue:"fail" %}{{ form|keyvalue:x}}{% endwith %}</td>
+              {% endwith %}
+            {% else %}
+              <td colspan="6" class="text-centered">
+                <em>no genotypes</em>
+              </td>
+            {% endif %}
+          </tr>
+        {% endfor %}
       {% endfor %}
     </tbody>
   </table>

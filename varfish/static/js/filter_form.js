@@ -806,9 +806,7 @@ function loadGenelistPresets(e) {
 
 function loadGenotypePresets(e) {
   const presetName = $(e.currentTarget).data("preset-name");
-  if (compHetCurrentIndex) {
-      compHetCurrentIndex.trigger("change", ["any"]);
-  }
+  resetAllCompHetIndices();
   const preset = presetName.split(":");
   $(".genotype-field-gt." + preset[0]).each(
     function () {
@@ -817,8 +815,6 @@ function loadGenotypePresets(e) {
   )
 }
 
-// Current index patient dropdown element of compound heterozygous mode.
-let compHetCurrentIndex = null;
 
 function restoreAfterCompHetMode(e, value=null) {
     /**
@@ -828,32 +824,35 @@ function restoreAfterCompHetMode(e, value=null) {
      * a change). It accepts the optional value to be set to: When the user doesn't directly change the field but
      * it is triggered via the disabling button, we need to send some value.
      */
+    // Get the current element.
+    const target = $(e.currentTarget);
     // Iterate over all GT fields.
     $("[id^=id_][id$=_gt]").each(
         function () {
             // Get the id of the GT field.
             var id = $(this).attr("id");
             // Get the id of the associated compound heterozygous info field for this role.
-            var role = $("#compound_heterozygous_role_" + $(this).attr("name"));
-            if (compHetCurrentIndex.attr("id") == id) {
-                // If the GT field is of the selected index patient and we clicked the disable button, set the value to
-                // the value passed to the function. If value is null, the user selected its value and nothing is done.
-                if (value) {
-                    $(this).val(value);
+            var role = $("#compound_heterozygous_role_" + $(this).data("family") + "_" + $(this).attr("name"));
+            if ($(this).data("family") == target.data("family")) {
+                if (target.attr("id") == id) {
+                    // If the GT field is of the selected index patient and we clicked the disable button, set the value to
+                    // the value passed to the function. If value is null, the user selected its value and nothing is done.
+                    if (value) {
+                        $(this).val(value);
+                    }
+                    return;
                 }
-                return;
+                // Make the hidden dropdown fields visible again.
+                $(this).toggle();
+                // Erase the text of the info field.
+                role.text("");
+                // Hide the info field.
+                role.toggle();
             }
-            // Make the hidden dropdown fields visible again.
-            $(this).toggle();
-            // Erase the text of the info field.
-            role.text("");
-            // Hide the info field.
-            role.toggle();
         }
     );
     // Hide the disable button info and reset the current index.
     $("#compound_heterozygous_warning").hide();
-    compHetCurrentIndex = null;
 }
 
 
@@ -880,21 +879,20 @@ function loadCompHetMode(e, value=null) {
     }
     // If the selected value is ``index``, enable all compound het embellishments.
     if (target.val() == "index") {
-        // Set the global variable to the current element.
-        compHetCurrentIndex = target;
         // Build a dictionary that maps the mother and father id of the index patient to the info text we will display.
         let ids = {};
         ids["id_" + target.data("mother") + "_gt"] = "c/h mother";
         ids["id_" + target.data("father") + "_gt"] = "c/h father";
+        let family = target.data("family");
         // Iterate over all GT fields.
         $("[id^=id_][id$=_gt]").each(
             function () {
                 // Get the id of the GT field.
                 var id = $(this).attr("id");
                 // Get the id of the associated compound heterozygous info field for this role.
-                var role = $("#compound_heterozygous_role_" + $(this).attr("name"));
+                var role = $("#compound_heterozygous_role_" + $(this).data("family") + "_" + $(this).attr("name"));
                 // The current (index patients) field stays as it is, so do nothing.
-                if (target.attr("id") == id) {
+                if (target.attr("id") == id || $(this).data("family") != family) {
                     return;
                 }
                 // Hide all other fields.
@@ -987,6 +985,15 @@ $(document).on('show.bs.dropdown', '#presets-genotype-dropdown', function(e) {
 });
 
 
+function resetAllCompHetIndices() {
+    $("[id^=id_][id$=_gt]").each(function () {
+        if ($(this).val() == "index") {
+            $(this).trigger("change", ["any"]);
+        }
+    });
+}
+
+
 $(document).ready(
   function() {
     makeNumberFieldsReceiveOnlyDigits();
@@ -1001,7 +1008,7 @@ $(document).ready(
     $(".load-genotype").click(loadGenotypePresets);
     $(".load-comphet-mode").on("change", loadCompHetMode);
     $("#qualityTemplateApplyButton").click(transferQualitySettings);
-    $("#compound_heterozygous_disable").click(function() { compHetCurrentIndex.trigger("change", ["any"]) });
+    $("#compound_heterozygous_disable").click(resetAllCompHetIndices);
     $("#settingsSet").click(updateSettings);
     $("#settingsSet").click(initCompHetMode);
     // Assign click handler function to submit button
