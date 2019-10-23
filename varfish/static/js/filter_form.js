@@ -852,7 +852,25 @@ function restoreAfterCompHetMode(e, value=null) {
         }
     );
     // Hide the disable button info and reset the current index.
-    $("#compound_heterozygous_warning").hide();
+    handleCompHetWarning();
+}
+
+
+function handleCompHetWarning() {
+    let index_exists = false;
+    let warning = $("#compound_heterozygous_warning");
+    $("[id^=id_][id$=_gt]").each(function () {
+        if ($(this).val() == "index") {
+            index_exists = true;
+            return false;
+        }
+    });
+    if (index_exists) {
+        warning.show();
+    }
+    else {
+        warning.hide();
+    }
 }
 
 
@@ -909,7 +927,7 @@ function loadCompHetMode(e, value=null) {
             }
         );
         // Show the info/disable button.
-        $("#compound_heterozygous_warning").show();
+        handleCompHetWarning();
         // Assign the restore function to the change handler.
         target.on("change", restoreAfterCompHetMode);
     }
@@ -931,6 +949,15 @@ function initCompHetMode() {
             $(this).trigger("change");
         }
     );
+}
+
+
+function resetAllCompHetIndices() {
+    $("[id^=id_][id$=_gt]").each(function () {
+        if ($(this).val() == "index") {
+            $(this).trigger("change", ["any"]);
+        }
+    });
 }
 
 
@@ -983,15 +1010,6 @@ $(document).on('show.bs.dropdown', '#presets-genotype-dropdown', function(e) {
       dropdown.appendTo(e.target);
     })
 });
-
-
-function resetAllCompHetIndices() {
-    $("[id^=id_][id$=_gt]").each(function () {
-        if ($(this).val() == "index") {
-            $(this).trigger("change", ["any"]);
-        }
-    });
-}
 
 
 $(document).ready(

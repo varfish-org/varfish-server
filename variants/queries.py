@@ -1327,8 +1327,24 @@ class CompHetCombiner:
                 .select_from(union_stmt)
                 .alias("comp_het_window")
             )
+            # Remove all comp het support columns that are not required anymore to match the number of
+            # columns in the default query to be able to apply the union!
             result = (
-                select([*window_stmt.c])
+                select(
+                    [
+                        e
+                        for e in [*window_stmt.c]
+                        if not str(e).endswith(
+                            (
+                                ".singleton_count",
+                                ".father_count",
+                                ".mother_count",
+                                ".mother_marker",
+                                ".father_marker",
+                            )
+                        )
+                    ]
+                )
                 .select_from(window_stmt)
                 .where(and_(window_stmt.c.father_count > 0, window_stmt.c.mother_count > 0))
             )
@@ -1352,8 +1368,24 @@ class CompHetCombiner:
                 .alias("comp_het_window")
             )
             # As we require at least two variants in a gene, we need to increase the lower limit.
+            # Remove also all comp het support columns that are not required anymore to match the number of
+            # columns in the default query to be able to apply the union!
             result = (
-                select([*window_stmt.c])
+                select(
+                    [
+                        e
+                        for e in [*window_stmt.c]
+                        if not str(e).endswith(
+                            (
+                                ".singleton_count",
+                                ".father_count",
+                                ".mother_count",
+                                ".mother_marker",
+                                ".father_marker",
+                            )
+                        )
+                    ]
+                )
                 .select_from(window_stmt)
                 .where(window_stmt.c.singleton_count > 1)
             )

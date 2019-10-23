@@ -3208,7 +3208,7 @@ class TestProjectCompHetQuery(SupportQueryTestBase):
             ),
         ]
 
-    def test_query_project_comp_het_with_two_cases(self):
+    def test_query_project_comp_het_with_two_cases_both_comp_het(self):
         res = self.run_query(
             ProjectPrefetchQuery,
             {
@@ -3225,7 +3225,21 @@ class TestProjectCompHetQuery(SupportQueryTestBase):
         self.assertEqual(res[2].start, self.small_vars[6].start)
         self.assertEqual(res[3].start, self.small_vars[7].start)
 
-    def test_load_project_prefetched_comp_het_with_two_cases(self):
+    def test_query_project_comp_het_with_two_cases_only_one_comp_het(self):
+        res = self.run_query(
+            ProjectPrefetchQuery,
+            {"compound_recessive_indices": {self.case1.name: self.case1.pedigree[0]["patient"]}},
+            6,
+            query_type="project",
+        )
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
+        self.assertEqual(res[2].start, self.small_vars[4].start)
+        self.assertEqual(res[3].start, self.small_vars[5].start)
+        self.assertEqual(res[4].start, self.small_vars[6].start)
+        self.assertEqual(res[5].start, self.small_vars[7].start)
+
+    def test_load_project_prefetched_comp_het_with_two_cases_both_comp_het(self):
         res = self.run_query(
             ProjectPrefetchQuery,
             {
@@ -3255,6 +3269,31 @@ class TestProjectCompHetQuery(SupportQueryTestBase):
         self.assertEqual(res[1].start, self.small_vars[3].start)
         self.assertEqual(res[2].start, self.small_vars[6].start)
         self.assertEqual(res[3].start, self.small_vars[7].start)
+
+    def test_load_project_prefetched_comp_het_with_two_cases_only_one_comp_het(self):
+        res = self.run_query(
+            ProjectPrefetchQuery,
+            {"compound_recessive_indices": {self.case1.name: self.case1.pedigree[0]["patient"]}},
+            6,
+            query_type="project",
+        )
+        query = ProjectCasesSmallVariantQueryFactory(project=self.project)
+        query.query_results.add(res[0].id, res[1].id, res[2].id, res[3].id, res[4].id, res[5].id)
+        res = self.run_query(
+            ProjectLoadPrefetchedQuery,
+            {
+                "filter_job_id": query.id,
+                "compound_recessive_indices": {self.case1.name: self.case1.pedigree[0]["patient"]},
+            },
+            6,
+            query_type="project",
+        )
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
+        self.assertEqual(res[2].start, self.small_vars[4].start)
+        self.assertEqual(res[3].start, self.small_vars[5].start)
+        self.assertEqual(res[4].start, self.small_vars[6].start)
+        self.assertEqual(res[5].start, self.small_vars[7].start)
 
 
 class TestCaseFiveQueryProject(SupportQueryTestBase):

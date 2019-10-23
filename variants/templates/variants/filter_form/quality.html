@@ -61,7 +61,9 @@
       {% for family, pedigree in form.get_family_with_pedigree_with_samples.items %}
         {% for member in pedigree %}
           <tr>
-            <td class="text-right text-muted">{{ forloop.parentloop.counter }}.{{ forloop.counter }}</td>
+            <td class="text-right text-muted">
+              {% if query_type == "project" %}{{ forloop.parentloop.counter }}.{% endif %}{{ forloop.counter }}
+            </td>
             <td>{{ family }}</td>
             <td>{{ member.patient|only_source_name }}</td>
             <td>{{ member.father|default:"0"|only_source_name }}</td>
