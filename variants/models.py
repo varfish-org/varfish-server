@@ -2168,6 +2168,13 @@ class VariantScoresMutationTaster(VariantScoresBase):
 
         cached, uncached = self._get_cached_and_uncached_variants()
 
+        if len(uncached) > settings.VARFISH_MUTATIONTASTER_MAX_VARS:
+            raise ConnectionError(
+                "ERROR: Too many variants to score. Got {}, limit is {}.".format(
+                    len(uncached), settings.VARFISH_MUTATIONTASTER_MAX_VARS
+                )
+            )
+
         for item in cached:
             item = model_to_dict(item)
             yield self._build_yield_dict(
@@ -2299,17 +2306,10 @@ class VariantScoresCadd(VariantScoresBase):
     cache_model = CaddPathogenicityScoreCache
 
     def score(self):
-        if not self.variants:
+        if not settings.VARFISH_ENABLE_CADD or not self.variants:
             return
 
         cached, uncached = self._get_cached_and_uncached_variants()
-
-        if len(uncached) > settings.VARFISH_MUTATIONTASTER_MAX_VARS:
-            raise ConnectionError(
-                "ERROR: Too many variants to score. Got {}, limit is {}.".format(
-                    len(uncached), settings.VARFISH_MUTATIONTASTER_MAX_VARS
-                )
-            )
 
         # TODO: properly test
         try:
