@@ -2281,7 +2281,7 @@ def _variant_scores_mutationtaster_rank_model(record):
     model_rank = 0
     if record.get("prediction") == "disease causing (automatic)":
         model_rank = 4
-    elif record.get("prediction") == "disease causing":
+    elif record.get("prediction") in ("disease causing", "disease causing - long InDel"):
         if record.get("model") in ("simple_aae", "complex_aae"):
             model_rank = 3
         elif record.get("model") == "without_aae":
