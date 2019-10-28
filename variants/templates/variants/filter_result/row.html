@@ -251,6 +251,9 @@
       <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="The impact predictions for RefSeq and ENSEMBL transcripts differ."></i>
     {% endif %}
   </td>
+  {% if query_type == "project" %}
+    <td>{{ entry.affected_cases_per_gene|default:0 }}</td>
+  {% endif %}
   {% if has_phenotype_scores %}
     <td class="text-right">
       {{ entry.phenotype_score|floatformat:3 }}

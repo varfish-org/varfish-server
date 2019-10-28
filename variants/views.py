@@ -1,4 +1,5 @@
 from itertools import chain
+from collections import defaultdict
 import uuid
 import contextlib
 
@@ -65,6 +66,7 @@ from .models import (
     CaseComments,
     RowWithClinvarMax,
     CASE_STATUS_CHOICES,
+    RowWithAffectedCasesPerGene,
 )
 from .forms import (
     ExportFileResubmitForm,
@@ -1306,9 +1308,17 @@ class ProjectCasesLoadPrefetchedFilterView(
         ) as results:
             _rows = results.fetchall()
             rows = []
+            cases_per_gene = defaultdict(set)
             for row in _rows:
+                # Collect cases per gene
+                cases_per_gene[row.gene_id].add(row.case_uuid)
                 for sample in sorted(row.genotype.keys()):
-                    rows.append(RowWithSampleProxy(row, sample))
+                    row = RowWithSampleProxy(row, sample)
+                    row = RowWithAffectedCasesPerGene(row)
+                    rows.append(row)
+            # Assign cases per gene count after collecting the cases per gene
+            for row in rows:
+                row._self_affected_cases_per_gene = len(cases_per_gene[row.gene_id])
             elapsed = timezone.now() - before
 
         rows = annotate_with_clinvar_max(rows)

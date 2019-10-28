@@ -1424,13 +1424,27 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
         variant_sets = SmallVariantSetFactory.create_batch(2, case__project=self.bgjob.project)
         # Make sure the variants stay in order as we need to access the clinvar variant by position in list
         small_vars = [
-            SmallVariantFactory(variant_set=variant_sets[0], chromosome="1", start=100),
-            SmallVariantFactory(variant_set=variant_sets[0], chromosome="1", start=200),
-            SmallVariantFactory(variant_set=variant_sets[0], chromosome="1", start=300),
-            SmallVariantFactory(variant_set=variant_sets[1], chromosome="1", start=400),
-            SmallVariantFactory(variant_set=variant_sets[1], chromosome="1", start=500),
             SmallVariantFactory(
-                variant_set=variant_sets[1], chromosome="1", start=600, in_clinvar=True
+                variant_set=variant_sets[0], chromosome="1", start=100, refseq_gene_id="0001"
+            ),
+            SmallVariantFactory(
+                variant_set=variant_sets[0], chromosome="1", start=200, refseq_gene_id="0002"
+            ),  # not in results list
+            SmallVariantFactory(
+                variant_set=variant_sets[0], chromosome="1", start=300, refseq_gene_id="0003"
+            ),
+            SmallVariantFactory(
+                variant_set=variant_sets[1], chromosome="1", start=400, refseq_gene_id="0001"
+            ),
+            SmallVariantFactory(
+                variant_set=variant_sets[1], chromosome="1", start=500, refseq_gene_id="0002"
+            ),
+            SmallVariantFactory(
+                variant_set=variant_sets[1],
+                chromosome="1",
+                start=600,
+                refseq_gene_id="0003",
+                in_clinvar=True,
             ),
         ]
         self.bgjob.projectcasessmallvariantquery.query_results.add(small_vars[0], *small_vars[2:6])
@@ -1471,6 +1485,11 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context["result_count"], 5)
             self.assertEqual(len(response.context["result_rows"]), 5)
+            self.assertEqual(response.context["result_rows"][0].affected_cases_per_gene, 2)
+            self.assertEqual(response.context["result_rows"][1].affected_cases_per_gene, 2)
+            self.assertEqual(response.context["result_rows"][2].affected_cases_per_gene, 2)
+            self.assertEqual(response.context["result_rows"][3].affected_cases_per_gene, 1)
+            self.assertEqual(response.context["result_rows"][4].affected_cases_per_gene, 2)
 
     def test_clinvar(self):
         with self.login(self.user):

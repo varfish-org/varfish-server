@@ -21,6 +21,9 @@
   <th class="detail-constraints-gnomad-z-syn">gnomAD</th>
   <th></th>{# gene #}
   <th></th>{# effect #}
+  {% if query_type == "project" %}
+    <th></th> {# cases per gene #}
+  {% endif %}
   {% if has_phenotype_scores %}
     <th colspan="2">phenotype</th>
   {% endif %}
@@ -70,6 +73,11 @@
   <th class="detail-constraints-gnomad-z-syn">Z syn</th>
   <th>gene</th>
   <th>effect</th>
+  {% if query_type == "project" %}
+    <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number affected cases per gene.">
+      <sup>#c</sup>&frasl;<sub>g</sub>
+    </th>
+  {% endif %}
   {% if has_phenotype_scores %}
     <th>score</th>
     <th>rank</th>

@@ -2418,6 +2418,24 @@ class RowWithClinvarMax(wrapt.ObjectProxy):
             return self.__wrapped__.__getitem__(key)
 
 
+class RowWithAffectedCasesPerGene(wrapt.ObjectProxy):
+    """Wrap a result row and add number of families per gene."""
+
+    def __init__(self, obj):
+        super().__init__(obj)
+        self._self_affected_cases_per_gene = None
+
+    @property
+    def affected_cases_per_gene(self):
+        return self._self_affected_cases_per_gene
+
+    def __getitem__(self, key):
+        if key == "affected_cases_per_gene":
+            return self.affected_cases_per_gene
+        else:
+            return self.__wrapped__.__getitem__(key)
+
+
 class AcmgCriteriaRating(models.Model):
     """Store criteria rating given by the ACMG guidelines.
 
