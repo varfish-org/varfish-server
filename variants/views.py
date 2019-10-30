@@ -1323,6 +1323,26 @@ class ProjectCasesLoadPrefetchedFilterView(
 
         rows = annotate_with_clinvar_max(rows)
 
+        # Annotate with pathogenicity score if any. MutationTaster can have multiple predictions per variant (for each transcript).
+        variant_scores = {}
+        for (
+            entry
+        ) in (
+            filter_job.projectcasessmallvariantquery.projectcasessmallvariantqueryvariantscores_set.all()
+        ):
+            key = entry.variant_key()
+            score = variant_scores.get(key)
+            if score:
+                if entry.score > score[0]:
+                    variant_scores[key] = (entry.score, entry.info)
+            else:
+                variant_scores[key] = (entry.score, entry.info)
+
+        card_colspan = 16
+        if variant_scores:
+            card_colspan += 2
+            rows = annotate_with_pathogenicity_scores(rows, variant_scores)
+
         return render(
             request,
             self.template_name,
@@ -1358,7 +1378,14 @@ class ProjectCasesLoadPrefetchedFilterView(
                     "database_select", False
                 ),
                 query_type=self.query_type,
-                card_colspan=15,
+                has_pathogenicity_scores=bool(variant_scores),
+                patho_enabled=filter_job.projectcasessmallvariantquery.query_settings.get(
+                    "patho_enabled", False
+                ),
+                patho_score=filter_job.projectcasessmallvariantquery.query_settings.get(
+                    "patho_score", False
+                ),
+                card_colspan=card_colspan,
                 logs=[
                     "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
                     for e in filter_job.bg_job.log_entries.all().order_by("date_created")

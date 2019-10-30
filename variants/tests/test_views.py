@@ -1421,9 +1421,10 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
-        variant_sets = SmallVariantSetFactory.create_batch(2, case__project=self.bgjob.project)
+        self.project = self.bgjob.project
+        variant_sets = SmallVariantSetFactory.create_batch(2, case__project=self.project)
         # Make sure the variants stay in order as we need to access the clinvar variant by position in list
-        small_vars = [
+        self.small_vars = [
             SmallVariantFactory(
                 variant_set=variant_sets[0], chromosome="1", start=100, refseq_gene_id="0001"
             ),
@@ -1447,27 +1448,29 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
                 in_clinvar=True,
             ),
         ]
-        self.bgjob.projectcasessmallvariantquery.query_results.add(small_vars[0], *small_vars[2:6])
+        self.bgjob.projectcasessmallvariantquery.query_results.add(
+            self.small_vars[0], *self.small_vars[2:6]
+        )
         ClinvarFactory(
-            release=small_vars[-1].release,
-            chromosome=small_vars[-1].chromosome,
-            start=small_vars[-1].start,
-            end=small_vars[-1].end,
-            bin=small_vars[-1].bin,
-            reference=small_vars[-1].reference,
-            alternative=small_vars[-1].alternative,
+            release=self.small_vars[-1].release,
+            chromosome=self.small_vars[-1].chromosome,
+            start=self.small_vars[-1].start,
+            end=self.small_vars[-1].end,
+            bin=self.small_vars[-1].bin,
+            reference=self.small_vars[-1].reference,
+            alternative=self.small_vars[-1].alternative,
             clinical_significance="pathogenic",
             clinical_significance_ordered=["pathogenic"],
             pathogenic=1,
         )
         ClinvarFactory(
-            release=small_vars[-1].release,
-            chromosome=small_vars[-1].chromosome,
-            start=small_vars[-1].start,
-            end=small_vars[-1].end,
-            bin=small_vars[-1].bin,
-            reference=small_vars[-1].reference,
-            alternative=small_vars[-1].alternative,
+            release=self.small_vars[-1].release,
+            chromosome=self.small_vars[-1].chromosome,
+            start=self.small_vars[-1].start,
+            end=self.small_vars[-1].end,
+            bin=self.small_vars[-1].bin,
+            reference=self.small_vars[-1].reference,
+            alternative=self.small_vars[-1].alternative,
             clinical_significance="likely_pathogenic",
             clinical_significance_ordered=["likely_pathogenic"],
             likely_pathogenic=1,
@@ -1478,7 +1481,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
             response = self.client.post(
                 reverse(
                     "variants:project-cases-load-filter-results",
-                    kwargs={"project": self.bgjob.project.sodar_uuid},
+                    kwargs={"project": self.project.sodar_uuid},
                 ),
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
@@ -1496,11 +1499,333 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
             response = self.client.post(
                 reverse(
                     "variants:project-cases-load-filter-results",
-                    kwargs={"project": self.bgjob.project.sodar_uuid},
+                    kwargs={"project": self.project.sodar_uuid},
                 ),
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
             self.assertEqual(response.context["result_rows"][4].max_significance, "pathogenic")
+
+    @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
+    @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
+    @Mocker()
+    def test_ranking_cadd_results(self, mock):
+        def _key_gen(s):
+            return "%s-%d-%s-%s" % (s.chromosome, s.start, s.reference, s.alternative)
+
+        mock.post(
+            settings.VARFISH_CADD_REST_API_URL + "/annotate/",
+            status_code=200,
+            text=json.dumps({"uuid": "xxxxxxxx-xxxx-xxxx-xxxxxxxxxxxx"}),
+        )
+        mock.post(
+            settings.VARFISH_CADD_REST_API_URL + "/result/",
+            status_code=200,
+            text=json.dumps(
+                {
+                    "status": "finished",
+                    "info": {"cadd_rest_api_version": 0.1},
+                    "scores": {
+                        _key_gen(self.small_vars[0]): [0.345146, 7.773],
+                        _key_gen(self.small_vars[1]): [0.345147, 7.773],
+                        _key_gen(self.small_vars[2]): [0.345179, 7.774],
+                        _key_gen(self.small_vars[3]): [0.345212, 7.776],
+                        _key_gen(self.small_vars[4]): [0.345213, 7.775],
+                        _key_gen(self.small_vars[5]): [0.345214, 7.774],
+                    },
+                }
+            ),
+        )
+        with self.login(self.user):
+            self.client.post(
+                reverse(
+                    "variants:project-cases-filter-results",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                vars(
+                    FormDataFactory(
+                        patho_enabled=True, patho_score="cadd", names=self.project.get_members()
+                    )
+                ),
+            )
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-load-filter-results",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                {"filter_job_uuid": ProjectCasesFilterBgJob.objects.last().sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["result_count"], 6)
+            self.assertEqual(response.context["training_mode"], False)
+            self.assertEqual(response.context["has_pathogenicity_scores"], True)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_score, 7.776)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_score, 7.773)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_score, 7.775)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_rank, 2)
+            self.assertEqual(response.context["result_rows"][3].pathogenicity_score, 7.773)
+            self.assertEqual(response.context["result_rows"][3].pathogenicity_rank, 2)
+            self.assertEqual(response.context["result_rows"][4].pathogenicity_score, 7.774)
+            self.assertEqual(response.context["result_rows"][4].pathogenicity_rank, 3)
+            self.assertEqual(response.context["result_rows"][5].pathogenicity_score, 7.774)
+            self.assertEqual(response.context["result_rows"][5].pathogenicity_rank, 3)
+            self.assertEqual(CaddPathogenicityScoreCache.objects.count(), 6)
+
+    @patch("django.conf.settings.VARFISH_MUTATIONTASTER_REST_API_URL", "https://mutationtaster.com")
+    @Mocker()
+    def test_ranking_mutationtaster_results(self, mock):
+        return_text = "id\tchr\tpos\tref\talt\ttranscript_stable\tNCBI_geneid\tprediction\tmodel\tbayes_prob_dc\tnote\tsplicesite\tdistance_from_splicesite\tdisease_mutation\tpolymorphism\n"
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "1",
+            self.small_vars[0].chromosome,
+            str(self.small_vars[0].start),
+            self.small_vars[0].reference,
+            self.small_vars[0].alternative,
+            self.small_vars[0].ensembl_transcript_id,
+            self.small_vars[0].refseq_gene_id,
+            "disease causing",
+            "complex_aae",
+            "998",
+            "",
+            "",
+            "",
+            "",
+            "",
+        )
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "2",
+            self.small_vars[1].chromosome,
+            str(self.small_vars[1].start),
+            self.small_vars[1].reference,
+            self.small_vars[1].alternative,
+            self.small_vars[1].ensembl_transcript_id,
+            self.small_vars[1].refseq_gene_id,
+            "disease causing (automatic)",
+            "complex_aae",
+            "998",
+            "",
+            "",
+            "",
+            "",
+            "",
+        )
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "3",
+            self.small_vars[2].chromosome,
+            str(self.small_vars[2].start),
+            self.small_vars[2].reference,
+            self.small_vars[2].alternative,
+            self.small_vars[2].ensembl_transcript_id,
+            self.small_vars[2].refseq_gene_id,
+            "disease causing",
+            "simple_aae",
+            "999",
+            "",
+            "",
+            "",
+            "",
+            "",
+        )
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "4",
+            self.small_vars[3].chromosome,
+            str(self.small_vars[3].start),
+            self.small_vars[3].reference,
+            self.small_vars[3].alternative,
+            self.small_vars[3].ensembl_transcript_id,
+            self.small_vars[3].refseq_gene_id,
+            "disease causing (automatic)",
+            "simple_aae",
+            "999",
+            "",
+            "",
+            "",
+            "",
+            "",
+        )
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "5",
+            self.small_vars[4].chromosome,
+            str(self.small_vars[4].start),
+            self.small_vars[4].reference,
+            self.small_vars[4].alternative,
+            self.small_vars[4].ensembl_transcript_id,
+            self.small_vars[4].refseq_gene_id,
+            "disease causing",
+            "simple_aae",
+            "999",
+            "",
+            "",
+            "",
+            "",
+            "",
+        )
+        return_text += "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+            "6",
+            self.small_vars[5].chromosome,
+            str(self.small_vars[5].start),
+            self.small_vars[5].reference,
+            self.small_vars[5].alternative,
+            self.small_vars[5].ensembl_transcript_id,
+            self.small_vars[5].refseq_gene_id,
+            "disease causing",
+            "simple_aae",
+            "998",
+            "",
+            "",
+            "",
+            "",
+            "",
+        )
+        mock.post(settings.VARFISH_MUTATIONTASTER_REST_API_URL, status_code=200, text=return_text)
+        with self.login(self.user):
+            self.client.post(
+                reverse(
+                    "variants:project-cases-filter-results",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                vars(
+                    FormDataFactory(
+                        patho_enabled=True,
+                        patho_score="mutationtaster",
+                        names=self.project.get_members(),
+                    )
+                ),
+            )
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-load-filter-results",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                {"filter_job_uuid": ProjectCasesFilterBgJob.objects.last().sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["result_count"], 6)
+            self.assertEqual(response.context["training_mode"], False)
+            self.assertEqual(response.context["has_pathogenicity_scores"], True)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_score, 4.0999)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_score, 3.0998)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_score, 4.0998)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_rank, 2)
+            self.assertEqual(response.context["result_rows"][3].pathogenicity_score, 3.0999)
+            self.assertEqual(response.context["result_rows"][3].pathogenicity_rank, 2)
+            self.assertEqual(response.context["result_rows"][4].pathogenicity_score, 3.0999)
+            self.assertEqual(response.context["result_rows"][4].pathogenicity_rank, 3)
+            self.assertEqual(response.context["result_rows"][5].pathogenicity_score, 3.0998)
+            self.assertEqual(response.context["result_rows"][5].pathogenicity_rank, 3)
+            self.assertEqual(MutationTasterPathogenicityScoreCache.objects.count(), 6)
+
+    @patch("django.conf.settings.VARFISH_UMD_REST_API_URL", "https://umd.com")
+    @Mocker()
+    def test_ranking_umd_results(self, mock):
+        from projectroles.app_settings import AppSettingAPI
+
+        app_settings = AppSettingAPI()
+        app_settings.set_app_setting(
+            "variants", "umd_predictor_api_token", "FAKETOKEN", user=self.user
+        )
+
+        return_text = "This page was created in 0.001 seconds\n\n"
+        return_text += "chr{}\t{}\tXXX\t{}\t{}\t1234\t{}\t{}\tW\tY\t{}\t{}\n".format(
+            self.small_vars[0].chromosome,
+            str(self.small_vars[0].start),
+            self.small_vars[0].ensembl_transcript_id,
+            self.small_vars[0].ensembl_gene_id,
+            self.small_vars[0].reference,
+            self.small_vars[0].alternative,
+            "80",
+            "Likely Pathogenic",
+        )
+        return_text += "chr{}\t{}\tXXX\t{}\t{}\t1234\t{}\t{}\tW\tY\t{}\t{}\n".format(
+            self.small_vars[1].chromosome,
+            str(self.small_vars[1].start),
+            self.small_vars[1].ensembl_transcript_id,
+            self.small_vars[1].ensembl_gene_id,
+            self.small_vars[1].reference,
+            self.small_vars[1].alternative,
+            "85",
+            "Pathogenic",
+        )
+        return_text += "chr{}\t{}\tXXX\t{}\t{}\t1234\t{}\t{}\tW\tY\t{}\t{}\n".format(
+            self.small_vars[2].chromosome,
+            str(self.small_vars[2].start),
+            self.small_vars[2].ensembl_transcript_id,
+            self.small_vars[2].ensembl_gene_id,
+            self.small_vars[2].reference,
+            self.small_vars[2].alternative,
+            "75",
+            "Pathogenic",
+        )
+        return_text += "chr{}\t{}\tXXX\t{}\t{}\t1234\t{}\t{}\tW\tY\t{}\t{}\n".format(
+            self.small_vars[3].chromosome,
+            str(self.small_vars[3].start),
+            self.small_vars[3].ensembl_transcript_id,
+            self.small_vars[3].ensembl_gene_id,
+            self.small_vars[3].reference,
+            self.small_vars[3].alternative,
+            "100",
+            "Pathogenic",
+        )
+        return_text += "chr{}\t{}\tXXX\t{}\t{}\t1234\t{}\t{}\tW\tY\t{}\t{}\n".format(
+            self.small_vars[4].chromosome,
+            str(self.small_vars[4].start),
+            self.small_vars[4].ensembl_transcript_id,
+            self.small_vars[4].ensembl_gene_id,
+            self.small_vars[4].reference,
+            self.small_vars[4].alternative,
+            "90",
+            "Pathogenic",
+        )
+        return_text += "chr{}\t{}\tXXX\t{}\t{}\t1234\t{}\t{}\tW\tY\t{}\t{}\n".format(
+            self.small_vars[5].chromosome,
+            str(self.small_vars[5].start),
+            self.small_vars[5].ensembl_transcript_id,
+            self.small_vars[5].ensembl_gene_id,
+            self.small_vars[5].reference,
+            self.small_vars[5].alternative,
+            "70",
+            "Pathogenic",
+        )
+        mock.get(settings.VARFISH_UMD_REST_API_URL, status_code=200, text=return_text)
+        with self.login(self.user):
+            self.client.post(
+                reverse(
+                    "variants:project-cases-filter-results",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                vars(
+                    FormDataFactory(
+                        patho_enabled=True, patho_score="umd", names=self.project.get_members()
+                    )
+                ),
+            )
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-load-filter-results",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                {"filter_job_uuid": ProjectCasesFilterBgJob.objects.last().sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["result_count"], 6)
+            self.assertEqual(response.context["training_mode"], False)
+            self.assertEqual(response.context["has_pathogenicity_scores"], True)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_score, 100)
+            self.assertEqual(response.context["result_rows"][0].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_score, 80)
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_rank, 1)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_score, 90)
+            self.assertEqual(response.context["result_rows"][2].pathogenicity_rank, 2)
+            self.assertEqual(response.context["result_rows"][3].pathogenicity_score, 85)
+            self.assertEqual(response.context["result_rows"][3].pathogenicity_rank, 2)
+            self.assertEqual(response.context["result_rows"][4].pathogenicity_score, 75)
+            self.assertEqual(response.context["result_rows"][4].pathogenicity_rank, 3)
+            self.assertEqual(response.context["result_rows"][5].pathogenicity_score, 70)
+            self.assertEqual(response.context["result_rows"][5].pathogenicity_rank, 3)
+            self.assertEqual(UmdPathogenicityScoreCache.objects.count(), 6)
 
 
 class TestProjectCasesFilterJobResubmitView(ViewTestBase):

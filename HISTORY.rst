@@ -11,6 +11,7 @@ End-User Summary
 
 - Added caching for pathogenicity scores api results.
 - Added column to the project wide filter results table that displays the number of affected cases per gene.
+- Enabled pathogenicity scoring for project-wide filtration.
 
 Full Change List
 ================
@@ -18,6 +19,8 @@ Full Change List
 - Added new database tables ``CaddPathogenicityScoreCache``, ``UmdPathogenicityScoreCache``, ``MutationtasterPathogenicityScoreCache`` to cache pathogenicity scores api results.
 - Added column to the project wide filter results table that displays the number of affected cases per gene.
   I.e. the cases (not samples) that have a variant in a gene are counted and reported.
+- Enabled pathogenicity scoring for project-wide filtration.
+  This introduced a new table ``ProjectCasesSmallVariantQueryVariantScores`` to store the scoring results for a query.
 
 -------
 v0.17.6

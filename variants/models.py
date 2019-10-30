@@ -1346,6 +1346,9 @@ class SmallVariantQueryBase(models.Model):
             )
         )
 
+    def query_type(self):
+        raise NotImplementedError("Implement me!")
+
 
 class SmallVariantQuery(SmallVariantQueryBase):
     """Allow saving of single-case queries to the ``SmallVariant`` model.
@@ -1361,6 +1364,9 @@ class SmallVariantQuery(SmallVariantQueryBase):
         help_text="The case that the query relates to",
     )
 
+    def query_type(self):
+        return "smallvariantquery"
+
 
 class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):
     """Allow saving of whole-project queries to the ``SmallVariant`` model.
@@ -1374,6 +1380,9 @@ class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):
         related_name="small_variant_queries",
         help_text="The project that the query relates to",
     )
+
+    def query_type(self):
+        return "projectcasessmallvariantquery"
 
 
 class SmallVariantQueryGeneScores(models.Model):
@@ -1404,6 +1413,50 @@ class SmallVariantQueryVariantScores(models.Model):
 
     #: The query to annotate.
     query = models.ForeignKey(SmallVariantQuery)
+
+    #: Genome build
+    release = models.CharField(max_length=32, null=False, blank=False)
+
+    #: Variant coordinates - chromosome
+    chromosome = models.CharField(max_length=32, null=False, blank=False)
+
+    #: Variant coordinates - 1-based start position.
+    start = models.IntegerField(null=False, blank=False)
+
+    #: Variant coordinates - end position.
+    end = models.IntegerField(null=False, blank=False)
+
+    #: Variant coordinates - UCSC bin.
+    bin = models.IntegerField(null=False, blank=False)
+
+    #: Variant coordinates - reference
+    reference = models.CharField(max_length=512, null=False, blank=False)
+
+    #: Variant coordinates - alternative
+    alternative = models.CharField(max_length=512, null=False, blank=False)
+
+    #: The score type.
+    score_type = models.CharField(
+        max_length=64, null=False, blank=False, help_text="The score type"
+    )
+
+    #: The score.
+    score = models.FloatField(null=False, blank=False, help_text="The variant score")
+
+    #: Further information.
+    info = JSONField(default={})
+
+    def variant_key(self):
+        return "-".join(
+            map(str, [self.release, self.chromosome, self.start, self.reference, self.alternative])
+        )
+
+
+class ProjectCasesSmallVariantQueryVariantScores(models.Model):
+    """Annotate ``ProjectCasesSmallVariantQuery`` with pathogenicity score."""
+
+    #: The query to annotate.
+    query = models.ForeignKey(ProjectCasesSmallVariantQuery)
 
     #: Genome build
     release = models.CharField(max_length=32, null=False, blank=False)
@@ -2310,6 +2363,7 @@ class VariantScoresCadd(VariantScoresBase):
             return
 
         cached, uncached = self._get_cached_and_uncached_variants()
+        uncached = uncached[: settings.VARFISH_CADD_MAX_VARS]
 
         # TODO: properly test
         try:

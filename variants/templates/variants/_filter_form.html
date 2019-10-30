@@ -47,10 +47,8 @@
             <div class="dropdown-menu">
               <a class="dropdown-item" id="clinvar-tab" data-toggle="tab" href="#panel-clinvar" role="tab"
                 data-tooltip="tooltip" title="Filter using Clinvar/HGMD/dbSNP membership" data-placement="left">Clinvar, HGMD & dbSNP</a>
-              {% if query_type == "case" %}
-                <a class="dropdown-item" id="prioritization-tab" data-toggle="tab" href="#panel-prioritization" role="tab"
-                  data-tooltip="tooltip" title="Configure variant prioritization" data-placement="left">Prioritization</a>
-              {% endif %}
+              <a class="dropdown-item" id="prioritization-tab" data-toggle="tab" href="#panel-prioritization" role="tab"
+                data-tooltip="tooltip" title="Configure variant prioritization" data-placement="left">Prioritization</a>
               <a class="dropdown-item" id="export-tab" data-toggle="tab" href="#panel-export" role="tab"
                 data-tooltip="tooltip" title="Configure downloadable file creation" data-placement="left">Configure Downloads</a>
               <a class="dropdown-item" id="misc-tab" data-toggle="tab" href="#panel-misc" role="tab"
@@ -102,11 +100,9 @@
         <div class="tab-pane fade" id="panel-flags" role="tabpanel" aria-labelledby="flags-tab">
           {% include "variants/filter_form/flags.html" %}
         </div>
-        {% if query_type == "case" %}
-          <div class="tab-pane fade" id="panel-prioritization" role="tabpanel" aria-labelledby="prioritization-tab">
-            {% include "variants/filter_form/prioritization.html" %}
-          </div>
-        {% endif %}
+        <div class="tab-pane fade" id="panel-prioritization" role="tabpanel" aria-labelledby="prioritization-tab">
+          {% include "variants/filter_form/prioritization.html" %}
+        </div>
         <div class="tab-pane fade" id="panel-clinvar" role="tabpanel" aria-labelledby="clinvar-tab">
           {% include "variants/filter_form/clinvar_hgmd_indicator.html" %}
         </div>

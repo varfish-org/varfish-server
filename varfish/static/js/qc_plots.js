@@ -245,7 +245,7 @@ function plotlyRelatedness(response, containerId) {
 
   const layout = {
     title: {
-      text: 'Relatedness vs. IBSO0'
+      text: 'Relatedness vs. IBS0'
     },
     showlegend: true,
     hovermode: 'closest',

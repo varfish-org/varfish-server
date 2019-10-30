@@ -1223,6 +1223,7 @@ class ProjectCasesFilterForm(
     SmallVariantVariantEffectFilterFormMixin,
     SmallVariantMiscFilterFormMixin,
     SmallVariantClinvarHgmdFilterFormMixin,
+    SmallVariantPrioritizerFormMixin,
     VariantGeneListFilterFormMixin,
     GenomicRegionFilterFormMixin,
     SmallVariantTranscriptSourceFilterFormMixin,

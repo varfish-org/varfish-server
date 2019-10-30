@@ -94,16 +94,11 @@ class FilterBase:
         patho_enabled = self.variant_query.query_settings.get("patho_enabled")
         patho_score = self.variant_query.query_settings.get("patho_score")
 
-        if patho_score == "cadd" and not settings.VARFISH_ENABLE_CADD:
-            return
-
         def get_var(row):
             """Extract tuple describing variant from row."""
             return (row["chromosome"], row["start"], row["reference"], row["alternative"])
 
         variants = tuple(sorted(set(map(get_var, results))))
-        if patho_score == "cadd":
-            variants = variants[: settings.VARFISH_CADD_MAX_VARS]
 
         if not all((patho_enabled, patho_score, variants)):
             return  # nothing to do
@@ -116,7 +111,9 @@ class FilterBase:
                 scorer_factory = VariantScoresFactory()
                 scorer = scorer_factory.get_scorer(patho_score, variants, self.job.bg_job.user)
                 for score in scorer.score():
-                    self.variant_query.smallvariantqueryvariantscores_set.create(**score)
+                    getattr(
+                        self.variant_query, "%svariantscores_set" % self.variant_query.query_type()
+                    ).create(**score),
         except ConnectionError as e:
             self.job.add_log_entry(e)
 
