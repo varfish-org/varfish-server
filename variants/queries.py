@@ -1120,19 +1120,21 @@ class ExtendQueryPartsModesOfInheritanceJoin(ExtendQueryPartsBase):
 class ExtendQueryPartsGnomadConstraintsJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields = ["pLI", "mis_z", "syn_z"]
+        self.fields = ["pLI", "mis_z", "syn_z", "oe_lof", "oe_lof_upper", "oe_lof_lower"]
         self.subquery = (
             select(
                 [
                     func.max(getattr(GnomadConstraints.sa, field)).label(field)
                     for field in self.fields
                 ]
+                + [func.max(GnomadConstraints.sa.oe_lof_upper + 0.001).label("loeuf")]
             )
             .select_from(GnomadConstraints.sa)
             .where(SmallVariant.sa.ensembl_gene_id == GnomadConstraints.sa.ensembl_gene_id)
             .group_by(GnomadConstraints.sa.ensembl_gene_id)
             .lateral("gnomad_constraints_subquery")
         )
+        self.fields.append("loeuf")
 
     def extend_fields(self, _query_parts):
         return [getattr(self.subquery.c, field).label("gnomad_%s" % field) for field in self.fields]

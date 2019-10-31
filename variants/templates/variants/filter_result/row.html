@@ -153,6 +153,14 @@
   <td class="detail-constraints-exac-z-syn text-right">
     {{ entry.exac_syn_z|floatformat:3|default:"-" }}
   </td>
+  <td class="detail-constraints-gnomad-loeuf text-right">
+    <span
+      {% if entry.gnomad_loeuf %}
+        data-toggle="tooltip" data-html="true" title="<sup>o</sup>&frasl;<sub>e</sub> = {{ entry.gnomad_oe_lof }} <small>({{ entry.gnomad_oe_lof_lower }} - {{ entry.gnomad_oe_lof_upper }})</small>"
+      {% endif %}>
+      {{ entry.gnomad_loeuf|floatformat:3|default:"-" }}
+    </span>
+  </td>
   <td class="detail-constraints-gnomad-pli text-right">
     {{ entry.gnomad_pLI|floatformat:3|default:"-" }}
   </td>
