@@ -13,6 +13,7 @@ End-User Summary
 - Added column to the project wide filter results table that displays the number of affected cases per gene.
 - Enabled pathogenicity scoring for project-wide filtration.
 - Added LOEUF gnomAD constraint column to results table.
+- Added link-out to MetaDome in results table.
 
 Full Change List
 ================
@@ -23,6 +24,7 @@ Full Change List
 - Enabled pathogenicity scoring for project-wide filtration.
   This introduced a new table ``ProjectCasesSmallVariantQueryVariantScores`` to store the scoring results for a query.
 - Added LOEUF gnomAD constraint column to results table.
+- Added link-out to MetaDome in results table.
 
 -------
 v0.17.6
