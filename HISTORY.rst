@@ -10,11 +10,14 @@ End-User Summary
 ================
 
 - Added inhouse frequency information to variant detail page.
+- Added link-out in locus dropdown menu in results table to VariantValidator.
 
 Full Change List
 ================
 
 - Added inhouse frequency information to variant detail page.
+- Added link-out in locus dropdown menu in results table to VariantValidator.
+  To be able to construct the link, ``refseq_hgvs_c`` and ``refseq_transcript_id`` are also exported in query.
 
 -------
 v0.18.0

@@ -79,6 +79,8 @@ def small_variant_query(_self, kwargs):
             SmallVariant.sa.alternative,
             SmallVariant.sa.ensembl_gene_id.label("ensembl_gene_id"),
             SmallVariant.sa.refseq_gene_id.label("entrez_id"),
+            SmallVariant.sa.refseq_transcript_id,
+            SmallVariant.sa.refseq_hgvs_c,
             SmallVariant.sa.exac_frequency,
             SmallVariant.sa.gnomad_exomes_frequency,
             SmallVariant.sa.gnomad_genomes_frequency,
