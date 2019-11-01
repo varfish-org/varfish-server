@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Added inhouse frequency information to variant detail page.
+
+Full Change List
+================
+
+- Added inhouse frequency information to variant detail page.
+
 -------
 v0.18.0
 -------

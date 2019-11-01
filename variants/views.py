@@ -67,6 +67,7 @@ from .models import (
     RowWithClinvarMax,
     CASE_STATUS_CHOICES,
     RowWithAffectedCasesPerGene,
+    SmallVariantSummary,
 )
 from .forms import (
     ExportFileResubmitForm,
@@ -1856,6 +1857,25 @@ class SmallVariantDetails(
                     0.0,
                 )
             result["pop_freqs"][label] = pop_freqs
+        inhouse = SmallVariantSummary.objects.filter(
+            release=kwargs["release"],
+            chromosome=kwargs["chromosome"],
+            start=int(kwargs["start"]),
+            end=int(kwargs["end"]),
+            reference=kwargs["reference"],
+            alternative=kwargs["alternative"],
+        )
+        result["inhouse_freq"] = {}
+        if inhouse:
+            hom = getattr(inhouse, "count_hom_alt", 0)
+            het = getattr(inhouse, "count_het", 0)
+            hemi = getattr(inhouse, "count_hemi_alt", 0)
+            result["inhouse_freq"] = {
+                "hom": hom,
+                "het": het,
+                "hemi": hemi,
+                "carriers": hom + het + hemi,
+            }
         return result
 
     def _load_variant_comments(self):

@@ -48,6 +48,31 @@
           {% endfor %}
         </tr>
       {% endfor %}
+      <tr>
+        <th rowspan="3">Inhouse</th>
+        <th class="text-center">Carriers</th>
+        {% if inhouse_freq.carriers %}
+          <td colspan="9" class="text-right">{{ inhouse_freq.carriers|default:0|intcomma }}</td>
+        {% else %}
+          <td colspan="9" class="text-right text-muted">0</td>
+        {% endif %}
+      </tr>
+      <tr>
+        <th class="text-center">Hom</th>
+        {% if inhouse_freq.hom %}
+          <td colspan="9" class="text-right">{{ inhouse_freq.hom|default:0|intcomma }}</td>
+        {% else %}
+          <td colspan="9" class="text-right text-muted">0</td>
+        {% endif %}
+      </tr>
+      <tr>
+        <th class="text-center">Het</th>
+        {% if inhouse_freq.het %}
+          <td colspan="9" class="text-right">{{ inhouse_freq.het|default:0|intcomma }}</td>
+        {% else %}
+          <td colspan="9" class="text-right text-muted">0</td>
+        {% endif %}
+      </tr>
     </tbody>
   </table>
 </div>
