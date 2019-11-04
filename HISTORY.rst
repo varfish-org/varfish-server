@@ -11,6 +11,7 @@ End-User Summary
 
 - Added inhouse frequency information to variant detail page.
 - Added link-out in locus dropdown menu in results table to VariantValidator.
+- Added filter-by-status dropdown menu to case overview page.
 
 Full Change List
 ================
@@ -18,6 +19,8 @@ Full Change List
 - Added inhouse frequency information to variant detail page.
 - Added link-out in locus dropdown menu in results table to VariantValidator.
   To be able to construct the link, ``refseq_hgvs_c`` and ``refseq_transcript_id`` are also exported in query.
+- Added filter-by-status dropdown menu to case overview page.
+  With this, the bootstrap addon ``bootstrap-select`` was added to the static folder.
 
 -------
 v0.18.0

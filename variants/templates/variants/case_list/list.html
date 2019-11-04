@@ -19,8 +19,15 @@
   <h4 class="card-header">
     <i class="fa fa-hospital-o"></i>
     Case List
-    <div class="input-group sodar-header-input-group sodar-header-input-group-search pull-right" table-id="">
+    <div class="input-group col-4 pr-0 pull-right">
       <input class="form-control varfish-case-filter" type="text" placeholder="Filter" aria-label="Filter Cases">
+      <select class="selectpicker" id="varfish-case-filter-by-state" multiple title="Filter by Status" data-style="btn-secondary">
+        <option value="initial">initial</option>
+        <option value="active">active</option>
+        <option value="closed-solved">closed as solved</option>
+        <option value="closed-uncertain">closed as uncertain</option>
+        <option value="closed-unsolved">closed as unsolved</option>
+      </select>
     </div>
   </h4>
   <div class="card-body p-0">

@@ -18,7 +18,7 @@
       </span>
     {% endif %}
   </td>
-  <td data-order="{{ item.status|case_status_to_order }}" class="text-nowrap">
+  <td data-order="{{ item.status|case_status_to_order }}" data-search="{{ item.status }}" class="text-nowrap">
     <i class="fa fa-fw {{ item.status|case_status_to_fa }}" data-toggle="tooltip" title="status: {{ item.status }}"></i>
     {% if item.notes %}
       <i class="text-secondary fa fa-fw fa-sticky-note" data-toggle="tooltip" title="note: {{ item.notes }}"></i>

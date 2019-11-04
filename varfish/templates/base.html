@@ -13,6 +13,8 @@
   <script type="text/javascript" src="{% static 'js/vendor/popper-1.14.3.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/bootstrap-4.1.3.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/jquery.dataTables.min.js' %}"></script>
+  <!-- Bootstrap select plugin for multiple-select dropdown menus -->
+  <script type="text/javascript" src="{% static 'js/vendor/bootstrap-select-1.13.5.min.js' %}"></script>
 
 {% endblock head_javascript %}
 
@@ -43,6 +45,9 @@
   <!-- Bootstrap 4 CSS -->
   <link rel="stylesheet" type="text/css" href="{% static 'css/vendor/bootstrap-4.1.3.min.css' %}" />
 
+  <!-- Bootstrap select plugin for multiple-select dropdown menus -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/vendor/bootstrap-select-1.13.5.css' %}" />
+
   <!-- Shepherd theme -->
   <link rel="stylesheet" type="text/css" href="{% static 'projectroles/css/shepherd-theme-sodar.css' %}" />
 
@@ -54,6 +59,7 @@
 
   <!-- Datatables CSS -->
   <link rel="stylesheet" type="text/css" href="{% static 'css/vendor/jquery.dataTables.min.css' %}" />
+
 {% endblock css %}
 
 {% block head_extend %}

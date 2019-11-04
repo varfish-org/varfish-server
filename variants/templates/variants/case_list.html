@@ -132,23 +132,26 @@
   {% endif %}
 
   <!-- DataTables -->
-  <script type="text/javascript" src="https://cdn.datatables.net/v/ju/dt-1.10.18/b-1.5.4/datatables.min.js"></script>
-
   <script type="text/javascript">
-    $(function() {
+    $(document).ready(function() {
       $("#varfish-case-table").DataTable({
         paging: false,
         sDom: "T",
-        "order": [[ 1, "desc" ]]
-      })
-    })
-
-    $('.varfish-case-filter').keyup(function () {
-      const dt = $(this).closest('.varfish-case-list-card').find('table').dataTable()
-      console.log(dt)
-      const v = $(this).val()
-      console.log(v)
-      dt.fnFilter(v)
-    })
+        "order": [[ 1, "desc" ]],
+        initComplete: function() {
+          let column = this.api().columns(2);
+          let state_filter = $('#varfish-case-filter-by-state');
+          state_filter.change(function() {
+            column.search("^(" + state_filter.val().join("|") + ")$", true, false).draw();
+          });
+          state_filter.selectpicker('selectAll');
+        },
+      });
+      $('.varfish-case-filter').keyup(function () {
+        const dt = $(this).closest('.varfish-case-list-card').find('table').dataTable();
+        const v = $(this).val();
+        dt.fnFilter(v);
+      });
+    });
   </script>
 {% endblock %}
