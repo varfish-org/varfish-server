@@ -323,7 +323,6 @@ function updateSettings() {
   }
 }
 
-
 function updateSettingsDump() {
   var settings = {};
   $("#filterForm").find("input, select, textarea").each(
@@ -354,57 +353,29 @@ function updateSettingsDump() {
   delete settings["undefined"];
   delete settings["submit"];
   $("#settingsDump").val(JSON.stringify(settings, null, 2));
+  updateQuickPresets(settings);
 }
 
-const defaultPresetsIds = {
-  // Frequency
-  "thousand_genomes_enabled": true,
-  "thousand_genomes_homozygous": 0,
-  "thousand_genomes_heterozygous": 4,
-  "thousand_genomes_frequency": 0.002,
-
-  "exac_enabled": true,
-  "exac_homozygous": 0,
-  "exac_heterozygous": 10,
-  "exac_frequency": 0.002,
-
-  "gnomad_exomes_enabled": true,
-  "gnomad_exomes_homozygous": 0,
-  "gnomad_exomes_heterozygous": 20,
-  "gnomad_exomes_frequency": 0.002,
-
-  "gnomad_genomes_enabled": true,
-  "gnomad_genomes_homozygous": 0,
-  "gnomad_genomes_heterozygous": 4,
-  "gnomad_genomes_frequency": 0.002,
-
-  "inhouse_enabled": true,
-  "inhouse_homozygous": null,
-  "inhouse_heterozygous": null,
-  "inhouse_carriers": 20,
-
-  // Variants & Effect
+const presetsImpactNullVariant = {
   "var_type_snv": true,
   "var_type_mnv": true,
   "var_type_indel": true,
 
   "transcripts_coding": true,
-  "transcripts_noncoding": true,
+  "transcripts_noncoding": false,
 
-  "effect_complex_substitution": true,
-  "effect_direct_tandem_duplication": true,
-  "effect_disruptive_inframe_deletion": true,
-  "effect_disruptive_inframe_insertion": true,
+  "effect_complex_substitution": false,
+  "effect_direct_tandem_duplication": false,
+  "effect_disruptive_inframe_deletion": false,
+  "effect_disruptive_inframe_insertion": false,
   "effect_exon_loss_variant": true,
   "effect_feature_truncation": true,
   "effect_frameshift_elongation": true,
   "effect_frameshift_truncation": true,
   "effect_frameshift_variant": true,
-  "effect_inframe_deletion": true,
-  "effect_inframe_insertion": true,
+  "effect_inframe_deletion": false,
+  "effect_inframe_insertion": false,
   "effect_internal_feature_elongation": true,
-  "effect_missense_variant": true,
-  "effect_mnv": true,
   "effect_start_lost": true,
   "effect_stop_gained": true,
   "effect_stop_lost": true,
@@ -412,148 +383,510 @@ const defaultPresetsIds = {
   "effect_transcript_ablation": true,
   "effect_splice_acceptor_variant": true,
   "effect_splice_donor_variant": true,
-  "effect_splice_region_variant": true,
+  "effect_missense_variant": false,
+  "effect_mnv": false,
+  "effect_splice_region_variant": false,
+  "effect_coding_transcript_intron_variant": false,
   "effect_stop_retained_variant": true,
   "effect_synonymous_variant": false,
-  "effect_coding_transcript_intron_variant": false,
-  "effect_five_prime_UTR_exon_variant": true,
+  "effect_five_prime_UTR_exon_variant": false,
   "effect_five_prime_UTR_intron_variant": false,
-  "effect_three_prime_UTR_exon_variant": true,
+  "effect_three_prime_UTR_exon_variant": false,
   "effect_three_prime_UTR_intron_variant": false,
   "effect_downstream_gene_variant": false,
   "effect_intergenic_variant": false,
   "effect_non_coding_transcript_exon_variant": false,
   "effect_non_coding_transcript_intron_variant": false,
   "effect_upstream_gene_variant": false,
+};
 
-  // Clinvar/HGMD
-  "require_in_clinvar": false,
-  "remove_if_in_dbsnp": false,
+const presetsFlagsDefault = {
+  "flag_bookmarked": true,
+  "flag_candidate": true,
+  "flag_final_causative": true,
+  "flag_for_validation": true,
+  "flag_no_disease_association": true,
+  "flag_segregates": true,
+  "flag_doesnt_segregate": true,
+  "flag_simple_empty": true,
+  "flag_visual_positive": true,
+  "flag_visual_uncertain": true,
+  "flag_visual_negative": true,
+  "flag_visual_empty": true,
+  "flag_validation_positive": true,
+  "flag_validation_uncertain": true,
+  "flag_validation_negative": true,
+  "flag_validation_empty": true,
+  "flag_phenotype_match_positive": true,
+  "flag_phenotype_match_uncertain": true,
+  "flag_phenotype_match_negative": true,
+  "flag_phenotype_match_empty": true,
+  "flag_summary_positive": true,
+  "flag_summary_uncertain": true,
+  "flag_summary_negative": true,
+  "flag_summary_empty": true,
+
   "require_in_hgmd_public": false,
-  "display_hgmd_public_membership": false,
+  "remove_if_in_dbsnp": false,
+  "require_in_clinvar": false,
+  "clinvar_include_benign": false,
+  "clinvar_include_likely_benign": false,
+  "clinvar_include_uncertain_significance": false,
+  "clinvar_include_likely_pathogenic": true,
+  "clinvar_include_pathogenic": true,
   "clinvar_origin_germline": true,
+  "clinvar_origin_somatic": false,
+
+  // "result_rows_limit": 200,
+  // "training_mode": false,
 };
 
-const defaultPresetsClasses = {
-  "quality-field-dp-het": 8,
-  "quality-field-dp-hom": 4,
-  "quality-field-ab": 0.2,
-  "quality-field-gq": 20,
-  "quality-field-ad": 2,
-  "quality-field-fail": "drop-variant",
-};
-
-const medgenPresetsClasses = {
-};
+// Largest number of carriers/heterozygotes in in-house cohort to accept as "noise" or duplicated
+// data sets.
+const INHOUSE_MAX_NOISE = 20;
 
 const presets = {
-  "medgen-strict": {
-    "ids": Object.assign({}, defaultPresetsIds, {}),
-    "classes": Object.assign({}, defaultPresetsClasses, {
+  // Presets applied when using quick settings.
+  "quick-presets-auto": {
+    "ids": {
+      "file_type": "xlsx",
+      "result_rows_limit": 200,
+      "export_flags": true,
+      "export_comments": true,
+    },
+    "classes": {},
+  },
+  // Inheritance presets
+  // TODO
+  // Frequency presets
+  "frequency-de-novo": {
+    "ids": {
+      "thousand_genomes_enabled": true,
+      "thousand_genomes_homozygous": 0,
+      "thousand_genomes_heterozygous": 0,
+      "thousand_genomes_frequency": 0.0,
+
+      "exac_enabled": true,
+      "exac_homozygous": 0,
+      "exac_heterozygous": 0,
+      "exac_frequency": 0.0,
+
+      "gnomad_exomes_enabled": true,
+      "gnomad_exomes_homozygous": 0,
+      "gnomad_exomes_heterozygous": 0,
+      "gnomad_exomes_frequency": 0.0,
+
+      "gnomad_genomes_enabled": true,
+      "gnomad_genomes_homozygous": 0,
+      "gnomad_genomes_heterozygous": 0,
+      "gnomad_genomes_frequency": 0.0,
+
+      "inhouse_enabled": true,
+      "inhouse_homozygous": 0,
+      "inhouse_heterozygous": INHOUSE_MAX_NOISE,
+      "inhouse_carriers": INHOUSE_MAX_NOISE,
+    },
+    "classes": {},
+  },
+  "frequency-super-strict": {
+    "ids": {
+      "thousand_genomes_enabled": true,
+      "thousand_genomes_homozygous": 0,
+      "thousand_genomes_heterozygous": 1,
+      "thousand_genomes_frequency": 0.002,
+
+      "exac_enabled": true,
+      "exac_homozygous": 0,
+      "exac_heterozygous": 1,
+      "exac_frequency": 0.002,
+
+      "gnomad_exomes_enabled": true,
+      "gnomad_exomes_homozygous": 0,
+      "gnomad_exomes_heterozygous": 1,
+      "gnomad_exomes_frequency": 0.002,
+
+      "gnomad_genomes_enabled": true,
+      "gnomad_genomes_homozygous": 0,
+      "gnomad_genomes_heterozygous": 1,
+      "gnomad_genomes_frequency": 0.002,
+
+      "inhouse_enabled": true,
+      "inhouse_homozygous": null,
+      "inhouse_heterozygous": null,
+      "inhouse_carriers": INHOUSE_MAX_NOISE,
+    },
+    "classes": {},
+  },
+  "frequency-strict": {
+    "ids": {
+      "thousand_genomes_enabled": true,
+      "thousand_genomes_homozygous": 0,
+      "thousand_genomes_heterozygous": 4,
+      "thousand_genomes_frequency": 0.002,
+
+      "exac_enabled": true,
+      "exac_homozygous": 0,
+      "exac_heterozygous": 10,
+      "exac_frequency": 0.002,
+
+      "gnomad_exomes_enabled": true,
+      "gnomad_exomes_homozygous": 0,
+      "gnomad_exomes_heterozygous": 20,
+      "gnomad_exomes_frequency": 0.002,
+
+      "gnomad_genomes_enabled": true,
+      "gnomad_genomes_homozygous": 0,
+      "gnomad_genomes_heterozygous": 4,
+      "gnomad_genomes_frequency": 0.002,
+
+      "inhouse_enabled": true,
+      "inhouse_homozygous": null,
+      "inhouse_heterozygous": null,
+      "inhouse_carriers": INHOUSE_MAX_NOISE,
+    },
+    "classes": {},
+  },
+  "frequency-relaxed": {
+    "ids": {
+      "thousand_genomes_enabled": true,
+      "thousand_genomes_homozygous": 0,
+      "thousand_genomes_heterozygous": 10,
+      "thousand_genomes_frequency": 0.01,
+
+      "exac_enabled": true,
+      "exac_homozygous": 0,
+      "exac_heterozygous": 25,
+      "exac_frequency": 0.01,
+
+      "gnomad_exomes_enabled": true,
+      "gnomad_exomes_homozygous": 0,
+      "gnomad_exomes_heterozygous": 50,
+      "gnomad_exomes_frequency": 0.01,
+
+      "gnomad_genomes_enabled": true,
+      "gnomad_genomes_homozygous": 0,
+      "gnomad_genomes_heterozygous": 20,
+      "gnomad_genomes_frequency": 0.01,
+
+      "inhouse_enabled": true,
+      "inhouse_homozygous": null,
+      "inhouse_heterozygous": null,
+      "inhouse_carriers": INHOUSE_MAX_NOISE,
+    },
+    "classes": {},
+  },
+  "frequency-recessive-strict": {
+    "ids": {
+      "thousand_genomes_enabled": true,
+      "thousand_genomes_homozygous": 0,
+      "thousand_genomes_heterozygous": 24,
+      "thousand_genomes_frequency": 0.001,
+
+      "exac_enabled": true,
+      "exac_homozygous": 0,
+      "exac_heterozygous": 60,
+      "exac_frequency": 0.001,
+
+      "gnomad_exomes_enabled": true,
+      "gnomad_exomes_homozygous": 0,
+      "gnomad_exomes_heterozygous": 120,
+      "gnomad_exomes_frequency": 0.001,
+
+      "gnomad_genomes_enabled": true,
+      "gnomad_genomes_homozygous": 0,
+      "gnomad_genomes_heterozygous": 15,
+      "gnomad_genomes_frequency": 0.001,
+
+      "inhouse_enabled": true,
+      "inhouse_homozygous": null,
+      "inhouse_heterozygous": null,
+      "inhouse_carriers": INHOUSE_MAX_NOISE,
+    },
+    "classes": {},
+  },
+  "frequency-recessive-relaxed": {
+    "ids": {
+      "thousand_genomes_enabled": true,
+      "thousand_genomes_homozygous": 4,
+      "thousand_genomes_heterozygous": 240,
+      "thousand_genomes_frequency": 0.01,
+
+      "exac_enabled": true,
+      "exac_homozygous": 10,
+      "exac_heterozygous": 600,
+      "exac_frequency": 0.01,
+
+      "gnomad_exomes_enabled": true,
+      "gnomad_exomes_homozygous": 20,
+      "gnomad_exomes_heterozygous": 1200,
+      "gnomad_exomes_frequency": 0.01,
+
+      "gnomad_genomes_enabled": true,
+      "gnomad_genomes_homozygous": 4,
+      "gnomad_genomes_heterozygous": 150,
+      "gnomad_genomes_frequency": 0.01,
+
+      "inhouse_enabled": true,
+      "inhouse_homozygous": null,
+      "inhouse_heterozygous": null,
+      "inhouse_carriers": INHOUSE_MAX_NOISE,
+    },
+    "classes": {},
+  },
+  "frequency-all": {
+    "ids": {
+      "thousand_genomes_enabled": false,
+      "thousand_genomes_homozygous": null,
+      "thousand_genomes_heterozygous": null,
+      "thousand_genomes_frequency": null,
+
+      "exac_enabled": false,
+      "exac_homozygous": null,
+      "exac_heterozygous": null,
+      "exac_frequency": null,
+
+      "gnomad_exomes_enabled": false,
+      "gnomad_exomes_homozygous": null,
+      "gnomad_exomes_heterozygous": null,
+      "gnomad_exomes_frequency": null,
+
+      "gnomad_genomes_enabled": false,
+      "gnomad_genomes_homozygous": null,
+      "gnomad_genomes_heterozygous": null,
+      "gnomad_genomes_frequency": null,
+
+      "inhouse_enabled": false,
+      "inhouse_homozygous": null,
+      "inhouse_heterozygous": null,
+      "inhouse_carriers": null,
+    },
+    "classes": {},
+  },
+  // Impact presets
+  "impact-null-variant": {
+    "ids": presetsImpactNullVariant,
+    "classes": {},
+  },
+  "impact-aa-change": {
+    "ids": Object.assign({}, presetsImpactNullVariant , {
+      "effect_complex_substitution": true,
+      "effect_direct_tandem_duplication": true,
+      "effect_disruptive_inframe_deletion": true,
+      "effect_disruptive_inframe_insertion": true,
+      "effect_inframe_deletion": true,
+      "effect_inframe_insertion": true,
+      "effect_missense_variant": true,
+      "effect_mnv": true,
+      "effect_splice_region_variant": true,
+    }),
+    "classes": {},
+  },
+  "impact-all-coding-deep-intronic": {
+    "ids": Object.assign({}, presetsImpactNullVariant , {
+      "effect_complex_substitution": true,
+      "effect_direct_tandem_duplication": true,
+      "effect_disruptive_inframe_deletion": true,
+      "effect_disruptive_inframe_insertion": true,
+      "effect_inframe_deletion": true,
+      "effect_inframe_insertion": true,
+      "effect_missense_variant": true,
+      "effect_mnv": true,
+      "effect_splice_region_variant": true,
+
+      "effect_coding_transcript_intron_variant": true,
+    }),
+    "classes": {},
+  },
+  "impact-whole-transcript": {
+    "ids": Object.assign({}, presetsImpactNullVariant , {
+      "effect_complex_substitution": true,
+      "effect_direct_tandem_duplication": true,
+      "effect_disruptive_inframe_deletion": true,
+      "effect_disruptive_inframe_insertion": true,
+      "effect_inframe_deletion": true,
+      "effect_inframe_insertion": true,
+      "effect_missense_variant": true,
+      "effect_mnv": true,
+      "effect_splice_region_variant": true,
+
+      "effect_coding_transcript_intron_variant": true,
+
+      "effect_stop_retained_variant": true,
+      "effect_synonymous_variant": true,
+      "effect_five_prime_UTR_exon_variant": true,
+      "effect_five_prime_UTR_intron_variant": true,
+      "effect_three_prime_UTR_exon_variant": true,
+      "effect_three_prime_UTR_intron_variant": true,
+    }),
+    "classes": {},
+  },
+  "impact-any": {
+    "ids": Object.assign({}, presetsImpactNullVariant , {
+      "effect_complex_substitution": true,
+      "effect_direct_tandem_duplication": true,
+      "effect_disruptive_inframe_deletion": true,
+      "effect_disruptive_inframe_insertion": true,
+      "effect_inframe_deletion": true,
+      "effect_inframe_insertion": true,
+      "effect_missense_variant": true,
+      "effect_mnv": true,
+      "effect_splice_region_variant": true,
+
+      "effect_coding_transcript_intron_variant": true,
+
+      "effect_stop_retained_variant": true,
+      "effect_synonymous_variant": true,
+      "effect_five_prime_UTR_exon_variant": true,
+      "effect_five_prime_UTR_intron_variant": true,
+      "effect_three_prime_UTR_exon_variant": true,
+      "effect_three_prime_UTR_intron_variant": true,
+
+      "transcripts_noncoding": true,
+      "effect_downstream_gene_variant": true,
+      "effect_intergenic_variant": true,
+      "effect_non_coding_transcript_exon_variant": true,
+      "effect_non_coding_transcript_intron_variant": true,
+      "effect_upstream_gene_variant": true,
+    }),
+    "classes": {},
+  },
+  // Quality presets
+  "quality-super-strict": {
+    "ids": {},
+    "classes": {
       "quality-field-dp-het": 10,
       "quality-field-dp-hom": 5,
       "quality-field-ab": 0.3,
       "quality-field-gq": 30,
       "quality-field-ad": 3,
       "quality-field-fail": "drop-variant",
-    }),
+      "quality-field-ad-max": null,
+    },
   },
-  "medgen-super-strict": {
-    "ids": Object.assign({}, defaultPresetsIds, {
-      "thousand_genomes_homozygous": 0,
-      "thousand_genomes_heterozygous": 1,
-      "exac_homozygous": 0,
-      "exac_heterozygous": 1,
-      "gnomad_exomes_homozygous": 0,
-      "gnomad_exomes_heterozygous": 1,
-      "gnomad_genomes_homozygous": 0,
-      "gnomad_genomes_heterozygous": 1,
-    }),
-    "classes": Object.assign({}, defaultPresetsClasses, {
+  "quality-strict": {
+    "ids": {},
+    "classes": {
       "quality-field-dp-het": 10,
       "quality-field-dp-hom": 5,
-      "quality-field-ab": 0.3,
-      "quality-field-gq": 30,
+      "quality-field-ab": 0.2,
+      "quality-field-gq": 20,
       "quality-field-ad": 3,
-      "quality-field-fail": "drop-variant"
-    }),
+      "quality-field-fail": "drop-variant",
+      "quality-field-ad-max": null,
+    },
   },
-  "medgen-recessive": {
-    "ids": Object.assign({}, defaultPresetsIds, {
-      "thousand_genomes_homozygous": 4,
-      "thousand_genomes_heterozygous": 240,
-      "thousand_genomes_frequency": 0.01,
-      "exac_homozygous": 10,
-      "exac_heterozygous": 600,
-      "exac_frequency": 0.01,
-      "gnomad_exomes_homozygous": 20,
-      "gnomad_exomes_heterozygous": 1200,
-      "gnomad_exomes_frequency": 0.01,
-      "gnomad_genomes_homozygous": 4,
-      "gnomad_genomes_heterozygous": 150,
-      "gnomad_genomes_frequency": 0.01,
-    }),
-    "classes": Object.assign({}, defaultPresetsClasses, {}),
+  "quality-relaxed": {
+    "ids": {},
+    "classes": {
+      "quality-field-dp-het": 8,
+      "quality-field-dp-hom": 4,
+      "quality-field-ab": 0.1,
+      "quality-field-gq": 20,
+      "quality-field-ad": 2,
+      "quality-field-fail": "drop-variant",
+      "quality-field-ad-max": null,
+    },
   },
-  "medgen-relaxed": {
-    "ids": Object.assign({}, defaultPresetsIds, {
-      "thousand_genomes_heterozygous": 10,
-      "thousand_genomes_frequency": 0.01,
-      "exac_heterozygous": 25,
-      "exac_frequency": 0.01,
-      "gnomad_exomes_heterozygous": 50,
-      "gnomad_exomes_frequency": 0.01,
-      "gnomad_genomes_heterozygous": 20,
-      "gnomad_genomes_frequency": 0.01,
-    }),
-    "classes": Object.assign({}, defaultPresetsClasses, {}),
+  "quality-ignore": {
+    "ids": {},
+    "classes": {
+      "quality-field-dp-het": 0,
+      "quality-field-dp-hom": 0,
+      "quality-field-ab": 0.0,
+      "quality-field-gq": 0,
+      "quality-field-ad": 0,
+      "quality-field-fail": "ignore",
+      "quality-field-ad-max": null,
+    },
   },
-  "medgen-clinvar": {
-    "ids": Object.assign({}, defaultPresetsIds, {
-      "thousand_genomes_enabled": false,
-      "exac_enabled": false,
-      "gnomad_exomes_enabled": false,
-      "gnomad_genomes_enabled": false,
-      "inhouse_enabled": false,
-
+  // Region presets
+  "region-whole-genome": {
+    "ids": {
+      "gene_blacklist": "",
+      "gene_whitelist": "",
+      "genomic_region": "",
+    },
+    "classes": {},
+  },
+  "region-autosomes": {
+    "ids": {
+      "gene_blacklist": "",
+      "gene_whitelist": "",
+      "genomic_region": "chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 " +
+        "chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22",
+    },
+    "classes": {},
+  },
+  "region-x-chromosome": {
+    "ids": {
+      "gene_blacklist": "",
+      "gene_whitelist": "",
+      "genomic_region": "chrX",
+    },
+    "classes": {},
+  },
+  "region-y-chromosome": {
+    "ids": {
+      "gene_blacklist": "",
+      "gene_whitelist": "",
+      "genomic_region": "chrY",
+    },
+    "classes": {},
+  },
+  "region-mt-chromosome": {
+    "ids": {
+      "gene_blacklist": "",
+      "gene_whitelist": "",
+      "genomic_region": "chrMT",
+    },
+    "classes": {},
+  },
+  "region-clinvar": {
+    "ids": {
+      "gene_blacklist": "",
+      "gene_whitelist": "",
+      "genomic_region": "",
+    },
+    "classes": {},
+  },
+  // flags etc.
+  "flags-default": {
+    "ids": presetsFlagsDefault,
+    "classes": {},
+  },
+  "flags-clinvar": {
+    "ids": Object.assign({}, presetsFlagsDefault, {
+      "effect_group_all": true,
       "require_in_clinvar": true,
-      "remove_if_in_dbsnp": true,
-      "require_in_hgmd_public": false,
-      "display_hgmd_public_membership": true,
-      "clinvar_include_pathogenic": true,
-      "clinvar_include_likely_pathogenic": true,
-      "clinvar_include_uncertain_significance": false,
-      "clinvar_include_likely_benign": false,
-      "clinvar_include_benign": false,
-      "clinvar_origin_germline": true,
-      "clinvar_origin_somatic": false,
-
-      "effect_group_all": true
     }),
-    "classes": Object.assign({}, defaultPresetsClasses, {
-      "quality-field-fail": "ignore"
-    }),
+    "classes": {},
   },
-  "full-exome": {
-    "ids": Object.assign({}, defaultPresetsIds, {
-      "thousand_genomes_enabled": false,
-      "exac_enabled": false,
-      "gnomad_exomes_enabled": false,
-      "gnomad_genomes_enabled": false,
-      "inhouse_enabled": false,
-
-      "require_in_clinvar": false,
-      "remove_if_in_dbsnp": false,
-      "require_in_hgmd_public": false,
-      "display_hgmd_public_membership": false,
-
-      "effect_group_all": true
+  "flags-user-flagged": {
+    "ids": Object.assign({}, presetsFlagsDefault, {
+      "flag_simple_empty": false,
+      "flag_visual_empty": false,
+      "flag_validation_empty": false,
+      "flag_phenotype_match_empty": false,
+      "flag_summary_empty": false,
     }),
-    "classes": Object.assign({}, defaultPresetsClasses, {
-      "quality-field-fail": "ignore"
-    }),
-  }
+    "classes": {},
+  },
 };
+
+// Ugly transmogrification from class-based to id-based defaults.
+function uglyClassToId() {
+  for (let presetKey in presets) {
+    const currentPresets = presets[presetKey];
+    for (let classKey in currentPresets["classes"]) {
+      const tags = $("." + classKey);
+      const val = currentPresets["classes"][classKey];
+      for (let tag of tags) {
+        currentPresets["ids"][$(tag).attr("name")] = val;
+      }
+    }
+  }
+}
+uglyClassToId();
 
 let presets_genelist = {
   "muc": {
@@ -764,33 +1097,6 @@ let presets_genelist = {
   }
 };
 
-
-function loadPresets(element) {
-  const presetsName = element.data("preset-name");
-
-  for (var key in presets[presetsName]["ids"]) {
-    const val = presets[presetsName]["ids"][key];
-    const tag = $("#id_" + key);
-    const inputType = tag.attr("type");
-    if (inputType == "checkbox") {
-      if (key == "effect_group_all") {
-        tag.prop("checked", false);
-        tag.click();
-      } else {
-        tag.prop("checked", val);
-      }
-    } else {
-      tag.prop("value", val);
-    }
-  }
-  updateCheckboxes(null);
-
-  for (var key in presets[presetsName]["classes"]) {
-    const val = presets[presetsName]["classes"][key];
-    const tag = $("." + key);
-    tag.prop("value", val);
-  }
-}
 
 function loadGenelistPresets(e) {
   const presetName = $(e.currentTarget).data("preset-name");
@@ -1012,6 +1318,160 @@ $(document).on('show.bs.dropdown', '#presets-genotype-dropdown', function(e) {
 });
 
 
+function applyPresetsToSettings(presets) {
+  const oldUpdateQuickPresetsEnabled = updateQuickPresetsEnabled;
+  updateQuickPresetsEnabled = false;
+
+  for (let key in presets["ids"]) {
+    const val = presets["ids"][key];
+    const tag = $("#id_" + key);
+    const tagName = tag.prop("tagName");
+    const inputType = tag.attr("type");
+    if (tagName == "TEXTAREA") {
+      tag.val(val);
+    } if (inputType == "checkbox") {
+      if (key == "effect_group_all") {
+        tag.prop("checked", false);
+        tag.click();
+      } else {
+        tag.prop("checked", val);
+      }
+    } else {
+      tag.prop("value", val);
+    }
+  }
+  updateCheckboxes(null);
+
+  updateQuickPresetsEnabled = oldUpdateQuickPresetsEnabled;
+}
+
+function presetsToSettings(presets, name) {
+  let value = $("#input-presets-" + name).val()
+  if (value === name + "-custom") {
+    return;  // early exit, do nothing on custom
+  }
+
+  applyPresetsToSettings(presets[value])
+}
+
+// Set to false to disable updateQuickPresets().
+var updateQuickPresetsEnabled = true;
+
+function updateQuickPresets(settings) {
+  if (!updateQuickPresetsEnabled) {
+    return;
+  }
+  const quickPresetCategories = [/*inheritance,*/ "frequency", "impact", "quality", "region", "flags"];
+  const quickPresetCandidates = {
+    // TODO: inheritance
+    "frequency": ["de-novo", "super-strict", "strict", "relaxed", "recessive-strict", "recessive-relaxed", "all"],
+    "impact": ["null-variant", "aa-change", "all-coding-deep-intronic", "whole-transcript", "any"],
+    "quality": ["super-strict", "strict", "relaxed", "ignore"],
+    "region": ["whole-genome", "autosomes", "x-chromosome", "y-chromosome", "mt-chromosome"],
+    "flags": ["default", "clinvar", "user-flagged"],
+  };
+  const quickPresets = {
+    // TODO: inheritance
+    "frequency": "frequency-custom",
+    "impact": "impact-custom",
+    "quality": "quality-custom",
+    "region": "region-custom",
+    "flags": "flags-custom",
+  };
+
+  function eqAsStr(a, b) {
+    if (a !== null && b !== null) {
+      return a.toString() === b.toString();
+    } else {
+      return a === null && b === null;
+    }
+  }
+
+  for (let category of quickPresetCategories) {
+    for (let candidate of quickPresetCandidates[category]) {
+      let matchAll = true;
+      let presetsKey = category + "-" + candidate;
+      for (let key in presets[presetsKey]["ids"]) {
+        const inPreset = presets[presetsKey]["ids"].hasOwnProperty(key);
+        const value = settings[key] === "" ? null : settings[key];
+        const presetValue = presets[presetsKey]["ids"][key] === "" ? null : presets[presetsKey]["ids"][key];
+        if (inPreset && !eqAsStr(value, presetValue)) {
+          matchAll = false;
+          break;
+        }
+      }
+      if (matchAll) {
+        quickPresets[category] = presetsKey;
+        break;
+      }
+    }
+
+    $("#input-presets-" + category).val(quickPresets[category]);
+  }
+}
+
+function loadPresets(element) {
+  var oldUpdateQuickPresetsEnabled = updateQuickPresetsEnabled;
+  updateQuickPresetsEnabled = false;
+
+  const presetsName = element.data("preset-name");
+  if (presetsName == "defaults" || presetsName == "dominant") {
+    if (presetsName == "dominant") {
+      $("#input-presets-inheritance").val("inheritance-dominant")
+    } else {
+      $("#input-presets-inheritance").val("inheritance-any")
+    }
+    $("#input-presets-frequency").val("frequency-strict")
+    $("#input-presets-impact").val("impact-aa-change")
+    $("#input-presets-quality").val("quality-strict")
+    $("#input-presets-region").val("region-whole-genome")
+    $("#input-presets-flags").val("flags-default")
+  } else if (presetsName == "de-novo") {
+    $("#input-presets-inheritance").val("inheritance-dominant")
+    $("#input-presets-frequency").val("frequency-de-novo")
+    $("#input-presets-impact").val("impact-all-coding-deep-intronic")
+    $("#input-presets-quality").val("quality-relaxed")
+    $("#input-presets-region").val("region-whole-genome")
+    $("#input-presets-flags").val("flags-default")
+  } else if (presetsName == "hom-recessive" || presetsName == "comp-het-recessive") {
+    if (presetsName == "hom-recessive") {
+      $("#input-presets-inheritance").val("inheritance-hom-recessive")
+    } else {
+      $("#input-presets-inheritance").val("inheritance-comp-het-recessive")
+    }
+    $("#input-presets-frequency").val("frequency-recessive-strict")
+    $("#input-presets-impact").val("impact-aa-change")
+    $("#input-presets-quality").val("quality-strict")
+    $("#input-presets-region").val("region-whole-genome")
+    $("#input-presets-flags").val("flags-default")
+  } else if (presetsName == "clinvar" || presetsName == "whole-exome") {
+    $("#input-presets-inheritance").val("inheritance-any")
+    $("#input-presets-frequency").val("frequency-all")
+    $("#input-presets-impact").val("impact-any")
+    $("#input-presets-quality").val("quality-ignore")
+    $("#input-presets-region").val("region-whole-genome")
+    if (presetsName == "whole-exome") {
+      $("#input-presets-flags").val("flags-default")
+    } else {
+      $("#input-presets-flags").val("flags-clinvar")
+    }
+  } else {
+    console.log("Unknown preset name", presetsName)
+  }
+
+  $("#input-presets-inheritance").trigger("change")
+  $("#input-presets-frequency").trigger("change")
+  $("#input-presets-impact").trigger("change")
+  $("#input-presets-quality").trigger("change")
+  $("#input-presets-region").trigger("change")
+  $("#input-presets-flags").trigger("change")
+
+  applyPresetsToSettings(presets["quick-presets-auto"])
+
+  updateQuickPresetsEnabled = oldUpdateQuickPresetsEnabled;
+}
+
+
 $(document).ready(
   function() {
     makeNumberFieldsReceiveOnlyDigits();
@@ -1020,7 +1480,6 @@ $(document).ready(
     }
     $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
     updateSettingsDump();
-    $(".load-presets").click(function (e) { loadPresets($(e.currentTarget)) });
     $(".load-blacklist").click(loadGenelistPresets);
     $(".load-whitelist").click(loadGenelistPresets);
     $(".load-genotype").click(loadGenotypePresets);
@@ -1029,6 +1488,14 @@ $(document).ready(
     $("#compound_heterozygous_disable").click(resetAllCompHetIndices);
     $("#settingsSet").click(updateSettings);
     $("#settingsSet").click(initCompHetMode);
+    // Setup the presets menus.
+    for (let name of ["frequency", "impact", "quality", "region", "flags"]) {
+      $("#input-presets-" + name).on("change", function () {
+        presetsToSettings(presets, name)
+      })
+    }
+    // Setup the quick presets dropdown.
+    $(".quick-presets").click(function (e) { loadPresets($(e.currentTarget)); });
     // Assign click handler function to submit button
     filterButton.click(
       function(e) {
@@ -1038,7 +1505,7 @@ $(document).ready(
     filterButton.attr("data-event-type", EVENT_SUBMIT);
     // Load default/strict presets.
     if (!settings_restored) {
-        loadPresets($("#load-presets-medgen-strict"));
+        loadPresets($("#quick-preset-defaults"));
     }
     // Kick-off state machine.
     handleEvent(EVENT_START, null);

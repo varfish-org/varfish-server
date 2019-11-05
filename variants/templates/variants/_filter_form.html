@@ -16,68 +16,45 @@
 
 <form id="filterForm" method="post">{% csrf_token %}
   <div class="card">
-    <div class="card-header row border-bottom-0 pt-1 pr-1">
+    <div class="card-header">
+      {% include "variants/filter_form/presets.html" %}
+    </div>
+    <div class="card-header row border-bottom-1 pt-1 pr-1">
         <ul class="nav nav-tabs card-header-tabs">
           <li class="nav-item">
             <a class="nav-link active" id="genotype-tab" data-toggle="tab" href="#panel-genotype" role="tab"
                data-tooltip="tooltip" title="Require genotypes in individuals">Genotype</a>
           </li>
+          <li class="nav-item d-none d-md-block">
+            <a class="nav-link" id="prioritization-tab" data-toggle="tab" href="#panel-prioritization" role="tab"
+              data-tooltip="tooltip" title="Configure variant prioritization">Prioritization</a>
+          </li>
           <li class="nav-item">
             <a class="nav-link" id="frequency-tab" data-toggle="tab" href="#panel-frequency" role="tab"
               data-tooltip="tooltip" title="Population frequencies and het./hom. counts">Frequency</a>
           </li>
-          <li class="nav-item d-none d-md-block">
-            <a class="nav-link" id="effect-tab" data-toggle="tab" href="#panel-effect" role="tab"
-              data-tooltip="tooltip" title="Variant types/effects, coding/non-coding transcripts">Variants &amp; Effects</a>
-          </li>
-          <li class="nav-item d-none d-md-block">
-            <a class="nav-link" id="quality-tab" data-toggle="tab" href="#panel-quality" role="tab"
-              data-tooltip="tooltip" title="Quality, allelic balance, coverage">Quality</a>
-          </li>
-          <li class="nav-item d-none d-lg-block">
-            <a class="nav-link" id="blacklist-tab" data-toggle="tab" href="#panel-blacklist" role="tab"
-              data-tooltip="tooltip" title="White-list and black-list genes and genomic regions">Gene Lists &amp; Regions</a>
-          </li>
-          <li class="nav-item d-none d-xl-block">
-            <a class="nav-link" id="flags-tab" data-toggle="tab" href="#panel-flags" role="tab"
-              data-tooltip="tooltip" title="Filter for user flags and comments">Flags &amp; Comments</a>
-          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" id="more-tab" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">More ...</a>
-            <div class="dropdown-menu">
+            <div class="dropdown-menu" style="z-index:1030;">
+              <a class="dropdown-item" id="effect-tab" data-toggle="tab" href="#panel-effect" role="tab"
+                data-tooltip="tooltip" title="Variant types/effects, coding/non-coding transcripts">Variants &amp; Effects</a>
+              <a class="dropdown-item" id="quality-tab" data-toggle="tab" href="#panel-quality" role="tab"
+                data-tooltip="tooltip" title="Quality, allelic balance, coverage">Quality</a>
               <a class="dropdown-item" id="clinvar-tab" data-toggle="tab" href="#panel-clinvar" role="tab"
-                data-tooltip="tooltip" title="Filter using Clinvar/HGMD/dbSNP membership" data-placement="left">Clinvar, HGMD & dbSNP</a>
-              <a class="dropdown-item" id="prioritization-tab" data-toggle="tab" href="#panel-prioritization" role="tab"
-                data-tooltip="tooltip" title="Configure variant prioritization" data-placement="left">Prioritization</a>
+                data-tooltip="tooltip" title="Filter using Clinvar/HGMD/dbSNP membership"">Clinvar, HGMD & dbSNP</a>
+              <a class="dropdown-item" id="blacklist-tab" data-toggle="tab" href="#panel-blacklist" role="tab"
+                data-tooltip="tooltip" title="White-list and black-list genes and genomic regions">Gene Lists &amp; Regions</a>
+              <a class="dropdown-item" id="flags-tab" data-toggle="tab" href="#panel-flags" role="tab"
+                data-tooltip="tooltip" title="Filter for user flags and comments">Flags &amp; Comments</a>
               <a class="dropdown-item" id="export-tab" data-toggle="tab" href="#panel-export" role="tab"
                 data-tooltip="tooltip" title="Configure downloadable file creation" data-placement="left">Configure Downloads</a>
               <a class="dropdown-item" id="misc-tab" data-toggle="tab" href="#panel-misc" role="tab"
                 data-tooltip="tooltip" title="Various settings" data-placement="left">Miscellaneous</a>
               <a class="dropdown-item" id="settings-tab" data-toggle="tab" href="#panel-settings" role="tab"
-                data-tooltip="tooltip" title="Save current filter settings" data-placement="left">Filter Import/Export</a>
+                data-tooltip="tooltip" title="Save current filter settings">Filter Import/Export</a>
             </div>
           </li>
         </ul>
-        <div class="ml-auto">
-          <div class="dropdown">
-            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="presets-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span class="d-none d-sm-inline">
-                Load Presets
-              </span>
-              <span class="d-inline d-sm-none">
-                <i class="fa fa-sliders"></i>
-              </span>
-            </button>
-            <div class="dropdown-menu" aria-labelledby="presets-menu-button">
-              <a id="load-presets-medgen-strict" class="dropdown-item load-presets" href="#" data-preset-name="medgen-strict">Strict (Default)</a>
-              <a id="load-presets-medgen-recessive" class="dropdown-item load-presets" href="#" data-preset-name="medgen-recessive">Recessive</a>
-              <a id="load-presets-medgen-super-strict" class="dropdown-item load-presets" href="#" data-preset-name="medgen-super-strict">Super Strict</a>
-              <a id="load-presets-medgen-relaxed" class="dropdown-item load-presets" href="#" data-preset-name="medgen-relaxed">Relaxed</a>
-              <a id="load-presets-clinvar" class="dropdown-item load-presets" href="#" data-preset-name="medgen-clinvar">All Clinvar</a>
-              <a id="load-presets-full-exome" class="dropdown-item load-presets" href="#" data-preset-name="full-exome">Full Exome</a>
-            </div>
-          </div>
-        </div>
     </div>
 
     <div class="card-body p-0">

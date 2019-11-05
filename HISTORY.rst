@@ -16,6 +16,7 @@ End-User Summary
 - Fixing syncing project with upstream SODAR project.
 - Added controls to gnomad genomes and gnomad exomes frequencies in variant details view.
 - Adding more HiPhive variants.
+- Replacing old global presets with one preset per filter category.
 
 Full Change List
 ================
@@ -33,6 +34,7 @@ Full Change List
 - Improving HiPhive integration:
     - Adding human, human/mouse similarity search.
     - Using POST request to Exomiser to increase maximal number of genes.
+- Replacing old global presets with one preset per filter category.
 
 -------
 v0.18.0

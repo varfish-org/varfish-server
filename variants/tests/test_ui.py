@@ -220,46 +220,9 @@ class TestUIBase(LiveUserMixin, ProjectMixin, RoleAssignmentMixin, LiveServerTes
             print(i)
 
     def _disable_filters(self, case_or_project):
-        # switch tab
-        self.selenium.find_element_by_id("frequency-tab").click()
-        exac = self.selenium.find_element_by_xpath("//input[@name='exac_enabled']")
-        thousand = self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']")
-        gnomade = self.selenium.find_element_by_xpath("//input[@name='gnomad_exomes_enabled']")
-        gnomadg = self.selenium.find_element_by_xpath("//input[@name='gnomad_genomes_enabled']")
-        inhouse = self.selenium.find_element_by_xpath("//input[@name='inhouse_enabled']")
-        self.pending().until(ec.visibility_of(exac))
-        # disable exac and thousand genomes frequency filter
-        if exac.is_selected():
-            exac.click()
-        if thousand.is_selected():
-            thousand.click()
-        if gnomade.is_selected():
-            gnomade.click()
-        if gnomadg.is_selected():
-            gnomadg.click()
-        if inhouse.is_selected():
-            inhouse.click()
-        # switch tab
-        self.selenium.find_element_by_id("quality-tab").click()
-        if case_or_project == "case":
-            dropdown = self.selenium.find_element_by_id("id_%s_fail" % self.case.index)
-        else:
-            dropdown = self.selenium.find_element_by_id(
-                "id_%s_fail" % self.project.case_set.first().index
-            )
-        self.pending().until(ec.visibility_of(dropdown))
-        # disable quality filters
-        dropdown.click()
-        option = self.selenium.find_element_by_xpath("//option[@value='ignore']")
-        self.pending().until(ec.visibility_of(option))
-        option.click()
-        #
-        tab = self.selenium.find_element_by_id("effect-tab")
-        checkbox = self.selenium.find_element_by_id("id_effect_group_all")
-        # switch tab and wait until change happened
-        tab.click()
-        self.pending().until(ec.visibility_of(checkbox))
-        checkbox.click()
+        self.selenium.find_element_by_id("quick-presets-button").click()
+        self.selenium.find_element_by_xpath("//a[@data-preset-name='whole-exome']").click()
+        time.sleep(1)
 
 
 class TestVariantsCaseListView(TestUIBase):
@@ -409,6 +372,7 @@ class TestVariantsCaseFilterView(TestUIBase):
 
     def _disable_effect_groups(self):
         """Helper function to disable all effect checkboxes by activating and deactivating the 'all' checkbox."""
+        self.selenium.find_element_by_id("more-tab").click()
         tab = self.selenium.find_element_by_id("effect-tab")
         checkbox = self.selenium.find_element_by_id("id_effect_group_all")
         cross_checkbox = self.selenium.find_element_by_id("id_effect_synonymous_variant")
@@ -711,6 +675,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         exac.click()
         self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
         # switch tab
+        self.selenium.find_element_by_id("more-tab").click()
         self.selenium.find_element_by_id("quality-tab").click()
         dropdown = self.selenium.find_element_by_id("id_%s_fail" % self.case.index)
         self.pending().until(ec.visibility_of(dropdown))
@@ -744,15 +709,15 @@ class TestVariantsCaseFilterView(TestUIBase):
         )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
-    def test_preset_medgen_relaxed_on_quality_settings(self):
-        """Test medgen relaxed preset on a quality setting"""
+    def test_preset_de_novo_on_quality_settings(self):
+        """Test de novo preset on a quality setting"""
         # login
         self.compile_url_and_login(
             {"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid}
         )
         # select medgen relaxed preset
-        self.selenium.find_element_by_id("presets-menu-button").click()
-        self.selenium.find_element_by_xpath("//a[@data-preset-name='medgen-relaxed']").click()
+        self.selenium.find_element_by_id("quick-presets-button").click()
+        self.selenium.find_element_by_xpath("//a[@data-preset-name='de-novo']").click()
         # verify correctness
         self.assertEquals(
             self.selenium.find_element_by_id("id_%s_dp_het" % self.case.index).get_attribute(
@@ -762,31 +727,31 @@ class TestVariantsCaseFilterView(TestUIBase):
         )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
-    def test_preset_medgen_clinvar_on_quality_settings(self):
-        """Test medgen clinvar preset on a quality setting"""
+    def test_preset_dominant_on_quality_settings(self):
+        """Test medgen dominant preset on a quality setting"""
         # login
         self.compile_url_and_login(
             {"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid}
         )
         # select medgen clinvar preset
-        self.selenium.find_element_by_id("presets-menu-button").click()
-        self.selenium.find_element_by_xpath("//a[@data-preset-name='medgen-clinvar']").click()
+        self.selenium.find_element_by_id("quick-presets-button").click()
+        self.selenium.find_element_by_xpath("//a[@data-preset-name='dominant']").click()
         # verify correctness
         self.assertEqual(
             self.selenium.find_element_by_id("id_%s_fail" % self.case.index).get_attribute("value"),
-            "ignore",
+            "drop-variant",
         )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
-    def test_preset_full_exome_on_effect_settings(self):
-        """Test full exome preset on the all effect setting"""
+    def test_preset_whole_exome_on_effect_settings(self):
+        """Test whole exome preset on the all effect setting"""
         # login
         self.compile_url_and_login(
             {"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid}
         )
-        # select full exome preset
-        self.selenium.find_element_by_id("presets-menu-button").click()
-        self.selenium.find_element_by_xpath("//a[@data-preset-name='full-exome']").click()
+        # select whole exome preset
+        self.selenium.find_element_by_id("quick-presets-button").click()
+        self.selenium.find_element_by_xpath("//a[@data-preset-name='whole-exome']").click()
         # verify correctness
         self.assertTrue(self.selenium.find_element_by_id("id_effect_group_all").is_selected())
 
