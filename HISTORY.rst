@@ -13,6 +13,7 @@ End-User Summary
 - Added link-out in locus dropdown menu in results table to VariantValidator.
 - Added filter-by-status dropdown menu to case overview page.
 - Added link-out to pubmed in NCBI gene RIF list in variant details view.
+- Fixing syncing project with upstream SODAR project.
 
 Full Change List
 ================
@@ -24,6 +25,7 @@ Full Change List
   With this, the bootstrap addon ``bootstrap-select`` was added to the static folder.
 - Added link-out to pubmed in NCBI gene RIF list in variant details view.
   For this, ``NcbiGeneRif`` table was extended with a ``pubmed_ids`` field.
+- Fixing syncing project with upstream SODAR project.
 
 -------
 v0.18.0

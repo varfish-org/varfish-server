@@ -233,15 +233,17 @@ def execute_sync_case_list_job(job):
             status_type="INIT",
         )
     try:
-        remote_site = RemoteSite.objects.first()
+        sources = [s for s in RemoteSite.objects.all() if s.mode == "SOURCE"]
+        if len(sources) != 1:
+            raise RuntimeError(
+                "Expected exactly one remote source site but there were %d" % len(sources)
+            )
+        else:
+            source = sources[0]
         project = CaseAwareProject.objects.get(pk=job.project.pk)
         r = requests.get(
             URL_TEMPLATE
-            % {
-                "url": remote_site.url,
-                "project_uuid": project.sodar_uuid,
-                "secret": remote_site.secret,
-            }
+            % {"url": source.url, "project_uuid": project.sodar_uuid, "secret": source.secret}
         )
 
         upstream_pedigree = {
