@@ -12,6 +12,7 @@ End-User Summary
 - Added inhouse frequency information to variant detail page.
 - Added link-out in locus dropdown menu in results table to VariantValidator.
 - Added filter-by-status dropdown menu to case overview page.
+- Added link-out to pubmed in NCBI gene RIF list in variant details view.
 
 Full Change List
 ================
@@ -21,6 +22,8 @@ Full Change List
   To be able to construct the link, ``refseq_hgvs_c`` and ``refseq_transcript_id`` are also exported in query.
 - Added filter-by-status dropdown menu to case overview page.
   With this, the bootstrap addon ``bootstrap-select`` was added to the static folder.
+- Added link-out to pubmed in NCBI gene RIF list in variant details view.
+  For this, ``NcbiGeneRif`` table was extended with a ``pubmed_ids`` field.
 
 -------
 v0.18.0

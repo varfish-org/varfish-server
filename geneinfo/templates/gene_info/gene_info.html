@@ -93,7 +93,12 @@
         {% if ncbi_gene_rifs %}
           <ul class="pl-3" style="max-height: 150px; overflow-y: auto !important;">
             {% for gene_rif in ncbi_gene_rifs %}
-              <li>{{ gene_rif.rif_text }}</li>
+              <li>
+                {{ gene_rif.rif_text }}
+                <a href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ gene_rif.pubmed_ids|join:"+" }}" target="_blank" class="badge badge-secondary">
+                  PubMed
+                </a>
+              </li>
             {% endfor %}
           </ul>
         {% else %}
