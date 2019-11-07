@@ -17,7 +17,11 @@
     <tbody>
       {% for name, db in pop_freqs.items %}
         <tr>
+          {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
+          <th rowspan="6">{{ name }}</th>
+          {% else %}
           <th rowspan="3">{{ name }}</th>
+          {% endif %}
           <th class="text-center">Freq</th>
           {% for pop in populations %}
             {% if db|keyvalue:pop|keyvalue:"af" %}
@@ -27,6 +31,14 @@
             {% endif %}
           {% endfor %}
         </tr>
+        {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
+        <tr class="text-muted small">
+          <th class="text-center"><i class="fa fa-arrow-up"></i> Ctrl</th>
+          {% for pop in populations %}
+            <td class="text-right">{{ db|keyvalue:pop|keyvalue:"controls_af"|default:0|floatformat:5 }}</td>
+          {% endfor %}
+        </tr>
+        {% endif %}
         <tr>
           <th class="text-center">Hom</th>
           {% for pop in populations %}
@@ -37,6 +49,14 @@
             {% endif %}
           {% endfor %}
         </tr>
+        {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
+        <tr class="text-muted small">
+          <th class="text-center"><i class="fa fa-arrow-up"></i> Ctrl</th>
+          {% for pop in populations %}
+            <td class="text-right">{{ db|keyvalue:pop|keyvalue:"controls_hom"|default:0|intcomma }}</td>
+          {% endfor %}
+        </tr>
+        {% endif %}
         <tr>
           <th class="text-center">Het</th>
           {% for pop in populations %}
@@ -47,6 +67,14 @@
             {% endif %}
           {% endfor %}
         </tr>
+        {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
+        <tr class="text-muted small">
+          <th class="text-center"><i class="fa fa-arrow-up"></i> Ctrl</th>
+          {% for pop in populations %}
+            <td class="text-right">{{ db|keyvalue:pop|keyvalue:"controls_het"|default:0|intcomma }}</td>
+          {% endfor %}
+        </tr>
+        {% endif %}
       {% endfor %}
       <tr>
         <th rowspan="3">Inhouse</th>

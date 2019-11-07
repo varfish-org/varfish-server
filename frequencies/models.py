@@ -293,6 +293,108 @@ class GnomadExomes(models.Model):
     af_oth = models.FloatField(null=True)
     #: Allele frequency south asian population
     af_sas = models.FloatField(null=True)
+    #: Controls for allele count
+    controls_ac = models.IntegerField(null=True)
+    #: Controls for allele number
+    controls_an = models.IntegerField(null=True)
+    #: Controls for allele frequency
+    controls_af = models.FloatField(null=True)
+    #: Controls for hemizygous count
+    controls_hemi = models.IntegerField(null=True)
+    #: Controls for homozygous count
+    controls_hom = models.IntegerField(null=True)
+    #: Controls for allele count african population
+    controls_ac_afr = models.IntegerField(null=True)
+    #: Controls for allele number african population
+    controls_an_afr = models.IntegerField(null=True)
+    #: Controls for allele frequency african population
+    controls_af_afr = models.FloatField(null=True)
+    #: Controls for hemizygous count african population
+    controls_hemi_afr = models.IntegerField(null=True)
+    #: Controls for homozygous count african population
+    controls_hom_afr = models.IntegerField(null=True)
+    #: Controls for allele count american population
+    controls_ac_amr = models.IntegerField(null=True)
+    #: Controls for allele number american population
+    controls_an_amr = models.IntegerField(null=True)
+    #: Controls for allele frequency american population
+    controls_af_amr = models.FloatField(null=True)
+    #: Controls for hemizygous count american population
+    controls_hemi_amr = models.IntegerField(null=True)
+    #: Controls for homozygous count american population
+    controls_hom_amr = models.IntegerField(null=True)
+    #: Controls for allele count ashkenazi jewish population
+    controls_ac_asj = models.IntegerField(null=True)
+    #: Controls for allele number ashkenazi jewish population
+    controls_an_asj = models.IntegerField(null=True)
+    #: Controls for allele frequency ashkenazi jewish population
+    controls_af_asj = models.FloatField(null=True)
+    #: Controls for hemizygous count ashkenazi jewish population
+    controls_hemi_asj = models.IntegerField(null=True)
+    #: Controls for homozygous count ashkenazi jewish population
+    controls_hom_asj = models.IntegerField(null=True)
+    #: Controls for allele count east asian population
+    controls_ac_eas = models.IntegerField(null=True)
+    #: Controls for allele number east asian population
+    controls_an_eas = models.IntegerField(null=True)
+    #: Controls for allele frequency east asian population
+    controls_af_eas = models.FloatField(null=True)
+    #: Controls for hemizygous count east asian population
+    controls_hemi_eas = models.IntegerField(null=True)
+    #: Controls for hemizygous count east asian population
+    controls_hom_eas = models.IntegerField(null=True)
+    #: Controls for allele count finnish population
+    controls_ac_fin = models.IntegerField(null=True)
+    #: Controls for allele number finnish population
+    controls_an_fin = models.IntegerField(null=True)
+    #: Controls for allele frequency finnish population
+    controls_af_fin = models.FloatField(null=True)
+    #: Controls for hemizygous count finnish population
+    controls_hemi_fin = models.IntegerField(null=True)
+    #: Controls for hemizygous count finnish population
+    controls_hom_fin = models.IntegerField(null=True)
+    #: Controls for allele count european (excl. finnish) population
+    controls_ac_nfe = models.IntegerField(null=True)
+    #: Controls for allele number european (excl. finnish) population
+    controls_an_nfe = models.IntegerField(null=True)
+    #: Controls for allele frequency european (excl. finnish) population
+    controls_af_nfe = models.FloatField(null=True)
+    #: Controls for hemizygous count european (excl. finnish) population
+    controls_hemi_nfe = models.IntegerField(null=True)
+    #: Controls for hemizygous count european (excl. finnish) population
+    controls_hom_nfe = models.IntegerField(null=True)
+    #: Controls for allele count other population
+    controls_ac_oth = models.IntegerField(null=True)
+    #: Controls for allele number other population
+    controls_an_oth = models.IntegerField(null=True)
+    #: Controls for allele frequency other population
+    controls_af_oth = models.FloatField(null=True)
+    #: Controls for hemizygous count other population
+    controls_hemi_oth = models.IntegerField(null=True)
+    #: Controls for hemizygous count other population
+    controls_hom_oth = models.IntegerField(null=True)
+    #: Controls for allele count south asian population
+    controls_ac_sas = models.IntegerField(null=True)
+    #: Controls for allele number south asian population
+    controls_an_sas = models.IntegerField(null=True)
+    #: Controls for allele frequency south asian population
+    controls_af_sas = models.FloatField(null=True)
+    #: Controls for hemizygous count south asian population
+    controls_hemi_sas = models.IntegerField(null=True)
+    #: Controls for hemizygous count south asian population
+    controls_hom_sas = models.IntegerField(null=True)
+    #: Controls for population with maximum frequency among populations
+    controls_popmax = models.CharField(max_length=8, null=True)
+    #: Controls for allele count of population with maximum frequency
+    controls_ac_popmax = models.IntegerField(null=True)
+    #: Controls for allele number of population with maximum frequency
+    controls_an_popmax = models.IntegerField(null=True)
+    #: Controls for allele frequency of population with maximum frequency
+    controls_af_popmax = models.FloatField(null=True)
+    #: Controls for hemizygous count of population with maximum frequency
+    controls_hemi_popmax = models.IntegerField(null=True)
+    #: Controls for homozygous count of population with maximum frequency
+    controls_hom_popmax = models.IntegerField(null=True)
 
     #: Allow bulk import
     objects = CopyManager()
@@ -300,63 +402,214 @@ class GnomadExomes(models.Model):
     @property
     def het(self):
         """Heterozygous count"""
-        return self.ac - (2 * self.hom) - (self.hemi if self.hemi is not None else 0)
+        try:
+            return self.ac - (2 * self.hom) - (self.hemi if self.hemi is not None else 0)
+        except TypeError:
+            return 0
 
     @property
     def het_afr(self):
         """Heterozygous count african population"""
-        return (
-            self.ac_afr - (2 * self.hom_afr) - (self.hemi_afr if self.hemi_afr is not None else 0)
-        )
+        try:
+            return (
+                self.ac_afr
+                - (2 * self.hom_afr)
+                - (self.hemi_afr if self.hemi_afr is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_amr(self):
         """Heterozygous count american population"""
-        return (
-            self.ac_amr - (2 * self.hom_amr) - (self.hemi_amr if self.hemi_amr is not None else 0)
-        )
+        try:
+            return (
+                self.ac_amr
+                - (2 * self.hom_amr)
+                - (self.hemi_amr if self.hemi_amr is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_asj(self):
         """Heterozygous count ashkenazi jewish population"""
-        return (
-            self.ac_asj - (2 * self.hom_asj) - (self.hemi_asj if self.hemi_asj is not None else 0)
-        )
+        try:
+            return (
+                self.ac_asj
+                - (2 * self.hom_asj)
+                - (self.hemi_asj if self.hemi_asj is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_eas(self):
         """Heterozygous count east asian population"""
-        return (
-            self.ac_eas - (2 * self.hom_eas) - (self.hemi_eas if self.hemi_eas is not None else 0)
-        )
+        try:
+            return (
+                self.ac_eas
+                - (2 * self.hom_eas)
+                - (self.hemi_eas if self.hemi_eas is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_fin(self):
         """Heterozygous count finnish population"""
-        return (
-            self.ac_fin - (2 * self.hom_fin) - (self.hemi_fin if self.hemi_fin is not None else 0)
-        )
+        try:
+            return (
+                self.ac_fin
+                - (2 * self.hom_fin)
+                - (self.hemi_fin if self.hemi_fin is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_nfe(self):
         """Heterozygous count european (non-finnish) population"""
-        return (
-            self.ac_nfe - (2 * self.hom_nfe) - (self.hemi_nfe if self.hemi_nfe is not None else 0)
-        )
+        try:
+            return (
+                self.ac_nfe
+                - (2 * self.hom_nfe)
+                - (self.hemi_nfe if self.hemi_nfe is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_oth(self):
         """Heterozygous count other populations"""
-        return (
-            self.ac_oth - (2 * self.hom_oth) - (self.hemi_oth if self.hemi_oth is not None else 0)
-        )
+        try:
+            return (
+                self.ac_oth
+                - (2 * self.hom_oth)
+                - (self.hemi_oth if self.hemi_oth is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_sas(self):
         """Heterozygous count south asian population"""
-        return (
-            self.ac_sas - (2 * self.hom_sas) - (self.hemi_sas if self.hemi_sas is not None else 0)
-        )
+        try:
+            return (
+                self.ac_sas
+                - (2 * self.hom_sas)
+                - (self.hemi_sas if self.hemi_sas is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het(self):
+        """Controls for heterozygous count"""
+        try:
+            return (
+                self.controls_ac
+                - (2 * self.controls_hom)
+                - (self.controls_hemi if self.controls_hemi is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_afr(self):
+        """Controls for heterozygous count african population"""
+        try:
+            return (
+                self.controls_ac_afr
+                - (2 * self.controls_hom_afr)
+                - (self.controls_hemi_afr if self.controls_hemi_afr is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_amr(self):
+        """Controls for heterozygous count american population"""
+        try:
+            return (
+                self.controls_ac_amr
+                - (2 * self.controls_hom_amr)
+                - (self.controls_hemi_amr if self.controls_hemi_amr is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_asj(self):
+        """Controls for heterozygous count ashkenazi jewish population"""
+        try:
+            return (
+                self.controls_ac_asj
+                - (2 * self.controls_hom_asj)
+                - (self.controls_hemi_asj if self.controls_hemi_asj is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_eas(self):
+        """Controls for heterozygous count east asian population"""
+        try:
+            return (
+                self.controls_ac_eas
+                - (2 * self.controls_hom_eas)
+                - (self.controls_hemi_eas if self.controls_hemi_eas is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_fin(self):
+        """Controls for heterozygous count finnish population"""
+        try:
+            return (
+                self.controls_ac_fin
+                - (2 * self.controls_hom_fin)
+                - (self.controls_hemi_fin if self.controls_hemi_fin is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_nfe(self):
+        """Controls for heterozygous count european (non-finnish) population"""
+        try:
+            return (
+                self.controls_ac_nfe
+                - (2 * self.controls_hom_nfe)
+                - (self.controls_hemi_nfe if self.controls_hemi_nfe is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_oth(self):
+        """Controls for heterozygous count other populations"""
+        try:
+            return (
+                self.controls_ac_oth
+                - (2 * self.controls_hom_oth)
+                - (self.controls_hemi_oth if self.controls_hemi_oth is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_sas(self):
+        """Controls for heterozygous count south asian population"""
+        try:
+            return (
+                self.controls_ac_sas
+                - (2 * self.controls_hom_sas)
+                - (self.controls_hemi_sas if self.controls_hemi_sas is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     class Meta:
         # The uniqueness constraint will automatically add an index, no need to create a second.
@@ -472,6 +725,98 @@ class GnomadGenomes(models.Model):
     af_nfe = models.FloatField(null=True)
     #: Allele frequency other populations
     af_oth = models.FloatField(null=True)
+    #: Controls for allele count
+    controls_ac = models.IntegerField(null=True)
+    #: Controls for allele number
+    controls_an = models.IntegerField(null=True)
+    #: Controls for allele frequency
+    controls_af = models.FloatField(null=True)
+    #: Controls for hemizygous count
+    controls_hemi = models.IntegerField(null=True)
+    #: Controls for homozygous count
+    controls_hom = models.IntegerField(null=True)
+    #: Controls for allele count african population
+    controls_ac_afr = models.IntegerField(null=True)
+    #: Controls for allele number african population
+    controls_an_afr = models.IntegerField(null=True)
+    #: Controls for allele frequency african population
+    controls_af_afr = models.FloatField(null=True)
+    #: Controls for hemizygous count african population
+    controls_hemi_afr = models.IntegerField(null=True)
+    #: Controls for homozygous count african population
+    controls_hom_afr = models.IntegerField(null=True)
+    #: Controls for allele count american population
+    controls_ac_amr = models.IntegerField(null=True)
+    #: Controls for allele number american population
+    controls_an_amr = models.IntegerField(null=True)
+    #: Controls for allele frequency american population
+    controls_af_amr = models.FloatField(null=True)
+    #: Controls for hemizygous count american population
+    controls_hemi_amr = models.IntegerField(null=True)
+    #: Controls for homozygous count american population
+    controls_hom_amr = models.IntegerField(null=True)
+    #: Controls for allele count ashkenazi jewish population
+    controls_ac_asj = models.IntegerField(null=True)
+    #: Controls for allele number ashkenazi jewish population
+    controls_an_asj = models.IntegerField(null=True)
+    #: Controls for allele frequency ashkenazi jewish population
+    controls_af_asj = models.FloatField(null=True)
+    #: Controls for hemizygous count ashkenazi jewish population
+    controls_hemi_asj = models.IntegerField(null=True)
+    #: Controls for homozygous count ashkenazi jewish population
+    controls_hom_asj = models.IntegerField(null=True)
+    #: Controls for allele count east asian population
+    controls_ac_eas = models.IntegerField(null=True)
+    #: Controls for allele number east asian population
+    controls_an_eas = models.IntegerField(null=True)
+    #: Controls for allele frequency east asian population
+    controls_af_eas = models.FloatField(null=True)
+    #: Controls for hemizygous count east asian population
+    controls_hemi_eas = models.IntegerField(null=True)
+    #: Controls for hemizygous count east asian population
+    controls_hom_eas = models.IntegerField(null=True)
+    #: Controls for allele count finnish population
+    controls_ac_fin = models.IntegerField(null=True)
+    #: Controls for allele number finnish population
+    controls_an_fin = models.IntegerField(null=True)
+    #: Controls for allele frequency finnish population
+    controls_af_fin = models.FloatField(null=True)
+    #: Controls for hemizygous count finnish population
+    controls_hemi_fin = models.IntegerField(null=True)
+    #: Controls for hemizygous count finnish population
+    controls_hom_fin = models.IntegerField(null=True)
+    #: Controls for allele count european (excl. finnish) population
+    controls_ac_nfe = models.IntegerField(null=True)
+    #: Controls for allele number european (excl. finnish) population
+    controls_an_nfe = models.IntegerField(null=True)
+    #: Controls for allele frequency european (excl. finnish) population
+    controls_af_nfe = models.FloatField(null=True)
+    #: Controls for hemizygous count european (excl. finnish) population
+    controls_hemi_nfe = models.IntegerField(null=True)
+    #: Controls for hemizygous count european (excl. finnish) population
+    controls_hom_nfe = models.IntegerField(null=True)
+    #: Controls for allele count other population
+    controls_ac_oth = models.IntegerField(null=True)
+    #: Controls for allele number other population
+    controls_an_oth = models.IntegerField(null=True)
+    #: Controls for allele frequency other population
+    controls_af_oth = models.FloatField(null=True)
+    #: Controls for hemizygous count other population
+    controls_hemi_oth = models.IntegerField(null=True)
+    #: Controls for hemizygous count other population
+    controls_hom_oth = models.IntegerField(null=True)
+    #: Controls for population with maximum frequency among populations
+    controls_popmax = models.CharField(max_length=8, null=True)
+    #: Controls for allele count of population with maximum frequency
+    controls_ac_popmax = models.IntegerField(null=True)
+    #: Controls for allele number of population with maximum frequency
+    controls_an_popmax = models.IntegerField(null=True)
+    #: Controls for allele frequency of population with maximum frequency
+    controls_af_popmax = models.FloatField(null=True)
+    #: Controls for hemizygous count of population with maximum frequency
+    controls_hemi_popmax = models.IntegerField(null=True)
+    #: Controls for homozygous count of population with maximum frequency
+    controls_hom_popmax = models.IntegerField(null=True)
 
     #: Allow bulk import
     objects = CopyManager()
@@ -479,56 +824,190 @@ class GnomadGenomes(models.Model):
     @property
     def het(self):
         """Heterozygous count"""
-        return self.ac - (2 * self.hom) - (self.hemi if self.hemi is not None else 0)
+        try:
+            return self.ac - (2 * self.hom) - (self.hemi if self.hemi is not None else 0)
+        except TypeError:
+            return 0
 
     @property
     def het_afr(self):
         """Heterozygous count african population"""
-        return (
-            self.ac_afr - (2 * self.hom_afr) - (self.hemi_afr if self.hemi_afr is not None else 0)
-        )
+        try:
+            return (
+                self.ac_afr
+                - (2 * self.hom_afr)
+                - (self.hemi_afr if self.hemi_afr is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_amr(self):
         """Heterozygous count american population"""
-        return (
-            self.ac_amr - (2 * self.hom_amr) - (self.hemi_amr if self.hemi_amr is not None else 0)
-        )
+        try:
+            return (
+                self.ac_amr
+                - (2 * self.hom_amr)
+                - (self.hemi_amr if self.hemi_amr is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_asj(self):
         """Heterozygous count ashkenazi jewish population"""
-        return (
-            self.ac_asj - (2 * self.hom_asj) - (self.hemi_asj if self.hemi_asj is not None else 0)
-        )
+        try:
+            return (
+                self.ac_asj
+                - (2 * self.hom_asj)
+                - (self.hemi_asj if self.hemi_asj is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_eas(self):
         """Heterozygous count east asian population"""
-        return (
-            self.ac_eas - (2 * self.hom_eas) - (self.hemi_eas if self.hemi_eas is not None else 0)
-        )
+        try:
+            return (
+                self.ac_eas
+                - (2 * self.hom_eas)
+                - (self.hemi_eas if self.hemi_eas is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_fin(self):
         """Heterozygous count finnish population"""
-        return (
-            self.ac_fin - (2 * self.hom_fin) - (self.hemi_fin if self.hemi_fin is not None else 0)
-        )
+        try:
+            return (
+                self.ac_fin
+                - (2 * self.hom_fin)
+                - (self.hemi_fin if self.hemi_fin is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_nfe(self):
         """Heterozygous count european (non-finnish) population"""
-        return (
-            self.ac_nfe - (2 * self.hom_nfe) - (self.hemi_nfe if self.hemi_nfe is not None else 0)
-        )
+        try:
+            return (
+                self.ac_nfe
+                - (2 * self.hom_nfe)
+                - (self.hemi_nfe if self.hemi_nfe is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     @property
     def het_oth(self):
         """Heterozygous count other populations"""
-        return (
-            self.ac_oth - (2 * self.hom_oth) - (self.hemi_oth if self.hemi_oth is not None else 0)
-        )
+        try:
+            return (
+                self.ac_oth
+                - (2 * self.hom_oth)
+                - (self.hemi_oth if self.hemi_oth is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het(self):
+        """Controls for heterozygous count"""
+        try:
+            return (
+                self.controls_ac
+                - (2 * self.controls_hom)
+                - (self.controls_hemi if self.controls_hemi is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_afr(self):
+        """Controls for heterozygous count african population"""
+        try:
+            return (
+                self.controls_ac_afr
+                - (2 * self.controls_hom_afr)
+                - (self.controls_hemi_afr if self.controls_hemi_afr is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_amr(self):
+        """Controls for heterozygous count american population"""
+        try:
+            return (
+                self.controls_ac_amr
+                - (2 * self.controls_hom_amr)
+                - (self.controls_hemi_amr if self.controls_hemi_amr is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_asj(self):
+        """Controls for heterozygous count ashkenazi jewish population"""
+        try:
+            return (
+                self.controls_ac_asj
+                - (2 * self.controls_hom_asj)
+                - (self.controls_hemi_asj if self.controls_hemi_asj is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_eas(self):
+        """Controls for heterozygous count east asian population"""
+        try:
+            return (
+                self.controls_ac_eas
+                - (2 * self.controls_hom_eas)
+                - (self.controls_hemi_eas if self.controls_hemi_eas is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_fin(self):
+        """Controls for heterozygous count finnish population"""
+        try:
+            return (
+                self.controls_ac_fin
+                - (2 * self.controls_hom_fin)
+                - (self.controls_hemi_fin if self.controls_hemi_fin is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_nfe(self):
+        """Controls for heterozygous count european (non-finnish) population"""
+        try:
+            return (
+                self.controls_ac_nfe
+                - (2 * self.controls_hom_nfe)
+                - (self.controls_hemi_nfe if self.controls_hemi_nfe is not None else 0)
+            )
+        except TypeError:
+            return 0
+
+    @property
+    def controls_het_oth(self):
+        """Controls for heterozygous count other populations"""
+        try:
+            return (
+                self.controls_ac_oth
+                - (2 * self.controls_hom_oth)
+                - (self.controls_hemi_oth if self.controls_hemi_oth is not None else 0)
+            )
+        except TypeError:
+            return 0
 
     class Meta:
         # The uniqueness constraint will automatically add an index, no need to create a second.

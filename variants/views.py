@@ -1856,6 +1856,27 @@ class SmallVariantDetails(
                     "af%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
                     0.0,
                 )
+                if key.startswith("gnomad"):
+                    pop_freqs.setdefault(pop, {})["controls_het"] = getattr(
+                        frequencies[key],
+                        "controls_het%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
+                        0,
+                    )
+                    pop_freqs.setdefault(pop, {})["controls_hom"] = getattr(
+                        frequencies[key],
+                        "controls_hom%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
+                        0,
+                    )
+                    pop_freqs.setdefault(pop, {})["controls_hemi"] = getattr(
+                        frequencies[key],
+                        "controls_hemi%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
+                        0,
+                    )
+                    pop_freqs.setdefault(pop, {})["controls_af"] = getattr(
+                        frequencies[key],
+                        "controls_af%s" % ("_%s" % pop.lower() if not pop == "Total" else ""),
+                        0.0,
+                    )
             result["pop_freqs"][label] = pop_freqs
         inhouse = SmallVariantSummary.objects.filter(
             release=kwargs["release"],

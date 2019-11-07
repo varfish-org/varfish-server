@@ -14,6 +14,7 @@ End-User Summary
 - Added filter-by-status dropdown menu to case overview page.
 - Added link-out to pubmed in NCBI gene RIF list in variant details view.
 - Fixing syncing project with upstream SODAR project.
+- Added controls to gnomad genomes and gnomad exomes frequencies in variant details view.
 
 Full Change List
 ================
@@ -26,6 +27,8 @@ Full Change List
 - Added link-out to pubmed in NCBI gene RIF list in variant details view.
   For this, ``NcbiGeneRif`` table was extended with a ``pubmed_ids`` field.
 - Fixing syncing project with upstream SODAR project.
+- Added controls to gnomad genomes and gnomad exomes frequencies in the database table by extending the fields.
+  Added controls to frequency table in variant details view.
 
 -------
 v0.18.0
