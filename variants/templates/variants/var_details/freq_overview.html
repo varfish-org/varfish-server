@@ -32,8 +32,8 @@
           {% endfor %}
         </tr>
         {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
-        <tr class="text-muted small">
-          <th class="text-center"><i class="fa fa-arrow-up"></i> Ctrl</th>
+        <tr class="text-muted">
+          <th class="text-center small"><i class="fa fa-arrow-up"></i> Ctrl</th>
           {% for pop in populations %}
             <td class="text-right">{{ db|keyvalue:pop|keyvalue:"controls_af"|default:0|floatformat:5 }}</td>
           {% endfor %}
@@ -50,8 +50,8 @@
           {% endfor %}
         </tr>
         {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
-        <tr class="text-muted small">
-          <th class="text-center"><i class="fa fa-arrow-up"></i> Ctrl</th>
+        <tr class="text-muted">
+          <th class="text-center small"><i class="fa fa-arrow-up"></i> Ctrl</th>
           {% for pop in populations %}
             <td class="text-right">{{ db|keyvalue:pop|keyvalue:"controls_hom"|default:0|intcomma }}</td>
           {% endfor %}
@@ -68,8 +68,8 @@
           {% endfor %}
         </tr>
         {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
-        <tr class="text-muted small">
-          <th class="text-center"><i class="fa fa-arrow-up"></i> Ctrl</th>
+        <tr class="text-muted">
+          <th class="text-center small"><i class="fa fa-arrow-up"></i> Ctrl</th>
           {% for pop in populations %}
             <td class="text-right">{{ db|keyvalue:pop|keyvalue:"controls_het"|default:0|intcomma }}</td>
           {% endfor %}
