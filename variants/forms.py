@@ -194,13 +194,25 @@ PRIO_PHIVE = "phive"
 PRIO_PHIVE_LABEL = "Phive"
 #: HiPhive prioritization value.
 PRIO_HIPHIVE = "hiphive"
-#: HiPhive prioritization label.
-PRIO_HIPHIVE_LABEL = "HiPhive"
+#: HiPhive prioritization value (all sources of evidence).
+PRIO_HIPHIVE = "hiphive"
+#: HiPhive prioritization value (human only).
+PRIO_HIPHIVE_HUMAN = "hiphive-human"
+#: HiPhive prioritization value (human and mouse).
+PRIO_HIPHIVE_MOUSE = "hiphive-mouse"
+#: HiPhive prioritization label (all sources of evidence).
+PRIO_HIPHIVE_LABEL = "HiPhive (human, mouse, fish, PPI)"
+#: HiPhive prioritization label (human only).
+PRIO_HIPHIVE_HUMAN_LABEL = "HiPhive (human only)"
+#: HiPhive prioritization label (human and mouse).
+PRIO_HIPHIVE_MOUSE_LABEL = "HiPhive (human+mouse)"
 
 #: Choices for prioritization algorithms.
 PRIO_ALGORITHM_CHOICES = (
     (PRIO_PHENIX, PRIO_PHENIX_LABEL),
     (PRIO_PHIVE, PRIO_PHIVE_LABEL),
+    (PRIO_HIPHIVE_HUMAN, PRIO_HIPHIVE_HUMAN_LABEL),
+    (PRIO_HIPHIVE_MOUSE, PRIO_HIPHIVE_MOUSE_LABEL),
     (PRIO_HIPHIVE, PRIO_HIPHIVE_LABEL),
 )
 

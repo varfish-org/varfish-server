@@ -53,7 +53,7 @@ class CaseFilterTest(TestCase):
     @patch("django.conf.settings.VARFISH_EXOMISER_PRIORITISER_API_URL", "https://exomiser.com")
     @Mocker()
     def test_submit_case_filter_exomiser(self, mock):
-        mock.get(
+        mock.post(
             settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
             status_code=200,
             text=json.dumps(
@@ -105,7 +105,7 @@ class CaseFilterTest(TestCase):
     @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
     @Mocker()
     def test_submit_case_filter_patho_and_pheno(self, mock):
-        mock.get(
+        mock.post(
             settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
             status_code=200,
             text=json.dumps(

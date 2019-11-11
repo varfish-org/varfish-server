@@ -94,7 +94,7 @@ aldjemy ==0.9.1
 sqlparse
 
 # Kenneth Reitz's wonderful HTTP library.
-requests ==2.18.4
+requests ==2.22.0
 # Parsing of HTML
 beautifulsoup4==4.8.1
 

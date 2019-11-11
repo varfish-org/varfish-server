@@ -44,6 +44,7 @@ from importer.management.helpers import open_file, tsv_reader
 from variants.helpers import SQLALCHEMY_ENGINE
 from projectroles.app_settings import AppSettingAPI
 
+
 app_settings = AppSettingAPI()
 
 #: Django user model.
@@ -2049,13 +2050,19 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
         return
 
     try:
-        res = requests.request(
-            method="get",
-            url=settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
-            params={
-                "phenotypes": ",".join(sorted(set(hpo_terms))),
-                "genes": ",".join(sorted(set(entrez_ids))),
+        algo_params = {
+            "hiphive": ("hiphive", ["human", "mouse", "fish", "ppi"]),
+            "hiphive-human": ("hiphive", ["human"]),
+            "hiphive-mouse": ("hiphive", ["human", "mouse"]),
+        }
+        prio_algorithm, prio_params = algo_params.get(prio_algorithm, (prio_algorithm, []))
+        res = requests.post(
+            settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
+            json={
+                "phenotypes": list(sorted(set(hpo_terms))),
+                "genes": list(sorted(set(entrez_ids))),
                 "prioritiser": prio_algorithm,
+                "prioritiser-params": ",".join(prio_params),
             },
         )
         if not res.status_code == 200:

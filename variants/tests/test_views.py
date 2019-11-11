@@ -679,7 +679,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
     @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
     @Mocker()
     def test_ranking_cadd_and_pheno_results(self, mock):
-        mock.get(
+        mock.post(
             settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
             status_code=200,
             text=json.dumps(
@@ -779,7 +779,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
     @patch("django.conf.settings.VARFISH_MUTATIONTASTER_REST_API_URL", "https://mutationtaster.com")
     @Mocker()
     def test_ranking_mutationtaster_and_pheno_results(self, mock):
-        mock.get(
+        mock.post(
             settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
             status_code=200,
             text=json.dumps(
@@ -915,7 +915,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
         app_settings.set_app_setting(
             "variants", "umd_predictor_api_token", "FAKETOKEN", user=self.user
         )
-        mock.get(
+        mock.post(
             settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
             status_code=200,
             text=json.dumps(

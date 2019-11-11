@@ -15,6 +15,7 @@ End-User Summary
 - Added link-out to pubmed in NCBI gene RIF list in variant details view.
 - Fixing syncing project with upstream SODAR project.
 - Added controls to gnomad genomes and gnomad exomes frequencies in variant details view.
+- Adding more HiPhive variants.
 
 Full Change List
 ================
@@ -29,6 +30,9 @@ Full Change List
 - Fixing syncing project with upstream SODAR project.
 - Added controls to gnomad genomes and gnomad exomes frequencies in the database table by extending the fields.
   Added controls to frequency table in variant details view.
+- Improving HiPhive integration:
+    - Adding human, human/mouse similarity search.
+    - Using POST request to Exomiser to increase maximal number of genes.
 
 -------
 v0.18.0
