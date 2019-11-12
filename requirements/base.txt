@@ -110,3 +110,6 @@ interval-binning ==1.0.0
 
 # Natural language processing toolkit
 nltk
+
+# Parsing of ISA-tab
+altamisa ==0.2.5

@@ -35,6 +35,7 @@ Full Change List
     - Adding human, human/mouse similarity search.
     - Using POST request to Exomiser to increase maximal number of genes.
 - Replacing old global presets with one preset per filter category.
+- Using ISA-tab for syncing with upstream project.
 
 -------
 v0.18.0

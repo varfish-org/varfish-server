@@ -1,17 +1,19 @@
 """Code for synchronizing with upstream SODAR."""
 
+import io
 import typing
 
+import attr
+from altamisa.isatab import InvestigationReader, StudyReader
 from django.db import transaction
 from bgjobs.models import LOG_LEVEL_ERROR, LOG_LEVEL_WARNING
 from projectroles.plugins import get_backend_api
 from projectroles.models import RemoteSite
 import requests
-import attr
 
 from variants.models import CaseAwareProject, SyncCaseResultMessage
 
-URL_TEMPLATE = "%(url)s/samplesheets/api/remote/get/%(project_uuid)s/%(secret)s"
+URL_TEMPLATE = "%(url)s/samplesheets/api/remote/get/%(project_uuid)s/%(secret)s?isa=1"
 
 
 #: Mapping from ISA-tab sex to PED sex.
@@ -30,111 +32,6 @@ class PedigreeMember:
     sex: int
     affected: int
     sample_name: str
-
-
-def process_json(all_data, add_log_entry):
-    """Process the JSON data from upstream SODAR project."""
-    # add_log_entry(all_data)
-    if len(all_data["studies"]) > 1:
-        raise Exception("More than one study found!")
-
-    # Parse out study data.
-    study = list(all_data["studies"].values())[0]
-    study_infos = study["study"]
-    study_top = study_infos["top_header"]
-    n_source = study_top[0]["colspan"]
-    n_extraction = study_top[1]["colspan"]
-    n_sample = study_top[2]["colspan"]
-    cols_source = study_infos["field_header"][:n_source]
-    cols_extraction = study_infos["field_header"][n_source : n_source + n_extraction]
-    cols_sample = study_infos["field_header"][n_source + n_extraction :]
-    names_source = [x["value"] for x in cols_source]
-    names_extraction = [x["value"] for x in cols_extraction]
-    names_sample = [x["value"] for x in cols_sample]
-    table = study_infos["table_data"]
-
-    def strip(x):
-        if hasattr(x, "strip"):
-            return x.strip()
-        else:
-            return x
-
-    # Build study info map.
-    study_map = {}
-    for row in table:
-        # Assign fields to table.
-        dict_source = dict(zip(names_source, [strip(x["value"]) for x in row[:n_source]]))
-        dict_extraction = dict(
-            zip(
-                names_extraction,
-                [strip(x["value"]) for x in row[n_source : n_source + n_extraction]],
-            )
-        )
-        dict_sample = dict(
-            zip(names_sample, [strip(x["value"]) for x in row[n_source + n_extraction :]])
-        )
-        # Extend study_map.
-        study_map[dict_source["Name"]] = {
-            "Source": dict_source,
-            "Extraction": dict_extraction,
-            "Sample": dict_sample,
-        }
-
-    # Parse out the assay data.
-    #
-    # NB: We're not completely cleanly decomposing the information and, e.g., overwrite
-    # the "Extract name" keys here...
-    if len(study["assays"]) > 1:
-        raise Exception("More than one assay found!")
-    assay = list(study["assays"].values())[0]
-    top_columns = [(x["value"], x["colspan"]) for x in assay["top_header"]]
-    columns = []
-    offset = 0
-    for type_, colspan in top_columns:
-        columns.append(
-            {
-                "type": type_,
-                "columns": [x["value"] for x in assay["field_header"][offset : offset + colspan]],
-            }
-        )
-        offset += colspan
-    assay_map = {}
-    for row in assay["table_data"]:
-        offset = 0
-        name = row[0]["value"]
-        for column in columns:
-            values = {
-                "type": column["type"],
-                **dict(
-                    zip(column["columns"], [x["value"] for x in row[offset : offset + colspan]])
-                ),
-            }
-            type_ = column["type"]
-            if type_ == "Process":
-                type_ = values["Protocol"]
-            assay_map.setdefault(name, {})[type_] = values
-            colspan = len(column["columns"])
-            offset += colspan
-
-    # add_log_entry("study_map %s" % study_map)
-    # add_log_entry("assay_map %s" % assay_map)
-
-    # Generate the resulting sample sheet.
-    for source, info in study_map.items():
-        if not source in assay_map:
-            dict_lib = {"Name": "-.1", "Folder Name": ".", "Batch": "."}  # HAAACKY
-        else:
-            dict_lib = assay_map[source]["Extract Name"]
-        dict_source = info["Source"]
-        yield {
-            "source_name": dict_source["Name"],
-            "father": dict_source["Father"],
-            "mother": dict_source["Mother"],
-            "sex": dict_source["Sex"],
-            "family": dict_source["Family"],
-            "affected": dict_source["Disease Status"],
-            "sample_name": dict_lib["Name"],
-        }
 
 
 def compare_to_upstream(project, upstream_pedigree, job):
@@ -246,22 +143,64 @@ def execute_sync_case_list_job(job):
             % {"url": source.url, "project_uuid": project.sodar_uuid, "secret": source.secret}
         )
 
-        upstream_pedigree = {
-            entry["source_name"]: PedigreeMember(
-                family=entry["family"],
-                name=entry["source_name"],
-                father=entry["father"],
-                mother=entry["mother"],
-                sex=MAPPING_SEX.get(entry["sex"], 0),
-                affected=MAPPING_STATUS.get(entry["affected"], 0),
-                sample_name=entry["sample_name"],
-            )
-            for entry in process_json(r.json(), job.add_log_entry)
-        }
+        def get_field(fields, key):
+            """Helper for easily obtaining value from an ISA-tab field."""
+            return ";".join(fields.get(key, ()))
+
+        # Mapping from sex in ISA-tab to sex in PLINK PED.
+        map_sex = {"male": 1, "female": 2}
+        # Mapping from disease state in ISA-tab to sex in PLINK PED.
+        map_affected = {"affected": 2, "unaffected": 1}
+
+        # Parse investigation and all studies from ISA-tab (wrapped in JSON).
+        upstream_pedigree = {}
+        isa_json = r.json()
+        # investigation = InvestigationReader.from_stream(
+        #     io.StringIO(isa_json["investigation"]["tsv"]),
+        #     filename=isa_json["investigation"]["path"],
+        # ).read()
+        for s_path, s_data in isa_json["studies"].items():
+            study = StudyReader.from_stream(
+                s_path, io.StringIO(s_data["tsv"]), filename=s_path
+            ).read()
+            job.add_log_entry(study)
+            # Compress study arcs (map source to sample), easy because only one depth of one in study.
+            arc_map = {arc.tail: arc for arc in study.arcs}
+            for arc in list(arc_map.values()):  # NB: copy intentionally
+                if arc.head in arc_map:
+                    arc_map[arc.tail] = arc_map[arc.head]
+            job.add_log_entry(arc_map)
+            # Actually parse out individuals.
+            source_samples = {}
+            for arc in study.arcs:
+                if arc.tail in study.materials and study.materials[arc.tail].type == "Source Name":
+                    source_samples.setdefault(arc.tail, []).append(
+                        study.materials[arc_map[arc.tail].head]
+                    )
+            for material in study.materials.values():
+                if material.type == "Source Name":
+                    if len(source_samples[material.unique_name]) > 1:
+                        job.add_log_entry(
+                            "WARNING: more than one sample for source %s" % material.name,
+                            log_level=LOG_LEVEL_WARNING,
+                        )
+                    fields = {c.name: c.value for c in material.characteristics}
+                    job.add_log_entry("fields = %s" % fields)
+                    member = PedigreeMember(
+                        family=get_field(fields, "Family"),
+                        name=material.name,
+                        father=get_field(fields, "Father"),
+                        mother=get_field(fields, "Mother"),
+                        sex=map_sex.get(get_field(fields, "Sex"), 0),
+                        affected=map_affected.get(get_field(fields, "Disease status"), 0),
+                        sample_name=source_samples[material.unique_name][0].name,
+                    )
+                    job.add_log_entry("new member: %s" % member)
+                    upstream_pedigree[material.name] = member
 
         compare_to_upstream(project, upstream_pedigree, job)
     except Exception as e:
-        job.mark_error(e)
+        job.mark_error("%s: %s" % (type(e).__name__, e))
         if timeline:
             tl_event.set_status("FAILED", "syncing with upstream SODAR failed")
         raise
