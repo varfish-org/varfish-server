@@ -1459,12 +1459,12 @@ function loadPresets(element) {
     console.log("Unknown preset name", presetsName)
   }
 
-  $("#input-presets-inheritance").trigger("change")
-  $("#input-presets-frequency").trigger("change")
-  $("#input-presets-impact").trigger("change")
-  $("#input-presets-quality").trigger("change")
-  $("#input-presets-region").trigger("change")
-  $("#input-presets-flags").trigger("change")
+  $("#input-presets-inheritance").trigger("input")
+  $("#input-presets-frequency").trigger("input")
+  $("#input-presets-impact").trigger("input")
+  $("#input-presets-quality").trigger("input")
+  $("#input-presets-region").trigger("input")
+  $("#input-presets-flags").trigger("input")
 
   applyPresetsToSettings(presets["quick-presets-auto"])
 
@@ -1490,7 +1490,7 @@ $(document).ready(
     $("#settingsSet").click(initCompHetMode);
     // Setup the presets menus.
     for (let name of ["frequency", "impact", "quality", "region", "flags"]) {
-      $("#input-presets-" + name).on("change", function () {
+      $("#input-presets-" + name).on("input", function () {
         presetsToSettings(presets, name)
       })
     }
