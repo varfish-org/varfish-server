@@ -83,6 +83,10 @@ class CaseAwareProject(Project):
     class Meta:
         proxy = True
 
+    def indices(self):
+        """Return all registered indices."""
+        return [p.index for p in self.get_active_smallvariant_cases()]
+
     def pedigree(self):
         """Concatenate the pedigrees of project's cases."""
         result = []
@@ -2206,7 +2210,7 @@ class VariantScoresUmd(VariantScoresBase):
                 continue
             record = dict(zip(header, line.split("\t")))
             record["release"] = "GRCh37"
-            record["chromosome"] = record["chromosome"].lstrip("chr")
+            record["chromosome"] = record["chromosome"][3:]
             record["start"] = int(record.pop("position"))
             record["end"] = record["start"] + len(record["reference"]) - 1
             record["bin"] = binning.assign_bin(record["start"] - 1, record["end"])
@@ -2274,11 +2278,10 @@ class VariantScoresMutationTaster(VariantScoresBase):
                 )
             )
 
-        if res.text.startswith("Content-Type: text/plain\n\nERROR: "):
+        error_response = "Content-Type: text/plain\n\nERROR: "
+        if res.text.startswith(error_response):
             raise ConnectionError(
-                "ERROR: Server responded with: {}".format(
-                    res.text.lstrip("Content-Type: text/plain\n\nERROR: ")
-                )
+                "ERROR: Server responded with: {}".format(res.text[len(error_response) :])
             )
 
         result = []

@@ -55,7 +55,7 @@
               <td>
                 {% with x=form.get_genotype_field_names|keyvalue:item.patient|keyvalue:"gt" %}
                   {{ form|keyvalue:x }}
-                  <em class="text-muted" style="display: none;" id="compound_heterozygous_role_{{ family }}_{{ x }}"></em>
+                  <em class="text-muted" style="display: none;" id="trio_role_{{ family }}_{{ x }}"></em>
                 {% endwith %}
               </td>
             {% else %}
@@ -85,6 +85,25 @@
       {# Technically, we could use the above code for the project filter as it can disable multiple indices. #}
       {# This is to prevent people from resetting all genotype comp het modes accidentally. #}
       <em>Please disable comp. het. mode in <strong>Genotype</strong> field for each family separately.</em>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row p-2 mt-2 border-top alert-info" style="display: none;" id="recessive_warning">
+  <div class="col pt-1">
+    <i class="fa fa-users pr-2"></i>
+    <strong>Recessive mode activated</strong>
+  </div>
+  <div class="col text-right">
+    {% if query_type == "case" %}
+      <div class="btn btn-sm btn-info" id="recessive_disable">
+        <i class="fa fa-times"></i>
+        Disable recessive mode
+      </div>
+    {% else %} {# query_type == "project" #}
+      {# Technically, we could use the above code for the project filter as it can disable multiple indices. #}
+      {# This is to prevent people from resetting all genotype comp het modes accidentally. #}
+      <em>Please disable recessive mode in <strong>Genotype</strong> field for each family separately.</em>
     {% endif %}
   </div>
 </div>

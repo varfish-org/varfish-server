@@ -17,6 +17,7 @@ End-User Summary
 - Added controls to gnomad genomes and gnomad exomes frequencies in variant details view.
 - Adding more HiPhive variants.
 - Replacing old global presets with one preset per filter category.
+- Added recessive, homozygous recessive and denovo filter to genotype settings.
 
 Full Change List
 ================
@@ -36,6 +37,9 @@ Full Change List
     - Using POST request to Exomiser to increase maximal number of genes.
 - Replacing old global presets with one preset per filter category.
 - Using ISA-tab for syncing with upstream project.
+- Added recessive, homozygous recessive and denovo filter to genotype settings.
+  Homozygous recessive and denovo filter are JS code re-setting values in dropdown boxes.
+  Recessive filter behaves as comp het filter UI-wise, but joins results of both homozygous and compound heterozygous filter internally.
 
 -------
 v0.18.0

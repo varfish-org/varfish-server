@@ -246,7 +246,7 @@ class Command(BaseCommand):
                 self._import_tad_set(
                     version_path,
                     TABLES[import_info["build"]][table_group],
-                    table_group.lstrip("tads_"),
+                    table_group[5:],
                     force=options["force"],
                 )
             # Import routine for no-bulk-imports

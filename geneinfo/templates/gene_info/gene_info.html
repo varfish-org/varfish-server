@@ -76,7 +76,7 @@
       <td>
         {% if gene.omim %}
           {% for omim_id, omim_names in gene.omim.items %}
-            <a href="https://www.omim.org/entry/{{ omim_id }}">
+            <a href="https://www.omim.org/entry/{{ omim_id }}" target="_blank">
             <span class="badge-group omim-popover"
                   data-toggle="popover" title="{% if omim_names.1 %}<ul class='pl-3 pb-0 mb-0'><li>{{ omim_names.1|join:"</li><li>" }}</li></ul>{% else %}<em>No alternative description</em>{% endif %}" data-content="<a href='https://www.omim.org/entry/{{ omim_id }}' target='_blank' class='btn btn-secondary'><i class='fa fa-external-link'></i> View in OMIM</a>" data-html="true">
             <span class="badge badge-dark">{{ omim_id }}</span>
@@ -199,29 +199,29 @@
             <i>No RefSeq gene id.</i>
           </div>
         {% elif gene.entrez_id %}
-          <a href="https://www.ncbi.nlm.nih.gov/gene/{{ gene.entrez_id }}">
+          <a href="https://www.ncbi.nlm.nih.gov/gene/{{ gene.entrez_id }}" target="_blank">
             {{ gene.entrez_id }}
           </a>
         {% else %} {# small_var.refseq_gene_id #}
-          <a href="https://www.ncbi.nlm.nih.gov/gene/{{ small_var.refseq_gene_id }}">
+          <a href="https://www.ncbi.nlm.nih.gov/gene/{{ small_var.refseq_gene_id }}" target="_blank">
             {{ small_var.refseq_gene_id }}
           </a>
         {% endif %}
       </td>
     </tr>
     <tr>
-      <th class="text-right text-nowrap">ENSEMBL ID</th>
+      <th class="text-right text-nowrap">EnsEMBL ID</th>
       <td>
         {% if not small_var.ensembl_gene_id and not gene.ensembl_gene_id %}
           <div class="text-center text-muted">
             <i>No EnsEMBL gene id.</i>
           </div>
         {% elif gene.ensembl_gene_id %}
-          <a href="www.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.ensembl_gene_id }}">
+          <a href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.ensembl_gene_id }}" target="_blank">
             {{ gene.ensembl_gene_id }}
           </a>
         {% else %} {# small_var.ensembl_gene_id #}
-          <a href="www.ensembl.org/Homo_sapiens/Gene/Summary?g={{ small_var.ensembl_gene_id }}">
+          <a href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={{ small_var.ensembl_gene_id }}" target="_blank">
             {{ small_var.ensembl_gene_id }}
           </a>
         {% endif %}

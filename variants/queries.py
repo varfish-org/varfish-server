@@ -546,8 +546,23 @@ class ExtendQueryPartsGenotypeBase(ExtendQueryPartsBase):
     #: The model to build the term for.
     model = SmallVariant
 
+    def _get_quality_term_disabled(self):
+        if self.quality_term_disabled is None:
+            raise NotImplementedError("Please set quality_term_disabled as a class variable!")
+
+    def _get_trio_names(self):
+        """Return (index, father, mother) names from trio"""
+        index_lines = [
+            rec
+            for rec in self.case.get_filtered_pedigree_with_samples()
+            if rec["patient"] == self.kwargs["compound_recessive_index"]
+        ]
+        if len(index_lines) != 1:  # pragma: no cover
+            raise RuntimeError("Could not find index line from pedigree")
+        return index_lines[0]["patient"], index_lines[0]["father"], index_lines[0]["mother"]
+
     def _build_quality_term(self, name):
-        if self.quality_term_disabled:
+        if self._get_quality_term_disabled():
             return True
 
         ad_max = self.kwargs["%s_ad_max" % name]
@@ -653,6 +668,21 @@ class ExtendQueryPartsGenotypeDefaultBase(ExtendQueryPartsGenotypeBase):
         return result
 
 
+class ExtendQueryPartsGenotypeRecessiveBase(ExtendQueryPartsGenotypeBase):
+    def extend_conditions(self, _query_parts):
+        index, father, mother = self._get_trio_names()
+        gt_patterns = {index: "hom", father: "het", mother: "het"}
+        result = []
+        members = [
+            m for m in self.case.get_filtered_pedigree_with_samples() if m["patient"] in gt_patterns
+        ]
+        for member in members:
+            name = member["patient"]
+            gt_list = FILTER_FORM_TRANSLATE_INHERITANCE[gt_patterns[name]]
+            result.append(self._build_full_genotype_term(name, gt_list))
+        return result
+
+
 class ExtendQueryPartsGenotypeCompHetBase(ExtendQueryPartsGenotypeBase):
     role = None
 
@@ -671,17 +701,6 @@ class ExtendQueryPartsGenotypeCompHetBase(ExtendQueryPartsGenotypeBase):
             gt_list = FILTER_FORM_TRANSLATE_INHERITANCE[gt_patterns[name]]
             result.append(self._build_full_genotype_term(name, gt_list))
         return result
-
-    def _get_trio_names(self):
-        """Return (index, father, mother) names from trio"""
-        index_lines = [
-            rec
-            for rec in self.case.get_filtered_pedigree_with_samples()
-            if rec["patient"] == self.kwargs["compound_recessive_index"]
-        ]
-        if len(index_lines) != 1:  # pragma: no cover
-            raise RuntimeError("Could not find index line from pedigree")
-        return index_lines[0]["patient"], index_lines[0]["father"], index_lines[0]["mother"]
 
     def extend_fields(self, _query_parts):
         if self.role == "mother":
@@ -722,6 +741,14 @@ class ExtendQueryPartsGenotypeGtQualityFatherFilter(ExtendQueryPartsGenotypeComp
 class ExtendQueryPartsGenotypeGtQualityMotherFilter(ExtendQueryPartsGenotypeCompHetBase):
     quality_term_disabled = False
     role = "mother"
+
+
+class ExtendQueryPartsGenotypeGtRecessiveFilter(ExtendQueryPartsGenotypeRecessiveBase):
+    quality_term_disabled = True
+
+
+class ExtendQueryPartsGenotypeGtQualityRecessiveFilter(ExtendQueryPartsGenotypeRecessiveBase):
+    quality_term_disabled = False
 
 
 class ExtendQueryPartsVarTypeFilter(ExtendQueryPartsBase):
@@ -1408,6 +1435,19 @@ class DefaultCombiner:
         return query_parts.to_stmt(order_by=order_by)
 
 
+class RecessiveCombiner:
+    def __init__(self, case, builder):
+        self.case = case
+        self.builder = builder
+
+    def to_stmt(self, kwargs, order_by=None):
+        comphet_stmt = CompHetCombiner(self.case, self.builder).to_stmt(kwargs)
+        default_stmt = DefaultCombiner(self.case, self.builder).to_stmt(
+            kwargs, extender_genotype_class=ExtendQueryPartsGenotypeGtQualityRecessiveFilter
+        )
+        return union(comphet_stmt, default_stmt).order_by(*(order_by or []))
+
+
 class CasePrefetchQuery:
     builder = QueryPartsBuilder
 
@@ -1430,10 +1470,15 @@ class CasePrefetchQuery:
         stmts = []
         for case in self.cases:
             comp_het_index = kwargs.get("compound_recessive_indices", {}).get(case.name)
+            recessive_index = kwargs.get("recessive_indices", {}).get(case.name)
             if comp_het_index and self.query_id is None:
                 # Set the current compound recessive index
                 kwargs["compound_recessive_index"] = comp_het_index
                 combiner = CompHetCombiner(case, self.builder)
+            elif recessive_index and self.query_id is None:
+                # Set the current compound recessive index
+                kwargs["compound_recessive_index"] = recessive_index
+                combiner = RecessiveCombiner(case, self.builder)
             else:  # compound recessive not in kwargs or disabled
                 combiner = DefaultCombiner(case, self.builder, self.query_id)
             stmts.append(combiner.to_stmt(kwargs))

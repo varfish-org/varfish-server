@@ -73,6 +73,7 @@ class FormDataFactoryBase:
     clinvar_origin_germline: bool = False
     clinvar_origin_somatic: bool = False
     compound_recessive_indices: typing.Dict[str, str] = {}
+    recessive_indices: typing.Dict[str, str] = {}
 
     # This is a dummy attribute to generate the name-dependent fields.
     # It is removed after initialization.

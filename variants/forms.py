@@ -99,6 +99,7 @@ class CaseForm(forms.ModelForm):
         fields = ("name",)
 
 
+#: Inheritance value - display pairs for select options.
 INHERITANCE = [
     ("any", "any"),
     ("ref", "0/0"),
@@ -108,6 +109,9 @@ INHERITANCE = [
     ("non-variant", "non-variant"),
     ("non-reference", "non-reference"),
     ("index", "c/h index"),
+    ("recessive-index", "recess. index"),
+    ("hom-recessive-index", "h/r index"),
+    ("dom-denovo-index", "d/d index"),
 ]
 
 FAIL = [("ignore", "ignore"), ("drop-variant", "drop variant"), ("no-call", "no-call")]
@@ -364,6 +368,7 @@ class SmallVariantGenotypeFilterFormMixin:
     def update_genotype_fields(self):
         """Add and update genotype fields."""
         # Dynamically add the fields based on the pedigree
+        default_indices = self.get_family_default_indices()
         for family, members in self.get_family_with_pedigree_with_samples().items():
             for member in members:
                 name = member["patient"]
@@ -374,7 +379,8 @@ class SmallVariantGenotypeFilterFormMixin:
                     widget=forms.Select(
                         choices=INHERITANCE,
                         attrs={
-                            "class": "load-comphet-mode genotype-field-gt %s" % affection,
+                            "class": "genotype-field-gt %s" % affection,
+                            "data-default-index": "1" if name in (default_indices) else "0",
                             "data-mother": member["mother"],
                             "data-father": member["father"],
                             "data-family": family,
@@ -385,11 +391,22 @@ class SmallVariantGenotypeFilterFormMixin:
     def clean(self):
         result = super().clean()
         result["compound_recessive_indices"] = {}
+        result["recessive_indices"] = {}
         for family, members in self.get_family_with_pedigree_with_samples().items():
             for member in members:
                 name = member["patient"]
                 if result[self.get_genotype_field_names()[name]["gt"]] == "index":
                     result["compound_recessive_indices"][family] = name
+                elif result[self.get_genotype_field_names()[name]["gt"]] == "recessive-index":
+                    result["recessive_indices"][family] = name
+                elif result[self.get_genotype_field_names()[name]["gt"]] in (
+                    "hom-recessive-index",
+                    "dom-denovo-index",
+                ):
+                    self.add_error(
+                        self.get_genotype_field_names()[name]["gt"],
+                        "This option value shouldn't be passed. Selecting it should trigger JS code which changes the value.",
+                    )
         return result
 
 
@@ -1196,6 +1213,10 @@ class FilterForm(
         """Return ``dict`` of ``dict`` with family and pedigree information of samples that have variants and a variant set."""
         return self.case.get_family_with_filtered_pedigree_with_samples()
 
+    def get_family_default_indices(self):
+        """Return the registered index patient of the family."""
+        return [self.case.index]
+
     @lru_cache()
     def get_trio_roles(self):
         """Get trior ole to member mapping"""
@@ -1273,6 +1294,10 @@ class ProjectCasesFilterForm(
     def get_family_with_pedigree_with_samples(self):
         """Return ``dict`` of ``dict`` with family and pedigree information of samples that have variants and a variant set."""
         return self.project.get_family_with_filtered_pedigree_with_samples()
+
+    def get_family_default_indices(self):
+        """Return the registered index patient of the family."""
+        return self.project.indices()
 
     def get_trio_roles(self):
         """Return empty dict as there is no trio role assignment when querying across project."""

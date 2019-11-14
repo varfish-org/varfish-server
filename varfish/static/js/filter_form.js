@@ -457,7 +457,26 @@ const presets = {
     "classes": {},
   },
   // Inheritance presets
-  // TODO
+  "inheritance-any": {
+      "ids": {},
+      "classes": {"genotype-field-gt": "any"},
+  },
+  "inheritance-dominant": {
+      "ids": {},
+      "classes": {"genotype-field-gt": "dom-denovo-index"},
+  },
+  "inheritance-hom-recessive": {
+      "ids": {},
+      "classes": {"genotype-field-gt": "hom-recessive-index"},
+  },
+  "inheritance-comp-het": {
+      "ids": {},
+      "classes": {"genotype-field-gt": "index"},
+  },
+  "inheritance-recessive": {
+      "ids": {},
+      "classes": {"genotype-field-gt": "recessive-index"},
+  },
   // Frequency presets
   "frequency-de-novo": {
     "ids": {
@@ -1110,6 +1129,7 @@ function loadGenelistPresets(e) {
   }
 }
 
+
 function loadGenotypePresets(e) {
   const presetName = $(e.currentTarget).data("preset-name");
   resetAllCompHetIndices();
@@ -1122,7 +1142,7 @@ function loadGenotypePresets(e) {
 }
 
 
-function restoreAfterCompHetMode(e, value=null) {
+function restoreAfterIndexMode(e, value=null) {
     /**
      * Function to restore GT values when disabling compound heterozygous mode.
      *
@@ -1138,7 +1158,7 @@ function restoreAfterCompHetMode(e, value=null) {
             // Get the id of the GT field.
             var id = $(this).attr("id");
             // Get the id of the associated compound heterozygous info field for this role.
-            var role = $("#compound_heterozygous_role_" + $(this).data("family") + "_" + $(this).attr("name"));
+            var role = $("#trio_role_" + $(this).data("family") + "_" + $(this).attr("name"));
             if ($(this).data("family") == target.data("family")) {
                 if (target.attr("id") == id) {
                     // If the GT field is of the selected index patient and we clicked the disable button, set the value to
@@ -1158,29 +1178,49 @@ function restoreAfterCompHetMode(e, value=null) {
         }
     );
     // Hide the disable button info and reset the current index.
-    handleCompHetWarning();
+    handleIndexWarnings();
+    // Unassign the restore function from the change handler.
+    target.off("change", restoreAfterIndexMode);
+    // Assign the load function to the change handler.
+    target.on("change", loadIndexMode);
+    // Trigger a change to enable possible handlers.
+    target.trigger("change");
 }
 
 
-function handleCompHetWarning() {
+function handleIndexWarnings() {
     let index_exists = false;
-    let warning = $("#compound_heterozygous_warning");
+    let recessive_index_exists = false;
+    let comphet_warning = $("#compound_heterozygous_warning");
+    let recessive_warning = $("#recessive_warning");
     $("[id^=id_][id$=_gt]").each(function () {
         if ($(this).val() == "index") {
             index_exists = true;
+        }
+        else if ($(this).val() == "recessive-index") {
+            recessive_index_exists = true;
+        }
+        // Do not search further when indices for both modes were found.
+        if (index_exists && recessive_index_exists) {
             return false;
         }
     });
     if (index_exists) {
-        warning.show();
+        comphet_warning.show();
     }
     else {
-        warning.hide();
+        comphet_warning.hide();
+    }
+    if (recessive_index_exists) {
+        recessive_warning.show();
+    }
+    else {
+        recessive_warning.hide();
     }
 }
 
 
-function loadCompHetMode(e, value=null) {
+function loadIndexMode(e, value=null) {
     /**
      * Function to enable UI decorations for the compound heterozygous mode, if ``index`` is selected.
      *
@@ -1190,8 +1230,8 @@ function loadCompHetMode(e, value=null) {
      */
     // Get the current element.
     const target = $(e.currentTarget);
-    // Unassign any restore function that got assigned to the ``change`` handler.
-    target.off("change", restoreAfterCompHetMode);
+    const mother_id = "id_" + target.data("mother") + "_gt";
+    const father_id = "id_" + target.data("father") + "_gt";
     // If called via the disable button, set dropdown to the passed value. Otherwise leave the users choice.
     // It is important for the case the users clicks the disabling button: This function is called before the restore
     // function, because they are called in order of assignment, and this function is initially assigned. When we don't
@@ -1201,20 +1241,20 @@ function loadCompHetMode(e, value=null) {
     if (value) {
         target.val(value);
     }
-    // If the selected value is ``index``, enable all compound het embellishments.
-    if (target.val() == "index") {
-        // Build a dictionary that maps the mother and father id of the index patient to the info text we will display.
-        let ids = {};
-        ids["id_" + target.data("mother") + "_gt"] = "c/h mother";
-        ids["id_" + target.data("father") + "_gt"] = "c/h father";
-        let family = target.data("family");
+    // Build a dictionary that maps the mother and father id of the index patient to the info text we will display.
+    let ids = {};
+    ids[mother_id] = (target.val() == "index") ? "c/h mother" : "recess. mother";
+    ids[father_id] = (target.val() == "index") ? "c/h father" : "recess. father";
+    let family = target.data("family");
+    // If the selected value is ``index`` or ``recessive-index``, enable all embellishments.
+    if (target.val() == "index" || target.val() == "recessive-index") {
         // Iterate over all GT fields.
         $("[id^=id_][id$=_gt]").each(
             function () {
                 // Get the id of the GT field.
                 var id = $(this).attr("id");
                 // Get the id of the associated compound heterozygous info field for this role.
-                var role = $("#compound_heterozygous_role_" + $(this).data("family") + "_" + $(this).attr("name"));
+                var role = $("#trio_role_" + $(this).data("family") + "_" + $(this).attr("name"));
                 // The current (index patients) field stays as it is, so do nothing.
                 if (target.attr("id") == id || $(this).data("family") != family) {
                     return;
@@ -1233,14 +1273,56 @@ function loadCompHetMode(e, value=null) {
             }
         );
         // Show the info/disable button.
-        handleCompHetWarning();
+        handleIndexWarnings();
+        // Unassign the load function from the change handler.
+        target.off("change", loadIndexMode);
         // Assign the restore function to the change handler.
-        target.on("change", restoreAfterCompHetMode);
+        target.on("change", restoreAfterIndexMode);
+    }
+    // Enable homozygous recessive mode
+    else if (target.val() == "hom-recessive-index") {
+        // Iterate over all GT fields.
+        $("[id^=id_][id$=_gt]").each(
+            function () {
+                // Get the id of the GT field.
+                var id = $(this).attr("id");
+                // The current (index patients) field stays as it is, so do nothing.
+                if (target.attr("id") == id || $(this).data("family") != family) {
+                    target.val("hom");
+                    return;
+                }
+                // For mother and father, assign the info text, all others get a dash.
+                if (id in ids) {
+                    $(this).val("het");
+                }
+                else {
+                    $(this).val("any");
+                }
+            }
+        );
+    }
+    // Enable dominant/denovo mode
+    else if (target.val() == "dom-denovo-index") {
+        // Iterate over all GT fields.
+        $("[id^=id_][id$=_gt]").each(
+            function () {
+                // Get the id of the GT field.
+                var id = $(this).attr("id");
+                // The current (index patients) field stays as it is, so do nothing.
+                if (target.attr("id") == id || $(this).data("family") != family) {
+                    target.val("hom");
+                    return;
+                }
+                else {
+                    $(this).val("any");
+                }
+            }
+        );
     }
 }
 
 
-function initCompHetMode() {
+function initIndexMode() {
     /**
      * Function to initialize the comphet mode when reloading the page.
      *
@@ -1261,6 +1343,15 @@ function initCompHetMode() {
 function resetAllCompHetIndices() {
     $("[id^=id_][id$=_gt]").each(function () {
         if ($(this).val() == "index") {
+            $(this).trigger("change", ["any"]);
+        }
+    });
+}
+
+
+function resetAllRecessiveIndices() {
+    $("[id^=id_][id$=_gt]").each(function () {
+        if ($(this).val() == "recessive-index") {
             $(this).trigger("change", ["any"]);
         }
     });
@@ -1327,19 +1418,28 @@ function applyPresetsToSettings(presets) {
     const tag = $("#id_" + key);
     const tagName = tag.prop("tagName");
     const inputType = tag.attr("type");
-    if (tagName == "TEXTAREA") {
-      tag.val(val);
-    } if (inputType == "checkbox") {
+    if (inputType == "checkbox") {
       if (key == "effect_group_all") {
         tag.prop("checked", false);
         tag.click();
       } else {
         tag.prop("checked", val);
       }
-    } else {
-      tag.prop("value", val);
+    }
+    else if (tagName == "SELECT") {
+        if (val == "index" || val == "recessive-index" || val == "hom-recessive-index" || val == "dom-denovo-index") {
+            if (tag.data("default-index") == "0") {
+                continue;
+            }
+        }
+        tag.val(val);
+        tag.trigger("change");
+    }
+    else {
+      tag.val(val);
     }
   }
+
   updateCheckboxes(null);
 
   updateQuickPresetsEnabled = oldUpdateQuickPresetsEnabled;
@@ -1361,9 +1461,9 @@ function updateQuickPresets(settings) {
   if (!updateQuickPresetsEnabled) {
     return;
   }
-  const quickPresetCategories = [/*inheritance,*/ "frequency", "impact", "quality", "region", "flags"];
+  const quickPresetCategories = ["inheritance", "frequency", "impact", "quality", "region", "flags"];
   const quickPresetCandidates = {
-    // TODO: inheritance
+    "inheritance": ["any", "dominant", "hom-recessive", "comp-het", "recessive"],
     "frequency": ["de-novo", "super-strict", "strict", "relaxed", "recessive-strict", "recessive-relaxed", "all"],
     "impact": ["null-variant", "aa-change", "all-coding-deep-intronic", "whole-transcript", "any"],
     "quality": ["super-strict", "strict", "relaxed", "ignore"],
@@ -1371,7 +1471,7 @@ function updateQuickPresets(settings) {
     "flags": ["default", "clinvar", "user-flagged"],
   };
   const quickPresets = {
-    // TODO: inheritance
+    "inheritance": "inheritance-custom",
     "frequency": "frequency-custom",
     "impact": "impact-custom",
     "quality": "quality-custom",
@@ -1433,11 +1533,11 @@ function loadPresets(element) {
     $("#input-presets-quality").val("quality-relaxed")
     $("#input-presets-region").val("region-whole-genome")
     $("#input-presets-flags").val("flags-default")
-  } else if (presetsName == "hom-recessive" || presetsName == "comp-het-recessive") {
+  } else if (presetsName == "hom-recessive" || presetsName == "comp-het") {
     if (presetsName == "hom-recessive") {
       $("#input-presets-inheritance").val("inheritance-hom-recessive")
     } else {
-      $("#input-presets-inheritance").val("inheritance-comp-het-recessive")
+      $("#input-presets-inheritance").val("inheritance-comp-het")
     }
     $("#input-presets-frequency").val("frequency-recessive-strict")
     $("#input-presets-impact").val("impact-aa-change")
@@ -1483,13 +1583,14 @@ $(document).ready(
     $(".load-blacklist").click(loadGenelistPresets);
     $(".load-whitelist").click(loadGenelistPresets);
     $(".load-genotype").click(loadGenotypePresets);
-    $(".load-comphet-mode").on("change", loadCompHetMode);
+    $(".genotype-field-gt").change(loadIndexMode);
     $("#qualityTemplateApplyButton").click(transferQualitySettings);
     $("#compound_heterozygous_disable").click(resetAllCompHetIndices);
+    $("#recessive_disable").click(resetAllRecessiveIndices);
     $("#settingsSet").click(updateSettings);
-    $("#settingsSet").click(initCompHetMode);
+    $("#settingsSet").click(initIndexMode);
     // Setup the presets menus.
-    for (let name of ["frequency", "impact", "quality", "region", "flags"]) {
+    for (let name of ["inheritance", "frequency", "impact", "quality", "region", "flags"]) {
       $("#input-presets-" + name).on("input", function () {
         presetsToSettings(presets, name)
       })
@@ -1510,7 +1611,7 @@ $(document).ready(
     // Kick-off state machine.
     handleEvent(EVENT_START, null);
     // Load comphet mode (if index is set)
-    initCompHetMode();
+    initIndexMode();
     $('[data-toggle="popover"]').popover({container: 'body'});
     $('[data-toggle="tooltip"]').tooltip({container: 'body'});
     $('.popover-dismiss').popover({

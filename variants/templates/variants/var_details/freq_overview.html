@@ -27,7 +27,7 @@
             {% if db|keyvalue:pop|keyvalue:"af" %}
               <td class="text-right">{{ db|keyvalue:pop|keyvalue:"af"|default:0|floatformat:5 }}</td>
             {% else %}
-              <td class="text-right text-muted">0.0000</td>
+              <td class="text-right text-muted">{{ "0"|floatformat:5 }}</td>
             {% endif %}
           {% endfor %}
         </tr>
