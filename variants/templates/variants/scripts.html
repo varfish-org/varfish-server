@@ -7,18 +7,21 @@
   var variant_flags_url = "{% url 'variants:small-variant-flags-api' project=project.sodar_uuid case="--abcef--" %}";
   var variant_comment_url = "{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case="--abcef--" %}";
   var acmg_rating_url = "{% url 'variants:acmg-rating-api' project=project.sodar_uuid case="--abcef--" %}";
+  var hpo_terms_url = "{% url 'variants:hpo-terms-api' %}";
   var settings_restored = false;
   if ({{ settings_restored }} == "1") {
       settings_restored = true;
   }
 </script>
+<script type="text/javascript" src="http://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lodash@4.17.10/lodash.min.js"></script>
+<!-- Downloaded from https://github.com/Nodws/bootstrap4-tagsinput -->
+<script type="text/javascript" src="{% static "js/vendor/tagsinput.js" %}"></script>
 <script type="text/javascript" src="{% static "js/helpers.js" %}"></script>
 <script type="text/javascript" src="{% static "js/state_machine.js" %}"></script>
 <script type="text/javascript" src="{% static "js/filter_form.js" %}"></script>
 <script type="text/javascript" src="{% static "js/flags_comments.js" %}"></script>
 <script type="text/javascript" src="{% static "js/variant_comments.js" %}"></script>
-
 <script type="text/javascript">
   $(document).ready(function() {
     let data = {};

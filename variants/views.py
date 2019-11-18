@@ -2709,3 +2709,14 @@ class NewFeaturesView(LoginRequiredMixin, RedirectView):
             "variants", "latest_version_seen_changelog", site_version(), user=self.request.user
         )
         return super().get(*args, **kwargs)
+
+
+class HpoTermsApiView(LoginRequiredMixin, View):
+    def get(self, *_args, **_kwargs):
+        query = self.request.GET.get("query")
+        if not query:
+            return HttpResponse({}, content_type="application/json")
+        h1 = HpoName.objects.filter(hpo_id__icontains=self.request.GET.get("query"))
+        h2 = HpoName.objects.filter(name__icontains=self.request.GET.get("query"))
+        hpo = [model_to_dict(h) for h in list(h1) + list(h2)]
+        return HttpResponse(json.dumps(hpo), content_type="application/json")

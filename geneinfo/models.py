@@ -195,7 +195,7 @@ class HpoName(models.Model):
     objects = CopyManager()
 
     class Meta:
-        indexes = [models.Index(fields=["hpo_id"])]
+        indexes = [models.Index(fields=["hpo_id"]), models.Index(fields=["name"])]
 
 
 class NcbiGeneInfo(models.Model):

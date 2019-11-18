@@ -18,6 +18,7 @@ End-User Summary
 - Adding more HiPhive variants.
 - Replacing old global presets with one preset per filter category.
 - Added recessive, homozygous recessive and denovo filter to genotype settings.
+- Entering HPO terms received a typeahead feature and the input is organized in tags/badges.
 
 Full Change List
 ================
@@ -40,6 +41,7 @@ Full Change List
 - Added recessive, homozygous recessive and denovo filter to genotype settings.
   Homozygous recessive and denovo filter are JS code re-setting values in dropdown boxes.
   Recessive filter behaves as comp het filter UI-wise, but joins results of both homozygous and compound heterozygous filter internally.
+- Entering HPO terms received a typeahead feature and the input is organized in tags/badges.
 
 -------
 v0.18.0

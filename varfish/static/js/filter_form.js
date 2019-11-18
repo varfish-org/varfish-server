@@ -1572,6 +1572,59 @@ function loadPresets(element) {
 }
 
 
+function initTypeahead() {
+    // Instantiate the Bloodhound suggestion engine
+    var hpo_typeahead = new Bloodhound({
+      datumTokenizer: Bloodhound.tokenizers.whitespace,
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      remote: {
+        wildcard: '%QUERY',
+        url: hpo_terms_url + "?query=%QUERY",
+      }
+    });
+    hpo_typeahead.initialize();
+    // Instantiate input tags engine
+    $('#id_prio_hpo_terms').tagsinput({
+        // Internally we handle HPO ids
+        itemValue: "hpo_id",
+        // Display the HPO name to the end user. More versatile approach: function(item) { return item.name; },
+        itemText: "name",
+        // Make badges gray
+        tagClass: "badge badge-secondary",
+        // Only allow existing HPO terms
+        freeInput: false,
+        // The passed list is separated by spaces
+        delimiter: " ",
+        // Initialize typeahead library
+        typeaheadjs: [{}, {
+            // According to documentation
+            name: "hpo_typeahead",
+            // Map value from database field to tag input
+            displayValue: "hpo_id",
+            // Map key/display name from database field to tag input
+            displayKey: "name",
+            // According to documentation
+            source: hpo_typeahead.ttAdapter(),
+        }]
+    });
+    // Set tags from pre-filled form data.
+    $.each($('#id_prio_hpo_terms').val().split(" "), function(i, hpo_id) {
+      $.ajax({
+          url: hpo_terms_url,
+          type: "GET",
+          dataType: "json",
+          data: {query: hpo_id},
+          success: function (data) {
+              $("#id_prio_hpo_terms").tagsinput('add', {hpo_id: hpo_id, name: data[0].name});
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+              console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+          }
+      });
+    });
+}
+
+
 $(document).ready(
   function() {
     makeNumberFieldsReceiveOnlyDigits();
@@ -1617,5 +1670,7 @@ $(document).ready(
     $('.popover-dismiss').popover({
         trigger: 'focus'
     });
+    // Load typeahead
+    initTypeahead();
   }
 );

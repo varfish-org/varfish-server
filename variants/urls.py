@@ -243,6 +243,7 @@ urlpatterns = [
         view=views.SmallVariantDetails.as_view(),
         name="small-variant-details",
     ),
+    url(regex=r"^hpo-terms-api/$", view=views.HpoTermsApiView.as_view(), name="hpo-terms-api"),
     # Set last seen changelog version for user and redirect to changelog.
     # TODO: move to sodar-core?
     url(regex=r"^new-features/$", view=views.NewFeaturesView.as_view(), name="new-features"),
