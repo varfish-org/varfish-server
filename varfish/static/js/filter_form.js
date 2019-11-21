@@ -1179,10 +1179,14 @@ function restoreAfterIndexMode(e, value=null) {
     );
     // Hide the disable button info and reset the current index.
     handleIndexWarnings();
+    // updateSettingsDump method should be called after things were changed.
+    target.off("change", updateSettingsDump);
     // Unassign the restore function from the change handler.
     target.off("change", restoreAfterIndexMode);
     // Assign the load function to the change handler.
     target.on("change", loadIndexMode);
+    // updateSettingsDump method should be called after things were changed.
+    target.on("change", updateSettingsDump);
     // Trigger a change to enable possible handlers.
     target.trigger("change");
 }
@@ -1274,10 +1278,14 @@ function loadIndexMode(e, value=null) {
         );
         // Show the info/disable button.
         handleIndexWarnings();
+        // updateSettingsDump method should be called after things were changed.
+        target.off("change", updateSettingsDump);
         // Unassign the load function from the change handler.
         target.off("change", loadIndexMode);
         // Assign the restore function to the change handler.
         target.on("change", restoreAfterIndexMode);
+        // updateSettingsDump method should be called after things were changed.
+        target.on("change", updateSettingsDump);
     }
     // Enable homozygous recessive mode
     else if (target.val() == "hom-recessive-index") {
@@ -1428,7 +1436,7 @@ function applyPresetsToSettings(presets) {
     }
     else if (tagName == "SELECT") {
         if (val == "index" || val == "recessive-index" || val == "hom-recessive-index" || val == "dom-denovo-index") {
-            if (tag.data("default-index") == "0") {
+            if (tag.data("default-index") != "1") {
                 continue;
             }
         }
@@ -1495,9 +1503,54 @@ function updateQuickPresets(settings) {
         const inPreset = presets[presetsKey]["ids"].hasOwnProperty(key);
         const value = settings[key] === "" ? null : settings[key];
         const presetValue = presets[presetsKey]["ids"][key] === "" ? null : presets[presetsKey]["ids"][key];
-        if (inPreset && !eqAsStr(value, presetValue)) {
-          matchAll = false;
-          break;
+        const compHetOrRecessive = presetsKey == "inheritance-comp-het" || presetsKey == "inheritance-recessive";
+        const element = $("#id_" + key);
+        if (inPreset) {
+            if (!eqAsStr(value, presetValue)) {
+                // In comphet/recessive mode, the fields of the non-index patients are hidden and we allow them have
+                // any possible value without declaring all matches as false.
+                if (compHetOrRecessive && element.data("default-index") == "0") {
+                    continue;
+                }
+                // Dominant mode is a bit hacky, as it is not a value that stays selected, so all values will not match.
+                // Instead, check if index is set to 1/1 and the other members are set to any.
+                else if (
+                    presetsKey == "inheritance-dominant" &&
+                    (
+                        (element.data("default-index") == "1" && eqAsStr(value,"hom")) ||
+                        (element.data("default-index") == "0" && eqAsStr(value,"any"))
+                    )
+                ) {
+                    continue;
+                }
+                // Hom recessive is even more hacky: we need to know who the parents are, but as we scan linearly once,
+                // and do not necessarily hit the index first to find this out,
+                else if (presetsKey == "inheritance-hom-recessive") {
+                    if (
+                        (element.data("default-index") == "1" && eqAsStr(value, "hom")) ||
+                        (element.data("default-mother") == "1" && eqAsStr(value, "het")) ||
+                        (element.data("default-father") == "1" && eqAsStr(value, "het")) ||
+                        (
+                            element.data("default-index") == "0" &&
+                            element.data("default-mother") == "0" &&
+                            element.data("default-father") == "0" &&
+                            eqAsStr(value, "any")
+                        )
+                    ) {
+                        continue
+                    }
+                }
+                matchAll = false;
+                break;
+            }
+            else {
+                // In comphet/recessive mode, when the value is matching the mode, is must be the default index patient.
+                // Otherwise this doesn't match the mode.
+                if (compHetOrRecessive && element.data("default-index") == "0") {
+                    matchAll = false;
+                    break;
+                }
+            }
         }
       }
       if (matchAll) {
@@ -1573,6 +1626,10 @@ function loadPresets(element) {
 
 
 function initTypeahead() {
+    // Don't initialize if there is no hpo term field.
+    if (!$("#id_prio_hpo_terms").length) {
+        return;
+    }
     // Instantiate the Bloodhound suggestion engine
     var hpo_typeahead = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.whitespace,
@@ -1609,18 +1666,18 @@ function initTypeahead() {
     });
     // Set tags from pre-filled form data.
     $.each($('#id_prio_hpo_terms').val().split(" "), function(i, hpo_id) {
-      $.ajax({
-          url: hpo_terms_url,
-          type: "GET",
-          dataType: "json",
-          data: {query: hpo_id},
-          success: function (data) {
-              $("#id_prio_hpo_terms").tagsinput('add', {hpo_id: hpo_id, name: data[0].name});
-          },
-          error: function (jqXHR, textStatus, errorThrown) {
-              console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
-          }
-      });
+        $.ajax({
+            url: hpo_terms_url,
+            type: "GET",
+            dataType: "json",
+            data: {query: hpo_id},
+            success: function (data) {
+                $("#id_prio_hpo_terms").tagsinput('add', {hpo_id: hpo_id, name: data[0].name});
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+            }
+        });
     });
 }
 
@@ -1631,7 +1688,6 @@ $(document).ready(
     if ($("#settingsDump").val() != "") {
       updateSettings();
     }
-    $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
     updateSettingsDump();
     $(".load-blacklist").click(loadGenelistPresets);
     $(".load-whitelist").click(loadGenelistPresets);
@@ -1642,6 +1698,8 @@ $(document).ready(
     $("#recessive_disable").click(resetAllRecessiveIndices);
     $("#settingsSet").click(updateSettings);
     $("#settingsSet").click(initIndexMode);
+    // update settings should be the last handler assigned
+    $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
     // Setup the presets menus.
     for (let name of ["inheritance", "frequency", "impact", "quality", "region", "flags"]) {
       $("#input-presets-" + name).on("input", function () {

@@ -368,7 +368,10 @@ class SmallVariantGenotypeFilterFormMixin:
     def update_genotype_fields(self):
         """Add and update genotype fields."""
         # Dynamically add the fields based on the pedigree
-        default_indices = self.get_family_default_indices()
+        default_families = self.get_default_families()
+        default_indices = [x["index"] for x in default_families]
+        default_mothers = [x["mother"] for x in default_families]
+        default_fathers = [x["father"] for x in default_families]
         for family, members in self.get_family_with_pedigree_with_samples().items():
             for member in members:
                 name = member["patient"]
@@ -380,7 +383,9 @@ class SmallVariantGenotypeFilterFormMixin:
                         choices=INHERITANCE,
                         attrs={
                             "class": "genotype-field-gt %s" % affection,
-                            "data-default-index": "1" if name in (default_indices) else "0",
+                            "data-default-index": "1" if name in default_indices else "0",
+                            "data-default-mother": "1" if name in default_mothers else "0",
+                            "data-default-father": "1" if name in default_fathers else "0",
                             "data-mother": member["mother"],
                             "data-father": member["father"],
                             "data-family": family,
@@ -1213,13 +1218,16 @@ class FilterForm(
         """Return ``dict`` of ``dict`` with family and pedigree information of samples that have variants and a variant set."""
         return self.case.get_family_with_filtered_pedigree_with_samples()
 
-    def get_family_default_indices(self):
+    def get_default_families(self):
         """Return the registered index patient of the family."""
-        return [self.case.index]
+        trio = self.get_trio_roles()
+        return [
+            {"index": self.case.index, "mother": trio.get("mother"), "father": trio.get("father")}
+        ]
 
     @lru_cache()
     def get_trio_roles(self):
-        """Get trior ole to member mapping"""
+        """Get trio role to member mapping"""
         return self.case.get_trio_roles()
 
     @lru_cache()
@@ -1295,9 +1303,20 @@ class ProjectCasesFilterForm(
         """Return ``dict`` of ``dict`` with family and pedigree information of samples that have variants and a variant set."""
         return self.project.get_family_with_filtered_pedigree_with_samples()
 
-    def get_family_default_indices(self):
+    def get_default_families(self):
         """Return the registered index patient of the family."""
-        return self.project.indices()
+        pedigree = self.get_pedigree()
+        indices = self.project.indices()
+        ret = []
+        for member in pedigree:
+            for index in indices:
+                if member["patient"] == index:
+                    ret.append(
+                        {"index": index, "mother": member["mother"], "father": member["father"]}
+                    )
+                    # Break the inner loop
+                    break
+        return ret
 
     def get_trio_roles(self):
         """Return empty dict as there is no trio role assignment when querying across project."""
