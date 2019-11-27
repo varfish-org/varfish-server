@@ -166,6 +166,22 @@ class CaseListView(
             pk=result["project"].pk
         )
         result["progress"] = self._compute_progress(result["project"])
+        # Build list of properly sorted coverage keys.
+        try:
+            coverages = set()
+            for case in result["project"].case_set.all():
+                variant_set = case.latest_variant_set()
+                if variant_set:
+                    if hasattr(variant_set, "casealignmentstats"):
+                        for min_covs in variant_set.casealignmentstats.bam_stats.values():
+                            if "min_cov_target" in min_covs:
+                                coverages |= set(map(int, min_covs["min_cov_target"]))
+            if coverages:
+                filtered = filter(lambda x: x > 0, coverages)
+                result["coverages"] = list(map(str, sorted(filtered)))[:5]
+        except (SmallVariantSet.variant_stats.RelatedObjectDoesNotExist, AttributeError):
+            pass  # swallow, defaults set above
+
         return result
 
     def _compute_progress(self, project):

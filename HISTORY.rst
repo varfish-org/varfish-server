@@ -20,6 +20,7 @@ End-User Summary
 - Added recessive, homozygous recessive and denovo filter to genotype settings.
 - Entering HPO terms received a typeahead feature and the input is organized in tags/badges.
 - Import of background database now less memory intensive.
+- Added project-wide alignment statistics.
 
 Full Change List
 ================
@@ -45,6 +46,7 @@ Full Change List
 - Entering HPO terms received a typeahead feature and the input is organized in tags/badges.
 - Import of background database now less memory intensive by disabling autovacuum option during import and removing atomic transactions.
   Instead, tables are emptied by genome release in case of failure in import.
+- Added project-wide alignment statistics.
 
 -------
 v0.18.0

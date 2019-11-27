@@ -1,3 +1,7 @@
+{% load dict %}
+{% load humanize %}
+{% load variants_tags %}
+
 <div id="varfish-va-project-statistics" class="card mb-3">
   <h4 class="card-header">
     <i class="fa fa-bar-chart"></i>
@@ -50,4 +54,49 @@
       </p>
     {% endif %}
   </div>
+</div>
+
+<div class="card varfish-vars-case-details">
+  <div class="card-header">
+    <h4>
+      <i class="fa fa-search"></i>
+      Alignment Quality Control
+    </h4>
+  </div>
+
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th style="border-bottom: 0;" class="text-center" colspan="3"></th>
+        <th style="border-bottom: 0;" class="text-center" colspan="1">Mean Target</th>
+        <th style="border-bottom: 0;" class="text-center" colspan="5">Exons covered at least</th>
+      </tr>
+      <tr>
+        <th style="width: 15%;" class="text-center">Sample</th>
+        <th style="width: 15%;" class="text-center">Pairs</th>
+        <th style="width: 15%;" class="text-center">Duplicates</th>
+        <th style="width: 15%;" class="text-center">Coverage</th>
+        {% for coverage in coverages %}
+        <th style="width: 0;" class="text-nowrap text-center">&ge; {{ coverage }}x</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for case in project.case_set.all %}
+        {% for sample_name, stats in case.latest_variant_set.casealignmentstats.bam_stats.items %}
+          <tr>
+            <th>{{ sample_name|only_source_name }}</th>
+            <td class="text-right">{{ stats|from_bamstats:"total reads"|intcomma }}</td>
+            <td class="text-right">{{ stats|from_bamstats:"percent duplicates"|floatformat:1 }}%</td>
+            <td class="text-right">{{ stats|from_bamstats:"mean target coverage"|default_if_none:"-"|floatformat:0 }}&nbsp;x</td>
+            {% for coverage in coverages %}
+              {% if coverage|asint <= 50 %}
+                <td class="text-right">{{ stats|keyvalue:"min_cov_target"|keyvalue:coverage|floatformat:1 }}%</td>
+              {% endif %}
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
