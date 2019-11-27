@@ -113,3 +113,6 @@ nltk
 
 # Parsing of ISA-tab
 altamisa ==0.2.5
+
+# Login as every user
+django-su

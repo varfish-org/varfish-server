@@ -22,6 +22,12 @@
   <script type="text/javascript" src="{% static 'js/vendor/tether-1.4.1.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/shepherd-1.8.1.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/clipboard-2.0.0.min.js' %}"></script>
+  <!-- Set variable for django_su warning message display. -->
+  <script type="text/javascript">
+      let is_su = {% if IS_SU %}true{% else %}false{% endif %};
+      let su_escape_url = {% url "su_logout" %};
+  </script>\
+  <!-- The logic for the django_su warning is in ``js/project.js``. -->
   <script type="text/javascript" src="{% static 'js/project.js' %}"></script>
 {% endblock javascript %}
 

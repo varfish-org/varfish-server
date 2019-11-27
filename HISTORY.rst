@@ -21,6 +21,7 @@ End-User Summary
 - Entering HPO terms received a typeahead feature and the input is organized in tags/badges.
 - Import of background database now less memory intensive.
 - Added project-wide alignment statistics.
+- Added ``django_su`` to allow superusers to temporarily take on the identity of another user.
 
 Full Change List
 ================
@@ -47,6 +48,7 @@ Full Change List
 - Import of background database now less memory intensive by disabling autovacuum option during import and removing atomic transactions.
   Instead, tables are emptied by genome release in case of failure in import.
 - Added project-wide alignment statistics.
+- Added ``django_su`` to allow superusers to temporarily take on the identity of another user.
 
 -------
 v0.18.0

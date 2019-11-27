@@ -46,6 +46,8 @@ if READ_DOT_ENV_FILE:
 # APP CONFIGURATION
 # ------------------------------------------------------------------------------
 DJANGO_APPS = [
+    # Technically, django-su is a third party app, but must be before ``django.contrib.admin``
+    "django_su",
     # Default Django apps:
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -255,6 +257,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 # Your stuff: custom template context processors go here
                 "projectroles.context_processors.urls_processor",
+                "django_su.context_processors.is_su",
             ],
         },
     }
@@ -322,6 +325,7 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTHENTICATION_BACKENDS = [
     "rules.permissions.ObjectPermissionBackend",
     "django.contrib.auth.backends.ModelBackend",
+    "django_su.backends.SuBackend",
 ]
 
 # Some really nice defaults
@@ -529,3 +533,21 @@ if ENABLE_LDAP:
                 ("projectroles.auth_backends.SecondaryLDAPBackend",), AUTHENTICATION_BACKENDS
             )
         )
+
+
+# URL to redirect after the login.
+# Default: "/"
+DJANGO_SU_LOGIN_REDIRECT_URL = "/"
+
+# URL to redirect after the logout.
+# Default: "/"
+DJANGO_SU_LOGOUT_REDIRECT_URL = "/"
+
+# A function to specify the perms that the user must have can use su
+# Default: None
+DJANGO_SU_LOGIN_CALLBACK = None
+
+# A function to override the django.contrib.auth.login(request, user)
+# function so you can set session data, etc.
+# Default: None
+DJANGO_SU_CUSTOM_LOGIN_ACTION = None

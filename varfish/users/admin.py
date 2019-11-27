@@ -35,3 +35,5 @@ class MyUserAdmin(AuthUserAdmin):
     fieldsets = (("User Profile", {"fields": ("name",)}),) + AuthUserAdmin.fieldsets
     list_display = ("username", "name", "is_superuser")
     search_fields = ["name"]
+    change_form_template = "admin/auth/user/change_form.html"
+    change_list_template = "admin/auth/user/change_list.html"

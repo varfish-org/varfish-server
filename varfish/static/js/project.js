@@ -96,4 +96,24 @@ $(document).ready(function() {
       '<a href="https://www.google.com/chrome" target="_blank">Google Chrome</a>.' +
       '</div>')
   }
+  /* Display the django_su warning when switching a user */
+  if (is_su) {
+    let parentElem = $('div.sodar-app-container');
+
+    if (!parentElem.length) {
+      parentElem = $('div.sodar-content-container').find(
+        'div.container-fluid').first()
+    }
+
+    if (!$('div.sodar-alert-container').length) {
+      parentElem.prepend(
+        '<div class="container-fluid sodar-alert-container"></div>')
+    }
+
+    $('div.sodar-alert-container').prepend(
+      '<div class="alert alert-danger sodar-alert-top">' +
+      '<i class="fa fa-exclamation-triangle"></i> ' +
+      'You have assumed the identity of another account! <a href="' + su_escape_url + '">Escape</a>' +
+      '</div>')
+  }
 });
