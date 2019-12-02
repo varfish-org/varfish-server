@@ -466,20 +466,19 @@ class ExtendQueryPartsHgmdJoin(ExtendQueryPartsBase):
                 ]
             )
             .select_from(HgmdPublicLocus.sa)
+            # This is a range query that caused an error already. So I'm writing a more elaborate comment.
+            # HGMD is 0-based, and our coordinate system is 1-based, that means the end positions match, but
+            # the start is one less in the HGMD compared to our system, i.e. our.start = hgmd.start + 1.
+            # We need to correct for that.
+            # The default interval query is:   (hgmd.start     <= our.end) and (hgmd.end >= our.start)
+            # The corrected interval query is: (hgmd.start + 1 <= our.end) and (hgmd.end >= our.start)
             .where(
                 and_(
                     HgmdPublicLocus.sa.release == SmallVariant.sa.release,
                     HgmdPublicLocus.sa.chromosome == SmallVariant.sa.chromosome,
-                    HgmdPublicLocus.sa.start
-                    <= (SmallVariant.sa.start - 1 + func.length(SmallVariant.sa.reference)),
-                    HgmdPublicLocus.sa.end > (SmallVariant.sa.start - 1),
+                    (HgmdPublicLocus.sa.start + 1) <= SmallVariant.sa.end,
+                    HgmdPublicLocus.sa.end >= SmallVariant.sa.start,
                 )
-            )
-            .group_by(
-                HgmdPublicLocus.sa.release,
-                HgmdPublicLocus.sa.chromosome,
-                HgmdPublicLocus.sa.start,
-                HgmdPublicLocus.sa.end,
             )
             .lateral("hgmd_subquery")
         )

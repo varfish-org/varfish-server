@@ -22,6 +22,7 @@ End-User Summary
 - Import of background database now less memory intensive.
 - Added project-wide alignment statistics.
 - Added ``django_su`` to allow superusers to temporarily take on the identity of another user.
+- Fixed bug in which some variants in comphet mode only had one variant in results list.
 
 Full Change List
 ================
@@ -49,6 +50,9 @@ Full Change List
   Instead, tables are emptied by genome release in case of failure in import.
 - Added project-wide alignment statistics.
 - Added ``django_su`` to allow superusers to temporarily take on the identity of another user.
+- Fixed bug in which some variants in comphet mode only had one variant in results list.
+  The hgmd query was able to create multiple entries for one variant which was reduced to one entry in the resulting list.
+  To correct for that, the range query was fixed and the grouping in the lateral join was removed.
 
 -------
 v0.18.0
