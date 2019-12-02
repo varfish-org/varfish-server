@@ -12,6 +12,9 @@ from projectroles.app_settings import AppSettingAPI
 import re
 
 
+app_settings = AppSettingAPI()
+
+
 class CaseForm(forms.ModelForm):
     """Form for updating a ``Case``, including its pedigree.
 
@@ -1127,7 +1130,6 @@ class SmallVariantPrioritizerFormMixin:
         )
 
         #: Choices for variant scoring methods.
-        app_settings = AppSettingAPI()
         PATHO_SCORE_CHOICES = [(PATHO_MUTATIONTASTER, PATHO_MUTATIONTASTER_LABEL)]
         if settings.VARFISH_ENABLE_CADD:
             PATHO_SCORE_CHOICES.append((PATHO_CADD, PATHO_CADD_LABEL))
@@ -1378,15 +1380,29 @@ class AcmgCriteriaRatingForm(forms.ModelForm):
 class CaseNotesStatusForm(forms.ModelForm):
     """Form for taking case notes."""
 
+    def __init__(self, *args, **kwargs):
+        project = kwargs.pop("project")
+        super().__init__(*args, **kwargs)
+        choices = [
+            (x.strip(), x.strip())
+            for x in app_settings.get_app_setting(
+                "variants", "user_defined_tags", project=project
+            ).split(";")
+        ]
+        self.fields["tags"].widget.choices = choices
+
     class Meta:
         model = Case
-        fields = ("status", "notes")
-        labels = {"notes": "", "status": ""}
+        fields = ("status", "tags", "notes")
+        labels = {"notes": "", "status": "", "tags": ""}
         widgets = {
-            "notes": forms.Textarea(
-                attrs={"rows": 3, "class": "form-control form-control-sm mt-2"}
+            "status": forms.Select(
+                attrs={"class": "form-control form-control-sm selectpicker mb-2"}
             ),
-            "status": forms.Select(attrs={"class": "form-control form-control-sm"}),
+            "tags": forms.SelectMultiple(
+                attrs={"class": "form-control form-control-sm selectpicker mb-2"}
+            ),
+            "notes": forms.Textarea(attrs={"rows": 3, "class": "form-control form-control-sm"}),
         }
 
 

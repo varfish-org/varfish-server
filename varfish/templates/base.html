@@ -15,18 +15,30 @@
   <script type="text/javascript" src="{% static 'js/vendor/jquery.dataTables.min.js' %}"></script>
   <!-- Bootstrap select plugin for multiple-select dropdown menus -->
   <script type="text/javascript" src="{% static 'js/vendor/bootstrap-select-1.13.5.min.js' %}"></script>
-
+  <!-- Downloaded from https://github.com/Nodws/bootstrap4-tagsinput -->
+  <script type="text/javascript" src="{% static "js/vendor/tagsinput-0.8.0.js" %}"></script>
 {% endblock head_javascript %}
 
 {% block javascript %}
   <script type="text/javascript" src="{% static 'js/vendor/tether-1.4.1.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/shepherd-1.8.1.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/clipboard-2.0.0.min.js' %}"></script>
+
   <!-- Set variable for django_su warning message display. -->
   <script type="text/javascript">
-      let is_su = {% if IS_SU %}true{% else %}false{% endif %};
-      let su_escape_url = {% url "su_logout" %};
-  </script>\
+    let is_su = {% if IS_SU %}true{% else %}false{% endif %};
+    let su_escape_url = {% url "su_logout" %};
+    $(document).ready(function() {
+      // This line will add tagsinput to the project app settings page.
+      // Unfortunately this is included in every page now, but there is currently no other workaround.
+      $("#id_settings\\.variants\\.user_defined_tags").tagsinput({
+          // Make badges gray
+          tagClass: "badge badge-secondary",
+          // The passed list is separated by semicolons
+          delimiter: ";"
+      });
+    });
+  </script>
   <!-- The logic for the django_su warning is in ``js/project.js``. -->
   <script type="text/javascript" src="{% static 'js/project.js' %}"></script>
 {% endblock javascript %}
@@ -65,6 +77,9 @@
 
   <!-- Datatables CSS -->
   <link rel="stylesheet" type="text/css" href="{% static 'css/vendor/jquery.dataTables.min.css' %}" />
+
+  <!-- Downloaded from https://github.com/Nodws/bootstrap4-tagsinput -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/vendor/tagsinput-0.8.0.css' %}" />
 
 {% endblock css %}
 

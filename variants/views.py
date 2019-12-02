@@ -328,6 +328,7 @@ class CaseNotesStatusApiView(
         if form.is_valid():
             case.notes = form.cleaned_data["notes"]
             case.status = form.cleaned_data["status"]
+            case.tags = form.cleaned_data["tags"]
             case.save()
             if timeline:
                 tl_event = timeline.add_event(
@@ -343,10 +344,33 @@ class CaseNotesStatusApiView(
                 tl_event.add_object(obj=case, label="case", name=case.name)
             return HttpResponse(
                 json.dumps(
-                    {"notes": form.cleaned_data["notes"], "status": form.cleaned_data["status"]}
+                    {
+                        "notes": form.cleaned_data["notes"],
+                        "status": form.cleaned_data["status"],
+                        "tags": form.cleaned_data["tags"],
+                    }
                 ),
                 content_type="application/json",
             )
+        if timeline:
+            tl_event = timeline.add_event(
+                project=self.get_project(self.request, self.kwargs),
+                app_name="variants",
+                user=self.request.user,
+                event_name="case_status_notes_submit",
+                description="failed submit status and note for case {{case}}: {status}, {text}".format(
+                    status=case.status, text=case.shortened_notes_text()
+                ),
+                status_type="FAILED",
+            )
+            tl_event.add_object(obj=case, label="case", name=case.name)
+        return HttpResponse({}, content_type="application/json", status=500)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        case = self.get_object()
+        kwargs.update({"project": case.project})
+        return kwargs
 
 
 class CaseCommentsSubmitApiView(
@@ -592,8 +616,14 @@ class CaseDetailView(
         """Returns the initial data for the form."""
         initial = super().get_initial()
         case = self.get_object()
-        initial.update({"notes": case.notes, "status": case.status})
+        initial.update({"notes": case.notes, "status": case.status, "tags": case.tags})
         return initial
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        case = self.get_object()
+        kwargs.update({"project": case.project})
+        return kwargs
 
 
 class CaseUpdateView(

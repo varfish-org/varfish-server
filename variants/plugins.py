@@ -78,6 +78,18 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             "default": "",
             "label": "Changelog seen in version",
         },
+        "user_defined_tags": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "STRING",
+            "default": "",
+            "label": "User defined tags to attach to cases",
+            "description": (
+                "Define tags to attach to a case. Deleted tags will stay attached to "
+                "the case until the tags in the case are updated. To add a tag, take away "
+                "the focus of the input field or hit <kbd>Enter</kbd>. <kbd>;</kbd> is "
+                "the seperator and will seperate after the tag is entered."
+            ),
+        },
     }
 
     #: Additional columns to display for the projects.

@@ -23,6 +23,10 @@ End-User Summary
 - Added project-wide alignment statistics.
 - Added ``django_su`` to allow superusers to temporarily take on the identity of another user.
 - Fixed bug in which some variants in comphet mode only had one variant in results list.
+- Added user-definable, project-specific tags to be attached to a case.
+  Enter them in the project settings, use them in the case details page.
+- Added alert fields for all ajax calls.
+- Removed (non function-disturbing) javascript error when pre-loaded HPO terms were decorated into tags.
 
 Full Change List
 ================
@@ -53,6 +57,10 @@ Full Change List
 - Fixed bug in which some variants in comphet mode only had one variant in results list.
   The hgmd query was able to create multiple entries for one variant which was reduced to one entry in the resulting list.
   To correct for that, the range query was fixed and the grouping in the lateral join was removed.
+- Added user-definable, project-specific tags to be attached to a case.
+- Added alert fields for all ajax calls.
+- Removed javascript error when pre-loaded HPO terms were decorated into tags.
+- Removed (non function-disturbing) javascript error when pre-loaded HPO terms were decorated into tags.
 
 -------
 v0.18.0

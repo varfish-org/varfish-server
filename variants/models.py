@@ -452,6 +452,8 @@ class Case(models.Model):
     notes = models.TextField(default="", null=True, blank=True)
     #: Status field
     status = models.CharField(max_length=32, default="initial", choices=CASE_STATUS_CHOICES)
+    #: Tags field
+    tags = ArrayField(models.CharField(max_length=32), default=list, null=True, blank=True)
 
     def latest_variant_set(self):
         """Return latest active variant set or ``None`` if there is none."""

@@ -253,6 +253,7 @@ $(document).on('click', '.toggle-variant-details', function() {
             colorVariantEffects();
           },
           error: function (jqXHR, textStatus, errorThrown) {
+            alert("Error during AJAX call:", textStatus, + errorThrown);
             console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
           }
         }
@@ -1666,18 +1667,21 @@ function initTypeahead() {
     });
     // Set tags from pre-filled form data.
     $.each($('#id_prio_hpo_terms').val().split(" "), function(i, hpo_id) {
-        $.ajax({
-            url: hpo_terms_url,
-            type: "GET",
-            dataType: "json",
-            data: {query: hpo_id},
-            success: function (data) {
-                $("#id_prio_hpo_terms").tagsinput('add', {hpo_id: hpo_id, name: data[0].name});
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
-            }
-        });
+        if (hpo_id) {
+            $.ajax({
+                url: hpo_terms_url,
+                type: "GET",
+                dataType: "json",
+                data: {query: hpo_id},
+                success: function (data) {
+                    $("#id_prio_hpo_terms").tagsinput('add', {hpo_id: hpo_id, name: data[0].name});
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("Error during AJAX call: " + textStatus + " " + errorThrown);
+                    console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+                }
+            });
+        }
     });
 }
 
