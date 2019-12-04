@@ -479,35 +479,6 @@ const presets = {
       "classes": {"genotype-field-gt": "recessive-index"},
   },
   // Frequency presets
-  "frequency-de-novo": {
-    "ids": {
-      "thousand_genomes_enabled": true,
-      "thousand_genomes_homozygous": 0,
-      "thousand_genomes_heterozygous": 0,
-      "thousand_genomes_frequency": 0.0,
-
-      "exac_enabled": true,
-      "exac_homozygous": 0,
-      "exac_heterozygous": 0,
-      "exac_frequency": 0.0,
-
-      "gnomad_exomes_enabled": true,
-      "gnomad_exomes_homozygous": 0,
-      "gnomad_exomes_heterozygous": 0,
-      "gnomad_exomes_frequency": 0.0,
-
-      "gnomad_genomes_enabled": true,
-      "gnomad_genomes_homozygous": 0,
-      "gnomad_genomes_heterozygous": 0,
-      "gnomad_genomes_frequency": 0.0,
-
-      "inhouse_enabled": true,
-      "inhouse_homozygous": 0,
-      "inhouse_heterozygous": INHOUSE_MAX_NOISE,
-      "inhouse_carriers": INHOUSE_MAX_NOISE,
-    },
-    "classes": {},
-  },
   "frequency-super-strict": {
     "ids": {
       "thousand_genomes_enabled": true,
@@ -1312,21 +1283,10 @@ function loadIndexMode(e, value=null) {
     }
     // Enable dominant/denovo mode
     else if (target.val() == "dom-denovo-index") {
-        // Iterate over all GT fields.
-        $("[id^=id_][id$=_gt]").each(
-            function () {
-                // Get the id of the GT field.
-                var id = $(this).attr("id");
-                // The current (index patients) field stays as it is, so do nothing.
-                if (target.attr("id") == id || $(this).data("family") != family) {
-                    target.val("hom");
-                    return;
-                }
-                else {
-                    $(this).val("any");
-                }
-            }
-        );
+        // All affected will be set to het
+        $(".affected").val("het");
+        // All unaffected will be set to ref
+        $(".unaffected").val("ref");
     }
 }
 
@@ -1473,7 +1433,7 @@ function updateQuickPresets(settings) {
   const quickPresetCategories = ["inheritance", "frequency", "impact", "quality", "region", "flags"];
   const quickPresetCandidates = {
     "inheritance": ["any", "dominant", "hom-recessive", "comp-het", "recessive"],
-    "frequency": ["de-novo", "super-strict", "strict", "relaxed", "recessive-strict", "recessive-relaxed", "all"],
+    "frequency": ["super-strict", "strict", "relaxed", "recessive-strict", "recessive-relaxed", "all"],
     "impact": ["null-variant", "aa-change", "all-coding-deep-intronic", "whole-transcript", "any"],
     "quality": ["super-strict", "strict", "relaxed", "ignore"],
     "region": ["whole-genome", "autosomes", "x-chromosome", "y-chromosome", "mt-chromosome"],
@@ -1518,8 +1478,8 @@ function updateQuickPresets(settings) {
                 else if (
                     presetsKey == "inheritance-dominant" &&
                     (
-                        (element.data("default-index") == "1" && eqAsStr(value,"hom")) ||
-                        (element.data("default-index") == "0" && eqAsStr(value,"any"))
+                        (element.hasClass("affected") && eqAsStr(value,"het")) ||
+                        (element.hasClass("unaffected") && eqAsStr(value,"ref"))
                     )
                 ) {
                     continue;
@@ -1582,7 +1542,7 @@ function loadPresets(element) {
     $("#input-presets-flags").val("flags-default")
   } else if (presetsName == "de-novo") {
     $("#input-presets-inheritance").val("inheritance-dominant")
-    $("#input-presets-frequency").val("frequency-de-novo")
+    $("#input-presets-frequency").val("frequency-strict")
     $("#input-presets-impact").val("impact-all-coding-deep-intronic")
     $("#input-presets-quality").val("quality-relaxed")
     $("#input-presets-region").val("region-whole-genome")
@@ -1654,16 +1614,21 @@ function initTypeahead() {
         // The passed list is separated by spaces
         delimiter: " ",
         // Initialize typeahead library
-        typeaheadjs: [{}, {
-            // According to documentation
-            name: "hpo_typeahead",
-            // Map value from database field to tag input
-            displayValue: "hpo_id",
-            // Map key/display name from database field to tag input
-            displayKey: "name",
-            // According to documentation
-            source: hpo_typeahead.ttAdapter(),
-        }]
+        typeaheadjs: [
+            {
+                highlight: true
+            },
+            {
+                // According to documentation
+                name: "hpo_typeahead",
+                // Map value from database field to tag input
+                displayValue: "hpo_id",
+                // Map key/display name from database field to tag input
+                displayKey: "name",
+                // According to documentation
+                source: hpo_typeahead.ttAdapter(),
+            }
+        ]
     });
     // Set tags from pre-filled form data.
     $.each($('#id_prio_hpo_terms').val().split(" "), function(i, hpo_id) {
@@ -1705,9 +1670,21 @@ $(document).ready(
     // update settings should be the last handler assigned
     $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
     // Setup the presets menus.
-    for (let name of ["inheritance", "frequency", "impact", "quality", "region", "flags"]) {
+    let preset_to_tab = {
+        inheritance: "genotype",
+        frequency: "frequency",
+        impact: "effect",
+        quality: "quality",
+        region: "blacklist",
+        flags: "clinvar",
+    };
+    for (let name in preset_to_tab) {
       $("#input-presets-" + name).on("input", function () {
-        presetsToSettings(presets, name)
+        // Only switch tab if change was triggered by user and not the quick presets field.
+        if (updateQuickPresetsEnabled) {
+            $('#' + preset_to_tab[name] + "-tab").tab('show');
+        }
+        presetsToSettings(presets, name);
       })
     }
     // Setup the quick presets dropdown.

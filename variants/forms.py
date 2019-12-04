@@ -1109,7 +1109,7 @@ class SmallVariantPrioritizerFormMixin:
             help_text="Enter a  list of HPO terms. The suggestions are based on HPO id and name, but only names are displayed. E.g., typing <span class='badge badge-secondary'>HP:0000001</span> will suggest <span class='badge badge-secondary'>All</span>, as will also typing <span class='badge badge-secondary'>all</span>.",
             widget=forms.Textarea(
                 attrs={
-                    "placeholder": "Enter list of HPO terms here",
+                    "placeholder": "Enter HPO terms here",
                     "rows": 3,
                     "class": "form-control typeahead",
                 }

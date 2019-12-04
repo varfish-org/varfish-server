@@ -28,6 +28,9 @@ End-User Summary
 - Added alert fields for all ajax calls.
 - Removed (non function-disturbing) javascript error when pre-loaded HPO terms were decorated into tags.
 - Fixed coloring of rows when flags have been set.
+- Fixed dominant/denovo genotype preset.
+- Minor adjustments/renamings to presets.
+- Link-out to genomics england panelapp.
 
 Full Change List
 ================
@@ -65,6 +68,9 @@ Full Change List
 - Fixed coloring of rows when flags have been set.
   When summary is not set but other flags, the row is colored in gray to represent a WIP state.
   Coloring happens now immediately and not only when page is re-loaded.
+- Fixed dominant/denovo genotype preset.
+- Minor adjustments/renamings to presets.
+- Link-out to genomics england panelapp.
 
 -------
 v0.18.0
