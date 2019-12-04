@@ -23,6 +23,7 @@ ROW_COLORS = {
     "pathogenic": "#dc354533",
     "uncertain": "#ffc10733",
     "benign": "#28a74533",
+    "wip": "#6c757d33",
     "__invalid__": "#FF00FF",
 }
 
@@ -233,21 +234,18 @@ def case_status_to_order(value):
 def flag_class(row):
     """Return CSS class to used based on the flag of ``row``.
 
-    Overall, select the flag value of {visual, validation, phenotype_match}
-    with the lowest scoring that is not "empty".  If the summary flag has been
-    set, use this value.
+    Report "wip" class if a flag is set for {visual, validation, phenotype_match}.
+    If the summary flag has been set, use this value instead.
     """
     if row.flag_summary and row.flag_summary != "empty":
         return row.flag_summary  # short-circuit
-    values = ("negative", "uncertain", "positive", "empty")
     flags = ("visual", "validation", "phenotype_match")
-    indexes = []
     for flag in flags:
         flag_name = "flag_%s" % flag
         flag_value = getattr(row, flag_name)
         if flag_value and flag_value != "empty":
-            indexes.append(values.index(flag_value))
-    return values[min(indexes, default=3)]
+            return "wip"
+    return "empty"
 
 
 @register.simple_tag

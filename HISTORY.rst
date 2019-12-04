@@ -27,6 +27,7 @@ End-User Summary
   Enter them in the project settings, use them in the case details page.
 - Added alert fields for all ajax calls.
 - Removed (non function-disturbing) javascript error when pre-loaded HPO terms were decorated into tags.
+- Fixed coloring of rows when flags have been set.
 
 Full Change List
 ================
@@ -61,6 +62,9 @@ Full Change List
 - Added alert fields for all ajax calls.
 - Removed javascript error when pre-loaded HPO terms were decorated into tags.
 - Removed (non function-disturbing) javascript error when pre-loaded HPO terms were decorated into tags.
+- Fixed coloring of rows when flags have been set.
+  When summary is not set but other flags, the row is colored in gray to represent a WIP state.
+  Coloring happens now immediately and not only when page is re-loaded.
 
 -------
 v0.18.0

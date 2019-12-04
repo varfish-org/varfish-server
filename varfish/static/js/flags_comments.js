@@ -7,18 +7,15 @@ function summarizeFlags(data) {
     if (data["flag_summary"] != "empty") {
         return data["flag_summary"];
     }
-    var values = ["negative", "uncertain", "positive", "empty"];
     var flags = ["visual", "validation", "phenotype_match"];
-    var indexes = [];
     for (var i = 0; i < flags.length; ++i) {
         var flagName = "flag_" + flags[i];
         var flagValue = data[flagName];
         if (flagValue != "empty") {
-            indexes.push(values.indexOf(flagValue));
+            return "wip"
         }
     }
-    indexes.push(4);
-    return Math.min(...indexes);
+    return "empty";
 }
 
 // --------------------------------------------------------------------------
@@ -84,7 +81,7 @@ function clickVariantBookmark() {
         }
         // update row color
         var variantRow = $(outerThis).closest(".variant-row");
-        variantRow.removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty");
+        variantRow.removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty variant-row-wip");
         variantRow.addClass("variant-row-" + summarizeFlags(data));
       }).fail(function(xhr) {
         // failed, notify user
