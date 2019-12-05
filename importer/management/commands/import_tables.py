@@ -300,7 +300,7 @@ class Command(BaseCommand):
     def _import_tad_set(self, path, tables, subset_key, force):
         """TAD import"""
         release_info = self._get_table_info(path, tables[0].__name__)[1]
-        if not self._create_import_info_record(release_info, force):
+        if not self._create_import_info_record(release_info):
             return False
 
         # Clear out old data if any
