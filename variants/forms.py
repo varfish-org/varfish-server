@@ -113,8 +113,6 @@ INHERITANCE = [
     ("non-reference", "non-reference"),
     ("index", "c/h index"),
     ("recessive-index", "recess. index"),
-    ("hom-recessive-index", "h/r index"),
-    ("dom-denovo-index", "d/d index"),
 ]
 
 FAIL = [("ignore", "ignore"), ("drop-variant", "drop variant"), ("no-call", "no-call")]

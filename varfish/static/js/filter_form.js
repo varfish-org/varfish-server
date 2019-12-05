@@ -464,11 +464,13 @@ const presets = {
   },
   "inheritance-dominant": {
       "ids": {},
-      "classes": {"genotype-field-gt": "dom-denovo-index"},
+      // dom-denovo doesn't exist in the select. this triggers a function
+      "classes": {"genotype-field-gt": "dom-denovo"},
   },
   "inheritance-hom-recessive": {
       "ids": {},
-      "classes": {"genotype-field-gt": "hom-recessive-index"},
+      // hom-recessive doesn't exist in the select. this triggers a function
+      "classes": {"genotype-field-gt": "hom-recessive"},
   },
   "inheritance-comp-het": {
       "ids": {},
@@ -1259,35 +1261,39 @@ function loadIndexMode(e, value=null) {
         // updateSettingsDump method should be called after things were changed.
         target.on("change", updateSettingsDump);
     }
-    // Enable homozygous recessive mode
-    else if (target.val() == "hom-recessive-index") {
-        // Iterate over all GT fields.
-        $("[id^=id_][id$=_gt]").each(
-            function () {
-                // Get the id of the GT field.
-                var id = $(this).attr("id");
-                // The current (index patients) field stays as it is, so do nothing.
-                if (target.attr("id") == id || $(this).data("family") != family) {
-                    target.val("hom");
-                    return;
-                }
-                // For mother and father, assign the info text, all others get a dash.
-                if (id in ids) {
-                    $(this).val("het");
-                }
-                else {
-                    $(this).val("any");
-                }
+}
+
+
+function enableHomRecessiveMode(target) {
+    const mother_id = "id_" + target.data("mother") + "_gt";
+    const father_id = "id_" + target.data("father") + "_gt";
+    const family = target.data("family");
+    // Iterate over all GT fields.
+    $("[id^=id_][id$=_gt]").each(
+        function () {
+            // Get the id of the GT field.
+            var id = $(this).attr("id");
+            // The current (index patients) field stays as it is, so do nothing.
+            if (target.attr("id") == id || $(this).data("family") != family) {
+                target.val("hom");
+                return;
             }
-        );
-    }
-    // Enable dominant/denovo mode
-    else if (target.val() == "dom-denovo-index") {
-        // All affected will be set to het
-        $("[id^=id_][id$=_gt].affected").val("het");
-        // All unaffected will be set to ref
-        $("[id^=id_][id$=_gt].unaffected").val("ref");
-    }
+            // For mother and father, assign the info text, all others get a dash.
+            if (id == mother_id || id == father_id) {
+                $(this).val("het");
+            } else {
+                $(this).val("any");
+            }
+        }
+    );
+}
+
+
+function enableDomDenovoMode() {
+    // All affected will be set to het
+    $("[id^=id_][id$=_gt].affected").val("het");
+    // All unaffected will be set to ref
+    $("[id^=id_][id$=_gt].unaffected").val("ref");
 }
 
 
@@ -1396,12 +1402,30 @@ function applyPresetsToSettings(presets) {
       }
     }
     else if (tagName == "SELECT") {
-        if (val == "index" || val == "recessive-index" || val == "hom-recessive-index" || val == "dom-denovo-index") {
-            if (tag.data("default-index") != "1") {
-                continue;
-            }
+        // Trigger special genotype settings only for the registered index patient.
+        if (
+            (
+                val == "index"
+                || val == "recessive-index"
+                || val == "dom-denovo"
+                || val == "hom-recessive"
+            ) && tag.data("default-index") != "1"
+        ) {
+            continue;
         }
-        tag.val(val);
+        // Dominant denovo is not an option in the genotype select, so let a function to do the change.
+        if (val == "dom-denovo") {
+            enableDomDenovoMode();
+        }
+        // Homozygous recessive is not an option in the genotype select, so let a function to do the change.
+        else if (val == "hom-recessive") {
+            enableHomRecessiveMode(tag);
+        }
+        // Default change behaviour for all others
+        else {
+            tag.val(val);
+        }
+        // Trigger change if value has been set
         tag.trigger("change");
     }
     else {
