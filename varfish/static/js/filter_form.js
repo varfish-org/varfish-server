@@ -1284,9 +1284,9 @@ function loadIndexMode(e, value=null) {
     // Enable dominant/denovo mode
     else if (target.val() == "dom-denovo-index") {
         // All affected will be set to het
-        $(".affected").val("het");
+        $("[id^=id_][id$=_gt].affected").val("het");
         // All unaffected will be set to ref
-        $(".unaffected").val("ref");
+        $("[id^=id_][id$=_gt].unaffected").val("ref");
     }
 }
 

@@ -30,6 +30,7 @@ let dt = null;
 Handle form error responses from Django AJAX JSON response.
 */
 
+// Define which fields that could receive a warning belong to which tabs. (E.g. checkboxes are not in our cases).
 let INPUT_TAB_AFFILIATION = {
   'genotype-tab': [
     /_gt$/
@@ -40,8 +41,7 @@ let INPUT_TAB_AFFILIATION = {
     /^gnomad_genomes_/,
     /^gnomad_exomes_/,
   ],
-  'effect-tab': [
-  ],
+  'effect-tab': [],
   'quality-tab': [
     /_dp_het$/,
     /_dp_hom$/,
@@ -71,21 +71,18 @@ let INPUT_TAB_AFFILIATION = {
   ],
   'settings-tab': [
     /^settingsDump$/
-  ]
+  ],
+  // More tab needs to exists with an empty entry, will be filled afterwards.
+  'more-tab': []
 };
-INPUT_TAB_AFFILIATION['more-tab'] = $.merge(
-  $.merge(
-    $.merge(
-      $.merge(
-        [],
-        INPUT_TAB_AFFILIATION['clinvar-tab'],
-      ),
-      INPUT_TAB_AFFILIATION['export-tab']
-    ),
-    INPUT_TAB_AFFILIATION['misc-tab']
-  ),
-  INPUT_TAB_AFFILIATION['settings-tab']
-);
+// Find out which tabs are hidden in more tab (we need to convert an array-like object to an actual array).
+let IN_MORE_TAB = $.makeArray($("#more-tab").next().children(".dropdown-item")).map(x => x.id);
+// All fields from tabs in more tab will be merged and put into more tab dict entry.
+for (let key in INPUT_TAB_AFFILIATION) {
+  if (IN_MORE_TAB.includes(key)) {
+    $.merge(INPUT_TAB_AFFILIATION['more-tab'], INPUT_TAB_AFFILIATION[key]);
+  }
+}
 
 function findTabToInput(input) {
   let result = [];

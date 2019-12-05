@@ -31,6 +31,7 @@ End-User Summary
 - Fixed dominant/denovo genotype preset.
 - Minor adjustments/renamings to presets.
 - Link-out to genomics england panelapp.
+- Fixed partly broken error decoration on hidden tabs on field input errors.
 
 Full Change List
 ================
@@ -71,6 +72,7 @@ Full Change List
 - Fixed dominant/denovo genotype preset.
 - Minor adjustments/renamings to presets.
 - Link-out to genomics england panelapp.
+- Fixed partly broken error decoration on hidden tabs on field input errors.
 
 -------
 v0.18.0
