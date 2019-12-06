@@ -345,7 +345,7 @@ class Command(BaseCommand):
         """Common code for RefSeq and ENSEMBL gene import."""
         release_info = self._get_table_info(path, tables[0].__name__)[1]
         release_info["table"] += ":%s" % subset_key
-        if not self._create_import_info_record(release_info, force):
+        if not self._create_import_info_record(release_info):
             return False
         # Clear out any existing entries for this release/database.
         GeneInterval.objects.filter(
