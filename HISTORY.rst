@@ -73,6 +73,7 @@ Full Change List
 - Minor adjustments/renamings to presets.
 - Link-out to genomics england panelapp.
 - Fixed partly broken error decoration on hidden tabs on field input errors.
+- Introduced bigint fields into postgres sequences counter for smallvariant, smallvariantquery_query_results and projectcasessmallvariantquery_query_results tables.
 
 -------
 v0.18.0

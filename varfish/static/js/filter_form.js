@@ -1107,6 +1107,7 @@ function loadGenelistPresets(e) {
 function loadGenotypePresets(e) {
   const presetName = $(e.currentTarget).data("preset-name");
   resetAllCompHetIndices();
+  resetAllRecessiveIndices();
   const preset = presetName.split(":");
   $(".genotype-field-gt." + preset[0]).each(
     function () {
@@ -1384,9 +1385,14 @@ $(document).on('show.bs.dropdown', '#presets-genotype-dropdown', function(e) {
 });
 
 
-function applyPresetsToSettings(presets) {
+function applyPresetsToSettings(presets, name) {
   const oldUpdateQuickPresetsEnabled = updateQuickPresetsEnabled;
   updateQuickPresetsEnabled = false;
+
+  if (name == "inheritance") {
+    resetAllCompHetIndices();
+    resetAllRecessiveIndices();
+  }
 
   for (let key in presets["ids"]) {
     const val = presets["ids"][key];
@@ -1401,7 +1407,7 @@ function applyPresetsToSettings(presets) {
         tag.prop("checked", val);
       }
     }
-    else if (tagName == "SELECT") {
+    else if (name == "inheritance" && tagName == "SELECT") {
         // Trigger special genotype settings only for the registered index patient.
         if (
             (
@@ -1443,8 +1449,7 @@ function presetsToSettings(presets, name) {
   if (value === name + "-custom") {
     return;  // early exit, do nothing on custom
   }
-
-  applyPresetsToSettings(presets[value])
+  applyPresetsToSettings(presets[value], name)
 }
 
 // Set to false to disable updateQuickPresets().

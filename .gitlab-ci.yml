@@ -1,7 +1,7 @@
 image: python:3.6
 
 services:
-- postgres:9.5
+- postgres:12
 - redis:latest
 
 variables:
