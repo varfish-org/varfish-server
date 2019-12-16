@@ -95,6 +95,8 @@ HEADER_FIXED = (
     ("gene_family", "Gene Family", str),
     ("pubmed_id", "Gene Pubmed ID", str),
 )
+if settings.KIOSK_MODE:
+    HEADER_FIXED = tuple(filter(lambda x: not x[0].startswith("inhouse_"), HEADER_FIXED))
 
 #: Names of the phenotype-scoring header columns.
 HEADERS_PHENO_SCORES = (
