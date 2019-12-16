@@ -32,8 +32,8 @@ collectstatic:
 
 # Remember to execute 'python manage.py collectstatic' before executing tests the first time
 test: collectstatic
-	coverage run manage.py test -v2 --settings=config.settings.test
+	VARFISH_KIOSK_MODE=0 coverage run manage.py test -v2 --settings=config.settings.test
 	coverage report
 
 test-noselenium:
-	SKIP_SELENIUM=1 coverage run manage.py test -v2 --settings=config.settings.test
+	VARFISH_KIOSK_MODE=0 SKIP_SELENIUM=1 coverage run manage.py test -v2 --settings=config.settings.test

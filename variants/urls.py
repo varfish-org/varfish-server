@@ -247,4 +247,14 @@ urlpatterns = [
     # Set last seen changelog version for user and redirect to changelog.
     # TODO: move to sodar-core?
     url(regex=r"^new-features/$", view=views.NewFeaturesView.as_view(), name="new-features"),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/kiosk-status/annotate_job/(?P<annotate_job>[0-9a-f-]+)/import_job/(?P<import_job>[0-9a-f-]+)/$",
+        view=views.KioskStatusView.as_view(),
+        name="kiosk-status",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/kiosk-get-status/annotate_job/(?P<annotate_job>[0-9a-f-]+)/import_job/(?P<import_job>[0-9a-f-]+)/$",
+        view=views.KioskJobGetStatus.as_view(),
+        name="kiosk-get-status",
+    ),
 ]

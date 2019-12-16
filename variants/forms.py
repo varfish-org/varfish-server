@@ -1,6 +1,7 @@
 from functools import lru_cache
 from itertools import chain
 
+import vcfpy
 from django.conf import settings
 from django import forms
 from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
@@ -1381,13 +1382,13 @@ class CaseNotesStatusForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         project = kwargs.pop("project")
         super().__init__(*args, **kwargs)
-        choices = [
-            (x.strip(), x.strip())
-            for x in app_settings.get_app_setting(
-                "variants", "user_defined_tags", project=project
-            ).split(";")
-        ]
-        self.fields["tags"].widget.choices = choices
+        tags_string = app_settings.get_app_setting("variants", "user_defined_tags", project=project)
+        if tags_string:
+            self.fields["tags"].widget.choices = [
+                (x.strip(), x.strip()) for x in tags_string.split(";")
+            ]
+        else:
+            self.fields["tags"].disabled = True
 
     class Meta:
         model = Case
@@ -1424,3 +1425,46 @@ class CaseCommentsForm(forms.ModelForm):
                 }
             )
         }
+
+
+class KioskUploadForm(forms.Form):
+    """Form for uploading the user's data."""
+
+    vcf_file = forms.FileField(
+        label="VCF File",
+        required=True,
+        help_text="Select the VCF file to upload (compressed or uncompressed).",
+    )
+
+    ped_file = forms.FileField(
+        label="PED File",
+        required=False,
+        help_text="Optional PED file with pedigree information, you can also type the text below.",
+    )
+
+    ped_text = forms.CharField(
+        label="PED Text",
+        required=False,
+        help_text="Alternatively, type the PED file here. If both is given, the file has precedence.",
+        widget=forms.Textarea(
+            attrs={
+                "rows": "3",
+                "class": "form-input",
+                "placeholder": (
+                    "FAM index father mother 1 2\n" "FAM father 0 0 1 1\n" "FAM mother 0 0 2 1"
+                ),
+            }
+        ),
+    )
+
+    def clean(self):
+        # Either ped_file or ped_text have to be set.
+        if not self.cleaned_data.get("ped_file") and not self.cleaned_data.get("ped_text"):
+            self.add_error("ped_file", "Please specify either PED file or PED text!")
+            self.add_error("ped_text", "Please specify either PED file or PED text!")
+
+        # Simple file-extension check for vcf format (gzipped or not)
+        if not self.cleaned_data.get("vcf_file").name.lower().endswith((".vcf", ".vcf.gz")):
+            self.add_error("vcf_file", "Please only upload VCF files!")
+
+        return self.cleaned_data

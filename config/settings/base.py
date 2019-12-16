@@ -136,6 +136,35 @@ MIGRATION_MODULES = {"sites": "varfish.contrib.sites.migrations"}
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = env.bool("DJANGO_DEBUG", False)
 
+# KIOSK-MODE RELATED
+# ------------------------------------------------------------------------------
+# Enable/disable kiosk mode.
+KIOSK_MODE = env.bool("VARFISH_KIOSK_MODE", False)
+# Name of top-level category with kiosk cases.
+KIOSK_CAT = "VarFish Kiosk"
+# Name of project below that Kategory (mandatory structure from SODAR core).
+KIOSK_PROJ_PREFIX = "Cases"
+# Define conda path for loading varfish-annotator environment
+KIOSK_CONDA_PATH = env.str("VARFISH_KIOSK_CONDA_PATH", "")
+# Varfish Annotator database path
+KIOSK_VARFISH_ANNOTATOR_DB_PATH = env.str("VARFISH_KIOSK_VARFISH_ANNOTATOR_DB_PATH", "")
+# Varfish Annotator ensembl ser path
+KIOSK_VARFISH_ANNOTATOR_ENSEMBL_SER_PATH = env.str(
+    "VARFISH_KIOSK_VARFISH_ANNOTATOR_ENSEMBL_SER_PATH", ""
+)
+# Varfish Annotator refseq ser path
+KIOSK_VARFISH_ANNOTATOR_REFSEQ_SER_PATH = env.str(
+    "VARFISH_KIOSK_VARFISH_ANNOTATOR_REFSEQ_SER_PATH", ""
+)
+# Varfish Annotator reference path
+KIOSK_VARFISH_ANNOTATOR_REFERENCE_PATH = env.str(
+    "VARFISH_KIOSK_VARFISH_ANNOTATOR_REFERENCE_PATH", ""
+)
+# Varfish Annotator release
+KIOSK_VARFISH_ANNOTATOR_RELEASE = env.str("VARFISH_KIOSK_VARFISH_ANNOTATOR_RELEASE", "GRCh37")
+# Activate Kiosk mode in project roles
+PROJECTROLES_KIOSK_MODE = KIOSK_MODE
+
 # FIXTURE CONFIGURATION
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-FIXTURE_DIRS
@@ -435,7 +464,10 @@ REST_FRAMEWORK = {
     )
 }
 
-SITE_TITLE = "VarFish"
+if KIOSK_MODE:
+    SITE_TITLE = "VarFish (Kiosk)"
+else:
+    SITE_TITLE = "VarFish"
 SITE_SUBTITLE = env.str("SITE_SUBTITLE", "Beta")
 SITE_INSTANCE_TITLE = env.str("SITE_INSTANCE_TITLE", "Deployment Instance Name")
 

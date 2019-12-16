@@ -1,4 +1,7 @@
 import contextlib
+import os
+import shutil
+import subprocess
 import tempfile
 import time
 from datetime import datetime, timedelta
@@ -13,7 +16,7 @@ import math
 import re
 import requests
 from django.forms import model_to_dict
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, delete
 import uuid as uuid_object
 
 from postgres_copy import CopyManager
@@ -31,7 +34,13 @@ from django.db.models.signals import pre_delete
 from django.utils import timezone
 
 from projectroles.models import Project
-from bgjobs.models import BackgroundJob, JobModelMessageMixin, LOG_LEVEL_CHOICES, LOG_LEVEL_ERROR
+from bgjobs.models import (
+    BackgroundJob,
+    JobModelMessageMixin,
+    LOG_LEVEL_CHOICES,
+    LOG_LEVEL_ERROR,
+    LOG_LEVEL_INFO,
+)
 from projectroles.plugins import get_backend_api
 
 from geneinfo.models import Hgnc, EnsemblToGeneSymbol
@@ -2979,6 +2988,58 @@ class ImportVariantsBgJob(JobModelMessageMixin2, models.Model):
         )
 
 
+class KioskAnnotateBgJob(JobModelMessageMixin2, models.Model):
+    """Background job for annotating vcf in kiosk mode."""
+
+    #: Task description for logging.
+    task_desc = "Kiosk annotate"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.kiosk"
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+
+    #: UUID of the job
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
+    #: The project that the job belongs to.
+    project = models.ForeignKey(Project, help_text="Project that is imported to")
+
+    #: The background job that is specialized.
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="%(app_label)s_%(class)s_related",
+        help_text="Background job for state etc.",
+    )
+
+    #: Path to the temporary vcf file.
+    path_vcf = models.CharField(
+        max_length=4096, blank=False, null=False, help_text="Path to the vcf file to annotate"
+    )
+    #: Path to the db info file.
+    path_db_info = models.CharField(
+        max_length=4096, blank=False, null=False, help_text="Output path to the db info file"
+    )
+    #: Path to the gts variant file.
+    path_gts = models.CharField(
+        max_length=4096, blank=False, null=False, help_text="Output path to the gts file"
+    )
+    #: Path to the tmp dir everything is stored.
+    path_tmp_dir = models.CharField(
+        max_length=4096, blank=False, null=False, help_text="Path to the tmp dir"
+    )
+
+    def get_human_readable_type(self):
+        return "Annotate small variants in kiosk mode"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:kiosk-annotate-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
+
+
 class VariantImporterBase:
     """Base class for variant importer helper classes."""
 
@@ -3211,6 +3272,122 @@ def run_import_variants_bg_job(pk):
                 % (import_job.case_name, elapsed.total_seconds()),
                 status_type="OK",
             )
+
+
+class KioskAnnotate:
+    def __init__(self, job):
+        self.job = job
+
+    def run(self):
+        """Perform the variant annotation."""
+        try:
+            process = subprocess.Popen(
+                """
+                # Activate conda and varfish environment
+                . {conda_path}
+                conda activate varfish-annotator
+                vcf={input_vcf}
+                # Gzip vcf file if necessary
+                if ! {{ [[ $(file -ib $vcf) =~ ^application/gzip ]] && [[ "$vcf" =~ \.[Gg][Zz]$ ]]; }}
+                then
+                    bgzip $vcf
+                    vcf=${{vcf}}.gz
+                fi
+                # Create index
+                tabix $vcf
+                # Annotate (requires gzipped file and index)
+                varfish-annotator annotate \
+                    --db-path {db_path} \
+                    --ensembl-ser-path {ensembl_ser_path} \
+                    --refseq-ser-path {refseq_ser_path} \
+                    --input-vcf $vcf \
+                    --output-db-info >(gzip > {output_db_info}) \
+                    --output-gts >(gzip > {output_gts}) \
+                    --ref-path {reference_path} \
+                    --release {release}
+                """.format(
+                    conda_path=settings.KIOSK_CONDA_PATH,
+                    db_path=settings.KIOSK_VARFISH_ANNOTATOR_DB_PATH,
+                    ensembl_ser_path=settings.KIOSK_VARFISH_ANNOTATOR_ENSEMBL_SER_PATH,
+                    refseq_ser_path=settings.KIOSK_VARFISH_ANNOTATOR_REFSEQ_SER_PATH,
+                    input_vcf=self.job.path_vcf,
+                    output_db_info=self.job.path_db_info,
+                    output_gts=self.job.path_gts,
+                    reference_path=settings.KIOSK_VARFISH_ANNOTATOR_REFERENCE_PATH,
+                    release=settings.KIOSK_VARFISH_ANNOTATOR_RELEASE,
+                ),
+                stderr=subprocess.STDOUT,
+                stdout=subprocess.PIPE,
+                shell=True,
+                executable="/bin/bash",
+            )
+            # Get live output from bash job
+            for line in iter(process.stdout.readline, ""):
+                # Break if finished (reports None when running and exit code when finished)
+                if process.poll() is not None:
+                    break
+                self.job.add_log_entry(line.decode("utf-8").strip(), LOG_LEVEL_INFO)
+        except subprocess.CalledProcessError as e:
+            self.job.add_log_entry("Problem during kiosk annotation: %s" % e, LOG_LEVEL_ERROR)
+            raise e
+
+    def clear(self):
+        shutil.rmtree(self.job.path_tmp_dir, ignore_errors=True)
+        self.job.add_log_entry("Removing directory %s" % self.job.path_tmp_dir, LOG_LEVEL_INFO)
+
+
+def run_kiosk_annotate_bg_job(pk):
+    timeline = get_backend_api("timeline_backend")
+    job = KioskAnnotateBgJob.objects.get(pk=pk)
+    started = timezone.now()
+    with job.marks():
+        KioskAnnotate(job).run()
+        if timeline:
+            elapsed = timezone.now() - started
+            timeline.add_event(
+                project=job.project,
+                app_name="variants",
+                user=job.bg_job.user,
+                event_name="kiosk_annotate",
+                description='Annotation of VCF file "%s" finished in %.2fs.'
+                % (os.path.basename(job.path_vcf), elapsed.total_seconds()),
+                status_type="OK",
+            )
+
+
+def run_clear_kiosk_bg_job(pk):
+    job = KioskAnnotateBgJob.objects.get(pk=pk)
+    KioskAnnotate(job).clear()
+
+
+def clear_old_kiosk_cases():
+    """Clear out cases that are older than a week."""
+
+    # Do nothing if kiosk mode isn't enabled.
+    if not settings.KIOSK_MODE:
+        return
+
+    # Find the correct category
+    cat = Project.objects.get(type="CATEGORY", name=settings.KIOSK_CAT)
+    # Define allowed period (one week)
+    time_threshold = timezone.now() - timedelta(days=7)
+    # Find the correct project within the category and within cases that are older than threshold
+    cases = Case.objects.filter(
+        project__type="PROJECT", project__parent_id=cat.id, date_modified__gte=time_threshold
+    )
+
+    # TODO Had to copy code from queries.py because of circular import ... maybe there is a better solution
+    # Delete cases and associated variants
+    for case in cases:
+        # Delete all small variants.
+        with contextlib.closing(
+            SQLALCHEMY_ENGINE.execute(
+                delete(SmallVariant.sa.table).where(SmallVariant.sa.case_id == case.id)
+            )
+        ):
+            pass
+        # Delete case
+        case.delete()
 
 
 def update_variant_counts(case):

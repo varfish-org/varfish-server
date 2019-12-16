@@ -217,7 +217,7 @@ function handleEventStateInitial(eventType, event) {
             displayConnectionError();
             break;
           default:
-            alert("Error during AJAX call:", textStatus, + errorThrown, "in state", currentState);
+            alert("Error during AJAX call: " + textStatus + " " +  errorThrown + " in state " + currentState);
             console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown, currentState);
             handleEvent(EVENT_ERROR, null);
         }
@@ -262,7 +262,7 @@ function handleEventStateIdle(eventType, event) {
             handleEvent(EVENT_ERROR, null);
             break;
           default:
-            alert("Error during AJAX call:", textStatus, + errorThrown, "in state", currentState);
+            alert("Error during AJAX call: " + textStatus + " " + errorThrown + " in state " + currentState);
             console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown, currentState);
             handleEvent(EVENT_ERROR, null);
         }
@@ -305,7 +305,7 @@ function handleEventStateGetJobId(eventType, event) {
             displayConnectionError();
             break;
           default:
-            alert("Error during AJAX call:", textStatus, + errorThrown, "in state", currentState);
+            alert("Error during AJAX call: " + textStatus + " " + errorThrown + " in state " + currentState);
             console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown, currentState);
             handleEvent(EVENT_ERROR, null);
         }
@@ -396,7 +396,7 @@ function handleEventStateWaitJobResults(eventType, event) {
             displayConnectionError();
             break;
           default:
-            alert("Error during AJAX call:", textStatus, + errorThrown, "in state", currentState);
+            alert("Error during AJAX call: " + textStatus + " " + errorThrown + " in state " + currentState);
             console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown, currentState);
             handleEvent(EVENT_ERROR, null);
         }

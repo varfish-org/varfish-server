@@ -1,11 +1,14 @@
 {% load projectroles_common_tags %}
 {% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
+{% get_django_setting 'PROJECTROLES_KIOSK_MODE' as kiosk_mode %}
 
 <div class="ml-auto">
+  {% if not kiosk_mode %}
   <a class="btn btn-secondary" href="{% url "variants:case-list" project=project.sodar_uuid %}">
     <i class="fa fa-arrow-circle-left"></i>
     Back to List
   </a>
+  {% endif %}
 
   <a class="btn btn-primary" href="{% url "variants:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
     <i class="fa fa-filter"></i>

@@ -18,6 +18,11 @@ def refresh_variants_smallvariantsummary(_self):
 
 
 @app.task(bind=True)
+def clear_old_kiosk_cases(_self):
+    models.clear_old_kiosk_cases()
+
+
+@app.task(bind=True)
 def distiller_submission_task(_self, submission_job_pk):
     """Task to submit a case to MutationDistiller"""
     submit_external.submit_distiller(
@@ -82,6 +87,14 @@ def run_import_variants_bg_job(_self, import_variants_bg_job_pk):
     return models.run_import_variants_bg_job(pk=import_variants_bg_job_pk)
 
 
+@app.task(bind=True)
+def run_kiosk_bg_job(_self, kiosk_annotate_bg_job_pk, import_variants_bg_job_pk):
+    """Task to annotate variants in kiosk mode."""
+    models.run_kiosk_annotate_bg_job(pk=kiosk_annotate_bg_job_pk)
+    models.run_import_variants_bg_job(pk=import_variants_bg_job_pk)
+    models.run_clear_kiosk_bg_job(pk=kiosk_annotate_bg_job_pk)
+
+
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **_kwargs):
     """Register periodic tasks"""
@@ -94,4 +107,8 @@ def setup_periodic_tasks(sender, **_kwargs):
     # Rebuild materialized view on sundays.
     sender.add_periodic_task(
         schedule=crontab(day_of_week=0), signature=refresh_variants_smallvariantsummary.s()
+    )
+    # Clear out kiosk cases nightly (lasting period is defined in signature function)
+    sender.add_periodic_task(
+        schedule=crontab(hour=2, minute=22), signature=clear_old_kiosk_cases.s()
     )

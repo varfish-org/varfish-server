@@ -822,6 +822,9 @@ class ExtendQueryPartsInHouseJoin(ExtendQueryPartsBase):
         )
 
     def extend_fields(self, _query_parts):
+        if settings.KIOSK_MODE:
+            return []
+
         return [
             func.coalesce(self.subquery.c.inhouse_hom_ref, 0).label("inhouse_hom_ref"),
             func.coalesce(self.subquery.c.inhouse_het, 0).label("inhouse_het"),
@@ -832,12 +835,18 @@ class ExtendQueryPartsInHouseJoin(ExtendQueryPartsBase):
         ]
 
     def extend_selectable(self, query_parts):
+        if settings.KIOSK_MODE:
+            return query_parts.selectable
+
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
 class ExtendQueryPartsInHouseJoinAndFilter(ExtendQueryPartsInHouseJoin):
     def extend_conditions(self, _query_parts):
         """Build WHERE clause for the query based on select het/hom counts in inhouse DB."""
+        if settings.KIOSK_MODE:
+            return []
+
         terms = []
         if self.kwargs.get("inhouse_enabled"):
             if self.kwargs.get("inhouse_heterozygous") is not None:

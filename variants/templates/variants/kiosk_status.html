@@ -1,0 +1,64 @@
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load variants_tags %}
+
+{% block javascript %}
+<script type="text/javascript">
+let timer = null;
+$(document).ready(function() {
+    // Poll job status every 5 seconds
+    timer = setInterval(
+        getJobStatus,
+        5000,
+        // parameters to getJobStatus
+    );
+});
+
+function getJobStatus() {
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        url: "{% url "variants:kiosk-get-status" project=project.sodar_uuid annotate_job=annotate_job_uuid import_job=import_job_uuid %}",
+        success: function(result) {
+            // Display logs.
+            $("#logger").html("<pre>" + result["messages"].join("<br>") + "</pre>");
+            if (result["annotate_status"] != "done") {
+                $("#spinner-text").text("Annotating ...");
+            }
+            if (result["annotate_status"] == "done" && result["import_status"] != "done") {
+                $("#spinner-text").text("Importing ...");
+            }
+            // Redirect to case overview page when both jobs have finished.
+            if (result["annotate_status"] == "done" && result["import_status"] == "done") {
+                let url = "{% url "variants:case-detail" project=project.sodar_uuid case="--fedcba--" %}".replace("--fedcba--", result["case_uuid"])
+                // Swap spinner with a check symbol
+                $("#spinner").removeClass("fa-circle-o-notch fa-spin");
+                $("#spinner").addClass("fa-check");
+                $("#spinner-text").html("Finished! <a class='btn btn-sm btn-info' href='" + url + "'>Go to case</a>");
+                // Disable polling
+                clearInterval(timer);
+                // Redirect to case overview page
+                window.location.replace(url);
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert("Error during AJAX call: " + textStatus + " " + errorThrown);
+            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+        }
+    });
+}
+</script>
+{% endblock javascript %}
+
+{% block projectroles %}
+    <div class="alert alert-info sticky-top">
+        <i id="spinner" class="fa fa-circle-o-notch fa-spin"></i>
+        <strong id="spinner-text">
+            Loading ...
+        </strong>
+    </div>
+    <div class="alert alert-info" id="logger"></div>
+{% endblock projectroles %}

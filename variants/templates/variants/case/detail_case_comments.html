@@ -20,7 +20,7 @@
           {{ comment.date_created|date:"Y/m/d H:i" }}:
         </span>
         <em>{{ comment.comment }}</em>
-        {% if comment.user == request.user or request.user.is_superuser %}
+        {% if comment.user == request.user or request.user.is_superuser or comment.user.username == "kiosk_user" %}
           <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="fa fa-pencil"></i></a>
           <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="fa fa-times-circle"></i></a>
         {% endif %}

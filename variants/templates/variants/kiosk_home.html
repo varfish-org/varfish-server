@@ -1,0 +1,17 @@
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load variants_tags %}
+
+{% block projectroles %}
+
+<form method="POST" enctype="multipart/form-data">{% csrf_token %}
+    {{ form.vcf_file|as_crispy_field }}
+    {{ form.ped_file|as_crispy_field }}
+    {{ form.ped_text|as_crispy_field }}
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock projectroles %}

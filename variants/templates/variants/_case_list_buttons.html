@@ -1,8 +1,10 @@
 <div class="ml-auto">
-  <a class="btn btn-secondary" href="{% url 'projectroles:detail' project=project.sodar_uuid %}">
-    <i class="fa fa-arrow-circle-left"></i>
-    Back to Project
-  </a>
+  {% if not kiosk_mode %}
+    <a class="btn btn-secondary" href="{% url 'projectroles:detail' project=project.sodar_uuid %}">
+      <i class="fa fa-arrow-circle-left"></i>
+      Back to Project
+    </a>
+  {% endif %}
   <a class="btn btn-primary" href="{% url "variants:project-cases-filter" project=project.sodar_uuid %}">
     <i class="fa fa-filter"></i>
     Joint Filtration

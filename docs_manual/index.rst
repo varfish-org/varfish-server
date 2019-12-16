@@ -51,6 +51,18 @@ The VarFish logo is created from an `SVG Repo Image <https://www.svgrepo.com/svg
 
 .. toctree::
     :maxdepth: 1
+    :caption: Administrator Manual
+    :name: admin-manual
+    :hidden:
+    :titlesonly:
+
+    installation
+    setup_core
+    setup_extras
+    setup_tuning
+
+.. toctree::
+    :maxdepth: 1
     :caption: Project Info
     :name: project-info
     :hidden:

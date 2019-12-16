@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from projectroles.views import LoginRequiredMixin
 from django.views.generic import ListView
 
 from projectroles.views import LoggedInPermissionMixin

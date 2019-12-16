@@ -3,6 +3,7 @@ from django.utils import formats
 from django.utils.html import avoid_wrapping
 import nltk
 
+from django.conf import settings
 from ..models import (
     Case,
     only_source_name as _models_only_source_name,
@@ -354,6 +355,8 @@ def bpformat(bp):
 @register.simple_tag
 def get_user_setting(user, app_name, setting_name):
     """Return user setting."""
+    if settings.KIOSK_MODE:
+        return
     setting_api = AppSettingAPI()
     return setting_api.get_app_setting(app_name, setting_name, user=user)
 

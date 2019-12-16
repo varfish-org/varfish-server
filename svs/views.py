@@ -4,8 +4,7 @@ import hashlib
 import json
 import uuid
 
-import aldjemy.core
-from django.contrib.auth.mixins import LoginRequiredMixin
+from projectroles.views import LoginRequiredMixin
 from django.db import transaction
 from django.forms import model_to_dict
 from django.http import HttpResponse, Http404

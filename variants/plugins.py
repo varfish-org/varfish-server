@@ -117,7 +117,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
         },
     }
 
-    def get_project_list_value(self, column_id, project):
+    def get_project_list_value(self, column_id, project, user):
         if column_id == "cases":
             return Case.objects.filter(project=project).count()
         elif column_id == "donors":

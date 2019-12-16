@@ -1,3 +1,6 @@
+import os
+import tempfile
+import time
 from itertools import chain
 from collections import defaultdict
 import uuid
@@ -6,12 +9,15 @@ import contextlib
 import decimal
 import numpy as np
 import requests
+import vcfpy
+import io
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.files.storage import FileSystemStorage
+from django.core.files.uploadhandler import FileUploadHandler
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
@@ -30,8 +36,14 @@ from geneinfo.views import get_gene_infos
 from geneinfo.models import NcbiGeneInfo, NcbiGeneRif, HpoName
 from frequencies.views import FrequencyMixin
 from projectroles.app_settings import AppSettingAPI
-from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
-from projectroles.plugins import get_backend_api
+from projectroles.views import (
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectContextMixin,
+    ProjectPermissionMixin,
+    PluginContextMixin,
+)
+from projectroles.plugins import get_backend_api, get_active_plugins
 
 from varfish.users.models import User
 from .queries import (
@@ -68,6 +80,7 @@ from .models import (
     CASE_STATUS_CHOICES,
     RowWithAffectedCasesPerGene,
     SmallVariantSummary,
+    KioskAnnotateBgJob,
 )
 from .forms import (
     ExportFileResubmitForm,
@@ -86,6 +99,7 @@ from .forms import (
     SyncProjectJobForm,
     CaseNotesStatusForm,
     CaseCommentsForm,
+    KioskUploadForm,
 )
 from .tasks import (
     export_file_task,
@@ -95,6 +109,7 @@ from .tasks import (
     sync_project_upstream,
     single_case_filter_task,
     project_cases_filter_task,
+    run_kiosk_bg_job,
 )
 from .file_export import RowWithSampleProxy
 from variants.helpers import SQLALCHEMY_ENGINE
@@ -221,13 +236,16 @@ class CaseListSyncRemoteView(
     form_class = SyncProjectJobForm
 
     def form_valid(self, form):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         with transaction.atomic():
             # Construct background job objects
             bg_job = BackgroundJob.objects.create(
                 name="Sync VarFish project with upstream SODAR",
                 project=self.get_project(self.request, self.kwargs),
                 job_type=SyncCaseListBgJob.spec_name,
-                user=self.request.user,
+                user=user,
             )
             sync_job = SyncCaseListBgJob.objects.create(
                 project=self.get_project(self.request, self.kwargs), bg_job=bg_job
@@ -322,6 +340,10 @@ class CaseNotesStatusApiView(
     slug_field = "sodar_uuid"
 
     def post(self, *args, **kwargs):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+
         case = self.get_object()
         form = self.get_form()
         timeline = get_backend_api("timeline_backend")
@@ -334,7 +356,7 @@ class CaseNotesStatusApiView(
                 tl_event = timeline.add_event(
                     project=self.get_project(self.request, self.kwargs),
                     app_name="variants",
-                    user=self.request.user,
+                    user=user,
                     event_name="case_status_notes_submit",
                     description="submit status and note for case {{case}}: {status}, {text}".format(
                         status=case.status, text=case.shortened_notes_text()
@@ -342,21 +364,18 @@ class CaseNotesStatusApiView(
                     status_type="OK",
                 )
                 tl_event.add_object(obj=case, label="case", name=case.name)
-            return HttpResponse(
-                json.dumps(
-                    {
-                        "notes": form.cleaned_data["notes"],
-                        "status": form.cleaned_data["status"],
-                        "tags": form.cleaned_data["tags"],
-                    }
-                ),
-                content_type="application/json",
+            return JsonResponse(
+                {
+                    "notes": form.cleaned_data["notes"],
+                    "status": form.cleaned_data["status"],
+                    "tags": form.cleaned_data["tags"],
+                }
             )
         if timeline:
             tl_event = timeline.add_event(
                 project=self.get_project(self.request, self.kwargs),
                 app_name="variants",
-                user=self.request.user,
+                user=user,
                 event_name="case_status_notes_submit",
                 description="failed submit status and note for case {{case}}: {status}, {text}".format(
                     status=case.status, text=case.shortened_notes_text()
@@ -364,7 +383,7 @@ class CaseNotesStatusApiView(
                 status_type="FAILED",
             )
             tl_event.add_object(obj=case, label="case", name=case.name)
-        return HttpResponse({}, content_type="application/json", status=500)
+        return JsonResponse(dict(form.errors.items()), status=500)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -392,14 +411,9 @@ class CaseCommentsSubmitApiView(
     slug_field = "sodar_uuid"
 
     def post(self, *args, **kwargs):
-        try:
-            user = User.objects.get(id=self.request.user.id)
-        except ObjectDoesNotExist as e:
-            return HttpResponse(
-                json.dumps({"result": "User not found."}),
-                content_type="application/json",
-                status=403,
-            )
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
 
         case = self.get_object()
         form = self.get_form()
@@ -425,7 +439,7 @@ class CaseCommentsSubmitApiView(
                     tl_event = timeline.add_event(
                         project=self.get_project(self.request, self.kwargs),
                         app_name="variants",
-                        user=self.request.user,
+                        user=user,
                         event_name="case_comment_edit",
                         description="edit comment for case {case}: {text}",
                         status_type="OK",
@@ -433,15 +447,13 @@ class CaseCommentsSubmitApiView(
                     tl_event.add_object(obj=case, label="case", name=case.name)
                     tl_event.add_object(obj=record, label="text", name=record.shortened_text())
             else:
-                record = CaseComments(
-                    case=case, user=self.request.user, comment=form.cleaned_data["comment"]
-                )
+                record = CaseComments(case=case, user=user, comment=form.cleaned_data["comment"])
                 record.save()
                 if timeline:
                     tl_event = timeline.add_event(
                         project=self.get_project(self.request, self.kwargs),
                         app_name="variants",
-                        user=self.request.user,
+                        user=user,
                         event_name="case_comment_add",
                         description="add comment for case {case}: {text}",
                         status_type="OK",
@@ -478,14 +490,9 @@ class CaseCommentsDeleteApiView(
     slug_field = "sodar_uuid"
 
     def post(self, *args, **kwargs):
-        try:
-            user = User.objects.get(id=self.request.user.id)
-        except ObjectDoesNotExist as e:
-            return HttpResponse(
-                json.dumps({"result": "User not found."}),
-                content_type="application/json",
-                status=403,
-            )
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
 
         kwargs = {"sodar_uuid": self.request.POST.get("sodar_uuid")}
         if not user.is_superuser:
@@ -506,7 +513,7 @@ class CaseCommentsDeleteApiView(
             tl_event = timeline.add_event(
                 project=self.get_project(self.request, self.kwargs),
                 app_name="variants",
-                user=self.request.user,
+                user=user,
                 event_name="case_comment_delete",
                 description="delete comment for case {case}",
                 status_type="OK",
@@ -898,6 +905,9 @@ class CaseFilterView(
         self._previous_query = None
 
     def get_previous_query(self):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         if not self._previous_query:
             if "job" in self.kwargs:
                 self._previous_query = FilterBgJob.objects.get(
@@ -906,7 +916,7 @@ class CaseFilterView(
             else:
                 self._previous_query = (
                     self.get_case_object()
-                    .small_variant_queries.filter(user=self.request.user)
+                    .small_variant_queries.filter(user=user)
                     .order_by("-date_created")
                     .first()
                 )
@@ -918,9 +928,12 @@ class CaseFilterView(
         return self._case_object
 
     def get_form_kwargs(self):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         result = super().get_form_kwargs()
         result["case"] = self.get_case_object()
-        result["user"] = self.request.user
+        result["user"] = user
         return result
 
     def form_valid(self, form):
@@ -939,6 +952,9 @@ class CaseFilterView(
 
     def _form_valid_file(self, form):
         """The form is valid, we want to asynchronously build a file for later download."""
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         with transaction.atomic():
             # Construct background job objects
             bg_job = BackgroundJob.objects.create(
@@ -947,7 +963,7 @@ class CaseFilterView(
                 ),
                 project=self.get_project(self.request, self.kwargs),
                 job_type=ExportFileBgJob.spec_name,
-                user=self.request.user,
+                user=user,
             )
             export_job = ExportFileBgJob.objects.create(
                 project=self.get_project(self.request, self.kwargs),
@@ -966,13 +982,16 @@ class CaseFilterView(
 
     def _form_valid_mutation_distiller(self, form):
         """The form is valid, we are supposed to submit to MutationDistiller."""
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         with transaction.atomic():
             # Construct background job objects
             bg_job = BackgroundJob.objects.create(
                 name="Submitting case {} to MutationDistiller".format(self.get_case_object().name),
                 project=self.get_project(self.request, self.kwargs),
                 job_type=DistillerSubmissionBgJob.spec_name,
-                user=self.request.user,
+                user=user,
             )
             submission_job = DistillerSubmissionBgJob.objects.create(
                 project=self.get_project(self.request, self.kwargs),
@@ -1065,14 +1084,18 @@ class CasePrefetchFilterView(
     slug_field = "sodar_uuid"
     query_type = "case"
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
+
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
 
         # get case object
         case_object = Case.objects.get(sodar_uuid=kwargs["case"])
 
         # clean data first
-        form = FilterForm(request.POST, case=case_object, user=request.user)
+        form = FilterForm(self.request.POST, case=case_object, user=user)
 
         if form.is_valid():
             # form is valid, we are supposed to render an HTML table with the results
@@ -1080,7 +1103,7 @@ class CasePrefetchFilterView(
                 # Save query parameters
                 small_variant_query = SmallVariantQuery.objects.create(
                     case=case_object,
-                    user=request.user,
+                    user=user,
                     form_id=form.form_id,
                     form_version=form.form_version,
                     query_settings=_undecimal(form.cleaned_data),
@@ -1088,12 +1111,12 @@ class CasePrefetchFilterView(
                 # Construct background job objects
                 bg_job = BackgroundJob.objects.create(
                     name="Running filter query for case {}".format(case_object.name),
-                    project=self.get_project(request, kwargs),
+                    project=self.get_project(self.request, kwargs),
                     job_type=FilterBgJob.spec_name,
-                    user=request.user,
+                    user=user,
                 )
                 filter_job = FilterBgJob.objects.create(
-                    project=self.get_project(request, kwargs),
+                    project=self.get_project(self.request, kwargs),
                     bg_job=bg_job,
                     case=case_object,
                     smallvariantquery=small_variant_query,
@@ -1122,10 +1145,10 @@ class FilterJobGetStatus(
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):
         try:
             filter_job = FilterBgJob.objects.select_related("bg_job").get(
-                sodar_uuid=request.POST["filter_job_uuid"]
+                sodar_uuid=self.request.POST["filter_job_uuid"]
             )
             log_entries = reversed(
                 filter_job.bg_job.log_entries.all().order_by("-date_created")[:3]
@@ -1141,12 +1164,17 @@ class FilterJobGetStatus(
             )
         except ObjectDoesNotExist:
             return JsonResponse(
-                {"error": "No filter job with UUID {}".format(request.POST["filter_job_uuid"])},
+                {
+                    "error": "No filter job with UUID {}".format(
+                        self.request.POST["filter_job_uuid"]
+                    )
+                },
                 status=400,
             )
         except ValidationError:
             return JsonResponse(
-                {"error": "No valid UUID {}".format(request.POST["filter_job_uuid"])}, status=400
+                {"error": "No valid UUID {}".format(self.request.POST["filter_job_uuid"])},
+                status=400,
             )
 
 
@@ -1167,10 +1195,13 @@ class FilterJobGetPrevious(
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         filter_job = (
             FilterBgJob.objects.filter(
-                smallvariantquery__user=request.user, case__sodar_uuid=kwargs["case"]
+                smallvariantquery__user=user, case__sodar_uuid=kwargs["case"]
             )
             .order_by("-bg_job__date_created")
             .first()
@@ -1199,12 +1230,12 @@ class CaseLoadPrefetchedFilterView(
     slug_field = "sodar_uuid"
     query_type = "case"
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
         # TODO: properly test prioritization
         # TODO: refactor, cleanup, break apart
         # Fetch filter job to display.
-        filter_job = FilterBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
+        filter_job = FilterBgJob.objects.get(sodar_uuid=self.request.POST["filter_job_uuid"])
 
         # Compute number of columns in table for the cards.
         pedigree = filter_job.smallvariantquery.case.get_filtered_pedigree_with_samples()
@@ -1267,7 +1298,7 @@ class CaseLoadPrefetchedFilterView(
         rows = annotate_with_clinvar_max(rows)
 
         return render(
-            request,
+            self.request,
             self.template_name,
             self.get_context_data(
                 case=filter_job.smallvariantquery.case,
@@ -1334,10 +1365,12 @@ class ProjectCasesLoadPrefetchedFilterView(
     slug_field = "sodar_uuid"
     query_type = "project"
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
 
-        filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=request.POST["filter_job_uuid"])
+        filter_job = ProjectCasesFilterBgJob.objects.get(
+            sodar_uuid=self.request.POST["filter_job_uuid"]
+        )
 
         # Take time while job is running
         before = timezone.now()
@@ -1391,7 +1424,7 @@ class ProjectCasesLoadPrefetchedFilterView(
             rows = annotate_with_pathogenicity_scores(rows, variant_scores)
 
         return render(
-            request,
+            self.request,
             self.template_name,
             self.get_context_data(
                 result_rows=rows[
@@ -1470,6 +1503,9 @@ class ProjectCasesFilterView(
         self._previous_query = None
 
     def get_previous_query(self):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         if not self._previous_query:
             if "job" in self.kwargs:
                 self._previous_query = ProjectCasesFilterBgJob.objects.get(
@@ -1478,16 +1514,19 @@ class ProjectCasesFilterView(
             else:
                 self._previous_query = (
                     self.get_project(self.request, self.kwargs)
-                    .small_variant_queries.filter(user=self.request.user)
+                    .small_variant_queries.filter(user=user)
                     .order_by("-date_created")
                     .first()
                 )
         return self._previous_query
 
     def get_form_kwargs(self):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         result = super().get_form_kwargs()
         result["project"] = self.get_project(self.request, self.kwargs)
-        result["user"] = self.request.user
+        result["user"] = user
         return result
 
     def form_valid(self, form):
@@ -1497,13 +1536,16 @@ class ProjectCasesFilterView(
 
     def _form_valid_file(self, form):
         """The form is valid, we want to asynchronously build a file for later download."""
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         with transaction.atomic():
             # Construct background job objects
             bg_job = BackgroundJob.objects.create(
                 name="Create {} file for cases in project".format(form.cleaned_data["file_type"]),
                 project=self.get_project(self.request, self.kwargs),
                 job_type=ExportProjectCasesFileBgJob.spec_name,
-                user=self.request.user,
+                user=user,
             )
             export_job = ExportProjectCasesFileBgJob.objects.create(
                 project=self.get_project(self.request, self.kwargs),
@@ -1583,14 +1625,18 @@ class ProjectCasesPrefetchFilterView(
     slug_field = "sodar_uuid"
     query_type = "project"
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
+
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
 
         # get current CaseAwareProject
         project = CaseAwareProject.objects.get(pk=self.get_project(self.request, self.kwargs).pk)
 
         # clean data first
-        form = ProjectCasesFilterForm(request.POST, project=project, user=request.user)
+        form = ProjectCasesFilterForm(self.request.POST, project=project, user=user)
 
         if form.is_valid():
             # form is valid, we are supposed to render an HTML table with the results
@@ -1598,7 +1644,7 @@ class ProjectCasesPrefetchFilterView(
                 # Save query parameters
                 small_variant_query = ProjectCasesSmallVariantQuery.objects.create(
                     project=project,
-                    user=self.request.user,
+                    user=user,
                     form_id=form.form_id,
                     form_version=form.form_version,
                     query_settings=_undecimal(form.cleaned_data),
@@ -1608,7 +1654,7 @@ class ProjectCasesPrefetchFilterView(
                     name="Running filter query for project",
                     project=project,
                     job_type=ProjectCasesFilterBgJob.spec_name,
-                    user=request.user,
+                    user=user,
                 )
                 filter_job = ProjectCasesFilterBgJob.objects.create(
                     project=project,
@@ -1639,10 +1685,10 @@ class ProjectCasesFilterJobGetStatus(
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):
         try:
             filter_job = ProjectCasesFilterBgJob.objects.select_related("bg_job").get(
-                sodar_uuid=request.POST["filter_job_uuid"]
+                sodar_uuid=self.request.POST["filter_job_uuid"]
             )
             log_entries = reversed(
                 filter_job.bg_job.log_entries.all().order_by("-date_created")[:3]
@@ -1658,12 +1704,17 @@ class ProjectCasesFilterJobGetStatus(
             )
         except ObjectDoesNotExist:
             return JsonResponse(
-                {"error": "No filter job with UUID {}".format(request.POST["filter_job_uuid"])},
+                {
+                    "error": "No filter job with UUID {}".format(
+                        self.request.POST["filter_job_uuid"]
+                    )
+                },
                 status=400,
             )
         except ValidationError:
             return JsonResponse(
-                {"error": "No valid UUID {}".format(request.POST["filter_job_uuid"])}, status=400
+                {"error": "No valid UUID {}".format(self.request.POST["filter_job_uuid"])},
+                status=400,
             )
 
 
@@ -1684,11 +1735,13 @@ class ProjectCasesFilterJobGetPrevious(
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         filter_job = (
             ProjectCasesFilterBgJob.objects.filter(
-                projectcasessmallvariantquery__user=request.user,
-                project__sodar_uuid=kwargs["project"],
+                projectcasessmallvariantquery__user=user, project__sodar_uuid=kwargs["project"]
             )
             .order_by("-bg_job__date_created")
             .first()
@@ -1933,7 +1986,7 @@ class SmallVariantDetails(
             alternative=kwargs["alternative"],
         )
         result["inhouse_freq"] = {}
-        if inhouse:
+        if inhouse and not settings.KIOSK_MODE:
             hom = getattr(inhouse, "count_hom_alt", 0)
             het = getattr(inhouse, "count_het", 0)
             hemi = getattr(inhouse, "count_hemi_alt", 0)
@@ -2086,6 +2139,9 @@ class ExportFileJobResubmitView(
 
     def form_valid(self, form):
         job = get_object_or_404(ExportFileBgJob, sodar_uuid=self.kwargs["job"])
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         with transaction.atomic():
             bg_job = BackgroundJob.objects.create(
                 name="Create {} file for case {} (Resubmission)".format(
@@ -2093,7 +2149,7 @@ class ExportFileJobResubmitView(
                 ),
                 project=job.bg_job.project,
                 job_type=ExportFileBgJob.spec_name,
-                user=self.request.user,
+                user=user,
             )
             export_job = ExportFileBgJob.objects.create(
                 project=job.project,
@@ -2126,7 +2182,7 @@ class ExportProjectCasesFileJobDownloadView(
     slug_url_kwarg = "job"
     slug_field = "sodar_uuid"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
         try:
             content_types = {
                 "tsv": "text/tab-separated-values",
@@ -2185,6 +2241,9 @@ class ExportProjectCasesFileJobResubmitView(
     form_class = ExportProjectCasesFileResubmitForm
 
     def form_valid(self, form):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         job = get_object_or_404(ExportProjectCasesFileBgJob, sodar_uuid=self.kwargs["job"])
         with transaction.atomic():
             bg_job = BackgroundJob.objects.create(
@@ -2193,7 +2252,7 @@ class ExportProjectCasesFileJobResubmitView(
                 ),
                 project=job.bg_job.project,
                 job_type=ExportProjectCasesFileBgJob.spec_name,
-                user=self.request.user,
+                user=user,
             )
             export_job = ExportProjectCasesFileBgJob.objects.create(
                 project=job.project,
@@ -2225,7 +2284,7 @@ class ExportFileJobDownloadView(
     slug_url_kwarg = "job"
     slug_field = "sodar_uuid"
 
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
         try:
             content_types = {
                 "tsv": "text/tab-separated-values",
@@ -2281,13 +2340,16 @@ class DistillerSubmissionJobResubmitView(
     form_class = EmptyForm
 
     def form_valid(self, form):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         job = get_object_or_404(DistillerSubmissionBgJob, sodar_uuid=self.kwargs["job"])
         with transaction.atomic():
             bg_job = BackgroundJob.objects.create(
                 name="Resubmitting case {} to MutationDistiller".format(job.case),
                 project=job.bg_job.project,
                 job_type=DistillerSubmissionBgJob.spec_name,
-                user=self.request.user,
+                user=user,
             )
             submission_job = DistillerSubmissionBgJob.objects.create(
                 project=job.project, bg_job=bg_job, case=job.case, query_args=job.query_args
@@ -2353,13 +2415,16 @@ class FilterJobResubmitView(
     form_class = EmptyForm
 
     def form_valid(self, form):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         job = get_object_or_404(FilterBgJob, sodar_uuid=self.kwargs["job"])
         with transaction.atomic():
             bg_job = BackgroundJob.objects.create(
                 name="Resubmitting filter case {}".format(job.case),
                 project=job.bg_job.project,
                 job_type=FilterBgJob.spec_name,
-                user=self.request.user,
+                user=user,
             )
             filter_job = FilterBgJob.objects.create(
                 project=job.project,
@@ -2389,13 +2454,16 @@ class ProjectCasesFilterJobResubmitView(
     form_class = EmptyForm
 
     def form_valid(self, form):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         job = get_object_or_404(ProjectCasesFilterBgJob, sodar_uuid=self.kwargs["job"])
         with transaction.atomic():
             bg_job = BackgroundJob.objects.create(
                 name="Resubmitting filter project",
                 project=job.bg_job.project,
                 job_type=ProjectCasesFilterBgJob.spec_name,
-                user=self.request.user,
+                user=user,
             )
             filter_job = ProjectCasesFilterBgJob.objects.create(
                 project=job.project,
@@ -2426,13 +2494,16 @@ class ProjectStatsJobCreateView(
     form_class = ProjectStatsJobForm
 
     def form_valid(self, form):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         with transaction.atomic():
             # Construct background job objects
             bg_job = BackgroundJob.objects.create(
                 name="Recreate variant statistic for whole project",
                 project=self.get_project(self.request, self.kwargs),
                 job_type=ComputeProjectVariantsStatsBgJob.spec_name,
-                user=self.request.user,
+                user=user,
             )
             recreate_job = ComputeProjectVariantsStatsBgJob.objects.create(
                 project=self.get_project(self.request, self.kwargs), bg_job=bg_job
@@ -2498,6 +2569,9 @@ class SmallVariantFlagsApiView(
 
     def post(self, *_args, **_kwargs):
         case = self.get_object()
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         try:
             flags = case.small_variant_flags.get(
                 release=self.request.POST.get("release"),
@@ -2519,7 +2593,7 @@ class SmallVariantFlagsApiView(
             tl_event = timeline.add_event(
                 project=self.get_project(self.request, self.kwargs),
                 app_name="variants",
-                user=self.request.user,
+                user=user,
                 event_name="flags_set",
                 description="set flags for variant %s in case {case}: {extra-flag_values}"
                 % flags.get_variant_description(),
@@ -2553,14 +2627,9 @@ class SmallVariantCommentSubmitApiView(
     slug_field = "sodar_uuid"
 
     def post(self, *_args, **_kwargs):
-        try:
-            user = User.objects.get(id=self.request.user.id)
-        except ObjectDoesNotExist as e:
-            return HttpResponse(
-                json.dumps({"result": "User not found."}),
-                content_type="application/json",
-                status=403,
-            )
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
 
         case = self.get_object()
         timeline = get_backend_api("timeline_backend")
@@ -2582,7 +2651,7 @@ class SmallVariantCommentSubmitApiView(
                 tl_event = timeline.add_event(
                     project=self.get_project(self.request, self.kwargs),
                     app_name="variants",
-                    user=self.request.user,
+                    user=user,
                     event_name="variant_comment_edit",
                     description="edit comment for variant %s in case {case}: {text}"
                     % comment.get_variant_description(),
@@ -2591,16 +2660,14 @@ class SmallVariantCommentSubmitApiView(
                 tl_event.add_object(obj=case, label="case", name=case.name)
                 tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
         else:
-            comment = SmallVariantComment(
-                case=case, user=self.request.user, sodar_uuid=uuid.uuid4()
-            )
+            comment = SmallVariantComment(case=case, user=user, sodar_uuid=uuid.uuid4())
             form = SmallVariantCommentForm(self.request.POST, instance=comment)
             comment = form.save()
             if timeline:
                 tl_event = timeline.add_event(
                     project=self.get_project(self.request, self.kwargs),
                     app_name="variants",
-                    user=self.request.user,
+                    user=user,
                     event_name="variant_comment_add",
                     description="add comment for variant %s in case {case}: {text}"
                     % comment.get_variant_description(),
@@ -2630,14 +2697,9 @@ class SmallVariantCommentDeleteApiView(
 
     def post(self, *_args, **_kwargs):
         case = self.get_object()
-        try:
-            user = User.objects.get(id=self.request.user.id)
-        except ObjectDoesNotExist as e:
-            return HttpResponse(
-                json.dumps({"result": "User not found."}),
-                content_type="application/json",
-                status=403,
-            )
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
 
         kwargs = {"sodar_uuid": self.request.POST.get("sodar_uuid")}
         if not user.is_superuser:
@@ -2658,7 +2720,7 @@ class SmallVariantCommentDeleteApiView(
             tl_event = timeline.add_event(
                 project=self.get_project(self.request, self.kwargs),
                 app_name="variants",
-                user=self.request.user,
+                user=user,
                 event_name="variant_comment_delete",
                 description="delete comment for variant %s in case {case}"
                 % comment.get_variant_description(),
@@ -2708,6 +2770,9 @@ class AcmgCriteriaRatingApiView(
 
     def post(self, *_args, **_kwargs):
         case = self.get_object()
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         try:
             acmg_ratings = case.acmg_ratings.get(
                 release=self.request.POST.get("release"),
@@ -2718,9 +2783,7 @@ class AcmgCriteriaRatingApiView(
                 alternative=self.request.POST.get("alternative"),
             )
         except AcmgCriteriaRating.DoesNotExist:
-            acmg_ratings = AcmgCriteriaRating(
-                case=case, sodar_uuid=uuid.uuid4(), user=self.request.user
-            )
+            acmg_ratings = AcmgCriteriaRating(case=case, sodar_uuid=uuid.uuid4(), user=user)
         form = AcmgCriteriaRatingForm(self.request.POST, instance=acmg_ratings)
         try:
             acmg_ratings = form.save()
@@ -2731,7 +2794,7 @@ class AcmgCriteriaRatingApiView(
             tl_event = timeline.add_event(
                 project=self.get_project(self.request, self.kwargs),
                 app_name="variants",
-                user=self.request.user,
+                user=user,
                 event_name="flags_set",
                 description="set ACMG rating for variant %s in case {case}: {extra-rating_values}"
                 % acmg_ratings.get_variant_description(),
@@ -2750,9 +2813,12 @@ class NewFeaturesView(LoginRequiredMixin, RedirectView):
     url = "/manual/history.html"
 
     def get(self, *args, **kwargs):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
         setting_api = AppSettingAPI()
         setting_api.set_app_setting(
-            "variants", "latest_version_seen_changelog", site_version(), user=self.request.user
+            "variants", "latest_version_seen_changelog", site_version(), user=user
         )
         return super().get(*args, **kwargs)
 
@@ -2766,3 +2832,213 @@ class HpoTermsApiView(LoginRequiredMixin, View):
         h2 = HpoName.objects.filter(name__icontains=self.request.GET.get("query"))
         hpo = [model_to_dict(h) for h in list(h1) + list(h2)]
         return HttpResponse(json.dumps(hpo), content_type="application/json")
+
+
+class KioskHomeView(PluginContextMixin, FormView):
+    """Home view when the app is running in kiosk mode.
+
+    When this mode is activated
+    """
+
+    template_name = "variants/kiosk_home.html"
+    form_class = KioskUploadForm
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        context["app_plugins"] = get_active_plugins(plugin_type="project_app")
+        context["backend_plugins"] = get_active_plugins(plugin_type="backend")
+
+        return context
+
+    def form_valid(self, form):
+        with transaction.atomic():
+            if form.cleaned_data.get("ped_file"):
+                ped = list(
+                    map(lambda x: x.decode("utf-8").rstrip("\n"), form.cleaned_data.get("ped_file"))
+                )
+            else:
+                ped = form.cleaned_data.get("ped_text").split("\n")
+            pedigree = parse_ped(ped)
+            tmp_dir = tempfile.mkdtemp(prefix="varfish_kiosk_", dir=settings.MEDIA_ROOT)
+            if not pedigree:
+                HttpResponse(status_code=500)
+            project = self.get_kiosk_project()
+            path_vcf = save_file(
+                form.cleaned_data.get("vcf_file"), form.cleaned_data.get("vcf_file").name, tmp_dir
+            )
+            case_index = vcfpy.Reader.from_path(path_vcf).header.samples.names[0]
+            path_ped = save_file(ped, case_index + ".ped", tmp_dir)
+            user = User.objects.get(username="kiosk_user")
+            bg_job = BackgroundJob.objects.create(
+                name="Kiosk mode annotation",
+                project=project,
+                job_type=KioskAnnotateBgJob.spec_name,
+                user=user,
+            )
+            annotate_job = KioskAnnotateBgJob.objects.create(
+                project=project,
+                bg_job=bg_job,
+                path_vcf=path_vcf,
+                path_gts=os.path.join(tmp_dir, case_index + ".tsv.gz"),
+                path_db_info=os.path.join(tmp_dir, case_index + ".db_info.gz"),
+                path_tmp_dir=tmp_dir,
+            )
+            bg_job2 = BackgroundJob.objects.create(
+                name="Kiosk mode import",
+                project=project,
+                job_type=ImportVariantsBgJob.spec_name,
+                user=user,
+            )
+            import_job = ImportVariantsBgJob.objects.create(
+                bg_job=bg_job2,
+                project=project,
+                case_name=case_index,
+                index_name=case_index,
+                path_ped=path_ped,
+                path_genotypes=[annotate_job.path_gts],
+                path_db_info=[annotate_job.path_db_info],
+            )
+            # This job kicks of two jobs in sync (eg one after the other).
+            run_kiosk_bg_job.s(
+                kiosk_annotate_bg_job_pk=annotate_job.pk, import_variants_bg_job_pk=import_job.pk
+            ).apply_async(countdown=2)
+            # TODO: setup celerybeat job that triggers background jobs for clearing out old cases
+            # TODO: Manuel needs to configure a jailing script that throws out user trying to guess case UUIDs.
+            return redirect(
+                reverse(
+                    "variants:kiosk-status",
+                    kwargs={
+                        "project": project.sodar_uuid,
+                        "annotate_job": annotate_job.sodar_uuid,
+                        "import_job": import_job.sodar_uuid,
+                    },
+                )
+            )
+
+    def get_kiosk_project(self):
+        """Return Project object for the Kiosk cases (or create it)."""
+        cat, _ = Project.objects.get_or_create(
+            parent=None, type="CATEGORY", title=settings.KIOSK_CAT
+        )
+        proj = Project.objects.create(
+            parent=cat,
+            type="PROJECT",
+            title="%s-%s" % (settings.KIOSK_PROJ_PREFIX, str(uuid.uuid4())),
+        )
+        return proj
+
+
+def parse_ped(ped):
+    """Parse ped content passed as array of strings (one individual per line)."""
+    pedigree = []
+    for line in ped:
+        line = line.strip()
+        _, patient, father, mother, sex, affected = line.split("\t")
+        if not (patient or father or mother or sex or affected):
+            return None
+        sex = int(sex)
+        affected = int(affected)
+        pedigree.append(
+            {
+                "patient": patient,
+                "father": father,
+                "mother": mother,
+                "sex": sex,
+                "affected": affected,
+                "has_gt_entries": True,
+            }
+        )
+
+    return pedigree
+
+
+def save_file(file, file_name, tmpdir):
+    """Save file to temp directory and return path to file."""
+    fs = FileSystemStorage()
+    filepath = os.path.join(tmpdir, file_name)
+    if not hasattr(file, "read"):
+        file = io.StringIO("\n".join(file))
+    fs.save(filepath, file)
+    return filepath
+
+
+class KioskStatusView(ProjectContextMixin, View):
+    """Status view when the app is running in kiosk mode.
+
+    When this mode is activated
+    """
+
+    template_name = "variants/kiosk_status.html"
+
+    def get(self, *args, **kwargs):
+        return render(
+            self.request,
+            self.template_name,
+            self.get_context_data(
+                annotate_job_uuid=kwargs.get("annotate_job"),
+                import_job_uuid=kwargs.get("import_job"),
+            ),
+        )
+
+
+class KioskJobGetStatus(PluginContextMixin, View):
+    """View for getting a filter job status.
+
+    This view queries the current status of a filter job and returns it as JSON.
+    """
+
+    def get(self, *args, **kwargs):
+        try:
+            annotate_job = KioskAnnotateBgJob.objects.get(sodar_uuid=kwargs.get("annotate_job"))
+        except ObjectDoesNotExist:
+            return JsonResponse(
+                {"error": "No annotate job with UUID {}".format(kwargs.get("annotate_job"))},
+                status=400,
+            )
+        except ValidationError:
+            return JsonResponse(
+                {"error": "No GET UUID {} for annotate job".format(kwargs.get("annotate_job"))},
+                status=400,
+            )
+
+        try:
+            import_job = ImportVariantsBgJob.objects.get(sodar_uuid=kwargs.get("import_job"))
+        except ObjectDoesNotExist:
+            return JsonResponse(
+                {"error": "No import job with UUID {}".format(kwargs.get("import_job_uuid"))},
+                status=400,
+            )
+        except ValidationError:
+            return JsonResponse(
+                {"error": "No valid UUID {} for import job".format(kwargs.get("import_job_uuid"))},
+                status=400,
+            )
+
+        log_entries = list(annotate_job.bg_job.log_entries.all().order_by("date_created")) + list(
+            import_job.bg_job.log_entries.all().order_by("date_created")
+        )
+
+        case_uuid = None
+        status = 200
+        if annotate_job.bg_job.status == "done" and import_job.bg_job.status == "done":
+            try:
+                case_uuid = Case.objects.get(
+                    project=import_job.project, name=import_job.case_name
+                ).sodar_uuid
+            except ObjectDoesNotExist as e:
+                log_entries.append(e)
+                status = 500
+
+        return JsonResponse(
+            {
+                "annotate_status": annotate_job.bg_job.status,
+                "import_status": import_job.bg_job.status,
+                "messages": [
+                    "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
+                    for e in log_entries
+                ],
+                "case_uuid": case_uuid,
+            },
+            status=status,
+        )
