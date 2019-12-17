@@ -33,6 +33,7 @@ End-User Summary
 - Link-out to genomics england panelapp.
 - Fixed partly broken error decoration on hidden tabs on field input errors.
 - Added Kiosk mode.
+- Fixed bug when exporting a file with enabled pathogenicity scoring led to an error.
 
 Full Change List
 ================
@@ -76,6 +77,7 @@ Full Change List
 - Fixed partly broken error decoration on hidden tabs on field input errors.
 - Introduced bigint fields into postgres sequences counter for smallvariant, smallvariantquery_query_results and projectcasessmallvariantquery_query_results tables.
 - Added Kiosk mode.
+- Fixed bug when exporting a file with enabled pathogenicity scoring led to an error.
 
 -------
 v0.18.0

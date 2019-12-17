@@ -343,18 +343,18 @@ class CaseExporterBase:
             patho_score = self.query_args.get("patho_score")
             scorer_factory = VariantScoresFactory()
             scorer = scorer_factory.get_scorer(patho_score, variants, self.job.bg_job.user)
-            for score in scorer.score():
-                yield {
-                    "-".join(
-                        [
-                            score["release"],
-                            score["chromosome"],
-                            str(score["start"]),
-                            score["reference"],
-                            score["alternative"],
-                        ]
-                    ): score["score"]
-                }
+            return {
+                "-".join(
+                    [
+                        score["release"],
+                        score["chromosome"],
+                        str(score["start"]),
+                        score["reference"],
+                        score["alternative"],
+                    ]
+                ): (score["score"], score["info"])
+                for score in scorer.score()
+            }
         else:
             return {}
 
