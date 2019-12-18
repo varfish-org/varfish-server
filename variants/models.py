@@ -1,5 +1,6 @@
 import contextlib
 import os
+import shlex
 import shutil
 import subprocess
 import tempfile
@@ -3283,20 +3284,19 @@ class KioskAnnotate:
         try:
             process = subprocess.Popen(
                 """
-                # Activate conda and varfish environment
                 . {conda_path}
                 conda activate varfish-annotator
-                vcf={input_vcf}
-                # Gzip vcf file if necessary
-                if ! {{ [[ $(file -ib $vcf) =~ ^application/gzip ]] && [[ "$vcf" =~ \.[Gg][Zz]$ ]]; }}
-                then
-                    bgzip $vcf
-                    vcf=${{vcf}}.gz
-                fi
-                # Create index
-                tabix $vcf
-                # Annotate (requires gzipped file and index)
-                varfish-annotator annotate \
+                set -euo pipefail
+                vcf=$(dirname {input_vcf})/sorted-$(basename {input_vcf})
+                vcf=${{vcf%.gz}}
+                vcf=${{vcf%.vcf}}
+                vcf=$vcf.vcf.gz
+                bcftools sort -m 10M -Oz -o $vcf {input_vcf}
+                tabix -f $vcf
+                varfish-annotator \
+                    -XX:MaxHeapSize=10g \
+                    -XX:+UseConcMarkSweepGC \
+                    annotate \
                     --db-path {db_path} \
                     --ensembl-ser-path {ensembl_ser_path} \
                     --refseq-ser-path {refseq_ser_path} \
@@ -3310,9 +3310,9 @@ class KioskAnnotate:
                     db_path=settings.KIOSK_VARFISH_ANNOTATOR_DB_PATH,
                     ensembl_ser_path=settings.KIOSK_VARFISH_ANNOTATOR_ENSEMBL_SER_PATH,
                     refseq_ser_path=settings.KIOSK_VARFISH_ANNOTATOR_REFSEQ_SER_PATH,
-                    input_vcf=self.job.path_vcf,
-                    output_db_info=self.job.path_db_info,
-                    output_gts=self.job.path_gts,
+                    input_vcf=shlex.quote(self.job.path_vcf),
+                    output_db_info=shlex.quote(self.job.path_db_info),
+                    output_gts=shlex.quote(self.job.path_gts),
                     reference_path=settings.KIOSK_VARFISH_ANNOTATOR_REFERENCE_PATH,
                     release=settings.KIOSK_VARFISH_ANNOTATOR_RELEASE,
                 ),
@@ -3322,11 +3322,18 @@ class KioskAnnotate:
                 executable="/bin/bash",
             )
             # Get live output from bash job
-            for line in iter(process.stdout.readline, ""):
-                # Break if finished (reports None when running and exit code when finished)
+            while True:
+                line = process.stdout.readline()
+                if line is not None:
+                    self.job.add_log_entry(line.decode("utf-8").strip(), LOG_LEVEL_INFO)
                 if process.poll() is not None:
+                    while True:
+                        line = process.stdout.readline()
+                        if line:
+                            self.job.add_log_entry(line.decode("utf-8").strip(), LOG_LEVEL_INFO)
+                        else:
+                            break
                     break
-                self.job.add_log_entry(line.decode("utf-8").strip(), LOG_LEVEL_INFO)
         except subprocess.CalledProcessError as e:
             self.job.add_log_entry("Problem during kiosk annotation: %s" % e, LOG_LEVEL_ERROR)
             raise e

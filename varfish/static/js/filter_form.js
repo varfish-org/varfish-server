@@ -1696,6 +1696,9 @@ $(document).ready(
     $("#recessive_disable").click(resetAllRecessiveIndices);
     $("#settingsSet").click(updateSettings);
     $("#settingsSet").click(initIndexMode);
+    // Setup the quick presets dropdown.
+    $(".quick-presets").click(function (e) { loadPresets($(e.currentTarget)); });
+    $("#quick-presets-defaults").trigger("click");
     // update settings should be the last handler assigned
     $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
     // Setup the presets menus.
@@ -1716,8 +1719,6 @@ $(document).ready(
         presetsToSettings(presets, name);
       })
     }
-    // Setup the quick presets dropdown.
-    $(".quick-presets").click(function (e) { loadPresets($(e.currentTarget)); });
     // Assign click handler function to submit button
     filterButton.click(
       function(e) {

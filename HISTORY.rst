@@ -34,6 +34,8 @@ End-User Summary
 - Fixed partly broken error decoration on hidden tabs on field input errors.
 - Added Kiosk mode.
 - Fixed bug when exporting a file with enabled pathogenicity scoring led to an error.
+- Entering filter form without previous settings now sets default settings correctly.
+- Switched to SODAR core v0.7.1
 
 Full Change List
 ================
@@ -78,6 +80,8 @@ Full Change List
 - Introduced bigint fields into postgres sequences counter for smallvariant, smallvariantquery_query_results and projectcasessmallvariantquery_query_results tables.
 - Added Kiosk mode.
 - Fixed bug when exporting a file with enabled pathogenicity scoring led to an error.
+- Entering filter form without previous settings now sets default settings correctly.
+- Switched to SODAR core v0.7.1
 
 -------
 v0.18.0

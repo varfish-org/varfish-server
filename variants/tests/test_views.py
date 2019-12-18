@@ -2052,34 +2052,33 @@ class TestSmallVariantDetailsView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context["base_template"], "empty_base.html")
 
-    # Test breaks because of some sodar core template bug (I think) ... disabling for now.
-    # def test_render_full(self):
-    #     """Smoke test for rendering in full mode. This was introduced to help debugging
-    #     and this part of the code is not used in production mode.
-    #     """
-    #     with self.login(self.user):
-    #         response = self.client.get(
-    #             reverse(
-    #                 "variants:small-variant-details",
-    #                 kwargs={
-    #                     "project": self.case.project.sodar_uuid,
-    #                     "case": self.case.sodar_uuid,
-    #                     "release": self.small_var.release,
-    #                     "chromosome": self.small_var.chromosome,
-    #                     "start": self.small_var.start,
-    #                     "end": self.small_var.end,
-    #                     "reference": self.small_var.reference,
-    #                     "alternative": self.small_var.alternative,
-    #                     "database": "refseq",
-    #                     "gene_id": self.small_var.refseq_gene_id,
-    #                     "ensembl_transcript_id": self.small_var.ensembl_transcript_id,
-    #                     "training_mode": 0,
-    #                 },
-    #             ),
-    #             {"render_full": "yes"},
-    #         )
-    #         self.assertEqual(response.status_code, 200)
-    #         self.assertEqual(response.context["base_template"], "projectroles/project_base.html")
+    def test_render_full(self):
+        """Smoke test for rendering in full mode. This was introduced to help debugging
+        and this part of the code is not used in production mode.
+        """
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:small-variant-details",
+                    kwargs={
+                        "project": self.case.project.sodar_uuid,
+                        "case": self.case.sodar_uuid,
+                        "release": self.small_var.release,
+                        "chromosome": self.small_var.chromosome,
+                        "start": self.small_var.start,
+                        "end": self.small_var.end,
+                        "reference": self.small_var.reference,
+                        "alternative": self.small_var.alternative,
+                        "database": "refseq",
+                        "gene_id": self.small_var.refseq_gene_id,
+                        "ensembl_transcript_id": self.small_var.ensembl_transcript_id,
+                        "training_mode": 0,
+                    },
+                ),
+                {"render_full": "yes"},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["base_template"], "projectroles/project_base.html")
 
     def _base_test_content(self, db):
         """Base function to test both transcript databases, ensembl and refseq."""

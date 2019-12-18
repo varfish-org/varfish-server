@@ -2853,21 +2853,25 @@ class KioskHomeView(PluginContextMixin, FormView):
 
     def form_valid(self, form):
         with transaction.atomic():
+            tmp_dir = tempfile.mkdtemp(prefix="varfish_kiosk_", dir=settings.MEDIA_ROOT)
+            path_vcf = save_file(
+                form.cleaned_data.get("vcf_file"), form.cleaned_data.get("vcf_file").name, tmp_dir
+            )
+            sample_names = vcfpy.Reader.from_path(path_vcf).header.samples.names
+            case_index = sample_names[0]
             if form.cleaned_data.get("ped_file"):
                 ped = list(
                     map(lambda x: x.decode("utf-8").rstrip("\n"), form.cleaned_data.get("ped_file"))
                 )
-            else:
+            elif form.cleaned_data.get("ped_text"):
                 ped = form.cleaned_data.get("ped_text").split("\n")
+            else:
+                ped = ["\t".join(["FAM", sample, "0", "0", "1", "1"]) for sample in sample_names]
             pedigree = parse_ped(ped)
-            tmp_dir = tempfile.mkdtemp(prefix="varfish_kiosk_", dir=settings.MEDIA_ROOT)
             if not pedigree:
                 HttpResponse(status_code=500)
             project = self.get_kiosk_project()
-            path_vcf = save_file(
-                form.cleaned_data.get("vcf_file"), form.cleaned_data.get("vcf_file").name, tmp_dir
-            )
-            case_index = vcfpy.Reader.from_path(path_vcf).header.samples.names[0]
+
             path_ped = save_file(ped, case_index + ".ped", tmp_dir)
             user = User.objects.get(username="kiosk_user")
             bg_job = BackgroundJob.objects.create(

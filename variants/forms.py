@@ -1445,7 +1445,7 @@ class KioskUploadForm(forms.Form):
     ped_text = forms.CharField(
         label="PED Text",
         required=False,
-        help_text="Alternatively, type the PED file here. If both is given, the file has precedence.",
+        help_text="Alternatively, type the PED file here. If both are given, the file has precedence.",
         widget=forms.Textarea(
             attrs={
                 "rows": "3",
@@ -1458,10 +1458,10 @@ class KioskUploadForm(forms.Form):
     )
 
     def clean(self):
-        # Either ped_file or ped_text have to be set.
-        if not self.cleaned_data.get("ped_file") and not self.cleaned_data.get("ped_text"):
-            self.add_error("ped_file", "Please specify either PED file or PED text!")
-            self.add_error("ped_text", "Please specify either PED file or PED text!")
+        if self.cleaned_data.get("ped_text"):
+            self.cleaned_data["ped_text"] = "\n".join(
+                "\t".join(line.split()) for line in self.cleaned_data["ped_text"].split("\n")
+            )
 
         # Simple file-extension check for vcf format (gzipped or not)
         if not self.cleaned_data.get("vcf_file").name.lower().endswith((".vcf", ".vcf.gz")):
