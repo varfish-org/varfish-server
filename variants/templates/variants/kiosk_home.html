@@ -8,58 +8,96 @@
 {% block projectroles %}
 
   <div class="row">
-    <div class="col-lg-6 col-md-8 col-xs-12 mx-auto">
+    <div class="card order-2 order-xs-1 col-lg-4 col-xs-12 ml-5 mr-lg-auto">
+      <h5 class="card-header" id="important-information">
+        <i class="fa fa-fw fa-info-circle"></i>
+        Important and Legal Information
+      </h5>
+      <div class="card-body class">
+        <dl>
+          <dt>
+            <i class="fa fa-fw fa-unlock"></i>
+            VarFish Kiosk is a password-less service.
+          </dt>
+          <dd>
+            Your case will get a long, random ID that is virtually impossible to guess.
+            Anyone who knows this ID will be able to access your data.
+          </dd>
+
+          <dt>
+            <i class="fa fa-fw fa-lock"></i>
+            Data protection and
+            <i class="fa fa-fw fa-clock-o"></i>
+            data retention.
+          </dt>
+          <dd>
+            VarFish Kiosk is currently a password-less online service.
+            Your case will get a long, random ID that is virtually impossible to guess.
+            Keep the case ID and address safe, anyone who knows this ID will be able to access your data.
+            All data transfers to and from <u>varfish-kiosk.bihealth.org</u> use secure protocols.
+            However, your data will be temporarily stored on our server.
+            Only upload data if you have sufficient consent to do so.
+            We do not inspect, make available or use uploaded data except for debugging the VarFish software.
+            All uploads will be deleted automatically after 2 months.
+          </dd>
+
+          <dt>
+            <i class="fa fa-fw fa-institution"></i>
+            Custom VarFish installation.
+          </dt>
+          <dd>
+            If your data and/or consents do not allow for online processing with VarFish Kiosk you might want to consider an installation on your own server and run VarFish in "Classic" mode.
+            This allows to create password protection and unlock the VarFish collaboration features.
+            See the <a href="https://varfish-server.readthedocs.io/en/latest"><i class="fa fa-book"></i> VarFish manual</a> for more information.
+          </dd>
+
+          <dt>
+            <i class="fa fa-fw fa-flask"></i>
+            For research use only.
+          </dt>
+          <dd>
+            The software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and non infringement.
+            In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
+          </dd>
+
+          <dt>
+            <i class="fa fa-fw fa-mortar-board"></i>
+            Citation and Github project.
+          </dt>
+          <dd>
+            If you use VarFish Kiosk in your research please cite.
+            <div class="mt-3 ml-3 mb-3">
+            Holtgrewe, M., Stolpe, O., Nieminen, M., Knaus, A., Segebrecht, L., Spielmann, M., Kornak, U., Mundlos, S.,
+            Seelow, D., Fischer-Zirnsak, B., Boschann, F., Scholl, U., Ehmke, N., and Beule, D.
+            <b>VarFish: Collaborative and Comprehensive Exome Analysis for Clinic and Research.</b>
+            In preparation.
+            </div>
+            You can find the project source code on <a href="https://github.com/bihealth/varfish-server" class="text-nowrap"><i class="fa fa-github"></i> Github</a>.
+          </dd>
+
+          <dt>
+            <i class="fa fa-fw fa-smile-o"></i>
+            Happy fishing for variants!
+          </dt>
+        </dl>
+      </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 ml-lg-auto">
       <h2>
         <i class="fa fa-cloud-upload"></i>
         Upload VCF File to VarFish Kiosk
       </h2>
 
-      <p>
-        Use the form below to upload a VCF into the VarFish Kiosk.
-        For first-time users, we recommend the <a href="https://varfish-server.readthedocs.io/en/latest/tutorials_kiosk.html"><i class="fa fa-file-text-o"></i> Kiosk tutorial</a>.
-        You can download some example data <a href="#example-data"><i class="fa fa-angle-double-down"></i> below</a>.
+      <p class="d-lg-none">
+        <i class="fa fa-info-circle"></i>
+        See the <a href="#important-information" class="text-nowrap">important information</a> below!
       </p>
 
-      <dl>
-        <dt>
-          <i class="fa fa-fw fa-unlock"></i>
-          VarFish Kiosk is a password-less service.
-        </dt>
-        <dd>
-          Your case will get a long, random ID that is virtually impossible to guess.
-          Anyone who knows this ID will be able to access your data.
-        </dd>
-        <dt>
-          <i class="fa fa-fw fa-lock"></i>
-          Data protection.
-        </dt>
-        <dd>
-          On <u>varfish-kiosk.bihealth.org</u>, data is only transmitted through secure channels.<br>
-          Keep the case ID and address safe.<br>
-          <u>Only upload data where you have sufficient consent!</u>
-        </dd>
-        <dt>
-          <i class="fa fa-fw fa-institution"></i>
-          Custom VarFish installation.
-        </dt>
-        <dd>
-          You can perform an installation on your own server and run VarFish in "Classic" mode.
-          This allows to create password protection and unlock the VarFish collaboration features.
-          See the VarFish <a href="https://varfish-server.readthedocs.io/en/latest"><i class="fa fa-book"></i> manual</a> for more information.
-        </dd>
-        <dt>
-          <i class="fa fa-fw fa-clock-o"></i>
-          Data retention.
-        </dt>
-        <dd>
-          Data will be deleted after 2 months.
-          You can send an email to <a href="mailto:cubi@bihealth.org"><i class="fa fa-envelope-o"></i> cubi@bihealth.org</a> to request an earlier deletion.
-        </dd>
-        <dt>
-          <i class="fa fa-fw fa-smile-o"></i>
-          Happy fishing for variants!
-        </dt>
-      </dl>
+      <p>
+        Use the form below to upload a VCF into the VarFish Kiosk.
+        For first-time users, we recommend the <a href="https://varfish-server.readthedocs.io/en/latest/tutorials_kiosk.html" class="text-nowrap"><i class="fa fa-file-text-o"></i> Kiosk tutorial</a>.
+        You can download some example data <a href="#example-data" class="text-nowrap"><i class="fa fa-angle-double-down"></i> below</a>.
+      </p>
 
       <form method="POST" enctype="multipart/form-data" class="mt-3 pt-3 border-top">{% csrf_token %}
         {{ form.vcf_file|as_crispy_field }}
