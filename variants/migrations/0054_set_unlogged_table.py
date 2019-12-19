@@ -15,6 +15,7 @@ else:
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [("variants", "0053_auto_20190809_1636")]
 

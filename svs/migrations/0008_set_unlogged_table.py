@@ -25,6 +25,7 @@ else:
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [("svs", "0007_partition_sv_tables")]
 

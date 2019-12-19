@@ -142,7 +142,7 @@ if not settings.IS_TESTING:
         migrations.RunSQL(
             r"""
             DROP TABLE IF EXISTS svs_structuralvariant CASCADE;
-            
+
             CREATE TABLE svs_structuralvariant (
                 id integer NOT NULL,
                 release character varying(32) NOT NULL,
@@ -188,7 +188,7 @@ if not settings.IS_TESTING:
                 USING btree (case_id, release, chromosome, bin);
             CREATE INDEX svs_structu_set_id_951ec1_idx ON svs_structuralvariant
                 USING btree (set_id);
-            
+
             DROP TABLE IF EXISTS svs_structuralvariantgeneannotation CASCADE;
 
             CREATE TABLE svs_structuralvariantgeneannotation (
@@ -237,6 +237,7 @@ if not settings.IS_TESTING:
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [("svs", "0006_auto_20190703_1709")]
 

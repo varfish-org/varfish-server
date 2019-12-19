@@ -84,6 +84,7 @@ Full Change List
 - Switched to SODAR core v0.7.1
 - Changing default partition count to 16.
 - Allowing users to put a text on the login page.
+- Renaming partitioned SV tables, making logged again.
 
 -------
 v0.18.0

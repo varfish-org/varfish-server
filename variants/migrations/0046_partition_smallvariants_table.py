@@ -256,6 +256,7 @@ if not settings.IS_TESTING:
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [("variants", "0045_auto_20190628_1233")]
 
