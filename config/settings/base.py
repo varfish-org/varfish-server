@@ -404,6 +404,9 @@ VARFISH_PARTITION_MODULUS_SVS = env.int(
     "VARFISH_PARTITION_MODULUS_SMALLVARIANT", VARFISH_PARTITION_MODULUS_SMALLVARIANT
 )
 
+# Text to display on the login page.
+VARFISH_LOGIN_PAGE_TEXT = env.str("VARFISH_LOGIN_PAGE_TEXT", "")
+
 # Varfish: Exomiser
 # ------------------------------------------------------------------------------
 

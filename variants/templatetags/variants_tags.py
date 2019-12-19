@@ -30,6 +30,11 @@ ROW_COLORS = {
 
 
 @register.simple_tag
+def get_login_page_text():
+    return settings.VARFISH_LOGIN_PAGE_TEXT
+
+
+@register.simple_tag
 def get_row_bgcolor(rating):
     """Return color to use for row background for rating."""
     return ROW_COLORS.get(rating, ROW_COLORS["__invalid__"])

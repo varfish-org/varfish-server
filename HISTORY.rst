@@ -83,6 +83,7 @@ Full Change List
 - Entering filter form without previous settings now sets default settings correctly.
 - Switched to SODAR core v0.7.1
 - Changing default partition count to 16.
+- Allowing users to put a text on the login page.
 
 -------
 v0.18.0

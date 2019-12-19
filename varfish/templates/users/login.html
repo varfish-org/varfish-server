@@ -4,8 +4,7 @@
 {% load static %}
 {% load projectroles_tags %}
 {% load projectroles_common_tags %}
-
-{% get_django_setting 'SITE_INSTANCE_TITLE' as site_title %}
+{% load variants_tags %}
 
 {% block title %}Login{% endblock title %}
 
@@ -28,6 +27,8 @@
 
     {% autoescape off %}
       {% get_login_info %}
+
+      {% get_login_page_text %}
     {% endautoescape %}
 
     <form class="form-signin" method="post" id="sodar-form-login">
