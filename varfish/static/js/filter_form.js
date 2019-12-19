@@ -1615,66 +1615,128 @@ function loadPresets(element) {
 }
 
 
-function initTypeahead() {
-    // Don't initialize if there is no hpo term field.
-    if (!$("#id_prio_hpo_terms").length) {
-        return;
-    }
-    // Instantiate the Bloodhound suggestion engine
-    var hpo_typeahead = new Bloodhound({
-      datumTokenizer: Bloodhound.tokenizers.whitespace,
-      queryTokenizer: Bloodhound.tokenizers.whitespace,
-      remote: {
-        wildcard: '%QUERY',
-        url: hpo_terms_url + "?query=%QUERY",
-      }
-    });
-    hpo_typeahead.initialize();
-    // Instantiate input tags engine
-    $('#id_prio_hpo_terms').tagsinput({
-        // Internally we handle HPO ids
-        itemValue: "hpo_id",
-        // Display the HPO name to the end user. More versatile approach: function(item) { return item.name; },
-        itemText: "name",
-        // Make badges gray
-        tagClass: "badge badge-secondary",
-        // Only allow existing HPO terms
-        freeInput: false,
-        // The passed list is separated by spaces
-        delimiter: " ",
-        // Initialize typeahead library
-        typeaheadjs: [
-            {
-                highlight: true
-            },
-            {
-                // According to documentation
-                name: "hpo_typeahead",
-                // Map value from database field to tag input
-                displayValue: "hpo_id",
-                // Map key/display name from database field to tag input
-                displayKey: "name",
-                // According to documentation
-                source: hpo_typeahead.ttAdapter(),
-            }
-        ]
-    });
-    // Set tags from pre-filled form data.
-    $.each($('#id_prio_hpo_terms').val().split(" "), function(i, hpo_id) {
-        if (hpo_id) {
-            $.ajax({
-                url: hpo_terms_url,
-                type: "GET",
-                dataType: "json",
-                data: {query: hpo_id},
-                success: function (data) {
-                    $("#id_prio_hpo_terms").tagsinput('add', {hpo_id: hpo_id, name: data[0].name});
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    alert("Error during AJAX call: " + textStatus + " " + errorThrown);
-                    console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+// Keep a list of HPO ids that were added via clicking a suggestion or entering a term into the textarea.
+let hpo_selected = [];
+
+
+function initHpoTypeahead() {
+    /** Initialize the typeahead function for the HPO terms field. */
+    let suggestions = $("#id_hpo_suggestions");
+    let msg_empty_list = "No suggestions yet.";
+    let info_tmpl = function(t) { return "<span class='form-text text-muted'><em>" + t + "</em></span>"; };
+    suggestions.empty();
+    suggestions.append(info_tmpl(msg_empty_list));
+    $("#id_hpo_typeahead").keyup(function() {
+        let query_string = $(this).val();
+        if (!query_string) {
+            suggestions.empty();
+            suggestions.append(info_tmpl(msg_empty_list));
+            return;
+        }
+        $.ajax({
+            url: hpo_terms_url + "?query=" + query_string,
+            success: function(data) {
+                suggestions.empty();
+                $.each(data, function(i, e) {
+                    suggestions.append(
+                        "<span class='badge-group hpo_item' id='id_hpo_item_" + e["hpo_id"].replace(":", "_") + "'>\n" +
+                        "    <span class='badge badge-dark hpo_id'>" + e["hpo_id"] + "</span>\n" +
+                        "    <span class='badge badge-secondary hpo_name'>" + e["name"] + "</span>\n" +
+                        "</span>"
+                    );
+                });
+                $(".hpo_item").click(selectHpoTerm);
+                if (!suggestions.children().length) {
+                    suggestions.append(info_tmpl("No matches for query string <strong>" + query_string + "</strong>."));
                 }
-            });
+                markSelectedHpoTerms();
+            }
+        });
+    });
+    $("#id_prio_hpo_terms").change(setHpoSelectedFromTextarea);
+    setHpoSelectedFromTextarea();
+    $("#id_hpo_typeahead").trigger("keyup");
+}
+
+function cleanUpHpoTextarea() {
+    /** Clean up the HPO terms list textarea from any unwanted spaces or separators. As this is complex, the function
+     * doesn't claim to cover every case, but should work for the majority. */
+    let textarea = $("#id_prio_hpo_terms");
+    let term_list = textarea.val();
+    textarea.val(
+        term_list
+            .replace(/^\s*;?\s*|\s*;?\s*$/g, "")  // replace any cruft in beginning or end of the string
+            .replace(/\s{2,}/g, " ")  // replace double (or more) spaces with one space
+            .replace(/[;\s]{2,}/g, "; ")  // replace any sequence of multiple ; and spaces with `; `
+            .replace(/;([^\s$])/g, "; $1")  // add missing space after semicolon
+            .replace(/[^;]\sHP:/g, "; HP:")  // set missing semicolons in front of HPO id
+    );
+}
+
+function setHpoSelectedFromTextarea() {
+    /** Event handler when textarea changes, i.e. user leaves field */
+    hpo_selected = [];
+    let textarea = $("#id_prio_hpo_terms");
+    let term_list = textarea.val();
+    let regex = /(HP:\d{7})( - [^;]+)?(;|$)/g;
+    while (result = regex.exec(term_list)) {
+        hpo_selected.push(result[1]);
+    }
+    markSelectedHpoTerms();
+    // Clean up text area
+    cleanUpHpoTextarea();
+}
+
+
+function selectHpoTerm(e) {
+    /** Event handler when a suggestion is clicked **/
+    let hpo_id = $(this).children(".hpo_id").text();
+    let textarea = $("#id_prio_hpo_terms");
+    let term_list = textarea.val();
+    // Case when the suggestion is in the hpo_selected list -- remove it from the list and the textarea
+    if (hpo_selected.includes(hpo_id)) {
+        // Remove from list
+        hpo_selected = hpo_selected.filter(function (v, i, a) {
+            return hpo_id != v
+        });
+        // Remove from textarea
+        if (term_list.match(hpo_id)) {
+            let regex = RegExp(hpo_id + "( - [^;]+)?(;|$)", "g");
+            textarea.val(term_list.replace(regex, ""));
+        }
+    }
+    // Case when the suggestion is not in the hpo_selected list -- add it to the list
+    else {
+        hpo_selected.push(hpo_id);
+    }
+    // After handling the list, apply visual feedback and clean the textarea
+    markSelectedHpoTerms();
+    cleanUpHpoTextarea();
+}
+
+
+function markSelectedHpoTerms() {
+    /** Highlights all HPO terms in suggestions, and adds them to list if not yet available. */
+    let textarea = $("#id_prio_hpo_terms");
+    let term_list = textarea.val();
+    // Disable all current visible selections
+    $(".hpo_item > .badge-info").each(function(i, e) {
+        $(this).removeClass("badge-info");
+        $(this).addClass("badge-secondary");
+    });
+    // Add all terms from hpo_selected list
+    $.each(hpo_selected, function(i, e) {
+        let hpo_item = $("#id_hpo_item_" + e.replace(":", "_"));
+        let hpo_name = hpo_item.children(".hpo_name");
+        let hpo_id = hpo_item.children(".hpo_id");
+        hpo_name.removeClass("badge-secondary");
+        hpo_name.addClass("badge-info");
+        if (!term_list.match(hpo_id.text())) {
+            let prefix = "";
+            if (term_list) {
+                prefix = term_list + "; ";
+            }
+            textarea.val(prefix + hpo_id.text() + " - " + hpo_name.text());
         }
     });
 }
@@ -1739,7 +1801,14 @@ $(document).ready(
     $('.popover-dismiss').popover({
         trigger: 'focus'
     });
-    // Load typeahead
-    initTypeahead();
+    initHpoTypeahead();
   }
 );
+
+// Disable annoying submission of file export job when hitting enter.
+$(document).keypress(
+  function(event){
+    if (event.which == '13') {
+      event.preventDefault();
+    }
+});

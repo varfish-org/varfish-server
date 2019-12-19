@@ -2830,7 +2830,7 @@ class HpoTermsApiView(LoginRequiredMixin, View):
             return HttpResponse({}, content_type="application/json")
         h1 = HpoName.objects.filter(hpo_id__icontains=self.request.GET.get("query"))
         h2 = HpoName.objects.filter(name__icontains=self.request.GET.get("query"))
-        hpo = [model_to_dict(h) for h in list(h1) + list(h2)]
+        hpo = [model_to_dict(h) for h in list(h1) + list(h2)][:20]
         return HttpResponse(json.dumps(hpo), content_type="application/json")
 
 

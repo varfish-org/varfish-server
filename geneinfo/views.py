@@ -5,7 +5,6 @@ from django.forms import model_to_dict
 from clinvar.models import ClinvarPathogenicGenes
 from geneinfo.models import (
     RefseqToHgnc,
-    EnsemblToRefseq,
     Hgnc,
     GnomadConstraints,
     ExacConstraints,

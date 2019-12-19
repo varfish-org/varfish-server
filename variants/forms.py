@@ -6,7 +6,7 @@ from django.conf import settings
 from django import forms
 from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
 from .templatetags.variants_tags import only_source_name
-from geneinfo.models import Hgnc
+from geneinfo.models import Hgnc, HpoName
 from django.db.models import Q
 from projectroles.app_settings import AppSettingAPI
 
@@ -1104,13 +1104,18 @@ class SmallVariantPrioritizerFormMixin:
         )
 
         self.fields["prio_hpo_terms"] = forms.CharField(
-            label="HPO Terms",
-            help_text="Enter a  list of HPO terms. The suggestions are based on HPO id and name, but only names are displayed. E.g., typing <span class='badge badge-secondary'>HP:0000001</span> will suggest <span class='badge badge-secondary'>All</span>, as will also typing <span class='badge badge-secondary'>all</span>.",
+            label="",
+            help_text=(
+                "Click a suggestion to add it to the text field, or type into text field. This field is sodar "
+                "compatible. HPO terms are <kbd>;</kbd> separated. Enter an HPO id, optionally with the HPO name "
+                "separated by <kbd> - </kbd>. Only HPO ids are considered, i.e. the text can be arbitrary and does not "
+                "have to match the actual HPO name. It serves just for your orientation."
+            ),
             widget=forms.Textarea(
                 attrs={
-                    "placeholder": "Enter HPO terms here",
+                    "placeholder": "Enter HPO terms here (e.g. HP:0000001; HP:00000005) or click a suggestion above ...",
                     "rows": 3,
-                    "class": "form-control typeahead",
+                    "class": "form-control",
                 }
             ),
             max_length=5000,
@@ -1145,15 +1150,23 @@ class SmallVariantPrioritizerFormMixin:
     def clean(self):
         """Tokenize the HPO terms"""
         cleaned_data = super().clean()
-        cleaned_data["prio_hpo_terms"] = [
-            s.strip()
-            for s in cleaned_data["prio_hpo_terms"]
-            .replace(";", " ")
-            .replace(",", " ")
-            .strip()
-            .split()
-            if s.strip()
-        ]
+        results = []
+        for term in cleaned_data["prio_hpo_terms"].split(";"):
+            term = term.strip()
+            if term:
+                m = re.match(r"^(HP:\d{7})(?: - .*)?$", term)
+                if m:
+                    if not HpoName.objects.filter(hpo_id=m.group(1)).exists():
+                        self.add_error(
+                            "prio_hpo_terms", "%s doesn't exist in HPO database" % m.group(1)
+                        )
+                    else:
+                        results.append(m.group(1))
+                else:
+                    self.add_error(
+                        "prio_hpo_terms", "%s is not a valid HPO id (expecting HP:1234567)" % term
+                    )
+        cleaned_data["prio_hpo_terms"] = results
         return cleaned_data
 
 

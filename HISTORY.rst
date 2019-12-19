@@ -36,6 +36,7 @@ End-User Summary
 - Fixed bug when exporting a file with enabled pathogenicity scoring led to an error.
 - Entering filter form without previous settings now sets default settings correctly.
 - Switched to SODAR core v0.7.1
+- HPO terms are now pastable, especially from SODAR.
 
 Full Change List
 ================
@@ -85,6 +86,7 @@ Full Change List
 - Changing default partition count to 16.
 - Allowing users to put a text on the login page.
 - Renaming partitioned SV tables, making logged again.
+- HPO terms are now pastable, especially from SODAR.
 
 -------
 v0.18.0

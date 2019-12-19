@@ -591,7 +591,6 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.hpo_id = "HP:0000001"
         self.variant_set = SmallVariantSetFactory()
         self.case = self.variant_set.case
         self.small_vars = [
@@ -630,12 +629,12 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             likely_pathogenic=1,
         )
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
+        self.hpo_term = HpoNameFactory(hpo_id="HP:0000001")
         self.bgjob.smallvariantquery.query_results.add(self.small_vars[0], self.small_vars[2])
-        self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [self.hpo_id]
+        self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [self.hpo_term.hpo_id]
         self.bgjob.smallvariantquery.save()
 
     def test_count_results(self):
-        hpo_name = HpoNameFactory(hpo_id=self.hpo_id)
         with self.login(self.user):
             response = self.client.post(
                 reverse(
@@ -647,7 +646,9 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context["result_count"], 2)
             self.assertFalse(response.context["training_mode"])
-            self.assertEqual(response.context["hpoterms"], {self.hpo_id: hpo_name.name})
+            self.assertEqual(
+                response.context["hpoterms"], {self.hpo_term.hpo_id: self.hpo_term.name}
+            )
 
     def test_clinvar(self):
         with self.login(self.user):
@@ -735,7 +736,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                     FormDataFactory(
                         prio_enabled=True,
                         prio_algorithm="phenix",
-                        prio_hpo_terms=["HP:0000001"],
+                        prio_hpo_terms=[self.hpo_term.hpo_id],
                         patho_enabled=True,
                         patho_score="cadd",
                         names=self.case.get_members(),
@@ -865,7 +866,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                     FormDataFactory(
                         prio_enabled=True,
                         prio_algorithm="phenix",
-                        prio_hpo_terms=["HP:0000001"],
+                        prio_hpo_terms=[self.hpo_term.hpo_id],
                         patho_enabled=True,
                         patho_score="mutationtaster",
                         names=self.case.get_members(),
@@ -980,7 +981,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                     FormDataFactory(
                         prio_enabled=True,
                         prio_algorithm="phenix",
-                        prio_hpo_terms=["HP:0000001"],
+                        prio_hpo_terms=[self.hpo_term.hpo_id],
                         patho_enabled=True,
                         patho_score="umd",
                         names=self.case.get_members(),
