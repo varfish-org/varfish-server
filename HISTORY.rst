@@ -82,6 +82,7 @@ Full Change List
 - Fixed bug when exporting a file with enabled pathogenicity scoring led to an error.
 - Entering filter form without previous settings now sets default settings correctly.
 - Switched to SODAR core v0.7.1
+- Changing default partition count to 16.
 
 -------
 v0.18.0
