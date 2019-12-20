@@ -21,7 +21,7 @@
       Filter SVs
     </a>
   {% endif %}
-  {% if request.user.is_superuser %}
+  {% if request.user.is_superuser or kiosk_mode %}
     <a class="btn btn-danger" href="{% url "variants:case-update" project=project.sodar_uuid case=object.sodar_uuid %}">
       <i class="fa fa-edit"></i>
       Edit Pedigree

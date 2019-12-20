@@ -2866,7 +2866,7 @@ class KioskHomeView(PluginContextMixin, FormView):
             elif form.cleaned_data.get("ped_text"):
                 ped = form.cleaned_data.get("ped_text").split("\n")
             else:
-                ped = ["\t".join(["FAM", sample, "0", "0", "1", "1"]) for sample in sample_names]
+                ped = ["\t".join(["FAM", sample, "0", "0", "1", "2"]) for sample in sample_names]
             pedigree = parse_ped(ped)
             if not pedigree:
                 HttpResponse(status_code=500)

@@ -1,4 +1,4 @@
-.. _variants_project_wide::
+.. _variants_project_wide:
 
 ==============================
 Project-Wide Queries and Stats
