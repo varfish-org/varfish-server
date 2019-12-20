@@ -1166,7 +1166,7 @@ class SmallVariantPrioritizerFormMixin:
                     self.add_error(
                         "prio_hpo_terms", "%s is not a valid HPO id (expecting HP:1234567)" % term
                     )
-        cleaned_data["prio_hpo_terms"] = results
+        cleaned_data["prio_hpo_terms"] = list(set(results))
         return cleaned_data
 
 

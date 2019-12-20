@@ -1669,7 +1669,7 @@ function cleanUpHpoTextarea() {
             .replace(/\s{2,}/g, " ")  // replace double (or more) spaces with one space
             .replace(/[;\s]{2,}/g, "; ")  // replace any sequence of multiple ; and spaces with `; `
             .replace(/;([^\s$])/g, "; $1")  // add missing space after semicolon
-            .replace(/[^;]\sHP:/g, "; HP:")  // set missing semicolons in front of HPO id
+            .replace(/([^;])\sHP:/g, "$1; HP:")  // set missing semicolons in front of HPO id
     );
 }
 
