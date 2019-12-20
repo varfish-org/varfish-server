@@ -1,3 +1,5 @@
+from django.core.urlresolvers import reverse
+
 from projectroles.constants import get_sodar_constants
 from projectroles.plugins import ProjectAppPluginPoint
 from bgjobs.plugins import BackgroundJobsPluginPoint
@@ -94,6 +96,13 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     #: Additional columns to display for the projects.
     project_list_columns = {
+        "states": {
+            "title": "States",
+            "width": 75,
+            "description": "Distribution of case states",
+            "align": "center",
+            "active": True,
+        },
         "cases": {
             "title": "Cases",
             "width": 75,
@@ -108,10 +117,10 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             "align": "right",
             "active": True,
         },
-        "states": {
-            "title": "States",
+        "actions": {
+            "title": "Action",
             "width": 75,
-            "description": "Distribution of case states",
+            "description": "Execute action",
             "align": "center",
             "active": True,
         },
@@ -124,6 +133,8 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             return sum((len(c.pedigree) for c in Case.objects.filter(project=project)))
         elif column_id == "states":
             return self._get_state_bar_html(project)
+        elif column_id == "actions":
+            return self._get_action_buttons(project)
         else:
             return "-"
 
@@ -162,6 +173,15 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             )
         arr.append("</div>")
         return "".join(arr)
+
+    def _get_action_buttons(self, project):
+        tpl = """
+        <a href="%s" title="joint filtration " class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
+          <i class="fa fa-filter"></i>
+        </a>
+        """
+        url = reverse("variants:project-cases-filter", kwargs={"project": project.sodar_uuid})
+        return tpl % url
 
     def get_statistics(self):
         return {

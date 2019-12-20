@@ -2,65 +2,7 @@
 
 {# Projectroles dependency #}
 {% load projectroles_common_tags %}
-
-{#<style type="text/css">#}
-{#  .table#sodar-ff-search-table thead tr th:nth-child(2) {#}
-{#    width: 75px !important;#}
-{#  }#}
-{##}
-{#  .table#sodar-ff-search-table tbody tr td:nth-child(2) {#}
-{#    width: 75px !important;#}
-{#  }#}
-{##}
-{#  .table#sodar-ff-search-table thead tr th:nth-child(4) {#}
-{#    width: 75px !important;#}
-{#  }#}
-{##}
-{#  .table#sodar-ff-search-table tbody tr td:nth-child(4) {#}
-{#    width: 75px !important;#}
-{#  }#}
-{##}
-{#  /* Responsive modifications */#}
-{#  @media screen and (max-width: 1300px) {#}
-{#    .table#sodar-ff-search-table tr th:nth-child(4) {#}
-{#      display: none;#}
-{#    }#}
-{##}
-{#    .table#sodar-ff-search-table tr td:nth-child(4) {#}
-{#      display: none;#}
-{#    }#}
-{#  }#}
-{##}
-{#  @media screen and (max-width: 1100px) {#}
-{#    .table#sodar-ff-search-table tr th:nth-child(2) {#}
-{#      display: none;#}
-{#    }#}
-{##}
-{#    .table#sodar-ff-search-table tr td:nth-child(2) {#}
-{#      display: none;#}
-{#    }#}
-{#  }#}
-{##}
-{#  @media screen and (max-width: 900px) {#}
-{#    .table#sodar-ff-search-table tr th:nth-child(5) {#}
-{#      display: none;#}
-{#    }#}
-{##}
-{#    .table#sodar-ff-search-table tr td:nth-child(5) {#}
-{#      display: none;#}
-{#    }#}
-{#  }#}
-{##}
-{#  @media screen and (max-width: 600px) {#}
-{#    .table#sodar-ff-search-table tr th:nth-child(3) {#}
-{#      display: none;#}
-{#    }#}
-{##}
-{#    .table#sodar-ff-search-table tr td:nth-child(3) {#}
-{#      display: none;#}
-{#    }#}
-{#  }#}
-{#</style>#}
+{% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
 
 {% if search_results.all.items|length > 0 %}
 
@@ -72,6 +14,11 @@
         <th>Name</th>
         <th>Project</th>
         <th>Individuals</th>
+        <th>Variants</th>
+        {% if svs_enabled %}
+          <th style="width: 120px" id="sodar-case-list-header-svs">SVs</th>
+        {% endif %}
+        <th style="width: 0px;" class="no-sort"></th>
       </tr>
     </thead>
     <tbody>

@@ -1,7 +1,7 @@
 {% load projectroles_common_tags %}
 {% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
 
-<div class="ml-auto">
+<div class="ml-auto btn-group">
   <a class="btn btn-secondary" href="{% url "variants:case-detail" project=project.sodar_uuid case=object.sodar_uuid %}">
     <i class="fa fa-arrow-circle-left"></i>
     Back to Case

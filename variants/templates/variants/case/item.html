@@ -1,5 +1,7 @@
 {% load humanize %}
 {% load variants_tags %}
+{% load projectroles_common_tags %}
+{% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
 
 <tr id="varfish-bg-table-row-{{ item.sodar_uuid }}">
   <td class="text-right text-muted">{{ forloop.counter }}</td>
@@ -50,11 +52,29 @@
       {{ item.num_small_vars|intcomma }}
     {% endif %}
   </td>
-  <td data-order="{{ item.num_svs }}" class="text-right">
-    {% if item.num_svs is None %}
-      -
+  {% if svs_enabled %}
+    <td data-order="{{ item.num_svs }}" class="text-right">
+      {% if item.num_svs is None %}
+        -
+      {% else %}
+        {{ item.num_svs|intcomma }}
+      {% endif %}
+    </td>
+  {% endif %}
+  <td style="width: 0px;">
+    {% if svs_enabled %}
+      <div class="btn-group" role="group">
+        <a href="{% url "variants:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
+          <i class="fa fa-filter"></i>
+        </a>
+        <a href="{% url "svs:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn{% if not item.num_svs %} disabled{% endif %}" title="{% if item.num_svs %}filter SVs{% else %}Svs not available for this case{% endif %}">
+          <i class="fa fa-align-center fa-flip-vertical"></i>
+        </a>
+      </div>
     {% else %}
-      {{ item.num_svs|intcomma }}
+      <a href="{% url "variants:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
+        <i class="fa fa-filter"></i>
+      </a>
     {% endif %}
   </td>
 </tr>

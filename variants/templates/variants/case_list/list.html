@@ -1,4 +1,6 @@
 {% load variants_tags %}
+{% load projectroles_common_tags %}
+{% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
 
 <div class="row mb-3">
   <div class="col pl-0 pr-0">
@@ -21,13 +23,15 @@
     Case List
     <div class="input-group col-4 pr-0 pull-right">
       <input class="form-control varfish-case-filter" type="text" placeholder="Filter" aria-label="Filter Cases">
-      <select class="selectpicker" id="varfish-case-filter-by-state" multiple title="Filter by Status" data-style="btn-secondary">
-        <option value="initial">initial</option>
-        <option value="active">active</option>
-        <option value="closed-solved">closed as solved</option>
-        <option value="closed-uncertain">closed as uncertain</option>
-        <option value="closed-unsolved">closed as unsolved</option>
-      </select>
+      <div class="input-group-append">
+        <select class="selectpicker" id="varfish-case-filter-by-state" multiple title="Filter by Status" data-style="btn-secondary">
+          <option value="initial">initial</option>
+          <option value="active">active</option>
+          <option value="closed-solved">closed as solved</option>
+          <option value="closed-uncertain">closed as uncertain</option>
+          <option value="closed-unsolved">closed as unsolved</option>
+        </select>
+      </div>
     </div>
   </h4>
   <div class="card-body p-0">
@@ -40,7 +44,10 @@
           <th style="width: 200px" id="sodar-case-list-header-name">Name</th>
           <th id="sodar-case-list-header-individuals">Individuals</th>
           <th style="width: 120px" id="sodar-case-list-header-vars">Small Vars</th>
-          <th style="width: 120px" id="sodar-case-list-header-svs">SVs</th>
+          {% if svs_enabled %}
+            <th style="width: 120px" id="sodar-case-list-header-svs">SVs</th>
+          {% endif %}
+          <th style="width: 0px;" class="no-sort"></th>
         </tr>
       </thead>
       <tbody>
@@ -49,7 +56,7 @@
         {% endfor %}
         {% if not object_list %}
           <tr>
-             <td class="bg-faded font-italic text-center" colspan="6">
+             <td class="bg-faded font-italic text-center" colspan="{% if svs_enabled %}8{% else %}7{% endif %}">
                No cases added yet.
              </td>
           </tr>

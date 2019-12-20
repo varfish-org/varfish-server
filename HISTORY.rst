@@ -37,6 +37,7 @@ End-User Summary
 - Entering filter form without previous settings now sets default settings correctly.
 - Switched to SODAR core v0.7.1
 - HPO terms are now pastable, especially from SODAR.
+- Some UI cleanup and refinements, adding shortcut links.
 
 Full Change List
 ================
@@ -87,6 +88,7 @@ Full Change List
 - Allowing users to put a text on the login page.
 - Renaming partitioned SV tables, making logged again.
 - HPO terms are now pastable, especially from SODAR.
+- Some UI cleanup and refinements, adding shortcut links.
 
 -------
 v0.18.0

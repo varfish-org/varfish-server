@@ -109,8 +109,14 @@
           <span class="col-2"><strong>
             Called SVs
           </strong></span>
-          <span class="col-3">
+          <span class="col-5">
             {{ object.num_svs|default_if_none:"-"|intcomma }}
+            {% if not object.num_svs %}
+              <span class="text-muted text-nowrap">
+                (<i class="fa fa-info-circle"></i>
+                SV filtration not possible)
+              </span>
+            {% endif %}
           </span>
         {% endif %}
       </div>

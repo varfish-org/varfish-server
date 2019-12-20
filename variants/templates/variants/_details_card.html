@@ -1,4 +1,6 @@
 {% load variants_tags %}
+{% load projectroles_common_tags %}
+{% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
 
 <table class="table table-striped sodar-card-table sodar-bj-detail-table table-hover">
   <thead>
@@ -9,7 +11,10 @@
       <th style="width: 200px" id="sodar-case-list-header-name">Name</th>
       <th id="sodar-case-list-header-individuals">Individuals</th>
       <th style="width: 120px" id="sodar-case-list-header-vars">Small Vars</th>
-      <th style="width: 120px" id="sodar-case-list-header-svs">SVs</th>
+      {% if svs_enabled %}
+        <th style="width: 120px" id="sodar-case-list-header-svs">SVs</th>
+      {% endif %}
+      <th style="width: 0px;" class="no-sort"></th>
     </tr>
   </thead>
   <tbody>
@@ -19,16 +24,16 @@
         {% include 'variants/case/item.html' with item=case details_card_mode=True %}
       {% endfor %}
       <tr>
-        <td class="bg-faded" colspan="7">
+        <td class="bg-faded" colspan="{% if svs_enabled %}8{% else %}7{% endif %}">
           <a href="{% url 'variants:case-list' project=project.sodar_uuid %}" class="btn btn-secondary btn-small">
             <i class="fa fa-list"></i> See list of all cases
           </a>
         </td>
       </tr>
     {% else %}
-        <tr>
-          <td class="bg-faded font-italic text-center" colspan="7">No cases (yet)</td>
-        </tr>
+      <tr>
+        <td class="bg-faded font-italic text-center" colspan="{% if svs_enabled %}8{% else %}7{% endif %}">No cases (yet)</td>
+      </tr>
     {% endif %}
   </tbody>
 </table>
