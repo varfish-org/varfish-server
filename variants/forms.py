@@ -1488,16 +1488,24 @@ class KioskUploadForm(forms.Form):
 
     def clean(self):
         ped_samples = []
-        if self.cleaned_data.get("ped_text"):
-            self.cleaned_data["ped_text"] = "\n".join(
-                "\t".join(line.split()) for line in self.cleaned_data["ped_text"].splitlines()
+        ped_source = None
+        if self.cleaned_data.get("ped_file"):
+            self.cleaned_data["ped"] = list(
+                map(lambda x: x.decode("utf-8").rstrip("\n"), self.cleaned_data.get("ped_file"))
             )
-            for line in self.cleaned_data["ped_text"].splitlines():
-                # TODO: also validate uploaded PED, store in ped_samples, `s/if ped_samples and/if /` below.
+            ped_source = "ped_file"
+        elif self.cleaned_data.get("ped_text"):
+            self.cleaned_data["ped"] = [
+                "\t".join(line.split()) for line in self.cleaned_data["ped_text"].splitlines()
+            ]
+            ped_source = "ped_text"
+
+        if self.cleaned_data.get("ped") and ped_source:
+            for line in self.cleaned_data["ped"]:
                 arr = line.split("\t")
                 if len(arr) != 6:
                     self.add_error(
-                        "ped_text", "Line must have 6 fields but has %d: %s" % (len(arr), line)
+                        ped_source, "Line must have 6 fields but has %d: %s" % (len(arr), line)
                     )
                     break
                 ped_samples.append(arr[1])
@@ -1518,12 +1526,17 @@ class KioskUploadForm(forms.Form):
             self.cleaned_data.get("vcf_file").seek(0)
             try:
                 vcf_samples = vcfpy.Reader.from_path(tmp_file.name).header.samples.names
+                self.cleaned_data["vcf_index"] = vcf_samples[0]
                 if ped_samples and set(vcf_samples) != set(ped_samples):
                     self.add_error(
                         "vcf_file",
                         "Samples from VCF file (%s) do not match those from pedigree (%s)"
                         % (", ".join(sorted(vcf_samples)), ", ".join(sorted(ped_samples))),
                     )
+                if not ped_samples:
+                    self.cleaned_data["ped"] = [
+                        "\t".join(["FAM", sample, "0", "0", "1", "2"]) for sample in vcf_samples
+                    ]
             except vcfpy.exceptions.VCFPyException as e:
                 self.add_error("vcf_file", "Problem with VCF file: %s" % e)
 

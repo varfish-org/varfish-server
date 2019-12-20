@@ -1,4 +1,4 @@
 FAM	father	0	0	1	1
 FAM	mother	0	0	2	1
-FAM	index	father mother	1	2
+FAM	index	father	mother	1	2
 FAM	sibling	father	mother	2	1

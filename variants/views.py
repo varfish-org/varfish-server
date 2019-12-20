@@ -2852,27 +2852,13 @@ class KioskHomeView(PluginContextMixin, FormView):
 
     def form_valid(self, form):
         with transaction.atomic():
-            # TODO: use context manager for temporary directory
             tmp_dir = tempfile.mkdtemp(prefix="varfish_kiosk_", dir=settings.MEDIA_ROOT)
             path_vcf = save_file(
                 form.cleaned_data.get("vcf_file"), form.cleaned_data.get("vcf_file").name, tmp_dir
             )
-            sample_names = vcfpy.Reader.from_path(path_vcf).header.samples.names
-            case_index = sample_names[0]
-            if form.cleaned_data.get("ped_file"):
-                ped = list(
-                    map(lambda x: x.decode("utf-8").rstrip("\n"), form.cleaned_data.get("ped_file"))
-                )
-            elif form.cleaned_data.get("ped_text"):
-                ped = form.cleaned_data.get("ped_text").split("\n")
-            else:
-                ped = ["\t".join(["FAM", sample, "0", "0", "1", "2"]) for sample in sample_names]
-            pedigree = parse_ped(ped)
-            if not pedigree:
-                HttpResponse(status_code=500)
+            case_index = form.cleaned_data["vcf_index"]
             project = self.get_kiosk_project()
-
-            path_ped = save_file(ped, case_index + ".ped", tmp_dir)
+            path_ped = save_file(form.cleaned_data.get("ped"), case_index + ".ped", tmp_dir)
             user = User.objects.get(username="kiosk_user")
             bg_job = BackgroundJob.objects.create(
                 name="Kiosk mode annotation",
@@ -2931,30 +2917,6 @@ class KioskHomeView(PluginContextMixin, FormView):
             title="%s-%s" % (settings.KIOSK_PROJ_PREFIX, str(uuid.uuid4())),
         )
         return proj
-
-
-def parse_ped(ped):
-    """Parse ped content passed as array of strings (one individual per line)."""
-    pedigree = []
-    for line in ped:
-        line = line.strip()
-        _, patient, father, mother, sex, affected = line.split("\t")
-        if not (patient or father or mother or sex or affected):
-            return None
-        sex = int(sex)
-        affected = int(affected)
-        pedigree.append(
-            {
-                "patient": patient,
-                "father": father,
-                "mother": mother,
-                "sex": sex,
-                "affected": affected,
-                "has_gt_entries": True,
-            }
-        )
-
-    return pedigree
 
 
 class KioskStatusView(ProjectContextMixin, View):
