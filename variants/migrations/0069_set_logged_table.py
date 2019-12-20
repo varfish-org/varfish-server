@@ -17,8 +17,6 @@ else:
 class Migration(migrations.Migration):
     atomic = False
 
-    dependencies = [
-        ("variants", "0068_kioskannotatebgjob"),
-    ]
+    dependencies = [("variants", "0068_kioskannotatebgjob")]
 
     operations = []

@@ -1,9 +1,15 @@
+import shutil
 from functools import lru_cache
 from itertools import chain
+import io
+import os
+import tempfile
 
 import vcfpy
 from django.conf import settings
 from django import forms
+from django.core.files.storage import FileSystemStorage
+
 from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
 from .templatetags.variants_tags import only_source_name
 from geneinfo.models import Hgnc, HpoName
@@ -14,6 +20,16 @@ import re
 
 
 app_settings = AppSettingAPI()
+
+
+def save_file(file, file_name, tmpdir):
+    """Save file to temp directory and return path to file."""
+    fs = FileSystemStorage()
+    filepath = os.path.join(tmpdir, file_name)
+    if not hasattr(file, "read"):
+        file = io.StringIO("\n".join(file))
+    fs.save(filepath, file)
+    return filepath
 
 
 class CaseForm(forms.ModelForm):
@@ -1471,13 +1487,44 @@ class KioskUploadForm(forms.Form):
     )
 
     def clean(self):
+        ped_samples = []
         if self.cleaned_data.get("ped_text"):
             self.cleaned_data["ped_text"] = "\n".join(
-                "\t".join(line.split()) for line in self.cleaned_data["ped_text"].split("\n")
+                "\t".join(line.split()) for line in self.cleaned_data["ped_text"].splitlines()
             )
+            for line in self.cleaned_data["ped_text"].splitlines():
+                # TODO: also validate uploaded PED, store in ped_samples, `s/if ped_samples and/if /` below.
+                arr = line.split("\t")
+                if len(arr) != 6:
+                    self.add_error(
+                        "ped_text", "Line must have 6 fields but has %d: %s" % (len(arr), line)
+                    )
+                    break
+                ped_samples.append(arr[1])
 
         # Simple file-extension check for vcf format (gzipped or not)
         if not self.cleaned_data.get("vcf_file").name.lower().endswith((".vcf", ".vcf.gz")):
             self.add_error("vcf_file", "Please only upload VCF files!")
+
+        # Check that samples can be read from the file.
+
+        suffix = (
+            ".vcf.gz"
+            if self.cleaned_data.get("vcf_file").name.lower().endswith(".vcf.gz")
+            else ".vcf"
+        )
+        with tempfile.NamedTemporaryFile(suffix=suffix, dir=settings.MEDIA_ROOT) as tmp_file:
+            shutil.copyfileobj(self.cleaned_data.get("vcf_file"), tmp_file)
+            self.cleaned_data.get("vcf_file").seek(0)
+            try:
+                vcf_samples = vcfpy.Reader.from_path(tmp_file.name).header.samples.names
+                if ped_samples and set(vcf_samples) != set(ped_samples):
+                    self.add_error(
+                        "vcf_file",
+                        "Samples from VCF file (%s) do not match those from pedigree (%s)"
+                        % (", ".join(sorted(vcf_samples)), ", ".join(sorted(ped_samples))),
+                    )
+            except vcfpy.exceptions.VCFPyException as e:
+                self.add_error("vcf_file", "Problem with VCF file: %s" % e)
 
         return self.cleaned_data

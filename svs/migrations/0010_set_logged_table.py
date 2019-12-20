@@ -27,8 +27,6 @@ else:
 class Migration(migrations.Migration):
     atomic = False
 
-    dependencies = [
-        ("svs", "0009_auto_20191017_0853"),
-    ]
+    dependencies = [("svs", "0009_auto_20191017_0853")]
 
     operations = []

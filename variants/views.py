@@ -1,6 +1,5 @@
 import os
 import tempfile
-import time
 from itertools import chain
 from collections import defaultdict
 import uuid
@@ -17,7 +16,6 @@ from django.contrib import messages
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.files.storage import FileSystemStorage
-from django.core.files.uploadhandler import FileUploadHandler
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
@@ -100,6 +98,7 @@ from .forms import (
     CaseNotesStatusForm,
     CaseCommentsForm,
     KioskUploadForm,
+    save_file,
 )
 from .tasks import (
     export_file_task,
@@ -2853,6 +2852,7 @@ class KioskHomeView(PluginContextMixin, FormView):
 
     def form_valid(self, form):
         with transaction.atomic():
+            # TODO: use context manager for temporary directory
             tmp_dir = tempfile.mkdtemp(prefix="varfish_kiosk_", dir=settings.MEDIA_ROOT)
             path_vcf = save_file(
                 form.cleaned_data.get("vcf_file"), form.cleaned_data.get("vcf_file").name, tmp_dir
@@ -2955,16 +2955,6 @@ def parse_ped(ped):
         )
 
     return pedigree
-
-
-def save_file(file, file_name, tmpdir):
-    """Save file to temp directory and return path to file."""
-    fs = FileSystemStorage()
-    filepath = os.path.join(tmpdir, file_name)
-    if not hasattr(file, "read"):
-        file = io.StringIO("\n".join(file))
-    fs.save(filepath, file)
-    return filepath
 
 
 class KioskStatusView(ProjectContextMixin, View):
