@@ -60,5 +60,10 @@ function getJobStatus() {
             Loading ...
         </strong>
     </div>
+    <div class="alert alert-info" role="alert">
+      Bookmark the following link to go to case at a later time:
+      <a href="{{ full_url }}">bookmark this link</a>; or copy the following link: <br><br>
+      <input class="form-control" type="text" value="{{ full_url }}" readonly="readonly" />
+    </div>
     <div class="alert alert-info" id="logger"></div>
 {% endblock projectroles %}

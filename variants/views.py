@@ -2934,6 +2934,7 @@ class KioskStatusView(ProjectContextMixin, View):
             self.get_context_data(
                 annotate_job_uuid=kwargs.get("annotate_job"),
                 import_job_uuid=kwargs.get("import_job"),
+                full_url=self.request.build_absolute_uri(),
             ),
         )
 
@@ -2979,12 +2980,19 @@ class KioskJobGetStatus(PluginContextMixin, View):
         status = 200
         if annotate_job.bg_job.status == "done" and import_job.bg_job.status == "done":
             try:
-                case_uuid = Case.objects.get(
-                    project=import_job.project, name=import_job.case_name
-                ).sodar_uuid
+                case = Case.objects.get(project=import_job.project, name=import_job.case_name)
+                case_uuid = case.sodar_uuid
             except ObjectDoesNotExist as e:
                 log_entries.append(e)
                 status = 500
+            messages.info(
+                self.request,
+                (
+                    "Case upload and annotation complete. Bookmark the following web address "
+                    "to retrieve it in the future: %s"
+                )
+                % self.request.build_absolute_uri(case.get_absolute_url()),
+            )
 
         return JsonResponse(
             {
