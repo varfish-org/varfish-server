@@ -9,6 +9,7 @@ import vcfpy
 from django.conf import settings
 from django import forms
 from django.core.files.storage import FileSystemStorage
+from django.utils.text import get_valid_filename
 
 from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
 from .templatetags.variants_tags import only_source_name
@@ -1509,6 +1510,9 @@ class KioskUploadForm(forms.Form):
                     )
                     break
                 ped_samples.append(arr[1])
+
+        # Make file name valid (replace spaces, etc ...)
+        self.cleaned_data["vcf_file"].name = get_valid_filename(self.cleaned_data.get("vcf_file"))
 
         # Simple file-extension check for vcf format (gzipped or not)
         if not self.cleaned_data.get("vcf_file").name.lower().endswith((".vcf", ".vcf.gz")):
