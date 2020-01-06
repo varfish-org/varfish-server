@@ -16,6 +16,7 @@ from django.contrib import messages
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.files.storage import FileSystemStorage
+from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
@@ -2827,10 +2828,13 @@ class HpoTermsApiView(LoginRequiredMixin, View):
         query = self.request.GET.get("query")
         if not query:
             return HttpResponse({}, content_type="application/json")
-        h1 = HpoName.objects.filter(hpo_id__icontains=self.request.GET.get("query"))
-        h2 = HpoName.objects.filter(name__icontains=self.request.GET.get("query"))
-        hpo = [model_to_dict(h) for h in list(h1) + list(h2)][:20]
-        return HttpResponse(json.dumps(hpo), content_type="application/json")
+        hpo = HpoName.objects.filter(
+            Q(hpo_id__icontains=self.request.GET.get("query"))
+            | Q(name__icontains=self.request.GET.get("query"))
+        )[:20]
+        return HttpResponse(
+            json.dumps([model_to_dict(h) for h in hpo]), content_type="application/json"
+        )
 
 
 class KioskHomeView(PluginContextMixin, FormView):

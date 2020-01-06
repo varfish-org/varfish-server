@@ -38,6 +38,7 @@ End-User Summary
 - Switched to SODAR core v0.7.1
 - HPO terms are now pastable, especially from SODAR.
 - Some UI cleanup and refinements, adding shortcut links.
+- Large speed up for file export queries.
 
 Full Change List
 ================
@@ -89,6 +90,7 @@ Full Change List
 - Renaming partitioned SV tables, making logged again.
 - HPO terms are now pastable, especially from SODAR.
 - Some UI cleanup and refinements, adding shortcut links.
+- Large speed up for file export queries by adding indices and columns to HGNC and KnownGeneAA table.
 
 -------
 v0.18.0

@@ -51,6 +51,8 @@ class Hgnc(models.Model):
     vega_id = models.CharField(max_length=32, null=True)
     #: UCSC ID
     ucsc_id = models.CharField(max_length=16, null=True)
+    #: UCSC ID \wo version
+    ucsc_id_novers = models.CharField(max_length=16, null=True)
     #: ENA ID
     ena = models.CharField(max_length=64, null=True)
     #: RefSeq Accession
@@ -116,6 +118,7 @@ class Hgnc(models.Model):
             models.Index(fields=["symbol"]),
             models.Index(fields=["hgnc_id"]),
             models.Index(fields=["ensembl_gene_id", "entrez_id", "symbol"]),
+            models.Index(fields=["ucsc_id_novers"]),
         ]
 
 

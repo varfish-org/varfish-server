@@ -17,6 +17,8 @@ class KnowngeneAA(models.Model):
     bin = models.IntegerField()
     #: Transcript ID in UCSC format
     transcript_id = models.CharField(max_length=16)
+    #: Transcript ID in UCSC format \wo version
+    transcript_id_novers = models.CharField(max_length=16, null=True)
     #: Multiple AA alignment of 100 species (multiz)
     alignment = models.CharField(max_length=100)
 
@@ -26,4 +28,7 @@ class KnowngeneAA(models.Model):
     class Meta:
         unique_together = ("release", "chromosome", "start", "end", "transcript_id")
 
-        indexes = [models.Index(fields=["release", "chromosome", "start", "end"])]
+        indexes = [
+            models.Index(fields=["release", "chromosome", "start", "end"]),
+            models.Index(fields=["transcript_id_novers"]),
+        ]

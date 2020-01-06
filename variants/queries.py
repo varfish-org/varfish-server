@@ -156,40 +156,6 @@ def same_variant(lhs, rhs):
     )
 
 
-class ExtendQueryPartsConservationJoin(ExtendQueryPartsBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.subquery = (
-            select([func.max(KnowngeneAA.sa.alignment).label("least_alignment")])
-            .select_from(KnowngeneAA.sa)
-            .where(
-                and_(
-                    KnowngeneAA.sa.release == SmallVariant.sa.release,
-                    KnowngeneAA.sa.chromosome == SmallVariant.sa.chromosome,
-                    KnowngeneAA.sa.start
-                    <= (SmallVariant.sa.start - 1 + func.length(SmallVariant.sa.reference)),
-                    KnowngeneAA.sa.end > (SmallVariant.sa.start - 1),
-                    # TODO: using "LEFT(, -2)" here breaks if version > 9
-                    func.left(KnowngeneAA.sa.transcript_id, -2) == func.left(Hgnc.sa.ucsc_id, -2),
-                )
-            )
-            .group_by(
-                KnowngeneAA.sa.release,
-                KnowngeneAA.sa.chromosome,
-                KnowngeneAA.sa.start,
-                KnowngeneAA.sa.end,
-                KnowngeneAA.sa.transcript_id,
-            )
-            .lateral("conservation_subquery")
-        )
-
-    def extend_fields(self, _query_parts):
-        return [func.coalesce(self.subquery.c.least_alignment, "").label("known_gene_aa")]
-
-    def extend_selectable(self, query_parts):
-        return query_parts.selectable.outerjoin(self.subquery, true())
-
-
 class ExtendQueryPartsDbsnpJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -250,6 +216,7 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
                     func.max(Hgnc.sa.name).label("name"),
                     func.max(Hgnc.sa.gene_family).label("gene_family"),
                     func.max(Hgnc.sa.pubmed_id).label("pubmed_id"),
+                    func.max(Hgnc.sa.ucsc_id_novers).label("ucsc_id_novers"),
                 ]
             )
             .select_from(Hgnc.sa)
@@ -270,6 +237,42 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
             func.coalesce(self.subquery_hgnc.c.gene_family, "").label("gene_family"),
             func.coalesce(self.subquery_hgnc.c.pubmed_id, "").label("pubmed_id"),
         ]
+
+
+class ExtendQueryPartsHgncAndConservationJoin(ExtendQueryPartsHgncJoin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.subquery = (
+            select([func.max(KnowngeneAA.sa.alignment).label("least_alignment")])
+            .select_from(KnowngeneAA.sa)
+            .where(
+                and_(
+                    KnowngeneAA.sa.release == SmallVariant.sa.release,
+                    KnowngeneAA.sa.chromosome == SmallVariant.sa.chromosome,
+                    KnowngeneAA.sa.start
+                    <= (SmallVariant.sa.start - 1 + func.length(SmallVariant.sa.reference)),
+                    KnowngeneAA.sa.end > (SmallVariant.sa.start - 1),
+                    KnowngeneAA.sa.transcript_id_novers == self.subquery_hgnc.c.ucsc_id_novers,
+                )
+            )
+            .group_by(
+                KnowngeneAA.sa.release,
+                KnowngeneAA.sa.chromosome,
+                KnowngeneAA.sa.start,
+                KnowngeneAA.sa.end,
+                KnowngeneAA.sa.transcript_id,
+            )
+            .lateral("conservation_subquery")
+        )
+
+    def extend_fields(self, _query_parts):
+        fields = super().extend_fields(_query_parts)
+        fields.append(func.coalesce(self.subquery.c.least_alignment, "").label("known_gene_aa"))
+        return fields
+
+    def extend_selectable(self, query_parts):
+        query_parts = super().extend_selectable(query_parts)
+        return query_parts.selectable.outerjoin(self.subquery, true())
 
 
 class ExtendQueryPartsGeneSymbolJoin(ExtendQueryPartsBase):
@@ -1283,10 +1286,9 @@ class CaseExportTableQueryPartsBuilder(QueryPartsBuilder):
 
     qp_extender_classes = [
         *extender_classes_base,
-        ExtendQueryPartsHgncJoin,
+        ExtendQueryPartsHgncAndConservationJoin,
         ExtendQueryPartsAcmgJoin,
         ExtendQueryPartsMgiJoin,
-        ExtendQueryPartsConservationJoin,
     ]
 
 
@@ -1320,11 +1322,10 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
 class ProjectExportTableQueryPartsBuilder(QueryPartsBuilder):
     qp_extender_classes = [
         *extender_classes_base,
-        ExtendQueryPartsHgncJoin,
+        ExtendQueryPartsHgncAndConservationJoin,
         ExtendQueryPartsGeneSymbolJoin,
         ExtendQueryPartsAcmgJoin,
         ExtendQueryPartsMgiJoin,
-        ExtendQueryPartsConservationJoin,
     ]
 
 
