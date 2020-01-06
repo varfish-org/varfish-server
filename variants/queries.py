@@ -375,6 +375,7 @@ class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
                     func.array_cat_agg(func.array_append(Clinvar.sa.origin, "$")), []
                 ).label("origin"),
                 func.coalesce(func.array_agg(Clinvar.sa.rcv), []).label("rcv"),
+                func.coalesce(func.max(Clinvar.sa.scv[1])).label("scv"),
             ]
         )
         self.subquery = (
@@ -404,6 +405,7 @@ class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
             func.coalesce(column("all_traits"), []).label("all_traits"),
             func.coalesce(column("origin"), []).label("origin"),
             func.coalesce(column("rcv"), []).label("rcv"),
+            func.coalesce(column("scv"), "").label("scv"),
         ] + [
             func.coalesce(column("clinvar_%s" % key), 0).label("clinvar_%s" % key)
             for key in self.patho_keys

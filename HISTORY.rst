@@ -39,6 +39,8 @@ End-User Summary
 - HPO terms are now pastable, especially from SODAR.
 - Some UI cleanup and refinements, adding shortcut links.
 - Large speed up for file export queries.
+- Fixed UI bug when selecting ``ClinVar only`` as flags.
+- Added link-out to variant when present in ClinVar.
 
 Full Change List
 ================
@@ -91,6 +93,8 @@ Full Change List
 - HPO terms are now pastable, especially from SODAR.
 - Some UI cleanup and refinements, adding shortcut links.
 - Large speed up for file export queries by adding indices and columns to HGNC and KnownGeneAA table.
+- Fixed UI bug when selecting ``ClinVar only`` as flags.
+- Added link-out to variant when present in ClinVar by adding the SCV field from the HGNC database to the query.
 
 -------
 v0.18.0

@@ -1,3 +1,4 @@
+{% if entry.in_clinvar %}<a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ entry.scv }}" target="_blank">{% endif %}
 <i
   {% if entry.in_clinvar %}
     data-toggle="tooltip"
@@ -8,4 +9,4 @@
   {% if not entry.in_clinvar %}
   style="opacity: 0.2"
   {% endif %}
-></i>
+></i>{% if entry.in_clinvar %}</a>{% endif %}

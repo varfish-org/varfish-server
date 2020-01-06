@@ -849,7 +849,32 @@ const presets = {
   },
   "flags-clinvar": {
     "ids": Object.assign({}, presetsFlagsDefault, {
-      "effect_group_all": true,
+      "effect_complex_substitution": true,
+      "effect_direct_tandem_duplication": true,
+      "effect_disruptive_inframe_deletion": true,
+      "effect_disruptive_inframe_insertion": true,
+      "effect_inframe_deletion": true,
+      "effect_inframe_insertion": true,
+      "effect_missense_variant": true,
+      "effect_mnv": true,
+      "effect_splice_region_variant": true,
+
+      "effect_coding_transcript_intron_variant": true,
+
+      "effect_stop_retained_variant": true,
+      "effect_synonymous_variant": true,
+      "effect_five_prime_UTR_exon_variant": true,
+      "effect_five_prime_UTR_intron_variant": true,
+      "effect_three_prime_UTR_exon_variant": true,
+      "effect_three_prime_UTR_intron_variant": true,
+
+      "transcripts_noncoding": true,
+      "effect_downstream_gene_variant": true,
+      "effect_intergenic_variant": true,
+      "effect_non_coding_transcript_exon_variant": true,
+      "effect_non_coding_transcript_intron_variant": true,
+      "effect_upstream_gene_variant": true,
+
       "require_in_clinvar": true,
     }),
     "classes": {},

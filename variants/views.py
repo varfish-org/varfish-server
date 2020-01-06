@@ -2897,7 +2897,6 @@ class KioskHomeView(PluginContextMixin, FormView):
             run_kiosk_bg_job.s(
                 kiosk_annotate_bg_job_pk=annotate_job.pk, import_variants_bg_job_pk=import_job.pk
             ).apply_async(countdown=2)
-            # TODO: setup celerybeat job that triggers background jobs for clearing out old cases
             # TODO: Manuel needs to configure a jailing script that throws out user trying to guess case UUIDs.
             return redirect(
                 reverse(
