@@ -41,6 +41,7 @@ End-User Summary
 - Large speed up for file export queries.
 - Fixed UI bug when selecting ``ClinVar only`` as flags.
 - Added link-out to variant when present in ClinVar.
+- Fixed broken SV filter button in smallvariant filter form.
 
 Full Change List
 ================
@@ -95,6 +96,7 @@ Full Change List
 - Large speed up for file export queries by adding indices and columns to HGNC and KnownGeneAA table.
 - Fixed UI bug when selecting ``ClinVar only`` as flags.
 - Added link-out to variant when present in ClinVar by adding the SCV field from the HGNC database to the query.
+- Fixed broken SV filter button in smallvariant filter form.
 
 -------
 v0.18.0
