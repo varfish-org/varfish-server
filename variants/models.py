@@ -2988,6 +2988,12 @@ class ImportVariantsBgJob(JobModelMessageMixin2, models.Model):
             kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
         )
 
+    def get_case_uuid(self):
+        latest_case = self.project.case_set.filter(name=self.case_name).order_by("-date_created")
+        if latest_case:
+            return latest_case[0].sodar_uuid
+        return None
+
 
 class KioskAnnotateBgJob(JobModelMessageMixin2, models.Model):
     """Background job for annotating vcf in kiosk mode."""

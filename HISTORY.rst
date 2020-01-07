@@ -42,6 +42,7 @@ End-User Summary
 - Fixed UI bug when selecting ``ClinVar only`` as flags.
 - Added link-out to variant when present in ClinVar.
 - Fixed broken SV filter button in smallvariant filter form.
+- Added link-out to case from import bg job detail page.
 
 Full Change List
 ================
@@ -97,6 +98,7 @@ Full Change List
 - Fixed UI bug when selecting ``ClinVar only`` as flags.
 - Added link-out to variant when present in ClinVar by adding the SCV field from the HGNC database to the query.
 - Fixed broken SV filter button in smallvariant filter form.
+- Added link-out to case from import bg job detail page.
 
 -------
 v0.18.0

@@ -3,7 +3,7 @@
   <div class="card-header">
     <h4>
       <i class="fa fa-tasks"></i>
-      Background Jobs Overview
+      Export Jobs Overview
     </h4>
   </div>
   <div class="card-body p-0">
@@ -24,16 +24,14 @@
         {% if not object.exportfilebgjob_set.all %}
           <tr>
              <td class="bg-faded font-italic text-center" colspan="5">
-               No background jobs found.
+               No export jobs found.
              </td>
           </tr>
         {% endif %}
       </tbody>
     </table>
   </div>
-  {% if object.exportfilebgjob_set.all %}
-    <div class="card-footer text-center">
-      <a href="{% url "variants:job-list" project=project.sodar_uuid case=object.sodar_uuid %}">List all jobs</a>
-    </div>
-  {% endif %}
+  <div class="card-footer text-center">
+    <a href="{% url "variants:job-list" project=project.sodar_uuid case=object.sodar_uuid %}">List all background jobs</a>
+  </div>
 </div>
