@@ -1601,11 +1601,13 @@ function loadPresets(element) {
     $("#input-presets-quality").val("quality-relaxed")
     $("#input-presets-region").val("region-whole-genome")
     $("#input-presets-flags").val("flags-default")
-  } else if (presetsName == "hom-recessive" || presetsName == "comp-het") {
+  } else if (presetsName == "hom-recessive" || presetsName == "comp-het" || presetsName == "recessive") {
     if (presetsName == "hom-recessive") {
       $("#input-presets-inheritance").val("inheritance-hom-recessive")
-    } else {
+    } else if (presetsName == "comp-het") {
       $("#input-presets-inheritance").val("inheritance-comp-het")
+    } else {
+      $("#input-presets-inheritance").val("inheritance-recessive")
     }
     $("#input-presets-frequency").val("frequency-recessive-strict")
     $("#input-presets-impact").val("impact-aa-change")
