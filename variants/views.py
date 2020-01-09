@@ -1,3 +1,4 @@
+import itertools
 import os
 import tempfile
 from itertools import chain
@@ -8,14 +9,11 @@ import contextlib
 import decimal
 import numpy as np
 import requests
-import vcfpy
-import io
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404, JsonResponse
@@ -49,7 +47,8 @@ from .queries import (
     CaseLoadPrefetchedQuery,
     ProjectLoadPrefetchedQuery,
     KnownGeneAAQuery,
-    DeleteVariantsQuery,
+    DeleteStructuralVariantsQuery,
+    DeleteSmallVariantsQuery,
 )
 from .models import (
     only_source_name,
@@ -80,6 +79,7 @@ from .models import (
     RowWithAffectedCasesPerGene,
     SmallVariantSummary,
     KioskAnnotateBgJob,
+    update_variant_counts,
 )
 from .forms import (
     ExportFileResubmitForm,
@@ -668,12 +668,67 @@ class CaseDeleteView(
         case = self.get_object()
         case_uuid = case.sodar_uuid
         case_name = case.name
-        for query in DeleteVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id):
+        for query in itertools.chain(
+            DeleteSmallVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id),
+            DeleteStructuralVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id),
+        ):
             with contextlib.closing(query):
                 pass
         case.delete()
         messages.success(self.request, "Deleted case {} with UUID {}.".format(case_name, case_uuid))
         return redirect("variants:case-list", project=case.project.sodar_uuid)
+
+
+class SmallVariantsDeleteView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Delete case."""
+
+    permission_required = "variants.delete_case"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, *args, **kwargs):
+        case = self.get_object()
+        case_uuid = case.sodar_uuid
+        case_name = case.name
+        for query in DeleteSmallVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id):
+            with contextlib.closing(query):
+                pass
+        update_variant_counts(case)
+        messages.success(self.request, "Deleted small variants in case {}.".format(case_name))
+        return redirect("variants:case-detail", project=case.project.sodar_uuid, case=case_uuid)
+
+
+class StructuralVariantsDeleteView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Delete case."""
+
+    permission_required = "variants.delete_case"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def post(self, *args, **kwargs):
+        case = self.get_object()
+        case_uuid = case.sodar_uuid
+        case_name = case.name
+        for query in DeleteStructuralVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id):
+            with contextlib.closing(query):
+                pass
+        update_variant_counts(case)
+        messages.success(self.request, "Deleted structural variants in case {}.".format(case_name))
+        return redirect("variants:case-detail", project=case.project.sodar_uuid, case=case_uuid)
 
 
 def build_rel_data(pedigree, relatedness):
@@ -2911,13 +2966,15 @@ class KioskHomeView(PluginContextMixin, FormView):
 
     def get_kiosk_project(self):
         """Return Project object for the Kiosk cases (or create it)."""
+        user = User.objects.get(username="kiosk_user")
         cat, _ = Project.objects.get_or_create(
-            parent=None, type="CATEGORY", title=settings.KIOSK_CAT
+            parent=None, type="CATEGORY", title=settings.KIOSK_CAT, user=user
         )
         proj = Project.objects.create(
             parent=cat,
             type="PROJECT",
             title="%s-%s" % (settings.KIOSK_PROJ_PREFIX, str(uuid.uuid4())),
+            user=user,
         )
         return proj
 

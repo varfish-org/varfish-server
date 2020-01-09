@@ -44,6 +44,8 @@ End-User Summary
 - Fixed broken SV filter button in smallvariant filter form.
 - Added link-out to case from import bg job detail page.
 - Added ``recessive`` quick presets setting.
+- Added functionality to delete small variants and structural variants of a case separately.
+- Fixed bug in which deleting a case didn't delete the sodar core background jobs.
 
 Full Change List
 ================
@@ -101,6 +103,8 @@ Full Change List
 - Fixed broken SV filter button in smallvariant filter form.
 - Added link-out to case from import bg job detail page.
 - Added ``recessive`` quick presets setting.
+- Added functionality to delete small variants and structural variants of a case separately.
+- Fixed bug in which deleting a case didn't delete the sodar core background jobs.
 
 -------
 v0.18.0

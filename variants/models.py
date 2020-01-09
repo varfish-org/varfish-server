@@ -16,6 +16,7 @@ from itertools import chain
 import math
 import re
 import requests
+from bgjobs.plugins import BackgroundJobsPluginPoint
 from django.forms import model_to_dict
 from sqlalchemy import select, func, and_, delete
 import uuid as uuid_object
@@ -711,6 +712,15 @@ def delete_case_cascaded(sender, instance, **kwargs):
     """
     if sender == Case:
         SmallVariant.objects.filter(case_id=instance.id).delete()
+        for plugin in BackgroundJobsPluginPoint.get_plugins():
+            for _, klass in plugin.job_specs.items():
+                bgjobs = []
+                if hasattr(klass, "case_id"):
+                    bgjobs = klass.objects.filter(case_id=instance.id)
+                elif hasattr(klass, "case_name"):
+                    bgjobs = klass.objects.filter(case_name=instance.name)
+                for bgjob in bgjobs:
+                    bgjob.delete()
 
 
 class CaseComments(models.Model):
@@ -870,6 +880,7 @@ class ExportFileBgJobBase(JobModelMessageMixin, models.Model):
         null=False,
         related_name="%(app_label)s_%(class)s_related",
         help_text="Background job for state etc.",
+        on_delete=models.CASCADE,
     )
 
     #: The query arguments.
@@ -975,6 +986,7 @@ class DistillerSubmissionBgJob(JobModelMessageMixin, models.Model):
         null=False,
         related_name="distiller_submission_bg_job",
         help_text="Background job for state etc.",
+        on_delete=models.CASCADE,
     )
     case = models.ForeignKey(Case, null=False, help_text="The case to export")
     query_args = JSONField(null=False, help_text="(Validated) query parameters")
@@ -1533,6 +1545,7 @@ class FilterBgJob(JobModelMessageMixin, models.Model):
         null=False,
         related_name="filter_bg_job",
         help_text="Background job for filtering and storing query results",
+        on_delete=models.CASCADE,
     )
 
     case = models.ForeignKey(Case, null=False, help_text="The case to filter")
@@ -1572,6 +1585,7 @@ class ProjectCasesFilterBgJob(JobModelMessageMixin, models.Model):
         null=False,
         related_name="project_cases_filter_bg_job",
         help_text="Background job for filtering joint project and storing query results.",
+        on_delete=models.CASCADE,
     )
 
     #: Link to the ProjectCaseSmallVariantQuery object. Holds query arguments and results.
@@ -1753,6 +1767,7 @@ class ComputeProjectVariantsStatsBgJob(JobModelMessageMixin, models.Model):
         null=False,
         related_name="compute_project_variants_stats",
         help_text="Background job for state etc.",
+        on_delete=models.CASCADE,
     )
 
     def get_human_readable_type(self):

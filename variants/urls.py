@@ -32,6 +32,16 @@ urlpatterns = [
         name="case-delete",
     ),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/structuralvariants/delete/(?P<case>[0-9a-f-]+)/$",
+        view=views.StructuralVariantsDeleteView.as_view(),
+        name="structuralvariants-delete",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/smallvariants/delete/(?P<case>[0-9a-f-]+)/$",
+        view=views.SmallVariantsDeleteView.as_view(),
+        name="smallvariants-delete",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/api-qc/(?P<case>[0-9a-f-]+)/$",
         view=views.CaseDetailQcStatsApiView.as_view(),
         name="api-case-qc",

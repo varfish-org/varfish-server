@@ -1572,7 +1572,20 @@ class KnownGeneAAQuery:
 # Query for deleting the variants of a case.
 
 
-class DeleteVariantsQuery:
+class DeleteSmallVariantsQuery:
+    def __init__(self, engine):
+        #: The Aldjemy engine to use
+        self.engine = engine
+
+    def run(self, case_id):
+        """Execute the query."""
+        # Delete all small variants.
+        yield self.engine.execute(
+            delete(SmallVariant.sa.table).where(SmallVariant.sa.case_id == case_id)
+        )
+
+
+class DeleteStructuralVariantsQuery:
     def __init__(self, engine):
         #: The Aldjemy engine to use
         self.engine = engine
@@ -1588,8 +1601,4 @@ class DeleteVariantsQuery:
         # Delete all structural variants.
         yield self.engine.execute(
             delete(StructuralVariant.sa.table).where(StructuralVariant.sa.case_id == case_id)
-        )
-        # Delete all small variants.
-        yield self.engine.execute(
-            delete(SmallVariant.sa.table).where(SmallVariant.sa.case_id == case_id)
         )

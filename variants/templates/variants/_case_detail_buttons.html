@@ -28,10 +28,20 @@
     </a>
   {% endif %}
   {% if request.user.is_superuser %}
-    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteCaseModal">
-      <i class="fa fa-trash"></i>
-      Delete Case
-    </button>
+    <div class="btn-group">
+      <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-trash"></i>
+        Delete Case
+      </button>
+      <div class="dropdown-menu">
+        {% if svs_enabled and object.num_svs and object.num_small_vars %}
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteSmallVariantsModal">SmallVariants only</a>
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteStructuralVariantsModal">SVs only</a>
+        <div class="dropdown-divider"></div>
+        {% endif %}
+        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#deleteCaseModal">Complete Case</a>
+      </div>
+    </div>
   {% endif %}
 </div>
 {% if request.user.is_superuser %}
@@ -40,9 +50,9 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Confirm Deletion of Case</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
       </div>
       <div class="modal-body">
         <p>Deleting a case is irreversible and removes the case and its variants. Please confirm if you want to proceed.</p>
@@ -62,4 +72,60 @@
     </div>
   </div>
 </div>
+  {% if svs_enabled and object.num_svs and object.num_small_vars %}
+  <div class="modal" tabindex="-1" role="dialog" id="deleteSmallVariantsModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Deletion of Small Variants</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Deleting the small variants is irreversible. Please confirm if you want to proceed.</p>
+        </div>
+        <div class="modal-footer">
+          <form method="post" action="{% url "variants:smallvariants-delete" project=project.sodar_uuid case=object.sodar_uuid %}">{% csrf_token %}
+            <button class="btn btn-danger" type="submit" onclick="$(this).attr('disabled', true); $('#deleteSmallVariantsIcon').removeClass('fa-trash').addClass('fa-refresh fa-spin');">
+              <i id="deleteSmallVariantsIcon" class="fa fa-trash"></i>
+              Delete Small Variants
+            </button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+              <i class="fa fa-times-circle"></i>
+              Cancel
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal" tabindex="-1" role="dialog" id="deleteStructuralVariantsModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Deletion of Structural Variants</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Deleting the structural variants is irreversible. Please confirm if you want to proceed.</p>
+        </div>
+        <div class="modal-footer">
+          <form method="post" action="{% url "variants:structuralvariants-delete" project=project.sodar_uuid case=object.sodar_uuid %}">{% csrf_token %}
+            <button class="btn btn-danger" type="submit" onclick="$(this).attr('disabled', true); $('#deleteStructuralVariantsIcon').removeClass('fa-trash').addClass('fa-refresh fa-spin');">
+              <i id="deleteStructuralVariantsIcon" class="fa fa-trash"></i>
+              Delete Structural Variants
+            </button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+              <i class="fa fa-times-circle"></i>
+              Cancel
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 {% endif %}
