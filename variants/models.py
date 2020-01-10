@@ -703,6 +703,16 @@ class Case(models.Model):
         else:
             return self.notes
 
+    def get_annotation_count(self):
+        """Return annotation count."""
+        return (
+            self.structural_variant_comments.count()
+            + self.structural_variant_flags.count()
+            + self.small_variant_comments.count()
+            + self.small_variant_flags.count()
+            + self.acmg_ratings.count()
+        )
+
     def __str__(self):
         """Return case name as human-readable description."""
         return self.name

@@ -2,6 +2,21 @@
 History / Changelog
 ===================
 
+
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Added count of annotations to case detail view in ``Variant Annotation`` tab.
+
+Full Change List
+================
+
+- Added count of annotations to case detail view in ``Variant Annotation`` tab.
+
 -------
 v0.19.0
 -------
