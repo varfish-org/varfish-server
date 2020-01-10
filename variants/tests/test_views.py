@@ -72,6 +72,7 @@ from variants.tests.factories import (
     CaseNotesStatusFormFactory,
     CaseCommentsFormFactory,
     CaseCommentsFactory,
+    SampleVariantStatisticsFactory,
 )
 from variants.tests.helpers import ViewTestBase
 from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
@@ -3592,3 +3593,69 @@ class TestCaseCommentsDeleteApiView(RoleAssignmentMixin, ViewTestBase):
                 json.loads(response.content.decode("utf-8"))["result"],
                 "Not authorized to delete comment or no comment found.",
             )
+
+
+class TestCaseFixSexView(RoleAssignmentMixin, ViewTestBase):
+    """Test CaseFixSexView."""
+
+    def setUp(self):
+        super().setUp()
+        variant_set = SmallVariantSetFactory()
+        self.case = variant_set.case
+        SampleVariantStatisticsFactory(
+            variant_set=variant_set, sample_name=self.case.index, chrx_het_hom=1.0
+        )
+
+    def test_fixing_sex_error(self):
+        with self.login(self.user):
+            self.assertEqual(self.case.pedigree[0]["sex"], 1)
+            response = self.client.get(
+                reverse(
+                    "variants:case-fix-sex",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                )
+            )
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:case-detail",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+            )
+            case = Case.objects.get(id=self.case.id)
+            self.assertEqual(case.pedigree[0]["sex"], 2)
+
+
+class TestProjectCasesFixSexView(RoleAssignmentMixin, ViewTestBase):
+    """Test ProjectCasesFixSexView."""
+
+    def setUp(self):
+        super().setUp()
+        self.project = ProjectFactory()
+        self.case_1 = CaseFactory(project=self.project)
+        self.case_2 = CaseFactory(project=self.project)
+        variant_set_1 = SmallVariantSetFactory(case=self.case_1)
+        variant_set_2 = SmallVariantSetFactory(case=self.case_2)
+        SampleVariantStatisticsFactory(
+            variant_set=variant_set_1, sample_name=self.case_1.index, chrx_het_hom=1.0
+        )
+        SampleVariantStatisticsFactory(
+            variant_set=variant_set_2, sample_name=self.case_2.index, chrx_het_hom=0.4
+        )
+
+    def test_fixing_sex_error(self):
+        with self.login(self.user):
+            self.assertEqual(self.case_1.pedigree[0]["sex"], 1)
+            self.assertEqual(self.case_2.pedigree[0]["sex"], 1)
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-fix-sex", kwargs={"project": self.project.sodar_uuid}
+                )
+            )
+            self.assertRedirects(
+                response, reverse("variants:case-list", kwargs={"project": self.project.sodar_uuid})
+            )
+            case_1 = Case.objects.get(id=self.case_1.id)
+            case_2 = Case.objects.get(id=self.case_2.id)
+            self.assertEqual(case_1.pedigree[0]["sex"], 2)
+            self.assertEqual(case_2.pedigree[0]["sex"], 1)

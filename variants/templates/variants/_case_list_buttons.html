@@ -9,4 +9,10 @@
     <i class="fa fa-filter"></i>
     Joint Filtration
   </a>
+  {% if request.user.is_superuser or kiosk_mode %}
+    <a class="btn btn-danger{% if not project.sex_errors %} disabled{% endif %}" href="{% url "variants:project-cases-fix-sex" project=project.sodar_uuid %}">
+      <i class="fa fa-venus-mars"></i>
+      Fix Sex
+    </a>
+  {% endif %}
 </div>

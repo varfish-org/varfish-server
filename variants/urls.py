@@ -42,6 +42,16 @@ urlpatterns = [
         name="smallvariants-delete",
     ),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/fix-sex/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseFixSexView.as_view(),
+        name="case-fix-sex",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/fix-sex/$",
+        view=views.ProjectCasesFixSexView.as_view(),
+        name="project-cases-fix-sex",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/api-qc/(?P<case>[0-9a-f-]+)/$",
         view=views.CaseDetailQcStatsApiView.as_view(),
         name="api-case-qc",

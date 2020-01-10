@@ -655,6 +655,112 @@ class CaseUpdateView(
     form_class = CaseForm
 
 
+class CaseFixSexView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Fix sex errors in a pedigree."""
+
+    permission_required = "variants.update_case"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def get(self, *args, **kwargs):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+
+        case = self.get_object()
+        sex_errors = case.sex_errors_to_fix()
+        if not sex_errors:
+            return redirect(
+                "variants:case-detail", project=case.project.sodar_uuid, case=case.sodar_uuid
+            )
+        timeline = get_backend_api("timeline_backend")
+        if timeline:
+            tl_event = timeline.add_event(
+                project=self.get_project(self.request, self.kwargs),
+                app_name="variants",
+                user=user,
+                event_name="case_fix_sex",
+                description="fix sex in pedigree of case {case}",
+                status_type="OK",
+            )
+            tl_event.add_object(obj=case, label="case", name=case.name)
+        for sample, sex in sex_errors.items():
+            for member in case.pedigree:
+                if member["patient"] == sample:
+                    member["sex"] = sex
+        case.save()
+        messages.success(self.request, "Fixed sex in pedigree to match molecular signature.")
+        return redirect(
+            "variants:case-detail", project=case.project.sodar_uuid, case=case.sodar_uuid
+        )
+
+
+class ProjectCasesFixSexView(
+    LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin, ProjectContextMixin, View
+):
+    """Fix sex errors in pedigree in cases of a project."""
+
+    permission_required = "variants.update_case"
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def get(self, *args, **kwargs):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+
+        # get current CaseAwareProject
+        project = CaseAwareProject.objects.get(pk=self.get_project(self.request, self.kwargs).pk)
+
+        timeline = get_backend_api("timeline_backend")
+        if timeline:
+            timeline.add_event(
+                project=self.get_project(self.request, self.kwargs),
+                app_name="variants",
+                user=user,
+                event_name="case_fix_sex",
+                description="fix sex in project cases",
+                status_type="OK",
+            )
+        fixed_cases = []
+        for case in project.get_active_smallvariant_cases():
+            sex_errors = case.sex_errors_to_fix()
+            if not sex_errors:
+                continue
+            timeline = get_backend_api("timeline_backend")
+            if timeline:
+                tl_event = timeline.add_event(
+                    project=self.get_project(self.request, self.kwargs),
+                    app_name="variants",
+                    user=user,
+                    event_name="case_fix_sex",
+                    description="fix sex in pedigree of case {case}",
+                    status_type="OK",
+                )
+                tl_event.add_object(obj=case, label="case", name=case.name)
+            for sample, sex in sex_errors.items():
+                for member in case.pedigree:
+                    if member["patient"] == sample:
+                        member["sex"] = sex
+            case.save()
+            fixed_cases.append(case.name)
+        if fixed_cases:
+            messages.success(
+                self.request,
+                "Fixed sex in pedigree to match molecular signature for case(s) {}".format(
+                    ", ".join(fixed_cases)
+                ),
+            )
+        return redirect("variants:case-list", project=project.sodar_uuid)
+
+
 class CaseDeleteView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,

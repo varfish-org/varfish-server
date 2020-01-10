@@ -608,7 +608,7 @@ class Case(models.Model):
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             return -1.0
 
-    def sex_errors_variant_stats(self):
+    def sex_errors_variant_stats(self, reporter):
         """Return dict of sample to error messages indicating sex assignment errors that can be derived from
         het/hom ratio on chrX.
         """
@@ -628,18 +628,29 @@ class Case(models.Model):
                     sample = sample_stats.sample_name
                     stats_sex = 1 if sample_stats.chrx_het_hom < CHRX_HET_HOM_THRESH else 2
                     if stats_sex != ped_sex[sample]:
-                        result[sample] = [
-                            "sex from pedigree conflicts with one derived from het/hom ratio on chrX"
-                        ]
+                        result[sample] = reporter(stats_sex)
             return result
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             return {}
 
+    def sex_errors_to_fix(self):
+        return self.sex_errors_variant_stats(lambda x: x)
+
     def sex_errors(self):
         """Returns dict mapping sample to error messages from both pedigree and variant statistics."""
+
         result = {}
+        if app_settings.get_app_setting(
+            "variants", "disable_pedigree_sex_check", project=self.project
+        ):
+            return result
         for sample, msgs in chain(
-            self.sex_errors_pedigree().items(), self.sex_errors_variant_stats().items()
+            self.sex_errors_pedigree().items(),
+            self.sex_errors_variant_stats(
+                lambda x: [
+                    "sex from pedigree conflicts with one derived from het/hom ratio on chrX"
+                ]
+            ).items(),
         ):
             result.setdefault(sample, [])
             result[sample] += msgs

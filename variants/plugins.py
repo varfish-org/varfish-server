@@ -89,7 +89,18 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "Define tags to attach to a case. Deleted tags will stay attached to "
                 "the case until the tags in the case are updated. To add a tag, take away "
                 "the focus of the input field or hit <kbd>Enter</kbd>. <kbd>;</kbd> is "
-                "the seperator and will seperate after the tag is entered."
+                "the separator and will separate after the tag is entered."
+            ),
+        },
+        "disable_pedigree_sex_check": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "BOOLEAN",
+            "default": False,
+            "label": "Disable pedigree sex check",
+            "description": (
+                "Disable sex check in pedigree. This way, no warning will be displayed when the "
+                "reported sex in the pedigree doesn't match the molecular sex signature. "
+                "Use this if the sex is unknown."
             ),
         },
     }

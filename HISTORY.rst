@@ -11,12 +11,17 @@ End-User Summary
 
 - Added count of annotations to case detail view in ``Variant Annotation`` tab.
 - De-novo quick preset now selects ``AA change, splicing (default)`` for sub-preset ``Impact``, instead of ``all coding, deep intronic``.
+- Added project-wide option to disable pedigree sex check.
+- Added button to case detail and case list to fix sex errors in pedigree for case or project-wide.
+
 
 Full Change List
 ================
 
 - Added count of annotations to case detail view in ``Variant Annotation`` tab.
 - De-novo quick preset now selects ``AA change, splicing (default)`` for sub-preset ``Impact``, instead of ``all coding, deep intronic``.
+- Added project-wide option to disable pedigree sex check.
+- Added button to case detail and case list to fix sex errors in pedigree for case or project-wide.
 
 -------
 v0.19.0

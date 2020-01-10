@@ -26,6 +26,10 @@
       <i class="fa fa-edit"></i>
       Edit Pedigree
     </a>
+    <a class="btn btn-danger{% if not object.sex_errors %} disabled{% endif %}" href="{% url "variants:case-fix-sex" project=project.sodar_uuid case=object.sodar_uuid %}">
+      <i class="fa fa-venus-mars"></i>
+      Fix Sex
+    </a>
   {% endif %}
   {% if request.user.is_superuser %}
     <div class="btn-group">
