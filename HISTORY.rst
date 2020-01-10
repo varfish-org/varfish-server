@@ -2,7 +2,6 @@
 History / Changelog
 ===================
 
-
 -----------------
 HEAD (unreleased)
 -----------------
@@ -11,11 +10,13 @@ End-User Summary
 ================
 
 - Added count of annotations to case detail view in ``Variant Annotation`` tab.
+- De-novo quick preset now selects ``AA change, splicing (default)`` for sub-preset ``Impact``, instead of ``all coding, deep intronic``.
 
 Full Change List
 ================
 
 - Added count of annotations to case detail view in ``Variant Annotation`` tab.
+- De-novo quick preset now selects ``AA change, splicing (default)`` for sub-preset ``Impact``, instead of ``all coding, deep intronic``.
 
 -------
 v0.19.0

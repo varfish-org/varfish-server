@@ -1601,7 +1601,7 @@ function loadPresets(element) {
   } else if (presetsName == "de-novo") {
     $("#input-presets-inheritance").val("inheritance-dominant")
     $("#input-presets-frequency").val("frequency-strict")
-    $("#input-presets-impact").val("impact-all-coding-deep-intronic")
+    $("#input-presets-impact").val("impact-aa-change")
     $("#input-presets-quality").val("quality-relaxed")
     $("#input-presets-region").val("region-whole-genome")
     $("#input-presets-flags").val("flags-default")
