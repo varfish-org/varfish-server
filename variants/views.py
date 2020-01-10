@@ -576,6 +576,11 @@ class CaseDetailView(
 
         try:
             variant_set = case.latest_variant_set()
+            import_job = ImportVariantsBgJob.objects.filter(case_name=case.name).order_by(
+                "-date_created"
+            )
+            if import_job and not import_job[0].bg_job.status == "done":
+                return result
             if variant_set:
                 result["ontarget_effect_counts"] = {
                     stats.sample_name: stats.ontarget_effect_counts
@@ -665,9 +670,24 @@ class CaseDeleteView(
     slug_field = "sodar_uuid"
 
     def post(self, *args, **kwargs):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+
         case = self.get_object()
         case_uuid = case.sodar_uuid
         case_name = case.name
+        timeline = get_backend_api("timeline_backend")
+        if timeline:
+            tl_event = timeline.add_event(
+                project=self.get_project(self.request, self.kwargs),
+                app_name="variants",
+                user=user,
+                event_name="case_delete",
+                description="delete case {case}",
+                status_type="OK",
+            )
+            tl_event.add_object(obj=case, label="case", name=case.name)
         for query in itertools.chain(
             DeleteSmallVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id),
             DeleteStructuralVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id),
@@ -675,6 +695,18 @@ class CaseDeleteView(
             with contextlib.closing(query):
                 pass
         case.delete()
+        with transaction.atomic():
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Recreate variant statistic for whole project",
+                project=self.get_project(self.request, self.kwargs),
+                job_type=ComputeProjectVariantsStatsBgJob.spec_name,
+                user=user,
+            )
+            recreate_job = ComputeProjectVariantsStatsBgJob.objects.create(
+                project=self.get_project(self.request, self.kwargs), bg_job=bg_job
+            )
+        compute_project_variants_stats.delay(export_job_pk=recreate_job.pk)
         messages.success(self.request, "Deleted case {} with UUID {}.".format(case_name, case_uuid))
         return redirect("variants:case-list", project=case.project.sodar_uuid)
 
@@ -694,13 +726,40 @@ class SmallVariantsDeleteView(
     slug_field = "sodar_uuid"
 
     def post(self, *args, **kwargs):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+
         case = self.get_object()
         case_uuid = case.sodar_uuid
         case_name = case.name
+        timeline = get_backend_api("timeline_backend")
+        if timeline:
+            tl_event = timeline.add_event(
+                project=self.get_project(self.request, self.kwargs),
+                app_name="variants",
+                user=user,
+                event_name="smallvariant_delete",
+                description="delete small variants from {case}",
+                status_type="OK",
+            )
+            tl_event.add_object(obj=case, label="case", name=case.name)
         for query in DeleteSmallVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id):
             with contextlib.closing(query):
                 pass
         update_variant_counts(case)
+        with transaction.atomic():
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Recreate variant statistic for whole project",
+                project=self.get_project(self.request, self.kwargs),
+                job_type=ComputeProjectVariantsStatsBgJob.spec_name,
+                user=user,
+            )
+            recreate_job = ComputeProjectVariantsStatsBgJob.objects.create(
+                project=self.get_project(self.request, self.kwargs), bg_job=bg_job
+            )
+        compute_project_variants_stats.delay(export_job_pk=recreate_job.pk)
         messages.success(self.request, "Deleted small variants in case {}.".format(case_name))
         return redirect("variants:case-detail", project=case.project.sodar_uuid, case=case_uuid)
 
@@ -720,13 +779,40 @@ class StructuralVariantsDeleteView(
     slug_field = "sodar_uuid"
 
     def post(self, *args, **kwargs):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+
         case = self.get_object()
         case_uuid = case.sodar_uuid
         case_name = case.name
+        timeline = get_backend_api("timeline_backend")
+        if timeline:
+            tl_event = timeline.add_event(
+                project=self.get_project(self.request, self.kwargs),
+                app_name="variants",
+                user=user,
+                event_name="structuralvariant_delete",
+                description="delete structural variants from {case}",
+                status_type="OK",
+            )
+            tl_event.add_object(obj=case, label="case", name=case.name)
         for query in DeleteStructuralVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id):
             with contextlib.closing(query):
                 pass
         update_variant_counts(case)
+        with transaction.atomic():
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Recreate variant statistic for whole project",
+                project=self.get_project(self.request, self.kwargs),
+                job_type=ComputeProjectVariantsStatsBgJob.spec_name,
+                user=user,
+            )
+            recreate_job = ComputeProjectVariantsStatsBgJob.objects.create(
+                project=self.get_project(self.request, self.kwargs), bg_job=bg_job
+            )
+        compute_project_variants_stats.delay(export_job_pk=recreate_job.pk)
         messages.success(self.request, "Deleted structural variants in case {}.".format(case_name))
         return redirect("variants:case-detail", project=case.project.sodar_uuid, case=case_uuid)
 
@@ -832,6 +918,31 @@ class CaseDetailQcStatsApiView(
 
     def get(self, *args, **kwargs):
         object = self.get_object()
+        import_job = ImportVariantsBgJob.objects.filter(case_name=object.name).order_by(
+            "-date_created"
+        )
+        result = {
+            "pedigree": [
+                {**line, "patient": only_source_name(line["patient"])} for line in object.pedigree
+            ]
+        }
+
+        if import_job and not import_job[0].bg_job.status == "done":
+            result.update(
+                {
+                    "relData": [],
+                    "sexErrors": {},
+                    "chrXHetHomRatio": {},
+                    "dps": {},
+                    "dpQuantiles": [0, 25, 50, 100],
+                    "hetRatioQuantiles": [0, 25, 50, 100],
+                    "dpHetData": [],
+                    "variantTypeData": [],
+                    "variantEffectData": [],
+                    "indelSizeData": [],
+                }
+            )
+            return JsonResponse(result)
 
         relatedness_set = []
         try:
@@ -840,17 +951,16 @@ class CaseDetailQcStatsApiView(
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             pass  # swallow
 
-        result = {
-            "pedigree": [
-                {**line, "patient": only_source_name(line["patient"])} for line in object.pedigree
-            ],
-            "relData": list(build_rel_data(object.pedigree, relatedness_set)),
-            **build_sex_data(object),
-            **build_cov_data([object]),
-            "variantTypeData": list(self._build_var_type_data(object)),
-            "variantEffectData": list(self._build_var_effect_data(object)),
-            "indelSizeData": list(self._build_indel_size_data(object)),
-        }
+        result.update(
+            {
+                "relData": list(build_rel_data(object.pedigree, relatedness_set)),
+                **build_sex_data(object),
+                **build_cov_data([object]),
+                "variantTypeData": list(self._build_var_type_data(object)),
+                "variantEffectData": list(self._build_var_effect_data(object)),
+                "indelSizeData": list(self._build_indel_size_data(object)),
+            }
+        )
         return JsonResponse(result)
 
     def _build_var_type_data(self, object):

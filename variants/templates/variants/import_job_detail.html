@@ -63,9 +63,9 @@
           <li class="list-group-item row d-flex">
             <div class="col-2 p-1"><strong>Case Name</strong></div>
             <div class="col-10 p-1">
-              {% with case_uuid=object.get_case_uuid %}
-                {% if case_uuid %}
-                  <a href="{% url 'variants:case-detail' project=object.project.sodar_uuid case=case_uuid %}">{{ object.case_name }}</a>
+              {% with case=object.get_case %}
+                {% if case %}
+                  <a href="{% url 'variants:case-detail' project=object.project.sodar_uuid case=case.sodar_uuid %}">{{ object.case_name }}</a>
                 {% else %}
                   {{ object.case_name }}
                 {% endif %}

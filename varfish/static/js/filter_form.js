@@ -1516,6 +1516,10 @@ function updateQuickPresets(settings) {
       let presetsKey = category + "-" + candidate;
       for (let key in presets[presetsKey]["ids"]) {
         const inPreset = presets[presetsKey]["ids"].hasOwnProperty(key);
+        if (key in settings === false) {
+            alert("Preset " + key + " not in settings for " + candidate + " " + category);
+            break;
+        }
         const value = settings[key] === "" ? null : settings[key];
         const presetValue = presets[presetsKey]["ids"][key] === "" ? null : presets[presetsKey]["ids"][key];
         const compHetOrRecessive = presetsKey == "inheritance-comp-het" || presetsKey == "inheritance-recessive";

@@ -344,6 +344,164 @@ class TestCaseDeleteView(RoleAssignmentMixin, ViewTestBase):
             self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
 
 
+class TestSmallVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
+    """Test CaseDeleteView."""
+
+    def setUp(self):
+        super().setUp()
+        self.project = ProjectFactory()
+        # Create first case with small and structural variants
+        self.case_1 = CaseFactory(project=self.project)
+        self.variant_set_1 = SmallVariantSetFactory(case=self.case_1)
+        self.variant_set_sv_1 = StructuralVariantSetFactory(case=self.case_1)
+        self.small_vars_1 = SmallVariantFactory.create_batch(3, variant_set=self.variant_set_1)
+        self.svs_1 = StructuralVariantFactory.create_batch(3, variant_set=self.variant_set_sv_1)
+        # Create second case with small and structural variants
+        self.case_2 = CaseFactory(project=self.project)
+        self.variant_set_2 = SmallVariantSetFactory(case=self.case_2)
+        self.variant_set_sv_2 = StructuralVariantSetFactory(case=self.case_2)
+        self.small_vars_2 = SmallVariantFactory.create_batch(2, variant_set=self.variant_set_2)
+        self.svs_2 = StructuralVariantFactory.create_batch(2, variant_set=self.variant_set_sv_2)
+        # Create a user without superuser rights
+        self.randomuser = self.make_user("randomuser")
+        self.randomuser.save()
+        self._make_assignment(
+            self.project, self.randomuser, Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0]
+        )
+
+    def test_delete_as_admin(self):
+        with self.login(self.user):
+            # Check if the expected amount of objects is in the database.
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(
+                SmallVariant.objects.count(), len(self.small_vars_1) + len(self.small_vars_2)
+            )
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
+            # Delete case.
+            response = self.client.post(
+                reverse(
+                    "variants:smallvariants-delete",
+                    kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
+                )
+            )
+            # In case of success redirects to case overview.
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:case-detail",
+                    kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
+                ),
+            )
+            # Objects in database of first case should be deleted, the second case should be still there.
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(SmallVariant.objects.count(), len(self.small_vars_2))
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
+
+    def test_delete_as_user_and_fail(self):
+        with self.login(self.randomuser):
+            # Check if the expected amount of objects is in the database.
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(
+                SmallVariant.objects.count(), len(self.small_vars_1) + len(self.small_vars_2)
+            )
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
+            # Try to delete case.
+            response = self.client.post(
+                reverse(
+                    "variants:smallvariants-delete",
+                    kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
+                )
+            )
+            # Unrestricted access to a view redirects to home.
+            self.assertRedirects(response, reverse("home"))
+            # Objects should still be in the database.
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(
+                SmallVariant.objects.count(), len(self.small_vars_1) + len(self.small_vars_2)
+            )
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
+
+
+class TestStructuralVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
+    """Test CaseDeleteView."""
+
+    def setUp(self):
+        super().setUp()
+        self.project = ProjectFactory()
+        # Create first case with small and structural variants
+        self.case_1 = CaseFactory(project=self.project)
+        self.variant_set_1 = SmallVariantSetFactory(case=self.case_1)
+        self.variant_set_sv_1 = StructuralVariantSetFactory(case=self.case_1)
+        self.small_vars_1 = SmallVariantFactory.create_batch(3, variant_set=self.variant_set_1)
+        self.svs_1 = StructuralVariantFactory.create_batch(3, variant_set=self.variant_set_sv_1)
+        # Create second case with small and structural variants
+        self.case_2 = CaseFactory(project=self.project)
+        self.variant_set_2 = SmallVariantSetFactory(case=self.case_2)
+        self.variant_set_sv_2 = StructuralVariantSetFactory(case=self.case_2)
+        self.small_vars_2 = SmallVariantFactory.create_batch(2, variant_set=self.variant_set_2)
+        self.svs_2 = StructuralVariantFactory.create_batch(2, variant_set=self.variant_set_sv_2)
+        # Create a user without superuser rights
+        self.randomuser = self.make_user("randomuser")
+        self.randomuser.save()
+        self._make_assignment(
+            self.project, self.randomuser, Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0]
+        )
+
+    def test_delete_as_admin(self):
+        with self.login(self.user):
+            # Check if the expected amount of objects is in the database.
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(
+                SmallVariant.objects.count(), len(self.small_vars_1) + len(self.small_vars_2)
+            )
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
+            # Delete case.
+            response = self.client.post(
+                reverse(
+                    "variants:structuralvariants-delete",
+                    kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
+                )
+            )
+            # In case of success redirects to case overview.
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:case-detail",
+                    kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
+                ),
+            )
+            # Objects in database of first case should be deleted, the second case should be still there.
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(
+                SmallVariant.objects.count(), len(self.small_vars_1) + len(self.small_vars_2)
+            )
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_2))
+
+    def test_delete_as_user_and_fail(self):
+        with self.login(self.randomuser):
+            # Check if the expected amount of objects is in the database.
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(
+                SmallVariant.objects.count(), len(self.small_vars_1) + len(self.small_vars_2)
+            )
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
+            # Try to delete case.
+            response = self.client.post(
+                reverse(
+                    "variants:structuralvariants-delete",
+                    kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
+                )
+            )
+            # Unrestricted access to a view redirects to home.
+            self.assertRedirects(response, reverse("home"))
+            # Objects should still be in the database.
+            self.assertEqual(Case.objects.count(), 2)
+            self.assertEqual(
+                SmallVariant.objects.count(), len(self.small_vars_1) + len(self.small_vars_2)
+            )
+            self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
+
+
 class TestCaseDetailQcStatsApiView(ViewTestBase):
     """Test the QC API view for single case."""
 

@@ -612,6 +612,12 @@ class Case(models.Model):
         """Return dict of sample to error messages indicating sex assignment errors that can be derived from
         het/hom ratio on chrX.
         """
+        import_job = ImportVariantsBgJob.objects.filter(case_name=self.name).order_by(
+            "-date_created"
+        )
+        if import_job and not import_job[0].bg_job.status == "done":
+            return {}
+
         try:
             ped_sex = {m["patient"]: m["sex"] for m in self.pedigree}
             result = {}
@@ -643,6 +649,12 @@ class Case(models.Model):
         """Returns dict mapping sample to list of relationship errors."""
         ped_entries = {m["patient"]: m for m in self.pedigree}
         result = {}
+        import_job = ImportVariantsBgJob.objects.filter(case_name=self.name).order_by(
+            "-date_created"
+        )
+        if import_job and not import_job[0].bg_job.status == "done":
+            return result
+
         try:
             if self.latest_variant_set():
                 for rel_stats in self.latest_variant_set().variant_stats.relatedness.all():
@@ -718,9 +730,9 @@ def delete_case_cascaded(sender, instance, **kwargs):
                 if hasattr(klass, "case_id"):
                     bgjobs = klass.objects.filter(case_id=instance.id)
                 elif hasattr(klass, "case_name"):
-                    bgjobs = klass.objects.filter(case_name=instance.name)
+                    bgjobs = klass.objects.filter(project=instance.project, case_name=instance.name)
                 for bgjob in bgjobs:
-                    bgjob.delete()
+                    bgjob.bg_job.delete()
 
 
 class CaseComments(models.Model):
@@ -3003,10 +3015,10 @@ class ImportVariantsBgJob(JobModelMessageMixin2, models.Model):
             kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
         )
 
-    def get_case_uuid(self):
+    def get_case(self):
         latest_case = self.project.case_set.filter(name=self.case_name).order_by("-date_created")
         if latest_case:
-            return latest_case[0].sodar_uuid
+            return latest_case[0]
         return None
 
 

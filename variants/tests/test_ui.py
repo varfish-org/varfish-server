@@ -20,7 +20,6 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from projectroles.models import Role, SODAR_CONSTANTS
 from projectroles.tests.test_models import ProjectMixin, RoleAssignmentMixin
 
-from clinvar.tests.factories import ClinvarFactory
 from variants.tests.factories import (
     SmallVariantSetFactory,
     SampleVariantStatisticsFactory,

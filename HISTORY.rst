@@ -46,6 +46,7 @@ End-User Summary
 - Added ``recessive`` quick presets setting.
 - Added functionality to delete small variants and structural variants of a case separately.
 - Fixed bug in which deleting a case didn't delete the sodar core background jobs.
+- Old variants stats data is not displayed anymore in case QC overview when case is re-imported.
 
 Full Change List
 ================
@@ -105,6 +106,7 @@ Full Change List
 - Added ``recessive`` quick presets setting.
 - Added functionality to delete small variants and structural variants of a case separately.
 - Fixed bug in which deleting a case didn't delete the sodar core background jobs.
+- Old variants stats data is not displayed anymore in case QC overview when case is re-imported.
 
 -------
 v0.18.0
