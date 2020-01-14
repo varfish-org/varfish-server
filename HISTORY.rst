@@ -13,7 +13,7 @@ End-User Summary
 - De-novo quick preset now selects ``AA change, splicing (default)`` for sub-preset ``Impact``, instead of ``all coding, deep intronic``.
 - Added project-wide option to disable pedigree sex check.
 - Added button to case detail and case list to fix sex errors in pedigree for case or project-wide.
-
+- Added command ``import_cases_bulk`` for case bulk import, reading arguments from a JSON file.
 
 Full Change List
 ================
@@ -22,6 +22,7 @@ Full Change List
 - De-novo quick preset now selects ``AA change, splicing (default)`` for sub-preset ``Impact``, instead of ``all coding, deep intronic``.
 - Added project-wide option to disable pedigree sex check.
 - Added button to case detail and case list to fix sex errors in pedigree for case or project-wide.
+- Added command ``import_cases_bulk`` for case bulk import, reading arguments from a JSON file.
 
 -------
 v0.19.0
