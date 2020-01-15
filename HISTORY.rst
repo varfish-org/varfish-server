@@ -14,6 +14,8 @@ End-User Summary
 - Added project-wide option to disable pedigree sex check.
 - Added button to case detail and case list to fix sex errors in pedigree for case or project-wide.
 - Added command ``import_cases_bulk`` for case bulk import, reading arguments from a JSON file.
+- Entering and suggeting HPO terms now requires at least 3 typed charaters.
+- Fixed broken variant details page when an HPO id had no matching HPO name.
 
 Full Change List
 ================
@@ -23,6 +25,12 @@ Full Change List
 - Added project-wide option to disable pedigree sex check.
 - Added button to case detail and case list to fix sex errors in pedigree for case or project-wide.
 - Added command ``import_cases_bulk`` for case bulk import, reading arguments from a JSON file.
+- Entering and suggeting HPO terms now requires at least 3 typed charaters.
+  Also only sending the query if the HPO term string changed to reduce number of executed database queries.
+- Fixed broken variant details page when an HPO id had no matching HPO name.
+  This happened when gathering HPO names, retrieving HPO id from ``Hpo`` database given the OMIM id and then the name from ``HpoName``.
+  The databases ``Hpo`` and ``HpoName`` don't match necessarly via ``hpo_id``, in this case because of an obsolete HPO id ``HP:0031988``.
+  Now reporting ``"unknown"`` for the name instead of ``None`` which broke the sorting routine.
 
 -------
 v0.19.0

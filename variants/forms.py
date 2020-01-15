@@ -1130,7 +1130,7 @@ class SmallVariantPrioritizerFormMixin:
             ),
             widget=forms.Textarea(
                 attrs={
-                    "placeholder": "Enter HPO terms here (e.g. HP:0000001; HP:00000005) or click a suggestion above ...",
+                    "placeholder": "Enter HPO terms here (e.g. HP:0000001; HP:0000005) or click a suggestion above ...",
                     "rows": 3,
                     "class": "form-control",
                 }

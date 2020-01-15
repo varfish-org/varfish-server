@@ -124,7 +124,7 @@ def _get_hpo_mapping(mim):
     """Given one omim ID, obtain HPO entries with the associated HPO name and parsed OMIM name."""
     for h in Hpo.objects.filter(database_id="OMIM:{}".format(mim.omim_id)):
         hponame = HpoName.objects.filter(hpo_id=h.hpo_id).first()
-        yield h.hpo_id, hponame.name if hponame else None, list(_parse_omim_name(h.name))
+        yield h.hpo_id, hponame.name if hponame else "unknown", list(_parse_omim_name(h.name))
 
 
 def _parse_omim_name(name):

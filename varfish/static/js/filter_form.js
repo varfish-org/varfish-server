@@ -1657,11 +1657,21 @@ function initHpoTypeahead() {
     let info_tmpl = function(t) { return "<span class='form-text text-muted'><em>" + t + "</em></span>"; };
     suggestions.empty();
     suggestions.append(info_tmpl(msg_empty_list));
+    let prev_query_string = "";
     $("#id_hpo_typeahead").keyup(function() {
-        let query_string = $(this).val();
+        let query_string = $(this).val().replace(/^\s*/, '').replace(/\s*$/, '');
+        // Don't query if there is no change (=> decrease number of queries)
+        if (prev_query_string === query_string) {
+            return;
+        }
+        prev_query_string = query_string;
         if (!query_string) {
             suggestions.empty();
             suggestions.append(info_tmpl(msg_empty_list));
+            return;
+        }
+        // At least three characters required in query string to send query (=> decrease number of queries)
+        if (query_string.length < 3) {
             return;
         }
         $.ajax({
