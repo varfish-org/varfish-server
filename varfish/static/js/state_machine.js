@@ -385,7 +385,7 @@ function handleEventStateWaitJobResults(eventType, event) {
                 },
               ]
             }
-            );
+        );
         updateTableDisplay();
       },
       error: function(jqXHR, textStatus, errorThrown) {
@@ -394,6 +394,9 @@ function handleEventStateWaitJobResults(eventType, event) {
         switch (jqXHR.status) {
           case 0:
             displayConnectionError();
+            break;
+          case 500:
+            displayError("msg" in jqXHR.responseJSON ? jqXHR.responseJSON["msg"] : textStatus + " " + errorThrown);
             break;
           default:
             alert("Error during AJAX call: " + textStatus + " " + errorThrown + " in state " + currentState);

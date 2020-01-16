@@ -17,6 +17,9 @@ End-User Summary
 - Entering and suggeting HPO terms now requires at least 3 typed charaters.
 - Fixed broken variant details page when an HPO id had no matching HPO name.
 - Fixed bug in joint filtration filter view where previous genomic regions where not properly restored in the form.
+- Fixed bug that lead to an AJAX error in the filter view when previous filter results failed to load because the variants of a case were deleted in the meantime.
+- Entering the filter view is now only possible when there are variants and a variant set.
+  When there are variant reported but no variant set, a warning in form of a small red icon next to the number of variants is displayed, complaining about an inconsistent state.
 
 Full Change List
 ================
@@ -33,6 +36,9 @@ Full Change List
   The databases ``Hpo`` and ``HpoName`` don't match necessarly via ``hpo_id``, in this case because of an obsolete HPO id ``HP:0031988``.
   Now reporting ``"unknown"`` for the name instead of ``None`` which broke the sorting routine.
 - Fixed bug in ``ProjectCasesFilterView`` where previous genomic regions where not properly restored in the form.
+- Fixed bug that lead to an AJAX error in the filter view when previous filter results failed to load because the variants of a case were deleted in the meantime.
+- Entering the filter view is now only possible when there are variants and a variant set.
+  When there are variant reported but no variant set, a warning in form of a small red icon next to the number of variants is displayed, complaining about an inconsistent state.
 
 -------
 v0.19.0

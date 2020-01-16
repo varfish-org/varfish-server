@@ -104,6 +104,13 @@
         </strong></span>
         <span class="col-3 text-nowrap">
           {{ object.num_small_vars|default_if_none:"-"|intcomma }}
+          {% if object.num_small_vars %}
+            {% if not object.latest_variant_set %}
+              <i class="fa fa-exclamation-triangle text-danger" data-toggle="tooltip" title="Variants reported but no variant set available. Inconsistent state, please report to the aministrators."></i>
+            {% endif %}
+          {% else %}
+            <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="small variant filtration not possible"></i>
+          {% endif %}
         </span>
         {% if svs_enabled %}
           <span class="col-2"><strong>
@@ -111,11 +118,12 @@
           </strong></span>
           <span class="col-5">
             {{ object.num_svs|default_if_none:"-"|intcomma }}
-            {% if not object.num_svs %}
-              <span class="text-muted text-nowrap">
-                (<i class="fa fa-info-circle"></i>
-                SV filtration not possible)
-              </span>
+            {% if object.num_svs %}
+              {% if not object.latest_structural_variant_set %}
+                <i class="fa fa-exclamation-triangle text-danger" data-toggle="tooltip" title="SVs reported but no structural variant set available. Inconsistent state, please report to the aministrators."></i>
+              {% endif %}
+            {% else %}
+              <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="SV filtration not possible"></i>
             {% endif %}
           </span>
         {% endif %}

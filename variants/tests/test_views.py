@@ -3525,7 +3525,7 @@ class TestCaseCommentsSubmitApiView(RoleAssignmentMixin, ViewTestBase):
             self.assertEqual(response.status_code, 500)
             self.assertEqual(
                 json.loads(response.content.decode("utf-8"))["result"],
-                "Not authorized to delete comment or no comment found.",
+                "Not authorized to update comment or no comment found.",
             )
 
 

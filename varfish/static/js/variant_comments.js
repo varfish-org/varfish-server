@@ -39,7 +39,11 @@ function commentDeleteSubmit() {
             handleEmptyMessage(list.attr("id"));
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            alert("Error during AJAX call: " + textStatus + " " + errorThrown);
+            let msg = "Error during AJAX call: " + textStatus + " " + errorThrown;
+            if (jqXHR.status === 500 && "result") {
+                msg += " " + jqXHR.responseJSON["result"]
+            }
+            alert(msg);
             console.log("Error during AJAX call: ", textStatus, errorThrown);
         }
     });
@@ -61,8 +65,12 @@ function commentEditSubmit() {
             list.animate({scrollTop: list[0].scrollHeight}, 'slow');
         },
         error: function (jqXHR, textStatus, errorThrown) {
-            alert("Error during AJAX call: " + textStatus + " " + errorThrown);
-            console.log("Error during AJAX call: ", textStatus, errorThrown);
+            let msg = "Error during AJAX call: " + textStatus + " " + errorThrown;
+            if (jqXHR.status === 500 && "result") {
+                msg += " " + jqXHR.responseJSON["result"]
+            }
+            alert(msg);
+            console.log(msg);
         }
     });
 }

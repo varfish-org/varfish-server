@@ -428,7 +428,7 @@ class CaseCommentsSubmitApiView(
                 except ObjectDoesNotExist as e:
                     return HttpResponse(
                         json.dumps(
-                            {"result": "Not authorized to delete comment or no comment found."}
+                            {"result": "Not authorized to update comment or no comment found."}
                         ),
                         content_type="application/json",
                         status=500,
@@ -1505,9 +1505,24 @@ class CaseLoadPrefetchedFilterView(
         # TODO: refactor, cleanup, break apart
         # Fetch filter job to display.
         filter_job = FilterBgJob.objects.get(sodar_uuid=self.request.POST["filter_job_uuid"])
+        variant_set = filter_job.case.latest_variant_set()
+        if not (variant_set and variant_set.state == "active"):
+            return HttpResponse(
+                json.dumps(
+                    {
+                        "msg": (
+                            "Displaying previous filter results failed: no variant set found. "
+                            "Possibly the variants and/or the variant set was deleted since the last filtering. "
+                            "This is an inconsistent state, please report to the administrators."
+                        )
+                    }
+                ),
+                content_type="application/json",
+                status=500,
+            )
 
         # Compute number of columns in table for the cards.
-        pedigree = filter_job.smallvariantquery.case.get_filtered_pedigree_with_samples()
+        pedigree = filter_job.case.get_filtered_pedigree_with_samples()
         card_colspan = 13 + len(pedigree)
 
         # Take time while job is running

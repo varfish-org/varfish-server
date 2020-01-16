@@ -181,6 +181,9 @@ class CaseAwareProject(Project):
             case.num_small_vars for case in self.case_set.all() if case.num_small_vars is not None
         )
 
+    def has_variants_and_variant_sets(self):
+        return all(case.has_variants_and_variant_set() for case in self.case_set.all())
+
 
 class SmallVariant(models.Model):
     """"Information of a single variant, knows its case."""
@@ -481,6 +484,9 @@ class Case(models.Model):
         else:
             return -1
 
+    def has_variants_and_variant_set(self):
+        return bool(self.latest_variant_set()) and bool(self.num_small_vars)
+
     def latest_structural_variant_set(self):
         """Return latest active structural variant set or ``None`` if there is none."""
         qs = self.structuralvariantset_set.filter(state="active")
@@ -495,6 +501,9 @@ class Case(models.Model):
             return structural_variant_set.id
         else:
             return -1
+
+    def has_svs_and_structural_variant_set(self):
+        return bool(self.latest_structural_variant_set()) and bool(self.num_svs)
 
     def days_since_modification(self):
         return (timezone.now() - self.date_modified).days

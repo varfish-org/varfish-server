@@ -5,7 +5,7 @@
       Back to Project
     </a>
   {% endif %}
-  <a class="btn btn-primary" href="{% url "variants:project-cases-filter" project=project.sodar_uuid %}">
+  <a class="btn btn-primary{% if not project.has_variants_and_variant_sets %} disabled{% endif %}" href="{% url "variants:project-cases-filter" project=project.sodar_uuid %}">
     <i class="fa fa-filter"></i>
     Joint Filtration
   </a>
