@@ -1293,14 +1293,12 @@ class CaseFilterView(
             )
             for key, value in self.get_previous_query().query_settings.items():
                 if key == "genomic_region":
-                    tmp = []
-                    for v in value:
-                        chrom, start, end = v
-                        if start and end:
-                            tmp.append("{}:{:,}-{:,}".format(chrom, start, end))
-                        else:
-                            tmp.append(chrom)
-                    result[key] = "\n".join(tmp)
+                    result[key] = "\n".join(
+                        "{}:{:,}-{:,}".format(chrom, start, end)
+                        if start is not None and end is not None
+                        else chrom
+                        for chrom, start, end in value
+                    )
                 elif isinstance(value, list):
                     result[key] = " ".join(value)
                 else:
@@ -1845,7 +1843,14 @@ class ProjectCasesFilterView(
                 ),
             )
             for key, value in self.get_previous_query().query_settings.items():
-                if isinstance(value, list):
+                if key == "genomic_region":
+                    result[key] = "\n".join(
+                        "{}:{:,}-{:,}".format(chrom, start, end)
+                        if start is not None and end is not None
+                        else chrom
+                        for chrom, start, end in value
+                    )
+                elif isinstance(value, list):
                     result[key] = " ".join(value)
                 else:
                     result[key] = value

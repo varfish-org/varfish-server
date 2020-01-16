@@ -16,6 +16,7 @@ End-User Summary
 - Added command ``import_cases_bulk`` for case bulk import, reading arguments from a JSON file.
 - Entering and suggeting HPO terms now requires at least 3 typed charaters.
 - Fixed broken variant details page when an HPO id had no matching HPO name.
+- Fixed bug in joint filtration filter view where previous genomic regions where not properly restored in the form.
 
 Full Change List
 ================
@@ -31,6 +32,7 @@ Full Change List
   This happened when gathering HPO names, retrieving HPO id from ``Hpo`` database given the OMIM id and then the name from ``HpoName``.
   The databases ``Hpo`` and ``HpoName`` don't match necessarly via ``hpo_id``, in this case because of an obsolete HPO id ``HP:0031988``.
   Now reporting ``"unknown"`` for the name instead of ``None`` which broke the sorting routine.
+- Fixed bug in ``ProjectCasesFilterView`` where previous genomic regions where not properly restored in the form.
 
 -------
 v0.19.0
