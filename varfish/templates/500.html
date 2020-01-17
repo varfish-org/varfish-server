@@ -1,1 +1,28 @@
 {% extends 'projectroles/error/500.html' %}
+{% load projectroles_common_tags %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="col-md-4 mx-auto my-5">
+    <h2 class="sodar-pr-content-title">Server Error</h2>
+    <p>
+      Something went wrong on the server side. We track these errors
+      automatically, but if the problem persists feel free to contact the
+      administration.
+    </p>
+  </div>
+</div>
+
+<script src="https://browser.sentry-cdn.com/5.11.0/bundle.min.js" integrity="sha384-jbFinqIbKkHNg+QL+yxB4VrBC0EAPTuaLGeRT0T+NfEV89YC6u1bKxHLwoo+/xxY" crossorigin="anonymous"></script>
+
+{% get_django_setting 'SENTRY_DSN' as sentry_dsn %}
+{% if sentry_event_id and sentry_dsn  %}
+  <script>
+    Sentry.init({ dsn: '{{  sentry_dsn }}' });
+    Sentry.showReportDialog({
+      eventId: '{{ sentry_event_id }}'
+      {% if not user.is_anonymous %}, user: {name: '{{ request.user.name }}', email: '{{ request.user.email }}'}{% endif %}
+    })
+  </script>
+{% endif %}
+{% endblock content %}

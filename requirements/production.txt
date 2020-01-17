@@ -23,9 +23,4 @@ django-storages==1.6.5
 # -------------------------------------------------------
 django-anymail==1.2
 
-# Raven is the Sentry client
-# --------------------------
-raven==6.10.0
-
-
 django_redis ==4.10.0

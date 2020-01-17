@@ -116,3 +116,6 @@ altamisa ==0.2.5
 
 # Login as every user
 django-su
+
+# Sentry client.
+sentry-sdk ==0.14.0

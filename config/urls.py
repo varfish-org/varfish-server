@@ -3,10 +3,17 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
+
 from projectroles.views import HomeView as ProjectRolesHomeView
 from variants.views import KioskHomeView
+from sentry_sdk import last_event_id
+
+
+def handler500(request, *args, **argv):
+    return render(request, "500.html", {"sentry_event_id": last_event_id()}, status=500)
 
 
 # The functionality differs greatly depending on whether kiosk mode is enabled or not. However, the URL patterns

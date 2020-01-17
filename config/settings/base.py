@@ -197,6 +197,15 @@ MANAGERS = ADMINS
 DATABASES = {"default": env.db("DATABASE_URL", default="postgres:///varfish")}
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
+# SENTRY CONFIGURATION
+# ------------------------------------------------------------------------------
+if env.bool("ENABLE_SENTRY", default=False):
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+
+    SENTRY_DSN = "%s?verify_ssl=0" % env.str("SENTRY_DSN")
+    sentry_sdk.init(SENTRY_DSN, integrations=[DjangoIntegration()])
+
 # ALDJEMY CONFIGURATION
 # ------------------------------------------------------------------------------
 # We have to do some fixes to the Aldjemy data types...
@@ -255,6 +264,14 @@ USE_L10N = True
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
+
+# SITE CONFIGURATION
+# ------------------------------------------------------------------------------
+# Hosts/domain names that are valid for this site
+# See https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["varfish.bihealth.org"])
+# END SITE CONFIGURATION
+
 
 # TEMPLATE CONFIGURATION
 # ------------------------------------------------------------------------------
