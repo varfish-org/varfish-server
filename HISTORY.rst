@@ -21,6 +21,7 @@ End-User Summary
 - Entering the filter view is now only possible when there are variants and a variant set.
   When there are variant reported but no variant set, a warning in form of a small red icon next to the number of variants is displayed, complaining about an inconsistent state.
 - In case of errors, you can now give feedback in a form via Sentry.
+- Fixed bug that occurred during project file export and MutationTaster pathogenicity scoring and a variant was multiple times in the query string for mutation taster.
 
 Full Change List
 ================
@@ -41,6 +42,7 @@ Full Change List
 - Entering the filter view is now only possible when there are variants and a variant set.
   When there are variant reported but no variant set, a warning in form of a small red icon next to the number of variants is displayed, complaining about an inconsistent state.
 - Using latest sentry SDK client.
+- Fixed bug that occurred during project file export and MutationTaster pathogenicity scoring and a variant was multiple times in the query string for mutation taster.
 
 -------
 v0.19.0

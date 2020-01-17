@@ -2172,7 +2172,7 @@ class VariantScoresBase:
     cache_model = None
 
     def __init__(self, variants, score_type, user=None):
-        self.variants = variants
+        self.variants = list(set(variants))
         self.user = user
         self.score_type = score_type
 
@@ -2316,18 +2316,14 @@ class VariantScoresMutationTaster(VariantScoresBase):
                 _variant_scores_mutationtaster_info(item),
             )
 
-        batch = []
-        for i, var in enumerate(uncached, 1):
-            batch.append("{}:{}{}>{}".format(*var))
+        for i in range(len(uncached)):
             if i % settings.VARFISH_MUTATIONTASTER_BATCH_VARS == 0:
-                yield from self._variant_scores_mutationtaster_loop(batch)
-                batch = []
-        else:
-            if batch:
-                yield from self._variant_scores_mutationtaster_loop(batch)
+                yield from self._variant_scores_mutationtaster_loop(
+                    uncached[i : i + settings.VARFISH_MUTATIONTASTER_BATCH_VARS]
+                )
 
     def _variant_scores_mutationtaster_loop(self, batch):
-        batch_str = ",".join(batch)
+        batch_str = ",".join("{}:{}{}>{}".format(*var) for var in batch)
         try:
             res = requests.post(
                 settings.VARFISH_MUTATIONTASTER_REST_API_URL,
@@ -2355,7 +2351,7 @@ class VariantScoresMutationTaster(VariantScoresBase):
 
         result = []
         lines = res.text.split("\n")
-        if not lines:
+        if not lines or len(lines) < 2:
             return
         head = lines.pop(0).lower().split("\t")
         for line in lines:
@@ -2395,6 +2391,38 @@ class VariantScoresMutationTaster(VariantScoresBase):
                 _variant_scores_mutationtaster_score(record),
                 _variant_scores_mutationtaster_info(record),
             )
+        result_ = [(r.chromosome, r.start, r.reference, r.alternative) for r in result]
+        # Create empty record for variants that weren't scored by mutationtaster
+        # (and thus do not show up in the results and would be queried all over again)
+        for variant in batch:
+            if variant not in result_:
+                chromosome, start, reference, alternative = variant
+                record = {
+                    "release": "GRCh37",
+                    "chromosome": chromosome,
+                    "start": start,
+                    "end": start + len(reference) - 1,
+                    "bin": binning.assign_bin(start - 1, start + len(reference) - 1),
+                    "reference": reference,
+                    "alternative": alternative,
+                    "transcript_stable": None,
+                    "ncbi_geneid": None,
+                    "prediction": None,
+                    "model": None,
+                    "bayes_prob_dc": None,
+                    "note": "error",
+                    "splicesite": None,
+                    "distance_from_splicesite": None,
+                    "disease_mutation": None,
+                    "polymorphism": None,
+                }
+                result.append(self.get_cache_model()(**record))
+                yield self._build_yield_dict(
+                    record,
+                    _variant_scores_mutationtaster_score(record),
+                    _variant_scores_mutationtaster_info(record),
+                )
+
         # Store API results in cache
         self._cache_results(result)
 
