@@ -347,7 +347,6 @@ class Command(BaseCommand):
                         release=record["release"],
                         chromosome=record["chromosome"],
                         start=int(record["start"]) + 1 - PADDING,
-                        # TODO This was "start" ... "end" makes more sense?
                         end=int(record["end"]) + 1 + PADDING,
                     )
         self.stdout.write(self.style.SUCCESS("Finished importing TADs"))

@@ -413,6 +413,12 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 60
 # Varfish: Base
 # ------------------------------------------------------------------------------
 
+# Yes, we want ForeinKey(unique=True), thank you very much.
+SILENCED_SYSTEM_CHECKS = ["fields.W342"]
+
+# Use URLs to represent files in DRF.
+UPLOADED_FILES_USE_URL = True
+
 # Set the number of partitions to create for the "SmallVariants" table.  This
 # setting will be interpreted in the initial migration that creates the small
 # variant table.  It must not be changed afterwards.
@@ -513,6 +519,9 @@ PROJECTROLES_ALLOW_LOCAL_USERS = env.bool("PROJECTROLES_ALLOW_LOCAL_USERS", Fals
 
 PROJECTROLES_HIDE_APP_LINKS = ["svs"]
 
+# Whether or not to sync from remote (disable only locally).
+VARFISH_PROJECTROLES_SYNC_REMOTE = env.bool("VARFISH_PROJECTROLES_SYNC_REMOTE", True)
+
 ENABLED_BACKEND_PLUGINS = ["timeline_backend"]
 ENABLED_BACKEND_PLUGINS += env.list("ENABLED_BACKEND_PLUGINS", None, [])
 
@@ -526,11 +535,7 @@ def set_logging(debug):
             "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple"}
         },
         "loggers": {
-            "projectroles": {
-                "level": "DEBUG" if debug else "INFO",
-                "handlers": ["console"],
-                "propagate": False,
-            }
+            "projectroles": {"level": "INFO", "handlers": ["console"], "propagate": True,},
         },
     }
 
@@ -604,3 +609,37 @@ DJANGO_SU_LOGIN_CALLBACK = None
 # function so you can set session data, etc.
 # Default: None
 DJANGO_SU_CUSTOM_LOGIN_ACTION = None
+
+
+# STORAGE CONFIGURATION
+# ------------------------------------------------------------------------------
+
+# Uploaded Media Files
+# ------------------------
+# See: http://django-storages.readthedocs.io/en/latest/index.html
+ENABLE_S3 = env.bool("VARFISH_USE_S3", False)
+if ENABLE_S3:
+    INSTALLED_APPS += ["storages"]
+
+    AWS_ACCESS_KEY_ID = env.str("AWS_ACCESS_KEY_ID")
+    AWS_AUTO_CREATE_BUCKET = env.bool("AWS_AUTO_CREATE_BUCKET", True)
+    AWS_SECRET_ACCESS_KEY = env.str("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = env.str("AWS_STORAGE_BUCKET_NAME")
+    AWS_S3_ENDPOINT_URL = env.str("AWS_S3_ENDPOINT_URL", None)
+    AWS_AUTO_CREATE_BUCKET = True
+    AWS_QUERYSTRING_AUTH = False
+    AWS_DEFAULT_ACL = None
+
+    # AWS cache settings, don't change unless you know what you're doing:
+    AWS_EXPIRY = 60 * 60 * 24 * 7
+
+    # TODO See: https://github.com/jschneier/django-storages/issues/47
+    # Revert the following and use str after the above-mentioned bug is fixed in
+    # either django-storage-redux or boto
+    control = "max-age=%d, s-maxage=%d, must-revalidate" % (AWS_EXPIRY, AWS_EXPIRY)
+    AWS_HEADERS = {"Cache-Control": bytes(control, encoding="latin-1")}
+
+    # URL that handles the media served from MEDIA_ROOT, used for managing
+    # stored files.
+    MEDIA_URL = "http://localhost/-minio/%s/" % AWS_STORAGE_BUCKET_NAME
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"

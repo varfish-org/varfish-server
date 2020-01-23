@@ -1,6 +1,8 @@
 # Projectroles dependency
+from bgjobs.plugins import BackgroundJobsPluginPoint
 from projectroles.plugins import SiteAppPluginPoint
 
+from .models import ImportCaseBgJob
 from .urls import urlpatterns
 
 
@@ -36,3 +38,17 @@ class SiteAppPlugin(SiteAppPluginPoint):
         """
         messages = []
         return messages
+
+
+class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
+    """Plugin for registering background jobs with ``bgjobs`` app."""
+
+    #: Slug used in URLs and similar places.
+    name = "importer"
+    #: Human-readable title.
+    title = "Importer Background Jobs"
+
+    #: Return name-to-class mapping for background job class specializations.
+    job_specs = {
+        ImportCaseBgJob.spec_name: ImportCaseBgJob,
+    }

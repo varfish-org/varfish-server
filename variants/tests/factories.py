@@ -288,11 +288,8 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     description = factory.Sequence(lambda n: "This is project %03d" % n)
 
 
-class CaseFactory(factory.django.DjangoModelFactory):
-    """Factory for creating ``Case`` objects."""
-
-    class Meta:
-        model = Case
+class CoreCaseFactory(factory.django.DjangoModelFactory):
+    """Base class for CoreCase factories."""
 
     class Params:
         #: The sex of the index
@@ -461,6 +458,13 @@ class CaseFactory(factory.django.DjangoModelFactory):
                     "has_gt_entries": True,
                 },
             ]
+
+
+class CaseFactory(CoreCaseFactory):
+    """Factory for creating ``Case`` objects."""
+
+    class Meta:
+        model = Case
 
 
 class CaseCommentsFactory(factory.django.DjangoModelFactory):

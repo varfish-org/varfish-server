@@ -1,17 +1,31 @@
 """Shared utility code."""
 
-from projectroles.models import Project
+from projectroles.views import ProjectAccessMixin
 
 
-class ProjectMixin:
-    """Mixin for DRF views.
+class ApiProjectAccessMixin(ProjectAccessMixin):
+    """Project access mixing for DRF API view classes."""
 
-    Makes the project available in an API view through ``get_project()``.
-    """
+    def get_serializer_context(self):
+        result = super().get_serializer_context()
+        result["project"] = self.get_project(request=result["request"])
+        return result
 
-    #: The ``Project`` model to use.
-    project_class = Project
 
-    def get_project(self):
-        """Return the project object."""
-        return self.project_class.objects.get(sodar_uuid=self.kwargs["project"])
+class ProjectAccessSerializerMixin:
+    """Mixin that automatically sets the project fields of objects."""
+
+    def update(self, instance, validated_data):
+        validated_data["project"] = self.context["project"]
+        return super().update(instance, validated_data)
+
+    def create(self, validated_data):
+        validated_data["project"] = self.context["project"]
+        return super().create(validated_data)
+
+
+# class SODARAPIBaseView(APIView):
+#     """Base SODAR API View with accept header versioning"""
+#
+#     versioning_class = SODARAPIVersioning
+#     renderer_classes = [SODARAPIRenderer]

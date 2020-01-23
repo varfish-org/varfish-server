@@ -35,8 +35,6 @@ INSTALLED_APPS += ["raven.contrib.django.raven_compat"]
 # See: https://whitenoise.readthedocs.io/
 WHITENOISE_MIDDLEWARE = ["whitenoise.middleware.WhiteNoiseMiddleware"]
 MIDDLEWARE = WHITENOISE_MIDDLEWARE + MIDDLEWARE
-RAVEN_MIDDLEWARE = ["raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware"]
-MIDDLEWARE = RAVEN_MIDDLEWARE + MIDDLEWARE
 
 
 # SECURITY CONFIGURATION

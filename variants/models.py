@@ -410,7 +410,28 @@ CASE_STATUS_CHOICES = (
 )
 
 
-class Case(models.Model):
+class CoreCase(models.Model):
+    """Abstract base class for Case core fields."""
+
+    #: Name of the case.
+    name = models.CharField(max_length=512)
+    #: Identifier of the index in ``pedigree``.
+    index = models.CharField(max_length=512)
+    #: Pedigree information, ``list`` of ``dict`` with the information.
+    pedigree = JSONField()
+    #: Note field to summarize the current status
+    notes = models.TextField(default="", null=True, blank=True)
+    #: Status field
+    status = models.CharField(max_length=32, default="initial", choices=CASE_STATUS_CHOICES)
+    #: Tags field
+    tags = ArrayField(models.CharField(max_length=32), default=list, null=True, blank=True)
+
+    class Meta:
+        unique_together = (("project", "name"),)
+        abstract = True
+
+
+class Case(CoreCase):
     """Stores information about a (germline) case."""
 
     class Meta:
@@ -425,12 +446,6 @@ class Case(models.Model):
     sodar_uuid = models.UUIDField(
         default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
     )
-    #: Name of the case.
-    name = models.CharField(max_length=512)
-    #: Identifier of the index in ``pedigree``.
-    index = models.CharField(max_length=512)
-    #: Pedigree information, ``list`` of ``dict`` with the information.
-    pedigree = JSONField()
 
     #: The number of small variants, ``None`` if no small variants have been imported.
     num_small_vars = models.IntegerField(
@@ -461,13 +476,6 @@ class Case(models.Model):
         db_index=True,
         help_text="Search tokens",
     )
-
-    #: Note field to summarize the current status
-    notes = models.TextField(default="", null=True, blank=True)
-    #: Status field
-    status = models.CharField(max_length=32, default="initial", choices=CASE_STATUS_CHOICES)
-    #: Tags field
-    tags = ArrayField(models.CharField(max_length=32), default=list, null=True, blank=True)
 
     def latest_variant_set(self):
         """Return latest active variant set or ``None`` if there is none."""
@@ -3491,39 +3499,43 @@ def clear_old_kiosk_cases():
         project.delete()
 
 
-def update_variant_counts(case):
+def update_variant_counts(case, kind=None):
     """Update the variant counts for the given case.
 
     This is done without changing the ``date_modified`` field.
    """
     from svs import models as sv_models  # noqa
 
-    variant_set = case.latest_variant_set()
-    if variant_set:
-        set_id = variant_set.pk
-    else:
-        set_id = None
-    stmt = (
-        select([func.count()])
-        .select_from(SmallVariant.sa.table)
-        .where(and_(SmallVariant.sa.set_id == set_id, SmallVariant.sa.case_id == case.pk))
-    )
-    num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt) or None
-    structural_variant_set = case.latest_structural_variant_set()
-    if structural_variant_set:
-        set_id = structural_variant_set.pk
-    else:
-        set_id = None
-    stmt = (
-        select([func.count()])
-        .select_from(sv_models.StructuralVariant.sa.table)
-        .where(
-            and_(
-                sv_models.StructuralVariant.sa.set_id == set_id,
-                sv_models.StructuralVariant.sa.case_id == case.pk,
+    if not kind or kind == "SMALL":
+        variant_set = case.latest_variant_set()
+        if variant_set:
+            set_id = variant_set.pk
+        else:
+            set_id = None
+        stmt = (
+            select([func.count()])
+            .select_from(SmallVariant.sa.table)
+            .where(and_(SmallVariant.sa.set_id == set_id, SmallVariant.sa.case_id == case.pk))
+        )
+        num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt) or None
+        Case.objects.filter(pk=case.pk).update(num_small_vars=num_small_vars)
+
+    if not kind or kind == "STRUCTURAL":
+        structural_variant_set = case.latest_structural_variant_set()
+        if structural_variant_set:
+            set_id = structural_variant_set.pk
+        else:
+            set_id = None
+        stmt = (
+            select([func.count()])
+            .select_from(sv_models.StructuralVariant.sa.table)
+            .where(
+                and_(
+                    sv_models.StructuralVariant.sa.set_id == set_id,
+                    sv_models.StructuralVariant.sa.case_id == case.pk,
+                )
             )
         )
-    )
-    num_svs = SQLALCHEMY_ENGINE.scalar(stmt) or None
-    # Use the ``update()`` trick such that ``date_modified`` remains untouched.
-    Case.objects.filter(pk=case.pk).update(num_small_vars=num_small_vars, num_svs=num_svs)
+        num_svs = SQLALCHEMY_ENGINE.scalar(stmt) or None
+        # Use the ``update()`` trick such that ``date_modified`` remains untouched.
+        Case.objects.filter(pk=case.pk).update(num_svs=num_svs)

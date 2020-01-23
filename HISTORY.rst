@@ -26,6 +26,7 @@ End-User Summary
 - Adding site app for API token management.
 - Added frequency databases for mitochondrial chromosome, providing frequency information in the small variant details.
 - Fixed periodic tasks (contained clean-up jobs) and fixed tests for periodic tasks.
+- Adding REST API for Cases and uploading cases.
 
 Full Change List
 ================
@@ -52,6 +53,8 @@ Full Change List
 - Added frequency databases ``mtDB``, ``HelixMTdb`` and ``MITOMAP`` for mitochondrial chromosome.
   Frequency information is provided in the small variant detail view.
 - Fixed periodic tasks (contained clean-up jobs) and fixed tests for periodic tasks.
+- Adding REST API for ``Case``s.
+- Extending ``importer`` app with API to upload annotated TSV files and models to support this.
 
 -------
 v0.19.0

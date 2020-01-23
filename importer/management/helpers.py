@@ -3,7 +3,12 @@ import gzip
 
 def open_file(path, mode):
     """Open gzip or normal file."""
-    if path.endswith(".gz"):
+    if hasattr(path, "open"):
+        try:
+            return gzip.open(path, "rt")
+        except gzip.BadGzipFile:
+            return path.open(mode="rt")
+    elif path.endswith(".gz"):
         return gzip.open(path, mode)
     else:
         return open(path, mode)
@@ -15,7 +20,12 @@ def tsv_reader(path):
     :param path: Path to the info file.
     :return: Yield dict with column names as keys and the values as values
     """
-    if path.endswith(".gz"):
+    if hasattr(path, "open"):
+        try:
+            inputf = gzip.open(path, "rt")
+        except gzip.BadGzipFile:
+            inputf = path.open(mode="rt")
+    elif path.endswith(".gz"):
         inputf = gzip.open(path, "rt")
     else:
         inputf = open(path, "rt")

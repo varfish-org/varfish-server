@@ -1,52 +1,15 @@
 """Serializers for the variants app."""
 
 # TODO: rename pedigree entry field "patient" also internally to name and get rid of translation below
-
+from django.db.models import Q
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
 
-from projectroles.utils import build_secret
+from varfish.utils import ProjectAccessSerializerMixin
 from .models import Case
 
 
-class CaseSerializer(serializers.ModelSerializer):
-    """Serializer for the ``Case`` model."""
-
-    pedigree = serializers.JSONField()
-    project = serializers.ReadOnlyField(source="project.sodar_uuid")
-
-    class Meta:
-        model = Case
-        fields = (
-            "sodar_uuid",
-            "date_created",
-            "date_modified",
-            "name",
-            "index",
-            "pedigree",
-            "num_small_vars",
-            "num_svs",
-            "project",
-            "notes",
-            "status",
-            "tags",
-        )
-        read_only_fields = (
-            "sodar_uuid",
-            "date_created",
-            "date_modified",
-            "num_small_vars",
-            "num_svs",
-            "project",
-        )
-
-    def update(self, instance, validated_data):
-        validated_data["project"] = self.context["project"]
-        return super().update(instance, validated_data)
-
-    def create(self, validated_data):
-        validated_data["project"] = self.context["project"]
-        return super().create(validated_data)
+class CoreCaseSerializerMixin:
+    """Validation functions for core case fields."""
 
     def to_representation(self, instance):
         """Convert 'patient' fields back into 'name' in pedigree."""
@@ -56,6 +19,30 @@ class CaseSerializer(serializers.ModelSerializer):
             {{"patient": "name"}.get(k, k): v for k, v in m.items()} for m in ret["pedigree"]
         ]
         return ret
+
+    def validate(self, value):
+        """Validate the whole object."""
+        # This is called after the calls to ``self.validate_*()``.
+        if "index" in value:
+            for entry in value.get("pedigree", getattr(self.instance, "pedigree", ())):
+                if entry["patient"] == value["index"]:
+                    break
+            else:  # no break above
+                raise serializers.ValidationError(
+                    "Index name %s not found in pedigree members." % repr(value["index"])
+                )
+
+        # The unique-together validation must be done here as only here, project has been set.
+        if "name" in value:
+            qs = self.Meta.model.objects.filter(project=self.context["project"], name=value["name"])
+            if self.instance:
+                qs = qs.filter(~Q(sodar_uuid=self.instance.sodar_uuid))
+            if qs.exists():
+                raise serializers.ValidationError(
+                    "Case name %s must be unique in project." % repr(value["name"])
+                )
+
+        return value
 
     def validate_tags(self, value):
         """Validate tags field."""
@@ -104,3 +91,37 @@ class CaseSerializer(serializers.ModelSerializer):
                 )
         # TODO: can go away after renaming
         return [{{"name": "patient"}.get(k, k): v for k, v in m.items()} for m in pedigree]
+
+
+class CaseSerializer(
+    CoreCaseSerializerMixin, ProjectAccessSerializerMixin, serializers.ModelSerializer
+):
+    """Serializer for the ``Case`` model."""
+
+    pedigree = serializers.JSONField()
+    project = serializers.ReadOnlyField(source="project.sodar_uuid")
+
+    class Meta:
+        model = Case
+        fields = (
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "name",
+            "index",
+            "pedigree",
+            "num_small_vars",
+            "num_svs",
+            "project",
+            "notes",
+            "status",
+            "tags",
+        )
+        read_only_fields = (
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "num_small_vars",
+            "num_svs",
+            "project",
+        )

@@ -281,12 +281,12 @@ ui_urlpatterns = [
 
 api_urlpatterns = [
     url(
-        regex=r"^api/case/(?P<project>[0-9a-f-]+)$",
+        regex=r"^api/case/(?P<project>[0-9a-f-]+)/$",
         view=views_api.CaseListCreateView.as_view(),
         name="api-case-list-create",
     ),
     url(
-        regex=r"^api/case/(?P<project>[0-9a-f-]+)/(?P<case>[0-9a-f-]+)$",
+        regex=r"^api/case/(?P<project>[0-9a-f-]+)/(?P<case>[0-9a-f-]+)/$",
         view=views_api.CaseListRetrieveUpdateDestroyView.as_view(),
         name="api-case-retrieve-update-destroy",
     ),
