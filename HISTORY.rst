@@ -23,6 +23,7 @@ End-User Summary
 - In case of errors, you can now give feedback in a form via Sentry.
 - Fixed bug that occurred during project file export and MutationTaster pathogenicity scoring and a variant was multiple times in the query string for mutation taster.
 - Adding REST API for Cases.
+- Adding site app for API token management.
 
 Full Change List
 ================
@@ -45,6 +46,7 @@ Full Change List
 - Using latest sentry SDK client.
 - Fixed bug that occurred during project file export and MutationTaster pathogenicity scoring and a variant was multiple times in the query string for mutation taster.
 - Adding REST API for Cases.
+- Copying over token management app from Digestiflow.
 
 -------
 v0.19.0

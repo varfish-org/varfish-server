@@ -100,6 +100,7 @@ LOCAL_APPS = [
     "templatetags.apps.TemplatetagsConfig",
     "svdbs.apps.SvDbsConfig",
     "svs.apps.SvsConfig",
+    "tokens.apps.TokensConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

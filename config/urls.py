@@ -49,6 +49,7 @@ urlpatterns += [
     url(r"^alerts/", include("adminalerts.urls")),
     url(r"^siteinfo/", include("siteinfo.urls")),
     url(r"^userprofile/", include("userprofile.urls")),
+    url(r"^tokens/", include("tokens.urls")),  # will go to SODAR-core
     # The rendered Sphinx-based manual.
     url(r"^manual/", include("docs.urls")),
     url(r"^su/", include("django_su.urls")),
