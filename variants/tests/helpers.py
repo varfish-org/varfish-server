@@ -2,7 +2,7 @@
 
 import aldjemy.core
 from django.test import RequestFactory
-from test_plus.test import TestCase
+from test_plus.test import TestCase, APITestCase
 
 from .factories import ProcessedFormDataFactory
 from ..models import Case, CaseAwareProject
@@ -12,15 +12,12 @@ from variants.helpers import SQLALCHEMY_ENGINE
 class TestBase(TestCase):
     """Base class for all tests."""
 
-    def setUp(self):
-        self.maxDiff = None  # show full diff
 
-
-class ViewTestBase(TestBase):
-    """Base class for view testing (and file export)"""
-
+class ViewTestBaseMixin:
     def setUp(self):
         super().setUp()
+        self.maxDiff = None  # show full diff
+
         self.request_factory = RequestFactory()
 
         # setup super user
@@ -28,6 +25,14 @@ class ViewTestBase(TestBase):
         self.user.is_staff = True
         self.user.is_superuser = True
         self.user.save()
+
+
+class ApiViewTestBase(ViewTestBaseMixin, APITestCase):
+    """Base class for API view testing (and file export)"""
+
+
+class ViewTestBase(ViewTestBaseMixin, TestCase):
+    """Base class for UI view testing (and file export)"""
 
 
 class QueryTestBase(TestBase):

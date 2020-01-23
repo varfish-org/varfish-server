@@ -1,9 +1,9 @@
 from django.conf.urls import url
-from . import views
+from . import views, views_api
 
 
 app_name = "variants"
-urlpatterns = [
+ui_urlpatterns = [
     # Views for Case
     url(regex=r"^(?P<project>[0-9a-f-]+)/$", view=views.CaseListView.as_view(), name="case-list"),
     url(
@@ -278,3 +278,18 @@ urlpatterns = [
         name="kiosk-get-status",
     ),
 ]
+
+api_urlpatterns = [
+    url(
+        regex=r"^api/case/(?P<project>[0-9a-f-]+)$",
+        view=views_api.CaseListCreateView.as_view(),
+        name="api-case-list-create",
+    ),
+    url(
+        regex=r"^api/case/(?P<project>[0-9a-f-]+)/(?P<case>[0-9a-f-]+)$",
+        view=views_api.CaseListRetrieveUpdateDestroyView.as_view(),
+        name="api-case-retrieve-update-destroy",
+    ),
+]
+
+urlpatterns = ui_urlpatterns + api_urlpatterns

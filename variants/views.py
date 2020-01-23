@@ -3202,15 +3202,13 @@ class KioskHomeView(PluginContextMixin, FormView):
 
     def get_kiosk_project(self):
         """Return Project object for the Kiosk cases (or create it)."""
-        user = User.objects.get(username="kiosk_user")
         cat, _ = Project.objects.get_or_create(
-            parent=None, type="CATEGORY", title=settings.KIOSK_CAT, user=user
+            parent=None, type="CATEGORY", title=settings.KIOSK_CAT,
         )
         proj = Project.objects.create(
             parent=cat,
             type="PROJECT",
             title="%s-%s" % (settings.KIOSK_PROJ_PREFIX, str(uuid.uuid4())),
-            user=user,
         )
         return proj
 
