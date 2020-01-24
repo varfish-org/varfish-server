@@ -2,7 +2,32 @@ from django.db import models
 from postgres_copy import CopyManager
 
 
-class Exac(models.Model):
+class Coordinates(models.Model):
+    class Meta:
+        abstract = True
+        # The uniqueness constraint will automatically add an index, no need to create a second.
+        unique_together = ("release", "chromosome", "start", "reference", "alternative")
+
+    #: Genome build
+    release = models.CharField(max_length=32)
+    #: Variant coordinates - chromosome
+    chromosome = models.CharField(max_length=32)
+    #: Variant coordinates - 1-based start position
+    start = models.IntegerField()
+    #: Variant coordinates - end position
+    end = models.IntegerField()
+    #: UCSC bin
+    bin = models.IntegerField()
+    #: Variant coordinates - reference
+    reference = models.CharField(max_length=512)
+    #: Variant coordinates - alternative
+    alternative = models.CharField(max_length=512)
+
+    #: Allow bulk import
+    objects = CopyManager()
+
+
+class Exac(Coordinates):
     """Information of the ExAC database."""
 
     #: Genome build
@@ -112,9 +137,6 @@ class Exac(models.Model):
     #: Allele frequency south asian population
     af_sas = models.FloatField(null=True)
 
-    #: Allow bulk import
-    objects = CopyManager()
-
     @property
     def het(self):
         """Heterozygous count"""
@@ -169,12 +191,8 @@ class Exac(models.Model):
             self.ac_sas - (2 * self.hom_sas) - (self.hemi_sas if self.hemi_sas is not None else 0)
         )
 
-    class Meta:
-        # The uniqueness constraint will automatically add an index, no need to create a second.
-        unique_together = ("release", "chromosome", "start", "reference", "alternative")
 
-
-class GnomadExomes(models.Model):
+class GnomadExomes(Coordinates):
     """Information of the gnomAD exomes database."""
 
     #: Genome build
@@ -396,9 +414,6 @@ class GnomadExomes(models.Model):
     #: Controls for homozygous count of population with maximum frequency
     controls_hom_popmax = models.IntegerField(null=True)
 
-    #: Allow bulk import
-    objects = CopyManager()
-
     @property
     def het(self):
         """Heterozygous count"""
@@ -611,12 +626,8 @@ class GnomadExomes(models.Model):
         except TypeError:
             return 0
 
-    class Meta:
-        # The uniqueness constraint will automatically add an index, no need to create a second.
-        unique_together = ("release", "chromosome", "start", "reference", "alternative")
 
-
-class GnomadGenomes(models.Model):
+class GnomadGenomes(Coordinates):
     """Information of the gnomad genomes database."""
 
     #: Genome build
@@ -818,9 +829,6 @@ class GnomadGenomes(models.Model):
     #: Controls for homozygous count of population with maximum frequency
     controls_hom_popmax = models.IntegerField(null=True)
 
-    #: Allow bulk import
-    objects = CopyManager()
-
     @property
     def het(self):
         """Heterozygous count"""
@@ -1009,12 +1017,8 @@ class GnomadGenomes(models.Model):
         except TypeError:
             return 0
 
-    class Meta:
-        # The uniqueness constraint will automatically add an index, no need to create a second.
-        unique_together = ("release", "chromosome", "start", "reference", "alternative")
 
-
-class ThousandGenomes(models.Model):
+class ThousandGenomes(Coordinates):
     """Information of the thousand genomes database."""
 
     #: Genome build
@@ -1052,12 +1056,54 @@ class ThousandGenomes(models.Model):
     #: Allele frequency south asian population
     af_sas = models.FloatField(null=True)
 
-    #: Allow bulk import
-    objects = CopyManager()
 
-    class Meta:
-        # The uniqueness constraint will automatically add an index, no need to create a second.
-        unique_together = ("release", "chromosome", "start", "reference", "alternative")
+class HelixMtDb(Coordinates):
+    # Allele count, i.e. homoplasmy + heteroplasmy
+    ac = models.IntegerField()
+    # Allele number, i.e. number of sequenced individuals (stated in paper)
+    an = models.IntegerField()
+    # Allele frequency, i.e. ac/an
+    af = models.FloatField()
+    # Heteroplasmy
+    ac_het = models.IntegerField()
+    # Heteroplasmy mean
+    ac_het_mean = models.FloatField(null=True)
+    # Heteroplasmy standard deviation
+    ac_het_stdev = models.FloatField(null=True)
+    # Heteroplasmy min value
+    ac_het_min = models.FloatField(null=True)
+    # Heteroplasmy max value
+    ac_het_max = models.FloatField(null=True)
+
+
+class MtDb(Coordinates):
+    # Allele count
+    ac = models.IntegerField()
+    # Allele number, derived from TSV
+    an = models.IntegerField()
+    # Allele frequency, i.e. ac/an
+    af = models.FloatField()
+    # Gap ???
+    gap = models.IntegerField(null=True)
+    # Location ???
+    location = models.CharField(max_length=32, null=True)
+    # Codon
+    codon = models.IntegerField(null=True)
+    # Position in codon
+    position = models.IntegerField(null=True)
+    # Amino acid change
+    aa_change = models.CharField(max_length=32, null=True)
+    # Amino acid change is synonymous?
+    synonymous = models.NullBooleanField()
+
+
+class Mitomap(Coordinates):
+    # Allele count
+    ac = models.IntegerField()
+    # Allele number, i.e. number of sequenced individuals (available on web page)
+    an = models.IntegerField()
+    # Allele frequency, i.e. ac/an
+    af = models.FloatField()
 
 
 #: Information about frequency databases used in ``FrequencyQuery``.
@@ -1075,4 +1121,10 @@ FREQUENCY_DB_INFO = {
         "model": ThousandGenomes,
         "populations": ("afr", "amr", "eas", "eur", "sas"),
     },
+}
+
+MT_DB_INFO = {
+    "MITOMAP": Mitomap,
+    "mtDB": MtDb,
+    "HelixMTdb": HelixMtDb,
 }

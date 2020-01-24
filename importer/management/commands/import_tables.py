@@ -11,7 +11,15 @@ from django.db import transaction
 from clinvar.models import Clinvar, refresh_clinvar_clinvarpathogenicgenes
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
-from frequencies.models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes
+from frequencies.models import (
+    Exac,
+    GnomadExomes,
+    GnomadGenomes,
+    ThousandGenomes,
+    Mitomap,
+    MtDb,
+    HelixMtDb,
+)
 from geneinfo.models import (
     Hgnc,
     MgiHomMouseHumanSequence,
@@ -81,6 +89,9 @@ TABLES = {
         "vista": (VistaEnhancer,),
         "refseqtogenesymbol": (RefseqToGeneSymbol,),
         "ensembltogenesymbol": (EnsemblToGeneSymbol,),
+        "MITOMAP": (Mitomap,),
+        "mtDB": (MtDb,),
+        "HelixMTdb": (HelixMtDb,),
     },
     "GRCh38": {"clinvar": (Clinvar,), "dbVar": (DbVarSv,), "DGV": (DgvSvs,)},
 }

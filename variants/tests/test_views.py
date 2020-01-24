@@ -19,6 +19,9 @@ from frequencies.tests.factories import (
     GnomadExomesFactory,
     GnomadGenomesFactory,
     ExacFactory,
+    MitomapFactory,
+    HelixMtDbFactory,
+    MtDbFactory,
 )
 from geneinfo.tests.factories import (
     HpoFactory,
@@ -2537,6 +2540,123 @@ class TestSmallVariantDetailsView(ViewTestBase):
             self.assertEqual(len(response.context["effect_details"]), 2)
             self.assertEqual(response.context["effect_details"][0]["transcriptId"], "NM_058167.2")
             self.assertEqual(response.context["effect_details"][1]["transcriptId"], "NM_194315.1")
+
+
+class TestSmallVariantsDetailsViewMitochondrial(ViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.variant_set = SmallVariantSetFactory()
+        self.case = self.variant_set.case
+        self.small_var = SmallVariantFactory(
+            variant_set=self.variant_set, chromosome="MT", chromosome_no=25
+        )
+        coords = {
+            "chromosome": self.small_var.chromosome,
+            "start": self.small_var.start,
+            "end": self.small_var.end,
+            "bin": self.small_var.bin,
+            "reference": "A",
+            "alternative": "C",
+        }
+        self.hgnc = HgncFactory(
+            ensembl_gene_id=self.small_var.ensembl_gene_id, entrez_id=self.small_var.refseq_gene_id
+        )
+        self.ensembltogenesymbol = EnsemblToGeneSymbolFactory(
+            ensembl_gene_id=self.small_var.ensembl_gene_id
+        )
+        self.refseqtogenesymbol = RefseqToGeneSymbolFactory(entrez_id=self.small_var.refseq_gene_id)
+        EnsemblToRefseqFactory(
+            ensembl_gene_id=self.small_var.ensembl_gene_id,
+            ensembl_transcript_id=self.small_var.ensembl_transcript_id,
+            entrez_id=self.small_var.refseq_gene_id,
+        )
+        RefseqToEnsemblFactory(
+            entrez_id=self.small_var.refseq_gene_id,
+            ensembl_gene_id=self.small_var.ensembl_gene_id,
+            ensembl_transcript_id=self.small_var.ensembl_transcript_id,
+        )
+        self.mitomap_c = MitomapFactory(**coords)
+        self.helixmtdb_c = HelixMtDbFactory(**coords)
+        coords["alternative"] = "G"
+        self.helixmtdb_g = HelixMtDbFactory(**coords)
+        self.mtdb_g = MtDbFactory(**coords)
+        coords["alternative"] = "T"
+        self.mitomap_t = MitomapFactory(**coords)
+        self.mtdb_t = MtDbFactory(**coords)
+
+    def test_mitochondrial_freqs(self):
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:small-variant-details",
+                    kwargs={
+                        "project": self.case.project.sodar_uuid,
+                        "case": self.case.sodar_uuid,
+                        "release": self.small_var.release,
+                        "chromosome": self.small_var.chromosome,
+                        "start": self.small_var.start,
+                        "end": self.small_var.end,
+                        "reference": self.small_var.reference,
+                        "alternative": self.small_var.alternative,
+                        "database": "refseq",
+                        "gene_id": self.small_var.refseq_gene_id,
+                        "ensembl_transcript_id": self.small_var.ensembl_transcript_id,
+                        "training_mode": 0,
+                    },
+                )
+            )
+            mitomap = response.context["mitochondrial_freqs"]["vars"]["MITOMAP"]
+            mitomap_an = self.mitomap_c.an
+            mitomap_ref = mitomap_an - self.mitomap_c.ac - self.mitomap_t.ac
+            self.assertEqual(mitomap[0][0], "A")
+            self.assertEqual(mitomap[0][1]["ac"], mitomap_ref)
+            self.assertEqual(mitomap[0][1]["af"], mitomap_ref / mitomap_an)
+            self.assertEqual(mitomap[1][0], "C")
+            self.assertEqual(mitomap[1][1]["ac"], self.mitomap_c.ac)
+            self.assertEqual(mitomap[1][1]["af"], self.mitomap_c.af)
+            self.assertEqual(mitomap[2][0], "G")
+            self.assertEqual(mitomap[2][1]["ac"], 0)
+            self.assertEqual(mitomap[2][1]["af"], 0.0)
+            self.assertEqual(mitomap[3][0], "T")
+            self.assertEqual(mitomap[3][1]["ac"], self.mitomap_t.ac)
+            self.assertEqual(mitomap[3][1]["af"], self.mitomap_t.af)
+            helixmtdb = response.context["mitochondrial_freqs"]["vars"]["HelixMTdb"]
+            helixmtdb_an = self.helixmtdb_c.an
+            helixmtdb_ref = helixmtdb_an - self.helixmtdb_c.ac - self.helixmtdb_g.ac
+            self.assertEqual(helixmtdb[0][0], "A")
+            self.assertEqual(helixmtdb[0][1]["ac"], helixmtdb_ref)
+            self.assertEqual(helixmtdb[0][1]["af"], helixmtdb_ref / helixmtdb_an)
+            self.assertEqual(helixmtdb[1][0], "C")
+            self.assertEqual(helixmtdb[1][1]["ac"], self.helixmtdb_c.ac)
+            self.assertEqual(helixmtdb[1][1]["af"], self.helixmtdb_c.af)
+            self.assertEqual(helixmtdb[2][0], "G")
+            self.assertEqual(helixmtdb[2][1]["ac"], self.helixmtdb_g.ac)
+            self.assertEqual(helixmtdb[2][1]["af"], self.helixmtdb_g.af)
+            self.assertEqual(helixmtdb[3][0], "T")
+            self.assertEqual(helixmtdb[3][1]["ac"], 0)
+            self.assertEqual(helixmtdb[3][1]["af"], 0.0)
+            mtdb = response.context["mitochondrial_freqs"]["vars"]["mtDB"]
+            mtdb_an = self.mtdb_g.an
+            mtdb_ref = mtdb_an - self.mtdb_g.ac - self.mtdb_g.ac
+            self.assertEqual(mtdb[0][0], "A")
+            self.assertEqual(mtdb[0][1]["ac"], mtdb_ref)
+            self.assertEqual(mtdb[0][1]["af"], mtdb_ref / mtdb_an)
+            self.assertEqual(mtdb[1][0], "C")
+            self.assertEqual(mtdb[1][1]["ac"], 0)
+            self.assertEqual(mtdb[1][1]["af"], 0.0)
+            self.assertEqual(mtdb[2][0], "G")
+            self.assertEqual(mtdb[2][1]["ac"], self.mtdb_g.ac)
+            self.assertEqual(mtdb[2][1]["af"], self.mtdb_g.af)
+            self.assertEqual(mtdb[3][0], "T")
+            self.assertEqual(mtdb[3][1]["ac"], self.mtdb_t.ac)
+            self.assertEqual(mtdb[3][1]["af"], self.mtdb_t.af)
+            self.assertEqual(
+                response.context["mitochondrial_freqs"]["an"]["MITOMAP"], self.mitomap_c.an
+            )
+            self.assertEqual(
+                response.context["mitochondrial_freqs"]["an"]["HelixMTdb"], self.helixmtdb_c.an
+            )
+            self.assertEqual(response.context["mitochondrial_freqs"]["an"]["mtDB"], self.mtdb_g.an)
 
 
 class TestExportFileJobDetailView(ViewTestBase):

@@ -8,6 +8,48 @@
   <div class="card-header">
     <h4 class="card-title">Frequency Details</h4>
   </div>
+  {% if small_var.chromosome == "MT" %}
+  {% with vars=mitochondrial_freqs|keyvalue:"vars" an=mitochondrial_freqs|keyvalue:"an" %}
+    <table class="card-body table table-striped table-sm">
+      <thead>
+        <tr>
+          <th></th>
+          <th>AN</th>
+          <th></th>
+          {% for var, freqs in vars|keyvalue:"MITOMAP" %}
+            <th>
+              {{ var }}
+              {% if small_var.reference == var %}
+                <span class="badge badge-secondary">REF</span>
+              {% elif small_var.alternative == var %}
+                <span class="badge badge-info">ALT</span>
+              {% endif %}
+            </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for dbname, data in vars.items %}
+        <tr>
+          <th class="text-center" rowspan="2">{{ dbname }}</th>
+          <td class="text-right" rowspan="2">{{ an|keyvalue:dbname|default:0|intcomma }}</td>
+          <th>AC</th>
+          {% for var, freqs in data %}
+            <td class="text-right">{{ freqs|keyvalue:"ac"|default:0|intcomma }}</td>
+          {% endfor %}
+        </tr>
+        <tr>
+          <th>AF</th>
+          {% for var, freqs in data %}
+            <td class="text-right">{{ freqs|keyvalue:"af"|default:0.0|floatformat:5 }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endwith %}
+  {% else %}
   <table class="card-body table table-striped table-sm">
     <thead>
       <tr>
@@ -108,4 +150,5 @@
       {% endif %}
     </tbody>
   </table>
+  {% endif %}
 </div>

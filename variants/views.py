@@ -29,6 +29,7 @@ from projectroles.templatetags.projectroles_common_tags import site_version
 
 from bgjobs.models import BackgroundJob
 from clinvar.models import Clinvar
+from frequencies.models import MT_DB_INFO
 from geneinfo.views import get_gene_infos
 from geneinfo.models import NcbiGeneInfo, NcbiGeneRif, HpoName
 from frequencies.views import FrequencyMixin
@@ -2212,6 +2213,8 @@ class SmallVariantDetails(
             ) from e
 
     def _get_population_freqs(self, kwargs):
+        if kwargs.get("chromosome") == "MT":
+            return {}
         result = {
             "populations": ("AFR", "AMR", "ASJ", "EAS", "FIN", "NFE", "OTH", "SAS", "Total"),
             "pop_freqs": {},
@@ -2289,6 +2292,67 @@ class SmallVariantDetails(
             }
         return result
 
+    def _get_mitochondrial_freqs(self, kwargs):
+        if not kwargs.get("chromosome") == "MT":
+            return {}
+        result = {
+            "vars": {db: dict() for db in MT_DB_INFO},
+            "an": {db: 0 for db in MT_DB_INFO},
+        }
+        for dbname, db in MT_DB_INFO.items():
+            singles = {
+                "A": {"ac": 0, "af": 0.0},
+                "C": {"ac": 0, "af": 0.0},
+                "G": {"ac": 0, "af": 0.0},
+                "T": {"ac": 0, "af": 0.0},
+            }
+            an = 0
+            multis = (
+                {kwargs.get("reference"): {"ac": 0, "af": 0.0}}
+                if len(kwargs.get("reference")) > 1
+                else {}
+            )
+            alts = db.objects.filter(
+                release=kwargs["release"],
+                chromosome=kwargs["chromosome"],
+                start=int(kwargs["start"]),
+                end=int(kwargs["end"]),
+                reference=kwargs["reference"],
+            )
+            if alts:
+                an = alts[0].an
+                ref_count = an
+                for alt in alts:
+                    assert an == alt.an
+                    ref_count -= alt.ac
+                    if len(alt.alternative) == 1:
+                        singles[alt.alternative]["ac"] = alt.ac
+                        singles[alt.alternative]["af"] = alt.af
+                    else:
+                        multis[alt.alternative] = {"ac": alt.ac, "af": alt.af}
+                        # Add allele to other databases if it does not exist there yet
+                        for other_db in set(MT_DB_INFO).difference({dbname}):
+                            result["vars"][other_db].setdefault(
+                                alt.alternative, {"ac": 0, "af": 0.0}
+                            )
+                assert singles[kwargs.get("reference")]["ac"] == 0
+                assert singles[kwargs.get("reference")]["af"] == 0.0
+                if len(kwargs.get("reference")) == 1:
+                    singles[kwargs.get("reference")]["ac"] = ref_count
+                    singles[kwargs.get("reference")]["af"] = ref_count / an
+                else:
+                    multis[kwargs.get("reference")]["ac"] = ref_count
+                    multis[kwargs.get("reference")]["af"] = ref_count / an
+            result["vars"][dbname].update(singles)
+            result["vars"][dbname].update(multis)
+            result["an"][dbname] = an
+        # Make sure indels are sorted
+        for dbname, data in result["vars"].items():
+            result["vars"][dbname] = sorted(
+                data.items(), key=lambda x: (("0" if len(x[0]) == 1 else "1") + x[0], x[1])
+            )
+        return result
+
     def _load_variant_comments(self):
         return SmallVariantComment.objects.select_related("user").filter(
             case=self.object,
@@ -2323,6 +2387,7 @@ class SmallVariantDetails(
         else:
             result["base_template"] = "empty_base.html"
         result.update(self._get_population_freqs(self.kwargs))
+        result["mitochondrial_freqs"] = self._get_mitochondrial_freqs(self.kwargs)
         result["gene"] = get_gene_infos(
             self.kwargs["database"], self.kwargs["gene_id"], self.kwargs["ensembl_transcript_id"]
         )

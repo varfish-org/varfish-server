@@ -2,7 +2,7 @@
 import binning
 import factory
 
-from ..models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes
+from ..models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes, Mitomap, HelixMtDb, MtDb
 
 
 class MacArthurFrequenciesFactoryBase(factory.django.DjangoModelFactory):
@@ -135,6 +135,79 @@ class ThousandGenomesFactory(factory.django.DjangoModelFactory):
     af_eas = 0.0
     af_eur = 0.0
     af_sas = 0.0
+
+    @factory.post_generation
+    def fix_bins(obj, *args, **kwargs):
+        obj.bin = binning.assign_bin(obj.start - 1, obj.end)
+        obj.save()
+
+
+class MitomapFactory(factory.django.DjangoModelFactory):
+    """Factory for ``Mitomap`` records."""
+
+    class Meta:
+        model = Mitomap
+
+    release = "GRCh37"
+    chromosome = factory.Iterator((list(map(str, range(1, 23))) + ["X", "Y"]))
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
+    bin = 0
+    reference = factory.Iterator("ACGT")
+    alternative = factory.Iterator("CGTA")
+
+    ac = 3
+    an = 10000
+    af = factory.LazyAttribute(lambda o: o.ac / o.an)
+
+    @factory.post_generation
+    def fix_bins(obj, *args, **kwargs):
+        obj.bin = binning.assign_bin(obj.start - 1, obj.end)
+        obj.save()
+
+
+class HelixMtDbFactory(factory.django.DjangoModelFactory):
+    """Factory for ``HelixMtDb`` records."""
+
+    class Meta:
+        model = HelixMtDb
+
+    release = "GRCh37"
+    chromosome = factory.Iterator((list(map(str, range(1, 23))) + ["X", "Y"]))
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
+    bin = 0
+    reference = factory.Iterator("ACGT")
+    alternative = factory.Iterator("CGTA")
+
+    ac = 5
+    an = 2000
+    af = factory.LazyAttribute(lambda o: o.ac / o.an)
+    ac_het = 2
+
+    @factory.post_generation
+    def fix_bins(obj, *args, **kwargs):
+        obj.bin = binning.assign_bin(obj.start - 1, obj.end)
+        obj.save()
+
+
+class MtDbFactory(factory.django.DjangoModelFactory):
+    """Factory for ``MtDb`` records."""
+
+    class Meta:
+        model = MtDb
+
+    release = "GRCh37"
+    chromosome = factory.Iterator((list(map(str, range(1, 23))) + ["X", "Y"]))
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
+    bin = 0
+    reference = factory.Iterator("ACGT")
+    alternative = factory.Iterator("CGTA")
+
+    ac = 999
+    an = 50000
+    af = factory.LazyAttribute(lambda o: o.ac / o.an)
 
     @factory.post_generation
     def fix_bins(obj, *args, **kwargs):

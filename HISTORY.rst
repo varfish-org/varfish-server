@@ -24,6 +24,7 @@ End-User Summary
 - Fixed bug that occurred during project file export and MutationTaster pathogenicity scoring and a variant was multiple times in the query string for mutation taster.
 - Adding REST API for Cases.
 - Adding site app for API token management.
+- Added frequency databases for mitochondrial chromosome, providing frequency information in the small variant details.
 
 Full Change List
 ================
@@ -47,6 +48,8 @@ Full Change List
 - Fixed bug that occurred during project file export and MutationTaster pathogenicity scoring and a variant was multiple times in the query string for mutation taster.
 - Adding REST API for Cases.
 - Copying over token management app from Digestiflow.
+- Added frequency databases ``mtDB``, ``HelixMTdb`` and ``MITOMAP`` for mitochondrial chromosome.
+  Frequency information is provided in the small variant detail view.
 
 -------
 v0.19.0
