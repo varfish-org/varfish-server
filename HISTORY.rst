@@ -25,6 +25,7 @@ End-User Summary
 - Adding REST API for Cases.
 - Adding site app for API token management.
 - Added frequency databases for mitochondrial chromosome, providing frequency information in the small variant details.
+- Fixed periodic tasks (contained clean-up jobs) and fixed tests for periodic tasks.
 
 Full Change List
 ================
@@ -50,6 +51,7 @@ Full Change List
 - Copying over token management app from Digestiflow.
 - Added frequency databases ``mtDB``, ``HelixMTdb`` and ``MITOMAP`` for mitochondrial chromosome.
   Frequency information is provided in the small variant detail view.
+- Fixed periodic tasks (contained clean-up jobs) and fixed tests for periodic tasks.
 
 -------
 v0.19.0

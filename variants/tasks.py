@@ -1,5 +1,3 @@
-import aldjemy
-
 from config.celery import app
 from celery.schedules import crontab
 
@@ -100,15 +98,13 @@ def setup_periodic_tasks(sender, **_kwargs):
     """Register periodic tasks"""
     # Clear out old files nightly.
     sender.add_periodic_task(
-        schedule=crontab(hour=1, minute=11), signature=clear_expired_exported_files.s()
+        schedule=crontab(hour=1, minute=11), sig=clear_expired_exported_files.s()
     )
     # Regularly remove old variant that are not active.
-    sender.add_periodic_task(schedule=crontab(minute=11), signature=clear_inactive_variant_sets.s())
+    sender.add_periodic_task(schedule=crontab(minute=11), sig=clear_inactive_variant_sets.s())
     # Rebuild materialized view on sundays.
     sender.add_periodic_task(
-        schedule=crontab(day_of_week=0), signature=refresh_variants_smallvariantsummary.s()
+        schedule=crontab(day_of_week=0), sig=refresh_variants_smallvariantsummary.s()
     )
     # Clear out kiosk cases nightly (lasting period is defined in signature function)
-    sender.add_periodic_task(
-        schedule=crontab(hour=2, minute=22), signature=clear_old_kiosk_cases.s()
-    )
+    sender.add_periodic_task(schedule=crontab(hour=2, minute=22), sig=clear_old_kiosk_cases.s())

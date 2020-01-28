@@ -2542,21 +2542,25 @@ class TestSmallVariantDetailsView(ViewTestBase):
             self.assertEqual(response.context["effect_details"][1]["transcriptId"], "NM_194315.1")
 
 
-class TestSmallVariantsDetailsViewMitochondrial(ViewTestBase):
+class TestSmallVariantDetailsViewMitochondrial(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.variant_set = SmallVariantSetFactory()
         self.case = self.variant_set.case
         self.small_var = SmallVariantFactory(
-            variant_set=self.variant_set, chromosome="MT", chromosome_no=25
+            variant_set=self.variant_set,
+            chromosome="MT",
+            chromosome_no=25,
+            reference="A",
+            alternative="C",
         )
         coords = {
             "chromosome": self.small_var.chromosome,
             "start": self.small_var.start,
             "end": self.small_var.end,
             "bin": self.small_var.bin,
-            "reference": "A",
-            "alternative": "C",
+            "reference": self.small_var.reference,
+            "alternative": self.small_var.alternative,
         }
         self.hgnc = HgncFactory(
             ensembl_gene_id=self.small_var.ensembl_gene_id, entrez_id=self.small_var.refseq_gene_id
@@ -2637,7 +2641,7 @@ class TestSmallVariantsDetailsViewMitochondrial(ViewTestBase):
             self.assertEqual(helixmtdb[3][1]["af"], 0.0)
             mtdb = response.context["mitochondrial_freqs"]["vars"]["mtDB"]
             mtdb_an = self.mtdb_g.an
-            mtdb_ref = mtdb_an - self.mtdb_g.ac - self.mtdb_g.ac
+            mtdb_ref = mtdb_an - self.mtdb_g.ac - self.mtdb_t.ac
             self.assertEqual(mtdb[0][0], "A")
             self.assertEqual(mtdb[0][1]["ac"], mtdb_ref)
             self.assertEqual(mtdb[0][1]["af"], mtdb_ref / mtdb_an)

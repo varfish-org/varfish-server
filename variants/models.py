@@ -833,8 +833,8 @@ def cleanup_variant_sets(min_age_hours=12):
     """Cleanup old variant sets."""
     variant_sets = list(
         SmallVariantSet.objects.filter(
-            state__ne="active", entered__gte=datetime.now() - timedelta(hours=min_age_hours)
-        )
+            date_created__lte=datetime.now() - timedelta(hours=min_age_hours)
+        ).exclude(state="active")
     )
     smallvariant_table = aldjemy.core.get_meta().tables["variants_smallvariant"]
     for variant_set in variant_sets:
@@ -3466,17 +3466,17 @@ def clear_old_kiosk_cases():
         return
 
     # Find the correct category
-    cat = Project.objects.get(type="CATEGORY", name=settings.KIOSK_CAT)
-    # Define allowed period (one week)
-    time_threshold = timezone.now() - timedelta(days=7)
+    cat = Project.objects.get(type="CATEGORY", title=settings.KIOSK_CAT)
+    # Define allowed period (~2 months)
+    time_threshold = timezone.now() - timedelta(weeks=8)
     # Find the correct project within the category and within cases that are older than threshold
     cases = Case.objects.filter(
-        project__type="PROJECT", project__parent_id=cat.id, date_modified__gte=time_threshold
+        project__type="PROJECT", project__parent_id=cat.id, date_created__lte=time_threshold
     )
-
-    # TODO Had to copy code from queries.py because of circular import ... maybe there is a better solution
+    projects = []
     # Delete cases and associated variants
     for case in cases:
+        projects.append(case.project)
         # Delete all small variants.
         with contextlib.closing(
             SQLALCHEMY_ENGINE.execute(
@@ -3486,6 +3486,9 @@ def clear_old_kiosk_cases():
             pass
         # Delete case
         case.delete()
+    # Delete projects as every case has its own project and is not required anymore
+    for project in set(projects):
+        project.delete()
 
 
 def update_variant_counts(case):

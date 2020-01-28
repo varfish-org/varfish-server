@@ -3,7 +3,6 @@
 We do glass-box-tests here and mock out the called functions only.  The functionality itself must then be tested
 separately but that's fine.
 """
-
 from unittest import mock
 from unittest.mock import Mock, call
 from unittest.mock import patch
@@ -12,7 +11,7 @@ from test_plus.test import TestCase
 
 from variants.tests.factories import SmallVariantSetFactory
 from .. import tasks
-from ..models import ExportFileBgJob, Case
+from ..models import ExportFileBgJob
 from bgjobs.models import BackgroundJob
 from projectroles.models import Project
 
@@ -48,13 +47,31 @@ class ClearExpiredExportedFilesTest(TestCase):
         mock_clear_expired_exported_files.assert_called_once_with()
 
 
+class ClearInactiveVariantSetsTest(TestCase):
+    @patch("variants.models.cleanup_variant_sets")
+    def test_calls_correct_function(self, mock_clear_inactive_variant_sets):
+        tasks.clear_inactive_variant_sets()
+        mock_clear_inactive_variant_sets.assert_called_once_with()
+
+
+class RefreshVariantsSmallVariantSummaryTest(TestCase):
+    @patch("variants.models.refresh_variants_smallvariantsummary")
+    def test_calls_correct_function(self, mock_refresh_variants_smallvariantsummary):
+        tasks.refresh_variants_smallvariantsummary()
+        mock_refresh_variants_smallvariantsummary.assert_called_once_with()
+
+
+class ClearOldKioskCases(TestCase):
+    @patch("variants.file_export.clear_expired_exported_files")
+    def test_calls_correct_function(self, mock_clear_expired_exported_files):
+        tasks.clear_expired_exported_files()
+        mock_clear_expired_exported_files.assert_called_once_with()
+
+
 class SetupPeriodicTasksTest(TestCase):
     def test_calls_correct_function(self):
         sender = Mock()
         tasks.setup_periodic_tasks(sender)
         sender.add_periodic_task.assert_has_calls(
-            [
-                call(schedule=mock.ANY, signature=mock.ANY),
-                call(schedule=mock.ANY, signature=mock.ANY),
-            ]
+            [call(schedule=mock.ANY, sig=mock.ANY), call(schedule=mock.ANY, sig=mock.ANY),]
         )
