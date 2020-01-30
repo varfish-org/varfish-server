@@ -68,6 +68,8 @@ class CaseImportState(Enum):
     IMPORTED = "imported"
     #: Previously in database but not any more.
     EVICTED = "evicted"
+    #: Failed import.
+    FAILED = "failed"
 
 
 class CaseImportInfo(CoreCase):
@@ -296,11 +298,15 @@ class CaseImporter:
                 variant_set.save()
                 update_variant_counts(variant_set.case, variant_set_info.variant_type)
                 self._clear_old_variant_sets(self.case, variant_set, table_names)
+                self.import_info.state = CaseImportState.IMPORTED.value
+                self.import_info.state.save()
             except Exception as e:
                 self.import_job.add_log_entry(
                     "Problem during variant import: %s" % e, LOG_LEVEL_ERROR
                 )
                 self.import_job.add_log_entry("Rolling back variant set...")
+                self.import_info.state = CaseImportState.FAILED.value
+                self.import_info.state.save()
                 self._purge_variant_set(variant_set, table_names)
                 raise RuntimeError("Problem during variant import ") from e
 

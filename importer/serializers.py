@@ -180,14 +180,13 @@ class CaseImportInfoSerializer(
             if self.instance:
                 allowed_transitions = (
                     ("draft", "submitted"),
+                    ("imported", "submitted"),
                     ("evicted", "submitted"),
+                    ("failed", "submitted"),
                 )
                 if (self.instance.state, values["state"]) not in allowed_transitions:
                     raise serializers.ValidationError(
-                        (
-                            'Can only switch from "draft" and "evicted" state to "submitted" but requested transition '
-                            "from %s to %s."
-                        )
+                        "Requested invalid transition from %s to %s."
                         % (repr(self.instance.state), repr(values["state"]))
                     )
             elif values["state"] != "draft":
