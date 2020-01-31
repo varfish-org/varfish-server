@@ -1,5 +1,6 @@
 from enum import Enum
 import json
+import re
 import tempfile
 import uuid as uuid_object
 
@@ -7,6 +8,7 @@ import aldjemy
 from bgjobs.models import BackgroundJob, LOG_LEVEL_ERROR
 from django.contrib import auth
 from django.db import models, transaction
+from django.db.models.signals import post_delete
 from django.urls import reverse
 from django.utils import timezone
 from projectroles.models import Project
@@ -14,6 +16,7 @@ from sqlalchemy import and_
 
 from importer.management.helpers import open_file, tsv_reader
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
+from varfish.utils import receiver_subclasses
 from variants.models import (
     Case,
     CoreCase,
@@ -145,6 +148,24 @@ class VariantSetImportInfo(models.Model):
         unique_together = (("case_import_info", "variant_type"),)
 
 
+def set_member_file_url_upload_to(instance, filename):
+    def to_snake_case(name):
+        return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+
+    if hasattr(instance, "case_import_info"):
+        return "importer/%s/%s/%s" % (
+            instance.case_import_info.sodar_uuid,
+            to_snake_case(type(instance).__name__),
+            instance.sodar_uuid,
+        )
+    else:
+        return "importer/%s/%s/%s" % (
+            instance.variant_set_import_info.case_import_info.sodar_uuid,
+            to_snake_case(type(instance).__name__),
+            instance.sodar_uuid,
+        )
+
+
 class SetMemberFileUrl(models.Model):
     """Entry in a set of URLs to files URLs."""
 
@@ -155,7 +176,7 @@ class SetMemberFileUrl(models.Model):
     #: DateTime of last modification
     date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
 
-    file = models.FileField(help_text="The uploaded file.")
+    file = models.FileField(upload_to=set_member_file_url_upload_to, help_text="The uploaded file.")
 
     name = models.CharField(max_length=200, help_text="Original file name.")
 
@@ -204,6 +225,12 @@ class EffectFile(ImportVariantSetUrl):
 
 class DatabaseInfoFile(ImportVariantSetUrl):
     """Information on the databases used for annotation."""
+
+
+# NB: This must come **after** all specializations of ``SetMemberFileUrl``.
+@receiver_subclasses(post_delete, SetMemberFileUrl, "set_member_file_url_post_delete")
+def set_member_file_delete(sender, instance, **_kwargs):
+    instance.file.delete(save=False)
 
 
 class ImportCaseBgJob(JobModelMessageMixin2, models.Model):
