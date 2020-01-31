@@ -74,6 +74,16 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "Afterwards, you can obtain your token from your account settings page."
             ),
         },
+        "ga4gh_beacon_network_widget_enabled": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_USER"],
+            "type": "BOOLEAN",  # STRING/INTEGER/BOOLEAN
+            "default": False,
+            "label": "GA4GH Beacon Network Widget",
+            "description": (
+                "Enable GA4GH beacon widget. Please note that your variant query will currently be "
+                "sent to all beacons on the network."
+            ),
+        },
         "latest_version_seen_changelog": {
             "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_USER"],
             "type": "STRING",

@@ -209,6 +209,25 @@ function humanSplicingFinder(gene, hgvsC) {
     form.appendTo('body').submit();
 }
 
+function loadBeaconWidget() {
+    console.log($(this));
+    const containerId = $(this).data("beacon-container");
+    const vals = containerId.split("-");
+    const release = vals[2];
+    const chromosome = vals[3];
+    const position = vals[4];
+    const reference = vals[5];
+    const alternative = vals[6];
+
+    const iframe = $(
+      '<iframe src="https://beacon-network.org:443/#/widget?rs=' + release + '&chrom=' + chromosome + '&pos=' + position + '&ref=' + reference + '&allele=' + alternative + '"\n' +
+      'style="width: 100%; height: 300px; overflow: auto;" \n' +
+      'marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0">\n' +
+      '</iframe>'
+    )
+    $("#" + containerId).html(iframe)
+}
+
 // we can't employ .click here because the html that it will work on is loaded afterwards.
 $(document).on('click', '.toggle-variant-details', function() {
   var row = dt.row($(this).parent());
@@ -250,6 +269,7 @@ $(document).on('click', '.toggle-variant-details', function() {
             $(".comment-button-edit").on("click", commentEditToggle);
             $(".comment-button-edit-cancel").on("click", commentEditToggle);
             $(".comment-button-edit-submit").on("click", commentEditSubmit);
+            $(".link-load-beacon").on("click", loadBeaconWidget);
             colorVariantEffects();
           },
           error: function (jqXHR, textStatus, errorThrown) {

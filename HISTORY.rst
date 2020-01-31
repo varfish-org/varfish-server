@@ -27,6 +27,8 @@ End-User Summary
 - Added frequency databases for mitochondrial chromosome, providing frequency information in the small variant details.
 - Fixed periodic tasks (contained clean-up jobs) and fixed tests for periodic tasks.
 - Adding REST API for Cases and uploading cases.
+- Adding GA4GH beacon button to variant list row and details.
+  Note that this must be activated in the user profile settings.
 
 Full Change List
 ================
@@ -55,6 +57,8 @@ Full Change List
 - Fixed periodic tasks (contained clean-up jobs) and fixed tests for periodic tasks.
 - Adding REST API for ``Case``s.
 - Extending ``importer`` app with API to upload annotated TSV files and models to support this.
+- Adding GA4GH beacon button to variant list row and details.
+  Note that this must be activated in the user profile settings.
 
 -------
 v0.19.0

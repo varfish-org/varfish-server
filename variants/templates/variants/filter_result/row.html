@@ -3,8 +3,10 @@
 {% load humanize %}
 {% load dict %}
 {% load variants_tags %}
+{% load projectroles_common_tags %}
 
-{% get_user_setting user "variants" "umd_predictor_api_token" as umd_predictor_api_token %}
+{% get_app_setting "variants" "umd_predictor_api_token" user=user as umd_predictor_api_token %}
+{% get_app_setting "variants" "ga4gh_beacon_network_widget_enabled" user=request.user as ga4gh_beacon_network_widget_enabled %}
 {% ambiguous_frequency_warning entry exac_enabled thousand_genomes_enabled gnomad_exomes_enabled gnomad_genomes_enabled inhouse_enabled as warning %}
 
 {% with symbol=entry|get_symbol %}
@@ -42,7 +44,8 @@
     {% endif %}
       <i class="text-muted fa fa-fw fa-database"
         {% if entry.rsid %}
-          data-toggle="tooltip"
+          data-html="true"
+          data-tooltip="tooltip"
           data-placement="top"
           title="See {{ entry.rsid }} in dbSNP"
        {% else %}
@@ -326,6 +329,22 @@
         class="btn btn-primary sodar-list-btn">
         MT
       </a>
+      {% if ga4gh_beacon_network_widget_enabled %}
+        <a
+           data-toggle="popover"
+           data-content="<iframe
+  src='https://beacon-network.org:443/#/widget?rs={{ entry.genomebuild }}&chrom={{ entry.chromosome }}&pos={{ entry.start }}&ref={{  entry.reference }}&allele={{ entry.alternative }}'
+  style='width: 100%; height: 300px; overflow: auto;'
+  marginwidth='0' marginheight='0' frameborder='0' vspace='0' hspace='0'>
+</iframe>"
+           data-html="true"
+           data-tooltip="tooltip"
+           title="Query GA4GH Beacon Network"
+           class="btn btn-warning sodar-list-btn"
+          >
+          <i class="fa fa-podcast" aria-hidden="true"></i>
+        </a>
+      {% endif %}
       <button
         type="button"
         onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }}'})"
