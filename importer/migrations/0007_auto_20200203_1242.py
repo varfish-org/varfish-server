@@ -9,28 +9,40 @@ import importer.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('importer', '0006_auto_20200130_1538'),
+        ("importer", "0006_auto_20200130_1538"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='bamqcfile',
-            name='file',
-            field=models.FileField(help_text='The uploaded file.', upload_to=importer.models.set_member_file_url_upload_to),
+            model_name="bamqcfile",
+            name="file",
+            field=models.FileField(
+                help_text="The uploaded file.",
+                upload_to=importer.models.set_member_file_url_upload_to,
+            ),
         ),
         migrations.AlterField(
-            model_name='databaseinfofile',
-            name='file',
-            field=models.FileField(help_text='The uploaded file.', upload_to=importer.models.set_member_file_url_upload_to),
+            model_name="databaseinfofile",
+            name="file",
+            field=models.FileField(
+                help_text="The uploaded file.",
+                upload_to=importer.models.set_member_file_url_upload_to,
+            ),
         ),
         migrations.AlterField(
-            model_name='effectfile',
-            name='file',
-            field=models.FileField(help_text='The uploaded file.', upload_to=importer.models.set_member_file_url_upload_to),
+            model_name="effectfile",
+            name="file",
+            field=models.FileField(
+                help_text="The uploaded file.",
+                upload_to=importer.models.set_member_file_url_upload_to,
+            ),
         ),
         migrations.AlterField(
-            model_name='genotypefile',
-            name='file',
-            field=models.FileField(help_text='The uploaded file.', upload_to=importer.models.set_member_file_url_upload_to),
+            model_name="genotypefile",
+            name="file",
+            field=models.FileField(
+                help_text="The uploaded file.",
+                upload_to=importer.models.set_member_file_url_upload_to,
+            ),
         ),
     ]
