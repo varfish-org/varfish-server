@@ -119,3 +119,5 @@ django-su
 
 # Sentry client.
 sentry-sdk ==0.14.0
+
+raven ==6.10.0
