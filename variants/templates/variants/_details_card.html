@@ -28,6 +28,9 @@
           <a href="{% url 'variants:case-list' project=project.sodar_uuid %}" class="btn btn-secondary btn-small">
             <i class="fa fa-list"></i> See list of all cases
           </a>
+          <a href="{% url 'variants:project-cases-filter' project=project.sodar_uuid %}" class="float-right btn btn-primary btn-small">
+            <i class="fa fa-filter"></i> Joint Filtration
+          </a>
         </td>
       </tr>
     {% else %}
