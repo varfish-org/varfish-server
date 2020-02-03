@@ -15,6 +15,7 @@ import sqlparse
 from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
+from frequencies.models import MtDb, HelixMtDb, Mitomap
 from geneinfo.models import (
     Hgnc,
     RefseqToHgnc,
@@ -767,12 +768,103 @@ class ExtendQueryPartsVarTypeFilter(ExtendQueryPartsBase):
         return [or_(SmallVariant.sa.var_type.is_(None), SmallVariant.sa.var_type.in_(values))]
 
 
-class ExtendQueryPartsFrequenciesFilter(ExtendQueryPartsBase):
+class ExtendQueryPartsMitochondrialFrequenciesJoin(ExtendQueryPartsBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.subquery_mtdb = (
+            select(
+                [
+                    func.max(MtDb.sa.ac).label("mtdb_count"),
+                    func.max(MtDb.sa.af).label("mtdb_frequency"),
+                ]
+            )
+            .select_from(MtDb.sa)
+            .where(same_variant(MtDb, SmallVariant))
+            .group_by(
+                MtDb.sa.release,
+                MtDb.sa.chromosome,
+                MtDb.sa.start,
+                MtDb.sa.end,
+                MtDb.sa.reference,
+                MtDb.sa.alternative,
+            )
+            .lateral("mtdb_subquery")
+        )
+        self.subquery_helixmtdb = (
+            select(
+                [
+                    func.max(HelixMtDb.sa.ac).label("helixmtdb_count"),
+                    func.max(HelixMtDb.sa.af).label("helixmtdb_frequency"),
+                ]
+            )
+            .select_from(HelixMtDb.sa)
+            .where(same_variant(HelixMtDb, SmallVariant))
+            .group_by(
+                HelixMtDb.sa.release,
+                HelixMtDb.sa.chromosome,
+                HelixMtDb.sa.start,
+                HelixMtDb.sa.end,
+                HelixMtDb.sa.reference,
+                HelixMtDb.sa.alternative,
+            )
+            .lateral("helixmtdb_subquery")
+        )
+        self.subquery_mitomap = (
+            select(
+                [
+                    func.max(Mitomap.sa.ac).label("mitomap_count"),
+                    func.max(Mitomap.sa.af).label("mitomap_frequency"),
+                ]
+            )
+            .select_from(Mitomap.sa)
+            .where(same_variant(Mitomap, SmallVariant))
+            .group_by(
+                Mitomap.sa.release,
+                Mitomap.sa.chromosome,
+                Mitomap.sa.start,
+                Mitomap.sa.end,
+                Mitomap.sa.reference,
+                Mitomap.sa.alternative,
+            )
+            .lateral("mitomap_subquery")
+        )
+
+    def extend_fields(self, _query_parts):
+        return [
+            func.coalesce(self.subquery_mtdb.c.mtdb_count, 0).label("mtdb_count"),
+            func.coalesce(self.subquery_mtdb.c.mtdb_frequency, 0.0).label("mtdb_frequency"),
+            func.coalesce(self.subquery_helixmtdb.c.helixmtdb_count, 0).label("helixmtdb_count"),
+            func.coalesce(self.subquery_helixmtdb.c.helixmtdb_frequency, 0.0).label(
+                "helixmtdb_frequency"
+            ),
+            func.coalesce(self.subquery_mitomap.c.mitomap_count, 0).label("mitomap_count"),
+            func.coalesce(self.subquery_mitomap.c.mitomap_frequency, 0.0).label(
+                "mitomap_frequency"
+            ),
+        ]
+
+    def extend_selectable(self, query_parts):
+        query_parts = query_parts.selectable.outerjoin(self.subquery_mtdb, true())
+        query_parts = query_parts.selectable.outerjoin(self.subquery_helixmtdb, true())
+        return query_parts.selectable.outerjoin(self.subquery_mitomap, true())
+
+
+class ExtendQueryPartsFrequenciesFilter(ExtendQueryPartsMitochondrialFrequenciesJoin):
     def extend_conditions(self, _query_parts):
         return [
-            self._build_population_db_term("frequency"),
-            self._build_population_db_term("homozygous"),
-            self._build_population_db_term("heterozygous"),
+            or_(
+                and_(
+                    SmallVariant.sa.chromosome_no < 25,
+                    *self._build_population_db_term("frequency"),
+                    *self._build_population_db_term("homozygous"),
+                    *self._build_population_db_term("heterozygous"),
+                ),
+                and_(
+                    SmallVariant.sa.chromosome_no == 25,
+                    *self._build_mitochondrial_db_term("count"),
+                    *self._build_mitochondrial_db_term("frequency"),
+                ),
+            )
         ]
 
     def _build_population_db_term(self, metric):
@@ -782,7 +874,18 @@ class ExtendQueryPartsFrequenciesFilter(ExtendQueryPartsBase):
             field_name = "%s_%s" % (db, metric)
             if self.kwargs["%s_enabled" % db] and self.kwargs.get(field_name) is not None:
                 terms.append(getattr(SmallVariant.sa, field_name) <= self.kwargs[field_name])
-        return and_(*terms)
+        return terms
+
+    def _build_mitochondrial_db_term(self, metric):
+        terms = []
+        for db in ("mtdb", "helixmtdb", "mitomap"):
+            field_name = "%s_%s" % (db, metric)
+            if self.kwargs["%s_enabled" % db] and self.kwargs.get(field_name) is not None:
+                terms.append(
+                    getattr(getattr(self, "subquery_%s" % db).c, field_name)
+                    <= self.kwargs[field_name]
+                )
+        return terms
 
 
 class ExtendQueryPartsInHouseJoin(ExtendQueryPartsBase):
@@ -1267,6 +1370,7 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
     qp_extender_classes = [
         ExtendQueryPartsCaseLoadPrefetched,
         ExtendQueryPartsCaseJoinAndFilter,
+        ExtendQueryPartsMitochondrialFrequenciesJoin,
         ExtendQueryPartsDbsnpJoin,
         ExtendQueryPartsHgncJoin,
         ExtendQueryPartsGeneSymbolJoin,
@@ -1307,6 +1411,7 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
     qp_extender_classes = [
         ExtendQueryPartsProjectLoadPrefetched,
         ExtendQueryPartsCaseJoinAndFilter,
+        ExtendQueryPartsMitochondrialFrequenciesJoin,
         ExtendQueryPartsDbsnpJoin,
         ExtendQueryPartsHgncJoin,
         ExtendQueryPartsGeneSymbolJoin,

@@ -49,6 +49,27 @@
       <td>{{ form.inhouse_heterozygous|as_crispy_field }}</td>
       <td>{{ form.inhouse_carriers|as_crispy_field }}</td>
     </tr>
+    <tr>
+      <td>{{ form.mtdb_enabled|as_crispy_field }}</td>
+      <td data-toggle="tooltip" title="Mitochondrial frequency database">mtDB</td>
+      <td>{{ form.mtdb_count|as_crispy_field }}</td>
+      <td></td>
+      <td>{{ form.mtdb_frequency|as_crispy_field }}</td>
+    </tr>
+    <tr>
+      <td>{{ form.helixmtdb_enabled|as_crispy_field }}</td>
+      <td data-toggle="tooltip" title="Mitochondrial frequency database">HelixMTdb</td>
+      <td>{{ form.helixmtdb_count|as_crispy_field }}</td>
+      <td></td>
+      <td>{{ form.helixmtdb_frequency|as_crispy_field }}</td>
+    </tr>
+    <tr>
+      <td>{{ form.mitomap_enabled|as_crispy_field }}</td>
+      <td data-toggle="tooltip" title="Mitochondrial frequency database">MITOMAP</td>
+      <td>{{ form.mitomap_count|as_crispy_field }}</td>
+      <td></td>
+      <td>{{ form.mitomap_frequency|as_crispy_field }}</td>
+    </tr>
   </tbody>
 </table>
 

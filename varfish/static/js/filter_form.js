@@ -527,6 +527,18 @@ const presets = {
       "inhouse_homozygous": null,
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
+
+      "mtdb_enabled": true,
+      "mtdb_count": 1,
+      "mtdb_frequency": 0.002,
+
+      "helixmtdb_enabled": true,
+      "helixmtdb_count": 1,
+      "helixmtdb_frequency": 0.002,
+
+      "mitomap_enabled": true,
+      "mitomap_count": 1,
+      "mitomap_frequency": 0.002,
     },
     "classes": {},
   },
@@ -556,6 +568,18 @@ const presets = {
       "inhouse_homozygous": null,
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
+
+      "mtdb_enabled": true,
+      "mtdb_count": 10,
+      "mtdb_frequency": 0.002,
+
+      "helixmtdb_enabled": true,
+      "helixmtdb_count": 10,
+      "helixmtdb_frequency": 0.002,
+
+      "mitomap_enabled": true,
+      "mitomap_count": 10,
+      "mitomap_frequency": 0.002,
     },
     "classes": {},
   },
@@ -585,6 +609,18 @@ const presets = {
       "inhouse_homozygous": null,
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
+
+      "mtdb_enabled": true,
+      "mtdb_count": 20,
+      "mtdb_frequency": 0.01,
+
+      "helixmtdb_enabled": true,
+      "helixmtdb_count": 20,
+      "helixmtdb_frequency": 0.01,
+
+      "mitomap_enabled": true,
+      "mitomap_count": 20,
+      "mitomap_frequency": 0.01,
     },
     "classes": {},
   },
@@ -614,6 +650,18 @@ const presets = {
       "inhouse_homozygous": null,
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
+
+      "mtdb_enabled": true,
+      "mtdb_count": 20,
+      "mtdb_frequency": 0.001,
+
+      "helixmtdb_enabled": true,
+      "helixmtdb_count": 20,
+      "helixmtdb_frequency": 0.001,
+
+      "mitomap_enabled": true,
+      "mitomap_count": 20,
+      "mitomap_frequency": 0.001,
     },
     "classes": {},
   },
@@ -643,6 +691,18 @@ const presets = {
       "inhouse_homozygous": null,
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
+
+      "mtdb_enabled": true,
+      "mtdb_count": 20,
+      "mtdb_frequency": 0.01,
+
+      "helixmtdb_enabled": true,
+      "helixmtdb_count": 20,
+      "helixmtdb_frequency": 0.01,
+
+      "mitomap_enabled": true,
+      "mitomap_count": 20,
+      "mitomap_frequency": 0.01,
     },
     "classes": {},
   },
@@ -672,6 +732,18 @@ const presets = {
       "inhouse_homozygous": null,
       "inhouse_heterozygous": null,
       "inhouse_carriers": null,
+
+      "mtdb_enabled": false,
+      "mtdb_count": null,
+      "mtdb_frequency": null,
+
+      "helixmtdb_enabled": false,
+      "helixmtdb_count": null,
+      "helixmtdb_frequency": null,
+
+      "mitomap_enabled": false,
+      "mitomap_count": null,
+      "mitomap_frequency": null,
     },
     "classes": {},
   },

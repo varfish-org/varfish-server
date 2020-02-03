@@ -8,6 +8,7 @@ Remarks:
 
 from clinvar.tests.factories import ClinvarFactory
 from conservation.tests.factories import KnownGeneAAFactory
+from frequencies.tests.factories import MitomapFactory, HelixMtDbFactory, MtDbFactory
 from hgmd.tests.factories import HgmdPublicLocusFactory
 from variants.models import Case, ProjectCasesSmallVariantQuery, SmallVariantSet
 from variants.queries import (
@@ -424,6 +425,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
             # this emulates increasing count starting from 1
             count = i + 1
             small_var = SmallVariantFactory(
+                chromosome="1",
                 gnomad_genomes_frequency=freq,
                 gnomad_genomes_heterozygous=count,
                 gnomad_genomes_homozygous=count,
@@ -1144,6 +1146,202 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_heterozygous": 2,
             },
             3,
+        )
+
+
+class TestCaseOneQueryMitochondrialFrequency(SupportQueryTestBase):
+    """Test switch for all four frequency filters + frequency limits + homozygous limits
+
+    Each limit is tested for lower, critical and higher values. The data is designed
+    to cover this with one test function rather than having three test functions for this
+    setting. 'None' is tested within the switch or the other function. This is the value
+    when no value in the interface was entered.
+
+    tested databases:
+    - mtdb, helixmtdb, mitomap
+    """
+
+    def setUp(self):
+        """Create a case and 3 variants with different frequencies and count values and
+        a corresponding variantsummary entry.
+        """
+        super().setUp()
+        self.variant_set = SmallVariantSetFactory()
+        for i in range(3):
+            # this emulates 0.001, 0.01 and 0.1 frequency
+            freq = 1 / 10 ** (3 - i)
+            # this emulates increasing count starting from 1
+            count = i + 1
+            small_var = SmallVariantFactory(
+                chromosome="MT", chromosome_no=25, variant_set=self.variant_set,
+            )
+            coords = {
+                "chromosome": small_var.chromosome,
+                "start": small_var.start,
+                "end": small_var.end,
+                "reference": small_var.reference,
+                "alternative": small_var.alternative,
+            }
+            MitomapFactory(**coords, ac=count, af=freq)
+            MtDbFactory(**coords, ac=count, af=freq)
+            HelixMtDbFactory(**coords, ac=count, af=freq)
+
+    def test_frequency_filters_disabled_filter(self):
+        self.run_query(CasePrefetchQuery, {}, 3)
+
+    def test_frequency_filters_disabled_export(self):
+        self.run_query(CaseExportTableQuery, {}, 3)
+
+    def test_frequency_filters_disabled_vcf(self):
+        self.run_query(CaseExportVcfQuery, {}, 3)
+
+    def test_frequency_mtdb_enabled_filter(self):
+        self.run_query(CasePrefetchQuery, {"mtdb_enabled": True}, 0)
+
+    def test_frequency_mtdb_enabled_export(self):
+        self.run_query(CaseExportTableQuery, {"mtdb_enabled": True}, 0)
+
+    def test_frequency_mtdb_enabled_vcf(self):
+        self.run_query(CaseExportVcfQuery, {"mtdb_enabled": True}, 0)
+
+    def test_frequency_helixmtdb_enabled_filter(self):
+        self.run_query(CasePrefetchQuery, {"helixmtdb_enabled": True}, 0)
+
+    def test_frequency_helixmtdb_enabled_export(self):
+        self.run_query(CaseExportTableQuery, {"helixmtdb_enabled": True}, 0)
+
+    def test_frequency_helixmtdb_enabled_vcf(self):
+        self.run_query(CaseExportVcfQuery, {"helixmtdb_enabled": True}, 0)
+
+    def test_frequency_mitomap_enabled_filter(self):
+        self.run_query(CasePrefetchQuery, {"mitomap_enabled": True}, 0)
+
+    def test_frequency_mitomap_enabled_export(self):
+        self.run_query(CaseExportTableQuery, {"mitomap_enabled": True}, 0)
+
+    def test_frequency_mitomap_enabled_vcf(self):
+        self.run_query(CaseExportVcfQuery, {"mitomap_enabled": True}, 0)
+
+    def test_frequency_mtdb_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None,},
+            2,
+        )
+
+    def test_frequency_mtdb_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None,},
+            2,
+        )
+
+    def test_frequency_mtdb_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None,},
+            2,
+        )
+
+    def test_frequency_helixmtdb_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {"helixmtdb_enabled": True, "helixmtdb_frequency": 0.01, "helixmtdb_count": None,},
+            2,
+        )
+
+    def test_frequency_helixmtdb_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {"helixmtdb_enabled": True, "helixmtdb_frequency": 0.01, "helixmtdb_count": None,},
+            2,
+        )
+
+    def test_frequency_helixmtdb_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {"helixmtdb_enabled": True, "helixmtdb_frequency": 0.01, "helixmtdb_count": None,},
+            2,
+        )
+
+    def test_frequency_mitomap_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None,},
+            2,
+        )
+
+    def test_frequency_mitomap_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None,},
+            2,
+        )
+
+    def test_frequency_mitomap_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None,},
+            2,
+        )
+
+    def test_count_mtdb_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery, {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2,}, 2,
+        )
+
+    def test_count_mtdb_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2,},
+            2,
+        )
+
+    def test_count_mtdb_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery, {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2,}, 2,
+        )
+
+    def test_count_helixmtdb_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {"helixmtdb_enabled": True, "helixmtdb_frequency": None, "helixmtdb_count": 2,},
+            2,
+        )
+
+    def test_count_helixmtdb_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {"helixmtdb_enabled": True, "helixmtdb_frequency": None, "helixmtdb_count": 2,},
+            2,
+        )
+
+    def test_count_helixmtdb_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {"helixmtdb_enabled": True, "helixmtdb_frequency": None, "helixmtdb_count": 2,},
+            2,
+        )
+
+    def test_count_mitomap_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2,},
+            2,
+        )
+
+    def test_count_mitomap_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2,},
+            2,
+        )
+
+    def test_count_mitomap_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2,},
+            2,
         )
 
 

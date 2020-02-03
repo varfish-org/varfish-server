@@ -1083,9 +1083,7 @@ class MtDb(Coordinates):
     an = models.IntegerField()
     # Allele frequency, i.e. ac/an
     af = models.FloatField()
-    # Gap ???
-    gap = models.IntegerField(null=True)
-    # Location ???
+    # Location
     location = models.CharField(max_length=32, null=True)
     # Codon
     codon = models.IntegerField(null=True)

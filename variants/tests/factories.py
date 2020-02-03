@@ -59,6 +59,15 @@ class FormDataFactoryBase:
     inhouse_carriers: int = 0
     inhouse_heterozygous: int = 0
     inhouse_homozygous: int = 0
+    mtdb_enabled: bool = False
+    mtdb_count: int = 0
+    mtdb_frequency: int = 0.0
+    helixmtdb_enabled: bool = False
+    helixmtdb_count: int = 0
+    helixmtdb_frequency: int = 0.0
+    mitomap_enabled: bool = False
+    mitomap_count: int = 0
+    mitomap_frequency: int = 0.0
     transcripts_coding: bool = True
     transcripts_noncoding: bool = True
     remove_if_in_dbsnp: bool = False

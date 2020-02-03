@@ -749,6 +749,65 @@ class SmallVariantFrequencyFilterFormMixin:
                 attrs={"placeholder": "Maximal in-house carriers", "class": "numberInteger"}
             ),
         )
+        self.fields["mtdb_enabled"] = forms.BooleanField(label="", required=False, initial=True)
+        self.fields["mtdb_frequency"] = forms.DecimalField(
+            label="",
+            initial=0.01,
+            max_value=1,
+            min_value=0,
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal frequency in mtDB", "class": "numberDecimal",}
+            ),
+        )
+        self.fields["mtdb_count"] = forms.IntegerField(
+            label="",
+            initial=10,
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal count in mtDB", "class": "numberInteger",}
+            ),
+        )
+        self.fields["helixmtdb_enabled"] = forms.BooleanField(
+            label="", required=False, initial=True
+        )
+        self.fields["helixmtdb_frequency"] = forms.DecimalField(
+            label="",
+            initial=0.01,
+            max_value=1,
+            min_value=0,
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal frequency in HelixMTdb", "class": "numberDecimal",}
+            ),
+        )
+        self.fields["helixmtdb_count"] = forms.IntegerField(
+            label="",
+            initial=10,
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal count in HelixMTdb", "class": "numberInteger",}
+            ),
+        )
+        self.fields["mitomap_enabled"] = forms.BooleanField(label="", required=False, initial=True)
+        self.fields["mitomap_frequency"] = forms.DecimalField(
+            label="",
+            initial=0.01,
+            max_value=1,
+            min_value=0,
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal frequency in MITOMAP", "class": "numberDecimal",}
+            ),
+        )
+        self.fields["mitomap_count"] = forms.IntegerField(
+            label="",
+            initial=10,
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal count in MITOMAP", "class": "numberInteger",}
+            ),
+        )
 
 
 class SmallVariantVariantEffectFilterFormMixin:

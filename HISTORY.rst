@@ -29,6 +29,7 @@ End-User Summary
 - Adding REST API for Cases and uploading cases.
 - Adding GA4GH beacon button to variant list row and details.
   Note that this must be activated in the user profile settings.
+- Added filter support to queries and to filter form for mitochondrial genome.
 
 Full Change List
 ================
@@ -59,6 +60,7 @@ Full Change List
 - Extending ``importer`` app with API to upload annotated TSV files and models to support this.
 - Adding GA4GH beacon button to variant list row and details.
   Note that this must be activated in the user profile settings.
+- Added filter support to queries and to filter form for mitochondrial genome.
 
 -------
 v0.19.0

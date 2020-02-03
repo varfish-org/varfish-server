@@ -40,6 +40,9 @@ let INPUT_TAB_AFFILIATION = {
     /^exac_/,
     /^gnomad_genomes_/,
     /^gnomad_exomes_/,
+    /^mtdb_/,
+    /^helixmtdb_/,
+    /^mitomap_/,
   ],
   'effect-tab': [],
   'quality-tab': [

@@ -147,6 +147,24 @@
   <td class="detail-frequencies-inhouse text-right">
     {{ entry.inhouse_hom_alt|default_if_none:"-" }}
   </td>
+  <td class="detail-frequencies-mtdb text-right">
+    {{ entry.mtdb_frequency|floatformat:5|default_if_none:"-" }}
+  </td>
+  <td class="detail-frequencies-mtdb text-right">
+    {{ entry.mtdb_count|default_if_none:"-" }}
+  </td>
+  <td class="detail-frequencies-helixmtdb text-right">
+    {{ entry.helixmtdb_frequency|floatformat:5|default_if_none:"-" }}
+  </td>
+  <td class="detail-frequencies-helixmtdb text-right">
+    {{ entry.helixmtdb_count|default_if_none:"-" }}
+  </td>
+  <td class="detail-frequencies-mitomap text-right">
+    {{ entry.mitomap_frequency|floatformat:5|default_if_none:"-" }}
+  </td>
+  <td class="detail-frequencies-mitomap text-right">
+    {{ entry.mitomap_count|default_if_none:"-" }}
+  </td>
   <td class="detail-constraints-exac-pli text-right">
     {{ entry.exac_pLI|floatformat:3|default:"-" }}
   </td>

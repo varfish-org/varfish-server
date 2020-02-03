@@ -326,6 +326,8 @@ class SmallVariant(models.Model):
             # Fast white-list queries of gene.
             models.Index(fields=["case_id", "ensembl_gene_id"]),
             models.Index(fields=["case_id", "refseq_gene_id"]),
+            # For mitochondrial frequency join
+            models.Index(fields=["case_id", "chromosome_no"]),
         ]
         managed = settings.IS_TESTING
         db_table = "variants_smallvariant"
