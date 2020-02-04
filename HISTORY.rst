@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Added preset for mitochondrial filter settings.
+
+Full Change List
+================
+
+- Added preset for mitochondrial filter settings.
+
 -------
 v0.20.0
 -------

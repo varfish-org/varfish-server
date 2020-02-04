@@ -500,6 +500,11 @@ const presets = {
       "ids": {},
       "classes": {"genotype-field-gt": "recessive-index"},
   },
+  "inheritance-mitochondrial": {
+      "ids": {},
+      // mitochondrial doesn't exist in the select. this triggers a function
+      "classes": {"genotype-field-gt": "mitochondrial"},
+  },
   // Frequency presets
   "frequency-super-strict": {
     "ids": {
@@ -528,17 +533,17 @@ const presets = {
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
-      "mtdb_enabled": true,
-      "mtdb_count": 1,
-      "mtdb_frequency": 0.002,
+      "mtdb_enabled": false,
+      "mtdb_count": null,
+      "mtdb_frequency": null,
 
-      "helixmtdb_enabled": true,
-      "helixmtdb_count": 1,
-      "helixmtdb_frequency": 0.002,
+      "helixmtdb_enabled": false,
+      "helixmtdb_count": null,
+      "helixmtdb_frequency": null,
 
-      "mitomap_enabled": true,
-      "mitomap_count": 1,
-      "mitomap_frequency": 0.002,
+      "mitomap_enabled": false,
+      "mitomap_count": null,
+      "mitomap_frequency": null,
     },
     "classes": {},
   },
@@ -569,17 +574,17 @@ const presets = {
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
-      "mtdb_enabled": true,
-      "mtdb_count": 10,
-      "mtdb_frequency": 0.002,
+      "mtdb_enabled": false,
+      "mtdb_count": null,
+      "mtdb_frequency": null,
 
-      "helixmtdb_enabled": true,
-      "helixmtdb_count": 10,
-      "helixmtdb_frequency": 0.002,
+      "helixmtdb_enabled": false,
+      "helixmtdb_count": null,
+      "helixmtdb_frequency": null,
 
-      "mitomap_enabled": true,
-      "mitomap_count": 10,
-      "mitomap_frequency": 0.002,
+      "mitomap_enabled": false,
+      "mitomap_count": null,
+      "mitomap_frequency": null,
     },
     "classes": {},
   },
@@ -610,17 +615,17 @@ const presets = {
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
-      "mtdb_enabled": true,
-      "mtdb_count": 20,
-      "mtdb_frequency": 0.01,
+      "mtdb_enabled": false,
+      "mtdb_count": null,
+      "mtdb_frequency": null,
 
-      "helixmtdb_enabled": true,
-      "helixmtdb_count": 20,
-      "helixmtdb_frequency": 0.01,
+      "helixmtdb_enabled": false,
+      "helixmtdb_count": null,
+      "helixmtdb_frequency": null,
 
-      "mitomap_enabled": true,
-      "mitomap_count": 20,
-      "mitomap_frequency": 0.01,
+      "mitomap_enabled": false,
+      "mitomap_count": null,
+      "mitomap_frequency": null,
     },
     "classes": {},
   },
@@ -651,17 +656,17 @@ const presets = {
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
-      "mtdb_enabled": true,
-      "mtdb_count": 20,
-      "mtdb_frequency": 0.001,
+      "mtdb_enabled": false,
+      "mtdb_count": null,
+      "mtdb_frequency": null,
 
-      "helixmtdb_enabled": true,
-      "helixmtdb_count": 20,
-      "helixmtdb_frequency": 0.001,
+      "helixmtdb_enabled": false,
+      "helixmtdb_count": null,
+      "helixmtdb_frequency": null,
 
-      "mitomap_enabled": true,
-      "mitomap_count": 20,
-      "mitomap_frequency": 0.001,
+      "mitomap_enabled": false,
+      "mitomap_count": null,
+      "mitomap_frequency": null,
     },
     "classes": {},
   },
@@ -692,17 +697,17 @@ const presets = {
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
-      "mtdb_enabled": true,
-      "mtdb_count": 20,
-      "mtdb_frequency": 0.01,
+      "mtdb_enabled": false,
+      "mtdb_count": null,
+      "mtdb_frequency": null,
 
-      "helixmtdb_enabled": true,
-      "helixmtdb_count": 20,
-      "helixmtdb_frequency": 0.01,
+      "helixmtdb_enabled": false,
+      "helixmtdb_count": null,
+      "helixmtdb_frequency": null,
 
-      "mitomap_enabled": true,
-      "mitomap_count": 20,
-      "mitomap_frequency": 0.01,
+      "mitomap_enabled": false,
+      "mitomap_count": null,
+      "mitomap_frequency": null,
     },
     "classes": {},
   },
@@ -1391,7 +1396,7 @@ function enableHomRecessiveMode(target) {
         function () {
             // Get the id of the GT field.
             var id = $(this).attr("id");
-            // The current (index patients) field stays as it is, so do nothing.
+            // Set the current (index patients) field to "hom"
             if (target.attr("id") == id || $(this).data("family") != family) {
                 target.val("hom");
                 return;
@@ -1412,6 +1417,24 @@ function enableDomDenovoMode() {
     $("[id^=id_][id$=_gt].affected").val("het");
     // All unaffected will be set to ref
     $("[id^=id_][id$=_gt].unaffected").val("ref");
+}
+
+
+function enableMitochondrialMode(target) {
+    const family = target.data("family");
+    // Iterate over all GT fields.
+    $("[id^=id_][id$=_gt]").each(
+        function () {
+            // Get the id of the GT field.
+            var id = $(this).attr("id");
+            // Set the current (index patients) field to variant
+            if (target.attr("id") == id || $(this).data("family") != family) {
+                target.val("variant");
+                return;
+            }
+            $(this).val("any");
+        }
+    );
 }
 
 
@@ -1532,17 +1555,22 @@ function applyPresetsToSettings(presets, name) {
                 || val == "recessive-index"
                 || val == "dom-denovo"
                 || val == "hom-recessive"
+                || val == "mitochondrial"
             ) && tag.data("default-index") != "1"
         ) {
             continue;
         }
-        // Dominant denovo is not an option in the genotype select, so let a function to do the change.
+        // Dominant denovo is not an option in the genotype select, so let a function do the change.
         if (val == "dom-denovo") {
             enableDomDenovoMode();
         }
-        // Homozygous recessive is not an option in the genotype select, so let a function to do the change.
+        // Homozygous recessive is not an option in the genotype select, so let a function do the change.
         else if (val == "hom-recessive") {
             enableHomRecessiveMode(tag);
+        }
+        // Mitochondrial is not an option in the genotype select, so let a function do the change.
+        else if (val == "mitochondrial") {
+            enableMitochondrialMode(tag);
         }
         // Default change behaviour for all others
         else {
@@ -1578,7 +1606,7 @@ function updateQuickPresets(settings) {
   }
   const quickPresetCategories = ["inheritance", "frequency", "impact", "quality", "region", "flags"];
   const quickPresetCandidates = {
-    "inheritance": ["any", "dominant", "hom-recessive", "comp-het", "recessive"],
+    "inheritance": ["any", "dominant", "hom-recessive", "comp-het", "recessive", "mitochondrial"],
     "frequency": ["super-strict", "strict", "relaxed", "recessive-strict", "recessive-relaxed", "all"],
     "impact": ["null-variant", "aa-change", "all-coding-deep-intronic", "whole-transcript", "any"],
     "quality": ["super-strict", "strict", "relaxed", "ignore"],
@@ -1636,8 +1664,9 @@ function updateQuickPresets(settings) {
                 }
                 // Hom recessive is even more hacky: we need to know who the parents are, but as we scan linearly once,
                 // and do not necessarily hit the index first to find this out,
-                else if (presetsKey == "inheritance-hom-recessive") {
-                    if (
+                else if (
+                    presetsKey == "inheritance-hom-recessive" &&
+                    (
                         (element.data("default-index") == "1" && eqAsStr(value, "hom")) ||
                         (element.data("default-mother") == "1" && eqAsStr(value, "het")) ||
                         (element.data("default-father") == "1" && eqAsStr(value, "het")) ||
@@ -1647,9 +1676,18 @@ function updateQuickPresets(settings) {
                             element.data("default-father") == "0" &&
                             eqAsStr(value, "any")
                         )
-                    ) {
-                        continue
-                    }
+                    )
+                ) {
+                    continue;
+                }
+                else if (
+                    presetsKey == "inheritance-mitochondrial" &&
+                    (
+                        (element.data("default-index") == "1" && eqAsStr(value, "variant")) ||
+                        (element.data("default-index") == "0" && eqAsStr(value, "any"))
+                    )
+                ) {
+                    continue;
                 }
                 matchAll = false;
                 break;
@@ -1721,6 +1759,13 @@ function loadPresets(element) {
     } else {
       $("#input-presets-flags").val("flags-clinvar")
     }
+  } else if (presetsName == "mitochondrial") {
+    $("#input-presets-inheritance").val("inheritance-mitochondrial")
+    $("#input-presets-frequency").val("frequency-all")
+    $("#input-presets-impact").val("impact-any")
+    $("#input-presets-quality").val("quality-strict")
+    $("#input-presets-region").val("region-mt-chromosome")
+    $("#input-presets-flags").val("flags-default")
   } else {
     console.log("Unknown preset name", presetsName)
   }
@@ -1893,7 +1938,6 @@ $(document).ready(
     $("#settingsSet").click(initIndexMode);
     // Setup the quick presets dropdown.
     $(".quick-presets").click(function (e) { loadPresets($(e.currentTarget)); });
-    $("#quick-presets-defaults").trigger("click");
     // update settings should be the last handler assigned
     $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
     // Setup the presets menus.
@@ -1923,7 +1967,7 @@ $(document).ready(
     filterButton.attr("data-event-type", EVENT_SUBMIT);
     // Load default/strict presets.
     if (!settings_restored) {
-        loadPresets($("#quick-preset-defaults"));
+        $("#quick-presets-defaults").trigger("click");
     }
     // Kick-off state machine.
     handleEvent(EVENT_START, null);

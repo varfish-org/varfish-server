@@ -103,40 +103,72 @@
   </td>
   <td class="detail-info-clinvar p-0"></td>
   <td class="detail-frequencies-exac">
-    {{ entry.exac_frequency|floatformat:5|default:"-" }}
-    {% if warning %}
-      <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+    {% if entry.chromosome_no == 25 %}
+      -
+    {% else %}
+      {{ entry.exac_frequency|floatformat:5|default:"-" }}
+      {% if warning %}
+        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+      {% endif %}
     {% endif %}
   </td>
   <td class="detail-frequencies-gnomad-exomes">
-    {{ entry.gnomad_exomes_frequency|floatformat:5|default:"-" }}
-    {% if warning %}
-      <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+    {% if entry.chromosome_no == 25 %}
+      -
+    {% else %}
+      {{ entry.gnomad_exomes_frequency|floatformat:5|default:"-" }}
+      {% if warning %}
+        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+      {% endif %}
     {% endif %}
   </td>
   <td class="detail-frequencies-gnomad-genomes">
-    {{ entry.gnomad_genomes_frequency|floatformat:5|default:"-" }}
-    {% if warning %}
-      <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+    {% if entry.chromosome_no == 25 %}
+      -
+    {% else %}
+      {{ entry.gnomad_genomes_frequency|floatformat:5|default:"-" }}
+      {% if warning %}
+        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+      {% endif %}
     {% endif %}
   </td>
   <td class="detail-frequencies-thousand-genomes">
-    {{ entry.thousand_genomes_frequency|floatformat:5|default:"-" }}
-    {% if warning %}
-      <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+    {% if entry.chromosome_no == 25 %}
+      -
+    {% else %}
+      {{ entry.thousand_genomes_frequency|floatformat:5|default:"-" }}
+      {% if warning %}
+        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+      {% endif %}
     {% endif %}
   </td>
   <td class="detail-frequencies-exac text-right">
-    {{ entry.exac_homozygous|default_if_none:"-" }}
+    {% if entry.chromosome_no == 25 %}
+      -
+    {% else %}
+      {{ entry.exac_homozygous|default_if_none:"-" }}
+    {% endif %}
   </td>
   <td class="detail-frequencies-gnomad-exomes text-right">
-    {{ entry.gnomad_exomes_homozygous|default_if_none:"-" }}
+    {% if entry.chromosome_no == 25 %}
+      -
+    {% else %}
+      {{ entry.gnomad_exomes_homozygous|default_if_none:"-" }}
+    {% endif %}
   </td>
   <td class="detail-frequencies-gnomad-genomes text-right">
-    {{ entry.gnomad_genomes_homozygous|default_if_none:"-" }}
+    {% if entry.chromosome_no == 25 %}
+      -
+    {% else %}
+      {{ entry.gnomad_genomes_homozygous|default_if_none:"-" }}
+    {% endif %}
   </td>
   <td class="detail-frequencies-thousand-genomes text-right">
-    {{ entry.thousand_genomes_homozygous|default_if_none:"-" }}
+    {% if entry.chromosome_no == 25 %}
+      -
+    {% else %}
+      {{ entry.thousand_genomes_homozygous|default_if_none:"-" }}
+    {% endif %}
   </td>
   <td class="detail-frequencies-inhouse text-right">
     {{ entry.inhouse_carriers|default_if_none:"-" }}
@@ -148,22 +180,46 @@
     {{ entry.inhouse_hom_alt|default_if_none:"-" }}
   </td>
   <td class="detail-frequencies-mtdb text-right">
-    {{ entry.mtdb_frequency|floatformat:5|default_if_none:"-" }}
+    {% if entry.chromosome_no == 25 %}
+      {{ entry.mtdb_frequency|floatformat:5|default_if_none:"-" }}
+    {% else %}
+      -
+    {% endif %}
   </td>
   <td class="detail-frequencies-mtdb text-right">
-    {{ entry.mtdb_count|default_if_none:"-" }}
+    {% if entry.chromosome_no == 25 %}
+      {{ entry.mtdb_count|default_if_none:"-" }}
+    {% else %}
+      -
+    {% endif %}
   </td>
   <td class="detail-frequencies-helixmtdb text-right">
-    {{ entry.helixmtdb_frequency|floatformat:5|default_if_none:"-" }}
+    {% if entry.chromosome_no == 25 %}
+      {{ entry.helixmtdb_frequency|floatformat:5|default_if_none:"-" }}
+    {% else %}
+      -
+    {% endif %}
   </td>
   <td class="detail-frequencies-helixmtdb text-right">
-    {{ entry.helixmtdb_count|default_if_none:"-" }}
+    {% if entry.chromosome_no == 25 %}
+      {{ entry.helixmtdb_count|default_if_none:"-" }}
+    {% else %}
+      -
+    {% endif %}
   </td>
   <td class="detail-frequencies-mitomap text-right">
-    {{ entry.mitomap_frequency|floatformat:5|default_if_none:"-" }}
+    {% if entry.chromosome_no == 25 %}
+      {{ entry.mitomap_frequency|floatformat:5|default_if_none:"-" }}
+    {% else %}
+      -
+    {% endif %}
   </td>
   <td class="detail-frequencies-mitomap text-right">
-    {{ entry.mitomap_count|default_if_none:"-" }}
+    {% if entry.chromosome_no == 25 %}
+      {{ entry.mitomap_count|default_if_none:"-" }}
+    {% else %}
+      -
+    {% endif %}
   </td>
   <td class="detail-constraints-exac-pli text-right">
     {{ entry.exac_pLI|floatformat:3|default:"-" }}
