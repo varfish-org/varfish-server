@@ -1820,7 +1820,7 @@ function initHpoTypeahead() {
                 $.each(data, function(i, e) {
                     let hover = "";
                     let name = e["name"];
-                    let element_id = '#id_hpo_item_' + e["id"].replace(":", "_");
+                    let element_id = 'id_hpo_item_' + e["id"].replace(":", "_");
                     if (e["id"].startsWith("OMIM")) {
                         let names = name.split(";;");
                         hover = ' data-toggle="tooltip" data-html="true" title=\'<ul class="text-left pl-3"><li>' + names.join("</li><li>") + '</li></ul>\'';
@@ -1835,7 +1835,7 @@ function initHpoTypeahead() {
                         "    <span class='badge badge-" + ((hpo_selected.includes(e["id"])) ? "info" : "secondary") + " hpo_name'>" + name + "</span>\n" +
                         "</span>"
                     );
-                    $(element_id + '[data-toggle="tooltip"]').tooltip({boundary: 'window', container: 'body'});
+                    $('#' + element_id + '[data-toggle="tooltip"]').tooltip({boundary: 'window', container: 'body'});
                 });
                 $(".hpo_item").click(selectHpoTerm);
                 if (!suggestions.children().length) {
