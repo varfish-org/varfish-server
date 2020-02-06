@@ -10,8 +10,7 @@ from ..models import (
     _variant_scores_mutationtaster_rank_model,
 )
 from projectroles.app_settings import AppSettingAPI
-from geneinfo.models import GeneIdToInheritance
-
+from geneinfo.models import GeneIdToInheritance, Hpo, HpoName
 
 modes_of_inheritance = dict(GeneIdToInheritance.MODES_OF_INHERITANCE)
 register = template.Library()
@@ -402,3 +401,15 @@ def get_pubmed_linkout(record, hpoterms):
         ]
     )
     return "{} AND ({})".format(symbol, terms)
+
+
+@register.filter
+def add_omim_information(term):
+    info = {}
+    for record in Hpo.objects.filter(database_id=term).values("hpo_id"):
+        hpo_name = HpoName.objects.filter(hpo_id=record["hpo_id"])
+        if hpo_name.exists():
+            info[record["hpo_id"]] = hpo_name.first().name
+        else:
+            info[record["hpo_id"]] = "unknown HPO term"
+    return info

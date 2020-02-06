@@ -1,5 +1,6 @@
   {% load humanize %}
   {% load projectroles_common_tags %}
+  {% load variants_tags %}
 
   {% get_django_setting 'PROJECTROLES_KIOSK_MODE' as kiosk_mode %}
 
@@ -28,10 +29,22 @@
           </span>
           <span class="pl-2">
           {% for hpo_id, hpo_name in hpoterms.items %}
-            <span class="badge-group">
+            <a class="badge-group hpo-info"
+              {% with omim_information=hpo_id|add_omim_information %}
+                {% if omim_information %}
+                  data-toggle="popover"
+                  data-html="true"
+                  data-placement="top"
+                  data-trigger="focus"
+                  tabindex="0"
+                  title="{{ hpo_id }}"
+                  data-content="{% for key, value in omim_information.items %}<span class='badge badge-group' style='font-size: 110%'><span class='badge badge-dark'>{{ key }}</span><span class='badge badge-secondary'>{{ value }}</span></span>{% endfor %}"
+                {% endif %}
+              {% endwith %}
+            >
               <span class="badge badge-dark">{{ hpo_id }}</span>
               <span class="badge badge-secondary">{{ hpo_name }}</span>
-            </span>
+            </a>
           {% empty %}
             <span class="text-muted font-italic">none</span>
           {% endfor %}
@@ -131,4 +144,12 @@
         Query completed in {{ elapsed_seconds }} sec.
       </p>
     </div> <!-- sodar-page-container -->
+    <script type="text/javascript">
+    $(function () {
+      $('.hpo-info').popover({
+        container: 'body'
+      })
+    })
+    </script>
   {% endif %}
+

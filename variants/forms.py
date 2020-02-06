@@ -13,7 +13,7 @@ from django.utils.text import get_valid_filename
 
 from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
 from .templatetags.variants_tags import only_source_name
-from geneinfo.models import Hgnc, HpoName
+from geneinfo.models import Hgnc, HpoName, Hpo
 from django.db.models import Q
 from projectroles.app_settings import AppSettingAPI
 
@@ -1227,22 +1227,39 @@ class SmallVariantPrioritizerFormMixin:
         """Tokenize the HPO terms"""
         cleaned_data = super().clean()
         results = []
+        results_curated = []
         for term in cleaned_data["prio_hpo_terms"].split(";"):
-            term = term.strip()
+            raw_term = term.strip()
             if term:
-                m = re.match(r"^(HP:\d{7})(?: - .*)?$", term)
+                m = re.match(r"^(HP:\d{7}|OMIM:\d{6})(?: - .*)?$", raw_term)
                 if m:
-                    if not HpoName.objects.filter(hpo_id=m.group(1)).exists():
-                        self.add_error(
-                            "prio_hpo_terms", "%s doesn't exist in HPO database" % m.group(1)
-                        )
+                    term = m.group(1)
+                    if term.startswith("HP"):
+                        if not HpoName.objects.filter(hpo_id=term).exists():
+                            self.add_error(
+                                "prio_hpo_terms", "%s doesn't exist in HPO database" % term
+                            )
+                        else:
+                            results_curated.append(term)
+                            results.append(term)
                     else:
-                        results.append(m.group(1))
+                        omim = Hpo.objects.filter(database_id=term)
+                        if not omim.exists():
+                            self.add_error(
+                                "prio_hpo_terms", "%s doesn't exist in OMIM database" % term
+                            )
+                        else:
+                            results.append(term)
+                            for record in omim.values("hpo_id"):
+                                results_curated.append(record["hpo_id"])
                 else:
                     self.add_error(
-                        "prio_hpo_terms", "%s is not a valid HPO id (expecting HP:1234567)" % term
+                        "prio_hpo_terms",
+                        "%s is not a valid HPO or OMIM id (expecting HP:1234567 or OMIM:123456)"
+                        % term,
                     )
-        cleaned_data["prio_hpo_terms"] = list(set(results))
+        cleaned_data["prio_hpo_terms"] = sorted(set(results))
+        cleaned_data["prio_hpo_terms_curated"] = sorted(set(results_curated))
         return cleaned_data
 
 

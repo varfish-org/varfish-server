@@ -10,11 +10,17 @@ End-User Summary
 ================
 
 - Added preset for mitochondrial filter settings.
+- Fixed bug where HPO name wasn't displayed in textarea after reloading page.
+- Added possibility to enter OMIM terms in phenotype prioritization filter.
 
 Full Change List
 ================
 
 - Added preset for mitochondrial filter settings.
+- Fixed bug where HPO name wasn't displayed in textarea after reloading page.
+  HPO terms are now also checked for validity in textbox on the fly.
+- Added possibility to enter OMIM terms in phenotype prioritization filter.
+  The same textbox as for HPO terms also accepts OMIM terms now.
 
 -------
 v0.20.0

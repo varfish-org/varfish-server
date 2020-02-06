@@ -1790,12 +1790,14 @@ let hpo_selected = [];
 function initHpoTypeahead() {
     /** Initialize the typeahead function for the HPO terms field. */
     let suggestions = $("#id_hpo_suggestions");
+    let typeahead = $("#id_hpo_typeahead");
+    let textarea = $("#id_prio_hpo_terms");
     let msg_empty_list = "No suggestions yet.";
     let info_tmpl = function(t) { return "<span class='form-text text-muted'><em>" + t + "</em></span>"; };
     suggestions.empty();
     suggestions.append(info_tmpl(msg_empty_list));
     let prev_query_string = "";
-    $("#id_hpo_typeahead").keyup(function() {
+    typeahead.keyup(function() {
         let query_string = $(this).val().replace(/^\s*/, '').replace(/\s*$/, '');
         // Don't query if there is no change (=> decrease number of queries)
         if (prev_query_string === query_string) {
@@ -1816,31 +1818,48 @@ function initHpoTypeahead() {
             success: function(data) {
                 suggestions.empty();
                 $.each(data, function(i, e) {
+                    let hover = "";
+                    let name = e["name"];
+                    let element_id = '#id_hpo_item_' + e["id"].replace(":", "_");
+                    if (e["id"].startsWith("OMIM")) {
+                        let names = name.split(";;");
+                        hover = ' data-toggle="tooltip" data-html="true" title=\'<ul class="text-left pl-3"><li>' + names.join("</li><li>") + '</li></ul>\'';
+                        name = names[0]
+                        if (name.length > 12) {
+                            name = name.substring(0, 12) + "...";
+                        }
+                    }
                     suggestions.append(
-                        "<span class='badge-group hpo_item' id='id_hpo_item_" + e["hpo_id"].replace(":", "_") + "'>\n" +
-                        "    <span class='badge badge-dark hpo_id'>" + e["hpo_id"] + "</span>\n" +
-                        "    <span class='badge badge-secondary hpo_name'>" + e["name"] + "</span>\n" +
+                        "<span class='badge-group hpo_item' id='" + element_id + "'" + hover + ">\n" +
+                        "    <span class='badge badge-dark hpo_id'>" + e["id"] + "</span>\n" +
+                        "    <span class='badge badge-" + ((hpo_selected.includes(e["id"])) ? "info" : "secondary") + " hpo_name'>" + name + "</span>\n" +
                         "</span>"
                     );
+                    $(element_id + '[data-toggle="tooltip"]').tooltip({boundary: 'window', container: 'body'});
                 });
                 $(".hpo_item").click(selectHpoTerm);
                 if (!suggestions.children().length) {
                     suggestions.append(info_tmpl("No matches for query string <strong>" + query_string + "</strong>."));
                 }
-                markSelectedHpoTerms();
             }
         });
     });
-    $("#id_prio_hpo_terms").change(setHpoSelectedFromTextarea);
-    setHpoSelectedFromTextarea();
-    $("#id_hpo_typeahead").trigger("keyup");
+    textarea.change(setHpoSelectedFromTextarea);
+    textarea.trigger("change");
+    typeahead.trigger("keyup");
 }
 
-function cleanUpHpoTextarea() {
-    /** Clean up the HPO terms list textarea from any unwanted spaces or separators. As this is complex, the function
-     * doesn't claim to cover every case, but should work for the majority. */
+
+function setHpoSelectedFromTextarea() {
+    /** Event handler when textarea changes, i.e. user leaves field */
     let textarea = $("#id_prio_hpo_terms");
     let term_list = textarea.val();
+    let regex = /(HP:\d{7}|OMIM:\d{6})( - [^;]+)?(;|$)/g;
+    // Purge hpo_selected list to re-build it
+    hpo_selected = [];
+    // Clean up the HPO terms list textarea from any unwanted spaces or separators.
+    // As this is complex, the function doesn't claim to cover every case,
+    // but should work for the majority.
     textarea.val(
         term_list
             .replace(/^\s*;?\s*|\s*;?\s*$/g, "")  // replace any cruft in beginning or end of the string
@@ -1848,74 +1867,65 @@ function cleanUpHpoTextarea() {
             .replace(/[;\s]{2,}/g, "; ")  // replace any sequence of multiple ; and spaces with `; `
             .replace(/;([^\s$])/g, "; $1")  // add missing space after semicolon
             .replace(/([^;])\sHP:/g, "$1; HP:")  // set missing semicolons in front of HPO id
+            .replace(/([^;])\sOMIM:/g, "$1; OMIM:")  // set missing semicolons in front of HPO id
     );
-}
-
-function setHpoSelectedFromTextarea() {
-    /** Event handler when textarea changes, i.e. user leaves field */
-    hpo_selected = [];
-    let textarea = $("#id_prio_hpo_terms");
-    let term_list = textarea.val();
-    let regex = /(HP:\d{7})( - [^;]+)?(;|$)/g;
     while (result = regex.exec(term_list)) {
-        hpo_selected.push(result[1]);
+        if (!hpo_selected.includes(result[1])) {
+            hpo_selected.push(result[1]);
+        }
     }
-    markSelectedHpoTerms();
-    // Clean up text area
-    cleanUpHpoTextarea();
+    buildTextareaFromHpoSelected();
 }
 
 
 function selectHpoTerm(e) {
     /** Event handler when a suggestion is clicked **/
     let hpo_id = $(this).children(".hpo_id").text();
-    let textarea = $("#id_prio_hpo_terms");
-    let term_list = textarea.val();
     // Case when the suggestion is in the hpo_selected list -- remove it from the list and the textarea
     if (hpo_selected.includes(hpo_id)) {
         // Remove from list
         hpo_selected = hpo_selected.filter(function (v, i, a) {
             return hpo_id != v
         });
-        // Remove from textarea
-        if (term_list.match(hpo_id)) {
-            let regex = RegExp(hpo_id + "( - [^;]+)?(;|$)", "g");
-            textarea.val(term_list.replace(regex, ""));
-        }
     }
     // Case when the suggestion is not in the hpo_selected list -- add it to the list
     else {
         hpo_selected.push(hpo_id);
     }
-    // After handling the list, apply visual feedback and clean the textarea
-    markSelectedHpoTerms();
-    cleanUpHpoTextarea();
+    buildTextareaFromHpoSelected();
 }
 
 
-function markSelectedHpoTerms() {
-    /** Highlights all HPO terms in suggestions, and adds them to list if not yet available. */
-    let textarea = $("#id_prio_hpo_terms");
-    let term_list = textarea.val();
-    // Disable all current visible selections
+function buildTextareaFromHpoSelected() {
+    let jobs = [];
+    let term_list = [];
     $(".hpo_item > .badge-info").each(function(i, e) {
         $(this).removeClass("badge-info");
         $(this).addClass("badge-secondary");
     });
     // Add all terms from hpo_selected list
-    $.each(hpo_selected, function(i, e) {
-        let hpo_item = $("#id_hpo_item_" + e.replace(":", "_"));
-        let hpo_name = hpo_item.children(".hpo_name");
-        let hpo_id = hpo_item.children(".hpo_id");
-        hpo_name.removeClass("badge-secondary");
-        hpo_name.addClass("badge-info");
-        if (!term_list.match(hpo_id.text())) {
-            let prefix = "";
-            if (term_list) {
-                prefix = term_list + "; ";
-            }
-            textarea.val(prefix + hpo_id.text() + " - " + hpo_name.text());
+    $.each(hpo_selected, function(i, hpo_id) {
+        let hpo_item = $("#id_hpo_item_" + hpo_id.replace(":", "_"));
+        if (hpo_item.length) {
+            let hpo_name_item = hpo_item.children(".hpo_name");
+            hpo_name_item.removeClass("badge-secondary");
+            hpo_name_item.addClass("badge-info");
         }
+        jobs.push(
+            $.ajax({
+                url: hpo_terms_url + "?query=" + hpo_id,
+                success: function (data) {
+                    if (!data.length) {
+                        return;
+                    }
+                    let name = data[0]["name"];
+                    term_list.push(hpo_id + " - " + (hpo_id.startsWith("OMIM") ? name.split(";;")[0].split(";")[0] : name));
+                }
+            })
+        )
+    });
+    $.when.apply(null, jobs).done(function() {
+        $("#id_prio_hpo_terms").val(term_list.sort().join("; "));
     });
 }
 

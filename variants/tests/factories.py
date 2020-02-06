@@ -197,7 +197,7 @@ class FormDataFactory(FormDataFactoryBase):
     flag_visual_uncertain: bool = True
     prio_enabled: bool = False
     prio_algorithm: str = ""
-    prio_hpo_terms: typing.List[str] = []
+    prio_hpo_terms: str = ""
     patho_enabled: bool = False
     patho_score: str = ""
     file_type: str = "tsv"

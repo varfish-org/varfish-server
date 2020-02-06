@@ -1,5 +1,6 @@
 import itertools
 import os
+import re
 import tempfile
 from itertools import chain
 from collections import defaultdict
@@ -13,6 +14,7 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.humanize.templatetags.humanize import naturaltime
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Q
 from django.forms.models import model_to_dict
@@ -31,7 +33,7 @@ from bgjobs.models import BackgroundJob
 from clinvar.models import Clinvar
 from frequencies.models import MT_DB_INFO
 from geneinfo.views import get_gene_infos
-from geneinfo.models import NcbiGeneInfo, NcbiGeneRif, HpoName
+from geneinfo.models import NcbiGeneInfo, NcbiGeneRif, HpoName, Hpo
 from frequencies.views import FrequencyMixin
 from projectroles.app_settings import AppSettingAPI
 from projectroles.views import (
@@ -1574,11 +1576,22 @@ class CaseLoadPrefetchedFilterView(
         # Get mapping from HPO term to HpoName object.
         hpoterms = {}
         for hpo in filter_job.smallvariantquery.query_settings.get("prio_hpo_terms", []):
-            matches = HpoName.objects.filter(hpo_id=hpo)
-            if matches:
-                hpoterms[hpo] = matches.first().name
+            if hpo.startswith("HP"):
+                matches = HpoName.objects.filter(hpo_id=hpo)
+                hpoterms[hpo] = matches.first().name if matches else "unknown HPO term"
+            elif hpo.startswith("OMIM"):
+                matches = (
+                    Hpo.objects.filter(database_id=hpo)
+                    .values("database_id")
+                    .annotate(names=ArrayAgg("name"))
+                )
+                hpoterms[hpo] = (
+                    re.sub(r"^[#%]?\d{6} ", "", matches.first()["names"][0]).split(";;")[0]
+                    if matches
+                    else "unknown OMIM term"
+                )
             else:
-                hpoterms[hpo] = "unknown HPO term"
+                hpoterms[hpo] = "unknown term"
 
         rows = annotate_with_clinvar_max(rows)
 
@@ -3184,13 +3197,31 @@ class HpoTermsApiView(LoginRequiredMixin, View):
         query = self.request.GET.get("query")
         if not query:
             return HttpResponse({}, content_type="application/json")
-        hpo = HpoName.objects.filter(
-            Q(hpo_id__icontains=self.request.GET.get("query"))
-            | Q(name__icontains=self.request.GET.get("query"))
-        )[:20]
-        return HttpResponse(
-            json.dumps([model_to_dict(h) for h in hpo]), content_type="application/json"
+        hpo = HpoName.objects.filter(Q(hpo_id__icontains=query) | Q(name__icontains=query))[:10]
+        omim = (
+            Hpo.objects.filter(
+                (Q(database_id__startswith="OMIM") & Q(database_id__icontains=query))
+                | Q(name__icontains=query)
+            )
+            .values("database_id")
+            .distinct()[:10]
         )
+        result = []
+        for h in hpo:
+            result.append({"id": h.hpo_id, "name": h.name})
+        for o in omim:
+            names = []
+            # Query database again to get all possible names for an OMIM id
+            for name in (
+                Hpo.objects.filter(database_id=o["database_id"])
+                .values("database_id")
+                .annotate(names=ArrayAgg("name"))[0]["names"]
+            ):
+                for n in re.sub(r"^[#%]?\d{6} ", "", name).split(";;"):
+                    if n not in names:
+                        names.append(n)
+            result.append({"id": o["database_id"], "name": ";;".join(names)})
+        return HttpResponse(json.dumps(result), content_type="application/json")
 
 
 class KioskHomeView(PluginContextMixin, FormView):

@@ -78,6 +78,7 @@ class CaseFilterTest(TestCase):
 
         # Enable MutationTaster scoring
         self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [self.hpo_id]
+        self.bgjob.smallvariantquery.query_settings["prio_hpo_terms_curated"] = [self.hpo_id]
         self.bgjob.smallvariantquery.query_settings["prio_enabled"] = True
         self.bgjob.smallvariantquery.query_settings["prio_algorithm"] = "phenix"
         self.bgjob.smallvariantquery.save()
@@ -154,6 +155,7 @@ class CaseFilterTest(TestCase):
 
         # Enable Exomiser and CADD pathogenicity scoring
         self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [self.hpo_id]
+        self.bgjob.smallvariantquery.query_settings["prio_hpo_terms_curated"] = [self.hpo_id]
         self.bgjob.smallvariantquery.query_settings["prio_enabled"] = True
         self.bgjob.smallvariantquery.query_settings["prio_algorithm"] = "phenix"
         self.bgjob.smallvariantquery.query_settings["patho_enabled"] = True

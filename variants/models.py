@@ -17,6 +17,7 @@ import math
 import re
 import requests
 from bgjobs.plugins import BackgroundJobsPluginPoint
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.forms import model_to_dict
 from sqlalchemy import select, func, and_, delete
 import uuid as uuid_object
@@ -45,7 +46,7 @@ from bgjobs.models import (
 )
 from projectroles.plugins import get_backend_api
 
-from geneinfo.models import Hgnc, EnsemblToGeneSymbol
+from geneinfo.models import Hgnc, EnsemblToGeneSymbol, Hpo
 
 from genomicfeatures.models import GeneInterval
 
@@ -2142,8 +2143,8 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
         res = requests.post(
             settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
             json={
-                "phenotypes": list(sorted(set(hpo_terms))),
-                "genes": list(sorted(set(entrez_ids))),
+                "phenotypes": sorted(set(hpo_terms)),
+                "genes": sorted(set(entrez_ids)),
                 "prioritiser": prio_algorithm,
                 "prioritiser-params": ",".join(prio_params),
             },

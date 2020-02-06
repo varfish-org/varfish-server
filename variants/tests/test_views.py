@@ -792,8 +792,23 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
         )
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
         self.hpo_term = HpoNameFactory(hpo_id="HP:0000001")
+        self.omim_term = [
+            HpoFactory(
+                database_id="OMIM:000001",
+                hpo_id="HP:0000002",
+                name="Disease 1;;Alternative Description",
+            ),
+            HpoFactory(
+                database_id="OMIM:000001",
+                hpo_id="HP:0000003",
+                name="Disease 1;;Alternative Description",
+            ),
+        ]
         self.bgjob.smallvariantquery.query_results.add(self.small_vars[0], self.small_vars[2])
-        self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [self.hpo_term.hpo_id]
+        self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [
+            self.hpo_term.hpo_id,
+            self.omim_term[0].database_id,
+        ]
         self.bgjob.smallvariantquery.save()
 
     def test_count_results(self):
@@ -809,7 +824,11 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.context["result_count"], 2)
             self.assertFalse(response.context["training_mode"])
             self.assertEqual(
-                response.context["hpoterms"], {self.hpo_term.hpo_id: self.hpo_term.name}
+                response.context["hpoterms"],
+                {
+                    self.hpo_term.hpo_id: self.hpo_term.name,
+                    self.omim_term[0].database_id: self.omim_term[0].name.split(";;")[0],
+                },
             )
 
     def test_clinvar(self):
@@ -898,7 +917,9 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                     FormDataFactory(
                         prio_enabled=True,
                         prio_algorithm="phenix",
-                        prio_hpo_terms=[self.hpo_term.hpo_id],
+                        prio_hpo_terms="; ".join(
+                            self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"]
+                        ),
                         patho_enabled=True,
                         patho_score="cadd",
                         names=self.case.get_members(),
@@ -1028,7 +1049,9 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                     FormDataFactory(
                         prio_enabled=True,
                         prio_algorithm="phenix",
-                        prio_hpo_terms=[self.hpo_term.hpo_id],
+                        prio_hpo_terms="; ".join(
+                            self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"]
+                        ),
                         patho_enabled=True,
                         patho_score="mutationtaster",
                         names=self.case.get_members(),
@@ -1143,7 +1166,9 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                     FormDataFactory(
                         prio_enabled=True,
                         prio_algorithm="phenix",
-                        prio_hpo_terms=[self.hpo_term.hpo_id],
+                        prio_hpo_terms="; ".join(
+                            self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"]
+                        ),
                         patho_enabled=True,
                         patho_score="umd",
                         names=self.case.get_members(),
