@@ -15,8 +15,8 @@
       {{ form.prio_enabled|as_crispy_field }}
       {{ form.prio_algorithm|as_crispy_field }}
         <div class="form-group">
-            <label class="form-control-label">HPO Terms</label>
-            <input type="text" id="id_hpo_typeahead" class="form-control" placeholder="Type HPO name or ID here (min 3 characters) to get suggestions below (20 are displayed at max) ..." />
+            <label class="form-control-label">HPO and OMIM Terms</label>
+            <input type="text" id="id_hpo_typeahead" class="form-control" placeholder="Type HPO or OMIM name or ID here (min 3 characters) to get suggestions below (20 are displayed at max) ..." />
             <div id="id_hpo_suggestions" class="mt-2 mb-2 list-unstyled" style="max-height: 200px; overflow-y: scroll;"></div>
         </div>
       {{ form.prio_hpo_terms|as_crispy_field }}

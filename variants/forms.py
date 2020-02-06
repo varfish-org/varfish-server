@@ -1183,13 +1183,13 @@ class SmallVariantPrioritizerFormMixin:
             label="",
             help_text=(
                 "Click a suggestion to add it to the text field, or type into text field. This field is sodar "
-                "compatible. HPO terms are <kbd>;</kbd> separated. Enter an HPO id, optionally with the HPO name "
-                "separated by <kbd> - </kbd>. Only HPO ids are considered, i.e. the text can be arbitrary and does not "
-                "have to match the actual HPO name. It serves just for your orientation."
+                "compatible. HPO and OMIM terms are <kbd>;</kbd> separated. Enter an HPO or OMIM id, optionally with the name, "
+                "separated by <kbd> - </kbd>. Only HPO or OMIM ids are considered, i.e. the text can be arbitrary and does not "
+                "have to match the actual name. It serves just your orientation."
             ),
             widget=forms.Textarea(
                 attrs={
-                    "placeholder": "Enter HPO terms here (e.g. HP:0000001; HP:0000005) or click a suggestion above ...",
+                    "placeholder": "Enter HPO or OMIM terms here (e.g. HP:1234567; OMIM:123456) or click a suggestion above ...",
                     "rows": 3,
                     "class": "form-control",
                 }
