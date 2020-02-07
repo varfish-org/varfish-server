@@ -576,6 +576,10 @@ class CaseDetailView(
                 for key in ("final_causative", "candidate")
             },
         }
+        if settings.KIOSK_MODE:
+            result["user"] = User.objects.get(username="kiosk_user")
+        else:
+            result["user"] = self.request.user
 
         try:
             variant_set = case.latest_variant_set()
@@ -1595,10 +1599,15 @@ class CaseLoadPrefetchedFilterView(
 
         rows = annotate_with_clinvar_max(rows)
 
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+
         return render(
             self.request,
             self.template_name,
             self.get_context_data(
+                user=user,
                 case=filter_job.smallvariantquery.case,
                 result_rows=rows,
                 result_count=num_results,
@@ -2410,6 +2419,10 @@ class SmallVariantDetails(
         result["comments"] = self._load_variant_comments()
         result["flags"] = self._load_variant_flags()
         result["training_mode"] = int(self.kwargs["training_mode"])
+        if settings.PROJECTROLES_KIOSK_MODE:
+            result["user"] = User.objects.get(username="kiosk_user")
+        else:
+            result["user"] = self.request.user
         return result
 
 

@@ -6,7 +6,8 @@
 {% load projectroles_common_tags %}
 
 {% get_app_setting "variants" "umd_predictor_api_token" user=user as umd_predictor_api_token %}
-{% get_app_setting "variants" "ga4gh_beacon_network_widget_enabled" user=request.user as ga4gh_beacon_network_widget_enabled %}
+{% get_django_setting "PROJECTROLES_KIOSK_MODE" as kiosk_mode %}
+{% get_app_setting "variants" "ga4gh_beacon_network_widget_enabled" user=user as ga4gh_beacon_network_widget_enabled %}
 {% ambiguous_frequency_warning entry exac_enabled thousand_genomes_enabled gnomad_exomes_enabled gnomad_genomes_enabled inhouse_enabled as warning %}
 
 {% with symbol=entry|get_symbol %}
@@ -403,7 +404,7 @@
         class="btn btn-primary sodar-list-btn">
         MT
       </a>
-      {% if ga4gh_beacon_network_widget_enabled %}
+      {% if ga4gh_beacon_network_widget_enabled or kiosk_mode %}
         <a
            data-toggle="popover"
            data-content="<iframe

@@ -9,7 +9,8 @@
 {% load json %}
 
 {% block projectroles_extend %}
-  {% get_app_setting "variants" "ga4gh_beacon_network_widget_enabled" user=request.user as ga4gh_beacon_network_widget_enabled %}
+  {% get_app_setting "variants" "ga4gh_beacon_network_widget_enabled" user=user as ga4gh_beacon_network_widget_enabled %}
+  {% get_django_setting "PROJECTROLES_KIOSK_MODE" as kiosk_mode %}
 
   <div style="font-size: .9em;">
     <div class="row">
@@ -20,7 +21,7 @@
         {% if not training_mode %}
           {% include "variants/var_details/comments_flags.html" %}
         {% endif %}
-        {% if ga4gh_beacon_network_widget_enabled %}
+        {% if ga4gh_beacon_network_widget_enabled or kiosk_mode %}
           {% include "variants/var_details/ga4gh_beacon.html" %}
         {% endif %}
         {% include "variants/var_details/clinvar.html" %}
