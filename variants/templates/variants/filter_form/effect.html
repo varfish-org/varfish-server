@@ -2,14 +2,14 @@
 {% load dict %}
 
 <div class="row pb-2 pt-2 compact-form-groups">
-  <div class="col-6 pl-0">
+  <div class="col-4 pl-0">
     <div class="row">
       <h5 class="col-12 card-title">
         Variant Types
       </h5>
       <div class="col-12 pr-0">
         <div class="row">
-          <div class="col-2 pl-0">
+          <div class="col-4 pl-0">
             <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Single Nucleotide Variants, e.g. A>C, C>T">
               {{ form.var_type_snv }}
               <label class="form-check-label" for="id_var_type_snv">
@@ -17,7 +17,7 @@
               </label>
             </div>
           </div>
-          <div class="col-2">
+          <div class="col-4">
             <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Insertion/Deletion, e.g., A>CT, CT>A, AAC>CGG">
               {{ form.var_type_indel }}
               <label class="form-check-label" for="id_var_type_indel">
@@ -25,7 +25,7 @@
               </label>
             </div>
           </div>
-          <div class="col-2">
+          <div class="col-4">
             <div class="form-check pl-0 pr-0" data-toggle="tooltip" title="Multi-Nucleotide Variants, e.g. AC>CG, ACG>CGT">
               {{ form.var_type_mnv }}
               <label class="form-check-label" for="id_var_type_mnv">
@@ -37,7 +37,7 @@
       </div>
     </div>
   </div>
-  <div class="col-6 pl-0">
+  <div class="col-4 pl-0">
     <div class="row">
       <h5 class="col-12 card-title">Transcript Type</h5>
       <div class="col-6">
@@ -47,6 +47,10 @@
         {{ form.transcripts_noncoding|as_crispy_field }}
       </div>
     </div>
+  </div>
+  <div class="col-4 pl-0">
+    <h5 class="card-title">Distance to Exon</h5>
+    {{ form.max_exon_dist|as_crispy_field }}
   </div>
   <h5 class="col-12 pt-2 mt-2 border-top card-title">Effect Groups</h5>
   <div class="col-1">

@@ -44,7 +44,9 @@ let INPUT_TAB_AFFILIATION = {
     /^helixmtdb_/,
     /^mitomap_/,
   ],
-  'effect-tab': [],
+  'effect-tab': [
+    /^max_exon_dist$/,
+  ],
   'quality-tab': [
     /_dp_het$/,
     /_dp_hom$/,

@@ -616,12 +616,14 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
     refseq_hgvs_c = "c.123C>T"
     refseq_hgvs_p = "p.I2T"
     refseq_effect = factory.List(["synonymous_variant"])
+    refseq_exon_dist = 0
     ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
     ensembl_transcript_id = factory.Sequence(lambda n: "ENST%d" % n)
     ensembl_transcript_coding = True
     ensembl_hgvs_c = "c.123C>T"
     ensembl_hgvs_p = "p.I2T"
     ensembl_effect = factory.List(["synonymous_variant"])
+    ensembl_exon_dist = 0
 
 
 class SmallVariantSummaryFactory(factory.django.DjangoModelFactory):

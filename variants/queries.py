@@ -986,6 +986,16 @@ class ExtendQueryPartsEffectsFilter(ExtendQueryPartsBase):
         ]
 
 
+class ExtendQueryPartsExonDistanceFilter(ExtendQueryPartsBase):
+    def extend_conditions(self, _query_parts):
+        exon_dist = self.kwargs.get("max_exon_dist")
+        if exon_dist is None:
+            return []
+        return [
+            getattr(SmallVariant.sa, "%s_exon_dist" % self.kwargs["database_select"]) <= exon_dist
+        ]
+
+
 class ExtendQueryPartsTranscriptCodingFilter(ExtendQueryPartsBase):
     def extend_conditions(self, _query_parts):
         field = getattr(SmallVariant.sa, "%s_transcript_coding" % self.kwargs["database_select"])
@@ -1319,6 +1329,7 @@ extender_classes_base = [
     ExtendQueryPartsFrequenciesFilter,
     ExtendQueryPartsInHouseJoinAndFilter,
     ExtendQueryPartsEffectsFilter,
+    ExtendQueryPartsExonDistanceFilter,
     ExtendQueryPartsTranscriptCodingFilter,
     ExtendQueryPartsGeneListsFilter,
     ExtendQueryPartsGenomicRegionFilter,

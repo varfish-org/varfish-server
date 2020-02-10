@@ -930,6 +930,17 @@ class SmallVariantVariantEffectFilterFormMixin:
         )
         self.fields["var_type_mnv"] = forms.BooleanField(label="MNV", required=False, initial=True)
 
+        self.fields["max_exon_dist"] = forms.IntegerField(
+            label="",
+            required=False,
+            widget=forms.TextInput(
+                attrs={
+                    "placeholder": "Maximal distance to exon in bp. Leave empty to ignore.",
+                    "class": "numberInteger",
+                }
+            ),
+        )
+
     def clean(self):
         """Translate effect field names into ``effects`` key list"""
         cleaned_data = super().clean()

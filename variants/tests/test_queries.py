@@ -1352,7 +1352,6 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
         """Create one case and 3 variants with different variant effects for refseq transcripts."""
         super().setUp()
         variant_set = SmallVariantSetFactory()
-        case = variant_set.case
         SmallVariantFactory(
             refseq_effect=["missense_variant", "stop_lost"], variant_set=variant_set
         )
@@ -1410,11 +1409,58 @@ class TestCaseOneQueryEffects(SupportQueryTestBase):
         )
 
 
+class TestCaseOneQueryExonDistance(SupportQueryTestBase):
+    """Test exon distance settings"""
+
+    def setUp(self):
+        """Create one case and 3 variants with different exon distances (including empty field)."""
+        super().setUp()
+        variant_set = SmallVariantSetFactory()
+        SmallVariantFactory(refseq_exon_dist=None, variant_set=variant_set)
+        SmallVariantFactory(refseq_exon_dist=1, variant_set=variant_set)
+        SmallVariantFactory(refseq_exon_dist=10, variant_set=variant_set)
+
+    def test_exon_dist_none_filter(self):
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 0}, 0)
+
+    def test_exon_dist_none_export(self):
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 0}, 0)
+
+    def test_exon_dist_none_vcf(self):
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 0}, 0)
+
+    def test_exon_dist_one_filter(self):
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 1}, 1)
+
+    def test_exon_dist_one_export(self):
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 1}, 1)
+
+    def test_exon_dist_one_vcf(self):
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 1}, 1)
+
+    def test_exon_dist_two_filter(self):
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 10}, 2)
+
+    def test_exon_dist_two_export(self):
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 10}, 2)
+
+    def test_exon_dist_two_vcf(self):
+        self.run_query(CasePrefetchQuery, {"max_exon_dist": 10}, 2)
+
+    def test_exon_dist_all_filter(self):
+        self.run_query(CasePrefetchQuery, {}, 3)
+
+    def test_exon_dist_all_export(self):
+        self.run_query(CasePrefetchQuery, {}, 3)
+
+    def test_exon_dist_all_vcf(self):
+        self.run_query(CasePrefetchQuery, {}, 3)
+
+
 class TestCaseOneQueryTranscriptCoding(SupportQueryTestBase):
     def setUp(self):
         super().setUp()
         variant_set = SmallVariantSetFactory()
-        case = variant_set.case
         SmallVariantFactory(
             refseq_transcript_coding=False, ensembl_transcript_coding=False, variant_set=variant_set
         )
