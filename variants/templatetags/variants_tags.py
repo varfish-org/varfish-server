@@ -396,7 +396,11 @@ def get_pubmed_linkout(record, hpoterms):
     terms = " OR ".join(
         [
             "(%s)"
-            % " AND ".join(list(map(lambda x: x.lower(), nltk.tokenize.word_tokenize(title))))
+            % " AND ".join(
+                word
+                for word in map(lambda x: x.lower(), nltk.tokenize.word_tokenize(title))
+                if word not in stop_words
+            )
             for _, title in hpoterms.items()
         ]
     )
