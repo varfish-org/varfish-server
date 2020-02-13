@@ -538,7 +538,8 @@ const presets = {
       "mtdb_frequency": null,
 
       "helixmtdb_enabled": false,
-      "helixmtdb_count": null,
+      "helixmtdb_het_count": null,
+      "helixmtdb_hom_count": null,
       "helixmtdb_frequency": null,
 
       "mitomap_enabled": false,
@@ -579,7 +580,8 @@ const presets = {
       "mtdb_frequency": null,
 
       "helixmtdb_enabled": false,
-      "helixmtdb_count": null,
+      "helixmtdb_hom_count": null,
+      "helixmtdb_het_count": null,
       "helixmtdb_frequency": null,
 
       "mitomap_enabled": false,
@@ -620,7 +622,8 @@ const presets = {
       "mtdb_frequency": null,
 
       "helixmtdb_enabled": false,
-      "helixmtdb_count": null,
+      "helixmtdb_het_count": null,
+      "helixmtdb_hom_count": null,
       "helixmtdb_frequency": null,
 
       "mitomap_enabled": false,
@@ -661,7 +664,8 @@ const presets = {
       "mtdb_frequency": null,
 
       "helixmtdb_enabled": false,
-      "helixmtdb_count": null,
+      "helixmtdb_het_count": null,
+      "helixmtdb_hom_count": null,
       "helixmtdb_frequency": null,
 
       "mitomap_enabled": false,
@@ -702,7 +706,8 @@ const presets = {
       "mtdb_frequency": null,
 
       "helixmtdb_enabled": false,
-      "helixmtdb_count": null,
+      "helixmtdb_het_count": null,
+      "helixmtdb_hom_count": null,
       "helixmtdb_frequency": null,
 
       "mitomap_enabled": false,
@@ -743,7 +748,8 @@ const presets = {
       "mtdb_frequency": null,
 
       "helixmtdb_enabled": false,
-      "helixmtdb_count": null,
+      "helixmtdb_het_count": null,
+      "helixmtdb_hom_count": null,
       "helixmtdb_frequency": null,
 
       "mitomap_enabled": false,

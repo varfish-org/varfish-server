@@ -2320,17 +2320,18 @@ class SmallVariantDetails(
         result = {
             "vars": {db: dict() for db in MT_DB_INFO},
             "an": {db: 0 for db in MT_DB_INFO},
+            "is_triallelic": False,
         }
         for dbname, db in MT_DB_INFO.items():
             singles = {
-                "A": {"ac": 0, "af": 0.0},
-                "C": {"ac": 0, "af": 0.0},
-                "G": {"ac": 0, "af": 0.0},
-                "T": {"ac": 0, "af": 0.0},
+                "A": {"ac": 0, "af": 0.0, "ac_het": 0, "ac_hom": 0},
+                "C": {"ac": 0, "af": 0.0, "ac_het": 0, "ac_hom": 0},
+                "G": {"ac": 0, "af": 0.0, "ac_het": 0, "ac_hom": 0},
+                "T": {"ac": 0, "af": 0.0, "ac_het": 0, "ac_hom": 0},
             }
             an = 0
             multis = (
-                {kwargs.get("reference"): {"ac": 0, "af": 0.0}}
+                {kwargs.get("reference"): {"ac": 0, "af": 0.0, "ac_het": 0, "ac_hom": 0}}
                 if len(kwargs.get("reference")) > 1
                 else {}
             )
@@ -2345,25 +2346,51 @@ class SmallVariantDetails(
                 an = alts[0].an
                 ref_count = an
                 for alt in alts:
+                    if dbname == "HelixMTdb":
+                        result["is_triallelic"] |= alt.is_triallelic
                     assert an == alt.an
-                    ref_count -= alt.ac
+                    ref_count -= (alt.ac_hom + alt.ac_het) if dbname == "HelixMTdb" else alt.ac
                     if len(alt.alternative) == 1:
-                        singles[alt.alternative]["ac"] = alt.ac
+                        if dbname == "HelixMTdb":
+                            singles[alt.alternative]["ac_hom"] = alt.ac_hom
+                            singles[alt.alternative]["ac_het"] = alt.ac_het
+                        else:
+                            singles[alt.alternative]["ac"] = alt.ac
                         singles[alt.alternative]["af"] = alt.af
                     else:
-                        multis[alt.alternative] = {"ac": alt.ac, "af": alt.af}
+                        if dbname == "HelixMTdb":
+                            multis[alt.alternative] = {
+                                "af": alt.af,
+                                "ac_het": alt.ac_het,
+                                "ac_hom": alt.ac_hom,
+                            }
+                        else:
+                            multis[alt.alternative] = {
+                                "ac": alt.ac,
+                                "af": alt.af,
+                            }
                         # Add allele to other databases if it does not exist there yet
                         for other_db in set(MT_DB_INFO).difference({dbname}):
                             result["vars"][other_db].setdefault(
-                                alt.alternative, {"ac": 0, "af": 0.0}
+                                alt.alternative, {"ac": 0, "af": 0.0, "ac_hom": 0, "ac_het": 0}
                             )
                 assert singles[kwargs.get("reference")]["ac"] == 0
+                assert singles[kwargs.get("reference")]["ac_het"] == 0
+                assert singles[kwargs.get("reference")]["ac_hom"] == 0
                 assert singles[kwargs.get("reference")]["af"] == 0.0
                 if len(kwargs.get("reference")) == 1:
-                    singles[kwargs.get("reference")]["ac"] = ref_count
+                    if dbname == "HelixMTdb":
+                        singles[kwargs.get("reference")]["ac_hom"] = ref_count
+                        singles[kwargs.get("reference")]["ac_het"] = 0
+                    else:
+                        singles[kwargs.get("reference")]["ac"] = ref_count
                     singles[kwargs.get("reference")]["af"] = ref_count / an
                 else:
-                    multis[kwargs.get("reference")]["ac"] = ref_count
+                    if dbname == "HelixMTdb":
+                        multis[kwargs.get("reference")]["ac_hom"] = ref_count
+                        multis[kwargs.get("reference")]["ac_het"] = 0
+                    else:
+                        multis[kwargs.get("reference")]["ac"] = ref_count
                     multis[kwargs.get("reference")]["af"] = ref_count / an
             result["vars"][dbname].update(singles)
             result["vars"][dbname].update(multis)

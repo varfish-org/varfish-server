@@ -2651,18 +2651,27 @@ class TestSmallVariantDetailsViewMitochondrial(ViewTestBase):
             self.assertEqual(mitomap[3][1]["af"], self.mitomap_t.af)
             helixmtdb = response.context["mitochondrial_freqs"]["vars"]["HelixMTdb"]
             helixmtdb_an = self.helixmtdb_c.an
-            helixmtdb_ref = helixmtdb_an - self.helixmtdb_c.ac - self.helixmtdb_g.ac
+            helixmtdb_ref = helixmtdb_an - (
+                self.helixmtdb_c.ac_hom
+                + self.helixmtdb_c.ac_het
+                + self.helixmtdb_g.ac_hom
+                + self.helixmtdb_g.ac_het
+            )
             self.assertEqual(helixmtdb[0][0], "A")
-            self.assertEqual(helixmtdb[0][1]["ac"], helixmtdb_ref)
+            self.assertEqual(helixmtdb[0][1]["ac_hom"], helixmtdb_ref)
+            self.assertEqual(helixmtdb[0][1]["ac_het"], 0)
             self.assertEqual(helixmtdb[0][1]["af"], helixmtdb_ref / helixmtdb_an)
             self.assertEqual(helixmtdb[1][0], "C")
-            self.assertEqual(helixmtdb[1][1]["ac"], self.helixmtdb_c.ac)
+            self.assertEqual(helixmtdb[1][1]["ac_hom"], self.helixmtdb_c.ac_hom)
+            self.assertEqual(helixmtdb[1][1]["ac_het"], self.helixmtdb_c.ac_het)
             self.assertEqual(helixmtdb[1][1]["af"], self.helixmtdb_c.af)
             self.assertEqual(helixmtdb[2][0], "G")
-            self.assertEqual(helixmtdb[2][1]["ac"], self.helixmtdb_g.ac)
+            self.assertEqual(helixmtdb[2][1]["ac_hom"], self.helixmtdb_g.ac_hom)
+            self.assertEqual(helixmtdb[2][1]["ac_het"], self.helixmtdb_g.ac_het)
             self.assertEqual(helixmtdb[2][1]["af"], self.helixmtdb_g.af)
             self.assertEqual(helixmtdb[3][0], "T")
-            self.assertEqual(helixmtdb[3][1]["ac"], 0)
+            self.assertEqual(helixmtdb[3][1]["ac_hom"], 0)
+            self.assertEqual(helixmtdb[3][1]["ac_het"], 0)
             self.assertEqual(helixmtdb[3][1]["af"], 0.0)
             mtdb = response.context["mitochondrial_freqs"]["vars"]["mtDB"]
             mtdb_an = self.mtdb_g.an

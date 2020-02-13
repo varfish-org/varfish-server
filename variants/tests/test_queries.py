@@ -10,7 +10,7 @@ from clinvar.tests.factories import ClinvarFactory
 from conservation.tests.factories import KnownGeneAAFactory
 from frequencies.tests.factories import MitomapFactory, HelixMtDbFactory, MtDbFactory
 from hgmd.tests.factories import HgmdPublicLocusFactory
-from variants.models import Case, ProjectCasesSmallVariantQuery, SmallVariantSet
+from variants.models import Case, SmallVariantSet
 from variants.queries import (
     CasePrefetchQuery,
     CaseExportTableQuery,
@@ -1184,7 +1184,7 @@ class TestCaseOneQueryMitochondrialFrequency(SupportQueryTestBase):
             }
             MitomapFactory(**coords, ac=count, af=freq)
             MtDbFactory(**coords, ac=count, af=freq)
-            HelixMtDbFactory(**coords, ac=count, af=freq)
+            HelixMtDbFactory(**coords, ac_hom=count, ac_het=count, af=freq)
 
     def test_frequency_filters_disabled_filter(self):
         self.run_query(CasePrefetchQuery, {}, 3)
@@ -1246,21 +1246,36 @@ class TestCaseOneQueryMitochondrialFrequency(SupportQueryTestBase):
     def test_frequency_helixmtdb_limits_filter(self):
         self.run_query(
             CasePrefetchQuery,
-            {"helixmtdb_enabled": True, "helixmtdb_frequency": 0.01, "helixmtdb_count": None,},
+            {
+                "helixmtdb_enabled": True,
+                "helixmtdb_frequency": 0.01,
+                "helixmtdb_hom_count": None,
+                "helixmtdb_het_count": None,
+            },
             2,
         )
 
     def test_frequency_helixmtdb_limits_export(self):
         self.run_query(
             CaseExportTableQuery,
-            {"helixmtdb_enabled": True, "helixmtdb_frequency": 0.01, "helixmtdb_count": None,},
+            {
+                "helixmtdb_enabled": True,
+                "helixmtdb_frequency": 0.01,
+                "helixmtdb_hom_count": None,
+                "helixmtdb_het_count": None,
+            },
             2,
         )
 
     def test_frequency_helixmtdb_limits_vcf(self):
         self.run_query(
             CaseExportVcfQuery,
-            {"helixmtdb_enabled": True, "helixmtdb_frequency": 0.01, "helixmtdb_count": None,},
+            {
+                "helixmtdb_enabled": True,
+                "helixmtdb_frequency": 0.01,
+                "helixmtdb_hom_count": None,
+                "helixmtdb_het_count": None,
+            },
             2,
         )
 
@@ -1302,24 +1317,75 @@ class TestCaseOneQueryMitochondrialFrequency(SupportQueryTestBase):
             CaseExportVcfQuery, {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2,}, 2,
         )
 
-    def test_count_helixmtdb_limits_filter(self):
+    def test_count_helixmtdb_het_limits_filter(self):
         self.run_query(
             CasePrefetchQuery,
-            {"helixmtdb_enabled": True, "helixmtdb_frequency": None, "helixmtdb_count": 2,},
+            {
+                "helixmtdb_enabled": True,
+                "helixmtdb_frequency": None,
+                "helixmtdb_hom_count": None,
+                "helixmtdb_het_count": 2,
+            },
             2,
         )
 
-    def test_count_helixmtdb_limits_export(self):
+    def test_count_helixmtdb_het_limits_export(self):
         self.run_query(
             CaseExportTableQuery,
-            {"helixmtdb_enabled": True, "helixmtdb_frequency": None, "helixmtdb_count": 2,},
+            {
+                "helixmtdb_enabled": True,
+                "helixmtdb_frequency": None,
+                "helixmtdb_hom_count": None,
+                "helixmtdb_het_count": 2,
+            },
             2,
         )
 
-    def test_count_helixmtdb_limits_vcf(self):
+    def test_count_helixmtdb_het_limits_vcf(self):
         self.run_query(
             CaseExportVcfQuery,
-            {"helixmtdb_enabled": True, "helixmtdb_frequency": None, "helixmtdb_count": 2,},
+            {
+                "helixmtdb_enabled": True,
+                "helixmtdb_frequency": None,
+                "helixmtdb_hom_count": None,
+                "helixmtdb_het_count": 2,
+            },
+            2,
+        )
+
+    def test_count_helixmtdb_hom_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {
+                "helixmtdb_enabled": True,
+                "helixmtdb_frequency": None,
+                "helixmtdb_hom_count": 2,
+                "helixmtdb_het_count": None,
+            },
+            2,
+        )
+
+    def test_count_helixmtdb_hom_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {
+                "helixmtdb_enabled": True,
+                "helixmtdb_frequency": None,
+                "helixmtdb_hom_count": 2,
+                "helixmtdb_het_count": None,
+            },
+            2,
+        )
+
+    def test_count_helixmtdb_hom_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "helixmtdb_enabled": True,
+                "helixmtdb_frequency": None,
+                "helixmtdb_hom_count": 2,
+                "helixmtdb_het_count": None,
+            },
             2,
         )
 

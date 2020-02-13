@@ -781,12 +781,20 @@ class SmallVariantFrequencyFilterFormMixin:
                 attrs={"placeholder": "Maximal frequency in HelixMTdb", "class": "numberDecimal",}
             ),
         )
-        self.fields["helixmtdb_count"] = forms.IntegerField(
+        self.fields["helixmtdb_hom_count"] = forms.IntegerField(
             label="",
             initial=10,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal count in HelixMTdb", "class": "numberInteger",}
+                attrs={"placeholder": "Maximal hom. count in HelixMTdb", "class": "numberInteger",}
+            ),
+        )
+        self.fields["helixmtdb_het_count"] = forms.IntegerField(
+            label="",
+            initial=10,
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal het. count in HelixMTdb", "class": "numberInteger",}
             ),
         )
         self.fields["mitomap_enabled"] = forms.BooleanField(label="", required=False, initial=True)

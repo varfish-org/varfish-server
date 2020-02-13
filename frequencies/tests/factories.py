@@ -180,9 +180,9 @@ class HelixMtDbFactory(factory.django.DjangoModelFactory):
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
 
-    ac = 5
+    ac_hom = 2
     an = 2000
-    af = factory.LazyAttribute(lambda o: o.ac / o.an)
+    af = factory.LazyAttribute(lambda o: (o.ac_hom + o.ac_het) / o.an)
     ac_het = 2
 
     @factory.post_generation

@@ -13,6 +13,7 @@ End-User Summary
 - Fixed bug where HPO name wasn't displayed in textarea after reloading page.
 - Added possibility to enter OMIM terms in phenotype prioritization filter.
 - Added maximal exon distance field to ``Variants & Effects`` tab.
+- Adapted ``HelixMTdb`` filter settings, allowing to differntiate between hetero- and homoplasmy counts.
 
 Full Change List
 ================
@@ -24,6 +25,7 @@ Full Change List
   The same textbox as for HPO terms also accepts OMIM terms now.
 - Added maximal exon distance field to ``Variants & Effects`` tab.
 - (Hopefully) fixing importer bug (#524).
+- Adapted ``HelixMTdb`` filter settings, allowing to differntiate between hetero- and homoplasmy counts.
 
 -------
 v0.20.0

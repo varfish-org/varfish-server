@@ -63,7 +63,8 @@ class FormDataFactoryBase:
     mtdb_count: int = 0
     mtdb_frequency: int = 0.0
     helixmtdb_enabled: bool = False
-    helixmtdb_count: int = 0
+    helixmtdb_hom_count: int = 0
+    helixmtdb_het_count: int = 0
     helixmtdb_frequency: int = 0.0
     mitomap_enabled: bool = False
     mitomap_count: int = 0

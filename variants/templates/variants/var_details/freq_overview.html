@@ -1,15 +1,23 @@
 {% load dict %}
 {% load humanize %}
 {% load projectroles_common_tags %}
+{% load variants_tags %}
 
 {% get_django_setting 'PROJECTROLES_KIOSK_MODE' as kiosk_mode %}
 
 <div class="card">
   <div class="card-header">
-    <h4 class="card-title">Frequency Details</h4>
+    <h4 class="card-title">
+      Frequency Details
+      {% if small_var.chromosome == "MT" %}
+        {% if small_var.start|check_mt_position_homopolymer or small_var.start|check_mt_position_homopolymer %}
+          <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant in homopolymeric region'></i>
+        {% endif %}
+      {% endif %}
+    </h4>
   </div>
   {% if small_var.chromosome == "MT" %}
-  {% with vars=mitochondrial_freqs|keyvalue:"vars" an=mitochondrial_freqs|keyvalue:"an" %}
+  {% with vars=mitochondrial_freqs|keyvalue:"vars" an=mitochondrial_freqs|keyvalue:"an" is_triallelic=mitochondrial_freqs|keyvalue:"is_triallelic" %}
     <table class="card-body table table-striped table-sm">
       <thead>
         <tr>
@@ -31,13 +39,33 @@
       <tbody>
         {% for dbname, data in vars.items %}
         <tr>
-          <th class="text-center" rowspan="2">{{ dbname }}</th>
-          <td class="text-right" rowspan="2">{{ an|keyvalue:dbname|default:0|intcomma }}</td>
-          <th>AC</th>
+          {% if dbname == "HelixMTdb" %}
+            <th class="text-center" rowspan="3">
+              {{ dbname }}
+              {% if is_triallelic %}<i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant is part of a triallelic site'></i>{% endif %}
+            </th>
+            <td class="text-right" rowspan="3">{{ an|keyvalue:dbname|default:0|intcomma }}</td>
+            <th>AC hom</th>
+            {% for var, freqs in data %}
+              <td class="text-right">{{ freqs|keyvalue:"ac_hom"|default:0|intcomma }}</td>
+            {% endfor %}
+          {% else %}
+            <th class="text-center" rowspan="2">{{ dbname }}</th>
+            <td class="text-right" rowspan="2">{{ an|keyvalue:dbname|default:0|intcomma }}</td>
+            <th>AC</th>
+            {% for var, freqs in data %}
+              <td class="text-right">{{ freqs|keyvalue:"ac"|default:0|intcomma }}</td>
+            {% endfor %}
+          {% endif %}
+        </tr>
+        {% if dbname == "HelixMTdb" %}
+        <tr>
+          <th>AC het</th>
           {% for var, freqs in data %}
-            <td class="text-right">{{ freqs|keyvalue:"ac"|default:0|intcomma }}</td>
+            <td class="text-right">{{ freqs|keyvalue:"ac_het"|default:0|intcomma }}</td>
           {% endfor %}
         </tr>
+        {% endif %}
         <tr>
           <th>AF</th>
           {% for var, freqs in data %}

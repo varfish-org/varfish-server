@@ -793,8 +793,10 @@ class ExtendQueryPartsMitochondrialFrequenciesJoin(ExtendQueryPartsBase):
         self.subquery_helixmtdb = (
             select(
                 [
-                    func.max(HelixMtDb.sa.ac).label("helixmtdb_count"),
+                    func.max(HelixMtDb.sa.ac_het).label("helixmtdb_het_count"),
+                    func.max(HelixMtDb.sa.ac_hom).label("helixmtdb_hom_count"),
                     func.max(HelixMtDb.sa.af).label("helixmtdb_frequency"),
+                    func.bool_or(HelixMtDb.sa.is_triallelic).label("helixmtdb_is_triallelic"),
                 ]
             )
             .select_from(HelixMtDb.sa)
@@ -833,9 +835,17 @@ class ExtendQueryPartsMitochondrialFrequenciesJoin(ExtendQueryPartsBase):
         return [
             func.coalesce(self.subquery_mtdb.c.mtdb_count, 0).label("mtdb_count"),
             func.coalesce(self.subquery_mtdb.c.mtdb_frequency, 0.0).label("mtdb_frequency"),
-            func.coalesce(self.subquery_helixmtdb.c.helixmtdb_count, 0).label("helixmtdb_count"),
+            func.coalesce(self.subquery_helixmtdb.c.helixmtdb_het_count, 0).label(
+                "helixmtdb_het_count"
+            ),
+            func.coalesce(self.subquery_helixmtdb.c.helixmtdb_hom_count, 0).label(
+                "helixmtdb_hom_count"
+            ),
             func.coalesce(self.subquery_helixmtdb.c.helixmtdb_frequency, 0.0).label(
                 "helixmtdb_frequency"
+            ),
+            func.coalesce(self.subquery_helixmtdb.c.helixmtdb_is_triallelic, False).label(
+                "helixmtdb_is_triallelic"
             ),
             func.coalesce(self.subquery_mitomap.c.mitomap_count, 0).label("mitomap_count"),
             func.coalesce(self.subquery_mitomap.c.mitomap_frequency, 0.0).label(
@@ -861,8 +871,11 @@ class ExtendQueryPartsFrequenciesFilter(ExtendQueryPartsMitochondrialFrequencies
                 ),
                 and_(
                     SmallVariant.sa.chromosome_no == 25,
-                    *self._build_mitochondrial_db_term("count"),
-                    *self._build_mitochondrial_db_term("frequency"),
+                    *self._build_mitochondrial_db_term("mtdb", ["count", "frequency"]),
+                    *self._build_mitochondrial_db_term(
+                        "helixmtdb", ["het_count", "hom_count", "frequency"]
+                    ),
+                    *self._build_mitochondrial_db_term("mitomap", ["count", "frequency"]),
                 ),
             )
         ]
@@ -876,9 +889,9 @@ class ExtendQueryPartsFrequenciesFilter(ExtendQueryPartsMitochondrialFrequencies
                 terms.append(getattr(SmallVariant.sa, field_name) <= self.kwargs[field_name])
         return terms
 
-    def _build_mitochondrial_db_term(self, metric):
+    def _build_mitochondrial_db_term(self, db, metrics):
         terms = []
-        for db in ("mtdb", "helixmtdb", "mitomap"):
+        for metric in metrics:
             field_name = "%s_%s" % (db, metric)
             if self.kwargs["%s_enabled" % db] and self.kwargs.get(field_name) is not None:
                 terms.append(

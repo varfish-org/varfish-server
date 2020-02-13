@@ -59,8 +59,13 @@
     {% include "variants/filter_result/hgmd_public_indicator.html" %}
   </td>
   <td style="width: 120px;" class="pl-2 detail-info-coordinates" data-order="{{ entry.chromosome_no|stringformat:"02d" }}-{{ entry.start|stringformat:"09d" }}">
-    <div>
+    <div class="text-nowrap">
       chr{{ entry.chromosome }}:{{ entry.start|intcomma }}
+      {% if entry.chromosome_no == 25 %}
+        {% if entry.start|check_mt_position_homopolymer or entry.end|check_mt_position_homopolymer %}
+          <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant in homopolymeric region'></i>
+        {% endif %}
+      {% endif %}
     </div>
   </td>
   <td style="max-width: 50px;" class="detail-info-coordinates">
@@ -194,8 +199,11 @@
       -
     {% endif %}
   </td>
-  <td class="detail-frequencies-helixmtdb text-right">
+  <td class="detail-frequencies-helixmtdb text-right text-nowrap">
     {% if entry.chromosome_no == 25 %}
+      {% if entry.helixmtdb_is_triallelic %}
+        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant is part of a triallelic site'></i>
+      {% endif %}
       {{ entry.helixmtdb_frequency|floatformat:5|default_if_none:"-" }}
     {% else %}
       -
@@ -203,7 +211,7 @@
   </td>
   <td class="detail-frequencies-helixmtdb text-right">
     {% if entry.chromosome_no == 25 %}
-      {{ entry.helixmtdb_count|default_if_none:"-" }}
+      {{ entry.helixmtdb_hom_count|default_if_none:"-" }}
     {% else %}
       -
     {% endif %}

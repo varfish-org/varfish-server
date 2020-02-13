@@ -1058,13 +1058,13 @@ class ThousandGenomes(Coordinates):
 
 
 class HelixMtDb(Coordinates):
-    # Allele count, i.e. homoplasmy + heteroplasmy
-    ac = models.IntegerField()
+    # Homoplasmic allele count
+    ac_hom = models.IntegerField()
     # Allele number, i.e. number of sequenced individuals (stated in paper)
     an = models.IntegerField()
     # Allele frequency, i.e. ac/an
     af = models.FloatField()
-    # Heteroplasmy
+    # Heteroplasmic allele count
     ac_het = models.IntegerField()
     # Heteroplasmy mean
     ac_het_mean = models.FloatField(null=True)
@@ -1074,6 +1074,8 @@ class HelixMtDb(Coordinates):
     ac_het_min = models.FloatField(null=True)
     # Heteroplasmy max value
     ac_het_max = models.FloatField(null=True)
+    # Site is triallelic
+    is_triallelic = models.BooleanField(default=False)
 
 
 class MtDb(Coordinates):

@@ -413,3 +413,15 @@ def add_omim_information(term):
         else:
             info[record["hpo_id"]] = "unknown HPO term"
     return info
+
+
+@register.filter
+def check_mt_position_homopolymer(pos):
+    return (
+        (pos >= 66 and pos <= 71)
+        or (pos >= 300 and pos <= 316)
+        or (pos >= 513 and pos <= 525)
+        or (pos >= 3106 and pos <= 3107)
+        or (pos >= 12418 and pos <= 12425)
+        or (pos >= 16182 and pos <= 16194)
+    )
