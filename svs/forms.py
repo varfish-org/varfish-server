@@ -116,7 +116,7 @@ class SvAnalysisCollectiveFrequencyMixin:
         )
         self.fields["cohort_background_carriers_max"] = forms.IntegerField(
             label="",
-            initial=0,
+            initial=5,
             min_value=0,
             required=False,
             widget=forms.TextInput(

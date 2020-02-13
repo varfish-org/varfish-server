@@ -14,6 +14,7 @@ End-User Summary
 - Added possibility to enter OMIM terms in phenotype prioritization filter.
 - Added maximal exon distance field to ``Variants & Effects`` tab.
 - Adapted ``HelixMTdb`` filter settings, allowing to differntiate between hetero- and homoplasmy counts.
+- Increased default max collective background count in SV filter from 0 to 5.
 
 Full Change List
 ================
@@ -27,6 +28,7 @@ Full Change List
 - (Hopefully) fixing importer bug (#524).
 - Adapted ``HelixMTdb`` filter settings, allowing to differntiate between hetero- and homoplasmy counts.
 - Fixed inactive filter button to switch from SV filter to small variant filter.
+- Increased default max collective background count in SV filter from 0 to 5.
 
 -------
 v0.20.0
