@@ -517,11 +517,10 @@ class CaseImporter:
                 self.import_job.add_log_entry("... importing from %s" % bam_qc_file.name)
                 lineno = 0
                 for lineno, entry in enumerate(tsv_reader(bam_qc_file.file)):
-                    CaseAlignmentStats.objects.get_or_create(
-                        case=import_info.case,
-                        variant_set=variant_set,
-                        bam_stats=json.loads(entry["bam_stats"].replace('"""', '"')),
+                    case_stats = CaseAlignmentStats.objects.get_or_create(
+                        case=import_info.case, variant_set=variant_set, defaults={"bam_stats": {}},
                     )
+                    case_stats.bam_stats = json.loads(entry["bam_stats"].replace('"""', '"'))
                 self.import_job.add_log_entry("imported %d entries" % lineno)
         elapsed = timezone.now() - before
         self.import_job.add_log_entry(

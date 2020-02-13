@@ -23,6 +23,7 @@ Full Change List
 - Added possibility to enter OMIM terms in phenotype prioritization filter.
   The same textbox as for HPO terms also accepts OMIM terms now.
 - Added maximal exon distance field to ``Variants & Effects`` tab.
+- (Hopefully) fixing importer bug (#524).
 
 -------
 v0.20.0
