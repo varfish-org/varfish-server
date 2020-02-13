@@ -1621,6 +1621,15 @@ class CaseLoadPrefetchedFilterView(
                     "compound_recessive_index", ""
                 ),
                 prio_enabled=filter_job.smallvariantquery.query_settings.get("prio_enabled", False),
+                gene_whitelist=filter_job.smallvariantquery.query_settings.get(
+                    "gene_whitelist", []
+                ),
+                gene_blacklist=filter_job.smallvariantquery.query_settings.get(
+                    "gene_blacklist", []
+                ),
+                genomic_region=filter_job.smallvariantquery.query_settings.get(
+                    "genomic_region", []
+                ),
                 training_mode=1
                 if filter_job.smallvariantquery.query_settings.get("training_mode", False)
                 else 0,
