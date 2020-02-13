@@ -26,6 +26,7 @@ Full Change List
 - Added maximal exon distance field to ``Variants & Effects`` tab.
 - (Hopefully) fixing importer bug (#524).
 - Adapted ``HelixMTdb`` filter settings, allowing to differntiate between hetero- and homoplasmy counts.
+- Fixed inactive filter button to switch from SV filter to small variant filter.
 
 -------
 v0.20.0
