@@ -895,7 +895,7 @@ class ExtendQueryPartsFrequenciesFilter(ExtendQueryPartsMitochondrialFrequencies
             field_name = "%s_%s" % (db, metric)
             if self.kwargs["%s_enabled" % db] and self.kwargs.get(field_name) is not None:
                 terms.append(
-                    getattr(getattr(self, "subquery_%s" % db).c, field_name)
+                    func.coalesce(getattr(getattr(self, "subquery_%s" % db).c, field_name), 0)
                     <= self.kwargs[field_name]
                 )
         return terms

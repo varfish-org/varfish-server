@@ -576,11 +576,11 @@ const presets = {
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
       "mtdb_enabled": false,
-      "mtdb_count": null,
+      "mtdb_count": 10,
       "mtdb_frequency": null,
 
       "helixmtdb_enabled": false,
-      "helixmtdb_hom_count": null,
+      "helixmtdb_hom_count": 10,
       "helixmtdb_het_count": null,
       "helixmtdb_frequency": null,
 
@@ -618,13 +618,13 @@ const presets = {
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
       "mtdb_enabled": false,
-      "mtdb_count": null,
-      "mtdb_frequency": null,
+      "mtdb_count": 50,
+      "mtdb_frequency": 0.15,
 
       "helixmtdb_enabled": false,
       "helixmtdb_het_count": null,
-      "helixmtdb_hom_count": null,
-      "helixmtdb_frequency": null,
+      "helixmtdb_hom_count": 50,
+      "helixmtdb_frequency": 0.15,
 
       "mitomap_enabled": false,
       "mitomap_count": null,

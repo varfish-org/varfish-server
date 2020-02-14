@@ -17,6 +17,7 @@ End-User Summary
 - Increased default max collective background count in SV filter from 0 to 5.
 - Included lists of genomic regions, black and white genelists and reworked HPO list in table header as response for what was filtered for (if set).
 - Added ``molecular`` assessment flag for variant classification.
+- Fixed bug where activated mitochondrial frequency filter didn't include variants that had no frequency database entry
 
 Full Change List
 ================
@@ -33,6 +34,7 @@ Full Change List
 - Increased default max collective background count in SV filter from 0 to 5.
 - Included lists of genomic regions, black and white genelists and reworked HPO list in table header as response for what was filtered for (if set).
 - Added ``molecular`` assessment flag for variant classification.
+- Fixed bug where activated mitochondrial frequency filter didn't include variants that had no frequency database entry
 
 -------
 v0.20.0
