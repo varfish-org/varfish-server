@@ -196,6 +196,10 @@ class FormDataFactory(FormDataFactoryBase):
     flag_visual_negative: bool = True
     flag_visual_positive: bool = True
     flag_visual_uncertain: bool = True
+    flag_molecular_empty: bool = True
+    flag_molecular_negative: bool = True
+    flag_molecular_positive: bool = True
+    flag_molecular_uncertain: bool = True
     prio_enabled: bool = False
     prio_algorithm: str = ""
     prio_hpo_terms: str = ""
@@ -232,6 +236,7 @@ class SmallVariantFlagsFormDataFactory(ChromosomalPositionFormDataFactoryBase):
     flag_candidate: bool = False
     flag_final_causative: bool = False
     flag_for_validation: bool = False
+    flag_molecular: str = "empty"
     flag_visual: str = "empty"
     flag_validation: str = "empty"
     flag_phenotype_match: str = "empty"
@@ -811,6 +816,7 @@ class SmallVariantFlagsFactory(factory.django.DjangoModelFactory):
     flag_candidate = False
     flag_final_causative = False
     flag_for_validation = False
+    flag_molecular = ""
     flag_visual = ""
     flag_validation = ""
     flag_phenotype_match = ""

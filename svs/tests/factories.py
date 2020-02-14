@@ -167,6 +167,7 @@ class StructuralVariantFlagsFactory(_UserAnnotationFactory):
     flag_final_causative = False
     flag_for_validation = False
 
+    flag_molecular = "empty"
     flag_visual = "empty"
     flag_validation = "empty"
     flag_phenotype_match = "empty"

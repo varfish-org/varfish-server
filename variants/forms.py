@@ -337,6 +337,20 @@ class SmallVariantFlagsFilterFormMixin:
             label="empty", required=False, initial=True
         )
 
+        # Molecular
+        self.fields["flag_molecular_positive"] = forms.BooleanField(
+            label="positive", required=False, initial=True
+        )
+        self.fields["flag_molecular_uncertain"] = forms.BooleanField(
+            label="uncertain", required=False, initial=True
+        )
+        self.fields["flag_molecular_negative"] = forms.BooleanField(
+            label="negative", required=False, initial=True
+        )
+        self.fields["flag_molecular_empty"] = forms.BooleanField(
+            label="empty", required=False, initial=True
+        )
+
         # Summary flag, overrides other multi-valued flags
         self.fields["flag_summary_positive"] = forms.BooleanField(
             label="positive", required=False, initial=True

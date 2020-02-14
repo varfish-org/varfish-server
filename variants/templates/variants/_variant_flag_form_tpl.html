@@ -74,6 +74,30 @@
         </div>
       </div>
       <div class="form-group mb-1 row">
+        <label class="pr-3" data-toggle="tooltip" title="Molecular">
+          <i class="fa fa-fw fa-fire pr-1"></i>
+          Molecular
+        </label>
+        <div class="ml-auto">
+          <div class="form-check form-check-inline" data-toggle="tooltip" title="true variant">
+            <input class="form-check-input" id="comment-radio-molecular-positive-{{:variant}}" type="radio" name="flag_molecular" value="positive" {{if flag_molecular == "positive"}}checked{{/if}}/>
+            <label for="comment-radio-molecular-positive-{{:variant}}" class="m-0"><i class="fa fa-fw fa-exclamation-circle text-danger""></i></label>
+          </div>
+          <div class="form-check form-check-inline" data-toggle="tooltip" title="uncertain">
+            <input class="form-check-input" id="comment-radio-molecular-uncertain-{{:variant}}" type="radio" name="flag_molecular" value="uncertain" {{if flag_molecular == "uncertain"}}checked{{/if}} />
+            <label for="comment-radio-molecular-uncertain-{{:variant}}" class="m-0"><i class="fa fa-fw fa-question text-warning"></i></label>
+          </div>
+          <div class="form-check form-check-inline" data-toggle="tooltip" title="artifact">
+            <input class="form-check-input" id="comment-radio-molecular-negative-{{:variant}}" type="radio" name="flag_molecular" value="negative" {{if flag_molecular == "negative"}}checked{{/if}}/>
+            <label for="comment-radio-molecular-negative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-minus-circle text-success"></i></label>
+          </div>
+          <div class="form-check form-check-inline" data-toggle="tooltip" title="not considered">
+            <input class="form-check-input" id="comment-radio-molecular-empty-{{:variant}}" type="radio" name="flag_molecular" value="empty" {{if flag_molecular == "empty"}}checked{{/if}} />
+            <label for="comment-radio-molecular-empty-{{:variant}}" class="m-0"><i class="fa fa-fw fa-remove text-secondary"></i></label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group mb-1 row">
         <label class="pr-3" data-toggle="tooltip" data-toggle="tooltip" title="Wet-lab Validation">
           <i class="fa fa-fw fa-flask pr-1"></i>
           Validation

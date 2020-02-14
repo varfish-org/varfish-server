@@ -1151,6 +1151,7 @@ class ExtendQueryPartsFlagsJoin(ExtendQueryPartsBase):
                         "flag_for_validation"
                     ),
                     func.max(SmallVariantFlags.sa.flag_visual).label("flag_visual"),
+                    func.max(SmallVariantFlags.sa.flag_molecular).label("flag_molecular"),
                     func.max(SmallVariantFlags.sa.flag_validation).label("flag_validation"),
                     func.max(SmallVariantFlags.sa.flag_phenotype_match).label(
                         "flag_phenotype_match"
@@ -1184,6 +1185,7 @@ class ExtendQueryPartsFlagsJoin(ExtendQueryPartsBase):
             self.subquery.c.flag_candidate,
             self.subquery.c.flag_final_causative,
             self.subquery.c.flag_for_validation,
+            self.subquery.c.flag_molecular,
             self.subquery.c.flag_visual,
             self.subquery.c.flag_validation,
             self.subquery.c.flag_phenotype_match,
@@ -1207,7 +1209,7 @@ class ExtendQueryPartsFlagsJoinAndFilter(ExtendQueryPartsFlagsJoin):
         if self.kwargs.get("flag_simple_empty"):
             terms.append(and_(not_(column("flag_%s" % flag))))
         # Add terms for the valued flags.
-        flag_names = ("visual", "validation", "phenotype_match", "summary")
+        flag_names = ("visual", "validation", "molecular", "phenotype_match", "summary")
         for flag in flag_names:
             flag_name = "flag_%s" % flag
             for value in ("positive", "uncertain", "negative", "empty"):

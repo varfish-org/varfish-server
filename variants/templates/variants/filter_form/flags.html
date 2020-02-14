@@ -56,6 +56,17 @@
   <div class="col-12">
     <div class="row">
       <h5 class="col-2 pl-0">
+        Molecular
+      </h5>
+      <div class="col-2">{{ form.flag_molecular_positive|as_crispy_field }}</div>
+      <div class="col-2">{{ form.flag_molecular_uncertain|as_crispy_field }}</div>
+      <div class="col-2">{{ form.flag_molecular_negative|as_crispy_field }}</div>
+      <div class="col-2">{{ form.flag_molecular_empty|as_crispy_field }}</div>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="row">
+      <h5 class="col-2 pl-0">
         Summary
       </h5>
       <div class="col-2">{{ form.flag_summary_positive|as_crispy_field }}</div>

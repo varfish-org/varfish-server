@@ -122,6 +122,7 @@ HEADER_FLAGS = (
     ("flag_candidate", "Flag: selected as candidate disease-causing", str),
     ("flag_final_causative", "Flag: selected as final causative variant", str),
     ("flag_for_validation", "Flag: selected for validation", str),
+    ("flag_molecular", "Rating: variant is molecular", str),
     ("flag_visual", "Rating: visual inspection of alignment", str),
     ("flag_validation", "Rating: validation result", str),
     ("flag_phenotype_match", "Rating: clinic/phenotype/biology", str),

@@ -22,118 +22,125 @@
             <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
         </div>
       {% endif %}
-      <div class="pl-2 pr-2 row">
-        {% if prio_enabled %}
-          <div class="pl-2">
-            <button
-              class="btn btn-outline-secondary"
-              data-toggle="popover"
-              data-html="true"
-              data-placement="top"
-              data-trigger="focus"
-              tabindex="0"
-              title=""
-              data-content="
-                {% for hpo_id, hpo_name in hpoterms.items %}
-                  <span class='badge badge-group' style='font-size: 100%'>
-                    <span class='badge badge-dark'>{{ hpo_id }}</span>
-                    <span class='badge badge-secondary'>{{ hpo_name }}</span>
-                  </span>
-                  {% with omim_information=hpo_id|add_omim_information %}
-                    {% if omim_information %}
-                      <i class='fa fa-arrow-right'></i>
-                      <strong>(</strong>
-                      {% for key, value in omim_information.items %}
-                        <span class='badge badge-group' style='font-size: 100%'>
-                          <span class='badge badge-dark'>{{ key }}</span>
-                          <span class='badge badge-secondary'>{{ value }}</span>
-                        </span>
-                        {% if not forloop.last %}
-                        <strong>+</strong>
-                        {% endif %}
-                      {% endfor %}
-                      <strong>)</strong>
-                    {% endif %}
-                  {% endwith %}
-                {% empty %}
-                  <p class='text-muted font-italic'>None</p>
-                {% endfor %}
-              "><i class="fa fa-list"></i> HPO Terms</button>
-          </div>
-        {% endif %}
-        {% if gene_blacklist %}
-          <div class="pl-2">
-            <button
-              class="btn btn-outline-secondary"
-              data-toggle="popover"
-              data-html="true"
-              data-placement="top"
-              data-trigger="focus"
-              tabindex="0"
-              title=""
-              data-content="
-                {% for gene in gene_blacklist %}
-                  <span class='badge badge-danger'>{{ gene }}</span>
-                {% empty %}
-                  <p class='text-muted font-italic'>None</p>
-                {% endfor %}"
-            >
-            <i class="fa fa-ban"></i>
-            Gene Blacklist
-          </div>
-        {% endif %}
-        {% if gene_whitelist %}
-          <div class="pl-2">
-            <button
-              class="btn btn-outline-secondary"
-              data-toggle="popover"
-              data-html="true"
-              data-placement="top"
-              data-trigger="focus"
-              tabindex="0"
-              title=""
-              data-content="
-                {% for gene in gene_whitelist %}
-                  <span class='badge badge-success'>{{ gene }}</span>
-                {% empty %}
-                  <p class='text-muted font-italic'>None</p>
-                {% endfor %}"
-            ><i class="fa fa-check"></i> Gene Whitelist</button>
-          </div>
-        {% endif %}
-        {% if genomic_region %}
-          <div class="pl-2">
-            <button
-              class="btn btn-outline-secondary"
-              data-toggle="popover"
-              data-html="true"
-              data-placement="top"
-              data-trigger="focus"
-              tabindex="0"
-              title=""
-              data-content="
-                {% for chromosome, start, end in genomic_region %}
-                  {% if start and end %}
+      {% if prio_enabled or gene_whitelist or gene_blacklist or genomic_region %}
+        <div class="row">
+          <span class="pt-1 pr-2">
+            <strong style="font-size: 120%">
+              Applied
+              {% if prio_enabled %}
+                Phenotype Terms{% if gene_whitelist or gene_blacklist or genomic_region %} and{% else %}:{% endif %}
+              {% endif %}
+              {% if gene_whitelist or gene_blacklist or genomic_region %}Region Filters:{% endif %}
+            </strong>
+          </span>
+          {% if prio_enabled %}
+            <div class="pl-2">
+              <button
+                class="btn btn-outline-secondary"
+                data-toggle="popover"
+                data-html="true"
+                data-placement="top"
+                data-trigger="focus"
+                tabindex="0"
+                title=""
+                data-content="
+                  {% for hpo_id, hpo_name in hpoterms.items %}
                     <span class='badge badge-group' style='font-size: 100%'>
-                      <span class='badge badge-dark'>chr{{ chromosome }}</span>
-                      <span class='badge badge-secondary'>{{ start|intcomma }}-{{ end|intcomma }}</span>
+                      <span class='badge badge-dark'>{{ hpo_id }}</span>
+                      <span class='badge badge-secondary'>{{ hpo_name }}</span>
                     </span>
-                  {% else %}
-                    <span class='badge badge-dark'>chr{{ chromosome }}</span>
-                  {% endif %}
-                {% empty %}
-                  <p class='text-muted font-italic'>None</p>
-                {% endfor %}"
-            ><i class="fa fa-arrows-h"></i> Genomic Region</button>
-          </div>
-        {% endif %}
-      </div>
-      <div class="form-inline pl-2 pr-2 row">
-        <div class="p-2">
-          <strong style="font-size: 140%;">
-            Results
-          </strong>
+                    {% with omim_information=hpo_id|add_omim_information %}
+                      {% if omim_information %}
+                        <i class='fa fa-arrow-right'></i>
+                        <strong>(</strong>
+                        {% for key, value in omim_information.items %}
+                          <span class='badge badge-group' style='font-size: 100%'>
+                            <span class='badge badge-dark'>{{ key }}</span>
+                            <span class='badge badge-secondary'>{{ value }}</span>
+                          </span>
+                          {% if not forloop.last %}
+                          <strong>+</strong>
+                          {% endif %}
+                        {% endfor %}
+                        <strong>)</strong>
+                      {% endif %}
+                    {% endwith %}
+                  {% empty %}
+                    <p class='text-muted font-italic'>None</p>
+                  {% endfor %}
+                "><i class="fa fa-list"></i> HPO Terms</button>
+            </div>
+          {% endif %}
+          {% if gene_blacklist %}
+            <div class="pl-2">
+              <button
+                class="btn btn-outline-secondary"
+                data-toggle="popover"
+                data-html="true"
+                data-placement="top"
+                data-trigger="focus"
+                tabindex="0"
+                title=""
+                data-content="
+                  {% for gene in gene_blacklist %}
+                    <span class='badge badge-danger'>{{ gene }}</span>
+                  {% empty %}
+                    <p class='text-muted font-italic'>None</p>
+                  {% endfor %}"
+              >
+              <i class="fa fa-ban"></i>
+              Gene Blacklist
+            </div>
+          {% endif %}
+          {% if gene_whitelist %}
+            <div class="pl-2">
+              <button
+                class="btn btn-outline-secondary"
+                data-toggle="popover"
+                data-html="true"
+                data-placement="top"
+                data-trigger="focus"
+                tabindex="0"
+                title=""
+                data-content="
+                  {% for gene in gene_whitelist %}
+                    <span class='badge badge-success'>{{ gene }}</span>
+                  {% empty %}
+                    <p class='text-muted font-italic'>None</p>
+                  {% endfor %}"
+              ><i class="fa fa-check"></i> Gene Whitelist</button>
+            </div>
+          {% endif %}
+          {% if genomic_region %}
+            <div class="pl-2">
+              <button
+                class="btn btn-outline-secondary"
+                data-toggle="popover"
+                data-html="true"
+                data-placement="top"
+                data-trigger="focus"
+                tabindex="0"
+                title=""
+                data-content="
+                  {% for chromosome, start, end in genomic_region %}
+                    {% if start and end %}
+                      <span class='badge badge-group' style='font-size: 100%'>
+                        <span class='badge badge-dark'>chr{{ chromosome }}</span>
+                        <span class='badge badge-secondary'>{{ start|intcomma }}-{{ end|intcomma }}</span>
+                      </span>
+                    {% else %}
+                      <span class='badge badge-dark'>chr{{ chromosome }}</span>
+                    {% endif %}
+                  {% empty %}
+                    <p class='text-muted font-italic'>None</p>
+                  {% endfor %}"
+              ><i class="fa fa-arrows-h"></i> Genomic Region</button>
+            </div>
+          {% endif %}
         </div>
+      {% endif %}
+      <div class="form-inline pr-2 row">
+        <strong style="font-size: 140%;">Results</strong>
         {% if compound_recessive_index %}
         <div class="p-2">
           <i class="fa fa-users"

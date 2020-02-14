@@ -68,7 +68,7 @@ class CaseExporterTest(ExportTestBase):
     def _test_tabular(self, arrs, has_trailing):
         self.assertEquals(len(arrs), 4 + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 45)
+        self.assertEquals(len(arrs[0]), 46)
         self.assertSequenceEqual(arrs[0][:3], ["Chromosome", "Position", "Reference bases"])
         self.assertSequenceEqual(
             arrs[0][-5:],

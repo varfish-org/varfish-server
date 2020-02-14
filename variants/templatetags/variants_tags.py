@@ -244,7 +244,7 @@ def flag_class(row):
     """
     if row.flag_summary and row.flag_summary != "empty":
         return row.flag_summary  # short-circuit
-    flags = ("visual", "validation", "phenotype_match")
+    flags = ("visual", "validation", "phenotype_match", "molecular")
     for flag in flags:
         flag_name = "flag_%s" % flag
         flag_value = getattr(row, flag_name)

@@ -376,6 +376,10 @@ class StructuralVariantFlags(_UserAnnotation):
 
     # Choice fields for gradual rating
 
+    #: Molecular flag.
+    flag_molecular = models.CharField(
+        max_length=32, choices=VARIANT_RATING_CHOICES, default="empty", null=False
+    )
     #: Visual inspection flag.
     flag_visual = models.CharField(
         max_length=32, choices=VARIANT_RATING_CHOICES, default="empty", null=False
@@ -402,7 +406,7 @@ class StructuralVariantFlags(_UserAnnotation):
             for name in ("bookmarked", "for_validation", "candidate", "final causative"):
                 if getattr(self, "flag_%s" % name.replace(" ", "_")):
                     flag_desc.append(name)
-            for name in ("visual", "validation", "phenotype_match", "summary"):
+            for name in ("visual", "validation", "molecular", "phenotype_match", "summary"):
                 field = getattr(self, "flag_%s" % name)
                 if field and field != "empty":
                     flag_desc.append("%s rating is %s" % (name.split("_")[0], field))
@@ -420,6 +424,7 @@ class StructuralVariantFlags(_UserAnnotation):
                 self.flag_candidate,
                 self.flag_final_causative,
                 self.flag_for_validation,
+                self.flag_molecular != "empty",
                 self.flag_visual != "empty",
                 self.flag_validation != "empty",
                 self.flag_phenotype_match != "empty",

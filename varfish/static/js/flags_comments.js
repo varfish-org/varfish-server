@@ -7,7 +7,7 @@ function summarizeFlags(data) {
     if (data["flag_summary"] != "empty") {
         return data["flag_summary"];
     }
-    var flags = ["visual", "validation", "phenotype_match"];
+    var flags = ["visual", "validation", "molecular", "phenotype_match"];
     for (var i = 0; i < flags.length; ++i) {
         var flagName = "flag_" + flags[i];
         var flagValue = data[flagName];
@@ -153,6 +153,7 @@ function clickVariantBookmark() {
           flag_candidate: false,
           flag_final_causative: false,
           flag_visual: "empty",
+          flag_molecular: "empty",
           flag_validation: "empty",
           flag_phenotype_match: "empty",
           flag_summary: "empty",
@@ -166,6 +167,7 @@ function clickVariantBookmark() {
           flag_candidate: false,
           flag_final_causative: false,
           flag_visual: "empty",
+          flag_molecular: "empty",
           flag_validation: "empty",
           flag_phenotype_match: "empty",
           flag_summary: "empty",

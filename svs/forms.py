@@ -660,6 +660,7 @@ class StructuralVariantFlagsForm(forms.ModelForm):
             "flag_no_disease_association",
             "flag_segregates",
             "flag_doesnt_segregate",
+            "flag_molecular",
             "flag_visual",
             "flag_validation",
             "flag_phenotype_match",

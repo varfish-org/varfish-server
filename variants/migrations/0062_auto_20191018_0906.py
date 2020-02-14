@@ -4,15 +4,6 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 
-from variants.models import SmallVariantFlags, SmallVariantComment
-
-
-def update_chromosome_no_in_existing_flags_and_comments(apps, schema_editor):
-    if not schema_editor.connection.alias == "default":
-        return
-    for o in list(SmallVariantFlags.objects.all()) + list(SmallVariantComment.objects.all()):
-        o.save()
-
 
 class Migration(migrations.Migration):
 
@@ -35,5 +26,4 @@ class Migration(migrations.Migration):
             name="chromosome_no",
             field=models.IntegerField(default=0),
         ),
-        migrations.RunPython(update_chromosome_no_in_existing_flags_and_comments),
     ]

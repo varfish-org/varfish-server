@@ -16,6 +16,7 @@ End-User Summary
 - Adapted ``HelixMTdb`` filter settings, allowing to differntiate between hetero- and homoplasmy counts.
 - Increased default max collective background count in SV filter from 0 to 5.
 - Included lists of genomic regions, black and white genelists and reworked HPO list in table header as response for what was filtered for (if set).
+- Added ``molecular`` assessment flag for variant classification.
 
 Full Change List
 ================
@@ -31,6 +32,7 @@ Full Change List
 - Fixed inactive filter button to switch from SV filter to small variant filter.
 - Increased default max collective background count in SV filter from 0 to 5.
 - Included lists of genomic regions, black and white genelists and reworked HPO list in table header as response for what was filtered for (if set).
+- Added ``molecular`` assessment flag for variant classification.
 
 -------
 v0.20.0
