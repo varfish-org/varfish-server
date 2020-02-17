@@ -500,6 +500,10 @@ const presets = {
       "ids": {},
       "classes": {"genotype-field-gt": "recessive-index"},
   },
+  "inheritance-x-recessive": {
+      "ids": {},
+      "classes": {"genotype-field-gt": "x-recessive"},
+  },
   "inheritance-mitochondrial": {
       "ids": {},
       // mitochondrial doesn't exist in the select. this triggers a function
@@ -1426,6 +1430,33 @@ function enableDomDenovoMode() {
 }
 
 
+function enableXRecessiveMode(target) {
+    const mother_id = "id_" + target.data("mother") + "_gt";
+    const father_id = "id_" + target.data("father") + "_gt";
+    const family = target.data("family");
+    // Iterate over all GT fields.
+    $("[id^=id_][id$=_gt]").each(
+        function () {
+            // Get the id of the GT field.
+            var id = $(this).attr("id");
+            // Set the current (index patients) field to "variant" (== hemizygous)
+            if (target.attr("id") == id || $(this).data("family") != family) {
+                target.val("variant");
+                return;
+            }
+            // For mother and father, assign the info text, all others get a dash.
+            if (id == mother_id) {
+                $(this).val("het");
+            } else if (id == father_id) {
+                $(this).val("ref");
+            } else {
+                $(this).val("any");
+            }
+        }
+    );
+}
+
+
 function enableMitochondrialMode(target) {
     const family = target.data("family");
     // Iterate over all GT fields.
@@ -1562,6 +1593,7 @@ function applyPresetsToSettings(presets, name) {
                 || val == "dom-denovo"
                 || val == "hom-recessive"
                 || val == "mitochondrial"
+                || val == "x-recessive"
             ) && tag.data("default-index") != "1"
         ) {
             continue;
@@ -1577,6 +1609,10 @@ function applyPresetsToSettings(presets, name) {
         // Mitochondrial is not an option in the genotype select, so let a function do the change.
         else if (val == "mitochondrial") {
             enableMitochondrialMode(tag);
+        }
+        // X recessive is not an option in the genotype select, so let a function do the change.
+        else if (val == "x-recessive") {
+            enableXRecessiveMode(tag);
         }
         // Default change behaviour for all others
         else {
@@ -1612,7 +1648,7 @@ function updateQuickPresets(settings) {
   }
   const quickPresetCategories = ["inheritance", "frequency", "impact", "quality", "region", "flags"];
   const quickPresetCandidates = {
-    "inheritance": ["any", "dominant", "hom-recessive", "comp-het", "recessive", "mitochondrial"],
+    "inheritance": ["any", "dominant", "hom-recessive", "comp-het", "recessive", "mitochondrial", "x-recessive"],
     "frequency": ["super-strict", "strict", "relaxed", "recessive-strict", "recessive-relaxed", "all"],
     "impact": ["null-variant", "aa-change", "all-coding-deep-intronic", "whole-transcript", "any"],
     "quality": ["super-strict", "strict", "relaxed", "ignore"],
@@ -1648,7 +1684,7 @@ function updateQuickPresets(settings) {
         }
         const value = settings[key] === "" ? null : settings[key];
         const presetValue = presets[presetsKey]["ids"][key] === "" ? null : presets[presetsKey]["ids"][key];
-        const compHetOrRecessive = presetsKey == "inheritance-comp-het" || presetsKey == "inheritance-recessive";
+        const compHetOrRecessive = presetsKey == "inheritance-comp-het" || presetsKey == "inheritance-recessive" || presetsKey == "inheritance-x-recessive";
         const element = $("#id_" + key);
         if (inPreset) {
             if (!eqAsStr(value, presetValue)) {
@@ -1695,6 +1731,22 @@ function updateQuickPresets(settings) {
                 ) {
                     continue;
                 }
+                else if (
+                    presetsKey == "inheritance-x-recessive" &&
+                    (
+                        (element.data("default-index") == "1" && eqAsStr(value, "variant")) ||
+                        (element.data("default-mother") == "1" && eqAsStr(value, "het")) ||
+                        (element.data("default-father") == "1" && eqAsStr(value, "ref")) ||
+                        (
+                            element.data("default-index") == "0" &&
+                            element.data("default-mother") == "0" &&
+                            element.data("default-father") == "0" &&
+                            eqAsStr(value, "any")
+                        )
+                    )
+                ) {
+                    continue;
+                }
                 matchAll = false;
                 break;
             }
@@ -1719,6 +1771,7 @@ function updateQuickPresets(settings) {
 }
 
 function loadPresets(element) {
+  /** Here are the quick presets defined. quickpreset quickpresets quick preset quick presets */
   var oldUpdateQuickPresetsEnabled = updateQuickPresetsEnabled;
   updateQuickPresetsEnabled = false;
 
@@ -1771,6 +1824,13 @@ function loadPresets(element) {
     $("#input-presets-impact").val("impact-any")
     $("#input-presets-quality").val("quality-strict")
     $("#input-presets-region").val("region-mt-chromosome")
+    $("#input-presets-flags").val("flags-default")
+  } else if (presetsName == "x-recessive") {
+    $("#input-presets-inheritance").val("inheritance-x-recessive")
+    $("#input-presets-frequency").val("frequency-recessive-strict")
+    $("#input-presets-impact").val("impact-aa-change")
+    $("#input-presets-quality").val("quality-strict")
+    $("#input-presets-region").val("region-x-chromosome")
     $("#input-presets-flags").val("flags-default")
   } else {
     console.log("Unknown preset name", presetsName)
