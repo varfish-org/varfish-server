@@ -228,9 +228,48 @@ function loadBeaconWidget() {
     $("#" + containerId).html(iframe)
 }
 
+
+function loadVariantDetails(row, cell) {
+  var url = cell.data("url");
+  var icon = $("i", cell);
+  $.ajax(
+    url,
+    {
+      success: function (response) {
+        icon.removeClass('fa-spinner fa-spin');
+        icon.addClass('fa-chevron-down');
+        row.child(response).show();
+        $('[data-toggle="tooltip"]').tooltip({container: "body"});
+        $('[data-toggle="popover"]').popover({container: "body"});
+        $('body').on('click', function (e) {
+          let element = $('.omim-popover');
+          // hide any open popovers when the anywhere else in the body is clicked
+          if (!element.is(e.target) && element.has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+            element.popover('hide');
+          }
+        });
+        $(".comment-button-delete").on("click", commentDeleteToggle);
+        $(".comment-button-delete-cancel").on("click", commentDeleteToggle);
+        $(".comment-button-delete-submit").on("click", commentDeleteSubmit);
+        $(".comment-button-edit").on("click", commentEditToggle);
+        $(".comment-button-edit-cancel").on("click", commentEditToggle);
+        $(".comment-button-edit-submit").on("click", commentEditSubmit);
+        $(".link-load-beacon").on("click", loadBeaconWidget);
+        colorVariantEffects();
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        alert("Error during AJAX call:", textStatus, + errorThrown);
+        console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+      }
+    }
+  );
+}
+
+
 // we can't employ .click here because the html that it will work on is loaded afterwards.
 $(document).on('click', '.toggle-variant-details', function() {
   var row = dt.row($(this).parent());
+  var cell = $(this);
   var icon = $("i", this);
 
   // using toggleClass to shorten the code results to erroneous icon behaviour in border cases (e.g. fast opening/closing the details)
@@ -247,40 +286,11 @@ $(document).on('click', '.toggle-variant-details', function() {
     }
     else {
       icon.addClass('fa-spinner fa-spin');
-      $.ajax(
-        $(this).data('url'),
-        {
-          success: function (response) {
-            icon.removeClass('fa-spinner fa-spin');
-            icon.addClass('fa-chevron-down');
-            row.child(response).show();
-            $('[data-toggle="tooltip"]').tooltip({container: "body"});
-            $('[data-toggle="popover"]').popover({container: "body"});
-            $('body').on('click', function (e) {
-              let element = $('.omim-popover');
-              // hide any open popovers when the anywhere else in the body is clicked
-              if (!element.is(e.target) && element.has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
-                element.popover('hide');
-              }
-            });
-            $(".comment-button-delete").on("click", commentDeleteToggle);
-            $(".comment-button-delete-cancel").on("click", commentDeleteToggle);
-            $(".comment-button-delete-submit").on("click", commentDeleteSubmit);
-            $(".comment-button-edit").on("click", commentEditToggle);
-            $(".comment-button-edit-cancel").on("click", commentEditToggle);
-            $(".comment-button-edit-submit").on("click", commentEditSubmit);
-            $(".link-load-beacon").on("click", loadBeaconWidget);
-            colorVariantEffects();
-          },
-          error: function (jqXHR, textStatus, errorThrown) {
-            alert("Error during AJAX call:", textStatus, + errorThrown);
-            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
-          }
-        }
-      );
+      loadVariantDetails(row, cell);
     }
   }
 });
+
 
 $("#settingsDownload").click(
   function() {

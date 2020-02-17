@@ -28,6 +28,8 @@ function clickVariantBookmark() {
   // Store handle outmost $(this) for later hiding popup again.
   var outerThis = $(this).closest(".bookmark").find(".variant-bookmark");
   var caseUuid = $(this).data("case");
+  var cell = $(this).closest(".variant-row").find(".toggle-variant-details");
+  var row = dt.row($(this).closest(".variant-row"));
 
   // Get variant description from triggering bookmark icon.
   if (structural_or_small == "small") {
@@ -83,6 +85,7 @@ function clickVariantBookmark() {
         var variantRow = $(outerThis).closest(".variant-row");
         variantRow.removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty variant-row-wip");
         variantRow.addClass("variant-row-" + summarizeFlags(data));
+        loadVariantDetails(row, cell);
       }).fail(function(xhr) {
         // failed, notify user
         alert("Updating variant flags failed");
@@ -105,6 +108,7 @@ function clickVariantBookmark() {
           var commentTag = $(outerThis).closest(".bookmark").find(".variant-comment");
           commentTag.removeClass("fa-comment fa-comment-o");
           commentTag.addClass("fa-comment");
+        loadVariantDetails(row, cell);
         }).fail(function(xhr) {
           // failed, notify user
           alert("Adding comment failed");
@@ -264,6 +268,8 @@ function clickVariantAcmgRating() {
   var bookmarkPopupTpl = $.templates("#acmg-popup");
   // Store handle outmost $(this) for later hiding popup again.
   var outerThis = $(this).closest(".bookmark").find(".variant-acmg");
+  var cell = $(this).closest(".variant-row").find(".toggle-variant-details");
+  var row = dt.row($(this).closest(".variant-row"));
 
   // Get variant description from triggering bookmark icon.
   var dataVariant = $(this).data("variant");
@@ -335,6 +341,7 @@ function clickVariantAcmgRating() {
           badge.removeClass("badge-light text-muted badge-danger badge-warning text-black")
         }
         badge.text(acmgClass)
+        loadVariantDetails(row, cell);
       }).fail(function(xhr) {
         // failed, notify user
         alert("Updating ACMG classification failed");
@@ -359,6 +366,8 @@ function clickVariantAcmgRating() {
   }).done(function(data) {
     // found flags, show form with these
     showPopup(data);
+    // update variant details
+    loadVariantDetails(row, cell);
   }).fail(function(xhr) {
     if (xhr.status == 404) {
       // no flags found yet, show form with defaults

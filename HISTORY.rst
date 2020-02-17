@@ -19,6 +19,8 @@ End-User Summary
 - Added ``molecular`` assessment flag for variant classification.
 - Fixed bug where activated mitochondrial frequency filter didn't include variants that had no frequency database entry.
 - Added inheritance preset and quick preset for X recessive filter.
+- Removed VariantValidator link-out.
+- Now smallvariant comments, flags and ACMG are updating in the smallvariant details once submitted.
 
 Full Change List
 ================
@@ -37,6 +39,8 @@ Full Change List
 - Added ``molecular`` assessment flag for variant classification.
 - Fixed bug where activated mitochondrial frequency filter didn't include variants that had no frequency database entry.
 - Added inheritance preset and quick preset for X recessive filter.
+- Removed VariantValidator link-out.
+- Now smallvariant comments, flags and ACMG are updating in the smallvariant details once submitted.
 
 -------
 v0.20.0

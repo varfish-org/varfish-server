@@ -454,9 +454,6 @@
         <a class="dropdown-item" href="http://gnomad.broadinstitute.org/region/{{ entry.chromosome }}-{{ entry.start }}-{{ entry.end }}" target="_blank">
           Locus @gnomAD
         </a>
-        <a class="dropdown-item" href="https://variantvalidator.org/variantvalidation/?variant={{ entry.refseq_transcript_id }}:{{ entry.refseq_hgvs_c|urlencode }}&primary_assembly={{ entry.release }}&alignment=splign" target="_blank">
-          Locus @VariantValidator
-        </a>
         <div class="dropdown-divider"></div>
         <a href="javascript:humanSplicingFinder('{{ symbol }}', '{{ entry.hgvs_c }}');"
           data-toggle="tooltip"
