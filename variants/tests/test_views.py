@@ -76,6 +76,7 @@ from variants.tests.factories import (
     CaseCommentsFormFactory,
     CaseCommentsFactory,
     SampleVariantStatisticsFactory,
+    DeleteCaseBgJobFactory,
 )
 from variants.tests.helpers import ViewTestBase
 from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
@@ -313,10 +314,10 @@ class TestCaseDeleteView(RoleAssignmentMixin, ViewTestBase):
                     kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
                 )
             )
-            # In case of success redirects to case overview.
-            self.assertRedirects(
-                response, reverse("variants:case-list", kwargs={"project": self.project.sodar_uuid})
-            )
+            # Can't check the redirect properly. It will be redirected to the job detail page, and if it hits a 404,
+            # it will be redirected to the case list. The tests are running so fast that the case gets deleted before I
+            # can get the uuid of the bg job which I need for the redirect.
+
             # Objects in database of first case should be deleted, the second case should be still there.
             self.assertEqual(Case.objects.count(), 1)
             self.assertEqual(Case.objects.first().sodar_uuid, self.case_2.sodar_uuid)
@@ -346,6 +347,28 @@ class TestCaseDeleteView(RoleAssignmentMixin, ViewTestBase):
                 SmallVariant.objects.count(), len(self.small_vars_1) + len(self.small_vars_2)
             )
             self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
+
+
+class TestCaseDeleteJobDetailView(ViewTestBase):
+    """Test ProjectStatsJobDetailView.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.project = ProjectFactory()
+        self.case_1 = CaseFactory(project=self.project)
+        self.case_2 = CaseFactory(project=self.project)
+        self.bgjob = DeleteCaseBgJobFactory(project=self.project, case=self.case_2, user=self.user)
+
+    def test_render(self):
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:case-delete-job-detail",
+                    kwargs={"project": self.project.sodar_uuid, "job": self.bgjob.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
 
 
 class TestSmallVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):

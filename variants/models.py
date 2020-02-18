@@ -1,4 +1,5 @@
 import contextlib
+import itertools
 import os
 import shlex
 import shutil
@@ -17,7 +18,6 @@ import math
 import re
 import requests
 from bgjobs.plugins import BackgroundJobsPluginPoint
-from django.contrib.postgres.aggregates import ArrayAgg
 from django.forms import model_to_dict
 from sqlalchemy import select, func, and_, delete
 import uuid as uuid_object
@@ -2968,6 +2968,7 @@ class SyncCaseListBgJob(JobModelMessageMixin, models.Model):
 
     #: UUID of the job
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
+
     #: The project that the job belongs to.
     project = models.ForeignKey(Project, help_text="Project that is to be synced")
 
@@ -3144,6 +3145,46 @@ class KioskAnnotateBgJob(JobModelMessageMixin2, models.Model):
     def get_absolute_url(self):
         return reverse(
             "variants:kiosk-annotate-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
+
+
+class DeleteCaseBgJob(JobModelMessageMixin2, models.Model):
+    """Background job for deleting cases."""
+
+    #: Task description for logging.
+    task_desc = "Delete case"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.delete_case"
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+
+    #: UUID of the job
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
+
+    #: The project that the job belongs to.
+    project = models.ForeignKey(Project, help_text="Project in which this object belongs")
+
+    #: Case that will be deleted
+    case = models.ForeignKey(Case, null=False, help_text="The case to delete")
+
+    #: The background job that is specialized.
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="%(app_label)s_%(class)s_related",
+        help_text="Background job for state etc.",
+        on_delete=models.CASCADE,
+    )
+
+    def get_human_readable_type(self):
+        return "Delete case"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:case-delete-job-detail",
             kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
         )
 
@@ -3376,7 +3417,7 @@ def run_import_variants_bg_job(pk):
                 app_name="variants",
                 user=import_job.bg_job.user,
                 event_name="case_import",
-                description='Import of small variants for case case "%s" finished in %.2fs.'
+                description='Import of small variants for case "%s" finished in %.2fs.'
                 % (import_job.case_name, elapsed.total_seconds()),
                 status_type="OK",
             )
@@ -3465,6 +3506,50 @@ def run_kiosk_annotate_bg_job(pk):
                 event_name="kiosk_annotate",
                 description='Annotation of VCF file "%s" finished in %.2fs.'
                 % (os.path.basename(job.path_vcf), elapsed.total_seconds()),
+                status_type="OK",
+            )
+
+
+class DeleteCase:
+    def __init__(self, job):
+        self.job = job
+
+    def run(self):
+        from variants.queries import DeleteSmallVariantsQuery, DeleteStructuralVariantsQuery  # noqa
+
+        case = self.job.case
+        try:
+            self.job.add_log_entry(
+                "Deleting small and structural variants of case %s" % case.name, LOG_LEVEL_INFO
+            )
+            for query in itertools.chain(
+                DeleteSmallVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id),
+                DeleteStructuralVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id),
+            ):
+                with contextlib.closing(query):
+                    pass
+            self.job.add_log_entry("Deleting case %s" % case.name, LOG_LEVEL_INFO)
+            case.delete()
+        except Exception as e:
+            self.job.add_log_entry("Problem during case deletion: %s" % e, LOG_LEVEL_ERROR)
+            raise RuntimeError("Problem during case deletion") from e
+
+
+def run_delete_case_bg_job(pk):
+    timeline = get_backend_api("timeline_backend")
+    job = DeleteCaseBgJob.objects.get(pk=pk)
+    started = timezone.now()
+    with job.marks():
+        DeleteCase(job).run()
+        if timeline:
+            elapsed = timezone.now() - started
+            timeline.add_event(
+                project=job.project,
+                app_name="variants",
+                user=job.bg_job.user,
+                event_name="delete_case",
+                description='Deletion of case "%s" finished in %.2fs.'
+                % (job.case.name, elapsed.total_seconds()),
                 status_type="OK",
             )
 

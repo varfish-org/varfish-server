@@ -93,6 +93,12 @@ def run_kiosk_bg_job(_self, kiosk_annotate_bg_job_pk, import_variants_bg_job_pk)
     models.run_clear_kiosk_bg_job(pk=kiosk_annotate_bg_job_pk)
 
 
+@app.task(bind=True)
+def delete_case_bg_job(_self, delete_case_bg_job_pk):
+    """Task to delete a case."""
+    models.run_delete_case_bg_job(pk=delete_case_bg_job_pk)
+
+
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **_kwargs):
     """Register periodic tasks"""

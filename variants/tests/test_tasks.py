@@ -61,11 +61,11 @@ class RefreshVariantsSmallVariantSummaryTest(TestCase):
         mock_refresh_variants_smallvariantsummary.assert_called_once_with()
 
 
-class ClearOldKioskCases(TestCase):
-    @patch("variants.file_export.clear_expired_exported_files")
-    def test_calls_correct_function(self, mock_clear_expired_exported_files):
-        tasks.clear_expired_exported_files()
-        mock_clear_expired_exported_files.assert_called_once_with()
+class ClearOldKioskCasesTest(TestCase):
+    @patch("variants.models.clear_old_kiosk_cases")
+    def test_calls_correct_function(self, mock_clear_old_kiosk_cases):
+        tasks.clear_old_kiosk_cases()
+        mock_clear_old_kiosk_cases.assert_called_once_with()
 
 
 class SetupPeriodicTasksTest(TestCase):

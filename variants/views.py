@@ -83,6 +83,7 @@ from .models import (
     SmallVariantSummary,
     KioskAnnotateBgJob,
     update_variant_counts,
+    DeleteCaseBgJob,
 )
 from .forms import (
     ExportFileResubmitForm,
@@ -113,6 +114,7 @@ from .tasks import (
     single_case_filter_task,
     project_cases_filter_task,
     run_kiosk_bg_job,
+    delete_case_bg_job,
 )
 from .file_export import RowWithSampleProxy
 from variants.helpers import SQLALCHEMY_ENGINE
@@ -788,40 +790,19 @@ class CaseDeleteView(
             user = User.objects.get(username="kiosk_user")
 
         case = self.get_object()
-        case_uuid = case.sodar_uuid
-        case_name = case.name
-        timeline = get_backend_api("timeline_backend")
-        if timeline:
-            tl_event = timeline.add_event(
-                project=self.get_project(self.request, self.kwargs),
-                app_name="variants",
-                user=user,
-                event_name="case_delete",
-                description="delete case {case}",
-                status_type="OK",
-            )
-            tl_event.add_object(obj=case, label="case", name=case.name)
-        for query in itertools.chain(
-            DeleteSmallVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id),
-            DeleteStructuralVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id),
-        ):
-            with contextlib.closing(query):
-                pass
-        case.delete()
         with transaction.atomic():
             # Construct background job objects
             bg_job = BackgroundJob.objects.create(
-                name="Recreate variant statistic for whole project",
+                name="Delete case",
                 project=self.get_project(self.request, self.kwargs),
-                job_type=ComputeProjectVariantsStatsBgJob.spec_name,
+                job_type=DeleteCaseBgJob.spec_name,
                 user=user,
             )
-            recreate_job = ComputeProjectVariantsStatsBgJob.objects.create(
-                project=self.get_project(self.request, self.kwargs), bg_job=bg_job
+            delete_job = DeleteCaseBgJob.objects.create(
+                project=self.get_project(self.request, self.kwargs), bg_job=bg_job, case=case,
             )
-        compute_project_variants_stats.delay(export_job_pk=recreate_job.pk)
-        messages.success(self.request, "Deleted case {} with UUID {}.".format(case_name, case_uuid))
-        return redirect("variants:case-list", project=case.project.sodar_uuid)
+            delete_case_bg_job.delay(delete_case_bg_job_pk=delete_job.pk)
+            return redirect(delete_job.get_absolute_url())
 
 
 class SmallVariantsDeleteView(
@@ -2517,6 +2498,48 @@ class ImportVariantsJobDetailView(
     model = ImportVariantsBgJob
     slug_url_kwarg = "job"
     slug_field = "sodar_uuid"
+
+
+class CaseDeleteJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of the import case background job.
+    """
+
+    permission_required = "variants.view_data"
+    template_name = "variants/case_delete_job_detail.html"
+    model = DeleteCaseBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+
+    def get(self, *args, **kwargs):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+        try:
+            self.object = self.get_object()
+            return super().get(*args, **kwargs)
+        # Object is not available when case was deleted successfully
+        except Exception:
+            messages.info(self.request, "Case deleted successfully.")
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Recreate variant statistic for whole project",
+                project=self.get_project(self.request, self.kwargs),
+                job_type=ComputeProjectVariantsStatsBgJob.spec_name,
+                user=user,
+            )
+            recreate_job = ComputeProjectVariantsStatsBgJob.objects.create(
+                project=self.get_project(self.request, self.kwargs), bg_job=bg_job
+            )
+            compute_project_variants_stats.delay(export_job_pk=recreate_job.pk)
+            return redirect(
+                reverse("variants:case-list", kwargs={"project": self.get_project().sodar_uuid})
+            )
 
 
 class ExportFileJobDetailView(

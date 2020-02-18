@@ -21,6 +21,7 @@ End-User Summary
 - Added inheritance preset and quick preset for X recessive filter.
 - Removed VariantValidator link-out.
 - Now smallvariant comments, flags and ACMG are updating in the smallvariant details once submitted.
+- Deleting a case (only possible as root) runs now as background job.
 
 Full Change List
 ================
@@ -41,6 +42,7 @@ Full Change List
 - Added inheritance preset and quick preset for X recessive filter.
 - Removed VariantValidator link-out.
 - Now smallvariant comments, flags and ACMG are updating in the smallvariant details once submitted.
+- Deleting a case (only possible as root) runs now as background job.
 
 -------
 v0.20.0

@@ -32,6 +32,11 @@ ui_urlpatterns = [
         name="case-delete",
     ),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case-delete-job/detail/(?P<job>[0-9a-f-]+)/$",
+        view=views.CaseDeleteJobDetailView.as_view(),
+        name="case-delete-job-detail",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/structuralvariants/delete/(?P<case>[0-9a-f-]+)/$",
         view=views.StructuralVariantsDeleteView.as_view(),
         name="structuralvariants-delete",

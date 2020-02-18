@@ -28,6 +28,7 @@ from ..models import (
     CaseVariantStats,
     SampleVariantStatistics,
     CaseComments,
+    DeleteCaseBgJob,
 )
 import typing
 import attr
@@ -884,3 +885,21 @@ class SampleVariantStatisticsFactory(factory.django.DjangoModelFactory):
     chrx_het_hom = 1.0
     # Dummy argument to pass to CaseCariantStatsFactory
     variant_set = None
+
+
+class DeleteCaseBgJobFactory(factory.django.DjangoModelFactory):
+    """Factory for ``DeleteCaseBgJob`` model."""
+
+    class Meta:
+        model = DeleteCaseBgJob
+        exclude = ["user"]
+
+    # Dummy argument ``user`` to pass to subfactory BackgroundJobFactory
+    user = None
+    case = factory.SubFactory(CaseFactory)
+    project = factory.LazyAttribute(lambda o: o.case.project)
+    bg_job = factory.SubFactory(
+        BackgroundJobFactory,
+        project=factory.SelfAttribute("factory_parent.project"),
+        user=factory.SelfAttribute("factory_parent.user"),
+    )
