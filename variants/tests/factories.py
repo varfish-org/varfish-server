@@ -324,7 +324,14 @@ class CoreCaseFactory(factory.django.DjangoModelFactory):
 
     @factory.lazy_attribute_sequence
     def pedigree(self, n):
-        if self.structure not in ("singleton", "duo", "trio", "quartet", "quintet"):
+        if self.structure not in (
+            "singleton",
+            "duo",
+            "trio",
+            "trio-noparents",
+            "quartet",
+            "quintet",
+        ):
             raise ValueError("Invalid structure type!")
         elif self.structure == "singleton":
             return [
@@ -385,6 +392,36 @@ class CoreCaseFactory(factory.django.DjangoModelFactory):
                     "sex": 2,  # always female
                     "affected": 1,  # never affected
                     "has_gt_entries": True,
+                },
+            ]
+        elif self.structure == "trio-noparents":
+            # Father and mother name
+            father = "father_%03d-N1-DNA1-WES1" % n
+            mother = "mother_%03d-N1-DNA1-WES1" % n
+            return [
+                {
+                    "patient": self.index,
+                    "father": father,
+                    "mother": mother,
+                    "sex": self.sex,
+                    "affected": 2,  # always affected
+                    "has_gt_entries": True,
+                },
+                {
+                    "patient": father,
+                    "father": "0",
+                    "mother": "0",
+                    "sex": 1,  # always male
+                    "affected": 2 if self.inheritance == "dominant" else 1,
+                    "has_gt_entries": False,
+                },
+                {
+                    "patient": mother,
+                    "father": "0",
+                    "mother": "0",
+                    "sex": 2,  # always female
+                    "affected": 1,  # never affected
+                    "has_gt_entries": False,
                 },
             ]
         elif self.structure == "quartet":

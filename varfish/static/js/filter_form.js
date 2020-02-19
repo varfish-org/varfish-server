@@ -229,16 +229,32 @@ function loadBeaconWidget() {
 }
 
 
-function loadVariantDetails(row, cell) {
+function loadVariantDetails(row, cell, open=false) {
   var url = cell.data("url");
   var icon = $("i", cell);
+  var previous_icon = "";
+  var spinner = "fa-spinner fa-spin";
+  if (icon.hasClass("fa-chevron-right")) {
+      previous_icon = "fa-chevron-right";
+  }
+  else if (icon.hasClass("fa-chevron-down")) {
+      previous_icon = "fa-chevron-down";
+  }
+  icon.removeClass(previous_icon);
+  icon.addClass(spinner);
   $.ajax(
     url,
     {
       success: function (response) {
-        icon.removeClass('fa-spinner fa-spin');
-        icon.addClass('fa-chevron-down');
-        row.child(response).show();
+        row.child(response);
+        icon.removeClass(spinner);
+        if (open) {
+            icon.addClass("fa-chevron-down");
+            row.child.show();
+        }
+        else {
+            icon.addClass(previous_icon);
+        }
         $('[data-toggle="tooltip"]').tooltip({container: "body"});
         $('[data-toggle="popover"]').popover({container: "body"});
         $('body').on('click', function (e) {
@@ -279,14 +295,13 @@ $(document).on('click', '.toggle-variant-details', function() {
     row.child.hide();
   }
   else {
-    icon.removeClass('fa-chevron-right');
     if (row.child() && row.child().length) {
+      icon.removeClass('fa-chevron-right');
       icon.addClass('fa-chevron-down');
       row.child.show();
     }
     else {
-      icon.addClass('fa-spinner fa-spin');
-      loadVariantDetails(row, cell);
+      loadVariantDetails(row, cell, true);
     }
   }
 });

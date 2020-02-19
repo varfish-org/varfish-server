@@ -1476,7 +1476,14 @@ class CompHetCombiner:
         ]
         if len(members) != 1:
             raise RuntimeError("Could not find index from pedigree")
-        singleton = members[0]["father"] == "0" and members[0]["mother"] == "0"
+        # Check if parents have genotypes
+        members_with_gt = self.case.get_members_with_samples()
+        singleton = (
+            members[0]["father"] == "0"
+            and members[0]["mother"] == "0"
+            or members[0]["father"] not in members_with_gt
+            and members[0]["mother"] not in members_with_gt
+        )
         father_stmt = DefaultCombiner(self.case, self.builder).to_stmt(
             kwargs, extender_genotype_class=ExtendQueryPartsGenotypeGtQualityFatherFilter
         )

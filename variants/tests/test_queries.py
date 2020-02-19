@@ -2597,6 +2597,100 @@ class TestCaseTwoCompHetQuery(SupportQueryTestBase):
         self.assertEqual(res[1].start, self.small_vars[3].start)
 
 
+class TestCaseTwoCompHetTrioNoParentsQuery(SupportQueryTestBase):
+    """Test the queries for compound recessive heterozygous hypothesis"""
+
+    def setUp(self):
+        """Create a trio case with 4 variants and make sure the coordinates in the same gene are on the same chromosome."""
+        super().setUp()
+        self.variant_set = SmallVariantSetFactory(case__structure="trio-noparents")
+        self.case = self.variant_set.case
+        self.small_vars = [
+            SmallVariantFactory(
+                genotype={
+                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}
+                },
+                ensembl_gene_id="ENSG1",
+                variant_set=self.variant_set,
+            ),
+            SmallVariantFactory(
+                genotype={
+                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "1/1"}
+                },
+                refseq_gene_id="2",
+                ensembl_gene_id="ENSG2",
+                variant_set=self.variant_set,
+            ),
+            SmallVariantFactory(
+                chromosome="3",
+                genotype={
+                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}
+                },
+                refseq_gene_id="3",
+                ensembl_gene_id="ENSG3",
+                variant_set=self.variant_set,
+            ),
+            SmallVariantFactory(
+                chromosome="3",
+                genotype={
+                    self.case.pedigree[0]["patient"]: {"ad": 15, "dp": 30, "gq": 99, "gt": "0/1"}
+                },
+                variant_set=self.variant_set,
+                refseq_gene_id="3",
+                ensembl_gene_id="ENSG3",
+            ),
+        ]
+
+    def test_query_compound_het_prefetch_filter(self):
+        res = self.run_query(
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
+        )
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
+
+    def test_query_compound_het_export_tsv(self):
+        res = self.run_query(
+            CaseExportTableQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
+        )
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
+
+    def test_query_compound_het_export_vcf(self):
+        res = self.run_query(
+            CaseExportVcfQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
+        )
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
+
+    def test_query_compound_het_load_prefetched_filter(self):
+        # Generate results
+        res = self.run_query(
+            CasePrefetchQuery,
+            {"compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]}},
+            2,
+        )
+        # Add results to variant query
+        query = SmallVariantQueryFactory(case=self.case)
+        query.query_results.add(*[r.id for r in res])
+        # Load Prefetched results
+        res = self.run_query(
+            CaseLoadPrefetchedQuery,
+            {
+                "compound_recessive_indices": {self.case.name: self.case.pedigree[0]["patient"]},
+                "filter_job_id": query.id,
+            },
+            2,
+        )
+        self.assertEqual(res[0].start, self.small_vars[2].start)
+        self.assertEqual(res[1].start, self.small_vars[3].start)
+
+
 class TestCaseTwoCompHetQuartetQuery(SupportQueryTestBase):
     """Test the queries for compound recessive heterozygous hypothesis with siblings."""
 

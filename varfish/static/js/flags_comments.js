@@ -108,7 +108,7 @@ function clickVariantBookmark() {
           var commentTag = $(outerThis).closest(".bookmark").find(".variant-comment");
           commentTag.removeClass("fa-comment fa-comment-o");
           commentTag.addClass("fa-comment");
-        loadVariantDetails(row, cell);
+          loadVariantDetails(row, cell);
         }).fail(function(xhr) {
           // failed, notify user
           alert("Adding comment failed");

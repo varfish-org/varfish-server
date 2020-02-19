@@ -22,6 +22,7 @@ End-User Summary
 - Removed VariantValidator link-out.
 - Now smallvariant comments, flags and ACMG are updating in the smallvariant details once submitted.
 - Deleting a case (only possible as root) runs now as background job.
+- Fixed bug in compound heterozygous filter with parents in pedigree but without genotype that resulted in variants in genes that didn't match the pattern.
 
 Full Change List
 ================
@@ -43,6 +44,7 @@ Full Change List
 - Removed VariantValidator link-out.
 - Now smallvariant comments, flags and ACMG are updating in the smallvariant details once submitted.
 - Deleting a case (only possible as root) runs now as background job.
+- Fixed bug in compound heterozygous filter with parents in pedigree but without genotype that resulted in variants in genes that didn't match the pattern.
 
 -------
 v0.20.0
