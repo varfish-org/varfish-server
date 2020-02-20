@@ -45,7 +45,6 @@ function largeValueLabel(tooltipItem, data) {
 function plotlyVariantTypes(response, containerId) {
     const seq = palette('tol', response.data.variantTypeData.length)
     const varTypeData = response.data.variantTypeData.map(function (item, index) {
-      console.log(item);
       return {
         type: "bar",
         marker: {

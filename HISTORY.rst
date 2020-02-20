@@ -25,6 +25,7 @@ End-User Summary
 - Fixed bug in compound heterozygous filter with parents in pedigree but without genotype that resulted in variants in genes that didn't match the pattern.
 - Bumped django version to 1.11.28 and sodar core version to bug fix commit.
 - Fixed bug where structural variant results were not displayed anymore after introduced ``molecular`` assessment flag.
+- Fixed bug where variant comments and flags popup was not shown in structural variant results after updating smallvariant details on the fly.
 
 Full Change List
 ================
@@ -49,6 +50,7 @@ Full Change List
 - Fixed bug in compound heterozygous filter with parents in pedigree but without genotype that resulted in variants in genes that didn't match the pattern.
 - Bumped django version to 1.11.28 and sodar core version to bug fix commit.
 - Fixed bug where structural variant results were not displayed anymore after introduced ``molecular`` assessment flag.
+- Fixed bug where variant comments and flags popup was not shown in structural variant results after updating smallvariant details on the fly.
 
 -------
 v0.20.0
