@@ -684,12 +684,9 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.pending().until(ec.visibility_of(option))
         option.click()
         # find and hit download button
-        self.selenium.find_element_by_id("submit-menu").click()
-        download = self.selenium.find_element_by_xpath(
+        self.selenium.find_element_by_xpath(
             '//button[@name="submit" and @value="download"]'
-        )
-        self.pending().until(ec.visibility_of(download))
-        download.click()
+        ).click()
         # wait for redirect and refresh page for elements to show up
         self.pending().until(
             ec.presence_of_element_located(
@@ -850,7 +847,7 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
-    def test_variant_join_filter_display_results(self):
+    def test_variant_joint_filter_display_results(self):
         """Test if submitting the filter yields the expected results."""
         # login
         self.compile_url_and_login({"project": self.project.sodar_uuid})
@@ -867,12 +864,9 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         self.compile_url_and_login({"project": self.project.sodar_uuid})
         self._disable_filters("project")
         # find and hit download button
-        self.selenium.find_element_by_id("submit-menu").click()
-        download = self.selenium.find_element_by_xpath(
+        self.selenium.find_element_by_xpath(
             '//button[@name="submit" and @value="download"]'
-        )
-        self.pending().until(ec.visibility_of(download))
-        download.click()
+        ).click()
         # wait for redirect and refresh page for elements to show up
         self.pending().until(
             ec.presence_of_element_located(

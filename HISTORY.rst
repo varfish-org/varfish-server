@@ -26,6 +26,8 @@ End-User Summary
 - Bumped django version to 1.11.28 and sodar core version to bug fix commit.
 - Fixed bug where structural variant results were not displayed anymore after introduced ``molecular`` assessment flag.
 - Fixed bug where variant comments and flags popup was not shown in structural variant results after updating smallvariant details on the fly.
+- Made ``Download as File`` and ``Submit to MutationDistiller`` buttons more promiment.
+- Adapted preset settings for ``ClinVar Pathogenic`` setting.
 
 Full Change List
 ================
@@ -51,6 +53,8 @@ Full Change List
 - Bumped django version to 1.11.28 and sodar core version to bug fix commit.
 - Fixed bug where structural variant results were not displayed anymore after introduced ``molecular`` assessment flag.
 - Fixed bug where variant comments and flags popup was not shown in structural variant results after updating smallvariant details on the fly.
+- Made ``Download as File`` and ``Submit to MutationDistiller`` buttons more promiment.
+- Adapted preset settings for ``ClinVar Pathogenic`` setting.
 
 -------
 v0.20.0

@@ -1832,17 +1832,20 @@ function loadPresets(element) {
     $("#input-presets-quality").val("quality-strict")
     $("#input-presets-region").val("region-whole-genome")
     $("#input-presets-flags").val("flags-default")
-  } else if (presetsName == "clinvar" || presetsName == "whole-exome") {
+  } else if (presetsName == "clinvar") {
+    $("#input-presets-inheritance").val("inheritance-any")
+    $("#input-presets-frequency").val("frequency-recessive-relaxed")
+    $("#input-presets-impact").val("impact-any")
+    $("#input-presets-quality").val("quality-strict")
+    $("#input-presets-region").val("region-whole-genome")
+    $("#input-presets-flags").val("flags-clinvar")
+  } else if (presetsName == "whole-exome") {
     $("#input-presets-inheritance").val("inheritance-any")
     $("#input-presets-frequency").val("frequency-all")
     $("#input-presets-impact").val("impact-any")
     $("#input-presets-quality").val("quality-ignore")
     $("#input-presets-region").val("region-whole-genome")
-    if (presetsName == "whole-exome") {
-      $("#input-presets-flags").val("flags-default")
-    } else {
-      $("#input-presets-flags").val("flags-clinvar")
-    }
+    $("#input-presets-flags").val("flags-default")
   } else if (presetsName == "mitochondrial") {
     $("#input-presets-inheritance").val("inheritance-mitochondrial")
     $("#input-presets-frequency").val("frequency-all")
