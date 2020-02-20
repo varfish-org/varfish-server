@@ -392,6 +392,7 @@ class ExtendQueryPartsFlagsJoinAndFilter(ExtendQueryPartsBase):
         ("final_causative", func.bool_or, False, None),
         ("for_validation", func.bool_or, False, None),
         ("visual", func.max, "", None),
+        ("molecular", func.max, "", None),
         ("validation", func.max, "", None),
         ("phenotype_match", func.max, "", None),
         ("summary", func.max, "", None),

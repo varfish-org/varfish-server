@@ -74,20 +74,20 @@
         </div>
       </div>
       <div class="form-group mb-1 row">
-        <label class="pr-3" data-toggle="tooltip" title="Molecular">
+        <label class="pr-3" data-toggle="tooltip" title="Evidence for variant being missense">
           <i class="fa fa-fw fa-fire pr-1"></i>
           Molecular
         </label>
         <div class="ml-auto">
-          <div class="form-check form-check-inline" data-toggle="tooltip" title="true variant">
+          <div class="form-check form-check-inline" data-toggle="tooltip" title="strong evidence for missense variant">
             <input class="form-check-input" id="comment-radio-molecular-positive-{{:variant}}" type="radio" name="flag_molecular" value="positive" {{if flag_molecular == "positive"}}checked{{/if}}/>
             <label for="comment-radio-molecular-positive-{{:variant}}" class="m-0"><i class="fa fa-fw fa-exclamation-circle text-danger""></i></label>
           </div>
-          <div class="form-check form-check-inline" data-toggle="tooltip" title="uncertain">
+          <div class="form-check form-check-inline" data-toggle="tooltip" title="medium evidence for missense variant">
             <input class="form-check-input" id="comment-radio-molecular-uncertain-{{:variant}}" type="radio" name="flag_molecular" value="uncertain" {{if flag_molecular == "uncertain"}}checked{{/if}} />
             <label for="comment-radio-molecular-uncertain-{{:variant}}" class="m-0"><i class="fa fa-fw fa-question text-warning"></i></label>
           </div>
-          <div class="form-check form-check-inline" data-toggle="tooltip" title="artifact">
+          <div class="form-check form-check-inline" data-toggle="tooltip" title="weak evidence for missense variant">
             <input class="form-check-input" id="comment-radio-molecular-negative-{{:variant}}" type="radio" name="flag_molecular" value="negative" {{if flag_molecular == "negative"}}checked{{/if}}/>
             <label for="comment-radio-molecular-negative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-minus-circle text-success"></i></label>
           </div>
@@ -98,7 +98,7 @@
         </div>
       </div>
       <div class="form-group mb-1 row">
-        <label class="pr-3" data-toggle="tooltip" data-toggle="tooltip" title="Wet-lab Validation">
+        <label class="pr-3" data-toggle="tooltip" title="Wet-lab Validation">
           <i class="fa fa-fw fa-flask pr-1"></i>
           Validation
         </label>
@@ -122,7 +122,7 @@
         </div>
       </div>
       <div class="form-group mb-1 row">
-        <label class="pr-3" data-toggle="tooltip" data-toggle="tooltip" title="Phenotype / Clinic Match">
+        <label class="pr-3" data-toggle="tooltip" title="Phenotype / Clinic Match">
           <i class="fa fa-fw fa-user-md pr-1"></i>
           Pheno./Clinic
         </label>
@@ -146,7 +146,7 @@
         </div>
       </div>
       <div class="form-group mb-1 row">
-        <label class="pr-3" data-toggle="tooltip" data-toggle="tooltip" title="Summary, overrides rating selected above">
+        <label class="pr-3" data-toggle="tooltip" title="Summary, overrides rating selected above">
           <i class="fa fa-fw fa-paint-brush pr-1"></i>
           Summary
         </label>

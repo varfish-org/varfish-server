@@ -7,31 +7,36 @@
     <h4 class="card-title">Comments & Flags</h4>
   </div>
   {% if flags %}
-  <div class="row font-weight-bold p-2">
-    <div class="col-1">Flags</div>
-    <div class="col-2">
+  <div class="row font-weight-bold pt-2">
+    <div class="col text-nowrap">
       <i class="fa fa-fw fa-star {% if not flags.flag_bookmarked %}text-muted" style="opacity: 0.2;{% endif %}"></i>
       <i class="fa fa-fw fa-flask {% if not flags.flag_for_validation %}text-muted" style="opacity: 0.2;{% endif %}"></i>
       <i class="fa fa-fw fa-heart {% if not flags.flag_candidate %}text-muted" style="opacity: 0.2;{% endif %}"></i>
       <i class="fa fa-fw fa-flag-checkered {% if not flags.flag_final_causative %}text-muted" style="opacity: 0.2;{% endif %}"></i>
+      <i class="fa fa-fw fa-chain-broken {% if not flags.flag_no_disease_association %}text-muted" style="opacity: 0.3{% endif %}"></i>
+      <i class="fa fa-fw fa-thumbs-up {% if not flags.flag_segregates %}text-muted" style="opacity: 0.3{% endif %}"></i>
+      <i class="fa fa-fw fa-thumbs-down {% if not flags.flag_doesnt_segregate %}text-muted" style="opacity: 0.3{% endif %}"></i>
     </div>
-    <div class="col-2">
+    <div class="col text-nowrap">
       Visual
       <i class="fa fa-fw {{ flags.flag_visual|flag_value_to_fa }} {{ flags.flag_visual|flag_value_to_color }}"></i>
     </div>
-    <div class="col-2">
+    <div class="col text-nowrap">
+      Molecular
+      <i class="fa fa-fw {{ flags.flag_molecular|flag_value_to_fa }} {{ flags.flag_molecular|flag_value_to_color }}"></i>
+    </div>
+    <div class="col text-nowrap">
       Validation
       <i class="fa fa-fw {{ flags.flag_validation|flag_value_to_fa }} {{ flags.flag_validation|flag_value_to_color }}"></i>
     </div>
-    <div class="col-2">
+    <div class="col text-nowrap">
       Phenotype
       <i class="fa fa-fw {{ flags.flag_phenotype_match|flag_value_to_fa }} {{ flags.flag_phenotype_match|flag_value_to_color }}"></i>
     </div>
-    <div class="col-2">
+    <div class="col text-nowrap">
       Summary
       <i class="fa fa-fw {{ flags.flag_summary|flag_value_to_fa }} {{ flags.flag_summary|flag_value_to_color }}"></i>
     </div>
-    <div class="col-1"></div>
   </div>
   {% else %}
     <div class="text-muted text-center p-2"><i>No flags.</i></div>

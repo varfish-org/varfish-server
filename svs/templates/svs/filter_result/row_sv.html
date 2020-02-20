@@ -32,10 +32,10 @@
     </span>
   </td>
   <td style="width: 140px;" class="text-nowrap">
-    chr{{ first_entry.chromosome }}:{{ first_entry.start|intcomma }}<span class="text-muted">
+    chr{{ first_entry.chromosome }}:{{ first_entry.start|intcomma }}
   </td>
   <td style="width: 50px;" class="text-nowrap text-right">
-    </span>{{ first_entry.sv_length|intcomma }}<small class="text-muted">bp</small>
+    {{ first_entry.sv_length|intcomma }}<small class="text-muted">bp</small>
   </td>
   <td>
     {% for entry in entries|slice:":3" %}

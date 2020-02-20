@@ -184,7 +184,7 @@ FLAG_VALUE_TO_COLOR = {
     "positive": "text-danger",
     "uncertain": "text-warning",
     "negative": "text-success",
-    "empty": "text-dark",
+    "empty": "text-secondary",
 }
 
 

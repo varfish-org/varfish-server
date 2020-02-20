@@ -23,6 +23,8 @@ End-User Summary
 - Now smallvariant comments, flags and ACMG are updating in the smallvariant details once submitted.
 - Deleting a case (only possible as root) runs now as background job.
 - Fixed bug in compound heterozygous filter with parents in pedigree but without genotype that resulted in variants in genes that didn't match the pattern.
+- Bumped django version to 1.11.28 and sodar core version to bug fix commit.
+- Fixed bug where structural variant results were not displayed anymore after introduced ``molecular`` assessment flag.
 
 Full Change List
 ================
@@ -45,6 +47,8 @@ Full Change List
 - Now smallvariant comments, flags and ACMG are updating in the smallvariant details once submitted.
 - Deleting a case (only possible as root) runs now as background job.
 - Fixed bug in compound heterozygous filter with parents in pedigree but without genotype that resulted in variants in genes that didn't match the pattern.
+- Bumped django version to 1.11.28 and sodar core version to bug fix commit.
+- Fixed bug where structural variant results were not displayed anymore after introduced ``molecular`` assessment flag.
 
 -------
 v0.20.0
