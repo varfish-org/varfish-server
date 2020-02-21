@@ -2323,6 +2323,7 @@ class SmallVariantDetails(
             "vars": {db: dict() for db in MT_DB_INFO},
             "an": {db: 0 for db in MT_DB_INFO},
             "is_triallelic": False,
+            "dloop": False,
         }
         for dbname, db in MT_DB_INFO.items():
             singles = {
@@ -2348,8 +2349,10 @@ class SmallVariantDetails(
                 an = alts[0].an
                 ref_count = an
                 for alt in alts:
-                    if dbname == "HelixMTdb":
-                        result["is_triallelic"] |= alt.is_triallelic
+                    if dbname == "HelixMTdb" and kwargs["alternative"] == alt.alternative:
+                        result["is_triallelic"] = alt.is_triallelic
+                    if dbname == "mtDB" and kwargs["alternative"] == alt.alternative:
+                        result["dloop"] = alt.location == "D-loop"
                     assert an == alt.an
                     ref_count -= (alt.ac_hom + alt.ac_het) if dbname == "HelixMTdb" else alt.ac
                     if len(alt.alternative) == 1:

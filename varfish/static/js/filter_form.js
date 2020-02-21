@@ -604,14 +604,14 @@ const presets = {
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
-      "mtdb_enabled": false,
+      "mtdb_enabled": true,
       "mtdb_count": 10,
-      "mtdb_frequency": null,
+      "mtdb_frequency": 0.01,
 
-      "helixmtdb_enabled": false,
+      "helixmtdb_enabled": true,
       "helixmtdb_hom_count": 10,
       "helixmtdb_het_count": null,
-      "helixmtdb_frequency": null,
+      "helixmtdb_frequency": 0.01,
 
       "mitomap_enabled": false,
       "mitomap_count": null,
@@ -646,11 +646,11 @@ const presets = {
       "inhouse_heterozygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
-      "mtdb_enabled": false,
+      "mtdb_enabled": true,
       "mtdb_count": 50,
       "mtdb_frequency": 0.15,
 
-      "helixmtdb_enabled": false,
+      "helixmtdb_enabled": true,
       "helixmtdb_het_count": null,
       "helixmtdb_hom_count": 50,
       "helixmtdb_frequency": 0.15,
@@ -1848,7 +1848,7 @@ function loadPresets(element) {
     $("#input-presets-flags").val("flags-default")
   } else if (presetsName == "mitochondrial") {
     $("#input-presets-inheritance").val("inheritance-mitochondrial")
-    $("#input-presets-frequency").val("frequency-all")
+    $("#input-presets-frequency").val("frequency-strict")
     $("#input-presets-impact").val("impact-any")
     $("#input-presets-quality").val("quality-strict")
     $("#input-presets-region").val("region-mt-chromosome")

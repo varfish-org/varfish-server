@@ -17,7 +17,7 @@
     </h4>
   </div>
   {% if small_var.chromosome == "MT" %}
-  {% with vars=mitochondrial_freqs|keyvalue:"vars" an=mitochondrial_freqs|keyvalue:"an" is_triallelic=mitochondrial_freqs|keyvalue:"is_triallelic" %}
+  {% with vars=mitochondrial_freqs|keyvalue:"vars" an=mitochondrial_freqs|keyvalue:"an" is_triallelic=mitochondrial_freqs|keyvalue:"is_triallelic" dloop=mitochondrial_freqs|keyvalue:"dloop" %}
     <table class="card-body table table-striped table-sm">
       <thead>
         <tr>
@@ -50,7 +50,12 @@
               <td class="text-right">{{ freqs|keyvalue:"ac_hom"|default:0|intcomma }}</td>
             {% endfor %}
           {% else %}
-            <th class="text-center" rowspan="2">{{ dbname }}</th>
+            <th class="text-center" rowspan="2">
+              {{ dbname }}
+              {% if dbname == "mtDB" %}
+                {% if dloop %}<i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant is in D-loop region'></i>{% endif %}
+              {% endif %}
+            </th>
             <td class="text-right" rowspan="2">{{ an|keyvalue:dbname|default:0|intcomma }}</td>
             <th>AC</th>
             {% for var, freqs in data %}

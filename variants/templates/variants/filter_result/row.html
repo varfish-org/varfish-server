@@ -187,6 +187,9 @@
   </td>
   <td class="detail-frequencies-mtdb text-right">
     {% if entry.chromosome_no == 25 %}
+      {% if entry.mtdb_dloop %}
+        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant is in D-loop region'></i>
+      {% endif %}
       {{ entry.mtdb_frequency|floatformat:5|default_if_none:"-" }}
     {% else %}
       -

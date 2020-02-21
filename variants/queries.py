@@ -776,6 +776,7 @@ class ExtendQueryPartsMitochondrialFrequenciesJoin(ExtendQueryPartsBase):
                 [
                     func.max(MtDb.sa.ac).label("mtdb_count"),
                     func.max(MtDb.sa.af).label("mtdb_frequency"),
+                    func.bool_or(MtDb.sa.location == "D-loop").label("mtdb_dloop"),
                 ]
             )
             .select_from(MtDb.sa)
@@ -835,6 +836,7 @@ class ExtendQueryPartsMitochondrialFrequenciesJoin(ExtendQueryPartsBase):
         return [
             func.coalesce(self.subquery_mtdb.c.mtdb_count, 0).label("mtdb_count"),
             func.coalesce(self.subquery_mtdb.c.mtdb_frequency, 0.0).label("mtdb_frequency"),
+            func.coalesce(self.subquery_mtdb.c.mtdb_dloop, False).label("mtdb_dloop"),
             func.coalesce(self.subquery_helixmtdb.c.helixmtdb_het_count, 0).label(
                 "helixmtdb_het_count"
             ),

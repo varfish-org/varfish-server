@@ -28,6 +28,8 @@ End-User Summary
 - Fixed bug where variant comments and flags popup was not shown in structural variant results after updating smallvariant details on the fly.
 - Made ``Download as File`` and ``Submit to MutationDistiller`` buttons more promiment.
 - Adapted preset settings for ``ClinVar Pathogenic`` setting.
+- Finalized mitochondrial presets.
+- Added identifier to results table and smallvariant details when mitochondrial variant is located in D-loop region in mtDB.
 
 Full Change List
 ================
@@ -55,6 +57,8 @@ Full Change List
 - Fixed bug where variant comments and flags popup was not shown in structural variant results after updating smallvariant details on the fly.
 - Made ``Download as File`` and ``Submit to MutationDistiller`` buttons more promiment.
 - Adapted preset settings for ``ClinVar Pathogenic`` setting.
+- Finalized mitochondrial presets.
+- Added identifier to results table and smallvariant details when mitochondrial variant is located in D-loop region in mtDB.
 
 -------
 v0.20.0
