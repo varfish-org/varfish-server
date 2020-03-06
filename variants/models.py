@@ -3393,9 +3393,11 @@ class VariantImporter(VariantImporterBase):
             self.import_job.add_log_entry("... importing from %s" % path_bam_qc)
             for lineno, entry in enumerate(tsv_reader(path_bam_qc)):
                 CaseAlignmentStats.objects.get_or_create(
-                    case=variant_set.case,
                     variant_set=variant_set,
-                    bam_stats=json.loads(entry["bam_stats"].replace('"""', '"')),
+                    defaults={
+                        "case": variant_set.case,
+                        "bam_stats": json.loads(entry["bam_stats"].replace('"""', '"')),
+                    },
                 )
             self.import_job.add_log_entry("imported %d entries" % lineno)
         elapsed = timezone.now() - before

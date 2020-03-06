@@ -518,7 +518,8 @@ class CaseImporter:
                 lineno = 0
                 for lineno, entry in enumerate(tsv_reader(bam_qc_file.file)):
                     case_stats = CaseAlignmentStats.objects.get_or_create(
-                        case=import_info.case, variant_set=variant_set, defaults={"bam_stats": {}},
+                        variant_set=variant_set,
+                        defaults={"case": import_info.case, "bam_stats": {}},
                     )
                     case_stats.bam_stats = json.loads(entry["bam_stats"].replace('"""', '"'))
                 self.import_job.add_log_entry("imported %d entries" % lineno)
