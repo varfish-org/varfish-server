@@ -418,6 +418,8 @@
       {% if ga4gh_beacon_network_widget_enabled or kiosk_mode %}
         <a
            data-toggle="popover"
+           tabindex="0"
+           data-trigger="focus"
            data-content="<iframe
   src='https://beacon-network.org:443/#/widget?rs={{ entry.release }}&chrom={{ entry.chromosome }}&pos={{ entry.start }}&ref={{  entry.reference }}&allele={{ entry.alternative }}'
   style='width: 100%; height: 300px; overflow: auto;'

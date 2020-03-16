@@ -31,6 +31,7 @@ End-User Summary
 - Finalized mitochondrial presets.
 - Added identifier to results table and smallvariant details when mitochondrial variant is located in D-loop region in mtDB.
 - Fixed per-sample metrics in case variant control.
+- Made ACMG and Beacon popover disappear when clicking anywhere.
 
 Full Change List
 ================
@@ -61,6 +62,7 @@ Full Change List
 - Finalized mitochondrial presets.
 - Added identifier to results table and smallvariant details when mitochondrial variant is located in D-loop region in mtDB.
 - Fixed per-sample metrics in case variant control.
+- Made ACMG and Beacon popover disappear when clicking anywhere.
 
 -------
 v0.20.0

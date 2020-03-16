@@ -35,7 +35,7 @@
           </span>
           {% if prio_enabled %}
             <div class="pl-2">
-              <button
+              <a
                 class="btn btn-outline-secondary"
                 data-toggle="popover"
                 data-html="true"
@@ -68,12 +68,12 @@
                   {% empty %}
                     <p class='text-muted font-italic'>None</p>
                   {% endfor %}
-                "><i class="fa fa-list"></i> HPO Terms</button>
+                "><i class="fa fa-list"></i> HPO Terms</a>
             </div>
           {% endif %}
           {% if gene_blacklist %}
             <div class="pl-2">
-              <button
+              <a
                 class="btn btn-outline-secondary"
                 data-toggle="popover"
                 data-html="true"
@@ -94,7 +94,7 @@
           {% endif %}
           {% if gene_whitelist %}
             <div class="pl-2">
-              <button
+              <a
                 class="btn btn-outline-secondary"
                 data-toggle="popover"
                 data-html="true"
@@ -108,12 +108,12 @@
                   {% empty %}
                     <p class='text-muted font-italic'>None</p>
                   {% endfor %}"
-              ><i class="fa fa-check"></i> Gene Whitelist</button>
+              ><i class="fa fa-check"></i> Gene Whitelist</a>
             </div>
           {% endif %}
           {% if genomic_region %}
             <div class="pl-2">
-              <button
+              <a
                 class="btn btn-outline-secondary"
                 data-toggle="popover"
                 data-html="true"
@@ -134,7 +134,7 @@
                   {% empty %}
                     <p class='text-muted font-italic'>None</p>
                   {% endfor %}"
-              ><i class="fa fa-arrows-h"></i> Genomic Region</button>
+              ><i class="fa fa-arrows-h"></i> Genomic Region</a>
             </div>
           {% endif %}
         </div>
@@ -204,9 +204,9 @@
           transcripts.
         </div>
         <div class="pl-3">
-          <button type="button" id="logPopover" class="btn btn-sm btn-light" data-title="Background job logs" data-container="body" data-toggle="popover" data-placement="top" data-html="true" data-content="<pre>{{ logs|join:"<br>" }}</pre>">
+          <a type="button" id="logPopover" class="btn btn-sm btn-light" data-title="Background job logs" data-container="body" data-toggle="popover" data-trigger="focus" tabindex="0" data-placement="top" data-html="true" data-content="<pre>{{ logs|join:"<br>" }}</pre>">
             <i class="fa fa-list"></i> Show logs
-          </button>
+          </a>
         </div>
       </div>
     </div>
