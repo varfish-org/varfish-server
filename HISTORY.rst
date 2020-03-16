@@ -30,6 +30,7 @@ End-User Summary
 - Adapted preset settings for ``ClinVar Pathogenic`` setting.
 - Finalized mitochondrial presets.
 - Added identifier to results table and smallvariant details when mitochondrial variant is located in D-loop region in mtDB.
+- Fixed per-sample metrics in case variant control.
 
 Full Change List
 ================
@@ -59,6 +60,7 @@ Full Change List
 - Adapted preset settings for ``ClinVar Pathogenic`` setting.
 - Finalized mitochondrial presets.
 - Added identifier to results table and smallvariant details when mitochondrial variant is located in D-loop region in mtDB.
+- Fixed per-sample metrics in case variant control.
 
 -------
 v0.20.0

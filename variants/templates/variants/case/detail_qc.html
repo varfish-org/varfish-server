@@ -28,7 +28,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for item in object.variant_stats.sample_variant_stats.all %}
+        {% for item in object.latest_variant_set.variant_stats.sample_variant_stats.all %}
           <tr>
             <td>{{ item.sample_name|only_source_name }}</td>
             <td class="text-right">{{ item.ontarget_transitions|intcomma }}</td>
