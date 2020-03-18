@@ -32,6 +32,7 @@ End-User Summary
 - Added identifier to results table and smallvariant details when mitochondrial variant is located in D-loop region in mtDB.
 - Fixed per-sample metrics in case variant control.
 - Made ACMG and Beacon popover disappear when clicking anywhere.
+- Fixed bug when a filter setting with multiple HPO terms resulted in only showing one HPO term after reloading the page.
 
 Full Change List
 ================
@@ -63,6 +64,7 @@ Full Change List
 - Added identifier to results table and smallvariant details when mitochondrial variant is located in D-loop region in mtDB.
 - Fixed per-sample metrics in case variant control.
 - Made ACMG and Beacon popover disappear when clicking anywhere.
+- Fixed bug when a filter setting with multiple HPO terms resulted in only showing one HPO term after reloading the page.
 
 -------
 v0.20.0

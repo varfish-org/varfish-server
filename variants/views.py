@@ -1299,6 +1299,8 @@ class CaseFilterView(
                         else chrom
                         for chrom, start, end in value
                     )
+                if key == "prio_hpo_terms":
+                    result[key] = "; ".join(value)
                 elif isinstance(value, list):
                     result[key] = " ".join(value)
                 else:
