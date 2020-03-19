@@ -320,6 +320,12 @@ function handleEventStateGetJobId(eventType, event) {
     currentState = STATE_IDLE;
     animateFilterButtonSubmit();
     resultsTable.empty();
+    resultsTable.html(
+      '<div class="alert alert-info">' +
+      '   <h4><strong>Click <span class="badge badge-primary"><i class="fa fa-refresh"></i> Filter & Display</span> to start filtration and obtain results.</strong></h4>' +
+      '   You may want to adjust the filter settings to your needs first.' +
+      '</div>'
+    );
   } else if (eventType == EVENT_CANCEL) {
     currentState = STATE_IDLE;
     if (ajaxCall) {

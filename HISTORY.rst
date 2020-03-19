@@ -33,6 +33,7 @@ End-User Summary
 - Fixed per-sample metrics in case variant control.
 - Made ACMG and Beacon popover disappear when clicking anywhere.
 - Fixed bug when a filter setting with multiple HPO terms resulted in only showing one HPO term after reloading the page.
+- Extended information when entering the filter page and no previous filter job existed.
 
 Full Change List
 ================
@@ -65,6 +66,8 @@ Full Change List
 - Fixed per-sample metrics in case variant control.
 - Made ACMG and Beacon popover disappear when clicking anywhere.
 - Fixed bug when a filter setting with multiple HPO terms resulted in only showing one HPO term after reloading the page.
+- Extended information when entering the filter page and no previous filter job existed.
+- Added lodash javascript to static.
 
 -------
 v0.20.0
