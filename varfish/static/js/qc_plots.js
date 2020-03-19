@@ -157,6 +157,10 @@ function colorFgToBg(col) {
 /** Plot relatedness. */
 function plotlyRelatedness(response, containerId) {
   const relData = response.data.relData
+  if (relData.length === 0) {
+    $("#" + containerId + " .placeholder-container .placeholder-text").html('<span class="text-muted"><i class="fa fa-ban fa-3x"></i><br /><p class="pt-3 font-italic">No relatedness plot available for a singleton.</p></span>');
+    return;
+  }
   const clsRelData = {
     sibSib: {x: [], y: [], text: []},
     parentChild: {x: [], y: [], text: []},
