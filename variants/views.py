@@ -1,4 +1,3 @@
-import itertools
 import os
 import re
 import tempfile
@@ -10,6 +9,7 @@ import contextlib
 import decimal
 import numpy as np
 import requests
+from base64 import b64encode
 
 from django.conf import settings
 from django.contrib import messages
@@ -628,8 +628,53 @@ class CaseDetailView(
                 if coverages:
                     filtered = filter(lambda x: x > 0, coverages)
                     result["coverages"] = list(map(str, sorted(filtered)))[:10]
+                result["qcdata_relatedness"] = self.get_relatedness_content()
+                result["qcdata_sample_variant_stats"] = self.get_sample_variant_stats_content()
         except (SmallVariantSet.variant_stats.RelatedObjectDoesNotExist, AttributeError):
             pass  # swallow, defaults set above
+
+        # Prepare effect counts data for QC download
+        qcdata_effect_content = ["\t".join(["Effect"] + case.get_members_with_samples())]
+        for effect in result["effects"]:
+            record = [effect]
+            for sample in case.get_members_with_samples():
+                record.append(str(result["ontarget_effect_counts"][sample].get(effect, 0)))
+            qcdata_effect_content.append("\t".join(record))
+        result["qcdata_effects"] = b64encode("\n".join(qcdata_effect_content).encode("utf-8"))
+
+        # Prepare InDel size data for QC download
+        qcdata_indel_size_content = ["\t".join(["InDel Size"] + case.get_members_with_samples())]
+        for indel_size in result["indel_sizes_keys"]:
+            record = [
+                ">= %d" % indel_size
+                if indel_size == 10
+                else "<= %d" % indel_size
+                if indel_size == -10
+                else str(indel_size)
+            ]
+            for sample in case.get_members_with_samples():
+                record.append(str(result["indel_sizes"][sample].get(indel_size, 0)))
+            qcdata_indel_size_content.append("\t".join(record))
+        result["qcdata_indel_sizes"] = b64encode(
+            "\n".join(qcdata_indel_size_content).encode("utf-8")
+        )
+
+        # Prepare depth data for QC download
+        qcdata_site_depth_content = ["\t".join(["Depth"] + case.get_members_with_samples())]
+        for site_depth in result["dps_keys"]:
+            record = [
+                ">= %d" % site_depth
+                if site_depth == 10
+                else "<= %d" % site_depth
+                if site_depth == -10
+                else str(site_depth)
+            ]
+            for sample in case.get_members_with_samples():
+                record.append(str(result["dps"][sample].get(site_depth, 0)))
+            qcdata_site_depth_content.append("\t".join(record))
+        result["qcdata_site_depths"] = b64encode(
+            "\n".join(qcdata_site_depth_content).encode("utf-8")
+        )
 
         return result
 
@@ -645,6 +690,85 @@ class CaseDetailView(
         case = self.get_object()
         kwargs.update({"project": case.project})
         return kwargs
+
+    def get_relatedness_content(self):
+        case = self.get_object()
+        result = [
+            "\t".join(
+                [
+                    "Sample 1",
+                    "Sample 2",
+                    "Het_1,2",
+                    "Het_1",
+                    "Het_2",
+                    "n_IBS0",
+                    "n_IBS1",
+                    "n_IBS2",
+                    "relatedness",
+                ]
+            )
+        ]
+        for rel in case.latest_variant_set().variant_stats.relatedness.all():
+            result.append(
+                "\t".join(
+                    [
+                        rel.sample1,
+                        rel.sample2,
+                        str(rel.het_1_2),
+                        str(rel.het_1),
+                        str(rel.het_2),
+                        str(rel.n_ibs0),
+                        str(rel.n_ibs1),
+                        str(rel.n_ibs2),
+                        str(rel.relatedness()),
+                    ]
+                )
+            )
+        return b64encode("\n".join(result).encode("utf-8"))
+
+    def get_sample_variant_stats_content(self):
+        case = self.get_object()
+        result = [
+            "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.",])
+        ]
+        for item in case.latest_variant_set().variant_stats.sample_variant_stats.all():
+            result.append(
+                "\t".join(
+                    [
+                        item.sample_name,
+                        str(item.ontarget_transitions),
+                        str(item.ontarget_transversions),
+                        str(item.ontarget_ts_tv_ratio()),
+                        str(item.ontarget_snvs),
+                        str(item.ontarget_indels),
+                        str(item.ontarget_mnvs),
+                        str(item.chrx_het_hom),
+                    ]
+                )
+            )
+        return b64encode("\n".join(result).encode("utf-8"))
+
+    def get_effect_content(self):
+        case = self.get_object()
+        members = case.get_members_with_samples()
+        result = ["\t".join(members)]
+        {sample: {} for sample in result["samples"]}
+        for item in case.latest_variant_set().variant_stats.sample_variant_stats.all():
+            result.append(
+                "\t".join(
+                    [
+                        item.sample_name,
+                        str(item.ontarget_transitions),
+                        str(item.ontarget_transversions),
+                        str(item.ontarget_ts_tv_ratio()),
+                        str(item.ontarget_snvs),
+                        str(item.ontarget_indels),
+                        str(item.ontarget_mnvs),
+                        str(item.chrx_het_hom),
+                    ]
+                )
+            )
+        return b64encode("\n".join(result).encode("utf-8"))
 
 
 class CaseUpdateView(

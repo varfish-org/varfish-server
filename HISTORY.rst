@@ -35,6 +35,7 @@ End-User Summary
 - Fixed bug when a filter setting with multiple HPO terms resulted in only showing one HPO term after reloading the page.
 - Extended information when entering the filter page and no previous filter job existed.
 - Disabled relatedness plot for singletons.
+- Replaced tables in case QC with downloadable TSV files.
 
 Full Change List
 ================
@@ -70,6 +71,7 @@ Full Change List
 - Extended information when entering the filter page and no previous filter job existed.
 - Added lodash javascript to static.
 - Disabled relatedness plot for singletons.
+- Replaced tables in case QC with downloadable TSV files.
 
 -------
 v0.20.0
