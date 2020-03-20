@@ -36,6 +36,7 @@ End-User Summary
 - Extended information when entering the filter page and no previous filter job existed.
 - Disabled relatedness plot for singletons.
 - Replaced tables in case QC with downloadable TSV files.
+- QC charts should now be displayed properly.
 
 Full Change List
 ================
@@ -72,6 +73,7 @@ Full Change List
 - Added lodash javascript to static.
 - Disabled relatedness plot for singletons.
 - Replaced tables in case QC with downloadable TSV files.
+- QC charts should now be displayed properly.
 
 -------
 v0.20.0

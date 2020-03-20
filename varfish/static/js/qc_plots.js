@@ -1,15 +1,5 @@
 // Java code for the QC plots.
 
-const baseLayout = {
-  margin: {
-    l: 50,
-    r: 50,
-    b: 50,
-    t: 50,
-    pad: 5
-  },
-}
-
 /** Helper for creating tick labels for large numbers. */
 function largeValueTick(value, _index, _values) {
   if (value > 1000 * 1000 && value % (1000 * 1000) == 0) {
@@ -59,9 +49,16 @@ function plotlyVariantTypes(response, containerId) {
 
     const layout = {
       title: {
-        text: 'Variant types'
+        text: 'Variant types',
       },
-      ...baseLayout,
+      yaxis: {
+        automargin: true,
+        autorange: true,
+      },
+      xaxis: {
+        automargin: true,
+        autorange: true,
+      },
     }
 
     $("#" + containerId + " .placeholder-container").remove()
@@ -103,9 +100,16 @@ function plotlyVariantEffects(response, containerId) {
     const layout = {
       showlegend: true,
       title: {
-        text: 'Variant effects'
+        text: 'Variant effects',
       },
-      ...baseLayout,
+      yaxis: {
+        automargin: true,
+        autorange: true,
+      },
+      xaxis: {
+        automargin: true,
+        autorange: true,
+      },
     }
 
     $("#" + containerId + " .placeholder-container").remove()
@@ -132,8 +136,8 @@ function plotlyIndelSizes(response, containerId) {
     title: {
       text: 'Indel sizes'
     },
-    xaxis: { type: 'category' },
-    ...baseLayout,
+    xaxis: { type: 'category', automargin: true, autorange: true},
+    yaxis: { automargin: true, autorange: true},
   }
 
   $("#" + containerId + " .placeholder-container").remove()
@@ -257,16 +261,19 @@ function plotlyRelatedness(response, containerId) {
       y: 1
     },
     xaxis: {
+      automargin: true,
+      autorange: true,
       title: {
         text: 'IBS0 (vars without shared allele)'
       }
     },
     yaxis: {
+      automargin: true,
+      autorange: true,
       title: {
         text: 'relatedness coefficient'
       }
     },
-    ...baseLayout
   }
 
   $("#" + containerId + " .placeholder-container").remove()
@@ -380,6 +387,8 @@ function plotlySexChrxHetHom(response, containerId) {
       y: 1
     },
     xaxis: {
+      automargin: true,
+      autorange: true,
       title: {
         text: 'sex from pedigree'
       },
@@ -388,11 +397,12 @@ function plotlySexChrxHetHom(response, containerId) {
       ticktext: ["male", "unknown", "female"]
     },
     yaxis: {
+      automargin: true,
+      autorange: true,
       title: {
         text: 'het./hom. alt. ratio'
       },
     },
-    ...baseLayout
   }
 
   $("#" + containerId + " .placeholder-container").remove()
@@ -499,17 +509,20 @@ function plotlyVarDps(response, containerId) {
       y: 1
     },
     xaxis: {
+      automargin: true,
+      autorange: true,
       title: {
         text: 'median depth'
       },
     },
     yaxis: {
+      automargin: true,
+      autorange: true,
       title: {
-        text: 'het. genotype ratio'
+        text: 'het. genotype ratio',
       },
       range: [0.0, 1.0],
     },
-    ...baseLayout
   }
 
   $("#" + containerId + " .placeholder-container").remove()
