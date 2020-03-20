@@ -12,10 +12,12 @@
   </div>
 
   <div class="card-body">
-    <a class="btn btn-outline-primary" href="data:text/tab-separated-values;base64,{{ qcdata_sample_variant_stats }}"><i class="fa fa-download"></i> <strong>Per-Sample Metrics</strong> (.tsv)</a>
-    <a class="btn btn-outline-primary" href="data:text/tab-separated-values;base64,{{ qcdata_effects }}"><i class="fa fa-download"></i> <strong>Effect Counts</strong> (.tsv)</a>
-    <a class="btn btn-outline-primary" href="data:text/tab-separated-values;base64,{{ qcdata_indel_sizes }}"><i class="fa fa-download"></i> <strong>InDel Sizes</strong> (.tsv)</a>
-    <a class="btn btn-outline-primary" href="data:text/tab-separated-values;base64,{{ qcdata_site_depths }}"><i class="fa fa-download"></i> <strong>Site Depths</strong> (.tsv)</a>
-    <a class="btn btn-outline-primary" href="data:text/tab-separated-values;base64,{{ qcdata_relatedness }}"><i class="fa fa-download"></i> <strong>Relatedness</strong> (.tsv)</a>
+    <a class="btn btn-outline-primary" download="{{ case.name }}_per_sample_metrics.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_sample_variant_stats }}"><i class="fa fa-download"></i> <strong>Per-Sample Metrics</strong> (.tsv)</a>
+    <a class="btn btn-outline-primary" download="{{ case.name }}_effect_counts.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_effects }}"><i class="fa fa-download"></i> <strong>Effect Counts</strong> (.tsv)</a>
+    <a class="btn btn-outline-primary" download="{{ case.name }}_indel_sizes.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_indel_sizes }}"><i class="fa fa-download"></i> <strong>InDel Sizes</strong> (.tsv)</a>
+    <a class="btn btn-outline-primary" download="{{ case.name }}_site_depths.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_site_depths }}"><i class="fa fa-download"></i> <strong>Site Depths</strong> (.tsv)</a>
+    {% if samples|length > 1 %}
+      <a class="btn btn-outline-primary" download="{{ case.name }}_relatedness.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_relatedness }}"><i class="fa fa-download"></i> <strong>Relatedness</strong> (.tsv)</a>
+    {% endif %}
   </div>
 </div>
