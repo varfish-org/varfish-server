@@ -7,6 +7,8 @@ import uuid
 import contextlib
 
 import decimal
+
+import binning
 import numpy as np
 import requests
 from base64 import b64encode
@@ -33,7 +35,7 @@ from bgjobs.models import BackgroundJob
 from clinvar.models import Clinvar
 from frequencies.models import MT_DB_INFO
 from geneinfo.views import get_gene_infos
-from geneinfo.models import NcbiGeneInfo, NcbiGeneRif, HpoName, Hpo
+from geneinfo.models import NcbiGeneInfo, NcbiGeneRif, HpoName, Hpo, EnsemblToGeneSymbol, Hgnc
 from frequencies.views import FrequencyMixin
 from projectroles.app_settings import AppSettingAPI
 from projectroles.views import (
@@ -45,6 +47,7 @@ from projectroles.views import (
 )
 from projectroles.plugins import get_backend_api, get_active_plugins
 
+from genomicfeatures.models import GeneInterval
 from varfish.users.models import User
 from .queries import (
     CaseLoadPrefetchedQuery,
@@ -556,6 +559,8 @@ class CaseDetailView(
         result["indel_sizes_keys"] = []
         result["dps"] = {sample: {} for sample in result["samples"]}
         result["casecommentsform"] = CaseCommentsForm()
+        result["commentsflags"] = self.join_small_var_comments_and_flags()
+        result["sv_commentsflags"] = self.join_sv_comments_and_flags()
         result["acmg_summary"] = {
             "count": case.acmg_ratings.count(),
             **{
@@ -769,6 +774,77 @@ class CaseDetailView(
                 )
             )
         return b64encode("\n".join(result).encode("utf-8"))
+
+    def join_small_var_comments_and_flags(self):
+        case = self.get_object()
+        flags = case.small_variant_flags.all()
+        comments = case.small_variant_comments.all()
+        acmg_ratings = case.acmg_ratings.all()
+        result = defaultdict(lambda: dict(flags=None, comments=[], genes=None, acmg_rating=None))
+
+        def get_gene_symbol(release, chromosome, start, end):
+            bins = binning.containing_bins(start, end - 1)
+            gene_intervals = list(
+                GeneInterval.objects.filter(
+                    database="ensembl",
+                    release=release,
+                    chromosome=chromosome,
+                    bin__in=bins,
+                    start__lte=end,
+                    end__gte=start,
+                )
+            )
+            gene_ids = [itv.gene_id for itv in gene_intervals]
+            symbols1 = {
+                o.gene_symbol
+                for o in EnsemblToGeneSymbol.objects.filter(ensembl_gene_id__in=gene_ids)
+            }
+            symbols2 = {o.symbol for o in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)}
+            return sorted(symbols1 | symbols2)
+
+        for record in flags:
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "flags"
+            ] = model_to_dict(record)
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "genes"
+            ] = get_gene_symbol(record.release, record.chromosome, record.start, record.end)
+
+        for record in comments:
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "comments"
+            ].append({**model_to_dict(record), "date_created": record.date_created})
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "genes"
+            ] = get_gene_symbol(record.release, record.chromosome, record.start, record.end)
+
+        for record in acmg_ratings:
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "acmg_rating"
+            ] = {"data": record, "class": record.acmg_class}
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "genes"
+            ] = get_gene_symbol(record.release, record.chromosome, record.start, record.end)
+
+        return dict(result)
+
+    def join_sv_comments_and_flags(self):
+        case = self.get_object()
+        flags = case.structural_variant_flags.all()
+        comments = case.structural_variant_comments.all()
+        result = defaultdict(lambda: dict(flags=None, comments=[]))
+
+        for record in flags:
+            result[(record.chromosome, record.start, record.end, record.sv_type)][
+                "flags"
+            ] = model_to_dict(record)
+
+        for record in comments:
+            result[(record.chromosome, record.start, record.end, record.sv_type)][
+                "comments"
+            ].append({**model_to_dict(record), "date_created": record.date_created})
+
+        return dict(result)
 
 
 class CaseUpdateView(

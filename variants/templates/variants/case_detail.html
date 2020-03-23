@@ -87,15 +87,7 @@
       </div>
 
       <div class="border border-top-0 tab-pane fade" id="annotation" role="tabpanel" aria-labelledby="annotation-tab">
-        <div class="row pt-3">
-          <div class="col-6">
-            {% include "variants/case/detail_flags.html" %}
-          </div>
-          <div class="col-6">
-            {% include "variants/case/detail_acmg.html" %}
-            {% include "variants/case/detail_comments.html" %}
-          </div>
-        </div>
+        {% include "variants/case/detail_annotation.html" %}
       </div>
       <div class="border border-top-0 tab-pane fade" id="bg-jobs" role="tabpanel" aria-labelledby="bg-jobs-tab">
         <div class="row pt-3">

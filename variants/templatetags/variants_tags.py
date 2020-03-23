@@ -57,9 +57,34 @@ def acmg_classification(entry):
 
 
 @register.filter
+def acmg_classification2(entry):
+    """Return ACMG classification from entry, if any"""
+    if entry.class_override:
+        return entry.class_override
+    elif entry.class_auto:
+        return entry.class_auto
+    else:
+        return None
+
+
+@register.filter
 def acmg_badge_class(entry):
     """Return ACMG classification from entry, if any"""
     val = acmg_classification(entry)
+    if not val:
+        return "badge badge-light text-muted"
+    elif val > 3:
+        return "badge badge-danger text-white"
+    elif val == 3:
+        return "badge badge-warning text-black"
+    else:
+        return "badge badge-success text-white"
+
+
+@register.filter
+def acmg_badge_class2(entry):
+    """Return ACMG classification from entry, if any"""
+    val = acmg_classification2(entry)
     if not val:
         return "badge badge-light text-muted"
     elif val > 3:

@@ -37,6 +37,7 @@ End-User Summary
 - Disabled relatedness plot for singletons.
 - Replaced tables in case QC with downloadable TSV files.
 - QC charts should now be displayed properly.
+- Consolidated flags, comments and ACMG rating into one table in the case detail view, with one table for small variants and one for structural variants.
 
 Full Change List
 ================
@@ -74,6 +75,7 @@ Full Change List
 - Disabled relatedness plot for singletons.
 - Replaced tables in case QC with downloadable TSV files.
 - QC charts should now be displayed properly.
+- Consolidated flags, comments and ACMG rating into one table in the case detail view, with one table for small variants and one for structural variants.
 
 -------
 v0.20.0
