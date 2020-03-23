@@ -185,6 +185,9 @@ class CaseAwareProject(Project):
     def has_variants_and_variant_sets(self):
         return all(case.has_variants_and_variant_set() for case in self.case_set.all())
 
+    def casealignmentstats(self):
+        return [case.latest_variant_set().casealignmentstats for case in self.case_set.all()]
+
 
 class SmallVariant(models.Model):
     """"Information of a single variant, knows its case."""

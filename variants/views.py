@@ -813,7 +813,14 @@ class CaseDetailView(
         for record in comments:
             result[(record.chromosome, record.start, record.reference, record.alternative)][
                 "comments"
-            ].append({**model_to_dict(record), "date_created": record.date_created})
+            ].append(
+                {
+                    **model_to_dict(record),
+                    "date_created": record.date_created,
+                    "user": record.user,
+                    "username": record.user.username,
+                }
+            )
             result[(record.chromosome, record.start, record.reference, record.alternative)][
                 "genes"
             ] = get_gene_symbol(record.release, record.chromosome, record.start, record.end)
@@ -842,7 +849,14 @@ class CaseDetailView(
         for record in comments:
             result[(record.chromosome, record.start, record.end, record.sv_type)][
                 "comments"
-            ].append({**model_to_dict(record), "date_created": record.date_created})
+            ].append(
+                {
+                    **model_to_dict(record),
+                    "date_created": record.date_created,
+                    "user": record.user,
+                    "username": record.user.username,
+                }
+            )
 
         return dict(result)
 

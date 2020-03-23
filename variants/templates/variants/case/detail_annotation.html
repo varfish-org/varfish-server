@@ -91,7 +91,7 @@
                 <li class="list-group-item list-item" id="comment-{{ comment|keyvalue:"sodar_uuid" }}" data-sodar-uuid="{{ comment|keyvalue:"sodar_uuid" }}">
                   <div id="display-comment-{{ comment|keyvalue:"sodar_uuid" }}">
                     <span class="small text-muted">
-                      <strong>{{ comment|keyvalue:"user" }}</strong>
+                      <strong>{{ comment|keyvalue:"username" }}</strong>
                       {{ comment|keyvalue:"date_created"|date:"Y/m/d H:i" }}:
                     </span>
                     <em>{{ comment|keyvalue:"text" }}</em>
@@ -236,7 +236,7 @@
                 <li class="list-group-item list-item" id="comment-{{ comment|keyvalue:"sodar_uuid" }}" data-sodar-uuid="{{ comment|keyvalue:"sodar_uuid" }}">
                   <div id="display-comment-{{ comment|keyvalue:"sodar_uuid" }}">
                     <span class="small text-muted">
-                      <strong>{{ comment|keyvalue:"user" }}</strong>
+                      <strong>{{ comment|keyvalue:"username" }}</strong>
                       {{ comment|keyvalue:"date_created"|date:"Y/m/d H:i" }}:
                     </span>
                     <em>{{ comment|keyvalue:"text" }}</em>
