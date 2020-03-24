@@ -510,6 +510,37 @@
           class="dropdown-item">
           Query Varsome
         </a>
+        <a
+          data-toggle="modal"
+          data-target="#variantvalidatormodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}"
+          title="Submit variant to VariantValidator"
+          class="dropdown-item">
+          Query VariantValidator
+        </a>
+      </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="variantvalidatormodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}" tabindex="-1" role="dialog" aria-labelledby="variantvalidatormodallabel-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="variantvalidatormodallabel-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}">Run through VariantValidator.org</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="variant-validator-results">
+              <p class="text-muted font-italic">Submit the variant to the VariantValidator.org API.</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button class="btn btn-primary" type="button" onclick="queryVariantValidatorApi(this, '{{ entry.release }}', '{{ entry.chromosome }}', '{{ entry.start }}', '{{ entry.reference }}', '{{ entry.alternative }}');">
+              <i class="fa fa-cloud-upload"></i> Submit
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </td>

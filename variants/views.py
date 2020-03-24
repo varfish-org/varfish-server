@@ -3513,6 +3513,46 @@ class HpoTermsApiView(LoginRequiredMixin, View):
         return HttpResponse(json.dumps(result), content_type="application/json")
 
 
+class VariantValidatorApiView(PluginContextMixin, View):
+    template_name = "variants/filter_result/variant_validator_result.html"
+
+    def post(self, *args, **kwargs):
+        response = requests.get(
+            "https://rest.variantvalidator.org/VariantValidator/variantvalidator/{release}/{chromosome}-{position}-{reference}-{alternative}/all?content-type=application%2Fjson".format(
+                release=self.request.POST.get("release"),
+                chromosome=self.request.POST.get("chromosome"),
+                position=self.request.POST.get("position"),
+                reference=self.request.POST.get("reference"),
+                alternative=self.request.POST.get("alternative"),
+            )
+        )
+        if response.status_code != 200:
+            return HttpResponse()
+        result = defaultdict(lambda: defaultdict(dict))
+        for key, value in response.json().items():
+            m = re.match(r"^(NM_\d+)\.(\d+):(.*)", key)
+            if m:
+                # identifier -> version -> change
+                result[str(m.group(1))][int(m.group(2))][str(m.group(3))] = value
+
+        # Convert defaultdicts to dicts as django templates can't digest defaultdicts.
+        for key, value in result.items():
+            for key2, value2 in value.items():
+                value[key2] = dict(value2)
+            result[key] = dict(value)
+
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+
+        print(dict(result))
+        return render(
+            self.request,
+            self.template_name,
+            self.get_context_data(user=user, response=dict(result),),
+        )
+
+
 class KioskHomeView(PluginContextMixin, FormView):
     """Home view when the app is running in kiosk mode.
 

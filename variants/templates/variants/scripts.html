@@ -12,6 +12,7 @@
   if ({{ settings_restored }} == "1") {
       settings_restored = true;
   }
+  var variant_validator_url = "{% url 'variants:variant-validator-api' %}"
 </script>
 <script type="text/javascript" src="{% static "js/vendor/lodash-4.17.15.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/helpers.js" %}"></script>
@@ -19,6 +20,7 @@
 <script type="text/javascript" src="{% static "js/filter_form.js" %}"></script>
 <script type="text/javascript" src="{% static "js/flags_comments.js" %}"></script>
 <script type="text/javascript" src="{% static "js/variant_comments.js" %}"></script>
+<script type="text/javascript" src="{% static "js/variant_validator.js" %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     let data = {};

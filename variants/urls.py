@@ -282,6 +282,11 @@ ui_urlpatterns = [
         view=views.KioskJobGetStatus.as_view(),
         name="kiosk-get-status",
     ),
+    url(
+        regex=r"^variant-validator/$",
+        view=views.VariantValidatorApiView.as_view(),
+        name="variant-validator-api",
+    ),
 ]
 
 api_urlpatterns = [

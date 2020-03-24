@@ -38,6 +38,7 @@ End-User Summary
 - Replaced tables in case QC with downloadable TSV files.
 - QC charts should now be displayed properly.
 - Consolidated flags, comments and ACMG rating into one table in the case detail view, with one table for small variants and one for structural variants.
+- Added VariantValidator link to submit to REST API.
 
 Full Change List
 ================
@@ -76,6 +77,7 @@ Full Change List
 - Replaced tables in case QC with downloadable TSV files.
 - QC charts should now be displayed properly.
 - Consolidated flags, comments and ACMG rating into one table in the case detail view, with one table for small variants and one for structural variants.
+- Added VariantValidator link to submit to REST API.
 
 -------
 v0.20.0
