@@ -780,10 +780,10 @@ class CaseDetailView(
         flags = case.small_variant_flags.all()
         comments = case.small_variant_comments.all()
         acmg_ratings = case.acmg_ratings.all()
-        result = defaultdict(lambda: dict(flags=None, comments=[], genes=None, acmg_rating=None))
+        result = defaultdict(lambda: dict(flags=None, comments=[], genes=set(), acmg_rating=None))
 
         def get_gene_symbol(release, chromosome, start, end):
-            bins = binning.containing_bins(start, end - 1)
+            bins = binning.containing_bins(start - 1, end)
             gene_intervals = list(
                 GeneInterval.objects.filter(
                     database="ensembl",
@@ -800,7 +800,7 @@ class CaseDetailView(
                 for o in EnsemblToGeneSymbol.objects.filter(ensembl_gene_id__in=gene_ids)
             }
             symbols2 = {o.symbol for o in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)}
-            return sorted(symbols1 | symbols2)
+            return symbols1 | symbols2
 
         for record in flags:
             result[(record.chromosome, record.start, record.reference, record.alternative)][
@@ -808,7 +808,7 @@ class CaseDetailView(
             ] = model_to_dict(record)
             result[(record.chromosome, record.start, record.reference, record.alternative)][
                 "genes"
-            ] = get_gene_symbol(record.release, record.chromosome, record.start, record.end)
+            ] |= get_gene_symbol(record.release, record.chromosome, record.start, record.end)
 
         for record in comments:
             result[(record.chromosome, record.start, record.reference, record.alternative)][
@@ -823,7 +823,7 @@ class CaseDetailView(
             )
             result[(record.chromosome, record.start, record.reference, record.alternative)][
                 "genes"
-            ] = get_gene_symbol(record.release, record.chromosome, record.start, record.end)
+            ] |= get_gene_symbol(record.release, record.chromosome, record.start, record.end)
 
         for record in acmg_ratings:
             result[(record.chromosome, record.start, record.reference, record.alternative)][
@@ -831,8 +831,10 @@ class CaseDetailView(
             ] = {"data": record, "class": record.acmg_class}
             result[(record.chromosome, record.start, record.reference, record.alternative)][
                 "genes"
-            ] = get_gene_symbol(record.release, record.chromosome, record.start, record.end)
+            ] |= get_gene_symbol(record.release, record.chromosome, record.start, record.end)
 
+        for var in result:
+            result[var]["genes"] = sorted(result[var]["genes"])
         return dict(result)
 
     def join_sv_comments_and_flags(self):

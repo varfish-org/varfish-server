@@ -1134,7 +1134,7 @@ class SmallVariantComment(models.Model):
     def get_gene_symbols(self):
         """Query for overlapping genes."""
         # TODO: could be made much nicer with join in DB via SQL Alchemy
-        bins = binning.containing_bins(self.start, self.end - 1)
+        bins = binning.containing_bins(self.start - 1, self.end)
         gene_intervals = list(
             GeneInterval.objects.filter(
                 database="ensembl",
