@@ -181,6 +181,10 @@ We now go on to flag it as the final causative variant with good phenotype match
 
 .. figure:: figures/kiosk_tutorial_acmg.png
 
+After flagging, commenting and assigning an ACMG rating, the resulting row will be highlighted.
+
+.. figure:: figures/kiosk_tutorial_variant_highlighted.png
+
 To get an overview of your flagged and commented variants for the whole case, go to the case overview by clicking :guilabel:`Back to Case` and then switch to the :guilabel:`Variant Annotation` tab.
 
 .. figure:: figures/kiosk_tutorial_case_annotated.png

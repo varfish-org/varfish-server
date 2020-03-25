@@ -19,6 +19,13 @@ Below, the results will be displayed after submitting the form.
     As with the :ref:`variants_clinvar` form, VarFish will store every query that you make.
     When loading the filtration form, your previous form settings will be restored and a notification will be displayed to notify you of this.
 
+.. note::
+
+    The implementation of the variant filter in VarFish is monolithic as we use the data from the user submitted form to compile a single, rather large, SQL query from it.
+    This enables us to have a very efficient (in terms of computing time and resources) filtering step.
+    The downside of this is that we can't track how many variants are actually filtered out by which filter setting.
+
+
 -----------------------
 Variant Filtration Form
 -----------------------

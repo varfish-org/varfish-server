@@ -55,8 +55,7 @@ The VarFish logo is created from an `SVG Repo Image <https://www.svgrepo.com/svg
     variants_filtration
     variants_clinvar
     variants_project_wide
-    variants_flagging
-    variants_comments
+    variants_annotation
 
 .. toctree::
     :maxdepth: 1
@@ -69,6 +68,15 @@ The VarFish logo is created from an `SVG Repo Image <https://www.svgrepo.com/svg
     setup_core
     setup_extras
     setup_tuning
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Resources
+    :name: Resources
+    :hidden:
+    :titlesonly:
+
+    databases
 
 .. toctree::
     :maxdepth: 1
