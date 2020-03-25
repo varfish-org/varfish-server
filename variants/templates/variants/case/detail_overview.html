@@ -128,6 +128,22 @@
           </span>
         {% endif %}
       </div>
+      <div class="row">
+        <span class="col-2 text-nowrap"><strong>
+          Annotated Variants
+        </strong></span>
+        <span class="col-3 text-nowrap">
+          {{ object.get_annotation_small_variant_count|default_if_none:"-"|intcomma }}
+        </span>
+        {% if svs_enabled %}
+          <span class="col-2"><strong>
+            Annotated SVs
+          </strong></span>
+          <span class="col-5">
+            {{ object.get_annotation_sv_count|default_if_none:"-"|intcomma }}
+          </span>
+        {% endif %}
+      </div>
     </li>
   </ul>
 </div>

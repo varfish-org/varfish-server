@@ -737,15 +737,27 @@ class Case(CoreCase):
         else:
             return self.notes
 
+    def get_annotation_sv_count(self):
+        variants = set()
+        for record in self.structural_variant_comments.all():
+            variants.add((record.chromosome, record.start, record.end, record.sv_type))
+        for record in self.structural_variant_flags.all():
+            variants.add((record.chromosome, record.start, record.end, record.sv_type))
+        return len(variants)
+
+    def get_annotation_small_variant_count(self):
+        variants = set()
+        for record in self.small_variant_flags.all():
+            variants.add((record.chromosome, record.start, record.reference, record.alternative))
+        for record in self.small_variant_comments.all():
+            variants.add((record.chromosome, record.start, record.reference, record.alternative))
+        for record in self.acmg_ratings.all():
+            variants.add((record.chromosome, record.start, record.reference, record.alternative))
+        return len(variants)
+
     def get_annotation_count(self):
         """Return annotation count."""
-        return (
-            self.structural_variant_comments.count()
-            + self.structural_variant_flags.count()
-            + self.small_variant_comments.count()
-            + self.small_variant_flags.count()
-            + self.acmg_ratings.count()
-        )
+        return self.get_annotation_sv_count() + self.get_annotation_small_variant_count()
 
     def __str__(self):
         """Return case name as human-readable description."""
