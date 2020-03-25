@@ -115,7 +115,7 @@ Once you perform such a change, the corresponding settings pane is displayed and
 
 Once you are happy with your selection (we recommend that you go back to defaults for dominant mode of inheritance with :guilabel:`Load Presets --> dominant`), click :guilabel:`Filter & Display` to start querying.
 
-.. info:: Query Speed
+.. note:: Query Speed
 
     The time a query takes to complete is proportional to the number of returned variants.
     It is thus recommended to start with relatively strict filter settings and screen the resulting variants.
@@ -126,7 +126,7 @@ Once you are happy with your selection (we recommend that you go back to default
 
 After some patience, you will be shown your resulting list of variants.
 
-.. info:: Result Record Count
+.. note:: Result Record Count
 
     Note well that by default the number of records to display is limited to ``200``.
     You can adjust this at :guilabel:`More... --> Miscellaneous` but this comes with longer query times and will have a heavier burden on your browser.
@@ -155,7 +155,7 @@ With our filter settings, we got ``126`` variants from the query.
 Of course, it is not feasible to review all of these variants.
 Instead, it is state of the art to obtain pathogenicity prediction scores for ones variants (e.g., using CADD or MutationTaster) and also compare the phenotypes of the gene that a variant affects to the phenotypes of your patient.
 
-.. info:: Query Performance, Again
+.. note:: Query Performance, Again
 
     Pathogenicity and (in a less pronounced fashion) phenotype similarity computation will increase your query times.
     Try to first filter without scores and then activate the prioritization on not more than a few hundred resulting variants.
