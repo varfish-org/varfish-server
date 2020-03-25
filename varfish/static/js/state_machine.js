@@ -202,7 +202,7 @@ function handleEventStateInitial(eventType, event) {
   if (eventType == EVENT_START) {
     currentState = STATE_GET_JOB_ID;
     animateSubmitButtonCancel();
-    setInfoBoxTitle("Searching for previous job ...");
+    setInfoBoxTitle("Looking for previous results ...");
     ajaxCall = $.ajax({
       type: "GET",
       dataType: "json",
@@ -238,7 +238,7 @@ function handleEventStateIdle(eventType, event) {
   if (eventType == EVENT_SUBMIT) {
     currentState = STATE_GET_JOB_ID;
     animateSubmitButtonCancel();
-    setInfoBoxTitle("Starting filter job ...");
+    setInfoBoxTitle("Filtering variants ...");
     removeVisualErrorResponse();
     let data = $("#filterForm").serializeArray().reduce(
       (accumulator, current) => (accumulator[current.name] = current.value, accumulator), {}
@@ -281,7 +281,7 @@ function handleEventStateIdle(eventType, event) {
 // Handle state GET_JOB_ID
 function handleEventStateGetJobId(eventType, event) {
   if (eventType == EVENT_GOT_JOB_ID) {
-    setInfoBoxTitle("Running filter job ...");
+    setInfoBoxTitle("Filtering variants ...");
     currentState = STATE_WAIT_JOB_RESULTS;
     ajaxCall = $.ajax({
       type: "POST",
@@ -322,7 +322,8 @@ function handleEventStateGetJobId(eventType, event) {
     resultsTable.empty();
     resultsTable.html(
       '<div class="alert alert-info">' +
-      '   <h4><strong>Click <span class="badge badge-primary"><i class="fa fa-refresh"></i> Filter & Display</span> to start filtration and obtain results.</strong></h4>' +
+      '  <strong>No query has been started yet.</strong><br>' +
+      '   Click <span class="badge badge-primary"><i class="fa fa-refresh"></i> Filter & Display</span> to start filtering and create results to display here.' +
       '   You may want to adjust the filter settings to your needs first.' +
       '</div>'
     );
@@ -346,7 +347,7 @@ function handleEventStateGetJobId(eventType, event) {
 // Handle state WAIT_JOB_RESULTS
 function handleEventStateWaitJobResults(eventType, event) {
   if (eventType == EVENT_STILL_WAITING) {
-    setInfoBoxTitle("Running filter job ...");
+    setInfoBoxTitle("Filtering variants ...");
     timer = setTimeout(
       function(event, eventData) {
         currentState = STATE_GET_JOB_ID;
@@ -370,7 +371,7 @@ function handleEventStateWaitJobResults(eventType, event) {
     resultsTable.empty();
     animateFilterButtonSubmit();
   } else if (eventType == EVENT_GOT_RESULT) {
-    setInfoBoxTitle("Rendering results ...");
+    setInfoBoxTitle("Filtering is complete, creating results table ...");
     let data = {
       "csrfmiddlewaretoken": getCookie("csrftoken"),
       "filter_job_uuid": event["filter_job_uuid"]

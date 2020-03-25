@@ -40,6 +40,7 @@ End-User Summary
 - Consolidated flags, comments and ACMG rating into one table in the case detail view, with one table for small variants and one for structural variants.
 - Added VariantValidator link to submit to REST API.
 - Fixed alignment stats in project-wide QC.
+- Added more documentation throughout the UI.
 
 Full Change List
 ================
@@ -80,6 +81,7 @@ Full Change List
 - Consolidated flags, comments and ACMG rating into one table in the case detail view, with one table for small variants and one for structural variants.
 - Added VariantValidator link to submit to REST API.
 - Fixed alignment stats in project-wide QC.
+- Added more documentation throughout the UI.
 
 -------
 v0.20.0

@@ -8,13 +8,17 @@
   {% elif not result_rows %}
     <div class="container-fluid sodar-page-container">
       <h2>
-        Empty Result Set
+        No variants passed your filter settings
         <small class="text-muted">
           Try again with different settings?
         </small>
       </h2>
     </div>
   {% else %}
+    <div class="small text-muted font-italic">
+      Your results are displayed below.
+      You can use the dropdowns "Details" to switch between coordinate and ClinVar annotation, "Frequency" to display different population frequencies in the result table, and "Constraint" to display a different gene constraint score to filter for.
+    </div>
     <div class="sodar-subtitle-container bg-white sticky-top pr-0 mr-0 pb-0">
       {% if patho_enabled and patho_score == "umd" %}
         <div class="alert alert-info alert-dismissible">

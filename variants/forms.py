@@ -1191,10 +1191,11 @@ class SmallVariantPrioritizerFormMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.initial["prio_algorithm"] = PRIO_HIPHIVE_HUMAN
+
         self.fields["prio_enabled"] = forms.BooleanField(
             label="Enable phenotype-based prioritization",
             help_text=(
-                "First try to filter your variants without phenotype-based prioritization before enabling it. "
                 "Note well that only variants in the first %d genes returned by your query will be prioritized!"
             )
             % settings.VARFISH_EXOMISER_PRIORITISER_MAX_GENES,

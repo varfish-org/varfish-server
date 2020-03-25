@@ -146,10 +146,10 @@
 
     <h2 class="sodar-pr-content-title">
       {% if query_type == "case" %}
-        Variant Filter
+        Filter Variants for Case
         <small class="text-muted">{{ object.name }}</small>
       {% else %}
-        Joint Filtration
+        Joint Filtration for Project
         <small class="text-muted">{{ project.title }}</small>
       {% endif %}
     </h2>
@@ -157,6 +157,14 @@
   </div>
 
   <div class="container-fluid sodar-page-container pt-3">
+    <div class="alert alert-secondary small p-2">
+      <i class="fa fa-info-circle"></i>
+      This is the variant filtration form.
+      You can use the form controls below to adjust your filter criteria.
+      <strong>Click the <span class="badge badge-primary"><i class="fa fa-refresh"></i> Filter &amp; Display</span> when you are ready!</strong>
+      The results of your previous query will be loaded automatically if there are any.
+    </div>
+
     {% include "variants/_filter_form.html" %}
   </div>
 
