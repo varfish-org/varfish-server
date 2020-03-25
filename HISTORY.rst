@@ -41,6 +41,7 @@ End-User Summary
 - Added VariantValidator link to submit to REST API.
 - Fixed alignment stats in project-wide QC.
 - Added more documentation throughout the UI.
+- Added option to toggle displaying of logs during filtration, by default they are hidden.
 
 Full Change List
 ================
@@ -82,6 +83,7 @@ Full Change List
 - Added VariantValidator link to submit to REST API.
 - Fixed alignment stats in project-wide QC.
 - Added more documentation throughout the UI.
+- Added option to toggle displaying of logs during filtration, by default they are hidden.
 
 -------
 v0.20.0

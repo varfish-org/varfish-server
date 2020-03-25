@@ -684,9 +684,12 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.pending().until(ec.visibility_of(option))
         option.click()
         # find and hit download button
-        self.selenium.find_element_by_xpath(
+        self.selenium.find_element_by_id("filterdisplayoptions").click()
+        download = self.selenium.find_element_by_xpath(
             '//button[@name="submit" and @value="download"]'
-        ).click()
+        )
+        self.pending().until(ec.visibility_of(download))
+        download.click()
         # wait for redirect and refresh page for elements to show up
         self.pending().until(
             ec.presence_of_element_located(
@@ -864,9 +867,12 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         self.compile_url_and_login({"project": self.project.sodar_uuid})
         self._disable_filters("project")
         # find and hit download button
-        self.selenium.find_element_by_xpath(
+        self.selenium.find_element_by_id("filterdisplayoptions").click()
+        download = self.selenium.find_element_by_xpath(
             '//button[@name="submit" and @value="download"]'
-        ).click()
+        )
+        self.pending().until(ec.visibility_of(download))
+        download.click()
         # wait for redirect and refresh page for elements to show up
         self.pending().until(
             ec.presence_of_element_located(

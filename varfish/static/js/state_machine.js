@@ -136,6 +136,18 @@ function animateFilterButtonSubmit() {
   icon.removeClass("fa-spin");
 }
 
+function toggleLogs() {
+  let x = $("#logger");
+  if (x.hasClass("d-none")) {
+    x.removeClass("d-none");
+    $("#togglelogs").text("Hide Logs");
+  }
+  else {
+    x.addClass("d-none");
+    $("#togglelogs").text("Show Logs");
+  }
+}
+
 // Helper function to switch the state of the submit button (make it "Cancel").
 function animateSubmitButtonCancel() {
   let icon = $("i", filterButton).clone();
@@ -146,8 +158,8 @@ function animateSubmitButtonCancel() {
   resultsTable.html(
     '<div class="alert alert-info">' +
     '<i class="fa fa-circle-o-notch fa-spin"></i> ' +
-    '<strong id="infoBoxTitle">Loading ...</strong>' +
-    '<div id="logger"></div>' +
+    '<strong id="infoBoxTitle">Loading ...</strong> <button id="togglelogs" class="ml-3 btn btn-sm btn-info" onclick="toggleLogs();">Show Logs</button>' +
+    '<div id="logger" class="d-none"></div>' +
     '</div>'
   );
   icon.addClass("fa-spin");

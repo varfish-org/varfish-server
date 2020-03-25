@@ -108,21 +108,6 @@
         </div>
         <div class="col text-right p-0">
           <div class="btn-group">
-            <button type="submit" name="submit" value="download" class="btn btn-secondary" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
-                    title="Create downloadable file in the background of <i><b>all</b></i> variants with current settings (ignoring result count limit)."
-                    {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-              <i class="fa fa-cloud-download"></i>
-              Download as File
-            </button>
-            {% if allow_md_submission %}
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#confirm-submit-mutationdistiller"
-                    data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
-                    title="Submit to MutationDistiller (only supports single-sample VCF at the moment)"
-                    {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-              <i class="fa fa-mail-forward"></i>
-              Submit to MutationDistiller
-            </button>
-            {% endif %}
             <button type="button" id="submitFilter" name="submit" value="display" class="btn btn-primary" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
                     title="Filter variants again with current settings, limited to <i><b>Miscellaneous / Result row limit</b></i> results and display in table below"
                     data-url='{{ submit_button_url }}'
@@ -133,6 +118,26 @@
               <i class="fa fa-refresh"></i>
               Filter &amp; Display
             </button>
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="filterdisplayoptions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-ellipsis-h"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="filterdisplayoptions" style="z-index: 3000">
+              <button type="submit" name="submit" value="download" class="dropdown-item" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
+                      title="Create downloadable file in the background of <i><b>all</b></i> variants with current settings (ignoring result count limit)."
+                      {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
+                <i class="fa fa-cloud-download"></i>
+                Download as File
+              </button>
+              {% if allow_md_submission %}
+                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-mutationdistiller"
+                        data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
+                        title="Submit to MutationDistiller (only supports single-sample VCF at the moment)"
+                        {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
+                  <i class="fa fa-mail-forward"></i>
+                  Submit to MutationDistiller
+                </button>
+              {% endif %}
+            </div>
           </div>
         </div>
       </div>
