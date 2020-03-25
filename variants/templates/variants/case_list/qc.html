@@ -80,18 +80,20 @@
         </tr>
       </thead>
       <tbody>
-        {% for sample_name, stats in project.casealignmentstats.bam_stats.items %}
-          <tr>
-            <th>{{ sample_name|only_source_name }}</th>
-            <td class="text-right">{{ stats|from_bamstats:"total reads"|intcomma }}</td>
-            <td class="text-right">{{ stats|from_bamstats:"percent duplicates"|floatformat:1 }}%</td>
-            <td class="text-right">{{ stats|from_bamstats:"mean target coverage"|default_if_none:"-"|floatformat:0 }}&nbsp;x</td>
-            {% for coverage in coverages %}
-              {% if coverage|asint <= 50 %}
-                <td class="text-right">{{ stats|keyvalue:"min_cov_target"|keyvalue:coverage|floatformat:1 }}%</td>
-              {% endif %}
-            {% endfor %}
-          </tr>
+        {% for stat in project.casealignmentstats %}
+          {% for sample_name, stats in stat.bam_stats.items %}
+            <tr>
+              <th>{{ sample_name|only_source_name }}</th>
+              <td class="text-right">{{ stats|from_bamstats:"total reads"|intcomma }}</td>
+              <td class="text-right">{{ stats|from_bamstats:"percent duplicates"|floatformat:1 }}%</td>
+              <td class="text-right">{{ stats|from_bamstats:"mean target coverage"|default_if_none:"-"|floatformat:0 }}&nbsp;x</td>
+              {% for coverage in coverages %}
+                {% if coverage|asint <= 50 %}
+                  <td class="text-right">{{ stats|keyvalue:"min_cov_target"|keyvalue:coverage|floatformat:1 }}%</td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+          {% endfor %}
         {% endfor %}
       </tbody>
     </table>

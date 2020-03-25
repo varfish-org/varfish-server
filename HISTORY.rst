@@ -39,6 +39,7 @@ End-User Summary
 - QC charts should now be displayed properly.
 - Consolidated flags, comments and ACMG rating into one table in the case detail view, with one table for small variants and one for structural variants.
 - Added VariantValidator link to submit to REST API.
+- Fixed alignment stats in project-wide QC.
 
 Full Change List
 ================
@@ -78,6 +79,7 @@ Full Change List
 - QC charts should now be displayed properly.
 - Consolidated flags, comments and ACMG rating into one table in the case detail view, with one table for small variants and one for structural variants.
 - Added VariantValidator link to submit to REST API.
+- Fixed alignment stats in project-wide QC.
 
 -------
 v0.20.0
