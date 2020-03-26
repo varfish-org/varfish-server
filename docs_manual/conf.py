@@ -40,7 +40,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "VarFish Manual"
-copyright = "2018, BIH Core Unit Bioinformatics"
+copyright = "2018-2020, BIH Core Unit Bioinformatics"
 author = "BIH Core Unit Bioinformatics"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -180,7 +180,7 @@ latex_elements = {
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
-latex_documents = [("index", "varfish.tex", "VarFish Documentation", """Oliver Stolpe""", "manual")]
+latex_documents = [("index", "varfish.tex", "VarFish Documentation", """BIH Core Unit Bioinformatics""", "manual")]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
@@ -207,7 +207,7 @@ latex_documents = [("index", "varfish.tex", "VarFish Documentation", """Oliver S
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [("index", "varfish", "VarFish Documentation", ["""Oliver Stolpe"""], 1)]
+man_pages = [("index", "varfish", "VarFish Documentation", ["""BIH Core Unit Bioinformatics"""], 1)]
 
 # If true, show URL addresses after external links.
 # man_show_urls = False

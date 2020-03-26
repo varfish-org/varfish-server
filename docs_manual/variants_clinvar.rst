@@ -83,7 +83,7 @@ This tab allows you to perform a fine-granular select of the variants to include
     The ClinVar form showing the :guilabel:`Flags` tab.
 
 Here, you can limit the reported variants to those with a specific flag or rating.
-See :ref:`variants_flagging` for an explanation of flags and ratings.
+See :ref:`variants_annotation` for an explanation of flags and ratings.
 
 :guilabel:`RefSeq / ENSEMBL` Switch
 ===================================

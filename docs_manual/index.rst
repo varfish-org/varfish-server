@@ -26,7 +26,7 @@ The VarFish logo is created from an `SVG Repo Image <https://www.svgrepo.com/svg
 
 .. toctree::
     :maxdepth: 1
-    :caption: Projects & Navigation
+    :caption: Projects / Navigation
     :name: project-navigation
     :hidden:
     :titlesonly:

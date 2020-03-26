@@ -141,7 +141,7 @@ Full Change List
 - Added frequency databases ``mtDB``, ``HelixMTdb`` and ``MITOMAP`` for mitochondrial chromosome.
   Frequency information is provided in the small variant detail view.
 - Fixed periodic tasks (contained clean-up jobs) and fixed tests for periodic tasks.
-- Adding REST API for ``Case``s.
+- Adding REST API for ``Case``.
 - Extending ``importer`` app with API to upload annotated TSV files and models to support this.
 - Adding GA4GH beacon button to variant list row and details.
   Note that this must be activated in the user profile settings.
