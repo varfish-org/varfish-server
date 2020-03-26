@@ -44,6 +44,15 @@
           Quality Control
         </a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" id="qc-tab" data-toggle="tab" href="#annotation" role="tab" aria-controls="qc" aria-selected="false">
+          <i class="fa fa-bar-chart"></i>
+          Variant Annotation
+          {% with annotation_count=project.get_annotation_count|default:0 %}
+            <span class="badge badge-pill {% if annotation_count == 0 %}badge-secondary{% else %}badge-primary{% endif %}">{{ annotation_count }}</span>
+          {% endwith %}
+        </a>
+      </li>
       {% if project.is_remote and request.user.is_superuser %}
         <li class="nav-item">
           <a class="nav-link" id="remote-tab" data-toggle="tab" href="#remote" role="tab" aria-controls="remote" aria-selected="false">
@@ -67,6 +76,14 @@
         <div class="row pt-3">
           <div class="col">
             {% include "variants/case_list/qc.html" %}
+          </div>
+        </div>
+      </div>
+
+      <div class="border border-top-0 tab-pane fade show" id="annotation" role="tabpanel" aria-labelledby="annotation-tab">
+        <div class="row pt-3">
+          <div class="col">
+            {% include "variants/case_list/annotation.html" %}
           </div>
         </div>
       </div>
@@ -138,7 +155,18 @@
     })
     </script>
   {% endif %}
-
+  <script type="text/javascript" src="{% static 'js/variant_comments.js' %}"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+        $("#comment-button-submit").on("click", commentSubmit);
+        $(".comment-button-delete").on("click", commentDeleteToggle);
+        $(".comment-button-delete-cancel").on("click", commentDeleteToggle);
+        $(".comment-button-delete-submit").on("click", commentDeleteSubmit);
+        $(".comment-button-edit").on("click", commentEditToggle);
+        $(".comment-button-edit-cancel").on("click", commentEditToggle);
+        $(".comment-button-edit-submit").on("click", commentEditSubmit);
+    });
+  </script>
   <!-- DataTables -->
   <script type="text/javascript">
     $(document).ready(function() {

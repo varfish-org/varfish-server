@@ -43,6 +43,7 @@ End-User Summary
 - Added more documentation throughout the UI.
 - Added option to toggle displaying of logs during filtration, by default they are hidden.
 - Fixed broken displaying of inhouse frequencies in variant detail view.
+- Added variant annotation list (comments, flags, ACMG ratings) to project-wide info page.
 
 Full Change List
 ================
@@ -86,6 +87,7 @@ Full Change List
 - Added more documentation throughout the UI.
 - Added option to toggle displaying of logs during filtration, by default they are hidden.
 - Fixed broken displaying of inhouse frequencies in variant detail view.
+- Added variant annotation list (comments, flags, ACMG ratings) to project-wide info page.
 
 -------
 v0.20.0

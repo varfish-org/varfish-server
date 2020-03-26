@@ -147,14 +147,13 @@
               </a>
             </td>
           </tr>
-        {% endfor %}
-        {% if not commentsflags %}
+        {% empty %}
           <tr>
              <td class="bg-faded text-muted font-italic text-center" colspan="11">
                No annotations yet.
              </td>
           </tr>
-        {% endif %}
+        {% endfor %}
       </tbody>
     </table>
   </div>
@@ -292,14 +291,13 @@
               </a>
             </td>
           </tr>
-        {% endfor %}
-        {% if not case.structural_variant_flags.all %}
+        {% empty %}
           <tr>
              <td class="bg-faded text-muted font-italic text-center" colspan="10">
                No annotations yet.
              </td>
           </tr>
-        {% endif %}
+        {% endfor %}
       </tbody>
     </table>
   </div>
