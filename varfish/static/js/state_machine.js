@@ -141,10 +141,12 @@ function toggleLogs() {
   if (x.hasClass("d-none")) {
     x.removeClass("d-none");
     $("#togglelogs").text("Hide Logs");
+    setCookie("logs", "1");
   }
   else {
     x.addClass("d-none");
     $("#togglelogs").text("Show Logs");
+    setCookie("logs", "0");
   }
 }
 
@@ -158,10 +160,13 @@ function animateSubmitButtonCancel() {
   resultsTable.html(
     '<div class="alert alert-info">' +
     '<i class="fa fa-circle-o-notch fa-spin"></i> ' +
-    '<strong id="infoBoxTitle">Loading ...</strong> <button id="togglelogs" class="ml-3 btn btn-sm btn-info" onclick="toggleLogs();">Show Logs</button>' +
+    '<strong id="infoBoxTitle">Loading ...</strong> <button id="togglelogs" class="ml-3 btn btn-sm btn-info" onclick="toggleLogs()">Show Logs</button>' +
     '<div id="logger" class="d-none"></div>' +
     '</div>'
   );
+  if (getCookie("logs") == "1") {
+    toggleLogs();
+  }
   icon.addClass("fa-spin");
 }
 

@@ -19,3 +19,8 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+
+function setCookie(name, value) {
+    document.cookie = name + "=" + value + ";"
+}
