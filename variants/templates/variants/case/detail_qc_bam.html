@@ -59,8 +59,8 @@
               <td class="text-right">{{ stats|from_bamstats:"percent duplicates"|floatformat:1 }}%</td>
               <td class="text-right">{{ stats|keyvalue:"bamstats"|keyvalue:"insert size average"|floatformat:0 }}</td>
               <td class="text-right">{{ stats|keyvalue:"bamstats"|keyvalue:"insert size standard deviation"|floatformat:0 }}</td>
-              <td class="text-right">{{ stats|from_bamstats:"mean target coverage"|default_if_none:"-"|floatformat:0 }}&nbsp;x</td>
-              <td class="text-right">{{ stats|from_bamstats:"total target size"|default_if_none:"-"|bpformat }}</td>
+              <td class="text-right">{% if stats|from_bamstats:"mean target coverage" %}{{ stats|from_bamstats:"mean target coverage"|default:"-"|floatformat:0 }}&nbsp;x{% else %}- <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="" data-original-title="coverage information not provided"></i>{% endif %}</td>
+              <td class="text-right">{% if stats|from_bamstats:"total target size" %}{{ stats|from_bamstats:"total target size"|default:"-"|floatformat:0 }}&nbsp;x{% else %}- <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="" data-original-title="coverage information not provided"></i>{% endif %}</td>
             </tr>
           {% endfor %}
         </tbody>

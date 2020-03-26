@@ -14,7 +14,7 @@
   <ul class="list-group list-group-flush">
     <li class="list-group-item pl-0">
       <div class="row">
-        <span class="col-2 text-nowrap"><strong>
+        <span class="col-3 text-nowrap"><strong>
           Case Name
         </strong></span>
         <span class="col-3 text-nowrap">
@@ -22,10 +22,10 @@
           {% include "variants/case/indicator_sex_error.html" with item=object %}
           {% include "variants/case/indicator_rel_error.html" with item=object %}
         </span>
-        <span class="col-2"><strong>
+        <span class="col-3"><strong>
           Individuals
         </strong></span>
-        <span class="col-5">
+        <span class="col-3">
           {% for member in object.get_members %}
             {{ member|only_source_name }}{% if not forloop.last %},{% endif %}
           {% endfor %}
@@ -34,13 +34,13 @@
     </li>
     <li class="list-group-item pl-0">
       <div class="row">
-        <span class="col-2 text-nowrap"><strong>
+        <span class="col-3 text-nowrap"><strong>
             Created At
         </strong></span>
         <span class="col-3 text-nowrap">
             {{ object.date_created|date:"Y/m/d H:i" }}
         </span>
-        <span class="col-2">
+        <span class="col-3">
             <span class="text-muted text-nowrap">Last Modified</span>
         </span>
         <span class="col-3">
@@ -50,10 +50,10 @@
     </li>
     <li class="list-group-item pl-0">
       <div class="row">
-        <span class="col-2">
+        <span class="col-3">
           <strong>Status, Notes &amp; Tags</strong>
         </span>
-        <span id="case-notes-status-mode-fixed" class="col-9">
+        <span id="case-notes-status-mode-fixed" class="col-8">
           <h4><span id="case-notes-status-badge">{{ object.status }}</span></h4>
           <div id="case-notes-status-tags" class="mb-2">
           {% for tag in object.tags %}
@@ -62,7 +62,7 @@
           </div>
           <span id="case-notes-status-text">{% if object.notes %}{{ object.notes }}{% endif %}</span>
         </span>
-        <span id="case-notes-status-mode-edit" class="col-9" style="display: none;">
+        <span id="case-notes-status-mode-edit" class="col-8" style="display: none;">
           <form>{% csrf_token %}
             {{ form }}
             <div class="text-right">
@@ -99,7 +99,7 @@
     </li>
     <li class="list-group-item pl-0">
       <div class="row">
-        <span class="col-2 text-nowrap"><strong>
+        <span class="col-3 text-nowrap"><strong>
           Called Variants
         </strong></span>
         <span class="col-3 text-nowrap">
@@ -113,10 +113,10 @@
           {% endif %}
         </span>
         {% if svs_enabled %}
-          <span class="col-2"><strong>
+          <span class="col-3"><strong>
             Called SVs
           </strong></span>
-          <span class="col-5">
+          <span class="col-3">
             {{ object.num_svs|default_if_none:"-"|intcomma }}
             {% if object.num_svs %}
               {% if not object.latest_structural_variant_set %}
@@ -128,18 +128,20 @@
           </span>
         {% endif %}
       </div>
+    </li>
+    <li class="list-group-item pl-0">
       <div class="row">
-        <span class="col-2 text-nowrap"><strong>
+        <span class="col-3 text-nowrap"><strong>
           Annotated Variants
         </strong></span>
         <span class="col-3 text-nowrap">
           {{ object.get_annotation_small_variant_count|default_if_none:"-"|intcomma }}
         </span>
         {% if svs_enabled %}
-          <span class="col-2"><strong>
+          <span class="col-3"><strong>
             Annotated SVs
           </strong></span>
-          <span class="col-5">
+          <span class="col-3">
             {{ object.get_annotation_sv_count|default_if_none:"-"|intcomma }}
           </span>
         {% endif %}
