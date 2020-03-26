@@ -2523,9 +2523,9 @@ class SmallVariantDetails(
         )
         result["inhouse_freq"] = {}
         if inhouse and not settings.KIOSK_MODE:
-            hom = getattr(inhouse, "count_hom_alt", 0)
-            het = getattr(inhouse, "count_het", 0)
-            hemi = getattr(inhouse, "count_hemi_alt", 0)
+            hom = getattr(inhouse[0], "count_hom_alt", 0)
+            het = getattr(inhouse[0], "count_het", 0)
+            hemi = getattr(inhouse[0], "count_hemi_alt", 0)
             result["inhouse_freq"] = {
                 "hom": hom,
                 "het": het,
