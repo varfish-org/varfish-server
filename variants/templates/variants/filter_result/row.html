@@ -514,6 +514,7 @@
           data-toggle="modal"
           data-target="#variantvalidatormodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}"
           title="Submit variant to VariantValidator"
+          onclick="if ($('#variantvalidatormodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}').find('.variant-validator-results').children().length == 0){$('#variantvalidatormodalsubmit-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}').click();}"
           class="dropdown-item">
           Query VariantValidator
         </a>
@@ -530,14 +531,13 @@
             </button>
           </div>
           <div class="modal-body">
-            <div class="variant-validator-results">
-              <p class="text-muted font-italic">Submit the variant to the VariantValidator.org API.</p>
+            <div class="variant-validator-results container-fluid">
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button class="btn btn-primary" type="button" onclick="queryVariantValidatorApi(this, '{{ entry.release }}', '{{ entry.chromosome }}', '{{ entry.start }}', '{{ entry.reference }}', '{{ entry.alternative }}');">
-              <i class="fa fa-cloud-upload"></i> Submit
+            <button class="btn btn-primary" id="variantvalidatormodalsubmit-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}" type="button" onclick="queryVariantValidatorApi(this, '{{ entry.release }}', '{{ entry.chromosome }}', '{{ entry.start }}', '{{ entry.reference }}', '{{ entry.alternative }}');">
+              <i class="fa fa-cloud-upload"></i> Re-Submit
             </button>
           </div>
         </div>

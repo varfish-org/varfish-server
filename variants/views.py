@@ -3654,7 +3654,6 @@ class VariantValidatorApiView(PluginContextMixin, View):
         if settings.KIOSK_MODE:
             user = User.objects.get(username="kiosk_user")
 
-        print(dict(result))
         return render(
             self.request,
             self.template_name,
