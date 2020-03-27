@@ -269,11 +269,24 @@ def flag_class(row):
     """
     if row.flag_summary and row.flag_summary != "empty":
         return row.flag_summary  # short-circuit
+    # Except bookmark flag as it is set automatically if not actively disabled by user.
+    bool_flags = (
+        "candidate",
+        "doesnt_segregate",
+        "final_causative",
+        "for_validation",
+        "no_disease_association",
+        "segregates",
+    )
     flags = ("visual", "validation", "phenotype_match", "molecular")
     for flag in flags:
         flag_name = "flag_%s" % flag
         flag_value = getattr(row, flag_name)
         if flag_value and flag_value != "empty":
+            return "wip"
+    for flag in bool_flags:
+        flag_name = "flag_%s" % flag
+        if getattr(row, flag_name):
             return "wip"
     return "empty"
 

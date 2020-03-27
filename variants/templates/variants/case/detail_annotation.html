@@ -32,11 +32,7 @@
           <th class="text-center">Summary</th>
         </tr>
       </thead>
-      <tbody
-          id="small-variant-comments"
-          class="list"
-          data-url-submit="{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case=object.sodar_uuid %}"
-          data-url-delete="{% url 'variants:small-variant-comment-delete-api' project=project.sodar_uuid case=object.sodar_uuid %}">
+      <tbody>
         {% for variant, data in commentsflags.items %}
           <tr id="flags-{{ variant.0 }}-{{ variant.1 }}-{{ variant.2 }}-{{ variant.3 }}">
             <td class="text-nowrap">
@@ -85,8 +81,10 @@
               <td colspan="6" class="text-center text-muted font-italic">No flags.</td>
             {% endif %}
             <td>
-              {% if data|keyvalue:"comments" %}
-              <ul class="list-group" style="width: 400px">
+              <ul class="list-group list" style="width: 400px"
+                id="small-variant-comment-{{ variant.0 }}-{{ variant.1 }}-{{ variant.2 }}-{{ variant.3 }}"
+                data-url-submit="{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case=object.sodar_uuid %}"
+                data-url-delete="{% url 'variants:small-variant-comment-delete-api' project=project.sodar_uuid case=object.sodar_uuid %}">
               {% for comment in data|keyvalue:"comments" %}
                 <li class="list-group-item list-item" id="comment-{{ comment|keyvalue:"sodar_uuid" }}" data-sodar-uuid="{{ comment|keyvalue:"sodar_uuid" }}">
                   <div id="display-comment-{{ comment|keyvalue:"sodar_uuid" }}">
@@ -134,9 +132,7 @@
                 </li>
               {% endfor %}
               </ul>
-              {% else %}
-                <p class="text-muted font-italic text-center">No comments.</p>
-              {% endif %}
+              <p id="small-variant-comment-{{ variant.0 }}-{{ variant.1 }}-{{ variant.2 }}-{{ variant.3 }}-empty" class="text-muted font-italic text-center"{% if data|keyvalue:"comments" %} style="display: none;"{% endif %}>No comments.</p>
             </td>
             <td>
               <a

@@ -7,12 +7,32 @@ function summarizeFlags(data) {
     if (data["flag_summary"] != "empty") {
         return data["flag_summary"];
     }
-    var flags = ["visual", "validation", "molecular", "phenotype_match"];
-    for (var i = 0; i < flags.length; ++i) {
-        var flagName = "flag_" + flags[i];
-        var flagValue = data[flagName];
+    // Except bookmark flag as it is set automatically if not actively disabled by user.
+    var boolFlags = [
+        "candidate",
+        "doesnt_segregate",
+        "final_causative",
+        "for_validation",
+        "no_disease_association",
+        "segregates",
+    ];
+    let flags = [
+        "visual",
+        "validation",
+        "molecular",
+        "phenotype_match"
+    ];
+    for (let i = 0; i < flags.length; ++i) {
+        let flagName = "flag_" + flags[i];
+        let flagValue = data[flagName];
         if (flagValue != "empty") {
             return "wip"
+        }
+    }
+    for (let i = 0; i < boolFlags.length; ++i) {
+        let flagName = "flag_" + boolFlags[i];
+        if (data[flagName]) {
+          return "wip"
         }
     }
     return "empty";
@@ -84,8 +104,9 @@ function clickVariantBookmark() {
         var variantRow = $(outerThis).closest(".variant-row");
         variantRow.removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty variant-row-wip");
         variantRow.addClass("variant-row-" + summarizeFlags(data));
-        if (structural_or_small == "small") {
-          loadVariantDetails(dt.row($(this).closest(".variant-row")), cell);
+        let dtrow = dt.row(variantRow);
+        if (structural_or_small == "small" && dtrow.child() && dtrow.child().length) {
+          loadVariantDetails(dtrow, cell);
         }
       }).fail(function(xhr) {
         // failed, notify user
@@ -109,8 +130,9 @@ function clickVariantBookmark() {
           var commentTag = $(outerThis).closest(".bookmark").find(".variant-comment");
           commentTag.removeClass("fa-comment fa-comment-o");
           commentTag.addClass("fa-comment");
-          if (structural_or_small == "small") {
-            loadVariantDetails(dt.row($(this).closest(".variant-row")), cell);
+          let dtrow = dt.row($(outerThis).closest(".variant-row"));
+          if (structural_or_small == "small" && dtrow.child() && dtrow.child().length) {
+            loadVariantDetails(dtrow, cell);
           }
         }).fail(function(xhr) {
           // failed, notify user
@@ -344,7 +366,6 @@ function clickVariantAcmgRating() {
           badge.removeClass("badge-light text-muted badge-danger badge-warning text-black")
         }
         badge.text(acmgClass)
-        loadVariantDetails(row, cell);
       }).fail(function(xhr) {
         // failed, notify user
         alert("Updating ACMG classification failed");
@@ -369,8 +390,6 @@ function clickVariantAcmgRating() {
   }).done(function(data) {
     // found flags, show form with these
     showPopup(data);
-    // update variant details
-    loadVariantDetails(row, cell);
   }).fail(function(xhr) {
     if (xhr.status == 404) {
       // no flags found yet, show form with defaults

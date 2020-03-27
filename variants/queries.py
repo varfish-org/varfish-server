@@ -1146,11 +1146,18 @@ class ExtendQueryPartsFlagsJoin(ExtendQueryPartsBase):
                     func.count(SmallVariantFlags.sa.id).label("flag_count"),
                     func.bool_or(SmallVariantFlags.sa.flag_bookmarked).label("flag_bookmarked"),
                     func.bool_or(SmallVariantFlags.sa.flag_candidate).label("flag_candidate"),
+                    func.bool_or(SmallVariantFlags.sa.flag_candidate).label("flag_segregates"),
+                    func.bool_or(SmallVariantFlags.sa.flag_candidate).label(
+                        "flag_doesnt_segregate"
+                    ),
                     func.bool_or(SmallVariantFlags.sa.flag_final_causative).label(
                         "flag_final_causative"
                     ),
                     func.bool_or(SmallVariantFlags.sa.flag_for_validation).label(
                         "flag_for_validation"
+                    ),
+                    func.bool_or(SmallVariantFlags.sa.flag_for_validation).label(
+                        "flag_no_disease_association"
                     ),
                     func.max(SmallVariantFlags.sa.flag_visual).label("flag_visual"),
                     func.max(SmallVariantFlags.sa.flag_molecular).label("flag_molecular"),
@@ -1185,8 +1192,11 @@ class ExtendQueryPartsFlagsJoin(ExtendQueryPartsBase):
             self.subquery.c.flag_count,
             self.subquery.c.flag_bookmarked,
             self.subquery.c.flag_candidate,
+            self.subquery.c.flag_segregates,
+            self.subquery.c.flag_doesnt_segregate,
             self.subquery.c.flag_final_causative,
             self.subquery.c.flag_for_validation,
+            self.subquery.c.flag_no_disease_association,
             self.subquery.c.flag_molecular,
             self.subquery.c.flag_visual,
             self.subquery.c.flag_validation,

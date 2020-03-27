@@ -18,7 +18,7 @@ function queryVariantValidatorApi(obj, release, chromosome, start, reference, al
         success: function (response) {
             button.attr('disabled', false);
             icon.removeClass('fa-refresh fa-spin').addClass('fa-cloud-upload');
-            button.closest('.modal-content').find('.variant-validator-results').html(response);
+            box.html(response);
         },
         error: function (jqXHR, textStatus, errorThrown) {
             alert("Error during AJAX call:", textStatus, + errorThrown);

@@ -229,7 +229,7 @@ function loadBeaconWidget() {
 }
 
 
-function loadVariantDetails(row, cell, open=false) {
+function loadVariantDetails(row, cell, show=false) {
   var url = cell.data("url");
   var icon = $("i", cell);
   var previous_icon = "";
@@ -248,7 +248,7 @@ function loadVariantDetails(row, cell, open=false) {
       success: function (response) {
         row.child(response);
         icon.removeClass(spinner);
-        if (open) {
+        if (show) {
             icon.addClass("fa-chevron-down");
             row.child.show();
         }
