@@ -20,7 +20,7 @@ The following databases are integrated into VarFish, meaning that their contents
 +-------------------+---------------------------+
 |                   | ExAC                      |
 +-------------------+---------------------------+
-|                   | 1000 Gnomes               |
+|                   | 1000 Genomes              |
 +-------------------+---------------------------+
 |                   | mtDB                      |
 +-------------------+---------------------------+
@@ -40,7 +40,7 @@ The following databases are integrated into VarFish, meaning that their contents
 +-------------------+---------------------------+
 |                   | OMI                       |
 +-------------------+---------------------------+
-|                   | MGI Maping                |
+|                   | MGI Mapping               |
 +-------------------+---------------------------+
 | Gene Description  | HGNC                      |
 +-------------------+---------------------------+
