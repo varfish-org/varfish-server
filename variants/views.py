@@ -188,12 +188,45 @@ class CaseListView(
         result["project"] = CaseAwareProject.objects.prefetch_related("variant_stats").get(
             pk=result["project"].pk
         )
+        result["samples"] = result["project"].get_members()
+        result["effects"] = list(FILTER_FORM_TRANSLATE_EFFECTS.values())
+        result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
+        result["ontarget_effect_counts"] = {sample: {} for sample in result["samples"]}
+        result["indel_sizes"] = {sample: {} for sample in result["samples"]}
+        result["indel_sizes_keys"] = []
+        result["dps"] = {sample: {} for sample in result["samples"]}
         result["progress"] = self._compute_progress(result["project"])
         result["commentsflags"] = self.join_small_var_comments_and_flags(result["project"])
         result["sv_commentsflags"] = self.join_sv_comments_and_flags(result["project"])
         # Build list of properly sorted coverage keys.
         try:
             coverages = set()
+            result["ontarget_effect_counts"] = {
+                stats.sample_name: stats.ontarget_effect_counts
+                for stats in result["project"].sample_variant_stats()
+            }
+            result["indel_sizes"] = {
+                stats.sample_name: {
+                    int(key): value for key, value in stats.ontarget_indel_sizes.items()
+                }
+                for stats in result["project"].sample_variant_stats()
+            }
+            result["indel_sizes_keys"] = list(
+                sorted(
+                    set(
+                        chain(
+                            *list(
+                                map(int, indel_sizes.keys())
+                                for indel_sizes in result["indel_sizes"].values()
+                            )
+                        )
+                    )
+                )
+            )
+            result["dps"] = {
+                stats.sample_name: {int(key): value for key, value in stats.ontarget_dps.items()}
+                for stats in result["project"].sample_variant_stats()
+            }
             for case in result["project"].case_set.all():
                 variant_set = case.latest_variant_set()
                 if variant_set:
@@ -204,10 +237,128 @@ class CaseListView(
             if coverages:
                 filtered = filter(lambda x: x > 0, coverages)
                 result["coverages"] = list(map(str, sorted(filtered)))[:5]
+            result["qcdata_relatedness"] = self.get_relatedness_content(result["project"])
+            result["qcdata_sample_variant_stats"] = self.get_sample_variant_stats_content(
+                result["project"]
+            )
         except (SmallVariantSet.variant_stats.RelatedObjectDoesNotExist, AttributeError):
             pass  # swallow, defaults set above
 
+        # Prepare effect counts data for QC download
+        qcdata_effect_content = ["\t".join(["Effect"] + result["project"].get_members())]
+        for effect in result["effects"]:
+            record = [effect]
+            for sample in result["project"].get_members():
+                record.append(str(result["ontarget_effect_counts"][sample].get(effect, 0)))
+            qcdata_effect_content.append("\t".join(record))
+        result["qcdata_effects"] = b64encode("\n".join(qcdata_effect_content).encode("utf-8"))
+
+        # Prepare InDel size data for QC download
+        qcdata_indel_size_content = ["\t".join(["InDel Size"] + result["project"].get_members())]
+        for indel_size in result["indel_sizes_keys"]:
+            record = [
+                ">= %d" % indel_size
+                if indel_size == 10
+                else "<= %d" % indel_size
+                if indel_size == -10
+                else str(indel_size)
+            ]
+            for sample in result["project"].get_members():
+                record.append(str(result["indel_sizes"][sample].get(indel_size, 0)))
+            qcdata_indel_size_content.append("\t".join(record))
+        result["qcdata_indel_sizes"] = b64encode(
+            "\n".join(qcdata_indel_size_content).encode("utf-8")
+        )
+
+        # Prepare depth data for QC download
+        qcdata_site_depth_content = ["\t".join(["Depth"] + result["project"].get_members())]
+        for site_depth in result["dps_keys"]:
+            record = [">= %d" % site_depth if site_depth == 200 else str(site_depth)]
+            for sample in result["project"].get_members():
+                record.append(str(result["dps"][sample].get(site_depth, 0)))
+            qcdata_site_depth_content.append("\t".join(record))
+        result["qcdata_site_depths"] = b64encode(
+            "\n".join(qcdata_site_depth_content).encode("utf-8")
+        )
+
         return result
+
+    def get_relatedness_content(self, project):
+        result = [
+            "\t".join(
+                [
+                    "Sample 1",
+                    "Sample 2",
+                    "Het_1,2",
+                    "Het_1",
+                    "Het_2",
+                    "n_IBS0",
+                    "n_IBS1",
+                    "n_IBS2",
+                    "relatedness",
+                ]
+            )
+        ]
+        for rel in project.variant_stats.relatedness.all():
+            result.append(
+                "\t".join(
+                    [
+                        rel.sample1,
+                        rel.sample2,
+                        str(rel.het_1_2),
+                        str(rel.het_1),
+                        str(rel.het_2),
+                        str(rel.n_ibs0),
+                        str(rel.n_ibs1),
+                        str(rel.n_ibs2),
+                        str(rel.relatedness()),
+                    ]
+                )
+            )
+        return b64encode("\n".join(result).encode("utf-8"))
+
+    def get_sample_variant_stats_content(self, project):
+        result = [
+            "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.",])
+        ]
+        for item in project.sample_variant_stats():
+            result.append(
+                "\t".join(
+                    [
+                        item.sample_name,
+                        str(item.ontarget_transitions),
+                        str(item.ontarget_transversions),
+                        str(item.ontarget_ts_tv_ratio()),
+                        str(item.ontarget_snvs),
+                        str(item.ontarget_indels),
+                        str(item.ontarget_mnvs),
+                        str(item.chrx_het_hom),
+                    ]
+                )
+            )
+        return b64encode("\n".join(result).encode("utf-8"))
+
+    def get_effect_content(self):
+        case = self.get_object()
+        members = case.get_members_with_samples()
+        result = ["\t".join(members)]
+        {sample: {} for sample in result["samples"]}
+        for item in case.latest_variant_set().variant_stats.sample_variant_stats.all():
+            result.append(
+                "\t".join(
+                    [
+                        item.sample_name,
+                        str(item.ontarget_transitions),
+                        str(item.ontarget_transversions),
+                        str(item.ontarget_ts_tv_ratio()),
+                        str(item.ontarget_snvs),
+                        str(item.ontarget_indels),
+                        str(item.ontarget_mnvs),
+                        str(item.chrx_het_hom),
+                    ]
+                )
+            )
+        return b64encode("\n".join(result).encode("utf-8"))
 
     def _compute_progress(self, project):
         counts = {key: 0 for key, _ in CASE_STATUS_CHOICES}
@@ -774,13 +925,7 @@ class CaseDetailView(
         # Prepare depth data for QC download
         qcdata_site_depth_content = ["\t".join(["Depth"] + case.get_members_with_samples())]
         for site_depth in result["dps_keys"]:
-            record = [
-                ">= %d" % site_depth
-                if site_depth == 10
-                else "<= %d" % site_depth
-                if site_depth == -10
-                else str(site_depth)
-            ]
+            record = [">= %d" % site_depth if site_depth == 200 else str(site_depth)]
             for sample in case.get_members_with_samples():
                 record.append(str(result["dps"][sample].get(site_depth, 0)))
             qcdata_site_depth_content.append("\t".join(record))

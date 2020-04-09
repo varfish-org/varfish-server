@@ -191,6 +191,13 @@ class CaseAwareProject(Project):
     def get_annotation_count(self):
         return sum(case.get_annotation_count() for case in self.case_set.all())
 
+    def sample_variant_stats(self):
+        return [
+            sample
+            for case in self.case_set.all()
+            for sample in case.latest_variant_set().variant_stats.sample_variant_stats.all()
+        ]
+
 
 class SmallVariant(models.Model):
     """"Information of a single variant, knows its case."""

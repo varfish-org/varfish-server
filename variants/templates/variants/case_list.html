@@ -147,6 +147,7 @@
       axios.get("/variants/{{ project.sodar_uuid }}/api-qc/")
         .then(function (response) {
           // Render plots after data has been loaded
+          console.log(response)
           plotlyRelatedness(response, 'plot-relatedness')
           plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')
           plotlyVarDps(response, 'plot-var-dps')

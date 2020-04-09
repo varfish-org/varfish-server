@@ -46,6 +46,7 @@ End-User Summary
 - Added variant annotation list (comments, flags, ACMG ratings) to project-wide info page.
 - Row in filter results now turns gray when any flag is set (except bookmark flag; summary flag still colours in other colour).
 - Fixed bug where comments and flags in variant details weren't updated when the variant details have been opened before.
+- Added QC TSV download and per-sample metrics table to projec-wide QC.
 
 Full Change List
 ================
@@ -92,6 +93,7 @@ Full Change List
 - Added variant annotation list (comments, flags, ACMG ratings) to project-wide info page.
 - Row in filter results now turns gray when any flag is set (except bookmark flag; summary flag still colours in other colour).
 - Fixed bug where comments and flags in variant details weren't updated when the variant details have been opened before.
+- Added QC TSV download and per-sample metrics table to projec-wide QC.
 
 -------
 v0.20.0
