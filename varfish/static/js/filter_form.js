@@ -1833,7 +1833,7 @@ function loadPresets(element) {
     $("#input-presets-region").val("region-whole-genome")
     $("#input-presets-flags").val("flags-default")
   } else if (presetsName == "clinvar") {
-    $("#input-presets-inheritance").val("inheritance-any")
+    $("#input-presets-inheritance").val("inheritance-mitochondrial")
     $("#input-presets-frequency").val("frequency-recessive-relaxed")
     $("#input-presets-impact").val("impact-any")
     $("#input-presets-quality").val("quality-strict")
