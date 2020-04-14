@@ -330,32 +330,40 @@ class CaseExporterBase:
 
     def _fetch_gene_scores(self, entrez_ids):
         if self._is_prioritization_enabled():
-            prio_algorithm = self.query_args.get("prio_algorithm")
-            hpo_terms = tuple(sorted(self.query_args.get("prio_hpo_terms_curated", [])))
-            return {
-                str(gene_id): score
-                for gene_id, _, score, _ in prioritize_genes(entrez_ids, hpo_terms, prio_algorithm)
-            }
+            try:
+                prio_algorithm = self.query_args.get("prio_algorithm")
+                hpo_terms = tuple(sorted(self.query_args.get("prio_hpo_terms_curated", [])))
+                return {
+                    str(gene_id): score
+                    for gene_id, _, score, _ in prioritize_genes(
+                        entrez_ids, hpo_terms, prio_algorithm
+                    )
+                }
+            except ConnectionError as e:
+                self.job.add_log_entry(e)
         else:
             return {}
 
     def _fetch_variant_scores(self, variants):
         if self._is_pathogenicity_enabled():
-            patho_score = self.query_args.get("patho_score")
-            scorer_factory = VariantScoresFactory()
-            scorer = scorer_factory.get_scorer(patho_score, variants, self.job.bg_job.user)
-            return {
-                "-".join(
-                    [
-                        score["release"],
-                        score["chromosome"],
-                        str(score["start"]),
-                        score["reference"],
-                        score["alternative"],
-                    ]
-                ): (score["score"], score["info"])
-                for score in scorer.score()
-            }
+            try:
+                patho_score = self.query_args.get("patho_score")
+                scorer_factory = VariantScoresFactory()
+                scorer = scorer_factory.get_scorer(patho_score, variants, self.job.bg_job.user)
+                return {
+                    "-".join(
+                        [
+                            score["release"],
+                            score["chromosome"],
+                            str(score["start"]),
+                            score["reference"],
+                            score["alternative"],
+                        ]
+                    ): (score["score"], score["info"])
+                    for score in scorer.score()
+                }
+            except ConnectionError as e:
+                self.job.add_log_entry(e)
         else:
             return {}
 

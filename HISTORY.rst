@@ -48,6 +48,7 @@ End-User Summary
 - Fixed bug where comments and flags in variant details weren't updated when the variant details have been opened before.
 - Added QC TSV download and per-sample metrics table to projec-wide QC.
 - Removed ExAC locus link in result list, added gnomAD link to gene.
+- Catching connection exceptions during file export with enabled pathogenicity and/or phenotype scoring.
 
 Full Change List
 ================
@@ -96,6 +97,7 @@ Full Change List
 - Fixed bug where comments and flags in variant details weren't updated when the variant details have been opened before.
 - Added QC TSV download and per-sample metrics table to projec-wide QC.
 - Removed ExAC locus link in result list, added gnomAD link to gene.
+- Catching connection exceptions during file export with enabled pathogenicity and/or phenotype scoring.
 
 -------
 v0.20.0
