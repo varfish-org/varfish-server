@@ -307,6 +307,9 @@
           <a class="dropdown-item" href="https://panelapp.genomicsengland.co.uk/panels/entities/{{ symbol }}" target="_blank">
             Gene @PanelApp
           </a>
+          <a class="dropdown-item" href="https://gnomad.broadinstitute.org/gene/{{ entry.ensembl_transcript_id }}" target="_blank">
+            Gene @gnomAD
+          </a>
           {% if entry.mgi_id %}
           <a class="dropdown-item" href="http://www.informatics.jax.org/marker/{{ entry.mgi_id }}" target="_blank">
             Gene @MGI
@@ -452,9 +455,6 @@
         </a>
         <a class="dropdown-item" href="http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/?name={{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }};search=Search" target="_blank">
           Locus @DGV
-        </a>
-        <a class="dropdown-item" href="http://exac.broadinstitute.org/region/{{ entry.chromosome }}-{{ entry.start }}-{{ entry.end }}" target="_blank">
-          Locus @ExAC
         </a>
         <a class="dropdown-item" href="http://gnomad.broadinstitute.org/region/{{ entry.chromosome }}-{{ entry.start }}-{{ entry.end }}" target="_blank">
           Locus @gnomAD

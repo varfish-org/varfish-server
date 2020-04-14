@@ -47,6 +47,7 @@ End-User Summary
 - Row in filter results now turns gray when any flag is set (except bookmark flag; summary flag still colours in other colour).
 - Fixed bug where comments and flags in variant details weren't updated when the variant details have been opened before.
 - Added QC TSV download and per-sample metrics table to projec-wide QC.
+- Removed ExAC locus link in result list, added gnomAD link to gene.
 
 Full Change List
 ================
@@ -94,6 +95,7 @@ Full Change List
 - Row in filter results now turns gray when any flag is set (except bookmark flag; summary flag still colours in other colour).
 - Fixed bug where comments and flags in variant details weren't updated when the variant details have been opened before.
 - Added QC TSV download and per-sample metrics table to projec-wide QC.
+- Removed ExAC locus link in result list, added gnomAD link to gene.
 
 -------
 v0.20.0

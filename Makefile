@@ -24,6 +24,9 @@ migrate: _migrate black
 shell:
 	$(MANAGE) shell
 
+docs:
+	$(MAKE) -C docs_manual html
+
 celery:
 	celery worker -A config.celery_app -l info --concurrency=4 --beat
 
