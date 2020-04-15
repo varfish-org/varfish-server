@@ -407,7 +407,7 @@ class CaseManager(models.Manager):
         """
         Return objects or links matching the query.
         :param search_term: Search term (string)
-        :param keywords: Optional search keywords as key/value pairs (dict)
+        :param _keywords: Optional search keywords as key/value pairs (dict)
         :return: Python list of BaseFilesfolderClass objects
         """
         objects = super().get_queryset().order_by("name")

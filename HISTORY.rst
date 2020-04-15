@@ -49,6 +49,7 @@ End-User Summary
 - Added QC TSV download and per-sample metrics table to projec-wide QC.
 - Removed ExAC locus link in result list, added gnomAD link to gene.
 - Catching connection exceptions during file export with enabled pathogenicity and/or phenotype scoring.
+- Fixed project/case search that delivered search results for projects that the searching user had no access to (only search was affected, access was not granted).
 
 Full Change List
 ================
@@ -98,6 +99,7 @@ Full Change List
 - Added QC TSV download and per-sample metrics table to projec-wide QC.
 - Removed ExAC locus link in result list, added gnomAD link to gene.
 - Catching connection exceptions during file export with enabled pathogenicity and/or phenotype scoring.
+- Fixed project/case search that delivered search results for projects that the searching user had no access to (only search was affected, access was not granted).
 
 -------
 v0.20.0
