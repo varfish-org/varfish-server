@@ -788,6 +788,26 @@ class CaseCommentsDeleteApiView(
         return HttpResponse(json.dumps({"result": "OK"}), content_type="application/json")
 
 
+class CaseCommentsCountApiView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    SingleObjectMixin,
+    SingleObjectTemplateResponseMixin,
+    View,
+):
+    """API view to save case comments."""
+
+    permission_required = "variants.view_data"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def get(self, *args, **kwargs):
+        return JsonResponse({"count": self.get_object().case_comments.count()})
+
+
 class CaseDetailView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,

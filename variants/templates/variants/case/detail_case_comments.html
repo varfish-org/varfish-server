@@ -3,7 +3,7 @@
   <div class="card-header">
     <h4>
       <i class="fa fa-comments-o"></i>
-      Case Comments <span class="badge badge-pill badge-secondary" id="case-comments-count">{{ case.case_comments.count }}</span>
+      Case Comments <span class="badge badge-pill badge-secondary" id="case-comments-count" data-url="{% url 'variants:case-comments-count-api' project=project.sodar_uuid case=object.sodar_uuid %}"></span>
     </h4>
   </div>
   <ul

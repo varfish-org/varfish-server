@@ -195,6 +195,11 @@ ui_urlpatterns = [
         view=views.CaseCommentsDeleteApiView.as_view(),
         name="case-comments-delete-api",
     ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/case-comments-count/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseCommentsCountApiView.as_view(),
+        name="case-comments-count-api",
+    ),
     # Views for filtering and storing case query results jobs
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/filter-results/(?P<case>[0-9a-f-]+)/$",

@@ -50,6 +50,7 @@ End-User Summary
 - Removed ExAC locus link in result list, added gnomAD link to gene.
 - Catching connection exceptions during file export with enabled pathogenicity and/or phenotype scoring.
 - Fixed project/case search that delivered search results for projects that the searching user had no access to (only search was affected, access was not granted).
+- Made case comments count change in real time.
 
 Full Change List
 ================
@@ -100,6 +101,7 @@ Full Change List
 - Removed ExAC locus link in result list, added gnomAD link to gene.
 - Catching connection exceptions during file export with enabled pathogenicity and/or phenotype scoring.
 - Fixed project/case search that delivered search results for projects that the searching user had no access to (only search was affected, access was not granted).
+- Made case comments count change in real time.
 
 -------
 v0.20.0

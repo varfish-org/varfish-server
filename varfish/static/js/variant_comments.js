@@ -37,6 +37,7 @@ function commentDeleteSubmit() {
         success: function (data) {
             list_element.remove();
             handleEmptyMessage(list.attr("id"));
+            updateCaseCommentsCount();
         },
         error: function (jqXHR, textStatus, errorThrown) {
             let msg = "Error during AJAX call: " + textStatus + " " + errorThrown;
@@ -63,6 +64,7 @@ function commentEditSubmit() {
             $("#edit-comment-" + comment_uuid).toggle();
             $("#display-comment-" + comment_uuid).toggle();
             list.animate({scrollTop: list[0].scrollHeight}, 'slow');
+            updateCaseCommentsCount();
         },
         error: function (jqXHR, textStatus, errorThrown) {
             let msg = "Error during AJAX call: " + textStatus + " " + errorThrown;
@@ -135,7 +137,8 @@ function commentSubmit() {
                 $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-edit").on("click", commentEditToggle);
                 $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-edit-cancel").on("click", commentEditToggle);
                 $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-edit-submit").on("click", commentEditSubmit);
-                handleEmptyMessage(list.attr("id"));
+                handleEmptyMessage(list.attr("id"))
+                updateCaseCommentsCount();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 alert("Error during AJAX call: " + textStatus + " " + errorThrown);
@@ -143,4 +146,23 @@ function commentSubmit() {
             }
         });
     }
+}
+
+
+function updateCaseCommentsCount() {
+    var counter = $("#case-comments-count");
+    $.ajax({
+        url: counter.data("url"),
+        success: function (data) {
+            counter.text(data["count"]);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            let msg = "Error during AJAX call: " + textStatus + " " + errorThrown;
+            if (jqXHR.status === 500 && "result") {
+                msg += " " + jqXHR.responseJSON["result"]
+            }
+            alert(msg);
+            console.log(msg);
+        }
+    });
 }
