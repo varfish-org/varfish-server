@@ -58,8 +58,9 @@
     </tr>
     {% if kiosk_mode %}
       <tr>
-        <td><input type="checkbox" class="checkboxinput" checked="" disabled="disabled"></td>
-        <td colspan="4">in-house DB <small class="text-muted">(disabled in Kiosk mode)</small></td>
+        <td><input type="checkbox" class="checkboxinput" disabled="disabled"></td>
+        <td>in-house DB <small class="text-muted">(disabled in Kiosk mode)</small></td>
+        <td colspan="3" class="text-center font-italic text-muted">Only available in custom <a href="/manual/setup_core.html" target="_blank">VarFish installation</a>.</td>
       </tr>
     {% endif %}
     <tr>
