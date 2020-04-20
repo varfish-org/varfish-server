@@ -1146,8 +1146,8 @@ class ExtendQueryPartsFlagsJoin(ExtendQueryPartsBase):
                     func.count(SmallVariantFlags.sa.id).label("flag_count"),
                     func.bool_or(SmallVariantFlags.sa.flag_bookmarked).label("flag_bookmarked"),
                     func.bool_or(SmallVariantFlags.sa.flag_candidate).label("flag_candidate"),
-                    func.bool_or(SmallVariantFlags.sa.flag_candidate).label("flag_segregates"),
-                    func.bool_or(SmallVariantFlags.sa.flag_candidate).label(
+                    func.bool_or(SmallVariantFlags.sa.flag_segregates).label("flag_segregates"),
+                    func.bool_or(SmallVariantFlags.sa.flag_doesnt_segregate).label(
                         "flag_doesnt_segregate"
                     ),
                     func.bool_or(SmallVariantFlags.sa.flag_final_causative).label(
@@ -1156,7 +1156,7 @@ class ExtendQueryPartsFlagsJoin(ExtendQueryPartsBase):
                     func.bool_or(SmallVariantFlags.sa.flag_for_validation).label(
                         "flag_for_validation"
                     ),
-                    func.bool_or(SmallVariantFlags.sa.flag_for_validation).label(
+                    func.bool_or(SmallVariantFlags.sa.flag_no_disease_association).label(
                         "flag_no_disease_association"
                     ),
                     func.max(SmallVariantFlags.sa.flag_visual).label("flag_visual"),

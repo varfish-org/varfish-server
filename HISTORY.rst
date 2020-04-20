@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Fixed bug where some variant flags didn't color the row in filtering results after reloading the page.
+
+Full Change List
+================
+
+- Fixed bug where some variant flags didn't color the row in filtering results after reloading the page.
+
 -------
 v0.21.0
 -------
