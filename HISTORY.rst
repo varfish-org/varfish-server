@@ -11,12 +11,14 @@ End-User Summary
 
 - Fixed bug where some variant flags didn't color the row in filtering results after reloading the page.
 - Fixed upload bug in VarFish Kiosk when vcf file was too small.
+- Blocking upload of VCF files with GRCh38/hg38/hg19 builds for VarFish Kiosk.
 
 Full Change List
 ================
 
 - Fixed bug where some variant flags didn't color the row in filtering results after reloading the page.
 - Fixed upload bug in VarFish Kiosk when vcf file was too small and the file copy process didn't flush the file completely resulting in only a parly available header.
+- Blocking upload of VCF files with GRCh38/hg38/hg19 builds for VarFish Kiosk.
 
 -------
 v0.21.0

@@ -1640,7 +1640,8 @@ class KioskUploadForm(forms.Form):
             tmp_file.flush()
             self.cleaned_data.get("vcf_file").seek(0)
             try:
-                vcf_samples = vcfpy.Reader.from_path(tmp_file.name).header.samples.names
+                vcf_header = vcfpy.Reader.from_path(tmp_file.name).header
+                vcf_samples = vcf_header.samples.names
                 self.cleaned_data["vcf_index"] = vcf_samples[0]
                 if ped_samples and set(vcf_samples) != set(ped_samples):
                     self.add_error(
@@ -1652,6 +1653,15 @@ class KioskUploadForm(forms.Form):
                     self.cleaned_data["ped"] = [
                         "\t".join(["FAM", sample, "0", "0", "1", "2"]) for sample in vcf_samples
                     ]
+                for entry in list(vcf_header.get_lines("contig")):
+                    # GRCh38/hg38?
+                    if entry.id in ("chr1", "1") and int(entry.length) == 248956422:
+                        self.add_error("vcf_file", "Only GRCh37 build is supported!")
+                        break
+                    # hg19?
+                    if entry.id == "chr1" and int(entry.length) == 249250621:
+                        self.add_error("vcf_file", "Only GRCh37 build is supported!")
+                        break
             except vcfpy.exceptions.VCFPyException as e:
                 self.add_error("vcf_file", "Problem with VCF file: %s" % e)
 
