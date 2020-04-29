@@ -1637,6 +1637,7 @@ class KioskUploadForm(forms.Form):
         )
         with tempfile.NamedTemporaryFile(suffix=suffix, dir=settings.MEDIA_ROOT) as tmp_file:
             shutil.copyfileobj(self.cleaned_data.get("vcf_file"), tmp_file)
+            tmp_file.flush()
             self.cleaned_data.get("vcf_file").seek(0)
             try:
                 vcf_samples = vcfpy.Reader.from_path(tmp_file.name).header.samples.names

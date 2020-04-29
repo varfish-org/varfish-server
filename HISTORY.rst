@@ -10,11 +10,13 @@ End-User Summary
 ================
 
 - Fixed bug where some variant flags didn't color the row in filtering results after reloading the page.
+- Fixed upload bug in VarFish Kiosk when vcf file was too small.
 
 Full Change List
 ================
 
 - Fixed bug where some variant flags didn't color the row in filtering results after reloading the page.
+- Fixed upload bug in VarFish Kiosk when vcf file was too small and the file copy process didn't flush the file completely resulting in only a parly available header.
 
 -------
 v0.21.0
