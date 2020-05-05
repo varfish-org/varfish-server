@@ -19,6 +19,9 @@ Full Change List
 - Fixed bug where some variant flags didn't color the row in filtering results after reloading the page.
 - Fixed upload bug in VarFish Kiosk when vcf file was too small and the file copy process didn't flush the file completely resulting in only a parly available header.
 - Blocking upload of VCF files with GRCh38/hg38/hg19 builds for VarFish Kiosk.
+- Bumping sodar-core dependency to v0.8.1.
+- Using new sodar-core REST API infrastructure.
+- Using sodar-core tokens app instead of local one.
 
 -------
 v0.21.0

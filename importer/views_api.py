@@ -5,7 +5,7 @@ import logging
 from bgjobs.models import BackgroundJob
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from projectroles.views_api import SODARAPIBaseProjectMixin
+from projectroles.views_api import SODARAPIBaseProjectMixin, SODARAPIGenericProjectMixin
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
@@ -30,7 +30,7 @@ LOGGER = logging.getLogger(__name__)
 User = get_user_model()
 
 
-class CaseImportInfoListCreateView(SODARAPIBaseProjectMixin, ListCreateAPIView):
+class CaseImportInfoListCreateView(SODARAPIGenericProjectMixin, ListCreateAPIView):
     """DRF list-create API view the ``CaseImportInfo`` model."""
 
     serializer_class = CaseImportInfoSerializer
@@ -60,7 +60,7 @@ class CaseImportInfoListCreateView(SODARAPIBaseProjectMixin, ListCreateAPIView):
 
 
 class CaseImportInfoRetrieveUpdateDestroyView(
-    SODARAPIBaseProjectMixin, RetrieveUpdateDestroyAPIView
+    SODARAPIGenericProjectMixin, RetrieveUpdateDestroyAPIView
 ):
     """DRF retrieve-update-destroy API view for the ``CaseImportInfo`` model."""
 

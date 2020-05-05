@@ -2,7 +2,7 @@
 from django.db.models import Q
 from rest_framework import serializers
 
-from varfish.utils import ProjectAccessSerializerMixin
+from projectroles.serializers import SODARProjectModelSerializer
 from variants.serializers import CoreCaseSerializerMixin
 from .models import (
     BamQcFile,
@@ -155,9 +155,7 @@ class VariantSetImportInfoSerializer(serializers.ModelSerializer):
         )
 
 
-class CaseImportInfoSerializer(
-    CoreCaseSerializerMixin, ProjectAccessSerializerMixin, serializers.ModelSerializer
-):
+class CaseImportInfoSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     """Serializer for the ``CaseImportInfo`` model."""
 
     pedigree = serializers.JSONField()
@@ -171,6 +169,7 @@ class CaseImportInfoSerializer(
     )
 
     def create(self, validated_data):
+        validated_data["project"] = self.context["project"]
         validated_data["owner"] = self.context["request"].user
         return super().create(validated_data)
 

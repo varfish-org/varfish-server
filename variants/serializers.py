@@ -2,9 +2,9 @@
 
 # TODO: rename pedigree entry field "patient" also internally to name and get rid of translation below
 from django.db.models import Q
+from projectroles.serializers import SODARProjectModelSerializer
 from rest_framework import serializers
 
-from varfish.utils import ProjectAccessSerializerMixin
 from .models import Case
 
 
@@ -93,13 +93,15 @@ class CoreCaseSerializerMixin:
         return [{{"name": "patient"}.get(k, k): v for k, v in m.items()} for m in pedigree]
 
 
-class CaseSerializer(
-    CoreCaseSerializerMixin, ProjectAccessSerializerMixin, serializers.ModelSerializer
-):
+class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     """Serializer for the ``Case`` model."""
 
     pedigree = serializers.JSONField()
     project = serializers.ReadOnlyField(source="project.sodar_uuid")
+
+    def create(self, validated_data):
+        validated_data["project"] = self.context["project"]
+        return super().create(validated_data)
 
     class Meta:
         model = Case

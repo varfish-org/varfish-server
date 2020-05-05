@@ -125,3 +125,6 @@ django-su
 sentry-sdk ==0.14.0
 
 raven ==6.10.0
+
+# Redis support
+redis==3.3.8

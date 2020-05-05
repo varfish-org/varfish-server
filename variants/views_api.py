@@ -2,7 +2,7 @@
 
 Currently, the REST API only works for the ``Case`` model.
 """
-from projectroles.views_api import SODARAPIBaseProjectMixin
+from projectroles.views_api import SODARAPIGenericProjectMixin
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 # # TOOD: timeline update
@@ -12,7 +12,7 @@ from .serializers import CaseSerializer
 
 
 class CaseListCreateView(
-    SODARAPIBaseProjectMixin, ListAPIView,
+    SODARAPIGenericProjectMixin, ListAPIView,
 ):
     """DRF list-create API view the ``Case`` model."""
 
@@ -29,7 +29,7 @@ class CaseListCreateView(
 
 
 class CaseListRetrieveUpdateDestroyView(
-    SODARAPIBaseProjectMixin, RetrieveAPIView,
+    SODARAPIGenericProjectMixin, RetrieveAPIView,
 ):
     """DRF retrieve-update-destroy API view for the ``Case`` model."""
 

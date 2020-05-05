@@ -1,18 +1,6 @@
 """Shared utility code."""
 
 
-class ProjectAccessSerializerMixin:
-    """Mixin that automatically sets the project fields of objects."""
-
-    def update(self, instance, validated_data):
-        validated_data["project"] = self.context["project"]
-        return super().update(instance, validated_data)
-
-    def create(self, validated_data):
-        validated_data["project"] = self.context["project"]
-        return super().create(validated_data)
-
-
 def get_subclasses(classes, level=0):
     """Return the list of all subclasses given class (or list of classes) has.
 
