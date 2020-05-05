@@ -1,4 +1,4 @@
-.. _tutorials_igv:
+/vol/local/projects/Project_Flowcell/digestiflow-server/fileboxes/templates/fileboxes.. _tutorials_igv:
 
 =================
 IGV Configuration

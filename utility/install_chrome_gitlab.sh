@@ -5,12 +5,10 @@ echo "Installing Chrome + Driver for UI Testing"
 echo "***********************************************"
 
 # Version
-CHROME_DRIVER_VERSION=2.36
+CHROME_DRIVER_VERSION=80.0.3987.106
 
 # Install dependencies
-apt-get -y install default-jre unzip
-apt-get -y install libxpm4 libxrender1 libgtk2.0-0 libnss3 libgconf-2-4
-apt-get -y install xvfb gtk2-engines-pixbuf
+apt-get -y install unzip libgconf-2-4 xvfb gtk2-engines-pixbuf
 
 # Install Chrome Driver
 wget -N http://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip -P ~/
@@ -24,6 +22,3 @@ wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
 echo "deb http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list
 apt-get update -yqqq
 apt-get install -y google-chrome-stable
-
-# wget -N https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -P ~/
-# dpkg -i --force-depends ~/google-chrome-stable_current_amd64.deb

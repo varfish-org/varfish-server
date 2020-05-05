@@ -1,24 +1,19 @@
 # Local development dependencies go here
 -r base.txt
 
-coverage==4.5.1
-django-coverage-plugin==1.5.0
-
-django-extensions==2.1.4
-Werkzeug==0.15.3
-django-test-plus==1.1.1
-factory-boy==2.11.1
+django-extensions==2.2.8
+Werkzeug==1.0.0
 
 django-debug-toolbar==1.11
 django-debug-toolbar-alchemy==0.1.5
 
 # improved REPL
-ipdb==0.12.2, <0.13
+ipdb==0.13.2, <0.14
 
 pytest-django==3.4.2
 pytest-sugar==0.9.1
 
-black
+black==19.10b0
 
 # sqlparse comes in handy for SQL debugging
 sqlparse

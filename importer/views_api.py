@@ -5,18 +5,13 @@ import logging
 from bgjobs.models import BackgroundJob
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from projectroles.views import (
-    APIPermissionMixin,
-    ProjectPermissionMixin,
-    SODARAPIObjectInProjectPermissions,
-)
+from projectroles.views_api import SODARAPIBaseProjectMixin
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
     RetrieveDestroyAPIView,
 )
 
-from varfish.utils import ApiProjectAccessMixin
 from . import tasks
 from .models import CaseImportInfo, VariantSetImportInfo, CaseImportState, ImportCaseBgJob
 from .serializers import (
@@ -35,9 +30,7 @@ LOGGER = logging.getLogger(__name__)
 User = get_user_model()
 
 
-class CaseImportInfoListCreateView(
-    ApiProjectAccessMixin, SODARAPIObjectInProjectPermissions, ListCreateAPIView
-):
+class CaseImportInfoListCreateView(SODARAPIBaseProjectMixin, ListCreateAPIView):
     """DRF list-create API view the ``CaseImportInfo`` model."""
 
     serializer_class = CaseImportInfoSerializer
@@ -67,7 +60,7 @@ class CaseImportInfoListCreateView(
 
 
 class CaseImportInfoRetrieveUpdateDestroyView(
-    ApiProjectAccessMixin, SODARAPIObjectInProjectPermissions, RetrieveUpdateDestroyAPIView
+    SODARAPIBaseProjectMixin, RetrieveUpdateDestroyAPIView
 ):
     """DRF retrieve-update-destroy API view for the ``CaseImportInfo`` model."""
 
@@ -128,9 +121,7 @@ class RelatedMixin:
         return self.serializer_class.Meta.model.objects.filter(**{self.related_lookup_field: obj})
 
 
-class VariantSetImportBaseMixin(
-    ApiProjectAccessMixin, SODARAPIObjectInProjectPermissions, RelatedMixin
-):
+class VariantSetImportBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     serializer_class = VariantSetImportInfoSerializer
 
@@ -166,7 +157,7 @@ class VariantSetImportInfoRetrieveUpdateDestroyView(
             return "importer.update_import"
 
 
-class BamQcFileBaseMixin(ApiProjectAccessMixin, SODARAPIObjectInProjectPermissions, RelatedMixin):
+class BamQcFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     serializer_class = BamQcFileSerializer
 
@@ -200,9 +191,7 @@ class BamQcFileRetrieveDestroyView(BamQcFileBaseMixin, RetrieveDestroyAPIView):
             return "importer.update_import"
 
 
-class GenotypeFileBaseMixin(
-    ApiProjectAccessMixin, SODARAPIObjectInProjectPermissions, RelatedMixin
-):
+class GenotypeFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     serializer_class = GenotypeFileSerializer
 
@@ -236,7 +225,7 @@ class GenotypeFileRetrieveDestroyView(GenotypeFileBaseMixin, RetrieveDestroyAPIV
             return "importer.update_import"
 
 
-class EffectsFileBaseMixin(ApiProjectAccessMixin, SODARAPIObjectInProjectPermissions, RelatedMixin):
+class EffectsFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     serializer_class = EffectFileSerializer
 
@@ -270,9 +259,7 @@ class EffectsFileRetrieveDestroyView(EffectsFileBaseMixin, RetrieveDestroyAPIVie
             return "importer.update_import"
 
 
-class DatabaseInfoFileBaseMixin(
-    ApiProjectAccessMixin, SODARAPIObjectInProjectPermissions, RelatedMixin
-):
+class DatabaseInfoFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     serializer_class = DatabaseInfoFileSerializer
 
