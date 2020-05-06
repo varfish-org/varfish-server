@@ -88,7 +88,7 @@ class CaseImportInfoRetrieveUpdateDestroyView(
                 job = ImportCaseBgJob.objects.create(
                     project=new_obj.project, import_info=new_obj, bg_job=base_job
                 )
-                tasks.run_import_case_bg_job.delay(pk=job.id)
+        tasks.run_import_case_bg_job.delay(pk=job.id)
 
     def get_queryset(self):
         return CaseImportInfo.objects.filter(project=self.get_project())
