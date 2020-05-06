@@ -22,7 +22,7 @@ rules.add_perm(
 )
 
 rules.add_perm("importer.add_import", rules.is_superuser | pr_rules.is_project_contributor)
-rules.add_perm("importer.delete_import", rules.is_superuser)
+rules.add_perm("importer.delete_import", rules.is_superuser | pr_rules.is_project_contributor)
 rules.add_perm("importer.update_import", rules.is_superuser | pr_rules.is_project_contributor)
 
 # Permissions ------------------------------------------------------------------

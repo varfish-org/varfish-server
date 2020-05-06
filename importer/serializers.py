@@ -182,6 +182,9 @@ class CaseImportInfoSerializer(CoreCaseSerializerMixin, SODARProjectModelSeriali
                     ("imported", "submitted"),
                     ("evicted", "submitted"),
                     ("failed", "submitted"),
+                    ("imported", "draft"),
+                    ("evicted", "draft"),
+                    ("failed", "draft"),
                     ("submitted", "draft"),  # only necessary on uncaught import error
                 )
                 if (self.instance.state, values["state"]) not in allowed_transitions:

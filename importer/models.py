@@ -465,6 +465,7 @@ class CaseImporter:
             self._import_table(
                 variant_set_info, variant_set, "SVs", "genotypefile_set", StructuralVariant,
             )
+            self._import_annotation_release_info(variant_set_info, variant_set)
             self._import_table(
                 variant_set_info,
                 variant_set,
@@ -491,19 +492,28 @@ class CaseImporter:
     ):
         before = timezone.now()
         self.import_job.add_log_entry("Importing annotation release info...")
+        # TODO: clear in the beginning
+        total = 0
+        updates = 0
         for db_info_file in variant_set_info.databaseinfofile_set.all():
             self.import_job.add_log_entry("... importing from %s" % db_info_file.name)
-            for entry in tsv_reader(db_info_file.open()):
-                AnnotationReleaseInfo.objects.get_or_create(
+            for entry in tsv_reader(db_info_file.file):
+                total += 1
+                info, created = AnnotationReleaseInfo.objects.get_or_create(
                     genomebuild=entry["genomebuild"],
                     table=entry["db_name"],
                     case=variant_set.case,
                     variant_set=variant_set,
                     defaults={"release": entry["release"]},
                 )
+                if not created:
+                    updates += 1
+                    info.release = entry["release"]
+                    info.save()
         elapsed = timezone.now() - before
         self.import_job.add_log_entry(
-            "Finished importing annotation release info in %.2f s" % elapsed.total_seconds()
+            "Finished importing annotation release (total: %d, updates: %d) info in %.2f s"
+            % (total, updates, elapsed.total_seconds())
         )
 
     def _import_alignment_stats(self, import_info: CaseImportInfo, variant_set: SmallVariantSet):

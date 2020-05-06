@@ -248,7 +248,7 @@ class EffectsFileRetrieveDestroyView(EffectsFileBaseMixin, RetrieveDestroyAPIVie
     """DRF retrieve-update-destroy API view for the ``EffectsFile`` model."""
 
     lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "genotypefile"
+    lookup_url_kwarg = "effectsfile"
 
     def get_permission_required(self):
         if self.request.method == "GET":
@@ -282,7 +282,7 @@ class DatabaseInfoFileRetrieveDestroyView(DatabaseInfoFileBaseMixin, RetrieveDes
     """DRF retrieve-update-destroy API view for the ``DatabaseInfoFile`` model."""
 
     lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "genotypefile"
+    lookup_url_kwarg = "databaseinfofile"
 
     def get_permission_required(self):
         if self.request.method == "GET":
