@@ -186,7 +186,11 @@ class CaseAwareProject(Project):
         return all(case.has_variants_and_variant_set() for case in self.case_set.all())
 
     def casealignmentstats(self):
-        return [case.latest_variant_set().casealignmentstats for case in self.case_set.all()]
+        return [
+            case.latest_variant_set().casealignmentstats
+            for case in self.case_set.all()
+            if case and case.latest_variant_set()
+        ]
 
     def get_annotation_count(self):
         return sum(case.get_annotation_count() for case in self.case_set.all())
@@ -195,6 +199,7 @@ class CaseAwareProject(Project):
         return [
             sample
             for case in self.case_set.all()
+            if case.latest_variant_set()
             for sample in case.latest_variant_set().variant_stats.sample_variant_stats.all()
         ]
 
@@ -3623,39 +3628,39 @@ def update_variant_counts(case, kind=None):
     """Update the variant counts for the given case.
 
     This is done without changing the ``date_modified`` field.
-   """
+    """
     from svs import models as sv_models  # noqa
 
     if not kind or kind == "SMALL":
         variant_set = case.latest_variant_set()
         if variant_set:
             set_id = variant_set.pk
+            stmt = (
+                select([func.count()])
+                .select_from(SmallVariant.sa.table)
+                .where(and_(SmallVariant.sa.set_id == set_id, SmallVariant.sa.case_id == case.pk))
+            )
+            num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt)
         else:
-            set_id = None
-        stmt = (
-            select([func.count()])
-            .select_from(SmallVariant.sa.table)
-            .where(and_(SmallVariant.sa.set_id == set_id, SmallVariant.sa.case_id == case.pk))
-        )
-        num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt) or None
+            num_small_vars = None
         Case.objects.filter(pk=case.pk).update(num_small_vars=num_small_vars)
 
     if not kind or kind == "STRUCTURAL":
         structural_variant_set = case.latest_structural_variant_set()
         if structural_variant_set:
             set_id = structural_variant_set.pk
-        else:
-            set_id = None
-        stmt = (
-            select([func.count()])
-            .select_from(sv_models.StructuralVariant.sa.table)
-            .where(
-                and_(
-                    sv_models.StructuralVariant.sa.set_id == set_id,
-                    sv_models.StructuralVariant.sa.case_id == case.pk,
+            stmt = (
+                select([func.count()])
+                .select_from(sv_models.StructuralVariant.sa.table)
+                .where(
+                    and_(
+                        sv_models.StructuralVariant.sa.set_id == set_id,
+                        sv_models.StructuralVariant.sa.case_id == case.pk,
+                    )
                 )
             )
-        )
-        num_svs = SQLALCHEMY_ENGINE.scalar(stmt) or None
+            num_svs = SQLALCHEMY_ENGINE.scalar(stmt)
+        else:
+            num_svs = None
         # Use the ``update()`` trick such that ``date_modified`` remains untouched.
         Case.objects.filter(pk=case.pk).update(num_svs=num_svs)

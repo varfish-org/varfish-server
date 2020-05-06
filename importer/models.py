@@ -317,25 +317,27 @@ class CaseImporter:
             table_names = self.table_name_map[variant_set_info.variant_type]
             variant_set = getattr(self.case, attr_name).create(state="importing")
             try:
-                self.import_job.add_log_entry(
-                    "Importing %s variants" % variant_set_info.variant_type
-                )
-                self._perform_import(variant_set, variant_set_info)
-                variant_set.state = "active"
-                variant_set.save()
-                update_variant_counts(variant_set.case, variant_set_info.variant_type)
-                self._clear_old_variant_sets(self.case, variant_set, table_names)
-                self.import_info.state = CaseImportState.IMPORTED.value
-                self.import_info.state.save()
+                with transaction.atomic():
+                    self.import_job.add_log_entry(
+                        "Importing %s variants" % variant_set_info.variant_type
+                    )
+                    self._perform_import(variant_set, variant_set_info)
+                    variant_set.state = "active"
+                    variant_set.save()
+                    update_variant_counts(variant_set.case, variant_set_info.variant_type)
+                    self._clear_old_variant_sets(self.case, variant_set, table_names)
+                    self.import_info.state = CaseImportState.IMPORTED.value
+                    self.import_info.save()
             except Exception as e:
-                self.import_job.add_log_entry(
-                    "Problem during variant import: %s" % e, LOG_LEVEL_ERROR
-                )
-                self.import_job.add_log_entry("Rolling back variant set...")
-                self.import_info.state = CaseImportState.FAILED.value
-                self.import_info.state.save()
-                self._purge_variant_set(variant_set, table_names)
-                raise RuntimeError("Problem during variant import ") from e
+                with transaction.atomic():
+                    self.import_job.add_log_entry(
+                        "Problem during variant import: %s" % e, LOG_LEVEL_ERROR
+                    )
+                    self.import_job.add_log_entry("Rolling back variant set...")
+                    self.import_info.state = CaseImportState.FAILED.value
+                    self.import_info.save()
+                    self._purge_variant_set(variant_set, table_names)
+                    raise RuntimeError("Problem during variant import ") from e
 
     def _create_or_update_case(self) -> Case:
         """Obtain and update existing case or create new one."""
@@ -362,7 +364,7 @@ class CaseImporter:
                         pedigree=self.import_info.pedigree,
                     )
                 self.import_info.case = case
-            return case
+        return case
 
     def _purge_variant_set(self, variant_set, table_names):
         variant_set.__class__.objects.filter(pk=variant_set.id).update(state="deleting")
