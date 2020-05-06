@@ -65,7 +65,7 @@ class CaseImportInfoRetrieveUpdateDestroyView(
     """DRF retrieve-update-destroy API view for the ``CaseImportInfo`` model."""
 
     lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "case_import_info"
+    lookup_url_kwarg = "caseimportinfo"
     serializer_class = CaseImportInfoSerializer
 
     def perform_update(self, serializer):
@@ -127,7 +127,7 @@ class VariantSetImportBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     related_class = CaseImportInfo
     related_lookup_field = "case_import_info"
-    related_lookup_url_kwarg = "case_import_info"
+    related_lookup_url_kwarg = "caseimportinfo"
 
 
 class VariantSetImportInfoListCreateView(VariantSetImportBaseMixin, ListCreateAPIView):
@@ -146,7 +146,7 @@ class VariantSetImportInfoRetrieveUpdateDestroyView(
     """DRF retrieve-update-destroy API view for the ``VariantSetImportInfo`` model."""
 
     lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "variant_set_import_info"
+    lookup_url_kwarg = "variantsetimportinfo"
 
     def get_permission_required(self):
         if self.request.method == "GET":
@@ -163,7 +163,7 @@ class BamQcFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     related_class = CaseImportInfo
     related_lookup_field = "case_import_info"
-    related_lookup_url_kwarg = "case_import_info"
+    related_lookup_url_kwarg = "caseimportinfo"
 
 
 class BamQcFileListCreateView(BamQcFileBaseMixin, ListCreateAPIView):
@@ -180,7 +180,7 @@ class BamQcFileRetrieveDestroyView(BamQcFileBaseMixin, RetrieveDestroyAPIView):
     """DRF retrieve-update-destroy API view for the ``BamQcFile`` model."""
 
     lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "bam_qc_file"
+    lookup_url_kwarg = "bamqcfile"
 
     def get_permission_required(self):
         if self.request.method == "GET":
@@ -197,7 +197,7 @@ class GenotypeFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     related_class = VariantSetImportInfo
     related_lookup_field = "variant_set_import_info"
-    related_lookup_url_kwarg = "variant_set_import_info"
+    related_lookup_url_kwarg = "variantsetimportinfo"
 
 
 class GenotypeFileListCreateView(GenotypeFileBaseMixin, ListCreateAPIView):
@@ -214,7 +214,7 @@ class GenotypeFileRetrieveDestroyView(GenotypeFileBaseMixin, RetrieveDestroyAPIV
     """DRF retrieve-update-destroy API view for the ``GenotypeFile`` model."""
 
     lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "genotype_file"
+    lookup_url_kwarg = "genotypefile"
 
     def get_permission_required(self):
         if self.request.method == "GET":
@@ -231,7 +231,7 @@ class EffectsFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     related_class = VariantSetImportInfo
     related_lookup_field = "variant_set_import_info"
-    related_lookup_url_kwarg = "variant_set_import_info"
+    related_lookup_url_kwarg = "variantsetimportinfo"
 
 
 class EffectsFileListCreateView(EffectsFileBaseMixin, ListCreateAPIView):
@@ -248,7 +248,7 @@ class EffectsFileRetrieveDestroyView(EffectsFileBaseMixin, RetrieveDestroyAPIVie
     """DRF retrieve-update-destroy API view for the ``EffectsFile`` model."""
 
     lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "genotype_file"
+    lookup_url_kwarg = "genotypefile"
 
     def get_permission_required(self):
         if self.request.method == "GET":
@@ -265,7 +265,7 @@ class DatabaseInfoFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     related_class = VariantSetImportInfo
     related_lookup_field = "variant_set_import_info"
-    related_lookup_url_kwarg = "variant_set_import_info"
+    related_lookup_url_kwarg = "variantsetimportinfo"
 
 
 class DatabaseInfoFileListCreateView(DatabaseInfoFileBaseMixin, ListCreateAPIView):
@@ -282,7 +282,7 @@ class DatabaseInfoFileRetrieveDestroyView(DatabaseInfoFileBaseMixin, RetrieveDes
     """DRF retrieve-update-destroy API view for the ``DatabaseInfoFile`` model."""
 
     lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "genotype_file"
+    lookup_url_kwarg = "genotypefile"
 
     def get_permission_required(self):
         if self.request.method == "GET":

@@ -317,27 +317,25 @@ class CaseImporter:
             table_names = self.table_name_map[variant_set_info.variant_type]
             variant_set = getattr(self.case, attr_name).create(state="importing")
             try:
-                with transaction.atomic():
-                    self.import_job.add_log_entry(
-                        "Importing %s variants" % variant_set_info.variant_type
-                    )
-                    self._perform_import(variant_set, variant_set_info)
-                    variant_set.state = "active"
-                    variant_set.save()
-                    update_variant_counts(variant_set.case, variant_set_info.variant_type)
-                    self._clear_old_variant_sets(self.case, variant_set, table_names)
-                    self.import_info.state = CaseImportState.IMPORTED.value
-                    self.import_info.save()
+                self.import_job.add_log_entry(
+                    "Importing %s variants" % variant_set_info.variant_type
+                )
+                self._perform_import(variant_set, variant_set_info)
+                variant_set.state = "active"
+                variant_set.save()
+                update_variant_counts(variant_set.case, variant_set_info.variant_type)
+                self._clear_old_variant_sets(self.case, variant_set, table_names)
+                self.import_info.state = CaseImportState.IMPORTED.value
+                self.import_info.save()
             except Exception as e:
-                with transaction.atomic():
-                    self.import_job.add_log_entry(
-                        "Problem during variant import: %s" % e, LOG_LEVEL_ERROR
-                    )
-                    self.import_job.add_log_entry("Rolling back variant set...")
-                    self.import_info.state = CaseImportState.FAILED.value
-                    self.import_info.save()
-                    self._purge_variant_set(variant_set, table_names)
-                    raise RuntimeError("Problem during variant import ") from e
+                self.import_job.add_log_entry(
+                    "Problem during variant import: %s" % e, LOG_LEVEL_ERROR
+                )
+                self.import_job.add_log_entry("Rolling back variant set...")
+                self.import_info.state = CaseImportState.FAILED.value
+                self.import_info.save()
+                self._purge_variant_set(variant_set, table_names)
+                raise RuntimeError("Problem during variant import ") from e
 
     def _create_or_update_case(self) -> Case:
         """Obtain and update existing case or create new one."""
@@ -511,20 +509,18 @@ class CaseImporter:
     def _import_alignment_stats(self, import_info: CaseImportInfo, variant_set: SmallVariantSet):
         before = timezone.now()
         self.import_job.add_log_entry("Importing alignment statistics...")
-        with transaction.atomic():
-            # Remove old.
-            CaseAlignmentStats.objects.filter(case=self.case).delete()
-            # Import new.
-            for bam_qc_file in import_info.bamqcfile_set.all():
-                self.import_job.add_log_entry("... importing from %s" % bam_qc_file.name)
-                lineno = 0
-                for lineno, entry in enumerate(tsv_reader(bam_qc_file.file)):
-                    case_stats = CaseAlignmentStats.objects.get_or_create(
-                        variant_set=variant_set,
-                        defaults={"case": import_info.case, "bam_stats": {}},
-                    )
-                    case_stats.bam_stats = json.loads(entry["bam_stats"].replace('"""', '"'))
-                self.import_job.add_log_entry("imported %d entries" % lineno)
+        # Remove old.
+        CaseAlignmentStats.objects.filter(case=self.case).delete()
+        # Import new.
+        for bam_qc_file in import_info.bamqcfile_set.all():
+            self.import_job.add_log_entry("... importing from %s" % bam_qc_file.name)
+            lineno = -1
+            for lineno, entry in enumerate(tsv_reader(bam_qc_file.file)):
+                case_stats, _created = CaseAlignmentStats.objects.get_or_create(
+                    variant_set=variant_set, defaults={"case": import_info.case, "bam_stats": {}},
+                )
+                case_stats.bam_stats = json.loads(entry["bam_stats"].replace('"""', '"'))
+            self.import_job.add_log_entry("imported %d entries" % (lineno + 1))
         elapsed = timezone.now() - before
         self.import_job.add_log_entry(
             "Finished importing alignment statistics in %.2f s" % elapsed.total_seconds()
