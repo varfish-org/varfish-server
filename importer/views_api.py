@@ -72,6 +72,7 @@ class CaseImportInfoRetrieveUpdateDestroyView(
         old_state = self.get_object().state
         new_state = serializer.validated_data.get("state", old_state)
         # React on change to submitted.
+        job = None
         with transaction.atomic():
             new_obj = serializer.save()
             if (
@@ -88,7 +89,8 @@ class CaseImportInfoRetrieveUpdateDestroyView(
                 job = ImportCaseBgJob.objects.create(
                     project=new_obj.project, import_info=new_obj, bg_job=base_job
                 )
-        tasks.run_import_case_bg_job.delay(pk=job.id)
+        if job:
+            tasks.run_import_case_bg_job.delay(pk=job.id)
 
     def get_queryset(self):
         return CaseImportInfo.objects.filter(project=self.get_project())

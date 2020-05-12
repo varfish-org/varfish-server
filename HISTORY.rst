@@ -24,6 +24,7 @@ Full Change List
 - Using new sodar-core REST API infrastructure.
 - Using sodar-core tokens app instead of local one.
 - Support for displaying GATK-gCNV SVs.
+- Fix of REST API-based import.
 
 -------
 v0.21.0
