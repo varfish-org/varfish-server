@@ -110,7 +110,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
                     "importer:api-case-import-info-retrieve-update-destroy",
                     kwargs={
                         "project": self.project.sodar_uuid,
-                        "case_import_info": self.case_import_info.sodar_uuid,
+                        "caseimportinfo": self.case_import_info.sodar_uuid,
                     },
                 )
             )
@@ -143,7 +143,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
                     "importer:api-case-import-info-retrieve-update-destroy",
                     kwargs={
                         "project": self.project.sodar_uuid,
-                        "case_import_info": self.case_import_info.sodar_uuid,
+                        "caseimportinfo": self.case_import_info.sodar_uuid,
                     },
                 ),
                 data=post_data,
@@ -171,7 +171,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
                     "importer:api-case-import-info-retrieve-update-destroy",
                     kwargs={
                         "project": self.project.sodar_uuid,
-                        "case_import_info": self.case_import_info.sodar_uuid,
+                        "caseimportinfo": self.case_import_info.sodar_uuid,
                     },
                 )
             )
@@ -207,7 +207,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
             response = self.client.get(
                 reverse(
                     "importer:api-variant-set-import-info-list-create",
-                    kwargs={"case_import_info": self.case_import_info.sodar_uuid},
+                    kwargs={"caseimportinfo": self.case_import_info.sodar_uuid},
                 )
             )
 
@@ -243,7 +243,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
             response = self.client.post(
                 reverse(
                     "importer:api-variant-set-import-info-list-create",
-                    kwargs={"case_import_info": self.case_import_info.sodar_uuid},
+                    kwargs={"caseimportinfo": self.case_import_info.sodar_uuid},
                 ),
                 data=post_data,
                 format="json",
@@ -263,8 +263,8 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
                 reverse(
                     "importer:api-variant-set-import-info-retrieve-update-destroy",
                     kwargs={
-                        "case_import_info": self.case_import_info.sodar_uuid,
-                        "variant_set_import_info": self.variant_set_import_info.sodar_uuid,
+                        "caseimportinfo": self.case_import_info.sodar_uuid,
+                        "variantsetimportinfo": self.variant_set_import_info.sodar_uuid,
                     },
                 )
             )
@@ -291,8 +291,8 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
                 reverse(
                     "importer:api-variant-set-import-info-retrieve-update-destroy",
                     kwargs={
-                        "case_import_info": self.case_import_info.sodar_uuid,
-                        "variant_set_import_info": self.variant_set_import_info.sodar_uuid,
+                        "caseimportinfo": self.case_import_info.sodar_uuid,
+                        "variantsetimportinfo": self.variant_set_import_info.sodar_uuid,
                     },
                 ),
                 data=post_data,
@@ -319,8 +319,8 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
                 reverse(
                     "importer:api-variant-set-import-info-retrieve-update-destroy",
                     kwargs={
-                        "case_import_info": self.case_import_info.sodar_uuid,
-                        "variant_set_import_info": self.variant_set_import_info.sodar_uuid,
+                        "caseimportinfo": self.case_import_info.sodar_uuid,
+                        "variantsetimportinfo": self.variant_set_import_info.sodar_uuid,
                     },
                 )
             )
@@ -352,7 +352,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
             response = self.client.get(
                 reverse(
                     "importer:api-bam-qc-file-list-create",
-                    kwargs={"case_import_info": self.case_import_info.sodar_uuid},
+                    kwargs={"caseimportinfo": self.case_import_info.sodar_uuid},
                 )
             )
 
@@ -378,7 +378,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
                 response = self.client.post(
                     reverse(
                         "importer:api-bam-qc-file-list-create",
-                        kwargs={"case_import_info": self.case_import_info.sodar_uuid},
+                        kwargs={"caseimportinfo": self.case_import_info.sodar_uuid},
                     ),
                     data={**post_data, "file": upload_file},
                 )
@@ -397,8 +397,8 @@ class TestBamQcFileApiViews(ApiViewTestBase):
                 reverse(
                     "importer:api-bam-qc-file-retrieve-destroy",
                     kwargs={
-                        "case_import_info": self.case_import_info.sodar_uuid,
-                        "bam_qc_file": self.bam_qc_file.sodar_uuid,
+                        "caseimportinfo": self.case_import_info.sodar_uuid,
+                        "bamqcfile": self.bam_qc_file.sodar_uuid,
                     },
                 )
             )
@@ -415,8 +415,8 @@ class TestBamQcFileApiViews(ApiViewTestBase):
                 reverse(
                     "importer:api-bam-qc-file-retrieve-destroy",
                     kwargs={
-                        "case_import_info": self.case_import_info.sodar_uuid,
-                        "bam_qc_file": self.bam_qc_file.sodar_uuid,
+                        "caseimportinfo": self.case_import_info.sodar_uuid,
+                        "bamqcfile": self.bam_qc_file.sodar_uuid,
                     },
                 )
             )
@@ -451,7 +451,7 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
             response = self.client.get(
                 reverse(
                     "importer:api-genotype-file-list-create",
-                    kwargs={"variant_set_import_info": self.variant_set_import_info.sodar_uuid},
+                    kwargs={"variantsetimportinfo": self.variant_set_import_info.sodar_uuid},
                 )
             )
 
@@ -479,7 +479,7 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
                 response = self.client.post(
                     reverse(
                         "importer:api-genotype-file-list-create",
-                        kwargs={"variant_set_import_info": self.variant_set_import_info.sodar_uuid},
+                        kwargs={"variantsetimportinfo": self.variant_set_import_info.sodar_uuid},
                     ),
                     data={**post_data, "file": upload_file},
                 )
@@ -498,8 +498,8 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
                 reverse(
                     "importer:api-genotype-file-retrieve-destroy",
                     kwargs={
-                        "variant_set_import_info": self.variant_set_import_info.sodar_uuid,
-                        "genotype_file": self.genotype_file.sodar_uuid,
+                        "variantsetimportinfo": self.variant_set_import_info.sodar_uuid,
+                        "genotypefile": self.genotype_file.sodar_uuid,
                     },
                 )
             )
@@ -516,8 +516,8 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
                 reverse(
                     "importer:api-genotype-file-retrieve-destroy",
                     kwargs={
-                        "variant_set_import_info": self.variant_set_import_info.sodar_uuid,
-                        "genotype_file": self.genotype_file.sodar_uuid,
+                        "variantsetimportinfo": self.variant_set_import_info.sodar_uuid,
+                        "genotypefile": self.genotype_file.sodar_uuid,
                     },
                 )
             )
