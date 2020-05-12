@@ -12,6 +12,7 @@ End-User Summary
 - Fixed bug where some variant flags didn't color the row in filtering results after reloading the page.
 - Fixed upload bug in VarFish Kiosk when vcf file was too small.
 - Blocking upload of VCF files with GRCh38/hg38/hg19 builds for VarFish Kiosk.
+- Support for displaying GATK-gCNV SVs.
 
 Full Change List
 ================
@@ -22,6 +23,7 @@ Full Change List
 - Bumping sodar-core dependency to v0.8.1.
 - Using new sodar-core REST API infrastructure.
 - Using sodar-core tokens app instead of local one.
+- Support for displaying GATK-gCNV SVs.
 
 -------
 v0.21.0

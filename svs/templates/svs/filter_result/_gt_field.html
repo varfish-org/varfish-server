@@ -49,6 +49,23 @@
           split-read ALT: {{ genotype|keyvalue:"srv"|default_if_none:"-" }}<br/>
         {% endif %}
 
+        {# GATK gCNV #}
+        {% if genotype|keyvalue:"np" is not None %}
+          number of points: {{ genotype|keyvalue:"np"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"qa" is not None %}
+          &quot;all bins&quot; qual: {{ genotype|keyvalue:"qa"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"qs" is not None %}
+          &quot;one bin&quot; qual: {{ genotype|keyvalue:"qs"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"qss" is not None %}
+          start quality: {{ genotype|keyvalue:"qss"|default_if_none:"-" }}<br/>
+        {% endif %}
+        {% if genotype|keyvalue:"qse" is not None %}
+          end quality: {{ genotype|keyvalue:"qse"|default_if_none:"-" }}<br/>
+        {% endif %}
+
         {# all #}
         {% if genotype|keyvalue:"gq" is not None %}
           genotype quality: {{ genotype|keyvalue:"gq"|default_if_none:"-" }}
