@@ -32,6 +32,7 @@ from django.views.generic.edit import FormMixin
 from projectroles.templatetags.projectroles_common_tags import site_version
 
 from bgjobs.models import BackgroundJob
+from bgjobs.views import DEFAULT_PAGINATION as BGJOBS_DEFAULT_PAGINATION
 from clinvar.models import Clinvar
 from frequencies.models import MT_DB_INFO
 from geneinfo.views import get_gene_infos
@@ -87,6 +88,10 @@ from .models import (
     KioskAnnotateBgJob,
     update_variant_counts,
     DeleteCaseBgJob,
+    RefreshSmallVariantSummaryBgJob,
+    ClearOldKioskCasesBgJob,
+    ClearInactiveVariantSetsBgJob,
+    ClearExpiredExportedFilesBgJob,
 )
 from .forms import (
     ExportFileResubmitForm,
@@ -3998,3 +4003,47 @@ class KioskJobGetStatus(PluginContextMixin, View):
             },
             status=status,
         )
+
+
+class ClearExpiredExportedFilesJobDetailView(
+    LoggedInPermissionMixin, DetailView,
+):
+    permission_required = "bgjobs.view_site_bgjobs"
+    template_name = "variants/maintenance_job_detail.html"
+    model = ClearExpiredExportedFilesBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+    paginate_by = getattr(settings, "BGJOBS_PAGINATION", BGJOBS_DEFAULT_PAGINATION)
+
+
+class ClearInactiveVariantSetsJobDetailView(
+    LoggedInPermissionMixin, DetailView,
+):
+    permission_required = "bgjobs.view_site_bgjobs"
+    template_name = "variants/maintenance_job_detail.html"
+    model = ClearInactiveVariantSetsBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+    paginate_by = getattr(settings, "BGJOBS_PAGINATION", BGJOBS_DEFAULT_PAGINATION)
+
+
+class ClearOldKioskCasesJobDetailView(
+    LoggedInPermissionMixin, DetailView,
+):
+    permission_required = "bgjobs.view_site_bgjobs"
+    template_name = "variants/maintenance_job_detail.html"
+    model = ClearOldKioskCasesBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+    paginate_by = getattr(settings, "BGJOBS_PAGINATION", BGJOBS_DEFAULT_PAGINATION)
+
+
+class RefreshSmallVariantSummaryJobDetailView(
+    LoggedInPermissionMixin, DetailView,
+):
+    permission_required = "bgjobs.view_site_bgjobs"
+    template_name = "variants/maintenance_job_detail.html"
+    model = RefreshSmallVariantSummaryBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+    paginate_by = getattr(settings, "BGJOBS_PAGINATION", BGJOBS_DEFAULT_PAGINATION)

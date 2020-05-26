@@ -5,7 +5,7 @@ import tempfile
 import uuid as uuid_object
 
 import aldjemy
-from bgjobs.models import BackgroundJob, LOG_LEVEL_ERROR
+from bgjobs.models import BackgroundJob, LOG_LEVEL_ERROR, JobModelMessageMixin
 from django.contrib import auth
 from django.db import models, transaction
 from django.db.models.signals import post_delete
@@ -20,7 +20,6 @@ from varfish.utils import receiver_subclasses
 from variants.models import (
     Case,
     CoreCase,
-    JobModelMessageMixin2,
     update_variant_counts,
     SmallVariant,
     AnnotationReleaseInfo,
@@ -233,7 +232,7 @@ def set_member_file_delete(sender, instance, **_kwargs):
     instance.file.delete(save=False)
 
 
-class ImportCaseBgJob(JobModelMessageMixin2, models.Model):
+class ImportCaseBgJob(JobModelMessageMixin, models.Model):
     """Background job for importing a case."""
 
     #: Task description for logging.

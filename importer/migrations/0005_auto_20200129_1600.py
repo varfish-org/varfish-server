@@ -284,7 +284,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            bases=(variants.models.JobModelMessageMixin2, models.Model),
+            bases=(variants.models.JobModelMessageMixin, models.Model),
         ),
         migrations.CreateModel(
             name="VariantSetImportInfo",

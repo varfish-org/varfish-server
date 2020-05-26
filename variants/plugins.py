@@ -18,6 +18,10 @@ from .models import (
     SyncCaseListBgJob,
     ImportVariantsBgJob,
     CaseComments,
+    ClearExpiredExportedFilesBgJob,
+    ClearInactiveVariantSetsBgJob,
+    ClearOldKioskCasesBgJob,
+    RefreshSmallVariantSummaryBgJob,
 )
 from .urls import urlpatterns
 from .templatetags.variants_tags import case_status_to_color
@@ -281,4 +285,8 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
         ProjectCasesFilterBgJob.spec_name: ProjectCasesFilterBgJob,
         SyncCaseListBgJob.spec_name: SyncCaseListBgJob,
         ImportVariantsBgJob.spec_name: ImportVariantsBgJob,
+        ClearExpiredExportedFilesBgJob.spec_name: ClearExpiredExportedFilesBgJob,
+        ClearInactiveVariantSetsBgJob.spec_name: ClearInactiveVariantSetsBgJob,
+        ClearOldKioskCasesBgJob.spec_name: ClearOldKioskCasesBgJob,
+        RefreshSmallVariantSummaryBgJob.spec_name: RefreshSmallVariantSummaryBgJob,
     }

@@ -2,7 +2,7 @@ import uuid as uuid_object
 from datetime import datetime, timedelta
 
 import aldjemy
-from bgjobs.models import BackgroundJob
+from bgjobs.models import BackgroundJob, JobModelMessageMixin
 from postgres_copy import CopyManager
 
 from django.conf import settings
@@ -16,7 +16,7 @@ from projectroles.models import Project
 from projectroles.plugins import get_backend_api
 from sqlalchemy import and_
 
-from variants.models import Case, VARIANT_RATING_CHOICES, JobModelMessageMixin2, VariantImporterBase
+from variants.models import Case, VARIANT_RATING_CHOICES, VariantImporterBase
 from variants.helpers import SQLALCHEMY_ENGINE
 
 
@@ -433,7 +433,7 @@ class StructuralVariantFlags(_UserAnnotation):
         )
 
 
-class ImportStructuralVariantBgJob(JobModelMessageMixin2, models.Model):
+class ImportStructuralVariantBgJob(JobModelMessageMixin, models.Model):
     """Background job for importing structural variants."""
 
     #: Task description for logging.

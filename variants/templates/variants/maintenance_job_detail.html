@@ -1,0 +1,90 @@
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
+{% load crispy_forms_tags %}
+{% load dict %}
+{% load humanize %}
+{% load static %}
+{% load json %}
+
+{% block title %}
+  Global Background Job: {{ object.bg_job.name }}
+{% endblock title %}
+
+{% block projectroles %}
+  <div class="row sodar-pr-content-title pb-2">
+    <h2 class="sodar-pr-content-title">
+      Global Maintenance Job
+      <small class="text-muted">{{ object.bg_job.name }}</small>
+    </h2>
+    {% include 'variants/_job_view_buttons.html' with project=project folder=folder %}
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+
+    <div class="card sodar-va-export-job-base-details"
+       id="card sodar-va-export-job-base-details">
+      <div class="card-header">
+        <h4>
+          Details
+        </h4>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group">
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Created</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.date_created }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Updated</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.date_modified }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Creator</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.user }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Title</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.name }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Description</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.description|default:"-" }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Status</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.status }}</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+   <div class="card sodar-va-export-job-base-details"
+        id="card sodar-va-export-job-base-details">
+      <div class="card-header">
+        <h4>
+          Log Messages
+        </h4>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group">
+          {% if object.bg_job.log_entries.all %}
+            {% for entry in object.bg_job.log_entries.all %}
+              <li class="list-group-item row d-flex">
+                <div class="col-2"><strong>{{ entry.date_created }}</strong></div>
+                <div class="col-1"><strong>{{ entry.level }}</strong></div>
+                <div class="col-9">{{ entry.message }}</div>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li class="list-group-item bg-faded font-italic text-center">
+              No log entries yet.
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+  </div> <!-- sodar-page-container -->
+
+{% endblock %}

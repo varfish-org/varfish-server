@@ -122,7 +122,7 @@ class TestUIBase(LiveUserMixin, ProjectMixin, RoleAssignmentMixin, LiveServerTes
         self.pending = lambda n=self.wait_time: WebDriverWait(self.selenium, n)
 
         # Prevent ElementNotVisibleException
-        self.selenium.set_window_size(1400, 1000)
+        self.selenium.set_window_size(1600, 1400)
 
         # Init roles
         self.role_owner = Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0]
@@ -617,13 +617,12 @@ class TestVariantsCaseFilterView(TestUIBase):
         self._disable_filters("case")
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
-        # wait for redirect
         self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "variant-row")))
-        # bookmark variant (there is only one variant)
-        self.selenium.find_element_by_class_name("variant-bookmark").click()
+        self.pending().until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark"))
+        ).click()
         # save bookmark
-        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "save")))
-        self.selenium.find_element_by_class_name("save").click()
+        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "save"))).click()
         self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "fa-bookmark")))
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)

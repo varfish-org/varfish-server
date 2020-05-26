@@ -13,6 +13,7 @@ End-User Summary
 - Fixed upload bug in VarFish Kiosk when vcf file was too small.
 - Blocking upload of VCF files with GRCh38/hg38/hg19 builds for VarFish Kiosk.
 - Support for displaying GATK-gCNV SVs.
+- Tracking global maintenance jobs with background jobs and displaying them to super user.
 
 Full Change List
 ================
@@ -25,6 +26,9 @@ Full Change List
 - Using sodar-core tokens app instead of local one.
 - Support for displaying GATK-gCNV SVs.
 - Fix of REST API-based import.
+- Tracking global maintenance jobs with background jobs.
+- Global background jobs are displayed with site plugin point via bgjobs.
+- Bumping Chromedriver to make CI work.
 
 -------
 v0.21.0

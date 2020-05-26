@@ -73,7 +73,7 @@ celery<4.2  # pyup: <4.2  # blocker: https://github.com/celery/celery/issues/487
 
 django-postgres-copy==2.3.5
 
--e git+https://github.com/bihealth/sodar_core.git@v0.8.1#egg=django-sodar-core
+-e git+https://github.com/bihealth/sodar_core.git@globalbgjobs#egg=django-sodar-core
 
 # Simplejson is more advanced than then built-in one.
 simplejson >=2.1

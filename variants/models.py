@@ -18,6 +18,7 @@ import math
 import re
 import requests
 from bgjobs.plugins import BackgroundJobsPluginPoint
+from django.contrib.auth import get_user_model
 from django.forms import model_to_dict
 from sqlalchemy import select, func, and_, delete
 import uuid as uuid_object
@@ -61,6 +62,9 @@ app_settings = AppSettingAPI()
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
+
+#: The User model to use.
+User = get_user_model()
 
 #: Threshold for hom/het ratio for identifying sex.
 CHRX_HET_HOM_THRESH = 0.45
@@ -391,16 +395,26 @@ class SmallVariantSummary(models.Model):
 
 def refresh_variants_smallvariantsummary():
     """Refresh the ``SmallVariantSummary`` materialized view."""
-    with connection.cursor() as cursor:
-        try:
-            # This will fail if the materialized view is empty.
-            with transaction.atomic():
-                cursor.execute(
-                    "REFRESH MATERIALIZED VIEW CONCURRENTLY variants_smallvariantsummary"
-                )
-        except utils.NotSupportedError:
-            with transaction.atomic():
-                cursor.execute("REFRESH MATERIALIZED VIEW variants_smallvariantsummary")
+
+    with transaction.atomic():
+        bg_job = BackgroundJob.objects.create(
+            name='Refreshing small variant summaries (aka "in-house database")',
+            project=None,
+            job_type=RefreshSmallVariantSummaryBgJob.spec_name,
+            user=User.objects.get(username=settings.PROJECTROLES_ADMIN_OWNER),
+        )
+        refresh_job = RefreshSmallVariantSummaryBgJob.objects.create(bg_job=bg_job)
+    with refresh_job.marks():
+        with connection.cursor() as cursor:
+            try:
+                # This will fail if the materialized view is empty.
+                with transaction.atomic():
+                    cursor.execute(
+                        "REFRESH MATERIALIZED VIEW CONCURRENTLY variants_smallvariantsummary"
+                    )
+            except utils.NotSupportedError:
+                with transaction.atomic():
+                    cursor.execute("REFRESH MATERIALIZED VIEW variants_smallvariantsummary")
 
 
 class CaseManager(models.Manager):
@@ -3040,23 +3054,7 @@ class SyncCaseResultMessage(models.Model):
     message = models.TextField(help_text="Log level's message")
 
 
-class JobModelMessageMixin2(JobModelMessageMixin):
-    # TODO: remove once added to sodar-core.
-
-    @contextlib.contextmanager
-    def marks(self):
-        """Return a context manager that allows to run tasks between start and success/error marks."""
-        self.mark_start()
-        try:
-            yield
-        except Exception as e:
-            self.mark_error("Error: %s" % e)
-            raise
-        else:
-            self.mark_success()
-
-
-class ImportVariantsBgJob(JobModelMessageMixin2, models.Model):
+class ImportVariantsBgJob(JobModelMessageMixin, models.Model):
     """Background job for importing variants."""
 
     #: Task description for logging.
@@ -3127,7 +3125,7 @@ class ImportVariantsBgJob(JobModelMessageMixin2, models.Model):
         return None
 
 
-class KioskAnnotateBgJob(JobModelMessageMixin2, models.Model):
+class KioskAnnotateBgJob(JobModelMessageMixin, models.Model):
     """Background job for annotating vcf in kiosk mode."""
 
     #: Task description for logging.
@@ -3179,7 +3177,7 @@ class KioskAnnotateBgJob(JobModelMessageMixin2, models.Model):
         )
 
 
-class DeleteCaseBgJob(JobModelMessageMixin2, models.Model):
+class DeleteCaseBgJob(JobModelMessageMixin, models.Model):
     """Background job for deleting cases."""
 
     #: Task description for logging.
@@ -3664,3 +3662,87 @@ def update_variant_counts(case, kind=None):
             num_svs = None
         # Use the ``update()`` trick such that ``date_modified`` remains untouched.
         Case.objects.filter(pk=case.pk).update(num_svs=num_svs)
+
+
+class SiteBgJobBase(JobModelMessageMixin, models.Model):
+    """Base class for global (site-wide) background jobs of the Variants module."""
+
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+
+    #: UUID of the job
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
+    )
+
+    #: The background job that is specialized.
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="%(app_label)s_%(class)s_related",
+        help_text="Background job for state etc.",
+        on_delete=models.CASCADE,
+    )
+
+    def get_human_readable_type(self):
+        return "Site-wide Maintenance"
+
+    class Meta:
+        ordering = ("-date_created",)
+        abstract = True
+
+
+class ClearExpiredExportedFilesBgJob(SiteBgJobBase):
+    """Background job for clearing expired exported files."""
+
+    #: Task description for logging.
+    task_desc = "Clearing expired exported files"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.clear_expired_exported_files_bg_job"
+
+    def get_absolute_url(self):
+        return reverse("variants:clear-expired-job-detail", kwargs={"job": self.sodar_uuid},)
+
+
+class ClearInactiveVariantSetsBgJob(SiteBgJobBase):
+    """Background job for clearing inactive variant sets."""
+
+    #: Task description for logging.
+    task_desc = "Clearing inactive variant sets"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.clear_inactive_variant_sets_bg_job"
+
+    def get_absolute_url(self):
+        return reverse("variants:clear-inactive-variant-set-job", kwargs={"job": self.sodar_uuid},)
+
+
+class ClearOldKioskCasesBgJob(SiteBgJobBase):
+    """Background job for clearing old Kiosk cases."""
+
+    #: Task description for logging.
+    task_desc = "Clearing old (and expired) Varfish Kiosk cases"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.clear_old_kiosk_cases_bg_job"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:clear-old-kiosk-cases-job-detail", kwargs={"job": self.sodar_uuid},
+        )
+
+
+class RefreshSmallVariantSummaryBgJob(SiteBgJobBase):
+    """Background job for refreshing small variant summaries."""
+
+    #: Task description for logging.
+    task_desc = 'Refreshing small variant summaries (aka "in-house database")'
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.refresh_small_variant_summaries"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:refresh-small-variant-summaries-job-detail", kwargs={"job": self.sodar_uuid},
+        )

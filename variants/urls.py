@@ -292,6 +292,27 @@ ui_urlpatterns = [
         view=views.VariantValidatorApiView.as_view(),
         name="variant-validator-api",
     ),
+    #: Detail views for site-wide maintenance jobs.
+    url(
+        regex=r"^clear-expired-job/(?P<job>[0-9a-f-]+)/$",
+        view=views.ClearExpiredExportedFilesJobDetailView.as_view(),
+        name="clear-expired-job-detail",
+    ),
+    url(
+        regex=r"^clear-inactive-variant-set-job/(?P<job>[0-9a-f-]+)/$",
+        view=views.ClearInactiveVariantSetsJobDetailView.as_view(),
+        name="clear-inactive-variant-set-job",
+    ),
+    url(
+        regex=r"^clear-old-kiosk-cases-job/(?P<job>[0-9a-f-]+)/$",
+        view=views.ClearOldKioskCasesJobDetailView.as_view(),
+        name="clear-old-kiosk-cases-job-detail",
+    ),
+    url(
+        regex=r"^refresh-small-variant-summaries-job/(?P<job>[0-9a-f-]+)/$",
+        view=views.RefreshSmallVariantSummaryJobDetailView.as_view(),
+        name="refresh-small-variant-summaries-job-detail",
+    ),
 ]
 
 api_urlpatterns = [
