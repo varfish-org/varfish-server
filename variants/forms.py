@@ -1339,6 +1339,7 @@ class FilterForm(
             ("display", "Display results in table"),
             ("download", "Generate downloadable file in background"),
             ("submit-mutationdistiller", "Submit to MutationDistiller"),
+            ("submit-cadd", "Submit to CADD"),
         )
     )
 

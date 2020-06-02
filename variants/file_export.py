@@ -206,8 +206,8 @@ class CaseExporterBase:
     query_class_project_cases = None
 
     def __init__(self, job, case_or_project):
-        #: The ``ExportFileBgJob`` or ``DistillerSubmissionBgJob`` to use for logging.  Variants are obtained
-        #: from ``case_or_project``.
+        #: The ``ExportFileBgJob``, ``CADDSubmissionBgJob``, or ``DistillerSubmissionBgJob`` to use for logging.
+        #: Variants are obtained from ``case_or_project``.
         self.job = job
         #: The case to export for, if any.
         self.case = None
@@ -622,10 +622,12 @@ class CaseExporterVcf(CaseExporterBase):
     query_class_single_case = CaseExportVcfQuery
     query_class_project_cases = ProjectExportTableQuery  # TODO!
 
-    def __init__(self, job, case_or_project):
+    def __init__(self, job, case_or_project, members=None):
         super().__init__(job, case_or_project)
         #: The ``vcfpy.Writer`` to use for writing the VCF file.
         self.vcf_writer = None
+        #: Make overriding member possible here, e.g., to upload only variants without genotypes.
+        self.members = members or self.members
 
     def _get_named_temporary_file_args(self):
         return {"suffix": ".vcf.gz"}

@@ -143,6 +143,17 @@ ui_urlpatterns = [
         view=views.DistillerSubmissionJobResubmitView.as_view(),
         name="distiller-job-resubmit",
     ),
+    # Views for CADD submission jobs
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/cadd-job/detail/(?P<job>[0-9a-f-]+)/$",
+        view=views.CaddSubmissionJobDetailView.as_view(),
+        name="cadd-job-detail",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/cadd-job/resubmit/(?P<job>[0-9a-f-]+)/$",
+        view=views.CaddSubmissionJobResubmitView.as_view(),
+        name="cadd-job-resubmit",
+    ),
     # Views for Project-wide Statistics Computation submission jobs
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/project-stats-job/create/$",

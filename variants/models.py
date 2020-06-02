@@ -597,6 +597,7 @@ class Case(CoreCase):
         # TODO: need to be more dynamic here?
         return BackgroundJob.objects.filter(
             Q(variants_exportfilebgjob_related__case=self)
+            | Q(cadd_submission_bg_job__case=self)
             | Q(distiller_submission_bg_job__case=self)
             | Q(filter_bg_job__case=self)
         )
@@ -1113,6 +1114,62 @@ class DistillerSubmissionBgJob(JobModelMessageMixin, models.Model):
     def get_absolute_url(self):
         return reverse(
             "variants:distiller-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
+
+
+class CaddSubmissionBgJob(JobModelMessageMixin, models.Model):
+    """Background job for submitting variants to CADD."""
+
+    #: Task description for logging.
+    task_desc = "Submission to CADD"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.cadd_submission_bg_job"
+
+    # Fields required by SODAR
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
+    )
+    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="cadd_submission_bg_job",
+        help_text="Background job for state etc.",
+        on_delete=models.CASCADE,
+    )
+    case = models.ForeignKey(Case, null=False, help_text="The case to export")
+    query_args = JSONField(null=False, help_text="(Validated) query parameters")
+
+    cadd_version = models.CharField(
+        max_length=100, help_text="The CADD version used for the annotation"
+    )
+
+    cadd_job_id = models.CharField(
+        max_length=100, null=True, help_text="The project ID that CADD assigned on submission",
+    )
+
+    def get_human_readable_type(self):
+        return "CADD Submission"
+
+    def get_cadd_result_url(self):
+        """Returns URL to CADD result download if ``cadd_job_id`` is set.
+
+        Returns ``None`` otherwise.
+        """
+        if self.cadd_job_id:
+            return "https://cadd.gs.washington.edu/check_avail/%s_anno_%s.tsv.gz" % (
+                self.cadd_version,
+                self.cadd_job_id,
+            )
+        else:
+            return None
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:cadd-job-detail",
             kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
         )
 

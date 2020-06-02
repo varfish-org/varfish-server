@@ -8,6 +8,8 @@ from django.utils import timezone
 from projectroles.models import SODAR_CONSTANTS
 
 from bgjobs.tests.factories import BackgroundJobFactory
+
+from config.settings.base import VARFISH_CADD_SUBMISSION_RELEASE
 from ..models import (
     Case,
     SmallVariant,
@@ -29,6 +31,7 @@ from ..models import (
     SampleVariantStatistics,
     CaseComments,
     DeleteCaseBgJob,
+    CaddSubmissionBgJob,
 )
 import typing
 import attr
@@ -759,6 +762,28 @@ class DistillerSubmissionBgJobFactory(factory.django.DjangoModelFactory):
     query_args = factory.LazyAttribute(
         lambda o: vars(ResubmitFormDataFactory(names=o.case.get_members()))
     )
+
+
+class CaddSubmissionBgJobFactory(factory.django.DjangoModelFactory):
+    """Factory for ``CaddSubmissionBgJob`` model."""
+
+    class Meta:
+        model = CaddSubmissionBgJob
+        exclude = ["user"]
+
+    # Dummy argument ``user`` to pass to subfactory BackgroundJobFactory
+    user = None
+    case = factory.SubFactory(CaseFactory)
+    project = factory.LazyAttribute(lambda o: o.case.project)
+    bg_job = factory.SubFactory(
+        BackgroundJobFactory,
+        project=factory.SelfAttribute("factory_parent.project"),
+        user=factory.SelfAttribute("factory_parent.user"),
+    )
+    query_args = factory.LazyAttribute(
+        lambda o: vars(ResubmitFormDataFactory(names=o.case.get_members()))
+    )
+    cadd_version = VARFISH_CADD_SUBMISSION_RELEASE
 
 
 class ExportFileBgJobFactory(factory.django.DjangoModelFactory):

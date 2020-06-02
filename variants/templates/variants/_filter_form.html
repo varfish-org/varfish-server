@@ -5,6 +5,7 @@
 
 {% get_django_setting 'VARFISH_ENABLE_EXOMISER_PRIORITISER' as exomiser_enabled %}
 {% get_django_setting 'VARFISH_ENABLE_CADD' as cadd_enabled %}
+{% get_django_setting 'VARFISH_ENABLE_CADD_SUBMISSION' as cadd_submission_enabled %}
 
 {% if form.errors %}
     {% for error in form.non_field_errors %}
@@ -137,6 +138,15 @@
                   Submit to MutationDistiller
                 </button>
               {% endif %}
+              {% if cadd_submission_enabled %}
+                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-cadd"
+                        data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
+                        title="Submit to CADD"
+                        {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
+                  <i class="fa fa-mail-forward"></i>
+                  Submit to CADD
+                </button>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -145,6 +155,7 @@
   </div>
 
   {% include "variants/_distiller_resubmit_modal.html" %}
+  {% include "variants/_cadd_resubmit_modal.html" %}
 </form>
 
 <script type="text/javascript">

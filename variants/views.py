@@ -34,6 +34,7 @@ from projectroles.templatetags.projectroles_common_tags import site_version
 from bgjobs.models import BackgroundJob
 from bgjobs.views import DEFAULT_PAGINATION as BGJOBS_DEFAULT_PAGINATION
 from clinvar.models import Clinvar
+from config.settings.base import VARFISH_CADD_SUBMISSION_RELEASE
 from frequencies.models import MT_DB_INFO
 from geneinfo.views import get_gene_infos
 from geneinfo.models import NcbiGeneInfo, NcbiGeneRif, HpoName, Hpo, EnsemblToGeneSymbol, Hgnc
@@ -62,6 +63,7 @@ from .models import (
     Case,
     ExportFileBgJob,
     ExportProjectCasesFileBgJob,
+    CaddSubmissionBgJob,
     DistillerSubmissionBgJob,
     ComputeProjectVariantsStatsBgJob,
     FilterBgJob,
@@ -116,6 +118,7 @@ from .forms import (
 from .tasks import (
     export_file_task,
     export_project_cases_file_task,
+    cadd_submission_task,
     distiller_submission_task,
     compute_project_variants_stats,
     sync_project_upstream,
@@ -1706,6 +1709,8 @@ class CaseFilterView(
             return self._form_valid_file(form)
         elif form.cleaned_data["submit"] == "submit-mutationdistiller":
             return self._form_valid_mutation_distiller(form)
+        elif form.cleaned_data["submit"] == "submit-cadd":
+            return self._form_valid_cadd(form)
 
     def form_invalid(self, form):
         return render(
@@ -1769,6 +1774,34 @@ class CaseFilterView(
             "Created background job for your MutationDistiller submission. "
             "You can find the link to the MutationDistiller job on this site. "
             "We put your email into the MutationDistiller job so you will get an email once it is done.",
+        )
+        return redirect(submission_job.get_absolute_url())
+
+    def _form_valid_cadd(self, form):
+        """The form is valid, we are supposed to submit to CADD."""
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+        with transaction.atomic():
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Submitting case {} to CADD".format(self.get_case_object().name),
+                project=self.get_project(self.request, self.kwargs),
+                job_type=CaddSubmissionBgJob.spec_name,
+                user=user,
+            )
+            submission_job = CaddSubmissionBgJob.objects.create(
+                project=self.get_project(self.request, self.kwargs),
+                bg_job=bg_job,
+                case=self.get_case_object(),
+                query_args=_undecimal(form.cleaned_data),
+                cadd_version=VARFISH_CADD_SUBMISSION_RELEASE,
+            )
+        cadd_submission_task.delay(submission_job_pk=submission_job.pk)
+        messages.info(
+            self.request,
+            "Created background job for your CADD submission. "
+            "You can find the link to the CADD result on this site.",
         )
         return redirect(submission_job.get_absolute_url())
 
@@ -3292,6 +3325,58 @@ class DistillerSubmissionJobResubmitView(
                 project=job.project, bg_job=bg_job, case=job.case, query_args=job.query_args
             )
             distiller_submission_task.delay(submission_job_pk=submission_job.pk)
+        return redirect(submission_job.get_absolute_url())
+
+
+class CaddSubmissionJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of the CADD submission background job."""
+
+    permission_required = "variants.view_data"
+    template_name = "variants/cadd_job_detail.html"
+    model = CaddSubmissionBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+
+    def get_context_data(self, *args, **kwargs):
+        result = super().get_context_data(*args, **kwargs)
+        result["resubmit_form"] = EmptyForm()
+        return result
+
+
+class CaddSubmissionJobResubmitView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
+    """Resubmit to CADD."""
+
+    permission_required = "variants.view_data"
+    form_class = EmptyForm
+
+    def form_valid(self, form):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+        job = get_object_or_404(CaddSubmissionBgJob, sodar_uuid=self.kwargs["job"])
+        with transaction.atomic():
+            bg_job = BackgroundJob.objects.create(
+                name="Resubmitting case {} to CADD".format(job.case),
+                project=job.bg_job.project,
+                job_type=CaddSubmissionBgJob.spec_name,
+                user=user,
+            )
+            submission_job = CaddSubmissionBgJob.objects.create(
+                project=job.project, bg_job=bg_job, case=job.case, query_args=job.query_args
+            )
+            cadd_submission_task.delay(submission_job_pk=submission_job.pk)
         return redirect(submission_job.get_absolute_url())
 
 

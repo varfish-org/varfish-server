@@ -3,7 +3,6 @@
 import re
 
 from bs4 import BeautifulSoup
-from django.db import transaction
 from projectroles.plugins import get_backend_api
 import requests
 
@@ -80,3 +79,67 @@ def submit_distiller(job):
         job.mark_success()
         if timeline:
             tl_event.set_status("OK", "MutationDistiller submission complete for {case_name}")
+
+
+#: URL to CADD submission form
+CADD_POST_URL = "https://cadd.gs.washington.edu/upload"
+
+
+def submit_cadd(job):
+    """Submit a case to CADD"""
+    job.mark_start()
+    timeline = get_backend_api("timeline_backend")
+    if timeline:
+        tl_event = timeline.add_event(
+            project=job.project,
+            app_name="variants",
+            user=job.bg_job.user,
+            event_name="case_submit_cadd",
+            description="submitting {case_name} case to CADD",
+            status_type="INIT",
+        )
+        tl_event.add_object(obj=job.case, label="case_name", name=job.case.name)
+    try:
+        data = {
+            "version": job.cadd_version,
+            "inclAnno": "Yes",
+            "submit": "Upload variants",
+        }
+        with CaseExporterVcf(job, job.case) as exporter:
+            job.add_log_entry("Creating temporary VCF file...")
+            files = {"file": exporter.write_tmp_file()}
+            job.add_log_entry("Done creating temporary VCF file.")
+            job.add_log_entry("Submitting to %s ..." % CADD_POST_URL)
+            response = requests.post(CADD_POST_URL, data=data, files=files)
+            job.add_log_entry("Done submitting to %s" % CADD_POST_URL)
+        if not response.ok:
+            job.mark_error("HTTP status code: {}".format(response.status_code))
+            if timeline:
+                tl_event.set_status("FAILED", "CADD submission failed for {case_name}")
+            return  # bail out!
+        # Get ID in CADD
+        job.add_log_entry("Parsing CADD response...")
+        cadd_job_id = None
+        soup = BeautifulSoup(response.text, "html.parser")
+        for anchor in soup.find_all("a"):
+            if anchor.attrs.get("href").startswith(("/check_avail", "/static/finished")):
+                href = anchor.attrs.get("href")
+                cadd_job_id = re.split(r"[_.]", href)[-3]
+                job.add_log_entry("CADD result ID = {}".format(cadd_job_id))
+                break
+        if not cadd_job_id:
+            job.mark_error("Could not find CADD result ID from response")
+            if timeline:
+                tl_event.set_status("FAILED", "Could not find CADD result ID from response")
+            return  # bail out!
+        job.cadd_job_id = cadd_job_id
+        job.save()
+    except Exception as e:
+        job.mark_error(e)
+        if timeline:
+            tl_event.set_status("FAILED", "CADD submission failed for {case_name}: %s")
+        raise
+    else:
+        job.mark_success()
+        if timeline:
+            tl_event.set_status("OK", "CADD submission complete for {case_name}")

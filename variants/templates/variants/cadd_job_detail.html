@@ -20,7 +20,7 @@
     {% include 'projectroles/_project_menu_btn.html' %}
 
     <h2 class="sodar-pr-content-title">
-      Background MutationDistiller Submission Job
+      Background CADD Submission Job
       <small class="text-muted">{{ object.bg_job.name }}</small>
     </h2>
     {% include 'variants/_job_view_buttons.html' with project=project folder=folder %}
@@ -40,13 +40,13 @@
           <li class="list-group-item row d-flex">
             <div class="col-2 p-1"><strong>Download Result</strong></div>
             <div class="col-10 p-1">
-              {% if object.distiller_project_id %}
-                <a href="{{ object.get_distiller_project_url }}">
+              {% if object.cadd_job_id %}
+                <a href="{{ object.get_cadd_result_url }}">
                   <i class="fa fa-external-link-square"></i>
-                  MutationDistiller project: {{ object.distiller_project_id }}
+                  CADD result: {{ object.cadd_job_id }}
                 </a>
               {% else %}
-                No MutationDistiller project ID assigned yet, please refresh page:
+                No CADD Result ID assigned yet, please refresh page:
                 <button onClick="window.location.reload()" class="btn btn-success"><i class="fa fa-refresh"></i> Refresh page</button>
               {% endif %}
             </div>
@@ -54,18 +54,18 @@
           <li class="list-group-item row d-flex">
             <div class="col-2 p-1"><strong>Re-Submit</strong></div>
             <div class="col-10 pt-1 pb-1 pr-1 pl-0">
-              <form class="form-inline" action="{% url "variants:distiller-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}" method="post">
+              <form class="form-inline" action="{% url "variants:cadd-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}" method="post">
                {% csrf_token %}
                 <div class="form-group ml-0 mr-2">
-                  <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#confirm-submit-mutationdistiller">
+                  <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#confirm-submit-cadd">
                     <i class="fa fa-mail-forward"></i>
                     Re-Submit
                   </button>
                 </div>
                 <small class="form-text text-muted">
-                  Re-submit to MutationDistiller.org with the same settings, e.g., if MutationDistiller.org was offline.
+                  Re-submit to CADD with the same settings, e.g., if CADD was offline.
                 </small>
-                {% include "variants/_distiller_resubmit_modal.html" %}
+                {% include "variants/_cadd_resubmit_modal.html" %}
               </form>
             </div>
           </li>
@@ -134,14 +134,14 @@
             </div>
           </li>
           <li class="list-group-item row d-flex">
-            <div class="col-2 p-1"><strong>File Type</strong></div>
-            <div class="col-10 p-1">{{ object.file_type }}</div>
+            <div class="col-2 p-1"><strong>CADD Version</strong></div>
+            <div class="col-10 p-1">{{ object.cadd_version }}</div>
           </li>
         </ul>
       </div>
     </div>
 
-   <div class="card sodar-va-export-job-base-details"
+    <div class="card sodar-va-export-job-base-details"
         id="card sodar-va-export-job-base-details">
       <div class="card-header">
         <h4>

@@ -447,12 +447,17 @@ VARFISH_EXOMISER_PRIORITISER_MAX_GENES = env.int("VARFISH_EXOMISER_PRIORITISER_M
 # Note well that while VarFish is released under a permissive open source license
 # the CADD score is only freely available for non-commercial use.
 
-# Enable CADD configuration, default is disabled.
+# Enable CADD prioritization.
 VARFISH_ENABLE_CADD = env.bool("VARFISH_ENABLE_CADD", default=False)
 # Configure URL to CADD REST API
 VARFISH_CADD_REST_API_URL = env.str("VARFISH_CADD_REST_API_URL", "")
 # Configure maximal number of genes to send to Exomiser API
 VARFISH_CADD_MAX_VARS = env.int("VARFISH_CADD_MAX_VARS", 5000)
+
+# Enable submission of variants to CADD server.
+VARFISH_ENABLE_CADD_SUBMISSION = env.bool("VARFISH_ENABLE_CADD_SUBMISSION", default=False)
+# CADD version to use for for submission
+VARFISH_CADD_SUBMISSION_RELEASE = env.str("VARFISH_CADD_SUBMISSION_RELEASE", default="GRCh37-v1.6")
 
 # Varfish: MutationTaster URL
 VARFISH_MUTATIONTASTER_REST_API_URL = env.str(

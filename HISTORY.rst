@@ -14,6 +14,7 @@ End-User Summary
 - Blocking upload of VCF files with GRCh38/hg38/hg19 builds for VarFish Kiosk.
 - Support for displaying GATK-gCNV SVs.
 - Tracking global maintenance jobs with background jobs and displaying them to super user.
+- Adding "Submit to CADD" feature similar to "Submit to MutationDistiller".
 
 Full Change List
 ================
@@ -29,6 +30,7 @@ Full Change List
 - Tracking global maintenance jobs with background jobs.
 - Global background jobs are displayed with site plugin point via bgjobs.
 - Bumping Chromedriver to make CI work.
+- Adding "Submit to CADD" feature similar to "Submit to MutationDistiller".
 
 -------
 v0.21.0

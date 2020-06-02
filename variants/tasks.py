@@ -29,6 +29,12 @@ def distiller_submission_task(_self, submission_job_pk):
 
 
 @app.task(bind=True)
+def cadd_submission_task(_self, submission_job_pk):
+    """Task to submit a case to CADD"""
+    submit_external.submit_cadd(models.CaddSubmissionBgJob.objects.get(pk=submission_job_pk))
+
+
+@app.task(bind=True)
 def export_file_task(_self, export_job_pk):
     """Task to export single case to a file"""
     file_export.export_case(models.ExportFileBgJob.objects.get(pk=export_job_pk))

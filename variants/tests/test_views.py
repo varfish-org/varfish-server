@@ -53,6 +53,7 @@ from variants.models import (
     MutationTasterPathogenicityScoreCache,
     UmdPathogenicityScoreCache,
     CaddPathogenicityScoreCache,
+    CaddSubmissionBgJob,
 )
 from variants.tests.factories import (
     CaseFactory,
@@ -685,6 +686,73 @@ class TestCaseFilterView(ViewTestBase):
                 response,
                 reverse(
                     "variants:distiller-job-detail",
+                    kwargs={"project": self.case.project.sodar_uuid, "job": created_job.sodar_uuid},
+                ),
+            )
+
+    @Mocker()
+    def test_post_cadd(self, mock):
+        with self.login(self.user):
+            from ..submit_external import CADD_POST_URL
+
+            mock.post(
+                CADD_POST_URL,
+                status_code=200,
+                text=(
+                    """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" """
+                    """content="width=device-width, initial-scale=1"><meta name="author" content=""><meta """
+                    """name="description" content="CADD - Combined Annotation Dependent Depletion"><title>CADD """
+                    """- Combined Annotation Dependent Depletion</title><link rel="icon" href="/static/icon.png">"""
+                    """<link rel="stylesheet" href="/static/milligram.min.css"></head><body><main class="wrapper">"""
+                    """<nav class="navigation"><section class="container"><a class="navigation-title" href="/">"""
+                    """<img src="/static/icon.png" width=40 height=40 align=top><h1 class="title">CADD - """
+                    """Combined Annotation Dependent Depletion</h1></a><ul class="navigation-list float-right"> """
+                    """<li class="navigation-item"> <a class="navigation-link" href="/news" title="Recent updates">"""
+                    """News</a></li><li class="navigation-item"> <a class="navigation-link" href="/score" """
+                    """title="Upload a vcf file for variant scoring">Score</a></li><li class="navigation-item">"""
+                    """<a class="navigation-link" href="#popover-snv" data-popover>SNV</a><div class="popover" """
+                    """id="popover-snv"><ul class="popover-list"><li class="popover-item"><a class="popover-link" """
+                    """href="/snv" title="Lookup for single SNV">Single</a></li><li class="popover-item">"""
+                    """<a class="popover-link" href="/snv-range" title="SNV range lookup">Range</a></li></ul>"""
+                    """</div></li><li class="navigation-item"> <a class="navigation-link" href="/download" """
+                    """title="Data downloads for offline scoring">Downloads</a></li><li class="navigation-item">"""
+                    """<a class="navigation-link" href="#popover-about" data-popover>About</a><div """
+                    """class="popover" id="popover-about"><ul class="popover-list"><li class="popover-item">"""
+                    """<a class="popover-link" href="/info" title="About CADD">Information</a></li><li """
+                    """class="popover-item"><a class="popover-link" href="/api" title="Information about the """
+                    """CADD API">API</a></li><li class="popover-item"><a class="popover-link" """
+                    """href="/genome-browser" title="Information about displaying CADD scores in UCSC Genome """
+                    """Browser">Genome Browser</a></li><li class="popover-item"><a class="popover-link" """
+                    """href="/links" title="Links to CADD related resources">Links</a></li>"""
+                    """<li class="popover-item"><a class="popover-link" href="/contact" title="Contact">"""
+                    """Contact</a></li></ul></div></li></ul></section></nav><section class="container"><div """
+                    """id="content"> <p>You successfully uploaded variants and the scoring of your variants """
+                    """finished.</p><p>You can download your output file <a href="/static/finished/"""
+                    """GRCh37-v1.6_anno_TESTID.tsv.gz">here</a>. Make sure that your browser does not alter """
+                    """the file extension (.tsv.gz) during download; otherwise your operating system will not """
+                    """be able to automatically pick the right programs for opening the output.<p></div>"""
+                    """</section><footer class="footer"><section class="container"> <p align="center">"""
+                    """&copy; University of Washington, Hudson-Alpha Institute for Biotechnology and """
+                    """Berlin Institute of Health 2013-2019. All rights reserved.</p><p align="center"><a """
+                    """href="http://www.washington.edu/online/terms/">Terms and Conditions</a> and the """
+                    """<a href="http://www.washington.edu/online/privacy/">Online Privacy Statement</a> of the """
+                    """University of Washington apply. </p></section></footer></main></body></html>"""
+                ),
+            )
+            self.assertEquals(DistillerSubmissionBgJob.objects.count(), 0)
+            response = self.client.post(
+                reverse(
+                    "variants:case-filter",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(FormDataFactory(submit="submit-cadd", names=self.case.get_members())),
+            )
+            self.assertEquals(CaddSubmissionBgJob.objects.count(), 1)
+            created_job = CaddSubmissionBgJob.objects.first()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:cadd-job-detail",
                     kwargs={"project": self.case.project.sodar_uuid, "job": created_job.sodar_uuid},
                 ),
             )

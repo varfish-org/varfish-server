@@ -11,6 +11,7 @@ from .models import (
     SmallVariantFlags,
     ExportFileBgJob,
     ExportProjectCasesFileBgJob,
+    CaddSubmissionBgJob,
     DistillerSubmissionBgJob,
     ComputeProjectVariantsStatsBgJob,
     FilterBgJob,
@@ -278,6 +279,7 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
     #: Return name-to-class mapping for background job class specializations.
     job_specs = {
         ExportFileBgJob.spec_name: ExportFileBgJob,
+        CaddSubmissionBgJob.spec_name: CaddSubmissionBgJob,
         DistillerSubmissionBgJob.spec_name: DistillerSubmissionBgJob,
         ComputeProjectVariantsStatsBgJob.spec_name: ComputeProjectVariantsStatsBgJob,
         ExportProjectCasesFileBgJob.spec_name: ExportProjectCasesFileBgJob,
