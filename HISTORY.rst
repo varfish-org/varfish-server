@@ -15,6 +15,7 @@ End-User Summary
 - Support for displaying GATK-gCNV SVs.
 - Tracking global maintenance jobs with background jobs and displaying them to super user.
 - Adding "Submit to CADD" feature similar to "Submit to MutationDistiller".
+- Increased default frequency setting of HelixMTdb max hom filter to 200 for strict and relaxed.
 
 Full Change List
 ================
@@ -31,6 +32,7 @@ Full Change List
 - Global background jobs are displayed with site plugin point via bgjobs.
 - Bumping Chromedriver to make CI work.
 - Adding "Submit to CADD" feature similar to "Submit to MutationDistiller".
+- Increased default frequency setting of HelixMTdb max hom filter to 200 for strict and relaxed.
 
 -------
 v0.21.0

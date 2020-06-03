@@ -609,7 +609,7 @@ const presets = {
       "mtdb_frequency": 0.01,
 
       "helixmtdb_enabled": true,
-      "helixmtdb_hom_count": 10,
+      "helixmtdb_hom_count": 200,
       "helixmtdb_het_count": null,
       "helixmtdb_frequency": 0.01,
 
@@ -652,7 +652,7 @@ const presets = {
 
       "helixmtdb_enabled": true,
       "helixmtdb_het_count": null,
-      "helixmtdb_hom_count": 50,
+      "helixmtdb_hom_count": 400,
       "helixmtdb_frequency": 0.15,
 
       "mitomap_enabled": false,
