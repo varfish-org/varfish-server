@@ -352,20 +352,25 @@ function clickVariantAcmgRating() {
         data: formData + "&csrfmiddlewaretoken=" + getCookie("csrftoken"),
         dataType: "json",
       }).done(function(data) {
-        let acmgClass = data["class_override"] || data["class_auto"]
         let badge = $(outerThis).closest(".variant-row").find(".variant-acmg")
-
+        let acmgClass = data["class_override"] || data["class_auto"]
         if (acmgClass && (acmgClass > 3)) {
           badge.addClass("badge-danger text-white")
           badge.removeClass("badge-light badge-warning badge-success text-black text-muted")
+          badge.text(acmgClass)
         } else if (acmgClass && (acmgClass == 3)) {
           badge.addClass("badge-warning text-black")
           badge.removeClass("badge-light text-muted badge-danger badge-success text-white")
+          badge.text(acmgClass)
         } else if (acmgClass) {
           badge.addClass("badge-success text-white")
           badge.removeClass("badge-light text-muted badge-danger badge-warning text-black")
+          badge.text(acmgClass)
+        } else {
+          badge.removeClass("badge-danger badge-warning badge-success text-white");
+          badge.addClass("badge-light text-black text-muted");
+          badge.text("-");
         }
-        badge.text(acmgClass)
       }).fail(function(xhr) {
         // failed, notify user
         alert("Updating ACMG classification failed");
@@ -389,6 +394,7 @@ function clickVariantAcmgRating() {
     dataType: "json"
   }).done(function(data) {
     // found flags, show form with these
+    data["variant"] = dataVariant;
     showPopup(data);
   }).fail(function(xhr) {
     if (xhr.status == 404) {

@@ -345,7 +345,8 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
 
       <div class="row pt-2 mt-2 border-top">
         <div class="ml-auto">
-          <button class="btn btn-sm btn-secondary cancel">Cancel</button>
+          <button type="button" class="btn btn-sm btn-secondary cancel">Cancel</button>
+          <button type="button" class="btn btn-sm btn-danger" onclick="$(this).closest('form').find(':checkbox').prop('checked', false);">Clear Form</button>
           <button type="submit" class="btn btn-sm btn-primary save">Save</button>
         </div>
       </div>

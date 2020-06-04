@@ -3503,7 +3503,7 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
             self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
             self.assertEqual(response.status_code, 404)
 
-    def test_post_response_not_existing(self):
+    def test_post_response_not_existing_empty_form(self):
         with self.login(self.user):
             self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
             response = self.client.post(
@@ -3520,6 +3520,30 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
                         bin=self.small_var.bin,
                         reference=self.small_var.reference,
                         alternative=self.small_var.alternative,
+                    )
+                ),
+            )
+            self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
+            self.assertEqual(response.status_code, 200)
+
+    def test_post_response_not_existing_form_filled(self):
+        with self.login(self.user):
+            self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
+            response = self.client.post(
+                reverse(
+                    "variants:acmg-rating-api",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    AcmgCriteriaRatingFormDataFactory(
+                        release=self.small_var.release,
+                        chromosome=self.small_var.chromosome,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
+                        reference=self.small_var.reference,
+                        alternative=self.small_var.alternative,
+                        ps1=2,
                     )
                 ),
             )
@@ -3606,6 +3630,49 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
             self.assertEqual(json.loads(response.content.decode("utf-8"))["ps1"], 0)
             self.assertEqual(json.loads(response.content.decode("utf-8"))["ps2"], 1)
             self.assertEqual(json.loads(response.content.decode("utf-8"))["user"], self.user.id)
+
+    def test_post_response_erase(self):
+        with self.login(self.user):
+            self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
+            self.client.post(
+                reverse(
+                    "variants:acmg-rating-api",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    AcmgCriteriaRatingFormDataFactory(
+                        release=self.small_var.release,
+                        chromosome=self.small_var.chromosome,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
+                        reference=self.small_var.reference,
+                        alternative=self.small_var.alternative,
+                        ps1=1,
+                    )
+                ),
+            )
+            self.assertEqual(AcmgCriteriaRating.objects.count(), 1)
+            response = self.client.post(
+                reverse(
+                    "variants:acmg-rating-api",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(
+                    AcmgCriteriaRatingFormDataFactory(
+                        release=self.small_var.release,
+                        chromosome=self.small_var.chromosome,
+                        start=self.small_var.start,
+                        end=self.small_var.end,
+                        bin=self.small_var.bin,
+                        reference=self.small_var.reference,
+                        alternative=self.small_var.alternative,
+                        ps1=0,
+                    )
+                ),
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
 
     def test_post_provoke_form_error(self):
         with self.login(self.user), self.assertRaises(Exception):

@@ -1512,9 +1512,52 @@ class SyncProjectJobForm(forms.Form):
 class AcmgCriteriaRatingForm(forms.ModelForm):
     """Form for giving the ACMG criteria."""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["empty"] = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
     class Meta:
         model = AcmgCriteriaRating
         exclude = ("user", "bin", "sodar_uuid", "case", "date_created", "date_modified")
+
+    def clean(self):
+        self.cleaned_data["empty"] = True
+        keys = (
+            "pvs1",
+            "ps1",
+            "ps2",
+            "ps3",
+            "ps4",
+            "pm1",
+            "pm2",
+            "pm3",
+            "pm4",
+            "pm5",
+            "pm6",
+            "pp1",
+            "pp2",
+            "pp3",
+            "pp4",
+            "pp5",
+            "ba1",
+            "bs1",
+            "bs2",
+            "bs3",
+            "bs4",
+            "bp1",
+            "bp2",
+            "bp3",
+            "bp4",
+            "bp5",
+            "bp6",
+            "bp7",
+            "class_override",
+        )
+        for i in keys:
+            if self.cleaned_data.get(i):
+                self.cleaned_data["empty"] = False
+                break
+        return self.cleaned_data
 
 
 class CaseNotesStatusForm(forms.ModelForm):

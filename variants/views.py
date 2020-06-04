@@ -3807,26 +3807,49 @@ class AcmgCriteriaRatingApiView(
         except AcmgCriteriaRating.DoesNotExist:
             acmg_ratings = AcmgCriteriaRating(case=case, sodar_uuid=uuid.uuid4(), user=user)
         form = AcmgCriteriaRatingForm(self.request.POST, instance=acmg_ratings)
-        try:
-            acmg_ratings = form.save()
-        except ValueError as e:
-            raise Exception(str(form.errors)) from e
-        timeline = get_backend_api("timeline_backend")
-        if timeline:
-            tl_event = timeline.add_event(
-                project=self.get_project(self.request, self.kwargs),
-                app_name="variants",
-                user=user,
-                event_name="flags_set",
-                description="set ACMG rating for variant %s in case {case}: {extra-rating_values}"
-                % acmg_ratings.get_variant_description(),
-                status_type="OK",
-                extra_data={"rating_values": acmg_ratings.get_human_readable()},
+        if form.is_valid():
+            if not form.cleaned_data["empty"]:
+                try:
+                    acmg_ratings = form.save()
+                    timeline = get_backend_api("timeline_backend")
+                    if timeline:
+                        tl_event = timeline.add_event(
+                            project=self.get_project(self.request, self.kwargs),
+                            app_name="variants",
+                            user=user,
+                            event_name="flags_set",
+                            description="set ACMG rating for variant %s in case {case}: {extra-rating_values}"
+                            % acmg_ratings.get_variant_description(),
+                            status_type="OK",
+                            extra_data={"rating_values": acmg_ratings.get_human_readable()},
+                        )
+                        tl_event.add_object(obj=case, label="case", name=case.name)
+                except ValueError as e:
+                    raise Exception(str(form.errors)) from e
+                result = self._model_to_dict(acmg_ratings)
+            elif form.cleaned_data["empty"] and acmg_ratings.id:
+                try:
+                    acmg_ratings.delete()
+                    timeline = get_backend_api("timeline_backend")
+                    if timeline:
+                        tl_event = timeline.add_event(
+                            project=self.get_project(self.request, self.kwargs),
+                            app_name="variants",
+                            user=user,
+                            event_name="flags_set",
+                            description="delete ACMG rating for variant %s in case {case}"
+                            % acmg_ratings.get_variant_description(),
+                            status_type="OK",
+                        )
+                        tl_event.add_object(obj=case, label="case", name=case.name)
+                except ValueError as e:
+                    raise Exception(str(form.errors)) from e
+                result = {}
+            else:
+                result = {}
+            return HttpResponse(
+                json.dumps(result, cls=UUIDEncoder), content_type="application/json"
             )
-            tl_event.add_object(obj=case, label="case", name=case.name)
-        # TODO: allow erasing?
-        result = self._model_to_dict(acmg_ratings)
-        return HttpResponse(json.dumps(result, cls=UUIDEncoder), content_type="application/json")
 
 
 class NewFeaturesView(LoginRequiredMixin, RedirectView):

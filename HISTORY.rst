@@ -16,6 +16,7 @@ End-User Summary
 - Tracking global maintenance jobs with background jobs and displaying them to super user.
 - Adding "Submit to CADD" feature similar to "Submit to MutationDistiller".
 - Increased default frequency setting of HelixMTdb max hom filter to 200 for strict and relaxed.
+- It is now possible to delete ACMG ratings by clearing the form and saving it.
 
 Full Change List
 ================
@@ -33,6 +34,7 @@ Full Change List
 - Bumping Chromedriver to make CI work.
 - Adding "Submit to CADD" feature similar to "Submit to MutationDistiller".
 - Increased default frequency setting of HelixMTdb max hom filter to 200 for strict and relaxed.
+- It is now possible to delete ACMG ratings by clearing the form and saving it.
 
 -------
 v0.21.0
