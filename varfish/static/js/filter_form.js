@@ -479,8 +479,6 @@ const presetsFlagsDefault = {
   "clinvar_include_uncertain_significance": false,
   "clinvar_include_likely_pathogenic": true,
   "clinvar_include_pathogenic": true,
-  "clinvar_origin_germline": true,
-  "clinvar_origin_somatic": false,
 
   // "result_rows_limit": 200,
   // "training_mode": false,

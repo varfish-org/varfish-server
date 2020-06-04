@@ -865,21 +865,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            clinical_significance="pathogenic",
-            clinical_significance_ordered=["pathogenic"],
-            pathogenic=1,
-        )
-        ClinvarFactory(
-            release=self.small_vars[-1].release,
-            chromosome=self.small_vars[-1].chromosome,
-            start=self.small_vars[-1].start,
-            end=self.small_vars[-1].end,
-            bin=self.small_vars[-1].bin,
-            reference=self.small_vars[-1].reference,
-            alternative=self.small_vars[-1].alternative,
-            clinical_significance="likely_pathogenic",
-            clinical_significance_ordered=["likely_pathogenic"],
-            likely_pathogenic=1,
+            pathogenicity="pathogenic",
         )
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
         self.hpo_term = HpoNameFactory(hpo_id="HP:0000001")
@@ -931,7 +917,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                 ),
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
-            self.assertEqual(response.context["result_rows"][1].max_significance, "pathogenic")
+            self.assertEqual(response.context["result_rows"][1].pathogenicity, "pathogenic")
 
     def test_training_mode(self):
         with self.login(self.user):
@@ -1738,21 +1724,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            clinical_significance="pathogenic",
-            clinical_significance_ordered=["pathogenic"],
-            pathogenic=1,
-        )
-        ClinvarFactory(
-            release=self.small_vars[-1].release,
-            chromosome=self.small_vars[-1].chromosome,
-            start=self.small_vars[-1].start,
-            end=self.small_vars[-1].end,
-            bin=self.small_vars[-1].bin,
-            reference=self.small_vars[-1].reference,
-            alternative=self.small_vars[-1].alternative,
-            clinical_significance="likely_pathogenic",
-            clinical_significance_ordered=["likely_pathogenic"],
-            likely_pathogenic=1,
+            pathogenicity="pathogenic",
         )
 
     def test_count_results(self):
@@ -1782,7 +1754,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
                 ),
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
-            self.assertEqual(response.context["result_rows"][4].max_significance, "pathogenic")
+            self.assertEqual(response.context["result_rows"][4].pathogenicity, "pathogenic")
 
     @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
     @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
@@ -2441,8 +2413,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 response.context["pop_freqs"]["1000GP"]["Total"]["af"], self.thousand_genomes.af
             )
             self.assertEqual(
-                response.context["clinvar"][0]["clinical_significance"],
-                self.clinvar.clinical_significance,
+                response.context["clinvar"].pathogenicity_summary,
+                self.clinvar.pathogenicity_summary,
             )
             self.assertEqual(
                 response.context["knowngeneaa"][0]["alignment"], self.knowngeneaa.alignment

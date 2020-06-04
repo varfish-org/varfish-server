@@ -101,6 +101,19 @@ Currently, the main focus is on small/sequence variants called from high-througp
 
 .. raw:: latex
 
+    \part{Notes}
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Notes
+    :name: notes
+    :hidden:
+    :titlesonly:
+
+    notes_clinvar
+
+.. raw:: latex
+
     \appendix
     \part{Project Information}
 

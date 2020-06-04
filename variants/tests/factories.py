@@ -84,8 +84,6 @@ class FormDataFactoryBase:
     clinvar_include_uncertain_significance: bool = False
     clinvar_include_likely_pathogenic: bool = False
     clinvar_include_pathogenic: bool = False
-    clinvar_origin_germline: bool = False
-    clinvar_origin_somatic: bool = False
     compound_recessive_indices: typing.Dict[str, str] = {}
     recessive_indices: typing.Dict[str, str] = {}
 

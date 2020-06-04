@@ -2,26 +2,53 @@
 {% load humanize %}
 
 <div class="card">
-  <div class="card-header">
+  <div class="card-header d-flex w-100 justify-content-between">
     <h4 class="card-title">ClinVar for Variant</h4>
+    <small><a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ clinvar.vcv }}" target="_blank">{{ clinvar.vcv }}</a></small>
   </div>
-  <table class="card-body table table-striped table-sm">
-    <tbody>
-      <tr>
-        <th class="text-left">Traits</th>
-        <th class="text-left">Clinical Significance</th>
-      </tr>
-      {% for item in clinvar %}
-      <tr>
-        <td>{{ item.all_traits|join:"; " }}</td>
-        <td>{{ item.clinical_significance }}</td>
-      </tr>
-      {% endfor %}
-      {% if not clinvar %}
-        <tr>
-          <td colspan="2" class="text-muted text-center"><i>No ClinVar information available.</i></td>
-        </tr>
-      {% endif %}
-    </tbody>
-  </table>
+  <ul class="list-group list-group-flush">
+    {% for cv in clinvar.details %}
+      <li class="list-group-item flex-column align-items-start border-top px-2 list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+          <strong class="mb-1">{{ cv.title }}</strong>
+          <small><a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ cv.ref_cv_assertion.clinvar_accession }}.{{ cv.ref_cv_assertion.version_no }}" target="_blank">{{ cv.ref_cv_assertion.clinvar_accession }}.{{ cv.ref_cv_assertion.version_no }}</a></small>
+        </div>
+        <div class="row">
+          <div class="col-6 pl-0">
+            {% if cv.ref_cv_assertion.trait_sets %}
+              {% for trait_set in cv.ref_cv_assertion.trait_sets %}
+                  {% for trait in trait_set.traits %}
+                    {% if trait.preferred_name == "not specified" %}traits{% endif %}
+                    {{ trait.preferred_name }}{% if not forloop.last %}<br />{% endif %}
+                  {% endfor %}
+                {% if not forloop.last %}<br />{% endif %}
+              {% endfor %}
+            {% else %}
+              <em>traits not specified</em>
+            {% endif %}
+          </div>
+          <div class="col-3">
+            {% if cv.ref_cv_assertion.clin_sigs %}
+              {% for clin_sig in cv.ref_cv_assertion.clin_sigs %}
+                {{ clin_sig.description|lower }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            {% else %}
+              <em>review status not specified</em>
+            {% endif %}
+          </div>
+          <div class="col-3 pr-0">
+            {% if cv.ref_cv_assertion.clin_sigs %}
+              {% for clin_sig in cv.ref_cv_assertion.clin_sigs %}
+                {{ clin_sig.review_status|lower }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            {% else %}
+              <em>clinical significance not specified</em>
+            {% endif %}
+          </div>
+        </div>
+      </li>
+    {% empty %}
+      <p class="text-muted text-center"><i>No ClinVar information available.</i></p>
+    {% endfor %}
+  </ul>
 </div>

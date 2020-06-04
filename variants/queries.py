@@ -348,49 +348,20 @@ class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
 class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.patho_keys = (
-            "pathogenic",
-            "likely_pathogenic",
-            "uncertain_significance",
-            "likely_benign",
-            "benign",
-        )
-        fields = [
-            func.sum(getattr(Clinvar.sa, key)).label("clinvar_%s" % key) for key in self.patho_keys
-        ]
-        fields.extend(
-            [
-                func.coalesce(
-                    func.array_cat_agg(func.array_append(Clinvar.sa.review_status_ordered, "$")), []
-                ).label("review_status_ordered"),
-                func.coalesce(
-                    func.array_cat_agg(
-                        func.array_append(Clinvar.sa.clinical_significance_ordered, "$")
-                    ),
-                    [],
-                ).label("clinical_significance_ordered"),
-                func.coalesce(
-                    func.array_cat_agg(func.array_append(Clinvar.sa.all_traits, "$")), []
-                ).label("all_traits"),
-                func.coalesce(
-                    func.array_cat_agg(func.array_append(Clinvar.sa.origin, "$")), []
-                ).label("origin"),
-                func.coalesce(func.array_agg(Clinvar.sa.rcv), []).label("rcv"),
-                func.coalesce(func.max(Clinvar.sa.scv[1])).label("scv"),
-            ]
-        )
         self.subquery = (
-            select(fields)
+            select(
+                (
+                    Clinvar.sa.variation_type,
+                    Clinvar.sa.vcv,
+                    Clinvar.sa.point_rating,
+                    Clinvar.sa.pathogenicity,
+                    Clinvar.sa.review_status,
+                    Clinvar.sa.pathogenicity_summary,
+                    Clinvar.sa.details,
+                )
+            )
             .select_from(Clinvar.sa)
             .where(and_(same_variant(SmallVariant, Clinvar)))
-            .group_by(
-                Clinvar.sa.release,
-                Clinvar.sa.chromosome,
-                Clinvar.sa.start,
-                Clinvar.sa.end,
-                Clinvar.sa.reference,
-                Clinvar.sa.alternative,
-            )
             .lateral("clinvar_subquery")
         )
 
@@ -399,29 +370,28 @@ class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
 
     def extend_fields(self, _query_parts):
         return [
-            func.coalesce(column("review_status_ordered"), []).label("review_status_ordered"),
-            func.coalesce(column("clinical_significance_ordered"), []).label(
-                "clinical_significance_ordered"
-            ),
-            func.coalesce(column("all_traits"), []).label("all_traits"),
-            func.coalesce(column("origin"), []).label("origin"),
-            func.coalesce(column("rcv"), []).label("rcv"),
-            func.coalesce(column("scv"), "").label("scv"),
-        ] + [
-            func.coalesce(column("clinvar_%s" % key), 0).label("clinvar_%s" % key)
-            for key in self.patho_keys
+            self.subquery.c.variation_type,
+            self.subquery.c.vcv,
+            self.subquery.c.point_rating,
+            self.subquery.c.pathogenicity,
+            self.subquery.c.pathogenicity_summary,
+            self.subquery.c.details,
         ]
 
 
 class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.patho_keys = (
+            "pathogenic",
+            "likely_pathogenic",
+            "uncertain_significance",
+            "likely_benign",
+            "benign",
+        )
+
     def extend_conditions(self, _query_parts):
-        return [
-            and_(
-                self._build_membership_term(),
-                self._build_significance_term(),
-                self._build_origin_term(),
-            )
-        ]
+        return [and_(self._build_membership_term(), self._build_significance_term(),)]
 
     def _build_membership_term(self):
         if self.kwargs["require_in_clinvar"]:
@@ -433,32 +403,10 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
         terms = []
         if not self.kwargs.get("require_in_clinvar"):
             return True
-        for key in self.patho_keys:
-            if self.kwargs.get("clinvar_include_%s" % key):
-                terms.append(getattr(self.subquery.c, "clinvar_%s" % key) > 0)
+        for patho_key in self.patho_keys:
+            if self.kwargs.get("clinvar_include_%s" % patho_key):
+                terms.append(self.subquery.c.pathogenicity == patho_key.replace("_", " "))
         return or_(*terms)
-
-    def _build_origin_term(self):
-        """Build term for variant origin in Clinvar."""
-        if self.kwargs.get("require_in_clinvar"):
-            origins = []
-            if self.kwargs.get("clinvar_origin_germline"):
-                origins.append("germline")
-            if self.kwargs.get("clinvar_origin_somatic"):
-                origins.append("somatic")
-            if origins:
-                origins = cast(origins, ARRAY(VARCHAR()))
-                return OVERLAP(self.subquery.c.origin, origins)
-            else:
-                return True
-        else:
-            germline = cast(["germline"], ARRAY(VARCHAR()))
-            somatic = cast(["somatic"], ARRAY(VARCHAR()))
-            return or_(
-                OVERLAP(self.subquery.c.origin, germline),
-                not_(OVERLAP(self.subquery.c.origin, somatic)),
-                self.subquery.c.origin == None,
-            )
 
 
 class ExtendQueryPartsHgmdJoin(ExtendQueryPartsBase):

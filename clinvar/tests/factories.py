@@ -21,38 +21,15 @@ class ClinvarFactory(factory.django.DjangoModelFactory):
     bin = 0
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
-    strand = "+"
-    variation_type = "Variant"
-    variation_id = factory.Sequence(lambda n: 12345 + n)
-    rcv = factory.Sequence(lambda n: "RCV%d" % (12345 + n))
-    scv = factory.Sequence(lambda n: ["RCV%d" % (12345 + n)])
-    allele_id = factory.Sequence(lambda n: 12345 + n)
-    symbol = factory.Sequence(lambda n: "SYMBOL%d" % n)
-    hgvs_c = "c.123C>T"
-    hgvs_p = "p.I2T"
-    molecular_consequence = "some-molecular-consequence"
-    clinical_significance = ""
-    clinical_significance_ordered = []
-    pathogenic = 0
-    likely_pathogenic = 0
-    uncertain_significance = 0
-    likely_benign = 0
-    benign = 0
+    variation_type = "snv"
+    symbols = factory.Sequence(lambda n: ["SYMBOL%d" % n])
+    hgnc_ids = factory.Sequence(lambda n: ["HGNC:%d" % n])
+    vcv = factory.Sequence(lambda n: "VCV%d" % (12345 + n))
+    point_rating = factory.Iterator([0, 1, 2, 3])
+    pathogenicity = ""
     review_status = "practice guideline"
-    review_status_ordered = ["practice guideline"]
-    last_evaluated = "2016-06-14"
-    all_submitters = ["Some Submitter"]
-    submitters_ordered = ["Some Submitter"]
-    all_traits = ["Some trait"]
-    all_pmids = [12345]
-    inheritance_modes = ""
-    age_of_onset = ""
-    prevalence = ""
-    disease_mechanism = ""
-    origin = ["germline"]
-    xrefs = ["Some xref"]
-    dates_ordered = ["2016-06-14"]
-    multi = 1
+    pathogenicity_summary = "uncertain significance"
+    details = []
 
     @factory.post_generation
     def fix_bins(obj, *args, **kwargs):

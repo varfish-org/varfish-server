@@ -2118,8 +2118,6 @@ class CaseLoadPrefetchedFilterView(
             else:
                 hpoterms[hpo] = "unknown term"
 
-        rows = annotate_with_clinvar_max(rows)
-
         user = self.request.user
         if settings.KIOSK_MODE:
             user = User.objects.get(username="kiosk_user")
@@ -2237,8 +2235,6 @@ class ProjectCasesLoadPrefetchedFilterView(
             for row in rows:
                 row._self_affected_cases_per_gene = len(cases_per_gene[row.gene_id])
             elapsed = timezone.now() - before
-
-        rows = annotate_with_clinvar_max(rows)
 
         # Annotate with pathogenicity score if any. MutationTaster can have multiple predictions per variant (for each transcript).
         variant_scores = {}
@@ -2611,58 +2607,6 @@ def sig_level(significance):
     return len(FILTER_FORM_TRANSLATE_SIGNIFICANCE.values())
 
 
-def annotate_with_clinvar_max(rows):
-    def _find_split_positions(column):
-        split_positions = []
-        prev_position = 0
-        for i, x in enumerate(column):
-            if x == "$":
-                split_positions.append((prev_position, i))
-                prev_position = i + 1
-        split_positions.append((prev_position, len(column)))
-        return split_positions
-
-    rows = [RowWithClinvarMax(row) for row in rows]
-    for row in rows:
-        candidates = []
-        clinvars = []
-        # Find out where a new entry in the array list begins, delimiter is the "$" sign.
-        split_sig = _find_split_positions(row.clinical_significance_ordered)
-        split_status = _find_split_positions(row.review_status_ordered)
-        split_trait = _find_split_positions(row.all_traits)
-        for i, rcv in enumerate(row.rcv):
-            clinvars.append(
-                {
-                    "clinical_significance_ordered": row.clinical_significance_ordered[
-                        split_sig[i][0] : split_sig[i][1]
-                    ],
-                    "review_status_ordered": row.review_status_ordered[
-                        split_status[i][0] : split_status[i][1]
-                    ],
-                    "all_traits": list(
-                        {
-                            trait.lower()
-                            for trait in row.all_traits[split_trait[i][0] : split_trait[i][1]]
-                        }
-                    ),
-                }
-            )
-            for sig, status in zip(
-                clinvars[-1]["clinical_significance_ordered"], clinvars[-1]["review_status_ordered"]
-            ):
-                sig_lvl = sig_level(sig)
-                status_lvl = status_level(status)
-                candidates.append((sig_lvl, status_lvl, sig, status, clinvars[-1]["all_traits"]))
-        if candidates:
-            values = min(candidates)
-        else:
-            values = (sig_level(None), status_level(None), None, None, None)
-        row._self_max_significance = values[2]
-        row._self_max_clinvar_status = values[3]
-        row._self_max_all_traits = values[4]
-    return rows
-
-
 class SmallVariantDetails(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
@@ -2710,15 +2654,11 @@ class SmallVariantDetails(
             "reference": query_kwargs["reference"],
             "alternative": query_kwargs["alternative"],
         }
-        result = []
-        for entry in Clinvar.objects.filter(**filter_args):
-            result.append(
-                {
-                    "clinical_significance": entry.clinical_significance,
-                    "all_traits": list({trait.lower() for trait in entry.all_traits}),
-                }
-            )
-        return result
+        records = Clinvar.objects.filter(**filter_args)
+        if records:
+            return records.first()
+        else:
+            return None
 
     def _load_small_var(self, kwargs):
         return SmallVariant.objects.filter(

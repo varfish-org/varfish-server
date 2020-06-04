@@ -1094,14 +1094,6 @@ class SmallVariantClinvarHgmdFilterFormMixin:
             label="pathogenic", required=False, initial=False
         )
 
-        self.fields["clinvar_origin_somatic"] = forms.BooleanField(
-            label="somatic", required=False, initial=False
-        )
-
-        self.fields["clinvar_origin_germline"] = forms.BooleanField(
-            label="germline", required=False, initial=True
-        )
-
     def clean(self):
         """Translate effect field names into ``effects`` key list"""
         cleaned_data = super().clean()

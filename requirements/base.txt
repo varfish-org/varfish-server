@@ -80,6 +80,8 @@ simplejson >=2.1
 
 # Useful helper attrs.
 attrs >=19.1.0
+cattrs
+python-dateutil
 
 # Writing of Excel (XLSX) files.
 xlsxwriter ==1.1.2

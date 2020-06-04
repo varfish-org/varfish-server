@@ -301,9 +301,10 @@ class Command(BaseCommand):
                 )
             # Refresh clinvar materialized view if one of the depending tables was updated.
             # Depending tables: Clinvar, Hgnc, RefseqToHgnc
-            if table_group in ("clinvar", "hgnc"):
-                refresh_clinvar_clinvarpathogenicgenes()
-            elif table_group == "mgi":
+            # TODO: re-enable!
+            # if table_group in ("clinvar", "hgnc"):
+            #     refresh_clinvar_clinvarpathogenicgenes()
+            if table_group == "mgi":
                 refresh_geneinfo_mgimapping()
             elif table_group in ("hpo", "mim2gene", "hgnc"):
                 refresh_geneinfo_geneidtoinheritance()

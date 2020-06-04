@@ -23,50 +23,6 @@ PROJECT_DICT = {
 }
 
 
-#: Default values for Clinvar entries.
-CLINVAR_DEFAULTS = {
-    "release": "GRCh37",
-    "chromosome": "1",
-    "start": None,
-    "end": None,
-    "bin": None,
-    "reference": "A",
-    "alternative": "G",
-    "strand": "+",
-    "variation_type": "Variant",
-    "variation_id": 12345,
-    "rcv": "RCV12345",
-    "scv": ["RCV12345"],
-    "allele_id": 12345,
-    "symbol": "ENSG2",
-    "hgvs_c": "some-hgvs-c",
-    "hgvs_p": "home-hgvs-p",
-    "molecular_consequence": "some-molecular-consequence",
-    "clinical_significance": None,
-    "clinical_significance_ordered": None,
-    "pathogenic": 0,
-    "likely_pathogenic": 0,
-    "uncertain_significance": 0,
-    "likely_benign": 0,
-    "benign": 0,
-    "review_status": None,
-    "review_status_ordered": None,
-    "last_evaluated": "2016-06-14",
-    "all_submitters": ["Some Submitter"],
-    "submitters_ordered": ["Some Submitter"],
-    "all_traits": ["Some trait"],
-    "all_pmids": [12345],
-    "inheritance_modes": "",
-    "age_of_onset": "",
-    "prevalence": "",
-    "disease_mechanism": "",
-    "origin": ["germline"],
-    "xrefs": ["Some xref"],
-    "dates_ordered": ["2016-06-14"],
-    "multi": 1,
-}
-
-
 # ---------------------------------------------------------------------------
 # Tests for Case 1
 # ---------------------------------------------------------------------------

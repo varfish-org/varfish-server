@@ -23,6 +23,8 @@ End-User Summary
 - Saving uploads pre-checking in kiosk mode to facilitate debugging.
 - Kiosk mode also accepts VCFs based on hg19.
 - VariantValidator output now displays three-letter representation of AA.
+- Documented new clinvar aggregation method and VarFish "point rating".
+- Implemented new clinvar data display in variant detail.
 
 Full Change List
 ================
@@ -49,6 +51,8 @@ Full Change List
 - Saving uploads pre-checking in kiosk mode to facilitate debugging.
 - Kiosk mode also accepts VCFs based on hg19.
 - VariantValidator output now displays three-letter representation of AA.
+- Documented new clinvar aggregation method and VarFish "point rating".
+- Implemented new clinvar data display in variant detail.
 
 -------
 v0.21.0

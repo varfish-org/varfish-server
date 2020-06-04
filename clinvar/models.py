@@ -1,7 +1,10 @@
-from django.db import models, connection, transaction, utils
-from django.contrib.postgres.fields import ArrayField
-from postgres_copy import CopyManager
 from django.conf import settings
+from django.db import models, connection, transaction
+from django.contrib.postgres.fields import ArrayField, JSONField
+from postgres_copy import CopyManager
+
+
+from .clinvar_models import ClinVarSet
 
 
 class Clinvar(models.Model):
@@ -25,73 +28,33 @@ class Clinvar(models.Model):
     reference = models.CharField(max_length=512)
     #: Variant coordinates - alternative
     alternative = models.CharField(max_length=512)
-    #: Strand information
-    strand = models.CharField(max_length=1, null=True)
     #: Type of variation
-    variation_type = models.CharField(max_length=16, null=True)
-    #: ClinVar identifier for the variant
-    variation_id = models.IntegerField(null=True)
-    #: Reference accession number
-    rcv = models.CharField(max_length=16, null=True)
-    #: Accession number
-    scv = ArrayField(models.CharField(max_length=16, null=True))
-    #: ClinVar identifier for an individual change
-    allele_id = models.IntegerField(null=True)
-    #: Gene symbol
-    symbol = models.CharField(max_length=16, null=True)
-    #: HGVS coding DNA sequence
-    hgvs_c = models.CharField(max_length=512, null=True)
-    #: HGVS protein sequence
-    hgvs_p = models.CharField(max_length=512, null=True)
-    #: Calculated result of the indicated allele based on difference relative to reference
-    molecular_consequence = models.CharField(max_length=1024, null=True)
-    #: Clinical significance reported by submitters
-    clinical_significance = models.CharField(max_length=64)
-    #: Clinical significance reported by submitters
-    clinical_significance_ordered = ArrayField(models.CharField(max_length=512))
-    #: Pathogenic or not (1|0)
-    pathogenic = models.IntegerField()
-    #: Likely pathogenic or not (1|0)
-    likely_pathogenic = models.IntegerField()
-    #: Uncertain significance or not (1|0)
-    uncertain_significance = models.IntegerField()
-    #: Likely benign or not (1|0)
-    likely_benign = models.IntegerField()
-    #: Benign or not (1|0)
-    benign = models.IntegerField()
-    #: Review status of the record
-    review_status = models.CharField(max_length=64, null=True)
-    #: List of review status of the record
-    review_status_ordered = ArrayField(models.CharField(max_length=64, null=True))
-    #: Date of last evaluation
-    last_evaluated = models.DateField(null=True)
-    #: List of all submitters
-    all_submitters = ArrayField(models.CharField(max_length=512, null=True))
-    #: List of all submitters
-    submitters_ordered = ArrayField(models.CharField(max_length=512, null=True))
-    #: List of trait identifiers
-    all_traits = ArrayField(models.CharField(max_length=512))
-    #: List of PubMed identifiers
-    all_pmids = ArrayField(models.IntegerField(null=True))
-    #: Modes of inheritance
-    inheritance_modes = models.CharField(max_length=32, null=True)
-    #: Age of onset
-    age_of_onset = models.CharField(max_length=32, null=True)
-    #: Prevalence
-    prevalence = models.CharField(max_length=32, null=True)
-    #: Disease mechanism
-    disease_mechanism = models.CharField(max_length=32, null=True)
-    #: Origin of the variant allele
-    origin = ArrayField(models.CharField(max_length=16, null=True))
-    #: List of cross references
-    xrefs = ArrayField(models.CharField(max_length=16, null=True))
-    #: List of ordered dates of what?
-    dates_ordered = ArrayField(models.DateField(null=True))
-    #: Indicator if ClinVar entry comes from multi or single variant database
-    multi = models.IntegerField()
+    variation_type = models.CharField(max_length=16)
+    #: The symbols.
+    symbols = ArrayField(base_field=models.CharField(max_length=32), size=None)
+    #: The HGNC IDs.
+    hgnc_ids = ArrayField(base_field=models.CharField(max_length=32), size=None)
+    #: The variant accession
+    vcv = models.CharField(max_length=32)
+    #: The point_rating
+    point_rating = models.IntegerField()
+    #: The pathogenicity.
+    pathogenicity = models.CharField(max_length=128)
+    #: The review_status.
+    review_status = models.CharField(max_length=128)
+    #: The pathogenicity summary.
+    pathogenicity_summary = models.CharField(max_length=128)
+    #: The structured Details information.
+    details = JSONField()
 
     #: Allows bulk import
     objects = CopyManager()
+
+    @property
+    def clinvar_sets(self):
+        if not hasattr(self, "_clinvar_sets"):
+            self._clinvar_sets = tuple([ClinVarSet.from_json(elem) for elem in self.details])
+        return self._clinvar_sets
 
     class Meta:
         indexes = [

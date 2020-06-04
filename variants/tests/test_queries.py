@@ -4254,33 +4254,17 @@ class CaseThreeClinvarFilterTestMixin:
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            clinical_significance="pathogenic",
-            clinical_significance_ordered=["pathogenic"],
-            origin=["somatic"],
-            pathogenic=1,
+            pathogenicity="pathogenic",
         )
-        ClinvarFactory(
-            release=self.small_vars[-1].release,
-            chromosome=self.small_vars[-1].chromosome,
-            start=self.small_vars[-1].start,
-            end=self.small_vars[-1].end,
-            bin=self.small_vars[-1].bin,
-            reference=self.small_vars[-1].reference,
-            alternative=self.small_vars[-1].alternative,
-            clinical_significance="likely_pathogenic",
-            clinical_significance_ordered=["likely_pathogenic"],
-            origin=["germline"],
-            likely_pathogenic=1,
-        )
-        patho_keys = (
-            ("pathogenic", ["germline"]),
-            ("likely_pathogenic", ["germline"]),
-            ("uncertain_significance", ["germline", "somatic"]),
-            ("likely_benign", ["somatic"]),
-            ("benign", ["something_else"]),
+        pathogenicities = (
+            "pathogenic",
+            "likely pathogenic",
+            "uncertain significance",
+            "likely benign",
+            "benign",
         )
         # Start chromosomes from "3" on
-        for pos, (key, origin) in enumerate(patho_keys):
+        for pos, pathogenicity in enumerate(pathogenicities):
             self.small_vars.append(
                 SmallVariantFactory(
                     chromosome=str(pos + 3), in_clinvar=True, variant_set=variant_set
@@ -4294,10 +4278,7 @@ class CaseThreeClinvarFilterTestMixin:
                 bin=self.small_vars[-1].bin,
                 reference=self.small_vars[-1].reference,
                 alternative=self.small_vars[-1].alternative,
-                clinical_significance=key,
-                clinical_significance_ordered=[key],
-                origin=origin,
-                **{key: 1},
+                pathogenicity=pathogenicity,
             )
         DbsnpFactory(
             release=self.small_vars[0].release,
@@ -4310,13 +4291,13 @@ class CaseThreeClinvarFilterTestMixin:
         )
 
     def test_render_query_do_not_require_membership(self):
-        self.run_query(self.query_class, {}, 6)
+        self.run_query(self.query_class, {}, 7)
 
     def test_render_query_require_membership_include_none(self):
         self.run_query(self.query_class, {"require_in_clinvar": True}, 6)
 
     def test_render_query_remove_if_in_dbsnp_sanity(self):
-        self.run_query(self.query_class, {"remove_if_in_dbsnp": True}, 5)
+        self.run_query(self.query_class, {"remove_if_in_dbsnp": True}, 6)
 
     def test_render_query_require_membership_ignore_remove_if_in_dbsnp(self):
         self.run_query(
@@ -4334,10 +4315,9 @@ class CaseThreeClinvarFilterTestMixin:
         res = self.run_query(
             self.query_class,
             {"require_in_clinvar": True, "clinvar_include_likely_pathogenic": True},
-            2,
+            1,
         )
-        self.assertEqual(res[0].start, self.small_vars[1].start)
-        self.assertEqual(res[1].start, self.small_vars[3].start)
+        self.assertEqual(res[0].start, self.small_vars[3].start)
 
     def test_render_query_require_membership_include_pathogenic_and_likely_pathogenic(self):
         res = self.run_query(
@@ -4372,73 +4352,6 @@ class CaseThreeClinvarFilterTestMixin:
             self.query_class, {"require_in_clinvar": True, "clinvar_include_benign": True}, 1
         )
         self.assertEqual(res[0].start, self.small_vars[6].start)
-
-    def test_render_query_require_membership_origin_both(self):
-        self.run_query(
-            self.query_class,
-            {
-                "require_in_clinvar": True,
-                "clinvar_origin_germline": True,
-                "clinvar_origin_somatic": True,
-            },
-            5,
-        )
-
-    def test_render_query_require_membership_origin_germline(self):
-        self.run_query(
-            self.query_class,
-            {
-                "require_in_clinvar": True,
-                "clinvar_origin_germline": True,
-                "clinvar_origin_somatic": False,
-            },
-            4,
-        )
-
-    def test_render_query_require_membership_origin_somatic(self):
-        self.run_query(
-            self.query_class,
-            {
-                "require_in_clinvar": True,
-                "clinvar_origin_germline": False,
-                "clinvar_origin_somatic": True,
-            },
-            3,
-        )
-
-    def test_render_query_require_membership_no_origin(self):
-        self.run_query(
-            self.query_class,
-            {
-                "require_in_clinvar": True,
-                "clinvar_origin_germline": False,
-                "clinvar_origin_somatic": False,
-            },
-            6,
-        )
-
-    def test_render_query_not_required_and_significance(self):
-        self.run_query(
-            self.query_class,
-            {
-                "require_in_clinvar": False,
-                "clinvar_origin_germline": True,
-                "clinvar_origin_somatic": True,
-                "clinvar_include_pathogenic": True,
-            },
-            6,
-        )
-
-    def test_render_query_not_required_and_origin(self):
-        self.run_query(
-            self.query_class,
-            {
-                "require_in_clinvar": False,
-                "clinvar_origin_germline": True,
-                "clinvar_origin_somatic": False,
-            },
-            6,
-        )
 
 
 class RenderQueryTestCaseThreeClinvarFilter(CaseThreeClinvarFilterTestMixin, SupportQueryTestBase):
