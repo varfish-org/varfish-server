@@ -1673,7 +1673,6 @@ class KioskUploadForm(forms.Form):
             self.add_error("vcf_file", "Please only upload VCF files!")
 
         # Check that samples can be read from the file.
-
         suffix = (
             ".vcf.gz"
             if self.cleaned_data.get("vcf_file").name.lower().endswith(".vcf.gz")
@@ -1686,27 +1685,35 @@ class KioskUploadForm(forms.Form):
             try:
                 vcf_header = vcfpy.Reader.from_path(tmp_file.name).header
                 vcf_samples = vcf_header.samples.names
+                # Check if samples are available at all
+                if not vcf_samples:
+                    self.add_error("vcf_file", "No samples present in VCF file!")
+                    return
                 self.cleaned_data["vcf_index"] = vcf_samples[0]
+                # Check if samples in vcf file match those in ped file (only performed if ped is available)
                 if ped_samples and set(vcf_samples) != set(ped_samples):
                     self.add_error(
                         "vcf_file",
                         "Samples from VCF file (%s) do not match those from pedigree (%s)"
                         % (", ".join(sorted(vcf_samples)), ", ".join(sorted(ped_samples))),
                     )
+                    return
                 if not ped_samples:
                     self.cleaned_data["ped"] = [
                         "\t".join(["FAM", sample, "0", "0", "1", "2"]) for sample in vcf_samples
                     ]
+                # Check for correct genome build
                 for entry in list(vcf_header.get_lines("contig")):
                     # GRCh38/hg38?
                     if entry.id in ("chr1", "1") and int(entry.length) == 248956422:
                         self.add_error("vcf_file", "Only GRCh37 build is supported!")
-                        break
+                        return
                     # hg19?
                     if entry.id == "chr1" and int(entry.length) == 249250621:
                         self.add_error("vcf_file", "Only GRCh37 build is supported!")
-                        break
+                        return
             except vcfpy.exceptions.VCFPyException as e:
                 self.add_error("vcf_file", "Problem with VCF file: %s" % e)
+                return
 
         return self.cleaned_data
