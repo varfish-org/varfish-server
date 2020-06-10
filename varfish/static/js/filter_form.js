@@ -845,6 +845,7 @@ const presets = {
       "effect_missense_variant": true,
       "effect_mnv": true,
       "effect_splice_region_variant": true,
+      "effect_synonymous_variant": true,
 
       "effect_coding_transcript_intron_variant": true,
     }),
