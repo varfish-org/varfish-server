@@ -1656,12 +1656,15 @@ function applyPresetsToSettings(presets, name) {
   updateQuickPresetsEnabled = oldUpdateQuickPresetsEnabled;
 }
 
+var inheritancePresetTrigger = null;
+
 function presetsToSettings(presets, name) {
   let value = $("#input-presets-" + name).val()
   if (value === name + "-custom") {
     return;  // early exit, do nothing on custom
   }
-  applyPresetsToSettings(presets[value], name)
+  inheritancePresetTrigger = value;
+  applyPresetsToSettings(presets[value], name, value)
 }
 
 // Set to false to disable updateQuickPresets().
@@ -1746,6 +1749,20 @@ function updateQuickPresets(settings) {
                     )
                 ) {
                     continue;
+                }
+                // inheritance pattern is unclear when variant is selected and only index patient in family exists.
+                else if (
+                    (presetsKey == "inheritance-x-recessive" || presetsKey == "inheritance-mitochondrial") &&
+                    element.data("mother") == "0" && element.data("father") == "0" && eqAsStr(value, "variant")
+                ) {
+                    if (inheritancePresetTrigger != null) {
+                        presetsKey = inheritancePresetTrigger;
+                        inheritancePresetTrigger = null;
+                    }
+                    else {
+                        presetsKey = "inheritance-custom";
+                    }
+                    break;
                 }
                 else if (
                     presetsKey == "inheritance-mitochondrial" &&

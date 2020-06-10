@@ -17,6 +17,7 @@ End-User Summary
 - Adding "Submit to CADD" feature similar to "Submit to MutationDistiller".
 - Increased default frequency setting of HelixMTdb max hom filter to 200 for strict and 400 for relaxed.
 - It is now possible to delete ACMG ratings by clearing the form and saving it.
+- Fixed bug when inheritance preset was wrongly selected when switching to ``variant`` in an index-only case.
 
 Full Change List
 ================
@@ -37,6 +38,7 @@ Full Change List
 - It is now possible to delete ACMG ratings by clearing the form and saving it.
 - Updated reference and contact information.
 - File upload in Kiosk mode now checks for VCF file without samples.
+- Fixed bug when inheritance preset was wrongly selected when switching to ``variant`` in an index-only case.
 
 -------
 v0.21.0
