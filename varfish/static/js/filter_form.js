@@ -1740,8 +1740,8 @@ function updateQuickPresets(settings) {
         }
         const value = settings[key] === "" ? null : settings[key];
         const presetValue = presets[presetsKey]["ids"][key] === "" ? null : presets[presetsKey]["ids"][key];
-        const compHetOrRecessive = presetsKey == "inheritance-comp-het" || presetsKey == "inheritance-recessive" || presetsKey == "inheritance-x-recessive";
-        const element = $("#id_" + key);
+        const compHetOrRecessive = presetsKey == "inheritance-comp-het" || presetsKey == "inheritance-recessive"; // || presetsKey == "inheritance-x-recessive";
+        const element = $("#id_" + key)
         if (inPreset) {
             if (!eqAsStr(value, presetValue)) {
                 // In comphet/recessive mode, the fields of the non-index patients are hidden and we allow them have
@@ -1781,15 +1781,15 @@ function updateQuickPresets(settings) {
                 // inheritance pattern is unclear when variant is selected and only index patient in family exists.
                 else if (
                     (presetsKey == "inheritance-x-recessive" || presetsKey == "inheritance-mitochondrial") &&
-                    element.data("mother") == "0" && element.data("father") == "0" && eqAsStr(value, "variant")
+                    element.data("default-index") == "1" && element.data("mother") == "0" && element.data("father") == "0" && eqAsStr(value, "variant")
                 ) {
-                    if (inheritancePresetTrigger != null) {
+                    if (inheritancePresetTrigger == "inheritance-x-recessive" || inheritancePresetTrigger == "inheritance-mitochondrial") {
                         presetsKey = inheritancePresetTrigger;
-                        inheritancePresetTrigger = null;
                     }
                     else {
                         presetsKey = "inheritance-custom";
                     }
+                    inheritancePresetTrigger = null;
                     break;
                 }
                 else if (
