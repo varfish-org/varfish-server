@@ -18,6 +18,7 @@ End-User Summary
 - Increased default frequency setting of HelixMTdb max hom filter to 200 for strict and 400 for relaxed.
 - It is now possible to delete ACMG ratings by clearing the form and saving it.
 - Fixed bug when inheritance preset was wrongly selected when switching to ``variant`` in an index-only case.
+- Added hemizygous counts filter option to frequency filter form.
 
 Full Change List
 ================
@@ -39,6 +40,7 @@ Full Change List
 - Updated reference and contact information.
 - File upload in Kiosk mode now checks for VCF file without samples.
 - Fixed bug when inheritance preset was wrongly selected when switching to ``variant`` in an index-only case.
+- Added hemizygous counts filter option to frequency filter form.
 
 -------
 v0.21.0

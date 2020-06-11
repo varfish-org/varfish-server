@@ -870,6 +870,7 @@ class ExtendQueryPartsFrequenciesFilter(ExtendQueryPartsMitochondrialFrequencies
                     *self._build_population_db_term("frequency"),
                     *self._build_population_db_term("homozygous"),
                     *self._build_population_db_term("heterozygous"),
+                    *self._build_population_db_term("hemizygous"),
                 ),
                 and_(
                     SmallVariant.sa.chromosome_no == 25,
@@ -982,6 +983,11 @@ class ExtendQueryPartsInHouseJoinAndFilter(ExtendQueryPartsInHouseJoin):
                     func.coalesce(self.subquery.c.inhouse_hom_alt, 0)
                     + func.coalesce(self.subquery.c.inhouse_hemi_alt, 0)
                     <= self.kwargs.get("inhouse_homozygous")
+                )
+            if self.kwargs.get("inhouse_hemizygous") is not None:
+                terms.append(
+                    func.coalesce(self.subquery.c.inhouse_hemi_alt, 0)
+                    <= self.kwargs.get("inhouse_hemizygous")
                 )
             if self.kwargs.get("inhouse_carriers") is not None:
                 terms.append(

@@ -429,15 +429,19 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 gnomad_genomes_frequency=freq,
                 gnomad_genomes_heterozygous=count,
                 gnomad_genomes_homozygous=count,
+                gnomad_genomes_hemizygous=0,
                 gnomad_exomes_frequency=freq,
                 gnomad_exomes_heterozygous=count,
                 gnomad_exomes_homozygous=count,
+                gnomad_exomes_hemizygous=0,
                 exac_frequency=freq,
                 exac_heterozygous=count,
                 exac_homozygous=count,
+                exac_hemizygous=0,
                 thousand_genomes_frequency=freq,
                 thousand_genomes_heterozygous=count,
                 thousand_genomes_homozygous=count,
+                thousand_genomes_hemizygous=0,
                 variant_set=self.variant_set,
             )
             SmallVariantSummaryFactory(
@@ -449,6 +453,38 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 alternative=small_var.alternative,
                 count_het=count,
                 count_hom_alt=count,
+                count_hemi_alt=0,
+            )
+            small_var_x = SmallVariantFactory(
+                chromosome="X",
+                gnomad_genomes_frequency=freq,
+                gnomad_genomes_heterozygous=count,
+                gnomad_genomes_homozygous=count,
+                gnomad_genomes_hemizygous=count,
+                gnomad_exomes_frequency=freq,
+                gnomad_exomes_heterozygous=count,
+                gnomad_exomes_homozygous=count,
+                gnomad_exomes_hemizygous=count,
+                exac_frequency=freq,
+                exac_heterozygous=count,
+                exac_homozygous=count,
+                exac_hemizygous=count,
+                thousand_genomes_frequency=freq,
+                thousand_genomes_heterozygous=count,
+                thousand_genomes_homozygous=count,
+                thousand_genomes_hemizygous=count,
+                variant_set=self.variant_set,
+            )
+            SmallVariantSummaryFactory(
+                chromosome=small_var_x.chromosome,
+                start=small_var_x.start,
+                end=small_var_x.end,
+                bin=small_var_x.bin,
+                reference=small_var_x.reference,
+                alternative=small_var_x.alternative,
+                count_het=count,
+                count_hom_alt=0,
+                count_hemi_alt=count,
             )
 
     def _setup_additional_variant_with_missing_inhouse_record(self):
@@ -456,29 +492,34 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
         freq = 1 / 10 ** 3  # 0.001
         count = 1
         SmallVariantFactory(
+            chromosome="2",
             gnomad_genomes_frequency=freq,
             gnomad_genomes_heterozygous=count,
             gnomad_genomes_homozygous=count,
+            gnomad_genomes_hemizygous=0,
             gnomad_exomes_frequency=freq,
             gnomad_exomes_heterozygous=count,
             gnomad_exomes_homozygous=count,
+            gnomad_exomes_hemizygous=0,
             exac_frequency=freq,
             exac_heterozygous=count,
             exac_homozygous=count,
+            exac_hemizygous=0,
             thousand_genomes_frequency=freq,
             thousand_genomes_heterozygous=count,
             thousand_genomes_homozygous=count,
+            thousand_genomes_hemizygous=0,
             variant_set=self.variant_set,
         )
 
     def test_frequency_filters_disabled_filter(self):
-        self.run_query(CasePrefetchQuery, {}, 3)
+        self.run_query(CasePrefetchQuery, {}, 6)
 
     def test_frequency_filters_disabled_export(self):
-        self.run_query(CaseExportTableQuery, {}, 3)
+        self.run_query(CaseExportTableQuery, {}, 6)
 
     def test_frequency_filters_disabled_vcf(self):
-        self.run_query(CaseExportVcfQuery, {}, 3)
+        self.run_query(CaseExportVcfQuery, {}, 6)
 
     def test_frequency_thousand_genomes_enabled_filter(self):
         self.run_query(CasePrefetchQuery, {"thousand_genomes_enabled": True}, 0)
@@ -532,9 +573,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": 0.01,
                 "thousand_genomes_homozygous": None,
+                "thousand_genomes_hemizygous": None,
                 "thousand_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_frequency_thousand_genomes_limits_export(self):
@@ -544,9 +586,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": 0.01,
                 "thousand_genomes_homozygous": None,
+                "thousand_genomes_hemizygous": None,
                 "thousand_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_frequency_thousand_genomes_limits_vcf(self):
@@ -556,9 +599,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": 0.01,
                 "thousand_genomes_homozygous": None,
+                "thousand_genomes_hemizygous": None,
                 "thousand_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_frequency_exac_limits_filter(self):
@@ -568,9 +612,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "exac_enabled": True,
                 "exac_frequency": 0.01,
                 "exac_homozygous": None,
+                "exac_hemizygous": None,
                 "exac_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_frequency_exac_limits_export(self):
@@ -580,9 +625,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "exac_enabled": True,
                 "exac_frequency": 0.01,
                 "exac_homozygous": None,
+                "exac_hemizygous": None,
                 "exac_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_frequency_exac_limits_vcf(self):
@@ -592,9 +638,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "exac_enabled": True,
                 "exac_frequency": 0.01,
                 "exac_homozygous": None,
+                "exac_hemizygous": None,
                 "exac_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_frequency_gnomad_exomes_limits_filter(self):
@@ -604,9 +651,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": 0.01,
                 "gnomad_exomes_homozygous": None,
+                "gnomad_exomes_hemizygous": None,
                 "gnomad_exomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_frequency_gnomad_exomes_limits_export(self):
@@ -616,9 +664,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": 0.01,
                 "gnomad_exomes_homozygous": None,
+                "gnomad_exomes_hemizygous": None,
                 "gnomad_exomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_frequency_gnomad_exomes_limits_vcf(self):
@@ -628,9 +677,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": 0.01,
                 "gnomad_exomes_homozygous": None,
+                "gnomad_exomes_hemizygous": None,
                 "gnomad_exomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_frequency_gnomad_genomes_limits_filter(self):
@@ -640,9 +690,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": 0.01,
                 "gnomad_genomes_homozygous": None,
+                "gnomad_genomes_hemizygous": None,
                 "gnomad_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_frequency_gnomad_genomes_limits_export(self):
@@ -652,9 +703,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": 0.01,
                 "gnomad_genomes_homozygous": None,
+                "gnomad_genomes_hemizygous": None,
                 "gnomad_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_frequency_gnomad_genomes_limits_vcf(self):
@@ -664,9 +716,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": 0.01,
                 "gnomad_genomes_homozygous": None,
+                "gnomad_genomes_hemizygous": None,
                 "gnomad_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     # NB: we use carriers instead of carriers for in-house DB
@@ -678,9 +731,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": 4,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_carriers_inhouse_limits_export(self):
@@ -690,9 +744,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": 4,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_carriers_inhouse_limits_vcf(self):
@@ -702,9 +757,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": 4,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_carriers_inhouse_limits_filter_missing_inhouse_record(self):
@@ -715,9 +771,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": 4,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            3,
+            5,
         )
 
     def test_carriers_inhouse_limits_export_missing_inhouse_record(self):
@@ -728,9 +785,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": 4,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            3,
+            5,
         )
 
     def test_carriers_inhouse_limits_vcf_missing_inhouse_record(self):
@@ -741,9 +799,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": 4,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            3,
+            5,
         )
 
     def test_homozygous_thousand_genomes_limits_filter(self):
@@ -753,9 +812,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
                 "thousand_genomes_homozygous": 2,
+                "thousand_genomes_hemizygous": None,
                 "thousand_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_thousand_genomes_limits_export(self):
@@ -765,9 +825,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
                 "thousand_genomes_homozygous": 2,
+                "thousand_genomes_hemizygous": None,
                 "thousand_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_thousand_genomes_limits_vcf(self):
@@ -777,9 +838,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
                 "thousand_genomes_homozygous": 2,
+                "thousand_genomes_hemizygous": None,
                 "thousand_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_exac_limits_filter(self):
@@ -789,9 +851,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "exac_enabled": True,
                 "exac_frequency": None,
                 "exac_homozygous": 2,
+                "exac_hemizygous": None,
                 "exac_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_exac_limits_export(self):
@@ -801,9 +864,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "exac_enabled": True,
                 "exac_frequency": None,
                 "exac_homozygous": 2,
+                "exac_hemizygous": None,
                 "exac_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_exac_limits_vcf(self):
@@ -813,9 +877,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "exac_enabled": True,
                 "exac_frequency": None,
                 "exac_homozygous": 2,
+                "exac_hemizygous": None,
                 "exac_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_gnomad_exomes_limits_filter(self):
@@ -825,9 +890,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
                 "gnomad_exomes_homozygous": 2,
+                "gnomad_exomes_hemizygous": None,
                 "gnomad_exomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_gnomad_exomes_limits_export(self):
@@ -837,9 +903,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
                 "gnomad_exomes_homozygous": 2,
+                "gnomad_exomes_hemizygous": None,
                 "gnomad_exomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_gnomad_exomes_limits_vcf(self):
@@ -849,9 +916,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
                 "gnomad_exomes_homozygous": 2,
+                "gnomad_exomes_hemizygous": None,
                 "gnomad_exomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_gnomad_genomes_limits_filter(self):
@@ -861,9 +929,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": None,
                 "gnomad_genomes_homozygous": 2,
+                "gnomad_genomes_hemizygous": None,
                 "gnomad_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_gnomad_genomes_limits_export(self):
@@ -873,9 +942,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": None,
                 "gnomad_genomes_homozygous": 2,
+                "gnomad_genomes_hemizygous": None,
                 "gnomad_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_gnomad_genomes_limits_vcf(self):
@@ -885,9 +955,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_genomes_enabled": True,
                 "gnomad_genomes_frequency": None,
                 "gnomad_genomes_homozygous": 2,
+                "gnomad_genomes_hemizygous": None,
                 "gnomad_genomes_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_inhouse_limits_filter(self):
@@ -897,9 +968,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": 2,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_inhouse_limits_export(self):
@@ -909,9 +981,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": 2,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_inhouse_limits_vcf(self):
@@ -921,9 +994,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": 2,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            2,
+            4,
         )
 
     def test_homozygous_inhouse_limits_filter_missing_inhouse_record(self):
@@ -934,9 +1008,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": 2,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            3,
+            5,
         )
 
     def test_homozygous_inhouse_limits_export_missing_inhouse_record(self):
@@ -947,9 +1022,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": 2,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            3,
+            5,
         )
 
     def test_homozygous_inhouse_limits_vcf_missing_inhouse_record(self):
@@ -960,9 +1036,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": 2,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": None,
             },
-            3,
+            5,
         )
 
     def test_heterozygous_thousand_genomes_limits_filter(self):
@@ -972,9 +1049,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
                 "thousand_genomes_homozygous": None,
+                "thousand_genomes_hemizygous": None,
                 "thousand_genomes_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_thousand_genomes_limits_export(self):
@@ -984,9 +1062,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
                 "thousand_genomes_homozygous": None,
+                "thousand_genomes_hemizygous": None,
                 "thousand_genomes_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_thousand_genomes_limits_vcf(self):
@@ -996,9 +1075,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "thousand_genomes_enabled": True,
                 "thousand_genomes_frequency": None,
                 "thousand_genomes_homozygous": None,
+                "thousand_genomes_hemizygous": None,
                 "thousand_genomes_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_exac_limits_filter(self):
@@ -1008,9 +1088,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "exac_enabled": True,
                 "exac_frequency": None,
                 "exac_homozygous": None,
+                "exac_hemizygous": None,
                 "exac_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_exac_limits_export(self):
@@ -1020,9 +1101,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "exac_enabled": True,
                 "exac_frequency": None,
                 "exac_homozygous": None,
+                "exac_hemizygous": None,
                 "exac_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_exac_limits_vcf(self):
@@ -1032,9 +1114,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "exac_enabled": True,
                 "exac_frequency": None,
                 "exac_homozygous": None,
+                "exac_hemizygous": None,
                 "exac_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_gnomad_exomes_limits_filter(self):
@@ -1044,9 +1127,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
                 "gnomad_exomes_homozygous": None,
+                "gnomad_exomes_hemizygous": None,
                 "gnomad_exomes_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_gnomad_exomes_limits_export(self):
@@ -1056,9 +1140,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
                 "gnomad_exomes_homozygous": None,
+                "gnomad_exomes_hemizygous": None,
                 "gnomad_exomes_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_gnomad_exomes_limits_vcf(self):
@@ -1068,9 +1153,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": None,
                 "gnomad_exomes_homozygous": None,
+                "gnomad_exomes_hemizygous": None,
                 "gnomad_exomes_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_inhouse_limits_filter(self):
@@ -1080,9 +1166,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_inhouse_limits_export(self):
@@ -1092,9 +1179,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_inhouse_limits_vcf(self):
@@ -1104,9 +1192,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": 2,
             },
-            2,
+            4,
         )
 
     def test_heterozygous_inhouse_limits_filter_missing_inhouse_record(self):
@@ -1117,9 +1206,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": 2,
             },
-            3,
+            5,
         )
 
     def test_heterozygous_inhouse_limits_export_missing_inhouse_record(self):
@@ -1130,9 +1220,10 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": 2,
             },
-            3,
+            5,
         )
 
     def test_heterozygous_inhouse_limits_vcf_missing_inhouse_record(self):
@@ -1143,9 +1234,208 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
                 "inhouse_enabled": True,
                 "inhouse_carriers": None,
                 "inhouse_homozygous": None,
+                "inhouse_hemizygous": None,
                 "inhouse_heterozygous": 2,
             },
-            3,
+            5,
+        )
+
+    def test_hemizygous_thousand_genomes_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {
+                "thousand_genomes_enabled": True,
+                "thousand_genomes_frequency": None,
+                "thousand_genomes_homozygous": None,
+                "thousand_genomes_hemizygous": 2,
+                "thousand_genomes_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_thousand_genomes_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {
+                "thousand_genomes_enabled": True,
+                "thousand_genomes_frequency": None,
+                "thousand_genomes_homozygous": None,
+                "thousand_genomes_hemizygous": 2,
+                "thousand_genomes_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_thousand_genomes_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "thousand_genomes_enabled": True,
+                "thousand_genomes_frequency": None,
+                "thousand_genomes_homozygous": None,
+                "thousand_genomes_hemizygous": 2,
+                "thousand_genomes_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_exac_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {
+                "exac_enabled": True,
+                "exac_frequency": None,
+                "exac_homozygous": None,
+                "exac_hemizygous": 2,
+                "exac_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_exac_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {
+                "exac_enabled": True,
+                "exac_frequency": None,
+                "exac_homozygous": None,
+                "exac_hemizygous": 2,
+                "exac_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_exac_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "exac_enabled": True,
+                "exac_frequency": None,
+                "exac_homozygous": None,
+                "exac_hemizygous": 2,
+                "exac_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_gnomad_exomes_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {
+                "gnomad_exomes_enabled": True,
+                "gnomad_exomes_frequency": None,
+                "gnomad_exomes_homozygous": None,
+                "gnomad_exomes_hemizygous": 2,
+                "gnomad_exomes_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_gnomad_exomes_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {
+                "gnomad_exomes_enabled": True,
+                "gnomad_exomes_frequency": None,
+                "gnomad_exomes_homozygous": None,
+                "gnomad_exomes_hemizygous": 2,
+                "gnomad_exomes_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_gnomad_exomes_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "gnomad_exomes_enabled": True,
+                "gnomad_exomes_frequency": None,
+                "gnomad_exomes_homozygous": None,
+                "gnomad_exomes_hemizygous": 2,
+                "gnomad_exomes_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_inhouse_limits_filter(self):
+        self.run_query(
+            CasePrefetchQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_hemizygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_inhouse_limits_export(self):
+        self.run_query(
+            CaseExportTableQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_hemizygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_inhouse_limits_vcf(self):
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_hemizygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            5,
+        )
+
+    def test_hemizygous_inhouse_limits_filter_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CasePrefetchQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_hemizygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            6,
+        )
+
+    def test_hemizygous_inhouse_limits_export_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CaseExportTableQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_hemizygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            6,
+        )
+
+    def test_hemizygous_inhouse_limits_vcf_missing_inhouse_record(self):
+        self._setup_additional_variant_with_missing_inhouse_record()
+        self.run_query(
+            CaseExportVcfQuery,
+            {
+                "inhouse_enabled": True,
+                "inhouse_carriers": None,
+                "inhouse_homozygous": None,
+                "inhouse_hemizygous": 2,
+                "inhouse_heterozygous": None,
+            },
+            6,
         )
 
 

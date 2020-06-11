@@ -625,6 +625,13 @@ class SmallVariantFrequencyFilterFormMixin:
                 attrs={"placeholder": "Maximal het. count in ExAC", "class": "numberInteger"}
             ),
         )
+        self.fields["exac_hemizygous"] = forms.IntegerField(
+            label="",
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal hemi. count in ExAC", "class": "numberInteger"}
+            ),
+        )
 
         self.fields["gnomad_exomes_enabled"] = forms.BooleanField(
             label="", required=False, initial=False
@@ -659,6 +666,16 @@ class SmallVariantFrequencyFilterFormMixin:
             widget=forms.TextInput(
                 attrs={
                     "placeholder": "Maximal het. count in gnomAD exomes",
+                    "class": "numberInteger",
+                }
+            ),
+        )
+        self.fields["gnomad_exomes_hemizygous"] = forms.IntegerField(
+            label="",
+            required=False,
+            widget=forms.TextInput(
+                attrs={
+                    "placeholder": "Maximal hemi. count in gnomAD exomes",
                     "class": "numberInteger",
                 }
             ),
@@ -701,6 +718,16 @@ class SmallVariantFrequencyFilterFormMixin:
                 }
             ),
         )
+        self.fields["gnomad_genomes_hemizygous"] = forms.IntegerField(
+            label="",
+            required=False,
+            widget=forms.TextInput(
+                attrs={
+                    "placeholder": "Maximal hemi. count in gnomAD genomes",
+                    "class": "numberInteger",
+                }
+            ),
+        )
 
         self.fields["thousand_genomes_enabled"] = forms.BooleanField(
             label="", required=False, initial=True
@@ -739,6 +766,16 @@ class SmallVariantFrequencyFilterFormMixin:
                 }
             ),
         )
+        self.fields["thousand_genomes_hemizygous"] = forms.IntegerField(
+            label="",
+            required=False,
+            widget=forms.TextInput(
+                attrs={
+                    "placeholder": "Maximal hemi. count in 1000 genomes",
+                    "class": "numberInteger",
+                }
+            ),
+        )
 
         self.fields["inhouse_enabled"] = forms.BooleanField(label="", required=False, initial=False)
         self.fields["inhouse_homozygous"] = forms.IntegerField(
@@ -754,6 +791,13 @@ class SmallVariantFrequencyFilterFormMixin:
             required=False,
             widget=forms.TextInput(
                 attrs={"placeholder": "Maximal in-house het. count", "class": "numberInteger"}
+            ),
+        )
+        self.fields["inhouse_hemizygous"] = forms.IntegerField(
+            label="",
+            required=False,
+            widget=forms.TextInput(
+                attrs={"placeholder": "Maximal in-house hemi. count", "class": "numberInteger"}
             ),
         )
         self.fields["inhouse_carriers"] = forms.IntegerField(

@@ -686,8 +686,8 @@ class SmallVariantSummaryFactory(factory.django.DjangoModelFactory):
     bin = 0
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
-    count_hom_ref = 0
     count_het = 0
+    count_hom_ref = 0
     count_hom_alt = 0
     count_hemi_ref = 0
     count_hemi_alt = 0

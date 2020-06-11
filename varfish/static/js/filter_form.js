@@ -210,7 +210,6 @@ function humanSplicingFinder(gene, hgvsC) {
 }
 
 function loadBeaconWidget() {
-    console.log($(this));
     const containerId = $(this).data("beacon-container");
     const vals = containerId.split("-");
     const release = vals[2];
@@ -327,14 +326,14 @@ function updateSettings() {
   var failed = [];
   for (var key in settings) {
     for (var j = 0; j < endings.length; ++j) {
-      if (key.endsWith(endings[j]) && !$("#filterForm").find("input[name=" + key + "], select[name=" + key + "]").length) {
+      if (key.endsWith(endings[j]) && !$("#filterForm").find("input:not(:disabled)[name=" + key + "], select[name=" + key + "]").length) {
         patient = key.slice(0, key.length - endings[j].length);
         if (!failed.includes(patient)) {
           failed.push(patient);
         }
       }
     }
-    $("#filterForm").find("input[name=" + key + "], select[name=" + key + "], textarea[name=" + key + "]").each(
+    $("#filterForm").find("input:not(:disabled)[name=" + key + "], select[name=" + key + "], textarea[name=" + key + "]").each(
       function(i) {
         if ($(this).is(":radio")) {
           label = "label[for='id_" + key + "_" + i + "']";
@@ -373,7 +372,7 @@ function updateSettingsDump() {
   var settings = {};
   $("#filterForm").find("input, select, textarea").each(
     function() {
-      if ($(this).attr("id") && $(this).attr("id").match("^template")) {
+      if ($(this).attr("id") && $(this).attr("id").match("^template") || $(this).is(":disabled")) {
         return;
       }
       if ($(this).is(":radio")) {
@@ -540,26 +539,31 @@ const presets = {
       "thousand_genomes_enabled": true,
       "thousand_genomes_homozygous": 0,
       "thousand_genomes_heterozygous": 1,
+      "thousand_genomes_hemizygous": null,
       "thousand_genomes_frequency": 0.002,
 
       "exac_enabled": true,
       "exac_homozygous": 0,
       "exac_heterozygous": 1,
+      "exac_hemizygous": null,
       "exac_frequency": 0.002,
 
       "gnomad_exomes_enabled": true,
       "gnomad_exomes_homozygous": 0,
       "gnomad_exomes_heterozygous": 1,
+      "gnomad_exomes_hemizygous": null,
       "gnomad_exomes_frequency": 0.002,
 
       "gnomad_genomes_enabled": true,
       "gnomad_genomes_homozygous": 0,
       "gnomad_genomes_heterozygous": 1,
+      "gnomad_genomes_hemizygous": null,
       "gnomad_genomes_frequency": 0.002,
 
       "inhouse_enabled": true,
       "inhouse_homozygous": null,
       "inhouse_heterozygous": null,
+      "inhouse_hemizygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
       "mtdb_enabled": false,
@@ -582,26 +586,31 @@ const presets = {
       "thousand_genomes_enabled": true,
       "thousand_genomes_homozygous": 0,
       "thousand_genomes_heterozygous": 4,
+      "thousand_genomes_hemizygous": null,
       "thousand_genomes_frequency": 0.002,
 
       "exac_enabled": true,
       "exac_homozygous": 0,
       "exac_heterozygous": 10,
+      "exac_hemizygous": null,
       "exac_frequency": 0.002,
 
       "gnomad_exomes_enabled": true,
       "gnomad_exomes_homozygous": 0,
       "gnomad_exomes_heterozygous": 20,
+      "gnomad_exomes_hemizygous": null,
       "gnomad_exomes_frequency": 0.002,
 
       "gnomad_genomes_enabled": true,
       "gnomad_genomes_homozygous": 0,
       "gnomad_genomes_heterozygous": 4,
+      "gnomad_genomes_hemizygous": null,
       "gnomad_genomes_frequency": 0.002,
 
       "inhouse_enabled": true,
       "inhouse_homozygous": null,
       "inhouse_heterozygous": null,
+      "inhouse_hemizygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
       "mtdb_enabled": true,
@@ -624,26 +633,31 @@ const presets = {
       "thousand_genomes_enabled": true,
       "thousand_genomes_homozygous": 0,
       "thousand_genomes_heterozygous": 10,
+      "thousand_genomes_hemizygous": null,
       "thousand_genomes_frequency": 0.01,
 
       "exac_enabled": true,
       "exac_homozygous": 0,
       "exac_heterozygous": 25,
+      "exac_hemizygous": null,
       "exac_frequency": 0.01,
 
       "gnomad_exomes_enabled": true,
       "gnomad_exomes_homozygous": 0,
       "gnomad_exomes_heterozygous": 50,
+      "gnomad_exomes_hemizygous": null,
       "gnomad_exomes_frequency": 0.01,
 
       "gnomad_genomes_enabled": true,
       "gnomad_genomes_homozygous": 0,
       "gnomad_genomes_heterozygous": 20,
+      "gnomad_genomes_hemizygous": null,
       "gnomad_genomes_frequency": 0.01,
 
       "inhouse_enabled": true,
       "inhouse_homozygous": null,
       "inhouse_heterozygous": null,
+      "inhouse_hemizygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
       "mtdb_enabled": true,
@@ -666,26 +680,31 @@ const presets = {
       "thousand_genomes_enabled": true,
       "thousand_genomes_homozygous": 0,
       "thousand_genomes_heterozygous": 24,
+      "thousand_genomes_hemizygous": null,
       "thousand_genomes_frequency": 0.001,
 
       "exac_enabled": true,
       "exac_homozygous": 0,
       "exac_heterozygous": 60,
+      "exac_hemizygous": null,
       "exac_frequency": 0.001,
 
       "gnomad_exomes_enabled": true,
       "gnomad_exomes_homozygous": 0,
       "gnomad_exomes_heterozygous": 120,
+      "gnomad_exomes_hemizygous": null,
       "gnomad_exomes_frequency": 0.001,
 
       "gnomad_genomes_enabled": true,
       "gnomad_genomes_homozygous": 0,
       "gnomad_genomes_heterozygous": 15,
+      "gnomad_genomes_hemizygous": null,
       "gnomad_genomes_frequency": 0.001,
 
       "inhouse_enabled": true,
       "inhouse_homozygous": null,
       "inhouse_heterozygous": null,
+      "inhouse_hemizygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
       "mtdb_enabled": false,
@@ -708,26 +727,31 @@ const presets = {
       "thousand_genomes_enabled": true,
       "thousand_genomes_homozygous": 4,
       "thousand_genomes_heterozygous": 240,
+      "thousand_genomes_hemizygous": null,
       "thousand_genomes_frequency": 0.01,
 
       "exac_enabled": true,
       "exac_homozygous": 10,
       "exac_heterozygous": 600,
+      "exac_hemizygous": null,
       "exac_frequency": 0.01,
 
       "gnomad_exomes_enabled": true,
       "gnomad_exomes_homozygous": 20,
       "gnomad_exomes_heterozygous": 1200,
+      "gnomad_exomes_hemizygous": null,
       "gnomad_exomes_frequency": 0.01,
 
       "gnomad_genomes_enabled": true,
       "gnomad_genomes_homozygous": 4,
       "gnomad_genomes_heterozygous": 150,
+      "gnomad_genomes_hemizygous": null,
       "gnomad_genomes_frequency": 0.01,
 
       "inhouse_enabled": true,
       "inhouse_homozygous": null,
       "inhouse_heterozygous": null,
+      "inhouse_hemizygous": null,
       "inhouse_carriers": INHOUSE_MAX_NOISE,
 
       "mtdb_enabled": false,
@@ -750,21 +774,25 @@ const presets = {
       "thousand_genomes_enabled": false,
       "thousand_genomes_homozygous": null,
       "thousand_genomes_heterozygous": null,
+      "thousand_genomes_hemizygous": null,
       "thousand_genomes_frequency": null,
 
       "exac_enabled": false,
       "exac_homozygous": null,
       "exac_heterozygous": null,
+      "exac_hemizygous": null,
       "exac_frequency": null,
 
       "gnomad_exomes_enabled": false,
       "gnomad_exomes_homozygous": null,
       "gnomad_exomes_heterozygous": null,
+      "gnomad_exomes_hemizygous": null,
       "gnomad_exomes_frequency": null,
 
       "gnomad_genomes_enabled": false,
       "gnomad_genomes_homozygous": null,
       "gnomad_genomes_heterozygous": null,
+      "gnomad_genomes_hemizygous": null,
       "gnomad_genomes_frequency": null,
 
       "inhouse_enabled": false,

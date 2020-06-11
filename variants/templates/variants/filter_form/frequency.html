@@ -17,6 +17,7 @@
       <th></th>
       <th class="text-center" data-toggle="tooltip" title="Maximal allowed homozygous/homoplasmy count">Homozygous<span class="small text-muted">/-plasmy</span> count</th>
       <th class="text-center" data-toggle="tooltip" title="Maximal allowed heterozygous/heteroplasmy count">Heterozygous<span class="small text-muted">/-plasmy</span> count</th>
+      <th class="text-center" data-toggle="tooltip" title="Maximal allowed hemizygous count">Hemizygous count</th>
       <th class="text-center" data-toggle="tooltip" title="Maximal allowed frequency (in any sub population if applicable)">Frequency / Carriers</th>
     </tr>
   </thead>
@@ -26,6 +27,7 @@
       <td data-toggle="tooltip" title="Phase 3 data (healthy individuals)">1000 Genomes <small class="text-muted">(samples: 1000)</small></td>
       <td>{{ form.thousand_genomes_homozygous|as_crispy_field }}</td>
       <td>{{ form.thousand_genomes_heterozygous|as_crispy_field }}</td>
+      <td>{{ form.thousand_genomes_hemizygous|as_crispy_field }}</td>
       <td>{{ form.thousand_genomes_frequency|as_crispy_field }}</td>
     </tr>
     <tr>
@@ -33,6 +35,7 @@
       <td data-toggle="tooltip" title="Exomes; project attempts to exclude pediatric disease cases">ExAC <small class="text-muted">(samples: 60,706)</small></td>
       <td>{{ form.exac_homozygous|as_crispy_field }}</td>
       <td>{{ form.exac_heterozygous|as_crispy_field }}</td>
+      <td>{{ form.exac_hemizygous|as_crispy_field }}</td>
       <td>{{ form.exac_frequency|as_crispy_field }}</td>
     </tr>
     <tr>
@@ -40,6 +43,7 @@
       <td data-toggle="tooltip" title="ExAC follow-up; exomes; project attempts to exclude pediatric cases">gnomAD exomes <small class="text-muted">(samples: 125,748)</small></td>
       <td>{{ form.gnomad_exomes_homozygous|as_crispy_field }}</td>
       <td>{{ form.gnomad_exomes_heterozygous|as_crispy_field }}</td>
+      <td>{{ form.gnomad_exomes_hemizygous|as_crispy_field }}</td>
       <td>{{ form.gnomad_exomes_frequency|as_crispy_field }}</td>
     </tr>
     <tr>
@@ -47,6 +51,7 @@
       <td data-toggle="tooltip" title="ExAC follow-up; genomes; project attempts to exclude pediatric cases">gnomAD genomes <small class="text-muted">(samples: 15,708)</small></td>
       <td>{{ form.gnomad_genomes_homozygous|as_crispy_field }}</td>
       <td>{{ form.gnomad_genomes_heterozygous|as_crispy_field }}</td>
+      <td>{{ form.gnomad_genomes_hemizygous|as_crispy_field }}</td>
       <td>{{ form.gnomad_genomes_frequency|as_crispy_field }}</td>
     </tr>
     <tr {% if kiosk_mode %}class="d-none"{% endif %}>
@@ -54,20 +59,22 @@
       <td data-toggle="tooltip" title="In-house database, mostly useful for excluding artifacts">in-house DB</td>
       <td>{{ form.inhouse_homozygous|as_crispy_field }}</td>
       <td>{{ form.inhouse_heterozygous|as_crispy_field }}</td>
+      <td>{{ form.inhouse_hemizygous|as_crispy_field }}</td>
       <td>{{ form.inhouse_carriers|as_crispy_field }}</td>
     </tr>
     {% if kiosk_mode %}
       <tr>
         <td><input type="checkbox" class="checkboxinput" disabled="disabled"></td>
         <td>in-house DB <small class="text-muted">(disabled in Kiosk mode)</small></td>
-        <td colspan="3" class="text-center font-italic text-muted">Only available in custom <a href="/manual/setup_core.html" target="_blank">VarFish installation</a>.</td>
+        <td colspan="4" class="text-center font-italic text-muted">Only available in custom <a href="/manual/setup_core.html" target="_blank">VarFish installation</a>.</td>
       </tr>
     {% endif %}
     <tr>
       <td>{{ form.mtdb_enabled|as_crispy_field }}</td>
       <td data-toggle="tooltip" title="Mitochondrial frequency database">mtDB <small class="text-muted">(samples: ~2704)</small></td>
       <td>{{ form.mtdb_count|as_crispy_field }}</td>
-      <td class="text-muted">N/A</td>
+      <td><input type="text" class="form-control" placeholder="N/A" disabled /></td>
+      <td><input type="text" class="form-control" placeholder="N/A" disabled /></td>
       <td>{{ form.mtdb_frequency|as_crispy_field }}</td>
     </tr>
     <tr>
@@ -75,13 +82,15 @@
       <td data-toggle="tooltip" title="Mitochondrial frequency database">HelixMTdb <small class="text-muted">(samples: 196,554)</small></td>
       <td>{{ form.helixmtdb_hom_count|as_crispy_field }}</td>
       <td>{{ form.helixmtdb_het_count|as_crispy_field }}</td>
+      <td><input type="text" class="form-control" placeholder="N/A" disabled /></td>
       <td>{{ form.helixmtdb_frequency|as_crispy_field }}</td>
     </tr>
     <tr>
       <td>{{ form.mitomap_enabled|as_crispy_field }}</td>
       <td data-toggle="tooltip" title="Mitochondrial frequency database">MITOMAP <small class="text-muted">(samples: 50,174)</small></td>
       <td>{{ form.mitomap_count|as_crispy_field }}</td>
-      <td class="text-muted">N/A</td>
+      <td><input type="text" class="form-control" placeholder="N/A" disabled /></td>
+      <td><input type="text" class="form-control" placeholder="N/A" disabled /></td>
       <td>{{ form.mitomap_frequency|as_crispy_field }}</td>
     </tr>
   </tbody>
