@@ -8,10 +8,31 @@
   <div class="card varfish-vars-case-details"
        id="card-varfish-vars-case-details-small-var-flags">
     <div class="card-header">
-      <h4>
-        <i class="fa fa-flag"></i>
-        Annotated Variants
-      </h4>
+      <div class="row">
+        <div class="col-11 px-0">
+          <h4>
+            <i class="fa fa-flag"></i>
+            Annotated Variants
+          </h4>
+        </div>
+        <div class="col-1 px-0">
+          <div class="btn-group float-right">
+            <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-download"></i>
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{% url "variants:case-annotated-variants" project=object.project.sodar_uuid case=object.sodar_uuid %}?format=tsv">
+                <i class="fa fa-file-excel-o"></i>
+                Download as TSV
+              </a>
+              <a class="dropdown-item" href="{% url "variants:case-annotated-variants" project=object.project.sodar_uuid case=object.sodar_uuid %}?format=json">
+                <i class="fa fa-file-code-o"></i>
+                Download as JSON
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <table class="table table-striped table-hover">
       <thead>
@@ -33,74 +54,70 @@
         </tr>
       </thead>
       <tbody>
-        {% for variant, data in commentsflags.items %}
-          <tr id="flags-{{ variant.0 }}-{{ variant.1 }}-{{ variant.2 }}-{{ variant.3 }}">
+        {% for variant in annotated_variants %}
+          <tr id="flags-{{ variant.chromosome }}-{{ variant.start }}-{{ variant.reference }}-{{ variant.alternative }}">
             <td class="text-nowrap">
               <div class="sodar-overflow-container sodar-overflow-hover" style="max-width: 200px;">
-                chr{{ variant.0 }}:{{ variant.1|intcomma }}-{{ variant.2 }}-{{ variant.3 }}
+                chr{{ variant.chromosome }}:{{ variant.start|intcomma }}-{{ variant.reference }}-{{ variant.alternative }}
               </div>
             </td>
             <td>
-              {{ data|keyvalue:"genes"|join:", "|default:"-" }}
+              {{ variant|get_symbol }}
             </td>
             <td class="text-center">
-              {% if data|keyvalue:"acmg_rating" %}
-                <span class="{{ data|keyvalue:"acmg_rating"|keyvalue:"data"|acmg_badge_class2 }}">
-                  {{ data|keyvalue:"acmg_rating"|keyvalue:"class" }}
-                </span>
-              {% else %}
-                <p class="text-muted font-italic">No ACMG rating.</p>
-              {% endif %}
+              <span class="{{ variant|acmg_badge_class }} variant-acmg" style="width: 22px; display: inline-block">
+                {{ variant|acmg_classification|default:"-" }}
+              </span>
             </td>
-            {% if data|keyvalue:"flags" %}
+            {% if variant.flag_count > 0 %}
               <td class="text-center">
-                <i class="fa fa-fw fa-star {% if not data|keyvalue:"flags"|keyvalue:"flag_bookmarked" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-flask {% if not data|keyvalue:"flags"|keyvalue:"flag_for_validation" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-heart {% if not data|keyvalue:"flags"|keyvalue:"flag_candidate" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-flag-checkered {% if not data|keyvalue:"flags"|keyvalue:"flag_final_causative" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-chain-broken {% if not data|keyvalue:"flags"|keyvalue:"flag_no_disease_association" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-thumbs-up {% if not data|keyvalue:"flags"|keyvalue:"flag_segregates" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-thumbs-down {% if not data|keyvalue:"flags"|keyvalue:"flag_doesnt_segregate" %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-star {% if not variant.flag_bookmarked %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-flask {% if not variant.flag_for_validations %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-heart {% if not variant.flag_candidate %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-flag-checkered {% if not variant.flag_final_causative %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-chain-broken {% if not variant.flag_no_disease_association %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-thumbs-up {% if not variant.flag_segregates %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-thumbs-down {% if not variant.flag_doesnt_segregate %}text-muted" style="opacity: 0.3{% endif %}"></i>
               </td>
               <td class="text-center">
-                <i class="fa fa-fw {{ data|keyvalue:"flags"|keyvalue:"flag_visual"|flag_value_to_fa }} {{ data|keyvalue:"flags"|keyvalue:"flag_visual"|flag_value_to_color }}"></i>
+                <i class="fa fa-fw {{ variant.flag_visual|flag_value_to_fa }} {{ variant.flag_visual|flag_value_to_color }}"></i>
               </td>
               <td class="text-center">
-                <i class="fa fa-fw {{ data|keyvalue:"flags"|keyvalue:"flag_molecular"|flag_value_to_fa }} {{ data|keyvalue:"flags"|keyvalue:"flag_molecular"|flag_value_to_color }}"></i>
+                <i class="fa fa-fw {{ variant.flag_molecular|flag_value_to_fa }} {{ variant.flag_molecular|flag_value_to_color }}"></i>
               </td>
               <td class="text-center">
-                <i class="fa fa-fw {{ data|keyvalue:"flags"|keyvalue:"flag_validation"|flag_value_to_fa }} {{ data|keyvalue:"flags"|keyvalue:"flag_validation"|flag_value_to_color }}"></i>
+                <i class="fa fa-fw {{ variant.flag_validation|flag_value_to_fa }} {{ variant.flag_validation|flag_value_to_color }}"></i>
               </td>
               <td class="text-center">
-                <i class="fa fa-fw {{ data|keyvalue:"flags"|keyvalue:"flag_phenotype_match"|flag_value_to_fa }} {{ data|keyvalue:"flags"|keyvalue:"flag_phenotype_match"|flag_value_to_color }}"></i>
+                <i class="fa fa-fw {{ variant.flag_phenotype_match|flag_value_to_fa }} {{ variant.flag_phenotype_match|flag_value_to_color }}"></i>
               </td>
               <td class="text-center">
-                <i class="fa fa-fw {{ data|keyvalue:"flags"|keyvalue:"flag_summary"|flag_value_to_fa }} {{ data|keyvalue:"flags"|keyvalue:"flag_summary"|flag_value_to_color }}"></i>
+                <i class="fa fa-fw {{ variant.flag_summary|flag_value_to_fa }} {{ variant.flag_summary|flag_value_to_color }}"></i>
               </td>
             {% else %}
               <td colspan="6" class="text-center text-muted font-italic">No flags.</td>
             {% endif %}
             <td>
               <ul class="list-group list" style="width: 400px"
-                id="small-variant-comment-{{ variant.0 }}-{{ variant.1 }}-{{ variant.2 }}-{{ variant.3 }}"
-                data-url-submit="{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case=object.sodar_uuid %}"
-                data-url-delete="{% url 'variants:small-variant-comment-delete-api' project=project.sodar_uuid case=object.sodar_uuid %}">
-              {% for comment in data|keyvalue:"comments" %}
-                <li class="list-group-item list-item" id="comment-{{ comment|keyvalue:"sodar_uuid" }}" data-sodar-uuid="{{ comment|keyvalue:"sodar_uuid" }}">
-                  <div id="display-comment-{{ comment|keyvalue:"sodar_uuid" }}">
+                id="small-variant-comment-{{ variant.chromosome }}-{{ variant.start }}-{{ variant.reference }}-{{ variant.alternative }}"
+                data-url-submit="{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case=variant.case_uuid %}"
+                data-url-delete="{% url 'variants:small-variant-comment-delete-api' project=project.sodar_uuid case=variant.case_uuid %}">
+              {% for comment in variant.comment_list %}
+                <li class="list-group-item list-item" id="comment-{{ comment.sodar_uuid }}" data-sodar-uuid="{{ comment.sodar_uuid }}">
+                  <div id="display-comment-{{ comment.sodar_uuid }}">
                     <span class="small text-muted">
-                      <strong>{{ comment|keyvalue:"username" }}</strong>
-                      {{ comment|keyvalue:"date_created"|date:"Y/m/d H:i" }}:
+                      <strong>{{ comment.username }}</strong>
+                      {{ comment.date_created|date:"Y/m/d H:i" }}:
                     </span>
-                    <em>{{ comment|keyvalue:"text" }}</em>
-                    {% if comment|keyvalue:"user" == request.user or request.user.is_superuser %}
+                    <em>{{ comment.text }}</em>
+                    {% if comment.user_id == request.user.id or request.user.is_superuser %}
                       <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="fa fa-pencil"></i></a>
                       <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="fa fa-times-circle"></i></a>
                     {% endif %}
                   </div>
-                  <div id="edit-comment-{{ comment|keyvalue:"sodar_uuid" }}" style="display: none;">
+                  <div id="edit-comment-{{ comment.sodar_uuid }}" style="display: none;">
                     <form>
-                      <textarea id="text-comment-{{ comment|keyvalue:"sodar_uuid" }}" name="variant_comment" rows="1" cols="40" class="form-control"></textarea>
+                      <textarea id="text-comment-{{ comment.sodar_uuid }}" name="variant_comment" rows="1" cols="40" class="form-control"></textarea>
                       <span class="btn-group d-flex">
                         <button
                             type="button"
@@ -115,7 +132,7 @@
                       </span>
                     </form>
                   </div>
-                  <div id="delete-comment-{{ comment|keyvalue:"sodar_uuid" }}" style="display: none;">
+                  <div id="delete-comment-{{ comment.sodar_uuid }}" style="display: none;">
                     <span class="btn-group d-flex">
                       <button
                           type="button"
@@ -132,11 +149,11 @@
                 </li>
               {% endfor %}
               </ul>
-              <p id="small-variant-comment-{{ variant.0 }}-{{ variant.1 }}-{{ variant.2 }}-{{ variant.3 }}-empty" class="text-muted font-italic text-center"{% if data|keyvalue:"comments" %} style="display: none;"{% endif %}>No comments.</p>
+              <p id="small-variant-comment-{{ variant.chromosome }}-{{ variant.start }}-{{ variant.reference }}-{{ variant.alternative }}-empty" class="text-muted font-italic text-center"{% if variant.comment_list %} style="display: none;"{% endif %}>No comments.</p>
             </td>
             <td>
               <a
-                onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ variant.0 }}:{{ variant.1 }}-{{ variant.1 }}'})"
+                onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ variant.chromosome }}-{{ variant.start }}-{{ variant.start }}'})"
                 href="#"
                 class="btn btn-sm btn-secondary">
                 IGV
@@ -196,53 +213,53 @@
             <td class="text-nowrap">
               {{ variant.3 }}
             </td>
-            {% if data|keyvalue:"flags" %}
+            {% if data.flags %}
               <td class="text-center">
-                <i class="fa fa-fw fa-star {% if not data|keyvalue:"flags"|keyvalue:"flag_bookmarked" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-flask {% if not data|keyvalue:"flags"|keyvalue:"flag_for_validation" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-heart {% if not data|keyvalue:"flags"|keyvalue:"flag_candidate" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-flag-checkered {% if not data|keyvalue:"flags"|keyvalue:"flag_final_causative" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-chain-broken {% if not data|keyvalue:"flags"|keyvalue:"flag_no_disease_association" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-thumbs-up {% if not data|keyvalue:"flags"|keyvalue:"flag_segregates" %}text-muted" style="opacity: 0.3{% endif %}"></i>
-                <i class="fa fa-fw fa-thumbs-down {% if not data|keyvalue:"flags"|keyvalue:"flag_doesnt_segregate" %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-star {% if not data.flags.flag_bookmarked %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-flask {% if not data.flags.flag_for_validation %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-heart {% if not data.flags.flag_candidate %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-flag-checkered {% if not data.flags.flag_final_causative %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-chain-broken {% if not data.flags.flag_no_disease_association %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-thumbs-up {% if not data.flags.flag_segregates %}text-muted" style="opacity: 0.3{% endif %}"></i>
+                <i class="fa fa-fw fa-thumbs-down {% if not data.flags.flag_doesnt_segregate %}text-muted" style="opacity: 0.3{% endif %}"></i>
               </td>
               <td class="text-center">
-                <i class="fa fa-fw {{ data|keyvalue:"flags"|keyvalue:"flag_visual"|flag_value_to_fa }} {{ data|keyvalue:"flags"|keyvalue:"flag_visual"|flag_value_to_color }}"></i>
+                <i class="fa fa-fw {{ data.flags.flag_visual|flag_value_to_fa }} {{ data.flags.flag_visual|flag_value_to_color }}"></i>
               </td>
               <td class="text-center">
-                <i class="fa fa-fw {{ data|keyvalue:"flags"|keyvalue:"flag_molecular"|flag_value_to_fa }} {{ data|keyvalue:"flags"|keyvalue:"flag_molecular"|flag_value_to_color }}"></i>
+                <i class="fa fa-fw {{ data.flags.flag_molecular|flag_value_to_fa }} {{ data.flags.flag_molecular|flag_value_to_color }}"></i>
               </td>
               <td class="text-center">
-                <i class="fa fa-fw {{ data|keyvalue:"flags"|keyvalue:"flag_validation"|flag_value_to_fa }} {{ data|keyvalue:"flags"|keyvalue:"flag_validation"|flag_value_to_color }}"></i>
+                <i class="fa fa-fw {{ data.flags.flag_validation|flag_value_to_fa }} {{ data.flags.flag_validation|flag_value_to_color }}"></i>
               </td>
               <td class="text-center">
-                <i class="fa fa-fw {{ data|keyvalue:"flags"|keyvalue:"flag_phenotype_match"|flag_value_to_fa }} {{ data|keyvalue:"flags"|keyvalue:"flag_phenotype_match"|flag_value_to_color }}"></i>
+                <i class="fa fa-fw {{ data.flags.flag_phenotype_match|flag_value_to_fa }} {{ data.flags.flag_phenotype_match|flag_value_to_color }}"></i>
               </td>
               <td class="text-center">
-                <i class="fa fa-fw {{ data|keyvalue:"flags"|keyvalue:"flag_summary"|flag_value_to_fa }} {{ data|keyvalue:"flags"|keyvalue:"flag_summary"|flag_value_to_color }}"></i>
+                <i class="fa fa-fw {{ data.flags.flag_summary|flag_value_to_fa }} {{ data.flags.flag_summary|flag_value_to_color }}"></i>
               </td>
             {% else %}
               <td colspan="6" class="text-center text-muted font-italic">No flags.</td>
             {% endif %}
             <td>
-              {% if data|keyvalue:"comments" %}
+              {% if data.comments %}
               <ul class="list-group" style="width: 400px">
-              {% for comment in data|keyvalue:"comments" %}
-                <li class="list-group-item list-item" id="comment-{{ comment|keyvalue:"sodar_uuid" }}" data-sodar-uuid="{{ comment|keyvalue:"sodar_uuid" }}">
-                  <div id="display-comment-{{ comment|keyvalue:"sodar_uuid" }}">
+              {% for comment in data.comments %}
+                <li class="list-group-item list-item" id="comment-{{ comment.sodar_uuid }}" data-sodar-uuid="{{ comment.sodar_uuid }}">
+                  <div id="display-comment-{{ comment.sodar_uuid }}">
                     <span class="small text-muted">
-                      <strong>{{ comment|keyvalue:"username" }}</strong>
-                      {{ comment|keyvalue:"date_created"|date:"Y/m/d H:i" }}:
+                      <strong>{{ comment.username }}</strong>
+                      {{ comment.date_created|date:"Y/m/d H:i" }}:
                     </span>
-                    <em>{{ comment|keyvalue:"text" }}</em>
-{#                    {% if comment|keyvalue:"user" == request.user or request.user.is_superuser %}#}
+                    <em>{{ comment.text }}</em>
+{#                    {% if comment.user == request.user or request.user.is_superuser %}#}
 {#                      <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="fa fa-pencil"></i></a>#}
 {#                      <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="fa fa-times-circle"></i></a>#}
 {#                    {% endif %}#}
                   </div>
-                  <div id="edit-comment-{{ comment|keyvalue:"sodar_uuid" }}" style="display: none;">
+                  <div id="edit-comment-{{ comment.sodar_uuid }}" style="display: none;">
                     <form>
-                      <textarea id="text-comment-{{ comment|keyvalue:"sodar_uuid" }}" name="variant_comment" rows="1" cols="40" class="form-control"></textarea>
+                      <textarea id="text-comment-{{ comment.sodar_uuid }}" name="variant_comment" rows="1" cols="40" class="form-control"></textarea>
                       <span class="btn-group d-flex">
                         <button
                             type="button"
@@ -257,7 +274,7 @@
                       </span>
                     </form>
                   </div>
-                  <div id="delete-comment-{{ comment|keyvalue:"sodar_uuid" }}" style="display: none;">
+                  <div id="delete-comment-{{ comment.sodar_uuid }}" style="display: none;">
                     <span class="btn-group d-flex">
                       <button
                           type="button"

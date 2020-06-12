@@ -46,9 +46,8 @@
       <li class="nav-item">
         <a class="nav-link" id="annotation-tab" data-toggle="tab" href="#annotation" role="tab" aria-controls="annotation" aria-selected="false">
           <i class="fa fa-comment-o"></i>
-          {% with annotation_count=object.get_annotation_count|default:0 %}
-          Variant Annotation <span class="badge badge-pill {% if annotation_count == 0 %}badge-secondary{% else %}badge-primary{% endif %}">{{ annotation_count }}</span>
-          {% endwith %}
+          Variant Annotation
+          <span class="badge badge-pill {% if annotated_variants|length == 0 %}badge-secondary{% else %}badge-primary{% endif %}">{{ annotated_variants|length }}</span>
         </a>
       </li>
       <li class="nav-item">

@@ -7,6 +7,11 @@ ui_urlpatterns = [
     # Views for Case
     url(regex=r"^(?P<project>[0-9a-f-]+)/$", view=views.CaseListView.as_view(), name="case-list"),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/annotated-variants/$",
+        view=views.CaseListAnnotatedVariantsView.as_view(),
+        name="case-list-annotated-variants",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/sync-upstream/$",
         view=views.CaseListSyncRemoteView.as_view(),
         name="case-list-sync-remote",
@@ -25,6 +30,11 @@ ui_urlpatterns = [
         regex=r"^(?P<project>[0-9a-f-]+)/case/update/(?P<case>[0-9a-f-]+)/$",
         view=views.CaseUpdateView.as_view(),
         name="case-update",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/annotated-variants/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseAnnotatedVariantsView.as_view(),
+        name="case-annotated-variants",
     ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/delete/(?P<case>[0-9a-f-]+)/$",
