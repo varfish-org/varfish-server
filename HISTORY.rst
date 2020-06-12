@@ -20,6 +20,7 @@ End-User Summary
 - Fixed bug when inheritance preset was wrongly selected when switching to ``variant`` in an index-only case.
 - Added hemizygous counts filter option to frequency filter form.
 - Added ``synonymous`` effect to be also selected when checking ``all coding/deep intronic`` preset.
+- Saving uploads pre-checking in kiosk mode to facilitate debugging.
 
 Full Change List
 ================
@@ -43,6 +44,7 @@ Full Change List
 - Fixed bug when inheritance preset was wrongly selected when switching to ``variant`` in an index-only case.
 - Added hemizygous counts filter option to frequency filter form.
 - Added ``synonymous`` effect to be also selected when checking ``all coding/deep intronic`` preset.
+- Saving uploads pre-checking in kiosk mode to facilitate debugging.
 
 -------
 v0.21.0

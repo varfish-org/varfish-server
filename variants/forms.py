@@ -1686,9 +1686,24 @@ class KioskUploadForm(forms.Form):
     )
 
     def clean(self):
+        raw_uploads_dir = os.path.join(settings.MEDIA_ROOT, "raw_uploads")
+        try:
+            os.mkdir(raw_uploads_dir)
+        except FileExistsError:
+            pass
+        with tempfile.NamedTemporaryFile(dir=settings.MEDIA_ROOT) as tmp_file:
+            shutil.copyfileobj(self.cleaned_data.get("vcf_file"), tmp_file)
+            save_file(tmp_file, self.cleaned_data.get("vcf_file").name, raw_uploads_dir)
+            tmp_file.flush()
+            self.cleaned_data.get("vcf_file").seek(0)
         ped_samples = []
         ped_source = None
         if self.cleaned_data.get("ped_file"):
+            with tempfile.NamedTemporaryFile(dir=settings.MEDIA_ROOT) as tmp_file:
+                shutil.copyfileobj(self.cleaned_data.get("ped_file"), tmp_file)
+                save_file(tmp_file, self.cleaned_data.get("ped_file").name, raw_uploads_dir)
+                tmp_file.flush()
+                self.cleaned_data.get("ped_file").seek(0)
             self.cleaned_data["ped"] = list(
                 map(lambda x: x.decode("utf-8").rstrip("\n"), self.cleaned_data.get("ped_file"))
             )
