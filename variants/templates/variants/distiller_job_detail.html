@@ -41,7 +41,7 @@
             <div class="col-2 p-1"><strong>Download Result</strong></div>
             <div class="col-10 p-1">
               {% if object.distiller_project_id %}
-                <a href="{{ object.get_distiller_project_url }}">
+                <a href="{{ object.get_distiller_project_url }}" target="_blank">
                   <i class="fa fa-external-link-square"></i>
                   MutationDistiller project: {{ object.distiller_project_id }}
                 </a>
