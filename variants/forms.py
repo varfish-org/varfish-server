@@ -1693,7 +1693,9 @@ class KioskUploadForm(forms.Form):
             pass
         with tempfile.NamedTemporaryFile(dir=settings.MEDIA_ROOT) as tmp_file:
             shutil.copyfileobj(self.cleaned_data.get("vcf_file"), tmp_file)
-            save_file(tmp_file, self.cleaned_data.get("vcf_file").name, raw_uploads_dir)
+            save_file(
+                tmp_file, get_valid_filename(self.cleaned_data.get("vcf_file")), raw_uploads_dir
+            )
             tmp_file.flush()
             self.cleaned_data.get("vcf_file").seek(0)
         ped_samples = []
@@ -1765,10 +1767,6 @@ class KioskUploadForm(forms.Form):
                 for entry in list(vcf_header.get_lines("contig")):
                     # GRCh38/hg38?
                     if entry.id in ("chr1", "1") and int(entry.length) == 248956422:
-                        self.add_error("vcf_file", "Only GRCh37 build is supported!")
-                        return
-                    # hg19?
-                    if entry.id == "chr1" and int(entry.length) == 249250621:
                         self.add_error("vcf_file", "Only GRCh37 build is supported!")
                         return
             except vcfpy.exceptions.VCFPyException as e:

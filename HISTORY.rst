@@ -21,6 +21,7 @@ End-User Summary
 - Added hemizygous counts filter option to frequency filter form.
 - Added ``synonymous`` effect to be also selected when checking ``all coding/deep intronic`` preset.
 - Saving uploads pre-checking in kiosk mode to facilitate debugging.
+- Kiosk mode also accepts VCFs based on hg19.
 
 Full Change List
 ================
@@ -45,6 +46,7 @@ Full Change List
 - Added hemizygous counts filter option to frequency filter form.
 - Added ``synonymous`` effect to be also selected when checking ``all coding/deep intronic`` preset.
 - Saving uploads pre-checking in kiosk mode to facilitate debugging.
+- Kiosk mode also accepts VCFs based on hg19.
 
 -------
 v0.21.0

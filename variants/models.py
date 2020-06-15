@@ -3537,7 +3537,7 @@ class KioskAnnotate:
                     --refseq-ser-path {refseq_ser_path} \
                     --input-vcf $vcf \
                     --output-db-info >(gzip > {output_db_info}) \
-                    --output-gts >(gzip > {output_gts}) \
+                    --output-gts >(awk -F$'\t' 'BEGIN{{OFS=FS}}{{if(NR>1){{sub(/^chrM/,"MT",$2);sub(/^chr/,"",$2)}}print}}' | gzip > {output_gts}) \
                     --ref-path {reference_path} \
                     --release {release}
                 """.format(
