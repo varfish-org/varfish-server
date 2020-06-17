@@ -22,6 +22,7 @@ End-User Summary
 - Added ``synonymous`` effect to be also selected when checking ``all coding/deep intronic`` preset.
 - Saving uploads pre-checking in kiosk mode to facilitate debugging.
 - Kiosk mode also accepts VCFs based on hg19.
+- VariantValidator output now displays three-letter representation of AA.
 
 Full Change List
 ================
@@ -47,6 +48,7 @@ Full Change List
 - Added ``synonymous`` effect to be also selected when checking ``all coding/deep intronic`` preset.
 - Saving uploads pre-checking in kiosk mode to facilitate debugging.
 - Kiosk mode also accepts VCFs based on hg19.
+- VariantValidator output now displays three-letter representation of AA.
 
 -------
 v0.21.0
