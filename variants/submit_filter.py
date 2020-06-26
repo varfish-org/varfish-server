@@ -135,7 +135,11 @@ class ProjectCasesFilter(FilterBase):
 
     def _get_assembled_query(self):
         """Render filter query for a project"""
-        return ProjectPrefetchQuery(self.variant_query.project, self.get_alchemy_engine())
+        return ProjectPrefetchQuery(
+            self.job.cohort or self.variant_query.project,
+            self.get_alchemy_engine(),
+            user=self.job.bg_job.user,
+        )
 
 
 def case_filter(job):

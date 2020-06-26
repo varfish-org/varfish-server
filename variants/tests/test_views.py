@@ -13,6 +13,7 @@ from django.conf import settings
 from projectroles.models import Project, Role
 from projectroles.app_settings import AppSettingAPI
 from clinvar.tests.factories import ClinvarFactory
+from cohorts.tests.factories import TestCohortBase, CohortFactory
 from conservation.tests.factories import KnownGeneAAFactory
 from frequencies.tests.factories import (
     ThousandGenomesFactory,
@@ -1474,26 +1475,30 @@ class TestProjectCasesFilterJobGetPrevious(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
+        project = ProjectFactory()
+        self.bgjob_no_cohort = ProjectCasesFilterBgJobFactory(user=self.user, project=project)
+        self.bgjob_cohort = ProjectCasesFilterBgJobFactory(
+            user=self.user, project=project, cohort=CohortFactory(project=project, user=self.user)
+        )
 
     def test_getting_previous_job_existing(self):
         with self.login(self.user):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-filter-job-previous",
-                    kwargs={"project": self.bgjob.project.sodar_uuid},
+                    kwargs={"project": self.bgjob_no_cohort.project.sodar_uuid},
                 )
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
                 json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
-                str(self.bgjob.sodar_uuid),
+                str(self.bgjob_no_cohort.sodar_uuid),
             )
 
     def test_getting_previous_job_non_existing(self):
         with self.login(self.user):
-            project = self.bgjob.project.sodar_uuid
-            self.bgjob.delete()
+            project = self.bgjob_no_cohort.project.sodar_uuid
+            self.bgjob_no_cohort.delete()
             response = self.client.get(
                 reverse("variants:project-cases-filter-job-previous", kwargs={"project": project})
             )
@@ -1595,6 +1600,292 @@ class TestProjectCasesFilterView(ViewTestBase):
             )
 
 
+class TestCohortFilterView(TestCohortBase):
+    def test_render_form_filter_cohort_as_superuser(self):
+        user = self.superuser
+        project = self.project1
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        with self.login(user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+            )
+            self.assertEqual(response.status_code, 200)
+            for member in self.project1.get_members() + self.project2.get_members():
+                self.assertIsNotNone(response.context["form"].fields.get("%s_gt" % member))
+
+    def test_render_form_filter_cohort_as_contributor(self):
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        with self.login(user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+            )
+            self.assertEqual(response.status_code, 200)
+            for member in self.project2.get_members():
+                self.assertIsNotNone(response.context["form"].fields.get("%s_gt" % member))
+            for member in self.project1.get_members():
+                self.assertIsNone(response.context["form"].fields.get("%s_gt" % member))
+
+    def test_render_form_filter_cohort_as_superuser_for_cohort_by_contributor(self):
+        user = self.superuser
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(self.contributor, project)
+        with self.login(user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+            )
+            for member in self.project2.get_members():
+                self.assertIsNotNone(response.context["form"].fields.get("%s_gt" % member))
+            for member in self.project1.get_members():
+                self.assertIsNone(response.context["form"].fields.get("%s_gt" % member))
+
+    def test_render_form_filter_cohort_as_contributor_for_cohort_by_superuser(self):
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(self.superuser, project)
+        with self.login(user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+            )
+            for member in self.project2.get_members():
+                self.assertIsNotNone(response.context["form"].fields.get("%s_gt" % member))
+            for member in self.project1.get_members():
+                self.assertIsNone(response.context["form"].fields.get("%s_gt" % member))
+
+    def test_download_filter_cohort_as_superuser(self):
+        """Test form submit for download as file."""
+        user = self.superuser
+        project = self.project1
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        with self.login(user):
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 0)
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-filter-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+                vars(
+                    FormDataFactory(
+                        submit="download", names=cohort.get_members(user), cohort=cohort.sodar_uuid
+                    )
+                ),
+            )
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 1)
+            created_job = ExportProjectCasesFileBgJob.objects.first()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:project-cases-export-job-detail",
+                    kwargs={"project": project.sodar_uuid, "job": created_job.sodar_uuid,},
+                ),
+            )
+
+    def test_download_filter_cohort_as_contributor(self):
+        """Test form submit for download as file."""
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        with self.login(user):
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 0)
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-filter-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+                vars(
+                    FormDataFactory(
+                        submit="download", names=cohort.get_members(user), cohort=cohort.sodar_uuid
+                    )
+                ),
+            )
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 1)
+            created_job = ExportProjectCasesFileBgJob.objects.first()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:project-cases-export-job-detail",
+                    kwargs={"project": project.sodar_uuid, "job": created_job.sodar_uuid,},
+                ),
+            )
+
+    def test_download_filter_cohort_as_superuser_for_cohort_by_contributor(self):
+        """Test form submit for download as file."""
+        user = self.superuser
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(self.contributor, project)
+        with self.login(user):
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 0)
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-filter-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+                vars(
+                    FormDataFactory(
+                        submit="download", names=cohort.get_members(user), cohort=cohort.sodar_uuid
+                    )
+                ),
+            )
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 1)
+            created_job = ExportProjectCasesFileBgJob.objects.first()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:project-cases-export-job-detail",
+                    kwargs={"project": project.sodar_uuid, "job": created_job.sodar_uuid,},
+                ),
+            )
+
+    def test_download_filter_cohort_as_contributor_for_cohort_by_superuser(self):
+        """Test form submit for download as file."""
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(self.superuser, project)
+        with self.login(user):
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 0)
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-filter-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+                vars(
+                    FormDataFactory(
+                        submit="download", names=cohort.get_members(user), cohort=cohort.sodar_uuid
+                    )
+                ),
+            )
+            self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 1)
+            created_job = ExportProjectCasesFileBgJob.objects.first()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:project-cases-export-job-detail",
+                    kwargs={"project": project.sodar_uuid, "job": created_job.sodar_uuid,},
+                ),
+            )
+
+
+class TestCohortFilterJobGetPrevious(TestCohortBase):
+    def test_get_previous_job_existing_as_superuser(self):
+        user = self.superuser
+        project = self.project1
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        bgjob_cohort = ProjectCasesFilterBgJobFactory(user=user, project=project, cohort=cohort)
+        bgjob_no_cohort = ProjectCasesFilterBgJobFactory(user=user, project=project)
+        with self.login(user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-job-previous-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
+                str(bgjob_cohort.sodar_uuid),
+            )
+
+    def test_get_previous_job_non_existing_as_superuser(self):
+        user = self.superuser
+        project = self.project1
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        bgjob_no_cohort = ProjectCasesFilterBgJobFactory(user=user, project=project)
+        with self.login(user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-job-previous-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["filter_job_uuid"], None)
+
+    def test_get_previous_job_existing_as_contributor(self):
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        bgjob_cohort = ProjectCasesFilterBgJobFactory(user=user, project=project, cohort=cohort)
+        bgjob_no_cohort = ProjectCasesFilterBgJobFactory(user=user, project=project)
+        with self.login(user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-job-previous-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
+                str(bgjob_cohort.sodar_uuid),
+            )
+
+    def test_get_previous_job_non_existing_as_contributor(self):
+        user = self.superuser
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        bgjob_no_cohort = ProjectCasesFilterBgJobFactory(user=user, project=project)
+        with self.login(user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-job-previous-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(json.loads(response.content.decode("utf-8"))["filter_job_uuid"], None)
+
+    def test_get_previous_job_existing_as_superuser_for_cohort_by_contributor(self):
+        user = self.superuser
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(self.contributor, project)
+        bgjob_cohort = ProjectCasesFilterBgJobFactory(user=user, project=project, cohort=cohort)
+        bgjob_no_cohort = ProjectCasesFilterBgJobFactory(user=user, project=project)
+        with self.login(user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-job-previous-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
+                str(bgjob_cohort.sodar_uuid),
+            )
+
+    def test_get_previous_job_existing_as_contributor_for_cohort_by_superuser(self):
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        bgjob_cohort = ProjectCasesFilterBgJobFactory(user=user, project=project, cohort=cohort)
+        bgjob_no_cohort = ProjectCasesFilterBgJobFactory(user=user, project=project)
+        with self.login(user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-cases-filter-job-previous-cohort",
+                    kwargs={"project": project.sodar_uuid, "cohort": cohort.sodar_uuid},
+                ),
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["filter_job_uuid"],
+                str(bgjob_cohort.sodar_uuid),
+            )
+
+
 class TestProjectCasesPrefetchFilterView(ViewTestBase):
     """Tests for FilterProjectCasesPrefetchFilterView.
     """
@@ -1639,12 +1930,13 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
     def test_variant_set_missing(self):
         SmallVariantSet.objects.all().delete()
         with self.login(self.user):
+            form_data = vars(FormDataFactory(names=self.project.get_members()))
             response = self.client.post(
                 reverse(
                     "variants:project-cases-filter-results",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
-                vars(FormDataFactory(names=self.project.get_members())),
+                form_data,
             )
             self.assertEqual(response.status_code, 400)
             self.assertEqual(response.json().get("__all__"), ["No samples to process."])

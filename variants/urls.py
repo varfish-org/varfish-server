@@ -78,6 +78,11 @@ ui_urlpatterns = [
         name="project-cases-filter",
     ),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter/cohort/(?P<cohort>[0-9a-f-]+)/$",
+        view=views.ProjectCasesFilterView.as_view(),
+        name="project-cases-filter-cohort",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/project-cases/filter/job/(?P<job>[0-9a-f-]+)/$",
         view=views.ProjectCasesFilterView.as_view(),
         name="project-cases-filter-job",
@@ -272,6 +277,11 @@ ui_urlpatterns = [
         regex=r"^(?P<project>[0-9a-f-]+)/project-cases-filter-job/previous/$",
         view=views.ProjectCasesFilterJobGetPrevious.as_view(),
         name="project-cases-filter-job-previous",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/project-cases-filter-job/previous/cohort/(?P<cohort>[0-9a-f-]+)/$",
+        view=views.ProjectCasesFilterJobGetPrevious.as_view(),
+        name="project-cases-filter-job-previous-cohort",
     ),
     # Render details row
     url(

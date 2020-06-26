@@ -11,6 +11,7 @@ import vcfpy
 import wrapt
 import xlsxwriter
 
+from cohorts.models import Cohort
 from .models import (
     Case,
     CaseAwareProject,
@@ -205,18 +206,18 @@ class CaseExporterBase:
     #: The query class to use for building project-wide queries.
     query_class_project_cases = None
 
-    def __init__(self, job, case_or_project):
+    def __init__(self, job, case_or_project_or_cohort):
         #: The ``ExportFileBgJob``, ``CADDSubmissionBgJob``, or ``DistillerSubmissionBgJob`` to use for logging.
         #: Variants are obtained from ``case_or_project``.
         self.job = job
         #: The case to export for, if any.
         self.case = None
         #: The project to export for, if any.
-        self.project = None
-        if isinstance(case_or_project, Case):
-            self.case = case_or_project
+        self.project_or_cohort = None
+        if isinstance(case_or_project_or_cohort, Case):
+            self.case = case_or_project_or_cohort
         else:
-            self.project = case_or_project
+            self.project_or_cohort = case_or_project_or_cohort
         #: The SQL Alchemy connection to use.
         self._alchemy_engine = None
         #: The query arguments.
@@ -225,8 +226,10 @@ class CaseExporterBase:
         self.tmp_file = None
         #: The wrapper for running queries.
         self.query = None
-        if self.project:
-            self.query = self.query_class_project_cases(self.project, self.get_alchemy_engine())
+        if self.project_or_cohort:
+            self.query = self.query_class_project_cases(
+                self.project_or_cohort, self.get_alchemy_engine(), user=job.bg_job.user
+            )
         else:
             self.query = self.query_class_single_case(self.case, self.get_alchemy_engine())
         #: The name of the selected members.
@@ -257,7 +260,7 @@ class CaseExporterBase:
 
     def _yield_members(self):
         """Get list of selected members."""
-        if self.project:
+        if self.project_or_cohort:
             yield "sample"
         else:
             for m in self.job.case.get_filtered_pedigree_with_samples():
@@ -266,7 +269,7 @@ class CaseExporterBase:
 
     def _yield_columns(self, members):
         """Yield column information."""
-        if self.project:
+        if self.project_or_cohort:
             header = [("sample_name", "Sample", str)]
         else:
             header = []
@@ -322,7 +325,7 @@ class CaseExporterBase:
                 if small_var.chromosome != prev_chrom:
                     self.job.add_log_entry("Now on chromosome chr{}".format(small_var.chromosome))
                     prev_chrom = small_var.chromosome
-                if self.project:
+                if self.project_or_cohort:
                     for sample in sorted(small_var.genotype.keys()):
                         yield RowWithSampleProxy(small_var, sample)
                 else:
@@ -473,8 +476,8 @@ class CaseExporterXlsx(CaseExporterBase):
     query_class_single_case = CaseExportTableQuery
     query_class_project_cases = ProjectExportTableQuery
 
-    def __init__(self, job, case_or_project):
-        super().__init__(job, case_or_project)
+    def __init__(self, job, case_or_project_or_cohort):
+        super().__init__(job, case_or_project_or_cohort)
         #: The ``Workbook`` object to use for writing.
         self.workbook = None
         #: The sheet with the variants.
@@ -524,7 +527,7 @@ class CaseExporterXlsx(CaseExporterBase):
 
     def _write_comment_sheet(self):
         # Write out meta data sheet.
-        if self.project:
+        if self.project_or_cohort:
             header_prefix = ["Case"]
         else:
             header_prefix = []
@@ -538,7 +541,15 @@ class CaseExporterXlsx(CaseExporterBase):
         if self.case:
             cases = [self.case]
         else:
-            cases = [case for case in self.project.case_set.all()]
+            if isinstance(self.project_or_cohort, Cohort):
+                cases = [
+                    case
+                    for case in self.project_or_cohort.get_accessible_cases_for_user(
+                        self.job.bg_job.user
+                    )
+                ]
+            else:  # project
+                cases = [case for case in self.project_or_cohort.case_set.all()]
         offset = 1
         for case in cases:
             for comment in SmallVariantComment.objects.filter(case=case):
@@ -622,8 +633,8 @@ class CaseExporterVcf(CaseExporterBase):
     query_class_single_case = CaseExportVcfQuery
     query_class_project_cases = ProjectExportTableQuery  # TODO!
 
-    def __init__(self, job, case_or_project, members=None):
-        super().__init__(job, case_or_project)
+    def __init__(self, job, case_or_project_or_cohort, members=None):
+        super().__init__(job, case_or_project_or_cohort)
         #: The ``vcfpy.Writer`` to use for writing the VCF file.
         self.vcf_writer = None
         #: Make overriding member possible here, e.g., to upload only variants without genotypes.

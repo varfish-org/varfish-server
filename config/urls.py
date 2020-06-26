@@ -53,6 +53,7 @@ urlpatterns += [
     # The rendered Sphinx-based manual.
     url(r"^manual/", include("docs.urls")),
     url(r"^su/", include("django_su.urls")),
+    url(r"^cohorts/", include("cohorts.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

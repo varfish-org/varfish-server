@@ -16,6 +16,7 @@
 {% endif %}
 
 <form id="filterForm" method="post">{% csrf_token %}
+  {{ form.cohort }}
   <div class="card">
     <div class="card-header">
       {% include "variants/filter_form/presets.html" %}

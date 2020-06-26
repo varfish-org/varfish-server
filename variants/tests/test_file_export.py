@@ -11,16 +11,15 @@ import openpyxl
 from test_plus.test import TestCase
 from timeline.models import ProjectEvent
 
+from cohorts.tests.factories import TestCohortBase
 from variants.tests.factories import (
     SmallVariantSetFactory,
     SmallVariantFactory,
-    FormDataFactory,
-    ProcessedFormDataFactory,
     ResubmitFormDataFactory,
+    ExportProjectCasesFileBgJobFactory,
 )
-from . import test_views
-from .. import file_export, forms
-from ..models import ExportFileBgJob
+from .. import file_export
+from ..models import ExportFileBgJob, ExportProjectCasesFileBgJob, Case
 from bgjobs.models import BackgroundJob
 from projectroles.models import Project
 
@@ -156,6 +155,248 @@ class CaseExporterTest(ExportTestBase):
             variants_sheet = workbook["Variants"]
             arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
             self._test_tabular(arrs, False)
+
+
+class ProjectExportTestBase(TestCase):
+    """Base class for testing exports.
+
+    Sets up the database fixtures for project, case, and small variants.
+    """
+
+    def setUp(self):
+        self.user = self.make_user("superuser")
+        self.variant_set = SmallVariantSetFactory()
+        self.small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
+        self.case = self.variant_set.case
+        self.bg_job = BackgroundJob.objects.create(
+            name="job name",
+            project=Project.objects.first(),
+            job_type="variants.export_file_bg_job",
+            user=self.user,
+        )
+        self.export_job = ExportProjectCasesFileBgJob.objects.create(
+            project=self.bg_job.project,
+            bg_job=self.bg_job,
+            query_args={"export_flags": True, "export_comments": True},
+            file_type="xlsx",
+        )
+
+
+class CohortExporterTest(TestCohortBase):
+    def _create_bgjob(self, user, cohort):
+        return ExportProjectCasesFileBgJobFactory(
+            user=user,
+            project=cohort.project,
+            query_args=vars(
+                ResubmitFormDataFactory(submit="download", names=cohort.get_members(user))
+            ),
+            file_type="xlsx",
+        )
+
+    def test_export_tsv_as_superuser(self):
+        user = self.superuser
+        project = self.project1
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterTsv(bgjob, cohort) as exporter:
+            result = str(exporter.generate(), "utf-8")
+        arrs = [line.split("\t") for line in result.split("\n")]
+        self._test_tabular(
+            arrs,
+            16,
+            True,
+            self.project1_case1_smallvars
+            + self.project1_case2_smallvars
+            + self.project2_case1_smallvars
+            + self.project2_case2_smallvars,
+        )
+
+    def test_export_tsv_as_contributor(self):
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterTsv(bgjob, cohort) as exporter:
+            result = str(exporter.generate(), "utf-8")
+        arrs = [line.split("\t") for line in result.split("\n")]
+        self._test_tabular(
+            arrs, 13, True, self.project2_case1_smallvars + self.project2_case2_smallvars,
+        )
+
+    def test_export_tsv_as_superuser_for_cohort_by_contributor(self):
+        user = self.superuser
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(self.contributor, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterTsv(bgjob, cohort) as exporter:
+            result = str(exporter.generate(), "utf-8")
+        arrs = [line.split("\t") for line in result.split("\n")]
+        self._test_tabular(
+            arrs, 13, True, self.project2_case1_smallvars + self.project2_case2_smallvars,
+        )
+
+    def test_export_tsv_as_contributor_for_cohort_by_superuser(self):
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(self.superuser, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterTsv(bgjob, cohort) as exporter:
+            result = str(exporter.generate(), "utf-8")
+        arrs = [line.split("\t") for line in result.split("\n")]
+        self._test_tabular(
+            arrs, 13, True, self.project2_case1_smallvars + self.project2_case2_smallvars,
+        )
+
+    def _test_tabular(self, arrs, ref, has_trailing, smallvars):
+        self.assertEquals(len(arrs), ref + int(has_trailing))
+        # TODO: also test without flags and comments
+        self.assertEquals(len(arrs[0]), 47)
+        self.assertSequenceEqual(arrs[0][:3], ["Sample", "Chromosome", "Position"])
+        self.assertEqual(arrs[0][-1], "sample Alternate allele fraction")
+        for i, small_var in enumerate(sorted(smallvars, key=lambda x: (x.chromosome_no, x.start))):
+            member = Case.objects.get(id=small_var.case_id).get_members()[0]
+            self.assertSequenceEqual(
+                arrs[i + 1][:3], [member, "chr" + small_var.chromosome, str(small_var.start),],
+            )
+            self.assertSequenceEqual(
+                arrs[i + 1][-5:],
+                list(
+                    map(
+                        str,
+                        [
+                            small_var.genotype[member]["gt"],
+                            small_var.genotype[member]["gq"],
+                            small_var.genotype[member]["ad"],
+                            small_var.genotype[member]["dp"],
+                            small_var.genotype[member]["ad"] / small_var.genotype[member]["dp"],
+                        ],
+                    )
+                ),
+            )
+        if has_trailing:
+            self.assertSequenceEqual(arrs[ref], [""])
+
+    # def test_export_vcf(self):
+    #     with file_export.CaseExporterVcf(self.export_job, self.export_job.case) as exporter:
+    #         result = exporter.generate()
+    #     unzipped = gzip.GzipFile(fileobj=io.BytesIO(result), mode="rb").read()
+    #     lines = str(unzipped, "utf-8").split("\n")
+    #     header = [l for l in lines if l.startswith("#")]
+    #     content = [l for l in lines if not l.startswith("#")]
+    #     self.assertEquals(len(header), 31)
+    #     self.assertEquals(header[0], "##fileformat=VCFv4.2")
+    #     self.assertEquals(
+    #         header[-1],
+    #         "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s"
+    #         % self.case.pedigree[0]["patient"],
+    #     )
+    #     self.assertEquals(len(content), 4)
+    #     for i, small_var in enumerate(self.small_vars):
+    #         genotype = small_var.genotype[self.case.pedigree[0]["patient"]]
+    #         self.assertEquals(
+    #             content[i].split("\t"),
+    #             list(
+    #                 map(
+    #                     str,
+    #                     [
+    #                         small_var.chromosome,
+    #                         small_var.start,
+    #                         ".",
+    #                         small_var.reference,
+    #                         small_var.alternative,
+    #                         ".",
+    #                         ".",
+    #                         ".",
+    #                         "GT:GQ:AD:DP",
+    #                         "%s:%s:%s:%s"
+    #                         % (genotype["gt"], genotype["gq"], genotype["ad"], genotype["dp"]),
+    #                     ],
+    #                 )
+    #             ),
+    #         )
+    #     self.assertEquals(content[3], "")
+
+    def test_export_xlsx_as_superuser(self):
+        user = self.superuser
+        project = self.project1
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterXlsx(bgjob, cohort) as exporter:
+            result = exporter.generate()
+        with tempfile.NamedTemporaryFile(suffix=".xlsx") as temp_file:
+            temp_file.write(result)
+            temp_file.flush()
+            workbook = openpyxl.load_workbook(temp_file.name)
+            # TODO: also test without commments
+            self.assertEquals(workbook.sheetnames, ["Variants", "Comments", "Metadata"])
+            variants_sheet = workbook["Variants"]
+            arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
+            self._test_tabular(
+                arrs,
+                16,
+                False,
+                self.project1_case1_smallvars
+                + self.project1_case2_smallvars
+                + self.project2_case1_smallvars
+                + self.project2_case2_smallvars,
+            )
+
+    def test_export_xlsx_as_contributor(self):
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterXlsx(bgjob, cohort) as exporter:
+            result = exporter.generate()
+        with tempfile.NamedTemporaryFile(suffix=".xlsx") as temp_file:
+            temp_file.write(result)
+            temp_file.flush()
+            workbook = openpyxl.load_workbook(temp_file.name)
+            # TODO: also test without commments
+            self.assertEquals(workbook.sheetnames, ["Variants", "Comments", "Metadata"])
+            variants_sheet = workbook["Variants"]
+            arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
+            self._test_tabular(
+                arrs, 13, False, self.project2_case1_smallvars + self.project2_case2_smallvars,
+            )
+
+    def test_export_xlsx_as_superuser_for_cohort_by_contributor(self):
+        user = self.superuser
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(self.contributor, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterXlsx(bgjob, cohort) as exporter:
+            result = exporter.generate()
+        with tempfile.NamedTemporaryFile(suffix=".xlsx") as temp_file:
+            temp_file.write(result)
+            temp_file.flush()
+            workbook = openpyxl.load_workbook(temp_file.name)
+            # TODO: also test without commments
+            self.assertEquals(workbook.sheetnames, ["Variants", "Comments", "Metadata"])
+            variants_sheet = workbook["Variants"]
+            arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
+            self._test_tabular(
+                arrs, 13, False, self.project2_case1_smallvars + self.project2_case2_smallvars,
+            )
+
+    def test_export_xlsx_as_contributor_for_cohort_by_superuser(self):
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(self.superuser, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterXlsx(bgjob, cohort) as exporter:
+            result = exporter.generate()
+        with tempfile.NamedTemporaryFile(suffix=".xlsx") as temp_file:
+            temp_file.write(result)
+            temp_file.flush()
+            workbook = openpyxl.load_workbook(temp_file.name)
+            # TODO: also test without commments
+            self.assertEquals(workbook.sheetnames, ["Variants", "Comments", "Metadata"])
+            variants_sheet = workbook["Variants"]
+            arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
+            self._test_tabular(
+                arrs, 13, False, self.project2_case1_smallvars + self.project2_case2_smallvars,
+            )
 
 
 def _fake_generate(_self):

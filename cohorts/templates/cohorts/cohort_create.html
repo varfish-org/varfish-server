@@ -1,0 +1,61 @@
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
+{% load humanize %}
+{% load static %}
+{% load crispy_forms_filters %}
+{% load cohorts_tags %}
+
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
+  <li class="breadcrumb-item active">{{ object.name }}</li>
+{% endblock %}
+
+{% block projectroles %}
+  <div class="row sodar-pr-content-title pb-2">
+    {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
+    {% include 'projectroles/_project_menu_btn.html' %}
+
+    <h2 class="sodar-pr-content-title">
+      Cohort
+      <small class="text-muted">{{ object.name }}</small>
+    </h2>
+  </div>
+
+  <div class="container-fluid sodar-page-container pt-3">
+    <form method="post">{% csrf_token %}
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Name</span>
+        </div>
+        {{ form.name }}
+      </div>
+      <div id="accordion" class="accordion mb-3">
+        {% for p in projects %}
+          <div class="card mb-0">
+            <div class="card-header" id="heading-project-{{ p.id }}">
+              <h5 class="mb-0">
+                <button class="btn btn-link {% if not forloop.first %}collapsed{% endif %}" type="button" data-toggle="collapse" data-target="#collapse-project-{{ p.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse-project-{{ p.id }}">
+                  {{ p.title }}
+                </button>
+              </h5>
+            </div>
+            <div id="collapse-project-{{ p.id }}" class="collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading-project-{{ p.id }}" data-parent="#accordion">
+              <div class="card-body">
+                <div class="form-group">
+                  {% for case_box in form.cases %}
+                    {% if case_box|case_is_in_project:p %}
+                      <span class="ml-3">{{ case_box }}</span>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <a class="btn btn-secondary" href="{% url 'cohorts:list' project=project.sodar_uuid %}"><i class="fa fa-arrow-circle-left"></i> Cancel</a>
+      <button type="submit" class="btn btn-success"><i class="fa fa-plus-circle"></i> Create Cohort</button>
+    </form>
+  </div>
+{% endblock %}

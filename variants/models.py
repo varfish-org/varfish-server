@@ -99,11 +99,11 @@ class CaseAwareProject(Project):
     class Meta:
         proxy = True
 
-    def indices(self):
+    def indices(self, _user=None):
         """Return all registered indices."""
         return [p.index for p in self.get_active_smallvariant_cases()]
 
-    def pedigree(self):
+    def pedigree(self, _user=None):
         """Concatenate the pedigrees of project's cases."""
         result = []
         seen = set()
@@ -116,7 +116,7 @@ class CaseAwareProject(Project):
                 seen.add((case.name, line["patient"]))
         return result
 
-    def get_filtered_pedigree_with_samples(self):
+    def get_filtered_pedigree_with_samples(self, _user=None):
         """Concatenate the pedigrees of project's cases that have samples."""
         result = []
         seen = set()
@@ -129,7 +129,7 @@ class CaseAwareProject(Project):
                 seen.add((case.name, line["patient"]))
         return result
 
-    def get_family_with_filtered_pedigree_with_samples(self):
+    def get_family_with_filtered_pedigree_with_samples(self, _user=None):
         """Concatenate the pedigrees of project's cases that have samples."""
         result = defaultdict(list)
         seen = set()
@@ -1750,6 +1750,10 @@ class ProjectCasesFilterBgJob(JobModelMessageMixin, models.Model):
     #: Link to the ProjectCaseSmallVariantQuery object. Holds query arguments and results.
     projectcasessmallvariantquery = models.ForeignKey(
         ProjectCasesSmallVariantQuery, null=False, help_text="Query that is executed."
+    )
+
+    cohort = models.ForeignKey(
+        "cohorts.Cohort", null=True, related_name="project_cases_filter_bg_job"
     )
 
     def get_human_readable_type(self):

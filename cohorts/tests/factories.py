@@ -1,0 +1,92 @@
+import factory
+from projectroles.forms import PROJECT_ROLE_OWNER, PROJECT_ROLE_CONTRIBUTOR
+from projectroles.models import Role
+from projectroles.tests.test_models import RoleAssignmentMixin
+from test_plus import TestCase
+
+from cohorts.models import Cohort
+from variants.models import Case
+from variants.tests.factories import ProjectFactory, SmallVariantSetFactory, SmallVariantFactory
+
+
+class CohortFactory(factory.django.DjangoModelFactory):
+    """Factory for creating ``cohorts`` ``Cohort`` objects."""
+
+    class Meta:
+        model = Cohort
+
+    user = None
+    project = factory.SubFactory(ProjectFactory)
+    name = factory.Sequence(lambda n: "TestCohort%s" % n)
+
+    @factory.post_generation
+    def cases(self, create, extracted, **kwargs):
+        if not create:
+            # Simple build, do nothing.
+            return
+
+        if extracted:
+            # A list of groups were passed in, use them
+            for case in extracted:
+                self.cases.add(case)
+
+
+class TestCohortBase(RoleAssignmentMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.maxDiff = None  # show full diff
+
+        # setup users
+
+        # setup super user
+        self.superuser = self.make_user("superuser")
+        self.superuser.is_staff = True
+        self.superuser.is_superuser = True
+        self.superuser.save()
+
+        # setup contributor user
+        self.contributor = self.make_user("contributor")
+
+        # setup cases & projects & roles
+
+        # project 1 case 1
+        variant_set_1 = SmallVariantSetFactory()
+        self.project1_case1_smallvars = SmallVariantFactory.create_batch(
+            1, variant_set=variant_set_1
+        )
+        self.project1_case1 = variant_set_1.case
+        self.project1 = self.project1_case1.project
+        # project 1 case 2
+        variant_set_2 = SmallVariantSetFactory(case__project=self.project1)
+        self.project1_case2_smallvars = SmallVariantFactory.create_batch(
+            2, variant_set=variant_set_2
+        )
+        self.project1_case2 = variant_set_2.case
+        # project 2 case 1
+        variant_set_3 = SmallVariantSetFactory()
+        self.project2_case1_smallvars = SmallVariantFactory.create_batch(
+            4, variant_set=variant_set_3
+        )
+        self.project2_case1 = variant_set_3.case
+        self.project2 = self.project2_case1.project
+        # project 2 case 2
+        variant_set_4 = SmallVariantSetFactory(case__project=self.project2)
+        self.project2_case2_smallvars = SmallVariantFactory.create_batch(
+            8, variant_set=variant_set_4
+        )
+        self.project2_case2 = variant_set_4.case
+
+        # init roles
+        role_owner = Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0]
+        role_contributor = Role.objects.get_or_create(name=PROJECT_ROLE_CONTRIBUTOR)[0]
+
+        # superuser gets access to project1 and project2
+        self._make_assignment(self.project1, self.superuser, role_owner)
+        self._make_assignment(self.project2, self.superuser, role_owner)
+        # contributor gets access to project2
+        self._make_assignment(self.project2, self.contributor, role_contributor)
+
+    def _create_cohort_all_possible_cases(self, user, project):
+        return CohortFactory.create(
+            user=user, project=project, cases=Case.objects.filter(project__roles__user=user)
+        )

@@ -13,6 +13,7 @@ from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
 import sqlparse
 
 from clinvar.models import Clinvar
+from cohorts.models import Cohort
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from frequencies.models import MtDb, HelixMtDb, Mitomap
@@ -1621,8 +1622,13 @@ class CaseExportVcfQuery(CasePrefetchQuery):
 
 
 class ProjectPrefetchQuery(CasePrefetchQuery):
-    def __init__(self, project, engine, query_id=None):
-        cases = project.case_set.filter(smallvariantset__state="active")
+    def __init__(self, project_or_cohort, engine, query_id=None, user=None):
+        if isinstance(project_or_cohort, Cohort) and user:
+            cases = project_or_cohort.get_accessible_cases_for_user(user)
+        elif isinstance(project_or_cohort, Cohort):
+            cases = project_or_cohort.cases.all()
+        else:
+            cases = project_or_cohort.get_active_smallvariant_cases()
         super().__init__(cases, engine, query_id)
 
 

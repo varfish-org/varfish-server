@@ -7,6 +7,7 @@ Remarks:
 """
 
 from clinvar.tests.factories import ClinvarFactory
+from cohorts.tests.factories import TestCohortBase
 from conservation.tests.factories import KnownGeneAAFactory
 from frequencies.tests.factories import MitomapFactory, HelixMtDbFactory, MtDbFactory
 from hgmd.tests.factories import HgmdPublicLocusFactory
@@ -4848,6 +4849,61 @@ class TestCaseFiveQueryProject(SupportQueryTestBase):
             {"filter_job_id": self.projectcasessmallvariantquery.id},
             2,
             query_type="project",
+        )
+
+
+class TestQueryCohort(TestCohortBase, SupportQueryTestBase):
+    def test_prefetch_query_cohort_as_superuser(self):
+        user = self.superuser
+        self._create_cohort_all_possible_cases(user, self.project1)
+        self.run_query(ProjectPrefetchQuery, {}, 15, query_type="cohort", user=user)
+
+    def test_prefetch_query_cohort_as_contributor(self):
+        user = self.contributor
+        self._create_cohort_all_possible_cases(user, self.project2)
+        self.run_query(ProjectPrefetchQuery, {}, 12, query_type="cohort", user=user)
+
+    def test_prefetch_query_cohort_as_superuser_for_cohort_by_contributor(self):
+        user = self.superuser
+        self._create_cohort_all_possible_cases(self.contributor, self.project1)
+        self.run_query(ProjectPrefetchQuery, {}, 12, query_type="cohort", user=user)
+
+    def test_prefetch_query_cohort_as_contributor_for_cohort_by_superuser(self):
+        user = self.contributor
+        self._create_cohort_all_possible_cases(self.superuser, self.project2)
+        self.run_query(ProjectPrefetchQuery, {}, 12, query_type="cohort", user=user)
+
+    def test_load_prefetched_query_cohort_as_superuser(self):
+        user = self.superuser
+        project = self.project1
+        self._create_cohort_all_possible_cases(user, project)
+        query = ProjectCasesSmallVariantQueryFactory(project=project)
+        query.query_results.add(
+            *self.project1_case1_smallvars,
+            *self.project1_case2_smallvars,
+            *self.project2_case1_smallvars,
+            *self.project2_case2_smallvars
+        )
+        self.run_query(
+            ProjectLoadPrefetchedQuery,
+            {"filter_job_id": query.id},
+            15,
+            query_type="cohort",
+            user=user,
+        )
+
+    def test_load_prefetched_query_cohort_as_contributor(self):
+        user = self.contributor
+        project = self.project2
+        query = ProjectCasesSmallVariantQueryFactory(project=project)
+        query.query_results.add(*self.project2_case1_smallvars, *self.project2_case2_smallvars)
+        self._create_cohort_all_possible_cases(user, project)
+        self.run_query(
+            ProjectLoadPrefetchedQuery,
+            {"filter_job_id": query.id},
+            12,
+            query_type="cohort",
+            user=user,
         )
 
 

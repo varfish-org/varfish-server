@@ -8,9 +8,11 @@ import tempfile
 import vcfpy
 from django.conf import settings
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
 from django.utils.text import get_valid_filename
 
+from cohorts.models import Cohort
 from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
 from .templatetags.variants_tags import only_source_name
 from geneinfo.models import Hgnc, HpoName, Hpo
@@ -1465,26 +1467,32 @@ class ProjectCasesFilterForm(
     )
 
     def __init__(self, *args, **kwargs):
-        self.project = kwargs.pop("project")
+        cohort = kwargs.pop("cohort")
+        project = kwargs.pop("project")
+        self.project_or_cohort = cohort or project
         self.user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
+        if cohort:
+            self.fields["cohort"] = forms.CharField(
+                widget=forms.HiddenInput(), initial=str(cohort.sodar_uuid)
+            )
 
     def get_pedigree(self):
         """Return ``list`` of ``dict`` with pedigree information."""
-        return self.project.pedigree()
+        return self.project_or_cohort.pedigree(self.user)
 
     def get_pedigree_with_samples(self):
         """Return ``dict`` of ``dict`` with family and pedigree information of samples that have variants and a variant set."""
-        return self.project.get_filtered_pedigree_with_samples()
+        return self.project_or_cohort.get_filtered_pedigree_with_samples(self.user)
 
     def get_family_with_pedigree_with_samples(self):
         """Return ``dict`` of ``dict`` with family and pedigree information of samples that have variants and a variant set."""
-        return self.project.get_family_with_filtered_pedigree_with_samples()
+        return self.project_or_cohort.get_family_with_filtered_pedigree_with_samples(self.user)
 
     def get_default_families(self):
         """Return the registered index patient of the family."""
         pedigree = self.get_pedigree()
-        indices = self.project.indices()
+        indices = self.project_or_cohort.indices(self.user)
         ret = []
         for member in pedigree:
             for index in indices:
@@ -1499,10 +1507,6 @@ class ProjectCasesFilterForm(
     def get_trio_roles(self):
         """Return empty dict as there is no trio role assignment when querying across project."""
         return {}
-
-    def get_active_cases(self):
-        """Return active cases in a project."""
-        return self.project.get_active_small_variant_cases()
 
     def clean(self):
         """Perform data cleaning and cross-field validation.

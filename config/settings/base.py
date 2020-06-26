@@ -86,6 +86,7 @@ LOCAL_APPS = [
     "varfish.users.apps.UsersConfig",
     # Your stuff: custom apps go here
     "clinvar.apps.ClinvarConfig",
+    "cohorts.apps.CohortsConfig",
     "conservation.apps.ConservationConfig",
     "dbsnp.apps.DbsnpConfig",
     "frequencies.apps.FrequenciesConfig",

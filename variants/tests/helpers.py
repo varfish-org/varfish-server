@@ -4,6 +4,7 @@ import aldjemy.core
 from django.test import RequestFactory
 from test_plus.test import TestCase, APITestCase
 
+from cohorts.models import Cohort
 from .factories import ProcessedFormDataFactory
 from ..models import Case, CaseAwareProject
 from variants.helpers import SQLALCHEMY_ENGINE
@@ -56,7 +57,7 @@ class QueryTestBase(TestBase):
 class SupportQueryTestBase(TestBase):
     """Base class for model support queries."""
 
-    def _get_fetch_and_query(self, query_class, cleaned_data_patch, query_type="case"):
+    def _get_fetch_and_query(self, query_class, cleaned_data_patch, query_type="case", user=None):
         engine = SQLALCHEMY_ENGINE
 
         def fetch_case_and_query():
@@ -68,10 +69,15 @@ class SupportQueryTestBase(TestBase):
                     obj = Case.objects.first()
                 else:
                     obj = Case.objects.get(sodar_uuid=cleaned_data_patch["case_uuid"])
+                members = obj.get_members()
+            elif query_type == "cohort":
+                obj = Cohort.objects.first()
+                members = obj.get_members(user)
             else:  # query_type == "project"
                 obj = CaseAwareProject.objects.first()
+                members = obj.get_members()
             patched_cleaned_data = {
-                **vars(ProcessedFormDataFactory(names=obj.get_members())),
+                **vars(ProcessedFormDataFactory(names=members)),
                 **cleaned_data_patch,
             }
             previous_query = patched_cleaned_data.get("filter_job_id", None)
@@ -79,13 +85,22 @@ class SupportQueryTestBase(TestBase):
             if previous_query:
                 query = query_class(obj, engine, previous_query)
             else:
-                query = query_class(obj, engine)
+                if query_type == "cohort":
+                    query = query_class(obj, engine, user=user)
+                else:
+                    query = query_class(obj, engine)
             return query.run(patched_cleaned_data)
 
         return fetch_case_and_query
 
     def run_query(
-        self, query_class, cleaned_data_patch, length, assert_raises=None, query_type="case"
+        self,
+        query_class,
+        cleaned_data_patch,
+        length,
+        assert_raises=None,
+        query_type="case",
+        user=None,
     ):
         """Run query returning a collection of filtration results with ``query_class``.
 
@@ -102,7 +117,7 @@ class SupportQueryTestBase(TestBase):
           ``assert_raises`` is raised.
         """
         fetch_case_and_query = self._get_fetch_and_query(
-            query_class, cleaned_data_patch, query_type
+            query_class, cleaned_data_patch, query_type, user
         )
         if assert_raises:
             with self.assertRaises(assert_raises):
@@ -113,10 +128,12 @@ class SupportQueryTestBase(TestBase):
             return results
 
     def run_count_query(
-        self, query_class, kwargs_patch, length, assert_raises=None, query_type="case"
+        self, query_class, kwargs_patch, length, assert_raises=None, query_type="case", user=None
     ):
         """Run query returning a result record count instead of result records."""
-        fetch_case_and_query = self._get_fetch_and_query(query_class, kwargs_patch, query_type)
+        fetch_case_and_query = self._get_fetch_and_query(
+            query_class, kwargs_patch, query_type, user
+        )
         if assert_raises:
             with self.assertRaises(assert_raises):
                 fetch_case_and_query()

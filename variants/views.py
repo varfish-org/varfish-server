@@ -34,6 +34,7 @@ from projectroles.templatetags.projectroles_common_tags import site_version
 from bgjobs.models import BackgroundJob
 from bgjobs.views import DEFAULT_PAGINATION as BGJOBS_DEFAULT_PAGINATION
 from clinvar.models import Clinvar
+from cohorts.models import Cohort
 from config.settings.base import VARFISH_CADD_SUBMISSION_RELEASE
 from frequencies.models import MT_DB_INFO
 from geneinfo.views import get_gene_infos
@@ -1947,9 +1948,7 @@ class FilterJobGetStatus(
             filter_job = FilterBgJob.objects.select_related("bg_job").get(
                 sodar_uuid=self.request.POST["filter_job_uuid"]
             )
-            log_entries = reversed(
-                filter_job.bg_job.log_entries.all().order_by("-date_created")[:3]
-            )
+            log_entries = reversed(filter_job.bg_job.log_entries.all().order_by("-date_created"))
             return JsonResponse(
                 {
                     "status": filter_job.bg_job.status,
@@ -2211,9 +2210,10 @@ class ProjectCasesLoadPrefetchedFilterView(
         before = timezone.now()
         # Get and run query
         query = ProjectLoadPrefetchedQuery(
-            filter_job.projectcasessmallvariantquery.project,
+            getattr(filter_job, "cohort") or filter_job.projectcasessmallvariantquery.project,
             SQLALCHEMY_ENGINE,
             filter_job.projectcasessmallvariantquery.id,
+            user=self.request.user,
         )
 
         # get all rows and then inflate them with all member per case and then cut them down. we can't know the length
@@ -2334,23 +2334,35 @@ class ProjectCasesFilterView(
         super().__init__(*args, **kwargs)
         self._alchemy_engine = None
         self._previous_query = None
+        self._cohort = None
+
+    def get_cohort(self):
+        if not self._cohort:
+            cohort = self.kwargs.get("cohort")
+            self._cohort = Cohort.objects.get(sodar_uuid=cohort) if cohort else None
+        return self._cohort
 
     def get_previous_query(self):
-        user = self.request.user
-        if settings.KIOSK_MODE:
-            user = User.objects.get(username="kiosk_user")
         if not self._previous_query:
+            project = self.get_project(self.request, self.kwargs)
+            cohort = self.get_cohort()
+            user = self.request.user
+            if settings.KIOSK_MODE:
+                user = User.objects.get(username="kiosk_user")
             if "job" in self.kwargs:
-                self._previous_query = ProjectCasesFilterBgJob.objects.get(
-                    sodar_uuid=self.kwargs["job"]
-                ).projectcasessmallvariantquery
+                filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=self.kwargs["job"])
             else:
-                self._previous_query = (
-                    self.get_project(self.request, self.kwargs)
-                    .small_variant_queries.filter(user=user)
-                    .order_by("-date_created")
+                # When cohort is None, this will return last "default" projectcases query.
+                # Otherwise it will return last cohort query for this user.
+                filter_job = (
+                    ProjectCasesFilterBgJob.objects.filter(
+                        project=project, bg_job__user=user, cohort=cohort
+                    )
+                    .order_by("-bg_job__date_created")
                     .first()
                 )
+            if filter_job:
+                self._previous_query = filter_job.projectcasessmallvariantquery
         return self._previous_query
 
     def get_form_kwargs(self):
@@ -2360,6 +2372,7 @@ class ProjectCasesFilterView(
         result = super().get_form_kwargs()
         result["project"] = self.get_project(self.request, self.kwargs)
         result["user"] = user
+        result["cohort"] = self.get_cohort()
         return result
 
     def form_valid(self, form):
@@ -2422,6 +2435,7 @@ class ProjectCasesFilterView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        cohort = self.get_cohort()
         context["num_small_vars"] = context["project"].num_small_vars()
         context["variant_set_exists"] = (
             context["project"].case_set.filter(smallvariantset__state="active").exists()
@@ -2434,10 +2448,16 @@ class ProjectCasesFilterView(
             "variants:project-cases-load-filter-results",
             kwargs={"project": context["project"].sodar_uuid},
         )
-        context["request_previous_job_url"] = reverse(
-            "variants:project-cases-filter-job-previous",
-            kwargs={"project": context["project"].sodar_uuid},
-        )
+        if cohort:
+            context["request_previous_job_url"] = reverse(
+                "variants:project-cases-filter-job-previous-cohort",
+                kwargs={"project": context["project"].sodar_uuid, "cohort": cohort.sodar_uuid},
+            )
+        else:
+            context["request_previous_job_url"] = reverse(
+                "variants:project-cases-filter-job-previous",
+                kwargs={"project": context["project"].sodar_uuid},
+            )
         context["job_status_url"] = reverse(
             "variants:project-cases-filter-job-status",
             kwargs={"project": context["project"].sodar_uuid},
@@ -2475,8 +2495,12 @@ class ProjectCasesPrefetchFilterView(
         # get current CaseAwareProject
         project = CaseAwareProject.objects.get(pk=self.get_project(self.request, self.kwargs).pk)
 
+        cohort = self.request.POST.get("cohort")
+        if cohort:
+            cohort = Cohort.objects.get(sodar_uuid=cohort)
+
         # clean data first
-        form = ProjectCasesFilterForm(self.request.POST, project=project, user=user)
+        form = ProjectCasesFilterForm(self.request.POST, project=project, user=user, cohort=cohort)
 
         if form.is_valid():
             # form is valid, we are supposed to render an HTML table with the results
@@ -2496,11 +2520,14 @@ class ProjectCasesPrefetchFilterView(
                     job_type=ProjectCasesFilterBgJob.spec_name,
                     user=user,
                 )
-                filter_job = ProjectCasesFilterBgJob.objects.create(
-                    project=project,
-                    bg_job=bg_job,
-                    projectcasessmallvariantquery=small_variant_query,
-                )
+                data = {
+                    "project": project,
+                    "bg_job": bg_job,
+                    "projectcasessmallvariantquery": small_variant_query,
+                }
+                if cohort:
+                    data["cohort"] = cohort
+                filter_job = ProjectCasesFilterBgJob.objects.create(**data)
 
             # Submit job
             project_cases_filter_task.delay(project_cases_filter_job_pk=filter_job.pk)
@@ -2530,9 +2557,7 @@ class ProjectCasesFilterJobGetStatus(
             filter_job = ProjectCasesFilterBgJob.objects.select_related("bg_job").get(
                 sodar_uuid=self.request.POST["filter_job_uuid"]
             )
-            log_entries = reversed(
-                filter_job.bg_job.log_entries.all().order_by("-date_created")[:3]
-            )
+            log_entries = reversed(filter_job.bg_job.log_entries.all().order_by("-date_created"))
             return JsonResponse(
                 {
                     "status": filter_job.bg_job.status,
@@ -2577,11 +2602,14 @@ class ProjectCasesFilterJobGetPrevious(
 
     def get(self, *args, **kwargs):
         user = self.request.user
+        project = self.get_project(self.request, self.kwargs)
+        cohort_uuid = self.kwargs.get("cohort")
+        cohort = Cohort.objects.get(sodar_uuid=cohort_uuid) if cohort_uuid else None
         if settings.KIOSK_MODE:
             user = User.objects.get(username="kiosk_user")
         filter_job = (
             ProjectCasesFilterBgJob.objects.filter(
-                projectcasessmallvariantquery__user=user, project__sodar_uuid=kwargs["project"]
+                project=project, bg_job__user=user, cohort=cohort
             )
             .order_by("-bg_job__date_created")
             .first()

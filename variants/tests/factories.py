@@ -86,6 +86,7 @@ class FormDataFactoryBase:
     clinvar_include_pathogenic: bool = False
     compound_recessive_indices: typing.Dict[str, str] = {}
     recessive_indices: typing.Dict[str, str] = {}
+    cohort: uuid.UUID = ""
 
     # This is a dummy attribute to generate the name-dependent fields.
     # It is removed after initialization.
@@ -213,7 +214,7 @@ class FormDataFactory(FormDataFactoryBase):
     result_rows_limit: int = 80
     training_mode: bool = False
     submit: str = "display"
-    filter_job_uuid: uuid.UUID = None
+    filter_job_uuid: uuid.UUID = ""
 
     def __attrs_post_init__(self):
         for name in self.names:
@@ -729,6 +730,7 @@ class ProjectCasesFilterBgJobFactory(factory.django.DjangoModelFactory):
     # Dummy argument ``user`` to pass to subfactory BackgroundJobFactory
     user = None
     project = factory.SubFactory(ProjectFactory)
+    cohort = None
     bg_job = factory.SubFactory(
         BackgroundJobFactory,
         project=factory.SelfAttribute("factory_parent.project"),
