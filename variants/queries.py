@@ -151,14 +151,20 @@ class ExtendQueryPartsBase:
         return ()
 
 
-def same_variant(lhs, rhs):
+def same_variant(lhs, rhs, lhs_attrib="sa", rhs_attrib="sa", lhs_prefix="", rhs_prefix=""):
     return and_(
-        lhs.sa.release == rhs.sa.release,
-        lhs.sa.chromosome == rhs.sa.chromosome,
-        lhs.sa.start == rhs.sa.start,
-        lhs.sa.end == rhs.sa.end,
-        lhs.sa.reference == rhs.sa.reference,
-        lhs.sa.alternative == rhs.sa.alternative,
+        getattr(getattr(lhs, lhs_attrib), "%srelease" % lhs_prefix)
+        == getattr(getattr(rhs, rhs_attrib), "%srelease" % rhs_prefix),
+        getattr(getattr(lhs, lhs_attrib), "%schromosome" % lhs_prefix)
+        == getattr(getattr(rhs, rhs_attrib), "%schromosome" % rhs_prefix),
+        getattr(getattr(lhs, lhs_attrib), "%sstart" % lhs_prefix)
+        == getattr(getattr(rhs, rhs_attrib), "%sstart" % rhs_prefix),
+        getattr(getattr(lhs, lhs_attrib), "%send" % lhs_prefix)
+        == getattr(getattr(rhs, rhs_attrib), "%send" % rhs_prefix),
+        getattr(getattr(lhs, lhs_attrib), "%sreference" % lhs_prefix)
+        == getattr(getattr(rhs, rhs_attrib), "%sreference" % rhs_prefix),
+        getattr(getattr(lhs, lhs_attrib), "%salternative" % lhs_prefix)
+        == getattr(getattr(rhs, rhs_attrib), "%salternative" % rhs_prefix),
     )
 
 
@@ -1053,32 +1059,36 @@ class ExtendQueryPartsProjectLoadPrefetched(ExtendQueryPartsLoadPrefetchedBase):
 class ExtendQueryPartsCommentsJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        user_comment = SmallVariantComment.sa.table.outerjoin(
+            User.sa, User.sa.id == SmallVariantComment.sa.user_id
+        ).alias("user_comment")
         self.subquery = (
             select(
                 (
-                    func.count(SmallVariantComment.sa.id).label("comment_count"),
+                    func.count(literal_column("user_comment")).label("comment_count"),
                     func.jsonb_agg(literal_column("user_comment")).label("comment_list"),
                 )
             )
-            .select_from(
-                SmallVariantComment.sa.table.outerjoin(
-                    User.sa, User.sa.id == SmallVariantComment.sa.user_id
-                ).alias("user_comment")
-            )
+            .select_from(user_comment)
             .where(
                 and_(
-                    same_variant(SmallVariant, SmallVariantComment),
-                    SmallVariantComment.sa.case_id == SmallVariant.sa.case_id,
+                    same_variant(
+                        SmallVariant,
+                        user_comment,
+                        rhs_attrib="c",
+                        rhs_prefix="variants_smallvariantcomment_",
+                    ),
+                    SmallVariant.sa.case_id == user_comment.c.variants_smallvariantcomment_case_id,
                 )
             )
             .group_by(
-                SmallVariantComment.sa.case_id,
-                SmallVariantComment.sa.release,
-                SmallVariantComment.sa.chromosome,
-                SmallVariantComment.sa.start,
-                SmallVariantComment.sa.end,
-                SmallVariantComment.sa.reference,
-                SmallVariantComment.sa.alternative,
+                user_comment.c.variants_smallvariantcomment_case_id,
+                user_comment.c.variants_smallvariantcomment_release,
+                user_comment.c.variants_smallvariantcomment_chromosome,
+                user_comment.c.variants_smallvariantcomment_start,
+                user_comment.c.variants_smallvariantcomment_end,
+                user_comment.c.variants_smallvariantcomment_reference,
+                user_comment.c.variants_smallvariantcomment_alternative,
             )
             .lateral("comments_subquery")
         )
