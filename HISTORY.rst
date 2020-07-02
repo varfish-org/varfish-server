@@ -25,7 +25,6 @@ End-User Summary
 - VariantValidator output now displays three-letter representation of AA.
 - Documented new clinvar aggregation method and VarFish "point rating".
 - Implemented new clinvar data display in variant detail.
-- Case/project overview allows to download all annotated variants as a file now.
 
 Full Change List
 ================
@@ -54,8 +53,6 @@ Full Change List
 - VariantValidator output now displays three-letter representation of AA.
 - Documented new clinvar aggregation method and VarFish "point rating".
 - Implemented new clinvar data display in variant detail.
-- Case/project overview allows to download all annotated variants as a file now.
-- Querying for annotated variants on the case/project overview now uses the common query infrastructure.
 
 -------
 v0.21.0

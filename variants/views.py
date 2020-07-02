@@ -1,8 +1,6 @@
-import csv
 import os
 import re
 import tempfile
-import types
 from itertools import chain
 from collections import defaultdict
 import uuid
@@ -24,7 +22,6 @@ from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
-from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View, RedirectView, UpdateView
@@ -55,7 +52,6 @@ from projectroles.plugins import get_backend_api, get_active_plugins
 from genomicfeatures.models import GeneInterval
 from varfish.users.models import User
 from .queries import (
-    CaseAnnotatedVariantsQuery,
     CaseLoadPrefetchedQuery,
     ProjectLoadPrefetchedQuery,
     KnownGeneAAQuery,
@@ -169,70 +165,6 @@ class AlchemyEngineMixin:
         return self._alchemy_engine
 
 
-class AnnotatedVariantsViewMixin:
-    """Helper functions for returning annotated variants in different formats."""
-
-    def _get_tsv(self, case_or_project, entries):
-        if not entries:
-            header = ["no comments yet"]
-        else:
-            header = list(entries[0].keys())
-
-        response = HttpResponse(content_type="text/tab-separated-values")
-        response["Content-Disposition"] = 'attachment; filename="%s-%s.tsv"' % (
-            getattr(case_or_project, "name", getattr(case_or_project, "title")),
-            case_or_project.sodar_uuid,
-        )
-
-        writer = csv.writer(response, delimiter="\t")
-        writer.writerow(header)
-        for entry in entries:
-            writer.writerow([entry[x] for x in header])
-        return response
-
-    def _get_json(self, case_or_project, entries):
-        response = HttpResponse(content_type="application/json")
-        response["Content-Disposition"] = 'attachment; filename="%s-%s.json"' % (
-            getattr(case_or_project, "name", getattr(case_or_project, "title")),
-            case_or_project.sodar_uuid,
-        )
-
-        if not entries:
-            response.content = "{}"
-        else:
-            response.content = DjangoJSONEncoder().encode([entry for entry in entries])
-
-        return response
-
-
-class CaseListAnnotatedVariantsView(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    AnnotatedVariantsViewMixin,
-    ListView,
-):
-    """Display list of all cases"""
-
-    template_name = "variants/case_list.html"
-    permission_required = "variants.view_data"
-    model = Case
-    ordering = ("-date_modified",)
-
-    def get(self, request, *args, **kwargs):
-        self.object_list = self.get_queryset()
-        project = CaseAwareProject.objects.prefetch_related("variant_stats").get(
-            pk=self.get_context_data()["project"].pk
-        )
-        cases = list(Case.objects.filter(project=project))
-        entries = list(map(vars, load_annotated_small_variants(cases)))
-        if self.request.GET.get("format") == "tsv":
-            return self._get_tsv(project, entries)
-        else:
-            return self._get_json(project, entries)
-
-
 class CaseListView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
@@ -272,8 +204,7 @@ class CaseListView(
         result["indel_sizes_keys"] = []
         result["dps"] = {sample: {} for sample in result["samples"]}
         result["progress"] = self._compute_progress(result["project"])
-        cases = list(Case.objects.filter(project=result["project"]))
-        result["annotated_variants"] = load_annotated_small_variants(cases)
+        result["commentsflags"] = self.join_small_var_comments_and_flags(result["project"])
         result["sv_commentsflags"] = self.join_sv_comments_and_flags(result["project"])
         # Build list of properly sorted coverage keys.
         try:
@@ -458,75 +389,75 @@ class CaseListView(
         else:
             result.append((100, total_count, total_count, "initial"))
         return result
-        #
-        # def join_small_var_comments_and_flags(self, project):
-        #     def get_gene_symbol(release, chromosome, start, end):
-        #         bins = binning.containing_bins(start - 1, end)
-        #         gene_intervals = list(
-        #             GeneInterval.objects.filter(
-        #                 database="ensembl",
-        #                 release=release,
-        #                 chromosome=chromosome,
-        #                 bin__in=bins,
-        #                 start__lte=end,
-        #                 end__gte=start,
-        #             )
-        #         )
-        #         gene_ids = [itv.gene_id for itv in gene_intervals]
-        #         symbols1 = {
-        #             o.gene_symbol
-        #             for o in EnsemblToGeneSymbol.objects.filter(ensembl_gene_id__in=gene_ids)
-        #         }
-        #         symbols2 = {o.symbol for o in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)}
-        #         return symbols1 | symbols2
-        #
-        #     result = defaultdict(
-        #         lambda: defaultdict(
-        #             lambda: dict(flags=None, comments=[], genes=set(), acmg_rating=None)
-        #         )
-        #     )
-        #
-        #     for case in project.case_set.all():
-        #         flags = case.small_variant_flags.all()
-        #         comments = case.small_variant_comments.all()
-        #         acmg_ratings = case.acmg_ratings.all()
-        #
-        #         for record in flags:
-        #             result[(record.chromosome, record.start, record.reference, record.alternative)][
-        #                 case
-        #             ]["flags"] = model_to_dict(record)
-        #             result[(record.chromosome, record.start, record.reference, record.alternative)][
-        #                 case
-        #             ]["genes"] |= get_gene_symbol(
-        #                 record.release, record.chromosome, record.start, record.end
-        #             )
-        #
-        #         for record in comments:
-        #             result[(record.chromosome, record.start, record.reference, record.alternative)][
-        #                 case
-        #             ]["comments"].append(
-        #                 {
-        #                     **model_to_dict(record),
-        #                     "date_created": record.date_created,
-        #                     "user": record.user,
-        #                     "username": record.user.username,
-        #                 }
-        #             )
-        #             result[(record.chromosome, record.start, record.reference, record.alternative)][
-        #                 case
-        #             ]["genes"] |= get_gene_symbol(
-        #                 record.release, record.chromosome, record.start, record.end
-        #             )
-        #
-        #         for record in acmg_ratings:
-        #             result[(record.chromosome, record.start, record.reference, record.alternative)][
-        #                 case
-        #             ]["acmg_rating"] = {"data": record, "class": record.acmg_class}
-        #             result[(record.chromosome, record.start, record.reference, record.alternative)][
-        #                 case
-        #             ]["genes"] |= get_gene_symbol(
-        #                 record.release, record.chromosome, record.start, record.end
-        #             )
+
+    def join_small_var_comments_and_flags(self, project):
+        def get_gene_symbol(release, chromosome, start, end):
+            bins = binning.containing_bins(start - 1, end)
+            gene_intervals = list(
+                GeneInterval.objects.filter(
+                    database="ensembl",
+                    release=release,
+                    chromosome=chromosome,
+                    bin__in=bins,
+                    start__lte=end,
+                    end__gte=start,
+                )
+            )
+            gene_ids = [itv.gene_id for itv in gene_intervals]
+            symbols1 = {
+                o.gene_symbol
+                for o in EnsemblToGeneSymbol.objects.filter(ensembl_gene_id__in=gene_ids)
+            }
+            symbols2 = {o.symbol for o in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)}
+            return symbols1 | symbols2
+
+        result = defaultdict(
+            lambda: defaultdict(
+                lambda: dict(flags=None, comments=[], genes=set(), acmg_rating=None)
+            )
+        )
+
+        for case in project.case_set.all():
+            flags = case.small_variant_flags.all()
+            comments = case.small_variant_comments.all()
+            acmg_ratings = case.acmg_ratings.all()
+
+            for record in flags:
+                result[(record.chromosome, record.start, record.reference, record.alternative)][
+                    case
+                ]["flags"] = model_to_dict(record)
+                result[(record.chromosome, record.start, record.reference, record.alternative)][
+                    case
+                ]["genes"] |= get_gene_symbol(
+                    record.release, record.chromosome, record.start, record.end
+                )
+
+            for record in comments:
+                result[(record.chromosome, record.start, record.reference, record.alternative)][
+                    case
+                ]["comments"].append(
+                    {
+                        **model_to_dict(record),
+                        "date_created": record.date_created,
+                        "user": record.user,
+                        "username": record.user.username,
+                    }
+                )
+                result[(record.chromosome, record.start, record.reference, record.alternative)][
+                    case
+                ]["genes"] |= get_gene_symbol(
+                    record.release, record.chromosome, record.start, record.end
+                )
+
+            for record in acmg_ratings:
+                result[(record.chromosome, record.start, record.reference, record.alternative)][
+                    case
+                ]["acmg_rating"] = {"data": record, "class": record.acmg_class}
+                result[(record.chromosome, record.start, record.reference, record.alternative)][
+                    case
+                ]["genes"] |= get_gene_symbol(
+                    record.release, record.chromosome, record.start, record.end
+                )
 
         for variant, data in result.items():
             result[variant] = dict(data)
@@ -885,68 +816,6 @@ class CaseCommentsCountApiView(
         return JsonResponse({"count": self.get_object().case_comments.count()})
 
 
-def load_annotated_small_variants(case_or_cases):
-    """Load small variants that have user annotation for the given case."""
-    if not case_or_cases:
-        return []  # short circuit if no case
-
-    query = CaseAnnotatedVariantsQuery(case_or_cases, SQLALCHEMY_ENGINE)
-    query_kwargs = {"database_select": "refseq"}
-    for flag in ("bookmarked", "candidate", "final_causative", "for_validation"):
-        query_kwargs["flag_%s" % flag] = True
-    for flag in ("visual", "validation", "molecular", "phenotype_match", "summary"):
-        for value in ("positive", "uncertain", "negative"):
-            query_kwargs["%s_%s" % (flag, value)] = True
-    with contextlib.closing(query.run(query_kwargs)) as results:
-        tmp = list(results.fetchall())
-
-    # Manually fix the comments -- contain password hashes and have ugly keys.
-    map_comment = {
-        "users_user_username": "username",
-        "variants_smallvariantcomment_sodar_uuid": "sodar_uuid",
-        "variants_smallvariantcomment_date_created": "date_created",
-        "variants_smallvariantcomment_text": "text",
-        "variants_smallvariantcomment_user_id": "user_id",
-    }
-    result = []
-    for entry in tmp:
-        entry = dict(entry.items())  # tuple thing to dict ...
-        entry["comment_list"] = [
-            {value: comment[key] for key, value in map_comment.items()}
-            for comment in (entry["comment_list"] or [])
-        ]
-        result.append(types.SimpleNamespace(**entry))  # ... and dict to namespace
-
-    return result
-
-
-class CaseAnnotatedVariantsView(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    AlchemyEngineMixin,  # XXX
-    AnnotatedVariantsViewMixin,
-    FormMixin,
-    DetailView,
-):
-    """Allow the user to download annotated variants for a case as TSV/JSON."""
-
-    template_name = "variants/case_detail.html"
-    permission_required = "variants.view_data"
-    model = Case
-    slug_url_kwarg = "case"
-    slug_field = "sodar_uuid"
-
-    def get(self, request, *args, **kwargs):
-        case = self.get_object()
-        entries = list(map(vars, load_annotated_small_variants(case)))
-        if self.request.GET.get("format") == "tsv":
-            return self._get_tsv(case, entries)
-        else:
-            return self._get_json(case, entries)
-
-
 class CaseDetailView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
@@ -976,7 +845,7 @@ class CaseDetailView(
         result["indel_sizes_keys"] = []
         result["dps"] = {sample: {} for sample in result["samples"]}
         result["casecommentsform"] = CaseCommentsForm()
-        result["annotated_variants"] = load_annotated_small_variants(self.get_object())
+        result["commentsflags"] = self.join_small_var_comments_and_flags()
         result["sv_commentsflags"] = self.join_sv_comments_and_flags()
         result["acmg_summary"] = {
             "count": case.acmg_ratings.count(),
@@ -1185,6 +1054,68 @@ class CaseDetailView(
                 )
             )
         return b64encode("\n".join(result).encode("utf-8"))
+
+    def join_small_var_comments_and_flags(self):
+        case = self.get_object()
+        flags = case.small_variant_flags.all()
+        comments = case.small_variant_comments.all()
+        acmg_ratings = case.acmg_ratings.all()
+        result = defaultdict(lambda: dict(flags=None, comments=[], genes=set(), acmg_rating=None))
+
+        def get_gene_symbol(release, chromosome, start, end):
+            bins = binning.containing_bins(start - 1, end)
+            gene_intervals = list(
+                GeneInterval.objects.filter(
+                    database="ensembl",
+                    release=release,
+                    chromosome=chromosome,
+                    bin__in=bins,
+                    start__lte=end,
+                    end__gte=start,
+                )
+            )
+            gene_ids = [itv.gene_id for itv in gene_intervals]
+            symbols1 = {
+                o.gene_symbol
+                for o in EnsemblToGeneSymbol.objects.filter(ensembl_gene_id__in=gene_ids)
+            }
+            symbols2 = {o.symbol for o in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)}
+            return symbols1 | symbols2
+
+        for record in flags:
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "flags"
+            ] = model_to_dict(record)
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "genes"
+            ] |= get_gene_symbol(record.release, record.chromosome, record.start, record.end)
+
+        for record in comments:
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "comments"
+            ].append(
+                {
+                    **model_to_dict(record),
+                    "date_created": record.date_created,
+                    "user": record.user,
+                    "username": record.user.username,
+                }
+            )
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "genes"
+            ] |= get_gene_symbol(record.release, record.chromosome, record.start, record.end)
+
+        for record in acmg_ratings:
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "acmg_rating"
+            ] = {"data": record, "class": record.acmg_class}
+            result[(record.chromosome, record.start, record.reference, record.alternative)][
+                "genes"
+            ] |= get_gene_symbol(record.release, record.chromosome, record.start, record.end)
+
+        for var in result:
+            result[var]["genes"] = sorted(result[var]["genes"])
+        return dict(result)
 
     def join_sv_comments_and_flags(self):
         case = self.get_object()

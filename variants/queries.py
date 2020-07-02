@@ -7,7 +7,6 @@ from sqlalchemy.dialects.postgresql.array import OVERLAP
 from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.contrib.auth import get_user_model
 from sqlalchemy import Table, true, column, union, literal_column, delete
 from sqlalchemy.sql import select, func, and_, not_, or_, cast
 from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
@@ -51,10 +50,6 @@ class _ArrayAppend(GenericFunction):
     name = "array_append"
     identifier = "array_append"
     type = ARRAY(VARCHAR())
-
-
-#: The user model to use.
-User = get_user_model()
 
 
 @attr.s(frozen=True, auto_attribs=True)
@@ -151,20 +146,14 @@ class ExtendQueryPartsBase:
         return ()
 
 
-def same_variant(lhs, rhs, lhs_attrib="sa", rhs_attrib="sa", lhs_prefix="", rhs_prefix=""):
+def same_variant(lhs, rhs):
     return and_(
-        getattr(getattr(lhs, lhs_attrib), "%srelease" % lhs_prefix)
-        == getattr(getattr(rhs, rhs_attrib), "%srelease" % rhs_prefix),
-        getattr(getattr(lhs, lhs_attrib), "%schromosome" % lhs_prefix)
-        == getattr(getattr(rhs, rhs_attrib), "%schromosome" % rhs_prefix),
-        getattr(getattr(lhs, lhs_attrib), "%sstart" % lhs_prefix)
-        == getattr(getattr(rhs, rhs_attrib), "%sstart" % rhs_prefix),
-        getattr(getattr(lhs, lhs_attrib), "%send" % lhs_prefix)
-        == getattr(getattr(rhs, rhs_attrib), "%send" % rhs_prefix),
-        getattr(getattr(lhs, lhs_attrib), "%sreference" % lhs_prefix)
-        == getattr(getattr(rhs, rhs_attrib), "%sreference" % rhs_prefix),
-        getattr(getattr(lhs, lhs_attrib), "%salternative" % lhs_prefix)
-        == getattr(getattr(rhs, rhs_attrib), "%salternative" % rhs_prefix),
+        lhs.sa.release == rhs.sa.release,
+        lhs.sa.chromosome == rhs.sa.chromosome,
+        lhs.sa.start == rhs.sa.start,
+        lhs.sa.end == rhs.sa.end,
+        lhs.sa.reference == rhs.sa.reference,
+        lhs.sa.alternative == rhs.sa.alternative,
     )
 
 
@@ -196,9 +185,7 @@ class ExtendQueryPartsDbsnpJoin(ExtendQueryPartsBase):
 class ExtendQueryPartsDbsnpJoinAndFilter(ExtendQueryPartsDbsnpJoin):
     def extend_conditions(self, _query_parts):
         # Do not enable option if clinvar filter is activated as all clinvar variants have a dbsnp entry.
-        if self.kwargs.get("remove_if_in_dbsnp", False) and not self.kwargs.get(
-            "require_in_clinvar", False
-        ):
+        if self.kwargs["remove_if_in_dbsnp"] and not self.kwargs["require_in_clinvar"]:
             return [column("rsid") == None]
         return []
 
@@ -359,19 +346,36 @@ class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
 
 
 class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
-    def extend_selectable(self, query_parts):
-        return query_parts.selectable.outerjoin(
-            Clinvar.sa, and_(same_variant(SmallVariant, Clinvar))
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.subquery = (
+            select(
+                (
+                    Clinvar.sa.variation_type,
+                    Clinvar.sa.vcv,
+                    Clinvar.sa.point_rating,
+                    Clinvar.sa.pathogenicity,
+                    Clinvar.sa.review_status,
+                    Clinvar.sa.pathogenicity_summary,
+                    Clinvar.sa.details,
+                )
+            )
+            .select_from(Clinvar.sa)
+            .where(and_(same_variant(SmallVariant, Clinvar)))
+            .lateral("clinvar_subquery")
         )
+
+    def extend_selectable(self, query_parts):
+        return query_parts.selectable.outerjoin(self.subquery, true())
 
     def extend_fields(self, _query_parts):
         return [
-            Clinvar.sa.variation_type,
-            Clinvar.sa.vcv,
-            Clinvar.sa.point_rating,
-            Clinvar.sa.pathogenicity,
-            Clinvar.sa.pathogenicity_summary,
-            Clinvar.sa.details,
+            self.subquery.c.variation_type,
+            self.subquery.c.vcv,
+            self.subquery.c.point_rating,
+            self.subquery.c.pathogenicity,
+            self.subquery.c.pathogenicity_summary,
+            self.subquery.c.details,
         ]
 
 
@@ -390,18 +394,18 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
         return [and_(self._build_membership_term(), self._build_significance_term(),)]
 
     def _build_membership_term(self):
-        if self.kwargs.get("require_in_clinvar", False):
+        if self.kwargs["require_in_clinvar"]:
             return SmallVariant.sa.in_clinvar == True
         else:
             return True
 
     def _build_significance_term(self):
         terms = []
-        if not self.kwargs.get("require_in_clinvar", False):
+        if not self.kwargs.get("require_in_clinvar"):
             return True
         for patho_key in self.patho_keys:
             if self.kwargs.get("clinvar_include_%s" % patho_key):
-                terms.append(Clinvar.sa.pathogenicity == patho_key.replace("_", " "))
+                terms.append(self.subquery.c.pathogenicity == patho_key.replace("_", " "))
         return or_(*terms)
 
 
@@ -456,7 +460,7 @@ class ExtendQueryPartsHgmdJoinAndFilter(ExtendQueryPartsHgmdJoin):
     def extend_conditions(self, _query_parts):
         if self._get_skip_query():
             return []
-        if self.kwargs.get("require_in_hgmd_public", False):
+        if self.kwargs["require_in_hgmd_public"]:
             return [column("hgmd_public_overlap") > 0]
         return []
 
@@ -469,7 +473,7 @@ class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsBase):
     model = SmallVariant
 
     def extend_fields(self, _query_parts):
-        return [Case.sa.sodar_uuid.label("case_uuid"), Case.sa.name.label("case_name")]
+        return [Case.sa.sodar_uuid.label("case_uuid")]
 
     def extend_conditions(self, _query_parts):
         condition = []
@@ -1059,42 +1063,29 @@ class ExtendQueryPartsProjectLoadPrefetched(ExtendQueryPartsLoadPrefetchedBase):
 class ExtendQueryPartsCommentsJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        user_comment = SmallVariantComment.sa.table.outerjoin(
-            User.sa, User.sa.id == SmallVariantComment.sa.user_id
-        ).alias("user_comment")
         self.subquery = (
-            select(
-                (
-                    func.count(literal_column("user_comment")).label("comment_count"),
-                    func.jsonb_agg(literal_column("user_comment")).label("comment_list"),
-                )
-            )
-            .select_from(user_comment)
+            select([func.count(SmallVariantComment.sa.id).label("comment_count")])
+            .select_from(SmallVariantComment.sa)
             .where(
                 and_(
-                    same_variant(
-                        SmallVariant,
-                        user_comment,
-                        rhs_attrib="c",
-                        rhs_prefix="variants_smallvariantcomment_",
-                    ),
-                    SmallVariant.sa.case_id == user_comment.c.variants_smallvariantcomment_case_id,
+                    same_variant(SmallVariant, SmallVariantComment),
+                    SmallVariantComment.sa.case_id == SmallVariant.sa.case_id,
                 )
             )
             .group_by(
-                user_comment.c.variants_smallvariantcomment_case_id,
-                user_comment.c.variants_smallvariantcomment_release,
-                user_comment.c.variants_smallvariantcomment_chromosome,
-                user_comment.c.variants_smallvariantcomment_start,
-                user_comment.c.variants_smallvariantcomment_end,
-                user_comment.c.variants_smallvariantcomment_reference,
-                user_comment.c.variants_smallvariantcomment_alternative,
+                SmallVariantComment.sa.case_id,
+                SmallVariantComment.sa.release,
+                SmallVariantComment.sa.chromosome,
+                SmallVariantComment.sa.start,
+                SmallVariantComment.sa.end,
+                SmallVariantComment.sa.reference,
+                SmallVariantComment.sa.alternative,
             )
             .lateral("comments_subquery")
         )
 
     def extend_fields(self, _query_parts):
-        return [self.subquery.c.comment_count, self.subquery.c.comment_list]
+        return [self.subquery.c.comment_count]
 
     def extend_selectable(self, query_parts):
         return query_parts.selectable.outerjoin(self.subquery, true())
@@ -1230,20 +1221,6 @@ class ExtendQueryPartsAcmgCriteriaJoin(ExtendQueryPartsBase):
 
     def extend_selectable(self, query_parts):
         return query_parts.selectable.outerjoin(self.subquery, true())
-
-
-class ExtendQueryPartsAnnotationFilter(ExtendQueryPartsBase):
-    """Allow filtering for annotated variants only."""
-
-    def extend_conditions(self, _query_parts):
-        return (
-            or_(
-                column("comment_count") > 0,
-                not_(column("acmg_class_auto").is_(None)),
-                not_(column("acmg_class_override").is_(None)),
-                *ExtendQueryPartsFlagsJoinAndFilter.extend_conditions(self, _query_parts),
-            ),
-        )
 
 
 class ExtendQueryPartsModesOfInheritanceJoin(ExtendQueryPartsBase):
@@ -1420,26 +1397,6 @@ class CaseExportVcfQueryPartsBuilder(QueryPartsBuilder):
     # TODO Should we just take the stored results and join the required data?
     # TODO But then, some extensions join AND query ... maybe split them (HGNC?, Clinvar?, dbSNP, HGMD)
     qp_extender_classes = extender_classes_base
-
-
-class CaseAnnotatedVariantsQueryPartsBuilder(QueryPartsBuilder):
-    """Select all annotated variants from a given case."""
-
-    qp_extender_classes = [
-        ExtendQueryPartsCaseJoinAndFilter,
-        ExtendQueryPartsDbsnpJoin,
-        ExtendQueryPartsInHouseJoin,
-        ExtendQueryPartsClinvarJoin,
-        ExtendQueryPartsHgmdJoin,
-        ExtendQueryPartsFlagsJoin,
-        ExtendQueryPartsCommentsJoin,
-        ExtendQueryPartsAcmgCriteriaJoin,
-        ExtendQueryPartsAnnotationFilter,
-        ExtendQueryPartsHgncJoin,
-        ExtendQueryPartsGeneSymbolJoin,
-        ExtendQueryPartsAcmgJoin,
-        ExtendQueryPartsMgiJoin,
-    ]
 
 
 class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
@@ -1661,10 +1618,6 @@ class CaseExportTableQuery(CasePrefetchQuery):
 
 class CaseExportVcfQuery(CasePrefetchQuery):
     builder = CaseExportVcfQueryPartsBuilder
-
-
-class CaseAnnotatedVariantsQuery(CasePrefetchQuery):
-    builder = CaseAnnotatedVariantsQueryPartsBuilder
 
 
 class ProjectPrefetchQuery(CasePrefetchQuery):

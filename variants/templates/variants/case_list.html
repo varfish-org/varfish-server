@@ -46,7 +46,7 @@
       </li>
       <li class="nav-item">
         <a class="nav-link" id="qc-tab" data-toggle="tab" href="#annotation" role="tab" aria-controls="qc" aria-selected="false">
-          <i class="fa fa-comment-o"></i>
+          <i class="fa fa-bar-chart"></i>
           Variant Annotation
           {% with annotation_count=project.get_annotation_count|default:0 %}
             <span class="badge badge-pill {% if annotation_count == 0 %}badge-secondary{% else %}badge-primary{% endif %}">{{ annotation_count }}</span>
