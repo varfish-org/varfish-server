@@ -118,12 +118,12 @@
         .then(function (response) {
           // Render plots after data has been loaded
           plotlyRelatedness(response, 'plot-relatedness')
-          plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')
-          plotlyVarDps(response, 'plot-var-dps')
-          plotlyVariantTypes(response, 'plot-var-types')
-          plotlyVariantEffects(response, 'plot-var-effects')
-          plotlyIndelSizes(response, 'plot-indel-sizes')
-          setTimeout(function() { $(window).trigger('resize') }, 2000);
+          {#plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')#}
+          {#plotlyVarDps(response, 'plot-var-dps')#}
+          {#plotlyVariantTypes(response, 'plot-var-types')#}
+          {#plotlyVariantEffects(response, 'plot-var-effects')#}
+          {#plotlyIndelSizes(response, 'plot-indel-sizes')#}
+          {#setTimeout(function() { $(window).trigger('resize') }, 2000);#}
         })
     })
   </script>
@@ -131,7 +131,7 @@
 
 {% block javascript %}
   {{ block.super }}
-  <script type="text/javascript" src="{% static 'js/vendor/plotly-1.52.3.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/vendor/plotly-1.54.5.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/axios-0.18.0.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/vendor/palette-1.1.0.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/qc_plots.js' %}"></script>

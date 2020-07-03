@@ -53,6 +53,9 @@ Full Change List
 - VariantValidator output now displays three-letter representation of AA.
 - Documented new clinvar aggregation method and VarFish "point rating".
 - Implemented new clinvar data display in variant detail.
+- Case/project overview allows to download all annotated variants as a file now.
+- Querying for annotated variants on the case/project overview now uses the common query infrastructure.
+- Updating plotly to v0.54.5 (displays message on missing WebGL).
 
 -------
 v0.21.0
