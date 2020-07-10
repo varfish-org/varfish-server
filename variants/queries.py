@@ -27,6 +27,7 @@ from geneinfo.models import (
     MgiMapping,
     RefseqToGeneSymbol,
     EnsemblToGeneSymbol,
+    GeneIdInHpo,
 )
 from hgmd.models import HgmdPublicLocus
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
@@ -1254,6 +1255,30 @@ class ExtendQueryPartsModesOfInheritanceJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
+class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.kwargs["database_select"] == "refseq":
+            gene_id = GeneIdInHpo.sa.entrez_id
+        else:  # self.kwargs["database_select"] == "ensembl"
+            gene_id = GeneIdInHpo.sa.ensembl_gene_id
+
+        self.subquery = (
+            select(["id"])
+            .select_from(GeneIdInHpo.sa)
+            .where(
+                getattr(SmallVariant.sa, "%s_gene_id" % self.kwargs["database_select"]) == gene_id
+            )
+            .lateral("disease_gene_subquery")
+        )
+
+    def extend_fields(self, _query_parts):
+        return [self.subquery.c.id.isnot(None).label("disease_gene")]
+
+    def extend_selectable(self, query_parts):
+        return query_parts.selectable.outerjoin(self.subquery, true())
+
+
 class ExtendQueryPartsGnomadConstraintsJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1373,6 +1398,7 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsCommentsJoin,
         ExtendQueryPartsAcmgCriteriaJoin,
         ExtendQueryPartsModesOfInheritanceJoin,
+        ExtendQueryPartsDiseaseGeneJoin,
         ExtendQueryPartsGnomadConstraintsJoin,
         ExtendQueryPartsExacConstraintsJoin,
         ExtendQueryPartsInHouseJoinAndFilter,

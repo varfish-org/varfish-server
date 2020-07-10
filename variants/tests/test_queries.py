@@ -25,6 +25,7 @@ from geneinfo.tests.factories import (
     HgncFactory,
     AcmgFactory,
     GeneIdToInheritanceFactory,
+    GeneIdInHpoFactory,
     GnomadConstraintsFactory,
     ExacConstraintsFactory,
     MgiMappingFactory,
@@ -80,6 +81,10 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
                 mode_of_inheritance="AR",
             ),
         ]
+        # Prepare disease gene
+        GeneIdInHpoFactory(
+            ensembl_gene_id=small_vars[0].ensembl_gene_id, entrez_id=small_vars[0].refseq_gene_id,
+        ),
         # Prepare constraints
         self.gnomad_constraints = GnomadConstraintsFactory(
             ensembl_gene_id=small_vars[0].ensembl_gene_id
@@ -113,10 +118,12 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
                 self.modes_of_inheritance[1].mode_of_inheritance,
             ],
         )
+        self.assertTrue(results[0].disease_gene)
         self.assertEqual(results[0].gnomad_pLI, self.gnomad_constraints.pLI)
         self.assertEqual(results[0].exac_pLI, self.exac_constraints.pLI)
         self.assertEqual(results[0].mgi_id, self.mgi.mgi_id)
         self.assertIsNone(results[1].mgi_id)
+        self.assertFalse(results[1].disease_gene)
 
     def test_load_prefetched_project_cases_results(self):
         results = self.run_query(

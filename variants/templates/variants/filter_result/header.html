@@ -24,6 +24,7 @@
   <th class="detail-constraints-gnomad-z-mis">gnomAD</th>
   <th class="detail-constraints-gnomad-z-syn">gnomAD</th>
   <th></th>{# gene #}
+  <th></th>{# disease gene #}
   <th></th>{# effect #}
   {% if query_type == "project" %}
     <th></th> {# cases per gene #}
@@ -83,6 +84,7 @@
   <th class="detail-constraints-gnomad-z-mis">Z mis</th>
   <th class="detail-constraints-gnomad-z-syn">Z syn</th>
   <th>gene</th>
+  <th data-toggle="tooltip" data-placement="top" data-html="true" title="<strong><u>D</u></strong>isease <strong><u>G</u></strong>ene; variant found in gene listed in OMIM.">DG</th>
   <th>effect</th>
   {% if query_type == "project" %}
     <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number affected cases per gene.">

@@ -17,6 +17,7 @@ from ..models import (
     MgiMapping,
     RefseqToGeneSymbol,
     EnsemblToGeneSymbol,
+    GeneIdInHpo,
 )
 
 
@@ -186,6 +187,16 @@ class GeneIdToInheritanceFactory(factory.django.DjangoModelFactory):
     ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
     entrez_id = factory.Sequence(lambda n: str(n))
     mode_of_inheritance = factory.Iterator([m for m, v in GeneIdToInheritance.MODES_OF_INHERITANCE])
+
+
+class GeneIdInHpoFactory(factory.django.DjangoModelFactory):
+    """Factory for the ``GeneIdInHpo`` model/materialized view."""
+
+    class Meta:
+        model = GeneIdInHpo
+
+    ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
+    entrez_id = factory.Sequence(lambda n: str(n))
 
 
 class MgiMappingFactory(factory.django.DjangoModelFactory):

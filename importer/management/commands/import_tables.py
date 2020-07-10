@@ -38,6 +38,7 @@ from geneinfo.models import (
     refresh_geneinfo_mgimapping,
     RefseqToGeneSymbol,
     EnsemblToGeneSymbol,
+    refresh_geneinfo_geneidinhpo,
 )
 from genomicfeatures.models import (
     GeneInterval,
@@ -308,6 +309,7 @@ class Command(BaseCommand):
                 refresh_geneinfo_mgimapping()
             elif table_group in ("hpo", "mim2gene", "hgnc"):
                 refresh_geneinfo_geneidtoinheritance()
+                refresh_geneinfo_geneidinhpo()
 
     def _import_tad_set(self, path, tables, subset_key, force):
         """TAD import"""

@@ -26,6 +26,7 @@ End-User Summary
 - Documented new clinvar aggregation method and VarFish "point rating".
 - Implemented new clinvar data display in variant detail.
 - Added feature to assemble cohorts from cases spanning multiple projects and filter for them in a project-like query.
+- Added column to results list indicating if a variant lies in a disease gene, i.e. a gene listed in OMIM.
 
 Full Change List
 ================
@@ -58,6 +59,7 @@ Full Change List
 - Querying for annotated variants on the case/project overview now uses the common query infrastructure.
 - Updating plotly to v0.54.5 (displays message on missing WebGL).
 - Added feature to assemble cohorts from cases spanning multiple projects and filter for them in a project-like query.
+- Added column to results list indicating if a variant lies in a disease gene, i.e. a gene listed in OMIM.
 
 -------
 v0.21.0

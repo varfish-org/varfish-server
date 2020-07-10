@@ -464,6 +464,27 @@ def refresh_geneinfo_geneidtoinheritance():
             cursor.execute("REFRESH MATERIALIZED VIEW geneinfo_geneidtoinheritance")
 
 
+class GeneIdInHpo(models.Model):
+    """Materialized view with a list of gene ids that have an HPO entry.
+    """
+
+    #: RefSeq gene ID (the view requires entrez id not to be null.)
+    entrez_id = models.CharField(max_length=16, null=False)
+    #: EnsEMBL gene ID (the view joins via entrez id, so entrez id is never null, but ensembl might be.)
+    ensembl_gene_id = models.CharField(max_length=32)
+
+    class Meta:
+        managed = settings.IS_TESTING
+        db_table = "geneinfo_geneidinhpo"
+
+
+def refresh_geneinfo_geneidinhpo():
+    """Refresh the ``GeneIdInHpo`` materialized view."""
+    with connection.cursor() as cursor:
+        with transaction.atomic():
+            cursor.execute("REFRESH MATERIALIZED VIEW geneinfo_geneidinhpo")
+
+
 class MgiHomMouseHumanSequence(models.Model):
     """Model for mouse to human mapping. One record (row) can be either mouse or human.
     Mapping of a gene is accomplished via ``HomoloGene ID`` column, which contains the same ID in the homologous entries

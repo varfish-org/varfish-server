@@ -259,7 +259,7 @@
   <td class="detail-constraints-gnomad-z-syn text-right">
     {{ entry.gnomad_syn_z|floatformat:3|default:"-" }}
   </td>
-  <td class="pl-3 pr-3 text-nowrap" data-order="{% if symbol %}{% if entry.acmg_symbol %}0{% else %}1{% endif %}{% if entry.modes_of_inheritance %}0{% else %}1{% endif %}-{{ symbol }}{% else %}~{% endif %}">
+  <td class="pl-3 pr-3 text-nowrap" data-order="{% if symbol %}{% if entry.acmg_symbol %}0{% else %}1{% endif %}-{{ symbol }}{% else %}~{% endif %}">
     {% if not symbol %}
       -
     {% else %}
@@ -343,6 +343,7 @@
       {% endfor %}
     {% endif %}
   </td>
+  <td data-order="{% if entry.disease_gene %}1{% else %}0{% endif %}"><i class="fa fa-lightbulb-o {% if entry.disease_gene %}text-danger"{% else %}text-muted" style="opacity: 20%"{% endif %}></i></td>
   <td class="text-nowrap">
     <span data-toggle="tooltip" title="{{ entry.effect|join:', ' }}">
       {% with entry.hgvs_p|default:"-" as hgvs_p %}
