@@ -109,7 +109,7 @@ class CaseAwareProject(Project):
         seen = set()
         # Only select cases that have an active variant set.
         # TODO Perspectively, we need to distinguish between Small and Structural VariantSets.
-        for case in self.case_set.filter(smallvariantset__state="active"):
+        for case in self.get_active_smallvariant_cases():
             for line in case.pedigree:
                 if line["patient"] not in seen:
                     result.append(line)
@@ -147,7 +147,7 @@ class CaseAwareProject(Project):
         result = {}
         # Only select cases that have an active variant set.
         # TODO Perspectively, we need to distinguish between Small and Structural VariantSets.
-        for case in self.case_set.filter(smallvariantset__state="active"):
+        for case in self.get_active_smallvariant_cases():
             for line in case.pedigree:
                 if line["patient"] not in result:
                     result[line["patient"]] = case

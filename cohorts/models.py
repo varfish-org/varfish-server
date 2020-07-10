@@ -14,12 +14,7 @@ AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
 
 class Cohort(models.Model):
-
-    """Base class for models storing queries to the ``SmallVariant`` model.
-
-    Saving the query settings is implemented as a JSON plus a version field.  This design was chosen to allow for
-    less rigid upgrade paths of the form schema itself.  Further, we will need a mechanism for upgrading the form
-    "schemas" automatically and then storing the user settings.
+    """Class for ``Cohort`` model.
     """
 
     #: DateTime of creation.
@@ -29,7 +24,7 @@ class Cohort(models.Model):
 
     #: Cohort UUID.
     sodar_uuid = models.UUIDField(
-        default=uuid_object.uuid4, unique=True, help_text="Small variant flags SODAR UUID"
+        default=uuid_object.uuid4, unique=True, help_text="Cohort SODAR UUID"
     )
 
     name = models.CharField(max_length=512)

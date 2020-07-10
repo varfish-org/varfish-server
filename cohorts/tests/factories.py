@@ -47,6 +47,9 @@ class TestCohortBase(RoleAssignmentMixin, TestCase):
         # setup contributor user
         self.contributor = self.make_user("contributor")
 
+        # setup owner for projects, not used in tests
+        owner = self.make_user("owner")
+
         # setup cases & projects & roles
 
         # project 1 case 1
@@ -80,13 +83,15 @@ class TestCohortBase(RoleAssignmentMixin, TestCase):
         role_owner = Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0]
         role_contributor = Role.objects.get_or_create(name=PROJECT_ROLE_CONTRIBUTOR)[0]
 
-        # superuser gets access to project1 and project2
-        self._make_assignment(self.project1, self.superuser, role_owner)
-        self._make_assignment(self.project2, self.superuser, role_owner)
+        # owner owns project1 and project2 (all projects)
+        self._make_assignment(self.project1, owner, role_owner)
+        self._make_assignment(self.project2, owner, role_owner)
         # contributor gets access to project2
         self._make_assignment(self.project2, self.contributor, role_contributor)
 
     def _create_cohort_all_possible_cases(self, user, project):
-        return CohortFactory.create(
-            user=user, project=project, cases=Case.objects.filter(project__roles__user=user)
-        )
+        if user.is_superuser:
+            cases = Case.objects.all()
+        else:
+            cases = Case.objects.filter(project__roles__user=user)
+        return CohortFactory.create(user=user, project=project, cases=cases)

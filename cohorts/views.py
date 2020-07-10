@@ -64,9 +64,15 @@ class CohortCreateView(
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data()
         # Add all user accessible projects to help organize the case checkboxes by project.
-        context["projects"] = CaseAwareProject.objects.filter(
-            roles__user=self.request.user, type="PROJECT"
-        )
+        projects = []
+        if self.request.user.is_superuser:
+            query = CaseAwareProject.objects.filter(type="PROJECT")
+        else:
+            query = CaseAwareProject.objects.filter(roles__user=self.request.user, type="PROJECT")
+        for project in query:
+            if len(project.get_active_smallvariant_cases()):
+                projects.append(project)
+        context["projects"] = projects
         return context
 
 
@@ -107,9 +113,15 @@ class CohortUpdateView(
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data()
         # Add all user accessible projects to help organize the case checkboxes by project.
-        context["projects"] = CaseAwareProject.objects.filter(
-            roles__user=self.request.user, type="PROJECT"
-        )
+        projects = []
+        if self.request.user.is_superuser:
+            query = CaseAwareProject.objects.filter(type="PROJECT")
+        else:
+            query = CaseAwareProject.objects.filter(roles__user=self.request.user, type="PROJECT")
+        for project in query:
+            if len(project.get_active_smallvariant_cases()):
+                projects.append(project)
+        context["projects"] = projects
         return context
 
 

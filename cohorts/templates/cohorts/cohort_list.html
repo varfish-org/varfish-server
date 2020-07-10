@@ -101,14 +101,13 @@
                   </span>
                 </td>
               </tr>
-            {% endfor %}
-            {% if not object_list %}
+            {% empty %}
               <tr>
-                 <td class="bg-faded font-italic text-center" colspan="{% if svs_enabled %}9{% else %}8{% endif %}">
-                   No cases added yet.
+                 <td class="bg-faded font-italic text-center" colspan="6">
+                   No cohorts added yet.
                  </td>
               </tr>
-            {% endif %}
+            {% endfor %}
           </tbody>
         </table>
       </form>

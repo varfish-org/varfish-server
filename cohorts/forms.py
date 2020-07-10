@@ -13,15 +13,19 @@ class CohortForm(forms.ModelForm):
     """
 
     def __init__(self, *args, **kwargs):
-        #: User of the form
+        # User of the form
         user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
-        #: Alter the cases field
+        if user.is_superuser:
+            cases = Case.objects.all()
+        else:
+            cases = Case.objects.filter(project__roles__user=user)
+        # Alter the cases field
         self.fields["cases"] = forms.ModelMultipleChoiceField(
             # Turn the cases many-to-many relation into a checkbox field
             widget=forms.CheckboxSelectMultiple,
             # Limit the choices to what the user is allowed to see
-            queryset=Case.objects.filter(project__roles__user=user),
+            queryset=cases,
         )
 
     class Meta:
