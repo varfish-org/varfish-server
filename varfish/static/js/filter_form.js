@@ -1957,9 +1957,9 @@ function initHpoTypeahead() {
                 suggestions.empty();
                 $.each(data, function(i, e) {
                     let hover = "";
-                    let name = e["name"];
+                    let name = e["name"].replace(/'/g,"").replace(/"/g,"");
                     let element_id = 'id_hpo_item_' + e["id"].replace(":", "_");
-                    if (e["id"].startsWith("OMIM")) {
+                    if (e["id"].startsWith("OMIM") || e["id"].startsWith("DECIPHER") || e["id"].startsWith("ORPHA")) {
                         let names = name.split(";;");
                         hover = ' data-toggle="tooltip" data-html="true" title=\'<ul class="text-left pl-3"><li>' + names.join("</li><li>") + '</li></ul>\'';
                         name = names[0]
@@ -1993,7 +1993,7 @@ function setHpoSelectedFromTextarea() {
     /** Event handler when textarea changes, i.e. user leaves field */
     let textarea = $("#id_prio_hpo_terms");
     let term_list = textarea.val();
-    let regex = /(HP:\d{7}|OMIM:\d{6})( - [^;]+)?(;|$)/g;
+    let regex = /(HP:\d{7}|OMIM:\d{6}|DECIPHER:\d+|ORPHA:\d+)( - [^;]+)?(;|$)/g;
     // Purge hpo_selected list to re-build it
     hpo_selected = [];
     // Clean up the HPO terms list textarea from any unwanted spaces or separators.
@@ -2005,8 +2005,7 @@ function setHpoSelectedFromTextarea() {
             .replace(/\s{2,}/g, " ")  // replace double (or more) spaces with one space
             .replace(/[;\s]{2,}/g, "; ")  // replace any sequence of multiple ; and spaces with `; `
             .replace(/;([^\s$])/g, "; $1")  // add missing space after semicolon
-            .replace(/([^;])\sHP:/g, "$1; HP:")  // set missing semicolons in front of HPO id
-            .replace(/([^;])\sOMIM:/g, "$1; OMIM:")  // set missing semicolons in front of HPO id
+            .replace(/([^;])\s(HP|OMIM|DECIPHER|ORPHA):/g, "$1; $2:")  // set missing semicolons in front of HPO id
     );
     while (result = regex.exec(term_list)) {
         if (!hpo_selected.includes(result[1])) {

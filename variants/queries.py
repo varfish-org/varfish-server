@@ -1264,7 +1264,7 @@ class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsBase):
             gene_id = GeneIdInHpo.sa.ensembl_gene_id
 
         self.subquery = (
-            select(["id"])
+            select([column("id")])
             .select_from(GeneIdInHpo.sa)
             .where(
                 getattr(SmallVariant.sa, "%s_gene_id" % self.kwargs["database_select"]) == gene_id

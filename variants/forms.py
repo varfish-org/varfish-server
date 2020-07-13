@@ -1300,10 +1300,10 @@ class SmallVariantPrioritizerFormMixin:
         cleaned_data = super().clean()
         results = []
         results_curated = []
-        for term in cleaned_data["prio_hpo_terms"].split(";"):
-            raw_term = term.strip()
-            if term:
-                m = re.match(r"^(HP:\d{7}|OMIM:\d{6})(?: - .*)?$", raw_term)
+        for raw_term in cleaned_data["prio_hpo_terms"].split(";"):
+            raw_term = raw_term.strip()
+            if raw_term:
+                m = re.match(r"^(HP:\d{7}|OMIM:\d{6}|DECIPHER:\d+|ORPHA:\d+)(?: - .*)?$", raw_term)
                 if m:
                     term = m.group(1)
                     if term.startswith("HP"):
@@ -1315,20 +1315,20 @@ class SmallVariantPrioritizerFormMixin:
                             results_curated.append(term)
                             results.append(term)
                     else:
-                        omim = Hpo.objects.filter(database_id=term)
-                        if not omim.exists():
+                        records = Hpo.objects.filter(database_id=term)
+                        if not records.exists():
                             self.add_error(
-                                "prio_hpo_terms", "%s doesn't exist in OMIM database" % term
+                                "prio_hpo_terms", "%s doesn't exist in HPO database" % term
                             )
                         else:
                             results.append(term)
-                            for record in omim.values("hpo_id"):
+                            for record in records.values("hpo_id"):
                                 results_curated.append(record["hpo_id"])
                 else:
                     self.add_error(
                         "prio_hpo_terms",
-                        "%s is not a valid HPO or OMIM id (expecting HP:1234567 or OMIM:123456)"
-                        % term,
+                        "%s is not a valid HPO, OMIM, DECIPHER or ORPHA id (expecting HP:1234567 or OMIM:123456)"
+                        % raw_term,
                     )
         cleaned_data["prio_hpo_terms"] = sorted(set(results))
         cleaned_data["prio_hpo_terms_curated"] = sorted(set(results_curated))

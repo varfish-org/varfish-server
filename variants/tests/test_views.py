@@ -882,10 +882,16 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                 name="Disease 1;;Alternative Description",
             ),
         ]
+        self.decipher_term = HpoFactory(
+            database_id="DECIPHER:1", hpo_id="HP:0000004", name="Disease 2",
+        )
+        self.orpha_term = HpoFactory(database_id="ORPHA:1", hpo_id="HP:0000005", name="Disease 3",)
         self.bgjob.smallvariantquery.query_results.add(self.small_vars[0], self.small_vars[2])
         self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [
             self.hpo_term.hpo_id,
             self.omim_term[0].database_id,
+            self.decipher_term.database_id,
+            self.orpha_term.database_id,
         ]
         self.bgjob.smallvariantquery.save()
 
@@ -901,11 +907,13 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context["result_count"], 2)
             self.assertFalse(response.context["training_mode"])
-            self.assertEqual(
+            self.assertDictEqual(
                 response.context["hpoterms"],
                 {
                     self.hpo_term.hpo_id: self.hpo_term.name,
                     self.omim_term[0].database_id: self.omim_term[0].name.split(";;")[0],
+                    self.decipher_term.database_id: self.decipher_term.name.split(";;")[0],
+                    self.orpha_term.database_id: self.orpha_term.name.split(";;")[0],
                 },
             )
 

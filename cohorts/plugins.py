@@ -11,7 +11,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     urls = urlpatterns
     # ...
 
-    icon = "crosshairs"
+    icon = "shopping-basket"
 
     entry_point_url_id = "cohorts:list"
 
