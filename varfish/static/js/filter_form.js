@@ -1985,6 +1985,7 @@ function initHpoTypeahead() {
     textarea.change(setHpoSelectedFromTextarea);
     textarea.trigger("change");
     typeahead.trigger("keyup");
+    $("#id_prio_enabled").change(check_prio_enabled);
 }
 
 
@@ -2033,6 +2034,9 @@ function selectHpoTerm(e) {
     buildTextareaFromHpoSelected();
 }
 
+function check_prio_enabled() {
+    $("#prio_not_enabled_warning").toggle(!$("#id_prio_enabled").prop("checked") && hpo_selected.length > 0);
+}
 
 function buildTextareaFromHpoSelected() {
     let jobs = [];
@@ -2065,6 +2069,7 @@ function buildTextareaFromHpoSelected() {
     $.when.apply(null, jobs).done(function() {
         $("#id_prio_hpo_terms").val(term_list.sort().join("; "));
     });
+    check_prio_enabled();
 }
 
 

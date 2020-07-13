@@ -27,6 +27,7 @@ End-User Summary
 - Implemented new clinvar data display in variant detail.
 - Added feature to assemble cohorts from cases spanning multiple projects and filter for them in a project-like query.
 - Added column to results list indicating if a variant lies in a disease gene, i.e. a gene listed in OMIM.
+- Displaying warning if priorization is not enabled when entering HPO terms.
 
 Full Change List
 ================
@@ -60,6 +61,7 @@ Full Change List
 - Updating plotly to v0.54.5 (displays message on missing WebGL).
 - Added feature to assemble cohorts from cases spanning multiple projects and filter for them in a project-like query.
 - Added column to results list indicating if a variant lies in a disease gene, i.e. a gene listed in OMIM.
+- Displaying warning if priorization is not enabled when entering HPO terms.
 
 -------
 v0.21.0
