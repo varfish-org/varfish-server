@@ -1,3 +1,5 @@
+import sys
+
 from django import template
 from django.utils import formats
 from django.utils.html import avoid_wrapping
@@ -472,3 +474,9 @@ def check_mt_position_homopolymer(pos):
 @register.filter
 def sex_errors(item, disable_pedigree_sex_check):
     return item.sex_errors(disable_pedigree_sex_check=disable_pedigree_sex_check)
+
+
+@register.simple_tag
+def get_is_testing():
+    """Return whether we are in testing mode."""
+    return sys.argv[1:2] == ["test"]

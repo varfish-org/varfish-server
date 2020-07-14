@@ -2,10 +2,12 @@
 {% load dict %}
 {% load humanize %}
 {% load projectroles_common_tags %}
+{% load variants_tags %}
 
 {% get_django_setting 'VARFISH_ENABLE_EXOMISER_PRIORITISER' as exomiser_enabled %}
 {% get_django_setting 'VARFISH_ENABLE_CADD' as cadd_enabled %}
 {% get_django_setting 'VARFISH_ENABLE_CADD_SUBMISSION' as cadd_submission_enabled %}
+{% get_is_testing as is_testing %}
 
 {% if form.errors %}
     {% for error in form.non_field_errors %}
@@ -17,6 +19,7 @@
 
 <form id="filterForm" method="post">{% csrf_token %}
   {{ form.cohort }}
+  {% if is_testing %}<span style="display: none;" class="testing" id="panel-app-is-testing">enabled</span>{% endif %}
   <div class="card">
     <div class="card-header">
       {% include "variants/filter_form/presets.html" %}

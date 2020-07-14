@@ -71,6 +71,7 @@ End-User Summary
 - Fixed bug that prevented re-import of SVs.
 - Fixed bug where a re-import of genotypes was not possible when the same variant types weren't present as in the initial import.
 - Fixed bug where ``imported`` state of ``CaseImportInfo`` was already set after importing the first variant set.
+- Integrated Genomics England PanelApp.
 
 Full Change List
 ================
@@ -153,6 +154,7 @@ Full Change List
 - Fixed bug where a re-import of genotypes was not possible when the same variant types weren't present as in the initial import.
   This was done by adding a ``state`` field to the ``VariantSetImportInfo`` model.
 - Fixed bug where ``imported`` state of ``CaseImportInfo`` was already set after importing the first variant set.
+- Integrated Genomics England PanelApp via their API.
 
 -------
 v0.21.0

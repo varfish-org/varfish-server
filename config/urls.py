@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
+from httpproxy.views import HttpProxy
 from projectroles.views import HomeView as ProjectRolesHomeView
 from variants.views import KioskHomeView
 from sentry_sdk import last_event_id
@@ -55,6 +56,14 @@ urlpatterns += [
     url(r"^su/", include("django_su.urls")),
     url(r"^cohorts/", include("cohorts.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# Augment url patterns with
+urlpatterns += [
+    url(
+        r"^proxy/panelapp/(?P<url>.*)$",
+        HttpProxy.as_view(base_url="https://panelapp.genomicsengland.co.uk/api"),
+    )
+]
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit

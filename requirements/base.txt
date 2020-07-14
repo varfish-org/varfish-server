@@ -130,3 +130,6 @@ raven ==6.10.0
 
 # Redis support
 redis==3.3.8
+
+# HTTP Proxy for forwarding AJAX requests.
+django-http-proxy==0.4.3

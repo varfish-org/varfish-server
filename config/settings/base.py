@@ -78,6 +78,7 @@ THIRD_PARTY_APPS = [
     "docs",  # For the online user documentation/manual
     "dal",
     "dal_select2",
+    "httpproxy",
 ]
 
 # Apps specific for this project go here.
