@@ -28,6 +28,8 @@ End-User Summary
 - Added feature to assemble cohorts from cases spanning multiple projects and filter for them in a project-like query.
 - Added column to results list indicating if a variant lies in a disease gene, i.e. a gene listed in OMIM.
 - Displaying warning if priorization is not enabled when entering HPO terms.
+- Added possibility to import "extra annotations" for display along with the variants.
+- On sites deployed by BIH CUBI, we make the CADD, SpliceAI, MMSp, and dbscSNV scores available.
 
 Full Change List
 ================
@@ -62,6 +64,8 @@ Full Change List
 - Added feature to assemble cohorts from cases spanning multiple projects and filter for them in a project-like query.
 - Added column to results list indicating if a variant lies in a disease gene, i.e. a gene listed in OMIM.
 - Displaying warning if priorization is not enabled when entering HPO terms.
+- Added possibility to import "extra annotations" for display along with the variants.
+- On sites deployed by BIH CUBI, we make the CADD, SpliceAI, MMSp, and dbscSNV scores available.
 
 -------
 v0.21.0

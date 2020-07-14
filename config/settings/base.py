@@ -101,6 +101,7 @@ LOCAL_APPS = [
     "templatetags.apps.TemplatetagsConfig",
     "svdbs.apps.SvDbsConfig",
     "svs.apps.SvsConfig",
+    "extra_annos.apps.ExtraAnnosConfig",
     "tokens.apps.TokensConfig",
 ]
 
@@ -471,6 +472,9 @@ VARFISH_MUTATIONTASTER_MAX_VARS = env.int("VARFISH_MUTATIONTASTER_MAX_VARS", 500
 VARFISH_UMD_REST_API_URL = env.str(
     "VARFISH_UMD_REST_API_URL", "http://umd-predictor.eu/webservice.php"
 )
+
+# Varfish: extra annotations.
+VARFISH_ENABLE_EXTRA_ANNOS = env.bool("VARFISH_ENABLE_EXTRA_ANNOS", False)
 
 # Varfish: Jannovar
 # ------------------------------------------------------------------------------

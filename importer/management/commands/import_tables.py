@@ -49,6 +49,7 @@ from genomicfeatures.models import (
     VistaEnhancer,
 )
 from hgmd.models import HgmdPublicLocus
+from extra_annos.models import ExtraAnnoField, ExtraAnno
 from ...models import ImportInfo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 from ..helpers import tsv_reader
@@ -70,6 +71,7 @@ TABLES = {
         "ensembltorefseq": (EnsemblToRefseq,),
         "ExAC_constraints": (ExacConstraints,),
         "ExAC": (Exac, ExacCnv),
+        "extra_annos": (ExtraAnno, ExtraAnnoField),
         "gnomAD_constraints": (GnomadConstraints,),
         "gnomAD_exomes": (GnomadExomes,),
         "gnomAD_genomes": (GnomadGenomes,),

@@ -11,6 +11,7 @@
 {% block projectroles_extend %}
   {% get_app_setting "variants" "ga4gh_beacon_network_widget_enabled" user=user as ga4gh_beacon_network_widget_enabled %}
   {% get_django_setting "PROJECTROLES_KIOSK_MODE" as kiosk_mode %}
+  {% get_django_setting "VARFISH_ENABLE_EXTRA_ANNOS" as extra_annos_enabled %}
 
   <div style="font-size: .9em;">
     <div class="row">
@@ -26,6 +27,9 @@
         {% endif %}
         {% include "variants/var_details/clinvar.html" %}
         {% include "variants/var_details/freq_overview.html" %}
+        {% if extra_annos_enabled %}
+          {% include "variants/var_details/extra_annos.html" %}
+        {% endif %}
       </div>
     </div>
     <div class="row">

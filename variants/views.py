@@ -36,6 +36,7 @@ from bgjobs.views import DEFAULT_PAGINATION as BGJOBS_DEFAULT_PAGINATION
 from clinvar.models import Clinvar
 from cohorts.models import Cohort
 from config.settings.base import VARFISH_CADD_SUBMISSION_RELEASE
+from extra_annos.views import ExtraAnnosMixin
 from frequencies.models import MT_DB_INFO
 from geneinfo.views import get_gene_infos
 from geneinfo.models import NcbiGeneInfo, NcbiGeneRif, HpoName, Hpo, EnsemblToGeneSymbol, Hgnc
@@ -2641,6 +2642,7 @@ class SmallVariantDetails(
     ProjectPermissionMixin,
     ProjectContextMixin,
     FrequencyMixin,
+    ExtraAnnosMixin,
     AlchemyEngineMixin,
     DetailView,
 ):
@@ -2932,6 +2934,7 @@ class SmallVariantDetails(
         result["knowngeneaa"] = self._load_knowngene_aa(self.kwargs)
         result["small_var"] = self._load_small_var(self.kwargs)
         result["effect_details"] = self._load_molecular_impact(self.kwargs)
+        result["extra_annos"] = self.get_extra_annos(self.kwargs)
         if self.request.GET.get("render_full", "no").lower() in ("yes", "true"):
             result["base_template"] = "projectroles/project_base.html"
         else:
