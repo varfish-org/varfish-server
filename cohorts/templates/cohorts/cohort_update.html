@@ -43,12 +43,7 @@
             </div>
             <div id="collapse-project-{{ p.id }}" class="collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading-project-{{ p.id }}" data-parent="#accordion">
               <div class="card-body">
-                <div class="form-group">
-                  {% for case_box in form.cases %}
-                    {% if case_box|case_is_in_project:p %}
-                      <span class="ml-3">{{ case_box }}</span>
-                    {% endif %}
-                  {% endfor %}
+                <div class="form-group" id="card-body-{{ p.id }}">
                 </div>
               </div>
             </div>
@@ -59,4 +54,16 @@
       <button type="submit" class="btn btn-success"><i class="fa fa-pencil"></i> Update Cohort</button>
     </form>
   </div>
+{% endblock %}
+
+
+{% block javascript %}
+  {{ block.super }}
+  <script>
+    $(document).ready(function() {
+      {% for value, label, case in form.cases.field.choices %}
+        $("#card-body-{{ case.project.id }}").append('<label><span class="ml-3 checkbox"><input type="checkbox" class="checkboxinput" value="{{ value }}" name="cases" {% if case in form.cases.initial %}checked{% endif %}> {{ label }}</label></span>');
+      {% endfor %}
+    });
+  </script>
 {% endblock %}

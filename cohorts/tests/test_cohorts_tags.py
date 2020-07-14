@@ -1,9 +1,6 @@
-from cohorts.forms import CohortForm
 from cohorts.models import Cohort
 from cohorts.tests.factories import TestCohortBase
 from django.template import Context, Template
-
-from variants.models import CaseAwareProject
 
 
 class TestTemplateTagsCohortsTags(TestCohortBase):
@@ -134,49 +131,3 @@ class TestTemplateTagsCohortsTags(TestCohortBase):
         )
         rendered = template.render(context)
         self.assertEqual("warning", rendered)
-
-    def test_case_is_in_project_as_superuser(self):
-        user = self.superuser
-        context = Context(
-            {
-                "form": CohortForm(user=user),
-                "projects": CaseAwareProject.objects.filter(roles__user=user, type="PROJECT"),
-            }
-        )
-        template = Template(
-            "{% load cohorts_tags %}"
-            "{% for p in projects %}"
-            "{% for case_box in form.cases %}"
-            "{% if case_box|case_is_in_project:p %}"
-            "1"
-            "{% else %}"
-            "0"
-            "{% endif %}"
-            "{% endfor %}"
-            "{% endfor %}"
-        )
-        rendered = template.render(context)
-        self.assertEqual("11000011", rendered)
-
-    def test_case_is_in_project_as_contributor(self):
-        user = self.contributor
-        context = Context(
-            {
-                "form": CohortForm(user=user),
-                "projects": CaseAwareProject.objects.filter(roles__user=user, type="PROJECT"),
-            }
-        )
-        template = Template(
-            "{% load cohorts_tags %}"
-            "{% for p in projects %}"
-            "{% for case_box in form.cases %}"
-            "{% if case_box|case_is_in_project:p %}"
-            "1"
-            "{% else %}"
-            "0"
-            "{% endif %}"
-            "{% endfor %}"
-            "{% endfor %}"
-        )
-        rendered = template.render(context)
-        self.assertEqual("11", rendered)

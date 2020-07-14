@@ -18,12 +18,3 @@ def check_accessible_cases(item, user):
         return True
 
     return set(item.cases.filter(project__roles__user=user)) == set(item.cases.all())
-
-
-@register.filter
-def case_is_in_project(item, project):
-    """Check if a case (extracted from a form item) is in a project.
-
-    This just helps to organize the form and group the case checkboxes by project.
-    """
-    return Case.objects.get(id=item.data["value"]).project == project
