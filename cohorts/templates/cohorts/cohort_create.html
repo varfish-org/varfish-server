@@ -35,6 +35,7 @@
           <div class="card mb-0">
             <div class="card-header" id="heading-project-{{ p.id }}">
               <h5 class="mb-0">
+              <input type="checkbox" class="btn btn-info project-toggler" id="project-toggler-{{ p.id }}" data-project="{{ p.id }}"/>
                 <button class="btn btn-link {% if not forloop.first %}collapsed{% endif %}" type="button" data-toggle="collapse" data-target="#collapse-project-{{ p.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse-project-{{ p.id }}">
                   {{ p.title }}
                 </button>
@@ -42,7 +43,7 @@
             </div>
             <div id="collapse-project-{{ p.id }}" class="collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading-project-{{ p.id }}" data-parent="#accordion">
               <div class="card-body">
-                <div class="form-group" id="card-body-{{ p.id }}">
+                <div class="form-group project-checkbox-group" id="card-body-{{ p.id }}">
                 </div>
               </div>
             </div>
@@ -59,10 +60,34 @@
 {% block javascript %}
   {{ block.super }}
   <script>
+    function projectToggleSwitch() {
+      let toggler = $("#project-toggler-" + $(this).data("project"));
+      let card = $("#card-body-" + $(this).data("project"));
+      let checkboxes = card.find(":checkbox");
+      let checked = card.find(":checkbox:checked");
+      if (checked.length === 0) {
+        toggler.prop("checked", false);
+        toggler.prop("indeterminate", false);
+      }
+      else if (checked.length === checkboxes.length) {
+        toggler.prop("checked", true);
+        toggler.prop("indeterminate", false);
+      }
+      else {
+        toggler.prop("checked", false);
+        toggler.prop("indeterminate", true);
+      }
+    }
+
     $(document).ready(function() {
       {% for value, label, case in form.cases.field.choices %}
-        $("#card-body-{{ case.project.id }}").append('<label><span class="ml-3 checkbox"><input type="checkbox" class="checkboxinput" value="{{ value }}" name="cases" {% if case in form.cases.initial %}checked{% endif %}> {{ label }}</label></span>');
+        $("#card-body-{{ case.project.id }}").append('<label><span class="ml-3 checkbox"><input type="checkbox" class="checkboxinput" data-project="{{ case.project.id }}" value="{{ value }}" name="cases" {% if case in form.cases.initial %}checked{% endif %}> {{ label }}</label></span>');
       {% endfor %}
+      $('input[name="cases"]').change(projectToggleSwitch);
+      $('input[name="cases"]').trigger("change");
+      $(".project-toggler").click(function() {
+        $("#card-body-" + $(this).data("project")).find(":checkbox").prop("checked", $(this).prop("checked"));
+      });
     });
   </script>
 {% endblock %}
