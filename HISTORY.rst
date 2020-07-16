@@ -31,6 +31,7 @@ End-User Summary
 - Added possibility to import "extra annotations" for display along with the variants.
 - On sites deployed by BIH CUBI, we make the CADD, SpliceAI, MMSp, and dbscSNV scores available.
 - In priorization mode, ORPHA and DECIPHER terms are now selectable.
+- Fixed bug of wrong order when sorting by LOEUF score.
 
 Full Change List
 ================
@@ -68,6 +69,7 @@ Full Change List
 - Added possibility to import "extra annotations" for display along with the variants.
 - On sites deployed by BIH CUBI, we make the CADD, SpliceAI, MMSp, and dbscSNV scores available.
 - In priorization mode, ORPHA and DECIPHER terms are now selectable.
+- Fixed bug of wrong order when sorting by LOEUF score.
 
 -------
 v0.21.0

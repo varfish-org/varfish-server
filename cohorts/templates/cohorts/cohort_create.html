@@ -39,6 +39,7 @@
                 <button class="btn btn-link {% if not forloop.first %}collapsed{% endif %}" type="button" data-toggle="collapse" data-target="#collapse-project-{{ p.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse-project-{{ p.id }}">
                   {{ p.title }}
                 </button>
+                <span class="text-muted font-italic">(<span id="cases-count-{{ p.id }}">0</span>/<span id="cases-total-{{ p.id }}">0</span>)</span>
               </h5>
             </div>
             <div id="collapse-project-{{ p.id }}" class="collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading-project-{{ p.id }}" data-parent="#accordion">
@@ -60,23 +61,21 @@
 {% block javascript %}
   {{ block.super }}
   <script>
+    function updateCheckedCount(project_id) {
+      let card = $("#card-body-" + project_id);
+      $("#cases-count-" + project_id).text(card.find(":checkbox:checked").length)
+      $("#cases-total-" + project_id).text(card.find(":checkbox").length)
+    }
+
     function projectToggleSwitch() {
-      let toggler = $("#project-toggler-" + $(this).data("project"));
-      let card = $("#card-body-" + $(this).data("project"));
+      let project_id = $(this).data("project");
+      let toggler = $("#project-toggler-" + project_id);
+      let card = $("#card-body-" + project_id);
       let checkboxes = card.find(":checkbox");
       let checked = card.find(":checkbox:checked");
-      if (checked.length === 0) {
-        toggler.prop("checked", false);
-        toggler.prop("indeterminate", false);
-      }
-      else if (checked.length === checkboxes.length) {
-        toggler.prop("checked", true);
-        toggler.prop("indeterminate", false);
-      }
-      else {
-        toggler.prop("checked", false);
-        toggler.prop("indeterminate", true);
-      }
+      toggler.prop("checked", checked.length === checkboxes.length);
+      toggler.prop("indeterminate", !(checked.length === checkboxes.length || checked.length === 0));
+      updateCheckedCount(project_id);
     }
 
     $(document).ready(function() {
@@ -87,6 +86,7 @@
       $('input[name="cases"]').trigger("change");
       $(".project-toggler").click(function() {
         $("#card-body-" + $(this).data("project")).find(":checkbox").prop("checked", $(this).prop("checked"));
+        updateCheckedCount($(this).data("project"));
       });
     });
   </script>
