@@ -32,6 +32,7 @@ End-User Summary
 - On sites deployed by BIH CUBI, we make the CADD, SpliceAI, MMSp, and dbscSNV scores available.
 - In priorization mode, ORPHA and DECIPHER terms are now selectable.
 - Fixed bug of wrong order when sorting by LOEUF score.
+- Adding some UI documenation.
 
 Full Change List
 ================
@@ -70,6 +71,7 @@ Full Change List
 - On sites deployed by BIH CUBI, we make the CADD, SpliceAI, MMSp, and dbscSNV scores available.
 - In priorization mode, ORPHA and DECIPHER terms are now selectable.
 - Fixed bug of wrong order when sorting by LOEUF score.
+- Adding some UI documenation.
 
 -------
 v0.21.0

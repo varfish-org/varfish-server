@@ -34,6 +34,22 @@ Currently, the main focus is on small/sequence variants called from high-througp
 
 .. raw:: latex
 
+    \part{Miscellaneous (UI) Features}
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Misc UI Features
+    :name: misc-ui-features
+    :hidden:
+    :titlesonly:
+
+    ui_user_menu
+    ui_api_tokens
+    ui_user_profile
+    ui_release_info
+
+.. raw:: latex
+
     \part{Cases \& Variants}
 
 .. toctree::
