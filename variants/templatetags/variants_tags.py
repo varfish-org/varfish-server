@@ -467,3 +467,8 @@ def check_mt_position_homopolymer(pos):
         or (pos >= 12418 and pos <= 12425)
         or (pos >= 16182 and pos <= 16194)
     )
+
+
+@register.filter
+def sex_errors(item, disable_pedigree_sex_check):
+    return item.sex_errors(disable_pedigree_sex_check=disable_pedigree_sex_check)

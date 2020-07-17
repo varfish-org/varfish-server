@@ -64,7 +64,7 @@ class Command(BaseCommand):
         try:
             for case in project.case_set.all():
                 self.stdout.write("Rebuilding stats for case: {}".format(case.name))
-                rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case.latest_variant_set())
+                rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case.latest_variant_set)
             self.stdout.write(self.style.SUCCESS("Done rebuilding project case stats."))
             if timeline:
                 tl_event.set_status("OK", "finished  rebuilding project case stats")

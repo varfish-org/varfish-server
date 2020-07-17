@@ -10,9 +10,11 @@
     Joint Filtration
   </a>
   {% if request.user.is_superuser or kiosk_mode %}
-    <a class="btn btn-danger{% if not project.sex_errors %} disabled{% endif %}" href="{% url "variants:project-cases-fix-sex" project=project.sodar_uuid %}">
-      <i class="fa fa-venus-mars"></i>
-      Fix Sex
-    </a>
+    {% if disable_pedigree_sex_check %}
+      <a class="btn btn-danger{% if not project.sex_errors %} disabled{% endif %}" href="{% url "variants:project-cases-fix-sex" project=project.sodar_uuid %}">
+        <i class="fa fa-venus-mars"></i>
+        Fix Sex
+      </a>
+    {% endif %}
   {% endif %}
 </div>

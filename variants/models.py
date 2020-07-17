@@ -47,7 +47,7 @@ from bgjobs.models import (
 )
 from projectroles.plugins import get_backend_api
 
-from geneinfo.models import Hgnc, EnsemblToGeneSymbol, Hpo
+from geneinfo.models import Hgnc, EnsemblToGeneSymbol
 
 from genomicfeatures.models import GeneInterval
 
@@ -164,9 +164,21 @@ class CaseAwareProject(Project):
     def sex_errors(self):
         """Concatenate all contained case's sex errors dicts"""
         result = {}
+        disable_sex_check = app_settings.get_app_setting(
+            "variants", "disable_pedigree_sex_check", project=self
+        )
+        if disable_sex_check:
+            return result
         for case in self.case_set.all():
-            result.update(case.sex_errors())
+            result.update(case.sex_errors(disable_sex_check))
         return result
+
+    def sex_errors_to_fix(self):
+        for case in self.case_set.all():
+            fix_case = case.sex_errors_variant_stats(lambda x: x)
+            if fix_case:
+                return True
+        return False
 
     def get_case_pks(self):
         """Return PKs for cases."""
@@ -190,22 +202,24 @@ class CaseAwareProject(Project):
         return all(case.has_variants_and_variant_set() for case in self.case_set.all())
 
     def casealignmentstats(self):
-        return [
-            case.latest_variant_set().casealignmentstats
-            for case in self.case_set.all()
-            if case and case.latest_variant_set()
-        ]
+        stats = []
+        for case in self.case_set.all():
+            variant_set = case.latest_variant_set
+            if variant_set:
+                stats.append(variant_set.casealignmentstats)
+        return stats
 
     def get_annotation_count(self):
         return sum(case.get_annotation_count() for case in self.case_set.all())
 
     def sample_variant_stats(self):
-        return [
-            sample
-            for case in self.case_set.all()
-            if case.latest_variant_set()
-            for sample in case.latest_variant_set().variant_stats.sample_variant_stats.all()
-        ]
+        stats = []
+        for case in self.case_set.all():
+            variant_set = case.latest_variant_set
+            if variant_set:
+                for sample in variant_set.variant_stats.sample_variant_stats.all():
+                    stats.append(sample)
+        return stats
 
 
 class SmallVariant(models.Model):
@@ -512,41 +526,41 @@ class Case(CoreCase):
         help_text="Search tokens",
     )
 
-    def latest_variant_set(self):
-        """Return latest active variant set or ``None`` if there is none."""
-        qs = self.smallvariantset_set.filter(state="active")
-        if not qs:
-            return None
-        else:
-            return qs.order_by("-date_created").first()
+    latest_variant_set = models.ForeignKey(
+        "SmallVariantSet",
+        default=None,
+        blank=True,
+        null=True,
+        related_name="case_of_latest_variant_set",
+    )
+
+    latest_structural_variant_set = models.ForeignKey(
+        "svs.StructuralVariantSet",
+        default=None,
+        blank=True,
+        null=True,
+        related_name="case_of_latest_structuralvariant_set",
+    )
 
     def latest_variant_set_id(self):
-        variant_set = self.latest_variant_set()
+        variant_set = self.latest_variant_set
         if variant_set:
             return variant_set.id
         else:
             return -1
 
     def has_variants_and_variant_set(self):
-        return bool(self.latest_variant_set()) and bool(self.num_small_vars)
-
-    def latest_structural_variant_set(self):
-        """Return latest active structural variant set or ``None`` if there is none."""
-        qs = self.structuralvariantset_set.filter(state="active")
-        if not qs:
-            return None
-        else:
-            return qs.order_by("-date_created").first()
+        return bool(self.latest_variant_set) and bool(self.num_small_vars)
 
     def latest_structural_variant_set_id(self):
-        structural_variant_set = self.structuralvariantset_set()
+        structural_variant_set = self.latest_structural_variant_set
         if structural_variant_set:
             return structural_variant_set.id
         else:
             return -1
 
     def has_svs_and_structural_variant_set(self):
-        return bool(self.latest_structural_variant_set()) and bool(self.num_svs)
+        return bool(self.latest_structural_variant_set) and bool(self.num_svs)
 
     def days_since_modification(self):
         return (timezone.now() - self.date_modified).days
@@ -651,10 +665,11 @@ class Case(CoreCase):
     def chrx_het_hom_ratio(self, sample):
         """Return het./hom. ratio on chrX for ``sample``."""
         try:
-            if not self.latest_variant_set():
+            variant_set = self.latest_variant_set
+            if not variant_set:
                 return -1
             else:
-                sample_stats = self.latest_variant_set().variant_stats.sample_variant_stats.get(
+                sample_stats = variant_set.variant_stats.sample_variant_stats.get(
                     sample_name=sample
                 )
                 return sample_stats.chrx_het_hom
@@ -674,10 +689,9 @@ class Case(CoreCase):
         try:
             ped_sex = {m["patient"]: m["sex"] for m in self.pedigree}
             result = {}
-            if self.latest_variant_set():
-                for (
-                    sample_stats
-                ) in self.latest_variant_set().variant_stats.sample_variant_stats.all():
+            variant_set = self.latest_variant_set
+            if variant_set:
+                for sample_stats in variant_set.variant_stats.sample_variant_stats.all():
                     sample = sample_stats.sample_name
                     stats_sex = 1 if sample_stats.chrx_het_hom < CHRX_HET_HOM_THRESH else 2
                     if stats_sex != ped_sex[sample]:
@@ -689,14 +703,19 @@ class Case(CoreCase):
     def sex_errors_to_fix(self):
         return self.sex_errors_variant_stats(lambda x: x)
 
-    def sex_errors(self):
+    def sex_errors(self, disable_pedigree_sex_check=None):
         """Returns dict mapping sample to error messages from both pedigree and variant statistics."""
 
         result = {}
-        if app_settings.get_app_setting(
-            "variants", "disable_pedigree_sex_check", project=self.project
-        ):
+
+        if disable_pedigree_sex_check is None:
+            disable_pedigree_sex_check = app_settings.get_app_setting(
+                "variants", "disable_pedigree_sex_check", project=self.project
+            )
+
+        if disable_pedigree_sex_check:
             return result
+
         for sample, msgs in chain(
             self.sex_errors_pedigree().items(),
             self.sex_errors_variant_stats(
@@ -720,8 +739,9 @@ class Case(CoreCase):
             return result
 
         try:
-            if self.latest_variant_set():
-                for rel_stats in self.latest_variant_set().variant_stats.relatedness.all():
+            variant_set = self.latest_variant_set
+            if variant_set:
+                for rel_stats in variant_set.variant_stats.relatedness.all():
                     relationship = "other"
                     if (
                         ped_entries[rel_stats.sample1]["father"]
@@ -3283,6 +3303,7 @@ class VariantImporterBase:
 
     variant_set_attribute = None
     table_names = None
+    latest_set = None
     #: Fill this with ``field_name: default_tsv_value`` in your sub class to ensure the fields are present.
     default_values = {}
 
@@ -3314,7 +3335,8 @@ class VariantImporterBase:
             if not case_created:  # Case needs to be updated.
                 case.index = self.import_job.index_name
                 case.pedigree = pedigree
-                case.save()
+            setattr(case, self.latest_set, variant_set)
+            case.save()
             update_variant_counts(variant_set.case)
         if variant_set.state == "active":
             self._clear_old_variant_sets(case, variant_set)
@@ -3444,6 +3466,7 @@ class VariantImporter(VariantImporterBase):
         ("variants_smallvariant", "set_id"),
         ("variants_casealignmentstats", "variant_set_id"),
     )
+    latest_set = "latest_variant_set"
     # Ensure that the info and {refseq,ensembl}_exon_dist fields are present with default values.  This snippet
     # can go away once we are certain all TSV files have been created with varfish-annotator >=0.10
     default_values = {"info": "{}", "refseq_exon_dist": ".", "ensembl_exon_dist": "."}
@@ -3715,7 +3738,7 @@ def update_variant_counts(case, kind=None):
     from svs import models as sv_models  # noqa
 
     if not kind or kind == "SMALL":
-        variant_set = case.latest_variant_set()
+        variant_set = case.latest_variant_set
         if variant_set:
             set_id = variant_set.pk
             stmt = (
@@ -3729,7 +3752,7 @@ def update_variant_counts(case, kind=None):
         Case.objects.filter(pk=case.pk).update(num_small_vars=num_small_vars)
 
     if not kind or kind == "STRUCTURAL":
-        structural_variant_set = case.latest_structural_variant_set()
+        structural_variant_set = case.latest_structural_variant_set
         if structural_variant_set:
             set_id = structural_variant_set.pk
             stmt = (

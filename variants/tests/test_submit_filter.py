@@ -8,11 +8,11 @@ from requests_mock import Mocker
 from test_plus.test import TestCase
 
 from variants.tests.factories import (
-    SmallVariantSetFactory,
     SmallVariantFactory,
     FilterBgJobFactory,
     ProjectCasesFilterBgJobFactory,
     FormDataFactory,
+    CaseWithVariantSetFactory,
 )
 from ..models import (
     SmallVariantQuery,
@@ -32,9 +32,8 @@ class CaseFilterTest(TestCase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.hpo_id = "HP:0000001"
-        self.case = self.variant_set.case
         self.user = self.make_user("superuser")
         self.small_vars = [
             SmallVariantFactory(
@@ -380,7 +379,9 @@ class ProjectCasesFilterTest(TestCase):
         super().setUp()
         user = self.make_user("superuser")
         self.bgjob = ProjectCasesFilterBgJobFactory(user=user)
-        variant_sets = SmallVariantSetFactory.create_batch(2, case__project=self.bgjob.project)
+        variant_sets = [None, None]
+        _, variant_sets[0], _ = CaseWithVariantSetFactory.get(project=self.bgjob.project)
+        _, variant_sets[1], _ = CaseWithVariantSetFactory.get(project=self.bgjob.project)
         SmallVariantFactory.create_batch(3, variant_set=variant_sets[0])
         SmallVariantFactory.create_batch(3, variant_set=variant_sets[1])
         self.bgjob.projectcasessmallvariantquery.query_settings.update(

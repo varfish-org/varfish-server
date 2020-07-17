@@ -1,8 +1,7 @@
 from django.core.urlresolvers import reverse
 
-from .factories import SmallVariantSetFactory
+from .factories import CaseWithVariantSetFactory
 from .helpers import ApiViewTestBase
-from ..models import Case
 
 # TODO: add tests that include permission testing
 
@@ -19,8 +18,7 @@ class TestCaseApiViews(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
     def _expected_case_data(self, case=None):
         case = case or self.case

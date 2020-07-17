@@ -21,10 +21,10 @@ from projectroles.models import Role, SODAR_CONSTANTS
 from projectroles.tests.test_models import ProjectMixin, RoleAssignmentMixin
 
 from variants.tests.factories import (
-    SmallVariantSetFactory,
     SampleVariantStatisticsFactory,
     SmallVariantFactory,
     ProjectFactory,
+    CaseWithVariantSetFactory,
 )
 from ..models import update_variant_counts
 
@@ -231,8 +231,7 @@ class TestVariantsCaseListView(TestUIBase):
 
     def setUp(self):
         super().setUp()
-        variant_set = SmallVariantSetFactory()
-        self.case = variant_set.case
+        self.case, variant_set, _ = CaseWithVariantSetFactory.get("small")
         SampleVariantStatisticsFactory(variant_set=variant_set, sample_name=variant_set.case.index)
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
@@ -252,8 +251,7 @@ class TestVariantsCaseDetailView(TestUIBase):
 
     def setUp(self):
         super().setUp()
-        variant_set = SmallVariantSetFactory()
-        self.case = variant_set.case
+        self.case, variant_set, _ = CaseWithVariantSetFactory.get("small")
         SampleVariantStatisticsFactory(variant_set=variant_set, sample_name=variant_set.case.index)
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
@@ -365,8 +363,7 @@ class TestVariantsCaseFilterView(TestUIBase):
 
     def setUp(self):
         super().setUp()
-        variant_set = SmallVariantSetFactory()
-        self.case = variant_set.case
+        self.case, variant_set, _ = CaseWithVariantSetFactory.get("small")
         small_var = SmallVariantFactory(variant_set=variant_set)
 
     def _disable_effect_groups(self):
@@ -808,7 +805,9 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
     def setUp(self):
         super().setUp()
         self.project = ProjectFactory()
-        variant_sets = SmallVariantSetFactory.create_batch(2, case__project=self.project)
+        variant_sets = [None, None]
+        _, variant_sets[0], _ = CaseWithVariantSetFactory.get("small", project=self.project)
+        _, variant_sets[1], _ = CaseWithVariantSetFactory.get("small", project=self.project)
         SmallVariantFactory(variant_set=variant_sets[0])
         SmallVariantFactory(variant_set=variant_sets[1])
         for variant_set in variant_sets:

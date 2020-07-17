@@ -162,7 +162,7 @@ def _compute_relatedness_stmt_many(variant_model, cases):
     """Build SQL Alchemy statement given the variant model class and multiple case objects."""
     variant_set_conditions = []
     for case in cases:
-        variant_set = case.latest_variant_set()
+        variant_set = case.latest_variant_set
         if variant_set:
             variant_set_conditions.append(
                 and_(

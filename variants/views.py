@@ -186,18 +186,20 @@ class CaseListView(
             super()
             .get_queryset()
             .filter(project__sodar_uuid=self.kwargs["project"])
-            .prefetch_related(
-                "smallvariantset_set__variant_stats",
-                "smallvariantset_set__variant_stats__sample_variant_stats",
-                "project",
-            )
+            .prefetch_related("project", "case_comments",)
         )
 
     def get_context_data(self, *args, **kwargs):
         result = super().get_context_data(*args, **kwargs)
-        result["project"] = CaseAwareProject.objects.prefetch_related("variant_stats").get(
-            pk=result["project"].pk
-        )
+        result["project"] = CaseAwareProject.objects.prefetch_related(
+            "variant_stats",
+            "case_set__small_variant_comments",
+            "case_set__small_variant_flags",
+            "case_set__acmg_ratings",
+            "case_set__structural_variant_comments",
+            "case_set__structural_variant_flags",
+            "case_set__acmg_ratings",
+        ).get(pk=result["project"].pk)
         result["samples"] = result["project"].get_members()
         result["effects"] = list(FILTER_FORM_TRANSLATE_EFFECTS.values())
         result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
@@ -209,18 +211,15 @@ class CaseListView(
         result["commentsflags"] = self.join_small_var_comments_and_flags(result["project"])
         result["sv_commentsflags"] = self.join_sv_comments_and_flags(result["project"])
         # Build list of properly sorted coverage keys.
+        sample_variant_stats = result["project"].sample_variant_stats()
         try:
             coverages = set()
-            result["ontarget_effect_counts"] = {
-                stats.sample_name: stats.ontarget_effect_counts
-                for stats in result["project"].sample_variant_stats()
-            }
-            result["indel_sizes"] = {
-                stats.sample_name: {
-                    int(key): value for key, value in stats.ontarget_indel_sizes.items()
-                }
-                for stats in result["project"].sample_variant_stats()
-            }
+            for stats in sample_variant_stats:
+                result["ontarget_effect_counts"][stats.sample_name] = stats.ontarget_effect_counts
+                for key, value in stats.ontarget_indel_sizes.items():
+                    result["indel_sizes"][stats.sample_name][int(key)] = value
+                for key, value in stats.ontarget_dps.items():
+                    result["dps"][stats.sample_name][int(key)] = value
             result["indel_sizes_keys"] = list(
                 sorted(
                     set(
@@ -233,12 +232,10 @@ class CaseListView(
                     )
                 )
             )
-            result["dps"] = {
-                stats.sample_name: {int(key): value for key, value in stats.ontarget_dps.items()}
-                for stats in result["project"].sample_variant_stats()
-            }
-            for case in result["project"].case_set.all():
-                variant_set = case.latest_variant_set()
+            for case in (
+                result["project"].case_set.prefetch_related("variant_set__casealignmentstats").all()
+            ):
+                variant_set = case.latest_variant_set
                 if variant_set:
                     if hasattr(variant_set, "casealignmentstats"):
                         for min_covs in variant_set.casealignmentstats.bam_stats.values():
@@ -255,16 +252,16 @@ class CaseListView(
             pass  # swallow, defaults set above
 
         # Prepare effect counts data for QC download
-        qcdata_effect_content = ["\t".join(["Effect"] + result["project"].get_members())]
+        qcdata_effect_content = ["\t".join(["Effect"] + result["samples"])]
         for effect in result["effects"]:
             record = [effect]
-            for sample in result["project"].get_members():
+            for sample in result["samples"]:
                 record.append(str(result["ontarget_effect_counts"][sample].get(effect, 0)))
             qcdata_effect_content.append("\t".join(record))
         result["qcdata_effects"] = b64encode("\n".join(qcdata_effect_content).encode("utf-8"))
 
         # Prepare InDel size data for QC download
-        qcdata_indel_size_content = ["\t".join(["InDel Size"] + result["project"].get_members())]
+        qcdata_indel_size_content = ["\t".join(["InDel Size"] + result["samples"])]
         for indel_size in result["indel_sizes_keys"]:
             record = [
                 ">= %d" % indel_size
@@ -273,7 +270,7 @@ class CaseListView(
                 if indel_size == -10
                 else str(indel_size)
             ]
-            for sample in result["project"].get_members():
+            for sample in result["samples"]:
                 record.append(str(result["indel_sizes"][sample].get(indel_size, 0)))
             qcdata_indel_size_content.append("\t".join(record))
         result["qcdata_indel_sizes"] = b64encode(
@@ -281,10 +278,10 @@ class CaseListView(
         )
 
         # Prepare depth data for QC download
-        qcdata_site_depth_content = ["\t".join(["Depth"] + result["project"].get_members())]
+        qcdata_site_depth_content = ["\t".join(["Depth"] + result["samples"])]
         for site_depth in result["dps_keys"]:
             record = [">= %d" % site_depth if site_depth == 200 else str(site_depth)]
-            for sample in result["project"].get_members():
+            for sample in result["samples"]:
                 record.append(str(result["dps"][sample].get(site_depth, 0)))
             qcdata_site_depth_content.append("\t".join(record))
         result["qcdata_site_depths"] = b64encode(
@@ -332,28 +329,6 @@ class CaseListView(
             "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.",])
         ]
         for item in project.sample_variant_stats():
-            result.append(
-                "\t".join(
-                    [
-                        item.sample_name,
-                        str(item.ontarget_transitions),
-                        str(item.ontarget_transversions),
-                        str(item.ontarget_ts_tv_ratio()),
-                        str(item.ontarget_snvs),
-                        str(item.ontarget_indels),
-                        str(item.ontarget_mnvs),
-                        str(item.chrx_het_hom),
-                    ]
-                )
-            )
-        return b64encode("\n".join(result).encode("utf-8"))
-
-    def get_effect_content(self):
-        case = self.get_object()
-        members = case.get_members_with_samples()
-        result = ["\t".join(members)]
-        {sample: {} for sample in result["samples"]}
-        for item in case.latest_variant_set().variant_stats.sample_variant_stats.all():
             result.append(
                 "\t".join(
                     [
@@ -419,22 +394,28 @@ class CaseListView(
             )
         )
 
+        gene_symbol_cache = dict()
+
         for case in project.case_set.all():
             flags = case.small_variant_flags.all()
             comments = case.small_variant_comments.all()
             acmg_ratings = case.acmg_ratings.all()
 
             for record in flags:
+                position_key = (record.release, record.chromosome, record.start, record.end)
+                if not position_key in gene_symbol_cache:
+                    gene_symbol_cache[position_key] = get_gene_symbol(*position_key)
                 result[(record.chromosome, record.start, record.reference, record.alternative)][
                     case
                 ]["flags"] = model_to_dict(record)
                 result[(record.chromosome, record.start, record.reference, record.alternative)][
                     case
-                ]["genes"] |= get_gene_symbol(
-                    record.release, record.chromosome, record.start, record.end
-                )
+                ]["genes"] |= gene_symbol_cache[position_key]
 
             for record in comments:
+                position_key = (record.release, record.chromosome, record.start, record.end)
+                if not position_key in gene_symbol_cache:
+                    gene_symbol_cache[position_key] = get_gene_symbol(*position_key)
                 result[(record.chromosome, record.start, record.reference, record.alternative)][
                     case
                 ]["comments"].append(
@@ -447,19 +428,18 @@ class CaseListView(
                 )
                 result[(record.chromosome, record.start, record.reference, record.alternative)][
                     case
-                ]["genes"] |= get_gene_symbol(
-                    record.release, record.chromosome, record.start, record.end
-                )
+                ]["genes"] |= gene_symbol_cache[position_key]
 
             for record in acmg_ratings:
+                position_key = (record.release, record.chromosome, record.start, record.end)
+                if not position_key in gene_symbol_cache:
+                    gene_symbol_cache[position_key] = get_gene_symbol(*position_key)
                 result[(record.chromosome, record.start, record.reference, record.alternative)][
                     case
                 ]["acmg_rating"] = {"data": record, "class": record.acmg_class}
                 result[(record.chromosome, record.start, record.reference, record.alternative)][
                     case
-                ]["genes"] |= get_gene_symbol(
-                    record.release, record.chromosome, record.start, record.end
-                )
+                ]["genes"] |= gene_symbol_cache[position_key]
 
         for variant, data in result.items():
             result[variant] = dict(data)
@@ -580,7 +560,13 @@ class CaseListQcStatsApiView(
             ],
             "relData": rel_data,
             **build_sex_data(project),
-            **build_cov_data(list(project.case_set.all())),
+            **build_cov_data(
+                list(
+                    project.case_set.prefetch_related(
+                        "smallvariantset_set__variant_stats__sample_variant_stats"
+                    ).all()
+                )
+            ),
         }
 
         return JsonResponse(result)
@@ -877,7 +863,7 @@ class CaseDetailView(
             result["user"] = self.request.user
 
         try:
-            variant_set = case.latest_variant_set()
+            variant_set = case.latest_variant_set
             import_job = ImportVariantsBgJob.objects.filter(case_name=case.name).order_by(
                 "-date_created"
             )
@@ -995,7 +981,7 @@ class CaseDetailView(
                 ]
             )
         ]
-        for rel in case.latest_variant_set().variant_stats.relatedness.all():
+        for rel in case.latest_variant_set.variant_stats.relatedness.all():
             result.append(
                 "\t".join(
                     [
@@ -1018,7 +1004,7 @@ class CaseDetailView(
         result = [
             "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.",])
         ]
-        for item in case.latest_variant_set().variant_stats.sample_variant_stats.all():
+        for item in case.latest_variant_set.variant_stats.sample_variant_stats.all():
             result.append(
                 "\t".join(
                     [
@@ -1040,7 +1026,7 @@ class CaseDetailView(
         members = case.get_members_with_samples()
         result = ["\t".join(members)]
         {sample: {} for sample in result["samples"]}
-        for item in case.latest_variant_set().variant_stats.sample_variant_stats.all():
+        for item in case.latest_variant_set.variant_stats.sample_variant_stats.all():
             result.append(
                 "\t".join(
                     [
@@ -1473,8 +1459,9 @@ def build_cov_data(cases):
     dp_het_data = []
     for case in cases:
         try:
-            if case.latest_variant_set():
-                for stats in case.latest_variant_set().variant_stats.sample_variant_stats.all():
+            variant_set = case.latest_variant_set
+            if variant_set:
+                for stats in variant_set.variant_stats.sample_variant_stats.all():
                     dp_medians.append(stats.ontarget_dp_quantiles[2])
                     het_ratios.append(stats.het_ratio)
                     dps[stats.sample_name] = {
@@ -1550,8 +1537,9 @@ class CaseDetailQcStatsApiView(
 
         relatedness_set = []
         try:
-            if object.latest_variant_set():
-                relatedness_set = object.latest_variant_set().variant_stats.relatedness.all()
+            variant_set = object.latest_variant_set
+            if variant_set:
+                relatedness_set = variant_set.variant_stats.relatedness.all()
         except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
             pass  # swallow
 
@@ -1568,10 +1556,11 @@ class CaseDetailQcStatsApiView(
         return JsonResponse(result)
 
     def _build_var_type_data(self, object):
-        if not object.latest_variant_set():
+        variant_set = object.latest_variant_set
+        if not variant_set:
             return
         try:
-            for item in object.latest_variant_set().variant_stats.sample_variant_stats.all():
+            for item in variant_set.variant_stats.sample_variant_stats.all():
                 yield {
                     "name": only_source_name(item.sample_name),
                     "hovermode": "closest",
@@ -1583,7 +1572,8 @@ class CaseDetailQcStatsApiView(
             pass  # swallow
 
     def _build_var_effect_data(self, object):
-        if not object.latest_variant_set():
+        variant_set = object.latest_variant_set
+        if not variant_set:
             return
         keys = (
             "synonymous_variant",
@@ -1603,7 +1593,7 @@ class CaseDetailQcStatsApiView(
             "frameshift_elongation",
         )
         try:
-            for stats in object.latest_variant_set().variant_stats.sample_variant_stats.all():
+            for stats in variant_set.variant_stats.sample_variant_stats.all():
                 yield {
                     "name": only_source_name(stats.sample_name),
                     "x": keys,
@@ -1613,14 +1603,15 @@ class CaseDetailQcStatsApiView(
             pass  # swallow
 
     def _build_indel_size_data(self, object):
-        if not object.latest_variant_set():
+        variant_set = object.latest_variant_set
+        if not variant_set:
             return
         try:
             indel_sizes = {
                 stats.sample_name: {
                     int(key): value for key, value in stats.ontarget_indel_sizes.items()
                 }
-                for stats in object.latest_variant_set().variant_stats.sample_variant_stats.all()
+                for stats in variant_set.variant_stats.sample_variant_stats.all()
             }
             indel_sizes_keys = list(
                 sorted(
@@ -2033,8 +2024,8 @@ class CaseLoadPrefetchedFilterView(
         # TODO: refactor, cleanup, break apart
         # Fetch filter job to display.
         filter_job = FilterBgJob.objects.get(sodar_uuid=self.request.POST["filter_job_uuid"])
-        variant_set = filter_job.case.latest_variant_set()
-        if not (variant_set and variant_set.state == "active"):
+        variant_set = filter_job.case.latest_variant_set
+        if not variant_set:
             return HttpResponse(
                 json.dumps(
                     {

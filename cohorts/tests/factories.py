@@ -6,7 +6,11 @@ from test_plus import TestCase
 
 from cohorts.models import Cohort
 from variants.models import Case
-from variants.tests.factories import ProjectFactory, SmallVariantSetFactory, SmallVariantFactory
+from variants.tests.factories import (
+    ProjectFactory,
+    SmallVariantFactory,
+    CaseWithVariantSetFactory,
+)
 
 
 class CohortFactory(factory.django.DjangoModelFactory):
@@ -53,31 +57,37 @@ class TestCohortBase(RoleAssignmentMixin, TestCase):
         # setup cases & projects & roles
 
         # project 1 case 1
-        variant_set_1 = SmallVariantSetFactory()
+        self.project1 = ProjectFactory()
+        self.project1_case1, variant_set_1, _ = CaseWithVariantSetFactory.get(
+            "small", project=self.project1
+        )
         self.project1_case1_smallvars = SmallVariantFactory.create_batch(
             1, variant_set=variant_set_1
         )
-        self.project1_case1 = variant_set_1.case
-        self.project1 = self.project1_case1.project
+
         # project 1 case 2
-        variant_set_2 = SmallVariantSetFactory(case__project=self.project1)
+        self.project1_case2, variant_set_2, _ = CaseWithVariantSetFactory.get(
+            "small", project=self.project1
+        )
         self.project1_case2_smallvars = SmallVariantFactory.create_batch(
             2, variant_set=variant_set_2
         )
-        self.project1_case2 = variant_set_2.case
         # project 2 case 1
-        variant_set_3 = SmallVariantSetFactory()
+        self.project2 = ProjectFactory()
+        self.project2_case1, variant_set_3, _ = CaseWithVariantSetFactory.get(
+            "small", project=self.project2
+        )
         self.project2_case1_smallvars = SmallVariantFactory.create_batch(
             4, variant_set=variant_set_3
         )
-        self.project2_case1 = variant_set_3.case
-        self.project2 = self.project2_case1.project
+
         # project 2 case 2
-        variant_set_4 = SmallVariantSetFactory(case__project=self.project2)
+        self.project2_case2, variant_set_4, _ = CaseWithVariantSetFactory.get(
+            "small", project=self.project2
+        )
         self.project2_case2_smallvars = SmallVariantFactory.create_batch(
             8, variant_set=variant_set_4
         )
-        self.project2_case2 = variant_set_4.case
 
         # init roles
         role_owner = Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0]

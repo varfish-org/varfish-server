@@ -3,14 +3,14 @@
 from django.test import TestCase
 
 from geneinfo.tests.factories import HpoFactory, HpoNameFactory
-from variants.tests.factories import SmallVariantSetFactory, FormDataFactory
+from variants.tests.factories import FormDataFactory, CaseWithVariantSetFactory
 from ..forms import FilterForm
 
 
 class TestFormBase(TestCase):
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
+        _, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.hponame = HpoNameFactory(hpo_id="HP:0000001")
         self.hpos = [
             HpoFactory(

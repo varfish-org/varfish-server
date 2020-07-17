@@ -564,7 +564,7 @@ class CaseExporterXlsx(CaseExporterBase):
                     comment.user.username,
                     comment.text,
                 ]
-                if self.project:
+                if self.project_or_cohort:
                     row.insert(0, case.name)
                 self.variant_sheet.write_row(offset, 0, row)
                 offset += 1

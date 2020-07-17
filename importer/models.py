@@ -298,12 +298,16 @@ class CaseImporter:
     table_name_map = {
         CaseVariantType.SMALL.name: (
             ("variants_smallvariant", "set_id"),
-            ("variants_casealigmentstats", "variant_set_id"),
+            ("variants_casealignmentstats", "variant_set_id"),
         ),
         CaseVariantType.STRUCTURAL.name: (
             ("svs_structuralvariant", "set_id"),
             ("svs_structuralvariantgeneannotation", "set_id"),
         ),
+    }
+    latest_set_map = {
+        CaseVariantType.SMALL.name: "latest_variant_set",
+        CaseVariantType.STRUCTURAL.name: "latest_structural_variant_set",
     }
 
     def __init__(self, import_job):
@@ -330,6 +334,7 @@ class CaseImporter:
         for variant_set_info in self.import_info.variantsetimportinfo_set.all():
             attr_name = self.variant_type_map[variant_set_info.variant_type]
             table_names = self.table_name_map[variant_set_info.variant_type]
+            latest_set = self.latest_set_map[variant_set_info.variant_type]
             variant_set = getattr(self.case, attr_name).create(state="importing")
             try:
                 self.import_job.add_log_entry(
@@ -351,7 +356,8 @@ class CaseImporter:
                 if not case_created:  # Case needs to be updated.
                     self.case.index = self.import_info.index
                     self.case.pedigree = self.import_info.pedigree
-                    self.case.save()
+                setattr(self.case, latest_set, variant_set)
+                self.case.save()
                 update_variant_counts(self.case, variant_set_info.variant_type)
             if variant_set.state == "active":
                 self._clear_old_variant_sets(variant_set, table_names)
@@ -531,7 +537,7 @@ class CaseImporter:
                 case_stats, created = CaseAlignmentStats.objects.get_or_create(
                     variant_set=variant_set,
                     defaults={
-                        "case": import_info.case,
+                        "case": variant_set.case,
                         "bam_stats": json.loads(entry["bam_stats"].replace('"""', '"')),
                     },
                 )
@@ -542,7 +548,7 @@ class CaseImporter:
                     )
                 else:
                     case_stats.bam_stats = json.loads(entry["bam_stats"].replace('"""', '"'))
-                    case_stats.case = import_info.case
+                    case_stats.case = variant_set.case
                     case_stats.save()
                     self.import_job.add_log_entry(
                         "updated entry (found stats entry for variant set id %d)" % variant_set.id

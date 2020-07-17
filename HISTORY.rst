@@ -36,6 +36,8 @@ End-User Summary
 - Fixed bug where case alignment stats were not properly imported.
 - Fixed bug where unfolding smallvariant details of a variant in a cohort that was not part of the base project caused a 404 error.
 - Fixed bug that prevented case import from API.
+- Increased speed of listing cases in case list view.
+- Fixed bug that prevented export of project-wide filter results as XLS file.
 
 Full Change List
 ================
@@ -79,6 +81,8 @@ Full Change List
   Refactored case import in a sense that the new variant set gets activated when it is successfully imported.
 - Fixed bug where unfolding smallvariant details of a variant in a cohort that was not part of the base project caused a 404 error.
 - Fixed bug that prevented case import from API.
+- Increased speed of listing cases in case list view.
+- Fixed bug that prevented export of project-wide filter results as XLS file.
 
 -------
 v0.21.0

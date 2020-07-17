@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from test_plus.test import TestCase
 
-from variants.tests.factories import SmallVariantSetFactory
+from variants.tests.factories import CaseWithVariantSetFactory
 from .. import tasks
 from ..models import ExportFileBgJob
 from bgjobs.models import BackgroundJob
@@ -19,7 +19,7 @@ from projectroles.models import Project
 class ExportFileTaskTest(TestCase):
     def setUp(self):
         self.user = self.make_user("superuser")
-        variant_set = SmallVariantSetFactory()
+        case, variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.bg_job = BackgroundJob.objects.create(
             name="job name",
             project=Project.objects.first(),
@@ -29,7 +29,7 @@ class ExportFileTaskTest(TestCase):
         self.export_job = ExportFileBgJob.objects.create(
             project=self.bg_job.project,
             bg_job=self.bg_job,
-            case=variant_set.case,
+            case=case,
             query_args={"some": "args"},
             file_type="xlsx",
         )

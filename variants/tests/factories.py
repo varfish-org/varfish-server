@@ -518,6 +518,9 @@ class CoreCaseFactory(factory.django.DjangoModelFactory):
 class CaseFactory(CoreCaseFactory):
     """Factory for creating ``Case`` objects."""
 
+    latest_variant_set = None
+    latest_structural_variant_set = None
+
     class Meta:
         model = Case
 
@@ -557,6 +560,25 @@ class ProjectCasesSmallVariantQueryFactory(factory.django.DjangoModelFactory):
     )
     name = factory.Sequence(lambda n: "ProjectCasesSmallVariantQuery%d" % n)
     public = False
+
+
+class CaseWithVariantSetFactory:
+    @staticmethod
+    def get(variant_set_type=None, **kwargs):
+        from svs.tests.factories import StructuralVariantSetFactory
+
+        state = kwargs.pop("state") if kwargs.get("state") else None
+        case = CaseFactory(**kwargs)
+        variant_set_kwargs = {"case": case}
+        if state:
+            variant_set_kwargs["state"] = state
+
+        if variant_set_type == "small" or variant_set_type is None:
+            case.latest_variant_set = SmallVariantSetFactory(**variant_set_kwargs)
+        if variant_set_type == "structural" or variant_set_type is None:
+            case.latest_structural_variant_set = StructuralVariantSetFactory(**variant_set_kwargs)
+        case.save()
+        return case, case.latest_variant_set, case.latest_structural_variant_set
 
 
 def default_genotypes():

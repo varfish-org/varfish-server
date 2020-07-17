@@ -13,10 +13,10 @@ from timeline.models import ProjectEvent
 
 from cohorts.tests.factories import TestCohortBase
 from variants.tests.factories import (
-    SmallVariantSetFactory,
     SmallVariantFactory,
     ResubmitFormDataFactory,
     ExportProjectCasesFileBgJobFactory,
+    CaseWithVariantSetFactory,
 )
 from .. import file_export
 from ..models import ExportFileBgJob, ExportProjectCasesFileBgJob, Case
@@ -32,9 +32,8 @@ class ExportTestBase(TestCase):
 
     def setUp(self):
         self.user = self.make_user("superuser")
-        self.variant_set = SmallVariantSetFactory()
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
-        self.case = self.variant_set.case
         self.bg_job = BackgroundJob.objects.create(
             name="job name",
             project=Project.objects.first(),
@@ -165,9 +164,8 @@ class ProjectExportTestBase(TestCase):
 
     def setUp(self):
         self.user = self.make_user("superuser")
-        self.variant_set = SmallVariantSetFactory()
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
-        self.case = self.variant_set.case
         self.bg_job = BackgroundJob.objects.create(
             name="job name",
             project=Project.objects.first(),

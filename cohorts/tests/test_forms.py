@@ -10,7 +10,7 @@ class TestFilterForm(TestCohortBase):
         user = self.superuser
         form_data = {
             "name": "TestCohort",
-            "cases": [case.id for case in Case.objects.filter(project__roles__user=user)],
+            "cases": [case.id for case in Case.objects.all()],
         }
         form = CohortForm(form_data, user=user)
         self.assertTrue(form.is_valid())

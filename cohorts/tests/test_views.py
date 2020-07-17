@@ -159,7 +159,7 @@ class TestCohortCreateView(TestCohortBase):
         all_cases = [case.id for case in Case.objects.all()]
         form_data = {
             "name": "TestCohort",
-            "cases": [case.id for case in Case.objects.filter(project__roles__user=user)],
+            "cases": all_cases,
         }
         with self.login(user):
             response = self.client.post(
@@ -181,7 +181,7 @@ class TestCohortCreateView(TestCohortBase):
         all_cases = [case.id for case in Case.objects.all()]
         form_data = {
             "name": "TestCohort",
-            "cases": [case.id for case in Case.objects.filter(project__roles__user=user)],
+            "cases": all_cases,
         }
         with self.login(user):
             self.client.post(

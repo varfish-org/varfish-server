@@ -19,7 +19,7 @@
         </strong></span>
         <span class="col-3 text-nowrap">
           {{ object.name }}
-          {% include "variants/case/indicator_sex_error.html" with item=object %}
+          {% include "variants/case/indicator_sex_error.html" with item=object disable_pedigree_sex_check=disable_pedigree_sex_check %}
           {% include "variants/case/indicator_rel_error.html" with item=object %}
         </span>
         <span class="col-3"><strong>

@@ -37,7 +37,7 @@ from geneinfo.tests.factories import (
     RefseqToGeneSymbolFactory,
 )
 from svs.models import StructuralVariant
-from svs.tests.factories import StructuralVariantSetFactory, StructuralVariantFactory
+from svs.tests.factories import StructuralVariantFactory
 from variants.models import (
     Case,
     ExportFileBgJob,
@@ -73,12 +73,12 @@ from variants.tests.factories import (
     AcmgCriteriaRatingFormDataFactory,
     SmallVariantFlagsFactory,
     SmallVariantCommentFactory,
-    SmallVariantSetFactory,
     CaseNotesStatusFormFactory,
     CaseCommentsFormFactory,
     CaseCommentsFactory,
     SampleVariantStatisticsFactory,
     DeleteCaseBgJobFactory,
+    CaseWithVariantSetFactory,
 )
 from variants.tests.helpers import ViewTestBase
 from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
@@ -96,8 +96,10 @@ class TestCaseListView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+        SampleVariantStatisticsFactory(
+            variant_set=self.variant_set, sample_name=self.case.index, chrx_het_hom=1.0
+        )
 
     def test_render_no_variant_stats(self):
         """Test display of case list page."""
@@ -141,8 +143,7 @@ class TestCaseListQcStatsApiView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
     def test_render_no_variant_stats(self):
         """Test display of case list page."""
@@ -188,8 +189,7 @@ class TestCaseDetailView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
     def test_render_no_variant_stats(self):
         """Test display of case detail view page."""
@@ -220,8 +220,7 @@ class TestCaseDetailView(ViewTestBase):
 class TestCaseUpdateView(ViewTestBase):
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
     def test_render_form(self):
         """Test rendering of update form."""
@@ -283,15 +282,15 @@ class TestCaseDeleteView(RoleAssignmentMixin, ViewTestBase):
         super().setUp()
         self.project = ProjectFactory()
         # Create first case with small and structural variants
-        self.case_1 = CaseFactory(project=self.project)
-        self.variant_set_1 = SmallVariantSetFactory(case=self.case_1)
-        self.variant_set_sv_1 = StructuralVariantSetFactory(case=self.case_1)
+        self.case_1, self.variant_set_1, self.variant_set_sv_1 = CaseWithVariantSetFactory.get(
+            project=self.project
+        )
         self.small_vars_1 = SmallVariantFactory.create_batch(3, variant_set=self.variant_set_1)
         self.svs_1 = StructuralVariantFactory.create_batch(3, variant_set=self.variant_set_sv_1)
         # Create second case with small and structural variants
-        self.case_2 = CaseFactory(project=self.project)
-        self.variant_set_2 = SmallVariantSetFactory(case=self.case_2)
-        self.variant_set_sv_2 = StructuralVariantSetFactory(case=self.case_2)
+        self.case_2, self.variant_set_2, self.variant_set_sv_2 = CaseWithVariantSetFactory.get(
+            project=self.project
+        )
         self.small_vars_2 = SmallVariantFactory.create_batch(2, variant_set=self.variant_set_2)
         self.svs_2 = StructuralVariantFactory.create_batch(2, variant_set=self.variant_set_sv_2)
         # Create a user without superuser rights
@@ -380,15 +379,15 @@ class TestSmallVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
         super().setUp()
         self.project = ProjectFactory()
         # Create first case with small and structural variants
-        self.case_1 = CaseFactory(project=self.project)
-        self.variant_set_1 = SmallVariantSetFactory(case=self.case_1)
-        self.variant_set_sv_1 = StructuralVariantSetFactory(case=self.case_1)
+        self.case_1, self.variant_set_1, self.variant_set_sv_1 = CaseWithVariantSetFactory.get(
+            project=self.project
+        )
         self.small_vars_1 = SmallVariantFactory.create_batch(3, variant_set=self.variant_set_1)
         self.svs_1 = StructuralVariantFactory.create_batch(3, variant_set=self.variant_set_sv_1)
         # Create second case with small and structural variants
-        self.case_2 = CaseFactory(project=self.project)
-        self.variant_set_2 = SmallVariantSetFactory(case=self.case_2)
-        self.variant_set_sv_2 = StructuralVariantSetFactory(case=self.case_2)
+        self.case_2, self.variant_set_2, self.variant_set_sv_2 = CaseWithVariantSetFactory.get(
+            project=self.project
+        )
         self.small_vars_2 = SmallVariantFactory.create_batch(2, variant_set=self.variant_set_2)
         self.svs_2 = StructuralVariantFactory.create_batch(2, variant_set=self.variant_set_sv_2)
         # Create a user without superuser rights
@@ -458,15 +457,15 @@ class TestStructuralVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
         super().setUp()
         self.project = ProjectFactory()
         # Create first case with small and structural variants
-        self.case_1 = CaseFactory(project=self.project)
-        self.variant_set_1 = SmallVariantSetFactory(case=self.case_1)
-        self.variant_set_sv_1 = StructuralVariantSetFactory(case=self.case_1)
+        self.case_1, self.variant_set_1, self.variant_set_sv_1 = CaseWithVariantSetFactory.get(
+            project=self.project
+        )
         self.small_vars_1 = SmallVariantFactory.create_batch(3, variant_set=self.variant_set_1)
         self.svs_1 = StructuralVariantFactory.create_batch(3, variant_set=self.variant_set_sv_1)
         # Create second case with small and structural variants
-        self.case_2 = CaseFactory(project=self.project)
-        self.variant_set_2 = SmallVariantSetFactory(case=self.case_2)
-        self.variant_set_sv_2 = StructuralVariantSetFactory(case=self.case_2)
+        self.case_2, self.variant_set_2, self.variant_set_sv_2 = CaseWithVariantSetFactory.get(
+            project=self.project
+        )
         self.small_vars_2 = SmallVariantFactory.create_batch(2, variant_set=self.variant_set_2)
         self.svs_2 = StructuralVariantFactory.create_batch(2, variant_set=self.variant_set_sv_2)
         # Create a user without superuser rights
@@ -536,8 +535,7 @@ class TestCaseDetailQcStatsApiView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
     def test_get_no_variant_stats(self):
         """Test fetching information through API if there is no variant stats."""
@@ -594,8 +592,7 @@ class TestCaseFilterView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         SmallVariantFactory(variant_set=self.variant_set)
 
     def test_status_code_200(self):
@@ -765,8 +762,7 @@ class TestCasePrefetchFilterView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         SmallVariantFactory(variant_set=self.variant_set)
 
     def test_get_job_id(self):
@@ -785,7 +781,9 @@ class TestCasePrefetchFilterView(ViewTestBase):
             )
 
     def test_variant_set_missing(self):
-        SmallVariantSet.objects.all().delete()
+        self.case.latest_variant_set = None
+        self.case.save()
+        self.variant_set.delete()
         with self.login(self.user), self.assertRaises(RuntimeError):
             self.client.post(
                 reverse(
@@ -819,8 +817,7 @@ class TestCaseFilterJobView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
 
     def test_status_code_200(self):
@@ -845,8 +842,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.small_vars = [
             SmallVariantFactory(
                 chromosome="1", refseq_gene_id="1234", variant_set=self.variant_set
@@ -1329,8 +1325,8 @@ class TestFilterJobResubmitView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = FilterBgJobFactory(user=self.user)
-        SmallVariantSetFactory(case=self.bgjob.case)
+        case, _, _ = CaseWithVariantSetFactory.get("small")
+        self.bgjob = FilterBgJobFactory(user=self.user, case=case)
 
     def test_redirect(self):
         with self.login(self.user):
@@ -1521,8 +1517,14 @@ class TestProjectCasesFilterView(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
-        self.variant_sets = SmallVariantSetFactory.create_batch(2, case__project=self.bgjob.project)
-        self.cases = [self.variant_sets[0].case, self.variant_sets[1].case]
+        self.variant_sets = [None, None]
+        self.cases = [None, None]
+        self.cases[0], self.variant_sets[0], _ = CaseWithVariantSetFactory.get(
+            "small", project=self.bgjob.project
+        )
+        self.cases[1], self.variant_sets[1], _ = CaseWithVariantSetFactory.get(
+            "small", project=self.bgjob.project
+        )
         SmallVariantFactory.create_batch(2, variant_set=self.variant_sets[0]),
         SmallVariantFactory.create_batch(3, variant_set=self.variant_sets[1]),
         for variant_set in self.variant_sets:
@@ -1901,7 +1903,8 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.project = ProjectFactory()
-        SmallVariantSetFactory.create_batch(2, case__project=self.project)
+        CaseWithVariantSetFactory.get("small", project=self.project)
+        CaseWithVariantSetFactory.get("small", project=self.project)
 
     def test_valid_form(self):
         with self.login(self.user):
@@ -1987,7 +1990,9 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
         super().setUp()
         self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
         self.project = self.bgjob.project
-        variant_sets = SmallVariantSetFactory.create_batch(2, case__project=self.project)
+        variant_sets = [None, None]
+        _, variant_sets[0], _ = CaseWithVariantSetFactory.get("small", project=self.project)
+        _, variant_sets[1], _ = CaseWithVariantSetFactory.get("small", project=self.project)
         # Make sure the variants stay in order as we need to access the clinvar variant by position in list
         self.small_vars = [
             SmallVariantFactory(
@@ -2386,8 +2391,8 @@ class TestProjectCasesFilterJobResubmitView(ViewTestBase):
     def setUp(self):
         super().setUp()
         project = ProjectFactory()
-        SmallVariantSetFactory(case__project=project)
-        SmallVariantSetFactory(case__project=project)
+        CaseWithVariantSetFactory.get("small", project=project)
+        CaseWithVariantSetFactory.get("small", project=project)
         self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user, project=project)
 
     def test_redirect(self):
@@ -2446,8 +2451,7 @@ class TestDistillerSubmissionJobResubmitView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
     @Mocker()
     def test_resubmission(self, mock):
@@ -2511,8 +2515,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.small_var = SmallVariantFactory(variant_set=self.variant_set)
         coords = {
             "chromosome": self.small_var.chromosome,
@@ -2933,8 +2936,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
 class TestSmallVariantDetailsViewMitochondrial(ViewTestBase):
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.small_var = SmallVariantFactory(
             variant_set=self.variant_set,
             chromosome="MT",
@@ -3083,8 +3085,8 @@ class TestExportFileJobResubmitView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = ExportFileBgJobFactory(user=self.user)
-        SmallVariantSetFactory(case=self.bgjob.case)
+        case, _, _ = CaseWithVariantSetFactory.get("small")
+        self.bgjob = ExportFileBgJobFactory(user=self.user, case=case)
 
     def test_resubmission(self):
         """Test if file resubmission works."""
@@ -3172,8 +3174,8 @@ class TestExportProjectCasesFileJobResubmitView(ViewTestBase):
     def setUp(self):
         super().setUp()
         project = ProjectFactory()
-        SmallVariantSetFactory(case__project=project)
-        SmallVariantSetFactory(case__project=project)
+        CaseWithVariantSetFactory.get("small", project=project)
+        CaseWithVariantSetFactory.get("small", project=project)
         self.bgjob = ExportProjectCasesFileBgJobFactory(user=self.user, project=project)
 
     def test_resubmission(self):
@@ -3325,8 +3327,7 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.small_var = SmallVariantFactory(variant_set=self.variant_set)
 
     def test_get_json_response_non_existing(self):
@@ -3528,11 +3529,9 @@ class TestSmallVariantCommentSubmitApiView(RoleAssignmentMixin, ViewTestBase):
         super().setUp()
         self.randomuser = self.make_user("randomuser")
         self.randomuser.save()
-        self.variant_set = SmallVariantSetFactory()
+        case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self._make_assignment(
-            self.variant_set.case.project,
-            self.randomuser,
-            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+            case.project, self.randomuser, Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
         )
         self.small_var = SmallVariantFactory(variant_set=self.variant_set)
 
@@ -3652,11 +3651,9 @@ class TestSmallVariantCommentDeleteApiView(RoleAssignmentMixin, ViewTestBase):
         super().setUp()
         self.randomuser = self.make_user("randomuser")
         self.randomuser.save()
-        self.variant_set = SmallVariantSetFactory()
+        case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self._make_assignment(
-            self.variant_set.case.project,
-            self.randomuser,
-            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+            case.project, self.randomuser, Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
         )
 
     def test_admin_can_delete_user_comment(self):
@@ -3751,8 +3748,7 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
-        self.case = self.variant_set.case
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.small_var = SmallVariantFactory(variant_set=self.variant_set)
 
     def test_get_response_not_existing(self):
@@ -3988,7 +3984,7 @@ class TestCaseNotesStatusApiView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.variant_set = SmallVariantSetFactory()
+        _, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
     def test_response(self):
         with self.login(self.user):
@@ -4052,11 +4048,9 @@ class TestCaseCommentsSubmitApiView(RoleAssignmentMixin, ViewTestBase):
         super().setUp()
         self.randomuser = self.make_user("randomuser")
         self.randomuser.save()
-        self.variant_set = SmallVariantSetFactory()
+        case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self._make_assignment(
-            self.variant_set.case.project,
-            self.randomuser,
-            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+            case.project, self.randomuser, Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
         )
 
     def test_user_submit_case_comment(self):
@@ -4124,11 +4118,9 @@ class TestCaseCommentsDeleteApiView(RoleAssignmentMixin, ViewTestBase):
         super().setUp()
         self.randomuser = self.make_user("randomuser")
         self.randomuser.save()
-        self.variant_set = SmallVariantSetFactory()
+        case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self._make_assignment(
-            self.variant_set.case.project,
-            self.randomuser,
-            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+            case.project, self.randomuser, Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
         )
 
     def test_admin_can_delete_user_case_comment(self):
@@ -4188,8 +4180,7 @@ class TestCaseFixSexView(RoleAssignmentMixin, ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        variant_set = SmallVariantSetFactory()
-        self.case = variant_set.case
+        self.case, variant_set, _ = CaseWithVariantSetFactory.get("small")
         SampleVariantStatisticsFactory(
             variant_set=variant_set, sample_name=self.case.index, chrx_het_hom=1.0
         )
@@ -4220,10 +4211,9 @@ class TestProjectCasesFixSexView(RoleAssignmentMixin, ViewTestBase):
     def setUp(self):
         super().setUp()
         self.project = ProjectFactory()
-        self.case_1 = CaseFactory(project=self.project)
-        self.case_2 = CaseFactory(project=self.project)
-        variant_set_1 = SmallVariantSetFactory(case=self.case_1)
-        variant_set_2 = SmallVariantSetFactory(case=self.case_2)
+        # Create first case with small and structural variants
+        self.case_1, variant_set_1, _ = CaseWithVariantSetFactory.get("small", project=self.project)
+        self.case_2, variant_set_2, _ = CaseWithVariantSetFactory.get("small", project=self.project)
         SampleVariantStatisticsFactory(
             variant_set=variant_set_1, sample_name=self.case_1.index, chrx_het_hom=1.0
         )

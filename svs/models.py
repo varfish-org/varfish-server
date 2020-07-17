@@ -505,6 +505,7 @@ class VariantImporter(VariantImporterBase):
         ("svs_structuralvariant", "set_id"),
         ("svs_structuralvariantgeneannotation", "set_id"),
     )
+    latest_set = "latest_structural_variant_set"
 
     def _perform_import(self, variant_set):
         self._import_table(variant_set, "SVs", "path_genotypes", StructuralVariant)

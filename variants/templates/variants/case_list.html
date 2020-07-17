@@ -7,6 +7,8 @@
 {% load static %}
 {% load variants_tags %}
 
+{% get_app_setting 'variants' 'disable_pedigree_sex_check' project=project as disable_pedigree_sex_check %}
+
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item active">Cases</li>
 {% endblock %}
@@ -19,7 +21,7 @@
     <h2 class="sodar-pr-content-title">
       Case List
     </h2>
-    {% include "variants/_case_list_buttons.html" %}
+    {% include "variants/_case_list_buttons.html" with disable_pedigree_sex_check=disable_pedigree_sex_check %}
   </div>
 
   <div class="container-fluid sodar-page-container pt-3">
@@ -67,7 +69,7 @@
       <div class="border border-top-0 tab-pane fade show active" id="case-list" role="tabpanel" aria-labelledby="case-list-tab">
         <div class="row pt-3">
           <div class="col">
-            {% include 'variants/case_list/list.html' %}
+            {% include 'variants/case_list/list.html' with disable_pedigree_sex_check=disable_pedigree_sex_check %}
           </div>
         </div>
       </div>

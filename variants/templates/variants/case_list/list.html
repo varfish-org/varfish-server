@@ -52,7 +52,7 @@
       </thead>
       <tbody>
         {% for case in object_list %}
-          {% include "variants/case/item.html" with item=case details_card_mode=False %}
+          {% include "variants/case/item.html" with item=case details_card_mode=False disable_pedigree_sex_check=disable_pedigree_sex_check %}
         {% endfor %}
         {% if not object_list %}
           <tr>

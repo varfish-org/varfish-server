@@ -8,10 +8,9 @@ from projectroles.models import Project, SODAR_CONSTANTS
 
 from variants.tests.factories import (
     SmallVariantFlagsFactory,
-    SmallVariantSetFactory,
-    CaseFactory,
     ProjectFactory,
     SmallVariantFactory,
+    CaseWithVariantSetFactory,
 )
 from test_plus.test import TestCase
 
@@ -37,16 +36,24 @@ class TestSmallVariantFlags(TestCase):
 class TestCleanupVariantSets(TestCase):
     def setUp(self):
         self.user = self.make_user("superuser")
-        self.variant_set_active_above_thres = SmallVariantSetFactory(state="active")
+        _, self.variant_set_active_above_thres, _ = CaseWithVariantSetFactory.get(
+            "small", state="active"
+        )
         self.variant_set_active_above_thres.date_created = datetime.now() - timedelta(hours=1)
         self.variant_set_active_above_thres.save()
-        self.variant_set_inactive_above_thres = SmallVariantSetFactory(state="importing")
+        _, self.variant_set_inactive_above_thres, _ = CaseWithVariantSetFactory.get(
+            "small", state="importing"
+        )
         self.variant_set_inactive_above_thres.date_created = datetime.now() - timedelta(hours=2)
         self.variant_set_inactive_above_thres.save()
-        self.variant_set_active_below_thres = SmallVariantSetFactory(state="active")
+        _, self.variant_set_active_below_thres, _ = CaseWithVariantSetFactory.get(
+            "small", state="active"
+        )
         self.variant_set_active_below_thres.date_created = datetime.now() - timedelta(hours=13)
         self.variant_set_active_below_thres.save()
-        self.variant_set_inactive_below_thres = SmallVariantSetFactory(state="importing")
+        _, self.variant_set_inactive_below_thres, _ = CaseWithVariantSetFactory.get(
+            "small", state="importing"
+        )
         self.variant_set_inactive_below_thres.date_created = datetime.now() - timedelta(hours=14)
         self.variant_set_inactive_below_thres.save()
 
@@ -72,12 +79,14 @@ class TestClearOldKioskCases(TestCase):
         self.project_below_thres = ProjectFactory(
             title=settings.KIOSK_PROJ_PREFIX + str(uuid.uuid4()), parent=self.category
         )
-        self.case_above_thres = CaseFactory(project=self.project_above_thres)
-        self.case_below_thres = CaseFactory(project=self.project_below_thres)
+        self.case_above_thres, self.variant_set_above_thres, _ = CaseWithVariantSetFactory.get(
+            "small", project=self.project_above_thres
+        )
+        self.case_below_thres, self.variant_set_below_thres, _ = CaseWithVariantSetFactory.get(
+            "small", project=self.project_below_thres
+        )
         self.case_below_thres.date_created = datetime.now() - timedelta(weeks=9)
         self.case_below_thres.save()
-        self.variant_set_above_thres = SmallVariantSetFactory(case=self.case_above_thres)
-        self.variant_set_below_thres = SmallVariantSetFactory(case=self.case_below_thres)
         self.small_vars_above_thres = SmallVariantFactory.create_batch(
             3, variant_set=self.variant_set_above_thres
         )

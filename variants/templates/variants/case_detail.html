@@ -5,6 +5,9 @@
 {% load humanize %}
 {% load static %}
 
+{% get_app_setting 'variants' 'disable_pedigree_sex_check' project=project as disable_pedigree_sex_check %}
+
+
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
   <li class="breadcrumb-item active">{{ object.name }}</li>
@@ -63,8 +66,8 @@
       <div class="border border-top-0 tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
         <div class="row pt-3">
           <div class="col-6">
-            {% include "variants/case/detail_overview.html" %}
-            {% include "variants/case/detail_pedigree.html" %}
+            {% include "variants/case/detail_overview.html" with disable_pedigree_sex_check=disable_pedigree_sex_check %}
+            {% include "variants/case/detail_pedigree.html" with disable_pedigree_sex_check=disable_pedigree_sex_check %}
             {% include "variants/case/detail_release_info.html" %}
           </div>
           <div class="col-6">
