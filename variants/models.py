@@ -3291,49 +3291,55 @@ class VariantImporterBase:
 
     def run(self):
         """Perform the variant import."""
-        case = self._create_or_update_case()
-        variant_set = getattr(case, self.variant_set_attribute).create(state="importing")
+        pedigree = list(self._yield_pedigree())
+        # Create new case or get existing one.
+        with transaction.atomic():
+            case, case_created = Case.objects.get_or_create(
+                name=self.import_job.case_name,
+                project=self.import_job.project,
+                defaults={"index": self.import_job.index_name, "pedigree": pedigree,},
+            )
+            # Create new variant set for case.
+            variant_set = getattr(case, self.variant_set_attribute).create(state="importing")
         try:
             self._perform_import(variant_set)
-            variant_set.state = "active"
-            variant_set.save()
-            update_variant_counts(variant_set.case)
-            self._clear_old_variant_sets(case, variant_set)
         except Exception as e:
             self.import_job.add_log_entry("Problem during variant import: %s" % e, LOG_LEVEL_ERROR)
             self.import_job.add_log_entry("Rolling back variant set...")
             self._purge_variant_set(variant_set)
             raise RuntimeError("Problem during variant import ") from e
+        with transaction.atomic():
+            variant_set.state = "active"
+            variant_set.save()
+            if not case_created:  # Case needs to be updated.
+                case.index = self.import_job.index_name
+                case.pedigree = pedigree
+                case.save()
+            update_variant_counts(variant_set.case)
+        if variant_set.state == "active":
+            self._clear_old_variant_sets(case, variant_set)
+        else:
+            self.import_job.add_log_entry("Problem during variant import", LOG_LEVEL_ERROR)
+            self.import_job.add_log_entry("Rolling back variant set...")
+            self._purge_variant_set(variant_set)
+            raise RuntimeError("Problem during variant import")
 
     def _perform_import(self, variant_set):
         raise NotImplementedError("Override me!")
 
     def _purge_variant_set(self, variant_set):
         variant_set.__class__.objects.filter(pk=variant_set.id).update(state="deleting")
-        for table_name in self.table_names:
+        for table_name, variant_set_attr in self.table_names:
             table = aldjemy.core.get_meta().tables[table_name]
             SQLALCHEMY_ENGINE.execute(
                 table.delete().where(
-                    and_(table.c.set_id == variant_set.id, table.c.case_id == variant_set.case.id)
+                    and_(
+                        getattr(table.c, variant_set_attr) == variant_set.id,
+                        table.c.case_id == variant_set.case.id,
+                    )
                 )
             )
         variant_set.__class__.objects.filter(pk=variant_set.id).delete()
-
-    def _create_or_update_case(self):
-        pedigree = list(self._yield_pedigree())
-        if Case.objects.filter(name=self.import_job.case_name, project=self.import_job.project):
-            case = Case.objects.get(name=self.import_job.case_name, project=self.import_job.project)
-            case.index = self.import_job.index_name
-            case.pedigree = pedigree
-            case.save()
-        else:
-            case = Case.objects.create(
-                name=self.import_job.case_name,
-                project=self.import_job.project,
-                index=self.import_job.index_name,
-                pedigree=pedigree,
-            )
-        return case
 
     def _yield_pedigree(self):
         samples_in_genotypes = self._get_samples_in_genotypes()
@@ -3434,7 +3440,10 @@ class VariantImporter(VariantImporterBase):
     """Helper class for importing variants."""
 
     variant_set_attribute = "smallvariantset_set"
-    table_names = ("variants_smallvariant",)
+    table_names = (
+        ("variants_smallvariant", "set_id"),
+        ("variants_casealignmentstats", "variant_set_id"),
+    )
     # Ensure that the info and {refseq,ensembl}_exon_dist fields are present with default values.  This snippet
     # can go away once we are certain all TSV files have been created with varfish-annotator >=0.10
     default_values = {"info": "{}", "refseq_exon_dist": ".", "ensembl_exon_dist": "."}
@@ -3480,14 +3489,29 @@ class VariantImporter(VariantImporterBase):
         self.import_job.add_log_entry("Importing alignment statistics...")
         for path_bam_qc in self.import_job.path_bam_qc:
             self.import_job.add_log_entry("... importing from %s" % path_bam_qc)
-            for lineno, entry in enumerate(tsv_reader(path_bam_qc)):
-                CaseAlignmentStats.objects.get_or_create(
+            # Enumerate is bad because empty iterator and iterator with one element result in the same count
+            lineno = 0
+            for entry in tsv_reader(path_bam_qc):
+                case_stats, created = CaseAlignmentStats.objects.get_or_create(
                     variant_set=variant_set,
                     defaults={
                         "case": variant_set.case,
                         "bam_stats": json.loads(entry["bam_stats"].replace('"""', '"')),
                     },
                 )
+                if created:
+                    self.import_job.add_log_entry(
+                        "created entry for case '%s' with id %d and variant set id %d"
+                        % (variant_set.case.name, variant_set.case.id, variant_set.id)
+                    )
+                else:  # needs update
+                    case_stats.bam_stats = json.loads(entry["bam_stats"].replace('"""', '"'))
+                    case_stats.case = variant_set.case
+                    case_stats.save()
+                    self.import_job.add_log_entry(
+                        "updated entry (found stats entry for variant set id %d)" % variant_set.id
+                    )
+                lineno += 1
             self.import_job.add_log_entry("imported %d entries" % lineno)
         elapsed = timezone.now() - before
         self.import_job.add_log_entry(

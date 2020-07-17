@@ -296,10 +296,13 @@ class CaseImporter:
         CaseVariantType.STRUCTURAL.name: "structuralvariantset_set",
     }
     table_name_map = {
-        CaseVariantType.SMALL.name: ("variants_smallvariant",),
+        CaseVariantType.SMALL.name: (
+            ("variants_smallvariant", "set_id"),
+            ("variants_casealigmentstats", "variant_set_id"),
+        ),
         CaseVariantType.STRUCTURAL.name: (
-            "svs_structuralvariant",
-            "svs_structuralvariantgeneannotation",
+            ("svs_structuralvariant", "set_id"),
+            ("svs_structuralvariantgeneannotation", "set_id"),
         ),
     }
 
@@ -310,7 +313,20 @@ class CaseImporter:
 
     def run(self):
         """Perform the variant import."""
-        self.case = self._create_or_update_case()
+        # Create new case or get existing one.
+        if self.import_info.case:
+            case = self.import_info.case
+            case_created = False
+        else:
+            with transaction.atomic():
+                case, case_created = Case.objects.get_or_create(
+                    name=self.import_info.name,
+                    project=self.import_info.project,
+                    defaults={
+                        "index": self.import_info.index,
+                        "pedigree": self.import_info.pedigree,
+                    },
+                )
         for variant_set_info in self.import_info.variantsetimportinfo_set.all():
             attr_name = self.variant_type_map[variant_set_info.variant_type]
             table_names = self.table_name_map[variant_set_info.variant_type]
@@ -320,12 +336,6 @@ class CaseImporter:
                     "Importing %s variants" % variant_set_info.variant_type
                 )
                 self._perform_import(variant_set, variant_set_info)
-                variant_set.state = "active"
-                variant_set.save()
-                update_variant_counts(variant_set.case, variant_set_info.variant_type)
-                self._clear_old_variant_sets(self.case, variant_set, table_names)
-                self.import_info.state = CaseImportState.IMPORTED.value
-                self.import_info.save()
             except Exception as e:
                 self.import_job.add_log_entry(
                     "Problem during variant import: %s" % e, LOG_LEVEL_ERROR
@@ -335,41 +345,36 @@ class CaseImporter:
                 self.import_info.save()
                 self._purge_variant_set(variant_set, table_names)
                 raise RuntimeError("Problem during variant import ") from e
-
-    def _create_or_update_case(self) -> Case:
-        """Obtain and update existing case or create new one."""
-        if self.import_info.case:
-            # When case already assigned then use it and update.
-            case = self.import_info.case
-            case.index = self.import_info.index
-            case.pedigree = self.import_info.pedigree
-            case.save()
-        else:
-            # Otherwise, try to grab one with the same name and create new one otherwise.
             with transaction.atomic():
-                qry = {"name": self.import_info.name, "project": self.import_info.project}
-                if Case.objects.filter(**qry):
-                    case = Case.objects.get(**qry)
+                variant_set.state = "active"
+                variant_set.save()
+                if not case_created:  # Case needs to be updated.
                     case.index = self.import_info.index
                     case.pedigree = self.import_info.pedigree
                     case.save()
-                else:
-                    case = Case.objects.create(
-                        name=self.import_info.name,
-                        project=self.import_info.project,
-                        index=self.import_info.index,
-                        pedigree=self.import_info.pedigree,
-                    )
-                self.import_info.case = case
-        return case
+                update_variant_counts(variant_set.case, variant_set_info.variant_type)
+            if variant_set.state == "active":
+                self._clear_old_variant_sets(self.case, variant_set, table_names)
+                self.import_info.state = CaseImportState.IMPORTED.value
+                self.import_info.save()
+            else:
+                self.import_job.add_log_entry("Problem during variant import", LOG_LEVEL_ERROR)
+                self.import_job.add_log_entry("Rolling back variant set...")
+                self.import_info.state = CaseImportState.FAILED.value
+                self.import_info.save()
+                self._purge_variant_set(variant_set, table_names)
+                raise RuntimeError("Problem during variant import")
 
     def _purge_variant_set(self, variant_set, table_names):
         variant_set.__class__.objects.filter(pk=variant_set.id).update(state="deleting")
-        for table_name in table_names:
+        for table_name, variant_set_attr in table_names:
             table = aldjemy.core.get_meta().tables[table_name]
             SQLALCHEMY_ENGINE.execute(
                 table.delete().where(
-                    and_(table.c.set_id == variant_set.id, table.c.case_id == variant_set.case.id)
+                    and_(
+                        getattr(table.c, variant_set_attr) == variant_set.id,
+                        table.c.case_id == variant_set.case.id,
+                    )
                 )
             )
         variant_set.__class__.objects.filter(pk=variant_set.id).delete()
@@ -518,18 +523,32 @@ class CaseImporter:
     def _import_alignment_stats(self, import_info: CaseImportInfo, variant_set: SmallVariantSet):
         before = timezone.now()
         self.import_job.add_log_entry("Importing alignment statistics...")
-        # Remove old.
-        CaseAlignmentStats.objects.filter(case=self.case).delete()
-        # Import new.
         for bam_qc_file in import_info.bamqcfile_set.all():
             self.import_job.add_log_entry("... importing from %s" % bam_qc_file.name)
-            lineno = -1
-            for lineno, entry in enumerate(tsv_reader(bam_qc_file.file)):
-                case_stats, _created = CaseAlignmentStats.objects.get_or_create(
-                    variant_set=variant_set, defaults={"case": import_info.case, "bam_stats": {}},
+            # Enumerate is bad because empty iterator and iterator with one element result in the same count
+            lineno = 0
+            for entry in tsv_reader(bam_qc_file.file):
+                case_stats, created = CaseAlignmentStats.objects.get_or_create(
+                    variant_set=variant_set,
+                    defaults={
+                        "case": import_info.case,
+                        "bam_stats": json.loads(entry["bam_stats"].replace('"""', '"')),
+                    },
                 )
-                case_stats.bam_stats = json.loads(entry["bam_stats"].replace('"""', '"'))
-            self.import_job.add_log_entry("imported %d entries" % (lineno + 1))
+                if created:
+                    self.import_job.add_log_entry(
+                        "created entry for case '%s' with id %d and variant set id %d"
+                        % (variant_set.case.name, variant_set.case.id, variant_set.id)
+                    )
+                else:
+                    case_stats.bam_stats = json.loads(entry["bam_stats"].replace('"""', '"'))
+                    case_stats.case = import_info.case
+                    case_stats.save()
+                    self.import_job.add_log_entry(
+                        "updated entry (found stats entry for variant set id %d)" % variant_set.id
+                    )
+                lineno += 1
+            self.import_job.add_log_entry("imported %d entries" % lineno)
         elapsed = timezone.now() - before
         self.import_job.add_log_entry(
             "Finished importing alignment statistics in %.2f s" % elapsed.total_seconds()

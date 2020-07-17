@@ -501,7 +501,10 @@ class VariantImporter(VariantImporterBase):
     """Helper class for importing structural variants"""
 
     variant_set_attribute = "structuralvariantset_set"
-    table_names = ("svs_structuralvariant", "svs_structuralvariantgeneannotation")
+    table_names = (
+        ("svs_structuralvariant", "set_id"),
+        ("svs_structuralvariantgeneannotation", "set_id"),
+    )
 
     def _perform_import(self, variant_set):
         self._import_table(variant_set, "SVs", "path_genotypes", StructuralVariant)
@@ -529,7 +532,7 @@ def cleanup_variant_sets(min_age_hours=12):
                     and_(table.c.set_id == variant_set.id, table.c.case_id == variant_set.case.id)
                 )
             )
-    variant_set.delete()
+            variant_set.delete()
 
 
 def run_import_structural_variants_bg_job(pk):
