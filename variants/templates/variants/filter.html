@@ -149,8 +149,13 @@
         Filter Variants for Case
         <small class="text-muted">{{ object.name }}</small>
       {% else %}
-        Joint Filtration for Project
-        <small class="text-muted">{{ project.title }}</small>
+        {% if cohort %}
+          Joint Filtration for Cohort
+          <small class="text-muted">{{ cohort.name }}</small>
+        {% else %}
+          Joint Filtration for Project
+          <small class="text-muted">{{ project.title }}</small>
+        {% endif %}
       {% endif %}
     </h2>
     {% include "variants/_case_filter_buttons.html" %}

@@ -8,11 +8,9 @@ import tempfile
 import vcfpy
 from django.conf import settings
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import FileSystemStorage
 from django.utils.text import get_valid_filename
 
-from cohorts.models import Cohort
 from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
 from .templatetags.variants_tags import only_source_name
 from geneinfo.models import Hgnc, HpoName, Hpo

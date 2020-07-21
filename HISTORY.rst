@@ -34,6 +34,7 @@ End-User Summary
 - Fixed bug of wrong order when sorting by LOEUF score.
 - Adding some UI documenation.
 - Fixed bug where case alignment stats were not properly imported.
+- Fixed bug where unfolding smallvariant details of a variant in a cohort that was not part of the base project caused a 404 error.
 
 Full Change List
 ================
@@ -75,6 +76,7 @@ Full Change List
 - Adding some UI documenation.
 - Fixed bug where case alignment stats were not properly imported.
   Refactored case import in a sense that the new variant set gets activated when it is successfully imported.
+- Fixed bug where unfolding smallvariant details of a variant in a cohort that was not part of the base project caused a 404 error.
 
 -------
 v0.21.0

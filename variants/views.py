@@ -2208,9 +2208,10 @@ class ProjectCasesLoadPrefetchedFilterView(
 
         # Take time while job is running
         before = timezone.now()
+        cohort = getattr(filter_job, "cohort")
         # Get and run query
         query = ProjectLoadPrefetchedQuery(
-            getattr(filter_job, "cohort") or filter_job.projectcasessmallvariantquery.project,
+            cohort or filter_job.projectcasessmallvariantquery.project,
             SQLALCHEMY_ENGINE,
             filter_job.projectcasessmallvariantquery.id,
             user=self.request.user,
@@ -2267,6 +2268,7 @@ class ProjectCasesLoadPrefetchedFilterView(
                 ],
                 result_count=len(rows),
                 elapsed_seconds=elapsed.total_seconds(),
+                cohort=cohort,
                 training_mode=1
                 if filter_job.projectcasessmallvariantquery.query_settings.get(
                     "training_mode", False
@@ -2435,7 +2437,7 @@ class ProjectCasesFilterView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        cohort = self.get_cohort()
+        context["cohort"] = self.get_cohort()
         context["num_small_vars"] = context["project"].num_small_vars()
         context["variant_set_exists"] = (
             context["project"].case_set.filter(smallvariantset__state="active").exists()
@@ -2448,10 +2450,13 @@ class ProjectCasesFilterView(
             "variants:project-cases-load-filter-results",
             kwargs={"project": context["project"].sodar_uuid},
         )
-        if cohort:
+        if context["cohort"]:
             context["request_previous_job_url"] = reverse(
                 "variants:project-cases-filter-job-previous-cohort",
-                kwargs={"project": context["project"].sodar_uuid, "cohort": cohort.sodar_uuid},
+                kwargs={
+                    "project": context["project"].sodar_uuid,
+                    "cohort": context["cohort"].sodar_uuid,
+                },
             )
         else:
             context["request_previous_job_url"] = reverse(
@@ -2656,6 +2661,14 @@ class SmallVariantDetails(
     model = Case
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
+
+    def get_queryset(self):
+        cohort = self.kwargs.get("cohort")
+        if cohort:
+            return Cohort.objects.get(sodar_uuid=cohort).get_accessible_cases_for_user(
+                self.request.user
+            )
+        return super().get_queryset()
 
     def _load_knowngene_aa(self, query_kwargs):
         """Load the UCSC knownGeneAA conservation alignment information."""
