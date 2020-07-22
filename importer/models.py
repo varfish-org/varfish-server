@@ -315,11 +315,11 @@ class CaseImporter:
         """Perform the variant import."""
         # Create new case or get existing one.
         if self.import_info.case:
-            case = self.import_info.case
+            self.case = self.import_info.case
             case_created = False
         else:
             with transaction.atomic():
-                case, case_created = Case.objects.get_or_create(
+                self.case, case_created = Case.objects.get_or_create(
                     name=self.import_info.name,
                     project=self.import_info.project,
                     defaults={
@@ -349,12 +349,12 @@ class CaseImporter:
                 variant_set.state = "active"
                 variant_set.save()
                 if not case_created:  # Case needs to be updated.
-                    case.index = self.import_info.index
-                    case.pedigree = self.import_info.pedigree
-                    case.save()
-                update_variant_counts(variant_set.case, variant_set_info.variant_type)
+                    self.case.index = self.import_info.index
+                    self.case.pedigree = self.import_info.pedigree
+                    self.case.save()
+                update_variant_counts(self.case, variant_set_info.variant_type)
             if variant_set.state == "active":
-                self._clear_old_variant_sets(self.case, variant_set, table_names)
+                self._clear_old_variant_sets(variant_set, table_names)
                 self.import_info.state = CaseImportState.IMPORTED.value
                 self.import_info.save()
             else:
@@ -379,11 +379,11 @@ class CaseImporter:
             )
         variant_set.__class__.objects.filter(pk=variant_set.id).delete()
 
-    def _clear_old_variant_sets(self, case, keep_variant_set, table_names):
+    def _clear_old_variant_sets(self, keep_variant_set, table_names):
         self.import_job.add_log_entry("Starting to purge old variants")
         before = timezone.now()
         for variant_set in keep_variant_set.__class__.objects.filter(
-            case=case, state="active", date_created__lt=keep_variant_set.date_created
+            case=self.case, state="active", date_created__lt=keep_variant_set.date_created
         ):
             if variant_set.id != keep_variant_set.id:
                 self._purge_variant_set(variant_set, table_names)
