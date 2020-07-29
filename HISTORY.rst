@@ -40,6 +40,7 @@ End-User Summary
 - Fixed bug that prevented export of project-wide filter results as XLS file.
 - Adjusted genotype quality relaxed filter setting to 10.
 - Added column with family name to results table of joint filtration.
+- Added export of filter settings as JSON to structural variant filter form.
 
 Full Change List
 ================
@@ -87,6 +88,7 @@ Full Change List
 - Fixed bug that prevented export of project-wide filter results as XLS file.
 - Adjusted genotype quality relaxed filter setting to 10.
 - Added column with family name to results table of joint filtration.
+- Added export of filter settings as JSON to structural variant filter form.
 
 -------
 v0.21.0

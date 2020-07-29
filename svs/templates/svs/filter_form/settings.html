@@ -2,7 +2,32 @@
 {% load dict %}
 
 <div class="row">
-  <div class="col px-0">
-    settings
+  <div class="col-12 small font-italic p-2 bg-light">
+    Here you can export your filter settings in JSON format and restore them again from JSON.
   </div>
+
+  <div class="col-12 pt-3">
+    <h5 class="card-title">
+      Filter Import / Export
+    </h5>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12 pb-3">
+    <textarea id="settingsDump" name="settingsDump" class="form-control" rows="10"></textarea>
+  </div>
+</div>
+
+<div class="row pb-2">
+  <div class="col-md-8 text-left">
+    <small class="text-muted">
+      Changing the filter settings updates the JSON in the field above.<br>
+      To import settings, paste JSON code into the field above and click &quot;JSON&nbsp;<i class="fa fa-angle-double-right"></i>&nbsp;Settings&quot;.
+    </small>
+  </div>
+    <div class="btn-group ml-auto pr-3">
+      <a href="#" id="settingsSet" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Import JSON settings from text field.">JSON <i class="fa fa-angle-double-right"></i> Settings</a>
+      <a href="#" id="settingsDownload" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Export settings as JSON file."><i class="fa fa-download"></i> Download JSON</a>
+    </div>
 </div>

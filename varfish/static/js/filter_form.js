@@ -398,7 +398,9 @@ function updateSettingsDump() {
   delete settings["undefined"];
   delete settings["submit"];
   $("#settingsDump").val(JSON.stringify(settings, null, 2));
-  updateQuickPresets(settings);
+  if (structural_or_small === "small") {
+      updateQuickPresets(settings);
+  }
 }
 
 const presetsImpactNullVariant = {
@@ -2073,65 +2075,76 @@ function buildTextareaFromHpoSelected() {
 
 
 $(document).ready(
-  function() {
-    makeNumberFieldsReceiveOnlyDigits();
-    if ($("#settingsDump").val() != "") {
-      updateSettings();
-    }
-    updateSettingsDump();
-    $(".load-blacklist").click(loadGenelistPresets);
-    $(".load-whitelist").click(loadGenelistPresets);
-    $(".load-genotype").click(loadGenotypePresets);
-    $(".genotype-field-gt").change(loadIndexMode);
-    $("#qualityTemplateApplyButton").click(transferQualitySettings);
-    $("#compound_heterozygous_disable").click(resetAllCompHetIndices);
-    $("#recessive_disable").click(resetAllRecessiveIndices);
-    $("#settingsSet").click(updateSettings);
-    $("#settingsSet").click(initIndexMode);
-    // Setup the quick presets dropdown.
-    $(".quick-presets").click(function (e) { loadPresets($(e.currentTarget)); });
-    // update settings should be the last handler assigned
-    $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
-    // Setup the presets menus.
-    let preset_to_tab = {
-        inheritance: "genotype",
-        frequency: "frequency",
-        impact: "effect",
-        quality: "quality",
-        region: "blacklist",
-        flags: "clinvar",
-    };
-    for (let name in preset_to_tab) {
-      $("#input-presets-" + name).on("input", function () {
-        // Only switch tab if change was triggered by user and not the quick presets field.
-        if (updateQuickPresetsEnabled) {
-            $('#' + preset_to_tab[name] + "-tab").tab('show');
+    function() {
+        if (structural_or_small === "small") {
+            makeNumberFieldsReceiveOnlyDigits();
+            if ($("#settingsDump").val() != "") {
+                updateSettings();
+            }
+            updateSettingsDump();
+            $(".load-blacklist").click(loadGenelistPresets);
+            $(".load-whitelist").click(loadGenelistPresets);
+            $(".load-genotype").click(loadGenotypePresets);
+            $(".genotype-field-gt").change(loadIndexMode);
+            $("#qualityTemplateApplyButton").click(transferQualitySettings);
+            $("#compound_heterozygous_disable").click(resetAllCompHetIndices);
+            $("#recessive_disable").click(resetAllRecessiveIndices);
+            $("#settingsSet").click(updateSettings);
+            $("#settingsSet").click(initIndexMode);
+            // Setup the quick presets dropdown.
+            $(".quick-presets").click(function (e) {
+                loadPresets($(e.currentTarget));
+            });
+            // update settings should be the last handler assigned
+            $("#filterForm").find("input, select, textarea").not("#settingsDump").change(updateSettingsDump);
+            // Setup the presets menus.
+            let preset_to_tab = {
+                inheritance: "genotype",
+                frequency: "frequency",
+                impact: "effect",
+                quality: "quality",
+                region: "blacklist",
+                flags: "clinvar",
+            };
+            for (let name in preset_to_tab) {
+                $("#input-presets-" + name).on("input", function () {
+                    // Only switch tab if change was triggered by user and not the quick presets field.
+                    if (updateQuickPresetsEnabled) {
+                        $('#' + preset_to_tab[name] + "-tab").tab('show');
+                    }
+                    presetsToSettings(presets, name);
+                })
+            }
+            // Assign click handler function to submit button
+            filterButton.click(
+                function (e) {
+                    handleEvent($(this).attr("data-event-type"), null);
+                }
+            );
+            filterButton.attr("data-event-type", EVENT_SUBMIT);
+            // Load default/strict presets.
+            if (!settings_restored) {
+                $("#quick-presets-defaults").trigger("click");
+            }
+            // Kick-off state machine.
+            handleEvent(EVENT_START, null);
+            // Load comphet mode (if index is set)
+            initIndexMode();
+            $('[data-toggle="popover"]').popover({container: 'body'});
+            $('[data-toggle="tooltip"]').tooltip({container: 'body'});
+            $('.popover-dismiss').popover({
+                trigger: 'focus'
+            });
+            initHpoTypeahead();
         }
-        presetsToSettings(presets, name);
-      })
+        else {  // structural
+           if ($("#settingsDump").val() != "") {
+                updateSettings();
+            }
+            updateSettingsDump();
+            $("#settingsSet").click(updateSettings);
+        }
     }
-    // Assign click handler function to submit button
-    filterButton.click(
-      function(e) {
-        handleEvent($(this).attr("data-event-type"), null);
-      }
-    );
-    filterButton.attr("data-event-type", EVENT_SUBMIT);
-    // Load default/strict presets.
-    if (!settings_restored) {
-        $("#quick-presets-defaults").trigger("click");
-    }
-    // Kick-off state machine.
-    handleEvent(EVENT_START, null);
-    // Load comphet mode (if index is set)
-    initIndexMode();
-    $('[data-toggle="popover"]').popover({container: 'body'});
-    $('[data-toggle="tooltip"]').tooltip({container: 'body'});
-    $('.popover-dismiss').popover({
-        trigger: 'focus'
-    });
-    initHpoTypeahead();
-  }
 );
 
 // Disable annoying submission of file export job when hitting enter.
