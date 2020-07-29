@@ -475,7 +475,7 @@ class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsBase):
     model = SmallVariant
 
     def extend_fields(self, _query_parts):
-        return [Case.sa.sodar_uuid.label("case_uuid")]
+        return [Case.sa.sodar_uuid.label("case_uuid"), Case.sa.name.label("family_name")]
 
     def extend_conditions(self, _query_parts):
         condition = []

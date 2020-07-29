@@ -2243,7 +2243,7 @@ class ProjectCasesLoadPrefetchedFilterView(
             else:
                 variant_scores[key] = (entry.score, entry.info)
 
-        card_colspan = 16
+        card_colspan = 17
         if variant_scores:
             card_colspan += 2
             rows = annotate_with_pathogenicity_scores(rows, variant_scores)

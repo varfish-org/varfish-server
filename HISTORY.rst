@@ -38,6 +38,8 @@ End-User Summary
 - Fixed bug that prevented case import from API.
 - Increased speed of listing cases in case list view.
 - Fixed bug that prevented export of project-wide filter results as XLS file.
+- Adjusted genotype quality relaxed filter setting to 10.
+- Added column with family name to results table of joint filtration.
 
 Full Change List
 ================
@@ -83,6 +85,8 @@ Full Change List
 - Fixed bug that prevented case import from API.
 - Increased speed of listing cases in case list view.
 - Fixed bug that prevented export of project-wide filter results as XLS file.
+- Adjusted genotype quality relaxed filter setting to 10.
+- Added column with family name to results table of joint filtration.
 
 -------
 v0.21.0

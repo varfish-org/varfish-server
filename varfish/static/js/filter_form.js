@@ -933,7 +933,7 @@ const presets = {
       "quality-field-dp-het": 8,
       "quality-field-dp-hom": 4,
       "quality-field-ab": 0.1,
-      "quality-field-gq": 20,
+      "quality-field-gq": 10,
       "quality-field-ad": 2,
       "quality-field-fail": "drop-variant",
       "quality-field-ad-max": null,
