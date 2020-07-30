@@ -45,7 +45,7 @@ class CohortForm(forms.ModelForm):
             # Turn the cases many-to-many relation into a checkbox field
             widget=forms.CheckboxSelectMultiple,
             # Limit the choices to what the user is allowed to see
-            queryset=cases,
+            queryset=cases.order_by("name"),
         )
 
     class Meta:

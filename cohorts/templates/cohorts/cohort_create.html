@@ -29,6 +29,14 @@
           <span class="input-group-text">Name</span>
         </div>
         {{ form.name }}
+        <div class="input-group-prepend ml-3">
+          <span class="input-group-text">Selected Cases</span>
+        </div>
+        <input id="number-selected-cases" type="text" disabled size="2" value="0">
+        <div class="input-group-prepend ml-3">
+          <span class="input-group-text">Members</span>
+        </div>
+        <input id="number-selected-members" type="text" disabled size="2" value="0">
       </div>
       <div id="accordion" class="accordion mb-3">
         {% for p in projects %}
@@ -39,7 +47,10 @@
                 <button class="btn btn-link {% if not forloop.first %}collapsed{% endif %}" type="button" data-toggle="collapse" data-target="#collapse-project-{{ p.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse-project-{{ p.id }}">
                   {{ p.title }}
                 </button>
-                <span class="text-muted font-italic">(<span id="cases-count-{{ p.id }}">0</span>/<span id="cases-total-{{ p.id }}">0</span>)</span>
+                <span class="text-muted font-italic">
+                  <span class="font-weight-bold" id="cases-count-{{ p.id }}">0</span>/<span id="cases-total-{{ p.id }}">0</span> cases
+                  <span class="font-weight-bold ml-3" id="members-count-{{ p.id }}">0</span> members
+                </span>
               </h5>
             </div>
             <div id="collapse-project-{{ p.id }}" class="collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading-project-{{ p.id }}" data-parent="#accordion">
@@ -61,10 +72,24 @@
 {% block javascript %}
   {{ block.super }}
   <script>
+    function sumMembers(e) {
+      let count = 0
+      e.siblings().find(".members-count").each(function(i, e) {
+        count += parseInt($(e).text())
+      })
+      return count
+    }
+
     function updateCheckedCount(project_id) {
       let card = $("#card-body-" + project_id);
-      $("#cases-count-" + project_id).text(card.find(":checkbox:checked").length)
-      $("#cases-total-" + project_id).text(card.find(":checkbox").length)
+      let checkboxes = card.find(":checkbox")
+      let checkboxesChecked = card.find(":checkbox:checked")
+      let checkboxesCheckedTotal = $(".project-checkbox-group").find(":checkbox:checked")
+      $("#cases-count-" + project_id).text(checkboxesChecked.length)
+      $("#cases-total-" + project_id).text(checkboxes.length)
+      $("#members-count-" + project_id).text(sumMembers(checkboxesChecked))
+      $("#number-selected-cases").val(checkboxesCheckedTotal.length)
+      $("#number-selected-members").val(sumMembers(checkboxesCheckedTotal))
     }
 
     function projectToggleSwitch() {
@@ -80,7 +105,17 @@
 
     $(document).ready(function() {
       {% for value, label, case in form.cases.field.choices %}
-        $("#card-body-{{ case.project.id }}").append('<label><span class="ml-3 checkbox"><input type="checkbox" class="checkboxinput" data-project="{{ case.project.id }}" value="{{ value }}" name="cases" {% if case in form.cases.initial %}checked{% endif %}> {{ label }}</label></span>');
+        $("#card-body-{{ case.project.id }}").append(
+          '<label>' +
+          '  <span class="ml-3 checkbox">' +
+          '    <input type="checkbox" class="checkboxinput" data-project="{{ case.project.id }}" value="{{ value }}" name="cases" {% if case in form.cases.initial %}checked{% endif %}> ' +
+          '    <span class="badge-group">' +
+          '      <span class="badge badge-secondary">{{ label }}</span>' +
+          '      <span class="badge badge-info members-count">{{ case.get_members|length }}</span>' +
+          '    </span>' +
+          '  </label>' +
+          '</span>'
+        );
       {% endfor %}
       $('input[name="cases"]').change(projectToggleSwitch);
       $('input[name="cases"]').trigger("change");

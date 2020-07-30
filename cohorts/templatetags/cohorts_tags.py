@@ -18,3 +18,8 @@ def check_accessible_cases(item, user):
         return True
 
     return set(item.cases.filter(project__roles__user=user)) == set(item.cases.all())
+
+
+@register.filter
+def get_member_count_for_case_set(cases):
+    return sum(len(case.get_members()) for case in cases)

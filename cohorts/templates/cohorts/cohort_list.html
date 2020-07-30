@@ -51,16 +51,19 @@
         <table id="varfish-case-table" class="table table-striped sodar-card-table varfish-card-table no-footer">
           <thead>
             <tr>
-              <th style="width:10px">#</th>
-              <th style="width:10px">User</th>
+              <th style="width: 10px">#</th>
+              <th style="width: 10px">User</th>
               <th style="width: 10px">Updated</th>
               <th style="width: 200px">Name</th>
+              <th style="width: 10px">Size</th>
+              <th style="width: 10px">Members</th>
               <th>Cases</th>
               <th style="width: 0px"></th>
             </tr>
           </thead>
           <tbody>
             {% for item in object_list %}
+              {% with item|get_accessible_cases:user as cases %}
               <tr id="varfish-bg-table-row-{{ item.sodar_uuid }}">
                 <td class="text-right text-muted">{{ forloop.counter }}</td>
                 <td class="text-right font-italic">{{ item.user.username }}</td>
@@ -80,9 +83,14 @@
                   {% endif %}
                 </td>
                 <td class="text-nowrap font-weight-bold">{{ item.name }}</td>
+                <td>{{ cases|length }}</td>
+                <td>{{ cases|get_member_count_for_case_set }}</td>
                 <td>
-                  {% for case in item|get_accessible_cases:user %}
-                    <a href="{{ case.get_absolute_url }}" class="badge badge-secondary" data-toggle="tooltip" title="{{ case.project.title }}">{{ case.name }}</a>
+                  {% for case in cases %}
+                      <a href="{{ case.get_absolute_url }}" class="badge-group" data-toggle="tooltip" data-html="true" title="From project <strong>{{ case.project.title }}</strong>, having {{ case.get_members|length }} individual(s)">
+                        <span class="badge badge-secondary">{{ case.name }}</span>
+                        <span class="badge badge-info">{{ case.get_members|length }}</span>
+                      </a>
                   {% endfor %}
                   {% if not item|check_accessible_cases:user %}
                     <span class="badge badge-warning"><i class="fa fa-warning"></i> Not all cases are accessible!</span>
@@ -101,6 +109,7 @@
                   </span>
                 </td>
               </tr>
+              {% endwith %}
             {% empty %}
               <tr>
                  <td class="bg-faded font-italic text-center" colspan="6">
