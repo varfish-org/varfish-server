@@ -408,12 +408,12 @@
   {% else %}  {# query_type == "project" #}
     <td style="max-width: 120px;">
       <div class="sodar-overflow-container sodar-overflow-hover">
-        {{ entry.sample_name|only_source_name }}
+        {{ entry.family_name }}
       </div>
     </td>
     <td style="max-width: 120px;">
       <div class="sodar-overflow-container sodar-overflow-hover">
-        {{ entry.family_name }}
+        {{ entry.sample_name|only_source_name }}
       </div>
     </td>
     {% include "variants/filter_result/_gt_field.html" with name=entry.sample_name %}
