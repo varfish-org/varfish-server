@@ -42,6 +42,7 @@ End-User Summary
 - Added column with family name to results table of joint filtration.
 - Added export of filter settings as JSON to structural variant filter form.
 - Varseak Splicing link-out also considers refseq transcript.
+- Fixed bug that occurred when sample statistics were available but sample was marked with having no genotype.
 
 Full Change List
 ================
@@ -92,6 +93,7 @@ Full Change List
 - Added export of filter settings as JSON to structural variant filter form.
 - Varseak Splicing link-out also considers refseq transcript.
   This could lead to inconsistency when Varseak picked the wrong transcript to the HGVS information.
+- Fixed bug that occurred when sample statistics were available but sample was marked with having no genotype.
 
 -------
 v0.21.0
