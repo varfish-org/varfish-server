@@ -475,7 +475,7 @@
           class="dropdown-item">
           Query Human Splicing Finder
         </a>
-        <a href="https://varseak.bio/ssp.php?gene={{ symbol|urlencode }}&hgvs={{ entry.hgvs_c|urlencode }}"
+        <a href="https://varseak.bio/ssp.php?gene={{ symbol|urlencode }}&hgvs={{ entry.hgvs_c|urlencode }}&&transcript={{ entry.refseq_transcript_id }}"
           data-toggle="tooltip"
           title="Query varSEAK Splice Site Prediction"
           target="_blank"

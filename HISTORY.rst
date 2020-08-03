@@ -41,6 +41,7 @@ End-User Summary
 - Adjusted genotype quality relaxed filter setting to 10.
 - Added column with family name to results table of joint filtration.
 - Added export of filter settings as JSON to structural variant filter form.
+- Varseak Splicing link-out also considers refseq transcript.
 
 Full Change List
 ================
@@ -89,6 +90,8 @@ Full Change List
 - Adjusted genotype quality relaxed filter setting to 10.
 - Added column with family name to results table of joint filtration.
 - Added export of filter settings as JSON to structural variant filter form.
+- Varseak Splicing link-out also considers refseq transcript.
+  This could lead to inconsistency when Varseak picked the wrong transcript to the HGVS information.
 
 -------
 v0.21.0
