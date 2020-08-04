@@ -215,7 +215,7 @@ class CaseListView(
         try:
             coverages = set()
             for stats in sample_variant_stats:
-                if stats.sample_name in result["samples"]:
+                if stats.sample_name not in result["samples"]:
                     continue
                 result["ontarget_effect_counts"][stats.sample_name] = stats.ontarget_effect_counts
                 for key, value in stats.ontarget_indel_sizes.items():
