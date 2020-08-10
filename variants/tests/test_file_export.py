@@ -19,7 +19,7 @@ from variants.tests.factories import (
     CaseWithVariantSetFactory,
 )
 from .. import file_export
-from ..models import ExportFileBgJob, ExportProjectCasesFileBgJob, Case
+from ..models import ExportFileBgJob, ExportProjectCasesFileBgJob, Case, CaseAwareProject
 from bgjobs.models import BackgroundJob
 from projectroles.models import Project
 
@@ -156,7 +156,7 @@ class CaseExporterTest(ExportTestBase):
             self._test_tabular(arrs, False)
 
 
-class ProjectExportTestBase(TestCase):
+class ProjectExportTest(TestCase):
     """Base class for testing exports.
 
     Sets up the database fixtures for project, case, and small variants.
@@ -164,8 +164,25 @@ class ProjectExportTestBase(TestCase):
 
     def setUp(self):
         self.user = self.make_user("superuser")
-        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
-        self.small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
+        self.case1, self.variant_set1, _ = CaseWithVariantSetFactory.get("small")
+        self.project = CaseAwareProject.objects.get(pk=Project.objects.first().pk)
+        self.case2, self.variant_set2, _ = CaseWithVariantSetFactory.get(
+            "small", project=self.project
+        )
+        self.small_vars1 = [
+            SmallVariantFactory(chromosome="1", variant_set=self.variant_set1),
+            SmallVariantFactory(chromosome="2", variant_set=self.variant_set1),
+            SmallVariantFactory(chromosome="3", variant_set=self.variant_set1),
+        ]
+        self.small_vars2 = [
+            SmallVariantFactory(
+                chromosome=self.small_vars1[0].chromosome,
+                start=self.small_vars1[0].start,
+                reference=self.small_vars1[0].reference,
+                alternative=self.small_vars1[0].alternative,
+                variant_set=self.variant_set2,
+            ),
+        ]
         self.bg_job = BackgroundJob.objects.create(
             name="job name",
             project=Project.objects.first(),
@@ -175,9 +192,156 @@ class ProjectExportTestBase(TestCase):
         self.export_job = ExportProjectCasesFileBgJob.objects.create(
             project=self.bg_job.project,
             bg_job=self.bg_job,
-            query_args={"export_flags": True, "export_comments": True},
+            query_args=vars(
+                ResubmitFormDataFactory(submit="download", names=self.project.get_members())
+            ),
             file_type="xlsx",
         )
+
+    def test_export_tsv(self):
+        with file_export.CaseExporterTsv(self.export_job, self.project) as exporter:
+            result = str(exporter.generate(), "utf-8")
+        arrs = [line.split("\t") for line in result.split("\n")]
+        self._test_tabular(arrs, True)
+
+    def _test_tabular(self, arrs, has_trailing):
+        self.assertEquals(len(arrs), 5 + int(has_trailing))
+        # TODO: also test without flags and comments
+        self.assertEquals(len(arrs[0]), 47)
+        self.assertSequenceEqual(arrs[0][:3], ["Sample", "Chromosome", "Position"])
+        self.assertEqual(arrs[0][-1], "sample Alternate allele fraction")
+        members = self.project.get_members()
+        for i, small_var in enumerate(
+            sorted(
+                self.small_vars1 + self.small_vars2,
+                key=lambda x: (x.chromosome_no, x.start, members.index(list(x.genotype.keys())[0])),
+            )
+        ):
+            member = Case.objects.get(id=small_var.case_id).get_members()[0]
+            self.assertSequenceEqual(
+                arrs[i + 1][:3], [member, "chr" + small_var.chromosome, str(small_var.start),],
+            )
+            self.assertSequenceEqual(
+                arrs[i + 1][-5:],
+                list(
+                    map(
+                        str,
+                        [
+                            small_var.genotype[member]["gt"],
+                            small_var.genotype[member]["gq"],
+                            small_var.genotype[member]["ad"],
+                            small_var.genotype[member]["dp"],
+                            small_var.genotype[member]["ad"] / small_var.genotype[member]["dp"],
+                        ],
+                    )
+                ),
+            )
+        if has_trailing:
+            self.assertSequenceEqual(arrs[5], [""])
+
+    def test_export_vcf(self):
+        with file_export.CaseExporterVcf(self.export_job, self.project) as exporter:
+            result = exporter.generate()
+        unzipped = gzip.GzipFile(fileobj=io.BytesIO(result), mode="rb").read()
+        lines = str(unzipped, "utf-8").split("\n")
+        header = [l for l in lines if l.startswith("#")]
+        content = [l for l in lines if not l.startswith("#")]
+        self.assertEquals(len(header), 31)
+        self.assertEquals(header[0], "##fileformat=VCFv4.2")
+        self.assertEquals(
+            header[-1],
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\t%s"
+            % (self.case1.pedigree[0]["patient"], self.case2.pedigree[0]["patient"]),
+        )
+        self.assertEquals(len(content), 4)
+        member1 = self.case1.pedigree[0]["patient"]
+        member2 = self.case2.pedigree[0]["patient"]
+        self.assertEquals(
+            content[0].split("\t"),
+            [
+                self.small_vars1[0].chromosome,
+                str(self.small_vars1[0].start),
+                ".",
+                self.small_vars1[0].reference,
+                self.small_vars1[0].alternative,
+                ".",
+                ".",
+                ".",
+                "GT:GQ:AD:DP",
+                "%s:%s:%s:%s"
+                % (
+                    self.small_vars1[0].genotype[member1]["gt"],
+                    self.small_vars1[0].genotype[member1]["gq"],
+                    self.small_vars1[0].genotype[member1]["ad"],
+                    self.small_vars1[0].genotype[member1]["dp"],
+                ),
+                "%s:%s:%s:%s"
+                % (
+                    self.small_vars2[0].genotype[member2]["gt"],
+                    self.small_vars2[0].genotype[member2]["gq"],
+                    self.small_vars2[0].genotype[member2]["ad"],
+                    self.small_vars2[0].genotype[member2]["dp"],
+                ),
+            ],
+        )
+        self.assertEquals(
+            content[1].split("\t"),
+            [
+                self.small_vars1[1].chromosome,
+                str(self.small_vars1[1].start),
+                ".",
+                self.small_vars1[1].reference,
+                self.small_vars1[1].alternative,
+                ".",
+                ".",
+                ".",
+                "GT:GQ:AD:DP",
+                "%s:%s:%s:%s"
+                % (
+                    self.small_vars1[1].genotype[member1]["gt"],
+                    self.small_vars1[1].genotype[member1]["gq"],
+                    self.small_vars1[1].genotype[member1]["ad"],
+                    self.small_vars1[1].genotype[member1]["dp"],
+                ),
+                "./.:.:.:.",
+            ],
+        )
+        self.assertEquals(
+            content[2].split("\t"),
+            [
+                self.small_vars1[2].chromosome,
+                str(self.small_vars1[2].start),
+                ".",
+                self.small_vars1[2].reference,
+                self.small_vars1[2].alternative,
+                ".",
+                ".",
+                ".",
+                "GT:GQ:AD:DP",
+                "%s:%s:%s:%s"
+                % (
+                    self.small_vars1[2].genotype[member1]["gt"],
+                    self.small_vars1[2].genotype[member1]["gq"],
+                    self.small_vars1[2].genotype[member1]["ad"],
+                    self.small_vars1[2].genotype[member1]["dp"],
+                ),
+                "./.:.:.:.",
+            ],
+        )
+        self.assertEquals(content[3], "")
+
+    def test_export_xlsx(self):
+        with file_export.CaseExporterXlsx(self.export_job, self.project) as exporter:
+            result = exporter.generate()
+        with tempfile.NamedTemporaryFile(suffix=".xlsx") as temp_file:
+            temp_file.write(result)
+            temp_file.flush()
+            workbook = openpyxl.load_workbook(temp_file.name)
+            # TODO: also test without commments
+            self.assertEquals(workbook.sheetnames, ["Variants", "Comments", "Metadata"])
+            variants_sheet = workbook["Variants"]
+            arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
+            self._test_tabular(arrs, False)
 
 
 class CohortExporterTest(TestCohortBase):
@@ -274,45 +438,100 @@ class CohortExporterTest(TestCohortBase):
         if has_trailing:
             self.assertSequenceEqual(arrs[ref], [""])
 
-    # def test_export_vcf(self):
-    #     with file_export.CaseExporterVcf(self.export_job, self.export_job.case) as exporter:
-    #         result = exporter.generate()
-    #     unzipped = gzip.GzipFile(fileobj=io.BytesIO(result), mode="rb").read()
-    #     lines = str(unzipped, "utf-8").split("\n")
-    #     header = [l for l in lines if l.startswith("#")]
-    #     content = [l for l in lines if not l.startswith("#")]
-    #     self.assertEquals(len(header), 31)
-    #     self.assertEquals(header[0], "##fileformat=VCFv4.2")
-    #     self.assertEquals(
-    #         header[-1],
-    #         "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s"
-    #         % self.case.pedigree[0]["patient"],
-    #     )
-    #     self.assertEquals(len(content), 4)
-    #     for i, small_var in enumerate(self.small_vars):
-    #         genotype = small_var.genotype[self.case.pedigree[0]["patient"]]
-    #         self.assertEquals(
-    #             content[i].split("\t"),
-    #             list(
-    #                 map(
-    #                     str,
-    #                     [
-    #                         small_var.chromosome,
-    #                         small_var.start,
-    #                         ".",
-    #                         small_var.reference,
-    #                         small_var.alternative,
-    #                         ".",
-    #                         ".",
-    #                         ".",
-    #                         "GT:GQ:AD:DP",
-    #                         "%s:%s:%s:%s"
-    #                         % (genotype["gt"], genotype["gq"], genotype["ad"], genotype["dp"]),
-    #                     ],
-    #                 )
-    #             ),
-    #         )
-    #     self.assertEquals(content[3], "")
+    def _test_vcf(self, result, ref, smallvars, cohort, user):
+        unzipped = gzip.GzipFile(fileobj=io.BytesIO(result), mode="rb").read()
+        lines = str(unzipped, "utf-8").split("\n")
+        header = [l for l in lines if l.startswith("#")]
+        content = [l for l in lines if not l.startswith("#")]
+        members = cohort.get_members(user)
+        self.assertEquals(len(header), 31)
+        self.assertEquals(header[0], "##fileformat=VCFv4.2")
+        self.assertEquals(
+            header[-1],
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s" % "\t".join(members),
+        )
+        self.assertEquals(len(content), ref)
+        vcf_vars = {}
+        for i in smallvars:
+            vcf_vars[
+                (
+                    i.chromosome_no,
+                    i.chromosome,
+                    str(i.start),
+                    ".",
+                    i.reference,
+                    i.alternative,
+                    ".",
+                    ".",
+                    ".",
+                    "GT:GQ:AD:DP",
+                )
+            ] = [
+                "%s:%s:%s:%s"
+                % (
+                    i.genotype[m]["gt"],
+                    i.genotype[m]["gq"],
+                    i.genotype[m]["ad"],
+                    i.genotype[m]["dp"],
+                )
+                if m in i.genotype
+                else "./.:.:.:."
+                for m in members
+            ]
+        for i, var in enumerate(sorted(vcf_vars, key=lambda x: (x[0], int(x[2])))):
+            self.assertEqual(content[i].split("\t"), list(var[1:]) + vcf_vars[var])
+        self.assertEquals(content[ref - 1], "")
+
+    def test_export_vcf_as_superuser(self):
+        user = self.superuser
+        project = self.project1
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterVcf(bgjob, cohort) as exporter:
+            result = exporter.generate()
+        self._test_vcf(
+            result,
+            16,
+            self.project1_case1_smallvars
+            + self.project1_case2_smallvars
+            + self.project2_case1_smallvars
+            + self.project2_case2_smallvars,
+            cohort,
+            user,
+        )
+
+    def test_export_vcf_as_contributor(self):
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(user, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterVcf(bgjob, cohort) as exporter:
+            result = exporter.generate()
+        self._test_vcf(
+            result, 13, self.project2_case1_smallvars + self.project2_case2_smallvars, cohort, user,
+        )
+
+    def test_export_vcf_as_superuser_for_cohort_by_contributor(self):
+        user = self.superuser
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(self.contributor, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterVcf(bgjob, cohort) as exporter:
+            result = exporter.generate()
+        self._test_vcf(
+            result, 13, self.project2_case1_smallvars + self.project2_case2_smallvars, cohort, user,
+        )
+
+    def test_export_vcf_as_contributor_for_cohort_by_superuser(self):
+        user = self.contributor
+        project = self.project2
+        cohort = self._create_cohort_all_possible_cases(self.superuser, project)
+        bgjob = self._create_bgjob(user, cohort)
+        with file_export.CaseExporterVcf(bgjob, cohort) as exporter:
+            result = exporter.generate()
+        self._test_vcf(
+            result, 13, self.project2_case1_smallvars + self.project2_case2_smallvars, cohort, user,
+        )
 
     def test_export_xlsx_as_superuser(self):
         user = self.superuser

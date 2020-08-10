@@ -26,7 +26,12 @@ from .models import (
 )
 from .templatetags.variants_tags import flag_class
 from projectroles.plugins import get_backend_api
-from .queries import CaseExportTableQuery, CaseExportVcfQuery, ProjectExportTableQuery
+from .queries import (
+    CaseExportTableQuery,
+    CaseExportVcfQuery,
+    ProjectExportTableQuery,
+    ProjectExportVcfQuery,
+)
 from variants.helpers import SQLALCHEMY_ENGINE
 
 #: Color to use for variants flagged as positive.
@@ -197,6 +202,26 @@ class RowWithSampleProxy(wrapt.ObjectProxy):
             return self.__wrapped__.__getitem__(key)
 
 
+class RowWithJoinProxy(wrapt.ObjectProxy):
+    """Allow setting sample name into a result row."""
+
+    def __init__(self, wrapped):
+        super().__init__(wrapped)
+        self._self_genotypes_to_join = dict()
+
+    def add_genotype(self, genotype):
+        self._self_genotypes_to_join.update(genotype)
+
+    @property
+    def genotype(self):
+        return {**self.__wrapped__.genotype, **self._self_genotypes_to_join}
+
+    def __getitem__(self, key):
+        if key == "genotype":
+            return self.genotype
+        return self.__wrapped__.__getitem__(key)
+
+
 class CaseExporterBase:
     """Base class for export of (filtered) case data from single case or all cases of a project.
     """
@@ -327,7 +352,10 @@ class CaseExporterBase:
                     prev_chrom = small_var.chromosome
                 if self.project_or_cohort:
                     for sample in sorted(small_var.genotype.keys()):
-                        yield RowWithSampleProxy(small_var, sample)
+                        if self.query_class_project_cases is ProjectExportVcfQuery:
+                            yield RowWithJoinProxy(small_var)
+                        else:
+                            yield RowWithSampleProxy(small_var, sample)
                 else:
                     yield small_var
 
@@ -631,7 +659,7 @@ class CaseExporterVcf(CaseExporterBase):
     """Export a case to VCF format."""
 
     query_class_single_case = CaseExportVcfQuery
-    query_class_project_cases = ProjectExportTableQuery  # TODO!
+    query_class_project_cases = ProjectExportVcfQuery
 
     def __init__(self, job, case_or_project_or_cohort, members=None):
         super().__init__(job, case_or_project_or_cohort)
@@ -686,6 +714,17 @@ class CaseExporterVcf(CaseExporterBase):
     def _end_write_variants(self):
         self.vcf_writer.close()
 
+    def _yield_smallvars(self):
+        joined_variants = {}
+        for i in super()._yield_smallvars():
+            key = (i.release, i.chromosome, i.start, i.end, i.reference, i.alternative)
+            if key in joined_variants:
+                joined_variants[key].add_genotype(i.genotype)
+            else:
+                joined_variants[key] = i
+        for key, value in joined_variants.items():
+            yield value
+
     def _write_variants_data(self):
         for small_var in self._yield_smallvars():
             # Get variant type
@@ -726,6 +765,18 @@ class CaseExporterVcf(CaseExporterBase):
                     calls,
                 )
             )
+
+    def _yield_members(self):
+        """Get list of selected members."""
+        if self.project_or_cohort:
+            for m in self.project_or_cohort.get_filtered_pedigree_with_samples(
+                self.job.bg_job.user
+            ):
+                yield m["patient"]
+        else:
+            for m in self.job.case.get_filtered_pedigree_with_samples():
+                if self.query_args.get("%s_export" % m["patient"], False):
+                    yield m["patient"]
 
 
 #: Dict mapping file type to writer class.
@@ -786,8 +837,8 @@ def export_project_cases(job):
         )
     try:
         klass = EXPORTERS[job.file_type]
-        project = CaseAwareProject.objects.get(pk=job.project.pk)
-        with klass(job, project) as exporter:
+        project_or_cohort = job.cohort or CaseAwareProject.objects.get(pk=job.project.pk)
+        with klass(job, project_or_cohort) as exporter:
             ExportProjectCasesFileBgJobResult.objects.create(
                 job=job,
                 expiry_time=timezone.now() + timedelta(days=EXPIRY_DAYS),

@@ -551,11 +551,7 @@ class ExportFileResubmitForm(forms.Form):
 class ExportProjectCasesFileResubmitForm(forms.Form):
     file_type = forms.ChoiceField(
         initial="xlsx",
-        choices=(
-            ("xlsx", "Excel (.xlsx)"),
-            ("tsv", "TSV (.tsv)"),
-            # ("vcf", "VCF (.vcf.gz)"),
-        ),
+        choices=(("xlsx", "Excel (.xlsx)"), ("tsv", "TSV (.tsv)"), ("vcf", "VCF (.vcf.gz)"),),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
 
@@ -1290,6 +1286,7 @@ class SmallVariantPrioritizerFormMixin:
             label="Score",
             help_text="Pathogenicity scoring method to use.",
             choices=PATHO_SCORE_CHOICES,
+            initial=(PATHO_CADD, PATHO_CADD_LABEL),
             required=False,
         )
 

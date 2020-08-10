@@ -1061,6 +1061,9 @@ class ExportProjectCasesFileBgJob(ExportFileBgJobBase):
     #: String identifying model in BackgroundJob.
     spec_name = "variants.project_cases_export_file_bg_job"
 
+    #: Cohort to export
+    cohort = models.ForeignKey("cohorts.Cohort", null=True)
+
     def get_human_readable_type(self):
         return "Project-wide Case File Export"
 

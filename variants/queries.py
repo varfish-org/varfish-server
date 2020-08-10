@@ -1455,6 +1455,15 @@ class ProjectExportTableQueryPartsBuilder(QueryPartsBuilder):
     ]
 
 
+class ProjectExportVcfQueryPartsBuilder(QueryPartsBuilder):
+    """Just query tables joined, no tables that just provide information."""
+
+    # TODO What about DbSNP and HGNC that are used for filtering???
+    # TODO Should we just take the stored results and join the required data?
+    # TODO But then, some extensions join AND query ... maybe split them (HGNC?, Clinvar?, dbSNP, HGMD)
+    qp_extender_classes = extender_classes_base
+
+
 class CompHetCombiner:
     def __init__(self, case, builder):
         self.case = case
@@ -1608,6 +1617,7 @@ class CasePrefetchQuery:
             column("end"),
             column("reference"),
             column("alternative"),
+            column("family_name"),
         ]
         stmts = []
         for case in self.cases:
@@ -1664,6 +1674,10 @@ class ProjectLoadPrefetchedQuery(ProjectPrefetchQuery):
 
 class ProjectExportTableQuery(ProjectPrefetchQuery):
     builder = ProjectExportTableQueryPartsBuilder
+
+
+class ProjectExportVcfQuery(ProjectPrefetchQuery):
+    builder = ProjectExportVcfQueryPartsBuilder
 
 
 # Query for obtaining the knownGene alignments (used from JSON query).

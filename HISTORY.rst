@@ -43,6 +43,11 @@ End-User Summary
 - Added export of filter settings as JSON to structural variant filter form.
 - Varseak Splicing link-out also considers refseq transcript.
 - Fixed bug that occurred when sample statistics were available but sample was marked with having no genotype.
+- Adjusted genotype quality strict filter setting to 10.
+- Added possibility to export VCF file for cohorts.
+- Increased logging during sample variant statistics computation.
+- Using gnomAD exomes as initially selected frequency in results table.
+- Using CADD as initially selected score metric in prioritization form.
 
 Full Change List
 ================
@@ -94,6 +99,11 @@ Full Change List
 - Varseak Splicing link-out also considers refseq transcript.
   This could lead to inconsistency when Varseak picked the wrong transcript to the HGVS information.
 - Fixed bug that occurred when sample statistics were available but sample was marked with having no genotype.
+- Adjusted genotype quality strict filter setting to 10.
+- Added possibility to export VCF file for cohorts.
+- Increased logging during sample variant statistics computation.
+- Using gnomAD exomes as initially selected frequency in results table.
+- Using CADD as initially selected score metric in prioritization form.
 
 -------
 v0.21.0

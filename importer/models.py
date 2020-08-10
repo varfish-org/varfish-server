@@ -491,7 +491,9 @@ class CaseImporter:
 
         before = timezone.now()
         self.import_job.add_log_entry("Computing variant statistics...")
-        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, variant_set)
+        rebuild_case_variant_stats(
+            SQLALCHEMY_ENGINE, variant_set, logger=self.import_job.add_log_entry
+        )
         elapsed = timezone.now() - before
         self.import_job.add_log_entry(
             "Finished computing variant statistics in %.2f s" % elapsed.total_seconds()

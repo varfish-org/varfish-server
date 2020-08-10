@@ -131,11 +131,14 @@ def gather_variant_stats(variant_set):
     )
 
 
-def rebuild_case_variant_stats(engine, variant_set):
+def rebuild_case_variant_stats(engine, variant_set, logger=lambda _: None):
     """Rebuild the ``CaseVariantStats`` for the given ``SmallVariantSet`` using the SQL Alchemy ``connection``."""
     # Compute statistics.
+    logger("... compute relatedness")
     het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness(engine, SmallVariant, variant_set)
+    logger("... compute het hom ratio on chromosome X")
     chrx_het_hom = compute_het_hom_chrx(engine, SmallVariant, variant_set)
+    logger("... gather variant stats")
     (
         transitions,
         transversions,
@@ -152,15 +155,20 @@ def rebuild_case_variant_stats(engine, variant_set):
     # Rebuild the case variant statistics atomically.
     with transaction.atomic():
         # Remove existing record if any.
+        logger("... delete old case variant stats if available")
         try:
             variant_set.variant_stats.delete()
+            logger("... (deletion successful)")
         except CaseVariantStats.DoesNotExist:
+            logger("... (none found)")
             pass  # swallow, nothing to delete
 
         # Create statistics object.
+        logger("... create new case variant stats object")
         stats = CaseVariantStats.objects.create(variant_set=variant_set)
         # Insert basic information.
         for sample in variant_set.case.get_members_with_samples():
+            logger("... creating sample variant stats object for sample %s" % sample)
             stats.sample_variant_stats.create(
                 sample_name=sample,
                 ontarget_transitions=transitions[sample],
@@ -177,6 +185,7 @@ def rebuild_case_variant_stats(engine, variant_set):
             )
         # Insert relatedness information
         for pair in het_shared.keys():
+            logger("... create relatedness object for samples %s and %s" % (pair[0], pair[1]))
             stats.relatedness.create(
                 sample1=pair[0],
                 sample2=pair[1],

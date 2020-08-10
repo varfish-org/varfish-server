@@ -2390,6 +2390,7 @@ class ProjectCasesFilterView(
             )
             export_job = ExportProjectCasesFileBgJob.objects.create(
                 project=self.get_project(self.request, self.kwargs),
+                cohort=self.get_cohort(),
                 bg_job=bg_job,
                 query_args=_undecimal(form.cleaned_data),
                 file_type=form.cleaned_data["file_type"],
@@ -3203,6 +3204,7 @@ class ExportProjectCasesFileJobResubmitView(
             export_job = ExportProjectCasesFileBgJob.objects.create(
                 project=job.project,
                 bg_job=bg_job,
+                cohort=job.cohort,
                 query_args={**job.query_args, "file_type": form.cleaned_data["file_type"]},
                 file_type=form.cleaned_data["file_type"],
             )

@@ -168,9 +168,9 @@
             Frequency
           </label>
           <select class="custom-select" id="result-display-frequencies" onchange="javascript: updateTableDisplay();">
-            <option value="frequencies-exac" selected>ExAC</option>
+            <option value="frequencies-exac">ExAC</option>
             <option value="frequencies-thousand-genomes">1000 genomes</option>
-            <option value="frequencies-gnomad-exomes">gnomAD exomes</option>
+            <option value="frequencies-gnomad-exomes" selected>gnomAD exomes</option>
             <option value="frequencies-gnomad-genomes">gnomAD genomes</option>
             {% if not kiosk_mode %}<option value="frequencies-inhouse">in-house DB</option>{% endif %}
             <option value="frequencies-mtdb">mtDB</option>
