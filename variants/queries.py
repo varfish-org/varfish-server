@@ -1442,6 +1442,8 @@ class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsGnomadConstraintsJoin,
         ExtendQueryPartsExacConstraintsJoin,
         ExtendQueryPartsClinvarJoin,
+        ExtendQueryPartsModesOfInheritanceJoin,
+        ExtendQueryPartsDiseaseGeneJoin,
     ]
 
 

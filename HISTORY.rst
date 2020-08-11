@@ -48,6 +48,7 @@ End-User Summary
 - Increased logging during sample variant statistics computation.
 - Using gnomAD exomes as initially selected frequency in results table.
 - Using CADD as initially selected score metric in prioritization form.
+- Fixed missing disease gene and mode of inheritance annotation in project/cohort filter results table.
 
 Full Change List
 ================
@@ -104,6 +105,7 @@ Full Change List
 - Increased logging during sample variant statistics computation.
 - Using gnomAD exomes as initially selected frequency in results table.
 - Using CADD as initially selected score metric in prioritization form.
+- Fixed missing disease gene and mode of inheritance annotation in project/cohort filter results table.
 
 -------
 v0.21.0
