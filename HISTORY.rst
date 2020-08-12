@@ -49,6 +49,8 @@ End-User Summary
 - Using gnomAD exomes as initially selected frequency in results table.
 - Using CADD as initially selected score metric in prioritization form.
 - Fixed missing disease gene and mode of inheritance annotation in project/cohort filter results table.
+- Catching errors during Kiosk annotation step properly.
+- Fixed issues with file extension check in Kiosk mode during upload.
 
 Full Change List
 ================
@@ -106,6 +108,8 @@ Full Change List
 - Using gnomAD exomes as initially selected frequency in results table.
 - Using CADD as initially selected score metric in prioritization form.
 - Fixed missing disease gene and mode of inheritance annotation in project/cohort filter results table.
+- Catching errors during Kiosk annotation step properly.
+- Fixed issues with file extension check in Kiosk mode during upload.
 
 -------
 v0.21.0

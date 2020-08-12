@@ -1718,11 +1718,12 @@ class KioskUploadForm(forms.Form):
                 ped_samples.append(arr[1])
 
         # Make file name valid (replace spaces, etc ...)
-        self.cleaned_data["vcf_file"].name = get_valid_filename(self.cleaned_data.get("vcf_file"))
+        self.cleaned_data["vcf_file"].name = get_valid_filename(self.cleaned_data["vcf_file"])
 
         # Simple file-extension check for vcf format (gzipped or not)
-        if not self.cleaned_data.get("vcf_file").name.lower().endswith((".vcf", ".vcf.gz")):
+        if not self.cleaned_data["vcf_file"].name.lower().endswith((".vcf", ".vcf.gz")):
             self.add_error("vcf_file", "Please only upload VCF files!")
+            return
 
         # Check that samples can be read from the file.
         suffix = (
@@ -1760,7 +1761,7 @@ class KioskUploadForm(forms.Form):
                     if entry.id in ("chr1", "1") and int(entry.length) == 248956422:
                         self.add_error("vcf_file", "Only GRCh37 build is supported!")
                         return
-            except vcfpy.exceptions.VCFPyException as e:
+            except Exception as e:
                 self.add_error("vcf_file", "Problem with VCF file: %s" % e)
                 return
 

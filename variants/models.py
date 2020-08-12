@@ -3624,6 +3624,8 @@ class KioskAnnotate:
                             self.job.add_log_entry(line.decode("utf-8").strip(), LOG_LEVEL_INFO)
                         else:
                             break
+                    if not process.poll() == 0:
+                        raise subprocess.CalledProcessError(process.poll(), "annotation")
                     break
         except subprocess.CalledProcessError as e:
             self.job.add_log_entry("Problem during kiosk annotation: %s" % e, LOG_LEVEL_ERROR)
