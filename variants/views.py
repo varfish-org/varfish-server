@@ -3925,16 +3925,17 @@ class VariantValidatorApiView(PluginContextMixin, View):
                 reference=self.request.POST.get("reference"),
                 alternative=self.request.POST.get("alternative"),
             ),
-            timeout=30,
         )
         if response.status_code != 200:
-            return HttpResponse()
+            return HttpResponse("<em><strong>No data available!</strong></em>")
         result = defaultdict(lambda: defaultdict(dict))
         for key, value in response.json().items():
-            m = re.match(r"^(NM_\d+)\.(\d+):(.*)", key)
+            m = re.match(
+                r"^(NM_\d+|intergenic_variant|validation_warning)(?:\.|_)(\d+)(?::(.*))?", key
+            )
             if m:
                 # identifier -> version -> change
-                result[str(m.group(1))][int(m.group(2))][str(m.group(3))] = value
+                result[str(m.group(1))][int(m.group(2))][str(m.group(3) or "")] = value
 
         # Convert defaultdicts to dicts as django templates can't digest defaultdicts.
         for key, value in result.items():

@@ -23,6 +23,7 @@ function queryVariantValidatorApi(obj, release, chromosome, start, reference, al
         error: function (jqXHR, textStatus, errorThrown) {
             alert("Error during AJAX call:", textStatus, + errorThrown);
             console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
-        }
+        },
+        timeout: 0
     });
 }

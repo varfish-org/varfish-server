@@ -54,6 +54,7 @@ End-User Summary
 - "1" is now registered as heterozygous and homozygous state in genotype filter.
 - Loading annotation and QC tabs in project cases list asyncronously.
 - Increased timeout for VariantValidator response to 30 seconds.
+- Digesting more VariantValidator responses.
 
 Full Change List
 ================
@@ -116,6 +117,7 @@ Full Change List
 - "1" is now registered as heterozygous and homozygous state in genotype filter.
 - Loading annotation and QC tabs in project cases list asyncronously.
 - Increased timeout for VariantValidator response to 30 seconds.
+- Digesting more VariantValidator responses, namely ``intergenic_variant_\d+`` and ``validation_warning_\d+``.
 
 -------
 v0.21.0
