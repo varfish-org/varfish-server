@@ -85,7 +85,6 @@ from .models import (
     SmallVariantSet,
     ImportVariantsBgJob,
     CaseComments,
-    RowWithClinvarMax,
     CASE_STATUS_CHOICES,
     RowWithAffectedCasesPerGene,
     SmallVariantSummary,
@@ -191,165 +190,15 @@ class CaseListView(
 
     def get_context_data(self, *args, **kwargs):
         result = super().get_context_data(*args, **kwargs)
-        result["project"] = CaseAwareProject.objects.prefetch_related(
-            "variant_stats",
-            "case_set__small_variant_comments",
-            "case_set__small_variant_flags",
-            "case_set__acmg_ratings",
-            "case_set__structural_variant_comments",
-            "case_set__structural_variant_flags",
-            "case_set__acmg_ratings",
-        ).get(pk=result["project"].pk)
-        result["samples"] = result["project"].get_members()
-        result["effects"] = list(FILTER_FORM_TRANSLATE_EFFECTS.values())
-        result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
-        result["ontarget_effect_counts"] = {sample: {} for sample in result["samples"]}
-        result["indel_sizes"] = {sample: {} for sample in result["samples"]}
-        result["indel_sizes_keys"] = []
-        result["dps"] = {sample: {} for sample in result["samples"]}
+        result["project"] = CaseAwareProject.objects.prefetch_related("variant_stats").get(
+            pk=result["project"].pk
+        )
         result["progress"] = self._compute_progress(result["project"])
-        result["commentsflags"] = self.join_small_var_comments_and_flags(result["project"])
-        result["sv_commentsflags"] = self.join_sv_comments_and_flags(result["project"])
-        # Build list of properly sorted coverage keys.
-        sample_variant_stats = result["project"].sample_variant_stats()
-        try:
-            coverages = set()
-            for stats in sample_variant_stats:
-                if stats.sample_name not in result["samples"]:
-                    continue
-                result["ontarget_effect_counts"][stats.sample_name] = stats.ontarget_effect_counts
-                for key, value in stats.ontarget_indel_sizes.items():
-                    result["indel_sizes"][stats.sample_name][int(key)] = value
-                for key, value in stats.ontarget_dps.items():
-                    result["dps"][stats.sample_name][int(key)] = value
-            result["indel_sizes_keys"] = list(
-                sorted(
-                    set(
-                        chain(
-                            *list(
-                                map(int, indel_sizes.keys())
-                                for indel_sizes in result["indel_sizes"].values()
-                            )
-                        )
-                    )
-                )
-            )
-            for case in (
-                result["project"].case_set.prefetch_related("variant_set__casealignmentstats").all()
-            ):
-                variant_set = case.latest_variant_set
-                if variant_set:
-                    if hasattr(variant_set, "casealignmentstats"):
-                        for min_covs in variant_set.casealignmentstats.bam_stats.values():
-                            if "min_cov_target" in min_covs:
-                                coverages |= set(map(int, min_covs["min_cov_target"]))
-            if coverages:
-                filtered = filter(lambda x: x > 0, coverages)
-                result["coverages"] = list(map(str, sorted(filtered)))[:5]
-            result["qcdata_relatedness"] = self.get_relatedness_content(result["project"])
-            result["qcdata_sample_variant_stats"] = self.get_sample_variant_stats_content(
-                result["project"]
-            )
-        except (SmallVariantSet.variant_stats.RelatedObjectDoesNotExist, AttributeError):
-            pass  # swallow, defaults set above
-
-        # Prepare effect counts data for QC download
-        qcdata_effect_content = ["\t".join(["Effect"] + result["samples"])]
-        for effect in result["effects"]:
-            record = [effect]
-            for sample in result["samples"]:
-                record.append(str(result["ontarget_effect_counts"][sample].get(effect, 0)))
-            qcdata_effect_content.append("\t".join(record))
-        result["qcdata_effects"] = b64encode("\n".join(qcdata_effect_content).encode("utf-8"))
-
-        # Prepare InDel size data for QC download
-        qcdata_indel_size_content = ["\t".join(["InDel Size"] + result["samples"])]
-        for indel_size in result["indel_sizes_keys"]:
-            record = [
-                ">= %d" % indel_size
-                if indel_size == 10
-                else "<= %d" % indel_size
-                if indel_size == -10
-                else str(indel_size)
-            ]
-            for sample in result["samples"]:
-                record.append(str(result["indel_sizes"][sample].get(indel_size, 0)))
-            qcdata_indel_size_content.append("\t".join(record))
-        result["qcdata_indel_sizes"] = b64encode(
-            "\n".join(qcdata_indel_size_content).encode("utf-8")
-        )
-
-        # Prepare depth data for QC download
-        qcdata_site_depth_content = ["\t".join(["Depth"] + result["samples"])]
-        for site_depth in result["dps_keys"]:
-            record = [">= %d" % site_depth if site_depth == 200 else str(site_depth)]
-            for sample in result["samples"]:
-                record.append(str(result["dps"][sample].get(site_depth, 0)))
-            qcdata_site_depth_content.append("\t".join(record))
-        result["qcdata_site_depths"] = b64encode(
-            "\n".join(qcdata_site_depth_content).encode("utf-8")
-        )
-
         return result
-
-    def get_relatedness_content(self, project):
-        result = [
-            "\t".join(
-                [
-                    "Sample 1",
-                    "Sample 2",
-                    "Het_1,2",
-                    "Het_1",
-                    "Het_2",
-                    "n_IBS0",
-                    "n_IBS1",
-                    "n_IBS2",
-                    "relatedness",
-                ]
-            )
-        ]
-        for rel in project.variant_stats.relatedness.all():
-            result.append(
-                "\t".join(
-                    [
-                        rel.sample1,
-                        rel.sample2,
-                        str(rel.het_1_2),
-                        str(rel.het_1),
-                        str(rel.het_2),
-                        str(rel.n_ibs0),
-                        str(rel.n_ibs1),
-                        str(rel.n_ibs2),
-                        str(rel.relatedness()),
-                    ]
-                )
-            )
-        return b64encode("\n".join(result).encode("utf-8"))
-
-    def get_sample_variant_stats_content(self, project):
-        result = [
-            "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.",])
-        ]
-        for item in project.sample_variant_stats():
-            result.append(
-                "\t".join(
-                    [
-                        item.sample_name,
-                        str(item.ontarget_transitions),
-                        str(item.ontarget_transversions),
-                        str(item.ontarget_ts_tv_ratio()),
-                        str(item.ontarget_snvs),
-                        str(item.ontarget_indels),
-                        str(item.ontarget_mnvs),
-                        str(item.chrx_het_hom),
-                    ]
-                )
-            )
-        return b64encode("\n".join(result).encode("utf-8"))
 
     def _compute_progress(self, project):
         counts = {key: 0 for key, _ in CASE_STATUS_CHOICES}
-        for case in Case.objects.filter(project=project):
+        for case in project.case_set.all():
             counts[case.status] = counts.get(case.status, 0) + 1
         total_count = sum(counts.values())
 
@@ -368,6 +217,29 @@ class CaseListView(
         else:
             result.append((100, total_count, total_count, "initial"))
         return result
+
+
+class CaseListGetAnnotationsView(
+    LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin, ProjectContextMixin, View,
+):
+    template_name = "variants/case_list/annotation.html"
+    permission_required = "variants.view_data"
+    model = Case
+    ordering = ("-date_modified",)
+
+    def get(self, *args, **kwargs):
+        result = dict()
+        result["project"] = CaseAwareProject.objects.prefetch_related(
+            "case_set__small_variant_comments",
+            "case_set__small_variant_flags",
+            "case_set__acmg_ratings",
+            "case_set__structural_variant_comments",
+            "case_set__structural_variant_flags",
+            "case_set__acmg_ratings",
+        ).get(sodar_uuid=kwargs["project"])
+        result["commentsflags"] = self.join_small_var_comments_and_flags(result["project"])
+        result["sv_commentsflags"] = self.join_sv_comments_and_flags(result["project"])
+        return render(self.request, self.template_name, self.get_context_data(**result),)
 
     def join_small_var_comments_and_flags(self, project):
         def get_gene_symbol(release, chromosome, start, end):
@@ -478,6 +350,167 @@ class CaseListView(
             result[variant] = dict(data)
 
         return dict(result)
+
+
+class CaseListGetQCView(
+    LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin, ProjectContextMixin, View,
+):
+    template_name = "variants/case_list/qc.html"
+    permission_required = "variants.view_data"
+    model = Case
+    ordering = ("-date_modified",)
+
+    def get(self, *args, **kwargs):
+        result = dict()
+        result["project"] = CaseAwareProject.objects.prefetch_related("variant_stats").get(
+            sodar_uuid=kwargs["project"]
+        )
+        result["samples"] = result["project"].get_members()
+        result["effects"] = list(FILTER_FORM_TRANSLATE_EFFECTS.values())
+        result["dps_keys"] = list(chain(range(0, 20), range(20, 50, 2), range(50, 200, 5), (200,)))
+        result["ontarget_effect_counts"] = {sample: {} for sample in result["samples"]}
+        result["indel_sizes"] = {sample: {} for sample in result["samples"]}
+        result["indel_sizes_keys"] = []
+        result["dps"] = {sample: {} for sample in result["samples"]}
+
+        # Build list of properly sorted coverage keys.
+        result["sample_variant_stats"] = result["project"].sample_variant_stats()
+        try:
+            coverages = set()
+            for stats in result["sample_variant_stats"]:
+                if stats.sample_name not in result["samples"]:
+                    continue
+                result["ontarget_effect_counts"][stats.sample_name] = stats.ontarget_effect_counts
+                for key, value in stats.ontarget_indel_sizes.items():
+                    result["indel_sizes"][stats.sample_name][int(key)] = value
+                for key, value in stats.ontarget_dps.items():
+                    result["dps"][stats.sample_name][int(key)] = value
+            result["indel_sizes_keys"] = list(
+                sorted(
+                    set(
+                        chain(
+                            *list(
+                                map(int, indel_sizes.keys())
+                                for indel_sizes in result["indel_sizes"].values()
+                            )
+                        )
+                    )
+                )
+            )
+            for case in (
+                result["project"]
+                .case_set.prefetch_related("latest_variant_set__casealignmentstats")
+                .all()
+            ):
+                variant_set = case.latest_variant_set
+                if variant_set:
+                    if hasattr(variant_set, "casealignmentstats"):
+                        for min_covs in variant_set.casealignmentstats.bam_stats.values():
+                            if "min_cov_target" in min_covs:
+                                coverages |= set(map(int, min_covs["min_cov_target"]))
+            if coverages:
+                filtered = filter(lambda x: x > 0, coverages)
+                result["coverages"] = list(map(str, sorted(filtered)))[:5]
+            result["qcdata_relatedness"] = self.get_relatedness_content(result["project"])
+            result["qcdata_sample_variant_stats"] = self.get_sample_variant_stats_content(
+                result["project"], result["sample_variant_stats"]
+            )
+        except (SmallVariantSet.variant_stats.RelatedObjectDoesNotExist, AttributeError) as e:
+            pass  # swallow, defaults set above
+
+        # Prepare effect counts data for QC download
+        qcdata_effect_content = ["\t".join(["Effect"] + result["samples"])]
+        for effect in result["effects"]:
+            record = [effect]
+            for sample in result["samples"]:
+                record.append(str(result["ontarget_effect_counts"][sample].get(effect, 0)))
+            qcdata_effect_content.append("\t".join(record))
+        result["qcdata_effects"] = b64encode("\n".join(qcdata_effect_content).encode("utf-8"))
+
+        # Prepare InDel size data for QC download
+        qcdata_indel_size_content = ["\t".join(["InDel Size"] + result["samples"])]
+        for indel_size in result["indel_sizes_keys"]:
+            record = [
+                ">= %d" % indel_size
+                if indel_size == 10
+                else "<= %d" % indel_size
+                if indel_size == -10
+                else str(indel_size)
+            ]
+            for sample in result["samples"]:
+                record.append(str(result["indel_sizes"][sample].get(indel_size, 0)))
+            qcdata_indel_size_content.append("\t".join(record))
+        result["qcdata_indel_sizes"] = b64encode(
+            "\n".join(qcdata_indel_size_content).encode("utf-8")
+        )
+
+        # Prepare depth data for QC download
+        qcdata_site_depth_content = ["\t".join(["Depth"] + result["samples"])]
+        for site_depth in result["dps_keys"]:
+            record = [">= %d" % site_depth if site_depth == 200 else str(site_depth)]
+            for sample in result["samples"]:
+                record.append(str(result["dps"][sample].get(site_depth, 0)))
+            qcdata_site_depth_content.append("\t".join(record))
+        result["qcdata_site_depths"] = b64encode(
+            "\n".join(qcdata_site_depth_content).encode("utf-8")
+        )
+
+        return render(self.request, self.template_name, self.get_context_data(**result),)
+
+    def get_relatedness_content(self, project):
+        result = [
+            "\t".join(
+                [
+                    "Sample 1",
+                    "Sample 2",
+                    "Het_1,2",
+                    "Het_1",
+                    "Het_2",
+                    "n_IBS0",
+                    "n_IBS1",
+                    "n_IBS2",
+                    "relatedness",
+                ]
+            )
+        ]
+        for rel in project.variant_stats.relatedness.all():
+            result.append(
+                "\t".join(
+                    [
+                        rel.sample1,
+                        rel.sample2,
+                        str(rel.het_1_2),
+                        str(rel.het_1),
+                        str(rel.het_2),
+                        str(rel.n_ibs0),
+                        str(rel.n_ibs1),
+                        str(rel.n_ibs2),
+                        str(rel.relatedness()),
+                    ]
+                )
+            )
+        return b64encode("\n".join(result).encode("utf-8"))
+
+    def get_sample_variant_stats_content(self, project, sample_variant_stats):
+        result = [
+            "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.",])
+        ]
+        for item in sample_variant_stats:
+            result.append(
+                "\t".join(
+                    [
+                        item.sample_name,
+                        str(item.ontarget_transitions),
+                        str(item.ontarget_transversions),
+                        str(item.ontarget_ts_tv_ratio()),
+                        str(item.ontarget_snvs),
+                        str(item.ontarget_indels),
+                        str(item.ontarget_mnvs),
+                        str(item.chrx_het_hom),
+                    ]
+                )
+            )
+        return b64encode("\n".join(result).encode("utf-8"))
 
 
 class CaseListSyncRemoteView(

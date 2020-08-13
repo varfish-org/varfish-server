@@ -51,7 +51,8 @@ End-User Summary
 - Fixed missing disease gene and mode of inheritance annotation in project/cohort filter results table.
 - Catching errors during Kiosk annotation step properly.
 - Fixed issues with file extension check in Kiosk mode during upload.
-- "1" is now registered as homozygous state in genotype filter.
+- "1" is now registered as heterozygous and homozygous state in genotype filter.
+- Loading annotation and QC tabs in project cases list asyncronously.
 
 Full Change List
 ================
@@ -111,7 +112,8 @@ Full Change List
 - Fixed missing disease gene and mode of inheritance annotation in project/cohort filter results table.
 - Catching errors during Kiosk annotation step properly.
 - Fixed issues with file extension check in Kiosk mode during upload.
-- "1" is now registered as homozygous state in genotype filter.
+- "1" is now registered as heterozygous and homozygous state in genotype filter.
+- Loading annotation and QC tabs in project cases list asyncronously.
 
 -------
 v0.21.0

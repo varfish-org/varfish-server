@@ -76,16 +76,14 @@
 
       <div class="border border-top-0 tab-pane fade show" id="qc" role="tabpanel" aria-labelledby="qc-tab">
         <div class="row pt-3">
-          <div class="col">
-            {% include "variants/case_list/qc.html" %}
+          <div class="col" id="qc-content">
           </div>
         </div>
       </div>
 
       <div class="border border-top-0 tab-pane fade show" id="annotation" role="tabpanel" aria-labelledby="annotation-tab">
         <div class="row pt-3">
-          <div class="col">
-            {% include "variants/case_list/annotation.html" %}
+          <div class="col" id="annotation-content">
           </div>
         </div>
       </div>
@@ -143,33 +141,8 @@
     <script type="text/javascript" src="{% static 'js/vendor/axios-0.18.0.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/vendor/palette-1.1.0.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/qc_plots.js' %}"></script>
-
-    <script type="text/javascript">
-    $(function() {
-      axios.get("/variants/{{ project.sodar_uuid }}/api-qc/")
-        .then(function (response) {
-          // Render plots after data has been loaded
-          console.log(response)
-          plotlyRelatedness(response, 'plot-relatedness')
-          plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')
-          plotlyVarDps(response, 'plot-var-dps')
-          setTimeout(function() { $(window).trigger('resize') }, 2000);
-        })
-    })
-    </script>
   {% endif %}
   <script type="text/javascript" src="{% static 'js/variant_comments.js' %}"></script>
-  <script type="text/javascript">
-    $(document).ready(function() {
-        $("#comment-button-submit").on("click", commentSubmit);
-        $(".comment-button-delete").on("click", commentDeleteToggle);
-        $(".comment-button-delete-cancel").on("click", commentDeleteToggle);
-        $(".comment-button-delete-submit").on("click", commentDeleteSubmit);
-        $(".comment-button-edit").on("click", commentEditToggle);
-        $(".comment-button-edit-cancel").on("click", commentEditToggle);
-        $(".comment-button-edit-submit").on("click", commentEditSubmit);
-    });
-  </script>
   <!-- DataTables -->
   <script type="text/javascript">
     $(document).ready(function() {
@@ -190,6 +163,43 @@
         const dt = $(this).closest('.varfish-case-list-card').find('table').dataTable();
         const v = $(this).val();
         dt.fnFilter(v);
+      });
+      $.ajax({
+        type: "GET",
+        url: "{% url 'variants:case-list-get-annotations' project=project.sodar_uuid %}",
+        success: function(response) {
+            $("#annotation-content").html(response);
+            $("#comment-button-submit").on("click", commentSubmit);
+            $(".comment-button-delete").on("click", commentDeleteToggle);
+            $(".comment-button-delete-cancel").on("click", commentDeleteToggle);
+            $(".comment-button-delete-submit").on("click", commentDeleteSubmit);
+            $(".comment-button-edit").on("click", commentEditToggle);
+            $(".comment-button-edit-cancel").on("click", commentEditToggle);
+            $(".comment-button-edit-submit").on("click", commentEditSubmit);
+         },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert("Error during AJAX call:", textStatus, + errorThrown);
+            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+        }
+      });
+      $.ajax({
+        type: "GET",
+        url: "{% url 'variants:case-list-get-qc' project=project.sodar_uuid %}",
+        success: function(response) {
+            $("#qc-content").html(response);
+            axios.get("/variants/{{ project.sodar_uuid }}/api-qc/")
+              .then(function (response) {
+                // Render plots after data has been loaded
+                plotlyRelatedness(response, 'plot-relatedness')
+                plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')
+                plotlyVarDps(response, 'plot-var-dps')
+                setTimeout(function() { $(window).trigger('resize') }, 1000);
+              })
+         },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert("Error during AJAX call:", textStatus, + errorThrown);
+            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+        }
       });
     });
   </script>

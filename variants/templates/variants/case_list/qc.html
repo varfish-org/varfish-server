@@ -15,24 +15,30 @@
     <div class="card-body p-0">
       {% if project.variant_stats %}
         <div class="row">
-          <div id="plot-relatedness">
-            <div class="placeholder-container">
-              <div class="placeholder-text">
-                <i class="fa fa-spin fa-spinner fa-5x"></i>
+          <div class="col-6">
+            <div id="plot-relatedness">
+              <div class="placeholder-container">
+                <div class="placeholder-text">
+                  <i class="fa fa-spin fa-spinner fa-5x"></i>
+                </div>
+              </div>
+            </div>
+            <div id="plot-sex-chrx-het-hom">
+              <div class="placeholder-container">
+                <div class="placeholder-text">
+                  <i class="fa fa-spin fa-spinner fa-5x"></i>
+                </div>
               </div>
             </div>
           </div>
-          <div id="plot-sex-chrx-het-hom">
-            <div class="placeholder-container">
-              <div class="placeholder-text">
-                <i class="fa fa-spin fa-spinner fa-5x"></i>
-              </div>
-            </div>
-          </div>
-          <div id="plot-var-dps">
-            <div class="placeholder-container">
-              <div class="placeholder-text">
-                <i class="fa fa-spin fa-spinner fa-5x"></i>
+          <div class="row">
+            <div class="col">
+              <div id="plot-var-dps">
+                <div class="placeholder-container">
+                  <div class="placeholder-text">
+                    <i class="fa fa-spin fa-spinner fa-5x"></i>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -129,7 +135,7 @@
         </tr>
       </thead>
       <tbody>
-        {% for item in project.sample_variant_stats %}
+        {% for item in sample_variant_stats %}
           <tr>
             <td>{{ item.sample_name|only_source_name }}</td>
             <td class="text-right">{{ item.ontarget_transitions|intcomma }}</td>
