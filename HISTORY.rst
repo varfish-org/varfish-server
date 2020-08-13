@@ -53,6 +53,7 @@ End-User Summary
 - Fixed issues with file extension check in Kiosk mode during upload.
 - "1" is now registered as heterozygous and homozygous state in genotype filter.
 - Loading annotation and QC tabs in project cases list asyncronously.
+- Increased timeout for VariantValidator response to 30 seconds.
 
 Full Change List
 ================
@@ -114,6 +115,7 @@ Full Change List
 - Fixed issues with file extension check in Kiosk mode during upload.
 - "1" is now registered as heterozygous and homozygous state in genotype filter.
 - Loading annotation and QC tabs in project cases list asyncronously.
+- Increased timeout for VariantValidator response to 30 seconds.
 
 -------
 v0.21.0

@@ -3924,7 +3924,8 @@ class VariantValidatorApiView(PluginContextMixin, View):
                 position=self.request.POST.get("position"),
                 reference=self.request.POST.get("reference"),
                 alternative=self.request.POST.get("alternative"),
-            )
+            ),
+            timeout=30,
         )
         if response.status_code != 200:
             return HttpResponse()
