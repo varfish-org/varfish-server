@@ -58,6 +58,7 @@ End-User Summary
 - Fixed bug where when re-importing a case, the sample variants stats computation was performed on the member list of the old case.
   This could lead to the inconsistent state that when new members where added, the stats were not available for them.
   This lead to a 500 error when displaying the case overview page.
+- Fixed missing QC plots in case detail view.
 
 Full Change List
 ================
@@ -124,6 +125,7 @@ Full Change List
 - Fixed bug where when re-importing a case, the sample variants stats computation was performed on the member list of the old case.
   This could lead to the inconsistent state that when new members where added, the stats were not available for them.
   This lead to a 500 error when displaying the case overview page.
+- Fixed missing QC plots in case detail view.
 
 -------
 v0.21.0

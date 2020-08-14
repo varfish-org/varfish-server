@@ -121,12 +121,12 @@
         .then(function (response) {
           // Render plots after data has been loaded
           plotlyRelatedness(response, 'plot-relatedness')
-          {#plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')#}
-          {#plotlyVarDps(response, 'plot-var-dps')#}
-          {#plotlyVariantTypes(response, 'plot-var-types')#}
-          {#plotlyVariantEffects(response, 'plot-var-effects')#}
-          {#plotlyIndelSizes(response, 'plot-indel-sizes')#}
-          {#setTimeout(function() { $(window).trigger('resize') }, 2000);#}
+          plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')
+          plotlyVarDps(response, 'plot-var-dps')
+          plotlyVariantTypes(response, 'plot-var-types')
+          plotlyVariantEffects(response, 'plot-var-effects')
+          plotlyIndelSizes(response, 'plot-indel-sizes')
+          setTimeout(function() { $(window).trigger('resize') }, 2000);
         })
     })
   </script>
