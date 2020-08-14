@@ -3341,6 +3341,7 @@ class VariantImporterBase:
             setattr(case, self.latest_set, variant_set)
             case.save()
             update_variant_counts(variant_set.case)
+            self._post_import(variant_set)
         if variant_set.state == "active":
             self._clear_old_variant_sets(case, variant_set)
         else:
@@ -3350,6 +3351,9 @@ class VariantImporterBase:
             raise RuntimeError("Problem during variant import")
 
     def _perform_import(self, variant_set):
+        raise NotImplementedError("Override me!")
+
+    def _post_import(self, variant_set):
         raise NotImplementedError("Override me!")
 
     def _purge_variant_set(self, variant_set):
@@ -3478,6 +3482,8 @@ class VariantImporter(VariantImporterBase):
         self._import_annotation_release_info(variant_set)
         self._import_alignment_stats(variant_set)
         self._import_table(variant_set, "genotypes", "path_genotypes", SmallVariant)
+
+    def _post_import(self, variant_set):
         self._rebuild_small_variants_stats(variant_set)
 
     def _rebuild_small_variants_stats(self, variant_set):

@@ -55,6 +55,9 @@ End-User Summary
 - Loading annotation and QC tabs in project cases list asyncronously.
 - Increased timeout for VariantValidator response to 30 seconds.
 - Digesting more VariantValidator responses.
+- Fixed bug where when re-importing a case, the sample variants stats computation was performed on the member list of the old case.
+  This could lead to the inconsistent state that when new members where added, the stats were not available for them.
+  This lead to a 500 error when displaying the case overview page.
 
 Full Change List
 ================
@@ -118,6 +121,9 @@ Full Change List
 - Loading annotation and QC tabs in project cases list asyncronously.
 - Increased timeout for VariantValidator response to 30 seconds.
 - Digesting more VariantValidator responses, namely ``intergenic_variant_\d+`` and ``validation_warning_\d+``.
+- Fixed bug where when re-importing a case, the sample variants stats computation was performed on the member list of the old case.
+  This could lead to the inconsistent state that when new members where added, the stats were not available for them.
+  This lead to a 500 error when displaying the case overview page.
 
 -------
 v0.21.0

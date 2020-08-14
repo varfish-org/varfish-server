@@ -516,6 +516,9 @@ class VariantImporter(VariantImporterBase):
             StructuralVariantGeneAnnotation,
         )
 
+    def _post_import(self, variant_set):
+        pass
+
 
 def cleanup_variant_sets(min_age_hours=12):
     """Cleanup old variant sets."""

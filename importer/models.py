@@ -359,6 +359,7 @@ class CaseImporter:
                 setattr(self.case, latest_set, variant_set)
                 self.case.save()
                 update_variant_counts(self.case, variant_set_info.variant_type)
+                self._post_import(variant_set, variant_set_info.variant_type)
             if variant_set.state == "active":
                 self._clear_old_variant_sets(variant_set, table_names)
                 self.import_info.state = CaseImportState.IMPORTED.value
@@ -469,7 +470,6 @@ class CaseImporter:
                 SmallVariant,
                 default_values,
             )
-            self._rebuild_small_variants_stats(variant_set)
         else:
             assert variant_set_info.variant_type == CaseVariantType.STRUCTURAL.name
             self._import_table(
@@ -483,6 +483,10 @@ class CaseImporter:
                 "effectfile_set",
                 StructuralVariantGeneAnnotation,
             )
+
+    def _post_import(self, variant_set, variant_type):
+        if variant_type == CaseVariantType.SMALL.name:
+            self._rebuild_small_variants_stats(variant_set)
 
     def _rebuild_small_variants_stats(self, variant_set):
         """Rebuild small variant statistics."""
