@@ -1,6 +1,7 @@
 """This module contains the code for file export"""
 
 import datetime
+from collections import OrderedDict
 from datetime import timedelta
 from tempfile import NamedTemporaryFile
 import contextlib
@@ -346,9 +347,19 @@ class CaseExporterBase:
             if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
                 _result = annotate_with_joint_scores(_result)
             self.job.add_log_entry("Writing output file...")
-            for small_var in _result:
-                if small_var.chromosome != prev_chrom:
-                    self.job.add_log_entry("Now on chromosome chr{}".format(small_var.chromosome))
+            total = len(_result)
+            steps = int(total / 10)
+            for i, small_var in enumerate(_result):
+                if self._is_prioritization_enabled() or self._is_pathogenicity_enabled():
+                    if i % steps == 0:
+                        self.job.add_log_entry("{}%".format(int(100 * i / total)))
+                else:
+                    if small_var.chromosome != prev_chrom:
+                        self.job.add_log_entry(
+                            "Now on chromosome chr{} ({}%)".format(
+                                small_var.chromosome, int(100 * i / total)
+                            )
+                        )
                     prev_chrom = small_var.chromosome
                 if self.project_or_cohort:
                     for sample in sorted(small_var.genotype.keys()):
@@ -715,15 +726,18 @@ class CaseExporterVcf(CaseExporterBase):
         self.vcf_writer.close()
 
     def _yield_smallvars(self):
-        joined_variants = {}
-        for i in super()._yield_smallvars():
-            key = (i.release, i.chromosome, i.start, i.end, i.reference, i.alternative)
-            if key in joined_variants:
-                joined_variants[key].add_genotype(i.genotype)
-            else:
-                joined_variants[key] = i
-        for key, value in joined_variants.items():
-            yield value
+        if self.case:
+            yield from super()._yield_smallvars()
+        else:
+            joined_variants = OrderedDict()
+            for i in super()._yield_smallvars():
+                key = (i.release, i.chromosome, i.start, i.end, i.reference, i.alternative)
+                if key in joined_variants:
+                    joined_variants[key].add_genotype(i.genotype)
+                else:
+                    joined_variants[key] = i
+            for key, value in joined_variants.items():
+                yield value
 
     def _write_variants_data(self):
         for small_var in self._yield_smallvars():

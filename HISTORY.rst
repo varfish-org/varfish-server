@@ -59,6 +59,9 @@ End-User Summary
   This could lead to the inconsistent state that when new members where added, the stats were not available for them.
   This lead to a 500 error when displaying the case overview page.
 - Fixed missing QC plots in case detail view.
+- Fixed bug in case VCF export where a variant existing twice in the results was breaking the export.
+- Fixed log entries for file export when pathogenicity or phenotype scoring was activated.
+- Bumped Chrome Driver version to 84 to be compatible with gitlab CI.
 
 Full Change List
 ================
@@ -126,6 +129,10 @@ Full Change List
   This could lead to the inconsistent state that when new members where added, the stats were not available for them.
   This lead to a 500 error when displaying the case overview page.
 - Fixed missing QC plots in case detail view.
+- Fixed bug in case VCF export where a variant existing twice in the results was breaking the export.
+- Fixed log entries for file export when pathogenicity or phenotype scoring was activated.
+  The variants are sorted by score in this case which led to messy logging which was designed for logging when the chromosome changes.
+- Bumped Chrome Driver version to 84 to be compatible with gitlab CI.
 
 -------
 v0.21.0
