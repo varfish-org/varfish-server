@@ -1277,8 +1277,10 @@ class SmallVariantPrioritizerFormMixin:
 
         #: Choices for variant scoring methods.
         PATHO_SCORE_CHOICES = [(PATHO_MUTATIONTASTER, PATHO_MUTATIONTASTER_LABEL)]
+        PATHO_SCORE_INITIAL = (PATHO_MUTATIONTASTER, PATHO_MUTATIONTASTER_LABEL)
         if settings.VARFISH_ENABLE_CADD:
             PATHO_SCORE_CHOICES.append((PATHO_CADD, PATHO_CADD_LABEL))
+            PATHO_SCORE_INITIAL = (PATHO_CADD, PATHO_CADD_LABEL)
         if app_settings.get_app_setting("variants", "umd_predictor_api_token", user=self.user):
             PATHO_SCORE_CHOICES.append((PATHO_UMD, PATHO_UMD_LABEL))
 
@@ -1286,7 +1288,7 @@ class SmallVariantPrioritizerFormMixin:
             label="Score",
             help_text="Pathogenicity scoring method to use.",
             choices=PATHO_SCORE_CHOICES,
-            initial=(PATHO_CADD, PATHO_CADD_LABEL),
+            initial=PATHO_SCORE_INITIAL,
             required=False,
         )
 

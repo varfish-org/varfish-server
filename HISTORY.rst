@@ -62,6 +62,7 @@ End-User Summary
 - Fixed bug in case VCF export where a variant existing twice in the results was breaking the export.
 - Fixed log entries for file export when pathogenicity or phenotype scoring was activated.
 - Bumped Chrome Driver version to 84 to be compatible with gitlab CI.
+- CADD is now selected as default in pathogenicity scoring form (when available).
 
 Full Change List
 ================
@@ -133,6 +134,7 @@ Full Change List
 - Fixed log entries for file export when pathogenicity or phenotype scoring was activated.
   The variants are sorted by score in this case which led to messy logging which was designed for logging when the chromosome changes.
 - Bumped Chrome Driver version to 84 to be compatible with gitlab CI.
+- CADD is now selected as default in pathogenicity scoring form (when available).
 
 -------
 v0.21.0
