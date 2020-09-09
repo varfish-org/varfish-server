@@ -3309,6 +3309,7 @@ class VariantImporterBase:
     latest_set = None
     #: Fill this with ``field_name: default_tsv_value`` in your sub class to ensure the fields are present.
     default_values = {}
+    release_info = None
 
     def __init__(self, import_job):
         self.import_job = import_job
@@ -3464,6 +3465,28 @@ class VariantImporterBase:
                 "Finished importing %s in %.2f s" % (token, elapsed.total_seconds())
             )
 
+    def _import_annotation_release_info(self, variant_set):
+        before = timezone.now()
+        self.import_job.add_log_entry("Importing annotation release info...")
+        for path_db_info in self.import_job.path_db_info:
+            for entry in tsv_reader(path_db_info):
+                self._get_release_info().objects.get_or_create(
+                    genomebuild=entry["genomebuild"],
+                    table=entry["db_name"],
+                    case=variant_set.case,
+                    variant_set=variant_set,
+                    defaults={"release": entry["release"]},
+                )
+        elapsed = timezone.now() - before
+        self.import_job.add_log_entry(
+            "Finished importing annotation release info in %.2f s" % elapsed.total_seconds()
+        )
+
+    def _get_release_info(self):
+        if not self.release_info:
+            raise NotImplementedError("Please set release_info!")
+        return self.release_info
+
 
 class VariantImporter(VariantImporterBase):
     """Helper class for importing variants."""
@@ -3477,6 +3500,7 @@ class VariantImporter(VariantImporterBase):
     # Ensure that the info and {refseq,ensembl}_exon_dist fields are present with default values.  This snippet
     # can go away once we are certain all TSV files have been created with varfish-annotator >=0.10
     default_values = {"info": "{}", "refseq_exon_dist": ".", "ensembl_exon_dist": "."}
+    release_info = AnnotationReleaseInfo
 
     def _perform_import(self, variant_set):
         self._import_annotation_release_info(variant_set)
@@ -3499,23 +3523,6 @@ class VariantImporter(VariantImporterBase):
         elapsed = timezone.now() - before
         self.import_job.add_log_entry(
             "Finished computing variant statistics in %.2f s" % elapsed.total_seconds()
-        )
-
-    def _import_annotation_release_info(self, variant_set):
-        before = timezone.now()
-        self.import_job.add_log_entry("Importing annotation release info...")
-        for path_db_info in self.import_job.path_db_info:
-            for entry in tsv_reader(path_db_info):
-                AnnotationReleaseInfo.objects.get_or_create(
-                    genomebuild=entry["genomebuild"],
-                    table=entry["db_name"],
-                    case=variant_set.case,
-                    variant_set=variant_set,
-                    defaults={"release": entry["release"]},
-                )
-        elapsed = timezone.now() - before
-        self.import_job.add_log_entry(
-            "Finished importing annotation release info in %.2f s" % elapsed.total_seconds()
         )
 
     def _import_alignment_stats(self, variant_set):

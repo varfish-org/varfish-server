@@ -15,7 +15,7 @@ from projectroles.models import Project
 from sqlalchemy import and_
 
 from importer.management.helpers import open_file, tsv_reader
-from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
+from svs.models import StructuralVariant, StructuralVariantGeneAnnotation, SvAnnotationReleaseInfo
 from varfish.utils import receiver_subclasses
 from variants.models import (
     Case,
@@ -461,7 +461,9 @@ class CaseImporter:
             # can go away once we are certain all TSV files have been created with varfish-annotator >=0.10
             self._import_alignment_stats(self.import_info, variant_set)
             default_values = {"info": "{}", "refseq_exon_dist": ".", "ensembl_exon_dist": "."}
-            self._import_annotation_release_info(variant_set_info, variant_set)
+            self._import_annotation_release_info(
+                variant_set_info, variant_set, AnnotationReleaseInfo
+            )
             self._import_table(
                 variant_set_info,
                 variant_set,
@@ -475,7 +477,9 @@ class CaseImporter:
             self._import_table(
                 variant_set_info, variant_set, "SVs", "genotypefile_set", StructuralVariant,
             )
-            self._import_annotation_release_info(variant_set_info, variant_set)
+            self._import_annotation_release_info(
+                variant_set_info, variant_set, SvAnnotationReleaseInfo
+            )
             self._import_table(
                 variant_set_info,
                 variant_set,
@@ -504,7 +508,7 @@ class CaseImporter:
         )
 
     def _import_annotation_release_info(
-        self, variant_set_info: VariantSetImportInfo, variant_set: SmallVariantSet
+        self, variant_set_info: VariantSetImportInfo, variant_set, release_info
     ):
         before = timezone.now()
         self.import_job.add_log_entry("Importing annotation release info...")
@@ -515,7 +519,7 @@ class CaseImporter:
             self.import_job.add_log_entry("... importing from %s" % db_info_file.name)
             for entry in tsv_reader(db_info_file.file):
                 total += 1
-                info, created = AnnotationReleaseInfo.objects.get_or_create(
+                info, created = release_info.objects.get_or_create(
                     genomebuild=entry["genomebuild"],
                     table=entry["db_name"],
                     case=variant_set.case,

@@ -497,6 +497,27 @@ class ImportStructuralVariantBgJob(JobModelMessageMixin, models.Model):
         )
 
 
+class SvAnnotationReleaseInfo(models.Model):
+    """Model to track the database releases used during annotation of a case.
+    """
+
+    #: Release of genomebuild
+    genomebuild = models.CharField(max_length=32, default="GRCh37")
+    #: Name of imported table
+    table = models.CharField(max_length=512)
+    #: Timestamp of import
+    timestamp = models.DateTimeField(auto_now_add=True, editable=False)
+    #: Data release
+    release = models.CharField(max_length=512)
+    #: Link to case
+    case = models.ForeignKey(Case)
+    #: Link to variant set
+    variant_set = models.ForeignKey(StructuralVariantSet)
+
+    class Meta:
+        unique_together = ("genomebuild", "table", "variant_set")
+
+
 class VariantImporter(VariantImporterBase):
     """Helper class for importing structural variants"""
 
@@ -506,8 +527,10 @@ class VariantImporter(VariantImporterBase):
         ("svs_structuralvariantgeneannotation", "set_id"),
     )
     latest_set = "latest_structural_variant_set"
+    release_info = SvAnnotationReleaseInfo
 
     def _perform_import(self, variant_set):
+        self._import_annotation_release_info(variant_set)
         self._import_table(variant_set, "SVs", "path_genotypes", StructuralVariant)
         self._import_table(
             variant_set,

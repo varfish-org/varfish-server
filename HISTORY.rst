@@ -64,6 +64,7 @@ End-User Summary
 - Bumped Chrome Driver version to 84 to be compatible with gitlab CI.
 - CADD is now selected as default in pathogenicity scoring form (when available).
 - Added global maintenance commands to clear old kiosk cases, inactive variant sets and expired exported files.
+- Added ``SvAnnotationReleaseInfo`` model, information is filled during import and displayed in case detail view.
 
 Full Change List
 ================
@@ -137,6 +138,7 @@ Full Change List
 - Bumped Chrome Driver version to 84 to be compatible with gitlab CI.
 - CADD is now selected as default in pathogenicity scoring form (when available).
 - Added global maintenance commands to clear old kiosk cases, inactive variant sets and expired exported files.
+- Added ``SvAnnotationReleaseInfo`` model, information is filled during import and displayed in case detail view.
 
 -------
 v0.21.0
