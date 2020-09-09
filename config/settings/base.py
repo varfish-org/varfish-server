@@ -103,6 +103,7 @@ LOCAL_APPS = [
     "svs.apps.SvsConfig",
     "extra_annos.apps.ExtraAnnosConfig",
     "tokens.apps.TokensConfig",
+    "maintenance.apps.MaintenanceConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

@@ -63,6 +63,7 @@ End-User Summary
 - Fixed log entries for file export when pathogenicity or phenotype scoring was activated.
 - Bumped Chrome Driver version to 84 to be compatible with gitlab CI.
 - CADD is now selected as default in pathogenicity scoring form (when available).
+- Added global maintenance commands to clear old kiosk cases, inactive variant sets and expired exported files.
 
 Full Change List
 ================
@@ -135,6 +136,7 @@ Full Change List
   The variants are sorted by score in this case which led to messy logging which was designed for logging when the chromosome changes.
 - Bumped Chrome Driver version to 84 to be compatible with gitlab CI.
 - CADD is now selected as default in pathogenicity scoring form (when available).
+- Added global maintenance commands to clear old kiosk cases, inactive variant sets and expired exported files.
 
 -------
 v0.21.0
