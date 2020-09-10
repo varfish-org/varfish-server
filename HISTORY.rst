@@ -65,6 +65,9 @@ End-User Summary
 - CADD is now selected as default in pathogenicity scoring form (when available).
 - Added global maintenance commands to clear old kiosk cases, inactive variant sets and expired exported files.
 - Added ``SvAnnotationReleaseInfo`` model, information is filled during import and displayed in case detail view.
+- Fixed bug that left number of small variants empty when they actually existed.
+- Increased logging during case import.
+- Marked old style import as deprecated.
 
 Full Change List
 ================
@@ -139,6 +142,10 @@ Full Change List
 - CADD is now selected as default in pathogenicity scoring form (when available).
 - Added global maintenance commands to clear old kiosk cases, inactive variant sets and expired exported files.
 - Added ``SvAnnotationReleaseInfo`` model, information is filled during import and displayed in case detail view.
+- Fixed bug that left number of small variants empty when they actually existed.
+  This happened when SNVs and SVs were imported at the same time.
+- Increased logging during case import.
+- Marked old style import as deprecated.
 
 -------
 v0.21.0

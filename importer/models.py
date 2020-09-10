@@ -345,12 +345,13 @@ class CaseImporter:
                 self.import_job.add_log_entry(
                     "Problem during variant import: %s" % e, LOG_LEVEL_ERROR
                 )
-                self.import_job.add_log_entry("Rolling back variant set...")
+                self.import_job.add_log_entry("Rolling back variant set ...")
                 self.import_info.state = CaseImportState.FAILED.value
                 self.import_info.save()
                 self._purge_variant_set(variant_set, table_names)
                 raise RuntimeError("Problem during variant import ") from e
             with transaction.atomic():
+                self.import_job.add_log_entry("Activating variant set ...")
                 variant_set.state = "active"
                 variant_set.save()
                 if not case_created:  # Case needs to be updated.
@@ -358,7 +359,12 @@ class CaseImporter:
                     self.case.pedigree = self.import_info.pedigree
                 setattr(self.case, latest_set, variant_set)
                 self.case.save()
-                update_variant_counts(self.case, variant_set_info.variant_type)
+                self.import_job.add_log_entry(
+                    "Updating variant counts for variant type %s" % variant_set_info.variant_type
+                )
+                update_variant_counts(
+                    self.case, variant_set_info.variant_type, logger=self.import_job.add_log_entry
+                )
                 self._post_import(variant_set, variant_set_info.variant_type)
             if variant_set.state == "active":
                 self._clear_old_variant_sets(variant_set, table_names)
@@ -366,7 +372,7 @@ class CaseImporter:
                 self.import_info.save()
             else:
                 self.import_job.add_log_entry("Problem during variant import", LOG_LEVEL_ERROR)
-                self.import_job.add_log_entry("Rolling back variant set...")
+                self.import_job.add_log_entry("Rolling back variant set ...")
                 self.import_info.state = CaseImportState.FAILED.value
                 self.import_info.save()
                 self._purge_variant_set(variant_set, table_names)
@@ -489,6 +495,7 @@ class CaseImporter:
             )
 
     def _post_import(self, variant_set, variant_type):
+        self.import_job.add_log_entry("Performing post import routine ...")
         if variant_type == CaseVariantType.SMALL.name:
             self._rebuild_small_variants_stats(variant_set)
 

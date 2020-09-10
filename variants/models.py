@@ -3750,31 +3750,39 @@ def clear_old_kiosk_cases():
         project.delete()
 
 
-def update_variant_counts(case, kind=None):
+def update_variant_counts(case, kind=None, logger=lambda _: None):
     """Update the variant counts for the given case.
 
     This is done without changing the ``date_modified`` field.
     """
     from svs import models as sv_models  # noqa
+    from importer.models import CaseVariantType  # noqa
 
-    if not kind or kind == "SMALL":
+    if not kind or kind == CaseVariantType.SMALL.name:
+        logger("Updating variant counts for small variants ...")
         variant_set = case.latest_variant_set
         if variant_set:
             set_id = variant_set.pk
+            logger("... found variant set with id %d" % set_id)
             stmt = (
                 select([func.count()])
                 .select_from(SmallVariant.sa.table)
                 .where(and_(SmallVariant.sa.set_id == set_id, SmallVariant.sa.case_id == case.pk))
             )
             num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt)
+            logger("... variant set has %d variants" % num_small_vars)
         else:
+            logger("... no variant set found")
             num_small_vars = None
-        Case.objects.filter(pk=case.pk).update(num_small_vars=num_small_vars)
+        case.num_small_vars = num_small_vars
+        case.save()
 
-    if not kind or kind == "STRUCTURAL":
+    if not kind or kind == CaseVariantType.STRUCTURAL.name:
+        logger("Updating variant counts for structural variants ...")
         structural_variant_set = case.latest_structural_variant_set
         if structural_variant_set:
             set_id = structural_variant_set.pk
+            logger("... found variant set with id %d" % set_id)
             stmt = (
                 select([func.count()])
                 .select_from(sv_models.StructuralVariant.sa.table)
@@ -3786,10 +3794,15 @@ def update_variant_counts(case, kind=None):
                 )
             )
             num_svs = SQLALCHEMY_ENGINE.scalar(stmt)
+            logger("... variant set has %d variants" % num_svs)
         else:
+            logger("... no variant set found")
             num_svs = None
-        # Use the ``update()`` trick such that ``date_modified`` remains untouched.
-        Case.objects.filter(pk=case.pk).update(num_svs=num_svs)
+        case.num_svs = num_svs
+        case.save()
+
+    logger("... num_small_vars is now %s" % case.num_small_vars)
+    logger("... num_svs is now %s" % case.num_svs)
 
 
 class SiteBgJobBase(JobModelMessageMixin, models.Model):

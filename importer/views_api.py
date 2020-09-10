@@ -39,14 +39,11 @@ class CaseImportInfoListCreateView(SODARAPIGenericProjectMixin, ListCreateAPIVie
         qs = CaseImportInfo.objects.filter(project=self.get_project())
 
         # Superuser can query for specific/all users
-        if self.request.user.is_superuser and "owner" in self.request.query_params:
-            if self.request.query_params["owner"] != "__all__":
-                try:
-                    qs = qs.filter(
-                        owner=User.objects.get(username=self.request.query_params["owner"])
-                    )
-                except User.DoesNotExist:
-                    qs = qs.none()
+        if "owner" in self.request.query_params and self.request.query_params["owner"] != "__all__":
+            try:
+                qs = qs.filter(owner=User.objects.get(username=self.request.query_params["owner"]))
+            except User.DoesNotExist:
+                qs = qs.none()
         else:
             qs = qs.filter(owner=self.request.user)
 

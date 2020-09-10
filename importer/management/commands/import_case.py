@@ -157,7 +157,7 @@ class Command(CaseImportBase, BaseCommand):
     """
 
     #: Help message displayed on the command line.
-    help = "Import case from PED file and varfish-annotator output."
+    help = "Import case from PED file and varfish-annotator output. DEPRECATED"
 
     def add_arguments(self, parser):
         """Add the command's argument to the ``parser``."""
@@ -208,6 +208,8 @@ class Command(CaseImportBase, BaseCommand):
     def handle(self, *args, **options):
         """The actual implementation is in ``_handle()``, splitting to get commit times."""
         # Flatten the nargs="+" arguments.
+        self.stdout.write(self.style.NOTICE("!!! THIS COMMAND IS MARKED AS DEPCREATED !!!"))
+        self.stdout.write(self.style.NOTICE("Please use the varfish-cli instead."))
         options["path_genotypes"] = list(itertools.chain(*options["path_genotypes"]))
         options["path_bam_qc"] = list(itertools.chain(*options["path_bam_qc"]))
         options["path_db_info"] = list(itertools.chain(*options["path_db_info"]))
