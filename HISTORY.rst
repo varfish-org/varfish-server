@@ -68,6 +68,7 @@ End-User Summary
 - Fixed bug that left number of small variants empty when they actually existed.
 - Increased logging during case import.
 - Marked old style import as deprecated.
+- Fixed bug that prevented re-import of SVs.
 
 Full Change List
 ================
@@ -146,6 +147,7 @@ Full Change List
   This happened when SNVs and SVs were imported at the same time.
 - Increased logging during case import.
 - Marked old style import as deprecated.
+- Fixed bug that prevented re-import of SVs by altering the unique constraint on the ``StructuralVariant`` table.
 
 -------
 v0.21.0

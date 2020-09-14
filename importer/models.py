@@ -379,8 +379,12 @@ class CaseImporter:
                 raise RuntimeError("Problem during variant import")
 
     def _purge_variant_set(self, variant_set, table_names):
+        self.import_job.add_log_entry("Performing variant set purge ...")
+        self.import_job.add_log_entry("... setting state to 'deleting'.")
         variant_set.__class__.objects.filter(pk=variant_set.id).update(state="deleting")
+        self.import_job.add_log_entry("... removing linked entries in tables:")
         for table_name, variant_set_attr in table_names:
+            self.import_job.add_log_entry("... - %s" % table_name)
             table = aldjemy.core.get_meta().tables[table_name]
             SQLALCHEMY_ENGINE.execute(
                 table.delete().where(
@@ -390,15 +394,19 @@ class CaseImporter:
                     )
                 )
             )
+        self.import_job.add_log_entry("... deleting variant set %d" % variant_set.pk)
         variant_set.__class__.objects.filter(pk=variant_set.id).delete()
 
     def _clear_old_variant_sets(self, keep_variant_set, table_names):
         self.import_job.add_log_entry("Starting to purge old variants")
         before = timezone.now()
+        self.import_job.add_log_entry("... keeping variant set with id %d" % keep_variant_set.pk)
         for variant_set in keep_variant_set.__class__.objects.filter(
             case=self.case, state="active", date_created__lt=keep_variant_set.date_created
         ):
+            self.import_job.add_log_entry("... found variant set with id %d" % variant_set.pk)
             if variant_set.id != keep_variant_set.id:
+                self.import_job.add_log_entry("... purging variant set (%d)!" % variant_set.pk)
                 self._purge_variant_set(variant_set, table_names)
         elapsed = timezone.now() - before
         self.import_job.add_log_entry(
@@ -452,7 +460,7 @@ class CaseImporter:
                 tempf.name,
                 delimiter="\t",
                 null=".",
-                ignore_conflicts=True,
+                ignore_conflicts=False,
                 drop_constraints=False,
                 drop_indexes=False,
             )
