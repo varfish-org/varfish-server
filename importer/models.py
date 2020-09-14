@@ -74,6 +74,21 @@ class CaseImportState(Enum):
     FAILED = "failed"
 
 
+class VariantSetImportState(Enum):
+    """Enumeration for the states."""
+
+    #: Draft state, allows modification.
+    DRAFT = "draft"
+    #: Files uploaded for import.
+    UPLOADED = "uploaded"
+    #: Imported into database.
+    IMPORTED = "imported"
+    #: Previously in database but not any more.
+    EVICTED = "evicted"
+    #: Failed import.
+    FAILED = "failed"
+
+
 class CaseImportInfo(CoreCase):
     """Store import info for a case."""
 
@@ -138,6 +153,13 @@ class VariantSetImportInfo(models.Model):
             (CaseVariantType.STRUCTURAL.name, CaseVariantType.STRUCTURAL.value),
         ),
         help_text="The type of variant set that is referenced.",
+    )
+
+    state = models.CharField(
+        max_length=32,
+        choices=tuple((s.value, s.value) for s in VariantSetImportState),
+        default=VariantSetImportState.DRAFT.value,
+        help_text="State of the variant set import",
     )
 
     def get_project(self):
@@ -331,7 +353,9 @@ class CaseImporter:
                         "pedigree": self.import_info.pedigree,
                     },
                 )
-        for variant_set_info in self.import_info.variantsetimportinfo_set.all():
+        for variant_set_info in self.import_info.variantsetimportinfo_set.filter(
+            state=VariantSetImportState.UPLOADED.value
+        ):
             attr_name = self.variant_type_map[variant_set_info.variant_type]
             table_names = self.table_name_map[variant_set_info.variant_type]
             latest_set = self.latest_set_map[variant_set_info.variant_type]
@@ -346,6 +370,8 @@ class CaseImporter:
                     "Problem during variant import: %s" % e, LOG_LEVEL_ERROR
                 )
                 self.import_job.add_log_entry("Rolling back variant set ...")
+                variant_set_info.state = VariantSetImportState.FAILED.value
+                variant_set_info.save()
                 self.import_info.state = CaseImportState.FAILED.value
                 self.import_info.save()
                 self._purge_variant_set(variant_set, table_names)
@@ -368,15 +394,20 @@ class CaseImporter:
                 self._post_import(variant_set, variant_set_info.variant_type)
             if variant_set.state == "active":
                 self._clear_old_variant_sets(variant_set, table_names)
-                self.import_info.state = CaseImportState.IMPORTED.value
-                self.import_info.save()
+                variant_set_info.state = VariantSetImportState.IMPORTED.value
+                variant_set_info.save()
             else:
                 self.import_job.add_log_entry("Problem during variant import", LOG_LEVEL_ERROR)
                 self.import_job.add_log_entry("Rolling back variant set ...")
                 self.import_info.state = CaseImportState.FAILED.value
                 self.import_info.save()
+                variant_set_info.state = VariantSetImportState.FAILED.value
+                variant_set_info.save()
                 self._purge_variant_set(variant_set, table_names)
                 raise RuntimeError("Problem during variant import")
+        else:
+            self.import_info.state = CaseImportState.IMPORTED.value
+            self.import_info.save()
 
     def _purge_variant_set(self, variant_set, table_names):
         self.import_job.add_log_entry("Performing variant set purge ...")

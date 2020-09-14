@@ -147,6 +147,7 @@ class VariantSetImportInfoSerializer(serializers.ModelSerializer):
             "genotype_files",
             "effect_files",
             "db_info_files",
+            "state",
         )
         read_only_fields = (
             "sodar_uuid",

@@ -69,6 +69,8 @@ End-User Summary
 - Increased logging during case import.
 - Marked old style import as deprecated.
 - Fixed bug that prevented re-import of SVs.
+- Fixed bug where a re-import of genotypes was not possible when the same variant types weren't present as in the initial import.
+- Fixed bug where ``imported`` state of ``CaseImportInfo`` was already set after importing the first variant set.
 
 Full Change List
 ================
@@ -148,6 +150,9 @@ Full Change List
 - Increased logging during case import.
 - Marked old style import as deprecated.
 - Fixed bug that prevented re-import of SVs by altering the unique constraint on the ``StructuralVariant`` table.
+- Fixed bug where a re-import of genotypes was not possible when the same variant types weren't present as in the initial import.
+  This was done by adding a ``state`` field to the ``VariantSetImportInfo`` model.
+- Fixed bug where ``imported`` state of ``CaseImportInfo`` was already set after importing the first variant set.
 
 -------
 v0.21.0
