@@ -75,7 +75,10 @@ $(document).ready(function() {
       });
   }
 
-  if ($("#panel-app-is-testing").size() > 0) {  // unless testing
+  if ($("#panel-app-is-testing").length === 0) {  // unless testing
     loadPanelPage(1);
+  }
+  else {
+    console.log("In testing mode, not loading panel app page ...")
   }
 })
