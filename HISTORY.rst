@@ -72,6 +72,7 @@ End-User Summary
 - Fixed bug where a re-import of genotypes was not possible when the same variant types weren't present as in the initial import.
 - Fixed bug where ``imported`` state of ``CaseImportInfo`` was already set after importing the first variant set.
 - Integrated Genomics England PanelApp.
+- Added command to check selected indexes and data types in database.
 
 Full Change List
 ================
@@ -155,6 +156,7 @@ Full Change List
   This was done by adding a ``state`` field to the ``VariantSetImportInfo`` model.
 - Fixed bug where ``imported`` state of ``CaseImportInfo`` was already set after importing the first variant set.
 - Integrated Genomics England PanelApp via their API.
+- Added command to check selected indexes and data types in database.
 
 -------
 v0.21.0
