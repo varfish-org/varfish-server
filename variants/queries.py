@@ -115,6 +115,9 @@ def small_variant_query(_self, kwargs):
             getattr(SmallVariant.sa, "%s_transcript_id" % kwargs["database_select"], None).label(
                 "transcript_id"
             ),
+            getattr(SmallVariant.sa, "%s_exon_dist" % kwargs["database_select"], None).label(
+                "exon_dist"
+            ),
             # Required to retrieve ExAC constraints in variant details that just operate on the ensembl transcript id.
             SmallVariant.sa.ensembl_transcript_id,
         ],

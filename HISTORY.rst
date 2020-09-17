@@ -73,6 +73,8 @@ End-User Summary
 - Fixed bug where ``imported`` state of ``CaseImportInfo`` was already set after importing the first variant set.
 - Integrated Genomics England PanelApp.
 - Added command to check selected indexes and data types in database.
+- Added columns to results table: ``cDNA effect``, ``protein effect``, ``effect text``, ``distance to splicesite``.
+- Made effect columns and ``distance to splicesite`` column hide-able.
 
 Full Change List
 ================
@@ -157,6 +159,8 @@ Full Change List
 - Fixed bug where ``imported`` state of ``CaseImportInfo`` was already set after importing the first variant set.
 - Integrated Genomics England PanelApp via their API.
 - Added command to check selected indexes and data types in database.
+- Added columns to results table: ``cDNA effect``, ``protein effect``, ``effect text``, ``distance to splicesite``.
+- Made effect columns and ``distance to splicesite`` column hide-able.
 
 -------
 v0.21.0

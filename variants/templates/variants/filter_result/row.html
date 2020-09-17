@@ -347,13 +347,13 @@
     {% endif %}
   </td>
   <td data-order="{% if entry.disease_gene %}1{% else %}0{% endif %}"><i class="fa fa-lightbulb-o {% if entry.disease_gene %}text-danger"{% else %}text-muted" style="opacity: 20%"{% endif %}></i></td>
-  <td class="text-nowrap">
+  <td class="text-nowrap effect-change">
     <span data-toggle="tooltip" title="{{ entry.effect|join:', ' }}">
       {% with entry.hgvs_p|default:"-" as hgvs_p %}
         {% if hgvs_p == "-" or hgvs_p == "p.?" or hgvs_p == "p.=" %}
           {{ entry.hgvs_c|default:"-"|truncatechars:15 }}
         {% else %}
-          {{ entry.hgvs_p|default:"-"|truncatechars:15  }}
+          {{ entry.hgvs_p|default:"-"|truncatechars:15 }}
         {% endif %}
       {% endwith %}
     </span>
@@ -361,6 +361,10 @@
       <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="The impact predictions for RefSeq and ENSEMBL transcripts differ."></i>
     {% endif %}
   </td>
+  <td class="text-nowrap effect-text">{{ entry.effect|join:', ' }}</td>
+  <td class="text-nowrap effect-change-protein">{{ entry.hgvs_p|default:'-' }}</td>
+  <td class="text-nowrap effect-change-cdna">{{ entry.hgvs_c|default:'-' }}</td>
+  <td class="text-nowrap distance-to-splicesite">{{ entry.exon_dist|default:'-' }}</td>
   {% if query_type == "project" %}
     <td>{{ entry.affected_cases_per_gene|default:0 }}</td>
   {% endif %}

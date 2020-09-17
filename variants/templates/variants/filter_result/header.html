@@ -25,7 +25,11 @@
   <th class="detail-constraints-gnomad-z-syn">gnomAD</th>
   <th></th>{# gene #}
   <th></th>{# disease gene #}
-  <th></th>{# effect #}
+  <th class="effect-change"></th>{# effect change #}
+  <th class="effect-text"></th>{# effect text #}
+  <th class="effect-change-protein"></th>{# effect change protein #}
+  <th class="effect-change-cdna"></th>{# effect change cdna #}
+  <th class="distance-to-splicesite"></th>{# distance to splicesite #}
   {% if query_type == "project" %}
     <th></th> {# cases per gene #}
   {% endif %}
@@ -86,7 +90,11 @@
   <th class="detail-constraints-gnomad-z-syn">Z syn</th>
   <th>gene</th>
   <th data-toggle="tooltip" data-placement="top" data-html="true" title="<strong><u>D</u></strong>isease <strong><u>G</u></strong>ene; variant found in gene listed in OMIM.">DG</th>
-  <th>effect</th>
+  <th class="effect-change">effect</th>
+  <th class="effect-text">effect text</th>
+  <th class="effect-change-protein">effect protein</th>
+  <th class="effect-change-cdna">effect cdna</th>
+  <th class="distance-to-splicesite">dist. to splicesite</th>
   {% if query_type == "project" %}
     <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number affected cases per gene.">
       <sup>#c</sup>&frasl;<sub>g</sub>

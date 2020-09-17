@@ -192,11 +192,22 @@
             <option value="constraints-gnomad-z-mis">gnomAD Z mis</option>
           </select>
         </div>
+        <div class="p-2 form-group">
+          <label class="mr-2" for="result-columns-selector" data-toggle="tooltip" title="Adjust visibility of columns.">
+            Columns
+          </label>
+          <select class="selectpicker" id="result-columns-selector" multiple onchange="adjustColumns();">
+            <option value="effect-change" selected>Effect</option>
+            <option value="effect-text">Effect Text</option>
+            <option value="effect-change-protein">Effect Protein</option>
+            <option value="effect-change-cdna">Effect cDNA</option>
+            <option value="distance-to-splicesite">Distance to SpliceSite</option>
+          </select>
+        </div>
         <div class="pl-3">
           First <strong>{{ result_rows|length }} of {{ result_count }}</strong> records
-          {% if case %}(case has a total of {{ case.num_small_vars|intcomma }}{% endif %} variants)
           <i class="fa fa-info-circle" data-toggle="tooltip"
-             title="Use the &quot;Result row limit&quot; to see more columns. Pro-tip: TSV/Excel/VCF file downloads will contain all all {{ result_count }} rows."></i>.
+             title="{% if case %}Case has a total of {{ case.num_small_vars|intcomma }} variants. {% endif %}Use the &quot;Result row limit&quot; to see more columns. Pro-tip: TSV/Excel/VCF file downloads will contain all all {{ result_count }} rows."></i>.
         </div>
         <div class="pl-3">
           Using
@@ -238,6 +249,18 @@
         container: 'body'
       })
     })
+    $(document).ready(function() {
+      $("#result-columns-selector").selectpicker();
+      $("#result-columns-selector").trigger("change");
+    });
+    function adjustColumns() {
+      $.each($('#result-columns-selector').val(), function(i, e) {
+        $("." + e).show();
+      });
+      $.each($("#result-columns-selector").children("option").not(":selected"), function(i, e) {
+        $("." + e.value).hide();
+      });
+    }
     </script>
   {% endif %}
 
