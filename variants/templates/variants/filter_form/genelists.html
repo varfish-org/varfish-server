@@ -3,11 +3,11 @@
 
 <div class="pt-3 pl-3 pr-3 compact-form-groups">
   <div class="small font-italic p-2 bg-light">
-    Select a list of genes to ignore (blacklist), a list of genes to require (whitelist), or filter to a specific genomic region.
+    Select a list of genes to ignore (blocklist), a list of genes to require (allowlist), or filter to a specific genomic region.
   </div>
 
   <h5 class="card-title mb-1">
-    Gene Blacklist
+    Gene Blocklist
     <div class="d-inline dropdown">
       <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="presets-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <span class="d-none d-sm-inline">
@@ -18,16 +18,16 @@
         </span>
       </button>
       <div class="dropdown-menu" aria-labelledby="presets-menu-button">
-        <a class="dropdown-item load-blacklist" href="#" data-preset-name="hla">HLA</a>
-        <a class="dropdown-item load-blacklist" href="#" data-preset-name="muc">MUC</a>
+        <a class="dropdown-item load-blocklist" href="#" data-preset-name="hla">HLA</a>
+        <a class="dropdown-item load-blocklist" href="#" data-preset-name="muc">MUC</a>
       </div>
     </div>
   </h5>
 
-  {{ form.gene_blacklist }}
+  {{ form.gene_blocklist }}
 
   <h5 class="card-title mb-1 mt-2 form-inline">
-    Gene Whitelist
+    Gene Allowlist
 
     <div class="d-inline dropdown px-2">
       <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="presets-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -39,8 +39,8 @@
         </span>
       </button>
       <div class="dropdown-menu" aria-labelledby="presets-menu-button">
-        <a class="dropdown-item load-whitelist" href="#" data-preset-name="acmg1">ACMG v1</a>
-        <a class="dropdown-item load-whitelist" href="#" data-preset-name="acmg2">ACMG v2</a>
+        <a class="dropdown-item load-allowlist" href="#" data-preset-name="acmg1">ACMG v1</a>
+        <a class="dropdown-item load-allowlist" href="#" data-preset-name="acmg2">ACMG v2</a>
       </div>
     </div>
 
@@ -72,13 +72,13 @@
     </div>
   </h5>
 
-  {{ form.gene_whitelist }}
+  {{ form.gene_allowlist }}
 
   <p class="text-muted">
     <small>
       Enter lists of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break.
-      If any white-list gene is given, only variants in a white-listed gene are shown.
-      Variants in black-listed genes are excluded. Entries are case-sensitive.
+      If any allow-list gene is given, only variants in a allow-listed gene are shown.
+      Variants in block-listed genes are excluded. Entries are case-sensitive.
     </small>
   </p>
 

@@ -2468,8 +2468,8 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
         )
 
 
-class TestCaseOneWhitelistBlacklistRegionFilterQuery(SupportQueryTestBase):
-    """Test whitelist, blacklist and genomic region filter settings."""
+class TestCaseOneAllowlistBlocklistRegionFilterQuery(SupportQueryTestBase):
+    """Test allowlist, blocklist and genomic region filter settings."""
 
     def setUp(self):
         """Generate a case, 3 genes and variants: gene i has i variants."""
@@ -2486,100 +2486,100 @@ class TestCaseOneWhitelistBlacklistRegionFilterQuery(SupportQueryTestBase):
                 variant_set=variant_set,
             )
 
-    def test_blacklist_empty(self):
-        self.run_query(CasePrefetchQuery, {"gene_blacklist": []}, 6)
+    def test_blocklist_empty(self):
+        self.run_query(CasePrefetchQuery, {"gene_blocklist": []}, 6)
 
-    def test_blacklist_empty_export(self):
-        self.run_query(CaseExportTableQuery, {"gene_blacklist": []}, 6)
+    def test_blocklist_empty_export(self):
+        self.run_query(CaseExportTableQuery, {"gene_blocklist": []}, 6)
 
-    def test_blacklist_empty_vcf(self):
-        self.run_query(CaseExportVcfQuery, {"gene_blacklist": []}, 6)
+    def test_blocklist_empty_vcf(self):
+        self.run_query(CaseExportVcfQuery, {"gene_blocklist": []}, 6)
 
-    def test_blacklist_one_filter(self):
-        self.run_query(CasePrefetchQuery, {"gene_blacklist": [self.hgncs[0].symbol]}, 5)
+    def test_blocklist_one_filter(self):
+        self.run_query(CasePrefetchQuery, {"gene_blocklist": [self.hgncs[0].symbol]}, 5)
 
-    def test_blacklist_one_export(self):
-        self.run_query(CaseExportTableQuery, {"gene_blacklist": [self.hgncs[0].symbol]}, 5)
+    def test_blocklist_one_export(self):
+        self.run_query(CaseExportTableQuery, {"gene_blocklist": [self.hgncs[0].symbol]}, 5)
 
-    def test_blacklist_one_vcf(self):
-        self.run_query(CaseExportVcfQuery, {"gene_blacklist": [self.hgncs[0].symbol]}, 5)
+    def test_blocklist_one_vcf(self):
+        self.run_query(CaseExportVcfQuery, {"gene_blocklist": [self.hgncs[0].symbol]}, 5)
 
-    def test_blacklist_two_filter(self):
+    def test_blocklist_two_filter(self):
         self.run_query(
-            CasePrefetchQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
+            CasePrefetchQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
-    def test_blacklist_two_export(self):
+    def test_blocklist_two_export(self):
         self.run_query(
-            CaseExportTableQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
+            CaseExportTableQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
-    def test_blacklist_two_vcf(self):
+    def test_blocklist_two_vcf(self):
         self.run_query(
-            CaseExportVcfQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
+            CaseExportVcfQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
-    def test_blacklist_all_filter(self):
+    def test_blocklist_all_filter(self):
         self.run_query(
-            CasePrefetchQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
+            CasePrefetchQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
         )
 
-    def test_blacklist_all_export(self):
+    def test_blocklist_all_export(self):
         self.run_query(
-            CaseExportTableQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
+            CaseExportTableQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
         )
 
-    def test_blacklist_all_vcf(self):
+    def test_blocklist_all_vcf(self):
         self.run_query(
-            CaseExportVcfQuery, {"gene_blacklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
+            CaseExportVcfQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
         )
 
-    def test_whitelist_empty(self):
-        self.run_query(CasePrefetchQuery, {"gene_whitelist": []}, 6)
+    def test_allowlist_empty(self):
+        self.run_query(CasePrefetchQuery, {"gene_allowlist": []}, 6)
 
-    def test_whitelist_empty_export(self):
-        self.run_query(CaseExportTableQuery, {"gene_whitelist": []}, 6)
+    def test_allowlist_empty_export(self):
+        self.run_query(CaseExportTableQuery, {"gene_allowlist": []}, 6)
 
-    def test_whitelist_empty_vcf(self):
-        self.run_query(CaseExportVcfQuery, {"gene_whitelist": []}, 6)
+    def test_allowlist_empty_vcf(self):
+        self.run_query(CaseExportVcfQuery, {"gene_allowlist": []}, 6)
 
-    def test_whitelist_one_filter(self):
-        self.run_query(CasePrefetchQuery, {"gene_whitelist": [self.hgncs[0].symbol]}, 1)
+    def test_allowlist_one_filter(self):
+        self.run_query(CasePrefetchQuery, {"gene_allowlist": [self.hgncs[0].symbol]}, 1)
 
-    def test_whitelist_one_export(self):
-        self.run_query(CaseExportTableQuery, {"gene_whitelist": [self.hgncs[0].symbol]}, 1)
+    def test_allowlist_one_export(self):
+        self.run_query(CaseExportTableQuery, {"gene_allowlist": [self.hgncs[0].symbol]}, 1)
 
-    def test_whitelist_one_vcf(self):
-        self.run_query(CaseExportVcfQuery, {"gene_whitelist": [self.hgncs[0].symbol]}, 1)
+    def test_allowlist_one_vcf(self):
+        self.run_query(CaseExportVcfQuery, {"gene_allowlist": [self.hgncs[0].symbol]}, 1)
 
-    def test_whitelist_two_filter(self):
+    def test_allowlist_two_filter(self):
         self.run_query(
-            CasePrefetchQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
+            CasePrefetchQuery, {"gene_allowlist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
-    def test_whitelist_two_export(self):
+    def test_allowlist_two_export(self):
         self.run_query(
-            CaseExportTableQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
+            CaseExportTableQuery, {"gene_allowlist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
-    def test_whitelist_two_vcf(self):
+    def test_allowlist_two_vcf(self):
         self.run_query(
-            CaseExportVcfQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
+            CaseExportVcfQuery, {"gene_allowlist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
         )
 
-    def test_whitelist_all_filter(self):
+    def test_allowlist_all_filter(self):
         self.run_query(
-            CasePrefetchQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs]}, 6
+            CasePrefetchQuery, {"gene_allowlist": [hgnc.symbol for hgnc in self.hgncs]}, 6
         )
 
-    def test_whitelist_all_export(self):
+    def test_allowlist_all_export(self):
         self.run_query(
-            CaseExportTableQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs]}, 6
+            CaseExportTableQuery, {"gene_allowlist": [hgnc.symbol for hgnc in self.hgncs]}, 6
         )
 
-    def test_whitelist_all_vcf(self):
+    def test_allowlist_all_vcf(self):
         self.run_query(
-            CaseExportVcfQuery, {"gene_whitelist": [hgnc.symbol for hgnc in self.hgncs]}, 6
+            CaseExportVcfQuery, {"gene_allowlist": [hgnc.symbol for hgnc in self.hgncs]}, 6
         )
 
     def test_genomic_region_empty_filter(self):

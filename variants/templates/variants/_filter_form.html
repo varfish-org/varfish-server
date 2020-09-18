@@ -47,8 +47,8 @@
                 data-tooltip="tooltip" title="Quality, allelic balance, coverage">Quality</a>
               <a class="dropdown-item" id="clinvar-tab" data-toggle="tab" href="#panel-clinvar" role="tab"
                 data-tooltip="tooltip" title="Filter using Clinvar/HGMD/dbSNP membership"">Clinvar, HGMD & dbSNP</a>
-              <a class="dropdown-item" id="blacklist-tab" data-toggle="tab" href="#panel-blacklist" role="tab"
-                data-tooltip="tooltip" title="White-list and black-list genes and genomic regions">Gene Lists &amp; Regions</a>
+              <a class="dropdown-item" id="blocklist-tab" data-toggle="tab" href="#panel-blocklist" role="tab"
+                data-tooltip="tooltip" title="Allow-list and block-list genes and genomic regions">Gene Lists &amp; Regions</a>
               <a class="dropdown-item" id="flags-tab" data-toggle="tab" href="#panel-flags" role="tab"
                 data-tooltip="tooltip" title="Filter for user flags and comments">Flags &amp; Comments</a>
               <a class="dropdown-item" id="export-tab" data-toggle="tab" href="#panel-export" role="tab"
@@ -76,7 +76,7 @@
         <div class="tab-pane fade" id="panel-quality" role="tabpanel" aria-labelledby="quality-tab">
           {% include "variants/filter_form/quality.html" %}
         </div>
-        <div class="tab-pane fade" id="panel-blacklist" role="tabpanel" aria-labelledby="blacklist-tab">
+        <div class="tab-pane fade" id="panel-blocklist" role="tabpanel" aria-labelledby="blocklist-tab">
           {% include "variants/filter_form/genelists.html" %}
         </div>
         <div class="tab-pane fade" id="panel-flags" role="tabpanel" aria-labelledby="flags-tab">

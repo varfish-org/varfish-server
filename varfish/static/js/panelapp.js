@@ -1,6 +1,6 @@
 $(document).ready(function() {
   const panelsList = $("#genomics-england-panels");
-  const panelArea = $("#id_gene_whitelist");
+  const panelArea = $("#id_gene_allowlist");
   let panels = [];
 
   function showPanels() {

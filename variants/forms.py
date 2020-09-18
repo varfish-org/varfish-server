@@ -1098,20 +1098,20 @@ class SmallVariantClinvarHgmdFilterFormMixin:
 
 
 class VariantGeneListFilterFormMixin:
-    """Form mixin with gene blacklist/whitelist fields and region list."""
+    """Form mixin with gene blocklist/allowlist fields and region list."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["gene_blacklist"] = forms.CharField(
-            label="Gene Blacklist",
+        self.fields["gene_blocklist"] = forms.CharField(
+            label="Gene Blocklist",
             help_text=(
                 "Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break."
                 "<strong>The input is case sensitive!</strong>"
             ),
             widget=forms.Textarea(
                 attrs={
-                    "placeholder": "Enter genes to black-list here",
+                    "placeholder": "Enter genes to block-list here",
                     "rows": 3,
                     "class": "form-control",
                 }
@@ -1120,15 +1120,15 @@ class VariantGeneListFilterFormMixin:
             max_length=1_000_000,
         )
 
-        self.fields["gene_whitelist"] = forms.CharField(
-            label="Gene Whitelist",
+        self.fields["gene_allowlist"] = forms.CharField(
+            label="Gene Allowlist",
             help_text=(
                 "Enter a list of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break."
                 "<strong>The input is case sensitive!</strong>"
             ),
             widget=forms.Textarea(
                 attrs={
-                    "placeholder": "Enter genes to white-list here",
+                    "placeholder": "Enter genes to allow-list here",
                     "rows": 3,
                     "class": "form-control",
                 }
@@ -1140,11 +1140,11 @@ class VariantGeneListFilterFormMixin:
     def clean(self):
         """Translate effect field names into ``effects`` key list"""
         cleaned_data = super().clean()
-        cleaned_data["gene_blacklist"] = [
-            s.strip() for s in cleaned_data["gene_blacklist"].strip().split() if s.strip()
+        cleaned_data["gene_blocklist"] = [
+            s.strip() for s in cleaned_data["gene_blocklist"].strip().split() if s.strip()
         ]
-        cleaned_data["gene_whitelist"] = [
-            s.strip() for s in cleaned_data["gene_whitelist"].strip().split() if s.strip()
+        cleaned_data["gene_allowlist"] = [
+            s.strip() for s in cleaned_data["gene_allowlist"].strip().split() if s.strip()
         ]
 
         def _check_list(list_name):
@@ -1163,8 +1163,8 @@ class VariantGeneListFilterFormMixin:
                     ),
                 )
 
-        _check_list("gene_blacklist")
-        _check_list("gene_whitelist")
+        _check_list("gene_blocklist")
+        _check_list("gene_allowlist")
 
         return cleaned_data
 

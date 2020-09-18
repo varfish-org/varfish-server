@@ -32,15 +32,15 @@
             <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
         </div>
       {% endif %}
-      {% if prio_enabled or gene_whitelist or gene_blacklist or genomic_region %}
+      {% if prio_enabled or gene_allowlist or gene_blocklist or genomic_region %}
         <div class="row">
           <span class="pt-1 pr-2">
             <strong style="font-size: 120%">
               Applied
               {% if prio_enabled %}
-                Phenotype Terms{% if gene_whitelist or gene_blacklist or genomic_region %} and{% else %}:{% endif %}
+                Phenotype Terms{% if gene_allowlist or gene_blocklist or genomic_region %} and{% else %}:{% endif %}
               {% endif %}
-              {% if gene_whitelist or gene_blacklist or genomic_region %}Region Filters:{% endif %}
+              {% if gene_allowlist or gene_blocklist or genomic_region %}Region Filters:{% endif %}
             </strong>
           </span>
           {% if prio_enabled %}
@@ -81,7 +81,7 @@
                 "><i class="fa fa-list"></i> HPO Terms</a>
             </div>
           {% endif %}
-          {% if gene_blacklist %}
+          {% if gene_blocklist %}
             <div class="pl-2">
               <a
                 class="btn btn-outline-secondary"
@@ -92,17 +92,17 @@
                 tabindex="0"
                 title=""
                 data-content="
-                  {% for gene in gene_blacklist %}
+                  {% for gene in gene_blocklist %}
                     <span class='badge badge-danger'>{{ gene }}</span>
                   {% empty %}
                     <p class='text-muted font-italic'>None</p>
                   {% endfor %}"
               >
               <i class="fa fa-ban"></i>
-              Gene Blacklist
+              Gene Blocklist
             </div>
           {% endif %}
-          {% if gene_whitelist %}
+          {% if gene_allowlist %}
             <div class="pl-2">
               <a
                 class="btn btn-outline-secondary"
@@ -113,12 +113,12 @@
                 tabindex="0"
                 title=""
                 data-content="
-                  {% for gene in gene_whitelist %}
+                  {% for gene in gene_allowlist %}
                     <span class='badge badge-success'>{{ gene }}</span>
                   {% empty %}
                     <p class='text-muted font-italic'>None</p>
                   {% endfor %}"
-              ><i class="fa fa-check"></i> Gene Whitelist</a>
+              ><i class="fa fa-check"></i> Gene Allowlist</a>
             </div>
           {% endif %}
           {% if genomic_region %}

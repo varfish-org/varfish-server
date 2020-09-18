@@ -360,7 +360,7 @@ class SmallVariant(models.Model):
             GinIndex(fields=["case_id", "refseq_effect"]),
             GinIndex(fields=["case_id", "ensembl_effect"]),
             models.Index(fields=["case_id", "in_clinvar"]),
-            # Fast white-list queries of gene.
+            # Fast allow-list queries of gene.
             models.Index(fields=["case_id", "ensembl_gene_id"]),
             models.Index(fields=["case_id", "refseq_gene_id"]),
             # For mitochondrial frequency join

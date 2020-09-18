@@ -76,6 +76,7 @@ End-User Summary
 - Added columns to results table: ``cDNA effect``, ``protein effect``, ``effect text``, ``distance to splicesite``.
 - Made effect columns and ``distance to splicesite`` column hide-able.
 - Added warning to project/cohort query when a user tries to load previous results where not all variants are accessible.
+- Renamed all occurrences of whitelist to allowlist and of blacklist to blocklist (sticking to what google introduced in their products).
 
 Full Change List
 ================
@@ -163,6 +164,7 @@ Full Change List
 - Added columns to results table: ``cDNA effect``, ``protein effect``, ``effect text``, ``distance to splicesite``.
 - Made effect columns and ``distance to splicesite`` column hide-able.
 - Added warning to project/cohort query when a user tries to load previous results where not all variants are accessible.
+- Renamed all occurrences of whitelist to allowlist and of blacklist to blocklist (sticking to what google introduced in their products).
 
 -------
 v0.21.0

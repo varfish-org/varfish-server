@@ -590,7 +590,7 @@ class ExtendQueryPartsGenesJoinAndFilter(ExtendQueryPartsBase):
         return self.fields
 
     def extend_conditions(self, _query_parts):
-        for token, fn in (("black", operator.ne), ("white", operator.eq)):
+        for token, fn in (("block", operator.ne), ("allow", operator.eq)):
             if self.kwargs["gene_%slist" % token]:
                 hgnc_ids = [
                     hgnc.id
@@ -600,7 +600,7 @@ class ExtendQueryPartsGenesJoinAndFilter(ExtendQueryPartsBase):
                         | Q(ensembl_gene_id__in=self.kwargs["gene_%slist" % token])
                     )
                 ]
-                if (token == "black" and hgnc_ids) or (token == "white"):
+                if (token == "block" and hgnc_ids) or (token == "allow"):
                     yield fn(Hgnc.sa.id, any_(hgnc_ids))
 
     def extend_selectable(self, query_parts):

@@ -186,11 +186,11 @@ Gene Lists
     :width: 80%
     :align: center
 
-Enter any Entrez gene ID, ENSEMBL gene ID, HGNC/HUGO gene symbol in the Gene Blacklist field to remove variants in this gene from the result list.
-If a variant affects more than one gene, blacklisting one of them will not blacklist them in the other genes.
+Enter any Entrez gene ID, ENSEMBL gene ID, HGNC/HUGO gene symbol in the Gene Blocklist field to remove variants in this gene from the result list.
+If a variant affects more than one gene, blocklisting one of them will not blocklist them in the other genes.
 
-Similarly, enter any Entrez gene ID, ENSEMBL gene ID, HGNC/HUGO gene symbol into the Gene Whitelist field to limit variants to those in the white-listed genes.
-Leave the whitelist empty to not apply any white-listing.
+Similarly, enter any Entrez gene ID, ENSEMBL gene ID, HGNC/HUGO gene symbol into the Gene Allowlist field to limit variants to those in the allow-listed genes.
+Leave the allowlist empty to not apply any allow-listing.
 
 Flags & Comments
 ================
@@ -294,7 +294,7 @@ Note that the values from the :guilabel:`Configure Downloads` will be used for c
 
     VCF export is much faster than Excel and TSV export.
     For performance reasons, filtration of VCF file exports is limited to the basics.
-    Filtration, for genotype, frequency, variant effect etc., gene white-/blacklist work as well as basic ClinVar membership.
+    Filtration, for genotype, frequency, variant effect etc., gene allow-/blocklist work as well as basic ClinVar membership.
     Filtration for HGMD public membership, clinvar details, user comments and flags is not applied to VCF exports.
 
     Exports to TSV and Excel use the same filters as displayed when clicking on :guilabel:`Filter & Display`.

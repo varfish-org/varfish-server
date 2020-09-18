@@ -956,16 +956,16 @@ const presets = {
   // Region presets
   "region-whole-genome": {
     "ids": {
-      "gene_blacklist": "",
-      "gene_whitelist": "",
+      "gene_blocklist": "",
+      "gene_allowlist": "",
       "genomic_region": "",
     },
     "classes": {},
   },
   "region-autosomes": {
     "ids": {
-      "gene_blacklist": "",
-      "gene_whitelist": "",
+      "gene_blocklist": "",
+      "gene_allowlist": "",
       "genomic_region": "chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 " +
         "chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22",
     },
@@ -973,32 +973,32 @@ const presets = {
   },
   "region-x-chromosome": {
     "ids": {
-      "gene_blacklist": "",
-      "gene_whitelist": "",
+      "gene_blocklist": "",
+      "gene_allowlist": "",
       "genomic_region": "chrX",
     },
     "classes": {},
   },
   "region-y-chromosome": {
     "ids": {
-      "gene_blacklist": "",
-      "gene_whitelist": "",
+      "gene_blocklist": "",
+      "gene_allowlist": "",
       "genomic_region": "chrY",
     },
     "classes": {},
   },
   "region-mt-chromosome": {
     "ids": {
-      "gene_blacklist": "",
-      "gene_whitelist": "",
+      "gene_blocklist": "",
+      "gene_allowlist": "",
       "genomic_region": "chrMT",
     },
     "classes": {},
   },
   "region-clinvar": {
     "ids": {
-      "gene_blacklist": "",
-      "gene_whitelist": "",
+      "gene_blocklist": "",
+      "gene_allowlist": "",
       "genomic_region": "",
     },
     "classes": {},
@@ -1069,7 +1069,7 @@ uglyClassToId();
 
 let presets_genelist = {
   "muc": {
-    "field": "gene_blacklist",
+    "field": "gene_blocklist",
     "data": [
       "MUCL3",
       "MUCRX",
@@ -1099,7 +1099,7 @@ let presets_genelist = {
     ],
   },
   "hla": {
-    "field": "gene_blacklist",
+    "field": "gene_blocklist",
     "data": [
       "HLA-A",
       "HLA-B",
@@ -1150,7 +1150,7 @@ let presets_genelist = {
     ]
   },
   "acmg1": {
-    "field": "gene_whitelist",
+    "field": "gene_allowlist",
     "data": [
       "ACTC1",
       "ACTA2",
@@ -1211,7 +1211,7 @@ let presets_genelist = {
     ],
   },
   "acmg2": {
-    "field": "gene_whitelist",
+    "field": "gene_allowlist",
     "data": [
       "ACTC1",
       "ACTA2",
@@ -2082,8 +2082,8 @@ $(document).ready(
                 updateSettings();
             }
             updateSettingsDump();
-            $(".load-blacklist").click(loadGenelistPresets);
-            $(".load-whitelist").click(loadGenelistPresets);
+            $(".load-blocklist").click(loadGenelistPresets);
+            $(".load-allowlist").click(loadGenelistPresets);
             $(".load-genotype").click(loadGenotypePresets);
             $(".genotype-field-gt").change(loadIndexMode);
             $("#qualityTemplateApplyButton").click(transferQualitySettings);
@@ -2103,7 +2103,7 @@ $(document).ready(
                 frequency: "frequency",
                 impact: "effect",
                 quality: "quality",
-                region: "blacklist",
+                region: "blocklist",
                 flags: "clinvar",
             };
             for (let name in preset_to_tab) {

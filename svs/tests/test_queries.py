@@ -664,24 +664,24 @@ class GeneListsFilterQueryTest(QueryTestBase):
         )
 
     # # TODO FIXME XXX
-    # def testPassGeneWhiteList(self):
-    #     result = self.run_query(SingleCaseFilterQuery, {"gene_whitelist": [self.hgnc.symbol]}, 1)
+    # def testPassGeneAllowList(self):
+    #     result = self.run_query(SingleCaseFilterQuery, {"gene_allowlist": [self.hgnc.symbol]}, 1)
     #     result = list(result)
     #     self.assertEqual(len(result), 1)
     #     self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
-    def testFailGeneWhiteList(self):
-        self.run_query(SingleCaseFilterQuery, {"gene_whitelist": [self.hgnc.symbol + "XXX"]}, 0)
+    def testFailGeneAllowList(self):
+        self.run_query(SingleCaseFilterQuery, {"gene_allowlist": [self.hgnc.symbol + "XXX"]}, 0)
 
-    def testPassGeneBlackList(self):
+    def testPassGeneBlockList(self):
         result = self.run_query(
-            SingleCaseFilterQuery, {"gene_blacklist": [self.hgnc.symbol + "XXX"]}, 1
+            SingleCaseFilterQuery, {"gene_blocklist": [self.hgnc.symbol + "XXX"]}, 1
         )
         result = list(result)
         self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
-    def testFailGeneBlackList(self):
-        self.run_query(SingleCaseFilterQuery, {"gene_blacklist": [self.hgnc.symbol]}, 0)
+    def testFailGeneBlockList(self):
+        self.run_query(SingleCaseFilterQuery, {"gene_blocklist": [self.hgnc.symbol]}, 0)
 
 
 class GeneInIntervalsAnnotationQueryTest(QueryTestBase):

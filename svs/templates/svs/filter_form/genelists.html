@@ -2,23 +2,23 @@
 {% load dict %}
 
 <div class="pt-3 pl-3 pr-3 compact-form-groups">
-  <h5 class="card-title mb-1">Gene Blacklist</h5>
+  <h5 class="card-title mb-1">Gene Blocklist</h5>
 
-  {{ form.gene_blacklist }}
+  {{ form.gene_blocklist }}
 
-  <h5 class="card-title mb-1 mt-2">Gene Whitelist</h5>
+  <h5 class="card-title mb-1 mt-2">Gene Allowlist</h5>
 
-  {{ form.gene_whitelist }}
+  {{ form.gene_allowlist }}
 
   <p class="text-muted">
     <small>
       Enter lists of HGNC symbols, Entrez IDs, or ENSEMBL gene IDs separated by spaces or line break.
-      If any white-list gene is given, only variants in a white-listed gene are shown.
-      Variants in black-listed genes are excluded.
+      If any allow-list gene is given, only variants in a allow-listed gene are shown.
+      Variants in block-listed genes are excluded.
     </small>
   </p>
 
-  <h5 class="card-title mb-1 mt-2">Region Whitelist</h5>
+  <h5 class="card-title mb-1 mt-2">Region Allowlist</h5>
 
   {{ form.genomic_region }}
 

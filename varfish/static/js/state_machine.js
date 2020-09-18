@@ -55,9 +55,9 @@ let INPUT_TAB_AFFILIATION = {
     /_ad$/,
     /_fail$/
   ],
-  'blacklist-tab': [
-    /^gene_blacklist$/,
-    /^gene_whitelist$/,
+  'blocklist-tab': [
+    /^gene_blocklist$/,
+    /^gene_allowlist$/,
     /^genomic_region$/
   ],
   'flags-tab': [

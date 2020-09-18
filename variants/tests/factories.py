@@ -118,9 +118,9 @@ class ProcessedFormDataFactory(FormDataFactoryBase):
     """
 
     effects: typing.List[str] = attr.Factory(lambda: list(["synonymous_variant"]))
-    gene_blacklist: typing.List[str] = attr.Factory(list)
+    gene_blocklist: typing.List[str] = attr.Factory(list)
     genomic_region: typing.List[str] = attr.Factory(list)
-    gene_whitelist: typing.List[str] = attr.Factory(list)
+    gene_allowlist: typing.List[str] = attr.Factory(list)
 
 
 @attr.s(auto_attribs=True)
@@ -175,9 +175,9 @@ class FormDataFactory(FormDataFactoryBase):
     effect_three_prime_UTR_intron_variant: bool = True
     effect_transcript_ablation: bool = True
     effect_upstream_gene_variant: bool = True
-    gene_blacklist: str = ""
+    gene_blocklist: str = ""
     genomic_region: str = ""
-    gene_whitelist: str = ""
+    gene_allowlist: str = ""
     flag_bookmarked: bool = True
     flag_candidate: bool = True
     flag_final_causative: bool = True
