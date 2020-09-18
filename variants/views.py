@@ -2249,6 +2249,9 @@ class ProjectCasesLoadPrefetchedFilterView(
             query.run(filter_job.projectcasessmallvariantquery.query_settings)
         ) as results:
             _rows = results.fetchall()
+            missed_records = filter_job.projectcasessmallvariantquery.query_results.count() - len(
+                _rows
+            )
             rows = []
             cases_per_gene = defaultdict(set)
             for row in _rows:
@@ -2295,6 +2298,7 @@ class ProjectCasesLoadPrefetchedFilterView(
                 result_count=len(rows),
                 elapsed_seconds=elapsed.total_seconds(),
                 cohort=cohort,
+                missed_records=missed_records,
                 training_mode=1
                 if filter_job.projectcasessmallvariantquery.query_settings.get(
                     "training_mode", False

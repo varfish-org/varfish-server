@@ -7,6 +7,12 @@
   {% if result_rows is None %}
   {% elif not result_rows %}
     <div class="container-fluid sodar-page-container">
+      {% if missed_records > 0 %}
+        <div class="alert alert-warning">
+          <strong><i class="fa fa-warning text-warning"></i> {{ missed_records }} records of the previous query not shown.</strong>
+          This means that the access to the cases was restricted in the meantime.
+        </div>
+      {% endif %}
       <h2>
         No variants passed your filter settings
         <small class="text-muted">
@@ -205,6 +211,10 @@
           </select>
         </div>
         <div class="pl-3">
+          {% if missed_records > 0 %}
+            <i class="text-warning fa fa-warning" data-toggle="tooltip"
+               title="{{ missed_records }} records not shown. This means that the access to the cases was restricted in the meantime."></i>
+          {% endif %}
           First <strong>{{ result_rows|length }} of {{ result_count }}</strong> records
           <i class="fa fa-info-circle" data-toggle="tooltip"
              title="{% if case %}Case has a total of {{ case.num_small_vars|intcomma }} variants. {% endif %}Use the &quot;Result row limit&quot; to see more columns. Pro-tip: TSV/Excel/VCF file downloads will contain all all {{ result_count }} rows."></i>.

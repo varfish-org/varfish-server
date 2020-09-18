@@ -1,5 +1,6 @@
 """Tests for the filter view"""
-
+import contextlib
+import itertools
 import json
 
 from django.core.urlresolvers import reverse
@@ -56,6 +57,7 @@ from variants.models import (
     CaddPathogenicityScoreCache,
     CaddSubmissionBgJob,
 )
+from variants.queries import DeleteSmallVariantsQuery, DeleteStructuralVariantsQuery
 from variants.tests.factories import (
     CaseFactory,
     SmallVariantFactory,
@@ -1991,8 +1993,12 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
         self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
         self.project = self.bgjob.project
         variant_sets = [None, None]
-        _, variant_sets[0], _ = CaseWithVariantSetFactory.get("small", project=self.project)
-        _, variant_sets[1], _ = CaseWithVariantSetFactory.get("small", project=self.project)
+        self.case1, variant_sets[0], _ = CaseWithVariantSetFactory.get(
+            "small", project=self.project
+        )
+        self.case2, variant_sets[1], _ = CaseWithVariantSetFactory.get(
+            "small", project=self.project
+        )
         # Make sure the variants stay in order as we need to access the clinvar variant by position in list
         self.small_vars = [
             SmallVariantFactory(
@@ -2049,6 +2055,28 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.context["result_rows"][2].affected_cases_per_gene, 2)
             self.assertEqual(response.context["result_rows"][3].affected_cases_per_gene, 1)
             self.assertEqual(response.context["result_rows"][4].affected_cases_per_gene, 2)
+
+    def test_count_results_with_deleted_case(self):
+        for query in itertools.chain(
+            DeleteSmallVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=self.case1.id),
+            DeleteStructuralVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=self.case1.id),
+        ):
+            with contextlib.closing(query):
+                pass
+        self.case1.delete()
+
+        with self.login(self.user):
+            response = self.client.post(
+                reverse(
+                    "variants:project-cases-load-filter-results",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                {"filter_job_uuid": self.bgjob.sodar_uuid},
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["result_count"], 3)
+            self.assertEqual(len(response.context["result_rows"]), 3)
+            self.assertEqual(response.context["missed_records"], 0)
 
     def test_clinvar(self):
         with self.login(self.user):

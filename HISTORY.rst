@@ -75,6 +75,7 @@ End-User Summary
 - Added command to check selected indexes and data types in database.
 - Added columns to results table: ``cDNA effect``, ``protein effect``, ``effect text``, ``distance to splicesite``.
 - Made effect columns and ``distance to splicesite`` column hide-able.
+- Added warning to project/cohort query when a user tries to load previous results where not all variants are accessible.
 
 Full Change List
 ================
@@ -161,6 +162,7 @@ Full Change List
 - Added command to check selected indexes and data types in database.
 - Added columns to results table: ``cDNA effect``, ``protein effect``, ``effect text``, ``distance to splicesite``.
 - Made effect columns and ``distance to splicesite`` column hide-able.
+- Added warning to project/cohort query when a user tries to load previous results where not all variants are accessible.
 
 -------
 v0.21.0
