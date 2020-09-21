@@ -311,7 +311,7 @@ class TestCaseDeleteView(RoleAssignmentMixin, ViewTestBase):
             )
             self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
             # Delete case.
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:case-delete",
                     kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
@@ -336,7 +336,7 @@ class TestCaseDeleteView(RoleAssignmentMixin, ViewTestBase):
             )
             self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
             # Try to delete case.
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:case-delete",
                     kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
@@ -408,7 +408,7 @@ class TestSmallVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
             )
             self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
             # Delete case.
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:smallvariants-delete",
                     kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
@@ -436,7 +436,7 @@ class TestSmallVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
             )
             self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
             # Try to delete case.
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:smallvariants-delete",
                     kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
@@ -486,7 +486,7 @@ class TestStructuralVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
             )
             self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
             # Delete case.
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:structuralvariants-delete",
                     kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},
@@ -516,7 +516,7 @@ class TestStructuralVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
             )
             self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
             # Try to delete case.
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:structuralvariants-delete",
                     kwargs={"project": self.project.sodar_uuid, "case": self.case_1.sodar_uuid},

@@ -1303,7 +1303,7 @@ class CaseDeleteView(
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
 
-    def post(self, *args, **kwargs):
+    def get(self, *args, **kwargs):
         user = self.request.user
         if settings.KIOSK_MODE:
             user = User.objects.get(username="kiosk_user")
@@ -1350,7 +1350,7 @@ class SmallVariantsDeleteView(
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
 
-    def post(self, *args, **kwargs):
+    def get(self, *args, **kwargs):
         user = self.request.user
         if settings.KIOSK_MODE:
             user = User.objects.get(username="kiosk_user")
@@ -1403,7 +1403,7 @@ class StructuralVariantsDeleteView(
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
 
-    def post(self, *args, **kwargs):
+    def get(self, *args, **kwargs):
         user = self.request.user
         if settings.KIOSK_MODE:
             user = User.objects.get(username="kiosk_user")

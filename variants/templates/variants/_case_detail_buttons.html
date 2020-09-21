@@ -62,16 +62,14 @@
         <p>Deleting a case is irreversible and removes the case and its variants. Please confirm if you want to proceed.</p>
       </div>
       <div class="modal-footer">
-        <form method="post" action="{% url "variants:case-delete" project=project.sodar_uuid case=object.sodar_uuid %}">{% csrf_token %}
-          <button class="btn btn-danger" type="submit" onclick="$(this).attr('disabled', true); $('#deleteCaseIcon').removeClass('fa-trash').addClass('fa-refresh fa-spin');">
-            <i id="deleteCaseIcon" class="fa fa-trash"></i>
-            Delete Case
-          </button>
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">
-            <i class="fa fa-times-circle"></i>
-            Cancel
-          </button>
-        </form>
+        <a href="{% url "variants:case-delete" project=project.sodar_uuid case=object.sodar_uuid %}" class="btn btn-danger" type="submit" onclick="$(this).addClass('disabled'); $('#deleteCaseIcon').removeClass('fa-trash').addClass('fa-refresh fa-spin');">
+          <i id="deleteCaseIcon" class="fa fa-trash"></i>
+          Delete Case
+        </a>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          <i class="fa fa-times-circle"></i>
+          Cancel
+        </button>
       </div>
     </div>
   </div>
@@ -90,16 +88,14 @@
           <p>Deleting the small variants is irreversible. Please confirm if you want to proceed.</p>
         </div>
         <div class="modal-footer">
-          <form method="post" action="{% url "variants:smallvariants-delete" project=project.sodar_uuid case=object.sodar_uuid %}">{% csrf_token %}
-            <button class="btn btn-danger" type="submit" onclick="$(this).attr('disabled', true); $('#deleteSmallVariantsIcon').removeClass('fa-trash').addClass('fa-refresh fa-spin');">
-              <i id="deleteSmallVariantsIcon" class="fa fa-trash"></i>
-              Delete Small Variants
-            </button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">
-              <i class="fa fa-times-circle"></i>
-              Cancel
-            </button>
-          </form>
+          <a href="{% url "variants:smallvariants-delete" project=project.sodar_uuid case=object.sodar_uuid %}" class="btn btn-danger" type="submit" onclick="$(this).addClass('disabled'); $('#deleteSmallVariantsIcon').removeClass('fa-trash').addClass('fa-refresh fa-spin');">
+            <i id="deleteSmallVariantsIcon" class="fa fa-trash"></i>
+            Delete Small Variants
+          </a>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            <i class="fa fa-times-circle"></i>
+            Cancel
+          </button>
         </div>
       </div>
     </div>
@@ -117,16 +113,14 @@
           <p>Deleting the structural variants is irreversible. Please confirm if you want to proceed.</p>
         </div>
         <div class="modal-footer">
-          <form method="post" action="{% url "variants:structuralvariants-delete" project=project.sodar_uuid case=object.sodar_uuid %}">{% csrf_token %}
-            <button class="btn btn-danger" type="submit" onclick="$(this).attr('disabled', true); $('#deleteStructuralVariantsIcon').removeClass('fa-trash').addClass('fa-refresh fa-spin');">
-              <i id="deleteStructuralVariantsIcon" class="fa fa-trash"></i>
-              Delete Structural Variants
-            </button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">
-              <i class="fa fa-times-circle"></i>
-              Cancel
-            </button>
-          </form>
+          <a href="{% url "variants:structuralvariants-delete" project=project.sodar_uuid case=object.sodar_uuid %}" class="btn btn-danger" type="submit" onclick="$(this).addClass('disabled'); $('#deleteStructuralVariantsIcon').removeClass('fa-trash').addClass('fa-refresh fa-spin');">
+            <i id="deleteStructuralVariantsIcon" class="fa fa-trash"></i>
+            Delete Structural Variants
+          </a>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            <i class="fa fa-times-circle"></i>
+            Cancel
+          </button>
         </div>
       </div>
     </div>
