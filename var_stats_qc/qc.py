@@ -75,7 +75,7 @@ def compute_het_hom_chrx(connection, variant_model, variant_set, min_depth=7, n_
 def _compute_relatedness_stmt(variant_model, variant_set):
     """Build SQL Alchemy statement given the variant model class and the case object."""
     return (
-        select([variant_model.sa.genotype])
+        select([func.jsonb_agg(variant_model.sa.genotype).label("genotype")])
         .select_from(
             variant_model.sa.table.join(
                 ReferenceSite.sa.table,
@@ -92,6 +92,13 @@ def _compute_relatedness_stmt(variant_model, variant_set):
                 variant_model.sa.case_id == variant_set.case.id,
                 not_(variant_model.sa.chromosome.in_(("X", "Y"))),
             )
+        )
+        .group_by(
+            variant_model.sa.chromosome,
+            variant_model.sa.start,
+            variant_model.sa.end,
+            variant_model.sa.reference,
+            variant_model.sa.alternative,
         )
     )
 
@@ -125,14 +132,21 @@ def compute_relatedness(connection, variant_model, variant_set, min_depth=7, n_s
     # Iterate over genotypes of pseudo-autosomal regions on chrX.
     kept = 0
     for row in result.fetchall():
+        genotype = {}
+        for part in row.genotype:
+            genotype = {**genotype, **part}
         # Skip if too few samples are called.
-        gts = {sample: _normalize_gt(row.genotype[sample]["gt"]) for sample in samples}
+        gts = {
+            sample: _normalize_gt(genotype.get(sample, {}).get("gt", "./.")) for sample in samples
+        }
         nocalls = [gt for gt in gts if gt == "./."]
-        if len(nocalls) / len(gts) > 0.5:
+        if not gts:
+            continue
+        if len(nocalls) / len(gts) > 0.1 and len(gts) - len(nocalls) < 5:
             continue  # skip, too few calls
         # Skip if depth not sufficient.
         # TODO: will fail without depth annotation
-        gt_depths = np.asarray([row.genotype[sample]["dp"] for sample in samples])
+        gt_depths = np.asarray([genotype.get(sample, {}).get("dp", -1) for sample in samples])
         if any(gt_depths < min_depth):
             continue  # skip, coverage too low
         # Compute statistics
@@ -141,6 +155,12 @@ def compute_relatedness(connection, variant_model, variant_set, min_depth=7, n_s
         for s, t in sample_pairs:
             gt1 = gts[s]
             gt2 = gts[t]
+            if gt1 == "./." and gt2 == "./.":
+                continue  # skip if both no-call
+            if gt1 == "./.":  # assume HOM_REF
+                gt1 = "0/0"
+            if gt2 == "./.":  # assume HOM_REF
+                gt2 = "0/0"
             gt_set = {gt1, gt2}
             if len(gt_set) == 1:
                 ibs2[(s, t)] += 1
@@ -219,7 +239,6 @@ def compute_relatedness_many(connection, variant_model, cases, min_depth=7, n_si
     # Return defaults if project is empty
     if result.rowcount == 0:
         return het, het_shared, ibs0, ibs1, ibs2
-
     # Iterate over genotypes of pseudo-autosomal regions on chrX.
     kept = 0
     for row in result.fetchall():
@@ -239,11 +258,11 @@ def compute_relatedness_many(connection, variant_model, cases, min_depth=7, n_si
         # Skip if depth not sufficient.
         # TODO: will fail without depth annotation
         gt_depths = np.asarray([genotype.get(sample, {}).get("dp", -1) for sample in samples])
+        if any(gt_depths < min_depth):
+            continue  # skip, coverage too low
         # Compute statistics
         for sample in samples:
-            if gts[sample] == "1/0":
-                gts[sample] = "0/1"
-            het[sample] += gts[sample] == "0/1"
+            het[sample] += gts[sample] in ("0/1", "1/0")
         for s, t in sample_pairs:
             gt1 = gts[s]
             gt2 = gts[t]
@@ -258,10 +277,10 @@ def compute_relatedness_many(connection, variant_model, cases, min_depth=7, n_si
                 ibs2[(s, t)] += 1
                 if gt1 == "0/1":
                     het_shared[(s, t)] += 1
-            elif gt_set in ({"0/0", "0/1"}, {"1/1", "0/1"}):
-                ibs1[(s, t)] += 1
-            else:
+            elif gt_set == {"0/0", "1/1"}:
                 ibs0[(s, t)] += 1
+            else:
+                ibs1[(s, t)] += 1
         kept += 1
         if kept > n_sites:
             break

@@ -49,7 +49,7 @@ class Command(BaseCommand):
                 )
             ) from e
         project = self._get_project(options["project_uuid"])
-        rebuild_project_variant_stats(SQLALCHEMY_ENGINE, project, admin)
+        rebuild_project_variant_stats(SQLALCHEMY_ENGINE, project, admin, self.stdout.write)
         self.stdout.write(self.style.SUCCESS("Done rebuilding project-wide stats"))
 
     def _get_project(self, project_uuid):

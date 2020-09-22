@@ -199,7 +199,7 @@ def rebuild_case_variant_stats(engine, variant_set, logger=lambda _: None):
         return stats
 
 
-def rebuild_project_variant_stats(engine, project, user, log_func=None):
+def rebuild_project_variant_stats(engine, project, user, logger=lambda _: None):
     timeline = get_backend_api("timeline_backend")
     if timeline:
         tl_event = timeline.add_event(
@@ -213,8 +213,7 @@ def rebuild_project_variant_stats(engine, project, user, log_func=None):
     cases = project.case_set.all()
     with transaction.atomic():
         het, het_shared, ibs0, ibs1, ibs2 = compute_relatedness_many(engine, SmallVariant, cases)
-    if log_func:
-        log_func("Done computing relatedness, now saving to DB")
+    logger("Done computing relatedness, now saving to DB")
     try:
         with transaction.atomic():
             # Remove existing record if any.
@@ -223,8 +222,7 @@ def rebuild_project_variant_stats(engine, project, user, log_func=None):
             except ProjectVariantStats.DoesNotExist:
                 pass  # swallow, nothing to delete
             else:
-                if log_func:
-                    log_func("Done removing old statistics")
+                logger("Done removing old statistics")
 
             # Create statistics object.
             stats = ProjectVariantStats.objects.create(project=project)

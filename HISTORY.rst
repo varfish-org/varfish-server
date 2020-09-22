@@ -78,6 +78,7 @@ End-User Summary
 - Added warning to project/cohort query when a user tries to load previous results where not all variants are accessible.
 - Renamed all occurrences of whitelist to allowlist and of blacklist to blocklist (sticking to what google introduced in their products).
 - Fixed bug where cases were not deletable when using Chrome browser.
+- Harmonized computation for relatedness in project-wide QC and in case QC (thus showing the same results if project only contains one family).
 
 Full Change List
 ================
@@ -167,6 +168,7 @@ Full Change List
 - Added warning to project/cohort query when a user tries to load previous results where not all variants are accessible.
 - Renamed all occurrences of whitelist to allowlist and of blacklist to blocklist (sticking to what google introduced in their products).
 - Fixed bug where cases were not deletable when using Chrome browser.
+- Harmonized computation for relatedness in project-wide QC and in case QC (thus showing the same results if project only contains one family).
 
 -------
 v0.21.0
