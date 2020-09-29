@@ -5,6 +5,7 @@ import logging
 from bgjobs.models import BackgroundJob
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from projectroles.views import ProjectPermissionMixin
 from projectroles.views_api import SODARAPIBaseProjectMixin, SODARAPIGenericProjectMixin
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -38,14 +39,12 @@ class CaseImportInfoListCreateView(SODARAPIGenericProjectMixin, ListCreateAPIVie
     def get_queryset(self):
         qs = CaseImportInfo.objects.filter(project=self.get_project())
 
-        # Superuser can query for specific/all users
-        if "owner" in self.request.query_params and self.request.query_params["owner"] != "__all__":
+        # All users with project access can see the cases, or limit case list to a given owner
+        if "owner" in self.request.query_params:
             try:
                 qs = qs.filter(owner=User.objects.get(username=self.request.query_params["owner"]))
             except User.DoesNotExist:
                 qs = qs.none()
-        else:
-            qs = qs.filter(owner=self.request.user)
 
         return qs
 
