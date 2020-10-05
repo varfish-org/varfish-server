@@ -80,6 +80,8 @@ End-User Summary
 - Fixed bug where cases were not deletable when using Chrome browser.
 - Harmonized computation for relatedness in project-wide QC and in case QC (thus showing the same results if project only contains one family).
 - Fixed failing case API re-import when user is not owner of previous import.
+- Added ``PROJECTROLES_EMAIL_`` to config.
+- Avoiding variants with asterisk alternative alleles.
 
 Full Change List
 ================
@@ -172,6 +174,8 @@ Full Change List
 - Harmonized computation for relatedness in project-wide QC and in case QC (thus showing the same results if project only contains one family).
 - Fixed failing case API re-import when user is not owner of previous import.
   Now also all users with access to the project (except guests) can list the cases.
+- Added ``PROJECTROLES_EMAIL_`` to config.
+- Avoiding variants with asterisk alternative alleles.
 
 -------
 v0.21.0

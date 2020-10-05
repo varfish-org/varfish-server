@@ -122,7 +122,7 @@ def small_variant_query(_self, kwargs):
             SmallVariant.sa.ensembl_transcript_id,
         ],
         selectable=SmallVariant.sa.table,
-        conditions=[],
+        conditions=[SmallVariant.sa.alternative != "*"],
     )
 
 
