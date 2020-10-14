@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Bumping chromedriver version
+
+Full Change List
+================
+
+- Bumping chromedriver version
+
 -------
 v0.22.0
 -------
