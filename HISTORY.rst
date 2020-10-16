@@ -2,19 +2,21 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+-------
+v0.22.1
+-------
 
 End-User Summary
 ================
 
-- Bumping chromedriver version
+- Bumping chromedriver version.
+- Fixed extra-annos import.
 
 Full Change List
 ================
 
-- Bumping chromedriver version
+- Bumping chromedriver version.
+- Fixed extra-annos import.
 
 -------
 v0.22.0

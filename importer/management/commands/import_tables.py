@@ -71,7 +71,7 @@ TABLES = {
         "ensembltorefseq": (EnsemblToRefseq,),
         "ExAC_constraints": (ExacConstraints,),
         "ExAC": (Exac, ExacCnv),
-        "extra_annos": (ExtraAnno, ExtraAnnoField),
+        "extra-annos": (ExtraAnno, ExtraAnnoField),
         "gnomAD_constraints": (GnomadConstraints,),
         "gnomAD_exomes": (GnomadExomes,),
         "gnomAD_genomes": (GnomadGenomes,),
