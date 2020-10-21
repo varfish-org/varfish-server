@@ -1,0 +1,3 @@
+#CHROM	BEGIN	END	element	score	extra_data
+1	123123	123456	promoter	1.0
+1	223123	223456	enhancer	1.0	{"key": "value"}

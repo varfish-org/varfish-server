@@ -5,7 +5,6 @@ import factory
 import uuid
 
 from svs.forms import (
-    FILTER_FORM_TRANSLATE_REGULATORY,
     FILTER_FORM_TRANSLATE_EFFECTS,
     FILTER_FORM_TRANSLATE_SV_SUB_TYPES,
     FILTER_FORM_TRANSLATE_SV_TYPES,
@@ -241,6 +240,8 @@ class FormDataFactory:
     tad_set_uuid: str = attr.Factory(uuid.uuid4)
 
     # regulatory features
+
+    regulatory_general_padding: typing.Optional[int] = None
 
     regulatory_ensembl: typing.List[str] = []
     regulatory_vista: typing.List[str] = []

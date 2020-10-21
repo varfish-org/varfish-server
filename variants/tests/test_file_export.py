@@ -210,7 +210,7 @@ class ProjectExportTest(TestCase):
         self.assertEquals(len(arrs[0]), 47)
         self.assertSequenceEqual(arrs[0][:3], ["Sample", "Chromosome", "Position"])
         self.assertEqual(arrs[0][-1], "sample Alternate allele fraction")
-        members = self.project.get_members()
+        members = sorted(self.project.get_members())
         for i, small_var in enumerate(
             sorted(
                 self.small_vars1 + self.small_vars2,

@@ -9,8 +9,8 @@ from genomicfeatures.tests.factories import (
     TadBoundaryIntervalFactory,
     VistaEnhancerFactory,
 )
+from regmaps.tests.factories import RegElementFactory, RegMapFactory, RegElementTypeFactory
 from svdbs.tests.factories import GnomAdSvFactory
-from variants.tests.factories import CaseFactory
 from .factories import (
     StructuralVariantFactory,
     StructuralVariantGeneAnnotationFactory,
@@ -1079,6 +1079,17 @@ class EnsemblRegulatoryOverlapFilterQueryTest(QueryTestBase):
         self.region.save()
         result = self.run_query(SingleCaseFilterQuery, {"regulatory_ensembl": []}, 1)
         self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertEqual(result[0]["ensembl_enhancer_count"], 0)
+
+    def testNoOverlapButWithPaddingPasses(self):
+        self.region.start = self.sv.end + 10
+        self.region.end = self.region.start + 20
+        self.region.save()
+        result = self.run_query(
+            SingleCaseFilterQuery, {"regulatory_ensembl": [], "regulatory_general_padding": 11}, 1
+        )
+        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertEqual(result[0]["ensembl_enhancer_count"], 1)
 
 
 class EnsemblRegulatoryOverlapAnnotationQueryTest(QueryTestBase):
@@ -1173,6 +1184,17 @@ class VistaOverlapFilterQueryTest(QueryTestBase):
         self.assertEqual(0, result[0].vista_positive_count)
         self.assertEqual(0, result[0].vista_negative_count)
 
+    def testNoOverlapButWithPaddingPasses(self):
+        self.region.start = self.sv.end + 10
+        self.region.end = self.region.start + 20
+        self.region.save()
+        result = self.run_query(
+            SingleCaseFilterQuery, {"regulatory_vista": [], "regulatory_general_padding": 11}, 1
+        )
+        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertEqual(1, result[0].vista_positive_count)
+        self.assertEqual(0, result[0].vista_negative_count)
+
     def testNoOverlapFails(self):
         self.region.start = self.sv.end + 10
         self.region.end = self.region.start + 20
@@ -1211,3 +1233,230 @@ class VistaOverlapAnnotationQueryTest(QueryTestBase):
         self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(0, result[0].vista_positive_count)
         self.assertEqual(0, result[0].vista_negative_count)
+
+
+class RegMapFilterElementTypeQueryTest(QueryTestBase):
+    """Test filtration query result with regulatory map elements from ``regmaps`` (filter for element type)."""
+
+    def setUp(self):
+        super().setUp()
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
+        self.reg_map = RegMapFactory(slug="exmap")
+        self.element = RegElementFactory(
+            reg_map=self.reg_map,
+            release=self.sv.release,
+            chromosome=self.sv.chromosome,
+            start=self.sv.start,
+            end=self.sv.start + 10,
+        )
+        self.other_reg_element_type = RegElementTypeFactory(collection=self.reg_map.collection)
+        self.regmap_key_element = "regmap_%s_element" % self.reg_map.collection.slug
+        self.regmap_key_map = "regmap_%s_map" % self.reg_map.collection.slug
+
+    def testOverlapPasses(self):
+        result = self.run_query(
+            SingleCaseFilterQuery,
+            {
+                self.regmap_key_element: [self.element.elem_type.slug],
+                self.regmap_key_map: [self.reg_map.slug],
+            },
+            1,
+        )
+        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertEqual(
+            1,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (self.reg_map.collection.slug, self.reg_map.slug, self.element.elem_type.slug)
+            ],
+        )
+        self.assertEqual(
+            0,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (
+                    self.reg_map.collection.slug,
+                    self.reg_map.slug,
+                    self.other_reg_element_type.slug,
+                )
+            ],
+        )
+
+    def testOverlapFails(self):
+        result = self.run_query(
+            SingleCaseFilterQuery,
+            {
+                self.regmap_key_element: [self.other_reg_element_type.slug],
+                self.regmap_key_map: [self.reg_map.slug],
+            },
+            0,
+        )
+
+    def testOverlapAnyValidationPasses(self):
+        result = self.run_query(
+            SingleCaseFilterQuery,
+            {self.regmap_key_element: ["__any__"], self.regmap_key_map: ["__any__"],},
+            1,
+        )
+        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertEqual(
+            1,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (self.reg_map.collection.slug, self.reg_map.slug, self.element.elem_type.slug)
+            ],
+        )
+        self.assertEqual(
+            0,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (
+                    self.reg_map.collection.slug,
+                    self.reg_map.slug,
+                    self.other_reg_element_type.slug,
+                )
+            ],
+        )
+
+    def testNoOverlapPasses(self):
+        self.element.start = self.sv.end + 10
+        self.element.end = self.element.start + 20
+        self.element.save()
+        result = self.run_query(
+            SingleCaseFilterQuery, {self.regmap_key_element: [], self.regmap_key_map: [],}, 1
+        )
+        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertEqual(
+            0,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (self.reg_map.collection.slug, self.reg_map.slug, self.element.elem_type.slug)
+            ],
+        )
+        self.assertEqual(
+            0,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (
+                    self.reg_map.collection.slug,
+                    self.reg_map.slug,
+                    self.other_reg_element_type.slug,
+                )
+            ],
+        )
+
+    def testNoOverlapButWithPaddingPasses(self):
+        self.element.start = self.sv.end + 10
+        self.element.end = self.element.start + 20
+        self.element.save()
+        result = self.run_query(
+            SingleCaseFilterQuery,
+            {
+                self.regmap_key_element: ["__any__"],
+                self.regmap_key_map: ["__any__"],
+                "regulatory_general_padding": 11,
+            },
+            1,
+        )
+        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertEqual(
+            1,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (self.reg_map.collection.slug, self.reg_map.slug, self.element.elem_type.slug)
+            ],
+        )
+        self.assertEqual(
+            0,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (
+                    self.reg_map.collection.slug,
+                    self.reg_map.slug,
+                    self.other_reg_element_type.slug,
+                )
+            ],
+        )
+
+    def testNoOverlapFails(self):
+        self.element.start = self.sv.end + 10
+        self.element.end = self.element.start + 20
+        self.element.save()
+        self.run_query(
+            SingleCaseFilterQuery,
+            {self.regmap_key_element: ["__any__"], self.regmap_key_map: ["__any__"],},
+            0,
+        )
+
+
+class RegMapOverlapAnnotationElementTypeQueryTest(QueryTestBase):
+    """Test annotation of query results with regulatory map elements from ``regmaps`` (filter for element type)."""
+
+    def setUp(self):
+        super().setUp()
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
+        self.reg_map = RegMapFactory(slug="exmap")
+        self.element = RegElementFactory(
+            reg_map=self.reg_map,
+            release=self.sv.release,
+            chromosome=self.sv.chromosome,
+            start=self.sv.start,
+            end=self.sv.start + 10,
+        )
+        self.other_reg_element_type = RegElementTypeFactory(collection=self.reg_map.collection)
+        self.regmap_key = "regmap_%s_%s_element" % (self.reg_map.collection.slug, self.reg_map.slug)
+
+    def testOverlap(self):
+        result = self.run_query(SingleCaseFilterQuery, {self.regmap_key: []}, 1)
+        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertEqual(
+            1,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (self.reg_map.collection.slug, self.reg_map.slug, self.element.elem_type.slug)
+            ],
+        )
+        self.assertEqual(
+            0,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (
+                    self.reg_map.collection.slug,
+                    self.reg_map.slug,
+                    self.other_reg_element_type.slug,
+                )
+            ],
+        )
+
+    def testNoOverlap(self):
+        self.element.start = self.sv.end + 10
+        self.element.end = self.element.start + 20
+        self.element.save()
+        result = self.run_query(SingleCaseFilterQuery, {self.regmap_key: []}, 1)
+        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertEqual(
+            0,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (self.reg_map.collection.slug, self.reg_map.slug, self.element.elem_type.slug)
+            ],
+        )
+        self.assertEqual(
+            0,
+            result[0][
+                "regmap_%s_%s_element_%s_count"
+                % (
+                    self.reg_map.collection.slug,
+                    self.reg_map.slug,
+                    self.other_reg_element_type.slug,
+                )
+            ],
+        )

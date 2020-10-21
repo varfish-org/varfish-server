@@ -1,0 +1,30 @@
+# Example VarFish regulatory map collection.
+---
+
+- title: Example Regulatory Map Collection
+  short_title: Example (Holtgrewe 2020)
+  slug: varfish_example
+  release: GRCh37
+  version: v0.0.20201022
+  credits:
+    authors:
+      - name: Manuel Holtgrewe
+        email: manuel.holtgrewe@bihealth.de
+    publications:
+      - unpublished
+    maintainer:
+      - name: Manuel Holtgrewe
+        email: manuel.holtgrewe@bihealth.de
+  element_types:
+    - title: Enhancer
+      short_title: Enhancer
+      slug: enhancer
+    - title: Promoter
+      short_title: Promoter
+      slug: promoter
+  maps:
+    - title: Macrophages
+      short_title: Macrophages
+      slug: MA
+      elements: MA/elements.bed
+      interactions: MA/interactions.bed

@@ -2,9 +2,9 @@
 History / Changelog
 ===================
 
-----
-HEAD
-----
+-----------------
+HEAD (unreleased)
+-----------------
 
 End-User Summary
 ================
@@ -14,6 +14,9 @@ End-User Summary
 - Fixed above mentioned bug again by consolidating two distinct ``Meta`` classes in ``Case`` model.
 - Fixed bug in SV tests that became visibly by above fix and created an additional variant that wasn't intended.
 - Adapted core installation instructions in manual for latest data release and introduced use of VarFish API for import.
+- Allowing (VarFish admins) to import regulatory maps.
+  Users can use these maps when analyzing SVs.
+- Adding "padding" field to SV filter form (regulatory tab).
 
 Full Change List
 ================
@@ -24,6 +27,8 @@ Full Change List
 - Fixed above mentioned bug again by consolidating two distinct ``Meta`` classes in ``Case`` model.
 - Fixed bug in SV tests that became visibly by above fix and created an additional variant that wasn't intended.
 - Adapted core installation instructions in manual for latest data release and introduced use of VarFish API for import.
+- Adding ``regmaps`` app for regulatory maps.
+- Allowing users to specify padding for regulatory elements.
 
 -------
 v0.22.1

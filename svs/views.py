@@ -17,6 +17,7 @@ from projectroles.plugins import get_backend_api
 from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
 
 from geneinfo.views import get_gene_infos
+from regmaps.models import RegElement, RegInteraction
 from .forms import FilterForm, StructuralVariantCommentForm, StructuralVariantFlagsForm
 from .models import (
     StructuralVariantFlags,
@@ -184,6 +185,28 @@ class StructuralVariantDetailsView(
             "srv": "split-read ALT",
             "gq": "genotype quality",
         }
+        context["regulatory_general_padding"] = int(
+            self.request.GET.get("regulatory_general_padding", 0)
+        )
+        context["reg_elements"] = RegElement.objects.overlapping(
+            sv.release,
+            sv.chromosome,
+            sv.start,
+            sv.end,
+            padding=context["regulatory_general_padding"],
+        ).order_by("reg_map__short_title")
+        all_interactions = RegInteraction.objects.overlapping(
+            sv.release,
+            sv.chromosome,
+            sv.start,
+            sv.end,
+            padding=context["regulatory_general_padding"],
+        ).order_by("reg_map__short_title", "-score")
+        grouped_interactions = {}
+        for inter in all_interactions:
+            key = (inter.reg_map.slug, inter.reg_map.short_title)
+            grouped_interactions.setdefault(key, []).append(inter)
+        context["reg_interactions"] = grouped_interactions
 
         sv_annos = StructuralVariantGeneAnnotation.objects.filter(sv_uuid=self.kwargs["sv"])
         context["genes"] = [

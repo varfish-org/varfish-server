@@ -2,11 +2,13 @@
 
 {% load humanize %}
 {% load variants_tags %}
+{% load regmaps_tags %}
+{% load dict %}
 
 <tr class="variant-row {% if not training_mode %}variant-row-{{ first_entry|flag_class }}{% endif %}">
   {# fold-out #}
   <td class="clickable toggle-variant-details pl-0 pr-0"
-      data-url="{% url "svs:sv-details" project=project.sodar_uuid case=object.sodar_uuid sv=first_entry.sv_uuid %}?database={{ database }}"
+      data-url="{% url "svs:sv-details" project=project.sodar_uuid case=object.sodar_uuid sv=first_entry.sv_uuid %}?database={{ database }}&regulatory_general_padding={{ form.cleaned_data|keyvalue:"regulatory_general_padding" }}"
       data-toggle="collapse" data-target="#variant-details-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="variant-details-{{ forloop.counter0 }}" aria-hidden="true">
     <i class="fa fa-fw fa-chevron-right"></i>
   </td>
@@ -114,6 +116,9 @@
       ">
       {{ entry.ensembl_sum }}
     </span>
+  </td>
+  <td class="text-muted text-nowrap text-center">
+    {{ first_entry|regmaps_elements }} / {{ first_entry|regmaps_interactions }}
   </td>
   <td class="{% if first_entry.distance_to_center|default:-1 != -1 %}text-right{% else %}text-center{% endif %}">
     {% if first_entry.distance_to_center|default:-1 != -1 %}

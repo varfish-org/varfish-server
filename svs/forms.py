@@ -2,6 +2,7 @@ from functools import lru_cache
 
 from django import forms
 from genomicfeatures.models import TadSet
+from regmaps.models import RegMapCollection
 from svs.models import StructuralVariantFlags, StructuralVariantComment
 
 from variants.forms import (
@@ -83,18 +84,20 @@ INHERITANCE = [
     ("non-reference", "non-reference"),
 ]
 
+FILTER_FORM_ENSEMBL_CHOICES = {
+    "any_feature": "any feature",
+    "CTCF_binding_site": "CTCF binding site",
+    "enhancer": "enhancer",
+    "open_chromatin_region": "open chromatin region",
+    "promoter": "promoter",
+    "promoter_flanking_region": "promoter flanking region",
+    "TF_binding_site": "TF binding site",
+}
 
-FILTER_FORM_TRANSLATE_REGULATORY = {
-    "regulatory_ensembl_any_feature": "any_feature",
-    "regulatory_ensembl_ctcf_binding_site": "CTCF_binding_site",
-    "regulatory_ensembl_enhancer": "enhancer",
-    "regulatory_ensembl_open_chromatin_region": "open_chromatin_region",
-    "regulatory_ensembl_promoter": "promoter",
-    "regulatory_ensembl_promoter_flanking_region": "promoter_flanking_region",
-    "regulatory_ensembl_tf_binding_site": "TF_binding_site",
-    "regulatory_vista_any_validation": "any_validation",
-    "regulatory_vista_positive": "positive",
-    "regulatory_vista_negative": "negative",
+FILTER_FORM_VISTA_CHOICES = {
+    "any_validation": "any validation",
+    "positive": "positive",
+    "negative": "negative",
 }
 
 
@@ -562,52 +565,43 @@ class RegulatoryFilterFormMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["regulatory_ensembl_any_feature"] = forms.BooleanField(
-            label="any feature", required=False, initial=False
+        self.fields["regulatory_general_padding"] = forms.IntegerField(
+            label="padding (bp)", required=False, initial=100,
         )
-        self.fields["regulatory_ensembl_ctcf_binding_site"] = forms.BooleanField(
-            label="CTCF binding site", required=False, initial=False
+        self.fields["regulatory_ensembl"] = forms.MultipleChoiceField(
+            label="ENSEMBL feature",
+            required=False,
+            choices=list(FILTER_FORM_ENSEMBL_CHOICES.items()),
         )
-        self.fields["regulatory_ensembl_enhancer"] = forms.BooleanField(
-            label="enhancer", required=False, initial=False
+        self.fields["regulatory_vista"] = forms.MultipleChoiceField(
+            label="VISTA validation",
+            required=False,
+            choices=list(FILTER_FORM_VISTA_CHOICES.items()),
         )
-        self.fields["regulatory_ensembl_open_chromatin_region"] = forms.BooleanField(
-            label="open chromatin region", required=False, initial=False
-        )
-        self.fields["regulatory_ensembl_promoter"] = forms.BooleanField(
-            label="promoter", required=False, initial=False
-        )
-        self.fields["regulatory_ensembl_promoter_flanking_region"] = forms.BooleanField(
-            label="promoter flanking region", required=False, initial=False
-        )
-        self.fields["regulatory_ensembl_tf_binding_site"] = forms.BooleanField(
-            label="TF binding site", required=False, initial=False
-        )
-
-        self.fields["regulatory_vista_any_validation"] = forms.BooleanField(
-            label="any feature", required=False, initial=False
-        )
-        self.fields["regulatory_vista_positive"] = forms.BooleanField(
-            label="CTCF binding site", required=False, initial=False
-        )
-        self.fields["regulatory_vista_negative"] = forms.BooleanField(
-            label="enhancer", required=False, initial=False
-        )
-
-    def clean(self):
-        """Translate effect field names into ``effects`` key list"""
-        cleaned_data = super().clean()
-        cleaned_data["regulatory_ensembl"] = [
-            feature_type
-            for name, feature_type in FILTER_FORM_TRANSLATE_REGULATORY.items()
-            if cleaned_data[name] and "ensembl" in name
-        ]
-        cleaned_data["regulatory_vista"] = [
-            feature_type
-            for name, feature_type in FILTER_FORM_TRANSLATE_REGULATORY.items()
-            if cleaned_data[name] and "vista" in name
-        ]
-        return cleaned_data
+        self.reg_map_fields = {}
+        for coll in RegMapCollection.objects.all():
+            element_field = forms.MultipleChoiceField(
+                label=coll.title,
+                required=False,
+                choices=[("__any__", "any")]
+                + [(ret.slug, ret.title) for ret in coll.regelementtype_set.all()],
+            )
+            map_field = forms.MultipleChoiceField(
+                label=coll.title,
+                required=False,
+                choices=[("__any__", "any")]
+                + [(ret.slug, ret.short_title) for ret in coll.regmap_set.all()],
+            )
+            interaction_field = forms.BooleanField(label=coll.title, required=False,)
+            self.fields["regmap_%s_element" % coll.slug] = element_field
+            self.fields["regmap_%s_map" % coll.slug] = map_field
+            self.fields["regmap_%s_interaction" % coll.slug] = interaction_field
+            self.reg_map_fields["regmap_%s" % coll.slug] = (
+                coll,
+                element_field,
+                map_field,
+                interaction_field,
+            )
 
 
 class FilterForm(

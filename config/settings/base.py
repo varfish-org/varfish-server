@@ -105,6 +105,7 @@ LOCAL_APPS = [
     "extra_annos.apps.ExtraAnnosConfig",
     "tokens.apps.TokensConfig",
     "maintenance.apps.MaintenanceConfig",
+    "regmaps.apps.RegmapsConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

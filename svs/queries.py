@@ -3,6 +3,7 @@
 import enum
 import operator
 import sys
+from itertools import chain
 
 from django.conf import settings
 from django.db.models import Q
@@ -13,6 +14,7 @@ from sqlalchemy.sql import select, func, and_, or_, not_, true, cast, case
 from sqlalchemy.sql.functions import coalesce
 from sqlalchemy.types import Integer, Float
 
+from regmaps.models import RegMapCollection, RegElement, RegInteraction
 from .models import (
     StructuralVariant,
     StructuralVariantGeneAnnotation,
@@ -39,8 +41,13 @@ from variants.queries import (
 )
 
 
-def overlaps(lhs, rhs, min_overlap=None, rhs_start=None, rhs_end=None):
-    """Returns term of ``lhs`` overlapping with ``rhs`` based on the start/end fields."""
+def overlaps(lhs, rhs, min_overlap=None, rhs_start=None, rhs_end=None, padding=None):
+    """Returns term of ``lhs`` overlapping with ``rhs`` based on the start/end fields.
+
+    Padding is only interpreted if ``min_overlap`` is ``None``.
+    """
+    if padding is None:
+        padding = 0
     if rhs_start is None:
         rhs_start = rhs.sa.start
     if rhs_end is None:
@@ -52,8 +59,8 @@ def overlaps(lhs, rhs, min_overlap=None, rhs_start=None, rhs_end=None):
             lhs.sa.bin.in_(
                 select([column("bin")]).select_from(func.overlapping_bins(rhs_start - 1, rhs_end))
             ),
-            lhs.sa.end >= rhs_start,
-            lhs.sa.start <= rhs_end,
+            lhs.sa.end >= rhs_start - padding,
+            lhs.sa.start <= rhs_end + padding,
         )
     else:
         term_overlap = func.least(lhs.sa.end, rhs_end) - func.greatest(lhs.sa.start, rhs_start) + 1
@@ -697,7 +704,13 @@ class ExtendQueryPartsEnsemblRegulatoryJoinAndFilter(ExtendQueryPartsBase):
         subquery = (
             select(fields)
             .select_from(EnsemblRegulatoryFeature.sa)
-            .where(overlaps(EnsemblRegulatoryFeature, StructuralVariant))
+            .where(
+                overlaps(
+                    EnsemblRegulatoryFeature,
+                    StructuralVariant,
+                    padding=self.kwargs.get("regulatory_general_padding"),
+                )
+            )
             .alias("subquery_ensembl_inner")
         ).lateral("subquery_ensembl_outer")
         return subquery
@@ -740,7 +753,13 @@ class ExtendQueryPartsVistaEnhancerJoinAndFilter(ExtendQueryPartsBase):
         subquery = (
             select(fields)
             .select_from(VistaEnhancer.sa)
-            .where(overlaps(VistaEnhancer, StructuralVariant))
+            .where(
+                overlaps(
+                    VistaEnhancer,
+                    StructuralVariant,
+                    padding=self.kwargs.get("regulatory_general_padding"),
+                )
+            )
             .alias("subquery_vista_inner")
         ).lateral("subquery_vista_outer")
         return subquery
@@ -759,6 +778,141 @@ class ExtendQueryPartsVistaEnhancerJoinAndFilter(ExtendQueryPartsBase):
             else:
                 keys = self.kwargs["regulatory_vista"]
             yield or_(*[getattr(self.subquery.c, "vista_%s_count" % k) > 0 for k in keys])
+
+
+class ExtendQueryPartsRegMapJoinAndFilter(ExtendQueryPartsBase):
+    """Extend ``QueryParts`` with information for regmap overlap."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.subqueries = dict(self._build_subqueries())
+        self.fields = dict(self._build_fields())
+        self.conditions = dict(self._build_conditions())
+
+    def extend(self, query_parts):
+        for key, subquery, fields, conditions in zip(
+            self.subqueries.keys(),
+            self.subqueries.values(),
+            self.fields.values(),
+            self.conditions.values(),
+        ):
+            query_parts = QueryParts(
+                fields=tuple(chain(query_parts.fields, fields)),
+                selectable=query_parts.selectable.outerjoin(subquery, true()),
+                conditions=tuple(chain(query_parts.conditions, [conditions])),
+            )
+        return query_parts
+
+    def _build_subqueries(self):
+        for coll in RegMapCollection.objects.all():
+            # regulatory element queries
+            for regmap in coll.regmap_set.all():
+                fields = [
+                    func.coalesce(
+                        func.sum(case([(RegElement.sa.elem_type_id == ret.id, 1)], else_=0)), 0
+                    ).label("regmap_%s_%s_element_%s_count" % (coll.slug, regmap.slug, ret.slug))
+                    for ret in coll.regelementtype_set.all()
+                ]
+                subquery = (
+                    select(fields)
+                    .select_from(RegElement.sa)
+                    .where(
+                        and_(
+                            overlaps(
+                                RegElement,
+                                StructuralVariant,
+                                padding=self.kwargs.get("regulatory_general_padding"),
+                            ),
+                            RegElement.sa.reg_map_id == regmap.id,
+                        )
+                    )
+                    .alias("subquery_regmap_%s_%s_element_inner" % (coll.slug, regmap.slug))
+                ).lateral("subquery_regmap_%s_%s_element_outer" % (coll.slug, regmap.slug))
+                yield "regmap_%s_%s_element" % (coll.slug, regmap.slug), subquery
+                # interaction query
+                interaction_fields = [
+                    func.coalesce(func.count(), 0).label(
+                        "regmap_%s_%s_interaction_count" % (coll.slug, regmap.slug)
+                    )
+                ]
+                interaction_subquery = (
+                    select(interaction_fields)
+                    .select_from(RegInteraction.sa)
+                    .where(
+                        and_(
+                            overlaps(
+                                RegInteraction,
+                                StructuralVariant,
+                                padding=self.kwargs.get("regulatory_general_padding"),
+                            ),
+                            RegInteraction.sa.reg_map_id == regmap.id,
+                        )
+                    )
+                    .alias("subquery_regmap_%s_%s_interaction_inner" % (coll.slug, regmap.slug))
+                ).lateral("subquery_regmap_%s_%s_interaction_outer" % (coll.slug, regmap.slug))
+                yield "regmap_%s_%s_interaction" % (coll.slug, regmap.slug), interaction_subquery
+
+    def _build_fields(self):
+        for coll in RegMapCollection.objects.all():
+            for regmap in coll.regmap_set.all():
+                element_fields = [
+                    getattr(
+                        self.subqueries["regmap_%s_%s_element" % (coll.slug, regmap.slug)].c,
+                        "regmap_%s_%s_element_%s_count" % (coll.slug, regmap.slug, ret.slug),
+                    )
+                    for ret in coll.regelementtype_set.all()
+                ]
+                yield "regmap_%s_%s_element" % (coll.slug, regmap.slug), element_fields
+                interaction_fields = [
+                    getattr(
+                        self.subqueries["regmap_%s_%s_interaction" % (coll.slug, regmap.slug)].c,
+                        "regmap_%s_%s_interaction_count" % (coll.slug, regmap.slug),
+                    )
+                ]
+                yield "regmap_%s_%s_interaction" % (coll.slug, regmap.slug), interaction_fields
+
+    def _build_conditions(self):
+        for coll in RegMapCollection.objects.all():
+            for regmap in coll.regmap_set.all():
+                selected_maps = self.kwargs.get("regmap_%s_map" % coll.slug, [])
+                if "__any__" not in selected_maps and regmap.slug not in selected_maps:
+                    yield "regmap_%s_%s" % (coll.slug, regmap.slug), True
+                else:
+                    kwargs_entry = self.kwargs.get("regmap_%s_element" % coll.slug, [])
+                    if not kwargs_entry:
+                        keys = []
+                    elif "__any__" in kwargs_entry:
+                        keys = [ret.slug for ret in coll.regelementtype_set.all()]
+                    else:
+                        keys = [
+                            ret.slug
+                            for ret in coll.regelementtype_set.all()
+                            if ret.slug in kwargs_entry
+                        ]
+                    element_conditions = [
+                        getattr(
+                            self.subqueries["regmap_%s_%s_element" % (coll.slug, regmap.slug)].c,
+                            "regmap_%s_%s_element_%s_count" % (coll.slug, regmap.slug, k),
+                        )
+                        > 0
+                        for k in keys
+                    ]
+                    if self.kwargs.get("regmap_%s_interaction" % coll.slug, False):
+                        interaction_conditions = [
+                            getattr(
+                                self.subqueries[
+                                    "regmap_%s_%s_interaction" % (coll.slug, regmap.slug)
+                                ].c,
+                                "regmap_%s_%s_interaction_count" % (coll.slug, regmap.slug),
+                            )
+                            > 0
+                        ]
+                    else:
+                        interaction_conditions = []
+                    yield "regmap_%s_%s_element" % (coll.slug, regmap.slug), or_(
+                        *element_conditions, *interaction_conditions
+                    )
+                    yield "regmap_%s_%s_interaction" % (coll.slug, regmap.slug), True
 
 
 class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
@@ -800,6 +954,7 @@ extender_classes_base = [
     ExtendQueryPartsTadBoundaryDistanceJoin,
     ExtendQueryPartsEnsemblRegulatoryJoinAndFilter,
     ExtendQueryPartsVistaEnhancerJoinAndFilter,
+    ExtendQueryPartsRegMapJoinAndFilter,
     ExtendQueryPartsHgncJoin,
 ]
 

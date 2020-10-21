@@ -67,7 +67,6 @@ django-markupfield>=1.5.1, <1.6
 django-pagedown>=1.0.6, <1.1  # NOTE: v2.x requires Django 2.1+
 mistune>=0.8.4, <0.9
 
-
 # Background Jobs requirements
 celery<4.2  # pyup: <4.2  # blocker: https://github.com/celery/celery/issues/4878
 
@@ -133,3 +132,6 @@ redis==3.3.8
 
 # HTTP Proxy for forwarding AJAX requests.
 django-http-proxy==0.4.3
+
+# YAML parsing
+PyYAML
