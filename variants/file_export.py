@@ -259,7 +259,7 @@ class CaseExporterBase:
         else:
             self.query = self.query_class_single_case(self.case, self.get_alchemy_engine())
         #: The name of the selected members.
-        self.members = list(self._yield_members())
+        self.members = self._get_members_sorted()
         #: The column information.
         self.columns = list(self._yield_columns(self.members))
 
@@ -284,14 +284,16 @@ class CaseExporterBase:
             (self.query_args.get("patho_enabled"), self.query_args.get("patho_score"))
         )
 
-    def _yield_members(self):
+    def _get_members_sorted(self):
         """Get list of selected members."""
+        members = []
         if self.project_or_cohort:
-            yield "sample"
+            members.append("sample")
         else:
             for m in self.job.case.get_filtered_pedigree_with_samples():
                 if self.query_args.get("%s_export" % m["patient"], False):
-                    yield m["patient"]
+                    members.append(m["patient"])
+        return sorted(members)
 
     def _yield_columns(self, members):
         """Yield column information."""
@@ -780,17 +782,19 @@ class CaseExporterVcf(CaseExporterBase):
                 )
             )
 
-    def _yield_members(self):
+    def _get_members_sorted(self):
         """Get list of selected members."""
+        members = []
         if self.project_or_cohort:
             for m in self.project_or_cohort.get_filtered_pedigree_with_samples(
                 self.job.bg_job.user
             ):
-                yield m["patient"]
+                members.append(m["patient"])
         else:
             for m in self.job.case.get_filtered_pedigree_with_samples():
                 if self.query_args.get("%s_export" % m["patient"], False):
-                    yield m["patient"]
+                    members.append(m["patient"])
+        return sorted(members)
 
 
 #: Dict mapping file type to writer class.

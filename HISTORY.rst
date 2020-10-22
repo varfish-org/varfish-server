@@ -2,6 +2,23 @@
 History / Changelog
 ===================
 
+----
+HEAD
+----
+
+End-User Summary
+================
+
+- Fixed occasionally breaking tests ``ProjectExportTest`` by sorting member list.
+  This bug didn't affect the correct output but wasn't consistent in the order of samples.
+
+Full Change List
+================
+
+- Fixed occasionally breaking tests ``ProjectExportTest`` by sorting member list.
+  This bug didn't affect the correct output but wasn't consistent in the order of samples.
+  Reason for this is unknown but might be that the order of cases a project is not always returned as in order they were created.
+
 -------
 v0.22.1
 -------

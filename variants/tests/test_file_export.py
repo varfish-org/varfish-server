@@ -217,7 +217,7 @@ class ProjectExportTest(TestCase):
                 key=lambda x: (x.chromosome_no, x.start, members.index(list(x.genotype.keys())[0])),
             )
         ):
-            member = Case.objects.get(id=small_var.case_id).get_members()[0]
+            member = list(small_var.genotype.keys())[0]
             self.assertSequenceEqual(
                 arrs[i + 1][:3], [member, "chr" + small_var.chromosome, str(small_var.start),],
             )
@@ -246,16 +246,15 @@ class ProjectExportTest(TestCase):
         lines = str(unzipped, "utf-8").split("\n")
         header = [l for l in lines if l.startswith("#")]
         content = [l for l in lines if not l.startswith("#")]
+        member1 = self.case1.pedigree[0]["patient"]
+        member2 = self.case2.pedigree[0]["patient"]
         self.assertEquals(len(header), 31)
         self.assertEquals(header[0], "##fileformat=VCFv4.2")
         self.assertEquals(
             header[-1],
-            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\t%s"
-            % (self.case1.pedigree[0]["patient"], self.case2.pedigree[0]["patient"]),
+            "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t%s\t%s" % (member1, member2),
         )
         self.assertEquals(len(content), 4)
-        member1 = self.case1.pedigree[0]["patient"]
-        member2 = self.case2.pedigree[0]["patient"]
         self.assertEquals(
             content[0].split("\t"),
             [
