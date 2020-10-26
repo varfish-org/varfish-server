@@ -485,6 +485,7 @@ class Case(CoreCase):
 
     class Meta:
         ordering = ("-date_modified",)
+        indexes = [models.Index(fields=["name"])]
 
     #: DateTime of creation
     date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
@@ -588,9 +589,6 @@ class Case(CoreCase):
         for line in self.pedigree:
             if line["patient"] == sample:
                 return line["sex"]
-
-    class Meta:
-        indexes = [models.Index(fields=["name"])]
 
     def get_absolute_url(self):
         """Return absolute URL for the detail view of this case."""
