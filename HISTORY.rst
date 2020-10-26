@@ -11,6 +11,9 @@ End-User Summary
 
 - Fixed occasionally breaking tests ``ProjectExportTest`` by sorting member list.
   This bug didn't affect the correct output but wasn't consistent in the order of samples.
+- Fixed above mentioned bug again by consolidating two distinct ``Meta`` classes in ``Case`` model.
+- Fixed bug in SV tests that became visibly by above fix and created an additional variant that wasn't intended.
+- Adapted core installation instructions in manual for latest data release and introduced use of VarFish API for import.
 
 Full Change List
 ================
@@ -18,6 +21,9 @@ Full Change List
 - Fixed occasionally breaking tests ``ProjectExportTest`` by sorting member list.
   This bug didn't affect the correct output but wasn't consistent in the order of samples.
   Reason for this is unknown but might be that the order of cases a project is not always returned as in order they were created.
+- Fixed above mentioned bug again by consolidating two distinct ``Meta`` classes in ``Case`` model.
+- Fixed bug in SV tests that became visibly by above fix and created an additional variant that wasn't intended.
+- Adapted core installation instructions in manual for latest data release and introduced use of VarFish API for import.
 
 -------
 v0.22.1

@@ -658,10 +658,11 @@ class GeneListsFilterQueryTest(QueryTestBase):
             case__structure="trio", case__inheritance="denovo"
         )
         self.case = self.variant_set.case
-        self.svs = [StructuralVariantFactory(variant_set=self.variant_set)]
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
         StructuralVariantGeneAnnotationFactory(
-            ensembl_gene_id=self.hgnc.ensembl_gene_id, sv_uuid=self.svs[0].sv_uuid
+            ensembl_gene_id=self.hgnc.ensembl_gene_id, sv=self.sv
         )
+        print("x")
 
     # # TODO FIXME XXX
     # def testPassGeneAllowList(self):
@@ -678,7 +679,7 @@ class GeneListsFilterQueryTest(QueryTestBase):
             SingleCaseFilterQuery, {"gene_blocklist": [self.hgnc.symbol + "XXX"]}, 1
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
 
     def testFailGeneBlockList(self):
         self.run_query(SingleCaseFilterQuery, {"gene_blocklist": [self.hgnc.symbol]}, 0)
@@ -938,17 +939,15 @@ class SvTranscriptCodingFilterQueryTest(QueryTestBase):
             case__structure="trio", case__inheritance="denovo"
         )
         self.case = self.variant_set.case
-        self.svs = [StructuralVariantFactory(variant_set=self.variant_set)]
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
         StructuralVariantGeneAnnotationFactory(
-            sv_uuid=self.svs[0].sv_uuid,
-            refseq_transcript_coding=True,
-            ensembl_transcript_coding=True,
+            sv=self.sv, refseq_transcript_coding=True, ensembl_transcript_coding=True,
         )
 
     def testIncludeTranscriptCoding(self):
         result = self.run_query(SingleCaseFilterQuery, {"transcripts_coding": True}, 1)
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
 
     def testExcludeTranscriptCoding(self):
         self.run_query(SingleCaseFilterQuery, {"transcripts_coding": False}, 0)

@@ -107,4 +107,4 @@ class Cohort(models.Model):
 
     def get_members(self, user):
         """Return concatenated list of members in ``pedigree``."""
-        return [x["patient"] for x in self.get_filtered_pedigree_with_samples(user)]
+        return sorted([x["patient"] for x in self.get_filtered_pedigree_with_samples(user)])

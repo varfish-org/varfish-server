@@ -5,7 +5,8 @@ API Token Management
 ====================
 
 This page allows for managing API tokens.
-This feature is only interesting if you want to use software (or develop one yourself) that interfaces with SODAR programatically.
+This feature is interesting if you want to use software (or develop one yourself) that interfaces with SODAR programatically,
+or if you want to use the API import feature of VarFish to easily import your cases.
 
 .. figure:: figures/misc_ui/api_tokens.png
 
