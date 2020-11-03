@@ -106,7 +106,7 @@ def delete_case_bg_job(_self, delete_case_bg_job_pk, export_job_pk):
     compute_project_variants_stats.delay(export_job_pk=export_job_pk)
 
 
-@app.on_after_configure.connect
+@app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **_kwargs):
     """Register periodic tasks"""
     # Clear out old files nightly.

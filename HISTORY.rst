@@ -17,6 +17,7 @@ End-User Summary
 - Allowing (VarFish admins) to import regulatory maps.
   Users can use these maps when analyzing SVs.
 - Adding "padding" field to SV filter form (regulatory tab).
+- Celerybeat tasks in ``variants`` app are now executing again.
 
 Full Change List
 ================
@@ -29,6 +30,8 @@ Full Change List
 - Adapted core installation instructions in manual for latest data release and introduced use of VarFish API for import.
 - Adding ``regmaps`` app for regulatory maps.
 - Allowing users to specify padding for regulatory elements.
+- Celerybeat tasks in ``variants`` app are now executing again.
+  Issue was a wrong decorator.
 
 -------
 v0.22.1
