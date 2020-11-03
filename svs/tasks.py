@@ -16,7 +16,7 @@ def run_import_structural_variants_bg_job(_self, import_variants_bg_job_pk):
     return models.run_import_structural_variants_bg_job(pk=import_variants_bg_job_pk)
 
 
-@app.on_after_configure.connect
+@app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **_kwargs):
     """Register periodic tasks"""
     # Regularly remove old variant that are not active.
