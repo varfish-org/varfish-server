@@ -472,11 +472,7 @@ class CaseImporter:
                     if i == 0:
                         tempf.write(header)
                         tempf.write("\n")
-                    j = 0
                     while True:
-                        j += 1
-                        if variant_set_info.variant_type == CaseVariantType.SMALL.name and j > 1000:
-                            break
                         line = inputf.readline().strip()
                         if not line:
                             break
