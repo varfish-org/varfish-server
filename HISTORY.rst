@@ -18,6 +18,9 @@ End-User Summary
   Users can use these maps when analyzing SVs.
 - Adding "padding" field to SV filter form (regulatory tab).
 - Celerybeat tasks in ``variants`` app are now executing again.
+- Fixed ``check_installation`` management command.
+  Index for ``dbsnp`` was missing.
+- Bumped chromedriver version to 87.
 
 Full Change List
 ================
@@ -32,6 +35,9 @@ Full Change List
 - Allowing users to specify padding for regulatory elements.
 - Celerybeat tasks in ``variants`` app are now executing again.
   Issue was a wrong decorator.
+- Fixed ``check_installation`` management command.
+  Index for ``dbsnp`` was missing.
+- Bumped chromedriver version to 87.
 
 -------
 v0.22.1

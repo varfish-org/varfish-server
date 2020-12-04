@@ -150,6 +150,8 @@ INDEXES_REFSEQTOKEGG = ("pathways_re_gene_id_86cbb2_idx",)
 
 INDEXES_ENSEMBLTOKEGG = ("pathways_en_gene_id_20f7c2_idx",)
 
+INDEXES_DBSNP = "dbsnp_dbsnp_release_chromosome_start_51af7d8b_uniq"
+
 EXPECTED_INDEXES = {
     "variants_smallvariant": INDEXES_SMALLVARIANT,
     "svs_structuralvariant": INDEXES_STRUCTURALVARIANT,
@@ -171,7 +173,7 @@ EXPECTED_INDEXES = {
     "geneinfo_ensembltogenesymbol": INDEXES_ENSEMBLTOGENESYMBOL,
     "geneinfo_hgnc": INDEXES_HGNC,
     "geneinfo_acmg": INDEXES_ACMG,
-    "geneinfo_refseqtoghnc": INDEXES_REFSEQTOHGNC,
+    "geneinfo_refseqtohgnc": INDEXES_REFSEQTOHGNC,
     "geneinfo_hpo": INDEXES_HPO,
     "geneinfo_mim2genemedgen": INDEXES_MIM2GENEMEDGEN,
     "geneinfo_exacconstraints": INDEXES_EXACCONSTRAINTS,
@@ -194,6 +196,7 @@ EXPECTED_INDEXES = {
     "clinvar_clinvar": INDEXES_CLINVAR,
     "pathways_refseqtokegg": INDEXES_REFSEQTOKEGG,
     "pathways_ensembltokegg": INDEXES_ENSEMBLTOKEGG,
+    "dbsnp_dbsnp": INDEXES_DBSNP,
 }
 
 
