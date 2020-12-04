@@ -21,6 +21,7 @@ End-User Summary
 - Fixed ``check_installation`` management command.
   Index for ``dbsnp`` was missing.
 - Bumped chromedriver version to 87.
+- Fixed bug where file export was not possible when nubmer of resulting variants were < 10.
 
 Full Change List
 ================
@@ -38,6 +39,7 @@ Full Change List
 - Fixed ``check_installation`` management command.
   Index for ``dbsnp`` was missing.
 - Bumped chromedriver version to 87.
+- Fixed bug where file export was not possible when number of resulting variants were < 10.
 
 -------
 v0.22.1

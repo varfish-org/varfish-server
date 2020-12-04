@@ -1,6 +1,7 @@
 """This module contains the code for file export"""
 
 import datetime
+import math
 from collections import OrderedDict
 from datetime import timedelta
 from tempfile import NamedTemporaryFile
@@ -350,7 +351,7 @@ class CaseExporterBase:
                 _result = annotate_with_joint_scores(_result)
             self.job.add_log_entry("Writing output file...")
             total = len(_result)
-            steps = int(total / 10)
+            steps = math.ceil(total / 10)
             for i, small_var in enumerate(_result):
                 if self._is_prioritization_enabled() or self._is_pathogenicity_enabled():
                     if i % steps == 0:
