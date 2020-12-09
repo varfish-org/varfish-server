@@ -22,6 +22,7 @@ End-User Summary
   Index for ``dbsnp`` was missing.
 - Bumped chromedriver version to 87.
 - Fixed bug where file export was not possible when nubmer of resulting variants were < 10.
+- Fixed bug that made it impossible to properly sort by genotype in the results table.
 
 Full Change List
 ================
@@ -40,6 +41,7 @@ Full Change List
   Index for ``dbsnp`` was missing.
 - Bumped chromedriver version to 87.
 - Fixed bug where file export was not possible when number of resulting variants were < 10.
+- Fixed bug that made it impossible to properly sort by genotype in the results table.
 
 -------
 v0.22.1
