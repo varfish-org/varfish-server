@@ -16,6 +16,7 @@ from .models import (
     SyncCaseResultMessage,
     ImportVariantsBgJob,
     SmallVariantSet,
+    CasePhenotypeTerms,
 )
 
 # Register your models here.
@@ -36,5 +37,6 @@ admin.site.register(
         SyncCaseResultMessage,
         ImportVariantsBgJob,
         SmallVariantSet,
+        CasePhenotypeTerms,
     )
 )

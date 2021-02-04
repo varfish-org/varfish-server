@@ -1,0 +1,49 @@
+{% load rules %}
+{% load variants_tags %}
+
+{% has_perm 'filesfolders.update_case' request.user project as can_update_case %}
+
+<div class="card varfish-vars-case-details term-group"
+     style="overflow-y: auto !important; max-height: 300px;"
+     id="card-varfish-vars-case-details-small-var-terms">
+  <div class="card-header row">
+    <h4>
+      <i class="fa fa-tags"></i>
+      Phenotype and Disease Terms
+    </h4>
+    {% if can_update_case %}
+      <div class="ml-auto btn-group">
+        <a class="btn btn-secondary btn-sm" href="{% url 'variants:case-update-terms' project=project.sodar_uuid case=case.sodar_uuid %}">
+          <i class="fa fa-pencil"></i>
+          Edit
+        </a>
+      </div>
+    {% endif %}
+  </div>
+  <ul class="list-group list-group-flush list" id="case-term-list">
+    {% for pheno_terms in case.phenotype_terms.all %}
+      <li class="list-group-item list-item row">
+        <strong>{{ pheno_terms.individual|only_source_name }}</strong><br />
+        {% for term in pheno_terms.terms %}
+          {% get_term_description term as term_description %}
+          {{ term }}
+          {% if term_description %}
+            - {{ term_description }}{% if not forloop.last %}<br/>{% endif %}
+          {% else %}
+            - UNKNOWN TERM{% if not forloop.last %}<br/>{% endif %}
+          {% endif %}
+        {% empty %}
+          <span class="font-italic text-secondary">No terms have been provided yet.</span>
+        {% endfor %}
+      </li>
+    {% endfor %}
+  </ul>
+  <div
+      class="card-body border-bottom"
+      id="case-term-list-empty"
+      {% if case.phenotype_terms %}style="display: none;"{% endif %}>
+    <p class="text-muted text-center font-italic">
+      No phenotype or disease annotation yet.
+    </p>
+  </div>
+</div>

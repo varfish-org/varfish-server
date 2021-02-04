@@ -3,8 +3,12 @@
 from django.test import TestCase
 
 from geneinfo.tests.factories import HpoFactory, HpoNameFactory
-from variants.tests.factories import FormDataFactory, CaseWithVariantSetFactory
-from ..forms import FilterForm
+from variants.tests.factories import (
+    FormDataFactory,
+    CaseWithVariantSetFactory,
+    CasePhenotypeTermsFactory,
+)
+from ..forms import FilterForm, CaseTermsForm
 
 
 class TestFormBase(TestCase):
@@ -163,3 +167,36 @@ class TestFilterForm(TestFormBase):
                 ]
             ),
         )
+
+
+class TestCaseTermsForm(TestCase):
+    """tests for CaseTermsForm."""
+
+    def setUp(self):
+        self.case, _, _ = CaseWithVariantSetFactory.get("small")
+        self.case.update_terms({self.case.index: ["OMIM:616145", "HP:0000767"]})
+        self.key = "terms-%s" % self.case.index
+        self.hpo_name = HpoNameFactory()
+
+    def test_initialize(self):
+        form = CaseTermsForm(case=self.case)
+        self.assertEqual(len(form.fields), 1)
+        self.assertIn(self.key, form.fields.keys())
+        self.assertEqual(
+            form.fields[self.key].initial,
+            "\n".join(["OMIM:616145 - UNKNOWN TERM", "HP:0000767 - UNKNOWN TERM\n"]),
+        )
+
+    def test_valid(self):
+        form = CaseTermsForm({self.key: "---%s---" % self.hpo_name.hpo_id}, case=self.case)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(
+            form.cleaned_data, {self.key: "%s - %s" % (self.hpo_name.hpo_id, self.hpo_name.name)}
+        )
+
+    def test_invalid(self):
+        self.hpo_name.delete()
+        form = CaseTermsForm({self.key: "---%s---" % self.hpo_name.hpo_id}, case=self.case)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.cleaned_data, {})
+        self.assertIn(self.key, form.errors)

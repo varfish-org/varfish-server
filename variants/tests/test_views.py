@@ -81,6 +81,7 @@ from variants.tests.factories import (
     SampleVariantStatisticsFactory,
     DeleteCaseBgJobFactory,
     CaseWithVariantSetFactory,
+    SmallVariantQueryFactory,
 )
 from variants.tests.helpers import ViewTestBase
 from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
@@ -275,6 +276,61 @@ class TestCaseUpdateView(ViewTestBase):
             self.assertEqual(case.pedigree[0]["patient"], self.case.pedigree[0]["patient"] + "x")
             self.assertEqual(case.pedigree[0]["affected"], 0)
             self.assertEqual(case.pedigree[0]["sex"], 0)
+
+
+class TestCaseUpdateTermsView(ViewTestBase):
+    def setUp(self):
+        super().setUp()
+        self.case, _, _ = CaseWithVariantSetFactory.get("small")
+        self.hpo_name = HpoNameFactory()
+
+    def test_render_form_no_queries(self):
+        self._test_render_form([])
+
+    def test_render_form_with_queries(self):
+        query = SmallVariantQueryFactory(
+            case=self.case, query_settings={"prio_hpo_terms": [self.hpo_name.hpo_id]}
+        )
+        self._test_render_form([self.hpo_name.hpo_id])
+
+    def _test_render_form(self, expected_from_queries):
+        """Test rendering of update form."""
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:case-update-terms",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                )
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context["object"].name, self.case.name)
+            self.assertEqual(response.context["form"].case.name, self.case.name)
+            self.assertEqual(response.context["terms_queries"], expected_from_queries)
+
+    def test_post_form_success(self):
+        """Test update of case with the result."""
+        with self.login(self.user):
+            form_data = {"terms-%s" % self.case.index: "x,%s,y" % self.hpo_name.hpo_id}
+            response = self.client.post(
+                reverse(
+                    "variants:case-update-terms",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                form_data,
+            )
+
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:case-detail",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+            )
+
+            case = Case.objects.get(id=self.case.id)
+            self.assertEqual(case.phenotype_terms.count(), 1)
+            pheno_terms = case.phenotype_terms.first()
+            self.assertEqual(pheno_terms.terms, [self.hpo_name.hpo_id])
 
 
 class TestCaseDeleteView(RoleAssignmentMixin, ViewTestBase):

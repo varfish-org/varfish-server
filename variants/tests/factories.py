@@ -32,6 +32,7 @@ from ..models import (
     CaseComments,
     DeleteCaseBgJob,
     CaddSubmissionBgJob,
+    CasePhenotypeTerms,
 )
 import typing
 import attr
@@ -523,6 +524,17 @@ class CaseFactory(CoreCaseFactory):
 
     class Meta:
         model = Case
+
+
+class CasePhenotypeTermsFactory(factory.django.DjangoModelFactory):
+    """Factory for creating ``CasePhenotypeTerms`` objects."""
+
+    class Meta:
+        model = CasePhenotypeTerms
+
+    case = factory.SubFactory(CaseFactory)
+    individual = factory.LazyAttribute(lambda o: o.case.get_members()[0])
+    phenotype_terms = factory.Sequence(lambda n: ["HP:%07d" % n, "MIM:%7d" % n, "ORPHA:%7d" % n])
 
 
 class CaseCommentsFactory(factory.django.DjangoModelFactory):

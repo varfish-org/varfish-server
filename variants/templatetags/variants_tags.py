@@ -480,3 +480,19 @@ def sex_errors(item, disable_pedigree_sex_check):
 def get_is_testing():
     """Return whether we are in testing mode."""
     return sys.argv[1:2] == ["test"]
+
+
+@register.simple_tag
+def get_term_description(term):
+    """Return HPO, Orphanet, or OMIM description."""
+    if term.startswith("HP:"):
+        terms = HpoName.objects.filter(hpo_id=term)
+        if terms:
+            return terms.first().name
+        else:
+            return None
+    else:
+        for record in Hpo.objects.filter(database_id=term).order_by("-name"):
+            return record.name
+        else:
+            return None

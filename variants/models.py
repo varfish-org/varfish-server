@@ -807,9 +807,41 @@ class Case(CoreCase):
         """Return annotation count."""
         return self.get_annotation_sv_count() + self.get_annotation_small_variant_count()
 
+    def update_terms(self, terms):
+        """Given a dict of individual names to list of terms, ensure that the appropriate ``CasePhenotypeTerms``
+        records exist.
+        """
+        with transaction.atomic():
+            self.phenotype_terms.all().delete()
+            for name, lst in terms.items():
+                self.phenotype_terms.create(individual=name, terms=lst)
+
     def __str__(self):
         """Return case name as human-readable description."""
         return self.name
+
+
+class CasePhenotypeTerms(models.Model):
+    """Phenotype annotation for an individual in a case."""
+
+    #: The case that this belongs to.
+    case = models.ForeignKey(
+        Case, null=False, related_name="phenotype_terms", help_text="Case for this annotation"
+    )
+
+    #: The name of the individual that this belongs to.
+    individual = models.CharField(max_length=128, null=False, blank=False, help_text="Individual")
+
+    #: A list of HPO, Orphanet, and OMIM terms that the case has been annotated with.
+    terms = ArrayField(
+        models.CharField(max_length=128, blank=False),
+        default=list,
+        help_text="Phenotype annotation terms with HPO, Orphanet, and OMIM terms",
+    )
+
+    class Meta:
+        unique_together = (("case", "individual"),)
+        ordering = ("individual",)
 
 
 @receiver(pre_delete)

@@ -12,7 +12,7 @@ from django.core.files.storage import FileSystemStorage
 from django.utils.text import get_valid_filename
 
 from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
-from .templatetags.variants_tags import only_source_name
+from .templatetags.variants_tags import only_source_name, get_term_description
 from geneinfo.models import Hgnc, HpoName, Hpo
 from django.db.models import Q
 from projectroles.app_settings import AppSettingAPI
@@ -1646,6 +1646,67 @@ class CaseCommentsForm(forms.ModelForm):
                 }
             )
         }
+
+
+#: Regular expression to find terms.
+RE_FIND_TERMS = r"(HP:\d{7}|OMIM:\d{6}|DECIPHER:\d+|ORPHA:\d+)"
+
+
+class CaseTermsForm(forms.Form):
+    """Form for updating the case phenotype and disease annotation."""
+
+    def __init__(self, *args, **kwargs):
+        self.case = kwargs.pop("case")
+        super().__init__(*args, **kwargs)
+        self._create_fields()
+
+    def _create_fields(self):
+        name_terms = {pt.individual: pt for pt in self.case.phenotype_terms.all()}
+        for name in [p["patient"] for p in self.case.pedigree]:
+            name_terms.setdefault(name, None)
+        for name, terms in sorted(name_terms.items()):
+            self.fields["terms-%s" % name] = forms.CharField(
+                label="Terms for %s" % only_source_name(name),
+                widget=forms.Textarea(
+                    attrs={"placeholder": "e.g., HP:0001680, OMIM:616145, ORPHA:1388, ..."}
+                ),
+                initial=self._build_initial(terms),
+                required=False,
+            )
+
+    def clean(self):
+        """Validate the fields."""
+        cleaned_data = super().clean()
+        errors = {}
+        updates = {}
+        for field, value in cleaned_data.items():
+            if field.startswith("terms-"):
+                lines = []
+                for m in re.findall(RE_FIND_TERMS, value):
+                    description = get_term_description(m)
+                    if not description:
+                        errors.setdefault(field, []).append("Unknown term: %s" % m)
+                    lines.append("%s - %s" % (m, description or "UNKNOWN TERM"))
+                updates[field] = "\n".join(lines)
+        cleaned_data.update(updates)
+        for key, msgs in errors.items():
+            for msg in msgs:
+                self.add_error(key, msg)
+        return cleaned_data
+
+    def _build_initial(self, pheno_terms=None):
+        if not pheno_terms:
+            return None
+        else:
+            return (
+                "\n".join(
+                    [
+                        "%s - %s" % (term, get_term_description(term) or "UNKNOWN TERM")
+                        for term in pheno_terms.terms
+                    ]
+                )
+                + "\n"
+            )
 
 
 class KioskUploadForm(forms.Form):

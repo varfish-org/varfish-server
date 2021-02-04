@@ -115,6 +115,8 @@ from .forms import (
     CaseCommentsForm,
     KioskUploadForm,
     save_file,
+    CaseTermsForm,
+    RE_FIND_TERMS,
 )
 from .tasks import (
     export_file_task,
@@ -1181,6 +1183,63 @@ class CaseUpdateView(
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
     form_class = CaseForm
+
+
+class CaseUpdateTermView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
+    """Update phenotype and disease annotation of individuals within a case."""
+
+    permission_required = "variants.update_case"
+    template_name = "variants/case_update_terms.html"
+    form_class = CaseTermsForm
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._case_object = None
+
+    def get_context_data(self, **kwargs):
+        """Put the ``Case`` object into the context."""
+        context = super().get_context_data(**kwargs)
+        context["object"] = self.get_case_object()
+        context["terms_queries"] = self._get_query_terms()
+        return context
+
+    def _get_query_terms(self):
+        """Return list of terms that were used in all queries."""
+        terms = set()
+        for query in SmallVariantQuery.objects.filter(case=self.get_case_object()):
+            terms |= set(query.query_settings.get("prio_hpo_terms", []))
+        return list(sorted(terms))
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["case"] = self.get_case_object()
+        return kwargs
+
+    def form_valid(self, form):
+        terms = {}
+        prefix = "terms-"
+        for key, value in form.cleaned_data.items():
+            if key.startswith(prefix):
+                lst = []
+                for term in re.findall(RE_FIND_TERMS, value):
+                    if term not in lst:
+                        lst.append(term)
+                terms[key[len(prefix) :]] = lst
+        self.get_case_object().update_terms(terms)
+        messages.success(self.request, "The case terms were successfully updated.")
+        return redirect(self.get_case_object().get_absolute_url())
+
+    def get_case_object(self):
+        # TODO: move to mixin to reduce code duplication?
+        if not self._case_object:
+            self._case_object = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        return self._case_object
 
 
 class CaseFixSexView(

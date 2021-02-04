@@ -1,0 +1,79 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+{% load crispy_forms_filters %}
+{% load projectroles_tags %}
+{% load projectroles_common_tags %}
+{% load dict %}
+{% load variants_tags %}
+
+{% block title %}
+  Update Case {{ case.name }}
+{% endblock title %}
+
+{% block head_extend %}
+  {{ form.media }}
+{% endblock head_extend %}
+
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
+  <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.sodar_uuid %}">{{ object.name }}</a></li>
+  <li class="breadcrumb-item active">Update</li>
+{% endblock %}
+
+
+{% block projectroles %}
+  <div class="row sodar-subtitle-container">
+    <h3>Update Terms for Case {{ object.name }}</h3>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <p>
+      Provide HPO, OMIM, and Orphanet terms for each individual in the family below.
+      You can provide the terms as <code>HP:1234567</code>, <code>OMIM:123456</code>, and <code>ORPHA:123456</code>.
+      Everything else will be ignored (the terms will be displayed with their description throughout the system, though).
+    </p>
+
+    {% if form.errors %}
+      {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+          <strong>{{ error|escape }}</strong>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+
+      <div class="row">
+        <div class="btn-group ml-auto" role="group">
+          <a role="button" class="btn btn-secondary"
+             href="{{ request.session.real_referer }}">
+            <i class="fa fa-arrow-circle-left"></i> Cancel
+          </a>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa fa-check"></i>
+              Update
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <div class="row">
+      <div class="col-12 p-0 text-secondary">
+        Below, you can find terms from previous queries (from all users for this case) for this case and you can also obtain terms from SODAR.
+      </div>
+      <div class="col-6 p-0">
+        <strong class="small font-weight-bold">Query Terms</strong>
+        <textarea class="form-control" rows="10">{% for term in terms_queries %}{% get_term_description term as term_description %}{{ term }}{% if term_description %} - {{ term_description }}{% else %} - UNKNOWN TERM{% endif %}
+{% endfor %}
+</textarea>
+      </div>
+      <div class="col-6">
+
+      </div>
+    </div>
+  </div>
+
+{% endblock projectroles %}

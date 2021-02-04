@@ -37,6 +37,11 @@ ui_urlpatterns = [
         name="case-update",
     ),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/update-terms/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseUpdateTermView.as_view(),
+        name="case-update-terms",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/delete/(?P<case>[0-9a-f-]+)/$",
         view=views.CaseDeleteView.as_view(),
         name="case-delete",
