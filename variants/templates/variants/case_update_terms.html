@@ -74,7 +74,7 @@
 </textarea>
       </div>
       <div class="col-6">
-        {% if not project.is_remote %}
+        {% if project.is_remote %}
           <strong class="small font-weight-bold">SODAR Sample Sheet Terms</strong>
           <span class="btn btn-sm btn-secondary" id="load-upstream" data-state="initial">
             <i class="fa fa-cloud-download" id="load-upstream-indicator"></i>
