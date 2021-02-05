@@ -1,7 +1,7 @@
 {% load rules %}
 {% load variants_tags %}
 
-{% has_perm 'filesfolders.update_case' request.user project as can_update_case %}
+{% has_perm 'variants.update_case' request.user project as can_update_case %}
 
 <div class="card varfish-vars-case-details term-group"
      style="overflow-y: auto !important; max-height: 300px;"
