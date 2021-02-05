@@ -1,11 +1,12 @@
 """Factory Boy factory classes for ``variants``."""
 import uuid
+from datetime import datetime
 
 import binning
 import factory
 from django.utils import timezone
 
-from projectroles.models import SODAR_CONSTANTS
+from projectroles.models import SODAR_CONSTANTS, RemoteSite
 
 from bgjobs.tests.factories import BackgroundJobFactory
 
@@ -33,6 +34,7 @@ from ..models import (
     DeleteCaseBgJob,
     CaddSubmissionBgJob,
     CasePhenotypeTerms,
+    SyncCaseListBgJob,
 )
 import typing
 import attr
@@ -293,6 +295,20 @@ class CaseNotesStatusFormFactory:
 @attr.s(auto_attribs=True)
 class CaseCommentsFormFactory:
     comment: str = "This is some comment"
+
+
+class RemoteSiteFactory(factory.django.DjangoModelFactory):
+    """Factory for creating ``projectroles`` ``RemoteSite`` objects."""
+
+    class Meta:
+        model = RemoteSite
+
+    name = factory.Sequence(lambda n: "Remote Site %d" % n)
+    url = factory.Sequence(lambda n: "https://sodar-%d.example.com" % n)
+    mode = SODAR_CONSTANTS["SITE_MODE_TARGET"]
+    description = factory.Sequence(lambda n: "This is remote site #%d" % n)
+    secret = factory.Sequence(lambda n: "secret-%d" % n)
+    user_display = True
 
 
 class ProjectFactory(factory.django.DjangoModelFactory):
@@ -993,6 +1009,21 @@ class DeleteCaseBgJobFactory(factory.django.DjangoModelFactory):
     # Dummy argument ``user`` to pass to subfactory BackgroundJobFactory
     user = None
     case = factory.SubFactory(CaseFactory)
+    project = factory.LazyAttribute(lambda o: o.case.project)
+    bg_job = factory.SubFactory(
+        BackgroundJobFactory,
+        project=factory.SelfAttribute("factory_parent.project"),
+        user=factory.SelfAttribute("factory_parent.user"),
+    )
+
+
+class SyncCaseListBgJobFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SyncCaseListBgJob
+        exclude = ["user"]
+
+    # Dummy argument ``user`` to pass to subfactory BackgroundJobFactory
+    user = None
     project = factory.LazyAttribute(lambda o: o.case.project)
     bg_job = factory.SubFactory(
         BackgroundJobFactory,

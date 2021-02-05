@@ -62,7 +62,10 @@
 
     <div class="row">
       <div class="col-12 p-0 text-secondary">
-        Below, you can find terms from previous queries (from all users for this case) for this case and you can also obtain terms from SODAR.
+        Below, you can find terms from previous queries (from all users for this case) for this case.
+        {% if project.is_remote %}
+          Because this project comes form SODAR, you can also query for the HPO terms from SODAR.
+        {% endif %}
       </div>
       <div class="col-6 p-0">
         <strong class="small font-weight-bold">Query Terms</strong>
@@ -71,7 +74,16 @@
 </textarea>
       </div>
       <div class="col-6">
-
+        {% if not project.is_remote %}
+          <strong class="small font-weight-bold">SODAR Sample Sheet Terms</strong>
+          <span class="btn btn-sm btn-secondary">
+            <i class="fa fa-cloud-download"></i>
+            Load from SODAR
+          </span>
+          <textarea class="form-control" rows="10" placeholder="The terms from SODAR will appear here."></textarea>
+        {% else %}
+          <div class="font-italic text-center text-secondary align-middle">Project not from SODAR.</div>
+        {% endif %}
       </div>
     </div>
   </div>

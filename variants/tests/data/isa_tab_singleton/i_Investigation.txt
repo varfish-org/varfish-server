@@ -1,0 +1,95 @@
+ONTOLOGY SOURCE REFERENCE
+Term Source Name	UO	OBI	NCBITAXON	OMIM	HP	ORPHA	ORDO
+Term Source File	http://data.bioontology.org/ontologies/UO	http://data.bioontology.org/ontologies/OBI	http://data.bioontology.org/ontologies/NCBITAXON	http://data.bioontology.org/ontologies/OMIM	http://data.bioontology.org/ontologies/HP	http://data.bioontology.org/ontologies/ORDO	https://drive.google.com/uc?export=download&id=15zcPoVkmIWVzyH1XVv5783Wc4rij-9TN
+Term Source Version	48	35	10	12	570	2.8	http://www.orpha.net/version1.0
+Term Source Description	Units of Measurement Ontology	Ontology for Biomedical Investigations	National Center for Biotechnology Information (NCBI) Organismal Classification	Online Mendelian Inheritance in Man	Human Phenotype Ontology	Orphanet Rare Disease Ontology	Orphanet Rare Disease Ontology
+INVESTIGATION
+Investigation Identifier	
+Investigation Title	VarFish Test (Singleton)
+Investigation Description	
+Investigation Submission Date	
+Investigation Public Release Date	
+Comment[Created With Configuration]	/path/to/isa-configurations/bih_studies/bih_germline
+Comment[Last Opened With Configuration]	bih_germline
+INVESTIGATION PUBLICATIONS
+Investigation PubMed ID
+Investigation Publication DOI
+Investigation Publication Author List
+Investigation Publication Title
+Investigation Publication Status
+Investigation Publication Status Term Accession Number
+Investigation Publication Status Term Source REF
+INVESTIGATION CONTACTS
+Investigation Person Last Name
+Investigation Person First Name
+Investigation Person Mid Initials
+Investigation Person Email
+Investigation Person Phone
+Investigation Person Fax
+Investigation Person Address
+Investigation Person Affiliation
+Investigation Person Roles
+Investigation Person Roles Term Accession Number
+Investigation Person Roles Term Source REF
+STUDY
+Study Identifier	varfish_test_singleton
+Study Title	VarFish Test (Singleton)
+Study Description	
+Comment[Study Grant Number]	
+Comment[Study Funding Agency]	
+Study Submission Date	
+Study Public Release Date	
+Study File Name	s_varfish_test_singleton.txt
+STUDY DESIGN DESCRIPTORS
+Study Design Type
+Study Design Type Term Accession Number
+Study Design Type Term Source REF
+STUDY PUBLICATIONS
+Study PubMed ID
+Study Publication DOI
+Study Publication Author List
+Study Publication Title
+Study Publication Status
+Study Publication Status Term Accession Number
+Study Publication Status Term Source REF
+STUDY FACTORS
+Study Factor Name
+Study Factor Type
+Study Factor Type Term Accession Number
+Study Factor Type Term Source REF
+STUDY ASSAYS
+Study Assay File Name	a_varfish_test_singleton_exome_sequencing_nucleotide_sequencing.txt
+Study Assay Measurement Type	exome sequencing
+Study Assay Measurement Type Term Accession Number	
+Study Assay Measurement Type Term Source REF	
+Study Assay Technology Type	nucleotide sequencing
+Study Assay Technology Type Term Accession Number	http://purl.obolibrary.org/obo/OBI_0000626
+Study Assay Technology Type Term Source REF	OBI
+Study Assay Technology Platform	Illumina
+STUDY PROTOCOLS
+Study Protocol Name	Nucleic acid sequencing WES	Library construction WES	Nucleic acid extraction WES	Sample collection
+Study Protocol Type	Nucleic acid sequencing WES	Library construction WES	Nucleic acid extraction WES	Sample collection
+Study Protocol Type Term Accession Number				
+Study Protocol Type Term Source REF				
+Study Protocol Description				
+Study Protocol URI				
+Study Protocol Version				
+Study Protocol Parameters Name	Base quality encoding;Platform;Center contact;Instrument model;Center name	Provider project ID;Library source;Library selection;Library layout;Barcode sequence;Wet-lab insert size;Requestor contact;Library kit;Barcode name;Provider contact;Concentration measurement;Provider sample ID;Target insert size;Provider name;Requestor project;Requestor sample ID;Barcode kit;Barcode kit catalogue ID;Provider QC status;Library strategy	Concentration measurement	
+Study Protocol Parameters Name Term Accession Number	;;;;	;;;;;;;;;;;;;;;;;;;		
+Study Protocol Parameters Name Term Source REF	;;;;	;;;;;;;;;;;;;;;;;;;		
+Study Protocol Components Name				
+Study Protocol Components Type				
+Study Protocol Components Type Term Accession Number				
+Study Protocol Components Type Term Source REF				
+STUDY CONTACTS
+Study Person Last Name
+Study Person First Name
+Study Person Mid Initials
+Study Person Email
+Study Person Phone
+Study Person Fax
+Study Person Address
+Study Person Affiliation
+Study Person Roles
+Study Person Roles Term Accession Number
+Study Person Roles Term Source REF

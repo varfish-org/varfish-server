@@ -4,7 +4,7 @@ import io
 import typing
 
 import attr
-from altamisa.isatab import InvestigationReader, StudyReader
+from altamisa.isatab import StudyReader
 from django.db import transaction
 from bgjobs.models import LOG_LEVEL_ERROR, LOG_LEVEL_WARNING
 from projectroles.plugins import get_backend_api
@@ -116,6 +116,72 @@ def compare_to_upstream(project, upstream_pedigree, job):
                     job.add_log_entry(tpl % (title, name))
 
 
+def _nolog(msg, log_level=None):
+    """Helper log function that does not do anything."""
+    _, _ = msg, log_level
+
+
+def _isa_helper_get_field(fields, key):
+    """Helper for easily obtaining value from an ISA-tab field."""
+    return ";".join(fields.get(key, ()))
+
+
+def fetch_remote_pedigree(source, project, add_log_entry=_nolog):
+    """Fetch pedigree (dict of ``PedigreeMember``) from remote site ``source``."""
+    r = requests.get(
+        URL_TEMPLATE
+        % {"url": source.url, "project_uuid": project.sodar_uuid, "secret": source.secret}
+    )
+
+    # Mapping from sex in ISA-tab to sex in PLINK PED.
+    map_sex = {"male": 1, "female": 2}
+    # Mapping from disease state in ISA-tab to sex in PLINK PED.
+    map_affected = {"affected": 2, "unaffected": 1}
+
+    # Parse investigation and all studies from ISA-tab (wrapped in JSON).
+    remote_pedigree = {}
+    isa_json = r.json()
+
+    for s_path, s_data in isa_json["studies"].items():
+        study = StudyReader.from_stream(s_path, io.StringIO(s_data["tsv"]), filename=s_path).read()
+        add_log_entry(study)
+        # Compress study arcs (map source to sample), easy because only one depth of one in study.
+        arc_map = {arc.tail: arc for arc in study.arcs}
+        for arc in list(arc_map.values()):  # NB: copy intentionally
+            if arc.head in arc_map:
+                arc_map[arc.tail] = arc_map[arc.head]
+        add_log_entry(arc_map)
+        # Actually parse out individuals.
+        source_samples = {}
+        for arc in study.arcs:
+            if arc.tail in study.materials and study.materials[arc.tail].type == "Source Name":
+                source_samples.setdefault(arc.tail, []).append(
+                    study.materials[arc_map[arc.tail].head]
+                )
+        for material in study.materials.values():
+            if material.type == "Source Name":
+                if len(source_samples[material.unique_name]) > 1:
+                    add_log_entry(
+                        "WARNING: more than one sample for source %s" % material.name,
+                        log_level=LOG_LEVEL_WARNING,
+                    )
+                fields = {c.name: c.value for c in material.characteristics}
+                add_log_entry("fields = %s" % fields)
+                member = PedigreeMember(
+                    family=_isa_helper_get_field(fields, "Family"),
+                    name=material.name,
+                    father=_isa_helper_get_field(fields, "Father"),
+                    mother=_isa_helper_get_field(fields, "Mother"),
+                    sex=map_sex.get(_isa_helper_get_field(fields, "Sex"), 0),
+                    affected=map_affected.get(_isa_helper_get_field(fields, "Disease status"), 0),
+                    sample_name=source_samples[material.unique_name][0].name,
+                )
+                add_log_entry("new member: %s" % member)
+                remote_pedigree[material.name] = member
+
+    return remote_pedigree
+
+
 def execute_sync_case_list_job(job):
     """Synchronise cases within a project with the upstream SODAR site."""
     job.mark_start()
@@ -135,69 +201,9 @@ def execute_sync_case_list_job(job):
             raise RuntimeError(
                 "Expected exactly one remote source site but there were %d" % len(sources)
             )
-        else:
-            source = sources[0]
+
         project = CaseAwareProject.objects.get(pk=job.project.pk)
-        r = requests.get(
-            URL_TEMPLATE
-            % {"url": source.url, "project_uuid": project.sodar_uuid, "secret": source.secret}
-        )
-
-        def get_field(fields, key):
-            """Helper for easily obtaining value from an ISA-tab field."""
-            return ";".join(fields.get(key, ()))
-
-        # Mapping from sex in ISA-tab to sex in PLINK PED.
-        map_sex = {"male": 1, "female": 2}
-        # Mapping from disease state in ISA-tab to sex in PLINK PED.
-        map_affected = {"affected": 2, "unaffected": 1}
-
-        # Parse investigation and all studies from ISA-tab (wrapped in JSON).
-        upstream_pedigree = {}
-        isa_json = r.json()
-        # investigation = InvestigationReader.from_stream(
-        #     io.StringIO(isa_json["investigation"]["tsv"]),
-        #     filename=isa_json["investigation"]["path"],
-        # ).read()
-        for s_path, s_data in isa_json["studies"].items():
-            study = StudyReader.from_stream(
-                s_path, io.StringIO(s_data["tsv"]), filename=s_path
-            ).read()
-            job.add_log_entry(study)
-            # Compress study arcs (map source to sample), easy because only one depth of one in study.
-            arc_map = {arc.tail: arc for arc in study.arcs}
-            for arc in list(arc_map.values()):  # NB: copy intentionally
-                if arc.head in arc_map:
-                    arc_map[arc.tail] = arc_map[arc.head]
-            job.add_log_entry(arc_map)
-            # Actually parse out individuals.
-            source_samples = {}
-            for arc in study.arcs:
-                if arc.tail in study.materials and study.materials[arc.tail].type == "Source Name":
-                    source_samples.setdefault(arc.tail, []).append(
-                        study.materials[arc_map[arc.tail].head]
-                    )
-            for material in study.materials.values():
-                if material.type == "Source Name":
-                    if len(source_samples[material.unique_name]) > 1:
-                        job.add_log_entry(
-                            "WARNING: more than one sample for source %s" % material.name,
-                            log_level=LOG_LEVEL_WARNING,
-                        )
-                    fields = {c.name: c.value for c in material.characteristics}
-                    job.add_log_entry("fields = %s" % fields)
-                    member = PedigreeMember(
-                        family=get_field(fields, "Family"),
-                        name=material.name,
-                        father=get_field(fields, "Father"),
-                        mother=get_field(fields, "Mother"),
-                        sex=map_sex.get(get_field(fields, "Sex"), 0),
-                        affected=map_affected.get(get_field(fields, "Disease status"), 0),
-                        sample_name=source_samples[material.unique_name][0].name,
-                    )
-                    job.add_log_entry("new member: %s" % member)
-                    upstream_pedigree[material.name] = member
-
+        upstream_pedigree = fetch_remote_pedigree(sources[0], project, job.bg_job.add_log_entry)
         compare_to_upstream(project, upstream_pedigree, job)
     except Exception as e:
         job.mark_error("%s: %s" % (type(e).__name__, e))
