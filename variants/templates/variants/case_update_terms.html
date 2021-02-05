@@ -76,15 +76,72 @@
       <div class="col-6">
         {% if not project.is_remote %}
           <strong class="small font-weight-bold">SODAR Sample Sheet Terms</strong>
-          <span class="btn btn-sm btn-secondary">
-            <i class="fa fa-cloud-download"></i>
+          <span class="btn btn-sm btn-secondary" id="load-upstream" data-state="initial">
+            <i class="fa fa-cloud-download" id="load-upstream-indicator"></i>
             Load from SODAR
           </span>
-          <textarea class="form-control" rows="10" placeholder="The terms from SODAR will appear here."></textarea>
+          <textarea class="form-control" rows="10" placeholder="The terms from SODAR will appear here." id="upstream-terms"></textarea>
         {% else %}
           <div class="font-italic text-center text-secondary align-middle">Project not from SODAR.</div>
         {% endif %}
       </div>
+      <script type="application/javascript">
+        $(document).ready(function() {
+          // States for $("#load-upstream").data("state")
+          //
+          // "initial" -- on page load, after success/error
+          // "running" -- while async request is running
+
+          function onLoadUpstreamClick(e)
+          {
+            let btn = $("#load-upstream");
+            if ($.inArray(btn.data("state"), ["initial", "error"]) !== -1) {
+              // Update UI.
+              $("#load-upstream-indicator").toggleClass("fa-cloud-download fa-spinner fa-spin");
+              btn.data("state", "loading");
+              // Perform AJAX call.
+              let ajaxCall = $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: "{% url "variants:case-fetch-upstream-terms" project=project.sodar_uuid case=object.sodar_uuid %}",
+                success: function (result) {
+                  console.log("SUCCESS")
+                  console.log(result);
+                  let lines = [];
+                  $.each(result, function (index, value) {
+                    console.log("index " + index);
+                    if (lines.length > 0) {
+                      lines.push("")
+                    } else {
+                      lines.push("### " + index + " ###");
+                      lines.push("");
+                      let keys = ["hpo_terms", "omim_diseases", "orphanet_diseases"];
+                      for (let i = 0; i < keys.length; ++i) {
+                        for (let j = 0; j < value[keys[i]].length; ++j) {
+                          let term = value[keys[i]][j];
+                          lines.push(term.id + " - " + (term.description || "UNKNOWN TERM"));
+                        }
+                      }
+                    }
+                  });
+                  $("#load-upstream-indicator").toggleClass("fa-cloud-download fa-spinner fa-spin");
+                  btn.data("state", "initial");
+                  $("#upstream-terms").val(lines.join("\n"))
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                  console.log("ERROR")
+                  console.log(result);
+                  $("#upstream-terms").val("ERROR\n\nA problem occured while trying to query SODAR: " + textStatus + "\n\nERROR")
+                  $("#load-upstream-indicator").toggleClass("fa-cloud-download fa-spinner fa-spin");
+                  btn.data("state", "initial");
+                }
+              })
+            }
+          }
+
+          $("#load-upstream").click(onLoadUpstreamClick);
+        })
+      </script>
     </div>
   </div>
 

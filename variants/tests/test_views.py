@@ -3,7 +3,9 @@ import contextlib
 import itertools
 import json
 
+import requests_mock
 from django.core.urlresolvers import reverse
+from projectroles.constants import SODAR_CONSTANTS
 from projectroles.templatetags.projectroles_common_tags import site_version
 from projectroles.tests.test_models import RoleAssignmentMixin, PROJECT_ROLE_OWNER
 
@@ -82,8 +84,10 @@ from variants.tests.factories import (
     DeleteCaseBgJobFactory,
     CaseWithVariantSetFactory,
     SmallVariantQueryFactory,
+    RemoteSiteFactory,
 )
 from variants.tests.helpers import ViewTestBase
+from variants.tests.test_sync_upstream import load_isa_tab
 from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
 from geneinfo.models import HpoName, Hgnc, RefseqToHgnc
 from variants.helpers import SQLALCHEMY_ENGINE
@@ -4321,3 +4325,61 @@ class TestProjectCasesFixSexView(RoleAssignmentMixin, ViewTestBase):
             case_2 = Case.objects.get(id=self.case_2.id)
             self.assertEqual(case_1.pedigree[0]["sex"], 2)
             self.assertEqual(case_2.pedigree[0]["sex"], 1)
+
+
+class TestCaseFetchUpstreamTermsView(ViewTestBase):
+    """Test view that fetches upstream terms."""
+
+    def setUp(self):
+        super().setUp()
+        self.case, _, _ = CaseWithVariantSetFactory.get(
+            "small",
+            name="index",
+            index="index-N1-DNA1-WES1",
+            pedigree=[
+                {
+                    "patient": "index-N1-DNA1-WES1",
+                    "affected": 2,
+                    "sex": 1,
+                    "father": "0",
+                    "mother": "0",
+                }
+            ],
+        )
+        self.project = self.case.project
+        self.isa_tab_json = json.dumps(load_isa_tab("data/isa_tab_singleton"))
+        self.remote_site = RemoteSiteFactory(mode=SODAR_CONSTANTS["SITE_MODE_SOURCE"])
+        self.maxDiff = None
+
+    @requests_mock.Mocker()
+    def test_get_json(self, r_mock):
+        """Test display of case list page."""
+        r_mock.get(
+            "%s/samplesheets/api/remote/get/%s/%s?isa=1"
+            % (self.remote_site.url, self.project.sodar_uuid, self.remote_site.secret,),
+            status_code=200,
+            text=self.isa_tab_json,
+        )
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:case-fetch-upstream-terms",
+                    kwargs={"project": self.project.sodar_uuid, "case": self.case.sodar_uuid},
+                )
+            )
+            self.assert_http_200_ok(response)
+            expected = {
+                "index": {
+                    "hpo_terms": [
+                        {"description": None, "id": "HP:0000939"},
+                        {"description": None, "id": "HP:0011002"},
+                    ],
+                    "name": "index",
+                    "omim_diseases": [{"description": None, "id": "OMIM:166710"}],
+                    "orphanet_diseases": [
+                        {"description": None, "id": "ORPHA:2781"},
+                        {"description": None, "id": "ORPHA:2788"},
+                    ],
+                }
+            }
+            self.assertEqual(json.loads(response.content.decode("utf-8")), expected)

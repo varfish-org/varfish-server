@@ -1,6 +1,7 @@
 """Code for synchronizing with upstream SODAR."""
 
 import io
+import re
 import typing
 
 import attr
@@ -32,6 +33,9 @@ class PedigreeMember:
     sex: int
     affected: int
     sample_name: str
+    hpo_terms: typing.List[str] = []
+    orphanet_diseases: typing.List[str] = []
+    omim_diseases: typing.List[str] = []
 
 
 def compare_to_upstream(project, upstream_pedigree, job):
@@ -126,6 +130,29 @@ def _isa_helper_get_field(fields, key):
     return ";".join(fields.get(key, ()))
 
 
+def _isa_helper_get_term_field(fields, key):
+    lst = []
+    for value in fields.get(key, ()):
+        ontology_name = getattr(value, "ontology_name", True)
+        if ontology_name in ("OMIM", "HP", "ORDO"):
+            res = {
+                "OMIM": ("OMIM", r"OMIM/(?P<id>\d+)"),
+                "HP": ("HP", r"HP_(?P<id>\d+)"),
+                "ORDO": ("ORPHA", r"Orphanet_(?P<id>\d+)"),
+            }
+            key, regex = res[ontology_name]
+            m = re.search(regex, str(value.accession))
+            if m:
+                lst.append("%s:%s" % (key, m.groupdict().get("id")))
+            else:
+                lst.append(value.name)
+        elif ontology_name:
+            lst.append(value.name)
+        else:
+            lst.append(str(value))
+    return lst
+
+
 def fetch_remote_pedigree(source, project, add_log_entry=_nolog):
     """Fetch pedigree (dict of ``PedigreeMember``) from remote site ``source``."""
     r = requests.get(
@@ -175,6 +202,9 @@ def fetch_remote_pedigree(source, project, add_log_entry=_nolog):
                     sex=map_sex.get(_isa_helper_get_field(fields, "Sex"), 0),
                     affected=map_affected.get(_isa_helper_get_field(fields, "Disease status"), 0),
                     sample_name=source_samples[material.unique_name][0].name,
+                    hpo_terms=_isa_helper_get_term_field(fields, "HPO terms"),
+                    orphanet_diseases=_isa_helper_get_term_field(fields, "Orphanet disease"),
+                    omim_diseases=_isa_helper_get_term_field(fields, "OMIM disease"),
                 )
                 add_log_entry("new member: %s" % member)
                 remote_pedigree[material.name] = member

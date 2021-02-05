@@ -1,3 +1,4 @@
+
 ===================
 History / Changelog
 ===================
@@ -23,6 +24,9 @@ End-User Summary
 - Bumped chromedriver version to 87.
 - Fixed bug where file export was not possible when nubmer of resulting variants were < 10.
 - Fixed bug that made it impossible to properly sort by genotype in the results table.
+- Cases can now be annotated with phenotypes and diseases.
+  To speed up annotation, all phenotypes of all previous queries are listed for copy and paste.
+  SODAR can also be queried for phenotypes.
 
 Full Change List
 ================
@@ -42,6 +46,9 @@ Full Change List
 - Bumped chromedriver version to 87.
 - Fixed bug where file export was not possible when number of resulting variants were < 10.
 - Fixed bug that made it impossible to properly sort by genotype in the results table.
+- Adding tests for upstream sychronization backend code.
+- Allowing users with the Contributor role to a project to annotate cases with phenotype and disease terms.
+  They can obtain the phenotypes from all queries of all users for a case and also fetch them from SODAR.
 
 -------
 v0.22.1

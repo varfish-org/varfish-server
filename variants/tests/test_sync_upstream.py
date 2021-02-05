@@ -114,6 +114,9 @@ class TestFetchRemotePedigree(TestCase):
                 sex=1,
                 affected=2,
                 sample_name="index-N1",
+                hpo_terms=["HP:0000939", "HP:0011002"],
+                orphanet_diseases=["ORPHA:2781", "ORPHA:2788"],
+                omim_diseases=["OMIM:166710"],
             )
         }
         self.assertEqual(result, expected)

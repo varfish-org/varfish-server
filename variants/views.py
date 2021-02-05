@@ -29,6 +29,8 @@ from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateR
 
 import simplejson as json
 from django.views.generic.edit import FormMixin
+from projectroles.constants import SODAR_CONSTANTS
+from projectroles.models import RemoteSite
 from projectroles.templatetags.projectroles_common_tags import site_version
 
 from bgjobs.models import BackgroundJob
@@ -118,6 +120,7 @@ from .forms import (
     CaseTermsForm,
     RE_FIND_TERMS,
 )
+from .sync_upstream import fetch_remote_pedigree
 from .tasks import (
     export_file_task,
     export_project_cases_file_task,
@@ -132,6 +135,7 @@ from .tasks import (
 )
 from .file_export import RowWithSampleProxy
 from variants.helpers import SQLALCHEMY_ENGINE
+from .templatetags.variants_tags import get_term_description
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -1240,6 +1244,51 @@ class CaseUpdateTermView(
         if not self._case_object:
             self._case_object = Case.objects.get(sodar_uuid=self.kwargs["case"])
         return self._case_object
+
+
+class CaseFetchUpstreamTermsView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Load HPO and disease terms from upstream SODAR project for the "load from SODAR" button on the case update
+    terms view.
+    """
+
+    permission_required = "variants.update_case"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+
+    def get(self, *args, **kwargs):
+        def term(term_id):
+            return {"id": term_id, "description": get_term_description(term_id)}
+
+        sources = [
+            s for s in RemoteSite.objects.all() if s.mode == SODAR_CONSTANTS["SITE_MODE_SOURCE"]
+        ]
+        if len(sources) != 1:
+            raise RuntimeError(
+                "Expected exactly one remote source site but there were %d" % len(sources)
+            )
+        case = self.get_object()
+        upstream_pedigree = fetch_remote_pedigree(sources[0], case.project)
+        result = {}
+        for name in case.get_members():
+            name = name.split("-", 1)[0]
+            if name in upstream_pedigree:
+                upstream = upstream_pedigree[name]
+                result[name] = {
+                    "name": name,
+                    "hpo_terms": list(map(term, upstream.hpo_terms)),
+                    "orphanet_diseases": list(map(term, upstream.orphanet_diseases)),
+                    "omim_diseases": list(map(term, upstream.omim_diseases)),
+                }
+            else:
+                result[name] = {"error": "individual not found upstream"}
+        return JsonResponse(result)
 
 
 class CaseFixSexView(
