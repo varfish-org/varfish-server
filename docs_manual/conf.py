@@ -53,7 +53,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "VarFish Manual"
-copyright = "2018-2020, BIH Core Unit Bioinformatics"
+copyright = "2018-2021, BIH Core Unit Bioinformatics"
 author = "BIH Core Unit Bioinformatics"
 
 # The short X.Y version

@@ -95,10 +95,10 @@ Currently, the main focus is on small/sequence variants called from high-througp
     :hidden:
     :titlesonly:
 
-    installation
-    setup_core
-    setup_extras
-    setup_tuning
+    admin_install
+    admin_config
+    admin_ingest
+    admin_tuning
 
 .. raw:: latex
 
@@ -143,6 +143,7 @@ Currently, the main focus is on small/sequence variants called from high-througp
     contributors
     history
     glossary
+    dev_docker
 
 Indices and tables
 ==================

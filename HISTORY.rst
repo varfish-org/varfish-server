@@ -49,6 +49,7 @@ Full Change List
 - Adding tests for upstream sychronization backend code.
 - Allowing users with the Contributor role to a project to annotate cases with phenotype and disease terms.
   They can obtain the phenotypes from all queries of all users for a case and also fetch them from SODAR.
+- Adding files for building Docker images and documenting Docker (Compose) deployment.
 
 -------
 v0.22.1
