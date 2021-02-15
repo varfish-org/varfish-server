@@ -89,9 +89,6 @@ xlsxwriter ==1.1.2
 vcfpy
 pysam==0.15.2
 
-# Filter query generation
-sqlalchemy ==1.2.13
-
 # SQL Alchemy and Django integrate
 SQLAlchemy ==1.2.13
 aldjemy ==0.9.1
@@ -117,7 +114,7 @@ interval-binning ==1.0.0
 nltk
 
 # Parsing of ISA-tab
-altamisa ==0.2.5
+altamisa ==0.2.8
 
 # Login as every user
 django-su
@@ -141,3 +138,9 @@ requests-http-signature==0.2.0
 djangorestframework-httpsignature==1.0.0
 httpsig==1.3.0
 cryptography ==3.4.6
+
+# Webpack loading
+django-webpack-loader==0.7.0
+
+# XML processing
+lxml ==4.6.3

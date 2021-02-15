@@ -59,6 +59,11 @@ jobs:
           pip install -r requirements/local.txt
           pip install -r requirements/test.txt
           pip install -U 'celery >4.2'
+      - name: make sure all npm stuff is there
+        run: |
+          npm ci --prefix varfish/vueapp
+          # Temporary HACK, should not actually do this
+          nohup npm run -prefix varfish/vueapp serve &
       - name: run collectstatic
         run: python manage.py collectstatic --noinput
       - name: run tests

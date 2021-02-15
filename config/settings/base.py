@@ -81,6 +81,7 @@ THIRD_PARTY_APPS = [
     "httpproxy",
     "encrypted_model_fields",
     "rest_framework_httpsignature",
+    "webpack_loader",
 ]
 
 # Apps specific for this project go here.
@@ -89,6 +90,7 @@ LOCAL_APPS = [
     "varfish.users.apps.UsersConfig",
     # Your stuff: custom apps go here
     "clinvar.apps.ClinvarConfig",
+    "clinvar_export.apps.ClinvarExportConfig",
     "cohorts.apps.CohortsConfig",
     "conservation.apps.ConservationConfig",
     "dbsnp.apps.DbsnpConfig",
@@ -677,3 +679,8 @@ if ENABLE_S3:
     # stored files.
     MEDIA_URL = "http://localhost/-minio/%s/" % AWS_STORAGE_BUCKET_NAME
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+
+# WEBPACK / VUE.JS CONFIGURATION
+# ------------------------------------------------------------------------------
+WEBPACK_LOADER = {"VARFISH_VUE": {"STATS_FILE": ROOT_DIR("varfish/vueapp/webpack-stats.json"),}}

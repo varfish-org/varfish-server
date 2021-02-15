@@ -35,6 +35,7 @@ from ..models import (
     CaddSubmissionBgJob,
     CasePhenotypeTerms,
     SyncCaseListBgJob,
+    AcmgCriteriaRating,
 )
 import typing
 import attr
@@ -934,6 +935,27 @@ class SmallVariantFlagsFactory(factory.django.DjangoModelFactory):
     flag_validation = ""
     flag_phenotype_match = ""
     flag_summary = ""
+
+    @factory.post_generation
+    def fix_bins(obj, *args, **kwargs):
+        obj.bin = binning.assign_bin(obj.start - 1, obj.end)
+        obj.save()
+
+
+class AcmgCriteriaRatingFactory(factory.django.DjangoModelFactory):
+    """Factory for ``AcmgCriteriaRating`` model."""
+
+    class Meta:
+        model = AcmgCriteriaRating
+
+    release = "GRCh37"
+    chromosome = factory.Iterator(list(CHROMOSOME_MAPPING.keys()))
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))
+    bin = 0
+    reference = factory.Iterator("ACGT")
+    alternative = factory.Iterator("CGTA")
+    case = factory.SubFactory(CaseFactory)
 
     @factory.post_generation
     def fix_bins(obj, *args, **kwargs):

@@ -50,3 +50,9 @@ echo "Installing LDAP/AD dependencies"
 echo "***********************************************"
 apt-get -y install libsasl2-dev
 apt-get -y install libldap2-dev
+
+echo "***********************************************"
+echo "Installing Node.js"
+echo "***********************************************"
+curl -sL https://deb.nodesource.com/setup_10.x | bash -
+apt-get install -y nodejs

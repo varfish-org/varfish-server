@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql.array import OVERLAP
 from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from sqlalchemy import Table, true, column, union, literal_column, delete
+from sqlalchemy import Table, true, column, union, literal_column, delete, tuple_
 from sqlalchemy.sql import select, func, and_, not_, or_, cast
 from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
 import sqlparse
@@ -1757,3 +1757,99 @@ class DeleteStructuralVariantsQuery:
         yield self.engine.execute(
             delete(StructuralVariant.sa.table).where(StructuralVariant.sa.case_id == case_id)
         )
+
+
+# Queries for pulling all user annotation for one or more cases from the database.
+
+
+@attr.s(auto_attribs=True, frozen=True)
+class _VariantInCase:
+    """Identifies a variant in a case."""
+
+    id: int
+    case_id: int
+    release: str
+    chromosome: str
+    start: int
+    reference: str
+    alternative: str
+
+
+@attr.s(auto_attribs=True, frozen=True)
+class AnnotatedSmallVariants:
+    """Helper struct that contains small variants and their annotation only."""
+
+    small_variants: typing.List[SmallVariant]
+    small_variant_flags: typing.List[SmallVariantFlags]
+    small_variant_comments: typing.List[SmallVariantComment]
+    acmg_criteria_rating: typing.List[AcmgCriteriaRating]
+
+
+class SmallVariantUserAnnotationQuery:
+    """Query for all user annotated variants of one case, multiple cases, or all within a project."""
+
+    KEYS = ["id", "case_id", "release", "chromosome", "start", "reference", "alternative"]
+
+    def __init__(self, engine):
+        #: The Aldjemy engine to use.
+        self.engine = engine
+
+    def run(self, *, case=None, cases=None, project=None):
+        """Return information for single case, multiple cases, or all in a project."""
+        if sum(map(int, map(bool, (case, cases, project)))) != 1:
+            raise ValueError("Exactly one of case, cases, and project must be given")
+        if case:
+            case_ids = [case.id]
+        elif cases:
+            case_ids = [c.id for c in cases]
+        else:
+            case_ids = [c.id for c in Case.objects.filter(project=project)]
+        return self._query(case_ids)
+
+    def _query(self, case_ids: typing.List[int]):
+        result_flags = self._query_model(SmallVariantFlags, case_ids)
+        result_comments = self._query_model(SmallVariantComment, case_ids)
+        result_ratings = self._query_model(AcmgCriteriaRating, case_ids)
+        variant_keys = list(
+            sorted(
+                set(map(self._variant_keys, result_flags))
+                | set(map(self._variant_keys, result_comments))
+                | set(map(self._variant_keys, result_ratings))
+            )
+        )
+
+        keys = ["case_id", "release", "chromosome", "start", "reference", "alternative"]
+        stmt = (
+            select([SmallVariant.sa.id])
+            .select_from(SmallVariant.sa.table)
+            .where(
+                tuple_(*[getattr(SmallVariant.sa, key) for key in keys]).in_(
+                    [[getattr(k, key) for key in keys] for k in variant_keys]
+                )
+            )
+        )
+        small_var_ids = [rec.id for rec in self.engine.execute(stmt)]
+
+        flags_ids = [x["id"] for x in result_flags]
+        comments_ids = [x["id"] for x in result_comments]
+        ratings_ids = [x["id"] for x in result_ratings]
+
+        return AnnotatedSmallVariants(
+            small_variants=list(SmallVariant.objects.filter(id__in=small_var_ids)),
+            small_variant_flags=list(SmallVariantFlags.objects.filter(id__in=flags_ids)),
+            small_variant_comments=list(SmallVariantComment.objects.filter(id__in=comments_ids)),
+            acmg_criteria_rating=list(AcmgCriteriaRating.objects.filter(id__in=ratings_ids)),
+        )
+
+    def _query_model(self, model: typing.Any, case_ids: typing.List[int]):
+        stmt = (
+            select([getattr(model.sa, key) for key in self.KEYS])
+            .select_from(model.sa.table)
+            .where(model.sa.case_id.in_(case_ids))
+        )
+        result = self.engine.execute(stmt)
+        return list(map(dict, result))
+
+    def _variant_keys(self, record: typing.Any):
+        """Extract identifier of the given variant in the given case."""
+        return _VariantInCase(**{key: record[key] for key in self.KEYS})

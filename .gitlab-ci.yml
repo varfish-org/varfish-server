@@ -32,6 +32,9 @@ before_script:
 - virtualenv env
 - source env/bin/activate
 - sh ./utility/install_python_dependencies.sh
+- npm ci --prefix varfish/vueapp
+# Temporary HACK, should not actually do this
+- nohup npm run -prefix varfish/vueapp serve &
 
 all_tests:
   script:
