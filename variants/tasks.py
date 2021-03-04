@@ -117,7 +117,8 @@ def setup_periodic_tasks(sender, **_kwargs):
     sender.add_periodic_task(schedule=crontab(minute=11), sig=clear_inactive_variant_sets.s())
     # Rebuild materialized view on sundays.
     sender.add_periodic_task(
-        schedule=crontab(day_of_week=0), sig=refresh_variants_smallvariantsummary.s()
+        schedule=crontab(hour=2, minute=22, day_of_week="sunday"),
+        sig=refresh_variants_smallvariantsummary.s(),
     )
     # Clear out kiosk cases nightly (lasting period is defined in signature function)
     sender.add_periodic_task(schedule=crontab(hour=2, minute=22), sig=clear_old_kiosk_cases.s())

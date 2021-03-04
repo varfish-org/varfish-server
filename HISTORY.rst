@@ -28,6 +28,7 @@ End-User Summary
   To speed up annotation, all phenotypes of all previous queries are listed for copy and paste.
   SODAR can also be queried for phenotypes.
 - Properly sanitized output by Exomiser.
+- Rebuild of variant summary database table happens every Sunday at 2:22am.
 
 Full Change List
 ================
@@ -52,6 +53,7 @@ Full Change List
   They can obtain the phenotypes from all queries of all users for a case and also fetch them from SODAR.
 - Adding files for building Docker images and documenting Docker (Compose) deployment.
 - Properly sanitized output by Exomiser.
+- Rebuild of variant summary database table happens every Sunday at 2:22am.
 
 -------
 v0.22.1
