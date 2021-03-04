@@ -20,6 +20,7 @@ import requests
 from bgjobs.plugins import BackgroundJobsPluginPoint
 from django.contrib.auth import get_user_model
 from django.forms import model_to_dict
+from django.utils.html import strip_tags
 from sqlalchemy import select, func, and_, delete
 import uuid as uuid_object
 
@@ -2315,7 +2316,7 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
         if not res.status_code == 200:
             raise ConnectionError(
                 "ERROR: Server responded with status {} and message {}".format(
-                    res.status_code, res.text
+                    res.status_code, strip_tags(re.sub("<head>.*</head>", "", res.text))
                 )
             )
     except requests.ConnectionError:

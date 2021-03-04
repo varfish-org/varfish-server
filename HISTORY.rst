@@ -27,6 +27,7 @@ End-User Summary
 - Cases can now be annotated with phenotypes and diseases.
   To speed up annotation, all phenotypes of all previous queries are listed for copy and paste.
   SODAR can also be queried for phenotypes.
+- Properly sanitized output by Exomiser.
 
 Full Change List
 ================
@@ -50,6 +51,7 @@ Full Change List
 - Allowing users with the Contributor role to a project to annotate cases with phenotype and disease terms.
   They can obtain the phenotypes from all queries of all users for a case and also fetch them from SODAR.
 - Adding files for building Docker images and documenting Docker (Compose) deployment.
+- Properly sanitized output by Exomiser.
 
 -------
 v0.22.1
