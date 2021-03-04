@@ -19,6 +19,13 @@ if "production" in os.environ.get("DJANGO_SETTINGS_MODULE"):
         "*.run_import_*_bg_job": {"queue": "import"},
         # The filter tasks go to the "query" queue.
         "*.*_filter_task": {"queue": "query"},
+        # The export tasks go to the "export" queue.
+        "*.export_*_task": {"queue": "export"},
+        # The maintenance tasks go to the "maintenance" queue.
+        "*.refresh_*": {"queue": "maintenance"},
+        "*.clear_*": {"queue": "maintenance"},
+        "*.compute_*": {"queue": "maintenance"},
+        "*.sync_*": {"queue": "maintenance"},
     }
 
     # Explicitely set the name of the default queue to default (is celery).
