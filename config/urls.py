@@ -57,7 +57,13 @@ urlpatterns += [
     url(r"^cohorts/", include("cohorts.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-# Augment url patterns with
+# Augment with URLs for Beacon site.
+if settings.VARFISH_ENABLE_BEACON_SITE:
+    urlpatterns += [
+        url(r"^beaconsite/", include("beaconsite.urls")),
+    ]
+
+# Augment url patterns with proxy for genomics england panelapp.
 urlpatterns += [
     url(
         r"^proxy/panelapp/(?P<url>.*)$",

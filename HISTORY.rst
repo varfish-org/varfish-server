@@ -1,4 +1,3 @@
-
 ===================
 History / Changelog
 ===================
@@ -30,6 +29,7 @@ End-User Summary
 - Properly sanitized output by Exomiser.
 - Rebuild of variant summary database table happens every Sunday at 2:22am.
 - Added celery queues ``maintenance`` and ``export``.
+- Adding support for connecting two sites via the GAGH Beacon protocol.
 
 Full Change List
 ================
@@ -56,6 +56,7 @@ Full Change List
 - Properly sanitized output by Exomiser.
 - Rebuild of variant summary database table happens every Sunday at 2:22am.
 - Added celery queues ``maintenance`` and ``export``.
+- Adding support for connecting two sites via the GAGH Beacon protocol.
 
 -------
 v0.22.1

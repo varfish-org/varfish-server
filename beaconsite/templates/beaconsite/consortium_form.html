@@ -1,0 +1,54 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+{% load crispy_forms_filters %}
+{% load projectroles_tags %}
+{% load projectroles_common_tags %}
+
+{% block title %}
+  <i class="fa fa-handshake-o"></i>
+  {% if object.pk %}
+    Update
+  {% else %}
+    Create
+  {% endif %}
+  Consortium {{ object.title }}
+{% endblock title %}
+
+{% block projectroles %}
+  <div class="row sodar-subtitle-container">
+
+      <h2>
+        {% if object.pk %}
+          Update
+        {% else %}
+          Create
+        {% endif %}
+        Consortium
+      </h2>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <form method="post">
+      {% csrf_token %}
+      {{ form | crispy }}
+      <div class="row">
+        <div class="btn-group ml-auto" role="group">
+          <a role="button" class="btn btn-secondary"
+             href="{% url 'beaconsite:consortium-list' %}">
+            <i class="fa fa-arrow-circle-left"></i> Cancel
+          </a>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa fa-check"></i>
+            {% if object.pk %}
+              Update
+            {% else %}
+              Create
+            {% endif %}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+{% endblock projectroles %}

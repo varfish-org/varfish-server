@@ -79,6 +79,8 @@ THIRD_PARTY_APPS = [
     "dal",
     "dal_select2",
     "httpproxy",
+    "encrypted_model_fields",
+    "rest_framework_httpsignature",
 ]
 
 # Apps specific for this project go here.
@@ -106,6 +108,7 @@ LOCAL_APPS = [
     "tokens.apps.TokensConfig",
     "maintenance.apps.MaintenanceConfig",
     "regmaps.apps.RegmapsConfig",
+    "beaconsite.apps.BeaconsiteConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -436,6 +439,15 @@ VARFISH_PARTITION_MODULUS_SVS = env.int(
 # Text to display on the login page.
 VARFISH_LOGIN_PAGE_TEXT = env.str("VARFISH_LOGIN_PAGE_TEXT", "")
 
+# Key to use for the encryption of secrets such as the secret RSA keys used by
+# the beaconsite module.  Losing/changing means losing all encrypted data.  While
+# DJANGO_SECRET_KEY can be changed and only session data is lost, this is worse.
+#
+# Leave blank to use no secret key.
+FIELD_ENCRYPTION_KEY = env.str(
+    "FIELD_ENCRYPTION_KEY", "_XRAzgLd6NHj8G4q9FNV0p3Um9g4hy8BPBN-AL0JWO0="
+)
+
 # Varfish: Exomiser
 # ------------------------------------------------------------------------------
 
@@ -492,6 +504,12 @@ VARFISH_JANNOVAR_REST_API_URL = env.str("VARFISH_JANNOVAR_REST_API_URL", "")
 
 # Configure experimental SV filtration feature.
 VARFISH_ENABLE_SVS = env.bool("VARFISH_ENABLE_SVS", default=False)
+
+# Varfish: GAGH Beacon
+# ------------------------------------------------------------------------------
+
+# Enabling or disabling Beacon site.
+VARFISH_ENABLE_BEACON_SITE = env.bool("VARFISH_ENABLE_BEACON_SITE", default=False)
 
 # Your common stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------

@@ -1,0 +1,118 @@
+{% extends 'projectroles/project_base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item active">Cases</li>
+{% endblock %}
+
+{% block projectroles %}
+  <div class="row sodar-subtitle-container">
+    {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
+    {% include 'projectroles/_project_menu_btn.html' %}
+
+    <h2 class="sodar-pr-content-title">
+      Beacon Configuration
+    </h2>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <div class="card" id="beaconsite-site-list-card">
+      <div class="card-header">
+        <h4><i class="fa fa-institution"></i> Sites</h4>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-striped sodar-card-table sodar-bj-detail-table table-hover">
+          <thead>
+            <tr>
+              <th style="width: 10px;">#</th>
+              <th style="width: 200px;">Title</th>
+              <th>Description</th>
+              <th style="width: 50px;">Consortia</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for site in site_list %}
+              <tr>
+                <td class="text-right text-muted">{{ forloop.counter }}</td>
+                <td>
+                  <a href="{{ site.get_absolute_url }}">
+                    {{ site.title }}
+                  </a>
+                </td>
+                <td>{{ site.description }}</td>
+                <td class="text-right">{{ site.consortia.count }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="4" class="text-center font-italic">
+                  No site have been defined yet.
+                </td>
+              </tr>
+            {% endfor %}
+            <tr>
+              <td class="bg-faded" colspan="7">
+                <a class="btn btn-secondary" href="{% url "beaconsite:site-list" %}">
+                  <i class="fa fa-list"></i>
+                  See list of all sites
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" id="beaconsite-consortium-list-card">
+      <div class="card-header">
+        <h4><i class="fa fa-handshake-o"></i> Consortia</h4>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-striped sodar-card-table sodar-bj-detail-table table-hover">
+          <thead>
+            <tr>
+              <th style="width: 10px;">#</th>
+              <th style="width: 200px;">Title</th>
+              <th>Description</th>
+              <th style="width: 50px;">Sites</th>
+              <th style="width: 50px;">Projects</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for consortium in consortium_list %}
+              <tr>
+                <td class="text-right text-muted">{{ forloop.counter }}</td>
+                <td>
+                  <a href="{{ consortium.get_absolute_url }}">
+                    {{ consortium.title }}
+                  </a>
+                </td>
+                <td>{{ consortium.description }}</td>
+                <td class="text-right">
+                  {{ consortium.sites.count }}
+                </td>
+                <td class="text-right">
+                  {{ consortium.projects.count }}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-center font-italic">
+                  No consortia have been defined yet.
+                </td>
+              </tr>
+            {% endfor %}
+            <tr>
+              <td class="bg-faded" colspan="7">
+                <a class="btn btn-secondary" href="{% url "beaconsite:consortium-list" %}">
+                  <i class="fa fa-list"></i>
+                  See list of all consortia
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

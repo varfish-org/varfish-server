@@ -18,6 +18,10 @@ TEMPLATES[0]["OPTIONS"]["debug"] = True  # coverage needs this
 # Note: This key only used for development and testing.
 SECRET_KEY = env("DJANGO_SECRET_KEY", default="CHANGEME!!!")
 
+FIELD_ENCRYPTION_KEY = env(
+    "FIELD_ENCRYPTION_KEY", default="_XRAzgLd6NHj8G4q9FNV0p3Um9g4hy8BPBN-AL0JWO0="
+)
+
 # Mail settings
 # ------------------------------------------------------------------------------
 EMAIL_HOST = "localhost"
@@ -65,3 +69,9 @@ TEMPLATES[0]["OPTIONS"]["loaders"] = [
 
 VARFISH_ENABLE_CADD = False
 VARFISH_ENABLE_JANNOVAR = False
+
+# Varfish: Beacon Feature
+# ------------------------------------------------------------------------------
+
+# Eanble for testing.
+VARFISH_ENABLE_BEACON_SITE = env.bool("VARFISH_ENABLE_BEACON_SITE", default=True)

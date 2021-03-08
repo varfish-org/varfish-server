@@ -1,0 +1,65 @@
+{% extends 'projectroles/project_base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load rules %}
+
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item active">Cases</li>
+{% endblock %}
+
+{% has_perm 'beaconsite.add_data' request.user as can_add_data %}
+
+{% block projectroles %}
+  <div class="row sodar-pr-content-title pb-2">
+    {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
+    {% include 'projectroles/_project_menu_btn.html' %}
+
+    <h2 class="sodar-pr-content-title">
+      <i class="fa fa-institution"></i>
+      Site List
+    </h2>
+    <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
+      <a class="btn btn-secondary" href="{% url 'beaconsite:index' %}">
+        <i class="fa fa-arrow-circle-left"></i>
+        Back
+      </a>
+      <a class="btn btn-primary" href="{% url 'beaconsite:site-create' %}">
+        <i class="fa fa-plus"></i>
+        Create
+      </a>
+    </div>
+  </div>
+
+  <div class="container-fluid sodar-page-container pt-3">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th style="width: 10px;">#</th>
+          <th style="width: 200px;">Title</th>
+          <th>Description</th>
+          <th style="width: 50px;">Consortia</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for object in object_list %}
+          <tr>
+            <td class="text-right text-muted">{{ forloop.counter }}</td>
+            <td>
+              <a href="{{ object.get_absolute_url }}">
+                {{ object.title }}
+              </a>
+            </td>
+            <td>{{ object.description }}</td>
+            <td class="text-right">{{ object.consortia.count }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4" class="text-center font-italic">
+              No sites have been defined yet.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

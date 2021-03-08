@@ -1,0 +1,203 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+{% load static %}
+
+{% has_perm 'beaconsite.update_data' request.user as can_update_data %}
+{% has_perm 'beaconsite.delete_data' request.user as can_delete_data %}
+
+
+{% block title %}Site{% endblock %}
+
+{% block projectroles %}
+
+  <div class="row sodar-subtitle-container">
+    <h2>
+      <i class="fa fa-institution"></i>
+      Site
+    </h2>
+    <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
+      <a class="btn btn-secondary" href="{% url 'beaconsite:site-list' %}">
+        <i class="fa fa-arrow-circle-left"></i> Back
+      </a>
+  {#    {% if can_update_data %}#}
+        <a class="btn btn-primary" href="{% url 'beaconsite:site-update' site=object.sodar_uuid %}">
+          <i class="fa fa-pencil"></i>
+          Update
+        </a>
+  {#    {% endif %}#}
+  {#    {% if can_delete_data %}#}
+        <a class="btn btn-danger" href="{% url 'beaconsite:site-delete' site=object.sodar_uuid %}">
+          <i class="fa fa-eraser"></i>
+          Remove
+        </a>
+  {#    {% endif %}#}
+    </div>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <div class="card" id="sodar-aa-alert-list">
+      <div class="card-body px-0">
+        <dl class="row pb-0">
+          <dt class="col-md-2">UUID</dt>
+          <dd class="col-md-10"><strong>{{ object.sodar_uuid }}</strong></dd>
+          <dt class="col-md-2">Title</dt>
+          <dd class="col-md-10"><strong>{{ object.title }}</strong></dd>
+          <dt class="col-md-2">Short Name</dt>
+          <dd class="col-md-10"><strong>{{ object.identifier }}</strong></dd>
+          <dt class="col-md-12">Description</dt>
+          <dd class="col-md-12">
+            {% if object.description %}
+              {{ object.description }}
+            {% else %}
+              <span class="font-italic text-muted">No description.</span>
+            {% endif %}
+          </dd>
+          <dt class="col-md-2">Created</dt>
+          <dd class="col-md-10">{{ object.date_created|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-2">Updated</dt>
+          <dd class="col-md-10">{{ object.date_modified|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-2">Key Algorithm</dt>
+          <dd class="col-md-10">{{ object.key_algo }}</dd>
+          <dt class="col-md-2">(Private) Key</dt>
+          <dd class="col-md-10">
+            <span class="font-italic text-muted">
+              <i class="fa fa-lock"></i>
+              Stored encrypted in database and hidden here for security reasons.
+            </span>
+          </dd>
+          <dt class="col-md-2">Public Key</dt>
+          <dd class="col-md-10" style="white-space: pre-wrap;">{{ object.public_key }}</dd>
+          <dt class="col-md-2">Public Key Hash</dt>
+          <dd class="col-md-10" style="white-space: pre-wrap;">{{ object.public_key_fingerprints }}</dd>
+          <dt class="col-md-2">Consortia ({{ object.consortia.count }})</dt>
+          <dd class="col-md-10">
+            <ul class="list-unstyled">
+              {% for consortium in object.consortia.all %}
+                <li>
+                  <a href="{{ consortium.get_absolute_url }}">{{ consortium.title }}</a>
+                </li>
+              {% empty %}
+                <li class="text-muted font-italic">No consortium assigned yet</li>
+              {% endfor %}
+            </ul>
+          </dd>
+          <dt class="col-md-2">
+            Query Info
+          </dt>
+          <dd class="col-md-10">
+            <button class="btn btn-sm btn-primary" id="button-get-info">
+              <i class="fa fa-info-circle"></i>
+              Get Info
+            </button>
+          </dd>
+          <dt class="col-md-2">
+            Small Variant Query
+          </dt>
+          <dd class="col-md-10">
+            <div class="form-row">
+              <div class="form-group col-md-1 mb-0">
+                <label for="input-genome" class="col-form-label form-control-sm">Assembly</label>
+                <input type="text" class="form-control form-control-sm variant-field" id="input-assembly" placeholder="e.g., GRCh37, GRCh38" value="GRCh37" />
+              </div>
+              <div class="form-group col-md-1 mb-0">
+                <label for="input-chromosome" class="col-form-label form-control-sm">Chromosome</label>
+                <input type="text" class="form-control form-control-sm variant-field" id="input-chromosome" placeholder="e.g., 1, chr1, ..." value="1" />
+              </div>
+              <div class="form-group col-md-2 mb-0">
+                <label for="input-position" class="col-form-label form-control-sm">Position</label>
+                <input type="text" class="form-control form-control-sm variant-field" id="input-position" placeholder="e.g., 12345" value="12345" />
+              </div>
+              <div class="form-group col-md-2 mb-0">
+                <label for="input-reference" class="col-form-label form-control-sm">Reference</label>
+                <input type="text" class="form-control form-control-sm variant-field" id="input-reference" placeholder="e.g., C" value="C" />
+              </div>
+              <div class="form-group col-md-2 mb-0">
+                <label for="input-alternative" class="col-form-label form-control-sm">Alternative</label>
+                <input type="text" class="form-control form-control-sm variant-field" id="input-alternative" placeholder="e.g., T" value="T" />
+              </div>
+              <div class="form-text col-md-8 text-muted mb-2 small">
+                Please enter the variant in VCF-style format (positions are 1-based).
+                For deletions, specify base left of deletion, e.g., (<code>CT</code> and <code>C</code>), likewise for insertion specify base left of insertion (<code>C</code> and <code>CT</code>).
+                In these cases, specify position of the first reference base (variant display in VarFish is based on this format as well).
+                Variants should be left-shifted already as remote sites might not do this with queries.
+              </div>
+            </div>
+            <button class="btn btn-sm btn-primary" id="button-run-query">
+              <i class="fa fa-bolt"></i>
+              Run Small Variant Query
+            </button>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="query-results">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <texarea class="form-control response overflow-auto" cols="80" rows="20" style="height: 400px;"></texarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock projectroles %}
+
+{% block javascript %}
+  {{ block.super }}
+
+  <script type="text/javascript" src="{% static 'js/vendor/axios-0.18.0.min.js' %}"></script>
+
+  <script type="application/javascript">
+    $(function () {
+      $("#button-get-info").click(function () {
+        axios.get("/beaconsite/ajax/beacon/info/{{ object.sodar_uuid }}")
+        .then(function (response) {
+          $("#query-results .modal-title").text("Beacon Info Result")
+          $("#query-results .response").text(JSON.stringify(response.data, null, 2))
+          $("#query-results").modal("show")
+          response.data
+        })
+        .catch( function (response) {
+          alert("There was a problem with contacting the beacon.")
+        })
+      })
+
+      $(".variant-field").keyup(function (e) {
+          if (e.keyCode === 13)
+          {
+              $("#button-run-query").trigger("click")
+          }
+      });
+
+      $("#button-run-query").click(function () {
+        axios.get("/beaconsite/ajax/beacon/query/{{ object.sodar_uuid }}", {
+          params: {
+            assemblyId: $("#input-assembly").val(),
+            referenceName: $("#input-chromosome").val(),
+            start: $("#input-position").val(),
+            referenceBases: $("#input-reference").val(),
+            alternateBases: $("#input-alternative").val()
+          }
+        })
+        .then(function (response) {
+          $("#query-results .modal-title").text("Beacon Query Result")
+          $("#query-results .response").text(JSON.stringify(response.data, null, 2))
+          $("#query-results").modal("show")
+          response.data
+        })
+        .catch( function (response) {
+          alert("There was a problem with the beacon query.")
+        })
+      })
+    })
+  </script>
+{% endblock %}

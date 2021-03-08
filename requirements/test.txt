@@ -32,3 +32,5 @@ parameterized
 # Classes with less boilerplate code.
 attr
 
+# Comparison of JSON objects.
+jsonmatch

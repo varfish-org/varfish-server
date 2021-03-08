@@ -1,0 +1,88 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+
+{% has_perm 'beaconsite.update_data' request.user as can_update_data %}
+{% has_perm 'beaconsite.delete_data' request.user as can_delete_data %}
+
+
+{% block title %}Consortium{% endblock %}
+
+{% block projectroles %}
+
+  <div class="row sodar-subtitle-container">
+    <h2>
+      <i class="fa fa-handshake-o"></i>
+      Consortium
+    </h2>
+    <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
+      <a class="btn btn-secondary" href="{% url 'beaconsite:consortium-list' %}">
+        <i class="fa fa-arrow-circle-left"></i> Back
+      </a>
+  {#    {% if can_update_data %}#}
+        <a class="btn btn-primary" href="{% url 'beaconsite:consortium-update' consortium=object.sodar_uuid %}">
+          <i class="fa fa-pencil"></i>
+          Update
+        </a>
+  {#    {% endif %}#}
+  {#    {% if can_delete_data %}#}
+        <a class="btn btn-danger" href="{% url 'beaconsite:consortium-delete' consortium=object.sodar_uuid %}">
+          <i class="fa fa-eraser"></i>
+          Remove
+        </a>
+  {#    {% endif %}#}
+    </div>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <div class="card" id="sodar-aa-alert-list">
+      <div class="card-body px-0">
+        <dl class="row pb-0">
+          <dt class="col-md-2">UUID</dt>
+          <dd class="col-md-10"><strong>{{ object.sodar_uuid }}</strong></dd>
+          <dt class="col-md-2">Title</dt>
+          <dd class="col-md-10"><strong>{{ object.title }}</strong></dd>
+          <dt class="col-md-2">Short Name</dt>
+          <dd class="col-md-10"><strong>{{ object.identifier }}</strong></dd>
+          <dt class="col-md-12">Description</dt>
+          <dd class="col-md-12">
+            {% if object.description %}
+              {{ object.description }}
+            {% else %}
+              <span class="font-italic text-muted">No description.</span>
+            {% endif %}
+          </dd>
+          <dt class="col-md-2">Created</dt>
+          <dd class="col-md-10">{{ object.date_created|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-2">Updated</dt>
+          <dd class="col-md-10">{{ object.date_modified|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-2">Sites ({{ object.sites.count }})</dt>
+          <dd class="col-md-10">
+            <ul class="list-unstyled">
+              {% for site in object.sites.all %}
+                <li>
+                  <a href="{{ site.get_absolute_url }}">{{ site.title }}</a>
+                </li>
+              {% empty %}
+                <li class="text-muted font-italic">No site assigned yet</li>
+              {% endfor %}
+            </ul>
+          </dd>
+          <dt class="col-md-2">Projects ({{ object.projects.count }})</dt>
+          <dd class="col-md-10">
+            <ul class="list-unstyled">
+              {% for project in object.projects.all %}
+                <li>
+                  <a href="{{ site.get_absolute_url }}">{{ project.title }}</a>
+                </li>
+              {% empty %}
+                <li class="text-muted font-italic">No project assigned yet</li>
+              {% endfor %}
+            </ul>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+{% endblock projectroles %}
