@@ -4,7 +4,7 @@ MANAGE = time python manage.py
 .PHONY: black collectstatic serve serve_public flushdb migrate shell celery test test-noselenium
 
 black:
-	black -l 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src)/' .
+	black -l 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src)/' $(arg) .
 
 serve:
 	$(MANAGE) runserver

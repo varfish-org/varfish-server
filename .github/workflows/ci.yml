@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        python-version:
+          - 3.6
+# need sodar_core ugprade for support beyond 3.7 (celery dependency)
+#         - 3.7
+#         - 3.8
+#         - 3.9
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_DB: varfish_web
+          POSTGRES_USER: varfish_web
+          POSTGRES_PASSWORD: varfish_web
+          DATABASE_URL: postgres://varfish_web:varfish_web@postgres/varfish_web
+          CELERY_BROKER_URL: redis://redis:6379/0
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 5432:5432
+    env:
+      CELERY_BROKER_URL: redis://0.0.0.0:6379/0
+      DATABASE_URL: 'postgres://varfish_web:varfish_web@0.0.0.0/varfish_web'
+      POSTGRES_HOST: 0.0.0.0
+      POSTGRES_PORT: 5432
+    steps:
+      - name: install server dependencies
+        run: |
+          sudo apt-get install -qq build-essential zlib1g-dev libtiff5-dev libjpeg8-dev libfreetype6-dev
+          sudo apt-get install -qq liblcms2-dev libwebp-dev libpq-dev graphviz-dev
+      - name: install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: checkout repository
+        uses: actions/checkout@v2
+      - name: install project Python dependencies
+        run: |
+          pip install wheel==0.34.2
+          pip install -r requirements/local.txt
+          pip install -r requirements/test.txt
+          pip install -U 'celery >4.2'
+      - name: run collectstatic
+        run: python manage.py collectstatic --noinput
+      - name: run tests
+        run: |
+          coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
+          coverage xml
+          coverage report
+      - name: check formatting
+        run: make black arg=--check
+      - name: run Codacy coverage reporter
+        uses: codacy/codacy-coverage-reporter-action@master
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: coverage.xml
+        if: ${{ matrix.python-version == '3.7' }}
+
