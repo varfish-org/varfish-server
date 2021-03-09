@@ -2653,7 +2653,7 @@ class VariantScoresCadd(VariantScoresBase):
                 settings.VARFISH_CADD_REST_API_URL + "/annotate/",
                 json={
                     "genome_build": "GRCh37",
-                    "cadd_release": "v1.4",
+                    "cadd_release": settings.VARFISH_CADD_REST_API_CADD_VERSION,
                     "variant": ["-".join(map(str, var)) for var in uncached],
                 },
             )
