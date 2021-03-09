@@ -96,9 +96,11 @@ Currently, the main focus is on small/sequence variants called from high-througp
     :titlesonly:
 
     admin_install
+    admin_extras
     admin_config
     admin_ingest
     admin_tuning
+    admin_upgrade
 
 .. raw:: latex
 

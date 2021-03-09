@@ -18,6 +18,9 @@ Please note that VarFish is academic software and we try to provide support on a
 
 You can find a quickstart-style manual in the `varfish-docker-compose <https://github.com/bihealth/varfish-docker-compose#run-varfish-server-using-docker-compose>`__ README.
 
+Note that this will only perform installation of VarFish and related services with data (re)distributed by the VarFish authors.
+See :ref:`admin_extras` for installing extra services such as annotation with CADD scores.
+
 .. _admin_install_prerequisites:
 
 -------------

@@ -94,12 +94,17 @@ The default settings do not make for secure settings in the general case.
 However, Docker Compose will create a private network that is only available to the Docker containers.
 In the default ``docker-compose`` setup, postgres server is thus not exposed to the outside and only reachable by the VarFish web server and queue workers.
 
+.. _admin_config_misc:
+
 ---------------------------
 Miscellaneous Configuration
 ---------------------------
 
 ``VARFISH_LOGIN_PAGE_TEXT=``
     Text to display on the login page.
+``FIELD_ENCRYPTION_KEY``
+    Key to use for encrypting secrets in the database (such as saved public keys for the Beacon Site feature).
+    You can generate such a key with the following command: ``python -c 'import os, base64; print(base64.urlsafe_b64encode(os.urandom(32)))'``.
 
 --------------------
 Sentry Configuration
