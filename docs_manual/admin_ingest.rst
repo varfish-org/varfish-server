@@ -25,6 +25,8 @@ Installing the Annotator
 The VarFish Annotator is written in Java and you can find the JAR on `varfish-annotator Github releases page <https://github.com/bihealth/varfish-annotator/releases>`__.
 However, it is recommended to install it via bioconda.
 For this, you first have to install bioconda `as described in their manual <http://bioconda.github.io/user/install.html>`__.
+Please ensure that you have the channels ``conda-forge``, ``bioconda``, and ``defaults`` set in the correct order as described in the bioconda installation manual.
+A common pitfall is to forget the channel setup and subsequent failure to install ``varfish-annotator``.
 
 The next step is to install the `varfish-annotator-cli package <http://bioconda.github.io/recipes/varfish-annotator-cli/README.html>`__ or create a conda environment with it.
 
