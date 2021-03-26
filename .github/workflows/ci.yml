@@ -73,6 +73,8 @@ jobs:
           coverage report
       - name: check formatting
         run: make black arg=--check
+      - name: Coveralls
+        uses: AndreMiras/coveralls-python-action@develop
       - name: run Codacy coverage reporter
         uses: codacy/codacy-coverage-reporter-action@master
         with:

@@ -5,6 +5,8 @@
     :target: https://www.codacy.com/gh/bihealth/varfish-server/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=bihealth/varfish-server&amp;utm_campaign=Badge_Grade
 .. image:: https://app.codacy.com/project/badge/Coverage/f47216cf5a4349acbb9baf5ca1c91329
     :target: https://www.codacy.com/gh/bihealth/varfish-server/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=bihealth/varfish-server&amp;utm_campaign=Badge_Coverage
+.. image:: https://coveralls.io/repos/github/bihealth/varfish-server/badge.svg?branch=master
+    :target: https://coveralls.io/github/bihealth/varfish-server?branch=master
 .. image:: https://img.shields.io/badge/License-MIT-green.svg
     :target: https://opensource.org/licenses/MIT
 
