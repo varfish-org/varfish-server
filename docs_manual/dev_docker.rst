@@ -41,14 +41,14 @@ Once it has been initialized, shutdown with Ctrl-C.
 
 ::
 
-    $ docker-compose up
+    $ docker-compose up postgres
     <Ctrl-C>
 
 Now copy over the ``postgresql.conf`` file that has been tuned for the VarFish use cases.
 
 ::
 
-    $ cp config/postgres/postgresl.conf volumes/postgres/data/postgresql.conf
+    $ cp config/postgres/postgresql.conf volumes/postgres/data/postgresql.conf
 
 Bring up the site again so we can build the database.
 
@@ -99,6 +99,7 @@ Get the name of the running varfish-web container.
 Initialize the tables (while at least ``docker-compose up varfish-web postgres redis`` is running).
 
 ::
+
     $ docker exec -it -w /usr/src/app varfish-docker-compose_varfish-web_1 python manage.py import_tables --tables-path /data --threads 8
 
 Then, shutdown the ``docker-compose up``, remove the ``volumes:`` entry for ``varfish-web``, and create a tarball of the postgres database to have a clean copy.
