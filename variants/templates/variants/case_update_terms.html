@@ -100,37 +100,33 @@
               $("#load-upstream-indicator").toggleClass("fa-cloud-download fa-spinner fa-spin");
               btn.data("state", "loading");
               // Perform AJAX call.
-              let ajaxCall = $.ajax({
+              $.ajax({
                 type: "GET",
                 dataType: "json",
                 url: "{% url "variants:case-fetch-upstream-terms" project=project.sodar_uuid case=object.sodar_uuid %}",
                 success: function (result) {
-                  console.log("SUCCESS")
-                  console.log(result);
                   let lines = [];
-                  $.each(result, function (index, value) {
-                    console.log("index " + index);
+                  const sampleIds = Object.keys(result)
+                  for (let index = 0; index < sampleIds.length; index++) {
+                    const value = result[sampleIds[index]]
                     if (lines.length > 0) {
                       lines.push("")
-                    } else {
-                      lines.push("### " + index + " ###");
-                      lines.push("");
-                      let keys = ["hpo_terms", "omim_diseases", "orphanet_diseases"];
-                      for (let i = 0; i < keys.length; ++i) {
-                        for (let j = 0; j < value[keys[i]].length; ++j) {
-                          let term = value[keys[i]][j];
-                          lines.push(term.id + " - " + (term.description || "UNKNOWN TERM"));
-                        }
+                    }
+                    lines.push("### " + value.name + " ###");
+                    lines.push("");
+                    const keys = ["hpo_terms", "omim_diseases", "orphanet_diseases"];
+                    for (let i = 0; i < keys.length; ++i) {
+                      for (let j = 0; j < value[keys[i]].length; ++j) {
+                        let term = value[keys[i]][j];
+                        lines.push(term.id + " - " + (term.description || "UNKNOWN TERM"));
                       }
                     }
-                  });
+                  }
                   $("#load-upstream-indicator").toggleClass("fa-cloud-download fa-spinner fa-spin");
                   btn.data("state", "initial");
                   $("#upstream-terms").val(lines.join("\n"))
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                  console.log("ERROR")
-                  console.log(result);
                   $("#upstream-terms").val("ERROR\n\nA problem occured while trying to query SODAR: " + textStatus + "\n\nERROR")
                   $("#load-upstream-indicator").toggleClass("fa-cloud-download fa-spinner fa-spin");
                   btn.data("state", "initial");

@@ -148,7 +148,7 @@ def _isa_helper_get_term_field(fields, key):
                 lst.append(value.name)
         elif ontology_name:
             lst.append(value.name)
-        else:
+        elif value.name or value.accession or value.ontology_name:
             lst.append(str(value))
     return lst
 
@@ -208,7 +208,6 @@ def fetch_remote_pedigree(source, project, add_log_entry=_nolog):
                 )
                 add_log_entry("new member: %s" % member)
                 remote_pedigree[material.name] = member
-
     return remote_pedigree
 
 
