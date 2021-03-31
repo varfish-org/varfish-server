@@ -257,7 +257,7 @@ class SubmissionXmlGenerator:
             "stop": str(submission.variant_stop),
         }
         if submission.variant_type in ("Deletion", "Duplication"):
-            seq_location_dict["variantLength"] = (
+            seq_location_dict["variantLength"] = str(
                 submission.variant_stop - submission.variant_start + 1
             )
         else:
@@ -308,11 +308,7 @@ class SubmissionXmlGenerator:
                 self.em(
                     "Trait",
                     self.em("TraitType", "Disease", **{"val_type": "name"}),
-                    self.em(
-                        "Name",
-                        self.em("ElementValueType", "Preferred", **{"val_type": "name"}),
-                        self.em("ElementValue", disease["term_name"]),
-                    ),
+                    ET.Comment(" (%s) %s " % (disease["term_id"], disease["term_name"])),
                     self.build_disease_xref(disease["term_id"]),
                 )
                 for disease in submission.diseases
@@ -324,7 +320,7 @@ class SubmissionXmlGenerator:
 
     def build_disease_xref(self, term_id):
         if term_id.startswith("OMIM:"):
-            return self.em("XRef", **{"db": "OMIM", "id": term_id.replace("OMIM:", "MIM:")})
+            return self.em("XRef", **{"db": "OMIM", "id": term_id.replace("OMIM:", "")})
         elif term_id.startswith("ORPHA:"):
             return self.em("XRef", **{"db": "Orphanet", "id": term_id})
         else:
