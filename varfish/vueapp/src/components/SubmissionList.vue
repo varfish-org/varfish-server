@@ -283,7 +283,7 @@ export default {
       this.createSubmissionInCurrentSubmissionSet({
         smallVariant: null,
         submission: this.getEmptySubmissionData(),
-        individuals: []
+        individualUuids: []
       })
       this.$bvModal.hide('modal-add-submission')
     },
