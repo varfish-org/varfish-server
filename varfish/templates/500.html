@@ -13,7 +13,11 @@
   </div>
 </div>
 
-<script src="https://browser.sentry-cdn.com/5.11.0/bundle.min.js" integrity="sha384-jbFinqIbKkHNg+QL+yxB4VrBC0EAPTuaLGeRT0T+NfEV89YC6u1bKxHLwoo+/xxY" crossorigin="anonymous"></script>
+<script
+  src="{% static 'js/vendor/sentry-6.2.4.min.js' %}"
+  integrity="sha384-b3mYy/x0ZxlqU5OjYvVD7RczftJVOXmpHSmrcqpL4c+kBSXWEnRL2Puv9eMjYmDq"
+  crossorigin="anonymous"
+></script>
 
 {% get_django_setting 'SENTRY_DSN' as sentry_dsn %}
 {% if sentry_event_id and sentry_dsn  %}

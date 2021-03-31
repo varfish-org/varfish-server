@@ -1,8 +1,19 @@
 {% extends 'projectroles/base_site.html' %}
 
 {% load static %}
+{% load projectroles_common_tags %}
 
 {% block head_javascript %}
+  {% get_django_setting 'SENTRY_DSN' as sentry_dsn %}
+
+  {% if sentry_dsn %}
+  <script
+    src="{% static 'js/vendor/sentry-6.2.4.min.js' %}"
+    integrity="sha384-b3mYy/x0ZxlqU5OjYvVD7RczftJVOXmpHSmrcqpL4c+kBSXWEnRL2Puv9eMjYmDq"
+    crossorigin="anonymous"
+  ></script>
+  {% endif %}
+
   <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
   <!--[if lt IE 9]>
     <script type="text/javascript" src="{% static 'js/vendor/html5shiv-3.7.3.min.js' %}"></script>
@@ -17,6 +28,16 @@
   <script type="text/javascript" src="{% static 'js/vendor/bootstrap-select-1.13.5.min.js' %}"></script>
   <!-- Downloaded from https://github.com/Nodws/bootstrap4-tagsinput -->
   <script type="text/javascript" src="{% static "js/vendor/tagsinput-0.8.0.js" %}"></script>
+
+  {% if sentry_dsn  %}
+  <script type="text/javascript">
+    Sentry.init({
+      dsn: "{{ sentry_dsn }}",
+      release: "varfish-web@{% site_version %}",
+    })
+  </script>
+  {% endif %}
+
 {% endblock head_javascript %}
 
 {% block javascript %}
