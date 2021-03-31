@@ -21,5 +21,5 @@ def setup_periodic_tasks(sender, **_kwargs):
     """Register periodic tasks"""
     # Regularly remove old variant that are not active.
     sender.add_periodic_task(
-        schedule=crontab(minute=11), signature=clear_inactive_structural_variant_sets.s()
+        schedule=crontab(minute=11), sig=clear_inactive_structural_variant_sets.s()
     )
