@@ -322,6 +322,15 @@
             Gene @MGI
           </span>
           {% endif %}
+          {% if entry.hgnc_id %}
+          <a class="dropdown-item" href="https://search.thegencc.org/genes/{{ entry.hgnc_id }}" target="_blank">
+            Gene @GenCC
+          </a>
+          {% else %}
+          <span class="dropdown-item disabled">
+            Gene @GenCC
+          </span>
+          {% endif %}
           {% if hpoterms %}
             <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ entry|get_pubmed_linkout:hpoterms }}" target="_blank">
               Gene+Phenotypes @PubMed

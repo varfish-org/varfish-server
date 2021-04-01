@@ -30,6 +30,7 @@ End-User Summary
 - Rebuild of variant summary database table happens every Sunday at 2:22am.
 - Added celery queues ``maintenance`` and ``export``.
 - Adding support for connecting two sites via the GAGH Beacon protocol.
+- Adding link-out to "GenCC"
 
 Full Change List
 ================
@@ -58,6 +59,7 @@ Full Change List
 - Added celery queues ``maintenance`` and ``export``.
 - Adding support for connecting two sites via the GAGH Beacon protocol.
 - Making CADD version behind CADD REST API configurable.
+- Adding link-out to "GenCC"
 
 -------
 v0.22.1
