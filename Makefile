@@ -5,6 +5,10 @@ MANAGE = time python manage.py
 black:
 	black -l 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src)/' $(arg) .
 
+.PHONY: npm-install
+npm-install:
+	cd varfish/vueapp && npm ci
+
 .PHONY: serve
 serve:
 	$(MANAGE) runserver
