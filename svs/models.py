@@ -547,19 +547,19 @@ def cleanup_variant_sets(min_age_hours=12):
     """Cleanup old variant sets."""
     variant_sets = list(
         StructuralVariantSet.objects.filter(
-            state__ne="active", entered__gte=datetime.now() - timedelta(hours=min_age_hours)
-        )
+            date_created__lte=datetime.now() - timedelta(hours=min_age_hours)
+        ).exclude(state="active")
     )
     table_names = ("svs_structuralvariant", "svs_structuralvariantgeneannotation")
-    for table_name in table_names:
-        table = aldjemy.core.get_meta().tables[table_name]
-        for variant_set in variant_sets:
+    for variant_set in variant_sets:
+        for table_name in table_names:
+            table = aldjemy.core.get_meta().tables[table_name]
             SQLALCHEMY_ENGINE.execute(
                 table.delete().where(
                     and_(table.c.set_id == variant_set.id, table.c.case_id == variant_set.case.id)
                 )
             )
-            variant_set.delete()
+        variant_set.delete()
 
 
 def run_import_structural_variants_bg_job(pk):

@@ -662,7 +662,6 @@ class GeneListsFilterQueryTest(QueryTestBase):
         StructuralVariantGeneAnnotationFactory(
             ensembl_gene_id=self.hgnc.ensembl_gene_id, sv=self.sv
         )
-        print("x")
 
     # # TODO FIXME XXX
     # def testPassGeneAllowList(self):
