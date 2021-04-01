@@ -223,6 +223,7 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
                     func.max(Hgnc.sa.gene_family).label("gene_family"),
                     func.max(Hgnc.sa.pubmed_id).label("pubmed_id"),
                     func.max(Hgnc.sa.ucsc_id_novers).label("ucsc_id_novers"),
+                    func.max(Hgnc.sa.hgnc_id).label("hgnc_id"),
                 ]
             )
             .select_from(Hgnc.sa)
@@ -242,6 +243,7 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
             func.coalesce(self.subquery_hgnc.c.name, "").label("gene_name"),
             func.coalesce(self.subquery_hgnc.c.gene_family, "").label("gene_family"),
             func.coalesce(self.subquery_hgnc.c.pubmed_id, "").label("pubmed_id"),
+            func.coalesce(self.subquery_hgnc.c.hgnc_id, "").label("hgnc_id"),
         ]
 
 
