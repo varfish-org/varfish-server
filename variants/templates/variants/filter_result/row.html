@@ -331,6 +331,15 @@
             Gene @GenCC
           </span>
           {% endif %}
+          {% if entry.uniprot_ids %}
+          <a class="dropdown-item" href="http://missense3d.bc.ic.ac.uk:8080/search_direct?uniprot={{ entry.uniprot_ids }}" target="_blank">
+            Gene @Missense3D-DB
+          </a>
+          {% else %}
+          <span class="dropdown-item disabled">
+            Gene @Missense3D-DB
+          </span>
+          {% endif %}
           {% if hpoterms %}
             <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/pubmed/?term={{ entry|get_pubmed_linkout:hpoterms }}" target="_blank">
               Gene+Phenotypes @PubMed
