@@ -179,6 +179,17 @@ ui_urlpatterns = [
         view=views.CaddSubmissionJobResubmitView.as_view(),
         name="cadd-job-resubmit",
     ),
+    # Views for SPANR submission jobs
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/spanr-job/detail/(?P<job>[0-9a-f-]+)/$",
+        view=views.SpanrSubmissionJobDetailView.as_view(),
+        name="spanr-job-detail",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/spanr-job/resubmit/(?P<job>[0-9a-f-]+)/$",
+        view=views.SpanrSubmissionJobResubmitView.as_view(),
+        name="spanr-job-resubmit",
+    ),
     # Views for Project-wide Statistics Computation submission jobs
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/project-stats-job/create/$",

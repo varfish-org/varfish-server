@@ -1375,6 +1375,7 @@ class FilterForm(
             ("download", "Generate downloadable file in background"),
             ("submit-mutationdistiller", "Submit to MutationDistiller"),
             ("submit-cadd", "Submit to CADD"),
+            ("submit-spanr", "Submit to SPANR"),
         )
     )
 

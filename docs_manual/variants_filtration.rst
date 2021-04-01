@@ -324,6 +324,13 @@ Here are the actions to create the recommended settings for submitting to Mutati
     The MutationDistiller submission uses the same feature as th VarFish VCF export.
     Thus, the limitations described in :ref:`download-as-file` apply.
 
+Submit to SPANR
+---------------
+
+Also, the little triangle next to the :guilabel:`Filter & Display` gives you access to the :guilabel:`Submit to SPANR` action.
+This is similar to submitting ot MutationDistiller described above.
+Clicking the button will submit the data to SPANR after confirming this once again in popup window.
+
 --------------------------
 Variant Filtration Results
 --------------------------

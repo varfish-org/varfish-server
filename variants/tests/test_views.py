@@ -58,6 +58,7 @@ from variants.models import (
     UmdPathogenicityScoreCache,
     CaddPathogenicityScoreCache,
     CaddSubmissionBgJob,
+    SpanrSubmissionBgJob,
 )
 from variants.queries import DeleteSmallVariantsQuery, DeleteStructuralVariantsQuery
 from variants.tests.factories import (
@@ -813,6 +814,45 @@ class TestCaseFilterView(ViewTestBase):
                 response,
                 reverse(
                     "variants:cadd-job-detail",
+                    kwargs={"project": self.case.project.sodar_uuid, "job": created_job.sodar_uuid},
+                ),
+            )
+
+    @Mocker()
+    def test_post_spanr(self, mock):
+        with self.login(self.user):
+            from ..submit_external import SPANR_POST_URL
+
+            mock.get(
+                SPANR_POST_URL,
+                status_code=200,
+                text=(
+                    """<html><head><title>Form</title></head>"""
+                    """<body><input name="csrf_token" value="xxxTOKENxxx" /></body></html>"""
+                ),
+            )
+            mock.get(
+                SPANR_POST_URL,
+                status_code=200,
+                text=(
+                    """<html><head><title>Result 11111111-1111-1111-1111-111111111111 something """
+                    """something</title></head><body></body></html>"""
+                ),
+            )
+            self.assertEquals(SpanrSubmissionBgJob.objects.count(), 0)
+            response = self.client.post(
+                reverse(
+                    "variants:case-filter",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                vars(FormDataFactory(submit="submit-spanr", names=self.case.get_members())),
+            )
+            self.assertEquals(SpanrSubmissionBgJob.objects.count(), 1)
+            created_job = SpanrSubmissionBgJob.objects.first()
+            self.assertRedirects(
+                response,
+                reverse(
+                    "variants:spanr-job-detail",
                     kwargs={"project": self.case.project.sodar_uuid, "job": created_job.sodar_uuid},
                 ),
             )

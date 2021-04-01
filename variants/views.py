@@ -69,6 +69,7 @@ from .models import (
     ExportProjectCasesFileBgJob,
     CaddSubmissionBgJob,
     DistillerSubmissionBgJob,
+    SpanrSubmissionBgJob,
     ComputeProjectVariantsStatsBgJob,
     FilterBgJob,
     Project,
@@ -132,6 +133,7 @@ from .tasks import (
     project_cases_filter_task,
     run_kiosk_bg_job,
     delete_case_bg_job,
+    spanr_submission_task,
 )
 from .file_export import RowWithSampleProxy
 from variants.helpers import SQLALCHEMY_ENGINE
@@ -1847,6 +1849,8 @@ class CaseFilterView(
             return self._form_valid_mutation_distiller(form)
         elif form.cleaned_data["submit"] == "submit-cadd":
             return self._form_valid_cadd(form)
+        elif form.cleaned_data["submit"] == "submit-spanr":
+            return self._form_valid_spanr(form)
 
     def form_invalid(self, form):
         return render(
@@ -1938,6 +1942,33 @@ class CaseFilterView(
             self.request,
             "Created background job for your CADD submission. "
             "You can find the link to the CADD result on this site.",
+        )
+        return redirect(submission_job.get_absolute_url())
+
+    def _form_valid_spanr(self, form):
+        """The form is valid, we are supposed to submit to SPANR."""
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+        with transaction.atomic():
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Submitting case {} to SPANR".format(self.get_case_object().name),
+                project=self.get_project(self.request, self.kwargs),
+                job_type=SpanrSubmissionBgJob.spec_name,
+                user=user,
+            )
+            submission_job = SpanrSubmissionBgJob.objects.create(
+                project=self.get_project(self.request, self.kwargs),
+                bg_job=bg_job,
+                case=self.get_case_object(),
+                query_args=_undecimal(form.cleaned_data),
+            )
+        spanr_submission_task.delay(submission_job_pk=submission_job.pk)
+        messages.info(
+            self.request,
+            "Created background job for your SPANR submission. "
+            "You can find the link to the SPANR result on this site.",
         )
         return redirect(submission_job.get_absolute_url())
 
@@ -3500,6 +3531,58 @@ class CaddSubmissionJobResubmitView(
                 project=job.project, bg_job=bg_job, case=job.case, query_args=job.query_args
             )
             cadd_submission_task.delay(submission_job_pk=submission_job.pk)
+        return redirect(submission_job.get_absolute_url())
+
+
+class SpanrSubmissionJobDetailView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Display status and further details of the SPANR submission background job."""
+
+    permission_required = "variants.view_data"
+    template_name = "variants/spanr_job_detail.html"
+    model = SpanrSubmissionBgJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+
+    def get_context_data(self, *args, **kwargs):
+        result = super().get_context_data(*args, **kwargs)
+        result["resubmit_form"] = EmptyForm()
+        return result
+
+
+class SpanrSubmissionJobResubmitView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    FormView,
+):
+    """Resubmit to SPANR."""
+
+    permission_required = "variants.view_data"
+    form_class = EmptyForm
+
+    def form_valid(self, form):
+        user = self.request.user
+        if settings.KIOSK_MODE:
+            user = User.objects.get(username="kiosk_user")
+        job = get_object_or_404(SpanrSubmissionBgJob, sodar_uuid=self.kwargs["job"])
+        with transaction.atomic():
+            bg_job = BackgroundJob.objects.create(
+                name="Resubmitting case {} to SPANR".format(job.case),
+                project=job.bg_job.project,
+                job_type=SpanrSubmissionBgJob.spec_name,
+                user=user,
+            )
+            submission_job = SpanrSubmissionBgJob.objects.create(
+                project=job.project, bg_job=bg_job, case=job.case, query_args=job.query_args
+            )
+            spanr_submission_task.delay(submission_job_pk=submission_job.pk)
         return redirect(submission_job.get_absolute_url())
 
 

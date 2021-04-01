@@ -7,6 +7,7 @@
 {% get_django_setting 'VARFISH_ENABLE_EXOMISER_PRIORITISER' as exomiser_enabled %}
 {% get_django_setting 'VARFISH_ENABLE_CADD' as cadd_enabled %}
 {% get_django_setting 'VARFISH_ENABLE_CADD_SUBMISSION' as cadd_submission_enabled %}
+{% get_django_setting 'VARFISH_ENABLE_SPANR_SUBMISSION' as spanr_submission_enabled %}
 {% get_is_testing as is_testing %}
 
 {% if form.errors %}
@@ -151,6 +152,15 @@
                   Submit to CADD
                 </button>
               {% endif %}
+              {% if spanr_submission_enabled %}
+                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-spanr"
+                        data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
+                        title="Submit to SPANR"
+                        {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
+                  <i class="fa fa-mail-forward"></i>
+                  Submit to SPANR
+                </button>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -160,6 +170,7 @@
 
   {% include "variants/_distiller_resubmit_modal.html" %}
   {% include "variants/_cadd_resubmit_modal.html" %}
+  {% include "variants/_spanr_resubmit_modal.html" %}
 </form>
 
 <script type="text/javascript">

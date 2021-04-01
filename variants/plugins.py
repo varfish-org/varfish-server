@@ -12,6 +12,7 @@ from .models import (
     ExportFileBgJob,
     ExportProjectCasesFileBgJob,
     CaddSubmissionBgJob,
+    SpanrSubmissionBgJob,
     DistillerSubmissionBgJob,
     ComputeProjectVariantsStatsBgJob,
     FilterBgJob,
@@ -280,6 +281,7 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
     job_specs = {
         ExportFileBgJob.spec_name: ExportFileBgJob,
         CaddSubmissionBgJob.spec_name: CaddSubmissionBgJob,
+        SpanrSubmissionBgJob.spec_name: SpanrSubmissionBgJob,
         DistillerSubmissionBgJob.spec_name: DistillerSubmissionBgJob,
         ComputeProjectVariantsStatsBgJob.spec_name: ComputeProjectVariantsStatsBgJob,
         ExportProjectCasesFileBgJob.spec_name: ExportProjectCasesFileBgJob,

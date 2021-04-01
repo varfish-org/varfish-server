@@ -35,6 +35,12 @@ def cadd_submission_task(_self, submission_job_pk):
 
 
 @app.task(bind=True)
+def spanr_submission_task(_self, submission_job_pk):
+    """Task to submit a case to SPANR."""
+    submit_external.submit_spanr(models.SpanrSubmissionBgJob.objects.get(pk=submission_job_pk))
+
+
+@app.task(bind=True)
 def export_file_task(_self, export_job_pk):
     """Task to export single case to a file"""
     file_export.export_case(models.ExportFileBgJob.objects.get(pk=export_job_pk))

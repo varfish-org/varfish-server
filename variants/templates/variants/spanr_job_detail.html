@@ -1,0 +1,172 @@
+{% extends 'projectroles/project_base.html' %}
+{% load projectroles_common_tags %}
+{% load rules %}
+{% load crispy_forms_tags %}
+{% load dict %}
+{% load humanize %}
+{% load static %}
+{% load json %}
+
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
+  <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.case.sodar_uuid %}">{{ object.case.name }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url "variants:job-list" project=project.sodar_uuid case=object.case.sodar_uuid %}">Jobs</a></li>
+  <li class="breadcrumb-item active">{{ object.bg_job.name }}</li>
+{% endblock %}
+
+{% block projectroles %}
+  <div class="row sodar-pr-content-title pb-2">
+    {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
+    {% include 'projectroles/_project_menu_btn.html' %}
+
+    <h2 class="sodar-pr-content-title">
+      Background SPANR Submission Job
+      <small class="text-muted">{{ object.bg_job.name }}</small>
+    </h2>
+    {% include 'variants/_job_view_buttons.html' with project=project folder=folder %}
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+
+    <div class="card sodar-va-export-job-base-details"
+         id="card sodar-va-export-job-base-details">
+      <div class="card-header">
+        <h4>
+          Results &amp; Resubmit
+        </h4>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group">
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Download Result</strong></div>
+            <div class="col-10 p-1">
+              {% if object.spanr_job_url  %}
+                <a href="{{ object.spanr_job_url }}" target="_blank">
+                  <i class="fa fa-external-link-square"></i>
+                  SPANR job page
+                </a>
+              {% else %}
+                No SPANR job URL assigned yet, please refresh page:
+                <button onClick="window.location.reload()" class="btn btn-success"><i class="fa fa-refresh"></i> Refresh page</button>
+              {% endif %}
+            </div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Re-Submit</strong></div>
+            <div class="col-10 pt-1 pb-1 pr-1 pl-0">
+              <form class="form-inline" action="{% url "variants:spanr-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}" method="post">
+               {% csrf_token %}
+                <div class="form-group ml-0 mr-2">
+                  <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#confirm-submit-spanr">
+                    <i class="fa fa-mail-forward"></i>
+                    Re-Submit
+                  </button>
+                </div>
+                <small class="form-text text-muted">
+                  Re-submit to SPANR with the same settings, e.g., if spanr was offline.
+                </small>
+                {% include "variants/_spanr_resubmit_modal.html" %}
+              </form>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card sodar-va-export-job-base-details"
+       id="card sodar-va-export-job-base-details">
+      <div class="card-header">
+        <h4>
+          Base Details
+        </h4>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group">
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Created</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.date_created }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Updated</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.date_modified }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Creator</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.user }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Title</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.name }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Description</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.description|default:"-" }}</div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Status</strong></div>
+            <div class="col-10 p-1">{{ object.bg_job.status }}</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card sodar-va-export-job-base-details"
+         id="card sodar-va-export-job-base-details">
+      <div class="card-header">
+        <h4>
+          Export Job Details
+        </h4>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group">
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Case</strong></div>
+            <div class="col-10 p-1">
+              <a href="{{ object.case.get_filter_url }}">
+                {{ object.case.name }}
+              </a>
+            </div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>Query Arguments</strong></div>
+            <div class="col-10 p-1">
+              <textarea class="form-control" cols="40" rows="5" readonly="true">{{ object.query_args|pretty_json }}</textarea>
+            </div>
+          </li>
+          <li class="list-group-item row d-flex">
+            <div class="col-2 p-1"><strong>File Type</strong></div>
+            <div class="col-10 p-1">{{ object.file_type }}</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+   <div class="card sodar-va-export-job-base-details"
+        id="card sodar-va-export-job-base-details">
+      <div class="card-header">
+        <h4>
+          Log Message
+        </h4>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group">
+          {% if object.bg_job.log_entries.all %}
+            {% for entry in object.bg_job.log_entries.all %}
+              <li class="list-group-item row d-flex">
+                <div class="col-2"><strong>{{ entry.date_created }}</strong></div>
+                <div class="col-1"><strong>{{ entry.level }}</strong></div>
+                <div class="col-9">{{ entry.message }}</div>
+              </li>
+            {% endfor %}
+          {% else %}
+            <li class="list-group-item bg-faded font-italic text-center">
+              No log entries yet.
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+  </div> <!-- sodar-page-container -->
+
+{% endblock %}
