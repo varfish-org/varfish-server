@@ -6,20 +6,16 @@ Upgrade Varfish Installation
 
 This section contains upgrade instructions for upgrading your VarFish Server installation using `VarFish Docker Compose <https://github.com/bihealth/varfish-docker-compose>`__.
 
--------------------------------------
-v0.22.1 to v0.23.0 (work in progress)
--------------------------------------
-
-.. warning::
-
-    Version v0.23.0 has not been released yet.
-    We can only provide support once v0.23.0 has been officially released.
+------------------
+v0.22.1 to v0.23.0
+------------------
 
 **Summary**
 
 - The Docker Compose installer now provides support for setting up CADD score annotation via `cadd-rest-api <https://github.com/bihealth/cadd-rest-api>`__.
-- The environment variable ``FIELD_ENCRYPTION_KEY`` **should** be setup properly.
+- The environment variable ``FIELD_ENCRYPTION_KEY`` **should** be setup properly by the user.
 - Two new celery queues are needed: ``maintenance`` and ``export``.
+- To enable the new and optional feature for uploading variants to SPANR you have to set the environment variable ``VARFISH_ENABLE_SPANR_SUBMISSION`` to ``1``.
 
 Detailed Instructions
 =====================
