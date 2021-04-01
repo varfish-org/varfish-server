@@ -612,6 +612,7 @@ class Case(CoreCase):
             Q(variants_exportfilebgjob_related__case=self)
             | Q(cadd_submission_bg_job__case=self)
             | Q(distiller_submission_bg_job__case=self)
+            | Q(spanr_submission_bg_job__case=self)
             | Q(filter_bg_job__case=self)
         )
 
@@ -1224,6 +1225,43 @@ class CaddSubmissionBgJob(JobModelMessageMixin, models.Model):
     def get_absolute_url(self):
         return reverse(
             "variants:cadd-job-detail",
+            kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
+        )
+
+
+class SpanrSubmissionBgJob(JobModelMessageMixin, models.Model):
+    """Background job for submitting variants to SPANR."""
+
+    #: Task description for logging.
+    task_desc = "Submission to SPANR"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "variants.spanr_submission_bg_job"
+
+    # Fields required by SODAR
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
+    )
+    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="spanr_submission_bg_job",
+        help_text="Background job for state etc.",
+        on_delete=models.CASCADE,
+    )
+    case = models.ForeignKey(Case, null=False, help_text="The case to export")
+    query_args = JSONField(null=False, help_text="(Validated) query parameters")
+
+    spanr_job_url = models.CharField(max_length=100, null=True, help_text="The SPANR job URL")
+
+    def get_human_readable_type(self):
+        return "SPANR Submission"
+
+    def get_absolute_url(self):
+        return reverse(
+            "variants:spanr-job-detail",
             kwargs={"project": self.project.sodar_uuid, "job": self.sodar_uuid},
         )
 

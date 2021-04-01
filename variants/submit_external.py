@@ -1,5 +1,5 @@
 """This module contains the code for file export"""
-
+import gzip
 import re
 
 from bs4 import BeautifulSoup
@@ -143,3 +143,117 @@ def submit_cadd(job):
         job.mark_success()
         if timeline:
             tl_event.set_status("OK", "CADD submission complete for {case_name}")
+
+
+#: URL to SPANR submission form
+SPANR_POST_URL = "http://tools.genes.toronto.edu/"
+#: Maximum number of lines to write out
+SPANR_MAX_LINES = 40
+
+
+def submit_spanr(job):
+    """Submit a case to SPANR."""
+    job.mark_start()
+    timeline = get_backend_api("timeline_backend")
+    if timeline:
+        tl_event = timeline.add_event(
+            project=job.project,
+            app_name="variants",
+            user=job.bg_job.user,
+            event_name="case_submit_spanr",
+            description="submitting {case_name} case to SPANR",
+            status_type="INIT",
+        )
+        tl_event.add_object(obj=job.case, label="case_name", name=job.case.name)
+    try:
+        job.add_log_entry("Getting submission form for CSRF (security) token")
+        text_input = _submit_spanr_make_text(job)
+        job.add_log_entry("Getting submission form for CSRF (security) token")
+        session = requests.Session()
+        csrf_token = _submit_spanr_obtain_csrf_token(job, session, timeline, tl_event)
+        if not csrf_token:
+            return  # bail out!
+        data = {"csrf_token": (None, csrf_token), "text_input": (None, text_input)}
+        job_id = _submit_spanr_post(data, job, session, timeline, tl_event)
+        if not job_id:
+            return  # bail out!
+        # Get target URL
+        job.spanr_job_url = "%sresults/%s" % (SPANR_POST_URL, job_id)
+        job.add_log_entry("SPANR job page is %s" % job.spanr_job_url)
+        job.save()
+    except Exception as e:
+        job.mark_error(e)
+        if timeline:
+            tl_event.set_status("FAILED", "SPANR submission failed for {case_name}: %s")
+        raise
+    else:
+        job.mark_success()
+        if timeline:
+            tl_event.set_status("OK", "SPANR submission complete for {case_name}")
+
+
+def _submit_spanr_post(data, job, session, timeline, tl_event):
+    job.add_log_entry("Submitting to %s..." % SPANR_POST_URL)
+    for k in ("job_name", "chrom", "pos", "variant_id", "ref", "alt"):
+        data[k] = (None, "")
+    response = session.post(
+        SPANR_POST_URL,
+        files=data,
+        headers={
+            "Referer": SPANR_POST_URL,
+            "Origin": SPANR_POST_URL[:-1],
+            "Upgrade-Insecure-Requests": "1",
+        },
+    )
+    job.add_log_entry("Done submitting to %s" % SPANR_POST_URL)
+    if not response.ok:
+        job.mark_error("HTTP status code: {}".format(response.status_code))
+        if timeline:
+            tl_event.set_status("FAILED", "SPANR submission failed for {case_name}")
+        return None
+    soup = BeautifulSoup(response.text, "html.parser")
+    job_id = None
+    for tag in soup.find_all("title"):
+        text = tag.string
+        if text.startswith("Result"):
+            job_id = text.split()[1]
+    if not job_id:
+        job.mark_error('Page title did not start with "Result"')
+        if timeline:
+            tl_event.set_status("FAILED", "SPANR submission failed for {case_name}")
+    return job_id
+
+
+def _submit_spanr_make_text(job):
+    with CaseExporterVcf(job, job.case) as exporter:
+        job.add_log_entry("Creating temporary VCF file...")
+        tmp_file = exporter.write_tmp_file()
+        job.add_log_entry("Extracting first 40 variants...")
+        lines = []
+        with gzip.open(tmp_file.name, "rt") as inputf:
+            i = 0
+            for line in inputf:
+                if not line.startswith("#"):
+                    lines.append("\t".join(line.split("\t")[:5]))
+                i += 1
+                if i >= SPANR_MAX_LINES:
+                    break
+        text_input = "\n".join(lines) + "\n"
+    return text_input
+
+
+def _submit_spanr_obtain_csrf_token(job, session, timeline, tl_event):
+    response = session.get(SPANR_POST_URL)
+    if not response.ok:
+        job.mark_error("HTTP status code: {}".format(response.status_code))
+        if timeline:
+            tl_event.set_status("FAILED", "SPANR submission failed for {case_name}")
+        return None
+    soup = BeautifulSoup(response.text, "html.parser")
+    tag = soup.find(id="csrf_token")
+    if not tag:
+        job.mark_error("Could not extract CSRF token")
+        if timeline:
+            tl_event.set_status("FAILED", "SPANR submission failed for {case_name}")
+        return None
+    return tag.attrs.get("value")

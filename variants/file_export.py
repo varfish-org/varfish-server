@@ -437,6 +437,7 @@ class CaseExporterBase:
         self._write_variants()
         self._write_trailing()
         #: Rewind temporary file to beginning and return it.
+        self.tmp_file.flush()
         self.tmp_file.seek(0)
         return self.tmp_file
 
