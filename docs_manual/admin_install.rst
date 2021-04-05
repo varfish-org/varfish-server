@@ -7,7 +7,7 @@ Installation
 This chapter describes how to install the VarFish core components and their requirements.
 The audience of this chapter are those who want to install VarFish on their own infrastructure.
 
-Since v0.22.1 (about February 2020), the recommended way of installing VarFish is using Docker Compose.
+Since v0.22.1 (about February 2021), the recommended way of installing VarFish is using Docker Compose.
 Docker Compose allows to describe the programs/services that are required to run VarFish as a site of Docker containers.
 Docker containers allow to the whole runtime environment of complex software packages in a transparent and efficient manner.
 
