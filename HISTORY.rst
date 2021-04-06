@@ -9,6 +9,7 @@ HEAD (unreleased)
 End-User Summary
 ================
 
+- Allowing users to easily copy case UUID by icon in case heading.
 - Fixing bug that made the user icon top right disappear.
 
 Full Change List
@@ -16,6 +17,7 @@ Full Change List
 
 - Improving admin configuration documentation.
 - Extending admin tuning documentation.
+- Allowing users to easily copy case UUID by icon in case heading.
 - Fixing bug that made the user icon top right disappear when beaconsite was disabled.
 - Upgrade to sodar-core v0.9.1
 

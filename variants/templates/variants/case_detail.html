@@ -5,15 +5,15 @@
 {% load humanize %}
 {% load static %}
 
-{% get_app_setting 'variants' 'disable_pedigree_sex_check' project=project as disable_pedigree_sex_check %}
-
-
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
   <li class="breadcrumb-item active">{{ object.name }}</li>
 {% endblock %}
 
 {% block projectroles %}
+  {% get_app_setting 'variants' 'disable_pedigree_sex_check' project=project as disable_pedigree_sex_check %}
+  {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
+
   <div class="row sodar-pr-content-title pb-2">
     {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
     {% include 'projectroles/_project_menu_btn.html' %}
@@ -22,6 +22,14 @@
       Case
       <small class="text-muted">{{ object.name }}</small>
     </h2>
+
+    <a role="submit" class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
+       id="sodar-pr-btn-copy-uuid"
+       data-clipboard-text="{{ object.sodar_uuid }}"
+       title="Copy UUID to clipboard" data-toggle="tooltip" data-placement="top">
+      <i class="fa fa-clipboard text-muted" aria-hidden="true"></i>
+    </a>
+
     {% include "variants/_case_detail_buttons.html" %}
   </div>
 
