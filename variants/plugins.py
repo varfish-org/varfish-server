@@ -219,11 +219,11 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
             },
         }
 
-    def search(self, search_term, user, search_type=None, keywords=None):
+    def search(self, search_terms, user, search_type=None, keywords=None):
         """
         Return app items based on a search term, user, optional type and
         optional keywords
-        :param search_term: String
+        :param search_terms: List of strings.
         :param user: User object for user initiating the search
         :param search_type: String
         :param keywords: List (optional)
