@@ -14,6 +14,8 @@ End-User Summary
 Full Change List
 ================
 
+- Improving admin configuration documentation.
+- Extending admin tuning documentation.
 - Fixing bug that made the user icon top right disappear when beaconsite was disabled.
 - Upgrade to sodar-core v0.9.1
 
