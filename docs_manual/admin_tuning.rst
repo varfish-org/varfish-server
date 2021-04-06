@@ -59,5 +59,23 @@ If you are using SSDs then you can adjust the value of ``random_page_cost``.
 This value helps the Postgres query planner to estimate the cost of random vs. sequential data access.
 For SSDs, you can set this to ``1.1``:
 
-:
+::
+
     random_page_cost = 1.1  # optimized for SSD
+
+--------------------------
+Placing Tables and Indices
+--------------------------
+
+In principle, you can the table space feature of PostgreSQL to move certain tables and indices to different storage classes.
+The following tables and their indices are large and read-only after the initial import.
+
+::
+
+    conservation_knowngeneaa
+    dbsnp_dbsnp
+    frequencies_*
+    extra_annos_*
+
+Moving them to cheaper storage with higher latency than the rest of the data might be feasible if you are hard-pressed for saving storage.
+The authors have not tried this and would be very interested in experience reports.

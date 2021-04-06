@@ -120,12 +120,132 @@ You can configure sentry support as follows
     A sentry DSN to report to.
     See Sentry documentation for details.
 
+----------------------------------
+System and Docker (Compose) Tweaks
+----------------------------------
+
+A number of customizations customizations of the installation can be done using Docker or Docker Compose.
+Other customizations have to be done on the system level.
+This section lists those that the authors are aware of but in particular network-related settings can be done on many levels.
+
+Using Non-Default HTTP(S) Ports
+===============================
+
+If you want to use non-standard HTTP and HTTPS ports (defaults are 80 and 443) then you can tweak this in the ``traefik`` container section.
+You have to adjust two parts.
+
+.. code-block:: yaml
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+To listen on ports ``8080`` and ``8443`` instead, adjust this to:
+
+    ports:
+      - "8080:80"
+      - "8443:443"
+
+Also, you have to change the command line arguments to traefik for the ``web`` (HTTP) and ``websecure`` (HTTPS) entrypoints.
+
+.. code-block:: yaml
+
+    - "--entrypoints.web.address=:80"
+    - "--entrypoints.websecure.address=:443"
+
+Change the lines to read:
+
+.. code-block:: yaml
+
+    - "--entrypoints.web.address=:8080"
+    - "--entrypoints.websecure.address=:8443"
+
+Then, restart by calling ``docker-compose up -d`` in the directory with the ``docker-compose.yml`` file.
+
+Listing on Specific IPs
+=======================
+
+By default, the ``traefik`` container will listen on all IPs and interfaces of the host machine.
+
+You can change this by prefixing the ``ports`` list with the IPs to listen on.
+Change following lines to read:
+
+.. code-block:: yaml
+
+    ports:
+      - "80:80"
+      - "443:443"
+
+To the following to only listen on ``10.0.0.1``.
+
+.. code-block:: yaml
+
+    ports:
+      - "10.0.0.1:80:80"
+      - "10.0.0.1:443:443"
+
+More details can be found in the `corresponding section of the Docker Compose manual <https://docs.docker.com/compose/compose-file/compose-file-v3/#ports>`_.
+Of course, you can combine this with adjusting the ports, e.g., to ``10.0.0.1:8080:80`` etc.
+
+Limit Incoming Traffic
+======================
+
+In some settings you might want to limit incoming traffic to certain networks / IP ranges.
+In principle, this is possible with adjusting the Traefik load balancer/reverse proxy.
+However, we would recommend you to use the firewall of your operating system or your overall network for this purpose.
+Consult the corresponding manual (e.g., of ``firewalld`` for CentOS/Red Hat or of ``ufw`` for Debian/Ubuntu) for instructions.
+We remark that in most cases it is better to perform an actual separation of networks and place each (virtual) machine into one network only.
+
+---------------------
+Understanding Volumes
+---------------------
+
+The ``volumes`` sub directory of the ``varfish-docker-compose`` directory contains the data for the containers.
+These are as follows.
+
+``cadd-rest-api``
+    Databases for variant annotation with CADD (large).
+
+``exomiser``
+    Databases for variant prioritization (medium)
+
+``jannovar``
+    Transcript databases for annotation (small).
+
+``minio``
+    Storage for files uploaded from client via REST API (big).
+
+``postgres``
+    PostgreSQL databases (very big).
+
+``redis``
+    Storage for the work queues (small).
+
+``traefik``
+    Configuration and certificates for load balancer (very small).
+
+In principle, you can put these on different storages systems (e.g., some over the network and some on directly attached disks).
+The main motivation is that fast storage is expensive.
+Putting the small and medium sized directories on slower, cheaper storage will have little or no effect on storage efficiency.
+At the same time, access to ``redis`` and ``exomiser`` directories should be fast.
+As for ``postgres``, this storage is accessed most heavily and should be on storage as fast as you can afford.
+``cadd-rest-api`` should also be on fast storage but it is accessed almost only read-only.
+You can put the ``minio`` folder on slower storage to shave off some storage costs from your VarFish installation.
+
+To summarize:
+
+- You can put ``minio`` on cheaper storage.
+- As for ``cadd-rest-api``, you can probably get away to put this on cheaper storage.
+- Put everything else, in particular ``postgres`` on storage as fast as you can afford.
+
+As described in the section :ref:`admin_tuning`, the authors recommend using an advanced file system such as ZFS on multiple SSDs for large, fast storage and enabling compression.
+You will get excellent performance and can expect storage saving of 50%.
+
 --------------------------
 Undocumented Configuration
 --------------------------
 
 The following list remains a points to implement with Docker Compose and document.
 
-- CADD annotation (also needs adding this to docker-compose.yml)
 - Kiosk Mode
 - Updating Extras Data
