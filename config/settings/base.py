@@ -175,6 +175,8 @@ KIOSK_VARFISH_ANNOTATOR_REFERENCE_PATH = env.str(
 KIOSK_VARFISH_ANNOTATOR_RELEASE = env.str("VARFISH_KIOSK_VARFISH_ANNOTATOR_RELEASE", "GRCh37")
 # Activate Kiosk mode in project roles
 PROJECTROLES_KIOSK_MODE = KIOSK_MODE
+# Set limit for delegate roles per project to 1.
+PROJECTROLES_DELEGATE_LIMIT = 1
 
 # FIXTURE CONFIGURATION
 # ------------------------------------------------------------------------------

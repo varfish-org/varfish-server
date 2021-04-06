@@ -15,6 +15,7 @@ Full Change List
 ================
 
 - Fixing bug that made the user icon top right disappear when beaconsite was disabled.
+- Upgrade to sodar-core v0.9.1
 
 -------
 v0.23.0

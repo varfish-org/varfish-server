@@ -1,14 +1,14 @@
 # Local development dependencies go here
 -r base.txt
 
-django-extensions==2.2.8
-Werkzeug==1.0.0
+django-extensions==2.2.9
+Werkzeug==1.0.1
 
 django-debug-toolbar==1.11
 django-debug-toolbar-alchemy==0.1.5
 
 # improved REPL
-ipdb==0.13.2, <0.14
+ipdb==0.13.4, <0.14
 
 pytest-django==3.4.2
 pytest-sugar==0.9.1

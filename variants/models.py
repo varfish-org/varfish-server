@@ -437,18 +437,19 @@ class CaseManager(models.Manager):
 
     # TODO: properly test searching..
 
-    def find(self, search_term, _keywords=None):
+    def find(self, search_terms, _keywords=None):
         """
         Return objects or links matching the query.
-        :param search_term: Search term (string)
+        :param search_terms: Search terms (list of string)
         :param _keywords: Optional search keywords as key/value pairs (dict)
         :return: Python list of BaseFilesfolderClass objects
         """
         objects = super().get_queryset().order_by("name")
-        objects = objects.filter(
-            Q(name__iexact=search_term) | Q(search_tokens__icontains=[search_term])
-        )
-        return objects
+        term_query = Q()
+        for t in search_terms:
+            term_query.add(Q(name__iexact=t), Q.OR)
+            term_query.add(Q(search_tokens__icontains=t), Q.OR)
+        return objects.filter(term_query)
 
 
 CASE_STATUS_CHOICES = (
