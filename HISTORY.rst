@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Fixing bug that made the user icon top right disappear.
+
+Full Change List
+================
+
+- Fixing bug that made the user icon top right disappear when beaconsite was disabled.
+
 -------
 v0.23.0
 -------
