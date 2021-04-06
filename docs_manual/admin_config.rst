@@ -121,6 +121,15 @@ You can configure sentry support as follows
     See Sentry documentation for details.
 
 --------------------------
+Beacon Site (Experimental)
+--------------------------
+
+An experimental support for the GA4GH beacon protocol.
+
+``VARFISH_ENABLE_BEACON_SITE=``
+    Whether or not to enable experimental beacon site support.
+
+--------------------------
 Undocumented Configuration
 --------------------------
 
