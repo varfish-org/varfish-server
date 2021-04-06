@@ -30,8 +30,17 @@ RUN cd /usr/src/app && \
     pip install --no-cache-dir -r requirements/production.txt && \
     pip install --no-cache-dir -r requirements/local.txt
 
+# Install modern nodejs
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
+    apt install nodejs
+
+# Install npm dependencies.
+RUN cd /usr/src/app/varfish/vueapp && \
+    npm ci
+
 # Prepare static files
 RUN cd /usr/src/app && \
+    mkdir -p /usr/src/app/varfish/vueapp/dist && \
     DJANGO_SECRET_KEY=for-build-only \
     DJANGO_SETTINGS_MODULE=config.settings.production \
     DATABASE_URL=postgres://varfish:varfish@fake/varfish \
