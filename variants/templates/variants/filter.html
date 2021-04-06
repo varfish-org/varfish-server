@@ -16,6 +16,7 @@
 {% endblock %}
 
 {% block projectroles %}
+  {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
 
 {% block css %}
   {{ block.super }}
@@ -158,6 +159,28 @@
         {% endif %}
       {% endif %}
     </h2>
+
+    {# Project copy uuid #}
+    {% if enable_uuid_copy %}
+      {% if query_type == "case" %}
+        <a role="submit" class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
+           id="sodar-pr-btn-copy-uuid"
+           data-clipboard-text="{{ object.sodar_uuid }}"
+           title="Copy UUID to clipboard" data-toggle="tooltip" data-placement="top">
+          <i class="fa fa-clipboard text-muted" aria-hidden="true"></i>
+        </a>
+      {% else %}
+        {% if not cohort %}
+          <a role="submit" class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
+             id="sodar-pr-btn-copy-uuid"
+             data-clipboard-text="{{ project.sodar_uuid }}"
+             title="Copy UUID to clipboard" data-toggle="tooltip" data-placement="top">
+            <i class="fa fa-clipboard text-muted" aria-hidden="true"></i>
+          </a>
+        {% endif %}
+      {% endif %}
+    {% endif %}
+
     {% include "variants/_case_filter_buttons.html" %}
   </div>
 
