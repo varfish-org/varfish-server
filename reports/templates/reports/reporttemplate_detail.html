@@ -1,0 +1,61 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+
+{% block title %}Report Template{% endblock %}
+
+{% block projectroles %}
+  {% has_perm 'beaconsite.update_data' request.user as can_update_data %}
+  {% has_perm 'beaconsite.delete_data' request.user as can_delete_data %}
+
+  <div class="row sodar-subtitle-container">
+    <h2>
+      <i class="fa fa-file-text-o"></i>
+      Report Template
+    </h2>
+    <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
+      <a class="btn btn-secondary" href="{% url 'reports:template-list' project=project.sodar_uuid %}">
+        <i class="fa fa-arrow-circle-left"></i> Back
+      </a>
+      {% if can_update_data %}
+        <a class="btn btn-primary" href="{% url 'reports:template-update' project=project.sodar_uuid template=object.sodar_uuid %}">
+          <i class="fa fa-pencil"></i>
+          Update
+        </a>
+      {% endif %}
+      {% if can_delete_data %}
+        <a class="btn btn-danger" href="{% url 'reports:template-delete' project=project.sodar_uuid template=object.sodar_uuid %}">
+          <i class="fa fa-eraser"></i>
+          Remove
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <div class="card" id="sodar-aa-alert-list">
+      <div class="card-body px-0">
+        <dl class="row pb-0">
+          <dt class="col-md-2">UUID</dt>
+          <dd class="col-md-10"><strong>{{ object.sodar_uuid }}</strong></dd>
+          <dt class="col-md-2">Title</dt>
+          <dd class="col-md-10"><strong>{{ object.title }}</strong></dd>
+          <dt class="col-md-2">File Name</dt>
+          <dd class="col-md-10"><strong>{{ object.filename }}</strong></dd>
+          <dt class="col-md-2"></dt>
+          <dd class="col-md-10">
+            <a href="{% url 'reports:template-download' project=project.sodar_uuid template=object.sodar_uuid %}">
+              <i class="fa fa-download"></i>
+              Download
+            </a>
+          </dd>
+          <dt class="col-md-2">File Size</dt>
+          <dd class="col-md-10">{{ object.filesize|filesizeformat }}</dd>
+          <dt class="col-md-2">File Hash</dt>
+          <dd class="col-md-10">{{ object.filehash }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+{% endblock projectroles %}

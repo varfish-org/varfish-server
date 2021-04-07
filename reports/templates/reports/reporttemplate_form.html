@@ -1,0 +1,60 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+{% load crispy_forms_filters %}
+{% load projectroles_tags %}
+{% load projectroles_common_tags %}
+
+{% block title %}
+  <i class="fa fa-handshake-o"></i>
+  {% if object.pk %}
+    Update
+  {% else %}
+    Create
+  {% endif %}
+  Report Template
+{% endblock title %}
+
+{% block projectroles %}
+  <div class="row sodar-subtitle-container">
+
+      <h2>
+        {% if object.pk %}
+          Update
+        {% else %}
+          Create
+        {% endif %}
+        Report Template
+      </h2>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+
+    {{ form|as_crispy_errors }}
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.payload|as_crispy_field }}
+      {{ form.title|as_crispy_field }}
+      {{ form.filename|as_crispy_field }}
+
+      <div class="row">
+        <div class="btn-group ml-auto" role="group">
+          <a role="button" class="btn btn-secondary"
+             href="{% url 'reports:template-list' project=project.sodar_uuid %}">
+            <i class="fa fa-arrow-circle-left"></i> Cancel
+          </a>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa fa-check"></i>
+            {% if object.pk %}
+              Update
+            {% else %}
+              Create
+            {% endif %}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+{% endblock projectroles %}

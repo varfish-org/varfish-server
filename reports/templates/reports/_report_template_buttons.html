@@ -1,0 +1,29 @@
+{% load rules %}
+
+{% has_perm 'reports.update_data' request.user as can_update_data %}
+{% has_perm 'reports.delete_data' request.user as can_delete_data %}
+
+<div class="btn-group sodar-list-btn-group pull-right">
+  <button class="btn btn-secondary dropdown-toggle sodar-list-dropdown"
+      type="button" data-toggle="dropdown" aria-expanded="false">
+    <i class="fa fa-cog"></i>
+  </button>
+  <div class="dropdown-menu dropdown-menu-right">
+    <a class="dropdown-item" href="{% url 'reports:template-view' project=project.sodar_uuid template=object.sodar_uuid %}">
+      <i class="fa fa-fw fa-eye"></i>
+      View
+    </a>
+    {% if can_update_data %}
+      <a class="dropdown-item" href="{% url 'reports:template-update' project=project.sodar_uuid template=object.sodar_uuid %}">
+        <i class="fa fa-fw fa-pencil"></i>
+        Edit
+      </a>
+    {% endif %}
+    {% if can_delete_data %}
+      <a class="dropdown-item" href="{% url 'reports:template-delete' project=project.sodar_uuid template=object.sodar_uuid %}">
+        <i class="fa fa-fw fa-eraser"></i>
+        Delete
+      </a>
+    {% endif %}
+  </div>
+</div>

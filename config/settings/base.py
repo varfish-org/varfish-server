@@ -111,6 +111,7 @@ LOCAL_APPS = [
     "maintenance.apps.MaintenanceConfig",
     "regmaps.apps.RegmapsConfig",
     "beaconsite.apps.BeaconsiteConfig",
+    "reports.apps.ReportsConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -690,6 +691,7 @@ DJANGO_SU_LOGIN_CALLBACK = None
 # Default: None
 DJANGO_SU_CUSTOM_LOGIN_ACTION = None
 
+CRISPY_FAIL_SILENTLY = False
 
 # STORAGE CONFIGURATION
 # ------------------------------------------------------------------------------

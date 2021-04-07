@@ -1,0 +1,87 @@
+{% extends 'projectroles/project_base.html' %}
+
+{% load projectroles_common_tags %}
+{% load rules %}
+
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item active">Report Template List</li>
+{% endblock %}
+
+{% block projectroles %}
+  {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
+
+  {% has_perm 'reports.add_data' request.user as can_add_data %}
+
+  <div class="row sodar-pr-content-title pb-2">
+    {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
+    {% include 'projectroles/_project_menu_btn.html' %}
+
+    <h2 class="sodar-pr-content-title">
+      <i class="fa fa-file-text-o"></i>
+      Report Template List
+    </h2>
+
+    {# Project copy uuid #}
+    {% if enable_uuid_copy %}
+      <a role="submit" class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
+         id="sodar-pr-btn-copy-uuid"
+         data-clipboard-text="{{ project.sodar_uuid }}"
+         title="Copy UUID to clipboard" data-toggle="tooltip" data-placement="top">
+        <i class="fa fa-clipboard text-muted" aria-hidden="true"></i>
+      </a>
+    {% endif %}
+
+    {% if can_add_data %}
+      <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
+        <a class="btn btn-primary" href="{% url 'reports:template-create' project=project.sodar_uuid %}">
+          <i class="fa fa-plus"></i>
+          Create
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="container-fluid sodar-page-container pt-3 pb-3">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th style="width: 10px;">#</th>
+          <th style="width: 200px;">Title</th>
+          <th>Filename</th>
+          <th style="width: 50px;">Size</th>
+          <th style="width: 50px;">Hash</th>
+          <th style="width: 10px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for object in object_list %}
+          <tr>
+            <td class="text-right text-muted">{{ forloop.counter }}</td>
+            <td>
+              <a href="{% url 'reports:template-view' project=project.sodar_uuid template=object.sodar_uuid %}">
+                {{ object.title }}
+              </a>
+            </td>
+            <td>
+              {{ object.filename }}
+              &nbsp;
+              <a href="{% url 'reports:template-download' project=project.sodar_uuid template=object.sodar_uuid %}">
+                <i class="fa fa-download"></i>
+              </a>
+            </td>
+            <td>{{ object.filesize }}</td>
+            <td>{{ object.filehash }}</td>
+            <td>
+              {% include "reports/_report_template_buttons.html" %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="6" class="text-center font-italic">
+              File templates have been uploaded yet.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+{% endblock %}

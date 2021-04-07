@@ -1,0 +1,35 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+{% load crispy_forms_filters %}
+{% load projectroles_common_tags %}
+
+{% block title %}Confirm Removal of Report Template{% endblock %}
+
+{% block projectroles %}
+
+<div class="row sodar-subtitle-container">
+  <h2>Confirm Removal of Report Template</h2>
+</div>
+
+<div class="container-fluid sodar-page-container">
+  <div class="alert alert-warning" role="alert">
+    Do you really want to remove the report template "<strong>{{ object.title }}</strong>" file file name "<strong>{{ object.filename }}</strong>"?
+    <strong>This action cannot be reverted!</strong>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="btn-group pull-right">
+      <a role="button" class="btn btn-secondary"
+         href="{% url 'reports:template-view' project=project.sodar_uuid template=object.sodar_uuid %}"
+        <i class="fa fa-arrow-circle-left"></i> Cancel
+      </a>
+      <button type="submit" class="btn btn-danger">
+        <i class="fa fa-times"></i> Remove
+      </button>
+    </div>
+  </form>
+</div>
+
+{% endblock projectroles %}

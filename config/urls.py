@@ -56,6 +56,7 @@ urlpatterns += [
     url(r"^su/", include("django_su.urls")),
     url(r"^cohorts/", include("cohorts.urls")),
     url(r"^clinvar-export/", include("clinvar_export.urls")),
+    url(r"^reports/", include("reports.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Augment with URLs for Beacon site.
