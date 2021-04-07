@@ -9,12 +9,14 @@ HEAD (unreleased)
 End-User Summary
 ================
 
+- Adding "not hom. alt." filter setting.
 - Allowing users to easily copy case UUID by icon in case heading.
 - Fixing bug that made the user icon top right disappear.
 
 Full Change List
 ================
 
+- Adding "not hom. alt." filter setting.
 - Improving admin configuration documentation.
 - Extending admin tuning documentation.
 - Allowing users to easily copy case UUID by icon in case heading.
