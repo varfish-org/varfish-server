@@ -57,7 +57,6 @@ class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
 
 
 class TestBeaconQueryAjaxView(TestProjectAPIPermissionBase):
-    @skip(reason="missing urlescape in sodar_core, fixed in 0.9.1")
     @requests_mock.Mocker()
     def test_get(self, r_mock):
         _local_site = SiteFactory(role=Site.LOCAL)
