@@ -100,11 +100,16 @@ In the default ``docker-compose`` setup, postgres server is thus not exposed to 
 Miscellaneous Configuration
 ---------------------------
 
-``VARFISH_LOGIN_PAGE_TEXT=``
+``VARFISH_LOGIN_PAGE_TEXT``
     Text to display on the login page.
 ``FIELD_ENCRYPTION_KEY``
     Key to use for encrypting secrets in the database (such as saved public keys for the Beacon Site feature).
     You can generate such a key with the following command: ``python -c 'import os, base64; print(base64.urlsafe_b64encode(os.urandom(32)))'``.
+``VARFISH_ENABLE_GOTENBERG``
+    Enable conversion of .docx to PDF with Gotenberg (best run in a container).
+    This is required for preview of rendered .docx files via PDF in the browser.
+``VARFISH_GOTENBERG_URL``
+    Base URL for the Gotenberg API.
 
 --------------------
 Sentry Configuration

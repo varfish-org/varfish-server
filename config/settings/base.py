@@ -178,6 +178,11 @@ PROJECTROLES_KIOSK_MODE = KIOSK_MODE
 # Set limit for delegate roles per project to 1.
 PROJECTROLES_DELEGATE_LIMIT = 1
 
+#: Enable .docs to .pdf conversion with Gotenberg.
+VARFISH_ENABLE_GOTENBERG = env.bool("VARFISH_ENABLE_GOTENBERG", False)
+#: Gotenberg API URL for rendering to PDF.
+VARFISH_GOTENBERG_URL = env.str("VARFISH_GOTENBERG_URL", "")
+
 # FIXTURE CONFIGURATION
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-FIXTURE_DIRS

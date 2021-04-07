@@ -11,6 +11,7 @@ End-User Summary
 
 - Allowing to download all users annotation for whole project in one Excel/TSV file.
 - Improving variant annotation overview per case/project and allowing download.
+- Adding possibility to create Word-based reports.
 - Adding "not hom. alt." filter setting.
 - Allowing users to easily copy case UUID by icon in case heading.
 - Fixing bug that made the user icon top right disappear.
@@ -21,6 +22,7 @@ Full Change List
 - Allowing to download all users annotation for whole project in one Excel/TSV file.
 - Using SQL Alchemy query instrastructure for per-case/project annotation feature.
 - Removing vendored JS/CSS, using CDN for development and download on Docker build instead.
+- Adding possibility to create Word-based reports.
 - Adding "not hom. alt." filter setting.
 - Improving admin configuration documentation.
 - Extending admin tuning documentation.
