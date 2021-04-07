@@ -833,13 +833,14 @@ class TestQueryOmimAjaxViews(TestProjectAPIPermissionBase):
             response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
+        lst = [x.strip() for x in hpo_record.name.split(";") if x.strip()]
         expected = jsonmatch.compile(
             {
                 "query": hpo_record.database_id,
                 "result": [
-                    {"term_id": "OMIM:0", "term_name": "Alternative Description"},
-                    {"term_id": "OMIM:0", "term_name": "Disease 0"},
-                    {"term_id": "OMIM:0", "term_name": "Gene Symbol"},
+                    {"term_id": hpo_record.database_id, "term_name": lst[2]},
+                    {"term_id": hpo_record.database_id, "term_name": lst[0]},
+                    {"term_id": hpo_record.database_id, "term_name": lst[1]},
                 ],
             }
         )
@@ -863,7 +864,7 @@ class TestQueryHpoAjaxViews(TestProjectAPIPermissionBase):
         expected = jsonmatch.compile(
             {
                 "query": hpo_name_record.hpo_id,
-                "result": [{"term_id": "HP:0000000", "term_name": "Phenotype 0"}],
+                "result": [{"term_id": hpo_name_record.hpo_id, "term_name": hpo_name_record.name}],
             }
         )
         expected.assert_matches(res_json)

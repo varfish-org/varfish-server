@@ -635,7 +635,6 @@ class TestSubmittingOrgAjaxViews(TestProjectAPIPermissionBase):
 class TestQueryOmimAjaxViews(TestProjectAPIPermissionBase):
     """Permission tests for OMIM term AJAX views"""
 
-    @skip(reason="missing urlescape in sodar_core, fixed in 0.9.1")
     def test(self):
         hpo_record = HpoFactory()
         url = (
@@ -649,8 +648,9 @@ class TestQueryOmimAjaxViews(TestProjectAPIPermissionBase):
             self.delegate_as.user,
             self.contributor_as.user,
             self.guest_as.user,
+            self.user_no_roles,
         ]
-        bad_users = [self.anonymous, self.user_no_roles]
+        bad_users = [self.anonymous]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users, 302, method="GET")  # redirect to login
 
@@ -658,7 +658,6 @@ class TestQueryOmimAjaxViews(TestProjectAPIPermissionBase):
 class TestQueryHpoAjaxViews(TestProjectAPIPermissionBase):
     """Permission tests for the AJAX views for querying for HPO terms."""
 
-    @skip(reason="missing urlescape in sodar_core, fixed in 0.9.1")
     def test(self):
         hpo_record = HpoNameFactory()
         url = (
@@ -672,8 +671,9 @@ class TestQueryHpoAjaxViews(TestProjectAPIPermissionBase):
             self.delegate_as.user,
             self.contributor_as.user,
             self.guest_as.user,
+            self.user_no_roles,
         ]
-        bad_users = [self.anonymous, self.user_no_roles]
+        bad_users = [self.anonymous]
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users, 302, method="GET")  # redirect to login
 
