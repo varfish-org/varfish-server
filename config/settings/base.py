@@ -177,6 +177,8 @@ KIOSK_VARFISH_ANNOTATOR_RELEASE = env.str("VARFISH_KIOSK_VARFISH_ANNOTATOR_RELEA
 PROJECTROLES_KIOSK_MODE = KIOSK_MODE
 # Set limit for delegate roles per project to 1.
 PROJECTROLES_DELEGATE_LIMIT = 1
+# Allow including of additional HTML into the head.
+PROJECTROLES_INLINE_HEAD_INCLUDE = env.str("PROJECTROLES_INLINE_HEAD_INCLUDE", "")
 
 # FIXTURE CONFIGURATION
 # ------------------------------------------------------------------------------
