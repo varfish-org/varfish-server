@@ -30,7 +30,6 @@ $(document).on('click', '.toggle-variant-details', function() {
   let variant_flags_url = "{% url 'svs:sv-flags-api' project=project.sodar_uuid case="--abcef--" sv="--bbccee--" %}";
   let variant_comment_url = "{% url 'svs:sv-comment-api' project=project.sodar_uuid case="--abcef--" sv="--bbccee--" %}";
 </script>
-<script type="text/javascript" src="{% static "js/vendor/lodash-4.17.15.min.js" %}"></script>
 <script type="text/javascript" src="{% static "js/helpers.js" %}"></script>
 <script type="text/javascript" src="{% static "js/filter_form.js" %}"></script>
 <script type="text/javascript" src="{% static "js/flags_comments.js" %}"></script>

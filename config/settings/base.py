@@ -566,6 +566,40 @@ VARFISH_PROJECTROLES_SYNC_REMOTE = env.bool("VARFISH_PROJECTROLES_SYNC_REMOTE", 
 ENABLED_BACKEND_PLUGINS = ["timeline_backend"]
 ENABLED_BACKEND_PLUGINS += env.list("ENABLED_BACKEND_PLUGINS", None, [])
 
+# Warn about unsupported browsers (IE)
+PROJECTROLES_BROWSER_WARNING = True
+
+# Disable default CDN JS/CSS includes to replace with local files.  This
+# is primarily used for Docker-based deployments.
+PROJECTROLES_DISABLE_CDN_INCLUDES = env.bool("PROJECTROLES_DISABLE_CDN_INCLUDES", False)
+
+if PROJECTROLES_DISABLE_CDN_INCLUDES:
+    PROJECTROLES_CUSTOM_JS_INCLUDES = [
+        "/static/local/js/jquery-3.5.1.min.js",
+        "/static/local/js/tether.min.js",
+        "/static/local/js/shepherd.min.js",
+        "/static/local/js/clipboard.min.js",
+        "/static/local/js/bundle.tracing.min.js",
+        "/static/local/js/jquery.dataTables.min.js",
+        "/static/local/js/bootstrap-select.min.js",
+        "/static/local/js/tagsinput.js",
+        "/static/local/js/jsrender.min.js",
+        "/static/local/js/plotly-1.54.5.min.js",
+        "/static/local/js/axios.min.js",
+        "/static/local/js/palette.min.js",
+        "/static/local/js/lodash.min.js",
+    ]
+    PROJECTROLES_CUSTOM_CSS_INCLUDES = [
+        "/static/local/css/font-awesome.min.css",
+        "/static/local/css/bootstrap.min.css",
+        "/static/local/css/bootstrap-select.min.css",
+        "/static/local/css/dataTables.jqueryui.min.css",
+        "/static/local/css/tagsinput.css",
+    ]
+else:
+    PROJECTROLES_CUSTOM_JS_INCLUDES = []
+    PROJECTROLES_CUSTOM_CSS_INCLUDES = []
+
 
 def set_logging(debug):
     return {

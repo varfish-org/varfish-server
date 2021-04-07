@@ -4,46 +4,46 @@
 {% load projectroles_common_tags %}
 
 {% block head_javascript %}
+  {{ block.super }}
+
+  {% get_django_setting 'PROJECTROLES_DISABLE_CDN_INCLUDES' as disable_cdn_includes %}
+
+  {% if not disable_cdn_includes %}
+    <!-- Sentry SDK for browsers -->
+    <script src="https://browser.sentry-cdn.com/6.2.5/bundle.tracing.min.js" integrity="sha384-xd/W0P7puokZpoEqk4srLDzK5R0WV2B2IZVlA0T4MEU4Fojxk+o+5KF6u43wkTL6" crossorigin="anonymous"></script>
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <!-- Bootstrap select plugin for multiple-select dropdown menus -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js" integrity="sha512-yDlE7vpGDP7o2eftkCiPZ+yuUyEcaBwoJoIhdXv71KZWugFqEphIS3PU60lEkFaz8RxaVsMpSvQxMBaKVwA5xg==" crossorigin="anonymous"></script>
+    <!-- Input of tags etc. -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap4-tagsinput@4.1.3/tagsinput.js" integrity="sha256-qPxPcWNa+Pfknra6sjx01KUZwspyS8MYAnaW8mDEDdI=" crossorigin="anonymous"></script>
+    <!-- Templates for Javascript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.11/jsrender.min.js" integrity="sha512-bKlNlbTH3duwZ28zoqEhXui/yuaPuQVci6OAVu0zh2WfYbEKD39HszVR8byP4/L4YyBo3b5CGIY+4ldVN93uCg==" crossorigin="anonymous"></script>
+    <!-- Neat plotting -->
+    <script src="https://cdn.plot.ly/plotly-1.54.5.min.js"></script>
+    <!-- AJAX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js" integrity="sha512-bZS47S7sPOxkjU/4Bt0zrhEtWx0y0CRkhEp8IckzK+ltifIIE9EMIMTuT/mEzoIMewUINruDBIR/jJnbguonqQ==" crossorigin="anonymous"></script>
+    <!-- Google palette -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/google-palette/1.1.0/palette.min.js" integrity="sha512-+rKeqfKuzCrzOolK5cPvYqzEHJTEPWG1MTvH02P+MYgmw7uMyNiewzvzlPj0wOgPd10jdNAtkf8tL1aQt7RsxQ==" crossorigin="anonymous"></script>
+    <!-- Useful utilities -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js" integrity="sha512-WFN04846sdKMIP5LKNphMaWzU7YpMyCU245etK3g/2ARYbPK9Ub18eG+ljU96qKRCWh+quCY7yefSmlkQw1ANQ==" crossorigin="anonymous"></script>
+  {% endif %}
+{% endblock head_javascript %}
+
+{% block javascript %}
+  {{ block.super }}
+
   {% get_django_setting 'SENTRY_DSN' as sentry_dsn %}
 
   {% if sentry_dsn %}
-  <script
-    src="{% static 'js/vendor/sentry-6.2.4.min.js' %}"
-    integrity="sha384-b3mYy/x0ZxlqU5OjYvVD7RczftJVOXmpHSmrcqpL4c+kBSXWEnRL2Puv9eMjYmDq"
-    crossorigin="anonymous"
-  ></script>
-  {% endif %}
-
-  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-  <!--[if lt IE 9]>
-    <script type="text/javascript" src="{% static 'js/vendor/html5shiv-3.7.3.min.js' %}"></script>
-  <![endif]-->
-
-  <!-- Required by Bootstrap v4 -->
-  <script type="text/javascript" src="{% static 'js/vendor/jquery-3.2.1.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/vendor/popper-1.14.3.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/vendor/bootstrap-4.1.3.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/vendor/jquery.dataTables.min.js' %}"></script>
-  <!-- Bootstrap select plugin for multiple-select dropdown menus -->
-  <script type="text/javascript" src="{% static 'js/vendor/bootstrap-select-1.13.5.min.js' %}"></script>
-  <!-- Downloaded from https://github.com/Nodws/bootstrap4-tagsinput -->
-  <script type="text/javascript" src="{% static "js/vendor/tagsinput-0.8.0.js" %}"></script>
-
-  {% if sentry_dsn  %}
   <script type="text/javascript">
     Sentry.init({
       dsn: "{{ sentry_dsn }}",
       release: "varfish-web@{% site_version %}",
+      integrations: [new Sentry.Integrations.BrowserTracing()]
     })
   </script>
   {% endif %}
-
-{% endblock head_javascript %}
-
-{% block javascript %}
-  <script type="text/javascript" src="{% static 'js/vendor/tether-1.4.1.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/vendor/shepherd-1.8.1.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'js/vendor/clipboard-2.0.0.min.js' %}"></script>
 
   <!-- Set variable for django_su warning message display. -->
   <script type="text/javascript">
@@ -65,46 +65,20 @@
 {% endblock javascript %}
 
 {% block css %}
-  <!-- CSS includes -->
+  {{ block.super }}
 
-  <!-- Fix for pull-right/pull-left bug when including imports -->
-  <style type="text/css">
-    .pull-right {
-      float: right;
-    }
+  {% get_django_setting 'PROJECTROLES_DISABLE_CDN_INCLUDES' as disable_cdn_includes %}
 
-    .pull-left {
-      float: left;
-    }
-  </style>
-
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" type="text/css" href="{% static 'font-awesome-4.7.0/css/font-awesome.min.css' %}" />
-
-  <!-- Bootstrap 4 CSS -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/vendor/bootstrap-4.1.3.min.css' %}" />
-
-  <!-- Bootstrap select plugin for multiple-select dropdown menus -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/vendor/bootstrap-select-1.13.5.css' %}" />
-
-  <!-- Shepherd theme -->
-  <link rel="stylesheet" type="text/css" href="{% static 'projectroles/css/shepherd-theme-sodar.css' %}" />
-
-  <!-- Projectroles custom CSS -->
-  <link rel="stylesheet" type="text/css" href="{% static 'projectroles/css/projectroles.css' %}" />
-
-  <!-- Project CSS -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/project.css' %}" />
-
-  <!-- Datatables CSS -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/vendor/jquery.dataTables.min.css' %}" />
-
-  <!-- Downloaded from https://github.com/Nodws/bootstrap4-tagsinput -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/vendor/tagsinput-0.8.0.css' %}" />
-
+  {% if not disable_cdn_includes %}
+    <!-- Bootstrap select plugin for multiple-select dropdown menus -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" integrity="sha512-ARJR74swou2y0Q2V9k0GbzQ/5vJ2RBSoCWokg4zkfM29Fb3vZEQyv0iWBMW/yvKgyHSR/7D64pFMmU8nYmbRkg==" crossorigin="anonymous" />
+    <!-- Datatables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/dataTables.jqueryui.min.css" />
+    <!-- Input of tags etc. -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap4-tagsinput@4.1.3/tagsinput.css" integrity="sha256-yKeby2UqHj5kXr8qgg38UaMA1dGC8y/IoxxwTVREi7c=" crossorigin="anonymous">
+  {% endif %}
 {% endblock css %}
 
 {% block head_extend %}
     <link rel="icon" type="image/png" href="{% static 'images/favicon/favicon-32x32.png' %}" sizes="32x32" />
-    <script src="{% static 'js/vendor/jsrender-0.9.91.js' %}"></script>
 {% endblock head_extend %}
