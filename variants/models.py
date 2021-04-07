@@ -334,6 +334,11 @@ class SmallVariant(models.Model):
             map(str, (self.release, self.chromosome, self.start, self.reference, self.alternative))
         )
 
+    def human_readable(self):
+        return "{}:{}-{:,}-{}-{}".format(
+            self.release, self.chromosome, self.start, self.reference, self.alternative
+        )
+
     def __repr__(self):
         return "-".join(
             map(

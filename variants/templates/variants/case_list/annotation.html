@@ -11,6 +11,25 @@
       <h4>
         <i class="fa fa-flag"></i>
         Annotated Variants
+
+        <div class="float-right">
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+              <i class="fa fa-cloud-download"></i>
+              Download
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="{% url 'variants:project-download-annotations' project=project.sodar_uuid %}?format=xlsx">
+                <i class="fa fa-file-excel-o"></i>
+                Excel Format
+              </a>
+              <a class="dropdown-item" href="{% url 'variants:project-download-annotations' project=project.sodar_uuid %}?format=txt">
+                <i class="fa fa-file-text"></i>
+                TSV Format
+              </a>
+            </div>
+          </div>
+        </div>
       </h4>
     </div>
     <table class="table table-striped table-hover">

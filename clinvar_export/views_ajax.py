@@ -6,7 +6,6 @@ add an API and ``views_api``, we might move the common parts there and have the 
 import pathlib
 import re
 
-import requests
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse

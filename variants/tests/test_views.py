@@ -225,6 +225,74 @@ class TestCaseDetailView(ViewTestBase):
             self.assertEqual(response.context["object"].name, self.case.name)
 
 
+class CaseDownloadAnnotationsView(ViewTestBase):
+    """Smoke test for downloading all user annotations for one case."""
+
+    def setUp(self):
+        super().setUp()
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+
+    def test_render_empty_tsv(self):
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:case-download-annotations",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["content-type"], "text/tsv")
+
+    def test_render_empty_xlsx(self):
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:case-download-annotations",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                )
+                + "?format=xlsx"
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response["content-type"],
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+
+class ProjectDownloadAnnotationsView(ViewTestBase):
+    """Smoke test for downloading all user annotations for one project."""
+
+    def setUp(self):
+        super().setUp()
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+
+    def test_render_empty_tsv(self):
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-download-annotations",
+                    kwargs={"project": self.case.project.sodar_uuid,},
+                )
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["content-type"], "text/tsv")
+
+    def test_render_empty_xlsx(self):
+        with self.login(self.user):
+            response = self.client.get(
+                reverse(
+                    "variants:project-download-annotations",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                )
+                + "?format=xlsx"
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response["content-type"],
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+
+
 class TestCaseUpdateView(ViewTestBase):
     def setUp(self):
         super().setUp()

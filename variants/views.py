@@ -26,6 +26,7 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, ListView, View, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
+import xlsxwriter
 
 import simplejson as json
 from django.views.generic.edit import FormMixin
@@ -41,7 +42,15 @@ from config.settings.base import VARFISH_CADD_SUBMISSION_RELEASE
 from extra_annos.views import ExtraAnnosMixin
 from frequencies.models import MT_DB_INFO
 from geneinfo.views import get_gene_infos
-from geneinfo.models import NcbiGeneInfo, NcbiGeneRif, HpoName, Hpo, EnsemblToGeneSymbol, Hgnc
+from geneinfo.models import (
+    NcbiGeneInfo,
+    NcbiGeneRif,
+    HpoName,
+    Hpo,
+    EnsemblToGeneSymbol,
+    Hgnc,
+    build_entrez_id_to_symbol,
+)
 from frequencies.views import FrequencyMixin
 from projectroles.app_settings import AppSettingAPI
 from projectroles.views import (
@@ -61,6 +70,7 @@ from .queries import (
     KnownGeneAAQuery,
     DeleteStructuralVariantsQuery,
     DeleteSmallVariantsQuery,
+    SmallVariantUserAnnotationQuery,
 )
 from .models import (
     only_source_name,
@@ -847,6 +857,47 @@ class CaseCommentsCountApiView(
         return JsonResponse({"count": self.get_object().case_comments.count()})
 
 
+def get_annotations_by_variant(case=None, cases=None, project=None):
+    """Helper function to get all annotations by case and variant.
+
+    The result is a dict.  First level of keys is case SODAR UUID, second is variant description, then
+    "variants", "flags", "comments", "acmg_rating".
+    """
+    annotated_small_vars = SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE).run(
+        case=case, cases=cases, project=project
+    )
+
+    case_ids = list(sorted({x.case_id for x in annotated_small_vars.small_variants}))
+    case_id_to_uuid = {}
+    for case in Case.objects.filter(id__in=case_ids).order_by("name"):
+        case_id_to_uuid[case.id] = case.sodar_uuid
+
+    result = {}
+
+    # Ensure that at least one entry is there if exactly one case is to be queried for.
+    if case:
+        result.setdefault(case.sodar_uuid, {})
+
+    for small_var in annotated_small_vars.small_variants:
+        case_uuid = case_id_to_uuid[small_var.case_id]
+        result.setdefault(case_uuid, {})
+        result[case_uuid].setdefault(
+            small_var.get_description(),
+            {"variants": [], "flags": None, "comments": [], "acmg_rating": None,},
+        )
+        result[case_uuid][small_var.get_description()]["variants"].append(small_var)
+    for flags in annotated_small_vars.small_variant_flags:
+        case_uuid = case_id_to_uuid[flags.case_id]
+        result[case_uuid][flags.get_variant_description()]["flags"] = flags
+    for comments in annotated_small_vars.small_variant_comments:
+        case_uuid = case_id_to_uuid[flags.case_id]
+        result[case_uuid][comments.get_variant_description()]["comments"].append(comments)
+    for rating in annotated_small_vars.acmg_criteria_rating:
+        case_uuid = case_id_to_uuid[flags.case_id]
+        result[case_uuid][rating.get_variant_description()]["acmg_rating"] = rating
+    return result
+
+
 class CaseDetailView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
@@ -877,6 +928,13 @@ class CaseDetailView(
         result["dps"] = {sample: {} for sample in result["samples"]}
         result["casecommentsform"] = CaseCommentsForm()
         result["commentsflags"] = self.join_small_var_comments_and_flags()
+        result["gene_id_to_symbol"] = build_entrez_id_to_symbol(
+            [
+                v.refseq_gene_id
+                for entry in result["commentsflags"].values()
+                for v in entry["variants"]
+            ]
+        )
         result["sv_commentsflags"] = self.join_sv_comments_and_flags()
         result["acmg_summary"] = {
             "count": case.acmg_ratings.count(),
@@ -1088,65 +1146,7 @@ class CaseDetailView(
 
     def join_small_var_comments_and_flags(self):
         case = self.get_object()
-        flags = case.small_variant_flags.all()
-        comments = case.small_variant_comments.all()
-        acmg_ratings = case.acmg_ratings.all()
-        result = defaultdict(lambda: dict(flags=None, comments=[], genes=set(), acmg_rating=None))
-
-        def get_gene_symbol(release, chromosome, start, end):
-            bins = binning.containing_bins(start - 1, end)
-            gene_intervals = list(
-                GeneInterval.objects.filter(
-                    database="ensembl",
-                    release=release,
-                    chromosome=chromosome,
-                    bin__in=bins,
-                    start__lte=end,
-                    end__gte=start,
-                )
-            )
-            gene_ids = [itv.gene_id for itv in gene_intervals]
-            symbols1 = {
-                o.gene_symbol
-                for o in EnsemblToGeneSymbol.objects.filter(ensembl_gene_id__in=gene_ids)
-            }
-            symbols2 = {o.symbol for o in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)}
-            return symbols1 | symbols2
-
-        for record in flags:
-            result[(record.chromosome, record.start, record.reference, record.alternative)][
-                "flags"
-            ] = model_to_dict(record)
-            result[(record.chromosome, record.start, record.reference, record.alternative)][
-                "genes"
-            ] |= get_gene_symbol(record.release, record.chromosome, record.start, record.end)
-
-        for record in comments:
-            result[(record.chromosome, record.start, record.reference, record.alternative)][
-                "comments"
-            ].append(
-                {
-                    **model_to_dict(record),
-                    "date_created": record.date_created,
-                    "user": record.user,
-                    "username": record.user.username,
-                }
-            )
-            result[(record.chromosome, record.start, record.reference, record.alternative)][
-                "genes"
-            ] |= get_gene_symbol(record.release, record.chromosome, record.start, record.end)
-
-        for record in acmg_ratings:
-            result[(record.chromosome, record.start, record.reference, record.alternative)][
-                "acmg_rating"
-            ] = {"data": record, "class": record.acmg_class}
-            result[(record.chromosome, record.start, record.reference, record.alternative)][
-                "genes"
-            ] |= get_gene_symbol(record.release, record.chromosome, record.start, record.end)
-
-        for var in result:
-            result[var]["genes"] = sorted(result[var]["genes"])
-        return dict(result)
+        return get_annotations_by_variant(case=case)[case.sodar_uuid]
 
     def join_sv_comments_and_flags(self):
         case = self.get_object()
@@ -1444,6 +1444,188 @@ class CaseDeleteView(
                 delete_case_bg_job_pk=delete_job.pk, export_job_pk=recreate_job.pk
             )
             return redirect(delete_job.get_absolute_url())
+
+
+#: Header for for table when downloading annotation data.
+ANNOTATION_DOWNLOAD_HEADER = [
+    "case",
+    "genome_release",
+    "chromosome",
+    "position",
+    "reference",
+    "alternative",
+    "refseq_genes",
+    "refseq_transcripts",
+    "refseq_hgvs",
+    "refseq_effects",
+    "acmg_rating",
+    "flag_bookmarked",
+    "flag_candidate",
+    "flag_final_causative",
+    "flag_for_validation",
+    "flag_no_disease_association",
+    "flag_segregates",
+    "flag_doesnt_segregate",
+    "flag_visual",
+    "flag_molecular",
+    "flag_validation",
+    "flag_phenotype_match",
+    "flag_summary",
+    "comments",
+]
+
+
+class BaseDownloadAnnotationsView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
+):
+    """Download case user annotations as Excel file."""
+
+    permission_required = "variants.view_data"
+    slug_field = "sodar_uuid"
+
+    def get_impl(self, case=None, cases=None, project=None):
+        with tempfile.NamedTemporaryFile("w+b") as f:
+            # Write output to temporary file.
+            if self.request.GET.get("format", "tsv") == "xlsx":
+                content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                file_ext = "xlsx"
+                self.write_xlsx(case=case, cases=cases, project=project, output_f=f)
+            else:
+                content_type = "text/tsv"
+                file_ext = "tsv"
+                self.write_tsv(case=case, cases=cases, project=project, output_f=f)
+            # Build HTTP response.
+            f.flush()
+            f.seek(0)
+            if case:
+                identifier = case.name
+            elif cases:
+                identifier = "-".join(cases[:5].name)
+            else:
+                identifier = project.title.replace(" ", "-")
+            response = HttpResponse(f.read(), content_type=content_type,)
+            response["Content-Disposition"] = "attachment; filename=case-annotations-%s.%s" % (
+                identifier,
+                file_ext,
+            )
+            return response
+
+    def write_xlsx(self, *, case, cases, project, output_f):
+        """Write output XLSX file."""
+        workbook = xlsxwriter.Workbook(output_f.name, {"remove_timezone": True})
+        header_format = workbook.add_format({"bold": True})
+        sheet = workbook.add_worksheet("Small Variants")
+        for rowno, row in enumerate(self.yield_rows(case=case, cases=cases, project=project)):
+            if rowno == 0:
+                sheet.write_row(0, 0, row, header_format)
+            else:
+                sheet.write_row(rowno, 0, row)
+        workbook.close()
+
+    def write_tsv(self, *, case, cases, project, output_f):
+        """Write output TSV file."""
+        for row in self.yield_rows(case=case, cases=cases, project=project):
+            output_f.write(("\t".join(map(str, row)) + "\n").encode())
+
+    def yield_rows(self, *, case, cases, project):
+        yield ANNOTATION_DOWNLOAD_HEADER
+
+        res = get_annotations_by_variant(case=case, cases=cases, project=project)
+        case_uuid_to_name = {
+            c.sodar_uuid: c.name for c in Case.objects.filter(sodar_uuid__in=res.keys())
+        }
+
+        # import pdb; pdb.set_trace()
+        for case_uuid, annos in res.items():
+            for anno in annos.values():
+                comments = [
+                    "%s @%s: %s"
+                    % (
+                        comment.user.username,
+                        comment.date_modified.strftime("%Y-%m-%d %H:%M"),
+                        comment.text.replace("\t", " ").replace("\n", " "),
+                    )
+                    for comment in anno["comments"]
+                ]
+
+                gene_id_to_symbol = build_entrez_id_to_symbol(
+                    [x.refseq_gene_id for x in anno["variants"]]
+                )
+                genes = ", ".join(
+                    gene_id_to_symbol[x.refseq_gene_id]
+                    for x in anno["variants"]
+                    if x.refseq_gene_id
+                )
+                transcripts = ", ".join(
+                    x.refseq_transcript_id for x in anno["variants"] if x.refseq_gene_id
+                )
+                hgvs = ", ".join(
+                    x.refseq_hgvs_p or x.refseq_hgvs_c for x in anno["variants"] if x.refseq_gene_id
+                )
+                effects = ", ".join(
+                    "&".join(x.refseq_effect) for x in anno["variants"] if x.refseq_gene_id
+                )
+
+                variant = anno["variants"][0]
+                if not anno["flags"]:
+                    row_flags = ["N/A"] * 12
+                else:
+                    row_flags = [
+                        anno["flags"].flag_bookmarked,
+                        anno["flags"].flag_candidate,
+                        anno["flags"].flag_final_causative,
+                        anno["flags"].flag_for_validation,
+                        anno["flags"].flag_no_disease_association,
+                        anno["flags"].flag_segregates,
+                        anno["flags"].flag_doesnt_segregate,
+                        anno["flags"].flag_visual,
+                        anno["flags"].flag_molecular,
+                        anno["flags"].flag_validation,
+                        anno["flags"].flag_phenotype_match,
+                        anno["flags"].flag_summary,
+                    ]
+                row = (
+                    [
+                        case_uuid_to_name[case_uuid],
+                        variant.release,
+                        variant.chromosome,
+                        variant.start,
+                        variant.reference,
+                        variant.alternative,
+                        genes,
+                        transcripts,
+                        hgvs,
+                        effects,
+                        anno["acmg_rating"].acmg_class if anno["acmg_rating"] else "N/A",
+                    ]
+                    + row_flags
+                    + ["|".join(comments),]
+                )
+                yield row
+
+
+class CaseDownloadAnnotationsView(BaseDownloadAnnotationsView):
+    """Download case user annotations as Excel file."""
+
+    model = Case
+    slug_url_kwarg = "case"
+
+    def get(self, *args, **kwargs):
+        return self.get_impl(case=self.get_object())
+
+
+class ProjectDownloadAnnotationsView(BaseDownloadAnnotationsView):
+    """Download project user annotations as Excel file."""
+
+    model = Project
+    slug_url_kwarg = "project"
+
+    def get(self, *args, **kwargs):
+        return self.get_impl(project=self.get_object())
 
 
 class SmallVariantsDeleteView(

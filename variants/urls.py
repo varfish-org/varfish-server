@@ -52,6 +52,16 @@ ui_urlpatterns = [
         name="case-delete",
     ),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/download-annotations/(?P<case>[0-9a-f-]+)/$",
+        view=views.CaseDownloadAnnotationsView.as_view(),
+        name="case-download-annotations",
+    ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/download-annotations/$",
+        view=views.ProjectDownloadAnnotationsView.as_view(),
+        name="project-download-annotations",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/case-delete-job/detail/(?P<job>[0-9a-f-]+)/$",
         view=views.CaseDeleteJobDetailView.as_view(),
         name="case-delete-job-detail",
