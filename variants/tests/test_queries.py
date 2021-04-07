@@ -2192,6 +2192,15 @@ class TestCaseOneQueryGenotype(SupportQueryTestBase):
     def test_genotype_gt_variant_vcf(self):
         self.run_query(CaseExportVcfQuery, {"%s_gt" % self.patient: "variant"}, 6)
 
+    def test_genotype_gt_non_hom_filter(self):
+        self.run_query(CasePrefetchQuery, {"%s_gt" % self.patient: "non-hom"}, 6)
+
+    def test_genotype_gt_non_hom_export(self):
+        self.run_query(CaseExportTableQuery, {"%s_gt" % self.patient: "non-hom"}, 6)
+
+    def test_genotype_gt_non_hom_vcf(self):
+        self.run_query(CaseExportVcfQuery, {"%s_gt" % self.patient: "non-hom"}, 6)
+
     def test_genotype_gt_non_variant_filter(self):
         self.run_query(CasePrefetchQuery, {"%s_gt" % self.patient: "non-variant"}, 2)
 
