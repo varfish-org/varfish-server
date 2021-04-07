@@ -151,9 +151,6 @@
 {% block javascript %}
   {{ block.super }}
   {% if project.variant_stats %}
-    <script type="text/javascript" src="{% static 'js/vendor/plotly-1.54.5.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/vendor/axios-0.18.0.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/vendor/palette-1.1.0.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/qc_plots.js' %}"></script>
   {% endif %}
   <script type="text/javascript" src="{% static 'js/variant_comments.js' %}"></script>

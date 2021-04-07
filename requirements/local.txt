@@ -9,6 +9,8 @@ django-debug-toolbar-alchemy==0.1.5
 
 # improved REPL
 ipdb==0.13.4, <0.14
+# downgrade jedi to fix tb_frame problem
+jedi==0.17.2
 
 pytest-django==3.4.2
 pytest-sugar==0.9.1
