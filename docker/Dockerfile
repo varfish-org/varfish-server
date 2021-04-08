@@ -31,6 +31,18 @@ RUN cd /usr/src/app && \
     pip install --no-cache-dir -r requirements/production.txt && \
     pip install --no-cache-dir -r requirements/local.txt
 
+# Install miniconda3 and setup environment for annotation, required for Kiosk.
+RUN ["/bin/bash","-c", "cd /tmp && \
+        wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+        bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/miniconda3 && \
+        source /opt/miniconda3/bin/activate && \
+        conda install -c conda-forge -y mamba && \
+        mamba create -c bioconda -y -n varfish-annotator \
+            varfish-annotator-cli=0.10=0 \
+            htslib=1.9 \
+            bcftools=1.9 && \
+        rm -f Miniconda3-latest-Linux-x86_64.sh"]
+
 # Install modern nodejs
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
     apt install nodejs
