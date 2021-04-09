@@ -7,6 +7,15 @@ Upgrade Varfish Installation
 This section contains upgrade instructions for upgrading your VarFish Server installation using `VarFish Docker Compose <https://github.com/bihealth/varfish-docker-compose>`__.
 
 ------------------
+v0.23.0 to v0.23.1
+------------------
+
+**Summary**
+
+This is a minor bug fix release that improved the deployment of the VarFish Demo and Kiosk sites.
+You should be able to upgrade by just updating your ``varfish-docker-compose`` repository clone and calling ``docker-compose up -d``.
+
+------------------
 v0.22.1 to v0.23.0
 ------------------
 
