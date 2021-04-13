@@ -578,6 +578,7 @@ PROJECTROLES_DISABLE_CDN_INCLUDES = env.bool("PROJECTROLES_DISABLE_CDN_INCLUDES"
 if PROJECTROLES_DISABLE_CDN_INCLUDES:
     PROJECTROLES_CUSTOM_JS_INCLUDES = [
         "/static/local/js/jquery-3.5.1.min.js",
+        "/static/local/js/bootstrap.bundle.min.js",
         "/static/local/js/tether.min.js",
         "/static/local/js/shepherd.min.js",
         "/static/local/js/clipboard.min.js",

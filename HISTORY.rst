@@ -3,6 +3,20 @@ History / Changelog
 ===================
 
 -------
+v0.32.2
+-------
+
+End-User Summary
+================
+
+- Bug fix release.
+
+Full Change List
+================
+
+- Bug fix release where Javascript was missing.
+
+-------
 v0.32.1
 -------
 
