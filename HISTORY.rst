@@ -9,11 +9,13 @@ HEAD (unreleased)
 End-User Summary
 ================
 
+- Fixing issue of database query in Clinvar Export feature where too large queries were created.
 - Fixing search feature.
 
 Full Change List
 ================
 
+- Fixing issue of database query in Clinvar Export feature where too large queries were created and postgres ran out of stack memory.
 - Adding more Sentry integrations (redis, celery, sqlalchemy).
 - Fixing search feature.
 
