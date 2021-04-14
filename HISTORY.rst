@@ -14,6 +14,7 @@ End-User Summary
 Full Change List
 ================
 
+- Adding more Sentry integrations (redis, celery, sqlalchemy).
 - Fixing search feature.
 
 -------
