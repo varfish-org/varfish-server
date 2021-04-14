@@ -1811,6 +1811,11 @@ class SmallVariantUserAnnotationQuery:
         return self._query(case_ids)
 
     def _query(self, case_ids: typing.List[int]):
+        def chunks(lst, n=50):
+            """Yield successive n-sized chunks from lst."""
+            for i in range(0, len(lst), n):
+                yield lst[i : i + n]
+
         result_flags = self._query_model(SmallVariantFlags, case_ids)
         result_comments = self._query_model(SmallVariantComment, case_ids)
         result_ratings = self._query_model(AcmgCriteriaRating, case_ids)
@@ -1822,17 +1827,19 @@ class SmallVariantUserAnnotationQuery:
             )
         )
 
-        keys = ["case_id", "release", "chromosome", "start", "reference", "alternative"]
-        stmt = (
-            select([SmallVariant.sa.id])
-            .select_from(SmallVariant.sa.table)
-            .where(
-                tuple_(*[getattr(SmallVariant.sa, key) for key in keys]).in_(
-                    [[getattr(k, key) for key in keys] for k in variant_keys]
+        small_var_ids = []
+        for variant_keys_chunk in chunks(variant_keys):
+            keys = ["case_id", "release", "chromosome", "start", "reference", "alternative"]
+            stmt = (
+                select([SmallVariant.sa.id])
+                .select_from(SmallVariant.sa.table)
+                .where(
+                    tuple_(*[getattr(SmallVariant.sa, key) for key in keys]).in_(
+                        [[getattr(k, key) for key in keys] for k in variant_keys_chunk]
+                    )
                 )
             )
-        )
-        small_var_ids = [rec.id for rec in self.engine.execute(stmt)]
+            small_var_ids += [rec.id for rec in self.engine.execute(stmt)]
 
         flags_ids = [x["id"] for x in result_flags]
         comments_ids = [x["id"] for x in result_comments]
