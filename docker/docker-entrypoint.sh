@@ -28,6 +28,8 @@ set -euo pipefail
 #                      default: 8080
 #   LOG_LEVEL       -- logging verbosity
 #                      default: info
+#   GUNICORN_TIMEOUT -- timeout for gunicorn workers in seconds
+#                       default: 600
 
 APP_DIR=${APP_DIR-/usr/src/app}
 CELERY_QUEUES=${CELERY_QUEUES-default,query,import}
@@ -38,6 +40,7 @@ export PYTHONUNBUFFERED=${PYTHONUNBUFFERED-1}
 HTTP_HOST=${HTTP_HOST-0.0.0.0}
 HTTP_PORT=${HTTP_PORT-8080}
 LOG_LEVEL=${LOG_LEVEL-info}
+GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT-600}
 
 if [[ "$NO_WAIT" -ne 1 ]]; then
   /usr/local/bin/wait
@@ -58,7 +61,12 @@ if [[ "$1" == wsgi ]]; then
   python manage.py migrate
   >&2 echo "VARFISH MIGRATIONS END"
 
-  exec gunicorn --access-logfile - --log-level "$LOG_LEVEL" --bind "$HTTP_HOST:$HTTP_PORT" config.wsgi
+  exec gunicorn \
+    --access-logfile - \
+    --log-level "$LOG_LEVEL" \
+    --bind "$HTTP_HOST:$HTTP_PORT" \
+    --timeout "$GUNICORN_TIMEOUT" \
+    config.wsgi
 elif [[ "$1" == celeryd ]]; then
   cd $APP_DIR
 

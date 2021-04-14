@@ -15,6 +15,7 @@ End-User Summary
 Full Change List
 ================
 
+- Dockerfile entrypoint script uses timeout of 600s now for guniorn workers.
 - Fixing issue of database query in Clinvar Export feature where too large queries were created and postgres ran out of stack memory.
 - Adding more Sentry integrations (redis, celery, sqlalchemy).
 - Fixing search feature.
