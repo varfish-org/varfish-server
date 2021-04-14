@@ -49,7 +49,8 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
 
 # Install npm dependencies.
 RUN cd /usr/src/app/varfish/vueapp && \
-    npm ci
+    npm ci && \
+    npm run build
 
 # Download files from CDN.
 RUN mkdir -p /usr/src/app/local-static/local/css && \

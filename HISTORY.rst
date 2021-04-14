@@ -2,6 +2,21 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Bug fix release.
+
+Full Change List
+================
+
+- Bug fix release where the clinvar submission Vue.js app was not built.
+- Fixing env file example for ``SENTRY_DSN``.
+
 -------
 v0.23.2
 -------
