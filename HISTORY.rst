@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Fixing search feature.
+
+Full Change List
+================
+
+- Fixing search feature.
+
 -------
 v0.23.3
 -------

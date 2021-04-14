@@ -232,11 +232,11 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
         items = []
 
         if not search_type:
-            cases = Case.objects.find(search_term, keywords)
+            cases = Case.objects.find(search_terms, keywords)
             items = [case for case in cases if user.has_perm("variants.view_data", case.project)]
             items.sort(key=lambda x: x.name.lower())
         elif search_type == "case":
-            items = Case.objects.find(search_term, keywords).order_by("name")
+            items = Case.objects.find(search_terms, keywords).order_by("name")
 
         return {"all": {"title": "Cases", "search_types": ["case"], "items": items}}
 
