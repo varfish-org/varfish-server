@@ -217,9 +217,20 @@ DATABASES["default"]["ATOMIC_REQUESTS"] = False
 if env.bool("ENABLE_SENTRY", default=False):
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.redis import RedisIntegration
+    from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
     SENTRY_DSN = "%s?verify_ssl=0" % env.str("SENTRY_DSN")
-    sentry_sdk.init(SENTRY_DSN, integrations=[DjangoIntegration()])
+    sentry_sdk.init(
+        SENTRY_DSN,
+        integrations=[
+            DjangoIntegration(),
+            RedisIntegration(),
+            CeleryIntegration(),
+            SqlalchemyIntegration(),
+        ],
+    )
 
 # ALDJEMY CONFIGURATION
 # ------------------------------------------------------------------------------
