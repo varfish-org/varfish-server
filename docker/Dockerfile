@@ -2,6 +2,7 @@ FROM python:3.6-buster
 
 ARG app_git_url=https://github.com/bihealth/varfish-server.git
 ARG app_git_tag
+ARG app_git_depth=1
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV CUSTOM_STATIC_DIR /usr/src/app/local-static
@@ -12,7 +13,7 @@ RUN chmod +x /usr/local/bin/wait
 
 # Copy source code into Docker image.
 RUN mkdir -p /usr/src
-RUN git clone --depth 1 --branch $app_git_tag $app_git_url /usr/src/app
+RUN git clone --depth $app_git_depth --branch $app_git_tag $app_git_url /usr/src/app
 
 # Install system dependencies.
 RUN apt-get update && \
