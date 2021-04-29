@@ -144,7 +144,7 @@ After the program terminates, you should create gzip files for the created TSV f
     $ gzip -c FAM_name.db-info.tsv >FAM_name.db-info.tsv.gz
     $ md5sum FAM_name.db-info.tsv.gz >FAM_name.db-info.tsv.gz.md5
     $ gzip -c FAM_name.gts.tsv >FAM_name.gts.tsv.gz
-    $ md5sum FAM_name.gts.tsv.gz >$FAM_name.gts.tsv.gz.md5
+    $ md5sum FAM_name.gts.tsv.gz >FAM_name.gts.tsv.gz.md5
 
 The next step is to import these files into VarFish server.
 For this, a PLINK PED file has to be provided.
