@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Fixing undefined variable bug.
+
+Full Change List
+================
+
+- Fixing undefined variable bug.
+
 -------
 v0.23.4
 -------

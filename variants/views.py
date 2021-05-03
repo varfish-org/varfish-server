@@ -890,10 +890,10 @@ def get_annotations_by_variant(case=None, cases=None, project=None):
         case_uuid = case_id_to_uuid[flags.case_id]
         result[case_uuid][flags.get_variant_description()]["flags"] = flags
     for comments in annotated_small_vars.small_variant_comments:
-        case_uuid = case_id_to_uuid[flags.case_id]
+        case_uuid = case_id_to_uuid[comments.case_id]
         result[case_uuid][comments.get_variant_description()]["comments"].append(comments)
     for rating in annotated_small_vars.acmg_criteria_rating:
-        case_uuid = case_id_to_uuid[flags.case_id]
+        case_uuid = case_id_to_uuid[rating.case_id]
         result[case_uuid][rating.get_variant_description()]["acmg_rating"] = rating
     return result
 
