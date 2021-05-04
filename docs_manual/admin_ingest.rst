@@ -83,7 +83,7 @@ Next, you can use the ``varfish-annotator`` command:
         --ref-path varfish-annotator-20201006/hs37d5.fa \
         --input-vcf "INPUT.vcf.gz" \
         --release "GRCh37" \
-        --output-db-info "FAM_name.db_info.tsv" \
+        --output-db-info "FAM_name.db-info.tsv" \
         --output-gts "FAM_name.gts.tsv" \
         --case-id "FAM_name"
 
