@@ -123,6 +123,10 @@
     </div>
   </div>
 
+{% endblock %}
+
+{% block javascript %}
+  {{ block.super }}
   <script type="text/javascript">
     // Load data after the page has loaded
     $(function() {
@@ -139,10 +143,6 @@
         })
     })
   </script>
-{% endblock %}
-
-{% block javascript %}
-  {{ block.super }}
   <script type="text/javascript" src="{% static 'js/qc_plots.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/helpers.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/variant_comments.js' %}"></script>

@@ -13,10 +13,7 @@
   {%  else %}
     <li class="breadcrumb-item active">Joint Filtration</li>
   {% endif %}
-{% endblock %}
-
-{% block projectroles %}
-  {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
+{% endblock navi_sub_project_extend %}
 
 {% block css %}
   {{ block.super }}
@@ -128,10 +125,10 @@
       text-align: center;
     }
 
-    .variant-row-positive { background-color: {% get_row_bgcolor "pathogenic" %}; }
-    .variant-row-uncertain { background-color: {% get_row_bgcolor "uncertain" %}; }
-    .variant-row-negative { background-color: {% get_row_bgcolor "benign" %}; }
-    .variant-row-wip { background-color: {% get_row_bgcolor "wip" %}; }
+    .variant-row-positive { background-color: {% get_row_bgcolor "pathogenic" %} !important; }
+    .variant-row-uncertain { background-color: {% get_row_bgcolor "uncertain" %} !important; }
+    .variant-row-negative { background-color: {% get_row_bgcolor "benign" %} !important; }
+    .variant-row-wip { background-color: {% get_row_bgcolor "wip" %} !important; }
 
     .warning-conflict .hidden { display: none; }
 
@@ -139,7 +136,10 @@
       margin-bottom: 0;
     }
   </style>
-{% endblock %}
+{% endblock css %}
+
+{% block projectroles %}
+  {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
 
   <div class="row sodar-pr-content-title pb-2">
     {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
