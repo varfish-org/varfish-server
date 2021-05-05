@@ -9,6 +9,7 @@ HEAD (unreleased)
 End-User Summary
 ================
 
+- Adding back missing manual.
 - Fixing undefined variable bug.
 - Fixing result rows not colored anymore.
 - Fixing double CSS import.
@@ -18,6 +19,7 @@ Full Change List
 
 - Fixing problem with ``PROJECTROLES_ADMIN_OWNER`` being set to ``admin`` default but the system user being ``root`` in the prebuilt databases.
   The value now defaults to ``root``.
+- Adding back missing manual in Docker image.
 - Fixing problem with "stopwords" corpus of ``nltk`` not being present.
   This is now downloaded when building the Docker image.
 - Fixing undefined variable bug.
