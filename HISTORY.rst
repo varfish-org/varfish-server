@@ -16,6 +16,8 @@ End-User Summary
 Full Change List
 ================
 
+- Fixing problem with ``PROJECTROLES_ADMIN_OWNER`` being set to ``admin`` default but the system user being ``root`` in the prebuilt databases.
+  The value now defaults to ``root``.
 - Fixing undefined variable bug.
 - Fixing result rows not colored anymore.
 - Fixing double CSS import.
