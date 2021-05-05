@@ -30,7 +30,8 @@ RUN apt-get update && \
 # Install Python dependencies.
 RUN cd /usr/src/app && \
     pip install --no-cache-dir -r requirements/production.txt && \
-    pip install --no-cache-dir -r requirements/local.txt
+    pip install --no-cache-dir -r requirements/local.txt && \
+    python -m nltk.downloader stopwords
 
 # Install miniconda3 and setup environment for annotation, required for Kiosk.
 RUN ["/bin/bash","-c", "cd /tmp && \
