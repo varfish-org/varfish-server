@@ -33,6 +33,10 @@ RUN cd /usr/src/app && \
     pip install --no-cache-dir -r requirements/local.txt && \
     python -m nltk.downloader stopwords
 
+# Build sphinx manual.
+RUN cd /usr/src/app/docs_manual && \
+    make clean html
+
 # Install miniconda3 and setup environment for annotation, required for Kiosk.
 RUN ["/bin/bash","-c", "cd /tmp && \
         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
