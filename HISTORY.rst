@@ -10,11 +10,15 @@ End-User Summary
 ================
 
 - Fixing undefined variable bug.
+- Fixing result rows not colored anymore.
+- Fixing double CSS import.
 
 Full Change List
 ================
 
 - Fixing undefined variable bug.
+- Fixing result rows not colored anymore.
+- Fixing double CSS import.
 
 -------
 v0.23.4

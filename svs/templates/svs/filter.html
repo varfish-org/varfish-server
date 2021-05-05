@@ -15,8 +15,6 @@
   {% endif %}
 {% endblock %}
 
-{% block projectroles %}
-
 {% block css %}
   {{ block.super }}
   <style type="text/css">
@@ -123,6 +121,8 @@
     }
   </style>
 {% endblock %}
+
+{% block projectroles %}
 
   <div class="row sodar-pr-content-title pb-2">
     {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
