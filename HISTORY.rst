@@ -3,6 +3,21 @@ History / Changelog
 ===================
 
 -------
+v0.23.6
+-------
+
+End-User Summary
+================
+
+- Fixing problem with remote permission synchronization.
+
+Full Change List
+================
+
+- Bump sodar-core to hotfix version.
+  Fixes problem with remote permission synchronization.
+
+-------
 v0.23.5
 -------
 
