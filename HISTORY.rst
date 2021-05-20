@@ -6,9 +6,17 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+End-User Summary
+================
+
+- Added SAML Login possibility from sodar-core to varfish
+
 Full Change List
 ================
 
+- Added sso urls to config/urls.py
+- Added SAML configuration to config/settings/base.py
+- Added necessary tools to the Dockerfile
 - Fix for missing PROJECTROLES_DISABLE_CATEGORIES variable in settings.
 
 -------

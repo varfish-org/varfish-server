@@ -63,6 +63,66 @@ If you have the first LDAP configured then you can also enable the second one an
 
 The remaining variable names are derived from the ones of the primary server but using the prefix ``AUTH_LDAP2`` instead of ``AUTH_LDAP``.
 
+------------------
+SAML Configuration
+------------------
+
+Besides LDAP configuration, it is also possible to authenticate with existing SAML 2.0 ID Providers (e.g. Keycloak). Since varfish is built
+on top of sodar core, you can also refer to the `sodar-core documentation <https://sodar-core.readthedocs.io/en/latest/app_projectroles_settings.html#saml-sso-configuration-optional>`__ for further help in configuring the ID Providers.  
+
+To enable SAML authentication with your ID Provider, a few steps are necessary. First, add a SAML Client for your ID Provider of choice. The sodar-core documentation features examples for Keycloak. Make sure you have assertion signing turned on and allow redirects to your varfish site.
+The SAML processing URL should be set to the externally visible address of your varfish deployment, e.g. ``https://varfish.example.com/saml2_auth/acs/``.
+
+Next, you need to obtain your metadata.xml aswell as the signing certificate and key file from the ID Provider. Make sure you convert these keys to standard OpenSSL
+format, before starting your varfish instance (you can find more details `here <https://sodar-core.readthedocs.io/en/latest/app_projectroles_settings.html#saml-sso-configuration-optional>`__). 
+If you deploy varfish without docker, you can pass the file paths of your metadata.xml and key pair directly. Otherwise, make sure that you have included them 
+into a single folder and added the corresponding folder to your ``docker-compose.yml`` (or add it as a ``docker-compose-overrrided.yml``), like in the following snippet. 
+
+.. code-block:: yml
+
+    varfish-web:
+      ...
+      volumes:
+        - "/path/to/my/secrets:/secrets:ro"
+
+Then, define atleast the following variables in your docker-compose ``.env`` file (or the environment variables when running the server natively). 
+
+``ENABLE_SAML``
+    [Default 0] Enable [1] or Disable [0] SAML authentication
+``SAML_CLIENT_ENTITY_ID``
+    The SAML client ID set in the ID Provider config (e.g. "varfish")
+``SAML_CLIENT_ENTITY_URL``
+    The externally visible URL of your varfish deployment
+``SAML_CLIENT_METADATA_FILE``
+    The path to the metadata.xml file retrieved from your ID Provider. If you deploy using docker, this must be a path inside the container.
+``SAML_CLLIENT_IDP``
+    The url to your IDP. In case of keycloak it can look something like https://keycloak.example.com/auth/realms/<my_varfish_realm>
+``SAML_CLIENT_KEY_FILE``
+    Path to the SAML signing key for the client.
+``SAML_CLIENT_CERT_FILE``
+    Path to the SAML certificate for the client.
+``SAML_CLIENT_XMLSEC1``
+    [Default /usr/bin/xmlsec1] Path to the xmlsec executable.
+
+By default, the SAML attributes map is configured to work with Keycloak as SAML Auth provider. If you are using a different ID Provider,
+or different settings you also need to adjust the ``SAML_ATTRIBUTES_MAP`` option.
+
+``SAML_ATTRIBUTES_MAP``
+    A dictionary identifying the SAML claims needed to retrieve user information. You need to set atleast ``email``, ``username``, ``first_name`` and ``last_name``. Example: ``SAML_ATTRIBUTES_MAP="email=email,username=uid,first_name=firstName,last_name=name"``
+
+To set initial user permissions on first login, you can use the following options:
+
+``SAML_NEW_USER_GROUPS``
+    Comma separated list of groups for a new user to join.
+``SAML_NEW_USER_ACTIVE_STATUS``
+    [Default True] Whether a new user is considered active.
+``SAML_NEW_USER_STAFF_STATUS``
+    [Default True] New users get the staff status.
+``SAML_NEW_USER_SUPERUSER_STATUS``
+    [Default False] New users are marked superusers (I advise leaving this one alone).
+
+If you encounter any troubles with this rather involved procedure, feel free to take a look at the discussion forums on `github<https://github.com/bihealth/varfish-server/discussions>`__ and open a thread.
+
 -----------------
 Sending of Emails
 -----------------

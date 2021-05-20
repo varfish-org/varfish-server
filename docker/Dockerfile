@@ -25,7 +25,8 @@ RUN apt-get update && \
         libsasl2-dev \
         make \
         postgresql-client \
-        wget
+        wget \
+        xmlsec1
 
 # Install Python dependencies.
 RUN cd /usr/src/app && \
