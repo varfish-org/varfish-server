@@ -9,6 +9,7 @@
 {% block title %}Login{% endblock title %}
 
 {% block content %}
+
 <div class="container-fluid">
 
   {# Django messages / site app messages #}
@@ -16,9 +17,9 @@
 
   {# Display error if login was unsuccessful. #}
   {% if request.POST %}
-  <div class="alert alert-danger sodar-alert-top">
-     Login failed. Please make sure the user name, domain and password are correct.
-     <a href="#" class="pull-right sodar-alert-close-link"><i class="fa fa-close text-muted"></i></a>
+  <div class="alert alert-danger alert-dismissable fade show sodar-alert-top">
+    Login failed. Please make sure the user name, domain and password are correct.
+    <a href="#" data-dismiss="alert" class="pull-right sodar-alert-close-link"><i class="fa fa-close text-muted"></i></a>
   </div>
   {% endif %}
 
@@ -33,16 +34,27 @@
 
     <form class="form-signin" method="post" id="sodar-form-login">
       {% csrf_token %}
-      <input type="text" name="username" id="sodar-login-username" class="form-control" placeholder="username@DOMAIN" required autofocus>
-      <input type="password" name="password" id="sodar-login-password" class="form-control my-sm-2 mb-sm-2" placeholder="Password" required>
-      <button class="btn btn-md btn-primary btn-block" type="submit" id="sodar-login-submit"><i class="fa fa-sign-in"></i> Log In</button>
+      {% get_django_setting 'ENABLE_LDAP' as enable_ldap %}
+      <input type="text" name="username" id="sodar-login-username" class="form-control"
+             placeholder="{% if enable_ldap %}username@DOMAIN{% else %}username{% endif %}"
+             required autofocus>
+      <input type="password" name="password" id="sodar-login-password"
+             class="form-control my-sm-2 mb-sm-2" placeholder="password"
+             required>
+      <button class="btn btn-md btn-primary btn-block" type="submit" id="sodar-login-submit">
+        <i class="fa fa-sign-in"></i> Log In
+      </button>
     </form>
-
-    <p class="text-muted text-right mt-3">
-      <small>
-        VarFish v{% site_version %} - For research use only.
-      </small>
-    </p>
+    {% get_django_setting 'ENABLE_SAML' as enable_saml %}
+    {% if enable_saml %}
+      <hr class="my-3" />
+      <p>To log in with your SSO provider, please click below.</p>
+      <a href="/sso/login"
+         class="btn btn-md btn-info btn-block">
+        <i class="fa fa-sign-in"></i> Single Sign-On
+      </a>
+    {% endif %}
   </div>
 </div>
+
 {% endblock content %}
