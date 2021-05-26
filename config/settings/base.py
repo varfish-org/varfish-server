@@ -497,7 +497,7 @@ VARFISH_CADD_SUBMISSION_RELEASE = env.str("VARFISH_CADD_SUBMISSION_RELEASE", def
 
 # Varfish: MutationTaster URL
 VARFISH_MUTATIONTASTER_REST_API_URL = env.str(
-    "VARFISH_MUTATIONTASTER_REST_API_URL", "https://www.mutationdistiller.org/MTc/MT_API.cgi"
+    "VARFISH_MUTATIONTASTER_REST_API_URL", "https://www.mutationdistiller.org/MTc/MT_API.cgi",
 )
 VARFISH_MUTATIONTASTER_BATCH_VARS = env.int("VARFISH_MUTATIONTASTER_BATCH_VARS", 50)
 VARFISH_MUTATIONTASTER_MAX_VARS = env.int("VARFISH_MUTATIONTASTER_MAX_VARS", 500)
@@ -579,6 +579,8 @@ VARFISH_PROJECTROLES_SYNC_REMOTE = env.bool("VARFISH_PROJECTROLES_SYNC_REMOTE", 
 ENABLED_BACKEND_PLUGINS = ["timeline_backend"]
 ENABLED_BACKEND_PLUGINS += env.list("ENABLED_BACKEND_PLUGINS", None, [])
 
+PROJECTROLES_DISABLE_CATEGORIES = env.bool("PROJECTROLES_DISABLE_CATEGORIES", False)
+
 # Warn about unsupported browsers (IE)
 PROJECTROLES_BROWSER_WARNING = True
 
@@ -621,7 +623,7 @@ def set_logging(debug):
         "disable_existing_loggers": False,
         "formatters": {"simple": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"}},
         "handlers": {
-            "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple"}
+            "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple",}
         },
         "loggers": {
             "projectroles": {"level": "INFO", "handlers": ["console"], "propagate": True,},
@@ -642,7 +644,11 @@ if ENABLE_LDAP:
     # Default values
     LDAP_DEFAULT_CONN_OPTIONS = {ldap.OPT_REFERRALS: 0}
     LDAP_DEFAULT_FILTERSTR = "(sAMAccountName=%(user)s)"
-    LDAP_DEFAULT_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", "email": "mail"}
+    LDAP_DEFAULT_ATTR_MAP = {
+        "first_name": "givenName",
+        "last_name": "sn",
+        "email": "mail",
+    }
 
     # Primary LDAP server
     AUTH_LDAP_SERVER_URI = env.str("AUTH_LDAP_SERVER_URI", None)
@@ -651,7 +657,7 @@ if ENABLE_LDAP:
     AUTH_LDAP_CONNECTION_OPTIONS = LDAP_DEFAULT_CONN_OPTIONS
 
     AUTH_LDAP_USER_SEARCH = LDAPSearch(
-        env.str("AUTH_LDAP_USER_SEARCH_BASE", None), ldap.SCOPE_SUBTREE, LDAP_DEFAULT_FILTERSTR
+        env.str("AUTH_LDAP_USER_SEARCH_BASE", None), ldap.SCOPE_SUBTREE, LDAP_DEFAULT_FILTERSTR,
     )
     AUTH_LDAP_USER_ATTR_MAP = LDAP_DEFAULT_ATTR_MAP
     AUTH_LDAP_USERNAME_DOMAIN = env.str("AUTH_LDAP_USERNAME_DOMAIN", None)
@@ -669,7 +675,9 @@ if ENABLE_LDAP:
         AUTH_LDAP2_CONNECTION_OPTIONS = LDAP_DEFAULT_CONN_OPTIONS
 
         AUTH_LDAP2_USER_SEARCH = LDAPSearch(
-            env.str("AUTH_LDAP2_USER_SEARCH_BASE", None), ldap.SCOPE_SUBTREE, LDAP_DEFAULT_FILTERSTR
+            env.str("AUTH_LDAP2_USER_SEARCH_BASE", None),
+            ldap.SCOPE_SUBTREE,
+            LDAP_DEFAULT_FILTERSTR,
         )
         AUTH_LDAP2_USER_ATTR_MAP = LDAP_DEFAULT_ATTR_MAP
         AUTH_LDAP2_USERNAME_DOMAIN = env.str("AUTH_LDAP2_USERNAME_DOMAIN")
@@ -677,7 +685,7 @@ if ENABLE_LDAP:
 
         AUTHENTICATION_BACKENDS = tuple(
             itertools.chain(
-                ("projectroles.auth_backends.SecondaryLDAPBackend",), AUTHENTICATION_BACKENDS
+                ("projectroles.auth_backends.SecondaryLDAPBackend",), AUTHENTICATION_BACKENDS,
             )
         )
 
