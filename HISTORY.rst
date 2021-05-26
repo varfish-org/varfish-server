@@ -2,6 +2,15 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+Full Change List
+================
+
+- Fix for missing PROJECTROLES_DISABLE_CATEGORIES variable in settings.
+
 -------
 v0.23.7
 -------
