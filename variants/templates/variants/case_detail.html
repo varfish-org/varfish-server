@@ -12,7 +12,6 @@
 
 {% block projectroles %}
   {% get_app_setting 'variants' 'disable_pedigree_sex_check' project=project as disable_pedigree_sex_check %}
-  {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
 
   <div class="row sodar-pr-content-title pb-2">
     {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
@@ -22,14 +21,17 @@
       Case
       <small class="text-muted">{{ object.name }}</small>
     </h2>
-
-    <a role="submit" class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
-       id="sodar-pr-btn-copy-uuid"
-       data-clipboard-text="{{ object.sodar_uuid }}"
-       title="Copy UUID to clipboard" data-toggle="tooltip" data-placement="top">
-      <i class="fa fa-clipboard text-muted" aria-hidden="true"></i>
-    </a>
-
+    {% if request.user and request.user.is_authenticated %}
+      {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
+      {% if enable_uuid_copy %}
+        <a role="submit" class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
+             id="sodar-pr-btn-copy-uuid"
+             data-clipboard-text="{{ object.sodar_uuid }}"
+             title="Copy UUID to clipboard" data-toggle="tooltip" data-placement="top">
+            <i class="fa fa-clipboard text-muted" aria-hidden="true"></i>
+          </a>
+      {% endif %}
+    {% endif %}
     {% include "variants/_case_detail_buttons.html" %}
   </div>
 
