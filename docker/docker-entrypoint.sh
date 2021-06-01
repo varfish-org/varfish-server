@@ -57,7 +57,6 @@ if [[ "$1" == wsgi ]]; then
   cd $APP_DIR
 
   >&2 echo "VARFISH MIGRATIONS BEGIN"
-  python manage.py makemigrations
   python manage.py migrate
   >&2 echo "VARFISH MIGRATIONS END"
 
