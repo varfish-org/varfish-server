@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""SET small variant table as LOGGED to improve stability."""
+"""SET small variant table as LOGGED to improve stability (#2)."""
 from __future__ import unicode_literals
 
 from django.db import migrations
@@ -17,6 +17,6 @@ else:
 class Migration(migrations.Migration):
     atomic = False
 
-    dependencies = [("variants", "0068_kioskannotatebgjob")]
+    dependencies = [("variants", "0080_spanrsubmissionbgjob")]
 
     operations = []
