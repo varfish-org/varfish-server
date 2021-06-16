@@ -19,4 +19,4 @@ class Migration(migrations.Migration):
 
     dependencies = [("variants", "0080_spanrsubmissionbgjob")]
 
-    operations = []
+    operations = operations

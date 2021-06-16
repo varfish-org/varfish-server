@@ -6,16 +6,30 @@ History / Changelog
 v0.23.6
 -------
 
+**IMPORTANT**
+
+This release contains a critical update.
+Prior to this release, all small and structural variant tables were marked as ``UNLOGGED``.
+This was originally introduce to improve insert performance.
+However, it turned out that stability is greatly decreased.
+In the case of a PostgreSQL crash, these tables are emptied.
+This change should have been rolled back much earlier but that rollback was buggy.
+**This release now includes a working and verified fix.**
+
 End-User Summary
 ================
 
 - Fixing problem with remote permission synchronization.
+- Fixing stability issue with database schema.
 
 Full Change List
 ================
 
 - Bump sodar-core to hotfix version.
   Fixes problem with remote permission synchronization.
+- Adding migration to mark all ``UNLOGGED`` tables back to ``LOGGED``.
+  This should have been reverted earlier but because of a bug it did not.
+- Fixing CI by calling ``sudo apt-get update`` once more.
 
 -------
 v0.23.5
