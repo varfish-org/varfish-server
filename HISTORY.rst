@@ -3,7 +3,7 @@ History / Changelog
 ===================
 
 -------
-v0.23.6
+v0.23.7
 -------
 
 **IMPORTANT**
@@ -19,7 +19,6 @@ This change should have been rolled back much earlier but that rollback was bugg
 End-User Summary
 ================
 
-- Fixing problem with remote permission synchronization.
 - Fixing stability issue with database schema.
 
 Full Change List
@@ -30,6 +29,21 @@ Full Change List
 - Adding migration to mark all ``UNLOGGED`` tables back to ``LOGGED``.
   This should have been reverted earlier but because of a bug it did not.
 - Fixing CI by calling ``sudo apt-get update`` once more.
+
+-------
+v0.23.6
+-------
+
+End-User Summary
+================
+
+- Fixing problem with remote permission synchronization.
+
+Full Change List
+================
+
+- Bump sodar-core to hotfix version.
+  Fixes problem with remote permission synchronization.
 
 -------
 v0.23.5
