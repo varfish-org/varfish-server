@@ -4,6 +4,7 @@ import hashlib
 import json
 import uuid
 
+from variants.helpers import get_engine
 from projectroles.views import LoginRequiredMixin
 from django.db import transaction
 from django.forms import model_to_dict
@@ -28,10 +29,8 @@ from .models import (
     StructuralVariantSet,
 )
 from .queries import SingleCaseFilterQuery, best_matching_flags
-from geneinfo.models import RefseqToHgnc, Hgnc, Hpo, HpoName, Mim2geneMedgen
 from variants.models import Case, ImportVariantsBgJob, SmallVariantSet
 from variants.views import UUIDEncoder
-from variants.helpers import SQLALCHEMY_ENGINE
 
 
 class CaseFilterView(
@@ -78,7 +77,7 @@ class CaseFilterView(
         # Take time while job is running
         before = timezone.now()
         # Get and run query
-        query = SingleCaseFilterQuery(self.get_case_object(), SQLALCHEMY_ENGINE)
+        query = SingleCaseFilterQuery(self.get_case_object(), get_engine())
         args = dict(form.cleaned_data)
         # TODO: variant types
         with contextlib.closing(query.run(args)) as results:
@@ -294,9 +293,7 @@ class StructuralVariantFlagsApiView(
 
     def _get_flags_for_variant(self, sv_uuid):
         case = self.get_object()
-        with contextlib.closing(
-            best_matching_flags(SQLALCHEMY_ENGINE, case.id, sv_uuid)
-        ) as results:
+        with contextlib.closing(best_matching_flags(get_engine(), case.id, sv_uuid)) as results:
             result = results.first()
             if not result:
                 raise StructuralVariantFlags.DoesNotExist()

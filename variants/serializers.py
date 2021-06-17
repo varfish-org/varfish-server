@@ -96,7 +96,7 @@ class CoreCaseSerializerMixin:
 class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     """Serializer for the ``Case`` model."""
 
-    pedigree = serializers.JSONField()
+    pedigree = serializers.models.JSONField()
     project = serializers.ReadOnlyField(source="project.sodar_uuid")
 
     def create(self, validated_data):

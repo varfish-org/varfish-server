@@ -4,14 +4,14 @@
       variant="secondary"
       @click="$emit('cancel-clicked')"
     >
-      <i class="fa fa-times"></i>
+      <span class="iconify" data-icon="mdi:close" data-inline="false"></span>
       Cancel
     </b-button>
     <b-button
       variant="success"
       @click="$emit('save-clicked')"
     >
-      <i class="fa fa-check"></i>
+      <span class="iconify" data-icon="mdi:check-bold" data-inline="false"></span>
       Save
     </b-button>
 
@@ -20,7 +20,7 @@
       variant="primary"
       @click="$emit('goto-submissions-clicked')"
     >
-      <i class="fa fa-arrow-circle-right"></i>
+      <i class="iconify" data-icon="mdi:arrow-right-circle"></i>
       Variants
     </b-button>
     <b-button
@@ -28,7 +28,7 @@
       variant="primary"
       @click="$emit('goto-submission-set-clicked')"
     >
-      <i class="fa fa-arrow-circle-left"></i>
+      <i class="iconify" data-icon="mdi:arrow-left-circle"></i>
       Submission
     </b-button>
   </b-button-group>

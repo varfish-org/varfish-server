@@ -1094,7 +1094,7 @@ class MtDb(Coordinates):
     # Amino acid change
     aa_change = models.CharField(max_length=32, null=True)
     # Amino acid change is synonymous?
-    synonymous = models.NullBooleanField()
+    synonymous = models.BooleanField(null=True)
 
 
 class Mitomap(Coordinates):

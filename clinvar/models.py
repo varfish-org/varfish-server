@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.db import models, connection, transaction
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from postgres_copy import CopyManager
 
-
+from varfish.utils import JSONField
 from .clinvar_models import ClinVarSet
 
 

@@ -3,7 +3,7 @@
 """
 
 from django.db import migrations, models
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.conf import settings
 
 
@@ -76,7 +76,7 @@ operations = [
             ("var_type", models.CharField(max_length=8)),
             ("case_id", models.IntegerField()),
             ("set_id", models.IntegerField()),
-            ("genotype", JSONField()),
+            ("genotype", models.JSONField()),
             ("num_hom_alt", models.IntegerField(default=0)),
             ("num_hom_ref", models.IntegerField(default=0)),
             ("num_het", models.IntegerField(default=0)),

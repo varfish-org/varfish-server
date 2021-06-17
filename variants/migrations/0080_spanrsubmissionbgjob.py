@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 import uuid
 
 import bgjobs.models
-import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
 
@@ -31,12 +30,7 @@ class Migration(migrations.Migration):
                     "sodar_uuid",
                     models.UUIDField(default=uuid.uuid4, help_text="Case SODAR UUID", unique=True),
                 ),
-                (
-                    "query_args",
-                    django.contrib.postgres.fields.jsonb.JSONField(
-                        help_text="(Validated) query parameters"
-                    ),
-                ),
+                ("query_args", models.JSONField(help_text="(Validated) query parameters"),),
                 (
                     "spanr_job_url",
                     models.CharField(help_text="The SPANR job URL", max_length=100, null=True),

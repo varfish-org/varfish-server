@@ -1,10 +1,11 @@
 import typing
 
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from postgres_copy import CopyManager
 
 import attr
+
+from varfish.utils import JSONField
 
 
 class ExtraAnnoField(models.Model):
@@ -44,7 +45,7 @@ class ExtraAnno(models.Model):
     #: Variant coordinates - alternative
     alternative = models.CharField(max_length=512)
     #: Annotation data.
-    anno_data = JSONField(default={})
+    anno_data = JSONField(default=dict)
 
     #: Allows bulk import
     objects = CopyManager()

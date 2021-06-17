@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 import django.contrib.postgres.fields
-import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
 
@@ -77,9 +76,9 @@ class Migration(migrations.Migration):
                 ("ontarget_snvs", models.IntegerField()),
                 ("ontarget_indels", models.IntegerField()),
                 ("ontarget_mnvs", models.IntegerField()),
-                ("ontarget_effect_counts", django.contrib.postgres.fields.jsonb.JSONField()),
-                ("ontarget_indel_sizes", django.contrib.postgres.fields.jsonb.JSONField()),
-                ("ontarget_dps", django.contrib.postgres.fields.jsonb.JSONField()),
+                ("ontarget_effect_counts", models.JSONField()),
+                ("ontarget_indel_sizes", models.JSONField()),
+                ("ontarget_dps", models.JSONField()),
                 (
                     "ontarget_dp_quantiles",
                     django.contrib.postgres.fields.ArrayField(

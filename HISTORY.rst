@@ -10,6 +10,7 @@ End-User Summary
 ================
 
 - Added SAML Login possibility from sodar-core to varfish
+- Upgraded some icons and look and feel (via sodar-core).
 
 Full Change List
 ================
@@ -20,6 +21,9 @@ Full Change List
 - Added SAML configuration to config/settings/base.py
 - Added necessary tools to the Dockerfile
 - Fix for missing PROJECTROLES_DISABLE_CATEGORIES variable in settings.
+- Upgrading sodar-core dependency.
+  This implies that we now require Python 3.7 or later.
+- Upgrading various other packages including Django itself.
 
 -------
 v0.23.7

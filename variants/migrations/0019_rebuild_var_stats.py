@@ -1,13 +1,7 @@
 """After introducing the models for variant statistics and QC, we have to rebuild them for existing cases."""
 from __future__ import unicode_literals
 
-import logging
-
 from django.db import migrations
-
-from variants.models import Case
-from variants.variant_stats import rebuild_case_variant_stats
-from variants.helpers import SQLALCHEMY_ENGINE
 
 
 def rebuild_var_stats(apps, _schema_editor):

@@ -2,7 +2,7 @@ import os
 from itertools import chain
 
 from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.forms import model_to_dict
 
 from variants.tests.helpers import ApiViewTestBase

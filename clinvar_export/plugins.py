@@ -13,7 +13,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     plugin_ordering = 100
 
-    icon = "dedent"
+    icon = "mdi:export-variant"
 
     entry_point_url_id = "clinvar_export:entrypoint"
 

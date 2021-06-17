@@ -78,7 +78,7 @@
                   {% empty %}
                     <p class='text-muted font-italic'>None</p>
                   {% endfor %}
-                "><i class="fa fa-list"></i> HPO Terms</a>
+                "><span class="iconify" data-icon="mdi:format-list-bulleted-square" data-inline="false"></span> HPO Terms</a>
             </div>
           {% endif %}
           {% if gene_blocklist %}
@@ -118,7 +118,7 @@
                   {% empty %}
                     <p class='text-muted font-italic'>None</p>
                   {% endfor %}"
-              ><i class="fa fa-check"></i> Gene Allowlist</a>
+              ><span class="iconify" data-icon="mdi:check-bold" data-inline="false"></span> Gene Allowlist</a>
             </div>
           {% endif %}
           {% if genomic_region %}
@@ -230,7 +230,7 @@
         </div>
         <div class="pl-3">
           <a type="button" id="logPopover" class="btn btn-sm btn-light" data-title="Background job logs" data-container="body" data-toggle="popover" data-trigger="focus" tabindex="0" data-placement="top" data-html="true" data-content="<pre>{{ logs|join:"<br>" }}</pre>">
-            <i class="fa fa-list"></i> Show logs
+            <span class="iconify" data-icon="mdi:format-list-bulleted-square" data-inline="false"></span> Show logs
           </a>
         </div>
       </div>

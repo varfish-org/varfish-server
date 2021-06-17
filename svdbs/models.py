@@ -65,7 +65,7 @@ class DgvGoldStandardSvs(models.Model):
     #: SV type (always ``"CNV"``)
     sv_type = models.CharField(max_length=8)
     #: SV sub type
-    sv_sub_type = models.CharField(max_length=8, choices=DGV_SV_SUB_TYPE_CHOICES)
+    sv_sub_type = models.CharField(max_length=32, choices=DGV_SV_SUB_TYPE_CHOICES)
 
     #: Number of studies
     num_studies = models.IntegerField()
@@ -120,7 +120,7 @@ class DgvSvs(models.Model):
     """SVs from DGV (database of genomic variation).
 
     This model was designed for record from the files:
-     
+
     - ``GRCh37_hg19_variants_2016-05-15.txt``
     - ``GRCh38_hg38_variants_2016-08-31.txt``
     """
@@ -440,7 +440,7 @@ class GnomAdSv(models.Model):
     #: REF allele
     ref = models.CharField(max_length=64, default="N")
     #: ALT alleles
-    alt = ArrayField(models.CharField(max_length=64), default=[])
+    alt = ArrayField(models.CharField(max_length=64), default=list)
 
     #: SV name in gnomAD SV.
     name = ArrayField(models.CharField(max_length=64))

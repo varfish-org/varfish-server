@@ -3,19 +3,23 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.views import defaults as default_views
 
 import django_saml2_auth.views
-from httpproxy.views import HttpProxy
+from djproxy.views import HttpProxy
 from projectroles.views import HomeView as ProjectRolesHomeView
 from variants.views import KioskHomeView
 from sentry_sdk import last_event_id
 
 
 def handler500(request, *args, **argv):
-    return render(request, "500.html", {"sentry_event_id": last_event_id()}, status=500)
+    if request.user and "User" in str(type(request.user)):
+        return render(request, "500.html", {"sentry_event_id": last_event_id()}, status=500)
+    else:
+        return HttpResponse(status=500)
 
 
 urlpatterns = [
@@ -48,6 +52,7 @@ else:
     HomeView = ProjectRolesHomeView
 
 urlpatterns += [
+    url(r"^icons/", include("dj_iconify.urls")),
     #    url(r'^$', TemplateView.as_view(template_name='pages/home.html'), name='home'),
     url(r"^geneinfo/", include("geneinfo.urls")),
     url(r"^variants/", include("variants.urls")),
@@ -83,7 +88,10 @@ urlpatterns += [
 urlpatterns += [
     url(
         r"^proxy/panelapp/(?P<url>.*)$",
-        HttpProxy.as_view(base_url="https://panelapp.genomicsengland.co.uk/api"),
+        HttpProxy.as_view(
+            base_url="https://panelapp.genomicsengland.co.uk/api/",
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
     )
 ]
 

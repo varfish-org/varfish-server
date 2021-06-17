@@ -7,7 +7,7 @@ from . import submit_external
 from . import variant_stats
 from . import submit_filter
 from . import sync_upstream
-from variants.helpers import SQLALCHEMY_ENGINE
+from .helpers import get_engine
 
 
 @app.task(bind=True)
@@ -62,7 +62,7 @@ def clear_expired_exported_files(_self):
 @app.task(bind=True)
 def compute_project_variants_stats(_self, export_job_pk):
     variant_stats.execute_rebuild_project_variant_stats_job(
-        SQLALCHEMY_ENGINE, models.ComputeProjectVariantsStatsBgJob.objects.get(pk=export_job_pk)
+        get_engine(), models.ComputeProjectVariantsStatsBgJob.objects.get(pk=export_job_pk)
     )
 
 

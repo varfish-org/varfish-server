@@ -5,6 +5,7 @@ Remarks:
 - VCF export is only tested for case one at the moment, as it shares a major part of the implementation with
   the render and tabular file export query.
 """
+from variants.helpers import get_engine
 
 from clinvar.tests.factories import ClinvarFactory
 from cohorts.tests.factories import TestCohortBase
@@ -45,7 +46,7 @@ from .factories import (
     SmallVariantCommentFactory,
     AcmgCriteriaRatingFactory,
 )
-from .helpers import TestBase, SupportQueryTestBase, SQLALCHEMY_ENGINE
+from .helpers import TestBase, SupportQueryTestBase
 
 
 # TODO: select correct cases from multiple ones
@@ -4924,7 +4925,7 @@ class TestKnownGeneAAQuery(TestBase):
     """Test the knowngeneaa query."""
 
     def run_query(self, query_class, kwargs, length):
-        query = query_class(SQLALCHEMY_ENGINE)
+        query = query_class(get_engine())
         results = list(query.run(kwargs))
         self.assertEqual(len(results), length)
 
@@ -5017,7 +5018,7 @@ class TestSmallVariantUserAnnotationQueryWithFlagsOnly(TestBase):
         self.case = self.flags.case
 
     def test_run_with_case(self):
-        query = SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE)
+        query = SmallVariantUserAnnotationQuery(get_engine())
         res = query.run(case=self.case)
         self.assertEqual(len(res.small_variants), 1)
         self.assertEqual(len(res.small_variant_flags), 1)
@@ -5025,7 +5026,7 @@ class TestSmallVariantUserAnnotationQueryWithFlagsOnly(TestBase):
         self.assertEqual(len(res.acmg_criteria_rating), 0)
 
     def test_run_with_cases(self):
-        query = SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE)
+        query = SmallVariantUserAnnotationQuery(get_engine())
         res = query.run(cases=[self.case])
         self.assertEqual(len(res.small_variants), 1)
         self.assertEqual(len(res.small_variant_flags), 1)
@@ -5033,7 +5034,7 @@ class TestSmallVariantUserAnnotationQueryWithFlagsOnly(TestBase):
         self.assertEqual(len(res.acmg_criteria_rating), 0)
 
     def test_run_with_project(self):
-        query = SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE)
+        query = SmallVariantUserAnnotationQuery(get_engine())
         res = query.run(project=self.case.project)
         self.assertEqual(len(res.small_variants), 1)
         self.assertEqual(len(res.small_variant_flags), 1)
@@ -5067,7 +5068,7 @@ class TestSmallVariantUserAnnotationQueryWithCommentsOnly(TestBase):
         self.case = self.comment.case
 
     def test_run_with_case(self):
-        query = SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE)
+        query = SmallVariantUserAnnotationQuery(get_engine())
         res = query.run(case=self.case)
         self.assertEqual(len(res.small_variants), 1)
         self.assertEqual(len(res.small_variant_flags), 0)
@@ -5075,7 +5076,7 @@ class TestSmallVariantUserAnnotationQueryWithCommentsOnly(TestBase):
         self.assertEqual(len(res.acmg_criteria_rating), 0)
 
     def test_run_with_cases(self):
-        query = SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE)
+        query = SmallVariantUserAnnotationQuery(get_engine())
         res = query.run(cases=[self.case])
         self.assertEqual(len(res.small_variants), 1)
         self.assertEqual(len(res.small_variant_flags), 0)
@@ -5083,7 +5084,7 @@ class TestSmallVariantUserAnnotationQueryWithCommentsOnly(TestBase):
         self.assertEqual(len(res.acmg_criteria_rating), 0)
 
     def test_run_with_project(self):
-        query = SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE)
+        query = SmallVariantUserAnnotationQuery(get_engine())
         res = query.run(project=self.case.project)
         self.assertEqual(len(res.small_variants), 1)
         self.assertEqual(len(res.small_variant_flags), 0)
@@ -5111,7 +5112,7 @@ class TestSmallVariantUserAnnotationQueryWithAcmgOnly(TestBase):
         self.case = self.rating.case
 
     def test_run_with_case(self):
-        query = SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE)
+        query = SmallVariantUserAnnotationQuery(get_engine())
         res = query.run(case=self.case)
         self.assertEqual(len(res.small_variants), 1)
         self.assertEqual(len(res.small_variant_flags), 0)
@@ -5119,7 +5120,7 @@ class TestSmallVariantUserAnnotationQueryWithAcmgOnly(TestBase):
         self.assertEqual(len(res.acmg_criteria_rating), 1)
 
     def test_run_with_cases(self):
-        query = SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE)
+        query = SmallVariantUserAnnotationQuery(get_engine())
         res = query.run(cases=[self.case])
         self.assertEqual(len(res.small_variants), 1)
         self.assertEqual(len(res.small_variant_flags), 0)
@@ -5127,7 +5128,7 @@ class TestSmallVariantUserAnnotationQueryWithAcmgOnly(TestBase):
         self.assertEqual(len(res.acmg_criteria_rating), 1)
 
     def test_run_with_project(self):
-        query = SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE)
+        query = SmallVariantUserAnnotationQuery(get_engine())
         res = query.run(project=self.case.project)
         self.assertEqual(len(res.small_variants), 1)
         self.assertEqual(len(res.small_variant_flags), 0)

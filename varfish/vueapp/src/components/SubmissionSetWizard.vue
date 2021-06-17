@@ -5,7 +5,7 @@
     <b-card no-body title-tag="title" footer-tag="footer">
       <template #header>
         <h4 class="mb-0">
-          <i class="fa fa-file-text-o"></i>
+          <i class="iconify" data-icon="mdi:note-text"></i>
           Edit Submission Set
 
           <transition name="fade">
@@ -17,7 +17,7 @@
           </transition>
 
           <b-button class="float-right" size="sm" variant="danger" @click="onRemoveClicked">
-            <i class="fa fa-times"></i>
+            <span class="iconify" data-icon="mdi:close" data-inline="false"></span>
             remove submission set
           </b-button>
         </h4>

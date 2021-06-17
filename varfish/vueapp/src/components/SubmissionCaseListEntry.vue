@@ -27,7 +27,7 @@
             variant="danger"
             @click="removeSubmissionIndividualFromCurrentSubmission(value)"
           >
-            <i class="fa fa-times"></i>
+            <span class="iconify" data-icon="mdi:close" data-inline="false"></span>
             remove from variant
           </b-button>
         </b-button-group>

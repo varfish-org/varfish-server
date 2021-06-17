@@ -6,7 +6,7 @@
   <div class="small font-italic p-2 bg-light">
     Use this form to fine-tune the genotype settings for each individual.
     Selecting "c/h index" (respectively "recess. index") for filtering for variants where the variant fulfills the comp. het. recessive criteria (respectively comp. het. or hom. recessive criteria).
-    You can use the <span class="badge border" style="border-color: #6c757d !important;"><i class="fa fa-sliders"></i></span> button to batch assign genotypes based on disease state.
+    You can use the <span class="badge border" style="border-color: #6c757d !important;"><span class="iconify" data-icon="mdi:dip-switch" data-inline="false"></span></span> button to batch assign genotypes based on disease state.
   </div>
   <table class="table table-striped table-hover sodar-card-table compact-form-groups">
     <thead>
@@ -24,7 +24,7 @@
           &nbsp;
           <div class="dropdown d-inline" id="presets-genotype-dropdown">
             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="presets-genotype-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fa fa-sliders"></i>
+              <span class="iconify" data-icon="mdi:dip-switch" data-inline="false"></span>
             </button>
             <div class="dropdown-menu" aria-labelledby="presets-genotype-button">
               <a class="dropdown-item load-genotype" href="#" data-preset-name="unaffected:any">Unaffected: any</a>
@@ -85,7 +85,7 @@
   <div class="col text-right">
     {% if query_type == "case" %}
       <div class="btn btn-sm btn-info" id="compound_heterozygous_disable">
-        <i class="fa fa-times"></i>
+        <span class="iconify" data-icon="mdi:close" data-inline="false"></span>
         Disable comp. het. mode
       </div>
     {% else %} {# query_type == "project" #}
@@ -104,7 +104,7 @@
   <div class="col text-right">
     {% if query_type == "case" %}
       <div class="btn btn-sm btn-info" id="recessive_disable">
-        <i class="fa fa-times"></i>
+        <span class="iconify" data-icon="mdi:close" data-inline="false"></span>
         Disable recessive mode
       </div>
     {% else %} {# query_type == "project" #}

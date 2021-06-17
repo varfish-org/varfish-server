@@ -42,7 +42,7 @@
             <div class="col-10 p-1">
               {% if object.export_result %}
                 <a href="{% url "variants:export-job-download" project=object.project.sodar_uuid job=object.sodar_uuid %}">
-                  <i class="fa fa-download"></i>
+                  <span class="iconify" data-icon="mdi:download" data-inline="false"></span>
                   Download {{ object.file_type }} File ({{ object.export_result.payload|length|filesizeformat }})
                 </a>
               {% else %}

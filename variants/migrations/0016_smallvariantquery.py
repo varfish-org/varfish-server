@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
 import uuid
@@ -38,10 +37,7 @@ class Migration(migrations.Migration):
                 ),
                 ("form_id", models.CharField(help_text="Identifier of the form", max_length=100)),
                 ("form_version", models.IntegerField(help_text="Version of form when saving")),
-                (
-                    "query_settings",
-                    django.contrib.postgres.fields.jsonb.JSONField(help_text="The query settings"),
-                ),
+                ("query_settings", models.JSONField(help_text="The query settings"),),
                 (
                     "name",
                     models.CharField(

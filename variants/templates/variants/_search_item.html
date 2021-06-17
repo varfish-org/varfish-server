@@ -53,7 +53,7 @@
     {% if svs_enabled %}
       <div class="btn-group" role="group">
         <a href="{% url "variants:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
-          <i class="fa fa-filter"></i>
+          <i class="iconify" data-icon="mdi:filter"></i>
         </a>
         <a href="{% url "svs:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn{% if not item.num_svs %} disabled{% endif %}" title="{% if item.num_svs %}filter SVs{% else %}Svs not available for this case{% endif %}">
           <i class="fa fa-align-center fa-flip-vertical"></i>
@@ -61,7 +61,7 @@
       </div>
     {% else %}
       <a href="{% url "variants:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
-        <i class="fa fa-filter"></i>
+        <i class="iconify" data-icon="mdi:filter"></i>
       </a>
     {% endif %}
   </td>

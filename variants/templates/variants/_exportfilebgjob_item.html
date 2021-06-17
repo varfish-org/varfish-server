@@ -10,12 +10,12 @@
   <td>
     {% if item.export_result %}
       <a href="{% url "variants:export-job-download" project=item.project.sodar_uuid job=item.sodar_uuid %}">
-        <i class="fa fa-download"></i>
+        <span class="iconify" data-icon="mdi:download" data-inline="false"></span>
         ({{ item.file_type }}, {{ item.export_result.payload|length|filesizeformat }})
       </a>
     {% else %}
       <span class="text-muted" data-toggle="tooltip" data-placement="top" title="File expired or not ready yet">
-        <i class="fa fa-download"></i>
+        <span class="iconify" data-icon="mdi:download" data-inline="false"></span>
         ({{ item.file_type }}, -)
       </span>
     {% endif %}

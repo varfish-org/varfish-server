@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework import exceptions, authentication
 from sqlalchemy import select, and_
 
-from variants.helpers import SQLALCHEMY_ENGINE
+from variants.helpers import get_engine
 from variants.models import Case, SmallVariant
 from .models import Site
 from .models_api import (
@@ -214,7 +214,9 @@ class BeaconQueryApiView(APIView):
         # TODO: perform one large query only
         project_pks = [p.pk for p in remote_site.get_all_projects()]
         result = (
-            select(["*"])
+            select(
+                [SmallVariant.sa.num_hom_alt, SmallVariant.sa.num_het, SmallVariant.sa.num_hemi_alt]
+            )
             .select_from(SmallVariant.sa)
             .where(
                 and_(
@@ -234,7 +236,7 @@ class BeaconQueryApiView(APIView):
         sum_hom_alt = 0
         sum_het_alt = 0
         sum_hemi_alt = 0
-        for row in SQLALCHEMY_ENGINE.execute(result):
+        for row in get_engine().execute(result):
             sum_hom_alt += row.num_hom_alt
             sum_het_alt += row.num_het
             sum_hemi_alt += row.num_hemi_alt

@@ -233,7 +233,7 @@ class NcbiGeneRif(models.Model):
     #: The summary text
     rif_text = models.TextField(null=False)
     #: The pubmed ids.
-    pubmed_ids = ArrayField(models.CharField(max_length=16, null=False), default=[])
+    pubmed_ids = ArrayField(models.CharField(max_length=16, null=False), default=list)
 
     #: Allow bulk import into database.
     objects = CopyManager()

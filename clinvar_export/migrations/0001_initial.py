@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 import django.contrib.postgres.fields
-import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
 import uuid
@@ -69,7 +68,7 @@ class Migration(migrations.Migration):
                 ("case_name", models.TextField(max_length=128)),
                 (
                     "pedigree",
-                    django.contrib.postgres.fields.jsonb.JSONField(
+                    models.JSONField(
                         blank=True, default=list, help_text="Pedigree information.", null=True
                     ),
                 ),
@@ -199,12 +198,7 @@ class Migration(migrations.Migration):
                         base_field=models.TextField(), size=None
                     ),
                 ),
-                (
-                    "diseases",
-                    django.contrib.postgres.fields.jsonb.JSONField(
-                        blank=True, default=list, null=True
-                    ),
-                ),
+                ("diseases", models.JSONField(blank=True, default=list, null=True),),
                 (
                     "assertion_method",
                     models.ForeignKey(
@@ -237,12 +231,7 @@ class Migration(migrations.Migration):
                     models.UUIDField(default=uuid.uuid4, help_text="SODAR UUID", unique=True),
                 ),
                 ("sort_order", models.IntegerField()),
-                (
-                    "phenotypes",
-                    django.contrib.postgres.fields.jsonb.JSONField(
-                        blank=True, default=list, null=True
-                    ),
-                ),
+                ("phenotypes", models.JSONField(blank=True, default=list, null=True),),
                 ("variant_origin", models.TextField(default="not-reported", max_length=100)),
                 ("variant_allele_count", models.IntegerField(blank=True, default=None, null=True)),
                 (

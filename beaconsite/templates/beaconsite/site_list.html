@@ -15,16 +15,16 @@
     {% include 'projectroles/_project_menu_btn.html' %}
 
     <h2 class="sodar-pr-content-title">
-      <i class="fa fa-institution"></i>
+      <i class="iconify" data-icon="octicon:location-16" data-inline="false"></i>
       Site List
     </h2>
     <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
       <a class="btn btn-secondary" href="{% url 'beaconsite:index' %}">
-        <i class="fa fa-arrow-circle-left"></i>
+        <i class="iconify" data-icon="mdi:arrow-left-circle"></i>
         Back
       </a>
       <a class="btn btn-primary" href="{% url 'beaconsite:site-create' %}">
-        <i class="fa fa-plus"></i>
+        <span class="iconify" data-icon="mdi:plus-circle" data-inline="false"></span>
         Create
       </a>
     </div>

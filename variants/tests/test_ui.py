@@ -19,6 +19,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from projectroles.models import Role, SODAR_CONSTANTS
 from projectroles.tests.test_models import ProjectMixin, RoleAssignmentMixin
+import projectroles.tests.test_ui
 
 from variants.tests.factories import (
     SampleVariantStatisticsFactory,
@@ -100,100 +101,16 @@ class LiveUserMixin:
         return user
 
 
-class TestUIBase(LiveUserMixin, ProjectMixin, RoleAssignmentMixin, LiveServerTestCase):
+class TestUIBase(projectroles.tests.test_ui.TestUIBase):
     """Base class for UI tests"""
-
-    view = None
-    kwargs = None
-
-    def setUp(self):
-        socket.setdefaulttimeout(60)  # To get around Selenium hangups
-        self.wait_time = 30
-
-        # Init headless Chrome
-        options = webdriver.ChromeOptions()
-        options.add_argument("headless")
-        options.add_argument("no-sandbox")  # For Gitlab-CI compatibility
-        # Add logging capabilities to fetch the console log of the browser
-        d = DesiredCapabilities.CHROME
-        d["loggingPrefs"] = {"browser": "ALL"}
-        # Set WebDriver
-        self.selenium = webdriver.Chrome(chrome_options=options, desired_capabilities=d)
-        self.pending = lambda n=self.wait_time: WebDriverWait(self.selenium, n)
-
-        # Prevent ElementNotVisibleException
-        self.selenium.set_window_size(1600, 1400)
-
-        # Init roles
-        self.role_owner = Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0]
-
-        # Init superuser
-        self.superuser = self._make_user("admin", True)
-
-        super().setUp()
-
-    def tearDown(self):
-        # Shut down Selenium
-        self.selenium.quit()
-        super().tearDown()
-
-    def build_selenium_url(self, url):
-        """Build absolute URL to work with Selenium"""
-        return "{}{}".format(self.live_server_url, url)
-
-    def login_and_redirect(self, user, url):
-        """Login with Selenium and wait for redirect to given url"""
-
-        self.selenium.get(self.build_selenium_url("/"))
-
-        ########################
-        # Logout (if logged in)
-        ########################
-
-        try:
-            user_button = self.selenium.find_element_by_id("sodar-navbar-user-dropdown")
-
-            user_button.click()
-
-            # Wait for element to be visible
-            self.pending().until(
-                ec.presence_of_element_located((By.ID, "sodar-navbar-link-logout"))
-            )
-
-            try:
-                signout_button = self.selenium.find_element_by_id("sodar-navbar-link-logout")
-                signout_button.click()
-
-                # Wait for redirect
-                self.pending().until(ec.presence_of_element_located((By.ID, "sodar-form-login")))
-
-            except NoSuchElementException:
-                pass
-
-        except NoSuchElementException:
-            pass
-
-        ########
-        # Login
-        ########
-
-        self.selenium.get(self.build_selenium_url(url))
-
-        # Submit user data into form
-        field_user = self.selenium.find_element_by_id("sodar-login-username")
-        # field_user.send_keys(user.username)
-        field_user.send_keys(user.username)
-
-        field_pass = self.selenium.find_element_by_id("sodar-login-password")
-        field_pass.send_keys("password")
-
-        self.selenium.find_element_by_xpath('//button[contains(., "Log In")]').click()
-
-        # Wait for redirect
-        self.pending().until(ec.presence_of_element_located((By.ID, "sodar-navbar-user-dropdown")))
 
     def compile_url_and_login(self, kwargs={}):
         self.login_and_redirect(self.superuser, reverse(self.view, kwargs=kwargs))
+
+    def _disable_filters(self, case_or_project):
+        self.selenium.find_element_by_id("quick-presets-button").click()
+        self.selenium.find_element_by_xpath("//a[@data-preset-name='whole-exome']").click()
+        time.sleep(1)
 
     def assert_element_exists(self, kwargs, element_id, exists):
         """
@@ -211,17 +128,6 @@ class TestUIBase(LiveUserMixin, ProjectMixin, RoleAssignmentMixin, LiveServerTes
         else:
             with self.assertRaises(NoSuchElementException):
                 self.selenium.find_element_by_id(element_id)
-
-    def print_log(self):
-        """Print the console log of the browser"""
-        print("---")
-        for i in self.selenium.get_log("browser"):
-            print(i)
-
-    def _disable_filters(self, case_or_project):
-        self.selenium.find_element_by_id("quick-presets-button").click()
-        self.selenium.find_element_by_xpath("//a[@data-preset-name='whole-exome']").click()
-        time.sleep(1)
 
 
 class TestVariantsCaseListView(TestUIBase):
@@ -374,18 +280,24 @@ class TestVariantsCaseFilterView(TestUIBase):
         cross_checkbox = self.selenium.find_element_by_id("id_effect_synonymous_variant")
         # switch tab and wait until change happened
         tab.click()
-        self.pending().until(ec.visibility_of(checkbox))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(checkbox))
         # initially checkbox all synonymous_variant are unchecked, test for that
-        self.pending().until_not(ec.element_to_be_selected(checkbox))
-        self.pending().until_not(ec.element_to_be_selected(cross_checkbox))
+        WebDriverWait(self.selenium, self.wait_time).until_not(ec.element_to_be_selected(checkbox))
+        WebDriverWait(self.selenium, self.wait_time).until_not(
+            ec.element_to_be_selected(cross_checkbox)
+        )
         # click all to enable it and wait for changes to take place
         checkbox.click()
-        self.pending().until(ec.element_to_be_selected(checkbox))
-        self.pending().until(ec.element_to_be_selected(cross_checkbox))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.element_to_be_selected(checkbox))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.element_to_be_selected(cross_checkbox)
+        )
         # click all to disable it and wait for changes to take place
         checkbox.click()
-        self.pending().until_not(ec.element_to_be_selected(checkbox))
-        self.pending().until_not(ec.element_to_be_selected(cross_checkbox))
+        WebDriverWait(self.selenium, self.wait_time).until_not(ec.element_to_be_selected(checkbox))
+        WebDriverWait(self.selenium, self.wait_time).until_not(
+            ec.element_to_be_selected(cross_checkbox)
+        )
 
     def _check_effect_groups(self, group, effect_fields_patch):
         """Helper function for testing the performance of the effect group checkboxes."""
@@ -535,10 +447,10 @@ class TestVariantsCaseFilterView(TestUIBase):
         # switch to settings tab and wait for it to be displayed
         self.selenium.find_element_by_id("more-tab").click()
         tab = self.selenium.find_element_by_id("settings-tab")
-        self.pending().until(ec.visibility_of(tab))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(tab))
         tab.click()
         textarea = self.selenium.find_element_by_id("settingsDump")
-        self.pending().until(ec.visibility_of(textarea))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(textarea))
         # obtain initial settings from textarea
         settings_json = json.loads(textarea.get_attribute("value"))
         # change value
@@ -564,7 +476,9 @@ class TestVariantsCaseFilterView(TestUIBase):
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
-        self.pending().until(ec.presence_of_element_located((By.ID, "logger")))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.ID, "logger"))
+        )
         self.assertEqual(button.get_attribute("data-event-type"), "cancel")
         # Wait for background job to finish, otherwise database can't be flushed for next test.
         time.sleep(5)
@@ -577,10 +491,13 @@ class TestVariantsCaseFilterView(TestUIBase):
             {"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid}
         )
         # find & hit button
+        time.sleep(5)
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
-        self.pending().until(ec.presence_of_element_located((By.ID, "logger")))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.ID, "logger"))
+        )
         self.assertEqual(button.get_attribute("data-event-type"), "cancel")
         button.click()
         time.sleep(5)
@@ -602,7 +519,9 @@ class TestVariantsCaseFilterView(TestUIBase):
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
-        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "variant-row")))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+        )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_bookmark(self):
@@ -614,13 +533,19 @@ class TestVariantsCaseFilterView(TestUIBase):
         self._disable_filters("case")
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
-        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "variant-row")))
-        self.pending().until(
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+        )
+        WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark"))
         ).click()
         # save bookmark
-        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "save"))).click()
-        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "fa-bookmark")))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "save"))
+        ).click()
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "fa-bookmark"))
+        )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_training_mode(self):
@@ -633,25 +558,33 @@ class TestVariantsCaseFilterView(TestUIBase):
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
-        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "variant-row")))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+        )
         self.selenium.find_element_by_class_name("variant-bookmark").click()
         # save bookmark
-        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "save")))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "save"))
+        )
         self.selenium.find_element_by_class_name("save").click()
-        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "fa-bookmark")))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "fa-bookmark"))
+        )
         # switch tab
         self.selenium.find_element_by_id("more-tab").click()
         tab = self.selenium.find_element_by_id("misc-tab")
-        self.pending().until(ec.visibility_of(tab))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(tab))
         tab.click()
         # enable training mode
         training = self.selenium.find_element_by_id("id_training_mode")
-        self.pending().until(ec.visibility_of(training))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(training))
         training.click()
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
-        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "variant-row")))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+        )
         with self.assertRaises(NoSuchElementException):
             self.selenium.find_element_by_class_name("bookmark")
 
@@ -665,7 +598,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # switch tab
         self.selenium.find_element_by_id("frequency-tab").click()
         exac = self.selenium.find_element_by_xpath("//input[@name='exac_enabled']")
-        self.pending().until(ec.visibility_of(exac))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(exac))
         # disable exac and thousand genomes frequency filter
         exac.click()
         self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
@@ -673,28 +606,28 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.selenium.find_element_by_id("more-tab").click()
         self.selenium.find_element_by_id("quality-tab").click()
         dropdown = self.selenium.find_element_by_id("id_%s_fail" % self.case.index)
-        self.pending().until(ec.visibility_of(dropdown))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(dropdown))
         # disable quality filters
         dropdown.click()
         option = self.selenium.find_element_by_xpath("//option[@value='ignore']")
-        self.pending().until(ec.visibility_of(option))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(option))
         option.click()
         # find and hit download button
         self.selenium.find_element_by_id("filterdisplayoptions").click()
         download = self.selenium.find_element_by_xpath(
             '//button[@name="submit" and @value="download"]'
         )
-        self.pending().until(ec.visibility_of(download))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(download))
         download.click()
         # wait for redirect and refresh page for elements to show up
-        self.pending().until(
+        WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located(
                 (By.XPATH, '//h2[contains(text(), "{}")]'.format("Background File Creation Job"))
             )
         )
         time.sleep(5)
         self.selenium.refresh()
-        self.pending().until(
+        WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located(
                 (
                     By.XPATH,
@@ -761,7 +694,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         tab = self.selenium.find_element_by_id("frequency-tab")
         tab.click()
         field = self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_frequency']")
-        self.pending().until(ec.visibility_of(field))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(field))
         field.clear()
         field.send_keys("10")
         # submit
@@ -782,7 +715,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         tab = self.selenium.find_element_by_id("frequency-tab")
         tab.click()
         field = self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_frequency']")
-        self.pending().until(ec.visibility_of(field))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(field))
         field.clear()
         field.send_keys("10")
         # submit
@@ -822,7 +755,9 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
-        self.pending().until(ec.presence_of_element_located((By.ID, "logger")))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.ID, "logger"))
+        )
         self.assertEqual(button.get_attribute("data-event-type"), "cancel")
         # Wait for background job to finish, otherwise database can't be flushed for next test.
         time.sleep(5)
@@ -836,7 +771,9 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         button = self.selenium.find_element_by_id("submitFilter")
         self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
-        self.pending().until(ec.presence_of_element_located((By.ID, "logger")))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.ID, "logger"))
+        )
         self.assertEqual(button.get_attribute("data-event-type"), "cancel")
         button.click()
         time.sleep(5)
@@ -856,7 +793,9 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
-        self.pending().until(ec.presence_of_element_located((By.CLASS_NAME, "variant-row")))
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+        )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_joint_filter_download(self):
@@ -869,17 +808,17 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         download = self.selenium.find_element_by_xpath(
             '//button[@name="submit" and @value="download"]'
         )
-        self.pending().until(ec.visibility_of(download))
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(download))
         download.click()
         # wait for redirect and refresh page for elements to show up
-        self.pending().until(
+        WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located(
                 (By.XPATH, '//h2[contains(text(), "{}")]'.format("Background File Creation Job"))
             )
         )
         time.sleep(5)
         self.selenium.refresh()
-        self.pending().until(
+        WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located(
                 (
                     By.XPATH,

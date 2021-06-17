@@ -24,11 +24,12 @@
     {% csrf_token %}
     <div class="btn-group pull-right">
       <a role="button" class="btn btn-secondary"
-         href="{% url 'beaconsite:consortium-detail' consortium=object.sodar_uuid %}"
-        <i class="fa fa-arrow-circle-left"></i> Cancel
+         href="{% url 'beaconsite:consortium-detail' consortium=object.sodar_uuid %}">
+        <i class="iconify" data-icon="mdi:arrow-left-circle"></i> Cancel
       </a>
       <button type="submit" class="btn btn-danger">
-        <i class="fa fa-times"></i> Remove
+        <i class="iconify" data-icon="mdi:eraser" data-inline="false"></i>
+        Remove
       </button>
     </div>
   </form>

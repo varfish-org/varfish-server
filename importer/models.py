@@ -26,8 +26,8 @@ from variants.models import (
     CaseAlignmentStats,
     SmallVariantSet,
 )
-from variants.helpers import SQLALCHEMY_ENGINE
-
+from variants.helpers import get_engine
+from variants.helpers import get_meta
 
 User = auth.get_user_model()
 
@@ -104,7 +104,9 @@ class CaseImportInfo(CoreCase):
         User, null=True, on_delete=models.SET_NULL, help_text="User that created the import info."
     )
     #: The project containing this case.
-    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project in which this objects belongs"
+    )
 
     case = models.ForeignKey(
         Case,
@@ -144,7 +146,9 @@ class VariantSetImportInfo(models.Model):
         help_text="Genome build used in the variant set.",
     )
 
-    case_import_info = models.ForeignKey(CaseImportInfo, help_text="The import info for the case.",)
+    case_import_info = models.ForeignKey(
+        CaseImportInfo, on_delete=models.CASCADE, help_text="The import info for the case.",
+    )
 
     variant_type = models.CharField(
         max_length=32,
@@ -211,7 +215,9 @@ class BamQcFile(SetMemberFileUrl):
     """Base class for the urls that can be attached to ``VariantSetImportInfo``."""
 
     case_import_info = models.ForeignKey(
-        CaseImportInfo, help_text="The case import info that this is for.",
+        CaseImportInfo,
+        on_delete=models.CASCADE,
+        help_text="The case import info that this is for.",
     )
 
     def get_project(self):
@@ -225,7 +231,9 @@ class ImportVariantSetUrl(SetMemberFileUrl):
     """Base class for the urls that can be attached to ``VariantSetImportInfo``."""
 
     variant_set_import_info = models.ForeignKey(
-        VariantSetImportInfo, help_text="The variant set info that this is for.",
+        VariantSetImportInfo,
+        on_delete=models.CASCADE,
+        help_text="The variant set info that this is for.",
     )
 
     def get_project(self):
@@ -271,18 +279,24 @@ class ImportCaseBgJob(JobModelMessageMixin, models.Model):
     #: UUID of the job
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
     #: The project that the job belongs to.
-    project = models.ForeignKey(Project, help_text="Project that is imported to")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project that is imported to"
+    )
 
     #: The background job that is specialized.
     bg_job = models.ForeignKey(
         BackgroundJob,
+        on_delete=models.CASCADE,
         null=False,
         related_name="%(app_label)s_%(class)s_related",
         help_text="Background job for state etc.",
     )
 
     import_info = models.ForeignKey(
-        CaseImportInfo, null=True, help_text="Case import information to use."
+        CaseImportInfo,
+        on_delete=models.CASCADE,
+        null=True,
+        help_text="Case import information to use.",
     )
 
     def get_human_readable_type(self):
@@ -416,8 +430,8 @@ class CaseImporter:
         self.import_job.add_log_entry("... removing linked entries in tables:")
         for table_name, variant_set_attr in table_names:
             self.import_job.add_log_entry("... - %s" % table_name)
-            table = aldjemy.core.get_meta().tables[table_name]
-            SQLALCHEMY_ENGINE.execute(
+            table = get_meta().tables[table_name]
+            get_engine().execute(
                 table.delete().where(
                     and_(
                         getattr(table.c, variant_set_attr) == variant_set.id,
@@ -545,9 +559,7 @@ class CaseImporter:
 
         before = timezone.now()
         self.import_job.add_log_entry("Computing variant statistics...")
-        rebuild_case_variant_stats(
-            SQLALCHEMY_ENGINE, variant_set, logger=self.import_job.add_log_entry
-        )
+        rebuild_case_variant_stats(get_engine(), variant_set, logger=self.import_job.add_log_entry)
         elapsed = timezone.now() - before
         self.import_job.add_log_entry(
             "Finished computing variant statistics in %.2f s" % elapsed.total_seconds()

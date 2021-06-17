@@ -1,5 +1,9 @@
 """Shared utility code."""
 
+import json
+
+import django.db.models.fields.json
+
 
 def get_subclasses(classes, level=0):
     """Return the list of all subclasses given class (or list of classes) has.
@@ -35,3 +39,26 @@ def receiver_subclasses(signal, sender, dispatch_uid_prefix, **kwargs):
         return func
 
     return _decorator
+
+
+class JSONField(django.db.models.fields.json.JSONField):
+    """Helper JSONField class that works when SQLAlchemy (via aldjemy) is already parsing JSON values into Python types.
+    """
+
+    def from_db_value(self, value, expression, connection):
+        if value is None:
+            return value
+        # Some backends (SQLite at least) extract non-string values in their
+        # SQL datatypes.
+        if isinstance(expression, django.db.models.fields.json.KeyTransform) and not isinstance(
+            value, str
+        ):
+            return value
+        try:
+            return json.loads(value, cls=self.decoder)
+        except (json.JSONDecodeError, TypeError):
+            return value
+
+
+# Monkey-patch original JSON field as we cannot control models outside of our app.
+django.db.models.fields.json.JSONField.from_db_value = JSONField.from_db_value

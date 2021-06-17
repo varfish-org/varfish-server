@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 import django.contrib.postgres.fields
-import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
 import uuid
@@ -62,7 +61,7 @@ class Migration(migrations.Migration):
                 ),
                 ("name", models.CharField(max_length=512)),
                 ("index", models.CharField(max_length=512)),
-                ("pedigree", django.contrib.postgres.fields.jsonb.JSONField()),
+                ("pedigree", models.JSONField()),
                 ("notes", models.TextField(blank=True, default="", null=True)),
                 (
                     "status",

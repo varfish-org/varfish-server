@@ -8,7 +8,6 @@ from projectroles.models import Project
 from variants.models import SmallVariant, SmallVariantSummary
 from variants.variant_stats import rebuild_case_variant_stats
 from geneinfo.models import Hgnc, RefseqToHgnc
-from variants.helpers import SQLALCHEMY_ENGINE
 
 
 #: Shared data for ``Project`` to use for all test cases.
@@ -110,4 +109,4 @@ def fixture_setup_case1_simple():
     Hgnc.objects.create(hgnc_id="HGNC:1", symbol="AAA")
     RefseqToHgnc.objects.create(entrez_id="1234", hgnc_id="HGNC:1")
 
-    rebuild_case_variant_stats(SQLALCHEMY_ENGINE, case)
+    rebuild_case_variant_stats(get_engine(), case)

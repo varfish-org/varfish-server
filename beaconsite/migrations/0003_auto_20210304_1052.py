@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-import encrypted_model_fields.fields
+import cryptographic_fields.fields
 
 
 class Migration(migrations.Migration):
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="site",
             name="private_key",
-            field=encrypted_model_fields.fields.EncryptedTextField(
+            field=cryptographic_fields.fields.EncryptedTextField(
                 blank=True, help_text="(Private) key for (a)symmetric encryption.", null=True
             ),
         ),

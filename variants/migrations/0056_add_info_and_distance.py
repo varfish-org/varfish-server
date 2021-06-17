@@ -1,6 +1,5 @@
 """Add ``SmallVariant.info`` and ``SmallVariant.{ensembl,refseq}_exon_dist`` fields."""
 from django.conf import settings
-import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 
 
@@ -15,9 +14,7 @@ else:
     # Operations using the Django ORM.
     operations = [
         migrations.AddField(
-            model_name="smallvariant",
-            name="info",
-            field=django.contrib.postgres.fields.jsonb.JSONField(null=True),
+            model_name="smallvariant", name="info", field=models.JSONField(null=True),
         ),
         migrations.AddField(
             model_name="smallvariant", name="refseq_exon_dist", field=models.IntegerField(null=True)

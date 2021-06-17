@@ -43,11 +43,15 @@ docs:
 
 .PHONY: celery
 celery:
-	celery worker -A config.celery_app -l info --concurrency=4 --beat
+	celery -A config.celery_app worker -l info --concurrency=4 --beat
+
+.PHONY: geticons
+geticons:
+	python manage.py geticons -c cil gridicons octicon
 
 .PHONY: collectstatic
-collectstatic:
-	python manage.py collectstatic
+collectstatic: geticons
+	python manage.py collectstatic --clear --no-input
 
 # Remember to execute 'python manage.py collectstatic' before executing tests the first time
 .PHONY: test

@@ -34,7 +34,7 @@ class SvsInCaseWithDeNovoGenotypeFilterQueryTest(QueryTestBase):
 
     def testQueryAnyGenotype(self):
         results = self.run_query(SingleCaseFilterQuery, {}, 1)
-        self.assertEqual(self.svs[0].sv_uuid, results[0].sv_uuid)
+        self.assertUUIDEquals(self.svs[0].sv_uuid, results[0].sv_uuid)
 
     def testQueryDeNovo(self):
         results = self.run_query(
@@ -46,7 +46,7 @@ class SvsInCaseWithDeNovoGenotypeFilterQueryTest(QueryTestBase):
             },
             1,
         )
-        self.assertEqual(self.svs[0].sv_uuid, results[0].sv_uuid)
+        self.assertUUIDEquals(self.svs[0].sv_uuid, results[0].sv_uuid)
 
     def testQueryDominant(self):
         self.run_query(
@@ -104,7 +104,7 @@ class GenotypeQualityFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testPassSrcFilterFailsGenotypeFilter(self):
         src = self.genotype.get(self.case.pedigree[1]["patient"])["src"]
@@ -138,7 +138,7 @@ class GenotypeQualityFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testPassSrvMinFilterFailsGenotypeFilter(self):
         srv = self.genotype.get(self.case.pedigree[1]["patient"])["srv"]
@@ -204,7 +204,7 @@ class GenotypeQualityFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testPassPecMinFilterFailsGenotypeFilter(self):
         pec = self.genotype.get(self.case.pedigree[1]["patient"])["pec"]
@@ -238,7 +238,7 @@ class GenotypeQualityFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testPassPevMinFilterFailsGenotypeFilter(self):
         pev = self.genotype.get(self.case.pedigree[1]["patient"])["pev"]
@@ -304,7 +304,7 @@ class GenotypeQualityFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testPassCovMinFilterFailsGenotypeFilter(self):
         cov = (
@@ -344,7 +344,7 @@ class GenotypeQualityFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testPassVarMinFilterFailsGenotypeFilter(self):
         var = (
@@ -400,7 +400,7 @@ class SvTypeFilterQueryTest(QueryTestBase):
     def testQueryVariantTypeMatch(self):
         result = self.run_query(SingleCaseFilterQuery, {"sv_sub_type": []}, 1)
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testQueryVariantTypeNoMatch(self):
         sv_types = [var_type for var_type, _ in SV_TYPE_CHOICES if not var_type.startswith("DEL")]
@@ -409,7 +409,7 @@ class SvTypeFilterQueryTest(QueryTestBase):
     def testQueryVariantSubTypeMatch(self):
         result = self.run_query(SingleCaseFilterQuery, {"sv_type": []}, 1)
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testQueryVariantSubTypeNoMatch(self):
         sv_sub_types = [
@@ -438,7 +438,7 @@ class SvCohortFrequencyFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailMinAffectedCarriers(self):
         count = self.svs[0].info["affectedCarriers"]
@@ -456,7 +456,7 @@ class SvCohortFrequencyFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailMaxAffectedCarriers(self):
         count = self.svs[0].info["affectedCarriers"]
@@ -474,7 +474,7 @@ class SvCohortFrequencyFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailMinUnaffectedCarriers(self):
         count = self.svs[0].info["unaffectedCarriers"]
@@ -492,7 +492,7 @@ class SvCohortFrequencyFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailMaxUnaffectedCarriers(self):
         count = self.svs[0].info["unaffectedCarriers"]
@@ -510,7 +510,7 @@ class SvCohortFrequencyFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailMinBackgroundCarriers(self):
         count = self.svs[0].info["backgroundCarriers"]
@@ -528,7 +528,7 @@ class SvCohortFrequencyFilterQueryTest(QueryTestBase):
             1,
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailMaxBackgroundCarriers(self):
         count = self.svs[0].info["backgroundCarriers"]
@@ -562,7 +562,7 @@ class SvDatabaseFrequencyFilterQueryTest(QueryTestBase):
             {"gnomad_enabled": True, "gnomad_min_overlap": 0.50, "gnomad_max_carriers": 1},
             1,
         )
-        self.assertEquals(result[0].sv_uuid, self.sv.sv_uuid)
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
 
     def testPassesFrequencyFilterNoOverlap(self):
         result = self.run_query(
@@ -570,7 +570,7 @@ class SvDatabaseFrequencyFilterQueryTest(QueryTestBase):
             {"gnomad_enabled": True, "gnomad_min_overlap": 0.99, "gnomad_max_carriers": 0},
             1,
         )
-        self.assertEquals(result[0].sv_uuid, self.sv.sv_uuid)
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
 
     def testFailsFrequencyFilter(self):
         self.run_query(
@@ -585,7 +585,7 @@ class SvDatabaseFrequencyFilterQueryTest(QueryTestBase):
             {"gnomad_enabled": False, "gnomad_min_overlap": 0.50, "gnomad_max_carriers": 0},
             1,
         )
-        self.assertEquals(result[0].sv_uuid, self.sv.sv_uuid)
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
 
 
 class SvDatabaseFrequencyAnnotationTest(QueryTestBase):
@@ -609,12 +609,12 @@ class SvDatabaseFrequencyAnnotationTest(QueryTestBase):
 
     def testGnomadAnnotationWithOverlap(self):
         result = self.run_query(SingleCaseFilterQuery, {"gnomad_min_overlap": 0.50}, 1)
-        self.assertEquals(result[0].sv_uuid, self.sv.sv_uuid)
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
         self.assertEquals(result[0].gnomad_overlap_count, 1)
 
     def testGnomadAnnotationWithoutOverlap(self):
         result = self.run_query(SingleCaseFilterQuery, {"gnomad_min_overlap": 0.99}, 1)
-        self.assertEquals(result[0].sv_uuid, self.sv.sv_uuid)
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
         self.assertEquals(result[0].gnomad_overlap_count, 0)
 
 
@@ -633,7 +633,7 @@ class RegionFilterQueryTest(QueryTestBase):
         end = self.svs[0].end
         result = self.run_query(SingleCaseFilterQuery, {"genomic_region": [(chrom, start, end)]}, 1)
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testPassRegionsNoChr(self):
         chrom = self.svs[0].chromosome.replace("chr", "")
@@ -641,7 +641,7 @@ class RegionFilterQueryTest(QueryTestBase):
         end = self.svs[0].end
         result = self.run_query(SingleCaseFilterQuery, {"genomic_region": [(chrom, start, end)]}, 1)
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailRegions(self):
         chrom = self.svs[0].chromosome
@@ -668,7 +668,7 @@ class GeneListsFilterQueryTest(QueryTestBase):
     #     result = self.run_query(SingleCaseFilterQuery, {"gene_allowlist": [self.hgnc.symbol]}, 1)
     #     result = list(result)
     #     self.assertEqual(len(result), 1)
-    #     self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+    #     self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailGeneAllowList(self):
         self.run_query(SingleCaseFilterQuery, {"gene_allowlist": [self.hgnc.symbol + "XXX"]}, 0)
@@ -678,7 +678,7 @@ class GeneListsFilterQueryTest(QueryTestBase):
             SingleCaseFilterQuery, {"gene_blocklist": [self.hgnc.symbol + "XXX"]}, 1
         )
         result = list(result)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
 
     def testFailGeneBlockList(self):
         self.run_query(SingleCaseFilterQuery, {"gene_blocklist": [self.hgnc.symbol]}, 0)
@@ -883,7 +883,7 @@ class SvSizeFilterQueryTest(QueryTestBase):
             SingleCaseFilterQuery, {"sv_size_min": self.svs[0].end - self.svs[0].start - 2}, 1
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailMinSize(self):
         self.run_query(
@@ -895,7 +895,7 @@ class SvSizeFilterQueryTest(QueryTestBase):
             SingleCaseFilterQuery, {"sv_size_max": self.svs[0].end - self.svs[0].start + 2}, 1
         )
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailMaxSize(self):
         self.run_query(
@@ -923,7 +923,7 @@ class BndSizeFilterQueryTest(QueryTestBase):
         self.run_query(SingleCaseFilterQuery, {"sv_size_min": 0}, 1)
         result = self.run_query(SingleCaseFilterQuery, {"sv_size_min": 1}, 1)
         result = list(result)
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailAnyMaxSize(self):
         self.run_query(SingleCaseFilterQuery, {"sv_size_max": -1}, 0)
@@ -946,7 +946,7 @@ class SvTranscriptCodingFilterQueryTest(QueryTestBase):
     def testIncludeTranscriptCoding(self):
         result = self.run_query(SingleCaseFilterQuery, {"transcripts_coding": True}, 1)
         result = list(result)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
 
     def testExcludeTranscriptCoding(self):
         self.run_query(SingleCaseFilterQuery, {"transcripts_coding": False}, 0)
@@ -987,7 +987,7 @@ class _VariantEffectTestBase(QueryTestBase):
             },
             1,
         )
-        self.assertEqual(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
     def testFailVariantEffect(self):
         self.run_query(
@@ -1010,7 +1010,7 @@ class _VariantEffectTestBase(QueryTestBase):
             },
             1,
         )
-        self.assertEqual(self.svs[1].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.svs[1].sv_uuid, result[0]["sv_uuid"])
 
     def testFailNoVariantEffect(self):
         self.run_query(
@@ -1051,11 +1051,11 @@ class EnsemblRegulatoryOverlapFilterQueryTest(QueryTestBase):
 
     def testAnyFeaturePasses(self):
         result = self.run_query(SingleCaseFilterQuery, {"regulatory_ensembl": ["any_feature"]}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
 
     def testEnhancerPasses(self):
         result = self.run_query(SingleCaseFilterQuery, {"regulatory_ensembl": ["enhancer"]}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
 
     def testOpenChromatinRegionFails(self):
         self.run_query(SingleCaseFilterQuery, {"regulatory_ensembl": ["open_chromatin_region"]}, 0)
@@ -1077,7 +1077,7 @@ class EnsemblRegulatoryOverlapFilterQueryTest(QueryTestBase):
         self.region.end = self.region.start + 20
         self.region.save()
         result = self.run_query(SingleCaseFilterQuery, {"regulatory_ensembl": []}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(result[0]["ensembl_enhancer_count"], 0)
 
     def testNoOverlapButWithPaddingPasses(self):
@@ -1087,7 +1087,7 @@ class EnsemblRegulatoryOverlapFilterQueryTest(QueryTestBase):
         result = self.run_query(
             SingleCaseFilterQuery, {"regulatory_ensembl": [], "regulatory_general_padding": 11}, 1
         )
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(result[0]["ensembl_enhancer_count"], 1)
 
 
@@ -1110,7 +1110,7 @@ class EnsemblRegulatoryOverlapAnnotationQueryTest(QueryTestBase):
 
     def testOverlap(self):
         result = self.run_query(SingleCaseFilterQuery, {}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(0, result[0].ensembl_CTCF_binding_site_count)
         self.assertEqual(1, result[0].ensembl_enhancer_count)
         self.assertEqual(0, result[0].ensembl_open_chromatin_region_count)
@@ -1125,7 +1125,7 @@ class EnsemblRegulatoryOverlapAnnotationQueryTest(QueryTestBase):
         self.region.end = self.region.start + 20
         self.region.save()
         result = self.run_query(SingleCaseFilterQuery, {}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(0, result[0].ensembl_CTCF_binding_site_count)
         self.assertEqual(0, result[0].ensembl_enhancer_count)
         self.assertEqual(0, result[0].ensembl_open_chromatin_region_count)
@@ -1157,7 +1157,7 @@ class VistaOverlapFilterQueryTest(QueryTestBase):
         self.region.validation_result = "positive"
         self.region.save()
         result = self.run_query(SingleCaseFilterQuery, {"regulatory_vista": ["positive"]}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(1, result[0].vista_positive_count)
         self.assertEqual(0, result[0].vista_negative_count)
 
@@ -1170,7 +1170,7 @@ class VistaOverlapFilterQueryTest(QueryTestBase):
         self.region.validation_result = "negative"
         self.region.save()
         result = self.run_query(SingleCaseFilterQuery, {"regulatory_vista": ["any_validation"]}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(0, result[0].vista_positive_count)
         self.assertEqual(1, result[0].vista_negative_count)
 
@@ -1179,7 +1179,7 @@ class VistaOverlapFilterQueryTest(QueryTestBase):
         self.region.end = self.region.start + 20
         self.region.save()
         result = self.run_query(SingleCaseFilterQuery, {"regulatory_vista": []}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(0, result[0].vista_positive_count)
         self.assertEqual(0, result[0].vista_negative_count)
 
@@ -1190,7 +1190,7 @@ class VistaOverlapFilterQueryTest(QueryTestBase):
         result = self.run_query(
             SingleCaseFilterQuery, {"regulatory_vista": [], "regulatory_general_padding": 11}, 1
         )
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(1, result[0].vista_positive_count)
         self.assertEqual(0, result[0].vista_negative_count)
 
@@ -1220,7 +1220,7 @@ class VistaOverlapAnnotationQueryTest(QueryTestBase):
 
     def testOverlap(self):
         result = self.run_query(SingleCaseFilterQuery, {}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(1, result[0].vista_positive_count)
         self.assertEqual(0, result[0].vista_negative_count)
 
@@ -1229,7 +1229,7 @@ class VistaOverlapAnnotationQueryTest(QueryTestBase):
         self.region.end = self.region.start + 20
         self.region.save()
         result = self.run_query(SingleCaseFilterQuery, {}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(0, result[0].vista_positive_count)
         self.assertEqual(0, result[0].vista_negative_count)
 
@@ -1265,7 +1265,7 @@ class RegMapFilterElementTypeQueryTest(QueryTestBase):
             },
             1,
         )
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(
             1,
             result[0][
@@ -1301,7 +1301,7 @@ class RegMapFilterElementTypeQueryTest(QueryTestBase):
             {self.regmap_key_element: ["__any__"], self.regmap_key_map: ["__any__"],},
             1,
         )
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(
             1,
             result[0][
@@ -1328,7 +1328,7 @@ class RegMapFilterElementTypeQueryTest(QueryTestBase):
         result = self.run_query(
             SingleCaseFilterQuery, {self.regmap_key_element: [], self.regmap_key_map: [],}, 1
         )
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(
             0,
             result[0][
@@ -1361,7 +1361,7 @@ class RegMapFilterElementTypeQueryTest(QueryTestBase):
             },
             1,
         )
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(
             1,
             result[0][
@@ -1415,7 +1415,7 @@ class RegMapOverlapAnnotationElementTypeQueryTest(QueryTestBase):
 
     def testOverlap(self):
         result = self.run_query(SingleCaseFilterQuery, {self.regmap_key: []}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(
             1,
             result[0][
@@ -1440,7 +1440,7 @@ class RegMapOverlapAnnotationElementTypeQueryTest(QueryTestBase):
         self.element.end = self.element.start + 20
         self.element.save()
         result = self.run_query(SingleCaseFilterQuery, {self.regmap_key: []}, 1)
-        self.assertEqual(self.sv.sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(
             0,
             result[0][

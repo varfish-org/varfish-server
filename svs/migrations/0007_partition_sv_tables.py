@@ -78,11 +78,11 @@ operations = [
             ),
             (
                 "info",
-                django.contrib.postgres.fields.jsonb.JSONField(
+                models.JSONField(
                     default={}, help_text="Further information of the structural variant"
                 ),
             ),
-            ("genotype", django.contrib.postgres.fields.jsonb.JSONField()),
+            ("genotype", models.JSONField()),
         ],
         options={"db_table": "svs_structuralvariant", "managed": settings.IS_TESTING},
     ),

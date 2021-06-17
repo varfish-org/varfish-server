@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 import django.contrib.postgres.fields
-import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 
 
@@ -32,7 +31,7 @@ class Migration(migrations.Migration):
                 ("bin", models.IntegerField()),
                 ("reference", models.CharField(max_length=512)),
                 ("alternative", models.CharField(max_length=512)),
-                ("info", django.contrib.postgres.fields.jsonb.JSONField()),
+                ("info", models.JSONField()),
                 (
                     "scores",
                     django.contrib.postgres.fields.ArrayField(

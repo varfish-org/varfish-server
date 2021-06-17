@@ -32,8 +32,8 @@
             of <a href="{{ case.project.get_absolute_url }}">{{ case.project.title }}</a></li>
         {% endfor %}
       </ul>
-      <a class="btn btn-secondary" href="{% url 'cohorts:list' project=project.sodar_uuid %}"><i class="fa fa-arrow-circle-left"></i> Cancel</a>
-      <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Confirm</button>
+      <a class="btn btn-secondary" href="{% url 'cohorts:list' project=project.sodar_uuid %}"><i class="iconify" data-icon="mdi:arrow-left-circle"></i> Cancel</a>
+      <button type="submit" class="btn btn-danger"><i class="iconify" data-icon="mdi:trash-can"></i> Confirm</button>
     </form>
   </div>
 {% endblock %}

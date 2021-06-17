@@ -1,7 +1,7 @@
 <div class="ml-auto">
   {% if kiosk_mode %}
     <a class="btn btn-secondary" href="{% url "variants:case-filter" project=project.sodar_uuid case=object.case.sodar_uuid %}">
-      <i class="fa fa-arrow-circle-left"></i>
+      <i class="iconify" data-icon="mdi:arrow-left-circle"></i>
       Back to Filter
     </a>
   {% endif %}

@@ -7,6 +7,7 @@ from datetime import timedelta
 from tempfile import NamedTemporaryFile
 import contextlib
 
+from variants.helpers import get_engine
 from django.utils import timezone
 from django.conf import settings
 import vcfpy
@@ -34,7 +35,6 @@ from .queries import (
     ProjectExportTableQuery,
     ProjectExportVcfQuery,
 )
-from variants.helpers import SQLALCHEMY_ENGINE
 
 #: Color to use for variants flagged as positive.
 BG_COLOR_POSITIVE = "#dc3848"
@@ -266,7 +266,7 @@ class CaseExporterBase:
 
     def get_alchemy_engine(self):
         if not self._alchemy_engine:
-            self._alchemy_engine = SQLALCHEMY_ENGINE
+            self._alchemy_engine = get_engine()
         return self._alchemy_engine
 
     def _is_prioritization_enabled(self):

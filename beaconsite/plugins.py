@@ -17,7 +17,7 @@ class SiteAppPlugin(SiteAppPluginPoint):
     urls = urlpatterns
 
     #: FontAwesome icon ID string
-    icon = "share-alt"
+    icon = "mdi:lighthouse"
 
     #: Description string
     description = "Connecting sites with GAGH Beacon API"

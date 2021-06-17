@@ -11,11 +11,9 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - 3.6
-# need sodar_core ugprade for support beyond 3.7 (celery dependency)
-#         - 3.7
-#         - 3.8
-#         - 3.9
+          - 3.7
+          - 3.8
+          - 3.9
     services:
       redis:
         image: redis:latest
@@ -56,16 +54,17 @@ jobs:
         uses: actions/checkout@v2
       - name: install project Python dependencies
         run: |
-          pip install wheel==0.34.2
+          pip install wheel==0.36.2
           pip install -r requirements/local.txt
           pip install -r requirements/test.txt
           pip install -U 'celery >4.2'
           pip freeze
-      - name: make sure all npm stuff is there
+      - name: Build and run Vue app
         run: |
           npm ci --prefix varfish/vueapp
-          # Temporary HACK, should not actually do this
           nohup npm run -prefix varfish/vueapp serve &
+      - name: download icons
+        run: python manage.py geticons
       - name: run collectstatic
         run: python manage.py collectstatic --noinput
       - name: run tests

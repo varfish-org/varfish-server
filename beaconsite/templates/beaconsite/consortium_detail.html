@@ -12,22 +12,22 @@
 
   <div class="row sodar-subtitle-container">
     <h2>
-      <i class="fa fa-handshake-o"></i>
+      <span class="iconify" data-icon="mdi:account-group" data-inline="false"></span>
       Consortium
     </h2>
     <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
       <a class="btn btn-secondary" href="{% url 'beaconsite:consortium-list' %}">
-        <i class="fa fa-arrow-circle-left"></i> Back
+        <i class="iconify" data-icon="mdi:arrow-left-circle"></i> Back
       </a>
   {#    {% if can_update_data %}#}
         <a class="btn btn-primary" href="{% url 'beaconsite:consortium-update' consortium=object.sodar_uuid %}">
-          <i class="fa fa-pencil"></i>
+          <i class="iconify" data-icon="mdi:pencil"></i>
           Update
         </a>
   {#    {% endif %}#}
   {#    {% if can_delete_data %}#}
         <a class="btn btn-danger" href="{% url 'beaconsite:consortium-delete' consortium=object.sodar_uuid %}">
-          <i class="fa fa-eraser"></i>
+          <i class="iconify" data-icon="mdi:eraser" data-inline="false"></i>
           Remove
         </a>
   {#    {% endif %}#}
