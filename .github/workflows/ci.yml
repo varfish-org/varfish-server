@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     name: build
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version:
@@ -60,6 +60,7 @@ jobs:
           pip install -r requirements/local.txt
           pip install -r requirements/test.txt
           pip install -U 'celery >4.2'
+          pip freeze
       - name: make sure all npm stuff is there
         run: |
           npm ci --prefix varfish/vueapp

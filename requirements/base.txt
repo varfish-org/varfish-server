@@ -23,7 +23,8 @@ django-model-utils>=3.2.0, <3.3
 argon2-cffi>=20.1.0, <20.2
 
 # Python-PostgreSQL Database Adapter
-psycopg2-binary>=2.8.4, <2.9
+psycopg2-binary==2.8.6
+psycopg2==2.8.6
 
 # Unicode slugification
 awesome-slugify>=1.6.5, <1.7
