@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import encrypted_model_fields.fields
+import cryptographic_fields.fields
 import uuid
 
 
@@ -300,7 +300,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "private_key",
-                    encrypted_model_fields.fields.EncryptedTextField(
+                    cryptographic_fields.fields.EncryptedTextField(
                         help_text="(Private) key for (a)symmetric encryption."
                     ),
                 ),

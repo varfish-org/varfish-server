@@ -13,6 +13,7 @@ import numpy as np
 import requests
 from base64 import b64encode
 
+from variants.helpers import get_engine
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.humanize.templatetags.humanize import naturaltime
@@ -24,7 +25,15 @@ from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.utils import timezone
-from django.views.generic import DetailView, FormView, ListView, View, RedirectView, UpdateView
+from django.views.generic import (
+    DetailView,
+    FormView,
+    ListView,
+    View,
+    RedirectView,
+    UpdateView,
+    TemplateView,
+)
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
 import xlsxwriter
 
@@ -146,7 +155,6 @@ from .tasks import (
     spanr_submission_task,
 )
 from .file_export import RowWithSampleProxy
-from variants.helpers import SQLALCHEMY_ENGINE
 from .templatetags.variants_tags import get_term_description
 
 
@@ -180,7 +188,7 @@ class AlchemyEngineMixin:
 
     def get_alchemy_engine(self):
         if not self._alchemy_engine:
-            self._alchemy_engine = SQLALCHEMY_ENGINE
+            self._alchemy_engine = get_engine()
         return self._alchemy_engine
 
 
@@ -863,7 +871,7 @@ def get_annotations_by_variant(case=None, cases=None, project=None):
     The result is a dict.  First level of keys is case SODAR UUID, second is variant description, then
     "variants", "flags", "comments", "acmg_rating".
     """
-    annotated_small_vars = SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE).run(
+    annotated_small_vars = SmallVariantUserAnnotationQuery(get_engine()).run(
         case=case, cases=cases, project=project
     )
 
@@ -1544,7 +1552,6 @@ class BaseDownloadAnnotationsView(
             c.sodar_uuid: c.name for c in Case.objects.filter(sodar_uuid__in=res.keys())
         }
 
-        # import pdb; pdb.set_trace()
         for case_uuid, annos in res.items():
             for anno in annos.values():
                 comments = [
@@ -1666,7 +1673,7 @@ class SmallVariantsDeleteView(
                 status_type="OK",
             )
             tl_event.add_object(obj=case, label="case", name=case.name)
-        for query in DeleteSmallVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id):
+        for query in DeleteSmallVariantsQuery(get_engine()).run(case_id=case.id):
             with contextlib.closing(query):
                 pass
         update_variant_counts(case)
@@ -1719,7 +1726,7 @@ class StructuralVariantsDeleteView(
                 status_type="OK",
             )
             tl_event.add_object(obj=case, label="case", name=case.name)
-        for query in DeleteStructuralVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id):
+        for query in DeleteStructuralVariantsQuery(get_engine()).run(case_id=case.id):
             with contextlib.closing(query):
                 pass
         update_variant_counts(case)
@@ -2235,6 +2242,9 @@ class CasePrefetchFilterView(
     slug_field = "sodar_uuid"
     query_type = "case"
 
+    def get(self, *args, **kwargs):
+        return self.post(*args, **kwargs)
+
     def post(self, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
 
@@ -2296,10 +2306,13 @@ class FilterJobGetStatus(
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
 
+    def get(self, *args, **kwargs):
+        return self.post(*args, **kwargs)
+
     def post(self, *args, **kwargs):
         try:
             filter_job = FilterBgJob.objects.select_related("bg_job").get(
-                sodar_uuid=self.request.POST["filter_job_uuid"]
+                sodar_uuid=self.request.GET.get("filter_job_uuid")
             )
             log_entries = reversed(filter_job.bg_job.log_entries.all().order_by("-date_created"))
             return JsonResponse(
@@ -2315,14 +2328,14 @@ class FilterJobGetStatus(
             return JsonResponse(
                 {
                     "error": "No filter job with UUID {}".format(
-                        self.request.POST["filter_job_uuid"]
+                        self.request.GET.get("filter_job_uuid")
                     )
                 },
                 status=400,
             )
         except ValidationError:
             return JsonResponse(
-                {"error": "No valid UUID {}".format(self.request.POST["filter_job_uuid"])},
+                {"error": "No valid UUID {}".format(self.request.GET.get("filter_job_uuid"))},
                 status=400,
             )
 
@@ -2343,6 +2356,9 @@ class FilterJobGetPrevious(
     permission_required = "variants.view_data"
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
+
+    def post(self, *args, **kwargs):
+        return self.get(*args, **kwargs)
 
     def get(self, *args, **kwargs):
         user = self.request.user
@@ -2366,7 +2382,7 @@ class CaseLoadPrefetchedFilterView(
     ProjectPermissionMixin,
     ProjectContextMixin,
     AlchemyEngineMixin,
-    View,
+    TemplateView,
 ):
     """View for displaying filter results.
 
@@ -2380,11 +2396,16 @@ class CaseLoadPrefetchedFilterView(
     query_type = "case"
 
     def post(self, *args, **kwargs):
+        return self.get(*args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
+        result = super().get_context_data()
+
         # TODO: properly test prioritization
         # TODO: refactor, cleanup, break apart
         # Fetch filter job to display.
-        filter_job = FilterBgJob.objects.get(sodar_uuid=self.request.POST["filter_job_uuid"])
+        filter_job = FilterBgJob.objects.get(sodar_uuid=self.request.GET["filter_job_uuid"])
         variant_set = filter_job.case.latest_variant_set
         if not variant_set:
             return HttpResponse(
@@ -2409,7 +2430,7 @@ class CaseLoadPrefetchedFilterView(
         before = timezone.now()
         # Get and run query
         query = CaseLoadPrefetchedQuery(
-            filter_job.smallvariantquery.case, SQLALCHEMY_ENGINE, filter_job.smallvariantquery.id
+            filter_job.smallvariantquery.case, get_engine(), filter_job.smallvariantquery.id
         )
         with contextlib.closing(query.run(filter_job.smallvariantquery.query_settings)) as results:
             num_results = results.rowcount
@@ -2473,63 +2494,69 @@ class CaseLoadPrefetchedFilterView(
         if settings.KIOSK_MODE:
             user = User.objects.get(username="kiosk_user")
 
-        return render(
-            self.request,
-            self.template_name,
-            self.get_context_data(
-                user=user,
-                case=filter_job.smallvariantquery.case,
-                result_rows=rows,
-                result_count=num_results,
-                elapsed_seconds=elapsed.total_seconds(),
-                database=filter_job.smallvariantquery.query_settings.get(
+        result.update(
+            {
+                "user": user,
+                "case": filter_job.smallvariantquery.case,
+                "result_rows": rows,
+                "result_count": num_results,
+                "elapsed_seconds": elapsed.total_seconds(),
+                "database": filter_job.smallvariantquery.query_settings.get(
                     "database_select", "refseq"
                 ),
-                pedigree=pedigree,
-                hpoterms=hpoterms,
-                compound_recessive_index=filter_job.smallvariantquery.query_settings.get(
+                "pedigree": pedigree,
+                "hpoterms": hpoterms,
+                "compound_recessive_index": filter_job.smallvariantquery.query_settings.get(
                     "compound_recessive_index", ""
                 ),
-                prio_enabled=filter_job.smallvariantquery.query_settings.get("prio_enabled", False),
-                gene_allowlist=filter_job.smallvariantquery.query_settings.get(
+                "prio_enabled": filter_job.smallvariantquery.query_settings.get(
+                    "prio_enabled", False
+                ),
+                "gene_allowlist": filter_job.smallvariantquery.query_settings.get(
                     "gene_allowlist", []
                 ),
-                gene_blocklist=filter_job.smallvariantquery.query_settings.get(
+                "gene_blocklist": filter_job.smallvariantquery.query_settings.get(
                     "gene_blocklist", []
                 ),
-                genomic_region=filter_job.smallvariantquery.query_settings.get(
+                "genomic_region": filter_job.smallvariantquery.query_settings.get(
                     "genomic_region", []
                 ),
-                training_mode=1
+                "training_mode": 1
                 if filter_job.smallvariantquery.query_settings.get("training_mode", False)
                 else 0,
-                query_type=self.query_type,
-                has_phenotype_scores=bool(gene_scores),
-                has_pathogenicity_scores=bool(variant_scores),
-                patho_enabled=filter_job.smallvariantquery.query_settings.get(
+                "query_type": self.query_type,
+                "has_phenotype_scores": bool(gene_scores),
+                "has_pathogenicity_scores": bool(variant_scores),
+                "patho_enabled": filter_job.smallvariantquery.query_settings.get(
                     "patho_enabled", False
                 ),
-                patho_score=filter_job.smallvariantquery.query_settings.get("patho_score", False),
-                exac_enabled=filter_job.smallvariantquery.query_settings.get("exac_enabled", False),
-                thousand_genomes_enabled=filter_job.smallvariantquery.query_settings.get(
+                "patho_score": filter_job.smallvariantquery.query_settings.get(
+                    "patho_score", False
+                ),
+                "exac_enabled": filter_job.smallvariantquery.query_settings.get(
+                    "exac_enabled", False
+                ),
+                "thousand_genomes_enabled": filter_job.smallvariantquery.query_settings.get(
                     "thousand_genomes_enabled", False
                 ),
-                gnomad_genomes_enabled=filter_job.smallvariantquery.query_settings.get(
+                "gnomad_genomes_enabled": filter_job.smallvariantquery.query_settings.get(
                     "gnomad_genomes_enabled", False
                 ),
-                gnomad_exomes_enabled=filter_job.smallvariantquery.query_settings.get(
+                "gnomad_exomes_enabled": filter_job.smallvariantquery.query_settings.get(
                     "gnomad_exomes_enabled", False
                 ),
-                inhouse_enabled=filter_job.smallvariantquery.query_settings.get(
+                "inhouse_enabled": filter_job.smallvariantquery.query_settings.get(
                     "inhouse_enabled", False
                 ),
-                card_colspan=card_colspan,
-                logs=[
+                "card_colspan": card_colspan,
+                "logs": [
                     "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
                     for e in filter_job.bg_job.log_entries.all().order_by("date_created")
                 ],
-            ),
+            },
         )
+
+        return result
 
 
 class ProjectCasesLoadPrefetchedFilterView(
@@ -2551,11 +2578,11 @@ class ProjectCasesLoadPrefetchedFilterView(
     slug_field = "sodar_uuid"
     query_type = "project"
 
-    def post(self, *args, **kwargs):
+    def get(self, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
 
         filter_job = ProjectCasesFilterBgJob.objects.get(
-            sodar_uuid=self.request.POST["filter_job_uuid"]
+            sodar_uuid=self.request.GET["filter_job_uuid"]
         )
 
         # Take time while job is running
@@ -2564,7 +2591,7 @@ class ProjectCasesLoadPrefetchedFilterView(
         # Get and run query
         query = ProjectLoadPrefetchedQuery(
             cohort or filter_job.projectcasessmallvariantquery.project,
-            SQLALCHEMY_ENGINE,
+            get_engine(),
             filter_job.projectcasessmallvariantquery.id,
             user=self.request.user,
         )
@@ -2848,6 +2875,9 @@ class ProjectCasesPrefetchFilterView(
     query_type = "project"
 
     def post(self, *args, **kwargs):
+        return self.get(*args, **kwargs)
+
+    def get(self, *args, **kwargs):
         """process the post request. important: data is not cleaned automatically, we must initiate it here."""
 
         user = self.request.user
@@ -2914,10 +2944,10 @@ class ProjectCasesFilterJobGetStatus(
     slug_url_kwarg = "case"
     slug_field = "sodar_uuid"
 
-    def post(self, *args, **kwargs):
+    def get(self, *args, **kwargs):
         try:
             filter_job = ProjectCasesFilterBgJob.objects.select_related("bg_job").get(
-                sodar_uuid=self.request.POST["filter_job_uuid"]
+                sodar_uuid=self.request.GET["filter_job_uuid"]
             )
             log_entries = reversed(filter_job.bg_job.log_entries.all().order_by("-date_created"))
             return JsonResponse(
@@ -2931,16 +2961,12 @@ class ProjectCasesFilterJobGetStatus(
             )
         except ObjectDoesNotExist:
             return JsonResponse(
-                {
-                    "error": "No filter job with UUID {}".format(
-                        self.request.POST["filter_job_uuid"]
-                    )
-                },
+                {"error": "No filter job with UUID {}".format(self.request.GET["filter_job_uuid"])},
                 status=400,
             )
         except ValidationError:
             return JsonResponse(
-                {"error": "No valid UUID {}".format(self.request.POST["filter_job_uuid"])},
+                {"error": "No valid UUID {}".format(self.request.GET["filter_job_uuid"])},
                 status=400,
             )
 

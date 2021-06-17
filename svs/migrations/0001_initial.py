@@ -91,11 +91,11 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "info",
-                    django.contrib.postgres.fields.jsonb.JSONField(
+                    models.JSONField(
                         default={}, help_text="Further information of the structural variant"
                     ),
                 ),
-                ("genotype", django.contrib.postgres.fields.jsonb.JSONField()),
+                ("genotype", models.JSONField()),
             ],
         ),
         migrations.CreateModel(

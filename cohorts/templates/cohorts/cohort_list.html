@@ -20,11 +20,11 @@
     </h2>
     <div class="ml-auto btn-group">
         <a class="btn btn-secondary" href="{% url 'projectroles:detail' project=project.sodar_uuid %}">
-          <i class="fa fa-arrow-circle-left"></i>
+          <i class="iconify" data-icon="mdi:arrow-left-circle"></i>
           Back to Project
         </a>
         <a class="btn btn-primary" href="{% url "cohorts:create" project=project.sodar_uuid %}">
-          <i class="fa fa-plus-circle"></i>
+          <i class="iconify" data-icon="mdi:plus-circle"></i>
           New Cohort
       </a>
     </div>
@@ -32,7 +32,7 @@
 
   <div class="container-fluid sodar-page-container pt-3">
     <div class="alert alert-secondary small p-2">
-      <i class="fa fa-info-circle"></i>
+      <i class="iconify" data-icon="mdi:information"></i>
       Here you can assemble cohorts with samples from different projects.
     </div>
   </div>
@@ -40,7 +40,7 @@
   {# Cohort list #}
   <div id="varfish-va-case-list" class="card mb-3 varfish-case-list-card">
     <h4 class="card-header">
-      <i class="fa fa-shopping-basket"></i>
+      <i class="iconify" data-icon="mdi:basket"></i>
       Cohort List
       <div class="input-group col-4 pr-0 pull-right">
         <input class="form-control varfish-case-filter" type="text" placeholder="Filter" aria-label="Filter Cases">
@@ -99,13 +99,13 @@
                 <td>
                   <span class="btn btn-group">
                     {% if item.user == user or user.is_superuser %}
-                      <a href="{% url 'cohorts:delete' project=project.sodar_uuid cohort=item.sodar_uuid %}" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></a>
-                      <a href="{% url 'cohorts:update' project=project.sodar_uuid cohort=item.sodar_uuid %}" class="btn btn-sm btn-secondary"><i class="fa fa-pencil"></i></a>
+                      <a href="{% url 'cohorts:delete' project=project.sodar_uuid cohort=item.sodar_uuid %}" class="btn btn-sm btn-danger"><i class="iconify" data-icon="mdi:trash-can"></i></a>
+                      <a href="{% url 'cohorts:update' project=project.sodar_uuid cohort=item.sodar_uuid %}" class="btn btn-sm btn-secondary"><i class="iconify" data-icon="mdi:pencil"></i></a>
                     {% else %}
-                      <span class="btn btn-sm btn-danger disabled"><i class="fa fa-trash"></i></span>
-                      <span class="btn btn-sm btn-secondary disabled"><i class="fa fa-pencil"></i></span>
+                      <span class="btn btn-sm btn-danger disabled"><i class="iconify" data-icon="mdi:trash-can"></i></span>
+                      <span class="btn btn-sm btn-secondary disabled"><i class="iconify" data-icon="mdi:pencil"></i></span>
                     {% endif %}
-                    <a href="{% url 'variants:project-cases-filter-cohort' project=project.sodar_uuid cohort=item.sodar_uuid %}" class="btn btn-sm btn-primary"><i class="fa fa-filter"></i></a>
+                    <a href="{% url 'variants:project-cases-filter-cohort' project=project.sodar_uuid cohort=item.sodar_uuid %}" class="btn btn-sm btn-primary"><i class="iconify" data-icon="mdi:filter"></i></a>
                   </span>
                 </td>
               </tr>

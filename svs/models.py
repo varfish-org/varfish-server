@@ -1,13 +1,14 @@
 import uuid as uuid_object
 from datetime import datetime, timedelta
 
-import aldjemy
+from varfish.utils import JSONField
+from variants.helpers import get_engine
 from bgjobs.models import BackgroundJob, JobModelMessageMixin
 from postgres_copy import CopyManager
 
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField, JSONField
-from django.core.urlresolvers import reverse
+from django.contrib.postgres.fields import ArrayField
+from django.urls import reverse
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -17,8 +18,7 @@ from projectroles.plugins import get_backend_api
 from sqlalchemy import and_
 
 from variants.models import Case, VARIANT_RATING_CHOICES, VariantImporterBase
-from variants.helpers import SQLALCHEMY_ENGINE
-
+from variants.helpers import get_meta
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
@@ -118,7 +118,9 @@ class StructuralVariantSet(models.Model):
     date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
 
     #: The case that the variants are for.
-    case = models.ForeignKey(Case, null=False, help_text="The case that this set is for")
+    case = models.ForeignKey(
+        Case, on_delete=models.CASCADE, null=False, help_text="The case that this set is for"
+    )
     #: The state of the variant set.
     state = models.CharField(
         max_length=16,
@@ -185,7 +187,7 @@ class StructuralVariant(models.Model):
     #: - src -- split read coverage
     #: - srv -- split read variants
     #: - ft  -- array of filter strings
-    info = JSONField(default={}, help_text="Further information of the structural variant")
+    info = JSONField(default=dict, help_text="Further information of the structural variant")
     #: Genotype calls and genotype-related information
     genotype = JSONField()
 
@@ -230,7 +232,7 @@ class StructuralVariantGeneAnnotation(models.Model):
     #: RefSeq transcript ID
     refseq_transcript_id = models.CharField(max_length=16, null=True)
     #: Flag RefSeq transcript coding
-    refseq_transcript_coding = models.NullBooleanField()
+    refseq_transcript_coding = models.BooleanField(null=True)
     #: RefSeq variant effect list
     refseq_effect = ArrayField(models.CharField(max_length=64), null=True)
     #: EnsEMBL gene ID
@@ -238,7 +240,7 @@ class StructuralVariantGeneAnnotation(models.Model):
     #: EnsEMBL transcript ID
     ensembl_transcript_id = models.CharField(max_length=32, null=True)
     #: Flag EnsEMBL transcript coding
-    ensembl_transcript_coding = models.NullBooleanField()
+    ensembl_transcript_coding = models.BooleanField(null=True)
     #: EnsEMBL variant effect list
     ensembl_effect = ArrayField(models.CharField(max_length=64, null=True))
 
@@ -325,6 +327,7 @@ class StructuralVariantComment(_UserAnnotation):
     #: The related case.
     case = models.ForeignKey(
         Case,
+        on_delete=models.CASCADE,
         null=False,
         related_name="structural_variant_comments",
         help_text="Case that this SV is commented on",
@@ -354,6 +357,7 @@ class StructuralVariantFlags(_UserAnnotation):
     #: The related case.
     case = models.ForeignKey(
         Case,
+        on_delete=models.CASCADE,
         null=False,
         related_name="structural_variant_flags",
         help_text="Case that this SV is flagged in",
@@ -448,11 +452,14 @@ class ImportStructuralVariantBgJob(JobModelMessageMixin, models.Model):
     #: UUID of the job
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
     #: The project that the job belongs to.
-    project = models.ForeignKey(Project, help_text="Project that is imported to")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project that is imported to"
+    )
 
     #: The background job that is specialized.
     bg_job = models.ForeignKey(
         BackgroundJob,
+        on_delete=models.CASCADE,
         null=False,
         related_name="%(app_label)s_%(class)s_related",
         help_text="Background job for state etc.",
@@ -510,9 +517,9 @@ class SvAnnotationReleaseInfo(models.Model):
     #: Data release
     release = models.CharField(max_length=512)
     #: Link to case
-    case = models.ForeignKey(Case)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE,)
     #: Link to variant set
-    variant_set = models.ForeignKey(StructuralVariantSet)
+    variant_set = models.ForeignKey(StructuralVariantSet, on_delete=models.CASCADE,)
 
     class Meta:
         unique_together = ("genomebuild", "table", "variant_set")
@@ -553,8 +560,8 @@ def cleanup_variant_sets(min_age_hours=12):
     table_names = ("svs_structuralvariant", "svs_structuralvariantgeneannotation")
     for variant_set in variant_sets:
         for table_name in table_names:
-            table = aldjemy.core.get_meta().tables[table_name]
-            SQLALCHEMY_ENGINE.execute(
+            table = get_meta().tables[table_name]
+            get_engine().execute(
                 table.delete().where(
                     and_(table.c.set_id == variant_set.id, table.c.case_id == variant_set.case.id)
                 )

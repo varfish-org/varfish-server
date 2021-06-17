@@ -21,7 +21,7 @@
         {{ row.item.date_modified }}
         <b-button-group class="float-right mr-1">
           <b-button size="sm" variant="primary" @click="editSubmissionSet(row.item.sodar_uuid)">
-            <i class="fa fa-pencil"></i>
+            <i class="iconify" data-icon="mdi:pencil"></i>
             Edit
           </b-button>
           <b-button size="sm" variant="secondary" @click="onXmlPreviewClicked(row.item.sodar_uuid)">
@@ -34,7 +34,7 @@
 
     <template #footer>
       <b-button variant="primary" size="sm" class="float-right" @click="createNewSubmissionSet()">
-        <i class="fa fa-plus"></i>
+        <span class="iconify" data-icon="mdi:plus-circle" data-inline="false"></span>
         Create Set
       </b-button>
     </template>
@@ -79,11 +79,11 @@
               XSD check: running
             </div>
             <div v-if="xmlValidationState == 'valid'" class="text-success">
-              <i class="fa fa-check"></i>
+              <span class="iconify" data-icon="mdi:check-bold" data-inline="false"></span>
               XSD check: valid
             </div>
             <div v-if="xmlValidationState == 'invalid'" class="text-danger">
-              <i class="fa fa-times"></i>
+              <span class="iconify" data-icon="mdi:close" data-inline="false"></span>
               XSD check: invalid
             </div>
           </div>
@@ -94,7 +94,7 @@
               Download
             </b-button>
             <b-button variant="secondary" size="sm" @click="onXmlHideClicked()">
-              <i class="fa fa-times"></i>
+              <span class="iconify" data-icon="mdi:close" data-inline="false"></span>
               Close
             </b-button>
           </b-button-group>

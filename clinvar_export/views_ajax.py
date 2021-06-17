@@ -25,7 +25,7 @@ from rest_framework.generics import (
     ListAPIView,
 )
 from rest_framework.response import Response
-from variants.helpers import SQLALCHEMY_ENGINE
+from variants.helpers import get_engine
 
 from geneinfo.models import Hpo, HpoName
 from variants.queries import SmallVariantUserAnnotationQuery
@@ -426,6 +426,6 @@ class AnnotatedSmallVariantsApiView(
 
     def get(self, *_args, **_kwargs):
         serializer = AnnotatedSmallVariantsSerializer(
-            SmallVariantUserAnnotationQuery(SQLALCHEMY_ENGINE).run(project=self.get_project())
+            SmallVariantUserAnnotationQuery(get_engine()).run(project=self.get_project())
         )
         return Response(serializer.data)

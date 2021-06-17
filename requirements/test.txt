@@ -1,36 +1,26 @@
 # Test dependencies go here.
 -r base.txt
 
-flake8==3.8.4
-django-test-plus==1.4.0
-factory-boy==3.2.0
-coverage==5.3.1
-django-coverage-plugin==1.8.0
-
-# pytest
-pytest-django==3.10.0
-pytest-sugar==0.9.4
-
-# Code formatting and format checking.
-black
+flake8 >=3.8.4, <3.9
+django-test-plus >=1.4.0, <1.5
+factory-boy >=3.2.0, <3.3
+coverage >=5.4, <5.5
+django-coverage-plugin >=1.8.0, <1.9
 
 # Reading of XLSX files for tests
-openpyxl ==2.5.9
+openpyxl >=3.0.7, <3.1
 
 # Selenium UI tests
-selenium==3.141.0
+selenium >=3.141.0, <3.142
 
 # Tblib for tracebacks
-tblib==1.7.0
+tblib >=1.7.0, <1.8
 
 # Mock tests
-requests-mock
+requests-mock >=1.9.3, <1.10
 
 # Parameterize tests
-parameterized
-
-# Classes with less boilerplate code.
-attr
+parameterized >=0.8.1, <0.9
 
 # Comparison of JSON objects.
-jsonmatch
+jsonmatch >=0.4, <0.5

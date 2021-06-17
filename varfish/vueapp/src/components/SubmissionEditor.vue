@@ -26,7 +26,7 @@ e<template>
             variant="danger"
             @click="deleteCurrentSubmission()"
         >
-          <i class="fa fa-times"></i>
+          <span class="iconify" data-icon="mdi:close" data-inline="false"></span>
           remove from submission
         </b-button>
       </b-button-group>

@@ -4,7 +4,7 @@ import itertools
 import json
 
 import requests_mock
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from projectroles.constants import SODAR_CONSTANTS
 from projectroles.templatetags.projectroles_common_tags import site_version
 from projectroles.tests.test_models import RoleAssignmentMixin, PROJECT_ROLE_OWNER
@@ -13,6 +13,7 @@ from requests_mock import Mocker
 from unittest.mock import patch
 from django.conf import settings
 
+from variants.helpers import get_engine
 from projectroles.models import Project, Role
 from projectroles.app_settings import AppSettingAPI
 from clinvar.tests.factories import ClinvarFactory
@@ -91,7 +92,6 @@ from variants.tests.helpers import ViewTestBase
 from variants.tests.test_sync_upstream import load_isa_tab
 from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
 from geneinfo.models import HpoName, Hgnc, RefseqToHgnc
-from variants.helpers import SQLALCHEMY_ENGINE
 
 
 # TODO: This base class is still used by geneinfo view tests.
@@ -120,7 +120,7 @@ class TestCaseListView(ViewTestBase):
 
     def test_render_with_variant_stats(self):
         """Test display of case list page."""
-        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.variant_set)
+        rebuild_case_variant_stats(get_engine(), self.variant_set)
         with self.login(self.user):
             response = self.client.get(
                 reverse("variants:case-list", kwargs={"project": self.case.project.sodar_uuid})
@@ -138,7 +138,7 @@ class TestCaseListView(ViewTestBase):
 
     def test_render_caseless_project_with_variant_stats(self):
         project = self.case.project.sodar_uuid
-        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.variant_set)
+        rebuild_case_variant_stats(get_engine(), self.variant_set)
         self.case.delete()
         with self.login(self.user):
             response = self.client.get(reverse("variants:case-list", kwargs={"project": project}))
@@ -173,8 +173,8 @@ class TestCaseListQcStatsApiView(ViewTestBase):
 
     def test_render_with_variant_stats(self):
         """Test display of case list page."""
-        rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.variant_set)
-        rebuild_project_variant_stats(SQLALCHEMY_ENGINE, self.case.project, self.user)
+        rebuild_case_variant_stats(get_engine(), self.variant_set)
+        rebuild_project_variant_stats(get_engine(), self.case.project, self.user)
         with self.login(self.user):
             response = self.client.get(
                 reverse("variants:api-project-qc", kwargs={"project": self.case.project.sodar_uuid})
@@ -214,7 +214,7 @@ class TestCaseDetailView(ViewTestBase):
     def test_render_with_variant_stats(self):
         """Test display of case detail view page."""
         with self.login(self.user):
-            rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.variant_set)
+            rebuild_case_variant_stats(get_engine(), self.variant_set)
             response = self.client.get(
                 reverse(
                     "variants:case-detail",
@@ -695,7 +695,7 @@ class TestCaseDetailQcStatsApiView(ViewTestBase):
     def test_render_with_variant_stats(self):
         """Test fetching information through API if there are variant stats."""
         with self.login(self.user):
-            rebuild_case_variant_stats(SQLALCHEMY_ENGINE, self.variant_set)
+            rebuild_case_variant_stats(get_engine(), self.variant_set)
             response = self.client.get(
                 reverse(
                     "variants:api-case-qc",
@@ -1063,7 +1063,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
 
     def test_count_results(self):
         with self.login(self.user):
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:case-load-filter-results",
                     kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
@@ -1085,7 +1085,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
 
     def test_clinvar(self):
         with self.login(self.user):
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:case-load-filter-results",
                     kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
@@ -1098,7 +1098,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
         with self.login(self.user):
             self.bgjob.smallvariantquery.query_settings["training_mode"] = True
             self.bgjob.smallvariantquery.save()
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:case-load-filter-results",
                     kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
@@ -1178,7 +1178,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                     )
                 ),
             )
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:case-load-filter-results",
                     kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
@@ -1310,7 +1310,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                     )
                 ),
             )
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:case-load-filter-results",
                     kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
@@ -1427,7 +1427,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                     )
                 ),
             )
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:case-load-filter-results",
                     kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
@@ -1529,7 +1529,7 @@ class TestFilterJobGetStatus(ViewTestBase):
 
     def test_getting_status_valid_uuid(self):
         with self.login(self.user):
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:filter-job-status", kwargs={"project": self.bgjob.project.sodar_uuid}
                 ),
@@ -1540,7 +1540,7 @@ class TestFilterJobGetStatus(ViewTestBase):
 
     def test_getting_status_invalid_uuid(self):
         with self.login(self.user):
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:filter-job-status", kwargs={"project": self.bgjob.project.sodar_uuid}
                 ),
@@ -1551,11 +1551,11 @@ class TestFilterJobGetStatus(ViewTestBase):
 
     def test_getting_status_missing_uuid(self):
         with self.login(self.user):
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:filter-job-status", kwargs={"project": self.bgjob.project.sodar_uuid}
                 ),
-                {"filter_job_uuid": None},
+                {"filter_job_uuid": ""},
             )
             self.assertEqual(response.status_code, 400)
             self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
@@ -1608,7 +1608,7 @@ class TestProjectCasesFilterJobGetStatus(ViewTestBase):
 
     def test_getting_status_valid_uuid(self):
         with self.login(self.user):
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:project-cases-filter-job-status",
                     kwargs={"project": self.bgjob.project.sodar_uuid},
@@ -1620,7 +1620,7 @@ class TestProjectCasesFilterJobGetStatus(ViewTestBase):
 
     def test_getting_status_invalid_uuid(self):
         with self.login(self.user):
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:project-cases-filter-job-status",
                     kwargs={"project": self.bgjob.project.sodar_uuid},
@@ -1632,12 +1632,12 @@ class TestProjectCasesFilterJobGetStatus(ViewTestBase):
 
     def test_getting_status_missing_uuid(self):
         with self.login(self.user):
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:project-cases-filter-job-status",
                     kwargs={"project": self.bgjob.project.sodar_uuid},
                 ),
-                {"filter_job_uuid": None},
+                {"filter_job_uuid": ""},
             )
             self.assertEqual(response.status_code, 400)
             self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
@@ -2208,7 +2208,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
 
     def test_count_results(self):
         with self.login(self.user):
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:project-cases-load-filter-results",
                     kwargs={"project": self.project.sodar_uuid},
@@ -2226,15 +2226,15 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
 
     def test_count_results_with_deleted_case(self):
         for query in itertools.chain(
-            DeleteSmallVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=self.case1.id),
-            DeleteStructuralVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=self.case1.id),
+            DeleteSmallVariantsQuery(get_engine()).run(case_id=self.case1.id),
+            DeleteStructuralVariantsQuery(get_engine()).run(case_id=self.case1.id),
         ):
             with contextlib.closing(query):
                 pass
         self.case1.delete()
 
         with self.login(self.user):
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:project-cases-load-filter-results",
                     kwargs={"project": self.project.sodar_uuid},
@@ -2248,13 +2248,14 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
 
     def test_clinvar(self):
         with self.login(self.user):
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:project-cases-load-filter-results",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
+            self.assertEqual(response.status_code, 200)
             self.assertEqual(response.context["result_rows"][4].pathogenicity, "pathogenic")
 
     @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
@@ -2299,7 +2300,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
                     )
                 ),
             )
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:project-cases-load-filter-results",
                     kwargs={"project": self.project.sodar_uuid},
@@ -2445,7 +2446,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
                     )
                 ),
             )
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:project-cases-load-filter-results",
                     kwargs={"project": self.project.sodar_uuid},
@@ -2554,7 +2555,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
                     )
                 ),
             )
-            response = self.client.post(
+            response = self.client.get(
                 reverse(
                     "variants:project-cases-load-filter-results",
                     kwargs={"project": self.project.sodar_uuid},

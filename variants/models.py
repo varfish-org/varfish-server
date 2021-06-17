@@ -10,13 +10,15 @@ from datetime import datetime, timedelta
 import json
 from collections import defaultdict
 
-import aldjemy
 import binning
 import wrapt
 from itertools import chain
 import math
 import re
 import requests
+
+from varfish.utils import JSONField
+from variants.helpers import get_engine
 from bgjobs.plugins import BackgroundJobsPluginPoint
 from django.contrib.auth import get_user_model
 from django.forms import model_to_dict
@@ -29,10 +31,9 @@ from postgres_copy import CopyManager
 from django.db import models, transaction, connection, utils
 from django.db.models import Q
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.dispatch import receiver
 from django.conf import settings
 from django.db.models.signals import pre_delete
@@ -55,7 +56,7 @@ from genomicfeatures.models import GeneInterval
 #: The SQL Alchemy engine to use
 from importer.management.helpers import open_file, tsv_reader
 
-from variants.helpers import SQLALCHEMY_ENGINE
+from variants.helpers import get_meta
 from projectroles.app_settings import AppSettingAPI
 
 
@@ -249,7 +250,7 @@ class SmallVariant(models.Model):
     #: Link to VariantSet ID.
     set_id = models.IntegerField()
     #: Miscalleneous information as JSONB.
-    info = JSONField(default={})
+    info = JSONField(default=dict)
     #: Genotype information as JSONB
     genotype = JSONField()
     #: Number of hom. alt. genotypes
@@ -263,7 +264,7 @@ class SmallVariant(models.Model):
     #: Number of hemi ref. genotypes
     num_hemi_ref = models.IntegerField(default=0)
     #: Flag if in clinvar
-    in_clinvar = models.NullBooleanField()
+    in_clinvar = models.BooleanField(null=True)
     #: Total ExAC allele frequency
     exac_frequency = models.FloatField(null=True)
     #: Total ExAC homoyzgous count
@@ -301,7 +302,7 @@ class SmallVariant(models.Model):
     #: RefSeq transcript ID
     refseq_transcript_id = models.CharField(max_length=16, null=True)
     #: Flag RefSeq transcript coding
-    refseq_transcript_coding = models.NullBooleanField()
+    refseq_transcript_coding = models.BooleanField(null=True)
     #: RefSeq HGVS coding sequence
     refseq_hgvs_c = models.CharField(max_length=512, null=True)
     #: RefSeq HGVS protein sequence
@@ -315,7 +316,7 @@ class SmallVariant(models.Model):
     #: EnsEMBL transcript ID
     ensembl_transcript_id = models.CharField(max_length=32, null=True)
     #: Flag EnsEMBL transcript coding
-    ensembl_transcript_coding = models.NullBooleanField()
+    ensembl_transcript_coding = models.BooleanField(null=True)
     #: EnsEMBL HGVS coding sequence
     ensembl_hgvs_c = models.CharField(max_length=512, null=True)
     #: EnsEMBL HGVS protein sequence
@@ -522,7 +523,9 @@ class Case(CoreCase):
     )
 
     #: The project containing this case.
-    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project in which this objects belongs"
+    )
 
     #: Case manager with custom queries, supporting ``find()`` for the search.
     objects = CaseManager()
@@ -536,6 +539,7 @@ class Case(CoreCase):
 
     latest_variant_set = models.ForeignKey(
         "SmallVariantSet",
+        on_delete=models.CASCADE,
         default=None,
         blank=True,
         null=True,
@@ -544,6 +548,7 @@ class Case(CoreCase):
 
     latest_structural_variant_set = models.ForeignKey(
         "svs.StructuralVariantSet",
+        on_delete=models.CASCADE,
         default=None,
         blank=True,
         null=True,
@@ -834,7 +839,11 @@ class CasePhenotypeTerms(models.Model):
 
     #: The case that this belongs to.
     case = models.ForeignKey(
-        Case, null=False, related_name="phenotype_terms", help_text="Case for this annotation"
+        Case,
+        on_delete=models.CASCADE,
+        null=False,
+        related_name="phenotype_terms",
+        help_text="Case for this annotation",
     )
 
     #: The name of the individual that this belongs to.
@@ -892,7 +901,11 @@ class CaseComments(models.Model):
     date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
     #: Case for the comment
     case = models.ForeignKey(
-        Case, null=False, related_name="case_comments", help_text="Case for this comment"
+        Case,
+        on_delete=models.CASCADE,
+        null=False,
+        related_name="case_comments",
+        help_text="Case for this comment",
     )
     #: User who created the comment
     user = models.ForeignKey(
@@ -933,7 +946,9 @@ class SmallVariantSet(models.Model):
     date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
 
     #: The case that the variants are for.
-    case = models.ForeignKey(Case, null=False, help_text="The case that this set is for")
+    case = models.ForeignKey(
+        Case, on_delete=models.CASCADE, null=False, help_text="The case that this set is for"
+    )
     #: The state of the variant set.
     state = models.CharField(
         max_length=16,
@@ -950,9 +965,9 @@ def cleanup_variant_sets(min_age_hours=12):
             date_created__lte=datetime.now() - timedelta(hours=min_age_hours)
         ).exclude(state="active")
     )
-    smallvariant_table = aldjemy.core.get_meta().tables["variants_smallvariant"]
+    smallvariant_table = get_meta().tables["variants_smallvariant"]
     for variant_set in variant_sets:
-        SQLALCHEMY_ENGINE.execute(
+        get_engine().execute(
             smallvariant_table.delete().where(
                 and_(
                     smallvariant_table.c.set_id == variant_set.id,
@@ -976,9 +991,9 @@ class AnnotationReleaseInfo(models.Model):
     #: Data release
     release = models.CharField(max_length=512)
     #: Link to case
-    case = models.ForeignKey(Case)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE,)
     #: Link to variant set
-    variant_set = models.ForeignKey(SmallVariantSet)
+    variant_set = models.ForeignKey(SmallVariantSet, on_delete=models.CASCADE,)
 
     class Meta:
         unique_together = ("genomebuild", "table", "variant_set")
@@ -988,16 +1003,16 @@ class CaseAlignmentStats(models.Model):
     """Store alignment information about alignment statistics for a case."""
 
     #: Reference to the case.
-    case = models.ForeignKey(Case, null=False)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, null=False)
     #: Reference to the small variant set.
-    variant_set = models.OneToOneField(SmallVariantSet, null=False)
+    variant_set = models.OneToOneField(SmallVariantSet, on_delete=models.CASCADE, null=False)
     #: The BAM statistics information.  On the top level, there is one entry for each sample.  Below this are the keys
     #: bamstats, idxstats, min_cov_targets, min_cov_bases.  Below bamstats, there is an entry from "samtools stats"
     #: metric (as retrieved by ``grep '^SN'`` to the metric value.  Below idxstats, the contig name is mapped to
     #: a dict with "mapped" and "unmapped" entries.  Below min_cov_targets is a dict mapping coverage to the percentage
     #: of targets having a minimal coverage of the key value.  Below min_cov_bases is a dict mapping coverage to
     #: the percentage of *bases* having a minimal coverage of the key value.
-    bam_stats = JSONField(default={}, null=False)
+    bam_stats = JSONField(default=dict, null=False)
 
     #: Allow bulk import
     objects = CopyManager()
@@ -1028,7 +1043,9 @@ class ExportFileBgJobBase(JobModelMessageMixin, models.Model):
         default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
     )
     #: The project that the job belongs to.
-    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project in which this objects belongs"
+    )
 
     #: The background job that is specialized.
     bg_job = models.ForeignKey(
@@ -1063,7 +1080,9 @@ class ExportFileBgJob(ExportFileBgJobBase):
     spec_name = "variants.export_file_bg_job"
 
     #: The case to export.
-    case = models.ForeignKey(Case, null=False, help_text="The case to export")
+    case = models.ForeignKey(
+        Case, on_delete=models.CASCADE, null=False, help_text="The case to export"
+    )
 
     def get_human_readable_type(self):
         return "Single-case File Export"
@@ -1080,6 +1099,7 @@ class ExportFileJobResult(models.Model):
 
     job = models.OneToOneField(
         ExportFileBgJob,
+        on_delete=models.CASCADE,
         related_name="export_result",
         null=False,
         help_text="Related file export job",
@@ -1100,7 +1120,7 @@ class ExportProjectCasesFileBgJob(ExportFileBgJobBase):
     spec_name = "variants.project_cases_export_file_bg_job"
 
     #: Cohort to export
-    cohort = models.ForeignKey("cohorts.Cohort", null=True)
+    cohort = models.ForeignKey("cohorts.Cohort", on_delete=models.CASCADE, null=True)
 
     def get_human_readable_type(self):
         return "Project-wide Case File Export"
@@ -1117,6 +1137,7 @@ class ExportProjectCasesFileBgJobResult(models.Model):
 
     job = models.OneToOneField(
         ExportProjectCasesFileBgJob,
+        on_delete=models.CASCADE,
         related_name="export_result",
         null=False,
         help_text="Related file export job",
@@ -1138,7 +1159,9 @@ class DistillerSubmissionBgJob(JobModelMessageMixin, models.Model):
     sodar_uuid = models.UUIDField(
         default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
     )
-    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project in which this objects belongs"
+    )
 
     bg_job = models.ForeignKey(
         BackgroundJob,
@@ -1147,7 +1170,9 @@ class DistillerSubmissionBgJob(JobModelMessageMixin, models.Model):
         help_text="Background job for state etc.",
         on_delete=models.CASCADE,
     )
-    case = models.ForeignKey(Case, null=False, help_text="The case to export")
+    case = models.ForeignKey(
+        Case, on_delete=models.CASCADE, null=False, help_text="The case to export"
+    )
     query_args = JSONField(null=False, help_text="(Validated) query parameters")
 
     distiller_project_id = models.CharField(
@@ -1192,7 +1217,9 @@ class CaddSubmissionBgJob(JobModelMessageMixin, models.Model):
     sodar_uuid = models.UUIDField(
         default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
     )
-    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project in which this objects belongs"
+    )
 
     bg_job = models.ForeignKey(
         BackgroundJob,
@@ -1201,7 +1228,9 @@ class CaddSubmissionBgJob(JobModelMessageMixin, models.Model):
         help_text="Background job for state etc.",
         on_delete=models.CASCADE,
     )
-    case = models.ForeignKey(Case, null=False, help_text="The case to export")
+    case = models.ForeignKey(
+        Case, on_delete=models.CASCADE, null=False, help_text="The case to export"
+    )
     query_args = JSONField(null=False, help_text="(Validated) query parameters")
 
     cadd_version = models.CharField(
@@ -1248,7 +1277,9 @@ class SpanrSubmissionBgJob(JobModelMessageMixin, models.Model):
     sodar_uuid = models.UUIDField(
         default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
     )
-    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project in which this objects belongs"
+    )
 
     bg_job = models.ForeignKey(
         BackgroundJob,
@@ -1257,7 +1288,9 @@ class SpanrSubmissionBgJob(JobModelMessageMixin, models.Model):
         help_text="Background job for state etc.",
         on_delete=models.CASCADE,
     )
-    case = models.ForeignKey(Case, null=False, help_text="The case to export")
+    case = models.ForeignKey(
+        Case, on_delete=models.CASCADE, null=False, help_text="The case to export"
+    )
     query_args = JSONField(null=False, help_text="(Validated) query parameters")
 
     spanr_job_url = models.CharField(max_length=100, null=True, help_text="The SPANR job URL")
@@ -1314,6 +1347,7 @@ class SmallVariantComment(models.Model):
     #: The related case.
     case = models.ForeignKey(
         Case,
+        on_delete=models.CASCADE,
         null=False,
         related_name="small_variant_comments",
         help_text="Case that this variant is flagged in",
@@ -1427,6 +1461,7 @@ class SmallVariantFlags(models.Model):
     #: The related case.
     case = models.ForeignKey(
         Case,
+        on_delete=models.CASCADE,
         null=False,
         related_name="small_variant_flags",
         help_text="Case that this variant is flagged in",
@@ -1645,6 +1680,7 @@ class SmallVariantQuery(SmallVariantQueryBase):
     #: The related case.
     case = models.ForeignKey(
         Case,
+        on_delete=models.CASCADE,
         null=False,
         related_name="small_variant_queries",
         help_text="The case that the query relates to",
@@ -1662,6 +1698,7 @@ class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):
     #: The related case.
     project = models.ForeignKey(
         CaseAwareProject,
+        on_delete=models.CASCADE,
         null=False,
         related_name="small_variant_queries",
         help_text="The project that the query relates to",
@@ -1675,7 +1712,7 @@ class SmallVariantQueryGeneScores(models.Model):
     """Annotate ``SmallVariantQuery`` with gene scores (if configured to do so)."""
 
     #: The query to annotate.
-    query = models.ForeignKey(SmallVariantQuery)
+    query = models.ForeignKey(SmallVariantQuery, on_delete=models.CASCADE)
 
     #: The Entrez gene ID.
     gene_id = models.CharField(max_length=64, null=False, blank=False, help_text="Entrez gene ID")
@@ -1698,7 +1735,7 @@ class SmallVariantQueryVariantScores(models.Model):
     """Annotate ``SmallVariantQuery`` with pathogenicity score."""
 
     #: The query to annotate.
-    query = models.ForeignKey(SmallVariantQuery)
+    query = models.ForeignKey(SmallVariantQuery, on_delete=models.CASCADE)
 
     #: Genome build
     release = models.CharField(max_length=32, null=False, blank=False)
@@ -1730,7 +1767,7 @@ class SmallVariantQueryVariantScores(models.Model):
     score = models.FloatField(null=False, blank=False, help_text="The variant score")
 
     #: Further information.
-    info = JSONField(default={})
+    info = JSONField(default=dict)
 
     def variant_key(self):
         return "-".join(
@@ -1742,7 +1779,7 @@ class ProjectCasesSmallVariantQueryVariantScores(models.Model):
     """Annotate ``ProjectCasesSmallVariantQuery`` with pathogenicity score."""
 
     #: The query to annotate.
-    query = models.ForeignKey(ProjectCasesSmallVariantQuery)
+    query = models.ForeignKey(ProjectCasesSmallVariantQuery, on_delete=models.CASCADE)
 
     #: Genome build
     release = models.CharField(max_length=32, null=False, blank=False)
@@ -1774,7 +1811,7 @@ class ProjectCasesSmallVariantQueryVariantScores(models.Model):
     score = models.FloatField(null=False, blank=False, help_text="The variant score")
 
     #: Further information.
-    info = JSONField(default={})
+    info = JSONField(default=dict)
 
     def variant_key(self):
         return "-".join(
@@ -1795,7 +1832,9 @@ class FilterBgJob(JobModelMessageMixin, models.Model):
     sodar_uuid = models.UUIDField(
         default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
     )
-    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project in which this objects belongs"
+    )
 
     bg_job = models.ForeignKey(
         BackgroundJob,
@@ -1805,11 +1844,13 @@ class FilterBgJob(JobModelMessageMixin, models.Model):
         on_delete=models.CASCADE,
     )
 
-    case = models.ForeignKey(Case, null=False, help_text="The case to filter")
+    case = models.ForeignKey(
+        Case, on_delete=models.CASCADE, null=False, help_text="The case to filter"
+    )
 
     #: Link to the smallvariantquery object. Holds query arguments and results
     smallvariantquery = models.ForeignKey(
-        SmallVariantQuery, null=False, help_text="Query that is executed."
+        SmallVariantQuery, on_delete=models.CASCADE, null=False, help_text="Query that is executed."
     )
 
     def get_human_readable_type(self):
@@ -1835,7 +1876,9 @@ class ProjectCasesFilterBgJob(JobModelMessageMixin, models.Model):
     sodar_uuid = models.UUIDField(
         default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
     )
-    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project in which this objects belongs"
+    )
 
     bg_job = models.ForeignKey(
         BackgroundJob,
@@ -1847,11 +1890,17 @@ class ProjectCasesFilterBgJob(JobModelMessageMixin, models.Model):
 
     #: Link to the ProjectCaseSmallVariantQuery object. Holds query arguments and results.
     projectcasessmallvariantquery = models.ForeignKey(
-        ProjectCasesSmallVariantQuery, null=False, help_text="Query that is executed."
+        ProjectCasesSmallVariantQuery,
+        on_delete=models.CASCADE,
+        null=False,
+        help_text="Query that is executed.",
     )
 
     cohort = models.ForeignKey(
-        "cohorts.Cohort", null=True, related_name="project_cases_filter_bg_job"
+        "cohorts.Cohort",
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="project_cases_filter_bg_job",
     )
 
     def get_human_readable_type(self):
@@ -2021,7 +2070,9 @@ class ComputeProjectVariantsStatsBgJob(JobModelMessageMixin, models.Model):
     sodar_uuid = models.UUIDField(
         default=uuid_object.uuid4, unique=True, help_text="Job Specialization SODAR UUID"
     )
-    project = models.ForeignKey(Project, help_text="Project in which this objects belongs")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project in which this objects belongs"
+    )
 
     bg_job = models.ForeignKey(
         BackgroundJob,
@@ -2843,6 +2894,7 @@ class AcmgCriteriaRating(models.Model):
     #: The related case.
     case = models.ForeignKey(
         Case,
+        on_delete=models.CASCADE,
         null=False,
         related_name="acmg_ratings",
         help_text="Case that this rating was given for",
@@ -3173,11 +3225,14 @@ class SyncCaseListBgJob(JobModelMessageMixin, models.Model):
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
 
     #: The project that the job belongs to.
-    project = models.ForeignKey(Project, help_text="Project that is to be synced")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project that is to be synced"
+    )
 
     #: The background job that is specialized.
     bg_job = models.ForeignKey(
         BackgroundJob,
+        on_delete=models.CASCADE,
         null=False,
         related_name="%(app_label)s_%(class)s_related",
         help_text="Background job for state etc.",
@@ -3202,7 +3257,9 @@ class SyncCaseResultMessage(models.Model):
     #: UUID of the message.
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Message UUID")
     #: The project that the message belongs to.
-    project = models.ForeignKey(Project, help_text="Project for the message")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project for the message"
+    )
 
     #: The entry's log level.
     level = models.CharField(
@@ -3228,11 +3285,14 @@ class ImportVariantsBgJob(JobModelMessageMixin, models.Model):
     #: UUID of the job
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
     #: The project that the job belongs to.
-    project = models.ForeignKey(Project, help_text="Project that is imported to")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project that is imported to"
+    )
 
     #: The background job that is specialized.
     bg_job = models.ForeignKey(
         BackgroundJob,
+        on_delete=models.CASCADE,
         null=False,
         related_name="%(app_label)s_%(class)s_related",
         help_text="Background job for state etc.",
@@ -3265,7 +3325,7 @@ class ImportVariantsBgJob(JobModelMessageMixin, models.Model):
         models.CharField(
             max_length=4096, blank=False, null=False, help_text="Path to bam-qc TSV file"
         ),
-        default=[],
+        default=list,
     )
 
     def get_human_readable_type(self):
@@ -3299,11 +3359,14 @@ class KioskAnnotateBgJob(JobModelMessageMixin, models.Model):
     #: UUID of the job
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
     #: The project that the job belongs to.
-    project = models.ForeignKey(Project, help_text="Project that is imported to")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project that is imported to"
+    )
 
     #: The background job that is specialized.
     bg_job = models.ForeignKey(
         BackgroundJob,
+        on_delete=models.CASCADE,
         null=False,
         related_name="%(app_label)s_%(class)s_related",
         help_text="Background job for state etc.",
@@ -3352,10 +3415,14 @@ class DeleteCaseBgJob(JobModelMessageMixin, models.Model):
     sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Job UUID")
 
     #: The project that the job belongs to.
-    project = models.ForeignKey(Project, help_text="Project in which this object belongs")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, help_text="Project in which this object belongs"
+    )
 
     #: Case that will be deleted
-    case = models.ForeignKey(Case, null=False, help_text="The case to delete")
+    case = models.ForeignKey(
+        Case, on_delete=models.CASCADE, null=False, help_text="The case to delete"
+    )
 
     #: The background job that is specialized.
     bg_job = models.ForeignKey(
@@ -3435,8 +3502,8 @@ class VariantImporterBase:
     def _purge_variant_set(self, variant_set):
         variant_set.__class__.objects.filter(pk=variant_set.id).update(state="deleting")
         for table_name, variant_set_attr in self.table_names:
-            table = aldjemy.core.get_meta().tables[table_name]
-            SQLALCHEMY_ENGINE.execute(
+            table = get_meta().tables[table_name]
+            get_engine().execute(
                 table.delete().where(
                     and_(
                         getattr(table.c, variant_set_attr) == variant_set.id,
@@ -3592,9 +3659,7 @@ class VariantImporter(VariantImporterBase):
 
         before = timezone.now()
         self.import_job.add_log_entry("Computing variant statistics...")
-        rebuild_case_variant_stats(
-            SQLALCHEMY_ENGINE, variant_set, logger=self.import_job.add_log_entry
-        )
+        rebuild_case_variant_stats(get_engine(), variant_set, logger=self.import_job.add_log_entry)
         elapsed = timezone.now() - before
         self.import_job.add_log_entry(
             "Finished computing variant statistics in %.2f s" % elapsed.total_seconds()
@@ -3756,8 +3821,8 @@ class DeleteCase:
                 "Deleting small and structural variants of case %s" % case.name, LOG_LEVEL_INFO
             )
             for query in itertools.chain(
-                DeleteSmallVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id),
-                DeleteStructuralVariantsQuery(SQLALCHEMY_ENGINE).run(case_id=case.id),
+                DeleteSmallVariantsQuery(get_engine()).run(case_id=case.id),
+                DeleteStructuralVariantsQuery(get_engine()).run(case_id=case.id),
             ):
                 with contextlib.closing(query):
                     pass
@@ -3813,7 +3878,7 @@ def clear_old_kiosk_cases():
         projects.append(case.project)
         # Delete all small variants.
         with contextlib.closing(
-            SQLALCHEMY_ENGINE.execute(
+            get_engine().execute(
                 delete(SmallVariant.sa.table).where(SmallVariant.sa.case_id == case.id)
             )
         ):
@@ -3844,7 +3909,7 @@ def update_variant_counts(case, kind=None, logger=lambda _: None):
                 .select_from(SmallVariant.sa.table)
                 .where(and_(SmallVariant.sa.set_id == set_id, SmallVariant.sa.case_id == case.pk))
             )
-            num_small_vars = SQLALCHEMY_ENGINE.scalar(stmt)
+            num_small_vars = get_engine().scalar(stmt)
             logger("... variant set has %d variants" % num_small_vars)
         else:
             logger("... no variant set found")
@@ -3868,7 +3933,7 @@ def update_variant_counts(case, kind=None, logger=lambda _: None):
                     )
                 )
             )
-            num_svs = SQLALCHEMY_ENGINE.scalar(stmt)
+            num_svs = get_engine().scalar(stmt)
             logger("... variant set has %d variants" % num_svs)
         else:
             logger("... no variant set found")

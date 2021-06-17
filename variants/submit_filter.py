@@ -5,8 +5,8 @@ from django.db import transaction
 
 from projectroles.plugins import get_backend_api
 
+from variants.helpers import get_engine
 from variants.forms import PATHO_SCORES_MAPPING
-from variants.helpers import SQLALCHEMY_ENGINE
 from variants.models import prioritize_genes, VariantScoresFactory
 from .queries import CasePrefetchQuery, ProjectPrefetchQuery
 
@@ -33,7 +33,7 @@ class FilterBase:
     def get_alchemy_engine(self):
         """Construct and return the alchemy connection."""
         if not self._alchemy_engine:
-            self._alchemy_engine = SQLALCHEMY_ENGINE
+            self._alchemy_engine = get_engine()
         return self._alchemy_engine
 
     def run(self, kwargs={}):

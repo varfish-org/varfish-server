@@ -1,6 +1,6 @@
 """Tests for the filter view"""
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 from variants.tests.test_views import TestViewBase

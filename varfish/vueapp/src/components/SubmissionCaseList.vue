@@ -5,7 +5,7 @@
       <span class="badge badge-secondary">{{ caseCount }}</span>
 
       <b-button size="sm" variant="primary" class="float-right" v-b-modal.modal-add-case>
-        <i class="fa fa-plus"></i>
+        <span class="iconify" data-icon="mdi:plus-circle" data-inline="false"></span>
         add individual to submission
       </b-button>
     </h3>

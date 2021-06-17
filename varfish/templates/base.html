@@ -69,6 +69,9 @@
 
   {% get_django_setting 'PROJECTROLES_DISABLE_CDN_INCLUDES' as disable_cdn_includes %}
 
+  <!-- XXX TODO: remove once all icons have been changed -->
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+
   {% if not disable_cdn_includes %}
     <!-- Bootstrap select plugin for multiple-select dropdown menus -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css" integrity="sha512-ARJR74swou2y0Q2V9k0GbzQ/5vJ2RBSoCWokg4zkfM29Fb3vZEQyv0iWBMW/yvKgyHSR/7D64pFMmU8nYmbRkg==" crossorigin="anonymous" />

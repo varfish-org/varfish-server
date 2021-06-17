@@ -7,7 +7,7 @@ from django.db import models
 from django.conf import settings
 from django.urls import reverse
 from projectroles.models import Project
-from encrypted_model_fields.fields import EncryptedTextField
+from cryptographic_fields.fields import EncryptedTextField
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
@@ -208,8 +208,8 @@ class ConsortiumMember(models.Model):
         default=uuid_object.uuid4, unique=True, help_text="Record SODAR UUID"
     )
 
-    site = models.ForeignKey(Site)
-    consortium = models.ForeignKey(Consortium)
+    site = models.ForeignKey(Site, on_delete=models.CASCADE)
+    consortium = models.ForeignKey(Consortium, on_delete=models.CASCADE)
 
 
 class ConsortiumAssignment(models.Model):
@@ -225,8 +225,8 @@ class ConsortiumAssignment(models.Model):
         default=uuid_object.uuid4, unique=True, help_text="Record SODAR UUID"
     )
 
-    consortium = models.ForeignKey(Consortium)
-    project = models.ForeignKey(Project)
+    consortium = models.ForeignKey(Consortium, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
 
 class Query(models.Model):
@@ -315,6 +315,8 @@ class Response(models.Model):
         default=uuid_object.uuid4, unique=True, help_text="Record SODAR UUID"
     )
 
-    query = models.ForeignKey(Query, help_text="The query that this response is for")
+    query = models.ForeignKey(
+        Query, help_text="The query that this response is for", on_delete=models.CASCADE
+    )
     http_header = models.TextField(null=False, help_text="HTTP request header content")
     http_body = models.TextField(null=True, blank=True, help_text="HTTP request body content")

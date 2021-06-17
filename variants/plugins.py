@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from projectroles.constants import get_sodar_constants
 from projectroles.plugins import ProjectAppPluginPoint
@@ -40,7 +40,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     urls = urlpatterns
     # ...
 
-    icon = "hospital-o"
+    icon = "mdi:hospital-building"
 
     entry_point_url_id = "variants:case-list"
 
@@ -204,7 +204,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     def _get_action_buttons(self, project):
         tpl = """
         <a href="%s" title="joint filtration " class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
-          <i class="fa fa-filter"></i>
+          <i class="iconify" data-icon="mdi:filter"></i>
         </a>
         """
         url = reverse("variants:project-cases-filter", kwargs={"project": project.sodar_uuid})

@@ -1,12 +1,11 @@
 """Common helper code for tests"""
 
-import aldjemy.core
+from variants.helpers import get_engine
 from django.test import TestCase
 
 from genomicfeatures.tests.factories import TadSetFactory
 from variants.models import Case, CaseAwareProject
 from .factories import FormDataFactory
-from variants.helpers import SQLALCHEMY_ENGINE
 
 
 class TestBase(TestCase):
@@ -21,6 +20,9 @@ class TestBase(TestCase):
         self.maxDiff = None  # show full diff
         if self.__class__.setup_case_in_db:
             self.__class__.setup_case_in_db()
+
+    def assertUUIDEquals(self, first, second, msg=None):
+        self.assertEqual(str(first), str(second), msg)
 
 
 class QueryTestBase(TestBase):
@@ -48,7 +50,7 @@ class QueryTestBase(TestBase):
         if not tad_set:
             tad_set = TadSetFactory()
         patched_cleaned_data = {**vars(FormDataFactory(tad_set_uuid=tad_set.sodar_uuid))}
-        engine = SQLALCHEMY_ENGINE
+        engine = get_engine()
 
         def fetch_case_and_query():
             """Helper function that fetches the ``case`` by UUID and then generates the

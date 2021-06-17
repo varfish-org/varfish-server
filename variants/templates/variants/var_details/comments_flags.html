@@ -56,7 +56,7 @@
         </span>
         <em>{{ comment.text }}</em>
         {% if comment.user == request.user or request.user.is_superuser %}
-          <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="fa fa-pencil"></i></a>
+          <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="iconify" data-icon="mdi:pencil"></i></a>
           <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="fa fa-times-circle"></i></a>
         {% endif %}
       </div>

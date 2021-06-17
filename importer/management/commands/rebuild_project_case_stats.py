@@ -10,7 +10,7 @@ from projectroles.plugins import get_backend_api
 
 from variants.models import CaseAwareProject
 from variants.variant_stats import rebuild_case_variant_stats
-from variants.helpers import SQLALCHEMY_ENGINE
+from variants.helpers import get_engine
 
 timeline = get_backend_api("timeline_backend")
 
@@ -65,7 +65,7 @@ class Command(BaseCommand):
             for case in project.case_set.all():
                 self.stdout.write("Rebuilding stats for case: {}".format(case.name))
                 rebuild_case_variant_stats(
-                    SQLALCHEMY_ENGINE, case.latest_variant_set, logger=self.stdout.write
+                    get_engine(), case.latest_variant_set, logger=self.stdout.write
                 )
             self.stdout.write(self.style.SUCCESS("Done rebuilding project case stats."))
             if timeline:

@@ -6,7 +6,7 @@
 {% load projectroles_common_tags %}
 
 {% block title %}
-  <i class="fa fa-institution"></i>
+  <i class="iconify" data-icon="octicon:location-16" data-inline="false"></i>
   {% if object.pk %}
     Update
   {% else %}
@@ -36,10 +36,10 @@
         <div class="btn-group ml-auto" role="group">
           <a role="button" class="btn btn-secondary"
              href="{% url 'beaconsite:site-list' %}">
-            <i class="fa fa-arrow-circle-left"></i> Cancel
+            <i class="iconify" data-icon="mdi:arrow-left-circle"></i> Cancel
           </a>
           <button type="submit" class="btn btn-primary">
-            <i class="fa fa-check"></i>
+            <span class="iconify" data-icon="mdi:check-bold" data-inline="false"></span>
             {% if object.pk %}
               Update
             {% else %}

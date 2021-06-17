@@ -1,13 +1,12 @@
 """Common helper code for tests"""
 
-import aldjemy.core
 from django.test import RequestFactory
 from test_plus.test import TestCase, APITestCase
 
 from cohorts.models import Cohort
 from .factories import ProcessedFormDataFactory
 from ..models import Case, CaseAwareProject
-from variants.helpers import SQLALCHEMY_ENGINE
+from variants.helpers import get_engine
 
 
 class TestBase(TestCase):
@@ -58,7 +57,7 @@ class SupportQueryTestBase(TestBase):
     """Base class for model support queries."""
 
     def _get_fetch_and_query(self, query_class, cleaned_data_patch, query_type="case", user=None):
-        engine = SQLALCHEMY_ENGINE
+        engine = get_engine()
 
         def fetch_case_and_query():
             """Helper function that fetches the ``case`` by UUID and then generates the

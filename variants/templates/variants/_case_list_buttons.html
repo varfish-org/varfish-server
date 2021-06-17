@@ -1,12 +1,12 @@
 <div class="ml-auto btn-group">
   {% if not kiosk_mode %}
     <a class="btn btn-secondary" href="{% url 'projectroles:detail' project=project.sodar_uuid %}">
-      <i class="fa fa-arrow-circle-left"></i>
+      <i class="iconify" data-icon="mdi:arrow-left-circle"></i>
       Back to Project
     </a>
   {% endif %}
   <a class="btn btn-primary{% if not project.has_variants_and_variant_sets %} disabled{% endif %}" href="{% url "variants:project-cases-filter" project=project.sodar_uuid %}">
-    <i class="fa fa-filter"></i>
+    <i class="iconify" data-icon="mdi:filter"></i>
     Joint Filtration
   </a>
   {% if request.user.is_superuser or kiosk_mode %}

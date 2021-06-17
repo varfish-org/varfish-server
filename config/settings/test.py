@@ -44,6 +44,22 @@ CELERY_TASK_ALWAYS_EAGER = True
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-eager-propagates
 CELERY_TASK_EAGER_PROPAGATES = True
 
+# SITE CONFIGURATION
+# ------------------------------------------------------------------------------
+# In tests ... everything goes.
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["*"])
+# END SITE CONFIGURATION
+
+# PROJECTROLES TEST
+# ------------------------------------------------------------------------------
+PROJECTROLES_TEST_UI_CHROME_OPTIONS = [
+    "headless",
+    "no-sandbox",  # For Gitlab-CI compatibility
+    "disable-dev-shm-usage",  # For testing stability
+]
+PROJECTROLES_TEST_UI_WINDOW_SIZE = (1400, 1000)
+PROJECTROLES_TEST_UI_WAIT_TIME = 30
+
 # PASSWORD HASHING
 # ------------------------------------------------------------------------------
 # Use fast password hasher so tests run faster

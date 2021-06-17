@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 import django.contrib.postgres.fields
-import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 import django.db.models.deletion
 import uuid
@@ -31,7 +30,7 @@ class Migration(migrations.Migration):
                 ),
                 ("name", models.CharField(max_length=512)),
                 ("index", models.CharField(max_length=32)),
-                ("pedigree", django.contrib.postgres.fields.jsonb.JSONField()),
+                ("pedigree", models.JSONField()),
             ],
         ),
         migrations.CreateModel(
@@ -50,7 +49,7 @@ class Migration(migrations.Migration):
                 ("alternative", models.CharField(max_length=512)),
                 ("var_type", models.CharField(max_length=8)),
                 ("case_id", models.IntegerField()),
-                ("genotype", django.contrib.postgres.fields.jsonb.JSONField()),
+                ("genotype", models.JSONField()),
                 ("in_clinvar", models.NullBooleanField()),
                 ("exac_frequency", models.FloatField(null=True)),
                 ("exac_homozygous", models.IntegerField(null=True)),

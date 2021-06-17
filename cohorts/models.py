@@ -44,6 +44,7 @@ class Cohort(models.Model):
         null=False,
         related_name="cohorts",
         help_text="The base project of the cohorts.",
+        on_delete=models.CASCADE,
     )
 
     #: Cases selected by the user for this query

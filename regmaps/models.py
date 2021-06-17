@@ -8,9 +8,9 @@ import uuid as uuid_object
 
 import binning
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 
 from geneinfo.models import RefseqToGeneSymbol
+from varfish.utils import JSONField
 
 
 class RegMapCollection(models.Model):
@@ -46,7 +46,7 @@ class RegMap(models.Model):
         default=uuid_object.uuid4, unique=True, help_text="UUID of regulatory map",
     )
     #: The regulatory map collection that this map belongs to.
-    collection = models.ForeignKey(RegMapCollection)
+    collection = models.ForeignKey(RegMapCollection, on_delete=models.CASCADE,)
     #: The title of the map.
     title = models.TextField()
     #: The short title of the map.
@@ -70,7 +70,7 @@ class RegElementType(models.Model):
         default=uuid_object.uuid4, unique=True, help_text="UUID of regulatory map collection",
     )
     #: The regulatory map collection that this map belongs to.
-    collection = models.ForeignKey(RegMapCollection)
+    collection = models.ForeignKey(RegMapCollection, on_delete=models.CASCADE,)
     #: The title of the map.
     title = models.TextField()
     #: The short title of the map.
@@ -112,9 +112,9 @@ class RegElement(models.Model):
         default=uuid_object.uuid4, unique=True, help_text="UUID of regulatory element",
     )
     #: The regulatory map.
-    reg_map = models.ForeignKey(RegMap)
+    reg_map = models.ForeignKey(RegMap, on_delete=models.CASCADE,)
     #: The element type.
-    elem_type = models.ForeignKey(RegElementType)
+    elem_type = models.ForeignKey(RegElementType, on_delete=models.CASCADE,)
     #: Genome build
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
@@ -164,7 +164,7 @@ class RegInteraction(models.Model):
         default=uuid_object.uuid4, unique=True, help_text="UUID of interaction",
     )
     #: The regulatory map.
-    reg_map = models.ForeignKey(RegMap)
+    reg_map = models.ForeignKey(RegMap, on_delete=models.CASCADE,)
     #: Genome build
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome

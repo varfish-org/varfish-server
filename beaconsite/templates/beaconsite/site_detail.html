@@ -13,22 +13,22 @@
 
   <div class="row sodar-subtitle-container">
     <h2>
-      <i class="fa fa-institution"></i>
+      <i class="iconify" data-icon="octicon:location-16" data-inline="false"></i>
       Site
     </h2>
     <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
       <a class="btn btn-secondary" href="{% url 'beaconsite:site-list' %}">
-        <i class="fa fa-arrow-circle-left"></i> Back
+        <i class="iconify" data-icon="mdi:arrow-left-circle"></i> Back
       </a>
   {#    {% if can_update_data %}#}
         <a class="btn btn-primary" href="{% url 'beaconsite:site-update' site=object.sodar_uuid %}">
-          <i class="fa fa-pencil"></i>
+          <i class="iconify" data-icon="mdi:pencil"></i>
           Update
         </a>
   {#    {% endif %}#}
   {#    {% if can_delete_data %}#}
         <a class="btn btn-danger" href="{% url 'beaconsite:site-delete' site=object.sodar_uuid %}">
-          <i class="fa fa-eraser"></i>
+          <i class="iconify" data-icon="mdi:eraser" data-inline="false"></i>
           Remove
         </a>
   {#    {% endif %}#}
@@ -62,7 +62,7 @@
           <dt class="col-md-2">(Private) Key</dt>
           <dd class="col-md-10">
             <span class="font-italic text-muted">
-              <i class="fa fa-lock"></i>
+              <i class="iconify" data-icon="mdi:lock" data-inline="false"></i>
               Stored encrypted in database and hidden here for security reasons.
             </span>
           </dd>
@@ -87,7 +87,7 @@
           </dt>
           <dd class="col-md-10">
             <button class="btn btn-sm btn-primary" id="button-get-info">
-              <i class="fa fa-info-circle"></i>
+              <i class="iconify" data-icon="mdi:information"></i>
               Get Info
             </button>
           </dd>
@@ -124,7 +124,7 @@
               </div>
             </div>
             <button class="btn btn-sm btn-primary" id="button-run-query">
-              <i class="fa fa-bolt"></i>
+              <i class="iconify" data-icon="mdi:lightning-bolt" data-inline="false"></i>
               Run Small Variant Query
             </button>
           </dd>

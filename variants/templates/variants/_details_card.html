@@ -26,10 +26,10 @@
       <tr>
         <td class="bg-faded" colspan="{% if svs_enabled %}8{% else %}7{% endif %}">
           <a href="{% url 'variants:case-list' project=project.sodar_uuid %}" class="btn btn-secondary btn-small">
-            <i class="fa fa-list"></i> See list of all cases
+            <span class="iconify" data-icon="mdi:format-list-bulleted-square" data-inline="false"></span> See list of all cases
           </a>
           <a href="{% url 'variants:project-cases-filter' project=project.sodar_uuid %}" class="float-right btn btn-primary btn-small">
-            <i class="fa fa-filter"></i> Joint Filtration
+            <i class="iconify" data-icon="mdi:filter"></i> Joint Filtration
           </a>
         </td>
       </tr>

@@ -6,11 +6,12 @@ records in ``variants``.
 
 import uuid as uuid_object
 
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.conf import settings
 from projectroles.models import Project
 
+from varfish.utils import JSONField
 from variants.models import CaseAwareProject, Case
 
 #: Django user model.
@@ -351,7 +352,7 @@ class Submission(models.Model):
     significance_last_evaluation = models.DateField()
 
     #: The used assertion method.
-    assertion_method = models.ForeignKey(AssertionMethod)
+    assertion_method = models.ForeignKey(AssertionMethod, on_delete=models.CASCADE,)
     #: Mode of Inheritance
     inheritance = models.TextField(max_length=100, blank=True, null=True)
     #: Age of onset

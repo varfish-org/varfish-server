@@ -1,8 +1,8 @@
 from itertools import chain
 import typing
 
-from aldjemy import core
 import attr
+
 from sqlalchemy.dialects.postgresql.array import OVERLAP
 from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
 from django.conf import settings
@@ -41,6 +41,7 @@ from variants.models import (
     SmallVariantSet,
 )
 from variants.forms import FILTER_FORM_TRANSLATE_INHERITANCE
+from variants.helpers import get_meta
 
 
 class _ArrayCatAgg(ReturnTypeFromArgs):
@@ -1042,7 +1043,7 @@ class ExtendQueryPartsLoadPrefetchedBase(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.query_results = Table(
-            "variants_%squery_query_results" % self._get_query_type(), core.get_meta()
+            "variants_%squery_query_results" % self._get_query_type(), get_meta()
         )
 
     def _get_query_type(self):

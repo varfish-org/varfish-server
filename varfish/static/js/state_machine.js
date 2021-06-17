@@ -301,7 +301,7 @@ function handleEventStateGetJobId(eventType, event) {
     setInfoBoxTitle("Filtering variants ...");
     currentState = STATE_WAIT_JOB_RESULTS;
     ajaxCall = $.ajax({
-      type: "POST",
+      type: "GET",
       dataType: "json",
       url: filterButton.data("url-status"),
       data: event,
@@ -395,7 +395,7 @@ function handleEventStateWaitJobResults(eventType, event) {
     };
     ajaxCall = $.ajax({
       url: filterButton.data("url-reload"),
-      method: "POST",
+      method: "GET",
       data: data,
       success: function(data) {
         currentState = STATE_IDLE;

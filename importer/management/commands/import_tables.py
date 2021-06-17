@@ -4,7 +4,7 @@ import traceback
 from multiprocessing.pool import ThreadPool
 import tempfile
 
-import aldjemy
+from variants.helpers import get_engine
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
@@ -54,8 +54,7 @@ from ...models import ImportInfo
 from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
 from ..helpers import tsv_reader
 from svdbs.models import DgvGoldStandardSvs, DgvSvs, ExacCnv, ThousandGenomesSv, DbVarSv, GnomAdSv
-from variants.helpers import SQLALCHEMY_ENGINE
-
+from variants.helpers import get_meta
 
 #: One entry in the TABLES variable is structured as follows:
 #: 'genome_build': {'table_group': (Table,), ...}
@@ -459,13 +458,13 @@ class Command(BaseCommand):
             # Clear out any existing entries for this release/database.
             if import_info:
                 self.stdout.write("{table} -- Removing old {table} results.".format(**release_info))
-                sa_table = aldjemy.core.get_meta().tables[table._meta.db_table]
+                sa_table = get_meta().tables[table._meta.db_table]
                 if "release" in sa_table.c:
-                    SQLALCHEMY_ENGINE.execute(
+                    get_engine().execute(
                         sa_table.delete().where(sa_table.c.release == release_info["genomebuild"])
                     )
                 else:
-                    SQLALCHEMY_ENGINE.execute(sa_table.delete())
+                    get_engine().execute(sa_table.delete())
                 self.stdout.write("{table} -- Importing new {table} data".format(**release_info))
 
             # Import data
@@ -484,15 +483,15 @@ class Command(BaseCommand):
                         "Error during import to table %s:\n%s" % (table._meta.db_table, e)
                     )
                     # Remove already imported data.
-                    sa_table = aldjemy.core.get_meta().tables[table._meta.db_table]
+                    sa_table = get_meta().tables[table._meta.db_table]
                     if "release" in sa_table.c:
-                        SQLALCHEMY_ENGINE.execute(
+                        get_engine().execute(
                             sa_table.delete().where(
                                 sa_table.c.release == release_info["genomebuild"]
                             )
                         )
                     else:
-                        SQLALCHEMY_ENGINE.execute(sa_table.delete())
+                        get_engine().execute(sa_table.delete())
                     # Continue with remaining tables.
                     return False
             else:  # no bulk import

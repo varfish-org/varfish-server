@@ -18,14 +18,14 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     urls = urlpatterns
     # ...
 
-    icon = "hospital-o"
+    icon = "mdi:hospital-building"
 
     entry_point_url_id = "variants:case-list"
 
     description = "Structural Variants"
 
     #: Required permission for accessing the app
-    app_permission = "variants.view_data"
+    app_permission = "xxx.view_data"
 
     #: Enable or disable general search from project title bar
     search_enable = False

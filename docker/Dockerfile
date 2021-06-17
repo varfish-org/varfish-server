@@ -97,6 +97,13 @@ RUN mkdir -p /usr/src/app/local-static/local/css && \
         https://cdnjs.cloudflare.com/ajax/libs/google-palette/1.1.0/palette.min.js \
         https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js
 
+# Get icons
+RUN cd /usr/src/app && \
+    DJANGO_SECRET_KEY=for-build-only \
+    DJANGO_SETTINGS_MODULE=config.settings.production \
+    DATABASE_URL=postgres://sodar:sodar@fake/sodar \
+    python manage.py geticons
+
 # Prepare static files
 RUN cd /usr/src/app && \
     mkdir -p /usr/src/app/varfish/vueapp/dist && \

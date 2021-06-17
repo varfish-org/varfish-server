@@ -159,7 +159,7 @@ class VariantSetImportInfoSerializer(serializers.ModelSerializer):
 class CaseImportInfoSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     """Serializer for the ``CaseImportInfo`` model."""
 
-    pedigree = serializers.JSONField()
+    pedigree = serializers.models.JSONField()
     owner = serializers.ReadOnlyField(source="owner.username")
     case = serializers.ReadOnlyField(source="case.sodar_uuid")
     project = serializers.ReadOnlyField(source="project.sodar_uuid")

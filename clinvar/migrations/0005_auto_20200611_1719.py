@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 
 import django.contrib.postgres.fields
-import django.contrib.postgres.fields.jsonb
 from django.db import migrations, models
 
 
@@ -48,7 +47,7 @@ class Migration(migrations.Migration):
                 ("pathogenicity", models.CharField(max_length=128)),
                 ("review_status", models.CharField(max_length=128)),
                 ("pathogenicity_summary", models.CharField(max_length=128)),
-                ("details", django.contrib.postgres.fields.jsonb.JSONField()),
+                ("details", models.JSONField()),
             ],
         ),
         migrations.AddIndex(

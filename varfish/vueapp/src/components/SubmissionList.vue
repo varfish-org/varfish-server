@@ -7,7 +7,7 @@
             <h5>
               Submissions
               <b-button size="sm" variant="primary" class="float-right" @click="onAddSubmissionClicked()">
-                <i class="fa fa-plus"></i>
+                <span class="iconify" data-icon="mdi:plus-circle" data-inline="false"></span>
                 add
               </b-button>
             </h5>

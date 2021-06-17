@@ -3,13 +3,13 @@
 
 <div class="ml-auto btn-group">
   <a class="btn btn-secondary" href="{% url "variants:case-detail" project=project.sodar_uuid case=object.sodar_uuid %}">
-    <i class="fa fa-arrow-circle-left"></i>
+    <i class="iconify" data-icon="mdi:arrow-left-circle"></i>
     Back to Case
   </a>
 
   {% if query_type == "case" %}
     <a class="btn btn-primary{% if not object.has_variants_and_variant_set %} disabled{% endif %}" href="{% url "variants:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
-      <i class="fa fa-filter"></i>
+      <i class="iconify" data-icon="mdi:filter"></i>
       Filter Variants
     </a>
 {% endif %}

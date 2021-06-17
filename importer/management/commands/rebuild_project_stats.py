@@ -1,6 +1,5 @@
 """Django command for rebuilding cohort statistics after import."""
 
-import aldjemy
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
@@ -10,7 +9,7 @@ from django.conf import settings
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
 from variants.variant_stats import rebuild_project_variant_stats
-from variants.helpers import SQLALCHEMY_ENGINE
+from variants.helpers import get_engine
 
 timeline = get_backend_api("timeline_backend")
 
@@ -49,7 +48,7 @@ class Command(BaseCommand):
                 )
             ) from e
         project = self._get_project(options["project_uuid"])
-        rebuild_project_variant_stats(SQLALCHEMY_ENGINE, project, admin, self.stdout.write)
+        rebuild_project_variant_stats(get_engine(), project, admin, self.stdout.write)
         self.stdout.write(self.style.SUCCESS("Done rebuilding project-wide stats"))
 
     def _get_project(self, project_uuid):

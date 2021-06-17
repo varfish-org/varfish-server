@@ -4,7 +4,6 @@ import os.path
 import gzip
 import itertools
 
-import aldjemy
 from bgjobs.models import BackgroundJob
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
@@ -17,7 +16,6 @@ from projectroles.models import Project
 from svs.tasks import run_import_structural_variants_bg_job
 from variants.models import ImportVariantsBgJob
 from variants.tasks import run_import_variants_bg_job
-from variants.helpers import SQLALCHEMY_ENGINE
 
 
 #: The User model to use.

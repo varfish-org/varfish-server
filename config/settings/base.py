@@ -8,6 +8,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
+import os
 import environ
 import sys
 
@@ -78,11 +79,11 @@ THIRD_PARTY_APPS = [
     "docs",  # For the online user documentation/manual
     "dal",
     "dal_select2",
-    "httpproxy",
-    "encrypted_model_fields",
+    "cryptographic_fields",
     "rest_framework_httpsignature",
     "webpack_loader",
     "django_saml2_auth",
+    "dj_iconify.apps.DjIconifyConfig",
 ]
 
 # Apps specific for this project go here.
@@ -210,8 +211,12 @@ MANAGERS = ADMINS
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 # Uses django-environ to accept uri format
 # See: https://django-environ.readthedocs.io/en/latest/#supported-types
-DATABASES = {"default": env.db("DATABASE_URL", default="postgres:///varfish")}
+DATABASES = {
+    "default": env.db("DATABASE_URL", default="postgres:///varfish"),
+}
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # SENTRY CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -235,34 +240,6 @@ if env.bool("ENABLE_SENTRY", default=False):
 
 # ALDJEMY CONFIGURATION
 # ------------------------------------------------------------------------------
-# We have to do some fixes to the Aldjemy data types...
-
-
-def fixed_array_type(field):
-    import aldjemy.table
-    import sqlalchemy.dialects.postgresql
-
-    data_types = aldjemy.table.DATA_TYPES
-    internal_type = field.base_field.get_internal_type()
-
-    # currently no support for multi-dimensional arrays
-    if internal_type in data_types and internal_type != "ArrayField":
-        sub_type = data_types[internal_type](field)
-    else:
-        raise RuntimeError("Unsupported array element type")
-
-    return sqlalchemy.dialects.postgresql.ARRAY(sub_type)
-
-
-import sqlalchemy.dialects.postgresql
-
-ALDJEMY_DATA_TYPES = {
-    "ArrayField": lambda field: fixed_array_type(field),
-    "UUIDField": lambda _: sqlalchemy.dialects.postgresql.UUID(as_uuid=True),
-    "JSONField": lambda _: sqlalchemy.dialects.postgresql.JSONB,
-    "BinaryField": lambda _: sqlalchemy.dialects.postgresql.BYTEA,
-}
-
 
 # We need to tell Aldjemy that we're using the psycopg2 driver so the correct
 # SQL Alchemy connection dialect is used.
@@ -330,6 +307,8 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 # Your stuff: custom template context processors go here
                 "projectroles.context_processors.urls_processor",
+                "projectroles.context_processors.site_app_processor",
+                "projectroles.context_processors.app_alerts_processor",
                 "django_su.context_processors.is_su",
             ],
         },
@@ -823,3 +802,7 @@ if ENABLE_S3:
 # WEBPACK / VUE.JS CONFIGURATION
 # ------------------------------------------------------------------------------
 WEBPACK_LOADER = {"VARFISH_VUE": {"STATS_FILE": ROOT_DIR("varfish/vueapp/webpack-stats.json"),}}
+
+# ICONIFY CONFIGURATION
+# ------------------------------------------------------------------------------
+ICONIFY_JSON_ROOT = os.path.join(STATIC_ROOT, "iconify")

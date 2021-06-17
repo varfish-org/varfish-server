@@ -4,12 +4,12 @@
 <div class="ml-auto btn-group">
   {% if query_type == "case" %}
     <a class="btn btn-secondary" href="{% url "variants:case-detail" project=project.sodar_uuid case=object.sodar_uuid %}">
-      <i class="fa fa-arrow-circle-left"></i>
+      <i class="iconify" data-icon="mdi:arrow-left-circle"></i>
       Back to Case
     </a>
   {% else %}
     <a class="btn btn-secondary" href="{% url "variants:case-list" project=project.sodar_uuid %}">
-      <i class="fa fa-arrow-circle-left"></i>
+      <i class="iconify" data-icon="mdi:arrow-left-circle"></i>
       Back to List
     </a>
   {% endif %}
