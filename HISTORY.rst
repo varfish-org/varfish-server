@@ -14,6 +14,8 @@ End-User Summary
 Full Change List
 ================
 
+- Fixing bug that occured when variants were annotated earlier by the user with the variant disappering later on.
+  This could be caused if the case is updated from singleton to trio later on.
 - Added sso urls to config/urls.py
 - Added SAML configuration to config/settings/base.py
 - Added necessary tools to the Dockerfile

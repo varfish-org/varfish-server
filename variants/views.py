@@ -878,22 +878,27 @@ def get_annotations_by_variant(case=None, cases=None, project=None):
     if case:
         result.setdefault(case.sodar_uuid, {})
 
+    def init_var(description):
+        result[case_uuid].setdefault(
+            description, {"variants": [], "flags": None, "comments": [], "acmg_rating": None,},
+        )
+
     for small_var in annotated_small_vars.small_variants:
         case_uuid = case_id_to_uuid[small_var.case_id]
         result.setdefault(case_uuid, {})
-        result[case_uuid].setdefault(
-            small_var.get_description(),
-            {"variants": [], "flags": None, "comments": [], "acmg_rating": None,},
-        )
+        init_var(small_var.get_description())
         result[case_uuid][small_var.get_description()]["variants"].append(small_var)
     for flags in annotated_small_vars.small_variant_flags:
         case_uuid = case_id_to_uuid[flags.case_id]
+        init_var(flags.get_variant_description())
         result[case_uuid][flags.get_variant_description()]["flags"] = flags
     for comments in annotated_small_vars.small_variant_comments:
         case_uuid = case_id_to_uuid[comments.case_id]
+        init_var(comments.get_variant_description())
         result[case_uuid][comments.get_variant_description()]["comments"].append(comments)
     for rating in annotated_small_vars.acmg_criteria_rating:
         case_uuid = case_id_to_uuid[rating.case_id]
+        init_var(rating.get_variant_description())
         result[case_uuid][rating.get_variant_description()]["acmg_rating"] = rating
     return result
 
