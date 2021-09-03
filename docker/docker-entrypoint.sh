@@ -69,8 +69,9 @@ if [[ "$1" == wsgi ]]; then
 elif [[ "$1" == celeryd ]]; then
   cd $APP_DIR
 
-  exec celery worker \
+  exec celery \
     --app config.celery_app \
+    worker \
     -Q "${CELERY_QUEUES}" \
     --concurrency "${CELERY_WORKERS}" \
     --loglevel info
@@ -78,8 +79,9 @@ elif [[ "$1" == celerybeat ]]; then
   cd $APP_DIR
   rm -f celerybeat.pid
 
-  exec celery beat \
+  exec celery \
     --max-interval 30 \
+    beat \
     --app config.celery_app \
     --loglevel info
 else

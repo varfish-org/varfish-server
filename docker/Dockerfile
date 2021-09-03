@@ -1,4 +1,7 @@
-FROM python:3.6-buster
+FROM python:3.8-buster
+
+MAINTAINER Manuel Holtgrewe <manuel.holtgrewe@bih-charite.de>
+LABEL org.opencontainers.image.source https://github.com/bihealth/varfish-server
 
 ARG app_git_url=https://github.com/bihealth/varfish-server.git
 ARG app_git_tag
@@ -110,6 +113,7 @@ RUN cd /usr/src/app && \
     DJANGO_SECRET_KEY=for-build-only \
     DJANGO_SETTINGS_MODULE=config.settings.production \
     DATABASE_URL=postgres://varfish:varfish@fake/varfish \
+    python manage.py geticons && \
     python manage.py collectstatic --no-input
 
 # Define the entry point.
