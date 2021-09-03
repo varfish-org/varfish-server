@@ -2,9 +2,9 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+-------
+v0.23.8
+-------
 
 End-User Summary
 ================
@@ -24,6 +24,7 @@ Full Change List
 - Upgrading sodar-core dependency.
   This implies that we now require Python 3.7 or later.
 - Upgrading various other packages including Django itself.
+- Docker images are now published via ghcr.io.
 
 -------
 v0.23.7
