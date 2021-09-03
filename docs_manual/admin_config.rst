@@ -9,27 +9,52 @@ When running with the ``varfish-docker-compose`` files and the provided database
 There are a few things that you might want to tweak.
 Please note that there might be more settings that you can change when exploring the VarFish source code but right now their use is not supported for external users.
 
+.. _admin_config_compose:
+
+------------------------
+VarFish & Docker Compose
+------------------------
+
+The recommended (and supported) way to deploy VarFish is using Docker compose.
+The VarFish server and its component are not installed on the system itself but rather a number of Docker containers with fixed Docker images are run and work together.
+The base ``docker-compose.yml`` file starts a fully functional VarFish server.
+Docker Compose supports using so-called override files. 
+
+Basically, the mechanism works by providing an ``docker-compose.override.yml`` file that is automatically read at startup when running ``docker-compose up``.
+This file is put into the `.gitignore` so it is not in the ``varfish-docker-compose`` repository but rather created in the checkouts (e.g., manually or using a configuration management tool such as Ansible).
+On startup, Docker Compose will read first the base ``docker-compose.yml`` file.
+It will then read the override file (if it exists) and recursively merge both YAML files with the override file overriding taking precedence over the base file.
+Note that the recursive merging will be done on YAML dicts only, lists will overwritten.
+The mechanism in detail is described in `the offical documentation <https://docs.docker.com/compose/extends/>`__.
+
+We provide the following files that you can use/combine into the local ``docker-compose.override.yml`` file of your installation.
+
+- ``docker-compose.override.yml-cert`` -- use TLS encryption with your own certificate from your favourite certificate provider (by default an automatically generated self-signed certificate will be used by traefik, the reverse proxy).
+- ``docker-compose.override.yml-letsencrypt`` -- use `letsencrypt <https://letsencrypt.org/>`__ to obtain a certificate.
+- ``docker-compose.override.yml-cadd`` -- spawn Docker containers for allowing pathogenicity annotation of your variants with `CADD <https://cadd.kircherlab.bihealth.org/>`__.
+
+The overall process is to copy any of the ``*.override.yml-*`` files to ``docker-compose.yml`` and adjusting it to your need (e.g., merging with another such file).
+
+Note that you could also explicitely provide multiple override files but we do not consider this further.
+For more information on the override mechanism see `the offical documentation <https://docs.docker.com/compose/extends/>`__.
+
+The following sections describe the possible adjustment with Docker Compose override files.
+
 .. _admin_config_tls:
 
------------------------
 TLS / SSL Configuration
------------------------
-
-In the ``docker-compose.yml`` file you will find sections starting with ``# BEGIN`` and are followed by a token, e.g., ``settings:testing``, ``settings:production-provide-certificate``, and ``settings:production-letsencrypt``.
-You will have to decide for one of the following and make sure that the lines for your choice are not commented out while all the others should be (in the case of ``OR`` leave the section in for all ``OR``-ed settings).
+=======================
 
 The ``varfish-docker-compose`` setup uses `traefik <https://traefik.io/>`__ as a reverse proxy and must be reconfigured if you want to change the default behaviour of using self-signed certificates.
 
-``settings:testing``
-    By default (and as a fallback), traefik will use self-signed certificates that are recreated at every startup.
-    These are probably fine for a test environment but you might want to change this to one of the below.
-``settings:production-provide-certificate``
-    You can provide your own certificates by placing them into ````config/traefik/tls/server.crt`` and ``server.key``.
-    Make sure to provide the full certificate chain if needed (e.g., for DFN issued certificates).
-``settings:production-letsencrypt``
-      If your site is reachable from the internet then you can also use ``settings:production-letsencrypt`` which will use [letsencrypt](https://letsencrypt.org/) to obtain the certificates.
-      NB: if you make your site reachable from the internet then you should be aware of the implications.
-      VarFish is MIT licensed software which means that it comes "without any warranty of any kind", see the ``LICENSE`` file for details.
+Use the contents of ``docker-compose.override.yml-cert`` for providing your own certificate.
+You have to put the cerver certificate and key into ``config/traefik/tls/server.crt`` and ``server.key`` and then restart the ``traefik`` container.
+Make sure to provide the full certificate chain if needed (e.g., for DFN issued certificates).
+
+If your site is reachable from the internet then you can also use the contents of ``docker-compose.override.yml-letsencrypt`` which will use [letsencrypt](https://letsencrypt.org/) to obtain the certificates.
+Make sure to adjust the line with ``--certificatesresolvers.le.acme.email=`` to your email address.
+Note well that if you make your site reachable from the internet then you should be aware of the implications.
+VarFish is MIT licensed software which means that it comes "without any warranty of any kind", see the ``LICENSE`` file for details.
 
 After changing the configuration, restart the site (e.g., with ``docker-compose down && docker-compose up -d`` if it is running in detached mode).
 
@@ -192,33 +217,65 @@ Using Non-Default HTTP(S) Ports
 ===============================
 
 If you want to use non-standard HTTP and HTTPS ports (defaults are 80 and 443) then you can tweak this in the ``traefik`` container section.
-You have to adjust two parts.
+You have to adjust two parts, below we give them separately with full YAML "key" paths.
 
 .. code-block:: yaml
 
-    ports:
-      - "80:80"
-      - "443:443"
+    services:
+      traefik:
+        ports:
+          - "80:80"
+          - "443:443"
 
-To listen on ports ``8080`` and ``8443`` instead, adjust this to:
+To listen on ports ``8080`` and ``8443`` instead, your override file should have:
 
-    ports:
-      - "8080:80"
-      - "8443:443"
+    services:
+      traefik:
+        ports:
+          - "8080:80"
+          - "8443:443"
 
-Also, you have to change the command line arguments to traefik for the ``web`` (HTTP) and ``websecure`` (HTTPS) entrypoints.
-
-.. code-block:: yaml
-
-    - "--entrypoints.web.address=:80"
-    - "--entrypoints.websecure.address=:443"
-
-Change the lines to read:
+Also, you have to adjust the command line arguments to traefik for the ``web`` (HTTP) and ``websecure`` (HTTPS) entrypoints.
 
 .. code-block:: yaml
 
-    - "--entrypoints.web.address=:8080"
-    - "--entrypoints.websecure.address=:8443"
+    services:
+      traefik:
+        command:
+          # ...
+          - "--entrypoints.web.address=:80"
+          - "--entrypoints.websecure.address=:443"
+
+Use the following in your override file.
+
+.. code-block:: yaml
+
+    services:
+      traefik:
+        command:
+          # ...
+          - "--entrypoints.web.address=:8080"
+          - "--entrypoints.websecure.address=:8443"
+
+Based on the ``docker-compose.yml`` file alone, your ``docker-compose.override.yml`` file should contain the following line.
+You will have to adjust the file accordingly if you want to use a custom static certificate or letsencrypt by incorporating the files from the provided example ``docker-compose.override.yml-*`` files.
+
+.. code-block:: yaml
+
+    services:
+      traefik:
+        ports:
+          - "8080:80"
+          - "8443:443"
+        command:
+          - "--providers.docker=true"
+          - "--providers.docker.exposedbydefault=false"
+          - "--entrypoints.web.address=:80"
+          - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+          - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+          - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+          - "--entrypoints.web.address=:80"
+          - "--entrypoints.websecure.address=:443"
 
 Then, restart by calling ``docker-compose up -d`` in the directory with the ``docker-compose.yml`` file.
 
@@ -228,21 +285,25 @@ Listing on Specific IPs
 By default, the ``traefik`` container will listen on all IPs and interfaces of the host machine.
 
 You can change this by prefixing the ``ports`` list with the IPs to listen on.
-Change following lines to read:
+The settings to adjust here are:
 
 .. code-block:: yaml
 
-    ports:
-      - "80:80"
-      - "443:443"
+    services:
+      traefik:
+        ports:
+          - "80:80"
+          - "443:443"
 
-To the following to only listen on ``10.0.0.1``.
+And they need to be overwritten as follows in your override file.
 
 .. code-block:: yaml
 
-    ports:
-      - "10.0.0.1:80:80"
-      - "10.0.0.1:443:443"
+    services:
+      traefik:
+        ports:
+          - "10.0.0.1:80:80"
+          - "10.0.0.1:443:443"
 
 More details can be found in the `corresponding section of the Docker Compose manual <https://docs.docker.com/compose/compose-file/compose-file-v3/#ports>`_.
 Of course, you can combine this with adjusting the ports, e.g., to ``10.0.0.1:8080:80`` etc.
