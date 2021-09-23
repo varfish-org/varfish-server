@@ -273,7 +273,7 @@ USE_TZ = True
 # ------------------------------------------------------------------------------
 # Hosts/domain names that are valid for this site
 # See https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["varfish.bihealth.org"])
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["*"])
 # END SITE CONFIGURATION
 
 
@@ -597,21 +597,55 @@ else:
     PROJECTROLES_CUSTOM_CSS_INCLUDES = []
 
 
+# Logging
+# ------------------------------------------------------------------------------
+
+LOGGING_APPS = env.list(
+    "LOGGING_APPS",
+    default=[
+        "irodsadmin",
+        "irodsbackend",
+        "landingzones",
+        "ontologyaccess",
+        "projectroles",
+        "samplesheets",
+        "sodarcache",
+        "taskflowbackend",
+        #        'django',
+        #        'django.requests',
+    ],
+)
+
+LOGGING_FILE_PATH = env.str("LOGGING_FILE_PATH", None)
+
+
 def set_logging(debug):
+    app_logger_config = {
+        "level": "DEBUG" if debug else "ERROR",
+        "handlers": ["console", "file"] if LOGGING_FILE_PATH else ["console"],
+        "propagate": True,
+    }
+    log_handlers = {
+        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple",}
+    }
+    if LOGGING_FILE_PATH:
+        log_handlers["file"] = {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": LOGGING_FILE_PATH,
+            "formatter": "simple",
+        }
     return {
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {"simple": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"}},
-        "handlers": {
-            "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple",}
-        },
-        "loggers": {
-            "projectroles": {"level": "INFO", "handlers": ["console"], "propagate": True,},
-        },
+        "handlers": log_handlers,
+        "loggers": {a: app_logger_config for a in LOGGING_APPS},
     }
 
 
-LOGGING = set_logging(DEBUG)
+LOGGING_DEBUG = env.bool("LOGGING_DEBUG", False)
+LOGGING = set_logging(DEBUG or LOGGING_DEBUG)
 
 ENABLE_LDAP = env.bool("ENABLE_LDAP", False)
 ENABLE_LDAP_SECONDARY = env.bool("ENABLE_LDAP_SECONDARY", False)

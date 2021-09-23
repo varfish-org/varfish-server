@@ -80,9 +80,9 @@ elif [[ "$1" == celerybeat ]]; then
   rm -f celerybeat.pid
 
   exec celery \
-    --max-interval 30 \
-    beat \
     --app config.celery_app \
+    beat \
+    --max-interval 30 \
     --loglevel info
 else
   cd $APP_DIR

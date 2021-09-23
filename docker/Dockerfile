@@ -113,7 +113,6 @@ RUN cd /usr/src/app && \
     DJANGO_SECRET_KEY=for-build-only \
     DJANGO_SETTINGS_MODULE=config.settings.production \
     DATABASE_URL=postgres://varfish:varfish@fake/varfish \
-    python manage.py geticons && \
     python manage.py collectstatic --no-input
 
 # Define the entry point.
