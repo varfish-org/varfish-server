@@ -1,9 +1,2 @@
-{% extends "base.html" %}
-
-{% block title %}Forbidden (403){% endblock %}
-
-{% block content %}
-<h1>Forbidden (403)</h1>
-
-<p>CSRF verification failed. Request aborted.</p>
-{% endblock content %}
+{# TODO: Extend as below, copy here and modify, or use your own template #}
+{% extends 'projectroles/error/403_csrf.html' %}
