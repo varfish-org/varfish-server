@@ -3,6 +3,20 @@ History / Changelog
 ===================
 
 -------
+v0.23.9
+-------
+
+End-User Summary
+================
+
+- Bugfix release.
+
+Full Change List
+================
+
+- Fixing bugs that prevented properly running in production environment.
+
+-------
 v0.23.8
 -------
 
