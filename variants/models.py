@@ -3728,6 +3728,7 @@ class KioskAnnotate:
         try:
             process = subprocess.Popen(
                 """
+                {set_x}
                 . {conda_path}
                 conda activate varfish-annotator
                 set -euo pipefail
@@ -3750,6 +3751,7 @@ class KioskAnnotate:
                     --ref-path {reference_path} \
                     --release {release}
                 """.format(
+                    set_x="set -x" if settings.DEBUG else "",
                     conda_path=settings.KIOSK_CONDA_PATH,
                     db_path=settings.KIOSK_VARFISH_ANNOTATOR_DB_PATH,
                     ensembl_ser_path=settings.KIOSK_VARFISH_ANNOTATOR_ENSEMBL_SER_PATH,
