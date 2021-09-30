@@ -18,6 +18,7 @@ Full Change List
     - Auto-creating user ``kiosk_user`` when running in Kiosk mode.
     - Using custom middleware for kiosk user (#215).
 - Kiosk annotation now uses ``set -x`` flag if ``settings.DEBUG`` is true.
+- Mapping kiosk jobs to import queue.
 
 -------
 v0.23.9

@@ -17,6 +17,8 @@ if "production" in os.environ.get("DJANGO_SETTINGS_MODULE"):
     app.conf.task_routes = {
         # The bulk import jobs share a common name pattern and should go to the "import" queue.
         "*.run_import_*_bg_job": {"queue": "import"},
+        # Also use this for kiosk annotation and import jobs.
+        "*.run_kiosk_bg_job": {"queue": "import"},
         # The filter tasks go to the "query" queue.
         "*.*_filter_task": {"queue": "query"},
         # The export tasks go to the "export" queue.
