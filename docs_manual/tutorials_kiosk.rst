@@ -21,7 +21,7 @@ In the case of any questions or problems, don't hesitate to contact `Manuel Holt
 Download Example Data
 ---------------------
 
-Please first download the `pfeiffer-singleton.vcf.gz <https://github.com/bihealth/varfish-server/raw/master/docs_manual/assets/pfeiffer-singleton.vcf.gz>`_ file.
+Please first download the `pfeiffer-singleton.vcf.gz <https://github.com/bihealth/varfish-server/raw/main/docs_manual/assets/pfeiffer-singleton.vcf.gz>`_ file.
 This is the exome data published into the public domain by Manuel Corpas as the `corpasome <https://figshare.com/articles/Corpasome/693052>`_ with a spike-in of the variant ``FGFR2:p.Glu566Gly`` which is associated with `Pfeiffer syndrome in ClinVar <https://www.ncbi.nlm.nih.gov/clinvar/RCV000415495/>`_.
 The example data is taken from the `Exomiser project <https://github.com/exomiser/Exomiser>`_.
 
@@ -221,7 +221,7 @@ Closing Remarks
 
 This is the end of this tutorial.
 
-- A good next step is to try this again with the following `quartet VCF file <https://github.com/bihealth/varfish-server/raw/master/docs_manual/assets/pfeiffer-quatro.vcf.gz>`_ which is again based on the public Corpasome data having the Pfeiffer variant spiked into one of the children as a *de novo* variant.
+- A good next step is to try this again with the following `quartet VCF file <https://github.com/bihealth/varfish-server/raw/main/docs_manual/assets/pfeiffer-quatro.vcf.gz>`_ which is again based on the public Corpasome data having the Pfeiffer variant spiked into one of the children as a *de novo* variant.
   You can use the following pedigree information:
 
     .. code-block::
