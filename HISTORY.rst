@@ -2,6 +2,23 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Fixing Kiosk mode of VarFish.
+
+Full Change List
+================
+
+- Resolving problem with varfish-kiosk.
+    - Auto-creating user ``kiosk_user`` when running in Kiosk mode.
+    - Using custom middleware for kiosk user (#215).
+- Kiosk annotation now uses ``set -x`` flag if ``settings.DEBUG`` is true.
+
 -------
 v0.23.9
 -------
