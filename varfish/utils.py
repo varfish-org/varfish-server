@@ -3,6 +3,7 @@
 import json
 
 import django.db.models.fields.json
+from varfish.users.models import User
 
 
 def get_subclasses(classes, level=0):
@@ -62,3 +63,15 @@ class JSONField(django.db.models.fields.json.JSONField):
 
 # Monkey-patch original JSON field as we cannot control models outside of our app.
 django.db.models.fields.json.JSONField.from_db_value = JSONField.from_db_value
+
+
+class VarFishKioskUserMiddleware:
+    """Automatically assigns the ``kiosk_user`` to ``request.user``."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        request.user = User.get_kiosk_user()
+        response = self.get_response(request)
+        return response

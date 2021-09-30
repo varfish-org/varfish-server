@@ -8,11 +8,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
+import logging
 import os
 import environ
 import sys
 
 from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
 
 SITE_PACKAGE = "varfish"
 ROOT_DIR = environ.Path(__file__) - 3  # (varfish/config/settings/base.py - 3 = varfish/)
@@ -153,6 +156,8 @@ DEBUG = env.bool("DJANGO_DEBUG", False)
 # ------------------------------------------------------------------------------
 # Enable/disable kiosk mode.
 KIOSK_MODE = env.bool("VARFISH_KIOSK_MODE", False)
+# Name of the Kiosk user
+KIOSK_USER = env.str("VARFISH_KIOSK_USER", "kiosk_user")
 # Name of top-level category with kiosk cases.
 KIOSK_CAT = "VarFish Kiosk"
 # Name of project below that Kategory (mandatory structure from SODAR core).
@@ -181,6 +186,11 @@ PROJECTROLES_KIOSK_MODE = KIOSK_MODE
 PROJECTROLES_DELEGATE_LIMIT = 1
 # Allow including of additional HTML into the head.
 PROJECTROLES_INLINE_HEAD_INCLUDE = env.str("PROJECTROLES_INLINE_HEAD_INCLUDE", "")
+
+# Enable VarFishKioskUserMiddlerware in Kiosk mode.
+if KIOSK_MODE:
+    logger.info("Enabling VarFishKioskUserMiddleware")
+    MIDDLEWARE += ["varfish.utils.VarFishKioskUserMiddleware"]
 
 # FIXTURE CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -536,7 +546,7 @@ PROJECTROLES_INVITE_EXPIRY_DAYS = env.int("PROJECTROLES_INVITE_EXPIRY_DAYS", 14)
 PROJECTROLES_SEND_EMAIL = env.bool("PROJECTROLES_SEND_EMAIL", False)
 PROJECTROLES_HELP_HIGHLIGHT_DAYS = 7
 
-PROJECTROLES_ENABLE_SEARCH = True
+PROJECTROLES_ENABLE_SEARCH = not KIOSK_MODE
 PROJECTROLES_SEARCH_PAGINATION = 5
 
 SODAR_API_DEFAULT_VERSION = "0.1"
