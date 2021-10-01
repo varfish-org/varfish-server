@@ -88,6 +88,14 @@ This will create the ``volumes`` directory (500GB of data, ZFS compression yield
     $ ls volumes
     exomiser  jannovar  minio  postgres  redis  traefik
 
+The next step is to create an installation-specific configuration file ``.env`` as a copy of ``env.example``.
+You will have to at least set ``DJANGO_SECRET_KEY`` variable to something random (a bash one-liner for this is `tr -dc A-Za-z0-9 </dev/urandom | head -c 64 ; echo ''`).
+
+.. code-block:: bash
+
+    $ cp env.example .env
+    $ $EDITOR .env
+
 You can now bring up the site with Docker Compose.
 The site will come up at your server and listen on ports 80 and 443 (make sure that the ports are open), you can access it at ``https://<your-host>/`` in your web browser.
 This will create a lot of output and will not return you to your shell.
