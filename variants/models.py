@@ -472,6 +472,8 @@ CASE_STATUS_CHOICES = (
 class CoreCase(models.Model):
     """Abstract base class for Case core fields."""
 
+    #: Genome build
+    release = models.CharField(max_length=32, null=True, default="GRCh37")
     #: Name of the case.
     name = models.CharField(max_length=512)
     #: Identifier of the index in ``pedigree``.
@@ -951,6 +953,8 @@ class SmallVariantSet(models.Model):
     case = models.ForeignKey(
         Case, on_delete=models.CASCADE, null=False, help_text="The case that this set is for"
     )
+    #: Genome build
+    release = models.CharField(max_length=32, null=True, default="GRCh37")
     #: The state of the variant set.
     state = models.CharField(
         max_length=16,
@@ -2428,13 +2432,13 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
 class VariantScoresFactory:
     """Factory class for variant scorers."""
 
-    def get_scorer(self, score_type, variants, user=None):
+    def get_scorer(self, genomebuild, score_type, variants, user=None):
         if score_type == "umd":
-            return VariantScoresUmd(variants, score_type, user)
+            return VariantScoresUmd(genomebuild, variants, score_type, user)
         elif score_type == "cadd":
-            return VariantScoresCadd(variants, score_type)
+            return VariantScoresCadd(genomebuild, variants, score_type)
         elif score_type == "mutationtaster":
-            return VariantScoresMutationTaster(variants, score_type)
+            return VariantScoresMutationTaster(genomebuild, variants, score_type)
 
 
 class VariantScoresBase:
@@ -2443,7 +2447,8 @@ class VariantScoresBase:
     #: Set PathogenicityCache model (required in child classes)
     cache_model = None
 
-    def __init__(self, variants, score_type, user=None):
+    def __init__(self, genomebuild, variants, score_type, user=None):
+        self.genomebuild = genomebuild
         self.variants = list(set(variants))
         self.user = user
         self.score_type = score_type
@@ -2745,12 +2750,13 @@ class VariantScoresCadd(VariantScoresBase):
         uncached = uncached[: settings.VARFISH_CADD_MAX_VARS]
 
         # TODO: properly test
+        cadd_release = "%s-%s" % (self.genomebuild, settings.VARFISH_CADD_REST_API_CADD_VERSION)
         try:
             res = requests.post(
                 settings.VARFISH_CADD_REST_API_URL + "/annotate/",
                 json={
-                    "genome_build": "GRCh37",
-                    "cadd_release": settings.VARFISH_CADD_REST_API_CADD_VERSION,
+                    "genome_build": self.genomebuild,
+                    "cadd_release": cadd_release,
                     "variant": ["-".join(map(str, var)) for var in uncached],
                 },
             )

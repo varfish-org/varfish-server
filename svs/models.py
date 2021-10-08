@@ -121,6 +121,8 @@ class StructuralVariantSet(models.Model):
     case = models.ForeignKey(
         Case, on_delete=models.CASCADE, null=False, help_text="The case that this set is for"
     )
+    #: Genome build
+    release = models.CharField(max_length=32, null=True, default="GRCh37")
     #: The state of the variant set.
     state = models.CharField(
         max_length=16,

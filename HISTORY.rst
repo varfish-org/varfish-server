@@ -6,6 +6,8 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+Breaking changes, see below.
+
 End-User Summary
 ================
 
@@ -25,6 +27,10 @@ End-User Summary
 - Added section for developers in manual (#267).
 - Migrated icons to iconify (#208).
 - Bumped chrome-driver version (#208).
+- VarFish now allows for the import of GRCh38 annotated variants.
+  For this, GRCh38 background data must be imported.
+  Kiosk mode does not support GRCh38 yet.
+  **This is a breaking change, new data and CLI must be used!**
 
 Full Change List
 ================
@@ -50,6 +56,13 @@ Full Change List
 - Migrated icons to iconify (#208).
 - Bumped chrome-driver version (#208).
 - Skipping codacy if token is not defined (#275).
+- Adjusting models and UI for supporting GRCh38 annotated cases.
+  It is currently not possible to migrate a GRCh37 case to GRCh38.
+- Adjusting models and UI for supporting GRCh38 annotated cases.
+  It is currently not possible to migrate a GRCh37 case to GRCh38.
+- Setting ``VARFISH_CADD_SUBMISSION_RELEASE`` is called ``VARFISH_CADD_SUBMISSION_VERSION`` now (**breaking change**).
+- ``import_info.tsv`` expected as in data release from ``20210728`` as built from varfish-db-downloader ``1b03e97`` or later.
+- Extending  columns of ``Hgnc`` to upstream update.
 
 -------
 v0.23.9

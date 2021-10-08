@@ -135,13 +135,20 @@
                 Download as File
               </button>
               {% if allow_md_submission %}
-                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-mutationdistiller"
-                        data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
-                        title="Submit to MutationDistiller (only supports single-sample VCF at the moment)"
-                        {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-                  <i class="iconify" data-icon="bi:send-fill"></i>
-                  Submit to MutationDistiller
-                </button>
+                {% if form.case.release == "GRCh37" %}
+                  <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-mutationdistiller"
+                          data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
+                          title="Submit to MutationDistiller (only supports single-sample VCF at the moment)"
+                          {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
+                    <i class="iconify" data-icon="bi:send-fill"></i>
+                    Submit to MutationDistiller
+                  </button>
+                {% else %}
+                  <button type="button" class="dropdown-item disabled">
+                    <i class="iconify" data-icon="bi:send-fill"></i>
+                    MutationDistiller: Only GRCh37
+                  </button>
+                {% endif %}
               {% endif %}
               {% if cadd_submission_enabled %}
                 <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-cadd"
@@ -153,13 +160,20 @@
                 </button>
               {% endif %}
               {% if spanr_submission_enabled %}
-                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-spanr"
-                        data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
-                        title="Submit to SPANR"
-                        {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-                  <i class="iconify" data-icon="bi:send-fill"></i>
-                  Submit to SPANR
-                </button>
+                {% if form.case.release == "GRCh37" %}
+                  <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-spanr"
+                          data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
+                          title="Submit to SPANR"
+                          {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
+                    <i class="iconify" data-icon="bi:send-fill"></i>
+                    Submit to SPANR
+                  </button>
+                {% else %}
+                  <button type="button" class="dropdown-item disabled">
+                    <i class="iconify" data-icon="bi:send-fill"></i>
+                    SPANR: Only GRCh37
+                  </button>
+                {% endif %}
               {% endif %}
             </div>
           </div>

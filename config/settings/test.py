@@ -78,6 +78,12 @@ TEMPLATES[0]["OPTIONS"]["loaders"] = [
     ]
 ]
 
+# Logging
+# ------------------------------------------------------------------------------
+
+LOGGING_LEVEL = env.str("LOGGING_LEVEL", "CRITICAL")
+LOGGING = set_logging(LOGGING_LEVEL)
+
 # Varfish: REST Services
 # ------------------------------------------------------------------------------
 

@@ -47,7 +47,6 @@ from bgjobs.models import BackgroundJob
 from bgjobs.views import DEFAULT_PAGINATION as BGJOBS_DEFAULT_PAGINATION
 from clinvar.models import Clinvar
 from cohorts.models import Cohort
-from config.settings.base import VARFISH_CADD_SUBMISSION_RELEASE
 from extra_annos.views import ExtraAnnosMixin
 from frequencies.models import MT_DB_INFO
 from geneinfo.views import get_gene_infos
@@ -2073,12 +2072,16 @@ class CaseFilterView(
                 job_type=CaddSubmissionBgJob.spec_name,
                 user=self.request.user,
             )
+            cadd_release = "%s-%s" % (
+                self.get_case_object().release,
+                settings.VARFISH_CADD_SUBMISSION_VERSION,
+            )
             submission_job = CaddSubmissionBgJob.objects.create(
                 project=self.get_project(self.request, self.kwargs),
                 bg_job=bg_job,
                 case=self.get_case_object(),
                 query_args=_undecimal(form.cleaned_data),
-                cadd_version=VARFISH_CADD_SUBMISSION_RELEASE,
+                cadd_version=cadd_release,
             )
         cadd_submission_task.delay(submission_job_pk=submission_job.pk)
         messages.info(
@@ -2429,8 +2432,13 @@ class CaseLoadPrefetchedFilterView(
                 else:
                     hpoterms[hpo] = "unknown term"
 
+        genomebuild = "GRCh37"
+        if rows:
+            genomebuild = rows[0]["release"]
+
         result.update(
             {
+                "genomebuild": genomebuild,
                 "user": self.request.user,
                 "case": filter_job.smallvariantquery.case,
                 "result_rows": rows,
@@ -3029,10 +3037,11 @@ class SmallVariantDetails(
             "%(base_url)sannotate-var/%(database)s/%(genome)s/%(chromosome)s/%(position)s/%(reference)s/"
             "%(alternative)s"
         )
+        genome = {"GRCh37": "hg19", "GRCh38": "hg38"}.get(kwargs["release"], "hg19")
         url = url_tpl % {
             "base_url": settings.VARFISH_JANNOVAR_REST_API_URL,
             "database": kwargs["database"],
-            "genome": "hg19",
+            "genome": genome,
             "chromosome": kwargs["chromosome"],
             "position": kwargs["start"],
             "reference": kwargs["reference"],

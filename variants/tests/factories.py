@@ -10,7 +10,7 @@ from projectroles.models import SODAR_CONSTANTS, RemoteSite
 
 from bgjobs.tests.factories import BackgroundJobFactory
 
-from config.settings.base import VARFISH_CADD_SUBMISSION_RELEASE
+from config.settings.base import VARFISH_CADD_SUBMISSION_VERSION
 from ..models import (
     Case,
     SmallVariant,
@@ -337,6 +337,7 @@ class CoreCaseFactory(factory.django.DjangoModelFactory):
         #: affected.
         inheritance = "denovo"
 
+    release = factory.Sequence(lambda n: "GRCh%d" % (37 + n % 2))
     name = factory.LazyAttributeSequence(lambda o, n: "case %03d: %s" % (n, o.structure))
     index = factory.Sequence(lambda n: "index_%03d-N1-DNA1-WES1" % n)
     pedigree = []
@@ -834,7 +835,7 @@ class CaddSubmissionBgJobFactory(factory.django.DjangoModelFactory):
     query_args = factory.LazyAttribute(
         lambda o: vars(ResubmitFormDataFactory(names=o.case.get_members()))
     )
-    cadd_version = VARFISH_CADD_SUBMISSION_RELEASE
+    cadd_version = VARFISH_CADD_SUBMISSION_VERSION
 
 
 class ExportFileBgJobFactory(factory.django.DjangoModelFactory):
