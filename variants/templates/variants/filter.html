@@ -149,6 +149,9 @@
       {% if query_type == "case" %}
         Filter Variants for Case
         <small class="text-muted">{{ object.name }}</small>
+        <small class="badge badge-primary" style="font-size: 50%;">
+          {{ object.release }}
+        </small>
       {% else %}
         {% if cohort %}
           Joint Filtration for Cohort

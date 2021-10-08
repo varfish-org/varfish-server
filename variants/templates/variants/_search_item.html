@@ -50,6 +50,9 @@
     </td>
   {% endif %}
   <td style="width: 0px;">
+    {{ item.release }}
+  </td>
+  <td style="width: 0px;">
     {% if svs_enabled %}
       <div class="btn-group" role="group">
         <a href="{% url "variants:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">

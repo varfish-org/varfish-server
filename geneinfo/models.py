@@ -107,6 +107,14 @@ class Hgnc(models.Model):
     intermediate_filament_db = models.CharField(max_length=32, null=True)
     #: RNACentral ID (rnacentral.org database)
     rna_central_ids = models.CharField(max_length=32, null=True)
+    #: gtrna DB ID
+    gtrnadb = models.CharField(max_length=32, null=True)
+    #: lcipedia.org IDs
+    lncipedia = models.CharField(max_length=32, null=True)
+    #: Alliance of genome resources.
+    agr = models.CharField(max_length=32, null=True)
+    #: MANE collected ID.
+    mane_select = models.CharField(max_length=64, null=True)
 
     #: Allow bulk import
     objects = CopyManager()

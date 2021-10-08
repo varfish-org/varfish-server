@@ -103,7 +103,7 @@ format, before starting your varfish instance (you can find more details `here <
 If you deploy varfish without docker, you can pass the file paths of your metadata.xml and key pair directly. Otherwise, make sure that you have included them
 into a single folder and added the corresponding folder to your ``docker-compose.yml`` (or add it as a ``docker-compose-overrrided.yml``), like in the following snippet.
 
-.. code-block:: yml
+.. code-block:: yaml
 
     varfish-web:
       ...

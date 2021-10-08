@@ -141,7 +141,7 @@ class VariantSetImportInfo(models.Model):
 
     genomebuild = models.CharField(
         max_length=32,
-        choices=(("GRCh37", "GRCh37"),),
+        choices=(("GRCh37", "GRCh37"), ("GRCh38", "GRCh38")),
         default="GRCh37",
         help_text="Genome build used in the variant set.",
     )
@@ -361,12 +361,23 @@ class CaseImporter:
             with transaction.atomic():
                 self.case, case_created = Case.objects.get_or_create(
                     name=self.import_info.name,
+                    release=self.import_info.release,
                     project=self.import_info.project,
                     defaults={
                         "index": self.import_info.index,
                         "pedigree": self.import_info.pedigree,
                     },
                 )
+                if not case_created:
+                    if self.case.release != self.import_info.release:
+                        self.import_job.add_log_entry(
+                            "Tried to import data for genome build %s into case with genome build %s"
+                            % (self.import_info.release, self.case.release),
+                            LOG_LEVEL_ERROR,
+                        )
+                        raise RuntimeError(
+                            "Inconsistent genome builds for import and existing case"
+                        )
         for variant_set_info in self.import_info.variantsetimportinfo_set.filter(
             state=VariantSetImportState.UPLOADED.value
         ):
@@ -471,6 +482,7 @@ class CaseImporter:
         default_values = default_values or {}
         before = timezone.now()
         self.import_job.add_log_entry("Creating temporary %s file..." % token)
+        case_genomebuild = self.case.release
         with tempfile.NamedTemporaryFile("w+t") as tempf:
             for i, import_variant_set_url in enumerate(getattr(variant_set_info, path_attr).all()):
                 self.import_job.add_log_entry("Importing from %s" % import_variant_set_url.name)
@@ -478,11 +490,12 @@ class CaseImporter:
                     header = inputf.readline().strip()
                     header_arr = header.split("\t")
                     try:
+                        release_idx = header_arr.index("release")
                         case_idx = header_arr.index("case_id")
                         set_idx = header_arr.index("set_id")
                     except ValueError as e:
                         raise RuntimeError(
-                            "Column 'case_id' or 'set_id' not found in %s TSV" % token
+                            "Column 'release', 'case_id' or 'set_id' not found in %s TSV" % token
                         ) from e
                     # Extend header for fields in self.default_values and build suffix to append to every line.
                     default_suffix = []
@@ -498,6 +511,11 @@ class CaseImporter:
                         if not line:
                             break
                         arr = line.split("\t")
+                        if arr[release_idx] != case_genomebuild:
+                            raise RuntimeError(
+                                "Incompatible genome build in %s TSV: %s vs %s from case"
+                                % (token, arr[release_idx], case_genomebuild)
+                            )
                         arr[case_idx] = str(variant_set.case.pk)
                         arr[set_idx] = str(variant_set.pk)
                         tempf.write("\t".join(arr + default_suffix))
@@ -522,6 +540,11 @@ class CaseImporter:
             )
 
     def _perform_import(self, variant_set, variant_set_info):
+        if variant_set_info.genomebuild != self.case.release:
+            raise RuntimeError(
+                "Incompatible genome builds in import info: %s and existing case: %s"
+                % (variant_set_info.genomebuild, self.case.release)
+            )
         if variant_set_info.variant_type == CaseVariantType.SMALL.name:
             # Ensure that the info and {refseq,ensembl}_exon_dist fields are present with default values.  This snippet
             # can go away once we are certain all TSV files have been created with varfish-annotator >=0.10

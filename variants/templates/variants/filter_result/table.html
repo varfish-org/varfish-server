@@ -174,8 +174,10 @@
             Frequency
           </label>
           <select class="custom-select" id="result-display-frequencies" onchange="javascript: updateTableDisplay();">
-            <option value="frequencies-exac">ExAC</option>
-            <option value="frequencies-thousand-genomes">1000 genomes</option>
+            {% if genomebuild == "GRCh37" %}
+              <option value="frequencies-exac">ExAC</option>
+              <option value="frequencies-thousand-genomes">1000 genomes</option>
+            {% endif %}
             <option value="frequencies-gnomad-exomes" selected>gnomAD exomes</option>
             <option value="frequencies-gnomad-genomes">gnomAD genomes</option>
             {% if not kiosk_mode %}<option value="frequencies-inhouse">in-house DB</option>{% endif %}
@@ -232,6 +234,9 @@
           <a type="button" id="logPopover" class="btn btn-sm btn-light" data-title="Background job logs" data-container="body" data-toggle="popover" data-trigger="focus" tabindex="0" data-placement="top" data-html="true" data-content="<pre>{{ logs|join:"<br>" }}</pre>">
             <span class="iconify" data-icon="mdi:format-list-bulleted-square" data-inline="false"></span> Show logs
           </a>
+          <small class="badge badge-secondary">
+            {{ case.release }}
+          </small>
         </div>
       </div>
     </div>

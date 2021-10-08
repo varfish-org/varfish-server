@@ -1,3 +1,5 @@
+{% load variants_tags %}
+
 <div class="ml-auto btn-group">
   {% if not kiosk_mode %}
     <a class="btn btn-secondary" href="{% url 'projectroles:detail' project=project.sodar_uuid %}">
@@ -5,10 +7,18 @@
       Back to Project
     </a>
   {% endif %}
-  <a class="btn btn-primary{% if not project.has_variants_and_variant_sets %} disabled{% endif %}" href="{% url "variants:project-cases-filter" project=project.sodar_uuid %}">
-    <i class="iconify" data-icon="mdi:filter"></i>
-    Joint Filtration
-  </a>
+  {% same_release project.case_set.all as project_cases_same_release %}
+  {% if project_cases_same_release %}
+    <a class="btn btn-primary{% if not project.has_variants_and_variant_sets %} disabled{% endif %}" href="{% url "variants:project-cases-filter" project=project.sodar_uuid %}">
+      <i class="iconify" data-icon="mdi:filter"></i>
+      Joint Filtration
+    </a>
+  {% else %}
+    <a class="btn btn-primary disabled" data-toggle="tooltip" title="Joint filtration impossible, different genomes in project.">
+      <i class="iconify" data-icon="mdi:filter"></i>
+      Joint Filtration
+    </a>
+  {% endif %}
   {% if request.user.is_superuser or kiosk_mode %}
     {% if disable_pedigree_sex_check %}
       <a class="btn btn-danger{% if not project.sex_errors %} disabled{% endif %}" href="{% url "variants:project-cases-fix-sex" project=project.sodar_uuid %}">

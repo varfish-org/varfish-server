@@ -264,6 +264,25 @@ class CaseExporterBase:
         #: The column information.
         self.columns = list(self._yield_columns(self.members))
 
+    def get_genomebuild(self):
+        """Return genome build for case or cohort."""
+        if self.case:
+            return self.case.release
+        else:
+            if isinstance(self.project_or_cohort, Cohort):
+                cases = [
+                    case
+                    for case in self.project_or_cohort.get_accessible_cases_for_user(
+                        self.job.bg_job.user
+                    )
+                ]
+            else:  # project
+                cases = [case for case in self.project_or_cohort.case_set.all()]
+            if not cases:
+                return "GRCh37"
+            else:
+                return cases[0].release
+
     def get_alchemy_engine(self):
         if not self._alchemy_engine:
             self._alchemy_engine = get_engine()
@@ -394,7 +413,9 @@ class CaseExporterBase:
             try:
                 patho_score = self.query_args.get("patho_score")
                 scorer_factory = VariantScoresFactory()
-                scorer = scorer_factory.get_scorer(patho_score, variants, self.job.bg_job.user)
+                scorer = scorer_factory.get_scorer(
+                    self._get_genomebuild(), patho_score, variants, self.job.bg_job.user
+                )
                 return {
                     "-".join(
                         [

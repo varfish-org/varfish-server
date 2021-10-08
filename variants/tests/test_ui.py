@@ -636,11 +636,11 @@ class TestVariantsCaseFilterView(TestUIBase):
         )
         # switch tab
         self.selenium.find_element_by_id("frequency-tab").click()
-        exac = self.selenium.find_element_by_xpath("//input[@name='exac_enabled']")
-        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(exac))
+        exomes = self.selenium.find_element_by_xpath("//input[@name='gnomad_exomes_enabled']")
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(exomes))
         # disable exac and thousand genomes frequency filter
-        exac.click()
-        self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
+        exomes.click()
+        self.selenium.find_element_by_xpath("//input[@name='gnomad_genomes_enabled']").click()
         # switch tab
         self.selenium.find_element_by_id("more-tab").click()
         self.selenium.find_element_by_id("quality-tab").click()
@@ -732,7 +732,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # create wrong setting
         tab = self.selenium.find_element_by_id("frequency-tab")
         tab.click()
-        field = self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_frequency']")
+        field = self.selenium.find_element_by_xpath("//input[@name='gnomad_exomes_frequency']")
         WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(field))
         field.clear()
         field.send_keys("10")
@@ -753,7 +753,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # create wrong setting
         tab = self.selenium.find_element_by_id("frequency-tab")
         tab.click()
-        field = self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_frequency']")
+        field = self.selenium.find_element_by_xpath("//input[@name='gnomad_exomes_frequency']")
         WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(field))
         field.clear()
         field.send_keys("10")

@@ -47,6 +47,7 @@
           {% if svs_enabled %}
             <th style="width: 120px" id="sodar-case-list-header-svs">SVs</th>
           {% endif %}
+          <th style="width: 0px;">Genome</th>
           <th style="width: 0px;" class="no-sort"></th>
         </tr>
       </thead>
@@ -56,7 +57,7 @@
         {% endfor %}
         {% if not object_list %}
           <tr>
-             <td class="bg-faded font-italic text-center" colspan="{% if svs_enabled %}8{% else %}7{% endif %}">
+             <td class="bg-faded font-italic text-center" colspan="{% if svs_enabled %}9{% else %}8{% endif %}">
                No cases added yet.
              </td>
           </tr>

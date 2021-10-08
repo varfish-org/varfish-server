@@ -496,3 +496,56 @@ def get_term_description(term):
             return record.name
         else:
             return None
+
+
+#: Links from browser name and genome release to base URLs.
+LINKOUT_URLS = {
+    ("ucsc", "GRCh37"): "https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg19",
+    ("ucsc", "GRCh38"): "https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg38",
+    ("ensembl", "GRCh37"): "https://grch37.ensembl.org/Homo_sapiens/Location/View?",
+    ("ensembl", "GRCh38"): "https://ensembl.org/Homo_sapiens/Location/View?",
+    ("dgv", "GRCh37"): "http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/",
+    ("dgv", "GRCh38"): "http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg38/",
+    ("gnomad", "GRCh37"): "http://gnomad.broadinstitute.org/region",
+    ("gnomad", "GRCh38"): "http://gnomad.broadinstitute.org/region",
+    ("umd", "GRCh37"): "http://umd-predictor.eu/webservice.php?",
+    ("varsome", "GRCh37"): "https://varsome.com/variant/hg19/chr",
+    ("varsome", "GRCh38"): "https://varsome.com/variant/hg38/",
+    ("variant_validator", "GRCh37"): True,  # no URL, via javascript
+    ("variant_validator", "GRCh38"): True,  # no URL, via javascript
+}
+
+
+@register.simple_tag
+def linkout_available_for(database, release):
+    """Return whether the linkout to the given database is available for the given release."""
+    return bool(LINKOUT_URLS.get((database, release), False))
+
+
+@register.simple_tag
+def linkout_base_url(database, release):
+    """Return linkout base URL."""
+    return LINKOUT_URLS.get((database, release), None)
+
+
+@register.simple_tag
+def gnomad_release(release):
+    return {"GRCh37": "gnomad_r2_1", "GRCh38": "gnomad_r3"}.get(release, None)
+
+
+@register.simple_tag
+def same_release(cases):
+    """Return whether an iterable of cases has the same genome release."""
+    return len({case.release for case in cases}) == 1
+
+
+@register.simple_tag
+def entry_chr(entry):
+    """Return chromosome value for the result entry.
+
+    Adds ``chr`` prefix as required.
+    """
+    if not entry.chromosome.startswith("chr"):
+        return "chr" + entry.chromosome
+    else:
+        return entry.chromosome

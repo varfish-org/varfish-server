@@ -207,6 +207,7 @@ class CaseImportInfoSerializer(CoreCaseSerializerMixin, SODARProjectModelSeriali
             "date_modified",
             "owner",
             "case",
+            "release",
             "project",
             "name",
             "index",

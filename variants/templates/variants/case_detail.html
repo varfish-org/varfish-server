@@ -20,6 +20,9 @@
     <h2 class="sodar-pr-content-title">
       Case
       <small class="text-muted">{{ object.name }}</small>
+      <small class="badge badge-primary" style="font-size: 50%;">
+        {{ object.release }}
+      </small>
     </h2>
     {% if request.user and request.user.is_authenticated %}
       {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}

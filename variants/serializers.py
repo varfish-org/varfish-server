@@ -100,7 +100,9 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     project = serializers.ReadOnlyField(source="project.sodar_uuid")
 
     def create(self, validated_data):
+        """Make project and release writeable on creation."""
         validated_data["project"] = self.context["project"]
+        validated_data["release"] = self.context["release"]
         return super().create(validated_data)
 
     class Meta:
@@ -109,6 +111,7 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "sodar_uuid",
             "date_created",
             "date_modified",
+            "release",
             "name",
             "index",
             "pedigree",
@@ -126,4 +129,5 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "num_small_vars",
             "num_svs",
             "project",
+            "release",
         )
