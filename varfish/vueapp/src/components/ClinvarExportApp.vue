@@ -2,7 +2,7 @@
   <div id="#app">
     <div v-if="appState === 'initializing'">
       <div class="text-center">
-        <i class="fa fa-4x fa-spin fa-circle-o-notch text-muted mt-5"></i>
+        <i class="iconify spin text-muted mt-5" data-icon="fa-solid:circle-notch"></i>
         <br />
         <br />
         <span class="text-muted font-italic">Loading...</span>

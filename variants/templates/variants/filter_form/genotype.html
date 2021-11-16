@@ -56,8 +56,8 @@
             <td>{{ form.get_member_roles|keyvalue:item.patient }}</td>
             <td>{{ item.father|default:"0"|only_source_name }}</td>
             <td>{{ item.mother|default:"0"|only_source_name }}</td>
-            <td><i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% elif item.sex == 1 %}fa-mars{% else %}fa-question{% endif %}"></i></td>
-            <td><i class="fa fa-fw {% if item.affected == 2 %}fa-check color-danger{% elif item.affected == 1 %}fa-times{% else %}fa-question{% endif %}"></i></td>
+            <td><i class="iconify" data-icon="fa-solid:{% if item.sex == 2 %}venus{% elif item.sex == 1 %}mars{% else %}question{% endif %}"></i></td>
+            <td><i class="iconify{% if item.affected == 2 %} color-danger{% endif %}" data-icon="fa-solid:{% if item.affected == 2 %}check{% elif item.affected == 1 %}times{% else %}question{% endif %}"></i></td>
             {% if item.has_gt_entries %}
               <td>
                 {% with x=form.get_genotype_field_names|keyvalue:item.patient|keyvalue:"gt" %}
@@ -79,7 +79,7 @@
 
 <div class="row p-2 mt-2 border-top alert-info" style="display: none;" id="compound_heterozygous_warning">
   <div class="col pt-1">
-    <i class="fa fa-users pr-2"></i>
+    <i class="iconify pr-2" data-icon="fa-solid:users"></i>
     <strong>Compound heterozygous mode activated</strong>
   </div>
   <div class="col text-right">
@@ -98,7 +98,7 @@
 
 <div class="row p-2 mt-2 border-top alert-info" style="display: none;" id="recessive_warning">
   <div class="col pt-1">
-    <i class="fa fa-users pr-2"></i>
+    <i class="iconify pr-2" data-icon="fa-solid:users"></i>
     <strong>Recessive mode activated</strong>
   </div>
   <div class="col text-right">

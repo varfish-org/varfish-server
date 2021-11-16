@@ -12,160 +12,160 @@
       <input type="hidden" name="ensembl_gene_id" value="{{:ensembl_gene_id}}" />
       <div class="form-group mb-1 row">
         <label class="pr-3" data-toggle="tooltip" title="Special Flags">
-          <i class="fa fa-fw fa-flag pr-1"></i>
+          <i class="iconify pr-1" data-icon="fa-regular:flag"></i>
           Flags
         </label>
         <div class="ml-auto">
           <div class="form-check form-check-inline" data-toggle="tooltip" title="bookmarked">
             <input class="form-check-input" id="comment-check-bookmark-{{:variant}}" type="checkbox" name="flag_bookmarked" value="checked" {{if flag_bookmarked}}checked{{/if}} />
-            <label for="comment-check-bookmark-{{:variant}}" class="m-0"><i class="fa fa-fw fa-star"></i></label>
+            <label for="comment-check-bookmark-{{:variant}}" class="m-0"><i class="iconify" data-icon="fa-solid:star"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="selected for validation">
             <input class="form-check-input" id="comment-check-flag-{{:variant}}" type="checkbox" name="flag_for_validation" value="checked" {{if flag_for_validation}}checked{{/if}} />
-            <label for="comment-check-flag-{{:variant}}" class="m-0"><i class="fa fa-fw fa-flask"></i></label>
+            <label for="comment-check-flag-{{:variant}}" class="m-0"><i class="iconify" data-icon="fa-solid:flask"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="candidate variant">
             <input class="form-check-input" id="comment-check-candidate-{{:variant}}" type="checkbox" name="flag_candidate" value="checked" {{if flag_candidate}}checked{{/if}} />
-            <label for="comment-check-candidate-{{:variant}}" class="m-0"><i class="fa fa-fw fa-heart"></i></label>
+            <label for="comment-check-candidate-{{:variant}}" class="m-0"><i class="iconify" data-icon="fa-solid:heart"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="final causative/reported">
             <input class="form-check-input" id="comment-check-causative-{{:variant}}" type="checkbox" name="flag_final_causative" value="checked" {{if flag_final_causative}}checked{{/if}} />
-            <label for="comment-check-causative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-flag-checkered"></i></label>
+            <label for="comment-check-causative-{{:variant}}" class="m-0"><i class="iconify" data-icon="fa-solid:flag-checkered"></i></label>
           </div>
         </div>
         <div class="ml-auto">
           <div class="form-check form-check-inline" data-toggle="tooltip" title="gene affected by this variant has no known disease association">
             <input class="form-check-input" id="comment-check-association-{{:variant}}" type="checkbox" name="flag_no_disease_association" value="checked" {{if flag_no_disease_association}}checked{{/if}} />
-            <label for="comment-check-no-disease-association-{{:variant}}" class="m-0"><i class="fa fa-fw fa-chain-broken"></i></label>
+            <label for="comment-check-no-disease-association-{{:variant}}" class="m-0"><i class="iconify" data-icon="cil:link-broken"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="variant does segregate">
             <input class="form-check-input" id="comment-check-segregates-{{:variant}}" type="checkbox" name="flag_segregates" value="checked" {{if flag_segregates}}checked{{/if}} />
-            <label for="comment-check-segregates-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-up"></i></label>
+            <label for="comment-check-segregates-{{:variant}}" class="m-0"><i class="iconify" data-icon="fa-regular:thumbs-up"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="variant doesn't segregate">
             <input class="form-check-input" id="comment-check-doesnt-segregate-{{:variant}}" type="checkbox" name="flag_doesnt_segregate" value="checked" {{if flag_doesnt_segregate}}checked{{/if}} />
-            <label for="comment-check-doesnt-segregate-{{:variant}}" class="m-0"><i class="fa fa-fw fa-thumbs-down"></i></label>
+            <label for="comment-check-doesnt-segregate-{{:variant}}" class="m-0"><i class="iconify" data-icon="fa-regular:thumbs-down"></i></label>
           </div>
         </div>
       </div>
       <hr />
       <div class="form-group mb-1 row">
         <label class="pr-3" data-toggle="tooltip" title="Visual Inspection (IGV)">
-          <i class="fa fa-fw fa-eye pr-1"></i>
+          <i class="iconify pr-1" data-icon="fa-regular:eye"></i>
           Visual
         </label>
         <div class="ml-auto">
           <div class="form-check form-check-inline" data-toggle="tooltip" title="true variant">
             <input class="form-check-input" id="comment-radio-visual-positive-{{:variant}}" type="radio" name="flag_visual" value="positive" {{if flag_visual == "positive"}}checked{{/if}}/>
-            <label for="comment-radio-visual-positive-{{:variant}}" class="m-0"><i class="fa fa-fw fa-exclamation-circle text-danger""></i></label>
+            <label for="comment-radio-visual-positive-{{:variant}}" class="m-0"><i class="iconify text-danger" data-icon="fa-solid:exclamation-circle"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="uncertain">
             <input class="form-check-input" id="comment-radio-visual-uncertain-{{:variant}}" type="radio" name="flag_visual" value="uncertain" {{if flag_visual == "uncertain"}}checked{{/if}} />
-            <label for="comment-radio-visual-uncertain-{{:variant}}" class="m-0"><i class="fa fa-fw fa-question text-warning"></i></label>
+            <label for="comment-radio-visual-uncertain-{{:variant}}" class="m-0"><i class="iconify text-warning" data-icon="fa-solid:question"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="artifact">
             <input class="form-check-input" id="comment-radio-visual-negative-{{:variant}}" type="radio" name="flag_visual" value="negative" {{if flag_visual == "negative"}}checked{{/if}}/>
-            <label for="comment-radio-visual-negative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-minus-circle text-success"></i></label>
+            <label for="comment-radio-visual-negative-{{:variant}}" class="m-0"><i class="iconify text-success" data-icon="fa-solid:minus-circle"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="not considered">
             <input class="form-check-input" id="comment-radio-visual-empty-{{:variant}}" type="radio" name="flag_visual" value="empty" {{if flag_visual == "empty"}}checked{{/if}} />
-            <label for="comment-radio-visual-empty-{{:variant}}" class="m-0"><i class="fa fa-fw fa-remove text-secondary"></i></label>
+            <label for="comment-radio-visual-empty-{{:variant}}" class="m-0"><i class="iconify text-secondary" data-icon="fa-solid:times"></i></label>
           </div>
         </div>
       </div>
       <div class="form-group mb-1 row">
         <label class="pr-3" data-toggle="tooltip" title="Evidence for variant being missense">
-          <i class="fa fa-fw fa-fire pr-1"></i>
+          <i class="iconify pr-1" data-icon="fa-solid:fire"></i>
           Molecular
         </label>
         <div class="ml-auto">
           <div class="form-check form-check-inline" data-toggle="tooltip" title="strong evidence for missense variant">
             <input class="form-check-input" id="comment-radio-molecular-positive-{{:variant}}" type="radio" name="flag_molecular" value="positive" {{if flag_molecular == "positive"}}checked{{/if}}/>
-            <label for="comment-radio-molecular-positive-{{:variant}}" class="m-0"><i class="fa fa-fw fa-exclamation-circle text-danger""></i></label>
+            <label for="comment-radio-molecular-positive-{{:variant}}" class="m-0"><i class="iconify text-danger" data-icon="fa-solid:exclamation-circle"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="medium evidence for missense variant">
             <input class="form-check-input" id="comment-radio-molecular-uncertain-{{:variant}}" type="radio" name="flag_molecular" value="uncertain" {{if flag_molecular == "uncertain"}}checked{{/if}} />
-            <label for="comment-radio-molecular-uncertain-{{:variant}}" class="m-0"><i class="fa fa-fw fa-question text-warning"></i></label>
+            <label for="comment-radio-molecular-uncertain-{{:variant}}" class="m-0"><i class="iconify text-warning" data-icon="fa-solid:question"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="weak evidence for missense variant">
             <input class="form-check-input" id="comment-radio-molecular-negative-{{:variant}}" type="radio" name="flag_molecular" value="negative" {{if flag_molecular == "negative"}}checked{{/if}}/>
-            <label for="comment-radio-molecular-negative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-minus-circle text-success"></i></label>
+            <label for="comment-radio-molecular-negative-{{:variant}}" class="m-0"><i class="iconify text-success" data-icon="fa-solid:minus-circle"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="not considered">
             <input class="form-check-input" id="comment-radio-molecular-empty-{{:variant}}" type="radio" name="flag_molecular" value="empty" {{if flag_molecular == "empty"}}checked{{/if}} />
-            <label for="comment-radio-molecular-empty-{{:variant}}" class="m-0"><i class="fa fa-fw fa-remove text-secondary"></i></label>
+            <label for="comment-radio-molecular-empty-{{:variant}}" class="m-0"><i class="iconify text-secondary" data-icon="fa-solid:times"></i></label>
           </div>
         </div>
       </div>
       <div class="form-group mb-1 row">
         <label class="pr-3" data-toggle="tooltip" title="Wet-lab Validation">
-          <i class="fa fa-fw fa-flask pr-1"></i>
+          <i class="iconify pr-1" data-icon="fa-solid:flask"></i>
           Validation
         </label>
         <div class="ml-auto">
           <div class="form-check form-check-inline" data-toggle="tooltip" title="confirmed / true variant">
             <input class="form-check-input" id="comment-radio-validation-positive-{{:variant}}" type="radio" name="flag_validation" value="positive" {{if flag_validation == "positive"}}checked{{/if}} />
-            <label for="comment-radio-validation-positive-{{:variant}}" class="m-0"><i class="fa fa-fw fa-exclamation-circle text-danger""></i></label>
+            <label for="comment-radio-validation-positive-{{:variant}}" class="m-0"><i class="iconify text-danger" data-icon="fa-solid:exclamation-circle"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="uncertain">
             <input class="form-check-input" id="comment-radio-validation-uncertain-{{:variant}}" type="radio" name="flag_validation" value="uncertain" {{if flag_validation == "uncertain"}}checked{{/if}} />
-            <label for="comment-radio-validation-uncertain-{{:variant}}" class="m-0"><i class="fa fa-fw fa-question text-warning"></i></label>
+            <label for="comment-radio-validation-uncertain-{{:variant}}" class="m-0"><i class="iconify text-warning" data-icon="fa-solid:question"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="not confirmed / artifact">
             <input class="form-check-input" id="comment-radio-validation-negative-{{:variant}}" type="radio" name="flag_validation" value="negative" {{if flag_validation == "negative"}}checked{{/if}} />
-            <label for="comment-radio-validation-negative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-minus-circle text-success"></i></label>
+            <label for="comment-radio-validation-negative-{{:variant}}" class="m-0"><i class="iconify text-success" data-icon="fa-solid:minus-circle"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="assign no rating">
             <input class="form-check-input" id="comment-radio-validation-empty-{{:variant}}" type="radio" name="flag_validation" value="empty" {{if flag_validation == "empty"}}checked{{/if}} />
-            <label for="comment-radio-validation-empty-{{:variant}}" class="m-0"><i class="fa fa-fw fa-remove text-secondary"></i></label>
+            <label for="comment-radio-validation-empty-{{:variant}}" class="m-0"><i class="iconify text-secondary" data-icon="fa-solid:times"></i></label>
           </div>
         </div>
       </div>
       <div class="form-group mb-1 row">
         <label class="pr-3" data-toggle="tooltip" title="Phenotype / Clinic Match">
-          <i class="fa fa-fw fa-user-md pr-1"></i>
+          <i class="iconify pr-1" data-icon="fa-solid:user-md"></i>
           Pheno./Clinic
         </label>
         <div class="ml-auto">
           <div class="form-check form-check-inline" data-toggle="tooltip" title="good match">
             <input class="form-check-input" id="comment-radio-clinic-positive-{{:variant}}" type="radio" name="flag_phenotype_match" value="positive" {{if flag_phenotype_match == "positive"}}checked{{/if}} />
-            <label for="comment-radio-clinic-positive-{{:variant}}" class="m-0"><i class="fa fa-fw fa-exclamation-circle text-danger""></i></label>
+            <label for="comment-radio-clinic-positive-{{:variant}}" class="m-0"><i class="iconify text-danger" data-icon="fa-solid:exclamation-circle"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="uncertain">
             <input class="form-check-input" id="comment-radio-clinic-uncertain-{{:variant}}" type="radio" name="flag_phenotype_match" value="uncertain" {{if flag_phenotype_match == "uncertain"}}checked{{/if}} />
-            <label for="comment-radio-clinic-uncertain-{{:variant}}" class="m-0"><i class="fa fa-fw fa-question text-warning"></i></label>
+            <label for="comment-radio-clinic-uncertain-{{:variant}}" class="m-0"><i class="iconify text-warning" data-icon="fa-solid:question"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="no match">
             <input class="form-check-input" id="comment-radio-clinic-negative-{{:variant}}" type="radio" name="flag_phenotype_match" value="negative" {{if flag_phenotype_match == "negative"}}checked{{/if}} />
-            <label for="comment-radio-clinic-negative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-minus-circle text-success"></i></label>
+            <label for="comment-radio-clinic-negative-{{:variant}}" class="m-0"><i class="iconify text-success" data-icon="fa-solid:minus-circle"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="assign no rating">
             <input class="form-check-input" id="comment-radio-clinic-empty-{{:variant}}" type="radio" name="flag_phenotype_match" value="empty" {{if flag_phenotype_match == "empty"}}checked{{/if}} />
-            <label for="comment-radio-clinic-empty-{{:variant}}" class="m-0"><i class="fa fa-fw fa-remove text-secondary"></i></label>
+            <label for="comment-radio-clinic-empty-{{:variant}}" class="m-0"><i class="iconify text-secondary" data-icon="fa-solid:times"></i></label>
           </div>
         </div>
       </div>
       <div class="form-group mb-1 row">
         <label class="pr-3" data-toggle="tooltip" title="Summary, overrides rating selected above">
-          <i class="fa fa-fw fa-paint-brush pr-1"></i>
+          <i class="iconify pr-1" data-icon="fa-solid:paint-brush"></i>
           Summary
         </label>
         <div class="ml-auto">
           <div class="form-check form-check-inline" data-toggle="tooltip" title="pathogenic">
             <input class="form-check-input" id="comment-radio-summary-positive-{{:variant}}" type="radio" name="flag_summary" value="positive" {{if flag_summary == "positive"}}checked{{/if}} />
-            <label for="comment-radio-summary-positive-{{:variant}}" class="m-0"><i class="fa fa-fw fa-exclamation-circle text-danger""></i></label>
+            <label for="comment-radio-summary-positive-{{:variant}}" class="m-0"><i class="iconify text-danger" data-icon="fa-solid:exclamation-circle"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="uncertain">
             <input class="form-check-input" id="comment-radio-summary-uncertain-{{:variant}}" type="radio" name="flag_summary" value="uncertain" {{if flag_summary == "uncertain"}}checked{{/if}} />
-            <label for="comment-radio-summary-uncertain-{{:variant}}" class="m-0"><i class="fa fa-fw fa-question text-warning"></i></label>
+            <label for="comment-radio-summary-uncertain-{{:variant}}" class="m-0"><i class="iconify text-warning" data-icon="fa-solid:question"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="benign or artifact">
             <input class="form-check-input" id="comment-radio-summary-negative-{{:variant}}" type="radio" name="flag_summary" value="negative" {{if flag_summary == "negative"}}checked{{/if}} />
-            <label for="comment-radio-summary-negative-{{:variant}}" class="m-0"><i class="fa fa-fw fa-minus-circle text-success"></i></label>
+            <label for="comment-radio-summary-negative-{{:variant}}" class="m-0"><i class="iconify text-success" data-icon="fa-solid:minus-circle"></i></label>
           </div>
           <div class="form-check form-check-inline" data-toggle="tooltip" title="assign no rating">
             <input class="form-check-input" id="comment-radio-summary-empty-{{:variant}}" type="radio" name="flag_summary" value="empty" {{if flag_summary == "empty"}}checked{{/if}} />
-            <label for="comment-radio-summary-empty-{{:variant}}" class="m-0"><i class="fa fa-fw fa-remove text-secondary"></i></label>
+            <label for="comment-radio-summary-empty-{{:variant}}" class="m-0"><i class="iconify text-secondary" data-icon="fa-solid:times"></i></label>
           </div>
         </div>
       </div>

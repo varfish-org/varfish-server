@@ -1,10 +1,10 @@
 function queryVariantValidatorApi(obj, release, chromosome, start, reference, alternative) {
     let button = $(obj);
-    let icon = button.find("i");
+    let icon = button.find("img");
     let box = button.closest('.modal-content').find('.variant-validator-results');
     button.attr('disabled', true);
-    icon.removeClass('fa-cloud-upload').addClass('fa-refresh fa-spin');
-    box.html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-5x"></i></div>');
+    icon.attr('src', '/icons/fa-solid/refresh.svg').addClass('spin');
+    box.html('<div class="text-center"><i class="iconify spin" height="5x" data-icon="fa-solid:spinner"></i></div>');
     $.ajax({
         type: 'POST',
         url: variant_validator_url,
@@ -17,7 +17,7 @@ function queryVariantValidatorApi(obj, release, chromosome, start, reference, al
         },
         success: function (response) {
             button.attr('disabled', false);
-            icon.removeClass('fa-refresh fa-spin').addClass('fa-cloud-upload');
+            icon.removeClass('spin').attr('data-icon', 'fa-solid:cloud-upload');
             box.html(response);
         },
         error: function (jqXHR, textStatus, errorThrown) {

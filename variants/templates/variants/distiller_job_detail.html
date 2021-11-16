@@ -42,12 +42,12 @@
             <div class="col-10 p-1">
               {% if object.distiller_project_id %}
                 <a href="{{ object.get_distiller_project_url }}" target="_blank">
-                  <i class="fa fa-external-link-square"></i>
+                  <i class="iconify" data-icon="fa-solid:external-link-alt"></i>
                   MutationDistiller project: {{ object.distiller_project_id }}
                 </a>
               {% else %}
                 No MutationDistiller project ID assigned yet, please refresh page:
-                <button onClick="window.location.reload()" class="btn btn-success"><i class="fa fa-refresh"></i> Refresh page</button>
+                <button onClick="window.location.reload()" class="btn btn-success"><i class="iconify" data-icon="mdi:refresh"></i> Refresh page</button>
               {% endif %}
             </div>
           </li>
@@ -58,7 +58,7 @@
                {% csrf_token %}
                 <div class="form-group ml-0 mr-2">
                   <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#confirm-submit-mutationdistiller">
-                    <i class="fa fa-mail-forward"></i>
+                    <i class="iconify" data-icon="bi:send-fill"></i>
                     Re-Submit
                   </button>
                 </div>

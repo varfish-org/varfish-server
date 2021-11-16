@@ -4,7 +4,7 @@
      id="card-varfish-vars-case-details-pedigree">
   <div class="card-header">
     <h4>
-      <i class="fa fa-users"></i>
+      <i class="iconify" data-icon="fa-solid:users"></i>
       Pedigree
     </h4>
   </div>
@@ -31,13 +31,13 @@
           <td>{{ item.father|only_source_name }}</td>
           <td>{{ item.mother|only_source_name }}</td>
           <td class="text-center">
-            <i class="fa fa-fw {% if item.sex == 2 %}fa-venus{% elif item.sex == 1 %}fa-mars{% else %}fa-question{% endif %}"></i>
+            <i class="iconify" data-icon="fa-solid:{% if item.sex == 2 %}venus{% elif item.sex == 1 %}mars{% else %}question{% endif %}"></i>
             {% if item.patient in case.sex_errors %}
               {% include "variants/case/indicator_sex_error.html" with item=object sample=item.patient %}
             {% endif %}
           </td>
-          <td class="text-center"><i class="fa a-fw {% if item.affected == 2 %}fa-check{% else %}fa-times{% endif %}"></i></td>
-          <td class="text-center"><i class="fa a-fw {% if item.has_gt_entries %}fa-check{% else %}fa-times{% endif %}"></i></td>
+          <td class="text-center"><i class="iconify" data-icon="fa-solid:{% if item.affected == 2 %}check{% else %}times{% endif %}"></i></td>
+          <td class="text-center"><i class="iconify" data-icon="fa-solid:{% if item.has_gt_entries %}check{% else %}times{% endif %}"></i></td>
         </tr>
       {% endfor %}
     </tbody>

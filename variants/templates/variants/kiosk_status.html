@@ -32,7 +32,7 @@ function getJobStatus() {
                 $("#spinner-text").text("Importing ...");
             }
             if (result["annotate_status"] == "failed" || result["import_status"] == "failed") {
-                $("#spinner").removeClass("fa-circle-o-notch fa-spin").addClass("fa-times");
+                $("#spinner").attr("data-icon", "fa-solid:times").removeClass("spin");
                 $("#spinner-text").text((result["annotate_status"] == "failed" ? "Annotation" : "Importing") + " failed!")
                 $("#header").removeClass("alert-info").addClass("alert-danger")
                 $("#info").toggle()
@@ -43,7 +43,7 @@ function getJobStatus() {
             if (result["annotate_status"] == "done" && result["import_status"] == "done") {
                 let url = "{% url "variants:case-detail" project=project.sodar_uuid case="--fedcba--" %}".replace("--fedcba--", result["case_uuid"])
                 // Swap spinner with a check symbol
-                $("#spinner").removeClass("fa-circle-o-notch fa-spin").addClass("fa-check");
+                $("#spinner").removeClass("spin").attr("data-icon", "fa-solid:check");
                 $("#spinner-text").html("Finished! <a class='btn btn-sm btn-info' href='" + url + "'>Go to case</a>");
                 $("#header").removeClass("alert-info").addClass("alert-success")
                 $("#info").removeClass("alert-info").addClass("alert-success")
@@ -65,7 +65,7 @@ function getJobStatus() {
 
 {% block projectroles %}
     <div class="alert alert-info sticky-top" id="header">
-        <i id="spinner" class="fa fa-circle-o-notch fa-spin"></i>
+        <i id="spinner" class="iconify spin" data-icon="fa-solid:circle-notch"></i>
         <strong id="spinner-text">
             Loading ...
         </strong>

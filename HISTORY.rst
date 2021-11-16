@@ -23,6 +23,8 @@ End-User Summary
 - Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
 - Fixing ensembl gene link-out to wrong genome build (#156).
 - Added section for developers in manual (#267).
+- Migrated icons to iconify (#208).
+- Bumped chrome-driver version (#208).
 
 Full Change List
 ================
@@ -45,6 +47,8 @@ Full Change List
 - Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
 - Fixing ensembl gene link-out to wrong genome build (#156).
 - Added section for developers in manual (#267).
+- Migrated icons to iconify (#208).
+- Bumped chrome-driver version (#208).
 
 -------
 v0.23.9

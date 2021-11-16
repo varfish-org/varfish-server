@@ -3,27 +3,24 @@
 
 {% with sex_errors=item|sex_errors:disable_pedigree_sex_check %}
   {% if sex_errors %}
-    <span class="fa-stack fa-md">
-      <i class="fa fa-fw fa-square fa-stack-2x text-danger"></i>
-      <i class="fa fa-fw fa-venus-mars fa-inverse fa-stack-1x"
-         data-tooltip="tooltip"
-         data-toggle="popover" data-trigger="focus" tabindex="0" data-html="true"
-         title="Sex assignment problem (click for details)!"
-         data-content="
-          <ul>
-            {% if sample %}
-              {% for message in sex_errors|keyvalue:sample %}
+    <i class="iconify text-danger" data-icon="fa-solid:venus-mars"
+       data-tooltip="tooltip"
+       data-toggle="popover" data-trigger="focus" tabindex="0" data-html="true"
+       title="Sex assignment problem (click for details)!"
+       data-content="
+        <ul>
+          {% if sample %}
+            {% for message in sex_errors|keyvalue:sample %}
+              <li>{{ sample|only_source_name }}: {{ message }}</li>
+            {% endfor %}
+          {% else %}
+            {% for sample, messages in sex_errors.items %}
+              {% for message in messages %}
                 <li>{{ sample|only_source_name }}: {{ message }}</li>
               {% endfor %}
-            {% else %}
-              {% for sample, messages in sex_errors.items %}
-                {% for message in messages %}
-                  <li>{{ sample|only_source_name }}: {{ message }}</li>
-                {% endfor %}
-              {% endfor %}
-            {% endif %}
-          </ul>"
-        ></i>
-    </span>
+            {% endfor %}
+          {% endif %}
+        </ul>"
+      ></i>
   {% endif %}
 {% endwith %}

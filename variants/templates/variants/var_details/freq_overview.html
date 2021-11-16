@@ -11,7 +11,7 @@
       Frequency Details
       {% if small_var.chromosome == "MT" %}
         {% if small_var.start|check_mt_position_homopolymer or small_var.start|check_mt_position_homopolymer %}
-          <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant in homopolymeric region'></i>
+          <i class="iconify text-muted" data-icon="bi:exclamation-circle" data-toggle="tooltip" title='Variant in homopolymeric region'></i>
         {% endif %}
       {% endif %}
     </h4>
@@ -42,7 +42,7 @@
           {% if dbname == "HelixMTdb" %}
             <th class="text-center" rowspan="3">
               {{ dbname }}
-              {% if is_triallelic %}<i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant is part of a triallelic site'></i>{% endif %}
+              {% if is_triallelic %}<i class="iconify text-muted" data-icon="bi:exclamation-circle" data-toggle="tooltip" title='Variant is part of a triallelic site'></i>{% endif %}
             </th>
             <td class="text-right" rowspan="3">{{ an|keyvalue:dbname|default:0|intcomma }}</td>
             <th>AC hom</th>
@@ -53,7 +53,7 @@
             <th class="text-center" rowspan="2">
               {{ dbname }}
               {% if dbname == "mtDB" %}
-                {% if dloop %}<i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant is in D-loop region'></i>{% endif %}
+                {% if dloop %}<i class="iconify text-muted" data-icon="bi:exclamation-circle" data-toggle="tooltip" title='Variant is in D-loop region'></i>{% endif %}
               {% endif %}
             </th>
             <td class="text-right" rowspan="2">{{ an|keyvalue:dbname|default:0|intcomma }}</td>
@@ -111,7 +111,7 @@
         </tr>
         {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
         <tr class="text-muted">
-          <th class="text-center small"><i class="fa fa-arrow-up"></i> Ctrl</th>
+          <th class="text-center small"><i class="iconify" data-icon="mdi:arrow-up-circle"></i> Ctrl</th>
           {% for pop in populations %}
             <td class="text-right">{{ db|keyvalue:pop|keyvalue:"controls_af"|default:0|floatformat:5 }}</td>
           {% endfor %}
@@ -129,7 +129,7 @@
         </tr>
         {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
         <tr class="text-muted">
-          <th class="text-center small"><i class="fa fa-arrow-up"></i> Ctrl</th>
+          <th class="text-center small"><i class="iconify" data-icon="mdi:arrow-up-circle"></i> Ctrl</th>
           {% for pop in populations %}
             <td class="text-right">{{ db|keyvalue:pop|keyvalue:"controls_hom"|default:0|intcomma }}</td>
           {% endfor %}
@@ -147,7 +147,7 @@
         </tr>
         {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
         <tr class="text-muted">
-          <th class="text-center small"><i class="fa fa-arrow-up"></i> Ctrl</th>
+          <th class="text-center small"><i class="iconify" data-icon="mdi:arrow-up-circle"></i> Ctrl</th>
           {% for pop in populations %}
             <td class="text-right">{{ db|keyvalue:pop|keyvalue:"controls_het"|default:0|intcomma }}</td>
           {% endfor %}

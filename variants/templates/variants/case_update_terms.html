@@ -31,7 +31,7 @@
        id="sodar-pr-btn-copy-uuid"
        data-clipboard-text="{{ object.sodar_uuid }}"
        title="Copy UUID to clipboard" data-toggle="tooltip" data-placement="top">
-      <i class="fa fa-clipboard text-muted" aria-hidden="true"></i>
+      <i class="iconify text-muted" data-icon="fa-solid:clipboard" aria-hidden="true"></i>
     </a>
   </div>
 
@@ -85,7 +85,7 @@
         {% if project.is_remote %}
           <strong class="small font-weight-bold">SODAR Sample Sheet Terms</strong>
           <span class="btn btn-sm btn-secondary" id="load-upstream" data-state="initial">
-            <i class="fa fa-cloud-download" id="load-upstream-indicator"></i>
+            <i class="iconify" data-icon="fa-solid:cloud-download-alt" id="load-upstream-indicator"></i>
             Load from SODAR
           </span>
           <textarea class="form-control" rows="10" placeholder="The terms from SODAR will appear here." id="upstream-terms"></textarea>
@@ -105,7 +105,9 @@
             let btn = $("#load-upstream");
             if ($.inArray(btn.data("state"), ["initial", "error"]) !== -1) {
               // Update UI.
-              $("#load-upstream-indicator").toggleClass("fa-cloud-download fa-spinner fa-spin");
+              let indicator = $("#load-upstream-indicator");
+              indicator.attr("data-icon", "fa-solid:spinner");
+              indicator.addClass("spin");
               btn.data("state", "loading");
               // Perform AJAX call.
               $.ajax({
@@ -130,13 +132,15 @@
                       }
                     }
                   }
-                  $("#load-upstream-indicator").toggleClass("fa-cloud-download fa-spinner fa-spin");
+                  indicator.attr("data-icon", "fa-solid:cloud-download-alt");
+                  indicator.removeClass("spin");
                   btn.data("state", "initial");
                   $("#upstream-terms").val(lines.join("\n"))
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                   $("#upstream-terms").val("ERROR\n\nA problem occured while trying to query SODAR: " + textStatus + "\n\nERROR")
-                  $("#load-upstream-indicator").toggleClass("fa-cloud-download fa-spinner fa-spin");
+                  indicator.attr("data-icon", "fa-solid:cloud-download-alt");
+                  indicator.removeClass("spin");
                   btn.data("state", "initial");
                 }
               })
