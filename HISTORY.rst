@@ -10,6 +10,7 @@ End-User Summary
 ================
 
 - Fixing Kiosk mode of VarFish.
+- Fixing displaying of beacon information in results table.
 
 Full Change List
 ================
@@ -19,6 +20,7 @@ Full Change List
     - Using custom middleware for kiosk user (#215).
 - Kiosk annotation now uses ``set -x`` flag if ``settings.DEBUG`` is true.
 - Mapping kiosk jobs to import queue.
+- Fixing displaying of beacon information in results table.
 
 -------
 v0.23.9

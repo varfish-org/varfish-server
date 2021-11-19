@@ -109,6 +109,10 @@ function updateTableDisplay() {
   );
   $('[data-toggle="tooltip"]').tooltip({boundary: 'window', container: 'body'});
   $('[data-toggle="popover"]').popover({boundary: 'window', container: 'body'});
+  var whitelist = $.fn.tooltip.Constructor.Default.whiteList
+  whitelist.iframe = ['src', 'style', 'width', 'height', 'frameborder', 'vspace', 'hspace']
+  // Alternative: skip sanitize function entirely
+  //$('[data-toggle="popover"]').popover({sanitizeFn: function(content) { return content }})
 }
 
 function displayConnectionError() {
