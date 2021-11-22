@@ -18,6 +18,7 @@ End-User Summary
 - Added index for ``SmallVariant`` model filtering for ``case_id`` and ``set_id``.
   This may take a while!
 - Allowing project owners and delegates to import cases via API (#207).
+- Fix for broken link-out into MutationTaster (#240).
 
 Full Change List
 ================
@@ -35,6 +36,7 @@ Full Change List
 - Added index for ``SmallVariant`` model filtering for ``case_id`` and ``set_id``.
   This may take a while!
 - Allowing project owners and delegates to import cases via API (#207).
+- Fix for broken link-out into MutationTaster (#240).
 
 -------
 v0.23.9
