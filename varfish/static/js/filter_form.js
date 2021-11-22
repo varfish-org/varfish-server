@@ -256,6 +256,10 @@ function loadVariantDetails(row, cell, show=false) {
         }
         $('[data-toggle="tooltip"]').tooltip({container: "body"});
         $('[data-toggle="popover"]').popover({container: "body"});
+        var whitelist = $.fn.tooltip.Constructor.Default.whiteList
+        whitelist.iframe = ['src', 'style', 'width', 'height', 'frameborder', 'vspace', 'hspace']
+        // Alternative: skip sanitize function entirely
+        //$('[data-toggle="popover"]').popover({sanitizeFn: function(content) { return content }})
         $('body').on('click', function (e) {
           let element = $('.omim-popover');
           // hide any open popovers when the anywhere else in the body is clicked

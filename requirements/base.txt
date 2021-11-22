@@ -82,7 +82,7 @@ xlsxwriter >=1.4.3, <1.5
 
 # Writing of VCF files
 vcfpy >=0.13.3, <0.14
-pysam >=0.16.0.1, <0.17
+pysam >=0.18, <0.19
 
 # SQL Alchemy and Django integrate
 # TODO: upgrade?

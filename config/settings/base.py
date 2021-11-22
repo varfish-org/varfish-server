@@ -610,6 +610,9 @@ else:
 # Logging
 # ------------------------------------------------------------------------------
 
+# Custom logging level
+LOGGING_LEVEL = env.str("LOGGING_LEVEL", "DEBUG" if DEBUG else "ERROR")
+
 LOGGING_APPS = env.list(
     "LOGGING_APPS",
     default=[
