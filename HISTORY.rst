@@ -11,6 +11,7 @@ End-User Summary
 
 - Fixing Kiosk mode of VarFish.
 - Fixing displaying of beacon information in results table.
+- Fixing broken flags & comments popup for structural variants.
 
 Full Change List
 ================
@@ -21,6 +22,7 @@ Full Change List
 - Kiosk annotation now uses ``set -x`` flag if ``settings.DEBUG`` is true.
 - Mapping kiosk jobs to import queue.
 - Fixing displaying of beacon information in results table.
+- Fixing broken flags & comments popup for structural variants.
 
 -------
 v0.23.9
