@@ -9,8 +9,8 @@ from django.conf import settings
 from django.db.models import Q
 import sqlparse
 
-from sqlalchemy import column, VARCHAR, ARRAY, any_
-from sqlalchemy.sql import select, func, and_, or_, not_, true, cast, case
+from sqlalchemy import column, VARCHAR, ARRAY, any_, text
+from sqlalchemy.sql import select, func, and_, or_, not_, true, cast, case, desc
 from sqlalchemy.sql.functions import coalesce
 from sqlalchemy.types import Integer, Float
 
@@ -1039,4 +1039,4 @@ def best_matching_flags(sa_engine, case_id, sv_uuid, min_overlap=0.95):
             )
         )
     )
-    return sa_engine.execute(query.order_by(query.c.reciprocal_overlap.desc()))
+    return sa_engine.execute(query.order_by(desc(text("reciprocal_overlap"))))
