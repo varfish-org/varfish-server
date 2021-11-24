@@ -12,6 +12,8 @@ End-User Summary
 - Fixing Kiosk mode of VarFish.
 - Fixing displaying of beacon information in results table.
 - Fixing broken flags & comments popup for structural variants.
+- Fixing broken search field.
+- Extended manual for bug report workflow.
 
 Full Change List
 ================
@@ -23,6 +25,8 @@ Full Change List
 - Mapping kiosk jobs to import queue.
 - Fixing displaying of beacon information in results table.
 - Fixing broken flags & comments popup for structural variants.
+- Fixing broken search field.
+- Extended manual for bug report workflow.
 
 -------
 v0.23.9

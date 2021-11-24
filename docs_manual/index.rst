@@ -143,6 +143,7 @@ Currently, the main focus is on small/sequence variants called from high-througp
     :titlesonly:
 
     contributors
+    bug_reports
     history
     glossary
     dev_docker
