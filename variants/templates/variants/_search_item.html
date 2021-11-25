@@ -8,7 +8,7 @@
   {# Name & link column #}
   <td>
     <div class="sodar-overflow-container">
-      {% highlight_search_term item.name search_term as item_display_name %}
+      {% highlight_search_term item.name search_terms as item_display_name %}
       <a href="{{ item.get_absolute_url }}">
         {% autoescape off %}{{ item_display_name }}{% endautoescape %}
       </a>
@@ -29,7 +29,7 @@
   <td class="sodar-overflow-container">
     {% autoescape off %}
       {% for entry in item.pedigree %}
-        {% highlight_search_term entry.patient|only_source_name search_term %}{% if not forloop.last %}, {% endif %}
+        {% highlight_search_term entry.patient|only_source_name search_terms %}{% if not forloop.last %}, {% endif %}
       {% endfor %}
     {% endautoescape %}
   </td>

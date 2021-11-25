@@ -472,9 +472,12 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.compile_url_and_login(
             {"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid}
         )
-        # find & hit button
+        # Wait until button is a submit button.
+        WebDriverWait(self.selenium, self.wait_time).until(
+            wait_for_the_attribute_value((By.ID, "submitFilter"), "data-event-type", "submit")
+        )
+        # Click button.
         button = self.selenium.find_element_by_id("submitFilter")
-        self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.ID, "logger"))
@@ -490,10 +493,12 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.compile_url_and_login(
             {"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid}
         )
-        # find & hit button
-        time.sleep(5)
+        # Wait until button is a submit button.
+        WebDriverWait(self.selenium, self.wait_time).until(
+            wait_for_the_attribute_value((By.ID, "submitFilter"), "data-event-type", "submit")
+        )
+        # Find & hit button.
         button = self.selenium.find_element_by_id("submitFilter")
-        self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.ID, "logger"))
@@ -751,9 +756,12 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         """Test if submitting the filter initiates the loading response."""
         # login
         self.compile_url_and_login({"project": self.project.sodar_uuid})
+        # Wait until button is a submit button.
+        WebDriverWait(self.selenium, self.wait_time).until(
+            wait_for_the_attribute_value((By.ID, "submitFilter"), "data-event-type", "submit")
+        )
         # find & hit button
         button = self.selenium.find_element_by_id("submitFilter")
-        self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.ID, "logger"))
@@ -767,9 +775,12 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         """Test if submitting the filter can be canceled."""
         # login
         self.compile_url_and_login({"project": self.project.sodar_uuid})
+        # Wait until button is a submit button.
+        WebDriverWait(self.selenium, self.wait_time).until(
+            wait_for_the_attribute_value((By.ID, "submitFilter"), "data-event-type", "submit")
+        )
         # find & hit button
         button = self.selenium.find_element_by_id("submitFilter")
-        self.assertEqual(button.get_attribute("data-event-type"), "submit")
         button.click()
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.ID, "logger"))
