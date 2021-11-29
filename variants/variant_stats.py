@@ -65,7 +65,7 @@ def gather_variant_stats(variant_set):
     ignore_set = set(IGNORE_EFFECTS)
     for small_var in SmallVariant.objects.filter(
         set_id=variant_set.pk, case_id=variant_set.case.pk
-    ):
+    ).iterator():
         if not (set(small_var.ensembl_effect) & ignore_set):
             for sample in samples:
                 if small_var.genotype[sample]["gt"].count("1") == 1:

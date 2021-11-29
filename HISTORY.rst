@@ -14,6 +14,9 @@ End-User Summary
 - Fixing broken flags & comments popup for structural variants.
 - Fixing broken search field.
 - Extended manual for bug report workflow.
+- Fixed recompute of variant stats of large small variant sets.
+- Added index for ``SmallVariant`` model filtering for ``case_id`` and ``set_id``.
+  This may take a while!
 
 Full Change List
 ================
@@ -27,6 +30,9 @@ Full Change List
 - Fixing broken flags & comments popup for structural variants.
 - Fixing broken search field.
 - Extended manual for bug report workflow.
+- Fixed recompute of variant stats of large small variant sets.
+- Added index for ``SmallVariant`` model filtering for ``case_id`` and ``set_id``.
+  This may take a while!
 
 -------
 v0.23.9

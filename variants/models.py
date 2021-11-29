@@ -372,6 +372,8 @@ class SmallVariant(models.Model):
             models.Index(fields=["case_id", "refseq_gene_id"]),
             # For mitochondrial frequency join
             models.Index(fields=["case_id", "chromosome_no"]),
+            # For selecting all variants of a set of a case (used for gathering variant stats).
+            models.Index(fields=["case_id", "set_id"]),
         ]
         managed = settings.IS_TESTING
         db_table = "variants_smallvariant"

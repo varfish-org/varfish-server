@@ -390,8 +390,10 @@ class CaseImporter:
                 self.import_info.save()
                 self._purge_variant_set(variant_set, table_names)
                 raise RuntimeError("Problem during variant import ") from e
+
+            self.import_job.add_log_entry("Activating variant set ...")
+
             with transaction.atomic():
-                self.import_job.add_log_entry("Activating variant set ...")
                 variant_set.state = "active"
                 variant_set.save()
                 if not case_created:  # Case needs to be updated.
@@ -399,13 +401,18 @@ class CaseImporter:
                     self.case.pedigree = self.import_info.pedigree
                 setattr(self.case, latest_set, variant_set)
                 self.case.save()
-                self.import_job.add_log_entry(
-                    "Updating variant counts for variant type %s" % variant_set_info.variant_type
-                )
+
+            self.import_job.add_log_entry(
+                "Updating variant counts for variant type %s" % variant_set_info.variant_type
+            )
+
+            with transaction.atomic():
                 update_variant_counts(
                     self.case, variant_set_info.variant_type, logger=self.import_job.add_log_entry
                 )
-                self._post_import(variant_set, variant_set_info.variant_type)
+
+            self._post_import(variant_set, variant_set_info.variant_type)
+
             if variant_set.state == "active":
                 self._clear_old_variant_sets(variant_set, table_names)
                 variant_set_info.state = VariantSetImportState.IMPORTED.value
@@ -559,7 +566,9 @@ class CaseImporter:
 
         before = timezone.now()
         self.import_job.add_log_entry("Computing variant statistics...")
+
         rebuild_case_variant_stats(get_engine(), variant_set, logger=self.import_job.add_log_entry)
+
         elapsed = timezone.now() - before
         self.import_job.add_log_entry(
             "Finished computing variant statistics in %.2f s" % elapsed.total_seconds()
