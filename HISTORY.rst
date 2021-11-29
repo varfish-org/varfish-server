@@ -17,6 +17,7 @@ End-User Summary
 - Fixed recompute of variant stats of large small variant sets.
 - Added index for ``SmallVariant`` model filtering for ``case_id`` and ``set_id``.
   This may take a while!
+- Allowing project owners and delegates to import cases via API (#207).
 
 Full Change List
 ================
@@ -33,6 +34,7 @@ Full Change List
 - Fixed recompute of variant stats of large small variant sets.
 - Added index for ``SmallVariant`` model filtering for ``case_id`` and ``set_id``.
   This may take a while!
+- Allowing project owners and delegates to import cases via API (#207).
 
 -------
 v0.23.9

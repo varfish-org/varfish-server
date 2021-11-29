@@ -12,18 +12,20 @@ from projectroles import rules as pr_rules
 
 # Rules ------------------------------------------------------------------------
 
-
-rules.add_perm(
-    "importer.view_import",
+is_allowed_to_modify = (
     rules.is_superuser
     | pr_rules.is_project_owner
     | pr_rules.is_project_delegate
-    | pr_rules.is_project_contributor,
+    | pr_rules.is_project_contributor
 )
 
-rules.add_perm("importer.add_import", rules.is_superuser | pr_rules.is_project_contributor)
-rules.add_perm("importer.delete_import", rules.is_superuser | pr_rules.is_project_contributor)
-rules.add_perm("importer.update_import", rules.is_superuser | pr_rules.is_project_contributor)
+rules.add_perm(
+    "importer.view_import", is_allowed_to_modify,
+)
+
+rules.add_perm("importer.add_import", is_allowed_to_modify)
+rules.add_perm("importer.delete_import", is_allowed_to_modify)
+rules.add_perm("importer.update_import", is_allowed_to_modify)
 
 # Permissions ------------------------------------------------------------------
 
