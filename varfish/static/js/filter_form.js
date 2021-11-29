@@ -117,15 +117,6 @@ $(document).ready(function() {
   $(".checkboxinput").change(updateCheckboxes);
 });
 
-function mutationTaster(chromosome, position, ref, alt) {
-    var form = $('<form target="_blank" method="POST" action="http://www.mutationtaster.org/cgi-bin/MutationTaster/MT_ChrPos.cgi">');
-    form.append($('<input type="hidden" name="chromosome" value="' + chromosome + '">'));
-    form.append($('<input type="hidden" name="position" value="' + position + '">'));
-    form.append($('<input type="hidden" name="ref" value="' + ref + '">'));
-    form.append($('<input type="hidden" name="alt" value="' + alt + '">'));
-    form.appendTo('body').submit();
-}
-
 function polyPhen2(gene, hgvsP) {
     const regex = /^p.([A-Z])(\d+)([A-Z])$/;
     const found = hgvsP.match(regex);

@@ -442,13 +442,23 @@
   {% endif %}
   <td>
     <div class="btn-group sodar-list-btn-group pr-2">
-      <a
-        href="javascript:mutationTaster('chr{{ entry.chromosome }}', {{ entry.start }}, '{{ entry.reference }}', '{{ entry.alternative }}');"
-        data-toggle="tooltip"
-        title="Open variant in MutationTaster"
-        class="btn btn-primary sodar-list-btn">
-        MT
-      </a>
+      {% if entry.release == "GRCh37" %}
+        <a
+          href="https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome={{ entry.chromosome }}&position={{ entry.start }}&ref={{ entry.reference }}&alt={{ entry.alternative }}"
+          data-toggle="tooltip"
+          title="Open variant in MutationTaster"
+          class="btn btn-primary sodar-list-btn">
+          MT
+        </a>
+      {% else %}
+        <span
+          class="btn btn-disabled sodar-list-btn btn-outline-secondary"
+          data-toggle="tooltip"
+          title="MutationTaster not available for genome {{ entry.release }}"
+        >
+          MT
+        </span>
+      {% endif %}
       {% if ga4gh_beacon_network_widget_enabled or kiosk_mode %}
         <a
            data-toggle="popover"
