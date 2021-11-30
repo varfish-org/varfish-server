@@ -19,6 +19,7 @@ End-User Summary
   This may take a while!
 - Allowing project owners and delegates to import cases via API (#207).
 - Fix for broken link-out into MutationTaster (#240).
+- Fixing SODAR Core template inconsistency (#150).
 
 Full Change List
 ================
@@ -37,6 +38,7 @@ Full Change List
   This may take a while!
 - Allowing project owners and delegates to import cases via API (#207).
 - Fix for broken link-out into MutationTaster (#240).
+- Fixing SODAR Core template inconsistency (#150).
 
 -------
 v0.23.9

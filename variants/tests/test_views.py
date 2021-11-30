@@ -2829,7 +2829,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 {"render_full": "yes"},
             )
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.context["base_template"], "projectroles/project_base.html")
+            self.assertEqual(response.context["base_template"], "projectroles/base.html")
 
     def _base_test_content(self, db):
         """Base function to test both transcript databases, ensembl and refseq."""

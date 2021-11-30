@@ -3255,7 +3255,7 @@ class SmallVariantDetails(
         result["effect_details"] = self._load_molecular_impact(self.kwargs)
         result["extra_annos"] = self.get_extra_annos(self.kwargs)
         if self.request.GET.get("render_full", "no").lower() in ("yes", "true"):
-            result["base_template"] = "projectroles/project_base.html"
+            result["base_template"] = "projectroles/base.html"
         else:
             result["base_template"] = "empty_base.html"
         result.update(self._get_population_freqs(self.kwargs))
