@@ -20,6 +20,7 @@ End-User Summary
 - Allowing project owners and delegates to import cases via API (#207).
 - Fix for broken link-out into MutationTaster (#240).
 - Fixing SODAR Core template inconsistency (#150).
+- Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
 
 Full Change List
 ================
@@ -39,6 +40,7 @@ Full Change List
 - Allowing project owners and delegates to import cases via API (#207).
 - Fix for broken link-out into MutationTaster (#240).
 - Fixing SODAR Core template inconsistency (#150).
+- Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
 
 -------
 v0.23.9

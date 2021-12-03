@@ -5,7 +5,7 @@ import logging
 from bgjobs.models import BackgroundJob
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from projectroles.views import ProjectPermissionMixin
+from projectroles.constants import get_sodar_constants
 from projectroles.views_api import SODARAPIBaseProjectMixin, SODARAPIGenericProjectMixin
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -30,10 +30,14 @@ LOGGER = logging.getLogger(__name__)
 #: The User model to use.
 User = get_user_model()
 
+#: Get SODAR contants.
+SODAR_CONSTANTS = get_sodar_constants()
+
 
 class CaseImportInfoListCreateView(SODARAPIGenericProjectMixin, ListCreateAPIView):
     """DRF list-create API view the ``CaseImportInfo`` model."""
 
+    project_type = SODAR_CONSTANTS["PROJECT_TYPE_PROJECT"]
     serializer_class = CaseImportInfoSerializer
 
     def get_queryset(self):
@@ -63,6 +67,7 @@ class CaseImportInfoRetrieveUpdateDestroyView(
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "caseimportinfo"
     serializer_class = CaseImportInfoSerializer
+    project_type = SODAR_CONSTANTS["PROJECT_TYPE_PROJECT"]
 
     def perform_update(self, serializer):
         old_state = self.get_object().state
@@ -127,6 +132,8 @@ class VariantSetImportBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
     related_lookup_field = "case_import_info"
     related_lookup_url_kwarg = "caseimportinfo"
 
+    project_type = SODAR_CONSTANTS["PROJECT_TYPE_PROJECT"]
+
 
 class VariantSetImportInfoListCreateView(VariantSetImportBaseMixin, ListCreateAPIView):
     """DRF list-create API view the ``VariantSetImportInfo`` model."""
@@ -163,6 +170,8 @@ class BamQcFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
     related_lookup_field = "case_import_info"
     related_lookup_url_kwarg = "caseimportinfo"
 
+    project_type = SODAR_CONSTANTS["PROJECT_TYPE_PROJECT"]
+
 
 class BamQcFileListCreateView(BamQcFileBaseMixin, ListCreateAPIView):
     """DRF list-create API view the ``BamQcFile`` model."""
@@ -196,6 +205,8 @@ class GenotypeFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
     related_class = VariantSetImportInfo
     related_lookup_field = "variant_set_import_info"
     related_lookup_url_kwarg = "variantsetimportinfo"
+
+    project_type = SODAR_CONSTANTS["PROJECT_TYPE_PROJECT"]
 
 
 class GenotypeFileListCreateView(GenotypeFileBaseMixin, ListCreateAPIView):
@@ -231,6 +242,8 @@ class EffectsFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
     related_lookup_field = "variant_set_import_info"
     related_lookup_url_kwarg = "variantsetimportinfo"
 
+    project_type = SODAR_CONSTANTS["PROJECT_TYPE_PROJECT"]
+
 
 class EffectsFileListCreateView(EffectsFileBaseMixin, ListCreateAPIView):
     """DRF list-create API view the ``EffectsFile`` model."""
@@ -264,6 +277,8 @@ class DatabaseInfoFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
     related_class = VariantSetImportInfo
     related_lookup_field = "variant_set_import_info"
     related_lookup_url_kwarg = "variantsetimportinfo"
+
+    project_type = SODAR_CONSTANTS["PROJECT_TYPE_PROJECT"]
 
 
 class DatabaseInfoFileListCreateView(DatabaseInfoFileBaseMixin, ListCreateAPIView):
