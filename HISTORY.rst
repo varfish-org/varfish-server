@@ -21,6 +21,7 @@ End-User Summary
 - Fix for broken link-out into MutationTaster (#240).
 - Fixing SODAR Core template inconsistency (#150).
 - Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
+- Fixing ensembl gene link-out to wrong genome build (#156).
 
 Full Change List
 ================
@@ -41,6 +42,7 @@ Full Change List
 - Fix for broken link-out into MutationTaster (#240).
 - Fixing SODAR Core template inconsistency (#150).
 - Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
+- Fixing ensembl gene link-out to wrong genome build (#156).
 
 -------
 v0.23.9

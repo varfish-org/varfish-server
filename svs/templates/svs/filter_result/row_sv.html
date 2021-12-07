@@ -167,8 +167,8 @@
         <a class="dropdown-item" href="https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg19&position={{ first_entry.chromosome }}:{{ first_entry.start }}-{{ first_entry.end }}" target="_blank">
           Locus @UCSC
         </a>
-        <a class="dropdown-item" href="https://grch37.ensembl.org/Homo_sapiens/Location/View?r={{ first_entry.chromosome }}:{{ first_entry.start }}-{{ first_entry.end }}" target="_blank">
-          Locus @ENSEMBL
+        <a class="dropdown-item" href="https://{% if first_entry.release == "GRCh37" %}grch37{% else %}www{% endif %}.ensembl.org/Homo_sapiens/Location/View?r={{ first_entry.chromosome }}:{{ first_entry.start }}-{{ first_entry.end }}" target="_blank">
+          Locus @EnsEMBL
         </a>
         <a class="dropdown-item" href="http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/?name={{ first_entry.chromosome }}:{{ first_entry.start }}-{{ first_entry.end }};search=Search" target="_blank">
           Locus @DGV

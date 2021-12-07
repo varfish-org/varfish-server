@@ -217,11 +217,11 @@
             <i>No EnsEMBL gene id.</i>
           </div>
         {% elif gene.ensembl_gene_id %}
-          <a href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.ensembl_gene_id }}" target="_blank">
+          <a href="https://{% if small_var.release == "GRCh37" %}grch37{% else %}www{% endif %}.ensembl.org/Homo_sapiens/Gene/Summary?g={{ gene.ensembl_gene_id }}" target="_blank">
             {{ gene.ensembl_gene_id }}
           </a>
         {% else %} {# small_var.ensembl_gene_id #}
-          <a href="https://www.ensembl.org/Homo_sapiens/Gene/Summary?g={{ small_var.ensembl_gene_id }}" target="_blank">
+          <a href="https://{% if small_var.release == "GRCh37" %}grch37{% else %}www{% endif %}.ensembl.org/Homo_sapiens/Gene/Summary?g={{ small_var.ensembl_gene_id }}" target="_blank">
             {{ small_var.ensembl_gene_id }}
           </a>
         {% endif %}

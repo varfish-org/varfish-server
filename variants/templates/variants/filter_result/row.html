@@ -301,7 +301,7 @@
           <a class="dropdown-item" href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ symbol }}" target="_blank">
             Gene @ClinVar
           </a>
-          <a class="dropdown-item" href="https://grch37.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g={{ entry.ensembl_gene_id }}" target="_blank">
+          <a class="dropdown-item" href="https://{% if entry.release == "GRCh37" %}grch37{% else %}www{% endif %}.ensembl.org/Homo_sapiens/Gene/Summary?db=core;g={{ entry.ensembl_gene_id }}" target="_blank">
             Gene @EnsEMBL
           </a>
           <a class="dropdown-item" href="https://stuart.radboudumc.nl/metadome/dashboard/transcript/{{ entry.ensembl_transcript_id }}/" target="_blank">
@@ -491,7 +491,7 @@
         <a class="dropdown-item" href="https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg19&position={{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }}" target="_blank">
           Locus @UCSC
         </a>
-        <a class="dropdown-item" href="https://grch37.ensembl.org/Homo_sapiens/Location/View?r={{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }}">
+        <a class="dropdown-item" href="https://{% if entry.release == "GRCh37" %}grch37{% else %}www{% endif %}.ensembl.org/Homo_sapiens/Location/View?r={{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }}" target="_blank">
           Locus @EnsEMBL
         </a>
         <a class="dropdown-item" href="http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/?name={{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }};search=Search" target="_blank">
