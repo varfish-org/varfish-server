@@ -119,6 +119,21 @@ Currently, the main focus is on small/sequence variants called from high-througp
 
 .. raw:: latex
 
+    \part{Developer's Manual}
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Developer's Manual
+    :name: developers_manual
+    :hidden:
+    :titlesonly:
+
+    developer_installation
+    developer_database
+    developer_development
+
+.. raw:: latex
+
     \part{Notes}
 
 .. toctree::
