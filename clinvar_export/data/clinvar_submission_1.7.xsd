@@ -1,4 +1,4 @@
-<xs:schema version="1.6; February 10, 2020" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema version="1.7; May 22, 2020" xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:annotation>
         <xs:documentation> If you have any question about this xsd, please contact us.
             (clinvar@ncbi.nlm.nih.gov). </xs:documentation>
@@ -1515,6 +1515,7 @@
             <xs:enumeration value="Finding"/>
             <xs:enumeration value="InfectionResistance"/>
             <xs:enumeration value="PhenotypeInstruction"/>
+            <xs:enumeration value="NamedProteinVariant"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="typeTraitAttributetype">

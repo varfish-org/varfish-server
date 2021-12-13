@@ -4,7 +4,7 @@ from lxml import etree as ET
 from lxml.builder import ElementMaker
 
 #: URL of the XSD file
-XSD_URL_1_6 = "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xsd_submission/clinvar_submission_1.6.xsd"
+XSD_URL_1_7 = "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xsd_submission/clinvar_submission_1.7.xsd"
 
 
 class SubmissionXmlGenerator:
@@ -18,7 +18,7 @@ class SubmissionXmlGenerator:
             "ClinvarSubmissionSet",
             {
                 "Date": datetime.date.today().isoformat(),
-                "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": XSD_URL_1_6,
+                "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation": XSD_URL_1_7,
             },
         )
         root.append(
