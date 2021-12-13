@@ -23,6 +23,7 @@ End-User Summary
 - Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
 - Fixing ensembl gene link-out to wrong genome build (#156).
 - Added section for developers in manual (#267).
+- Updating Clinvar export schema to 1.7 version (#226).
 
 Full Change List
 ================
@@ -45,6 +46,7 @@ Full Change List
 - Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
 - Fixing ensembl gene link-out to wrong genome build (#156).
 - Added section for developers in manual (#267).
+- Updating Clinvar export schema to the latest 1.7 version (#226).
 
 -------
 v0.23.9

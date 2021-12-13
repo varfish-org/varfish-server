@@ -29,7 +29,7 @@ from variants.helpers import get_engine
 
 from geneinfo.models import Hpo, HpoName
 from variants.queries import SmallVariantUserAnnotationQuery
-from .clinvar_xml import SubmissionXmlGenerator, XSD_URL_1_6
+from .clinvar_xml import SubmissionXmlGenerator, XSD_URL_1_7
 from .models import (
     SubmissionSet,
     Submission,
@@ -64,7 +64,7 @@ def _read(filename):
 
 #: Submission XSD URL to XSD string
 XSD_CONTENTS = {
-    XSD_URL_1_6: _read(XSD_URL_1_6.rsplit("/", 1)[1]),
+    XSD_URL_1_7: _read(XSD_URL_1_7.rsplit("/", 1)[1]),
 }
 
 
