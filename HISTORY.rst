@@ -22,6 +22,7 @@ End-User Summary
 - Fixing SODAR Core template inconsistency (#150).
 - Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
 - Fixing ensembl gene link-out to wrong genome build (#156).
+- Updating Clinvar export schema to 1.7 version (#226).
 
 Full Change List
 ================
@@ -43,6 +44,7 @@ Full Change List
 - Fixing SODAR Core template inconsistency (#150).
 - Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
 - Fixing ensembl gene link-out to wrong genome build (#156).
+- Updating Clinvar export schema to the latest 1.7 version (#226).
 
 -------
 v0.23.9
