@@ -51,7 +51,9 @@ tads_imr90           258K                      domain annotation
 You can find the ``import_versions.tsv`` file in the root folder of the
 package. This file determines which component (called ``table_group`` and
 represented as folder in the package) gets imported when the import command is
-issued. To exclude a component, simply comment out (``#``) or delete the line.
+issued. To exclude a table, simply comment out (``#``) or delete the line.
+Excluding tables that are not required for development can reduce time and space
+consumption.
 
 A space-consumption-friendly version of the file would look like this::
 
@@ -87,4 +89,9 @@ A space-consumption-friendly version of the file would look like this::
 To perform the import, issue::
 
     $ python manage.py import_tables --tables-path varfish-db-downloader
+
+Performing the import twice will automatically skip tables that are already imported.
+To re-import tables, add the ``--force`` parameter to the command::
+
+    $ python manage.py import_tables --tables-path varfish-db-downloader --force
 
