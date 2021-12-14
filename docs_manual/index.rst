@@ -131,6 +131,7 @@ Currently, the main focus is on small/sequence variants called from high-througp
     developer_installation
     developer_database
     developer_development
+    developer_kiosk
 
 .. raw:: latex
 
