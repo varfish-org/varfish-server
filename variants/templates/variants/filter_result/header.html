@@ -30,6 +30,9 @@
   <th class="effect-change-protein"></th>{# effect change protein #}
   <th class="effect-change-cdna"></th>{# effect change cdna #}
   <th class="distance-to-splicesite"></th>{# distance to splicesite #}
+  {% for value in result_extra_annos_header %}
+    <th class="effect-change-extra_annos-{{ forloop.counter }}"></th>
+  {% endfor %}
   {% if query_type == "project" %}
     <th></th> {# cases per gene #}
   {% endif %}
@@ -95,6 +98,9 @@
   <th class="effect-change-protein">effect protein</th>
   <th class="effect-change-cdna">effect cdna</th>
   <th class="distance-to-splicesite">dist. to splicesite</th>
+  {% for value in result_extra_annos_header %}
+    <th class="effect-change-extra_annos-{{ forloop.counter }}"> {{ value }}</th>
+  {% endfor %}
   {% if query_type == "project" %}
     <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number affected cases per gene.">
       <sup>#c</sup>&frasl;<sub>g</sub>

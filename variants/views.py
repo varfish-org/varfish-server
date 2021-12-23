@@ -48,7 +48,7 @@ from bgjobs.views import DEFAULT_PAGINATION as BGJOBS_DEFAULT_PAGINATION
 from clinvar.models import Clinvar
 from cohorts.models import Cohort
 from config.settings.base import VARFISH_CADD_SUBMISSION_RELEASE
-from extra_annos.views import ExtraAnnosMixin
+from extra_annos.views import ExtraAnnosMixin, ExtraAnnoField
 from frequencies.models import MT_DB_INFO
 from geneinfo.views import get_gene_infos
 from geneinfo.models import (
@@ -519,7 +519,7 @@ class CaseListGetQCView(
 
     def get_sample_variant_stats_content(self, project, sample_variant_stats):
         result = [
-            "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.",])
+            "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.", ])
         ]
         for item in sample_variant_stats:
             result.append(
@@ -875,7 +875,7 @@ def get_annotations_by_variant(case=None, cases=None, project=None):
 
     def init_var(description):
         result[case_uuid].setdefault(
-            description, {"variants": [], "flags": None, "comments": [], "acmg_rating": None,},
+            description, {"variants": [], "flags": None, "comments": [], "acmg_rating": None, },
         )
 
     for small_var in annotated_small_vars.small_variants:
@@ -1100,7 +1100,7 @@ class CaseDetailView(
     def get_sample_variant_stats_content(self):
         case = self.get_object()
         result = [
-            "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.",])
+            "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.", ])
         ]
         for item in case.latest_variant_set.variant_stats.sample_variant_stats.all():
             result.append(
@@ -1587,7 +1587,7 @@ class BaseDownloadAnnotationsView(
                         anno["acmg_rating"].acmg_class if anno["acmg_rating"] else "N/A",
                     ]
                     + row_flags
-                    + ["|".join(comments),]
+                    + ["|".join(comments), ]
                 )
                 yield row
 
@@ -2429,11 +2429,14 @@ class CaseLoadPrefetchedFilterView(
                 else:
                     hpoterms[hpo] = "unknown term"
 
+        extra_annos_header = [field.label for field in list(ExtraAnnoField.objects.all())]
+
         result.update(
             {
                 "user": self.request.user,
                 "case": filter_job.smallvariantquery.case,
                 "result_rows": rows,
+                "result_extra_annos_header" : extra_annos_header,
                 "result_count": num_results,
                 "elapsed_seconds": elapsed.total_seconds(),
                 "database": filter_job.smallvariantquery.query_settings.get(

@@ -208,6 +208,9 @@
             <option value="effect-change-protein">Effect Protein</option>
             <option value="effect-change-cdna">Effect cDNA</option>
             <option value="distance-to-splicesite">Distance to SpliceSite</option>
+            {% for value in result_extra_annos_header %}
+              <option value="effect-change-extra_annos-{{ forloop.counter }}"}}>{{ value }}</option>
+            {% endfor %}
           </select>
         </div>
         <div class="pl-3">
@@ -273,4 +276,3 @@
     }
     </script>
   {% endif %}
-

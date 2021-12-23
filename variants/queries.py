@@ -16,6 +16,7 @@ from clinvar.models import Clinvar
 from cohorts.models import Cohort
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
+from extra_annos.models import ExtraAnno
 from frequencies.models import MtDb, HelixMtDb, Mitomap
 from geneinfo.models import (
     Hgnc,
@@ -1101,6 +1102,41 @@ class ExtendQueryPartsCommentsJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
+class ExtendQueryPartsCommentsExtraAnnoJoin(ExtendQueryPartsBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.subquery = (
+            select([func.array_agg(ExtraAnno.sa.anno_data).label("extra_annos")])
+            .select_from(ExtraAnno.sa)
+            .where(
+                and_(
+                    ExtraAnno.sa.release == SmallVariant.sa.release,
+                    ExtraAnno.sa.chromosome == SmallVariant.sa.chromosome,
+                    ExtraAnno.sa.start == SmallVariant.sa.start,
+                    ExtraAnno.sa.end == SmallVariant.sa.end,
+                    ExtraAnno.sa.reference == SmallVariant.sa.reference,
+                    ExtraAnno.sa.alternative == SmallVariant.sa.alternative,
+
+                )
+            )
+            .group_by(
+                ExtraAnno.sa.release,
+                ExtraAnno.sa.chromosome,
+                ExtraAnno.sa.start,
+                ExtraAnno.sa.end,
+                ExtraAnno.sa.reference,
+                ExtraAnno.sa.alternative,
+            )
+            .lateral("extra_annos_subquery")
+        )
+
+    def extend_fields(self, _query_parts):
+        return [self.subquery.c.extra_annos]
+
+    def extend_selectable(self, query_parts):
+        return query_parts.selectable.outerjoin(self.subquery, true())
+
+
 class ExtendQueryPartsFlagsJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1353,6 +1389,7 @@ extender_classes_base = [
     ExtendQueryPartsGenotypeGtQualityDefaultFilter,
     ExtendQueryPartsFlagsJoinAndFilter,
     ExtendQueryPartsCommentsJoin,
+    ExtendQueryPartsCommentsExtraAnnoJoin,
     ExtendQueryPartsAcmgCriteriaJoin,
 ]
 
@@ -1404,6 +1441,7 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsMgiJoin,
         ExtendQueryPartsFlagsJoinAndFilter,
         ExtendQueryPartsCommentsJoin,
+        ExtendQueryPartsCommentsExtraAnnoJoin,
         ExtendQueryPartsAcmgCriteriaJoin,
         ExtendQueryPartsModesOfInheritanceJoin,
         ExtendQueryPartsDiseaseGeneJoin,

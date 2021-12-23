@@ -383,6 +383,14 @@
   <td class="text-nowrap effect-change-protein">{{ entry.hgvs_p|default:'-' }}</td>
   <td class="text-nowrap effect-change-cdna">{{ entry.hgvs_c|default:'-' }}</td>
   <td class="text-nowrap distance-to-splicesite">{{ entry.exon_dist|default:'-' }}</td>
+  {% if entry.extra_annos is not None %}
+    {% for value in entry.extra_annos.0 %}
+      <td class="text-nowrap effect-change-extra_annos-{{ forloop.counter }}">{{ value|default:'-' }}</td>
+    {% endfor %}
+  {% else %}
+    {% for value in result_extra_annos_header %}
+      <td class="text-nowrap effect-change-extra_annos-{{ forloop.counter }}">{{ '-' }}</td>  {% endfor %}
+  {% endif %}
   {% if query_type == "project" %}
     <td>{{ entry.affected_cases_per_gene|default:0 }}</td>
   {% endif %}
