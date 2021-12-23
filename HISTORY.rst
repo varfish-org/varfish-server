@@ -53,6 +53,8 @@ End-User Summary
 - Improving performance for fetching result queries (#371)
 - Capping max. number of cases to query at once (#372)
 - Documenting release cycle and branch names
+- Add extra annotations, i.e. additional variant scores to the filtered variants (#242)
+
 
 Full Change List
 ================
@@ -119,6 +121,7 @@ Full Change List
 - Capping max. number of cases to query at once (#372)
 - Documenting release cycle and branch names
 - Checking commit message trailers (#323)
+- Add extra annotations to the filtered variants (#242)
 
 -------
 v0.23.9

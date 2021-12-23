@@ -47,7 +47,7 @@ from bgjobs.models import BackgroundJob
 from bgjobs.views import DEFAULT_PAGINATION as BGJOBS_DEFAULT_PAGINATION
 from clinvar.models import Clinvar
 from cohorts.models import Cohort
-from extra_annos.views import ExtraAnnosMixin
+from extra_annos.views import ExtraAnnosMixin, ExtraAnnoField
 from frequencies.models import MT_DB_INFO
 from geneinfo.views import get_gene_infos
 from geneinfo.models import (
@@ -2449,6 +2449,8 @@ class CaseLoadPrefetchedFilterView(
                 else:
                     hpoterms[hpo] = "unknown term"
 
+        extra_annos_header = [field.label for field in list(ExtraAnnoField.objects.all())]
+
         genomebuild = "GRCh37"
         if rows:
             genomebuild = rows[0]["release"]
@@ -2459,6 +2461,7 @@ class CaseLoadPrefetchedFilterView(
                 "user": self.request.user,
                 "case": filter_job.smallvariantquery.case,
                 "result_rows": rows,
+                "result_extra_annos_header": extra_annos_header,
                 "result_count": num_results,
                 "elapsed_seconds": elapsed.total_seconds(),
                 "database": filter_job.smallvariantquery.query_settings.get(
