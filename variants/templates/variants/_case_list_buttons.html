@@ -12,7 +12,7 @@
   {% if request.user.is_superuser or kiosk_mode %}
     {% if disable_pedigree_sex_check %}
       <a class="btn btn-danger{% if not project.sex_errors %} disabled{% endif %}" href="{% url "variants:project-cases-fix-sex" project=project.sodar_uuid %}">
-        <i class="fa fa-venus-mars"></i>
+        <i class="iconify" data-icon="fa-solid:venus-mars"></i>
         Fix Sex
       </a>
     {% endif %}

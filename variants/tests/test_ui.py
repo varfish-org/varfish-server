@@ -78,6 +78,28 @@ class wait_for_the_attribute_value(object):
             return False
 
 
+class wait_for_the_attribute_endswith_value(object):
+    """https://stackoverflow.com/a/43813210/84349
+
+    Usage:
+
+    self.wait.until(wait_for_the_attribute_value((By.ID, "xxx"), "aria-busy", "false"))
+
+    """
+
+    def __init__(self, locator, attribute, value):
+        self.locator = locator
+        self.attribute = attribute
+        self.value = value
+
+    def __call__(self, driver):
+        try:
+            element_attribute = ec._find_element(driver, self.locator).get_attribute(self.attribute)
+            return element_attribute.endswith(self.value)
+        except StaleElementReferenceException:
+            return False
+
+
 class LiveUserMixin:
     """Mixin for creating users to work with LiveServerTestCase"""
 
@@ -266,6 +288,7 @@ class TestVariantsCaseFilterView(TestUIBase):
     """Tests for the variants case filter view."""
 
     view = "variants:case-filter"
+    window_size = (2000, 1000)
 
     def setUp(self):
         super().setUp()
@@ -543,13 +566,18 @@ class TestVariantsCaseFilterView(TestUIBase):
         )
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark"))
+        )
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark-comment-group"))
         ).click()
         # save bookmark
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.CLASS_NAME, "save"))
         ).click()
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "fa-bookmark"))
+            wait_for_the_attribute_endswith_value(
+                (By.CLASS_NAME, "variant-bookmark"), "src", "/icons/fa-solid/bookmark.svg"
+            )
         )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
@@ -566,14 +594,20 @@ class TestVariantsCaseFilterView(TestUIBase):
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
         )
-        self.selenium.find_element_by_class_name("variant-bookmark").click()
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark"))
+        )
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark-comment-group"))
+        ).click()
         # save bookmark
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.CLASS_NAME, "save"))
-        )
-        self.selenium.find_element_by_class_name("save").click()
+        ).click()
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "fa-bookmark"))
+            wait_for_the_attribute_endswith_value(
+                (By.CLASS_NAME, "variant-bookmark"), "src", "/icons/fa-solid/bookmark.svg"
+            )
         )
         # switch tab
         self.selenium.find_element_by_id("more-tab").click()

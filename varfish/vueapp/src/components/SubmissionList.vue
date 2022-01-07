@@ -20,7 +20,7 @@
                 @click="onListItemClicked(item.sodar_uuid)"
             >
               {{ getSubmissionLabel(item) }}
-              <i v-if="item._isInvalid" class="fa fa-warning text-warning"></i>
+              <i v-if="item._isInvalid" class="iconify text-warning" data-icon="bi:exclamation-circle"></i>
               <div class="pull-right">
                 <i class="fa fa-chevron-right"></i>
               </div>
@@ -43,7 +43,7 @@
       <p>
         Create a new submission by selecting one of the variants below or
         <b-button size="sm" variant="primary" @click="onCreateEmptySubmissionClicked()">
-          <i class="fa fa-asterisk"></i>
+          <i class="iconify" data-icon="fa-solid:fa-asterisk"></i>
           create empty.
         </b-button>
       </p>
@@ -126,7 +126,7 @@
               }"
               :title="`${item.flags.flag_final_causative ? '': 'NOT '}flagged as final causative`"
             >
-              <i class="fa fa-flag-checkered"></i>
+              <i class="iconify" data-icon="fa-solid:flag-checkered"></i>
             </span>
             |
             <span :class="{
@@ -135,7 +135,7 @@
               }"
               :title="`${item.flags.flag_final_causative ? '': 'NOT '}flagged as candidate`"
             >
-              <i class="fa fa-heart"></i>
+              <i class="iconify" data-icon="fa-solid:heart"></i>
             </span>
           </small>
           |

@@ -194,16 +194,16 @@ def smallvar_description(entry):
 
 #: Mapping of small variant flag value to font awesome icon.
 FLAG_VALUE_TO_FA = {
-    "positive": "fa-exclamation-circle",
-    "uncertain": "fa-question",
-    "negative": "fa-minus-circle",
-    "empty": "fa-remove",
+    "positive": "fa-solid:exclamation-circle",
+    "uncertain": "fa-solid:question",
+    "negative": "fa-solid:minus-circle",
+    "empty": "fa-solid:times",
 }
 
 
 @register.filter
 def flag_value_to_fa(value):
-    return FLAG_VALUE_TO_FA.get(value, "fa-remove")
+    return FLAG_VALUE_TO_FA.get(value, "fa-solid:times")
 
 
 #: Mapping of small variant flag value to Bootstrap color class.

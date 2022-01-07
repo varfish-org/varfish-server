@@ -79,7 +79,7 @@
                   class="btn btn-sm btn-primary"
                   data-url-case-notes-status="{% url 'variants:case-notes-status-api' project=project.sodar_uuid case=object.sodar_uuid %}"
                 >
-                  <i class="fa fa-save"></i> Save
+                  <i class="iconify" data-icon="fa-solid:save"></i> Save
                 </button>
               </div>
             </div>
@@ -106,10 +106,10 @@
           {{ object.num_small_vars|default_if_none:"-"|intcomma }}
           {% if object.num_small_vars %}
             {% if not object.latest_variant_set %}
-              <i class="fa fa-exclamation-triangle text-danger" data-toggle="tooltip" title="Variants reported but no variant set available. Inconsistent state, please report to the aministrators."></i>
+              <i class="iconify text-danger" data-icon="bi:exclamation-circle" data-toggle="tooltip" title="Variants reported but no variant set available. Inconsistent state, please report to the aministrators."></i>
             {% endif %}
           {% else %}
-            <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="small variant filtration not possible"></i>
+            <i class="iconify text-muted" data-icon="fa-solid:info-circle" data-toggle="tooltip" title="small variant filtration not possible"></i>
           {% endif %}
         </span>
         {% if svs_enabled %}
@@ -120,10 +120,10 @@
             {{ object.num_svs|default_if_none:"-"|intcomma }}
             {% if object.num_svs %}
               {% if not object.latest_structural_variant_set %}
-                <i class="fa fa-exclamation-triangle text-danger" data-toggle="tooltip" title="SVs reported but no structural variant set available. Inconsistent state, please report to the aministrators."></i>
+                <i class="iconify text-danger" data-icon="bi:exclamation-circle" data-toggle="tooltip" title="SVs reported but no structural variant set available. Inconsistent state, please report to the aministrators."></i>
               {% endif %}
             {% else %}
-              <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="SV filtration not possible"></i>
+              <i class="iconify text-muted" data-icon="fa-solid:info-circle" data-toggle="tooltip" title="SV filtration not possible"></i>
             {% endif %}
           </span>
         {% endif %}

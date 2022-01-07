@@ -9,7 +9,7 @@ e<template>
             @click="moveCurrentSubmission(true)"
             :disabled="isMoveCurrentSubmissionDisabled(true)"
         >
-          <i class="fa fa-arrow-up"></i>
+          <i class="iconify" data-icon="mdi:arrow-up-circle"></i>
           move up
         </b-button>
         <b-button
@@ -18,7 +18,7 @@ e<template>
             @click="moveCurrentSubmission(false)"
             :disabled="isMoveCurrentSubmissionDisabled(false)"
         >
-          <i class="fa fa-arrow-down"></i>
+          <i class="iconify" data-icon="mdi:arrow-down-circle"></i>
           move down
         </b-button>
         <b-button

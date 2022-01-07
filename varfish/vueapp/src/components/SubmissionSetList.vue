@@ -2,7 +2,7 @@
   <b-card no-body title-tag="title" footer-tag="footer">
     <template #header>
       <h4 class="mb-0">
-        <i class="fa fa-folder-o"></i>
+        <i class="iconify" data-icon="fa-regular:folder"></i>
         Submission Set List
 
         <transition name="fade">
@@ -25,7 +25,7 @@
             Edit
           </b-button>
           <b-button size="sm" variant="secondary" @click="onXmlPreviewClicked(row.item.sodar_uuid)">
-            <i class="fa fa-code"></i>
+            <i class="iconify" data-icon="fa-solid:code"></i>
             ClinVar XML
           </b-button>
         </b-button-group>
@@ -47,7 +47,7 @@
 
       <div v-if="xmlPreviewState == 'loading'">
         <div class="text-center">
-          <i class="fa fa-4x fa-spin fa-circle-o-notch text-muted mt-5"></i>
+          <i class="iconify spin text-muted mt-5" data-icon="fa-solid:circle-notch"></i>
           <br />
           <br />
           <span class="text-muted font-italic">Loading...</span>
@@ -71,11 +71,11 @@
         <div class="w-100">
           <div class="float-left">
             <div v-if="xmlValidationState == 'initial'" class="text-muted">
-              <i class="fa fa-question"></i>
+              <i class="iconify" data-icon="fa-solid:question"></i>
               XSD check: waiting for XML
             </div>
             <div v-if="xmlValidationState == 'loading'" class="text-muted">
-              <i class="fa fa-spin fa-circle-o-notch text-muted"></i>
+              <i class="iconify spin text-muted" data-icon="fa-solid:circle-notch"></i>
               XSD check: running
             </div>
             <div v-if="xmlValidationState == 'valid'" class="text-success">

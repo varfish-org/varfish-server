@@ -17,7 +17,7 @@
   {% if query_type == "case" %}
     {% if svs_enabled %}
       <a class="btn btn-primary{% if not object.num_svs %} disabled{% endif %}" href="{% url "svs:case-filter" project=project.sodar_uuid case=object.sodar_uuid %}">
-        <i class="fa fa-align-center fa-flip-vertical"></i>
+        <i class="iconify" data-icon="mdi:filter-variant"></i>
         Filter SVs
       </a>
     {% endif %}

@@ -121,17 +121,17 @@
                     data-url-request-last-job='{{ request_previous_job_url }}'
                     data-url-status='{{ job_status_url }}'
                     {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-              <i class="fa fa-refresh"></i>
+              <i class="iconify" data-icon="mdi:refresh"></i>
               Filter &amp; Display
             </button>
             <button class="btn btn-secondary dropdown-toggle" type="button" id="filterdisplayoptions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fa fa-ellipsis-h"></i>
+              <i class="iconify" data-icon="fa-solid:ellipsis-h"></i>
             </button>
             <div class="dropdown-menu" aria-labelledby="filterdisplayoptions" style="z-index: 3000">
               <button type="submit" name="submit" value="download" class="dropdown-item" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
                       title="Create downloadable file in the background of <i><b>all</b></i> variants with current settings (ignoring result count limit)."
                       {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-                <i class="fa fa-cloud-download"></i>
+                <i class="iconify" data-icon="fa-solid:cloud-download-alt"></i>
                 Download as File
               </button>
               {% if allow_md_submission %}
@@ -139,7 +139,7 @@
                         data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
                         title="Submit to MutationDistiller (only supports single-sample VCF at the moment)"
                         {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-                  <i class="fa fa-mail-forward"></i>
+                  <i class="iconify" data-icon="bi:send-fill"></i>
                   Submit to MutationDistiller
                 </button>
               {% endif %}
@@ -148,7 +148,7 @@
                         data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
                         title="Submit to CADD"
                         {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-                  <i class="fa fa-mail-forward"></i>
+                  <i class="iconify" data-icon="bi:send-fill"></i>
                   Submit to CADD
                 </button>
               {% endif %}
@@ -157,7 +157,7 @@
                         data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
                         title="Submit to SPANR"
                         {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-                  <i class="fa fa-mail-forward"></i>
+                  <i class="iconify" data-icon="bi:send-fill"></i>
                   Submit to SPANR
                 </button>
               {% endif %}

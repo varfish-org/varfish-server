@@ -46,8 +46,10 @@ function clickVariantBookmark() {
   // Compile popup template.
   var bookmarkPopupTpl = $.templates("#bookmark-flags-popup");
   // Store handle outmost $(this) for later hiding popup again.
-  var outerThis = $(this).closest(".bookmark").find(".variant-bookmark");
+  var outerThis = $(this);
   var caseUuid = $(this).data("case");
+  var icon_comment = $(this).find(".variant-comment")
+  var icon_bookmark = $(this).find(".variant-bookmark")
   var cell = $(this).closest(".variant-row").find(".toggle-variant-details");
 
   // Get variant description from triggering bookmark icon.
@@ -76,7 +78,7 @@ function clickVariantBookmark() {
     // Setup the form elements so we can use AJAX for them.
     $(html).find(".cancel").click(function(event) {
       event.preventDefault();
-      $(outerThis).popover("hide");
+      outerThis.popover("hide");
     });
     $(html).find(".save").click(function(event) {
       event.preventDefault();  // we will handle everything
@@ -94,14 +96,13 @@ function clickVariantBookmark() {
         dataType: "json",
       }).done(function(data) {
         // successfully updated flags, update bookmark display
-        $(outerThis).removeClass("fa-bookmark fa-bookmark-o");
         if (data["flag_bookmarked"] || data["flag_for_validation"] || data["flag_candidate"] || data["flag_final_causative"]) {
-          $(outerThis).addClass("fa-bookmark");
+          icon_bookmark.attr("src", "/icons/fa-solid/bookmark.svg");
         } else {
-          $(outerThis).addClass("fa-bookmark-o");
+          icon_bookmark.attr("src", "/icons/fa-regular/bookmark.svg");
         }
         // update row color
-        var variantRow = $(outerThis).closest(".variant-row");
+        var variantRow = outerThis.closest(".variant-row");
         variantRow.removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty variant-row-wip");
         variantRow.addClass("variant-row-" + summarizeFlags(data));
         let dtrow = dt.row(variantRow);
@@ -127,10 +128,8 @@ function clickVariantBookmark() {
           dataType: "json",
         }).done(function(data) {
           // successfully updated flags, update bookmark display
-          var commentTag = $(outerThis).closest(".bookmark").find(".variant-comment");
-          commentTag.removeClass("fa-comment fa-comment-o");
-          commentTag.addClass("fa-comment");
-          let dtrow = dt.row($(outerThis).closest(".variant-row"));
+          icon_comment.attr("src", "/icons/fa-solid/comment.svg");
+          let dtrow = dt.row(outerThis.closest(".variant-row"));
           if (structural_or_small == "small" && dtrow.child() && dtrow.child().length) {
             loadVariantDetails(dtrow, cell);
           }
@@ -141,7 +140,7 @@ function clickVariantBookmark() {
       }
 
       // Remove pop-over
-      $(outerThis).popover('hide').popover("dispose");
+      outerThis.popover('hide').popover("dispose");
     });
 
     outerThis.popover({
@@ -212,7 +211,7 @@ function clickVariantBookmark() {
 
 // Hide popover when clicking outside of popover.
 $('body').on('click', function (e) {
-    $('.variant-bookmark, .variant-comment, .hgmd-popover, .variant-acmg').each(function () {
+    $('.variant-bookmark-comment-group, .hgmd-popover, .variant-acmg').each(function () {
         // hide any open popovers when the anywhere else in the body is clicked
         if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
             $(this).popover('hide');
@@ -425,6 +424,6 @@ function clickVariantAcmgRating() {
   });
 }
 
-$(document).on("click", ".variant-bookmark", clickVariantBookmark);
-$(document).on("click", ".variant-comment", clickVariantBookmark);
+$(document).on("click", ".variant-bookmark-comment-group", clickVariantBookmark);
+//$(document).on("click", ".variant-comment", clickVariantBookmark);
 $(document).on("click", ".variant-acmg", clickVariantAcmgRating);

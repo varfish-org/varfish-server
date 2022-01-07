@@ -78,7 +78,7 @@
           {% for omim_id, omim_names in gene.omim.items %}
             <a href="https://www.omim.org/entry/{{ omim_id }}" target="_blank">
             <span class="badge-group omim-popover"
-                  data-toggle="popover" data-trigger="focus" tabindex="0" title="{% if omim_names.1 %}<ul class='pl-3 pb-0 mb-0'><li>{{ omim_names.1|join:"</li><li>" }}</li></ul>{% else %}<em>No alternative description</em>{% endif %}" data-content="<a href='https://www.omim.org/entry/{{ omim_id }}' target='_blank' class='btn btn-secondary'><i class='fa fa-external-link'></i> View in OMIM</a>" data-html="true">
+                  data-toggle="popover" data-trigger="focus" tabindex="0" title="{% if omim_names.1 %}<ul class='pl-3 pb-0 mb-0'><li>{{ omim_names.1|join:"</li><li>" }}</li></ul>{% else %}<em>No alternative description</em>{% endif %}" data-content="<a href='https://www.omim.org/entry/{{ omim_id }}' target='_blank' class='btn btn-secondary'><i class='iconify' data-icon='fa-solid:external-link-alt'></i> View in OMIM</a>" data-html="true">
             <span class="badge badge-dark">{{ omim_id }}</span>
             <span class="badge badge-secondary">{{ omim_names.0 }}</span></span></a>
           {% endfor %}
@@ -119,7 +119,7 @@
               <th>Exp. # SNVs</th>
               <th>Obs. # SNVs</th>
               <th>Constraint</th>
-              <th>o/e <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="<sup>observed</sup>&frasl;<sub>expected</sub> with 90% CI"></i></th>
+              <th>o/e <i class="iconify" data-icon="fa-solid:info-circle" data-toggle="tooltip" data-html="true" title="<sup>observed</sup>&frasl;<sub>expected</sub> with 90% CI"></i></th>
             </tr>
             {% if gene.exac_constraints %}
             <tr>

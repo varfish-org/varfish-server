@@ -9,33 +9,33 @@
   {% if flags %}
   <div class="row font-weight-bold pt-2">
     <div class="col text-nowrap">
-      <i class="fa fa-fw fa-star {% if not flags.flag_bookmarked %}text-muted" style="opacity: 0.2;{% endif %}"></i>
-      <i class="fa fa-fw fa-flask {% if not flags.flag_for_validation %}text-muted" style="opacity: 0.2;{% endif %}"></i>
-      <i class="fa fa-fw fa-heart {% if not flags.flag_candidate %}text-muted" style="opacity: 0.2;{% endif %}"></i>
-      <i class="fa fa-fw fa-flag-checkered {% if not flags.flag_final_causative %}text-muted" style="opacity: 0.2;{% endif %}"></i>
-      <i class="fa fa-fw fa-chain-broken {% if not flags.flag_no_disease_association %}text-muted" style="opacity: 0.3{% endif %}"></i>
-      <i class="fa fa-fw fa-thumbs-up {% if not flags.flag_segregates %}text-muted" style="opacity: 0.3{% endif %}"></i>
-      <i class="fa fa-fw fa-thumbs-down {% if not flags.flag_doesnt_segregate %}text-muted" style="opacity: 0.3{% endif %}"></i>
+      <i class="iconify {% if not data.flags.flag_bookmarked %}text-muted" style="opacity: 0.3{% endif %}" data-icon="fa-solid:star"></i>
+      <i class="iconify {% if not flags.flag_for_validation %}text-muted" style="opacity: 0.3{% endif %}" data-icon="fa-solid:flask"></i>
+      <i class="iconify {% if not flags.flag_candidate %}text-muted" style="opacity: 0.3{% endif %}" data-icon="fa-solid:heart"></i>
+      <i class="iconify {% if not flags.flag_final_causative %}text-muted" style="opacity: 0.3;{% endif %}" data-icon="fa-solid:flag-checkered"></i>
+      <i class="iconify {% if not flags.flag_no_disease_association %}text-muted" style="opacity: 0.3{% endif %}" data-icon="cil:link-broken"></i>
+      <i class="iconify {% if not flags.flag_segregates %}text-muted" style="opacity: 0.3{% endif %}" data-icon="fa-solid:thumbs-up"></i>
+      <i class="iconify {% if not flags.flag_doesnt_segregate %}text-muted" style="opacity: 0.3{% endif %}" data-icon="fa-solid:thumbs-down"></i>
     </div>
     <div class="col text-nowrap">
       Visual
-      <i class="fa fa-fw {{ flags.flag_visual|flag_value_to_fa }} {{ flags.flag_visual|flag_value_to_color }}"></i>
+      <i class="iconify {{ flags.flag_visual|flag_value_to_color }}" data-icon="{{ flags.flag_visual|flag_value_to_fa }}"></i>
     </div>
     <div class="col text-nowrap">
       Molecular
-      <i class="fa fa-fw {{ flags.flag_molecular|flag_value_to_fa }} {{ flags.flag_molecular|flag_value_to_color }}"></i>
+      <i class="iconify {{ flags.flag_molecular|flag_value_to_color }}" data-icon="{{ flags.flag_molecular|flag_value_to_fa }}"></i>
     </div>
     <div class="col text-nowrap">
       Validation
-      <i class="fa fa-fw {{ flags.flag_validation|flag_value_to_fa }} {{ flags.flag_validation|flag_value_to_color }}"></i>
+      <i class="iconify {{ flags.flag_validation|flag_value_to_color }}" data-icon="{{ flags.flag_validation|flag_value_to_fa }}"></i>
     </div>
     <div class="col text-nowrap">
       Phenotype
-      <i class="fa fa-fw {{ flags.flag_phenotype_match|flag_value_to_fa }} {{ flags.flag_phenotype_match|flag_value_to_color }}"></i>
+      <i class="iconify {{ flags.flag_phenotype_match|flag_value_to_color }}" data-icon="{{ flags.flag_phenotype_match|flag_value_to_fa }}"></i>
     </div>
     <div class="col text-nowrap">
       Summary
-      <i class="fa fa-fw {{ flags.flag_summary|flag_value_to_fa }} {{ flags.flag_summary|flag_value_to_color }}"></i>
+      <i class="iconify {{ flags.flag_summary|flag_value_to_color }}" data-icon="{{ flags.flag_summary|flag_value_to_fa }}"></i>
     </div>
   </div>
   {% else %}
@@ -57,7 +57,7 @@
         <em>{{ comment.text }}</em>
         {% if comment.user == request.user or request.user.is_superuser %}
           <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="iconify" data-icon="mdi:pencil"></i></a>
-          <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="fa fa-times-circle"></i></a>
+          <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="iconify" data-icon="fa-solid:times-circle"></i></a>
         {% endif %}
       </div>
       <div id="edit-comment-{{ comment.sodar_uuid }}" style="display: none;">

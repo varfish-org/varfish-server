@@ -8,7 +8,7 @@
      id="card-varfish-vars-case-details-bam-qc">
     <div class="card-header">
       <h4>
-        <i class="fa fa-search"></i>
+        <i class="iconify" data-icon="fa-solid:search"></i>
         Alignment Quality Control
       </h4>
     </div>
@@ -59,8 +59,8 @@
               <td class="text-right">{{ stats|from_bamstats:"percent duplicates"|floatformat:1 }}%</td>
               <td class="text-right">{{ stats|keyvalue:"bamstats"|keyvalue:"insert size average"|floatformat:0 }}</td>
               <td class="text-right">{{ stats|keyvalue:"bamstats"|keyvalue:"insert size standard deviation"|floatformat:0 }}</td>
-              <td class="text-right">{% if stats|from_bamstats:"mean target coverage" %}{{ stats|from_bamstats:"mean target coverage"|default:"-"|floatformat:0 }}&nbsp;x{% else %}- <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="" data-original-title="coverage information not provided"></i>{% endif %}</td>
-              <td class="text-right">{% if stats|from_bamstats:"total target size" %}{{ stats|from_bamstats:"total target size"|default:"-"|floatformat:0 }}&nbsp;x{% else %}- <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="" data-original-title="coverage information not provided"></i>{% endif %}</td>
+              <td class="text-right">{% if stats|from_bamstats:"mean target coverage" %}{{ stats|from_bamstats:"mean target coverage"|default:"-"|floatformat:0 }}&nbsp;x{% else %}- <i class="iconify text-muted" data-icon="fa-solid:info-circle" data-toggle="tooltip" title="" data-original-title="coverage information not provided"></i>{% endif %}</td>
+              <td class="text-right">{% if stats|from_bamstats:"total target size" %}{{ stats|from_bamstats:"total target size"|default:"-"|floatformat:0 }}&nbsp;x{% else %}- <i class="iconify text-muted" data-icon="fa-solid:info-circle" data-toggle="tooltip" title="" data-original-title="coverage information not provided"></i>{% endif %}</td>
             </tr>
           {% endfor %}
         </tbody>

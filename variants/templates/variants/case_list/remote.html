@@ -1,9 +1,9 @@
 <div id="varfish-va-project-statistics" class="card mb-3">
   <h4 class="card-header">
-    <i class="fa fa-exclamation-triangle"></i>
+    <i class="iconify" data-icon="bi:exclamation-circle"></i>
     Inconsistencies with Upstream Sample Sheet
     <a class="btn btn-primary pull-right" href="{% url "variants:case-list-sync-remote" project=project.sodar_uuid %}">
-      <i class="fa fa-align-center fa-cloud-download"></i>
+      <i class="iconify" data-icon="fa-solid:cloud-download-alt"></i>
       Sync with Upstream
     </a>
   </h4>
@@ -15,22 +15,22 @@
         {% for message in project.synccaseresultmessage_set.all %}
           {% if message.level == "debug" %}
             <li class="text-seondary">
-              <i class="fa fa-fw fa-ellipsis-h"></i>
+              <i class="iconify" data-icon="fa-solid:ellipsis-h"></i>
               {{ message.message }}
             </li>
           {% elif message.level == "warning" %}
             <li class="text-warning">
-              <i class="fa fa-fw fa-exclamation-triangle"></i>
+              <i class="iconify" data-icon="fa-solid:exclamation-triangle"></i>
               {{ message.message }}
             </li>
           {% elif message.level == "error" %}
             <li class="text-danger">
-              <i class="fa fa-fw fa-exclamation-circle"></i>
+              <i class="iconify" data-icon="fa-solid:exclamation-circle"></i>
               {{ message.message }}
             </li>
           {% else %}
             <li class="text-body">
-              <i class="fa fa-fw fa-info"></i>
+              <i class="iconify" data-icon="fa-solid:info"></i>
               {{ message.message }}
             </li>
           {% endif %}

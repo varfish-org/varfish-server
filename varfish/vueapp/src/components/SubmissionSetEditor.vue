@@ -1,7 +1,7 @@
 <template>
   <b-card-body>
     <b-alert variant="info" class="small pl-3" show>
-      <i class="fa fa-info-circle mr-1"></i>
+      <i class="iconify mr-1" data-icon="fa-solid:info-circle"></i>
       A Clinvar submission set consists of multiple variants (aka submissions).
       Edit the base properties here and continue by clicking "Variants" on the bottom right.
       Click "Save" to save the submission and go back to the list and use "Cancel" to discard changes and go back to the list without saving them.
