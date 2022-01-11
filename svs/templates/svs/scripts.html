@@ -7,19 +7,20 @@ $(function () {
 
 // we can't employ .click here because the html that it will work on is loaded afterwards.
 $(document).on('click', '.toggle-variant-details', function() {
-  if ($("i", this).hasClass('fa-chevron-right')) {
+  if ($("i", this).attr("src") === "/icons/fa-solid/chevron-right.svg") {
     $($(this).data("target") + " .variant-details").load(
       $(this).data("url"),
-      function(responseText, textStatus, request) {
+      function (responseText, textStatus, request) {
         if (textStatus == "error") {
           console.log("Error during AJAX call: ", request, textStatus, responseText);
         }
       }
     );
+    $("img", this).attr("src", "/icons/fa-solid/chevron-down.svg");
   }
-  $("i", this).toggleClass('fa-chevron-right');
-  $("i", this).toggleClass('fa-chevron-down');
-
+  else {
+    $("img", this).attr("src", "/icons/fa-solid/chevron-right.svg");
+  }
 });
 </script>
 

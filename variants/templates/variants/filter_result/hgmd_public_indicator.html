@@ -1,5 +1,5 @@
 <i
-  class="text-muted fa fa-pie-chart fa-rotate-90
+  class="iconify text-muted" data-icon="fa-solid:pie-chart"
     {% if entry.hgmd_public_overlap %}
       hgmd-popover
     {% endif %}
@@ -10,7 +10,7 @@
     data-toggle="popover"
     data-trigger="focus"
     tabindex="0"
-    data-content="<a class=&quot;btn btn-sm btn-secondary&quot; href=&quot;http://www.hgmd.cf.ac.uk/ac/gene.php?gene={{ symbol }}&amp;accession={{ entry.hgmd_accession }}&quot;><i class=&quot;fa fa-fw fa-globe&quot;></i>HGMD public: {{ symbol }}</a>"
+    data-content="<a class=&quot;btn btn-sm btn-secondary&quot; href=&quot;http://www.hgmd.cf.ac.uk/ac/gene.php?gene={{ symbol }}&amp;accession={{ entry.hgmd_accession }}&quot;><i class=&quot;iconify&quot; data-icon=&quot;fa-solid:globe&quot;></i>HGMD public: {{ symbol }}</a>"
     data-title="Locus in HGMD"
     data-html="true"
   {% else %}

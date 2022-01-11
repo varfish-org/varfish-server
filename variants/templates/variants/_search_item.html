@@ -56,7 +56,7 @@
           <i class="iconify" data-icon="mdi:filter"></i>
         </a>
         <a href="{% url "svs:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn{% if not item.num_svs %} disabled{% endif %}" title="{% if item.num_svs %}filter SVs{% else %}Svs not available for this case{% endif %}">
-          <i class="fa fa-align-center fa-flip-vertical"></i>
+          <i class="iconify" data-icon="mdi:filter-variant"></i>
         </a>
       </div>
     {% else %}

@@ -24,6 +24,8 @@ End-User Summary
 - Fixing ensembl gene link-out to wrong genome build (#156).
 - Added section for developers in manual (#267).
 - Updating Clinvar export schema to 1.7 version (#226).
+- Migrated icons to iconify (#208).
+- Bumped chrome-driver version (#208).
 
 Full Change List
 ================
@@ -47,6 +49,8 @@ Full Change List
 - Fixing ensembl gene link-out to wrong genome build (#156).
 - Added section for developers in manual (#267).
 - Updating Clinvar export schema to the latest 1.7 version (#226).
+- Migrated icons to iconify (#208).
+- Bumped chrome-driver version (#208).
 
 -------
 v0.23.9

@@ -90,7 +90,7 @@ $(document).ready(function() {
     }
     $('div.sodar-alert-container').prepend(
       '<div class="alert alert-danger sodar-alert-top">' +
-      '<i class="fa fa-exclamation-triangle"></i> ' +
+      '<i class="iconify" data-icon="bi:exclamation-circle"></i> ' +
       'VarFish doesn\'t support Microsoft Internet Explorer. We recommend using ' +
       '<a href="https://www.mozilla.org/firefox/new" target="_blank">Mozilla Firefox</a> or ' +
       '<a href="https://www.google.com/chrome" target="_blank">Google Chrome</a>.' +
@@ -112,7 +112,7 @@ $(document).ready(function() {
 
     $('div.sodar-alert-container').prepend(
       '<div class="alert alert-danger sodar-alert-top">' +
-      '<i class="fa fa-exclamation-triangle"></i> ' +
+      '<i class="iconify" data-icon="bi:exclamation-circle"></i> ' +
       'You have assumed the identity of another account! <a href="' + su_escape_url + '">Escape</a>' +
       '</div>')
   }

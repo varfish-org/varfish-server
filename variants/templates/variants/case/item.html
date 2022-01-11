@@ -21,17 +21,17 @@
     {% endif %}
   </td>
   <td data-order="{{ item.status|case_status_to_order }}" data-search="{{ item.status }}" class="text-nowrap">
-    <i class="fa fa-fw {{ item.status|case_status_to_fa }}" data-toggle="tooltip" title="status: {{ item.status }}"></i>
+    <i class="iconify" data-icon="{{ item.status|case_status_to_fa }}" data-toggle="tooltip" title="status: {{ item.status }}"></i>
     {% if item.notes %}
-      <i class="text-secondary fa fa-fw fa-sticky-note" data-toggle="tooltip" title="note: {{ item.notes }}"></i>
+      <i class="iconify text-secondary" data-icon="fa-solid:sticky-note" data-toggle="tooltip" title="note: {{ item.notes }}"></i>
     {% else %}
-      <i class="text-secondary fa fa-fw fa-sticky-note-o" data-toggle="tooltip" title="no notes"></i>
+      <i class="iconify text-secondary" data-icon="fa-regular:sticky-note" data-toggle="tooltip" title="no notes"></i>
     {% endif %}
     {% with comments=item.case_comments.all %}
       {% if comments|length > 0 %}
-        <i class="text-secondary fa fa-fw fa-comments" data-toggle="tooltip" title="{{ comments|length }} case comment{{ comments|length|pluralize }}"></i>
+        <i class="iconify text-secondary" data-icon="fa-solid:comments" data-toggle="tooltip" title="{{ comments|length }} case comment{{ comments|length|pluralize }}"></i>
       {% else %}
-        <i class="text-secondary fa fa-fw fa-comments-o" data-toggle="tooltip" title="no case comments"></i>
+        <i class="iconify text-secondary" data-icon="fa-regular:comments" data-toggle="tooltip" title="no case comments"></i>
       {% endif %}
     {% endwith %}
   </td>
@@ -55,7 +55,7 @@
     {% else %}
       {{ item.num_small_vars|intcomma }}
       {% if not item.latest_variant_set %}
-        <i class="fa fa-exclamation-triangle text-danger" data-toggle="tooltip" title="Variants reported but no variant set available. Inconsistent state, please report to the aministrators."></i>
+        <i class="iconify text-danger" data-icon="bi:exclamation-circle" data-toggle="tooltip" title="Variants reported but no variant set available. Inconsistent state, please report to the aministrators."></i>
       {% endif %}
     {% endif %}
   </td>
@@ -66,7 +66,7 @@
       {% else %}
         {{ item.num_svs|intcomma }}
         {% if not item.latest_structural_variant_set %}
-          <i class="fa fa-exclamation-triangle text-danger" data-toggle="tooltip" title="SVs reported but no structural variant set available. Inconsistent state, please report to the aministrators."></i>
+          <i class="iconify text-danger" data-icon="bi:exclamation-circle" data-toggle="tooltip" title="SVs reported but no structural variant set available. Inconsistent state, please report to the aministrators."></i>
         {% endif %}
       {% endif %}
     </td>
@@ -78,7 +78,7 @@
           <i class="iconify" data-icon="mdi:filter"></i>
         </a>
         <a href="{% url "svs:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn{% if not item.has_svs_and_structural_variant_set %} disabled{% endif %}"  title="{% if item.has_svs_and_structural_variant_set %}filter SVs{% endif %}" data-toggle="tooltip">
-          <i class="fa fa-align-center fa-flip-vertical"></i>
+          <i class="iconify" data-icon="mdi:filter-variant"></i>
         </a>
       </div>
     {% else %}

@@ -19,7 +19,7 @@
         {% else %}
           {% url 'variants:small-variant-details' project=project.sodar_uuid case=entry.case_uuid release=entry.release chromosome=entry.chromosome start=entry.start end=entry.end reference=entry.reference alternative=entry.alternative database=database gene_id=entry.gene_id ensembl_transcript_id=entry.ensembl_transcript_id training_mode=training_mode %}
         {% endif %}">
-    <i class="fa fa-fw fa-chevron-right"></i>
+    <img src="/icons/fa-solid/chevron-right.svg" />
   </td>
   {# rank #}
   <td style="width: 0px" class="text-nowrap text-right text-muted" data-order="{{ forloop.counter }}">
@@ -28,10 +28,10 @@
   {# bookmark #}
   {% if not training_mode %}
   <td style="width: 0px" class="bookmark pl-0 pr-0 text-nowrap">
-    <i class="fa fa-fw {% if entry.flag_count %}fa-bookmark{% else %}fa-bookmark-o{% endif %} text-muted variant-bookmark"
-       data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}"></i>
-    <i class="fa fa-fw {% if entry.comment_count %}fa-comment{% else %}fa-comment-o{% endif %} text-muted variant-comment"
-       data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}"></i>
+    <a style="text-decoration: none" class="variant-bookmark-comment-group" data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}">
+      <img class="variant-bookmark" style="filter: invert(54%) sepia(0%) saturate(0%) hue-rotate(321deg) brightness(95%) contrast(89%);" src="/icons/fa-{% if entry.flag_count %}solid{% else %}regular{% endif %}/bookmark.svg" />
+      <img class="variant-comment" style="filter: invert(54%) sepia(0%) saturate(0%) hue-rotate(321deg) brightness(95%) contrast(89%);;" src="/icons/fa-{% if entry.comment_count %}solid{% else %}regular{% endif %}/comment.svg" />
+    </a>
     <span class="{{ entry|acmg_badge_class }} variant-acmg" style="width: 22px; display: inline-block"
           data-variant="{{ entry|smallvar_description }}" data-project="{{ project.sodar_uuid }}" data-case="{{ entry.case_uuid }}">
       {{ entry|acmg_classification|default:"-" }}
@@ -46,7 +46,7 @@
     {% if entry.rsid %}
       <a target="_blank" href="https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs={{ entry.rsid|slice:'2:' }}">
     {% endif %}
-      <i class="text-muted fa fa-fw fa-database"
+      <i class="iconify text-muted" data-icon="fa-solid:database"
         {% if entry.rsid %}
           data-html="true"
           data-tooltip="tooltip"
@@ -66,7 +66,7 @@
       chr{{ entry.chromosome }}:{{ entry.start|intcomma }}
       {% if entry.chromosome_no == 25 %}
         {% if entry.start|check_mt_position_homopolymer or entry.end|check_mt_position_homopolymer %}
-          <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant in homopolymeric region'></i>
+          <i class="iconify text-muted" data-icon="bi:exclamation-circle" data-toggle="tooltip" title='Variant in homopolymeric region'></i>
         {% endif %}
       {% endif %}
     </div>
@@ -90,9 +90,9 @@
           <span class="badge badge-dark" data-toggle="tooltip" data-placement="top" title="{{ entry.max_clinvar_status }}">
             {% for i in "1234" %}
               {% if forloop.counter <= entry.max_clinvar_status|status_stars %}
-                <i class="fa fa-star"></i>
+                <i class="iconify" data-icon="fa-solid:star"></i>
               {% else %}
-                <i class="fa fa-star-o"></i>
+                <i class="iconify" data-icon="fa-regular:star"></i>
               {% endif %}
             {% endfor %}
           </span>
@@ -117,7 +117,7 @@
     {% else %}
       {{ entry.exac_frequency|floatformat:5|default:"-" }}
       {% if warning %}
-        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+        <i class="iconify text-muted" data-icon="bi:exclamation-circle" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
       {% endif %}
     {% endif %}
   </td>
@@ -127,7 +127,7 @@
     {% else %}
       {{ entry.gnomad_exomes_frequency|floatformat:5|default:"-" }}
       {% if warning %}
-        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+        <i class="text-muted iconify" data-icon="bi:exclamation-circle" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
       {% endif %}
     {% endif %}
   </td>
@@ -137,7 +137,7 @@
     {% else %}
       {{ entry.gnomad_genomes_frequency|floatformat:5|default:"-" }}
       {% if warning %}
-        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+        <i class="iconify text-muted" data-icon="bi:exclamation-circle" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
       {% endif %}
     {% endif %}
   </td>
@@ -147,7 +147,7 @@
     {% else %}
       {{ entry.thousand_genomes_frequency|floatformat:5|default:"-" }}
       {% if warning %}
-        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+        <i class="iconify text-muted" data-icon="bi:exclamation-circle" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
       {% endif %}
     {% endif %}
   </td>
@@ -182,7 +182,7 @@
   <td class="detail-frequencies-inhouse text-right">
     {{ entry.inhouse_carriers|default_if_none:"-" }}
     {% if warning %}
-      <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
+      <i class="iconify text-muted" data-icon="bi:exclamation-circle" data-toggle="tooltip" title='Table(s) {{ warning|join:", " }} contain(s) freq > 0.1 or #hom > 50'></i>
     {% endif %}
   </td>
   <td class="detail-frequencies-inhouse text-right">
@@ -191,7 +191,7 @@
   <td class="detail-frequencies-mtdb text-right">
     {% if entry.chromosome_no == 25 %}
       {% if entry.mtdb_dloop %}
-        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant is in D-loop region'></i>
+        <i class="iconify text-muted" data-icon="bi:exclamation-circle" data-toggle="tooltip" title='Variant is in D-loop region'></i>
       {% endif %}
       {{ entry.mtdb_frequency|floatformat:5|default_if_none:"-" }}
     {% else %}
@@ -208,7 +208,7 @@
   <td class="detail-frequencies-helixmtdb text-right text-nowrap">
     {% if entry.chromosome_no == 25 %}
       {% if entry.helixmtdb_is_triallelic %}
-        <i class="fa fa-warning text-muted" data-toggle="tooltip" title='Variant is part of a triallelic site'></i>
+        <i class="iconify text-muted" data-icon="bi:exclamation-circle" data-toggle="tooltip" title='Variant is part of a triallelic site'></i>
       {% endif %}
       {{ entry.helixmtdb_frequency|floatformat:5|default_if_none:"-" }}
     {% else %}
@@ -353,9 +353,9 @@
       </div>
     {% endif %}
     {% if entry.acmg_symbol %}
-      <i class="pl-2 fa fa-user-md text-danger" data-toggle="tooltip" data-placement="top" title="Gene in ACMG incidental findings gene list."></i>
+      <i class="iconify pl-2 text-danger" data-icon="fa-solid:user-md" data-toggle="tooltip" data-placement="top" title="Gene in ACMG incidental findings gene list."></i>
     {% else %}
-      <i class="pl-2 fa fa-user-md text-muted" style="opacity: 0.2"></i>
+      <i class="iconify pl-2 text-muted" data-icon="fa-solid:user-md" style="opacity: 0.2"></i>
     {% endif %}
     &nbsp;
     {% if entry.modes_of_inheritance %}
@@ -364,7 +364,7 @@
       {% endfor %}
     {% endif %}
   </td>
-  <td data-order="{% if entry.disease_gene %}1{% else %}0{% endif %}"><i class="fa fa-lightbulb-o {% if entry.disease_gene %}text-danger"{% else %}text-muted" style="opacity: 20%"{% endif %}></i></td>
+  <td data-order="{% if entry.disease_gene %}1{% else %}0{% endif %}"><i class="iconify {% if entry.disease_gene %}text-danger"{% else %}text-muted" style="opacity: 20%"{% endif %} data-icon="fa-regular:lightbulb"></i></td>
   <td class="text-nowrap effect-change">
     <span data-toggle="tooltip" title="{{ entry.effect|join:', ' }}">
       {% with entry.hgvs_p|default:"-" as hgvs_p %}
@@ -376,7 +376,7 @@
       {% endwith %}
     </span>
     {% if entry.effect_ambiguity %}
-      <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="The impact predictions for RefSeq and ENSEMBL transcripts differ."></i>
+      <i class="iconify text-muted" data-icon="fa-solid:info-circle" data-toggle="tooltip" title="The impact predictions for RefSeq and ENSEMBL transcripts differ."></i>
     {% endif %}
   </td>
   <td class="text-nowrap effect-text">{{ entry.effect|join:', ' }}</td>
@@ -474,7 +474,7 @@
            title="Query GA4GH Beacon Network"
            class="btn btn-warning sodar-list-btn"
           >
-          <i class="fa fa-podcast" aria-hidden="true"></i>
+          <i class="iconify" data-icon="fa-solid:podcast" aria-hidden="true"></i>
         </a>
       {% endif %}
       <button
@@ -578,7 +578,7 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             <button class="btn btn-primary" id="variantvalidatormodalsubmit-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}" type="button" onclick="queryVariantValidatorApi(this, '{{ entry.release }}', '{{ entry.chromosome }}', '{{ entry.start }}', '{{ entry.reference }}', '{{ entry.alternative }}');">
-              <i class="fa fa-cloud-upload"></i> Re-Submit
+              <img src="/icons/fa-solid/cloud-upload-alt.svg" /> Re-Submit
             </button>
           </div>
         </div>
