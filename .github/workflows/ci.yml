@@ -81,5 +81,5 @@ jobs:
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: coverage.xml
-        if: ${{ matrix.python-version == '3.7' }}
+        if: "${{ (matrix.python-version == '3.7') && (!!secrets.CODACY_PROJECT_TOKEN) }}"
 

@@ -49,6 +49,7 @@ Full Change List
 - Added section for developers in manual (#267).
 - Migrated icons to iconify (#208).
 - Bumped chrome-driver version (#208).
+- Skipping codacy if token is not defined (#275).
 
 -------
 v0.23.9
