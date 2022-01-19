@@ -8,7 +8,7 @@ from variants.helpers import get_engine
 from projectroles.views import LoginRequiredMixin
 from django.db import transaction
 from django.forms import model_to_dict
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.utils import timezone
 from django.views import View
@@ -341,16 +341,169 @@ class StructuralVariantCommentApiView(
         if timeline:
             tl_event = timeline.add_event(
                 project=self.get_project(self.request, self.kwargs),
-                app_name="variants",
+                app_name="svs",
                 user=self.request.user,
                 event_name="comment_add",
-                description="add comment for variant %s in case {case}: {text}"
+                description="add comment for structural variant %s in case {case}: {text}"
                 % comment.get_variant_description(),
                 status_type="OK",
             )
             tl_event.add_object(obj=case, label="case", name=case.name)
             tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
         return HttpResponse(json.dumps({"result": "OK"}), content_type="application/json")
+
+
+class MultiStructuralVariantFlagsAndCommentApiView(
+    LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin, ProjectContextMixin, View,
+):
+    """A view that returns JSON for the ``SmallVariantFlags`` for a variant of a case and allows updates."""
+
+    # TODO: create new permission
+    permission_required = "variants.view_data"
+
+    def get(self, *_args, **_kwargs):
+        get_data = dict(self.request.GET)
+        variant_list = json.loads(get_data.get("variant_list")[0])
+        flags_keys = [
+            "flag_bookmarked",
+            "flag_candidate",
+            "flag_final_causative",
+            "flag_for_validation",
+            "flag_no_disease_association",
+            "flag_segregates",
+            "flag_doesnt_segregate",
+            "flag_visual",
+            "flag_molecular",
+            "flag_validation",
+            "flag_phenotype_match",
+            "flag_summary",
+        ]
+        flags = {i: None for i in flags_keys}
+        flags_interfering = set()
+
+        for variant in reversed(variant_list):
+            case = get_object_or_404(Case, sodar_uuid=variant.get("case"))
+
+            try:
+                flag_data = model_to_dict(self._get_flags_for_variant(variant.get("sv_uuid"), case))
+
+                for flag in flags_keys:
+                    if flags[flag] is None:
+                        flags[flag] = flag_data[flag]
+
+                    if not flags[flag] == flag_data[flag]:
+                        flags_interfering.add(flag)
+
+                    flags[flag] = flag_data[flag]
+
+            except StructuralVariantFlags.DoesNotExist:
+                continue
+
+        results = {
+            "flags": flags,
+            "flags_interfering": sorted(flags_interfering),
+            "variant_list": variant_list,
+        }
+
+        return JsonResponse(results, UUIDEncoder)
+
+    def post(self, *_args, **_kwargs):
+        timeline = get_backend_api("timeline_backend")
+        post_data = dict(self.request.POST)
+        variant_list = post_data.pop("variant_list")[0]
+        post_data.pop("csrfmiddlewaretoken")
+        post_data_clean = {k: v[0] for k, v in post_data.items()}
+        text = post_data_clean.pop("text")
+
+        for variant in json.loads(variant_list):
+            case = get_object_or_404(Case, sodar_uuid=variant.get("case"))
+            sv = StructuralVariant.objects.get(sv_uuid=variant.get("sv_uuid"))
+
+            try:
+                flags = self._get_flags_for_variant(variant.get("sv_uuid"), case)
+
+            except StructuralVariantFlags.DoesNotExist:
+                flags = StructuralVariantFlags(
+                    case=case,
+                    bin=sv.bin,
+                    release=sv.release,
+                    chromosome=sv.chromosome,
+                    start=sv.start,
+                    end=sv.end,
+                    sv_type=sv.sv_type,
+                    sv_sub_type=sv.sv_sub_type,
+                )
+                flags.save()
+
+            form = StructuralVariantFlagsForm({**variant, **post_data_clean}, instance=flags)
+
+            try:
+                flags = form.save()
+
+            except ValueError as e:
+                raise Exception(str(form.errors)) from e
+
+            if timeline:
+                tl_event = timeline.add_event(
+                    project=self.get_project(self.request, self.kwargs),
+                    app_name="svs",
+                    user=self.request.user,
+                    event_name="flags_set",
+                    description="set flags for structural variant %s in case {case}: {extra-flag_values}"
+                    % sv,
+                    status_type="OK",
+                    extra_data={"flag_values": flags.human_readable()},
+                )
+                tl_event.add_object(obj=case, label="case", name=case.name)
+
+            if flags.no_flags_set():
+                flags.delete()
+
+            if text:
+                comment = StructuralVariantComment(
+                    case=case,
+                    user=self.request.user,
+                    bin=sv.bin,
+                    release=sv.release,
+                    chromosome=sv.chromosome,
+                    start=sv.start,
+                    end=sv.end,
+                    sv_type=sv.sv_type,
+                    sv_sub_type=sv.sv_sub_type,
+                    sodar_uuid=uuid.uuid4(),
+                )
+                form = StructuralVariantCommentForm({**variant, "text": text}, instance=comment)
+
+                try:
+                    comment = form.save()
+
+                except ValueError as e:
+                    raise Exception(str(form.errors)) from e
+
+                if timeline:
+                    tl_event = timeline.add_event(
+                        project=self.get_project(self.request, self.kwargs),
+                        app_name="svs",
+                        user=self.request.user,
+                        event_name="comment_add",
+                        description="add comment for structural variant %s in case {case}: {text}"
+                        % comment.get_variant_description(),
+                        status_type="OK",
+                    )
+                    tl_event.add_object(obj=case, label="case", name=case.name)
+                    tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
+
+        return JsonResponse({"message": "OK", "flags": post_data_clean, "comment": text})
+
+    def _get_flags_for_variant(self, sv_uuid, case):
+        with contextlib.closing(best_matching_flags(get_engine(), case.id, sv_uuid)) as results:
+            result = results.first()
+            if not result:
+                raise StructuralVariantFlags.DoesNotExist()
+            else:
+                return StructuralVariantFlags.objects.get(
+                    case_id=case.id, sodar_uuid=result.flags_uuid
+                )
 
 
 class ImportStructuralVariantsJobDetailView(

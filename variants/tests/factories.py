@@ -238,20 +238,35 @@ class ChromosomalPositionFormDataFactoryBase:
 
 
 @attr.s(auto_attribs=True)
-class SmallVariantFlagsFormDataFactory(ChromosomalPositionFormDataFactoryBase):
+class FlagsFormDataFactoryBase:
     flag_bookmarked: bool = True
     flag_candidate: bool = False
     flag_final_causative: bool = False
     flag_for_validation: bool = False
-    flag_molecular: str = "empty"
+    flag_no_disease_association: bool = False
+    flag_segregates: bool = False
+    flag_doesnt_segregate: bool = False
     flag_visual: str = "empty"
+    flag_molecular: str = "empty"
     flag_validation: str = "empty"
     flag_phenotype_match: str = "empty"
     flag_summary: str = "empty"
 
 
 @attr.s(auto_attribs=True)
+class SmallVariantFlagsFormDataFactory(
+    FlagsFormDataFactoryBase, ChromosomalPositionFormDataFactoryBase
+):
+    pass
+
+
+@attr.s(auto_attribs=True)
 class SmallVariantCommentFormDataFactory(ChromosomalPositionFormDataFactoryBase):
+    text: str = "Comment X"
+
+
+@attr.s(auto_attribs=True)
+class MultiSmallVariantFlagsAndCommentFormDataFactory(FlagsFormDataFactoryBase):
     text: str = "Comment X"
 
 

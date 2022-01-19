@@ -113,6 +113,7 @@ function updateTableDisplay() {
   whitelist.iframe = ['src', 'style', 'width', 'height', 'frameborder', 'vspace', 'hspace']
   // Alternative: skip sanitize function entirely
   //$('[data-toggle="popover"]').popover({sanitizeFn: function(content) { return content }})
+  toggleMultiVarOptionsDropdown();
 }
 
 function displayConnectionError() {
@@ -413,7 +414,7 @@ function handleEventStateWaitJobResults(eventType, event) {
               "order": [[ 1, "asc" ]],
               'aoColumnDefs': [
                 {
-                  'aTargets': [0,2,3,5,6,8,9,28,-1], /* column index */
+                  'aTargets': [0,2,3,4,6,7,9,10,29,-1], /* column index */
                   'bSortable': false, /* true or false */
                 },
               ]

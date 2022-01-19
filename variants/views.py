@@ -4020,6 +4020,145 @@ class SmallVariantCommentSubmitApiView(
         return HttpResponse(json.dumps({"comment": comment.text}), content_type="application/json")
 
 
+class MultiSmallVariantFlagsAndCommentApiView(
+    LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin, ProjectContextMixin, View,
+):
+    """A view that returns JSON for the ``SmallVariantFlags`` for a variant of a case and allows updates."""
+
+    # TODO: create new permission
+    permission_required = "variants.view_data"
+
+    def get(self, *_args, **_kwargs):
+        get_data = dict(self.request.GET)
+        variant_list = json.loads(get_data.get("variant_list")[0])
+        flags_keys = [
+            "flag_bookmarked",
+            "flag_candidate",
+            "flag_final_causative",
+            "flag_for_validation",
+            "flag_no_disease_association",
+            "flag_segregates",
+            "flag_doesnt_segregate",
+            "flag_visual",
+            "flag_molecular",
+            "flag_validation",
+            "flag_phenotype_match",
+            "flag_summary",
+        ]
+        flags = {i: None for i in flags_keys}
+        flags_interfering = set()
+
+        for variant in reversed(variant_list):
+            case = get_object_or_404(Case, sodar_uuid=variant.get("case"))
+
+            try:
+                flag_data = model_to_dict(
+                    case.small_variant_flags.get(
+                        release=variant.get("release"),
+                        chromosome=variant.get("chromosome"),
+                        start=variant.get("start"),
+                        end=variant.get("end"),
+                        reference=variant.get("reference"),
+                        alternative=variant.get("alternative"),
+                    )
+                )
+
+                for flag in flags_keys:
+                    if flags[flag] is None:
+                        flags[flag] = flag_data[flag]
+
+                    if not flags[flag] == flag_data[flag]:
+                        flags_interfering.add(flag)
+
+                    flags[flag] = flag_data[flag]
+
+            except SmallVariantFlags.DoesNotExist:
+                continue
+
+        results = {
+            "flags": flags,
+            "flags_interfering": sorted(flags_interfering),
+            "variant_list": variant_list,
+        }
+
+        return JsonResponse(results, UUIDEncoder)
+
+    def post(self, *_args, **_kwargs):
+        timeline = get_backend_api("timeline_backend")
+        post_data = dict(self.request.POST)
+        variant_list = json.loads(post_data.pop("variant_list")[0])
+        post_data.pop("csrfmiddlewaretoken")
+        post_data_clean = {k: v[0] for k, v in post_data.items()}
+        text = post_data_clean.pop("text")
+
+        for variant in variant_list:
+            case = get_object_or_404(Case, sodar_uuid=variant.get("case"))
+
+            try:
+                flags = case.small_variant_flags.get(
+                    release=variant.get("release"),
+                    chromosome=variant.get("chromosome"),
+                    start=variant.get("start"),
+                    end=variant.get("end"),
+                    reference=variant.get("reference"),
+                    alternative=variant.get("alternative"),
+                )
+
+            except SmallVariantFlags.DoesNotExist:
+                flags = SmallVariantFlags(case=case)
+
+            form = SmallVariantFlagsForm({**variant, **post_data_clean}, instance=flags)
+
+            try:
+                flags = form.save()
+
+            except ValueError as e:
+                raise Exception(str(form.errors)) from e
+
+            if timeline:
+                tl_event = timeline.add_event(
+                    project=self.get_project(self.request, self.kwargs),
+                    app_name="variants",
+                    user=self.request.user,
+                    event_name="flags_set",
+                    description="set flags for variant %s in case {case}: {extra-flag_values}"
+                    % flags.get_variant_description(),
+                    status_type="OK",
+                    extra_data={"flag_values": flags.human_readable()},
+                )
+                tl_event.add_object(obj=case, label="case", name=case.name)
+
+            if flags.no_flags_set():
+                flags.delete()
+
+            if text:
+                comment = SmallVariantComment(
+                    case=case, user=self.request.user, sodar_uuid=uuid.uuid4()
+                )
+                form = SmallVariantCommentForm({**variant, "text": text}, instance=comment)
+
+                try:
+                    comment = form.save()
+
+                except ValueError as e:
+                    raise Exception(str(form.errors)) from e
+
+                if timeline:
+                    tl_event = timeline.add_event(
+                        project=self.get_project(self.request, self.kwargs),
+                        app_name="variants",
+                        user=self.request.user,
+                        event_name="variant_comment_add",
+                        description="add comment for variant %s in case {case}: {text}"
+                        % comment.get_variant_description(),
+                        status_type="OK",
+                    )
+                    tl_event.add_object(obj=case, label="case", name=case.name)
+                    tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
+
+        return JsonResponse({"message": "OK", "flags": post_data_clean, "comment": text})
+
+
 class SmallVariantCommentDeleteApiView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
