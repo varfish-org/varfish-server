@@ -22,15 +22,25 @@
         {{ rows_by_sv|length|intcomma }} SV calls
         {% if object %}(case has a total of {{ object.num_svs|intcomma }}{% endif %} SV calls)
       </div>
-        <div class="pl-3">
-          Using
-          {% if database == "refseq" %}
-            <strong>RefSeq</strong>
-          {% else %}
-            <strong>ENSEMBL</strong>
-          {% endif %}
-          transcripts.
+      <div class="pl-3">
+        Using
+        {% if database == "refseq" %}
+          <strong>RefSeq</strong>
+        {% else %}
+          <strong>ENSEMBL</strong>
+        {% endif %}
+        transcripts.
+      </div>
+      <div class="dropdown pl-2">
+        <button type="button" id="multiVarButton" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="iconify" data-icon="fluent:bookmark-multiple-16-filled"></i> Multi-Variant Options
+        </button>
+        <div class="dropdown-menu dropdown-menu-left" style="z-index: 1031;">
+          <a class="dropdown-item" id="multivar-bookmark-comment" data-toggle="modal" data-target="#multiVarBookmarkCommentModal">
+            <i class="iconify" data-icon="fluent:bookmark-multiple-16-filled"></i> Flag & Comment
+          </a>
         </div>
+      </div>
     </div>
   </div>
 
@@ -54,5 +64,27 @@
     <p>
       Query completed in {{ elapsed_seconds }} sec.
     </p>
+
+    {# Multi-var bookmark and comment modal #}
+    <div class="modal fade" id="multiVarBookmarkCommentModal" aria-hidden="true">
+      <div class="modal-dialog" style="width: 434px" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="multiVarBookmarkCommentModal">Multi-Variant Comments &amp; Flags</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid" id="multiVarBookmarkCommentModalContent">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary save">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div> <!-- sodar-page-container -->
 {% endif %}

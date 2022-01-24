@@ -11,7 +11,7 @@
 {% ambiguous_frequency_warning entry exac_enabled thousand_genomes_enabled gnomad_exomes_enabled gnomad_genomes_enabled inhouse_enabled as warning %}
 
 {% with symbol=entry|get_symbol %}
-<tr class="variant-row {% if not training_mode %}variant-row-{{ entry|flag_class }}{% endif %}">
+<tr class="variant-row {% if not training_mode %}variant-row-{{ entry|flag_class }}{% endif %}" id="{{ entry.case_uuid }}-{{ entry|smallvar_description }}">
   {# fold-out #}
   <td style="width: 0px" class="clickable toggle-variant-details pl-0 pr-0"
       data-url="{% if cohort %}
@@ -24,6 +24,10 @@
   {# rank #}
   <td style="width: 0px" class="text-nowrap text-right text-muted" data-order="{{ forloop.counter }}">
       #{{ forloop.counter }}
+  </td>
+  {# checkbox #}
+  <td class="pl-0 pr-1">
+    <input type="checkbox" value="{{ entry|smallvar_description }}" class="multivar-selector" data-case="{{ entry.case_uuid }}">
   </td>
   {# bookmark #}
   {% if not training_mode %}

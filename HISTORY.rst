@@ -32,6 +32,7 @@ End-User Summary
   For this, GRCh38 background data must be imported.
   Kiosk mode does not support GRCh38 yet.
   **This is a breaking change, new data and CLI must be used!**
+- Added feature to select multiple rows in results to create same annotation (#259)
 
 Full Change List
 ================
@@ -65,6 +66,7 @@ Full Change List
 - Setting ``VARFISH_CADD_SUBMISSION_RELEASE`` is called ``VARFISH_CADD_SUBMISSION_VERSION`` now (**breaking change**).
 - ``import_info.tsv`` expected as in data release from ``20210728`` as built from varfish-db-downloader ``1b03e97`` or later.
 - Extending  columns of ``Hgnc`` to upstream update.
+- Added feature to select multiple rows in results to create same annotation (#259)
 
 -------
 v0.23.9

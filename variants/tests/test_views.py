@@ -60,6 +60,7 @@ from variants.models import (
     CaddPathogenicityScoreCache,
     CaddSubmissionBgJob,
     SpanrSubmissionBgJob,
+    SmallVariantComment,
 )
 from variants.queries import DeleteSmallVariantsQuery, DeleteStructuralVariantsQuery
 from variants.tests.factories import (
@@ -87,6 +88,7 @@ from variants.tests.factories import (
     CaseWithVariantSetFactory,
     SmallVariantQueryFactory,
     RemoteSiteFactory,
+    MultiSmallVariantFlagsAndCommentFormDataFactory,
 )
 from variants.tests.helpers import ViewTestBase
 from variants.tests.test_sync_upstream import load_isa_tab
@@ -3838,6 +3840,438 @@ class TestSmallVariantCommentSubmitApiView(RoleAssignmentMixin, ViewTestBase):
             self.assertEqual(
                 json.loads(response.content.decode("utf-8"))["result"],
                 "Not authorized to delete comment or no comment found.",
+            )
+
+
+class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
+    """Test MultiSmallVariantFlagsAndCommentApiView.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+        self.small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
+        self.small_vars_post = [
+            {
+                "case": str(self.case.sodar_uuid),
+                "release": i.release,
+                "chromosome": i.chromosome,
+                "start": i.start,
+                "end": i.end,
+                "bin": i.end,
+                "reference": i.reference,
+                "alternative": i.alternative,
+            }
+            for i in self.small_vars
+        ]
+
+    def test_get_json_response_two_non_existing(self):
+        with self.login(self.user):
+            self.assertEqual(SmallVariantFlags.objects.count(), 0)
+            response = self.client.get(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {"variant_list": [json.dumps([self.small_vars_post[0], self.small_vars_post[1]])],},
+            )
+            self.assertEqual(SmallVariantFlags.objects.count(), 0)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.json(),
+                {
+                    "flags": {
+                        "flag_bookmarked": None,
+                        "flag_candidate": None,
+                        "flag_final_causative": None,
+                        "flag_for_validation": None,
+                        "flag_no_disease_association": None,
+                        "flag_segregates": None,
+                        "flag_doesnt_segregate": None,
+                        "flag_visual": None,
+                        "flag_molecular": None,
+                        "flag_validation": None,
+                        "flag_phenotype_match": None,
+                        "flag_summary": None,
+                    },
+                    "flags_interfering": [],
+                    "variant_list": [self.small_vars_post[0], self.small_vars_post[1],],
+                },
+            )
+
+    def test_get_json_response_one_existing_one_non_existing(self):
+        with self.login(self.user):
+            # Create variant
+            data = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
+            self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data,
+                    "variant_list": json.dumps([self.small_vars_post[0],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            # Query variant
+            response = self.client.get(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {"variant_list": [json.dumps([self.small_vars_post[0], self.small_vars_post[1]])],},
+            )
+            data.pop("text")
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.json(),
+                {
+                    "flags": data,
+                    "flags_interfering": [],
+                    "variant_list": [self.small_vars_post[0], self.small_vars_post[1],],
+                },
+            )
+
+    def test_get_json_response_two_existing_non_conflicting_flags(self):
+        with self.login(self.user):
+            # Create variant
+            data = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
+            self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data,
+                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            # Query variant
+            response = self.client.get(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {"variant_list": [json.dumps([self.small_vars_post[0], self.small_vars_post[1]])],},
+            )
+            data.pop("text")
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.json(),
+                {
+                    "flags": data,
+                    "flags_interfering": [],
+                    "variant_list": [self.small_vars_post[0], self.small_vars_post[1],],
+                },
+            )
+
+    def test_get_json_response_two_existing_conflicting_flags(self):
+        with self.login(self.user):
+            # Create variant
+            data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
+            data2 = vars(
+                MultiSmallVariantFlagsAndCommentFormDataFactory(
+                    flag_candidate=True, flag_visual="positive", text="",
+                )
+            )
+            self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data1,
+                    "variant_list": json.dumps([self.small_vars_post[0],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data2,
+                    "variant_list": json.dumps([self.small_vars_post[1],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            # Query variant
+            response = self.client.get(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {"variant_list": [json.dumps([self.small_vars_post[0], self.small_vars_post[1]])],},
+            )
+            data1.pop("text")
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.json(),
+                {
+                    "flags": data1,
+                    "flags_interfering": sorted(["flag_visual", "flag_candidate"]),
+                    "variant_list": [self.small_vars_post[0], self.small_vars_post[1],],
+                },
+            )
+
+    def test_post_json_response_two_non_existing(self):
+        with self.login(self.user):
+            self.assertEqual(SmallVariantFlags.objects.count(), 0)
+            self.assertEqual(SmallVariantComment.objects.count(), 0)
+            data = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
+            response = self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data,
+                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            self.assertEqual(SmallVariantFlags.objects.count(), 2)
+            self.assertEqual(SmallVariantComment.objects.count(), 0)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.json(),
+                {
+                    "message": "OK",
+                    "flags": {k: str(v) for k, v in data.items() if not k == "text"},
+                    "comment": "",
+                },
+            )
+
+    def test_post_json_response_one_existing_one_non_existing(self):
+        with self.login(self.user):
+            # Create variant
+            data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
+            data2 = vars(
+                MultiSmallVariantFlagsAndCommentFormDataFactory(
+                    text="", flag_visual="positive", flag_candidate=True
+                )
+            )
+            self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data1,
+                    "variant_list": json.dumps([self.small_vars_post[0],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            self.assertEqual(SmallVariantFlags.objects.count(), 1)
+            # Actual test
+            response = self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data2,
+                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(SmallVariantFlags.objects.count(), 2)
+            self.assertEqual(
+                response.json(),
+                {
+                    "message": "OK",
+                    "flags": {k: str(v) for k, v in data2.items() if not k == "text"},
+                    "comment": "",
+                },
+            )
+
+    def test_post_json_response_two_existing_non_conflicting_flags(self):
+        with self.login(self.user):
+            # Create variant
+            data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
+            data2 = vars(
+                MultiSmallVariantFlagsAndCommentFormDataFactory(
+                    text="", flag_visual="positive", flag_candidate=True
+                )
+            )
+            self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data1,
+                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            # Actual test
+            response = self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data2,
+                    "variant_list": json.dumps([self.small_vars_post[0],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.json(),
+                {
+                    "message": "OK",
+                    "flags": {k: str(v) for k, v in data2.items() if not k == "text"},
+                    "comment": "",
+                },
+            )
+
+    def test_post_json_response_two_existing_conflicting_flags(self):
+        with self.login(self.user):
+            # Create variant
+            data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
+            data2 = vars(
+                MultiSmallVariantFlagsAndCommentFormDataFactory(
+                    flag_candidate=True, flag_visual="positive", text="",
+                )
+            )
+            data3 = vars(
+                MultiSmallVariantFlagsAndCommentFormDataFactory(
+                    flag_molecular="negative", flag_final_causative=True, text="",
+                )
+            )
+            self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data1,
+                    "variant_list": json.dumps([self.small_vars_post[0],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data2,
+                    "variant_list": json.dumps([self.small_vars_post[1],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            # Perform test
+            response = self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data3,
+                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1]]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.json(),
+                {
+                    "message": "OK",
+                    "flags": {k: str(v) for k, v in data3.items() if not k == "text"},
+                    "comment": "",
+                },
+            )
+
+    def test_post_json_response_add_comment(self):
+        with self.login(self.user):
+            self.assertEqual(SmallVariantFlags.objects.count(), 0)
+            self.assertEqual(SmallVariantComment.objects.count(), 0)
+            data = vars(MultiSmallVariantFlagsAndCommentFormDataFactory())
+            response = self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data,
+                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            self.assertEqual(SmallVariantFlags.objects.count(), 2)
+            self.assertEqual(SmallVariantComment.objects.count(), 2)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.json(),
+                {
+                    "message": "OK",
+                    "flags": {k: str(v) for k, v in data.items() if not k == "text"},
+                    "comment": "Comment X",
+                },
+            )
+
+    def test_post_remove_flags(self):
+        with self.login(self.user):
+            self.assertEqual(SmallVariantFlags.objects.count(), 0)
+            data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
+            data2 = vars(
+                MultiSmallVariantFlagsAndCommentFormDataFactory(text="", flag_bookmarked=False)
+            )
+            # Create flags
+            self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data1,
+                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            self.assertEqual(SmallVariantFlags.objects.count(), 2)
+            # Delete flags
+            response = self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **data2,
+                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
+            )
+            self.assertEqual(SmallVariantFlags.objects.count(), 0)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                response.json(),
+                {
+                    "message": "OK",
+                    "flags": {k: str(v) for k, v in data2.items() if not k == "text"},
+                    "comment": "",
+                },
+            )
+
+    def test_post_provoke_form_error(self):
+        with self.login(self.user), self.assertRaises(Exception):
+            self.client.post(
+                reverse(
+                    "variants:multi-small-variant-flags-comment-api",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
+                {
+                    **vars(MultiSmallVariantFlagsAndCommentFormDataFactory(flag_bookmarker=100)),
+                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "csrfmiddlewaretoken": "xxx",
+                },
             )
 
 

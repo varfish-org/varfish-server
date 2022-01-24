@@ -6,6 +6,7 @@
   var structural_or_small = "small";
   var variant_flags_url = "{% url 'variants:small-variant-flags-api' project=project.sodar_uuid case="--abcef--" %}";
   var variant_comment_url = "{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case="--abcef--" %}";
+  var multi_variant_flags_comment_url = "{% url 'variants:multi-small-variant-flags-comment-api' project=project.sodar_uuid %}";
   var acmg_rating_url = "{% url 'variants:acmg-rating-api' project=project.sodar_uuid case="--abcef--" %}";
   var hpo_terms_url = "{% url 'variants:hpo-terms-api' %}";
   var settings_restored = false;
@@ -37,4 +38,5 @@
 </script>
 
 {% include "variants/_variant_flag_form_tpl.html" %}
+{% include "variants/_multi_variant_flag_form_tpl.html" %}
 {% include "variants/_acmg_criteria_form_tpl.html" %}

@@ -105,9 +105,11 @@ function clickVariantBookmark() {
         var variantRow = outerThis.closest(".variant-row");
         variantRow.removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty variant-row-wip");
         variantRow.addClass("variant-row-" + summarizeFlags(data));
-        let dtrow = dt.row(variantRow);
-        if (structural_or_small == "small" && dtrow.child() && dtrow.child().length) {
-          loadVariantDetails(dtrow, cell);
+        if (structural_or_small === "small") {
+          let dtrow = dt.row(variantRow);
+          if (dtrow.child() && dtrow.child().length) {
+            loadVariantDetails(dtrow, cell);
+          }
         }
       }).fail(function(xhr) {
         // failed, notify user
@@ -219,6 +221,118 @@ $('body').on('click', function (e) {
     });
 });
 
+function clickMultiVariantBookmark() {
+  // Compile template.
+  var bookmarkModalTpl = $.templates("#multi-bookmark-flags-modal");
+  var multiVars = $(".multivar-selector:checked");
+  var variantList = [];
+  var rowIds = [];
+  multiVars.each(function(i, e) {
+    if (structural_or_small == "small") {
+      var dataVariant = $(e).val();
+      var arrVariant = dataVariant.split("-");
+      variantList.push({
+        case: $(e).data("case"),
+        release: arrVariant[0],
+        chromosome: arrVariant[1],
+        start: arrVariant[2],
+        end: arrVariant[3],
+        bin: arrVariant[4],
+        reference: arrVariant[5],
+        alternative: arrVariant[6],
+      })
+      rowIds.push("#" + $(e).data("case") + "-" + dataVariant)
+    }
+    else {  // structural_or_small == "structural"
+      variantList.push({
+        case: $(e).data("case"),
+        sv_uuid: $(e).val(),
+      })
+      rowIds.push("#" + $(e).data("case") + "-" + $(e).val());
+    }
+  });
+
+  var modal = $("#multiVarBookmarkCommentModal");
+
+  // Retrieve current small variant flags from server via AJAX.
+  $.ajax({
+    url: multi_variant_flags_comment_url,
+    data: "variant_list=" + JSON.stringify(variantList),
+    dataType: "json"
+  }).done(function(data) {
+    var flags = {
+      flag_bookmarked: true,
+      flag_for_validation: false,
+      flag_candidate: false,
+      flag_final_causative: false,
+      flag_visual: "empty",
+      flag_molecular: "empty",
+      flag_validation: "empty",
+      flag_phenotype_match: "empty",
+      flag_summary: "empty",
+    }
+    $.each(data["flags"], function(k, v) {
+      if ($.inArray(k, data["flags_interfering"]) > -1) {
+        flags[k + "_warning"] = true
+        flags["warning_exists"] = true
+      }
+      if (v !== null) {
+        flags[k] = v
+      }
+    })
+    flags["number_selected_variants"] = data["variant_list"].length
+    $("#multiVarBookmarkCommentModalContent").html($(bookmarkModalTpl.render(flags)));
+    $(modal).find(".save").click(function(event) {
+      event.preventDefault();  // we will handle everything
+      $(this).addClass("disabled");
+
+      // Save flags
+      var formData = $(this).closest(".modal-content").find("form").serialize();
+      $.ajax({
+        type: "POST",
+        url: multi_variant_flags_comment_url,
+        data: formData + "&variant_list=" + JSON.stringify(variantList) + "&csrfmiddlewaretoken=" + getCookie("csrftoken"),
+        dataType: "json",
+      }).done(function(data) {
+        if (data["message"] === "OK") {
+          $.each(rowIds, function(i, e) {
+            var iconBookmark = $(e).find(".variant-bookmark")
+            var iconComment = $(e).find(".variant-comment")
+            var d = data["flags"]
+
+            if (d["flag_bookmarked"] || d["flag_for_validation"] || d["flag_candidate"] || d["flag_final_causative"]) {
+              iconBookmark.attr("src", "/icons/fa-solid/bookmark.svg");
+            } else {
+              iconBookmark.attr("src", "/icons/fa-regular/bookmark.svg");
+            }
+
+            if (data["comment"]) {
+              iconComment.attr("src", "/icons/fa-solid/comment.svg");
+            }
+
+            $(e).removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty variant-row-wip");
+            $(e).addClass("variant-row-" + summarizeFlags(d));
+            if (structural_or_small === "small") {
+              let dtrow = dt.row($(e));
+              if (dtrow.child() && dtrow.child().length) {
+                loadVariantDetails(dtrow, cell);
+              }
+            }
+          });
+        }
+      }).fail(function(xhr) {
+        // failed, notify user
+        alert("Updating variant flags failed");
+      });
+
+      $(modal).modal("hide");
+      $(this).removeClass("disabled");
+    });
+  }).fail(function(xhr) {
+    alert("Retrieving variant flags failed");
+  });
+  // Setup the form elements so we can use AJAX for them.
+}
 
 // --------------------------------------------------------------------------
 // Variant ACMG Rating Popover / AJAX Form
@@ -424,6 +538,27 @@ function clickVariantAcmgRating() {
   });
 }
 
+
+function toggleMultiVarOptionsDropdown() {
+  var button = $("#multiVarButton")
+  var option1 = $("#multivar-bookmark-comment")
+
+  if ($(".multivar-selector:checked").length > 1) {
+    option1.removeClass("disabled")
+    button.removeClass("btn-outline-secondary")
+    button.addClass("btn-secondary")
+  }
+
+  else {
+    option1.addClass("disabled")
+    button.addClass("btn-outline-secondary")
+    button.removeClass("btn-secondary")
+  }
+}
+
+
 $(document).on("click", ".variant-bookmark-comment-group", clickVariantBookmark);
-//$(document).on("click", ".variant-comment", clickVariantBookmark);
 $(document).on("click", ".variant-acmg", clickVariantAcmgRating);
+$(document).on("click", "#multivar-bookmark-comment", clickMultiVariantBookmark);
+$(document).on("click", ".multivar-selector", toggleMultiVarOptionsDropdown);
+

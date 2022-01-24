@@ -5,7 +5,7 @@
 {% load regmaps_tags %}
 {% load dict %}
 
-<tr class="variant-row {% if not training_mode %}variant-row-{{ first_entry|flag_class }}{% endif %}">
+<tr class="variant-row {% if not training_mode %}variant-row-{{ first_entry|flag_class }}{% endif %}" id="{{ first_entry.case_uuid }}-{{ first_entry.sv_uuid }}">
   {# fold-out #}
   <td class="clickable toggle-variant-details pl-0 pr-0"
       data-url="{% url "svs:sv-details" project=project.sodar_uuid case=object.sodar_uuid sv=first_entry.sv_uuid %}?database={{ database }}&regulatory_general_padding={{ form.cleaned_data|keyvalue:"regulatory_general_padding" }}"
@@ -16,13 +16,16 @@
   <td class="text-nowrap text-right text-muted">
       #{{ forloop.counter }}
   </td>
-
+  {# checkbox #}
+  <td class="pl-0 pr-1">
+    <input type="checkbox" value="{{ first_entry.sv_uuid }}" class="multivar-selector" data-case="{{ first_entry.case_uuid }}">
+  </td>
   {# bookmark #}
   {% if not training_mode %}
   <td class="bookmark pl-0 pr-0 text-nowrap">
     <a style="text-decoration: none" class="variant-bookmark-comment-group" data-sv="{{ first_entry.sv_uuid }}" data-project="{{ project.sodar_uuid }}" data-case="{{ first_entry.case_uuid }}">
-      <img class="text-muted variant-bookmark" src="/icons/fa-{% if first_entry.flag_count %}solid{% else %}regular{% endif %}/bookmark.svg" />
-      <img class="text-muted variant-comment" src="/icons/fa-{% if first_entry.comment_count %}solid{% else %}regular{% endif %}/comment.svg" />
+      <img class="text-muted variant-bookmark" style="filter: invert(54%) sepia(0%) saturate(0%) hue-rotate(321deg) brightness(95%) contrast(89%);" src="/icons/fa-{% if first_entry.flag_count %}solid{% else %}regular{% endif %}/bookmark.svg" />
+      <img class="text-muted variant-comment" style="filter: invert(54%) sepia(0%) saturate(0%) hue-rotate(321deg) brightness(95%) contrast(89%);" src="/icons/fa-{% if first_entry.comment_count %}solid{% else %}regular{% endif %}/comment.svg" />
     </a>
   </td>
   {% endif %}
