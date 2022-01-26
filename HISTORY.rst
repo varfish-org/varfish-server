@@ -39,6 +39,7 @@ End-User Summary
 - Improving performance of case listing (#304)
 - Adding shortcut buttons to phenotype annotation (#289)
 - Fixing issue with multiple added variants (#283)
+- Implementing several usability improvements for clinvar submission editor (#286).
 
 Full Change List
 ================
@@ -79,6 +80,7 @@ Full Change List
 - Improving performance of case listing (#304)
 - Adding shortcut buttons to phenotype annotation (#289)
 - Fixing issue with multiple added variants (#283)
+- Implementing several usability improvements for clinvar submission editor (#286).
 
 -------
 v0.23.9
