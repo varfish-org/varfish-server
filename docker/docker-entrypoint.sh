@@ -30,6 +30,8 @@ set -euo pipefail
 #                      default: info
 #   GUNICORN_TIMEOUT -- timeout for gunicorn workers in seconds
 #                       default: 600
+#   GUNICORN_WORKERS -- number of gunicorn workers
+#                       default: 4
 
 APP_DIR=${APP_DIR-/usr/src/app}
 CELERY_QUEUES=${CELERY_QUEUES-default,query,import}
@@ -41,6 +43,7 @@ HTTP_HOST=${HTTP_HOST-0.0.0.0}
 HTTP_PORT=${HTTP_PORT-8080}
 LOG_LEVEL=${LOG_LEVEL-info}
 GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT-600}
+GUNICORN_WORKERS=${GUNICORN_WORKERS-4}
 
 if [[ "$NO_WAIT" -ne 1 ]]; then
   /usr/local/bin/wait
@@ -65,6 +68,7 @@ if [[ "$1" == wsgi ]]; then
     --log-level "$LOG_LEVEL" \
     --bind "$HTTP_HOST:$HTTP_PORT" \
     --timeout "$GUNICORN_TIMEOUT" \
+    --workers "$GUNICORN_WORKERS" \
     config.wsgi
 elif [[ "$1" == celeryd ]]; then
   cd $APP_DIR
