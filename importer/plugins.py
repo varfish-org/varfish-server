@@ -19,7 +19,7 @@ class SiteAppPlugin(SiteAppPluginPoint):
     urls = urlpatterns
 
     #: FontAwesome icon ID string
-    icon = "info-circle"
+    icon = "bi:info-circle-fill"
 
     #: Description string
     description = "Databases release info app"
