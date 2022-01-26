@@ -293,8 +293,9 @@ const actions = {
 
     // Create appropriate submissions with API, copy over individuals and remove local submissions and submission
     // individuals.
-    for (let i = 0; i < state.currentSubmissionSet.submissions.length; i++) {
-      await _wizardSaveSubmission({ state, commit }, apiSet, i, state.currentSubmissionSet.submissions[i])
+    const submissionUuids = state.currentSubmissionSet.submissions.slice()
+    for (let i = 0; i < submissionUuids.length; i++) {
+      await _wizardSaveSubmission({ state, commit }, apiSet, i, submissionUuids[i])
     }
     // Remove submissions from old model data that are not present in the current submission set any more.
     if (submissionSetExists) {

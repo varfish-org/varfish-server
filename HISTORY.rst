@@ -38,6 +38,7 @@ End-User Summary
 - Improving performance of project overview (#303)
 - Improving performance of case listing (#304)
 - Adding shortcut buttons to phenotype annotation (#289)
+- Fixing issue with multiple added variants (#283)
 
 Full Change List
 ================
@@ -77,6 +78,7 @@ Full Change List
 - Improving performance of project overview (#303)
 - Improving performance of case listing (#304)
 - Adding shortcut buttons to phenotype annotation (#289)
+- Fixing issue with multiple added variants (#283)
 
 -------
 v0.23.9
