@@ -34,6 +34,7 @@ End-User Summary
   **This is a breaking change, new data and CLI must be used!**
 - Added feature to select multiple rows in results to create same annotation (#259)
 - Added parameter to Docker entrypoint file to accept number of gunicorn workers
+- Extended documentation for how to update specific tables (#177)
 
 Full Change List
 ================
@@ -69,6 +70,7 @@ Full Change List
 - Extending  columns of ``Hgnc`` to upstream update.
 - Added feature to select multiple rows in results to create same annotation (#259)
 - Added parameter to Docker entrypoint file to accept number of gunicorn workers
+- Extended documentation for how to update specific tables (#177)
 
 -------
 v0.23.9
