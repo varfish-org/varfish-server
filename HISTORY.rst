@@ -35,6 +35,7 @@ End-User Summary
 - Added feature to select multiple rows in results to create same annotation (#259)
 - Added parameter to Docker entrypoint file to accept number of gunicorn workers
 - Extended documentation for how to update specific tables (#177)
+- Improving performance of project overview (#303)
 
 Full Change List
 ================
@@ -71,6 +72,7 @@ Full Change List
 - Added feature to select multiple rows in results to create same annotation (#259)
 - Added parameter to Docker entrypoint file to accept number of gunicorn workers
 - Extended documentation for how to update specific tables (#177)
+- Improving performance of project overview (#303)
 
 -------
 v0.23.9
