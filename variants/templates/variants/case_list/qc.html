@@ -14,19 +14,33 @@
     </h4>
     <div class="card-body p-0">
       {% if project.variant_stats %}
-        <div class="row">
+        <div class="row pt-3 pb-3" id="qc-plots-reload">
+          <div class="col-2">
+            <div class="btn btn-danger" onclick="loadQcPlots()">
+              <i class="iconify" data-icon="fa-solid:exclamation-triangle"></i>
+              Load QC Plots
+            </div>
+          </div>
+          <div class="col-10">
+            The quality control plots are not loaded automatically because this project contains a lot of cases.
+            Use the button on the left to load the quality control plots regardlessly.
+            <strong>This may cause your browser tab to become unresponsive.
+            In this case, reload or close the tab.</strong>
+          </div>
+        </div>
+        <div class="row" id="qc-plots-container">
           <div class="col-6">
             <div id="plot-relatedness">
               <div class="placeholder-container">
                 <div class="placeholder-text">
-                  <i class="iconify" height="5x" data-icon="fa-solid:spinner"></i>
+                  <i class="iconify spin" data-icon="fa-solid:spinner"></i>
                 </div>
               </div>
             </div>
             <div id="plot-sex-chrx-het-hom">
               <div class="placeholder-container">
                 <div class="placeholder-text">
-                  <i class="iconify" height="5x" data-icon="fa-solid:spinner"></i>
+                  <i class="iconify spin" data-icon="fa-solid:spinner"></i>
                 </div>
               </div>
             </div>
@@ -36,7 +50,7 @@
               <div id="plot-var-dps">
                 <div class="placeholder-container">
                   <div class="placeholder-text">
-                    <i class="iconify" height="5x" data-icon="fa-solid:spinner"></i>
+                    <i class="iconify spin" data-icon="fa-solid:spinner"></i>
                   </div>
                 </div>
               </div>
@@ -169,7 +183,7 @@
     </h4>
   </div>
 
-  <div class="card-body">
+  <div class="card-body pb-3">
     <a class="btn btn-outline-primary" download="{{ project.title|slugify }}_per_sample_metrics.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_sample_variant_stats }}"><span class="iconify" data-icon="mdi:download" data-inline="false"></span> <strong>Per-Sample Metrics</strong> (.tsv)</a>
     <a class="btn btn-outline-primary" download="{{ project.title|slugify }}_effect_counts.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_effects }}"><span class="iconify" data-icon="mdi:download" data-inline="false"></span> <strong>Effect Counts</strong> (.tsv)</a>
     <a class="btn btn-outline-primary" download="{{ project.title|slugify }}_indel_sizes.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_indel_sizes }}"><span class="iconify" data-icon="mdi:download" data-inline="false"></span> <strong>InDel Sizes</strong> (.tsv)</a>

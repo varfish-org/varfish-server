@@ -36,6 +36,7 @@ End-User Summary
 - Added parameter to Docker entrypoint file to accept number of gunicorn workers
 - Extended documentation for how to update specific tables (#177)
 - Improving performance of project overview (#303)
+- Improving performance of case listing (#304)
 
 Full Change List
 ================
@@ -73,6 +74,7 @@ Full Change List
 - Added parameter to Docker entrypoint file to accept number of gunicorn workers
 - Extended documentation for how to update specific tables (#177)
 - Improving performance of project overview (#303)
+- Improving performance of case listing (#304)
 
 -------
 v0.23.9

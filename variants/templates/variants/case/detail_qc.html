@@ -63,7 +63,7 @@
     </h4>
   </div>
 
-  <div class="card-body">
+  <div class="card-body pb-3">
     <a class="btn btn-outline-primary" download="{{ case.name|slugify }}_per_sample_metrics.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_sample_variant_stats }}"><span class="iconify" data-icon="mdi:download" data-inline="false"></span> <strong>Per-Sample Metrics</strong> (.tsv)</a>
     <a class="btn btn-outline-primary" download="{{ case.name|slugify }}_effect_counts.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_effects }}"><span class="iconify" data-icon="mdi:download" data-inline="false"></span> <strong>Effect Counts</strong> (.tsv)</a>
     <a class="btn btn-outline-primary" download="{{ case.name|slugify }}_indel_sizes.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_indel_sizes }}"><span class="iconify" data-icon="mdi:download" data-inline="false"></span> <strong>InDel Sizes</strong> (.tsv)</a>

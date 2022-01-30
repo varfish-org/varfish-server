@@ -234,18 +234,32 @@ def case_status_to_color(value):
     return CASE_STATUS_TO_COLOR.get(value, "")
 
 
-CASE_STATUS_TO_FA = {
-    "initial": "fa-asterisk text-secondary",
-    "active": "fa-filter text-info",
-    "closed-solved": "fa-check text-success",
-    "closed-uncertain": "fa-question text-warning",
-    "closed-unsolved": "fa-times text-danger",
+CASE_STATUS_TO_ICON = {
+    "initial": "fa-solid:asterisk",
+    "active": "fa-solid:filter",
+    "closed-solved": "fa-solid:check",
+    "closed-uncertain": "fa-solid:question",
+    "closed-unsolved": "fa-solid:times",
 }
 
 
 @register.filter
-def case_status_to_fa(value):
-    return "%s text-%s" % (CASE_STATUS_TO_FA.get(value, ""), case_status_to_color(value))
+def case_status_to_icon(value):
+    return CASE_STATUS_TO_ICON.get(value, "")
+
+
+CASE_STATUS_TO_CLASS = {
+    "initial": "text-secondary",
+    "active": "text-info",
+    "closed-solved": "text-success",
+    "closed-uncertain": "text-warning",
+    "closed-unsolved": "text-danger",
+}
+
+
+@register.filter
+def case_status_to_class(value):
+    return "%s text-%s" % (CASE_STATUS_TO_CLASS.get(value, ""), case_status_to_color(value))
 
 
 CASE_STATUS_TO_ORDER = {

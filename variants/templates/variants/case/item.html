@@ -21,7 +21,7 @@
     {% endif %}
   </td>
   <td data-order="{{ item.status|case_status_to_order }}" data-search="{{ item.status }}" class="text-nowrap">
-    <i class="iconify" data-icon="{{ item.status|case_status_to_fa }}" data-toggle="tooltip" title="status: {{ item.status }}"></i>
+    <i class="iconify {{ item.status|case_status_to_class }}" data-icon="{{ item.status|case_status_to_icon }}" data-toggle="tooltip" title="status: {{ item.status }}"></i>
     {% if item.notes %}
       <i class="iconify text-secondary" data-icon="fa-solid:sticky-note" data-toggle="tooltip" title="note: {{ item.notes }}"></i>
     {% else %}

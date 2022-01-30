@@ -3,6 +3,15 @@
 {% load projectroles_common_tags %}
 {% load dict %}
 {% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
+    
+{% if annotation_count > limit %}
+  <div class="alert alert-danger small mb-0">
+    <i class="iconify" data-icon="fa-solid:exclamation-triangle"></i>
+    The project has {{ annotation_count }} annotations which are too many to be displayed here.
+    Only the first {{ limit }} annotations will be displayed.
+    However, the <span class="badge badge-secondary"><i class="iconify pr-1" data-icon="fa-solid:cloud-download-alt"></i>Download</span> button allows you to download a file with all {{ annotation_count }} variants.
+  </div>
+{% endif %}
 
 <div class="container-fluid sodar-page-container">
   <div class="card varfish-vars-case-details"
