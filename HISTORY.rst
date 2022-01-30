@@ -37,6 +37,7 @@ End-User Summary
 - Extended documentation for how to update specific tables (#177)
 - Improving performance of project overview (#303)
 - Improving performance of case listing (#304)
+- Adding shortcut buttons to phenotype annotation (#289)
 
 Full Change List
 ================
@@ -75,6 +76,7 @@ Full Change List
 - Extended documentation for how to update specific tables (#177)
 - Improving performance of project overview (#303)
 - Improving performance of case listing (#304)
+- Adding shortcut buttons to phenotype annotation (#289)
 
 -------
 v0.23.9
