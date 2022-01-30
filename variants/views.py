@@ -262,11 +262,15 @@ class CaseListGetAnnotationsView(
             "case_set__structural_variant_flags",
             "case_set__acmg_ratings",
         ).get(sodar_uuid=kwargs["project"])
-        result["commentsflags"] = self.join_small_var_comments_and_flags(result["project"])
+        result["limit"] = 100
+        result["annotation_count"] = result["project"].get_annotation_count()
+        result["commentsflags"] = self.join_small_var_comments_and_flags(
+            result["project"], result["limit"]
+        )
         result["sv_commentsflags"] = self.join_sv_comments_and_flags(result["project"])
         return render(self.request, self.template_name, self.get_context_data(**result),)
 
-    def join_small_var_comments_and_flags(self, project):
+    def join_small_var_comments_and_flags(self, project, limit):
         def get_gene_symbol(release, chromosome, start, end):
             bins = binning.containing_bins(start - 1, end)
             gene_intervals = list(
@@ -339,6 +343,9 @@ class CaseListGetAnnotationsView(
                 result[(record.chromosome, record.start, record.reference, record.alternative)][
                     case
                 ]["genes"] |= gene_symbol_cache[position_key]
+
+            if limit and len(result) > limit:
+                break
 
         for variant, data in result.items():
             result[variant] = dict(data)
