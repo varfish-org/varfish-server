@@ -153,4 +153,82 @@
     </div>
   </div>
 
+  <script type="application/javascript">
+	const HPO_INHERITANCE_MODE = Object.freeze([
+	  ['HP:0000006', 'Autosomal dominant inheritance'],
+	  ['HP:0000007', 'Autosomal recessive inheritance'],
+	  ['HP:0001423', 'X-linked dominant inheritance'],
+	  ['HP:0001417', 'X-linked inheritance'],
+	  ['HP:0001419', 'X-linked recessive inheritance']
+	])
+	const HPO_AGE_OF_ONSET = Object.freeze([
+	  ['HP:0030674', 'Antenatal'],
+	  ['HP:0011460', 'Embryonal'],
+	  ['HP:0011461', 'Fetal'],
+	  ['HP:0410280', 'Pediatric'],
+	  ['HP:0003593', 'Infantile'],
+	  ['HP:0011405', 'Childhood'],
+	  ['HP:0003621', 'Juvenile'],
+	  ['HP:0003581', 'Adult'],
+	  ['HP:0003623', 'Neonatal'],
+	  ['HP:0011462', 'Young adult'],
+	  ['HP:0003596', 'Middle age'],
+	  ['HP:0003584', 'Late'],
+	  ['HP:0003577', 'Congenital']
+	])
+
+    function addImpl(arr, targetId, i) {
+      const term = arr[i]
+      const id = '#' + targetId
+      const currVal = $(id).val()
+      console.log(currVal)
+      const newVal = currVal.trimEnd() + '\n' + term[0] + ' - ' + term[1] + '\n'
+      $(id).val(newVal)
+    }
+
+    function addInheritance(targetId, i) {
+      addImpl(HPO_INHERITANCE_MODE, targetId, i)
+    }
+
+    function addAgeOfOnset(targetId, i) {
+      addImpl(HPO_AGE_OF_ONSET, targetId, i)
+    }
+
+    function buildInheritanceButton(targetId) {
+      const entries = []
+      for (let i = 0; i < HPO_INHERITANCE_MODE.length; ++i) {
+        const inheritance = HPO_INHERITANCE_MODE[i][1]
+        entries.push('<a class="dropdown-item" href="javascript:addInheritance(\'' + targetId + '\', ' + i + ')">' + inheritance + '</a>')
+      }
+      return $('<div class="dropdown show d-inline-block pl-3">' +
+               '  <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" data-toggle="dropdown">' +
+               '    HPO Inheritance' +
+               '  </a>' +
+               '<div class="dropdown-menu">' + entries.join('') + '</div></div>')
+    }
+    function buildAgeOfOnsetButton(targetId) {
+      const entries = []
+      for (let i = 0; i < HPO_AGE_OF_ONSET.length; ++i) {
+        const ageOfOnset = HPO_AGE_OF_ONSET[i][1]
+        entries.push('<a class="dropdown-item" href="javascript:addAgeOfOnset(\'' + targetId + '\', ' + i + ')">' + ageOfOnset + '</a>')
+      }
+      return $('<div class="dropdown show d-inline-block pl-3">' +
+               '  <a class="btn btn-secondary btn-sm dropdown-toggle" href="#" role="button" data-toggle="dropdown">' +
+               '    HPO Age of Onset' +
+               '  </a>' +
+               '<div class="dropdown-menu">' + entries.join('') + '</div></div>')
+    }
+
+    $(document).ready(function() {
+      $(".form-group").each(function(_, element) {
+        if (element.id.startsWith("div_id_terms-")) {
+          let name = element.id.slice("div_id_terms-".length)
+          let termsId = "id_terms-" + name
+          let labelElem = $(element).children('label').first()
+          labelElem.append(buildInheritanceButton(termsId))
+          labelElem.append(buildAgeOfOnsetButton(termsId))
+        }
+      })
+    })
+  </script>
 {% endblock projectroles %}
