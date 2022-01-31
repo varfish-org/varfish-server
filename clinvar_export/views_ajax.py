@@ -31,6 +31,7 @@ from geneinfo.models import Hpo, HpoName
 from variants.queries import SmallVariantUserAnnotationQuery
 from .clinvar_xml import SubmissionXmlGenerator, XSD_URL_1_7
 from .models import (
+    Case,
     SubmissionSet,
     Submission,
     Organisation,
@@ -424,8 +425,9 @@ class AnnotatedSmallVariantsApiView(
     permission_required = "clinvar_export.view_data"
     allowed_methods = ("GET",)
 
-    def get(self, *_args, **_kwargs):
+    def get(self, *_args, **kwargs):
+        family = Family.objects.get(project=self.get_project(), sodar_uuid=kwargs.get("family"))
         serializer = AnnotatedSmallVariantsSerializer(
-            SmallVariantUserAnnotationQuery(get_engine()).run(project=self.get_project())
+            SmallVariantUserAnnotationQuery(get_engine()).run(case=family.case)
         )
         return Response(serializer.data)

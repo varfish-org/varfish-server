@@ -203,8 +203,8 @@ export default {
     return await apiDelete('submitting_org', submittingOrg.sodar_uuid, appContext)
   },
 
-  async getUserAnnotations (appContext) {
-    const response = await fetch(`${appContext.baseUrl}/user-annotations/`, {
+  async getUserAnnotations (appContext, familyUuid) {
+    const response = await fetch(`${appContext.baseUrl}/user-annotations/${familyUuid}`, {
       method: 'GET',
       credentials: 'same-origin',
       headers: {
