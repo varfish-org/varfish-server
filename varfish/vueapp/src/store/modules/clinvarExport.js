@@ -80,8 +80,7 @@ const actions = {
       clinvarExport.getIndividuals(state.appContext).then((res) => commit('SET_INDIVIDUALS', res)),
       clinvarExport.getSubmissionIndividuals(state.appContext).then((res) => commit('SET_SUBMISSION_INDIVIDUALS', res)),
       clinvarExport.getFamilies(state.appContext).then((res) => commit('SET_FAMILIES', res)),
-      clinvarExport.getSubmittingOrgs(state.appContext).then((res) => commit('SET_SUBMITTING_ORGS', res)),
-      clinvarExport.getUserAnnotations(state.appContext).then((res) => commit('SET_USER_ANNOTATIONS', res))
+      clinvarExport.getSubmittingOrgs(state.appContext).then((res) => commit('SET_SUBMITTING_ORGS', res))
     ]).then(_response => {
       commit('INITIALIZE_SUBMISSION_SET_ORGANISATIONS')
       commit('SAVE_OLD_MODEL')
@@ -702,66 +701,6 @@ const mutations = {
     Vue.set(state, 'submittingOrgs', sodarObjectListToObject(values))
   },
 
-  SET_USER_ANNOTATIONS (state, value) {
-    const getVariantId = (obj) => {
-      return `${obj.release}-${obj.chromosome}-${obj.start}-${obj.reference}-${obj.alternative}`
-    }
-
-    const collect = (arr) => {
-      const result = {}
-      for (const obj of arr) {
-        if (getVariantId(obj) in result) {
-          result[getVariantId(obj)].push(obj)
-        } else {
-          Vue.set(result, getVariantId(obj), [obj])
-        }
-      }
-      for (const arr of Object.values(result)) {
-        arr.sort((a, b) => (a.case_name < b.case_name) ? -1 : 1)
-      }
-      return result
-    }
-
-    const smallVariants = {}
-    for (const smallVar of value.small_variants) {
-      if (getVariantId(smallVar) in smallVariants) {
-        smallVariants[getVariantId(smallVar)].caseNames.push(smallVar.case_name)
-        Vue.set(
-          smallVariants[getVariantId(smallVar)],
-          'genotype',
-          {
-            ...smallVariants[getVariantId(smallVar)].genotype,
-            ...smallVar.genotype
-          }
-        )
-      } else {
-        Vue.set(
-          smallVariants,
-          getVariantId(smallVar),
-          {
-            ...smallVar,
-            caseNames: [smallVar.case_name],
-            variantId: getVariantId(smallVar)
-          }
-        )
-        Vue.delete(smallVariants[getVariantId(smallVar)], 'case_name')
-      }
-    }
-    for (const arr of Object.values(smallVariants)) {
-      arr.caseNames = [...new Set(arr.caseNames)]
-      arr.caseNames.sort((a, b) => (a.case_name < b.case_name) ? -1 : 1)
-    }
-
-    const userAnnotations = {
-      smallVariants,
-      smallVariantFlags: collect(value.small_variant_flags),
-      smallVariantComments: collect(value.small_variant_comments),
-      acmgCriteriaRating: collect(value.acmg_criteria_rating)
-    }
-
-    Vue.set(state, 'userAnnotations', userAnnotations)
-  },
-
   SET_WIZARD_STATE (state, value) {
     Vue.set(state, 'wizardState', value)
   },
@@ -892,7 +831,7 @@ const mutations = {
     const s = state.currentSubmission
     const variantKey = `${s.variant_assembly}-${s.variant_chromosome}` +
       `-${s.variant_start}-${s.variant_reference}-${s.variant_alternative}`
-    const smallVariant = state.userAnnotations.smallVariants[variantKey]
+    const smallVariant = state.userAnnotations.smallVariants[variantKey] // XXX
     const { variantAlleleCount, variantZygosity } = extractVariantZygosity(
       smallVariant,
       [individual.sodar_uuid],

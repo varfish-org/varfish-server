@@ -47,12 +47,27 @@
       </p>
       <ul class="list-group mb-3">
         <li
-          class="list-group-item list-group-item-action list-group-item-dark"
+          class="list-group-item list-group-item-action list-group-item-dark pl-2 pr-2"
         >
           <div class="form-inline">
+            <div class="form-group mr-3" style="width: 200px; max-width: 200px;">
+               <multiselect
+                 id="input-family"
+                 placeholder="Select Case"
+                 @input="fetchRawModalUserAnnotations()"
+                 @close="fetchRawModalUserAnnotations()"
+                 @select="fetchRawModalUserAnnotations()"
+                 @remove="fetchRawModalUserAnnotations()"
+                 :options="familyUuids"
+                 :customLabel="getFamilyLabel"
+                 v-model="familyUuid"
+                 selectLabel=""
+                 deselectLabel=""
+               ></multiselect>
+            </div>
             <div class="form-group">
               <span
-                :class="{ 'cursor-pointer badge badge-light': !modalIncludeAll, 'cursor-pointer ml-2 badge badge-success': modalIncludeAll }"
+                :class="{ 'cursor-pointer ml-2 badge badge-light': !modalIncludeAll, 'cursor-pointer ml-2 badge badge-success': modalIncludeAll }"
                 @click="toggleData('modalIncludeAll')"
               >
                 all: <i :class="{ 'fa fa-check-circle': modalIncludeAll, 'fa fa-times-circle': !modalIncludeAll }"></i>
@@ -97,15 +112,12 @@
                 P5 <i :class="{ 'fa fa-check-circle': modalIncludeAcmg5, 'fa fa-times-circle': !modalIncludeAcmg5 }"></i>
               </span>
             </div>
-            <div class="form-group ml-3">
-              <b-form-input v-model="individualFilter" placeholder="Sample ID" size="sm"></b-form-input>
-            </div>
-            <div class="form-group ml-3">
+            <div class="form-group ml-3" style="height: 43px;">
               <b-form-checkbox v-model="onlyAddAffected">
                 affecteds only
               </b-form-checkbox>
             </div>
-            <div class="form-group ml-3">
+            <div class="form-group ml-auto">
               <b-button @click="onCreateSubmissionClicked()" size="sm" variant="primary">
                 <i class="iconify" data-icon="fa-solid:plus"></i>
               </b-button>
@@ -175,9 +187,33 @@
         </li>
         <li
           class="list-group-item list-group-item-action text-muted font-italic text-center"
-          v-if="modalUserAnnotations.length === 0"
+          v-if="(modalUserAnnotations.length === 0)"
         >
-          There is no matching user annotation for variants in this project.
+          <span v-if="(familyUuid === '')">
+            <span>
+              Please select a case to display the variant user annotations.
+            </span>
+          </span>
+          <span v-else-if="loadingVariants">
+            <span>
+              Fetching variants from case from server...
+            </span>
+          </span>
+          <span v-else-if="fetchError">
+            <span>
+              Ouch, an error occured while fetching the variants!
+            </span>
+          </span>
+          <span v-else-if="rawModalUserAnnotationsCount > 0">
+            <span>
+              None of the {{ rawModalUserAnnotationsCount }} user annotations matched your selection criteria.
+            </span>
+          </span>
+          <span v-else>
+            <span>
+              There is no matching user annotation for variants in this project.
+            </span>
+          </span>
         </li>
       </ul>
     </b-modal>
@@ -185,15 +221,19 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import { mapActions, mapState } from 'vuex'
 import draggable from 'vuedraggable'
 import SubmissionEditor from './SubmissionEditor'
 import { isDiseaseTerm, getSubmissionLabel, validConfirmed, removeItemAll, HPO_INHERITANCE_MODE, HPO_AGE_OF_ONSET } from '@/helpers'
+import Multiselect from 'vue-multiselect'
+import clinvarExport from '../api/clinvarExport'
 
 export default {
-  components: { draggable, SubmissionEditor },
+  components: { draggable, SubmissionEditor, Multiselect },
   data () {
     return {
+      familyUuid: '',
       modalIncludeAll: false,
       modalIncludeComments: false,
       modalIncludeCandidates: true,
@@ -203,20 +243,28 @@ export default {
       modalIncludeAcmg5: true,
       individualFilter: '',
       onlyAddAffected: true,
+      loadingVariants: false,
+      fetchError: false,
+      rawModalUserAnnotations: null,
+      rawModalUserAnnotationsCount: 0,
       selectedSmallVariants: []
     }
   },
   computed: {
     ...mapState({
+      appContext: state => state.clinvarExport.appContext,
+      families: state => state.clinvarExport.families,
       individuals: state => state.clinvarExport.individuals,
       submissionIndividuals: state => state.clinvarExport.submissionIndividuals,
       submissions: state => state.clinvarExport.submissions,
       currentSubmissionSet: state => state.clinvarExport.currentSubmissionSet,
       currentSubmission: state => state.clinvarExport.currentSubmission,
-      userAnnotations: state => state.clinvarExport.userAnnotations,
       assertionMethods: state => state.clinvarExport.assertionMethods
     }),
 
+    familyUuids: function () {
+      return Array.from(Object.values(this.families), f => f.sodar_uuid)
+    },
     submissionList: {
       get () {
         const lst = this.currentSubmissionSet.submissions.map(k => this.submissions[k])
@@ -229,11 +277,14 @@ export default {
     },
 
     /**
-     * Return data to display in the annotated variant modal.
+     * Return filtered data to display in the annotated variant modal.
      */
     modalUserAnnotations () {
       const c = 300_000_000 // longer than longest chromosome
-      const ua = this.userAnnotations
+      const ua = this.rawModalUserAnnotations
+      if (!ua) {
+        return []
+      }
 
       const smallVariants = Object.values(ua.smallVariants)
         .map(smallVar => {
@@ -277,6 +328,91 @@ export default {
       'applySubmissionListSortOrder'
     ]),
 
+    /**
+     * Fetch model user annotations.
+     */
+    fetchRawModalUserAnnotations () {
+      if (this.familyUuid) {
+        this.fetchError = false
+        this.loadingVariants = true
+        Vue.set(this, 'rawModalUserAnnotations', null)
+        Vue.set(this, 'rawModalUserAnnotationsCount', 0)
+
+        clinvarExport
+          .getUserAnnotations(this.appContext, this.familyUuid)
+          .then((res) => {
+            this.loadingVariants = false
+            this.fetchError = false
+
+            const getVariantId = (obj) => {
+              return `${obj.release}-${obj.chromosome}-${obj.start}-${obj.reference}-${obj.alternative}`
+            }
+
+            const collect = (arr) => {
+              const result = {}
+              for (const obj of arr) {
+                if (getVariantId(obj) in result) {
+                  result[getVariantId(obj)].push(obj)
+                } else {
+                  Vue.set(result, getVariantId(obj), [obj])
+                }
+              }
+              for (const arr of Object.values(result)) {
+                arr.sort((a, b) => (a.case_name < b.case_name) ? -1 : 1)
+              }
+              return result
+            }
+
+            const smallVariants = {}
+            for (const smallVar of res.small_variants) {
+              if (getVariantId(smallVar) in smallVariants) {
+                smallVariants[getVariantId(smallVar)].caseNames.push(smallVar.case_name)
+                Vue.set(
+                  smallVariants[getVariantId(smallVar)],
+                  'genotype',
+                  {
+                    ...smallVariants[getVariantId(smallVar)].genotype,
+                    ...smallVar.genotype
+                  }
+                )
+              } else {
+                Vue.set(
+                  smallVariants,
+                  getVariantId(smallVar),
+                  {
+                    ...smallVar,
+                    caseNames: [smallVar.case_name],
+                    variantId: getVariantId(smallVar)
+                  }
+                )
+                Vue.delete(smallVariants[getVariantId(smallVar)], 'case_name')
+              }
+            }
+            for (const arr of Object.values(smallVariants)) {
+              arr.caseNames = [...new Set(arr.caseNames)]
+              arr.caseNames.sort((a, b) => (a.case_name < b.case_name) ? -1 : 1)
+            }
+
+            Vue.set(
+              this,
+              'rawModalUserAnnotations',
+              {
+                smallVariants,
+                smallVariantFlags: collect(res.small_variant_flags),
+                smallVariantComments: collect(res.small_variant_comments),
+                acmgCriteriaRating: collect(res.acmg_criteria_rating)
+              }
+            )
+            Vue.set(this, 'rawModalUserAnnotationsCount', Object.keys(smallVariants).length)
+          })
+          .catch((error) => {
+            this.loadingVariants = false
+            this.fetchError = true
+            console.error(error)
+          })
+      }
+    },
+
     toggleData (name) {
       this.$set(this, name, !this[name])
     },
@@ -284,6 +420,9 @@ export default {
     getSubmissionLabel,
     validConfirmed,
 
+    getFamilyLabel (familyUuid) {
+      return this.families[familyUuid].case_name
+    },
     getSubmissionIndividualsCount (item) {
       return item.submission_individuals.length
     },
@@ -304,7 +443,7 @@ export default {
       return `${item.release}-${item.chromosome}-${item.start}-${item.reference}-${item.alternative}`
     },
     getVariantLabel (item) {
-      return `${item.refseq_gene_symbol}:${item.refseq_hgvs_p || '<none>'}`
+      return `${item.refseq_gene_symbol}:${item.refseq_hgvs_p || '--none--'}`
     },
     getVariantExtraLabel (item) {
       if (!item) {

@@ -876,6 +876,7 @@ class TestAnnotatedSmallVariantsAjaxViews(TestProjectAPIPermissionBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
+        self.family = Family.objects.get_or_create_in_project(project=self.project, case=self.case)
         self.small_variant = SmallVariantFactory(case_id=self.case.id)
         kwargs = {
             key: getattr(self.small_variant, key)
@@ -887,7 +888,8 @@ class TestAnnotatedSmallVariantsAjaxViews(TestProjectAPIPermissionBase):
 
     def test_query(self):
         url = reverse(
-            "clinvar_export:user-annotations", kwargs={"project": self.project.sodar_uuid,},
+            "clinvar_export:user-annotations",
+            kwargs={"project": self.project.sodar_uuid, "family": self.family.sodar_uuid},
         )
         with self.login(self.contributor_as.user):
             response = self.client.get(url)
