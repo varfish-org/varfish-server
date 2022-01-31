@@ -11,9 +11,9 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - 3.7
-          - 3.8
-          - 3.9
+          - '3.8'
+          - '3.9'
+          - '3.10'
     services:
       redis:
         image: redis:latest
@@ -83,5 +83,5 @@ jobs:
           coverage-reports: coverage.xml
         env:
           secrets.CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        if: "${{ (matrix.python-version == '3.7') && (!!env.CODACY_PROJECT_TOKEN) }}"
+        if: "${{ (matrix.python-version == '3.8') && (!!env.CODACY_PROJECT_TOKEN) }}"
 
