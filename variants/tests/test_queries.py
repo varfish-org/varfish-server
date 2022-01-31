@@ -10,6 +10,8 @@ from variants.helpers import get_engine
 from clinvar.tests.factories import ClinvarFactory
 from cohorts.tests.factories import TestCohortBase
 from conservation.tests.factories import KnownGeneAAFactory
+from extra_annos.tests.factories import ExtraAnnoFactory
+
 from frequencies.tests.factories import MitomapFactory, HelixMtDbFactory, MtDbFactory
 from hgmd.tests.factories import HgmdPublicLocusFactory
 from variants.models import Case, SmallVariantSet, SmallVariantFlags
@@ -1533,21 +1535,21 @@ class TestCaseOneQueryMitochondrialFrequency(SupportQueryTestBase):
     def test_frequency_mtdb_limits_filter(self):
         self.run_query(
             CasePrefetchQuery,
-            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None,},
+            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None, },
             3,
         )
 
     def test_frequency_mtdb_limits_export(self):
         self.run_query(
             CaseExportTableQuery,
-            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None,},
+            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None, },
             3,
         )
 
     def test_frequency_mtdb_limits_vcf(self):
         self.run_query(
             CaseExportVcfQuery,
-            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None,},
+            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None, },
             3,
         )
 
@@ -1590,39 +1592,39 @@ class TestCaseOneQueryMitochondrialFrequency(SupportQueryTestBase):
     def test_frequency_mitomap_limits_filter(self):
         self.run_query(
             CasePrefetchQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None,},
+            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None, },
             3,
         )
 
     def test_frequency_mitomap_limits_export(self):
         self.run_query(
             CaseExportTableQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None,},
+            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None, },
             3,
         )
 
     def test_frequency_mitomap_limits_vcf(self):
         self.run_query(
             CaseExportVcfQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None,},
+            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None, },
             3,
         )
 
     def test_count_mtdb_limits_filter(self):
         self.run_query(
-            CasePrefetchQuery, {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2,}, 3,
+            CasePrefetchQuery, {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2, }, 3,
         )
 
     def test_count_mtdb_limits_export(self):
         self.run_query(
             CaseExportTableQuery,
-            {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2,},
+            {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2, },
             3,
         )
 
     def test_count_mtdb_limits_vcf(self):
         self.run_query(
-            CaseExportVcfQuery, {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2,}, 3,
+            CaseExportVcfQuery, {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2, }, 3,
         )
 
     def test_count_helixmtdb_het_limits_filter(self):
@@ -1700,21 +1702,21 @@ class TestCaseOneQueryMitochondrialFrequency(SupportQueryTestBase):
     def test_count_mitomap_limits_filter(self):
         self.run_query(
             CasePrefetchQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2,},
+            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2, },
             3,
         )
 
     def test_count_mitomap_limits_export(self):
         self.run_query(
             CaseExportTableQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2,},
+            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2, },
             3,
         )
 
     def test_count_mitomap_limits_vcf(self):
         self.run_query(
             CaseExportVcfQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2,},
+            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2, },
             3,
         )
 
@@ -5134,3 +5136,55 @@ class TestSmallVariantUserAnnotationQueryWithAcmgOnly(TestBase):
         self.assertEqual(len(res.small_variant_flags), 0)
         self.assertEqual(len(res.small_variant_comments), 0)
         self.assertEqual(len(res.acmg_criteria_rating), 1)
+
+
+class TestSmallVariantExtraAnno(SupportQueryTestBase):
+    """Test extra annotations."""
+
+    def setUp(self):
+        """Create 3 variants and two contain extra anno entries."""
+        super().setUp()
+        _, variant_set, _ = CaseWithVariantSetFactory.get("small")
+        small_vars = SmallVariantFactory.create_batch(3, variant_set=variant_set)
+        ExtraAnnoFactory(
+            release=small_vars[0].release,
+            chromosome=small_vars[0].chromosome,
+            start=small_vars[0].start,
+            end=small_vars[0].end,
+            bin=small_vars[0].bin,
+            reference=small_vars[0].reference,
+            alternative=small_vars[0].alternative,
+            anno_data=[9.71],
+        )
+        ExtraAnnoFactory(
+            release=small_vars[2].release,
+            chromosome=small_vars[2].chromosome,
+            start=small_vars[2].start,
+            end=small_vars[2].end,
+            bin=small_vars[2].bin,
+            reference=small_vars[2].reference,
+            alternative=small_vars[2].alternative,
+            anno_data=[10],
+        )
+
+    def test_base_query_filter(self):
+        res = self.run_query(CasePrefetchQuery, {}, 3)
+        self.assertEqual(res[0]['extra_annos'][0][0], 9.71)
+        self.assertEqual(res[1]['extra_annos'], None)
+        self.assertEqual(res[2]['extra_annos'][0][0], 10)
+
+
+class TestSmallVariantNoExtraAnno(SupportQueryTestBase):
+    """Test extra annotations completely missing."""
+
+    def setUp(self):
+        """Create 3 variants and no extra anno entries."""
+        super().setUp()
+        _, variant_set, _ = CaseWithVariantSetFactory.get("small")
+        small_vars = SmallVariantFactory.create_batch(3, variant_set=variant_set)
+
+    def test_base_query_filter(self):
+        res = self.run_query(CasePrefetchQuery, {}, 3)
+        self.assertEqual(res[0]['extra_annos'], None)
+        self.assertEqual(res[1]['extra_annos'], None)
+        self.assertEqual(res[2]['extra_annos'], None)
