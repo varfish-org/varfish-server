@@ -2753,13 +2753,12 @@ class VariantScoresCadd(VariantScoresBase):
         uncached = uncached[: settings.VARFISH_CADD_MAX_VARS]
 
         # TODO: properly test
-        cadd_release = "%s-%s" % (self.genomebuild, settings.VARFISH_CADD_REST_API_CADD_VERSION)
         try:
             res = requests.post(
                 settings.VARFISH_CADD_REST_API_URL + "/annotate/",
                 json={
                     "genome_build": self.genomebuild,
-                    "cadd_release": cadd_release,
+                    "cadd_release": settings.VARFISH_CADD_REST_API_CADD_VERSION,
                     "variant": ["-".join(map(str, var)) for var in uncached],
                 },
             )
