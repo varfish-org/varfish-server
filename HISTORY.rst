@@ -42,6 +42,7 @@ End-User Summary
 - Implementing several usability improvements for clinvar submission editor (#286)
 - Make clinvar UI work with many annotations (#302)
 - Fixing CADD annotation (#319)
+- Adding mitochondrial inheritance to case phenotype annotation (#325)
 
 Full Change List
 ================
@@ -87,6 +88,7 @@ Full Change List
 - Adding CI builds for Python 3.10 in Github actions, bumping numpy/pandas dependencies.
   Dropping support for Python 3.7.
 - Fixing CADD annotation (#319)
+- Adding mitochondrial inheritance to case phenotype annotation (#325)
 
 -------
 v0.23.9
