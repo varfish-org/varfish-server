@@ -43,6 +43,7 @@ End-User Summary
 - Make clinvar UI work with many annotations (#302)
 - Fixing CADD annotation (#319)
 - Adding mitochondrial inheritance to case phenotype annotation (#325)
+- Fix issue with variant annotation export (#328)
 
 Full Change List
 ================
@@ -89,6 +90,7 @@ Full Change List
   Dropping support for Python 3.7.
 - Fixing CADD annotation (#319)
 - Adding mitochondrial inheritance to case phenotype annotation (#325)
+- Fix issue with variant annotation export (#328)
 
 -------
 v0.23.9

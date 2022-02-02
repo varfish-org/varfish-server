@@ -1554,10 +1554,14 @@ class BaseDownloadAnnotationsView(
                     x.refseq_transcript_id for x in anno["variants"] if x.refseq_gene_id
                 )
                 hgvs = ", ".join(
-                    x.refseq_hgvs_p or x.refseq_hgvs_c for x in anno["variants"] if x.refseq_gene_id
+                    x.refseq_hgvs_p or x.refseq_hgvs_c
+                    for x in anno["variants"]
+                    if x.refseq_gene_id and (x.refseq_hgvs_p or x.refseq_hgvs_c)
                 )
                 effects = ", ".join(
-                    "&".join(x.refseq_effect) for x in anno["variants"] if x.refseq_gene_id
+                    "&".join(x.refseq_effect)
+                    for x in anno["variants"]
+                    if x.refseq_gene_id and x.refseq_effect
                 )
 
                 variant = anno["variants"][0]
