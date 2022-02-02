@@ -1564,7 +1564,13 @@ class BaseDownloadAnnotationsView(
                     if x.refseq_gene_id and x.refseq_effect
                 )
 
-                variant = anno["variants"][0]
+                coord_candidates = anno["variants"] + anno["comments"]
+                if anno["acmg_rating"]:
+                    coord_candidates += [anno["acmg_rating"]]
+                if anno["flags"]:
+                    coord_candidates += [anno["flags"]]
+                coord = coord_candidates[0]
+
                 if not anno["flags"]:
                     row_flags = ["N/A"] * 12
                 else:
@@ -1585,11 +1591,11 @@ class BaseDownloadAnnotationsView(
                 row = (
                     [
                         case_uuid_to_name[case_uuid],
-                        variant.release,
-                        variant.chromosome,
-                        variant.start,
-                        variant.reference,
-                        variant.alternative,
+                        coord.release,
+                        coord.chromosome,
+                        coord.start,
+                        coord.reference,
+                        coord.alternative,
                         genes,
                         transcripts,
                         hgvs,
