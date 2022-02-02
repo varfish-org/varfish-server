@@ -7,19 +7,20 @@ $(function () {
 
 // we can't employ .click here because the html that it will work on is loaded afterwards.
 $(document).on('click', '.toggle-variant-details', function() {
-  if ($("i", this).hasClass('fa-chevron-right')) {
+  if ($("i", this).attr("src") === "/icons/fa-solid/chevron-right.svg") {
     $($(this).data("target") + " .variant-details").load(
       $(this).data("url"),
-      function(responseText, textStatus, request) {
+      function (responseText, textStatus, request) {
         if (textStatus == "error") {
           console.log("Error during AJAX call: ", request, textStatus, responseText);
         }
       }
     );
+    $("img", this).attr("src", "/icons/fa-solid/chevron-down.svg");
   }
-  $("i", this).toggleClass('fa-chevron-right');
-  $("i", this).toggleClass('fa-chevron-down');
-
+  else {
+    $("img", this).attr("src", "/icons/fa-solid/chevron-right.svg");
+  }
 });
 </script>
 
@@ -29,9 +30,11 @@ $(document).on('click', '.toggle-variant-details', function() {
   let structural_or_small = "structural";
   let variant_flags_url = "{% url 'svs:sv-flags-api' project=project.sodar_uuid case="--abcef--" sv="--bbccee--" %}";
   let variant_comment_url = "{% url 'svs:sv-comment-api' project=project.sodar_uuid case="--abcef--" sv="--bbccee--" %}";
+  let multi_variant_flags_comment_url = "{% url 'svs:multi-sv-flags-comment-api' project=project.sodar_uuid %}";
 </script>
 <script type="text/javascript" src="{% static "js/helpers.js" %}"></script>
 <script type="text/javascript" src="{% static "js/filter_form.js" %}"></script>
 <script type="text/javascript" src="{% static "js/flags_comments.js" %}"></script>
 
 {% include "variants/_variant_flag_form_tpl.html" %}
+{% include "variants/_multi_variant_flag_form_tpl.html" %}

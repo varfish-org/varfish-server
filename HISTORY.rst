@@ -6,6 +6,8 @@ History / Changelog
 HEAD (unreleased)
 -----------------
 
+Breaking changes, see below.
+
 End-User Summary
 ================
 
@@ -23,6 +25,23 @@ End-User Summary
 - Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
 - Fixing ensembl gene link-out to wrong genome build (#156).
 - Added section for developers in manual (#267).
+- Updating Clinvar export schema to 1.7 version (#226).
+- Migrated icons to iconify (#208).
+- Bumped chrome-driver version (#208).
+- VarFish now allows for the import of GRCh38 annotated variants.
+  For this, GRCh38 background data must be imported.
+  Kiosk mode does not support GRCh38 yet.
+  **This is a breaking change, new data and CLI must be used!**
+- Added feature to select multiple rows in results to create same annotation (#259)
+- Added parameter to Docker entrypoint file to accept number of gunicorn workers
+- Extended documentation for how to update specific tables (#177)
+- Improving performance of project overview (#303)
+- Improving performance of case listing (#304)
+- Adding shortcut buttons to phenotype annotation (#289)
+- Fixing issue with multiple added variants (#283)
+- Implementing several usability improvements for clinvar submission editor (#286)
+- Make clinvar UI work with many annotations (#302)
+- Fixing CADD annotation (#319)
 
 Full Change List
 ================
@@ -45,6 +64,29 @@ Full Change List
 - Imports via API now are only allowed for projects of type ``PROJECT`` (#237).
 - Fixing ensembl gene link-out to wrong genome build (#156).
 - Added section for developers in manual (#267).
+- Updating Clinvar export schema to the latest 1.7 version (#226).
+- Migrated icons to iconify (#208).
+- Bumped chrome-driver version (#208).
+- Skipping codacy if token is not defined (#275).
+- Adjusting models and UI for supporting GRCh38 annotated cases.
+  It is currently not possible to migrate a GRCh37 case to GRCh38.
+- Adjusting models and UI for supporting GRCh38 annotated cases.
+  It is currently not possible to migrate a GRCh37 case to GRCh38.
+- Setting ``VARFISH_CADD_SUBMISSION_RELEASE`` is called ``VARFISH_CADD_SUBMISSION_VERSION`` now (**breaking change**).
+- ``import_info.tsv`` expected as in data release from ``20210728`` as built from varfish-db-downloader ``1b03e97`` or later.
+- Extending  columns of ``Hgnc`` to upstream update.
+- Added feature to select multiple rows in results to create same annotation (#259)
+- Added parameter to Docker entrypoint file to accept number of gunicorn workers
+- Extended documentation for how to update specific tables (#177)
+- Improving performance of project overview (#303)
+- Improving performance of case listing (#304)
+- Adding shortcut buttons to phenotype annotation (#289)
+- Fixing issue with multiple added variants (#283)
+- Make clinvar UI work with many annotations by making it load them lazily for one case at a time (#302)
+- Implementing several usability improvements for clinvar submission editor (#286)
+- Adding CI builds for Python 3.10 in Github actions, bumping numpy/pandas dependencies.
+  Dropping support for Python 3.7.
+- Fixing CADD annotation (#319)
 
 -------
 v0.23.9

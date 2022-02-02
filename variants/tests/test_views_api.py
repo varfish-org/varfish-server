@@ -33,6 +33,7 @@ class TestCaseApiViews(ApiViewTestBase):
             "notes": case.notes,
             "status": case.status,
             "tags": case.tags,
+            "release": case.release,
         }
 
     def test_list(self):

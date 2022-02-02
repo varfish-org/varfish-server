@@ -18,14 +18,14 @@ VarFish & Docker Compose
 The recommended (and supported) way to deploy VarFish is using Docker compose.
 The VarFish server and its component are not installed on the system itself but rather a number of Docker containers with fixed Docker images are run and work together.
 The base ``docker-compose.yml`` file starts a fully functional VarFish server.
-Docker Compose supports using so-called override files. 
+Docker Compose supports using so-called override files.
 
 Basically, the mechanism works by providing an ``docker-compose.override.yml`` file that is automatically read at startup when running ``docker-compose up``.
 This file is put into the `.gitignore` so it is not in the ``varfish-docker-compose`` repository but rather created in the checkouts (e.g., manually or using a configuration management tool such as Ansible).
 On startup, Docker Compose will read first the base ``docker-compose.yml`` file.
 It will then read the override file (if it exists) and recursively merge both YAML files with the override file overriding taking precedence over the base file.
 Note that the recursive merging will be done on YAML dicts only, lists will overwritten.
-The mechanism in detail is described in `the offical documentation <https://docs.docker.com/compose/extends/>`__.
+The mechanism in detail is described in `the official documentation <https://docs.docker.com/compose/extends/>`__.
 
 We provide the following files that you can use/combine into the local ``docker-compose.override.yml`` file of your installation.
 
@@ -36,7 +36,7 @@ We provide the following files that you can use/combine into the local ``docker-
 The overall process is to copy any of the ``*.override.yml-*`` files to ``docker-compose.yml`` and adjusting it to your need (e.g., merging with another such file).
 
 Note that you could also explicitely provide multiple override files but we do not consider this further.
-For more information on the override mechanism see `the offical documentation <https://docs.docker.com/compose/extends/>`__.
+For more information on the override mechanism see `the official documentation <https://docs.docker.com/compose/extends/>`__.
 
 The following sections describe the possible adjustment with Docker Compose override files.
 
@@ -93,24 +93,24 @@ SAML Configuration
 ------------------
 
 Besides LDAP configuration, it is also possible to authenticate with existing SAML 2.0 ID Providers (e.g. Keycloak). Since varfish is built
-on top of sodar core, you can also refer to the `sodar-core documentation <https://sodar-core.readthedocs.io/en/latest/app_projectroles_settings.html#saml-sso-configuration-optional>`__ for further help in configuring the ID Providers.  
+on top of sodar core, you can also refer to the `sodar-core documentation <https://sodar-core.readthedocs.io/en/latest/app_projectroles_settings.html#saml-sso-configuration-optional>`__ for further help in configuring the ID Providers.
 
 To enable SAML authentication with your ID Provider, a few steps are necessary. First, add a SAML Client for your ID Provider of choice. The sodar-core documentation features examples for Keycloak. Make sure you have assertion signing turned on and allow redirects to your varfish site.
 The SAML processing URL should be set to the externally visible address of your varfish deployment, e.g. ``https://varfish.example.com/saml2_auth/acs/``.
 
 Next, you need to obtain your metadata.xml aswell as the signing certificate and key file from the ID Provider. Make sure you convert these keys to standard OpenSSL
-format, before starting your varfish instance (you can find more details `here <https://sodar-core.readthedocs.io/en/latest/app_projectroles_settings.html#saml-sso-configuration-optional>`__). 
-If you deploy varfish without docker, you can pass the file paths of your metadata.xml and key pair directly. Otherwise, make sure that you have included them 
-into a single folder and added the corresponding folder to your ``docker-compose.yml`` (or add it as a ``docker-compose-overrrided.yml``), like in the following snippet. 
+format, before starting your varfish instance (you can find more details `here <https://sodar-core.readthedocs.io/en/latest/app_projectroles_settings.html#saml-sso-configuration-optional>`__).
+If you deploy varfish without docker, you can pass the file paths of your metadata.xml and key pair directly. Otherwise, make sure that you have included them
+into a single folder and added the corresponding folder to your ``docker-compose.yml`` (or add it as a ``docker-compose-overrrided.yml``), like in the following snippet.
 
-.. code-block:: yml
+.. code-block:: yaml
 
     varfish-web:
       ...
       volumes:
         - "/path/to/my/secrets:/secrets:ro"
 
-Then, define atleast the following variables in your docker-compose ``.env`` file (or the environment variables when running the server natively). 
+Then, define atleast the following variables in your docker-compose ``.env`` file (or the environment variables when running the server natively).
 
 ``ENABLE_SAML``
     [Default 0] Enable [1] or Disable [0] SAML authentication
@@ -146,7 +146,7 @@ To set initial user permissions on first login, you can use the following option
 ``SAML_NEW_USER_SUPERUSER_STATUS``
     [Default False] New users are marked superusers (I advise leaving this one alone).
 
-If you encounter any troubles with this rather involved procedure, feel free to take a look at the discussion forums on `github<https://github.com/bihealth/varfish-server/discussions>`__ and open a thread.
+If you encounter any troubles with this rather involved procedure, feel free to take a look at the discussion forums on `github <https://github.com/bihealth/varfish-server/discussions>`__ and open a thread.
 
 -----------------
 Sending of Emails

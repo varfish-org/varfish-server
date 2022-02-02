@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import clinvarExport from '../../api/clinvarExport'
-import { uuidv4 } from '@/helpers'
+import { uuidv4, isDiseaseTerm, HPO_INHERITANCE_MODE } from '@/helpers'
 
 /**
  * Enum for the valid clinvar export application states.
@@ -80,8 +80,7 @@ const actions = {
       clinvarExport.getIndividuals(state.appContext).then((res) => commit('SET_INDIVIDUALS', res)),
       clinvarExport.getSubmissionIndividuals(state.appContext).then((res) => commit('SET_SUBMISSION_INDIVIDUALS', res)),
       clinvarExport.getFamilies(state.appContext).then((res) => commit('SET_FAMILIES', res)),
-      clinvarExport.getSubmittingOrgs(state.appContext).then((res) => commit('SET_SUBMITTING_ORGS', res)),
-      clinvarExport.getUserAnnotations(state.appContext).then((res) => commit('SET_USER_ANNOTATIONS', res))
+      clinvarExport.getSubmittingOrgs(state.appContext).then((res) => commit('SET_SUBMITTING_ORGS', res))
     ]).then(_response => {
       commit('INITIALIZE_SUBMISSION_SET_ORGANISATIONS')
       commit('SAVE_OLD_MODEL')
@@ -103,10 +102,17 @@ const actions = {
    * Changes will be committed through `wizardSave`.
    */
   createNewSubmissionSet ({ state, commit }) {
+    const titles = Object.values(state.submissionSets).map(submissionSet => submissionSet.title)
+    let title = 'New Submission Set'
+    let i = 2
+    while (titles.includes(title)) {
+      title = 'New Submission Set #' + i
+      i += 1
+    }
     const submissionSet = {
       sodar_uuid: uuidv4(),
       date_modified: new Date().toLocaleString(),
-      title: 'New Submission',
+      title: title,
       state: 'draft',
       sort_order: Object.keys(state.submissionSets).length,
       submitter: null,
@@ -117,6 +123,7 @@ const actions = {
 
     commit('ADD_SUBMISSION_SET', submissionSet)
     commit('SET_CURRENT_SUBMISSION_SET', submissionSet.sodar_uuid)
+    commit('SET_WIZARD_STATE', WizardState.submissionSet)
     commit('SET_APP_STATE', AppState.add)
   },
   /**
@@ -293,8 +300,9 @@ const actions = {
 
     // Create appropriate submissions with API, copy over individuals and remove local submissions and submission
     // individuals.
-    for (let i = 0; i < state.currentSubmissionSet.submissions.length; i++) {
-      await _wizardSaveSubmission({ state, commit }, apiSet, i, state.currentSubmissionSet.submissions[i])
+    const submissionUuids = state.currentSubmissionSet.submissions.slice()
+    for (let i = 0; i < submissionUuids.length; i++) {
+      await _wizardSaveSubmission({ state, commit }, apiSet, i, submissionUuids[i])
     }
     // Remove submissions from old model data that are not present in the current submission set any more.
     if (submissionSetExists) {
@@ -333,10 +341,12 @@ const actions = {
     commit('SET_APP_STATE', AppState.list)
 
     for (const submittingOrgUuid of state.currentSubmissionSet.submitting_orgs) {
-      await clinvarExport.deleteSubmittingOrg(
-        state.submittingOrgs[submittingOrgUuid],
-        state.appContext
-      )
+      if (submittingOrgUuid in state.oldModel.submittingOrgs) {
+        await clinvarExport.deleteSubmittingOrg(
+          state.submittingOrgs[submittingOrgUuid],
+          state.appContext
+        )
+      }
       commit('DELETE_SUBMITTING_ORG', submittingOrgUuid)
     }
 
@@ -344,23 +354,29 @@ const actions = {
     for (const submissionUuid of submissionUuids) {
       const submissionInvidualUuids = Array.from(state.submissions[submissionUuid].submission_individuals)
       for (const submissionInvidualUuid of submissionInvidualUuids) {
-        await clinvarExport.deleteSubmissionIndividual(
-          state.submissionIndividuals[submissionInvidualUuid],
-          state.appContext
-        )
+        if (submissionInvidualUuid in state.oldModel.submissionIndividuals) {
+          await clinvarExport.deleteSubmissionIndividual(
+            state.submissionIndividuals[submissionInvidualUuid],
+            state.appContext
+          )
+        }
         commit('DELETE_SUBMISSION_INDIVIDUAL', submissionInvidualUuid)
       }
-      await clinvarExport.deleteSubmission(
-        state.submissions[submissionUuid],
-        state.appContext
-      )
+      if (submissionUuid in state.oldModel.submissions) {
+        await clinvarExport.deleteSubmission(
+          state.submissions[submissionUuid],
+          state.appContext
+        )
+      }
       commit('DELETE_SUBMISSION', submissionUuid)
     }
 
-    await clinvarExport.deleteSubmissionSet(
-      state.submissionSets[state.currentSubmissionSet.sodar_uuid],
-      state.appContext
-    )
+    if (state.currentSubmissionSet.sodar_uuid in state.oldModel.submissionSets) {
+      await clinvarExport.deleteSubmissionSet(
+        state.submissionSets[state.currentSubmissionSet.sodar_uuid],
+        state.appContext
+      )
+    }
     commit('DELETE_SUBMISSION_SET', state.currentSubmissionSet.sodar_uuid)
 
     commit('SET_CURRENT_SUBMISSION_SET', null)
@@ -509,21 +525,49 @@ function sodarObjectListToObject (lst) {
  * Extract variant zygosity information from state for the given smallVariant.
  */
 function extractVariantZygosity (smallVariant, individualUuids, state) {
-  let variantAlleleCount = 0
+  function getVariantZygosity (variantAlleleCount, isRecessive) {
+    if (variantAlleleCount === 2) {
+      return 'Homozygote'
+    } else {
+      if (isRecessive) {
+        return 'Compound heterozygote'
+      } else {
+        return 'Single heterozygote'
+      }
+    }
+  }
+
+  // See whether any individual is annotated as recessive.
+  let anyRecessive = false
+  let variantAlleleCount = null
   let variantZygosity = null
   if (smallVariant !== null) {
     let individual = null
     for (const individualUuid of individualUuids) {
-      individual = state.individuals[individualUuid]
-      if (individual.name in smallVariant.genotype) {
-        variantAlleleCount = ((smallVariant.genotype[individual.name].gt || '').match(/1/g) || []).length
-        break
+      const currIndividual = state.individuals[individualUuid]
+      if (individual === null) {
+        individual = currIndividual
       }
+      console.log('A')
+      if (variantAlleleCount === null && (individual.name in smallVariant.genotype)) {
+        variantAlleleCount = ((smallVariant.genotype[individual.name].gt || '').match(/1/g) || []).length
+      }
+      console.log('B', individual)
+      if (individual !== null) {
+        // eslint-disable-next-line camelcase
+        for (const { term_id } of (individual.phenotype_terms || [])) {
+          anyRecessive = anyRecessive || (HPO_INHERITANCE_MODE.get(term_id) || '').includes('recessive')
+        }
+      }
+      console.log('C')
+    }
+    if (variantAlleleCount === null) {
+      variantAlleleCount = 0
     }
     if (individual && variantAlleleCount) {
       if (smallVariant.chromosome.includes('X')) {
         if (individual.sex === 'female') {
-          variantZygosity = (variantAlleleCount === 2) ? 'Homozygote' : 'Single heterozygote'
+          variantZygosity = getVariantZygosity(variantAlleleCount, anyRecessive)
         } else {
           variantAlleleCount = 1
           variantZygosity = 'Hemizygote'
@@ -537,7 +581,7 @@ function extractVariantZygosity (smallVariant, individualUuids, state) {
           variantZygosity = 'Hemizygote'
         }
       } else {
-        variantZygosity = (variantAlleleCount === 2) ? 'Homozygote' : 'Single heterozygote'
+        variantZygosity = getVariantZygosity(variantAlleleCount, anyRecessive)
       }
     }
   }
@@ -655,66 +699,6 @@ const mutations = {
 
   SET_SUBMITTING_ORGS (state, values) {
     Vue.set(state, 'submittingOrgs', sodarObjectListToObject(values))
-  },
-
-  SET_USER_ANNOTATIONS (state, value) {
-    const getVariantId = (obj) => {
-      return `${obj.release}-${obj.chromosome}-${obj.start}-${obj.reference}-${obj.alternative}`
-    }
-
-    const collect = (arr) => {
-      const result = {}
-      for (const obj of arr) {
-        if (getVariantId(obj) in result) {
-          result[getVariantId(obj)].push(obj)
-        } else {
-          Vue.set(result, getVariantId(obj), [obj])
-        }
-      }
-      for (const arr of Object.values(result)) {
-        arr.sort((a, b) => (a.case_name < b.case_name) ? -1 : 1)
-      }
-      return result
-    }
-
-    const smallVariants = {}
-    for (const smallVar of value.small_variants) {
-      if (getVariantId(smallVar) in smallVariants) {
-        smallVariants[getVariantId(smallVar)].caseNames.push(smallVar.case_name)
-        Vue.set(
-          smallVariants[getVariantId(smallVar)],
-          'genotype',
-          {
-            ...smallVariants[getVariantId(smallVar)].genotype,
-            ...smallVar.genotype
-          }
-        )
-      } else {
-        Vue.set(
-          smallVariants,
-          getVariantId(smallVar),
-          {
-            ...smallVar,
-            caseNames: [smallVar.case_name],
-            variantId: getVariantId(smallVar)
-          }
-        )
-        Vue.delete(smallVariants[getVariantId(smallVar)], 'case_name')
-      }
-    }
-    for (const arr of Object.values(smallVariants)) {
-      arr.caseNames = [...new Set(arr.caseNames)]
-      arr.caseNames.sort((a, b) => (a.case_name < b.case_name) ? -1 : 1)
-    }
-
-    const userAnnotations = {
-      smallVariants,
-      smallVariantFlags: collect(value.small_variant_flags),
-      smallVariantComments: collect(value.small_variant_comments),
-      acmgCriteriaRating: collect(value.acmg_criteria_rating)
-    }
-
-    Vue.set(state, 'userAnnotations', userAnnotations)
   },
 
   SET_WIZARD_STATE (state, value) {
@@ -847,7 +831,7 @@ const mutations = {
     const s = state.currentSubmission
     const variantKey = `${s.variant_assembly}-${s.variant_chromosome}` +
       `-${s.variant_start}-${s.variant_reference}-${s.variant_alternative}`
-    const smallVariant = state.userAnnotations.smallVariants[variantKey]
+    const smallVariant = state.userAnnotations.smallVariants[variantKey] // XXX
     const { variantAlleleCount, variantZygosity } = extractVariantZygosity(
       smallVariant,
       [individual.sodar_uuid],
@@ -866,8 +850,8 @@ const mutations = {
         phenotypes: JSON.parse(JSON.stringify(state.individuals[individual.sodar_uuid].phenotype_terms)),
         variant_zygosity: variantZygosity,
         variant_allele_count: variantAlleleCount,
-        variant_origin: 'not provided',
-        source: 'not provided',
+        variant_origin: 'germline',
+        source: 'clinical testing',
         tissue: 'Blood',
         citations: []
       }
@@ -880,7 +864,6 @@ const mutations = {
     // when sent to the UUID so it must be then updated locally.
     const newSubmission = {
       ...submission,
-
       _isInvalid: false,
       sodar_uuid: uuidv4(),
       sort_order: Object.keys(state.submissions).length,
@@ -890,15 +873,17 @@ const mutations = {
 
     for (const individualUuid of individualUuids) {
       const individual = state.individuals[individualUuid]
+      const phenotypes = JSON.parse(JSON.stringify(individual.phenotype_terms || []))
+        .filter(term => !HPO_INHERITANCE_MODE.has(term.term_id) && !isDiseaseTerm(term.term_id))
       const newSubmissionIndividual = {
         sodar_uuid: uuidv4(),
         individual: individualUuid,
         submission: newSubmission.sodar_uuid,
-        phenotypes: JSON.parse(JSON.stringify(individual.phenotype_terms || [])),
+        phenotypes: phenotypes,
         variant_allele_count: variantAlleleCount,
         variant_zygosity: variantZygosity,
-        variant_origin: 'not provided',
-        source: 'not provided',
+        variant_origin: 'germline',
+        source: 'clinical testing',
         tissue: 'Blood',
         citations: []
       }

@@ -5,6 +5,7 @@ from django.db import transaction
 
 from projectroles.plugins import get_backend_api
 
+from cohorts.models import Cohort
 from variants.helpers import get_engine
 from variants.forms import PATHO_SCORES_MAPPING
 from variants.models import prioritize_genes, VariantScoresFactory
@@ -27,6 +28,10 @@ class FilterBase:
         self.assembled_query = self._get_assembled_query()
 
     def _get_assembled_query(self):
+        """Override me!"""
+        pass
+
+    def _get_genomebuild(self):
         """Override me!"""
         pass
 
@@ -111,7 +116,9 @@ class FilterBase:
         try:
             with transaction.atomic():
                 scorer_factory = VariantScoresFactory()
-                scorer = scorer_factory.get_scorer(patho_score, variants, self.job.bg_job.user)
+                scorer = scorer_factory.get_scorer(
+                    self._get_genomebuild(), patho_score, variants, self.job.bg_job.user
+                )
                 for score in scorer.score():
                     getattr(
                         self.variant_query, "%svariantscores_set" % self.variant_query.query_type()
@@ -124,6 +131,9 @@ class CaseFilter(FilterBase):
     """Class for storing query results for a single case.
     """
 
+    def _get_genomebuild(self):
+        return self.variant_query.case.release
+
     def _get_assembled_query(self):
         """Render filter query for a single case"""
         return CasePrefetchQuery(self.variant_query.case, self.get_alchemy_engine())
@@ -132,6 +142,21 @@ class CaseFilter(FilterBase):
 class ProjectCasesFilter(FilterBase):
     """Class for storing query results for cases of a project.
     """
+
+    def _get_genomebuild(self):
+        if self.job.cohort:
+            cases = [
+                case
+                for case in self.project_or_cohort.get_accessible_cases_for_user(
+                    self.job.bg_job.user
+                )
+            ]
+        else:
+            cases = [case for case in self.variant_query.project.case_set.all()]
+        if cases:
+            return cases[0].release
+        else:
+            return "GRCh37"
 
     def _get_assembled_query(self):
         """Render filter query for a project"""

@@ -29,8 +29,9 @@ from variants.helpers import get_engine
 
 from geneinfo.models import Hpo, HpoName
 from variants.queries import SmallVariantUserAnnotationQuery
-from .clinvar_xml import SubmissionXmlGenerator, XSD_URL_1_6
+from .clinvar_xml import SubmissionXmlGenerator, XSD_URL_1_7
 from .models import (
+    Case,
     SubmissionSet,
     Submission,
     Organisation,
@@ -64,7 +65,7 @@ def _read(filename):
 
 #: Submission XSD URL to XSD string
 XSD_CONTENTS = {
-    XSD_URL_1_6: _read(XSD_URL_1_6.rsplit("/", 1)[1]),
+    XSD_URL_1_7: _read(XSD_URL_1_7.rsplit("/", 1)[1]),
 }
 
 
@@ -424,8 +425,9 @@ class AnnotatedSmallVariantsApiView(
     permission_required = "clinvar_export.view_data"
     allowed_methods = ("GET",)
 
-    def get(self, *_args, **_kwargs):
+    def get(self, *_args, **kwargs):
+        family = Family.objects.get(project=self.get_project(), sodar_uuid=kwargs.get("family"))
         serializer = AnnotatedSmallVariantsSerializer(
-            SmallVariantUserAnnotationQuery(get_engine()).run(project=self.get_project())
+            SmallVariantUserAnnotationQuery(get_engine()).run(case=family.case)
         )
         return Response(serializer.data)

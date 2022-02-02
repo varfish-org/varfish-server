@@ -9,7 +9,7 @@
     <div class="container-fluid sodar-page-container">
       {% if missed_records > 0 %}
         <div class="alert alert-warning">
-          <strong><i class="fa fa-warning text-warning"></i> {{ missed_records }} records of the previous query not shown.</strong>
+          <strong><i class="iconify text-warning" data-icon="bi:exclamation-circle"></i> {{ missed_records }} records of the previous query not shown.</strong>
           This means that the access to the cases was restricted in the meantime.
         </div>
       {% endif %}
@@ -61,7 +61,7 @@
                     </span>
                     {% with omim_information=hpo_id|add_omim_information %}
                       {% if omim_information %}
-                        <i class='fa fa-arrow-right'></i>
+                        <i class='iconify' data-icon='mdi:arrow-right-circle'></i>
                         <strong>(</strong>
                         {% for key, value in omim_information.items %}
                           <span class='badge badge-group' style='font-size: 100%'>
@@ -98,7 +98,7 @@
                     <p class='text-muted font-italic'>None</p>
                   {% endfor %}"
               >
-              <i class="fa fa-ban"></i>
+              <i class="iconify" data-icon="fa-solid:ban"></i>
               Gene Blocklist
             </div>
           {% endif %}
@@ -144,7 +144,7 @@
                   {% empty %}
                     <p class='text-muted font-italic'>None</p>
                   {% endfor %}"
-              ><i class="fa fa-arrows-h"></i> Genomic Region</a>
+              ><i class="iconify" data-icon="fa-solid:arrows-alt-h"></i> Genomic Region</a>
             </div>
           {% endif %}
         </div>
@@ -153,7 +153,7 @@
         <strong style="font-size: 140%;">Results</strong>
         {% if compound_recessive_index %}
         <div class="p-2">
-          <i class="fa fa-users"
+          <i class="iconify" data-icon="fa-solid:users"
              data-toggle="tooltip"
              title="Compound heterozygous mode active on index <strong>{{ compound_recessive_index }}</strong>"
              data-html="true"
@@ -174,8 +174,10 @@
             Frequency
           </label>
           <select class="custom-select" id="result-display-frequencies" onchange="javascript: updateTableDisplay();">
-            <option value="frequencies-exac">ExAC</option>
-            <option value="frequencies-thousand-genomes">1000 genomes</option>
+            {% if genomebuild == "GRCh37" %}
+              <option value="frequencies-exac">ExAC</option>
+              <option value="frequencies-thousand-genomes">1000 genomes</option>
+            {% endif %}
             <option value="frequencies-gnomad-exomes" selected>gnomAD exomes</option>
             <option value="frequencies-gnomad-genomes">gnomAD genomes</option>
             {% if not kiosk_mode %}<option value="frequencies-inhouse">in-house DB</option>{% endif %}
@@ -215,11 +217,11 @@
         </div>
         <div class="pl-3">
           {% if missed_records > 0 %}
-            <i class="text-warning fa fa-warning" data-toggle="tooltip"
+            <i class="text-warning iconify" data-icon="bi:exclamation-circle" data-toggle="tooltip"
                title="{{ missed_records }} records not shown. This means that the access to the cases was restricted in the meantime."></i>
           {% endif %}
           First <strong>{{ result_rows|length }} of {{ result_count }}</strong> records
-          <i class="fa fa-info-circle" data-toggle="tooltip"
+          <i class="iconify" data-icon="fa-solid:info-circle" data-toggle="tooltip"
              title="{% if case %}Case has a total of {{ case.num_small_vars|intcomma }} variants. {% endif %}Use the &quot;Result row limit&quot; to see more columns. Pro-tip: TSV/Excel/VCF file downloads will contain all all {{ result_count }} rows."></i>.
         </div>
         <div class="pl-3">
@@ -233,8 +235,21 @@
         </div>
         <div class="pl-3">
           <a type="button" id="logPopover" class="btn btn-sm btn-light" data-title="Background job logs" data-container="body" data-toggle="popover" data-trigger="focus" tabindex="0" data-placement="top" data-html="true" data-content="<pre>{{ logs|join:"<br>" }}</pre>">
-            <span class="iconify" data-icon="mdi:format-list-bulleted-square" data-inline="false"></span> Show logs
+            <span class="iconify" data-icon="mdi:format-list-bulleted-square" data-inline="false"></span> Show Logs
           </a>
+          <small class="badge badge-secondary">
+            {{ case.release }}
+          </small>
+        </div>
+        <div class="dropdown pl-2">
+          <button type="button" id="multiVarButton" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="iconify" data-icon="fluent:bookmark-multiple-16-filled"></i> Multi-Variant Options
+          </button>
+          <div class="dropdown-menu dropdown-menu-left" style="z-index: 1031;">
+            <a class="dropdown-item" id="multivar-bookmark-comment" data-toggle="modal" data-target="#multiVarBookmarkCommentModal">
+              <i class="iconify" data-icon="fluent:bookmark-multiple-16-filled"></i> Flag & Comment
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -255,6 +270,25 @@
       <p>
         Query completed in {{ elapsed_seconds }} sec.
       </p>
+
+      {# Multi-var bookmark and comment modal #}
+      <div class="modal fade" id="multiVarBookmarkCommentModal" aria-hidden="true">
+        <div class="modal-dialog" style="width: 434px" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Multi-Variant Comments &amp; Flags</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="container-fluid" id="multiVarBookmarkCommentModalContent">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div> <!-- sodar-page-container -->
     <script type="text/javascript">
     $(function () {

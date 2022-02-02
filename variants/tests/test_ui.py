@@ -78,6 +78,86 @@ class wait_for_the_attribute_value(object):
             return False
 
 
+class wait_for_the_attribute_endswith_value(object):
+    """https://stackoverflow.com/a/43813210/84349
+
+    Usage:
+
+    self.wait.until(wait_for_the_attribute_value((By.ID, "xxx"), "aria-busy", "false"))
+
+    """
+
+    def __init__(self, locator, attribute, value):
+        self.locator = locator
+        self.attribute = attribute
+        self.value = value
+
+    def __call__(self, driver):
+        try:
+            element_attribute = ec._find_element(driver, self.locator).get_attribute(self.attribute)
+            return element_attribute.endswith(self.value)
+        except StaleElementReferenceException:
+            return False
+
+
+class wait_for_element_endswith_value(object):
+    """https://stackoverflow.com/a/43813210/84349
+
+    Usage:
+
+    self.wait.until(wait_for_the_attribute_value((By.ID, "xxx"), "aria-busy", "false"))
+
+    """
+
+    def __init__(self, element, attribute, value):
+        self.element = element
+        self.attribute = attribute
+        self.value = value
+
+    def __call__(self, driver):
+        try:
+            element_attribute = self.element.get_attribute(self.attribute)
+            return element_attribute.endswith(self.value)
+        except StaleElementReferenceException:
+            return False
+
+
+class element_has_class_locator(object):
+    """An expectation for checking that an element has a particular css class.
+       locator - used to find the element
+    returns the WebElement once it has the particular css class
+    """
+
+    def __init__(self, locator, css_class):
+        self.locator = locator
+        self.css_class = css_class
+
+    def __call__(self, driver):
+        element = driver.find_element(*self.locator)  # Finding the referenced element
+
+        if self.css_class in element.get_attribute("class"):
+            return element
+        else:
+            return False
+
+
+class element_has_class(object):
+    """An expectation for checking that an element has a particular css class.
+       locator - used to find the element
+    returns the WebElement once it has the particular css class
+    """
+
+    def __init__(self, element, css_class):
+        self.element = element
+        self.css_class = css_class
+
+    def __call__(self, driver):
+        if self.css_class in self.element.get_attribute("class"):
+            return self.element
+        else:
+            return False
+
+
 class LiveUserMixin:
     """Mixin for creating users to work with LiveServerTestCase"""
 
@@ -266,11 +346,15 @@ class TestVariantsCaseFilterView(TestUIBase):
     """Tests for the variants case filter view."""
 
     view = "variants:case-filter"
+    window_size = (2000, 1000)
 
     def setUp(self):
         super().setUp()
-        self.case, variant_set, _ = CaseWithVariantSetFactory.get("small")
-        small_var = SmallVariantFactory(variant_set=variant_set)
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+        SmallVariantFactory(variant_set=self.variant_set)
+
+    def _create_two_more_variants(self):
+        SmallVariantFactory.create_batch(2, variant_set=self.variant_set)
 
     def _disable_effect_groups(self):
         """Helper function to disable all effect checkboxes by activating and deactivating the 'all' checkbox."""
@@ -543,13 +627,192 @@ class TestVariantsCaseFilterView(TestUIBase):
         )
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark"))
+        )
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark-comment-group"))
         ).click()
         # save bookmark
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.CLASS_NAME, "save"))
         ).click()
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "fa-bookmark"))
+            wait_for_the_attribute_endswith_value(
+                (By.CLASS_NAME, "variant-bookmark"), "src", "/icons/fa-solid/bookmark.svg"
+            )
+        )
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_filter_case_multi_bookmark_one_variant(self):
+        """Test if submitting the filter yields the expected results."""
+        self._create_two_more_variants()
+
+        # login
+        self.compile_url_and_login(
+            {"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid}
+        )
+        self._disable_filters("case")
+        # hit submit button
+        self.selenium.find_element_by_id("submitFilter").click()
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "multivar-selector"))
+        )
+        multivar_btn = WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.ID, "multiVarButton"))
+        )
+        multivar_bookmark_link = WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.ID, "multivar-bookmark-comment"))
+        )
+        WebDriverWait(self.selenium, self.wait_time).until(
+            element_has_class(multivar_btn, "btn-outline-secondary")
+        )
+
+        selectors = self.selenium.find_elements_by_class_name("multivar-selector")
+
+        # check if buttons are disabled
+        self.assertIn("btn-outline-secondary", multivar_btn.get_attribute("class"))
+        self.assertIn("disabled", multivar_bookmark_link.get_attribute("class"))
+
+        # select the first variant
+        selectors[0].click()
+        self.assertTrue(selectors[0].is_selected())
+
+        # buttons should still be disabled
+        self.assertIn("btn-outline-secondary", multivar_btn.get_attribute("class"))
+        self.assertIn("disabled", multivar_bookmark_link.get_attribute("class"))
+
+        # select the second variant
+        selectors[1].click()
+        self.assertTrue(selectors[1].is_selected())
+        self.assertFalse(selectors[2].is_selected())
+
+        # buttons should be active
+        self.assertIn("btn-secondary", multivar_btn.get_attribute("class"))
+        self.assertNotIn("disabled", multivar_bookmark_link.get_attribute("class"))
+
+        # open form
+        multivar_btn.click()
+        multivar_bookmark_link.click()
+
+        # check displayed form
+        info_box = WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located(
+                (
+                    By.XPATH,
+                    "//div[@id='multiVarBookmarkCommentModalContent']/div[contains(@class, 'alert-info')]",
+                )
+            )
+        )
+        self.assertEqual("2 variants selected.", info_box.text)
+
+        # save bookmark
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "save"))
+        ).click()
+
+        # check bookmark set for variant 1
+        WebDriverWait(self.selenium, self.wait_time).until(
+            wait_for_element_endswith_value(
+                selectors[0].find_element_by_xpath(
+                    "../following-sibling::td[contains(@class, 'bookmark')]/a/img[@class='variant-bookmark']"
+                ),
+                "src",
+                "/icons/fa-solid/bookmark.svg",
+            )
+        )
+        # check bookmark set for variant 2
+        WebDriverWait(self.selenium, self.wait_time).until(
+            wait_for_element_endswith_value(
+                selectors[1].find_element_by_xpath(
+                    "../following-sibling::td[contains(@class, 'bookmark')]/a/img[@class='variant-bookmark']"
+                ),
+                "src",
+                "/icons/fa-solid/bookmark.svg",
+            )
+        )
+        # check if bookmark NOT set for variant 3
+        self.assertTrue(
+            selectors[2]
+            .find_element_by_xpath(
+                "../following-sibling::td[contains(@class, 'bookmark')]/a/img[@class='variant-bookmark']"
+            )
+            .get_attribute("src")
+            .endswith("/icons/fa-regular/bookmark.svg")
+        )
+
+        # un-select variant 1
+        selectors[0].click()
+        self.assertFalse(selectors[0].is_selected())
+        self.assertTrue(selectors[1].is_selected())
+
+        # select variant 3
+        selectors[2].click()
+        self.assertTrue(selectors[2].is_selected())
+
+        # open form again
+        multivar_btn.click()
+        multivar_bookmark_link.click()
+
+        # select checkered flag
+        comment_check_flag = WebDriverWait(self.selenium, self.wait_time).until(
+            ec.element_to_be_clickable((By.ID, "comment-check-flag"))
+        )
+        comment_check_flag.click()
+
+        # select visual positive flag
+        comment_radio_visual_positive = WebDriverWait(self.selenium, self.wait_time).until(
+            ec.element_to_be_clickable((By.ID, "comment-radio-visual-positive"))
+        )
+        comment_radio_visual_positive.click()
+
+        # save form
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.element_to_be_clickable((By.CLASS_NAME, "save"))
+        ).click()
+
+        # select variant 1 (all three are now selected)
+        selectors[0].click()
+        self.assertTrue(selectors[0].is_selected())
+
+        # open form again
+        multivar_btn.click()
+        multivar_bookmark_link.click()
+
+        # check displayed form -- warning expected
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located(
+                (
+                    By.XPATH,
+                    "//div[@id='multiVarBookmarkCommentModalContent']/div[contains(@class, 'alert-warning')]",
+                )
+            )
+        )
+        info_box = WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located(
+                (
+                    By.XPATH,
+                    "//div[@id='multiVarBookmarkCommentModalContent']/div[contains(@class, 'alert-info')]",
+                )
+            )
+        )
+        self.assertEqual("3 variants selected.", info_box.text)
+
+        # get highlighted flags
+        flags_radios = self.selenium.find_elements_by_xpath(
+            "//div[@id='multiVarBookmarkCommentModalContent']/form/div[contains(@class, 'alert-warning')]"
+        )
+        flags_checkboxes = self.selenium.find_elements_by_xpath(
+            "//div[@id='multiVarBookmarkCommentModalContent']/form/div/div/div[contains(@class, 'alert-warning')]"
+        )
+
+        # check for correct number of highlighted flags
+        self.assertEqual(len(flags_radios), 1)
+        self.assertEqual(len(flags_checkboxes), 1)
+
+        # check if correct flags where highlighted
+        self.assertEqual(flags_radios[0].text, "Visual")
+        self.assertEqual(
+            flags_checkboxes[0].find_element_by_xpath(".//input").get_attribute("id"),
+            "comment-check-flag",
         )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
@@ -566,14 +829,20 @@ class TestVariantsCaseFilterView(TestUIBase):
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
         )
-        self.selenium.find_element_by_class_name("variant-bookmark").click()
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark"))
+        )
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark-comment-group"))
+        ).click()
         # save bookmark
         WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.CLASS_NAME, "save"))
-        )
-        self.selenium.find_element_by_class_name("save").click()
+        ).click()
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "fa-bookmark"))
+            wait_for_the_attribute_endswith_value(
+                (By.CLASS_NAME, "variant-bookmark"), "src", "/icons/fa-solid/bookmark.svg"
+            )
         )
         # switch tab
         self.selenium.find_element_by_id("more-tab").click()
@@ -602,11 +871,11 @@ class TestVariantsCaseFilterView(TestUIBase):
         )
         # switch tab
         self.selenium.find_element_by_id("frequency-tab").click()
-        exac = self.selenium.find_element_by_xpath("//input[@name='exac_enabled']")
-        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(exac))
+        exomes = self.selenium.find_element_by_xpath("//input[@name='gnomad_exomes_enabled']")
+        WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(exomes))
         # disable exac and thousand genomes frequency filter
-        exac.click()
-        self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_enabled']").click()
+        exomes.click()
+        self.selenium.find_element_by_xpath("//input[@name='gnomad_genomes_enabled']").click()
         # switch tab
         self.selenium.find_element_by_id("more-tab").click()
         self.selenium.find_element_by_id("quality-tab").click()
@@ -698,7 +967,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # create wrong setting
         tab = self.selenium.find_element_by_id("frequency-tab")
         tab.click()
-        field = self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_frequency']")
+        field = self.selenium.find_element_by_xpath("//input[@name='gnomad_exomes_frequency']")
         WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(field))
         field.clear()
         field.send_keys("10")
@@ -719,7 +988,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # create wrong setting
         tab = self.selenium.find_element_by_id("frequency-tab")
         tab.click()
-        field = self.selenium.find_element_by_xpath("//input[@name='thousand_genomes_frequency']")
+        field = self.selenium.find_element_by_xpath("//input[@name='gnomad_exomes_frequency']")
         WebDriverWait(self.selenium, self.wait_time).until(ec.visibility_of(field))
         field.clear()
         field.send_keys("10")

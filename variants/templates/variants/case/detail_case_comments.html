@@ -2,7 +2,7 @@
      id="card-varfish-vars-case-details-small-var-comments">
   <div class="card-header">
     <h4>
-      <i class="fa fa-comments-o"></i>
+      <i class="iconify" data-icon="fa-regular:comments"></i>
       Case Comments <span class="badge badge-pill badge-secondary" id="case-comments-count" data-url="{% url 'variants:case-comments-count-api' project=project.sodar_uuid case=object.sodar_uuid %}"></span>
     </h4>
   </div>
@@ -22,7 +22,7 @@
         <em>{{ comment.comment }}</em>
         {% if comment.user == request.user or request.user.is_superuser or comment.user.username == "kiosk_user" %}
           <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="iconify" data-icon="mdi:pencil"></i></a>
-          <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="fa fa-times-circle"></i></a>
+          <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="iconify" data-icon="fa-solid:times-circle"></i></a>
         {% endif %}
       </div>
       <div id="edit-comment-{{ comment.sodar_uuid }}" style="display: none;">

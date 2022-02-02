@@ -10,7 +10,7 @@
             :disabled="isMoveDisabled(true)"
             @click="moveSubmissionIndividual({ submissionIndividual: value, up: true })"
           >
-            <i class="fa fa-arrow-up"></i>
+            <i class="iconify" data-icon="mdi:arrow-up-circle"></i>
             move up
           </b-button>
           <b-button
@@ -19,7 +19,7 @@
             :disabled="isMoveDisabled(false)"
             @click="moveSubmissionIndividual({ submissionIndividual: value, up: false })"
           >
-            <i class="fa fa-arrow-down"></i>
+            <i class="iconify" data-icon="mdi:arrow-down-circle"></i>
             move down
           </b-button>
           <b-button

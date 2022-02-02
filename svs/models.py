@@ -121,6 +121,8 @@ class StructuralVariantSet(models.Model):
     case = models.ForeignKey(
         Case, on_delete=models.CASCADE, null=False, help_text="The case that this set is for"
     )
+    #: Genome build
+    release = models.CharField(max_length=32, null=True, default="GRCh37")
     #: The state of the variant set.
     state = models.CharField(
         max_length=16,
@@ -428,6 +430,9 @@ class StructuralVariantFlags(_UserAnnotation):
                 self.flag_candidate,
                 self.flag_final_causative,
                 self.flag_for_validation,
+                self.flag_no_disease_association,
+                self.flag_segregates,
+                self.flag_doesnt_segregate,
                 self.flag_molecular != "empty",
                 self.flag_visual != "empty",
                 self.flag_validation != "empty",

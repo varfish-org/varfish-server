@@ -12,14 +12,17 @@ organizing your cases properly. The mode serves only as a way to try out VarFish
 Configuration
 -------------
 
-First, you need to download the VarFish annotator data (11Gb) and unpack it::
+First, you need to download the VarFish annotator data (11Gb) and unpack it.
 
-    $ wget https://file-public.bihealth.org/transient/varfish/varfish-annotator-20191129.tar.gz
-    $ wget https://file-public.bihealth.org/transient/varfish/varfish-annotator-transcripts-20191129.tar.gz
+.. code-block:: bash
+
+    $ wget https://file-public.bihealth.org/transient/varfish/varfish-annotator-{,transcripts-}20191129.tar.gz{,.sha256}
     $ tar xzvf varfish-annotator-20191129.tar.gz
     $ tar xzvf varfish-transcripts-20191129.tar.gz
 
-If you want to enable Kiosk mode, add the following lines to the ``.env`` file::
+If you want to enable Kiosk mode, add the following lines to the ``.env`` file.
+
+.. code-block:: bash
 
     export VARFISH_KIOSK_MODE=1
     export VARFISH_KIOSK_VARFISH_ANNOTATOR_REFSEQ_SER_PATH=/path/to/varfish-annotator-transcripts-20191129/hg19_refseq_curated.ser
@@ -32,7 +35,9 @@ If you want to enable Kiosk mode, add the following lines to the ``.env`` file::
 Run
 ---
 
-To run the kiosk mode, simply (re)start the webserver server and the celery server::
+To run the kiosk mode, simply (re)start the webserver server and the celery server.
+
+.. code-block:: bash
 
     terminal1$ make serve
     terminal2$ make celery

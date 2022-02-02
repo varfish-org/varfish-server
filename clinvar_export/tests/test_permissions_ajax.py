@@ -5,7 +5,7 @@ from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from geneinfo.tests.factories import HpoNameFactory, HpoFactory
-from variants.tests.factories import SmallVariantCommentFactory
+from variants.tests.factories import CaseFactory, SmallVariantCommentFactory
 from .factories import (
     SubmissionSetFactory,
     SubmissionFactory,
@@ -18,6 +18,7 @@ from .factories import (
     SubmittingOrgFactory,
     SubmitterFactory,
 )
+from ..models import Family
 
 
 class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
@@ -681,10 +682,16 @@ class TestQueryHpoAjaxViews(TestProjectAPIPermissionBase):
 class TestAnnotatedSmallVariantsAjaxViews(TestProjectAPIPermissionBase):
     """Permission tests for the AJAX views for querying user-annotated small variants."""
 
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+        self.family = Family.objects.get_or_create_in_project(project=self.project, case=self.case)
+
     def test(self):
         SmallVariantCommentFactory()
         url = reverse(
-            "clinvar_export:user-annotations", kwargs={"project": self.project.sodar_uuid,},
+            "clinvar_export:user-annotations",
+            kwargs={"project": self.project.sodar_uuid, "family": self.family.sodar_uuid},
         )
         good_users = [
             self.superuser,

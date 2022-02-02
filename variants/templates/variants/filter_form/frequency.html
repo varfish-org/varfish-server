@@ -1,13 +1,15 @@
 {% load crispy_forms_tags %}
 {% load dict %}
 {% load projectroles_common_tags %}
+
 {% get_django_setting 'PROJECTROLES_KIOSK_MODE' as kiosk_mode %}
 
 <div class="small font-italic p-2 bg-light">
   Adjust the settings allow to fine-tune the filtration of variants based on population frequencies, leave fields empty to not filter based on the threshold.
-  The checkboxes enable (<i class="fa fa-check-square-o"></i>) or disable (<i class="fa fa-square-o"></i>) filtration based on the population frequencies of the given database.
+  The checkboxes enable (<i class="iconify" data-icon="fa-regular:check-square"></i>) or disable (<i class="iconify" data-icon="fa-regular:square"></i>) filtration based on the population frequencies of the given database.
   You can provide the number of carriers with maximal heterozygous/homozygous (respectively: -plasmid) state or population frequencies.
   For the in-house DB, you can only filter based on carrier state as currently it is tracked how many carriers have sufficient coverage for each variant.
+  {% if form.genomebuild != "GRCh37" %}Thousand genomes and ExAC frequencies are only available GRCh37 cases.{% endif %}
 </div>
 
 <table class="table table-striped table-hover sodar-card-table compact-form-groups">
@@ -22,7 +24,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr>
+    <tr{% if form.genomebuild != "GRCh37" %} style="display: none;"{% endif %}>
       <td>{{ form.thousand_genomes_enabled|as_crispy_field }}</td>
       <td data-toggle="tooltip" title="Phase 3 data (healthy individuals)">1000 Genomes <small class="text-muted">(samples: 1000)</small></td>
       <td>{{ form.thousand_genomes_homozygous|as_crispy_field }}</td>
@@ -30,7 +32,7 @@
       <td>{{ form.thousand_genomes_hemizygous|as_crispy_field }}</td>
       <td>{{ form.thousand_genomes_frequency|as_crispy_field }}</td>
     </tr>
-    <tr>
+    <tr{% if form.genomebuild != "GRCh37" %} style="display: none;"{% endif %}>
       <td>{{ form.exac_enabled|as_crispy_field }}</td>
       <td data-toggle="tooltip" title="Exomes; project attempts to exclude pediatric disease cases">ExAC <small class="text-muted">(samples: 60,706)</small></td>
       <td>{{ form.exac_homozygous|as_crispy_field }}</td>

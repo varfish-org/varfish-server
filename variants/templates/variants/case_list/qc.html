@@ -5,28 +5,42 @@
 <div class="container-fluid sodar-page-container">
   <div id="varfish-va-project-statistics" class="card mb-3">
     <h4 class="card-header">
-      <i class="fa fa-bar-chart"></i>
+      <i class="iconify" data-icon="bi:bar-chart-fill"></i>
       Project-wide Variant Statistics
       <a class="btn btn-primary pull-right" href="{% url "variants:project-stats-job-create" project=project.sodar_uuid %}">
-        <i class="fa fa-refresh"></i>
+        <i class="iconify" data-icon="mdi:refresh"></i>
         Recompute Stats
       </a>
     </h4>
     <div class="card-body p-0">
       {% if project.variant_stats %}
-        <div class="row">
+        <div class="row pt-3 pb-3" id="qc-plots-reload">
+          <div class="col-2">
+            <div class="btn btn-danger" onclick="loadQcPlots()">
+              <i class="iconify" data-icon="fa-solid:exclamation-triangle"></i>
+              Load QC Plots
+            </div>
+          </div>
+          <div class="col-10">
+            The quality control plots are not loaded automatically because this project contains a lot of cases.
+            Use the button on the left to load the quality control plots regardlessly.
+            <strong>This may cause your browser tab to become unresponsive.
+            In this case, reload or close the tab.</strong>
+          </div>
+        </div>
+        <div class="row" id="qc-plots-container">
           <div class="col-6">
             <div id="plot-relatedness">
               <div class="placeholder-container">
                 <div class="placeholder-text">
-                  <i class="fa fa-spin fa-spinner fa-5x"></i>
+                  <i class="iconify spin" data-icon="fa-solid:spinner"></i>
                 </div>
               </div>
             </div>
             <div id="plot-sex-chrx-het-hom">
               <div class="placeholder-container">
                 <div class="placeholder-text">
-                  <i class="fa fa-spin fa-spinner fa-5x"></i>
+                  <i class="iconify spin" data-icon="fa-solid:spinner"></i>
                 </div>
               </div>
             </div>
@@ -36,7 +50,7 @@
               <div id="plot-var-dps">
                 <div class="placeholder-container">
                   <div class="placeholder-text">
-                    <i class="fa fa-spin fa-spinner fa-5x"></i>
+                    <i class="iconify spin" data-icon="fa-solid:spinner"></i>
                   </div>
                 </div>
               </div>
@@ -48,7 +62,7 @@
           No project-wide variant statistics yet.
           Use
           <span class="badge badge-primary">
-            <i class="fa fa-refresh"></i>
+            <i class="iconify" data-icon="mdi:refresh"></i>
             Recompute Stats
           </span>
           to compute.
@@ -63,7 +77,7 @@
   <div class="card varfish-vars-case-details">
     <div class="card-header">
       <h4>
-        <i class="fa fa-search"></i>
+        <i class="iconify" data-icon="fa-solid:search"></i>
         Alignment Quality Control
       </h4>
     </div>
@@ -94,7 +108,7 @@
               <th>{{ sample_name|only_source_name }}</th>
               <td class="text-right">{{ stats|from_bamstats:"total reads"|intcomma }}</td>
               <td class="text-right">{{ stats|from_bamstats:"percent duplicates"|floatformat:1 }}%</td>
-              <td class="text-right">{% if stats|from_bamstats:"mean target coverage" %}{{ stats|from_bamstats:"mean target coverage"|default:"-"|floatformat:0 }}&nbsp;x{% else %}- <i class="fa fa-info-circle text-muted" data-toggle="tooltip" title="" data-original-title="coverage information not provided"></i>{% endif %}</td>
+              <td class="text-right">{% if stats|from_bamstats:"mean target coverage" %}{{ stats|from_bamstats:"mean target coverage"|default:"-"|floatformat:0 }}&nbsp;x{% else %}- <i class="iconify text-muted" data-icon="fa-solid:info-circle" data-toggle="tooltip" title="" data-original-title="coverage information not provided"></i>{% endif %}</td>
               {% for coverage in coverages %}
                 {% if coverage|asint <= 50 %}
                   <td class="text-right">{{ stats|keyvalue:"min_cov_target"|keyvalue:coverage|floatformat:1 }}%</td>
@@ -113,7 +127,7 @@
    id="card-varfish-vars-case-details-qc">
   <div class="card-header">
     <h4>
-      <i class="fa fa-search"></i>
+      <i class="iconify" data-icon="fa-solid:search"></i>
       Variant Quality Control
     </h4>
   </div>
@@ -142,7 +156,7 @@
             <td class="text-right">{{ item.ontarget_transversions|intcomma }}</td>
             <td class="text-right">
               {% if item.ontarget_ts_tv_ratio < 2.0 and item.ontarget_ts_tv_ratio > 2.9 %}
-                <i class="fa fa-exclamation-triangle text-danger"
+                <i class="iconfiy text-danger" data-icon="bi:exclamation-circle"
                    data-toggle="tooltip" data-placement="top"
                    title="On-target Ts/Tv ratio should be within 2.0-2.9, but is {{ item.ontarget_ts_tv_ratio }}"
                 ></i>
@@ -169,7 +183,7 @@
     </h4>
   </div>
 
-  <div class="card-body">
+  <div class="card-body pb-3">
     <a class="btn btn-outline-primary" download="{{ project.title|slugify }}_per_sample_metrics.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_sample_variant_stats }}"><span class="iconify" data-icon="mdi:download" data-inline="false"></span> <strong>Per-Sample Metrics</strong> (.tsv)</a>
     <a class="btn btn-outline-primary" download="{{ project.title|slugify }}_effect_counts.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_effects }}"><span class="iconify" data-icon="mdi:download" data-inline="false"></span> <strong>Effect Counts</strong> (.tsv)</a>
     <a class="btn btn-outline-primary" download="{{ project.title|slugify }}_indel_sizes.tsv" href="data:text/tab-separated-values;base64,{{ qcdata_indel_sizes }}"><span class="iconify" data-icon="mdi:download" data-inline="false"></span> <strong>InDel Sizes</strong> (.tsv)</a>

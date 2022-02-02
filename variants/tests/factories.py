@@ -10,7 +10,7 @@ from projectroles.models import SODAR_CONSTANTS, RemoteSite
 
 from bgjobs.tests.factories import BackgroundJobFactory
 
-from config.settings.base import VARFISH_CADD_SUBMISSION_RELEASE
+from config.settings.base import VARFISH_CADD_SUBMISSION_VERSION
 from ..models import (
     Case,
     SmallVariant,
@@ -238,20 +238,35 @@ class ChromosomalPositionFormDataFactoryBase:
 
 
 @attr.s(auto_attribs=True)
-class SmallVariantFlagsFormDataFactory(ChromosomalPositionFormDataFactoryBase):
+class FlagsFormDataFactoryBase:
     flag_bookmarked: bool = True
     flag_candidate: bool = False
     flag_final_causative: bool = False
     flag_for_validation: bool = False
-    flag_molecular: str = "empty"
+    flag_no_disease_association: bool = False
+    flag_segregates: bool = False
+    flag_doesnt_segregate: bool = False
     flag_visual: str = "empty"
+    flag_molecular: str = "empty"
     flag_validation: str = "empty"
     flag_phenotype_match: str = "empty"
     flag_summary: str = "empty"
 
 
 @attr.s(auto_attribs=True)
+class SmallVariantFlagsFormDataFactory(
+    FlagsFormDataFactoryBase, ChromosomalPositionFormDataFactoryBase
+):
+    pass
+
+
+@attr.s(auto_attribs=True)
 class SmallVariantCommentFormDataFactory(ChromosomalPositionFormDataFactoryBase):
+    text: str = "Comment X"
+
+
+@attr.s(auto_attribs=True)
+class MultiSmallVariantFlagsAndCommentFormDataFactory(FlagsFormDataFactoryBase):
     text: str = "Comment X"
 
 
@@ -337,6 +352,7 @@ class CoreCaseFactory(factory.django.DjangoModelFactory):
         #: affected.
         inheritance = "denovo"
 
+    release = factory.Sequence(lambda n: "GRCh%d" % (37 + n % 2))
     name = factory.LazyAttributeSequence(lambda o, n: "case %03d: %s" % (n, o.structure))
     index = factory.Sequence(lambda n: "index_%03d-N1-DNA1-WES1" % n)
     pedigree = []
@@ -834,7 +850,7 @@ class CaddSubmissionBgJobFactory(factory.django.DjangoModelFactory):
     query_args = factory.LazyAttribute(
         lambda o: vars(ResubmitFormDataFactory(names=o.case.get_members()))
     )
-    cadd_version = VARFISH_CADD_SUBMISSION_RELEASE
+    cadd_version = VARFISH_CADD_SUBMISSION_VERSION
 
 
 class ExportFileBgJobFactory(factory.django.DjangoModelFactory):

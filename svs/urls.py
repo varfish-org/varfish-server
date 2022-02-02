@@ -28,6 +28,11 @@ urlpatterns = [
         view=views.StructuralVariantCommentApiView.as_view(),
         name="sv-comment-api",
     ),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/multi-sv-flags-comment",
+        view=views.MultiStructuralVariantFlagsAndCommentApiView.as_view(),
+        name="multi-sv-flags-comment-api",
+    ),
     # Views for variants import job.
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/import/(?P<job>[0-9a-f-]+)/$",

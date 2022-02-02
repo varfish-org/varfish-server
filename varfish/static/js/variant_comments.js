@@ -95,7 +95,7 @@ function commentSubmit() {
     </span>
     <em>${data["comment"]}</em>
     <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="iconify" data-icon="mdi:pencil"></i></a>
-    <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="fa fa-times-circle"></i></a>
+    <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="iconify" data-icon="fa-solid:times-circle"></i></a>
   </div>
   <div id="edit-comment-${data["sodar_uuid"]}" style="display: none;">
     <form>

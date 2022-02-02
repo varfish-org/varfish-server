@@ -6,7 +6,7 @@
   <thead>
     <tr>
       <th style="width:10px">#</th>
-      <th style="width: 200px">Updated <i class="fa fa-sort-desc"></i></th>
+      <th style="width: 200px">Updated <i class="iconify" data-icon="fa-solid:sort-down"></i></th>
       <th style="width: 50px">Status</th>
       <th style="width: 200px" id="sodar-case-list-header-name">Name</th>
       <th id="sodar-case-list-header-individuals">Individuals</th>
@@ -14,6 +14,7 @@
       {% if svs_enabled %}
         <th style="width: 120px" id="sodar-case-list-header-svs">SVs</th>
       {% endif %}
+      <th style="width: 0px;">Genome</th>
       <th style="width: 0px;" class="no-sort"></th>
     </tr>
   </thead>
@@ -24,18 +25,26 @@
         {% include 'variants/case/item.html' with item=case details_card_mode=True %}
       {% endfor %}
       <tr>
-        <td class="bg-faded" colspan="{% if svs_enabled %}8{% else %}7{% endif %}">
+        <td class="bg-faded" colspan="{% if svs_enabled %}9{% else %}8{% endif %}">
           <a href="{% url 'variants:case-list' project=project.sodar_uuid %}" class="btn btn-secondary btn-small">
             <span class="iconify" data-icon="mdi:format-list-bulleted-square" data-inline="false"></span> See list of all cases
           </a>
-          <a href="{% url 'variants:project-cases-filter' project=project.sodar_uuid %}" class="float-right btn btn-primary btn-small">
-            <i class="iconify" data-icon="mdi:filter"></i> Joint Filtration
-          </a>
+          {% same_release cases as project_cases_same_release %}
+          {% if project_cases_same_release %}
+            <a href="{% url 'variants:project-cases-filter' project=project.sodar_uuid %}" class="float-right btn btn-primary btn-small">
+              <i class="iconify" data-icon="mdi:filter"></i> Joint Filtration
+            </a>
+          {% else %}
+            <a class="btn btn-primary disabled" data-toggle="tooltip" title="Joint filtration impossible, different genomes in project.">
+              <i class="iconify" data-icon="mdi:filter"></i>
+              Joint Filtration
+            </a>
+          {% endif %}
         </td>
       </tr>
     {% else %}
       <tr>
-        <td class="bg-faded font-italic text-center" colspan="{% if svs_enabled %}8{% else %}7{% endif %}">No cases (yet)</td>
+        <td class="bg-faded font-italic text-center" colspan="{% if svs_enabled %}9{% else %}8{% endif %}">No cases (yet)</td>
       </tr>
     {% endif %}
   </tbody>

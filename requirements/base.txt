@@ -67,7 +67,8 @@ celery >=5.1.0, <5.2
 # TODO: bump to django-postgres-copy==2.6.0?
 django-postgres-copy ==2.3.5
 
-django-sodar-core >=0.10.2, <0.11
+#django-sodar-core >=0.10.2, <0.11
+-e git+https://github.com/bihealth/sodar-core.git@optimize-get_details_events#egg=django-sodar-core
 
 # Simplejson is more advanced than then built-in one.
 simplejson >=3.17.2
@@ -97,8 +98,8 @@ requests ==2.25.1
 beautifulsoup4 >=4.9.3, <4.10
 
 # Numpy and friends
-numpy >=1.20.3, <1.21
-pandas >=1.2.4, <1.3
+numpy >=1.22.1, <1.23
+pandas >=1.4.0, <1.5
 
 # Simple object proxies.
 wrapt >=1.12.1, <1.13

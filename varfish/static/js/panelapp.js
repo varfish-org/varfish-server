@@ -69,7 +69,7 @@ $(document).ready(function() {
           console.log("FAILED", jqXHR, textStatus, errorThrown);
           panelsList.html($(
             "<a class=\"dropdown-item disabled\" href=\"#\">\n" +
-            "<i class=\"fa fa-times fa-fw\"></i> Loading Panels failed!</a>"
+            "<i class=\"iconify\" data-icon=\"fa-solid:times\"></i> Loading Panels failed!</a>"
           ))
         }
       });

@@ -29,7 +29,7 @@
          id="sodar-pr-btn-copy-uuid"
          data-clipboard-text="{{ project.sodar_uuid }}"
          title="Copy UUID to clipboard" data-toggle="tooltip" data-placement="top">
-        <i class="fa fa-clipboard text-muted" aria-hidden="true"></i>
+        <i class="iconify text-muted" data-icon="fa-solid:clipboard" aria-hidden="true"></i>
       </a>
     {% endif %}
 
@@ -54,13 +54,13 @@
       </li>
       <li class="nav-item">
         <a class="nav-link" id="qc-tab" data-toggle="tab" href="#qc" role="tab" aria-controls="qc" aria-selected="false">
-          <i class="fa fa-bar-chart"></i>
+          <i class="iconify" data-icon="bi:bar-chart-fill"></i>
           Quality Control
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="qc-tab" data-toggle="tab" href="#annotation" role="tab" aria-controls="qc" aria-selected="false">
-          <i class="fa fa-bar-chart"></i>
+        <a class="nav-link" id="anno-tab" data-toggle="tab" href="#annotation" role="tab" aria-controls="qc" aria-selected="false">
+          <i class="iconify" data-icon="bi:bar-chart-fill"></i>
           Variant Annotation
           {% with annotation_count=project.get_annotation_count|default:0 %}
             <span class="badge badge-pill {% if annotation_count == 0 %}badge-secondary{% else %}badge-primary{% endif %}">{{ annotation_count }}</span>
@@ -70,7 +70,7 @@
       {% if project.is_remote and request.user.is_superuser %}
         <li class="nav-item">
           <a class="nav-link" id="remote-tab" data-toggle="tab" href="#remote" role="tab" aria-controls="remote" aria-selected="false">
-            <i class="fa fa-cloud"></i>
+            <i class="iconify" data-icon="fa-solid:cloud"></i>
             Upstream Project
           </a>
         </li>
@@ -89,7 +89,7 @@
       <div class="border border-top-0 tab-pane fade show" id="qc" role="tabpanel" aria-labelledby="qc-tab">
         <div class="row pt-3">
           <div class="col" id="qc-content">
-            <i class="fa fa-spinner fa-spin fa-5x"></i>
+            <i class="iconify" data-icon="fa-solid:spinner"></i>
           </div>
         </div>
       </div>
@@ -97,7 +97,7 @@
       <div class="border border-top-0 tab-pane fade show" id="annotation" role="tabpanel" aria-labelledby="annotation-tab">
         <div class="row pt-3">
           <div class="col" id="annotation-content">
-            <i class="fa fa-spinner fa-spin fa-5x"></i>
+            <i class="iconify" data-icon="fa-solid:spinner"></i>
           </div>
         </div>
       </div>
@@ -156,6 +156,57 @@
   <script type="text/javascript" src="{% static 'js/variant_comments.js' %}"></script>
   <!-- DataTables -->
   <script type="text/javascript">
+    function loadAnnoTab() {
+      $.ajax({
+        type: "GET",
+        url: "{% url 'variants:case-list-get-annotations' project=project.sodar_uuid %}",
+        success: function(response) {
+            $("#annotation-content").html(response);
+            $("#comment-button-submit").on("click", commentSubmit);
+            $(".comment-button-delete").on("click", commentDeleteToggle);
+            $(".comment-button-delete-cancel").on("click", commentDeleteToggle);
+            $(".comment-button-delete-submit").on("click", commentDeleteSubmit);
+            $(".comment-button-edit").on("click", commentEditToggle);
+            $(".comment-button-edit-cancel").on("click", commentEditToggle);
+            $(".comment-button-edit-submit").on("click", commentEditSubmit);
+         },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert("Error during AJAX call:", textStatus, + errorThrown);
+            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+        }
+      });
+    }
+
+    function loadQcPlots() {
+      $("#qc-plots-reload").hide()
+      $("#qc-plots-container").show()
+      axios.get("/variants/{{ project.sodar_uuid }}/api-qc/").then(function (response) {
+        plotlyRelatedness(response, 'plot-relatedness')
+        plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')
+        plotlyVarDps(response, 'plot-var-dps')
+        setTimeout(function() { $(window).trigger('resize') }, 1000);
+      })
+    }
+
+    function loadQcTab(autoLoad) {
+      $.ajax({
+        type: "GET",
+        url: "{% url 'variants:case-list-get-qc' project=project.sodar_uuid %}",
+        success: function(response) {
+            $("#qc-content").html(response);
+            if (autoLoad) {
+              loadQcPlots()
+            } else {
+              $("#qc-plots-container").hide()
+            }
+         },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert("Error during AJAX call:", textStatus, + errorThrown);
+            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
+        }
+      });
+    }
+
     $(document).ready(function() {
       $("#varfish-case-table").DataTable({
         paging: false,
@@ -175,43 +226,22 @@
         const v = $(this).val();
         dt.fnFilter(v);
       });
-      $.ajax({
-        type: "GET",
-        url: "{% url 'variants:case-list-get-annotations' project=project.sodar_uuid %}",
-        success: function(response) {
-            $("#annotation-content").html(response);
-            $("#comment-button-submit").on("click", commentSubmit);
-            $(".comment-button-delete").on("click", commentDeleteToggle);
-            $(".comment-button-delete-cancel").on("click", commentDeleteToggle);
-            $(".comment-button-delete-submit").on("click", commentDeleteSubmit);
-            $(".comment-button-edit").on("click", commentEditToggle);
-            $(".comment-button-edit-cancel").on("click", commentEditToggle);
-            $(".comment-button-edit-submit").on("click", commentEditSubmit);
-         },
-        error: function (jqXHR, textStatus, errorThrown) {
-            alert("Error during AJAX call:", textStatus, + errorThrown);
-            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
-        }
-      });
-      $.ajax({
-        type: "GET",
-        url: "{% url 'variants:case-list-get-qc' project=project.sodar_uuid %}",
-        success: function(response) {
-            $("#qc-content").html(response);
-            axios.get("/variants/{{ project.sodar_uuid }}/api-qc/")
-              .then(function (response) {
-                // Render plots after data has been loaded
-                plotlyRelatedness(response, 'plot-relatedness')
-                plotlySexChrxHetHom(response, 'plot-sex-chrx-het-hom')
-                plotlyVarDps(response, 'plot-var-dps')
-                setTimeout(function() { $(window).trigger('resize') }, 1000);
-              })
-         },
-        error: function (jqXHR, textStatus, errorThrown) {
-            alert("Error during AJAX call:", textStatus, + errorThrown);
-            console.log("Error during AJAX call: ", jqXHR, textStatus, errorThrown);
-        }
-      });
+
+
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+          if (!$(e.target).data("loading")) {
+            $(e.target).data("loading", true)
+            switch (e.target.id) {
+              case "qc-tab":
+                const caseCount = {{ project.case_set.count }}
+                loadQcTab(caseCount <= 100)
+                break;
+              case "anno-tab":
+                loadAnnoTab()
+                break;
+            }
+          }
+      })
     });
   </script>
 {% endblock %}

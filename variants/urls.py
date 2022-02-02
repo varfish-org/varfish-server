@@ -223,6 +223,11 @@ ui_urlpatterns = [
         name="small-variant-comment-api",
     ),
     url(
+        regex=r"^(?P<project>[0-9a-f-]+)/case/multi-small-variant-flags-comment/$",
+        view=views.MultiSmallVariantFlagsAndCommentApiView.as_view(),
+        name="multi-small-variant-flags-comment-api",
+    ),
+    url(
         regex=r"^(?P<project>[0-9a-f-]+)/case/small-variant-comment-delete/(?P<case>[0-9a-f-]+)/$",
         view=views.SmallVariantCommentDeleteApiView.as_view(),
         name="small-variant-comment-delete-api",

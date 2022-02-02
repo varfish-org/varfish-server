@@ -20,6 +20,9 @@
     <h2 class="sodar-pr-content-title">
       Case
       <small class="text-muted">{{ object.name }}</small>
+      <small class="badge badge-primary" style="font-size: 50%;">
+        {{ object.release }}
+      </small>
     </h2>
     {% if request.user and request.user.is_authenticated %}
       {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
@@ -28,7 +31,7 @@
              id="sodar-pr-btn-copy-uuid"
              data-clipboard-text="{{ object.sodar_uuid }}"
              title="Copy UUID to clipboard" data-toggle="tooltip" data-placement="top">
-            <i class="fa fa-clipboard text-muted" aria-hidden="true"></i>
+            <i class="iconify text-muted" data-icon="fa-solid:clipboard" aria-hidden="true"></i>
           </a>
       {% endif %}
     {% endif %}
@@ -46,19 +49,19 @@
     <ul class="nav nav-tabs" id="case-tab" role="tablist">
       <li class="nav-item">
         <a class="nav-link active" id="overview-tab" data-toggle="tab" href="#overview" role="tab" aria-controls="overview" aria-selected="true">
-          <i class="fa fa-user"></i>
+          <i class="iconify" data-icon="fa-solid:user"></i>
           Overview
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="qc-tab" data-toggle="tab" href="#qc" role="tab" aria-controls="qc" aria-selected="false">
-          <i class="fa fa-bar-chart"></i>
+          <i class="iconify" data-icon="bi:bar-chart-fill"></i>
           Quality Control
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="annotation-tab" data-toggle="tab" href="#annotation" role="tab" aria-controls="annotation" aria-selected="false">
-          <i class="fa fa-comment-o"></i>
+          <i class="iconify" data-icon="fa-regular:comment"></i>
           {% with annotation_count=object.get_annotation_count|default:0 %}
           Variant Annotation <span class="badge badge-pill {% if annotation_count == 0 %}badge-secondary{% else %}badge-primary{% endif %}">{{ annotation_count }}</span>
           {% endwith %}
@@ -66,7 +69,7 @@
       </li>
       <li class="nav-item">
         <a class="nav-link" id="bg-jobs-tab" data-toggle="tab" href="#bg-jobs" role="tab" aria-controls="bg-jobs" aria-selected="false">
-          <i class="fa fa-tasks"></i>
+          <i class="iconify" data-icon="fa-solid:tasks"></i>
           Export Jobs
         </a>
       </li>

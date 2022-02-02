@@ -2,6 +2,7 @@
 
 {% load dict %}
 {% load humanize %}
+{% load variants_tags %}
 {% load cohorts_tags %}
 {% load projectroles_common_tags %}
 
@@ -90,10 +91,11 @@
                       <a href="{{ case.get_absolute_url }}" class="badge-group" data-toggle="tooltip" data-html="true" title="From project <strong>{{ case.project.title }}</strong>, having {{ case.get_members|length }} individual(s)">
                         <span class="badge badge-secondary">{{ case.name }}</span>
                         <span class="badge badge-info">{{ case.get_members|length }}</span>
+                        <span class="badge badge-outlined release" style="border-width: 1px 1px 1px 0; border: 1px solid #323a45;">{{ case.release }}</span>
                       </a>
                   {% endfor %}
                   {% if not item|check_accessible_cases:user %}
-                    <span class="badge badge-warning"><i class="fa fa-warning"></i> Not all cases are accessible!</span>
+                    <span class="badge badge-warning"><i class="iconify" data-icon="bi:exclamation-circle"></i> Not all cases are accessible!</span>
                   {% endif %}
                 </td>
                 <td>
@@ -105,7 +107,18 @@
                       <span class="btn btn-sm btn-danger disabled"><i class="iconify" data-icon="mdi:trash-can"></i></span>
                       <span class="btn btn-sm btn-secondary disabled"><i class="iconify" data-icon="mdi:pencil"></i></span>
                     {% endif %}
-                    <a href="{% url 'variants:project-cases-filter-cohort' project=project.sodar_uuid cohort=item.sodar_uuid %}" class="btn btn-sm btn-primary"><i class="iconify" data-icon="mdi:filter"></i></a>
+
+
+                    {% same_release cases as cases_same_release %}
+                    {% if cases_same_release %}
+                      <a href="{% url 'variants:project-cases-filter-cohort' project=project.sodar_uuid cohort=item.sodar_uuid %}" class="btn btn-sm btn-primary"><i class="iconify" data-icon="mdi:filter"></i></a>
+                    {% else %}
+                      <span
+                        class="btn btn-sm btn-primary disabled"
+                        data-toggle="tooltip"
+                        title="Cannot filter cases with different genomes"
+                      ><i class="iconify" data-icon="mdi:filter"></i></span>
+                    {% endif %}
                   </span>
                 </td>
               </tr>

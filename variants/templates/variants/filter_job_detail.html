@@ -52,7 +52,7 @@
                   href="{% url "variants:project-cases-filter-job" project=object.project.sodar_uuid job=object.sodar_uuid %}"
                 {% endif %}
                 class="btn btn-primary">
-                <i class="fa fa-eye"></i>
+                <i class="iconify" data-icon="fa-regular:eye"></i>
                   View Results
               </a>
             </div>
@@ -69,13 +69,13 @@
                     method="post">
                {% csrf_token %}
                 <button type="submit" class="btn btn-primary">
-                  <i class="fa fa-refresh"></i>
+                  <i class="iconify" data-icon="mdi:refresh"></i>
                   Re-run filter
                 </button>
                 <div class="col-12 p-0">
                   <small class="form-text text-muted">
                     Use this form to create a new job that uses the same filter settings. This is for the case the job failed.
-                    To view results, click <span class="badge badge-primary"><i class="fa fa-eye"></i>View Results</span>, this is much faster.
+                    To view results, click <span class="badge badge-primary"><i class="iconify" data-icon="fa-regular:eye"></i>View Results</span>, this is much faster.
                   </small>
                 </div>
               </form>

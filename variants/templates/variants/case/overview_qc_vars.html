@@ -7,7 +7,7 @@
      id="card-varfish-vars-case-details-var-qc">
     <div class="card-header">
       <h4>
-        <i class="fa fa-search"></i>
+        <i class="iconify" data-icon="fa-solid:search"></i>
         Variant Quality Control
       </h4>
     </div>
@@ -30,7 +30,7 @@
             <td class="text-right">{{ item.ontarget_transversions|intcomma }}</td>
             <td class="text-right">
               {% if item.ontarget_ts_tv_ratio < 2.0 and item.ontarget_ts_tv_ratio > 2.9 %}
-                <i class="fa fa-exclamation-triangle text-danger"
+                <i class="iconfiy text-danger" data-icon="bi:exclamation-circle"
                    data-toggle="tooltip" data-placement="top"
                    title="On-target Ts/Tv ratio should be within 2.0-2.9, but is {{ item.ontarget_ts_tv_ratio }}"
                 ></i>

@@ -221,29 +221,29 @@ function loadBeaconWidget() {
 
 function loadVariantDetails(row, cell, show=false) {
   var url = cell.data("url");
-  var icon = $("i", cell);
+  var icon = $("img", cell);
   var previous_icon = "";
-  var spinner = "fa-spinner fa-spin";
-  if (icon.hasClass("fa-chevron-right")) {
-      previous_icon = "fa-chevron-right";
+  var current_icon = icon.attr("src");
+  if (current_icon === "/icons/fa-solid/chevron-right.svg") {
+      previous_icon = current_icon;
   }
-  else if (icon.hasClass("fa-chevron-down")) {
-      previous_icon = "fa-chevron-down";
+  else if (current_icon === "/icons/fa-solid/chevron-down.svg") {
+      previous_icon = current_icon;
   }
-  icon.removeClass(previous_icon);
-  icon.addClass(spinner);
+  icon.attr("src", "/icons/fa-solid/spinner.svg");
+  icon.addClass("spin");
   $.ajax(
     url,
     {
       success: function (response) {
         row.child(response);
-        icon.removeClass(spinner);
+        icon.removeClass("spin");
         if (show) {
-            icon.addClass("fa-chevron-down");
+            icon.attr("src", "/icons/fa-solid/chevron-down.svg");
             row.child.show();
         }
         else {
-            icon.addClass(previous_icon);
+            icon.attr("src", previous_icon);
         }
         $('[data-toggle="tooltip"]').tooltip({container: "body"});
         $('[data-toggle="popover"]').popover({container: "body"});
@@ -280,18 +280,16 @@ function loadVariantDetails(row, cell, show=false) {
 $(document).on('click', '.toggle-variant-details', function() {
   var row = dt.row($(this).parent());
   var cell = $(this);
-  var icon = $("i", this);
+  var icon = $("img", this);
 
-  // using toggleClass to shorten the code results to erroneous icon behaviour in border cases (e.g. fast opening/closing the details)
+  // using toggleClass to shorten the code results in erroneous icon behaviour in border cases (e.g. fast opening/closing the details)
   if (row.child.isShown()) {
-    icon.removeClass('fa-chevron-down');
-    icon.addClass('fa-chevron-right');
+    icon.attr("src", "/icons/fa-solid/chevron-right.svg");
     row.child.hide();
   }
   else {
     if (row.child() && row.child().length) {
-      icon.removeClass('fa-chevron-right');
-      icon.addClass('fa-chevron-down');
+      icon.attr("src", "/icons/fa-solid/chevron-down.svg");
       row.child.show();
     }
     else {

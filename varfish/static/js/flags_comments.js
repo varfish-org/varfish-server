@@ -46,8 +46,10 @@ function clickVariantBookmark() {
   // Compile popup template.
   var bookmarkPopupTpl = $.templates("#bookmark-flags-popup");
   // Store handle outmost $(this) for later hiding popup again.
-  var outerThis = $(this).closest(".bookmark").find(".variant-bookmark");
+  var outerThis = $(this);
   var caseUuid = $(this).data("case");
+  var icon_comment = $(this).find(".variant-comment")
+  var icon_bookmark = $(this).find(".variant-bookmark")
   var cell = $(this).closest(".variant-row").find(".toggle-variant-details");
 
   // Get variant description from triggering bookmark icon.
@@ -76,7 +78,7 @@ function clickVariantBookmark() {
     // Setup the form elements so we can use AJAX for them.
     $(html).find(".cancel").click(function(event) {
       event.preventDefault();
-      $(outerThis).popover("hide");
+      outerThis.popover("hide");
     });
     $(html).find(".save").click(function(event) {
       event.preventDefault();  // we will handle everything
@@ -94,19 +96,20 @@ function clickVariantBookmark() {
         dataType: "json",
       }).done(function(data) {
         // successfully updated flags, update bookmark display
-        $(outerThis).removeClass("fa-bookmark fa-bookmark-o");
         if (data["flag_bookmarked"] || data["flag_for_validation"] || data["flag_candidate"] || data["flag_final_causative"]) {
-          $(outerThis).addClass("fa-bookmark");
+          icon_bookmark.attr("src", "/icons/fa-solid/bookmark.svg");
         } else {
-          $(outerThis).addClass("fa-bookmark-o");
+          icon_bookmark.attr("src", "/icons/fa-regular/bookmark.svg");
         }
         // update row color
-        var variantRow = $(outerThis).closest(".variant-row");
+        var variantRow = outerThis.closest(".variant-row");
         variantRow.removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty variant-row-wip");
         variantRow.addClass("variant-row-" + summarizeFlags(data));
-        let dtrow = dt.row(variantRow);
-        if (structural_or_small == "small" && dtrow.child() && dtrow.child().length) {
-          loadVariantDetails(dtrow, cell);
+        if (structural_or_small === "small") {
+          let dtrow = dt.row(variantRow);
+          if (dtrow.child() && dtrow.child().length) {
+            loadVariantDetails(dtrow, cell);
+          }
         }
       }).fail(function(xhr) {
         // failed, notify user
@@ -127,10 +130,8 @@ function clickVariantBookmark() {
           dataType: "json",
         }).done(function(data) {
           // successfully updated flags, update bookmark display
-          var commentTag = $(outerThis).closest(".bookmark").find(".variant-comment");
-          commentTag.removeClass("fa-comment fa-comment-o");
-          commentTag.addClass("fa-comment");
-          let dtrow = dt.row($(outerThis).closest(".variant-row"));
+          icon_comment.attr("src", "/icons/fa-solid/comment.svg");
+          let dtrow = dt.row(outerThis.closest(".variant-row"));
           if (structural_or_small == "small" && dtrow.child() && dtrow.child().length) {
             loadVariantDetails(dtrow, cell);
           }
@@ -141,7 +142,7 @@ function clickVariantBookmark() {
       }
 
       // Remove pop-over
-      $(outerThis).popover('hide').popover("dispose");
+      outerThis.popover('hide').popover("dispose");
     });
 
     outerThis.popover({
@@ -212,7 +213,7 @@ function clickVariantBookmark() {
 
 // Hide popover when clicking outside of popover.
 $('body').on('click', function (e) {
-    $('.variant-bookmark, .variant-comment, .hgmd-popover, .variant-acmg').each(function () {
+    $('.variant-bookmark-comment-group, .hgmd-popover, .variant-acmg').each(function () {
         // hide any open popovers when the anywhere else in the body is clicked
         if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
             $(this).popover('hide');
@@ -220,6 +221,118 @@ $('body').on('click', function (e) {
     });
 });
 
+function clickMultiVariantBookmark() {
+  // Compile template.
+  var bookmarkModalTpl = $.templates("#multi-bookmark-flags-modal");
+  var multiVars = $(".multivar-selector:checked");
+  var variantList = [];
+  var rowIds = [];
+  multiVars.each(function(i, e) {
+    if (structural_or_small == "small") {
+      var dataVariant = $(e).val();
+      var arrVariant = dataVariant.split("-");
+      variantList.push({
+        case: $(e).data("case"),
+        release: arrVariant[0],
+        chromosome: arrVariant[1],
+        start: arrVariant[2],
+        end: arrVariant[3],
+        bin: arrVariant[4],
+        reference: arrVariant[5],
+        alternative: arrVariant[6],
+      })
+      rowIds.push("#" + $(e).data("case") + "-" + dataVariant)
+    }
+    else {  // structural_or_small == "structural"
+      variantList.push({
+        case: $(e).data("case"),
+        sv_uuid: $(e).val(),
+      })
+      rowIds.push("#" + $(e).data("case") + "-" + $(e).val());
+    }
+  });
+
+  var modal = $("#multiVarBookmarkCommentModal");
+
+  // Retrieve current small variant flags from server via AJAX.
+  $.ajax({
+    url: multi_variant_flags_comment_url,
+    data: "variant_list=" + JSON.stringify(variantList),
+    dataType: "json"
+  }).done(function(data) {
+    var flags = {
+      flag_bookmarked: true,
+      flag_for_validation: false,
+      flag_candidate: false,
+      flag_final_causative: false,
+      flag_visual: "empty",
+      flag_molecular: "empty",
+      flag_validation: "empty",
+      flag_phenotype_match: "empty",
+      flag_summary: "empty",
+    }
+    $.each(data["flags"], function(k, v) {
+      if ($.inArray(k, data["flags_interfering"]) > -1) {
+        flags[k + "_warning"] = true
+        flags["warning_exists"] = true
+      }
+      if (v !== null) {
+        flags[k] = v
+      }
+    })
+    flags["number_selected_variants"] = data["variant_list"].length
+    $("#multiVarBookmarkCommentModalContent").html($(bookmarkModalTpl.render(flags)));
+    $(modal).find(".save").click(function(event) {
+      event.preventDefault();  // we will handle everything
+      $(this).addClass("disabled");
+
+      // Save flags
+      var formData = $(this).closest(".modal-content").find("form").serialize();
+      $.ajax({
+        type: "POST",
+        url: multi_variant_flags_comment_url,
+        data: formData + "&variant_list=" + JSON.stringify(variantList) + "&csrfmiddlewaretoken=" + getCookie("csrftoken"),
+        dataType: "json",
+      }).done(function(data) {
+        if (data["message"] === "OK") {
+          $.each(rowIds, function(i, e) {
+            var iconBookmark = $(e).find(".variant-bookmark")
+            var iconComment = $(e).find(".variant-comment")
+            var d = data["flags"]
+
+            if (d["flag_bookmarked"] || d["flag_for_validation"] || d["flag_candidate"] || d["flag_final_causative"]) {
+              iconBookmark.attr("src", "/icons/fa-solid/bookmark.svg");
+            } else {
+              iconBookmark.attr("src", "/icons/fa-regular/bookmark.svg");
+            }
+
+            if (data["comment"]) {
+              iconComment.attr("src", "/icons/fa-solid/comment.svg");
+            }
+
+            $(e).removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty variant-row-wip");
+            $(e).addClass("variant-row-" + summarizeFlags(d));
+            if (structural_or_small === "small") {
+              let dtrow = dt.row($(e));
+              if (dtrow.child() && dtrow.child().length) {
+                loadVariantDetails(dtrow, cell);
+              }
+            }
+          });
+        }
+      }).fail(function(xhr) {
+        // failed, notify user
+        alert("Updating variant flags failed");
+      });
+
+      $(modal).modal("hide");
+      $(this).removeClass("disabled");
+    });
+  }).fail(function(xhr) {
+    alert("Retrieving variant flags failed");
+  });
+  // Setup the form elements so we can use AJAX for them.
+}
 
 // --------------------------------------------------------------------------
 // Variant ACMG Rating Popover / AJAX Form
@@ -425,6 +538,27 @@ function clickVariantAcmgRating() {
   });
 }
 
-$(document).on("click", ".variant-bookmark", clickVariantBookmark);
-$(document).on("click", ".variant-comment", clickVariantBookmark);
+
+function toggleMultiVarOptionsDropdown() {
+  var button = $("#multiVarButton")
+  var option1 = $("#multivar-bookmark-comment")
+
+  if ($(".multivar-selector:checked").length > 1) {
+    option1.removeClass("disabled")
+    button.removeClass("btn-outline-secondary")
+    button.addClass("btn-secondary")
+  }
+
+  else {
+    option1.addClass("disabled")
+    button.addClass("btn-outline-secondary")
+    button.removeClass("btn-secondary")
+  }
+}
+
+
+$(document).on("click", ".variant-bookmark-comment-group", clickVariantBookmark);
 $(document).on("click", ".variant-acmg", clickVariantAcmgRating);
+$(document).on("click", "#multivar-bookmark-comment", clickMultiVariantBookmark);
+$(document).on("click", ".multivar-selector", toggleMultiVarOptionsDropdown);
+

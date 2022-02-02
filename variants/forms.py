@@ -11,6 +11,7 @@ from django import forms
 from django.core.files.storage import FileSystemStorage
 from django.utils.text import get_valid_filename
 
+from cohorts.models import Cohort
 from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
 from .templatetags.variants_tags import only_source_name, get_term_description
 from geneinfo.models import Hgnc, HpoName, Hpo
@@ -82,6 +83,8 @@ class CaseForm(forms.ModelForm):
                 initial=self.instance.pedigree[i]["affected"],
                 choices=((0, "unknown"), (1, "unaffected"), (2, "affected")),
             )
+
+        self.genomebuild = self.instance.release
 
     def save(self, commit=True):
         case = super().save(commit=False)
@@ -1476,6 +1479,20 @@ class ProjectCasesFilterForm(
             self.fields["cohort"] = forms.CharField(
                 widget=forms.HiddenInput(), initial=str(cohort.sodar_uuid)
             )
+        self.genomebuild = self._get_genomebuild()
+
+    def _get_genomebuild(self):
+        """Return genome build for case or cohort or project"""
+        if isinstance(self.project_or_cohort, Cohort):
+            cases = [
+                case for case in self.project_or_cohort.get_accessible_cases_for_user(self.user)
+            ]
+        else:  # project
+            cases = [case for case in self.project_or_cohort.case_set.all()]
+        if not cases:
+            return "GRCh37"
+        else:
+            return cases[0].release
 
     def get_pedigree(self):
         """Return ``list`` of ``dict`` with pedigree information."""

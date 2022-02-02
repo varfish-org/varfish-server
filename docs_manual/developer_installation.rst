@@ -41,7 +41,9 @@ Install miniconda
 
 miniconda helps to set up encapsulated Python environments.
 This step is optional. You can also use pipenv, but to our experience,
-resolving the dependencies in pipenv is terribly slow::
+resolving the dependencies in pipenv is terribly slow.
+
+.. code-block:: bash
 
     $ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
     $ bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/miniconda3
@@ -54,7 +56,9 @@ resolving the dependencies in pipenv is terribly slow::
 Clone git repository
 --------------------
 
-Clone the VarFish Server repository and switch into the checkout::
+Clone the VarFish Server repository and switch into the checkout.
+
+.. code-block:: bash
 
     $ git clone https://github.com/bihealth/varfish-server
     $ cd varfish-server
@@ -64,7 +68,9 @@ Clone the VarFish Server repository and switch into the checkout::
 Install Python Requirements
 ---------------------------
 
-With the conda/Python environment activated, install all the requirements::
+With the conda/Python environment activated, install all the requirements.
+
+.. code-block:: bash
 
     $ for i in requirements/*; do install -r $i; done
 
@@ -73,41 +79,79 @@ Setup Database
 --------------
 
 Use the tool provided in ``utility/`` to set up the database. The name for the
-database should be ``varfish``::
+database should be ``varfish``.
+
+.. code-block:: bash
 
     $ bash utility/setup_database.sh
+
+------------
+Setup vue.js
+------------
+
+Use the tool provided in ``utility/`` to set up vue.js.
+
+.. code-block:: bash
+
+    $ bash utility/setup_vue_dev.sh
+
+Open an additional terminal and switch into the vue directory. Then install
+the VarFish vue app.
+
+.. code-block:: bash
+
+    $ cd varfish/vueapp
+    $ npm install
+
+When finished, keep this terminal open to run the vue app.
+
+.. code-block:: bash
+
+    $ npm run serve
 
 -------------
 Setup VarFish
 -------------
 
-First, create a ``.env`` file with the following content::
+First, create a ``.env`` file with the following content.
+
+.. code-block:: bash
 
     export DATABASE_URL="postgres://varfish:varfish@127.0.0.1/varfish"
     export CELERY_BROKER_URL=redis://localhost:6379/0
     export PROJECTROLES_ADMIN_OWNER=root
     export DJANGO_SETTINGS_MODULE=config.settings.local
 
-If you wish to enable structural variants, add the following line::
+If you wish to enable structural variants, add the following line.
+
+.. code-block:: bash
 
     export VARFISH_ENABLE_SVS=1
 
 To create the tables in the VarFish database, run the ``migrate`` command.
-This step can take a few minutes::
+This step can take a few minutes.
+
+.. code-block:: bash
 
     $ python manage.py migrate
 
 Once done, create a superuser for your VarFish instance. By default, the VarFish root user is named ``root`` (the
-setting can be changed in the ``.env`` file with the ``PROJECTROLES_ADMIN_OWNER`` variable)::
+setting can be changed in the ``.env`` file with the ``PROJECTROLES_ADMIN_OWNER`` variable).
+
+.. code-block:: bash
 
     $ python manage.py createsuperuser
 
-Last, download the icon sets for VarFish and make scripts, stylesheets and icons available::
+Last, download the icon sets for VarFish and make scripts, stylesheets and icons available.
+
+.. code-block:: bash
 
     $ python manage.py geticons -c bi cil fa-regular fa-solid gridicons octicon
     $ python manage.py collectstatic
 
-When done, open two terminals and start the VarFish server and the celery server::
+When done, open two terminals and start the VarFish server and the celery server.
+
+.. code-block:: bash
 
     terminal1$ make server
     terminal2$ make celery

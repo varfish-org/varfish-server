@@ -194,16 +194,16 @@ def smallvar_description(entry):
 
 #: Mapping of small variant flag value to font awesome icon.
 FLAG_VALUE_TO_FA = {
-    "positive": "fa-exclamation-circle",
-    "uncertain": "fa-question",
-    "negative": "fa-minus-circle",
-    "empty": "fa-remove",
+    "positive": "fa-solid:exclamation-circle",
+    "uncertain": "fa-solid:question",
+    "negative": "fa-solid:minus-circle",
+    "empty": "fa-solid:times",
 }
 
 
 @register.filter
 def flag_value_to_fa(value):
-    return FLAG_VALUE_TO_FA.get(value, "fa-remove")
+    return FLAG_VALUE_TO_FA.get(value, "fa-solid:times")
 
 
 #: Mapping of small variant flag value to Bootstrap color class.
@@ -234,18 +234,32 @@ def case_status_to_color(value):
     return CASE_STATUS_TO_COLOR.get(value, "")
 
 
-CASE_STATUS_TO_FA = {
-    "initial": "fa-asterisk text-secondary",
-    "active": "fa-filter text-info",
-    "closed-solved": "fa-check text-success",
-    "closed-uncertain": "fa-question text-warning",
-    "closed-unsolved": "fa-times text-danger",
+CASE_STATUS_TO_ICON = {
+    "initial": "fa-solid:asterisk",
+    "active": "fa-solid:filter",
+    "closed-solved": "fa-solid:check",
+    "closed-uncertain": "fa-solid:question",
+    "closed-unsolved": "fa-solid:times",
 }
 
 
 @register.filter
-def case_status_to_fa(value):
-    return "%s text-%s" % (CASE_STATUS_TO_FA.get(value, ""), case_status_to_color(value))
+def case_status_to_icon(value):
+    return CASE_STATUS_TO_ICON.get(value, "")
+
+
+CASE_STATUS_TO_CLASS = {
+    "initial": "text-secondary",
+    "active": "text-info",
+    "closed-solved": "text-success",
+    "closed-uncertain": "text-warning",
+    "closed-unsolved": "text-danger",
+}
+
+
+@register.filter
+def case_status_to_class(value):
+    return "%s text-%s" % (CASE_STATUS_TO_CLASS.get(value, ""), case_status_to_color(value))
 
 
 CASE_STATUS_TO_ORDER = {
@@ -496,3 +510,56 @@ def get_term_description(term):
             return record.name
         else:
             return None
+
+
+#: Links from browser name and genome release to base URLs.
+LINKOUT_URLS = {
+    ("ucsc", "GRCh37"): "https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg19",
+    ("ucsc", "GRCh38"): "https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg38",
+    ("ensembl", "GRCh37"): "https://grch37.ensembl.org/Homo_sapiens/Location/View?",
+    ("ensembl", "GRCh38"): "https://ensembl.org/Homo_sapiens/Location/View?",
+    ("dgv", "GRCh37"): "http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/",
+    ("dgv", "GRCh38"): "http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg38/",
+    ("gnomad", "GRCh37"): "http://gnomad.broadinstitute.org/region",
+    ("gnomad", "GRCh38"): "http://gnomad.broadinstitute.org/region",
+    ("umd", "GRCh37"): "http://umd-predictor.eu/webservice.php?",
+    ("varsome", "GRCh37"): "https://varsome.com/variant/hg19/chr",
+    ("varsome", "GRCh38"): "https://varsome.com/variant/hg38/",
+    ("variant_validator", "GRCh37"): True,  # no URL, via javascript
+    ("variant_validator", "GRCh38"): True,  # no URL, via javascript
+}
+
+
+@register.simple_tag
+def linkout_available_for(database, release):
+    """Return whether the linkout to the given database is available for the given release."""
+    return bool(LINKOUT_URLS.get((database, release), False))
+
+
+@register.simple_tag
+def linkout_base_url(database, release):
+    """Return linkout base URL."""
+    return LINKOUT_URLS.get((database, release), None)
+
+
+@register.simple_tag
+def gnomad_release(release):
+    return {"GRCh37": "gnomad_r2_1", "GRCh38": "gnomad_r3"}.get(release, None)
+
+
+@register.simple_tag
+def same_release(cases):
+    """Return whether an iterable of cases has the same genome release."""
+    return len({case.release for case in cases}) == 1
+
+
+@register.simple_tag
+def entry_chr(entry):
+    """Return chromosome value for the result entry.
+
+    Adds ``chr`` prefix as required.
+    """
+    if not entry.chromosome.startswith("chr"):
+        return "chr" + entry.chromosome
+    else:
+        return entry.chromosome
