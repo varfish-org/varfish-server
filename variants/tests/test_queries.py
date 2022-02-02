@@ -5170,9 +5170,9 @@ class TestSmallVariantExtraAnno(SupportQueryTestBase):
 
     def test_base_query_filter(self):
         res = self.run_query(CasePrefetchQuery, {}, 3)
-        self.assertEqual(res[0]['extra_annos'][0], self.extra_anno[0].anno_data)
-        self.assertEqual(res[1]['extra_annos'], None)
-        self.assertEqual(res[2]['extra_annos'][0], self.extra_anno[1].anno_data)
+        self.assertEqual(res[0]["extra_annos"][0], self.extra_anno[0].anno_data)
+        self.assertEqual(res[1]["extra_annos"], None)
+        self.assertEqual(res[2]["extra_annos"][0], self.extra_anno[1].anno_data)
 
 
 class TestSmallVariantNoExtraAnno(SupportQueryTestBase):
@@ -5186,6 +5186,6 @@ class TestSmallVariantNoExtraAnno(SupportQueryTestBase):
 
     def test_base_query_filter(self):
         res = self.run_query(CasePrefetchQuery, {}, 3)
-        self.assertEqual(res[0]['extra_annos'], None)
-        self.assertEqual(res[1]['extra_annos'], None)
-        self.assertEqual(res[2]['extra_annos'], None)
+        self.assertEqual(res[0]["extra_annos"], None)
+        self.assertEqual(res[1]["extra_annos"], None)
+        self.assertEqual(res[2]["extra_annos"], None)

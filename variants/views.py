@@ -2451,7 +2451,7 @@ class CaseLoadPrefetchedFilterView(
                 "user": self.request.user,
                 "case": filter_job.smallvariantquery.case,
                 "result_rows": rows,
-                "result_extra_annos_header" : extra_annos_header,
+                "result_extra_annos_header": extra_annos_header,
                 "result_count": num_results,
                 "elapsed_seconds": elapsed.total_seconds(),
                 "database": filter_job.smallvariantquery.query_settings.get(

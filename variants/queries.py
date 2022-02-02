@@ -1116,7 +1116,6 @@ class ExtendQueryPartsCommentsExtraAnnoJoin(ExtendQueryPartsBase):
                     ExtraAnno.sa.end == SmallVariant.sa.end,
                     ExtraAnno.sa.reference == SmallVariant.sa.reference,
                     ExtraAnno.sa.alternative == SmallVariant.sa.alternative,
-
                 )
             )
             .group_by(
