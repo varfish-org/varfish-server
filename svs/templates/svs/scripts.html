@@ -7,7 +7,7 @@ $(function () {
 
 // we can't employ .click here because the html that it will work on is loaded afterwards.
 $(document).on('click', '.toggle-variant-details', function() {
-  if ($("i", this).attr("src") === "/icons/fa-solid/chevron-right.svg") {
+  if ($("img", this).attr("src") === "/icons/fa-solid/chevron-right.svg") {
     $($(this).data("target") + " .variant-details").load(
       $(this).data("url"),
       function (responseText, textStatus, request) {
