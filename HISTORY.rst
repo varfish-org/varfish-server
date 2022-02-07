@@ -93,6 +93,7 @@ Full Change List
 - Fix issue with variant annotation export (#328)
 - Adding REST API versioning to (#333)
 - Adding more postgres versions to CI (#337)
+- Add checking for mandatory trailers (#323)
 
 -------
 v0.23.9

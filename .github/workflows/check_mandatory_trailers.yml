@@ -1,0 +1,14 @@
+name: Check Mandatory Trailers
+
+on: [push]
+
+jobs:
+  check-mandatory-trailers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v2
+      - name: print history
+        run: |
+          set -x
+          git log ${{ github.event.pull_request.base.ref }}
