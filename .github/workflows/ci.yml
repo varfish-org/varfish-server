@@ -14,6 +14,19 @@ jobs:
           - '3.8'
           - '3.9'
           - '3.10'
+        postgres-version:
+          - '12'
+        include:
+          - python-version: '3.8'
+            postgres-version: '11'
+          - python-version: '3.8'
+            postgres-version: '13'
+# Postgres 14 is currently not supported.
+#
+# See https://github.com/bihealth/varfish-server/issues/338
+#
+#           - python-version: '3.8'
+#             postgres-version: '14'
     services:
       redis:
         image: redis:latest
@@ -21,7 +34,7 @@ jobs:
           - 6379:6379
 
       postgres:
-        image: postgres:12
+        image: postgres:${{ matrix.postgres-version }}
         env:
           POSTGRES_DB: varfish_web
           POSTGRES_USER: varfish_web

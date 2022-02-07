@@ -92,6 +92,7 @@ Full Change List
 - Adding mitochondrial inheritance to case phenotype annotation (#325)
 - Fix issue with variant annotation export (#328)
 - Adding REST API versioning to (#333)
+- Adding more postgres versions to CI (#337)
 
 -------
 v0.23.9
