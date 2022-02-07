@@ -1,3 +1,6 @@
+from varfish import __version__ as varfish_version
+from varfish.api_utils import VARFISH_API_DEFAULT_VERSION, VARFISH_API_MEDIA_TYPE
+
 import os
 from itertools import chain
 
@@ -5,7 +8,11 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.forms import model_to_dict
 
-from variants.tests.helpers import ApiViewTestBase
+from variants.tests.helpers import (
+    ApiViewTestBase,
+    VARFISH_INVALID_VERSION,
+    VARFISH_INVALID_MIMETYPE,
+)
 from variants.tests.test_views_api import transmogrify_pedigree
 
 from ..models import CaseImportInfo, VariantSetImportInfo, CaseVariantType, BamQcFile, GenotypeFile
@@ -15,6 +22,15 @@ from .factories import (
     BamQcFileFactory,
     GenotypeFileFactory,
 )
+
+#: A known invalid MIME type.
+INVALID_MIMETYPE = "application/vnd.bihealth.invalid+json"
+#: A known invalid version.
+INVALID_VERSION = "0.0.0"
+#: The known valid MIME type.
+VALID_MIMETYPE = "application/vnd.bihealth.varfish+json"
+#: A known valid version.
+VALID_VERSION = varfish_version
 
 #: The User model to use.
 User = get_user_model()
@@ -84,11 +100,12 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
         post_data = case_import_info_to_dict(obj, self.project, exclude=("sodar_uuid",))
 
         with self.login(self.user):
-            response = self.client.post(
+            response = self.request_knox(
                 reverse(
                     "importer:api-case-import-info-list-create",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
+                method="POST",
                 data=post_data,
                 format="json",
             )
@@ -105,7 +122,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
 
     def test_retrieve(self):
         with self.login(self.user):
-            response = self.client.get(
+            response = self.request_knox(
                 reverse(
                     "importer:api-case-import-info-retrieve-update-destroy",
                     kwargs={
@@ -138,7 +155,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
         }
 
         with self.login(self.user):
-            response = self.client.patch(
+            response = self.request_knox(
                 reverse(
                     "importer:api-case-import-info-retrieve-update-destroy",
                     kwargs={
@@ -146,6 +163,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
                         "caseimportinfo": self.case_import_info.sodar_uuid,
                     },
                 ),
+                method="PATCH",
                 data=post_data,
                 format="json",
             )
@@ -166,14 +184,15 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
 
     def test_destroy(self):
         with self.login(self.user):
-            response = self.client.delete(
+            response = self.request_knox(
                 reverse(
                     "importer:api-case-import-info-retrieve-update-destroy",
                     kwargs={
                         "project": self.project.sodar_uuid,
                         "caseimportinfo": self.case_import_info.sodar_uuid,
                     },
-                )
+                ),
+                method="DELETE",
             )
 
             expected = None
@@ -204,7 +223,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
 
     def test_list(self):
         with self.login(self.user):
-            response = self.client.get(
+            response = self.request_knox(
                 reverse(
                     "importer:api-variant-set-import-info-list-create",
                     kwargs={"caseimportinfo": self.case_import_info.sodar_uuid},
@@ -240,11 +259,12 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
         )
 
         with self.login(self.user):
-            response = self.client.post(
+            response = self.request_knox(
                 reverse(
                     "importer:api-variant-set-import-info-list-create",
                     kwargs={"caseimportinfo": self.case_import_info.sodar_uuid},
                 ),
+                method="POST",
                 data=post_data,
                 format="json",
             )
@@ -259,7 +279,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
 
     def test_retrieve(self):
         with self.login(self.user):
-            response = self.client.get(
+            response = self.request_knox(
                 reverse(
                     "importer:api-variant-set-import-info-retrieve-update-destroy",
                     kwargs={
@@ -287,7 +307,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
         }
 
         with self.login(self.user):
-            response = self.client.patch(
+            response = self.request_knox(
                 reverse(
                     "importer:api-variant-set-import-info-retrieve-update-destroy",
                     kwargs={
@@ -295,6 +315,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
                         "variantsetimportinfo": self.variant_set_import_info.sodar_uuid,
                     },
                 ),
+                method="PATCH",
                 data=post_data,
                 format="json",
             )
@@ -315,14 +336,15 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
 
     def test_destroy(self):
         with self.login(self.user):
-            response = self.client.delete(
+            response = self.request_knox(
                 reverse(
                     "importer:api-variant-set-import-info-retrieve-update-destroy",
                     kwargs={
                         "caseimportinfo": self.case_import_info.sodar_uuid,
                         "variantsetimportinfo": self.variant_set_import_info.sodar_uuid,
                     },
-                )
+                ),
+                method="DELETE",
             )
 
             expected = None
@@ -349,7 +371,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
 
     def test_list(self):
         with self.login(self.user):
-            response = self.client.get(
+            response = self.request_knox(
                 reverse(
                     "importer:api-bam-qc-file-list-create",
                     kwargs={"caseimportinfo": self.case_import_info.sodar_uuid},
@@ -375,11 +397,13 @@ class TestBamQcFileApiViews(ApiViewTestBase):
             with open(
                 os.path.join(os.path.dirname(__file__), "data", "example.tsv"), "rb"
             ) as upload_file:
-                response = self.client.post(
+                response = self.request_knox(
                     reverse(
                         "importer:api-bam-qc-file-list-create",
                         kwargs={"caseimportinfo": self.case_import_info.sodar_uuid},
                     ),
+                    format="multipart",
+                    method="POST",
                     data={**post_data, "file": upload_file},
                 )
 
@@ -393,7 +417,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
 
     def test_retrieve(self):
         with self.login(self.user):
-            response = self.client.get(
+            response = self.request_knox(
                 reverse(
                     "importer:api-bam-qc-file-retrieve-destroy",
                     kwargs={
@@ -411,14 +435,15 @@ class TestBamQcFileApiViews(ApiViewTestBase):
 
     def test_destroy(self):
         with self.login(self.user):
-            response = self.client.delete(
+            response = self.request_knox(
                 reverse(
                     "importer:api-bam-qc-file-retrieve-destroy",
                     kwargs={
                         "caseimportinfo": self.case_import_info.sodar_uuid,
                         "bamqcfile": self.bam_qc_file.sodar_uuid,
                     },
-                )
+                ),
+                method="DELETE",
             )
 
             expected = None
@@ -448,7 +473,7 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
 
     def test_list(self):
         with self.login(self.user):
-            response = self.client.get(
+            response = self.request_knox(
                 reverse(
                     "importer:api-genotype-file-list-create",
                     kwargs={"variantsetimportinfo": self.variant_set_import_info.sodar_uuid},
@@ -476,11 +501,13 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
             with open(
                 os.path.join(os.path.dirname(__file__), "data", "example.tsv"), "rb"
             ) as upload_file:
-                response = self.client.post(
+                response = self.request_knox(
                     reverse(
                         "importer:api-genotype-file-list-create",
                         kwargs={"variantsetimportinfo": self.variant_set_import_info.sodar_uuid},
                     ),
+                    method="POST",
+                    format="multipart",
                     data={**post_data, "file": upload_file},
                 )
 
@@ -494,7 +521,7 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
 
     def test_retrieve(self):
         with self.login(self.user):
-            response = self.client.get(
+            response = self.request_knox(
                 reverse(
                     "importer:api-genotype-file-retrieve-destroy",
                     kwargs={
@@ -512,14 +539,15 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
 
     def test_destroy(self):
         with self.login(self.user):
-            response = self.client.delete(
+            response = self.request_knox(
                 reverse(
                     "importer:api-genotype-file-retrieve-destroy",
                     kwargs={
                         "variantsetimportinfo": self.variant_set_import_info.sodar_uuid,
                         "genotypefile": self.genotype_file.sodar_uuid,
                     },
-                )
+                ),
+                method="DELETE",
             )
 
             expected = None

@@ -91,6 +91,7 @@ Full Change List
 - Fixing CADD annotation (#319)
 - Adding mitochondrial inheritance to case phenotype annotation (#325)
 - Fix issue with variant annotation export (#328)
+- Adding REST API versioning to (#333)
 
 -------
 v0.23.9
