@@ -23,7 +23,7 @@ Install Postgres
 Follow the instructions for your operating system to install `Postgres <https://www.postgresql.org>`_.
 For Ubuntu, this would be::
 
-    sudo apt install postgresql
+    sudo apt install postgresql-12
 
 -------------
 Install Redis
