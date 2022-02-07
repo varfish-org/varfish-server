@@ -20,10 +20,14 @@ services not running in a Docker container.
 Install Postgres
 ----------------
 
-Follow the instructions for your operating system to install `Postgres <https://www.postgresql.org>`_.
-For Ubuntu, this would be::
+Follow the instructions for your operating system to install `Postgres <https://www.postgresql.org>`_. 
+Make sure that the version is 12 (11 and 13 would also work). 
+Ubuntu 20 already includes postgresql 12. In case of older Ubuntu versions, this would be::
 
     sudo apt install postgresql-12
+
+
+
 
 -------------
 Install Redis
@@ -160,5 +164,5 @@ When done, open two terminals and start the VarFish server and the celery server
 
 .. code-block:: bash
 
-    terminal1$ make server
+    terminal1$ make serve
     terminal2$ make celery
