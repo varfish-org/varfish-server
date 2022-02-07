@@ -1,7 +1,9 @@
+from varfish.api_utils import VARFISH_API_DEFAULT_VERSION, VARFISH_API_MEDIA_TYPE
+
 from django.urls import reverse
 
 from .factories import CaseWithVariantSetFactory
-from .helpers import ApiViewTestBase
+from .helpers import ApiViewTestBase, VARFISH_INVALID_VERSION, VARFISH_INVALID_MIMETYPE
 
 # TODO: add tests that include permission testing
 
@@ -36,13 +38,33 @@ class TestCaseApiViews(ApiViewTestBase):
             "release": case.release,
         }
 
-    def test_list(self):
+    def _test_list_with_invalid_x(
+        self, media_type=VARFISH_API_MEDIA_TYPE, version=VARFISH_API_DEFAULT_VERSION
+    ):
         with self.login(self.user):
-            response = self.client.get(
+            response = self.request_knox(
                 reverse(
                     "variants:api-case-list-create",
                     kwargs={"project": self.case.project.sodar_uuid},
-                )
+                ),
+                media_type=media_type,
+                version=version,
+            )
+        self.assertEqual(response.status_code, 406)
+
+    def test_list_with_invalid_version(self):
+        self._test_list_with_invalid_x(version=VARFISH_INVALID_VERSION)
+
+    def test_list_with_invalid_media_type(self):
+        self._test_list_with_invalid_x(media_type=VARFISH_INVALID_MIMETYPE)
+
+    def test_list(self):
+        with self.login(self.user):
+            response = self.request_knox(
+                reverse(
+                    "variants:api-case-list-create",
+                    kwargs={"project": self.case.project.sodar_uuid},
+                ),
             )
 
             self.assertEqual(response.status_code, 200, response.content)
@@ -100,6 +122,26 @@ class TestCaseApiViews(ApiViewTestBase):
     #         response.data.pop("date_modified")  # the same
     #         self.assertEquals(response.data, expected)
     #         self.assertIsNotNone(Case.objects.get(project=self.case.project, sodar_uuid=case_uuid))
+
+    def _test_retrieve_with_invalid_x(
+        self, media_type=VARFISH_API_MEDIA_TYPE, version=VARFISH_API_DEFAULT_VERSION
+    ):
+        with self.login(self.user):
+            response = self.request_knox(
+                reverse(
+                    "variants:api-case-retrieve-update-destroy",
+                    kwargs={"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid},
+                ),
+                media_type=media_type,
+                version=version,
+            )
+        self.assertEqual(response.status_code, 406)
+
+    def test_retrieve_with_invalid_version(self):
+        self._test_retrieve_with_invalid_x(version=VARFISH_INVALID_VERSION)
+
+    def test_retrieve_with_invalid_media_type(self):
+        self._test_retrieve_with_invalid_x(media_type=VARFISH_INVALID_MIMETYPE)
 
     def test_retrieve(self):
         with self.login(self.user):

@@ -2,18 +2,26 @@
 
 from django.test import RequestFactory
 from test_plus.test import TestCase, APITestCase
+from projectroles.tests.test_views_api import SODARAPIViewTestMixin
 
 from cohorts.models import Cohort
+from varfish.api_utils import VARFISH_API_MEDIA_TYPE, VARFISH_API_DEFAULT_VERSION
 from .factories import ProcessedFormDataFactory
 from ..models import Case, CaseAwareProject
 from variants.helpers import get_engine
+
+
+#: A known invalid MIME type.
+VARFISH_INVALID_MIMETYPE = "application/vnd.bihealth.invalid+json"
+#: A known invalid version.
+VARFISH_INVALID_VERSION = "0.0.0"
 
 
 class TestBase(TestCase):
     """Base class for all tests."""
 
 
-class ViewTestBaseMixin:
+class ViewTestBaseMixin(SODARAPIViewTestMixin):
     def setUp(self):
         super().setUp()
         self.maxDiff = None  # show full diff
@@ -26,9 +34,15 @@ class ViewTestBaseMixin:
         self.user.is_superuser = True
         self.user.save()
 
+        # Get knox token for self.user
+        self.knox_token = self.get_token(self.user)
+
 
 class ApiViewTestBase(ViewTestBaseMixin, APITestCase):
     """Base class for API view testing (and file export)"""
+
+    media_type = VARFISH_API_MEDIA_TYPE
+    api_version = VARFISH_API_DEFAULT_VERSION
 
 
 class ViewTestBase(ViewTestBaseMixin, TestCase):

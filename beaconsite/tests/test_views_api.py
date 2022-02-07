@@ -1,11 +1,5 @@
-import urllib
-import datetime
-
 import cattr
-from Crypto.PublicKey import RSA
 from django.shortcuts import reverse
-from django.utils import timezone
-from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 from projectroles.tests.test_views_api import TestAPIViewsBase
 
 from variants.tests.factories import SmallVariantFactory
