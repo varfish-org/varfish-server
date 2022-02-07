@@ -68,18 +68,25 @@ Clone the VarFish Server repository and switch into the checkout.
 Install Python Requirements
 ---------------------------
 
-With the conda/Python environment activated, install all the requirements.
+Some required packages have dependencies that are usually not preinstalled. Therefore, run
 
 .. code-block:: bash
 
-    $ for i in requirements/*; do install -r $i; done
+    $ sudo apt install libsasl2-dev python-dev libldap2-dev libssl-dev
+
+
+Now, with the conda/Python environment activated, install all the requirements.
+
+.. code-block:: bash
+
+    $ for i in requirements/*; do pip install -r $i; done
 
 --------------
 Setup Database
 --------------
 
 Use the tool provided in ``utility/`` to set up the database. The name for the
-database should be ``varfish``.
+database should be ``varfish`` (create new user: yes, name: varfish, password: varfish).
 
 .. code-block:: bash
 
@@ -93,7 +100,7 @@ Use the tool provided in ``utility/`` to set up vue.js.
 
 .. code-block:: bash
 
-    $ bash utility/setup_vue_dev.sh
+    $ sudo bash utility/install_vue_dev.sh
 
 Open an additional terminal and switch into the vue directory. Then install
 the VarFish vue app.
