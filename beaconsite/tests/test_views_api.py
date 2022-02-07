@@ -1,15 +1,15 @@
 import cattr
 from django.shortcuts import reverse
-from projectroles.tests.test_views_api import TestAPIViewsBase
 
 from variants.tests.factories import SmallVariantFactory
+from variants.tests.helpers import ApiViewTestBase
 from .test_permissions_api import AcceptHeaderMixin
 from ..models import Site
 from .factories import ConsortiumWithLocalAndRemoteSiteFactory, ConsortiumAssignmentFactory
 from ..models_api import BeaconAlleleRequest
 
 
-class TestBeaconInfoApiView(AcceptHeaderMixin, TestAPIViewsBase):
+class TestBeaconInfoApiView(AcceptHeaderMixin, ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.consortium = ConsortiumWithLocalAndRemoteSiteFactory()
@@ -20,7 +20,7 @@ class TestBeaconInfoApiView(AcceptHeaderMixin, TestAPIViewsBase):
         )
 
     def test_get_info(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             extra = self.get_accept_header(None, None)
             response = self.client.get(reverse("beaconsite:beacon-api-info"), **extra)
         self.assertEqual(response.status_code, 200)
@@ -47,7 +47,7 @@ class TestBeaconInfoApiView(AcceptHeaderMixin, TestAPIViewsBase):
         )
 
 
-class TestBeaconQueryApiView(AcceptHeaderMixin, TestAPIViewsBase):
+class TestBeaconQueryApiView(AcceptHeaderMixin, ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.consortium = ConsortiumWithLocalAndRemoteSiteFactory()
@@ -71,7 +71,7 @@ class TestBeaconQueryApiView(AcceptHeaderMixin, TestAPIViewsBase):
             "%s=%s" % (k, v) for k, v in cattr.unstructure(self.beacon_allele_request).items()
         )
 
-        with self.login(self.user):
+        with self.login(self.superuser):
             extra = self.get_accept_header(None, None)
             response = self.client.get(url, **extra)
         self.assertEqual(response.status_code, 200)

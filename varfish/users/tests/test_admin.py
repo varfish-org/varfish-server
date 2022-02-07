@@ -5,7 +5,7 @@ from ..admin import MyUserCreationForm
 
 class TestMyUserCreationForm(TestCase):
     def setUp(self):
-        self.user = self.make_user("notalamode", "notalamodespassword")
+        self.superuser = self.make_user("notalamode", "notalamodespassword")
 
     def test_clean_username_success(self):
         # Instantiate the form with a new username
@@ -25,10 +25,10 @@ class TestMyUserCreationForm(TestCase):
         self.assertEqual("alamode", username)
 
     def test_clean_username_false(self):
-        # Instantiate the form with the same username as self.user
+        # Instantiate the form with the same username as self.superuser
         form = MyUserCreationForm(
             {
-                "username": self.user.username,
+                "username": self.superuser.username,
                 "password1": "notalamodespassword",
                 "password2": "notalamodespassword",
             }

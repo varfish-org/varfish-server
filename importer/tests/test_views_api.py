@@ -1,5 +1,4 @@
 from varfish import __version__ as varfish_version
-from varfish.api_utils import VARFISH_API_DEFAULT_VERSION, VARFISH_API_MEDIA_TYPE
 
 import os
 from itertools import chain
@@ -8,11 +7,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.forms import model_to_dict
 
-from variants.tests.helpers import (
-    ApiViewTestBase,
-    VARFISH_INVALID_VERSION,
-    VARFISH_INVALID_MIMETYPE,
-)
+from variants.tests.helpers import ApiViewTestBase
 from variants.tests.test_views_api import transmogrify_pedigree
 
 from ..models import CaseImportInfo, VariantSetImportInfo, CaseVariantType, BamQcFile, GenotypeFile
@@ -65,11 +60,11 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
     def setUp(self):
         super().setUp()
         self.maxDiff = None
-        self.case_import_info = CaseImportInfoFactory(owner=self.user)
+        self.case_import_info = CaseImportInfoFactory(owner=self.superuser)
         self.project = self.case_import_info.project
 
     def test_list(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "importer:api-case-import-info-list-create",
@@ -99,7 +94,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
         obj.delete()
         post_data = case_import_info_to_dict(obj, self.project, exclude=("sodar_uuid",))
 
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-case-import-info-list-create",
@@ -112,7 +107,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
 
             expected = post_data
             expected.pop("case")
-            expected["owner"] = self.user.username
+            expected["owner"] = self.superuser.username
             self.assertEqual(response.status_code, 201)
             obj_uuid = response.data.pop("sodar_uuid")
             response.data.pop("date_created")  # complex; not worth testing
@@ -121,7 +116,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
             self.assertIsNotNone(CaseImportInfo.objects.get(sodar_uuid=obj_uuid))
 
     def test_retrieve(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-case-import-info-retrieve-update-destroy",
@@ -154,7 +149,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
             "notes": "UPDATED notes",
         }
 
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-case-import-info-retrieve-update-destroy",
@@ -183,7 +178,7 @@ class TestCaseImportInfoApiViews(ApiViewTestBase):
             self.assertEqual(case.notes, post_data["notes"])
 
     def test_destroy(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-case-import-info-retrieve-update-destroy",
@@ -222,7 +217,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
         self.project = self.case_import_info.project
 
     def test_list(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-variant-set-import-info-list-create",
@@ -258,7 +253,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
             obj, self.case_import_info, exclude=("sodar_uuid",)
         )
 
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-variant-set-import-info-list-create",
@@ -278,7 +273,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
             self.assertIsNotNone(VariantSetImportInfo.objects.get(sodar_uuid=obj_uuid))
 
     def test_retrieve(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-variant-set-import-info-retrieve-update-destroy",
@@ -306,7 +301,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
             "variant_type": CaseVariantType.STRUCTURAL.name,
         }
 
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-variant-set-import-info-retrieve-update-destroy",
@@ -335,7 +330,7 @@ class TestVariantSetImportInfoApiViews(ApiViewTestBase):
             self.assertEqual(case_import_info.variant_type, post_data["variant_type"])
 
     def test_destroy(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-variant-set-import-info-retrieve-update-destroy",
@@ -370,7 +365,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
         self.case_import_info = self.bam_qc_file.case_import_info
 
     def test_list(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-bam-qc-file-list-create",
@@ -393,7 +388,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
         obj.delete()
         post_data = bam_qc_file_to_dict(obj, self.case_import_info, exclude=("sodar_uuid",))
 
-        with self.login(self.user):
+        with self.login(self.superuser):
             with open(
                 os.path.join(os.path.dirname(__file__), "data", "example.tsv"), "rb"
             ) as upload_file:
@@ -416,7 +411,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
             self.assertIsNotNone(BamQcFile.objects.get(sodar_uuid=obj_uuid))
 
     def test_retrieve(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-bam-qc-file-retrieve-destroy",
@@ -434,7 +429,7 @@ class TestBamQcFileApiViews(ApiViewTestBase):
             self.assertEqual(response.data, expected)
 
     def test_destroy(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-bam-qc-file-retrieve-destroy",
@@ -472,7 +467,7 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
         self.variant_set_import_info = self.genotype_file.variant_set_import_info
 
     def test_list(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-genotype-file-list-create",
@@ -497,7 +492,7 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
             obj, self.variant_set_import_info, exclude=("sodar_uuid",)
         )
 
-        with self.login(self.user):
+        with self.login(self.superuser):
             with open(
                 os.path.join(os.path.dirname(__file__), "data", "example.tsv"), "rb"
             ) as upload_file:
@@ -520,7 +515,7 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
             self.assertIsNotNone(GenotypeFile.objects.get(sodar_uuid=obj_uuid))
 
     def test_retrieve(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-genotype-file-retrieve-destroy",
@@ -538,7 +533,7 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
             self.assertEqual(response.data, expected)
 
     def test_destroy(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
                     "importer:api-genotype-file-retrieve-destroy",

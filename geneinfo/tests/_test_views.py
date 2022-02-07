@@ -79,7 +79,7 @@ class TestGeneView(TestViewBase):
     setup_case_in_db = fixture_setup_geneinfo
 
     def test_geneinfo_ensembl(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             project = Project.objects.first()
             response = self.client.get(
                 reverse("geneinfo:gene", kwargs={"project": project.sodar_uuid, "gene_id": "ENSG1"})
@@ -87,7 +87,7 @@ class TestGeneView(TestViewBase):
             self.assertEquals(response.status_code, 200)
 
     def test_geneinfo_refseq(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             project = Project.objects.first()
             response = self.client.get(
                 reverse("geneinfo:gene", kwargs={"project": project.sodar_uuid, "gene_id": "123"})
@@ -95,7 +95,7 @@ class TestGeneView(TestViewBase):
             self.assertEquals(response.status_code, 200)
 
     def test_geneinfo_render_complete(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             project = Project.objects.first()
             response = self.client.get(
                 reverse("geneinfo:gene", kwargs={"project": project.sodar_uuid, "gene_id": "456"})
@@ -112,7 +112,7 @@ class TestGeneView(TestViewBase):
             self.assertEquals(response.context["hgncomim"]["2"][0]["hpo_id"], "HP:002")
 
     def test_geneinfo_render_empty(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             project = Project.objects.first()
             response = self.client.get(
                 reverse("geneinfo:gene", kwargs={"project": project.sodar_uuid, "gene_id": "000"})
@@ -129,7 +129,7 @@ class TestGeneViewIncomplete(TestViewBase):
     setup_case_in_db = fixture_setup_geneinfo_incomplete
 
     def test_geneinfo_render_missing_omim(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             project = Project.objects.first()
             response = self.client.get(
                 reverse("geneinfo:gene", kwargs={"project": project.sodar_uuid, "gene_id": "456"})

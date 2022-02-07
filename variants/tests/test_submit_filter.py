@@ -34,7 +34,7 @@ class CaseFilterTest(TestCase):
         super().setUp()
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.hpo_id = "HP:0000001"
-        self.user = self.make_user("superuser")
+        self.superuser = self.make_user("superuser")
         self.small_vars = [
             SmallVariantFactory(
                 chromosome="1", refseq_gene_id="1234", variant_set=self.variant_set
@@ -46,7 +46,7 @@ class CaseFilterTest(TestCase):
                 chromosome="1", refseq_gene_id="2234", variant_set=self.variant_set, in_clinvar=True
             ),
         ]
-        self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
+        self.bgjob = FilterBgJobFactory(case=self.case, user=self.superuser)
 
     @patch("django.conf.settings.VARFISH_ENABLE_EXOMISER_PRIORITISER", True)
     @patch("django.conf.settings.VARFISH_EXOMISER_PRIORITISER_API_URL", "https://exomiser.com")
@@ -316,7 +316,7 @@ class CaseFilterTest(TestCase):
 
         app_settings = AppSettingAPI()
         app_settings.set_app_setting(
-            "variants", "umd_predictor_api_token", "FAKETOKEN", user=self.user
+            "variants", "umd_predictor_api_token", "FAKETOKEN", user=self.superuser
         )
 
         return_text = "This page was created in 0.001 seconds\n\n"

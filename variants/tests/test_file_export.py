@@ -31,14 +31,14 @@ class ExportTestBase(TestCase):
     """
 
     def setUp(self):
-        self.user = self.make_user("superuser")
+        self.superuser = self.make_user("superuser")
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
         self.bg_job = BackgroundJob.objects.create(
             name="job name",
             project=Project.objects.first(),
             job_type="variants.export_file_bg_job",
-            user=self.user,
+            user=self.superuser,
         )
         self.export_job = ExportFileBgJob.objects.create(
             project=self.bg_job.project,
@@ -163,7 +163,7 @@ class ProjectExportTest(TestCase):
     """
 
     def setUp(self):
-        self.user = self.make_user("superuser")
+        self.superuser = self.make_user("superuser")
         self.case1, self.variant_set1, _ = CaseWithVariantSetFactory.get("small")
         self.project = CaseAwareProject.objects.get(pk=Project.objects.first().pk)
         self.case2, self.variant_set2, _ = CaseWithVariantSetFactory.get(
@@ -187,7 +187,7 @@ class ProjectExportTest(TestCase):
             name="job name",
             project=Project.objects.first(),
             job_type="variants.export_file_bg_job",
-            user=self.user,
+            user=self.superuser,
         )
         self.export_job = ExportProjectCasesFileBgJob.objects.create(
             project=self.bg_job.project,

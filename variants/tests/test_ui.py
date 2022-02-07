@@ -702,6 +702,14 @@ class TestVariantsCaseFilterView(TestUIBase):
                 )
             )
         )
+        _strong = WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located(
+                (
+                    By.XPATH,
+                    "//div[@id='multiVarBookmarkCommentModalContent']/div[contains(@class, 'alert-info')]/strong",
+                )
+            )
+        )
         self.assertEqual("2 variants selected.", info_box.text)
 
         # save bookmark

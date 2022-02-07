@@ -395,14 +395,44 @@ ui_urlpatterns = [
 
 api_urlpatterns = [
     url(
-        regex=r"^api/case/(?P<project>[0-9a-f-]+)/$",
-        view=views_api.CaseListCreateView.as_view(),
-        name="api-case-list-create",
+        regex=r"^api/case/list/(?P<project>[0-9a-f-]+)/$",
+        view=views_api.CaseListApiView.as_view(),
+        name="api-case-list",
     ),
     url(
-        regex=r"^api/case/(?P<project>[0-9a-f-]+)/(?P<case>[0-9a-f-]+)/$",
-        view=views_api.CaseListRetrieveUpdateDestroyView.as_view(),
-        name="api-case-retrieve-update-destroy",
+        regex=r"^api/case/retrieve/(?P<case>[0-9a-f-]+)/$",
+        view=views_api.CaseRetrieveApiView.as_view(),
+        name="api-case-retrieve",
+    ),
+    url(
+        regex=r"^api/query-case/list/(?P<case>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantQueryApiView.as_view(),
+        name="api-query-case-list",
+    ),
+    url(
+        regex=r"^api/query-case/create/(?P<case>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantQueryCreateApiView.as_view(),
+        name="api-query-case-create",
+    ),
+    url(
+        regex=r"^api/query-case/retrieve/(?P<smallvariantquery>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantQueryRetrieveApiView.as_view(),
+        name="api-query-case-retrieve",
+    ),
+    url(
+        regex=r"^api/query-case/status/(?P<smallvariantquery>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantQueryStatusApiView.as_view(),
+        name="api-query-case-status",
+    ),
+    url(
+        regex=r"^api/query-case/update/(?P<smallvariantquery>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantQueryUpdateApiView.as_view(),
+        name="api-query-case-update",
+    ),
+    url(
+        regex=r"^api/query-case/results/(?P<smallvariantquery>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantQueryFetchResultsApiView.as_view(),
+        name="api-query-case-fetch-results",
     ),
 ]
 

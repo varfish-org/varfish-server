@@ -18,13 +18,13 @@ from projectroles.models import Project
 
 class ExportFileTaskTest(TestCase):
     def setUp(self):
-        self.user = self.make_user("superuser")
+        self.superuser = self.make_user("superuser")
         case, variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.bg_job = BackgroundJob.objects.create(
             name="job name",
             project=Project.objects.first(),
             job_type="variants.export_file_bg_job",
-            user=self.user,
+            user=self.superuser,
         )
         self.export_job = ExportFileBgJob.objects.create(
             project=self.bg_job.project,

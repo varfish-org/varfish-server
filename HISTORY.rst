@@ -46,6 +46,7 @@ End-User Summary
 - Fix issue with variant annotation export (#328)
 - Allowing direct update of variant annotations and ACMG ratings on case annotations details (#344)
 - Fixing problem with ACMD classifiction where VUS-3 was given but should be LB-2 (#359)
+- Adding REST API for creating small variant queries (#332)
 
 Full Change List
 ================
@@ -93,7 +94,7 @@ Full Change List
 - Fixing CADD annotation (#319)
 - Adding mitochondrial inheritance to case phenotype annotation (#325)
 - Fix issue with variant annotation export (#328)
-- Adding REST API versioning to (#333)
+- Adding REST API versioning (#333)
 - Adding more postgres versions to CI (#337)
 - Make migrations compatible with Postgres 14 (#338)
 - DgvSvs and DgvGoldStandardSvs are two different data sources now
@@ -101,6 +102,8 @@ Full Change List
 - Allowing direct update of variant annotations and ACMG ratings on case annotations details (#344)
 - Removing `display_hgmd_public_membership` (#363)
 - Fixing problem with ACMD classifiction where VUS-3 was given but should be LB-2 (#359)
+- Adding REST API for creating small variant queries (#332)
+- Upgrading sodar-core dependency to 0.10.10
 
 -------
 v0.23.9

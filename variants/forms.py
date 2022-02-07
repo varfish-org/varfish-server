@@ -1285,7 +1285,7 @@ class SmallVariantPrioritizerFormMixin:
         if settings.VARFISH_ENABLE_CADD:
             PATHO_SCORE_CHOICES.append((PATHO_CADD, PATHO_CADD_LABEL))
             PATHO_SCORE_INITIAL = (PATHO_CADD, PATHO_CADD_LABEL)
-        if app_settings.get_app_setting("variants", "umd_predictor_api_token", user=self.user):
+        if app_settings.get_app_setting("variants", "umd_predictor_api_token", user=self.superuser):
             PATHO_SCORE_CHOICES.append((PATHO_UMD, PATHO_UMD_LABEL))
 
         self.fields["patho_score"] = forms.ChoiceField(
@@ -1385,7 +1385,7 @@ class FilterForm(
 
     def __init__(self, *args, **kwargs):
         self.case = kwargs.pop("case")
-        self.user = kwargs.pop("user")
+        self.superuser = kwargs.pop("user")
         super().__init__(*args, **kwargs)
 
     def get_pedigree(self):
@@ -1472,7 +1472,7 @@ class ProjectCasesFilterForm(
         cohort = kwargs.pop("cohort")
         project = kwargs.pop("project")
         self.project_or_cohort = cohort or project
-        self.user = kwargs.pop("user")
+        self.superuser = kwargs.pop("user")
         super().__init__(*args, **kwargs)
         if cohort:
             self.fields["cohort"] = forms.CharField(
@@ -1484,7 +1484,8 @@ class ProjectCasesFilterForm(
         """Return genome build for case or cohort or project"""
         if isinstance(self.project_or_cohort, Cohort):
             cases = [
-                case for case in self.project_or_cohort.get_accessible_cases_for_user(self.user)
+                case
+                for case in self.project_or_cohort.get_accessible_cases_for_user(self.superuser)
             ]
         else:  # project
             cases = [case for case in self.project_or_cohort.case_set.all()]
@@ -1495,20 +1496,20 @@ class ProjectCasesFilterForm(
 
     def get_pedigree(self):
         """Return ``list`` of ``dict`` with pedigree information."""
-        return self.project_or_cohort.pedigree(self.user)
+        return self.project_or_cohort.pedigree(self.superuser)
 
     def get_pedigree_with_samples(self):
         """Return ``dict`` of ``dict`` with family and pedigree information of samples that have variants and a variant set."""
-        return self.project_or_cohort.get_filtered_pedigree_with_samples(self.user)
+        return self.project_or_cohort.get_filtered_pedigree_with_samples(self.superuser)
 
     def get_family_with_pedigree_with_samples(self):
         """Return ``dict`` of ``dict`` with family and pedigree information of samples that have variants and a variant set."""
-        return self.project_or_cohort.get_family_with_filtered_pedigree_with_samples(self.user)
+        return self.project_or_cohort.get_family_with_filtered_pedigree_with_samples(self.superuser)
 
     def get_default_families(self):
         """Return the registered index patient of the family."""
         pedigree = self.get_pedigree()
-        indices = self.project_or_cohort.indices(self.user)
+        indices = self.project_or_cohort.indices(self.superuser)
         ret = []
         for member in pedigree:
             for index in indices:
