@@ -72,7 +72,8 @@ Clone the VarFish Server repository and switch into the checkout.
 Install Python Requirements
 ---------------------------
 
-Some required packages have dependencies that are usually not preinstalled. Therefore, run
+Some required packages have dependencies that are usually not preinstalled. 
+Therefore, run
 
 .. code-block:: bash
 
