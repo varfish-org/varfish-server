@@ -3,7 +3,11 @@
 Update all existing case"""
 from __future__ import unicode_literals
 
-from django.db import migrations
+from django.db import connection, migrations
+
+
+POSTGRES_VERSION = connection.cursor().connection.server_version
+ARRAY_TYPE = "anyarray" if POSTGRES_VERSION < 140000 else "anycompatiblearray"
 
 
 class Migration(migrations.Migration):
@@ -13,13 +17,17 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL(
             """
-            CREATE AGGREGATE array_cat_agg(anyarray) (
+            CREATE AGGREGATE array_cat_agg({array_type}) (
                 SFUNC=array_cat,
-                STYPE=anyarray
+                STYPE={array_type}
             );
-            """,
+            """.format(
+                array_type=ARRAY_TYPE
+            ),
             """
-            DROP AGGREGATE array_cat_agg(anyarray);
-            """,
+            DROP AGGREGATE array_cat_agg({array_type});
+            """.format(
+                array_type=ARRAY_TYPE
+            ),
         )
     ]
