@@ -93,6 +93,7 @@ Full Change List
 - Fix issue with variant annotation export (#328)
 - Adding REST API versioning to (#333)
 - Adding more postgres versions to CI (#337)
+- Make migrations compatible with Postgres 14 (#338)
 
 -------
 v0.23.9
