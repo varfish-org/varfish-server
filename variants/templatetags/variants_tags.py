@@ -215,9 +215,22 @@ FLAG_VALUE_TO_COLOR = {
 }
 
 
+FLAG_VALUE_TO_IMG_COLOR = {
+    "positive": "img-red",
+    "uncertain": "img-gold",
+    "negative": "img-green",
+    "empty": "img-gray",
+}
+
+
 @register.filter
 def flag_value_to_color(value):
     return FLAG_VALUE_TO_COLOR.get(value, "")
+
+
+@register.filter
+def flag_value_to_img_color(value):
+    return FLAG_VALUE_TO_IMG_COLOR.get(value, "")
 
 
 CASE_STATUS_TO_COLOR = {

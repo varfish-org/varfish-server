@@ -133,6 +133,32 @@
 {% block javascript %}
   {{ block.super }}
   <script type="text/javascript">
+
+    // Properly open tabs.
+    $(document).ready(() => {
+      let url = location.href.replace(/\/$/, "");
+
+      if (location.hash) {
+        const hash = url.split("#");
+        $('#case-tab a[href="#'+hash[1]+'"]').tab("show");
+        history.replaceState(null, null, url);
+        setTimeout(() => {
+          $(window).scrollTop(0);
+        }, 400);
+      }
+
+      $('a[data-toggle="tab"]').on("click", function() {
+        let newUrl;
+        const hash = $(this).attr("href");
+        if(hash == "#home") {
+          newUrl = url.split("#")[0];
+        } else {
+          newUrl = url.split("#")[0] + hash;
+        }
+        history.replaceState(null, null, newUrl);
+      });
+    });
+
     // Load data after the page has loaded
     $(function() {
       axios.get("/variants/{{ object.project.sodar_uuid }}/case/api-qc/{{ object.sodar_uuid }}/")
@@ -150,7 +176,13 @@
   </script>
   <script type="text/javascript" src="{% static 'js/qc_plots.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/helpers.js' %}"></script>
+  <script type="text/javascript">
+    var structural_or_small = "small";
+    var multi_variant_flags_comment_url = "{% url 'variants:multi-small-variant-flags-comment-api' project=project.sodar_uuid %}";
+    var filter_or_case_details = "case_details";
+  </script>
   <script type="text/javascript" src="{% static 'js/variant_comments.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/flags_comments.js' %}"></script>
   <script type="text/javascript">
     $(document).ready(function() {
         $("#comment-button-submit").on("click", commentSubmit);
@@ -163,4 +195,5 @@
         updateCaseCommentsCount();
     });
   </script>
+  {% include "variants/_multi_variant_flag_form_tpl.html" %}
 {% endblock %}

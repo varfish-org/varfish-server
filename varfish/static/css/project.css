@@ -46,3 +46,27 @@
 .fa-md {
     font-size:0.8em;
 }
+
+.img-light-gray {
+  filter: invert(100%) sepia(0%) saturate(966%) hue-rotate(245deg) brightness(85%) contrast(83%);
+}
+
+.img-gray {
+  filter: invert(54%) sepia(0%) saturate(0%) hue-rotate(321deg) brightness(95%) contrast(89%);
+}
+
+.img-dark-gray {
+  filter: invert(23%) sepia(44%) saturate(0%) hue-rotate(190deg) brightness(61%) contrast(84%);
+}
+
+.img-red {
+  filter: invert(21%) sepia(61%) saturate(2501%) hue-rotate(341deg) brightness(94%) contrast(122%);
+}
+
+.img-gold {
+  filter: invert(57%) sepia(91%) saturate(1599%) hue-rotate(9deg) brightness(96%) contrast(101%);
+}
+
+.img-green {
+  filter: invert(51%) sepia(42%) saturate(6815%) hue-rotate(80deg) brightness(95%) contrast(95%);
+}

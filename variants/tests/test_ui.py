@@ -713,7 +713,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         WebDriverWait(self.selenium, self.wait_time).until(
             wait_for_element_endswith_value(
                 selectors[0].find_element_by_xpath(
-                    "../following-sibling::td[contains(@class, 'bookmark')]/a/img[@class='variant-bookmark']"
+                    "../following-sibling::td[contains(@class, 'bookmark')]/a/img[contains(@class, 'variant-bookmark')]"
                 ),
                 "src",
                 "/icons/fa-solid/bookmark.svg",
@@ -723,7 +723,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         WebDriverWait(self.selenium, self.wait_time).until(
             wait_for_element_endswith_value(
                 selectors[1].find_element_by_xpath(
-                    "../following-sibling::td[contains(@class, 'bookmark')]/a/img[@class='variant-bookmark']"
+                    "../following-sibling::td[contains(@class, 'bookmark')]/a/img[contains(@class, 'variant-bookmark')]"
                 ),
                 "src",
                 "/icons/fa-solid/bookmark.svg",
@@ -733,7 +733,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.assertTrue(
             selectors[2]
             .find_element_by_xpath(
-                "../following-sibling::td[contains(@class, 'bookmark')]/a/img[@class='variant-bookmark']"
+                "../following-sibling::td[contains(@class, 'bookmark')]/a/img[contains(@class, 'variant-bookmark')]"
             )
             .get_attribute("src")
             .endswith("/icons/fa-regular/bookmark.svg")
