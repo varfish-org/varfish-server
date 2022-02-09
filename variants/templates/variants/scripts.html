@@ -4,6 +4,7 @@
   /* This script has the purpose of dynamically rendering the django template variables that we require in JavaScript.
    */
   var structural_or_small = "small";
+  var filter_or_case_details = "filter";
   var variant_flags_url = "{% url 'variants:small-variant-flags-api' project=project.sodar_uuid case="--abcef--" %}";
   var variant_comment_url = "{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case="--abcef--" %}";
   var multi_variant_flags_comment_url = "{% url 'variants:multi-small-variant-flags-comment-api' project=project.sodar_uuid %}";

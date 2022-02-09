@@ -14,6 +14,16 @@
 
         <div class="float-right">
           <div class="dropdown">
+            <button type="button" id="multiVarButton" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="iconify" data-icon="fluent:bookmark-multiple-16-filled"></i> Multi-Variant Options
+            </button>
+            <div class="dropdown-menu dropdown-menu-left" style="z-index: 1031;">
+              <a class="dropdown-item" id="multivar-bookmark-comment" data-toggle="modal" data-target="#multiVarBookmarkCommentModal">
+                <i class="iconify" data-icon="fluent:bookmark-multiple-16-filled"></i> Flag & Comment
+              </a>
+            </div>
+          </div>
+          <div class="dropdown pl-2">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
               <i class="iconify" data-icon="fa-solid:cloud-download-alt"></i>
               Download
@@ -32,9 +42,10 @@
         </div>
       </h4>
     </div>
-    <table class="table table-striped table-hover">
+    <table class="table table-striped table-hover table-sm" style="width: 100%">
       <thead>
         <tr>
+          <th rowspan="2"></th>
           <th style="width: 200px;" rowspan="2" class="text-center align-text-top"><div class="sodar-overflow-container sodar-overflow-hover">Variant</div></th>
           <th style="width: 80px;" rowspan="2" class="text-center align-text-top"><div class="sodar-overflow-container sodar-overflow-hover">Gene(s) / Effect(s)</div></th>
           <th rowspan="2" class="text-center align-text-top">ACMG Rating</th>
@@ -44,25 +55,30 @@
         </tr>
         <tr>
           <th class="text-center">Generic</th>
-          <th class="text-center">Visual</th>
-          <th class="text-center">Molecular</th>
-          <th class="text-center">Validation</th>
-          <th class="text-center">Phenotype</th>
-          <th class="text-center">Summary</th>
+          <th class="text-center" data-toggle="tooltip" data-title="Visual">Vis.</th>
+          <th class="text-center" data-toggle="tooltip" data-title="Molecular">Mol.</th>
+          <th class="text-center" data-toggle="tooltip" data-title="Validation">Val.</th>
+          <th class="text-center" data-toggle="tooltip" data-title="Phenotype">Phe.</th>
+          <th class="text-center" data-toggle="tooltip" data-title="Summary">Sum.</th>
         </tr>
       </thead>
       <tbody>
         {% for data in commentsflags.values %}
-          <tr id="flags-{{ var_id }}">
-            <td class="text-nowrap">
-              <div class="sodar-overflow-container sodar-overflow-hover" style="max-width: 200px;">
+          <tr id="flags-{{ data.variants.0|smallvar_description }}">
+            <td>
+              <input type="checkbox" value="{{ data.variants.0|smallvar_description }}" class="multivar-selector" data-case="{{ case.sodar_uuid }}">
+            </td>
+            <td style="max-width: 100px;">
+              <div class="sodar-overflow-container sodar-overflow-hover">
                 {{ data.variants.0.human_readable }}
               </div>
             </td>
-            <td>
+            <td style="max-width: 100px;">
+              <div class="sodar-overflow-container sodar-overflow-hover">
               {% for variant in data.variants %}
                 {{ gene_id_to_symbol|keyvalue:variant.refseq_gene_id }}:{{ variant.refseq_hgvs_p|default:variant.refseq_hgvs_c|default:"-" }}{% if not forloop.last %},{% endif %}
               {% endfor %}
+              </div>
             </td>
             <td class="text-center">
               {% if data.acmg_rating %}
@@ -70,18 +86,18 @@
                   {{ data.acmg_rating|acmg_classification2 }}
                 </span>
               {% else %}
-                <p class="text-muted font-italic">No ACMG rating.</p>
+                <p class="text-muted font-italic">None</p>
               {% endif %}
             </td>
             {% if data.flags %}
               <td class="text-center">
-                <i class="iconify {% if not data.flags.flag_bookmarked %}text-muted" style="opacity: 0.3{% endif %}" data-icon="fa-solid:star"></i>
-                <i class="iconify {% if not data.flags.flag_for_validation %}text-muted" style="opacity: 0.3{% endif %}" data-icon="fa-solid:flask"></i>
-                <i class="iconify {% if not data.flags.flag_candidate %}text-muted" style="opacity: 0.3{% endif %}" data-icon="fa-solid:heart"></i>
-                <i class="iconify {% if not data.flags.flag_final_causative %}text-muted" style="opacity: 0.3{% endif %}" data-icon="fa-solid:flag-checkered"></i>
-                <i class="iconify {% if not data.flags.flag_no_disease_association %}text-muted" style="opacity: 0.3{% endif %}" data-icon="cli:link-broken"></i>
-                <i class="iconify {% if not data.flags.flag_segregates %}text-muted" style="opacity: 0.3{% endif %}" data-icon="fa-solid:thumbs-up"></i>
-                <i class="iconify {% if not data.flags.flag_doesnt_segregate %}text-muted" style="opacity: 0.3{% endif %}" data-icon="fa-solid:thumbs-down"></i>
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_bookmarked" class="img-{% if data.flags.flag_bookmarked %}dark{% else %}light{% endif %}-gray" src="/icons/fa-solid/star.svg" />
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_for_validation" class="img-{% if data.flags.flag_for_validation %}dark{% else %}light{% endif %}-gray" src="/icons/fa-solid/flask.svg" />
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_candidate" class="img-{% if data.flags.flag_candidate %}dark{% else %}light{% endif %}-gray" src="/icons/fa-solid/heart.svg" />
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_final_causative" class="img-{% if data.flags.flag_final_causative %}dark{% else %}light{% endif %}-gray" src="/icons/fa-solid/flag-checkered.svg" />
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_disease_association" class="img-{% if data.flags.flag_no_disease_association %}dark{% else %}light{% endif %}-gray" src="/icons/cil/link-broken.svg" />
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_segregates" class="img-{% if data.flags.flag_segregates %}dark{% else %}light{% endif %}-gray" src="/icons/fa-solid/thumbs-up.svg" />
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_doesnt_segregate" class="img-{% if data.flags.flag_doesnt_segregate %}dark{% else %}light{% endif %}-gray" src="/icons/fa-solid/thumbs-down.svg" />
               </td>
               <td class="text-center">
                 <i class="iconify {{ data.flags.flag_visual|flag_value_to_color }}" data-icon="{{ data.flags.flag_visual|flag_value_to_fa }}"></i>
@@ -107,7 +123,6 @@
                 data-url-submit="{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case=object.sodar_uuid %}"
                 data-url-delete="{% url 'variants:small-variant-comment-delete-api' project=project.sodar_uuid case=object.sodar_uuid %}">
               {% for comment in data.comments %}
-                {{ comment }}
                 <li class="list-group-item list-item" id="comment-{{ comment.sodar_uuid }}" data-sodar-uuid="{{ comment.sodar_uuid }}">
                   <div id="display-comment-{{ comment.sodar_uuid }}">
                     <span class="small text-muted">
@@ -174,6 +189,24 @@
         {% endfor %}
       </tbody>
     </table>
+  </div>
+
+  {# Multi-var bookmark and comment modal #}
+  <div class="modal fade" id="multiVarBookmarkCommentModal" aria-hidden="true">
+    <div class="modal-dialog" style="width: 434px" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Multi-Variant Comments &amp; Flags</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid" id="multiVarBookmarkCommentModalContent">
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 

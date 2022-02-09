@@ -296,27 +296,43 @@ function clickMultiVariantBookmark() {
       }).done(function(data) {
         if (data["message"] === "OK") {
           $.each(rowIds, function(i, e) {
-            var iconBookmark = $(e).find(".variant-bookmark")
-            var iconComment = $(e).find(".variant-comment")
             var d = data["flags"]
+            // update filter results
+            if (filter_or_case_details === "filter") {
+              var iconBookmark = $(e).find(".variant-bookmark")
+              var iconComment = $(e).find(".variant-comment")
 
-            if (d["flag_bookmarked"] || d["flag_for_validation"] || d["flag_candidate"] || d["flag_final_causative"]) {
-              iconBookmark.attr("src", "/icons/fa-solid/bookmark.svg");
-            } else {
-              iconBookmark.attr("src", "/icons/fa-regular/bookmark.svg");
-            }
-
-            if (data["comment"]) {
-              iconComment.attr("src", "/icons/fa-solid/comment.svg");
-            }
-
-            $(e).removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty variant-row-wip");
-            $(e).addClass("variant-row-" + summarizeFlags(d));
-            if (structural_or_small === "small") {
-              let dtrow = dt.row($(e));
-              if (dtrow.child() && dtrow.child().length) {
-                loadVariantDetails(dtrow, cell);
+              if (d["flag_bookmarked"] || d["flag_for_validation"] || d["flag_candidate"] || d["flag_final_causative"]) {
+                iconBookmark.attr("src", "/icons/fa-solid/bookmark.svg");
+              } else {
+                iconBookmark.attr("src", "/icons/fa-regular/bookmark.svg");
               }
+
+              if (data["comment"]) {
+                iconComment.attr("src", "/icons/fa-solid/comment.svg");
+              }
+
+              $(e).removeClass("variant-row-positive variant-row-uncertain variant-row-negative variant-row-empty variant-row-wip");
+              $(e).addClass("variant-row-" + summarizeFlags(d));
+              if (structural_or_small === "small") {
+                let dtrow = dt.row($(e));
+                if (dtrow.child() && dtrow.child().length) {
+                  loadVariantDetails(dtrow, cell);
+                }
+              }
+            }
+            else { // case_details
+              // update case detail page
+              var flags = ["bookmarked", "for_validation", "candidate", "final_causative", "disease_association", "segregates", "doesnt_segregate"]
+              $.each(flags, function (flag) {
+                if (d["flag_" + flag]) {
+                  $(e + "-flag-" + flag).addClass("img-dark-gray")
+                  $(e + "-flag-" + flag).removeClass("img-light-gray")
+                } else {
+                  $(e + "-flag-" + flag).removeClass("img-dark-gray")
+                  $(e + "-flag-" + flag).addClass("img-light-gray")
+                }
+              })
             }
           });
         }

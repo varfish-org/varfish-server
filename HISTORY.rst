@@ -94,6 +94,8 @@ Full Change List
 - Adding REST API versioning to (#333)
 - Adding more postgres versions to CI (#337)
 - Make migrations compatible with Postgres 14 (#338)
+- DgvSvs and DgvGoldStandardSvs are two different data sources now
+- Adding deep linking into case details tab (#344)
 
 -------
 v0.23.9
