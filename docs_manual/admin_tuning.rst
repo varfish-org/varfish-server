@@ -79,3 +79,31 @@ The following tables and their indices are large and read-only after the initial
 
 Moving them to cheaper storage with higher latency than the rest of the data might be feasible if you are hard-pressed for saving storage.
 The authors have not tried this and would be very interested in experience reports.
+
+---------------
+Reference Times
+---------------
+
+For reference, here are some timings for importing the background database on different hardware.
+
+.. list-table:: Reference background data import times
+    :header-rows: 1
+
+    * - Data
+      - VarFish
+      - Postgres
+      - Storage
+      - File System
+      - Time [HH:MM]
+    * - 20210728-grch37
+      - v0.23.9+42
+      - 12.9
+      - 25xSSD RBD 16.2.7
+      - XFS
+      - 13.5h
+    * - 20210728-grch38
+      - v0.23.9+42
+      - 12.9
+      - 25xSSD RBD 16.2.7
+      - XFS
+      - TBD
