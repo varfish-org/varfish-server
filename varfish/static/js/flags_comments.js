@@ -221,16 +221,21 @@ $('body').on('click', function (e) {
     });
 });
 
-function clickMultiVariantBookmark() {
+function clickMultiVariantBookmark(event) {
   // Compile template.
   var bookmarkModalTpl = $.templates("#multi-bookmark-flags-modal");
-  var multiVars = $(".multivar-selector:checked");
-  var variantList = [];
-  var rowIds = [];
+
+  let selector = $(event.target).data('selector')
+  if (!selector) {
+    selector = $(event.target).closest('.btn').data('selector')
+  }
+  const multiVars = $(selector);
+  const variantList = [];
+  const rowIds = [];
   multiVars.each(function(i, e) {
     if (structural_or_small == "small") {
-      var dataVariant = $(e).val();
-      var arrVariant = dataVariant.split("-");
+      const dataVariant = $(e).val();
+      const arrVariant = dataVariant.split("-");
       variantList.push({
         case: $(e).data("case"),
         release: arrVariant[0],
@@ -576,5 +581,6 @@ function toggleMultiVarOptionsDropdown() {
 $(document).on("click", ".variant-bookmark-comment-group", clickVariantBookmark);
 $(document).on("click", ".variant-acmg", clickVariantAcmgRating);
 $(document).on("click", "#multivar-bookmark-comment", clickMultiVariantBookmark);
+$(document).on("click", ".singlevar-bookmark-comment", clickMultiVariantBookmark);
 $(document).on("click", ".multivar-selector", toggleMultiVarOptionsDropdown);
 
