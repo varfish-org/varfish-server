@@ -418,6 +418,154 @@ function updateAcmgRating(theForm) {
   inputClassification.val(acmgClass)
 }
 
+function clickVariantAcmgRatingModal(event) {
+  const outerThis = $(this)
+  // Compile template.
+  const acmgRatingModalTpl = $.templates("#single-acmg-criteria-modal")
+
+  let selector = $(event.target).data('selector')
+  if (!selector) {
+    selector = $(event.target).closest('.btn').data('selector')
+  }
+  const multiVars = $(selector)
+  const variantList = []
+  const rowIds = []
+  let caseUuid = null
+
+  multiVars.each(function(i, e) {
+    const dataVariant = $(e).val();
+    const arrVariant = dataVariant.split("-");
+    caseUuid = $(e).data("case")
+    variantList.push({
+      case: $(e).data("case"),
+      dataVariant: dataVariant,
+      release: arrVariant[0],
+      chromosome: arrVariant[1],
+      start: arrVariant[2],
+      end: arrVariant[3],
+      bin: arrVariant[4],
+      reference: arrVariant[5],
+      alternative: arrVariant[6],
+    })
+    rowIds.push("#" + $(e).data("case") + "-" + dataVariant)
+  })
+  // TODO: we only consider the first variant
+  const singleVar = variantList[0]
+
+  const modal = $("#singleVarAcmgRatingModal")
+
+  // Save ACMG rating.
+  function saveForm(event) {
+    console.log('saving form')
+    event.preventDefault()  // we will handle everything
+
+    // Save flags
+    const form = $(this).closest("form")
+    let formValues = form.serializeArray()
+    // Because serializeArray() ignores unset checkboxes and radio buttons:
+    formValues = formValues.concat(
+      form.find('input[type=checkbox]:not(:checked)').map(
+        function() { return {"name": this.name, "value": false} }).get())
+    let formData = ""
+    for (let i = 0; i < formValues.length; ++i) {
+      let key = formValues[i].name
+      let value = formValues[i].value
+      if (key.startsWith("pvs") || key.startsWith("ps") || key.startsWith("pm") || key.startsWith("pp") ||
+        key.startsWith("ba") || key.startsWith("bs") || key.startsWith("bp")) {
+        value = value ? 2 : 0
+      }
+      if (formData.length > 0) {
+        formData += "&"
+      }
+      formData += key + "=" + value
+    }
+    $.ajax({
+      type: "POST",
+      url: acmg_rating_url.replace("--abcef--", caseUuid),
+      data: formData + "&csrfmiddlewaretoken=" + getCookie("csrftoken"),
+      dataType: "json",
+    }).done(function(data) {
+      let badge = $(outerThis).closest(".variant-row").find(".variant-acmg")
+      let acmgClass = data["class_override"] || data["class_auto"]
+      if (acmgClass && (acmgClass > 3)) {
+        badge.addClass("badge-danger text-white")
+        badge.removeClass("badge-light badge-warning badge-success text-black text-muted")
+        badge.text(acmgClass)
+      } else if (acmgClass && (acmgClass == 3)) {
+        badge.addClass("badge-warning text-black")
+        badge.removeClass("badge-light text-muted badge-danger badge-success text-white")
+        badge.text(acmgClass)
+      } else if (acmgClass) {
+        badge.addClass("badge-success text-white")
+        badge.removeClass("badge-light text-muted badge-danger badge-warning text-black")
+        badge.text(acmgClass)
+      } else {
+        badge.removeClass("badge-danger badge-warning badge-success text-white");
+        badge.addClass("badge-light text-black text-muted");
+        badge.text("-");
+      }
+      $(modal).modal("hide");
+    }).fail(function(xhr) {
+      // failed, notify user
+      alert("Updating ACMG classification failed");
+      $(modal).modal("hide");
+    });
+  }
+
+  // Show modal when ACMG rating has been retrieved.
+  function showModal(data) {
+    const rawHtml = acmgRatingModalTpl.render(data)
+    const html = $(rawHtml)
+    html.find('[data-toggle="tooltip"]').tooltip()
+    html.find('input').change(acmgCriterionChanged)
+    updateAcmgRating(html)  // initial computation
+    html.find('.btn.save').click(saveForm)
+    html.find('.btn.clear').click(function(e) {
+      $(this).closest('form').find(':checkbox').prop('checked', false)
+      $(this).closest('form').find(':text').val('')
+    })
+
+    $("#singleVarAcmgRatingModalContent").html(html);
+  }
+
+  // Retrieve current small variant flags from server via AJAX.
+  $.ajax({
+    url: acmg_rating_url.replace("--abcef--", singleVar.case),
+    data: singleVar,
+    dataType: "json"
+  }).done(function(data) {
+    // found flags, show form with these
+    data["variant"] = singleVar.dataVariant
+    showModal(data)
+  }).fail(function(xhr) {
+    if (xhr.status == 404) {
+      // no flags found yet, show form with defaults
+      var data = {
+        variant: singleVar.dataVariant,
+        release: singleVar.release,
+        chromosome: singleVar.chromosome,
+        start: singleVar.start,
+        end: singleVar.end,
+        bin: singleVar.bin,
+        reference: singleVar.reference,
+        alternative: singleVar.alternative,
+        flag_bookmarked: true,
+        flag_for_validation: false,
+        flag_candidate: false,
+        flag_final_causative: false,
+        flag_visual: "empty",
+        flag_validation: "empty",
+        flag_phenotype_match: "empty",
+        flag_summary: "empty",
+      }
+      showModal(data)
+    } else {
+      // Non-404 status code, something else failed.
+      alert("Retrieving ACMG ratings failed failed")
+    }
+  })
+}
+
 function acmgCriterionChanged(event) {
   updateAcmgRating(event.target.form)
 }
@@ -582,5 +730,6 @@ $(document).on("click", ".variant-bookmark-comment-group", clickVariantBookmark)
 $(document).on("click", ".variant-acmg", clickVariantAcmgRating);
 $(document).on("click", "#multivar-bookmark-comment", clickMultiVariantBookmark);
 $(document).on("click", ".singlevar-bookmark-comment", clickMultiVariantBookmark);
+$(document).on("click", ".singlevar-acmg-rating", clickVariantAcmgRatingModal);
 $(document).on("click", ".multivar-selector", toggleMultiVarOptionsDropdown);
 

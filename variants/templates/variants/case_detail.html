@@ -178,6 +178,7 @@
   <script type="text/javascript" src="{% static 'js/helpers.js' %}"></script>
   <script type="text/javascript">
     var structural_or_small = "small";
+    var acmg_rating_url = "{% url 'variants:acmg-rating-api' project=project.sodar_uuid case="--abcef--" %}";
     var multi_variant_flags_comment_url = "{% url 'variants:multi-small-variant-flags-comment-api' project=project.sodar_uuid %}";
     var filter_or_case_details = "case_details";
   </script>
@@ -196,4 +197,5 @@
     });
   </script>
   {% include "variants/_multi_variant_flag_form_tpl.html" %}
+  {% include "variants/_single_acmg_criteria_form_tpl.html" %}
 {% endblock %}
