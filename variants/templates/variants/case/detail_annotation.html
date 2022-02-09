@@ -13,30 +13,32 @@
         Annotated Variants
 
         <div class="float-right">
-          <div class="dropdown">
-            <button type="button" id="multiVarButton" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="iconify" data-icon="fluent:bookmark-multiple-16-filled"></i> Multi-Variant Options
-            </button>
-            <div class="dropdown-menu dropdown-menu-left" style="z-index: 1031;">
-              <a class="dropdown-item" id="multivar-bookmark-comment" data-toggle="modal" data-target="#multiVarBookmarkCommentModal">
-                <i class="iconify" data-icon="fluent:bookmark-multiple-16-filled"></i> Flag & Comment
-              </a>
+          <div class="btn-group btn-sm" role="group">
+            <div class="btn-group">
+              <button type="button" id="multiVarButton" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconify" data-icon="fluent:bookmark-multiple-16-filled"></i> Multi-Variant Options
+              </button>
+              <div class="dropdown-menu dropdown-menu-left" style="z-index: 1031;">
+                <a class="dropdown-item" id="multivar-bookmark-comment" data-selector=".multivar-selector:checked" data-toggle="modal" data-target="#multiVarBookmarkCommentModal">
+                  <i class="iconify" data-icon="fluent:bookmark-multiple-16-filled"></i> Flag & Comment
+                </a>
+              </div>
             </div>
-          </div>
-          <div class="dropdown pl-2">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-              <i class="iconify" data-icon="fa-solid:cloud-download-alt"></i>
-              Download
-            </button>
-            <div class="dropdown-menu">
-              <a class="dropdown-item" href="{% url 'variants:case-download-annotations' project=project.sodar_uuid case=case.sodar_uuid %}?format=xlsx">
-                <i class="iconify" data-icon="fa-regular:file-excel"></i>
-                Excel Format
-              </a>
-              <a class="dropdown-item" href="{% url 'variants:case-download-annotations' project=project.sodar_uuid case=case.sodar_uuid %}?format=txt">
-                <i class="iconify" data-icon="fa-regular:file-alt"></i>
-                TSV Format
-              </a>
+            <div class="btn-group">
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                <i class="iconify" data-icon="fa-solid:cloud-download-alt"></i>
+                Download
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'variants:case-download-annotations' project=project.sodar_uuid case=case.sodar_uuid %}?format=xlsx">
+                  <i class="iconify" data-icon="fa-regular:file-excel"></i>
+                  Excel Format
+                </a>
+                <a class="dropdown-item" href="{% url 'variants:case-download-annotations' project=project.sodar_uuid case=case.sodar_uuid %}?format=txt">
+                  <i class="iconify" data-icon="fa-regular:file-alt"></i>
+                  TSV Format
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -64,9 +66,9 @@
       </thead>
       <tbody>
         {% for data in commentsflags.values %}
-          <tr id="flags-{{ data.variants.0|smallvar_description }}">
+          <tr id="flags-{{ data.variants.0|smallvar_description }}" class="variant-row">
             <td>
-              <input type="checkbox" value="{{ data.variants.0|smallvar_description }}" class="multivar-selector" data-case="{{ case.sodar_uuid }}">
+              <input type="checkbox" value="{{ data.variants.0|smallvar_description }}" class="multivar-selector" data-case="{{ case.sodar_uuid }}" id="checkbox-{{ forloop.counter }}">
             </td>
             <td style="max-width: 100px;">
               <div class="sodar-overflow-container sodar-overflow-hover">
@@ -82,11 +84,13 @@
             </td>
             <td class="text-center">
               {% if data.acmg_rating %}
-                <span class="{{ data.acmg_rating|acmg_badge_class2 }}">
+                <span class="variant-acmg {{ data.acmg_rating|acmg_badge_class2 }}" style="width: 22px; display: inline-block">
                   {{ data.acmg_rating|acmg_classification2 }}
                 </span>
               {% else %}
-                <p class="text-muted font-italic">None</p>
+                <span class="badge badge-light text-muted variant-acmg" style="width: 22px; display: inline-block">
+                  -
+                </span>
               {% endif %}
             </td>
             {% if data.flags %}
@@ -95,31 +99,31 @@
                 <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_for_validation" class="img-{% if data.flags.flag_for_validation %}dark{% else %}light{% endif %}-gray" src="/icons/fa-solid/flask.svg" />
                 <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_candidate" class="img-{% if data.flags.flag_candidate %}dark{% else %}light{% endif %}-gray" src="/icons/fa-solid/heart.svg" />
                 <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_final_causative" class="img-{% if data.flags.flag_final_causative %}dark{% else %}light{% endif %}-gray" src="/icons/fa-solid/flag-checkered.svg" />
-                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_disease_association" class="img-{% if data.flags.flag_no_disease_association %}dark{% else %}light{% endif %}-gray" src="/icons/cil/link-broken.svg" />
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_no_disease_association" class="img-{% if data.flags.flag_no_disease_association %}dark{% else %}light{% endif %}-gray" src="/icons/cil/link-broken.svg" />
                 <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_segregates" class="img-{% if data.flags.flag_segregates %}dark{% else %}light{% endif %}-gray" src="/icons/fa-solid/thumbs-up.svg" />
                 <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_doesnt_segregate" class="img-{% if data.flags.flag_doesnt_segregate %}dark{% else %}light{% endif %}-gray" src="/icons/fa-solid/thumbs-down.svg" />
               </td>
               <td class="text-center">
-                <i class="iconify {{ data.flags.flag_visual|flag_value_to_color }}" data-icon="{{ data.flags.flag_visual|flag_value_to_fa }}"></i>
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_visual" class="{{ data.flags.flag_visual|flag_value_to_img_color }}" src="{{ data.flags.flag_visual|flag_value_to_img }}">
               </td>
               <td class="text-center">
-                <i class="iconify {{ data.flags.flag_molecular|flag_value_to_color }}" data-icon="{{ data.flags.flag_molecular|flag_value_to_fa }}"></i>
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_molecular" class="{{ data.flags.flag_molecular|flag_value_to_img_color }}" src="{{ data.flags.flag_molecular|flag_value_to_img }}">
               </td>
               <td class="text-center">
-                <i class="iconify {{ data.flags.flag_validation|flag_value_to_color }}" data-icon="{{ data.flags.flag_validation|flag_value_to_fa }}"></i>
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_validation" class="{{ data.flags.flag_validation|flag_value_to_img_color }}" src="{{ data.flags.flag_validation|flag_value_to_img }}">
               </td>
               <td class="text-center">
-                <i class="iconify {{ data.flags.flag_phenotype_match|flag_value_to_color }}" data-icon="{{ data.flags.flag_phenotype_match|flag_value_to_fa }}"></i>
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_phenotype_match" class="{{ data.flags.flag_phenotype_match|flag_value_to_img_color }}" src="{{ data.flags.flag_phenotype_match|flag_value_to_img }}">
               </td>
               <td class="text-center">
-                <i class="iconify {{ data.flags.flag_summary|flag_value_to_color }}" data-icon="{{ data.flags.flag_summary|flag_value_to_fa }}"></i>
+                <img id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-flag_summary" class="{{ data.flags.flag_summary|flag_value_to_img_color }}" src="{{ data.flags.flag_summary|flag_value_to_img }}">
               </td>
             {% else %}
               <td colspan="6" class="text-center text-muted font-italic">No flags.</td>
             {% endif %}
             <td>
               <ul class="list-group list" style="width: 400px"
-                id="small-variant-comment-{{ data.variants.0.chromosome }}-{{ data.variants.0.start }}-{{ data.variants.0.reference }}-{{ data.variants.0.alternative }}"
+                id="{{ case.sodar_uuid }}-{{ data.variants.0|smallvar_description }}-small-variant-comment"
                 data-url-submit="{% url 'variants:small-variant-comment-api' project=project.sodar_uuid case=object.sodar_uuid %}"
                 data-url-delete="{% url 'variants:small-variant-comment-delete-api' project=project.sodar_uuid case=object.sodar_uuid %}">
               {% for comment in data.comments %}
@@ -127,12 +131,12 @@
                   <div id="display-comment-{{ comment.sodar_uuid }}">
                     <span class="small text-muted">
                       <strong>{{ comment.user.username }}</strong>
-                      {{ comment.date_created|date:"Y/m/d H:i" }}:
+                      {{ comment.get_date_created }}:
                     </span>
                     <em>{{ comment.text }}</em>
                     {% if comment.user == request.user or request.user.is_superuser %}
-                      <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="iconify" data-icon="mdi:pencil"></i></a>
-                      <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="iconify" data-icon="fa-solid:times-circle"></i></a>
+                      <a class="pl-2 text-secondary comment-button-edit"><i class="iconify" data-icon="mdi:pencil"></i></a>
+                      <a class="pl-2 text-secondary comment-button-delete"><i class="iconify" data-icon="fa-solid:times-circle"></i></a>
                     {% endif %}
                   </div>
                   <div id="edit-comment-{{ comment.sodar_uuid }}" style="display: none;">
@@ -172,9 +176,17 @@
               <p id="small-variant-comment-{{ data.variants.0.chromosome }}-{{ data.variants.0.start }}-{{ data.variants.0.reference }}-{{ data.variants.0.alternative }}-empty" class="text-muted font-italic text-center"{% if data.comments %} style="display: none;"{% endif %}>No comments.</p>
             </td>
             <td>
+              <div class="btn-group" role="group">
+                <span class="btn btn-sm btn-outline-primary" style="pointer-events: none">Update</span>
+                <a class="btn btn-sm btn-primary singlevar-bookmark-comment" data-selector="#checkbox-{{ forloop.counter }}" data-toggle="modal" data-target="#multiVarBookmarkCommentModal">
+                  <i class="iconify" data-icon="fluent:bookmark-multiple-16-filled"></i>
+                </a>
+                <a class="btn btn-sm btn-primary singlevar-acmg-rating" data-selector="#checkbox-{{ forloop.counter }}" data-toggle="modal" data-target="#singleVarAcmgRatingModal">
+                  <span class="iconify" data-icon="fluent:document-page-number-24-filled"></span>
+                </a>
+              </div>
               <a
                 onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ data.variants.0.chromosome }}:{{ data.variants.0.start }}-{{ data.variants.0.end }}'})"
-                href="#"
                 class="btn btn-sm btn-secondary">
                 IGV
               </a>
@@ -203,6 +215,23 @@
         </div>
         <div class="modal-body">
           <div class="container-fluid" id="multiVarBookmarkCommentModalContent">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {# Single-var ACMG update modal #}
+  <div class="modal fade" id="singleVarAcmgRatingModal" aria-hidden="true">
+    <div class="modal-dialog modal-xl" style="width: 680px" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">ACMG Rating</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid" id="singleVarAcmgRatingModalContent">
           </div>
         </div>
       </div>
@@ -291,8 +320,8 @@
                     </span>
                     <em>{{ comment|keyvalue:"text" }}</em>
 {#                    {% if comment|keyvalue:"user" == request.user or request.user.is_superuser %}#}
-{#                      <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="iconify" data-icon="mdi:pencil"></i></a>#}
-{#                      <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="iconify" data-icon="fa-solid:times-circle"></i></a>#}
+{#                      <a class="pl-2 text-secondary comment-button-edit"><i class="iconify" data-icon="mdi:pencil"></i></a>#}
+{#                      <a class="pl-2 text-secondary comment-button-delete"><i class="iconify" data-icon="fa-solid:times-circle"></i></a>#}
 {#                    {% endif %}#}
                   </div>
                   <div id="edit-comment-{{ comment|keyvalue:"sodar_uuid" }}" style="display: none;">
@@ -336,7 +365,6 @@
             <td>
               <a
                 onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ variant.0 }}:{{ variant.1 }}-{{ variant.2 }}'})"
-                href="#"
                 class="btn btn-sm btn-secondary">
                 IGV
               </a>

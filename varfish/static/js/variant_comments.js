@@ -131,12 +131,6 @@ function commentSubmit() {
 </li>`);
                 list.animate({scrollTop: list[0].scrollHeight}, 'slow');
                 textbox.val("");
-                $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-delete").on("click", commentDeleteToggle);
-                $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-delete-cancel").on("click", commentDeleteToggle);
-                $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-delete-submit").on("click", commentDeleteSubmit);
-                $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-edit").on("click", commentEditToggle);
-                $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-edit-cancel").on("click", commentEditToggle);
-                $('*[data-sodar-uuid="' + data["sodar_uuid"] + '"').find(".comment-button-edit-submit").on("click", commentEditSubmit);
                 handleEmptyMessage(list.attr("id"))
                 updateCaseCommentsCount();
             },

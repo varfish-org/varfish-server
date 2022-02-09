@@ -63,6 +63,7 @@ from variants.models import (
     SmallVariantComment,
 )
 from variants.queries import DeleteSmallVariantsQuery, DeleteStructuralVariantsQuery
+from variants.templatetags.variants_tags import smallvar_description
 from variants.tests.factories import (
     CaseFactory,
     SmallVariantFactory,
@@ -4041,7 +4042,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 {
                     "message": "OK",
                     "flags": {k: str(v) for k, v in data.items() if not k == "text"},
-                    "comment": "",
+                    "comment": {
+                        "dates_created": {},
+                        "text": "",
+                        "user": self.user.username,
+                        "uuids": {},
+                    },
                 },
             )
 
@@ -4085,7 +4091,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 {
                     "message": "OK",
                     "flags": {k: str(v) for k, v in data2.items() if not k == "text"},
-                    "comment": "",
+                    "comment": {
+                        "dates_created": {},
+                        "text": "",
+                        "user": self.user.username,
+                        "uuids": {},
+                    },
                 },
             )
 
@@ -4127,7 +4138,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 {
                     "message": "OK",
                     "flags": {k: str(v) for k, v in data2.items() if not k == "text"},
-                    "comment": "",
+                    "comment": {
+                        "dates_created": {},
+                        "text": "",
+                        "user": self.user.username,
+                        "uuids": {},
+                    },
                 },
             )
 
@@ -4185,7 +4201,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 {
                     "message": "OK",
                     "flags": {k: str(v) for k, v in data3.items() if not k == "text"},
-                    "comment": "",
+                    "comment": {
+                        "dates_created": {},
+                        "text": "",
+                        "user": self.user.username,
+                        "uuids": {},
+                    },
                 },
             )
 
@@ -4207,13 +4228,33 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
             )
             self.assertEqual(SmallVariantFlags.objects.count(), 2)
             self.assertEqual(SmallVariantComment.objects.count(), 2)
+            comments = list(SmallVariantComment.objects.all())
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
                 response.json(),
                 {
                     "message": "OK",
                     "flags": {k: str(v) for k, v in data.items() if not k == "text"},
-                    "comment": "Comment X",
+                    "comment": {
+                        "text": data["text"],
+                        "user": self.user.username,
+                        "dates_created": {
+                            "{}-{}".format(
+                                str(self.case.sodar_uuid), smallvar_description(self.small_vars[0])
+                            ): comments[0].get_date_created(),
+                            "{}-{}".format(
+                                str(self.case.sodar_uuid), smallvar_description(self.small_vars[1])
+                            ): comments[1].get_date_created(),
+                        },
+                        "uuids": {
+                            "{}-{}".format(
+                                str(self.case.sodar_uuid), smallvar_description(self.small_vars[0])
+                            ): str(comments[0].sodar_uuid),
+                            "{}-{}".format(
+                                str(self.case.sodar_uuid), smallvar_description(self.small_vars[1])
+                            ): str(comments[1].sodar_uuid),
+                        },
+                    },
                 },
             )
 
@@ -4256,7 +4297,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 {
                     "message": "OK",
                     "flags": {k: str(v) for k, v in data2.items() if not k == "text"},
-                    "comment": "",
+                    "comment": {
+                        "dates_created": {},
+                        "text": "",
+                        "user": self.user.username,
+                        "uuids": {},
+                    },
                 },
             )
 
