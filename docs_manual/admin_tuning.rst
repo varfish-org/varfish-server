@@ -107,3 +107,28 @@ For reference, here are some timings for importing the background database on di
       - 25xSSD RBD 16.2.7
       - XFS
       - 15h
+
+And some times for importing exome cases.
+Note that you can import multiple cases at the same time.
+
+.. list-table:: Exome case import time.
+    :header-rows: 1
+
+    * - Data
+      - VarFish
+      - Postgres
+      - Storage
+      - File System
+      - Time [HH:MM]
+    * - WES singleton
+      - v0.23.9+42
+      - 12.9
+      - 25xSSD RBD 16.2.7
+      - XFS
+      - 2-3 min
+    * - WES trio
+      - v0.23.9+42
+      - 12.9
+      - 25xSSD RBD 16.2.7
+      - XFS
+      - 5-10 min
