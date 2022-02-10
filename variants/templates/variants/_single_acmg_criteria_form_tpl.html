@@ -1,7 +1,8 @@
 {# ACMG Criteria Form #}
 {% verbatim %}
-  <script id="acmg-popup" type="text/x-jsrender">
+  <script id="single-acmg-criteria-modal" type="text/x-jsrender">
     <form style="width: 40em;">
+      <input type="hidden" name="case" value="{{:case}}" />
       <input type="hidden" name="release" value="{{:release}}" />
       <input type="hidden" name="chromosome" value="{{:chromosome}}" />
       <input type="hidden" name="start" value="{{:start}}" />
@@ -345,8 +346,8 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
 
       <div class="row pt-2 mt-2 border-top">
         <div class="ml-auto">
-          <button type="button" class="btn btn-sm btn-secondary cancel">Cancel</button>
-          <button type="button" class="btn btn-sm btn-danger" onclick="$(this).closest('form').find(':checkbox').prop('checked', false);">Clear Form</button>
+          <button type="button" class="btn btn-sm btn-secondary cancel" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-sm btn-danger clear">Clear Form</button>
           <button type="submit" class="btn btn-sm btn-primary save">Save</button>
         </div>
       </div>

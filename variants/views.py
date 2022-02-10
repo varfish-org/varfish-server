@@ -154,7 +154,7 @@ from .tasks import (
     spanr_submission_task,
 )
 from .file_export import RowWithSampleProxy
-from .templatetags.variants_tags import get_term_description
+from .templatetags.variants_tags import get_term_description, smallvar_description
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -1168,7 +1168,7 @@ class CaseDetailView(
             ].append(
                 {
                     **model_to_dict(record),
-                    "date_created": record.date_created,
+                    "date_created": record.get_date_created(),
                     "user": record.user,
                     "username": record.user.username,
                 }
@@ -4107,9 +4107,24 @@ class MultiSmallVariantFlagsAndCommentApiView(
         post_data.pop("csrfmiddlewaretoken")
         post_data_clean = {k: v[0] for k, v in post_data.items()}
         text = post_data_clean.pop("text")
+        comment_response = {
+            "text": text,
+            "user": self.request.user.username,
+            "dates_created": {},
+            "uuids": {},
+        }
 
         for variant in variant_list:
             case = get_object_or_404(Case, sodar_uuid=variant.get("case"))
+            variant_obj = SmallVariant.objects.get(
+                release=variant.get("release"),
+                chromosome=variant.get("chromosome"),
+                start=variant.get("start"),
+                end=variant.get("end"),
+                reference=variant.get("reference"),
+                alternative=variant.get("alternative"),
+                case_id=case.id,
+            )
 
             try:
                 flags = case.small_variant_flags.get(
@@ -4160,6 +4175,12 @@ class MultiSmallVariantFlagsAndCommentApiView(
                 except ValueError as e:
                     raise Exception(str(form.errors)) from e
 
+                description = "{}-{}".format(
+                    str(case.sodar_uuid), smallvar_description(variant_obj)
+                )
+                comment_response["dates_created"][description] = comment.get_date_created()
+                comment_response["uuids"][description] = str(comment.sodar_uuid)
+
                 if timeline:
                     tl_event = timeline.add_event(
                         project=self.get_project(self.request, self.kwargs),
@@ -4173,7 +4194,9 @@ class MultiSmallVariantFlagsAndCommentApiView(
                     tl_event.add_object(obj=case, label="case", name=case.name)
                     tl_event.add_object(obj=comment, label="text", name=comment.shortened_text())
 
-        return JsonResponse({"message": "OK", "flags": post_data_clean, "comment": text})
+        return JsonResponse(
+            {"message": "OK", "flags": post_data_clean, "comment": comment_response}
+        )
 
 
 class SmallVariantCommentDeleteApiView(

@@ -182,6 +182,9 @@ function clickVariantBookmark() {
           flag_for_validation: false,
           flag_candidate: false,
           flag_final_causative: false,
+          flag_no_disease_association: false,
+          flag_segregates: false,
+          flag_doesnt_segregate: false,
           flag_visual: "empty",
           flag_molecular: "empty",
           flag_validation: "empty",
@@ -196,6 +199,9 @@ function clickVariantBookmark() {
           flag_for_validation: false,
           flag_candidate: false,
           flag_final_causative: false,
+          flag_no_disease_association: false,
+          flag_segregates: false,
+          flag_doesnt_segregate: false,
           flag_visual: "empty",
           flag_molecular: "empty",
           flag_validation: "empty",
@@ -221,16 +227,21 @@ $('body').on('click', function (e) {
     });
 });
 
-function clickMultiVariantBookmark() {
+function clickMultiVariantBookmark(event) {
   // Compile template.
   var bookmarkModalTpl = $.templates("#multi-bookmark-flags-modal");
-  var multiVars = $(".multivar-selector:checked");
-  var variantList = [];
-  var rowIds = [];
+
+  let selector = $(event.target).data('selector')
+  if (!selector) {
+    selector = $(event.target).closest('.btn').data('selector')
+  }
+  const multiVars = $(selector);
+  const variantList = [];
+  const rowIds = [];
   multiVars.each(function(i, e) {
-    if (structural_or_small == "small") {
-      var dataVariant = $(e).val();
-      var arrVariant = dataVariant.split("-");
+    if (structural_or_small === "small") {
+      const dataVariant = $(e).val();
+      const arrVariant = dataVariant.split("-");
       variantList.push({
         case: $(e).data("case"),
         release: arrVariant[0],
@@ -260,16 +271,34 @@ function clickMultiVariantBookmark() {
     data: "variant_list=" + JSON.stringify(variantList),
     dataType: "json"
   }).done(function(data) {
-    var flags = {
+    var flags_bool = {
       flag_bookmarked: true,
       flag_for_validation: false,
       flag_candidate: false,
       flag_final_causative: false,
+      flag_no_disease_association: false,
+      flag_segregates: false,
+      flag_doesnt_segregate: false,
+    }
+    var flags_string = {
       flag_visual: "empty",
       flag_molecular: "empty",
       flag_validation: "empty",
       flag_phenotype_match: "empty",
       flag_summary: "empty",
+    }
+    var flags = Object.assign({}, flags_bool, flags_string);
+    var flags_color = {
+      positive: "img-red",
+      uncertain: "img-gold",
+      negative: "img-green",
+      empty: "img-gray",
+    }
+    var flags_img = {
+      positive: "/icons/fa-solid/exclamation-circle.svg",
+      uncertain: "/icons/fa-solid/question.svg",
+      negative: "/icons/fa-solid/minus-circle.svg",
+      empty: "/icons/fa-solid/times.svg",
     }
     $.each(data["flags"], function(k, v) {
       if ($.inArray(k, data["flags_interfering"]) > -1) {
@@ -285,7 +314,6 @@ function clickMultiVariantBookmark() {
     $(modal).find(".save").click(function(event) {
       event.preventDefault();  // we will handle everything
       $(this).addClass("disabled");
-
       // Save flags
       var formData = $(this).closest(".modal-content").find("form").serialize();
       $.ajax({
@@ -302,13 +330,14 @@ function clickMultiVariantBookmark() {
               var iconBookmark = $(e).find(".variant-bookmark")
               var iconComment = $(e).find(".variant-comment")
 
-              if (d["flag_bookmarked"] || d["flag_for_validation"] || d["flag_candidate"] || d["flag_final_causative"]) {
-                iconBookmark.attr("src", "/icons/fa-solid/bookmark.svg");
-              } else {
-                iconBookmark.attr("src", "/icons/fa-regular/bookmark.svg");
-              }
+              iconBookmark.attr("src", "/icons/fa-regular/bookmark.svg");
+              $.each(flags_bool, function(flag, _) {
+                if (d[flag]) {
+                  iconBookmark.attr("src", "/icons/fa-solid/bookmark.svg");
+                }
+              })
 
-              if (data["comment"]) {
+              if (data["comment"]["text"]) {
                 iconComment.attr("src", "/icons/fa-solid/comment.svg");
               }
 
@@ -323,16 +352,74 @@ function clickMultiVariantBookmark() {
             }
             else { // case_details
               // update case detail page
-              var flags = ["bookmarked", "for_validation", "candidate", "final_causative", "disease_association", "segregates", "doesnt_segregate"]
-              $.each(flags, function (flag) {
-                if (d["flag_" + flag]) {
-                  $(e + "-flag-" + flag).addClass("img-dark-gray")
-                  $(e + "-flag-" + flag).removeClass("img-light-gray")
+              $.each(flags_bool, function (flag, _) {
+                var iconFlag = $(e + "-" + flag)
+                if (d[flag]) {
+                  iconFlag.addClass("img-dark-gray")
+                  iconFlag.removeClass("img-light-gray")
                 } else {
-                  $(e + "-flag-" + flag).removeClass("img-dark-gray")
-                  $(e + "-flag-" + flag).addClass("img-light-gray")
+                  iconFlag.addClass("img-light-gray")
+                  iconFlag.removeClass("img-dark-gray")
                 }
               })
+              $.each(flags_string, function(flag, _) {
+                var iconFlag = $(e + "-" + flag)
+
+                $.each(flags_color, function(color, _class) {
+                  iconFlag.removeClass(_class)
+                })
+
+                iconFlag.addClass(flags_color[d[flag]])
+                iconFlag.attr("src", flags_img[d[flag]])
+              })
+
+              if (data["comment"]["text"]) {
+                var uuid = data["comment"]["uuids"][e.substring(1)]
+                $(e + "-small-variant-comment").append(`
+                <li class="list-group-item list-item" id="comment-${uuid}" data-sodar-uuid="${uuid}">
+                  <div id="display-comment-${uuid}">
+                    <span class="small text-muted">
+                      <strong>${data["comment"]["user"]}</strong>
+                      ${data["comment"]["dates_created"][e.substring(1)]}:
+                    </span>
+                    <em>${data["comment"]["text"]}</em>
+                    <a href="#" class="pl-2 text-secondary comment-button-edit"><i class="iconify" data-icon="mdi:pencil"></i></a>
+                    <a href="#" class="pl-2 text-secondary comment-button-delete"><i class="iconify" data-icon="fa-solid:times-circle"></i></a>
+                  </div>
+                  <div id="edit-comment-${uuid}" style="display: none;">
+                    <form>
+                      <textarea id="text-comment-${uuid}" name="variant_comment" rows="1" cols="40" class="form-control"></textarea>
+                      <span class="btn-group d-flex">
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-primary w-100 comment-button-edit-submit">
+                            Submit
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-secondary w-100 comment-button-edit-cancel">
+                            Cancel
+                        </button>
+                      </span>
+                    </form>
+                  </div>
+                  <div id="delete-comment-${uuid}" style="display: none;">
+                    <span class="btn-group d-flex">
+                      <button
+                          type="button"
+                          class="btn btn-sm btn-danger w-100 comment-button-delete-submit">
+                          Delete
+                      </button>
+                      <button
+                          type="button"
+                          class="btn btn-sm btn-secondary w-100 comment-button-delete-cancel">
+                          Cancel
+                      </button>
+                    </span>
+                  </div>
+                </li>
+                `);
+              }
             }
           });
         }
@@ -411,6 +498,154 @@ function updateAcmgRating(theForm) {
   }
 
   inputClassification.val(acmgClass)
+}
+
+function clickVariantAcmgRatingModal(event) {
+  const outerThis = $(this)
+  // Compile template.
+  const acmgRatingModalTpl = $.templates("#single-acmg-criteria-modal")
+
+  let selector = $(event.target).data('selector')
+  if (!selector) {
+    selector = $(event.target).closest('.btn').data('selector')
+  }
+  const multiVars = $(selector)
+  const variantList = []
+  const rowIds = []
+  let caseUuid = null
+
+  multiVars.each(function(i, e) {
+    const dataVariant = $(e).val();
+    const arrVariant = dataVariant.split("-");
+    caseUuid = $(e).data("case")
+    variantList.push({
+      case: $(e).data("case"),
+      dataVariant: dataVariant,
+      release: arrVariant[0],
+      chromosome: arrVariant[1],
+      start: arrVariant[2],
+      end: arrVariant[3],
+      bin: arrVariant[4],
+      reference: arrVariant[5],
+      alternative: arrVariant[6],
+    })
+    rowIds.push("#" + $(e).data("case") + "-" + dataVariant)
+  })
+  // TODO: we only consider the first variant
+  const singleVar = variantList[0]
+
+  const modal = $("#singleVarAcmgRatingModal")
+
+  // Save ACMG rating.
+  function saveForm(event) {
+    console.log('saving form')
+    event.preventDefault()  // we will handle everything
+
+    // Save flags
+    const form = $(this).closest("form")
+    let formValues = form.serializeArray()
+    // Because serializeArray() ignores unset checkboxes and radio buttons:
+    formValues = formValues.concat(
+      form.find('input[type=checkbox]:not(:checked)').map(
+        function() { return {"name": this.name, "value": false} }).get())
+    let formData = ""
+    for (let i = 0; i < formValues.length; ++i) {
+      let key = formValues[i].name
+      let value = formValues[i].value
+      if (key.startsWith("pvs") || key.startsWith("ps") || key.startsWith("pm") || key.startsWith("pp") ||
+        key.startsWith("ba") || key.startsWith("bs") || key.startsWith("bp")) {
+        value = value ? 2 : 0
+      }
+      if (formData.length > 0) {
+        formData += "&"
+      }
+      formData += key + "=" + value
+    }
+    $.ajax({
+      type: "POST",
+      url: acmg_rating_url.replace("--abcef--", caseUuid),
+      data: formData + "&csrfmiddlewaretoken=" + getCookie("csrftoken"),
+      dataType: "json",
+    }).done(function(data) {
+      let badge = $(outerThis).closest(".variant-row").find(".variant-acmg")
+      let acmgClass = data["class_override"] || data["class_auto"]
+      if (acmgClass && (acmgClass > 3)) {
+        badge.addClass("badge-danger text-white")
+        badge.removeClass("badge-light badge-warning badge-success text-black text-muted")
+        badge.text(acmgClass)
+      } else if (acmgClass && (acmgClass == 3)) {
+        badge.addClass("badge-warning text-black")
+        badge.removeClass("badge-light text-muted badge-danger badge-success text-white")
+        badge.text(acmgClass)
+      } else if (acmgClass) {
+        badge.addClass("badge-success text-white")
+        badge.removeClass("badge-light text-muted badge-danger badge-warning text-black")
+        badge.text(acmgClass)
+      } else {
+        badge.removeClass("badge-danger badge-warning badge-success text-white");
+        badge.addClass("badge-light text-black text-muted");
+        badge.text("-");
+      }
+      $(modal).modal("hide");
+    }).fail(function(xhr) {
+      // failed, notify user
+      alert("Updating ACMG classification failed");
+      $(modal).modal("hide");
+    });
+  }
+
+  // Show modal when ACMG rating has been retrieved.
+  function showModal(data) {
+    const rawHtml = acmgRatingModalTpl.render(data)
+    const html = $(rawHtml)
+    html.find('[data-toggle="tooltip"]').tooltip()
+    html.find('input').change(acmgCriterionChanged)
+    updateAcmgRating(html)  // initial computation
+    html.find('.btn.save').click(saveForm)
+    html.find('.btn.clear').click(function(e) {
+      $(this).closest('form').find(':checkbox').prop('checked', false)
+      $(this).closest('form').find(':text').val('')
+    })
+
+    $("#singleVarAcmgRatingModalContent").html(html);
+  }
+
+  // Retrieve current small variant flags from server via AJAX.
+  $.ajax({
+    url: acmg_rating_url.replace("--abcef--", singleVar.case),
+    data: singleVar,
+    dataType: "json"
+  }).done(function(data) {
+    // found flags, show form with these
+    data["variant"] = singleVar.dataVariant
+    showModal(data)
+  }).fail(function(xhr) {
+    if (xhr.status == 404) {
+      // no flags found yet, show form with defaults
+      var data = {
+        variant: singleVar.dataVariant,
+        release: singleVar.release,
+        chromosome: singleVar.chromosome,
+        start: singleVar.start,
+        end: singleVar.end,
+        bin: singleVar.bin,
+        reference: singleVar.reference,
+        alternative: singleVar.alternative,
+        flag_bookmarked: true,
+        flag_for_validation: false,
+        flag_candidate: false,
+        flag_final_causative: false,
+        flag_visual: "empty",
+        flag_validation: "empty",
+        flag_phenotype_match: "empty",
+        flag_summary: "empty",
+      }
+      showModal(data)
+    } else {
+      // Non-404 status code, something else failed.
+      alert("Retrieving ACMG ratings failed failed")
+    }
+  })
 }
 
 function acmgCriterionChanged(event) {
@@ -576,5 +811,7 @@ function toggleMultiVarOptionsDropdown() {
 $(document).on("click", ".variant-bookmark-comment-group", clickVariantBookmark);
 $(document).on("click", ".variant-acmg", clickVariantAcmgRating);
 $(document).on("click", "#multivar-bookmark-comment", clickMultiVariantBookmark);
+$(document).on("click", ".singlevar-bookmark-comment", clickMultiVariantBookmark);
+$(document).on("click", ".singlevar-acmg-rating", clickVariantAcmgRatingModal);
 $(document).on("click", ".multivar-selector", toggleMultiVarOptionsDropdown);
 

@@ -16,6 +16,7 @@ from itertools import chain
 import math
 import re
 import requests
+from django.utils.timezone import localtime
 
 from varfish.utils import JSONField
 from variants.helpers import get_engine
@@ -1387,6 +1388,9 @@ class SmallVariantComment(models.Model):
         }
         symbols2 = {o.symbol for o in Hgnc.objects.filter(ensembl_gene_id__in=gene_ids)}
         return sorted(symbols1 | symbols2)
+
+    def get_date_created(self):
+        return localtime(self.date_created).strftime("%Y-%m-%d %H:%M")
 
     def clean(self):
         """Make sure that the case has such a variant"""
