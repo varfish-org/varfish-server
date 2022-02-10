@@ -94,7 +94,7 @@ For reference, here are some timings for importing the background database on di
       - Postgres
       - Storage
       - File System
-      - Time [HH:MM]
+      - Time
     * - 20210728-grch37
       - v0.23.9+42
       - 12.9
@@ -119,7 +119,7 @@ Note that you can import multiple cases at the same time.
       - Postgres
       - Storage
       - File System
-      - Time [HH:MM]
+      - Time
     * - WES singleton
       - v0.23.9+42
       - 12.9
