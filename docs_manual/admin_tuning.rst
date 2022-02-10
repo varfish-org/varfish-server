@@ -106,4 +106,4 @@ For reference, here are some timings for importing the background database on di
       - 12.9
       - 25xSSD RBD 16.2.7
       - XFS
-      - TBD
+      - 15h
