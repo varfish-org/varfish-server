@@ -48,6 +48,7 @@ End-User Summary
 - Fixing problem with ACMD classifiction where VUS-3 was given but should be LB-2 (#359)
 - Adding REST API for creating small variant queries (#332)
 - Fixing beaconsite queries with dots in the key id (#369)
+- Allowing joint queries of larger cohorts (#241)
 
 Full Change List
 ================
@@ -106,6 +107,8 @@ Full Change List
 - Adding REST API for creating small variant queries (#332)
 - Upgrading sodar-core dependency to 0.10.10
 - Fixing beaconsite queries with dots in the key id (#369)
+- Allowing joint queries of larger cohorts (#241).
+  This is achieved by performing fewer UNION queries (at most ``VARFISH_QUERY_MAX_UNION=20`` at one time).
 
 -------
 v0.23.9
