@@ -43,6 +43,9 @@ End-User Summary
 - Make clinvar UI work with many annotations (#302)
 - Fixing CADD annotation (#319)
 - Add extra annotations, i.e. additional variant scores to the filtered variants (#242)
+- Adding mitochondrial inheritance to case phenotype annotation (#325)
+- Fix issue with variant annotation export (#328)
+- Allowing direct update of variant annotations and ACMG ratings on case annotations details (#344)
 
 Full Change List
 ================
@@ -89,6 +92,14 @@ Full Change List
   Dropping support for Python 3.7.
 - Fixing CADD annotation (#319)
 - Add extra annotations to the filtered variants (#242)
+- Adding mitochondrial inheritance to case phenotype annotation (#325)
+- Fix issue with variant annotation export (#328)
+- Adding REST API versioning to (#333)
+- Adding more postgres versions to CI (#337)
+- Make migrations compatible with Postgres 14 (#338)
+- DgvSvs and DgvGoldStandardSvs are two different data sources now
+- Adding deep linking into case details tab (#344)
+- Allowing direct update of variant annotations and ACMG ratings on case annotations details (#344)
 
 -------
 v0.23.9

@@ -119,6 +119,19 @@ Currently, the main focus is on small/sequence variants called from high-througp
 
 .. raw:: latex
 
+    \part{REST API}
+
+.. toctree::
+    :maxdepth: 1
+    :caption: REST API
+    :name: api-docs
+    :hidden:
+    :titlesonly:
+
+    api_overview
+
+.. raw:: latex
+
     \part{Developer's Manual}
 
 .. toctree::

@@ -13,6 +13,7 @@ from rest_framework.generics import (
     RetrieveDestroyAPIView,
 )
 
+from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 from . import tasks
 from .models import CaseImportInfo, VariantSetImportInfo, CaseImportState, ImportCaseBgJob
 from .serializers import (
@@ -39,6 +40,8 @@ class CaseImportInfoListCreateView(SODARAPIGenericProjectMixin, ListCreateAPIVie
 
     project_type = SODAR_CONSTANTS["PROJECT_TYPE_PROJECT"]
     serializer_class = CaseImportInfoSerializer
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
 
     def get_queryset(self):
         qs = CaseImportInfo.objects.filter(project=self.get_project())
@@ -68,6 +71,8 @@ class CaseImportInfoRetrieveUpdateDestroyView(
     lookup_url_kwarg = "caseimportinfo"
     serializer_class = CaseImportInfoSerializer
     project_type = SODAR_CONSTANTS["PROJECT_TYPE_PROJECT"]
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
 
     def perform_update(self, serializer):
         old_state = self.get_object().state
@@ -127,6 +132,8 @@ class RelatedMixin:
 class VariantSetImportBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     serializer_class = VariantSetImportInfoSerializer
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
 
     related_class = CaseImportInfo
     related_lookup_field = "case_import_info"
@@ -165,6 +172,8 @@ class VariantSetImportInfoRetrieveUpdateDestroyView(
 class BamQcFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     serializer_class = BamQcFileSerializer
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
 
     related_class = CaseImportInfo
     related_lookup_field = "case_import_info"
@@ -201,6 +210,8 @@ class BamQcFileRetrieveDestroyView(BamQcFileBaseMixin, RetrieveDestroyAPIView):
 class GenotypeFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     serializer_class = GenotypeFileSerializer
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
 
     related_class = VariantSetImportInfo
     related_lookup_field = "variant_set_import_info"
@@ -237,6 +248,8 @@ class GenotypeFileRetrieveDestroyView(GenotypeFileBaseMixin, RetrieveDestroyAPIV
 class EffectsFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     serializer_class = EffectFileSerializer
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
 
     related_class = VariantSetImportInfo
     related_lookup_field = "variant_set_import_info"
@@ -273,6 +286,8 @@ class EffectsFileRetrieveDestroyView(EffectsFileBaseMixin, RetrieveDestroyAPIVie
 class DatabaseInfoFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
 
     serializer_class = DatabaseInfoFileSerializer
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
 
     related_class = VariantSetImportInfo
     related_lookup_field = "variant_set_import_info"

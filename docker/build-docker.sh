@@ -15,4 +15,6 @@ docker build . \
     --build-arg app_git_tag=$GIT_TAG \
     --build-arg app_git_depth=$GIT_DEPTH \
     --build-arg app_git_url=$GIT_URL \
+    --no-cache \
+    --pull \
     -t ghcr.io/bihealth/varfish-server:$DOCKER_VERSION

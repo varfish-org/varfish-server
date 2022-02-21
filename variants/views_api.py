@@ -5,17 +5,18 @@ Currently, the REST API only works for the ``Case`` model.
 from projectroles.views_api import SODARAPIGenericProjectMixin
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
-# # TOOD: timeline update
+from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 
+# # TOOD: timeline update
 from .models import Case
 from .serializers import CaseSerializer
 
 
-class CaseListCreateView(
-    SODARAPIGenericProjectMixin, ListAPIView,
-):
+class CaseListCreateView(SODARAPIGenericProjectMixin, ListAPIView):
     """DRF list-create API view the ``Case`` model."""
 
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
     serializer_class = CaseSerializer
 
     def get_queryset(self):
@@ -35,6 +36,8 @@ class CaseListRetrieveUpdateDestroyView(
 
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "case"
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
     serializer_class = CaseSerializer
 
     def get_queryset(self):
@@ -56,6 +59,8 @@ class CaseListRetrieveUpdateDestroyView(
 
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "case"
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
     serializer_class = CaseSerializer
 
     def get_queryset(self):

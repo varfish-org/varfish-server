@@ -1,0 +1,3 @@
+# We need at least Python 3.8 for numpy.
+python:
+  version: "3.8"

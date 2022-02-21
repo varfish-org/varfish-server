@@ -1886,7 +1886,10 @@ class SmallVariantUserAnnotationQuery:
         return AnnotatedSmallVariants(
             small_variants=list(SmallVariant.objects.filter(id__in=small_var_ids)),
             small_variant_flags=list(SmallVariantFlags.objects.filter(id__in=flags_ids)),
-            small_variant_comments=list(SmallVariantComment.objects.filter(id__in=comments_ids)),
+            # for some reason, ordering in the model has no effect.
+            small_variant_comments=list(
+                SmallVariantComment.objects.filter(id__in=comments_ids).order_by("date_created")
+            ),
             acmg_criteria_rating=list(AcmgCriteriaRating.objects.filter(id__in=ratings_ids)),
         )
 

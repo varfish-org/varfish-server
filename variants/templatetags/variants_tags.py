@@ -201,9 +201,23 @@ FLAG_VALUE_TO_FA = {
 }
 
 
+#: Mapping of small variant flag value to font awesome icon.
+FLAG_VALUE_TO_IMG = {
+    "positive": "/icons/fa-solid/exclamation-circle.svg",
+    "uncertain": "/icons/fa-solid/question.svg",
+    "negative": "/icons/fa-solid/minus-circle.svg",
+    "empty": "/icons/fa-solid/times.svg",
+}
+
+
 @register.filter
 def flag_value_to_fa(value):
     return FLAG_VALUE_TO_FA.get(value, "fa-solid:times")
+
+
+@register.filter
+def flag_value_to_img(value):
+    return FLAG_VALUE_TO_IMG.get(value, "/icons/fa-solid/times.svg")
 
 
 #: Mapping of small variant flag value to Bootstrap color class.
@@ -215,9 +229,22 @@ FLAG_VALUE_TO_COLOR = {
 }
 
 
+FLAG_VALUE_TO_IMG_COLOR = {
+    "positive": "img-red",
+    "uncertain": "img-gold",
+    "negative": "img-green",
+    "empty": "img-gray",
+}
+
+
 @register.filter
 def flag_value_to_color(value):
     return FLAG_VALUE_TO_COLOR.get(value, "")
+
+
+@register.filter
+def flag_value_to_img_color(value):
+    return FLAG_VALUE_TO_IMG_COLOR.get(value, "")
 
 
 CASE_STATUS_TO_COLOR = {
