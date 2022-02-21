@@ -1146,6 +1146,13 @@ class TestVariantsCaseFilterViewExtraAnno(TestVariantsCaseFilterView):
         ]
         self.extra_anno_field = ExtraAnnoFieldFactory()
 
+    def _find_table_column_names(self):
+        table = self.selenium.find_element_by_id("table-config")
+        row_header = table.find_element_by_xpath('//*[@id="main"]/thead/tr[2]')
+        row_header_items = row_header.find_elements_by_tag_name("th")
+        row_header_values = [i.text for i in row_header_items]
+        return table, row_header_items, row_header_values
+
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_display_results_extra_anno(self):
         """Test if submitting the filter yields the expected results."""
@@ -1178,15 +1185,12 @@ class TestVariantsCaseFilterViewExtraAnno(TestVariantsCaseFilterView):
         self.assertTrue(self.extra_anno_field.label in columns_values)
 
         # click only extra anno
-        for i in columns_items:
-            if i.text == self.extra_anno_field.label:
-                i.click()
+        for extra_anno_columns_item in columns_items:
+            if extra_anno_columns_item.text == self.extra_anno_field.label:
+                extra_anno_columns_item.click()
 
         # find extra anno column header in the table
-        table = self.selenium.find_element_by_id("table-config")
-        row_header = table.find_element_by_xpath('//*[@id="main"]/thead/tr[2]')
-        row_header_items = row_header.find_elements_by_tag_name("th")
-        row_header_values = [i.text for i in row_header_items]
+        table, row_header_items, row_header_values = self._find_table_column_names()
         self.assertTrue(self.extra_anno_field.label in row_header_values)
 
         # get extra anno header element
@@ -1221,3 +1225,10 @@ class TestVariantsCaseFilterViewExtraAnno(TestVariantsCaseFilterView):
         row_extra_anno_values_db = [float(i.anno_data[0]) for i in self.extra_anno]
         row_extra_anno_values_db.sort()
         self.assertTrue(row_extra_anno_values_db, row_extra_anno_values_sorted)
+
+        # click to hide extra anno
+        bt.click()
+        extra_anno_columns_item.click()
+        # extra anno column header hidden in the table
+        table, row_header_items, row_header_values = self._find_table_column_names()
+        self.assertFalse(self.extra_anno_field.label in row_header_values)
