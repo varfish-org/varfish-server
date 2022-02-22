@@ -1,6 +1,8 @@
 import uuid as uuid_object
 from datetime import datetime, timedelta
 
+from django.utils.timezone import localtime
+
 from varfish.utils import JSONField
 from variants.helpers import get_engine
 from bgjobs.models import BackgroundJob, JobModelMessageMixin
@@ -307,6 +309,9 @@ class _UserAnnotation(models.Model):
 
     def get_variant_description(self):
         return "({}) chr{}:{}-{}".format(self.sv_type, self.chromosome, self.start, self.end)
+
+    def get_date_created(self):
+        return localtime(self.date_created).strftime("%Y-%m-%d %H:%M")
 
     class Meta:
         abstract = True
