@@ -316,7 +316,7 @@
                   <div id="display-comment-{{ comment|keyvalue:"sodar_uuid" }}">
                     <span class="small text-muted">
                       <strong>{{ comment|keyvalue:"username" }}</strong>
-                      {{ comment|keyvalue:"date_created"|date:"Y/m/d H:i" }}:
+                      {{ comment|keyvalue:"date_created" }}:
                     </span>
                     <em>{{ comment|keyvalue:"text" }}</em>
 {#                    {% if comment|keyvalue:"user" == request.user or request.user.is_superuser %}#}
