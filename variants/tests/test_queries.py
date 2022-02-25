@@ -4408,34 +4408,12 @@ class TestHgmdMembershipQuery(SupportQueryTestBase):
             end=self.small_vars[1].start,
         )
 
-    def test_no_hgmd_query(self):
-        self.run_query(
-            CasePrefetchQuery,
-            {"require_in_hgmd_public": False, "display_hgmd_public_membership": False},
-            2,
-        )
-
-    def test_require_in_hgmd_query(self):
-        self.run_query(
-            CasePrefetchQuery,
-            {"require_in_hgmd_public": True, "display_hgmd_public_membership": False},
-            1,
-        )
-
     def test_display_hgmd_membership_query(self):
-        res = self.run_query(
-            CasePrefetchQuery,
-            {"require_in_hgmd_public": False, "display_hgmd_public_membership": True},
-            2,
-        )
+        res = self.run_query(CasePrefetchQuery, {"require_in_hgmd_public": False}, 2,)
         self.assertEqual(res[1].hgmd_accession, self.hgmd.variation_name)
 
     def test_require_in_hgmd_and_display_membership_query(self):
-        res = self.run_query(
-            CasePrefetchQuery,
-            {"require_in_hgmd_public": True, "display_hgmd_public_membership": True},
-            1,
-        )
+        res = self.run_query(CasePrefetchQuery, {"require_in_hgmd_public": True}, 1,)
         self.assertEqual(res[0].hgmd_accession, self.hgmd.variation_name)
 
 

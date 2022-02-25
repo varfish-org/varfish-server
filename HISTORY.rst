@@ -98,6 +98,7 @@ Full Change List
 - DgvSvs and DgvGoldStandardSvs are two different data sources now
 - Adding deep linking into case details tab (#344)
 - Allowing direct update of variant annotations and ACMG ratings on case annotations details (#344)
+- Removing `display_hgmd_public_membership` (#363)
 
 -------
 v0.23.9
