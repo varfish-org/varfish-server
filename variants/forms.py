@@ -1098,7 +1098,6 @@ class SmallVariantClinvarHgmdFilterFormMixin:
     def clean(self):
         """Translate effect field names into ``effects`` key list"""
         cleaned_data = super().clean()
-        cleaned_data["display_hgmd_public_membership"] = True
         return cleaned_data
 
 

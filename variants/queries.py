@@ -447,29 +447,18 @@ class ExtendQueryPartsHgmdJoin(ExtendQueryPartsBase):
             .lateral("hgmd_subquery")
         )
 
-    def _get_skip_query(self):
-        return not self.kwargs.get("require_in_hgmd_public") and not self.kwargs.get(
-            "display_hgmd_public_membership"
-        )
-
     def extend_fields(self, _query_parts):
-        if self._get_skip_query():
-            return []
         return [
             func.coalesce(self.subquery.c.hgmd_public_overlap, 0).label("hgmd_public_overlap"),
             func.coalesce(self.subquery.c.hgmd_accession, "").label("hgmd_accession"),
         ]
 
     def extend_selectable(self, query_parts):
-        if self._get_skip_query():
-            return query_parts.selectable
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
 class ExtendQueryPartsHgmdJoinAndFilter(ExtendQueryPartsHgmdJoin):
     def extend_conditions(self, _query_parts):
-        if self._get_skip_query():
-            return []
         if self.kwargs["require_in_hgmd_public"]:
             return [column("hgmd_public_overlap") > 0]
         return []

@@ -81,7 +81,6 @@ class FormDataFactoryBase:
     transcripts_noncoding: bool = True
     remove_if_in_dbsnp: bool = False
     require_in_hgmd_public: bool = False
-    display_hgmd_public_membership: bool = False
     require_in_clinvar: bool = False
     clinvar_include_benign: bool = False
     clinvar_include_likely_benign: bool = False
