@@ -133,6 +133,7 @@ Currently, the main focus is on small/sequence variants called from high-througp
     api_importer
     api_case
     api_json_schemas
+    api_beacon
 
 .. raw:: latex
 

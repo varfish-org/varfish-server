@@ -49,6 +49,7 @@ End-User Summary
 - Adding REST API for creating small variant queries (#332)
 - Fixing beaconsite queries with dots in the key id (#369)
 - Allowing joint queries of larger cohorts (#241)
+- Documenting Clinical Beacon v1 protocol.
 
 Full Change List
 ================
@@ -109,6 +110,7 @@ Full Change List
 - Fixing beaconsite queries with dots in the key id (#369)
 - Allowing joint queries of larger cohorts (#241).
   This is achieved by performing fewer UNION queries (at most ``VARFISH_QUERY_MAX_UNION=20`` at one time).
+- Documenting Clinical Beacon v1 protocol.
 
 -------
 v0.23.9
