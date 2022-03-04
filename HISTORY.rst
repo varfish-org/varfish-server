@@ -45,6 +45,7 @@ End-User Summary
 - Adding mitochondrial inheritance to case phenotype annotation (#325)
 - Fix issue with variant annotation export (#328)
 - Allowing direct update of variant annotations and ACMG ratings on case annotations details (#344)
+- Fixing problem with ACMD classifiction where VUS-3 was given but should be LB-2 (#359)
 
 Full Change List
 ================
@@ -99,6 +100,7 @@ Full Change List
 - Adding deep linking into case details tab (#344)
 - Allowing direct update of variant annotations and ACMG ratings on case annotations details (#344)
 - Removing `display_hgmd_public_membership` (#363)
+- Fixing problem with ACMD classifiction where VUS-3 was given but should be LB-2 (#359)
 
 -------
 v0.23.9
