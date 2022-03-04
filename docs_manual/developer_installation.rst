@@ -20,10 +20,14 @@ services not running in a Docker container.
 Install Postgres
 ----------------
 
-Follow the instructions for your operating system to install `Postgres <https://www.postgresql.org>`_.
-For Ubuntu, this would be::
+Follow the instructions for your operating system to install `Postgres <https://www.postgresql.org>`_. 
+Make sure that the version is 12 (11 and 13 would also work). 
+Ubuntu 20 already includes postgresql 12. In case of older Ubuntu versions, this would be::
 
-    sudo apt install postgresql
+    sudo apt install postgresql-12
+
+
+
 
 -------------
 Install Redis
@@ -68,18 +72,26 @@ Clone the VarFish Server repository and switch into the checkout.
 Install Python Requirements
 ---------------------------
 
-With the conda/Python environment activated, install all the requirements.
+Some required packages have dependencies that are usually not preinstalled. 
+Therefore, run
 
 .. code-block:: bash
 
-    $ for i in requirements/*; do install -r $i; done
+    $ sudo apt install libsasl2-dev python-dev libldap2-dev libssl-dev
+
+
+Now, with the conda/Python environment activated, install all the requirements.
+
+.. code-block:: bash
+
+    $ for i in requirements/*; do pip install -r $i; done
 
 --------------
 Setup Database
 --------------
 
 Use the tool provided in ``utility/`` to set up the database. The name for the
-database should be ``varfish``.
+database should be ``varfish`` (create new user: yes, name: varfish, password: varfish).
 
 .. code-block:: bash
 
@@ -93,7 +105,7 @@ Use the tool provided in ``utility/`` to set up vue.js.
 
 .. code-block:: bash
 
-    $ bash utility/setup_vue_dev.sh
+    $ sudo bash utility/install_vue_dev.sh
 
 Open an additional terminal and switch into the vue directory. Then install
 the VarFish vue app.
@@ -153,5 +165,5 @@ When done, open two terminals and start the VarFish server and the celery server
 
 .. code-block:: bash
 
-    terminal1$ make server
+    terminal1$ make serve
     terminal2$ make celery
