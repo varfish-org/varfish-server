@@ -1,12 +1,16 @@
 """Common helper code for tests"""
 
 from django.test import RequestFactory
-from test_plus.test import TestCase, APITestCase
-from projectroles.tests.test_views_api import SODARAPIViewTestMixin
+from test_plus.test import TestCase
+from projectroles.tests.test_permissions import TestProjectPermissionBase
+from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+from django.conf import settings
+
+from beaconsite.models import Site
+from beaconsite.tests.factories import ConsortiumFactory, SiteFactory
 
 from cohorts.models import Cohort
-from varfish.api_utils import VARFISH_API_MEDIA_TYPE, VARFISH_API_DEFAULT_VERSION
-from .factories import ProcessedFormDataFactory
+from .factories import ProcessedFormDataFactory, ProjectFactory
 from ..models import Case, CaseAwareProject
 from variants.helpers import get_engine
 
@@ -21,31 +25,26 @@ class TestBase(TestCase):
     """Base class for all tests."""
 
 
-class ViewTestBaseMixin(SODARAPIViewTestMixin):
+class ViewTestBaseMixin:
     def setUp(self):
         super().setUp()
-        self.maxDiff = None  # show full diff
 
         self.request_factory = RequestFactory()
 
-        # setup super user
-        self.user = self.make_user("superuser")
-        self.user.is_staff = True
-        self.user.is_superuser = True
-        self.user.save()
 
-        # Get knox token for self.user
-        self.knox_token = self.get_token(self.user)
-
-
-class ApiViewTestBase(ViewTestBaseMixin, APITestCase):
+class ApiViewTestBase(ViewTestBaseMixin, TestProjectAPIPermissionBase):
     """Base class for API view testing (and file export)"""
 
-    media_type = VARFISH_API_MEDIA_TYPE
-    api_version = VARFISH_API_DEFAULT_VERSION
+    media_type = settings.SODAR_API_MEDIA_TYPE
+    api_version = settings.SODAR_API_DEFAULT_VERSION
+
+    def setUp(self):
+        super().setUp()
+
+        self.knox_token = self.get_token(self.superuser)
 
 
-class ViewTestBase(ViewTestBaseMixin, TestCase):
+class ViewTestBase(ViewTestBaseMixin, TestProjectPermissionBase):
     """Base class for UI view testing (and file export)"""
 
 
@@ -154,3 +153,15 @@ class SupportQueryTestBase(TestBase):
             result = fetch_case_and_query()
             self.assertEquals(length, result)
             return result
+
+
+class TestViewsBase(TestCase):
+    def setUp(self):
+        self.superuser = self.make_user("superuser")
+        self.superuser.is_superuser = True
+        self.superuser.is_staff = True
+        self.superuser.save()
+
+        self.project = ProjectFactory()
+        self.consortium = ConsortiumFactory()
+        self.site = SiteFactory(role=Site.LOCAL, state=Site.ENABLED)

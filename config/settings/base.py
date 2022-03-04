@@ -11,9 +11,11 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 import logging
 import os
 import environ
+import re
 import sys
 
 from dotenv import load_dotenv
+from varfish import __version__ as varfish_version
 
 logger = logging.getLogger(__name__)
 
@@ -594,8 +596,12 @@ PROJECTROLES_HELP_HIGHLIGHT_DAYS = 7
 PROJECTROLES_ENABLE_SEARCH = not KIOSK_MODE
 PROJECTROLES_SEARCH_PAGINATION = 5
 
-SODAR_API_DEFAULT_VERSION = "0.1"
-SODAR_API_MEDIA_TYPE = "application/vnd.bihealth.sodar+json"
+SODAR_API_MEDIA_TYPE = "application/vnd.bihealth.varfish+json"
+SODAR_API_DEFAULT_VERSION = re.match(r"^([0-9.]+)(?:[+|\-][\S]+)?$", varfish_version)[1]
+SODAR_API_ALLOWED_VERSIONS = [
+    "0.23.9",
+]
+
 
 PROJECTROLES_SITE_MODE = env.str("PROJECTROLES_SITE_MODE", "TARGET")
 PROJECTROLES_TARGET_CREATE = env.bool("PROJECTROLES_TARGET_CREATE", True)

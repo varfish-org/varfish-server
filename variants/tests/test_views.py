@@ -7,7 +7,7 @@ import requests_mock
 from django.urls import reverse
 from projectroles.constants import SODAR_CONSTANTS
 from projectroles.templatetags.projectroles_common_tags import site_version
-from projectroles.tests.test_models import RoleAssignmentMixin, PROJECT_ROLE_OWNER
+from projectroles.tests.test_models import PROJECT_ROLE_OWNER
 
 from requests_mock import Mocker
 from unittest.mock import patch
@@ -114,7 +114,7 @@ class TestCaseListView(ViewTestBase):
 
     def test_render_no_variant_stats(self):
         """Test display of case list page."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse("variants:case-list", kwargs={"project": self.case.project.sodar_uuid})
             )
@@ -124,7 +124,7 @@ class TestCaseListView(ViewTestBase):
     def test_render_with_variant_stats(self):
         """Test display of case list page."""
         rebuild_case_variant_stats(get_engine(), self.variant_set)
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse("variants:case-list", kwargs={"project": self.case.project.sodar_uuid})
             )
@@ -134,7 +134,7 @@ class TestCaseListView(ViewTestBase):
     def test_render_caseless_project(self):
         project = self.case.project.sodar_uuid
         self.case.delete()
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(reverse("variants:case-list", kwargs={"project": project}))
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(response.context["case_list"]), 0)
@@ -143,7 +143,7 @@ class TestCaseListView(ViewTestBase):
         project = self.case.project.sodar_uuid
         rebuild_case_variant_stats(get_engine(), self.variant_set)
         self.case.delete()
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(reverse("variants:case-list", kwargs={"project": project}))
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(response.context["case_list"]), 0)
@@ -158,7 +158,7 @@ class TestCaseListQcStatsApiView(ViewTestBase):
 
     def test_render_no_variant_stats(self):
         """Test display of case list page."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse("variants:api-project-qc", kwargs={"project": self.case.project.sodar_uuid})
             )
@@ -177,8 +177,8 @@ class TestCaseListQcStatsApiView(ViewTestBase):
     def test_render_with_variant_stats(self):
         """Test display of case list page."""
         rebuild_case_variant_stats(get_engine(), self.variant_set)
-        rebuild_project_variant_stats(get_engine(), self.case.project, self.user)
-        with self.login(self.user):
+        rebuild_project_variant_stats(get_engine(), self.case.project, self.superuser)
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse("variants:api-project-qc", kwargs={"project": self.case.project.sodar_uuid})
             )
@@ -204,7 +204,7 @@ class TestCaseDetailView(ViewTestBase):
 
     def test_render_no_variant_stats(self):
         """Test display of case detail view page."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:case-detail",
@@ -216,7 +216,7 @@ class TestCaseDetailView(ViewTestBase):
 
     def test_render_with_variant_stats(self):
         """Test display of case detail view page."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             rebuild_case_variant_stats(get_engine(), self.variant_set)
             response = self.client.get(
                 reverse(
@@ -236,7 +236,7 @@ class CaseDownloadAnnotationsView(ViewTestBase):
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
     def test_render_empty_tsv(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:case-download-annotations",
@@ -247,7 +247,7 @@ class CaseDownloadAnnotationsView(ViewTestBase):
         self.assertEqual(response["content-type"], "text/tsv")
 
     def test_render_empty_xlsx(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:case-download-annotations",
@@ -270,7 +270,7 @@ class ProjectDownloadAnnotationsView(ViewTestBase):
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
     def test_render_empty_tsv(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-download-annotations",
@@ -281,7 +281,7 @@ class ProjectDownloadAnnotationsView(ViewTestBase):
         self.assertEqual(response["content-type"], "text/tsv")
 
     def test_render_empty_xlsx(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-download-annotations",
@@ -303,7 +303,7 @@ class TestCaseUpdateView(ViewTestBase):
 
     def test_render_form(self):
         """Test rendering of update form."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:case-update",
@@ -316,7 +316,7 @@ class TestCaseUpdateView(ViewTestBase):
 
     def test_post_form_success(self):
         """Test update of case with the result."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             form_data = {"name": self.case.name + "x", "index": 0}
             for i, line in enumerate(self.case.pedigree):
                 self.col_names = ("patient", "father", "mother", "sex", "affected")
@@ -371,7 +371,7 @@ class TestCaseUpdateTermsView(ViewTestBase):
 
     def _test_render_form(self, expected_from_queries):
         """Test rendering of update form."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:case-update-terms",
@@ -385,7 +385,7 @@ class TestCaseUpdateTermsView(ViewTestBase):
 
     def test_post_form_success(self):
         """Test update of case with the result."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             form_data = {"terms-%s" % self.case.index: "x,%s,y" % self.hpo_name.hpo_id}
             response = self.client.post(
                 reverse(
@@ -409,7 +409,7 @@ class TestCaseUpdateTermsView(ViewTestBase):
             self.assertEqual(pheno_terms.terms, [self.hpo_name.hpo_id])
 
 
-class TestCaseDeleteView(RoleAssignmentMixin, ViewTestBase):
+class TestCaseDeleteView(ViewTestBase):
     """Test CaseDeleteView."""
 
     def setUp(self):
@@ -435,7 +435,7 @@ class TestCaseDeleteView(RoleAssignmentMixin, ViewTestBase):
         )
 
     def test_delete_as_admin(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Check if the expected amount of objects is in the database.
             self.assertEqual(Case.objects.count(), 2)
             self.assertEqual(
@@ -493,10 +493,12 @@ class TestCaseDeleteJobDetailView(ViewTestBase):
         self.project = ProjectFactory()
         self.case_1 = CaseFactory(project=self.project)
         self.case_2 = CaseFactory(project=self.project)
-        self.bgjob = DeleteCaseBgJobFactory(project=self.project, case=self.case_2, user=self.user)
+        self.bgjob = DeleteCaseBgJobFactory(
+            project=self.project, case=self.case_2, user=self.superuser
+        )
 
     def test_render(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:case-delete-job-detail",
@@ -506,7 +508,7 @@ class TestCaseDeleteJobDetailView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
 
-class TestSmallVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
+class TestSmallVariantsDeleteView(ViewTestBase):
     """Test CaseDeleteView."""
 
     def setUp(self):
@@ -532,7 +534,7 @@ class TestSmallVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
         )
 
     def test_delete_as_admin(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Check if the expected amount of objects is in the database.
             self.assertEqual(Case.objects.count(), 2)
             self.assertEqual(
@@ -584,7 +586,7 @@ class TestSmallVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
             self.assertEqual(StructuralVariant.objects.count(), len(self.svs_1) + len(self.svs_2))
 
 
-class TestStructuralVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
+class TestStructuralVariantsDeleteView(ViewTestBase):
     """Test CaseDeleteView."""
 
     def setUp(self):
@@ -610,7 +612,7 @@ class TestStructuralVariantsDeleteView(RoleAssignmentMixin, ViewTestBase):
         )
 
     def test_delete_as_admin(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Check if the expected amount of objects is in the database.
             self.assertEqual(Case.objects.count(), 2)
             self.assertEqual(
@@ -673,7 +675,7 @@ class TestCaseDetailQcStatsApiView(ViewTestBase):
 
     def test_get_no_variant_stats(self):
         """Test fetching information through API if there is no variant stats."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:api-case-qc",
@@ -697,7 +699,7 @@ class TestCaseDetailQcStatsApiView(ViewTestBase):
 
     def test_render_with_variant_stats(self):
         """Test fetching information through API if there are variant stats."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             rebuild_case_variant_stats(get_engine(), self.variant_set)
             response = self.client.get(
                 reverse(
@@ -731,7 +733,7 @@ class TestCaseFilterView(ViewTestBase):
 
     def test_status_code_200(self):
         """Test display of the filter forms, no submit."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:case-filter",
@@ -742,7 +744,7 @@ class TestCaseFilterView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
     def test_provoke_form_error(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.post(
                 reverse(
                     "variants:case-filter",
@@ -761,7 +763,7 @@ class TestCaseFilterView(ViewTestBase):
 
     def test_post_download(self):
         """Test form submit for download as file."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEquals(ExportFileBgJob.objects.count(), 0)
             response = self.client.post(
                 reverse(
@@ -782,7 +784,7 @@ class TestCaseFilterView(ViewTestBase):
 
     @Mocker()
     def test_post_mutation_distiller(self, mock):
-        with self.login(self.user):
+        with self.login(self.superuser):
             from ..submit_external import DISTILLER_POST_URL
 
             mock.post(
@@ -824,7 +826,7 @@ class TestCaseFilterView(ViewTestBase):
 
     @Mocker()
     def test_post_cadd(self, mock):
-        with self.login(self.user):
+        with self.login(self.superuser):
             from ..submit_external import CADD_POST_URL
 
             mock.post(
@@ -891,7 +893,7 @@ class TestCaseFilterView(ViewTestBase):
 
     @Mocker()
     def test_post_spanr(self, mock):
-        with self.login(self.user):
+        with self.login(self.superuser):
             from ..submit_external import SPANR_POST_URL
 
             mock.get(
@@ -939,7 +941,7 @@ class TestCasePrefetchFilterView(ViewTestBase):
         SmallVariantFactory(variant_set=self.variant_set)
 
     def test_get_job_id(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.post(
                 reverse(
                     "variants:case-filter-results",
@@ -957,7 +959,7 @@ class TestCasePrefetchFilterView(ViewTestBase):
         self.case.latest_variant_set = None
         self.case.save()
         self.variant_set.delete()
-        with self.login(self.user), self.assertRaises(RuntimeError):
+        with self.login(self.superuser), self.assertRaises(RuntimeError):
             self.client.post(
                 reverse(
                     "variants:case-filter-results",
@@ -967,7 +969,7 @@ class TestCasePrefetchFilterView(ViewTestBase):
             )
 
     def test_invalid_form(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.post(
                 reverse(
                     "variants:case-filter-results",
@@ -991,10 +993,10 @@ class TestCaseFilterJobView(ViewTestBase):
     def setUp(self):
         super().setUp()
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
-        self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
+        self.bgjob = FilterBgJobFactory(case=self.case, user=self.superuser)
 
     def test_status_code_200(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:case-filter-job",
@@ -1009,10 +1011,7 @@ class TestCaseFilterJobView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
 
-class TestCaseLoadPrefetchedFilterView(ViewTestBase):
-    """Tests for CaseLoadPrefetchedFilterView.
-    """
-
+class GenerateSmallVariantResultMixin:
     def setUp(self):
         super().setUp()
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
@@ -1037,7 +1036,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             alternative=self.small_vars[-1].alternative,
             pathogenicity="pathogenic",
         )
-        self.bgjob = FilterBgJobFactory(case=self.case, user=self.user)
+        self.bgjob = FilterBgJobFactory(case=self.case, user=self.superuser, bg_job__status="done")
         self.hpo_term = HpoNameFactory(hpo_id="HP:0000001")
         self.omim_term = [
             HpoFactory(
@@ -1064,8 +1063,12 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
         ]
         self.bgjob.smallvariantquery.save()
 
+
+class TestCaseLoadPrefetchedFilterView(GenerateSmallVariantResultMixin, ViewTestBase):
+    """Tests for CaseLoadPrefetchedFilterView."""
+
     def test_count_results(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:case-load-filter-results",
@@ -1087,7 +1090,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             )
 
     def test_clinvar(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:case-load-filter-results",
@@ -1098,7 +1101,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.context["result_rows"][1].pathogenicity, "pathogenic")
 
     def test_training_mode(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.bgjob.smallvariantquery.query_settings["training_mode"] = True
             self.bgjob.smallvariantquery.save()
             response = self.client.get(
@@ -1162,7 +1165,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
                 }
             ),
         )
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.client.post(
                 reverse(
                     "variants:case-filter-results",
@@ -1294,7 +1297,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             "",
         )
         mock.post(settings.VARFISH_MUTATIONTASTER_REST_API_URL, status_code=200, text=return_text)
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.client.post(
                 reverse(
                     "variants:case-filter-results",
@@ -1354,7 +1357,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
 
         app_settings = AppSettingAPI()
         app_settings.set_app_setting(
-            "variants", "umd_predictor_api_token", "FAKETOKEN", user=self.user
+            "variants", "umd_predictor_api_token", "FAKETOKEN", user=self.superuser
         )
         mock.post(
             settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
@@ -1411,7 +1414,7 @@ class TestCaseLoadPrefetchedFilterView(ViewTestBase):
             "Pathogenic",
         )
         mock.get(settings.VARFISH_UMD_REST_API_URL, status_code=200, text=return_text)
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.client.post(
                 reverse(
                     "variants:case-filter-results",
@@ -1469,10 +1472,10 @@ class TestFilterJobDetailView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = FilterBgJobFactory(user=self.user)
+        self.bgjob = FilterBgJobFactory(user=self.superuser)
 
     def test_status_code_200(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:filter-job-detail",
@@ -1482,7 +1485,7 @@ class TestFilterJobDetailView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
     def test_correct_case_name(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:filter-job-detail",
@@ -1499,10 +1502,10 @@ class TestFilterJobResubmitView(ViewTestBase):
     def setUp(self):
         super().setUp()
         case, _, _ = CaseWithVariantSetFactory.get("small")
-        self.bgjob = FilterBgJobFactory(user=self.user, case=case)
+        self.bgjob = FilterBgJobFactory(user=self.superuser, case=case)
 
     def test_redirect(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.post(
                 reverse(
                     "variants:filter-job-resubmit",
@@ -1528,10 +1531,10 @@ class TestFilterJobGetStatus(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = FilterBgJobFactory(user=self.user)
+        self.bgjob = FilterBgJobFactory(user=self.superuser)
 
     def test_getting_status_valid_uuid(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:filter-job-status", kwargs={"project": self.bgjob.project.sodar_uuid}
@@ -1542,7 +1545,7 @@ class TestFilterJobGetStatus(ViewTestBase):
             self.assertEqual(json.loads(response.content.decode("utf-8"))["status"], "initial")
 
     def test_getting_status_invalid_uuid(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:filter-job-status", kwargs={"project": self.bgjob.project.sodar_uuid}
@@ -1553,7 +1556,7 @@ class TestFilterJobGetStatus(ViewTestBase):
             self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
 
     def test_getting_status_missing_uuid(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:filter-job-status", kwargs={"project": self.bgjob.project.sodar_uuid}
@@ -1570,10 +1573,10 @@ class TestFilterJobGetPrevious(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = FilterBgJobFactory(user=self.user)
+        self.bgjob = FilterBgJobFactory(user=self.superuser)
 
     def test_getting_previous_job_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:filter-job-previous",
@@ -1590,7 +1593,7 @@ class TestFilterJobGetPrevious(ViewTestBase):
             )
 
     def test_getting_previous_job_non_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             project = self.bgjob.project.sodar_uuid
             case = self.bgjob.case.sodar_uuid
             self.bgjob.delete()
@@ -1607,10 +1610,10 @@ class TestProjectCasesFilterJobGetStatus(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
+        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.superuser)
 
     def test_getting_status_valid_uuid(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-filter-job-status",
@@ -1622,7 +1625,7 @@ class TestProjectCasesFilterJobGetStatus(ViewTestBase):
             self.assertEqual(json.loads(response.content.decode("utf-8"))["status"], "initial")
 
     def test_getting_status_invalid_uuid(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-filter-job-status",
@@ -1634,7 +1637,7 @@ class TestProjectCasesFilterJobGetStatus(ViewTestBase):
             self.assertTrue("error" in json.loads(response.content.decode("utf-8")))
 
     def test_getting_status_missing_uuid(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-filter-job-status",
@@ -1653,13 +1656,15 @@ class TestProjectCasesFilterJobGetPrevious(ViewTestBase):
     def setUp(self):
         super().setUp()
         project = ProjectFactory()
-        self.bgjob_no_cohort = ProjectCasesFilterBgJobFactory(user=self.user, project=project)
+        self.bgjob_no_cohort = ProjectCasesFilterBgJobFactory(user=self.superuser, project=project)
         self.bgjob_cohort = ProjectCasesFilterBgJobFactory(
-            user=self.user, project=project, cohort=CohortFactory(project=project, user=self.user)
+            user=self.superuser,
+            project=project,
+            cohort=CohortFactory(project=project, user=self.superuser),
         )
 
     def test_getting_previous_job_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-filter-job-previous",
@@ -1673,7 +1678,7 @@ class TestProjectCasesFilterJobGetPrevious(ViewTestBase):
             )
 
     def test_getting_previous_job_non_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             project = self.bgjob_no_cohort.project.sodar_uuid
             self.bgjob_no_cohort.delete()
             response = self.client.get(
@@ -1689,7 +1694,7 @@ class TestProjectCasesFilterView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
+        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.superuser)
         self.variant_sets = [None, None]
         self.cases = [None, None]
         self.cases[0], self.variant_sets[0], _ = CaseWithVariantSetFactory.get(
@@ -1705,7 +1710,7 @@ class TestProjectCasesFilterView(ViewTestBase):
 
     def test_status_code_200(self):
         """Test display of the filter forms, no submit."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-filter",
@@ -1724,7 +1729,7 @@ class TestProjectCasesFilterView(ViewTestBase):
     def test_correct_member_listing_when_variant_set_is_not_active(self):
         self.variant_sets[0].state = "importing"
         self.variant_sets[0].save()
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-filter",
@@ -1742,7 +1747,7 @@ class TestProjectCasesFilterView(ViewTestBase):
 
     def test_correct_member_listing_when_variant_set_is_deleted(self):
         self.variant_sets[0].delete()
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-filter",
@@ -1760,7 +1765,7 @@ class TestProjectCasesFilterView(ViewTestBase):
 
     def test_post_download(self):
         """Test form submit for download as file."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 0)
             response = self.client.post(
                 reverse(
@@ -2080,7 +2085,7 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
         CaseWithVariantSetFactory.get("small", project=self.project)
 
     def test_valid_form(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.post(
                 reverse(
                     "variants:project-cases-filter-results",
@@ -2095,7 +2100,7 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
             )
 
     def test_invalid_form(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             project = Project.objects.first()
             response = self.client.post(
                 reverse(
@@ -2113,7 +2118,7 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
 
     def test_variant_set_missing(self):
         SmallVariantSet.objects.all().delete()
-        with self.login(self.user):
+        with self.login(self.superuser):
             form_data = vars(FormDataFactory(names=self.project.get_members()))
             response = self.client.post(
                 reverse(
@@ -2132,10 +2137,10 @@ class TestProjectCasesFilterJobDetailView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
+        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.superuser)
 
     def test_status_code_200(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-filter-job-detail",
@@ -2145,7 +2150,7 @@ class TestProjectCasesFilterJobDetailView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
     def test_correct_project_name(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-filter-job-detail",
@@ -2161,7 +2166,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user)
+        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.superuser)
         self.project = self.bgjob.project
         variant_sets = [None, None]
         self.case1, variant_sets[0], _ = CaseWithVariantSetFactory.get(
@@ -2210,7 +2215,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
         )
 
     def test_count_results(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-load-filter-results",
@@ -2236,7 +2241,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
                 pass
         self.case1.delete()
 
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-load-filter-results",
@@ -2250,7 +2255,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
             self.assertEqual(response.context["missed_records"], 0)
 
     def test_clinvar(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-load-filter-results",
@@ -2291,7 +2296,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
                 }
             ),
         )
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.client.post(
                 reverse(
                     "variants:project-cases-filter-results",
@@ -2435,7 +2440,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
             "",
         )
         mock.post(settings.VARFISH_MUTATIONTASTER_REST_API_URL, status_code=200, text=return_text)
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.client.post(
                 reverse(
                     "variants:project-cases-filter-results",
@@ -2481,7 +2486,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
 
         app_settings = AppSettingAPI()
         app_settings.set_app_setting(
-            "variants", "umd_predictor_api_token", "FAKETOKEN", user=self.user
+            "variants", "umd_predictor_api_token", "FAKETOKEN", user=self.superuser
         )
 
         return_text = "This page was created in 0.001 seconds\n\n"
@@ -2546,7 +2551,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
             "Pathogenic",
         )
         mock.get(settings.VARFISH_UMD_REST_API_URL, status_code=200, text=return_text)
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.client.post(
                 reverse(
                     "variants:project-cases-filter-results",
@@ -2593,10 +2598,10 @@ class TestProjectCasesFilterJobResubmitView(ViewTestBase):
         project = ProjectFactory()
         CaseWithVariantSetFactory.get("small", project=project)
         CaseWithVariantSetFactory.get("small", project=project)
-        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.user, project=project)
+        self.bgjob = ProjectCasesFilterBgJobFactory(user=self.superuser, project=project)
 
     def test_redirect(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.post(
                 reverse(
                     "variants:project-cases-filter-job-resubmit",
@@ -2622,10 +2627,10 @@ class TestDistillerSubmissionJobDetailView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = DistillerSubmissionBgJobFactory(user=self.user)
+        self.bgjob = DistillerSubmissionBgJobFactory(user=self.superuser)
 
     def test_status_code_200(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:distiller-job-detail",
@@ -2635,7 +2640,7 @@ class TestDistillerSubmissionJobDetailView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
     def test_correct_case_name(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:distiller-job-detail",
@@ -2655,7 +2660,7 @@ class TestDistillerSubmissionJobResubmitView(ViewTestBase):
 
     @Mocker()
     def test_resubmission(self, mock):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Mock post
             from ..submit_external import DISTILLER_POST_URL
 
@@ -2778,12 +2783,12 @@ class TestSmallVariantDetailsView(ViewTestBase):
             case=self.case, release=self.small_var.release, **coords
         )
         self.smallvariantcomment = SmallVariantCommentFactory(
-            case=self.case, user=self.user, release=self.small_var.release, **coords
+            case=self.case, user=self.superuser, release=self.small_var.release, **coords
         )
 
     def test_render(self):
         """Test rendering of the variant detail view"""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:small-variant-details",
@@ -2810,7 +2815,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
         """Smoke test for rendering in full mode. This was introduced to help debugging
         and this part of the code is not used in production mode.
         """
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:small-variant-details",
@@ -2836,7 +2841,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
 
     def _base_test_content(self, db):
         """Base function to test both transcript databases, ensembl and refseq."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:small-variant-details",
@@ -2955,7 +2960,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
             )
             self.assertTrue(response.context["flags"].flag_bookmarked)
             self.assertEqual(response.context["comments"][0].text, self.smallvariantcomment.text)
-            self.assertEqual(response.context["comments"][0].user, self.user)
+            self.assertEqual(response.context["comments"][0].user, self.superuser)
 
     def test_content_refseq(self):
         self._base_test_content("refseq")
@@ -2965,7 +2970,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
 
     def test_content_refseq_missing_hgnc(self):
         Hgnc.objects.first().delete()
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:small-variant-details",
@@ -2993,7 +2998,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
 
     def test_content_ensembl_missing_hgnc(self):
         Hgnc.objects.first().delete()
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:small-variant-details",
@@ -3028,7 +3033,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
         o = RefseqToHgnc.objects.first()
         o.hgnc_id = "Not existing"
         o.save()
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:small-variant-details",
@@ -3054,7 +3059,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
             self.assertListEqual(response.context["gene"]["omim_genes"], [])
 
     def test_with_jannovar_disabled(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:small-variant-details",
@@ -3081,7 +3086,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
     @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
     @Mocker()
     def test_with_jannovar_enabled(self, mock):
-        with self.login(self.user):
+        with self.login(self.superuser):
             mock.get(
                 "https://jannovar.example.com/annotate-var/ensembl/hg19/%s/%s/%s/%s"
                 % (
@@ -3179,7 +3184,7 @@ class TestSmallVariantDetailsViewMitochondrial(ViewTestBase):
         self.mtdb_t = MtDbFactory(**coords)
 
     def test_mitochondrial_freqs(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:small-variant-details",
@@ -3267,10 +3272,10 @@ class TestExportFileJobDetailView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = ExportFileBgJobFactory(user=self.user)
+        self.bgjob = ExportFileBgJobFactory(user=self.superuser)
 
     def test_render(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:export-job-detail",
@@ -3286,11 +3291,11 @@ class TestExportFileJobResubmitView(ViewTestBase):
     def setUp(self):
         super().setUp()
         case, _, _ = CaseWithVariantSetFactory.get("small")
-        self.bgjob = ExportFileBgJobFactory(user=self.user, case=case)
+        self.bgjob = ExportFileBgJobFactory(user=self.superuser, case=case)
 
     def test_resubmission(self):
         """Test if file resubmission works."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEquals(ExportFileBgJob.objects.count(), 1)
             response = self.client.post(
                 reverse(
@@ -3315,7 +3320,7 @@ class TestExportFileJobResubmitView(ViewTestBase):
 
     def test_render_detail_view(self):
         """Test if rendering works."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:export-job-detail",
@@ -3330,11 +3335,11 @@ class TestExportFileJobDownloadView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = ExportFileBgJobFactory(user=self.user)
+        self.bgjob = ExportFileBgJobFactory(user=self.superuser)
 
     def test_no_file(self):
         """Test if database entries exist, but no file is generated"""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:export-job-download",
@@ -3349,11 +3354,11 @@ class TestExportFileJobDownloadViewResult(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.results = ExportFileJobResultFactory(user=self.user)
+        self.results = ExportFileJobResultFactory(user=self.superuser)
 
     def test_download(self):
         """Test file download"""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:export-job-download",
@@ -3376,11 +3381,11 @@ class TestExportProjectCasesFileJobResubmitView(ViewTestBase):
         project = ProjectFactory()
         CaseWithVariantSetFactory.get("small", project=project)
         CaseWithVariantSetFactory.get("small", project=project)
-        self.bgjob = ExportProjectCasesFileBgJobFactory(user=self.user, project=project)
+        self.bgjob = ExportProjectCasesFileBgJobFactory(user=self.superuser, project=project)
 
     def test_resubmission(self):
         """Test if file resubmission works."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEquals(ExportProjectCasesFileBgJob.objects.count(), 1)
             response = self.client.post(
                 reverse(
@@ -3404,7 +3409,7 @@ class TestExportProjectCasesFileJobResubmitView(ViewTestBase):
 
     def test_render_detail_view(self):
         """Test if rendering works."""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-export-job-detail",
@@ -3423,11 +3428,11 @@ class TestExportProjectCasesFileJobDownloadView(ViewTestBase):
         project = ProjectFactory()
         CaseFactory(project=project)
         CaseFactory(project=project)
-        self.bgjob = ExportProjectCasesFileBgJobFactory(user=self.user, project=project)
+        self.bgjob = ExportProjectCasesFileBgJobFactory(user=self.superuser, project=project)
 
     def test_no_file(self):
         """Test if database entries exist, but no file is generated"""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-export-job-download",
@@ -3442,11 +3447,11 @@ class TestExportProjectCasesFileJobDownloadViewResult(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.results = ExportProjectCasesFileBgJobResultFactory(user=self.user)
+        self.results = ExportProjectCasesFileBgJobResultFactory(user=self.superuser)
 
     def test_download(self):
         """Test file download"""
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:project-cases-export-job-download",
@@ -3471,7 +3476,7 @@ class TestProjectStatsJobCreateView(ViewTestBase):
         CaseFactory(project=self.project)
 
     def test_project_stat_job_creation(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.post(
                 reverse(
                     "variants:project-stats-job-create", kwargs={"project": self.project.sodar_uuid}
@@ -3501,7 +3506,7 @@ class TestProjectStatsJobDetailView(ViewTestBase):
         CaseFactory(project=self.project)
 
     def test_render(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.client.post(
                 reverse(
                     "variants:project-stats-job-create", kwargs={"project": self.project.sodar_uuid}
@@ -3531,7 +3536,7 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
         self.small_var = SmallVariantFactory(variant_set=self.variant_set)
 
     def test_get_json_response_non_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(SmallVariantFlags.objects.count(), 0)
             response = self.client.get(
                 reverse(
@@ -3551,7 +3556,7 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
             self.assertEqual(response.status_code, 404)
 
     def test_post_json_response_non_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(SmallVariantFlags.objects.count(), 0)
             response = self.client.post(
                 reverse(
@@ -3574,7 +3579,7 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
     def test_get_json_response_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Create variant
             self.client.post(
                 reverse(
@@ -3612,7 +3617,7 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
             self.assertTrue(json.loads(response.content.decode("utf-8"))["flag_bookmarked"])
 
     def test_post_json_response_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Create variant
             self.client.post(
                 reverse(
@@ -3656,7 +3661,7 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
             self.assertTrue(json.loads(response.content.decode("utf-8"))["flag_candidate"])
 
     def test_post_remove_flags(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(SmallVariantFlags.objects.count(), 0)
             # Create flags
             self.client.post(
@@ -3700,7 +3705,7 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
     def test_post_provoke_form_error(self):
-        with self.login(self.user), self.assertRaises(Exception):
+        with self.login(self.superuser), self.assertRaises(Exception):
             self.client.post(
                 reverse(
                     "variants:small-variant-flags-api",
@@ -3721,7 +3726,7 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
             )
 
 
-class TestSmallVariantCommentSubmitApiView(RoleAssignmentMixin, ViewTestBase):
+class TestSmallVariantCommentSubmitApiView(ViewTestBase):
     """Test SmallVariantCommentApiView.
     """
 
@@ -3813,7 +3818,7 @@ class TestSmallVariantCommentSubmitApiView(RoleAssignmentMixin, ViewTestBase):
             alternative=self.small_var.alternative,
             bin=self.small_var.bin,
             case=self.variant_set.case,
-            user=self.user,
+            user=self.superuser,
         )
         with self.login(self.randomuser):
             form_data = {
@@ -3867,7 +3872,7 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
         ]
 
     def test_get_json_response_two_non_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(SmallVariantFlags.objects.count(), 0)
             response = self.client.get(
                 reverse(
@@ -3901,7 +3906,7 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
             )
 
     def test_get_json_response_one_existing_one_non_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Create variant
             data = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
             self.client.post(
@@ -3935,7 +3940,7 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
             )
 
     def test_get_json_response_two_existing_non_conflicting_flags(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Create variant
             data = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
             self.client.post(
@@ -3969,7 +3974,7 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
             )
 
     def test_get_json_response_two_existing_conflicting_flags(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Create variant
             data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
             data2 = vars(
@@ -4019,7 +4024,7 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
             )
 
     def test_post_json_response_two_non_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(SmallVariantFlags.objects.count(), 0)
             self.assertEqual(SmallVariantComment.objects.count(), 0)
             data = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
@@ -4045,14 +4050,14 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                     "comment": {
                         "dates_created": {},
                         "text": "",
-                        "user": self.user.username,
+                        "user": self.superuser.username,
                         "uuids": {},
                     },
                 },
             )
 
     def test_post_json_response_one_existing_one_non_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Create variant
             data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
             data2 = vars(
@@ -4094,14 +4099,14 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                     "comment": {
                         "dates_created": {},
                         "text": "",
-                        "user": self.user.username,
+                        "user": self.superuser.username,
                         "uuids": {},
                     },
                 },
             )
 
     def test_post_json_response_two_existing_non_conflicting_flags(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Create variant
             data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
             data2 = vars(
@@ -4141,14 +4146,14 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                     "comment": {
                         "dates_created": {},
                         "text": "",
-                        "user": self.user.username,
+                        "user": self.superuser.username,
                         "uuids": {},
                     },
                 },
             )
 
     def test_post_json_response_two_existing_conflicting_flags(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             # Create variant
             data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
             data2 = vars(
@@ -4204,14 +4209,14 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                     "comment": {
                         "dates_created": {},
                         "text": "",
-                        "user": self.user.username,
+                        "user": self.superuser.username,
                         "uuids": {},
                     },
                 },
             )
 
     def test_post_json_response_add_comment(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(SmallVariantFlags.objects.count(), 0)
             self.assertEqual(SmallVariantComment.objects.count(), 0)
             data = vars(MultiSmallVariantFlagsAndCommentFormDataFactory())
@@ -4237,7 +4242,7 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                     "flags": {k: str(v) for k, v in data.items() if not k == "text"},
                     "comment": {
                         "text": data["text"],
-                        "user": self.user.username,
+                        "user": self.superuser.username,
                         "dates_created": {
                             "{}-{}".format(
                                 str(self.case.sodar_uuid), smallvar_description(self.small_vars[0])
@@ -4259,7 +4264,7 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
             )
 
     def test_post_remove_flags(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(SmallVariantFlags.objects.count(), 0)
             data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
             data2 = vars(
@@ -4300,14 +4305,14 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                     "comment": {
                         "dates_created": {},
                         "text": "",
-                        "user": self.user.username,
+                        "user": self.superuser.username,
                         "uuids": {},
                     },
                 },
             )
 
     def test_post_provoke_form_error(self):
-        with self.login(self.user), self.assertRaises(Exception):
+        with self.login(self.superuser), self.assertRaises(Exception):
             self.client.post(
                 reverse(
                     "variants:multi-small-variant-flags-comment-api",
@@ -4321,7 +4326,7 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
             )
 
 
-class TestSmallVariantCommentDeleteApiView(RoleAssignmentMixin, ViewTestBase):
+class TestSmallVariantCommentDeleteApiView(ViewTestBase):
     """Test CaseCommentsDeleteApiView."""
 
     def setUp(self):
@@ -4335,7 +4340,7 @@ class TestSmallVariantCommentDeleteApiView(RoleAssignmentMixin, ViewTestBase):
 
     def test_admin_can_delete_user_comment(self):
         comment = SmallVariantCommentFactory(case=self.variant_set.case, user=self.randomuser)
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.post(
                 reverse(
                     "variants:small-variant-comment-delete-api",
@@ -4366,7 +4371,7 @@ class TestSmallVariantCommentDeleteApiView(RoleAssignmentMixin, ViewTestBase):
             self.assertEqual(json.loads(response.content.decode("utf-8"))["result"], "OK")
 
     def test_user_cant_delete_admin_comment(self):
-        comment = SmallVariantCommentFactory(case=self.variant_set.case, user=self.user)
+        comment = SmallVariantCommentFactory(case=self.variant_set.case, user=self.superuser)
         with self.login(self.randomuser):
             response = self.client.post(
                 reverse(
@@ -4391,10 +4396,10 @@ class TestBackgroundJobListView(ViewTestBase):
 
     def setUp(self):
         super().setUp()
-        self.bgjob = FilterBgJobFactory(user=self.user)
+        self.bgjob = FilterBgJobFactory(user=self.superuser)
 
     def test_render(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:job-list",
@@ -4407,7 +4412,7 @@ class TestBackgroundJobListView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
     def test_resulting_list_length(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:job-list",
@@ -4429,7 +4434,7 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
         self.small_var = SmallVariantFactory(variant_set=self.variant_set)
 
     def test_get_response_not_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
             response = self.client.get(
                 reverse(
@@ -4449,7 +4454,7 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
             self.assertEqual(response.status_code, 404)
 
     def test_post_response_not_existing_empty_form(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
             response = self.client.post(
                 reverse(
@@ -4472,7 +4477,7 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
     def test_post_response_not_existing_form_filled(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
             response = self.client.post(
                 reverse(
@@ -4496,7 +4501,7 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
 
     def test_get_response_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.client.post(
                 reverse(
                     "variants:acmg-rating-api",
@@ -4531,10 +4536,12 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
             )
             self.assertEqual(response.status_code, 200)
             self.assertEqual(json.loads(response.content.decode("utf-8"))["ps1"], 2)
-            self.assertEqual(json.loads(response.content.decode("utf-8"))["user"], self.user.id)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["user"], self.superuser.id
+            )
 
     def test_post_response_existing(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.client.post(
                 reverse(
                     "variants:acmg-rating-api",
@@ -4574,10 +4581,12 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(json.loads(response.content.decode("utf-8"))["ps1"], 0)
             self.assertEqual(json.loads(response.content.decode("utf-8"))["ps2"], 1)
-            self.assertEqual(json.loads(response.content.decode("utf-8"))["user"], self.user.id)
+            self.assertEqual(
+                json.loads(response.content.decode("utf-8"))["user"], self.superuser.id
+            )
 
     def test_post_response_erase(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
             self.client.post(
                 reverse(
@@ -4620,7 +4629,7 @@ class TestAcmgCriteriaRatingApiView(ViewTestBase):
             self.assertEqual(AcmgCriteriaRating.objects.count(), 0)
 
     def test_post_provoke_form_error(self):
-        with self.login(self.user), self.assertRaises(Exception):
+        with self.login(self.superuser), self.assertRaises(Exception):
             self.client.post(
                 reverse(
                     "variants:acmg-rating-api",
@@ -4645,13 +4654,13 @@ class TestNewFeaturesView(ViewTestBase):
     """Test NewFeaturesView."""
 
     def test_response(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(reverse("variants:new-features"))
             self.assertEqual(response.status_code, 302)
             self.assertEqual(response.url, "/manual/history.html")
             settings_api = AppSettingAPI()
             value = settings_api.get_app_setting(
-                "variants", "latest_version_seen_changelog", user=self.user
+                "variants", "latest_version_seen_changelog", user=self.superuser
             )
             self.assertEqual(value, site_version())
 
@@ -4664,7 +4673,7 @@ class TestCaseNotesStatusApiView(ViewTestBase):
         _, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
     def test_response(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             form_data = vars(CaseNotesStatusFormFactory())
             response = self.client.post(
                 reverse(
@@ -4685,7 +4694,7 @@ class TestCaseNotesStatusApiView(ViewTestBase):
             )
 
     def test_update_status_and_text(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             form_data = vars(CaseNotesStatusFormFactory())
             self.client.post(
                 reverse(
@@ -4718,7 +4727,7 @@ class TestCaseNotesStatusApiView(ViewTestBase):
             )
 
 
-class TestCaseCommentsSubmitApiView(RoleAssignmentMixin, ViewTestBase):
+class TestCaseCommentsSubmitApiView(ViewTestBase):
     """Test CaseCommentsSubmitApiView."""
 
     def setUp(self):
@@ -4768,7 +4777,7 @@ class TestCaseCommentsSubmitApiView(RoleAssignmentMixin, ViewTestBase):
             )
 
     def test_user_cant_edit_admin_case_comment(self):
-        comment = CaseCommentsFactory(case=self.variant_set.case, user=self.user)
+        comment = CaseCommentsFactory(case=self.variant_set.case, user=self.superuser)
         with self.login(self.randomuser):
             form_data = {"comment": "changed", "sodar_uuid": comment.sodar_uuid}
             response = self.client.post(
@@ -4788,7 +4797,7 @@ class TestCaseCommentsSubmitApiView(RoleAssignmentMixin, ViewTestBase):
             )
 
 
-class TestCaseCommentsDeleteApiView(RoleAssignmentMixin, ViewTestBase):
+class TestCaseCommentsDeleteApiView(ViewTestBase):
     """Test CaseCommentsDeleteApiView."""
 
     def setUp(self):
@@ -4802,7 +4811,7 @@ class TestCaseCommentsDeleteApiView(RoleAssignmentMixin, ViewTestBase):
 
     def test_admin_can_delete_user_case_comment(self):
         comment = CaseCommentsFactory(case=self.variant_set.case, user=self.randomuser)
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.post(
                 reverse(
                     "variants:case-comments-delete-api",
@@ -4833,7 +4842,7 @@ class TestCaseCommentsDeleteApiView(RoleAssignmentMixin, ViewTestBase):
             self.assertEqual(json.loads(response.content.decode("utf-8"))["result"], "OK")
 
     def test_user_cant_delete_admin_comment(self):
-        comment = CaseCommentsFactory(case=self.variant_set.case, user=self.user)
+        comment = CaseCommentsFactory(case=self.variant_set.case, user=self.superuser)
         with self.login(self.randomuser):
             response = self.client.post(
                 reverse(
@@ -4852,7 +4861,7 @@ class TestCaseCommentsDeleteApiView(RoleAssignmentMixin, ViewTestBase):
             )
 
 
-class TestCaseFixSexView(RoleAssignmentMixin, ViewTestBase):
+class TestCaseFixSexView(ViewTestBase):
     """Test CaseFixSexView."""
 
     def setUp(self):
@@ -4863,7 +4872,7 @@ class TestCaseFixSexView(RoleAssignmentMixin, ViewTestBase):
         )
 
     def test_fixing_sex_error(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(self.case.pedigree[0]["sex"], 1)
             response = self.client.get(
                 reverse(
@@ -4882,7 +4891,7 @@ class TestCaseFixSexView(RoleAssignmentMixin, ViewTestBase):
             self.assertEqual(case.pedigree[0]["sex"], 2)
 
 
-class TestProjectCasesFixSexView(RoleAssignmentMixin, ViewTestBase):
+class TestProjectCasesFixSexView(ViewTestBase):
     """Test ProjectCasesFixSexView."""
 
     def setUp(self):
@@ -4899,7 +4908,7 @@ class TestProjectCasesFixSexView(RoleAssignmentMixin, ViewTestBase):
         )
 
     def test_fixing_sex_error(self):
-        with self.login(self.user):
+        with self.login(self.superuser):
             self.assertEqual(self.case_1.pedigree[0]["sex"], 1)
             self.assertEqual(self.case_2.pedigree[0]["sex"], 1)
             response = self.client.get(
@@ -4949,7 +4958,7 @@ class TestCaseFetchUpstreamTermsView(ViewTestBase):
             status_code=200,
             text=self.isa_tab_json,
         )
-        with self.login(self.user):
+        with self.login(self.superuser):
             response = self.client.get(
                 reverse(
                     "variants:case-fetch-upstream-terms",

@@ -2,23 +2,8 @@
 from Crypto.PublicKey import RSA
 from django.urls import reverse
 
-from test_plus.test import TestCase
-
 from beaconsite.models import Consortium, Site
-from beaconsite.tests.factories import ConsortiumFactory, SiteFactory
-from variants.tests.factories import ProjectFactory
-
-
-class TestViewsBase(TestCase):
-    def setUp(self):
-        self.superuser = self.make_user("superuser")
-        self.superuser.is_superuser = True
-        self.superuser.is_staff = True
-        self.superuser.save()
-
-        self.project = ProjectFactory()
-        self.consortium = ConsortiumFactory()
-        self.site = SiteFactory(role=Site.LOCAL, state=Site.ENABLED)
+from variants.tests.helpers import TestViewsBase
 
 
 class TestIndexView(TestViewsBase):

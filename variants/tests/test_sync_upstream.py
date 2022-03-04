@@ -40,10 +40,10 @@ def load_isa_tab(base_path):
 class TestCompareToUpstream(TestCase):
     def setUp(self):
         super().setUp()
-        self.user = self.make_user("superuser")
+        self.superuser = self.make_user("superuser")
         self.case, _, _ = CaseWithVariantSetFactory.get("small")
         self.project = self.case.project
-        self.sync_bg_job = SyncCaseListBgJobFactory(project=self.project, user=self.user)
+        self.sync_bg_job = SyncCaseListBgJobFactory(project=self.project, user=self.superuser)
         self.maxDiff = None
 
     def testRunDifferences(self):
@@ -125,11 +125,11 @@ class TestFetchRemotePedigree(TestCase):
 class TestExecuteSyncCaseListJob(TestCase):
     def setUp(self):
         super().setUp()
-        self.user = self.make_user("superuser")
+        self.superuser = self.make_user("superuser")
         self.case, _, _ = CaseWithVariantSetFactory.get("small")
         self.project = self.case.project
         self.remote_site = RemoteSiteFactory(mode=SODAR_CONSTANTS["SITE_MODE_SOURCE"])
-        self.sync_bg_job = SyncCaseListBgJobFactory(project=self.project, user=self.user)
+        self.sync_bg_job = SyncCaseListBgJobFactory(project=self.project, user=self.superuser)
         self.maxDiff = None
 
     def testRunDifferences(self):

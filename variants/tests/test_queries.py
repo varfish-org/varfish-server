@@ -5026,10 +5026,10 @@ class TestSmallVariantUserAnnotationQueryWithCommentsOnly(TestBase):
     def setUp(self):
         super().setUp()
 
-        self.user = self.make_user("superuser")
-        self.user.is_staff = True
-        self.user.is_superuser = True
-        self.user.save()
+        self.superuser = self.make_user("superuser")
+        self.superuser.is_staff = True
+        self.superuser.is_superuser = True
+        self.superuser.save()
 
         self.small_var = SmallVariantFactory()
         self.comment = SmallVariantCommentFactory(
@@ -5041,7 +5041,7 @@ class TestSmallVariantUserAnnotationQueryWithCommentsOnly(TestBase):
             alternative=self.small_var.alternative,
             reference=self.small_var.reference,
             case=Case.objects.get(id=self.small_var.case_id),
-            user=self.user,
+            user=self.superuser,
         )
         self.case = self.comment.case
 

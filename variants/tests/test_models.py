@@ -35,7 +35,7 @@ class TestSmallVariantFlags(TestCase):
 
 class TestCleanupVariantSets(TestCase):
     def setUp(self):
-        self.user = self.make_user("superuser")
+        self.superuser = self.make_user("superuser")
         _, self.variant_set_active_above_thres, _ = CaseWithVariantSetFactory.get(
             "small", state="active"
         )
@@ -69,7 +69,7 @@ class TestCleanupVariantSets(TestCase):
 
 class TestClearOldKioskCases(TestCase):
     def setUp(self):
-        self.user = self.make_user("kiosk_user")
+        self.superuser = self.make_user("kiosk_user")
         self.category = ProjectFactory(
             title=settings.KIOSK_CAT, type=SODAR_CONSTANTS["PROJECT_TYPE_CATEGORY"]
         )

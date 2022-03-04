@@ -1,0 +1,17 @@
+{
+  "effects": [
+    "missense_variant"
+  ],
+  "quality": {
+    "index": {
+      "dp_het": 10,
+      "dp_hom": 5,
+      "ab": 0.3,
+      "gq": 20,
+      "ad": 3
+    }
+  },
+  "genotype": {
+    "index": "variant"
+  }
+}

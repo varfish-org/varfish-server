@@ -35,7 +35,7 @@ Add the token in the ``Authorization`` header of your HTTP request as follows:
 Versioning
 ==========
 
-The SODAR REST API uses accept header versioning.
+The VarFish REST API uses accept header versioning.
 While specifying the desired API version in your HTTP requests is optional, it is **strongly recommended**.
 This ensures you will get the appropriate return data and avoid running into unexpected incompatibility issues.
 

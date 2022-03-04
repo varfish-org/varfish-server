@@ -129,6 +129,10 @@ Currently, the main focus is on small/sequence variants called from high-througp
     :titlesonly:
 
     api_overview
+    api_projectroles
+    api_importer
+    api_case
+    api_json_schemas
 
 .. raw:: latex
 

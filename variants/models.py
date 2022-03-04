@@ -1702,6 +1702,9 @@ class SmallVariantQuery(SmallVariantQueryBase):
     def query_type(self):
         return "smallvariantquery"
 
+    def get_project(self):
+        return self.case.project
+
 
 class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):
     """Allow saving of whole-project queries to the ``SmallVariant`` model.
@@ -2457,7 +2460,7 @@ class VariantScoresBase:
     def __init__(self, genomebuild, variants, score_type, user=None):
         self.genomebuild = genomebuild
         self.variants = list(set(variants))
-        self.user = user
+        self.superuser = user
         self.score_type = score_type
 
     def score(self):
@@ -2505,10 +2508,12 @@ class VariantScoresUmd(VariantScoresBase):
     cache_model = UmdPathogenicityScoreCache
 
     def score(self):
-        if not self.variants or not self.user:
+        if not self.variants or not self.superuser:
             return
 
-        token = app_settings.get_app_setting("variants", "umd_predictor_api_token", user=self.user)
+        token = app_settings.get_app_setting(
+            "variants", "umd_predictor_api_token", user=self.superuser
+        )
 
         if not token:
             return

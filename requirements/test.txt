@@ -4,7 +4,6 @@
 flake8 >=3.8.4, <3.9
 django-test-plus >=1.4.0, <1.5
 factory-boy >=3.2.0, <3.3
-coverage >=5.4, <5.5
 django-coverage-plugin >=1.8.0, <1.9
 
 # Reading of XLSX files for tests
@@ -24,3 +23,6 @@ parameterized >=0.8.1, <0.9
 
 # Comparison of JSON objects.
 jsonmatch >=0.4, <0.5
+
+# Coveralls tooling
+coveralls
