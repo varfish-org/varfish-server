@@ -38,10 +38,10 @@ def _header_canonical(header_name):
 class _SignedSiteAuthentication(authentication.BaseAuthentication):
     """Based on the code of ``django-rest-framework-httpsignature``."""
 
-    SIGNATURE_RE = re.compile('signature="(.+?)"')
-    HEADERS_RE = re.compile('headers="([\(\)\sa-z0-9-]+?)"')
-    KEYID_RE = re.compile('keyId="([\(\)\sa-z0-9-]+?)"')
-    ALGORITHM_RE = re.compile('algorithm="([\(\)\sa-z0-9-]+?)"')
+    SIGNATURE_RE = re.compile(r'signature="(.+?)"')
+    HEADERS_RE = re.compile(r'headers="([\(\)\sa-z0-9-]+?)"')
+    KEYID_RE = re.compile(r'keyId="([\(\)\sa-z0-9-\.]+?)"')
+    ALGORITHM_RE = re.compile(r'algorithm="([\(\)\sa-z0-9-]+?)"')
 
     def get_signature_from_signature_string(self, signature):
         """Return the signature from the signature header or None."""
