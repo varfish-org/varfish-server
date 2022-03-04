@@ -47,6 +47,7 @@ End-User Summary
 - Allowing direct update of variant annotations and ACMG ratings on case annotations details (#344)
 - Fixing problem with ACMD classifiction where VUS-3 was given but should be LB-2 (#359)
 - Adding REST API for creating small variant queries (#332)
+- Fixing beaconsite queries with dots in the key id (#369)
 
 Full Change List
 ================
@@ -104,6 +105,7 @@ Full Change List
 - Fixing problem with ACMD classifiction where VUS-3 was given but should be LB-2 (#359)
 - Adding REST API for creating small variant queries (#332)
 - Upgrading sodar-core dependency to 0.10.10
+- Fixing beaconsite queries with dots in the key id (#369)
 
 -------
 v0.23.9
