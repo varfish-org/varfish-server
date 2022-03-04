@@ -475,7 +475,7 @@ function updateAcmgRating(theForm) {
     (pm == 2 && pp >= 2) ||
     (pm == 1 && pp >= 4)
   )
-  const isLikelyBenign = ((bs >= 2) && (bp >= 1) || ((bs >= 1) && (bp >= 2)));
+  const isLikelyBenign = (((bs >= 1) && (bp >= 1)) || (bp >= 2));
   const isBenign = (bas > 0) || (bs >= 2);
 
   const isConflicting = (isPathogenic || isLikelyPathogenic) && (isBenign || isLikelyBenign);
