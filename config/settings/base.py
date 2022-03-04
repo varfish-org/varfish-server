@@ -502,6 +502,9 @@ FIELD_ENCRYPTION_KEY = env.str(
     "FIELD_ENCRYPTION_KEY", "_XRAzgLd6NHj8G4q9FNV0p3Um9g4hy8BPBN-AL0JWO0="
 )
 
+# Number of cases to perform in one query for joint queries.
+QUERY_MAX_UNION = env.int("VARFISH_QUERY_MAX_UNION", 20)
+
 # Varfish: Exomiser
 # ------------------------------------------------------------------------------
 
