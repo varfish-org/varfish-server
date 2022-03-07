@@ -66,3 +66,7 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
 
     #: Return name-to-class mapping for background job class specializations.
     job_specs = {ImportStructuralVariantBgJob.spec_name: ImportStructuralVariantBgJob}
+
+    def get_extra_data_link(self, _extra_data, _name):
+        """Return a link for timeline label starting with 'extra-'"""
+        return None

@@ -52,3 +52,7 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
     job_specs = {
         ImportCaseBgJob.spec_name: ImportCaseBgJob,
     }
+
+    def get_extra_data_link(self, _extra_data, _name):
+        """Return a link for timeline label starting with 'extra-'"""
+        return None

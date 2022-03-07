@@ -113,6 +113,7 @@ Full Change List
   This is achieved by performing fewer UNION queries (at most ``VARFISH_QUERY_MAX_UNION=20`` at one time).
 - Documenting Clinical Beacon v1 protocol.
 - Improving performance for fetching result queries (#371).
+- Fix to support sodar-core v0.10.10.
 
 -------
 v0.23.9
