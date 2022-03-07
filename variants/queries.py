@@ -1609,7 +1609,7 @@ def _chunked(arr, max_size):
 
 
 class _ClosingWrapper(list):
-    def closing(self):
+    def close(self):
         pass
 
 
