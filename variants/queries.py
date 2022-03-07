@@ -1046,7 +1046,8 @@ class ExtendQueryPartsLoadPrefetchedBase(ExtendQueryPartsBase):
 
     def extend_conditions(self, _query_parts):
         return [
-            getattr(self.query_results.c, "%squery_id" % self._get_query_type()) == self.query_id
+            getattr(self.query_results.c, "%squery_id" % self._get_query_type()) == self.query_id,
+            SmallVariant.sa.case_id == self.case.id,
         ]
 
 
