@@ -307,7 +307,8 @@ class SmallVariantQueryFetchResultsApiView(SmallVariantQueryApiMixin, ListAPIVie
         return self._query
 
     def get_queryset(self):
-        return SmallVariant.objects.filter(smallvariantquery=self._get_query())
+        query = self._get_query()
+        return SmallVariant.objects.filter(smallvariantquery=query, case_id=query.case_id)
 
     def get_permission_required(self):
         return "variants.view_data"
