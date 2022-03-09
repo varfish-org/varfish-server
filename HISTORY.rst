@@ -49,8 +49,9 @@ End-User Summary
 - Adding REST API for creating small variant queries (#332)
 - Fixing beaconsite queries with dots in the key id (#369)
 - Allowing joint queries of larger cohorts (#241)
-- Documenting Clinical Beacon v1 protocol.
-- Improving performance for fetching result queries (#371).
+- Documenting Clinical Beacon v1 protocol
+- Improving performance for fetching result queries (#371)
+- Capping max. number of cases to query at once (#372)
 
 Full Change List
 ================
@@ -109,11 +110,12 @@ Full Change List
 - Adding REST API for creating small variant queries (#332)
 - Upgrading sodar-core dependency to 0.10.10
 - Fixing beaconsite queries with dots in the key id (#369)
-- Allowing joint queries of larger cohorts (#241).
-  This is achieved by performing fewer UNION queries (at most ``VARFISH_QUERY_MAX_UNION=20`` at one time).
-- Documenting Clinical Beacon v1 protocol.
-- Improving performance for fetching result queries (#371).
-- Fix to support sodar-core v0.10.10.
+- Allowing joint queries of larger cohorts (#241)
+  This is achieved by performing fewer UNION queries (at most ``VARFISH_QUERY_MAX_UNION=20`` at one time)
+- Documenting Clinical Beacon v1 protocol
+- Improving performance for fetching result queries (#371)
+- Fix to support sodar-core v0.10.10
+- Capping max. number of cases to query at once (#372)
 
 -------
 v0.23.9

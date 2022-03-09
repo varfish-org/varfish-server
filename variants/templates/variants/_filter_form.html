@@ -8,6 +8,7 @@
 {% get_django_setting 'VARFISH_ENABLE_CADD' as cadd_enabled %}
 {% get_django_setting 'VARFISH_ENABLE_CADD_SUBMISSION' as cadd_submission_enabled %}
 {% get_django_setting 'VARFISH_ENABLE_SPANR_SUBMISSION' as spanr_submission_enabled %}
+{% get_django_setting 'VARFISH_MAX_CASE_QUERY_COUNT' as max_case_query_count %}
 {% get_is_testing as is_testing %}
 
 {% if form.errors %}
@@ -18,7 +19,7 @@
     {% endfor %}
 {% endif %}
 
-<form id="filterForm" method="post">{% csrf_token %}
+<form id="filterForm" method="post" data-case-count="{{ case_count }}" data-case-max-count="{{ max_case_query_count }}">{% csrf_token %}
   {{ form.cohort }}
   {% if is_testing %}<span style="display: none;" class="testing" id="panel-app-is-testing">enabled</span>{% endif %}
   <div class="card">
@@ -66,8 +67,21 @@
     <div class="card-body p-0">
       <div class="tab-content">
         <div class="tab-pane fade show active" id="panel-genotype" role="tabpanel" aria-labelledby="genotype-tab">
-          {% include "variants/filter_form/genotype.html" %}
-        </div>
+          {% if not case_count or case_count <= max_case_query_count %}
+            {% include "variants/filter_form/genotype.html" %}
+          {% else %}
+            <div style="overflow-y: auto !important; max-height: 400px;">
+              <div class="danger ml-3 mr-3 mt-3 mb-3">
+                <span class="iconify text-danger" data-icon="fa-solid:exclamation-triangle"></span>
+                This {% if cohort %} cohort {% else %} project {% endif %} has {{ case_count }} cases.
+                Currently, VarFish is limited to filter at most {{ max_case_query_count }} at once.
+                For now, a workaround is to split your {% if cohort %} cohort {% else %} project {% endif %} into smaller cohorts.
+                The VarFish developer team is working on resolving this for the v2.x branch.
+                You can <a href="https://github.com/bihealth/varfish-server/issues/309">track the progress here</a>.
+              </div>
+            </div>
+          {% endif %}
+          </div>
         <div class="tab-pane fade" id="panel-frequency" role="tabpanel" aria-labelledby="frequency-tab">
           {% include "variants/filter_form/frequency.html" %}
         </div>
@@ -113,70 +127,77 @@
           </div>
         </div>
         <div class="col text-right p-0">
-          <div class="btn-group">
-            <button type="button" id="submitFilter" name="submit" value="display" class="btn btn-primary" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
-                    title="Filter variants again with current settings, limited to <i><b>Miscellaneous / Result row limit</b></i> results and display in table below"
-                    data-url='{{ submit_button_url }}'
-                    data-url-reload='{{ load_data_url }}'
-                    data-url-request-last-job='{{ request_previous_job_url }}'
-                    data-url-status='{{ job_status_url }}'
-                    {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-              <i class="iconify" data-icon="mdi:refresh"></i>
-              Filter &amp; Display
+          {% if case_count > max_case_query_count %}
+            <button class="btn btn-primary" disabled>
+              <span class="iconify" data-icon="fa-solid:times-circle"></span>
+              Filter Disabled
             </button>
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="filterdisplayoptions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="iconify" data-icon="fa-solid:ellipsis-h"></i>
-            </button>
-            <div class="dropdown-menu" aria-labelledby="filterdisplayoptions" style="z-index: 3000">
-              <button type="submit" name="submit" value="download" class="dropdown-item" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
-                      title="Create downloadable file in the background of <i><b>all</b></i> variants with current settings (ignoring result count limit)."
+          {% else %}
+            <div class="btn-group">
+              <button type="button" id="submitFilter" name="submit" value="display" class="btn btn-primary" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
+                      title="Filter variants again with current settings, limited to <i><b>Miscellaneous / Result row limit</b></i> results and display in table below"
+                      data-url='{{ submit_button_url }}'
+                      data-url-reload='{{ load_data_url }}'
+                      data-url-request-last-job='{{ request_previous_job_url }}'
+                      data-url-status='{{ job_status_url }}'
                       {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-                <i class="iconify" data-icon="fa-solid:cloud-download-alt"></i>
-                Download as File
+                <i class="iconify" data-icon="mdi:refresh"></i>
+                Filter &amp; Display
               </button>
-              {% if allow_md_submission %}
-                {% if form.case.release == "GRCh37" %}
-                  <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-mutationdistiller"
-                          data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
-                          title="Submit to MutationDistiller (only supports single-sample VCF at the moment)"
-                          {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-                    <i class="iconify" data-icon="bi:send-fill"></i>
-                    Submit to MutationDistiller
-                  </button>
-                {% else %}
-                  <button type="button" class="dropdown-item disabled">
-                    <i class="iconify" data-icon="bi:send-fill"></i>
-                    MutationDistiller: Only GRCh37
-                  </button>
-                {% endif %}
-              {% endif %}
-              {% if cadd_submission_enabled %}
-                <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-cadd"
-                        data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
-                        title="Submit to CADD"
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="filterdisplayoptions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconify" data-icon="fa-solid:ellipsis-h"></i>
+              </button>
+              <div class="dropdown-menu" aria-labelledby="filterdisplayoptions" style="z-index: 3000">
+                <button type="submit" name="submit" value="download" class="dropdown-item" data-toggle="tooltip" aria-haspopup="true" aria-expanded="false" data-html="true"
+                        title="Create downloadable file in the background of <i><b>all</b></i> variants with current settings (ignoring result count limit)."
                         {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
-                  <i class="iconify" data-icon="bi:send-fill"></i>
-                  Submit to CADD
+                  <i class="iconify" data-icon="fa-solid:cloud-download-alt"></i>
+                  Download as File
                 </button>
-              {% endif %}
-              {% if spanr_submission_enabled %}
-                {% if form.case.release == "GRCh37" %}
-                  <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-spanr"
+                {% if allow_md_submission %}
+                  {% if form.case.release == "GRCh37" %}
+                    <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-mutationdistiller"
+                            data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
+                            title="Submit to MutationDistiller (only supports single-sample VCF at the moment)"
+                            {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
+                      <i class="iconify" data-icon="bi:send-fill"></i>
+                      Submit to MutationDistiller
+                    </button>
+                  {% else %}
+                    <button type="button" class="dropdown-item disabled">
+                      <i class="iconify" data-icon="bi:send-fill"></i>
+                      MutationDistiller: Only GRCh37
+                    </button>
+                  {% endif %}
+                {% endif %}
+                {% if cadd_submission_enabled %}
+                  <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-cadd"
                           data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
-                          title="Submit to SPANR"
+                          title="Submit to CADD"
                           {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
                     <i class="iconify" data-icon="bi:send-fill"></i>
-                    Submit to SPANR
-                  </button>
-                {% else %}
-                  <button type="button" class="dropdown-item disabled">
-                    <i class="iconify" data-icon="bi:send-fill"></i>
-                    SPANR: Only GRCh37
+                    Submit to CADD
                   </button>
                 {% endif %}
-              {% endif %}
+                {% if spanr_submission_enabled %}
+                  {% if form.case.release == "GRCh37" %}
+                    <button type="button" class="dropdown-item" data-toggle="modal" data-target="#confirm-submit-spanr"
+                            data-tooltip="tooltip" aria-haspopup="true" aria-expanded="false"
+                            title="Submit to SPANR"
+                            {% if num_small_vars == 0 or not variant_set_exists %}disabled{% endif %}>
+                      <i class="iconify" data-icon="bi:send-fill"></i>
+                      Submit to SPANR
+                    </button>
+                  {% else %}
+                    <button type="button" class="dropdown-item disabled">
+                      <i class="iconify" data-icon="bi:send-fill"></i>
+                      SPANR: Only GRCh37
+                    </button>
+                  {% endif %}
+                {% endif %}
+              </div>
             </div>
-          </div>
+          {% endif %}
         </div>
       </div>
     </div>

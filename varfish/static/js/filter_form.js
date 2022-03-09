@@ -2069,6 +2069,15 @@ function buildTextareaFromHpoSelected() {
 
 $(document).ready(
     function() {
+        // Do not load if the #filterForm has case-count and case-max-count attributes
+        if ($("#filterForm").length) {
+            const caseCount = $("#filterForm").data("case-count")
+            const maxCases = $("#filterForm").data("case-max-count")
+            if (caseCount !== null && maxCases !== null && caseCount > maxCases) {
+                return;
+            }
+        }
+
         if (structural_or_small === "small") {
             makeNumberFieldsReceiveOnlyDigits();
             if ($("#settingsDump").val() != "") {
