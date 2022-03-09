@@ -1183,8 +1183,8 @@
           "SAMPLE": "hom"
         },
         {
-          "FATHER": "reference",
-          "MOTHER": "reference",
+          "FATHER": "ref",
+          "MOTHER": "ref",
           "CHILD": "het"
         }
       ],
@@ -1198,7 +1198,6 @@
             "het",
             "hom",
             "non-hom",
-            "reference",
             "variant",
             "non-variant",
             "non-reference"

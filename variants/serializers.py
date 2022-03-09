@@ -2,7 +2,9 @@
 
 # TODO: rename pedigree entry field "patient" also internally to name and get rid of translation below
 import copy
+import typing
 
+import attrs
 from bgjobs.models import BackgroundJob
 from django.db import transaction
 from django.db.models import Q
@@ -323,4 +325,26 @@ class SmallVariantForResultSerializer(serializers.ModelSerializer):
             "ensembl_hgvs_p",
             "ensembl_effect",
             "ensembl_exon_dist",
+        )
+
+
+@attrs.define
+class SettingsShortcuts:
+    """Helper class that contains the results of the settings shortcuts"""
+
+    presets: typing.Dict[str, str]
+    query_settings: typing.Dict[str, typing.Any]
+
+
+class SettingsShortcutsSerializer(serializers.Serializer):
+    """Serializer for ``SettingsShortcut``"""
+
+    presets = serializers.JSONField()
+    query_settings = serializers.JSONField()
+
+    class Meta:
+        model = SettingsShortcuts
+        fields = (
+            "presets",
+            "query_settings",
         )

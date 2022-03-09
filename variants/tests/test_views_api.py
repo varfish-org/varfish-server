@@ -609,3 +609,179 @@ class TestSmallVariantQueryFetchResultsApiView(
                 expected = 401
             response = self.request_knox(url, token=token)
             self.assertEqual(response.status_code, expected, f"user = {user}")
+
+
+class TestSmallVariantQuerySettingsShortcutApiView(
+    GenerateSmallVariantResultMixin, ApiViewTestBase
+):
+    """Tests for case query preset generation"""
+
+    def test_get_success(self):
+        url = reverse(
+            "variants:api-query-settings-shortcut", kwargs={"case": self.case.sodar_uuid},
+        )
+        response = self.request_knox(url)
+
+        self.assertEqual(response.status_code, 200)
+        actual = response.data
+        expected = {
+            "presets": {
+                "inheritance": "any",
+                "frequency": "dominant_strict",
+                "impact": "aa_change_splicing",
+                "quality": "strict",
+                "chromosomes": "whole_genome",
+                "flags_etc": "defaults",
+            },
+            "query_settings": {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {f"{self.case.index}": "any"},
+                "thousand_genomes_enabled": True,
+                "thousand_genomes_homozygous": 0,
+                "thousand_genomes_heterozygous": 4,
+                "thousand_genomes_hemizygous": None,
+                "thousand_genomes_frequency": 0.002,
+                "exac_enabled": True,
+                "exac_homozygous": 0,
+                "exac_heterozygous": 10,
+                "exac_hemizygous": None,
+                "exac_frequency": 0.002,
+                "gnomad_exomes_enabled": True,
+                "gnomad_exomes_homozygous": 0,
+                "gnomad_exomes_heterozygous": 20,
+                "gnomad_exomes_hemizygous": None,
+                "gnomad_exomes_frequency": 0.002,
+                "gnomad_genomes_enabled": True,
+                "gnomad_genomes_homozygous": 0,
+                "gnomad_genomes_heterozygous": 4,
+                "gnomad_genomes_hemizygous": None,
+                "gnomad_genomes_frequency": 0.002,
+                "inhouse_enabled": True,
+                "inhouse_homozygous": None,
+                "inhouse_heterozygous": None,
+                "inhouse_hemizygous": None,
+                "inhouse_carriers": 20,
+                "mtdb_enabled": True,
+                "mtdb_count": 10,
+                "mtdb_frequency": 0.01,
+                "helixmtdb_enabled": True,
+                "helixmtdb_hom_count": 200,
+                "helixmtdb_het_count": None,
+                "helixmtdb_frequency": 0.01,
+                "mitomap_enabled": False,
+                "mitomap_count": None,
+                "mitomap_frequency": None,
+                "var_type_snv": True,
+                "var_type_mnv": True,
+                "var_type_indel": True,
+                "transcripts_coding": True,
+                "transcripts_noncoding": False,
+                "effects": [
+                    "complex_substitution",
+                    "direct_tandem_duplication",
+                    "disruptive_inframe_deletion",
+                    "disruptive_inframe_insertion",
+                    "exon_loss_variant",
+                    "feature_truncation",
+                    "frameshift_elongation",
+                    "frameshift_truncation",
+                    "frameshift_variant",
+                    "inframe_deletion",
+                    "inframe_insertion",
+                    "internal_feature_elongation",
+                    "missense_variant",
+                    "mnv",
+                    "splice_acceptor_variant",
+                    "splice_donor_variant",
+                    "splice_region_variant",
+                    "start_lost",
+                    "stop_gained",
+                    "stop_lost",
+                    "structural_variant",
+                    "transcript_ablation",
+                ],
+                f"{self.case.index}": {
+                    "dp_het": 10,
+                    "dp_hom": 5,
+                    "ab": 0.2,
+                    "gq": 10,
+                    "ad": 3,
+                    "ad_max": None,
+                    "fail": "drop-variant",
+                },
+                "genomic_region": [],
+                "gene_allowlist": [],
+                "gene_blocklist": [],
+                "clinvar_include_benign": False,
+                "clinvar_include_likely_benign": False,
+                "clinvar_include_likely_pathogenic": True,
+                "clinvar_include_pathogenic": True,
+                "clinvar_include_uncertain_significance": False,
+                "flag_bookmarked": True,
+                "flag_candidate": True,
+                "flag_doesnt_segregate": True,
+                "flag_final_causative": True,
+                "flag_for_validation": True,
+                "flag_no_disease_association": True,
+                "flag_phenotype_match_empty": True,
+                "flag_phenotype_match_negative": True,
+                "flag_phenotype_match_positive": True,
+                "flag_phenotype_match_uncertain": True,
+                "flag_segregates": True,
+                "flag_simple_empty": True,
+                "flag_summary_empty": True,
+                "flag_summary_negative": True,
+                "flag_summary_positive": True,
+                "flag_summary_uncertain": True,
+                "flag_validation_empty": True,
+                "flag_validation_negative": True,
+                "flag_validation_positive": True,
+                "flag_validation_uncertain": True,
+                "flag_visual_empty": True,
+                "flag_visual_negative": True,
+                "flag_visual_positive": True,
+                "flag_visual_uncertain": True,
+                "remove_if_in_dbsnp": False,
+                "require_in_clinvar": False,
+                "require_in_hgmd_public": False,
+            },
+        }
+        self.assertEqual(actual, expected)
+
+    def test_get_access_allowed(self):
+        good_users = [
+            self.superuser,
+        ]
+
+        url = reverse(
+            "variants:api-query-settings-shortcut", kwargs={"case": self.case.sodar_uuid},
+        )
+
+        for user in good_users:
+            response = self.request_knox(url, token=self.get_token(user))
+
+            self.assertEqual(response.status_code, 200, f"user = {user}")
+
+    def test_get_access_forbidden(self):
+        bad_users = [
+            self.guest_as.user,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+            None,
+        ]
+
+        url = reverse(
+            "variants:api-query-settings-shortcut", kwargs={"case": self.case.sodar_uuid},
+        )
+
+        for user in bad_users:
+            if user:
+                token = self.get_token(user)
+                expected = 403
+            else:
+                token = EMPTY_KNOX_TOKEN
+                expected = 401
+            response = self.request_knox(url, token=token)
+            self.assertEqual(response.status_code, expected, f"user = {user}")
