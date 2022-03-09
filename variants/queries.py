@@ -1646,7 +1646,13 @@ def _chunked(arr, max_size):
     return chunks
 
 
-class _ClosingWrapper(list):
+class _ClosingWrapper(object):
+    def __init__(self, wrapped):
+        self.wrapped = wrapped
+
+    def fetchall(self):
+        return self.wrapped
+
     def close(self):
         pass
 
