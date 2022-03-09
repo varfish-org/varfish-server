@@ -2,9 +2,12 @@
 History / Changelog
 ===================
 
------------------
-HEAD (unreleased)
------------------
+------
+v1.1.0
+------
+
+This is the first release candidate of the VarFish "Athenea" release (v1).
+Importantly, the first stable release for v1 will be v1.2.0 (see `Release Cycle Documentation <https://varfish-server.readthedocs.io/en/latest/release_cycle.html>`__ for a full explanation of version semantics).
 
 Breaking changes, see below.
 
