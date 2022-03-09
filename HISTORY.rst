@@ -54,7 +54,7 @@ End-User Summary
 - Capping max. number of cases to query at once (#372)
 - Documenting release cycle and branch names
 - Add extra annotations, i.e. additional variant scores to the filtered variants (#242)
-
+- Fixing bug in project/cohort filter (#379)
 
 Full Change List
 ================
@@ -122,6 +122,7 @@ Full Change List
 - Documenting release cycle and branch names
 - Checking commit message trailers (#323)
 - Add extra annotations to the filtered variants (#242)
+- Fixing bug in project/cohort filter (#379)
 
 -------
 v0.23.9
