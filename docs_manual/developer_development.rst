@@ -80,8 +80,40 @@ Use the ticket number and description as name, following the format ``<ticket_nu
 
     $ git checkout -b 123-adding-useful-feature
 
+Write A Sensible Commit Message
+===============================
+
+A commit message should only have 72 characters per line.
+As the first line is the representative, it should sum up everything the commit does.
+Leave a blank line and add three lines of github directives to reference the issue.
+
+.. code-block::
+
+    Fixed serious bug that prevented user from doing x.
+
+    Closes: #123
+    Related-Issue: #123
+    Projected-Results-Impact: none
+
 Cleanup Before Pull Request
 ===========================
+
+We suggest to first squash your commits and then do a rebase to the main branch.
+
+Squash Multiple Commits (Or Use Amend)
+--------------------------------------
+
+`Pull with rebase on gitready <https://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html>`_
+
+We prefer to have only one commit per feature (most of the time there is only one feature per branch).
+When your branch is rebased on the main branch, do:
+
+.. code-block:: bash
+
+    $ git rebase -i main
+
+Alternatively, you can always use ``git commit --amend`` to modify your last commit.
+This allows you also to change your latest commit message.
 
 Rebase To Main
 --------------
@@ -93,30 +125,18 @@ Make sure your main is up-to-date. In you branch, do:
     $ git checkout 123-adding-useful-feature
     $ git rebase main
 
-In case of conflicts, resolve them (find "<<<<" in conflicting files) and do:
+In case of conflicts, resolve them (find ``<<<<`` in conflicting files) and do:
 
 .. code-block:: bash
 
     $ git add conflicting.file
-    $ git commit
+    $ git rebase --continue
 
 If unsure, abort the rebase:
 
 .. code-block:: bash
 
     $ git rebase --abort
-
-Squash Multiple Commits
------------------------
-
-`Pull with rebase on gitready <https://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html>`_
-
-We prefer to have only one commit per feature (most of the time there is only one feature per branch).
-When your branch is rebased on the main branch, do:
-
-.. code-block:: bash
-
-    $ git rebase -i main
 
 Push To Origin
 --------------
@@ -130,4 +150,3 @@ In case you squashed and/or rebased and already pushed the branch, you need to f
 .. code-block:: bash
 
     $ git push -f origin 123-adding-useful-feature
-
