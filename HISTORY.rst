@@ -118,6 +118,7 @@ Full Change List
 - Fix to support sodar-core v0.10.10
 - Capping max. number of cases to query at once (#372)
 - Documenting release cycle and branch names
+- Checking commit message trailers (#323)
 
 -------
 v0.23.9
