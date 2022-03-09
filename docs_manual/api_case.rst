@@ -60,3 +60,5 @@ API Views
 .. autoclass:: SmallVariantQueryUpdateApiView
 
 .. autoclass:: SmallVariantQueryFetchResultsApiView
+
+.. autoclass:: SmallVariantQuerySettingsShortcutApiView

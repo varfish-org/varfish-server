@@ -102,7 +102,6 @@ class GenotypeChoiceV1(Enum):
     HET = "het"
     HOM = "hom"
     NON_HOM = "non-hom"
-    REFERENCE = "reference"
     VARIANT = "variant"
     NON_VARIANT = "non-variant"
     NON_REFERENCE = "non-reference"

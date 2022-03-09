@@ -434,6 +434,11 @@ api_urlpatterns = [
         view=views_api.SmallVariantQueryFetchResultsApiView.as_view(),
         name="api-query-case-fetch-results",
     ),
+    url(
+        regex=r"^api/query-case/query-settings-shortcut/(?P<case>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantQuerySettingsShortcutApiView.as_view(),
+        name="api-query-settings-shortcut",
+    ),
 ]
 
 urlpatterns = ui_urlpatterns + api_urlpatterns

@@ -1,0 +1,1067 @@
+"""Presets for small variant query configuration
+
+The presets are organized on three levels
+
+- Top level presets in ``QUICK_PRESETS`` select the ``_QuickPresets``
+- Each `_QuickPresets` defines per category presets in each of the categories
+- For each category, there is a `_CategoryPresets` type for the corresponding
+  ``CATEGORY_PRESETS`` constant that defines the presets
+"""
+
+from enum import unique, Enum
+import itertools
+import typing
+
+import attrs
+
+
+@unique
+class Sex(Enum):
+    """Represents the sex in a ``PedigreeMember``."""
+
+    UNKNOWN = 0
+    MALE = 1
+    FEMALE = 2
+
+
+@unique
+class DiseaseState(Enum):
+    """Represents the disease status in a ``PedigreeMember``"""
+
+    UNKNOWN = 0
+    UNAFFECTED = 1
+    AFFECTED = 2
+
+
+#: Value to code for "no father/mother"
+NOBODY = "0"
+
+
+@attrs.frozen
+class PedigreeMember:
+    """Member in a pedigree"""
+
+    family: typing.Optional[str]
+    name: str
+    father: str
+    mother: str
+    sex: Sex
+    disease_state: DiseaseState
+
+    def has_both_parents(self):
+        return self.father != NOBODY and self.mother != NOBODY
+
+    def is_singleton(self):
+        return self.father == NOBODY and self.mother == NOBODY
+
+    def has_single_parent(self):
+        return not self.has_both_parents() and not self.is_singleton()
+
+    def is_affected(self):
+        return self.disease_state == DiseaseState.AFFECTED
+
+
+@unique
+class GenotypeChoice(Enum):
+    ANY = "any"
+    REF = "ref"
+    HET = "het"
+    HOM = "hom"
+    NON_HOM = "non-hom"
+    VARIANT = "variant"
+    NON_VARIANT = "non-variant"
+    NON_REFERENCE = "non-reference"
+
+
+@unique
+class Inheritance(Enum):
+    """Preset options for category inheritance"""
+
+    DOMINANT = "dominant"
+    HOMOZYGOUS_RECESSIVE = "homozygous_recessive"
+    COMPOUND_HETEROZYGOUS = "compound_heterozygous"
+    RECESSIVE = "recessive"
+    X_RECESSIVE = "x_recessive"
+    AFFECTED_CARRIERS = "affected_carriers"
+    CUSTOM = "custom"
+    ANY = "any"
+
+    def _is_recessive(self):
+        return self in (
+            Inheritance.HOMOZYGOUS_RECESSIVE,
+            Inheritance.COMPOUND_HETEROZYGOUS,
+            Inheritance.RECESSIVE,
+        )
+
+    def to_settings(
+        self, samples: typing.Iterable[PedigreeMember], index: typing.Optional[str] = None
+    ) -> typing.Dict[str, typing.Any]:
+        """Return settings for the inheritance
+
+        All sample names must be of the same family.
+        """
+        assert len(set(s.family for s in samples)) == 1
+
+        samples_by_name = {s.name: s for s in samples}
+
+        # Select first affected invididual that has both parents set, fall back to first first affected otherwise
+        affected_samples = [s for s in samples if s.is_affected()]
+        index_candidates = list(
+            itertools.chain(
+                [s for s in affected_samples if s.has_both_parents()],
+                [s for s in affected_samples if s.has_single_parent()],
+                affected_samples,
+                samples,
+            )
+        )
+
+        if self._is_recessive():
+            # Get index, parents, and others (not index, not parents) individuals
+            recessive_index = index_candidates[0]
+            parents = [
+                s for s in samples if s.name in (recessive_index.father, recessive_index.mother)
+            ]
+            parent_names = {p.name for p in parents}
+            others = {s for s in affected_samples if s.name != index and s.name not in parent_names}
+            # Fill ``genotype`` for the index
+            if self == Inheritance.HOMOZYGOUS_RECESSIVE:
+                genotype = {recessive_index.name: GenotypeChoice.HOM}
+                mode = {"recessive_mode": None}
+            elif self == Inheritance.COMPOUND_HETEROZYGOUS:
+                genotype = {recessive_index.name: None}
+                mode = {"recessive_mode": "compound-recessive"}
+            elif self == Inheritance.RECESSIVE:
+                genotype = {recessive_index.name: None}
+                mode = {"recessive_mode": "recessive"}
+            else:
+                raise RuntimeError(f"Unexpected recessive mode of inheritance: {self}")
+            # Fill ``genotype`` for parents and others
+            if self == Inheritance.HOMOZYGOUS_RECESSIVE:
+                affected_parents = len([p for p in parents if p.is_affected()])
+                for parent in parents:
+                    if parent.is_affected():
+                        genotype[parent.name] = GenotypeChoice.HOM
+                    else:
+                        if affected_parents > 0:
+                            genotype[parent.name] = GenotypeChoice.REF
+                        else:
+                            genotype[parent.name] = GenotypeChoice.HET
+            else:
+                for parent in parents:
+                    genotype[parent.name] = None
+            for other in others:
+                genotype[other.name] = GenotypeChoice.ANY
+            # Compose the dict with recessive index, recessive mode, and genotype
+            return {
+                "recessive_index": recessive_index.name,
+                "genotype": genotype,
+                **mode,
+            }
+        elif self == Inheritance.X_RECESSIVE:
+            male_index_candidates = list(
+                itertools.chain(
+                    [s for s in index_candidates if s.sex == Sex.MALE],
+                    [s for s in index_candidates if s.sex == Sex.UNKNOWN],
+                    index_candidates,
+                    samples,
+                )
+            )
+            recessive_index = male_index_candidates[0]
+            index_father = samples_by_name.get(recessive_index.father, None)
+            index_mother = samples_by_name.get(recessive_index.mother, None)
+            others = [
+                s
+                for s in samples
+                if s.name
+                not in (recessive_index.name, recessive_index.father, recessive_index.mother)
+            ]
+            genotype = {recessive_index.name: GenotypeChoice.HOM}
+            if index_father and index_father.is_affected():
+                genotype[recessive_index.father] = GenotypeChoice.HOM
+                if index_mother:
+                    genotype[recessive_index.mother] = GenotypeChoice.REF
+            elif index_father and not index_father.is_affected():
+                genotype[recessive_index.father] = GenotypeChoice.REF
+                if index_mother:
+                    genotype[recessive_index.mother] = GenotypeChoice.HET
+            elif index_mother:  # and not index_father
+                genotype[recessive_index.mother] = GenotypeChoice.ANY
+            for other in others:
+                genotype[other.name] = GenotypeChoice.ANY
+            return {
+                "recessive_index": recessive_index.name,
+                "recessive_mode": None,
+                "genotype": genotype,
+            }
+        elif self == Inheritance.AFFECTED_CARRIERS:
+            return {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    s.name: GenotypeChoice.VARIANT if s.is_affected() else GenotypeChoice.REF
+                    for s in samples
+                },
+            }
+        elif self == Inheritance.DOMINANT:
+            return {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    s.name: GenotypeChoice.HET if s.is_affected() else GenotypeChoice.REF
+                    for s in samples
+                },
+            }
+        elif self == Inheritance.ANY:
+            return {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {s.name: GenotypeChoice.ANY for s in samples},
+            }
+        else:
+            raise ValueError(f"Cannot generate settings for inheritance {self}")
+
+
+@attrs.frozen
+class _FrequencyPresets:
+    """Type for providing immutable frequency presets"""
+
+    #: Presets for "dominant super strict" frequency
+    dominant_super_strict: typing.Dict[str, typing.Any] = {
+        "thousand_genomes_enabled": True,
+        "thousand_genomes_homozygous": 0,
+        "thousand_genomes_heterozygous": 1,
+        "thousand_genomes_hemizygous": None,
+        "thousand_genomes_frequency": 0.002,
+        "exac_enabled": True,
+        "exac_homozygous": 0,
+        "exac_heterozygous": 1,
+        "exac_hemizygous": None,
+        "exac_frequency": 0.002,
+        "gnomad_exomes_enabled": True,
+        "gnomad_exomes_homozygous": 0,
+        "gnomad_exomes_heterozygous": 1,
+        "gnomad_exomes_hemizygous": None,
+        "gnomad_exomes_frequency": 0.002,
+        "gnomad_genomes_enabled": True,
+        "gnomad_genomes_homozygous": 0,
+        "gnomad_genomes_heterozygous": 1,
+        "gnomad_genomes_hemizygous": None,
+        "gnomad_genomes_frequency": 0.002,
+        "inhouse_enabled": True,
+        "inhouse_homozygous": None,
+        "inhouse_heterozygous": None,
+        "inhouse_hemizygous": None,
+        "inhouse_carriers": 20,
+        "mtdb_enabled": False,
+        "mtdb_count": None,
+        "mtdb_frequency": None,
+        "helixmtdb_enabled": False,
+        "helixmtdb_het_count": None,
+        "helixmtdb_hom_count": None,
+        "helixmtdb_frequency": None,
+        "mitomap_enabled": False,
+        "mitomap_count": None,
+        "mitomap_frequency": None,
+    }
+    #: Presets for "dominant strict" frequency
+    dominant_strict: typing.Dict[str, typing.Any] = {
+        "thousand_genomes_enabled": True,
+        "thousand_genomes_homozygous": 0,
+        "thousand_genomes_heterozygous": 4,
+        "thousand_genomes_hemizygous": None,
+        "thousand_genomes_frequency": 0.002,
+        "exac_enabled": True,
+        "exac_homozygous": 0,
+        "exac_heterozygous": 10,
+        "exac_hemizygous": None,
+        "exac_frequency": 0.002,
+        "gnomad_exomes_enabled": True,
+        "gnomad_exomes_homozygous": 0,
+        "gnomad_exomes_heterozygous": 20,
+        "gnomad_exomes_hemizygous": None,
+        "gnomad_exomes_frequency": 0.002,
+        "gnomad_genomes_enabled": True,
+        "gnomad_genomes_homozygous": 0,
+        "gnomad_genomes_heterozygous": 4,
+        "gnomad_genomes_hemizygous": None,
+        "gnomad_genomes_frequency": 0.002,
+        "inhouse_enabled": True,
+        "inhouse_homozygous": None,
+        "inhouse_heterozygous": None,
+        "inhouse_hemizygous": None,
+        "inhouse_carriers": 20,
+        "mtdb_enabled": True,
+        "mtdb_count": 10,
+        "mtdb_frequency": 0.01,
+        "helixmtdb_enabled": True,
+        "helixmtdb_hom_count": 200,
+        "helixmtdb_het_count": None,
+        "helixmtdb_frequency": 0.01,
+        "mitomap_enabled": False,
+        "mitomap_count": None,
+        "mitomap_frequency": None,
+    }
+    #: Presets for "dominant relaxed" frequency
+    dominant_relaxed: typing.Dict[str, typing.Any] = {
+        "thousand_genomes_enabled": True,
+        "thousand_genomes_homozygous": 0,
+        "thousand_genomes_heterozygous": 10,
+        "thousand_genomes_hemizygous": None,
+        "thousand_genomes_frequency": 0.01,
+        "exac_enabled": True,
+        "exac_homozygous": 0,
+        "exac_heterozygous": 25,
+        "exac_hemizygous": None,
+        "exac_frequency": 0.01,
+        "gnomad_exomes_enabled": True,
+        "gnomad_exomes_homozygous": 0,
+        "gnomad_exomes_heterozygous": 50,
+        "gnomad_exomes_hemizygous": None,
+        "gnomad_exomes_frequency": 0.01,
+        "gnomad_genomes_enabled": True,
+        "gnomad_genomes_homozygous": 0,
+        "gnomad_genomes_heterozygous": 20,
+        "gnomad_genomes_hemizygous": None,
+        "gnomad_genomes_frequency": 0.01,
+        "inhouse_enabled": True,
+        "inhouse_homozygous": None,
+        "inhouse_heterozygous": None,
+        "inhouse_hemizygous": None,
+        "inhouse_carriers": 20,
+        "mtdb_enabled": True,
+        "mtdb_count": 50,
+        "mtdb_frequency": 0.15,
+        "helixmtdb_enabled": True,
+        "helixmtdb_het_count": None,
+        "helixmtdb_hom_count": 400,
+        "helixmtdb_frequency": 0.15,
+        "mitomap_enabled": False,
+        "mitomap_count": None,
+        "mitomap_frequency": None,
+    }
+    #: Presets for "recessive strict" frequency
+    recessive_strict: typing.Dict[str, typing.Any] = {
+        "thousand_genomes_enabled": True,
+        "thousand_genomes_homozygous": 0,
+        "thousand_genomes_heterozygous": 24,
+        "thousand_genomes_hemizygous": None,
+        "thousand_genomes_frequency": 0.001,
+        "exac_enabled": True,
+        "exac_homozygous": 0,
+        "exac_heterozygous": 60,
+        "exac_hemizygous": None,
+        "exac_frequency": 0.001,
+        "gnomad_exomes_enabled": True,
+        "gnomad_exomes_homozygous": 0,
+        "gnomad_exomes_heterozygous": 120,
+        "gnomad_exomes_hemizygous": None,
+        "gnomad_exomes_frequency": 0.001,
+        "gnomad_genomes_enabled": True,
+        "gnomad_genomes_homozygous": 0,
+        "gnomad_genomes_heterozygous": 15,
+        "gnomad_genomes_hemizygous": None,
+        "gnomad_genomes_frequency": 0.001,
+        "inhouse_enabled": True,
+        "inhouse_homozygous": None,
+        "inhouse_heterozygous": None,
+        "inhouse_hemizygous": None,
+        "inhouse_carriers": 20,
+        "mtdb_enabled": False,
+        "mtdb_count": None,
+        "mtdb_frequency": None,
+        "helixmtdb_enabled": False,
+        "helixmtdb_het_count": None,
+        "helixmtdb_hom_count": None,
+        "helixmtdb_frequency": None,
+        "mitomap_enabled": False,
+        "mitomap_count": None,
+        "mitomap_frequency": None,
+    }
+    #: Presets for "recessive relaxed" frequency
+    recessive_relaxed: typing.Dict[str, typing.Any] = {
+        "thousand_genomes_enabled": True,
+        "thousand_genomes_homozygous": 4,
+        "thousand_genomes_heterozygous": 240,
+        "thousand_genomes_hemizygous": None,
+        "thousand_genomes_frequency": 0.01,
+        "exac_enabled": True,
+        "exac_homozygous": 10,
+        "exac_heterozygous": 600,
+        "exac_hemizygous": None,
+        "exac_frequency": 0.01,
+        "gnomad_exomes_enabled": True,
+        "gnomad_exomes_homozygous": 20,
+        "gnomad_exomes_heterozygous": 1200,
+        "gnomad_exomes_hemizygous": None,
+        "gnomad_exomes_frequency": 0.01,
+        "gnomad_genomes_enabled": True,
+        "gnomad_genomes_homozygous": 4,
+        "gnomad_genomes_heterozygous": 150,
+        "gnomad_genomes_hemizygous": None,
+        "gnomad_genomes_frequency": 0.01,
+        "inhouse_enabled": True,
+        "inhouse_homozygous": None,
+        "inhouse_heterozygous": None,
+        "inhouse_hemizygous": None,
+        "inhouse_carriers": 20,
+        "mtdb_enabled": False,
+        "mtdb_count": None,
+        "mtdb_frequency": None,
+        "helixmtdb_enabled": False,
+        "helixmtdb_het_count": None,
+        "helixmtdb_hom_count": None,
+        "helixmtdb_frequency": None,
+        "mitomap_enabled": False,
+        "mitomap_count": None,
+        "mitomap_frequency": None,
+    }
+    #: Presets for "any" frequency
+    any: typing.Dict[str, typing.Any] = {
+        "thousand_genomes_enabled": False,
+        "thousand_genomes_homozygous": None,
+        "thousand_genomes_heterozygous": None,
+        "thousand_genomes_hemizygous": None,
+        "thousand_genomes_frequency": None,
+        "exac_enabled": False,
+        "exac_homozygous": None,
+        "exac_heterozygous": None,
+        "exac_hemizygous": None,
+        "exac_frequency": None,
+        "gnomad_exomes_enabled": False,
+        "gnomad_exomes_homozygous": None,
+        "gnomad_exomes_heterozygous": None,
+        "gnomad_exomes_hemizygous": None,
+        "gnomad_exomes_frequency": None,
+        "gnomad_genomes_enabled": False,
+        "gnomad_genomes_homozygous": None,
+        "gnomad_genomes_heterozygous": None,
+        "gnomad_genomes_hemizygous": None,
+        "gnomad_genomes_frequency": None,
+        "inhouse_enabled": False,
+        "inhouse_homozygous": None,
+        "inhouse_heterozygous": None,
+        "inhouse_carriers": None,
+        "mtdb_enabled": False,
+        "mtdb_count": None,
+        "mtdb_frequency": None,
+        "helixmtdb_enabled": False,
+        "helixmtdb_het_count": None,
+        "helixmtdb_hom_count": None,
+        "helixmtdb_frequency": None,
+        "mitomap_enabled": False,
+        "mitomap_count": None,
+        "mitomap_frequency": None,
+    }
+
+
+#: Presets for the impact related settings by frequency preset option
+FREQUENCY_PRESETS: _FrequencyPresets = _FrequencyPresets()
+
+
+@unique
+class Frequency(Enum):
+    """Preset options for category frequency"""
+
+    DOMINANT_SUPER_STRICT = "dominant_super_strict"
+    DOMINANT_STRICT = "dominant_strict"
+    DOMINANT_RELAXED = "dominant_relaxed"
+    RECESSIVE_STRICT = "recessive_strict"
+    RECESSIVE_RELAXED = "recessive_relaxed"
+    CUSTOM = "custom"
+    ANY = "any"
+
+    def to_settings(self) -> typing.Dict[str, typing.Any]:
+        """Return settings for the frequency category"""
+        return getattr(FREQUENCY_PRESETS, self.value)
+
+
+@attrs.frozen
+class _ImpactPresets:
+    """Type for providing immutable impact presets"""
+
+    #: Presets for "null variant" impact
+    null_variant: typing.Dict[str, typing.Any] = {
+        "var_type_snv": True,
+        "var_type_mnv": True,
+        "var_type_indel": True,
+        "transcripts_coding": True,
+        "transcripts_noncoding": False,
+        "effects": (
+            "exon_loss_variant",
+            "feature_truncation",
+            "frameshift_elongation",
+            "frameshift_truncation",
+            "frameshift_variant",
+            "internal_feature_elongation",
+            "splice_acceptor_variant",
+            "splice_donor_variant",
+            "start_lost",
+            "stop_gained",
+            "stop_lost",
+            "structural_variant",
+            "transcript_ablation",
+        ),
+    }
+    #: Presets for "amino acid change and splicing" impact
+    aa_change_splicing: typing.Dict[str, typing.Any] = {
+        "var_type_snv": True,
+        "var_type_mnv": True,
+        "var_type_indel": True,
+        "transcripts_coding": True,
+        "transcripts_noncoding": False,
+        "effects": (
+            "complex_substitution",
+            "direct_tandem_duplication",
+            "disruptive_inframe_deletion",
+            "disruptive_inframe_insertion",
+            "exon_loss_variant",
+            "feature_truncation",
+            "frameshift_elongation",
+            "frameshift_truncation",
+            "frameshift_variant",
+            "inframe_deletion",
+            "inframe_insertion",
+            "internal_feature_elongation",
+            "missense_variant",
+            "mnv",
+            "splice_acceptor_variant",
+            "splice_donor_variant",
+            "splice_region_variant",
+            "start_lost",
+            "stop_gained",
+            "stop_lost",
+            "structural_variant",
+            "transcript_ablation",
+        ),
+    }
+    #: Presets for "all coding and deep intronic" impact
+    all_coding_deep_intronic: typing.Dict[str, typing.Any] = {
+        "var_type_snv": True,
+        "var_type_mnv": True,
+        "var_type_indel": True,
+        "transcripts_coding": True,
+        "transcripts_noncoding": False,
+        "effects": (
+            "coding_transcript_intron_variant",
+            "complex_substitution",
+            "direct_tandem_duplication",
+            "disruptive_inframe_deletion",
+            "disruptive_inframe_insertion",
+            "exon_loss_variant",
+            "feature_truncation",
+            "frameshift_elongation",
+            "frameshift_truncation",
+            "frameshift_variant",
+            "inframe_deletion",
+            "inframe_insertion",
+            "internal_feature_elongation",
+            "missense_variant",
+            "mnv",
+            "splice_acceptor_variant",
+            "splice_donor_variant",
+            "splice_region_variant",
+            "start_lost",
+            "stop_gained",
+            "stop_lost",
+            "structural_variant",
+            "synonymous_variant",
+            "transcript_ablation",
+        ),
+    }
+    #: Presets for "whole transcript" impact
+    whole_transcript: typing.Dict[str, typing.Any] = {
+        "var_type_snv": True,
+        "var_type_mnv": True,
+        "var_type_indel": True,
+        "transcripts_coding": True,
+        "transcripts_noncoding": False,
+        "effects": (
+            "coding_transcript_intron_variant",
+            "complex_substitution",
+            "direct_tandem_duplication",
+            "disruptive_inframe_deletion",
+            "disruptive_inframe_insertion",
+            "exon_loss_variant",
+            "feature_truncation",
+            "five_prime_UTR_exon_variant",
+            "five_prime_UTR_intron_variant",
+            "frameshift_elongation",
+            "frameshift_truncation",
+            "frameshift_variant",
+            "inframe_deletion",
+            "inframe_insertion",
+            "internal_feature_elongation",
+            "missense_variant",
+            "mnv",
+            "splice_acceptor_variant",
+            "splice_donor_variant",
+            "splice_region_variant",
+            "start_lost",
+            "stop_gained",
+            "stop_lost",
+            "stop_retained_variant",
+            "structural_variant",
+            "synonymous_variant",
+            "three_prime_UTR_exon_variant",
+            "three_prime_UTR_intron_variant",
+            "transcript_ablation",
+        ),
+    }
+    #: Presets for "any" impact
+    any: typing.Dict[str, typing.Any] = {
+        "var_type_snv": True,
+        "var_type_mnv": True,
+        "var_type_indel": True,
+        "transcripts_coding": True,
+        "transcripts_noncoding": True,
+        "effects": (
+            "coding_transcript_intron_variant",
+            "complex_substitution",
+            "direct_tandem_duplication",
+            "disruptive_inframe_deletion",
+            "disruptive_inframe_insertion",
+            "downstream_gene_variant",
+            "exon_loss_variant",
+            "feature_truncation",
+            "five_prime_UTR_exon_variant",
+            "five_prime_UTR_intron_variant",
+            "frameshift_elongation",
+            "frameshift_truncation",
+            "frameshift_variant",
+            "inframe_deletion",
+            "inframe_insertion",
+            "intergenic_variant",
+            "internal_feature_elongation",
+            "missense_variant",
+            "mnv",
+            "non_coding_transcript_exon_variant",
+            "non_coding_transcript_intron_variant",
+            "splice_acceptor_variant",
+            "splice_donor_variant",
+            "splice_region_variant",
+            "start_lost",
+            "stop_gained",
+            "stop_lost",
+            "stop_retained_variant",
+            "structural_variant",
+            "synonymous_variant",
+            "three_prime_UTR_exon_variant",
+            "three_prime_UTR_intron_variant",
+            "transcript_ablation",
+            "upstream_gene_variant",
+        ),
+    }
+
+
+#: Presets for the impact related settings by impact preset option
+IMPACT_PRESETS: _ImpactPresets = _ImpactPresets()
+
+
+@unique
+class Impact(Enum):
+    """Preset options for category impact"""
+
+    NULL_VARIANT = "null_variant"
+    AA_CHANGE_SPLICING = "aa_change_splicing"
+    ALL_CODING_DEEP_INTRONIC = "all_coding_deep_intronic"
+    WHOLE_TRANSCRIPT = "whole_transcript"
+    CUSTOM = "custom"
+    ANY = "any"
+
+    def to_settings(self) -> typing.Dict[str, typing.Any]:
+        """Return settings for the impact category"""
+        return getattr(IMPACT_PRESETS, self.value)
+
+
+@unique
+class _QualityFail(Enum):
+    """Enum for representing the action on variant call quality fail"""
+
+    #: Drop variant
+    DROP_VARIANT = "drop-variant"
+    #: Ignore failure
+    IGNORE = "ignore"
+    #: Interpret as "no-call"
+    NO_CALL = "no-call"
+
+
+@attrs.frozen
+class _QualityPresets:
+    """Type for providing immutable quality presets"""
+
+    #: Presets for "super strict" quality settings
+    super_strict: typing.Dict[str, typing.Any] = {
+        "dp_het": 10,
+        "dp_hom": 5,
+        "ab": 0.3,
+        "gq": 30,
+        "ad": 3,
+        "ad_max": None,
+        "fail": _QualityFail.DROP_VARIANT.value,
+    }
+    #: Presets for the "strict" quality settings
+    strict: typing.Dict[str, typing.Any] = {
+        "dp_het": 10,
+        "dp_hom": 5,
+        "ab": 0.2,
+        "gq": 10,
+        "ad": 3,
+        "ad_max": None,
+        "fail": _QualityFail.DROP_VARIANT.value,
+    }
+    #: Presets for the "relaxed" quality settings
+    relaxed: typing.Dict[str, typing.Any] = {
+        "dp_het": 8,
+        "dp_hom": 4,
+        "ab": 0.1,
+        "gq": 10,
+        "ad": 2,
+        "ad_max": None,
+        "fail": _QualityFail.DROP_VARIANT.value,
+    }
+    #: Presets for the "any" quality settings
+    any: typing.Dict[str, typing.Any] = {
+        "dp_het": 0,
+        "dp_hom": 0,
+        "ab": 0.0,
+        "gq": 0,
+        "ad": 0,
+        "ad_max": None,
+        "fail": _QualityFail.IGNORE.value,
+    }
+
+
+#: Presets for the quality related settings, by quality preset option
+QUALITY_PRESETS: _QualityPresets = _QualityPresets()
+
+
+@unique
+class Quality(Enum):
+    """Preset options for category quality"""
+
+    SUPER_STRICT = "super_strict"
+    STRICT = "strict"
+    RELAXED = "relaxed"
+    CUSTOM = "custom"
+    ANY = "any"
+
+    def to_settings(self, samples: typing.Iterable[PedigreeMember]) -> typing.Dict[str, typing.Any]:
+        """Return settings for the quality category
+
+        Returns a ``dict`` with the key ``quality`` that contains one entry for each sample from ``sample_names``
+        that contains the quality filter settings for the given sample.
+
+        All sample names must be of the same family.
+        """
+        assert len(set(s.family for s in samples)) == 1
+        return {sample.name: dict(getattr(QUALITY_PRESETS, self.value)) for sample in samples}
+
+
+@attrs.frozen
+class _ChromosomePresets:
+    """Type for providing immutable chromosome/region/gene presets"""
+
+    #: Presets for the "whole genome" chromosome/region/gene settings
+    whole_genome: typing.Dict[str, typing.Any] = {
+        "genomic_region": (),
+        "gene_allowlist": (),
+        "gene_blocklist": (),
+    }
+    #: Presets for the "autosomes" chromosome/region/gene settings
+    autosomes: typing.Dict[str, typing.Any] = {
+        "genomic_region": tuple(f"chr{num}" for num in range(1, 23)),
+        "gene_allowlist": (),
+        "gene_blocklist": (),
+    }
+    #: Presets for the "X-chromosome" chromosome/region/gene settings
+    x_chromosome: typing.Dict[str, typing.Any] = {
+        "genomic_region": ("chrX",),
+        "gene_allowlist": (),
+        "gene_blocklist": (),
+    }
+    #: Presets for the "Y-chromosomes" chromosome/region/gene settings
+    y_chromosome: typing.Dict[str, typing.Any] = {
+        "genomic_region": ("chrY",),
+        "gene_allowlist": (),
+        "gene_blocklist": (),
+    }
+    #: Presets for the "mitochondrial" chromosome/region/gene settings
+    mt_chromosome: typing.Dict[str, typing.Any] = {
+        "genomic_region": ("chrMT",),
+        "gene_allowlist": (),
+        "gene_blocklist": (),
+    }
+
+
+#: Presets for the chromosome/region/gene related settings, by chromosome preset option
+CHROMOSOME_PRESETS: _ChromosomePresets = _ChromosomePresets()
+
+
+@unique
+class Chromosomes(Enum):
+    """Presets options for category chromosomes"""
+
+    WHOLE_GENOME = "whole_genome"
+    AUTOSOMES = "autosomes"
+    X_CHROMOSOME = "x_chromosome"
+    Y_CHROMOSOME = "y_chromosome"
+    MT_CHROMOSOME = "mt_chromosome"
+    CUSTOM = "custom"
+
+    def to_settings(self) -> typing.Dict[str, typing.Any]:
+        """Return settings for this flags etc. category"""
+        return getattr(CHROMOSOME_PRESETS, self.value)
+
+
+@attrs.frozen
+class _FlagsEtcPresets:
+    """Type for providing immutable chromosome/region/gene presets"""
+
+    #: Presets for the "defaults" flags etc. settings
+    defaults: typing.Dict[str, typing.Any] = {
+        "clinvar_include_benign": False,
+        "clinvar_include_likely_benign": False,
+        "clinvar_include_likely_pathogenic": True,
+        "clinvar_include_pathogenic": True,
+        "clinvar_include_uncertain_significance": False,
+        "flag_bookmarked": True,
+        "flag_candidate": True,
+        "flag_doesnt_segregate": True,
+        "flag_final_causative": True,
+        "flag_for_validation": True,
+        "flag_no_disease_association": True,
+        "flag_phenotype_match_empty": True,
+        "flag_phenotype_match_negative": True,
+        "flag_phenotype_match_positive": True,
+        "flag_phenotype_match_uncertain": True,
+        "flag_segregates": True,
+        "flag_simple_empty": True,
+        "flag_summary_empty": True,
+        "flag_summary_negative": True,
+        "flag_summary_positive": True,
+        "flag_summary_uncertain": True,
+        "flag_validation_empty": True,
+        "flag_validation_negative": True,
+        "flag_validation_positive": True,
+        "flag_validation_uncertain": True,
+        "flag_visual_empty": True,
+        "flag_visual_negative": True,
+        "flag_visual_positive": True,
+        "flag_visual_uncertain": True,
+        "remove_if_in_dbsnp": False,
+        "require_in_clinvar": False,
+        "require_in_hgmd_public": False,
+    }
+    #: Presets for the "Clinvar only" flags etc. settings
+    clinvar_only: typing.Dict[str, typing.Any] = {
+        "flag_bookmarked": True,
+        "flag_candidate": True,
+        "flag_doesnt_segregate": True,
+        "flag_final_causative": True,
+        "flag_for_validation": True,
+        "flag_no_disease_association": True,
+        "flag_phenotype_match_empty": True,
+        "flag_phenotype_match_negative": True,
+        "flag_phenotype_match_positive": True,
+        "flag_phenotype_match_uncertain": True,
+        "flag_segregates": True,
+        "flag_simple_empty": True,
+        "flag_summary_empty": True,
+        "flag_summary_negative": True,
+        "flag_summary_positive": True,
+        "flag_summary_uncertain": True,
+        "flag_validation_empty": True,
+        "flag_validation_negative": True,
+        "flag_validation_positive": True,
+        "flag_validation_uncertain": True,
+        "flag_visual_empty": True,
+        "flag_visual_negative": True,
+        "flag_visual_positive": True,
+        "flag_visual_uncertain": True,
+        "remove_if_in_dbsnp": False,
+        "require_in_clinvar": True,
+        "require_in_hgmd_public": False,
+    }
+    #: Presets for the "user flagged" flags etc. settings
+    user_flagged: typing.Dict[str, typing.Any] = {
+        "clinvar_include_benign": False,
+        "clinvar_include_likely_benign": False,
+        "clinvar_include_likely_pathogenic": True,
+        "clinvar_include_pathogenic": True,
+        "clinvar_include_uncertain_significance": False,
+        "flag_bookmarked": True,
+        "flag_candidate": True,
+        "flag_doesnt_segregate": True,
+        "flag_final_causative": True,
+        "flag_for_validation": True,
+        "flag_no_disease_association": True,
+        "flag_phenotype_match_empty": False,
+        "flag_phenotype_match_negative": True,
+        "flag_phenotype_match_positive": True,
+        "flag_phenotype_match_uncertain": True,
+        "flag_segregates": True,
+        "flag_simple_empty": False,
+        "flag_summary_empty": False,
+        "flag_summary_negative": True,
+        "flag_summary_positive": True,
+        "flag_summary_uncertain": True,
+        "flag_validation_empty": False,
+        "flag_validation_negative": True,
+        "flag_validation_positive": True,
+        "flag_validation_uncertain": True,
+        "flag_visual_empty": False,
+        "flag_visual_negative": True,
+        "flag_visual_positive": True,
+        "flag_visual_uncertain": True,
+        "remove_if_in_dbsnp": False,
+        "require_in_clinvar": False,
+        "require_in_hgmd_public": False,
+    }
+
+
+#: Presets for the chromosome/region/gene related settings, by chromosome preset option
+FLAGS_ETC_PRESETS: _FlagsEtcPresets = _FlagsEtcPresets()
+
+
+@unique
+class FlagsEtc(Enum):
+    """Preset options for category flags etc."""
+
+    DEFAULTS = "defaults"
+    CLINVAR_ONLY = "clinvar_only"
+    USER_FLAGGED = "user_flagged"
+    CUSTOM = "custom"
+
+    def to_settings(self) -> typing.Dict[str, typing.Any]:
+        """Return settings for this flags etc. category"""
+        return getattr(FLAGS_ETC_PRESETS, self.value)
+
+
+@attrs.frozen
+class QuickPresets:
+    """Type for the global quick presets"""
+
+    #: presets in category inheritance
+    inheritance: Inheritance
+    #: presets in category frequency
+    frequency: Frequency
+    #: presets in category impact
+    impact: Impact
+    #: presets in category quality
+    quality: Quality
+    #: presets in category chromosomes
+    chromosomes: Chromosomes
+    #: presets in category flags etc.
+    flags_etc: FlagsEtc
+
+    def to_settings(self, samples: typing.Iterable[PedigreeMember]) -> typing.Dict[str, typing.Any]:
+        """Return the overall settings given the case names"""
+        assert len(set(s.family for s in samples)) == 1
+        return {
+            **self.inheritance.to_settings(samples),
+            **self.frequency.to_settings(),
+            **self.impact.to_settings(),
+            **self.quality.to_settings(samples),
+            **self.chromosomes.to_settings(),
+            **self.flags_etc.to_settings(),
+        }
+
+
+@attrs.frozen
+class _QuickPresetList:
+    """Type for the top-level quick preset list"""
+
+    #: default presets
+    defaults: QuickPresets = QuickPresets(
+        inheritance=Inheritance.ANY,
+        frequency=Frequency.DOMINANT_STRICT,
+        impact=Impact.AA_CHANGE_SPLICING,
+        quality=Quality.STRICT,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        flags_etc=FlagsEtc.DEFAULTS,
+    )
+    #: *de novo* presets
+    de_novo: QuickPresets = QuickPresets(
+        inheritance=Inheritance.DOMINANT,
+        frequency=Frequency.DOMINANT_STRICT,
+        impact=Impact.AA_CHANGE_SPLICING,
+        quality=Quality.RELAXED,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        flags_etc=FlagsEtc.DEFAULTS,
+    )
+    #: dominant presets
+    dominant: QuickPresets = QuickPresets(
+        inheritance=Inheritance.DOMINANT,
+        frequency=Frequency.DOMINANT_STRICT,
+        impact=Impact.AA_CHANGE_SPLICING,
+        quality=Quality.STRICT,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        flags_etc=FlagsEtc.DEFAULTS,
+    )
+    #: homozygous recessive presets
+    homozygous_recessive: QuickPresets = QuickPresets(
+        inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
+        frequency=Frequency.RECESSIVE_STRICT,
+        impact=Impact.AA_CHANGE_SPLICING,
+        quality=Quality.STRICT,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        flags_etc=FlagsEtc.DEFAULTS,
+    )
+    #: compound recessive recessive presets
+    compound_recessive: QuickPresets = QuickPresets(
+        inheritance=Inheritance.COMPOUND_HETEROZYGOUS,
+        frequency=Frequency.RECESSIVE_STRICT,
+        impact=Impact.AA_CHANGE_SPLICING,
+        quality=Quality.STRICT,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        flags_etc=FlagsEtc.DEFAULTS,
+    )
+    #: recessive presets
+    recessive: QuickPresets = QuickPresets(
+        inheritance=Inheritance.RECESSIVE,
+        frequency=Frequency.RECESSIVE_STRICT,
+        impact=Impact.AA_CHANGE_SPLICING,
+        quality=Quality.STRICT,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        flags_etc=FlagsEtc.DEFAULTS,
+    )
+    #: X-recessive presets
+    x_recessive: QuickPresets = QuickPresets(
+        inheritance=Inheritance.X_RECESSIVE,
+        frequency=Frequency.RECESSIVE_STRICT,
+        impact=Impact.AA_CHANGE_SPLICING,
+        quality=Quality.STRICT,
+        chromosomes=Chromosomes.X_CHROMOSOME,
+        flags_etc=FlagsEtc.DEFAULTS,
+    )
+    #: Clinvar pathogenic presets
+    clinvar_pathogenic: QuickPresets = QuickPresets(
+        inheritance=Inheritance.AFFECTED_CARRIERS,
+        frequency=Frequency.RECESSIVE_RELAXED,
+        impact=Impact.ANY,
+        quality=Quality.STRICT,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        flags_etc=FlagsEtc.CLINVAR_ONLY,
+    )
+    #: mitochondrial recessive presets
+    mitochondrial: QuickPresets = QuickPresets(
+        inheritance=Inheritance.AFFECTED_CARRIERS,
+        frequency=Frequency.DOMINANT_STRICT,
+        impact=Impact.ANY,
+        quality=Quality.STRICT,
+        chromosomes=Chromosomes.MT_CHROMOSOME,
+        flags_etc=FlagsEtc.DEFAULTS,
+    )
+    #: whole exome recessive presets
+    whole_exome: QuickPresets = QuickPresets(
+        inheritance=Inheritance.ANY,
+        frequency=Frequency.ANY,
+        impact=Impact.ANY,
+        quality=Quality.ANY,
+        chromosomes=Chromosomes.WHOLE_GENOME,
+        flags_etc=FlagsEtc.DEFAULTS,
+    )
+
+
+#: Top level quick presets.
+QUICK_PRESETS: _QuickPresetList = _QuickPresetList()

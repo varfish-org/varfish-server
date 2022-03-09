@@ -2,6 +2,18 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+Full Change List
+================
+
+- Adding REST API for generating query shortcuts (#367)
+
 ------
 v1.1.0
 ------
