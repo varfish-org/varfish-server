@@ -2774,6 +2774,10 @@ class ProjectCasesFilterView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["cohort"] = self.get_cohort()
+        if context["cohort"]:
+            context["case_count"] = context["cohort"].cases.count()
+        else:
+            context["case_count"] = context["project"].case_set.count()
         context["num_small_vars"] = context["project"].num_small_vars()
         context["variant_set_exists"] = (
             context["project"].case_set.filter(smallvariantset__state="active").exists()

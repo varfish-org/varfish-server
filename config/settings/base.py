@@ -475,6 +475,9 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 60
 # Varfish: Base
 # ------------------------------------------------------------------------------
 
+# Limit on number of cases to allow project/cohort wide queries for.
+VARFISH_MAX_CASE_QUERY_COUNT = env.int("VARFISH_MAX_CASE_QUERY_COUNT", 100)
+
 # Yes, we want ForeinKey(unique=True), thank you very much.
 SILENCED_SYSTEM_CHECKS = ["fields.W342"]
 
