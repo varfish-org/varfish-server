@@ -21,6 +21,7 @@ from projectroles.models import Role, SODAR_CONSTANTS
 from projectroles.tests.test_models import ProjectMixin, RoleAssignmentMixin
 import projectroles.tests.test_ui
 
+from extra_annos.tests.factories import ExtraAnnoFactory, ExtraAnnoFieldFactory
 from variants.tests.factories import (
     SampleVariantStatisticsFactory,
     SmallVariantFactory,
@@ -1114,3 +1115,123 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
                 )
             )
         )
+
+
+class TestVariantsCaseFilterViewExtraAnno(TestVariantsCaseFilterView):
+    """Tests for the variants case filter view."""
+
+    view = "variants:case-filter"
+    window_size = (4000, 1300)
+
+    def setUp(self):
+        super().setUp()
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
+        small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
+        self.extra_anno = [
+            ExtraAnnoFactory(
+                release=small_vars[0].release,
+                chromosome=small_vars[0].chromosome,
+                start=small_vars[0].start,
+                end=small_vars[0].end,
+                bin=small_vars[0].bin,
+                reference=small_vars[0].reference,
+                alternative=small_vars[0].alternative,
+                anno_data=[9],
+            ),
+            ExtraAnnoFactory(
+                release=small_vars[2].release,
+                chromosome=small_vars[2].chromosome,
+                start=small_vars[2].start,
+                end=small_vars[2].end,
+                bin=small_vars[2].bin,
+                reference=small_vars[2].reference,
+                alternative=small_vars[2].alternative,
+                anno_data=[10],
+            ),
+        ]
+        self.extra_anno_field = ExtraAnnoFieldFactory()
+
+    def _find_table_column_names(self):
+        table = self.selenium.find_element_by_id("table-config")
+        row_header = table.find_element_by_xpath('//*[@id="main"]/thead/tr[2]')
+        row_header_items = row_header.find_elements_by_tag_name("th")
+        row_header_values = [i.text for i in row_header_items]
+        return table, row_header_items, row_header_values
+
+    @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
+    def test_variant_filter_case_display_results_extra_anno(self):
+        """Test if submitting the filter yields the expected results."""
+        # login
+        self.compile_url_and_login(
+            {"project": self.case.project.sodar_uuid, "case": self.case.sodar_uuid}
+        )
+        self._disable_filters("case")
+        # hit submit button
+        self.selenium.find_element_by_id("submitFilter").click()
+        # wait for redirect
+        WebDriverWait(self.selenium, self.wait_time).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+        )
+
+        # only Effect is on, everythign else (extra anno) off
+        bt = self.selenium.find_element_by_xpath(
+            '//*[@id="resultsTable"]/div[2]/div/div[4]/div/button'
+        )
+        self.assertTrue(bt.get_attribute("title"), "Effect")
+
+        bt.click()
+        columns_elements = self.selenium.find_element_by_xpath(
+            '//*[@id="resultsTable"]/div[2]/div/div[4]/div/div'
+        )
+
+        # any extra_anno_field missing in Columns
+        columns_items = columns_elements.find_elements_by_tag_name("li")
+        columns_values = [i.text for i in columns_items]
+        self.assertTrue(self.extra_anno_field.label in columns_values)
+
+        # click only extra anno
+        for extra_anno_columns_item in columns_items:
+            if extra_anno_columns_item.text == self.extra_anno_field.label:
+                extra_anno_columns_item.click()
+
+        # find extra anno column header in the table
+        table, row_header_items, row_header_values = self._find_table_column_names()
+        self.assertTrue(self.extra_anno_field.label in row_header_values)
+
+        # get extra anno header element
+        extra_anno_table_header = [
+            i for i in row_header_items if i.text == self.extra_anno_field.label
+        ][0]
+
+        # check extra anno values
+        row_extra_anno_items = table.find_elements_by_class_name("extra_annos-1")
+        # remove header name, missing values and empty row value from extra anno values
+        remove_from_extra_anno_values = [self.extra_anno_field.label, "-", ""]
+        row_extra_anno_values = [
+            float(i.text)
+            for i in row_extra_anno_items
+            if i.text not in remove_from_extra_anno_values
+        ]
+        # click sort extra anno and see if sorted
+        extra_anno_table_header.click()
+        row_extra_anno_items_sorted = table.find_elements_by_class_name("extra_annos-1")
+        row_extra_anno_values_sorted = [
+            float(i.text)
+            for i in row_extra_anno_items_sorted
+            if i.text not in remove_from_extra_anno_values
+        ]
+
+        row_extra_anno_values.sort()
+        self.assertTrue(row_extra_anno_values, row_extra_anno_values_sorted)
+
+        # against the database
+        row_extra_anno_values_db = [float(i.anno_data[0]) for i in self.extra_anno]
+        row_extra_anno_values_db.sort()
+        self.assertTrue(row_extra_anno_values_db, row_extra_anno_values_sorted)
+
+        # click to hide extra anno
+        bt.click()
+        extra_anno_columns_item.click()
+        # extra anno column header hidden in the table
+        table, row_header_items, row_header_values = self._find_table_column_names()
+        self.assertFalse(self.extra_anno_field.label in row_header_values)
