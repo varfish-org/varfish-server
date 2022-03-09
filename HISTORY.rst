@@ -52,6 +52,7 @@ End-User Summary
 - Documenting Clinical Beacon v1 protocol
 - Improving performance for fetching result queries (#371)
 - Capping max. number of cases to query at once (#372)
+- Documenting release cycle and branch names
 
 Full Change List
 ================
@@ -116,6 +117,7 @@ Full Change List
 - Improving performance for fetching result queries (#371)
 - Fix to support sodar-core v0.10.10
 - Capping max. number of cases to query at once (#372)
+- Documenting release cycle and branch names
 
 -------
 v0.23.9

@@ -178,6 +178,7 @@ Currently, the main focus is on small/sequence variants called from high-througp
 
     contributors
     bug_reports
+    release_cycle
     history
     glossary
     dev_docker
