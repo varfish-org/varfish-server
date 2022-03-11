@@ -477,7 +477,14 @@ class CaseImporter:
         )
 
     def _import_table(
-        self, variant_set_info, variant_set, token, path_attr, model_class, default_values=None
+        self,
+        variant_set_info,
+        variant_set,
+        token,
+        path_attr,
+        model_class,
+        default_values=None,
+        no_release=True,
     ):
         default_values = default_values or {}
         before = timezone.now()
@@ -490,7 +497,10 @@ class CaseImporter:
                     header = inputf.readline().strip()
                     header_arr = header.split("\t")
                     try:
-                        release_idx = header_arr.index("release")
+                        if no_release:
+                            release_idx = None
+                        else:
+                            release_idx = header_arr.index("release")
                         case_idx = header_arr.index("case_id")
                         set_idx = header_arr.index("set_id")
                     except ValueError as e:
@@ -511,7 +521,7 @@ class CaseImporter:
                         if not line:
                             break
                         arr = line.split("\t")
-                        if arr[release_idx] != case_genomebuild:
+                        if release_idx is not None and arr[release_idx] != case_genomebuild:
                             raise RuntimeError(
                                 "Incompatible genome build in %s TSV: %s vs %s from case"
                                 % (token, arr[release_idx], case_genomebuild)
@@ -575,6 +585,7 @@ class CaseImporter:
                 "SV-gene annotation",
                 "effectfile_set",
                 StructuralVariantGeneAnnotation,
+                no_release=True,
             )
 
     def _post_import(self, variant_set, variant_type):
