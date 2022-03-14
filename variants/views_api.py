@@ -130,7 +130,7 @@ class SmallVariantQueryApiMixin(VariantsApiBaseMixin):
         return "variants.view_data"
 
 
-class SmallVariantQueryApiView(SmallVariantQueryApiMixin, ListAPIView):
+class SmallVariantQueryListApiView(SmallVariantQueryApiMixin, ListAPIView):
     """List small variant queries for the given Case.
 
     **URL:** ``/variants/api/query-case/list/{case.sodar_uuid}``
@@ -149,6 +149,13 @@ class SmallVariantQueryApiView(SmallVariantQueryApiMixin, ListAPIView):
     - ``previous`` - URL to next page (``str`` or ``null``)
     - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
     """
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        case = get_object_or_404(
+            Case.objects.filter(project=self.get_project()), sodar_uuid=self.kwargs["case"]
+        )
+        return qs.filter(case=case)
 
 
 class SmallVariantQueryCreateApiView(SmallVariantQueryApiMixin, CreateAPIView):

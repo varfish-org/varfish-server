@@ -406,7 +406,7 @@ api_urlpatterns = [
     ),
     url(
         regex=r"^api/query-case/list/(?P<case>[0-9a-f-]+)/$",
-        view=views_api.SmallVariantQueryApiView.as_view(),
+        view=views_api.SmallVariantQueryListApiView.as_view(),
         name="api-query-case-list",
     ),
     url(

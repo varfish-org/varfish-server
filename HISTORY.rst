@@ -13,6 +13,7 @@ Full Change List
 ================
 
 - Adding REST API for generating query shortcuts (#367)
+- Filter queries in REST API to selected case and not all by user
 
 ------
 v1.1.0
