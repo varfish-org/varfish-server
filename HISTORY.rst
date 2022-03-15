@@ -20,6 +20,7 @@ Full Change List
 - Adding index to improve beaconsite performance (#389)
 - Adding missing ``mdi`` iconset (#284)
 - Strip trailing slashes in beconsite entrypoints (#388)
+- Documenting PAP setup (#393)
 
 ------
 v1.1.0
