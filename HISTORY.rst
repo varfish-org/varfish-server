@@ -19,6 +19,7 @@ Full Change List
 - Fixing problem with CNV import (#386)
 - Adding index to improve beaconsite performance (#389)
 - Adding missing ``mdi`` iconset (#284)
+- Strip trailing slashes in beconsite entrypoints (#388)
 
 ------
 v1.1.0
