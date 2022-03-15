@@ -18,6 +18,7 @@ Full Change List
 - Filter queries in REST API to selected case and not all by user
 - Fixing problem with CNV import (#386)
 - Adding index to improve beaconsite performance (#389)
+- Adding missing ``mdi`` iconset (#284)
 
 ------
 v1.1.0
