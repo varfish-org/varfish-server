@@ -17,6 +17,7 @@ Full Change List
 - Adding REST API for generating query shortcuts (#367)
 - Filter queries in REST API to selected case and not all by user
 - Fixing problem with CNV import (#386)
+- Adding index to improve beaconsite performance (#389)
 
 ------
 v1.1.0
