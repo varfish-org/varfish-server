@@ -105,7 +105,7 @@ RUN cd /usr/src/app && \
     DJANGO_SECRET_KEY=for-build-only \
     DJANGO_SETTINGS_MODULE=config.settings.production \
     DATABASE_URL=postgres://sodar:sodar@fake/sodar \
-    python manage.py geticons -c bi cil fa-regular fa-solid fluent gridicons octicon
+    python manage.py geticons -c mdi bi cil fa-regular fa-solid fluent gridicons octicon
 
 # Prepare static files
 RUN cd /usr/src/app && \
