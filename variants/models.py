@@ -362,6 +362,10 @@ class SmallVariant(models.Model):
             models.Index(fields=["case_id"]),
             # For locating variants by coordiante.
             models.Index(fields=["case_id", "chromosome", "bin"]),
+            # For locating variants directly.
+            models.Index(
+                fields=["case_id", "release", "chromosome", "start", "reference", "alternative"]
+            ),
             # Filter query: the most important thing is to reduce the variants for a case quickly. It's questionable
             # how much adding homozygous/frequency really adds here.  Adding them back should only done when we
             # know that it helps.
