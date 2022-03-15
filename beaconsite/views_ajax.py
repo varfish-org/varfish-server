@@ -10,6 +10,12 @@ from .models import Site
 from .models_api import BeaconAlleleRequest
 
 
+def strip_trailing_slashes(s: str) -> str:
+    while s.endswith("/"):
+        s = s[:-1]
+    return s
+
+
 class BeaconInfoAjaxView(LoginRequiredMixin, LoggedInPermissionMixin, View):
     """AJAX endpoint to remote site info endpoint via GA4GH Beacon API."""
 
@@ -18,8 +24,9 @@ class BeaconInfoAjaxView(LoginRequiredMixin, LoggedInPermissionMixin, View):
     def get(self, request, *args, **kwargs):
         local_site = Site.objects.get(role=Site.LOCAL)
         remote_site = get_object_or_404(Site, sodar_uuid=kwargs.get("site"))
+        entrypoint_url = strip_trailing_slashes(remote_site.entrypoint_url)
         r = requests.get(
-            remote_site.entrypoint_url,
+            entrypoint_url,
             headers={"X-Beacon-User": request.user.username},
             auth=HTTPSignatureAuth(
                 algorithm=local_site.key_algo,
@@ -40,9 +47,9 @@ class BeaconQueryAjaxView(LoginRequiredMixin, LoggedInPermissionMixin, View):
         local_site = Site.objects.get(role=Site.LOCAL)
         remote_site = get_object_or_404(Site, sodar_uuid=kwargs.get("site"))
         allele_req = cattr.structure(request.GET, BeaconAlleleRequest)
-        entrypoint_url = "%s/query" % remote_site.entrypoint_url
+        entrypoint_url = strip_trailing_slashes(remote_site.entrypoint_url)
         r = requests.get(
-            entrypoint_url,
+            f"{entrypoint_url}/query",
             params=cattr.unstructure(allele_req),
             headers={"X-Beacon-User": request.user.username},
             auth=HTTPSignatureAuth(
