@@ -357,28 +357,48 @@ class SmallVariant(models.Model):
         )
 
     class Meta:
+        # IMPORTANT ---------------------------------------------------------
+        #
+        # The SmallVariant model has Meta.managed=False outside of testing!
+        # The reason is that we use table partitioning here.  We maintain a
+        # list of indices here for documentation purposes, but they are
+        # actually created manually in the migrations.
+        #
+        # IMPORTANT ---------------------------------------------------------
         indexes = [
             # For query: select all variants for a case.
-            models.Index(fields=["case_id"]),
+            models.Index(fields=["case_id"], name="variants_sm_case_id_6f9d8c_idx"),
             # For locating variants by coordiante.
-            models.Index(fields=["case_id", "chromosome", "bin"]),
+            models.Index(
+                fields=["case_id", "chromosome", "bin"], name="variants_sm_case_id_3efbb1_idx"
+            ),
             # For locating variants directly.
             models.Index(
-                fields=["case_id", "release", "chromosome", "start", "reference", "alternative"]
+                fields=["case_id", "release", "chromosome", "start", "reference", "alternative"],
+                name="variants_sm_case_id_coords",
             ),
             # Filter query: the most important thing is to reduce the variants for a case quickly. It's questionable
             # how much adding homozygous/frequency really adds here.  Adding them back should only done when we
             # know that it helps.
-            GinIndex(fields=["case_id", "refseq_effect"]),
-            GinIndex(fields=["case_id", "ensembl_effect"]),
-            models.Index(fields=["case_id", "in_clinvar"]),
+            GinIndex(fields=["case_id", "refseq_effect"], name="variants_sm_case_id_a529e8_gin"),
+            GinIndex(fields=["case_id", "ensembl_effect"], name="variants_sm_case_id_071d6b_gin"),
+            models.Index(fields=["case_id", "in_clinvar"], name="variants_sm_case_id_423a80_idx"),
             # Fast allow-list queries of gene.
-            models.Index(fields=["case_id", "ensembl_gene_id"]),
-            models.Index(fields=["case_id", "refseq_gene_id"]),
+            models.Index(
+                fields=["case_id", "ensembl_gene_id"], name="variants_sm_case_id_5d52f6_idx"
+            ),
+            models.Index(
+                fields=["case_id", "refseq_gene_id"], name="variants_sm_case_id_1f4f31_idx"
+            ),
             # For mitochondrial frequency join
-            models.Index(fields=["case_id", "chromosome_no"]),
+            models.Index(fields=["case_id", "chromosome_no"], name="variants_sm_case_id_chr_no"),
             # For selecting all variants of a set of a case (used for gathering variant stats).
-            models.Index(fields=["case_id", "set_id"]),
+            models.Index(fields=["case_id", "set_id"], name="variants_sm_case_id_set_id"),
+            # For selecting all variants within a bin quickly.
+            models.Index(
+                fields=["case_id", "release", "chromosome", "bin"],
+                name="variants_sm_case_id_for_bin",
+            ),
         ]
         managed = settings.IS_TESTING
         db_table = "variants_smallvariant"

@@ -21,6 +21,7 @@ Full Change List
 - Adding missing ``mdi`` iconset (#284)
 - Strip trailing slashes in beconsite entrypoints (#388)
 - Documenting PAP setup (#393)
+- Adding more indices (#395)
 
 ------
 v1.1.0
