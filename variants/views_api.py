@@ -449,7 +449,7 @@ class SmallVariantQuerySettingsShortcutApiView(
             for key in fields_dict
             if key in self.request.query_params
         }
-        changes = {key: fields_dict[key].type[value] for key, value in changes_raw}
+        changes = {key: fields_dict[key].type[value] for key, value in changes_raw.items()}
         quick_preset = attrs.evolve(quick_preset, **changes)
         return SettingsShortcuts(
             presets={key: getattr(quick_preset, key).value for key in fields_dict},
