@@ -1152,32 +1152,34 @@ class TestEnumQuality(PedigreesMixin, TestCase):
         self.assertEqual(
             query_presets.Quality.SUPER_STRICT.to_settings(self.trio_denovo),
             {
-                "father": {
-                    "ab": 0.3,
-                    "ad": 3,
-                    "ad_max": None,
-                    "dp_het": 10,
-                    "dp_hom": 5,
-                    "fail": "drop-variant",
-                    "gq": 30,
-                },
-                "index": {
-                    "ab": 0.3,
-                    "ad": 3,
-                    "ad_max": None,
-                    "dp_het": 10,
-                    "dp_hom": 5,
-                    "fail": "drop-variant",
-                    "gq": 30,
-                },
-                "mother": {
-                    "ab": 0.3,
-                    "ad": 3,
-                    "ad_max": None,
-                    "dp_het": 10,
-                    "dp_hom": 5,
-                    "fail": "drop-variant",
-                    "gq": 30,
+                "quality": {
+                    "father": {
+                        "ab": 0.3,
+                        "ad": 3,
+                        "ad_max": None,
+                        "dp_het": 10,
+                        "dp_hom": 5,
+                        "fail": "drop-variant",
+                        "gq": 30,
+                    },
+                    "index": {
+                        "ab": 0.3,
+                        "ad": 3,
+                        "ad_max": None,
+                        "dp_het": 10,
+                        "dp_hom": 5,
+                        "fail": "drop-variant",
+                        "gq": 30,
+                    },
+                    "mother": {
+                        "ab": 0.3,
+                        "ad": 3,
+                        "ad_max": None,
+                        "dp_het": 10,
+                        "dp_hom": 5,
+                        "fail": "drop-variant",
+                        "gq": 30,
+                    },
                 },
             },
         )
@@ -1186,32 +1188,34 @@ class TestEnumQuality(PedigreesMixin, TestCase):
         self.assertEqual(
             query_presets.Quality.STRICT.to_settings(self.trio_denovo),
             {
-                "father": {
-                    "ab": 0.2,
-                    "ad": 3,
-                    "ad_max": None,
-                    "dp_het": 10,
-                    "dp_hom": 5,
-                    "fail": "drop-variant",
-                    "gq": 10,
-                },
-                "index": {
-                    "ab": 0.2,
-                    "ad": 3,
-                    "ad_max": None,
-                    "dp_het": 10,
-                    "dp_hom": 5,
-                    "fail": "drop-variant",
-                    "gq": 10,
-                },
-                "mother": {
-                    "ab": 0.2,
-                    "ad": 3,
-                    "ad_max": None,
-                    "dp_het": 10,
-                    "dp_hom": 5,
-                    "fail": "drop-variant",
-                    "gq": 10,
+                "quality": {
+                    "father": {
+                        "ab": 0.2,
+                        "ad": 3,
+                        "ad_max": None,
+                        "dp_het": 10,
+                        "dp_hom": 5,
+                        "fail": "drop-variant",
+                        "gq": 10,
+                    },
+                    "index": {
+                        "ab": 0.2,
+                        "ad": 3,
+                        "ad_max": None,
+                        "dp_het": 10,
+                        "dp_hom": 5,
+                        "fail": "drop-variant",
+                        "gq": 10,
+                    },
+                    "mother": {
+                        "ab": 0.2,
+                        "ad": 3,
+                        "ad_max": None,
+                        "dp_het": 10,
+                        "dp_hom": 5,
+                        "fail": "drop-variant",
+                        "gq": 10,
+                    },
                 },
             },
         )
@@ -1220,32 +1224,34 @@ class TestEnumQuality(PedigreesMixin, TestCase):
         self.assertEqual(
             query_presets.Quality.RELAXED.to_settings(self.trio_denovo),
             {
-                "father": {
-                    "ab": 0.1,
-                    "ad": 2,
-                    "ad_max": None,
-                    "dp_het": 8,
-                    "dp_hom": 4,
-                    "fail": "drop-variant",
-                    "gq": 10,
-                },
-                "index": {
-                    "ab": 0.1,
-                    "ad": 2,
-                    "ad_max": None,
-                    "dp_het": 8,
-                    "dp_hom": 4,
-                    "fail": "drop-variant",
-                    "gq": 10,
-                },
-                "mother": {
-                    "ab": 0.1,
-                    "ad": 2,
-                    "ad_max": None,
-                    "dp_het": 8,
-                    "dp_hom": 4,
-                    "fail": "drop-variant",
-                    "gq": 10,
+                "quality": {
+                    "father": {
+                        "ab": 0.1,
+                        "ad": 2,
+                        "ad_max": None,
+                        "dp_het": 8,
+                        "dp_hom": 4,
+                        "fail": "drop-variant",
+                        "gq": 10,
+                    },
+                    "index": {
+                        "ab": 0.1,
+                        "ad": 2,
+                        "ad_max": None,
+                        "dp_het": 8,
+                        "dp_hom": 4,
+                        "fail": "drop-variant",
+                        "gq": 10,
+                    },
+                    "mother": {
+                        "ab": 0.1,
+                        "ad": 2,
+                        "ad_max": None,
+                        "dp_het": 8,
+                        "dp_hom": 4,
+                        "fail": "drop-variant",
+                        "gq": 10,
+                    },
                 },
             },
         )
@@ -1254,32 +1260,34 @@ class TestEnumQuality(PedigreesMixin, TestCase):
         self.assertEqual(
             query_presets.Quality.ANY.to_settings(self.trio_denovo),
             {
-                "father": {
-                    "ab": 0.0,
-                    "ad": 0,
-                    "ad_max": None,
-                    "dp_het": 0,
-                    "dp_hom": 0,
-                    "fail": "ignore",
-                    "gq": 0,
-                },
-                "index": {
-                    "ab": 0.0,
-                    "ad": 0,
-                    "ad_max": None,
-                    "dp_het": 0,
-                    "dp_hom": 0,
-                    "fail": "ignore",
-                    "gq": 0,
-                },
-                "mother": {
-                    "ab": 0.0,
-                    "ad": 0,
-                    "ad_max": None,
-                    "dp_het": 0,
-                    "dp_hom": 0,
-                    "fail": "ignore",
-                    "gq": 0,
+                "quality": {
+                    "father": {
+                        "ab": 0.0,
+                        "ad": 0,
+                        "ad_max": None,
+                        "dp_het": 0,
+                        "dp_hom": 0,
+                        "fail": "ignore",
+                        "gq": 0,
+                    },
+                    "index": {
+                        "ab": 0.0,
+                        "ad": 0,
+                        "ad_max": None,
+                        "dp_het": 0,
+                        "dp_hom": 0,
+                        "fail": "ignore",
+                        "gq": 0,
+                    },
+                    "mother": {
+                        "ab": 0.0,
+                        "ad": 0,
+                        "ad_max": None,
+                        "dp_het": 0,
+                        "dp_hom": 0,
+                        "fail": "ignore",
+                        "gq": 0,
+                    },
                 },
             },
         )
@@ -1455,7 +1463,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>)",
+            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueDeNovo(self):
@@ -1465,7 +1473,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.RELAXED: 'relaxed'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>)",
+            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueDominant(self):
@@ -1475,7 +1483,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>)",
+            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueHomozygousRecessive(self):
@@ -1485,7 +1493,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>)",
+            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueCompoundRecessive(self):
@@ -1495,7 +1503,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>)",
+            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueRecessive(self):
@@ -1505,7 +1513,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>)",
+            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueXRecessive(self):
@@ -1515,7 +1523,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.X_CHROMOSOME: 'x_chromosome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>)",
+            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueClinvarPathogenic(self):
@@ -1524,7 +1532,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
             "QuickPresets(inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, "
             "frequency=<Frequency.RECESSIVE_RELAXED: 'recessive_relaxed'>, impact=<Impact.ANY: 'any'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.CLINVAR_ONLY: 'clinvar_only'>)",
+            "flags_etc=<FlagsEtc.CLINVAR_ONLY: 'clinvar_only'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueMitochondrial(self):
@@ -1533,7 +1541,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
             "QuickPresets(inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, "
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, impact=<Impact.ANY: 'any'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.MT_CHROMOSOME: 'mt_chromosome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>)",
+            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueWholeExome(self):
@@ -1543,7 +1551,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
             "frequency=<Frequency.ANY: 'any'>, "
             "impact=<Impact.ANY: 'any'>, "
             "quality=<Quality.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>)",
+            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testToSettingsDefaults(self):
@@ -1556,6 +1564,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "clinvar_include_likely_pathogenic": True,
                 "clinvar_include_pathogenic": True,
                 "clinvar_include_uncertain_significance": False,
+                "database": query_presets.Database.REFSEQ,
                 "effects": (
                     "complex_substitution",
                     "direct_tandem_duplication",
@@ -1585,15 +1594,6 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "exac_hemizygous": None,
                 "exac_heterozygous": 10,
                 "exac_homozygous": 0,
-                "father": {
-                    "ab": 0.2,
-                    "ad": 3,
-                    "ad_max": None,
-                    "dp_het": 10,
-                    "dp_hom": 5,
-                    "fail": "drop-variant",
-                    "gq": 10,
-                },
                 "flag_bookmarked": True,
                 "flag_candidate": True,
                 "flag_doesnt_segregate": True,
@@ -1640,15 +1640,6 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "helixmtdb_frequency": 0.01,
                 "helixmtdb_het_count": None,
                 "helixmtdb_hom_count": 200,
-                "index": {
-                    "ab": 0.2,
-                    "ad": 3,
-                    "ad_max": None,
-                    "dp_het": 10,
-                    "dp_hom": 5,
-                    "fail": "drop-variant",
-                    "gq": 10,
-                },
                 "inhouse_carriers": 20,
                 "inhouse_enabled": True,
                 "inhouse_hemizygous": None,
@@ -1657,14 +1648,34 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "mitomap_count": None,
                 "mitomap_enabled": False,
                 "mitomap_frequency": None,
-                "mother": {
-                    "ab": 0.2,
-                    "ad": 3,
-                    "ad_max": None,
-                    "dp_het": 10,
-                    "dp_hom": 5,
-                    "fail": "drop-variant",
-                    "gq": 10,
+                "quality": {
+                    "index": {
+                        "ab": 0.2,
+                        "ad": 3,
+                        "ad_max": None,
+                        "dp_het": 10,
+                        "dp_hom": 5,
+                        "fail": "drop-variant",
+                        "gq": 10,
+                    },
+                    "mother": {
+                        "ab": 0.2,
+                        "ad": 3,
+                        "ad_max": None,
+                        "dp_het": 10,
+                        "dp_hom": 5,
+                        "fail": "drop-variant",
+                        "gq": 10,
+                    },
+                    "father": {
+                        "ab": 0.2,
+                        "ad": 3,
+                        "ad_max": None,
+                        "dp_het": 10,
+                        "dp_hom": 5,
+                        "fail": "drop-variant",
+                        "gq": 10,
+                    },
                 },
                 "mtdb_count": 10,
                 "mtdb_enabled": True,

@@ -329,11 +329,13 @@ class SmallVariantQuerySettingsShortcutApiView(
     """
     Generate query settings for a given case by certain shortcuts.
 
-    **URL:** ``/variants/api/query_case/settings-shortcut/{case.uuid}``
+    **URL:** ``/variants/api/query-case/settings-shortcut/{case.uuid}``
 
     **Methods:** ``GET``
 
     **Parameters:**
+
+    - ``database`` - the database to query, one of ``"refseq"`` (default) and ``"ensembl"``
 
     - ``quick_preset`` - overall preset selection using the presets below, valid values are
 
@@ -442,7 +444,11 @@ class SmallVariantQuerySettingsShortcutApiView(
     def get_object(self, *args, **kwargs):
         quick_preset = self._get_quick_presets()
         fields_dict = attrs.fields_dict(query_presets.QuickPresets)
-        changes_raw = {key: self.kwargs[key] for key in fields_dict if key in self.kwargs}
+        changes_raw = {
+            key: self.request.query_params[key]
+            for key in fields_dict
+            if key in self.request.query_params
+        }
         changes = {key: fields_dict[key].type[value] for key, value in changes_raw}
         quick_preset = attrs.evolve(quick_preset, **changes)
         return SettingsShortcuts(
@@ -453,9 +459,9 @@ class SmallVariantQuerySettingsShortcutApiView(
         )
 
     def _get_quick_presets(self) -> query_presets.QuickPresets:
-        """"Return quick preset if given in kwargs"""
-        if "quick_preset" in self.kwargs:
-            qp_name = self.kwargs["quick_preset"]
+        """"Return quick preset if given in request.query_params"""
+        if "quick_preset" in self.request.query_params:
+            qp_name = self.request.query_params["quick_preset"]
             if qp_name not in attrs.fields_dict(query_presets._QuickPresetList):
                 raise NotFound(f"Could not find quick preset {qp_name}")
             return getattr(query_presets.QUICK_PRESETS, qp_name)

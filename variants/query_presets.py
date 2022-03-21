@@ -754,7 +754,11 @@ class Quality(Enum):
         All sample names must be of the same family.
         """
         assert len(set(s.family for s in samples)) == 1
-        return {sample.name: dict(getattr(QUALITY_PRESETS, self.value)) for sample in samples}
+        return {
+            "quality": {
+                sample.name: dict(getattr(QUALITY_PRESETS, self.value)) for sample in samples
+            }
+        }
 
 
 @attrs.frozen
@@ -937,6 +941,11 @@ class FlagsEtc(Enum):
         return getattr(FLAGS_ETC_PRESETS, self.value)
 
 
+class Database(Enum):
+    REFSEQ = "refseq"
+    ENSEMBL = "ensembl"
+
+
 @attrs.frozen
 class QuickPresets:
     """Type for the global quick presets"""
@@ -953,11 +962,14 @@ class QuickPresets:
     chromosomes: Chromosomes
     #: presets in category flags etc.
     flags_etc: FlagsEtc
+    #: database to use
+    database: Database = Database.REFSEQ
 
     def to_settings(self, samples: typing.Iterable[PedigreeMember]) -> typing.Dict[str, typing.Any]:
         """Return the overall settings given the case names"""
         assert len(set(s.family for s in samples)) == 1
         return {
+            "database": self.database,
             **self.inheritance.to_settings(samples),
             **self.frequency.to_settings(),
             **self.impact.to_settings(),
