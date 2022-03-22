@@ -71,7 +71,7 @@ class FilterBase:
         prio_enabled = self.variant_query.query_settings.get("prio_enabled")
         prio_algorithm = self.variant_query.query_settings.get("prio_algorithm")
         hpo_terms = tuple(
-            sorted(self.variant_query.query_settings.get("prio_hpo_terms_curated", []))
+            sorted(self.variant_query.query_settings.get("prio_hpo_terms_curated", []) or [])
         )
         entrez_ids = tuple(
             sorted(set(map(str, [row["entrez_id"] for row in results if row["entrez_id"]])))[

@@ -1,3 +1,5 @@
+import logging
+
 from celery.schedules import crontab
 from django.conf import settings
 from django.core.management import call_command
@@ -5,9 +7,16 @@ from django.core.management import call_command
 from config.celery import app
 
 
+#: Logger to use in this module.
+LOGGER = logging.getLogger(__name__)
+
+
 @app.task(bind=True)
 def sodar_sync_remote(_self):
-    call_command("syncremote")
+    try:
+        call_command("syncremote")
+    except Exception as e:
+        LOGGER.error("Problem with syncremote job: %s", e)
 
 
 if settings.VARFISH_PROJECTROLES_SYNC_REMOTE:
