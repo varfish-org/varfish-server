@@ -59,10 +59,14 @@ Which translates into English roughly as follows:
 A possible implementation looks as follows:
 
 - The VarFish server runs in the internal network with IP ``10.0.10.10``.
+
 - Create a separate VLAN for the PAP structure and use a /30 (or lower) CIDR prefix.
   Only place proxy services there, ideally only one.
+
     - Example: use ``1.2.3.0/30`` with IP gateway ``1.2.3.1`` and application gateway server ``1.2.3.2``.
+
 - Configure the firewall to allow incoming traffic via HTTPS (TCP/443) to ``1.2.3.2`` only.
+
 - Allow outgoing traffic from ``192.168.0.1`` via the packet filter to ``10.0.10.10`` via HTTPS (TCP/443) only.
 
 The following section describes how to setup a Linux Docker container with the `traefik <https://traefik.io/>`__ reverse proxy.
@@ -89,7 +93,7 @@ Preparation:
 
 First, create some directories with the following command:
 
-.. code-block:: terminal
+.. code-block:: console
 
     # mkdir -p /etc/reverse-proxy
     # mkdir -p /etc/reverse-proxy/var/traefik
@@ -201,7 +205,7 @@ This will setup the
 
 You can now startup the reverse proxy:
 
-.. code-block::
+.. code-block:: console
 
     # cd /etc/reverse-proxy
     # docker-compose up -d

@@ -449,8 +449,8 @@ class SmallVariantQuerySettingsShortcutApiView(
             for key in fields_dict
             if key in self.request.query_params
         }
-        if "database" in self.changes_raw:
-            changes = {"database": self.changes_raw.pop("database")}
+        if "database" in changes_raw:
+            changes = {"database": changes_raw.pop("database")}
         else:
             changes = {}
         changes.update({key: fields_dict[key].type[value] for key, value in changes_raw.items()})

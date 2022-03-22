@@ -2153,7 +2153,7 @@ class CaseFilterView(
                         for chrom, start, end in value
                     )
                 elif key == "prio_hpo_terms":
-                    result[key] = "; ".join(value)
+                    result[key] = "; ".join(value or [])
                 elif isinstance(value, list):
                     result[key] = " ".join(value)
                 else:
@@ -2432,7 +2432,7 @@ class CaseLoadPrefetchedFilterView(
 
         # Get mapping from HPO term to HpoName object.
         hpoterms = {}
-        for hpo in filter_job.smallvariantquery.query_settings.get("prio_hpo_terms", []):
+        for hpo in filter_job.smallvariantquery.query_settings.get("prio_hpo_terms", []) or []:
             if hpo.startswith("HP"):
                 matches = HpoName.objects.filter(hpo_id=hpo)
                 hpoterms[hpo] = matches.first().name if matches else "unknown HPO term"

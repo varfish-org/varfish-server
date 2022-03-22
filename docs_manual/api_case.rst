@@ -49,7 +49,7 @@ API Views
 
 .. autoclass:: CaseRetrieveApiView
 
-.. autoclass:: SmallVariantQueryApiView
+.. autoclass:: SmallVariantQueryListApiView
 
 .. autoclass:: SmallVariantQueryCreateApiView
 

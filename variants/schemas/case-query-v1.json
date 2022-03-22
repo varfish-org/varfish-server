@@ -89,47 +89,75 @@
       ]
     },
     "exac_frequency": {
-      "$id": "#/properties/exac_frequency",
-      "type": "number",
-      "title": "Maximal allele frequency in ExAC",
-      "description": "When ``exac_enabled`` then only variants with at an allele frequency of ``exac_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "maximum": 0.05,
-      "examples": [
-        0.05
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/exac_frequency",
+          "type": "number",
+          "title": "Maximal allele frequency in ExAC",
+          "description": "When ``exac_enabled`` then only variants with at an allele frequency of ``exac_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 0.05,
+          "examples": [
+            0.05
+          ]
+        }
       ]
     },
     "exac_heterozygous": {
-      "$id": "#/properties/exac_heterozygous",
-      "type": "integer",
-      "title": "Maximal heterozygous state count in ExAC",
-      "description": "When ``exac_enabled`` then only variants with at most ``exac_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
-      "default": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/exac_heterozygous",
+          "type": "integer",
+          "title": "Maximal heterozygous state count in ExAC",
+          "description": "When ``exac_enabled`` then only variants with at most ``exac_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "exac_homozygous": {
-      "$id": "#/properties/exac_homozygous",
-      "type": "integer",
-      "title": "Maximal homozygous state count in ExAC",
-      "description": "When ``exac_enabled`` then only variants with at most ``exac_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
-      "default": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/exac_homozygous",
+          "type": "integer",
+          "title": "Maximal homozygous state count in ExAC",
+          "description": "When ``exac_enabled`` then only variants with at most ``exac_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "exac_hemizygous": {
-      "$id": "#/properties/exac_hemizygous",
-      "type": "integer",
-      "title": "Maximal hemizygous state count in ExAC",
-      "description": "When ``exac_enabled`` then only variants with at most ``exac_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/exac_hemizygous",
+          "type": "integer",
+          "title": "Maximal hemizygous state count in ExAC",
+          "description": "When ``exac_enabled`` then only variants with at most ``exac_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "gnomad_exomes_enabled": {
@@ -144,47 +172,75 @@
       ]
     },
     "gnomad_exomes_frequency": {
-      "$id": "#/properties/gnomad_exomes_frequency",
-      "type": "number",
-      "title": "Maximal allele frequency in gnomAD exomes",
-      "description": "When ``gnomad_exomes_enabled`` then only variants with at an allele frequency of ``gnomad_exomes_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "maximum": 0.05,
-      "examples": [
-        0.05
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_exomes_frequency",
+          "type": "number",
+          "title": "Maximal allele frequency in gnomAD exomes",
+          "description": "When ``gnomad_exomes_enabled`` then only variants with at an allele frequency of ``gnomad_exomes_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 0.05,
+          "examples": [
+            0.05
+          ]
+        }
       ]
     },
     "gnomad_exomes_heterozygous": {
-      "$id": "#/properties/gnomad_exomes_heterozygous",
-      "type": "integer",
-      "title": "Maximal heterozygous state count in gnomAD exomes",
-      "description": "When ``gnomad_exomes_enabled`` then only variants with at most ``gnomad_exomes_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
-      "default": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_exomes_heterozygous",
+          "type": "integer",
+          "title": "Maximal heterozygous state count in gnomAD exomes",
+          "description": "When ``gnomad_exomes_enabled`` then only variants with at most ``gnomad_exomes_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "gnomad_exomes_homozygous": {
-      "$id": "#/properties/gnomad_exomes_homozygous",
-      "type": "integer",
-      "title": "Maximal homozygous state count in gnomAD exomes",
-      "description": "When ``gnomad_exomes_enabled`` then only variants with at most ``gnomad_exomes_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
-      "default": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_exomes_homozygous",
+          "type": "integer",
+          "title": "Maximal homozygous state count in gnomAD exomes",
+          "description": "When ``gnomad_exomes_enabled`` then only variants with at most ``gnomad_exomes_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "gnomad_exomes_hemizygous": {
-      "$id": "#/properties/gnomad_exomes_hemizygous",
-      "type": "integer",
-      "title": "Maximal hemizygous state count in gnomAD exomes",
-      "description": "When ``gnomad_exomes_enabled`` then only variants with at most ``gnomad_exomes_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_exomes_hemizygous",
+          "type": "integer",
+          "title": "Maximal hemizygous state count in gnomAD exomes",
+          "description": "When ``gnomad_exomes_enabled`` then only variants with at most ``gnomad_exomes_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "gnomad_genomes_enabled": {
@@ -199,47 +255,75 @@
       ]
     },
     "gnomad_genomes_frequency": {
-      "$id": "#/properties/gnomad_genomes_frequency",
-      "type": "number",
-      "title": "Maximal allele frequency in gnomAD genomes",
-      "description": "When ``gnomad_genomes_enabled`` then only variants with at an allele frequency of ``gnomad_genomes_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "maximum": 0.05,
-      "examples": [
-        0.05
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_genomes_frequency",
+          "type": "number",
+          "title": "Maximal allele frequency in gnomAD genomes",
+          "description": "When ``gnomad_genomes_enabled`` then only variants with at an allele frequency of ``gnomad_genomes_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 0.05,
+          "examples": [
+            0.05
+          ]
+        }
       ]
     },
     "gnomad_genomes_heterozygous": {
-      "$id": "#/properties/gnomad_genomes_heterozygous",
-      "type": "integer",
-      "title": "Maximal heterozygous state count in gnomAD genomes",
-      "description": "When ``gnomad_genomes_enabled`` then only variants with at most ``gnomad_genomes_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
-      "default": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_genomes_heterozygous",
+          "type": "integer",
+          "title": "Maximal heterozygous state count in gnomAD genomes",
+          "description": "When ``gnomad_genomes_enabled`` then only variants with at most ``gnomad_genomes_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "gnomad_genomes_homozygous": {
-      "$id": "#/properties/gnomad_genomes_homozygous",
-      "type": "integer",
-      "title": "Maximal homozygous state count in gnomAD genomes",
-      "description": "When ``gnomad_genomes_enabled`` then only variants with at most ``gnomad_genomes_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
-      "default": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_genomes_homozygous",
+          "type": "integer",
+          "title": "Maximal homozygous state count in gnomAD genomes",
+          "description": "When ``gnomad_genomes_enabled`` then only variants with at most ``gnomad_genomes_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "gnomad_genomes_hemizygous": {
-      "$id": "#/properties/gnomad_genomes_hemizygous",
-      "type": "integer",
-      "title": "Maximal hemizygous state count in gnomAD genomes",
-      "description": "When ``gnomad_genomes_enabled`` then only variants with at most ``gnomad_genomes_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/gnomad_genomes_hemizygous",
+          "type": "integer",
+          "title": "Maximal hemizygous state count in gnomAD genomes",
+          "description": "When ``gnomad_genomes_enabled`` then only variants with at most ``gnomad_genomes_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "thousand_genomes_enabled": {
@@ -254,47 +338,75 @@
       ]
     },
     "thousand_genomes_frequency": {
-      "$id": "#/properties/thousand_genomes_frequency",
-      "type": "number",
-      "title": "Maximal allele frequency in thousand genomes",
-      "description": "When ``thousand_genomes_enabled`` then only variants with at an allele frequency of ``thousand_genomes_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "maximum": 0.05,
-      "examples": [
-        0.05
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/thousand_genomes_frequency",
+          "type": "number",
+          "title": "Maximal allele frequency in thousand genomes",
+          "description": "When ``thousand_genomes_enabled`` then only variants with at an allele frequency of ``thousand_genomes_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 0.05,
+          "examples": [
+            0.05
+          ]
+        }
       ]
     },
     "thousand_genomes_heterozygous": {
-      "$id": "#/properties/thousand_genomes_heterozygous",
-      "type": "integer",
-      "title": "Maximal heterozygous state count in thousand genomes",
-      "description": "When ``thousand_genomes_enabled`` then only variants with at most ``thousand_genomes_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
-      "default": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/thousand_genomes_heterozygous",
+          "type": "integer",
+          "title": "Maximal heterozygous state count in thousand genomes",
+          "description": "When ``thousand_genomes_enabled`` then only variants with at most ``thousand_genomes_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "thousand_genomes_homozygous": {
-      "$id": "#/properties/thousand_genomes_homozygous",
-      "type": "integer",
-      "title": "Maximal homozygous state count in thousand genomes",
-      "description": "When ``thousand_genomes_enabled`` then only variants with at most ``thousand_genomes_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
-      "default": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/thousand_genomes_homozygous",
+          "type": "integer",
+          "title": "Maximal homozygous state count in thousand genomes",
+          "description": "When ``thousand_genomes_enabled`` then only variants with at most ``thousand_genomes_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
+          "default": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "thousand_genomes_hemizygous": {
-      "$id": "#/properties/thousand_genomes_hemizygous",
-      "type": "integer",
-      "title": "Maximal hemizygous state count in thousand genomes",
-      "description": "When ``thousand_genomes_enabled`` then only variants with at most ``thousand_genomes_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/thousand_genomes_hemizygous",
+          "type": "integer",
+          "title": "Maximal hemizygous state count in thousand genomes",
+          "description": "When ``thousand_genomes_enabled`` then only variants with at most ``thousand_genomes_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "inhouse_enabled": {
@@ -309,43 +421,71 @@
       ]
     },
     "inhouse_carriers": {
-      "$id": "#/properties/inhouse_carriers",
-      "type": "integer",
-      "title": "Maximal carrier count in in-house database",
-      "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_carriers`` carriers in the in-house database will pass the filter, use ``null``, for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        20
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/inhouse_carriers",
+          "type": "integer",
+          "title": "Maximal carrier count in in-house database",
+          "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_carriers`` carriers in the in-house database will pass the filter, use ``null``, for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            20
+          ]
+        }
       ]
     },
     "inhouse_heterozygous": {
-      "$id": "#/properties/inhouse_heterozygous",
-      "type": "integer",
-      "title": "Maximal heterozygous state count in thousand genomes",
-      "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/inhouse_heterozygous",
+          "type": "integer",
+          "title": "Maximal heterozygous state count in thousand genomes",
+          "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_heterozygous`` variants in heterozygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            10
+          ]
+        }
       ]
     },
     "inhouse_homozygous": {
-      "$id": "#/properties/inhouse_homozygous",
-      "type": "integer",
-      "title": "Maximal homozygous state count in thousand genomes",
-      "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/inhouse_homozygous",
+          "type": "integer",
+          "title": "Maximal homozygous state count in thousand genomes",
+          "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_homozygous`` variants in homozygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            10
+          ]
+        }
       ]
     },
     "inhouse_hemizygous": {
-      "$id": "#/properties/inhouse_hemizygous",
-      "type": "integer",
-      "title": "Maximal hemizygous state count in thousand genomes",
-      "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/inhouse_hemizygous",
+          "type": "integer",
+          "title": "Maximal hemizygous state count in thousand genomes",
+          "description": "When ``inhouse_enabled`` then only variants with at most ``inhouse_hemizygous`` variants in hemizygous state will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            10
+          ]
+        }
       ]
     },
     "mtdb_enabled": {
@@ -360,25 +500,39 @@
       ]
     },
     "mtdb_count": {
-      "$id": "#/properties/mtdb_count",
-      "type": "integer",
-      "title": "Maximal number/absolute frequency of carriers in mtdb",
-      "description": "When ``mtdb_enabled`` then only variants with at most ``mtdb_count`` carriers will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/mtdb_count",
+          "type": "integer",
+          "title": "Maximal number/absolute frequency of carriers in mtdb",
+          "description": "When ``mtdb_enabled`` then only variants with at most ``mtdb_count`` carriers will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "mtdb_frequency": {
-      "$id": "#/properties/mtdb_frequency",
-      "type": "number",
-      "title": "Maximal relative frequencey of carriers in mtdb",
-      "description": "When ``mtdb_enabled`` then only variants with a fraction (between 0 and 0.05) of at most ``mtdb_frequency``, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "maximum": 0.05,
-      "examples": [
-        0.05
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/mtdb_frequency",
+          "type": "number",
+          "title": "Maximal relative frequencey of carriers in mtdb",
+          "description": "When ``mtdb_enabled`` then only variants with a fraction (between 0 and 0.05) of at most ``mtdb_frequency``, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 0.05,
+          "examples": [
+            0.05
+          ]
+        }
       ]
     },
     "helixmtdb_enabled": {
@@ -393,37 +547,58 @@
       ]
     },
     "helixmtdb_frequency": {
-      "$id": "#/properties/helixmtdb_frequency",
-      "type": "number",
-      "title": "Maximal carrier frequency in helixmtdb",
-      "description": "When ``helixmtdb_enabled`` then only variants with at a carrier frequency of ``helixmtdb_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "maximum": 1,
-      "examples": [
-        0.001,
-        0.05
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/helixmtdb_frequency",
+          "type": "number",
+          "title": "Maximal carrier frequency in helixmtdb",
+          "description": "When ``helixmtdb_enabled`` then only variants with at a carrier frequency of ``helixmtdb_frequency`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "maximum": 1,
+          "examples": [
+            0.001,
+            0.05
+          ]
+        }
       ]
     },
     "helixmtdb_het_count": {
-      "$id": "#/properties/helixmtdb_het_count",
-      "type": "integer",
-      "title": "Maximal heteroplasmy frequency in helixmtdb",
-      "description": "When ``helixmtdb_enabled`` then only variants with at number of carriers in heteroplasmic state of ``helixmtdb_het_count`` or below will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/helixmtdb_het_count",
+          "type": "integer",
+          "title": "Maximal heteroplasmy frequency in helixmtdb",
+          "description": "When ``helixmtdb_enabled`` then only variants with at number of carriers in heteroplasmic state of ``helixmtdb_het_count`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "helixmtdb_hom_count": {
-      "$id": "#/properties/helixmtdb_hom_count",
-      "type": "integer",
-      "title": "Maximal homoplasmy frequency in helixmtdb",
-      "description": "When ``helixmtdb_enabled`` then only variants with at number of carriers in homoplasmic state of ``helixmtdb_hom_count`` or below will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/helixmtdb_hom_count",
+          "type": "integer",
+          "title": "Maximal homoplasmy frequency in helixmtdb",
+          "description": "When ``helixmtdb_enabled`` then only variants with at number of carriers in homoplasmic state of ``helixmtdb_hom_count`` or below will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "mitomap_enabled": {
@@ -438,25 +613,39 @@
       ]
     },
     "mitomap_count": {
-      "$id": "#/properties/mitomap_count",
-      "type": "integer",
-      "title": "Maximal number of carriers in mtDB",
-      "description": "When ``mitomap_enabled`` then only variants with at most ``mitomap_count`` carriers will pass the filter, use ``null`` for not applying threshold",
-      "minimum": 0,
-      "examples": [
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/mitomap_count",
+          "type": "integer",
+          "title": "Maximal number of carriers in mtDB",
+          "description": "When ``mitomap_enabled`` then only variants with at most ``mitomap_count`` carriers will pass the filter, use ``null`` for not applying threshold",
+          "minimum": 0,
+          "examples": [
+            10
+          ]
+        }
       ]
     },
     "mitomap_frequency": {
-      "$id": "#/properties/mitomap_frequency",
-      "type": "number",
-      "title": "The mitomap_frequency schema",
-      "description": "When ``mitomap_enabled`` then only variants with a relative frequency (between 0 and 1) will pass the filter, use ``null`` for not enabling threshold",
-      "minimum": 0,
-      "maximum": 1,
-      "examples": [
-        0.001,
-        0.05
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/mitomap_frequency",
+          "type": "number",
+          "title": "The mitomap_frequency schema",
+          "description": "When ``mitomap_enabled`` then only variants with a relative frequency (between 0 and 1) will pass the filter, use ``null`` for not enabling threshold",
+          "minimum": 0,
+          "maximum": 1,
+          "examples": [
+            0.001,
+            0.05
+          ]
+        }
       ]
     },
     "transcripts_coding": {
@@ -515,14 +704,21 @@
       ]
     },
     "max_exon_dist": {
-      "$id": "#/properties/max_exon_dist",
-      "type": "integer",
-      "title": "The largest distance to exons",
-      "description": "When set then only variants with at most ``max_exon_dist`` to the next exon are included, leave unset to not filter based on this",
-      "minimum": 0,
-      "examples": [
-        1,
-        10
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/max_exon_dist",
+          "type": "integer",
+          "title": "The largest distance to exons",
+          "description": "When set then only variants with at most ``max_exon_dist`` to the next exon are included, leave unset to not filter based on this",
+          "minimum": 0,
+          "examples": [
+            1,
+            10
+          ]
+        }
       ]
     },
     "flag_simple_empty": {
@@ -658,7 +854,7 @@
       ]
     },
     "flag_phenotype_match_empty": {
-      "$id": "#/properties/flag_phenotype match_empty",
+      "$id": "#/properties/flag_phenotype_match_empty",
       "type": "boolean",
       "title": "Include variants that have the \"phenotype match\" flag unset",
       "description": "When set (default) then variants that have the \"phenotype match\" flag unset are included in the result",
@@ -669,7 +865,7 @@
       ]
     },
     "flag_phenotype_match_negative": {
-      "$id": "#/properties/flag_phenotype match_negative",
+      "$id": "#/properties/flag_phenotype_match_negative",
       "type": "boolean",
       "title": "Include variants marked with \"phenotype match\" flag set to \"negative\"",
       "description": "When set (default) then variants that have the \"phenotype match\" flag set to \"negative\" are included in the result",
@@ -680,7 +876,7 @@
       ]
     },
     "flag_phenotype_match_positive": {
-      "$id": "#/properties/flag_phenotype match_positive",
+      "$id": "#/properties/flag_phenotype_match_positive",
       "type": "boolean",
       "title": "Include variants marked with \"phenotype match\" flag set to \"positive\"",
       "description": "When set (default) then variants that have the \"phenotype match\" flag set to \"positive\" are included in the result",
@@ -691,7 +887,7 @@
       ]
     },
     "flag_phenotype_match_uncertain": {
-      "$id": "#/properties/flag_phenotype match_uncertain",
+      "$id": "#/properties/flag_phenotype_match_uncertain",
       "type": "boolean",
       "title": "Include variants marked with \"phenotype match\" flag set to \"uncertain\"",
       "description": "When set (default) then variants that have the \"phenotype match\" flag set to \"uncertain\" are included in the result",
@@ -985,13 +1181,20 @@
       ]
     },
     "patho_score": {
-      "$id": "#/properties/patho_score",
-      "type": "string",
-      "title": "The pathogenicity score to use for annotating variants",
-      "description": "Select pathogenicity score to use if ``patho_enabled``. Must be one of the pathogenicity scores enabled in the VarFish server instance (depends on the installation)",
-      "examples": [
-        "cadd",
-        "mutationtaster"
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/patho_score",
+          "type": "string",
+          "title": "The pathogenicity score to use for annotating variants",
+          "description": "Select pathogenicity score to use if ``patho_enabled``. Must be one of the pathogenicity scores enabled in the VarFish server instance (depends on the installation)",
+          "examples": [
+            "cadd",
+            "mutationtaster"
+          ]
+        }
       ]
     },
     "prio_enabled": {
@@ -1006,32 +1209,46 @@
       ]
     },
     "prio_algorithm": {
-      "$id": "#/properties/prio_algorithm",
-      "type": "string",
-      "title": "The phenotype-based prioritization algorithm to use for priorizing variants",
-      "description": "Select algorithm to use if ``prio_enabled``. Must be one of the algorithms enabled in the VarFish server instance (depends on the installation)",
-      "examples": [
-        "phenix",
-        "hiphive",
-        "hiphive-human",
-        "hiphive-mouse"
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/prio_algorithm",
+          "type": "string",
+          "title": "The phenotype-based prioritization algorithm to use for priorizing variants",
+          "description": "Select algorithm to use if ``prio_enabled``. Must be one of the algorithms enabled in the VarFish server instance (depends on the installation)",
+          "examples": [
+            "phenix",
+            "hiphive",
+            "hiphive-human",
+            "hiphive-mouse"
+          ]
+        }
       ]
     },
     "prio_hpo_terms": {
-      "$id": "#/properties/prio_hpo_terms",
-      "type": "array",
-      "title": "The prio_hpo_terms schema",
-      "description": "An explanation about the purpose of this instance.",
-      "default": [],
-      "examples": [
-        []
-      ],
-      "additionalItems": true,
-      "items": {
-        "$id": "#/properties/prio_hpo_terms/items",
-        "type": "string",
-        "pattern": "HP:\\d+"
-      }
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/prio_hpo_terms",
+          "type": "array",
+          "title": "The prio_hpo_terms schema",
+          "description": "An explanation about the purpose of this instance.",
+          "default": [],
+          "examples": [
+            []
+          ],
+          "additionalItems": true,
+          "items": {
+            "$id": "#/properties/prio_hpo_terms/items",
+            "type": "string",
+            "pattern": "HP:\\d+"
+          }
+        }
+      ]
     },
     "require_in_hgmd_public": {
       "$id": "#/properties/require_in_hgmd_public",
@@ -1044,31 +1261,52 @@
       ]
     },
     "recessive_mode": {
-      "$id": "#/properties/recessive_mode",
-      "type": "string",
-      "title": "Enable and select the biallelic recessive inheritance filter",
-      "description": "Use \"compound-recessive\" to restrict to variants compatible with compound recessive mode of inheritance and \"recessive\" to restrict to compatibility with either compound and homozygous recessive mode of inheritance. Use ``recessive_index`` to select the index for recessive inheritance",
-      "enum": [
-        "recessive",
-        "compound-recessive"
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/recessive_mode",
+          "type": "string",
+          "title": "Enable and select the biallelic recessive inheritance filter",
+          "description": "Use \"compound-recessive\" to restrict to variants compatible with compound recessive mode of inheritance and \"recessive\" to restrict to compatibility with either compound and homozygous recessive mode of inheritance. Use ``recessive_index`` to select the index for recessive inheritance",
+          "enum": [
+            "recessive",
+            "compound-recessive"
+          ]
+        }
       ]
     },
     "recessive_index": {
-      "$id": "#/properties/recessive_index",
-      "type": "string",
-      "title": "Select the recessive index",
-      "description": "Set to the identifier of the recessive index",
-      "examples": [
-        "CHILD-NAME"
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/recessive_index",
+          "type": "string",
+          "title": "Select the recessive index",
+          "description": "Set to the identifier of the recessive index",
+          "examples": [
+            "CHILD-NAME"
+          ]
+        }
       ]
     },
     "denovo_index": {
-      "$id": "#/properties/denovo_index",
-      "type": "string",
-      "title": "Select the denovo index",
-      "description": "Set to the identifier of the de novo index",
-      "examples": [
-        "CHILD-NAME"
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$id": "#/properties/denovo_index",
+          "type": "string",
+          "title": "Select the denovo index",
+          "description": "Set to the identifier of the de novo index",
+          "examples": [
+            "CHILD-NAME"
+          ]
+        }
       ]
     },
     "quality": {
@@ -1129,9 +1367,9 @@
               "type": "number",
               "title": "Minimal allelic balance for heterozygous variants",
               "description": "If set then exclude variants with lower allelic balance in sample's genotype call",
-              "minimum": 0.0,
-              "maximum": 1.0,
-              "default": 0.0
+              "minimum": 0,
+              "maximum": 1,
+              "default": 0
             },
             "gq": {
               "$id": "#/properties/qual_thresholds/items/gq",
@@ -1150,11 +1388,18 @@
               "default": 0
             },
             "ad_max": {
-              "$id": "#/properties/qual_thresholds/items/ad_max",
-              "type": "integer",
-              "title": "Maximal alternate allele depth of coverage",
-              "description": "If set then exclude variants with higher depth of coverage on alternate allele in sample's genotype call",
-              "minimum": 0
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$id": "#/properties/qual_thresholds/items/ad_max",
+                  "type": "integer",
+                  "title": "Maximal alternate allele depth of coverage",
+                  "description": "If set then exclude variants with higher depth of coverage on alternate allele in sample's genotype call",
+                  "minimum": 0
+                }
+              ]
             },
             "fail": {
               "$id": "#/properties/qual_thresholds/items/fail",
@@ -1190,17 +1435,24 @@
       ],
       "patternProperties": {
         ".*": {
-          "$id": "#/properties/genotype/values",
-          "type": "string",
-          "enum": [
-            "any",
-            "ref",
-            "het",
-            "hom",
-            "non-hom",
-            "variant",
-            "non-variant",
-            "non-reference"
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$id": "#/properties/genotype/values",
+              "type": "string",
+              "enum": [
+                "any",
+                "ref",
+                "het",
+                "hom",
+                "non-hom",
+                "variant",
+                "non-variant",
+                "non-reference"
+              ]
+            }
           ]
         }
       }
