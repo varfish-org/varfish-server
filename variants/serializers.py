@@ -216,7 +216,8 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
         validated_data["form_id"] = FilterForm.form_id
         with transaction.atomic():
             small_variant_query = super().create(validated_data)
-            self._post_create(small_variant_query)
+            filter_job = self._post_create(small_variant_query)
+        single_case_filter_task.delay(filter_job_pk=filter_job.pk)  # MUST be after transaction
         return small_variant_query
 
     def validate(self, attrs):
@@ -228,7 +229,10 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
         return attrs
 
     def _post_create(self, small_variant_query):
-        """Create the necessary background job (and enqueue it) after creating a SmallVariantQuery."""
+        """Create the necessary background job and return it after creating a SmallVariantQuery
+
+        This is called in a transaction so passing to Celery must be done outside this transaction.
+        """
         project = small_variant_query.case.project
         # Construct background job objects
         bg_job = BackgroundJob.objects.create(
@@ -243,8 +247,7 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
             case=small_variant_query.case,
             smallvariantquery=small_variant_query,
         )
-        # Submit job
-        single_case_filter_task.delay(filter_job_pk=filter_job.pk)
+        return filter_job
 
     class Meta:
         model = SmallVariantQuery
