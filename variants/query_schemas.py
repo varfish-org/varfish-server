@@ -162,7 +162,7 @@ class CaseQueryV1:
     mitomap_enabled: bool
 
     quality: typing.Dict[str, QualitySettingsV1]
-    genotype: typing.Dict[str, GenotypeChoiceV1]
+    genotype: typing.Dict[str, typing.Optional[GenotypeChoiceV1]]
 
     transcripts_coding: bool = True
     transcripts_noncoding: bool = False
@@ -395,7 +395,9 @@ class QueryJsonToFormConverter:
             elif sample == query.denovo_index:
                 result["%s_gt" % sample] = "dom-denovo-index"
             else:
-                result["%s_gt" % sample] = query.genotype.get(sample, GenotypeChoiceV1.ANY).value
+                gt = query.genotype.get(sample, GenotypeChoiceV1.ANY)
+                if gt:
+                    result["%s_gt" % sample] = gt.value
         # add quality field for each sample
         for sample in case_samples:
             value = query.quality.get(sample, QualitySettingsV1())

@@ -186,9 +186,9 @@ def query_settings_validator(value):
     _check_gene_list_found(query_settings["gene_allowlist"], "gene_allowlist")
     _check_gene_list_found(query_settings["gene_blocklist"], "gene_blocklist")
     # Validate HPO term list.
-    if query_settings["prio_hpo_terms"]:
-        found = HpoName.objects.filter(hpo_id__in=query_settings["prio_hpo_terms"])
-        given_set = set(query_settings["prio_hpo_terms"])
+    if "prio_hpo_terms" in query_settings:
+        found = HpoName.objects.filter(hpo_id__in=query_settings["prio_hpo_terms"] or [])
+        given_set = set(query_settings["prio_hpo_terms"] or [])
         found_set = {x.hpo_id for x in found}
         if given_set != found_set:
             not_found = given_set - found_set
