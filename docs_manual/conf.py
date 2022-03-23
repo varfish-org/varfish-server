@@ -13,10 +13,13 @@ import os
 import sys
 
 import django
+import nltk
 
 sys.path.insert(0, os.path.abspath("../"))
 os.environ["DJANGO_SETTINGS_MODULE"] = "config.settings.local"
 django.setup()
+
+nltk.download("stopwords")
 
 # Get the project root dir, which is the parent dir of this
 cwd = os.getcwd()
