@@ -151,6 +151,8 @@ Currently, the main focus is on small/sequence variants called from high-througp
     developer_database
     developer_development
     developer_kiosk
+    developer_templates
+    developer_checklists
 
 .. raw:: latex
 
@@ -178,7 +180,6 @@ Currently, the main focus is on small/sequence variants called from high-througp
     :titlesonly:
 
     contributors
-    bug_reports
     release_cycle
     history
     glossary
