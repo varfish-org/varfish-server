@@ -716,7 +716,7 @@ class TestVariantsCaseFilterView(TestUIBase):
 
         # save bookmark
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "save"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "save"))
         ).click()
 
         # check bookmark set for variant 1

@@ -653,6 +653,7 @@ class SmallVariantSetFactory(factory.django.DjangoModelFactory):
 
 
 CHROMOSOME_MAPPING = {str(chrom): i + 1 for i, chrom in enumerate(list(range(1, 23)) + ["X", "Y"])}
+CHROMOSOME_MAPPING.update({f"chr{chrom}": i for chrom, i in CHROMOSOME_MAPPING.items()})
 
 
 class SmallVariantFactory(factory.django.DjangoModelFactory):

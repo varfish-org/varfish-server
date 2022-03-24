@@ -4,9 +4,11 @@ from enum import unique, Enum
 import copy
 import os.path
 import json
+import re
 import typing
 
 import attr
+import attrs
 import cattr
 from jsonschema import Draft7Validator, validators
 
@@ -135,6 +137,17 @@ class GenomicRegionV1:
 
     chromosome: str
     range: typing.Optional[RangeV1] = None
+
+    def with_chr_stripped(self):
+        chromosome = self.chromosome
+        if chromosome.startswith("chr"):
+            chromosome = chromosome[len("chr") :]
+        return GenomicRegionV1(chromosome, self.range)
+
+    def to_str(self):
+        if not self.range:
+            return self.chromosome
+        return "%s:%d-%d" % (self.chromosome, self.range.start, self.range.end)
 
 
 def convert_genomic_region_v1(region: GenomicRegionV1):
@@ -265,7 +278,7 @@ class CaseQueryV1:
     helixmtdb_hom_count: typing.Optional[int] = None
 
     mitomap_count: typing.Optional[int] = None
-    mitmomap_frequency: typing.Optional[float] = None
+    mitomap_frequency: typing.Optional[float] = None
 
 
 class QueryJsonToFormConverter:
@@ -296,6 +309,7 @@ class QueryJsonToFormConverter:
             "inhouse_enabled": query.inhouse_enabled,
             "inhouse_carriers": query.inhouse_carriers,
             "inhouse_heterozygous": query.inhouse_heterozygous,
+            "inhouse_homozygous": query.inhouse_homozygous,
             "mtdb_enabled": query.mtdb_enabled,
             "mtdb_count": query.mtdb_count,
             "mtdb_frequency": query.mtdb_frequency,
@@ -420,4 +434,25 @@ def convert_query_json_to_small_variant_filter_form_v1(
     tmp = copy.deepcopy(query_json)
     DefaultValidatingDraft7Validator(SCHEMA_QUERY_V1).validate(tmp)
     query = cattr.structure(tmp, CaseQueryV1)
+    if query.genomic_region:
+        query = attrs.evolve(
+            query,
+            genomic_region=list(map(GenomicRegionV1.with_chr_stripped, query.genomic_region)),
+        )
     return QueryJsonToFormConverter().convert(case, query)
+
+
+def _structure_genomic_region(s, _):
+    if not re.match("^[a-zA-Z0-9]+(:(\\d+(,\\d+)*)-(\\d+(,\\d+)*))?$", s):
+        raise RuntimeError("Invalid genomic region string: %s" % repr(s))
+    if ":" not in s:
+        return GenomicRegionV1(chromosome=s)
+    chrom, range_str = s.split(":")
+    start, end = range_str.split("-")
+    return GenomicRegionV1(chromosome=chrom, range=RangeV1(int(start), int(end)))
+
+
+cattr.register_structure_hook(GenomicRegionV1, _structure_genomic_region)
+
+
+cattr.register_unstructure_hook(GenomicRegionV1, GenomicRegionV1.to_str)

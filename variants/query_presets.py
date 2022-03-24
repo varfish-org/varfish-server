@@ -576,6 +576,10 @@ class _ImpactPresets:
         "transcripts_coding": True,
         "transcripts_noncoding": False,
         "effects": (
+            "3_prime_UTR_exon_variant",
+            "3_prime_UTR_intron_variant",
+            "5_prime_UTR_exon_variant",
+            "5_prime_UTR_intron_variant",
             "coding_transcript_intron_variant",
             "complex_substitution",
             "direct_tandem_duplication",
@@ -583,8 +587,6 @@ class _ImpactPresets:
             "disruptive_inframe_insertion",
             "exon_loss_variant",
             "feature_truncation",
-            "five_prime_UTR_exon_variant",
-            "five_prime_UTR_intron_variant",
             "frameshift_elongation",
             "frameshift_truncation",
             "frameshift_variant",
@@ -602,8 +604,6 @@ class _ImpactPresets:
             "stop_retained_variant",
             "structural_variant",
             "synonymous_variant",
-            "three_prime_UTR_exon_variant",
-            "three_prime_UTR_intron_variant",
             "transcript_ablation",
         ),
     }
@@ -615,6 +615,10 @@ class _ImpactPresets:
         "transcripts_coding": True,
         "transcripts_noncoding": True,
         "effects": (
+            "3_prime_UTR_exon_variant",
+            "3_prime_UTR_intron_variant",
+            "5_prime_UTR_exon_variant",
+            "5_prime_UTR_intron_variant",
             "coding_transcript_intron_variant",
             "complex_substitution",
             "direct_tandem_duplication",
@@ -623,8 +627,6 @@ class _ImpactPresets:
             "downstream_gene_variant",
             "exon_loss_variant",
             "feature_truncation",
-            "five_prime_UTR_exon_variant",
-            "five_prime_UTR_intron_variant",
             "frameshift_elongation",
             "frameshift_truncation",
             "frameshift_variant",
@@ -645,8 +647,6 @@ class _ImpactPresets:
             "stop_retained_variant",
             "structural_variant",
             "synonymous_variant",
-            "three_prime_UTR_exon_variant",
-            "three_prime_UTR_intron_variant",
             "transcript_ablation",
             "upstream_gene_variant",
         ),
@@ -773,25 +773,25 @@ class _ChromosomePresets:
     }
     #: Presets for the "autosomes" chromosome/region/gene settings
     autosomes: typing.Dict[str, typing.Any] = {
-        "genomic_region": tuple(f"chr{num}" for num in range(1, 23)),
+        "genomic_region": tuple(f"{num}" for num in range(1, 23)),
         "gene_allowlist": (),
         "gene_blocklist": (),
     }
     #: Presets for the "X-chromosome" chromosome/region/gene settings
     x_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ("chrX",),
+        "genomic_region": ("X",),
         "gene_allowlist": (),
         "gene_blocklist": (),
     }
     #: Presets for the "Y-chromosomes" chromosome/region/gene settings
     y_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ("chrY",),
+        "genomic_region": ("Y",),
         "gene_allowlist": (),
         "gene_blocklist": (),
     }
     #: Presets for the "mitochondrial" chromosome/region/gene settings
     mt_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ("chrMT",),
+        "genomic_region": ("MT",),
         "gene_allowlist": (),
         "gene_blocklist": (),
     }
