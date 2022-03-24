@@ -23,6 +23,7 @@ Full Change List
 - Strip trailing slashes in beconsite entrypoints (#388)
 - Documenting PAP setup (#393)
 - Adding more indices (#395)
+- Fixing discrepancy with REST API query shortcuts (#402)
 
 ------
 v1.1.0

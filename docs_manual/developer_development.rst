@@ -63,7 +63,7 @@ To do so, go to the `VarFish repository <https://github.com/bihealth/varfish-ser
 Update Main
 ===========
 
-`Pull with rebase on gitready <https://gitready.com/advanced/2009/02/11/pull-with-rebase.html>`_
+`Pull with rebase on gitready <https://gitready.com/advanced/2009/02/11/pull-with-rebase.html>`__
 
 .. code-block:: bash
 
@@ -103,7 +103,7 @@ We suggest to first squash your commits and then do a rebase to the main branch.
 Squash Multiple Commits (Or Use Amend)
 --------------------------------------
 
-`Pull with rebase on gitready <https://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html>`_
+`Pull with rebase on gitready <https://gitready.com/advanced/2009/02/10/squashing-commits-with-rebase.html>`__
 
 We prefer to have only one commit per feature (most of the time there is only one feature per branch).
 When your branch is rebased on the main branch, do:

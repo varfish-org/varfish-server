@@ -1222,7 +1222,7 @@ class CaseUpdateTermView(
         """Return list of terms that were used in all queries."""
         terms = set()
         for query in SmallVariantQuery.objects.filter(case=self.get_case_object()):
-            terms |= set(query.query_settings.get("prio_hpo_terms", []))
+            terms |= set(query.query_settings.get("prio_hpo_terms", []) or [])
         return list(sorted(terms))
 
     def get_form_kwargs(self):

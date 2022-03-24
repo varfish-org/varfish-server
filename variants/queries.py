@@ -1012,14 +1012,24 @@ class ExtendQueryPartsGeneListsFilter(ExtendQueryPartsBase):
         )
 
 
+def normalize_chrom(chrom, release):
+    """Normalize chromosome for the given ``release``."""
+    while chrom.startswith("chr"):
+        chrom = chrom[len("chr") :]
+    if chrom in ("M", "MT"):
+        return "MT" if release == "GRCh37" else "chrM"
+    return f"chr{chrom}" if release != "GRCh37" else chrom
+
+
 class ExtendQueryPartsGenomicRegionFilter(ExtendQueryPartsBase):
     def extend_conditions(self, _query_parts):
+        case = self._case_for_release()
         if self.kwargs["genomic_region"]:
             return [
                 or_(
                     *[
                         and_(
-                            SmallVariant.sa.chromosome == chrom,
+                            SmallVariant.sa.chromosome == normalize_chrom(chrom, case.release),
                             (SmallVariant.sa.start >= start) if start else True,
                             (SmallVariant.sa.start <= end) if end else True,
                         )
@@ -1028,6 +1038,12 @@ class ExtendQueryPartsGenomicRegionFilter(ExtendQueryPartsBase):
                 )
             ]
         return []
+
+    def _case_for_release(self):
+        if hasattr(self, "cases"):
+            return self.cases[0]
+        else:
+            return self.case
 
 
 class ExtendQueryPartsLoadPrefetchedBase(ExtendQueryPartsBase):

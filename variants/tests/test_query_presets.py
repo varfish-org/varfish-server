@@ -1052,6 +1052,10 @@ class TestEnumImpact(TestCase):
                 "transcripts_coding": True,
                 "transcripts_noncoding": False,
                 "effects": (
+                    "3_prime_UTR_exon_variant",
+                    "3_prime_UTR_intron_variant",
+                    "5_prime_UTR_exon_variant",
+                    "5_prime_UTR_intron_variant",
                     "coding_transcript_intron_variant",
                     "complex_substitution",
                     "direct_tandem_duplication",
@@ -1059,8 +1063,6 @@ class TestEnumImpact(TestCase):
                     "disruptive_inframe_insertion",
                     "exon_loss_variant",
                     "feature_truncation",
-                    "five_prime_UTR_exon_variant",
-                    "five_prime_UTR_intron_variant",
                     "frameshift_elongation",
                     "frameshift_truncation",
                     "frameshift_variant",
@@ -1078,8 +1080,6 @@ class TestEnumImpact(TestCase):
                     "stop_retained_variant",
                     "structural_variant",
                     "synonymous_variant",
-                    "three_prime_UTR_exon_variant",
-                    "three_prime_UTR_intron_variant",
                     "transcript_ablation",
                 ),
             },
@@ -1095,6 +1095,10 @@ class TestEnumImpact(TestCase):
                 "transcripts_coding": True,
                 "transcripts_noncoding": True,
                 "effects": (
+                    "3_prime_UTR_exon_variant",
+                    "3_prime_UTR_intron_variant",
+                    "5_prime_UTR_exon_variant",
+                    "5_prime_UTR_intron_variant",
                     "coding_transcript_intron_variant",
                     "complex_substitution",
                     "direct_tandem_duplication",
@@ -1103,8 +1107,6 @@ class TestEnumImpact(TestCase):
                     "downstream_gene_variant",
                     "exon_loss_variant",
                     "feature_truncation",
-                    "five_prime_UTR_exon_variant",
-                    "five_prime_UTR_intron_variant",
                     "frameshift_elongation",
                     "frameshift_truncation",
                     "frameshift_variant",
@@ -1125,8 +1127,6 @@ class TestEnumImpact(TestCase):
                     "stop_retained_variant",
                     "structural_variant",
                     "synonymous_variant",
-                    "three_prime_UTR_exon_variant",
-                    "three_prime_UTR_intron_variant",
                     "transcript_ablation",
                     "upstream_gene_variant",
                 ),
@@ -1311,7 +1311,7 @@ class TestEnumChromosomes(TestCase):
         self.assertEqual(
             query_presets.Chromosomes.AUTOSOMES.to_settings(),
             {
-                "genomic_region": tuple(f"chr{num}" for num in range(1, 23)),
+                "genomic_region": tuple(f"{num}" for num in range(1, 23)),
                 "gene_allowlist": (),
                 "gene_blocklist": (),
             },
@@ -1320,19 +1320,19 @@ class TestEnumChromosomes(TestCase):
     def testToSettingsXChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.X_CHROMOSOME.to_settings(),
-            {"genomic_region": ("chrX",), "gene_allowlist": (), "gene_blocklist": (),},
+            {"genomic_region": ("X",), "gene_allowlist": (), "gene_blocklist": (),},
         )
 
     def testToSettingsYChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.Y_CHROMOSOME.to_settings(),
-            {"genomic_region": ("chrY",), "gene_allowlist": (), "gene_blocklist": (),},
+            {"genomic_region": ("Y",), "gene_allowlist": (), "gene_blocklist": (),},
         )
 
     def testToSettingsMTChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.MT_CHROMOSOME.to_settings(),
-            {"genomic_region": ("chrMT",), "gene_allowlist": (), "gene_blocklist": (),},
+            {"genomic_region": ("MT",), "gene_allowlist": (), "gene_blocklist": (),},
         )
 
 
