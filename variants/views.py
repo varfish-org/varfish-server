@@ -4123,7 +4123,7 @@ class MultiSmallVariantFlagsAndCommentApiView(
 
         for variant in variant_list:
             case = get_object_or_404(Case, sodar_uuid=variant.get("case"))
-            variant_obj = SmallVariant.objects.get(
+            variant_obj = SmallVariant.objects.filter(
                 release=variant.get("release"),
                 chromosome=variant.get("chromosome"),
                 start=variant.get("start"),
@@ -4131,7 +4131,7 @@ class MultiSmallVariantFlagsAndCommentApiView(
                 reference=variant.get("reference"),
                 alternative=variant.get("alternative"),
                 case_id=case.id,
-            )
+            )[0]
 
             try:
                 flags = case.small_variant_flags.get(

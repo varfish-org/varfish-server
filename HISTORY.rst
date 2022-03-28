@@ -2,6 +2,19 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+Full Change List
+================
+
+- Fixing bug in corner case of multi variant annotation (#412)
+
+
 -------
 v01.1.1
 -------
