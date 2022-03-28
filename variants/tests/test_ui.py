@@ -610,7 +610,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "variant-row"))
         )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
@@ -624,17 +624,17 @@ class TestVariantsCaseFilterView(TestUIBase):
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "variant-row"))
         )
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "variant-bookmark"))
         )
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark-comment-group"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "variant-bookmark-comment-group"))
         ).click()
         # save bookmark
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "save"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "save"))
         ).click()
         WebDriverWait(self.selenium, self.wait_time).until(
             wait_for_the_attribute_endswith_value(
@@ -655,10 +655,10 @@ class TestVariantsCaseFilterView(TestUIBase):
         # hit submit button
         self.selenium.find_element_by_id("submitFilter").click()
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "multivar-selector"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "multivar-selector"))
         )
         multivar_btn = WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.ID, "multiVarButton"))
+            ec.visibility_of_element_located((By.ID, "multiVarButton"))
         )
         multivar_bookmark_link = WebDriverWait(self.selenium, self.wait_time).until(
             ec.presence_of_element_located((By.ID, "multivar-bookmark-comment"))
@@ -696,7 +696,7 @@ class TestVariantsCaseFilterView(TestUIBase):
 
         # check displayed form
         info_box = WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located(
+            ec.visibility_of_element_located(
                 (
                     By.XPATH,
                     "//div[@id='multiVarBookmarkCommentModalContent']/div[contains(@class, 'alert-info')]",
@@ -704,7 +704,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             )
         )
         _strong = WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located(
+            ec.visibility_of_element_located(
                 (
                     By.XPATH,
                     "//div[@id='multiVarBookmarkCommentModalContent']/div[contains(@class, 'alert-info')]/strong",
@@ -789,7 +789,7 @@ class TestVariantsCaseFilterView(TestUIBase):
 
         # check displayed form -- warning expected
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located(
+            ec.visibility_of_element_located(
                 (
                     By.XPATH,
                     "//div[@id='multiVarBookmarkCommentModalContent']/div[contains(@class, 'alert-warning')]",
@@ -797,7 +797,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             )
         )
         info_box = WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located(
+            ec.visibility_of_element_located(
                 (
                     By.XPATH,
                     "//div[@id='multiVarBookmarkCommentModalContent']/div[contains(@class, 'alert-info')]",
@@ -837,17 +837,17 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "variant-row"))
         )
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "variant-bookmark"))
         )
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "variant-bookmark-comment-group"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "variant-bookmark-comment-group"))
         ).click()
         # save bookmark
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "save"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "save"))
         ).click()
         WebDriverWait(self.selenium, self.wait_time).until(
             wait_for_the_attribute_endswith_value(
@@ -867,7 +867,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "variant-row"))
         )
         with self.assertRaises(NoSuchElementException):
             self.selenium.find_element_by_class_name("bookmark")
@@ -905,14 +905,14 @@ class TestVariantsCaseFilterView(TestUIBase):
         download.click()
         # wait for redirect and refresh page for elements to show up
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located(
+            ec.visibility_of_element_located(
                 (By.XPATH, '//h2[contains(text(), "{}")]'.format("Background File Creation Job"))
             )
         )
         time.sleep(5)
         self.selenium.refresh()
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located(
+            ec.visibility_of_element_located(
                 (
                     By.XPATH,
                     '//div[contains(text(), "{}")]'.format("Exporting single case to file started"),
@@ -1084,7 +1084,7 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "variant-row"))
         )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
@@ -1102,14 +1102,14 @@ class TestVariantsProjectCasesFilterView(TestUIBase):
         download.click()
         # wait for redirect and refresh page for elements to show up
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located(
+            ec.visibility_of_element_located(
                 (By.XPATH, '//h2[contains(text(), "{}")]'.format("Background File Creation Job"))
             )
         )
         time.sleep(5)
         self.selenium.refresh()
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located(
+            ec.visibility_of_element_located(
                 (
                     By.XPATH,
                     '//div[contains(text(), "{}")]'.format("Exporting all project cases to file"),
@@ -1171,7 +1171,7 @@ class TestVariantsCaseFilterViewExtraAnno(TestVariantsCaseFilterView):
         self.selenium.find_element_by_id("submitFilter").click()
         # wait for redirect
         WebDriverWait(self.selenium, self.wait_time).until(
-            ec.presence_of_element_located((By.CLASS_NAME, "variant-row"))
+            ec.visibility_of_element_located((By.CLASS_NAME, "variant-row"))
         )
 
         # only Effect is on, everythign else (extra anno) off
