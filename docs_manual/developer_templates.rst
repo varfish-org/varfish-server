@@ -76,6 +76,32 @@ When the root cause is determined, a solution needs to be proposed, following th
     e.g. Change X in F. Then do Y.
 
 
+Commits
+=======
+
+Almost all commits should refer to a ticket in trailing parenthesis, e.g.
+
+::
+
+    Resolve some issue (#NUMBER)
+
+Required trailing lines are required for each commit.
+You must either specify ``Related-Issue`` or ``No-Related-Issue`.
+Examples:
+
+::
+
+    Related-Issue: #123
+    No-Related-Issue: Short text reason
+
+Further, each commit should be marked whether it is expected to change filtration results with ``Projected-Results-Impact``.
+Allowed values are ``none`` or ``require-revalidation``.
+
+::
+
+    Projected-Results-Impact: none
+    Projected-Results-Impact: require-revalidation
+
 Fix & Pull Request
 ==================
 
