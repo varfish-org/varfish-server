@@ -1,8 +1,8 @@
-.. _dev_docker:
+.. _developer_data_builds:
 
-=============
-Docker Builds
-=============
+====================
+Docker & Data Builds
+====================
 
 This section describes how to build the Docker images and also the VarFish site data tarballs.
 The intended audience are VarFish developers.
@@ -67,7 +67,7 @@ Download static data
 ::
 
     $ cd /plenty/space
-    $ wget https://file-public.bihealth.org/transient/varfish/varfish-server-background-db-20201006.tar.gz{,.sha256}
+    $ wget https://file-public.bihealth.org/transient/varfish/athenea/varfish-server-background-db-20201006.tar.gz{,.sha256}
     $ sha256sum -c varfish-server-background-db-20201006.tar.gz.sha256
     $ tar xzvf varfish-server-background-db-20201006.tar.gz
 
@@ -109,6 +109,13 @@ Add Other Data
 --------------
 
 Copy the other required data for ``jannovar`` and ``exomiser``.
+You can find the appropriate files to download on the Jannovar (via Zenodo) and Exomiser data download sites:
+
+- https://zenodo.org/record/5410367
+- https://data.monarchinitiative.org/exomiser/data/index.html
+
+You should use the hg19 data for Exomiser for any genome release as we will only use the the gene to phenotype prioritization that is independent of the genome release.
+
 The result should look similar to this:
 
 ::
@@ -175,5 +182,6 @@ Now create the released data tarballs.
 
 ::
 
-    tar -cf - volumes | pigz -c > varfish-site-data-v0.22.2-20210212.tar.gz && sha256sum varfish-site-data-v0.22.2-20210212.tar.gz >varfish-site-data-v0.22.2-20210212.tar.gz.sha256 &
-    tar -cf - test-data | pigz -c > varfish-test-data-v0.22.2-20210212.tar.gz && sha256sum varfish-test-data-v0.22.2-20210212.tar.gz >varfish-test-data-v0.22.2-20210212.tar.gz.sha256
+    tar -cf - volumes | pigz -c > varfish-site-data-v1-20210728-grch37.tar.gz && sha256sum varfish-site-data-v1-20210728-grch37.tar.gz >varfish-site-data-v1-20210728-grch37.tar.gz.sha256 &
+    tar -cf - volumes | pigz -c > varfish-site-data-v1-20210728-grch38.tar.gz && sha256sum varfish-site-data-v1-20210728-grch38.tar.gz >varfish-site-data-v1-20210728-grch38.tar.gz.sha256 &
+    tar -cf - test-data | pigz -c > varfish-test-data-v1-20211125.tar.gz && sha256sum varfish-test-data-v1-20211125.tar.gz >varfish-test-data-v1-20211125.tar.gz.sha256

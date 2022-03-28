@@ -153,6 +153,7 @@ Currently, the main focus is on small/sequence variants called from high-througp
     developer_kiosk
     developer_templates
     developer_checklists
+    developer_data_builds
 
 .. raw:: latex
 
@@ -183,7 +184,6 @@ Currently, the main focus is on small/sequence variants called from high-througp
     release_cycle
     history
     glossary
-    dev_docker
 
 Indices and tables
 ==================

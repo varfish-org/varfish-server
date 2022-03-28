@@ -79,12 +79,14 @@ But this will come later.
 
 Next, download and extract the VarFish site data archive which contains everything you need to get started (the download is ~100GB of data).
 This will create the ``volumes`` directory (500GB of data, ZFS compression yields us 167GB disk usage).
+Replace ``grch37`` with ``grch38`` in the command below if you want to use the GRCh38 release.
+We currently only provide prebuilt databases for either GRCh37 or GRCh38.
 
 .. code-block:: bash
 
-    $ wget --no-check-certificate https://file-public.bihealth.org/transient/varfish/varfish-site-data-v0.22.2-20210212.tar.gz{,.sha256}
-    $ sha256sum --check varfish-site-data-v0.22.2-20210212.tar.gz.sha256
-    $ tar xf varfish-site-data-v0.22.2-20210212.tar.gz
+    $ wget --no-check-certificate https://file-public.cubi.bihealth.org/transient/varfish/athenea/varfish-site-data-v1-20210728-grch37.tar.gz{,.sha256}
+    $ sha256sum --check varfish-site-data-v1-20210728-grch37.tar.gz.sha256
+    $ tar xf varfish-site-data-v1-20210728-grch37.tar.gz
     $ ls volumes
     exomiser  jannovar  minio  postgres  redis  traefik
 
@@ -122,7 +124,7 @@ You can also use let Docker Compose run the containers in the background:
     Starting compose_varfish-celeryd-import_1    ... done
     Starting compose_varfish-celerybeat_1        ... done
 
-You can check that everything is running:
+You can check that everything is running (the versions might be different in your installation):
 
 .. code-block:: bash
 
@@ -210,20 +212,20 @@ Take Docker compose down (this will shut down your VarFish instance!):
 Modify the ``docker-compose.yml`` file by finding the following entry::
 
       varfish-web:
-        image: ghcr.io/bihealth/varfish-server:0.23.9-0
+        image: ghcr.io/bihealth/varfish-server:VERSION
         env_file:
           - .env
         networks:
           - varfish
         restart: unless-stopped
         volumes:
-          - "/root/varfish-server-background-db-20201006:/data:ro"
+          - "/root/varfish-server-background-db-20210728:/data:ro"
         [...]
 
 And add another volume that maps your directory into the container::
 
         volumes:
-          - "/root/varfish-server-background-db-20201006:/data:ro"
+          - "/root/varfish-server-background-db-20210728:/data:ro"
           - type: bind
             source: varfish-db-downloader/
             target: /data-db-downloader

@@ -63,12 +63,26 @@ At a Glance
 GitHub is used for public issue tracking.
 Currently, development happens on internal infrastructure.
 
+-------------------------------------
+VarFish Component Compatibility Table
+-------------------------------------
+
+The following combinations have been validated / are supported to work.
+
+==============  ===========  =================
+VarFish Server  VarFish CLI  VarFish Annotator
+==============  ===========  =================
+v1.*.*          v0.3.0       v0.20
+==============  ===========  =================
+
 ----------------------------------------
 VarFish Data Release Compatibility Table
 ----------------------------------------
 
-=====================  ============  ==============
-VarFish DB Downloader  Data Release  VarFish Server
-=====================  ============  ==============
-v0.2                   20201006      <= v0.23
-=====================  ============  ==============
+The following combinations have been validated / are supported to work.
+
+==============  ============  =====================
+VarFish Server  Data Release  VarFish DB Downloader
+==============  ============  =====================
+v1.*.*          20210728      v0.3.*
+==============  ============  =====================
