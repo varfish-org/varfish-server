@@ -10,6 +10,7 @@ End-User Summary
 ================
 
 - Fixing problem with CNV import (#386)
+- Fixing problem with user annotation of nonexistent variants (#404)
 
 Full Change List
 ================

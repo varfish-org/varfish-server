@@ -72,7 +72,7 @@
             </td>
             <td style="max-width: 100px;">
               <div class="sodar-overflow-container sodar-overflow-hover">
-                {{ data.variants.0.human_readable }}
+                {{ data.variants.0.human_readable|default:"NONEXISTENT-VARIANT" }}
               </div>
             </td>
             <td style="max-width: 100px;">

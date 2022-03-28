@@ -188,8 +188,10 @@ def smallvar_description(entry):
     )
     if isinstance(entry, dict):
         return "-".join(map(str, (entry[key] for key in keys)))
-    else:
+    elif hasattr(entry, keys[0]):
         return "-".join(map(str, (getattr(entry, key) for key in keys)))
+    else:
+        return "NONEXISTENT-VARIANT"
 
 
 #: Mapping of small variant flag value to font awesome icon.
