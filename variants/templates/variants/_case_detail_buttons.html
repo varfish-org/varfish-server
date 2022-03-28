@@ -88,7 +88,7 @@
           <p>Deleting the small variants is irreversible. Please confirm if you want to proceed.</p>
         </div>
         <div class="modal-footer">
-          <a href="{% url "variants:smallvariants-delete" project=project.sodar_uuid case=object.sodar_uuid %}" class="btn btn-danger" type="submit" onclick="$(this).addClass('disabled'); $('#deleteSmallVariantsIcon').attr('data-icon', 'fa-solid:refresh'); $('#deleteSmallVariantsIcon').addClass('spin');">
+          <a href="{% url "variants:smallvariants-delete" project=project.sodar_uuid case=object.sodar_uuid %}" class="btn btn-danger" type="submit" onclick="$(this).addClass('disabled'); $('#deleteSmallVariantsIcon').attr('data-icon', 'mdi:refresh'); $('#deleteSmallVariantsIcon').addClass('spin');">
             <i id="deleteSmallVariantsIcon" class="iconify" data-icon="fa-solid:trash-alt"></i>
             Delete Small Variants
           </a>
@@ -113,7 +113,7 @@
           <p>Deleting the structural variants is irreversible. Please confirm if you want to proceed.</p>
         </div>
         <div class="modal-footer">
-          <a href="{% url "variants:structuralvariants-delete" project=project.sodar_uuid case=object.sodar_uuid %}" class="btn btn-danger" type="submit" onclick="$(this).addClass('disabled'); $('#deleteStructuralVariantsIcon').attr('data-icon', 'fa-solid:refresh'); $('#deleteStructuralVariantsIcon').addClass('spin');">
+          <a href="{% url "variants:structuralvariants-delete" project=project.sodar_uuid case=object.sodar_uuid %}" class="btn btn-danger" type="submit" onclick="$(this).addClass('disabled'); $('#deleteStructuralVariantsIcon').attr('data-icon', 'mdi:refresh'); $('#deleteStructuralVariantsIcon').addClass('spin');">
             <i id="deleteStructuralVariantsIcon" class="iconify" data-icon="fa-solid:trash-alt"></i>
             Delete Structural Variants
           </a>

@@ -153,3 +153,4 @@ django-saml2-auth-ai>=2.1.6, <2.2
 
 # Code formatting.
 black ==19.10b0
+click >=8.0,<8.1
