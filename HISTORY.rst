@@ -13,11 +13,11 @@ Full Change List
 ================
 
 - Fixing bug in corner case of multi variant annotation (#412)
+- Updating documentation for v1 release (#410)
 
-
--------
-v01.1.1
--------
+------
+v1.1.1
+------
 
 This is the first release candidate of the VarFish "Athenea" release (v1).
 Importantly, the first stable release for v1 will be v1.2.0 (see `Release Cycle Documentation <https://varfish-server.readthedocs.io/en/latest/release_cycle.html>`__ for a full explanation of version semantics).
