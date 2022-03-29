@@ -7,6 +7,10 @@
 {% load static %}
 {% load json %}
 
+{% block title %}
+  Background File Creaetion Job
+{% endblock title %}
+
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item"><a href="{% url "bgjobs:list" project=project.sodar_uuid %}">Jobs</a></li>
   <li class="breadcrumb-item active">{{ object.bg_job.name }}</li>

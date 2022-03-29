@@ -7,6 +7,10 @@
 {% load static %}
 {% load json %}
 
+{% block title %}
+  Distiller Export Job for {{ case.name }}
+{% endblock title %}
+
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
   <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.case.sodar_uuid %}">{{ object.case.name }}</a></li>

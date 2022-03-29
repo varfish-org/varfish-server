@@ -10,6 +10,10 @@
   <li class="breadcrumb-item active">{{ object.name }}</li>
 {% endblock %}
 
+{% block title %}
+  Case Details: {{ case.name }}
+{% endblock title %}
+
 {% block projectroles %}
   {% get_app_setting 'variants' 'disable_pedigree_sex_check' project=project as disable_pedigree_sex_check %}
 

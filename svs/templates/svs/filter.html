@@ -5,6 +5,10 @@
 {% load static %}
 {% load variants_tags %}
 
+{% block title %}
+  SV Filtration: {{ case.name }}
+{% endblock title %}
+
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
   {% if query_type == "case" %}

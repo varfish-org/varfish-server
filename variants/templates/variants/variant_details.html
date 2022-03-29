@@ -8,6 +8,10 @@
 {% load static %}
 {% load json %}
 
+{% block title %}
+  Variant Details
+{% endblock title %}
+
 {% block projectroles_extend %}
   {% get_app_setting "variants" "ga4gh_beacon_network_widget_enabled" user=user as ga4gh_beacon_network_widget_enabled %}
   {% get_django_setting "PROJECTROLES_KIOSK_MODE" as kiosk_mode %}
