@@ -9,6 +9,8 @@ HEAD (unreleased)
 End-User Summary
 ================
 
+- Fixing bug in XLSX export (#417)
+
 Full Change List
 ================
 
@@ -16,6 +18,7 @@ Full Change List
 - Updating documentation for v1 release (#410)
 - Fixing issue with ``fa-solid:refresh`` icon (#409)
 - Fixing page titles (#409)
+- Fixing bug in XLSX export (#417)
 
 ------
 v1.1.1
