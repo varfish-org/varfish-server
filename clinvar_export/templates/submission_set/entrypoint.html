@@ -2,6 +2,10 @@
 
 {% load render_bundle from webpack_loader %}
 
+{% block title %}
+  ClinVar Export
+{% endblock title %}
+
 {% block projectroles_extend %}
   <div id="sodar-ss-app-context" app-context="{{ app_context }}"></div>
   <div id="app"></div>

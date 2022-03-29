@@ -7,6 +7,10 @@
 {% load static %}
 {% load variants_tags %}
 
+{% block title %}
+  Cases: {{ project.title }}
+{% endblock title %}
+
 {% block navi_sub_project_extend %}
   <li class="breadcrumb-item active">Cases</li>
 {% endblock %}

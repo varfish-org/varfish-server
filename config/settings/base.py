@@ -591,7 +591,7 @@ if KIOSK_MODE:
     SITE_TITLE = "VarFish (Kiosk)"
 else:
     SITE_TITLE = "VarFish"
-SITE_SUBTITLE = env.str("SITE_SUBTITLE", "Beta")
+SITE_SUBTITLE = env.str("SITE_SUBTITLE", "Athenea")
 SITE_INSTANCE_TITLE = env.str("SITE_INSTANCE_TITLE", "Deployment Instance Name")
 
 PROJECTROLES_SECRET_LENGTH = 32

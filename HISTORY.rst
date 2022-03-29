@@ -15,6 +15,7 @@ Full Change List
 - Fixing bug in corner case of multi variant annotation (#412)
 - Updating documentation for v1 release (#410)
 - Fixing issue with ``fa-solid:refresh`` icon (#409)
+- Fixing page titles (#409)
 
 ------
 v1.1.1
