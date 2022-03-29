@@ -414,7 +414,7 @@ class CaseExporterBase:
                 patho_score = self.query_args.get("patho_score")
                 scorer_factory = VariantScoresFactory()
                 scorer = scorer_factory.get_scorer(
-                    self._get_genomebuild(), patho_score, variants, self.job.bg_job.user
+                    self.get_genomebuild(), patho_score, variants, self.job.bg_job.user
                 )
                 return {
                     "-".join(
