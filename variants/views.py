@@ -4054,6 +4054,10 @@ class MultiSmallVariantFlagsAndCommentApiView(
 
     def get(self, *_args, **_kwargs):
         get_data = dict(self.request.GET)
+        if not get_data.get("variant_list"):  # short-circuit
+            return JsonResponse(
+                {"flags": [], "flags_interfering": [], "variant_list": []}, UUIDEncoder
+            )
         variant_list = json.loads(get_data.get("variant_list")[0])
         flags_keys = [
             "flag_bookmarked",

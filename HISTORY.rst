@@ -13,6 +13,7 @@ End-User Summary
 - Fixing problem with multi-sample queries (#419)
 - Fixing issue with cohort queries (#420)
 - Fixing issue with mutationtaster queries (#423)
+- Fixing problem with multi-variant update (#419)
 
 Full Change List
 ================
@@ -27,6 +28,7 @@ Full Change List
   We will need a different approach for the queries than was previously attempted here.
 - Fixing issue with cohort queries (#420)
 - Fixing issue with mutationtaster queries (#423)
+- Fixing problem with multi-variant update (#419)
 
 ------
 v1.1.1
