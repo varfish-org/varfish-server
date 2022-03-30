@@ -12,6 +12,7 @@ End-User Summary
 - Fixing bug in XLSX export (#417)
 - Fixing problem with multi-sample queries (#419)
 - Fixing issue with cohort queries (#420)
+- Fixing issue with mutationtaster queries (#423)
 
 Full Change List
 ================
@@ -25,6 +26,7 @@ Full Change List
   This is done by rolling back adding the ``_ClosingWrapper`` class.
   We will need a different approach for the queries than was previously attempted here.
 - Fixing issue with cohort queries (#420)
+- Fixing issue with mutationtaster queries (#423)
 
 ------
 v1.1.1
