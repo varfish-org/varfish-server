@@ -10,6 +10,7 @@ End-User Summary
 ================
 
 - Fixing bug in XLSX export (#417)
+- Fixing problem with multi-sample queries (#419)
 
 Full Change List
 ================
@@ -19,6 +20,9 @@ Full Change List
 - Fixing issue with ``fa-solid:refresh`` icon (#409)
 - Fixing page titles (#409)
 - Fixing bug in XLSX export (#417)
+- Fixing problem with multi-sample queries (#419).
+  This is done by rolling back adding the ``_ClosingWrapper`` class.
+  We will need a different approach for the queries than was previously attempted here.
 
 ------
 v1.1.1
