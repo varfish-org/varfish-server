@@ -146,10 +146,7 @@ class ProjectCasesFilter(FilterBase):
     def _get_genomebuild(self):
         if self.job.cohort:
             cases = [
-                case
-                for case in self.project_or_cohort.get_accessible_cases_for_user(
-                    self.job.bg_job.user
-                )
+                case for case in self.job.cohort.get_accessible_cases_for_user(self.job.bg_job.user)
             ]
         else:
             cases = [case for case in self.variant_query.project.case_set.all()]
