@@ -3,7 +3,7 @@ function queryVariantValidatorApi(obj, release, chromosome, start, reference, al
     let icon = button.find("img");
     let box = button.closest('.modal-content').find('.variant-validator-results');
     button.attr('disabled', true);
-    icon.attr('src', '/icons/fa-solid/refresh.svg').addClass('spin');
+    icon.attr('src', '/icons/mdi/refresh.svg').addClass('spin');
     box.html('<div class="text-center"><i class="iconify spin" data-icon="fa-solid:spinner"></i></div>');
     $.ajax({
         type: 'POST',
