@@ -1662,17 +1662,6 @@ def _chunked(arr, max_size):
     return chunks
 
 
-class _ClosingWrapper(object):
-    def __init__(self, wrapped):
-        self.wrapped = wrapped
-
-    def fetchall(self):
-        return self.wrapped
-
-    def close(self):
-        pass
-
-
 class CasePrefetchQuery:
     builder = QueryPartsBuilder
 
@@ -1693,39 +1682,30 @@ class CasePrefetchQuery:
             column("alternative"),
             column("family_name"),
         ]
-        result = []
-        chunks = _chunked(self.cases, settings.QUERY_MAX_UNION)
-        for chunk in chunks:
-            stmts = []
-            for case in chunk:
-                comp_het_index = kwargs.get("compound_recessive_indices", {}).get(case.name)
-                recessive_index = kwargs.get("recessive_indices", {}).get(case.name)
-                if comp_het_index and self.query_id is None:
-                    # Set the current compound recessive index
-                    kwargs["compound_recessive_index"] = comp_het_index
-                    combiner = CompHetCombiner(case, self.builder)
-                elif recessive_index and self.query_id is None:
-                    # Set the current compound recessive index
-                    kwargs["compound_recessive_index"] = recessive_index
-                    combiner = RecessiveCombiner(case, self.builder)
-                else:  # compound recessive not in kwargs or disabled
-                    combiner = DefaultCombiner(case, self.builder, self.query_id)
-                stmts.append(combiner.to_stmt(kwargs))
-            stmt = union(*stmts).order_by(*order_by)
-            if settings.DEBUG:
-                print(
-                    "\n"
-                    + sqlparse.format(
-                        stmt.compile(self.engine).string, reindent=True, keyword_case="upper"
-                    )
+        stmts = []
+        for case in self.cases:
+            comp_het_index = kwargs.get("compound_recessive_indices", {}).get(case.name)
+            recessive_index = kwargs.get("recessive_indices", {}).get(case.name)
+            if comp_het_index and self.query_id is None:
+                # Set the current compound recessive index
+                kwargs["compound_recessive_index"] = comp_het_index
+                combiner = CompHetCombiner(case, self.builder)
+            elif recessive_index and self.query_id is None:
+                # Set the current compound recessive index
+                kwargs["compound_recessive_index"] = recessive_index
+                combiner = RecessiveCombiner(case, self.builder)
+            else:  # compound recessive not in kwargs or disabled
+                combiner = DefaultCombiner(case, self.builder, self.query_id)
+            stmts.append(combiner.to_stmt(kwargs))
+        stmt = union(*stmts).order_by(*order_by)
+        if settings.DEBUG:
+            print(
+                "\n"
+                + sqlparse.format(
+                    stmt.compile(self.engine).string, reindent=True, keyword_case="upper"
                 )
-            query_res = self.engine.execute(stmt)
-            if len(chunks) == 1:
-                return query_res
-            else:
-                with contextlib.closing(query_res) as query_res:
-                    result += list(query_res)
-        return _ClosingWrapper(result)
+            )
+        return self.engine.execute(stmt)
 
 
 class CaseLoadPrefetchedQuery(CasePrefetchQuery):
