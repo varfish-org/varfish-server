@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+- Fixing problem with import info display for non-superusers (#431)
+
+Full Change List
+================
+
+- Fixing problem with import info display for non-superusers (#431)
+
 ------
 v1.1.2
 ------
