@@ -1001,6 +1001,7 @@ class ExtendQueryPartsGeneListsFilter(ExtendQueryPartsBase):
             .where(
                 and_(
                     or_(
+                        Hgnc.sa.hgnc_id.in_(gene_list),
                         Hgnc.sa.ensembl_gene_id.in_(gene_list),
                         Hgnc.sa.entrez_id.in_(gene_list),
                         Hgnc.sa.symbol.in_(gene_list),

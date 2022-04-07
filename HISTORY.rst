@@ -11,12 +11,16 @@ End-User Summary
 
 - Fixing problem with import info display for non-superusers (#431)
 - Schema and documentation for case QC info (#428)
+- Adding support for HGNC IDs in gene allow lists (#432)
+- PanelApp will now populate the gene allow list with HGNC gene IDs (#432)
 
 Full Change List
 ================
 
 - Fixing problem with import info display for non-superusers (#431)
 - Schema and documentation for case QC info (#428)
+- Adding support for HGNC IDs in gene allow lists (#432)
+- PanelApp will now populate the gene allow list with HGNC gene IDs (#432)
 
 ------
 v1.1.2

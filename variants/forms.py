@@ -1156,13 +1156,13 @@ class VariantGeneListFilterFormMixin:
                 gene
                 for gene in cleaned_data[list_name]
                 if not Hgnc.objects.filter(
-                    Q(entrez_id=gene) | Q(ensembl_gene_id=gene) | Q(symbol=gene)
+                    Q(hgnc_id=gene) | Q(entrez_id=gene) | Q(ensembl_gene_id=gene) | Q(symbol=gene)
                 )
             ]
             if mismatches:
                 self.add_error(
                     list_name,
-                    "Can't find symbol, Entrez ID or ENSEMBL gene ID: {}".format(
+                    "Can't find HGNC ID/symbol, Entrez ID or ENSEMBL gene ID: {}".format(
                         "; ".join(mismatches)
                     ),
                 )
