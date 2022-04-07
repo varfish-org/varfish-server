@@ -14,9 +14,6 @@
 {% has_perm 'importer.view_data' request.user as can_view_data %}
 
 <div class="row sodar-pr-content-title pb-2">
-  {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
-  {% include 'projectroles/_project_menu_btn.html' %}
-
   <h2 class="sodar-pr-content-title">Import Release Info</h2>
 </div>
 <div class="container-fluid sodar-page-container">
