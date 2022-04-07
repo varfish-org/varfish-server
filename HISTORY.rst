@@ -10,11 +10,13 @@ End-User Summary
 ================
 
 - Fixing problem with import info display for non-superusers (#431)
+- Schema and documentation for case QC info (#428)
 
 Full Change List
 ================
 
 - Fixing problem with import info display for non-superusers (#431)
+- Schema and documentation for case QC info (#428)
 
 ------
 v1.1.2

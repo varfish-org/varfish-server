@@ -86,7 +86,7 @@ Almost all commits should refer to a ticket in trailing parenthesis, e.g.
     Resolve some issue (#NUMBER)
 
 Required trailing lines are required for each commit.
-You must either specify ``Related-Issue`` or ``No-Related-Issue`.
+You must either specify ``Related-Issue`` or ``No-Related-Issue``.
 Examples:
 
 ::

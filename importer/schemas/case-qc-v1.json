@@ -1,0 +1,417 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/bihealth/varfish-server/main/importer/schemas/case-qc-v1.json",
+  "type": "object",
+  "title": "varfish-server case QC info",
+  "description": "Per case quality control information for varfish",
+  "patternProperties": {
+    ".*": {
+      "$id": "#/per_sample_values",
+      "type": "object",
+      "properties": {
+        "bamstats": {
+          "$id": "#/per_sample_values/bamstats",
+          "type": "object",
+          "required": [
+            "raw total sequences",
+            "filtered sequences",
+            "sequences",
+            "is sorted",
+            "1st fragments",
+            "last fragments",
+            "reads mapped",
+            "reads mapped and paired",
+            "reads unmapped",
+            "reads properly paired",
+            "reads paired",
+            "reads duplicated",
+            "reads MQ0",
+            "reads QC failed",
+            "non-primary alignments",
+            "total length",
+            "total first fragment length",
+            "total last fragment length",
+            "bases mapped",
+            "bases mapped (cigar)",
+            "bases trimmed",
+            "bases duplicated",
+            "mismatches",
+            "error rate",
+            "average length",
+            "average first fragment length",
+            "average last fragment length",
+            "maximum length",
+            "maximum first fragment length",
+            "maximum last fragment length",
+            "average quality",
+            "insert size average",
+            "insert size standard deviation",
+            "inward oriented pairs",
+            "outward oriented pairs",
+            "pairs with other orientation",
+            "pairs on different chromosomes",
+            "percentage of properly paired reads (%)"
+          ],
+          "properties": {
+            "raw total sequences": {
+              "$id": "#/properties/qual_thresholds/items/raw_total_sequences",
+              "type": "integer",
+              "title": "raw total sequences",
+              "minimum": 0
+            },
+            "filtered sequences": {
+              "$id": "#/properties/qual_thresholds/items/filtered_sequences",
+              "type": "integer",
+              "title": "filtered sequences",
+              "minimum": 0
+            },
+            "sequences": {
+              "$id": "#/properties/qual_thresholds/items/sequences",
+              "type": "integer",
+              "title": "sequences",
+              "minimum": 0
+            },
+            "is sorted": {
+              "$id": "#/properties/qual_thresholds/items/is_sorted",
+              "type": "integer",
+              "title": "is sorted",
+              "minimum": 0
+            },
+            "1st fragments": {
+              "$id": "#/properties/qual_thresholds/items/1st_fragments",
+              "type": "integer",
+              "title": "1st fragments",
+              "minimum": 0
+            },
+            "last fragments": {
+              "$id": "#/properties/qual_thresholds/items/last_fragments",
+              "type": "integer",
+              "title": "last fragments",
+              "minimum": 0
+            },
+            "reads mapped": {
+              "$id": "#/properties/qual_thresholds/items/reads_mapped",
+              "type": "integer",
+              "title": "reads mapped",
+              "minimum": 0
+            },
+            "reads mapped and paired": {
+              "$id": "#/properties/qual_thresholds/items/reads_mapped_and_paired",
+              "type": "integer",
+              "title": "reads mapped and paired",
+              "minimum": 0
+            },
+            "reads unmapped": {
+              "$id": "#/properties/qual_thresholds/items/reads_unmapped",
+              "type": "integer",
+              "title": "reads unmapped",
+              "minimum": 0
+            },
+            "reads properly paired": {
+              "$id": "#/properties/qual_thresholds/items/reads_properly_paired",
+              "type": "integer",
+              "title": "reads properly paired",
+              "minimum": 0
+            },
+            "reads paired": {
+              "$id": "#/properties/qual_thresholds/items/reads_paired",
+              "type": "integer",
+              "title": "reads paired",
+              "minimum": 0
+            },
+            "reads duplicated": {
+              "$id": "#/properties/qual_thresholds/items/reads_duplicated",
+              "type": "integer",
+              "title": "reads duplicated",
+              "minimum": 0
+            },
+            "reads MQ0": {
+              "$id": "#/properties/qual_thresholds/items/reads_MQ0",
+              "type": "integer",
+              "title": "reads MQ0",
+              "minimum": 0
+            },
+            "reads QC failed": {
+              "$id": "#/properties/qual_thresholds/items/reads_QC_failed",
+              "type": "integer",
+              "title": "reads QC failed",
+              "minimum": 0
+            },
+            "non-primary alignments": {
+              "$id": "#/properties/qual_thresholds/items/non-primary_alignments",
+              "type": "integer",
+              "title": "non-primary alignments",
+              "minimum": 0
+            },
+            "total length": {
+              "$id": "#/properties/qual_thresholds/items/total_length",
+              "type": "integer",
+              "title": "total length",
+              "minimum": 0
+            },
+            "total first fragment length": {
+              "$id": "#/properties/qual_thresholds/items/total_first_fragment_length",
+              "type": "integer",
+              "title": "total first fragment length",
+              "minimum": 0
+            },
+            "total last fragment length": {
+              "$id": "#/properties/qual_thresholds/items/total_last_fragment_length",
+              "type": "integer",
+              "title": "total last fragment length",
+              "minimum": 0
+            },
+            "bases mapped": {
+              "$id": "#/properties/qual_thresholds/items/bases_mapped",
+              "type": "integer",
+              "title": "bases mapped",
+              "minimum": 0
+            },
+            "bases mapped (cigar)": {
+              "$id": "#/properties/qual_thresholds/items/bases_mapped_(cigar)",
+              "type": "integer",
+              "title": "bases mapped (cigar)",
+              "minimum": 0
+            },
+            "bases trimmed": {
+              "$id": "#/properties/qual_thresholds/items/bases_trimmed",
+              "type": "integer",
+              "title": "bases trimmed",
+              "minimum": 0
+            },
+            "bases duplicated": {
+              "$id": "#/properties/qual_thresholds/items/bases_duplicated",
+              "type": "integer",
+              "title": "bases duplicated",
+              "minimum": 0
+            },
+            "mismatches": {
+              "$id": "#/properties/qual_thresholds/items/mismatches",
+              "type": "integer",
+              "title": "mismatches",
+              "minimum": 0
+            },
+            "error rate": {
+              "$id": "#/properties/qual_thresholds/items/error_rate",
+              "type": "number",
+              "title": "error rate",
+              "description": "error rate as fractions of 1",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "average length": {
+              "$id": "#/properties/qual_thresholds/items/average_length",
+              "type": "number",
+              "title": "average length",
+              "minimum": 0
+            },
+            "average first fragment length": {
+              "$id": "#/properties/qual_thresholds/items/average_first_fragment_length",
+              "type": "number",
+              "title": "average first fragment length",
+              "minimum": 0
+            },
+            "average last fragment length": {
+              "$id": "#/properties/qual_thresholds/items/average_last_fragment_length",
+              "type": "number",
+              "title": "average last fragment length",
+              "minimum": 0
+            },
+            "maximum length": {
+              "$id": "#/properties/qual_thresholds/items/maximum_length",
+              "type": "integer",
+              "title": "maximum length",
+              "minimum": 0
+            },
+            "maximum first fragment length": {
+              "$id": "#/properties/qual_thresholds/items/maximum_first_fragment_length",
+              "type": "integer",
+              "title": "maximum first fragment length",
+              "minimum": 0
+            },
+            "maximum last fragment length": {
+              "$id": "#/properties/qual_thresholds/items/maximum_last_fragment_length",
+              "type": "integer",
+              "title": "maximum last fragment length",
+              "minimum": 0
+            },
+            "average quality": {
+              "$id": "#/properties/qual_thresholds/items/average_quality",
+              "type": "number",
+              "title": "average quality",
+              "minimum": 0
+            },
+            "insert size average": {
+              "$id": "#/properties/qual_thresholds/items/insert_size_average",
+              "type": "number",
+              "title": "insert size average",
+              "minimum": 0
+            },
+            "insert size standard deviation": {
+              "$id": "#/properties/qual_thresholds/items/insert_size_standard_deviation",
+              "type": "number",
+              "title": "insert size standard deviation",
+              "minimum": 0
+            },
+            "inward oriented pairs": {
+              "$id": "#/properties/qual_thresholds/items/inward_oriented_pairs",
+              "type": "integer",
+              "title": "inward oriented pairs",
+              "minimum": 0
+            },
+            "outward oriented pairs": {
+              "$id": "#/properties/qual_thresholds/items/outward_oriented_pairs",
+              "type": "integer",
+              "title": "outward oriented pairs",
+              "minimum": 0
+            },
+            "pairs with other orientation": {
+              "$id": "#/properties/qual_thresholds/items/pairs_with_other_orientation",
+              "type": "integer",
+              "title": "pairs with other orientation",
+              "minimum": 0
+            },
+            "pairs on different chromosomes": {
+              "$id": "#/properties/qual_thresholds/items/pairs_on_different_chromosomes",
+              "type": "integer",
+              "title": "pairs on different chromosomes",
+              "minimum": 0
+            },
+            "percentage of properly paired reads (%)": {
+              "$id": "#/properties/qual_thresholds/items/percentage_of_properly_paired_reads",
+              "type": "number",
+              "title": "percentage of properly paired reads (%)",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        "min_cov_target": {
+          "$id": "#/per_sample_values/min_cov_target",
+          "type": "object",
+          "title": "Minimal coverage percentage, counted per target",
+          "description": "Considering all targets, histogram of distribution regarding \"minimal coverage of...\", the smallest coverage on a target makes the whole target count at that value",
+          "patternProperties": {
+            "\\d+": {
+              "$id": "#/per_sample_values/min_cov_target/entry",
+              "type": "number",
+              "title": "Minimal coverage value histogram entry",
+              "minimum": 0,
+              "maximum": 100,
+              "examples": [
+                100,
+                99.9,
+                0
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "min_cov_base": {
+          "$id": "#/per_sample_values/min_cov_base",
+          "type": "object",
+          "title": "Minimal coverage percentage, counted per base",
+          "description": "Considering all target bases, histogram of distribution regarding \"minimal coverage of...\"",
+          "patternProperties": {
+            "\\d+": {
+              "$id": "#/per_sample_values/min_cov_base/entry",
+              "type": "number",
+              "title": "Minimal coverage value histogram entry",
+              "minimum": 0,
+              "maximum": 100,
+              "examples": [
+                100,
+                99.9,
+                0
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "summary": {
+          "$id": "#/per_sample_values/summary",
+          "type": "object",
+          "title": "Coverage summary",
+          "required": [
+            "mean coverage",
+            "target count",
+            "total target size"
+          ],
+          "properties": {
+            "mean coverage": {
+              "$id": "#/per_sample_values/summary/mean_coverage",
+              "type": "number",
+              "title": "Mean on-target coverage",
+              "minimum": 0,
+              "examples": [
+                0,
+                100
+              ]
+            },
+            "target count": {
+              "$id": "#/per_sample_values/summary/target_count",
+              "type": "integer",
+              "title": "Total number of targets",
+              "minimum": 0,
+              "examples": [
+                0,
+                100
+              ]
+            },
+            "total target size": {
+              "$id": "#/per_sample_values/summary/total_target_size",
+              "type": "integer",
+              "title": "Total target size in bp",
+              "minimum": 0,
+              "examples": [
+                0,
+                100
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "idxstats": {
+          "$id": "#/per_sample_values/idxstats",
+          "type": "object",
+          "patternProperties": {
+            ".*": {
+              "$id": "#/per_sample_values/idx_stats/per_chrom_values",
+              "type": "object",
+              "title": "Read count for each chromosome",
+              "required": [
+                "mapped",
+                "unmapped"
+              ],
+              "properties": {
+                "mapped": {
+                  "$id": "#/per_sample_values/idx_stats/per_chrom_values/mapped",
+                  "type": "integer",
+                  "title": "Mapped read count",
+                  "description": "Number of mapped read on chromosome",
+                  "minimum": 0,
+                  "examples": [
+                    0,
+                    100
+                  ]
+                },
+                "unmapped": {
+                  "$id": "#/per_sample_values/idx_stats/per_chrom_values/unmapped",
+                  "type": "integer",
+                  "title": "Unmapped read count",
+                  "description": "Number of unmapped read on chromosome (usually the mate maps)",
+                  "minimum": 0,
+                  "examples": [
+                    0,
+                    100
+                  ]
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

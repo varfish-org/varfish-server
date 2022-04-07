@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://raw.githubusercontent.com/bihealth/varfish-server/main/variantsschemas/case-query-v1.json",
+  "$id": "https://raw.githubusercontent.com/bihealth/varfish-server/main/variants/schemas/case-query-v1.json",
   "type": "object",
   "title": "varfish-server case query settings",
   "description": "Single case query settings for varfish-server",
