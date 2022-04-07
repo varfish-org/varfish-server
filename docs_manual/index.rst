@@ -102,6 +102,7 @@ Currently, the main focus is on small/sequence variants called from high-througp
     admin_tuning
     admin_upgrade
     admin_pap
+    admin_backup
 
 .. raw:: latex
 
