@@ -1,8 +1,8 @@
 .. _api_beacon:
 
-==============================
-Clinical GA4GH Beacon Protocol
-==============================
+========================
+Clinical Beacon Protocol
+========================
 
 This section describes the "Clinical Beacon" protocol version 1 ("Clinical Beacon v1").
 It follows the `GA4GH Beacon Protocol v1 <https://beacon-project.io/>`__ ("Beacon v1") in large parts with slight deviations.

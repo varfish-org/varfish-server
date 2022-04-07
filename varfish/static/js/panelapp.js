@@ -33,7 +33,7 @@ $(document).ready(function() {
             const gene = result.genes[i];
             const confidence = parseInt(gene.confidence_level);
             if (confidence >= minConfidence) {
-              symbols.push(gene.gene_data.gene_symbol);
+              symbols.push(gene.gene_data.hgnc_id);
             }
           }
           console.log("SYMBOLS", symbols);
