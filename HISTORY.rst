@@ -21,6 +21,7 @@ Full Change List
 - Schema and documentation for case QC info (#428)
 - Adding support for HGNC IDs in gene allow lists (#432)
 - PanelApp will now populate the gene allow list with HGNC gene IDs (#432)
+- Adding ``pg_dump`` admin command and documentation (#430)
 
 ------
 v1.1.2
