@@ -249,7 +249,6 @@ Again, you have have to compress the output TSV files with ``gzip`` and compute 
     $ gzip -c FAM_sv_calls.feature-effects.tsv >FAM_sv_calls.feature-effects.tsv.gz
     $ md5sum FAM_sv_calls.feature-effects.tsv.gz >FAM_sv_calls.feature-effectstsv.gz.md5
 
-
 --------------
 Variant Import
 --------------
@@ -297,11 +296,49 @@ Once the job is done, the created or updated case will appear in the case list.
     :align: center
     :width: 80%
 
-------------
-Undocumented
-------------
 
-The following needs to be properly documented here:
+--------------------
+Case Quality Control
+--------------------
 
-- Preparation of the BAM QC file that has the information about duplication rate etc.
-  You can have a look at the ``*.bam-qc.tsv.gz`` files below the ``test-data`` directory.
+You can provide an optional TSV file with case quality control data.
+The file name should end in ``.bam-qc.tsv.gz`` and also accompanied with a MD5 file.
+The format is a bit peculiar and will be documented better in the future.
+
+The TSV file has three columns and starts with the header.
+
+::
+
+    case_id     set_id      bam_stats
+
+It is then followed by exactly one line where the first two fields have to have the value of a dot (``.``).
+The last row is then a PostgreSQL-encoded JSON dict with the per-sample quality control information.
+You can obtain the PostgreSQL-encoding by replacing all string delimiters (``"``) with three ones (``""""```).
+
+The format of the JSON file is formally defined in :ref:`api_json_schemas_case_qc_v1`.
+
+Briefly, the keys of the top level dict are the sample names as in the case that you upload.
+On the second level:
+
+``bamstats``
+    The keys/values from the output of the ``samtools stats`` command.
+
+``min_cov_target``
+    Coverage histogram per target (the smallest coverage per target/exon counts for the whole target).
+    You provide the start of each bin, usually starting at ``"0"``, in increments of 10, up to ``"200"``.
+    The keys are the bin lower bounds, the values are of JSON/JavaScript ``number`` type, so floating point numbers.
+
+``min_cov_base``
+    The same information as ``min_cov_target`` but considering coverage base-wise and not target-wise.
+
+``summary``
+    A summary of the target information.
+
+``idxstats``
+    A per-chromosome count of mapped and unmapped reads as returned by the ``samtools idxstats`` command.
+
+You can find the example of a real-world JSON QC file below for the first sample.
+
+.. literalinclude:: ../importer/schemas/examples/trio.json
+    :language: json
+    :lines: 1-45,63-68,86-98,191-202

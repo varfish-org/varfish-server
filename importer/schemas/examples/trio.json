@@ -1,0 +1,607 @@
+{
+  "index": {
+    "bamstats": {
+      "raw total sequences": 154189250,
+      "filtered sequences": 0,
+      "sequences": 154189250,
+      "is sorted": 1,
+      "1st fragments": 77094625,
+      "last fragments": 77094625,
+      "reads mapped": 153919815,
+      "reads mapped and paired": 153863370,
+      "reads unmapped": 269435,
+      "reads properly paired": 153071356,
+      "reads paired": 154189250,
+      "reads duplicated": 7273644,
+      "reads MQ0": 2701485,
+      "reads QC failed": 0,
+      "non-primary alignments": 129724,
+      "total length": 19427845500,
+      "total first fragment length": 9713922750,
+      "total last fragment length": 9713922750,
+      "bases mapped": 19393896690,
+      "bases mapped (cigar)": 19238950186,
+      "bases trimmed": 0,
+      "bases duplicated": 916479144,
+      "mismatches": 61093079,
+      "error rate": 0.003175489,
+      "average length": 126,
+      "average first fragment length": 126,
+      "average last fragment length": 126,
+      "maximum length": 126,
+      "maximum first fragment length": 126,
+      "maximum last fragment length": 126,
+      "average quality": 35,
+      "insert size average": 192.6,
+      "insert size standard deviation": 54.3,
+      "inward oriented pairs": 73269191,
+      "outward oriented pairs": 3391556,
+      "pairs with other orientation": 12579,
+      "pairs on different chromosomes": 258359,
+      "percentage of properly paired reads (%)": 99.3
+    },
+    "min_cov_target": {
+      "0": 100,
+      "10": 87.59,
+      "20": 80.66,
+      "30": 75.2,
+      "40": 70.06,
+      "50": 64.99,
+      "60": 59.57,
+      "70": 54.2,
+      "80": 48.83,
+      "90": 43.74,
+      "100": 39,
+      "110": 34.62,
+      "120": 30.6,
+      "130": 27.01,
+      "140": 23.78,
+      "150": 20.93,
+      "160": 18.37,
+      "170": 16.08,
+      "180": 14.05,
+      "190": 12.31,
+      "200": 10.74
+    },
+    "min_cov_base": {
+      "0": 100,
+      "10": 95.89,
+      "20": 93.29,
+      "30": 91.03,
+      "40": 88.87,
+      "50": 86.69,
+      "60": 84.4,
+      "70": 81.95,
+      "80": 79.33,
+      "90": 76.54,
+      "100": 73.63,
+      "110": 70.61,
+      "120": 67.53,
+      "130": 64.42,
+      "140": 61.31,
+      "150": 58.22,
+      "160": 55.18,
+      "170": 52.22,
+      "180": 49.34,
+      "190": 46.55,
+      "200": 43.88
+    },
+    "summary": {
+      "mean coverage": 206.69,
+      "target count": 232447,
+      "total target size": 57464133
+    },
+    "idxstats": {
+      "1": {
+        "mapped": 14553406,
+        "unmapped": 5166
+      },
+      "2": {
+        "mapped": 11867636,
+        "unmapped": 4184
+      },
+      "3": {
+        "mapped": 9242678,
+        "unmapped": 3204
+      },
+      "4": {
+        "mapped": 6896850,
+        "unmapped": 2346
+      },
+      "5": {
+        "mapped": 7437325,
+        "unmapped": 2593
+      },
+      "6": {
+        "mapped": 8255091,
+        "unmapped": 2860
+      },
+      "7": {
+        "mapped": 7764178,
+        "unmapped": 2845
+      },
+      "8": {
+        "mapped": 5671263,
+        "unmapped": 1918
+      },
+      "9": {
+        "mapped": 6118420,
+        "unmapped": 2273
+      },
+      "10": {
+        "mapped": 6466071,
+        "unmapped": 2360
+      },
+      "11": {
+        "mapped": 8487464,
+        "unmapped": 3128
+      },
+      "12": {
+        "mapped": 8190550,
+        "unmapped": 2958
+      },
+      "13": {
+        "mapped": 3276165,
+        "unmapped": 1063
+      },
+      "14": {
+        "mapped": 5056014,
+        "unmapped": 1759
+      },
+      "15": {
+        "mapped": 5552780,
+        "unmapped": 2013
+      },
+      "16": {
+        "mapped": 5736120,
+        "unmapped": 2324
+      },
+      "17": {
+        "mapped": 7606431,
+        "unmapped": 3057
+      },
+      "18": {
+        "mapped": 2762880,
+        "unmapped": 912
+      },
+      "19": {
+        "mapped": 7531510,
+        "unmapped": 3356
+      },
+      "20": {
+        "mapped": 3536935,
+        "unmapped": 1477
+      },
+      "21": {
+        "mapped": 1638044,
+        "unmapped": 621
+      },
+      "22": {
+        "mapped": 2880737,
+        "unmapped": 1175
+      },
+      "X": {
+        "mapped": 6363148,
+        "unmapped": 2317
+      },
+      "Y": {
+        "mapped": 10893,
+        "unmapped": 8
+      },
+      "MT": {
+        "mapped": 10058,
+        "unmapped": 7
+      },
+      "*": {
+        "mapped": 0,
+        "unmapped": 212990
+      }
+    }
+  },
+  "father": {
+    "bamstats": {
+      "raw total sequences": 101527702,
+      "filtered sequences": 0,
+      "sequences": 101527702,
+      "is sorted": 1,
+      "1st fragments": 50763851,
+      "last fragments": 50763851,
+      "reads mapped": 101382957,
+      "reads mapped and paired": 101326536,
+      "reads unmapped": 144745,
+      "reads properly paired": 100992656,
+      "reads paired": 101527702,
+      "reads duplicated": 4810058,
+      "reads MQ0": 1836860,
+      "reads QC failed": 0,
+      "non-primary alignments": 91644,
+      "total length": 12792490452,
+      "total first fragment length": 6396245226,
+      "total last fragment length": 6396245226,
+      "bases mapped": 12774252582,
+      "bases mapped (cigar)": 12657821961,
+      "bases trimmed": 0,
+      "bases duplicated": 606067308,
+      "mismatches": 44177537,
+      "error rate": 0.003490137,
+      "average length": 126,
+      "average first fragment length": 126,
+      "average last fragment length": 126,
+      "maximum length": 126,
+      "maximum first fragment length": 126,
+      "maximum last fragment length": 126,
+      "average quality": 34.9,
+      "insert size average": 197.5,
+      "insert size standard deviation": 56.7,
+      "inward oriented pairs": 48439177,
+      "outward oriented pairs": 2132837,
+      "pairs with other orientation": 7319,
+      "pairs on different chromosomes": 83935,
+      "percentage of properly paired reads (%)": 99.5
+    },
+    "min_cov_target": {
+      "0": 100,
+      "10": 84.26,
+      "20": 75.24,
+      "30": 66.93,
+      "40": 58.49,
+      "50": 50.27,
+      "60": 42.67,
+      "70": 35.95,
+      "80": 29.93,
+      "90": 24.79,
+      "100": 20.44,
+      "110": 16.82,
+      "120": 13.77,
+      "130": 11.24,
+      "140": 9.19,
+      "150": 7.52,
+      "160": 6.18,
+      "170": 5.07,
+      "180": 4.14,
+      "190": 3.38,
+      "200": 2.76
+    },
+    "min_cov_base": {
+      "0": 100,
+      "10": 94.76,
+      "20": 91.22,
+      "30": 87.85,
+      "40": 84.26,
+      "50": 80.3,
+      "60": 75.98,
+      "70": 71.43,
+      "80": 66.76,
+      "90": 62.08,
+      "100": 57.45,
+      "110": 52.99,
+      "120": 48.72,
+      "130": 44.67,
+      "140": 40.84,
+      "150": 37.25,
+      "160": 33.89,
+      "170": 30.76,
+      "180": 27.86,
+      "190": 25.17,
+      "200": 22.68
+    },
+    "summary": {
+      "mean coverage": 136.18,
+      "target count": 232447,
+      "total target size": 57464133
+    },
+    "idxstats": {
+      "1": {
+        "mapped": 9588608,
+        "unmapped": 5199
+      },
+      "2": {
+        "mapped": 7688752,
+        "unmapped": 4211
+      },
+      "3": {
+        "mapped": 6023177,
+        "unmapped": 3268
+      },
+      "4": {
+        "mapped": 4448823,
+        "unmapped": 2195
+      },
+      "5": {
+        "mapped": 4839676,
+        "unmapped": 2518
+      },
+      "6": {
+        "mapped": 5396148,
+        "unmapped": 2833
+      },
+      "7": {
+        "mapped": 5113010,
+        "unmapped": 2794
+      },
+      "8": {
+        "mapped": 3682481,
+        "unmapped": 1966
+      },
+      "9": {
+        "mapped": 4036126,
+        "unmapped": 2304
+      },
+      "10": {
+        "mapped": 4209110,
+        "unmapped": 2234
+      },
+      "11": {
+        "mapped": 5613798,
+        "unmapped": 3151
+      },
+      "12": {
+        "mapped": 5363258,
+        "unmapped": 3029
+      },
+      "13": {
+        "mapped": 2103774,
+        "unmapped": 1089
+      },
+      "14": {
+        "mapped": 3333915,
+        "unmapped": 1702
+      },
+      "15": {
+        "mapped": 3643816,
+        "unmapped": 2003
+      },
+      "16": {
+        "mapped": 3868793,
+        "unmapped": 2369
+      },
+      "17": {
+        "mapped": 5164513,
+        "unmapped": 3102
+      },
+      "18": {
+        "mapped": 1778441,
+        "unmapped": 932
+      },
+      "19": {
+        "mapped": 5232244,
+        "unmapped": 3428
+      },
+      "20": {
+        "mapped": 2356985,
+        "unmapped": 1424
+      },
+      "21": {
+        "mapped": 1071634,
+        "unmapped": 623
+      },
+      "22": {
+        "mapped": 1957861,
+        "unmapped": 1204
+      },
+      "X": {
+        "mapped": 4114055,
+        "unmapped": 2323
+      },
+      "Y": {
+        "mapped": 7316,
+        "unmapped": 10
+      },
+      "MT": {
+        "mapped": 8892,
+        "unmapped": 6
+      },
+      "hs37d5": {
+        "mapped": 538819,
+        "unmapped": 297
+      },
+      "*": {
+        "mapped": 0,
+        "unmapped": 88324
+      }
+    }
+  },
+  "mother": {
+    "bamstats": {
+      "raw total sequences": 112182766,
+      "filtered sequences": 0,
+      "sequences": 112182766,
+      "is sorted": 1,
+      "1st fragments": 56091383,
+      "last fragments": 56091383,
+      "reads mapped": 112025283,
+      "reads mapped and paired": 111970044,
+      "reads unmapped": 157483,
+      "reads properly paired": 111455864,
+      "reads paired": 112182766,
+      "reads duplicated": 4549026,
+      "reads MQ0": 2134606,
+      "reads QC failed": 0,
+      "non-primary alignments": 179621,
+      "total length": 14135028516,
+      "total first fragment length": 7067514258,
+      "total last fragment length": 7067514258,
+      "bases mapped": 14115185658,
+      "bases mapped (cigar)": 13946405762,
+      "bases trimmed": 0,
+      "bases duplicated": 573177276,
+      "mismatches": 54130895,
+      "error rate": 0.003881351,
+      "average length": 126,
+      "average first fragment length": 126,
+      "average last fragment length": 126,
+      "maximum length": 126,
+      "maximum first fragment length": 126,
+      "maximum last fragment length": 126,
+      "average quality": 35,
+      "insert size average": 184.5,
+      "insert size standard deviation": 51.5,
+      "inward oriented pairs": 52322281,
+      "outward oriented pairs": 3513531,
+      "pairs with other orientation": 12919,
+      "pairs on different chromosomes": 136291,
+      "percentage of properly paired reads (%)": 99.4
+    },
+    "min_cov_target": {
+      "0": 100,
+      "10": 83.14,
+      "20": 74.97,
+      "30": 67.72,
+      "40": 60.51,
+      "50": 53.12,
+      "60": 45.82,
+      "70": 39.16,
+      "80": 33.24,
+      "90": 28.07,
+      "100": 23.65,
+      "110": 19.89,
+      "120": 16.72,
+      "130": 14.02,
+      "140": 11.78,
+      "150": 9.89,
+      "160": 8.31,
+      "170": 7.01,
+      "180": 5.9,
+      "190": 4.97,
+      "200": 4.17
+    },
+    "min_cov_base": {
+      "0": 100,
+      "10": 94.39,
+      "20": 91,
+      "30": 87.94,
+      "40": 84.83,
+      "50": 81.47,
+      "60": 77.83,
+      "70": 73.9,
+      "80": 69.77,
+      "90": 65.55,
+      "100": 61.31,
+      "110": 57.12,
+      "120": 53.07,
+      "130": 49.19,
+      "140": 45.5,
+      "150": 42.01,
+      "160": 38.73,
+      "170": 35.66,
+      "180": 32.79,
+      "190": 30.13,
+      "200": 27.66
+    },
+    "summary": {
+      "mean coverage": 151.79,
+      "target count": 232447,
+      "total target size": 57464133
+    },
+    "idxstats": {
+      "1": {
+        "mapped": 10727035,
+        "unmapped": 5251
+      },
+      "2": {
+        "mapped": 8843783,
+        "unmapped": 4285
+      },
+      "3": {
+        "mapped": 6884683,
+        "unmapped": 3299
+      },
+      "4": {
+        "mapped": 5241511,
+        "unmapped": 2279
+      },
+      "5": {
+        "mapped": 5610078,
+        "unmapped": 2505
+      },
+      "6": {
+        "mapped": 6163307,
+        "unmapped": 3031
+      },
+      "7": {
+        "mapped": 5782576,
+        "unmapped": 2853
+      },
+      "8": {
+        "mapped": 4247919,
+        "unmapped": 1969
+      },
+      "9": {
+        "mapped": 4515179,
+        "unmapped": 2193
+      },
+      "10": {
+        "mapped": 4802284,
+        "unmapped": 2377
+      },
+      "11": {
+        "mapped": 6236729,
+        "unmapped": 3148
+      },
+      "12": {
+        "mapped": 6060763,
+        "unmapped": 2934
+      },
+      "13": {
+        "mapped": 2486470,
+        "unmapped": 1049
+      },
+      "14": {
+        "mapped": 3765309,
+        "unmapped": 1833
+      },
+      "15": {
+        "mapped": 4032452,
+        "unmapped": 1910
+      },
+      "16": {
+        "mapped": 4193929,
+        "unmapped": 2290
+      },
+      "17": {
+        "mapped": 5516914,
+        "unmapped": 2967
+      },
+      "18": {
+        "mapped": 2077598,
+        "unmapped": 924
+      },
+      "19": {
+        "mapped": 5475139,
+        "unmapped": 3188
+      },
+      "20": {
+        "mapped": 2581573,
+        "unmapped": 1364
+      },
+      "21": {
+        "mapped": 1206768,
+        "unmapped": 555
+      },
+      "22": {
+        "mapped": 2072460,
+        "unmapped": 1136
+      },
+      "X": {
+        "mapped": 2450371,
+        "unmapped": 1275
+      },
+      "Y": {
+        "mapped": 212202,
+        "unmapped": 120
+      },
+      "MT": {
+        "mapped": 8159,
+        "unmapped": 12
+      },
+      "hs37d5": {
+        "mapped": 730662,
+        "unmapped": 331
+      },
+      "*": {
+        "mapped": 0,
+        "unmapped": 102244
+      }
+    }
+  }
+}
