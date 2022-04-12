@@ -2,6 +2,18 @@
 History / Changelog
 ===================
 
+-----------------
+HEAD (unreleased)
+-----------------
+
+End-User Summary
+================
+
+Full Change List
+================
+
+- Installing same postgres version as in docker-compose server (12).
+
 ------
 v1.1.3
 ------
