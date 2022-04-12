@@ -72,7 +72,7 @@ The following combinations have been validated / are supported to work.
 ==============  ===========  =================
 VarFish Server  VarFish CLI  VarFish Annotator
 ==============  ===========  =================
-v1.*.*          v0.3.0       v0.20
+v1.*.*          v0.3.0       v0.21
 ==============  ===========  =================
 
 ----------------------------------------
