@@ -18,6 +18,12 @@ RUN chmod +x /usr/local/bin/wait
 RUN mkdir -p /usr/src
 RUN git clone --depth $app_git_depth --branch $app_git_tag $app_git_url /usr/src/app
 
+# Add postgres 12 repository
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+        | apt-key add - && \
+    echo "deb http://apt.postgresql.org/pub/repos/apt buster-pgdg main" \
+    > /etc/apt/sources.list.d/pgdg.list
+
 # Install system dependencies.
 RUN apt-get update && \
     apt-get install -y \
@@ -27,9 +33,10 @@ RUN apt-get update && \
         libldap2-dev \
         libsasl2-dev \
         make \
-        postgresql-client \
+        postgresql-client-12 \
         wget \
-        xmlsec1
+        xmlsec1 \
+        gnupg2
 
 # Install Python dependencies.
 RUN cd /usr/src/app && \
