@@ -7,10 +7,10 @@ Upgrade Varfish Installation
 This section contains upgrade instructions for upgrading your VarFish Server installation using `VarFish Docker Compose <https://github.com/bihealth/varfish-docker-compose>`__.
 
 ------------------
-v0.23.0 to v1.1.3
+v0.23.0 to v1.1.4
 ------------------
 
-This includes all version in between, v0.23.1, ..., v1.1.3.
+This includes all version in between, v0.23.1, ..., v1.1.4.
 
 **Summary**
 
