@@ -2,6 +2,20 @@
 History / Changelog
 ===================
 
+------------------------------
+HEAD (unreleased; bollonaster)
+------------------------------
+
+End-User Summary
+================
+
+- Starting with development of Bollonaster (VarFish v2)
+
+Full Change List
+================
+
+- Starting with development of Bollonaster (VarFish v2)
+
 ------
 v1.2.0
 ------
