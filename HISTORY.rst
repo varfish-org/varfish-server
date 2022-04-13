@@ -3,6 +3,13 @@ History / Changelog
 ===================
 
 ------
+v1.2.0
+------
+
+This is the first stable VarFish Server release.
+It is the same as v1.1.4.
+
+------
 v1.1.4
 ------
 
