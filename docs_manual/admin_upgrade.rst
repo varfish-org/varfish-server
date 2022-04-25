@@ -6,6 +6,26 @@ Upgrade Varfish Installation
 
 This section contains upgrade instructions for upgrading your VarFish Server installation using `VarFish Docker Compose <https://github.com/bihealth/varfish-docker-compose>`__.
 
+-------------------------------------------------
+Problem with Data Release ``20210728`` and GRCh37
+-------------------------------------------------
+
+The data release has a problem with the GRCh37 extra annotations.
+If you can then use the updated site data ``20210728b`` release.
+If you already have an instance with ``20210728`` background data then you can use the following data file.
+
+- `varfish-server-background-db-20210728-grch37-patch-20210728b.tar.gz <https://file-public.cubi.bihealth.org/transient/varfish/athenea/varfish-server-background-db-20210728-grch37-patch-20210728b.tar.gz>`__
+
+Download and extract the file and mount it as ``/data`` inside the ``varfish-web`` container.
+You can then apply the patch to your database with the following command.
+
+::
+
+    $ docker exec -it varfish-docker-compose_varfish-web_1 python /usr/src/app/manage.py \
+        import_tables --tables-path /data --truncate --force
+
+You can find out more details, give feedback, and ask for help `in this Github discussion <https://github.com/bihealth/varfish-server/discussions/451>`__.
+
 ------------------
 v0.23.0 to v1.2.0
 ------------------
@@ -14,7 +34,7 @@ This includes all version in between, v0.23.1, ..., v1.2.0.
 
 **Summary**
 
-This are minor bug fix releases.
+This are minor bug fix releases and small added features.
 You should be able to upgrade by just updating your ``varfish-docker-compose`` repository clone and calling ``docker-compose up -d``.
 
 ------------------
