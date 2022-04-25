@@ -10,11 +10,15 @@ End-User Summary
 ================
 
 - Starting with development of Bollonaster (VarFish v2)
+- Documenting problem with extra annotations in ``20210728` data release (#450).
+  Includes instructions on how to apply patch to get ``20210728b``.
 
 Full Change List
 ================
 
 - Starting with development of Bollonaster (VarFish v2)
+- Documenting problem with extra annotations in ``20210728` data release (#450).
+  Includes instructions on how to apply patch to get ``20210728b``.
 
 ------
 v1.2.0
