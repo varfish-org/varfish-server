@@ -2,6 +2,24 @@
 History / Changelog
 ===================
 
+--------------------------
+HEAD (unreleased; athenea)
+--------------------------
+
+End-User Summary
+================
+
+- Starting with branch of stable version Athenea (VarFish v1).
+- Documenting problem with extra annotations in ``20210728` data release (#450).
+  Includes instructions on how to apply patch to get ``20210728b``.
+
+Full Change List
+================
+
+- Starting with branch of stable version Athenea (VarFish v1).
+- Documenting problem with extra annotations in ``20210728` data release (#450).
+  Includes instructions on how to apply patch to get ``20210728b``.
+
 ------
 v1.2.0
 ------
