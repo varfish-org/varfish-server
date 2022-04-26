@@ -13,6 +13,7 @@ End-User Summary
 - Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
 - Removing problematic username modification behaviour on login page (#459).
+- Displaying login page text from settings again (#458).
 
 Full Change List
 ================
@@ -21,6 +22,7 @@ Full Change List
 - Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
 - Removing problematic username modification behaviour on login page (#459).
+- Displaying login page text from settings again (#458).
 
 ------
 v1.2.0
