@@ -12,6 +12,7 @@ End-User Summary
 - Starting with branch of stable version Athenea (VarFish v1).
 - Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
+- Removing problematic username modification behaviour on login page (#459).
 
 Full Change List
 ================
@@ -19,6 +20,7 @@ Full Change List
 - Starting with branch of stable version Athenea (VarFish v1).
 - Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
+- Removing problematic username modification behaviour on login page (#459).
 
 ------
 v1.2.0
