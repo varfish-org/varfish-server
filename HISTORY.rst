@@ -14,6 +14,8 @@ End-User Summary
   Includes instructions on how to apply patch to get ``20210728b``.
 - Removing problematic username modification behaviour on login page (#459).
 - Displaying login page text from settings again (#458).
+- Suppress "submit to CADD" and "submit to SPANR" buttons for multi-case form (#478).
+  This has not been implemented so far.
 
 Full Change List
 ================
@@ -23,6 +25,8 @@ Full Change List
   Includes instructions on how to apply patch to get ``20210728b``.
 - Removing problematic username modification behaviour on login page (#459).
 - Displaying login page text from settings again (#458).
+- Suppress "submit to CADD" and "submit to SPANR" buttons for multi-case form (#478).
+  This has not been implemented so far.
 
 ------
 v1.2.0
