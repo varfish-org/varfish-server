@@ -47,15 +47,24 @@ The downloaded archive has a size of ~10 GB while the extracted data has a size 
 
 .. code-block:: bash
 
-    $ wget --no-check-certificate https://file-public.bihealth.org/transient/varfish/varfish-annotator-20201006.tar.gz{,.sha256}
-    $ sha256sum --check varfish-annotator-20201006.tar.gz.sha256
-    $ tar -xf varfish-annotator-20201006.tar.gz
-    $ ls varfish-annotator-20201006 | cat
-    hg19_ensembl.ser
-    hg19_refseq_curated.ser
-    hs37d5.fa
-    hs37d5.fa.fai
-    varfish-annotator-db-20201006.h2.db
+    $ GENOME=grch37      # alternatively use grch38
+    $ RELEASE=20210728
+    $ mkdir varfish-annotator-20210728-$GENOME
+    $ cd varfish-annotator-20210728-$GENOME
+    $ wget --no-check-certificate \
+        https://file-public.cubi.bihealth.org/transient/varfish/anthenea/varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz{,.sha256} \
+        https://file-public.cubi.bihealth.org/transient/varfish/anthenea/jannovar-db-$RELEASE-$GENOME.tar.gz{,.sha256}
+    $ sha256sum --check varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz.sha256
+    varfish-annotator-db-20210728-grch37.h2.db.gz: OK
+    $ sha256sum --check jannovar-db-$RELEASE-$GENOME.tar.gz.sha256
+    jannovar-db-20210728-grch37.tar.gz: OK
+    $ gzip -d varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz
+    $ tar xf jannovar-db-$RELEASE-$GENOME.tar.gz
+    $ rm jannovar-db-20210728-$RELEASE.tar.gz{,.sha256} \
+        varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz.sha256
+    $ mv jannovar-db-$RELEASE-$GENOME/* .
+    $ rmdir jannovar-db-$RELEASE-$GENOME
+
 
 Annotating VCF Files
 ====================
@@ -64,28 +73,39 @@ First, obtain some tests data for annotation and later import into VarFish Serve
 
 .. code-block:: bash
 
-    $ wget --no-check-certificate https://file-public.bihealth.org/transient/varfish/varfish-test-data-v0.22.2-20210212.tar.gz{,.sha256}
-    $ sha256sum --check varfish-test-data-v0.22.2-20210212.tar.gz.sha256
-    $ tar -xf varfish-test-data-v0.22.2-20210212.tar.gz.sha256
+    # use $GENOME and $RELEASE from above
+    $ wget --no-check-certificate \
+        https://file-public.cubi.bihealth.org/transient/varfish/anthenea/varfish-test-data-v1-20211125.tar.gz{,.sha256}
+    $ sha256sum --check varfish-test-data-v1-20211125.tar.gz.sha256
+    varfish-test-data-v1-20211125.tar.gz: OK
+    $ tar -xf varfish-test-data-v1-20211125.tar.gz
+    varfish-test-data-v1-20211125/
+    ...
+    varfish-test-data-v1-20211125/GRCh37/vcf/HG00107-N1-DNA1-WES1/bwa.gatk_hc.HG00107-N1-DNA1-WES1.vcf.gz
+    ...
 
 Annotating Small Variant VCFs
 -----------------------------
 
-Next, you can use the ``varfish-annotator`` command:
+Next, you can use the ``varfish-annotator`` command.
+You must provide an bgzip-compressed VCF file ``INPUT.vcf.gz``
 
 .. code-block:: bash
     :linenos:
 
+    # Use the path to the FASTA file that you used for alignment.
+    $ REFERENCE=path/to/hs37fa.fa--or--hs38.fa
+    # use $GENOME and $RELEASE from above
     $ varfish-annotator \
         -XX:MaxHeapSize=10g \
         -XX:+UseConcMarkSweepGC \
         annotate \
-        --db-path varfish-annotator-20201006/varfish-annotator-db-20191129.h2.db \
-        --ensembl-ser-path varfish-annotator-20201006/hg19_ensembl.ser \
-        --refseq-ser-path varfish-annotator-20201006/hg19_refseq_curated.ser \
-        --ref-path varfish-annotator-20201006/hs37d5.fa \
+        --db-path varfish-annotator-20210728-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
+        --ensembl-ser-path varfish-annotator-20210728-$GENOME/ensembl*.ser \
+        --refseq-ser-path varfish-annotator-20210728-$GENOME/refseq_curated*.ser \
+        --ref-path $REFERENCE \
         --input-vcf "INPUT.vcf.gz" \
-        --release "GRCh37" \
+        --release "$GENOME" \
         --output-db-info "FAM_name.db-infos.tsv" \
         --output-gts "FAM_name.gts.tsv" \
         --case-id "FAM_name"
@@ -112,11 +132,10 @@ While only release GRCh37/hg19 is supported, using a file with UCSC-style chromo
     :lineno-start: 4
     :dedent: 0
 
-        annotate \
-        --db-path varfish-annotator-20201006/varfish-annotator-db-20191129.h2.db \
-        --ensembl-ser-path varfish-annotator-20201006/hg19_ensembl.ser \
-        --refseq-ser-path varfish-annotator-20201006/hg19_refseq_curated.ser \
-        --ref-path varfish-annotator-20201006/hs37d5.fa \
+        --db-path varfish-annotator-20210728-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
+        --ensembl-ser-path varfish-annotator-20210728-$GENOME/ensembl*.ser \
+        --refseq-ser-path varfish-annotator-20210728-$GENOME/refseq_curated*.ser \
+        --ref-path $REFERENCE \
 
 The following lines provide the path to the input VCF file, specify the release name (must be ``GRCh37``) and the name of the case as written out.
 This could be the name of the index patient, for example.
@@ -193,17 +212,18 @@ Structural variants can be annotated as follows.
 .. code-block:: bash
     :linenos:
 
+    # use $GENOME from above
     $ varfish-annotator \
         annotate-svs \
         -XX:MaxHeapSize=10g \
         -XX:+UseConcMarkSweepGC \
         \
         --default-sv-method=YOURCALLERvVERSION"
-        --release GRCh37 \
+        --release $GENOME \
         \
-        --db-path varfish-annotator-20201006/varfish-annotator-db-20191129.h2.db \
-        --ensembl-ser-path varfish-annotator-20201006/hg19_ensembl.ser \
-        --refseq-ser-path varfish-annotator-20201006/hg19_refseq_curated.ser \
+        --db-path varfish-annotator-20210728-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
+        --ensembl-ser-path varfish-annotator-20210728-$GENOME/ensembl*.ser \
+        --refseq-ser-path varfish-annotator-20210728-$GENOME/refseq_curated*.ser \
         \
         --input-vcf FAM_sv_calls.vcf.gz \
         --output-db-info FAM_sv_calls.db-info.tsv \
