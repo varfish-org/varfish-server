@@ -8,12 +8,12 @@ This section documents the versioning and branching model of VarFish.
 Generally, we follow the idea of release cycles as `also employed by Ceph <https://docs.ceph.com/en/latest/releases/general/>`__.
 
 There is a new stable release every year, targeting the month of April.
-Each stable release receives a name (e.g., "Athenea") and a major release number, (e.g., 1 as "A" is the first letter of the alphabet).
+Each stable release receives a name (e.g., "Anthenea") and a major release number, (e.g., 1 as "A" is the first letter of the alphabet).
 
 Releases are named after starfish species.
 
 Version numbers have three components, ``x.y.z``.
-``x`` identifies the release cycle (e.g., ``1`` for ``Athenea``).
+``x`` identifies the release cycle (e.g., ``1`` for ``Anthenea``).
 ``y`` identifies the release type:
 
 - ``x.0.z`` - development versions (the bleeding edge)
@@ -54,8 +54,8 @@ Release Names
       - Species
     * - 2022
       - 1.y.z
-      - Athenea
-      - *Athenea aspera*
+      - Anthenea
+      - *Anthenea aspera*
     * - 2023
       - 2.y.z
       - Bollonaster

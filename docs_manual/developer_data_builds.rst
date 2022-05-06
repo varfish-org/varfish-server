@@ -67,7 +67,7 @@ Download static data
 ::
 
     $ cd /plenty/space
-    $ wget https://file-public.bihealth.org/transient/varfish/athenea/varfish-server-background-db-20201006.tar.gz{,.sha256}
+    $ wget https://file-public.bihealth.org/transient/varfish/anthenea/varfish-server-background-db-20201006.tar.gz{,.sha256}
     $ sha256sum -c varfish-server-background-db-20201006.tar.gz.sha256
     $ tar xzvf varfish-server-background-db-20201006.tar.gz
 
