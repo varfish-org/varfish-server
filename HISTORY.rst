@@ -16,6 +16,7 @@ End-User Summary
 - Displaying login page text from settings again (#458).
 - Suppress "submit to CADD" and "submit to SPANR" buttons for multi-case form (#478).
   This has not been implemented so far.
+- Fixing paths in "Variant Ingest" documentation (#472).
 
 Full Change List
 ================
@@ -27,6 +28,7 @@ Full Change List
 - Displaying login page text from settings again (#458).
 - Suppress "submit to CADD" and "submit to SPANR" buttons for multi-case form (#478).
   This has not been implemented so far.
+- Fixing paths in "Variant Ingest" documentation (#472).
 
 ------
 v1.2.0
