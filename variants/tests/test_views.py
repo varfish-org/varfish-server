@@ -4981,3 +4981,50 @@ class TestCaseFetchUpstreamTermsView(ViewTestBase):
                 }
             }
             self.assertEqual(json.loads(response.content.decode("utf-8")), expected)
+
+
+class TestVariantCarriersView(ViewTestBase):
+    """Test view that displays other variant carriers."""
+
+    def setUp(self):
+        super().setUp()
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get(project=self.project)
+        self.small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
+        self.variant = self.small_vars[0]
+        self.variant_args = {
+            "release": self.variant.release,
+            "chromosome": self.variant.chromosome,
+            "position": self.variant.start,
+            "reference": self.variant.reference,
+            "alternative": self.variant.alternative,
+        }
+
+    def test_with_role(self):
+        with self.login(self.user_contributor):
+            response = self.client.get(
+                reverse("variants:variant-carriers")
+                + "?"
+                + "&".join("%s=%s" % item for item in self.variant_args.items())
+            )
+            self.assert_http_200_ok(response)
+            self.assertIn(self.case.name, response.content.decode("utf-8"))
+
+    def test_as_superuser(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse("variants:variant-carriers")
+                + "?"
+                + "&".join("%s=%s" % item for item in self.variant_args.items())
+            )
+            self.assert_http_200_ok(response)
+            self.assertIn(self.case.name, response.content.decode("utf-8"))
+
+    def test_without_role(self):
+        with self.login(self.user_no_roles):
+            response = self.client.get(
+                reverse("variants:variant-carriers")
+                + "?"
+                + "&".join("%s=%s" % item for item in self.variant_args.items())
+            )
+            self.assert_http_200_ok(response)
+            self.assertNotIn(self.case.name, response.content.decode("utf-8"))
