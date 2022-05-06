@@ -72,6 +72,12 @@ When the root cause is determined, a solution needs to be proposed, following th
     **Required Architectural Changes**
     e.g. Function F needs to be moved to X.
 
+    **Required Database Changes**
+    i.e. name any model that needs changing, to be added and will lead to a migration
+
+    **Backport Possible?**
+    e.g., "Yes" if this is a bug fix or small change and should be backported to the current stable version
+
     **Resolution Sketch**
     e.g. Change X in F. Then do Y.
 
