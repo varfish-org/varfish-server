@@ -84,7 +84,7 @@ We currently only provide prebuilt databases for either GRCh37 or GRCh38.
 
 .. code-block:: bash
 
-    $ wget --no-check-certificate https://file-public.cubi.bihealth.org/transient/varfish/athenea/varfish-site-data-v1-20210728-grch37.tar.gz{,.sha256}
+    $ wget --no-check-certificate https://file-public.cubi.bihealth.org/transient/varfish/anthenea/varfish-site-data-v1-20210728-grch37.tar.gz{,.sha256}
     $ sha256sum --check varfish-site-data-v1-20210728-grch37.tar.gz.sha256
     $ tar xf varfish-site-data-v1-20210728-grch37.tar.gz
     $ ls volumes

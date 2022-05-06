@@ -18,6 +18,7 @@ End-User Summary
   This has not been implemented so far.
 - Fixing paths in "Variant Ingest" documentation (#472).
 - Small extension of "Resolution proposal" template (#472).
+- Adjusting wrong release name to "anthenea" (#479).
 
 Full Change List
 ================
@@ -31,6 +32,7 @@ Full Change List
   This has not been implemented so far.
 - Fixing paths in "Variant Ingest" documentation (#472).
 - Small extension of "Resolution proposal" template (#472).
+- Adjusting wrong release name to "anthenea" (#479).
 
 ------
 v1.2.0
@@ -104,7 +106,7 @@ Full Change List
 v1.1.1
 ------
 
-This is the first release candidate of the VarFish "Athenea" release (v1).
+This is the first release candidate of the VarFish "Anthenea" release (v1).
 Importantly, the first stable release for v1 will be v1.2.0 (see `Release Cycle Documentation <https://varfish-server.readthedocs.io/en/latest/release_cycle.html>`__ for a full explanation of version semantics).
 
 This release adds some more indices so the migrations might take some more time.
@@ -132,7 +134,7 @@ Full Change List
 v1.1.0
 ------
 
-This is the first release candidate of the VarFish "Athenea" release (v1).
+This is the first release candidate of the VarFish "Anthenea" release (v1).
 Importantly, the first stable release for v1 will be v1.2.0 (see `Release Cycle Documentation <https://varfish-server.readthedocs.io/en/latest/release_cycle.html>`__ for a full explanation of version semantics).
 
 Breaking changes, see below.
