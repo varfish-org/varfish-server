@@ -370,6 +370,11 @@ ui_urlpatterns = [
         view=views.VariantValidatorApiView.as_view(),
         name="variant-validator-api",
     ),
+    url(
+        regex=r"^variant-carriers/$",
+        view=views.VariantCarriersView.as_view(),
+        name="variant-carriers",
+    ),
     #: Detail views for site-wide maintenance jobs.
     url(
         regex=r"^clear-expired-job/(?P<job>[0-9a-f-]+)/$",

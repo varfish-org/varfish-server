@@ -19,6 +19,7 @@ End-User Summary
 - Fixing paths in "Variant Ingest" documentation (#472).
 - Small extension of "Resolution proposal" template (#472).
 - Adjusting wrong release name to "anthenea" (#479).
+- Adding "show all variant carriers" feature (#470).
 
 Full Change List
 ================
@@ -33,6 +34,7 @@ Full Change List
 - Fixing paths in "Variant Ingest" documentation (#472).
 - Small extension of "Resolution proposal" template (#472).
 - Adjusting wrong release name to "anthenea" (#479).
+- Adding "show all variant carriers" feature (#470).
 
 ------
 v1.2.0

@@ -455,6 +455,15 @@
   {% endif %}
   <td>
     <div class="btn-group sodar-list-btn-group pr-2">
+      <button
+        class="btn btn-primary sodar-list-btn"
+        type="button"
+        data-toggle="modal"
+        data-target="#variantcarriermodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}"
+        onclick="showVariantCarrierModal(this, '{{ entry.release }}', '{{ entry.chromosome }}', '{{ entry.start }}', '{{ entry.reference }}', '{{ entry.alternative }}');"
+      >
+        <span class="iconify" data-icon="mdi:binoculars"></span>
+      </button>
       {% if entry.release == "GRCh37" %}
         <a
           href="https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome={{ entry.chromosome }}&position={{ entry.start }}&ref={{ entry.reference }}&alt={{ entry.alternative }}"
@@ -634,6 +643,24 @@
       </div>
     </div>
     <!-- Modal -->
+    <div class="modal fade" id="variantcarriermodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="variantcarriermodallabel-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}">In-House Variant Carriers</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="variant-carrier-results container-fluid">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+    </div>
     <div class="modal fade" id="variantvalidatormodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}" tabindex="-1" role="dialog" aria-labelledby="variantvalidatormodallabel-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}" aria-hidden="true">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
