@@ -4441,6 +4441,53 @@ class VariantValidatorApiView(PluginContextMixin, View):
         )
 
 
+class VariantCarriersView(PluginContextMixin, TemplateView):
+    """Render HTML with other carriers of the variant."""
+
+    template_name = "variants/filter_result/variant_carriers_result.html"
+
+    def get_context_data(self, *args, **kwargs):
+        result = super().get_context_data(*args, **kwargs)
+
+        small_vars = SmallVariant.objects.filter(
+            release=self.request.GET.get("release"),
+            chromosome=self.request.GET.get("chromosome"),
+            start=self.request.GET.get("position"),
+            reference=self.request.GET.get("reference"),
+            alternative=self.request.GET.get("alternative"),
+        )
+
+        result["count_total"] = small_vars.count()
+        result["count_noaccess"] = 0
+        result["case_vars"] = []
+        case_ids = [var.case_id for var in small_vars]
+        cases = {
+            case.id: case
+            for case in Case.objects.prefetch_related("project")
+            .filter(id__in=case_ids)
+            .order_by("project__title", "name")
+        }
+        for small_var in small_vars:
+            case = cases[small_var.case_id]
+            has_access = (
+                self.request.user and self.request.user.is_superuser
+            ) or case.project.has_role(self.request.user)
+            if has_access:
+                result["case_vars"].append((case, small_var))
+            for name, gt in small_var.genotype.items():
+                if "1" in gt.get("GT", "0/0"):
+                    result["count_total"] += 1
+                    if not has_access:
+                        result["count_noaccess"] += 1
+        result["count_access"] = result["count_total"] - result["count_noaccess"]
+        if result["case_vars"]:
+            result["small_var"] = result["case_vars"][0][1]
+        else:
+            result["small_var"] = None
+
+        return result
+
+
 class KioskHomeView(PluginContextMixin, FormView):
     """Home view when the app is running in kiosk mode.
 
