@@ -592,3 +592,18 @@ def entry_chr(entry):
         return "chr" + entry.chromosome
     else:
         return entry.chromosome
+
+
+@register.filter
+def strip_sample_suffix(value):
+    """Strip the SNAPPY suffix ``-N1-DNA1-*``."""
+    value = value or ""
+    if "-N1-DNA1" in value:
+        return value.split("-N1-DNA1")[0]
+    return value
+
+
+@register.simple_tag
+def is_alt(value):
+    """Returns whether `"1"` is in `value`."""
+    return "1" in value
