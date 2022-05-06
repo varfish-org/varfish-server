@@ -14,7 +14,7 @@ The data release has a problem with the GRCh37 extra annotations.
 If you can then use the updated site data ``20210728b`` release.
 If you already have an instance with ``20210728`` background data then you can use the following data file.
 
-- `varfish-server-background-db-20210728-grch37-patch-20210728b.tar.gz <https://file-public.cubi.bihealth.org/transient/varfish/athenea/varfish-server-background-db-20210728-grch37-patch-20210728b.tar.gz>`__
+- `varfish-server-background-db-20210728-grch37-patch-20210728b.tar.gz <https://file-public.cubi.bihealth.org/transient/varfish/anthenea/varfish-server-background-db-20210728-grch37-patch-20210728b.tar.gz>`__
 
 Download and extract the file and mount it as ``/data`` inside the ``varfish-web`` container.
 You can then apply the patch to your database with the following command.
