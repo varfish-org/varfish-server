@@ -1530,7 +1530,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.clinvar_pathogenic),
             "QuickPresets(inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, "
-            "frequency=<Frequency.RECESSIVE_RELAXED: 'recessive_relaxed'>, impact=<Impact.ANY: 'any'>, "
+            "frequency=<Frequency.ANY: 'any'>, impact=<Impact.ANY: 'any'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
             "flags_etc=<FlagsEtc.CLINVAR_ONLY: 'clinvar_only'>, database=<Database.REFSEQ: 'refseq'>)",
         )

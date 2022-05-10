@@ -86,14 +86,14 @@
     </div>
   </td>
   <td style="width: 50px;" class="pl-2 detail-info-clinvar" data-order="{% if entry.max_significance %}{{ entry.max_significance|significance_importance }}-{{ entry.max_clinvar_status|status_importance }}{% else %}9-9{% endif %}">
-    {% if entry.max_significance %}
+    {% if entry.pathogenicity %}
         <span class="badge-group">
-          <span class="badge badge-{{ entry.max_significance|significance_color }}">
-            {{ entry.max_significance|significance_text }}
+          <span class="badge badge-{{ entry.pathogenicity|significance_color }}">
+            {{ entry.pathogenicity }}
           </span>
           <span class="badge badge-dark" data-toggle="tooltip" data-placement="top" title="{{ entry.max_clinvar_status }}">
             {% for i in "1234" %}
-              {% if forloop.counter <= entry.max_clinvar_status|status_stars %}
+              {% if forloop.counter <= entry.point_rating %}
                 <i class="iconify" data-icon="fa-solid:star"></i>
               {% else %}
                 <i class="iconify" data-icon="fa-regular:star"></i>
@@ -106,13 +106,6 @@
     {% endif %}
   </td>
   <td style="max-width: 80px;" class="pl-2 detail-info-clinvar">
-    <div class="sodar-overflow-container sodar-overflow-hover">
-        {% if entry.max_all_traits %}
-            {{ entry.max_all_traits|join:"; " }}
-        {% else %}
-            -
-        {% endif %}
-    </div>
   </td>
   <td class="detail-info-clinvar p-0"></td>
   <td class="detail-frequencies-exac">
