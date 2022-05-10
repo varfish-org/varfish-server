@@ -20,6 +20,9 @@ End-User Summary
 - Small extension of "Resolution proposal" template (#472).
 - Adjusting wrong release name to "anthenea" (#479).
 - Adding "show all variant carriers" feature (#470).
+- Properly display the clinvar annotations that we have in the database (#464).
+- Adjusting default frequency filters for "clinvar pathogenic" filter: remove all threshold (#464).
+- Adding note about difference with upstream Clinvar (#464).
 
 Full Change List
 ================
@@ -35,6 +38,9 @@ Full Change List
 - Small extension of "Resolution proposal" template (#472).
 - Adjusting wrong release name to "anthenea" (#479).
 - Adding "show all variant carriers" feature (#470).
+- Properly display the clinvar annotations that we have in the database (#464).
+- Adjusting default frequency filters for "clinvar pathogenic" filter: remove all threshold (#464).
+- Adding note about difference with upstream Clinvar (#464).
 
 ------
 v1.2.0
