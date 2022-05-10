@@ -6,6 +6,11 @@
     <h4 class="card-title">ClinVar for Variant</h4>
     <small><a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ clinvar.vcv }}" target="_blank">{{ clinvar.vcv }}</a></small>
   </div>
+  <div class="text-muted small p-2">
+    <span class="iconify" data-icon="mdi:information" data-inline="false"></span>
+    Note that VarFish is using a local copy of Clinvar to display this information.
+    The link-outs to NCBI ClinVar will display the most current data that may differ from our "frozen" copy.
+  </div>
   <ul class="list-group list-group-flush">
     {% for cv in clinvar.details %}
       <li class="list-group-item flex-column align-items-start border-top px-2 list-group-item-action">
