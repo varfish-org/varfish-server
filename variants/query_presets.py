@@ -1049,7 +1049,7 @@ class _QuickPresetList:
     #: Clinvar pathogenic presets
     clinvar_pathogenic: QuickPresets = QuickPresets(
         inheritance=Inheritance.AFFECTED_CARRIERS,
-        frequency=Frequency.RECESSIVE_RELAXED,
+        frequency=Frequency.ANY,
         impact=Impact.ANY,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
