@@ -458,13 +458,27 @@
         <span class="iconify" data-icon="mdi:binoculars"></span>
       </button>
       {% if entry.release == "GRCh37" %}
-        <a
-          href="https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome={{ entry.chromosome }}&position={{ entry.start }}&ref={{ entry.reference }}&alt={{ entry.alternative }}"
-          data-toggle="tooltip"
-          title="Open variant in MutationTaster"
-          class="btn btn-primary sodar-list-btn">
+        <a class="btn btn-primary dropdown-toggle sodar-list-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           MT
         </a>
+        <div class="dropdown-menu dropdown-menu-right">
+          <a
+            href="https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome={{ entry.chromosome }}&position={{ entry.start }}&ref={{ entry.reference }}&alt={{ entry.alternative }}"
+            data-toggle="tooltip"
+            target="_blank"
+            title="Open variant in MutationTaster 2021"
+            class="btn btn-primary dropdown-item">
+            MT 2021
+          </a>
+          <a
+            href="https://www.genecascade.org/MT85/ChrPos85.cgi?chromosome={{ entry.chromosome }}&position={{ entry.start }}&ref={{ entry.reference }}&alt={{ entry.alternative }}"
+            data-toggle="tooltip"
+            target="_blank"
+            title="Open variant in MutationTaster 85"
+            class="btn btn-primary dropdown-item">
+            MT 85
+          </a>
+        </div>
       {% else %}
         <span
           class="btn btn-disabled sodar-list-btn btn-outline-secondary"
