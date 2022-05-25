@@ -448,205 +448,210 @@
   {% endif %}
   <td>
     <div class="btn-group sodar-list-btn-group pr-2">
-      <button
-        class="btn btn-primary sodar-list-btn"
-        type="button"
-        data-toggle="modal"
-        data-target="#variantcarriermodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}"
-        onclick="showVariantCarrierModal(this, '{{ entry.release }}', '{{ entry.chromosome }}', '{{ entry.start }}', '{{ entry.reference }}', '{{ entry.alternative }}');"
-      >
-        <span class="iconify" data-icon="mdi:binoculars"></span>
-      </button>
-      {% if entry.release == "GRCh37" %}
-        <a class="btn btn-primary dropdown-toggle sodar-list-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          MT
-        </a>
-        <div class="dropdown-menu dropdown-menu-right">
-          <a
-            href="https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome={{ entry.chromosome }}&position={{ entry.start }}&ref={{ entry.reference }}&alt={{ entry.alternative }}"
-            data-toggle="tooltip"
-            target="_blank"
-            title="Open variant in MutationTaster 2021"
-            class="btn btn-primary dropdown-item">
-            MT 2021
-          </a>
-          <a
-            href="https://www.genecascade.org/MT85/ChrPos85.cgi?chromosome={{ entry.chromosome }}&position={{ entry.start }}&ref={{ entry.reference }}&alt={{ entry.alternative }}"
-            data-toggle="tooltip"
-            target="_blank"
-            title="Open variant in MutationTaster 85"
-            class="btn btn-primary dropdown-item">
-            MT 85
-          </a>
-        </div>
-      {% else %}
-        <span
-          class="btn btn-disabled sodar-list-btn btn-outline-secondary"
-          data-toggle="tooltip"
-          title="MutationTaster not available for genome {{ entry.release }}"
+      <div class="btn-group sodar-list-btn-group">
+        <button
+          class="btn btn-primary sodar-list-btn"
+          type="button"
+          data-toggle="modal"
+          data-target="#variantcarriermodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}"
+          onclick="showVariantCarrierModal(this, '{{ entry.release }}', '{{ entry.chromosome }}', '{{ entry.start }}', '{{ entry.reference }}', '{{ entry.alternative }}');"
         >
-          MT
-        </span>
-      {% endif %}
-      {% if ga4gh_beacon_network_widget_enabled or kiosk_mode %}
-        <a
-           data-toggle="popover"
-           tabindex="0"
-           data-trigger="focus"
-           data-content="<iframe
-  src='https://beacon-network.org:443/#/widget?rs={{ entry.release }}&chrom={{ entry.chromosome }}&pos={{ entry.start }}&ref={{  entry.reference }}&allele={{ entry.alternative }}'
-  style='width: 100%; height: 300px; overflow: auto;'
-  marginwidth='0' marginheight='0' frameborder='0' vspace='0' hspace='0'>
-</iframe>"
-           data-html="true"
-           data-tooltip="tooltip"
-           title="Query GA4GH Beacon Network"
-           class="btn btn-warning sodar-list-btn"
-          >
-          <i class="iconify" data-icon="fa-solid:podcast" aria-hidden="true"></i>
-        </a>
-      {% endif %}
-      <button
-        type="button"
-        onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }}'})"
-        title="Go to locus in IGV"
-        class="btn btn-secondary sodar-list-btn">
-        IGV
-      </button>
-      <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split sodar-list-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <span class="sr-only">Toggle Dropdown</span>
-      </button>
-      <div class="dropdown-menu dropdown-menu-right" style="z-index: 1030;">
-        {% linkout_available_for "ucsc" entry.release as ucsc_available %}
-        {% if ucsc_available %}
-          <a class="dropdown-item" href="https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg19&position={{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }}" target="_blank">
-            Locus @UCSC
+          <span class="iconify" data-icon="mdi:binoculars"></span>
+        </button>
+        {% if entry.release == "GRCh37" %}
+          <a class="btn btn-primary dropdown-toggle sodar-list-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            MT
           </a>
-        {% else %}
-          <span class="dropdown-item disabled" data-toggle="tooltip" title="UCSC browser not available for reference {{ entry.release }}">
-            Locus @UCSC
-          </span>
-        {% endif %}
-
-        {% linkout_available_for "ensembl" entry.release as ensembl_available %}
-        {% if ensembl_available %}
-          <a class="dropdown-item" href="https://{% if entry.release == "GRCh37" %}grch37{% else %}www{% endif %}.ensembl.org/Homo_sapiens/Location/View?r={{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }}" target="_blank">
-            Locus @EnsEMBL
-          </a>
-        {% else %}
-          <span class="dropdown-item disabled" data-toggle="tooltip" title="ENSEMBL browser not available for reference {{ entry.release }}">
-            Locus @EnsEMBL
-          </span>
-        {% endif %}
-
-        {% linkout_available_for "dgv" entry.release as dgv_available %}
-        {% if dgv_available %}
-          <a class="dropdown-item" href="http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/?name={{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }};search=Search" target="_blank">
-            Locus @DGV
-          </a>
-        {% else %}
-          <span class="dropdown-item disabled" data-toggle="tooltip" title="DGV browser not available for reference {{ entry.release }}">
-            Locus @DGV
-          </span>
-        {% endif %}
-
-        {% linkout_available_for "gnomad" entry.release as gnomad_available %}
-        {% if gnomad_available %}
-          <a class="dropdown-item" href="http://gnomad.broadinstitute.org/region/{{ entry.chromosome }}-{{ entry.start }}-{{ entry.end }}" target="_blank">
-          Locus @gnomAD
-          </a>
-        {% else %}
-          <span class="dropdown-item disabled" data-toggle="tooltip" title="gnomAD browser not available for reference {{ entry.release }}">
-            Locus @gnomAD
-          </span>
-        {% endif %}
-
-        <div class="dropdown-divider"></div>
-
-        <a href="javascript:humanSplicingFinder('{{ symbol }}', '{{ entry.hgvs_c }}');"
-          data-toggle="tooltip"
-          title="Query Human Splicing Finder"
-          class="dropdown-item">
-          Query Human Splicing Finder
-        </a>
-
-        <a href="https://varseak.bio/ssp.php?gene={{ symbol|urlencode }}&hgvs={{ entry.hgvs_c|urlencode }}&&transcript={{ entry.refseq_transcript_id }}"
-          data-toggle="tooltip"
-          title="Query varSEAK Splice Site Prediction"
-          target="_blank"
-          class="dropdown-item">
-          Query varSEAK Splicing
-        </a>
-
-        {% if "missense_variant" in entry.effect %}
-          <a href="javascript:polyPhen2('{{ symbol }}', '{{ entry.hgvs_p }}');"
-            data-toggle="tooltip"
-            title="Query PolyPhen 2"
-            class="dropdown-item">
-            Query PolyPhen 2
-          </a>
-        {% else %}
-          <span class="dropdown-item disabled">
-            PolyPhen 2: missense only
-          </span>
-        {% endif %}
-
-        {% linkout_available_for "umd" entry.release as umd_available %}
-        {% if umd_available %}
-          {% if entry.reference|length != 1 or entry.alternative|length != 1 %}
-            <span class="dropdown-item disabled" data-toggle="tooltip" title="UMD Predictor can only predict SNVs">
-              UMD Predictor: SNV only
-            </span>
-          {% elif umd_predictor_api_token %}
-            <a href="{% linkout_base_url "umd" entry.release %}chromosome=chr{{ entry.chromosome }}&c_position={{ entry.start }}&wt_nucleotide={{ entry.reference }}&mutant_nucleotide={{ entry.alternative }}&token={{ umd_predictor_api_token }}"
+          <div class="dropdown-menu dropdown-menu-right"">
+            <a
+              href="https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome={{ entry.chromosome }}&position={{ entry.start }}&ref={{ entry.reference }}&alt={{ entry.alternative }}"
               data-toggle="tooltip"
-              title="Query UMD Predictor"
               target="_blank"
-              class="dropdown-item">
-              Query UMD Predictor
+              title="Open variant in MutationTaster 2021"
+              class="btn btn-primary dropdown-item">
+              MT 2021
             </a>
-            {#   #}
+            <a
+              href="https://www.genecascade.org/MT85/ChrPos85.cgi?chromosome={{ entry.chromosome }}&position={{ entry.start }}&ref={{ entry.reference }}&alt={{ entry.alternative }}"
+              data-toggle="tooltip"
+              target="_blank"
+              title="Open variant in MutationTaster 85"
+              class="btn btn-primary dropdown-item">
+              MT 85
+            </a>
+          </div>
+        {% else %}
+          <span
+            class="btn btn-disabled sodar-list-btn btn-outline-secondary"
+            data-toggle="tooltip"
+            title="MutationTaster not available for genome {{ entry.release }}"
+          >
+            MT
+          </span>
+        {% endif %}
+      </div>
+      <div class="btn-group sodar-list-btn-group">
+        {% if ga4gh_beacon_network_widget_enabled or kiosk_mode %}
+          <a
+             data-toggle="popover"
+             tabindex="0"
+             data-trigger="focus"
+             data-content="<iframe
+    src='https://beacon-network.org:443/#/widget?rs={{ entry.release }}&chrom={{ entry.chromosome }}&pos={{ entry.start }}&ref={{  entry.reference }}&allele={{ entry.alternative }}'
+    style='width: 100%; height: 300px; overflow: auto;'
+    marginwidth='0' marginheight='0' frameborder='0' vspace='0' hspace='0'>
+  </iframe>"
+             data-html="true"
+             data-tooltip="tooltip"
+             title="Query GA4GH Beacon Network"
+             class="btn btn-warning sodar-list-btn"
+            >
+            <i class="iconify" data-icon="fa-solid:podcast" aria-hidden="true"></i>
+          </a>
+        {% endif %}
+        <button
+          type="button"
+          onclick="javascript:$.ajax({url: 'http://127.0.0.1:60151/goto?locus=chr{{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }}'})"
+          title="Go to locus in IGV"
+          class="btn btn-secondary sodar-list-btn"
+        >
+          IGV
+        </button>
+        <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split sodar-list-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-right" style="z-index: 1030;">
+          {% linkout_available_for "ucsc" entry.release as ucsc_available %}
+          {% if ucsc_available %}
+            <a class="dropdown-item" href="https://genome-euro.ucsc.edu/cgi-bin/hgTracks?db=hg19&position={{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }}" target="_blank">
+              Locus @UCSC
+            </a>
           {% else %}
-            <span class="dropdown-item disabled" data-toggle="tooltip" title="Configure your UMD Predictor API token in the user settings.">
-              UMD Predictor: no key
+            <span class="dropdown-item disabled" data-toggle="tooltip" title="UCSC browser not available for reference {{ entry.release }}">
+              Locus @UCSC
             </span>
           {% endif %}
-        {% else %}
-          <span class="dropdown-item disabled" data-toggle="tooltip" title="UMD not available for reference {{ entry.release }}">
-            UMD Predictor
-          </span>
-        {% endif %}
 
-        {% linkout_available_for "varsome" entry.release as varsome_available %}
-        {% if varsome_available %}
-          <a href="{% linkout_base_url "varsome" entry.release %}{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}"
+          {% linkout_available_for "ensembl" entry.release as ensembl_available %}
+          {% if ensembl_available %}
+            <a class="dropdown-item" href="https://{% if entry.release == "GRCh37" %}grch37{% else %}www{% endif %}.ensembl.org/Homo_sapiens/Location/View?r={{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }}" target="_blank">
+              Locus @EnsEMBL
+            </a>
+          {% else %}
+            <span class="dropdown-item disabled" data-toggle="tooltip" title="ENSEMBL browser not available for reference {{ entry.release }}">
+              Locus @EnsEMBL
+            </span>
+          {% endif %}
+
+          {% linkout_available_for "dgv" entry.release as dgv_available %}
+          {% if dgv_available %}
+            <a class="dropdown-item" href="http://dgv.tcag.ca/gb2/gbrowse/dgv2_hg19/?name={{ entry.chromosome }}:{{ entry.start }}-{{ entry.end }};search=Search" target="_blank">
+              Locus @DGV
+            </a>
+          {% else %}
+            <span class="dropdown-item disabled" data-toggle="tooltip" title="DGV browser not available for reference {{ entry.release }}">
+              Locus @DGV
+            </span>
+          {% endif %}
+
+          {% linkout_available_for "gnomad" entry.release as gnomad_available %}
+          {% if gnomad_available %}
+            <a class="dropdown-item" href="http://gnomad.broadinstitute.org/region/{{ entry.chromosome }}-{{ entry.start }}-{{ entry.end }}" target="_blank">
+            Locus @gnomAD
+            </a>
+          {% else %}
+            <span class="dropdown-item disabled" data-toggle="tooltip" title="gnomAD browser not available for reference {{ entry.release }}">
+              Locus @gnomAD
+            </span>
+          {% endif %}
+
+          <div class="dropdown-divider"></div>
+
+          <a href="javascript:humanSplicingFinder('{{ symbol }}', '{{ entry.hgvs_c }}');"
             data-toggle="tooltip"
-            title="View variant in varsome"
+            title="Query Human Splicing Finder"
+            class="dropdown-item">
+            Query Human Splicing Finder
+          </a>
+
+          <a href="https://varseak.bio/ssp.php?gene={{ symbol|urlencode }}&hgvs={{ entry.hgvs_c|urlencode }}&&transcript={{ entry.refseq_transcript_id }}"
+            data-toggle="tooltip"
+            title="Query varSEAK Splice Site Prediction"
             target="_blank"
             class="dropdown-item">
-            Query Varsome
+            Query varSEAK Splicing
           </a>
-        {% else %}
-          <span class="dropdown-item disabled" data-toggle="tooltip" title="Varsome not available for reference {{ entry.release }}">
-            Query Varsome
-          </span>
-        {% endif %}
 
-        {% linkout_available_for "variant_validator" entry.release as vv_available %}
-        {% if vv_available %}
-          <a
-            data-toggle="modal"
-            data-target="#variantvalidatormodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}"
-            title="Submit variant to VariantValidator"
-            onclick="if ($('#variantvalidatormodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}').find('.variant-validator-results').children().length == 0){$('#variantvalidatormodalsubmit-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}').click();}"
-            class="dropdown-item">
-            Query VariantValidator
-          </a>
-        {% else %}
-          <span class="dropdown-item disabled" data-toggle="tooltip" title="VariantValidator not available for reference {{ entry.release }}">
-            Query VariantValidator
-          </span>
-        {% endif %}
+          {% if "missense_variant" in entry.effect %}
+            <a href="javascript:polyPhen2('{{ symbol }}', '{{ entry.hgvs_p }}');"
+              data-toggle="tooltip"
+              title="Query PolyPhen 2"
+              class="dropdown-item">
+              Query PolyPhen 2
+            </a>
+          {% else %}
+            <span class="dropdown-item disabled">
+              PolyPhen 2: missense only
+            </span>
+          {% endif %}
+
+          {% linkout_available_for "umd" entry.release as umd_available %}
+          {% if umd_available %}
+            {% if entry.reference|length != 1 or entry.alternative|length != 1 %}
+              <span class="dropdown-item disabled" data-toggle="tooltip" title="UMD Predictor can only predict SNVs">
+                UMD Predictor: SNV only
+              </span>
+            {% elif umd_predictor_api_token %}
+              <a href="{% linkout_base_url "umd" entry.release %}chromosome=chr{{ entry.chromosome }}&c_position={{ entry.start }}&wt_nucleotide={{ entry.reference }}&mutant_nucleotide={{ entry.alternative }}&token={{ umd_predictor_api_token }}"
+                data-toggle="tooltip"
+                title="Query UMD Predictor"
+                target="_blank"
+                class="dropdown-item">
+                Query UMD Predictor
+              </a>
+              {#   #}
+            {% else %}
+              <span class="dropdown-item disabled" data-toggle="tooltip" title="Configure your UMD Predictor API token in the user settings.">
+                UMD Predictor: no key
+              </span>
+            {% endif %}
+          {% else %}
+            <span class="dropdown-item disabled" data-toggle="tooltip" title="UMD not available for reference {{ entry.release }}">
+              UMD Predictor
+            </span>
+          {% endif %}
+
+          {% linkout_available_for "varsome" entry.release as varsome_available %}
+          {% if varsome_available %}
+            <a href="{% linkout_base_url "varsome" entry.release %}{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}"
+              data-toggle="tooltip"
+              title="View variant in varsome"
+              target="_blank"
+              class="dropdown-item">
+              Query Varsome
+            </a>
+          {% else %}
+            <span class="dropdown-item disabled" data-toggle="tooltip" title="Varsome not available for reference {{ entry.release }}">
+              Query Varsome
+            </span>
+          {% endif %}
+
+          {% linkout_available_for "variant_validator" entry.release as vv_available %}
+          {% if vv_available %}
+            <a
+              data-toggle="modal"
+              data-target="#variantvalidatormodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}"
+              title="Submit variant to VariantValidator"
+              onclick="if ($('#variantvalidatormodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}').find('.variant-validator-results').children().length == 0){$('#variantvalidatormodalsubmit-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}').click();}"
+              class="dropdown-item">
+              Query VariantValidator
+            </a>
+          {% else %}
+            <span class="dropdown-item disabled" data-toggle="tooltip" title="VariantValidator not available for reference {{ entry.release }}">
+              Query VariantValidator
+            </span>
+          {% endif %}
+        </div>
       </div>
     </div>
     <!-- Modal -->
