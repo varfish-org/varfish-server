@@ -46,6 +46,7 @@ Full Change List
 - Switching scoring to MutationTaster 85 interface, added back MT 85 link-out alongside MT 2021 link-out (#509).
 - CADD setup fix for documentation (#520)
 - Made flag filter and flag form nomenclature consistent (#297)
+- Updating ``utility/*.sh`` scripts from "upstream" sodar-server (#531).
 
 ------
 v1.2.0

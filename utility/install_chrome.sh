@@ -5,7 +5,7 @@ echo "Installing Chrome + Driver for UI Testing"
 echo "***********************************************"
 
 # Version
-CHROME_DRIVER_VERSION=98.0.4758.80
+CHROME_DRIVER_VERSION=$(curl http://chromedriver.storage.googleapis.com/LATEST_RELEASE)
 
 # Install dependencies
 sudo apt-get update
