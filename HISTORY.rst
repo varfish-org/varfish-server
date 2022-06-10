@@ -43,6 +43,7 @@ Full Change List
 - Adjusting default frequency filters for "clinvar pathogenic" filter: remove all threshold (#464).
 - Adding note about difference with upstream Clinvar (#464).
 - Switching scoring to MutationTaster 85 interface, added back MT 85 link-out alongside MT 2021 link-out (#509).
+- CADD setup fix for documentation (#520)
 
 ------
 v1.2.0

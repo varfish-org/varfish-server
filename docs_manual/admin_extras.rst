@@ -21,9 +21,11 @@ First, create a directory ``volumes/cadd-rest-api`` inside the ``varfish-docker-
 .. code-block:: console
 
     $ cd varfish-docker-compose
-    $ mkdir -p volumes/cadd-rest-api/db
-    $ curl https://raw.githubusercontent.com/kircherlab/CADD-scripts/7502f47/install.sh \
-        > volumes/cadd-rest-api/install.sh
+    $ mkdir -p volumes/cadd-rest-api
+    $ cd volumes/cadd-rest-api
+    $ git clone https://github.com/kircherlab/CADD-scripts .
+    $ git checkout 7502f47
+    $ mkdir -p db
 
 Next, download the appropriate files using the ``install.sh`` script you just downloaded.
 The script will ask you for some decisions and the corresponding lines are highlighted below.
@@ -72,6 +74,13 @@ The script will ask you for some decisions and the corresponding lines are highl
 
     InDels_inclAnno.tsv.gz: OK
     InDels_inclAnno.tsv.gz.tbi: OK
+
+If your installation is using a proxy, set it in ``cadd-rest-api.env``:
+
+.. code-block:: bash
+
+     HTTP_PROXY=http://proxy.compa.ny:8080/
+     HTTPS_PROXY=http://proxy.compa.ny:8080/
 
 Then, update the ``.env`` file by uncommenting the lines that configure the variant prioritization with CADD in VarFish (use the contents of the ``.env`` file as the lines below might not be completely up to date).
 
