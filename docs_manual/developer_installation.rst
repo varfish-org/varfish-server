@@ -16,18 +16,22 @@ The developers installation is intended not to carry the full VarFish database
 such that it is light-weight and fits on a laptop. We advise to install the
 services not running in a Docker container.
 
+Please find the instructions for the Windows installation at the end of the page.
+
 ----------------
 Install Postgres
 ----------------
 
-Follow the instructions for your operating system to install `Postgres <https://www.postgresql.org>`_. 
-Make sure that the version is 12 (11 and 13 would also work). 
+Follow the instructions for your operating system to install `Postgres <https://www.postgresql.org>`_.
+Make sure that the version is 12 (11, 13 and 14 would also work).
 Ubuntu 20 already includes postgresql 12. In case of older Ubuntu versions, this would be::
 
-    sudo apt install postgresql-12
+    $ sudo apt install postgresql-12
 
 
+Adapt the postgres configuration file, for postgres 14 this would be:
 
+    sudo sed -i -e 's/.*max_locks_per_transaction.*/max_locks_per_transaction = 1024 # min 10/' /etc/postgresql/14/main/postgresql.conf
 
 -------------
 Install Redis
@@ -37,7 +41,7 @@ Install Redis
 Follow the instructions for your operating system to install Redis.
 For Ubuntu, this would be::
 
-    sudo apt install redis-server
+    $ sudo apt install redis-server
 
 -----------------
 Install miniconda
@@ -72,13 +76,12 @@ Clone the VarFish Server repository and switch into the checkout.
 Install Python Requirements
 ---------------------------
 
-Some required packages have dependencies that are usually not preinstalled. 
+Some required packages have dependencies that are usually not preinstalled.
 Therefore, run
 
 .. code-block:: bash
 
-    $ sudo apt install libsasl2-dev python-dev libldap2-dev libssl-dev
-
+    $ sudo bash utility/install_os_dependencies.sh
 
 Now, with the conda/Python environment activated, install all the requirements.
 
@@ -167,3 +170,90 @@ When done, open two terminals and start the VarFish server and the celery server
 
     terminal1$ make serve
     terminal2$ make celery
+
+
+======================
+Installation (Windows)
+======================
+
+The setup was done on a recent version of Windows 10 with Windows Subsystem for Linux Version 2 (WSL2).
+
+-----------------
+Installation WSL2
+-----------------
+
+Following [this tutorial](https://www.omgubuntu.co.uk/how-to-install-wsl2-on-windows-10) to install WSL2.
+
+- Note that the whole thing appears to be a bit convoluted, you start out with `wsl.exe --install`
+- Then you can install latest LTS Ubuntu 22.04 with the Microsoft Store
+- Once complete, you probably end up with a WSL 1 (one!) that you can conver to version 2 (two!) with `wsl --set-version Ubuntu-22.04 2` or similar.
+- WSL2 has some advantages including running a full Linux kernel but is even slower in I/O to the NTFS Windows mount.
+- Everything that you do will be inside the WSL image.
+
+--------------------
+Install Dependencies
+--------------------
+
+.. code-block::
+
+    $ sudo apt install libsasl2-dev python3-dev libldap2-dev libssl-dev gcc make rsync
+    $ sudo apt install postgresql postgresql-server-dev-14 postgresql-client redis
+    $ sudo service postgresql start
+    $ sudo service postgresql status
+    $ sudo service redis-server start
+    $ sudo service redis-server status
+    $ sudo sed -i -e 's/.*max_locks_per_transaction.*/max_locks_per_transaction = 1024 # min 10/' /etc/postgresql/14/main/postgresql.conf
+    $ sudo service postgresql restart
+
+Create a postgres user `varfish` with password `varfish` and a database.
+
+.. code-block::
+
+    $ sudo -u postgres createuser -s -r -d varfish -P
+    $ [enter varfish as password]
+    $ sudo -u postgres createdb --owner=varfish varfish
+
+Create a miniconda3 installation with an environment.
+
+.. code-block::
+
+    $ mkdir -p Development Downloads
+    $ cd Downloads
+    $ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    $ bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/miniconda3
+    $ source ~/miniconda3/bin/activate
+    $ conda install -y mamba
+    $ mamba create -y -n varfish-server python==3.9 nodejs=12
+    $ conda activate varfish-server
+
+Finally, checkout `varfish-server` and create a development `.env` file:
+
+.. code-block::
+
+    $ cd ~/Development
+    $ git clone git@github.com:bihealth/varfish-server.git
+    $ cat <<"EOF" >.env
+    export VARFISH_ENABLE_SPANR_SUBMISSION=1
+    export VARFISH_ENABLE_CADD_SUBMISSION=1
+    export VARFISH_ENABLE_SPANR_SUBMISSION=1
+
+    export VARFISH_ENABLE_SVS=1
+    export DJANGO_SETTINGS_MODULE=config.settings.local
+    export DJANGO_SECURE_SSL_REDIRECT=0
+
+    export DJANGO_SECRET_KEY="0Vabi8RKYcSgVTGhr23AlIFA5D1aXh25ZBvxXi9Tgu9UrrFdiolaQchS9k7CfqIMev7KoLV2RH84XxQDcDCmIoeyVmMmNUh7jE8N"
+    export DATABASE_URL="postgres://varfish:varfish@127.0.0.1/varfish"
+
+    export VARFISH_ENABLE_BEACON_SITE=1
+    export FIELD_ENCRYPTION_KEY=_XRAzgLd6NHj8G4q9FNV0p3Um9g4hy8BPBN-AL0JWO0=
+    EOF
+    $ make test-noselenium
+
+-------------------------
+Open WSL image in PyCharm
+-------------------------
+
+This has been tested with PyCharm Professional only.
+
+- You can simply open projects in the WSL, e.g., `\\wsl$Ubuntu-22.04\home...`.
+- You can add the interpreter in the `varfish-server` miniconda3 environment to PyCharm which gives you access to.
