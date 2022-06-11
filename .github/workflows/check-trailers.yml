@@ -9,4 +9,4 @@ jobs:
     name: Check commit message trailers
     steps:
       - uses: actions/checkout@v2
-      - uses: bihealth/action-require-trailers@v1.0.0
+      - uses: bihealth/action-require-trailers@v1.1.0
