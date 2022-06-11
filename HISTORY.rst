@@ -49,6 +49,7 @@ Full Change List
 - Made flag filter and flag form nomenclature consistent (#297)
 - Updating ``utility/*.sh`` scripts from "upstream" sodar-server (#531).
 - Improved developer setup documentation and added Windows installation instructions (#533).
+- Skip commit trailer checks for dependabot (#537).
 
 ------
 v1.2.0
