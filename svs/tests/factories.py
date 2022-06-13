@@ -17,6 +17,8 @@ from ..models import (
     StructuralVariantFlags,
     StructuralVariantComment,
     StructuralVariantSet,
+    BackgroundSv,
+    BackgroundSvSet,
 )
 import typing
 import attr
@@ -52,11 +54,11 @@ class StructuralVariantFactory(factory.django.DjangoModelFactory):
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
     chromosome_no = factory.Iterator(list(range(1, 25)))
-    chromosome2 = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
-    chromosome_no2 = factory.Iterator(list(range(1, 25)))
+    chromosome2 = factory.LazyAttribute(lambda obj: obj.chromosome)
+    chromosome_no2 = factory.LazyAttribute(lambda obj: obj.chromosome_no)
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
-    pe_orientation = None
+    pe_orientation = "3to5"
 
     start_ci_left = -100
     start_ci_right = 100
@@ -83,11 +85,25 @@ class StructuralVariantFactory(factory.django.DjangoModelFactory):
         }
     )
 
-    num_hom_alt = 0
-    num_hom_ref = 0
-    num_het = 0
-    num_hemi_alt = 0
-    num_hemi_ref = 0
+    @factory.lazy_attribute
+    def num_hom_alt(self):
+        return len([k for k, v in self.genotype.items() if v["gt"] in ("1/1", "1|1")])
+
+    @factory.lazy_attribute
+    def num_hom_ref(self):
+        return len([k for k, v in self.genotype.items() if v["gt"] in ("0/0", "0|0")])
+
+    @factory.lazy_attribute
+    def num_het(self):
+        return len([k for k, v in self.genotype.items() if v["gt"] in ("0/1", "0|1", "1/0", "1|0")])
+
+    @factory.lazy_attribute
+    def num_hemi_ref(self):
+        return len([k for k, v in self.genotype.items() if v["gt"] == "0"])
+
+    @factory.lazy_attribute
+    def num_hemi_alt(self):
+        return len([k for k, v in self.genotype.items() if v["gt"] == "1"])
 
     @factory.lazy_attribute
     def bin(self):
@@ -273,3 +289,36 @@ class FormDataFactory:
     regulatory_vista_any_validation: bool = False
     regulatory_vista_positive: bool = False
     regulatory_vista_negative: bool = False
+
+
+class BackgroundSvSetFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = BackgroundSvSet
+
+    genomebuild = "GRCh37"
+    varfish_version = "1.2.0"
+    state = "active"
+
+
+class BackgroundSvFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = BackgroundSv
+
+    bg_sv_set = factory.SubFactory(BackgroundSvSetFactory,)
+
+    release = "GRCh37"
+    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    chromosome_no = factory.Iterator(list(range(1, 25)))
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    chromosome2 = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    chromosome_no2 = factory.Iterator(list(range(1, 25)))
+    end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
+    pe_orientation = "3to5"
+    sv_type = "DEL"
+    bin = factory.LazyAttribute(lambda obj: binning.assign_bin(obj.start, obj.end))
+
+    src_count = 1
+    carriers = 1
+    carriers_het = 1
+    carriers_hom = 0
+    carriers_hemi = 0

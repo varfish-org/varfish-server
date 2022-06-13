@@ -84,6 +84,8 @@ PED_FEMALE = 2
 CHROMOSOME_STR_TO_CHROMOSOME_INT = {
     b: a for a, b in enumerate(list(map(str, range(1, 23))) + ["X", "Y", "MT"], 1)
 }
+#: List of chromosome names without "chr" prefix.
+CHROMOSOME_NAMES = list(CHROMOSOME_STR_TO_CHROMOSOME_INT.keys())
 
 
 def load_molecular_impact(kwargs):

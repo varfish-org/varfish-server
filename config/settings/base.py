@@ -508,6 +508,9 @@ FIELD_ENCRYPTION_KEY = env.str(
 # Number of cases to perform in one query for joint queries.
 QUERY_MAX_UNION = env.int("VARFISH_QUERY_MAX_UNION", 20)
 
+# Timeout (in hours) for VarFish cleaning up background SV sets in "building" state.
+SV_CLEANUP_BUILDING_SV_SETS = env.int("VARFISH_SV_CLEANUP_BUILDING_SV_SETS", 48)
+
 # Varfish: Exomiser
 # ------------------------------------------------------------------------------
 

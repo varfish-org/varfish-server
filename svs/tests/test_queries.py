@@ -15,6 +15,7 @@ from .factories import (
     StructuralVariantFactory,
     StructuralVariantGeneAnnotationFactory,
     StructuralVariantSetFactory,
+    BackgroundSvFactory,
 )
 from .helpers import QueryTestBase
 from ..models import SV_TYPE_CHOICES, SV_SUB_TYPE_CHOICES, StructuralVariant
@@ -418,8 +419,8 @@ class SvTypeFilterQueryTest(QueryTestBase):
         self.run_query(SingleCaseFilterQuery, {"sv_type": [], "sv_sub_type": sv_sub_types}, 0)
 
 
-class SvCohortFrequencyFilterQueryTest(QueryTestBase):
-    """Test for filtration with the frequencies within the analysis cohort/collective."""
+class InHouseDatabaseFrequencyFilterQueryTest(QueryTestBase):
+    """Test for filtration with in-house background SV database frequencies."""
 
     def setUp(self):
         super().setUp()
@@ -427,120 +428,48 @@ class SvCohortFrequencyFilterQueryTest(QueryTestBase):
             case__structure="trio", case__inheritance="denovo"
         )
         self.case = self.variant_set.case
-        self.svs = [StructuralVariantFactory(variant_set=self.variant_set)]
-        self.genotype = self.svs[0].genotype
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
+        BackgroundSvFactory(
+            release=self.sv.release,
+            chromosome=self.sv.chromosome,
+            start=int(self.sv.start + (self.sv.end - self.sv.start) * 0.20),
+            end=int(self.sv.end + (self.sv.end - self.sv.start) * 0.20),
+        )
 
-    def testPassMinAffectedCarriers(self):
-        count = self.svs[0].info["affectedCarriers"]
+    def testPassesFrequencyFilterBelowThreshold(self):
         result = self.run_query(
             SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_affected_carriers_min": count},
+            {"inhouse_enabled": True, "inhouse_min_overlap": 0.50, "inhouse_max_carriers": 1},
             1,
         )
-        result = list(result)
-        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
 
-    def testFailMinAffectedCarriers(self):
-        count = self.svs[0].info["affectedCarriers"]
+    def testPassesFrequencyFilterNoOverlap(self):
+        result = self.run_query(
+            SingleCaseFilterQuery,
+            {"inhouse_enabled": True, "inhouse_min_overlap": 0.99, "inhouse_max_carriers": 0},
+            1,
+        )
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
+
+    def testFailsFrequencyFilter(self):
         self.run_query(
             SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_affected_carriers_min": count + 1},
+            {"inhouse_enabled": True, "inhouse_min_overlap": 0.50, "inhouse_max_carriers": 0},
             0,
         )
 
-    def testPassMaxAffectedCarriers(self):
-        count = self.svs[0].info["affectedCarriers"]
+    def testPassesFrequencyFilterIfDisabled(self):
         result = self.run_query(
             SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_affected_carriers_max": count},
+            {"inhouse_enabled": False, "inhouse_min_overlap": 0.50, "inhouse_max_carriers": 0},
             1,
         )
-        result = list(result)
-        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
-
-    def testFailMaxAffectedCarriers(self):
-        count = self.svs[0].info["affectedCarriers"]
-        self.run_query(
-            SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_affected_carriers_max": count - 1},
-            0,
-        )
-
-    def testPassMinUnaffectedCarriers(self):
-        count = self.svs[0].info["unaffectedCarriers"]
-        result = self.run_query(
-            SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_unaffected_carriers_min": count},
-            1,
-        )
-        result = list(result)
-        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
-
-    def testFailMinUnaffectedCarriers(self):
-        count = self.svs[0].info["unaffectedCarriers"]
-        self.run_query(
-            SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_unaffected_carriers_min": count + 1},
-            0,
-        )
-
-    def testPassMaxUnaffectedCarriers(self):
-        count = self.svs[0].info["unaffectedCarriers"]
-        result = self.run_query(
-            SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_unaffected_carriers_max": count},
-            1,
-        )
-        result = list(result)
-        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
-
-    def testFailMaxUnaffectedCarriers(self):
-        count = self.svs[0].info["unaffectedCarriers"]
-        self.run_query(
-            SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_unaffected_carriers_max": count - 1},
-            0,
-        )
-
-    def testPassMinBackgroundCarriers(self):
-        count = self.svs[0].info["backgroundCarriers"]
-        result = self.run_query(
-            SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_background_carriers_min": count},
-            1,
-        )
-        result = list(result)
-        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
-
-    def testFailMinBackgroundCarriers(self):
-        count = self.svs[0].info["backgroundCarriers"]
-        self.run_query(
-            SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_background_carriers_min": count + 1},
-            0,
-        )
-
-    def testPassMaxBackgroundCarriers(self):
-        count = self.svs[0].info["backgroundCarriers"]
-        result = self.run_query(
-            SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_background_carriers_max": count},
-            1,
-        )
-        result = list(result)
-        self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
-
-    def testFailMaxBackgroundCarriers(self):
-        count = self.svs[0].info["backgroundCarriers"]
-        self.run_query(
-            SingleCaseFilterQuery,
-            {"collective_enabled": True, "cohort_background_carriers_max": count - 1},
-            0,
-        )
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
 
 
-class SvDatabaseFrequencyFilterQueryTest(QueryTestBase):
-    """Test for filtration with database frequencies."""
+class SvGnomadDatabaseFrequencyFilterQueryTest(QueryTestBase):
+    """Test for filtration with gnomAD database frequencies."""
 
     def setUp(self):
         super().setUp()
@@ -588,8 +517,57 @@ class SvDatabaseFrequencyFilterQueryTest(QueryTestBase):
         self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
 
 
-class SvDatabaseFrequencyAnnotationTest(QueryTestBase):
-    """Test for annotation with database entries."""
+class SvInhouseDatabaseFrequencyFilterQueryTest(QueryTestBase):
+    """Test for filtration with in-house database frequencies."""
+
+    def setUp(self):
+        super().setUp()
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
+        self.bg_sv = BackgroundSvFactory(
+            release=self.sv.release,
+            chromosome=self.sv.chromosome,
+            start=int(self.sv.start + (self.sv.end - self.sv.start) * 0.20),
+            end=int(self.sv.end + (self.sv.end - self.sv.start) * 0.20),
+        )
+
+    def testPassesFrequencyFilterBelowThreshold(self):
+        result = self.run_query(
+            SingleCaseFilterQuery,
+            {"inhouse_enabled": True, "inhouse_min_overlap": 0.50, "inhouse_max_carriers": 1},
+            1,
+        )
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
+
+    def testPassesFrequencyFilterNoOverlap(self):
+        result = self.run_query(
+            SingleCaseFilterQuery,
+            {"inhouse_enabled": True, "inhouse_min_overlap": 0.99, "inhouse_max_carriers": 0},
+            1,
+        )
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
+
+    def testFailsFrequencyFilter(self):
+        self.run_query(
+            SingleCaseFilterQuery,
+            {"inhouse_enabled": True, "inhouse_min_overlap": 0.50, "inhouse_max_carriers": 0},
+            0,
+        )
+
+    def testPassesFrequencyFilterIfDisabled(self):
+        result = self.run_query(
+            SingleCaseFilterQuery,
+            {"inhouse_enabled": False, "inhouse_min_overlap": 0.50, "inhouse_max_carriers": 0},
+            1,
+        )
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
+
+
+class SvGnomadDatabaseFrequencyAnnotationTest(QueryTestBase):
+    """Test for annotation with gnomAD database entries."""
 
     # TODO: tests for other databases as well?
 
@@ -616,6 +594,34 @@ class SvDatabaseFrequencyAnnotationTest(QueryTestBase):
         result = self.run_query(SingleCaseFilterQuery, {"gnomad_min_overlap": 0.99}, 1)
         self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
         self.assertEquals(result[0].gnomad_overlap_count, 0)
+
+
+class SvInhouseDatabaseFrequencyAnnotationTest(QueryTestBase):
+    """Test for annotation with in-house database entries."""
+
+    def setUp(self):
+        super().setUp()
+        self.variant_set = StructuralVariantSetFactory(
+            case__structure="trio", case__inheritance="denovo"
+        )
+        self.case = self.variant_set.case
+        self.sv = StructuralVariantFactory(variant_set=self.variant_set)
+        self.bg_sv = BackgroundSvFactory(
+            release=self.sv.release,
+            chromosome=self.sv.chromosome,
+            start=int(self.sv.start + (self.sv.end - self.sv.start) * 0.20),
+            end=int(self.sv.end + (self.sv.end - self.sv.start) * 0.20),
+        )
+
+    def testInHouseAnnotationWithOverlap(self):
+        result = self.run_query(SingleCaseFilterQuery, {"inhouse_min_overlap": 0.50}, 1)
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
+        self.assertEquals(result[0].inhouse_overlap_count, 1)
+
+    def testInHouseAnnotationWithoutOverlap(self):
+        result = self.run_query(SingleCaseFilterQuery, {"inhouse_min_overlap": 0.99}, 1)
+        self.assertUUIDEquals(result[0].sv_uuid, self.sv.sv_uuid)
+        self.assertEquals(result[0].inhouse_overlap_count, 0)
 
 
 class RegionFilterQueryTest(QueryTestBase):

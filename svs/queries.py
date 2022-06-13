@@ -1,6 +1,7 @@
 """Building queries for structural variants based on the ``QueryParts`` infrastructure from ``variants``."""
 
 import enum
+import logging
 import operator
 import sys
 from itertools import chain
@@ -21,6 +22,8 @@ from .models import (
     StructuralVariantComment,
     StructuralVariantFlags,
     StructuralVariantSet,
+    BackgroundSv,
+    BackgroundSvSet,
 )
 from genomicfeatures.models import (
     EnsemblRegulatoryFeature,
@@ -39,6 +42,9 @@ from variants.queries import (
     ExtendQueryPartsGenotypeDefaultBase,
     ExtendQueryPartsCaseJoinAndFilter as _ExtendQueryPartsCaseJoinAndFilter,
 )
+
+#: Logger to use in this module.
+LOGGER = logging.getLogger(__name__)
 
 
 def overlaps(lhs, rhs, min_overlap=None, rhs_start=None, rhs_end=None, padding=None):
@@ -117,7 +123,10 @@ def structural_variant_query(_self, kwargs):
         ],
         selectable=StructuralVariant.sa.table.outerjoin(
             StructuralVariantGeneAnnotation.sa.table,
-            StructuralVariantGeneAnnotation.sa.sv_uuid == StructuralVariant.sa.sv_uuid,
+            and_(
+                StructuralVariantGeneAnnotation.sa.sv_uuid == StructuralVariant.sa.sv_uuid,
+                StructuralVariantGeneAnnotation.sa.case_id == StructuralVariant.sa.case_id,
+            ),
         ),
         conditions=[],
     )
@@ -316,6 +325,7 @@ class ExtendQueryPartsPublicDatabaseFrequencyJoinAndFilter(ExtendQueryPartsBase)
         ("exac", ExacCnv, func.count()),
         ("dbvar", DbVarSv, func.sum(DbVarSv.sa.num_carriers)),
         ("gnomad", GnomAdSv, func.sum(GnomAdSv.sa.n_het + GnomAdSv.sa.n_homalt)),
+        ("inhouse", BackgroundSv, func.sum(BackgroundSv.sa.carriers)),
     )
 
     def __init__(self, *args, **kwargs):
@@ -333,22 +343,29 @@ class ExtendQueryPartsPublicDatabaseFrequencyJoinAndFilter(ExtendQueryPartsBase)
                 model_start = model.sa.start
                 model_end = model.sa.end
             min_overlap = float(self.kwargs.get("%s_min_overlap" % token, "0.75"))
+            where_terms = [
+                # TODO: type mapping -- interesting/necessary?
+                # StructuralVariant.sa.sv_type == model.sa.sv_type,
+                overlaps(
+                    StructuralVariant,
+                    model,
+                    min_overlap=min_overlap,
+                    rhs_start=model_start,
+                    rhs_end=model_end,
+                ),
+            ]
+            if token == "inhouse":
+                latest_set = BackgroundSvSet.objects.latest_active_if_any()
+                if not latest_set:
+                    LOGGER.warning("Could not find a latest BackgroundSvSet to use")
+                    continue  # don't have a set
+                else:
+                    LOGGER.info("Using latest BackgroundSvSet: %s" % latest_set.sodar_uuid)
+                    where_terms.append(model.sa.bg_sv_set_id == latest_set.pk)
             result[token] = (
                 select([observed_events.label("observed_events")])
                 .select_from(model.sa)
-                .where(
-                    and_(
-                        # TODO: type mapping -- interesting/necessary?
-                        # StructuralVariant.sa.sv_type == model.sa.sv_type,
-                        overlaps(
-                            StructuralVariant,
-                            model,
-                            min_overlap=min_overlap,
-                            rhs_start=model_start,
-                            rhs_end=model_end,
-                        )
-                    )
-                )
+                .where(and_(*where_terms))
                 .alias("subquery_%s_inner" % token)
             ).lateral("subquery_%s_outer" % token)
         return result
@@ -357,8 +374,9 @@ class ExtendQueryPartsPublicDatabaseFrequencyJoinAndFilter(ExtendQueryPartsBase)
         # NB: subqueries is given as a parameter here to highlight the dependency between the two helper functions
         fields = {}
         for token, _, observed_events in self.TOKEN_MODEL_FIELD:
-            field = func.coalesce(subqueries[token].c.observed_events, 0)
-            fields["%s_overlap_count" % token] = field.label("%s_overlap_count" % token)
+            if token in subqueries:  # e.g., "inhouse" might not exist yet
+                field = func.coalesce(subqueries[token].c.observed_events, 0)
+                fields["%s_overlap_count" % token] = field.label("%s_overlap_count" % token)
         return fields
 
     def extend_fields(self, _query_parts):
@@ -480,29 +498,6 @@ class ExtendQueryPartsCommentsJoinAndFilter(ExtendQueryPartsBase):
 
     def extend_selectable(self, query_parts):
         return query_parts.selectable.outerjoin(self.subquery, true())
-
-
-class ExtendQueryPartsInHouseDatabaseFilter(ExtendQueryPartsBase):
-    """Extend ``QueryParts`` for filtering for in-house database occurence."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def extend_conditions(self, _query_parts):
-        result = []
-        for token in ("affected", "unaffected", "background"):
-            for minmax in ("min", "max"):
-                if (
-                    self.kwargs["collective_enabled"]
-                    and self.kwargs["cohort_%s_carriers_%s" % (token, minmax)] is not None
-                ):
-                    field = StructuralVariant.sa.info["%sCarriers" % token].astext.cast(Integer)
-                    thresh = self.kwargs["cohort_%s_carriers_%s" % (token, minmax)]
-                    term = field >= thresh if minmax == "min" else field <= thresh
-                    result.append(
-                        or_(StructuralVariant.sa.info["%sCarriers" % token].is_(None), term)
-                    )
-        return result
 
 
 class ExtendQueryPartsVariantEffectFilter(ExtendQueryPartsBase):
@@ -948,7 +943,6 @@ extender_classes_base = [
     ExtendQueryPartsPublicDatabaseFrequencyJoinAndFilter,
     ExtendQueryPartsFlagsJoinAndFilter,
     ExtendQueryPartsCommentsJoinAndFilter,
-    ExtendQueryPartsInHouseDatabaseFilter,
     ExtendQueryPartsVariantEffectFilter,
     ExtendQueryPartsGenesJoinAndFilter,
     ExtendQueryPartsTadBoundaryDistanceJoin,
@@ -973,7 +967,13 @@ class CasePrefetchQuery:
         self.query_id = query_id
 
     def run(self, kwargs):
-        order_by = [column("chromosome"), column("start"), column("end"), column("sv_type")]
+        order_by = [
+            column("chromosome"),
+            column("start"),
+            column("end"),
+            column("sv_type"),
+            column("sv_uuid"),
+        ]
         stmt = (
             self.builder(self.case_or_cases, self.query_id).run(kwargs).to_stmt(order_by=order_by)
         )
@@ -986,7 +986,6 @@ class CasePrefetchQuery:
                 ),
                 file=sys.stderr,
             )
-
         return self.engine.execute(stmt)
 
 

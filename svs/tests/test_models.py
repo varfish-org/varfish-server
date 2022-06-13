@@ -11,6 +11,8 @@ from svs.models import (
     StructuralVariantFlags,
     StructuralVariantSet,
     cleanup_variant_sets,
+    BackgroundSv,
+    BackgroundSvSet,
 )
 from .factories import (
     StructuralVariantFactory,
@@ -18,6 +20,8 @@ from .factories import (
     StructuralVariantFlagsFactory,
     StructuralVariantCommentFactory,
     StructuralVariantSetFactory,
+    BackgroundSvFactory,
+    BackgroundSvSetFactory,
 )
 
 
@@ -66,3 +70,17 @@ class TestCleanupVariantSets(TestCase):
         self.assertEqual(StructuralVariantSet.objects.count(), 0)
         self.assertEqual(StructuralVariant.objects.count(), 0)
         self.assertEqual(StructuralVariantGeneAnnotation.objects.count(), 0)
+
+
+class TestBackgroundSv(TestCase):
+    def testConstruction(self):
+        _variant = BackgroundSvFactory()
+        self.assertEqual(BackgroundSvSet.objects.count(), 1)
+        self.assertEqual(BackgroundSv.objects.count(), 1)
+
+
+class TestBackgroundSvSet(TestCase):
+    def testConstruction(self):
+        _variant_set = BackgroundSvSetFactory()
+        self.assertEqual(BackgroundSv.objects.count(), 0)
+        self.assertEqual(BackgroundSvSet.objects.count(), 1)

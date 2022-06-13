@@ -37,6 +37,8 @@ from .models import (
     StructuralVariantGeneAnnotation,
     ImportStructuralVariantBgJob,
     StructuralVariantSet,
+    BuildBackgroundSvSetJob,
+    CleanupBackgroundSvSetJob,
 )
 from .queries import SingleCaseFilterQuery, best_matching_flags
 from variants.models import Case
@@ -90,6 +92,7 @@ class CaseFilterView(
         query = SingleCaseFilterQuery(self.get_case_object(), get_engine())
         args = dict(form.cleaned_data)
         # TODO: variant types
+        print("XXX\n\n", args, "\n\nXXX")
         with contextlib.closing(query.run(args)) as results:
             context_data = self._fetch_context_data(form, results)
             context_data["elapsed_seconds"] = timezone.now() - before
@@ -100,6 +103,7 @@ class CaseFilterView(
         rows_by_sv = {}
         seen = set()
         gene_id_to_symbol = {}
+        num_results = results.rowcount
         for entry in results.fetchall():
             key = (entry.sv_uuid, entry.gene_id)
             if key in seen:
@@ -138,7 +142,10 @@ class CaseFilterView(
             )
 
         context_data = self.get_context_data()
-        context_data["rows_by_sv"] = rows_by_sv
+        context_data["num_results"] = num_results
+        results_limit = form.cleaned_data.get("result_rows_limit", 0)
+        context_data["results_limit"] = results_limit
+        context_data["rows_by_sv"] = dict(list(rows_by_sv.items())[:results_limit])
         context_data["database"] = form.cleaned_data["database_select"]
         context_data["card_colspan"] = 18 + len(self.get_case_object().pedigree)
 
@@ -523,7 +530,7 @@ class ImportStructuralVariantsJobDetailView(
     ProjectContextMixin,
     DetailView,
 ):
-    """Display status and further details of the import case background job.
+    """Display status and further details of import case background jobs.
     """
 
     permission_required = "variants.view_data"
@@ -743,3 +750,29 @@ class SecondHitView(
         context_data["card_colspan"] = 18 + len(self.get_case_object().pedigree)
 
         return context_data
+
+
+class BuildBackgroundSvSetJobDetailView(
+    LoginRequiredMixin, LoggedInPermissionMixin, ProjectContextMixin, DetailView,
+):
+    """Display status and further details of build sv set background jobs.
+    """
+
+    permission_required = "variants.view_data"
+    template_name = "svs/build_bg_job_detail.html"
+    model = BuildBackgroundSvSetJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"
+
+
+class CleanupBackgroundSvSetJobDetailView(
+    LoginRequiredMixin, LoggedInPermissionMixin, ProjectContextMixin, DetailView,
+):
+    """Display status and further details of cleanup sv set background jobs.
+    """
+
+    permission_required = "variants.view_data"
+    template_name = "svs/cleanup_bg_job_detail.html"
+    model = CleanupBackgroundSvSetJob
+    slug_url_kwarg = "job"
+    slug_field = "sodar_uuid"

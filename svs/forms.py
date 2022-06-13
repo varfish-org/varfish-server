@@ -100,62 +100,7 @@ FILTER_FORM_VISTA_CHOICES = {
     "negative": "negative",
 }
 
-SV_DATABASES = ("DGV", "DGV GS", "ExAC", "gnomAD", "dbVar", "G1K")
-
-
-class SvAnalysisCollectiveFrequencyMixin:
-    """Mixin for the frequency fields of the structural variant filtration form."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["collective_enabled"] = forms.BooleanField(
-            label="", required=False, initial=True
-        )
-        self.fields["cohort_background_carriers_min"] = forms.IntegerField(
-            label="",
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(
-                attrs={"placeholder": "Minimal background carriers in analysis collective"}
-            ),
-        )
-        self.fields["cohort_background_carriers_max"] = forms.IntegerField(
-            label="",
-            initial=5,
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(
-                attrs={"placeholder": "Maximal background carriers in analysis collective"}
-            ),
-        )
-        self.fields["cohort_affected_carriers_min"] = forms.IntegerField(
-            label="",
-            initial=1,
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(attrs={"placeholder": "Minimal affected carriers in pedigree"}),
-        )
-        self.fields["cohort_affected_carriers_max"] = forms.IntegerField(
-            label="",
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(attrs={"placeholder": "Maximal affected carriers in pedigree"}),
-        )
-        self.fields["cohort_unaffected_carriers_min"] = forms.IntegerField(
-            label="",
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(
-                attrs={"placeholder": "Minimal unaffected carriers in pedigree"}
-            ),
-        )
-        self.fields["cohort_unaffected_carriers_max"] = forms.IntegerField(
-            label="",
-            initial=None,
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(attrs={"placeholder": "Maximal affected carriers in pedigree"}),
-        )
+SV_DATABASES = ("DGV", "DGV GS", "ExAC", "gnomAD", "dbVar", "G1K", "inhouse")
 
 
 class SvDatabaseFrequencyMixin:
@@ -180,7 +125,7 @@ class SvDatabaseFrequencyMixin:
             )
             self.fields["%s_max_%s" % (key, entity)] = forms.IntegerField(
                 label="",
-                initial=None,
+                initial=20 if key == "inhouse" else None,
                 min_value=0,
                 required=False,
                 widget=forms.TextInput(attrs={"placeholder": "Maximal %s in %s" % (entity, name)}),
@@ -606,9 +551,23 @@ class RegulatoryFilterFormMixin:
             )
 
 
+class MiscFilterFormMixin:
+    """Form mixin for misc fields (such as maximal number of output records)"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["result_rows_limit"] = forms.IntegerField(
+            label="Result row limit",
+            required=True,
+            initial=200,
+            help_text=("Maximal number of rows displayed."),
+            widget=forms.TextInput(attrs={"class": "numberInteger"}),
+        )
+
+
 class FilterForm(
     SvDatabaseFrequencyMixin,
-    SvAnalysisCollectiveFrequencyMixin,
     SvVariantEffectFilterFormMixin,
     SvGenotypeFilterFormMixin,
     SvQualityFilterFormMixin,
@@ -616,6 +575,7 @@ class FilterForm(
     GenomicRegionFilterFormMixin,
     SvIntervalsFilterFormMixin,
     RegulatoryFilterFormMixin,
+    MiscFilterFormMixin,
     forms.Form,
 ):
     """This form is used for filtering structural variants of a single case."""

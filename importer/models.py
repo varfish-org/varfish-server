@@ -4,7 +4,6 @@ import re
 import tempfile
 import uuid as uuid_object
 
-import aldjemy
 from bgjobs.models import BackgroundJob, LOG_LEVEL_ERROR, JobModelMessageMixin
 from django.contrib import auth
 from django.db import models, transaction
