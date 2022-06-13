@@ -6,6 +6,8 @@ from .models import (
     StructuralVariantComment,
     StructuralVariantFlags,
     ImportStructuralVariantBgJob,
+    BuildBackgroundSvSetJob,
+    CleanupBackgroundSvSetJob,
 )
 from .urls import urlpatterns
 
@@ -65,7 +67,11 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
     title = "SVs Background Jobs"
 
     #: Return name-to-class mapping for background job class specializations.
-    job_specs = {ImportStructuralVariantBgJob.spec_name: ImportStructuralVariantBgJob}
+    job_specs = {
+        ImportStructuralVariantBgJob.spec_name: ImportStructuralVariantBgJob,
+        BuildBackgroundSvSetJob.spec_name: BuildBackgroundSvSetJob,
+        CleanupBackgroundSvSetJob.spec_name: CleanupBackgroundSvSetJob,
+    }
 
     def get_extra_data_link(self, _extra_data, _name):
         """Return a link for timeline label starting with 'extra-'"""

@@ -44,4 +44,15 @@ urlpatterns = [
         view=views.ImportStructuralVariantsJobDetailView.as_view(),
         name="import-job-detail",
     ),
+    # Views related to background SV jobs.
+    url(
+        regex=r"^build-bg-sv/(?P<job>[0-9a-f-]+)/$",
+        view=views.BuildBackgroundSvSetJobDetailView.as_view(),
+        name="build-bg-sv-set-job-detail",
+    ),
+    url(
+        regex=r"^cleanup-bg-sv/(?P<job>[0-9a-f-]+)/$",
+        view=views.CleanupBackgroundSvSetJobDetailView.as_view(),
+        name="cleanup-bg-sv-set-job-detail",
+    ),
 ]

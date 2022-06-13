@@ -1,0 +1,687 @@
+"""Code that supports building the structural variant background database."""
+import gc
+import math
+import os
+import tempfile
+
+import attrs
+from contextlib import contextmanager
+import enum
+import json
+import logging
+import pathlib
+import random
+import re
+import statistics
+import sys
+import typing
+
+import binning
+import cattr
+from django.conf import settings
+from django.db import transaction
+from django.db.models import Q
+from django.utils import timezone
+from intervaltree import Interval, IntervalTree
+from projectroles.plugins import get_backend_api
+import psutil
+from sqlalchemy import delete
+
+from svs.models import (
+    SV_SUB_TYPE_CHOICES as _SV_SUB_TYPE_CHOICES,
+    SV_SUB_TYPE_BND as _SV_SUB_TYPE_BND,
+    SV_SUB_TYPE_INS as _SV_SUB_TYPE_INS,
+    StructuralVariant,
+    BackgroundSvSet,
+    BuildBackgroundSvSetJob,
+    BackgroundSv,
+    CleanupBackgroundSvSetJob,
+)
+from varfish import __version__ as varfish_version
+
+
+#: Logger to use in this module.
+from variants.helpers import get_engine, get_meta
+from variants.models import CHROMOSOME_NAMES, CHROMOSOME_STR_TO_CHROMOSOME_INT
+
+LOGGER = logging.getLogger(__name__)
+
+#: The SV types to be used in ``SvRecord``.
+SV_TYPES = [t[0] for t in _SV_SUB_TYPE_CHOICES]
+
+
+@attrs.define
+class ClusterAlgoParams:
+    """Parameters for the clustering algorithm"""
+
+    #: Seed to use for random numbers.
+    seed: int = 42
+    #: Maximal size of a cluster before subsampling.
+    cluster_max_size: int = 500
+    #: Maximal size of a cluster after subsampling.
+    cluster_size_sample_to: int = 100
+    #: Minimal jaccard overlap.
+    min_jaccard_overlap: float = 0.7
+    #: Slack to allow around breakend breakends (and INSertions).
+    bnd_slack: int = 50
+
+
+def _file_name_safe(s: str) -> str:
+    """Make the given string file name safe.
+
+    This is done by making all not explicitely allowed character underscores.
+    """
+    return re.sub(r"[^a-zA-Z]", "_", s)
+
+
+class PairedEndOrientation(enum.Enum):
+    """Enumeration type for SV connectivity (important for deciding for merge compatibility)."""
+
+    #: Indicate 3' to 5' connection.
+    THREE_TO_FIVE = "3to5"
+    #: Indicate 5' to 3' connection.
+    FIVE_TO_THREE = "5to3"
+    #: Indicate 3' to 3' connection.
+    THREE_TO_THREE = "3to3"
+    #: Indicate 5' to 5' connection.
+    FIVE_TO_FIVE = "5to5"
+
+
+@attrs.define(frozen=True)
+class GenotypeCounts:
+    """Represents genotype counts for an SV record."""
+
+    #: Number of source records (families) this record was built from
+    src_count: int = 0
+    #: Number of carriers
+    carriers: int = 0
+    #: Number of heterozygous carriers
+    carriers_het: int = 0
+    #: Number of homozygous carriers
+    carriers_hom: int = 0
+    #: Number of hemizygous carriers
+    carriers_hemi: int = 0
+
+    def plus(self, other: "GenotypeCounts") -> "GenotypeCounts":
+        """Add ``self`` and ``other``."""
+        return GenotypeCounts(
+            src_count=self.src_count + other.src_count,
+            carriers=self.carriers + other.carriers,
+            carriers_het=self.carriers_het + other.carriers_het,
+            carriers_hom=self.carriers_hom + other.carriers_hom,
+            carriers_hemi=self.carriers_hemi + other.carriers_hemi,
+        )
+
+
+@attrs.define(frozen=True)
+class SvRecord:
+    """Represents a structural variant record as used in the SV clustering algorithm.
+
+    The clustering algorithm currently ignores the uncertainty specification of variants (IOW: ci_*).
+    """
+
+    #: Genome build version
+    release: str
+    #: The structural variant type
+    sv_type: str
+    #: The chromosome of the left chromosomal position
+    chrom: str
+    #: 1-based start position
+    pos: int
+    #: The chromosome of the right chromosomal position
+    chrom2: str
+    #: 1-based end position of the variant
+    end: int
+    #: Paired-end connectivity type
+    orientation: typing.Optional[PairedEndOrientation] = None
+    #: Genotype counds
+    counts: GenotypeCounts = attrs.field(factory=GenotypeCounts)
+
+    def does_overlap(self, other: "SvRecord", *, bnd_slack: typing.Optional[int] = None) -> bool:
+        """Returns whether the two records overlap."""
+        if self.release != other.release:  # pragma: nocover
+            raise ValueError(f"Incompatible release values: {self.release} vs {other.release}")
+        if self.sv_type != other.sv_type:  # pragma: nocover
+            raise ValueError(f"Incompatible sv_type values: {self.sv_type} vs {other.sv_type}")
+        if (bnd_slack is None) == (self.is_bnd() or self.is_ins()):
+            raise ValueError(f"Should specify bnd_slack if and only if SV is a breakend (or INS)")
+        if self.is_bnd():  # break-end, potentially non-linear SV
+            return (
+                self.chrom == other.chrom
+                and abs(self.pos - other.pos) <= bnd_slack
+                and self.chrom2 == other.chrom2
+                and abs(self.end - other.end) <= bnd_slack
+            )
+        elif self.is_ins():  # insertion / "point SV"
+            return self.chrom == other.chrom and abs(self.pos - other.pos) <= bnd_slack
+        else:  # linear SV
+            return self.chrom == other.chrom and self.pos <= other.end and self.end >= other.pos
+
+    def jaccard_index(self, other: "SvRecord") -> typing.Optional[float]:
+        """Return jaccard index of overlap between ``self`` and ``other``.
+
+        Raises an ``ValueError` if ``release`` or ``sv_type`` are not the same.
+        """
+        if self.is_bnd() or other.is_bnd() or self.is_ins() or other.is_ins():
+            raise ValueError(f"Cannot compute Jaccard overlap for break-ends and INS!")
+        if self.does_overlap(other):
+            len_union = max(self.end, other.end) + 1 - min(self.pos, other.pos)
+            len_intersect = min(self.end, other.end) + 1 - max(self.pos, other.pos)
+            return len_intersect / len_union
+        else:
+            return 0.0
+
+    def is_compatible(self, other: "SvRecord", bnd_slack: int) -> bool:
+        """Determine whether the two records ``self`` and ``other`` are compatible to be merged in principle.
+
+        That is, they must be of the same SV type and overlap.
+        """
+        if self.sv_type != other.sv_type:
+            return False
+        if self.is_bnd():  # => other.is_bnd() is True
+            return (
+                self.does_overlap(other, bnd_slack=bnd_slack)
+                and self.orientation == other.orientation
+            )
+        elif self.is_ins():  # => other.is_ins() is True
+            return self.does_overlap(other, bnd_slack=bnd_slack)
+        else:
+            return self.does_overlap(other)
+
+    def is_bnd(self) -> bool:
+        """Returns whether the record is a breakend."""
+        return self.sv_type == _SV_SUB_TYPE_BND
+
+    def is_ins(self) -> bool:
+        """Returns whether the record is an insertion."""
+        return self.sv_type.startswith(_SV_SUB_TYPE_INS)
+
+    def build_interval(
+        self, *, data: typing.Optional[typing.Any] = None, bnd_slack: int = 0
+    ) -> Interval:
+        if self.is_bnd() or self.is_ins():
+            return Interval(self.pos - bnd_slack, self.end + bnd_slack, data)
+        else:
+            return Interval(self.pos, self.end, data)
+
+    def sort_key(self):
+        return (self.chrom, self.pos)
+
+
+@attrs.define
+class SvCluster:
+    """Define one SV cluster by a median representation and backing records"""
+
+    #: The clustering algorithm parameters.
+    params: ClusterAlgoParams
+    #: The random number generator to use
+    rng: random.Random = attrs.field(repr=False)
+    #: The mean representing ``SvRecord``
+    mean: typing.Optional[SvRecord] = None
+    #: The list of records backing the cluster
+    records: typing.List[SvRecord] = attrs.field(default=attrs.Factory(list))
+    #: The overall genotype counts
+    counts: GenotypeCounts = attrs.field(factory=GenotypeCounts)
+
+    def augment(self, record: SvRecord) -> None:
+        """Augment the given cluster
+
+        Raises ``ValueError`` if record incompatible with mean (if exists) by release,
+        sv_type, chrom, or chrom2.
+        """
+        if self.mean:
+            for key in ("release", "sv_type", "chrom", "chrom2"):
+                if getattr(record, key) != getattr(self.mean, key):  # pragma: nocover
+                    raise ValueError(f"Incompatible record ({record}) vs mean ({self.mean}")
+            if not self.mean.is_compatible(record, bnd_slack=self.params.bnd_slack):
+                raise ValueError(f"Incompatible record ({record}) vs mean ({self.mean}")
+        # Perform augmentation and sub-sample records when necessary.  Update mean in any case.
+        self._augment(record)
+        if len(self.records) > self.params.cluster_max_size:
+            self._sub_sample()
+        self.mean = self._compute_mean()
+        self.counts = self.counts.plus(record.counts)
+
+    def _augment(self, record: SvRecord) -> None:
+        """Augment cluster with the given ``record``"""
+        self.records.append(record)
+
+    def _sub_sample(self) -> None:
+        """Sub sample the records of this cluster and re-compute mean"""
+        self.records = self.rng.choices(self.records, k=self.params.cluster_size_sample_to)
+        self.mean = self._compute_mean()
+
+    def _compute_mean(self) -> SvRecord:
+        """Compute the mean of this cluster's record"""
+        pos = math.floor(statistics.mean([r.pos for r in self.records]))
+        end = math.ceil(statistics.mean([r.end for r in self.records]))
+        end = max(end, pos + 1)
+        return attrs.evolve(self.records[0], pos=pos, end=end,)
+
+    def sort_key(self):
+        if self.mean is None:
+            return ("", -1000)
+        else:
+            return self.mean.sort_key()
+
+    def normalized(self):
+        """Normalized output (e.g., for tests)"""
+        return attrs.evolve(self, records=list(sorted(self.records, key=SvRecord.sort_key)))
+
+
+class ClusterSvAlgorithm:
+    """This class encapsulates the state of the SV clustering algorithm using ``attrs`` based data structures.
+
+    Data is processed per ``(variant_type, chromosome)`` in memory and stored.
+
+    Protocol is:
+
+    .. code-block:: python
+
+        params = ClusterAlgoParams()
+        algo = ClusterSvAlgorithm(params)
+        for chrom in ["chr1", "chr2"]:
+            db_records = DATABASE_QUERY()
+            with algo.on_chrom(chrom):  # accept pushes in block
+                for db_record in db_records:
+                    sv_record: SvRecord = BUILD_SV_RECORD(db_record)
+                    algo.push(sv_record)
+            clusters = algo.cluster()
+            # ...
+
+    """
+
+    def __init__(self, params: ClusterAlgoParams):
+        self.params = params
+        #: Which chromosome the algorithm is on, if any.
+        self.current_chrom: typing.Optional[str] = None
+        #: Clusters on the current chromosome, if any
+        self.clusters: typing.List[SvRecord] = None
+        #: Chromosomes that the algorithm has seen so far.
+        self.seen_chroms: typing.Set[str] = set()
+        #: Temporary directory to write to.
+        self.tmp_dir: typing.Optional[pathlib.Path] = None
+        #: Temporary storage file per SV type.
+        self.tmp_files: typing.Dict[str, typing.IO[str]] = {}
+        #: The random number generator to use
+        self.rng: random.Random = random.Random(self.params.seed)
+
+    @contextmanager
+    def on_chrom(self, chrom: str):
+        """Start clustering for a new chromosome used as a context manager.
+
+        On exiting the context manager, all temporary files will be closed.
+        """
+        LOGGER.error("Starting collection of SV records for chromosome %s", chrom)
+        if chrom in self.seen_chroms:  # pragma: nocover
+            raise RuntimeError(f"Seen chromosome {chrom} already!")
+        else:
+            self.seen_chroms.add(chrom)
+        self.current_chrom = chrom
+        self.clusters = None
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            LOGGER.error("Opening temporary files for chrom %s", chrom)
+            self.tmp_dir = pathlib.Path(tmp_dir)
+            for sv_type in SV_TYPES:
+                self.tmp_files[sv_type] = (self.tmp_dir / _file_name_safe(sv_type)).open("wt+")
+            yield
+            LOGGER.error("Closing temporary files again for chrom %s", chrom)
+            for tmp_file in self.tmp_files.values():
+                tmp_file.close()
+            self.tmp_dir = None
+            self.tmp_files = {}
+        LOGGER.error("Done with collecting SV records for chromosome %s", chrom)
+
+    def push(self, record: SvRecord) -> None:
+        """Push the ``record`` on the current chromosome to the appropriate file in ``self.tmp_dir``."""
+        if not self.tmp_files:  # pragma: nocover
+            raise RuntimeError("Invalid state, for push(), no temporary files open!")
+        LOGGER.debug("Writing record %s", record)
+        print(json.dumps(cattr.unstructure(record)), file=self.tmp_files[record.sv_type])
+
+    def cluster(self) -> typing.List[SvCluster]:
+        """Execute the clustering for the current chromosome and return clusters.
+
+        The resulting clusters will be sorted by start position (empty clusters first)
+        """
+        if not self.tmp_files:  # pragma: nocover
+            raise RuntimeError("Invalid state, for cluster(), no temporary files open!")
+        if self.clusters is None:
+            LOGGER.error("Starting clustering on chromosome %s", self.current_chrom)
+            self.clusters = []
+            for sv_type, tmp_file in self.tmp_files.items():
+                process = psutil.Process(os.getpid())
+                rss_mb = process.memory_info().rss // 1024 // 1024
+                LOGGER.info(
+                    f"... clustering SV type {sv_type} with RSS {rss_mb} MB", file=sys.stderr
+                )
+                print(
+                    f"... clustering SV type {sv_type} with RSS {rss_mb} MB", file=sys.stderr
+                )  # XXX
+                tmp_file.flush()
+                tmp_file.seek(0)
+                self.clusters += self._cluster_impl(sv_type, tmp_file)
+            self.clusters.sort(key=SvCluster.sort_key)
+            LOGGER.error("Done with clustering on chromosome %s", self.current_chrom)
+        return self.clusters
+
+    def _cluster_impl(self, sv_type: str, tmp_file: typing.IO[str]) -> typing.List[SvCluster]:
+        """Implementation of the clustering step for a given SV type and with a given temporary file"""
+        #: Load records from disk and shuffle
+        sv_records = []
+        for line in tmp_file:
+            LOGGER.debug("Read line %s", repr(line))
+            sv_record = cattr.structure(json.loads(line), SvRecord)
+            if sv_record.sv_type != sv_type:  # pragma: nocover
+                raise ValueError(
+                    f"Unexpected SV type. Is: {sv_record.sv_type}, expected {sv_type}."
+                )
+            sv_records.append(sv_record)
+        self.rng.shuffle(sv_records)
+
+        # Maintain an interval tree of clusters (interval is cluster mean).  Go over the SV records in random
+        # order (implied after shuffling above) and assign to best fitting compatible cluster.
+        tree = IntervalTree()
+        clusters: typing.List[SvCluster] = []
+        for sv_record in sv_records:
+            # Find all overlapping clusters from the interval tree
+            sv_interval = sv_record.build_interval(bnd_slack=self.params.bnd_slack)
+            ovl_intervals: typing.Set[Interval] = tree.overlap(sv_interval.begin, sv_interval.end)
+            ovl_indices: typing.List[int] = [interval.data for interval in ovl_intervals]
+            best_index: typing.Optional[int] = None
+            best_jaccard: typing.Optional[float] = None
+
+            # Identify the best overlapping cluster, if any
+            for curr_index in ovl_indices:
+                curr_mean = clusters[curr_index].mean
+                if sv_record.is_bnd() or sv_record.is_ins():
+                    if sv_record.is_compatible(curr_mean, bnd_slack=self.params.bnd_slack):
+                        best_index = curr_index
+                else:
+                    curr_jaccard = curr_mean.jaccard_index(sv_record)
+                    if best_index is None or curr_jaccard > best_jaccard:
+                        best_index = curr_index
+                        best_jaccard = curr_jaccard
+
+            # Create new cluster or update existing one
+            if best_index is None:
+                LOGGER.debug("Found no cluster for SV record %s (create new one)", sv_record)
+                # print("Found no cluster for SV record %s (create new one)" % sv_record)
+                # Create new cluster and add it to the tree with initial mean.
+                best_index = len(clusters)
+                sv_cluster = SvCluster(params=self.params, rng=self.rng)
+                sv_cluster.augment(sv_record)
+                clusters.append(sv_cluster)
+                tree.add(sv_cluster.mean.build_interval(data=best_index))
+            else:
+                LOGGER.debug(
+                    "Found cluster %s for SV record %s (will update)",
+                    clusters[best_index],
+                    sv_record,
+                )
+                # print(
+                #     "Found cluster %s for SV record %s (will update)"
+                #     % (clusters[best_index], sv_record),
+                # )
+                # Remove cluster from tree temporarily, update cluster, add back to tree with new mean.
+                sv_cluster = clusters[best_index]
+                tree.remove(sv_cluster.mean.build_interval(data=best_index))
+                sv_cluster.augment(sv_record)
+                tree.add(sv_cluster.mean.build_interval(data=best_index))
+
+        return clusters
+
+
+def _fixup_sv_type(sv_type: str) -> str:
+    return sv_type.replace("_", ":")
+
+
+def _fill_null_counts(record, sex=None):
+    """Helper to fill NULL ``num_*`` fields in ``record`` based on genotype and optionally a mapping of
+    sample name to PED sex.
+    """
+    sex = sex or {}
+    record.num_hom_alt = 0
+    record.num_hom_ref = 0
+    record.num_het = 0
+    record.num_hemi_alt = 0
+    record.num_hemi_ref = 0
+    for k, v in record.genotype.items():
+        gt = v["gt"]
+        k_sex = sex.get(record.case_id, {}).get(k, 0)
+        if gt == "1":
+            record.num_hemi_alt += 1
+        elif gt == "0":
+            record.num_hemi_ref += 1
+        elif gt in ("0/1", "1/0", "0|1", "1|0"):
+            record.num_het += 1
+        elif gt in ("0/0", "0|0"):
+            if "x" in record.chromosome.lower() and k_sex == 1:
+                record.num_hemi_ref += 1
+            else:
+                record.num_hom_ref += 1
+        elif gt in ("1|1", "1|1"):
+            if "x" in record.chromosome.lower() and k_sex == 1:
+                record.num_hemi_alt += 1
+            else:
+                record.num_hom_alt += 1
+
+
+def sv_model_to_attrs(model_record: StructuralVariant) -> SvRecord:
+    """Conversion from ``StructuralVariant`` to ``SvRecord`` for use in clustering."""
+    _fill_null_counts(model_record)
+    counts = GenotypeCounts(
+        src_count=1,
+        carriers=(model_record.num_het or 0)
+        + (model_record.num_hom_alt or 0)
+        + (model_record.num_hemi_alt or 0),
+        carriers_het=model_record.num_het or 0,
+        carriers_hom=model_record.num_hom_alt or 0,
+        carriers_hemi=model_record.num_hemi_alt or 0,
+    )
+    # We write out chrom2=chrom1 etc. to work around NULL values left-over from old SVs
+    return SvRecord(
+        release=model_record.release,
+        sv_type=_fixup_sv_type(model_record.sv_type),
+        chrom=model_record.chromosome,
+        pos=model_record.start,
+        chrom2=model_record.chromosome2 or model_record.chromosome,
+        end=model_record.end,
+        orientation=model_record.pe_orientation,
+        counts=counts,
+    )
+
+
+def sv_cluster_to_model_args(sv_cluster: SvCluster) -> typing.Dict[str, typing.Any]:
+    """Conversion from ``SvCluster`` to args for creation of ``BackgroundSv``."""
+    chrom_nochr = (
+        sv_cluster.mean.chrom
+        if not sv_cluster.mean.chrom.startswith("chrm")
+        else sv_cluster.mean.chrom[3:]
+    )
+    chrom2_nochr = (
+        sv_cluster.mean.chrom2
+        if not sv_cluster.mean.chrom.startswith("chrm")
+        else sv_cluster.mean.chrom2[3:]
+    )
+    mean = sv_cluster.mean
+    if mean.chrom == mean.chrom2:
+        bin = binning.assign_bin(mean.pos, mean.end)
+    else:
+        bin = binning.assign_bin(mean.pos, mean.pos + 1)
+    return {
+        "release": mean.release,
+        "chromosome": mean.chrom,
+        "chromosome_no": CHROMOSOME_STR_TO_CHROMOSOME_INT.get(chrom_nochr, 0),
+        "start": mean.pos,
+        "chromosome2": mean.chrom2,
+        "chromosome_no2": CHROMOSOME_STR_TO_CHROMOSOME_INT.get(chrom2_nochr, 0),
+        "end": mean.end,
+        "pe_orientation": mean.orientation.value if mean.orientation else None,
+        "bin": bin,
+        "sv_type": sv_cluster.mean.sv_type,
+        **cattr.unstructure(sv_cluster.counts),
+    }
+
+
+def _build_bg_sv_set_impl(
+    job: BuildBackgroundSvSetJob,
+    *,
+    log_to_stderr: bool = False,
+    chromosomes: typing.Optional[typing.List[str]] = None,
+) -> BackgroundSvSet:
+    genomebuild = job.genomebuild
+    chrom_pat = "%s" if genomebuild == "GRCh37" else "chr%s"
+
+    if log_to_stderr:
+
+        def log(msg: str):
+            job.add_log_entry(msg)
+            if log_to_stderr:
+                print(msg, file=sys.stderr)
+
+    else:
+        log = job.add_log_entry
+
+    log("Creating new bg_db_set in state 'initial'")
+    bg_sv_set = BackgroundSvSet.objects.create(
+        genomebuild=job.genomebuild, varfish_version=varfish_version, state="building"
+    )
+
+    log("Starting actual clustering")
+    params = ClusterAlgoParams()
+    algo = ClusterSvAlgorithm(params)
+    record_count = 0
+
+    for chrom_name in chromosomes or CHROMOSOME_NAMES:
+        chrom = chrom_pat % chrom_name
+        log("Starting with chromosome %s for genome build %s" % (chrom, genomebuild))
+        chunk_size = 10_000
+        with algo.on_chrom(chrom):  # accept pushes in block
+            for num, db_record in enumerate(
+                StructuralVariant.objects.filter(release=genomebuild, chromosome=chrom).iterator(
+                    chunk_size=chunk_size
+                )
+            ):
+                sv_record = sv_model_to_attrs(db_record)
+                algo.push(sv_record)
+                record_count += 1
+                if num % 10_000 == 0:
+                    if log_to_stderr:
+                        process = psutil.Process(os.getpid())
+                        rss_mb = process.memory_info().rss // 1024 // 1024
+                        print(f"... at record {num} with RSS {rss_mb} MB", file=sys.stderr)
+                    gc.collect()
+            clusters = algo.cluster()
+        log("Built %d clusters from %d records" % (len(clusters), record_count))
+
+        log("Constructing background SV set records...")
+        for cluster in clusters:
+            BackgroundSv.objects.create(bg_sv_set=bg_sv_set, **sv_cluster_to_model_args(cluster))
+
+        log("... done constructing background SV set records.")
+        log("Done with chromosome %s for genome build %s" % (chrom, genomebuild))
+
+    with transaction.atomic():
+        bg_sv_set.refresh_from_db()
+        bg_sv_set.state = "active"
+        bg_sv_set.save()
+    return bg_sv_set
+
+
+def build_bg_sv_set(
+    job: BuildBackgroundSvSetJob,
+    *,
+    log_to_stderr: bool = False,
+    chromosomes: typing.Optional[typing.List[str]] = None,
+) -> BackgroundSvSet:
+    """Construct a new ``BackgroundSvSet`` """
+    job.mark_start()
+    timeline = get_backend_api("timeline_backend")
+    if timeline:
+        tl_event = timeline.add_event(
+            project=None,
+            app_name="svs",
+            user=None,
+            event_name="svs_build_bg_sv_set",
+            description="build background sv set",
+            status_type="INIT",
+        )
+    try:
+        job.add_log_entry("Starting creation of background SV set...")
+        result = _build_bg_sv_set_impl(job, log_to_stderr=log_to_stderr, chromosomes=chromosomes)
+        job.add_log_entry("... done creating background SV set.")
+    except Exception as e:
+        job.mark_error(e)
+        if timeline:
+            tl_event.set_status("FAILED", "failed to build background sv set")
+        raise
+    else:
+        job.mark_success()
+        if timeline:
+            tl_event.set_status("OK", "building background sv set complete")
+        return result
+
+
+def _cleanup_bg_sv_sets(
+    job: CleanupBackgroundSvSetJob, *, timeout_hours: typing.Optional[int] = None
+) -> None:
+    meta = get_meta()
+    sa_table_set = meta.tables[BackgroundSvSet._meta.db_table]
+    query_set = delete(sa_table_set)
+
+    # Keep latest two active
+    active_sets = BackgroundSvSet.objects.filter(state="active").order_by("-date_created")
+    keep_ids = []
+    if active_sets.count():
+        keep_ids += [s.id for s in active_sets[:2]]
+    # Keep building ones that are younger than ``build_timeout_hours``
+    if timeout_hours >= 0:
+        hours_ago = timezone.now() - timezone.timedelta(hours=timeout_hours)
+        young_sets = BackgroundSvSet.objects.filter(
+            (~Q(state="active")) & Q(date_created__lt=hours_ago)
+        )
+        keep_ids += [s.id for s in young_sets]
+
+    sa_table_sv = meta.tables[BackgroundSv._meta.db_table]
+    query_sv = delete(sa_table_sv)
+    if keep_ids:
+        query_sv = query_sv.where(sa_table_sv.c.bg_sv_set_id.not_in(keep_ids))
+    get_engine().execute(query_sv)
+
+    if keep_ids:
+        query_set = query_set.where(sa_table_set.c.id.not_in(keep_ids))
+    else:
+        query_set = query_set.where(True)
+    get_engine().execute(query_set)
+
+
+def cleanup_bg_sv_sets(
+    job: CleanupBackgroundSvSetJob, *, timeout_hours: typing.Optional[int] = None
+) -> None:
+    """Cleanup old background SV sets"""
+    timeout_hours = timeout_hours or settings.SV_CLEANUP_BUILDING_SV_SETS
+    job.mark_start()
+    timeline = get_backend_api("timeline_backend")
+    if timeline:
+        tl_event = timeline.add_event(
+            project=None,
+            app_name="svs",
+            user=None,
+            event_name="svs_cleanup_bg_sv_sets",
+            description="cleanup background sv set",
+            status_type="INIT",
+        )
+    try:
+        job.add_log_entry("Starting cleanup of background SVs...")
+        _cleanup_bg_sv_sets(job, timeout_hours=timeout_hours)
+        job.add_log_entry("... done cleaning up background SVs.")
+    except Exception as e:
+        job.mark_error(e)
+        if timeline:
+            tl_event.set_status("FAILED", "failed to clean up background SVs")
+        raise
+    else:
+        job.mark_success()
+        if timeline:
+            tl_event.set_status("OK", "cleaning up background SVs complete")

@@ -9,6 +9,7 @@ from django.core.management import BaseCommand
 from tqdm import tqdm
 
 from svs.models import StructuralVariant
+from svs import bg_db
 from variants.models import Case
 
 
@@ -40,29 +41,6 @@ class Command(BaseCommand):
             record.chromosome_no2 = record.chromosome_no
             record.bin2 = record.bin
 
-            record.num_hom_alt = 0
-            record.num_hom_ref = 0
-            record.num_het = 0
-            record.num_hemi_alt = 0
-            record.num_hemi_ref = 0
-            for k, v in record.genotype.items():
-                gt = v["gt"]
-                k_sex = sex.get(record.case_id, {}).get(k, 0)
-                if gt == "1":
-                    record.num_hemi_alt += 1
-                elif gt == "0":
-                    record.num_hemi_ref += 1
-                elif gt in ("0/1", "1/0", "0|1", "1|0"):
-                    record.num_het += 1
-                elif gt in ("0/0", "0|0"):
-                    if "x" in record.chromosome.lower() and k_sex == 1:
-                        record.num_hemi_ref += 1
-                    else:
-                        record.num_hom_ref += 1
-                elif gt in ("1|1", "1|1"):
-                    if "x" in record.chromosome.lower() and k_sex == 1:
-                        record.num_hemi_alt += 1
-                    else:
-                        record.num_hom_alt += 1
+            bg_db._fill_null_counts(record, sex)
             record.save()
         self.stderr.write("... all done, have a nice day!")

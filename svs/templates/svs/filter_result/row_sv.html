@@ -78,14 +78,8 @@
     {% endif %}
   </td>
 
-  <td class="text-muted text-nowrap text-center">
-    {% spaceless %}
-    <span class="{% if first_entry.info.affectedCarriers %}text-dark{% endif %}" data-tooltip="tooltip" title="affected carriers (in pedigree)">{{ first_entry.info.affectedCarriers }}</span>
-    <span>/</span>
-    <span class="{% if first_entry.info.unaffectedCarriers %}text-dark{% endif %}" data-tooltip="tooltip" title="unaffected carriers (in pedigree)">{{ first_entry.info.unaffectedCarriers }}</span>
-    <span>/</span>
-    <span class="{% if first_entry.info.backgroundCarriers %}text-dark{% endif %}" data-tooltip="tooltip" title="carriers in background (outside pedigree)">{{ first_entry.info.backgroundCarriers }}</span>
-    {% endspaceless %}
+  <td class="text-center {% if first_entry.inhouse_overlap_count %}text-dark{% else %}text-muted{% endif %}">
+   {{ first_entry.inhouse_overlap_count|default:0|intcomma }}
   </td>
   <td class="text-center {% if first_entry.g1k_overlap_count %}text-dark{% else %}text-muted{% endif %}">
     {{ first_entry.g1k_overlap_count|default:0|intcomma }}

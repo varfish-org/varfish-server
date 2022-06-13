@@ -19,8 +19,9 @@
         </strong>
       </div>
       <div class="pl-3">
-        {{ rows_by_sv|length|intcomma }} SV calls
-        {% if object %}(case has a total of {{ object.num_svs|intcomma }}{% endif %} SV calls)
+        Displaying {{ rows_by_sv|length|intcomma }} SV calls.
+        {% if num_results >= results_limit %}(truncated, total in result: {{ num_results }}){% endif %}
+        {% if object %}Case has a total of {{ object.num_svs|intcomma }} SV calls.{% endif %}
       </div>
       <div class="pl-3">
         Using

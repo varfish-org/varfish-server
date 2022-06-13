@@ -92,7 +92,19 @@ else:
                 ADD num_het integer NULL,
                 ADD num_hemi_alt integer NULL,
                 ADD num_hemi_ref integer NULL;
-            """
+            """,
+            r"""
+            ALTER TABLE svs_structuralvariant
+                DROP COLUMN chromosome2,
+                DROP COLUMN chromosome_no2,
+                DROP COLUMN bin2,
+                DROP COLUMN pe_orientation,
+                DROP COLUMN num_hom_alt,
+                DROP COLUMN num_hom_ref,
+                DROP COLUMN num_het,
+                DROP COLUMN num_hemi_alt,
+                DROP COLUMN num_hemi_ref;
+            """,
         ),
     ]
 
