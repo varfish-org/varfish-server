@@ -1219,14 +1219,25 @@ class ExtendQueryPartsFlagsJoinAndFilter(ExtendQueryPartsFlagsJoin):
     def extend_conditions(self, _query_parts):
         """Build WHERE clause for the query based on the ``SmallVariantFlags`` and ``SmallVariantComment``."""
         terms = []
+        not_terms = [true()]
+        none_terms = [true()]
         # Add terms for the simple, boolean-valued flags.
-        flag_names = ("bookmarked", "candidate", "final_causative", "for_validation")
+        flag_names = (
+            "bookmarked",
+            "candidate",
+            "final_causative",
+            "for_validation",
+            "segregates",
+            "doesnt_segregate",
+            "no_disease_association",
+        )
         for flag in flag_names:
             flag_name = "flag_%s" % flag
             if self.kwargs.get(flag_name):
                 terms.append(column(flag_name))
-        if self.kwargs.get("flag_simple_empty"):
-            terms.append(and_(not_(column("flag_%s" % flag))))
+            if self.kwargs.get("flag_simple_empty"):
+                not_terms.append(not_(column(flag_name)))
+                none_terms.append(column(flag_name).is_(None))
         # Add terms for the valued flags.
         flag_names = ("visual", "validation", "molecular", "phenotype_match", "summary")
         for flag in flag_names:
@@ -1237,7 +1248,7 @@ class ExtendQueryPartsFlagsJoinAndFilter(ExtendQueryPartsFlagsJoin):
                     terms.append(column(flag_name) == value)
                     if value == "empty":
                         terms.append(column(flag_name).is_(None))
-        return [or_(*terms)]
+        return [or_(*terms, and_(*not_terms), and_(*none_terms))]
 
 
 class ExtendQueryPartsAcmgCriteriaJoin(ExtendQueryPartsBase):

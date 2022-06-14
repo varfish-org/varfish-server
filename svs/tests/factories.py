@@ -165,6 +165,9 @@ class StructuralVariantFlagsFactory(_UserAnnotationFactory):
     flag_candidate = False
     flag_final_causative = False
     flag_for_validation = False
+    flag_no_disease_association = False
+    flag_segregates = False
+    flag_doesnt_segregate = False
 
     flag_molecular = "empty"
     flag_visual = "empty"

@@ -185,6 +185,9 @@ class FormDataFactory(FormDataFactoryBase):
     flag_candidate: bool = True
     flag_final_causative: bool = True
     flag_for_validation: bool = True
+    flag_no_disease_association: bool = True
+    flag_segregates: bool = True
+    flag_doesnt_segregate: bool = True
     flag_phenotype_match_empty: bool = True
     flag_phenotype_match_negative: bool = True
     flag_phenotype_match_positive: bool = True
@@ -946,6 +949,9 @@ class SmallVariantFlagsFactory(factory.django.DjangoModelFactory):
     flag_candidate = False
     flag_final_causative = False
     flag_for_validation = False
+    flag_no_disease_association = False
+    flag_segregates = False
+    flag_doesnt_segregate = False
     flag_molecular = ""
     flag_visual = ""
     flag_validation = ""

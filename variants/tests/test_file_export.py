@@ -66,7 +66,7 @@ class CaseExporterTest(ExportTestBase):
     def _test_tabular(self, arrs, has_trailing):
         self.assertEquals(len(arrs), 4 + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 46)
+        self.assertEquals(len(arrs[0]), 49)
         self.assertSequenceEqual(arrs[0][:3], ["Chromosome", "Position", "Reference bases"])
         self.assertSequenceEqual(
             arrs[0][-5:],
@@ -207,7 +207,7 @@ class ProjectExportTest(TestCase):
     def _test_tabular(self, arrs, has_trailing):
         self.assertEquals(len(arrs), 5 + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 47)
+        self.assertEquals(len(arrs[0]), 50)
         self.assertSequenceEqual(arrs[0][:3], ["Sample", "Chromosome", "Position"])
         self.assertEqual(arrs[0][-1], "sample Alternate allele fraction")
         members = sorted(self.project.get_members())
@@ -411,7 +411,7 @@ class CohortExporterTest(TestCohortBase):
     def _test_tabular(self, arrs, ref, has_trailing, smallvars):
         self.assertEquals(len(arrs), ref + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 47)
+        self.assertEquals(len(arrs[0]), 50)
         self.assertSequenceEqual(arrs[0][:3], ["Sample", "Chromosome", "Position"])
         self.assertEqual(arrs[0][-1], "sample Alternate allele fraction")
         for i, small_var in enumerate(sorted(smallvars, key=lambda x: (x.chromosome_no, x.start))):

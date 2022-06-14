@@ -96,7 +96,7 @@ function clickVariantBookmark() {
         dataType: "json",
       }).done(function(data) {
         // successfully updated flags, update bookmark display
-        if (data["flag_bookmarked"] || data["flag_for_validation"] || data["flag_candidate"] || data["flag_final_causative"]) {
+        if (data["flag_bookmarked"] || data["flag_for_validation"] || data["flag_candidate"] || data["flag_final_causative"] || data["flag_no_disease_association"] || data["flag_segregates"] || data["flag_doesnt_segregate"]) {
           icon_bookmark.attr("src", "/icons/fa-solid/bookmark.svg");
         } else {
           icon_bookmark.attr("src", "/icons/fa-regular/bookmark.svg");
@@ -635,6 +635,9 @@ function clickVariantAcmgRatingModal(event) {
         flag_for_validation: false,
         flag_candidate: false,
         flag_final_causative: false,
+        flag_no_disease_association: false,
+        flag_segregates: false,
+        flag_doesnt_segregate: false,
         flag_visual: "empty",
         flag_validation: "empty",
         flag_phenotype_match: "empty",
@@ -776,6 +779,9 @@ function clickVariantAcmgRating() {
         flag_for_validation: false,
         flag_candidate: false,
         flag_final_causative: false,
+        flag_no_disease_association: false,
+        flag_segregates: false,
+        flag_doesnt_segregate: false,
         flag_visual: "empty",
         flag_validation: "empty",
         flag_phenotype_match: "empty",
