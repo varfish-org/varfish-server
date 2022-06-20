@@ -24,9 +24,11 @@ End-User Summary
 - Adjusting default frequency filters for "clinvar pathogenic" filter: remove all threshold (#464).
 - Adding note about difference with upstream Clinvar (#464).
 - Switching scoring to MutationTaster 85 interface, added back MT 85 link-out alongside MT 2021 link-out (#509).
-- Made flag filter and flag form nomenclature consistent (#297)
+- Made flag filter and flag form nomenclature consistent (#297).
 - Improved developer setup documentation and added Windows installation instructions (#533).
-- Fixed broken VariantValidator query (#523)
+- Fixed broken VariantValidator query (#523).
+- Fixed smallvariant flags filter query (#502).
+- Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 
 Full Change List
 ================
@@ -47,12 +49,14 @@ Full Change List
 - Adding note about difference with upstream Clinvar (#464).
 - Switching scoring to MutationTaster 85 interface, added back MT 85 link-out alongside MT 2021 link-out (#509).
 - CADD setup fix for documentation (#520)
-- Made flag filter and flag form nomenclature consistent (#297)
+- Made flag filter and flag form nomenclature consistent (#297).
 - Updating ``utility/*.sh`` scripts from "upstream" sodar-server (#531).
 - Improved developer setup documentation and added Windows installation instructions (#533).
 - Skip commit trailer checks for dependabot (#537).
-- Fixed broken VariantValidator query (#523)
+- Fixed broken VariantValidator query (#523).
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
+- Fixed smallvariant flags filter query (#502).
+- Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 
 ------
 v1.2.0
