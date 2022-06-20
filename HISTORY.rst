@@ -52,6 +52,7 @@ Full Change List
 - Improved developer setup documentation and added Windows installation instructions (#533).
 - Skip commit trailer checks for dependabot (#537).
 - Fixed broken VariantValidator query (#523)
+- Converted not cooperative tooltip to standard title on Filter & Display button (#508).
 
 ------
 v1.2.0
