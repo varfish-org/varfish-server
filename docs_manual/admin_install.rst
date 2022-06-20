@@ -84,9 +84,9 @@ We currently only provide prebuilt databases for either GRCh37 or GRCh38.
 
 .. code-block:: bash
 
-    $ wget --no-check-certificate https://file-public.cubi.bihealth.org/transient/varfish/anthenea/varfish-site-data-v1-20210728-grch37.tar.gz{,.sha256}
-    $ sha256sum --check varfish-site-data-v1-20210728-grch37.tar.gz.sha256
-    $ tar xf varfish-site-data-v1-20210728-grch37.tar.gz
+    $ wget --no-check-certificate https://file-public.cubi.bihealth.org/transient/varfish/anthenea/varfish-site-data-v1-20210728b-grch37.tar.gz{,.sha256}
+    $ sha256sum --check varfish-site-data-v1-20210728b-grch37.tar.gz.sha256
+    $ tar xf varfish-site-data-v1-20210728b-grch37.tar.gz
     $ ls volumes
     exomiser  jannovar  minio  postgres  redis  traefik
 
@@ -219,13 +219,13 @@ Modify the ``docker-compose.yml`` file by finding the following entry::
           - varfish
         restart: unless-stopped
         volumes:
-          - "/root/varfish-server-background-db-20210728:/data:ro"
+          - "/root/varfish-server-background-db-20210728b:/data:ro"
         [...]
 
 And add another volume that maps your directory into the container::
 
         volumes:
-          - "/root/varfish-server-background-db-20210728:/data:ro"
+          - "/root/varfish-server-background-db-20210728b:/data:ro"
           - type: bind
             source: varfish-db-downloader/
             target: /data-db-downloader

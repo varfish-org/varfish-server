@@ -48,19 +48,19 @@ The downloaded archive has a size of ~10 GB while the extracted data has a size 
 .. code-block:: bash
 
     $ GENOME=grch37      # alternatively use grch38
-    $ RELEASE=20210728
-    $ mkdir varfish-annotator-20210728-$GENOME
-    $ cd varfish-annotator-20210728-$GENOME
+    $ RELEASE=20210728b
+    $ mkdir varfish-annotator-$RELEASE-$GENOME
+    $ cd varfish-annotator-$RELEASE-$GENOME
     $ wget --no-check-certificate \
         https://file-public.cubi.bihealth.org/transient/varfish/anthenea/varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz{,.sha256} \
         https://file-public.cubi.bihealth.org/transient/varfish/anthenea/jannovar-db-$RELEASE-$GENOME.tar.gz{,.sha256}
     $ sha256sum --check varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz.sha256
-    varfish-annotator-db-20210728-grch37.h2.db.gz: OK
+    varfish-annotator-db-$RELEASE-grch37.h2.db.gz: OK
     $ sha256sum --check jannovar-db-$RELEASE-$GENOME.tar.gz.sha256
-    jannovar-db-20210728-grch37.tar.gz: OK
+    jannovar-db-$RELEASE-grch37.tar.gz: OK
     $ gzip -d varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz
     $ tar xf jannovar-db-$RELEASE-$GENOME.tar.gz
-    $ rm jannovar-db-20210728-$RELEASE.tar.gz{,.sha256} \
+    $ rm jannovar-db-$RELEASE-$RELEASE.tar.gz{,.sha256} \
         varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz.sha256
     $ mv jannovar-db-$RELEASE-$GENOME/* .
     $ rmdir jannovar-db-$RELEASE-$GENOME
@@ -100,9 +100,9 @@ You must provide an bgzip-compressed VCF file ``INPUT.vcf.gz``
         -XX:MaxHeapSize=10g \
         -XX:+UseConcMarkSweepGC \
         annotate \
-        --db-path varfish-annotator-20210728-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
-        --ensembl-ser-path varfish-annotator-20210728-$GENOME/ensembl*.ser \
-        --refseq-ser-path varfish-annotator-20210728-$GENOME/refseq_curated*.ser \
+        --db-path varfish-annotator-$RELEASE-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
+        --ensembl-ser-path varfish-annotator-$RELEASE-$GENOME/ensembl*.ser \
+        --refseq-ser-path varfish-annotator-$RELEASE-$GENOME/refseq_curated*.ser \
         --ref-path $REFERENCE \
         --input-vcf "INPUT.vcf.gz" \
         --release "$GENOME" \
@@ -132,9 +132,9 @@ While only release GRCh37/hg19 is supported, using a file with UCSC-style chromo
     :lineno-start: 4
     :dedent: 0
 
-        --db-path varfish-annotator-20210728-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
-        --ensembl-ser-path varfish-annotator-20210728-$GENOME/ensembl*.ser \
-        --refseq-ser-path varfish-annotator-20210728-$GENOME/refseq_curated*.ser \
+        --db-path varfish-annotator-$RELEASE-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
+        --ensembl-ser-path varfish-annotator-$RELEASE-$GENOME/ensembl*.ser \
+        --refseq-ser-path varfish-annotator-$RELEASE-$GENOME/refseq_curated*.ser \
         --ref-path $REFERENCE \
 
 The following lines provide the path to the input VCF file, specify the release name (must be ``GRCh37``) and the name of the case as written out.
@@ -221,9 +221,9 @@ Structural variants can be annotated as follows.
         --default-sv-method=YOURCALLERvVERSION"
         --release $GENOME \
         \
-        --db-path varfish-annotator-20210728-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
-        --ensembl-ser-path varfish-annotator-20210728-$GENOME/ensembl*.ser \
-        --refseq-ser-path varfish-annotator-20210728-$GENOME/refseq_curated*.ser \
+        --db-path varfish-annotator-$RELEASE-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
+        --ensembl-ser-path varfish-annotator-$RELEASE-$GENOME/ensembl*.ser \
+        --refseq-ser-path varfish-annotator-$RELEASE-$GENOME/refseq_curated*.ser \
         \
         --input-vcf FAM_sv_calls.vcf.gz \
         --output-db-info FAM_sv_calls.db-info.tsv \

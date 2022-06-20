@@ -29,6 +29,7 @@ End-User Summary
 - Fixed broken VariantValidator query (#523).
 - Fixed smallvariant flags filter query (#502).
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
+- Adjusting path to new varfish-annotator db download (#546).
 
 Full Change List
 ================
@@ -57,6 +58,7 @@ Full Change List
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
 - Fixed smallvariant flags filter query (#502).
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
+- Adjusting path to new varfish-annotator db download (#546).
 
 ------
 v1.2.0
