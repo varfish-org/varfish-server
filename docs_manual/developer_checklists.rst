@@ -22,8 +22,9 @@ Tasks:
 
         - [ ] edit `HISTORY.rst` and ensure a proper section is added
         - [ ] edit `admin_upgrade.rst` to reflect the upgrade instructions
+        - [ ] In bihealth/varfish-docker-compose, bump the version in `docker-compose.yml`
         - [ ] create a git tag `v.MAJOR.MINOR.PATCH` and `git push --tags`
-        - [ ] create a "Github release` based on the tag with the text
+        - [ ] create a "Github release" based on the tag with the text
 
               ```
               All details can be found in the `HISTORY.rst` file.

@@ -27,10 +27,10 @@ You can then apply the patch to your database with the following command.
 You can find out more details, give feedback, and ask for help `in this Github discussion <https://github.com/bihealth/varfish-server/discussions/451>`__.
 
 ------------------
-v0.23.0 to v1.2.0
+v0.23.0 to v1.2.1
 ------------------
 
-This includes all version in between, v0.23.1, ..., v1.2.0.
+This includes all version in between, v0.23.1, ..., v1.2.1.
 
 **Summary**
 
