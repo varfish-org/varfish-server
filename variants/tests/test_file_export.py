@@ -12,6 +12,7 @@ from test_plus.test import TestCase
 from timeline.models import ProjectEvent
 
 from cohorts.tests.factories import TestCohortBase
+from extra_annos.tests.factories import ExtraAnnoFieldFactory, ExtraAnnoFactory
 from variants.tests.factories import (
     SmallVariantFactory,
     ResubmitFormDataFactory,
@@ -34,6 +35,29 @@ class ExportTestBase(TestCase):
         self.superuser = self.make_user("superuser")
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
+        self.extra_anno = [
+            ExtraAnnoFactory(
+                release=self.small_vars[0].release,
+                chromosome=self.small_vars[0].chromosome,
+                start=self.small_vars[0].start,
+                end=self.small_vars[0].end,
+                bin=self.small_vars[0].bin,
+                reference=self.small_vars[0].reference,
+                alternative=self.small_vars[0].alternative,
+                anno_data=[9.89],
+            ),
+            ExtraAnnoFactory(
+                release=self.small_vars[2].release,
+                chromosome=self.small_vars[2].chromosome,
+                start=self.small_vars[2].start,
+                end=self.small_vars[2].end,
+                bin=self.small_vars[2].bin,
+                reference=self.small_vars[2].reference,
+                alternative=self.small_vars[2].alternative,
+                anno_data=[10.78],
+            ),
+        ]
+        self.extra_anno_field = ExtraAnnoFieldFactory()
         self.bg_job = BackgroundJob.objects.create(
             name="job name",
             project=Project.objects.first(),
@@ -66,7 +90,7 @@ class CaseExporterTest(ExportTestBase):
     def _test_tabular(self, arrs, has_trailing):
         self.assertEquals(len(arrs), 4 + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 49)
+        self.assertEquals(len(arrs[0]), 50)
         self.assertSequenceEqual(arrs[0][:3], ["Chromosome", "Position", "Reference bases"])
         self.assertSequenceEqual(
             arrs[0][-5:],
@@ -99,6 +123,10 @@ class CaseExporterTest(ExportTestBase):
                     )
                 ),
             )
+            if i == 0:
+                self.assertSequenceEqual(arrs[i + 1][-6:-5], ["9.89"])
+            elif i == 2:
+                self.assertSequenceEqual(arrs[i + 1][-6:-5], ["10.78"])
         if has_trailing:
             self.assertSequenceEqual(arrs[4], [""])
 

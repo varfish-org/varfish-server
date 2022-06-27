@@ -553,9 +553,6 @@ VARFISH_UMD_REST_API_URL = env.str(
     "VARFISH_UMD_REST_API_URL", "http://umd-predictor.eu/webservice.php"
 )
 
-# Varfish: extra annotations.
-VARFISH_ENABLE_EXTRA_ANNOS = env.bool("VARFISH_ENABLE_EXTRA_ANNOS", False)
-
 # Varfish: Jannovar
 # ------------------------------------------------------------------------------
 
