@@ -12,6 +12,7 @@ End-User Summary
 - Starting with branch of stable version Athenea (VarFish v1).
 - Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
+- Extra annotations in export completed and tested (#495).
 - Removing problematic username modification behaviour on login page (#459).
 - Displaying login page text from settings again (#458).
 - Suppress "submit to CADD" and "submit to SPANR" buttons for multi-case form (#478).

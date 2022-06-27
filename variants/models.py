@@ -2378,6 +2378,33 @@ class RowWithJointScore(wrapt.ObjectProxy):
             return self.__wrapped__.__getitem__(key)
 
 
+class RowWithExtraAnno(wrapt.ObjectProxy):
+    """Wrap a result row with extra annotations"""
+
+    def __init__(self, obj, fields, datas):
+        super().__init__(obj)
+        self._self_anno_fields = fields
+        if datas is not None:
+            self._self_anno_data = datas[0]
+        else:
+            self._self_anno_data = None
+
+    def find_id(self, key):
+        return self._self_anno_fields.get(key, -1)
+
+    def __getattr__(self, item):
+        return self.__getitem__(item)
+
+    def __getitem__(self, key):
+        id = self.find_id(key)
+        if id != -1:
+            if self._self_anno_data is None:
+                return None
+            return self._self_anno_data[id]
+        else:
+            return self.__wrapped__.__getitem__(key)
+
+
 def annotate_with_joint_scores(rows):
     """Annotate the results in ``rows`` with joint scores stored in ``small_variant_query``.
 
@@ -2421,6 +2448,15 @@ def annotate_with_joint_scores(rows):
             prev_gene = row.entrez_id
         row._self_joint_rank = rank
     return rows
+
+
+def unroll_extra_annos_result(rows, fields):
+    """unroll the extra annotation results in columns in such a way that all writer can operate on extra annotations.
+    """
+    # Get list of rows with extra annotations
+    rows_ = [RowWithExtraAnno(row, fields, getattr(row, "extra_annos")) for row in rows]
+
+    return rows_
 
 
 def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):

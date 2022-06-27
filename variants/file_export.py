@@ -7,6 +7,7 @@ from datetime import timedelta
 from tempfile import NamedTemporaryFile
 import contextlib
 
+from extra_annos.models import ExtraAnnoField
 from variants.helpers import get_engine
 from django.utils import timezone
 from django.conf import settings
@@ -24,6 +25,7 @@ from .models import (
     annotate_with_phenotype_scores,
     annotate_with_pathogenicity_scores,
     annotate_with_joint_scores,
+    unroll_extra_annos_result,
     prioritize_genes,
     VariantScoresFactory,
 )
@@ -152,6 +154,7 @@ HEADER_FORMAT = (
     ("aaf", "Alternate allele fraction", float),
 )
 
+
 #: Contig lenghts for GRCh37
 CONTIGS_GRCH37 = (
     ("1", 249250621),
@@ -266,6 +269,8 @@ class CaseExporterBase:
         self.members = self._get_members_sorted()
         #: The column information.
         self.columns = list(self._yield_columns(self.members))
+        #: the extra annotations field
+        self.fields = None
 
     def get_genomebuild(self):
         """Return genome build for case or cohort."""
@@ -318,6 +323,11 @@ class CaseExporterBase:
                     members.append(m["patient"])
         return sorted(members)
 
+    def get_extra_annos_headers(self):
+        self.fields = list(ExtraAnnoField.objects.all())
+
+        return ((f.label, f.label, str) for f in self.fields)
+
     def _yield_columns(self, members):
         """Yield column information."""
         if self.project_or_cohort:
@@ -335,6 +345,7 @@ class CaseExporterBase:
             header += HEADER_FLAGS
         if self.query_args["export_comments"]:
             header += HEADER_COMMENTS
+        header += self.get_extra_annos_headers()
         for lst in header:
             yield dict(zip(("name", "title", "type", "fixed"), list(lst) + [True]))
         for member in members:
@@ -371,6 +382,8 @@ class CaseExporterBase:
                 _result = annotate_with_pathogenicity_scores(_result, variant_scores)
             if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
                 _result = annotate_with_joint_scores(_result)
+            fields = {x[1].label: x[0] for x in enumerate(list(ExtraAnnoField.objects.all()))}
+            _result = unroll_extra_annos_result(_result, fields)
             self.job.add_log_entry("Writing output file...")
             total = len(_result)
             steps = math.ceil(total / 10)
