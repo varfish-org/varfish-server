@@ -52,10 +52,11 @@ class StructuralVariantFactory(factory.django.DjangoModelFactory):
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
     chromosome_no = factory.Iterator(list(range(1, 25)))
+    chromosome2 = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    chromosome_no2 = factory.Iterator(list(range(1, 25)))
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
-
-    bin = factory.LazyAttribute(lambda obj: binning.assign_bin(obj.start, obj.end))
+    pe_orientation = None
 
     start_ci_left = -100
     start_ci_right = 100
@@ -81,6 +82,26 @@ class StructuralVariantFactory(factory.django.DjangoModelFactory):
             for line, gt in zip(obj.case.pedigree, obj.genotypes())
         }
     )
+
+    num_hom_alt = 0
+    num_hom_ref = 0
+    num_het = 0
+    num_hemi_alt = 0
+    num_hemi_ref = 0
+
+    @factory.lazy_attribute
+    def bin(self):
+        if self.chromosome == self.chromosome2:
+            return binning.assign_bin(self.start, self.end)
+        else:
+            return binning.assign_bin(self.start, self.start + 1)
+
+    @factory.lazy_attribute
+    def bin2(self):
+        if self.chromosome == self.chromosome2:
+            return binning.assign_bin(self.start, self.end)
+        else:
+            return binning.assign_bin(self.end, self.end + 1)
 
     @factory.lazy_attribute
     def info(self):

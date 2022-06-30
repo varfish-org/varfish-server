@@ -30,13 +30,19 @@ End-User Summary
 - Improved developer setup documentation and added Windows installation instructions (#533).
 - Fixed broken VariantValidator query (#523).
 - Fixed smallvariant flags filter query (#502).
-- Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
+- Added flags ``segregates``, ``doesnt_segregate`` and ``no_disease_association`` to file export (#502).
 - Adjusting path to new varfish-annotator db download (#546).
 - Adding feature to enable and configure link-out to HGMD (#576).
 - Small variant filtration results now allow to easily look up second hits in the same gene (#573).
 - Structural filtration results now allow to easily look up second hits in the same gene (#574).
 - Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
 - Form template reports error if genomebuild variable is not set (#607).
+- The StructuralVariant model is augmented (#566).
+  This adds capability to properly represent break-end (BND) records.
+  Also, per--genotype type counts are added.
+  A full re-import after re-annotation with varfish-annotator v0.23 or above is recommended.
+  Alternatively, you can use ``python manage.py svs_sv_fill_nulls`` to update the records on the fly.
+- Implement new in-house background database for structural variants (#32).
 
 Full Change List
 ================
