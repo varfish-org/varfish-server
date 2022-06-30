@@ -148,13 +148,21 @@ class StructuralVariant(models.Model):
     chromosome = models.CharField(max_length=32)
     #: Chromosome as number
     chromosome_no = models.IntegerField()
+    #: The bin for indexing in case of linear SVs, in case of non-linear SVs the bin of pos.
+    bin = models.IntegerField()
+    #: Variant coordinates - chromosome of end position (equal to ``chromosome`` for linear variants)
+    chromosome2 = models.CharField(max_length=32, null=True)
+    #: Chromosome as number - of end position (equal to ``chromosome_no`` for linear variants)
+    chromosome_no2 = models.IntegerField(null=True)
+    #: In case of non-linear variants, the bin of end, otherwise equal to ``bin``.
+    bin2 = models.IntegerField(null=True)
+
     #: Variant coordinates - start position
     start = models.IntegerField()
     #: Variant coordinates - end position
     end = models.IntegerField()
-
-    #: The bin for indexing.
-    bin = models.IntegerField()
+    #: Paired-end orientation of SV, one of "3to3", "3to5", "5to3", or "5to5", or None.
+    pe_orientation = models.CharField(max_length=32, null=True, blank=True)
 
     #: Left boundary of CI of ``start``.
     start_ci_left = models.IntegerField()
@@ -192,6 +200,18 @@ class StructuralVariant(models.Model):
     #: - srv -- split read variants
     #: - ft  -- array of filter strings
     info = JSONField(default=dict, help_text="Further information of the structural variant")
+
+    #: Number of homozygous alternative genotypes.
+    num_hom_alt = models.IntegerField(null=True)
+    #: Number of homozygous reference genotypes.
+    num_hom_ref = models.IntegerField(null=True)
+    #: Number of heterozygous genotypes.
+    num_het = models.IntegerField(null=True)
+    #: Number of hemizygous alternative genotypes
+    num_hemi_alt = models.IntegerField(null=True)
+    #: Number of hemizygous reference occurences.
+    num_hemi_ref = models.IntegerField(null=True)
+
     #: Genotype calls and genotype-related information
     genotype = JSONField()
 

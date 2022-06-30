@@ -154,3 +154,15 @@ django-saml2-auth-ai>=2.1.6, <2.2
 # Code formatting.
 black ==19.10b0
 click >=8.0,<8.1
+
+# Editable interval trees
+intervaltree >=3.1.0,<4.0.0
+
+# Pretty tables
+prettytable >=3.3.0,<4.0
+
+# process introspection
+psutil >=5.9.0,<6.0
+
+# progress display
+tqdm
