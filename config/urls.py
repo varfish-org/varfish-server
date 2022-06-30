@@ -84,15 +84,23 @@ urlpatterns += [
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
-# Augment url patterns with proxy for genomics england panelapp.
 urlpatterns += [
+    # Augment url patterns with proxy for genomics england panelapp.
     url(
         r"^proxy/panelapp/(?P<url>.*)$",
         HttpProxy.as_view(
             base_url="https://panelapp.genomicsengland.co.uk/api/",
             ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
         ),
-    )
+    ),
+    # Augment url patterns with proxy for variantvalidator.org.
+    url(
+        r"^proxy/variantvalidator/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url="https://rest.variantvalidator.org/VariantValidator/variantvalidator/",
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,50 @@
+<template>
+  <div class="card">
+    <div class="card-header">
+      <h4 class="card-title">
+        Query Beacon
+        <button
+          class="btn btn-sm btn-warning pull-right"
+          @click="detailsStore.loadBeacon"
+        >
+          <i class="iconify" data-icon="mdi:refresh"></i> Load
+        </button>
+      </h4>
+    </div>
+    <div class="card-body">
+      <iframe
+        v-if="detailsStore.beaconAddress"
+        ref="beaconFrame"
+        :src="detailsStore.beaconAddress"
+        style="width: 100%; height: 300px; overflow: auto; border: 0"
+        vspace="0"
+        hspace="0"
+      >
+      </iframe>
+      <p v-else class="text-muted text-center">
+        <i>Click</i>&nbsp;
+        <span class="badge badge-warning"
+          ><i class="iconify" data-icon="mdi:refresh"></i> Load</span
+        >
+        <i>
+          to submit the variant to the GA4GH Beacon network. The results will
+          appear here.
+        </i>
+      </p>
+    </div>
+  </div>
+</template>
+
+<script>
+import { variantDetailsStore } from "@/stores/variantDetails";
+
+export default {
+  components: {},
+  setup() {
+    const detailsStore = variantDetailsStore();
+    return {
+      detailsStore,
+    };
+  },
+};
+</script>

@@ -129,10 +129,10 @@ Note that this will also import a patch to the TAD data in
 In case of any issues, contact us in the `Github Discussion <https://github.com/bihealth/varfish-server/discussions>`__ or directly by email.
 
 ------------------
-v0.23.0 to v1.2.1
+v0.23.0 to v1.2.2
 ------------------
 
-This includes all version in between, v0.23.1, ..., v1.2.1.
+This includes all version in between, v0.23.1, ..., v1.2.2.
 
 **Summary**
 

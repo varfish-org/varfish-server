@@ -948,3 +948,5 @@ WEBPACK_LOADER = {
 # ICONIFY CONFIGURATION
 # ------------------------------------------------------------------------------
 ICONIFY_JSON_ROOT = os.path.join(STATIC_ROOT, "iconify")
+
+VARFISH_ENABLE_VARIANTS_VUEAPP = env.bool("VARFISH_ENABLE_VARIANTS_VUEAPP", default=False)

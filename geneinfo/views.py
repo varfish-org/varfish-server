@@ -54,7 +54,7 @@ def get_gene_infos(database, gene_id, ensembl_transcript_id):
             "symbol": gene_symbol,
         }
     else:
-        gene = model_to_dict(gene)
+        gene = model_to_dict(gene, exclude=["id"])
         if database == "refseq":
             refseq_to_ensembl = RefseqToEnsembl.objects.filter(entrez_id=gene_id).first()
             ensembl_gene_id = getattr(refseq_to_ensembl, "ensembl_gene_id", None)
