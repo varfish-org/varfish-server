@@ -25,6 +25,7 @@ from .models import (
     annotate_with_phenotype_scores,
     annotate_with_pathogenicity_scores,
     annotate_with_joint_scores,
+    annotate_with_transcripts,
     unroll_extra_annos_result,
     prioritize_genes,
     VariantScoresFactory,
@@ -104,6 +105,12 @@ HEADER_FIXED = (
     ("gene_name", "Gene Name", str),
     ("gene_family", "Gene Family", str),
     ("pubmed_id", "Gene Pubmed ID", str),
+    ("gnomad_pLI", "Gnomad constrains pLI", float),
+    ("gnomad_mis_z", "Gnomad constrains z-score missense", float),
+    ("gnomad_oe_lof", "Gnomad constrains lof observed/expected", float),
+    ("gnomad_oe_lof_upper", "Gnomad constrains lof observed/expected upper", float),
+    ("gnomad_oe_lof_lower", "Gnomad constrains lof observed/expected lower", float),
+    ("pathogenicity_summary", "ClinVar pathogenicity summary", str),
 )
 if settings.KIOSK_MODE:
     HEADER_FIXED = tuple(filter(lambda x: not x[0].startswith("inhouse_"), HEADER_FIXED))
@@ -119,6 +126,8 @@ HEADERS_PATHO_SCORES = (
     ("pathogenicity_score", "Pathogenicity Score", float),
     ("pathogenicity_rank", "Pathogenicity Rank", int),
 )
+
+HEADERS_TRANSCRIPTS = (("transcripts", "Transcript ids", str),)
 
 #: Names of the joint scoring header columns.
 HEADERS_JOINT_SCORES = (
@@ -230,6 +239,11 @@ class RowWithJoinProxy(wrapt.ObjectProxy):
         return self.__wrapped__.__getitem__(key)
 
 
+def _is_jannovar_enabled():
+    """Return if jannover is enabled for exporting transcripts."""
+    return settings.VARFISH_ENABLE_JANNOVAR
+
+
 class CaseExporterBase:
     """Base class for export of (filtered) case data from single case or all cases of a project.
     """
@@ -339,6 +353,8 @@ class CaseExporterBase:
             header += HEADERS_PHENO_SCORES
         if self._is_pathogenicity_enabled():
             header += HEADERS_PATHO_SCORES
+        if _is_jannovar_enabled():
+            header += HEADERS_TRANSCRIPTS
         if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
             header += HEADERS_JOINT_SCORES
         if self.query_args["export_flags"]:
@@ -364,6 +380,8 @@ class CaseExporterBase:
         with contextlib.closing(self.query.run(self.query_args)) as result:
             self.job.add_log_entry("Executing phenotype score query...")
             _result = list(result)
+            if _is_jannovar_enabled():
+                _result = annotate_with_transcripts(_result, self.query_args["database_select"])
             if self._is_prioritization_enabled():
                 gene_scores = self._fetch_gene_scores([entry.entrez_id for entry in _result])
                 _result = annotate_with_phenotype_scores(_result, gene_scores)
@@ -536,7 +554,10 @@ class CaseExporterTsv(CaseExporterBase):
                 if column["name"] == "chromosome":
                     row.append("chr" + getattr(small_var, "chromosome"))
                 elif column["fixed"]:
-                    row.append(getattr(small_var, column["name"]))
+                    if column["name"] == "transcripts":
+                        row.append(getattr(small_var, column["name"]).replace("\n", "|"))
+                    else:
+                        row.append(getattr(small_var, column["name"]))
                 else:
                     member, field = column["name"].rsplit(".", 1)
                     if field == "aaf":
