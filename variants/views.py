@@ -116,6 +116,7 @@ from .models import (
     ClearOldKioskCasesBgJob,
     ClearInactiveVariantSetsBgJob,
     ClearExpiredExportedFilesBgJob,
+    load_molecular_impact,
 )
 from .forms import (
     ExportFileResubmitForm,
@@ -3052,40 +3053,6 @@ class SmallVariantDetails(
             alternative=kwargs["alternative"],
         ).first()
 
-    def _load_molecular_impact(self, kwargs):
-        """Load molecular impact from Jannovar REST API if configured."""
-        if not settings.VARFISH_ENABLE_JANNOVAR:
-            return []
-
-        url_tpl = (
-            "%(base_url)sannotate-var/%(database)s/%(genome)s/%(chromosome)s/%(position)s/%(reference)s/"
-            "%(alternative)s"
-        )
-        genome = {"GRCh37": "hg19", "GRCh38": "hg38"}.get(kwargs["release"], "hg19")
-        url = url_tpl % {
-            "base_url": settings.VARFISH_JANNOVAR_REST_API_URL,
-            "database": kwargs["database"],
-            "genome": genome,
-            "chromosome": kwargs["chromosome"],
-            "position": kwargs["start"],
-            "reference": kwargs["reference"],
-            "alternative": kwargs["alternative"],
-        }
-        try:
-            res = requests.request(method="get", url=url)
-            if not res.status_code == 200:
-                raise ConnectionError(
-                    "ERROR: Server responded with status {} and message {}".format(
-                        res.status_code, res.text
-                    )
-                )
-            else:
-                return res.json()
-        except requests.ConnectionError as e:
-            raise ConnectionError(
-                "ERROR: Server at {} not responding.".format(settings.VARFISH_JANNOVAR_REST_API_URL)
-            ) from e
-
     def _get_population_freqs(self, kwargs):
         if kwargs.get("chromosome") == "MT":
             return {}
@@ -3285,7 +3252,7 @@ class SmallVariantDetails(
         result["clinvar"] = self._load_clinvar(self.kwargs)
         result["knowngeneaa"] = self._load_knowngene_aa(self.kwargs)
         result["small_var"] = self._load_small_var(self.kwargs)
-        result["effect_details"] = self._load_molecular_impact(self.kwargs)
+        result["effect_details"] = load_molecular_impact(self.kwargs)
         result["extra_annos"] = self.get_extra_annos(self.kwargs)
         if self.request.GET.get("render_full", "no").lower() in ("yes", "true"):
             result["base_template"] = "projectroles/base.html"
