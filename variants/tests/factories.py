@@ -655,6 +655,7 @@ class SmallVariantSetFactory(factory.django.DjangoModelFactory):
     state = "active"
 
 
+CHROMOSOME_LIST_TESTING = [str(chrom) for chrom in list(range(1, 23)) + ["X", "Y"]]
 CHROMOSOME_MAPPING = {str(chrom): i + 1 for i, chrom in enumerate(list(range(1, 23)) + ["X", "Y"])}
 CHROMOSOME_MAPPING.update({f"chr{chrom}": i for chrom, i in CHROMOSOME_MAPPING.items()})
 
@@ -671,7 +672,7 @@ class SmallVariantFactory(factory.django.DjangoModelFactory):
         genotypes = default_genotypes
 
     release = "GRCh37"
-    chromosome = factory.Iterator(list(CHROMOSOME_MAPPING.keys()))
+    chromosome = factory.Iterator(CHROMOSOME_LIST_TESTING)
     chromosome_no = factory.LazyAttribute(lambda o: CHROMOSOME_MAPPING[o.chromosome])
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.LazyAttribute(lambda o: o.start + len(o.reference) - len(o.alternative))

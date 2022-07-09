@@ -176,6 +176,9 @@ class GnomadConstraintsFactory(factory.django.DjangoModelFactory):
     obs_lof = factory.Sequence(lambda n: n)
     lof_z = factory.Sequence(lambda n: 1 / 2 ** (n % 12))
     oe_lof = factory.Sequence(lambda n: 1 / 2 ** (n % 12))
+    pLI = factory.Sequence(lambda n: 1 / 2 ** (n % 12) + 1.234)
+    oe_lof_upper = factory.Sequence(lambda n: 1 / 3 ** (n % 12))
+    oe_lof_lower = factory.Sequence(lambda n: 1 / 0.75 ** (n % 12))
 
 
 class GeneIdToInheritanceFactory(factory.django.DjangoModelFactory):

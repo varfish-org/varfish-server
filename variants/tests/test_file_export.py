@@ -6,13 +6,17 @@ from datetime import timedelta
 import tempfile
 from unittest.mock import patch
 
+import django
 from django.utils import timezone
 import openpyxl
+from requests_mock import Mocker
 from test_plus.test import TestCase
 from timeline.models import ProjectEvent
 
+from clinvar.tests.factories import ClinvarFactory
 from cohorts.tests.factories import TestCohortBase
 from extra_annos.tests.factories import ExtraAnnoFieldFactory, ExtraAnnoFactory
+from geneinfo.tests.factories import GnomadConstraintsFactory
 from variants.tests.factories import (
     SmallVariantFactory,
     ResubmitFormDataFactory,
@@ -35,6 +39,7 @@ class ExportTestBase(TestCase):
         self.superuser = self.make_user("superuser")
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self.small_vars = SmallVariantFactory.create_batch(3, variant_set=self.variant_set)
+        self.small_vars.sort(key=lambda x: x.chromosome_no)
         self.extra_anno = [
             ExtraAnnoFactory(
                 release=self.small_vars[0].release,
@@ -72,6 +77,58 @@ class ExportTestBase(TestCase):
             file_type="xlsx",
         )
 
+        GnomadConstraintsFactory.reset_sequence()
+
+        # Create two entries for first variant that is in clinvar (second variant in total)
+        for small_var in self.small_vars:
+            ClinvarFactory(
+                release=small_var.release,
+                chromosome=small_var.chromosome,
+                start=small_var.start,
+                end=small_var.end,
+                bin=small_var.bin,
+                reference=small_var.reference,
+                alternative=small_var.alternative,
+                pathogenicity="pathogenic",
+                pathogenicity_summary="uncertain significance",
+            )
+            GnomadConstraintsFactory(ensembl_gene_id=small_var.ensembl_gene_id)
+
+    def _set_janno_mocker(self, database, mock_):
+        if database == "refseq":
+            transcript_prefix = "NM"
+        else:
+            transcript_prefix = "ENST"
+
+        for small_var in self.small_vars:
+            mock_.get(
+                "https://jannovar.example.com/annotate-var/%s/hg19/%s/%s/%s/%s"
+                % (
+                    database,
+                    small_var.chromosome,
+                    small_var.start,
+                    small_var.reference,
+                    small_var.alternative,
+                ),
+                status_code=200,
+                json=[
+                    {
+                        "transcriptId": transcript_prefix + "_058167.2",
+                        "variantEffects": ["three_prime_utr_exon_variant"],
+                        "isCoding": True,
+                        "hgvsProtein": "p.(=)",
+                        "hgvsNucleotides": "c.*60G>A",
+                    },
+                    {
+                        "transcriptId": transcript_prefix + "_194315.1",
+                        "variantEffects": ["three_prime_utr_exon_variant"],
+                        "isCoding": True,
+                        "hgvsProtein": "p.(=)",
+                        "hgvsNucleotides": "c.*60G>A",
+                    },
+                ],
+            )
+
 
 class CaseExporterTest(ExportTestBase):
     def setUp(self):
@@ -81,16 +138,54 @@ class CaseExporterTest(ExportTestBase):
             ResubmitFormDataFactory(submit="download", names=self.case.get_members())
         )
 
-    def test_export_tsv(self):
+    def _test_export_xlsx(self, database, mock_):
+        self._set_janno_mocker(database, mock_)
+
+        self.export_job.query_args["database_select"] = database
+        with file_export.CaseExporterXlsx(self.export_job, self.export_job.case) as exporter:
+            result = exporter.generate()
+        with tempfile.NamedTemporaryFile(suffix=".xlsx") as temp_file:
+            temp_file.write(result)
+            temp_file.flush()
+            workbook = openpyxl.load_workbook(temp_file.name)
+            # TODO: also test without commments
+            self.assertEquals(workbook.sheetnames, ["Variants", "Comments", "Metadata"])
+            variants_sheet = workbook["Variants"]
+            arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
+            self._test_tabular(arrs, False, django.conf.settings.VARFISH_ENABLE_JANNOVAR, database)
+
+    def _test_export_tsv(self, database, mock_):
+        self._set_janno_mocker(database, mock_)
+
+        self.export_job.query_args["database_select"] = database
         with file_export.CaseExporterTsv(self.export_job, self.export_job.case) as exporter:
             result = str(exporter.generate(), "utf-8")
         arrs = [line.split("\t") for line in result.split("\n")]
-        self._test_tabular(arrs, True)
+        self._test_tabular(arrs, True, django.conf.settings.VARFISH_ENABLE_JANNOVAR, database)
 
-    def _test_tabular(self, arrs, has_trailing):
+    @Mocker()
+    def test_export_tsv(self, mock_):
+        self._test_export_tsv("refseq", mock_)
+
+    @patch("django.conf.settings.VARFISH_ENABLE_JANNOVAR", True)
+    @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
+    @Mocker()
+    def test_export_tsv_refseq(self, mock_):
+        self._test_export_tsv("refseq", mock_)
+
+    @patch("django.conf.settings.VARFISH_ENABLE_JANNOVAR", True)
+    @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
+    @Mocker()
+    def test_export_tsv_ensembl(self, mock_):
+        self._test_export_tsv("ensembl", mock_)
+
+    def _test_tabular(self, arrs, has_trailing, janno_enable, database):
         self.assertEquals(len(arrs), 4 + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 50)
+        if not janno_enable:
+            self.assertEquals(len(arrs[0]), 56)
+        else:
+            self.assertEquals(len(arrs[0]), 57)
         self.assertSequenceEqual(arrs[0][:3], ["Chromosome", "Position", "Reference bases"])
         self.assertSequenceEqual(
             arrs[0][-5:],
@@ -127,6 +222,41 @@ class CaseExporterTest(ExportTestBase):
                 self.assertSequenceEqual(arrs[i + 1][-6:-5], ["9.89"])
             elif i == 2:
                 self.assertSequenceEqual(arrs[i + 1][-6:-5], ["10.78"])
+            self.assertSequenceEqual(
+                [
+                    arrs[i + 1][31][0:6],
+                    arrs[i + 1][32][0:6],
+                    arrs[i + 1][33][0:6],
+                    arrs[i + 1][34][0:6],
+                    arrs[i + 1][35][0:6],
+                ],
+                [
+                    str(1 / 2 ** (i % 12) + 1.234)[0:6],
+                    str(1 / 2 ** (i % 12))[0:6],
+                    str(1 / 2 ** (i % 12))[0:6],
+                    str(1 / 3 ** (i % 12))[0:6],
+                    str((1 / 0.75) ** (i % 12))[0:6],
+                ],
+            )
+            if janno_enable:
+                if database == "refseq":
+                    self.assertEquals(
+                        arrs[i + 1][37].replace("\n", "|"),
+                        (
+                            "NM_058167.2;three_prime_utr_exon_variant;p.(=);c.*60G>A|NM_194315.1;"
+                            "three_prime_utr_exon_variant;p.(=);c.*60G>A"
+                        ),
+                    )
+                else:
+                    self.assertEquals(
+                        arrs[i + 1][37].replace("\n", "|"),
+                        (
+                            "ENST_058167.2;three_prime_utr_exon_variant;p.(=);c.*60G>A|ENST_194315.1;"
+                            "three_prime_utr_exon_variant;p.(=);c.*60G>A"
+                        ),
+                    )
+
+            self.assertEquals(arrs[i + 1][36], "uncertain significance")
         if has_trailing:
             self.assertSequenceEqual(arrs[4], [""])
 
@@ -170,18 +300,21 @@ class CaseExporterTest(ExportTestBase):
             )
         self.assertEquals(content[3], "")
 
-    def test_export_xlsx(self):
-        with file_export.CaseExporterXlsx(self.export_job, self.export_job.case) as exporter:
-            result = exporter.generate()
-        with tempfile.NamedTemporaryFile(suffix=".xlsx") as temp_file:
-            temp_file.write(result)
-            temp_file.flush()
-            workbook = openpyxl.load_workbook(temp_file.name)
-            # TODO: also test without commments
-            self.assertEquals(workbook.sheetnames, ["Variants", "Comments", "Metadata"])
-            variants_sheet = workbook["Variants"]
-            arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
-            self._test_tabular(arrs, False)
+    @Mocker()
+    def test_export_xlsx(self, mock):
+        self._test_export_xlsx("refseq", mock)
+
+    @patch("django.conf.settings.VARFISH_ENABLE_JANNOVAR", True)
+    @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
+    @Mocker()
+    def test_export_xlsx_refseq(self, mock):
+        self._test_export_xlsx("refseq", mock)
+
+    @patch("django.conf.settings.VARFISH_ENABLE_JANNOVAR", True)
+    @patch("django.conf.settings.VARFISH_JANNOVAR_REST_API_URL", "https://jannovar.example.com/")
+    @Mocker()
+    def test_export_xlsx_ensembl(self, mock):
+        self._test_export_xlsx("ensembl", mock)
 
 
 class ProjectExportTest(TestCase):
@@ -235,7 +368,7 @@ class ProjectExportTest(TestCase):
     def _test_tabular(self, arrs, has_trailing):
         self.assertEquals(len(arrs), 5 + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 50)
+        self.assertEquals(len(arrs[0]), 56)
         self.assertSequenceEqual(arrs[0][:3], ["Sample", "Chromosome", "Position"])
         self.assertEqual(arrs[0][-1], "sample Alternate allele fraction")
         members = sorted(self.project.get_members())
@@ -439,7 +572,7 @@ class CohortExporterTest(TestCohortBase):
     def _test_tabular(self, arrs, ref, has_trailing, smallvars):
         self.assertEquals(len(arrs), ref + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 50)
+        self.assertEquals(len(arrs[0]), 56)
         self.assertSequenceEqual(arrs[0][:3], ["Sample", "Chromosome", "Position"])
         self.assertEqual(arrs[0][-1], "sample Alternate allele fraction")
         for i, small_var in enumerate(sorted(smallvars, key=lambda x: (x.chromosome_no, x.start))):
