@@ -2,8 +2,24 @@
 History / Changelog
 ===================
 
+-----------------------------
+v1.2.2 (anthenea; UNRELEASED)
+-----------------------------
+
+End-User Summary
+================
+
+- Extra annotations in export completed and tested (#495).
+
+Full Change List
+================
+
+- Extra annotations in export completed and tested (#495).
+- Fixing issue with sync-from-remote when no remote is defined (#570).
+
+
 -----------------
-v1.2.1 (anthenea)
+v1.2.2 (anthenea)
 -----------------
 
 End-User Summary
@@ -12,7 +28,6 @@ End-User Summary
 - Starting with branch of stable version Athenea (VarFish v1).
 - Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
-- Extra annotations in export completed and tested (#495).
 - Removing problematic username modification behaviour on login page (#459).
 - Displaying login page text from settings again (#458).
 - Suppress "submit to CADD" and "submit to SPANR" buttons for multi-case form (#478).
@@ -53,6 +68,7 @@ Full Change List
 - Fixed smallvariant flags filter query (#502).
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
+
 
 ------
 v1.2.0
