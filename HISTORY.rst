@@ -60,6 +60,7 @@ Full Change List
 - Fixed smallvariant flags filter query (#502).
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Adjusting path to new varfish-annotator db download (#546).
+- Fixing issue with sync-from-remote when no remote is defined (#570).
 
 ------
 v1.2.0
