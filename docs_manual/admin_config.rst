@@ -208,6 +208,17 @@ You can configure sentry support as follows
     A sentry DSN to report to.
     See Sentry documentation for details.
 
+-------------------------------
+HGMD Professional Documentation
+-------------------------------
+
+Users can enable a gene and variant wise link-out to HGMD professional as follows.
+
+``VARFISH_ENABLE_HGMD_PRO_LINKOUT=0``
+    Enable HGMD Professional link-out.
+``VARFISH_HGMD_PRO_LINKOUT_URL_PREFIX=https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro/](https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro``
+    Configure the URL prefix for HGMD Professional link-outs.
+
 ----------------------------------
 System and Docker (Compose) Tweaks
 ----------------------------------
