@@ -7,6 +7,8 @@
 
 {% get_app_setting "variants" "umd_predictor_api_token" user=user as umd_predictor_api_token %}
 {% get_django_setting "PROJECTROLES_KIOSK_MODE" as kiosk_mode %}
+{% get_django_setting "VARFISH_ENABLE_HGMD_PRO_LINKOUT" as hgmd_pro_enabled %}
+{% get_django_setting "VARFISH_HGMD_PRO_LINKOUT_URL_PREFIX" as hgmd_pro_prefix %}
 {% get_app_setting "variants" "ga4gh_beacon_network_widget_enabled" user=user as ga4gh_beacon_network_widget_enabled %}
 {% ambiguous_frequency_warning entry exac_enabled thousand_genomes_enabled gnomad_exomes_enabled gnomad_genomes_enabled inhouse_enabled as warning %}
 
@@ -307,6 +309,11 @@
           <a class="dropdown-item" href="https://panelapp.genomicsengland.co.uk/panels/entities/{{ symbol }}" target="_blank">
             Gene @PanelApp
           </a>
+          {% if hgmd_pro_enabled %}
+            <a class="dropdown-item" href="{{ hgmd_pro_prefix }}/gene.php?gene={{ symbol }}" target="_blank">
+              Gene @HGMD Professional
+            </a>
+          {% endif %}
           <a class="dropdown-item" href="https://gnomad.broadinstitute.org/gene/{{ entry.ensembl_gene_id }}" target="_blank">
             Gene @gnomAD
           </a>
@@ -563,6 +570,12 @@
             <span class="dropdown-item disabled" data-toggle="tooltip" title="gnomAD browser not available for reference {{ entry.release }}">
               Locus @gnomAD
             </span>
+          {% endif %}
+
+          {% if hgmd_pro_enabled %}
+            <a class="dropdown-item" href="{{ hgmd_pro_prefix }}/gene.php?gene={{ symbol }}" target="_blank">
+              Gene @HGMD Professional
+            </a>
           {% endif %}
 
           <div class="dropdown-divider"></div>
