@@ -31,6 +31,7 @@ End-User Summary
 - Fixed smallvariant flags filter query (#502).
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Adjusting path to new varfish-annotator db download (#546).
+- Adding feature to enable and configure link-out to HGMD (#576).
 
 Full Change List
 ================
@@ -61,6 +62,7 @@ Full Change List
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Adjusting path to new varfish-annotator db download (#546).
 - Fixing issue with sync-from-remote when no remote is defined (#570).
+- Adding feature to enable and configure link-out to HGMD (#576).
 
 ------
 v1.2.0

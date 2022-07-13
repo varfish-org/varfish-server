@@ -567,6 +567,17 @@ VARFISH_JANNOVAR_REST_API_URL = env.str("VARFISH_JANNOVAR_REST_API_URL", "")
 # Configure experimental SV filtration feature.
 VARFISH_ENABLE_SVS = env.bool("VARFISH_ENABLE_SVS", default=False)
 
+# Varfish: HGMD Professional
+# ------------------------------------------------------------------------------
+
+# Enable link-out to HGMD Professional
+VARFISH_ENABLE_HGMD_PRO_LINKOUT = env.bool("VARFISH_ENABLE_HGMD_PRO_LINKOUT", default=False)
+# Configure URL prefix for HGMD Professional
+VARFISH_HGMD_PRO_LINKOUT_URL_PREFIX = env.bool(
+    "VARFISH_HGMD_PRO_LINKOUT_URL_PREFIX",
+    default="https://my.qiagendigitalinsights.com/bbp/view/hgmd/pro",
+)
+
 # Varfish: GAGH Beacon
 # ------------------------------------------------------------------------------
 
