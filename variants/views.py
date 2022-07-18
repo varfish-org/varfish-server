@@ -79,6 +79,7 @@ from .queries import (
     DeleteStructuralVariantsQuery,
     DeleteSmallVariantsQuery,
     SmallVariantUserAnnotationQuery,
+    CaseSecondHitsQuery,
 )
 from .models import (
     only_source_name,
@@ -138,6 +139,12 @@ from .forms import (
     save_file,
     CaseTermsForm,
     RE_FIND_TERMS,
+)
+from .query_presets import QUICK_PRESETS, PedigreeMember
+from .query_schemas import (
+    DefaultValidatingDraft7Validator,
+    SCHEMA_QUERY_V1,
+    convert_query_json_to_small_variant_filter_form_v1,
 )
 from .sync_upstream import fetch_remote_pedigree
 from .tasks import (
@@ -4484,6 +4491,75 @@ class VariantCarriersView(PluginContextMixin, TemplateView):
             result["small_var"] = result["case_vars"][0][1]
         else:
             result["small_var"] = None
+
+        return result
+
+
+class SecondHitView(
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectContextMixin,
+    ProjectPermissionMixin,
+    TemplateView,
+):
+    """Render HTML with second small variant hits in a given gene.
+
+    Optionally, exclude small variant with the given specification in GET parameters:
+
+    - release
+    - chromosome
+    - start
+    - end
+    - reference
+    - alternative
+    """
+
+    permission_required = "variants.view_data"
+    model = Case
+    slug_url_kwarg = "case"
+    slug_field = "sodar_uuid"
+    template_name = "variants/second_hit.html"
+
+    def get_context_data(self, *args, **kwargs):
+        result = super().get_context_data(*args, **kwargs)
+
+        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        database = self.kwargs["database"]
+        if database not in ("refseq", "ensembl"):
+            raise ValueError("Invalid database: %s" % database)
+
+        members = [
+            PedigreeMember(
+                family="FAM",
+                name=p["patient"],
+                father=p["father"],
+                mother=p["mother"],
+                sex=p["sex"],
+                disease_state=p["affected"],
+            )
+            for p in case.pedigree
+        ]
+        query_settings = QUICK_PRESETS.whole_exome.to_settings(members)
+        query_settings["gene_allowlist"] = [self.kwargs["gene_id"]]
+        DefaultValidatingDraft7Validator(SCHEMA_QUERY_V1).validate(query_settings)
+        form_data = convert_query_json_to_small_variant_filter_form_v1(case, query_settings)
+
+        query = CaseSecondHitsQuery(case, get_engine())
+        with contextlib.closing(query.run(form_data)) as query_res:
+            result_list = list(query_res)
+            if self.request.GET.get("release"):
+                result_list = [
+                    elem
+                    for elem in result_list
+                    if elem.release != self.request.GET.get("release")
+                    or elem.chromosome != self.request.GET.get("chromosome")
+                    or str(elem.start) != self.request.GET.get("position")
+                    or elem.reference != self.request.GET.get("reference")
+                    or elem.alternative != self.request.GET.get("alternative")
+                ]
+            result["small_vars"] = result_list
+        result["database"] = database
+        result["samples"] = [p["patient"] for p in case.pedigree]
 
         return result
 

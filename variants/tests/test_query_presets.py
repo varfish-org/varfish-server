@@ -249,7 +249,7 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
         self.assertEqual(
             actual,
             {
-                "genotype": {"index": query_presets.GenotypeChoice.HET},
+                "genotype": {"index": query_presets.GenotypeChoice.HET.value},
                 "recessive_index": None,
                 "recessive_mode": None,
             },
@@ -264,8 +264,8 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HET,
-                    "father": query_presets.GenotypeChoice.HET,
+                    "index": query_presets.GenotypeChoice.HET.value,
+                    "father": query_presets.GenotypeChoice.HET.value,
                 },
             },
         )
@@ -279,8 +279,8 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HET,
-                    "mother": query_presets.GenotypeChoice.HET,
+                    "index": query_presets.GenotypeChoice.HET.value,
+                    "mother": query_presets.GenotypeChoice.HET.value,
                 },
             },
         )
@@ -292,9 +292,9 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HET,
-                    "father": query_presets.GenotypeChoice.REF,
-                    "mother": query_presets.GenotypeChoice.REF,
+                    "index": query_presets.GenotypeChoice.HET.value,
+                    "father": query_presets.GenotypeChoice.REF.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
                 },
             },
         )
@@ -308,9 +308,9 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HET,
-                    "father": query_presets.GenotypeChoice.HET,
-                    "mother": query_presets.GenotypeChoice.REF,
+                    "index": query_presets.GenotypeChoice.HET.value,
+                    "father": query_presets.GenotypeChoice.HET.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
                 },
             },
         )
@@ -323,7 +323,7 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
         self.assertEqual(
             actual,
             {
-                "genotype": {"index": query_presets.GenotypeChoice.HOM},
+                "genotype": {"index": query_presets.GenotypeChoice.HOM.value},
                 "recessive_index": "index",
                 "recessive_mode": None,
             },
@@ -338,8 +338,8 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": "index",
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HOM,
-                    "father": query_presets.GenotypeChoice.HOM,
+                    "index": query_presets.GenotypeChoice.HOM.value,
+                    "father": query_presets.GenotypeChoice.HOM.value,
                 },
             },
         )
@@ -353,8 +353,8 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": "index",
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HOM,
-                    "mother": query_presets.GenotypeChoice.HOM,
+                    "index": query_presets.GenotypeChoice.HOM.value,
+                    "mother": query_presets.GenotypeChoice.HOM.value,
                 },
             },
         )
@@ -368,9 +368,9 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": "index",
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HOM,
-                    "father": query_presets.GenotypeChoice.HET,
-                    "mother": query_presets.GenotypeChoice.HET,
+                    "index": query_presets.GenotypeChoice.HOM.value,
+                    "father": query_presets.GenotypeChoice.HET.value,
+                    "mother": query_presets.GenotypeChoice.HET.value,
                 },
             },
         )
@@ -384,9 +384,9 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": "index",
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HOM,
-                    "father": query_presets.GenotypeChoice.HOM,
-                    "mother": query_presets.GenotypeChoice.REF,
+                    "index": query_presets.GenotypeChoice.HOM.value,
+                    "father": query_presets.GenotypeChoice.HOM.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
                 },
             },
         )
@@ -523,7 +523,7 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
         self.assertEqual(
             actual,
             {
-                "genotype": {"index": query_presets.GenotypeChoice.HOM},
+                "genotype": {"index": query_presets.GenotypeChoice.HOM.value},
                 "recessive_index": self.singleton[0].name,
                 "recessive_mode": None,
             },
@@ -538,8 +538,8 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": self.child_father[0].name,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HOM,
-                    "father": query_presets.GenotypeChoice.HOM,
+                    "index": query_presets.GenotypeChoice.HOM.value,
+                    "father": query_presets.GenotypeChoice.HOM.value,
                 },
             },
         )
@@ -553,8 +553,8 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": self.child_father[0].name,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HOM,
-                    "mother": query_presets.GenotypeChoice.ANY,
+                    "index": query_presets.GenotypeChoice.HOM.value,
+                    "mother": query_presets.GenotypeChoice.ANY.value,
                 },
             },
         )
@@ -568,9 +568,9 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": self.trio_denovo[0].name,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HOM,
-                    "father": query_presets.GenotypeChoice.REF,
-                    "mother": query_presets.GenotypeChoice.HET,
+                    "index": query_presets.GenotypeChoice.HOM.value,
+                    "father": query_presets.GenotypeChoice.REF.value,
+                    "mother": query_presets.GenotypeChoice.HET.value,
                 },
             },
         )
@@ -584,9 +584,9 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": self.trio_dominant[0].name,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.HOM,
-                    "father": query_presets.GenotypeChoice.HOM,
-                    "mother": query_presets.GenotypeChoice.REF,
+                    "index": query_presets.GenotypeChoice.HOM.value,
+                    "father": query_presets.GenotypeChoice.HOM.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
                 },
             },
         )
@@ -599,7 +599,7 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
         self.assertEqual(
             actual,
             {
-                "genotype": {"index": query_presets.GenotypeChoice.VARIANT},
+                "genotype": {"index": query_presets.GenotypeChoice.VARIANT.value},
                 "recessive_index": None,
                 "recessive_mode": None,
             },
@@ -614,8 +614,8 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.VARIANT,
-                    "father": query_presets.GenotypeChoice.VARIANT,
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.VARIANT.value,
                 },
             },
         )
@@ -629,8 +629,8 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.VARIANT,
-                    "mother": query_presets.GenotypeChoice.VARIANT,
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "mother": query_presets.GenotypeChoice.VARIANT.value,
                 },
             },
         )
@@ -644,9 +644,9 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.VARIANT,
-                    "father": query_presets.GenotypeChoice.REF,
-                    "mother": query_presets.GenotypeChoice.REF,
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.REF.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
                 },
             },
         )
@@ -660,9 +660,9 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    "index": query_presets.GenotypeChoice.VARIANT,
-                    "father": query_presets.GenotypeChoice.VARIANT,
-                    "mother": query_presets.GenotypeChoice.REF,
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.VARIANT.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
                 },
             },
         )
@@ -950,7 +950,7 @@ class TestEnumImpact(TestCase):
                 "var_type_indel": True,
                 "transcripts_coding": True,
                 "transcripts_noncoding": False,
-                "effects": (
+                "effects": [
                     "exon_loss_variant",
                     "feature_truncation",
                     "frameshift_elongation",
@@ -964,7 +964,7 @@ class TestEnumImpact(TestCase):
                     "stop_lost",
                     "structural_variant",
                     "transcript_ablation",
-                ),
+                ],
             },
         )
 
@@ -977,7 +977,7 @@ class TestEnumImpact(TestCase):
                 "var_type_indel": True,
                 "transcripts_coding": True,
                 "transcripts_noncoding": False,
-                "effects": (
+                "effects": [
                     "complex_substitution",
                     "direct_tandem_duplication",
                     "disruptive_inframe_deletion",
@@ -1000,7 +1000,7 @@ class TestEnumImpact(TestCase):
                     "stop_lost",
                     "structural_variant",
                     "transcript_ablation",
-                ),
+                ],
             },
         )
 
@@ -1013,7 +1013,7 @@ class TestEnumImpact(TestCase):
                 "var_type_indel": True,
                 "transcripts_coding": True,
                 "transcripts_noncoding": False,
-                "effects": (
+                "effects": [
                     "coding_transcript_intron_variant",
                     "complex_substitution",
                     "direct_tandem_duplication",
@@ -1038,7 +1038,7 @@ class TestEnumImpact(TestCase):
                     "structural_variant",
                     "synonymous_variant",
                     "transcript_ablation",
-                ),
+                ],
             },
         )
 
@@ -1051,7 +1051,7 @@ class TestEnumImpact(TestCase):
                 "var_type_indel": True,
                 "transcripts_coding": True,
                 "transcripts_noncoding": False,
-                "effects": (
+                "effects": [
                     "3_prime_UTR_exon_variant",
                     "3_prime_UTR_intron_variant",
                     "5_prime_UTR_exon_variant",
@@ -1081,7 +1081,7 @@ class TestEnumImpact(TestCase):
                     "structural_variant",
                     "synonymous_variant",
                     "transcript_ablation",
-                ),
+                ],
             },
         )
 
@@ -1094,7 +1094,7 @@ class TestEnumImpact(TestCase):
                 "var_type_indel": True,
                 "transcripts_coding": True,
                 "transcripts_noncoding": True,
-                "effects": (
+                "effects": [
                     "3_prime_UTR_exon_variant",
                     "3_prime_UTR_intron_variant",
                     "5_prime_UTR_exon_variant",
@@ -1129,7 +1129,7 @@ class TestEnumImpact(TestCase):
                     "synonymous_variant",
                     "transcript_ablation",
                     "upstream_gene_variant",
-                ),
+                ],
             },
         )
 
@@ -1304,35 +1304,35 @@ class TestEnumChromosomes(TestCase):
     def testToSettingsWholeGenome(self):
         self.assertEqual(
             query_presets.Chromosomes.WHOLE_GENOME.to_settings(),
-            {"genomic_region": (), "gene_allowlist": (), "gene_blocklist": (),},
+            {"genomic_region": [], "gene_allowlist": [], "gene_blocklist": [],},
         )
 
     def testToSettingsAutosomes(self):
         self.assertEqual(
             query_presets.Chromosomes.AUTOSOMES.to_settings(),
             {
-                "genomic_region": tuple(f"{num}" for num in range(1, 23)),
-                "gene_allowlist": (),
-                "gene_blocklist": (),
+                "genomic_region": [f"{num}" for num in range(1, 23)],
+                "gene_allowlist": [],
+                "gene_blocklist": [],
             },
         )
 
     def testToSettingsXChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.X_CHROMOSOME.to_settings(),
-            {"genomic_region": ("X",), "gene_allowlist": (), "gene_blocklist": (),},
+            {"genomic_region": ["X",], "gene_allowlist": [], "gene_blocklist": [],},
         )
 
     def testToSettingsYChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.Y_CHROMOSOME.to_settings(),
-            {"genomic_region": ("Y",), "gene_allowlist": (), "gene_blocklist": (),},
+            {"genomic_region": ["Y",], "gene_allowlist": [], "gene_blocklist": [],},
         )
 
     def testToSettingsMTChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.MT_CHROMOSOME.to_settings(),
-            {"genomic_region": ("MT",), "gene_allowlist": (), "gene_blocklist": (),},
+            {"genomic_region": ["MT",], "gene_allowlist": [], "gene_blocklist": [],},
         )
 
 
@@ -1564,8 +1564,8 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "clinvar_include_likely_pathogenic": True,
                 "clinvar_include_pathogenic": True,
                 "clinvar_include_uncertain_significance": False,
-                "database": query_presets.Database.REFSEQ,
-                "effects": (
+                "database": query_presets.Database.REFSEQ.value,
+                "effects": [
                     "complex_substitution",
                     "direct_tandem_duplication",
                     "disruptive_inframe_deletion",
@@ -1588,7 +1588,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                     "stop_lost",
                     "structural_variant",
                     "transcript_ablation",
-                ),
+                ],
                 "exac_enabled": True,
                 "exac_frequency": 0.002,
                 "exac_hemizygous": None,
@@ -1618,13 +1618,13 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "flag_visual_negative": True,
                 "flag_visual_positive": True,
                 "flag_visual_uncertain": True,
-                "gene_allowlist": (),
-                "gene_blocklist": (),
-                "genomic_region": (),
+                "gene_allowlist": [],
+                "gene_blocklist": [],
+                "genomic_region": [],
                 "genotype": {
-                    "father": query_presets.GenotypeChoice.ANY,
-                    "index": query_presets.GenotypeChoice.ANY,
-                    "mother": query_presets.GenotypeChoice.ANY,
+                    "father": query_presets.GenotypeChoice.ANY.value,
+                    "index": query_presets.GenotypeChoice.ANY.value,
+                    "mother": query_presets.GenotypeChoice.ANY.value,
                 },
                 "gnomad_exomes_enabled": True,
                 "gnomad_exomes_frequency": 0.002,

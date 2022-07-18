@@ -125,7 +125,7 @@ class Inheritance(Enum):
             others = {s for s in affected_samples if s.name != index and s.name not in parent_names}
             # Fill ``genotype`` for the index
             if self == Inheritance.HOMOZYGOUS_RECESSIVE:
-                genotype = {recessive_index.name: GenotypeChoice.HOM}
+                genotype = {recessive_index.name: GenotypeChoice.HOM.value}
                 mode = {"recessive_mode": None}
             elif self == Inheritance.COMPOUND_HETEROZYGOUS:
                 genotype = {recessive_index.name: None}
@@ -140,21 +140,21 @@ class Inheritance(Enum):
                 affected_parents = len([p for p in parents if p.is_affected()])
                 for parent in parents:
                     if parent.is_affected():
-                        genotype[parent.name] = GenotypeChoice.HOM
+                        genotype[parent.name] = GenotypeChoice.HOM.value
                     else:
                         if affected_parents > 0:
-                            genotype[parent.name] = GenotypeChoice.REF
+                            genotype[parent.name] = GenotypeChoice.REF.value
                         else:
-                            genotype[parent.name] = GenotypeChoice.HET
+                            genotype[parent.name] = GenotypeChoice.HET.value
             else:
                 for parent in parents:
                     genotype[parent.name] = None
             for other in others:
-                genotype[other.name] = GenotypeChoice.ANY
+                genotype[other.name] = GenotypeChoice.ANY.value
             # Compose the dict with recessive index, recessive mode, and genotype
             return {
                 "recessive_index": recessive_index.name,
-                "genotype": genotype,
+                "genotype": {k: e for k, e in genotype.items()},
                 **mode,
             }
         elif self == Inheritance.X_RECESSIVE:
@@ -191,14 +191,16 @@ class Inheritance(Enum):
             return {
                 "recessive_index": recessive_index.name,
                 "recessive_mode": None,
-                "genotype": genotype,
+                "genotype": {k: e.value for k, e in genotype.items()},
             }
         elif self == Inheritance.AFFECTED_CARRIERS:
             return {
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    s.name: GenotypeChoice.VARIANT if s.is_affected() else GenotypeChoice.REF
+                    s.name: GenotypeChoice.VARIANT.value
+                    if s.is_affected()
+                    else GenotypeChoice.REF.value
                     for s in samples
                 },
             }
@@ -207,7 +209,9 @@ class Inheritance(Enum):
                 "recessive_index": None,
                 "recessive_mode": None,
                 "genotype": {
-                    s.name: GenotypeChoice.HET if s.is_affected() else GenotypeChoice.REF
+                    s.name: GenotypeChoice.HET.value
+                    if s.is_affected()
+                    else GenotypeChoice.REF.value
                     for s in samples
                 },
             }
@@ -215,7 +219,7 @@ class Inheritance(Enum):
             return {
                 "recessive_index": None,
                 "recessive_mode": None,
-                "genotype": {s.name: GenotypeChoice.ANY for s in samples},
+                "genotype": {s.name: GenotypeChoice.ANY.value for s in samples},
             }
         else:
             raise ValueError(f"Cannot generate settings for inheritance {self}")
@@ -486,7 +490,7 @@ class _ImpactPresets:
         "var_type_indel": True,
         "transcripts_coding": True,
         "transcripts_noncoding": False,
-        "effects": (
+        "effects": [
             "exon_loss_variant",
             "feature_truncation",
             "frameshift_elongation",
@@ -500,7 +504,7 @@ class _ImpactPresets:
             "stop_lost",
             "structural_variant",
             "transcript_ablation",
-        ),
+        ],
     }
     #: Presets for "amino acid change and splicing" impact
     aa_change_splicing: typing.Dict[str, typing.Any] = {
@@ -509,7 +513,7 @@ class _ImpactPresets:
         "var_type_indel": True,
         "transcripts_coding": True,
         "transcripts_noncoding": False,
-        "effects": (
+        "effects": [
             "complex_substitution",
             "direct_tandem_duplication",
             "disruptive_inframe_deletion",
@@ -532,7 +536,7 @@ class _ImpactPresets:
             "stop_lost",
             "structural_variant",
             "transcript_ablation",
-        ),
+        ],
     }
     #: Presets for "all coding and deep intronic" impact
     all_coding_deep_intronic: typing.Dict[str, typing.Any] = {
@@ -541,7 +545,7 @@ class _ImpactPresets:
         "var_type_indel": True,
         "transcripts_coding": True,
         "transcripts_noncoding": False,
-        "effects": (
+        "effects": [
             "coding_transcript_intron_variant",
             "complex_substitution",
             "direct_tandem_duplication",
@@ -566,7 +570,7 @@ class _ImpactPresets:
             "structural_variant",
             "synonymous_variant",
             "transcript_ablation",
-        ),
+        ],
     }
     #: Presets for "whole transcript" impact
     whole_transcript: typing.Dict[str, typing.Any] = {
@@ -575,7 +579,7 @@ class _ImpactPresets:
         "var_type_indel": True,
         "transcripts_coding": True,
         "transcripts_noncoding": False,
-        "effects": (
+        "effects": [
             "3_prime_UTR_exon_variant",
             "3_prime_UTR_intron_variant",
             "5_prime_UTR_exon_variant",
@@ -605,7 +609,7 @@ class _ImpactPresets:
             "structural_variant",
             "synonymous_variant",
             "transcript_ablation",
-        ),
+        ],
     }
     #: Presets for "any" impact
     any: typing.Dict[str, typing.Any] = {
@@ -614,7 +618,7 @@ class _ImpactPresets:
         "var_type_indel": True,
         "transcripts_coding": True,
         "transcripts_noncoding": True,
-        "effects": (
+        "effects": [
             "3_prime_UTR_exon_variant",
             "3_prime_UTR_intron_variant",
             "5_prime_UTR_exon_variant",
@@ -649,7 +653,7 @@ class _ImpactPresets:
             "synonymous_variant",
             "transcript_ablation",
             "upstream_gene_variant",
-        ),
+        ],
     }
 
 
@@ -767,33 +771,33 @@ class _ChromosomePresets:
 
     #: Presets for the "whole genome" chromosome/region/gene settings
     whole_genome: typing.Dict[str, typing.Any] = {
-        "genomic_region": (),
-        "gene_allowlist": (),
-        "gene_blocklist": (),
+        "genomic_region": [],
+        "gene_allowlist": [],
+        "gene_blocklist": [],
     }
     #: Presets for the "autosomes" chromosome/region/gene settings
     autosomes: typing.Dict[str, typing.Any] = {
-        "genomic_region": tuple(f"{num}" for num in range(1, 23)),
-        "gene_allowlist": (),
-        "gene_blocklist": (),
+        "genomic_region": list(f"{num}" for num in range(1, 23)),
+        "gene_allowlist": [],
+        "gene_blocklist": [],
     }
     #: Presets for the "X-chromosome" chromosome/region/gene settings
     x_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ("X",),
-        "gene_allowlist": (),
-        "gene_blocklist": (),
+        "genomic_region": ["X",],
+        "gene_allowlist": [],
+        "gene_blocklist": [],
     }
     #: Presets for the "Y-chromosomes" chromosome/region/gene settings
     y_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ("Y",),
-        "gene_allowlist": (),
-        "gene_blocklist": (),
+        "genomic_region": ["Y",],
+        "gene_allowlist": [],
+        "gene_blocklist": [],
     }
     #: Presets for the "mitochondrial" chromosome/region/gene settings
     mt_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ("MT",),
-        "gene_allowlist": (),
-        "gene_blocklist": (),
+        "genomic_region": ["MT",],
+        "gene_allowlist": [],
+        "gene_blocklist": [],
     }
 
 
@@ -969,7 +973,7 @@ class QuickPresets:
         """Return the overall settings given the case names"""
         assert len(set(s.family for s in samples)) == 1
         return {
-            "database": self.database,
+            "database": self.database.value,
             **self.inheritance.to_settings(samples),
             **self.frequency.to_settings(),
             **self.impact.to_settings(),

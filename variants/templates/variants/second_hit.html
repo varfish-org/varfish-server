@@ -1,0 +1,77 @@
+{% load dict %}
+{% load variants_tags %}
+{% load humanize %}
+
+<table class="table table-sm table-striped table-hover" style="font-size: 11px;">
+  <thead>
+    <tr>
+      <th scope="col"></th>
+      <th scope="col"></th>
+      <th scope="col"></th>
+      <th scope="col"></th>
+      <th scope="col" colspan="2">gnomAD exomes</th>
+      <th scope="col" colspan="2">gnomAD genomes</th>
+      <th scope="col" colspan="2">in-house</th>
+      <th scope="col"></th>
+      <th scope="col"></th>
+      {% for name in samples %}
+        <th scope="col"></th>
+      {% endfor %}
+    </tr>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">position</th>
+      <th scope="col">ref</th>
+      <th scope="col">alt</th>
+      <th scope="col">freq.</th>
+      <th scope="col">hom.</th>
+      <th scope="col">freq.</th>
+      <th scope="col">hom.</th>
+      <th scope="col">carriers</th>
+      <th scope="col">hom.</th>
+      <th scope="col">HGVS</th>
+      <th scope="col">effect</th>
+      {% for name in samples %}
+        <th scope="col">{{ name|only_source_name }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for small_var in small_vars %}
+      <tr>
+        <td class="text-right">{{ forloop.counter }}</td>
+        <td>{{ small_var.chromosome }}:{{ small_var.start|intcomma }}</td>
+        <td>{{ small_var.reference }}</td>
+        <td>{{ small_var.alternative }}</td>
+        <td class="text-right">{{ small_var.gnomad_exomes_frequency }}</td>
+        <td class="text-right">{{ small_var.gnomad_exomes_homozygous|intcomma }}</td>
+        <td class="text-right">{{ small_var.gnomad_genomes_frequency }}</td>
+        <td class="text-right">{{ small_var.gnomad_genomes_homozygous|intcomma }}</td>
+        <td class="text-right">{{ small_var.inhouse_carriers|intcomma }}</td>
+        <td class="text-right">{{ small_var.inhouse_hom_alt|intcomma }}</td>
+        {% if small_var.hgvs_p == "p.=" %}
+          <td>{{ small_var.hgvs_c }}</td>
+        {% elif small_var.hgvs_c == "p.?" %}
+          <td>{{ small_var.hgvs_c }} / p.?</td>
+        {% else %}
+          <td>{{ small_var.hgvs_p }}</td>
+        {% endif %}
+        <td>{{ small_var.effect|join:";" }}</td>
+        {% for name in samples %}
+          {% with genotype=small_var.genotype|keyvalue:name %}
+            <td class="text-center" data-order="{{ genotype|keyvalue:"gt" }}">
+              <span data-toggle="tooltip" data-html="true" title="
+                GT quality: {{ genotype|keyvalue:"gq" }}
+                <br />
+                variant reads: {{ genotype|keyvalue:"ad" }} / {{ genotype|keyvalue:"dp" }}<br />
+                allelic balance: {{ genotype|allelic_balance|floatformat:2 }}
+                ">
+                {{ genotype|keyvalue:"gt" }}
+              </span>
+            </td>
+          {% endwith %}
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

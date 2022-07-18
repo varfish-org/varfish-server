@@ -100,6 +100,7 @@ FILTER_FORM_VISTA_CHOICES = {
     "negative": "negative",
 }
 
+SV_DATABASES = ("DGV", "DGV GS", "ExAC", "gnomAD", "dbVar", "G1K", "inhouse")
 
 class SvAnalysisCollectiveFrequencyMixin:
     """Mixin for the frequency fields of the structural variant filtration form."""
@@ -161,7 +162,7 @@ class SvDatabaseFrequencyMixin:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for name in ("DGV", "DGV GS", "ExAC", "gnomAD", "dbVar", "G1K"):
+        for name in SV_DATABASES:
             key = name.lower().replace(" ", "_")
             entity = "alleles" if key == "g1k" else "carriers"
             self.fields["%s_enabled" % key] = forms.BooleanField(
