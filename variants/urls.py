@@ -375,6 +375,11 @@ ui_urlpatterns = [
         view=views.VariantCarriersView.as_view(),
         name="variant-carriers",
     ),
+    url(
+        regex=r"^second-hit/(?P<case>[0-9a-f-]+)/(?P<database>[^/]+)/(?P<gene_id>[^/]+)/",
+        view=views.SecondHitView.as_view(),
+        name="second-hit",
+    ),
     #: Detail views for site-wide maintenance jobs.
     url(
         regex=r"^clear-expired-job/(?P<job>[0-9a-f-]+)/$",

@@ -5028,3 +5028,94 @@ class TestVariantCarriersView(ViewTestBase):
             )
             self.assert_http_200_ok(response)
             self.assertNotIn(self.case.name, response.content.decode("utf-8"))
+
+
+class TestSecondHitView(ViewTestBase):
+    """Test view that displays small variant second hits."""
+
+    def setUp(self):
+        super().setUp()
+        self.case, self.variant_set, _ = CaseWithVariantSetFactory.get(project=self.project)
+        self.small_vars = SmallVariantFactory.create_batch(
+            3, variant_set=self.variant_set, refseq_gene_id="thegene"
+        )
+        self.variant = self.small_vars[0]
+        self.variant_args = {
+            "release": self.variant.release,
+            "chromosome": self.variant.chromosome,
+            "position": self.variant.start,
+            "reference": self.variant.reference,
+            "alternative": self.variant.alternative,
+        }
+        self.hgnc = HgncFactory(
+            ensembl_gene_id=self.small_vars[0].ensembl_gene_id,
+            entrez_id=self.small_vars[0].refseq_gene_id,
+        )
+
+    def test_with_role(self):
+        with self.login(self.user_contributor):
+            response = self.client.get(
+                reverse(
+                    "variants:second-hit",
+                    kwargs={
+                        "case": self.case.sodar_uuid,
+                        "database": "refseq",
+                        "gene_id": "thegene",
+                    },
+                )
+                + "?"
+                + "&".join("%s=%s" % item for item in self.variant_args.items())
+            )
+            self.assert_http_200_ok(response)
+            self.assertNotIn(str(self.small_vars[0].start), response.content.decode("utf-8"))
+            self.assertIn(str(self.small_vars[-1].start), response.content.decode("utf-8"))
+
+    def test_as_superuser(self):
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "variants:second-hit",
+                    kwargs={
+                        "case": self.case.sodar_uuid,
+                        "database": "refseq",
+                        "gene_id": "thegene",
+                    },
+                )
+                + "?"
+                + "&".join("%s=%s" % item for item in self.variant_args.items())
+            )
+            self.assert_http_200_ok(response)
+            self.assertNotIn(str(self.small_vars[0].start), response.content.decode("utf-8"))
+            self.assertIn(str(self.small_vars[-1].start), response.content.decode("utf-8"))
+
+    def test_without_role(self):
+        with self.login(self.user_no_roles):
+            response = self.client.get(
+                reverse(
+                    "variants:second-hit",
+                    kwargs={
+                        "case": self.case.sodar_uuid,
+                        "database": "refseq",
+                        "gene_id": "thegene",
+                    },
+                )
+                + "?"
+                + "&".join("%s=%s" % item for item in self.variant_args.items())
+            )
+            self.assert_http_302_found(response, url="/")
+
+    def test_with_role_and_no_coordinate(self):
+        with self.login(self.user_contributor):
+            response = self.client.get(
+                reverse(
+                    "variants:second-hit",
+                    kwargs={
+                        "case": self.case.sodar_uuid,
+                        "database": "refseq",
+                        "gene_id": "thegene",
+                    },
+                )
+            )
+            self.assert_http_200_ok(response)
+            self.assertIn(str(self.small_vars[0].start), response.content.decode("utf-8"))
+            self.assertIn(str(self.small_vars[-1].start), response.content.decode("utf-8"))

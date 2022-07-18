@@ -1732,6 +1732,14 @@ class CaseExportVcfQuery(CasePrefetchQuery):
     builder = CaseExportVcfQueryPartsBuilder
 
 
+class CaseLoadPrefetchedQuery(CasePrefetchQuery):
+    builder = CaseLoadPrefetchedQueryPartsBuilder
+
+
+class CaseSecondHitsQuery(CasePrefetchQuery):
+    builder = QueryPartsBuilder
+
+
 class ProjectPrefetchQuery(CasePrefetchQuery):
     def __init__(self, project_or_cohort, engine, query_id=None, user=None):
         if isinstance(project_or_cohort, Cohort) and user:

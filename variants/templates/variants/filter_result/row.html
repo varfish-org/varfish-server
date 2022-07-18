@@ -460,10 +460,23 @@
           class="btn btn-primary sodar-list-btn"
           type="button"
           data-toggle="modal"
-          data-target="#variantcarriermodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}"
-          onclick="showVariantCarrierModal(this, '{{ entry.release }}', '{{ entry.chromosome }}', '{{ entry.start }}', '{{ entry.reference }}', '{{ entry.alternative }}');"
+          data-target="#secondhitmodal"
+          data-case="{{ entry.case_uuid }}"
+          onclick="showSecondHitModal(this, '{{ database }}', '{% if database == "ensembl" %}{{ entry.ensembl_gene_id }}{% else %}{{ entry.entrez_id }}{% endif %}', '{{ entry.release }}', '{{ entry.chromosome }}', '{{ entry.start }}', '{{ entry.reference }}', '{{ entry.alternative }}', null, {% if case.num_small_vars %}true{% else %}false{% endif %}, {% if case.num_svs %}true{% else %}false{% endif %})"
+          title="Show potential second hits for affected gene"
         >
-          <span class="iconify" data-icon="mdi:binoculars"></span>
+          <span class="iconify" data-icon="mdi:numeric-2-box-multiple-outline"></span>
+        </button>
+        <button
+          class="btn btn-primary sodar-list-btn"
+          type="button"
+          data-toggle="modal"
+          data-target="#variantcarriermodal"
+          data-case="{{ entry.case_uuid }}"
+          onclick="showVariantCarrierModal(this, '{{ entry.release }}', '{{ entry.chromosome }}', '{{ entry.start }}', '{{ entry.reference }}', '{{ entry.alternative }}');"
+          title="Show other carriers of this variant"
+        >
+          <span class="iconify" data-icon="mdi:account-search"></span>
         </button>
         {% if entry.release == "GRCh37" %}
           <a class="btn btn-primary dropdown-toggle sodar-list-dropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -668,25 +681,6 @@
       </div>
     </div>
     <!-- Modal -->
-    <div class="modal fade" id="variantcarriermodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title" id="variantcarriermodallabel-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}">In-House Variant Carriers</h4>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="variant-carrier-results container-fluid">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="modal fade" id="variantvalidatormodal-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}" tabindex="-1" role="dialog" aria-labelledby="variantvalidatormodallabel-{{ entry.release }}-{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}" aria-hidden="true">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
