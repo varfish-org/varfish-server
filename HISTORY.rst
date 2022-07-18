@@ -21,6 +21,7 @@ End-User Summary
 - Fixing hemizygous count display in fold-outs (#646).
 - Fixing clinvar submission sex/gender update (#686).
 - Fixing issue with phenotype name in Clinvar (#689).
+- Allowing to exclude cases from background db (#579).
 
 Full Change List
 ================
@@ -39,6 +40,7 @@ Full Change List
 - Fixing hemizygous count display in fold-outs (#646).
 - Fixing clinvar submission sex/gender update (#686).
 - Fixing issue with phenotype name in Clinvar (#689).
+- Allowing to exclude cases from background db (#579).
 
 -----------------
 v1.2.2 (anthenea)
