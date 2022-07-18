@@ -47,7 +47,7 @@ operations = [
                 FROM variants_smallvariant AS variants
             ) AS variants_per_case
             GROUP BY (release, chromosome, start, "end", bin, reference, alternative)
-        WITH DATA;
+        WITH NO DATA;
 
         CREATE UNIQUE INDEX variants_smallvariantsummary_id ON variants_smallvariantsummary(id);
         CREATE INDEX variants_smallvariantsummary_coord ON variants_smallvariantsummary(
@@ -240,7 +240,7 @@ if not settings.IS_TESTING:
                     FROM variants_smallvariant AS variants
                 ) AS variants_per_case
                 GROUP BY (release, chromosome, chromosome_no, start, "end", bin, reference, alternative)
-            WITH DATA;
+            WITH NO DATA;
 
             CREATE UNIQUE INDEX variants_smallvariantsummary_id ON variants_smallvariantsummary(id);
             CREATE INDEX variants_smallvariantsummary_coord ON variants_smallvariantsummary(

@@ -30,6 +30,18 @@ You can find out more details, give feedback, and ask for help `in this Github d
 v1.2.* to v2.*.*
 ----------------
 
+**In-House Background Database.**
+A number of changes were made to the implementation of the background database.
+The upgrade will re-create the in-house database as empty.
+
+You will have to re-build the database manually with the command ``python manage.py rebuild_variant_summary``.
+Assuming that you are running within ``varfish-docker-compose``, you can use the following command directly.
+
+::
+
+    $ docker exec -it varfish-docker-compose_varfish-web_1 python /usr/src/app/manage.py \
+        rebuild_variant_summary
+
 **Structural Variants.**
 In case that the support for structural variants has been used, it is **strongly recommended** to re-annotate the structural variants with an updated version of ``varfish-annotator`` (v0.24 or above).
 You will need to use ``varfish-cli`` in a recent version (v0.3.4 or above) for being able to import the data into VarFish.
