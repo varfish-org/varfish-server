@@ -43,6 +43,7 @@ End-User Summary
   A full re-import after re-annotation with varfish-annotator v0.23 or above is recommended.
   Alternatively, you can use ``python manage.py svs_sv_fill_nulls`` to update the records on the fly.
 - Implement new in-house background database for structural variants (#32).
+- Allow to exclude cases from in-house database through project settings (#579).
 
 Full Change List
 ================
@@ -70,7 +71,7 @@ Full Change List
 - Fixed broken VariantValidator query (#523).
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
 - Fixed smallvariant flags filter query (#502).
-- Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
+- Added flags ``segregates``, ``doesnt_segregate`` and ``no_disease_association`` to file export (#502).
 - Adjusting path to new varfish-annotator db download (#546).
 - Fixing issue with sync-from-remote when no remote is defined (#570).
 - Adding feature to enable and configure link-out to HGMD (#576).
@@ -81,6 +82,7 @@ Full Change List
 - Form template reports error if genomebuild variable is not set (#607).
 - Making ``keyvalue`` more robust to failure (#613).
 - Implement new in-house background database for structural variants (#32).
+- Allow to exclude cases from in-house database through project settings (#579).
 
 ------
 v1.2.0

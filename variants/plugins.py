@@ -119,6 +119,17 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
                 "Use this if the sex is unknown."
             ),
         },
+        "exclude_from_inhouse_db": {
+            "scope": SODAR_CONSTANTS["APP_SETTING_SCOPE_PROJECT"],
+            "type": "BOOLEAN",
+            "default": False,
+            "label": "Exclude from in-house database",
+            "description": (
+                "Exclude project's cases from in-house database.  This is intended to be used for cases containing "
+                "training data that may exist with multiple copies and thus introduce artifacts in the in-house "
+                "database (such as no variant of a case showing up because being in the in-house database many times)."
+            ),
+        },
     }
 
     #: Additional columns to display for the projects.

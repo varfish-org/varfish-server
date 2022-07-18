@@ -25,6 +25,7 @@ from django.utils import timezone
 from intervaltree import Interval, IntervalTree
 from projectroles.plugins import get_backend_api
 import psutil
+from projectroles.templatetags.projectroles_common_tags import get_app_setting
 from sqlalchemy import delete
 
 from svs.models import (
@@ -42,7 +43,7 @@ from varfish import __version__ as varfish_version
 
 #: Logger to use in this module.
 from variants.helpers import get_engine, get_meta
-from variants.models import CHROMOSOME_NAMES, CHROMOSOME_STR_TO_CHROMOSOME_INT
+from variants.models import CHROMOSOME_NAMES, CHROMOSOME_STR_TO_CHROMOSOME_INT, Case
 
 LOGGER = logging.getLogger(__name__)
 
@@ -548,6 +549,12 @@ def _build_bg_sv_set_impl(
         genomebuild=job.genomebuild, varfish_version=varfish_version, state="building"
     )
 
+    log("Obtain IDs of cases marked for exclusion")
+    excluded_case_ids = {}
+    for case in Case.objects.prefetch_related("project").iterator():
+        if get_app_setting("variants", "exclude_from_inhouse_db", project=case.project):
+            excluded_case_ids.add(case.id)
+
     log("Starting actual clustering")
     params = ClusterAlgoParams()
     algo = ClusterSvAlgorithm(params)
@@ -563,6 +570,8 @@ def _build_bg_sv_set_impl(
                     chunk_size=chunk_size
                 )
             ):
+                if db_record.case_id in excluded_case_ids:
+                    continue  # skip excluded cases
                 sv_record = sv_model_to_attrs(db_record)
                 algo.push(sv_record)
                 record_count += 1
