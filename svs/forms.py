@@ -102,6 +102,7 @@ FILTER_FORM_VISTA_CHOICES = {
 
 SV_DATABASES = ("DGV", "DGV GS", "ExAC", "gnomAD", "dbVar", "G1K", "inhouse")
 
+
 class SvAnalysisCollectiveFrequencyMixin:
     """Mixin for the frequency fields of the structural variant filtration form."""
 

@@ -5067,8 +5067,8 @@ class TestSecondHitView(ViewTestBase):
                 + "&".join("%s=%s" % item for item in self.variant_args.items())
             )
             self.assert_http_200_ok(response)
-            self.assertNotIn(str(self.small_vars[0].start), response.content.decode("utf-8"))
-            self.assertIn(str(self.small_vars[-1].start), response.content.decode("utf-8"))
+            self.assertNotIn(f"{self.small_vars[0].start:,}", response.content.decode("utf-8"))
+            self.assertIn(f"{self.small_vars[-1].start:,}", response.content.decode("utf-8"))
 
     def test_as_superuser(self):
         with self.login(self.superuser):
@@ -5085,8 +5085,8 @@ class TestSecondHitView(ViewTestBase):
                 + "&".join("%s=%s" % item for item in self.variant_args.items())
             )
             self.assert_http_200_ok(response)
-            self.assertNotIn(str(self.small_vars[0].start), response.content.decode("utf-8"))
-            self.assertIn(str(self.small_vars[-1].start), response.content.decode("utf-8"))
+            self.assertNotIn(f"{self.small_vars[0].start:,}", response.content.decode("utf-8"))
+            self.assertIn(f"{self.small_vars[-1].start:,}", response.content.decode("utf-8"))
 
     def test_without_role(self):
         with self.login(self.user_no_roles):
@@ -5117,5 +5117,5 @@ class TestSecondHitView(ViewTestBase):
                 )
             )
             self.assert_http_200_ok(response)
-            self.assertIn(str(self.small_vars[0].start), response.content.decode("utf-8"))
-            self.assertIn(str(self.small_vars[-1].start), response.content.decode("utf-8"))
+            self.assertIn(f"{self.small_vars[0].start:,}", response.content.decode("utf-8"))
+            self.assertIn(f"{self.small_vars[-1].start:,}", response.content.decode("utf-8"))

@@ -1,9 +1,8 @@
 from django.urls import reverse
 
 from geneinfo.tests.factories import HgncFactory
-from svs.models import StructuralVariantSet, StructuralVariant
+from svs.models import StructuralVariant
 from svs.tests.factories import StructuralVariantGeneAnnotationFactory
-from variants.models import Case
 from variants.tests.factories import CaseWithVariantSetFactory
 from variants.tests.helpers import ViewTestBase
 
@@ -45,10 +44,10 @@ class TestSecondHitView(ViewTestBase):
             )
             self.assert_http_200_ok(response)
             self.assertNotIn(
-                f"{self.sv.chromosome}:{self.sv.start}", response.content.decode("utf-8")
+                f"{self.sv.chromosome}:{self.sv.start:,}", response.content.decode("utf-8")
             )
             self.assertIn(
-                f"{self.sv2.chromosome}:{self.sv2.start}", response.content.decode("utf-8")
+                f"{self.sv2.chromosome}:{self.sv2.start:,}", response.content.decode("utf-8")
             )
 
     def test_as_superuser(self):
@@ -66,10 +65,10 @@ class TestSecondHitView(ViewTestBase):
             )
             self.assert_http_200_ok(response)
             self.assertNotIn(
-                f"{self.sv.chromosome}:{self.sv.start}", response.content.decode("utf-8")
+                f"{self.sv.chromosome}:{self.sv.start:,}", response.content.decode("utf-8")
             )
             self.assertIn(
-                f"{self.sv2.chromosome}:{self.sv2.start}", response.content.decode("utf-8")
+                f"{self.sv2.chromosome}:{self.sv2.start:,}", response.content.decode("utf-8")
             )
 
     def test_without_role(self):
@@ -100,7 +99,9 @@ class TestSecondHitView(ViewTestBase):
                 )
             )
             self.assert_http_200_ok(response)
-            self.assertIn(f"{self.sv.chromosome}:{self.sv.start}", response.content.decode("utf-8"))
             self.assertIn(
-                f"{self.sv2.chromosome}:{self.sv2.start}", response.content.decode("utf-8")
+                f"{self.sv.chromosome}:{self.sv.start:,}", response.content.decode("utf-8")
+            )
+            self.assertIn(
+                f"{self.sv2.chromosome}:{self.sv2.start:,}", response.content.decode("utf-8")
             )

@@ -46,10 +46,26 @@
     {% for entry in entries|slice:":3" %}
       {% if entries|length == 1 and not entry.symbol %}
         <span class="text-muted">&empty; genes</span>
-      {% elif not entry.symbol %}
-        {{ entry.gene_id }}{% if not forloop.last %},{% endif %}
       {% else %}
-        {{ entry.symbol }}{% if not forloop.last %},{% endif %}
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-outline-secondary sodar-list-btn">
+            {% if not entry.symbol %}
+              {{ entry.gene_id }}
+            {% else %}
+              {{ entry.symbol }}
+            {% endif %}
+          </button>
+          <button
+            class="btn btn-primary sodar-list-btn"
+            type="button"
+            data-toggle="modal"
+            data-target="#secondhitmodal"
+            data-case="{{ entry.case_uuid }}"
+            onclick="showSecondHitModal(this, '{{ database }}', '{{ entry.gene_id }}', null, null, null, null, null, '{{ entry.sv_uuid }}', {% if object.num_small_vars %}true{% else %}false{% endif %}, {% if object.num_svs %}true{% else %}false{% endif %})"
+            title="Show potential second hits for affected gene">
+              <span class="iconify" data-icon="mdi:numeric-2-box-multiple-outline"></span>
+          </button>
+        </div>
       {% endif %}
     {% empty %}
       <span class="text-muted">&empty; genes</span>

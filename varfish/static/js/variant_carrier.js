@@ -19,7 +19,6 @@ function showVariantCarrierModal(obj, release, chromosome, start, reference, alt
 function showSecondHitModal(tag, database, geneId, release, chromosome, start, reference, alternative, svUuid, hasSmallVars, hasSvs) {
     const smallVarsBox = $(`#secondhitmodal-small-vars`)
     smallVarsBox.html(`<div class="text-center"><i class="iconify spin" data-icon="fa-solid:spinner"></i></div>`)
-
     const svsBox = $(`#secondhitmodal-svs`)
     svsBox.html(`<div class="text-center"><i class="iconify spin" data-icon="fa-solid:spinner"></i></div>`)
 
@@ -37,20 +36,25 @@ function showSecondHitModal(tag, database, geneId, release, chromosome, start, r
     const svLi = $("#secondhitmodal-sv-li")
 
     if (hasSmallVars && hasSvs) {
-        smallVarLi.addClass("active")
-        svLi.removeClass("active")
-        smallVarLi.show()
-        svLi.show()
+        smallVarLi.find('a').addClass("active")
+        smallVarLi.find('a').removeClass("disabled")
+        svLi.find('a').removeClass("active")
+        smallVarsBox.addClass("active show")
+        svsBox.removeClass("active show")
     } else if (hasSmallVars) {
-        smallVarLi.addClass("active")
-        svLi.removeClass("active")
-        smallVarLi.show()
-        svLi.hide()
+        smallVarLi.find('a').addClass("active")
+        smallVarLi.find('a').removeClass("disabled")
+        svLi.find('a').removeClass("active")
+        svLi.find('a').addClass("disabled")
+        smallVarsBox.addClass("active show")
+        svsBox.removeClass("active show")
     } else {  // hasSvs
-        smallVarLi.removeClass("active")
-        svLi.addClass("active")
-        smallVarLi.hide()
-        svLi.show()
+        svLi.find('a').addClass("active")
+        svLi.find('a').removeClass("disabled")
+        smallVarLi.find('a').removeClass("active")
+        smallVarLi.find('a').addClass("disabled")
+        smallVarsBox.removeClass("active show")
+        svsBox.addClass("active show")
     }
 
     if (hasSmallVars) {
@@ -63,10 +67,10 @@ function showSecondHitModal(tag, database, geneId, release, chromosome, start, r
             type: 'GET',
             url: url,
             success: (response) => {
-                smallVarsBox.html(response);
+                smallVarsBox.html(response)
             },
             error: (jqXHR, textStatus, errorThrown) => {
-                alert("Error during AJAX call:", textStatus, +errorThrown);
+                alert("Error during AJAX call:", textStatus, +errorThrown)
             },
             timeout: 0
         });
@@ -81,10 +85,11 @@ function showSecondHitModal(tag, database, geneId, release, chromosome, start, r
             type: 'GET',
             url: url,
             success: (response) => {
-                svsBox.html(response);
+                console.log(svsBox, response)
+                svsBox.html(response)
             },
             error: (jqXHR, textStatus, errorThrown) => {
-                alert("Error during AJAX call:", textStatus, +errorThrown);
+                alert("Error during AJAX call:", textStatus, +errorThrown)
             },
             timeout: 0
         });

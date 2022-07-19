@@ -33,6 +33,7 @@ End-User Summary
 - Adjusting path to new varfish-annotator db download (#546).
 - Adding feature to enable and configure link-out to HGMD (#576).
 - Small variant filtration results now allow to easily look up second hits in the same gene (#573).
+- Structural filtration results now allow to easily look up second hits in the same gene (#574).
 
 Full Change List
 ================
@@ -65,6 +66,7 @@ Full Change List
 - Fixing issue with sync-from-remote when no remote is defined (#570).
 - Adding feature to enable and configure link-out to HGMD (#576).
 - Small variant filtration results now allow to easily look up second hits in the same gene (#573).
+- Structural filtration results now allow to easily look up second hits in the same gene (#574).
 
 ------
 v1.2.0
