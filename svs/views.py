@@ -736,7 +736,7 @@ class SecondHitView(
 
         context_data["pedigree"] = self.get_case_object().pedigree
         context_data["num_results"] = num_results
-        results_limit = form_data["result_rows_limit"]
+        results_limit = 200
         context_data["results_limit"] = results_limit
         context_data["rows_by_sv"] = dict(list(rows_by_sv.items())[:results_limit])
         context_data["database"] = form_data["database_select"]

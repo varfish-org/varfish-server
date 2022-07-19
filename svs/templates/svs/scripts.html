@@ -32,10 +32,13 @@ $(document).on('click', '.toggle-variant-details', function() {
   let variant_flags_url = "{% url 'svs:sv-flags-api' project=project.sodar_uuid case="--abcef--" sv="--bbccee--" %}";
   let variant_comment_url = "{% url 'svs:sv-comment-api' project=project.sodar_uuid case="--abcef--" sv="--bbccee--" %}";
   let multi_variant_flags_comment_url = "{% url 'svs:multi-sv-flags-comment-api' project=project.sodar_uuid %}";
+  var second_hit_url_small_vars = "{% url 'variants:second-hit' case="--abcef--" database="$database" gene_id="$gene_id" %}"
+  var second_hit_url_svs = "{% url 'svs:second-hit' case="--abcef--" database="$database" gene_id="$gene_id" %}"
 </script>
 <script type="text/javascript" src="{% static "js/helpers.js" %}"></script>
 <script type="text/javascript" src="{% static "js/filter_form.js" %}"></script>
 <script type="text/javascript" src="{% static "js/flags_comments.js" %}"></script>
+<script type="text/javascript" src="{% static "js/variant_carrier.js" %}"></script>
 
 {% include "variants/_variant_flag_form_tpl.html" %}
 {% include "variants/_multi_variant_flag_form_tpl.html" %}
