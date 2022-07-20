@@ -67,6 +67,7 @@ Full Change List
 - Adding feature to enable and configure link-out to HGMD (#576).
 - Small variant filtration results now allow to easily look up second hits in the same gene (#573).
 - Structural filtration results now allow to easily look up second hits in the same gene (#574).
+- Bugfix broken SV filter (#587).
 
 ------
 v1.2.0
