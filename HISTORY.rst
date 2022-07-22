@@ -2,8 +2,24 @@
 History / Changelog
 ===================
 
+-----------------------------
+v1.2.2 (anthenea; UNRELEASED)
+-----------------------------
+
+End-User Summary
+================
+
+- Extra annotations in export completed and tested (#495).
+
+Full Change List
+================
+
+- Extra annotations in export completed and tested (#495).
+- Fixing issue with sync-from-remote when no remote is defined (#570).
+
+
 -----------------
-v1.2.1 (anthenea)
+v1.2.2 (anthenea)
 -----------------
 
 End-User Summary
@@ -29,6 +45,7 @@ End-User Summary
 - Fixed broken VariantValidator query (#523).
 - Fixed smallvariant flags filter query (#502).
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
+- Adding feature to enable and configure link-out to HGMD (#576).
 
 Full Change List
 ================
@@ -53,6 +70,8 @@ Full Change List
 - Fixed smallvariant flags filter query (#502).
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
+- Adding feature to enable and configure link-out to HGMD (#576).
+
 
 ------
 v1.2.0
