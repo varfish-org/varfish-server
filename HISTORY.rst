@@ -9,6 +9,7 @@ v1.2.2 (anthenea; UNRELEASED)
 End-User Summary
 ================
 
+- Add Transcripts GnomadAD constraints and clinvar reports in the export(#568)
 - Extra annotations in export completed and tested (#495).
 
 Full Change List
