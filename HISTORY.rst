@@ -12,6 +12,7 @@ End-User Summary
 - Starting with development of Bollonaster (VarFish v2)
 - Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
+- Add Transcripts GnomadAD constraints and clinvar reports in the export(#568)
 - Extra annotations in export completed and tested (#495).
 - Removing problematic username modification behaviour on login page (#459).
 - Displaying login page text from settings again (#458).

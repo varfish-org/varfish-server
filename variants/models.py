@@ -60,7 +60,6 @@ from importer.management.helpers import open_file, tsv_reader
 from variants.helpers import get_meta
 from projectroles.app_settings import AppSettingAPI
 
-
 app_settings = AppSettingAPI()
 
 #: Django user model.
@@ -85,6 +84,41 @@ PED_FEMALE = 2
 CHROMOSOME_STR_TO_CHROMOSOME_INT = {
     b: a for a, b in enumerate(list(map(str, range(1, 23))) + ["X", "Y", "MT"], 1)
 }
+
+
+def load_molecular_impact(kwargs):
+    """Load molecular impact from Jannovar REST API if configured."""
+    if not settings.VARFISH_ENABLE_JANNOVAR:
+        return []
+
+    url_tpl = (
+        "%(base_url)sannotate-var/%(database)s/%(genome)s/%(chromosome)s/%(position)s/%(reference)s/"
+        "%(alternative)s"
+    )
+    genome = {"GRCh37": "hg19", "GRCh38": "hg38"}.get(kwargs["release"], "hg19")
+    url = url_tpl % {
+        "base_url": settings.VARFISH_JANNOVAR_REST_API_URL,
+        "database": kwargs["database"],
+        "genome": genome,
+        "chromosome": kwargs["chromosome"],
+        "position": kwargs["start"],
+        "reference": kwargs["reference"],
+        "alternative": kwargs["alternative"],
+    }
+    try:
+        res = requests.request(method="get", url=url)
+        if not res.status_code == 200:
+            raise ConnectionError(
+                "ERROR: Server responded with status {} and message {}".format(
+                    res.status_code, res.text
+                )
+            )
+        else:
+            return res.json()
+    except requests.ConnectionError as e:
+        raise ConnectionError(
+            "ERROR: Server at {} not responding.".format(settings.VARFISH_JANNOVAR_REST_API_URL)
+        ) from e
 
 
 def only_source_name(full_name):
@@ -2237,6 +2271,38 @@ class RowWithPhenotypeScore(wrapt.ObjectProxy):
             return self.__wrapped__.__getitem__(key)
 
 
+class RowWithTranscripts(wrapt.ObjectProxy):
+    """Wrap a result row and add members for phenotype score and rank."""
+
+    def __init__(self, obj, database):
+        super().__init__(obj)
+        self._self_transcripts = None
+        self._self_database = database
+
+    @property
+    def transcripts(self):
+        return self._self_transcripts
+
+    @property
+    def database(self):
+        return self._self_database
+
+    @transcripts.setter
+    def transcripts(self, value):
+        self._self_transcripts = value
+
+    def __getattr__(self, item):
+        return self.__getitem__(item)
+
+    def __getitem__(self, key):
+        if key == "transcripts":
+            return self.transcripts
+        elif key == "database":
+            return self.database
+        else:
+            return self.__wrapped__.__getitem__(key)
+
+
 def annotate_with_phenotype_scores(rows, gene_scores):
     """Annotate the results in ``rows`` with phenotype scores stored in ``small_variant_query``.
 
@@ -2261,6 +2327,29 @@ def annotate_with_phenotype_scores(rows, gene_scores):
             prev_gene_score = row.phenotype_score
             prev_gene = row.entrez_id
         row._self_phenotype_rank = rank
+    return rows
+
+
+def annotate_with_transcripts(rows, database):
+    """Annotate the results in ``rows`` with transcripts (RefSeq or Ensembl)
+
+    """
+    rows = [RowWithTranscripts(row, database) for row in rows]
+    for row in rows:
+        transcripts = load_molecular_impact(row)
+        row.transcripts = "\n".join(
+            [
+                t["transcriptId"]
+                + ";"
+                + ",".join(t["variantEffects"])
+                + ";"
+                + t["hgvsProtein"]
+                + ";"
+                + t["hgvsNucleotides"]
+                for t in transcripts
+            ]
+        )
+
     return rows
 
 
