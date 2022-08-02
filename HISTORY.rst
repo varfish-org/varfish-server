@@ -11,12 +11,14 @@ End-User Summary
 
 - Add Transcripts GnomadAD constraints and clinvar reports in the export(#568)
 - Extra annotations in export completed and tested (#495).
+- Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
 
 Full Change List
 ================
 
 - Extra annotations in export completed and tested (#495).
 - Fixing issue with sync-from-remote when no remote is defined (#570).
+- Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
 
 
 -----------------
@@ -71,7 +73,6 @@ Full Change List
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
 - Adding feature to enable and configure link-out to HGMD (#576).
-
 
 ------
 v1.2.0
