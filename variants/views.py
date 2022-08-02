@@ -2172,6 +2172,7 @@ class CaseFilterView(
         """Put the ``Case`` object into the context."""
         context = super().get_context_data(**kwargs)
         context["object"] = self.get_case_object()
+        context["genomebuild"] = context["object"].release
         context["num_small_vars"] = context["object"].num_small_vars
         context["variant_set_exists"] = (
             context["object"].smallvariantset_set.filter(state="active").exists()
@@ -2782,13 +2783,28 @@ class ProjectCasesFilterView(
                     result[key] = value
         return result
 
+    def _get_genomebuild(self, project_or_cohort):
+        """Return genome build for case or cohort or project"""
+        if isinstance(project_or_cohort, Cohort):
+            cases = [
+                case for case in project_or_cohort.get_accessible_cases_for_user(self.request.user)
+            ]
+        else:  # project
+            cases = [case for case in project_or_cohort.case_set.all()]
+        if not cases:
+            return "GRCh37"
+        else:
+            return cases[0].release
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["cohort"] = self.get_cohort()
         if context["cohort"]:
             context["case_count"] = context["cohort"].cases.count()
+            context["genomebuild"] = self._get_genomebuild(context["cohort"])
         else:
             context["case_count"] = context["project"].case_set.count()
+            context["genomebuild"] = self._get_genomebuild(context["project"])
         context["num_small_vars"] = context["project"].num_small_vars()
         context["variant_set_exists"] = (
             context["project"].case_set.filter(smallvariantset__state="active").exists()
