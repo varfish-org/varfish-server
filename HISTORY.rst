@@ -2,14 +2,14 @@
 History / Changelog
 ===================
 
------------------------------
-v1.2.2 (anthenea; UNRELEASED)
------------------------------
+-----------------
+v1.2.2 (anthenea)
+-----------------
 
 End-User Summary
 ================
 
-- Add Transcripts GnomadAD constraints and clinvar reports in the export(#568)
+- Add Transcripts GnomadAD constraints and clinvar reports in the export (#568).
 - Extra annotations in export completed and tested (#495).
 - Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
 - Form template reports error if genomebuild variable is not set (#607).
