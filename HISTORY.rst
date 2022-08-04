@@ -36,6 +36,7 @@ End-User Summary
 - Small variant filtration results now allow to easily look up second hits in the same gene (#573).
 - Structural filtration results now allow to easily look up second hits in the same gene (#574).
 - Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
+- Form template reports error if genomebuild variable is not set (#607).
 
 Full Change List
 ================
@@ -71,6 +72,7 @@ Full Change List
 - Structural filtration results now allow to easily look up second hits in the same gene (#574).
 - Bugfix broken SV filter (#587).
 - Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
+- Form template reports error if genomebuild variable is not set (#607).
 
 ------
 v1.2.0
