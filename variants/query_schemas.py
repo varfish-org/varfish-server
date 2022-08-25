@@ -243,7 +243,6 @@ class CaseQueryV1:
 
     recessive_mode: typing.Optional[RecessiveModeV1] = None
     recessive_index: typing.Optional[str] = None
-    denovo_index: typing.Optional[str] = None
 
     exac_frequency: typing.Optional[float] = None
     exac_heterozygous: typing.Optional[int] = None
@@ -406,8 +405,6 @@ class QueryJsonToFormConverter:
                 result["%s_gt" % sample] = "recessive-index"
             elif sample in result["compound_recessive_indices"].values():
                 result["%s_gt" % sample] = "index"
-            elif sample == query.denovo_index:
-                result["%s_gt" % sample] = "dom-denovo-index"
             else:
                 gt = query.genotype.get(sample, GenotypeChoiceV1.ANY)
                 if gt:

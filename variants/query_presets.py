@@ -77,6 +77,7 @@ class GenotypeChoice(Enum):
 class Inheritance(Enum):
     """Preset options for category inheritance"""
 
+    DE_NOVO = "de_novo"
     DOMINANT = "dominant"
     HOMOZYGOUS_RECESSIVE = "homozygous_recessive"
     COMPOUND_HETEROZYGOUS = "compound_heterozygous"
@@ -200,6 +201,17 @@ class Inheritance(Enum):
                 "genotype": {
                     s.name: GenotypeChoice.VARIANT.value
                     if s.is_affected()
+                    else GenotypeChoice.REF.value
+                    for s in samples
+                },
+            }
+        elif self == Inheritance.DE_NOVO:
+            return {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    s.name: GenotypeChoice.VARIANT.value
+                    if s.name == index_candidates[0].name
                     else GenotypeChoice.REF.value
                     for s in samples
                 },
@@ -998,7 +1010,7 @@ class _QuickPresetList:
     )
     #: *de novo* presets
     de_novo: QuickPresets = QuickPresets(
-        inheritance=Inheritance.DOMINANT,
+        inheritance=Inheritance.DE_NOVO,
         frequency=Frequency.DOMINANT_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.RELAXED,

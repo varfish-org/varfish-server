@@ -501,8 +501,11 @@ const presets = {
   },
   "inheritance-dominant": {
       "ids": {},
-      // dom-denovo doesn't exist in the select. this triggers a function
-      "classes": {"genotype-field-gt": "dom-denovo"},
+      "classes": {"genotype-field-gt": "dominant"},
+  },
+  "inheritance-de-novo": {
+      "ids": {},
+      "classes": {"genotype-field-gt": "de-novo"},
   },
   "inheritance-hom-recessive": {
       "ids": {},
@@ -1469,7 +1472,21 @@ function enableHomRecessiveMode(target) {
 }
 
 
-function enableDomDenovoMode() {
+function enableDeNovoMode() {
+    // Index will be set to variant, all others to ref
+    $("[id^=id_][id$=_gt]").each(
+        function () {
+            console.log($(this), $(this).data("default-index"))
+            if ($(this).data("default-index") === 1) {
+                $(this).val("variant")
+            } else {
+                $(this).val("ref")
+            }
+        }
+    )
+}
+
+function enableDominantMode() {
     // All affected will be set to het
     $("[id^=id_][id$=_gt].affected").val("het");
     // All unaffected will be set to ref
@@ -1637,17 +1654,12 @@ function applyPresetsToSettings(presets, name) {
             (
                 val == "index"
                 || val == "recessive-index"
-                || val == "dom-denovo"
                 || val == "hom-recessive"
                 || val == "mitochondrial"
                 || val == "x-recessive"
             ) && tag.data("default-index") != "1"
         ) {
             continue;
-        }
-        // Dominant denovo is not an option in the genotype select, so let a function do the change.
-        if (val == "dom-denovo") {
-            enableDomDenovoMode();
         }
         // Homozygous recessive is not an option in the genotype select, so let a function do the change.
         else if (val == "hom-recessive") {
@@ -1660,6 +1672,14 @@ function applyPresetsToSettings(presets, name) {
         // X recessive is not an option in the genotype select, so let a function do the change.
         else if (val == "x-recessive") {
             enableXRecessiveMode(tag);
+        }
+        // X recessive is not an option in the genotype select, so let a function do the change.
+        else if (val == "de-novo") {
+            enableDeNovoMode();
+        }
+        // X recessive is not an option in the genotype select, so let a function do the change.
+        else if (val == "dominant") {
+            enableDominantMode();
         }
         // Default change behaviour for all others
         else {
@@ -1698,7 +1718,7 @@ function updateQuickPresets(settings) {
   }
   const quickPresetCategories = ["inheritance", "frequency", "impact", "quality", "region", "flags"];
   const quickPresetCandidates = {
-    "inheritance": ["any", "dominant", "hom-recessive", "comp-het", "recessive", "mitochondrial", "x-recessive"],
+    "inheritance": ["any", "dominant", "de-novo", "hom-recessive", "comp-het", "recessive", "mitochondrial", "x-recessive"],
     "frequency": ["super-strict", "strict", "relaxed", "recessive-strict", "recessive-relaxed", "all"],
     "impact": ["null-variant", "aa-change", "all-coding-deep-intronic", "whole-transcript", "any"],
     "quality": ["super-strict", "strict", "relaxed", "ignore"],
@@ -1749,6 +1769,16 @@ function updateQuickPresets(settings) {
                     presetsKey == "inheritance-dominant" &&
                     (
                         (element.hasClass("affected") && eqAsStr(value,"het")) ||
+                        (element.hasClass("unaffected") && eqAsStr(value,"ref"))
+                    )
+                ) {
+                    continue;
+                }
+                // Similarly, for de novo (note that the same as "mitochondrial" for singletons)
+                else if (
+                    presetsKey == "inheritance-de-novo" &&
+                    (
+                        (element.hasClass("affected") && eqAsStr(value,"variant")) ||
                         (element.hasClass("unaffected") && eqAsStr(value,"ref"))
                     )
                 ) {
@@ -1852,7 +1882,7 @@ function loadPresets(element) {
     $("#input-presets-region").val("region-whole-genome")
     $("#input-presets-flags").val("flags-default")
   } else if (presetsName == "de-novo") {
-    $("#input-presets-inheritance").val("inheritance-dominant")
+    $("#input-presets-inheritance").val("inheritance-de-novo")
     $("#input-presets-frequency").val("frequency-strict")
     $("#input-presets-impact").val("impact-aa-change")
     $("#input-presets-quality").val("quality-relaxed")

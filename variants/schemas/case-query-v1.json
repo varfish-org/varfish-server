@@ -1293,22 +1293,6 @@
         }
       ]
     },
-    "denovo_index": {
-      "anyOf": [
-        {
-          "type": "null"
-        },
-        {
-          "$id": "#/properties/denovo_index",
-          "type": "string",
-          "title": "Select the denovo index",
-          "description": "Set to the identifier of the de novo index",
-          "examples": [
-            "CHILD-NAME"
-          ]
-        }
-      ]
-    },
     "quality": {
       "$id": "#/properties/quality",
       "type": "object",

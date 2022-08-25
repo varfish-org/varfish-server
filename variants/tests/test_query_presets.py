@@ -230,6 +230,7 @@ class PedigreesMixin:
 
 class TestEnumInheritance(PedigreesMixin, TestCase):
     def testValues(self):
+        self.assertEqual(query_presets.Inheritance.DE_NOVO.value, "de_novo")
         self.assertEqual(query_presets.Inheritance.DOMINANT.value, "dominant")
         self.assertEqual(
             query_presets.Inheritance.HOMOZYGOUS_RECESSIVE.value, "homozygous_recessive"
@@ -242,6 +243,78 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
         self.assertEqual(query_presets.Inheritance.AFFECTED_CARRIERS.value, "affected_carriers")
         self.assertEqual(query_presets.Inheritance.CUSTOM.value, "custom")
         self.assertEqual(query_presets.Inheritance.ANY.value, "any")
+
+    def testToSettingsDeNovo(self):
+        # singleton
+        actual = query_presets.Inheritance.DE_NOVO.to_settings(self.singleton, self.singleton[0])
+        self.assertEqual(
+            actual,
+            {
+                "genotype": {"index": query_presets.GenotypeChoice.VARIANT.value},
+                "recessive_index": None,
+                "recessive_mode": None,
+            },
+        )
+        # child with father
+        actual = query_presets.Inheritance.DE_NOVO.to_settings(
+            self.child_father, self.child_father[0].name
+        )
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.REF.value,
+                },
+            },
+        )
+        # child with mother
+        actual = query_presets.Inheritance.DE_NOVO.to_settings(
+            self.child_mother, self.child_mother[0].name
+        )
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
+                },
+            },
+        )
+        # trio denovo
+        actual = query_presets.Inheritance.DE_NOVO.to_settings(self.trio_denovo, self.singleton[0])
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.REF.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
+                },
+            },
+        )
+        # trio dominant inherited
+        actual = query_presets.Inheritance.DE_NOVO.to_settings(
+            self.trio_dominant, self.trio_dominant[0].name
+        )
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.REF.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
+                },
+            },
+        )
 
     def testToSettingsDominant(self):
         # singleton
@@ -1469,7 +1542,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
     def testValueDeNovo(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.de_novo),
-            "QuickPresets(inheritance=<Inheritance.DOMINANT: 'dominant'>, "
+            "QuickPresets(inheritance=<Inheritance.DE_NOVO: 'de_novo'>, "
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.RELAXED: 'relaxed'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
