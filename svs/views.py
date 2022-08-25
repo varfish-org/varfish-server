@@ -92,7 +92,6 @@ class CaseFilterView(
         query = SingleCaseFilterQuery(self.get_case_object(), get_engine())
         args = dict(form.cleaned_data)
         # TODO: variant types
-        print("XXX\n\n", args, "\n\nXXX")
         with contextlib.closing(query.run(args)) as results:
             context_data = self._fetch_context_data(form, results)
             context_data["elapsed_seconds"] = timezone.now() - before

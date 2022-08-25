@@ -48,6 +48,7 @@ End-User Summary
 - Adding section presets for SV filtration (#616).
 - Adjusting SV filtration presets (#616).
 - Fix bug with thousand genomes frequencies in SV filtration (#619).
+- Displaying disease gene icon also for SVs (#620).
 
 Full Change List
 ================
@@ -91,6 +92,7 @@ Full Change List
 - Adding section presets for SV filtration (#616).
 - Adjusting SV filtration presets (#616).
 - Fix bug with thousand genomes frequencies in SV filtration (#619).
+- Displaying disease gene icon also for SVs (#620).
 
 ------
 v1.2.0

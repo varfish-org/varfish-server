@@ -1,5 +1,7 @@
 """Tests for the complex queries through the ``svs`` module."""
 
+import unittest
+
 from geneinfo.tests.factories import HgncFactory
 from genomicfeatures.tests.factories import (
     EnsemblRegulatoryFeatureFactory,
@@ -983,7 +985,7 @@ class _VariantEffectTestBase(QueryTestBase):
             StructuralVariantFactory(variant_set=self.variant_set),
         ]
 
-    def testPassVariantEffect(self):
+    def _testPassVariantEffect(self):
         result = self.run_query(
             SingleCaseFilterQuery,
             {
@@ -995,7 +997,7 @@ class _VariantEffectTestBase(QueryTestBase):
         )
         self.assertUUIDEquals(self.svs[0].sv_uuid, result[0]["sv_uuid"])
 
-    def testFailVariantEffect(self):
+    def _testFailVariantEffect(self):
         self.run_query(
             SingleCaseFilterQuery,
             {
@@ -1006,7 +1008,7 @@ class _VariantEffectTestBase(QueryTestBase):
             0,
         )
 
-    def testPassNoVariantEffect(self):
+    def _testPassNoVariantEffect(self):
         result = self.run_query(
             SingleCaseFilterQuery,
             {
@@ -1018,7 +1020,7 @@ class _VariantEffectTestBase(QueryTestBase):
         )
         self.assertUUIDEquals(self.svs[1].sv_uuid, result[0]["sv_uuid"])
 
-    def testFailNoVariantEffect(self):
+    def _testFailNoVariantEffect(self):
         self.run_query(
             SingleCaseFilterQuery,
             {
@@ -1030,12 +1032,36 @@ class _VariantEffectTestBase(QueryTestBase):
         )
 
 
-class RefSeqVariantEffectFilterQueryTest(QueryTestBase):
+class RefSeqVariantEffectFilterQueryTest(_VariantEffectTestBase):
     database_select = "refseq"
 
+    def testPassVariantEffect(self):
+        super()._testPassVariantEffect()
 
-class EnsemblVariantEffectFilterQueryTest(QueryTestBase):
+    def testFailVariantEffect(self):
+        super()._testFailVariantEffect()
+
+    def testPassNoVariantEffect(self):
+        super()._testPassNoVariantEffect()
+
+    def testFailNoVariantEffect(self):
+        super()._testFailNoVariantEffect()
+
+
+class EnsemblVariantEffectFilterQueryTest(_VariantEffectTestBase):
     database_select = "ensembl"
+
+    def testPassVariantEffect(self):
+        super()._testPassVariantEffect()
+
+    def testFailVariantEffect(self):
+        super()._testFailVariantEffect()
+
+    def testPassNoVariantEffect(self):
+        super()._testPassNoVariantEffect()
+
+    def testFailNoVariantEffect(self):
+        super()._testFailNoVariantEffect()
 
 
 class EnsemblRegulatoryOverlapFilterQueryTest(QueryTestBase):
