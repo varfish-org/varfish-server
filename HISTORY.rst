@@ -47,6 +47,7 @@ End-User Summary
 - Adding distinct de novo genotype setting (#562).
 - Adding section presets for SV filtration (#616).
 - Adjusting SV filtration presets (#616).
+- Fix bug with thousand genomes frequencies in SV filtration (#619).
 
 Full Change List
 ================
@@ -89,6 +90,7 @@ Full Change List
 - Adding distinct de novo genotype setting (#562).
 - Adding section presets for SV filtration (#616).
 - Adjusting SV filtration presets (#616).
+- Fix bug with thousand genomes frequencies in SV filtration (#619).
 
 ------
 v1.2.0
