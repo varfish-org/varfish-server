@@ -102,6 +102,16 @@ FILTER_FORM_VISTA_CHOICES = {
 
 SV_DATABASES = ("DGV", "DGV GS", "ExAC", "gnomAD", "dbVar", "G1K", "inhouse")
 
+_DEFAULT_FREQS = {
+    "dgv": 20,
+    "dgv_gs": 10,
+    "gnomad": 20,
+    "exac": 20,
+    "dbvar": 40,
+    "g1k": 10,
+    "inhouse": 10,
+}
+
 
 class SvDatabaseFrequencyMixin:
     """Mixin with fields for filtering based on databases."""
@@ -125,7 +135,7 @@ class SvDatabaseFrequencyMixin:
             )
             self.fields["%s_max_%s" % (key, entity)] = forms.IntegerField(
                 label="",
-                initial=20 if key == "inhouse" else None,
+                initial=_DEFAULT_FREQS.get(key),
                 min_value=0,
                 required=False,
                 widget=forms.TextInput(attrs={"placeholder": "Maximal %s in %s" % (entity, name)}),
@@ -305,7 +315,9 @@ class SvVariantEffectFilterFormMixin:
         self.fields["sv_type_bnd"] = forms.BooleanField(label="BND", required=False, initial=True)
         self.fields["sv_type_cnv"] = forms.BooleanField(label="CNV", required=False, initial=True)
 
-        self.fields["sv_size_min"] = forms.IntegerField(label="min SV size", required=False)
+        self.fields["sv_size_min"] = forms.IntegerField(
+            label="min SV size", required=False, initial=500
+        )
         self.fields["sv_size_max"] = forms.IntegerField(label="max SV size", required=False)
 
         self.fields["sv_sub_type_del"] = forms.BooleanField(
@@ -414,70 +426,70 @@ class SvQualityFilterFormMixin:
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-gq-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-gq_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["src_min"]] = forms.IntegerField(
                 label="",
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-src-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-src_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["srv_min"]] = forms.IntegerField(
                 label="",
                 required=False,
-                initial=None,
+                initial=1,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-srv-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-srv_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["srv_max"]] = forms.IntegerField(
                 label="",
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-srv-max"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-srv_max"}),
             )
             self.fields[self.get_quality_field_names()[name]["pec_min"]] = forms.IntegerField(
                 label="",
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-pec-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-pec_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["pev_min"]] = forms.IntegerField(
                 label="",
                 required=False,
-                initial=None,
+                initial=1,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-pev-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-pev_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["pev_max"]] = forms.IntegerField(
                 label="",
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-pev-max"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-pev_max"}),
             )
             self.fields[self.get_quality_field_names()[name]["cov_min"]] = forms.IntegerField(
                 label="",
                 required=False,
-                initial=2,
+                initial=4,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-cov-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-cov_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["var_min"]] = forms.IntegerField(
                 label="",
                 required=False,
-                initial=2,
+                initial=4,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-var-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-var_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["var_max"]] = forms.IntegerField(
                 label="",
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-var-max"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-var_max"}),
             )
             self.fields[self.get_quality_field_names()[name]["fail"]] = forms.CharField(
                 label="",

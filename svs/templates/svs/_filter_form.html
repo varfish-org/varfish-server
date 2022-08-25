@@ -12,6 +12,47 @@
 
 <form id="filterForm" method="post">{% csrf_token %}
   <div class="card">
+    <div class="card-header row" id="quick-presets">
+      <div class="pr-3" style="height: inherit; vertical-align: middle;">
+        <strong>Quick Presets</strong>
+      </div>
+
+      <div class="dropdown pr-3">
+        <a class="btn btn-sm btn-outline-secondary dropdown-toggle" role="button" id="dropdownFreqs" data-toggle="dropdown">
+          Frequency
+        </a>
+
+        <div class="dropdown-menu" aria-labelledby="dropdownFreqs">
+          <a class="dropdown-item" data-preset="freq-in_house_only">in-house only (default)</a>
+          <a class="dropdown-item" data-preset="freq-relaxed">relaxed</a>
+          <a class="dropdown-item" data-preset="freq-strict">strict</a>
+        </div>
+      </div>
+
+      <div class="dropdown pr-3">
+        <a class="btn btn-sm btn-outline-secondary dropdown-toggle" role="button" id="dropdownVars" data-toggle="dropdown">
+          Variants &amp; Effects
+        </a>
+
+        <div class="dropdown-menu" aria-labelledby="dropdownVars">
+          <a class="dropdown-item" data-preset="vars-all">all</a>
+          <a class="dropdown-item" data-preset="vars-almost_all">almost all (default)</a>
+          <a class="dropdown-item" data-preset="vars-cnv_only">CNV only</a>
+        </div>
+      </div>
+
+      <div class="dropdown">
+        <a class="btn btn-sm btn-outline-secondary dropdown-toggle" role="button" id="dropdownQual" data-toggle="dropdown">
+          Quality
+        </a>
+
+        <div class="dropdown-menu" aria-labelledby="dropdownQual">
+          <a class="dropdown-item" data-preset="quals-all">all</a>
+          <a class="dropdown-item" data-preset="quals-relaxed">relaxed (default)</a>
+          <a class="dropdown-item" data-preset="quals-strict">strict</a>
+        </div>
+      </div>
+    </div>
     <div class="card-header row border-bottom-0 pt-1 pr-1">
       <ul class="nav nav-tabs card-header-tabs">
         <li class="nav-item">
@@ -117,8 +158,15 @@
   </div>
 </form>
 
-{#<script type="text/javascript">#}
-{#  $('[data-toggle-second="tooltip"]').tooltip();#}
-{#  const anchor = window.location.hash;#}
-{#  $(`a[href="${anchor}"]`).tab('show')#}
-{#</script>#}
+<script type="text/javascript">
+  $().ready(
+    // Register functions that apply defaults
+    function () {
+      $("#quick-presets .dropdown-item").each(
+        function () {
+          $(this).click(svQuickPresetClicked)
+        }
+      )
+    }
+  )
+</script>

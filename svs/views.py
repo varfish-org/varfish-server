@@ -682,6 +682,14 @@ class SecondHitView(
                 "database_select": database,
                 "submit": "display",
                 "gene_allowlist": self.kwargs["gene_id"],
+                "sv_size_min": None,
+                "dgv_max_carriers": None,
+                "dgv_sv_max_carriers": None,
+                "dbvar_max_carriers": None,
+                "exac_max_carriers": None,
+                "g1k_max_alleles": None,
+                "gnomad_max_carriers": None,
+                "inhouse_max_carriers": None,
             }
         )
 
