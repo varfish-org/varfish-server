@@ -385,6 +385,7 @@ class ExtendQueryPartsPublicDatabaseFrequencyJoinAndFilter(ExtendQueryPartsBase)
     def extend_conditions(self, _query_parts):
         result = []
         for token, _, _ in self.TOKEN_MODEL_FIELD:
+            entity = "alleles" if token == "g1k" else "carriers"
             if (
                 self.kwargs.get("%s_enabled" % token, False)
                 and ("%s_overlap_count" % token) in self.fields
@@ -392,7 +393,7 @@ class ExtendQueryPartsPublicDatabaseFrequencyJoinAndFilter(ExtendQueryPartsBase)
             ):
                 result.append(
                     self.fields["%s_overlap_count" % token]
-                    <= self.kwargs["%s_max_carriers" % token]
+                    <= self.kwargs["%s_max_%s" % (token, entity)]
                 )
         return result
 
