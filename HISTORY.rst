@@ -45,6 +45,8 @@ End-User Summary
 - Implement new in-house background database for structural variants (#32).
 - Allow to exclude cases from in-house database through project settings (#579).
 - Adding distinct de novo genotype setting (#562).
+- Adding section presets for SV filtration (#616).
+- Adjusting SV filtration presets (#616).
 
 Full Change List
 ================
@@ -85,6 +87,8 @@ Full Change List
 - Implement new in-house background database for structural variants (#32).
 - Allow to exclude cases from in-house database through project settings (#579).
 - Adding distinct de novo genotype setting (#562).
+- Adding section presets for SV filtration (#616).
+- Adjusting SV filtration presets (#616).
 
 ------
 v1.2.0
