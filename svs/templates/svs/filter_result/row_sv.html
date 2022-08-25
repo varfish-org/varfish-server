@@ -48,11 +48,14 @@
         <span class="text-muted">&empty; genes</span>
       {% else %}
         <div class="btn-group" role="group">
-          <button type="button" class="btn btn-outline-secondary sodar-list-btn">
+          <button type="button" class="btn btn-outline-secondary sodar-list-btn" {% if entry.disease_gene %}title="disease gene"{% endif %}>
             {% if not entry.symbol %}
               {{ entry.gene_id }}
             {% else %}
               {{ entry.symbol }}
+            {% endif %}
+            {% if entry.disease_gene %}
+            <i class="iconify text-danger" data-icon="fa-regular:lightbulb"></i>
             {% endif %}
           </button>
           <button

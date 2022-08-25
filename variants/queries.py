@@ -1318,6 +1318,10 @@ class ExtendQueryPartsModesOfInheritanceJoin(ExtendQueryPartsBase):
 
 
 class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsBase):
+
+    # Model with the gene ID
+    gene_id_model = SmallVariant
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.kwargs["database_select"] == "refseq":
@@ -1329,7 +1333,8 @@ class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsBase):
             select([column("id")])
             .select_from(GeneIdInHpo.sa)
             .where(
-                getattr(SmallVariant.sa, "%s_gene_id" % self.kwargs["database_select"]) == gene_id
+                getattr(self.gene_id_model.sa, "%s_gene_id" % self.kwargs["database_select"])
+                == gene_id
             )
             .lateral("disease_gene_subquery")
         )

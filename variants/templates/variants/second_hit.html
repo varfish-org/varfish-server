@@ -2,7 +2,7 @@
 {% load variants_tags %}
 {% load humanize %}
 
-<table class="table table-sm table-striped table-hover" style="font-size: 11px;">
+<table class="table table-sm table-striped table-hover" style="font-size: 11px; table-layout: fixed;">
   <thead>
     <tr>
       <th scope="col"></th>
@@ -41,8 +41,8 @@
       <tr>
         <td class="text-right">{{ forloop.counter }}</td>
         <td>{{ small_var.chromosome }}:{{ small_var.start|intcomma }}</td>
-        <td>{{ small_var.reference }}</td>
-        <td>{{ small_var.alternative }}</td>
+        <td style="max-width: 50px;"><div class="sodar-overflow-container">{{ small_var.reference }}</div></td>
+        <td style="max-width: 50px;"><div class="sodar-overflow-container">{{ small_var.alternative }}</div></td>
         <td class="text-right">{{ small_var.gnomad_exomes_frequency }}</td>
         <td class="text-right">{{ small_var.gnomad_exomes_homozygous|intcomma }}</td>
         <td class="text-right">{{ small_var.gnomad_genomes_frequency }}</td>
@@ -50,13 +50,13 @@
         <td class="text-right">{{ small_var.inhouse_carriers|intcomma }}</td>
         <td class="text-right">{{ small_var.inhouse_hom_alt|intcomma }}</td>
         {% if small_var.hgvs_p == "p.=" %}
-          <td>{{ small_var.hgvs_c }}</td>
+          <td><div class="sodar-overflow-container">{{ small_var.hgvs_c }}</div></td>
         {% elif small_var.hgvs_c == "p.?" %}
-          <td>{{ small_var.hgvs_c }} / p.?</td>
+          <td><div class="sodar-overflow-container">{{ small_var.hgvs_c }} / p.?</div></td>
         {% else %}
-          <td>{{ small_var.hgvs_p }}</td>
+          <td><div class="sodar-overflow-container">{{ small_var.hgvs_p }}</div></td>
         {% endif %}
-        <td>{{ small_var.effect|join:";" }}</td>
+        <td><div class="sodar-overflow-container">{{ small_var.effect|join:";" }}</div></td>
         {% for name in samples %}
           {% with genotype=small_var.genotype|keyvalue:name %}
             <td class="text-center" data-order="{{ genotype|keyvalue:"gt" }}">

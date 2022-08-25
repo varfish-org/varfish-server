@@ -41,6 +41,7 @@ from variants.queries import (
     ExtendQueryPartsBase,
     ExtendQueryPartsGenotypeDefaultBase,
     ExtendQueryPartsCaseJoinAndFilter as _ExtendQueryPartsCaseJoinAndFilter,
+    ExtendQueryPartsDiseaseGeneJoin as _ExtendQueryPartsDiseaseGeneJoin,
 )
 
 #: Logger to use in this module.
@@ -682,6 +683,11 @@ class EnsemblRegulatoryFeatureTypes(enum.Enum):
     TF_BINDING_SITE = "TF_binding_site"
 
 
+class ExtendQueryPartsDiseaseGeneJoin(_ExtendQueryPartsDiseaseGeneJoin):
+
+    gene_id_model = StructuralVariantGeneAnnotation
+
+
 class ExtendQueryPartsEnsemblRegulatoryJoinAndFilter(ExtendQueryPartsBase):
     """Extend ``QueryParts`` with information for ENSEMBL regulatory region overlap."""
 
@@ -951,6 +957,7 @@ extender_classes_base = [
     ExtendQueryPartsVistaEnhancerJoinAndFilter,
     ExtendQueryPartsRegMapJoinAndFilter,
     ExtendQueryPartsHgncJoin,
+    ExtendQueryPartsDiseaseGeneJoin,
 ]
 
 
