@@ -44,6 +44,7 @@ End-User Summary
   Alternatively, you can use ``python manage.py svs_sv_fill_nulls`` to update the records on the fly.
 - Implement new in-house background database for structural variants (#32).
 - Allow to exclude cases from in-house database through project settings (#579).
+- Adding distinct de novo genotype setting (#562).
 
 Full Change List
 ================
@@ -83,6 +84,7 @@ Full Change List
 - Making ``keyvalue`` more robust to failure (#613).
 - Implement new in-house background database for structural variants (#32).
 - Allow to exclude cases from in-house database through project settings (#579).
+- Adding distinct de novo genotype setting (#562).
 
 ------
 v1.2.0

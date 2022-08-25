@@ -442,10 +442,7 @@ class SmallVariantGenotypeFilterFormMixin:
                     result["compound_recessive_indices"][family] = name
                 elif result[self.get_genotype_field_names()[name]["gt"]] == "recessive-index":
                     result["recessive_indices"][family] = name
-                elif result[self.get_genotype_field_names()[name]["gt"]] in (
-                    "hom-recessive-index",
-                    "dom-denovo-index",
-                ):
+                elif result[self.get_genotype_field_names()[name]["gt"]] == "hom-recessive-index":
                     self.add_error(
                         self.get_genotype_field_names()[name]["gt"],
                         "This option value shouldn't be passed. Selecting it should trigger JS code which changes the value.",
