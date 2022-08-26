@@ -56,6 +56,8 @@ End-User Summary
 - Adding feature to enable and configure link-out to HGMD (#576).
 - Warning in the case of truncated displayed results (#641).
 - Improving Clinvar filter performance (#635).
+- Fixing clinvar filter (#296).
+  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
 
 Full Change List
 ================
@@ -83,6 +85,8 @@ Full Change List
 - Warning in the case of truncated displayed results (#641).
 - Improving Clinvar filter performance (#635).
   Database indices were missing, assumedly because of a Django ``makemigrations`` bug.
+- Fixing clinvar filter (#296).
+  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
 
 ------
 v1.2.0
