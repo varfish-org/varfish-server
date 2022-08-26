@@ -28,6 +28,7 @@ from geneinfo.models import (
     ExacConstraints,
     MgiMapping,
     RefseqToGeneSymbol,
+    RefseqToEnsembl,
     EnsemblToGeneSymbol,
     GeneIdInHpo,
 )
@@ -1360,25 +1361,57 @@ class ExtendQueryPartsGnomadConstraintsJoin(ExtendQueryPartsBase):
             "oe_lof_upper",
             "oe_lof_lower",
         ]
-        self.subquery = (
-            select(
-                [
-                    func.max(getattr(GnomadConstraints.sa, field)).label(field)
-                    for field in self.fields
-                ]
-                + [func.max(GnomadConstraints.sa.oe_lof_upper + 0.001).label("loeuf")]
-            )
-            .select_from(GnomadConstraints.sa)
-            .where(SmallVariant.sa.ensembl_gene_id == GnomadConstraints.sa.ensembl_gene_id)
-            .group_by(GnomadConstraints.sa.ensembl_gene_id)
-            .lateral("gnomad_constraints_subquery")
-        )
+        self.subquery = self._build_subquery()
         self.fields.append("loeuf")
+
+    def _build_subquery(self):
+        """Build sub query, depending on selected database (refseq/ensembl)."""
+        if self.kwargs["database_select"] == "ensembl":
+            return (
+                select(
+                    [
+                        func.max(getattr(GnomadConstraints.sa, field)).label(field)
+                        for field in self.fields
+                    ]
+                    + [func.max(GnomadConstraints.sa.oe_lof_upper + 0.001).label("loeuf")]
+                )
+                .select_from(GnomadConstraints.sa)
+                .where(SmallVariant.sa.ensembl_gene_id == GnomadConstraints.sa.ensembl_gene_id)
+                .group_by(GnomadConstraints.sa.ensembl_gene_id)
+                .lateral("gnomad_constraints_subquery")
+            )
+        else:
+            self.subquery_refseq_to_ensembl = (
+                select([func.max(RefseqToEnsembl.sa.ensembl_gene_id).label("ensembl_gene_id")])
+                .select_from(RefseqToEnsembl.sa)
+                .where(SmallVariant.sa.refseq_gene_id == RefseqToEnsembl.sa.entrez_id)
+                .group_by(RefseqToEnsembl.sa.entrez_id)
+                .lateral("refseqtoensembl_subquery_gnomad_constraints")
+            )
+            link = (
+                self.subquery_refseq_to_ensembl.c.ensembl_gene_id
+                == GnomadConstraints.sa.ensembl_gene_id
+            )
+            return (
+                select(
+                    [
+                        func.max(getattr(GnomadConstraints.sa, field)).label(field)
+                        for field in self.fields
+                    ]
+                    + [func.max(GnomadConstraints.sa.oe_lof_upper + 0.001).label("loeuf")]
+                )
+                .select_from(GnomadConstraints.sa)
+                .where(link)
+                .group_by(GnomadConstraints.sa.ensembl_gene_id)
+                .lateral("gnomad_constraints_subquery")
+            )
 
     def extend_fields(self, _query_parts):
         return [getattr(self.subquery.c, field).label("gnomad_%s" % field) for field in self.fields]
 
     def extend_selectable(self, query_parts):
+        if self.kwargs["database_select"] == "refseq":
+            query_parts = query_parts.selectable.outerjoin(self.subquery_refseq_to_ensembl, true())
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
@@ -1386,23 +1419,64 @@ class ExtendQueryPartsExacConstraintsJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields = ["pLI", "mis_z", "syn_z"]
-        self.subquery = (
-            select(
-                [func.max(getattr(ExacConstraints.sa, field)).label(field) for field in self.fields]
+        self.subquery = self._build_subquery()
+        self.subquery = self._build_subquery()
+
+    def _build_subquery(self):
+        """Build sub query, depending on selected database (refseq/ensembl)."""
+        if self.kwargs["database_select"] == "ensembl":
+            return (
+                select(
+                    [
+                        func.max(getattr(ExacConstraints.sa, field)).label(field)
+                        for field in self.fields
+                    ]
+                )
+                .select_from(ExacConstraints.sa)
+                .where(
+                    func.split_part(SmallVariant.sa.ensembl_transcript_id, ".", 1)
+                    == ExacConstraints.sa.ensembl_transcript_id
+                )
+                .group_by(ExacConstraints.sa.ensembl_transcript_id)
+                .lateral("exac_constraints_subquery")
             )
-            .select_from(ExacConstraints.sa)
-            .where(
-                func.split_part(SmallVariant.sa.ensembl_transcript_id, ".", 1)
+        else:
+            self.subquery_refseq_to_ensembl = (
+                select(
+                    [
+                        func.max(RefseqToEnsembl.sa.ensembl_transcript_id).label(
+                            "ensembl_transcript_id"
+                        )
+                    ]
+                )
+                .select_from(RefseqToEnsembl.sa)
+                .where(SmallVariant.sa.refseq_gene_id == RefseqToEnsembl.sa.entrez_id)
+                .group_by(RefseqToEnsembl.sa.entrez_id)
+                .lateral("refseqtoensembl_subquery_exac_constraints")
+            )
+            link = (
+                self.subquery_refseq_to_ensembl.c.ensembl_transcript_id
                 == ExacConstraints.sa.ensembl_transcript_id
             )
-            .group_by(ExacConstraints.sa.ensembl_transcript_id)
-            .lateral("exac_constraints_subquery")
-        )
+            return (
+                select(
+                    [
+                        func.max(getattr(ExacConstraints.sa, field)).label(field)
+                        for field in self.fields
+                    ]
+                )
+                .select_from(ExacConstraints.sa)
+                .where(link)
+                .group_by(ExacConstraints.sa.ensembl_transcript_id)
+                .lateral("exac_constraints_subquery")
+            )
 
     def extend_fields(self, _query_parts):
         return [getattr(self.subquery.c, field).label("exac_%s" % field) for field in self.fields]
 
     def extend_selectable(self, query_parts):
+        if self.kwargs["database_select"] == "refseq":
+            query_parts = query_parts.selectable.outerjoin(self.subquery_refseq_to_ensembl, true())
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 

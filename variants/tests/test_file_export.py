@@ -16,7 +16,7 @@ from timeline.models import ProjectEvent
 from clinvar.tests.factories import ClinvarFactory
 from cohorts.tests.factories import TestCohortBase
 from extra_annos.tests.factories import ExtraAnnoFieldFactory, ExtraAnnoFactory
-from geneinfo.tests.factories import GnomadConstraintsFactory
+from geneinfo.tests.factories import GnomadConstraintsFactory, RefseqToEnsemblFactory
 from variants.tests.factories import (
     SmallVariantFactory,
     ResubmitFormDataFactory,
@@ -93,6 +93,11 @@ class ExportTestBase(TestCase):
                 pathogenicity_summary="uncertain significance",
             )
             GnomadConstraintsFactory(ensembl_gene_id=small_var.ensembl_gene_id)
+            RefseqToEnsemblFactory(
+                entrez_id=small_var.refseq_gene_id,
+                ensembl_gene_id=small_var.ensembl_gene_id,
+                ensembl_transcript_id=small_var.ensembl_transcript_id,
+            )
 
     def _set_janno_mocker(self, database, mock_):
         if database == "refseq":
