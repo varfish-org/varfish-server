@@ -49,6 +49,7 @@ End-User Summary
 - Adjusting SV filtration presets (#616).
 - Fix bug with thousand genomes frequencies in SV filtration (#619).
 - Displaying disease gene icon also for SVs (#620).
+- Fix bug with gene constraint display for intergenic variants (#620).
 
 Full Change List
 ================
@@ -93,6 +94,7 @@ Full Change List
 - Adjusting SV filtration presets (#616).
 - Fix bug with thousand genomes frequencies in SV filtration (#619).
 - Displaying disease gene icon also for SVs (#620).
+- Fix bug with gene constraint display for intergenic variants (#620).
 
 ------
 v1.2.0
