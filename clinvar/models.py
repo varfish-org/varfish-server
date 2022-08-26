@@ -34,16 +34,20 @@ class Clinvar(models.Model):
     symbols = ArrayField(base_field=models.CharField(max_length=32), size=None)
     #: The HGNC IDs.
     hgnc_ids = ArrayField(base_field=models.CharField(max_length=32), size=None)
+    #: The variation ID
+    variation_id = models.CharField(max_length=32, null=True)
+    #: The RCV
+    rcv = models.CharField(max_length=32, null=True)
     #: The variant accession
     vcv = models.CharField(max_length=32)
-    #: The point_rating
-    point_rating = models.IntegerField()
-    #: The pathogenicity.
-    pathogenicity = models.CharField(max_length=128)
+    #: The Clinvar gold stars
+    gold_stars = models.IntegerField()
     #: The review_status.
     review_status = models.CharField(max_length=128)
-    #: The pathogenicity summary.
-    pathogenicity_summary = models.CharField(max_length=128)
+    #: The pathogenicity.
+    pathogenicity = models.CharField(max_length=128)
+    #: The origin of the variant
+    origin = models.CharField(max_length=32, null=True)
     #: The structured Details information.
     details = JSONField()
 

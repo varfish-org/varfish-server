@@ -24,11 +24,13 @@ class ClinvarFactory(factory.django.DjangoModelFactory):
     variation_type = "snv"
     symbols = factory.Sequence(lambda n: ["SYMBOL%d" % n])
     hgnc_ids = factory.Sequence(lambda n: ["HGNC:%d" % n])
+    variation_id = factory.Sequence(lambda n: ["Clinvar%d" % n])
+    rcv = factory.Sequence(lambda n: "RCV%d" % (12345 + n))
     vcv = factory.Sequence(lambda n: "VCV%d" % (12345 + n))
-    point_rating = factory.Iterator([0, 1, 2, 3])
-    pathogenicity = ""
+    gold_stars = factory.Iterator([0, 1, 2, 3])
+    pathogenicity = "uncertain significance"
     review_status = "practice guideline"
-    pathogenicity_summary = "uncertain significance"
+    origin = "germline"
     details = []
 
     @factory.post_generation

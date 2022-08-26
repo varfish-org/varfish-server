@@ -3061,7 +3061,7 @@ class SmallVariantDetails(
         }
         records = Clinvar.objects.filter(**filter_args)
         if records:
-            return records.first()
+            return list(records)
         else:
             return None
 
