@@ -4564,6 +4564,33 @@ class CaseThreeClinvarFilterTestMixin:
         )
         self.assertEqual(res[0].start, self.small_vars[6].start)
 
+    def test_render_query_single_output_line_even_with_multiple_clinvar_annos(self):
+        # Add second ClinVar annotation
+        ClinvarFactory(
+            release=self.small_vars[1].release,
+            chromosome=self.small_vars[1].chromosome,
+            start=self.small_vars[1].start,
+            end=self.small_vars[1].end,
+            bin=self.small_vars[1].bin,
+            reference=self.small_vars[1].reference,
+            alternative=self.small_vars[1].alternative,
+            pathogenicity="pathogenic",
+        )
+        res = self.run_query(
+            self.query_class,
+            {
+                "genomic_region": [
+                    (
+                        self.small_vars[1].chromosome,
+                        self.small_vars[1].start - 1,
+                        self.small_vars[1].end + 1,
+                    )
+                ]
+            },
+            1,
+        )
+        self.assertEqual(res[0].start, self.small_vars[1].start)
+
 
 class RenderQueryTestCaseThreeClinvarFilter(CaseThreeClinvarFilterTestMixin, SupportQueryTestBase):
     """Test clinvar membership using RenderFilterQuery."""

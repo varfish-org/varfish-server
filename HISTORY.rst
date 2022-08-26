@@ -51,6 +51,7 @@ End-User Summary
 - Displaying disease gene icon also for SVs (#620).
 - Fix bug with gene constraint display for intergenic variants (#620).
 - De novo quick preset now uses strict quality (#624).
+- Create single result row even if multiple clinvar entries (#565).
 
 Full Change List
 ================
@@ -98,7 +99,7 @@ Full Change List
 - Fix bug with gene constraint display for intergenic variants (#620).
 - Fix import bug in import_tables.py (#625).
 - De novo quick preset now uses strict quality (#624).
-
+- Create single result row even if multiple clinvar entries (#565).
 
 ------
 v1.2.0

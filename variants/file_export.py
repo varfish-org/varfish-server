@@ -110,7 +110,7 @@ HEADER_FIXED = (
     ("gnomad_oe_lof", "Gnomad constrains lof observed/expected", float),
     ("gnomad_oe_lof_upper", "Gnomad constrains lof observed/expected upper", float),
     ("gnomad_oe_lof_lower", "Gnomad constrains lof observed/expected lower", float),
-    ("pathogenicity_summary", "ClinVar pathogenicity summary", str),
+    ("pathogenicity_summary_arr", "ClinVar pathogenicity summary", str),
 )
 if settings.KIOSK_MODE:
     HEADER_FIXED = tuple(filter(lambda x: not x[0].startswith("inhouse_"), HEADER_FIXED))
@@ -123,8 +123,8 @@ HEADERS_PHENO_SCORES = (
 
 #: Names of the pathogenicity scoring header columns.
 HEADERS_PATHO_SCORES = (
-    ("pathogenicity_score", "Pathogenicity Score", float),
-    ("pathogenicity_rank", "Pathogenicity Rank", int),
+    ("pathogenicity_score_arr", "Pathogenicity Score", float),
+    ("pathogenicity_rank_arr", "Pathogenicity Rank", int),
 )
 
 HEADERS_TRANSCRIPTS = (("transcripts", "Transcript ids", str),)
