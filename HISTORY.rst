@@ -95,6 +95,7 @@ Full Change List
 - Fix bug with thousand genomes frequencies in SV filtration (#619).
 - Displaying disease gene icon also for SVs (#620).
 - Fix bug with gene constraint display for intergenic variants (#620).
+- Fix import bug in import_tables.py (#625).
 
 ------
 v1.2.0

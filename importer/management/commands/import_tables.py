@@ -370,8 +370,7 @@ class Command(BaseCommand):
     def _import_tad_set(self, path, tables, subset_key, force, truncate):
         """TAD import"""
         release_info = self._get_table_info(path, tables[0].__name__)[1]
-        if not self._create_import_info_record(release_info):
-            return False
+        self._create_import_info_record(release_info)
 
         # Truncate tables if asked to do so.
         if truncate:
@@ -417,8 +416,8 @@ class Command(BaseCommand):
         """Common code for RefSeq and ENSEMBL gene import."""
         release_info = self._get_table_info(path, tables[0].__name__)[1]
         release_info["table"] += ":%s" % subset_key
-        if not self._create_import_info_record(release_info):
-            return False
+        self._create_import_info_record(release_info)
+
         # Truncate tables if asked to do so.
         if truncate:
             self._truncate((GeneInterval,))
