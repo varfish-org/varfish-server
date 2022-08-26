@@ -13,6 +13,7 @@ End-User Summary
 - Extra annotations in export completed and tested (#495).
 - Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
 - Form template reports error if genomebuild variable is not set (#607).
+- Create single result row even if multiple clinvar entries (#565).
 
 Full Change List
 ================
@@ -21,6 +22,7 @@ Full Change List
 - Fixing issue with sync-from-remote when no remote is defined (#570).
 - Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
 - Form template reports error if genomebuild variable is not set (#607).
+- Create single result row even if multiple clinvar entries (#565).
 
 -----------------
 v1.2.1 (anthenea)

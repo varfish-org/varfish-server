@@ -9,8 +9,9 @@ from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from sqlalchemy import Table, true, column, union, literal_column, delete, tuple_
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import select, func, and_, not_, or_, cast
-from sqlalchemy.types import ARRAY, VARCHAR, Integer, Float
+from sqlalchemy.types import VARCHAR, Integer, Float, String
 import sqlparse
 
 from clinvar.models import Clinvar
@@ -360,16 +361,23 @@ class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
 class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._col_names = (
+            "variation_type",
+            "vcv",
+            "point_rating",
+            "pathogenicity",
+            "review_status",
+            "pathogenicity_summary",
+            "details",
+        )
+
         self.subquery = (
             select(
-                (
-                    Clinvar.sa.variation_type,
-                    Clinvar.sa.vcv,
-                    Clinvar.sa.point_rating,
-                    Clinvar.sa.pathogenicity,
-                    Clinvar.sa.review_status,
-                    Clinvar.sa.pathogenicity_summary,
-                    Clinvar.sa.details,
+                tuple(
+                    func.array_agg(
+                        getattr(Clinvar.sa, name), type_=ARRAY(String(length=128))
+                    ).label(f"{name}_arr")
+                    for name in self._col_names
                 )
             )
             .select_from(Clinvar.sa)
@@ -382,12 +390,8 @@ class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
 
     def extend_fields(self, _query_parts):
         return [
-            self.subquery.c.variation_type,
-            self.subquery.c.vcv,
-            self.subquery.c.point_rating,
-            self.subquery.c.pathogenicity,
-            self.subquery.c.pathogenicity_summary,
-            self.subquery.c.details,
+            func.coalesce(getattr(self.subquery.c, f"{name}_arr"), []).label(f"{name}_arr")
+            for name in self._col_names
         ]
 
 
@@ -417,7 +421,10 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
             return True
         for patho_key in self.patho_keys:
             if self.kwargs.get("clinvar_include_%s" % patho_key):
-                terms.append(self.subquery.c.pathogenicity == patho_key.replace("_", " "))
+                # import pdb; pdb.set_trace()
+                terms.append(
+                    self.subquery.c.pathogenicity_arr.contains([patho_key.replace("_", " ")])
+                )
         return or_(*terms)
 
 
