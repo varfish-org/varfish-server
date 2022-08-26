@@ -1885,7 +1885,7 @@ function loadPresets(element) {
     $("#input-presets-inheritance").val("inheritance-de-novo")
     $("#input-presets-frequency").val("frequency-strict")
     $("#input-presets-impact").val("impact-aa-change")
-    $("#input-presets-quality").val("quality-relaxed")
+    $("#input-presets-quality").val("quality-super-strict")
     $("#input-presets-region").val("region-whole-genome")
     $("#input-presets-flags").val("flags-default")
   } else if (presetsName == "hom-recessive" || presetsName == "comp-het" || presetsName == "recessive") {
