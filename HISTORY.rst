@@ -52,6 +52,8 @@ End-User Summary
 - Fix bug with gene constraint display for intergenic variants (#620).
 - De novo quick preset now uses strict quality (#624).
 - Create single result row even if multiple clinvar entries (#565).
+- Fixing clinvar filter (#296).
+  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
 
 Full Change List
 ================
@@ -100,6 +102,8 @@ Full Change List
 - Fix import bug in import_tables.py (#625).
 - De novo quick preset now uses strict quality (#624).
 - Create single result row even if multiple clinvar entries (#565).
+- Fixing clinvar filter (#296).
+  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
 
 ------
 v1.2.0

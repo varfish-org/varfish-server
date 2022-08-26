@@ -4,7 +4,10 @@
 <div class="card">
   <div class="card-header d-flex w-100 justify-content-between">
     <h4 class="card-title">ClinVar for Variant</h4>
-    <small><a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ clinvar.vcv }}" target="_blank">{{ clinvar.vcv }}</a></small>
+    <small>
+      The local ClinVar copy has {{ clinvar|length }} record(s) for this variant.
+      <a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ small_var.release }}%3A{{ small_var.chromosome }}%3A{{ small_var.start }}-{{ small_var.end }}" target="_blank">See all records in NCBI ClinVar.</a>
+    </small>
   </div>
   <div class="text-muted small p-2">
     <span class="iconify" data-icon="mdi:information" data-inline="false"></span>
@@ -12,16 +15,16 @@
     The link-outs to NCBI ClinVar will display the most current data that may differ from our "frozen" copy.
   </div>
   <ul class="list-group list-group-flush">
-    {% for cv in clinvar.details %}
+    {% for cv in clinvar %}
       <li class="list-group-item flex-column align-items-start border-top px-2 list-group-item-action">
         <div class="d-flex w-100 justify-content-between">
-          <strong class="mb-1">{{ cv.title }}</strong>
-          <small><a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ cv.ref_cv_assertion.clinvar_accession }}.{{ cv.ref_cv_assertion.version_no }}" target="_blank">{{ cv.ref_cv_assertion.clinvar_accession }}.{{ cv.ref_cv_assertion.version_no }}</a></small>
+          <strong class="mb-1">{{ cv.details.title }}</strong>
+          <small><a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ cv.details.ref_cv_assertion.clinvar_accession }}.{{ cv.details.ref_cv_assertion.version_no }}" target="_blank">{{ cv.details.ref_cv_assertion.clinvar_accession }}.{{ cv.details.ref_cv_assertion.version_no }}</a></small>
         </div>
         <div class="row">
           <div class="col-6 pl-0">
-            {% if cv.ref_cv_assertion.trait_sets %}
-              {% for trait_set in cv.ref_cv_assertion.trait_sets %}
+            {% if cv.details.ref_cv_assertion.trait_sets %}
+              {% for trait_set in cv.details.ref_cv_assertion.trait_sets %}
                   {% for trait in trait_set.traits %}
                     {% if trait.preferred_name == "not specified" %}traits{% endif %}
                     {{ trait.preferred_name }}{% if not forloop.last %}<br />{% endif %}
@@ -33,8 +36,8 @@
             {% endif %}
           </div>
           <div class="col-3">
-            {% if cv.ref_cv_assertion.clin_sigs %}
-              {% for clin_sig in cv.ref_cv_assertion.clin_sigs %}
+            {% if cv.details.ref_cv_assertion.clin_sigs %}
+              {% for clin_sig in cv.details.ref_cv_assertion.clin_sigs %}
                 {{ clin_sig.description|lower }}{% if not forloop.last %}, {% endif %}
               {% endfor %}
             {% else %}
@@ -42,8 +45,8 @@
             {% endif %}
           </div>
           <div class="col-3 pr-0">
-            {% if cv.ref_cv_assertion.clin_sigs %}
-              {% for clin_sig in cv.ref_cv_assertion.clin_sigs %}
+            {% if cv.details.ref_cv_assertion.clin_sigs %}
+              {% for clin_sig in cv.details.ref_cv_assertion.clin_sigs %}
                 {{ clin_sig.review_status|lower }}{% if not forloop.last %}, {% endif %}
               {% endfor %}
             {% else %}

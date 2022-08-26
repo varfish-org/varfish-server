@@ -364,11 +364,12 @@ class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
         super().__init__(*args, **kwargs)
         self._col_names = (
             "variation_type",
+            "variation_id",
+            "rcv",
             "vcv",
-            "point_rating",
+            "gold_stars",
             "pathogenicity",
             "review_status",
-            "pathogenicity_summary",
             "details",
         )
 
@@ -422,7 +423,6 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
             return True
         for patho_key in self.patho_keys:
             if self.kwargs.get("clinvar_include_%s" % patho_key):
-                # import pdb; pdb.set_trace()
                 terms.append(
                     self.subquery.c.pathogenicity_arr.contains([patho_key.replace("_", " ")])
                 )

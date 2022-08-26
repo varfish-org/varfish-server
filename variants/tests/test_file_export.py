@@ -90,7 +90,6 @@ class ExportTestBase(TestCase):
                 reference=small_var.reference,
                 alternative=small_var.alternative,
                 pathogenicity="pathogenic",
-                pathogenicity_summary="uncertain significance",
             )
             GnomadConstraintsFactory(ensembl_gene_id=small_var.ensembl_gene_id)
             RefseqToEnsemblFactory(
@@ -261,7 +260,7 @@ class CaseExporterTest(ExportTestBase):
                         ),
                     )
 
-            self.assertEquals(arrs[i + 1][36], "uncertain significance")
+            self.assertEquals(arrs[i + 1][36], "pathogenic")
         if has_trailing:
             self.assertSequenceEqual(arrs[4], [""])
 
