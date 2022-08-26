@@ -1098,7 +1098,7 @@ class TestCaseLoadPrefetchedFilterView(GenerateSmallVariantResultMixin, ViewTest
                 ),
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
-            self.assertEqual(response.context["result_rows"][1].pathogenicity, "pathogenic")
+            self.assertEqual(response.context["result_rows"][1].pathogenicity_arr, ["pathogenic"])
 
     def test_training_mode(self):
         with self.login(self.superuser):
@@ -2264,7 +2264,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.context["result_rows"][4].pathogenicity, "pathogenic")
+            self.assertEqual(response.context["result_rows"][4].pathogenicity_arr, ["pathogenic"])
 
     @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
     @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
