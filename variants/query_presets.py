@@ -1013,7 +1013,7 @@ class _QuickPresetList:
         inheritance=Inheritance.DE_NOVO,
         frequency=Frequency.DOMINANT_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
-        quality=Quality.RELAXED,
+        quality=Quality.SUPER_STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
         flags_etc=FlagsEtc.DEFAULTS,
     )

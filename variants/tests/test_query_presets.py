@@ -1545,7 +1545,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
             "QuickPresets(inheritance=<Inheritance.DE_NOVO: 'de_novo'>, "
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
-            "quality=<Quality.RELAXED: 'relaxed'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
+            "quality=<Quality.SUPER_STRICT: 'super_strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
             "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
