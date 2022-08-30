@@ -51,6 +51,7 @@ End-User Summary
 - Fixed smallvariant flags filter query (#502).
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Adding feature to enable and configure link-out to HGMD (#576).
+- Warning in the case of truncated displayed results (#641).
 
 Full Change List
 ================
@@ -76,6 +77,7 @@ Full Change List
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
 - Adding feature to enable and configure link-out to HGMD (#576).
+- Warning in the case of truncated displayed results (#641).
 
 ------
 v1.2.0
