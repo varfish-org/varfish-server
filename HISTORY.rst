@@ -55,6 +55,7 @@ End-User Summary
 - Fixing clinvar filter (#296).
   **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
 - Improving Clinvar filter performance (#635).
+- Warning in the case of truncated displayed results (#641).
 
 Full Change List
 ================
@@ -107,6 +108,7 @@ Full Change List
   **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
 - Improving Clinvar filter performance (#635).
   Database indices were missing, assumedly because of a Django ``makemigrations`` bug.
+- Warning in the case of truncated displayed results (#641).
 
 ------
 v1.2.0
