@@ -33,6 +33,7 @@ End-User Summary
 
 - Starting with branch of stable version Athenea (VarFish v1).
 - Documenting problem with extra annotations in ``20210728` data release (#450).
+- Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
 - Removing problematic username modification behaviour on login page (#459).
 - Displaying login page text from settings again (#458).
@@ -52,12 +53,12 @@ End-User Summary
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Adding feature to enable and configure link-out to HGMD (#576).
 - Warning in the case of truncated displayed results (#641).
+- Improving Clinvar filter performance (#635).
 
 Full Change List
 ================
 
 - Starting with branch of stable version Athenea (VarFish v1).
-- Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
 - Removing problematic username modification behaviour on login page (#459).
 - Displaying login page text from settings again (#458).
@@ -78,6 +79,8 @@ Full Change List
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
 - Adding feature to enable and configure link-out to HGMD (#576).
 - Warning in the case of truncated displayed results (#641).
+- Improving Clinvar filter performance (#635).
+  Database indices were missing, assumedly because of a Django ``makemigrations`` bug.
 
 ------
 v1.2.0
