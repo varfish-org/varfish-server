@@ -54,6 +54,7 @@ End-User Summary
 - Create single result row even if multiple clinvar entries (#565).
 - Fixing clinvar filter (#296).
   **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
+- Improving Clinvar filter performance (#635).
 
 Full Change List
 ================
@@ -104,6 +105,8 @@ Full Change List
 - Create single result row even if multiple clinvar entries (#565).
 - Fixing clinvar filter (#296).
   **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
+- Improving Clinvar filter performance (#635).
+  Database indices were missing, assumedly because of a Django ``makemigrations`` bug.
 
 ------
 v1.2.0
