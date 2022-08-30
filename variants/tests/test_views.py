@@ -2921,8 +2921,7 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 response.context["pop_freqs"]["1000GP"]["Total"]["af"], self.thousand_genomes.af
             )
             self.assertEqual(
-                response.context["clinvar"][0].pathogenicity,
-                self.clinvar.pathogenicity,
+                response.context["clinvar"][0].pathogenicity, self.clinvar.pathogenicity,
             )
             self.assertEqual(
                 response.context["knowngeneaa"][0]["alignment"], self.knowngeneaa.alignment

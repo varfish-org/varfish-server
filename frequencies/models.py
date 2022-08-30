@@ -1077,6 +1077,12 @@ class HelixMtDb(Coordinates):
     # Site is triallelic
     is_triallelic = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ("release", "chromosome", "start", "reference", "alternative")
+        indexes = [
+            models.Index(fields=["release", "chromosome", "start", "reference", "alternative"])
+        ]
+
 
 class MtDb(Coordinates):
     # Allele count
@@ -1104,6 +1110,12 @@ class Mitomap(Coordinates):
     an = models.IntegerField()
     # Allele frequency, i.e. ac/an
     af = models.FloatField()
+
+    class Meta:
+        unique_together = ("release", "chromosome", "start", "reference", "alternative")
+        indexes = [
+            models.Index(fields=["release", "chromosome", "start", "reference", "alternative"])
+        ]
 
 
 #: Information about frequency databases used in ``FrequencyQuery``.
