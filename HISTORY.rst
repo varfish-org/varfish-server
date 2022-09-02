@@ -34,6 +34,7 @@ End-User Summary
 - Adding feature to enable and configure link-out to HGMD (#576).
 - Small variant filtration results now allow to easily look up second hits in the same gene (#573).
 - Structural filtration results now allow to easily look up second hits in the same gene (#574).
+- Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 
 Full Change List
 ================
@@ -67,6 +68,7 @@ Full Change List
 - Adding feature to enable and configure link-out to HGMD (#576).
 - Small variant filtration results now allow to easily look up second hits in the same gene (#573).
 - Structural filtration results now allow to easily look up second hits in the same gene (#574).
+- Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 
 ------
 v1.2.0
