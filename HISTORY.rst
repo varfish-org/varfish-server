@@ -36,6 +36,7 @@ End-User Summary
 - Small variant filtration results now allow to easily look up second hits in the same gene (#573).
 - Structural filtration results now allow to easily look up second hits in the same gene (#574).
 - Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
+- Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 - Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
 - Form template reports error if genomebuild variable is not set (#607).
 
@@ -71,11 +72,6 @@ Full Change List
 - Adding feature to enable and configure link-out to HGMD (#576).
 - Small variant filtration results now allow to easily look up second hits in the same gene (#573).
 - Structural filtration results now allow to easily look up second hits in the same gene (#574).
-- Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
-- Bugfix broken SV filter (#587).
-- Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
-- Form template reports error if genomebuild variable is not set (#607).
-- Making ``keyvalue`` more robust to failure (#613).
 
 ------
 v1.2.0
