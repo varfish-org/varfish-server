@@ -313,7 +313,7 @@ class CaseExporterBase:
 
     def _is_prioritization_enabled(self):
         """Return whether prioritization is enabled in this query."""
-        return settings.VARFISH_ENABLE_EXOMISER_PRIORITISER and all(
+        return settings.VARFISH_ENABLE_EXOMISER_PRIORITISER or settings.VARFISH_ENABLE_CADA and all(
             (
                 self.query_args.get("prio_enabled"),
                 self.query_args.get("prio_algorithm"),
@@ -435,7 +435,7 @@ class CaseExporterBase:
                 return {
                     str(gene_id): score
                     for gene_id, _, score, _ in prioritize_genes(
-                        self, entrez_ids, hpo_terms, prio_algorithm
+                        self.job, entrez_ids, hpo_terms, prio_algorithm
                     )
                 }
             except ConnectionError as e:

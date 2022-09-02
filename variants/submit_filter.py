@@ -83,7 +83,7 @@ class FilterBase:
         entrez_ids = [row["entrez_id"] for row in results if row["entrez_id"]]
         try:
             for gene_id, gene_symbol, score, priority_type in prioritize_genes(
-                self, entrez_ids, hpo_terms, prio_algorithm
+                self.job, entrez_ids, hpo_terms, prio_algorithm
             ):
                 self.variant_query.smallvariantquerygenescores_set.create(
                     gene_id=gene_id,
