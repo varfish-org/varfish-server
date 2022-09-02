@@ -2460,7 +2460,7 @@ def unroll_extra_annos_result(rows, fields):
     return rows_
 
 
-def prioritize_genes(self, entrez_ids, hpo_terms, prio_algorithm):
+def prioritize_genes(job, entrez_ids, hpo_terms, prio_algorithm):
     """Perform gene prioritization query.
 
     Yield quadruples (gene id, gene symbol, score, priority type) for the given gene list and query settings.
@@ -2468,65 +2468,71 @@ def prioritize_genes(self, entrez_ids, hpo_terms, prio_algorithm):
     # TODO: properly test
 
     if prio_algorithm == "CADA":
-        self.job.add_log_entry("Prioritize genes with CADA ...")
-        if not settings.VARFISH_ENABLE_CADA or not hpo_terms:
-            return
-        try:
-            res = requests.post(
-                settings.VARFISH_CADA_REST_API_URL,
-                json=sorted(set(hpo_terms)),
-            )
-
-            if not res.status_code == 200:
-                raise ConnectionError(
-                    "ERROR: Server responded with status {} and message {}".format(
-                        res.status_code, strip_tags(re.sub("<head>.*</head>", "", res.text))
-                    )
-                )
-        except requests.ConnectionError:
-            raise ConnectionError(
-                "ERROR: Server {} not responding.".format(settings.VARFISH_CADA_API_URL)
-            )
-
-        print("res=" + str(res))
-        for entry in res.json():
-            yield entry["geneId"].split(':')[1], entry["geneSymbol"], entry["score"], 'CADA'
+        job.add_log_entry("Prioritize genes with CADA ...")
+        yield from prio_cada(hpo_terms)
 
     else:
-        if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER or not entrez_ids or not hpo_terms:
-            return
-        self.job.add_log_entry("Prioritize genes with Exomiser ...")
-        try:
+        job.add_log_entry("Prioritize genes with Exomiser ...")
+        yield from prio_exomiser(entrez_ids, hpo_terms, prio_algorithm)
 
-                algo_params = {
-                        "hiphive": ("hiphive", ["human", "mouse", "fish", "ppi"]),
-                        "hiphive-human": ("hiphive", ["human"]),
-                        "hiphive-mouse": ("hiphive", ["human", "mouse"]),
-                    }
-                prio_algorithm, prio_params = algo_params.get(prio_algorithm, (prio_algorithm, []))
-                res = requests.post(
-                        settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
-                        json={
-                            "phenotypes": sorted(set(hpo_terms)),
-                            "genes": sorted(set(entrez_ids)),
-                            "prioritiser": prio_algorithm,
-                            "prioritiser-params": ",".join(prio_params),
-                         },
-                    )
 
-                if not res.status_code == 200:
-                     raise ConnectionError(
-                         "ERROR: Server responded with status {} and message {}".format(
-                              res.status_code, strip_tags(re.sub("<head>.*</head>", "", res.text))
-                          )
-                      )
-        except requests.ConnectionError:
+def prio_exomiser(entrez_ids, hpo_terms, prio_algorithm):
+    if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER or not entrez_ids or not hpo_terms:
+        return
+    try:
+
+        algo_params = {
+            "hiphive": ("hiphive", ["human", "mouse", "fish", "ppi"]),
+            "hiphive-human": ("hiphive", ["human"]),
+            "hiphive-mouse": ("hiphive", ["human", "mouse"]),
+        }
+        prio_algorithm, prio_params = algo_params.get(prio_algorithm, (prio_algorithm, []))
+        res = requests.post(
+            settings.VARFISH_EXOMISER_PRIORITISER_API_URL,
+            json={
+                "phenotypes": sorted(set(hpo_terms)),
+                "genes": sorted(set(entrez_ids)),
+                "prioritiser": prio_algorithm,
+                "prioritiser-params": ",".join(prio_params),
+            },
+        )
+
+        if not res.status_code == 200:
             raise ConnectionError(
-                "ERROR: Server {} not responding.".format(settings.VARFISH_EXOMISER_PRIORITISER_API_URL)
+                "ERROR: Server responded with status {} and message {}".format(
+                    res.status_code, strip_tags(re.sub("<head>.*</head>", "", res.text))
+                )
             )
+    except requests.ConnectionError:
+        raise ConnectionError(
+            "ERROR: Server {} not responding.".format(settings.VARFISH_EXOMISER_PRIORITISER_API_URL)
+        )
+    for entry in res.json().get("results", ()):
+        yield entry["geneId"], entry["geneSymbol"], entry["score"], entry["priorityType"]
 
-        for entry in res.json().get("results", ()):
-            yield entry["geneId"], entry["geneSymbol"], entry["score"], entry["priorityType"]
+
+def prio_cada(hpo_terms):
+    if not settings.VARFISH_ENABLE_CADA or not hpo_terms:
+        return
+    try:
+        res = requests.post(
+            settings.VARFISH_CADA_REST_API_URL,
+            json=sorted(set(hpo_terms)),
+        )
+
+        if not res.status_code == 200:
+            raise ConnectionError(
+                "ERROR: Server responded with status {} and message {}".format(
+                    res.status_code, strip_tags(re.sub("<head>.*</head>", "", res.text))
+                )
+            )
+    except requests.ConnectionError:
+        raise ConnectionError(
+            "ERROR: Server {} not responding.".format(settings.VARFISH_CADA_API_URL)
+        )
+    print("res=" + str(res))
+    for entry in res.json():
+        yield entry["geneId"].split(':')[1], entry["geneSymbol"], entry["score"], 'CADA'
 
 
 class VariantScoresFactory:
