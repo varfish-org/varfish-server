@@ -5,33 +5,36 @@
 
 {% get_django_setting 'VARFISH_ENABLE_EXOMISER_PRIORITISER' as exomiser_enabled %}
 {% get_django_setting 'VARFISH_ENABLE_CADD' as cadd_enabled %}
+{% get_django_setting 'VARFISH_ENABLE_CADA' as cada_enabled %}
 
 <div class="row compact-form-groups">
-  {% if exomiser_enabled and query_type == "case" %}
-    <div class="col-6 pt-3 mb-2">
-      <h5 class="card-title mb-0">
-        Phenotype Prioritization
-      </h5>
-      <div class="small font-italic pv-2 pb-2 pt-1">
-        Phenotype-based prioritization is based on matching the gene that a variant is located in with your patient based on the phenotypes of genes and patients.
-        VarFish use <a href="http://exomiser.github.io/Exomiser/" target="_blank">Exomiser</a> for this which already knows about genes.
-        To describe the phenotypes for your patient, <strong>enter phenotypes (HPO) or diseases (OMIM) into the "Type HPO or OMIM..." box and click on the appearing suggestions to select them</strong>.
-        The HPO and OMIM terms will then be added to the text box below.
-        These values will then be used for the prioritization.
-        You can also paste some terms, e.g., as "HP:0004440; OMIM:122850".
-      </div>
-      <div class="alert alert-warning" role="alert" id="prio_not_enabled_warning">
-        <strong><i class="iconify" data-icon="bi:exclamation-circle"></i> HPO terms selected but prioritization not enabled!</strong>
-      </div>
-      {{ form.prio_enabled|as_crispy_field }}
-      {{ form.prio_algorithm|as_crispy_field }}
-        <div class="form-group">
-            <label class="form-control-label">HPO and OMIM Terms</label>
-            <input type="text" id="id_hpo_typeahead" class="form-control" placeholder="Type HPO or OMIM name or ID here (min 3 characters) to get suggestions below (20 are displayed at max) ..." />
-            <div id="id_hpo_suggestions" class="mt-2 mb-2 list-unstyled" style="max-height: 200px; overflow-y: scroll;"></div>
+  {% if query_type == "case" %}
+    {% if cada_enabled or exomiser_enabled %}
+      <div class="col-6 pt-3 mb-2">
+        <h5 class="card-title mb-0">
+          Phenotype Prioritization
+        </h5>
+        <div class="small font-italic pv-2 pb-2 pt-1">
+          Phenotype-based prioritization is based on matching the gene that a variant is located in with your patient based on the phenotypes of genes and patients.
+          VarFish use <a href="http://exomiser.github.io/Exomiser/" target="_blank">Exomiser</a> or <a href="https://cada.gene-talk.de/" target="_blank">CADA</a>  for this which already knows about genes.
+          To describe the phenotypes for your patient, <strong>enter phenotypes (HPO) or diseases (OMIM) into the "Type HPO or OMIM..." box and click on the appearing suggestions to select them</strong>.
+          The HPO and OMIM terms will then be added to the text box below.
+          These values will then be used for the prioritization.
+          You can also paste some terms, e.g., as "HP:0004440; OMIM:122850".
         </div>
-      {{ form.prio_hpo_terms|as_crispy_field }}
-    </div>
+        <div class="alert alert-warning" role="alert" id="prio_not_enabled_warning">
+          <strong><i class="iconify" data-icon="bi:exclamation-circle"></i> HPO terms selected but prioritization not enabled!</strong>
+        </div>
+        {{ form.prio_enabled|as_crispy_field }}
+        {{ form.prio_algorithm|as_crispy_field }}
+          <div class="form-group">
+              <label class="form-control-label">HPO and OMIM Terms</label>
+              <input type="text" id="id_hpo_typeahead" class="form-control" placeholder="Type HPO or OMIM name or ID here (min 3 characters) to get suggestions below (20 are displayed at max) ..." />
+              <div id="id_hpo_suggestions" class="mt-2 mb-2 list-unstyled" style="max-height: 200px; overflow-y: scroll;"></div>
+          </div>
+        {{ form.prio_hpo_terms|as_crispy_field }}
+      </div>
+    {% endif %}
   {% endif %}
 
   <div class="col-6 pt-3">
