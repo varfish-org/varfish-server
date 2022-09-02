@@ -80,6 +80,7 @@ End-User Summary
 - Fixing bug in Vue.js filtration without prior query (#794).
 - Fixing bug in SV background database generation (#792).
 - Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
+- Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 
 Full Change List
 ================
@@ -107,7 +108,7 @@ Full Change List
 - Fixed broken VariantValidator query (#523).
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
 - Fixed smallvariant flags filter query (#502).
-- Added flags ``segregates``, ``doesnt_segregate`` and ``no_disease_association`` to file export (#502).
+- Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Adjusting path to new varfish-annotator db download (#546).
 - Fixing issue with sync-from-remote when no remote is defined (#570).
 - Adding feature to enable and configure link-out to HGMD (#576).
@@ -172,6 +173,7 @@ Full Change List
 - Fixing bug in mutationtaster integration (#790).
 - Fixing bug in Vue.js filtration without prior query (#794).
 - Fixing bug in SV background database generation (#792).
+- Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 - Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 
 ------
