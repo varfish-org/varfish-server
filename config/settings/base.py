@@ -555,6 +555,14 @@ VARFISH_CADD_REST_API_CADD_VERSION = env.str("VARFISH_CADD_REST_API_CADD_VERSION
 # Configure maximal number of genes to send to Exomiser API
 VARFISH_CADD_MAX_VARS = env.int("VARFISH_CADD_MAX_VARS", 5000)
 
+# Enable CADA prioritization.
+VARFISH_ENABLE_CADA = env.bool("VARFISH_ENABLE_CADA", default=False)
+# Configure URL to CADA REST API
+# REST API documentation for CADA can be found here: https://app.swaggerhub.com/apis-docs/schmida/CADA/1.0.0
+VARFISH_CADA_REST_API_URL = env.str(
+    "VARFISH_CADA_REST_API_URL", "https://cada.gene-talk.de/api/process"
+)
+
 # Enable submission of variants to CADD server.
 VARFISH_ENABLE_CADD_SUBMISSION = env.bool("VARFISH_ENABLE_CADD_SUBMISSION", default=False)
 # CADD version to use for for submission

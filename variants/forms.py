@@ -232,16 +232,10 @@ PRIO_HIPHIVE_LABEL = "HiPhive (human, mouse, fish, PPI)"
 PRIO_HIPHIVE_HUMAN_LABEL = "HiPhive (human only)"
 #: HiPhive prioritization label (human and mouse).
 PRIO_HIPHIVE_MOUSE_LABEL = "HiPhive (human+mouse)"
-
-#: Choices for prioritization algorithms.
-PRIO_ALGORITHM_CHOICES = (
-    (PRIO_PHENIX, PRIO_PHENIX_LABEL),
-    (PRIO_PHIVE, PRIO_PHIVE_LABEL),
-    (PRIO_HIPHIVE_HUMAN, PRIO_HIPHIVE_HUMAN_LABEL),
-    (PRIO_HIPHIVE_MOUSE, PRIO_HIPHIVE_MOUSE_LABEL),
-    (PRIO_HIPHIVE, PRIO_HIPHIVE_LABEL),
-)
-
+#: CADA prioritization label.
+PRIO_CADA_LABEL = "CADA (Case Annotation & Disorder Annotation)"
+#: CADA prioritization value.
+PRIO_CADA = "CADA"
 
 #: CADD score value.
 PATHO_CADD = "cadd"
@@ -1261,7 +1255,19 @@ class SmallVariantPrioritizerFormMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.initial["prio_algorithm"] = PRIO_HIPHIVE_HUMAN
+        #: Choices for prioritization algorithms.
+        PRIO_ALGORITHM_CHOICES = []
+        if settings.VARFISH_ENABLE_EXOMISER_PRIORITISER:
+            PRIO_ALGORITHM_CHOICES.append((PRIO_PHENIX, PRIO_PHENIX_LABEL))
+            PRIO_ALGORITHM_CHOICES.append((PRIO_PHIVE, PRIO_PHIVE_LABEL))
+            PRIO_ALGORITHM_CHOICES.append((PRIO_HIPHIVE_HUMAN, PRIO_HIPHIVE_HUMAN_LABEL))
+            PRIO_ALGORITHM_CHOICES.append((PRIO_HIPHIVE_MOUSE, PRIO_HIPHIVE_MOUSE_LABEL))
+            PRIO_ALGORITHM_CHOICES.append((PRIO_HIPHIVE, PRIO_HIPHIVE_LABEL))
+            self.initial["prio_algorithm"] = PRIO_HIPHIVE_HUMAN
+
+        if settings.VARFISH_ENABLE_CADA:
+            PRIO_ALGORITHM_CHOICES.append((PRIO_CADA, PRIO_CADA_LABEL))
+            self.initial["prio_algorithm"] = PRIO_CADA
 
         self.fields["prio_enabled"] = forms.BooleanField(
             label="Enable phenotype-based prioritization",
