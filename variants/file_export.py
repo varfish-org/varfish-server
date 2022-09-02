@@ -435,7 +435,7 @@ class CaseExporterBase:
                 return {
                     str(gene_id): score
                     for gene_id, _, score, _ in prioritize_genes(
-                        entrez_ids, hpo_terms, prio_algorithm
+                        self, entrez_ids, hpo_terms, prio_algorithm
                     )
                 }
             except ConnectionError as e:
