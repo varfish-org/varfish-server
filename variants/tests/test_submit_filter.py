@@ -18,7 +18,6 @@ from ..models import (
     SmallVariantQuery,
     ProjectCasesSmallVariantQuery,
     CaddPathogenicityScoreCache,
-   # CadaPathogenicityScoreCache,
     MutationTasterPathogenicityScoreCache,
     UmdPathogenicityScoreCache,
 )
@@ -235,7 +234,7 @@ class CaseFilterTest(TestCase):
         self.assertEqual(CaddPathogenicityScoreCache.objects.count(), 3)
 
     @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
-    @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com") ########### Implement for PEDIA
+    @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
     @Mocker()
     def test_submit_case_filter_cadd(self, mock):
         def _key_gen(s):
