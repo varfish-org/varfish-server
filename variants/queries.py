@@ -1344,7 +1344,17 @@ class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsBase):
 class ExtendQueryPartsGnomadConstraintsJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields = ["pLI", "mis_z", "syn_z", "oe_lof", "oe_lof_upper", "oe_lof_lower"]
+        self.fields = [
+            "pLI",
+            "mis_z",
+            "syn_z",
+            "oe_mis",
+            "oe_mis_upper",
+            "oe_mis_lower",
+            "oe_lof",
+            "oe_lof_upper",
+            "oe_lof_lower",
+        ]
         self.subquery = (
             select(
                 [
@@ -1478,6 +1488,7 @@ class CaseExportTableQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsHgncAndConservationJoin,
         ExtendQueryPartsAcmgJoin,
         ExtendQueryPartsMgiJoin,
+        ExtendQueryPartsGnomadConstraintsJoin,
     ]
 
 
@@ -1518,6 +1529,7 @@ class ProjectExportTableQueryPartsBuilder(QueryPartsBuilder):
         ExtendQueryPartsGeneSymbolJoin,
         ExtendQueryPartsAcmgJoin,
         ExtendQueryPartsMgiJoin,
+        ExtendQueryPartsGnomadConstraintsJoin,
     ]
 
 

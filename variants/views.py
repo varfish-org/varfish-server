@@ -117,6 +117,7 @@ from .models import (
     ClearOldKioskCasesBgJob,
     ClearInactiveVariantSetsBgJob,
     ClearExpiredExportedFilesBgJob,
+    load_molecular_impact,
 )
 from .forms import (
     ExportFileResubmitForm,
@@ -2171,6 +2172,7 @@ class CaseFilterView(
         """Put the ``Case`` object into the context."""
         context = super().get_context_data(**kwargs)
         context["object"] = self.get_case_object()
+        context["genomebuild"] = context["object"].release
         context["num_small_vars"] = context["object"].num_small_vars
         context["variant_set_exists"] = (
             context["object"].smallvariantset_set.filter(state="active").exists()
@@ -2781,13 +2783,28 @@ class ProjectCasesFilterView(
                     result[key] = value
         return result
 
+    def _get_genomebuild(self, project_or_cohort):
+        """Return genome build for case or cohort or project"""
+        if isinstance(project_or_cohort, Cohort):
+            cases = [
+                case for case in project_or_cohort.get_accessible_cases_for_user(self.request.user)
+            ]
+        else:  # project
+            cases = [case for case in project_or_cohort.case_set.all()]
+        if not cases:
+            return "GRCh37"
+        else:
+            return cases[0].release
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["cohort"] = self.get_cohort()
         if context["cohort"]:
             context["case_count"] = context["cohort"].cases.count()
+            context["genomebuild"] = self._get_genomebuild(context["cohort"])
         else:
             context["case_count"] = context["project"].case_set.count()
+            context["genomebuild"] = self._get_genomebuild(context["project"])
         context["num_small_vars"] = context["project"].num_small_vars()
         context["variant_set_exists"] = (
             context["project"].case_set.filter(smallvariantset__state="active").exists()
@@ -3059,40 +3076,6 @@ class SmallVariantDetails(
             alternative=kwargs["alternative"],
         ).first()
 
-    def _load_molecular_impact(self, kwargs):
-        """Load molecular impact from Jannovar REST API if configured."""
-        if not settings.VARFISH_ENABLE_JANNOVAR:
-            return []
-
-        url_tpl = (
-            "%(base_url)sannotate-var/%(database)s/%(genome)s/%(chromosome)s/%(position)s/%(reference)s/"
-            "%(alternative)s"
-        )
-        genome = {"GRCh37": "hg19", "GRCh38": "hg38"}.get(kwargs["release"], "hg19")
-        url = url_tpl % {
-            "base_url": settings.VARFISH_JANNOVAR_REST_API_URL,
-            "database": kwargs["database"],
-            "genome": genome,
-            "chromosome": kwargs["chromosome"],
-            "position": kwargs["start"],
-            "reference": kwargs["reference"],
-            "alternative": kwargs["alternative"],
-        }
-        try:
-            res = requests.request(method="get", url=url)
-            if not res.status_code == 200:
-                raise ConnectionError(
-                    "ERROR: Server responded with status {} and message {}".format(
-                        res.status_code, res.text
-                    )
-                )
-            else:
-                return res.json()
-        except requests.ConnectionError as e:
-            raise ConnectionError(
-                "ERROR: Server at {} not responding.".format(settings.VARFISH_JANNOVAR_REST_API_URL)
-            ) from e
-
     def _get_population_freqs(self, kwargs):
         if kwargs.get("chromosome") == "MT":
             return {}
@@ -3292,7 +3275,7 @@ class SmallVariantDetails(
         result["clinvar"] = self._load_clinvar(self.kwargs)
         result["knowngeneaa"] = self._load_knowngene_aa(self.kwargs)
         result["small_var"] = self._load_small_var(self.kwargs)
-        result["effect_details"] = self._load_molecular_impact(self.kwargs)
+        result["effect_details"] = load_molecular_impact(self.kwargs)
         result["extra_annos"] = self.get_extra_annos(self.kwargs)
         if self.request.GET.get("render_full", "no").lower() in ("yes", "true"):
             result["base_template"] = "projectroles/base.html"

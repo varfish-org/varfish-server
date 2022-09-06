@@ -100,7 +100,7 @@ FILTER_FORM_VISTA_CHOICES = {
     "negative": "negative",
 }
 
-SV_DATABASES = ("DGV", "DGV GS", "ExAC", "gnomAD", "dbVar", "G1K", "inhouse")
+SV_DATABASES = ("DGV", "DGV GS", "ExAC", "gnomAD", "dbVar", "G1K")
 
 
 class SvAnalysisCollectiveFrequencyMixin:

@@ -1487,21 +1487,6 @@ class ProjectCasesFilterForm(
             self.fields["cohort"] = forms.CharField(
                 widget=forms.HiddenInput(), initial=str(cohort.sodar_uuid)
             )
-        self.genomebuild = self._get_genomebuild()
-
-    def _get_genomebuild(self):
-        """Return genome build for case or cohort or project"""
-        if isinstance(self.project_or_cohort, Cohort):
-            cases = [
-                case
-                for case in self.project_or_cohort.get_accessible_cases_for_user(self.superuser)
-            ]
-        else:  # project
-            cases = [case for case in self.project_or_cohort.case_set.all()]
-        if not cases:
-            return "GRCh37"
-        else:
-            return cases[0].release
 
     def get_pedigree(self):
         """Return ``list`` of ``dict`` with pedigree information."""
