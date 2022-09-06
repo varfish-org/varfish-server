@@ -1,4 +1,3 @@
-from bgjobs.plugins import BackgroundJobsPluginPoint
 from projectroles.plugins import SiteAppPluginPoint
 
 from .urls import urlpatterns

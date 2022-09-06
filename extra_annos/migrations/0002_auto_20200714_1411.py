@@ -12,5 +12,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelOptions(name="extraannofield", options={"ordering": ("field",)},),
+        migrations.AlterModelOptions(
+            name="extraannofield",
+            options={"ordering": ("field",)},
+        ),
     ]

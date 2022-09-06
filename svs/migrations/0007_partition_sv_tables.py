@@ -2,11 +2,11 @@
 """Setup ``svs`` tables as partitioned.
 """
 
-from django.db import migrations, models
-from django.conf import settings
-import django.contrib.postgres.fields
 import uuid
 
+from django.conf import settings
+import django.contrib.postgres.fields
+from django.db import migrations, models
 
 operations = [
     migrations.DeleteModel("StructuralVariant"),

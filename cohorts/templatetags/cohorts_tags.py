@@ -1,7 +1,5 @@
 from django import template
 
-from variants.models import Case
-
 register = template.Library()
 
 

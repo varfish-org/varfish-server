@@ -42,7 +42,10 @@ class Migration(migrations.Migration):
                         base_field=models.CharField(max_length=32), size=None
                     ),
                 ),
-                ("vcv", models.CharField(max_length=32),),
+                (
+                    "vcv",
+                    models.CharField(max_length=32),
+                ),
                 ("point_rating", models.IntegerField()),
                 ("pathogenicity", models.CharField(max_length=128)),
                 ("review_status", models.CharField(max_length=128)),

@@ -1,5 +1,5 @@
-from projectroles.models import SODARUser
 from django.conf import settings
+from projectroles.models import SODARUser
 
 
 class User(SODARUser):

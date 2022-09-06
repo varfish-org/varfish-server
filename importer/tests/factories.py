@@ -6,13 +6,13 @@ import factory
 from variants.tests.factories import CoreCaseFactory
 
 from ..models import (
-    CaseImportInfo,
-    VariantSetImportInfo,
-    CaseVariantType,
     BamQcFile,
-    GenotypeFile,
-    EffectFile,
+    CaseImportInfo,
+    CaseVariantType,
     DatabaseInfoFile,
+    EffectFile,
+    GenotypeFile,
+    VariantSetImportInfo,
 )
 
 

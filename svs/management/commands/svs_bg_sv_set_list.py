@@ -3,13 +3,11 @@
 from django.core.management import BaseCommand
 from prettytable import PrettyTable
 
-
 from svs.models import BackgroundSvSet
 
 
 class Command(BaseCommand):
-    """List all existing ``BackgroundSvSet`` records
-    """
+    """List all existing ``BackgroundSvSet`` records"""
 
     #: Help message displayed on the command line.
     help = "List existing background SV sets"

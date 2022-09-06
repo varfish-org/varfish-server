@@ -1,13 +1,13 @@
-from projectroles.plugins import ProjectAppPluginPoint
 from bgjobs.plugins import BackgroundJobsPluginPoint
+from projectroles.plugins import ProjectAppPluginPoint
 
 from .models import (
+    BuildBackgroundSvSetJob,
     Case,
+    CleanupBackgroundSvSetJob,
+    ImportStructuralVariantBgJob,
     StructuralVariantComment,
     StructuralVariantFlags,
-    ImportStructuralVariantBgJob,
-    BuildBackgroundSvSetJob,
-    CleanupBackgroundSvSetJob,
 )
 from .urls import urlpatterns
 

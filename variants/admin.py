@@ -1,23 +1,23 @@
 from django.contrib import admin
 
 from .models import (
-    Case,
     CaddSubmissionBgJob,
+    Case,
+    CasePhenotypeTerms,
     DistillerSubmissionBgJob,
-    SmallVariant,
     ExportFileBgJob,
     ExportFileJobResult,
+    FilterBgJob,
+    ImportVariantsBgJob,
+    ProjectCasesFilterBgJob,
+    SmallVariant,
+    SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
-    SmallVariantComment,
-    FilterBgJob,
-    ProjectCasesFilterBgJob,
-    SyncCaseListBgJob,
-    SyncCaseResultMessage,
-    ImportVariantsBgJob,
     SmallVariantSet,
     SpanrSubmissionBgJob,
-    CasePhenotypeTerms,
+    SyncCaseListBgJob,
+    SyncCaseResultMessage,
 )
 
 # Register your models here.

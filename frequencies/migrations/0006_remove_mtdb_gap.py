@@ -12,5 +12,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="mtdb", name="gap",),
+        migrations.RemoveField(
+            model_name="mtdb",
+            name="gap",
+        ),
     ]

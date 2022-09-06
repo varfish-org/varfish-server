@@ -11,6 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="extraanno", name="anno_data", field=models.JSONField(default=dict),
+            model_name="extraanno",
+            name="anno_data",
+            field=models.JSONField(default=dict),
         ),
     ]

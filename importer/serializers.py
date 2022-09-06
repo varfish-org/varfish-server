@@ -1,9 +1,10 @@
 """Serializers for the importer app."""
 from django.db.models import Q
+from projectroles.serializers import SODARProjectModelSerializer
 from rest_framework import serializers
 
-from projectroles.serializers import SODARProjectModelSerializer
 from variants.serializers import CoreCaseSerializerMixin
+
 from .models import (
     BamQcFile,
     CaseImportInfo,

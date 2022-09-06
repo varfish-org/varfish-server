@@ -62,3 +62,18 @@ test: collectstatic
 .PHONY: test-noselenium
 test-noselenium:
 	VARFISH_KIOSK_MODE=0 SKIP_SELENIUM=1 coverage run manage.py test -v2 --settings=config.settings.test
+
+.PHONY: lint
+lint: flake8
+
+.PHONY: isort
+isort:
+	isort --force-sort-within-sections --profile=black .
+
+.PHONY: flake8
+flake8:
+	flake8
+
+coverage:
+	coverage report
+	coverage html

@@ -1,20 +1,21 @@
 """Factory Boy factory classes for ``clinvar_export``."""
 
-import factory
 from django.utils import timezone
+import factory
+
+from variants.tests.factories import CaseFactory, ProjectFactory
 
 from ..models import (
+    AssertionMethod,
     Family,
     Individual,
-    AssertionMethod,
-    Submitter,
     Organisation,
-    SubmittingOrg,
-    SubmissionSet,
     Submission,
     SubmissionIndividual,
+    SubmissionSet,
+    Submitter,
+    SubmittingOrg,
 )
-from variants.tests.factories import CaseFactory, ProjectFactory
 
 
 class FamilyFactory(factory.django.DjangoModelFactory):

@@ -163,10 +163,15 @@ class TestCohortCreateView(TestCohortBase):
         }
         with self.login(user):
             response = self.client.post(
-                reverse("cohorts:create", kwargs={"project": project.sodar_uuid}), form_data,
+                reverse("cohorts:create", kwargs={"project": project.sodar_uuid}),
+                form_data,
             )
             self.assertRedirects(
-                response, reverse("cohorts:list", kwargs={"project": project.sodar_uuid},),
+                response,
+                reverse(
+                    "cohorts:list",
+                    kwargs={"project": project.sodar_uuid},
+                ),
             )
             self.assertEqual(Cohort.objects.count(), 1)
             cohort = Cohort.objects.first()
@@ -185,7 +190,8 @@ class TestCohortCreateView(TestCohortBase):
         }
         with self.login(user):
             self.client.post(
-                reverse("cohorts:create", kwargs={"project": project.sodar_uuid}), form_data,
+                reverse("cohorts:create", kwargs={"project": project.sodar_uuid}),
+                form_data,
             )
             self.assertEqual(Cohort.objects.count(), 1)
             cohort = Cohort.objects.first()
@@ -204,7 +210,8 @@ class TestCohortCreateView(TestCohortBase):
         }
         with self.login(user):
             self.client.post(
-                reverse("cohorts:create", kwargs={"project": project.sodar_uuid}), form_data,
+                reverse("cohorts:create", kwargs={"project": project.sodar_uuid}),
+                form_data,
             ),
             self.assertEqual(Cohort.objects.count(), 1)
             cohort = Cohort.objects.first()
@@ -276,7 +283,11 @@ class TestCohortUpdateView(TestCohortBase):
                 form_data,
             )
             self.assertRedirects(
-                response, reverse("cohorts:list", kwargs={"project": project.sodar_uuid},),
+                response,
+                reverse(
+                    "cohorts:list",
+                    kwargs={"project": project.sodar_uuid},
+                ),
             )
             self.assertEqual(Cohort.objects.count(), 1)
             cohort_altered = Cohort.objects.first()
@@ -308,7 +319,11 @@ class TestCohortUpdateView(TestCohortBase):
                 form_data,
             )
             self.assertRedirects(
-                response, reverse("cohorts:list", kwargs={"project": project.sodar_uuid},),
+                response,
+                reverse(
+                    "cohorts:list",
+                    kwargs={"project": project.sodar_uuid},
+                ),
             )
             self.assertEqual(Cohort.objects.count(), 1)
             cohort_altered = Cohort.objects.first()
@@ -384,7 +399,11 @@ class TestCohortUpdateView(TestCohortBase):
                 form_data,
             )
             self.assertRedirects(
-                response, reverse("cohorts:list", kwargs={"project": project.sodar_uuid},),
+                response,
+                reverse(
+                    "cohorts:list",
+                    kwargs={"project": project.sodar_uuid},
+                ),
             )
             self.assertEqual(Cohort.objects.count(), 1)
             cohort_altered = Cohort.objects.first()
@@ -416,7 +435,11 @@ class TestCohortUpdateView(TestCohortBase):
                 form_data,
             )
             self.assertRedirects(
-                response, reverse("cohorts:list", kwargs={"project": project.sodar_uuid},),
+                response,
+                reverse(
+                    "cohorts:list",
+                    kwargs={"project": project.sodar_uuid},
+                ),
             )
             messages = [m.message for m in get_messages(response.wsgi_request)]
             self.assertEqual("Can't update other user's cohort.", messages[0])
@@ -469,7 +492,11 @@ class TestCohortDeleteView(TestCohortBase):
                 ),
             )
             self.assertRedirects(
-                response, reverse("cohorts:list", kwargs={"project": project.sodar_uuid},)
+                response,
+                reverse(
+                    "cohorts:list",
+                    kwargs={"project": project.sodar_uuid},
+                ),
             )
         self.assertEqual(Cohort.objects.count(), 0)
 
@@ -486,7 +513,11 @@ class TestCohortDeleteView(TestCohortBase):
                 ),
             )
             self.assertRedirects(
-                response, reverse("cohorts:list", kwargs={"project": project.sodar_uuid},)
+                response,
+                reverse(
+                    "cohorts:list",
+                    kwargs={"project": project.sodar_uuid},
+                ),
             )
         self.assertEqual(Cohort.objects.count(), 0)
 
@@ -533,7 +564,11 @@ class TestCohortDeleteView(TestCohortBase):
                 ),
             )
             self.assertRedirects(
-                response, reverse("cohorts:list", kwargs={"project": project.sodar_uuid},)
+                response,
+                reverse(
+                    "cohorts:list",
+                    kwargs={"project": project.sodar_uuid},
+                ),
             )
             messages = [m.message for m in get_messages(response.wsgi_request)]
             self.assertEqual("Cohort <strong>%s</strong> deleted." % cohort.name, messages[0])
@@ -551,7 +586,11 @@ class TestCohortDeleteView(TestCohortBase):
                 ),
             )
             self.assertRedirects(
-                response, reverse("cohorts:list", kwargs={"project": project.sodar_uuid},)
+                response,
+                reverse(
+                    "cohorts:list",
+                    kwargs={"project": project.sodar_uuid},
+                ),
             )
             messages = [m.message for m in get_messages(response.wsgi_request)]
             self.assertEqual("Can't delete other user's cohort.", messages[0])

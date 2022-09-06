@@ -1,8 +1,11 @@
 """Factory Boy factory classes for ``svs``."""
 
+import typing
+import uuid
+
+import attr
 import binning
 import factory
-import uuid
 
 from svs.forms import (
     FILTER_FORM_TRANSLATE_EFFECTS,
@@ -11,17 +14,16 @@ from svs.forms import (
 )
 from variants.models import Case
 from variants.tests.factories import CaseFactory
+
 from ..models import (
-    StructuralVariant,
-    StructuralVariantGeneAnnotation,
-    StructuralVariantFlags,
-    StructuralVariantComment,
-    StructuralVariantSet,
     BackgroundSv,
     BackgroundSvSet,
+    StructuralVariant,
+    StructuralVariantComment,
+    StructuralVariantFlags,
+    StructuralVariantGeneAnnotation,
+    StructuralVariantSet,
 )
-import typing
-import attr
 
 
 def default_genotypes():
@@ -304,7 +306,9 @@ class BackgroundSvFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = BackgroundSv
 
-    bg_sv_set = factory.SubFactory(BackgroundSvSetFactory,)
+    bg_sv_set = factory.SubFactory(
+        BackgroundSvSetFactory,
+    )
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])

@@ -1,14 +1,14 @@
 from django.contrib import admin
 
 from .models import (
-    ImportInfo,
-    CaseImportInfo,
-    VariantSetImportInfo,
     BamQcFile,
-    GenotypeFile,
-    EffectFile,
+    CaseImportInfo,
     DatabaseInfoFile,
+    EffectFile,
+    GenotypeFile,
     ImportCaseBgJob,
+    ImportInfo,
+    VariantSetImportInfo,
 )
 
 # Register your models here.

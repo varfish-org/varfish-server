@@ -1,43 +1,44 @@
 """This module contains the code for file export"""
 
-import datetime
-import math
 from collections import OrderedDict
-from datetime import timedelta
-from tempfile import NamedTemporaryFile
 import contextlib
+import datetime
+from datetime import timedelta
+import math
+from tempfile import NamedTemporaryFile
 
-from extra_annos.models import ExtraAnnoField
-from variants.helpers import get_engine
-from django.utils import timezone
 from django.conf import settings
+from django.utils import timezone
+from projectroles.plugins import get_backend_api
 import vcfpy
 import wrapt
 import xlsxwriter
 
 from cohorts.models import Cohort
+from extra_annos.models import ExtraAnnoField
+from variants.helpers import get_engine
+
 from .models import (
     Case,
     CaseAwareProject,
     ExportFileJobResult,
     ExportProjectCasesFileBgJobResult,
     SmallVariantComment,
-    annotate_with_phenotype_scores,
-    annotate_with_pathogenicity_scores,
-    annotate_with_joint_scores,
-    annotate_with_transcripts,
-    unroll_extra_annos_result,
-    prioritize_genes,
     VariantScoresFactory,
+    annotate_with_joint_scores,
+    annotate_with_pathogenicity_scores,
+    annotate_with_phenotype_scores,
+    annotate_with_transcripts,
+    prioritize_genes,
+    unroll_extra_annos_result,
 )
-from .templatetags.variants_tags import flag_class
-from projectroles.plugins import get_backend_api
 from .queries import (
     CaseExportTableQuery,
     CaseExportVcfQuery,
     ProjectExportTableQuery,
     ProjectExportVcfQuery,
 )
+from .templatetags.variants_tags import flag_class
 
 #: Color to use for variants flagged as positive.
 BG_COLOR_POSITIVE = "#dc3848"
@@ -245,8 +246,7 @@ def _is_jannovar_enabled():
 
 
 class CaseExporterBase:
-    """Base class for export of (filtered) case data from single case or all cases of a project.
-    """
+    """Base class for export of (filtered) case data from single case or all cases of a project."""
 
     #: The query class to use for building single-case queries.
     query_class_single_case = None
@@ -509,8 +509,7 @@ class CaseExporterBase:
         """
 
     def _write_variants(self):
-        """Write out the actual data, override called functions rather than this one.
-        """
+        """Write out the actual data, override called functions rather than this one."""
         self._begin_write_variants()
         self._write_variants_header()
         self._write_variants_data()

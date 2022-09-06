@@ -1,19 +1,18 @@
 """Common helper code for tests"""
 
+from django.conf import settings
 from django.test import RequestFactory
-from test_plus.test import TestCase
 from projectroles.tests.test_permissions import TestProjectPermissionBase
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
-from django.conf import settings
+from test_plus.test import TestCase
 
 from beaconsite.models import Site
 from beaconsite.tests.factories import ConsortiumFactory, SiteFactory
-
 from cohorts.models import Cohort
-from .factories import ProcessedFormDataFactory, ProjectFactory
-from ..models import Case, CaseAwareProject
 from variants.helpers import get_engine
 
+from ..models import Case, CaseAwareProject
+from .factories import ProcessedFormDataFactory, ProjectFactory
 
 #: A known invalid MIME type.
 VARFISH_INVALID_MIMETYPE = "application/vnd.bihealth.invalid+json"

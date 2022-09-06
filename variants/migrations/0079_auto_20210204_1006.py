@@ -34,9 +34,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={"ordering": ("individual",),},
+            options={
+                "ordering": ("individual",),
+            },
         ),
-        migrations.AlterModelOptions(name="case", options={"ordering": ("-date_modified",)},),
+        migrations.AlterModelOptions(
+            name="case",
+            options={"ordering": ("-date_modified",)},
+        ),
         migrations.AddField(
             model_name="casephenotypeterms",
             name="case",
@@ -48,6 +53,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="casephenotypeterms", unique_together=set([("case", "individual")]),
+            name="casephenotypeterms",
+            unique_together=set([("case", "individual")]),
         ),
     ]

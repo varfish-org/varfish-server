@@ -1,7 +1,8 @@
 from django import forms
-from django.forms import ModelMultipleChoiceField, MultipleChoiceField
+from django.forms import ModelMultipleChoiceField
 from django.forms.models import ModelChoiceIterator
 from projectroles.app_settings import AppSettingAPI
+
 from cohorts.models import Cohort
 from variants.models import Case
 

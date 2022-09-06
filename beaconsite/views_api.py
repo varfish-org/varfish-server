@@ -4,22 +4,23 @@ import cattr
 from django.utils import timezone
 from django.utils.http import parse_http_date
 from httpsig import HeaderVerifier
+from rest_framework import authentication, exceptions
 from rest_framework.permissions import BasePermission
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import exceptions, authentication
-from sqlalchemy import select, and_
+from rest_framework.views import APIView
+from sqlalchemy import and_, select
 
 from variants.helpers import get_engine
 from variants.models import Case, SmallVariant
+
 from .models import Site
 from .models_api import (
+    API_VERSION,
+    BeaconAlleleRequest,
+    BeaconAlleleResponse,
     BeaconInfo,
     Dataset,
     Organisation,
-    BeaconAlleleRequest,
-    API_VERSION,
-    BeaconAlleleResponse,
 )
 
 
@@ -172,7 +173,10 @@ class BeaconInfoApiView(APIView):
             )
         datasets = [
             Dataset(
-                id=str(p.sodar_uuid), name=p.title, assembly="GRCh37", description=p.description,
+                id=str(p.sodar_uuid),
+                name=p.title,
+                assembly="GRCh37",
+                description=p.description,
             )
             for p in remote_site.get_all_projects()
         ]

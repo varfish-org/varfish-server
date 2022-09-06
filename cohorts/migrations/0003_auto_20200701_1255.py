@@ -12,5 +12,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelOptions(name="cohort", options={"ordering": ["-date_modified"]},),
+        migrations.AlterModelOptions(
+            name="cohort",
+            options={"ordering": ["-date_modified"]},
+        ),
     ]

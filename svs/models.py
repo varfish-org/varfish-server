@@ -1,26 +1,23 @@
-import uuid as uuid_object
 from datetime import datetime, timedelta
+import uuid as uuid_object
 
-from django.utils.timezone import localtime
-
-from varfish.utils import JSONField
-from variants.helpers import get_engine
 from bgjobs.models import BackgroundJob, JobModelMessageMixin
-from postgres_copy import CopyManager
-
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from django.urls import reverse
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.timezone import localtime
+from postgres_copy import CopyManager
 from projectroles.models import Project
 from projectroles.plugins import get_backend_api
 from sqlalchemy import and_
 
-from variants.models import Case, VARIANT_RATING_CHOICES, VariantImporterBase, SiteBgJobBase
-from variants.helpers import get_meta
+from varfish.utils import JSONField
+from variants.helpers import get_engine, get_meta
+from variants.models import VARIANT_RATING_CHOICES, Case, SiteBgJobBase, VariantImporterBase
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
@@ -535,8 +532,7 @@ class ImportStructuralVariantBgJob(JobModelMessageMixin, models.Model):
 
 
 class SvAnnotationReleaseInfo(models.Model):
-    """Model to track the database releases used during annotation of a case.
-    """
+    """Model to track the database releases used during annotation of a case."""
 
     #: Release of genomebuild
     genomebuild = models.CharField(max_length=32, default="GRCh37")
@@ -547,9 +543,15 @@ class SvAnnotationReleaseInfo(models.Model):
     #: Data release
     release = models.CharField(max_length=512)
     #: Link to case
-    case = models.ForeignKey(Case, on_delete=models.CASCADE,)
+    case = models.ForeignKey(
+        Case,
+        on_delete=models.CASCADE,
+    )
     #: Link to variant set
-    variant_set = models.ForeignKey(StructuralVariantSet, on_delete=models.CASCADE,)
+    variant_set = models.ForeignKey(
+        StructuralVariantSet,
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         unique_together = ("genomebuild", "table", "variant_set")
@@ -730,7 +732,10 @@ class BuildBackgroundSvSetJob(SiteBgJobBase):
         return "Build background SV set"
 
     def get_absolute_url(self):
-        return reverse("svs:build-bg-sv-set-job-detail", kwargs={"job": self.sodar_uuid},)
+        return reverse(
+            "svs:build-bg-sv-set-job-detail",
+            kwargs={"job": self.sodar_uuid},
+        )
 
 
 class CleanupBackgroundSvSetJob(SiteBgJobBase):
@@ -746,4 +751,7 @@ class CleanupBackgroundSvSetJob(SiteBgJobBase):
         return "Cleanup building background SV set"
 
     def get_absolute_url(self):
-        return reverse("svs:cleanup-bg-sv-set-job-detail", kwargs={"job": self.sodar_uuid},)
+        return reverse(
+            "svs:cleanup-bg-sv-set-job-detail",
+            kwargs={"job": self.sodar_uuid},
+        )

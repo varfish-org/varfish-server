@@ -1,6 +1,7 @@
 """URL configuration for the ``clinvar_export`` app."""
 
 from django.conf.urls import url
+
 from . import views, views_ajax
 
 app_name = "clinvar_export"

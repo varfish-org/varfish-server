@@ -2,7 +2,6 @@ import typing
 
 import attr
 
-
 #: Default assembly ID to assume.
 DEFAULT_ASSEMBLY_ID = "GRCh37"
 #: Indicated API version.

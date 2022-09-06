@@ -1,6 +1,6 @@
 import typing
 
-from .models import ExtraAnnoField, ExtraAnno, AugmentedExtraAnno
+from .models import AugmentedExtraAnno, ExtraAnno, ExtraAnnoField
 
 
 class ExtraAnnosMixin:

@@ -1,6 +1,7 @@
+from django.template import Context, Template
+
 from cohorts.models import Cohort
 from cohorts.tests.factories import TestCohortBase
-from django.template import Context, Template
 
 
 class TestTemplateTagsCohortsTags(TestCohortBase):

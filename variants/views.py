@@ -1,167 +1,164 @@
+from base64 import b64encode
+from collections import defaultdict
+import contextlib
+import decimal
+from itertools import chain
 import os
 import re
 import tempfile
-from itertools import chain
-from collections import defaultdict
 import uuid
-import contextlib
 
-import decimal
-
+from bgjobs.models import BackgroundJob
+from bgjobs.views import DEFAULT_PAGINATION as BGJOBS_DEFAULT_PAGINATION
 import binning
-import numpy as np
-import requests
-from base64 import b64encode
-
-from variants.helpers import get_engine
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import transaction
 from django.db.models import Q
 from django.forms.models import model_to_dict
-from django.http import HttpResponse, Http404, JsonResponse
-from django.db import transaction
-from django.shortcuts import render, redirect, get_object_or_404, reverse
+from django.http import Http404, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils import timezone
 from django.views.generic import (
     DetailView,
     FormView,
     ListView,
-    View,
     RedirectView,
-    UpdateView,
     TemplateView,
+    UpdateView,
+    View,
 )
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
-import xlsxwriter
-
-import simplejson as json
 from django.views.generic.edit import FormMixin
+import numpy as np
+from projectroles.app_settings import AppSettingAPI
 from projectroles.constants import SODAR_CONSTANTS
 from projectroles.models import RemoteSite
+from projectroles.plugins import get_active_plugins, get_backend_api
 from projectroles.templatetags.projectroles_common_tags import site_version
-
-from bgjobs.models import BackgroundJob
-from bgjobs.views import DEFAULT_PAGINATION as BGJOBS_DEFAULT_PAGINATION
-from clinvar.models import Clinvar
-from cohorts.models import Cohort
-from extra_annos.views import ExtraAnnosMixin, ExtraAnnoField
-from frequencies.models import MT_DB_INFO
-from geneinfo.views import get_gene_infos
-from geneinfo.models import (
-    NcbiGeneInfo,
-    NcbiGeneRif,
-    HpoName,
-    Hpo,
-    EnsemblToGeneSymbol,
-    Hgnc,
-    build_entrez_id_to_symbol,
-)
-from frequencies.views import FrequencyMixin
-from projectroles.app_settings import AppSettingAPI
 from projectroles.views import (
-    LoginRequiredMixin,
     LoggedInPermissionMixin,
+    LoginRequiredMixin,
+    PluginContextMixin,
     ProjectContextMixin,
     ProjectPermissionMixin,
-    PluginContextMixin,
 )
-from projectroles.plugins import get_backend_api, get_active_plugins
+import requests
+import simplejson as json
+import xlsxwriter
 
+from clinvar.models import Clinvar
+from cohorts.models import Cohort
+from extra_annos.views import ExtraAnnoField, ExtraAnnosMixin
+from frequencies.models import MT_DB_INFO
+from frequencies.views import FrequencyMixin
+from geneinfo.models import (
+    EnsemblToGeneSymbol,
+    Hgnc,
+    Hpo,
+    HpoName,
+    NcbiGeneInfo,
+    NcbiGeneRif,
+    build_entrez_id_to_symbol,
+)
+from geneinfo.views import get_gene_infos
 from genomicfeatures.models import GeneInterval
 from varfish.users.models import User
-from .queries import (
-    CaseLoadPrefetchedQuery,
-    ProjectLoadPrefetchedQuery,
-    KnownGeneAAQuery,
-    DeleteStructuralVariantsQuery,
-    DeleteSmallVariantsQuery,
-    SmallVariantUserAnnotationQuery,
-    CaseSecondHitsQuery,
-)
-from .models import (
-    only_source_name,
-    Case,
-    ExportFileBgJob,
-    ExportProjectCasesFileBgJob,
-    CaddSubmissionBgJob,
-    DistillerSubmissionBgJob,
-    SpanrSubmissionBgJob,
-    ComputeProjectVariantsStatsBgJob,
-    FilterBgJob,
-    Project,
-    CaseAwareProject,
-    SmallVariant,
-    SmallVariantFlags,
-    SmallVariantComment,
-    SmallVariantQuery,
-    ProjectCasesSmallVariantQuery,
-    ProjectCasesFilterBgJob,
-    annotate_with_phenotype_scores,
-    annotate_with_pathogenicity_scores,
-    annotate_with_joint_scores,
-    AcmgCriteriaRating,
-    SyncCaseListBgJob,
-    SmallVariantSet,
-    ImportVariantsBgJob,
-    CaseComments,
-    CASE_STATUS_CHOICES,
-    RowWithAffectedCasesPerGene,
-    SmallVariantSummary,
-    KioskAnnotateBgJob,
-    update_variant_counts,
-    DeleteCaseBgJob,
-    RefreshSmallVariantSummaryBgJob,
-    ClearOldKioskCasesBgJob,
-    ClearInactiveVariantSetsBgJob,
-    ClearExpiredExportedFilesBgJob,
-    load_molecular_impact,
-)
+from variants.helpers import get_engine
+
+from .file_export import RowWithSampleProxy
 from .forms import (
-    ExportFileResubmitForm,
-    ExportProjectCasesFileResubmitForm,
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
     FILTER_FORM_TRANSLATE_EFFECTS,
     FILTER_FORM_TRANSLATE_SIGNIFICANCE,
-    FilterForm,
-    ProjectCasesFilterForm,
+    RE_FIND_TERMS,
+    AcmgCriteriaRatingForm,
+    CaseCommentsForm,
+    CaseForm,
+    CaseNotesStatusForm,
+    CaseTermsForm,
     EmptyForm,
+    ExportFileResubmitForm,
+    ExportProjectCasesFileResubmitForm,
+    FilterForm,
+    KioskUploadForm,
+    ProjectCasesFilterForm,
     ProjectStatsJobForm,
     SmallVariantCommentForm,
     SmallVariantFlagsForm,
-    AcmgCriteriaRatingForm,
-    CaseForm,
     SyncProjectJobForm,
-    CaseNotesStatusForm,
-    CaseCommentsForm,
-    KioskUploadForm,
     save_file,
-    CaseTermsForm,
-    RE_FIND_TERMS,
+)
+from .models import (
+    CASE_STATUS_CHOICES,
+    AcmgCriteriaRating,
+    CaddSubmissionBgJob,
+    Case,
+    CaseAwareProject,
+    CaseComments,
+    ClearExpiredExportedFilesBgJob,
+    ClearInactiveVariantSetsBgJob,
+    ClearOldKioskCasesBgJob,
+    ComputeProjectVariantsStatsBgJob,
+    DeleteCaseBgJob,
+    DistillerSubmissionBgJob,
+    ExportFileBgJob,
+    ExportProjectCasesFileBgJob,
+    FilterBgJob,
+    ImportVariantsBgJob,
+    KioskAnnotateBgJob,
+    Project,
+    ProjectCasesFilterBgJob,
+    ProjectCasesSmallVariantQuery,
+    RefreshSmallVariantSummaryBgJob,
+    RowWithAffectedCasesPerGene,
+    SmallVariant,
+    SmallVariantComment,
+    SmallVariantFlags,
+    SmallVariantQuery,
+    SmallVariantSet,
+    SmallVariantSummary,
+    SpanrSubmissionBgJob,
+    SyncCaseListBgJob,
+    annotate_with_joint_scores,
+    annotate_with_pathogenicity_scores,
+    annotate_with_phenotype_scores,
+    load_molecular_impact,
+    only_source_name,
+    update_variant_counts,
+)
+from .queries import (
+    CaseLoadPrefetchedQuery,
+    CaseSecondHitsQuery,
+    DeleteSmallVariantsQuery,
+    DeleteStructuralVariantsQuery,
+    KnownGeneAAQuery,
+    ProjectLoadPrefetchedQuery,
+    SmallVariantUserAnnotationQuery,
 )
 from .query_presets import QUICK_PRESETS, PedigreeMember
 from .query_schemas import (
-    DefaultValidatingDraft7Validator,
     SCHEMA_QUERY_V1,
+    DefaultValidatingDraft7Validator,
     convert_query_json_to_small_variant_filter_form_v1,
 )
 from .sync_upstream import fetch_remote_pedigree
 from .tasks import (
+    cadd_submission_task,
+    compute_project_variants_stats,
+    delete_case_bg_job,
+    distiller_submission_task,
     export_file_task,
     export_project_cases_file_task,
-    cadd_submission_task,
-    distiller_submission_task,
-    compute_project_variants_stats,
-    sync_project_upstream,
-    single_case_filter_task,
     project_cases_filter_task,
     run_kiosk_bg_job,
-    delete_case_bg_job,
+    single_case_filter_task,
     spanr_submission_task,
+    sync_project_upstream,
 )
-from .file_export import RowWithSampleProxy
 from .templatetags.variants_tags import get_term_description, smallvar_description
 
 
@@ -218,7 +215,10 @@ class CaseListView(
             super()
             .get_queryset()
             .filter(project__sodar_uuid=self.kwargs["project"])
-            .prefetch_related("project", "case_comments",)
+            .prefetch_related(
+                "project",
+                "case_comments",
+            )
         )
 
     def get_context_data(self, *args, **kwargs):
@@ -253,7 +253,11 @@ class CaseListView(
 
 
 class CaseListGetAnnotationsView(
-    LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin, ProjectContextMixin, View,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    View,
 ):
     template_name = "variants/case_list/annotation.html"
     permission_required = "variants.view_data"
@@ -276,7 +280,11 @@ class CaseListGetAnnotationsView(
             result["project"], result["limit"]
         )
         result["sv_commentsflags"] = self.join_sv_comments_and_flags(result["project"])
-        return render(self.request, self.template_name, self.get_context_data(**result),)
+        return render(
+            self.request,
+            self.template_name,
+            self.get_context_data(**result),
+        )
 
     def join_small_var_comments_and_flags(self, project, limit):
         def get_gene_symbol(release, chromosome, start, end):
@@ -314,7 +322,7 @@ class CaseListGetAnnotationsView(
 
             for record in flags:
                 position_key = (record.release, record.chromosome, record.start, record.end)
-                if not position_key in gene_symbol_cache:
+                if position_key not in gene_symbol_cache:
                     gene_symbol_cache[position_key] = get_gene_symbol(*position_key)
                 result[(record.chromosome, record.start, record.reference, record.alternative)][
                     case
@@ -325,7 +333,7 @@ class CaseListGetAnnotationsView(
 
             for record in comments:
                 position_key = (record.release, record.chromosome, record.start, record.end)
-                if not position_key in gene_symbol_cache:
+                if position_key not in gene_symbol_cache:
                     gene_symbol_cache[position_key] = get_gene_symbol(*position_key)
                 result[(record.chromosome, record.start, record.reference, record.alternative)][
                     case
@@ -343,7 +351,7 @@ class CaseListGetAnnotationsView(
 
             for record in acmg_ratings:
                 position_key = (record.release, record.chromosome, record.start, record.end)
-                if not position_key in gene_symbol_cache:
+                if position_key not in gene_symbol_cache:
                     gene_symbol_cache[position_key] = get_gene_symbol(*position_key)
                 result[(record.chromosome, record.start, record.reference, record.alternative)][
                     case
@@ -393,14 +401,18 @@ class CaseListGetAnnotationsView(
 
 
 class CaseListGetQCView(
-    LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin, ProjectContextMixin, View,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    View,
 ):
     template_name = "variants/case_list/qc.html"
     permission_required = "variants.view_data"
     model = Case
     ordering = ("-date_modified",)
 
-    def get(self, *args, **kwargs):
+    def get(self, *args, **kwargs):  # noqa: 901
         result = dict()
         result["project"] = CaseAwareProject.objects.prefetch_related("variant_stats").get(
             sodar_uuid=kwargs["project"]
@@ -455,7 +467,10 @@ class CaseListGetQCView(
             result["qcdata_sample_variant_stats"] = self.get_sample_variant_stats_content(
                 result["project"], result["sample_variant_stats"]
             )
-        except (SmallVariantSet.variant_stats.RelatedObjectDoesNotExist, AttributeError) as e:
+        except (  # noqa: F841
+            SmallVariantSet.variant_stats.RelatedObjectDoesNotExist,
+            AttributeError,
+        ) as _e:
             pass  # swallow, defaults set above
 
         # Prepare effect counts data for QC download
@@ -495,7 +510,11 @@ class CaseListGetQCView(
             "\n".join(qcdata_site_depth_content).encode("utf-8")
         )
 
-        return render(self.request, self.template_name, self.get_context_data(**result),)
+        return render(
+            self.request,
+            self.template_name,
+            self.get_context_data(**result),
+        )
 
     def get_relatedness_content(self, project):
         result = [
@@ -533,7 +552,18 @@ class CaseListGetQCView(
 
     def get_sample_variant_stats_content(self, project, sample_variant_stats):
         result = [
-            "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.",])
+            "\t".join(
+                [
+                    "Sample",
+                    "Ts",
+                    "Tv",
+                    "Ts/Tv",
+                    "SNVs",
+                    "InDels",
+                    "MNVs",
+                    "X hom./het.",
+                ]
+            )
         ]
         for item in sample_variant_stats:
             result.append(
@@ -751,7 +781,7 @@ class CaseCommentsSubmitApiView(
                     kwargs["user"] = self.request.user
                 try:
                     record = CaseComments.objects.get(**kwargs)
-                except ObjectDoesNotExist as e:
+                except ObjectDoesNotExist as _e:  # noqa: F841
                     return HttpResponse(
                         json.dumps(
                             {"result": "Not authorized to update comment or no comment found."}
@@ -824,7 +854,7 @@ class CaseCommentsDeleteApiView(
 
         try:
             comment = CaseComments.objects.get(**kwargs)
-        except ObjectDoesNotExist as e:
+        except ObjectDoesNotExist as _e:  # noqa: F841
             return HttpResponse(
                 json.dumps({"result": "Not authorized to delete comment or no comment found."}),
                 content_type="application/json",
@@ -889,7 +919,13 @@ def get_annotations_by_variant(case=None, cases=None, project=None):
 
     def init_var(description):
         result[case_uuid].setdefault(
-            description, {"variants": [], "flags": None, "comments": [], "acmg_rating": None,},
+            description,
+            {
+                "variants": [],
+                "flags": None,
+                "comments": [],
+                "acmg_rating": None,
+            },
         )
 
     for small_var in annotated_small_vars.small_variants:
@@ -1114,7 +1150,18 @@ class CaseDetailView(
     def get_sample_variant_stats_content(self):
         case = self.get_object()
         result = [
-            "\t".join(["Sample", "Ts", "Tv", "Ts/Tv", "SNVs", "InDels", "MNVs", "X hom./het.",])
+            "\t".join(
+                [
+                    "Sample",
+                    "Ts",
+                    "Tv",
+                    "Ts/Tv",
+                    "SNVs",
+                    "InDels",
+                    "MNVs",
+                    "X hom./het.",
+                ]
+            )
         ]
         for item in case.latest_variant_set.variant_stats.sample_variant_stats.all():
             result.append(
@@ -1427,7 +1474,9 @@ class CaseDeleteView(
                 user=self.request.user,
             )
             delete_job = DeleteCaseBgJob.objects.create(
-                project=self.get_project(self.request, self.kwargs), bg_job=bg_job, case=case,
+                project=self.get_project(self.request, self.kwargs),
+                bg_job=bg_job,
+                case=case,
             )
             # Construct background job objects
             bg_job2 = BackgroundJob.objects.create(
@@ -1506,7 +1555,10 @@ class BaseDownloadAnnotationsView(
                 identifier = "-".join(cases[:5].name)
             else:
                 identifier = project.title.replace(" ", "-")
-            response = HttpResponse(f.read(), content_type=content_type,)
+            response = HttpResponse(
+                f.read(),
+                content_type=content_type,
+            )
             response["Content-Disposition"] = "attachment; filename=case-annotations-%s.%s" % (
                 identifier,
                 file_ext,
@@ -1611,7 +1663,9 @@ class BaseDownloadAnnotationsView(
                         anno["acmg_rating"].acmg_class if anno["acmg_rating"] else "N/A",
                     ]
                     + row_flags
-                    + ["|".join(comments),]
+                    + [
+                        "|".join(comments),
+                    ]
                 )
                 yield row
 
@@ -2703,7 +2757,6 @@ class ProjectCasesFilterView(
         if not self._previous_query:
             project = self.get_project(self.request, self.kwargs)
             cohort = self.get_cohort()
-            user = self.request.user
             if "job" in self.kwargs:
                 filter_job = ProjectCasesFilterBgJob.objects.get(sodar_uuid=self.kwargs["job"])
             else:
@@ -2975,9 +3028,11 @@ class ProjectCasesFilterJobGetPrevious(
         cohort = Cohort.objects.get(sodar_uuid=cohort_uuid) if cohort_uuid else None
         if settings.KIOSK_MODE:
             user = User.get_kiosk_user()
+        else:
+            user = self.request.user
         filter_job = (
             ProjectCasesFilterBgJob.objects.filter(
-                project=project, bg_job__user=self.request.user, cohort=cohort
+                project=project, bg_job__user=user, cohort=cohort
             )
             .order_by("-bg_job__date_created")
             .first()
@@ -3305,8 +3360,7 @@ class BackgroundJobListView(
     ProjectContextMixin,
     ListView,
 ):
-    """Display list of export jobs for case.
-    """
+    """Display list of export jobs for case."""
 
     permission_required = "variants.view_data"
     template_name = "variants/background_job_list.html"
@@ -3326,8 +3380,7 @@ class SyncJobDetailView(
     ProjectContextMixin,
     DetailView,
 ):
-    """Display status and further details of the sync-project-upstream background job.
-    """
+    """Display status and further details of the sync-project-upstream background job."""
 
     permission_required = "variants.view_data"
     template_name = "variants/sync_job_detail.html"
@@ -3343,8 +3396,7 @@ class ImportVariantsJobDetailView(
     ProjectContextMixin,
     DetailView,
 ):
-    """Display status and further details of the import case background job.
-    """
+    """Display status and further details of the import case background job."""
 
     permission_required = "variants.view_data"
     template_name = "variants/import_job_detail.html"
@@ -3360,8 +3412,7 @@ class CaseDeleteJobDetailView(
     ProjectContextMixin,
     DetailView,
 ):
-    """Display status and further details of the import case background job.
-    """
+    """Display status and further details of the import case background job."""
 
     permission_required = "variants.view_data"
     template_name = "variants/case_delete_job_detail.html"
@@ -3388,8 +3439,7 @@ class ExportFileJobDetailView(
     ProjectContextMixin,
     DetailView,
 ):
-    """Display status and further details of the file export background job.
-    """
+    """Display status and further details of the file export background job."""
 
     permission_required = "variants.view_data"
     template_name = "variants/export_job_detail.html"
@@ -3488,8 +3538,7 @@ class ExportProjectCasesFileJobDetailView(
     ProjectContextMixin,
     DetailView,
 ):
-    """Display status and further details of the file export background job.
-    """
+    """Display status and further details of the file export background job."""
 
     permission_required = "variants.view_data"
     template_name = "variants/export_project_cases_job_detail.html"
@@ -3850,8 +3899,7 @@ class ProjectStatsJobCreateView(
     ProjectContextMixin,
     FormView,
 ):
-    """Confirm creating a new project statistics computation job.
-    """
+    """Confirm creating a new project statistics computation job."""
 
     permission_required = "variants.view_data"
     template_name = "variants/project_stats_job_create.html"
@@ -3881,8 +3929,7 @@ class ProjectStatsJobDetailView(
     ProjectContextMixin,
     DetailView,
 ):
-    """Display status and further details of project-wide statistics computation job.
-    """
+    """Display status and further details of project-wide statistics computation job."""
 
     permission_required = "variants.view_data"
     template_name = "variants/project_stats_job_detail.html"
@@ -3993,7 +4040,7 @@ class SmallVariantCommentSubmitApiView(
                 kwargs["user"] = self.request.user
             try:
                 comment = SmallVariantComment.objects.get(**kwargs)
-            except ObjectDoesNotExist as e:
+            except ObjectDoesNotExist as _e:  # noqa: F841
                 return HttpResponse(
                     json.dumps({"result": "Not authorized to delete comment or no comment found."}),
                     content_type="application/json",
@@ -4035,7 +4082,11 @@ class SmallVariantCommentSubmitApiView(
 
 
 class MultiSmallVariantFlagsAndCommentApiView(
-    LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin, ProjectContextMixin, View,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    View,
 ):
     """A view that returns JSON for the ``SmallVariantFlags`` for a variant of a case and allows updates."""
 
@@ -4225,7 +4276,7 @@ class SmallVariantCommentDeleteApiView(
 
         try:
             comment = SmallVariantComment.objects.get(**kwargs)
-        except ObjectDoesNotExist as e:
+        except ObjectDoesNotExist as _e:  # noqa: F841
             return HttpResponse(
                 json.dumps({"result": "Not authorized to delete comment or no comment found."}),
                 content_type="application/json",
@@ -4427,7 +4478,10 @@ class VariantValidatorApiView(PluginContextMixin, View):
         return render(
             self.request,
             self.template_name,
-            self.get_context_data(user=self.request.user, response=dict(result),),
+            self.get_context_data(
+                user=self.request.user,
+                response=dict(result),
+            ),
         )
 
 
@@ -4621,7 +4675,9 @@ class KioskHomeView(PluginContextMixin, FormView):
     def get_kiosk_project(self):
         """Return Project object for the Kiosk cases (or create it)."""
         cat, _ = Project.objects.get_or_create(
-            parent=None, type="CATEGORY", title=settings.KIOSK_CAT,
+            parent=None,
+            type="CATEGORY",
+            title=settings.KIOSK_CAT,
         )
         proj = Project.objects.create(
             parent=cat,
@@ -4721,7 +4777,8 @@ class KioskJobGetStatus(PluginContextMixin, View):
 
 
 class ClearExpiredExportedFilesJobDetailView(
-    LoggedInPermissionMixin, DetailView,
+    LoggedInPermissionMixin,
+    DetailView,
 ):
     permission_required = "bgjobs.view_site_bgjobs"
     template_name = "variants/maintenance_job_detail.html"
@@ -4732,7 +4789,8 @@ class ClearExpiredExportedFilesJobDetailView(
 
 
 class ClearInactiveVariantSetsJobDetailView(
-    LoggedInPermissionMixin, DetailView,
+    LoggedInPermissionMixin,
+    DetailView,
 ):
     permission_required = "bgjobs.view_site_bgjobs"
     template_name = "variants/maintenance_job_detail.html"
@@ -4743,7 +4801,8 @@ class ClearInactiveVariantSetsJobDetailView(
 
 
 class ClearOldKioskCasesJobDetailView(
-    LoggedInPermissionMixin, DetailView,
+    LoggedInPermissionMixin,
+    DetailView,
 ):
     permission_required = "bgjobs.view_site_bgjobs"
     template_name = "variants/maintenance_job_detail.html"
@@ -4754,7 +4813,8 @@ class ClearOldKioskCasesJobDetailView(
 
 
 class RefreshSmallVariantSummaryJobDetailView(
-    LoggedInPermissionMixin, DetailView,
+    LoggedInPermissionMixin,
+    DetailView,
 ):
     permission_required = "bgjobs.view_site_bgjobs"
     template_name = "variants/maintenance_job_detail.html"

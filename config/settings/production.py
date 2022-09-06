@@ -11,11 +11,7 @@ Production settings for VarFish project.
 
 """
 
-
-import logging
-
-
-from .base import *  # noqa
+from .base import *
 
 # SECRET CONFIGURATION
 # ------------------------------------------------------------------------------

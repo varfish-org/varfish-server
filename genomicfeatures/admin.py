@@ -3,9 +3,9 @@ from django.contrib import admin
 from .models import (
     EnsemblRegulatoryFeature,
     GeneInterval,
-    TadSet,
-    TadInterval,
     TadBoundaryInterval,
+    TadInterval,
+    TadSet,
     VistaEnhancer,
 )
 

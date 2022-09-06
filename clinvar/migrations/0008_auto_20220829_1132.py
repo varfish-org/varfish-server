@@ -11,14 +11,23 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameField(
-            model_name="clinvar", old_name="point_rating", new_name="gold_stars",
+            model_name="clinvar",
+            old_name="point_rating",
+            new_name="gold_stars",
         ),
-        migrations.RemoveField(model_name="clinvar", name="pathogenicity_summary",),
-        migrations.AddField(
-            model_name="clinvar", name="origin", field=models.CharField(max_length=32, null=True),
+        migrations.RemoveField(
+            model_name="clinvar",
+            name="pathogenicity_summary",
         ),
         migrations.AddField(
-            model_name="clinvar", name="rcv", field=models.CharField(max_length=32, null=True),
+            model_name="clinvar",
+            name="origin",
+            field=models.CharField(max_length=32, null=True),
+        ),
+        migrations.AddField(
+            model_name="clinvar",
+            name="rcv",
+            field=models.CharField(max_length=32, null=True),
         ),
         migrations.AddField(
             model_name="clinvar",

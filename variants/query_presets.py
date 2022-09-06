@@ -8,7 +8,7 @@ The presets are organized on three levels
   ``CATEGORY_PRESETS`` constant that defines the presets
 """
 
-from enum import unique, Enum
+from enum import Enum, unique
 import itertools
 import typing
 
@@ -117,83 +117,9 @@ class Inheritance(Enum):
         )
 
         if self._is_recessive():
-            # Get index, parents, and others (not index, not parents) individuals
-            recessive_index = index_candidates[0]
-            parents = [
-                s for s in samples if s.name in (recessive_index.father, recessive_index.mother)
-            ]
-            parent_names = {p.name for p in parents}
-            others = {s for s in affected_samples if s.name != index and s.name not in parent_names}
-            # Fill ``genotype`` for the index
-            if self == Inheritance.HOMOZYGOUS_RECESSIVE:
-                genotype = {recessive_index.name: GenotypeChoice.HOM.value}
-                mode = {"recessive_mode": None}
-            elif self == Inheritance.COMPOUND_HETEROZYGOUS:
-                genotype = {recessive_index.name: None}
-                mode = {"recessive_mode": "compound-recessive"}
-            elif self == Inheritance.RECESSIVE:
-                genotype = {recessive_index.name: None}
-                mode = {"recessive_mode": "recessive"}
-            else:
-                raise RuntimeError(f"Unexpected recessive mode of inheritance: {self}")
-            # Fill ``genotype`` for parents and others
-            if self == Inheritance.HOMOZYGOUS_RECESSIVE:
-                affected_parents = len([p for p in parents if p.is_affected()])
-                for parent in parents:
-                    if parent.is_affected():
-                        genotype[parent.name] = GenotypeChoice.HOM.value
-                    else:
-                        if affected_parents > 0:
-                            genotype[parent.name] = GenotypeChoice.REF.value
-                        else:
-                            genotype[parent.name] = GenotypeChoice.HET.value
-            else:
-                for parent in parents:
-                    genotype[parent.name] = None
-            for other in others:
-                genotype[other.name] = GenotypeChoice.ANY.value
-            # Compose the dict with recessive index, recessive mode, and genotype
-            return {
-                "recessive_index": recessive_index.name,
-                "genotype": {k: e for k, e in genotype.items()},
-                **mode,
-            }
+            return self._to_settings_recessive(affected_samples, index, index_candidates, samples)
         elif self == Inheritance.X_RECESSIVE:
-            male_index_candidates = list(
-                itertools.chain(
-                    [s for s in index_candidates if s.sex == Sex.MALE],
-                    [s for s in index_candidates if s.sex == Sex.UNKNOWN],
-                    index_candidates,
-                    samples,
-                )
-            )
-            recessive_index = male_index_candidates[0]
-            index_father = samples_by_name.get(recessive_index.father, None)
-            index_mother = samples_by_name.get(recessive_index.mother, None)
-            others = [
-                s
-                for s in samples
-                if s.name
-                not in (recessive_index.name, recessive_index.father, recessive_index.mother)
-            ]
-            genotype = {recessive_index.name: GenotypeChoice.HOM}
-            if index_father and index_father.is_affected():
-                genotype[recessive_index.father] = GenotypeChoice.HOM
-                if index_mother:
-                    genotype[recessive_index.mother] = GenotypeChoice.REF
-            elif index_father and not index_father.is_affected():
-                genotype[recessive_index.father] = GenotypeChoice.REF
-                if index_mother:
-                    genotype[recessive_index.mother] = GenotypeChoice.HET
-            elif index_mother:  # and not index_father
-                genotype[recessive_index.mother] = GenotypeChoice.ANY
-            for other in others:
-                genotype[other.name] = GenotypeChoice.ANY
-            return {
-                "recessive_index": recessive_index.name,
-                "recessive_mode": None,
-                "genotype": {k: e.value for k, e in genotype.items()},
-            }
+            return self._to_settings_x_recessive(index_candidates, samples, samples_by_name)
         elif self == Inheritance.AFFECTED_CARRIERS:
             return {
                 "recessive_index": None,
@@ -235,6 +161,85 @@ class Inheritance(Enum):
             }
         else:
             raise ValueError(f"Cannot generate settings for inheritance {self}")
+
+    def _to_settings_x_recessive(self, index_candidates, samples, samples_by_name):
+        male_index_candidates = list(
+            itertools.chain(
+                [s for s in index_candidates if s.sex == Sex.MALE],
+                [s for s in index_candidates if s.sex == Sex.UNKNOWN],
+                index_candidates,
+                samples,
+            )
+        )
+        recessive_index = male_index_candidates[0]
+        index_father = samples_by_name.get(recessive_index.father, None)
+        index_mother = samples_by_name.get(recessive_index.mother, None)
+        others = [
+            s
+            for s in samples
+            if s.name not in (recessive_index.name, recessive_index.father, recessive_index.mother)
+        ]
+        genotype = {recessive_index.name: GenotypeChoice.HOM}
+        if index_father and index_father.is_affected():
+            genotype[recessive_index.father] = GenotypeChoice.HOM
+            if index_mother:
+                genotype[recessive_index.mother] = GenotypeChoice.REF
+        elif index_father and not index_father.is_affected():
+            genotype[recessive_index.father] = GenotypeChoice.REF
+            if index_mother:
+                genotype[recessive_index.mother] = GenotypeChoice.HET
+        elif index_mother:  # and not index_father
+            genotype[recessive_index.mother] = GenotypeChoice.ANY
+        for other in others:
+            genotype[other.name] = GenotypeChoice.ANY
+        result = {
+            "recessive_index": recessive_index.name,
+            "recessive_mode": None,
+            "genotype": {k: e.value for k, e in genotype.items()},
+        }
+        return result
+
+    def _to_settings_recessive(self, affected_samples, index, index_candidates, samples):
+        # Get index, parents, and others (not index, not parents) individuals
+        recessive_index = index_candidates[0]
+        parents = [s for s in samples if s.name in (recessive_index.father, recessive_index.mother)]
+        parent_names = {p.name for p in parents}
+        others = {s for s in affected_samples if s.name != index and s.name not in parent_names}
+        # Fill ``genotype`` for the index
+        if self == Inheritance.HOMOZYGOUS_RECESSIVE:
+            genotype = {recessive_index.name: GenotypeChoice.HOM.value}
+            mode = {"recessive_mode": None}
+        elif self == Inheritance.COMPOUND_HETEROZYGOUS:
+            genotype = {recessive_index.name: None}
+            mode = {"recessive_mode": "compound-recessive"}
+        elif self == Inheritance.RECESSIVE:
+            genotype = {recessive_index.name: None}
+            mode = {"recessive_mode": "recessive"}
+        else:
+            raise RuntimeError(f"Unexpected recessive mode of inheritance: {self}")
+        # Fill ``genotype`` for parents and others
+        if self == Inheritance.HOMOZYGOUS_RECESSIVE:
+            affected_parents = len([p for p in parents if p.is_affected()])
+            for parent in parents:
+                if parent.is_affected():
+                    genotype[parent.name] = GenotypeChoice.HOM.value
+                else:
+                    if affected_parents > 0:
+                        genotype[parent.name] = GenotypeChoice.REF.value
+                    else:
+                        genotype[parent.name] = GenotypeChoice.HET.value
+        else:
+            for parent in parents:
+                genotype[parent.name] = None
+        for other in others:
+            genotype[other.name] = GenotypeChoice.ANY.value
+        # Compose the dict with recessive index, recessive mode, and genotype
+        result = {
+            "recessive_index": recessive_index.name,
+            "genotype": {k: e for k, e in genotype.items()},
+            **mode,
+        }
+        return result
 
 
 @attrs.frozen
@@ -795,19 +800,25 @@ class _ChromosomePresets:
     }
     #: Presets for the "X-chromosome" chromosome/region/gene settings
     x_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ["X",],
+        "genomic_region": [
+            "X",
+        ],
         "gene_allowlist": [],
         "gene_blocklist": [],
     }
     #: Presets for the "Y-chromosomes" chromosome/region/gene settings
     y_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ["Y",],
+        "genomic_region": [
+            "Y",
+        ],
         "gene_allowlist": [],
         "gene_blocklist": [],
     }
     #: Presets for the "mitochondrial" chromosome/region/gene settings
     mt_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ["MT",],
+        "genomic_region": [
+            "MT",
+        ],
         "gene_allowlist": [],
         "gene_blocklist": [],
     }

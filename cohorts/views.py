@@ -1,16 +1,14 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-
-
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from projectroles.views import (
+    LoggedInPermissionMixin,
     LoginRequiredMixin,
     ProjectContextMixin,
     ProjectPermissionMixin,
-    LoggedInPermissionMixin,
 )
 
 from cohorts.forms import CohortForm
@@ -25,8 +23,7 @@ class CohortView(
     ProjectContextMixin,
     ListView,
 ):
-    """Display list of cohorts.
-    """
+    """Display list of cohorts."""
 
     permission_required = "variants.view_data"
     template_name = "cohorts/cohort_list.html"
@@ -40,8 +37,7 @@ class CohortCreateView(
     ProjectContextMixin,
     CreateView,
 ):
-    """Create cohort.
-    """
+    """Create cohort."""
 
     permission_required = "variants.view_data"
     template_name = "cohorts/cohort_create.html"
@@ -83,8 +79,7 @@ class CohortUpdateView(
     ProjectContextMixin,
     UpdateView,
 ):
-    """Update cohort.
-    """
+    """Update cohort."""
 
     permission_required = "variants.view_data"
     template_name = "cohorts/cohort_update.html"
@@ -132,8 +127,7 @@ class CohortDeleteView(
     ProjectContextMixin,
     DeleteView,
 ):
-    """Delete cohort.
-    """
+    """Delete cohort."""
 
     permission_required = "variants.view_data"
     template_name = "cohorts/cohort_confirm_delete.html"

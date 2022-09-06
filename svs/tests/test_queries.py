@@ -6,22 +6,23 @@ from geneinfo.tests.factories import HgncFactory
 from genomicfeatures.tests.factories import (
     EnsemblRegulatoryFeatureFactory,
     GeneIntervalFactory,
-    TadSetFactory,
-    TadIntervalFactory,
     TadBoundaryIntervalFactory,
+    TadIntervalFactory,
+    TadSetFactory,
     VistaEnhancerFactory,
 )
-from regmaps.tests.factories import RegElementFactory, RegMapFactory, RegElementTypeFactory
+from regmaps.tests.factories import RegElementFactory, RegElementTypeFactory, RegMapFactory
 from svdbs.tests.factories import GnomAdSvFactory
+
+from ..models import SV_SUB_TYPE_CHOICES, SV_TYPE_CHOICES, StructuralVariant
+from ..queries import SingleCaseFilterQuery
 from .factories import (
+    BackgroundSvFactory,
     StructuralVariantFactory,
     StructuralVariantGeneAnnotationFactory,
     StructuralVariantSetFactory,
-    BackgroundSvFactory,
 )
 from .helpers import QueryTestBase
-from ..models import SV_TYPE_CHOICES, SV_SUB_TYPE_CHOICES, StructuralVariant
-from ..queries import SingleCaseFilterQuery
 
 
 class SvsInCaseWithDeNovoGenotypeFilterQueryTest(QueryTestBase):
@@ -948,7 +949,9 @@ class SvTranscriptCodingFilterQueryTest(QueryTestBase):
         self.case = self.variant_set.case
         self.sv = StructuralVariantFactory(variant_set=self.variant_set)
         StructuralVariantGeneAnnotationFactory(
-            sv=self.sv, refseq_transcript_coding=True, ensembl_transcript_coding=True,
+            sv=self.sv,
+            refseq_transcript_coding=True,
+            ensembl_transcript_coding=True,
         )
 
     def testIncludeTranscriptCoding(self):
@@ -1330,7 +1333,10 @@ class RegMapFilterElementTypeQueryTest(QueryTestBase):
     def testOverlapAnyValidationPasses(self):
         result = self.run_query(
             SingleCaseFilterQuery,
-            {self.regmap_key_element: ["__any__"], self.regmap_key_map: ["__any__"],},
+            {
+                self.regmap_key_element: ["__any__"],
+                self.regmap_key_map: ["__any__"],
+            },
             1,
         )
         self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
@@ -1358,7 +1364,12 @@ class RegMapFilterElementTypeQueryTest(QueryTestBase):
         self.element.end = self.element.start + 20
         self.element.save()
         result = self.run_query(
-            SingleCaseFilterQuery, {self.regmap_key_element: [], self.regmap_key_map: [],}, 1
+            SingleCaseFilterQuery,
+            {
+                self.regmap_key_element: [],
+                self.regmap_key_map: [],
+            },
+            1,
         )
         self.assertUUIDEquals(self.sv.sv_uuid, result[0]["sv_uuid"])
         self.assertEqual(
@@ -1419,7 +1430,10 @@ class RegMapFilterElementTypeQueryTest(QueryTestBase):
         self.element.save()
         self.run_query(
             SingleCaseFilterQuery,
-            {self.regmap_key_element: ["__any__"], self.regmap_key_map: ["__any__"],},
+            {
+                self.regmap_key_element: ["__any__"],
+                self.regmap_key_map: ["__any__"],
+            },
             0,
         )
 

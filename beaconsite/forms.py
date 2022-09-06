@@ -2,7 +2,7 @@ from django import forms
 from django.db import transaction
 from projectroles.models import Project
 
-from .models import Consortium, Site, ConsortiumMember, ConsortiumAssignment
+from .models import Consortium, ConsortiumAssignment, ConsortiumMember, Site
 
 
 class ConsortiumForm(forms.ModelForm):

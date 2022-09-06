@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 
 from django.db import connection, migrations
 
-
 POSTGRES_VERSION = connection.cursor().connection.server_version
 ARRAY_TYPE = "anyarray" if POSTGRES_VERSION < 140000 else "anycompatiblearray"
 

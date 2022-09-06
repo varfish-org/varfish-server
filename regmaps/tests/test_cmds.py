@@ -1,15 +1,15 @@
 """Tests for the admin command implementations in ``cmds``."""
 
-import pathlib
 import io
+import pathlib
 import sys
 import types
 import uuid
 
 from django.test import TestCase
 
-from ..cmds import CollectionListImpl, CollectionDeleteImpl, CollectionImportImpl
-from ..models import RegMapCollection, RegMap, RegElementType, RegElement, RegInteraction
+from ..cmds import CollectionDeleteImpl, CollectionImportImpl, CollectionListImpl
+from ..models import RegElement, RegElementType, RegInteraction, RegMap, RegMapCollection
 from .factories import RegMapCollectionFactory
 
 

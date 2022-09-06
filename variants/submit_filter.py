@@ -2,19 +2,17 @@ import contextlib
 
 from django.conf import settings
 from django.db import transaction
-
 from projectroles.plugins import get_backend_api
 
-from cohorts.models import Cohort
-from variants.helpers import get_engine
 from variants.forms import PATHO_SCORES_MAPPING
-from variants.models import prioritize_genes, VariantScoresFactory
+from variants.helpers import get_engine
+from variants.models import VariantScoresFactory, prioritize_genes
+
 from .queries import CasePrefetchQuery, ProjectPrefetchQuery
 
 
 class FilterBase:
-    """Base class for filtering and storing case query results.
-    """
+    """Base class for filtering and storing case query results."""
 
     def __init__(self, job, variant_query):
         """Constructor"""
@@ -128,8 +126,7 @@ class FilterBase:
 
 
 class CaseFilter(FilterBase):
-    """Class for storing query results for a single case.
-    """
+    """Class for storing query results for a single case."""
 
     def _get_genomebuild(self):
         return self.variant_query.case.release
@@ -140,8 +137,7 @@ class CaseFilter(FilterBase):
 
 
 class ProjectCasesFilter(FilterBase):
-    """Class for storing query results for cases of a project.
-    """
+    """Class for storing query results for cases of a project."""
 
     def _get_genomebuild(self):
         if self.job.cohort:

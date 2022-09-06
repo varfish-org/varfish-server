@@ -1,9 +1,8 @@
 import typing
 
+import attr
 from django.db import models
 from postgres_copy import CopyManager
-
-import attr
 
 from varfish.utils import JSONField
 

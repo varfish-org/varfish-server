@@ -26,4 +26,4 @@ class Command(BaseCommand):
         """The actual implementation is in ``_handle()``, splitting to get commit times."""
         self.stderr.write("Removing background svs")
         tasks.cleanup_bg_sv_set_task(timeout_hours=options["timeout"])
-        self.stderr.write(self.style.SUCCESS(f"All done, have a nice day!"))
+        self.stderr.write(self.style.SUCCESS("All done, have a nice day!"))

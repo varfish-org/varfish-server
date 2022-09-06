@@ -8,52 +8,48 @@ import re
 
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Q
-from django.http import JsonResponse, HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.generic import DetailView
 from lxml import etree
 from projectroles.views import (
-    LoginRequiredMixin,
     LoggedInPermissionMixin,
-    ProjectPermissionMixin,
+    LoginRequiredMixin,
     ProjectContextMixin,
+    ProjectPermissionMixin,
 )
-from projectroles.views_ajax import SODARBaseProjectAjaxView, SODARBaseAjaxView
+from projectroles.views_ajax import SODARBaseAjaxView, SODARBaseProjectAjaxView
 from projectroles.views_api import APIProjectContextMixin
-from rest_framework.generics import (
-    ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
-    ListAPIView,
-)
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
-from variants.helpers import get_engine
 
 from geneinfo.models import Hpo, HpoName
+from variants.helpers import get_engine
 from variants.queries import SmallVariantUserAnnotationQuery
-from .clinvar_xml import SubmissionXmlGenerator, XSD_URL_1_7
+
+from .clinvar_xml import XSD_URL_1_7, SubmissionXmlGenerator
 from .models import (
-    Case,
-    SubmissionSet,
-    Submission,
-    Organisation,
-    Submitter,
     AssertionMethod,
-    SubmissionIndividual,
-    Individual,
     Family,
-    create_families_and_individuals,
+    Individual,
+    Organisation,
+    Submission,
+    SubmissionIndividual,
+    SubmissionSet,
+    Submitter,
     SubmittingOrg,
+    create_families_and_individuals,
 )
 from .serializers import (
-    SubmissionSetSerializer,
-    SubmissionSerializer,
-    OrganisationSerializer,
-    SubmitterSerializer,
-    AssertionMethodSerializer,
-    SubmissionIndividualSerializer,
-    IndividualSerializer,
-    FamilySerializer,
-    SubmittingOrgSerializer,
     AnnotatedSmallVariantsSerializer,
+    AssertionMethodSerializer,
+    FamilySerializer,
+    IndividualSerializer,
+    OrganisationSerializer,
+    SubmissionIndividualSerializer,
+    SubmissionSerializer,
+    SubmissionSetSerializer,
+    SubmitterSerializer,
+    SubmittingOrgSerializer,
 )
 
 
@@ -418,7 +414,8 @@ class QueryHpoTermApiView(LoginRequiredMixin, SODARBaseAjaxView):
 
 
 class AnnotatedSmallVariantsApiView(
-    APIProjectContextMixin, SODARBaseProjectAjaxView,
+    APIProjectContextMixin,
+    SODARBaseProjectAjaxView,
 ):
     """Retrieve user annotations for all families in the current project."""
 

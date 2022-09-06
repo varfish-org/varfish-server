@@ -1,5 +1,4 @@
 from django.urls import reverse
-
 from projectroles.tests.test_permissions import TestProjectPermissionBase
 
 

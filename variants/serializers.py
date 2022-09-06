@@ -8,18 +8,19 @@ import attrs
 from bgjobs.models import BackgroundJob
 from django.db import transaction
 from django.db.models import Q
-from projectroles.serializers import SODARProjectModelSerializer, SODARModelSerializer
+from projectroles.serializers import SODARModelSerializer, SODARProjectModelSerializer
 from rest_framework import serializers
 
-from geneinfo.models import HpoName, Hgnc
+from geneinfo.models import Hgnc, HpoName
+from variants.tasks import single_case_filter_task
+
 from .forms import FilterForm
-from .models import Case, SmallVariantQuery, FilterBgJob, SmallVariant
+from .models import Case, FilterBgJob, SmallVariant, SmallVariantQuery
 from .query_schemas import (
     SCHEMA_QUERY_V1,
     DefaultValidatingDraft7Validator,
     convert_query_json_to_small_variant_filter_form_v1,
 )
-from variants.tasks import single_case_filter_task
 
 
 def create_only_validator(value, serializer_field):

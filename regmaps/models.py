@@ -18,7 +18,9 @@ class RegMapCollection(models.Model):
 
     #: The UUID of this regulatory map collection.
     sodar_uuid = models.UUIDField(
-        default=uuid_object.uuid4, unique=True, help_text="UUID of regulatory map collection",
+        default=uuid_object.uuid4,
+        unique=True,
+        help_text="UUID of regulatory map collection",
     )
     #: Genome build that this regulatory map collection is for.
     release = models.CharField(max_length=32)
@@ -43,10 +45,15 @@ class RegMap(models.Model):
 
     #: The UUID of this regulatory map.
     sodar_uuid = models.UUIDField(
-        default=uuid_object.uuid4, unique=True, help_text="UUID of regulatory map",
+        default=uuid_object.uuid4,
+        unique=True,
+        help_text="UUID of regulatory map",
     )
     #: The regulatory map collection that this map belongs to.
-    collection = models.ForeignKey(RegMapCollection, on_delete=models.CASCADE,)
+    collection = models.ForeignKey(
+        RegMapCollection,
+        on_delete=models.CASCADE,
+    )
     #: The title of the map.
     title = models.TextField()
     #: The short title of the map.
@@ -67,10 +74,15 @@ class RegElementType(models.Model):
 
     #: The UUID of this regulatory element type.
     sodar_uuid = models.UUIDField(
-        default=uuid_object.uuid4, unique=True, help_text="UUID of regulatory map collection",
+        default=uuid_object.uuid4,
+        unique=True,
+        help_text="UUID of regulatory map collection",
     )
     #: The regulatory map collection that this map belongs to.
-    collection = models.ForeignKey(RegMapCollection, on_delete=models.CASCADE,)
+    collection = models.ForeignKey(
+        RegMapCollection,
+        on_delete=models.CASCADE,
+    )
     #: The title of the map.
     title = models.TextField()
     #: The short title of the map.
@@ -109,12 +121,20 @@ class RegElement(models.Model):
 
     #: The UUID of this regulatory element.
     sodar_uuid = models.UUIDField(
-        default=uuid_object.uuid4, unique=True, help_text="UUID of regulatory element",
+        default=uuid_object.uuid4,
+        unique=True,
+        help_text="UUID of regulatory element",
     )
     #: The regulatory map.
-    reg_map = models.ForeignKey(RegMap, on_delete=models.CASCADE,)
+    reg_map = models.ForeignKey(
+        RegMap,
+        on_delete=models.CASCADE,
+    )
     #: The element type.
-    elem_type = models.ForeignKey(RegElementType, on_delete=models.CASCADE,)
+    elem_type = models.ForeignKey(
+        RegElementType,
+        on_delete=models.CASCADE,
+    )
     #: Genome build
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome
@@ -161,10 +181,15 @@ class RegInteraction(models.Model):
 
     #: The UUID of this raw signal entry.
     sodar_uuid = models.UUIDField(
-        default=uuid_object.uuid4, unique=True, help_text="UUID of interaction",
+        default=uuid_object.uuid4,
+        unique=True,
+        help_text="UUID of interaction",
     )
     #: The regulatory map.
-    reg_map = models.ForeignKey(RegMap, on_delete=models.CASCADE,)
+    reg_map = models.ForeignKey(
+        RegMap,
+        on_delete=models.CASCADE,
+    )
     #: Genome build
     release = models.CharField(max_length=32)
     #: Variant coordinates - chromosome

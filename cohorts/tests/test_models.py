@@ -1,5 +1,4 @@
-from cohorts.tests.factories import CohortFactory
-from cohorts.tests.factories import TestCohortBase
+from cohorts.tests.factories import CohortFactory, TestCohortBase
 
 
 class TestTemplateTagsCohortsTags(TestCohortBase):

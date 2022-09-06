@@ -2,15 +2,15 @@
 from django.core.exceptions import ValidationError
 from test_plus.test import TestCase
 
+from ..models import Consortium, ConsortiumMember, Query, Response, Site
 from .factories import (
-    SiteFactory,
     ConsortiumFactory,
     ConsortiumMemberFactory,
     ConsortiumWithLocalAndRemoteSiteFactory,
     QueryFactory,
     ResponseFactory,
+    SiteFactory,
 )
-from ..models import Site, Consortium, ConsortiumMember, Query, Response
 
 
 class TestSite(TestCase):

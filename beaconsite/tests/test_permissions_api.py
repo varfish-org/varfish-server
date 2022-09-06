@@ -1,20 +1,21 @@
-import urllib
 import datetime
+import urllib
 from wsgiref.handlers import format_date_time
 
-import cattr
-import httpsig
 from Crypto.PublicKey import RSA
+import cattr
 from django.shortcuts import reverse
 from django.utils import timezone
+import httpsig
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 from requests_http_signature import HTTPSignatureAuth
 
 from variants.tests.factories import SmallVariantFactory
+
 from ..models import Site
-from .factories import ConsortiumWithLocalAndRemoteSiteFactory, ConsortiumAssignmentFactory
 from ..models_api import BeaconAlleleRequest
 from ..views_api import _header_canonical
+from .factories import ConsortiumAssignmentFactory, ConsortiumWithLocalAndRemoteSiteFactory
 
 
 class AcceptHeaderMixin:
@@ -48,7 +49,8 @@ class TestBeaconInfoApiView(AcceptHeaderMixin, TestProjectAPIPermissionBase):
         self.consortium = ConsortiumWithLocalAndRemoteSiteFactory()
         self.remote_site = Site.objects.get(role=Site.REMOTE)
         ConsortiumAssignmentFactory(
-            consortium=self.consortium, project=self.project,
+            consortium=self.consortium,
+            project=self.project,
         )
 
     def test_success(self):
@@ -115,7 +117,8 @@ class TestBeaconQueryApiView(AcceptHeaderMixin, TestProjectAPIPermissionBase):
         self.consortium = ConsortiumWithLocalAndRemoteSiteFactory()
         self.remote_site = Site.objects.get(role=Site.REMOTE)
         ConsortiumAssignmentFactory(
-            consortium=self.consortium, project=self.project,
+            consortium=self.consortium,
+            project=self.project,
         )
         self.small_variant = SmallVariantFactory(case__project=self.project)
         self.beacon_allele_request = BeaconAlleleRequest(

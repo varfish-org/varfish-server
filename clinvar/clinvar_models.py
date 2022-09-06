@@ -5,11 +5,10 @@ Identical to the records in ``clinvar-tsv`` without parsing from XML.
 
 import datetime
 import json
+import typing
 
 import attr
 import cattr
-from dateutil.parser import isoparse
-import typing
 
 
 class DateTimeEncoder(json.JSONEncoder):

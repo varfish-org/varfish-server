@@ -486,7 +486,10 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "compound-recessive",
-                "genotype": {"index": None, "father": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                },
             },
         )
         # child with mother
@@ -498,7 +501,10 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "compound-recessive",
-                "genotype": {"index": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "mother": None,
+                },
             },
         )
         # trio denovo
@@ -510,7 +516,11 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "compound-recessive",
-                "genotype": {"index": None, "father": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                    "mother": None,
+                },
             },
         )
         # trio dominant inherited
@@ -522,7 +532,11 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "compound-recessive",
-                "genotype": {"index": None, "father": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                    "mother": None,
+                },
             },
         )
 
@@ -548,7 +562,10 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "recessive",
-                "genotype": {"index": None, "father": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                },
             },
         )
         # child with mother
@@ -560,7 +577,10 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "recessive",
-                "genotype": {"index": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "mother": None,
+                },
             },
         )
         # trio denovo
@@ -572,7 +592,11 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "recessive",
-                "genotype": {"index": None, "father": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                    "mother": None,
+                },
             },
         )
         # trio dominant inherited
@@ -584,7 +608,11 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "recessive",
-                "genotype": {"index": None, "father": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                    "mother": None,
+                },
             },
         )
 
@@ -1377,7 +1405,11 @@ class TestEnumChromosomes(TestCase):
     def testToSettingsWholeGenome(self):
         self.assertEqual(
             query_presets.Chromosomes.WHOLE_GENOME.to_settings(),
-            {"genomic_region": [], "gene_allowlist": [], "gene_blocklist": [],},
+            {
+                "genomic_region": [],
+                "gene_allowlist": [],
+                "gene_blocklist": [],
+            },
         )
 
     def testToSettingsAutosomes(self):
@@ -1393,19 +1425,37 @@ class TestEnumChromosomes(TestCase):
     def testToSettingsXChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.X_CHROMOSOME.to_settings(),
-            {"genomic_region": ["X",], "gene_allowlist": [], "gene_blocklist": [],},
+            {
+                "genomic_region": [
+                    "X",
+                ],
+                "gene_allowlist": [],
+                "gene_blocklist": [],
+            },
         )
 
     def testToSettingsYChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.Y_CHROMOSOME.to_settings(),
-            {"genomic_region": ["Y",], "gene_allowlist": [], "gene_blocklist": [],},
+            {
+                "genomic_region": [
+                    "Y",
+                ],
+                "gene_allowlist": [],
+                "gene_blocklist": [],
+            },
         )
 
     def testToSettingsMTChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.MT_CHROMOSOME.to_settings(),
-            {"genomic_region": ["MT",], "gene_allowlist": [], "gene_blocklist": [],},
+            {
+                "genomic_region": [
+                    "MT",
+                ],
+                "gene_allowlist": [],
+                "gene_blocklist": [],
+            },
         )
 
 

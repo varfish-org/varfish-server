@@ -1,62 +1,61 @@
 from contextlib import contextmanager
+from multiprocessing.pool import ThreadPool
 import os
 import sys
-import traceback
-from multiprocessing.pool import ThreadPool
 import tempfile
+import traceback
 
-from variants.helpers import get_engine
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, transaction
 
-from clinvar.models import Clinvar, refresh_clinvar_clinvarpathogenicgenes
+from clinvar.models import Clinvar
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
+from extra_annos.models import ExtraAnno, ExtraAnnoField
 from frequencies.models import (
     Exac,
     GnomadExomes,
     GnomadGenomes,
-    ThousandGenomes,
+    HelixMtDb,
     Mitomap,
     MtDb,
-    HelixMtDb,
+    ThousandGenomes,
 )
 from geneinfo.models import (
+    Acmg,
+    EnsemblToGeneSymbol,
+    EnsemblToRefseq,
+    ExacConstraints,
+    GnomadConstraints,
     Hgnc,
+    Hpo,
+    HpoName,
     MgiHomMouseHumanSequence,
     Mim2geneMedgen,
-    Hpo,
     NcbiGeneInfo,
     NcbiGeneRif,
-    HpoName,
-    RefseqToHgnc,
-    Acmg,
-    GnomadConstraints,
-    ExacConstraints,
-    EnsemblToRefseq,
     RefseqToEnsembl,
+    RefseqToGeneSymbol,
+    RefseqToHgnc,
+    refresh_geneinfo_geneidinhpo,
     refresh_geneinfo_geneidtoinheritance,
     refresh_geneinfo_mgimapping,
-    RefseqToGeneSymbol,
-    EnsemblToGeneSymbol,
-    refresh_geneinfo_geneidinhpo,
 )
 from genomicfeatures.models import (
-    GeneInterval,
     EnsemblRegulatoryFeature,
-    TadSet,
-    TadInterval,
+    GeneInterval,
     TadBoundaryInterval,
+    TadInterval,
+    TadSet,
     VistaEnhancer,
 )
 from hgmd.models import HgmdPublicLocus
-from extra_annos.models import ExtraAnnoField, ExtraAnno
-from ...models import ImportInfo
-from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
-from ..helpers import tsv_reader
-from svdbs.models import DgvGoldStandardSvs, DgvSvs, ExacCnv, ThousandGenomesSv, DbVarSv, GnomAdSv
-from variants.helpers import get_meta
+from pathways.models import EnsemblToKegg, KeggInfo, RefseqToKegg
+from svdbs.models import DbVarSv, DgvGoldStandardSvs, DgvSvs, ExacCnv, GnomAdSv, ThousandGenomesSv
+from variants.helpers import get_engine, get_meta
 
+from ...models import ImportInfo
+from ..helpers import tsv_reader
 
 #: Tables in both GRCh37 and GRCh38.
 _TABLES_BOTH = {
@@ -133,8 +132,7 @@ ENSEMBL_REGULATORY_HEADER_MAP = {
 
 
 class Command(BaseCommand):
-    """Command class for importing all external databases into Varfish tables.
-    """
+    """Command class for importing all external databases into Varfish tables."""
 
     #: Help message displayed on the command line.
     help = "Bulk import all external databases into Varfish tables."
@@ -177,8 +175,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        """Iterate over genomebuilds, database folders and versions to gather all required information for import.
-        """
+        """Iterate over genomebuilds, database folders and versions to gather all required information for import."""
 
         if not options["service"] and options["tables_path"] is None:
             raise CommandError("Please set either --tables-path or --service")

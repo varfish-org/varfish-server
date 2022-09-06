@@ -1,28 +1,28 @@
-from django.contrib.postgres.aggregates import ArrayAgg
 from django.shortcuts import get_object_or_404
-from projectroles.serializers import SODARProjectModelSerializer, SODARModelSerializer
+from projectroles.serializers import SODARModelSerializer, SODARProjectModelSerializer
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
-from rest_framework.serializers import BaseSerializer, Serializer
+from rest_framework.serializers import Serializer
 
-from geneinfo.models import HpoName, Hpo, Hgnc
+from geneinfo.models import Hgnc, Hpo, HpoName
 from variants.models import (
-    CasePhenotypeTerms,
-    SmallVariant,
-    SmallVariantFlags,
-    SmallVariantComment,
     AcmgCriteriaRating,
     Case,
+    CasePhenotypeTerms,
+    SmallVariant,
+    SmallVariantComment,
+    SmallVariantFlags,
 )
+
 from .models import (
-    SubmissionSet,
-    Organisation,
+    AssertionMethod,
     Family,
     Individual,
-    AssertionMethod,
-    Submitter,
+    Organisation,
     Submission,
     SubmissionIndividual,
+    SubmissionSet,
+    Submitter,
     SubmittingOrg,
 )
 

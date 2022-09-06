@@ -11,7 +11,11 @@ class SubmissionXmlGenerator:
     """Helper class to create ClinVar submission XML."""
 
     def __init__(self):
-        self.em = ElementMaker(nsmap={"xsi": "http://www.w3.org/2001/XMLSchema-instance",})
+        self.em = ElementMaker(
+            nsmap={
+                "xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            }
+        )
 
     def generate_tree(self, submission_set):
         root = self.em(
@@ -109,7 +113,10 @@ class SubmissionXmlGenerator:
                 self.em(
                     "AttributeSet",
                     self.em("MeasureTraitAttributeType", "AssertionMethod", **{"val_type": "name"}),
-                    self.em("Attribute", submission.assertion_method.title,),
+                    self.em(
+                        "Attribute",
+                        submission.assertion_method.title,
+                    ),
                     self.em("Citation", self.build_assertion_method_citation_child(submission)),
                 )
             ]
@@ -168,7 +175,14 @@ class SubmissionXmlGenerator:
                     ),
                     *[self.build_citation(citation) for citation in sub_ind.citations],
                 ),
-                self.em("Method", self.em("MethodType", sub_ind.source, **{"val_type": "name"},),),
+                self.em(
+                    "Method",
+                    self.em(
+                        "MethodType",
+                        sub_ind.source,
+                        **{"val_type": "name"},
+                    ),
+                ),
                 *self.build_variant_alleles(sub_ind),
                 self.em(
                     "ObservedData",
@@ -197,12 +211,28 @@ class SubmissionXmlGenerator:
     def build_phenotype_trait_set(self, submission_individual):
         def build_xref(term_id):
             if term_id.startswith("HP:"):
-                self.em("XRef", **{"db": "HP", "id": term_id,}),
+                self.em(
+                    "XRef",
+                    **{
+                        "db": "HP",
+                        "id": term_id,
+                    },
+                ),
             elif term_id.startswith("OMIM:") or term_id.startswith("MIM:"):
-                self.em("XRef", **{"db": "OMIM", "id": ("MIM:%s" % term_id.split(":", 1)[1]),}),
+                self.em(
+                    "XRef",
+                    **{
+                        "db": "OMIM",
+                        "id": ("MIM:%s" % term_id.split(":", 1)[1]),
+                    },
+                ),
             elif term_id.startswith("ORPHA:"):
                 self.em(
-                    "XRef", **{"db": "Orphanet", "id": ("ORPHA:%s" % term_id.split(":", 1)[1]),}
+                    "XRef",
+                    **{
+                        "db": "Orphanet",
+                        "id": ("ORPHA:%s" % term_id.split(":", 1)[1]),
+                    },
                 ),
             else:
                 return self.em("Invalid-XRef", term_id)
@@ -223,7 +253,13 @@ class SubmissionXmlGenerator:
                                 self.em("ElementValueType", "Preferred", **{"val_type": "name"}),
                                 self.em("ElementValue", phenotype["term_name"]),
                             ),
-                            self.em("XRef", **{"db": "HP", "id": phenotype["term_id"],}),
+                            self.em(
+                                "XRef",
+                                **{
+                                    "db": "HP",
+                                    "id": phenotype["term_id"],
+                                },
+                            ),
                         )
                         for phenotype in submission_individual.phenotypes
                     ],
@@ -267,19 +303,34 @@ class SubmissionXmlGenerator:
                 seq_location_dict["alternateAllele"] = submission.variant_alternative
         return self.em(
             "MeasureSet",
-            self.em("MeasureSetType", "Variant", **{"val_type": "name"},),
+            self.em(
+                "MeasureSetType",
+                "Variant",
+                **{"val_type": "name"},
+            ),
             self.em(
                 "Measure",
                 self.em("MeasureType", submission.variant_type, **{"val_type": "name"}),
-                self.em("SequenceLocation", **seq_location_dict,),
+                self.em(
+                    "SequenceLocation",
+                    **seq_location_dict,
+                ),
                 self.em(
                     "MeasureRelationship",
-                    self.em("MeasureRelationshipType", "variant in gene", **{"val_type": "name"},),
+                    self.em(
+                        "MeasureRelationshipType",
+                        "variant in gene",
+                        **{"val_type": "name"},
+                    ),
                     *[
                         self.em(
                             "Symbol",
                             ET.Comment(" HGVS: %s:%s " % (gene_symbol, gene_hgvs)),
-                            self.em("ElementValueType", "Preferred", **{"val_type": "name"},),
+                            self.em(
+                                "ElementValueType",
+                                "Preferred",
+                                **{"val_type": "name"},
+                            ),
                             self.em("ElementValue", gene_symbol),
                         )
                         for (gene_symbol, gene_hgvs) in zip(
@@ -315,7 +366,13 @@ class SubmissionXmlGenerator:
             ]
 
         return self.em(
-            "TraitSet", self.em("TraitSetType", "Disease", **{"val_type": "name"},), *traits
+            "TraitSet",
+            self.em(
+                "TraitSetType",
+                "Disease",
+                **{"val_type": "name"},
+            ),
+            *traits,
         )
 
     def build_disease_xref(self, term_id):

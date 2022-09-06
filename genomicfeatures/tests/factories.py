@@ -4,13 +4,13 @@ import binning
 import factory
 
 from ..models import (
-    TadSet,
-    TadInterval,
-    TadBoundaryInterval,
-    EnsemblRegulatoryFeature,
-    VistaEnhancer,
-    GeneInterval,
     VISTA_POSITIVE,
+    EnsemblRegulatoryFeature,
+    GeneInterval,
+    TadBoundaryInterval,
+    TadInterval,
+    TadSet,
+    VistaEnhancer,
 )
 
 

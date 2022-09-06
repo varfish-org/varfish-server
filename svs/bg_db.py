@@ -1,21 +1,20 @@
 """Code that supports building the structural variant background database."""
-import gc
-import math
-import os
-import tempfile
-
-import attrs
 from contextlib import contextmanager
 import enum
+import gc
 import json
 import logging
+import math
+import os
 import pathlib
 import random
 import re
 import statistics
 import sys
+import tempfile
 import typing
 
+import attrs
 import binning
 import cattr
 from django.conf import settings
@@ -24,22 +23,21 @@ from django.db.models import Q
 from django.utils import timezone
 from intervaltree import Interval, IntervalTree
 from projectroles.plugins import get_backend_api
-import psutil
 from projectroles.templatetags.projectroles_common_tags import get_app_setting
+import psutil
 from sqlalchemy import delete
 
 from svs.models import (
-    SV_SUB_TYPE_CHOICES as _SV_SUB_TYPE_CHOICES,
-    SV_SUB_TYPE_BND as _SV_SUB_TYPE_BND,
-    SV_SUB_TYPE_INS as _SV_SUB_TYPE_INS,
-    StructuralVariant,
+    BackgroundSv,
     BackgroundSvSet,
     BuildBackgroundSvSetJob,
-    BackgroundSv,
     CleanupBackgroundSvSetJob,
+    StructuralVariant,
 )
+from svs.models import SV_SUB_TYPE_BND as _SV_SUB_TYPE_BND
+from svs.models import SV_SUB_TYPE_CHOICES as _SV_SUB_TYPE_CHOICES
+from svs.models import SV_SUB_TYPE_INS as _SV_SUB_TYPE_INS
 from varfish import __version__ as varfish_version
-
 
 #: Logger to use in this module.
 from variants.helpers import get_engine, get_meta
@@ -145,7 +143,7 @@ class SvRecord:
         if self.sv_type != other.sv_type:  # pragma: nocover
             raise ValueError(f"Incompatible sv_type values: {self.sv_type} vs {other.sv_type}")
         if (bnd_slack is None) == (self.is_bnd() or self.is_ins()):
-            raise ValueError(f"Should specify bnd_slack if and only if SV is a breakend (or INS)")
+            raise ValueError("Should specify bnd_slack if and only if SV is a breakend (or INS)")
         if self.is_bnd():  # break-end, potentially non-linear SV
             return (
                 self.chrom == other.chrom
@@ -164,7 +162,7 @@ class SvRecord:
         Raises an ``ValueError` if ``release`` or ``sv_type`` are not the same.
         """
         if self.is_bnd() or other.is_bnd() or self.is_ins() or other.is_ins():
-            raise ValueError(f"Cannot compute Jaccard overlap for break-ends and INS!")
+            raise ValueError("Cannot compute Jaccard overlap for break-ends and INS!")
         if self.does_overlap(other):
             len_union = max(self.end, other.end) + 1 - min(self.pos, other.pos)
             len_intersect = min(self.end, other.end) + 1 - max(self.pos, other.pos)
@@ -257,7 +255,11 @@ class SvCluster:
         pos = math.floor(statistics.mean([r.pos for r in self.records]))
         end = math.ceil(statistics.mean([r.end for r in self.records]))
         end = max(end, pos + 1)
-        return attrs.evolve(self.records[0], pos=pos, end=end,)
+        return attrs.evolve(
+            self.records[0],
+            pos=pos,
+            end=end,
+        )
 
     def sort_key(self):
         if self.mean is None:
@@ -604,7 +606,7 @@ def build_bg_sv_set(
     log_to_stderr: bool = False,
     chromosomes: typing.Optional[typing.List[str]] = None,
 ) -> BackgroundSvSet:
-    """Construct a new ``BackgroundSvSet`` """
+    """Construct a new ``BackgroundSvSet``"""
     job.mark_start()
     timeline = get_backend_api("timeline_backend")
     if timeline:

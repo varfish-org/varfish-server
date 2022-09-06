@@ -10,11 +10,12 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 
 import logging
 import os
-import environ
 import re
 import sys
 
 from dotenv import load_dotenv
+import environ
+
 from varfish import __version__ as varfish_version
 
 logger = logging.getLogger(__name__)
@@ -203,7 +204,13 @@ LOGGING_LEVEL = env.str("LOGGING_LEVEL", "DEBUG" if DEBUG else "ERROR")
 # List of apps to include in logging
 LOGGING_APPS = env.list(
     "LOGGING_APPS",
-    default=["projectroles", "siteinfo", "sodarcache", "taskflowbackend", "timeline",],
+    default=[
+        "projectroles",
+        "siteinfo",
+        "sodarcache",
+        "taskflowbackend",
+        "timeline",
+    ],
 )
 
 # Path for file logging. If not set, will log only to console
@@ -219,7 +226,11 @@ def set_logging(level=None):
         "propagate": True,
     }
     log_handlers = {
-        "console": {"level": level, "class": "logging.StreamHandler", "formatter": "simple",}
+        "console": {
+            "level": level,
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        }
     }
     if LOGGING_FILE_PATH:
         log_handlers["file"] = {
@@ -279,9 +290,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # ------------------------------------------------------------------------------
 if env.bool("ENABLE_SENTRY", default=False):
     import sentry_sdk
+    from sentry_sdk.integrations.celery import CeleryIntegration
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.redis import RedisIntegration
-    from sentry_sdk.integrations.celery import CeleryIntegration
     from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
     SENTRY_DSN = "%s?verify_ssl=0" % env.str("SENTRY_DSN")
@@ -543,7 +554,8 @@ VARFISH_CADD_SUBMISSION_VERSION = env.str("VARFISH_CADD_SUBMISSION_VERSION", def
 
 # Varfish: MutationTaster URL
 VARFISH_MUTATIONTASTER_REST_API_URL = env.str(
-    "VARFISH_MUTATIONTASTER_REST_API_URL", "https://www.genecascade.org/MTc85/MT_API.cgi",
+    "VARFISH_MUTATIONTASTER_REST_API_URL",
+    "https://www.genecascade.org/MTc85/MT_API.cgi",
 )
 VARFISH_MUTATIONTASTER_BATCH_VARS = env.int("VARFISH_MUTATIONTASTER_BATCH_VARS", 50)
 VARFISH_MUTATIONTASTER_MAX_VARS = env.int("VARFISH_MUTATIONTASTER_MAX_VARS", 500)
@@ -707,7 +719,11 @@ def set_logging(debug):
         "propagate": True,
     }
     log_handlers = {
-        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple",}
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        }
     }
     if LOGGING_FILE_PATH:
         log_handlers["file"] = {
@@ -733,8 +749,9 @@ ENABLE_LDAP_SECONDARY = env.bool("ENABLE_LDAP_SECONDARY", False)
 
 if ENABLE_LDAP:
     import itertools
-    import ldap
+
     from django_auth_ldap.config import LDAPSearch
+    import ldap
 
     # Default values
     LDAP_DEFAULT_CONN_OPTIONS = {ldap.OPT_REFERRALS: 0}
@@ -752,7 +769,9 @@ if ENABLE_LDAP:
     AUTH_LDAP_CONNECTION_OPTIONS = LDAP_DEFAULT_CONN_OPTIONS
 
     AUTH_LDAP_USER_SEARCH = LDAPSearch(
-        env.str("AUTH_LDAP_USER_SEARCH_BASE", None), ldap.SCOPE_SUBTREE, LDAP_DEFAULT_FILTERSTR,
+        env.str("AUTH_LDAP_USER_SEARCH_BASE", None),
+        ldap.SCOPE_SUBTREE,
+        LDAP_DEFAULT_FILTERSTR,
     )
     AUTH_LDAP_USER_ATTR_MAP = LDAP_DEFAULT_ATTR_MAP
     AUTH_LDAP_USERNAME_DOMAIN = env.str("AUTH_LDAP_USERNAME_DOMAIN", None)
@@ -780,7 +799,8 @@ if ENABLE_LDAP:
 
         AUTHENTICATION_BACKENDS = tuple(
             itertools.chain(
-                ("projectroles.auth_backends.SecondaryLDAPBackend",), AUTHENTICATION_BACKENDS,
+                ("projectroles.auth_backends.SecondaryLDAPBackend",),
+                AUTHENTICATION_BACKENDS,
             )
         )
 
@@ -826,7 +846,10 @@ SAML2_AUTH = {
         },
         "service": {
             "sp": {
-                "idp": env.str("SAML_CLIENT_IDP", "https://sso.hpc.bihealth.org/auth/realms/cubi",),
+                "idp": env.str(
+                    "SAML_CLIENT_IDP",
+                    "https://sso.hpc.bihealth.org/auth/realms/cubi",
+                ),
                 # Keycloak expects client signature
                 "authn_requests_signed": "true",
                 # Enforce POST binding which is required by keycloak
@@ -916,7 +939,11 @@ if ENABLE_S3:
 
 # WEBPACK / VUE.JS CONFIGURATION
 # ------------------------------------------------------------------------------
-WEBPACK_LOADER = {"VARFISH_VUE": {"STATS_FILE": ROOT_DIR("varfish/vueapp/webpack-stats.json"),}}
+WEBPACK_LOADER = {
+    "VARFISH_VUE": {
+        "STATS_FILE": ROOT_DIR("varfish/vueapp/webpack-stats.json"),
+    }
+}
 
 # ICONIFY CONFIGURATION
 # ------------------------------------------------------------------------------

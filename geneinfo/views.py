@@ -4,20 +4,19 @@ from django.forms import model_to_dict
 
 from clinvar.models import ClinvarPathogenicGenes
 from geneinfo.models import (
-    RefseqToHgnc,
-    Hgnc,
-    GnomadConstraints,
+    EnsemblToGeneSymbol,
     ExacConstraints,
-    Mim2geneMedgen,
+    GnomadConstraints,
+    Hgnc,
     Hpo,
     HpoName,
+    Mim2geneMedgen,
     RefseqToEnsembl,
     RefseqToGeneSymbol,
-    EnsemblToGeneSymbol,
+    RefseqToHgnc,
 )
 
-
-RE_OMIM_PARSER = re.compile("^(?:#\d+ )?(.+)$")
+RE_OMIM_PARSER = re.compile(r"^(?:#\d+ )?(.+)$")
 
 
 # Modes of inheritance in HPO: https://hpo.jax.org/app/browse/term/HP:0000005

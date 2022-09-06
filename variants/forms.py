@@ -1,25 +1,23 @@
-import shutil
 from functools import lru_cache
-from itertools import chain
 import io
+from itertools import chain
 import os
+import re
+import shutil
 import tempfile
 
-import vcfpy
-from django.conf import settings
 from django import forms
+from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.utils.text import get_valid_filename
-
-from cohorts.models import Cohort
-from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
-from .templatetags.variants_tags import only_source_name, get_term_description
-from geneinfo.models import Hgnc, HpoName, Hpo
 from django.db.models import Q
+from django.utils.text import get_valid_filename
 from projectroles.app_settings import AppSettingAPI
+import vcfpy
 
-import re
+from geneinfo.models import Hgnc, Hpo, HpoName
 
+from .models import AcmgCriteriaRating, Case, CaseComments, SmallVariantComment, SmallVariantFlags
+from .templatetags.variants_tags import get_term_description, only_source_name
 
 app_settings = AppSettingAPI()
 
@@ -107,7 +105,6 @@ class CaseForm(forms.ModelForm):
                 if idx == -1:
                     self.instance.pedigree[i][key] = "0"
                 else:
-                    x = self.instance.pedigree
                     parent_name = self.instance.pedigree[idx]["patient"]
                     self.instance.pedigree[i][key] = parent_name
 
@@ -553,7 +550,11 @@ class ExportFileResubmitForm(forms.Form):
 class ExportProjectCasesFileResubmitForm(forms.Form):
     file_type = forms.ChoiceField(
         initial="xlsx",
-        choices=(("xlsx", "Excel (.xlsx)"), ("tsv", "TSV (.tsv)"), ("vcf", "VCF (.vcf.gz)"),),
+        choices=(
+            ("xlsx", "Excel (.xlsx)"),
+            ("tsv", "TSV (.tsv)"),
+            ("vcf", "VCF (.vcf.gz)"),
+        ),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
 
@@ -813,7 +814,10 @@ class SmallVariantFrequencyFilterFormMixin:
             min_value=0,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal frequency in mtDB", "class": "numberDecimal",}
+                attrs={
+                    "placeholder": "Maximal frequency in mtDB",
+                    "class": "numberDecimal",
+                }
             ),
         )
         self.fields["mtdb_count"] = forms.IntegerField(
@@ -821,7 +825,10 @@ class SmallVariantFrequencyFilterFormMixin:
             initial=10,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal count in mtDB", "class": "numberInteger",}
+                attrs={
+                    "placeholder": "Maximal count in mtDB",
+                    "class": "numberInteger",
+                }
             ),
         )
         self.fields["helixmtdb_enabled"] = forms.BooleanField(
@@ -834,7 +841,10 @@ class SmallVariantFrequencyFilterFormMixin:
             min_value=0,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal frequency in HelixMTdb", "class": "numberDecimal",}
+                attrs={
+                    "placeholder": "Maximal frequency in HelixMTdb",
+                    "class": "numberDecimal",
+                }
             ),
         )
         self.fields["helixmtdb_hom_count"] = forms.IntegerField(
@@ -842,7 +852,10 @@ class SmallVariantFrequencyFilterFormMixin:
             initial=10,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal hom. count in HelixMTdb", "class": "numberInteger",}
+                attrs={
+                    "placeholder": "Maximal hom. count in HelixMTdb",
+                    "class": "numberInteger",
+                }
             ),
         )
         self.fields["helixmtdb_het_count"] = forms.IntegerField(
@@ -850,7 +863,10 @@ class SmallVariantFrequencyFilterFormMixin:
             initial=10,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal het. count in HelixMTdb", "class": "numberInteger",}
+                attrs={
+                    "placeholder": "Maximal het. count in HelixMTdb",
+                    "class": "numberInteger",
+                }
             ),
         )
         self.fields["mitomap_enabled"] = forms.BooleanField(label="", required=False, initial=True)
@@ -861,7 +877,10 @@ class SmallVariantFrequencyFilterFormMixin:
             min_value=0,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal frequency in MITOMAP", "class": "numberDecimal",}
+                attrs={
+                    "placeholder": "Maximal frequency in MITOMAP",
+                    "class": "numberDecimal",
+                }
             ),
         )
         self.fields["mitomap_count"] = forms.IntegerField(
@@ -869,7 +888,10 @@ class SmallVariantFrequencyFilterFormMixin:
             initial=10,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal count in MITOMAP", "class": "numberInteger",}
+                attrs={
+                    "placeholder": "Maximal count in MITOMAP",
+                    "class": "numberInteger",
+                }
             ),
         )
 

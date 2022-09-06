@@ -2,28 +2,29 @@
 
 from test_plus.test import TestCase
 
-from ..models import (
-    Family,
-    Individual,
-    AssertionMethod,
-    Submitter,
-    Organisation,
-    SubmissionSet,
-    SubmittingOrg,
-    Submission,
-)
-from .factories import (
-    FamilyFactory,
-    IndividualFactory,
-    AssertionMethodFactory,
-    SubmitterFactory,
-    OrganisationFactory,
-    SubmissionSetFactory,
-    SubmittingOrgFactory,
-    SubmissionFactory,
-)
 from variants.models import Case
 from variants.tests.factories import CaseFactory
+
+from ..models import (
+    AssertionMethod,
+    Family,
+    Individual,
+    Organisation,
+    Submission,
+    SubmissionSet,
+    Submitter,
+    SubmittingOrg,
+)
+from .factories import (
+    AssertionMethodFactory,
+    FamilyFactory,
+    IndividualFactory,
+    OrganisationFactory,
+    SubmissionFactory,
+    SubmissionSetFactory,
+    SubmitterFactory,
+    SubmittingOrgFactory,
+)
 
 
 class TestFamily(TestCase):
