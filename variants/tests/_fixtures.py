@@ -3,12 +3,11 @@
 
 import aldjemy.core
 import binning
-
 from projectroles.models import Project
+
+from geneinfo.models import Hgnc, RefseqToHgnc
 from variants.models import SmallVariant, SmallVariantSummary
 from variants.variant_stats import rebuild_case_variant_stats
-from geneinfo.models import Hgnc, RefseqToHgnc
-
 
 #: Shared data for ``Project`` to use for all test cases.
 PROJECT_DICT = {

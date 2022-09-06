@@ -14,7 +14,8 @@ class TestSecondHitView(ViewTestBase):
         super().setUp()
         self.case, _, self.variant_set = CaseWithVariantSetFactory.get(project=self.project)
         self.sv_gene_annotation = StructuralVariantGeneAnnotationFactory(
-            sv__variant_set__case=self.case, sv__variant_set=self.variant_set,
+            sv__variant_set__case=self.case,
+            sv__variant_set=self.variant_set,
         )
         self.sv = StructuralVariant.objects.get(sv_uuid=self.sv_gene_annotation.sv_uuid)
         self.sv_gene_annotation2 = StructuralVariantGeneAnnotationFactory(

@@ -1,35 +1,33 @@
 """UI tests for the projectroles app"""
 
+import json
 import os
 import socket
-import json
 import time
 from unittest import skipIf
 
 from django.contrib import auth
 from django.test import LiveServerTestCase
 from django.urls import reverse
-
+from projectroles.models import SODAR_CONSTANTS, Role
+from projectroles.tests.test_models import ProjectMixin, RoleAssignmentMixin
+import projectroles.tests.test_ui
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-
-from projectroles.models import Role, SODAR_CONSTANTS
-from projectroles.tests.test_models import ProjectMixin, RoleAssignmentMixin
-import projectroles.tests.test_ui
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait
 
 from extra_annos.tests.factories import ExtraAnnoFactory, ExtraAnnoFieldFactory
 from variants.tests.factories import (
+    CaseWithVariantSetFactory,
+    ProjectFactory,
     SampleVariantStatisticsFactory,
     SmallVariantFactory,
-    ProjectFactory,
-    CaseWithVariantSetFactory,
 )
-from ..models import update_variant_counts
 
+from ..models import update_variant_counts
 
 # SODAR constants
 PROJECT_ROLE_OWNER = SODAR_CONSTANTS["PROJECT_ROLE_OWNER"]
@@ -935,7 +933,7 @@ class TestVariantsCaseFilterView(TestUIBase):
             self.selenium.find_element_by_id("id_%s_dp_het" % self.case.index).get_attribute(
                 "value"
             ),
-            "8",
+            "10",
         )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)

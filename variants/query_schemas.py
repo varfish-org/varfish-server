@@ -1,9 +1,9 @@
 """Utility code for query schemas."""
 
-from enum import unique, Enum
 import copy
-import os.path
+from enum import Enum, unique
 import json
+import os.path
 import re
 import typing
 
@@ -12,8 +12,8 @@ import attrs
 import cattr
 from jsonschema import Draft7Validator, validators
 
-from variants.models import Case
 from variants.forms import FILTER_FORM_TRANSLATE_EFFECTS
+from variants.models import Case
 
 
 def extend_with_default(validator_class):
@@ -25,10 +25,18 @@ def extend_with_default(validator_class):
             if "default" in sub_schema:
                 instance.setdefault(key, sub_schema["default"])
 
-        for error in validate_properties(validator, properties, instance, schema,):
+        for error in validate_properties(
+            validator,
+            properties,
+            instance,
+            schema,
+        ):
             yield error
 
-    return validators.extend(validator_class, {"properties": set_defaults},)
+    return validators.extend(
+        validator_class,
+        {"properties": set_defaults},
+    )
 
 
 def load_json(path):

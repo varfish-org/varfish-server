@@ -2,11 +2,10 @@
 from enum import Enum
 
 from django.core.management.base import BaseCommand
-from django.db import transaction, connection, ProgrammingError
+from django.db import ProgrammingError, connection, transaction
 
-
-ICON_CHECK_MARK = u"\u2714"
-ICON_FAILED = u"\u2718"
+ICON_CHECK_MARK = "\u2714"
+ICON_FAILED = "\u2718"
 
 
 class State(Enum):
@@ -201,8 +200,7 @@ EXPECTED_INDEXES = {
 
 
 class Command(BaseCommand):
-    """Implementation of checking installation.
-    """
+    """Implementation of checking installation."""
 
     #: Help message displayed on the command line.
     help = "Sanity check installation."

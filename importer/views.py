@@ -1,9 +1,12 @@
-from projectroles.views import LoginRequiredMixin, ProjectPermissionMixin, ProjectContextMixin
-from django.views.generic import ListView, DetailView
+from django.views.generic import DetailView, ListView
+from projectroles.views import (
+    LoggedInPermissionMixin,
+    LoginRequiredMixin,
+    ProjectContextMixin,
+    ProjectPermissionMixin,
+)
 
-from projectroles.views import LoggedInPermissionMixin
-
-from .models import ImportInfo, ImportCaseBgJob
+from .models import ImportCaseBgJob, ImportInfo
 
 
 class ImportInfoView(LoginRequiredMixin, LoggedInPermissionMixin, ListView):

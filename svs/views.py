@@ -7,42 +7,42 @@ import uuid
 
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
-from django.urls import resolve
-from projectroles.models import Project
-
-from variants.helpers import get_engine
-from projectroles.views import LoginRequiredMixin
 from django.db import transaction
 from django.forms import model_to_dict
-from django.http import HttpResponse, Http404, JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404, reverse
+from django.http import Http404, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.urls import resolve
 from django.utils import timezone
 from django.views import View
-from django.views.generic import FormView, DetailView, TemplateView
+from django.views.generic import DetailView, FormView, TemplateView
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
+from projectroles.models import Project
 from projectroles.plugins import get_backend_api
-from projectroles.views import LoggedInPermissionMixin, ProjectContextMixin, ProjectPermissionMixin
+from projectroles.views import (
+    LoggedInPermissionMixin,
+    LoginRequiredMixin,
+    ProjectContextMixin,
+    ProjectPermissionMixin,
+)
 
 from geneinfo.views import get_gene_infos
 from regmaps.models import RegElement, RegInteraction
-from .forms import (
-    FilterForm,
-    StructuralVariantCommentForm,
-    StructuralVariantFlagsForm,
-)
-from .models import (
-    StructuralVariantFlags,
-    StructuralVariantComment,
-    StructuralVariant,
-    StructuralVariantGeneAnnotation,
-    ImportStructuralVariantBgJob,
-    StructuralVariantSet,
-    BuildBackgroundSvSetJob,
-    CleanupBackgroundSvSetJob,
-)
-from .queries import SingleCaseFilterQuery, best_matching_flags
+from variants.helpers import get_engine
 from variants.models import Case
 from variants.views import UUIDEncoder
+
+from .forms import FilterForm, StructuralVariantCommentForm, StructuralVariantFlagsForm
+from .models import (
+    BuildBackgroundSvSetJob,
+    CleanupBackgroundSvSetJob,
+    ImportStructuralVariantBgJob,
+    StructuralVariant,
+    StructuralVariantComment,
+    StructuralVariantFlags,
+    StructuralVariantGeneAnnotation,
+    StructuralVariantSet,
+)
+from .queries import SingleCaseFilterQuery, best_matching_flags
 
 
 class CaseFilterView(
@@ -370,7 +370,11 @@ class StructuralVariantCommentApiView(
 
 
 class MultiStructuralVariantFlagsAndCommentApiView(
-    LoginRequiredMixin, LoggedInPermissionMixin, ProjectPermissionMixin, ProjectContextMixin, View,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
+    View,
 ):
     """A view that returns JSON for the ``SmallVariantFlags`` for a variant of a case and allows updates."""
 
@@ -529,8 +533,7 @@ class ImportStructuralVariantsJobDetailView(
     ProjectContextMixin,
     DetailView,
 ):
-    """Display status and further details of import case background jobs.
-    """
+    """Display status and further details of import case background jobs."""
 
     permission_required = "variants.view_data"
     template_name = "svs/import_job_detail.html"
@@ -643,16 +646,6 @@ class SecondHitView(
         result["case"] = self.get_case_object()
         return result
 
-    def get_context_data(self, **kwargs):
-        """Put the ``Case`` object into the context."""
-        context = super().get_context_data(**kwargs)
-        context["object"] = self.get_case_object()
-        context["pedigree"] = self.get_case_object().get_filtered_pedigree_with_samples()
-        context["variant_set_exists"] = StructuralVariantSet.objects.filter(
-            case_id=context["object"].id, state="active"
-        ).exists()
-        return context
-
     def get_context_data(self, *args, **kwargs):
         context_data = super().get_context_data(*args, **kwargs)
 
@@ -760,10 +753,12 @@ class SecondHitView(
 
 
 class BuildBackgroundSvSetJobDetailView(
-    LoginRequiredMixin, LoggedInPermissionMixin, ProjectContextMixin, DetailView,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
 ):
-    """Display status and further details of build sv set background jobs.
-    """
+    """Display status and further details of build sv set background jobs."""
 
     permission_required = "variants.view_data"
     template_name = "svs/build_bg_job_detail.html"
@@ -773,10 +768,12 @@ class BuildBackgroundSvSetJobDetailView(
 
 
 class CleanupBackgroundSvSetJobDetailView(
-    LoginRequiredMixin, LoggedInPermissionMixin, ProjectContextMixin, DetailView,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectContextMixin,
+    DetailView,
 ):
-    """Display status and further details of cleanup sv set background jobs.
-    """
+    """Display status and further details of cleanup sv set background jobs."""
 
     permission_required = "variants.view_data"
     template_name = "svs/cleanup_bg_job_detail.html"

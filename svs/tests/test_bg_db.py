@@ -3,13 +3,13 @@ import typing
 
 import attrs
 from bgjobs.models import BackgroundJob
+from django.contrib.auth import get_user_model
 from test_plus.test import TestCase
 
 from svs import bg_db
-from django.contrib.auth import get_user_model
 
 #: The User model to use.
-from svs.models import BuildBackgroundSvSetJob, BackgroundSvSet, BackgroundSv
+from svs.models import BackgroundSv, BackgroundSvSet, BuildBackgroundSvSetJob
 
 User = get_user_model()
 
@@ -278,7 +278,10 @@ class TestClusterSvAlgorithm(TestCase):
         expected = {
             "chr1": [
                 bg_db.SvCluster(
-                    params=algo.params, rng=algo.rng, mean=record_1, records=[record_1],
+                    params=algo.params,
+                    rng=algo.rng,
+                    mean=record_1,
+                    records=[record_1],
                 )
             ]
         }
@@ -312,7 +315,12 @@ class TestClusterSvAlgorithm(TestCase):
             end=2250,
             orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
         )
-        records = {"chr1": [record_1, record_2,]}
+        records = {
+            "chr1": [
+                record_1,
+                record_2,
+            ]
+        }
         algo, clusters = self._run_clustering(records)
         expected = {
             "chr1": [
@@ -343,8 +351,12 @@ class TestClusterSvAlgorithm(TestCase):
             orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
         )
         records = {
-            "chr1": [record_1,],
-            "chr2": [record_2,],
+            "chr1": [
+                record_1,
+            ],
+            "chr2": [
+                record_2,
+            ],
         }
         algo, clusters = self._run_clustering(records)
         expected = {
@@ -413,8 +425,14 @@ class TestClusterSvAlgorithm(TestCase):
             orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
         )
         records = {
-            "chr1": [record_1, record_2,],
-            "chr2": [record_3, record_4,],
+            "chr1": [
+                record_1,
+                record_2,
+            ],
+            "chr2": [
+                record_3,
+                record_4,
+            ],
         }
         algo, clusters = self._run_clustering(records)
         expected = {
@@ -442,7 +460,9 @@ class TestClusterSvAlgorithm(TestCase):
             orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
         )
         record_2 = attrs.evolve(
-            record_1, pos=1001, orientation=bg_db.PairedEndOrientation.THREE_TO_THREE,
+            record_1,
+            pos=1001,
+            orientation=bg_db.PairedEndOrientation.THREE_TO_THREE,
         )
         record_3 = attrs.evolve(record_1, end=record_1.end + 1)
         mean_1 = attrs.evolve(record_1, end=record_1.end + 1)
@@ -462,7 +482,12 @@ class TestClusterSvAlgorithm(TestCase):
 
 class TestModelToAttrs(TestCase):
     def testWithDel(self):
-        sv_model = StructuralVariantFactory(chromosome="3", chromosome_no=3, start=1000, end=2000,)
+        sv_model = StructuralVariantFactory(
+            chromosome="3",
+            chromosome_no=3,
+            start=1000,
+            end=2000,
+        )
         sv_record = bg_db.sv_model_to_attrs(sv_model)
         self.maxDiff = None
         expected = bg_db.SvRecord(
@@ -528,7 +553,9 @@ class TestBuildBgSvSet(TestCase):
             job_type="variants.export_file_bg_job",
             user=self.root_user,
         )
-        self.build_sv_set_bg_job = BuildBackgroundSvSetJob.objects.create(bg_job=self.bg_job,)
+        self.build_sv_set_bg_job = BuildBackgroundSvSetJob.objects.create(
+            bg_job=self.bg_job,
+        )
 
     def testWithNoRecords(self):
         self.assertEqual(BackgroundSvSet.objects.count(), 0)

@@ -8,8 +8,8 @@ import itertools
 from django.core.management import BaseCommand
 from tqdm import tqdm
 
-from svs.models import StructuralVariant
 from svs import bg_db
+from svs.models import StructuralVariant
 from variants.models import Case
 
 

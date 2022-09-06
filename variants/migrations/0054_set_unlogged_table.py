@@ -2,8 +2,8 @@
 """SET small variant table as UNLOGGED to improve insertion performance."""
 from __future__ import unicode_literals
 
-from django.db import migrations
 from django.conf import settings
+from django.db import migrations
 
 if not settings.IS_TESTING:
     operations = [migrations.RunSQL("ALTER TABLE variants_smallvariant SET UNLOGGED;")] + [

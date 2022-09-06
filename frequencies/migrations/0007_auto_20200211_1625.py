@@ -12,8 +12,14 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(model_name="helixmtdb", old_name="ac", new_name="ac_hom",),
+        migrations.RenameField(
+            model_name="helixmtdb",
+            old_name="ac",
+            new_name="ac_hom",
+        ),
         migrations.AddField(
-            model_name="helixmtdb", name="is_triallelic", field=models.BooleanField(default=False),
+            model_name="helixmtdb",
+            name="is_triallelic",
+            field=models.BooleanField(default=False),
         ),
     ]

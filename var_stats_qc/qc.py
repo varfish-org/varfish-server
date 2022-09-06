@@ -4,7 +4,7 @@ from itertools import chain
 
 import numpy as np
 from sqlalchemy import or_
-from sqlalchemy.sql import select, and_, not_, func
+from sqlalchemy.sql import and_, func, not_, select
 
 from .models import ReferenceSite
 

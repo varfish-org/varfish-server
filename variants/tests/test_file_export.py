@@ -1,32 +1,33 @@
 """Tests for the ``file_export`` module."""
 
+from datetime import timedelta
 import gzip
 import io
-from datetime import timedelta
 import tempfile
 from unittest.mock import patch
 
+from bgjobs.models import BackgroundJob
 import django
 from django.utils import timezone
 import openpyxl
+from projectroles.models import Project
 from requests_mock import Mocker
 from test_plus.test import TestCase
 from timeline.models import ProjectEvent
 
 from clinvar.tests.factories import ClinvarFactory
 from cohorts.tests.factories import TestCohortBase
-from extra_annos.tests.factories import ExtraAnnoFieldFactory, ExtraAnnoFactory
+from extra_annos.tests.factories import ExtraAnnoFactory, ExtraAnnoFieldFactory
 from geneinfo.tests.factories import GnomadConstraintsFactory, RefseqToEnsemblFactory
 from variants.tests.factories import (
-    SmallVariantFactory,
-    ResubmitFormDataFactory,
-    ExportProjectCasesFileBgJobFactory,
     CaseWithVariantSetFactory,
+    ExportProjectCasesFileBgJobFactory,
+    ResubmitFormDataFactory,
+    SmallVariantFactory,
 )
+
 from .. import file_export
-from ..models import ExportFileBgJob, ExportProjectCasesFileBgJob, Case, CaseAwareProject
-from bgjobs.models import BackgroundJob
-from projectroles.models import Project
+from ..models import Case, CaseAwareProject, ExportFileBgJob, ExportProjectCasesFileBgJob
 
 
 class ExportTestBase(TestCase):
@@ -384,7 +385,12 @@ class ProjectExportTest(TestCase):
         ):
             member = list(small_var.genotype.keys())[0]
             self.assertSequenceEqual(
-                arrs[i + 1][:3], [member, "chr" + small_var.chromosome, str(small_var.start),],
+                arrs[i + 1][:3],
+                [
+                    member,
+                    "chr" + small_var.chromosome,
+                    str(small_var.start),
+                ],
             )
             self.assertSequenceEqual(
                 arrs[i + 1][-5:],
@@ -546,7 +552,10 @@ class CohortExporterTest(TestCohortBase):
             result = str(exporter.generate(), "utf-8")
         arrs = [line.split("\t") for line in result.split("\n")]
         self._test_tabular(
-            arrs, 13, True, self.project2_case1_smallvars + self.project2_case2_smallvars,
+            arrs,
+            13,
+            True,
+            self.project2_case1_smallvars + self.project2_case2_smallvars,
         )
 
     def test_export_tsv_as_superuser_for_cohort_by_contributor(self):
@@ -558,7 +567,10 @@ class CohortExporterTest(TestCohortBase):
             result = str(exporter.generate(), "utf-8")
         arrs = [line.split("\t") for line in result.split("\n")]
         self._test_tabular(
-            arrs, 13, True, self.project2_case1_smallvars + self.project2_case2_smallvars,
+            arrs,
+            13,
+            True,
+            self.project2_case1_smallvars + self.project2_case2_smallvars,
         )
 
     def test_export_tsv_as_contributor_for_cohort_by_superuser(self):
@@ -570,7 +582,10 @@ class CohortExporterTest(TestCohortBase):
             result = str(exporter.generate(), "utf-8")
         arrs = [line.split("\t") for line in result.split("\n")]
         self._test_tabular(
-            arrs, 13, True, self.project2_case1_smallvars + self.project2_case2_smallvars,
+            arrs,
+            13,
+            True,
+            self.project2_case1_smallvars + self.project2_case2_smallvars,
         )
 
     def _test_tabular(self, arrs, ref, has_trailing, smallvars):
@@ -582,7 +597,12 @@ class CohortExporterTest(TestCohortBase):
         for i, small_var in enumerate(sorted(smallvars, key=lambda x: (x.chromosome_no, x.start))):
             member = Case.objects.get(id=small_var.case_id).get_members()[0]
             self.assertSequenceEqual(
-                arrs[i + 1][:3], [member, "chr" + small_var.chromosome, str(small_var.start),],
+                arrs[i + 1][:3],
+                [
+                    member,
+                    "chr" + small_var.chromosome,
+                    str(small_var.start),
+                ],
             )
             self.assertSequenceEqual(
                 arrs[i + 1][-5:],
@@ -672,7 +692,11 @@ class CohortExporterTest(TestCohortBase):
         with file_export.CaseExporterVcf(bgjob, cohort) as exporter:
             result = exporter.generate()
         self._test_vcf(
-            result, 13, self.project2_case1_smallvars + self.project2_case2_smallvars, cohort, user,
+            result,
+            13,
+            self.project2_case1_smallvars + self.project2_case2_smallvars,
+            cohort,
+            user,
         )
 
     def test_export_vcf_as_superuser_for_cohort_by_contributor(self):
@@ -683,7 +707,11 @@ class CohortExporterTest(TestCohortBase):
         with file_export.CaseExporterVcf(bgjob, cohort) as exporter:
             result = exporter.generate()
         self._test_vcf(
-            result, 13, self.project2_case1_smallvars + self.project2_case2_smallvars, cohort, user,
+            result,
+            13,
+            self.project2_case1_smallvars + self.project2_case2_smallvars,
+            cohort,
+            user,
         )
 
     def test_export_vcf_as_contributor_for_cohort_by_superuser(self):
@@ -694,7 +722,11 @@ class CohortExporterTest(TestCohortBase):
         with file_export.CaseExporterVcf(bgjob, cohort) as exporter:
             result = exporter.generate()
         self._test_vcf(
-            result, 13, self.project2_case1_smallvars + self.project2_case2_smallvars, cohort, user,
+            result,
+            13,
+            self.project2_case1_smallvars + self.project2_case2_smallvars,
+            cohort,
+            user,
         )
 
     def test_export_xlsx_as_superuser(self):
@@ -738,7 +770,10 @@ class CohortExporterTest(TestCohortBase):
             variants_sheet = workbook["Variants"]
             arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
             self._test_tabular(
-                arrs, 13, False, self.project2_case1_smallvars + self.project2_case2_smallvars,
+                arrs,
+                13,
+                False,
+                self.project2_case1_smallvars + self.project2_case2_smallvars,
             )
 
     def test_export_xlsx_as_superuser_for_cohort_by_contributor(self):
@@ -757,7 +792,10 @@ class CohortExporterTest(TestCohortBase):
             variants_sheet = workbook["Variants"]
             arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
             self._test_tabular(
-                arrs, 13, False, self.project2_case1_smallvars + self.project2_case2_smallvars,
+                arrs,
+                13,
+                False,
+                self.project2_case1_smallvars + self.project2_case2_smallvars,
             )
 
     def test_export_xlsx_as_contributor_for_cohort_by_superuser(self):
@@ -776,7 +814,10 @@ class CohortExporterTest(TestCohortBase):
             variants_sheet = workbook["Variants"]
             arrs = [[cell.value for cell in row] for row in variants_sheet.rows]
             self._test_tabular(
-                arrs, 13, False, self.project2_case1_smallvars + self.project2_case2_smallvars,
+                arrs,
+                13,
+                False,
+                self.project2_case1_smallvars + self.project2_case2_smallvars,
             )
 
 

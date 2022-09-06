@@ -5,7 +5,7 @@ This is done by recreating it.
 """
 
 from django.conf import settings
-from django.db import migrations, models
+from django.db import migrations
 
 SQL_OUTER = r"""
 DROP MATERIALIZED VIEW IF EXISTS variants_smallvariantsummary;
@@ -104,7 +104,12 @@ GROUP BY (release, chromosome, start, "end", bin, reference, alternative)
 if settings.IS_TESTING:
     operations = []
 else:
-    operations = [migrations.RunSQL(SQL_OUTER % SQL_INNER_FORWARD, SQL_OUTER % SQL_INNER_REVERSE,)]
+    operations = [
+        migrations.RunSQL(
+            SQL_OUTER % SQL_INNER_FORWARD,
+            SQL_OUTER % SQL_INNER_REVERSE,
+        )
+    ]
 
 
 class Migration(migrations.Migration):

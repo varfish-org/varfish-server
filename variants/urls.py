@@ -1,6 +1,6 @@
 from django.conf.urls import url
-from . import views, views_api
 
+from . import views, views_api
 
 app_name = "variants"
 ui_urlpatterns = [

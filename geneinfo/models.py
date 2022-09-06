@@ -1,6 +1,6 @@
-from django.contrib.postgres.fields import ArrayField
-from django.db import models, connection, transaction
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
+from django.db import connection, models, transaction
 from postgres_copy import CopyManager
 
 
@@ -482,8 +482,7 @@ def refresh_geneinfo_geneidtoinheritance():
 
 
 class GeneIdInHpo(models.Model):
-    """Materialized view with a list of gene ids that have an HPO entry.
-    """
+    """Materialized view with a list of gene ids that have an HPO entry."""
 
     #: RefSeq gene ID (the view requires entrez id not to be null.)
     entrez_id = models.CharField(max_length=16, null=False)

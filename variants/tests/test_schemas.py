@@ -8,9 +8,9 @@ from test_plus.test import TestCase
 from variants.forms import FilterForm
 from variants.query_schemas import (
     SCHEMA_QUERY_V1,
-    load_json,
     DefaultValidatingDraft7Validator,
     convert_query_json_to_small_variant_filter_form_v1,
+    load_json,
 )
 from variants.tests.factories import CaseWithVariantSetFactory
 

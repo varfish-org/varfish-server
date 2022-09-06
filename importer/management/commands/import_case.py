@@ -1,22 +1,20 @@
 """Django command for importing a case after annotation with ``varfish-annotator``."""
 
-import os.path
 import gzip
 import itertools
+import os.path
 
 from bgjobs.models import BackgroundJob
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from django.conf import settings
-
-from svs.models import ImportStructuralVariantBgJob
 from projectroles.models import Project
 
+from svs.models import ImportStructuralVariantBgJob
 from svs.tasks import run_import_structural_variants_bg_job
 from variants.models import ImportVariantsBgJob
 from variants.tasks import run_import_variants_bg_job
-
 
 #: The User model to use.
 User = get_user_model()

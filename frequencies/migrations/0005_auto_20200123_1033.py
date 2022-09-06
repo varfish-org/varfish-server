@@ -37,7 +37,9 @@ class Migration(migrations.Migration):
                 ("ac_het_min", models.FloatField(null=True)),
                 ("ac_het_max", models.FloatField(null=True)),
             ],
-            options={"abstract": False,},
+            options={
+                "abstract": False,
+            },
         ),
         migrations.CreateModel(
             name="Mitomap",
@@ -59,7 +61,9 @@ class Migration(migrations.Migration):
                 ("an", models.IntegerField()),
                 ("af", models.FloatField()),
             ],
-            options={"abstract": False,},
+            options={
+                "abstract": False,
+            },
         ),
         migrations.CreateModel(
             name="MtDb",
@@ -87,7 +91,9 @@ class Migration(migrations.Migration):
                 ("aa_change", models.CharField(max_length=32, null=True)),
                 ("synonymous", models.NullBooleanField()),
             ],
-            options={"abstract": False,},
+            options={
+                "abstract": False,
+            },
         ),
         migrations.AlterUniqueTogether(
             name="mtdb",

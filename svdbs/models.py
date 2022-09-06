@@ -4,9 +4,8 @@ from postgres_copy import CopyManager
 
 __author__ = "Manuel Holtgrewe <manuel.holtgrewe@bihealth.de>"
 
-from django.db import models
 from django.contrib.postgres.fields import ArrayField
-
+from django.db import models
 
 #: "gain" in DGV
 DGV_SV_SUB_TYPE_GAIN = "gain"

@@ -4,12 +4,12 @@ import io
 import re
 import typing
 
-import attr
 from altamisa.isatab import StudyReader
-from django.db import transaction
+import attr
 from bgjobs.models import LOG_LEVEL_ERROR, LOG_LEVEL_WARNING
-from projectroles.plugins import get_backend_api
+from django.db import transaction
 from projectroles.models import RemoteSite
+from projectroles.plugins import get_backend_api
 import requests
 
 from variants.models import CaseAwareProject, SyncCaseResultMessage

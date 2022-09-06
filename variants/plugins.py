@@ -1,32 +1,31 @@
+from bgjobs.plugins import BackgroundJobsPluginPoint
 from django.urls import reverse
-
 from projectroles.constants import get_sodar_constants
 from projectroles.plugins import ProjectAppPluginPoint
-from bgjobs.plugins import BackgroundJobsPluginPoint
 
 from .models import (
-    Case,
     CASE_STATUS_CHOICES,
-    SmallVariantComment,
-    SmallVariantFlags,
-    ExportFileBgJob,
-    ExportProjectCasesFileBgJob,
     CaddSubmissionBgJob,
-    SpanrSubmissionBgJob,
-    DistillerSubmissionBgJob,
-    ComputeProjectVariantsStatsBgJob,
-    FilterBgJob,
-    ProjectCasesFilterBgJob,
-    SyncCaseListBgJob,
-    ImportVariantsBgJob,
+    Case,
     CaseComments,
     ClearExpiredExportedFilesBgJob,
     ClearInactiveVariantSetsBgJob,
     ClearOldKioskCasesBgJob,
+    ComputeProjectVariantsStatsBgJob,
+    DistillerSubmissionBgJob,
+    ExportFileBgJob,
+    ExportProjectCasesFileBgJob,
+    FilterBgJob,
+    ImportVariantsBgJob,
+    ProjectCasesFilterBgJob,
     RefreshSmallVariantSummaryBgJob,
+    SmallVariantComment,
+    SmallVariantFlags,
+    SpanrSubmissionBgJob,
+    SyncCaseListBgJob,
 )
-from .urls import urlpatterns
 from .templatetags.variants_tags import case_status_to_color
+from .urls import urlpatterns
 
 # Global SODAR constants
 SODAR_CONSTANTS = get_sodar_constants()

@@ -1,8 +1,6 @@
 """Rule definitions for the ``beaconsites`` app."""
 
 import rules
-from projectroles import rules as pr_rules
-
 
 # Rules ------------------------------------------------------------------------
 

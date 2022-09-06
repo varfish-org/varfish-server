@@ -1,25 +1,25 @@
 """Tests for ``variants.models``."""
-import uuid
 from datetime import datetime, timedelta
 from unittest.mock import patch
+import uuid
 
 from django.conf import settings
-from projectroles.models import Project, SODAR_CONSTANTS
-
-from variants.tests.factories import (
-    SmallVariantFlagsFactory,
-    ProjectFactory,
-    SmallVariantFactory,
-    CaseWithVariantSetFactory,
-)
+from projectroles.models import SODAR_CONSTANTS, Project
 from test_plus.test import TestCase
 
+from variants.tests.factories import (
+    CaseWithVariantSetFactory,
+    ProjectFactory,
+    SmallVariantFactory,
+    SmallVariantFlagsFactory,
+)
+
 from ..models import (
+    Case,
+    SmallVariant,
     SmallVariantFlags,
     SmallVariantSet,
     cleanup_variant_sets,
-    SmallVariant,
-    Case,
     clear_old_kiosk_cases,
 )
 

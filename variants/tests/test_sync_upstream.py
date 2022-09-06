@@ -5,15 +5,15 @@ import json
 import os
 from unittest.mock import patch
 
-import requests_mock
 from projectroles.constants import SODAR_CONSTANTS
+import requests_mock
 from test_plus.test import TestCase
 
 from variants import sync_upstream
 from variants.tests.factories import (
     CaseWithVariantSetFactory,
-    SyncCaseListBgJobFactory,
     RemoteSiteFactory,
+    SyncCaseListBgJobFactory,
 )
 
 
@@ -100,7 +100,11 @@ class TestFetchRemotePedigree(TestCase):
     def testRun(self, r_mock):
         r_mock.get(
             "%s/samplesheets/api/remote/get/%s/%s?isa=1"
-            % (self.remote_site.url, self.project.sodar_uuid, self.remote_site.secret,),
+            % (
+                self.remote_site.url,
+                self.project.sodar_uuid,
+                self.remote_site.secret,
+            ),
             status_code=200,
             text=self.isa_tab_json,
         )

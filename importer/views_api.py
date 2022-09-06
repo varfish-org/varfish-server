@@ -9,20 +9,21 @@ from projectroles.constants import get_sodar_constants
 from projectroles.views_api import SODARAPIBaseProjectMixin, SODARAPIGenericProjectMixin
 from rest_framework.generics import (
     ListCreateAPIView,
-    RetrieveUpdateDestroyAPIView,
     RetrieveDestroyAPIView,
+    RetrieveUpdateDestroyAPIView,
 )
 
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
+
 from . import tasks
-from .models import CaseImportInfo, VariantSetImportInfo, CaseImportState, ImportCaseBgJob
+from .models import CaseImportInfo, CaseImportState, ImportCaseBgJob, VariantSetImportInfo
 from .serializers import (
-    CaseImportInfoSerializer,
-    VariantSetImportInfoSerializer,
     BamQcFileSerializer,
+    CaseImportInfoSerializer,
     DatabaseInfoFileSerializer,
     EffectFileSerializer,
     GenotypeFileSerializer,
+    VariantSetImportInfoSerializer,
 )
 
 #: Logger to use in this module.

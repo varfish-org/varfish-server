@@ -1,16 +1,12 @@
 import factory
-from projectroles.forms import PROJECT_ROLE_OWNER, PROJECT_ROLE_CONTRIBUTOR
+from projectroles.forms import PROJECT_ROLE_CONTRIBUTOR, PROJECT_ROLE_OWNER
 from projectroles.models import Role
 from projectroles.tests.test_models import RoleAssignmentMixin
 from test_plus import TestCase
 
 from cohorts.models import Cohort
 from variants.models import Case
-from variants.tests.factories import (
-    ProjectFactory,
-    SmallVariantFactory,
-    CaseWithVariantSetFactory,
-)
+from variants.tests.factories import CaseWithVariantSetFactory, ProjectFactory, SmallVariantFactory
 
 
 class CohortFactory(factory.django.DjangoModelFactory):

@@ -1,47 +1,43 @@
 """Building queries for structural variants based on the ``QueryParts`` infrastructure from ``variants``."""
 
 import enum
+from itertools import chain
 import logging
 import operator
 import sys
-from itertools import chain
 
 from django.conf import settings
 from django.db.models import Q
+from sqlalchemy import ARRAY, VARCHAR, any_, column, text
+from sqlalchemy.sql import and_, case, cast, desc, func, not_, or_, select, true
+from sqlalchemy.sql.functions import coalesce
+from sqlalchemy.types import Float, Integer
 import sqlparse
 
-from sqlalchemy import column, VARCHAR, ARRAY, any_, text
-from sqlalchemy.sql import select, func, and_, or_, not_, true, cast, case, desc
-from sqlalchemy.sql.functions import coalesce
-from sqlalchemy.types import Integer, Float
-
-from regmaps.models import RegMapCollection, RegElement, RegInteraction
-from .models import (
-    StructuralVariant,
-    StructuralVariantGeneAnnotation,
-    StructuralVariantComment,
-    StructuralVariantFlags,
-    StructuralVariantSet,
-    BackgroundSv,
-    BackgroundSvSet,
-)
+from geneinfo.models import Hgnc
 from genomicfeatures.models import (
     EnsemblRegulatoryFeature,
     GeneInterval,
-    TadSet,
-    TadInterval,
     TadBoundaryInterval,
+    TadInterval,
+    TadSet,
     VistaEnhancer,
 )
-from geneinfo.models import Hgnc
-from svdbs.models import ThousandGenomesSv, DbVarSv, ExacCnv, DgvSvs, DgvGoldStandardSvs, GnomAdSv
-from variants.queries import (
-    QueryParts,
-    QueryPartsBuilder,
-    ExtendQueryPartsBase,
-    ExtendQueryPartsGenotypeDefaultBase,
-    ExtendQueryPartsCaseJoinAndFilter as _ExtendQueryPartsCaseJoinAndFilter,
-    ExtendQueryPartsDiseaseGeneJoin as _ExtendQueryPartsDiseaseGeneJoin,
+from regmaps.models import RegElement, RegInteraction, RegMapCollection
+from svdbs.models import DbVarSv, DgvGoldStandardSvs, DgvSvs, ExacCnv, GnomAdSv, ThousandGenomesSv
+from variants.queries import ExtendQueryPartsBase
+from variants.queries import ExtendQueryPartsCaseJoinAndFilter as _ExtendQueryPartsCaseJoinAndFilter
+from variants.queries import ExtendQueryPartsDiseaseGeneJoin as _ExtendQueryPartsDiseaseGeneJoin
+from variants.queries import ExtendQueryPartsGenotypeDefaultBase, QueryParts, QueryPartsBuilder
+
+from .models import (
+    BackgroundSv,
+    BackgroundSvSet,
+    StructuralVariant,
+    StructuralVariantComment,
+    StructuralVariantFlags,
+    StructuralVariantGeneAnnotation,
+    StructuralVariantSet,
 )
 
 #: Logger to use in this module.
@@ -516,9 +512,9 @@ class ExtendQueryPartsVariantEffectFilter(ExtendQueryPartsBase):
         yield result
         # Whether to include coding/non-coding transcripts.
         if not self.kwargs["transcripts_coding"]:
-            yield self._transcript_coding_field() == False  # equality from SQL Alchemy
+            yield self._transcript_coding_field() == False  # noqa: E712
         if not self.kwargs["transcripts_noncoding"]:
-            yield self._transcript_coding_field() == True  # equality from SQL Alchemy
+            yield self._transcript_coding_field() == True  # noqa: E712
 
     def _effect_field(self):
         """Return the effects field of ``StructuralVariantGeneAnnotation`` to use based on the selected database."""

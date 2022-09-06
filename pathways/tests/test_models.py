@@ -2,8 +2,8 @@
 
 from variants.tests.helpers import QueryTestBase
 
-from .factories import EnsemblToKeggFactory, RefseqToKeggFactory, KeggInfoFactory
-from ..models import EnsemblToKegg, RefseqToKegg, KeggInfo
+from ..models import EnsemblToKegg, KeggInfo, RefseqToKegg
+from .factories import EnsemblToKeggFactory, KeggInfoFactory, RefseqToKeggFactory
 
 
 class TestPathwayQuery(QueryTestBase):

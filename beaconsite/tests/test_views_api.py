@@ -3,10 +3,11 @@ from django.shortcuts import reverse
 
 from variants.tests.factories import SmallVariantFactory
 from variants.tests.helpers import ApiViewTestBase
-from .test_permissions_api import AcceptHeaderMixin
+
 from ..models import Site
-from .factories import ConsortiumWithLocalAndRemoteSiteFactory, ConsortiumAssignmentFactory
 from ..models_api import BeaconAlleleRequest
+from .factories import ConsortiumAssignmentFactory, ConsortiumWithLocalAndRemoteSiteFactory
+from .test_permissions_api import AcceptHeaderMixin
 
 
 class TestBeaconInfoApiView(AcceptHeaderMixin, ApiViewTestBase):
@@ -16,7 +17,8 @@ class TestBeaconInfoApiView(AcceptHeaderMixin, ApiViewTestBase):
         self.local_site = Site.objects.get(role=Site.LOCAL)
         self.remote_site = Site.objects.get(role=Site.REMOTE)
         ConsortiumAssignmentFactory(
-            consortium=self.consortium, project=self.project,
+            consortium=self.consortium,
+            project=self.project,
         )
 
     def test_get_info(self):
@@ -54,7 +56,8 @@ class TestBeaconQueryApiView(AcceptHeaderMixin, ApiViewTestBase):
         self.local_site = Site.objects.get(role=Site.LOCAL)
         self.remote_site = Site.objects.get(role=Site.REMOTE)
         ConsortiumAssignmentFactory(
-            consortium=self.consortium, project=self.project,
+            consortium=self.consortium,
+            project=self.project,
         )
         self.small_variant = SmallVariantFactory(case__project=self.project)
         self.beacon_allele_request = BeaconAlleleRequest(

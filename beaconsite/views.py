@@ -1,24 +1,18 @@
 from django.contrib import messages
-from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-
 from django.urls import reverse
-from django.utils.safestring import mark_safe
-from django.views.generic import ListView, TemplateView, DetailView
-from django.views.generic.edit import CreateView, DeleteView, UpdateView, ModelFormMixin
-from projectroles.views import (
-    LoginRequiredMixin,
-    ProjectContextMixin,
-    ProjectPermissionMixin,
-    LoggedInPermissionMixin,
-)
+from django.views.generic import DetailView, ListView, TemplateView
+from django.views.generic.edit import CreateView, DeleteView, ModelFormMixin, UpdateView
+from projectroles.views import LoggedInPermissionMixin, LoginRequiredMixin, ProjectContextMixin
 
 from .forms import ConsortiumForm, SiteForm
 from .models import Consortium, Site
 
 
 class IndexView(
-    LoginRequiredMixin, LoggedInPermissionMixin, TemplateView,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    TemplateView,
 ):
     """Display entry point into site-wide app."""
 
@@ -33,7 +27,9 @@ class IndexView(
 
 
 class ConsortiumListView(
-    LoginRequiredMixin, LoggedInPermissionMixin, ListView,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ListView,
 ):
     """Display list of ``Consortium`` records."""
 
@@ -43,7 +39,9 @@ class ConsortiumListView(
 
 
 class ConsortiumDetailView(
-    LoginRequiredMixin, LoggedInPermissionMixin, DetailView,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    DetailView,
 ):
     """Detail view of ``Site`` record."""
 
@@ -88,7 +86,10 @@ class ConsortiumUpdateView(
 
 
 class ConsortiumDeleteView(
-    LoginRequiredMixin, LoggedInPermissionMixin, ProjectContextMixin, DeleteView,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectContextMixin,
+    DeleteView,
 ):
     permission_required = "beaconsite.delete_data"
     model = Consortium
@@ -102,7 +103,9 @@ class ConsortiumDeleteView(
 
 
 class SiteListView(
-    LoginRequiredMixin, LoggedInPermissionMixin, ListView,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ListView,
 ):
     """Display list of ``Site`` records."""
 
@@ -112,7 +115,9 @@ class SiteListView(
 
 
 class SiteDetailView(
-    LoginRequiredMixin, LoggedInPermissionMixin, DetailView,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    DetailView,
 ):
     """Detail view of ``Site`` record."""
 
@@ -152,7 +157,10 @@ class SiteUpdateView(LoginRequiredMixin, SiteModifyMixin, LoggedInPermissionMixi
 
 
 class SiteDeleteView(
-    LoginRequiredMixin, LoggedInPermissionMixin, ProjectContextMixin, DeleteView,
+    LoginRequiredMixin,
+    LoggedInPermissionMixin,
+    ProjectContextMixin,
+    DeleteView,
 ):
     permission_required = "beaconsite.delete_data"
     model = Site

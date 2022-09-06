@@ -1,18 +1,16 @@
 import sys
 
 from django import template
+from django.conf import settings
 from django.utils import formats
 from django.utils.html import avoid_wrapping
 import nltk
-
-from django.conf import settings
-from ..models import (
-    Case,
-    only_source_name as _models_only_source_name,
-    _variant_scores_mutationtaster_rank_model,
-)
 from projectroles.app_settings import AppSettingAPI
+
 from geneinfo.models import GeneIdToInheritance, Hpo, HpoName
+
+from ..models import Case, _variant_scores_mutationtaster_rank_model
+from ..models import only_source_name as _models_only_source_name
 
 modes_of_inheritance = dict(GeneIdToInheritance.MODES_OF_INHERITANCE)
 register = template.Library()
@@ -464,8 +462,8 @@ def mode_of_inheritance_description(mode_of_inheritance):
 
 
 @register.filter
-def listsort(l):
-    return sorted(l)
+def listsort(the_list):
+    return sorted(the_list)
 
 
 @register.filter

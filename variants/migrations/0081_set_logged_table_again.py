@@ -2,8 +2,8 @@
 """SET small variant table as LOGGED to improve stability (#2)."""
 from __future__ import unicode_literals
 
-from django.db import migrations
 from django.conf import settings
+from django.db import migrations
 
 if not settings.IS_TESTING:
     operations = [migrations.RunSQL("ALTER TABLE variants_smallvariant SET LOGGED;")] + [

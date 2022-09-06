@@ -19,9 +19,8 @@ To help in buildling background database counts
 - num_hemi_ref
 """
 
-from django.db import migrations, models
 from django.conf import settings
-
+from django.db import migrations, models
 
 if settings.IS_TESTING:
     operations = [

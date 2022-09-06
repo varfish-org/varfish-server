@@ -1,8 +1,8 @@
 """Tests for ``variants.templatetags``."""
 
-from geneinfo.tests.factories import HpoFactory, HpoNameFactory
 from test_plus.test import TestCase
 
+from geneinfo.tests.factories import HpoFactory, HpoNameFactory
 from variants.templatetags import variants_tags
 
 

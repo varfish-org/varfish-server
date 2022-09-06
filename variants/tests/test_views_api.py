@@ -3,22 +3,14 @@ import copy
 from django.urls import reverse
 from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 
-from .factories import (
-    CaseWithVariantSetFactory,
-    SmallVariantQueryFactory,
-    FilterBgJobFactory,
-)
-from .helpers import (
-    ApiViewTestBase,
-    VARFISH_INVALID_VERSION,
-    VARFISH_INVALID_MIMETYPE,
-)
+from ..models import FilterBgJob, SmallVariantQuery
+from ..query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
+from ..views_api import JobStatus
+from .factories import CaseWithVariantSetFactory, FilterBgJobFactory, SmallVariantQueryFactory
+from .helpers import VARFISH_INVALID_MIMETYPE, VARFISH_INVALID_VERSION, ApiViewTestBase
 
 # TODO: add tests that include permission testing
 from .test_views import GenerateSmallVariantResultMixin
-from ..models import SmallVariantQuery, FilterBgJob
-from ..query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
-from ..views_api import JobStatus
 
 
 def transmogrify_pedigree(pedigree):
@@ -55,7 +47,8 @@ class TestCaseApiViews(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
-                    "variants:api-case-list", kwargs={"project": self.case.project.sodar_uuid},
+                    "variants:api-case-list",
+                    kwargs={"project": self.case.project.sodar_uuid},
                 ),
                 media_type=media_type,
                 version=version,
@@ -72,7 +65,8 @@ class TestCaseApiViews(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
-                    "variants:api-case-list", kwargs={"project": str(self.case.project.sodar_uuid)},
+                    "variants:api-case-list",
+                    kwargs={"project": str(self.case.project.sodar_uuid)},
                 ),
             )
 
@@ -89,7 +83,10 @@ class TestCaseApiViews(ApiViewTestBase):
     def _test_retrieve_with_invalid_x(self, media_type=None, version=None):
         with self.login(self.superuser):
             response = self.request_knox(
-                reverse("variants:api-case-retrieve", kwargs={"case": str(self.case.sodar_uuid)},),
+                reverse(
+                    "variants:api-case-retrieve",
+                    kwargs={"case": str(self.case.sodar_uuid)},
+                ),
                 media_type=media_type,
                 version=version,
             )
@@ -104,7 +101,10 @@ class TestCaseApiViews(ApiViewTestBase):
     def test_retrieve(self):
         with self.login(self.superuser):
             response = self.client.get(
-                reverse("variants:api-case-retrieve", kwargs={"case": self.case.sodar_uuid},)
+                reverse(
+                    "variants:api-case-retrieve",
+                    kwargs={"case": self.case.sodar_uuid},
+                )
             )
 
             expected = self._expected_case_data()
@@ -618,7 +618,8 @@ class TestSmallVariantQuerySettingsShortcutApiView(
 
     def test_get_success(self):
         url = reverse(
-            "variants:api-query-settings-shortcut", kwargs={"case": self.case.sodar_uuid},
+            "variants:api-query-settings-shortcut",
+            kwargs={"case": self.case.sodar_uuid},
         )
         response = self.request_knox(url)
 
@@ -759,7 +760,8 @@ class TestSmallVariantQuerySettingsShortcutApiView(
         ]
 
         url = reverse(
-            "variants:api-query-settings-shortcut", kwargs={"case": self.case.sodar_uuid},
+            "variants:api-query-settings-shortcut",
+            kwargs={"case": self.case.sodar_uuid},
         )
 
         for user in good_users:
@@ -777,7 +779,8 @@ class TestSmallVariantQuerySettingsShortcutApiView(
         ]
 
         url = reverse(
-            "variants:api-query-settings-shortcut", kwargs={"case": self.case.sodar_uuid},
+            "variants:api-query-settings-shortcut",
+            kwargs={"case": self.case.sodar_uuid},
         )
 
         for user in bad_users:

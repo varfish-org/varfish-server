@@ -1,16 +1,11 @@
 from functools import lru_cache
 
 from django import forms
+
 from genomicfeatures.models import TadSet
 from regmaps.models import RegMapCollection
-from svs.models import StructuralVariantFlags, StructuralVariantComment
-
-from variants.forms import (
-    VariantGeneListFilterFormMixin,
-    FAIL,
-    only_source_name,
-    GenomicRegionFilterFormMixin,
-)
+from svs.models import StructuralVariantComment, StructuralVariantFlags
+from variants.forms import FAIL, GenomicRegionFilterFormMixin, VariantGeneListFilterFormMixin
 
 FILTER_FORM_TRANSLATE_EFFECTS = {
     "effect_coding_sequence_variant": "coding_sequence_variant",
@@ -525,7 +520,9 @@ class RegulatoryFilterFormMixin:
         super().__init__(*args, **kwargs)
 
         self.fields["regulatory_general_padding"] = forms.IntegerField(
-            label="padding (bp)", required=False, initial=100,
+            label="padding (bp)",
+            required=False,
+            initial=100,
         )
         self.fields["regulatory_ensembl"] = forms.MultipleChoiceField(
             label="ENSEMBL feature",
@@ -551,7 +548,10 @@ class RegulatoryFilterFormMixin:
                 choices=[("__any__", "any")]
                 + [(ret.slug, ret.short_title) for ret in coll.regmap_set.all()],
             )
-            interaction_field = forms.BooleanField(label=coll.title, required=False,)
+            interaction_field = forms.BooleanField(
+                label=coll.title,
+                required=False,
+            )
             self.fields["regmap_%s_element" % coll.slug] = element_field
             self.fields["regmap_%s_map" % coll.slug] = map_field
             self.fields["regmap_%s_interaction" % coll.slug] = interaction_field

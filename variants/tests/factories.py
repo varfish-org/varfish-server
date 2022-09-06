@@ -1,44 +1,43 @@
 """Factory Boy factory classes for ``variants``."""
-import uuid
 from datetime import datetime
+import typing
+import uuid
 
+import attr
+from bgjobs.tests.factories import BackgroundJobFactory
 import binning
-import factory
 from django.utils import timezone
-
+import factory
 from projectroles.models import SODAR_CONSTANTS, RemoteSite
 
-from bgjobs.tests.factories import BackgroundJobFactory
-
 from config.settings.base import VARFISH_CADD_SUBMISSION_VERSION
+
 from ..models import (
+    AcmgCriteriaRating,
+    CaddSubmissionBgJob,
     Case,
-    SmallVariant,
-    SmallVariantQuery,
-    ProjectCasesSmallVariantQuery,
-    SmallVariantSummary,
-    FilterBgJob,
-    ProjectCasesFilterBgJob,
     CaseAwareProject,
+    CaseComments,
+    CasePhenotypeTerms,
+    CaseVariantStats,
+    DeleteCaseBgJob,
     DistillerSubmissionBgJob,
     ExportFileBgJob,
     ExportFileJobResult,
     ExportProjectCasesFileBgJob,
     ExportProjectCasesFileBgJobResult,
-    SmallVariantFlags,
-    SmallVariantComment,
-    SmallVariantSet,
-    CaseVariantStats,
+    FilterBgJob,
+    ProjectCasesFilterBgJob,
+    ProjectCasesSmallVariantQuery,
     SampleVariantStatistics,
-    CaseComments,
-    DeleteCaseBgJob,
-    CaddSubmissionBgJob,
-    CasePhenotypeTerms,
+    SmallVariant,
+    SmallVariantComment,
+    SmallVariantFlags,
+    SmallVariantQuery,
+    SmallVariantSet,
+    SmallVariantSummary,
     SyncCaseListBgJob,
-    AcmgCriteriaRating,
 )
-import typing
-import attr
 
 
 @attr.s(auto_attribs=True)

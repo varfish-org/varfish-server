@@ -1,21 +1,18 @@
 from collections import defaultdict
+import uuid as uuid_object
 
+from django.conf import settings
 from django.db import models
 
 # Create your models here.
 from django.urls import reverse
-
-from django.conf import settings
-import uuid as uuid_object
-
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
 
 class Cohort(models.Model):
-    """Class for ``Cohort`` model.
-    """
+    """Class for ``Cohort`` model."""
 
     #: DateTime of creation.
     date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")

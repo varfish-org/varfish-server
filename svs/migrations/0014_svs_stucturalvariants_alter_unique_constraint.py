@@ -2,8 +2,8 @@
 """Setup ``svs`` tables as partitioned.
 """
 
-from django.db import migrations
 from django.conf import settings
+from django.db import migrations
 
 operations = []
 

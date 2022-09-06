@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                     shift_next constant integer := 3;
                     max_position constant integer := 1 << 29;
                     max_bin constant integer := bin_offsets[0] + (max_position >> shift_first);
-                    
+
                     start_bin integer;
                     stop_bin integer;
                     bin_offset integer;
@@ -30,10 +30,10 @@ class Migration(migrations.Migration):
                     IF start < 0 THEN
                         RAISE EXCEPTION 'Invalid start %s', start;
                     END IF;
-                    
+
                     start_bin = start >> shift_first;
                     stop_bin = stop >> shift_first;
-                    
+
                     FOREACH bin_offset IN ARRAY bin_offsets
                     LOOP
                         bin_start := bin_offset + start_bin;
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                 LANGUAGE 'plpgsql'
                 IMMUTABLE
                 COST 1;
-                
+
                 -- start and stop are 0-based positions
                 CREATE OR REPLACE FUNCTION overlapping_bins(start integer, stop integer)
                     RETURNS TABLE (bin integer)

@@ -34,7 +34,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """The actual implementation is in ``_handle()``, splitting to get commit times."""
         if options.get("output_file"):
-            self.stderr.write(f"Writing to {options[output_file]}")
+            output_file = options["output_file"]
+            self.stderr.write(f"Writing to {output_file}")
             with open(options["output_file"], "wt") as outputf:
                 record_count = self._handle(options, outputf)
         else:

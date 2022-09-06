@@ -1,64 +1,57 @@
+from collections import defaultdict
 import contextlib
+from datetime import datetime, timedelta
 import itertools
+from itertools import chain
+import json
+import math
 import os
+import re
 import shlex
 import shutil
 import subprocess
 import tempfile
 import time
-from datetime import datetime, timedelta
-import json
-from collections import defaultdict
-
-import binning
-import wrapt
-from itertools import chain
-import math
-import re
-import requests
-from django.utils.timezone import localtime
-
-from varfish.utils import JSONField
-from variants.helpers import get_engine
-from bgjobs.plugins import BackgroundJobsPluginPoint
-from django.contrib.auth import get_user_model
-from django.forms import model_to_dict
-from django.utils.html import strip_tags
-from sqlalchemy import select, func, and_, delete
 import uuid as uuid_object
 
-from postgres_copy import CopyManager
-
-from django.db import models, transaction, connection, utils
-from django.db.models import Q
-from django.contrib.postgres.fields import ArrayField
-from django.contrib.postgres.indexes import GinIndex
-from django.core.exceptions import ValidationError
-from django.urls import reverse
-from django.dispatch import receiver
-from django.conf import settings
-from django.db.models.signals import pre_delete
-from django.utils import timezone
-
-from projectroles.models import Project
 from bgjobs.models import (
-    BackgroundJob,
-    JobModelMessageMixin,
     LOG_LEVEL_CHOICES,
     LOG_LEVEL_ERROR,
     LOG_LEVEL_INFO,
+    BackgroundJob,
+    JobModelMessageMixin,
 )
+from bgjobs.plugins import BackgroundJobsPluginPoint
+import binning
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
+from django.core.exceptions import ValidationError
+from django.db import connection, models, transaction, utils
+from django.db.models import Q
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+from django.forms import model_to_dict
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.html import strip_tags
+from django.utils.timezone import localtime
+from postgres_copy import CopyManager
+from projectroles.app_settings import AppSettingAPI
+from projectroles.models import Project
 from projectroles.plugins import get_backend_api
+import requests
+from sqlalchemy import and_, delete, func, select
+import wrapt
 
-from geneinfo.models import Hgnc, EnsemblToGeneSymbol
-
+from geneinfo.models import EnsemblToGeneSymbol, Hgnc
 from genomicfeatures.models import GeneInterval
 
 #: The SQL Alchemy engine to use
 from importer.management.helpers import open_file, tsv_reader
-
-from variants.helpers import get_meta
-from projectroles.app_settings import AppSettingAPI
+from varfish.utils import JSONField
+from variants.helpers import get_engine, get_meta
 
 app_settings = AppSettingAPI()
 
@@ -262,7 +255,7 @@ class CaseAwareProject(Project):
 
 
 class SmallVariant(models.Model):
-    """"Information of a single variant, knows its case."""
+    """ "Information of a single variant, knows its case."""
 
     #: Genome build
     release = models.CharField(max_length=32)
@@ -711,8 +704,7 @@ class Case(CoreCase):
         return sorted([x["patient"] for x in self.get_filtered_pedigree_with_samples()])
 
     def get_trio_roles(self):
-        """Returns a dict with keys mapping ``index``, ``mother``, ``father`` to pedigree member names if present.
-        """
+        """Returns a dict with keys mapping ``index``, ``mother``, ``father`` to pedigree member names if present."""
         result = {"index": self.index}
         for member in self.pedigree:
             if member["patient"] == self.index:
@@ -1046,8 +1038,7 @@ def cleanup_variant_sets(min_age_hours=12):
 
 
 class AnnotationReleaseInfo(models.Model):
-    """Model to track the database releases used during annotation of a case.
-    """
+    """Model to track the database releases used during annotation of a case."""
 
     #: Release of genomebuild
     genomebuild = models.CharField(max_length=32, default="GRCh37")
@@ -1058,9 +1049,15 @@ class AnnotationReleaseInfo(models.Model):
     #: Data release
     release = models.CharField(max_length=512)
     #: Link to case
-    case = models.ForeignKey(Case, on_delete=models.CASCADE,)
+    case = models.ForeignKey(
+        Case,
+        on_delete=models.CASCADE,
+    )
     #: Link to variant set
-    variant_set = models.ForeignKey(SmallVariantSet, on_delete=models.CASCADE,)
+    variant_set = models.ForeignKey(
+        SmallVariantSet,
+        on_delete=models.CASCADE,
+    )
 
     class Meta:
         unique_together = ("genomebuild", "table", "variant_set")
@@ -1305,7 +1302,9 @@ class CaddSubmissionBgJob(JobModelMessageMixin, models.Model):
     )
 
     cadd_job_id = models.CharField(
-        max_length=100, null=True, help_text="The project ID that CADD assigned on submission",
+        max_length=100,
+        null=True,
+        help_text="The project ID that CADD assigned on submission",
     )
 
     def get_human_readable_type(self):
@@ -1745,8 +1744,7 @@ class SmallVariantQueryBase(models.Model):
 
 
 class SmallVariantQuery(SmallVariantQueryBase):
-    """Allow saving of single-case queries to the ``SmallVariant`` model.
-    """
+    """Allow saving of single-case queries to the ``SmallVariant`` model."""
 
     # TODO: rename to reflect single-case
 
@@ -1767,9 +1765,7 @@ class SmallVariantQuery(SmallVariantQueryBase):
 
 
 class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):
-    """Allow saving of whole-project queries to the ``SmallVariant`` model.
-
-    """
+    """Allow saving of whole-project queries to the ``SmallVariant`` model."""
 
     #: The related case.
     project = models.ForeignKey(
@@ -2333,9 +2329,7 @@ def annotate_with_phenotype_scores(rows, gene_scores):
 
 
 def annotate_with_transcripts(rows, database):
-    """Annotate the results in ``rows`` with transcripts (RefSeq or Ensembl)
-
-    """
+    """Annotate the results in ``rows`` with transcripts (RefSeq or Ensembl)"""
     rows = [RowWithTranscripts(row, database) for row in rows]
     for row in rows:
         transcripts = load_molecular_impact(row)
@@ -2505,9 +2499,10 @@ def annotate_with_joint_scores(rows):
     # Get list of rows and assign joint scores.
     rows = [RowWithJointScore(row) for row in rows]
     for row in rows:
-        key = "-".join(
-            map(str, [row["chromosome"], row["start"], row["reference"], row["alternative"]])
-        )
+        # TODO: cleanup
+        # key = "-".join(
+        #     map(str, [row["chromosome"], row["start"], row["reference"], row["alternative"]])
+        # )
         row._self_joint_score = (row.phenotype_score or 0) * (row.pathogenicity_score or 0)
     # Get highest score for each gene.
     gene_scores = {}
@@ -2542,8 +2537,7 @@ def annotate_with_joint_scores(rows):
 
 
 def unroll_extra_annos_result(rows, fields):
-    """unroll the extra annotation results in columns in such a way that all writer can operate on extra annotations.
-    """
+    """unroll the extra annotation results in columns in such a way that all writer can operate on extra annotations."""
     # Get list of rows with extra annotations
     rows_ = [RowWithExtraAnno(row, fields, getattr(row, "extra_annos")) for row in rows]
 
@@ -3634,7 +3628,10 @@ class VariantImporterBase:
             case, case_created = Case.objects.get_or_create(
                 name=self.import_job.case_name,
                 project=self.import_job.project,
-                defaults={"index": self.import_job.index_name, "pedigree": pedigree,},
+                defaults={
+                    "index": self.import_job.index_name,
+                    "pedigree": pedigree,
+                },
             )
             # Create new variant set for case.
             variant_set = getattr(case, self.variant_set_attribute).create(state="importing")
@@ -4067,8 +4064,8 @@ def update_variant_counts(case, kind=None, logger=lambda _: None):
 
     This is done without changing the ``date_modified`` field.
     """
-    from svs import models as sv_models  # noqa
     from importer.models import CaseVariantType  # noqa
+    from svs import models as sv_models  # noqa
 
     if not kind or kind == CaseVariantType.SMALL.name:
         logger("Updating variant counts for small variants ...")
@@ -4155,7 +4152,10 @@ class ClearExpiredExportedFilesBgJob(SiteBgJobBase):
     spec_name = "variants.clear_expired_exported_files_bg_job"
 
     def get_absolute_url(self):
-        return reverse("variants:clear-expired-job-detail", kwargs={"job": self.sodar_uuid},)
+        return reverse(
+            "variants:clear-expired-job-detail",
+            kwargs={"job": self.sodar_uuid},
+        )
 
 
 class ClearInactiveVariantSetsBgJob(SiteBgJobBase):
@@ -4168,7 +4168,10 @@ class ClearInactiveVariantSetsBgJob(SiteBgJobBase):
     spec_name = "variants.clear_inactive_variant_sets_bg_job"
 
     def get_absolute_url(self):
-        return reverse("variants:clear-inactive-variant-set-job", kwargs={"job": self.sodar_uuid},)
+        return reverse(
+            "variants:clear-inactive-variant-set-job",
+            kwargs={"job": self.sodar_uuid},
+        )
 
 
 class ClearOldKioskCasesBgJob(SiteBgJobBase):
@@ -4182,7 +4185,8 @@ class ClearOldKioskCasesBgJob(SiteBgJobBase):
 
     def get_absolute_url(self):
         return reverse(
-            "variants:clear-old-kiosk-cases-job-detail", kwargs={"job": self.sodar_uuid},
+            "variants:clear-old-kiosk-cases-job-detail",
+            kwargs={"job": self.sodar_uuid},
         )
 
 
@@ -4197,5 +4201,6 @@ class RefreshSmallVariantSummaryBgJob(SiteBgJobBase):
 
     def get_absolute_url(self):
         return reverse(
-            "variants:refresh-small-variant-summaries-job-detail", kwargs={"job": self.sodar_uuid},
+            "variants:refresh-small-variant-summaries-job-detail",
+            kwargs={"job": self.sodar_uuid},
         )

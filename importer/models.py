@@ -4,7 +4,7 @@ import re
 import tempfile
 import uuid as uuid_object
 
-from bgjobs.models import BackgroundJob, LOG_LEVEL_ERROR, JobModelMessageMixin
+from bgjobs.models import LOG_LEVEL_ERROR, BackgroundJob, JobModelMessageMixin
 from django.contrib import auth
 from django.db import models, transaction
 from django.db.models.signals import post_delete
@@ -16,17 +16,16 @@ from sqlalchemy import and_
 from importer.management.helpers import open_file, tsv_reader
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation, SvAnnotationReleaseInfo
 from varfish.utils import receiver_subclasses
+from variants.helpers import get_engine, get_meta
 from variants.models import (
-    Case,
-    CoreCase,
-    update_variant_counts,
-    SmallVariant,
     AnnotationReleaseInfo,
+    Case,
     CaseAlignmentStats,
+    CoreCase,
+    SmallVariant,
     SmallVariantSet,
+    update_variant_counts,
 )
-from variants.helpers import get_engine
-from variants.helpers import get_meta
 
 User = auth.get_user_model()
 
@@ -146,7 +145,9 @@ class VariantSetImportInfo(models.Model):
     )
 
     case_import_info = models.ForeignKey(
-        CaseImportInfo, on_delete=models.CASCADE, help_text="The import info for the case.",
+        CaseImportInfo,
+        on_delete=models.CASCADE,
+        help_text="The import info for the case.",
     )
 
     variant_type = models.CharField(
@@ -573,7 +574,11 @@ class CaseImporter:
         else:
             assert variant_set_info.variant_type == CaseVariantType.STRUCTURAL.name
             self._import_table(
-                variant_set_info, variant_set, "SVs", "genotypefile_set", StructuralVariant,
+                variant_set_info,
+                variant_set,
+                "SVs",
+                "genotypefile_set",
+                StructuralVariant,
             )
             self._import_annotation_release_info(
                 variant_set_info, variant_set, SvAnnotationReleaseInfo

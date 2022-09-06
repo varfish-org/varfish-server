@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+
 from variants.models import SmallVariantComment, SmallVariantFlags
 
 

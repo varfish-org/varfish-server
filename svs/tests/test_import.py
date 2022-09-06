@@ -9,9 +9,9 @@ from test_plus.test import TestCase
 
 from svs.models import (
     ImportStructuralVariantBgJob,
-    StructuralVariantSet,
     StructuralVariant,
     StructuralVariantGeneAnnotation,
+    StructuralVariantSet,
 )
 from svs.tasks import run_import_structural_variants_bg_job
 from svs.tests.factories import StructuralVariantGeneAnnotationFactory

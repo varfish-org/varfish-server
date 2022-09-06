@@ -3,13 +3,12 @@
 from django.core.management import BaseCommand
 from sqlalchemy import select
 
-from svs.models import BackgroundSvSet, BackgroundSv
-from variants.helpers import get_meta, get_engine
+from svs.models import BackgroundSv, BackgroundSvSet
+from variants.helpers import get_engine, get_meta
 
 
 class Command(BaseCommand):
-    """Dump a single ``BackgroundSvSet`` as BED file.
-    """
+    """Dump a single ``BackgroundSvSet`` as BED file."""
 
     #: Help message displayed on the command line.
     help = "List existing background SV sets"
@@ -32,4 +31,4 @@ class Command(BaseCommand):
         )
         for row in get_engine().execute(query):
             print("\t".join(map(str, [row.chromosome, row.start - 1, row.end, row.sv_type])))
-        self.stderr.write(self.style.SUCCESS(f"All done, have a nice day!"))
+        self.stderr.write(self.style.SUCCESS("All done, have a nice day!"))

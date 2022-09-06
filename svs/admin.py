@@ -1,12 +1,11 @@
 from django.contrib import admin
 
-
 from .models import (
-    StructuralVariant,
-    StructuralVariantGeneAnnotation,
-    StructuralVariantFlags,
-    StructuralVariantComment,
     ImportStructuralVariantBgJob,
+    StructuralVariant,
+    StructuralVariantComment,
+    StructuralVariantFlags,
+    StructuralVariantGeneAnnotation,
     StructuralVariantSet,
 )
 

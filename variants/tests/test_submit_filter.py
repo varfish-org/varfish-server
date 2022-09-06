@@ -3,28 +3,27 @@
 import json
 from unittest.mock import patch
 
+from django.conf import settings
 from requests_mock import Mocker
-
 from test_plus.test import TestCase
 
+from variants.models import SmallVariantQueryGeneScores, SmallVariantQueryVariantScores
 from variants.tests.factories import (
-    SmallVariantFactory,
-    FilterBgJobFactory,
-    ProjectCasesFilterBgJobFactory,
-    FormDataFactory,
     CaseWithVariantSetFactory,
+    FilterBgJobFactory,
+    FormDataFactory,
+    ProjectCasesFilterBgJobFactory,
+    SmallVariantFactory,
 )
+
 from ..models import (
-    SmallVariantQuery,
-    ProjectCasesSmallVariantQuery,
     CaddPathogenicityScoreCache,
     MutationTasterPathogenicityScoreCache,
+    ProjectCasesSmallVariantQuery,
+    SmallVariantQuery,
     UmdPathogenicityScoreCache,
 )
 from ..submit_filter import CaseFilter, ProjectCasesFilter
-from variants.models import SmallVariantQueryGeneScores
-from variants.models import SmallVariantQueryVariantScores
-from django.conf import settings
 
 
 class CaseFilterTest(TestCase):

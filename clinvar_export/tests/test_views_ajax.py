@@ -7,29 +7,30 @@ from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from geneinfo.tests.factories import HpoFactory, HpoNameFactory
 from variants.tests.factories import (
+    AcmgCriteriaRatingFactory,
     CaseFactory,
     SmallVariantCommentFactory,
     SmallVariantFactory,
     SmallVariantFlagsFactory,
-    AcmgCriteriaRatingFactory,
+)
+
+from ..models import (
+    AssertionMethod,
+    Family,
+    Individual,
+    Submission,
+    SubmissionIndividual,
+    SubmissionSet,
+    SubmittingOrg,
+    create_families_and_individuals,
 )
 from .factories import (
-    SubmissionSetFactory,
+    OrganisationFactory,
     SubmissionFactory,
     SubmissionIndividualFactory,
-    OrganisationFactory,
-    SubmittingOrgFactory,
+    SubmissionSetFactory,
     SubmitterFactory,
-)
-from ..models import (
-    Individual,
-    Family,
-    SubmissionSet,
-    AssertionMethod,
-    Submission,
-    create_families_and_individuals,
-    SubmissionIndividual,
-    SubmittingOrg,
+    SubmittingOrgFactory,
 )
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
@@ -449,7 +450,10 @@ class TestSubmissionRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
     def test_retrieve(self):
         url = reverse(
             "clinvar_export:ajax-submission-retrieve-update-destroy",
-            kwargs={"project": self.project.sodar_uuid, "submission": self.submission.sodar_uuid,},
+            kwargs={
+                "project": self.project.sodar_uuid,
+                "submission": self.submission.sodar_uuid,
+            },
         )
         with self.login(self.contributor_as.user):
             response = self.client.get(url)
@@ -491,7 +495,10 @@ class TestSubmissionRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
     def test_update(self):
         url = reverse(
             "clinvar_export:ajax-submission-retrieve-update-destroy",
-            kwargs={"project": self.project.sodar_uuid, "submission": self.submission.sodar_uuid,},
+            kwargs={
+                "project": self.project.sodar_uuid,
+                "submission": self.submission.sodar_uuid,
+            },
         )
         data = {
             "age_of_onset": "Antenatal",
@@ -530,7 +537,10 @@ class TestSubmissionRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
     def test_destroy(self):
         url = reverse(
             "clinvar_export:ajax-submission-retrieve-update-destroy",
-            kwargs={"project": self.project.sodar_uuid, "submission": self.submission.sodar_uuid,},
+            kwargs={
+                "project": self.project.sodar_uuid,
+                "submission": self.submission.sodar_uuid,
+            },
         )
         with self.login(self.contributor_as.user):
             response = self.client.delete(url)
@@ -825,7 +835,12 @@ class TestQueryOmimAjaxViews(TestProjectAPIPermissionBase):
     def test_query(self):
         hpo_record = HpoFactory()
         url = (
-            reverse("clinvar_export:query-omim-term", kwargs={"project": self.project.sodar_uuid,},)
+            reverse(
+                "clinvar_export:query-omim-term",
+                kwargs={
+                    "project": self.project.sodar_uuid,
+                },
+            )
             + "?query="
             + hpo_record.database_id
         )
@@ -853,7 +868,12 @@ class TestQueryHpoAjaxViews(TestProjectAPIPermissionBase):
     def test_query(self):
         hpo_name_record = HpoNameFactory()
         url = (
-            reverse("clinvar_export:query-hpo-term", kwargs={"project": self.project.sodar_uuid,},)
+            reverse(
+                "clinvar_export:query-hpo-term",
+                kwargs={
+                    "project": self.project.sodar_uuid,
+                },
+            )
             + "?query="
             + hpo_name_record.hpo_id
         )

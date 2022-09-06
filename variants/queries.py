@@ -1,17 +1,18 @@
-import contextlib
+# Note that we are using a lot of ``# noqa: E711`` here as for SQLAlchemy queries we need to test for NULL
+# with ``COLUMN == None`` and for True-ness with ``COLUMN == True`` etc.
+
 from itertools import chain
 import typing
 
 import attr
-
-from sqlalchemy.dialects.postgresql.array import OVERLAP
-from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from sqlalchemy import Table, true, column, union, literal_column, delete, tuple_
+from sqlalchemy import Table, column, delete, literal_column, true, tuple_, union
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.sql import select, func, and_, not_, or_, cast
-from sqlalchemy.types import VARCHAR, Integer, Float, String
+from sqlalchemy.dialects.postgresql.array import OVERLAP
+from sqlalchemy.sql import and_, cast, func, not_, or_, select
+from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
+from sqlalchemy.types import VARCHAR, Float, Integer, String
 import sqlparse
 
 from clinvar.models import Clinvar
@@ -19,33 +20,33 @@ from cohorts.models import Cohort
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from extra_annos.models import ExtraAnno
-from frequencies.models import MtDb, HelixMtDb, Mitomap
+from frequencies.models import HelixMtDb, Mitomap, MtDb
 from geneinfo.models import (
-    Hgnc,
-    RefseqToHgnc,
     Acmg,
+    EnsemblToGeneSymbol,
+    ExacConstraints,
+    GeneIdInHpo,
     GeneIdToInheritance,
     GnomadConstraints,
-    ExacConstraints,
+    Hgnc,
     MgiMapping,
-    RefseqToGeneSymbol,
     RefseqToEnsembl,
-    EnsemblToGeneSymbol,
-    GeneIdInHpo,
+    RefseqToGeneSymbol,
+    RefseqToHgnc,
 )
 from hgmd.models import HgmdPublicLocus
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
-from variants.models import (
-    Case,
-    SmallVariant,
-    SmallVariantSummary,
-    SmallVariantFlags,
-    SmallVariantComment,
-    AcmgCriteriaRating,
-    SmallVariantSet,
-)
 from variants.forms import FILTER_FORM_TRANSLATE_INHERITANCE
 from variants.helpers import get_meta
+from variants.models import (
+    AcmgCriteriaRating,
+    Case,
+    SmallVariant,
+    SmallVariantComment,
+    SmallVariantFlags,
+    SmallVariantSet,
+    SmallVariantSummary,
+)
 
 
 class _ArrayCatAgg(ReturnTypeFromArgs):
@@ -196,7 +197,7 @@ class ExtendQueryPartsDbsnpJoinAndFilter(ExtendQueryPartsDbsnpJoin):
     def extend_conditions(self, _query_parts):
         # Do not enable option if clinvar filter is activated as all clinvar variants have a dbsnp entry.
         if self.kwargs["remove_if_in_dbsnp"] and not self.kwargs["require_in_clinvar"]:
-            return [column("rsid") == None]
+            return [column("rsid") == None]  # noqa: E711
         return []
 
 
@@ -409,11 +410,16 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
         )
 
     def extend_conditions(self, _query_parts):
-        return [and_(self._build_membership_term(), self._build_significance_term(),)]
+        return [
+            and_(
+                self._build_membership_term(),
+                self._build_significance_term(),
+            )
+        ]
 
     def _build_membership_term(self):
         if self.kwargs["require_in_clinvar"]:
-            return SmallVariant.sa.in_clinvar == True
+            return SmallVariant.sa.in_clinvar == True  # noqa: E712
         else:
             return True
 
@@ -979,9 +985,9 @@ class ExtendQueryPartsTranscriptCodingFilter(ExtendQueryPartsBase):
         field = getattr(SmallVariant.sa, "%s_transcript_coding" % self.kwargs["database_select"])
         terms = []
         if not self.kwargs["transcripts_coding"]:
-            terms.append(field == False)  # equality from SQL Alchemy
+            terms.append(field == False)  # noqa: E712
         if not self.kwargs["transcripts_noncoding"]:
-            terms.append(field == True)  # equality from SQL Alchemy
+            terms.append(field == True)  # noqa: E712
         return [and_(*terms)]
 
 
@@ -1014,7 +1020,7 @@ class ExtendQueryPartsGeneListsFilter(ExtendQueryPartsBase):
                         Hgnc.sa.entrez_id.in_(gene_list),
                         Hgnc.sa.symbol.in_(gene_list),
                     ),
-                    getattr(Hgnc.sa, hgnc_field) != None,  # SQL Alchemy forces us to use ``!=``
+                    getattr(Hgnc.sa, hgnc_field) != None,  # noqa: E711
                 )
             )
             .distinct()
@@ -1828,10 +1834,6 @@ class CaseExportTableQuery(CasePrefetchQuery):
 
 class CaseExportVcfQuery(CasePrefetchQuery):
     builder = CaseExportVcfQueryPartsBuilder
-
-
-class CaseLoadPrefetchedQuery(CasePrefetchQuery):
-    builder = CaseLoadPrefetchedQueryPartsBuilder
 
 
 class CaseSecondHitsQuery(CasePrefetchQuery):

@@ -1,9 +1,6 @@
 import uuid as uuid_object
 
-from django.contrib.postgres.fields import ArrayField
-from django.contrib.postgres.indexes import GinIndex
 from django.db import models
-from django.db.models import Index
 from postgres_copy import CopyManager
 
 

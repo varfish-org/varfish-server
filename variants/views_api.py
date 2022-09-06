@@ -2,16 +2,16 @@
 import typing
 
 import attrs
+from bgjobs.models import JOB_STATE_DONE, JOB_STATE_FAILED, JOB_STATE_INITIAL, JOB_STATE_RUNNING
 import cattr
-from bgjobs.models import JOB_STATE_FAILED, JOB_STATE_DONE, JOB_STATE_RUNNING, JOB_STATE_INITIAL
 from django.db.models import Q
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
 from rest_framework import serializers
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import (
+    CreateAPIView,
     ListAPIView,
     RetrieveAPIView,
-    CreateAPIView,
     UpdateAPIView,
     get_object_or_404,
 )
@@ -21,14 +21,14 @@ from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 
 # # TOOD: timeline update
 from variants import query_presets
-from variants.models import Case, SmallVariantQuery, FilterBgJob, SmallVariant
+from variants.models import Case, FilterBgJob, SmallVariant, SmallVariantQuery
 from variants.serializers import (
     CaseSerializer,
+    SettingsShortcuts,
+    SettingsShortcutsSerializer,
+    SmallVariantForResultSerializer,
     SmallVariantQuerySerializer,
     SmallVariantQueryUpdateSerializer,
-    SmallVariantForResultSerializer,
-    SettingsShortcutsSerializer,
-    SettingsShortcuts,
 )
 
 
@@ -61,7 +61,8 @@ class CaseListApiView(VariantsApiBaseMixin, ListAPIView):
 
 
 class CaseRetrieveApiView(
-    VariantsApiBaseMixin, RetrieveAPIView,
+    VariantsApiBaseMixin,
+    RetrieveAPIView,
 ):
     """
     Retrieve detail of the specified case.
@@ -324,7 +325,8 @@ class SmallVariantQueryFetchResultsApiView(SmallVariantQueryApiMixin, ListAPIVie
 
 
 class SmallVariantQuerySettingsShortcutApiView(
-    VariantsApiBaseMixin, RetrieveAPIView,
+    VariantsApiBaseMixin,
+    RetrieveAPIView,
 ):
     """
     Generate query settings for a given case by certain shortcuts.
@@ -463,7 +465,7 @@ class SmallVariantQuerySettingsShortcutApiView(
         )
 
     def _get_quick_presets(self) -> query_presets.QuickPresets:
-        """"Return quick preset if given in request.query_params"""
+        """ "Return quick preset if given in request.query_params"""
         if "quick_preset" in self.request.query_params:
             qp_name = self.request.query_params["quick_preset"]
             if qp_name not in attrs.fields_dict(query_presets._QuickPresetList):

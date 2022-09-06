@@ -4,11 +4,12 @@ from django.test import TestCase
 
 from geneinfo.tests.factories import HpoFactory, HpoNameFactory
 from variants.tests.factories import (
-    FormDataFactory,
-    CaseWithVariantSetFactory,
     CasePhenotypeTermsFactory,
+    CaseWithVariantSetFactory,
+    FormDataFactory,
 )
-from ..forms import FilterForm, CaseTermsForm
+
+from ..forms import CaseTermsForm, FilterForm
 
 
 class TestFormBase(TestCase):
@@ -27,10 +28,26 @@ class TestFormBase(TestCase):
                 hpo_id="HP:0000003",
                 name="Disease 1;;Alternative Description",
             ),
-            HpoFactory(database_id="DECIPHER:1", hpo_id="HP:0000003", name="Disease 2",),
-            HpoFactory(database_id="DECIPHER:1", hpo_id="HP:0000004", name="Disease 2",),
-            HpoFactory(database_id="ORPHA:1", hpo_id="HP:0000004", name="Disease 3",),
-            HpoFactory(database_id="ORPHA:1", hpo_id="HP:0000005", name="Disease 3",),
+            HpoFactory(
+                database_id="DECIPHER:1",
+                hpo_id="HP:0000003",
+                name="Disease 2",
+            ),
+            HpoFactory(
+                database_id="DECIPHER:1",
+                hpo_id="HP:0000004",
+                name="Disease 2",
+            ),
+            HpoFactory(
+                database_id="ORPHA:1",
+                hpo_id="HP:0000004",
+                name="Disease 3",
+            ),
+            HpoFactory(
+                database_id="ORPHA:1",
+                hpo_id="HP:0000005",
+                name="Disease 3",
+            ),
         ]
         self.maxDiff = None
 
@@ -71,10 +88,12 @@ class TestFilterForm(TestFormBase):
         form = FilterForm(form_data, case=self.variant_set.case, user=0)
         self.assertTrue(form.is_valid())
         self.assertListEqual(
-            form.cleaned_data["prio_hpo_terms"], sorted([self.hponame.hpo_id]),
+            form.cleaned_data["prio_hpo_terms"],
+            sorted([self.hponame.hpo_id]),
         )
         self.assertListEqual(
-            form.cleaned_data["prio_hpo_terms_curated"], sorted([self.hponame.hpo_id]),
+            form.cleaned_data["prio_hpo_terms_curated"],
+            sorted([self.hponame.hpo_id]),
         )
 
     def test_hpo_terms_omim_to_hpo_conversion(self):
@@ -87,7 +106,8 @@ class TestFilterForm(TestFormBase):
         form = FilterForm(form_data, case=self.variant_set.case, user=0)
         self.assertTrue(form.is_valid())
         self.assertListEqual(
-            form.cleaned_data["prio_hpo_terms"], sorted([self.hpos[0].database_id]),
+            form.cleaned_data["prio_hpo_terms"],
+            sorted([self.hpos[0].database_id]),
         )
         self.assertListEqual(
             form.cleaned_data["prio_hpo_terms_curated"],
@@ -104,7 +124,8 @@ class TestFilterForm(TestFormBase):
         form = FilterForm(form_data, case=self.variant_set.case, user=0)
         self.assertTrue(form.is_valid())
         self.assertListEqual(
-            form.cleaned_data["prio_hpo_terms"], sorted([self.hpos[2].database_id]),
+            form.cleaned_data["prio_hpo_terms"],
+            sorted([self.hpos[2].database_id]),
         )
         self.assertListEqual(
             form.cleaned_data["prio_hpo_terms_curated"],
@@ -121,7 +142,8 @@ class TestFilterForm(TestFormBase):
         form = FilterForm(form_data, case=self.variant_set.case, user=0)
         self.assertTrue(form.is_valid())
         self.assertListEqual(
-            form.cleaned_data["prio_hpo_terms"], sorted([self.hpos[4].database_id]),
+            form.cleaned_data["prio_hpo_terms"],
+            sorted([self.hpos[4].database_id]),
         )
         self.assertListEqual(
             form.cleaned_data["prio_hpo_terms_curated"],

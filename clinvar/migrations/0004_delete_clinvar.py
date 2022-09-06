@@ -12,6 +12,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.DeleteModel(name="Clinvar",),
-        migrations.DeleteModel(name="ClinvarPathogenicGenes",),
+        migrations.DeleteModel(
+            name="Clinvar",
+        ),
+        migrations.DeleteModel(
+            name="ClinvarPathogenicGenes",
+        ),
     ]

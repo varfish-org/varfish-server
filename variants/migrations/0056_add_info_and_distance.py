@@ -2,7 +2,6 @@
 from django.conf import settings
 from django.db import migrations, models
 
-
 if not settings.IS_TESTING:
     # Operations using raw SQL.
     operations = [
@@ -14,7 +13,9 @@ else:
     # Operations using the Django ORM.
     operations = [
         migrations.AddField(
-            model_name="smallvariant", name="info", field=models.JSONField(null=True),
+            model_name="smallvariant",
+            name="info",
+            field=models.JSONField(null=True),
         ),
         migrations.AddField(
             model_name="smallvariant", name="refseq_exon_dist", field=models.IntegerField(null=True)

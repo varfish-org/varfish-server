@@ -5,23 +5,24 @@ from django.test import TestCase
 from django.utils import timezone
 
 from svs.models import (
-    StructuralVariant,
-    StructuralVariantGeneAnnotation,
-    StructuralVariantComment,
-    StructuralVariantFlags,
-    StructuralVariantSet,
-    cleanup_variant_sets,
     BackgroundSv,
     BackgroundSvSet,
+    StructuralVariant,
+    StructuralVariantComment,
+    StructuralVariantFlags,
+    StructuralVariantGeneAnnotation,
+    StructuralVariantSet,
+    cleanup_variant_sets,
 )
+
 from .factories import (
-    StructuralVariantFactory,
-    StructuralVariantGeneAnnotationFactory,
-    StructuralVariantFlagsFactory,
-    StructuralVariantCommentFactory,
-    StructuralVariantSetFactory,
     BackgroundSvFactory,
     BackgroundSvSetFactory,
+    StructuralVariantCommentFactory,
+    StructuralVariantFactory,
+    StructuralVariantFlagsFactory,
+    StructuralVariantGeneAnnotationFactory,
+    StructuralVariantSetFactory,
 )
 
 

@@ -5,8 +5,8 @@ import os
 import subprocess
 import sys
 
-from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
 #: The available dump modes.
 DUMP_MODES = ("full", "backup-large", "backup-small")
@@ -34,8 +34,7 @@ IGNORE_THIN = (
 
 
 class Command(BaseCommand):
-    """Implementation wrapping ``pg_dump`` to support creating dumps of the underlying PostgreSQL database.
-    """
+    """Implementation wrapping ``pg_dump`` to support creating dumps of the underlying PostgreSQL database."""
 
     #: Help message displayed on the command line.
     help = "Easily create database dumps with ``pg_dump``"

@@ -1,10 +1,11 @@
 """Common helper code for tests"""
 
-from variants.helpers import get_engine
 from django.test import TestCase
 
 from genomicfeatures.tests.factories import TadSetFactory
+from variants.helpers import get_engine
 from variants.models import Case, CaseAwareProject
+
 from .factories import FormDataFactory
 
 

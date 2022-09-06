@@ -5,14 +5,14 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.views.generic import TemplateView
 from django.views import defaults as default_views
-
+from django.views.generic import TemplateView
 import django_saml2_auth.views
 from djproxy.views import HttpProxy
 from projectroles.views import HomeView as ProjectRolesHomeView
-from variants.views import KioskHomeView
 from sentry_sdk import last_event_id
+
+from variants.views import KioskHomeView
 
 
 def handler500(request, *args, **argv):

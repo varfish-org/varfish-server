@@ -3,6 +3,7 @@
 import json
 
 import django.db.models.fields.json
+
 from varfish.users.models import User
 
 
@@ -22,7 +23,7 @@ def get_subclasses(classes, level=0):
 
 
 def receiver_subclasses(signal, sender, dispatch_uid_prefix, **kwargs):
-    """ A decorator for connecting receivers and all receiver's subclasses to signals.
+    """A decorator for connecting receivers and all receiver's subclasses to signals.
 
     Used by passing in the signal and keyword arguments to connect::
 
@@ -43,8 +44,7 @@ def receiver_subclasses(signal, sender, dispatch_uid_prefix, **kwargs):
 
 
 class JSONField(django.db.models.fields.json.JSONField):
-    """Helper JSONField class that works when SQLAlchemy (via aldjemy) is already parsing JSON values into Python types.
-    """
+    """Helper JSONField class that works when SQLAlchemy (via aldjemy) is already parsing JSON values into Python types."""
 
     def from_db_value(self, value, expression, connection):
         if value is None:

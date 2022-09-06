@@ -1,12 +1,11 @@
+from bgjobs.models import BackgroundJob
+from celery.schedules import crontab
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
 
 from config.celery import app
-from celery.schedules import crontab
-
-from bgjobs.models import BackgroundJob
-from svs import models, bg_db
+from svs import bg_db, models
 
 #: The User model to use.
 from svs.models import BuildBackgroundSvSetJob, CleanupBackgroundSvSetJob

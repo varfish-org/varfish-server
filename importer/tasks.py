@@ -1,7 +1,6 @@
 """Tasks for the importer module."""
 
 from config.celery import app
-
 import variants.models
 
 from . import models

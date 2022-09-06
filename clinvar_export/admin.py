@@ -1,15 +1,15 @@
 from django.contrib import admin
 
 from .models import (
+    AssertionMethod,
     Family,
     Individual,
-    SubmissionIndividual,
-    AssertionMethod,
-    Submitter,
     Organisation,
-    SubmittingOrg,
-    SubmissionSet,
     Submission,
+    SubmissionIndividual,
+    SubmissionSet,
+    Submitter,
+    SubmittingOrg,
 )
 
 # Register your models here.

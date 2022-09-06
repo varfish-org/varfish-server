@@ -2,12 +2,17 @@
 """
 
 from django.conf.urls import url
+
 from . import views
 
 app_name = "cohorts"
 
 urlpatterns = [
-    url(regex=r"^(?P<project>[0-9a-f-]+)/$", view=views.CohortView.as_view(), name="list",),
+    url(
+        regex=r"^(?P<project>[0-9a-f-]+)/$",
+        view=views.CohortView.as_view(),
+        name="list",
+    ),
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/create/$",
         view=views.CohortCreateView.as_view(),

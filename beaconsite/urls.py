@@ -2,13 +2,22 @@
 """
 
 from django.conf.urls import url
-from . import views, views_api, views_ajax
+
+from . import views, views_ajax, views_api
 
 app_name = "beaconsite"
 
 ui_urlpatterns = [
-    url(regex=r"^$", view=views.IndexView.as_view(), name="index",),
-    url(regex=r"^consortium$", view=views.ConsortiumListView.as_view(), name="consortium-list",),
+    url(
+        regex=r"^$",
+        view=views.IndexView.as_view(),
+        name="index",
+    ),
+    url(
+        regex=r"^consortium$",
+        view=views.ConsortiumListView.as_view(),
+        name="consortium-list",
+    ),
     url(
         regex=r"^consortium/(?P<consortium>[0-9a-f-]+)$",
         view=views.ConsortiumDetailView.as_view(),
@@ -29,13 +38,21 @@ ui_urlpatterns = [
         view=views.ConsortiumDeleteView.as_view(),
         name="consortium-delete",
     ),
-    url(regex=r"^site$", view=views.SiteListView.as_view(), name="site-list",),
+    url(
+        regex=r"^site$",
+        view=views.SiteListView.as_view(),
+        name="site-list",
+    ),
     url(
         regex=r"^site/(?P<site>[0-9a-f-]+)$",
         view=views.SiteDetailView.as_view(),
         name="site-detail",
     ),
-    url(regex=r"^site/create/$", view=views.SiteCreateView.as_view(), name="site-create",),
+    url(
+        regex=r"^site/create/$",
+        view=views.SiteCreateView.as_view(),
+        name="site-create",
+    ),
     url(
         regex=r"^site/update/(?P<site>[0-9a-f-]+)$",
         view=views.SiteUpdateView.as_view(),

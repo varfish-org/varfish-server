@@ -3,8 +3,9 @@ import factory
 from projectroles.models import Project
 
 from varfish.users.tests.factories import UserFactory
-from variants.tests.factories import ProjectFactory, CaseFactory
-from ..models import Site, Consortium, ConsortiumMember, Query, Response, ConsortiumAssignment
+from variants.tests.factories import CaseFactory, ProjectFactory
+
+from ..models import Consortium, ConsortiumAssignment, ConsortiumMember, Query, Response, Site
 
 
 class SiteFactory(factory.django.DjangoModelFactory):

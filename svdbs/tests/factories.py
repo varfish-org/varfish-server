@@ -4,13 +4,13 @@ import binning
 import factory
 
 from ..models import (
+    EXAC_POP_CHOICES,
+    DbVarSv,
     DgvGoldStandardSvs,
     DgvSvs,
     ExacCnv,
-    ThousandGenomesSv,
-    DbVarSv,
     GnomAdSv,
-    EXAC_POP_CHOICES,
+    ThousandGenomesSv,
 )
 
 

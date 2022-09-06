@@ -1,21 +1,20 @@
-from varfish import __version__ as varfish_version
-
-import os
 from itertools import chain
+import os
 
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from django.forms import model_to_dict
+from django.urls import reverse
 
+from varfish import __version__ as varfish_version
 from variants.tests.helpers import ApiViewTestBase
 from variants.tests.test_views_api import transmogrify_pedigree
 
-from ..models import CaseImportInfo, VariantSetImportInfo, CaseVariantType, BamQcFile, GenotypeFile
+from ..models import BamQcFile, CaseImportInfo, CaseVariantType, GenotypeFile, VariantSetImportInfo
 from .factories import (
-    CaseImportInfoFactory,
-    VariantSetImportInfoFactory,
     BamQcFileFactory,
+    CaseImportInfoFactory,
     GenotypeFileFactory,
+    VariantSetImportInfoFactory,
 )
 
 #: A known invalid MIME type.
@@ -384,7 +383,9 @@ class TestBamQcFileApiViews(ApiViewTestBase):
             self.assertEquals(response_content, expected)
 
     def test_create(self):
-        obj = BamQcFileFactory(case_import_info=self.case_import_info,)
+        obj = BamQcFileFactory(
+            case_import_info=self.case_import_info,
+        )
         obj.delete()
         post_data = bam_qc_file_to_dict(obj, self.case_import_info, exclude=("sodar_uuid",))
 
@@ -486,7 +487,9 @@ class TestGenotypeFileApiViews(ApiViewTestBase):
             self.assertEquals(response_content, expected)
 
     def test_create(self):
-        obj = GenotypeFileFactory(variant_set_import_info=self.variant_set_import_info,)
+        obj = GenotypeFileFactory(
+            variant_set_import_info=self.variant_set_import_info,
+        )
         obj.delete()
         post_data = genotype_file_to_dict(
             obj, self.variant_set_import_info, exclude=("sodar_uuid",)
