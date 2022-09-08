@@ -1032,7 +1032,9 @@ class GenerateSmallVariantResultMixin:
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            pathogenicity="pathogenic",
+            summary_clinvar_review_status_label="criteria provided, single committer",
+            summary_clinvar_pathogenicity_label="pathogenic",
+            summary_clinvar_pathogenicity=["pathogenic"],
         )
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.superuser, bg_job__status="done")
         self.hpo_term = HpoNameFactory(hpo_id="HP:0000001")
@@ -1102,7 +1104,9 @@ class TestCaseLoadPrefetchedFilterView(GenerateSmallVariantResultMixin, ViewTest
                 ),
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
-            self.assertEqual(response.context["result_rows"][1].pathogenicity_arr, ["pathogenic"])
+            self.assertEqual(
+                response.context["result_rows"][1].summary_pathogenicity, ["pathogenic"]
+            )
 
     def test_training_mode(self):
         with self.login(self.superuser):
@@ -2217,7 +2221,9 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            pathogenicity="pathogenic",
+            summary_clinvar_review_status_label="single submitter, criteria provided",
+            summary_clinvar_pathogenicity_label="pathogenic",
+            summary_clinvar_pathogenicity=["pathogenic"],
         )
 
     def test_count_results(self):
@@ -2270,7 +2276,9 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.context["result_rows"][4].pathogenicity_arr, ["pathogenic"])
+            self.assertEqual(
+                response.context["result_rows"][4].summary_pathogenicity, ["pathogenic"]
+            )
 
     @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
     @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
@@ -2924,8 +2932,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 response.context["pop_freqs"]["1000GP"]["Total"]["af"], self.thousand_genomes.af
             )
             self.assertEqual(
-                response.context["clinvar"][0].pathogenicity,
-                self.clinvar.pathogenicity,
+                response.context["clinvar"][0].summary_clinvar_pathogenicity,
+                self.clinvar.summary_clinvar_pathogenicity,
             )
             self.assertEqual(
                 response.context["knowngeneaa"][0]["alignment"], self.knowngeneaa.alignment

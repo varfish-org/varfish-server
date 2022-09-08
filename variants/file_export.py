@@ -111,7 +111,8 @@ HEADER_FIXED = (
     ("gnomad_oe_lof", "Gnomad constrains lof observed/expected", float),
     ("gnomad_oe_lof_upper", "Gnomad constrains lof observed/expected upper", float),
     ("gnomad_oe_lof_lower", "Gnomad constrains lof observed/expected lower", float),
-    ("pathogenicity_arr", "ClinVar pathogenicity summary", str),
+    ("summary_pathogenicity_label", "ClinVar pathogenicity summary", str),
+    ("summary_review_status_label", "ClinVar review status summary", str),
 )
 if settings.KIOSK_MODE:
     HEADER_FIXED = tuple(filter(lambda x: not x[0].startswith("inhouse_"), HEADER_FIXED))
@@ -553,10 +554,11 @@ class CaseExporterTsv(CaseExporterBase):
                 if column["name"] == "chromosome":
                     row.append("chr" + getattr(small_var, "chromosome"))
                 elif column["fixed"]:
-                    if column["name"] == "transcripts":
-                        row.append(getattr(small_var, column["name"]).replace("\n", "|"))
+                    name = column["name"]
+                    if name == "transcripts":
+                        row.append(getattr(small_var, name).replace("\n", "|"))
                     else:
-                        row.append(getattr(small_var, column["name"]))
+                        row.append(getattr(small_var, name))
                 else:
                     member, field = column["name"].rsplit(".", 1)
                     if field == "aaf":

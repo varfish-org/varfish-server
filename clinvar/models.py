@@ -29,26 +29,38 @@ class Clinvar(models.Model):
     reference = models.CharField(max_length=512)
     #: Variant coordinates - alternative
     alternative = models.CharField(max_length=512)
+    #: ClinVar version
+    clinvar_version = models.CharField(max_length=512, null=True)
+    #: Type of the set
+    set_type = models.CharField(max_length=32, null=True)
     #: Type of variation
     variation_type = models.CharField(max_length=16)
     #: The symbols.
     symbols = ArrayField(base_field=models.CharField(max_length=32), size=None)
     #: The HGNC IDs.
     hgnc_ids = ArrayField(base_field=models.CharField(max_length=32), size=None)
-    #: The variation ID
-    variation_id = models.CharField(max_length=32, null=True)
-    #: The RCV
-    rcv = models.CharField(max_length=32, null=True)
     #: The variant accession
     vcv = models.CharField(max_length=32)
-    #: The Clinvar gold stars
-    gold_stars = models.IntegerField()
-    #: The review_status.
-    review_status = models.CharField(max_length=128)
-    #: The pathogenicity.
-    pathogenicity = models.CharField(max_length=128)
-    #: The origin of the variant
-    origin = models.CharField(max_length=32, null=True)
+    #: Summary (ClinVar style) - review status label
+    summary_clinvar_review_status_label = models.CharField(max_length=512, null=True)
+    #: Summary (ClinVar style) - pathogenicity label
+    summary_clinvar_pathogenicity_label = models.CharField(max_length=512, null=True)
+    #: Summary (ClinVar style) - pathogenicities
+    summary_clinvar_pathogenicity = ArrayField(
+        base_field=models.CharField(max_length=32), size=None, null=True
+    )
+    #: Summary (ClinVar style) - gold stars for VCV
+    summary_clinvar_gold_stars = models.IntegerField(null=True)
+    #: Summary (paranoid style) - review status label
+    summary_paranoid_review_status_label = models.CharField(max_length=512, null=True)
+    #: Summary (paranoid style) - pathogenicity label
+    summary_paranoid_pathogenicity_label = models.CharField(max_length=512, null=True)
+    #: Summary (paranoid style) - pathogenicities
+    summary_paranoid_pathogenicity = ArrayField(
+        base_field=models.CharField(max_length=32), size=None, null=True
+    )
+    #: Summary (paranoid style) - gold stars for VCV
+    summary_paranoid_gold_stars = models.IntegerField(null=True)
     #: The structured Details information.
     details = JSONField()
 

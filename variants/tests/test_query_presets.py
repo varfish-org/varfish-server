@@ -1474,6 +1474,7 @@ class TestEnumFlagsEtc(TestCase):
                 "clinvar_include_likely_pathogenic": True,
                 "clinvar_include_pathogenic": True,
                 "clinvar_include_uncertain_significance": False,
+                "clinvar_paranoid_mode": False,
                 "flag_bookmarked": True,
                 "flag_candidate": True,
                 "flag_doesnt_segregate": True,
@@ -1535,6 +1536,7 @@ class TestEnumFlagsEtc(TestCase):
                 "remove_if_in_dbsnp": False,
                 "require_in_clinvar": True,
                 "require_in_hgmd_public": False,
+                "clinvar_paranoid_mode": False,
             },
         )
 
@@ -1574,6 +1576,7 @@ class TestEnumFlagsEtc(TestCase):
                 "remove_if_in_dbsnp": False,
                 "require_in_clinvar": False,
                 "require_in_hgmd_public": False,
+                "clinvar_paranoid_mode": False,
             },
         )
 
@@ -1687,6 +1690,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "clinvar_include_likely_pathogenic": True,
                 "clinvar_include_pathogenic": True,
                 "clinvar_include_uncertain_significance": False,
+                "clinvar_paranoid_mode": False,
                 "database": query_presets.Database.REFSEQ.value,
                 "effects": [
                     "complex_substitution",

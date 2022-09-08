@@ -1089,8 +1089,19 @@ class SmallVariantClinvarHgmdFilterFormMixin:
             required=False,
             initial=False,
             help_text=(
-                "Remove variant from results list if it has an associated dbSNP ID.",
-                "This option is ignored when ClinVar membership is required!",
+                "Remove variant from results list if it has an associated dbSNP ID. "
+                "This option is ignored when ClinVar membership is required!"
+            ),
+        )
+
+        self.fields["clinvar_paranoid_mode"] = forms.BooleanField(
+            label="enable 'paranoid' mode",
+            required=False,
+            initial=False,
+            help_text=(
+                "When set, then variant assessments with and without assertion "
+                "are interpreted as equally important.  By default, they are not "
+                "those with assessment override the others."
             ),
         )
 

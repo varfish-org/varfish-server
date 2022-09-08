@@ -20,10 +20,11 @@ stop_words = set(nltk.corpus.stopwords.words("english"))
 
 # Row colors to use.
 ROW_COLORS = {
+    "likely pathogenic": "#dc354533",
     "pathogenic": "#dc354533",
     "uncertain": "#ffc10733",
     "benign": "#28a74533",
-    "wip": "#6c757d33",
+    "likely benign": "#28a74533",
     "__invalid__": "#FF00FF",
 }
 

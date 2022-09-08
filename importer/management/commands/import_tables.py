@@ -8,7 +8,7 @@ import traceback
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, transaction
 
-from clinvar.models import Clinvar
+from clinvar.models import Clinvar, refresh_clinvar_clinvarpathogenicgenes
 from conservation.models import KnowngeneAA
 from dbsnp.models import Dbsnp
 from extra_annos.models import ExtraAnno, ExtraAnnoField
@@ -214,6 +214,16 @@ class Command(BaseCommand):
 
         with self._without_vaccuum():
             import_infos = list(tsv_reader(path_import_versions))
+
+            # We need to handle truncating the TAD tables in the beginning.
+            for import_info in import_infos:
+                if (
+                    import_info["table_group"] in ("tads_imr90", "tads_hesc")
+                    and options["truncate"]
+                ):
+                    self._truncate_tad_set()
+                    break  # once is enough
+
             if options["threads"] == 0:  # sequential
                 for import_info in import_infos:
                     if import_info["table_group"] in TABLES[import_info["build"]]:
@@ -323,7 +333,6 @@ class Command(BaseCommand):
                 TABLES[import_info["build"]][table_group],
                 table_group[5:],
                 force=options["force"],
-                truncate=options["truncate"],
             )
         # Import routine for no-bulk-imports
         elif table_group in ("ensembl_regulatory", "vista"):
@@ -346,9 +355,8 @@ class Command(BaseCommand):
                 )
             # Refresh clinvar materialized view if one of the depending tables was updated.
             # Depending tables: Clinvar, Hgnc, RefseqToHgnc
-            # TODO: re-enable!
-            # if table_group in ("clinvar", "hgnc"):
-            #     refresh_clinvar_clinvarpathogenicgenes()
+            if table_group in ("clinvar", "hgnc"):
+                refresh_clinvar_clinvarpathogenicgenes()
             if table_group == "mgi":
                 refresh_geneinfo_mgimapping()
             elif table_group in ("hpo", "mim2gene", "hgnc"):
@@ -358,20 +366,28 @@ class Command(BaseCommand):
     def _truncate(self, models):
         # Truncate tables if asked to do so.
         cursor = connection.cursor()
-        self.stdout.write("Truncating tables %s..." % models)
+        self.stdout.write("Truncating tables %s..." % (models,))
         for model in models:
             query = 'TRUNCATE TABLE "%s"' % model._meta.db_table
             self.stdout.write("  executing %s" % query)
             cursor.execute(query)
 
-    def _import_tad_set(self, path, tables, subset_key, force, truncate):
-        """TAD import"""
+    def _truncate_tad_set(self):
+        cursor = connection.cursor()
+        self.stdout.write("Truncating tables %s..." % ((TadSet, TadInterval, TadBoundaryInterval),))
+        for model in (TadSet, TadInterval, TadBoundaryInterval):
+            query = 'TRUNCATE TABLE "%s" CASCADE' % model._meta.db_table
+            self.stdout.write("  executing %s" % query)
+            cursor.execute(query)
+
+    def _import_tad_set(self, path, tables, subset_key, force):
+        """TAD import
+
+        NB that TAD sets have been truncated upfront.
+        """
         release_info = self._get_table_info(path, tables[0].__name__)[1]
         self._create_import_info_record(release_info)
 
-        # Truncate tables if asked to do so.
-        if truncate:
-            self._truncate((TadSet, TadInterval, TadBoundaryInterval))
         # Clear out old data if any
         TadSet.objects.filter(release=release_info["genomebuild"], name=subset_key).delete()
 

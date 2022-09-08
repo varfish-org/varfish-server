@@ -4522,7 +4522,9 @@ class CaseThreeClinvarFilterTestMixin:
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            pathogenicity="pathogenic",
+            summary_clinvar_review_status_label="criteria provided, single committer",
+            summary_clinvar_pathogenicity_label="pathogenic",
+            summary_clinvar_pathogenicity=["pathogenic"],
         )
         pathogenicities = (
             "pathogenic",
@@ -4549,7 +4551,7 @@ class CaseThreeClinvarFilterTestMixin:
                 bin=self.small_vars[-1].bin,
                 reference=self.small_vars[-1].reference,
                 alternative=self.small_vars[-1].alternative,
-                pathogenicity=pathogenicity,
+                summary_clinvar_pathogenicity=[pathogenicity],
             )
         DbsnpFactory(
             release=self.small_vars[0].release,
@@ -4634,7 +4636,7 @@ class CaseThreeClinvarFilterTestMixin:
             bin=self.small_vars[1].bin,
             reference=self.small_vars[1].reference,
             alternative=self.small_vars[1].alternative,
-            pathogenicity="pathogenic",
+            summary_clinvar_pathogenicity=["pathogenic"],
         )
         res = self.run_query(
             self.query_class,

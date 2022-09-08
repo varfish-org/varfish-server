@@ -1089,6 +1089,17 @@
         false
       ]
     },
+    "clinvar_paranoid_mode": {
+      "$id": "#/properties/clinvar_paranoid_mode",
+      "type": "boolean",
+      "title": "Weaken weight of 'criteria provided' in variant assessment",
+      "description": "When set, then variant assessments with and without assertion are interpreted as equally important. By default, they are not those with assessment override the others.",
+      "default": false,
+      "examples": [
+        true,
+        false
+      ]
+    },
     "clinvar_include_benign": {
       "$id": "#/properties/clinvar_include_benign",
       "type": "boolean",
