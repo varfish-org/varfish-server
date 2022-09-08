@@ -89,7 +89,9 @@ class ExportTestBase(TestCase):
                 bin=small_var.bin,
                 reference=small_var.reference,
                 alternative=small_var.alternative,
-                pathogenicity="pathogenic",
+                summary_clinvar_review_status_label="criteria provided, single committer",
+                summary_clinvar_pathogenicity_label="pathogenic",
+                summary_clinvar_pathogenicity=["pathogenic"],
             )
             GnomadConstraintsFactory(ensembl_gene_id=small_var.ensembl_gene_id)
 
@@ -182,9 +184,9 @@ class CaseExporterTest(ExportTestBase):
         self.assertEquals(len(arrs), 4 + int(has_trailing))
         # TODO: also test without flags and comments
         if not janno_enable:
-            self.assertEquals(len(arrs[0]), 56)
-        else:
             self.assertEquals(len(arrs[0]), 57)
+        else:
+            self.assertEquals(len(arrs[0]), 58)
         self.assertSequenceEqual(arrs[0][:3], ["Chromosome", "Position", "Reference bases"])
         self.assertSequenceEqual(
             arrs[0][-5:],
@@ -240,7 +242,7 @@ class CaseExporterTest(ExportTestBase):
             if janno_enable:
                 if database == "refseq":
                     self.assertEquals(
-                        arrs[i + 1][37].replace("\n", "|"),
+                        arrs[i + 1][38].replace("\n", "|"),
                         (
                             "NM_058167.2;three_prime_utr_exon_variant;p.(=);c.*60G>A|NM_194315.1;"
                             "three_prime_utr_exon_variant;p.(=);c.*60G>A"
@@ -248,7 +250,7 @@ class CaseExporterTest(ExportTestBase):
                     )
                 else:
                     self.assertEquals(
-                        arrs[i + 1][37].replace("\n", "|"),
+                        arrs[i + 1][38].replace("\n", "|"),
                         (
                             "ENST_058167.2;three_prime_utr_exon_variant;p.(=);c.*60G>A|ENST_194315.1;"
                             "three_prime_utr_exon_variant;p.(=);c.*60G>A"
@@ -256,6 +258,7 @@ class CaseExporterTest(ExportTestBase):
                     )
 
             self.assertEquals(arrs[i + 1][36], "pathogenic")
+            self.assertEquals(arrs[i + 1][37], "criteria provided, single committer")
         if has_trailing:
             self.assertSequenceEqual(arrs[4], [""])
 
@@ -367,7 +370,7 @@ class ProjectExportTest(TestCase):
     def _test_tabular(self, arrs, has_trailing):
         self.assertEquals(len(arrs), 5 + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 56)
+        self.assertEquals(len(arrs[0]), 57)
         self.assertSequenceEqual(arrs[0][:3], ["Sample", "Chromosome", "Position"])
         self.assertEqual(arrs[0][-1], "sample Alternate allele fraction")
         members = sorted(self.project.get_members())
@@ -571,7 +574,7 @@ class CohortExporterTest(TestCohortBase):
     def _test_tabular(self, arrs, ref, has_trailing, smallvars):
         self.assertEquals(len(arrs), ref + int(has_trailing))
         # TODO: also test without flags and comments
-        self.assertEquals(len(arrs[0]), 56)
+        self.assertEquals(len(arrs[0]), 57)
         self.assertSequenceEqual(arrs[0][:3], ["Sample", "Chromosome", "Position"])
         self.assertEqual(arrs[0][-1], "sample Alternate allele fraction")
         for i, small_var in enumerate(sorted(smallvars, key=lambda x: (x.chromosome_no, x.start))):

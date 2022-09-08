@@ -10,8 +10,10 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from sqlalchemy import Table, true, column, union, literal_column, delete, tuple_
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.sql import select, func, and_, not_, or_, cast
-from sqlalchemy.types import VARCHAR, Integer, Float, String
+from sqlalchemy.dialects.postgresql.array import OVERLAP
+from sqlalchemy.sql import and_, cast, func, not_, or_, select
+from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
+from sqlalchemy.types import VARCHAR, Float, Integer
 import sqlparse
 
 from clinvar.models import Clinvar
@@ -361,38 +363,55 @@ class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
 class ExtendQueryPartsClinvarJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._col_names = (
-            "variation_type",
-            "variation_id",
-            "rcv",
-            "vcv",
-            "gold_stars",
-            "pathogenicity",
-            "review_status",
-            "details",
-        )
+        if self.kwargs.get("clinvar_paranoid_mode", False):
+            self.clinvar_mode = "paranoid"
+        else:
+            self.clinvar_mode = "clinvar"
+        self._col_defaults = {
+            "variation_type": "",
+            "vcv": "",
+            f"summary_{self.clinvar_mode}_review_status_label": "",
+            f"summary_{self.clinvar_mode}_pathogenicity_label": "",
+            f"summary_{self.clinvar_mode}_pathogenicity": [],
+            f"summary_{self.clinvar_mode}_gold_stars": 0,
+            "details": [],
+        }
+        self._col_names = list(self._col_defaults.keys())
 
         self.subquery = (
             select(
                 tuple(
-                    func.array_agg(
-                        getattr(Clinvar.sa, name), type_=ARRAY(String(length=128))
-                    ).label(f"{name}_arr")
-                    for name in self._col_names
+                    func.coalesce(getattr(Clinvar.sa, name), default).label(
+                        self._transmogrify_col_name(name)
+                    )
+                    for name, default in self._col_defaults.items()
                 )
             )
             .select_from(Clinvar.sa)
-            .where(and_(same_variant(SmallVariant, Clinvar)))
+            .where(and_(same_variant(SmallVariant, Clinvar), Clinvar.sa.set_type == "variant",))
+            .distinct(  # DISTINCT ON
+                SmallVariant.sa.release,
+                SmallVariant.sa.chromosome,
+                SmallVariant.sa.start,
+                SmallVariant.sa.end,
+                SmallVariant.sa.reference,
+                SmallVariant.sa.alternative,
+            )
             .lateral("clinvar_subquery")
         )
+
+    def _transmogrify_col_name(self, name):
+        return name.replace(f"{self.clinvar_mode}_", "")
 
     def extend_selectable(self, query_parts):
         return query_parts.selectable.outerjoin(self.subquery, true())
 
     def extend_fields(self, _query_parts):
         return [
-            func.coalesce(getattr(self.subquery.c, f"{name}_arr"), []).label(f"{name}_arr")
-            for name in self._col_names
+            func.coalesce(
+                getattr(self.subquery.c, self._transmogrify_col_name(name)), default
+            ).label(self._transmogrify_col_name(name))
+            for name, default in self._col_defaults.items()
         ]
 
 
@@ -420,11 +439,10 @@ class ExtendQueryPartsClinvarJoinAndFilter(ExtendQueryPartsClinvarJoin):
         terms = []
         if not self.kwargs.get("require_in_clinvar"):
             return True
+        column = self.subquery.c.summary_pathogenicity
         for patho_key in self.patho_keys:
             if self.kwargs.get("clinvar_include_%s" % patho_key):
-                terms.append(
-                    self.subquery.c.pathogenicity_arr.contains([patho_key.replace("_", " ")])
-                )
+                terms.append(column.contains([patho_key.replace("_", " ")]))
         return or_(*terms)
 
 
@@ -1016,7 +1034,7 @@ class ExtendQueryPartsGeneListsFilter(ExtendQueryPartsBase):
                     getattr(Hgnc.sa, hgnc_field) != None,  # SQL Alchemy forces us to use ``!=``
                 )
             )
-            .distinct()
+            .distinct()  # DISTINCT
         )
 
 
@@ -1808,7 +1826,7 @@ class KnownGeneAAQuery:
                 )
             )
             .order_by(KnowngeneAA.sa.start)
-            .distinct(*distinct_fields)
+            .distinct(*distinct_fields)  # DISTINCT ON
         )
         return self.engine.execute(query)
 

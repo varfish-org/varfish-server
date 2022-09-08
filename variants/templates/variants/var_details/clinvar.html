@@ -16,45 +16,47 @@
   </div>
   <ul class="list-group list-group-flush">
     {% for cv in clinvar %}
-      <li class="list-group-item flex-column align-items-start border-top px-2 list-group-item-action">
-        <div class="d-flex w-100 justify-content-between">
-          <strong class="mb-1">{{ cv.details.title }}</strong>
-          <small><a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ cv.details.ref_cv_assertion.clinvar_accession }}.{{ cv.details.ref_cv_assertion.version_no }}" target="_blank">{{ cv.details.ref_cv_assertion.clinvar_accession }}.{{ cv.details.ref_cv_assertion.version_no }}</a></small>
-        </div>
-        <div class="row">
-          <div class="col-6 pl-0">
-            {% if cv.details.ref_cv_assertion.trait_sets %}
-              {% for trait_set in cv.details.ref_cv_assertion.trait_sets %}
-                  {% for trait in trait_set.traits %}
-                    {% if trait.preferred_name == "not specified" %}traits{% endif %}
-                    {{ trait.preferred_name }}{% if not forloop.last %}<br />{% endif %}
-                  {% endfor %}
-                {% if not forloop.last %}<br />{% endif %}
-              {% endfor %}
-            {% else %}
-              <em>traits not specified</em>
-            {% endif %}
+      {% for detail in cv.details %}
+        <li class="list-group-item flex-column align-items-start border-top px-2 list-group-item-action">
+          <div class="d-flex w-100 justify-content-between">
+            <strong class="mb-1">{{ detail.title }}</strong>
+            <small><a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ detail.ref_cv_assertion.clinvar_accession }}.{{ detail.ref_cv_assertion.version_no }}" target="_blank">{{ detail.ref_cv_assertion.clinvar_accession }}.{{ detail.ref_cv_assertion.version_no }}</a></small>
           </div>
-          <div class="col-3">
-            {% if cv.details.ref_cv_assertion.clin_sigs %}
-              {% for clin_sig in cv.details.ref_cv_assertion.clin_sigs %}
-                {{ clin_sig.description|lower }}{% if not forloop.last %}, {% endif %}
-              {% endfor %}
-            {% else %}
-              <em>review status not specified</em>
-            {% endif %}
+          <div class="row">
+            <div class="col-6 pl-0">
+              {% if detail.ref_cv_assertion.trait_sets %}
+                {% for trait_set in detail.ref_cv_assertion.trait_sets %}
+                    {% for trait in trait_set.traits %}
+                      {% if trait.preferred_name == "not specified" %}traits{% endif %}
+                      {{ trait.preferred_name }}{% if not forloop.last %}<br />{% endif %}
+                    {% endfor %}
+                  {% if not forloop.last %}<br />{% endif %}
+                {% endfor %}
+              {% else %}
+                <em>traits not specified</em>
+              {% endif %}
+            </div>
+            <div class="col-3">
+              {% if detail.ref_cv_assertion.clin_sigs %}
+                {% for clin_sig in detail.ref_cv_assertion.clin_sigs %}
+                  {{ clin_sig.description|lower }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              {% else %}
+                <em>review status not specified</em>
+              {% endif %}
+            </div>
+            <div class="col-3 pr-0">
+              {% if detail.ref_cv_assertion.clin_sigs %}
+                {% for clin_sig in detail.ref_cv_assertion.clin_sigs %}
+                  {{ clin_sig.review_status|lower }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              {% else %}
+                <em>clinical significance not specified</em>
+              {% endif %}
+            </div>
           </div>
-          <div class="col-3 pr-0">
-            {% if cv.details.ref_cv_assertion.clin_sigs %}
-              {% for clin_sig in cv.details.ref_cv_assertion.clin_sigs %}
-                {{ clin_sig.review_status|lower }}{% if not forloop.last %}, {% endif %}
-              {% endfor %}
-            {% else %}
-              <em>clinical significance not specified</em>
-            {% endif %}
-          </div>
-        </div>
-      </li>
+        </li>
+      {% endfor %}
     {% empty %}
       <p class="text-muted text-center"><i>No ClinVar information available.</i></p>
     {% endfor %}
