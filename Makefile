@@ -47,7 +47,7 @@ celery:
 
 .PHONY: geticons
 geticons:
-	python manage.py geticons -c cil gridicons octicon
+	python manage.py geticons -c cil gridicons octicon icon-park-outline
 
 .PHONY: collectstatic
 collectstatic: geticons

@@ -2,6 +2,31 @@
 History / Changelog
 ===================
 
+-----------------
+v1.2.3 (anthenea)
+-----------------
+
+End-User Summary
+================
+
+- Create single result row even if multiple clinvar entries (#565).
+- Warning in the case of truncated displayed results (#641).
+- Improving Clinvar filter performance (#635).
+- Fixing clinvar filter (#296).
+  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
+- Warning in the case of truncated displayed results (#641).
+- Improving Clinvar record aggregation (#640).
+
+Full Change List
+================
+
+- Create single result row even if multiple clinvar entries (#565).
+- Warning in the case of truncated displayed results (#641).
+- Improving Clinvar filter performance (#635).
+  Database indices were missing, assumedly because of a Django ``makemigrations`` bug.
+- Fixing clinvar filter (#296).
+  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
+- Improving Clinvar record aggregation (#640).
 - Fixing Docker builds (#660).
 
 -----------------
@@ -15,7 +40,6 @@ End-User Summary
 - Extra annotations in export completed and tested (#495).
 - Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
 - Form template reports error if genomebuild variable is not set (#607).
-- Create single result row even if multiple clinvar entries (#565).
 
 Full Change List
 ================
@@ -24,7 +48,6 @@ Full Change List
 - Fixing issue with sync-from-remote when no remote is defined (#570).
 - Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
 - Form template reports error if genomebuild variable is not set (#607).
-- Create single result row even if multiple clinvar entries (#565).
 
 -----------------
 v1.2.1 (anthenea)
@@ -54,10 +77,6 @@ End-User Summary
 - Fixed smallvariant flags filter query (#502).
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Adding feature to enable and configure link-out to HGMD (#576).
-- Warning in the case of truncated displayed results (#641).
-- Improving Clinvar filter performance (#635).
-- Fixing clinvar filter (#296).
-  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
 
 Full Change List
 ================
@@ -82,11 +101,6 @@ Full Change List
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
 - Adding feature to enable and configure link-out to HGMD (#576).
-- Warning in the case of truncated displayed results (#641).
-- Improving Clinvar filter performance (#635).
-  Database indices were missing, assumedly because of a Django ``makemigrations`` bug.
-- Fixing clinvar filter (#296).
-  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
 
 ------
 v1.2.0
