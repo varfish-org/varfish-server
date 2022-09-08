@@ -1033,6 +1033,7 @@ const presets = {
       "effect_upstream_gene_variant": true,
 
       "require_in_clinvar": true,
+      "clinvar_paranoid_mode": false,
     }),
     "classes": {},
   },

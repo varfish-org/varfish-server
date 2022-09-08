@@ -88,18 +88,18 @@
       {{ entry.alternative }}
     </div>
   </td>
-  <td style="width: 50px;" class="pl-2 detail-info-clinvar" data-order="{% if entry.max_significance %}{{ entry.max_significance|significance_importance }}-{{ entry.max_clinvar_status|status_importance }}{% else %}9-9{% endif %}">
-    {% if entry.pathogenicity_arr %}
+  <td style="width: 50px;" class="pl-2 detail-info-clinvar" data-order="{{ entry|clinvar_patho_rank }}-{{ entry|clinvar_gold_stars }}">
+    {% if entry.summary_pathogenicity_label %}
         <span class="badge-group">
-          <span class="badge badge-{{ entry|clinvar_grading_patho|significance_color }}">
-            {{ entry|clinvar_grading_patho }}
+          <span class="badge badge-{{ entry.summary_pathogenicity_label|significance_color }}">
+            {{ entry.summary_pathogenicity_label }}
           </span>
-          <span class="badge badge-dark" data-toggle="tooltip" data-placement="top" title="{{ entry|clinvar_grading_review_status }}">
+          <span class="badge badge-dark" data-toggle="tooltip" data-placement="top" title="{{ entry.summary_review_status_label }}">
             {% for i in "1234" %}
-              {% if forloop.counter <= entry|clinvar_grading_stars %}
-                <i class="iconify" data-icon="fa-solid:circle"></i>
+              {% if forloop.counter <= entry.summary_gold_stars %}
+                <i class="iconify" data-icon="fa-solid:star"></i>
               {% else %}
-                <i class="iconify" data-icon="fa-regular:circle"></i>
+                <i class="iconify" data-icon="fa-regular:star"></i>
               {% endif %}
             {% endfor %}
           </span>

@@ -750,6 +750,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 "remove_if_in_dbsnp": False,
                 "require_in_clinvar": False,
                 "require_in_hgmd_public": False,
+                "clinvar_paranoid_mode": False,
             },
         }
         self.assertEqual(actual, expected)

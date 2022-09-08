@@ -881,6 +881,7 @@ class _FlagsEtcPresets:
         "flag_visual_uncertain": True,
         "remove_if_in_dbsnp": False,
         "require_in_clinvar": False,
+        "clinvar_paranoid_mode": False,
         "require_in_hgmd_public": False,
     }
     #: Presets for the "Clinvar only" flags etc. settings
@@ -911,6 +912,7 @@ class _FlagsEtcPresets:
         "flag_visual_uncertain": True,
         "remove_if_in_dbsnp": False,
         "require_in_clinvar": True,
+        "clinvar_paranoid_mode": False,
         "require_in_hgmd_public": False,
     }
     #: Presets for the "user flagged" flags etc. settings
@@ -946,6 +948,7 @@ class _FlagsEtcPresets:
         "flag_visual_uncertain": True,
         "remove_if_in_dbsnp": False,
         "require_in_clinvar": False,
+        "clinvar_paranoid_mode": False,
         "require_in_hgmd_public": False,
     }
 

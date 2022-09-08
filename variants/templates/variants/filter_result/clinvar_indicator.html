@@ -1,11 +1,9 @@
-{% load clinvar_tags %}
-
 {% if entry.in_clinvar %}<a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ entry.release }}%3A{{ entry.chromosome }}%3A{{ entry.start }}-{{ entry.end }}" target="_blank">{% endif %}
 <i
-  {% if entry.in_clinvar %}
+  {% if entry.in_clinvar and entry.summary_pathogenicity_label %}
     data-toggle="tooltip"
     data-placement="top"
-    title="{{ entry.pathogenicity }}"
+    title="{{ entry.summary_pathogenicity_label.0 }}"
   {% endif %}
   class="iconify text-muted" data-icon="fa-regular:hospital"
   {% if not entry.in_clinvar %}
