@@ -68,7 +68,9 @@ The following combinations have been validated / are supported to work.
 ==============  ===========  =================
 VarFish Server  VarFish CLI  VarFish Annotator
 ==============  ===========  =================
-v1.*.*          v0.3.0       v0.21
+v1.2.2          v0.3.0       v0.21
+v1.2.1          v0.3.0       v0.21
+v1.2.0          v0.3.0       v0.21
 ==============  ===========  =================
 
 ----------------------------------------
@@ -80,5 +82,9 @@ The following combinations have been validated / are supported to work.
 ==============  ============  =====================
 VarFish Server  Data Release  VarFish DB Downloader
 ==============  ============  =====================
-v1.*.*          20210728      v0.3.*
+v1.2.2          20210728c     v0.3.*
+v1.2.1          20210728      v0.3.*
+v1.2.1          20210728b     v0.3.*
+v1.2.0          20210728      v0.3.*
+v1.2.0          20210728b     v0.3.*
 ==============  ============  =====================

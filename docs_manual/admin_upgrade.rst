@@ -6,6 +6,8 @@ Upgrade Varfish Installation
 
 This section contains upgrade instructions for upgrading your VarFish Server installation using `VarFish Docker Compose <https://github.com/bihealth/varfish-docker-compose>`__.
 
+.. _admin_upgrade_data_release_20210728:
+
 -------------------------------------------------
 Problem with Data Release ``20210728`` and GRCh37
 -------------------------------------------------
@@ -29,6 +31,9 @@ You can find out more details, give feedback, and ask for help `in this Github d
 ----------------
 v1.2.* to v2.*.*
 ----------------
+
+**ClinVar Changes**
+Please follow the instructions described in :ref:`admin_update_1_2_1_to_1_2_2` if you start at v1.2.1.
 
 **In-House Background Database.**
 A number of changes were made to the implementation of the background database.
@@ -69,6 +74,59 @@ You can fill the fields with reasonable values (that will work well for all case
         svs_sv_fill_nulls
 
 This is not strictly necessary and it is recommended to re-annotate and re-import.
+
+.. _admin_update_1_2_1_to_1_2_2:
+
+----------------
+v1.2.1 to v1.2.2
+----------------
+
+**ClinVar Updates**
+First, make sure that you have upgraded the data to ``20210728b`` following :ref:`admin_upgrade_data_release_20210728`.
+Then, upgrade by just updating your ``varfish-docker-compose`` repository clone and calling ``docker-compose down && docker-compose up -d``.
+
+Next, patch to data version ``20210728c`` using the following instructions.
+
+We have made a larger change to the ClinVar database.
+You will have to re-import the ClinVar database after upgrade follows.
+
+Download the appropriate data patch from our file server:
+
+GRCh37
+    `varfish-server-background-db-20210728c-grch37.tar.gz <https://file-public.cubi.bihealth.org/transient/varfish/anthenea/varfish-server-background-db-20210728c-grch37.tar.gz>`__
+
+GRCh38
+    `varfish-server-background-db-20210728c-grch38.tar.gz <https://file-public.cubi.bihealth.org/transient/varfish/anthenea/varfish-server-background-db-20210728c-grch38.tar.gz>`__
+
+Extract the output to a folder on your VarFish server, e.g., ``/data/varfish-data/varfish-server-background-db-20210728c-grch37``, such that this folder contains a file ``import_versions.tsv``.
+Next, edit the ``docker-compose.yml`` file of your ``varfish-docker-compose`` such that the ``varfish-web`` entry's ``volumes`` field reads as follows.
+
+::
+
+    volumes:
+      - "/data:/data:ro"
+
+Then, restart VarFish by calling ``docker-compose down && docker-compose up -d``.
+After startup, you can now do the following if you use GRCh37:
+
+::
+
+    docker exec -it varfish-docker-compose_varfish-web_1 python manage.py \
+        import_tables --force --truncate --tables-path /data/varfish-server-background-db-20210728c-grch37 \
+        --threads=0
+
+If you use GRCh38, use
+
+::
+
+    docker exec -it varfish-docker-compose_varfish-web_1 python manage.py \
+        import_tables --force --truncate --tables-path /data/varfish-server-background-db-20210728c-grch38 \
+        --threads=0
+
+This will import the ClinVar version from the 20210728 release in the fixed format compatible with ``v1.2.2``.
+Note that this will also import a patch to the TAD data in
+
+In case of any issues, contact us in the `Github Discussion <https://github.com/bihealth/varfish-server/discussions>`__ or directly by email.
 
 ------------------
 v0.23.0 to v1.2.1
