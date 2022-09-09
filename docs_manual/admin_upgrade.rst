@@ -33,7 +33,7 @@ v1.2.* to v2.*.*
 ----------------
 
 **ClinVar Changes**
-Please follow the instructions described in :ref:`admin_update_1_2_1_to_1_2_2` if you start at v1.2.1.
+Please follow the instructions described in :ref:`admin_update_1_2_2_to_1_2_3` if you start at v1.2.1.
 
 **In-House Background Database.**
 A number of changes were made to the implementation of the background database.
@@ -75,10 +75,10 @@ You can fill the fields with reasonable values (that will work well for all case
 
 This is not strictly necessary and it is recommended to re-annotate and re-import.
 
-.. _admin_update_1_2_1_to_1_2_2:
+.. _admin_update_1_2_2_to_1_2_3:
 
 ----------------
-v1.2.1 to v1.2.2
+v1.2.2 to v1.2.3
 ----------------
 
 **ClinVar Updates**

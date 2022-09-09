@@ -170,7 +170,7 @@ Notably:
 
 - If you are using the original data version ``20210728`` then you need to apply the patch to ``20210728b`` as described in :ref:`admin_upgrade_data_release_20210728`.
 - When installing ``v1.2.1`` then you need to apply the patch to data version ``20210728c``.
-  This is done by first upgrading to ``20210728b`` (if you are not there already) and then upgrading to ``20210728c`` as described in :ref:`admin_update_1_2_1_to_1_2_2`.
+  This is done by first upgrading to ``20210728b`` (if you are not there already) and then upgrading to ``20210728c`` as described in :ref:`admin_update_1_2_2_to_1_2_3`.
 
 In case of any issues, contact us in the `Github Discussion <https://github.com/bihealth/varfish-server/discussions>`__ or directly by email.
 
