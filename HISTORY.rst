@@ -111,6 +111,7 @@ Full Change List
   Database indices were missing, assumedly because of a Django ``makemigrations`` bug.
 - Warning in the case of truncated displayed results (#641).
 - Improving Clinvar record aggregation (#640).
+- Fixing Docker builds (#660).
 
 ------
 v1.2.0
