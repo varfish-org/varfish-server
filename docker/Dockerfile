@@ -57,6 +57,7 @@ RUN ["/bin/bash","-c", "cd /tmp && \
         mamba create -c bioconda -y -n varfish-annotator \
             varfish-annotator-cli=0.10=0 \
             htslib=1.9 \
+            openjdk=8 \
             bcftools=1.9 && \
         rm -f Miniconda3-latest-Linux-x86_64.sh"]
 

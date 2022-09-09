@@ -2,6 +2,8 @@
 History / Changelog
 ===================
 
+- Fixing Docker builds (#660).
+
 -----------------
 v1.2.2 (anthenea)
 -----------------
