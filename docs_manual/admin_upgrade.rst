@@ -111,7 +111,7 @@ After startup, you can now do the following if you use GRCh37:
 
 ::
 
-    docker exec -it varfish-docker-compose_varfish-web_1 python manage.py \
+    docker exec -it varfish-docker-compose_varfish-web_1 python /usr/src/app/manage.py \
         import_tables --force --truncate --tables-path /data/varfish-server-background-db-20210728c-grch37 \
         --threads=0
 
@@ -119,7 +119,7 @@ If you use GRCh38, use
 
 ::
 
-    docker exec -it varfish-docker-compose_varfish-web_1 python manage.py \
+    docker exec -it varfish-docker-compose_varfish-web_1 python /usr/src/app/manage.py \
         import_tables --force --truncate --tables-path /data/varfish-server-background-db-20210728c-grch38 \
         --threads=0
 

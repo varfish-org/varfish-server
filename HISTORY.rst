@@ -112,6 +112,7 @@ Full Change List
 - Warning in the case of truncated displayed results (#641).
 - Improving Clinvar record aggregation (#640).
 - Fixing Docker builds (#660).
+- Bumping dependencies (#663).
 
 ------
 v1.2.0
