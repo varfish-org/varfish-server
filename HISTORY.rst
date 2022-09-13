@@ -12,6 +12,7 @@ End-User Summary
 - Starting with development of Bollonaster (VarFish v2)
 - Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
+- Add Transcripts GnomadAD constraints and clinvar reports in the export(#568)
 - Extra annotations in export completed and tested (#495).
 - Removing problematic username modification behaviour on login page (#459).
 - Displaying login page text from settings again (#458).
@@ -35,6 +36,8 @@ End-User Summary
 - Small variant filtration results now allow to easily look up second hits in the same gene (#573).
 - Structural filtration results now allow to easily look up second hits in the same gene (#574).
 - Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
+- Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
+- Form template reports error if genomebuild variable is not set (#607).
 
 Full Change List
 ================
@@ -69,6 +72,10 @@ Full Change List
 - Small variant filtration results now allow to easily look up second hits in the same gene (#573).
 - Structural filtration results now allow to easily look up second hits in the same gene (#574).
 - Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
+- Bugfix broken SV filter (#587).
+- Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
+- Form template reports error if genomebuild variable is not set (#607).
+- Making ``keyvalue`` more robust to failure (#613).
 
 ------
 v1.2.0
