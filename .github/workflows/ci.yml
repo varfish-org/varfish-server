@@ -82,19 +82,34 @@ jobs:
           coverage report
       - name: check formatting
         run: make black arg=--check
+      - name: Codecov
+        run: |
+          curl -s https://uploader.codecov.io/latest/linux/codecov > /tmp/codecov
+          chmod +x /tmp/codecov
+          /tmp/codecov -cF python
+          /tmp/codecov -cF javascript
       - name: Coveralls
         uses: AndreMiras/coveralls-python-action@develop
         with:
           parallel: true
           flag-name: Unit Test
-      - name: run Codacy coverage reporter
-        uses: codacy/codacy-coverage-reporter-action@master
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: coverage.xml
-        env:
-          secrets.CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        if: "${{ (matrix.python-version == '3.8') && (matrix.postgres-version == '12') && (!!env.CODACY_PROJECT_TOKEN) }}"
+      - name: Check import order with isort
+        run: |
+          rm -rf src
+          isort --force-sort-within-sections --profile=black --check .
+        if: ${{ matrix.python-version == '3.8' }}
+      - name: Check style with black
+        run: black --check --line-length 100 .
+        if: ${{ matrix.python-version == '3.8' }}
+      - name: Run linting
+        run: flake8
+        if: ${{ matrix.python-version == '3.8' }}
+      - name: Run Vue app tests
+        run: make test_clinvar_export_vue
+        if: ${{ matrix.python-version == '3.8' }}
+      - name: Lint Vue app
+        run: make lint_clinvar_export_vue
+        if: ${{ matrix.python-version == '3.8' }}
 
   coveralls_finish:
     needs: build

@@ -16,8 +16,17 @@
             </div>
           </transition>
 
-          <b-button class="float-right" size="sm" variant="danger" @click="onRemoveClicked">
-            <span class="iconify" data-icon="mdi:close" data-inline="false"></span>
+          <b-button
+            class="float-right"
+            size="sm"
+            variant="danger"
+            @click="onRemoveClicked"
+          >
+            <span
+              class="iconify"
+              data-icon="mdi:close"
+              data-inline="false"
+            ></span>
             remove submission set
           </b-button>
         </h4>
@@ -25,12 +34,12 @@
 
       <submission-set-editor
         v-if="wizardState === 'submissionSet'"
-        ref="submissionSetCard"
+        ref="submissionSetList"
       ></submission-set-editor>
-      <submission-set-variant-list
+      <submission-list
         v-if="wizardState === 'submissions'"
-        ref="submissionsCard"
-      ></submission-set-variant-list>
+        ref="submissionList"
+      ></submission-list>
 
       <template #footer>
         <submission-set-wizard-footer
@@ -46,42 +55,48 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
-import SubmissionSetEditor from './SubmissionSetEditor'
-import SubmissionSetVariantList from './SubmissionList'
-import SubmissionSetWizardFooter from './SubmissionSetWizardFooter'
-import { WizardState } from '@/store/modules/clinvarExport'
+
 import { validConfirmed } from '@/helpers'
+import { WizardState } from '@/store/modules/clinvarExport'
+
+import SubmissionList from './SubmissionList'
+import SubmissionSetEditor from './SubmissionSetEditor'
+import SubmissionSetWizardFooter from './SubmissionSetWizardFooter'
 
 export default {
-  components: { SubmissionSetEditor, SubmissionSetVariantList, SubmissionSetWizardFooter },
+  components: {
+    SubmissionSetEditor,
+    SubmissionList,
+    SubmissionSetWizardFooter,
+  },
   computed: mapState({
-    wizardState: state => state.clinvarExport.wizardState,
-    notification: state => state.clinvarExport.notification,
-    currentSubmissionSet: state => state.clinvarExport.currentSubmissionSet
+    wizardState: (state) => state.clinvarExport.wizardState,
+    notification: (state) => state.clinvarExport.notification,
+    currentSubmissionSet: (state) => state.clinvarExport.currentSubmissionSet,
   }),
   methods: {
     ...mapActions('clinvarExport', [
       'setWizardState',
       'wizardSave',
       'wizardRemove',
-      'wizardCancel'
+      'wizardCancel',
     ]),
     validConfirmed,
     /**
      * @returns {list} with breadcrumb display
      */
-    breadcrumbItems () {
+    breadcrumbItems() {
       const tpl = [
         {
           text: 'Submission Set',
           href: '#',
-          active: this.wizardState === WizardState.submissionSet
+          active: this.wizardState === WizardState.submissionSet,
         },
         {
           text: 'Submissions',
           href: '#',
-          active: this.wizardState === WizardState.submissions
-        }
+          active: this.wizardState === WizardState.submissions,
+        },
       ]
 
       let result = tpl
@@ -96,69 +111,75 @@ export default {
     /**
      * Event handler called when user clicks 'save'.
      */
-    onSaveClicked () {
+    onSaveClicked() {
       this.validConfirmed(this.wizardSave)
     },
     /**
      * Event handler when user clicks 'remove submission set'.
      */
-    onRemoveClicked () {
-      this.$bvModal.msgBoxConfirm('Really delete submission set?', {
-        okTitle: 'Yes',
-        cancelTitle: 'No'
-      }).then(value => {
-        if (value) {
-          this.wizardRemove()
-        }
-      })
+    onRemoveClicked() {
+      this.$bvModal
+        .msgBoxConfirm('Really delete submission set?', {
+          okTitle: 'Yes',
+          cancelTitle: 'No',
+        })
+        .then((value) => {
+          if (value) {
+            this.wizardRemove()
+          }
+        })
     },
     /**
      * Event handler called when user clicks 'cancel'.
      */
-    onCancelClicked () {
-      this.$bvModal.msgBoxConfirm('Really discard any change?', {
-        okTitle: 'Yes',
-        cancelTitle: 'No'
-      }).then(value => {
-        if (value) {
-          this.wizardCancel()
-        }
-      })
+    onCancelClicked() {
+      this.$bvModal
+        .msgBoxConfirm('Really discard any change?', {
+          okTitle: 'Yes',
+          cancelTitle: 'No',
+        })
+        .then((value) => {
+          if (value) {
+            this.wizardCancel()
+          }
+        })
     },
     /**
      * Event handler called when user clicks 'forward to submissions'.
      */
-    onGotoSubmissionsClicked () {
-      this.validConfirmed(() => { this.setWizardState(WizardState.submissions) })
+    onGotoSubmissionsClicked() {
+      this.validConfirmed(() => {
+        this.setWizardState(WizardState.submissions)
+      })
     },
     /**
      * Event handler called when user clicks 'back to variant list'.
      */
-    onGotoSubmissionSetClicked () {
-      this.validConfirmed(() => { this.setWizardState(WizardState.submissionSet) })
+    onGotoSubmissionSetClicked() {
+      this.validConfirmed(() => {
+        this.setWizardState(WizardState.submissionSet)
+      })
     },
     /**
      * @returns {String} the CSS class for the notification.
      */
-    getNotificationHtmlClass () {
+    getNotificationHtmlClass() {
       return 'badge badge-' + (this.notification.status || 'success')
     },
     /**
      * @returns {boolean} whether or not the currently displayed form is valid.
      */
-    isValid () {
-      if (this.$refs.submissionSetCard !== undefined) {
-        return this.$refs.submissionSetCard.isValid()
-      } else if (this.$refs.submissionsCard !== undefined) {
-        return this.$refs.submissionsCard.isValid()
+    isValid() {
+      if (this.$refs.submissionSetList !== undefined) {
+        return this.$refs.submissionSetList.isValid()
+      } else if (this.$refs.submissionList !== undefined) {
+        return this.$refs.submissionList.isValid()
       } else {
         return true
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

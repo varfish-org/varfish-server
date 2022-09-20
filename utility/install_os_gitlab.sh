@@ -54,5 +54,5 @@ apt-get -y install libldap2-dev
 echo "***********************************************"
 echo "Installing Node.js"
 echo "***********************************************"
-curl -sL https://deb.nodesource.com/setup_10.x | bash -
+curl -sL https://deb.nodesource.com/setup_14.x | bash -
 apt-get install -y nodejs
