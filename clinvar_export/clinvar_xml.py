@@ -260,6 +260,9 @@ class SubmissionXmlGenerator:
                                     "id": phenotype["term_id"],
                                 },
                             ),
+                            **{
+                                "ClinicalFeaturesAffectedStatus": "present",
+                            },
                         )
                         for phenotype in submission_individual.phenotypes
                     ],

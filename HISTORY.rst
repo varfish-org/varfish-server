@@ -57,6 +57,7 @@ End-User Summary
 - Improving Clinvar filter performance (#635).
 - Warning in the case of truncated displayed results (#641).
 - Improving Clinvar record aggregation (#640).
+- Fixing ClinVar submission XML generation (#677).
 
 Full Change List
 ================
@@ -112,6 +113,7 @@ Full Change List
 - Warning in the case of truncated displayed results (#641).
 - Improving Clinvar record aggregation (#640).
 - Fixing Docker builds (#660).
+- Fixing ClinVar submission XML generation (#677).
 
 ------
 v1.2.0
