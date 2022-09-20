@@ -30,6 +30,7 @@ Full Change List
 - Improving Clinvar record aggregation (#640).
 - Fixing Docker builds (#660).
 - Fixing ClinVar submission XML generation (#677).
+- Adding regular task to sync ClinVar submission ``Individual`` sex from the one from the ``Case``.
 
 -----------------
 v1.2.2 (anthenea)
