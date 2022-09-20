@@ -39,6 +39,7 @@ const state = () => ({
   // application / client state
   appContext: null,
   appState: AppState.initializing,
+  serverInteraction: false,
   wizardState: WizardState.submissionSet,
   notification: null,
   currentSubmissionSet: null,
@@ -137,6 +138,7 @@ const actions = {
    * Save submission set currently open in wizard through API.
    */
   async wizardSave ({ state, commit }) {
+    commit('SET_APP_SERVER_INTERACTION', true)
     async function _wizardSaveSubmissionSet ({ state, commit }, submissionSetExists) {
       if (submissionSetExists) {
         const res = await clinvarExport.updateSubmissionSet(state.currentSubmissionSet, state.appContext)
@@ -291,8 +293,6 @@ const actions = {
       }
     }
 
-    commit('SET_APP_STATE', AppState.list)
-
     // Save submission set and submitting orgs.
     const submissionSetExists = state.currentSubmissionSet.sodar_uuid in state.oldModel.submissionSets
     const apiSet = await _wizardSaveSubmissionSet({ state, commit }, submissionSetExists)
@@ -333,11 +333,14 @@ const actions = {
     commit('SET_CURRENT_SUBMISSION', null)
 
     commit('SAVE_OLD_MODEL')
+    commit('SET_APP_STATE', AppState.list)
+    commit('SET_APP_SERVER_INTERACTION', false)
   },
   /**
    * Remove submission set currently open in wizard through API.
    */
   async wizardRemove ({ state, commit }) {
+    commit('SET_APP_SERVER_INTERACTION', true)
     commit('SET_APP_STATE', AppState.list)
 
     for (const submittingOrgUuid of state.currentSubmissionSet.submitting_orgs) {
@@ -383,6 +386,7 @@ const actions = {
     commit('SET_CURRENT_SUBMISSION', null)
 
     commit('SAVE_OLD_MODEL')
+    commit('SET_APP_SERVER_INTERACTION', false)
   },
   /**
    * Cancel submission editing currently open in wizard.
@@ -597,6 +601,10 @@ const mutations = {
 
   SET_APP_STATE (state, appState) {
     Vue.set(state, 'appState', appState)
+  },
+
+  SET_APP_SERVER_INTERACTION (state, serverInteraction) {
+    Vue.set(state, 'serverInteraction', serverInteraction)
   },
 
   SET_CURRENT_SUBMISSION_SET (state, submissionSetUuid) {

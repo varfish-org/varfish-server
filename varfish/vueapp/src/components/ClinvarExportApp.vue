@@ -1,21 +1,13 @@
 <template>
   <div id="#app">
-    <div v-if="appState === 'initializing'">
-      <div class="text-center">
-        <i class="iconify spin text-muted mt-5" data-icon="fa-solid:circle-notch"></i>
-        <br />
-        <br />
-        <span class="text-muted font-italic">Loading...</span>
-      </div>
-    </div>
-    <div v-if="appState !== 'initializing'">
+    <b-overlay :show="showOverlay">
       <submission-set-list
-        v-if="appState === 'list'"
+        v-if="['list', 'initializing'].includes(appState)"
       ></submission-set-list>
       <submission-set-wizard
         v-if="['edit', 'add'].includes(appState)"
       ></submission-set-wizard>
-    </div>
+    </b-overlay>
   </div>
 </template>
 
@@ -28,7 +20,14 @@ export default {
   components: { SubmissionSetWizard, SubmissionSetList },
   computed: mapState({
     appState: state => state.clinvarExport.appState,
-    notification: state => state.clinvarExport.notification
+    notification: state => state.clinvarExport.notification,
+    showOverlay (state) {
+      if (state.clinvarExport.appState === 'initializing' || state.clinvarExport.serverInteraction) {
+        return true
+      } else {
+        return false
+      }
+    }
   }),
   beforeMount: function () {
     const rawAppContext = JSON.parse(

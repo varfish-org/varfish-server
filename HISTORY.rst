@@ -17,6 +17,7 @@ End-User Summary
 - Warning in the case of truncated displayed results (#641).
 - Improving Clinvar record aggregation (#640).
 - Fixing ClinVar submission XML generation (#677).
+- Fixing ClinVar export editor timing issues (#667, #668).
 
 Full Change List
 ================
@@ -31,6 +32,7 @@ Full Change List
 - Fixing Docker builds (#660).
 - Fixing ClinVar submission XML generation (#677).
 - Adding regular task to sync ClinVar submission ``Individual`` sex from the one from the ``Case``.
+- Fixing ClinVar export editor timing issues (#667, #668).
 
 -----------------
 v1.2.2 (anthenea)
