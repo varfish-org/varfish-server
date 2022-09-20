@@ -195,18 +195,6 @@ class SubmissionXmlGenerator:
             return self.em("Invalid-Citation", citation)
 
     def build_phenotype_trait_set(self, submission_individual):
-        def build_xref(term_id):
-            if term_id.startswith("HP:"):
-                self.em("XRef", **{"db": "HP", "id": term_id,}),
-            elif term_id.startswith("OMIM:") or term_id.startswith("MIM:"):
-                self.em("XRef", **{"db": "OMIM", "id": ("MIM:%s" % term_id.split(":", 1)[1]),}),
-            elif term_id.startswith("ORPHA:"):
-                self.em(
-                    "XRef", **{"db": "Orphanet", "id": ("ORPHA:%s" % term_id.split(":", 1)[1]),}
-                ),
-            else:
-                return self.em("Invalid-XRef", term_id)
-
         if not submission_individual.phenotypes:
             return []
         else:
@@ -218,10 +206,8 @@ class SubmissionXmlGenerator:
                         self.em(
                             "Trait",
                             self.em("TraitType", "Finding", **{"val_type": "name"}),
-                            self.em(
-                                "Name",
-                                self.em("ElementValueType", "Preferred", **{"val_type": "name"}),
-                                self.em("ElementValue", phenotype["term_name"]),
+                            ET.Comment(
+                                " %s - %s " % (phenotype["term_id"], phenotype["term_name"],)
                             ),
                             self.em("XRef", **{"db": "HP", "id": phenotype["term_id"],},),
                             **{"ClinicalFeaturesAffectedStatus": "present",},

@@ -20,6 +20,7 @@ End-User Summary
 - Fixing ClinVar export editor timing issues (#667, #668).
 - Fixing hemizygous count display in fold-outs (#646).
 - Fixing clinvar submission sex/gender update (#686).
+- Fixing issue with phenotype name in Clinvar (#689).
 
 Full Change List
 ================
@@ -37,6 +38,7 @@ Full Change List
 - Fixing ClinVar export editor timing issues (#667, #668).
 - Fixing hemizygous count display in fold-outs (#646).
 - Fixing clinvar submission sex/gender update (#686).
+- Fixing issue with phenotype name in Clinvar (#689).
 
 -----------------
 v1.2.2 (anthenea)
