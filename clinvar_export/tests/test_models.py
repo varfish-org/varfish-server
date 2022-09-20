@@ -2,10 +2,7 @@
 
 from test_plus.test import TestCase
 
-from variants.models import Case
-from variants.tests.factories import CaseFactory
-
-from ..models import (
+from clinvar_export.models import (
     AssertionMethod,
     Family,
     Individual,
@@ -14,8 +11,9 @@ from ..models import (
     SubmissionSet,
     Submitter,
     SubmittingOrg,
+    refresh_individual_sex_affected,
 )
-from .factories import (
+from clinvar_export.tests.factories import (
     AssertionMethodFactory,
     FamilyFactory,
     IndividualFactory,
@@ -25,6 +23,8 @@ from .factories import (
     SubmitterFactory,
     SubmittingOrgFactory,
 )
+from variants.models import Case
+from variants.tests.factories import CaseFactory
 
 
 class TestFamily(TestCase):
@@ -169,3 +169,19 @@ class TestSubmission(TestCase):
         self.assertEquals(Submission.objects.count(), 0)
         SubmissionFactory()
         self.assertEquals(Submission.objects.count(), 1)
+
+
+class TestUpdateIndividualSexAffectedTask(TestCase):
+    """Test the task that updates the sex/affected of ``Individual`` records from upstream case."""
+
+    def testRun(self):
+        individual = IndividualFactory(sex="male", affected="yes")
+        individual.sex = "unknown"
+        individual.affected = "unknown"
+        individual.save()
+        self.assertEquals(individual.sex, "unknown")
+        self.assertEquals(individual.sex, "unknown")
+        refresh_individual_sex_affected()
+        individual.refresh_from_db()
+        self.assertEquals(individual.sex, "male")
+        self.assertEquals(individual.affected, "yes")

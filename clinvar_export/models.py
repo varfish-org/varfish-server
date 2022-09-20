@@ -17,6 +17,20 @@ from variants.models import Case, CaseAwareProject
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
+#: Map pedigree value for "sex" to value for models.
+SEX_MAP = {
+    0: "unknown",
+    1: "male",
+    2: "female",
+}
+
+#: Map pedigree value for "affected" to value for models.
+AFFECTED_MAP = {
+    0: "unknown",
+    1: "no",
+    2: "yes",
+}
+
 
 class FamilyManager(models.Manager):
     """Custom ``Manager`` that allows to easily get or create a ``Family`` from a project with a given name."""
@@ -123,16 +137,6 @@ class Individual(models.Model):
 
 def create_families_and_individuals(project: Project) -> None:
     """Create missing families and individuals for the given ``project``."""
-    sex_map = {
-        0: "unknown",
-        1: "male",
-        2: "female",
-    }
-    affected_map = {
-        0: "unknown",
-        1: "no",
-        2: "yes",
-    }
     with transaction.atomic():
         for case in Case.objects.filter(project=project):
             family = Family.objects.get_or_create_in_project(project, case=case)
@@ -141,8 +145,8 @@ def create_families_and_individuals(project: Project) -> None:
                     project,
                     entry["patient"],
                     family=family,
-                    sex=sex_map.get(entry.get("sex", 0), "unknown"),
-                    affected=affected_map.get(entry.get("affected", 0), "unknown"),
+                    sex=SEX_MAP.get(entry.get("sex", 0), "unknown"),
+                    affected=AFFECTED_MAP.get(entry.get("affected", 0), "unknown"),
                 )
 
 
@@ -391,3 +395,17 @@ class Submission(models.Model):
 
     class Meta:
         ordering = ("sort_order",)
+
+
+def refresh_individual_sex_affected():
+    """Update the ``Individual.sex`` field from the upstream case.
+
+    This is done regularly in a related task.
+    """
+    for family in Family.objects.select_related("case").prefetch_related("individual_set").all():
+        ped_entries = {entry["patient"]: entry for entry in family.case.pedigree}
+        for individual in family.individual_set.all():
+            related_ped_entry = ped_entries[individual.name]
+            individual.sex = SEX_MAP.get(related_ped_entry["sex"], "unknown")
+            individual.affected = AFFECTED_MAP.get(related_ped_entry["affected"], "unknown")
+            individual.save()
