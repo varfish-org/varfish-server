@@ -127,6 +127,7 @@ Full Change List
 - Fixing issue with phenotype name in Clinvar (#689).
 - Initial vue.js implementation for small variant filtration (#563).
 - Changing ClinVar link-out to VCV entry instead of coordinates (#693).
+- Adding unit test for clinvar Vue app (#692).
 
 ------
 v1.2.0

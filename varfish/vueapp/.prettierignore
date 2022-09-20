@@ -1,0 +1,4 @@
+/dist/
+/coverage/
+/webpack-stats.json
+.nyc_output

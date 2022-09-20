@@ -62,7 +62,7 @@ RUN ["/bin/bash","-c", "cd /tmp && \
         rm -f Miniconda3-latest-Linux-x86_64.sh"]
 
 # Install modern nodejs
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt install nodejs
 
 # Install npm dependencies.

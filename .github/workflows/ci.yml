@@ -82,6 +82,12 @@ jobs:
           coverage report
       - name: check formatting
         run: make black arg=--check
+      - name: Codecov
+        run: |
+          curl -s https://uploader.codecov.io/latest/linux/codecov > /tmp/codecov
+          chmod +x /tmp/codecov
+          /tmp/codecov -cF python
+          /tmp/codecov -cF javascript
       - name: Coveralls
         uses: AndreMiras/coveralls-python-action@develop
         with:
@@ -97,6 +103,12 @@ jobs:
         if: ${{ matrix.python-version == '3.8' }}
       - name: Run linting
         run: flake8
+        if: ${{ matrix.python-version == '3.8' }}
+      - name: Run Vue app tests
+        run: make test_clinvar_export_vue
+        if: ${{ matrix.python-version == '3.8' }}
+      - name: Lint Vue app
+        run: make lint_clinvar_export_vue
         if: ${{ matrix.python-version == '3.8' }}
 
   coveralls_finish:
