@@ -341,7 +341,6 @@ export default {
         clinvarExport
           .getUserAnnotations(this.appContext, this.familyUuid)
           .then((res) => {
-            this.loadingVariants = false
             this.fetchError = false
 
             const getVariantId = (obj) => {
@@ -404,6 +403,7 @@ export default {
               }
             )
             Vue.set(this, 'rawModalUserAnnotationsCount', Object.keys(smallVariants).length)
+            this.loadingVariants = false
           })
           .catch((error) => {
             this.loadingVariants = false
