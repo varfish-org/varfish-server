@@ -12,22 +12,28 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
+import { AppState } from '@/store/modules/clinvarExport'
+
 import SubmissionSetList from './SubmissionSetList'
 import SubmissionSetWizard from './SubmissionSetWizard'
-import { mapState } from 'vuex'
 
 export default {
   components: { SubmissionSetWizard, SubmissionSetList },
   computed: mapState({
-    appState: state => state.clinvarExport.appState,
-    notification: state => state.clinvarExport.notification,
-    showOverlay (state) {
-      if (state.clinvarExport.appState === 'initializing' || state.clinvarExport.serverInteraction) {
+    appState: (state) => state.clinvarExport.appState,
+    notification: (state) => state.clinvarExport.notification,
+    showOverlay(state) {
+      if (
+        state.clinvarExport.appState === AppState.initializing ||
+        state.clinvarExport.serverInteraction
+      ) {
         return true
       } else {
         return false
       }
-    }
+    },
   }),
   beforeMount: function () {
     const rawAppContext = JSON.parse(
@@ -38,12 +44,11 @@ export default {
     this.$store.dispatch('clinvarExport/initialize', {
       appContext: {
         baseUrl: rawAppContext.base_url,
-        csrfToken: rawAppContext.csrf_token
-      }
+        csrfToken: rawAppContext.csrf_token,
+      },
     })
-  }
+  },
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
