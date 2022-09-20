@@ -223,7 +223,8 @@ class SubmissionXmlGenerator:
                                 self.em("ElementValueType", "Preferred", **{"val_type": "name"}),
                                 self.em("ElementValue", phenotype["term_name"]),
                             ),
-                            self.em("XRef", **{"db": "HP", "id": phenotype["term_id"],}),
+                            self.em("XRef", **{"db": "HP", "id": phenotype["term_id"],},),
+                            **{"ClinicalFeaturesAffectedStatus": "present",},
                         )
                         for phenotype in submission_individual.phenotypes
                     ],
