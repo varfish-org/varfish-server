@@ -1,0 +1,14 @@
+{
+  "sodar_uuid": "99999999-9999-9999-9999-999999999999",
+  "date_created": "2020-11-09 13:37",
+  "date_modified": "2020-11-09 13:37",
+  "sort_order": 0,
+  "individual": "88888888-8888-8888-8888-888888888888",
+  "submission": "66666666-6666-6666-6666-666666666666",
+  "phenotypes": [{ "term_id": "HP:1234567", "term_name": "Something" }],
+  "source": "clinical testing",
+  "tissue": "blood",
+  "citations": ["PMID:12345"],
+  "variant_origin": "not-reported",
+  "variant_zygosity": "Homozygote"
+}

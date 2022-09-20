@@ -63,6 +63,15 @@ test: collectstatic
 test-noselenium:
 	VARFISH_KIOSK_MODE=0 SKIP_SELENIUM=1 coverage run manage.py test -v2 --settings=config.settings.test
 
+
+.PHONY: test_clinvar_export_vue
+test_clinvar_export_vue:
+	npm run --prefix varfish/vueapp test:unit $(arg)
+
+.PHONY: lint_clinvar_export_vue
+lint_clinvar_export_vue:
+	npm run --prefix varfish/vueapp lint $(arg)
+
 .PHONY: lint
 lint: flake8
 
