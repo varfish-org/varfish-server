@@ -96,9 +96,11 @@
       {% for name, db in pop_freqs.items %}
         <tr>
           {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
-          <th rowspan="6">{{ name }}</th>
+            <th rowspan="{% if small_var.chromosome == "X" or small_var.chromosome == "chrX" %}8{% else %}6{% endif %}">{{ name }}</th>
+          {% elif name == "ExAC" %}
+            <th rowspan="{% if small_var.chromosome == "X" or small_var.chromosome == "chrX" %}4{% else %}3{% endif %}">{{ name }}</th>
           {% else %}
-          <th rowspan="3">{{ name }}</th>
+            <th rowspan="3">{{ name }}</th>
           {% endif %}
           <th class="text-center">Freq</th>
           {% for pop in populations %}
@@ -153,10 +155,32 @@
           {% endfor %}
         </tr>
         {% endif %}
+        {% if name != "1000GP" %}
+          {% if small_var.chromosome == "X" or small_var.chromosome == "chrX" %}
+            <tr>
+              <th class="text-center">Hemi</th>
+              {% for pop in populations %}
+                {% if db|keyvalue:pop|keyvalue:"het" %}
+                  <td class="text-right">{{ db|keyvalue:pop|keyvalue:"hemi"|default:0|intcomma }}</td>
+                {% else %}
+                  <td class="text-right text-muted">0</td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+            {% if name == "gnomAD Exomes" or name == "gnomAD Genomes" %}
+            <tr class="text-muted">
+              <th class="text-center small"><i class="iconify" data-icon="mdi:arrow-up-circle"></i> Ctrl</th>
+              {% for pop in populations %}
+                <td class="text-right">{{ db|keyvalue:pop|keyvalue:"controls_hemi"|default:0|intcomma }}</td>
+              {% endfor %}
+            </tr>
+            {% endif %}
+          {% endif %}
+        {% endif %}
       {% endfor %}
       {% if not kiosk_mode %}
       <tr>
-        <th rowspan="3">Inhouse</th>
+        <th rowspan="{% if small_var.chromosome == "X" or small_var.chromosome == "chrX" %}4{% else %}3{% endif %}">Inhouse</th>
         <th class="text-center">Carriers</th>
         {% if inhouse_freq.carriers %}
           <td colspan="9" class="text-right">{{ inhouse_freq.carriers|default:0|intcomma }}</td>
@@ -180,6 +204,16 @@
           <td colspan="9" class="text-right text-muted">0</td>
         {% endif %}
       </tr>
+      {% if small_var.chromosome == "X" or small_var.chromosome == "chrX" %}
+        <tr>
+          <th class="text-center">Hemi</th>
+          {% if inhouse_freq.het %}
+            <td colspan="9" class="text-right">{{ inhouse_freq.hemi|default:0|intcomma }}</td>
+          {% else %}
+            <td colspan="9" class="text-right text-muted">0</td>
+          {% endif %}
+        </tr>
+      {% endif %}
       {% else %}
       <tr>
         <th>Inhouse</th>

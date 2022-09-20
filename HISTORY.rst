@@ -18,6 +18,7 @@ End-User Summary
 - Improving Clinvar record aggregation (#640).
 - Fixing ClinVar submission XML generation (#677).
 - Fixing ClinVar export editor timing issues (#667, #668).
+- Fixing hemizygous count display in fold-outs (#646).
 
 Full Change List
 ================
@@ -33,6 +34,7 @@ Full Change List
 - Fixing ClinVar submission XML generation (#677).
 - Adding regular task to sync ClinVar submission ``Individual`` sex from the one from the ``Case``.
 - Fixing ClinVar export editor timing issues (#667, #668).
+- Fixing hemizygous count display in fold-outs (#646).
 
 -----------------
 v1.2.2 (anthenea)
@@ -106,6 +108,34 @@ Full Change List
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
 - Adding feature to enable and configure link-out to HGMD (#576).
+- Small variant filtration results now allow to easily look up second hits in the same gene (#573).
+- Structural filtration results now allow to easily look up second hits in the same gene (#574).
+- Bugfix broken SV filter (#587).
+- Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
+- Form template reports error if genomebuild variable is not set (#607).
+- Making ``keyvalue`` more robust to failure (#613).
+- Implement new in-house background database for structural variants (#32).
+- Allow to exclude cases from in-house database through project settings (#579).
+- Adding distinct de novo genotype setting (#562).
+- Adding section presets for SV filtration (#616).
+- Adjusting SV filtration presets (#616).
+- Fix bug with thousand genomes frequencies in SV filtration (#619).
+- Displaying disease gene icon also for SVs (#620).
+- Fix bug with gene constraint display for intergenic variants (#620).
+- Fix import bug in import_tables.py (#625).
+- De novo quick preset now uses strict quality (#624).
+- Create single result row even if multiple clinvar entries (#565).
+- Fixing clinvar filter (#296).
+  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
+- Improving Clinvar filter performance (#635).
+  Database indices were missing, assumedly because of a Django ``makemigrations`` bug.
+- Warning in the case of truncated displayed results (#641).
+- Improving Clinvar record aggregation (#640).
+- Fixing Docker builds (#660).
+- Fixing ClinVar submission XML generation (#677).
+- Adding regular task to sync ClinVar submission ``Individual`` sex from the one from the ``Case``.
+- Fixing ClinVar export editor timing issues (#667, #668).
+- Fixing hemizygous count display in fold-outs (#646).
 
 ------
 v1.2.0
