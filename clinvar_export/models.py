@@ -4,6 +4,7 @@ The design is such that the individuals and families (aka cases) in ``clinvar_ex
 records in ``variants``.
 """
 
+import logging
 import uuid as uuid_object
 
 from django.contrib.postgres.fields import ArrayField
@@ -13,6 +14,8 @@ from projectroles.models import Project
 
 from varfish.utils import JSONField
 from variants.models import CaseAwareProject, Case
+
+logger = logging.getLogger(__name__)
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
@@ -400,9 +403,13 @@ def refresh_individual_sex_affected():
     This is done regularly in a related task.
     """
     for family in Family.objects.select_related("case").prefetch_related("individual_set").all():
-        ped_entries = {entry["patient"]: entry for entry in family.case.pedigree}
-        for individual in family.individual_set.all():
-            related_ped_entry = ped_entries[individual.name]
-            individual.sex = SEX_MAP.get(related_ped_entry["sex"], "unknown")
-            individual.affected = AFFECTED_MAP.get(related_ped_entry["affected"], "unknown")
-            individual.save()
+        if family.case:
+            ped_entries = {entry["patient"]: entry for entry in family.case.pedigree}
+            for individual in family.individual_set.all():
+                if individual.name not in ped_entries:
+                    logger.info(f"{individual.name} not in pedigree for case {family.case}")
+                else:
+                    related_ped_entry = ped_entries[individual.name]
+                    individual.sex = SEX_MAP.get(related_ped_entry["sex"], "unknown")
+                    individual.affected = AFFECTED_MAP.get(related_ped_entry["affected"], "unknown")
+                    individual.save()

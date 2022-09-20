@@ -19,6 +19,7 @@ End-User Summary
 - Fixing ClinVar submission XML generation (#677).
 - Fixing ClinVar export editor timing issues (#667, #668).
 - Fixing hemizygous count display in fold-outs (#646).
+- Fixing clinvar submission sex/gender update (#686).
 
 Full Change List
 ================
@@ -35,6 +36,7 @@ Full Change List
 - Adding regular task to sync ClinVar submission ``Individual`` sex from the one from the ``Case``.
 - Fixing ClinVar export editor timing issues (#667, #668).
 - Fixing hemizygous count display in fold-outs (#646).
+- Fixing clinvar submission sex/gender update (#686).
 
 -----------------
 v1.2.2 (anthenea)
