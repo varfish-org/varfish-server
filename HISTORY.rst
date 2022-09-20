@@ -16,6 +16,7 @@ End-User Summary
   **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
 - Warning in the case of truncated displayed results (#641).
 - Improving Clinvar record aggregation (#640).
+- Fixing ClinVar submission XML generation (#677).
 
 Full Change List
 ================
@@ -28,6 +29,7 @@ Full Change List
   **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
 - Improving Clinvar record aggregation (#640).
 - Fixing Docker builds (#660).
+- Fixing ClinVar submission XML generation (#677).
 
 -----------------
 v1.2.2 (anthenea)

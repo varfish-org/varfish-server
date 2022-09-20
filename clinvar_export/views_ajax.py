@@ -258,10 +258,20 @@ class SubmissionSetValidateClinvarXml(
                 "valid": True,
             }
         else:
-            result = {
-                "valid": False,
-                "details": "\n".join(e.message for e in schema.error_log),
-            }
+            ignored_message = (
+                "Element 'Trait', attribute 'ClinicalFeaturesAffectedStatus': The attribute "
+                "'ClinicalFeaturesAffectedStatus' is not allowed."
+            )
+            filtered_es = [e for e in schema.error_log if e.message != ignored_message]
+            if filtered_es:
+                result = {
+                    "valid": False,
+                    "details": "\n".join(e.message for e in filtered_es),
+                }
+            else:
+                result = {
+                    "valid": True,
+                }
         return JsonResponse(result)
 
     def _get_schema(self, root):
