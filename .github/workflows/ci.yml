@@ -50,6 +50,11 @@ jobs:
       POSTGRES_HOST: 0.0.0.0
       POSTGRES_PORT: 5432
     steps:
+      - name: install codecov
+        run: |
+          curl -s https://uploader.codecov.io/latest/linux/codecov > /tmp/codecov
+          chmod a+x /tmp/codecov
+        if: ${{ matrix.python-version == '3.8' }}
       - name: install server dependencies
         run: |
           sudo apt-get update
@@ -67,10 +72,17 @@ jobs:
           pip install -r requirements/local.txt
           pip install -r requirements/test.txt
           pip freeze
-      - name: Build and run Vue app
+      - name: build Vue app and run tests
         run: |
           npm ci --prefix varfish/vueapp
-          nohup npm run -prefix varfish/vueapp serve &
+          npm run --prefix varfish/vueapp test:unit
+      - name: startup Vue app for tests
+        run: |
+          nohup npm run --prefix varfish/vueapp serve &
+      - name: codecov for JavaScript
+        run: |
+          /tmp/codecov -cF javascript
+        if: ${{ matrix.python-version == '3.8' }}
       - name: download icons
         run: python manage.py geticons
       - name: run collectstatic
@@ -80,6 +92,11 @@ jobs:
           coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
           coverage xml
           coverage report
+      - name: codecov for Python
+        run: |
+          /tmp/codecov -cF python
+          /tmp/codecov -cF javascript
+        if: ${{ matrix.python-version == '3.8' }}
       - name: check formatting
         run: make black arg=--check
       - name: Coveralls
