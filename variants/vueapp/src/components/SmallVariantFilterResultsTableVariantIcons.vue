@@ -46,16 +46,7 @@
     <a
       v-if="params.data.in_clinvar && params.data.summary_pathogenicity_label"
       target="_blank"
-      :href="
-        'https://www.ncbi.nlm.nih.gov/clinvar/?term=' +
-        params.data.release +
-        '%3A' +
-        params.data.chromosome +
-        '%3A' +
-        params.data.start +
-        '-' +
-        params.data.end
-      "
+      :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' + params.data.vcv"
     >
       <i
         title="ClinVar"
