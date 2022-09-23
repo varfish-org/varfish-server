@@ -8,13 +8,7 @@
         <a
           :href="
             'https://www.ncbi.nlm.nih.gov/clinvar/?term=' +
-            detailsStore.smallVariant.release +
-            '%3A' +
-            detailsStore.smallVariant.chromosome +
-            '%3A' +
-            detailsStore.smallVariant.start +
-            '-' +
-            detailsStore.smallVariant.end
+            detailsStore.smallVariant.vcv
           "
           target="_blank"
           >See all records in NCBI ClinVar.</a

@@ -63,6 +63,7 @@ End-User Summary
 - Fixing clinvar submission sex/gender update (#686).
 - Fixing issue with phenotype name in Clinvar (#689).
 - Initial vue.js implementation for small variant filtration (#563).
+- Changing ClinVar link-out to VCV entry instead of coordinates (#693).
 
 Full Change List
 ================
@@ -125,6 +126,7 @@ Full Change List
 - Fixing clinvar submission sex/gender update (#686).
 - Fixing issue with phenotype name in Clinvar (#689).
 - Initial vue.js implementation for small variant filtration (#563).
+- Changing ClinVar link-out to VCV entry instead of coordinates (#693).
 
 ------
 v1.2.0

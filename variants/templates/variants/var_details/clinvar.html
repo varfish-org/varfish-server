@@ -6,7 +6,7 @@
     <h4 class="card-title">ClinVar for Variant</h4>
     <small>
       The local ClinVar copy has {{ clinvar|length }} record(s) for this variant.
-      <a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ small_var.release }}%3A{{ small_var.chromosome }}%3A{{ small_var.start }}-{{ small_var.end }}" target="_blank">See all records in NCBI ClinVar.</a>
+      <a href="https://www.ncbi.nlm.nih.gov/clinvar/?term={{ clinvar.0.vcv }}" target="_blank">See all records in NCBI ClinVar.</a>
     </small>
   </div>
   <div class="text-muted small p-2">
