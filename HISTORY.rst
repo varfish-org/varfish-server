@@ -88,6 +88,7 @@ End-User Summary
 - Fixed smallvariant flags filter query (#502).
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Adding feature to enable and configure link-out to HGMD (#576).
+- Changing ClinVar link-out to VCV entry instead of coordinates (#693).
 
 Full Change List
 ================
@@ -140,6 +141,7 @@ Full Change List
 - Adding regular task to sync ClinVar submission ``Individual`` sex from the one from the ``Case``.
 - Fixing ClinVar export editor timing issues (#667, #668).
 - Fixing hemizygous count display in fold-outs (#646).
+- Changing ClinVar link-out to VCV entry instead of coordinates (#693).
 
 ------
 v1.2.0
