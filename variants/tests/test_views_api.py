@@ -1,10 +1,12 @@
 import copy
 
+from bgjobs.models import JOB_STATE_DONE
 from django.urls import reverse
 from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 
 from ..models import FilterBgJob, SmallVariantQuery
 from ..query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
+from ..serializers import JobStatus
 from ..views_api import JobStatus
 from .factories import CaseWithVariantSetFactory, FilterBgJobFactory, SmallVariantQueryFactory
 from .helpers import VARFISH_INVALID_MIMETYPE, VARFISH_INVALID_VERSION, ApiViewTestBase
@@ -390,7 +392,7 @@ class TestSmallVariantQueryRetrieveApiView(TestSmallVariantQueryBase):
 class TestSmallVariantQueryStatusApiView(TestSmallVariantQueryBase):
     def test_get(self):
         filter_job = FilterBgJobFactory(
-            case=self.case, user=self.guest_as.user, bg_job__status=JobStatus.DONE
+            case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
         )
         query = filter_job.smallvariantquery
 
@@ -401,13 +403,13 @@ class TestSmallVariantQueryStatusApiView(TestSmallVariantQueryBase):
         response = self.request_knox(url)
 
         self.assertEqual(response.status_code, 200)
-        expected = {"status": JobStatus.DONE}
+        expected = {"status": JOB_STATE_DONE, "logs": []}
         actual = dict(response.data)
         self.assertEqual(actual, expected)
 
     def test_get_access_allowed(self):
         filter_job = FilterBgJobFactory(
-            case=self.case, user=self.guest_as.user, bg_job__status=JobStatus.DONE
+            case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
         )
         query = filter_job.smallvariantquery
 
@@ -426,7 +428,7 @@ class TestSmallVariantQueryStatusApiView(TestSmallVariantQueryBase):
 
     def test_get_access_forbidden(self):
         filter_job = FilterBgJobFactory(
-            case=self.case, user=self.guest_as.user, bg_job__status=JobStatus.DONE
+            case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
         )
         query = filter_job.smallvariantquery
 

@@ -62,6 +62,7 @@ End-User Summary
 - Fixing hemizygous count display in fold-outs (#646).
 - Fixing clinvar submission sex/gender update (#686).
 - Fixing issue with phenotype name in Clinvar (#689).
+- Initial vue.js implementation for small variant filtration (#563).
 
 Full Change List
 ================
@@ -123,6 +124,7 @@ Full Change List
 - Fixing hemizygous count display in fold-outs (#646).
 - Fixing clinvar submission sex/gender update (#686).
 - Fixing issue with phenotype name in Clinvar (#689).
+- Initial vue.js implementation for small variant filtration (#563).
 
 ------
 v1.2.0

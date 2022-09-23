@@ -1,0 +1,15 @@
+{% extends 'projectroles/project_base.html' %}
+
+{% load vite %}
+
+{% block title %}
+  Filter Variants: {{ case.name }}
+{% endblock title %}
+
+{% block projectroles_extend %}
+  <div id="sodar-ss-app-context" app-context="{{ app_context }}"></div>
+  <div id="app"></div>
+
+  {% vite_scripts 'src/main.js' %}
+{% endblock %}
+

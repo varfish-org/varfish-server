@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from . import views, views_api
+from . import views, views_ajax, views_api
 
 app_name = "variants"
 ui_urlpatterns = [
@@ -401,6 +401,119 @@ ui_urlpatterns = [
         view=views.RefreshSmallVariantSummaryJobDetailView.as_view(),
         name="refresh-small-variant-summaries-job-detail",
     ),
+    url(
+        regex=r"^vue3app/(?P<case>[0-9a-f-]+)/$",
+        view=views.SmallVariantFilterForm.as_view(),
+        name="entrypoint",
+    ),
+]
+
+# Ajax API views
+ajax_urlpatterns = [
+    url(
+        regex=r"^ajax/case/retrieve/(?P<case>[0-9a-f-]+)/$",
+        view=views_ajax.CaseRetrieveAjaxView.as_view(),
+        name="ajax-case-retrieve",
+    ),
+    url(
+        regex=r"^ajax/query-case/list/(?P<case>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantQueryListAjaxView.as_view(),
+        name="ajax-query-case-list",
+    ),
+    url(
+        regex=r"^ajax/query-case/create/(?P<case>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantQueryCreateAjaxView.as_view(),
+        name="ajax-query-case-create",
+    ),
+    url(
+        regex=r"^ajax/query-case/retrieve/(?P<smallvariantquery>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantQueryRetrieveAjaxView.as_view(),
+        name="ajax-query-case-retrieve",
+    ),
+    url(
+        regex=r"^ajax/query-case/status/(?P<smallvariantquery>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantQueryStatusAjaxView.as_view(),
+        name="ajax-query-case-status",
+    ),
+    url(
+        r"^ajax/query-case/update/(?P<smallvariantquery>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantQueryUpdateAjaxView.as_view(),
+        name="ajax-query-case-update",
+    ),
+    url(
+        r"^ajax/query-case/results/(?P<smallvariantquery>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantQueryFetchResultsAjaxView.as_view(),
+        name="ajax-query-case-fetch-results",
+    ),
+    url(
+        r"^ajax/query-case/results-extended/(?P<smallvariantquery>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantQueryFetchExtendedResultsAjaxView.as_view(),
+        name="ajax-query-case-fetch-extended-results",
+    ),
+    url(
+        r"^ajax/query-case/query-settings-shortcut/(?P<case>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantQuerySettingsShortcutAjaxView.as_view(),
+        name="ajax-query-settings-shortcut",
+    ),
+    url(
+        r"^ajax/query-case/hpo-terms/(?P<smallvariantquery>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantQueryHpoTermsAjaxView.as_view(),
+        name="ajax-query-case-hpo-terms",
+    ),
+    url(
+        regex=(
+            r"^ajax/small-variant-details/(?P<case>[0-9a-f-]+)/"
+            r"(?P<release>(GRCh37|GRCh38))-(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT?))-(?P<start>[0-9]+)-(?P<end>[0-9]+)-"
+            r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/(?P<database>[^/]+)/(?P<gene_id>[^/]+)/$"
+        ),
+        view=views_ajax.SmallVariantDetailsApiView.as_view(),
+        name="ajax-small-variant-details",
+    ),
+    url(
+        r"^ajax/small-variant-comment/create/(?P<case>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantCommentCreateAjaxView.as_view(),
+        name="ajax-small-variant-comment-create",
+    ),
+    url(
+        r"^ajax/small-variant-comment/update/(?P<smallvariantcomment>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantCommentUpdateAjaxView.as_view(),
+        name="ajax-small-variant-comment-update",
+    ),
+    url(
+        r"^ajax/small-variant-comment/delete/(?P<smallvariantcomment>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantCommentDeleteAjaxView.as_view(),
+        name="ajax-small-variant-comment-delete",
+    ),
+    url(
+        r"^ajax/small-variant-flags/create/(?P<case>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantFlagsCreateAjaxView.as_view(),
+        name="ajax-small-variant-flags-create",
+    ),
+    url(
+        r"^ajax/small-variant-flags/update/(?P<smallvariantflags>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantFlagsUpdateAjaxView.as_view(),
+        name="ajax-small-variant-flags-update",
+    ),
+    url(
+        r"^ajax/small-variant-flags/delete/(?P<smallvariantflags>[0-9a-f-]+)/$",
+        view=views_ajax.SmallVariantFlagsDeleteAjaxView.as_view(),
+        name="ajax-small-variant-flags-delete",
+    ),
+    url(
+        r"^ajax/acmg-criteria-rating/create/(?P<case>[0-9a-f-]+)/$",
+        view=views_ajax.AcmgCriteriaRatingCreateAjaxView.as_view(),
+        name="ajax-acmg-criteria-rating-create",
+    ),
+    url(
+        r"^ajax/acmg-criteria-rating/update/(?P<acmgcriteriarating>[0-9a-f-]+)/$",
+        view=views_ajax.AcmgCriteriaRatingUpdateAjaxView.as_view(),
+        name="ajax-acmg-criteria-rating-update",
+    ),
+    url(
+        r"^ajax/acmg-criteria-rating/delete/(?P<acmgcriteriarating>[0-9a-f-]+)/$",
+        view=views_ajax.AcmgCriteriaRatingDeleteAjaxView.as_view(),
+        name="ajax-acmg-criteria-rating-delete",
+    ),
 ]
 
 api_urlpatterns = [
@@ -449,6 +562,66 @@ api_urlpatterns = [
         view=views_api.SmallVariantQuerySettingsShortcutApiView.as_view(),
         name="api-query-settings-shortcut",
     ),
+    url(
+        regex=r"^api/query-case/hpo-terms/(?P<smallvariantquery>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantQueryHpoTermsApiView.as_view(),
+        name="api-query-case-hpo-terms",
+    ),
+    url(
+        regex=(
+            r"^api/small-variant-details/(?P<case>[0-9a-f-]+)/"
+            r"(?P<release>(GRCh37|GRCh38))-(?P<chromosome>(chr)?([0-9]{1,2}|[XY]|MT?))-(?P<start>[0-9]+)-(?P<end>[0-9]+)-"
+            r"(?P<reference>[ACGT]+)-(?P<alternative>[ACGT]+)/(?P<database>[^/]+)/(?P<gene_id>[^/]+)/$"
+        ),
+        view=views_api.SmallVariantDetailsApiView.as_view(),
+        name="api-small-variant-details",
+    ),
+    url(
+        r"^api/small-variant-comment/create/(?P<case>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantCommentCreateApiView.as_view(),
+        name="api-small-variant-comment-create",
+    ),
+    url(
+        r"^api/small-variant-comment/update/(?P<smallvariantcomment>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantCommentUpdateApiView.as_view(),
+        name="api-small-variant-comment-update",
+    ),
+    url(
+        r"^api/small-variant-comment/delete/(?P<smallvariantcomment>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantCommentDeleteApiView.as_view(),
+        name="api-small-variant-comment-delete",
+    ),
+    url(
+        r"^api/small-variant-flags/create/(?P<case>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantFlagsCreateApiView.as_view(),
+        name="api-small-variant-flags-create",
+    ),
+    url(
+        r"^api/small-variant-flags/update/(?P<smallvariantflags>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantFlagsUpdateApiView.as_view(),
+        name="api-small-variant-flags-update",
+    ),
+    url(
+        r"^api/small-variant-flags/delete/(?P<smallvariantflags>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantFlagsDeleteApiView.as_view(),
+        name="api-small-variant-flags-delete",
+    ),
+    url(
+        r"^api/acmg-criteria-rating/create/(?P<case>[0-9a-f-]+)/$",
+        view=views_api.AcmgCriteriaRatingCreateApiView.as_view(),
+        name="api-acmg-criteria-rating-create",
+    ),
+    url(
+        r"^api/acmg-criteria-rating/update/(?P<acmgcriteriarating>[0-9a-f-]+)/$",
+        view=views_api.AcmgCriteriaRatingUpdateApiView.as_view(),
+        name="api-acmg-criteria-rating-update",
+    ),
+    url(
+        r"^api/acmg-criteria-rating/delete/(?P<acmgcriteriarating>[0-9a-f-]+)/$",
+        view=views_api.AcmgCriteriaRatingDeleteApiView.as_view(),
+        name="api-acmg-criteria-rating-delete",
+    ),
 ]
 
-urlpatterns = ui_urlpatterns + api_urlpatterns
+
+urlpatterns = ui_urlpatterns + ajax_urlpatterns + api_urlpatterns

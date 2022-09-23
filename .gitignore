@@ -354,8 +354,10 @@ mailhog
 
 varfish/media/
 
-src/
+/src/
 
 celerybeat-schedule
 
 staticfiles.bak/
+
+varfish/vueapp/webpack-stats.json
