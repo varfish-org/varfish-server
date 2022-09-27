@@ -645,9 +645,9 @@ export function extractVariantZygosity(smallVariant, individualUuids, state) {
 
   // See whether any individual is annotated as recessive.
   let anyRecessive = false
-  let variantAlleleCount = null
-  let variantZygosity = null
-  if (smallVariant !== null) {
+  let variantAlleleCount = 0
+  let variantZygosity = 'not provided'
+  if (smallVariant) {
     let individual = null
     for (const individualUuid of individualUuids) {
       const currIndividual = state.individuals[individualUuid]

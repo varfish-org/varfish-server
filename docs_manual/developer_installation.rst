@@ -108,11 +108,11 @@ Use the tool provided in ``utility/`` to set up vue.js.
     $ sudo bash utility/install_vue_dev.sh
 
 Open an additional terminal and switch into the vue directory. Then install
-the VarFish vue app.
+the Clinvar Exprot vue app.
 
 .. code-block:: bash
 
-    $ cd varfish/vueapp
+    $ cd clinvar_export/vueapp
     $ npm install
 
 When finished, keep this terminal open to run the vue app.
