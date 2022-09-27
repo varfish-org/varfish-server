@@ -211,7 +211,7 @@ describe('api', () => {
       `${appContext.baseUrl}/${entityNoUnder}/`,
       expectedJsonDeleteArgs,
     ])
-    expect(res).toEqual({ fake: 'result' })
+    expect(res).toBeUndefined()
   })
 
   test('getUserAnnotations', async () => {
