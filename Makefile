@@ -7,7 +7,7 @@ black:
 
 .PHONY: npm-install
 npm-install:
-	cd varfish/vueapp && npm ci
+	cd clinvar_export/vueapp && npm ci
 
 .PHONY: serve
 serve:
@@ -15,7 +15,7 @@ serve:
 
 .PHONY: serve_vue
 serve_vue:
-	npm run --prefix varfish/vueapp serve
+	npm run --prefix clinvar_export/vueapp serve
 
 .PHONY: serve_public
 serve_public:
@@ -66,11 +66,11 @@ test-noselenium:
 
 .PHONY: test_clinvar_export_vue
 test_clinvar_export_vue:
-	npm run --prefix varfish/vueapp test:unit $(arg)
+	npm run --prefix clinvar_export/vueapp test:unit $(arg)
 
 .PHONY: lint_clinvar_export_vue
 lint_clinvar_export_vue:
-	npm run --prefix varfish/vueapp lint $(arg)
+	npm run --prefix clinvar_export/vueapp lint $(arg)
 
 .PHONY: lint
 lint: flake8

@@ -128,6 +128,7 @@ Full Change List
 - Initial vue.js implementation for small variant filtration (#563).
 - Changing ClinVar link-out to VCV entry instead of coordinates (#693).
 - Adding unit test for clinvar Vue app (#692).
+- Moving clinvar Vue app (#711).
 
 ------
 v1.2.0

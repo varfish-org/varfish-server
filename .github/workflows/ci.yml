@@ -69,8 +69,8 @@ jobs:
           pip freeze
       - name: Build and run Vue app
         run: |
-          npm ci --prefix varfish/vueapp
-          nohup npm run -prefix varfish/vueapp serve &
+          npm ci --prefix clinvar_export/vueapp
+          nohup npm run -prefix clinvar_export/vueapp serve &
       - name: download icons
         run: python manage.py geticons
       - name: run collectstatic
