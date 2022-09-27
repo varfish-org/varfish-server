@@ -66,7 +66,7 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt install nodejs
 
 # Install npm dependencies.
-RUN cd /usr/src/app/varfish/vueapp && \
+RUN cd /usr/src/app/clinvar_export/vueapp && \
     npm ci && \
     npm run build
 
@@ -117,7 +117,7 @@ RUN cd /usr/src/app && \
 
 # Prepare static files
 RUN cd /usr/src/app && \
-    mkdir -p /usr/src/app/varfish/vueapp/dist && \
+    mkdir -p /usr/src/app/clinvar_export/vueapp/dist && \
     DJANGO_SECRET_KEY=for-build-only \
     DJANGO_SETTINGS_MODULE=config.settings.production \
     DATABASE_URL=postgres://varfish:varfish@fake/varfish \

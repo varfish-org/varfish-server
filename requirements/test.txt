@@ -24,5 +24,8 @@ parameterized >=0.8.1, <0.9
 # Comparison of JSON objects.
 jsonmatch >=0.4, <0.5
 
+# isort code formatter - import order
+isort ==5.10.1
+
 # Coveralls tooling
 coveralls

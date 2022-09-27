@@ -359,3 +359,5 @@ src/
 celerybeat-schedule
 
 staticfiles.bak/
+
+webpack-stats.json
