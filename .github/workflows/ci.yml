@@ -69,8 +69,8 @@ jobs:
           pip freeze
       - name: Build and run Vue app
         run: |
-          npm ci --prefix varfish/vueapp
-          nohup npm run -prefix varfish/vueapp serve &
+          npm ci --prefix clinvar_export/vueapp
+          nohup npm run -prefix clinvar_export/vueapp serve &
       - name: download icons
         run: python manage.py geticons
       - name: run collectstatic
@@ -93,16 +93,8 @@ jobs:
         with:
           parallel: true
           flag-name: Unit Test
-      - name: Check import order with isort
-        run: |
-          rm -rf src
-          isort --force-sort-within-sections --profile=black --check .
-        if: ${{ matrix.python-version == '3.8' }}
       - name: Check style with black
         run: black --check --line-length 100 .
-        if: ${{ matrix.python-version == '3.8' }}
-      - name: Run linting
-        run: flake8
         if: ${{ matrix.python-version == '3.8' }}
       - name: Run Vue app tests
         run: make test_clinvar_export_vue
