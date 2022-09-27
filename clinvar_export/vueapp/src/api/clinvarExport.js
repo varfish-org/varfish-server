@@ -49,7 +49,6 @@ async function apiDelete(entity, uuid, appContext) {
       `Problem with request: ${response.status} ${response.statusText}`
     )
   }
-  return await response.json()
 }
 
 /**
