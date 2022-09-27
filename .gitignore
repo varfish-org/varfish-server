@@ -360,4 +360,4 @@ celerybeat-schedule
 
 staticfiles.bak/
 
-varfish/vueapp/webpack-stats.json
+webpack-stats.json

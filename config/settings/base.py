@@ -941,7 +941,7 @@ if ENABLE_S3:
 # ------------------------------------------------------------------------------
 WEBPACK_LOADER = {
     "VARFISH_VUE": {
-        "STATS_FILE": ROOT_DIR("varfish/vueapp/webpack-stats.json"),
+        "STATS_FILE": ROOT_DIR("clinvar_export/vueapp/webpack-stats.json"),
     }
 }
 
