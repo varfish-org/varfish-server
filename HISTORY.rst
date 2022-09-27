@@ -144,6 +144,7 @@ Full Change List
 - Changing ClinVar link-out to VCV entry instead of coordinates (#693).
 - Adding unit test for clinvar Vue app (#692).
 - Moving clinvar Vue app (#711).
+- Bugfix that allow clinvar export submission set deletion (#713).
 
 ------
 v1.2.0
