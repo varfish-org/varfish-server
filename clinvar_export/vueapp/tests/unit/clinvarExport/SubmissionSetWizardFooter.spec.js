@@ -1,5 +1,4 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils'
-import BootstrapVue from 'bootstrap-vue'
 import Vuex from 'vuex'
 
 import SubmissionSetWizardFooter from '@/components/SubmissionSetWizardFooter.vue'
@@ -7,7 +6,6 @@ import { WizardState } from '@/store/modules/clinvarExport.js'
 
 // Set up extended Vue constructor
 const localVue = createLocalVue()
-localVue.use(BootstrapVue)
 localVue.use(Vuex)
 
 describe('SubmissionSetWizardFooter.vue', () => {

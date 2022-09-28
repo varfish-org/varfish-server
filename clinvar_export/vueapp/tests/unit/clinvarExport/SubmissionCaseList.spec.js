@@ -1,5 +1,4 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils'
-import BootstrapVue from 'bootstrap-vue'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -23,7 +22,6 @@ import {
 
 // Set up extended Vue constructor
 const localVue = createLocalVue()
-localVue.use(BootstrapVue)
 localVue.use(Vuex)
 
 // Mock out the clinvarExport API
@@ -36,6 +34,12 @@ describe('SubmissionCaseList.vue', () => {
   beforeAll(() => {
     // Disable warnings
     jest.spyOn(console, 'warn').mockImplementation(jest.fn())
+    // Mock out jquery dollar function for showing modals
+    global.$ = jest.fn()
+  })
+
+  afterAll(() => {
+    global.$.mockRestore()
   })
 
   beforeEach(() => {
@@ -56,6 +60,10 @@ describe('SubmissionCaseList.vue', () => {
       },
     })
     store.state.clinvarExport.appContext = copy(rawAppContext)
+  })
+
+  afterEach(() => {
+    global.$.mockClear()
   })
 
   // In these tests we consider the simple case of having one submission

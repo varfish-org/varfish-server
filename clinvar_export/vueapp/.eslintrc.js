@@ -9,6 +9,7 @@ module.exports = {
   root: true,
   env: {
     node: true,
+    jquery: true,
   },
   parserOptions: {
     parser: '@babel/eslint-parser',

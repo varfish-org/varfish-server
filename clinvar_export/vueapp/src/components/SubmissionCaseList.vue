@@ -4,11 +4,10 @@
       Individuals
       <span class="badge badge-secondary">{{ caseCount }}</span>
 
-      <b-button
-        v-b-modal.modal-add-case
-        size="sm"
-        variant="primary"
-        class="float-right"
+      <button
+        type="button"
+        class="btn btn-sm btn-primary float-right"
+        @onclick="showModalAddCase()"
       >
         <span
           class="iconify"
@@ -16,7 +15,7 @@
           data-inline="false"
         ></span>
         add individual to submission
-      </b-button>
+      </button>
     </h3>
     <div v-for="item in caseSubmissionIndividuals" :key="item.sodar_uuid">
       <submission-case-list-entry
@@ -30,34 +29,38 @@
       No individuals have been added to this submission yet.
     </p>
 
-    <b-modal
-      id="modal-add-case"
-      scrollable
-      title="Add Case to Submission"
-      hide-footer
-    >
-      <p>Select an individual to add for this variant.</p>
-      <ul class="list-group mb-3">
-        <li
-          v-for="individual in getModalIndividualList()"
-          :key="individual.sodar_uuid"
-          class="list-group-item list-group-item-action"
-          @click="addIndividualToCurrentSubmission(individual)"
-        >
-          <h5>
-            {{ individual.name }}
-          </h5>
-          <small>{{ getPhenotypeDisplay(individual) }}</small>
-        </li>
-        <li
-          v-if="getModalIndividualList().length === 0"
-          class="list-group-item list-group-item-action text-muted font-italic text-center"
-        >
-          There is no individual (left) that can be added to this case.
-        </li>
-      </ul>
-      <p class="mb-0">You can only add each individual once.</p>
-    </b-modal>
+    <div ref="modalAddCase" class="modal fade">
+      <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Case to Submission</h5>
+          </div>
+          <div class="modal-body">
+            <p>Select an individual to add for this variant.</p>
+            <ul class="list-group mb-3">
+              <li
+                v-for="individual in getModalIndividualList()"
+                :key="individual.sodar_uuid"
+                class="list-group-item list-group-item-action"
+                @click="addIndividualToCurrentSubmission(individual)"
+              >
+                <h5>
+                  {{ individual.name }}
+                </h5>
+                <small>{{ getPhenotypeDisplay(individual) }}</small>
+              </li>
+              <li
+                v-if="getModalIndividualList().length === 0"
+                class="list-group-item list-group-item-action text-muted font-italic text-center"
+              >
+                There is no individual (left) that can be added to this case.
+              </li>
+            </ul>
+            <p class="mb-0">You can only add each individual once.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -123,6 +126,12 @@ export default {
       return (individual.phenotype_terms || [])
         .map((t) => `(${t.term_id}) ${t.term_name}`)
         .join(', ')
+    },
+    /**
+     * Show the modal for adding a case to the submission.
+     */
+    showModalAddCase() {
+      $(this.$refs.modalAddCase).modal('show')
     },
   },
 }

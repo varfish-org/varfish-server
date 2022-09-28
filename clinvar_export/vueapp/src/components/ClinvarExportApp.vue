@@ -1,13 +1,34 @@
 <template>
   <div id="#app">
-    <b-overlay :show="showOverlay">
+    <div class="varfish-overlay-wrap position-relative">
       <submission-set-list
         v-if="['list', 'initializing'].includes(appState)"
       ></submission-set-list>
       <submission-set-wizard
         v-if="['edit', 'add'].includes(appState)"
       ></submission-set-wizard>
-    </b-overlay>
+
+      <div
+        v-if="showOverlay"
+        class="varfish-overlay position-absolute"
+        style="inset: 0; z-index: 10"
+      >
+        <div
+          class="position-absolute bg-light"
+          style="inset: 0; opacity: 0.85; backdrop-filter: blur(2px)"
+        ></div>
+        <div
+          class="position-absolute"
+          style="
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+          "
+        >
+          <span aria-hidden="true" class="spinner-border"><!----></span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

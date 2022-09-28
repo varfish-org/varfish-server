@@ -130,6 +130,7 @@ Full Change List
 - Adding unit test for clinvar Vue app (#692).
 - Moving clinvar Vue app (#711).
 - Bugfix that allow clinvar export submission set deletion (#713).
+- Removing dependency on bootstrap-vue package (#716).
 
 ------
 v1.2.0

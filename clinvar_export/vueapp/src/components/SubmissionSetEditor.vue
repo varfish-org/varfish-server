@@ -1,74 +1,100 @@
 <template>
-  <b-card-body>
-    <b-alert variant="info" class="small pl-3" show>
+  <div class="card-body">
+    <div class="alert alert-info small pl-3">
       <i class="iconify mr-1" data-icon="fa-solid:info-circle"></i>
       A Clinvar submission set consists of multiple variants (aka submissions).
       Edit the base properties here and continue by clicking "Variants" on the
       bottom right. Click "Save" to save the submission and go back to the list
       and use "Cancel" to discard changes and go back to the list without saving
       them.
-    </b-alert>
-    <b-form>
-      <b-form-group
-        id="input-group-title"
-        label-for="input-title"
-        label="Title"
-      >
-        <b-form-input
+    </div>
+    <form>
+      <div id="input-group-title" class="form-group">
+        <label for="input-title">Title</label>
+        <input
           id="input-title"
           v-model.trim.lazy="title"
+          :class="{
+            'form-control is-valid': !$v.title.$error,
+            'form-control is-invalid': $v.title.$error,
+          }"
           placeholder="Enter submission title"
           required
-          :state="validateState('title')"
-          aria-describedby="input-group-title-feedback"
-        ></b-form-input>
-        <b-form-invalid-feedback id="input-group-title-feedback"
-          >Must be set with at least 3 characters.</b-form-invalid-feedback
-        >
-      </b-form-group>
+        />
+        <div v-if="!$v.title.required" class="invalid-feedback">
+          Field is required.
+        </div>
+        <div v-if="!$v.title.minLength" class="invalid-feedback">
+          Must be set with at least 3 character.
+        </div>
+        <small class="form-text text-muted">
+          The title of the submission is only used for display in VarFish and
+          not submitted to ClinVar.
+        </small>
+      </div>
 
-      <b-form-group
-        id="input-group-submitter"
-        label-for="input-submitter"
-        label="Submitter"
-        description="person who will do the ClinVar XML submission (must register through ClinVar web interface)"
-      >
-        <b-form-select
+      <div id="input-group-submitter" class="form-group">
+        <label for="input-submitter">Submitter</label>
+        <select
           id="input-submitter"
           v-model="submitter"
-          :options="submitterChoices"
-          :state="validateState('submitter')"
-          aria-describedby="input-group-submitter-feedback"
-        ></b-form-select>
-        <b-form-invalid-feedback id="input-group-submitter-feedback"
-          >Must be a valid choice.</b-form-invalid-feedback
+          :class="{
+            'custom-select is-valid': !$v.submitter.$error,
+            'custom-select is-invalid': $v.submitter.$error,
+          }"
+          required
         >
-      </b-form-group>
+          <option>Chose...</option>
+          <option
+            v-for="submitter in submitters"
+            :key="submitter.sodar_uuid"
+            :value="submitter.sodar_uuid"
+          >
+            {{ submitter.name }}
+          </option>
+        </select>
+        <div v-if="!$v.submitter.required" class="invalid-feedback">
+          Must be provided.
+        </div>
+        <div v-if="!$v.submitter.validChoice" class="invalid-feedback">
+          Must be a valid choice.
+        </div>
+        <small class="form-text text-muted">
+          The person who will do the ClinVar XML submission (must register
+          through ClinVar web interface).
+        </small>
+      </div>
 
-      <b-form-group
-        id="input-group-state"
-        label-for="input-state"
-        label="State"
-        description="pending: not submitted yet, submitted: submitted to Clinvar, released: released by Clinvar, rejected: rejected by Clinvar, pending resubmission"
-      >
-        <b-form-select
+      <div id="input-group-state" class="form-group">
+        <label for="input-state">Submission Set State</label>
+        <select
           id="input-state"
           v-model="state"
-          :options="stateChoices"
-          :state="validateState('state')"
-          aria-describedby="input-group-state-feedback"
-        ></b-form-select>
-        <b-form-invalid-feedback id="input-group-state-feedback"
-          >Must be a valid choice.</b-form-invalid-feedback
+          :class="{
+            'custom-select is-valid': !$v.state.$error,
+            'custom-select is-invalid': $v.state.$error,
+          }"
+          required
         >
-      </b-form-group>
+          <option>Chose...</option>
+          <option v-for="state in stateChoices" :key="state" :value="state">
+            {{ state }}
+          </option>
+        </select>
+        <div v-if="!$v.submitter.required" class="invalid-feedback">
+          Must be provided.
+        </div>
+        <div v-if="!$v.submitter.validChoice" class="invalid-feedback">
+          Must be a valid choice.
+        </div>
+        <small class="form-text text-muted">
+          The person who will do the ClinVar XML submission (must register
+          through ClinVar web interface).
+        </small>
+      </div>
 
-      <b-form-group
-        id="input-group-organisations"
-        label-for="input-organisations"
-        label="Submitting Organisations"
-        description="Select one or more submitting organisations. The first one will become the primary submitter."
-      >
+      <div id="input-group-organisations" class="form-group">
+        <label for="input-organisations">Submitting Organisation(s)</label>
         <multiselect
           id="input-organisations"
           v-model="organisations"
@@ -78,14 +104,25 @@
           :custom-label="getOrgLabel"
           :multiple="true"
           :close-on-select="false"
+          :class="{
+            'is-valid': !$v.organisations.$error,
+            'is-invalid': $v.organisations.$error,
+          }"
           aria-describedby="input-group-organisations-feedback"
         ></multiselect>
-        <b-form-invalid-feedback id="input-group-organisations-feedback"
-          >You must select at least one organisation.</b-form-invalid-feedback
-        >
-      </b-form-group>
-    </b-form>
-  </b-card-body>
+        <div v-if="!$v.organisations.required" class="invalid-feedback">
+          You must select at least one organisation.
+        </div>
+        <div v-if="!$v.organisations.validChoice" class="invalid-feedback">
+          Organisations must be valid.
+        </div>
+        <small class="form-text text-muted">
+          Select one or more submitting organisations. The first one will become
+          the primary submitter.
+        </small>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script>
@@ -154,6 +191,9 @@ export default {
         text: o.name,
       }))
     },
+    submitterUuids: function () {
+      return Array.from(Object.values(this.submitters), (o) => o.sodar_uuid)
+    },
     orgUuids: function () {
       return Array.from(Object.values(this.orgs), (o) => o.sodar_uuid)
     },
@@ -165,13 +205,26 @@ export default {
     },
     state: {
       required,
-      isValidStateChoice: (x) => STATE_CHOICES.includes(x),
+      validChoice: (x) => STATE_CHOICES.includes(x),
     },
     submitter: {
       required,
+      validChoice: function (x) {
+        return this.submitterUuids.includes(x)
+      },
     },
     organisations: {
-      required,
+      required: (x) => {
+        return x && x.length
+      },
+      validChoice: function (orgUuids) {
+        for (const orgUuid of orgUuids) {
+          if (!this.orgUuids.includes(orgUuid)) {
+            return false
+          }
+        }
+        return true
+      },
     },
   },
   mounted() {
@@ -199,4 +252,11 @@ export default {
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 
-<style scoped></style>
+<style>
+.is-invalid .multiselect__tags {
+  border-color: #dc3545;
+}
+.is-valid .multiselect__tags {
+  border-color: #28a745;
+}
+</style>

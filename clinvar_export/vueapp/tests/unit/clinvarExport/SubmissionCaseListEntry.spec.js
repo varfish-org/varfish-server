@@ -1,5 +1,4 @@
 import { createLocalVue, mount } from '@vue/test-utils'
-import BootstrapVue from 'bootstrap-vue'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -28,7 +27,6 @@ import {
 
 // Set up extended Vue constructor
 const localVue = createLocalVue()
-localVue.use(BootstrapVue)
 localVue.use(Vuex)
 
 // Mock out the clinvarExport API
