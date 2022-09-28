@@ -1,5 +1,4 @@
 import { createLocalVue, mount } from '@vue/test-utils'
-import BootstrapVue from 'bootstrap-vue'
 import flushPromises from 'flush-promises'
 import { Response } from 'node-fetch'
 import Vue from 'vue'
@@ -18,7 +17,6 @@ import {
 
 // Set up extended Vue constructor
 const localVue = createLocalVue()
-localVue.use(BootstrapVue)
 localVue.use(Vuex)
 
 // Mock out the clinvarExport API
@@ -34,10 +32,13 @@ describe('SubmissionSetList.vue', () => {
     // Set reproducible time
     jest.useFakeTimers('modern')
     jest.setSystemTime(new Date(2020, 3, 1))
+    // Mock out jquery dollar function for showing modals
+    global.$ = jest.fn()
   })
 
   afterAll(() => {
     jest.useRealTimers()
+    global.$.mockRestore()
   })
 
   beforeEach(() => {
@@ -63,6 +64,7 @@ describe('SubmissionSetList.vue', () => {
     Object.keys(clinvarExportApi).forEach((method) =>
       clinvarExportApi[method].mockClear()
     )
+    global.$.mockClear()
   })
 
   // In these tests we consider the simple case of having one submission
@@ -82,9 +84,7 @@ describe('SubmissionSetList.vue', () => {
   const getButtons = (wrapper, rowNo) => {
     const colNo = 1
     const buttonCell =
-      wrapper.vm.$refs.submissionSetTable.$refs['item-rows'][rowNo].$el.cells[
-        colNo
-      ]
+      wrapper.vm.$refs.submissionSetTable.rows[rowNo + 1].cells[colNo]
     const buttonGroup = buttonCell.children[0]
     return {
       editButton: buttonGroup.children[0],
@@ -104,9 +104,7 @@ describe('SubmissionSetList.vue', () => {
     expect(wrapper.vm.$refs.buttonCreateNew).toBeDefined()
 
     // Submission set table with entries and buttons
-    expect(wrapper.vm.$refs.submissionSetTable.$refs['item-rows'].length).toBe(
-      1
-    )
+    expect(wrapper.vm.$refs.submissionSetTable.rows.length).toBe(2)
     const { editButton, clinvarButton } = getButtons(wrapper, 0)
     expect(editButton.textContent.trim()).toEqual('Edit')
     expect(clinvarButton.textContent.trim()).toEqual('ClinVar XML')
@@ -132,14 +130,35 @@ describe('SubmissionSetList.vue', () => {
       localVue,
     })
     const { clinvarButton } = getButtons(wrapper, 0)
+
+    global.$.mockReturnValue({
+      modal: jest.fn((action) => {
+        const classes = wrapper.vm.$refs.modalXmlPreview.classList
+        if (action === 'show') {
+          if (!classes.contains('show')) {
+            classes.remove('fade')
+            classes.add('show')
+          }
+        } else if (action === 'hide') {
+          if (!classes.contains('fade')) {
+            classes.add('fade')
+            classes.remove('show')
+          }
+        }
+      }),
+    })
+
     expect(wrapper.vm.$refs.modalXmlPreview).toBeDefined()
-    expect(wrapper.vm.$refs.modalXmlPreview.isVisible).toBe(false)
+    expect(
+      Object.values(wrapper.vm.$refs.modalXmlPreview.classList)
+    ).not.toContainEqual('show')
     clinvarButton.click()
     expect(wrapper.vm.$data.submissionSetUuid).toEqual(
       submissionSet1.sodar_uuid
     )
-    await waitNT(wrapper.vm)
-    expect(wrapper.vm.$refs.modalXmlPreview.isVisible).toBe(true)
+    expect(
+      Object.values(wrapper.vm.$refs.modalXmlPreview.classList)
+    ).toContainEqual('show')
     expect(wrapper.vm.$refs.buttonClose).toBeDefined()
     expect(wrapper.vm.$refs.buttonDownloadXml).toBeDefined()
 
@@ -155,6 +174,12 @@ describe('SubmissionSetList.vue', () => {
       store.state.clinvarExport.appContext,
       submissionSet1.sodar_uuid,
     ])
+
+    expect(global.$).toHaveBeenCalledTimes(1)
+    expect(global.$).toHaveBeenNthCalledWith(
+      1,
+      wrapper.vm.$refs.modalXmlPreview
+    )
 
     return wrapper
   }
@@ -212,7 +237,15 @@ describe('SubmissionSetList.vue', () => {
     const wrapper = await testClinvarXmlClick()
 
     wrapper.vm.$refs.buttonClose.click()
-    expect(wrapper.vm.$refs.modalXmlPreview.isVisible).toBe(false)
+    expect(
+      Object.values(wrapper.vm.$refs.modalXmlPreview.classList)
+    ).not.toContainEqual('show')
+
+    expect(global.$).toHaveBeenCalledTimes(2)
+    expect(global.$).toHaveBeenNthCalledWith(
+      2,
+      wrapper.vm.$refs.modalXmlPreview
+    )
   })
 
   test('edit submission set button click works', () => {

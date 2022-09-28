@@ -2,372 +2,492 @@
   <div class="flex-grow-1 mt-1">
     <h4 class="border-bottom pb-2 mb-3">
       Variant: {{ getSubmissionLabel(currentSubmission) }}
-      <b-button-group class="float-right">
-        <b-button
+      <div class="btn-group float-right">
+        <button
           ref="buttonMoveCurrentSubmissionUp"
-          size="sm"
-          variant="secondary"
+          type="button"
+          class="btn btn-sm btn-secondary"
           :disabled="isMoveCurrentSubmissionDisabled(true)"
           @click="moveCurrentSubmission(true)"
         >
           <i class="iconify" data-icon="mdi:arrow-up-circle"></i>
           move up
-        </b-button>
-        <b-button
+        </button>
+        <button
           ref="buttonMoveCurrentSubmissionDown"
-          size="sm"
-          variant="secondary"
+          type="button"
+          class="btn btn-sm btn-secondary"
           :disabled="isMoveCurrentSubmissionDisabled(false)"
           @click="moveCurrentSubmission(false)"
         >
           <i class="iconify" data-icon="mdi:arrow-down-circle"></i>
           move down
-        </b-button>
-        <b-button size="sm" variant="danger" @click="deleteCurrentSubmission()">
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm btn-danger"
+          @click="deleteCurrentSubmission()"
+        >
           <span
             class="iconify"
             data-icon="mdi:close"
             data-inline="false"
           ></span>
           remove from submission
-        </b-button>
-      </b-button-group>
+        </button>
+      </div>
     </h4>
 
     <div class="row">
       <div class="col-6 pl-0">
         <div class="row">
           <div class="col-6 pl-0">
-            <b-form-group
-              id="input-group-record-status"
-              label-for="input-title"
-              label="Record Status"
-              description="Action to perform on ClinVar database"
-            >
-              <b-select
+            <div id="input-group-record-status" class="form-group">
+              <label for="input-record-status">Record Status</label>
+              <select
                 id="input-record-status"
                 v-model="record_status"
                 required
-                :options="recordStatusOptions"
-                :state="validateState('record_status')"
-                aria-describedby="input-group-record-status-feedback"
-              ></b-select>
-              <b-form-invalid-feedback id="input-group-record-status-feedback"
-                >Must select a valid record status.</b-form-invalid-feedback
+                :class="{
+                  'custom-select is-valid': !$v.record_status.$error,
+                  'custom-select is-invalid': $v.record_status.$error,
+                }"
               >
-            </b-form-group>
+                <option>Choose...</option>
+                <option
+                  v-for="recordStatusOption in recordStatusOptions"
+                  :key="recordStatusOption"
+                  :value="recordStatusOption"
+                >
+                  {{ recordStatusOption }}
+                </option>
+              </select>
+              <div v-if="!$v.record_status.required" class="invalid-feedback">
+                Must be provided.
+              </div>
+              <div
+                v-if="!$v.record_status.isValidChoice"
+                class="invalid-feedback"
+              >
+                Must be valid record status.
+              </div>
+            </div>
           </div>
           <div class="col-6 pr-0">
-            <b-form-group
-              id="input-group-release-status"
-              label-for="input-release-status"
-              label="Release Status"
-            >
-              <b-select
+            <div id="input-group-release-status" class="form-group">
+              <label for="input-release-status">Release Status</label>
+              <select
                 id="input-release-status"
                 v-model="release_status"
                 required
-                :options="releaseStatusOptions"
-                :state="validateState('release_status')"
-                aria-describedby="input-group-release-status-feedback"
-              ></b-select>
-              <b-form-invalid-feedback id="input-group-release-status-feedback"
-                >Must select a valid release status.</b-form-invalid-feedback
+                :class="{
+                  'custom-select is-valid': !$v.release_status.$error,
+                  'custom-select is-invalid': $v.release_status.$error,
+                }"
               >
-            </b-form-group>
+                <option>Choose...</option>
+                <option
+                  v-for="releaseStatusOption in releaseStatusOptions"
+                  :key="releaseStatusOption"
+                  :value="releaseStatusOption"
+                >
+                  {{ releaseStatusOption }}
+                </option>
+              </select>
+              <div v-if="!$v.release_status.required" class="invalid-feedback">
+                Must be provided.
+              </div>
+              <div
+                v-if="!$v.release_status.isValidChoice"
+                class="invalid-feedback"
+              >
+                Must be valid release status.
+              </div>
+            </div>
           </div>
         </div>
 
-        <b-form-group
-          id="input-group-significance-last-evaluation"
-          label-for="input-significance-last-evaluation"
-          label="Significance Last Evaluation"
-        >
-          <b-form-datepicker
+        <div id="input-group-significance-last-evaluation" class="form-group">
+          <label for="input-significance-last-evaluation"
+            >Significance Last Evaluation</label
+          >
+          <input
             id="input-significance-last-evaluation"
             v-model="significance_last_evaluation"
             required
-            :state="validateState('significance_last_evaluation')"
-            aria-describedby="input-group-significance-last-evaluation-feedback"
-          ></b-form-datepicker>
-          <b-form-invalid-feedback
-            id="input-group-release-last-evaluation-feedback"
-            >Must select a valid last evaluation date.</b-form-invalid-feedback
+            :class="{
+              'form-control is-valid': !$v.significance_last_evaluation.$error,
+              'form-control is-invalid': $v.significance_last_evaluation.$error,
+            }"
+          />
+          <div
+            v-if="!$v.significance_last_evaluation.required"
+            class="invalid-feedback"
           >
-        </b-form-group>
+            Must be provided.
+          </div>
+          <div
+            v-if="!$v.significance_last_evaluation.isValidDate"
+            class="invalid-feedback"
+          >
+            Must be valid date YYYY-MM-DD.
+          </div>
+        </div>
 
-        <b-form-group
-          id="input-group-significance-status"
-          label-for="input-significance-status"
-          label="Significance Status"
-        >
-          <b-select
+        <div id="input-group-significance-status" class="form-group">
+          <label for="input-significance-status">Significance Status</label>
+          <select
             id="input-significance-status"
             v-model="significance_status"
             required
-            :options="significanceStatusOptions"
-            :state="validateState('significance_status')"
-            aria-describedby="input-group-significance-status-feedback"
-          ></b-select>
-          <b-form-invalid-feedback id="input-group-release-status-feedback"
-            >Must select a valid significance status.</b-form-invalid-feedback
+            :class="{
+              'custom-select is-valid': !$v.significance_status.$error,
+              'custom-select is-invalid': $v.significance_status.$error,
+            }"
           >
-        </b-form-group>
+            <option>Choose...</option>
+            <option
+              v-for="significanceStatusOption in significanceStatusOptions"
+              :key="significanceStatusOption"
+              :value="significanceStatusOption"
+            >
+              {{ significanceStatusOption }}
+            </option>
+          </select>
+          <div v-if="!$v.significance_status.required" class="invalid-feedback">
+            Must be provided.
+          </div>
+          <div
+            v-if="!$v.significance_status.isValidChoice"
+            class="invalid-feedback"
+          >
+            Must be valid significance status.
+          </div>
+        </div>
 
-        <b-form-group
-          id="input-group-significance-description"
-          label-for="input-significance-description"
-          label="Significance Description"
-        >
-          <b-select
+        <div id="input-group-significance-description" class="form-group">
+          <label for="input-significance-description"
+            >Significance Description</label
+          >
+          <select
             id="input-significance-description"
             v-model="significance_description"
             required
-            :options="significanceDescriptionOptions"
-            :state="validateState('significance_description')"
-            aria-describedby="input-group-significance-description-feedback"
-          ></b-select>
-          <b-form-invalid-feedback
-            id="input-group-significance-description-feedback"
-            >Must select a valid significance
-            description.</b-form-invalid-feedback
+            :class="{
+              'custom-select is-valid': !$v.significance_description.$error,
+              'custom-select is-invalid': $v.significance_description.$error,
+            }"
           >
-        </b-form-group>
+            <option
+              v-for="significanceDescriptionOption in significanceDescriptionOptions"
+              :key="significanceDescriptionOption"
+              :value="significanceDescriptionOption"
+            >
+              {{ significanceDescriptionOption }}
+            </option>
+          </select>
+          <div
+            v-if="!$v.significance_description.required"
+            class="invalid-feedback"
+          >
+            Must be provided.
+          </div>
+          <div
+            v-if="!$v.significance_description.isValidChoice"
+            class="invalid-feedback"
+          >
+            Must be valid significance description.
+          </div>
+        </div>
 
-        <b-form-group
-          id="input-group-inheritance"
-          label-for="input-inheritance"
-          label="Mode of Inheritance"
-        >
-          <b-select
-            id="input-inheritance"
+        <div id="input-group-significance-inheritance" class="form-group">
+          <label for="input-mode-of-inheritance">Mode of Inheritance</label>
+          <select
+            id="input-significance-inheritance"
             v-model="inheritance"
             required
-            :options="modeOfInheritanceOptions"
-            :state="validateState('inheritance')"
-            aria-describedby="input-group-inheritance-feedback"
-          ></b-select>
-          <b-form-invalid-feedback id="input-group-inheritance-feedback"
-            >Must select a valid mode of inheritance.</b-form-invalid-feedback
+            :class="{
+              'custom-select is-valid': !$v.inheritance.$error,
+              'custom-select is-invalid': $v.inheritance.$error,
+            }"
           >
-        </b-form-group>
+            <option
+              v-for="modeOfInheritanceOption in modeOfInheritanceOptions"
+              :key="modeOfInheritanceOption"
+              :value="modeOfInheritanceOption"
+            >
+              {{ modeOfInheritanceOption }}
+            </option>
+          </select>
+          <div v-if="!$v.inheritance.required" class="invalid-feedback">
+            Must be provided.
+          </div>
+          <div v-if="!$v.inheritance.isValidChoice" class="invalid-feedback">
+            Must be valid mode of inheritance.
+          </div>
+        </div>
 
-        <b-form-group
-          id="input-group-age-of-onset"
-          label-for="input-age-of-onset"
-          label="Age of Onset"
-        >
-          <b-select
-            id="input-age-of-onset"
+        <div id="input-group-significance-age-of-onset" class="form-group">
+          <label for="input-age-of-onset">Age of Onset</label>
+          <select
+            id="input-significance-age-of-onset"
             v-model="age_of_onset"
             required
-            :options="ageOfOnsetOptions"
-            :state="validateState('age_of_onset')"
-            aria-describedby="input-group-age-of-onset-feedback"
-          ></b-select>
-          <b-form-invalid-feedback id="input-group-age-of-onset-feedback"
-            >Must select a valid age of onset.</b-form-invalid-feedback
+            :class="{
+              'custom-select is-valid': !$v.age_of_onset.$error,
+              'custom-select is-invalid': $v.age_of_onset.$error,
+            }"
           >
-        </b-form-group>
+            <option
+              v-for="ageOfOnsetOption in ageOfOnsetOptions"
+              :key="ageOfOnsetOption"
+              :value="ageOfOnsetOption"
+            >
+              {{ ageOfOnsetOption }}
+            </option>
+          </select>
+          <div v-if="!$v.age_of_onset.required" class="invalid-feedback">
+            Must be provided.
+          </div>
+          <div v-if="!$v.age_of_onset.isValidChoice" class="invalid-feedback">
+            Must be valid mode of age of onset.
+          </div>
+        </div>
 
-        <b-form-group
-          id="input-group-assertion-method"
-          label-for="input-assertion-method"
-          label="Assertion Method"
-        >
-          <b-select
-            id="input-assertion-method"
+        <div id="input-group-significance-assertion-method" class="form-group">
+          <label for="input-assertion-method">Assertion Method</label>
+          <select
+            id="input-significance-assertion-method"
             v-model="assertion_method"
             required
-            :options="assertionMethodOptions"
-            :state="validateState('assertion_method')"
-            aria-describedby="input-group-assertion-method-feedback"
-          ></b-select>
-          <b-form-invalid-feedback id="input-group-assertion-method-feedback"
-            >Must select a valid assertion method.</b-form-invalid-feedback
+            :class="{
+              'custom-select is-valid': !$v.assertion_method.$error,
+              'custom-select is-invalid': $v.assertion_method.$error,
+            }"
           >
-        </b-form-group>
+            <option
+              v-for="assertionMethodOption in assertionMethodOptions"
+              :key="assertionMethodOption.value"
+              :value="assertionMethodOption.value"
+            >
+              {{ assertionMethodOption.text }}
+            </option>
+          </select>
+          <div v-if="!$v.assertion_method.required" class="invalid-feedback">
+            Must be provided.
+          </div>
+          <div
+            v-if="!$v.assertion_method.isValidChoice"
+            class="invalid-feedback"
+          >
+            Must be valid mode of age of onset.
+          </div>
+        </div>
       </div>
       <div class="col-6 pr-0">
         <div class="row">
-          <b-form-group
+          <div
             id="input-group-variant-type"
-            class="col-12 pl-0"
-            label-for="input-variant-type"
-            label="Variant Type"
+            class="form-group col-12 pl-0 pr-0"
           >
-            <b-select
+            <label for="input-variant-type">Variant Type</label>
+            <select
               id="input-variant-type"
               v-model="variant_type"
               required
-              :options="variantTypeOptions"
-              :state="validateState('variant_type')"
-              aria-describedby="input-group-variant-type-feedback"
-            ></b-select>
-            <b-form-invalid-feedback id="input-group-variant-type-feedback"
-              >Specify a valid type.</b-form-invalid-feedback
+              :class="{
+                'custom-select is-valid': !$v.variant_type.$error,
+                'custom-select is-invalid': $v.variant_type.$error,
+              }"
             >
-          </b-form-group>
+              <option
+                v-for="variantTypeOption in variantTypeOptions"
+                :key="variantTypeOption"
+                :value="variantTypeOption"
+              >
+                {{ variantTypeOption }}
+              </option>
+            </select>
+            <div v-if="!$v.assertion_method.required" class="invalid-feedback">
+              Must be provided.
+            </div>
+            <div
+              v-if="!$v.assertion_method.isValidChoice"
+              class="invalid-feedback"
+            >
+              Must be valid mode of age of onset.
+            </div>
+          </div>
         </div>
         <div class="row">
-          <b-form-group
-            id="input-group-variant-assembly"
-            class="col-3 pl-0"
-            label-for="input-variant-assembly"
-            label="Assembly"
-          >
-            <b-input
+          <div id="input-group-variant-assembly" class="form-group col-3 pl-0">
+            <label for="input-variant-assembly">Assembly</label>
+            <input
               id="input-variant-assembly"
               v-model="variant_assembly"
               required
-              :state="validateState('variant_assembly')"
-              aria-describedby="input-group-variant-assembly-feedback"
-            ></b-input>
-            <b-form-invalid-feedback id="input-group-variant-assembly-feedback"
-              >Specify a valid assembly.</b-form-invalid-feedback
+              :class="{
+                'form-control is-valid': !$v.variant_assembly.$error,
+                'from-control is-invalid': $v.variant_assembly.$error,
+              }"
+            />
+            <div v-if="!$v.variant_assembly.required" class="invalid-feedback">
+              Must be provided.
+            </div>
+            <div
+              v-if="!$v.variant_assembly.isValidChoice"
+              class="invalid-feedback"
             >
-          </b-form-group>
+              Must be valid assembly name.
+            </div>
+          </div>
 
-          <b-form-group
+          <div
             id="input-group-variant-chromosome"
-            class="col-3"
-            label-for="input-variant-chromosome"
-            label="Chromosome"
+            class="form-group col-3 pl-0"
           >
-            <b-input
+            <label for="input-variant-chromosome">Chromosome</label>
+            <input
               id="input-variant-chromosome"
               v-model="variant_chromosome"
               required
-              :state="validateState('variant_chromosome')"
-              aria-describedby="input-group-variant-chromosome-feedback"
-            ></b-input>
-            <b-form-invalid-feedback
-              id="input-group-variant-chromosome-feedback"
-              >Specify a valid chromosome.</b-form-invalid-feedback
+              :class="{
+                'form-control is-valid': !$v.variant_chromosome.$error,
+                'from-control is-invalid': $v.variant_chromosome.$error,
+              }"
+            />
+            <div
+              v-if="!$v.variant_chromosome.required"
+              class="invalid-feedback"
             >
-          </b-form-group>
+              Must be provided.
+            </div>
+          </div>
 
-          <b-form-group
-            id="input-group-variant-start"
-            class="col-3"
-            label-for="input-variant-start"
-            label="Start"
-          >
-            <b-input
+          <div id="input-group-variant-start" class="form-group col-3 pl-0">
+            <label for="input-variant-start">Start</label>
+            <input
               id="input-variant-start"
               v-model="variant_start"
               required
-              :state="validateState('variant_start')"
-              aria-describedby="input-group-variant-start-feedback"
-            ></b-input>
-            <b-form-invalid-feedback id="input-group-variant-start-feedback"
-              >Specify a valid start position.</b-form-invalid-feedback
-            >
-          </b-form-group>
+              :class="{
+                'form-control is-valid': !$v.variant_start.$error,
+                'from-control is-invalid': $v.variant_start.$error,
+              }"
+            />
+            <div v-if="!$v.variant_start.required" class="invalid-feedback">
+              Must be provided.
+            </div>
+            <div v-if="!$v.variant_start.numeric" class="invalid-feedback">
+              Must be valid start position.
+            </div>
+          </div>
 
-          <b-form-group
-            id="input-group-variant-stop"
-            class="col-3 pr-0"
-            label-for="input-variant-stop"
-            label="Stop"
-          >
-            <b-input
+          <div id="input-group-variant-stop" class="form-group col-3 pl-0 pr-0">
+            <label for="input-variant-stop">Stop</label>
+            <input
               id="input-variant-stop"
               v-model="variant_stop"
               required
-              :state="validateState('variant_stop')"
-              aria-describedby="input-group-variant-stop-feedback"
-            ></b-input>
-            <b-form-invalid-feedback id="input-group-variant-stop-feedback"
-              >Specify a valid stop position.</b-form-invalid-feedback
-            >
-          </b-form-group>
+              :class="{
+                'form-control is-valid': !$v.variant_stop.$error,
+                'from-control is-invalid': $v.variant_stop.$error,
+              }"
+            />
+            <div v-if="!$v.variant_stop.required" class="invalid-feedback">
+              Must be provided.
+            </div>
+            <div v-if="!$v.variant_stop.numeric" class="invalid-feedback">
+              Must be valid stop position.
+            </div>
+          </div>
         </div>
 
         <div class="row">
           <div class="col-6 pl-0">
-            <b-form-group
-              id="input-group-variant-reference"
-              label-for="input-variant-reference"
-              label="Reference Allele"
-            >
-              <b-input
+            <div id="input-group-variant-reference" class="form-group">
+              <label for="input-variant-reference">Stop</label>
+              <input
                 id="input-variant-reference"
                 v-model="variant_reference"
                 required
-                :state="validateState('variant_reference')"
-                aria-describedby="input-group-variant-reference-feedback"
-              ></b-input>
-              <b-form-invalid-feedback id="input-group-variant-stop-feedback"
-                >Specify reference allele.</b-form-invalid-feedback
+                :class="{
+                  'form-control is-valid': !$v.variant_reference.$error,
+                  'from-control is-invalid': $v.variant_reference.$error,
+                }"
+              />
+              <div
+                v-if="!$v.variant_reference.required"
+                class="invalid-feedback"
               >
-            </b-form-group>
+                Must be provided.
+              </div>
+            </div>
           </div>
-          <div class="col-6 pr-0">
-            <b-form-group
-              id="input-group-variant-alternative"
-              label-for="input-variant-alternative"
-              label="Alternative Allele"
-            >
-              <b-input
+          <div class="col-6 pl-0 pr-0">
+            <div id="input-group-variant-alternative" class="form-group">
+              <label for="input-variant-alternative">Stop</label>
+              <input
                 id="input-variant-alternative"
                 v-model="variant_alternative"
                 required
-                :state="validateState('variant_alternative')"
-                aria-describedby="input-group-variant-alternative-feedback"
-              ></b-input>
-              <b-form-invalid-feedback
-                id="input-group-variant-alternative-feedback"
-                >Specify alternative allele.</b-form-invalid-feedback
+                :class="{
+                  'form-control is-valid': !$v.variant_alternative.$error,
+                  'from-control is-invalid': $v.variant_alternative.$error,
+                }"
+              />
+              <div
+                v-if="!$v.variant_alternative.required"
+                class="invalid-feedback"
               >
-            </b-form-group>
+                Must be provided.
+              </div>
+            </div>
           </div>
         </div>
 
-        <b-form-group
-          id="input-group-variant-gene"
-          label-for="input-variant-gene"
-          label="Gene(s)"
-          description="Comma-separated list of affected genes with their official symbols"
-        >
-          <b-input
+        <div id="input-group-variant-gene" class="form-group col-12 pl-0 pr-0">
+          <label for="input-variant-gene">Gene(s)</label>
+          <input
             id="input-variant-gene"
             v-model="variant_gene"
             required
-            :state="validateState('variant_gene')"
-            aria-describedby="input-group-variant-gene-feedback"
-          ></b-input>
-          <b-form-invalid-feedback id="input-group-variant-gene-feedback"
-            >Specify at least one gene.</b-form-invalid-feedback
-          >
-        </b-form-group>
+            :class="{
+              'form-control is-valid': !$v.variant_gene.$error,
+              'from-control is-invalid': $v.variant_gene.$error,
+            }"
+          />
+          <div v-if="!$v.variant_gene.required" class="invalid-feedback">
+            Must be provided.
+          </div>
+          <small class="form-text text-muted">
+            Comma-separated list of affected genes with their official symbols.
+          </small>
+        </div>
 
-        <b-form-group
-          id="input-group-variant-hgvs"
-          label-for="input-variant-hgvs"
-          label="HGVS Description(s)"
-          description="Comma-separated list of HGVS changes, must match list of genes above"
-        >
-          <b-input
+        <div id="input-group-variant-hgvs" class="form-group col-12 pl-0 pr-0">
+          <label for="input-variant-hgvs">HGVS Description(s)</label>
+          <input
             id="input-variant-hgvs"
             v-model="variant_hgvs"
             required
-            :state="validateState('variant_hgvs')"
-            aria-describedby="input-group-variant-hgvs-feedback"
-          ></b-input>
-          <b-form-invalid-feedback id="input-group-variant-hgvs-feedback"
-            >Specify at least one HGVS change.</b-form-invalid-feedback
-          >
-        </b-form-group>
+            :class="{
+              'form-control is-valid': !$v.variant_hgvs.$error,
+              'from-control is-invalid': $v.variant_hgvs.$error,
+            }"
+          />
+          <div v-if="!$v.variant_hgvs.required" class="invalid-feedback">
+            Must be provided.
+          </div>
+          <small class="form-text text-muted">
+            Comma-separated list of HGVS descriptions for each gene..
+          </small>
+        </div>
 
-        <b-form-group
-          id="input-group-diseases"
-          label-for="input-diseases"
-          label="Disease(s)"
-          description="List of OMIM disease terms"
-        >
+        <div id="input-group-diseases" class="form-group col-12 pl-0 pr-0">
+          <label for="input-diseases">Disease(s)</label>
           <multiselect
-            id="input-variant-dieases"
+            id="input-dieases"
             v-model="diseases"
             placeholder="Select OMIM disease(s) for this variant"
             track-by="term_id"
@@ -380,9 +500,17 @@
             :allow-empty="true"
             :close-on-select="true"
             style="white-space: nowrap"
+            :class="{
+              'is-valid': !$v.diseases.$error,
+              'is-invalid': $v.diseases.$error,
+            }"
             @search-change="asyncFindOmimDiseases"
           ></multiselect>
-        </b-form-group>
+          <small class="form-text text-muted">
+            Select zero, one, or more OMIM diseases for annotating the
+            submission with.
+          </small>
+        </div>
       </div>
     </div>
 
@@ -417,6 +545,7 @@ const SIGNIFICANCE_STATUS_OPTIONS = Object.freeze([
   'practice guideline',
 ])
 const SIGNIFICANCE_DESCRIPTION_OPTIONS = Object.freeze([
+  '',
   'Benign',
   'Likely benign',
   'Uncertain significance',
@@ -591,14 +720,20 @@ export default {
     },
     significance_last_evaluation: {
       required,
+      isValidDate: (x) => {
+        if (!x) {
+          return true
+        } else {
+          return !!x.match(/^\d\d\d\d-\d\d-\d\d$/)
+        }
+      },
     },
     significance_status: {
       required,
       isValidChoice: (x) => SIGNIFICANCE_STATUS_OPTIONS.includes(x),
     },
     significance_description: {
-      required,
-      isValidChoice: (x) => SIGNIFICANCE_DESCRIPTION_OPTIONS.includes(x),
+      isValidChoice: (x) => !x || SIGNIFICANCE_DESCRIPTION_OPTIONS.includes(x),
     },
     assertion_method: {
       required,
@@ -705,4 +840,11 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style>
+.is-invalid .multiselect__tags {
+  border-color: #dc3545;
+}
+.is-valid .multiselect__tags {
+  border-color: #28a745;
+}
+</style>

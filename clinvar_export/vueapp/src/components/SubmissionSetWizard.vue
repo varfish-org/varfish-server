@@ -1,9 +1,7 @@
 <template>
   <div id="submission-set-wizard">
-    <b-breadcrumb :items="breadcrumbItems()"></b-breadcrumb>
-
-    <b-card no-body title-tag="title" footer-tag="footer">
-      <template #header>
+    <div class="card">
+      <div class="card-header">
         <h4 class="mb-0">
           <i class="iconify" data-icon="mdi:note-text"></i>
           Edit Submission Set
@@ -16,10 +14,9 @@
             </div>
           </transition>
 
-          <b-button
-            class="float-right"
-            size="sm"
-            variant="danger"
+          <button
+            type="button"
+            class="btn btn-sm btn-danger float-right"
             @click="onRemoveClicked"
           >
             <span
@@ -28,9 +25,9 @@
               data-inline="false"
             ></span>
             remove submission set
-          </b-button>
+          </button>
         </h4>
-      </template>
+      </div>
 
       <submission-set-editor
         v-if="wizardState === 'submissionSet'"
@@ -41,15 +38,15 @@
         ref="submissionList"
       ></submission-list>
 
-      <template #footer>
+      <div class="card-footer">
         <submission-set-wizard-footer
           @save-clicked="onSaveClicked"
           @cancel-clicked="onCancelClicked"
           @goto-submissions-clicked="onGotoSubmissionsClicked"
           @goto-submission-set-clicked="onGotoSubmissionSetClicked"
         ></submission-set-wizard-footer>
-      </template>
-    </b-card>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -83,32 +80,6 @@ export default {
     ]),
     validConfirmed,
     /**
-     * @returns {list} with breadcrumb display
-     */
-    breadcrumbItems() {
-      const tpl = [
-        {
-          text: 'Submission Set',
-          href: '#',
-          active: this.wizardState === WizardState.submissionSet,
-        },
-        {
-          text: 'Submissions',
-          href: '#',
-          active: this.wizardState === WizardState.submissions,
-        },
-      ]
-
-      let result = tpl
-      switch (this.wizardState) {
-        case 'submission':
-          result = [...tpl].slice(0, 1)
-          break
-      }
-
-      return result
-    },
-    /**
      * Event handler called when user clicks 'save'.
      */
     onSaveClicked() {
@@ -118,31 +89,17 @@ export default {
      * Event handler when user clicks 'remove submission set'.
      */
     onRemoveClicked() {
-      this.$bvModal
-        .msgBoxConfirm('Really delete submission set?', {
-          okTitle: 'Yes',
-          cancelTitle: 'No',
-        })
-        .then((value) => {
-          if (value) {
-            this.wizardRemove()
-          }
-        })
+      if (confirm('Really delete submission set?')) {
+        this.wizardRemove()
+      }
     },
     /**
      * Event handler called when user clicks 'cancel'.
      */
     onCancelClicked() {
-      this.$bvModal
-        .msgBoxConfirm('Really discard any change?', {
-          okTitle: 'Yes',
-          cancelTitle: 'No',
-        })
-        .then((value) => {
-          if (value) {
-            this.wizardCancel()
-          }
-        })
+      if (confirm('Really discard all changes?')) {
+        this.wizardCancel()
+      }
     },
     /**
      * Event handler called when user clicks 'forward to submissions'.

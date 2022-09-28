@@ -2,19 +2,16 @@
   <div class="row">
     <div class="col-2 px-0">
       <div>
-        <b-list-group flush>
-          <b-list-group-item
-            class="font-weight-bold"
-            variant="secondary"
-            inactive
+        <ul class="list-group list-group-flush">
+          <li
+            class="list-group-item list-group-item-secondary font-weight-bold"
           >
             <h5>
               Submissions
-              <b-button
+              <div
                 ref="buttonAddSubmission"
-                size="sm"
-                variant="primary"
-                class="float-right"
+                type="button"
+                class="btn btn-primary btn-small float-right"
                 @click="onAddSubmissionClicked()"
               >
                 <span
@@ -23,14 +20,19 @@
                   data-inline="false"
                 ></span>
                 add
-              </b-button>
+              </div>
             </h5>
-          </b-list-group-item>
+          </li>
           <draggable ref="submissionList" v-model="submissionList">
-            <b-list-group-item
+            <li
               v-for="item in submissionList"
               :key="item.sodar_uuid"
-              :class="{ active: item === currentSubmission }"
+              :class="{
+                'list-group-item list-group-item-action list-group-item-primary':
+                  item === currentSubmission,
+                'list-group-item list-group-item-action':
+                  item !== currentSubmission,
+              }"
               @click="onListItemClicked(item.sodar_uuid)"
             >
               {{ getSubmissionLabel(item) }}
@@ -45,19 +47,22 @@
               <div class="pull-right">
                 <span class="iconify" data-icon="fa-solid:chevron-right"></span>
               </div>
-            </b-list-group-item>
+            </li>
           </draggable>
-          <b-list-group-item
+          <li
             v-if="!submissionList.length"
-            class="inactive text-muted font-italic text-center"
+            class="list-group-item list-group-item-light font-italic text-center"
           >
             There are no variants for this submission yet.
-          </b-list-group-item>
-        </b-list-group>
+          </li>
+        </ul>
       </div>
     </div>
     <div class="col-10 border-left d-flex">
-      <submission-editor v-if="currentSubmission"></submission-editor>
+      <submission-editor
+        v-if="currentSubmission"
+        ref="submissionEditor"
+      ></submission-editor>
       <div
         v-if="currentSubmission === null"
         class="text-muted font-italic text-center align-self-center flex-grow-1"
@@ -66,280 +71,316 @@
       </div>
     </div>
 
-    <b-modal
-      id="modal-add-submission"
-      ref="modalAddSubmission"
-      size="lg"
-      scrollable
-      title="Add Submission to Submission List"
-      hide-footer
-    >
-      <p>
-        Create new submissions by selecting from the variants below and clicking
-        <b-badge variant="primary"
-          ><i class="iconify" data-icon="fa-solid:plus"></i></b-badge
-        >. If you select no variant, a blank submission will be created.
-      </p>
-      <ul class="list-group mb-3">
-        <li
-          class="list-group-item list-group-item-action list-group-item-dark pl-2 pr-2"
-        >
-          <div class="form-inline">
-            <div class="form-group mr-3" style="width: 200px; max-width: 200px">
-              <multiselect
-                id="input-family"
-                ref="inputSelectCase"
-                v-model="familyUuid"
-                placeholder="Select Case"
-                select-label=""
-                deselect-label=""
-                :loading="loadingVariants"
-                :disabled="loadingVariants"
-                :options="familyUuids"
-                :custom-label="getFamilyLabel"
-                @input="fetchRawModalUserAnnotations()"
-              ></multiselect>
-            </div>
-            <div class="form-group">
-              <span
-                :class="{
-                  'cursor-pointer ml-2 badge badge-light': !modalIncludeAll,
-                  'cursor-pointer ml-2 badge badge-success': modalIncludeAll,
-                }"
-                @click="toggleData('modalIncludeAll')"
-              >
-                all:
-                <i
-                  :class="{
-                    'fa fa-check-circle': modalIncludeAll,
-                    'fa fa-times-circle': !modalIncludeAll,
-                  }"
-                ></i>
-              </span>
-              <span
-                :class="{
-                  'cursor-pointer ml-1 badge badge-light':
-                    !modalIncludeComments,
-                  'cursor-pointer ml-1 badge badge-success':
-                    modalIncludeComments,
-                }"
-                @click="toggleData('modalIncludeComments')"
-              >
-                <i class="iconify" data-icon="fa-solid:comment"></i>&nbsp;&nbsp;
-                <i
-                  :class="{
-                    'fa fa-check-circle': modalIncludeComments,
-                    'fa fa-times-circle': !modalIncludeComments,
-                  }"
-                ></i>
-              </span>
-              <span
-                :class="{
-                  'cursor-pointer ml-1 badge badge-light':
-                    !modalIncludeCandidates,
-                  'cursor-pointer ml-1 badge badge-success':
-                    modalIncludeCandidates,
-                }"
-                @click="toggleData('modalIncludeCandidates')"
-              >
-                <i class="iconify" data-icon="fa-solid:heart"></i>&nbsp;&nbsp;
-                <i
-                  :class="{
-                    'fa fa-check-circle': modalIncludeCandidates,
-                    'fa fa-times-circle': !modalIncludeCandidates,
-                  }"
-                ></i>
-              </span>
-              <span
-                :class="{
-                  'cursor-pointer ml-1 badge badge-light':
-                    !modalIncludeFinalCausatives,
-                  'cursor-pointer ml-1 badge badge-success':
-                    modalIncludeFinalCausatives,
-                }"
-                @click="toggleData('modalIncludeFinalCausatives')"
-              >
-                <i class="iconify" data-icon="fa-solid:flag-checkered"></i
-                >&nbsp;&nbsp;
-                <i
-                  :class="{
-                    'fa fa-check-circle': modalIncludeFinalCausatives,
-                    'fa fa-times-circle': !modalIncludeFinalCausatives,
-                  }"
-                ></i>
-              </span>
-              <span
-                :class="{
-                  'cursor-pointer ml-1 badge badge-light': !modalIncludeAcmg3,
-                  'cursor-pointer ml-1 badge badge-success': modalIncludeAcmg3,
-                }"
-                @click="toggleData('modalIncludeAcmg3')"
-              >
-                VUCS3
-                <i
-                  :class="{
-                    'fa fa-check-circle': modalIncludeAcmg3,
-                    'fa fa-times-circle': !modalIncludeAcmg3,
-                  }"
-                ></i>
-              </span>
-              <span
-                :class="{
-                  'cursor-pointer ml-1 badge badge-light': !modalIncludeAcmg4,
-                  'cursor-pointer ml-1 badge badge-success': modalIncludeAcmg4,
-                }"
-                @click="toggleData('modalIncludeAcmg4')"
-              >
-                LP4
-                <i
-                  :class="{
-                    'fa fa-check-circle': modalIncludeAcmg4,
-                    'fa fa-times-circle': !modalIncludeAcmg4,
-                  }"
-                ></i>
-              </span>
-              <span
-                :class="{
-                  'cursor-pointer ml-1 badge badge-light': !modalIncludeAcmg5,
-                  'cursor-pointer ml-1 badge badge-success': modalIncludeAcmg5,
-                }"
-                @click="toggleData('modalIncludeAcmg5')"
-              >
-                P5
-                <i
-                  :class="{
-                    'fa fa-check-circle': modalIncludeAcmg5,
-                    'fa fa-times-circle': !modalIncludeAcmg5,
-                  }"
-                ></i>
-              </span>
-            </div>
-            <div class="form-group ml-3" style="height: 43px">
-              <b-form-checkbox v-model="onlyAddAffected">
-                affecteds only
-              </b-form-checkbox>
-            </div>
-            <div class="form-group ml-auto">
-              <b-button
-                ref="buttonAddSelectedSubmissions"
-                size="sm"
-                variant="primary"
-                @click="onCreateSubmissionClicked()"
-              >
-                <i class="iconify" data-icon="fa-solid:plus"></i>
-              </b-button>
-            </div>
+    <div ref="modalAddSubmission" class="modal fade">
+      <div
+        class="modal-dialog modal-lg modal-dialog-scrollable"
+        role="document"
+      >
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Submissio to Submission List</h5>
           </div>
-        </li>
-        <li
-          v-for="item in modalUserAnnotations"
-          :key="item.sodar_uuid"
-          :class="{
-            'user-annotation-list-item list-group-item x-not-active':
-              !isVariantSelected(item),
-            'user-annotation-list-item list-group-item x-active':
-              isVariantSelected(item),
-          }"
-          @click="onVariantClicked(item)"
-          @mousedown.prevent=""
-        >
-          <h5>
-            <i
-              class="iconify x-active-show text-primary"
-              data-icon="bi:check-square-fill"
-            ></i>
-            <i
-              class="iconify x-active-hide text-muted"
-              data-icon="bi:square"
-            ></i>
-            {{ getVariantLabel(item) }}
-            <small v-if="getVariantExtraLabel(item)">
-              {{ getVariantExtraLabel(item) }}
-            </small>
-          </h5>
-          <small>
-            <span
-              :class="{
-                'badge badge-light': item.comments.length === 0,
-                'badge badge-dark': item.comments.length > 0,
-              }"
-              :title="`${item.comments.length} user comments`"
-            >
-              <i class="iconify" data-icon="fa-regular:comment"></i>
-              {{ item.comments.length }}
-            </span>
-            |
-            <span
-              :class="{
-                'badge badge-dark': item.flags.some(
-                  (x) => x.flag_final_causative
-                ),
-                'badge badge-light': !item.flags.some(
-                  (x) => x.flag_final_causative
-                ),
-              }"
-              :title="`${
-                item.flags.flag_final_causative ? '' : 'NOT '
-              }flagged as final causative`"
-            >
-              <i class="iconify" data-icon="fa-solid:flag-checkered"></i>
-            </span>
-            |
-            <span
-              :class="{
-                'badge badge-dark': item.flags.some((x) => x.flag_candidate),
-                'badge badge-light': !item.flags.some((x) => x.flag_candidate),
-              }"
-              :title="`${
-                item.flags.flag_final_causative ? '' : 'NOT '
-              }flagged as candidate`"
-            >
-              <i class="iconify" data-icon="fa-solid:heart"></i>
-            </span>
-          </small>
-          |
-          <span
-            :class="{
-              'badge badge-danger': [4, 5].includes(getAcmgRating(item)),
-              'badge badge-warning': getAcmgRating(item) === 3,
-              'badge badge-success': [1, 2].includes(getAcmgRating(item)),
-              'badge badge-secondary': getAcmgRating(item) === 'N/A',
-            }"
-          >
-            ACMG: {{ getAcmgRating(item) }}
-          </span>
-          |
-          <span>{{ item.caseNames.join(', ') }}</span>
-        </li>
-        <li
-          v-if="modalUserAnnotations.length === 0"
-          class="list-group-item list-group-item-action text-muted font-italic text-center"
-        >
-          <span v-if="familyUuid === ''">
-            <span>
-              Please select a case to display the variant user annotations.
-            </span>
-          </span>
-          <span v-else-if="loadingVariants">
-            <span> Fetching variants from case from server... </span>
-          </span>
-          <span v-else-if="fetchError">
-            <span> Ouch, an error occured while fetching the variants! </span>
-          </span>
-          <span v-else-if="rawModalUserAnnotationsCount > 0">
-            <span>
-              None of the {{ rawModalUserAnnotationsCount }} user annotations
-              matched your selection criteria.
-            </span>
-          </span>
-          <span v-else>
-            <span>
-              There is no matching user annotation for variants in this project.
-            </span>
-          </span>
-        </li>
-      </ul>
-    </b-modal>
+          <div class="modal-body">
+            <p>
+              Create new submissions by selecting from the variants below and
+              clicking
+              <span class="badge badge-primary"
+                ><i class="iconify" data-icon="fa-solid:plus"></i></span
+              >. If you select no variant, a blank submission will be created.
+            </p>
+            <ul ref="userAnnotationList" class="list-group mb-3">
+              <li
+                class="list-group-item list-group-item-action list-group-item-dark pl-2 pr-2"
+              >
+                <div class="form-inline">
+                  <div
+                    class="form-group mr-3"
+                    style="width: 200px; max-width: 200px"
+                  >
+                    <multiselect
+                      id="input-family"
+                      ref="inputSelectCase"
+                      v-model="familyUuid"
+                      placeholder="Select Case"
+                      select-label=""
+                      deselect-label=""
+                      :loading="loadingVariants"
+                      :disabled="loadingVariants"
+                      :options="familyUuids"
+                      :custom-label="getFamilyLabel"
+                      @input="fetchRawModalUserAnnotations()"
+                    ></multiselect>
+                  </div>
+                  <div class="form-group">
+                    <span
+                      :class="{
+                        'cursor-pointer ml-2 badge badge-light':
+                          !modalIncludeAll,
+                        'cursor-pointer ml-2 badge badge-success':
+                          modalIncludeAll,
+                      }"
+                      @click="toggleData('modalIncludeAll')"
+                    >
+                      all:
+                      <i
+                        :class="{
+                          'fa fa-check-circle': modalIncludeAll,
+                          'fa fa-times-circle': !modalIncludeAll,
+                        }"
+                      ></i>
+                    </span>
+                    <span
+                      :class="{
+                        'cursor-pointer ml-1 badge badge-light':
+                          !modalIncludeComments,
+                        'cursor-pointer ml-1 badge badge-success':
+                          modalIncludeComments,
+                      }"
+                      @click="toggleData('modalIncludeComments')"
+                    >
+                      <i class="iconify" data-icon="fa-solid:comment"></i
+                      >&nbsp;&nbsp;
+                      <i
+                        :class="{
+                          'fa fa-check-circle': modalIncludeComments,
+                          'fa fa-times-circle': !modalIncludeComments,
+                        }"
+                      ></i>
+                    </span>
+                    <span
+                      :class="{
+                        'cursor-pointer ml-1 badge badge-light':
+                          !modalIncludeCandidates,
+                        'cursor-pointer ml-1 badge badge-success':
+                          modalIncludeCandidates,
+                      }"
+                      @click="toggleData('modalIncludeCandidates')"
+                    >
+                      <i class="iconify" data-icon="fa-solid:heart"></i
+                      >&nbsp;&nbsp;
+                      <i
+                        :class="{
+                          'fa fa-check-circle': modalIncludeCandidates,
+                          'fa fa-times-circle': !modalIncludeCandidates,
+                        }"
+                      ></i>
+                    </span>
+                    <span
+                      :class="{
+                        'cursor-pointer ml-1 badge badge-light':
+                          !modalIncludeFinalCausatives,
+                        'cursor-pointer ml-1 badge badge-success':
+                          modalIncludeFinalCausatives,
+                      }"
+                      @click="toggleData('modalIncludeFinalCausatives')"
+                    >
+                      <i class="iconify" data-icon="fa-solid:flag-checkered"></i
+                      >&nbsp;&nbsp;
+                      <i
+                        :class="{
+                          'fa fa-check-circle': modalIncludeFinalCausatives,
+                          'fa fa-times-circle': !modalIncludeFinalCausatives,
+                        }"
+                      ></i>
+                    </span>
+                    <span
+                      :class="{
+                        'cursor-pointer ml-1 badge badge-light':
+                          !modalIncludeAcmg3,
+                        'cursor-pointer ml-1 badge badge-success':
+                          modalIncludeAcmg3,
+                      }"
+                      @click="toggleData('modalIncludeAcmg3')"
+                    >
+                      VUCS3
+                      <i
+                        :class="{
+                          'fa fa-check-circle': modalIncludeAcmg3,
+                          'fa fa-times-circle': !modalIncludeAcmg3,
+                        }"
+                      ></i>
+                    </span>
+                    <span
+                      :class="{
+                        'cursor-pointer ml-1 badge badge-light':
+                          !modalIncludeAcmg4,
+                        'cursor-pointer ml-1 badge badge-success':
+                          modalIncludeAcmg4,
+                      }"
+                      @click="toggleData('modalIncludeAcmg4')"
+                    >
+                      LP4
+                      <i
+                        :class="{
+                          'fa fa-check-circle': modalIncludeAcmg4,
+                          'fa fa-times-circle': !modalIncludeAcmg4,
+                        }"
+                      ></i>
+                    </span>
+                    <span
+                      :class="{
+                        'cursor-pointer ml-1 badge badge-light':
+                          !modalIncludeAcmg5,
+                        'cursor-pointer ml-1 badge badge-success':
+                          modalIncludeAcmg5,
+                      }"
+                      @click="toggleData('modalIncludeAcmg5')"
+                    >
+                      P5
+                      <i
+                        :class="{
+                          'fa fa-check-circle': modalIncludeAcmg5,
+                          'fa fa-times-circle': !modalIncludeAcmg5,
+                        }"
+                      ></i>
+                    </span>
+                  </div>
+                  <div class="form-group ml-3" style="height: 43px">
+                    <div class="custom-control custom-checkbox">
+                      <input
+                        id="submission-set-affecteds-only"
+                        v-model="onlyAddAffected"
+                        type="checkbox"
+                        class="custom-control-input"
+                        value="true"
+                      />
+                      <label
+                        for="submission-set-affecteds-only"
+                        class="custom-control-label"
+                        >affecteds only</label
+                      >
+                    </div>
+                  </div>
+                  <div class="form-group ml-auto">
+                    <button
+                      ref="buttonAddSelectedSubmissions"
+                      type="button"
+                      class="btn btn-sm btn-primary"
+                      @click="onCreateSubmissionClicked()"
+                    >
+                      <i class="iconify" data-icon="fa-solid:plus"></i>
+                    </button>
+                  </div>
+                </div>
+              </li>
+              <li
+                v-for="item in modalUserAnnotations"
+                :key="item.sodar_uuid"
+                :class="{
+                  'list-group-item x-not-active': !isVariantSelected(item),
+                  'list-group-item x-active': isVariantSelected(item),
+                }"
+                @click="onVariantClicked(item)"
+                @mousedown.prevent=""
+              >
+                <h5>
+                  <i
+                    class="iconify x-active-show text-primary"
+                    data-icon="bi:check-square-fill"
+                  ></i>
+                  <i
+                    class="iconify x-active-hide text-muted"
+                    data-icon="bi:square"
+                  ></i>
+                  {{ getVariantLabel(item) }}
+                  <small v-if="getVariantExtraLabel(item)">
+                    {{ getVariantExtraLabel(item) }}
+                  </small>
+                </h5>
+                <small>
+                  <span
+                    :class="{
+                      'badge badge-light': item.comments.length === 0,
+                      'badge badge-dark': item.comments.length > 0,
+                    }"
+                    :title="`${item.comments.length} user comments`"
+                  >
+                    <i class="iconify" data-icon="fa-regular:comment"></i>
+                    {{ item.comments.length }}
+                  </span>
+                  |
+                  <span
+                    :class="{
+                      'badge badge-dark': item.flags.some(
+                        (x) => x.flag_final_causative
+                      ),
+                      'badge badge-light': !item.flags.some(
+                        (x) => x.flag_final_causative
+                      ),
+                    }"
+                    :title="`${
+                      item.flags.flag_final_causative ? '' : 'NOT '
+                    }flagged as final causative`"
+                  >
+                    <i class="iconify" data-icon="fa-solid:flag-checkered"></i>
+                  </span>
+                  |
+                  <span
+                    :class="{
+                      'badge badge-dark': item.flags.some(
+                        (x) => x.flag_candidate
+                      ),
+                      'badge badge-light': !item.flags.some(
+                        (x) => x.flag_candidate
+                      ),
+                    }"
+                    :title="`${
+                      item.flags.flag_final_causative ? '' : 'NOT '
+                    }flagged as candidate`"
+                  >
+                    <i class="iconify" data-icon="fa-solid:heart"></i>
+                  </span>
+                </small>
+                |
+                <span
+                  :class="{
+                    'badge badge-danger': [4, 5].includes(getAcmgRating(item)),
+                    'badge badge-warning': getAcmgRating(item) === 3,
+                    'badge badge-success': [1, 2].includes(getAcmgRating(item)),
+                    'badge badge-secondary': getAcmgRating(item) === 'N/A',
+                  }"
+                >
+                  ACMG: {{ getAcmgRating(item) }}
+                </span>
+                |
+                <span>{{ item.caseNames.join(', ') }}</span>
+              </li>
+              <li
+                v-if="modalUserAnnotations.length === 0"
+                class="list-group-item list-group-item-action text-muted font-italic text-center"
+              >
+                <span v-if="familyUuid === ''">
+                  <span>
+                    Please select a case to display the variant user
+                    annotations.
+                  </span>
+                </span>
+                <span v-else-if="loadingVariants">
+                  <span> Fetching variants from case from server... </span>
+                </span>
+                <span v-else-if="fetchError">
+                  <span>
+                    Ouch, an error occured while fetching the variants!
+                  </span>
+                </span>
+                <span v-else-if="rawModalUserAnnotationsCount > 0">
+                  <span>
+                    None of the {{ rawModalUserAnnotationsCount }} user
+                    annotations matched your selection criteria.
+                  </span>
+                </span>
+                <span v-else>
+                  <span>
+                    There is no matching user annotation for variants in this
+                    project.
+                  </span>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -656,11 +697,11 @@ export default {
         }
         this.selectedSmallVariants = []
       }
-      this.$bvModal.hide('modal-add-submission')
+      $(this.$refs.modalAddSubmission).modal('hide')
     },
     onAddSubmissionClicked() {
       this.validConfirmed(() => {
-        this.$bvModal.show('modal-add-submission')
+        $(this.$refs.modalAddSubmission).modal('show')
       })
     },
 
@@ -780,13 +821,11 @@ export default {
      * @returns {boolean} whether the child component's form is valid.
      */
     isValid() {
-      return !this.$children.some((c) => {
-        if (c.$v) {
-          return c.$v.$invalid
-        } else {
-          return false
-        }
-      })
+      if (this.$refs.submissionEditor) {
+        return this.$refs.submissionEditor.isValid()
+      } else {
+        return true
+      }
     },
   },
 }

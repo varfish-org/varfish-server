@@ -1,12 +1,12 @@
 <template>
-  <b-card header-tag="header">
-    <template #header>
+  <div class="card">
+    <div class="card-header">
       <h4 class="mb-0 ml-0">
         Case &raquo;{{ individual ? individual.name : 'null' }}&laquo;
-        <b-button-group class="float-right pb-0 mb-0">
-          <b-button
-            size="sm"
-            variant="secondary"
+        <div class="btn-group float-right pb-0 mb-0">
+          <button
+            type="button"
+            class="btn btn-sm btn-secondary"
             :disabled="isMoveDisabled(true)"
             @click="
               moveSubmissionIndividual({
@@ -17,10 +17,10 @@
           >
             <i class="iconify" data-icon="mdi:arrow-up-circle"></i>
             move up
-          </b-button>
-          <b-button
-            size="sm"
-            variant="secondary"
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-secondary"
             :disabled="isMoveDisabled(false)"
             @click="
               moveSubmissionIndividual({
@@ -31,10 +31,10 @@
           >
             <i class="iconify" data-icon="mdi:arrow-down-circle"></i>
             move down
-          </b-button>
-          <b-button
-            size="sm"
-            variant="danger"
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-danger"
             @click="removeSubmissionIndividualFromCurrentSubmission(value)"
           >
             <span
@@ -43,23 +43,24 @@
               data-inline="false"
             ></span>
             remove from variant
-          </b-button>
-        </b-button-group>
+          </button>
+        </div>
       </h4>
-    </template>
-    <b-card-text class="px-2">
+    </div>
+    <div class="card-body px-2">
       <div class="row">
         <div class="col-12 px-0">
-          <b-form-group
-            id="input-group-phenotypes"
-            label-for="input-phenotypes"
-            label="Phenotype HPO Terms"
-          >
+          <div id="input-group-phenotypes" class="form-group">
+            <label for="input-phenotypes">Phenotype HPO Terms</label>
             <multiselect
               id="input-phenotypes"
               v-model="phenotypes"
-              placeholder="Add phenotypes for this individual"
+              placeholder="Add HPO terms for this individual"
               track-by="term_id"
+              :class="{
+                'is-valid': !$v.phenotypes.$error,
+                'is-invalid': $v.phenotypes.$error,
+              }"
               :options="hpoTermsOptions"
               :custom-label="getHpoTermLabel"
               :loading="hpoTermsLoading"
@@ -71,129 +72,171 @@
               style="white-space: nowrap"
               @search-change="asyncFindHpoTerms"
             ></multiselect>
-          </b-form-group>
+            <small class="form-text text-muted">
+              Add any HPO terms that are present in the individual.
+            </small>
+          </div>
         </div>
       </div>
       <div class="row">
         <div class="col-4 pl-0">
-          <b-form-group
-            id="input-group-source"
-            label-for="input-source"
-            label="Sample Source"
-          >
-            <b-select
+          <div id="input-group-source" class="form-group">
+            <label for="input-source">Sample Source</label>
+            <select
               id="input-source"
               v-model="source"
               required
               :options="sampleSourceOptions"
-              :state="validateState('source')"
-              aria-describedby="input-group-source-feedback"
-            ></b-select>
-            <b-form-invalid-feedback id="input-group-source-feedback"
-              >Must select a valid sample source.</b-form-invalid-feedback
+              :class="{
+                'custom-select is-valid': !$v.source.$error,
+                'custom-select is-invalid': $v.source.$error,
+              }"
             >
-          </b-form-group>
+              <option>Chose...</option>
+              <option
+                v-for="sampleSourceOption in sampleSourceOptions"
+                :key="sampleSourceOption"
+                :value="sampleSourceOption"
+              >
+                {{ sampleSourceOption }}
+              </option>
+            </select>
+            <div v-if="!$v.source.required" class="invalid-feedback">
+              Must be provided.
+            </div>
+            <div v-if="!$v.source.isValidChoice" class="invalid-feedback">
+              Must be a valid sample source.
+            </div>
+          </div>
         </div>
         <div class="col-4">
-          <b-form-group
-            id="input-group-tissue"
-            label-for="input-tissue"
-            label="Tissue"
-          >
-            <b-input
+          <div id="input-group-tissue" class="form-group">
+            <label for="input-source">Tissue</label>
+            <input
               id="input-tissue"
               v-model="tissue"
               required
-              :state="validateState('tissue')"
-              aria-describedby="input-group-tissue-feedback"
-            ></b-input>
-            <b-form-invalid-feedback id="input-group-tissue-feedback"
-              >Specify the sampled tissue.</b-form-invalid-feedback
-            >
-          </b-form-group>
+              :class="{
+                'form-control is-valid': !$v.tissue.$error,
+                'form-control is-invalid': $v.tissue.$error,
+              }"
+            />
+            <div v-if="!$v.tissue.required" class="invalid-feedback">
+              Must be provided.
+            </div>
+          </div>
         </div>
         <div class="col-4 pr-0">
-          <b-form-group
-            id="input-group-citations"
-            label-for="input-citations"
-            label="PubMed Citations"
-          >
-            <b-input
+          <div id="input-group-citations" class="form-group">
+            <label for="input-citations">Citations</label>
+            <input
               id="input-citations"
               v-model.trim="citations"
               required
-              :state="validateState('citations')"
-              aria-describedby="input-group-citations-feedback"
-            ></b-input>
-            <b-form-invalid-feedback id="input-group-citations-feedback"
-              >Specify the citations as &raquo;PMID:123
-              PMID:456&laquo;.</b-form-invalid-feedback
-            >
-          </b-form-group>
+              :class="{
+                'form-control is-valid': !$v.citations.$error,
+                'form-control is-invalid': $v.citations.$error,
+              }"
+            />
+            <div v-if="!$v.citations.required" class="invalid-feedback">
+              Must be provided.
+            </div>
+            <div v-if="!$v.citations.isValidChoice" class="invalid-feedback">
+              Specify the citations as &laquo;PMID:123 PID:456&raquo;
+            </div>
+          </div>
         </div>
       </div>
       <div class="row">
         <div class="col-4 pl-0">
-          <b-form-group
-            id="input-group-variant-origin"
-            label-for="input-variant-origin"
-            label="Variant Origin"
-          >
-            <b-select
+          <div id="input-group-variant-origin" class="form-group">
+            <label for="input-source">Variant Origin</label>
+            <select
               id="input-variant-origin"
               v-model="variant_origin"
               required
               :options="variantOriginOptions"
-              :state="validateState('variant_origin')"
-              aria-describedby="input-group-variant-origin-feedback"
-            ></b-select>
-            <b-form-invalid-feedback id="input-group-variant-origin-feedback"
-              >Must select a valid variant origin.</b-form-invalid-feedback
+              :class="{
+                'custom-select is-valid': !$v.variant_origin.$error,
+                'custom-select is-invalid': $v.variant_origin.$error,
+              }"
             >
-          </b-form-group>
+              <option>Chose...</option>
+              <option
+                v-for="variantOriginOption in variantOriginOptions"
+                :key="variantOriginOption"
+                :value="variantOriginOption"
+              >
+                {{ variantOriginOption }}
+              </option>
+            </select>
+            <div v-if="!$v.variant_origin.required" class="invalid-feedback">
+              Must be provided.
+            </div>
+            <div
+              v-if="!$v.variant_origin.isValidChoice"
+              class="invalid-feedback"
+            >
+              Must be a valid variant origin.
+            </div>
+          </div>
         </div>
         <div class="col-4">
-          <b-form-group
-            id="input-group-variant-allele-count"
-            label-for="input-variant-allele-count"
-            label="Variant Allele Count"
-          >
-            <b-input
+          <div id="input-group-alle-count" class="form-group">
+            <label for="input-source">Variant Allele Count</label>
+            <input
               id="input-variant-allele-count"
               v-model="variant_allele_count"
               required
-              :state="validateState('variant_allele_count')"
-              aria-describedby="input-group-variant-allele-count-feedback"
-            ></b-input>
-            <b-form-invalid-feedback
-              id="input-group-variant-allele-count-feedback"
-              >Specify either allele count as a number or
-              zygosity.</b-form-invalid-feedback
+              :class="{
+                'form-control is-valid': !$v.variant_allele_count.$error,
+                'form-control is-invalid': $v.variant_allele_count.$error,
+              }"
+            />
+            <div
+              v-if="!$v.variant_allele_count.required"
+              class="invalid-feedback"
             >
-          </b-form-group>
+              Must be provided.
+            </div>
+            <div
+              v-if="!$v.variant_allele_count.isValidChoice"
+              class="invalid-feedback"
+            >
+              Must be a valid variant allele count.
+            </div>
+          </div>
         </div>
         <div class="col-4 pr-0">
-          <b-form-group
-            id="input-group-variant-zygosity"
-            label-for="input-variant-zygosity"
-            label="Zygosity"
-          >
-            <b-select
+          <div id="input-group-variant-zygosity" class="form-group">
+            <label for="input-source">Variant Zygosity</label>
+            <select
               id="input-variant-zygosity"
               v-model="variant_zygosity"
               required
               :options="variantZygosityOptions"
-              :state="validateState('variant_zygosity')"
-              aria-describedby="input-group-variant-zygosity-feedback"
-            ></b-select>
-            <b-form-invalid-feedback id="input-group-variant-zygosity-feedback"
-              >Specify either allele count or zygosity.</b-form-invalid-feedback
+              :class="{
+                'custom-select is-valid': !$v.variant_zygosity.$error,
+                'custom-select is-invalid': $v.variant_zygosity.$error,
+              }"
             >
-          </b-form-group>
+              <option>Chose...</option>
+              <option
+                v-for="variantZygosityOption in variantZygosityOptions"
+                :key="variantZygosityOption"
+                :value="variantZygosityOption"
+              >
+                {{ variantZygosityOption }}
+              </option>
+            </select>
+            <div v-if="!$v.variant_zygosity.required" class="invalid-feedback">
+              Must be provided.
+            </div>
+          </div>
         </div>
       </div>
-    </b-card-text>
-  </b-card>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -343,9 +386,10 @@ export default {
     },
   },
   validations: {
+    phenotypes: {},
     variant_allele_count: {
       required,
-      isValid: (x) => numeric(x),
+      isValid: (x) => !x || numeric(x),
     },
     variant_zygosity: {
       isValidChoice: (x) => VARIANT_ZYGOSITY_OPTIONS.includes(x),
@@ -446,4 +490,11 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style>
+.is-invalid .multiselect__tags {
+  border-color: #dc3545;
+}
+.is-valid .multiselect__tags {
+  border-color: #28a745;
+}
+</style>
