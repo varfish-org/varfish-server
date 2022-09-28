@@ -1,6 +1,6 @@
 {% extends 'projectroles/project_base.html' %}
 
-{% load vite %}
+{% load vite_tags %}
 
 {% block title %}
   Filter Variants: {{ case.name }}
@@ -10,6 +10,6 @@
   <div id="sodar-ss-app-context" app-context="{{ app_context }}"></div>
   <div id="app"></div>
 
-  {% vite_scripts 'src/main.js' %}
+  {% vite_scripts 'variants' 'src/main.js' %}
 {% endblock %}
 

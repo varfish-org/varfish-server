@@ -56,12 +56,17 @@ export function removeItemAll(arr, value) {
 /**
  * Check current form for valid and display message or execute callback.
  *
+ * @param isValid Callback to check for validity.
  * @param cb Callback to call on success.
  * @param message Message to display for error notification.
  * @returns {boolean} whether or not the currently displayed form was valid.
  */
-export function validConfirmed(cb, message = 'Please fix the problems first.') {
-  if (!this.isValid()) {
+export function validConfirmed(
+  isValid,
+  cb,
+  message = 'Please fix the problems first.'
+) {
+  if (!isValid()) {
     alert(message)
     return false
   } else {

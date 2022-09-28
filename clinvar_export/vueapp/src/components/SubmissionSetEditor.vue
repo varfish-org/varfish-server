@@ -1,3 +1,142 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import Multiselect from '@vueform/multiselect'
+import { useVuelidate } from '@vuelidate/core'
+import { minLength, required } from '@vuelidate/validators'
+
+import {
+  SUBMISSION_SET_STATE_CHOICES,
+  useClinvarExportStore,
+} from '@/stores/clinvar-export'
+
+const components = { Multiselect }
+
+// Define Pinia store and shortcut for currentSubmissionSet
+const store = useClinvarExportStore()
+const currentSubmissionSet = ref(store.currentSubmissionSet)
+
+// These values are used in the form and validation.
+const submitterUuids = computed(() =>
+  Array.from(Object.values(store.submitters), (o) => o.sodar_uuid)
+)
+const orgOptions = computed(() => {
+  let result = Object.fromEntries(
+    Object.values(store.organisations).map((o) => [o.sodar_uuid, o.name])
+  )
+  return result
+})
+
+// Helper function to build wrappers that catch the case of store.currentSubmissionSet not being set.
+const _vuelidateWrappers = (keys) =>
+  Object.fromEntries(
+    keys.map((key) => [
+      key,
+      computed({
+        get() {
+          return !currentSubmissionSet.value
+            ? null
+            : currentSubmissionSet.value[key]
+        },
+        set(newValue) {
+          if (currentSubmissionSet.value) {
+            currentSubmissionSet.value[key] = newValue
+          }
+        },
+      }),
+    ])
+  )
+
+// Define object with the data to edit in the form.  We construct custom wrappers so we can easily pass this into vuelidate.
+const formState = {
+  ..._vuelidateWrappers(['title', 'state', 'submitter']),
+  organisations: computed({
+    get() {
+      if (
+        !currentSubmissionSet.value ||
+        !currentSubmissionSet.value.submitting_orgs
+      ) {
+        return null
+      }
+      const result = currentSubmissionSet.value.submitting_orgs.map(
+        (soUuid) =>
+          store.organisations[store.submittingOrgs[soUuid].organisation]
+            .sodar_uuid
+      )
+      return result
+    },
+    set(value) {
+      if (!currentSubmissionSet.value) {
+        return
+      }
+      store.updateCurrentSubmissionSetOrganisations(value)
+    },
+  }),
+}
+// Define validation rules.
+const rules = computed(() => {
+  if (currentSubmissionSet.value) {
+    return {
+      title: {
+        required,
+        minLength: minLength(3),
+        $autoDirty: true,
+      },
+      state: {
+        required,
+        validChoice: (x) => SUBMISSION_SET_STATE_CHOICES.includes(x),
+      },
+      submitter: {
+        required,
+        validChoice: function (x) {
+          return submitterUuids.value.includes(x)
+        },
+      },
+      organisations: {
+        required: (x) => {
+          return x && x.length
+        },
+        validChoice: function (orgUuids) {
+          for (const orgUuid of orgUuids) {
+            if (!orgUuids.includes(orgUuid)) {
+              return false
+            }
+          }
+          return true
+        },
+      },
+    }
+  } else {
+    return {}
+  }
+})
+
+// Define vuelidate object
+const v$ = useVuelidate(rules, formState)
+
+onMounted(() => {
+  v$.value.$touch()
+})
+
+// Helper method to return label for an organisation UUID
+const getOrgLabel = (orgUuid) => {
+  if (store.organisations && store.organisations[orgUuid]) {
+    return store.organisations[orgUuid].name
+  } else {
+    return ''
+  }
+}
+
+/**
+ * @returns {boolean} <code>true</code> if there are no validation errors and <code>false</code> otherwise
+ */
+const isValid = () => !v$.$errors
+
+// Define the exposed functions
+defineExpose({
+  isValid,
+})
+</script>
+
 <template>
   <div class="card-body">
     <div class="alert alert-info small pl-3">
@@ -13,19 +152,20 @@
         <label for="input-title">Title</label>
         <input
           id="input-title"
-          v-model.trim.lazy="title"
+          v-model.trim.lazy="v$.title.$model"
           :class="{
-            'form-control is-valid': !$v.title.$error,
-            'form-control is-invalid': $v.title.$error,
+            'form-control is-valid': !v$.title.$error,
+            'form-control is-invalid': v$.title.$error,
           }"
           placeholder="Enter submission title"
           required
         />
-        <div v-if="!$v.title.required" class="invalid-feedback">
-          Field is required.
-        </div>
-        <div v-if="!$v.title.minLength" class="invalid-feedback">
-          Must be set with at least 3 character.
+        <div
+          v-for="error of v$.title.$errors"
+          :key="error.$uid"
+          class="invalid-feedback"
+        >
+          {{ error.$message }}
         </div>
         <small class="form-text text-muted">
           The title of the submission is only used for display in VarFish and
@@ -37,27 +177,28 @@
         <label for="input-submitter">Submitter</label>
         <select
           id="input-submitter"
-          v-model="submitter"
+          v-model="v$.submitter.$model"
           :class="{
-            'custom-select is-valid': !$v.submitter.$error,
-            'custom-select is-invalid': $v.submitter.$error,
+            'custom-select is-valid': !v$.submitter.$error,
+            'custom-select is-invalid': v$.submitter.$error,
           }"
           required
         >
           <option>Chose...</option>
           <option
-            v-for="submitter in submitters"
+            v-for="submitter in store.submitters"
             :key="submitter.sodar_uuid"
             :value="submitter.sodar_uuid"
           >
             {{ submitter.name }}
           </option>
         </select>
-        <div v-if="!$v.submitter.required" class="invalid-feedback">
-          Must be provided.
-        </div>
-        <div v-if="!$v.submitter.validChoice" class="invalid-feedback">
-          Must be a valid choice.
+        <div
+          v-for="error of v$.submitter.$errors"
+          :key="error.$uid"
+          class="invalid-feedback"
+        >
+          {{ error.$message }}
         </div>
         <small class="form-text text-muted">
           The person who will do the ClinVar XML submission (must register
@@ -69,23 +210,28 @@
         <label for="input-state">Submission Set State</label>
         <select
           id="input-state"
-          v-model="state"
+          v-model="v$.state.$model"
           :class="{
-            'custom-select is-valid': !$v.state.$error,
-            'custom-select is-invalid': $v.state.$error,
+            'custom-select is-valid': !v$.state.$error,
+            'custom-select is-invalid': v$.state.$error,
           }"
           required
         >
           <option>Chose...</option>
-          <option v-for="state in stateChoices" :key="state" :value="state">
+          <option
+            v-for="state in SUBMISSION_SET_STATE_CHOICES"
+            :key="state"
+            :value="state"
+          >
             {{ state }}
           </option>
         </select>
-        <div v-if="!$v.submitter.required" class="invalid-feedback">
-          Must be provided.
-        </div>
-        <div v-if="!$v.submitter.validChoice" class="invalid-feedback">
-          Must be a valid choice.
+        <div
+          v-for="error of v$.state.$errors"
+          :key="error.$uid"
+          class="invalid-feedback"
+        >
+          {{ error.$message }}
         </div>
         <small class="form-text text-muted">
           The person who will do the ClinVar XML submission (must register
@@ -97,24 +243,25 @@
         <label for="input-organisations">Submitting Organisation(s)</label>
         <multiselect
           id="input-organisations"
-          v-model="organisations"
+          v-model="v$.organisations.$model"
           placeholder="Select submitting organisations"
-          required
-          :options="orgUuids"
+          mode="tags"
+          :options="orgOptions"
           :custom-label="getOrgLabel"
-          :multiple="true"
+          :searchable="true"
           :close-on-select="false"
           :class="{
-            'is-valid': !$v.organisations.$error,
-            'is-invalid': $v.organisations.$error,
+            'is-valid': !v$.organisations.$error,
+            'is-invalid': v$.organisations.$error,
           }"
           aria-describedby="input-group-organisations-feedback"
         ></multiselect>
-        <div v-if="!$v.organisations.required" class="invalid-feedback">
-          You must select at least one organisation.
-        </div>
-        <div v-if="!$v.organisations.validChoice" class="invalid-feedback">
-          Organisations must be valid.
+        <div
+          v-for="error of v$.organisations.$errors"
+          :key="error.$uid"
+          class="invalid-feedback"
+        >
+          {{ error.$message }}
         </div>
         <small class="form-text text-muted">
           Select one or more submitting organisations. The first one will become
@@ -125,132 +272,7 @@
   </div>
 </template>
 
-<script>
-import Multiselect from 'vue-multiselect'
-import { validationMixin } from 'vuelidate'
-import { minLength, required } from 'vuelidate/lib/validators'
-import { mapActions, mapState } from 'vuex'
-
-const STATE_CHOICES = Object.freeze([
-  'draft',
-  'discontinued',
-  'pending',
-  'submitted',
-  'released',
-  'rejected',
-])
-
-function generateVuexVuelidateWrappers(keys) {
-  return Object.fromEntries(
-    keys.map((key) => [
-      key,
-      {
-        get() {
-          return this.currentSubmissionSet[key]
-        },
-        set(value) {
-          this.updateCurrentSubmissionSet({ key, value })
-          this.$v[key].$touch()
-        },
-      },
-    ])
-  )
-}
-
-export default {
-  components: { Multiselect },
-  mixins: [validationMixin],
-  computed: {
-    ...mapState({
-      orgs: (state) => state.clinvarExport.organisations,
-      submitters: (state) => state.clinvarExport.submitters,
-      submittingOrgs: (state) => state.clinvarExport.submittingOrgs,
-      currentSubmissionSet: (state) => state.clinvarExport.currentSubmissionSet,
-    }),
-
-    ...generateVuexVuelidateWrappers(['title', 'submitter', 'state']),
-
-    organisations: {
-      get() {
-        return this.currentSubmissionSet.submitting_orgs.map(
-          (soUuid) =>
-            this.orgs[this.submittingOrgs[soUuid].organisation].sodar_uuid
-        )
-      },
-      set(value) {
-        this.updateCurrentSubmissionSetOrganisations(value)
-      },
-    },
-
-    stateChoices() {
-      return STATE_CHOICES
-    },
-    submitterChoices: function () {
-      return Array.from(Object.values(this.submitters), (o) => ({
-        value: o.sodar_uuid,
-        text: o.name,
-      }))
-    },
-    submitterUuids: function () {
-      return Array.from(Object.values(this.submitters), (o) => o.sodar_uuid)
-    },
-    orgUuids: function () {
-      return Array.from(Object.values(this.orgs), (o) => o.sodar_uuid)
-    },
-  },
-  validations: {
-    title: {
-      required,
-      minLength: minLength(3),
-    },
-    state: {
-      required,
-      validChoice: (x) => STATE_CHOICES.includes(x),
-    },
-    submitter: {
-      required,
-      validChoice: function (x) {
-        return this.submitterUuids.includes(x)
-      },
-    },
-    organisations: {
-      required: (x) => {
-        return x && x.length
-      },
-      validChoice: function (orgUuids) {
-        for (const orgUuid of orgUuids) {
-          if (!this.orgUuids.includes(orgUuid)) {
-            return false
-          }
-        }
-        return true
-      },
-    },
-  },
-  mounted() {
-    this.$v.$touch()
-  },
-  methods: {
-    ...mapActions('clinvarExport', [
-      'updateCurrentSubmissionSetOrganisations',
-      'updateCurrentSubmissionSet',
-    ]),
-
-    getOrgLabel(orgUuid) {
-      return this.orgs[orgUuid].name
-    },
-    validateState(name) {
-      const { $dirty, $error } = this.$v[name]
-      return $dirty ? !$error : null
-    },
-    isValid() {
-      return !this.$v.$invalid
-    },
-  },
-}
-</script>
-
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style src="@vueform/multiselect/themes/default.css"></style>
 
 <style>
 .is-invalid .multiselect__tags {
