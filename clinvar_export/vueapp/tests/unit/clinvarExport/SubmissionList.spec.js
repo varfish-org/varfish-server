@@ -1,5 +1,4 @@
 import { createLocalVue, mount } from '@vue/test-utils'
-import BootstrapVue from 'bootstrap-vue'
 import flushPromises from 'flush-promises'
 import Vue from 'vue'
 import Vuex from 'vuex'
@@ -30,7 +29,6 @@ import {
 
 // Set up extended Vue constructor
 const localVue = createLocalVue()
-localVue.use(BootstrapVue)
 localVue.use(Vuex)
 
 // Mock out the clinvarExport API
@@ -43,6 +41,12 @@ describe('SubmissionList.vue', () => {
   beforeAll(() => {
     // Disable warnings
     jest.spyOn(console, 'warn').mockImplementation(jest.fn())
+    // Mock out jquery dollar function for showing modals
+    global.$ = jest.fn()
+  })
+
+  afterAll(() => {
+    global.$.mockRestore()
   })
 
   beforeEach(() => {
@@ -70,6 +74,7 @@ describe('SubmissionList.vue', () => {
     Object.keys(clinvarExportApi).forEach((method) =>
       clinvarExportApi[method].mockClear()
     )
+    global.$.mockClear()
   })
 
   // Simple case: one submission, complex case: two submission, in one
@@ -182,14 +187,31 @@ describe('SubmissionList.vue', () => {
       localVue,
     })
 
+    global.$.mockReturnValue({
+      modal: jest.fn((action) => {
+        const classes = wrapper.vm.$refs.modalAddSubmission.classList
+        if (action === 'show') {
+          if (!classes.contains('show')) {
+            classes.remove('fade')
+            classes.add('show')
+          }
+        } else if (action === 'hide') {
+          if (!classes.contains('fade')) {
+            classes.add('fade')
+            classes.remove('show')
+          }
+        }
+      }),
+    })
+
     Vue.set(store.state.clinvarExport, 'currentSubmission', submission1)
 
     expect(wrapper.vm.$refs.modalAddSubmission).toBeDefined()
-    expect(wrapper.vm.$refs.modalAddSubmission.isVisible).toBe(false)
+    expect(wrapper.vm.$refs.modalAddSubmission.classList).not.toContain('show')
     await wrapper.vm.$refs.buttonAddSubmission.click()
     await waitNT(wrapper.vm)
     await waitRAF()
-    expect(wrapper.vm.$refs.modalAddSubmission.isVisible).toBe(true)
+    expect(wrapper.vm.$refs.modalAddSubmission.classList).toContain('show')
 
     await flushPromises()
 
@@ -234,7 +256,7 @@ describe('SubmissionList.vue', () => {
     const submissionList = wrapper.vm.$root.$children[0]
 
     expect(submissionList.isValid()).toBe(true)
-    expect(wrapper.vm.$refs.modalAddSubmission.isVisible).toBe(true)
+    expect(wrapper.vm.$refs.modalAddSubmission.classList).toContain('show')
     expect(Object.keys(store.state.clinvarExport.submissions).length).toBe(2)
     await wrapper.vm.$refs.buttonAddSelectedSubmissions.click()
 
@@ -350,14 +372,11 @@ describe('SubmissionList.vue', () => {
       Object.keys(submissionList.$data.rawModalUserAnnotations.smallVariants)
     ).toEqual(['GRCh37-17-41201211-T-G'])
 
-    await waitNT(wrapper.vm)
-    expect(
-      document.getElementsByClassName('user-annotation-list-item').length
-    ).toBe(1)
+    // Note that for some reason, the DOM is not properly updated in tests.
+    expect(wrapper.vm.$refs.userAnnotationList.childElementCount).toBe(2)
+    expect(submissionList.$data.modalUserAnnotations.length).toBe(1)
     expect(submissionList.$data.selectedSmallVariants).toEqual([])
-    await document
-      .getElementsByClassName('user-annotation-list-item')[0]
-      .click()
+    await wrapper.vm.$refs.userAnnotationList.children[1].click()
     expect(submissionList.$data.selectedSmallVariants).toEqual([
       'GRCh37-17-41201211-T-G',
     ])

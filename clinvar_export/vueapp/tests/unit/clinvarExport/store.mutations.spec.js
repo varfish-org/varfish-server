@@ -750,7 +750,7 @@ describe('mutations', () => {
         record_status: 'novel',
         release_status: 'public',
         significance_description: 'Pathogenic',
-        significance_last_evaluation: '2020-11-09 13:37',
+        significance_last_evaluation: '2020-11-09',
         significance_status: 'criteria provided, single submitter',
         sodar_uuid: 'xxxxxxxx-xxxx-4xxx-mock-mockmockmock',
         sort_order: 0,

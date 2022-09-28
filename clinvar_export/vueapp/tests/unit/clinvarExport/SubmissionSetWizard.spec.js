@@ -1,5 +1,4 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils'
-import BootstrapVue from 'bootstrap-vue'
 import flushPromises from 'flush-promises'
 import Vue from 'vue'
 import Vuex from 'vuex'
@@ -17,7 +16,6 @@ import {
 
 // Set up extended Vue constructor
 const localVue = createLocalVue()
-localVue.use(BootstrapVue)
 localVue.use(Vuex)
 
 // Mock out the clinvarExport API
@@ -30,6 +28,14 @@ describe('SubmissionSetWizard.vue', () => {
   beforeAll(() => {
     // Disable warnings
     jest.spyOn(console, 'warn').mockImplementation(jest.fn())
+    // Mock out global.alert() and global.confirm()
+    global.alert = jest.fn()
+    global.confirm = jest.fn()
+  })
+
+  afterAll(() => {
+    global.alert.mockRestore()
+    global.confirm.mockRestore()
   })
 
   beforeEach(() => {
@@ -86,11 +92,6 @@ describe('SubmissionSetWizard.vue', () => {
     // Setup isValid as submissionSetList is a stub
     submissionSetWizard.$refs.submissionSetList.isValid = () => true
 
-    // Stub out msgBoxConfirm from the modal to always return true
-    submissionSetWizard.$bvModal.msgBoxConfirm = jest.fn((_title, _options) =>
-      Promise.resolve(true)
-    )
-
     return submissionSetWizard
   }
 
@@ -101,22 +102,11 @@ describe('SubmissionSetWizard.vue', () => {
     expect(await submissionSetWizard.getNotificationHtmlClass()).toBe(
       'badge badge-success'
     )
-    expect(await submissionSetWizard.breadcrumbItems()).toEqual([
-      {
-        active: true,
-        href: '#',
-        text: 'Submission Set',
-      },
-      {
-        active: false,
-        href: '#',
-        text: 'Submissions',
-      },
-    ])
   })
 
   test('check onRemoveClick', async () => {
     const submissionSetWizard = await testPreamble()
+    global.confirm.mockReturnValueOnce(true)
 
     await submissionSetWizard.onRemoveClicked()
 
@@ -132,6 +122,7 @@ describe('SubmissionSetWizard.vue', () => {
 
   test('check onCancelClicked', async () => {
     const submissionSetWizard = await testPreamble()
+    global.confirm.mockReturnValueOnce(true)
 
     await submissionSetWizard.onCancelClicked()
 

@@ -58,16 +58,11 @@ export function removeItemAll(arr, value) {
  *
  * @param cb Callback to call on success.
  * @param message Message to display for error notification.
- * @param title Title of error notification.
  * @returns {boolean} whether or not the currently displayed form was valid.
  */
-export function validConfirmed(
-  cb,
-  message = 'Please fix the problems first.',
-  title = 'invalid data'
-) {
+export function validConfirmed(cb, message = 'Please fix the problems first.') {
   if (!this.isValid()) {
-    this.$bvModal.msgBoxOk(message, { title })
+    alert(message)
     return false
   } else {
     if (cb) {
