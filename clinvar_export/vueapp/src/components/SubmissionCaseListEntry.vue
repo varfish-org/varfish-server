@@ -1,15 +1,231 @@
+<script setup>
+import Multiselect from '@vueform/multiselect'
+import { useVuelidate } from '@vuelidate/core'
+import { helpers, numeric, required } from '@vuelidate/validators'
+import { computed, onMounted, ref } from 'vue'
+
+import clinvarExportApi from '@/api/clinvarExport'
+import {
+  useClinvarExportStore,
+  VARIANT_ZYGOSITY_OPTIONS,
+  VARIANT_ORIGIN_OPTIONS,
+  SAMPLE_SOURCE_OPTIONS,
+} from '@/stores/clinvar-export'
+
+const components = { Multiselect }
+
+// Define props and emits and related writeable computed propery
+const props = defineProps(['modelValue'])
+const emit = defineEmits(['update:modelValue'])
+const value = computed({
+  get() {
+    return props.modelValue
+  },
+  set(value) {
+    emit('update:modelValue', value)
+  },
+})
+
+const getIndividualName = () => {
+  if (value.value) {
+    const submissionIndividual =
+      store.submissionIndividuals[value.value.sodar_uuid]
+    return store.individuals[submissionIndividual.individual].name
+      .replace('-N1-DNA1-WES1', '')
+      .replace('-N1-DNA1-WGS1', '')
+  } else {
+    return null
+  }
+}
+
+// Define Pinia store
+const store = useClinvarExportStore()
+
+// Local state used for loading HPO terms
+const hpoTermsLoading = ref(false)
+
+// Helper function to build wrappers that set the values via the store
+function _vuelidateWrappers(keys) {
+  return Object.fromEntries(
+    keys.map((key) => [
+      key,
+      computed({
+        get() {
+          if (!value.value) {
+            return null
+          }
+          return store.submissionIndividuals[value.value.sodar_uuid][key]
+        },
+        set(newValue) {
+          if (!value.value.sodar_uuid) {
+            return
+          }
+          const submissionIndividual =
+            store.submissionIndividuals[value.value.sodar_uuid]
+          submissionIndividual[key] = newValue
+        },
+      }),
+    ])
+  )
+}
+
+// Define object with the data to edit in the form.  We construct custom wrappers so we can easily pass this into vuelidate.
+const formState = {
+  ..._vuelidateWrappers([
+    'source',
+    'tissue',
+    'variant_origin',
+    'variant_allele_count',
+    'variant_zygosity',
+  ]),
+  phenotypes: computed({
+    get() {
+      if (!value.value || !value.value.sodar_uuid) {
+        return []
+      } else {
+        return store.submissionIndividuals[
+          value.value.sodar_uuid
+        ].phenotypes.map((obj) => {
+          return {
+            value: obj,
+            label: `${obj.term_id} -- ${obj.term_name}`,
+          }
+        })
+      }
+    },
+    set(newValue) {
+      if (!value.value || !value.value.sodar_uuid) {
+        return
+      } else {
+        store.updateSubmissionIndividual({
+          submissionIndividual: value.value,
+          key: 'phenotypes',
+          value: newValue.map((v) => v.value),
+        })
+      }
+    },
+  }),
+  citations: computed({
+    get() {
+      if (!value.value) {
+        return ''
+      }
+      const submissionIndividual =
+        store.submissionIndividuals[value.value.sodar_uuid]
+      return submissionIndividual.citations.join(' ')
+    },
+    set(newValue) {
+      const submissionIndividual =
+        store.submissionIndividuals[value.value.sodar_uuid]
+      store.updateSubmissionIndividual({
+        submissionIndividual,
+        key: 'citations',
+        value: newValue.split(/[ ,]+/),
+      })
+    },
+  }),
+}
+
+// Define validation rules.
+const rules = {
+  phenotypes: {},
+  variant_allele_count: {
+    required,
+    numeric,
+  },
+  variant_zygosity: {
+    isValidChoice: (x) => VARIANT_ZYGOSITY_OPTIONS.includes(x),
+  },
+  variant_origin: {
+    required,
+    isValidChoice: (x) => VARIANT_ORIGIN_OPTIONS.includes(x),
+  },
+  source: {
+    required,
+    isValidChoice: (x) => SAMPLE_SOURCE_OPTIONS.includes(x),
+  },
+  tissue: {
+    required,
+  },
+  citations: {
+    isValidChoice: (pmids) =>
+      !helpers.req(pmids) ||
+      pmids.split(/[ ,]+/).every((s) => s.match(/^PMID:\d+$/)),
+  },
+}
+
+// Define vuelidate object
+const v$ = useVuelidate(rules, formState)
+
+const mounted = () => {
+  v$.$touch()
+}
+
+/**
+ * @param up whether to consider up movement (false is down)
+ * @return {boolean} whether moving into the given direction is currently disabled
+ */
+const isMoveDisabled = (up) => {
+  if (!props.modelValue) {
+    return true
+  }
+  const other = props.modelValue.sort_order + (up ? -1 : 1)
+  return (
+    other < 0 || other >= store.currentSubmission.submission_individuals.length
+  )
+}
+
+/**
+ * Find HPO term matching the `query` nad set into appropriate local stae.
+ *
+ * @param query The query string to search for.
+ */
+const asyncFindHpoTerms = async (query) => {
+  hpoTermsLoading.value = true
+  const response = await clinvarExportApi.queryHpo(store.appContext, query)
+  const result = response.result.map((obj) => {
+    return {
+      value: obj,
+      label: `${obj.term_id} -- ${obj.term_name}`,
+    }
+  })
+  hpoTermsLoading.value = false
+  return result
+}
+
+/**
+ * @return {boolean} whether the form is currently valid or not
+ */
+const isValid = () => {
+  return !v$.$invalid
+}
+
+onMounted(() => {
+  v$.value.$touch()
+})
+
+// Define the exposed functions
+defineExpose({
+  isValid,
+  // for testing
+  hpoTermsLoading,
+  isMoveDisabled,
+  store,
+})
+</script>
+
 <template>
   <div class="card">
     <div class="card-header">
       <h4 class="mb-0 ml-0">
-        Case &raquo;{{ individual ? individual.name : 'null' }}&laquo;
+        Case &raquo;{{ getIndividualName() }}&laquo;
         <div class="btn-group float-right pb-0 mb-0">
           <button
             type="button"
             class="btn btn-sm btn-secondary"
             :disabled="isMoveDisabled(true)"
             @click="
-              moveSubmissionIndividual({
+              store.moveSubmissionIndividual({
                 submissionIndividual: value,
                 up: true,
               })
@@ -23,7 +239,7 @@
             class="btn btn-sm btn-secondary"
             :disabled="isMoveDisabled(false)"
             @click="
-              moveSubmissionIndividual({
+              store.moveSubmissionIndividual({
                 submissionIndividual: value,
                 up: false,
               })
@@ -35,7 +251,9 @@
           <button
             type="button"
             class="btn btn-sm btn-danger"
-            @click="removeSubmissionIndividualFromCurrentSubmission(value)"
+            @click="
+              store.removeSubmissionIndividualFromCurrentSubmission(value)
+            "
           >
             <span
               class="iconify"
@@ -54,23 +272,24 @@
             <label for="input-phenotypes">Phenotype HPO Terms</label>
             <multiselect
               id="input-phenotypes"
-              v-model="phenotypes"
+              v-model="v$.phenotypes.$model"
               placeholder="Add HPO terms for this individual"
-              track-by="term_id"
-              :class="{
-                'is-valid': !$v.phenotypes.$error,
-                'is-invalid': $v.phenotypes.$error,
-              }"
-              :options="hpoTermsOptions"
-              :custom-label="getHpoTermLabel"
-              :loading="hpoTermsLoading"
-              :internal-search="false"
-              :hide-selected="true"
-              :multiple="true"
+              mode="tags"
+              :filter-results="false"
               :allow-empty="true"
               :close-on-select="true"
+              :searchable="true"
+              :object="true"
+              :resolve-on-load="false"
+              :loading="hpoTermsLoading"
+              :delay="1"
+              :min-chars="2"
               style="white-space: nowrap"
-              @search-change="asyncFindHpoTerms"
+              :class="{
+                'is-valid': !v$.phenotypes.$error,
+                'is-invalid': v$.phenotypes.$error,
+              }"
+              :options="asyncFindHpoTerms"
             ></multiselect>
             <small class="form-text text-muted">
               Add any HPO terms that are present in the individual.
@@ -84,28 +303,28 @@
             <label for="input-source">Sample Source</label>
             <select
               id="input-source"
-              v-model="source"
+              v-model="v$.source.$model"
               required
-              :options="sampleSourceOptions"
               :class="{
-                'custom-select is-valid': !$v.source.$error,
-                'custom-select is-invalid': $v.source.$error,
+                'custom-select is-valid': !v$.source.$error,
+                'custom-select is-invalid': v$.source.$error,
               }"
             >
               <option>Chose...</option>
               <option
-                v-for="sampleSourceOption in sampleSourceOptions"
+                v-for="sampleSourceOption in SAMPLE_SOURCE_OPTIONS"
                 :key="sampleSourceOption"
                 :value="sampleSourceOption"
               >
                 {{ sampleSourceOption }}
               </option>
             </select>
-            <div v-if="!$v.source.required" class="invalid-feedback">
-              Must be provided.
-            </div>
-            <div v-if="!$v.source.isValidChoice" class="invalid-feedback">
-              Must be a valid sample source.
+            <div
+              v-for="error of v$.source.$errors"
+              :key="error.$uid"
+              class="invalid-feedback"
+            >
+              {{ error.$message }}
             </div>
           </div>
         </div>
@@ -114,15 +333,19 @@
             <label for="input-source">Tissue</label>
             <input
               id="input-tissue"
-              v-model="tissue"
+              v-model="v$.tissue.$model"
               required
               :class="{
-                'form-control is-valid': !$v.tissue.$error,
-                'form-control is-invalid': $v.tissue.$error,
+                'form-control is-valid': !v$.tissue.$error,
+                'form-control is-invalid': v$.tissue.$error,
               }"
             />
-            <div v-if="!$v.tissue.required" class="invalid-feedback">
-              Must be provided.
+            <div
+              v-for="error of v$.tissue.$errors"
+              :key="error.$uid"
+              class="invalid-feedback"
+            >
+              {{ error.$message }}
             </div>
           </div>
         </div>
@@ -131,18 +354,19 @@
             <label for="input-citations">Citations</label>
             <input
               id="input-citations"
-              v-model.trim="citations"
+              v-model.trim="v$.citations.$model"
               required
               :class="{
-                'form-control is-valid': !$v.citations.$error,
-                'form-control is-invalid': $v.citations.$error,
+                'form-control is-valid': !v$.citations.$error,
+                'form-control is-invalid': v$.citations.$error,
               }"
             />
-            <div v-if="!$v.citations.required" class="invalid-feedback">
-              Must be provided.
-            </div>
-            <div v-if="!$v.citations.isValidChoice" class="invalid-feedback">
-              Specify the citations as &laquo;PMID:123 PID:456&raquo;
+            <div
+              v-for="error of v$.citations.$errors"
+              :key="error.$uid"
+              class="invalid-feedback"
+            >
+              {{ error.$message }}
             </div>
           </div>
         </div>
@@ -153,31 +377,28 @@
             <label for="input-source">Variant Origin</label>
             <select
               id="input-variant-origin"
-              v-model="variant_origin"
+              v-model="v$.variant_origin.$model"
               required
-              :options="variantOriginOptions"
               :class="{
-                'custom-select is-valid': !$v.variant_origin.$error,
-                'custom-select is-invalid': $v.variant_origin.$error,
+                'custom-select is-valid': !v$.variant_origin.$error,
+                'custom-select is-invalid': v$.variant_origin.$error,
               }"
             >
               <option>Chose...</option>
               <option
-                v-for="variantOriginOption in variantOriginOptions"
+                v-for="variantOriginOption in VARIANT_ORIGIN_OPTIONS"
                 :key="variantOriginOption"
                 :value="variantOriginOption"
               >
                 {{ variantOriginOption }}
               </option>
             </select>
-            <div v-if="!$v.variant_origin.required" class="invalid-feedback">
-              Must be provided.
-            </div>
             <div
-              v-if="!$v.variant_origin.isValidChoice"
+              v-for="error of v$.variant_origin.$errors"
+              :key="error.$uid"
               class="invalid-feedback"
             >
-              Must be a valid variant origin.
+              {{ error.$message }}
             </div>
           </div>
         </div>
@@ -186,24 +407,19 @@
             <label for="input-source">Variant Allele Count</label>
             <input
               id="input-variant-allele-count"
-              v-model="variant_allele_count"
+              v-model="v$.variant_allele_count.$model"
               required
               :class="{
-                'form-control is-valid': !$v.variant_allele_count.$error,
-                'form-control is-invalid': $v.variant_allele_count.$error,
+                'form-control is-valid': !v$.variant_allele_count.$error,
+                'form-control is-invalid': v$.variant_allele_count.$error,
               }"
             />
             <div
-              v-if="!$v.variant_allele_count.required"
+              v-for="error of v$.variant_allele_count.$errors"
+              :key="error.$uid"
               class="invalid-feedback"
             >
-              Must be provided.
-            </div>
-            <div
-              v-if="!$v.variant_allele_count.isValidChoice"
-              class="invalid-feedback"
-            >
-              Must be a valid variant allele count.
+              {{ error.$message }}
             </div>
           </div>
         </div>
@@ -212,25 +428,28 @@
             <label for="input-source">Variant Zygosity</label>
             <select
               id="input-variant-zygosity"
-              v-model="variant_zygosity"
+              v-model="v$.variant_zygosity.$model"
               required
-              :options="variantZygosityOptions"
               :class="{
-                'custom-select is-valid': !$v.variant_zygosity.$error,
-                'custom-select is-invalid': $v.variant_zygosity.$error,
+                'custom-select is-valid': !v$.variant_zygosity.$error,
+                'custom-select is-invalid': v$.variant_zygosity.$error,
               }"
             >
               <option>Chose...</option>
               <option
-                v-for="variantZygosityOption in variantZygosityOptions"
+                v-for="variantZygosityOption in VARIANT_ZYGOSITY_OPTIONS"
                 :key="variantZygosityOption"
                 :value="variantZygosityOption"
               >
                 {{ variantZygosityOption }}
               </option>
             </select>
-            <div v-if="!$v.variant_zygosity.required" class="invalid-feedback">
-              Must be provided.
+            <div
+              v-for="error of v$.variant_zygosity.$errors"
+              :key="error.$uid"
+              class="invalid-feedback"
+            >
+              {{ error.$message }}
             </div>
           </div>
         </div>
@@ -238,257 +457,6 @@
     </div>
   </div>
 </template>
-
-<script>
-import Multiselect from 'vue-multiselect'
-import { validationMixin } from 'vuelidate'
-import { helpers, numeric, required } from 'vuelidate/lib/validators'
-import { mapActions, mapState } from 'vuex'
-
-import clinvarExportApi from '@/api/clinvarExport'
-
-const VARIANT_ZYGOSITY_OPTIONS = Object.freeze([
-  'Homozygote',
-  'Single heterozygote',
-  'Compound heterozygote',
-  'Hemizygote',
-  'not provided',
-])
-const VARIANT_ORIGIN_OPTIONS = Object.freeze([
-  'not provided',
-  'germline',
-  'somatic',
-  'de novo',
-  'unknown',
-  'inherited',
-  'maternal',
-  'paternal',
-  'uniparental',
-  'biparental',
-  'not-reported',
-  'tested-inconclusive',
-  'not applicable',
-  'experimentally generated',
-])
-const SAMPLE_SOURCE_OPTIONS = Object.freeze([
-  'curation',
-  'literature only',
-  'provider interpretation',
-  'phenotyping only',
-  'case-control',
-  'clinical testing',
-  'in vitro',
-  'in vivo',
-  'research',
-  'not provided',
-])
-
-function generateVuexVuelidateWrappers(keys) {
-  return Object.fromEntries(
-    keys.map((key) => [
-      key,
-      {
-        get() {
-          if (!this.value) {
-            return null
-          }
-          return this.submissionIndividuals[this.value.sodar_uuid][key]
-        },
-        set(value) {
-          const submissionIndividual =
-            this.submissionIndividuals[this.value.sodar_uuid]
-          this.updateSubmissionIndividual({ submissionIndividual, key, value })
-          this.$v[key].$touch()
-        },
-      },
-    ])
-  )
-}
-
-export default {
-  components: { Multiselect },
-  mixins: [validationMixin],
-  props: {
-    value: {
-      type: Object,
-      default: null,
-    },
-  },
-  data() {
-    return {
-      hpoTermsLoading: false,
-      hpoTermsOptions: [],
-      variantOriginOptions: VARIANT_ORIGIN_OPTIONS,
-      variantZygosityOptions: VARIANT_ZYGOSITY_OPTIONS,
-      sampleSourceOptions: SAMPLE_SOURCE_OPTIONS,
-    }
-  },
-  computed: {
-    ...mapState({
-      appContext: (state) => state.clinvarExport.appContext,
-      currentSubmission: (state) => state.clinvarExport.currentSubmission,
-      individuals: (state) => state.clinvarExport.individuals,
-      submissionIndividuals: (state) =>
-        state.clinvarExport.submissionIndividuals,
-    }),
-
-    ...generateVuexVuelidateWrappers([
-      'source',
-      'tissue',
-      'variant_origin',
-      'variant_allele_count',
-      'variant_zygosity',
-    ]),
-
-    phenotypes: {
-      get() {
-        if (!this.value) {
-          return []
-        }
-        return this.submissionIndividuals[this.value.sodar_uuid].phenotypes
-      },
-      set(value) {
-        this.updateSubmissionIndividual({
-          submissionIndividual: this.value,
-          key: 'phenotypes',
-          value,
-        })
-      },
-    },
-
-    citations: {
-      get() {
-        if (!this.value) {
-          return ''
-        }
-        const submissionIndividual =
-          this.submissionIndividuals[this.value.sodar_uuid]
-        return submissionIndividual.citations.join(' ')
-      },
-      set(value) {
-        const submissionIndividual =
-          this.submissionIndividuals[this.value.sodar_uuid]
-        this.updateSubmissionIndividual({
-          submissionIndividual,
-          key: 'citations',
-          value: value.split(/[ ,]+/),
-        })
-        this.$v.citations.$touch()
-      },
-    },
-
-    individual() {
-      if (!this.value || !this.individuals) {
-        return null
-      } else {
-        return this.individuals[this.value.individual]
-      }
-    },
-  },
-  validations: {
-    phenotypes: {},
-    variant_allele_count: {
-      required,
-      isValid: (x) => !x || numeric(x),
-    },
-    variant_zygosity: {
-      isValidChoice: (x) => VARIANT_ZYGOSITY_OPTIONS.includes(x),
-    },
-    variant_origin: {
-      required,
-      isValidChoice: (x) => VARIANT_ORIGIN_OPTIONS.includes(x),
-    },
-    source: {
-      required,
-      isValidChoice: (x) => SAMPLE_SOURCE_OPTIONS.includes(x),
-    },
-    tissue: {
-      required,
-    },
-    citations: {
-      isValidChoice: (pmids) =>
-        !helpers.req(pmids) ||
-        pmids.split(/[ ,]+/).every((s) => s.match(/^PMID:\d+$/)),
-    },
-  },
-  mounted() {
-    this.$v.$touch()
-  },
-  methods: {
-    ...mapActions('clinvarExport', [
-      'updateSubmissionIndividual',
-      'moveSubmissionIndividual',
-      'removeSubmissionIndividualFromCurrentSubmission',
-    ]),
-
-    /**
-     * @param up whether to consider up movement (false is down)
-     * @return {boolean} whether moving into the given direction is currently disabled
-     */
-    isMoveDisabled(up) {
-      if (!this.value) {
-        return true
-      }
-      const other = this.value.sort_order + (up ? -1 : 1)
-      return (
-        other < 0 ||
-        other >= this.currentSubmission.submission_individuals.length
-      )
-    },
-    /**
-     * @param o Object with `term_id` and `term_name` entires.
-     * @returns {string} Appropriate label for the term.
-     */
-    getHpoTermLabel(o) {
-      if (o.term_name.length < 10) {
-        return `${o.term_id} - ${o.term_name}`
-      } else {
-        return `${o.term_id} - ${o.term_name.slice(0, 10)}...`
-      }
-    },
-    /**
-     * Find HPO term matching the `query` nad set into appropriate local stae.
-     *
-     * @param query The query string to search for.
-     */
-    asyncFindHpoTerms(query) {
-      this.hpoTermsLoading = true
-      clinvarExportApi.queryHpo(this.appContext, query).then(
-        (response) => {
-          this.hpoTermsOptions = response.result
-          this.hpoTermsLoading = false
-        },
-        (reject) => {
-          throw new Error(`Could not query for HPO terms: ${reject}`)
-        }
-      )
-    },
-    /**
-     * Validate form input state for the given property.
-     */
-    validateState(name) {
-      if (!this.value) {
-        return null
-      }
-      const submissionIndividual =
-        this.submissionIndividuals[this.value.sodar_uuid]
-      this.updateSubmissionIndividual({
-        submissionIndividual,
-        key: '_isInvalid',
-        value: !this.isValid(),
-      })
-      const { $dirty, $error } = this.$v[name]
-      return $dirty ? !$error : null
-    },
-    /**
-     * @return {boolean} whether the form is currently invalid or not
-     */
-    isValid() {
-      return !this.$v.$invalid
-    },
-  },
-}
-</script>
 
 <style>
 .is-invalid .multiselect__tags {

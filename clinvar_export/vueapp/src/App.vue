@@ -4,12 +4,8 @@
   </div>
 </template>
 
-<script>
-import ClinvarExportApp from './components/ClinvarExportApp'
+<script setup>
+import ClinvarExportApp from './components/ClinvarExportApp.vue'
 
-export default {
-  components: { ClinvarExportApp },
-}
+const components = { ClinvarExportApp }
 </script>
-
-<style></style>

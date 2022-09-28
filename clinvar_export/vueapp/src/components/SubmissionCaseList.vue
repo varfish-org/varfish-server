@@ -1,3 +1,80 @@
+<script setup>
+import { ref, computed } from 'vue'
+import { useClinvarExportStore } from '@/stores/clinvar-export'
+
+import SubmissionCaseListEntry from './SubmissionCaseListEntry.vue'
+
+const components = { SubmissionCaseListEntry }
+
+// References
+const modalAddCaseRef = ref(null)
+
+// Define Pinia store
+const store = useClinvarExportStore()
+
+const caseCount = computed(() => {
+  return store.currentSubmission.submission_individuals.length
+})
+
+/**
+ * Build wrapped case individiuals for the current submission.
+ *
+ * We must return them in a wrapper object as we cannot iterate and use it as models directory,
+ * cf. https://stackoverflow.com/q/57974480
+ */
+const caseSubmissionIndividuals = computed(() => {
+  const result = store.currentSubmission.submission_individuals.map((uuid) => ({
+    wrapped: store.submissionIndividuals[uuid],
+  }))
+  result.sort((a, b) => a.sort_order - b.sort_order)
+  return result
+})
+
+/**
+ * Get individuals to display in the modal.
+ *
+ * @returns list of individuals from the store that are not already in the current submission
+ */
+const getModalIndividualList = () => {
+  const blockedIndividualUuids = new Set(
+    store.currentSubmission.submission_individuals.map(
+      (uuid) => store.submissionIndividuals[uuid].individual
+    )
+  )
+  const result = Object.values(store.individuals).filter(
+    (obj) => !blockedIndividualUuids.has(obj.sodar_uuid)
+  )
+  return result
+}
+
+/**
+ * Get phenotypes to display for the given Individual.
+ *
+ * @param individual to retrieve phenotype list display for
+ * @return String with the phenotypes to display.
+ */
+const getPhenotypeDisplay = (individual) => {
+  return (individual.phenotype_terms || [])
+    .map((t) => `(${t.term_id}) ${t.term_name}`)
+    .join(', ')
+}
+
+const addIndividualToCurrentSubmission = (individual) => {
+  $(modalAddCaseRef.value).modal('hide')
+  store.addIndividualToCurrentSubmission(individual)
+}
+
+/**
+ * Show the modal for adding a case to the submission.
+ */
+const showModalAddCase = () => {
+  $(modalAddCaseRef.value).modal('show')
+}
+
+// Define the exposed functions
+defineExpose({})
+</script>
+
 <template>
   <div class="border-top">
     <h3 class="border-bottom pt-3 pb-1 mb-3">
@@ -7,7 +84,7 @@
       <button
         type="button"
         class="btn btn-sm btn-primary float-right"
-        @onclick="showModalAddCase()"
+        @click="showModalAddCase()"
       >
         <span
           class="iconify"
@@ -29,7 +106,7 @@
       No individuals have been added to this submission yet.
     </p>
 
-    <div ref="modalAddCase" class="modal fade">
+    <div ref="modalAddCaseRef" class="modal fade">
       <div class="modal-dialog modal-dialog-scrollable" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -63,78 +140,5 @@
     </div>
   </div>
 </template>
-
-<script>
-import { mapActions, mapState } from 'vuex'
-
-import SubmissionCaseListEntry from './SubmissionCaseListEntry'
-
-export default {
-  components: { SubmissionCaseListEntry },
-  computed: {
-    ...mapState({
-      currentSubmission: (state) => state.clinvarExport.currentSubmission,
-      individuals: (state) => state.clinvarExport.individuals,
-      submissionIndividuals: (state) =>
-        state.clinvarExport.submissionIndividuals,
-    }),
-
-    caseCount() {
-      return this.currentSubmission.submission_individuals.length
-    },
-
-    /**
-     * Build wrapped case individiuals for the current submission.
-     *
-     * We must return them in a wrapper object as we cannot iterate and use it as models directory,
-     * cf. https://stackoverflow.com/q/57974480
-     */
-    caseSubmissionIndividuals() {
-      const result = this.currentSubmission.submission_individuals.map(
-        (uuid) => ({ wrapped: this.submissionIndividuals[uuid] })
-      )
-      result.sort((a, b) => a.sort_order - b.sort_order)
-      return result
-    },
-  },
-  methods: {
-    ...mapActions('clinvarExport', ['addIndividualToCurrentSubmission']),
-
-    /**
-     * Get individuals to display in the modal.
-     *
-     * @returns list of individuals from the store that are not already in the current submission
-     */
-    getModalIndividualList() {
-      const blockedIndividualUuids = new Set(
-        this.currentSubmission.submission_individuals.map(
-          (uuid) => this.submissionIndividuals[uuid].individual
-        )
-      )
-      const result = Object.values(this.individuals).filter(
-        (obj) => !blockedIndividualUuids.has(obj.sodar_uuid)
-      )
-      return result
-    },
-    /**
-     * Get phenotypes to display for the given Individual.
-     *
-     * @param individual to retrieve phenotype list display for
-     * @return String with the phenotypes to display.
-     */
-    getPhenotypeDisplay(individual) {
-      return (individual.phenotype_terms || [])
-        .map((t) => `(${t.term_id}) ${t.term_name}`)
-        .join(', ')
-    },
-    /**
-     * Show the modal for adding a case to the submission.
-     */
-    showModalAddCase() {
-      $(this.$refs.modalAddCase).modal('show')
-    },
-  },
-}
-</script>
 
 <style scoped></style>

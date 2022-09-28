@@ -5,8 +5,8 @@ on:
   - pull_request
 
 jobs:
-  build:
-    name: build
+  python-build:
+    name: python-build
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -70,7 +70,8 @@ jobs:
       - name: Build and run Vue app
         run: |
           npm ci --prefix clinvar_export/vueapp
-          nohup npm run -prefix clinvar_export/vueapp serve &
+          npm run build --prefix clinvar_export/vueapp
+          nohup npm run --prefix clinvar_export/vueapp serve &
       - name: download icons
         run: python manage.py geticons
       - name: run collectstatic
@@ -82,40 +83,63 @@ jobs:
           coverage report
       - name: check formatting
         run: make black arg=--check
-      - name: Codecov
+      - name: Download codecov binary
         run: |
           curl -s https://uploader.codecov.io/latest/linux/codecov > /tmp/codecov
           chmod +x /tmp/codecov
+        if: ${{ matrix.python-version == '3.8' }}
+      - name: Run Codecov for Python
+        run: |
           /tmp/codecov -cF python
-          /tmp/codecov -cF javascript
-      - name: Coveralls
-        uses: AndreMiras/coveralls-python-action@develop
+        if: ${{ matrix.python-version == '3.8' }}
+
+  python-lint:
+    name: python-lint
+    runs-on: ubuntu-20.04
+    steps:
+      - name: install Python
+        uses: actions/setup-python@v2
         with:
-          parallel: true
-          flag-name: Unit Test
+          python-version: '3.8'
+      - name: checkout repository
+        uses: actions/checkout@v2
+      - name: install project Python dependencies
+        run: |
+          pip install wheel==0.37.1
+          pip install -r requirements/local.txt
+          pip install -r requirements/test.txt
+          pip freeze
       - name: Check import order with isort
         run: |
           rm -rf src
           isort --force-sort-within-sections --profile=black --check .
-        if: ${{ matrix.python-version == '3.8' }}
       - name: Check style with black
         run: black --check --line-length 100 .
-        if: ${{ matrix.python-version == '3.8' }}
       - name: Run linting
         run: flake8
-        if: ${{ matrix.python-version == '3.8' }}
-      - name: Run Vue app tests
-        run: make test_clinvar_export_vue
-        if: ${{ matrix.python-version == '3.8' }}
-      - name: Lint Vue app
-        run: make lint_clinvar_export_vue
-        if: ${{ matrix.python-version == '3.8' }}
 
-  coveralls_finish:
-    needs: build
+  nodejs:
     runs-on: ubuntu-latest
     steps:
-    - name: Coveralls Finished
-      uses: AndreMiras/coveralls-python-action@develop
-      with:
-        parallel-finished: true
+      - name: checkout repository
+        uses: actions/checkout@v2
+      - name: Download codecov binary
+        run: |
+          curl -s https://uploader.codecov.io/latest/linux/codecov > /tmp/codecov
+          chmod +x /tmp/codecov
+      - name: Install javascript dependencies
+        run: |
+          npm ci --prefix clinvar_export/vueapp
+          # We need to patch happy-dom until 6.0.5 or so is released
+          # see patch.sh for details.
+          cd clinvar_export/vueapp
+          bash patch.sh
+          cd ..
+      - name: Run Vue app tests
+        run: |
+          make test_clinvar_export_vue
+      - name: Run Codecov for Javascript
+        run: |
+          /tmp/codecov -cF javascript
+      - name: Lint Vue app
+        run: make lint_clinvar_export_vue

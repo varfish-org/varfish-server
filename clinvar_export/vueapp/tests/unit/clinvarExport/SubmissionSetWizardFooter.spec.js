@@ -1,42 +1,40 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils'
-import Vuex from 'vuex'
+import { createTestingPinia } from '@pinia/testing'
+import { shallowMount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import SubmissionSetWizardFooter from '@/components/SubmissionSetWizardFooter.vue'
-import { WizardState } from '@/store/modules/clinvarExport.js'
+import { WizardState } from '@/stores/clinvar-export'
 
-// Set up extended Vue constructor
-const localVue = createLocalVue()
-localVue.use(Vuex)
+// Helper function for creating wrapper with `shallowMount()`.
+const makeWrapper = (clinvarExportState) => {
+  return shallowMount(SubmissionSetWizardFooter, {
+    global: {
+      plugins: [
+        createTestingPinia({
+          initialState: { clinvarExport: clinvarExportState },
+          createSpy: vi.fn,
+        }),
+      ],
+    },
+  })
+}
 
 describe('SubmissionSetWizardFooter.vue', () => {
-  let store
-
   beforeAll(() => {
     // Disable warnings
-    jest.spyOn(console, 'warn').mockImplementation(jest.fn())
+    vi.spyOn(console, 'warn').mockImplementation(vi.fn())
+    // Mock out global.alert() and global.confirm()
+    global.alert = vi.fn()
+    global.confirm = vi.fn()
   })
 
   beforeEach(() => {
-    // Setup relevant store/state fragment
-    const clinvarExport = {
-      namespaced: true,
-      state: () => ({
-        wizardState: undefined,
-      }),
-    }
-    store = new Vuex.Store({
-      modules: {
-        clinvarExport,
-      },
-    })
+    setActivePinia(createPinia())
   })
 
   test('renders correct buttons for wizardState=submissionSet', () => {
-    store.state.clinvarExport.wizardState = WizardState.submissionSet
-    const wrapper = shallowMount(SubmissionSetWizardFooter, {
-      store,
-      localVue,
-    })
+    const wrapper = makeWrapper({ wizardState: WizardState.submissionSet })
 
     expect(wrapper.vm.$refs.buttonCancel).toBeDefined()
     expect(wrapper.vm.$refs.buttonSave).toBeDefined()
@@ -45,11 +43,7 @@ describe('SubmissionSetWizardFooter.vue', () => {
   })
 
   test('renders correct buttons for wizardState=submissions', () => {
-    store.state.clinvarExport.wizardState = WizardState.submissions
-    const wrapper = shallowMount(SubmissionSetWizardFooter, {
-      store,
-      localVue,
-    })
+    const wrapper = makeWrapper({ wizardState: WizardState.submissions })
 
     expect(wrapper.vm.$refs.buttonCancel).toBeDefined()
     expect(wrapper.vm.$refs.buttonSave).toBeDefined()
@@ -58,11 +52,7 @@ describe('SubmissionSetWizardFooter.vue', () => {
   })
 
   test('emits correct signals for wizardState=submissionSet', () => {
-    store.state.clinvarExport.wizardState = WizardState.submissionSet
-    const wrapper = shallowMount(SubmissionSetWizardFooter, {
-      store,
-      localVue,
-    })
+    const wrapper = makeWrapper({ wizardState: WizardState.submissionSet })
 
     wrapper.vm.$refs.buttonCancel.click()
     expect(wrapper.emitted()['cancel-clicked']).toBeTruthy()
@@ -78,11 +68,7 @@ describe('SubmissionSetWizardFooter.vue', () => {
   })
 
   test('emits correct signals for wizardState=submissions', async () => {
-    store.state.clinvarExport.wizardState = WizardState.submissions
-    const wrapper = shallowMount(SubmissionSetWizardFooter, {
-      store,
-      localVue,
-    })
+    const wrapper = makeWrapper({ wizardState: WizardState.submissions })
 
     wrapper.vm.$refs.buttonCancel.click()
     expect(wrapper.emitted()['cancel-clicked']).toBeTruthy()

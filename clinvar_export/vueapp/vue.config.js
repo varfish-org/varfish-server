@@ -1,4 +1,3 @@
-const BundleTracker = require('webpack-bundle-tracker')
 const DEPLOYMENT_PATH = '/static/'
 
 module.exports = {
@@ -13,11 +12,5 @@ module.exports = {
     headers: {
       'Access-Control-Allow-Origin': '*',
     },
-  },
-
-  configureWebpack: (config) => {
-    config.plugins.push(
-      new BundleTracker({ path: __dirname, filename: './webpack-stats.json' })
-    )
   },
 }

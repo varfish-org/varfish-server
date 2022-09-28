@@ -359,5 +359,3 @@ varfish/media/
 celerybeat-schedule
 
 staticfiles.bak/
-
-webpack-stats.json

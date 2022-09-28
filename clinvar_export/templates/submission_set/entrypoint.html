@@ -1,6 +1,6 @@
 {% extends 'projectroles/project_base.html' %}
 
-{% load render_bundle from webpack_loader %}
+{% load vite_tags %}
 
 {% block title %}
   ClinVar Export
@@ -9,6 +9,7 @@
 {% block projectroles_extend %}
   <div id="sodar-ss-app-context" app-context="{{ app_context }}"></div>
   <div id="app"></div>
-  {% render_bundle 'chunk-vendors' config='VARFISH_VUE' %}
-  {% render_bundle 'app' config='VARFISH_VUE' %}
+
+  {% vite_scripts 'clinvar_export' 'src/main.js' %}
+  {% vite_styles 'clinvar_export' 'src/main.js' %}
 {% endblock %}

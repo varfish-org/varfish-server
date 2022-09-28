@@ -1,36 +1,51 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils'
+import { createTestingPinia } from '@pinia/testing'
+import { shallowMount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createPinia, setActivePinia } from 'pinia'
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest'
 
-import clinvarExportApi from '@/api/clinvarExport'
 import SubmissionSetWizard from '@/components/SubmissionSetWizard.vue'
-import { WizardState } from '@/store/modules/clinvarExport.js'
+import { useClinvarExportStore, WizardState } from '@/stores/clinvar-export.js'
 
 import { copy } from '../../testUtils.js'
-import {
-  clinvarExportEmptyState,
-  firstSubmissionSet,
-  rawAppContext,
-} from '../fixtures.js'
+import { clinvarExportEmptyState } from '../fixtures.js'
+import { firstSubmissionSet, rawAppContext } from '../fixtures.js'
 
-// Set up extended Vue constructor
-const localVue = createLocalVue()
-localVue.use(Vuex)
-
-// Mock out the clinvarExport API
-jest.mock('@/api/clinvarExport')
+// Helper function for creating wrapper with `shallowMount()`.
+const makeWrapper = (clinvarExportState) => {
+  if (!clinvarExportState) {
+    clinvarExportState = {}
+  }
+  return shallowMount(SubmissionSetWizard, {
+    global: {
+      plugins: [
+        createTestingPinia({
+          initialState: { clinvarExport: clinvarExportState },
+          createSpy: vi.fn,
+        }),
+      ],
+    },
+  })
+}
 
 describe('SubmissionSetWizard.vue', () => {
   let store
-  let actions
 
   beforeAll(() => {
     // Disable warnings
-    jest.spyOn(console, 'warn').mockImplementation(jest.fn())
+    vi.spyOn(console, 'warn').mockImplementation(vi.fn())
     // Mock out global.alert() and global.confirm()
-    global.alert = jest.fn()
-    global.confirm = jest.fn()
+    global.alert = vi.fn()
+    global.confirm = vi.fn()
   })
 
   afterAll(() => {
@@ -39,24 +54,11 @@ describe('SubmissionSetWizard.vue', () => {
   })
 
   beforeEach(() => {
-    // Setup relevant store/state fragment
-    actions = {
-      wizardRemove: jest.fn(),
-      wizardCancel: jest.fn(),
-      wizardSave: jest.fn(),
-      setWizardState: jest.fn(),
-    }
-    const clinvarExport = {
-      namespaced: true,
-      actions,
-      state: () => copy(clinvarExportEmptyState),
-    }
-    store = new Vuex.Store({
-      modules: {
-        clinvarExport,
-      },
-    })
-    store.state.clinvarExport.appContext = copy(rawAppContext)
+    setActivePinia(createPinia())
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
   })
 
   // In these tests we consider the simple case of having one submission
@@ -64,120 +66,92 @@ describe('SubmissionSetWizard.vue', () => {
   let submissionSet1
   const setupSimpleCase = () => {
     submissionSet1 = copy(firstSubmissionSet)
-    Vue.set(store.state.clinvarExport, 'wizardState', WizardState.submissionSet)
-    Vue.set(
-      store.state.clinvarExport.submissionSets,
-      submissionSet1.sodar_uuid,
-      submissionSet1
-    )
-    Vue.set(store.state.clinvarExport, 'submissionSetList', [submissionSet1])
-    Vue.set(store.state.clinvarExport, 'currentSubmissionSet', submissionSet1)
   }
 
-  afterEach(() => {
-    Object.keys(clinvarExportApi).forEach((method) =>
-      clinvarExportApi[method].mockClear()
-    )
-  })
-
-  const testPreamble = async () => {
+  const testPreamble = async (extraClinvarExportState) => {
+    extraClinvarExportState = extraClinvarExportState || {}
     setupSimpleCase()
 
-    const wrapper = shallowMount(SubmissionSetWizard, {
-      store,
-      localVue,
+    const wrapper = makeWrapper({
+      ...clinvarExportEmptyState,
+      appContext: copy(rawAppContext),
+      ...extraClinvarExportState,
     })
-    const submissionSetWizard = wrapper.vm.$root.$children[0]
+    wrapper.vm.$refs.submissionSetEditorRef.isValid = vi.fn(() => true)
 
-    // Setup isValid as submissionSetList is a stub
-    submissionSetWizard.$refs.submissionSetList.isValid = () => true
+    store = useClinvarExportStore() // NB: this call must be **after** creating wrapper
+    store.wizardState = WizardState.submissionSet
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.submissionSetList = [submissionSet1]
+    store.currentSubmissionSet = submissionSet1
+    store.wizardRemove = vi.fn()
+    store.wizardCancel = vi.fn()
+    store.wizardSave = vi.fn()
 
-    return submissionSetWizard
+    return wrapper
   }
 
   test('check simple functions after initialization', async () => {
-    const submissionSetWizard = await testPreamble()
+    const wrapper = await testPreamble({})
 
-    expect(await submissionSetWizard.isValid()).toBe(true)
-    expect(await submissionSetWizard.getNotificationHtmlClass()).toBe(
+    expect(await wrapper.vm.isValid()).toBe(true)
+    expect(await wrapper.vm.getNotificationHtmlClass()).toBe(
       'badge badge-success'
     )
   })
 
   test('check onRemoveClick', async () => {
-    const submissionSetWizard = await testPreamble()
+    const wrapper = await testPreamble()
     global.confirm.mockReturnValueOnce(true)
 
-    await submissionSetWizard.onRemoveClicked()
+    await wrapper.vm.onRemoveClicked()
 
     await flushPromises()
 
-    expect(actions.wizardRemove).toHaveBeenCalledTimes(1)
-    expect(actions.wizardRemove).toHaveBeenNthCalledWith(
-      1,
-      expect.anything(),
-      undefined
-    )
+    expect(store.wizardRemove).toHaveBeenCalledTimes(1)
+    expect(store.wizardRemove).toHaveBeenNthCalledWith(1)
   })
 
   test('check onCancelClicked', async () => {
-    const submissionSetWizard = await testPreamble()
+    const wrapper = await testPreamble()
     global.confirm.mockReturnValueOnce(true)
 
-    await submissionSetWizard.onCancelClicked()
+    await wrapper.vm.onCancelClicked()
 
     await flushPromises()
 
-    expect(actions.wizardCancel).toHaveBeenCalledTimes(1)
-    expect(actions.wizardCancel).toHaveBeenNthCalledWith(
-      1,
-      expect.anything(),
-      undefined
-    )
+    expect(store.wizardCancel).toHaveBeenCalledTimes(1)
+    expect(store.wizardCancel).toHaveBeenNthCalledWith(1)
   })
 
   test('check onSaveClicked', async () => {
-    const submissionSetWizard = await testPreamble()
+    const wrapper = await testPreamble()
 
-    await submissionSetWizard.onSaveClicked()
+    await wrapper.vm.onSaveClicked()
 
     await flushPromises()
 
-    expect(actions.wizardSave).toHaveBeenCalledTimes(1)
-    expect(actions.wizardSave).toHaveBeenNthCalledWith(
-      1,
-      expect.anything(),
-      undefined
-    )
+    expect(store.wizardSave).toHaveBeenCalledTimes(1)
+    expect(store.wizardSave).toHaveBeenNthCalledWith(1)
   })
 
   test('check onGotoSubmissionsClicked', async () => {
-    const submissionSetWizard = await testPreamble()
+    const wrapper = await testPreamble()
 
-    await submissionSetWizard.onGotoSubmissionsClicked()
+    await wrapper.vm.onGotoSubmissionsClicked()
 
     await flushPromises()
 
-    expect(actions.setWizardState).toHaveBeenCalledTimes(1)
-    expect(actions.setWizardState).toHaveBeenNthCalledWith(
-      1,
-      expect.anything(),
-      WizardState.submissions
-    )
+    expect(store.wizardState).toBe(WizardState.submissions)
   })
 
   test('check onGotoSubmissionSetClicked', async () => {
-    const submissionSetWizard = await testPreamble()
+    const wrapper = await testPreamble()
 
-    await submissionSetWizard.onGotoSubmissionSetClicked()
+    await wrapper.vm.onGotoSubmissionSetClicked()
 
     await flushPromises()
 
-    expect(actions.setWizardState).toHaveBeenCalledTimes(1)
-    expect(actions.setWizardState).toHaveBeenNthCalledWith(
-      1,
-      expect.anything(),
-      WizardState.submissionSet
-    )
+    expect(store.wizardState).toBe(WizardState.submissionSet)
   })
 })

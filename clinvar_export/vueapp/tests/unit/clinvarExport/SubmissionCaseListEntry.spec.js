@@ -1,14 +1,10 @@
-import { createLocalVue, mount } from '@vue/test-utils'
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createTestingPinia } from '@pinia/testing'
+import { mount } from '@vue/test-utils'
+import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
 
-import clinvarExportApi from '@/api/clinvarExport'
 import SubmissionCaseListEntry from '@/components/SubmissionCaseListEntry.vue'
-import {
-  actions,
-  mutations,
-  WizardState,
-} from '@/store/modules/clinvarExport.js'
+import { useClinvarExportStore } from '@/stores/clinvar-export'
+import { WizardState } from '@/stores/clinvar-export.js'
 
 import { copy } from '../../testUtils.js'
 import {
@@ -20,40 +16,21 @@ import {
   firstSubmissionSet,
   firstSubmitter,
   firstSubmittingOrg,
-  rawAppContext,
   secondIndividual,
   secondSubmissionIndividual,
 } from '../fixtures.js'
 
-// Set up extended Vue constructor
-const localVue = createLocalVue()
-localVue.use(Vuex)
-
 // Mock out the clinvarExport API
-jest.mock('@/api/clinvarExport')
+vi.mock('@/api/clinvarExport')
 
 describe('SubmissionCaseListEntry.vue', () => {
-  let store
-
   beforeAll(() => {
     // Disable warnings
-    jest.spyOn(console, 'warn').mockImplementation(jest.fn())
+    vi.spyOn(console, 'warn').mockImplementation(vi.fn())
   })
 
-  beforeEach(() => {
-    // Setup relevant store/state fragment
-    const clinvarExport = {
-      namespaced: true,
-      actions,
-      mutations,
-      state: () => copy(clinvarExportEmptyState),
-    }
-    store = new Vuex.Store({
-      modules: {
-        clinvarExport,
-      },
-    })
-    store.state.clinvarExport.appContext = copy(rawAppContext)
+  afterEach(() => {
+    vi.clearAllMocks()
   })
 
   // In these tests we consider the simple case of having one submission
@@ -68,157 +45,96 @@ describe('SubmissionCaseListEntry.vue', () => {
   let individual1
   let individual2
   const setupSimpleCase = () => {
+    const result = copy(clinvarExportEmptyState)
     organisation1 = copy(firstOrganisation)
-    Vue.set(
-      store.state.clinvarExport.organisations,
-      organisation1.sodar_uuid,
-      organisation1
-    )
+    result.organisations[organisation1.sodar_uuid] = organisation1
     submitter1 = copy(firstSubmitter)
-    Vue.set(
-      store.state.clinvarExport.submitters,
-      submitter1.sodar_uuid,
-      submitter1
-    )
+    result.submitters[submitter1.sodar_uuid] = submitter1
     submittingOrg1 = copy(firstSubmittingOrg)
-    Vue.set(
-      store.state.clinvarExport.submittingOrgs,
-      submittingOrg1.sodar_uuid,
-      submittingOrg1
-    )
+    result.submittingOrgs[submittingOrg1.sodar_uuid] = submittingOrg1
     submission1 = copy(firstSubmission)
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission1.sodar_uuid,
-      submission1
-    )
-    Vue.set(store.state.clinvarExport, 'currentSubmission', submission1)
+    result.submissions[submission1.sodar_uuid] = submission1
+    result.currentSubmission = submission1
     submissionSet1 = copy(firstSubmissionSet)
-    Vue.set(store.state.clinvarExport, 'wizardState', WizardState.submissionSet)
-    Vue.set(
-      store.state.clinvarExport.submissionSets,
-      submissionSet1.sodar_uuid,
-      submissionSet1
-    )
+    result.wizardState = WizardState.submissionSet
+    result.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
     submissionIndividual1 = copy(firstSubmissionIndividual)
-    Vue.set(
-      store.state.clinvarExport.submissionIndividuals,
-      submissionIndividual1.sodar_uuid,
+    result.submissionIndividuals[submissionIndividual1.sodar_uuid] =
       submissionIndividual1
-    )
     submissionIndividual2 = copy({
       ...secondSubmissionIndividual,
       submission: submission1.sodar_uuid,
       sort_order: 1,
     })
-    Vue.set(
-      store.state.clinvarExport.submissionIndividuals,
-      submissionIndividual2.sodar_uuid,
+    result.submissionIndividuals[submissionIndividual2.sodar_uuid] =
       submissionIndividual2
-    )
-    Vue.set(
-      store.state.clinvarExport.currentSubmission,
-      'submission_individuals',
-      [submissionIndividual1.sodar_uuid, submissionIndividual2.sodar_uuid]
-    )
+    result.currentSubmission.submission_individuals = [
+      submissionIndividual1.sodar_uuid,
+      submissionIndividual2.sodar_uuid,
+    ]
     individual1 = copy(firstIndividual)
-    Vue.set(
-      store.state.clinvarExport.individuals,
-      individual1.sodar_uuid,
-      individual1
-    )
+    result.individuals[individual1.sodar_uuid] = individual1
     individual2 = copy(secondIndividual)
-    Vue.set(
-      store.state.clinvarExport.individuals,
-      individual2.sodar_uuid,
-      individual2
-    )
-    Vue.set(store.state.clinvarExport, 'submissionSetList', [submissionSet1])
-    Vue.set(store.state.clinvarExport, 'currentSubmissionSet', submissionSet1)
-    Vue.set(store.state.clinvarExport, 'wizardState', WizardState.submissions)
+    result.individuals[individual2.sodar_uuid] = individual2
+    result.submissionSetList = [submissionSet1]
+    result.currentSubmissionSet = submissionSet1
+    result.wizardState = WizardState.submissions
+    return result
   }
 
-  afterEach(() => {
-    Object.keys(clinvarExportApi).forEach((method) =>
-      clinvarExportApi[method].mockClear()
-    )
-  })
-
   const testSetup = async (siNo) => {
-    await setupSimpleCase()
-
-    const wrapper = mount(
-      {
-        data: () => {
-          return {
-            submissionIndividual:
-              siNo === 2 ? submissionIndividual2 : submissionIndividual1,
-          }
-        },
-        template:
-          '<div><submission-case-list-entry ref="listEntry" v-model="submissionIndividual">' +
-          '</submission-case-list-entry></div>',
-        components: { SubmissionCaseListEntry },
+    const component = {
+      data: () => {
+        return {
+          submissionIndividual:
+            siNo === 2 ? submissionIndividual2 : submissionIndividual1,
+        }
       },
-      {
-        store,
-        localVue,
-      }
-    )
-    return wrapper.vm.$refs.listEntry
+      template:
+        '<div><submission-case-list-entry ref="listEntryRef" v-model="submissionIndividual">' +
+        '</submission-case-list-entry></div>',
+      components: { SubmissionCaseListEntry },
+    }
+
+    return mount(component, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            initialState: { clinvarExport: setupSimpleCase() },
+            createSpy: vi.fn,
+          }),
+        ],
+      },
+    })
   }
 
   test('check computed properties', async () => {
-    const submissionCaseListEntry = await testSetup(1)
+    const wrapper = await testSetup(1)
+    const submissionCaseListEntry = wrapper.vm.$refs.listEntryRef
+    const store = useClinvarExportStore()
 
-    expect(submissionCaseListEntry.hpoTermsLoading).toBe(false)
-
-    expect(submissionCaseListEntry.appContext).toEqual(
-      store.state.clinvarExport.appContext
-    )
-    expect(submissionCaseListEntry.currentSubmission).toEqual(
-      store.state.clinvarExport.currentSubmission
-    )
-    expect(submissionCaseListEntry.individuals).toEqual(
-      store.state.clinvarExport.individuals
-    )
-    expect(submissionCaseListEntry.submissionIndividuals).toEqual(
-      store.state.clinvarExport.submissionIndividuals
-    )
-
-    expect(submissionCaseListEntry.phenotypes).toEqual([
-      { term_id: 'HP:1234567', term_name: 'Something' },
-    ])
-    expect(submissionCaseListEntry.citations).toEqual('PMID:12345')
-    expect(submissionCaseListEntry.individual).toEqual(individual1)
+    expect(submissionCaseListEntry.hpoTermsLoading).toEqual(false)
+    expect(submissionCaseListEntry.store.appContext).toEqual(store.appContext)
   })
 
   test('check funcions', async () => {
-    const submissionCaseListEntry = await testSetup(1)
+    const wrapper = await testSetup(1)
+    const submissionCaseListEntry = wrapper.vm.$refs.listEntryRef
 
-    expect(
-      submissionCaseListEntry.getHpoTermLabel({
-        term_id: 'HP:xxx',
-        term_name: 'short',
-      })
-    ).toEqual('HP:xxx - short')
-    expect(
-      submissionCaseListEntry.getHpoTermLabel({
-        term_id: 'HP:xxx',
-        term_name: 'longlonglonglonglong',
-      })
-    ).toEqual('HP:xxx - longlonglo...')
+    expect(submissionCaseListEntry.isValid()).toBe(true)
   })
 
-  test('check isMoveDisabled()', async () => {
-    const submissionCaseListEntry = await testSetup(1)
+  test('check isMoveDisabled - first', async () => {
+    const wrapper = await testSetup(1)
+    const submissionCaseListEntry = wrapper.vm.$refs.listEntryRef
 
     expect(submissionCaseListEntry.isMoveDisabled(true)).toBe(true)
     expect(submissionCaseListEntry.isMoveDisabled(false)).toBe(false)
   })
 
-  test('check isMoveDisabled()', async () => {
-    const submissionCaseListEntry = await testSetup(2)
+  test('check isMoveDisabled - second', async () => {
+    const wrapper = await testSetup(2)
+    const submissionCaseListEntry = wrapper.vm.$refs.listEntryRef
 
     expect(submissionCaseListEntry.isMoveDisabled(true)).toBe(false)
     expect(submissionCaseListEntry.isMoveDisabled(false)).toBe(true)

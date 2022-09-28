@@ -1,11 +1,12 @@
 module.exports = {
-  plugins: ['simple-import-sort'],
+  plugins: ['simple-import-sort', 'eslint-plugin-vue'],
   rules: {
     'comma-dangle': 0,
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
+    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
   },
-  extends: ['plugin:vue/recommended', '@vue/standard', 'prettier'],
+  extends: ['eslint:recommended', 'plugin:vue/vue3-recommended', 'prettier'],
   root: true,
   env: {
     node: true,
