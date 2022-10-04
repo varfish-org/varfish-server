@@ -1,70 +1,65 @@
-import { createLocalVue, mount } from '@vue/test-utils'
+import { createTestingPinia } from '@pinia/testing'
+import { shallowMount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
 import { Response } from 'node-fetch'
-import Vue from 'vue'
-import Vuex from 'vuex'
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest'
+import { nextTick } from 'vue'
 
 import clinvarExportApi from '@/api/clinvarExport'
 import SubmissionSetList from '@/components/SubmissionSetList.vue'
-import { WizardState } from '@/store/modules/clinvarExport.js'
+import { useClinvarExportStore, WizardState } from '@/stores/clinvar-export.js'
 
 import { copy, waitNT } from '../../testUtils.js'
-import {
-  clinvarExportEmptyState,
-  firstSubmissionSet,
-  rawAppContext,
-} from '../fixtures.js'
+import { firstSubmissionSet } from '../fixtures.js'
 
-// Set up extended Vue constructor
-const localVue = createLocalVue()
-localVue.use(Vuex)
-
+// Helper function for creating wrapper with `shallowMount()`.
+const makeWrapper = (clinvarExportState) => {
+  if (!clinvarExportState) {
+    clinvarExportState = {}
+  }
+  return shallowMount(SubmissionSetList, {
+    global: {
+      plugins: [
+        createTestingPinia({
+          initialState: { clinvarExport: clinvarExportState },
+          createSpy: vi.fn,
+        }),
+      ],
+    },
+  })
+}
 // Mock out the clinvarExport API
-jest.mock('@/api/clinvarExport')
+vi.mock('@/api/clinvarExport')
 
 describe('SubmissionSetList.vue', () => {
   let store
-  let actions
 
   beforeAll(() => {
     // Disable warnings
-    jest.spyOn(console, 'warn').mockImplementation(jest.fn())
+    vi.spyOn(console, 'warn').mockImplementation(vi.fn())
     // Set reproducible time
-    jest.useFakeTimers('modern')
-    jest.setSystemTime(new Date(2020, 3, 1))
+    vi.useFakeTimers('modern')
+    vi.setSystemTime(new Date(2020, 3, 1))
     // Mock out jquery dollar function for showing modals
-    global.$ = jest.fn()
+    global.$ = vi.fn()
   })
 
   afterAll(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
     global.$.mockRestore()
   })
 
-  beforeEach(() => {
-    // Setup relevant store/state fragment
-    actions = {
-      createNewSubmissionSet: jest.fn(),
-      editSubmissionSet: jest.fn(),
-    }
-    const clinvarExport = {
-      namespaced: true,
-      actions,
-      state: () => copy(clinvarExportEmptyState),
-    }
-    store = new Vuex.Store({
-      modules: {
-        clinvarExport,
-      },
-    })
-    store.state.clinvarExport.appContext = copy(rawAppContext)
-  })
-
   afterEach(() => {
-    Object.keys(clinvarExportApi).forEach((method) =>
-      clinvarExportApi[method].mockClear()
-    )
-    global.$.mockClear()
+    vi.clearAllMocks()
+    vi.clearAllTimers()
   })
 
   // In these tests we consider the simple case of having one submission
@@ -72,19 +67,15 @@ describe('SubmissionSetList.vue', () => {
   let submissionSet1
   const setupSimpleCase = () => {
     submissionSet1 = copy(firstSubmissionSet)
-    Vue.set(store.state.clinvarExport, 'wizardState', WizardState.submissionSet)
-    Vue.set(
-      store.state.clinvarExport.submissionSets,
-      submissionSet1.sodar_uuid,
-      submissionSet1
-    )
-    Vue.set(store.state.clinvarExport, 'submissionSetList', [submissionSet1])
+    store.wizardState = WizardState.submissionSet
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.submissionSetList = [submissionSet1]
   }
 
   const getButtons = (wrapper, rowNo) => {
     const colNo = 1
     const buttonCell =
-      wrapper.vm.$refs.submissionSetTable.rows[rowNo + 1].cells[colNo]
+      wrapper.findAll('tbody tr')[rowNo].wrapperElement.childNodes[colNo]
     const buttonGroup = buttonCell.children[0]
     return {
       editButton: buttonGroup.children[0],
@@ -93,18 +84,18 @@ describe('SubmissionSetList.vue', () => {
   }
 
   test('key elements are present', async () => {
-    setupSimpleCase()
+    const wrapper = makeWrapper()
+    store = useClinvarExportStore() // NB: this call must be **after** creating wrapper
+    setupSimpleCase() // NB: this call must be after assigning store
+    await nextTick() // wait for changes to store to take effect
 
-    const wrapper = mount(SubmissionSetList, {
-      store,
-      localVue,
-    })
+    store.createNewSubmissionSet = vi.fn()
+    store.editSubmissionSet = vi.fn()
 
     // Footer button to create new submission list
     expect(wrapper.vm.$refs.buttonCreateNew).toBeDefined()
 
     // Submission set table with entries and buttons
-    expect(wrapper.vm.$refs.submissionSetTable.rows.length).toBe(2)
     const { editButton, clinvarButton } = getButtons(wrapper, 0)
     expect(editButton.textContent.trim()).toEqual('Edit')
     expect(clinvarButton.textContent.trim()).toEqual('ClinVar XML')
@@ -114,8 +105,6 @@ describe('SubmissionSetList.vue', () => {
   // shows it by clicking it.  This has been extracted so we can re-use
   // it for the cancel and download XML button tests
   const testClinvarXmlClick = async () => {
-    setupSimpleCase()
-
     clinvarExportApi.getSubmissionSetXml.mockResolvedValueOnce(
       new Response('<fake-xml/>', { status: 200 })
     )
@@ -125,14 +114,17 @@ describe('SubmissionSetList.vue', () => {
       })
     )
 
-    const wrapper = mount(SubmissionSetList, {
-      store,
-      localVue,
-    })
+    const wrapper = makeWrapper()
+    store = useClinvarExportStore() // NB: this call must be **after** creating wrapper
+    setupSimpleCase() // NB: this call must be after assigning store
+    await nextTick() // wait for changes to store to take effect
+
     const { clinvarButton } = getButtons(wrapper, 0)
 
+    store.createNewSubmissionSet = vi.fn()
+    store.editSubmissionSet = vi.fn()
     global.$.mockReturnValue({
-      modal: jest.fn((action) => {
+      modal: vi.fn((action) => {
         const classes = wrapper.vm.$refs.modalXmlPreview.classList
         if (action === 'show') {
           if (!classes.contains('show')) {
@@ -166,12 +158,12 @@ describe('SubmissionSetList.vue', () => {
 
     expect(clinvarExportApi.getSubmissionSetXml.mock.calls.length).toBe(1)
     expect(clinvarExportApi.getSubmissionSetXml.mock.calls[0]).toEqual([
-      store.state.clinvarExport.appContext,
+      store.appContext,
       submissionSet1.sodar_uuid,
     ])
     expect(clinvarExportApi.getSubmissionSetValid.mock.calls.length).toBe(1)
     expect(clinvarExportApi.getSubmissionSetValid.mock.calls[0]).toEqual([
-      store.state.clinvarExport.appContext,
+      store.appContext,
       submissionSet1.sodar_uuid,
     ])
 
@@ -194,23 +186,23 @@ describe('SubmissionSetList.vue', () => {
     const makeAnchor = (target) => {
       return {
         target,
-        setAttribute: jest.fn((key, value) => (target[key] = value)),
-        click: jest.fn(),
-        remove: jest.fn(),
+        setAttribute: vi.fn((key, value) => (target[key] = value)),
+        click: vi.fn(),
+        remove: vi.fn(),
       }
     }
 
     const anchor = makeAnchor({ href: '#', download: '' })
-    const createElementMock = jest
+    const createElementMock = vi
       .spyOn(document, 'createElement')
       .mockReturnValue(anchor)
-    const setAttributeSpy = jest.spyOn(anchor, 'setAttribute')
-    const clickSpy = jest.spyOn(anchor, 'click')
-    const removeSpy = jest.spyOn(anchor, 'remove')
+    const setAttributeSpy = vi.spyOn(anchor, 'setAttribute')
+    const clickSpy = vi.spyOn(anchor, 'click')
+    const removeSpy = vi.spyOn(anchor, 'remove')
 
-    jest.clearAllMocks() // start with clean mocks/spies before call is made
+    vi.clearAllMocks() // start with clean mocks/spies before call is made
 
-    URL.createObjectURL = jest.fn()
+    URL.createObjectURL = vi.fn()
     URL.createObjectURL.mockReturnValueOnce('fake://result')
 
     wrapper.vm.$refs.buttonDownloadXml.click()
@@ -248,35 +240,37 @@ describe('SubmissionSetList.vue', () => {
     )
   })
 
-  test('edit submission set button click works', () => {
-    setupSimpleCase()
+  test('edit submission set button click works', async () => {
+    const wrapper = makeWrapper()
+    store = useClinvarExportStore() // NB: this call must be **after** creating wrapper
+    setupSimpleCase() // NB: this call must be after assigning store
+    await nextTick() // wait for changes to store to take effect
 
-    const wrapper = mount(SubmissionSetList, {
-      store,
-      localVue,
-    })
+    store.createNewSubmissionSet = vi.fn()
+    store.editSubmissionSet = vi.fn()
+
     const { editButton } = getButtons(wrapper, 0)
 
     editButton.click()
 
-    expect(actions.editSubmissionSet).toHaveBeenCalledTimes(1)
-    expect(actions.editSubmissionSet).toHaveBeenNthCalledWith(
+    expect(store.editSubmissionSet).toHaveBeenCalledTimes(1)
+    expect(store.editSubmissionSet).toHaveBeenNthCalledWith(
       1,
-      expect.anything(),
       submissionSet1.sodar_uuid
     )
   })
 
-  test('create new submission set works', () => {
-    setupSimpleCase()
+  test('create new submission set works', async () => {
+    const wrapper = makeWrapper()
+    store = useClinvarExportStore() // NB: this call must be **after** creating wrapper
+    setupSimpleCase() // NB: this call must be after assigning store
+    await nextTick() // wait for changes to store to take effect
 
-    const wrapper = mount(SubmissionSetList, {
-      store,
-      localVue,
-    })
+    store.createNewSubmissionSet = vi.fn()
+    store.editSubmissionSet = vi.fn()
 
     wrapper.vm.$refs.buttonCreateNew.click()
 
-    expect(actions.createNewSubmissionSet).toHaveBeenCalledTimes(1)
+    expect(store.createNewSubmissionSet).toHaveBeenCalledTimes(1)
   })
 })

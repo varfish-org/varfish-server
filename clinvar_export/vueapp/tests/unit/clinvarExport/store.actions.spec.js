@@ -1,257 +1,434 @@
-import { createLocalVue } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createPinia, setActivePinia } from 'pinia'
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest'
 
 import clinvarExportApi from '@/api/clinvarExport'
 import {
-  actions,
   AppState,
   MODEL_KEYS,
+  useClinvarExportStore,
   WizardState,
-} from '@/store/modules/clinvarExport'
+} from '@/stores/clinvar-export'
 
 import { copy } from '../../testUtils.js'
 import {
   clinvarExportEmptyState,
+  firstAssertionMethod,
+  firstFamily,
+  firstIndividual,
   firstOrganisation,
   firstSubmission,
   firstSubmissionIndividual,
   firstSubmissionSet,
+  firstSubmitter,
   firstSubmittingOrg,
+  firstUserAnnotation,
   rawAppContext,
+  secondIndividual,
+  secondOrganisation,
   secondSubmission,
   secondSubmissionIndividual,
 } from '../fixtures.js'
 
-// Set up extended Vue constructor
-const localVue = createLocalVue()
-localVue.use(Vuex)
-
 const MOCK_UUID_VALUE = 'xxxxxxxx-xxxx-4xxx-mock-mockmockmock'
 
 // Mock out UUIDv4 generation
-jest.mock('@/helpers', () => {
-  const origHelpersModule = jest.requireActual('@/helpers')
+vi.mock('@/helpers', () => {
+  const origHelpersModule = vi.importActual('@/helpers')
   return {
     __esModule: true,
     ...origHelpersModule,
-    uuidv4: jest.fn(() => {
+    uuidv4: vi.fn(() => {
       return MOCK_UUID_VALUE
     }),
   }
 })
 
-// helper for testing action with expected mutations
-const testAction = (action, payload, state, expectedMutations) => {
-  let count = 0
-
-  // mock commit
-  const commit = (type, payload) => {
-    const mutation = expectedMutations[count]
-
-    expect(type).toBe(mutation.type)
-    expect(payload).toStrictEqual(mutation.payload)
-
-    count++
-    if (count > expectedMutations.length) {
-      const expectedLen = expectedMutations.length
-      throw new Error(
-        `too many mutations ${count} (of ${expectedLen}: ${type} / ${payload}`
-      )
-    }
-  }
-
-  // call the action with mocked store and arguments
-  action({ commit, state }, payload)
-
-  // check if no mutations should have been dispatched
-  if (expectedMutations.length === 0) {
-    expect(count).toBe(0)
-  }
-}
-
-// helper for testing action with expected mutations
-const testActionAsync = async (action, payload, state, expectedMutations) => {
-  let count = 0
-
-  // mock commit
-  const commit = (type, payload) => {
-    const mutation = expectedMutations[count]
-
-    expect(type).toBe(mutation.type)
-    expect(payload).toStrictEqual(mutation.payload)
-
-    count++
-    if (count > expectedMutations.length) {
-      const expectedLen = expectedMutations.length
-      throw new Error(
-        `too many mutations ${count} (of ${expectedLen}: ${type} / ${payload}`
-      )
-    }
-  }
-
-  // call the action with mocked store and arguments
-  await action({ commit, state }, payload).resolves
-
-  await flushPromises()
-
-  // check if no mutations should have been dispatched
-  if (expectedMutations.length === 0) {
-    expect(count).toBe(0)
-  }
-}
-
 // Mock out the clinvarExport API
-jest.mock('@/api/clinvarExport')
+vi.mock('@/api/clinvarExport')
 
 describe('actions', () => {
   let store
 
   beforeAll(() => {
     // Disable warnings
-    jest.spyOn(console, 'warn').mockImplementation(jest.fn())
+    vi.spyOn(console, 'warn').mockImplementation(vi.fn())
     // Set reproducible time
-    jest.useFakeTimers('modern')
-    jest.setSystemTime(new Date(2020, 3, 1))
+    vi.useFakeTimers('modern')
+    vi.setSystemTime(new Date(2020, 3, 1))
   })
 
   afterAll(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   beforeEach(() => {
-    // Setup relevant store/state fragment
-    const clinvarExport = {
-      namespaced: true,
-      state: () => copy(clinvarExportEmptyState),
-    }
-    store = new Vuex.Store({
-      modules: {
-        clinvarExport,
-      },
-    })
-    store.state.clinvarExport.appContext = copy(rawAppContext)
+    setActivePinia(createPinia())
+    store = useClinvarExportStore()
   })
 
   afterEach(() => {
-    Object.keys(clinvarExportApi).forEach((method) =>
-      clinvarExportApi[method].mockClear()
+    vi.clearAllMocks()
+  })
+
+  test('setCurrentSubmissionSet with NOT null', () => {
+    const submissionSet1 = copy(firstSubmissionSet)
+
+    store.submissionSetList.push(submissionSet1)
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+
+    expect(store.currentSubmissionSet).toBe(null)
+    store.setCurrentSubmissionSet(submissionSet1.sodar_uuid)
+    expect(store.currentSubmissionSet).toEqual(submissionSet1)
+  })
+
+  test('setCurrentSubmissionSet with null', () => {
+    const submissionSet1 = copy(firstSubmissionSet)
+
+    store.submissionSetList.push(submissionSet1)
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.currentSubmissionSet = submissionSet1
+
+    expect(store.currentSubmissionSet).toEqual(submissionSet1)
+    store.setCurrentSubmissionSet(null)
+    expect(store.currentSubmissionSet).toBe(null)
+  })
+
+  test('SAVE_OLD_MODEL', () => {
+    // This really only is a smoke test at the moment
+    expect(store.oldModel).toBe(null)
+    store.saveOldModel()
+    expect(store.oldModel).toStrictEqual({
+      assertionMethods: {},
+      families: {},
+      individuals: {},
+      organisations: {},
+      submissionIndividuals: {},
+      submissionSets: {},
+      submissions: {},
+      submitters: {},
+      submittingOrgs: {},
+    })
+  })
+
+  test('restoreOldModel', () => {
+    // This really only is a smoke test at the moment
+    store.saveOldModel()
+    store.restoreOldModel()
+  })
+
+  test('addSubmissionSet', () => {
+    const submissionSet1 = copy(firstSubmissionSet)
+    expect(store.submissionSets).toStrictEqual({})
+    expect(store.submissionSetList).toStrictEqual([])
+    store.addSubmissionSet(submissionSet1)
+    expect(Object.keys(store.submissionSets)).toStrictEqual([
+      submissionSet1.sodar_uuid,
+    ])
+    expect(Object.values(store.submissionSets)).toStrictEqual([submissionSet1])
+    expect(store.submissionSetList).toStrictEqual([submissionSet1])
+  })
+
+  test('SET_SUBMISSION_SETS', () => {
+    const submissionSet1 = copy(firstSubmissionSet)
+    expect(store.submissionSets).toStrictEqual({})
+    expect(store.submissionSetList).toStrictEqual([])
+    store.setSubmissionSets([submissionSet1])
+    expect(store.submissionSets).toStrictEqual(
+      Object.fromEntries([[submissionSet1.sodar_uuid, submissionSet1]])
+    )
+    expect(store.submissionSetList).toStrictEqual([submissionSet1])
+  })
+
+  test('setWizardState', () => {
+    expect(store.wizardState).toStrictEqual(WizardState.submissionSet)
+    store.setWizardState(WizardState.submission)
+    expect(store.wizardState).toStrictEqual(WizardState.submission)
+  })
+
+  test('updateCurrentSubmissionSetOrganisations noop', () => {
+    const submissionSet1 = copy(firstSubmissionSet)
+    const submittingOrg1 = copy(firstSubmittingOrg)
+    const org1 = copy(firstOrganisation)
+
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.currentSubmissionSet = submissionSet1
+    store.submittingOrgs[submittingOrg1.sodar_uuid] = submittingOrg1
+    store.organisations[org1.sodar_uuid] = org1
+    submissionSet1.organisations = [org1.sodar_uuid]
+    expect(submissionSet1.submitting_orgs).toStrictEqual([
+      submittingOrg1.sodar_uuid,
+    ])
+    expect(submissionSet1.organisations).toStrictEqual([org1.sodar_uuid])
+    store.updateCurrentSubmissionSetOrganisations([org1.sodar_uuid])
+    expect(submissionSet1.submitting_orgs).toStrictEqual([
+      submittingOrg1.sodar_uuid,
+    ])
+  })
+
+  test('updateCurrentSubmissionSetOrganisations add', () => {
+    const submissionSet1 = copy(firstSubmissionSet)
+    const submittingOrg1 = copy(firstSubmittingOrg)
+    const org1 = copy(firstOrganisation)
+    const org2 = copy(secondOrganisation)
+
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.currentSubmissionSet = submissionSet1
+    store.submittingOrgs[submittingOrg1.sodar_uuid] = submittingOrg1
+    store.organisations[org1.sodar_uuid] = org1
+    store.organisations[org2.sodar_uuid] = org2
+    submissionSet1.organisations = [org1.sodar_uuid]
+    expect(submissionSet1.submitting_orgs).toStrictEqual([
+      submittingOrg1.sodar_uuid,
+    ])
+    expect(submissionSet1.organisations).toStrictEqual([org1.sodar_uuid])
+    store.updateCurrentSubmissionSetOrganisations([
+      org1.sodar_uuid,
+      org2.sodar_uuid,
+    ])
+    expect(submissionSet1.submitting_orgs).toStrictEqual([
+      submittingOrg1.sodar_uuid,
+      MOCK_UUID_VALUE,
+    ])
+  })
+
+  test('updateCurrentSubmissionSetOrganisations remove', () => {
+    const submissionSet1 = copy(firstSubmissionSet)
+    const submittingOrg1 = copy(firstSubmittingOrg)
+    const org1 = copy(firstOrganisation)
+
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.currentSubmissionSet = submissionSet1
+    store.submittingOrgs[submittingOrg1.sodar_uuid] = submittingOrg1
+    store.organisations[org1.sodar_uuid] = org1
+    submissionSet1.organisations = [org1.sodar_uuid]
+    expect(submissionSet1.submitting_orgs).toStrictEqual([
+      submittingOrg1.sodar_uuid,
+    ])
+    expect(submissionSet1.organisations).toStrictEqual([org1.sodar_uuid])
+    store.updateCurrentSubmissionSetOrganisations([])
+    expect(submissionSet1.submitting_orgs).toStrictEqual([])
+  })
+
+  test('updateCurrentSubmission', () => {
+    const submission1 = copy(firstSubmission)
+
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.currentSubmission = submission1
+
+    expect(submission1).toStrictEqual(firstSubmission)
+    store.updateCurrentSubmission({
+      key: 'variant_chromosome',
+      value: 'X',
+    })
+    expect(submission1).toStrictEqual({
+      ...firstSubmission,
+      variant_chromosome: 'X',
+    })
+  })
+
+  test.each([[true], [false]])('deleteSubmission current? %s', (isCurrent) => {
+    const submissionSet1 = copy(firstSubmissionSet)
+    const submission1 = copy(firstSubmission)
+
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.submissions[submission1.sodar_uuid] = submission1
+    if (isCurrent) {
+      store.currentSubmission = submission1
+    }
+    store.deleteSubmission(submission1.sodar_uuid)
+    expect(submissionSet1.submissions).toStrictEqual([])
+    expect(store.submissions).toStrictEqual({})
+    expect(store.currentSubmission).toStrictEqual(null)
+  })
+
+  test.each([[true], [false]])(
+    'deleteSubmissionSet isCurrent?=%s',
+    (isCurrent) => {
+      const submissionSet1 = copy(firstSubmissionSet)
+
+      store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+      store.submissionSetList.push(submissionSet1)
+      if (isCurrent) {
+        store['currentSubmissionSet'] = submissionSet1
+      }
+      store.deleteSubmissionSet(submissionSet1.sodar_uuid)
+      expect(store.submissionSets).toStrictEqual({})
+      expect(store.submissionSetList).toStrictEqual([])
+      expect(store.currentSubmissionSet).toStrictEqual(null)
+    }
+  )
+
+  test('createSubmissionInCurrentSubmissionSet', () => {
+    const submissionSet1 = copy(firstSubmissionSet)
+    const submission2 = copy(secondSubmission)
+    const individual2 = copy(secondIndividual)
+    const userAnnotation1 = copy(firstUserAnnotation)
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.currentSubmissionSet = submissionSet1
+    store.individuals[individual2.sodar_uuid] = individual2
+
+    store.createSubmissionInCurrentSubmissionSet({
+      smallVariant: userAnnotation1.small_variants[0],
+      submission: submission2,
+      individualUuids: [individual2.sodar_uuid],
+    })
+    expect(store.submissions).toStrictEqual({
+      'xxxxxxxx-xxxx-4xxx-mock-mockmockmock': {
+        _isInvalid: false,
+        age_of_onset: 'Antenatal',
+        assertion_method: '55555555-5555-5555-5555-555555555555',
+        date_created: '2020-11-09 13:37',
+        date_modified: '2020-11-09 13:37',
+        diseases: [
+          {
+            term_id: '617638',
+            term_name: 'IMMUNODEFICIENCY 11B WITH ATOPIC DERMATITIS',
+          },
+        ],
+        inheritance: 'Other',
+        record_status: 'novel',
+        release_status: 'public',
+        significance_description: 'Pathogenic',
+        significance_last_evaluation: '2020-11-09',
+        significance_status: 'criteria provided, single submitter',
+        sodar_uuid: 'xxxxxxxx-xxxx-4xxx-mock-mockmockmock',
+        sort_order: 0,
+        submission_individuals: ['xxxxxxxx-xxxx-4xxx-mock-mockmockmock'],
+        submission_set: '11111111-1111-1111-1111-111111111111',
+        variant_alternative: 'G',
+        variant_assembly: 'GRCh37',
+        variant_chromosome: '17',
+        variant_gene: ['BRCA1'],
+        variant_hgvs: ['NM_007294.4:p.Asp1778Gly'],
+        variant_reference: 'T',
+        variant_start: '41201211',
+        variant_stop: '41201211',
+        variant_type: 'Variation',
+      },
+    })
+    expect(store.currentSubmission).toBe(
+      store.submissions[Object.keys(store.submissions)[0]]
     )
   })
 
-  test('initialize', () => {
+  test('updateSubmissionIndividual', () => {
+    const submissionIndividual1 = copy(firstSubmissionIndividual)
+    store.submissionIndividuals[submissionIndividual1.sodar_uuid] =
+      submissionIndividual1
+
+    store.updateSubmissionIndividual({
+      submissionIndividual: submissionIndividual1,
+      key: 'sort_order',
+      value: 101,
+    })
+    expect(submissionIndividual1).toStrictEqual({
+      ...firstSubmissionIndividual,
+      sort_order: 101,
+    })
+  })
+
+  test('deleteSubmissionIndividual', () => {
+    const submission1 = copy(firstSubmission)
+    const submission2 = copy(secondSubmission)
+    const submissionIndividual1 = copy(firstSubmissionIndividual)
+    const submissionIndividual2 = copy(secondSubmissionIndividual)
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.submissions[submission2.sodar_uuid] = submission2
+    store.submissionIndividuals[submissionIndividual1.sodar_uuid] =
+      submissionIndividual1
+    store.submissionIndividuals[submissionIndividual2.sodar_uuid] =
+      submissionIndividual2
+
+    expect(store.submissionIndividuals).toStrictEqual(
+      Object.fromEntries([
+        [submissionIndividual1.sodar_uuid, submissionIndividual1],
+        [submissionIndividual2.sodar_uuid, submissionIndividual2],
+      ])
+    )
+    expect(submission1.submission_individuals).toStrictEqual([
+      submissionIndividual1.sodar_uuid,
+    ])
+    expect(submission2.submission_individuals).toStrictEqual([
+      submissionIndividual2.sodar_uuid,
+    ])
+    store.deleteSubmissionIndividual(submissionIndividual1.sodar_uuid)
+    expect(store.submissionIndividuals).toStrictEqual(
+      Object.fromEntries([
+        [submissionIndividual2.sodar_uuid, submissionIndividual2],
+      ])
+    )
+    expect(submission1.submission_individuals).toStrictEqual([])
+    expect(submission2.submission_individuals).toStrictEqual([
+      submissionIndividual2.sodar_uuid,
+    ])
+  })
+
+  test('initialize', async () => {
+    const organisation1 = copy(firstOrganisation)
+    const submitter1 = copy(firstSubmitter)
+    const assertionMethod1 = copy(firstAssertionMethod)
+    const submissionSet1 = copy(firstSubmissionSet)
+    const submission1 = copy(firstSubmission)
+    const individual1 = copy(firstIndividual)
+    const submissionIndividual1 = copy(firstSubmissionIndividual)
+    const family1 = copy(firstFamily)
+    const submittingOrg1 = copy(firstSubmittingOrg)
+
     clinvarExportApi.getOrganisations.mockReturnValueOnce(
-      Promise.resolve('res-SET_ORGANISATIONS')
+      Promise.resolve([organisation1])
     )
     clinvarExportApi.getSubmitters.mockReturnValueOnce(
-      Promise.resolve('res-SET_SUBMITTERS')
+      Promise.resolve([submitter1])
     )
     clinvarExportApi.getAssertionMethods.mockReturnValueOnce(
-      Promise.resolve('res-SET_ASSERTION_METHODS')
+      Promise.resolve([assertionMethod1])
     )
     clinvarExportApi.getSubmissionSets.mockReturnValueOnce(
-      Promise.resolve('res-SET_SUBMISSION_SETS')
+      Promise.resolve([submissionSet1])
     )
     clinvarExportApi.getSubmissions.mockReturnValueOnce(
-      Promise.resolve('res-SET_SUBMISSIONS')
+      Promise.resolve([submission1])
     )
     clinvarExportApi.getIndividuals.mockReturnValueOnce(
-      Promise.resolve('res-SET_INDIVIDUALS')
+      Promise.resolve([individual1])
     )
     clinvarExportApi.getSubmissionIndividuals.mockReturnValueOnce(
-      Promise.resolve('res-SET_SUBMISSION_INDIVIDUALS')
+      Promise.resolve([submissionIndividual1])
     )
-    clinvarExportApi.getFamilies.mockReturnValueOnce(
-      Promise.resolve('res-SET_FAMILIES')
-    )
+    clinvarExportApi.getFamilies.mockReturnValueOnce(Promise.resolve([family1]))
     clinvarExportApi.getSubmittingOrgs.mockReturnValueOnce(
-      Promise.resolve('res-SET_SUBMITTING_ORGS')
+      Promise.resolve([submittingOrg1])
     )
 
-    const payload = {
-      appContext: rawAppContext,
-    }
+    await store.initialize(rawAppContext)
 
-    testAction(actions.initialize, payload, store.state.clinvarExport, [
-      // the first mutations are run in the same order
-      {
-        type: 'SET_APP_CONTEXT',
-        payload: rawAppContext,
-      },
-      {
-        type: 'SET_APP_STATE',
-        payload: AppState.initializing,
-      },
-      // the next mutations are run when the async API calls return
-      {
-        type: 'SET_ORGANISATIONS',
-        payload: 'res-SET_ORGANISATIONS',
-      },
-      {
-        type: 'SET_SUBMITTERS',
-        payload: 'res-SET_SUBMITTERS',
-      },
-      {
-        type: 'SET_ASSERTION_METHODS',
-        payload: 'res-SET_ASSERTION_METHODS',
-      },
-      {
-        type: 'SET_SUBMISSION_SETS',
-        payload: 'res-SET_SUBMISSION_SETS',
-      },
-      {
-        type: 'SET_SUBMISSIONS',
-        payload: 'res-SET_SUBMISSIONS',
-      },
-      {
-        type: 'SET_INDIVIDUALS',
-        payload: 'res-SET_INDIVIDUALS',
-      },
-      {
-        type: 'SET_SUBMISSION_INDIVIDUALS',
-        payload: 'res-SET_SUBMISSION_INDIVIDUALS',
-      },
-      {
-        type: 'SET_FAMILIES',
-        payload: 'res-SET_FAMILIES',
-      },
-      {
-        type: 'SET_SUBMITTING_ORGS',
-        payload: 'res-SET_SUBMITTING_ORGS',
-      },
-      // the last mutations will appear in THIS order
-      {
-        type: 'INITIALIZE_SUBMISSION_SET_ORGANISATIONS',
-      },
-      {
-        type: 'SAVE_OLD_MODEL',
-      },
-      {
-        type: 'SET_APP_STATE',
-        payload: AppState.list,
-      },
-    ])
+    flushPromises()
+
+    expect(store.appContext).toEqual(rawAppContext)
+    expect(store.organisations).toEqual(
+      Object.fromEntries([[organisation1.sodar_uuid, organisation1]])
+    )
   })
 
   test('editSubmissionSet', () => {
     const submissionSet1 = copy(firstSubmissionSet)
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.currentSubmissionSet = null
 
-    testAction(
-      actions.editSubmissionSet,
-      submissionSet1.sodar_uuid,
-      store.state.clinvarExport,
-      [
-        {
-          type: 'SET_CURRENT_SUBMISSION_SET',
-          payload: submissionSet1.sodar_uuid,
-        },
-        {
-          type: 'SET_APP_STATE',
-          payload: AppState.edit,
-        },
-      ]
-    )
+    store.editSubmissionSet(submissionSet1.sodar_uuid)
+
+    expect(store.currentSubmissionSet).toEqual(submissionSet1)
+    expect(store.appState).toBe(AppState.edit)
   })
 
   test('wizardSave with new submission set', async () => {
@@ -277,40 +454,17 @@ describe('actions', () => {
       sodar_uuid: 'submission-individual-1-uuid-from-api',
     })
 
-    Vue.set(
-      store.state.clinvarExport.submissionSets,
-      submissionSet1.sodar_uuid,
-      submissionSet1
-    )
-    Vue.set(store.state.clinvarExport, 'submissionSetList', [submissionSet1])
-    Vue.set(store.state.clinvarExport, 'currentSubmissionSet', submissionSet1)
-    Vue.set(
-      store.state.clinvarExport.submittingOrgs,
-      submittingOrg1.sodar_uuid,
-      submittingOrg1
-    )
-    Vue.set(
-      store.state.clinvarExport.organisations,
-      organisation1.sodar_uuid,
-      organisation1
-    )
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission1.sodar_uuid,
-      submission1
-    )
-    Vue.set(store.state.clinvarExport, 'currentSubmission', submission1)
-    Vue.set(
-      store.state.clinvarExport.submissionIndividuals,
-      submissionIndividual1.sodar_uuid,
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.submissionSetList = [submissionSet1]
+    store.currentSubmissionSet = submissionSet1
+    store.submittingOrgs[submittingOrg1.sodar_uuid] = submittingOrg1
+    store.organisations[organisation1.sodar_uuid] = organisation1
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.currentSubmission = submission1
+    store.submissionIndividuals[submissionIndividual1.sodar_uuid] =
       submissionIndividual1
-    )
     // NOT saving current state as old model to trigger the "create" code path.
-    Vue.set(
-      store.state.clinvarExport,
-      'oldModel',
-      copy(clinvarExportEmptyState)
-    )
+    store['oldModel'] = copy(clinvarExportEmptyState)
 
     clinvarExportApi.createSubmissionSet.mockReturnValueOnce(
       Promise.resolve(apiSubmissionSet1)
@@ -325,96 +479,29 @@ describe('actions', () => {
       Promise.resolve(apiSubmissionIndividual1)
     )
 
-    await testActionAsync(actions.wizardSave, null, store.state.clinvarExport, [
-      // preamble
-      {
-        type: 'SET_APP_SERVER_INTERACTION',
-        payload: true,
-      },
-      // actual actions
-      {
-        type: 'ADD_SUBMISSION_SET',
-        payload: apiSubmissionSet1,
-      },
-      {
-        type: 'SET_SUBMISSION_SET_LIST',
-        payload: [apiSubmissionSet1],
-      },
-      {
-        type: 'ADD_SUBMITTING_ORG',
-        payload: apiSubmittingOrg1,
-      },
-      {
-        type: 'ADD_SUBMITTING_ORG_TO_SUBMISSION_SET',
-        payload: {
-          submissionSet: apiSubmissionSet1.sodar_uuid,
-          submittingOrg: apiSubmittingOrg1.sodar_uuid,
-        },
-      },
-      {
-        type: 'DELETE_SUBMITTING_ORG',
-        payload: submittingOrg1.sodar_uuid,
-      },
-      {
-        type: 'ADD_SUBMISSION',
-        payload: apiSubmission1,
-      },
-      {
-        type: 'ADD_SUBMISSION_TO_SUBMISSION_SET',
-        payload: {
-          submissionSet: apiSubmissionSet1.sodar_uuid,
-          submission: apiSubmission1.sodar_uuid,
-        },
-      },
-      {
-        type: 'ADD_SUBMISSION_INDIVIDUAL',
-        payload: apiSubmissionIndividual1,
-      },
-      {
-        type: 'ADD_SUBMISSION_INDIVIDUAL_TO_SUBMISSION',
-        payload: {
-          submission: apiSubmission1.sodar_uuid,
-          submissionIndividual: apiSubmissionIndividual1.sodar_uuid,
-        },
-      },
-      {
-        type: 'DELETE_SUBMISSION_INDIVIDUAL',
-        payload: submissionIndividual1.sodar_uuid,
-      },
-      {
-        type: 'DELETE_SUBMISSION',
-        payload: submission1.sodar_uuid,
-      },
-      {
-        type: 'DELETE_SUBMISSION_SET',
-        payload: submissionSet1.sodar_uuid,
-      },
-      // appendix
-      {
-        type: 'SET_CURRENT_SUBMISSION_SET',
-        payload: null,
-      },
-      {
-        type: 'SET_CURRENT_SUBMISSION',
-        payload: null,
-      },
-      {
-        type: 'SAVE_OLD_MODEL',
-      },
-      {
-        type: 'SET_APP_STATE',
-        payload: AppState.list,
-      },
-      {
-        type: 'SET_APP_SERVER_INTERACTION',
-        payload: false,
-      },
-    ])
+    await store.wizardSave()
+
+    expect(store.submissionSets).toEqual(
+      Object.fromEntries([[apiSubmissionSet1.sodar_uuid, apiSubmissionSet1]])
+    )
+    expect(store.currentSubmissionSet).toEqual(null)
+    expect(store.submissionSetList).toEqual([apiSubmissionSet1])
+    expect(store.submittingOrgs).toEqual(
+      Object.fromEntries([[apiSubmittingOrg1.sodar_uuid, apiSubmittingOrg1]])
+    )
+    expect(store.submissions).toEqual(
+      Object.fromEntries([[apiSubmission1.sodar_uuid, apiSubmission1]])
+    )
+    expect(store.submissionIndividuals).toEqual(
+      Object.fromEntries([
+        [apiSubmissionIndividual1.sodar_uuid, apiSubmissionIndividual1],
+      ])
+    )
 
     expect(clinvarExportApi.createSubmissionSet.mock.calls.length).toBe(1)
     expect(clinvarExportApi.createSubmissionSet.mock.calls[0]).toEqual([
       submissionSet1,
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.createSubmittingOrg.mock.calls.length).toBe(1)
     expect(clinvarExportApi.createSubmittingOrg.mock.calls[0]).toEqual([
@@ -423,7 +510,7 @@ describe('actions', () => {
         sort_order: 0,
         submission_set: 'submission-set-1-uuid-from-api',
       },
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.createSubmission.mock.calls.length).toBe(1)
     expect(clinvarExportApi.createSubmission.mock.calls[0]).toEqual([
@@ -431,8 +518,9 @@ describe('actions', () => {
         ...submission1,
         sort_order: 0,
         submission_set: 'submission-set-1-uuid-from-api',
+        submission_individuals: [submissionIndividual1.sodar_uuid],
       },
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.createSubmissionIndividual.mock.calls.length).toBe(
       1
@@ -443,7 +531,7 @@ describe('actions', () => {
         sort_order: 0,
         submission: 'submission-1-uuid-from-api',
       },
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
   })
 
@@ -470,43 +558,18 @@ describe('actions', () => {
       sodar_uuid: 'submission-individual-1-uuid-from-api',
     })
 
-    Vue.set(
-      store.state.clinvarExport.submissionSets,
-      submissionSet1.sodar_uuid,
-      submissionSet1
-    )
-    Vue.set(store.state.clinvarExport, 'submissionSetList', [submissionSet1])
-    Vue.set(store.state.clinvarExport, 'currentSubmissionSet', submissionSet1)
-    Vue.set(
-      store.state.clinvarExport.submittingOrgs,
-      submittingOrg1.sodar_uuid,
-      submittingOrg1
-    )
-    Vue.set(
-      store.state.clinvarExport.organisations,
-      organisation1.sodar_uuid,
-      organisation1
-    )
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission1.sodar_uuid,
-      submission1
-    )
-    Vue.set(store.state.clinvarExport, 'currentSubmission', submission1)
-    Vue.set(
-      store.state.clinvarExport.submissionIndividuals,
-      submissionIndividual1.sodar_uuid,
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.submissionSetList = [submissionSet1]
+    store.currentSubmissionSet = submissionSet1
+    store.submittingOrgs[submittingOrg1.sodar_uuid] = submittingOrg1
+    store.organisations[organisation1.sodar_uuid] = organisation1
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.currentSubmission = submission1
+    store.submissionIndividuals[submissionIndividual1.sodar_uuid] =
       submissionIndividual1
-    )
     // Save current state as old model to trigger the "update" code path.
-    Vue.set(
-      store.state.clinvarExport,
-      'oldModel',
-      copy(
-        Object.fromEntries(
-          MODEL_KEYS.map((k) => [k, store.state.clinvarExport[k]])
-        )
-      )
+    store.oldModel = copy(
+      Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]]))
     )
 
     clinvarExportApi.updateSubmissionSet.mockReturnValueOnce(
@@ -522,39 +585,19 @@ describe('actions', () => {
       Promise.resolve(apiSubmissionIndividual1)
     )
 
-    await testActionAsync(actions.wizardSave, null, store.state.clinvarExport, [
-      // preamble
-      {
-        type: 'SET_APP_SERVER_INTERACTION',
-        payload: true,
-      },
-      // actual actions (none as no new individuals are added)
-      // appendix
-      {
-        type: 'SET_CURRENT_SUBMISSION_SET',
-        payload: null,
-      },
-      {
-        type: 'SET_CURRENT_SUBMISSION',
-        payload: null,
-      },
-      {
-        type: 'SAVE_OLD_MODEL',
-      },
-      {
-        type: 'SET_APP_STATE',
-        payload: AppState.list,
-      },
-      {
-        type: 'SET_APP_SERVER_INTERACTION',
-        payload: false,
-      },
-    ])
+    await store.wizardSave()
+
+    expect(store.currentSubmissionSet).toBe(null)
+    expect(store.currentSubmission).toBe(null)
+    expect(store.oldModel).toEqual(
+      copy(Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]])))
+    )
+    expect(store.appState).toEqual(AppState.list)
 
     expect(clinvarExportApi.updateSubmissionSet.mock.calls.length).toBe(1)
     expect(clinvarExportApi.updateSubmissionSet.mock.calls[0]).toEqual([
       submissionSet1,
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.updateSubmittingOrg.mock.calls.length).toBe(1)
     expect(clinvarExportApi.updateSubmittingOrg.mock.calls[0]).toEqual([
@@ -562,7 +605,7 @@ describe('actions', () => {
         ...submittingOrg1,
         sort_order: 0,
       },
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.updateSubmission.mock.calls.length).toBe(1)
     expect(clinvarExportApi.updateSubmission.mock.calls[0]).toEqual([
@@ -570,7 +613,7 @@ describe('actions', () => {
         ...submission1,
         sort_order: 0,
       },
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.updateSubmissionIndividual.mock.calls.length).toBe(
       1
@@ -580,7 +623,7 @@ describe('actions', () => {
         ...submissionIndividual1,
         sort_order: 0,
       },
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
   })
 
@@ -593,48 +636,23 @@ describe('actions', () => {
     const apiSubmissionSet1 = copy(submissionSet1)
     const apiSubmittingOrg1 = copy(submittingOrg1)
 
-    Vue.set(
-      store.state.clinvarExport.submissionSets,
-      submissionSet1.sodar_uuid,
-      submissionSet1
-    )
-    Vue.set(store.state.clinvarExport, 'submissionSetList', [submissionSet1])
-    Vue.set(store.state.clinvarExport, 'currentSubmissionSet', submissionSet1)
-    Vue.set(
-      store.state.clinvarExport.submittingOrgs,
-      submittingOrg1.sodar_uuid,
-      submittingOrg1
-    )
-    Vue.set(
-      store.state.clinvarExport.organisations,
-      organisation1.sodar_uuid,
-      organisation1
-    )
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission1.sodar_uuid,
-      submission1
-    )
-    Vue.set(store.state.clinvarExport, 'currentSubmission', submission1)
-    Vue.set(
-      store.state.clinvarExport.submissionIndividuals,
-      submissionIndividual1.sodar_uuid,
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.submissionSetList = [submissionSet1]
+    store.currentSubmissionSet = submissionSet1
+    store.submittingOrgs[submittingOrg1.sodar_uuid] = submittingOrg1
+    store.organisations[organisation1.sodar_uuid] = organisation1
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.currentSubmission = submission1
+    store.submissionIndividuals[submissionIndividual1.sodar_uuid] =
       submissionIndividual1
-    )
     // Save current state as old model to trigger the "update" code path when removing things below
-    Vue.set(
-      store.state.clinvarExport,
-      'oldModel',
-      copy(
-        Object.fromEntries(
-          MODEL_KEYS.map((k) => [k, store.state.clinvarExport[k]])
-        )
-      )
+    store.oldModel = copy(
+      Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]]))
     )
     // Now remove submission to trigger the deletions in the "update" code path
-    Vue.set(store.state.clinvarExport, 'currentSubmission', null)
-    Vue.delete(store.state.clinvarExport.submissions, submission1.sodar_uuid)
-    Vue.set(submissionSet1, 'submissions', [])
+    store.currentSubmission = null
+    delete store.submissions[submission1.sodar_uuid]
+    submissionSet1.submissions = []
 
     clinvarExportApi.updateSubmissionSet.mockReturnValueOnce(
       Promise.resolve(apiSubmissionSet1)
@@ -647,47 +665,23 @@ describe('actions', () => {
     )
     clinvarExportApi.deleteSubmission.mockReturnValueOnce(Promise.resolve())
 
-    await testActionAsync(actions.wizardSave, null, store.state.clinvarExport, [
-      // preamble
-      {
-        type: 'SET_APP_SERVER_INTERACTION',
-        payload: true,
-      },
-      // actual actions (none as no new individuals are added)
-      {
-        type: 'DELETE_SUBMISSION_INDIVIDUAL',
-        payload: submissionIndividual1.sodar_uuid,
-      },
-      {
-        type: 'DELETE_SUBMISSION',
-        payload: submission1.sodar_uuid,
-      },
-      // appendix
-      {
-        type: 'SET_CURRENT_SUBMISSION_SET',
-        payload: null,
-      },
-      {
-        type: 'SET_CURRENT_SUBMISSION',
-        payload: null,
-      },
-      {
-        type: 'SAVE_OLD_MODEL',
-      },
-      {
-        type: 'SET_APP_STATE',
-        payload: AppState.list,
-      },
-      {
-        type: 'SET_APP_SERVER_INTERACTION',
-        payload: false,
-      },
-    ])
+    await store.wizardSave()
+
+    expect(
+      store.submissionIndividuals[submissionIndividual1.sodar_uuid]
+    ).toBeUndefined()
+    expect(store.submissions[submission1.sodar_uuid]).toBeUndefined()
+    expect(store.currentSubmissionSet).toBe(null)
+    expect(store.currentSubmission).toBe(null)
+    expect(store.oldModel).toEqual(
+      copy(Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]])))
+    )
+    expect(store.appState).toEqual(AppState.list)
 
     expect(clinvarExportApi.updateSubmissionSet.mock.calls.length).toBe(1)
     expect(clinvarExportApi.updateSubmissionSet.mock.calls[0]).toEqual([
       submissionSet1,
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.updateSubmittingOrg.mock.calls.length).toBe(1)
     expect(clinvarExportApi.updateSubmittingOrg.mock.calls[0]).toEqual([
@@ -695,24 +689,24 @@ describe('actions', () => {
         ...submittingOrg1,
         sort_order: 0,
       },
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.deleteSubmission.mock.calls.length).toBe(1)
     expect(clinvarExportApi.deleteSubmission.mock.calls[0]).toEqual([
       submission1,
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.deleteSubmissionIndividual.mock.calls.length).toBe(
       1
     )
     expect(clinvarExportApi.deleteSubmissionIndividual.mock.calls[0]).toEqual([
       submissionIndividual1,
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
   })
 
   test.each([[true], [false]])(
-    'createNewSubmissionSet existingSubmissionSet=%p',
+    'createNewSubmissionSet existingSubmissionSet=%s',
     (existingSubmissionSet) => {
       if (existingSubmissionSet) {
         const oldSubmissionSet = {
@@ -726,11 +720,7 @@ describe('actions', () => {
           submitting_orgs: [],
           submissions: [],
         }
-        Vue.set(
-          store.state.clinvarExport.submissionSets,
-          oldSubmissionSet.sodar_uuid,
-          oldSubmissionSet
-        )
+        store.submissionSets[oldSubmissionSet.sodar_uuid] = oldSubmissionSet
       }
 
       const expectedSubmissionSet = {
@@ -747,44 +737,23 @@ describe('actions', () => {
         submissions: [],
       }
 
-      testAction(
-        actions.createNewSubmissionSet,
-        null,
-        store.state.clinvarExport,
-        [
-          {
-            type: 'ADD_SUBMISSION_SET',
-            payload: expectedSubmissionSet,
-          },
-          {
-            type: 'SET_CURRENT_SUBMISSION_SET',
-            payload: expectedSubmissionSet.sodar_uuid,
-          },
-          {
-            type: 'SET_WIZARD_STATE',
-            payload: WizardState.submissionSet,
-          },
-          {
-            type: 'SET_APP_STATE',
-            payload: AppState.add,
-          },
-        ]
+      store.createNewSubmissionSet()
+
+      expect(store.submissionSets[MOCK_UUID_VALUE]).toEqual(
+        expectedSubmissionSet
       )
+      expect(store.currentSubmissionSet).toBe(
+        store.submissionSets[MOCK_UUID_VALUE]
+      )
+      expect(store.wizardState).toEqual(WizardState.submissionSet)
+      expect(store.appState).toEqual(AppState.add)
     }
   )
 
   test('setWizardState', () => {
-    testAction(
-      actions.setWizardState,
-      WizardState.submissionSet,
-      store.state.clinvarExport,
-      [
-        {
-          type: 'SET_WIZARD_STATE',
-          payload: WizardState.submissionSet,
-        },
-      ]
-    )
+    store.setWizardState(WizardState.submissionSet)
+
+    expect(store.wizardState).toEqual(WizardState.submissionSet)
   })
 
   test('wizardRemove', async () => {
@@ -794,47 +763,18 @@ describe('actions', () => {
     const submission1 = copy(firstSubmission)
     const submissionIndividual1 = copy(firstSubmissionIndividual)
 
-    Vue.set(
-      store.state.clinvarExport,
-      'oldModel',
-      copy(clinvarExportEmptyState)
-    )
-    Vue.set(
-      store.state.clinvarExport.submissionSets,
-      submissionSet1.sodar_uuid,
-      submissionSet1
-    )
-    Vue.set(store.state.clinvarExport, 'submissionSetList', [submissionSet1])
-    Vue.set(store.state.clinvarExport, 'currentSubmissionSet', submissionSet1)
-    Vue.set(
-      store.state.clinvarExport.submittingOrgs,
-      submittingOrg1.sodar_uuid,
-      submittingOrg1
-    )
-    Vue.set(
-      store.state.clinvarExport.organisations,
-      organisation1.sodar_uuid,
-      organisation1
-    )
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission1.sodar_uuid,
-      submission1
-    )
-    Vue.set(store.state.clinvarExport, 'currentSubmission', submission1)
-    Vue.set(
-      store.state.clinvarExport.submissionIndividuals,
-      submissionIndividual1.sodar_uuid,
+    store['oldModel'] = copy(clinvarExportEmptyState)
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.submissionSetList = [submissionSet1]
+    store.currentSubmissionSet = submissionSet1
+    store.submittingOrgs[submittingOrg1.sodar_uuid] = submittingOrg1
+    store.organisations[organisation1.sodar_uuid] = organisation1
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.currentSubmission = submission1
+    store.submissionIndividuals[submissionIndividual1.sodar_uuid] =
       submissionIndividual1
-    )
-    Vue.set(
-      store.state.clinvarExport,
-      'oldModel',
-      copy(
-        Object.fromEntries(
-          MODEL_KEYS.map((k) => [k, store.state.clinvarExport[k]])
-        )
-      )
+    store.oldModel = copy(
+      Object.fromEntries(MODEL_KEYS.map((k) => [k, store[k]]))
     )
 
     clinvarExportApi.deleteSubmittingOrg.mockReturnValueOnce(Promise.resolve())
@@ -844,186 +784,112 @@ describe('actions', () => {
     clinvarExportApi.deleteSubmission.mockReturnValueOnce(Promise.resolve())
     clinvarExportApi.deleteSubmissionSet.mockReturnValueOnce(Promise.resolve())
 
-    await testActionAsync(
-      actions.wizardRemove,
-      WizardState.submissionSet,
-      store.state.clinvarExport,
-      [
-        // preamble
-        {
-          type: 'SET_APP_SERVER_INTERACTION',
-          payload: true,
-        },
-        {
-          type: 'SET_APP_STATE',
-          payload: AppState.list,
-        },
-        // actual actions
-        {
-          type: 'DELETE_SUBMITTING_ORG',
-          payload: submittingOrg1.sodar_uuid,
-        },
-        {
-          type: 'DELETE_SUBMISSION_INDIVIDUAL',
-          payload: submissionIndividual1.sodar_uuid,
-        },
-        {
-          type: 'DELETE_SUBMISSION',
-          payload: submission1.sodar_uuid,
-        },
-        // appendix
-        {
-          type: 'DELETE_SUBMISSION_SET',
-          payload: submissionSet1.sodar_uuid,
-        },
-        {
-          type: 'SET_CURRENT_SUBMISSION_SET',
-          payload: null,
-        },
-        {
-          type: 'SET_CURRENT_SUBMISSION',
-          payload: null,
-        },
-        {
-          type: 'SAVE_OLD_MODEL',
-        },
-        {
-          type: 'SET_APP_SERVER_INTERACTION',
-          payload: false,
-        },
-      ]
-    )
+    await store.wizardRemove()
+
+    expect(store.appState).toEqual(AppState.list)
+    expect(store.submittingOrgs).toEqual({})
+    expect(store.submissionIndividuals).toEqual({})
+    expect(store.submissions).toEqual({})
+    expect(store.submissionSets).toEqual({})
+    expect(store.currentSubmissionSet).toEqual(null)
+    expect(store.currentSubmission).toEqual(null)
 
     expect(clinvarExportApi.deleteSubmittingOrg.mock.calls.length).toBe(1)
     expect(clinvarExportApi.deleteSubmittingOrg.mock.calls[0]).toEqual([
       submittingOrg1,
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.deleteSubmissionIndividual.mock.calls.length).toBe(
       1
     )
     expect(clinvarExportApi.deleteSubmissionIndividual.mock.calls[0]).toEqual([
       submissionIndividual1,
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.deleteSubmission.mock.calls.length).toBe(1)
     expect(clinvarExportApi.deleteSubmission.mock.calls[0]).toEqual([
       submission1,
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
     expect(clinvarExportApi.deleteSubmissionSet.mock.calls.length).toBe(1)
     expect(clinvarExportApi.deleteSubmissionSet.mock.calls[0]).toEqual([
       submissionSet1,
-      store.state.clinvarExport.appContext,
+      store.appContext,
     ])
   })
 
   test('wizardCancel', () => {
-    testAction(actions.wizardCancel, null, store.state.clinvarExport, [
-      {
-        type: 'SET_APP_STATE',
-        payload: AppState.list,
-      },
-      {
-        type: 'SET_CURRENT_SUBMISSION',
-        payload: null,
-      },
-      {
-        type: 'SET_CURRENT_SUBMISSION_SET',
-        payload: null,
-      },
-      {
-        type: 'RESTORE_OLD_MODEL',
-      },
-    ])
-  })
+    const submissionSet1 = copy(firstSubmissionSet)
+    const submission1 = copy(firstSubmission)
+    store.oldModel = copy(clinvarExportEmptyState)
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.currentSubmissionSet = submissionSet1
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.currentSubmission = submission1
 
-  test('updateCurrentSubmissionSet', () => {
-    const payload = {
-      key: 'sort_order',
-      value: 1,
-    }
-    testAction(
-      actions.updateCurrentSubmissionSet,
-      payload,
-      store.state.clinvarExport,
-      [
-        {
-          type: 'UPDATE_CURRENT_SUBMISSION_SET',
-          payload,
-        },
-      ]
-    )
-  })
+    store.wizardCancel()
 
-  test('updateCurrentSubmissionSetOrganisations', () => {
-    const payload = 'fakePayload'
-    testAction(
-      actions.updateCurrentSubmissionSetOrganisations,
-      payload,
-      store.state.clinvarExport,
-      [
-        {
-          type: 'UPDATE_CURRENT_SUBMISSION_SET_ORGANISATIONS',
-          payload,
-        },
-      ]
-    )
-  })
-
-  test('selectCurrentSubmission', () => {
-    const payload = 'fakeUuid'
-    testAction(
-      actions.selectCurrentSubmission,
-      payload,
-      store.state.clinvarExport,
-      [
-        {
-          type: 'SET_CURRENT_SUBMISSION',
-          payload,
-        },
-      ]
-    )
-  })
-
-  test('updateCurrentSubmission', () => {
-    const payload = {
-      key: 'sort_order',
-      value: 1,
-    }
-    testAction(
-      actions.updateCurrentSubmission,
-      payload,
-      store.state.clinvarExport,
-      [
-        {
-          type: 'UPDATE_CURRENT_SUBMISSION',
-          payload,
-        },
-      ]
-    )
+    expect(store.submissionSets).toEqual({})
+    expect(store.submissions).toEqual({})
+    expect(store.currentSubmissionSet).toEqual(null)
+    expect(store.currentSubmission).toEqual(null)
   })
 
   test('createSubmissionInCurrentSubmissionSet', () => {
-    const payload = {
-      smallVariant: null,
-      submission: null,
-      individualUuids: [],
-    }
-    testAction(
-      actions.createSubmissionInCurrentSubmissionSet,
-      payload,
-      store.state.clinvarExport,
-      [
-        {
-          type: 'CREATE_SUBMISSION_IN_CURRENT_SUBMISSION_SET',
-          payload,
-        },
-      ]
+    const submissionSet1 = copy(firstSubmissionSet)
+    const submission2 = copy(secondSubmission)
+    const individual2 = copy(secondIndividual)
+    const userAnnotation1 = copy(firstUserAnnotation)
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.currentSubmissionSet = submissionSet1
+    store.individuals[individual2.sodar_uuid] = individual2
+
+    store.createSubmissionInCurrentSubmissionSet({
+      smallVariant: userAnnotation1.small_variants[0],
+      submission: submission2,
+      individualUuids: [individual2.sodar_uuid],
+    })
+
+    expect(store.submissions).toStrictEqual({
+      'xxxxxxxx-xxxx-4xxx-mock-mockmockmock': {
+        _isInvalid: false,
+        age_of_onset: 'Antenatal',
+        assertion_method: '55555555-5555-5555-5555-555555555555',
+        date_created: '2020-11-09 13:37',
+        date_modified: '2020-11-09 13:37',
+        diseases: [
+          {
+            term_id: '617638',
+            term_name: 'IMMUNODEFICIENCY 11B WITH ATOPIC DERMATITIS',
+          },
+        ],
+        inheritance: 'Other',
+        record_status: 'novel',
+        release_status: 'public',
+        significance_description: 'Pathogenic',
+        significance_last_evaluation: '2020-11-09',
+        significance_status: 'criteria provided, single submitter',
+        sodar_uuid: 'xxxxxxxx-xxxx-4xxx-mock-mockmockmock',
+        sort_order: 0,
+        submission_individuals: ['xxxxxxxx-xxxx-4xxx-mock-mockmockmock'],
+        submission_set: '11111111-1111-1111-1111-111111111111',
+        variant_alternative: 'G',
+        variant_assembly: 'GRCh37',
+        variant_chromosome: '17',
+        variant_gene: ['BRCA1'],
+        variant_hgvs: ['NM_007294.4:p.Asp1778Gly'],
+        variant_reference: 'T',
+        variant_start: '41201211',
+        variant_stop: '41201211',
+        variant_type: 'Variation',
+      },
+    })
+    expect(store.currentSubmission).toBe(
+      store.submissions[Object.keys(store.submissions)[0]]
     )
   })
 
-  test.each([[true], [false]])('moveCurrentSubmission up = %p', (up) => {
+  test.each([[true], [false]])('moveCurrentSubmission up = %s', (up) => {
     const submissionSet1 = copy(firstSubmissionSet)
     const submission1 = copy({
       ...secondSubmission,
@@ -1040,60 +906,27 @@ describe('actions', () => {
       submission2.sodar_uuid,
     ]
 
-    Vue.set(store.state.clinvarExport, 'currentSubmissionSet', submissionSet1)
-    Vue.set(
-      store.state.clinvarExport,
-      'currentSubmission',
-      up ? submission2 : submission1
-    )
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission1.sodar_uuid,
-      submission1
-    )
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission2.sodar_uuid,
-      submission2
-    )
+    store.currentSubmissionSet = submissionSet1
+    store.currentSubmission = up ? submission2 : submission1
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.submissions[submission2.sodar_uuid] = submission2
 
-    testAction(actions.moveCurrentSubmission, up, store.state.clinvarExport, [
-      {
-        type: 'UPDATE_CURRENT_SUBMISSION',
-        payload: {
-          key: 'sort_order',
-          value: up ? 1 : 2,
-        },
-      },
-      {
-        type: 'UPDATE_SUBMISSION',
-        payload: {
-          submission: up ? submission1 : submission2,
-          key: 'sort_order',
-          value: up ? 2 : 1,
-        },
-      },
-    ])
+    store.moveCurrentSubmission(up)
+
+    expect(submission1.sort_order).toBe(2)
+    expect(submission2.sort_order).toBe(1)
   })
 
   test('applySubmissionListSortOrder', () => {
     const submission1 = copy(firstSubmission)
     const submission2 = copy(secondSubmission)
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.submissions[submission2.sodar_uuid] = submission2
 
-    testAction(
-      actions.applySubmissionListSortOrder,
-      [submission1, submission2],
-      store.state.clinvarExport,
-      [
-        {
-          type: 'APPLY_SUBMISSION_LIST_ORDER',
-          payload: Object.fromEntries([
-            [submission2.sodar_uuid, 1],
-            [submission1.sodar_uuid, 0],
-          ]),
-        },
-      ]
-    )
+    store.applySubmissionListSortOrder([submission2, submission1])
+
+    expect(submission1.sort_order).toBe(1)
+    expect(submission2.sort_order).toBe(0)
   })
 
   test('deleteCurrentSubmission', () => {
@@ -1101,65 +934,37 @@ describe('actions', () => {
     const submission1 = copy(firstSubmission)
     const submissionIndividual1 = copy(firstSubmissionIndividual)
 
-    Vue.set(
-      store.state.clinvarExport.submissionSets,
-      submissionSet1.sodar_uuid,
-      submissionSet1
-    )
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission1.sodar_uuid,
-      submission1
-    )
-    Vue.set(
-      store.state.clinvarExport.submissionIndividuals,
-      submissionIndividual1.sodar_uuid,
+    store.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.submissionIndividuals[submissionIndividual1.sodar_uuid] =
       submissionIndividual1
-    )
-    Vue.set(store.state.clinvarExport, 'currentSubmissionSet', submissionSet1)
-    Vue.set(store.state.clinvarExport, 'currentSubmission', submission1)
+    store.currentSubmissionSet = submissionSet1
+    store.currentSubmission = submission1
 
-    testAction(actions.deleteCurrentSubmission, {}, store.state.clinvarExport, [
-      {
-        type: 'DELETE_SUBMISSION_INDIVIDUAL',
-        payload: submissionIndividual1.sodar_uuid,
-      },
-      {
-        type: 'DELETE_SUBMISSION',
-        payload: submission1.sodar_uuid,
-      },
-      {
-        type: 'SET_CURRENT_SUBMISSION',
-        payload: null,
-      },
-    ])
+    store.deleteCurrentSubmission()
+
+    expect(store.submissionIndividuals).toEqual({})
+    expect(store.submissions).toEqual({})
+    expect(store.currentSubmission).toEqual(null)
   })
 
   test('updateSubmissionIndividual', () => {
     const submissionIndividual1 = copy(firstSubmissionIndividual)
+    store.submissionIndividuals[submissionIndividual1.sodar_uuid] =
+      submissionIndividual1
 
-    testAction(
-      actions.updateSubmissionIndividual,
-      {
-        submissionIndividual: submissionIndividual1,
-        key: 'sort_order',
-        value: 1,
-      },
-      store.state.clinvarExport,
-      [
-        {
-          type: 'UPDATE_SUBMISSION_INDIVIDUAL',
-          payload: {
-            submissionIndividual: submissionIndividual1,
-            key: 'sort_order',
-            value: 1,
-          },
-        },
-      ]
-    )
+    store.updateSubmissionIndividual({
+      submissionIndividual: submissionIndividual1,
+      key: 'sort_order',
+      value: 10,
+    })
+
+    expect(
+      store.submissionIndividuals[submissionIndividual1.sodar_uuid].sort_order
+    ).toBe(10)
   })
 
-  test.each([[true], [false]])('moveSubmissionIndividual up? %p', (up) => {
+  test.each([[true], [false]])('moveSubmissionIndividual up? %s', (up) => {
     const submission1 = copy(firstSubmission)
     const submissionIndividual1 = copy({
       ...firstSubmissionIndividual,
@@ -1170,87 +975,38 @@ describe('actions', () => {
       sort_order: 2,
     })
 
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission1.sodar_uuid,
-      submission1
-    )
-    Vue.set(store.state.clinvarExport, 'currentSubmission', submission1)
-    Vue.set(
-      store.state.clinvarExport.submissionIndividuals,
-      submissionIndividual1.sodar_uuid,
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.currentSubmission = submission1
+    store.submissionIndividuals[submissionIndividual1.sodar_uuid] =
       submissionIndividual1
-    )
-    Vue.set(
-      store.state.clinvarExport.submissionIndividuals,
-      submissionIndividual2.sodar_uuid,
+    store.submissionIndividuals[submissionIndividual2.sodar_uuid] =
       submissionIndividual2
-    )
-    Vue.set(submission1, 'submission_individuals', [
+    submission1.submission_individuals = [
       submissionIndividual1.sodar_uuid,
       submissionIndividual2.sodar_uuid,
-    ])
-    Vue.set(submissionIndividual1, 'submission', submission1.sodar_uuid)
-    Vue.set(submissionIndividual2, 'submission', submission1.sodar_uuid)
+    ]
+    submissionIndividual1.submission = submission1.sodar_uuid
+    submissionIndividual2.submission = submission1.sodar_uuid
 
-    testAction(
-      actions.moveSubmissionIndividual,
-      {
-        submissionIndividual: up
-          ? submissionIndividual2
-          : submissionIndividual1,
-        up,
-      },
-      store.state.clinvarExport,
-      [
-        {
-          type: 'UPDATE_CURRENT_SUBMISSION',
-          payload: {
-            key: 'sort_order',
-            value: up ? 1 : 2,
-          },
-        },
-        {
-          type: 'UPDATE_SUBMISSION',
-          payload: {
-            submission: up ? submissionIndividual1 : submissionIndividual2,
-            key: 'sort_order',
-            value: up ? 2 : 1,
-          },
-        },
-      ]
-    )
+    store.moveSubmissionIndividual({
+      submissionIndividual: up ? submissionIndividual2 : submissionIndividual1,
+      up,
+    })
+    expect(submissionIndividual1.sort_order).toBe(2)
+    expect(submissionIndividual2.sort_order).toBe(1)
   })
 
   test('removeSubmissionIndividualFromCurrentSubmission', () => {
     const submission1 = copy(firstSubmission)
     const submissionIndividual1 = copy(firstSubmissionIndividual)
 
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission1.sodar_uuid,
-      submission1
-    )
-    Vue.set(
-      store.state.clinvarExport.submissionIndividuals,
-      submissionIndividual1.sodar_uuid,
+    store.submissions[submission1.sodar_uuid] = submission1
+    store.submissionIndividuals[submissionIndividual1.sodar_uuid] =
       submissionIndividual1
-    )
-    Vue.set(store.state.clinvarExport, 'currentSubmission', submission1)
+    store.currentSubmission = submission1
 
-    testAction(
-      actions.removeSubmissionIndividualFromCurrentSubmission,
-      submissionIndividual1,
-      store.state.clinvarExport,
-      [
-        {
-          type: 'UPDATE_CURRENT_SUBMISSION',
-          payload: {
-            key: 'submission_individuals',
-            value: [],
-          },
-        },
-      ]
-    )
+    store.removeSubmissionIndividualFromCurrentSubmission(submissionIndividual1)
+
+    expect(store.currentSubmission.submission_individuals).toEqual([])
   })
 })

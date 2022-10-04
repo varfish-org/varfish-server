@@ -1,11 +1,38 @@
+<script setup>
+import { computed } from 'vue'
+
+import { AppState, useClinvarExportStore } from '@/stores/clinvar-export'
+
+import SubmissionSetList from './SubmissionSetList.vue'
+import SubmissionSetWizard from './SubmissionSetWizard.vue'
+
+/* eslint-disable no-unused-vars */
+const components = { SubmissionSetWizard, SubmissionSetList }
+
+const store = useClinvarExportStore()
+
+const rawAppContext = JSON.parse(
+  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
+    '{}'
+)
+store.initialize({
+  baseUrl: rawAppContext.base_url,
+  csrfToken: rawAppContext.csrf_token,
+})
+
+const showOverlay = computed(
+  () => store.appState === AppState.initializing || store.serverInteraction
+)
+</script>
+
 <template>
   <div id="#app">
     <div class="varfish-overlay-wrap position-relative">
       <submission-set-list
-        v-if="['list', 'initializing'].includes(appState)"
+        v-if="['list', 'initializing'].includes(store.appState)"
       ></submission-set-list>
       <submission-set-wizard
-        v-if="['edit', 'add'].includes(appState)"
+        v-if="['edit', 'add'].includes(store.appState)"
       ></submission-set-wizard>
 
       <div
@@ -31,45 +58,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import { mapState } from 'vuex'
-
-import { AppState } from '@/store/modules/clinvarExport'
-
-import SubmissionSetList from './SubmissionSetList'
-import SubmissionSetWizard from './SubmissionSetWizard'
-
-export default {
-  components: { SubmissionSetWizard, SubmissionSetList },
-  computed: mapState({
-    appState: (state) => state.clinvarExport.appState,
-    notification: (state) => state.clinvarExport.notification,
-    showOverlay(state) {
-      if (
-        state.clinvarExport.appState === AppState.initializing ||
-        state.clinvarExport.serverInteraction
-      ) {
-        return true
-      } else {
-        return false
-      }
-    },
-  }),
-  beforeMount: function () {
-    const rawAppContext = JSON.parse(
-      document
-        .getElementById('sodar-ss-app-context')
-        .getAttribute('app-context') || '{}'
-    )
-    this.$store.dispatch('clinvarExport/initialize', {
-      appContext: {
-        baseUrl: rawAppContext.base_url,
-        csrfToken: rawAppContext.csrf_token,
-      },
-    })
-  },
-}
-</script>
-
-<style scoped></style>

@@ -1,3 +1,79 @@
+<script>
+import { mapActions, mapState } from 'pinia'
+
+import clinvarExport from '@/api/clinvarExport'
+import { useClinvarExportStore } from '@/stores/clinvar-export'
+
+export default {
+  data: function () {
+    return {
+      submissionSetUuid: null,
+      xmlPreviewData: null,
+      xmlPreviewState: 'loading',
+      xmlValidationState: 'initial',
+    }
+  },
+  computed: {
+    ...mapState(useClinvarExportStore, [
+      'appContext',
+      'notification',
+      'submissionSetList',
+    ]),
+  },
+  methods: {
+    ...mapActions(useClinvarExportStore, [
+      'createNewSubmissionSet',
+      'editSubmissionSet',
+    ]),
+    getNotificationHtmlClass: function () {
+      return 'small badge badge-' + (this.notification.status || 'success')
+    },
+    onXmlPreviewClicked: function (submissionSetUuid) {
+      this.submissionSetUuid = submissionSetUuid
+      this.xmlValidationState = 'initial'
+      this.xmlValidationDetails = null
+      this.xmlPreviewData = ''
+      this.xmlPreviewState = 'loading'
+      $(this.$refs.modalXmlPreview).modal('show')
+      clinvarExport
+        .getSubmissionSetXml(this.appContext, submissionSetUuid)
+        .then((response) => {
+          response.text().then((text) => {
+            this.xmlPreviewData = text
+            this.xmlPreviewState = 'loaded'
+            this.xmlValidationState = 'loading'
+            clinvarExport
+              .getSubmissionSetValid(this.appContext, submissionSetUuid)
+              .then((response) => {
+                response.json().then((result) => {
+                  this.xmlValidationState = result.valid ? 'valid' : 'invalid'
+                  this.xmlValidationDetails = result.details
+                })
+              })
+          })
+        })
+    },
+    onXmlHideClicked: function () {
+      $(this.$refs.modalXmlPreview).modal('hide')
+    },
+    onDownloadXmlClicked: function () {
+      const blob = new Blob([this.xmlPreviewData], { type: 'application/xml' })
+      const link = document.createElement('a')
+      link.setAttribute('href', URL.createObjectURL(blob))
+      link.setAttribute('download', `clinvar-${this.submissionSetUuid}.xml`)
+      link.click()
+      link.remove()
+    },
+    isDownloadXmlActive: function () {
+      return this.xmlPreviewState === 'loaded'
+    },
+    isValid: function () {
+      return true
+    },
+  },
+}
+</script>
+
 <template>
   <div class="card">
     <div class="card-header">
@@ -15,7 +91,7 @@
       </h4>
     </div>
 
-    <table ref="submissionSetTable" class="table table-striped table-hover">
+    <table class="table table-striped table-hover">
       <thead>
         <tr>
           <th>Title</th>
@@ -48,6 +124,11 @@
                 ClinVar XML
               </button>
             </div>
+          </td>
+        </tr>
+        <tr v-if="!submissionSetList.length">
+          <td colspan="2" class="text-center font-italic text-muted">
+            No submission sets yet.
           </td>
         </tr>
       </tbody>
@@ -179,76 +260,6 @@
     </div>
   </div>
 </template>
-
-<script>
-import { mapActions, mapState } from 'vuex'
-
-import clinvarExport from '@/api/clinvarExport'
-
-export default {
-  data: function () {
-    return {
-      submissionSetUuid: null,
-      xmlPreviewData: null,
-      xmlPreviewState: 'loading',
-      xmlValidationState: 'initial',
-    }
-  },
-  computed: mapState({
-    appContext: (state) => state.clinvarExport.appContext,
-    notification: (state) => state.clinvarExport.notification,
-    submissionSetList: (state) => state.clinvarExport.submissionSetList,
-  }),
-  methods: {
-    ...mapActions('clinvarExport', [
-      'createNewSubmissionSet',
-      'editSubmissionSet',
-    ]),
-    getNotificationHtmlClass: function () {
-      return 'small badge badge-' + (this.notification.status || 'success')
-    },
-    onXmlPreviewClicked: function (submissionSetUuid) {
-      this.submissionSetUuid = submissionSetUuid
-      this.xmlValidationState = 'initial'
-      this.xmlValidationDetails = null
-      this.xmlPreviewData = ''
-      this.xmlPreviewState = 'loading'
-      $(this.$refs.modalXmlPreview).modal('show')
-      clinvarExport
-        .getSubmissionSetXml(this.appContext, submissionSetUuid)
-        .then((response) => {
-          response.text().then((text) => {
-            this.xmlPreviewData = text
-            this.xmlPreviewState = 'loaded'
-            this.xmlValidationState = 'loading'
-            clinvarExport
-              .getSubmissionSetValid(this.appContext, submissionSetUuid)
-              .then((response) => {
-                response.json().then((result) => {
-                  this.xmlValidationState = result.valid ? 'valid' : 'invalid'
-                  this.xmlValidationDetails = result.details
-                })
-              })
-          })
-        })
-    },
-    onXmlHideClicked: function () {
-      $(this.$refs.modalXmlPreview).modal('hide')
-    },
-    onDownloadXmlClicked: function () {
-      const blob = new Blob([this.xmlPreviewData], { type: 'application/xml' })
-      const link = document.createElement('a')
-      link.setAttribute('href', URL.createObjectURL(blob))
-      link.setAttribute('download', `clinvar-${this.submissionSetUuid}.xml`)
-      link.click()
-      link.remove()
-    },
-    isDownloadXmlActive: function () {
-      return this.xmlPreviewState === 'loaded'
-    },
-  },
-}
-</script>
 
 <style scoped>
 .modal-lg {

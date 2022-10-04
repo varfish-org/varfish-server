@@ -117,11 +117,11 @@ RUN cd /usr/src/app && \
 
 # Prepare static files
 RUN cd /usr/src/app && \
-    mkdir -p /usr/src/app/clinvar_export/vueapp/dist && \
+    npm --prefix clinvar_export/vueapp run build && \
     DJANGO_SECRET_KEY=for-build-only \
-    DJANGO_SETTINGS_MODULE=config.settings.production \
-    DATABASE_URL=postgres://varfish:varfish@fake/varfish \
-    python manage.py collectstatic --no-input
+      DJANGO_SETTINGS_MODULE=config.settings.production \
+      DATABASE_URL=postgres://varfish:varfish@fake/varfish \
+      python manage.py collectstatic --no-input
 
 # Define the entry point.
 COPY docker-entrypoint.sh /usr/local/bin

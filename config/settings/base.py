@@ -86,7 +86,6 @@ THIRD_PARTY_APPS = [
     "dal_select2",
     "cryptographic_fields",
     "rest_framework_httpsignature",
-    "webpack_loader",
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
 ]
@@ -95,6 +94,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     # custom users app
     "varfish.users.apps.UsersConfig",
+    "varfish.vueapp.apps.VueappConfig",
     # Your stuff: custom apps go here
     "clinvar.apps.ClinvarConfig",
     "clinvar_export.apps.ClinvarExportConfig",
@@ -910,12 +910,6 @@ if ENABLE_S3:
     MEDIA_URL = "http://localhost/-minio/%s/" % AWS_STORAGE_BUCKET_NAME
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
-
-# WEBPACK / VUE.JS CONFIGURATION
-# ------------------------------------------------------------------------------
-WEBPACK_LOADER = {
-    "VARFISH_VUE": {"STATS_FILE": ROOT_DIR("clinvar_export/vueapp/webpack-stats.json"),}
-}
 
 # ICONIFY CONFIGURATION
 # ------------------------------------------------------------------------------

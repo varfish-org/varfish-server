@@ -1,7 +1,9 @@
-import { AppState, WizardState } from '@/store/modules/clinvarExport'
+import { describe, expect, test } from 'vitest'
+
+import { AppState, WizardState } from '@/stores/clinvar-export'
 
 describe('AppState', () => {
-  it('defines constants', () => {
+  test('defines constants', () => {
     expect(Object.keys(AppState).length).toBe(4)
     expect(AppState.initializing).toBe('initializing')
     expect(AppState.list).toBe('list')
@@ -11,7 +13,7 @@ describe('AppState', () => {
 })
 
 describe('WizardState', () => {
-  it('defines constants', () => {
+  test('defines constants', () => {
     expect(Object.keys(WizardState).length).toBe(2)
     expect(WizardState.submissionSet).toBe('submissionSet')
     expect(WizardState.submissions).toBe('submissions')
