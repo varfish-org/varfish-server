@@ -1,56 +1,52 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils'
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createTestingPinia } from '@pinia/testing'
+import { shallowMount } from '@vue/test-utils'
+import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import clinvarExportApi from '@/api/clinvarExport'
 import SubmissionEditor from '@/components/SubmissionEditor.vue'
-import { WizardState } from '@/store/modules/clinvarExport.js'
+import { WizardState } from '@/stores/clinvar-export.js'
 
 import { copy } from '../../testUtils.js'
 import {
   clinvarExportEmptyState,
+  firstAssertionMethod,
+  firstIndividual,
   firstOrganisation,
   firstSubmission,
+  firstSubmissionIndividual,
   firstSubmissionSet,
   firstSubmitter,
   firstSubmittingOrg,
-  rawAppContext,
 } from '../fixtures.js'
 
-// Set up extended Vue constructor
-const localVue = createLocalVue()
-localVue.use(Vuex)
+// Helper function for creating wrapper with `shallowMount()`.
+const makeWrapper = (clinvarExportState) => {
+  if (!clinvarExportState) {
+    clinvarExportState = {}
+  }
+  return shallowMount(SubmissionEditor, {
+    global: {
+      plugins: [
+        createTestingPinia({
+          initialState: { clinvarExport: clinvarExportState },
+          createSpy: vi.fn,
+        }),
+      ],
+    },
+  })
+}
 
 // Mock out the clinvarExport API
-jest.mock('@/api/clinvarExport')
+vi.mock('@/api/clinvarExport')
 
 describe('SubmissionEditor.vue', () => {
-  let store
-  let actions
-
   beforeAll(() => {
     // Disable warnings
-    jest.spyOn(console, 'warn').mockImplementation(jest.fn())
+    vi.spyOn(console, 'warn').mockImplementation(vi.fn())
   })
 
-  beforeEach(() => {
-    // Setup relevant store/state fragment
-    actions = {
-      updateCurrentSubmission: jest.fn(),
-      moveCurrentSubmission: jest.fn(),
-      deleteCurrentSubmission: jest.fn(),
-    }
-    const clinvarExport = {
-      namespaced: true,
-      actions,
-      state: () => copy(clinvarExportEmptyState),
-    }
-    store = new Vuex.Store({
-      modules: {
-        clinvarExport,
-      },
-    })
-    store.state.clinvarExport.appContext = copy(rawAppContext)
+  afterEach(() => {
+    vi.clearAllMocks()
   })
 
   // In these tests we consider the simple case of having one submission
@@ -60,42 +56,34 @@ describe('SubmissionEditor.vue', () => {
   let submittingOrg1
   let submissionSet1
   let submission1
+  let submissionIndividual1
+  let individual1
+  let assertionMethod1
   const setupSimpleCase = () => {
+    const result = copy(clinvarExportEmptyState)
     organisation1 = copy(firstOrganisation)
-    Vue.set(
-      store.state.clinvarExport.organisations,
-      organisation1.sodar_uuid,
-      organisation1
-    )
+    result.organisations[organisation1.sodar_uuid] = organisation1
     submitter1 = copy(firstSubmitter)
-    Vue.set(
-      store.state.clinvarExport.submitters,
-      submitter1.sodar_uuid,
-      submitter1
-    )
+    result.submitters[submitter1.sodar_uuid] = submitter1
     submittingOrg1 = copy(firstSubmittingOrg)
-    Vue.set(
-      store.state.clinvarExport.submittingOrgs,
-      submittingOrg1.sodar_uuid,
-      submittingOrg1
-    )
+    result.submittingOrgs[submittingOrg1.sodar_uuid] = submittingOrg1
     submission1 = copy(firstSubmission)
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission1.sodar_uuid,
-      submission1
-    )
-    Vue.set(store.state.clinvarExport, 'currentSubmission', submission1)
+    result.submissions[submission1.sodar_uuid] = submission1
+    individual1 = copy(firstIndividual)
+    result.individuals[individual1.sodar_uuid] = individual1
+    submissionIndividual1 = copy(firstSubmissionIndividual)
+    result.submissionIndividuals[submissionIndividual1.sodar_uuid] =
+      submissionIndividual1
+    result.currentSubmission = submission1
     submissionSet1 = copy(firstSubmissionSet)
-    Vue.set(store.state.clinvarExport, 'wizardState', WizardState.submissionSet)
-    Vue.set(
-      store.state.clinvarExport.submissionSets,
-      submissionSet1.sodar_uuid,
-      submissionSet1
-    )
-    Vue.set(store.state.clinvarExport, 'submissionSetList', [submissionSet1])
-    Vue.set(store.state.clinvarExport, 'currentSubmissionSet', submissionSet1)
-    Vue.set(store.state.clinvarExport, 'wizardState', WizardState.submissions)
+    assertionMethod1 = copy(firstAssertionMethod)
+    result.assertionMethods[assertionMethod1.sodar_uuid] = assertionMethod1
+    result.wizardState = WizardState.submissionSet
+    result.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
+    result.submissionSetList = [submissionSet1]
+    result.currentSubmissionSet = submissionSet1
+    result.wizardState = WizardState.submissions
+    return result
   }
 
   afterEach(() => {
@@ -105,17 +93,8 @@ describe('SubmissionEditor.vue', () => {
   })
 
   test('check get{Submission,OmimDisease}Label', async () => {
-    setupSimpleCase()
+    const wrapper = makeWrapper(setupSimpleCase())
 
-    const wrapper = shallowMount(SubmissionEditor, {
-      store,
-      localVue,
-    })
-    const submissionEditor = wrapper.vm.$root.$children[0]
-
-    expect(submissionEditor.getSubmissionLabel()).toEqual('new variant')
-    expect(
-      submissionEditor.getOmimDiseaseLabel({ term_id: 'x', term_name: 'y' })
-    ).toEqual('x - y')
+    expect(wrapper.vm.getSubmissionLabel()).toEqual('new variant')
   })
 })

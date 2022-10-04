@@ -1,3 +1,92 @@
+<script setup>
+import { ref } from 'vue'
+import { validConfirmed } from '@/helpers'
+import { useClinvarExportStore, WizardState } from '@/stores/clinvar-export'
+
+import SubmissionList from './SubmissionList.vue'
+import SubmissionSetEditor from './SubmissionSetEditor.vue'
+import SubmissionSetWizardFooter from './SubmissionSetWizardFooter.vue'
+
+const components = {
+  SubmissionSetEditor,
+  SubmissionList,
+  SubmissionSetWizardFooter,
+}
+
+const store = useClinvarExportStore()
+
+const submissionSetEditorRef = ref(null)
+const submissionListRef = ref(null)
+
+/**
+ * @returns {boolean} whether or not the currently displayed form is valid.
+ */
+const isValid = () => {
+  if (submissionSetEditorRef.value) {
+    return submissionSetEditorRef.value.isValid()
+  } else if (submissionListRef.value) {
+    return submissionListRef.value.isValid()
+  } else {
+    return true
+  }
+}
+
+/**
+ * Event handler called when user clicks 'save'.
+ */
+const onSaveClicked = () => {
+  validConfirmed(isValid, store.wizardSave)
+}
+
+/**
+ * Event handler when user clicks 'remove submission set'.
+ */
+const onRemoveClicked = () => {
+  if (confirm('Really delete submission set?')) {
+    store.wizardRemove()
+  }
+}
+
+/**
+ * Event handler called when user clicks 'cancel'.
+ */
+const onCancelClicked = () => {
+  if (confirm('Really discard all changes?')) {
+    store.wizardCancel()
+  }
+}
+
+/**
+ * Event handler called when user clicks 'forward to submissions'.
+ */
+const onGotoSubmissionsClicked = () => {
+  validConfirmed(isValid, () => {
+    store.wizardState = WizardState.submissions
+  })
+}
+
+/**
+ * Event handler called when user clicks 'back to variant list'.
+ */
+const onGotoSubmissionSetClicked = () => {
+  validConfirmed(isValid, () => {
+    store.wizardState = WizardState.submissionSet
+  })
+}
+
+/**
+ * @returns {String} the CSS class for the notification.
+ */
+const getNotificationHtmlClass = () => {
+  return 'badge badge-' + (store.notification.status || 'success')
+}
+
+// Define the exposed functions
+defineExpose({
+  isValid,
+})
+</script>
+
 <template>
   <div id="submission-set-wizard">
     <div class="card">
@@ -7,9 +96,9 @@
           Edit Submission Set
 
           <transition name="fade">
-            <div v-if="notification" class="float-right">
+            <div v-if="store.notification" class="float-right">
               <span :class="getNotificationHtmlClass()">
-                {{ notification.text }}
+                {{ store.notification.text }}
               </span>
             </div>
           </transition>
@@ -30,12 +119,12 @@
       </div>
 
       <submission-set-editor
-        v-if="wizardState === 'submissionSet'"
-        ref="submissionSetList"
+        v-if="store.wizardState === 'submissionSet'"
+        ref="submissionSetEditorRef"
       ></submission-set-editor>
       <submission-list
-        v-if="wizardState === 'submissions'"
-        ref="submissionList"
+        v-if="store.wizardState === 'submissions'"
+        ref="submissionListRef"
       ></submission-list>
 
       <div class="card-footer">
@@ -49,94 +138,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import { mapActions, mapState } from 'vuex'
-
-import { validConfirmed } from '@/helpers'
-import { WizardState } from '@/store/modules/clinvarExport'
-
-import SubmissionList from './SubmissionList'
-import SubmissionSetEditor from './SubmissionSetEditor'
-import SubmissionSetWizardFooter from './SubmissionSetWizardFooter'
-
-export default {
-  components: {
-    SubmissionSetEditor,
-    SubmissionList,
-    SubmissionSetWizardFooter,
-  },
-  computed: mapState({
-    wizardState: (state) => state.clinvarExport.wizardState,
-    notification: (state) => state.clinvarExport.notification,
-    currentSubmissionSet: (state) => state.clinvarExport.currentSubmissionSet,
-  }),
-  methods: {
-    ...mapActions('clinvarExport', [
-      'setWizardState',
-      'wizardSave',
-      'wizardRemove',
-      'wizardCancel',
-    ]),
-    validConfirmed,
-    /**
-     * Event handler called when user clicks 'save'.
-     */
-    onSaveClicked() {
-      this.validConfirmed(this.wizardSave)
-    },
-    /**
-     * Event handler when user clicks 'remove submission set'.
-     */
-    onRemoveClicked() {
-      if (confirm('Really delete submission set?')) {
-        this.wizardRemove()
-      }
-    },
-    /**
-     * Event handler called when user clicks 'cancel'.
-     */
-    onCancelClicked() {
-      if (confirm('Really discard all changes?')) {
-        this.wizardCancel()
-      }
-    },
-    /**
-     * Event handler called when user clicks 'forward to submissions'.
-     */
-    onGotoSubmissionsClicked() {
-      this.validConfirmed(() => {
-        this.setWizardState(WizardState.submissions)
-      })
-    },
-    /**
-     * Event handler called when user clicks 'back to variant list'.
-     */
-    onGotoSubmissionSetClicked() {
-      this.validConfirmed(() => {
-        this.setWizardState(WizardState.submissionSet)
-      })
-    },
-    /**
-     * @returns {String} the CSS class for the notification.
-     */
-    getNotificationHtmlClass() {
-      return 'badge badge-' + (this.notification.status || 'success')
-    },
-    /**
-     * @returns {boolean} whether or not the currently displayed form is valid.
-     */
-    isValid() {
-      if (this.$refs.submissionSetList !== undefined) {
-        return this.$refs.submissionSetList.isValid()
-      } else if (this.$refs.submissionList !== undefined) {
-        return this.$refs.submissionList.isValid()
-      } else {
-        return true
-      }
-    },
-  },
-}
-</script>
-
-<style scoped></style>

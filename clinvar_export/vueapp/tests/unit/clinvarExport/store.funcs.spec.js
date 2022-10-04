@@ -1,19 +1,11 @@
-import { createLocalVue } from '@vue/test-utils'
-import Vuex from 'vuex'
+import { beforeEach, describe, expect, test } from 'vitest'
 
-import { extractVariantZygosity } from '@/store/modules/clinvarExport'
-
-import { copy } from '../../testUtils.js'
-
-// Set up extended Vue constructor
-const localVue = createLocalVue()
-localVue.use(Vuex)
+import { extractVariantZygosity } from '@/stores/clinvar-export'
 
 describe('helper functions', () => {
-  let store
-  const termsRecessive = [
+  const termsRecessive = Object.freeze([
     { term_id: 'HP:0000007', term_name: 'Autosomal recessive inheritance' },
-  ]
+  ])
   let individuals
 
   beforeEach(() => {
@@ -44,16 +36,6 @@ describe('helper functions', () => {
         sex: 'female',
       },
     }
-    // Setup relevant store/state fragment
-    const clinvarExport = {
-      namespaced: true,
-      state: () => copy({ individuals }),
-    }
-    store = new Vuex.Store({
-      modules: {
-        clinvarExport,
-      },
-    })
   })
 
   const genotypes = ['0/1', '1/0', '1/1', '0|1', '1/0', '1|1', '1']
@@ -145,7 +127,7 @@ describe('helper functions', () => {
   )
 
   test.each(testTable)(
-    'extractVariantZygosity on %p with %p singleton gt=%p expecting %p zygosity with %p variant alleles, recessive=%p',
+    'extractVariantZygosity on %s with %s singleton gt=%s expecting %s zygosity with %s variant alleles, recessive=%s',
     (chromosome, sex, gt, variantZygosity, variantAlleleCount, recessive) => {
       const smallVariant = {
         chromosome,
@@ -155,16 +137,14 @@ describe('helper functions', () => {
           },
         },
       }
-      store.state.clinvarExport.individuals['singleton-index-uuid'].sex = sex
+      individuals['singleton-index-uuid'].sex = sex
       if (recessive) {
-        store.state.clinvarExport.individuals[
-          'singleton-index-uuid'
-        ].phenotype_terms = termsRecessive
+        individuals['singleton-index-uuid'].phenotype_terms = termsRecessive
       }
       const actual = extractVariantZygosity(
         smallVariant,
         ['singleton-index-uuid'],
-        store.state.clinvarExport
+        individuals
       )
       expect(actual).toStrictEqual({
         variantAlleleCount,

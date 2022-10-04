@@ -1,10 +1,17 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils'
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createTestingPinia } from '@pinia/testing'
+import { shallowMount } from '@vue/test-utils'
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest'
 
-import clinvarExportApi from '@/api/clinvarExport'
 import SubmissionCaseList from '@/components/SubmissionCaseList.vue'
-import { WizardState } from '@/store/modules/clinvarExport.js'
+import { WizardState } from '@/stores/clinvar-export.js'
 
 import { copy } from '../../testUtils.js'
 import {
@@ -16,54 +23,46 @@ import {
   firstSubmissionSet,
   firstSubmitter,
   firstSubmittingOrg,
-  rawAppContext,
   secondIndividual,
 } from '../fixtures.js'
 
-// Set up extended Vue constructor
-const localVue = createLocalVue()
-localVue.use(Vuex)
-
+// Helper function for creating wrapper with `shallowMount()`.
+const makeWrapper = (clinvarExportState, extraArgs) => {
+  if (!clinvarExportState) {
+    clinvarExportState = {}
+  }
+  if (!extraArgs) {
+    extraArgs = {}
+  }
+  return shallowMount(SubmissionCaseList, {
+    global: {
+      plugins: [
+        createTestingPinia({
+          initialState: { clinvarExport: clinvarExportState },
+          createSpy: vi.fn,
+        }),
+      ],
+    },
+    ...extraArgs,
+  })
+}
 // Mock out the clinvarExport API
-jest.mock('@/api/clinvarExport')
+vi.mock('@/api/clinvarExport')
 
 describe('SubmissionCaseList.vue', () => {
-  let store
-  let actions
-
   beforeAll(() => {
     // Disable warnings
-    jest.spyOn(console, 'warn').mockImplementation(jest.fn())
+    vi.spyOn(console, 'warn').mockImplementation(vi.fn())
     // Mock out jquery dollar function for showing modals
-    global.$ = jest.fn()
+    global.$ = vi.fn()
   })
 
   afterAll(() => {
     global.$.mockRestore()
   })
 
-  beforeEach(() => {
-    // Setup relevant store/state fragment
-    actions = {
-      updateCurrentSubmission: jest.fn(),
-      moveCurrentSubmission: jest.fn(),
-      deleteCurrentSubmission: jest.fn(),
-    }
-    const clinvarExport = {
-      namespaced: true,
-      actions,
-      state: () => copy(clinvarExportEmptyState),
-    }
-    store = new Vuex.Store({
-      modules: {
-        clinvarExport,
-      },
-    })
-    store.state.clinvarExport.appContext = copy(rawAppContext)
-  })
-
   afterEach(() => {
-    global.$.mockClear()
+    vi.clearAllMocks()
   })
 
   // In these tests we consider the simple case of having one submission
@@ -77,78 +76,37 @@ describe('SubmissionCaseList.vue', () => {
   let individual1
   let individual2
   const setupSimpleCase = () => {
+    const result = copy(clinvarExportEmptyState)
     organisation1 = copy(firstOrganisation)
-    Vue.set(
-      store.state.clinvarExport.organisations,
-      organisation1.sodar_uuid,
-      organisation1
-    )
+    result.organisations[organisation1.sodar_uuid] = organisation1
     submitter1 = copy(firstSubmitter)
-    Vue.set(
-      store.state.clinvarExport.submitters,
-      submitter1.sodar_uuid,
-      submitter1
-    )
+    result.submitters[submitter1.sodar_uuid] = submitter1
     submittingOrg1 = copy(firstSubmittingOrg)
-    Vue.set(
-      store.state.clinvarExport.submittingOrgs,
-      submittingOrg1.sodar_uuid,
-      submittingOrg1
-    )
+    result.submittingOrgs[submittingOrg1.sodar_uuid] = submittingOrg1
     submission1 = copy(firstSubmission)
-    Vue.set(
-      store.state.clinvarExport.submissions,
-      submission1.sodar_uuid,
-      submission1
-    )
-    Vue.set(store.state.clinvarExport, 'currentSubmission', submission1)
+    result.submissions[submission1.sodar_uuid] = submission1
+    result.currentSubmission = submission1
     submissionSet1 = copy(firstSubmissionSet)
-    Vue.set(store.state.clinvarExport, 'wizardState', WizardState.submissionSet)
-    Vue.set(
-      store.state.clinvarExport.submissionSets,
-      submissionSet1.sodar_uuid,
-      submissionSet1
-    )
+    result.wizardState = WizardState.submissionSet
+    result.submissionSets[submissionSet1.sodar_uuid] = submissionSet1
     submissionIndividual1 = copy(firstSubmissionIndividual)
-    Vue.set(
-      store.state.clinvarExport.submissionIndividuals,
-      submissionIndividual1.sodar_uuid,
+    result.submissionIndividuals[submissionIndividual1.sodar_uuid] =
       submissionIndividual1
-    )
     individual1 = copy(firstIndividual)
-    Vue.set(
-      store.state.clinvarExport.individuals,
-      individual1.sodar_uuid,
-      individual1
-    )
+    result.individuals[individual1.sodar_uuid] = individual1
     individual2 = copy(secondIndividual)
-    Vue.set(
-      store.state.clinvarExport.individuals,
-      individual2.sodar_uuid,
-      individual2
-    )
-    Vue.set(store.state.clinvarExport, 'submissionSetList', [submissionSet1])
-    Vue.set(store.state.clinvarExport, 'currentSubmissionSet', submissionSet1)
-    Vue.set(store.state.clinvarExport, 'wizardState', WizardState.submissions)
+    result.individuals[individual2.sodar_uuid] = individual2
+    result.submissionSetList = [submissionSet1]
+    result.currentSubmissionSet = submissionSet1
+    result.wizardState = WizardState.submissions
+    return result
   }
 
-  afterEach(() => {
-    Object.keys(clinvarExportApi).forEach((method) =>
-      clinvarExportApi[method].mockClear()
-    )
-  })
-
   test('check computed properties', async () => {
-    setupSimpleCase()
+    const wrapper = makeWrapper(setupSimpleCase())
 
-    const wrapper = shallowMount(SubmissionCaseList, {
-      store,
-      localVue,
-    })
-    const submissionCaseList = wrapper.vm.$root.$children[0]
-
-    expect(submissionCaseList.caseCount).toEqual(1)
-    expect(submissionCaseList.caseSubmissionIndividuals).toEqual([
+    expect(wrapper.vm.caseCount).toEqual(1)
+    expect(wrapper.vm.caseSubmissionIndividuals).toEqual([
       { wrapped: submissionIndividual1 },
     ])
   })
@@ -156,14 +114,10 @@ describe('SubmissionCaseList.vue', () => {
   test('check functions', async () => {
     setupSimpleCase()
 
-    const wrapper = shallowMount(SubmissionCaseList, {
-      store,
-      localVue,
-    })
-    const submissionCaseList = wrapper.vm.$root.$children[0]
+    const wrapper = makeWrapper(setupSimpleCase())
 
-    expect(submissionCaseList.getModalIndividualList()).toEqual([individual2])
-    expect(submissionCaseList.getPhenotypeDisplay(individual1)).toEqual(
+    expect(wrapper.vm.getModalIndividualList()).toEqual([individual2])
+    expect(wrapper.vm.getPhenotypeDisplay(individual1)).toEqual(
       '(HP:123456) some name, (HP:98235) another name'
     )
   })

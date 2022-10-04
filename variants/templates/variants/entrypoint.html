@@ -3,13 +3,13 @@
 {% load vite_tags %}
 
 {% block title %}
-  ClinVar Export
+  Filter Variants: {{ case.name }}
 {% endblock title %}
 
 {% block projectroles_extend %}
   <div id="sodar-ss-app-context" app-context="{{ app_context }}"></div>
   <div id="app"></div>
 
-  {% vite_scripts 'clinvar_export' 'src/main.js' %}
-  {% vite_styles 'clinvar_export' 'src/main.js' %}
+  {% vite_scripts 'variants' 'src/main.js' %}
 {% endblock %}
+

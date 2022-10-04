@@ -1,3 +1,453 @@
+<script>
+import { mapActions, mapState } from 'pinia'
+import Multiselect from '@vueform/multiselect'
+import { VueDraggableNext } from 'vue-draggable-next'
+import { ref } from 'vue'
+
+import {
+  getSubmissionLabel,
+  getVariantId,
+  HPO_AGE_OF_ONSET,
+  HPO_INHERITANCE_MODE,
+  isDiseaseTerm,
+  removeItemAll,
+  validConfirmed,
+} from '@/helpers'
+import { useClinvarExportStore } from '@/stores/clinvar-export'
+
+import clinvarExport from '../api/clinvarExport'
+import SubmissionEditor from './SubmissionEditor.vue'
+
+export default {
+  components: { VueDraggableNext, SubmissionEditor, Multiselect },
+  data() {
+    return {
+      familyUuid: '',
+      modalIncludeAll: false,
+      modalIncludeComments: false,
+      modalIncludeCandidates: true,
+      modalIncludeFinalCausatives: true,
+      modalIncludeAcmg3: false,
+      modalIncludeAcmg4: true,
+      modalIncludeAcmg5: true,
+      individualFilter: '',
+      onlyAddAffected: true,
+      loadingVariants: false,
+      fetchError: false,
+      rawModalUserAnnotations: null,
+      rawModalUserAnnotationsCount: 0,
+      modalUserAnnotations: [],
+      selectedSmallVariants: [],
+    }
+  },
+  computed: {
+    ...mapState(useClinvarExportStore, [
+      'appContext',
+      'families',
+      'individuals',
+      'submissionIndividuals',
+      'submissions',
+      'currentSubmissionSet',
+      'currentSubmission',
+      'assertionMethods',
+    ]),
+
+    currentSubmissionValid() {
+      return this.isValid()
+    },
+    familySelectItems: function () {
+      return Array.from(Object.values(this.families), (f) => {
+        return {
+          value: f.sodar_uuid,
+          label: f.case_name,
+        }
+      })
+    },
+    submissionList: {
+      get() {
+        const lst = this.currentSubmissionSet.submissions.map(
+          (k) => this.submissions[k]
+        )
+        lst.sort((lhs, rhs) => lhs.sort_order - rhs.sort_order)
+        return lst
+      },
+      set(value) {
+        this.applySubmissionListSortOrder(value)
+      },
+    },
+  },
+  methods: {
+    ...mapActions(useClinvarExportStore, [
+      'selectCurrentSubmission',
+      'createSubmissionInCurrentSubmissionSet',
+      'applySubmissionListSortOrder',
+    ]),
+
+    /**
+     * Fetch model user annotations.
+     */
+    fetchRawModalUserAnnotations() {
+      if (this.familyUuid) {
+        this.modalUserAnnotations = []
+        this.fetchError = false
+        this.loadingVariants = true
+        this.rawModalUserAnnotations = null
+        this.rawModalUserAnnotationsCount = 0
+
+        clinvarExport
+          .getUserAnnotations(this.appContext, this.familyUuid)
+          .then((res) => {
+            this.fetchError = false
+
+            const collect = (arr) => {
+              const result = {}
+              for (const obj of arr) {
+                if (getVariantId(obj) in result) {
+                  result[getVariantId(obj)].push(obj)
+                } else {
+                  result[getVariantId(obj)] = [obj]
+                }
+              }
+              for (const arr of Object.values(result)) {
+                arr.sort((a, b) => (a.case_name < b.case_name ? -1 : 1))
+              }
+              return result
+            }
+
+            const smallVariants = {}
+            for (const smallVar of res.small_variants) {
+              if (getVariantId(smallVar) in smallVariants) {
+                smallVariants[getVariantId(smallVar)].caseNames.push(
+                  smallVar.case_name
+                )
+                smallVariants[getVariantId(smallVar)].genotype = {
+                  ...smallVariants[getVariantId(smallVar)].genotype,
+                  ...smallVar.genotype,
+                }
+              } else {
+                smallVariants[getVariantId(smallVar)] = {
+                  ...smallVar,
+                  caseNames: [smallVar.case_name],
+                  variantId: getVariantId(smallVar),
+                }
+                delete smallVariants[getVariantId(smallVar)].case_name
+              }
+            }
+            for (const arr of Object.values(smallVariants)) {
+              arr.caseNames = [...new Set(arr.caseNames)]
+              arr.caseNames.sort((a, b) => (a.case_name < b.case_name ? -1 : 1))
+            }
+
+            this.rawModalUserAnnotations = {
+              smallVariants,
+              smallVariantFlags: collect(res.small_variant_flags),
+              smallVariantComments: collect(res.small_variant_comments),
+              acmgCriteriaRating: collect(res.acmg_criteria_rating),
+            }
+            this.rawModalUserAnnotationsCount =
+              Object.keys(smallVariants).length
+            this.modalUserAnnotations = this._computeUserAnnotations(
+              this.rawModalUserAnnotations
+            )
+            this.loadingVariants = false
+          })
+          .catch((error) => {
+            this.loadingVariants = false
+            this.fetchError = true
+            console.error(error)
+          })
+      } else {
+        this.rawModalUserAnnotations = null
+        this.modalUserAnnotations = null
+      }
+    },
+
+    /**
+     * Return filtered data to display in the annotated variant modal.
+     */
+    _computeUserAnnotations(ua) {
+      const c = 300000000 // longer than longest chromosome
+      if (!ua) {
+        return []
+      }
+
+      const smallVariants = Object.values(ua.smallVariants)
+        .map((smallVar) => {
+          const flags = ua.smallVariantFlags[smallVar.variantId] || []
+          const rating = ua.acmgCriteriaRating[smallVar.variantId] || []
+          const comments = ua.smallVariantComments[smallVar.variantId] || []
+          return { ...smallVar, flags, rating, comments }
+        })
+        .filter((smallVar) => {
+          if (this.individualFilter) {
+            if (
+              !smallVar.caseNames.some((s) => s.includes(this.individualFilter))
+            ) {
+              return false
+            }
+          }
+          if (this.modalIncludeAll) {
+            return true
+          } else if (
+            this.modalIncludeComments &&
+            smallVar.comments.length > 0
+          ) {
+            return true
+          } else if (
+            this.modalIncludeCandidates &&
+            smallVar.flags.some((x) => x.flag_candidate)
+          ) {
+            return true
+          } else if (
+            this.modalIncludeFinalCausatives &&
+            smallVar.flags.some((x) => x.flag_final_causative)
+          ) {
+            return true
+          } else if (
+            this.modalIncludeAcmg3 &&
+            this.getAcmgRating(smallVar) >= 3
+          ) {
+            return true
+          } else if (
+            this.modalIncludeAcmg4 &&
+            this.getAcmgRating(smallVar) >= 4
+          ) {
+            return true
+          } else if (
+            this.modalIncludeAcmg5 &&
+            this.getAcmgRating(smallVar) >= 5
+          ) {
+            return true
+          } else {
+            return false
+          }
+        })
+      smallVariants.sort(
+        (a, b) =>
+          a.chromosome_no * c + a.start - (b.chromosome_no * c + b.start)
+      )
+      return smallVariants
+    },
+
+    toggleData(name) {
+      this.$set(this, name, !this[name])
+    },
+
+    getSubmissionLabel,
+    validConfirmed,
+
+    getSubmissionIndividualsCount(item) {
+      return item.submission_individuals.length
+    },
+    getSubmissionIndividualsLabel(item) {
+      let names = item.submission_individuals.map((uuid) =>
+        this.individuals[
+          this.submissionIndividuals[uuid].individual
+        ].name.replace(/-N.-DNA.-....$/, '')
+      )
+      if (names.length > 2) {
+        names = names.slice(0, 2) + ['...']
+      }
+      return names.join(', ')
+    },
+    isVariantSelected(item) {
+      const variantDesc = this.getVariantDesc(item)
+      return this.selectedSmallVariants.includes(variantDesc)
+    },
+    getVariantDesc(item) {
+      return `${item.release}-${item.chromosome}-${item.start}-${item.reference}-${item.alternative}`
+    },
+    getVariantLabel(item) {
+      return `${item.refseq_gene_symbol}:${item.refseq_hgvs_p || '--none--'}`
+    },
+    getVariantExtraLabel(item) {
+      if (!item) {
+        return null
+      } else {
+        return `(${item.refseq_transcript_id}:${item.refseq_hgvs_c})`
+      }
+    },
+    getAcmgRating(items) {
+      const res = Math.max.apply(
+        0,
+        items.rating.map((x) => x.class_override || x.class_auto || 0)
+      )
+      if (isFinite(res)) {
+        return res || 'N/A'
+      } else {
+        return 'N/A'
+      }
+    },
+
+    onListItemClicked(item) {
+      this.validConfirmed(this.isValid, () => {
+        this.selectCurrentSubmission(item)
+      })
+    },
+    onVariantClicked(smallVariant) {
+      const variantDesc = this.getVariantDesc(smallVariant)
+      if (this.selectedSmallVariants.includes(variantDesc)) {
+        removeItemAll(this.selectedSmallVariants, variantDesc)
+      } else {
+        this.selectedSmallVariants.push(variantDesc)
+      }
+    },
+    /**
+     * Clicked on an existing small variant with user annotation.
+     */
+    onCreateSubmissionClicked() {
+      if (!this.selectedSmallVariants.length) {
+        this.createSubmissionInCurrentSubmissionSet({
+          smallVariant: null,
+          submission: this.getEmptySubmissionData(),
+          individualUuids: [],
+        })
+      } else {
+        for (let i = 0; i < this.modalUserAnnotations.length; ++i) {
+          const smallVariant = this.modalUserAnnotations[i]
+          const variantDesc = this.getVariantDesc(smallVariant)
+          if (this.selectedSmallVariants.includes(variantDesc)) {
+            this.createSubmissionInCurrentSubmissionSet(
+              this.getSubmissionData(smallVariant)
+            )
+          }
+        }
+        this.selectedSmallVariants = []
+      }
+      $(this.$refs.modalAddSubmission).modal('hide')
+    },
+    onAddSubmissionClicked() {
+      this.validConfirmed(this.isValid, () => {
+        $(this.$refs.modalAddSubmission).modal('show')
+      })
+    },
+
+    /**
+     * @return {object} with keys submission, individualUuids (of affected carrier individuals).
+     */
+    getSubmissionData(smallVariant) {
+      // Get individuals that carry the variants.
+      const affectedNames = Object.values(this.individuals)
+        .filter((indiv) => indiv.affected === 'yes')
+        .map((indiv) => indiv.name)
+      const carrierNames = Object.entries(smallVariant.genotype)
+        .filter((kv) => {
+          const name = kv[0]
+          const value = kv[1]
+          return (
+            value.gt &&
+            value.gt.includes('1') &&
+            (!this.onlyAddAffected || affectedNames.includes(name))
+          )
+        })
+        .map((kv) => kv[0])
+      const individualUuids = Object.entries(this.individuals)
+        .filter((kv) => carrierNames.includes(kv[1].name))
+        .map((kv) => kv[0])
+      individualUuids.sort()
+
+      const significanceDescription =
+        {
+          1: 'Benign',
+          2: 'Likely benign',
+          3: 'Uncertain significance',
+          4: 'Likely pathogenic',
+          5: 'Pathogenic',
+        }[this.getAcmgRating(smallVariant)] || null
+
+      const variantGene = [smallVariant.refseq_gene_symbol]
+      const variantHgvs = [smallVariant.refseq_hgvs_p || 'p.?']
+
+      let ageOfOnset = ''
+      let inheritance = ''
+      const diseases = []
+      for (const individualUuid of individualUuids) {
+        const individual = this.individuals[individualUuid]
+        if (individual.phenotype_terms) {
+          // eslint-disable-next-line camelcase
+          for (let { term_id, term_name } of individual.phenotype_terms) {
+            // eslint-disable-next-line camelcase
+            term_name = term_name.split(';')[0].trim()
+            inheritance = inheritance || HPO_INHERITANCE_MODE.get(term_id) || ''
+            ageOfOnset = ageOfOnset || HPO_AGE_OF_ONSET.get(term_id) || ''
+            // eslint-disable-next-line camelcase
+            if (
+              isDiseaseTerm(term_id) &&
+              // eslint-disable-next-line camelcase
+              !diseases.some((x) => x.term_id === term_id)
+            ) {
+              // eslint-disable-next-line camelcase
+              diseases.push({ term_id, term_name })
+            }
+          }
+        }
+      }
+
+      const submission = {
+        record_status: 'novel',
+        release_status: 'public',
+        significance_status: 'criteria provided, single submitter',
+        significance_description: significanceDescription,
+        significance_last_evaluation: new Date().toISOString().substr(0, 10),
+        assertion_method: Object.values(this.assertionMethods)[0].sodar_uuid,
+        age_of_onset: ageOfOnset,
+        diseases,
+        inheritance,
+        variant_type: 'Variation',
+        variant_assembly: smallVariant.release,
+        variant_chromosome: smallVariant.chromosome,
+        variant_start: smallVariant.start,
+        variant_stop: smallVariant.start + smallVariant.reference.length - 1,
+        variant_reference: smallVariant.reference,
+        variant_alternative: smallVariant.alternative,
+        variant_gene: variantGene,
+        variant_hgvs: variantHgvs,
+      }
+
+      return { smallVariant, submission, individualUuids }
+    },
+    /**
+     * @return {object} the data of an empty submission
+     */
+    getEmptySubmissionData() {
+      return {
+        record_status: 'novel',
+        release_status: 'public',
+        significance_status: 'criteria provided, single submitter',
+        significance_description: null,
+        significance_last_evaluation: new Date().toISOString().substr(0, 10),
+        assertion_method: Object.values(this.assertionMethods)[0].sodar_uuid,
+        age_of_onset: '',
+        inheritance: '',
+        variant_type: 'Variation',
+        variant_assembly: 'GRCh37',
+        variant_chromosome: null,
+        variant_start: null,
+        variant_stop: null,
+        variant_reference: null,
+        variant_alternative: null,
+        variant_gene: [],
+        variant_hgvs: [],
+
+        diseases: [],
+        submission_individuals: [],
+      }
+    },
+
+    /**
+     * @returns {boolean} whether the child component's form is valid.
+     */
+    isValid() {
+      if (this.$refs.submissionEditor) {
+        return this.$refs.submissionEditor.isValid()
+      } else {
+        return true
+      }
+    },
+  },
+}
+</script>
+
 <template>
   <div class="row">
     <div class="col-2 px-0">
@@ -23,13 +473,15 @@
               </div>
             </h5>
           </li>
-          <draggable ref="submissionList" v-model="submissionList">
+          <vue-draggable-next ref="submissionList" v-model="submissionList">
             <li
               v-for="item in submissionList"
               :key="item.sodar_uuid"
               :class="{
                 'list-group-item list-group-item-action list-group-item-primary':
-                  item === currentSubmission,
+                  item === currentSubmission && currentSubmissionValid,
+                'list-group-item list-group-item-action list-group-item-warning':
+                  item === currentSubmission && !currentSubmissionValid,
                 'list-group-item list-group-item-action':
                   item !== currentSubmission,
               }"
@@ -40,7 +492,7 @@
                 >({{ getSubmissionIndividualsLabel(item) }})</span
               >
               <i
-                v-if="item._isInvalid"
+                v-if="item === currentSubmission && !currentSubmissionValid"
                 class="iconify text-warning"
                 data-icon="bi:exclamation-circle"
               ></i>
@@ -48,7 +500,7 @@
                 <span class="iconify" data-icon="fa-solid:chevron-right"></span>
               </div>
             </li>
-          </draggable>
+          </vue-draggable-next>
           <li
             v-if="!submissionList.length"
             class="list-group-item list-group-item-light font-italic text-center"
@@ -61,7 +513,7 @@
     <div class="col-10 border-left d-flex">
       <submission-editor
         v-if="currentSubmission"
-        ref="submissionEditor"
+        ref="submissionEditorRef"
       ></submission-editor>
       <div
         v-if="currentSubmission === null"
@@ -78,7 +530,7 @@
       >
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Add Submissio to Submission List</h5>
+            <h5 class="modal-title">Add Submission to Submission List</h5>
           </div>
           <div class="modal-body">
             <p>
@@ -102,13 +554,15 @@
                       ref="inputSelectCase"
                       v-model="familyUuid"
                       placeholder="Select Case"
-                      select-label=""
-                      deselect-label=""
                       :loading="loadingVariants"
                       :disabled="loadingVariants"
-                      :options="familyUuids"
-                      :custom-label="getFamilyLabel"
-                      @input="fetchRawModalUserAnnotations()"
+                      :options="familySelectItems"
+                      :delay="0"
+                      :min-chars="2"
+                      :close-on-select="true"
+                      @deselect="fetchRawModalUserAnnotations()"
+                      @select="fetchRawModalUserAnnotations()"
+                      @clear="fetchRawModalUserAnnotations()"
                     ></multiselect>
                   </div>
                   <div class="form-group">
@@ -383,453 +837,6 @@
     </div>
   </div>
 </template>
-
-<script>
-import Vue from 'vue'
-import Multiselect from 'vue-multiselect'
-import draggable from 'vuedraggable'
-import { mapActions, mapState } from 'vuex'
-
-import {
-  getSubmissionLabel,
-  getVariantId,
-  HPO_AGE_OF_ONSET,
-  HPO_INHERITANCE_MODE,
-  isDiseaseTerm,
-  removeItemAll,
-  validConfirmed,
-} from '@/helpers'
-
-import clinvarExport from '../api/clinvarExport'
-import SubmissionEditor from './SubmissionEditor'
-
-export default {
-  components: { draggable, SubmissionEditor, Multiselect },
-  data() {
-    return {
-      familyUuid: '',
-      modalIncludeAll: false,
-      modalIncludeComments: false,
-      modalIncludeCandidates: true,
-      modalIncludeFinalCausatives: true,
-      modalIncludeAcmg3: false,
-      modalIncludeAcmg4: true,
-      modalIncludeAcmg5: true,
-      individualFilter: '',
-      onlyAddAffected: true,
-      loadingVariants: false,
-      fetchError: false,
-      rawModalUserAnnotations: null,
-      rawModalUserAnnotationsCount: 0,
-      modalUserAnnotations: [],
-      selectedSmallVariants: [],
-    }
-  },
-  computed: {
-    ...mapState({
-      appContext: (state) => state.clinvarExport.appContext,
-      families: (state) => state.clinvarExport.families,
-      individuals: (state) => state.clinvarExport.individuals,
-      submissionIndividuals: (state) =>
-        state.clinvarExport.submissionIndividuals,
-      submissions: (state) => state.clinvarExport.submissions,
-      currentSubmissionSet: (state) => state.clinvarExport.currentSubmissionSet,
-      currentSubmission: (state) => state.clinvarExport.currentSubmission,
-      assertionMethods: (state) => state.clinvarExport.assertionMethods,
-    }),
-
-    familyUuids: function () {
-      return Array.from(Object.values(this.families), (f) => f.sodar_uuid)
-    },
-    submissionList: {
-      get() {
-        const lst = this.currentSubmissionSet.submissions.map(
-          (k) => this.submissions[k]
-        )
-        lst.sort((lhs, rhs) => lhs.sort_order - rhs.sort_order)
-        return lst
-      },
-      set(value) {
-        this.applySubmissionListSortOrder(value)
-      },
-    },
-  },
-  methods: {
-    ...mapActions('clinvarExport', [
-      'selectCurrentSubmission',
-      'createSubmissionInCurrentSubmissionSet',
-      'applySubmissionListSortOrder',
-    ]),
-
-    /**
-     * Fetch model user annotations.
-     */
-    fetchRawModalUserAnnotations() {
-      if (this.familyUuid) {
-        Vue.set(this, 'modalUserAnnotations', [])
-        this.fetchError = false
-        this.loadingVariants = true
-        Vue.set(this, 'rawModalUserAnnotations', null)
-        Vue.set(this, 'rawModalUserAnnotationsCount', 0)
-
-        clinvarExport
-          .getUserAnnotations(this.appContext, this.familyUuid)
-          .then((res) => {
-            this.fetchError = false
-
-            const collect = (arr) => {
-              const result = {}
-              for (const obj of arr) {
-                if (getVariantId(obj) in result) {
-                  result[getVariantId(obj)].push(obj)
-                } else {
-                  Vue.set(result, getVariantId(obj), [obj])
-                }
-              }
-              for (const arr of Object.values(result)) {
-                arr.sort((a, b) => (a.case_name < b.case_name ? -1 : 1))
-              }
-              return result
-            }
-
-            const smallVariants = {}
-            for (const smallVar of res.small_variants) {
-              if (getVariantId(smallVar) in smallVariants) {
-                smallVariants[getVariantId(smallVar)].caseNames.push(
-                  smallVar.case_name
-                )
-                Vue.set(smallVariants[getVariantId(smallVar)], 'genotype', {
-                  ...smallVariants[getVariantId(smallVar)].genotype,
-                  ...smallVar.genotype,
-                })
-              } else {
-                Vue.set(smallVariants, getVariantId(smallVar), {
-                  ...smallVar,
-                  caseNames: [smallVar.case_name],
-                  variantId: getVariantId(smallVar),
-                })
-                Vue.delete(smallVariants[getVariantId(smallVar)], 'case_name')
-              }
-            }
-            for (const arr of Object.values(smallVariants)) {
-              arr.caseNames = [...new Set(arr.caseNames)]
-              arr.caseNames.sort((a, b) => (a.case_name < b.case_name ? -1 : 1))
-            }
-
-            Vue.set(this, 'rawModalUserAnnotations', {
-              smallVariants,
-              smallVariantFlags: collect(res.small_variant_flags),
-              smallVariantComments: collect(res.small_variant_comments),
-              acmgCriteriaRating: collect(res.acmg_criteria_rating),
-            })
-            Vue.set(
-              this,
-              'rawModalUserAnnotationsCount',
-              Object.keys(smallVariants).length
-            )
-            Vue.set(
-              this,
-              'modalUserAnnotations',
-              this._computeUserAnnotations(this.rawModalUserAnnotations)
-            )
-            this.loadingVariants = false
-          })
-          .catch((error) => {
-            this.loadingVariants = false
-            this.fetchError = true
-            console.error(error)
-          })
-      }
-    },
-
-    /**
-     * Return filtered data to display in the annotated variant modal.
-     */
-    _computeUserAnnotations(ua) {
-      const c = 300000000 // longer than longest chromosome
-      if (!ua) {
-        return []
-      }
-
-      const smallVariants = Object.values(ua.smallVariants)
-        .map((smallVar) => {
-          const flags = ua.smallVariantFlags[smallVar.variantId] || []
-          const rating = ua.acmgCriteriaRating[smallVar.variantId] || []
-          const comments = ua.smallVariantComments[smallVar.variantId] || []
-          return { ...smallVar, flags, rating, comments }
-        })
-        .filter((smallVar) => {
-          if (this.individualFilter) {
-            if (
-              !smallVar.caseNames.some((s) => s.includes(this.individualFilter))
-            ) {
-              return false
-            }
-          }
-          if (this.modalIncludeAll) {
-            return true
-          } else if (
-            this.modalIncludeComments &&
-            smallVar.comments.length > 0
-          ) {
-            return true
-          } else if (
-            this.modalIncludeCandidates &&
-            smallVar.flags.some((x) => x.flag_candidate)
-          ) {
-            return true
-          } else if (
-            this.modalIncludeFinalCausatives &&
-            smallVar.flags.some((x) => x.flag_final_causative)
-          ) {
-            return true
-          } else if (
-            this.modalIncludeAcmg3 &&
-            this.getAcmgRating(smallVar) >= 3
-          ) {
-            return true
-          } else if (
-            this.modalIncludeAcmg4 &&
-            this.getAcmgRating(smallVar) >= 4
-          ) {
-            return true
-          } else if (
-            this.modalIncludeAcmg5 &&
-            this.getAcmgRating(smallVar) >= 5
-          ) {
-            return true
-          } else {
-            return false
-          }
-        })
-      smallVariants.sort(
-        (a, b) =>
-          a.chromosome_no * c + a.start - (b.chromosome_no * c + b.start)
-      )
-      return smallVariants
-    },
-
-    toggleData(name) {
-      this.$set(this, name, !this[name])
-    },
-
-    getSubmissionLabel,
-    validConfirmed,
-
-    getFamilyLabel(familyUuid) {
-      return this.families[familyUuid].case_name
-    },
-    getSubmissionIndividualsCount(item) {
-      return item.submission_individuals.length
-    },
-    getSubmissionIndividualsLabel(item) {
-      let names = item.submission_individuals.map((uuid) =>
-        this.individuals[
-          this.submissionIndividuals[uuid].individual
-        ].name.replace(/-N.-DNA.-....$/, '')
-      )
-      if (names.length > 2) {
-        names = names.slice(0, 2) + ['...']
-      }
-      return names.join(', ')
-    },
-    isVariantSelected(item) {
-      const variantDesc = this.getVariantDesc(item)
-      return this.selectedSmallVariants.includes(variantDesc)
-    },
-    getVariantDesc(item) {
-      return `${item.release}-${item.chromosome}-${item.start}-${item.reference}-${item.alternative}`
-    },
-    getVariantLabel(item) {
-      return `${item.refseq_gene_symbol}:${item.refseq_hgvs_p || '--none--'}`
-    },
-    getVariantExtraLabel(item) {
-      if (!item) {
-        return null
-      } else {
-        return `(${item.refseq_transcript_id}:${item.refseq_hgvs_c})`
-      }
-    },
-    getAcmgRating(items) {
-      const res = Math.max.apply(
-        0,
-        items.rating.map((x) => x.class_override || x.class_auto || 0)
-      )
-      if (isFinite(res)) {
-        return res || 'N/A'
-      } else {
-        return 'N/A'
-      }
-    },
-
-    onListItemClicked(item) {
-      this.validConfirmed(() => {
-        this.selectCurrentSubmission(item)
-      })
-    },
-    onVariantClicked(smallVariant) {
-      const variantDesc = this.getVariantDesc(smallVariant)
-      if (this.selectedSmallVariants.includes(variantDesc)) {
-        removeItemAll(this.selectedSmallVariants, variantDesc)
-      } else {
-        this.selectedSmallVariants.push(variantDesc)
-      }
-    },
-    /**
-     * Clicked on an existing small variant with user annotation.
-     */
-    onCreateSubmissionClicked() {
-      if (!this.selectedSmallVariants.length) {
-        this.createSubmissionInCurrentSubmissionSet({
-          smallVariant: null,
-          submission: this.getEmptySubmissionData(),
-          individualUuids: [],
-        })
-      } else {
-        for (let i = 0; i < this.modalUserAnnotations.length; ++i) {
-          const smallVariant = this.modalUserAnnotations[i]
-          const variantDesc = this.getVariantDesc(smallVariant)
-          if (this.selectedSmallVariants.includes(variantDesc)) {
-            this.createSubmissionInCurrentSubmissionSet(
-              this.getSubmissionData(smallVariant)
-            )
-          }
-        }
-        this.selectedSmallVariants = []
-      }
-      $(this.$refs.modalAddSubmission).modal('hide')
-    },
-    onAddSubmissionClicked() {
-      this.validConfirmed(() => {
-        $(this.$refs.modalAddSubmission).modal('show')
-      })
-    },
-
-    /**
-     * @return {object} with keys submission, individualUuids (of affected carrier individuals).
-     */
-    getSubmissionData(smallVariant) {
-      // Get individuals that carry the variants.
-      const affectedNames = Object.values(this.individuals)
-        .filter((indiv) => indiv.affected === 'yes')
-        .map((indiv) => indiv.name)
-      const carrierNames = Object.entries(smallVariant.genotype)
-        .filter((kv) => {
-          const name = kv[0]
-          const value = kv[1]
-          return (
-            value.gt &&
-            value.gt.includes('1') &&
-            (!this.onlyAddAffected || affectedNames.includes(name))
-          )
-        })
-        .map((kv) => kv[0])
-      const individualUuids = Object.entries(this.individuals)
-        .filter((kv) => carrierNames.includes(kv[1].name))
-        .map((kv) => kv[0])
-      individualUuids.sort()
-
-      const significanceDescription =
-        {
-          1: 'Benign',
-          2: 'Likely benign',
-          3: 'Uncertain significance',
-          4: 'Likely pathogenic',
-          5: 'Pathogenic',
-        }[this.getAcmgRating(smallVariant)] || null
-
-      const variantGene = [smallVariant.refseq_gene_symbol]
-      const variantHgvs = [smallVariant.refseq_hgvs_p || 'p.?']
-
-      let ageOfOnset = ''
-      let inheritance = ''
-      const diseases = []
-      for (const individualUuid of individualUuids) {
-        const individual = this.individuals[individualUuid]
-        if (individual.phenotype_terms) {
-          // eslint-disable-next-line camelcase
-          for (let { term_id, term_name } of individual.phenotype_terms) {
-            // eslint-disable-next-line camelcase
-            term_name = term_name.split(';')[0].trim()
-            inheritance = inheritance || HPO_INHERITANCE_MODE.get(term_id) || ''
-            ageOfOnset = ageOfOnset || HPO_AGE_OF_ONSET.get(term_id) || ''
-            // eslint-disable-next-line camelcase
-            if (
-              isDiseaseTerm(term_id) &&
-              // eslint-disable-next-line camelcase
-              !diseases.some((x) => x.term_id === term_id)
-            ) {
-              // eslint-disable-next-line camelcase
-              diseases.push({ term_id, term_name })
-            }
-          }
-        }
-      }
-
-      const submission = {
-        record_status: 'novel',
-        release_status: 'public',
-        significance_status: 'criteria provided, single submitter',
-        significance_description: significanceDescription,
-        significance_last_evaluation: new Date().toISOString().substr(0, 10),
-        assertion_method: Object.values(this.assertionMethods)[0].sodar_uuid,
-        age_of_onset: ageOfOnset,
-        diseases,
-        inheritance,
-        variant_type: 'Variation',
-        variant_assembly: smallVariant.release,
-        variant_chromosome: smallVariant.chromosome,
-        variant_start: smallVariant.start,
-        variant_stop: smallVariant.start + smallVariant.reference.length - 1,
-        variant_reference: smallVariant.reference,
-        variant_alternative: smallVariant.alternative,
-        variant_gene: variantGene,
-        variant_hgvs: variantHgvs,
-      }
-
-      return { smallVariant, submission, individualUuids }
-    },
-    /**
-     * @return {object} the data of an empty submission
-     */
-    getEmptySubmissionData() {
-      return {
-        record_status: 'novel',
-        release_status: 'public',
-        significance_status: 'criteria provided, single submitter',
-        significance_description: null,
-        significance_last_evaluation: new Date().toISOString().substr(0, 10),
-        assertion_method: Object.values(this.assertionMethods)[0].sodar_uuid,
-        age_of_onset: '',
-        inheritance: '',
-        variant_type: 'Variation',
-        variant_assembly: 'GRCh37',
-        variant_chromosome: null,
-        variant_start: null,
-        variant_stop: null,
-        variant_reference: null,
-        variant_alternative: null,
-        variant_gene: [],
-        variant_hgvs: [],
-
-        diseases: [],
-        submission_individuals: [],
-      }
-    },
-
-    /**
-     * @returns {boolean} whether the child component's form is valid.
-     */
-    isValid() {
-      if (this.$refs.submissionEditor) {
-        return this.$refs.submissionEditor.isValid()
-      } else {
-        return true
-      }
-    },
-  },
-}
-</script>
 
 <style scoped>
 .modal-lg {

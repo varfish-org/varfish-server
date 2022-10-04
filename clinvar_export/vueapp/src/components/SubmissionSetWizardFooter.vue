@@ -1,3 +1,13 @@
+<script setup>
+import { computed } from 'vue'
+
+import { useClinvarExportStore } from '@/stores/clinvar-export'
+
+const store = useClinvarExportStore()
+
+const wizardState = computed(() => store.wizardState)
+</script>
+
 <template>
   <div class="btn-group float-right">
     <button
@@ -45,17 +55,3 @@
     </button>
   </div>
 </template>
-
-<script>
-import { mapState } from 'vuex'
-
-export default {
-  computed: {
-    ...mapState({
-      wizardState: (state) => state.clinvarExport.wizardState,
-    }),
-  },
-}
-</script>
-
-<style scoped></style>
