@@ -1,0 +1,85 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+{% load crispy_forms_filters %}
+{% load projectroles_common_tags %}
+
+{% block title %}
+  {% if action == "delete" %}
+    Confirm Removal of Gene Panel Draft
+  {% elif action == "copy-as-draft" %}
+    Confirm Copying Gene Panel as Draft
+  {% elif action == "retire" %}
+    Confirm Retiring of Gene Panel
+  {% elif action == "release" %}
+    Confirm Release of Gene Panel
+  {% endif %}
+{% endblock %}
+
+{% block projectroles %}
+
+<div class="row sodar-subtitle-container">
+  <h2>
+    <span class="iconify" data-icon="mdi:format-list-checks" data-inline="false"></span>
+    {% if action == "delete" %}
+      Confirm Removal of Gene Panel Draft
+    {% elif action == "copy-as-draft" %}
+      Confirm Copying Gene Panel as Draft
+    {% elif action == "retire" %}
+      Confirm Retiring of Gene Panel
+    {% elif action == "release" %}
+      Confirm Release of Gene Panel
+    {% endif %}
+  </h2>
+</div>
+
+<div class="container-fluid sodar-page-container">
+  <div class="alert alert-warning" role="alert">
+    {% if action == "delete" %}
+      Do you really want to remove the gene panel draft "<strong>{{ object.title }} ({{ object.identifier }}, v{{ object.version_major }}.{{ object.version_minor }})</strong>"?
+    {% elif action == "copy-as-draft" %}
+      Please confirm copying as draft of <strong>{{ object.title }} ({{ object.identifier }}, v{{ object.version_major }}.{{ object.version_minor }})</strong>.
+    {% elif action == "retire" %}
+      Do you really want to retire the active gene panel "<strong>{{ object.title }} ({{ object.identifier }}, v{{ object.version_major }}.{{ object.version_minor }})</strong>"?
+    {% elif action == "release" %}
+      Do you want to release the draft gene panel "<strong>{{ object.title }} ({{ object.identifier }}, v{{ object.version_major }}.{{ object.version_minor }})</strong>"?
+      {% if old_object %}
+        The formerly active gene panel <strong>{{ old_object.title }} ({{ old_object.identifier }}, v{{ old_object.version_major }}.{{ old_object.version_minor }})</strong> will be retired!
+      {% endif %}
+    {% endif %}
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="btn-group pull-right">
+      <a role="button" class="btn btn-secondary"
+         href="{% url 'genepanels:genepanel-detail' panel=object.sodar_uuid %}">
+        <i class="iconify" data-icon="mdi:arrow-left-circle"></i> Cancel
+      </a>
+
+      {% if action == "delete" %}
+        <button type="submit" class="btn btn-danger">
+          <i class="iconify" data-icon="mdi:eraser" data-inline="false"></i>
+          Remove
+        </button>
+      {% elif action == "copy-as-draft" %}
+        <button type="submit" class="btn btn-primary">
+          <i class="iconify" data-icon="mdi:content-copy" data-inline="false"></i>
+          Copy as Draft
+        </button>
+      {% elif action == "retire" %}
+        <button type="submit" class="btn btn-primary">
+          <i class="iconify" data-icon="mdi:close-circle" data-inline="false"></i>
+          Retire
+        </button>
+      {% elif action == "release" %}
+        <button type="submit" class="btn btn-primary">
+          <i class="iconify" data-icon="mdi:check-circle" data-inline="false"></i>
+          Release
+        </button>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+{% endblock projectroles %}

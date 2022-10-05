@@ -1,0 +1,129 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+
+{% block title %}Gene Panel Category{% endblock %}
+
+{% block projectroles %}
+
+  {% has_perm 'genepanels.can_add_data' request.user as can_add_data %}
+  {% has_perm 'genepanels.update_data' request.user as can_update_data %}
+  {% has_perm 'genepanels.delete_data' request.user as can_delete_data %}
+
+  <div class="row sodar-subtitle-container">
+    <h2 class="sodar-pr-content-title">
+      <span class="iconify" data-icon="mdi:format-list-checks" data-inline="false"></span>
+      Gene Panel
+    </h2>
+    <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
+      <a class="btn btn-secondary" href="{% url 'genepanels:category-list' %}">
+        <i class="iconify" data-icon="mdi:arrow-left-circle"></i> Back
+      </a>
+      {% if can_add_data and object.state != "draft" %}
+        <a class="btn btn-primary" href="{% url 'genepanels:genepanel-copy-as-draft' panel=object.sodar_uuid %}">
+          <i class="iconify" data-icon="mdi:content-copy"></i>
+          Copy as Draft
+        </a>
+      {% endif %}
+      {% if can_update_data and object.state == "draft" %}
+        <a class="btn btn-primary" href="{% url 'genepanels:genepanel-update' panel=object.sodar_uuid %}">
+          <i class="iconify" data-icon="mdi:pencil"></i>
+          Update
+        </a>
+        <a class="btn btn-primary" href="{% url 'genepanels:genepanel-release' panel=object.sodar_uuid %}">
+          <i class="iconify" data-icon="mdi:check-circle"></i>
+          Publish as Active
+        </a>
+      {% endif %}
+      {% if can_delete_data and object.state == "draft" %}
+        <a class="btn btn-danger" href="{% url 'genepanels:genepanel-delete' panel=object.sodar_uuid %}">
+          <i class="iconify" data-icon="mdi:eraser" data-inline="false"></i>
+          Remove Draft
+        </a>
+      {% endif %}
+      {% if can_delete_data and object.state == "active" %}
+        <a class="btn btn-danger" href="{% url 'genepanels:genepanel-retire' panel=object.sodar_uuid %}">
+          <i class="iconify" data-icon="mdi:close-circle"></i>
+          Retire Version
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <div class="card" id="sodar-aa-alert-list">
+      <div class="card-body px-0">
+        <dl class="row pb-0">
+          <dt class="col-md-2">UUID</dt>
+          <dd class="col-md-10"><strong>{{ object.sodar_uuid }}</strong></dd>
+          <dt class="col-md-2">Title</dt>
+          <dd class="col-md-10"><strong>{{ object.title }}</strong></dd>
+          <dt class="col-md-2">Identifier</dt>
+          <dd class="col-md-10">
+            {{ object.identifier }}
+          </dd>
+          <dt class="col-md-2">Version</dt>
+          <dd class="col-md-10">v{{ object.version_major }}.{{ object.version_minor }}</dd>
+          <dt class="col-md-2">State</dt>
+          <dd class="col-md-10">
+            <span class="badge {% if object.state == "draft" %}badge-secondary{% elif object.state == "active" %}badge-primary{% else %}badge-light{% endif %}">
+              {{ object.state }}
+            </span>
+          </dd>
+          <dt class="col-md-12">Description</dt>
+          <dd class="col-md-12">
+            {% if object.description %}
+              {{ object.description }}
+            {% else %}
+              <span class="font-italic text-muted">No description.</span>
+            {% endif %}
+          </dd>
+          <dt class="col-md-12">Released/Signed Off By</dt>
+          <dd class="col-md-12">
+            {% if object.signed_off_by %}
+              {{ object.signed_off_by.name|default:object.signed_off_by.username }}
+            {% else %}
+              <span class="font-italic text-muted">Not released/signed off yet.</span>
+            {% endif %}
+          </dd>
+          <dt class="col-md-2">Created</dt>
+          <dd class="col-md-10">{{ object.date_created|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-2">Updated</dt>
+          <dd class="col-md-10">{{ object.date_modified|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-12 pb-2">Genes ({{ object.genepanelentry_set.count }})</dt>
+          <dd class="col-md-12">
+            <div class="col-md-6 pl-0 pr-0">
+              <table class="table table-sm table-striped table-hover">
+                <thead>
+                  <th style="width: 10px;">#</th>
+                  <th style="width: 25%;">Symbol</th>
+                  <th style="width: 25%;">HGNC</th>
+                  <th style="width: 25%;">ENSEMBL</th>
+                  <th style="width: 25%;">NCBI/Entrez</th>
+                </thead>
+                <tbody>
+                  {% for genepanelentry in object.genepanelentry_set.all %}
+                    <tr>
+                      <td>{{ forloop.counter }}</td>
+                      <td>{{ genepanelentry.symbol }}</td>
+                      <td>{{ genepanelentry.hgnc_id }}</td>
+                      <td>{{ genepanelentry.ensembl_id }}</td>
+                      <td>{{ genepanelentry.ncbi_id }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="5" class="text-muted text-center">
+                        No genes added to gene panel yet.
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+{% endblock projectroles %}

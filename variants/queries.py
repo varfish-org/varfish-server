@@ -34,6 +34,7 @@ from geneinfo.models import (
     EnsemblToGeneSymbol,
     GeneIdInHpo,
 )
+from genepanels.models import expand_panels_in_gene_list
 from hgmd.models import HgmdPublicLocus
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation
 from variants.models import (
@@ -1012,6 +1013,7 @@ class ExtendQueryPartsGeneListsFilter(ExtendQueryPartsBase):
         return result
 
     def _build_list(self, gene_list):
+        gene_list = expand_panels_in_gene_list(gene_list)
         return or_(
             SmallVariant.sa.ensembl_gene_id.in_(
                 self._build_gene_sub_query("ensembl_gene_id", gene_list)

@@ -1,0 +1,53 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+{% load crispy_forms_filters %}
+{% load projectroles_tags %}
+{% load projectroles_common_tags %}
+
+{% block title %}
+  {% if object.pk %}
+    Update
+  {% else %}
+    Create
+  {% endif %}
+  Gene Panel Category {{ object.title }}
+{% endblock title %}
+
+{% block projectroles %}
+  <div class="row sodar-subtitle-container">
+    <h2 class="sodar-pr-content-title">
+      <span class="iconify" data-icon="mdi:format-list-bulleted-type" data-inline="false"></span>
+      {% if object.pk %}
+        Update
+      {% else %}
+        Create
+      {% endif %}
+      Gene Panel Category
+    </h2>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <form method="post">
+      {% csrf_token %}
+      {{ form | crispy }}
+      <div class="row">
+        <div class="btn-group ml-auto" role="group">
+          <a role="button" class="btn btn-secondary"
+             href="{% url 'genepanels:category-list' %}">
+            <i class="iconify" data-icon="mdi:arrow-left-circle"></i> Cancel
+          </a>
+          <button type="submit" class="btn btn-primary">
+            <span class="iconify" data-icon="mdi:check-bold" data-inline="false"></span>
+            {% if object.pk %}
+              Update
+            {% else %}
+              Create
+            {% endif %}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+{% endblock projectroles %}
