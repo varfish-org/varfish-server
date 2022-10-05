@@ -44,6 +44,8 @@
       </div>
     </div>
 
+    &mdash;
+
     <div class="d-inline dropdown px-2">
       <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="panel-app-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <span class="d-none d-sm-inline">
@@ -70,6 +72,27 @@
       </select>
       and above
     </div>
+
+    {% if genepanel_categories %}
+      <div class="px-2">
+        &mdash;
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="presets-menu-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="d-none d-sm-inline">
+            Add Local Panel
+          </span>
+          <div class="dropdown-menu" aria-labelledby="presets-menu-button">
+            {% for category in genepanel_categories %}
+              <h6 class="dropdown-header">{{ category.title }}</h6>
+              {% for genepanel in category.genepanel_set.all %}
+                {% if genepanel.state == 'active' %}
+                  <a class="dropdown-item load-local-panel" href="#" data-genes="GENEPANEL:{{ genepanel.identifier }}">{{ genepanel.title }} (v{{ genepanel.version_major }}.{{ genepanel.version_minor }})</a>
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+          </div>
+        </button>
+      </div>
+    {% endif %}
   </h5>
 
   {{ form.gene_allowlist }}

@@ -15,6 +15,7 @@ from projectroles.app_settings import AppSettingAPI
 import vcfpy
 
 from geneinfo.models import Hgnc, Hpo, HpoName
+from genepanels.models import GenePanel, GenePanelState
 
 from .models import AcmgCriteriaRating, Case, CaseComments, SmallVariantComment, SmallVariantFlags
 from .templatetags.variants_tags import get_term_description, only_source_name
@@ -1188,11 +1189,14 @@ class VariantGeneListFilterFormMixin:
                 if not Hgnc.objects.filter(
                     Q(hgnc_id=gene) | Q(entrez_id=gene) | Q(ensembl_gene_id=gene) | Q(symbol=gene)
                 )
+                and not GenePanel.objects.filter(
+                    identifier=gene.replace("GENEPANEL:", ""), state=GenePanelState.ACTIVE.value
+                )
             ]
             if mismatches:
                 self.add_error(
                     list_name,
-                    "Can't find HGNC ID/symbol, Entrez ID or ENSEMBL gene ID: {}".format(
+                    "Can't find HGNC ID/symbol, Entrez ID or ENSEMBL gene ID or local gene panel: {}".format(
                         "; ".join(mismatches)
                     ),
                 )
