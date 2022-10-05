@@ -1,0 +1,85 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+
+{% block title %}Gene Panel Category{% endblock %}
+
+{% block projectroles %}
+
+  {% has_perm 'genepanels.add_data' request.user as can_add_data %}
+  {% has_perm 'genepanels.update_data' request.user as can_update_data %}
+  {% has_perm 'genepanels.delete_data' request.user as can_delete_data %}
+
+  <div class="row sodar-subtitle-container">
+    <h2 class="sodar-pr-content-title">
+      <span class="iconify" data-icon="mdi:format-list-bulleted-type" data-inline="false"></span>
+      Gene Panel Category
+    </h2>
+    <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
+      <a class="btn btn-secondary" href="{% url 'genepanels:category-list' %}">
+        <i class="iconify" data-icon="mdi:arrow-left-circle"></i> Back
+      </a>
+
+      {% if can_update_data %}
+        <a class="btn btn-primary" href="{% url 'genepanels:category-update' category=object.sodar_uuid %}">
+          <i class="iconify" data-icon="mdi:pencil"></i>
+          Update
+        </a>
+      {% endif %}
+      {% if can_delete_data %}
+        <a class="btn btn-danger" href="{% url 'genepanels:category-delete' category=object.sodar_uuid %}">
+          <i class="iconify" data-icon="mdi:eraser" data-inline="false"></i>
+          Remove
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <div class="card" id="sodar-aa-alert-list">
+      <div class="card-body px-0">
+        <dl class="row pb-0">
+          <dt class="col-md-2">UUID</dt>
+          <dd class="col-md-10"><strong>{{ object.sodar_uuid }}</strong></dd>
+          <dt class="col-md-2">Title</dt>
+          <dd class="col-md-10"><strong>{{ object.title }}</strong></dd>
+          <dt class="col-md-12">Description</dt>
+          <dd class="col-md-12">
+            {% if object.description %}
+              {{ object.description }}
+            {% else %}
+              <span class="font-italic text-muted">No description.</span>
+            {% endif %}
+          </dd>
+          <dt class="col-md-2">Created</dt>
+          <dd class="col-md-10">{{ object.date_created|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-2">Updated</dt>
+          <dd class="col-md-10">{{ object.date_modified|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-2">Gene Panels ({{ object.genepanel_set.count }})</dt>
+          <dd class="col-md-10">
+            <ul class="list-unstyled">
+              {% for genepanel in object.genepanel_set.all %}
+                <li>
+                  <a href="{{ genepanel.get_absolute_url }}">
+                    {{ genepanel.title }}
+                    (v{{ genepanel.version_major }}.{{ genepanel.version_minor }})
+                  </a>
+                </li>
+              {% empty %}
+                <li class="text-muted font-italic">No gene panels created yet</li>
+              {% endfor %}
+            </ul>
+
+            {% if can_add_data %}
+              <a href="{% url 'genepanels:genepanel-create' %}?category={{ object.sodar_uuid }}" class="btn btn-success">
+                <i class="iconify" data-icon="mdi:plus"></i>
+                Add Panel
+              </a>
+            {% endif %}
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+{% endblock projectroles %}

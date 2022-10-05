@@ -89,6 +89,7 @@ End-User Summary
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Adding feature to enable and configure link-out to HGMD (#576).
 - Changing ClinVar link-out to VCV entry instead of coordinates (#693).
+- Adding support to create custom gene panels (#723).
 
 Full Change List
 ================
@@ -147,6 +148,7 @@ Full Change List
 - Bugfix that allow clinvar export submission set deletion (#713).
 - Removing dependency on bootstrap-vue package (#716).
 - Migrating store dependency from Vuex v3 to Pinia (#720).
+- Adding support to create custom gene panels (#723).
 
 ------
 v1.2.0

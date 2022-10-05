@@ -19,6 +19,8 @@ from django.db.models import Q
 from projectroles.app_settings import AppSettingAPI
 
 import re
+from geneinfo.models import Hgnc, Hpo, HpoName
+from genepanels.models import GenePanel, GenePanelState
 
 
 app_settings = AppSettingAPI()
@@ -1169,11 +1171,14 @@ class VariantGeneListFilterFormMixin:
                 if not Hgnc.objects.filter(
                     Q(hgnc_id=gene) | Q(entrez_id=gene) | Q(ensembl_gene_id=gene) | Q(symbol=gene)
                 )
+                and not GenePanel.objects.filter(
+                    identifier=gene.replace("GENEPANEL:", ""), state=GenePanelState.ACTIVE.value
+                )
             ]
             if mismatches:
                 self.add_error(
                     list_name,
-                    "Can't find HGNC ID/symbol, Entrez ID or ENSEMBL gene ID: {}".format(
+                    "Can't find HGNC ID/symbol, Entrez ID or ENSEMBL gene ID or local gene panel: {}".format(
                         "; ".join(mismatches)
                     ),
                 )
