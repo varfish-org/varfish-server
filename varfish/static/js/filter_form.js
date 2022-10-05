@@ -112,9 +112,22 @@ function updateCheckboxes(event) {
 }
 updateCheckboxes.blocked = false;
 
+function initLocalPanels(genelist_id, pattern) {
+  const panelArea = $(genelist_id);
+  $(pattern).click(function() {
+    const symbols = $(this).data("genes").split(/,/)
+    if (panelArea.val()) {
+      panelArea.val(panelArea.val() + " " + symbols.join(" "));
+    } else {
+      panelArea.val(symbols.join(" "));
+    }
+  });
+}
+
 $(document).ready(function() {
   updateCheckboxes(null);
   $(".checkboxinput").change(updateCheckboxes);
+  initLocalPanels("#id_gene_allowlist", ".load-local-panel");
 });
 
 function polyPhen2(gene, hgvsP) {

@@ -66,6 +66,7 @@ from geneinfo.models import (
     build_entrez_id_to_symbol,
 )
 from geneinfo.views import get_gene_infos
+from genepanels.models import GenePanelCategory
 from genomicfeatures.models import GeneInterval
 from varfish.users.models import User
 from variants.helpers import get_engine
@@ -2251,6 +2252,9 @@ class CaseFilterView(
         )
         context["query_type"] = self.query_type
         context["settings_restored"] = 1 if self.get_previous_query() else 0
+        context["genepanel_categories"] = GenePanelCategory.objects.all().prefetch_related(
+            "genepanel_set", "genepanel_set__genepanelentry_set"
+        )
         return context
 
 

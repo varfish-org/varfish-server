@@ -19,6 +19,7 @@ from geneinfo.models import (
     NcbiGeneInfo,
     NcbiGeneRif,
 )
+from genepanels.models import expand_panels_in_gene_list
 
 from .forms import FilterForm
 from .models import (
@@ -181,13 +182,17 @@ def query_settings_validator(value):
         """Helper that checks whether all ENSEMBL/Entrez gene IDs or HGNC symbols in gene_list can be found."""
         if not gene_list:
             return
+        # Extend gene list with those from genepanels app.
+        proc_gene_list = expand_panels_in_gene_list(gene_list)
         records = Hgnc.objects.filter(
-            Q(ensembl_gene_id__in=gene_list) | Q(entrez_id__in=gene_list) | Q(symbol__in=gene_list)
+            Q(ensembl_gene_id__in=proc_gene_list)
+            | Q(entrez_id__in=proc_gene_list)
+            | Q(symbol__in=proc_gene_list)
         )
         result = []
         for record in records:
             result += [record.ensembl_gene_id, record.entrez_id, record.symbol]
-        given_set = set(gene_list)
+        given_set = set(proc_gene_list)
         found_set = set(result)
         not_found = given_set - found_set
         if not_found:
