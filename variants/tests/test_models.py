@@ -8,6 +8,7 @@ from projectroles.models import SODAR_CONSTANTS, Project
 from test_plus.test import TestCase
 
 from variants.tests.factories import (
+    CaseGeneAnnotationEntryFactory,
     CaseWithVariantSetFactory,
     ProjectFactory,
     SmallVariantFactory,
@@ -107,3 +108,8 @@ class TestClearOldKioskCases(TestCase):
         self.assertEqual(SmallVariant.objects.all().count(), 3)
         self.assertEqual(projects[0].id, self.project_above_thres.id)
         self.assertEqual(cases[0].id, self.case_above_thres.id)
+
+
+class TestCaseGeneAnnotationEntry(TestCase):
+    def test_instantiate_smoke_test(self):
+        CaseGeneAnnotationEntryFactory()

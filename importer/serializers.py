@@ -7,6 +7,7 @@ from variants.serializers import CoreCaseSerializerMixin
 
 from .models import (
     BamQcFile,
+    CaseGeneAnnotationFile,
     CaseImportInfo,
     DatabaseInfoFile,
     EffectFile,
@@ -53,6 +54,28 @@ class BamQcFileSerializer(CommonFileSerializerMixin, serializers.ModelSerializer
 
     class Meta:
         model = BamQcFile
+        fields = (
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "case_import_info",
+            "file",
+            "name",
+            "md5",
+        )
+        extra_kwargs = {"file": {"write_only": True}}
+
+
+class CaseGeneAnnotationFileSerializer(CommonFileSerializerMixin, serializers.ModelSerializer):
+    """Serializer for the CaseGeneAnnotationFile model."""
+
+    case_import_info = serializers.ReadOnlyField(source="case_import_info.sodar_uuid")
+
+    related_class = CaseImportInfo
+    related_field_name = "case_import_info"
+
+    class Meta:
+        model = CaseGeneAnnotationFile
         fields = (
             "sodar_uuid",
             "date_created",

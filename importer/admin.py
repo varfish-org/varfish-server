@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from .models import (
     BamQcFile,
+    CaseGeneAnnotationFile,
     CaseImportInfo,
     DatabaseInfoFile,
     EffectFile,
@@ -15,6 +16,7 @@ from .models import (
 admin.site.register(
     (
         ImportInfo,
+        CaseGeneAnnotationFile,
         CaseImportInfo,
         VariantSetImportInfo,
         BamQcFile,
