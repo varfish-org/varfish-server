@@ -7,10 +7,11 @@ from django.conf import settings
 from projectroles.models import Project, SODAR_CONSTANTS
 
 from variants.tests.factories import (
-    SmallVariantFlagsFactory,
+    CaseGeneAnnotationEntryFactory,
+    CaseWithVariantSetFactory,
     ProjectFactory,
     SmallVariantFactory,
-    CaseWithVariantSetFactory,
+    SmallVariantFlagsFactory,
 )
 from test_plus.test import TestCase
 
@@ -107,3 +108,8 @@ class TestClearOldKioskCases(TestCase):
         self.assertEqual(SmallVariant.objects.all().count(), 3)
         self.assertEqual(projects[0].id, self.project_above_thres.id)
         self.assertEqual(cases[0].id, self.case_above_thres.id)
+
+
+class TestCaseGeneAnnotationEntry(TestCase):
+    def test_instantiate_smoke_test(self):
+        CaseGeneAnnotationEntryFactory()

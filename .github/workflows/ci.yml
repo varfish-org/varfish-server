@@ -109,14 +109,8 @@ jobs:
           pip install -r requirements/local.txt
           pip install -r requirements/test.txt
           pip freeze
-      - name: Check import order with isort
-        run: |
-          rm -rf src
-          isort --force-sort-within-sections --profile=black --check .
       - name: Check style with black
         run: black --check --line-length 100 .
-      - name: Run linting
-        run: flake8
 
   nodejs:
     runs-on: ubuntu-latest

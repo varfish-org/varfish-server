@@ -12,30 +12,31 @@ from bgjobs.tests.factories import BackgroundJobFactory
 
 from config.settings.base import VARFISH_CADD_SUBMISSION_VERSION
 from ..models import (
+    AcmgCriteriaRating,
+    CaddSubmissionBgJob,
     Case,
-    SmallVariant,
-    SmallVariantQuery,
-    ProjectCasesSmallVariantQuery,
-    SmallVariantSummary,
-    FilterBgJob,
-    ProjectCasesFilterBgJob,
     CaseAwareProject,
+    CaseComments,
+    CaseGeneAnnotationEntry,
+    CasePhenotypeTerms,
+    CaseVariantStats,
+    DeleteCaseBgJob,
     DistillerSubmissionBgJob,
     ExportFileBgJob,
     ExportFileJobResult,
     ExportProjectCasesFileBgJob,
     ExportProjectCasesFileBgJobResult,
-    SmallVariantFlags,
-    SmallVariantComment,
-    SmallVariantSet,
-    CaseVariantStats,
+    FilterBgJob,
+    ProjectCasesFilterBgJob,
+    ProjectCasesSmallVariantQuery,
     SampleVariantStatistics,
-    CaseComments,
-    DeleteCaseBgJob,
-    CaddSubmissionBgJob,
-    CasePhenotypeTerms,
+    SmallVariant,
+    SmallVariantComment,
+    SmallVariantFlags,
+    SmallVariantQuery,
+    SmallVariantSet,
+    SmallVariantSummary,
     SyncCaseListBgJob,
-    AcmgCriteriaRating,
 )
 import typing
 import attr
@@ -1074,4 +1075,21 @@ class SyncCaseListBgJobFactory(factory.django.DjangoModelFactory):
         BackgroundJobFactory,
         project=factory.SelfAttribute("factory_parent.project"),
         user=factory.SelfAttribute("factory_parent.user"),
+    )
+
+
+class CaseGeneAnnotationEntryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = CaseGeneAnnotationEntry
+
+    case = factory.SubFactory(CaseFactory)
+    gene_symbol = factory.Sequence(lambda n: "GENE%d" % n)
+    entrez_id = factory.Sequence(lambda n: "%d" % n)
+    ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
+    annotation = factory.Sequence(
+        lambda n: {
+            "percentage_at_20x": 90 + n % 10,
+            "level": "info",
+            "message": f"This is a test message {n}",
+        }
     )
