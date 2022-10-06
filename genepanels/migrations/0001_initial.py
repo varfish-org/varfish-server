@@ -86,9 +86,7 @@ class Migration(migrations.Migration):
                     models.TextField(blank=True, help_text="Description of the panel", null=True),
                 ),
             ],
-            options={
-                "ordering": ("identifier", "version_major", "version_minor"),
-            },
+            options={"ordering": ("identifier", "version_major", "version_minor"),},
         ),
         migrations.CreateModel(
             name="GenePanelCategory",
@@ -121,9 +119,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "ordering": ("title",),
-            },
+            options={"ordering": ("title",),},
         ),
         migrations.CreateModel(
             name="GenePanelEntry",
@@ -184,9 +180,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "ordering": ("symbol",),
-            },
+            options={"ordering": ("symbol",),},
         ),
         migrations.AddField(
             model_name="genepanel",
@@ -209,7 +203,6 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="genepanel",
-            unique_together={("identifier", "version_major", "version_minor")},
+            name="genepanel", unique_together={("identifier", "version_major", "version_minor")},
         ),
     ]

@@ -8,15 +8,9 @@ from genepanels import views
 app_name = "genepanels"
 
 ui_urlpatterns = [
+    url(regex=r"^$", view=views.IndexView.as_view(), name="index",),
     url(
-        regex=r"^$",
-        view=views.IndexView.as_view(),
-        name="index",
-    ),
-    url(
-        regex=r"^category/$",
-        view=views.GenePanelCategoryListView.as_view(),
-        name="category-list",
+        regex=r"^category/$", view=views.GenePanelCategoryListView.as_view(), name="category-list",
     ),
     url(
         regex=r"^category/create/$",
@@ -39,9 +33,7 @@ ui_urlpatterns = [
         name="category-delete",
     ),
     url(
-        regex=r"^panel/create/$",
-        view=views.GenePanelCreateView.as_view(),
-        name="genepanel-create",
+        regex=r"^panel/create/$", view=views.GenePanelCreateView.as_view(), name="genepanel-create",
     ),
     url(
         regex=r"^panel/update/(?P<panel>[0-9a-f-]+)$",

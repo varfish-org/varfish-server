@@ -84,8 +84,7 @@ class GenePanelCategoryUpdateView(TestViewsBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "genepanels:category-update",
-                    kwargs={"category": self.category.sodar_uuid},
+                    "genepanels:category-update", kwargs={"category": self.category.sodar_uuid},
                 )
             )
         self.assertEqual(response.status_code, 200)
@@ -102,8 +101,7 @@ class GenePanelCategoryUpdateView(TestViewsBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "genepanels:category-update",
-                    kwargs={"category": self.category.sodar_uuid},
+                    "genepanels:category-update", kwargs={"category": self.category.sodar_uuid},
                 ),
                 post_data,
             )
@@ -130,8 +128,7 @@ class GenePanelCategoryDeleteView(TestViewsBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "genepanels:category-delete",
-                    kwargs={"category": self.category.sodar_uuid},
+                    "genepanels:category-delete", kwargs={"category": self.category.sodar_uuid},
                 )
             )
             self.assertEqual(response.status_code, 200)
@@ -143,8 +140,7 @@ class GenePanelCategoryDeleteView(TestViewsBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "genepanels:category-delete",
-                    kwargs={"category": self.category.sodar_uuid},
+                    "genepanels:category-delete", kwargs={"category": self.category.sodar_uuid},
                 )
             )
             self.assertEqual(response.status_code, 302)
@@ -209,10 +205,7 @@ class GenePanelUpdateView(TestViewsBase):
     def test_render(self):
         with self.login(self.superuser):
             response = self.client.get(
-                reverse(
-                    "genepanels:genepanel-update",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-update", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.context["object"])
@@ -231,10 +224,7 @@ class GenePanelUpdateView(TestViewsBase):
 
         with self.login(self.superuser):
             response = self.client.post(
-                reverse(
-                    "genepanels:genepanel-update",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                ),
+                reverse("genepanels:genepanel-update", kwargs={"panel": self.panel.sodar_uuid},),
                 post_data,
             )
 
@@ -261,19 +251,13 @@ class GenePanelDeleteView(TestViewsBase):
     def test_get_draft_state(self):
         with self.login(self.superuser):
             response = self.client.get(
-                reverse(
-                    "genepanels:genepanel-delete",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-delete", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(GenePanel.objects.count(), 1)
 
     @parameterized.expand(
-        [
-            [GenePanelState.ACTIVE.value],
-            [GenePanelState.RETIRED.value],
-        ]
+        [[GenePanelState.ACTIVE.value], [GenePanelState.RETIRED.value],]
     )
     def test_get_non_draft_state(self, state):
         self.panel.state = state
@@ -281,10 +265,7 @@ class GenePanelDeleteView(TestViewsBase):
 
         with self.login(self.superuser):
             response = self.client.get(
-                reverse(
-                    "genepanels:genepanel-delete",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-delete", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
@@ -296,23 +277,16 @@ class GenePanelDeleteView(TestViewsBase):
     def test_post_draft_state(self):
         with self.login(self.superuser):
             response = self.client.post(
-                reverse(
-                    "genepanels:genepanel-delete",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-delete", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
-            response.url,
-            reverse("genepanels:category-list"),
+            response.url, reverse("genepanels:category-list"),
         )
         self.assertEqual(GenePanel.objects.count(), 0)
 
     @parameterized.expand(
-        [
-            [GenePanelState.ACTIVE.value],
-            [GenePanelState.RETIRED.value],
-        ]
+        [[GenePanelState.ACTIVE.value], [GenePanelState.RETIRED.value],]
     )
     def test_post_non_draft_state(self, state):
         self.panel.state = state
@@ -320,10 +294,7 @@ class GenePanelDeleteView(TestViewsBase):
 
         with self.login(self.superuser):
             response = self.client.post(
-                reverse(
-                    "genepanels:genepanel-delete",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-delete", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
@@ -347,18 +318,12 @@ class GenePanelReleaseView(TestViewsBase):
     def test_get_draft_state(self):
         with self.login(self.superuser):
             response = self.client.get(
-                reverse(
-                    "genepanels:genepanel-release",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-release", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 200)
 
     @parameterized.expand(
-        [
-            [GenePanelState.ACTIVE.value],
-            [GenePanelState.RETIRED.value],
-        ]
+        [[GenePanelState.ACTIVE.value], [GenePanelState.RETIRED.value],]
     )
     def test_get_non_draft_state(self, state):
         self.panel.state = state
@@ -366,10 +331,7 @@ class GenePanelReleaseView(TestViewsBase):
 
         with self.login(self.superuser):
             response = self.client.get(
-                reverse(
-                    "genepanels:genepanel-release",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-release", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
@@ -380,10 +342,7 @@ class GenePanelReleaseView(TestViewsBase):
     def test_post_draft_state(self):
         with self.login(self.superuser):
             response = self.client.post(
-                reverse(
-                    "genepanels:genepanel-release",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-release", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
@@ -396,10 +355,7 @@ class GenePanelReleaseView(TestViewsBase):
         self.assertEqual(self.old_panel.state, GenePanelState.RETIRED.value)
 
     @parameterized.expand(
-        [
-            [GenePanelState.ACTIVE.value],
-            [GenePanelState.RETIRED.value],
-        ]
+        [[GenePanelState.ACTIVE.value], [GenePanelState.RETIRED.value],]
     )
     def test_post_non_draft_state(self, state):
         self.panel.state = state
@@ -407,10 +363,7 @@ class GenePanelReleaseView(TestViewsBase):
 
         with self.login(self.superuser):
             response = self.client.post(
-                reverse(
-                    "genepanels:genepanel-release",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-release", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
@@ -432,18 +385,12 @@ class GenePanelRetireView(TestViewsBase):
     def test_get_active_state(self):
         with self.login(self.superuser):
             response = self.client.get(
-                reverse(
-                    "genepanels:genepanel-retire",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-retire", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 200)
 
     @parameterized.expand(
-        [
-            [GenePanelState.DRAFT.value],
-            [GenePanelState.RETIRED.value],
-        ]
+        [[GenePanelState.DRAFT.value], [GenePanelState.RETIRED.value],]
     )
     def test_get_non_active_state(self, state):
         self.panel.state = state
@@ -451,10 +398,7 @@ class GenePanelRetireView(TestViewsBase):
 
         with self.login(self.superuser):
             response = self.client.get(
-                reverse(
-                    "genepanels:genepanel-retire",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-retire", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
@@ -465,10 +409,7 @@ class GenePanelRetireView(TestViewsBase):
     def test_post_active_state(self):
         with self.login(self.superuser):
             response = self.client.post(
-                reverse(
-                    "genepanels:genepanel-retire",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-retire", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
@@ -479,10 +420,7 @@ class GenePanelRetireView(TestViewsBase):
         self.assertEqual(self.panel.state, GenePanelState.RETIRED.value)
 
     @parameterized.expand(
-        [
-            [GenePanelState.DRAFT.value],
-            [GenePanelState.RETIRED.value],
-        ]
+        [[GenePanelState.DRAFT.value], [GenePanelState.RETIRED.value],]
     )
     def test_post_non_active_state(self, state):
         self.panel.state = state
@@ -490,10 +428,7 @@ class GenePanelRetireView(TestViewsBase):
 
         with self.login(self.superuser):
             response = self.client.post(
-                reverse(
-                    "genepanels:genepanel-retire",
-                    kwargs={"panel": self.panel.sodar_uuid},
-                )
+                reverse("genepanels:genepanel-retire", kwargs={"panel": self.panel.sodar_uuid},)
             )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(
@@ -512,10 +447,7 @@ class GenePanelCopyAsDraftView(TestViewsBase):
         self.entry = GenePanelEntryFactory(panel=self.panel)
 
     @parameterized.expand(
-        [
-            [GenePanelState.ACTIVE.value],
-            [GenePanelState.RETIRED.value],
-        ]
+        [[GenePanelState.ACTIVE.value], [GenePanelState.RETIRED.value],]
     )
     def test_get_non_draft(self, state):
         self.panel.state = state
@@ -524,8 +456,7 @@ class GenePanelCopyAsDraftView(TestViewsBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "genepanels:genepanel-copy-as-draft",
-                    kwargs={"panel": self.panel.sodar_uuid},
+                    "genepanels:genepanel-copy-as-draft", kwargs={"panel": self.panel.sodar_uuid},
                 )
             )
         self.assertEqual(response.status_code, 200)
@@ -537,8 +468,7 @@ class GenePanelCopyAsDraftView(TestViewsBase):
         with self.login(self.superuser):
             response = self.client.get(
                 reverse(
-                    "genepanels:genepanel-copy-as-draft",
-                    kwargs={"panel": self.panel.sodar_uuid},
+                    "genepanels:genepanel-copy-as-draft", kwargs={"panel": self.panel.sodar_uuid},
                 )
             )
         self.assertEqual(response.status_code, 302)
@@ -548,10 +478,7 @@ class GenePanelCopyAsDraftView(TestViewsBase):
         )
 
     @parameterized.expand(
-        [
-            [GenePanelState.ACTIVE.value],
-            [GenePanelState.RETIRED.value],
-        ]
+        [[GenePanelState.ACTIVE.value], [GenePanelState.RETIRED.value],]
     )
     def test_post_non_draft_state(self, state):
         self.assertEqual(GenePanel.objects.count(), 1)
@@ -562,8 +489,7 @@ class GenePanelCopyAsDraftView(TestViewsBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "genepanels:genepanel-copy-as-draft",
-                    kwargs={"panel": self.panel.sodar_uuid},
+                    "genepanels:genepanel-copy-as-draft", kwargs={"panel": self.panel.sodar_uuid},
                 )
             )
         self.assertEqual(GenePanel.objects.count(), 2)
@@ -586,8 +512,7 @@ class GenePanelCopyAsDraftView(TestViewsBase):
         with self.login(self.superuser):
             response = self.client.post(
                 reverse(
-                    "genepanels:genepanel-copy-as-draft",
-                    kwargs={"panel": self.panel.sodar_uuid},
+                    "genepanels:genepanel-copy-as-draft", kwargs={"panel": self.panel.sodar_uuid},
                 )
             )
         self.assertEqual(response.status_code, 302)

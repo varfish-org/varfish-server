@@ -15,9 +15,7 @@ from genepanels.models import GenePanel, GenePanelCategory, GenePanelState
 
 
 class IndexView(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    TemplateView,
+    LoginRequiredMixin, LoggedInPermissionMixin, TemplateView,
 ):
     """Display entry point into site-wide app."""
 
@@ -32,9 +30,7 @@ class IndexView(
 
 
 class GenePanelCategoryListView(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ListView,
+    LoginRequiredMixin, LoggedInPermissionMixin, ListView,
 ):
     """Display entry point into site-wide app."""
 

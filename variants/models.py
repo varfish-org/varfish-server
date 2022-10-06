@@ -4197,3 +4197,31 @@ class RefreshSmallVariantSummaryBgJob(SiteBgJobBase):
         return reverse(
             "variants:refresh-small-variant-summaries-job-detail", kwargs={"job": self.sodar_uuid},
         )
+
+
+class CaseGeneAnnotationEntry(models.Model):
+    #: The records UUID
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="Record SODAR UUID"
+    )
+    #: The case that is annotated
+    case = models.ForeignKey(
+        Case, null=False, blank=False, on_delete=models.CASCADE, help_text="The annotated case"
+    )
+    #: The annotated gene's symbol
+    gene_symbol = models.CharField(
+        max_length=32, null=False, blank=False, help_text="The gene symbol (informative only)"
+    )
+    #: The annotated gene's NCIB Entrez ID
+    entrez_id = models.CharField(
+        max_length=32, null=False, blank=False, help_text="The entrez gene ID"
+    )
+    #: The annotated gene's ENSEMBL ID
+    ensembl_gene_id = models.CharField(
+        max_length=32, null=False, blank=False, help_text="The ENSEMBL bene ID"
+    )
+    #: The JSON containing the annotation
+    annotation = models.JSONField(default=dict, help_text="The annotation JSON")
+
+    class Meta:
+        ordering = ["gene_symbol"]
