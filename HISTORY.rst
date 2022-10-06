@@ -65,6 +65,7 @@ End-User Summary
 - Initial vue.js implementation for small variant filtration (#563).
 - Changing ClinVar link-out to VCV entry instead of coordinates (#693).
 - Adding support to create custom gene panels (#723).
+- Allow operators to upload per-gene annotations to cases (#575) on import.
 
 Full Change List
 ================
@@ -134,6 +135,7 @@ Full Change List
 - Removing dependency on bootstrap-vue package (#716).
 - Migrating store dependency from Vuex v3 to Pinia (#720).
 - Adding support to create custom gene panels (#723).
+- Allow operators to upload per-gene annotations to cases (#575) on import.
 
 ------
 v1.2.0

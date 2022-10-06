@@ -48,6 +48,19 @@ api_urlpatterns = [
         name="api-bam-qc-file-retrieve-destroy",
     ),
     url(
+        regex=r"^api/case-gene-annotation-file/(?P<caseimportinfo>[0-9a-f-]+)/$",
+        view=views_api.CaseGeneAnnotationFileListCreateView.as_view(),
+        name="api-case-gene-annotation-file-list-create",
+    ),
+    url(
+        regex=(
+            r"^api/case-gene-annotation-file/(?P<caseimportinfo>[0-9a-f-]+)/"
+            r"(?P<casegeneannotationfile>[0-9a-f-]+)/$"
+        ),
+        view=views_api.CaseGeneAnnotationFileRetrieveDestroyView.as_view(),
+        name="api-case-gene-annotation-file-retrieve-destroy",
+    ),
+    url(
         regex=r"^api/genotype-file/(?P<variantsetimportinfo>[0-9a-f-]+)/$",
         view=views_api.GenotypeFileListCreateView.as_view(),
         name="api-genotype-file-list-create",

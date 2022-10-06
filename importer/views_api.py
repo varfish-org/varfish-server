@@ -19,6 +19,7 @@ from . import tasks
 from .models import CaseImportInfo, CaseImportState, ImportCaseBgJob, VariantSetImportInfo
 from .serializers import (
     BamQcFileSerializer,
+    CaseGeneAnnotationFileSerializer,
     CaseImportInfoSerializer,
     DatabaseInfoFileSerializer,
     EffectFileSerializer,
@@ -312,6 +313,46 @@ class DatabaseInfoFileRetrieveDestroyView(DatabaseInfoFileBaseMixin, RetrieveDes
 
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "databaseinfofile"
+
+    def get_permission_required(self):
+        if self.request.method == "GET":
+            return "importer.view_import"
+        elif self.request.method == "DELETE":
+            return "importer.delete_import"
+        else:
+            return "importer.update_import"
+
+
+class CaseGeneAnnotationFileBaseMixin(SODARAPIBaseProjectMixin, RelatedMixin):
+
+    serializer_class = CaseGeneAnnotationFileSerializer
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    related_class = CaseImportInfo
+    related_lookup_field = "case_import_info"
+    related_lookup_url_kwarg = "caseimportinfo"
+
+    project_type = SODAR_CONSTANTS["PROJECT_TYPE_PROJECT"]
+
+
+class CaseGeneAnnotationFileListCreateView(CaseGeneAnnotationFileBaseMixin, ListCreateAPIView):
+    """DRF list-create API view the ``CaseGeneAnnotationFile`` model."""
+
+    def get_permission_required(self):
+        if self.request.method == "POST":
+            return "importer.add_import"
+        else:
+            return "importer.view_import"
+
+
+class CaseGeneAnnotationFileRetrieveDestroyView(
+    CaseGeneAnnotationFileBaseMixin, RetrieveDestroyAPIView
+):
+    """DRF retrieve-update-destroy API view for the ``CaseGeneAnnotationFile`` model."""
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "casegeneannotationfile"
 
     def get_permission_required(self):
         if self.request.method == "GET":
