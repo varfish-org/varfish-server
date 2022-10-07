@@ -136,6 +136,7 @@ Full Change List
 - Migrating store dependency from Vuex v3 to Pinia (#720).
 - Adding support to create custom gene panels (#723).
 - Allow operators to upload per-gene annotations to cases (#575) on import.
+- Fixing issue with icon in vue3 variants app (#718).
 
 ------
 v1.2.0

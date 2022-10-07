@@ -262,19 +262,14 @@
                 class="btn btn-primary"
                 @click="store.submitQuery()"
                 title='Filter variants again with current settings, limited to "Miscellaneous / Result row limit" results and display in table below'
-                :disabled="
-                  store.queryState === QueryStates.Fetching.value ||
-                  store.queryState === QueryStates.Running.value
-                "
+                :disabled="spinButtonIcon()"
               >
-                <img
-                  class="img-light"
+                <i
                   :class="{
-                    spin:
-                      store.queryState === QueryStates.Fetching.value ||
-                      store.queryState === QueryStates.Running.value,
+                    'iconify': !spinButtonIcon(),
+                    'iconify spin': spinButtonIcon(),
                   }"
-                  src="/icons/mdi/refresh.svg"
+                  data-icon="mdi:refresh"
                 />
                 Filter &amp; Display
               </button>
@@ -338,13 +333,35 @@ export default {
     SmallVariantFilterFormFrequencyTab,
   },
   setup() {
+    function spinButtonIcon() {
+      return this.store.queryState === QueryStates.Fetching.value || this.store.queryState === QueryStates.Running.value
+    }
+
     const store = filterQueryStore();
-    return { store };
+    return {
+      spinButtonIcon,
+      store
+    };
   },
   data() {
     return { QueryStates };
-  },
+  }
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.spin {
+  animation-name: spin;
+  animation-duration: 2000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+@keyframes spin {
+  from {
+    transform:rotate(0deg);
+  }
+  to {
+    transform:rotate(360deg);
+  }
+}
+</style>

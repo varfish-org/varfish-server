@@ -80,11 +80,12 @@
     tabindex="-1"
     aria-labelledby="variantDetailsModalLabel"
     aria-hidden="true"
+    style="z-index: 10000;"
   >
     <div
       class="modal-dialog modal-dialog-scrollable modal-xl"
       role="document"
-      style="max-width: 95%"
+      style="max-width: 100%; margin: 10px;"
     >
       <div class="modal-content">
         <div class="modal-header">

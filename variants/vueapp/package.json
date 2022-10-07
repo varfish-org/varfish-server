@@ -2,15 +2,12 @@
   "name": "vueapp",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
-    "build:client": "vite build --ssrManifest --outDir dist/client",
-    "build:server": "vite build --ssr src/entry-server.js --outDir dist/server",
-    "preview": "vite preview --port 4173",
-    "test:unit": "vitest --environment jsdom",
-    "test:e2e": "start-server-and-test preview http://127.0.0.1:4173/ 'cypress open --e2e'",
-    "test:e2e:ci": "start-server-and-test preview http://127.0.0.1:4173/ 'cypress run --e2e'",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+    "test:unit": "vitest run --coverage",
+    "lint": "eslint . --fix",
+    "prettier-check": "npx prettier --check .",
+    "prettier-write": "npx prettier --write .",
+    "serve": "vite"
   },
   "dependencies": {
     "ag-grid-vue3": "^28.1.0",
