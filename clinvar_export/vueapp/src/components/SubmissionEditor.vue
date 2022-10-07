@@ -3,8 +3,8 @@ import Multiselect from '@vueform/multiselect'
 import { useVuelidate } from '@vuelidate/core'
 import { helpers, numeric, required } from '@vuelidate/validators'
 
-import clinvarExportApi from '@/api/clinvarExport'
-import { getSubmissionLabel } from '@/helpers'
+import clinvarExportApi from '@clinvarexport/api/clinvarExport'
+import { getSubmissionLabel } from '@clinvarexport/helpers'
 import {
   useClinvarExportStore,
   RECORD_STATUS_OPTIONS,
@@ -15,7 +15,7 @@ import {
   MODE_OF_INHERITANCE_OPTIONS,
   AGE_OF_ONSET_OPTIONS,
   VARIANT_TYPE,
-} from '@/stores/clinvar-export'
+} from '@clinvarexport/stores/clinvar-export'
 
 import SubmissionCaseList from './SubmissionCaseList.vue'
 import { ref, computed, onMounted } from 'vue'

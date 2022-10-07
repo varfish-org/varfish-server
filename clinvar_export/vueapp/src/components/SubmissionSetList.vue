@@ -1,8 +1,8 @@
 <script>
 import { mapActions, mapState } from 'pinia'
 
-import clinvarExport from '@/api/clinvarExport'
-import { useClinvarExportStore } from '@/stores/clinvar-export'
+import clinvarExport from '@clinvarexport/api/clinvarExport'
+import { useClinvarExportStore } from '@clinvarexport/stores/clinvar-export'
 
 export default {
   data: function () {

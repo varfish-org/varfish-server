@@ -436,12 +436,12 @@
 </template>
 
 <script>
-import { filterQueryStore } from "@/stores/filterQuery";
+import { filterQueryStore } from '@variants/stores/filterQuery'
 
 export default {
   setup() {
-    const store = filterQueryStore();
-    return { store };
+    const store = filterQueryStore()
+    return { store }
   },
-};
+}
 </script>

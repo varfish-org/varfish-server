@@ -47,15 +47,15 @@
 </template>
 
 <script>
-import { variantDetailsStore } from "@/stores/variantDetails";
+import { variantDetailsStore } from '@variants/stores/variantDetails'
 
 export default {
   components: {},
   setup() {
-    const detailsStore = variantDetailsStore();
+    const detailsStore = variantDetailsStore()
     return {
       detailsStore,
-    };
+    }
   },
   methods: {
     colorVariantEffect(effect) {
@@ -93,15 +93,15 @@ export default {
         three_prime_UTR_intron_variant: 1,
         transcript_ablation: 3,
         upstream_gene_variant: 1,
-      };
+      }
       if (effectLevels[effect] === 3) {
-        return "badge-danger";
+        return 'badge-danger'
       } else if (effectLevels[effect] === 2) {
-        return "badge-warning";
+        return 'badge-warning'
       } else {
-        return "badge-secondary";
+        return 'badge-secondary'
       }
     },
   },
-};
+}
 </script>

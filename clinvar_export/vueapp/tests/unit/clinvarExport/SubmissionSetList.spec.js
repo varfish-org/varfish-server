@@ -1,3 +1,9 @@
+import clinvarExportApi from '@clinvarexport/api/clinvarExport'
+import SubmissionSetList from '@clinvarexport/components/SubmissionSetList.vue'
+import {
+  useClinvarExportStore,
+  WizardState,
+} from '@clinvarexport/stores/clinvar-export.js'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
@@ -12,10 +18,6 @@ import {
   vi,
 } from 'vitest'
 import { nextTick } from 'vue'
-
-import clinvarExportApi from '@/api/clinvarExport'
-import SubmissionSetList from '@/components/SubmissionSetList.vue'
-import { useClinvarExportStore, WizardState } from '@/stores/clinvar-export.js'
 
 import { copy, waitNT } from '../../testUtils.js'
 import { firstSubmissionSet } from '../fixtures.js'
@@ -37,7 +39,7 @@ const makeWrapper = (clinvarExportState) => {
   })
 }
 // Mock out the clinvarExport API
-vi.mock('@/api/clinvarExport')
+vi.mock('@clinvarexport/api/clinvarExport')
 
 describe('SubmissionSetList.vue', () => {
   let store

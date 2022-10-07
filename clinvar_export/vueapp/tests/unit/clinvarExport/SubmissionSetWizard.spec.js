@@ -1,3 +1,8 @@
+import SubmissionSetWizard from '@clinvarexport/components/SubmissionSetWizard.vue'
+import {
+  useClinvarExportStore,
+  WizardState,
+} from '@clinvarexport/stores/clinvar-export.js'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
@@ -12,9 +17,6 @@ import {
   test,
   vi,
 } from 'vitest'
-
-import SubmissionSetWizard from '@/components/SubmissionSetWizard.vue'
-import { useClinvarExportStore, WizardState } from '@/stores/clinvar-export.js'
 
 import { copy } from '../../testUtils.js'
 import { clinvarExportEmptyState } from '../fixtures.js'

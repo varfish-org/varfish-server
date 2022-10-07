@@ -1,3 +1,10 @@
+import clinvarExportApi from '@clinvarexport/api/clinvarExport'
+import {
+  AppState,
+  MODEL_KEYS,
+  useClinvarExportStore,
+  WizardState,
+} from '@clinvarexport/stores/clinvar-export'
 import flushPromises from 'flush-promises'
 import { createPinia, setActivePinia } from 'pinia'
 import {
@@ -10,14 +17,6 @@ import {
   test,
   vi,
 } from 'vitest'
-
-import clinvarExportApi from '@/api/clinvarExport'
-import {
-  AppState,
-  MODEL_KEYS,
-  useClinvarExportStore,
-  WizardState,
-} from '@/stores/clinvar-export'
 
 import { copy } from '../../testUtils.js'
 import {
@@ -42,8 +41,8 @@ import {
 const MOCK_UUID_VALUE = 'xxxxxxxx-xxxx-4xxx-mock-mockmockmock'
 
 // Mock out UUIDv4 generation
-vi.mock('@/helpers', () => {
-  const origHelpersModule = vi.importActual('@/helpers')
+vi.mock('@clinvarexport/helpers', () => {
+  const origHelpersModule = vi.importActual('@clinvarexport/helpers')
   return {
     __esModule: true,
     ...origHelpersModule,
@@ -54,7 +53,7 @@ vi.mock('@/helpers', () => {
 })
 
 // Mock out the clinvarExport API
-vi.mock('@/api/clinvarExport')
+vi.mock('@clinvarexport/api/clinvarExport')
 
 describe('actions', () => {
   let store

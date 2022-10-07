@@ -4,7 +4,10 @@ module.exports = {
     'comma-dangle': 0,
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'no-unused-vars': [
+      'error',
+      { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+    ],
   },
   extends: ['eslint:recommended', 'plugin:vue/vue3-recommended', 'prettier'],
   root: true,

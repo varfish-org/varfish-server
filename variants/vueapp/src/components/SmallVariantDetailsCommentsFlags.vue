@@ -576,20 +576,20 @@
 </template>
 
 <script>
-import { variantDetailsStore } from "@/stores/variantDetails";
-import { filterQueryStore } from "@/stores/filterQuery";
-import { EditCommentModes } from "@/enums";
+import { variantDetailsStore } from '@variants/stores/variantDetails'
+import { filterQueryStore } from '@variants/stores/filterQuery'
+import { EditCommentModes } from '@variants/enums'
 
 export default {
   components: {},
   setup() {
-    const detailsStore = variantDetailsStore();
-    const queryStore = filterQueryStore();
+    const detailsStore = variantDetailsStore()
+    const queryStore = filterQueryStore()
     return {
       detailsStore,
       queryStore,
       EditCommentModes,
-    };
+    }
   },
-};
+}
 </script>

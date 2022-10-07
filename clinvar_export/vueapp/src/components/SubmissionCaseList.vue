@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { useClinvarExportStore } from '@/stores/clinvar-export'
+import { useClinvarExportStore } from '@clinvarexport/stores/clinvar-export'
 
 import SubmissionCaseListEntry from './SubmissionCaseListEntry.vue'
 

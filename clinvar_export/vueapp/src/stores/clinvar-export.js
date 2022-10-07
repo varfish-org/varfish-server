@@ -1,12 +1,11 @@
-import { defineStore } from 'pinia'
-
-import clinvarExportApi from '@/api/clinvarExport'
+import clinvarExportApi from '@clinvarexport/api/clinvarExport'
 import {
   getVariantId,
   HPO_INHERITANCE_MODE,
   isDiseaseTerm,
   uuidv4,
-} from '@/helpers'
+} from '@clinvarexport/helpers'
+import { defineStore } from 'pinia'
 
 /**
  * Enum for the valid clinvar export application states.

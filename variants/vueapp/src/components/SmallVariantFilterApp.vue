@@ -65,10 +65,10 @@
         class="ml-3 btn btn-sm btn-info"
         @click="store.queryLogsVisible = !store.queryLogsVisible"
       >
-        {{ store.queryLogsVisible ? "Hide" : "Show" }} Logs
+        {{ store.queryLogsVisible ? 'Hide' : 'Show' }} Logs
       </button>
       <pre v-show="store.queryLogsVisible">{{
-        store.queryLogs.join("\n")
+        store.queryLogs.join('\n')
       }}</pre>
     </div>
     <div v-else class="alert alert-info">
@@ -91,11 +91,11 @@
 </template>
 
 <script>
-import SmallVariantFilterForm from "./SmallVariantFilterForm.vue";
-import SmallVariantFilterResultsTable from "./SmallVariantFilterResultsTable.vue";
-import { filterQueryStore } from "@/stores/filterQuery";
-import { QueryStates, QueryStateToText } from "@/enums";
-import { storeToRefs } from "pinia";
+import SmallVariantFilterForm from './SmallVariantFilterForm.vue'
+import SmallVariantFilterResultsTable from './SmallVariantFilterResultsTable.vue'
+import { filterQueryStore } from '@variants/stores/filterQuery'
+import { QueryStates, QueryStateToText } from '@variants/enums'
+import { storeToRefs } from 'pinia'
 
 export default {
   components: {
@@ -103,47 +103,47 @@ export default {
     SmallVariantFilterResultsTable,
   },
   setup() {
-    const store = filterQueryStore();
+    const store = filterQueryStore()
     const appContext = JSON.parse(
       document
-        .getElementById("sodar-ss-app-context")
-        .getAttribute("app-context") || "{}"
-    );
-    store.caseUuid = appContext.case_uuid;
-    store.umdPredictorApiToken = appContext.umd_predictor_api_token;
-    store.hgmdProEnabled = appContext.hgmd_pro_enabled;
-    store.hgmdProPrefix = appContext.hgmd_pro_prefix;
+        .getElementById('sodar-ss-app-context')
+        .getAttribute('app-context') || '{}'
+    )
+    store.caseUuid = appContext.case_uuid
+    store.umdPredictorApiToken = appContext.umd_predictor_api_token
+    store.hgmdProEnabled = appContext.hgmd_pro_enabled
+    store.hgmdProPrefix = appContext.hgmd_pro_prefix
     store.ga4ghBeaconNetworkWidgetEnabled =
-      appContext.ga4gh_beacon_network_widget_enabled;
-    store.csrfToken = appContext.csrf_token;
-    store.fetchCase();
-    store.fetchDefaultSettings();
-    store.fetchPreviousQueryUuid();
-    const { queryState, queryUuid } = storeToRefs(store);
-    return { store, queryState, queryUuid };
+      appContext.ga4gh_beacon_network_widget_enabled
+    store.csrfToken = appContext.csrf_token
+    store.fetchCase()
+    store.fetchDefaultSettings()
+    store.fetchPreviousQueryUuid()
+    const { queryState, queryUuid } = storeToRefs(store)
+    return { store, queryState, queryUuid }
   },
   data() {
     return {
       QueryStates,
       QueryStateToText,
-    };
+    }
   },
   watch: {
     queryState(newValue, oldValue) {
       if (newValue === QueryStates.Finished.value) {
-        this.store.unsetQueryStatusInterval;
-        this.store.fetchQueryResults();
-        this.store.fetchHpoTerms();
-        this.store.fetchQueryDetails();
+        this.store.unsetQueryStatusInterval
+        this.store.fetchQueryResults()
+        this.store.fetchHpoTerms()
+        this.store.fetchQueryDetails()
       }
     },
     queryUuid(newValue, oldValue) {
       if (newValue !== null) {
-        this.store.setQueryStatusInterval;
+        this.store.setQueryStatusInterval
       }
     },
   },
-};
+}
 </script>
 
 <style scoped></style>

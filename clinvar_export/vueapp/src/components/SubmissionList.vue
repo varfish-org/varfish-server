@@ -12,8 +12,8 @@ import {
   isDiseaseTerm,
   removeItemAll,
   validConfirmed,
-} from '@/helpers'
-import { useClinvarExportStore } from '@/stores/clinvar-export'
+} from '@clinvarexport/helpers'
+import { useClinvarExportStore } from '@clinvarexport/stores/clinvar-export'
 
 import clinvarExport from '../api/clinvarExport'
 import SubmissionEditor from './SubmissionEditor.vue'

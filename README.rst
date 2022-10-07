@@ -1,8 +1,9 @@
 .. image:: https://readthedocs.org/projects/varfish-server/badge/?version=latest
     :target: https://varfish-server.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
-.. image:: https://coveralls.io/repos/github/bihealth/varfish-server/badge.svg?branch=main
-    :target: https://coveralls.io/github/bihealth/varfish-server?branch=main
+.. image:: https://codecov.io/gh/bihealth/varfish-server/branch/main/graph/badge.svg?token=5ZACSH5MZZ
+    :target: https://codecov.io/gh/bihealth/varfish-server
+    :alt: Code Coverage
 .. image:: https://img.shields.io/badge/License-MIT-green.svg
     :target: https://opensource.org/licenses/MIT
 

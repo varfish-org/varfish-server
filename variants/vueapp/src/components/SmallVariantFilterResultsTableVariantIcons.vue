@@ -21,7 +21,7 @@
       class="ml-1 badge"
       :class="acmgBadge"
       style="width: 22px; display: inline-block"
-      >{{ acmgClass ? acmgClass : "-" }}</span
+      >{{ acmgClass ? acmgClass : '-' }}</span
     >
     <a
       v-if="params.data.rsid"
@@ -86,25 +86,25 @@
 </template>
 
 <script>
-import { filterQueryStore } from "@/stores/filterQuery";
+import { filterQueryStore } from '@variants/stores/filterQuery'
 
 export default {
   setup(props) {
-    const queryStore = filterQueryStore();
+    const queryStore = filterQueryStore()
     const symbol = props.params.data.symbol
       ? props.params.data.symbol
-      : props.params.data.gene_symbol;
+      : props.params.data.gene_symbol
     const acmgClass = props.params.data.acmg_class_override
       ? props.params.data.acmg_class_override
-      : props.params.data.acmg_class_auto;
-    const acmgBadge = queryStore.getAcmgBadge(acmgClass);
+      : props.params.data.acmg_class_auto
+    const acmgBadge = queryStore.getAcmgBadge(acmgClass)
     return {
       acmgClass,
       acmgBadge,
       symbol,
-    };
+    }
   },
-};
+}
 </script>
 
 <style scoped>

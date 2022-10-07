@@ -266,7 +266,7 @@
               >
                 <i
                   :class="{
-                    'iconify': !spinButtonIcon(),
+                    iconify: !spinButtonIcon(),
                     'iconify spin': spinButtonIcon(),
                   }"
                   data-icon="mdi:refresh"
@@ -322,10 +322,10 @@
 </template>
 
 <script>
-import SmallVariantFilterFormGenotypeTab from "./SmallVariantFilterFormGenotypeTab.vue";
-import SmallVariantFilterFormFrequencyTab from "./SmallVariantFilterFormFrequencyTab.vue";
-import { filterQueryStore } from "@/stores/filterQuery";
-import { QueryStates } from "@/enums";
+import SmallVariantFilterFormGenotypeTab from './SmallVariantFilterFormGenotypeTab.vue'
+import SmallVariantFilterFormFrequencyTab from './SmallVariantFilterFormFrequencyTab.vue'
+import { filterQueryStore } from '@variants/stores/filterQuery'
+import { QueryStates } from '@variants/enums'
 
 export default {
   components: {
@@ -334,19 +334,22 @@ export default {
   },
   setup() {
     function spinButtonIcon() {
-      return this.store.queryState === QueryStates.Fetching.value || this.store.queryState === QueryStates.Running.value
+      return (
+        this.store.queryState === QueryStates.Fetching.value ||
+        this.store.queryState === QueryStates.Running.value
+      )
     }
 
-    const store = filterQueryStore();
+    const store = filterQueryStore()
     return {
       spinButtonIcon,
-      store
-    };
+      store,
+    }
   },
   data() {
-    return { QueryStates };
-  }
-};
+    return { QueryStates }
+  },
+}
 </script>
 
 <style scoped>
@@ -358,10 +361,10 @@ export default {
 }
 @keyframes spin {
   from {
-    transform:rotate(0deg);
+    transform: rotate(0deg);
   }
   to {
-    transform:rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 </style>

@@ -4,13 +4,13 @@ import { useVuelidate } from '@vuelidate/core'
 import { helpers, numeric, required } from '@vuelidate/validators'
 import { computed, onMounted, ref } from 'vue'
 
-import clinvarExportApi from '@/api/clinvarExport'
+import clinvarExportApi from '@clinvarexport/api/clinvarExport'
 import {
   useClinvarExportStore,
   VARIANT_ZYGOSITY_OPTIONS,
   VARIANT_ORIGIN_OPTIONS,
   SAMPLE_SOURCE_OPTIONS,
-} from '@/stores/clinvar-export'
+} from '@clinvarexport/stores/clinvar-export'
 
 const components = { Multiselect }
 

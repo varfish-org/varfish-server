@@ -1,3 +1,5 @@
+import SubmissionCaseList from '@clinvarexport/components/SubmissionCaseList.vue'
+import { WizardState } from '@clinvarexport/stores/clinvar-export.js'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import {
@@ -9,9 +11,6 @@ import {
   test,
   vi,
 } from 'vitest'
-
-import SubmissionCaseList from '@/components/SubmissionCaseList.vue'
-import { WizardState } from '@/stores/clinvar-export.js'
 
 import { copy } from '../../testUtils.js'
 import {
@@ -47,7 +46,7 @@ const makeWrapper = (clinvarExportState, extraArgs) => {
   })
 }
 // Mock out the clinvarExport API
-vi.mock('@/api/clinvarExport')
+vi.mock('@clinvarexport/api/clinvarExport')
 
 describe('SubmissionCaseList.vue', () => {
   beforeAll(() => {

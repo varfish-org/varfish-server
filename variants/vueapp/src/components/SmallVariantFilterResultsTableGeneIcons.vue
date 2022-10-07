@@ -27,20 +27,18 @@
   </div>
 </template>
 <script>
-import { filterQueryStore } from "@/stores/filterQuery";
+import { filterQueryStore } from '@variants/stores/filterQuery'
 
 export default {
   setup(props) {
-    const store = filterQueryStore();
-    const diseaseGene = JSON.parse(
-      props.params.data.disease_gene.toLowerCase()
-    );
+    const store = filterQueryStore()
+    const diseaseGene = JSON.parse(props.params.data.disease_gene.toLowerCase())
     return {
       diseaseGene,
       store,
-    };
+    }
   },
-};
+}
 </script>
 
 <style scoped>

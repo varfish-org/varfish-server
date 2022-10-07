@@ -134,15 +134,15 @@
 </template>
 
 <script>
-import { variantDetailsStore } from "@/stores/variantDetails";
+import { variantDetailsStore } from '@variants/stores/variantDetails'
 
 export default {
   components: {},
   setup() {
-    const detailsStore = variantDetailsStore();
+    const detailsStore = variantDetailsStore()
     return {
       detailsStore,
-    };
+    }
   },
-};
+}
 </script>

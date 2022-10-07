@@ -1,7 +1,6 @@
+import clinvarExportApi from '@clinvarexport/api/clinvarExport'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 import createFetchMock from 'vitest-fetch-mock'
-
-import clinvarExportApi from '@/api/clinvarExport'
 
 import { rawAppContext } from '../fixtures.js'
 
