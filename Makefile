@@ -13,9 +13,13 @@ npm-install:
 serve:
 	$(MANAGE) runserver
 
-.PHONY: serve_vue
-serve_vue:
+.PHONY: serve_vue_clinvarexport
+serve_vue_clinvarexport:
 	npm run --prefix clinvar_export/vueapp serve
+
+.PHONY: serve_vue_clinvarexport
+serve_vue_variants:
+	npm run --prefix variants/vueapp serve
 
 .PHONY: serve_public
 serve_public:
