@@ -1,7 +1,10 @@
 <script setup>
 import { ref } from 'vue'
-import { validConfirmed } from '@/helpers'
-import { useClinvarExportStore, WizardState } from '@/stores/clinvar-export'
+import { validConfirmed } from '@clinvarexport/helpers'
+import {
+  useClinvarExportStore,
+  WizardState,
+} from '@clinvarexport/stores/clinvar-export'
 
 import SubmissionList from './SubmissionList.vue'
 import SubmissionSetEditor from './SubmissionSetEditor.vue'

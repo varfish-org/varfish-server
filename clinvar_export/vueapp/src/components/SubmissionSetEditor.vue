@@ -7,7 +7,7 @@ import { minLength, required } from '@vuelidate/validators'
 import {
   SUBMISSION_SET_STATE_CHOICES,
   useClinvarExportStore,
-} from '@/stores/clinvar-export'
+} from '@clinvarexport/stores/clinvar-export'
 
 const components = { Multiselect }
 

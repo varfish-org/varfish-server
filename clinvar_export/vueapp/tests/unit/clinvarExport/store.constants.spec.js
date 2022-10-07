@@ -1,6 +1,5 @@
+import { AppState, WizardState } from '@clinvarexport/stores/clinvar-export'
 import { describe, expect, test } from 'vitest'
-
-import { AppState, WizardState } from '@/stores/clinvar-export'
 
 describe('AppState', () => {
   test('defines constants', () => {

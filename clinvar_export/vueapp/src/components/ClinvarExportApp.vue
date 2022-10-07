@@ -1,7 +1,10 @@
 <script setup>
 import { computed } from 'vue'
 
-import { AppState, useClinvarExportStore } from '@/stores/clinvar-export'
+import {
+  AppState,
+  useClinvarExportStore,
+} from '@clinvarexport/stores/clinvar-export'
 
 import SubmissionSetList from './SubmissionSetList.vue'
 import SubmissionSetWizard from './SubmissionSetWizard.vue'

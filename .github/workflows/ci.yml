@@ -69,9 +69,9 @@ jobs:
           pip freeze
       - name: Build and run Vue app
         run: |
-          npm ci --prefix clinvar_export/vueapp
-          npm run build --prefix clinvar_export/vueapp
-          nohup npm run --prefix clinvar_export/vueapp serve &
+          npm ci --prefix varfish/vueapp
+          npm run build --prefix varfish/vueapp
+          nohup npm run --prefix varfish/vueapp serve &
       - name: download icons
         run: python manage.py geticons
       - name: run collectstatic
@@ -129,17 +129,17 @@ jobs:
           chmod +x /tmp/codecov
       - name: Install javascript dependencies
         run: |
-          npm ci --prefix clinvar_export/vueapp
+          npm ci --prefix varfish/vueapp
           # We need to patch happy-dom until 6.0.5 or so is released
           # see patch.sh for details.
-          cd clinvar_export/vueapp
+          cd varfish/vueapp
           bash patch.sh
           cd ..
       - name: Run Vue app tests
         run: |
-          make test_clinvar_export_vue
+          make vue_test
       - name: Run Codecov for Javascript
         run: |
           /tmp/codecov -cF javascript
       - name: Lint Vue app
-        run: make lint_clinvar_export_vue
+        run: make vue_lint

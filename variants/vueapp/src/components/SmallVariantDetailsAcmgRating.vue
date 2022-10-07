@@ -823,7 +823,7 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
             {{
               detailsStore.acmgCriteriaRatingToSubmit.class_auto
                 ? detailsStore.acmgCriteriaRatingToSubmit.class_auto
-                : "-"
+                : '-'
             }}
           </div>
         </div>
@@ -921,18 +921,18 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
 </template>
 
 <script>
-import { variantDetailsStore } from "@/stores/variantDetails";
-import { filterQueryStore } from "@/stores/filterQuery";
+import { variantDetailsStore } from '@variants/stores/variantDetails'
+import { filterQueryStore } from '@variants/stores/filterQuery'
 
 export default {
   components: {},
   setup() {
-    const detailsStore = variantDetailsStore();
-    const queryStore = filterQueryStore();
+    const detailsStore = variantDetailsStore()
+    const queryStore = filterQueryStore()
     return {
       detailsStore,
       queryStore,
-    };
+    }
   },
-};
+}
 </script>

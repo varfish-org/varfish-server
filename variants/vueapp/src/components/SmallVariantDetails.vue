@@ -191,20 +191,20 @@
 </template>
 
 <script>
-import SmallVariantDetailsCallDetails from "./SmallVariantDetailsCallDetails.vue";
-import SmallVariantDetailsClinvar from "./SmallVariantDetailsClinvar.vue";
-import SmallVariantDetailsCommentsFlags from "./SmallVariantDetailsCommentsFlags.vue";
-import SmallVariantDetailsConservation from "./SmallVariantDetailsConservation.vue";
-import SmallVariantDetailsExtraAnnos from "./SmallVariantDetailsExtraAnnos.vue";
-import SmallVariantDetailsFreqs from "./SmallVariantDetailsFreqs.vue";
-import SmallVariantDetailsGa4ghBeacons from "./SmallVariantDetailsGa4ghBeacons.vue";
-import SmallVariantDetailsGene from "./SmallVariantDetailsGene.vue";
-import SmallVariantDetailsTranscripts from "./SmallVariantDetailsTranscripts.vue";
-import SmallVariantDetailsVariantValidator from "./SmallVariantDetailsVariantValidator.vue";
-import SmallVariantDetailsAcmgRating from "./SmallVariantDetailsAcmgRating.vue";
-import SmallVariantDetailsLinkOuts from "./SmallVariantDetailsLinkOuts.vue";
-import { variantDetailsStore } from "@/stores/variantDetails";
-import { filterQueryStore } from "@/stores/filterQuery";
+import SmallVariantDetailsCallDetails from './SmallVariantDetailsCallDetails.vue'
+import SmallVariantDetailsClinvar from './SmallVariantDetailsClinvar.vue'
+import SmallVariantDetailsCommentsFlags from './SmallVariantDetailsCommentsFlags.vue'
+import SmallVariantDetailsConservation from './SmallVariantDetailsConservation.vue'
+import SmallVariantDetailsExtraAnnos from './SmallVariantDetailsExtraAnnos.vue'
+import SmallVariantDetailsFreqs from './SmallVariantDetailsFreqs.vue'
+import SmallVariantDetailsGa4ghBeacons from './SmallVariantDetailsGa4ghBeacons.vue'
+import SmallVariantDetailsGene from './SmallVariantDetailsGene.vue'
+import SmallVariantDetailsTranscripts from './SmallVariantDetailsTranscripts.vue'
+import SmallVariantDetailsVariantValidator from './SmallVariantDetailsVariantValidator.vue'
+import SmallVariantDetailsAcmgRating from './SmallVariantDetailsAcmgRating.vue'
+import SmallVariantDetailsLinkOuts from './SmallVariantDetailsLinkOuts.vue'
+import { variantDetailsStore } from '@variants/stores/variantDetails'
+import { filterQueryStore } from '@variants/stores/filterQuery'
 
 export default {
   components: {
@@ -222,12 +222,12 @@ export default {
     SmallVariantDetailsLinkOuts,
   },
   setup() {
-    const detailsStore = variantDetailsStore();
-    const queryStore = filterQueryStore();
+    const detailsStore = variantDetailsStore()
+    const queryStore = filterQueryStore()
     return {
       detailsStore,
       queryStore,
-    };
+    }
   },
-};
+}
 </script>

@@ -1,14 +1,14 @@
-import { defineStore } from "pinia";
 import {
-  QueryStates,
+  DisplayColumns,
+  DisplayConstraints,
   DisplayDetails,
   DisplayFrequencies,
-  DisplayConstraints,
-  DisplayColumns,
-} from "@/enums";
+  QueryStates,
+} from '@variants/enums'
+import { defineStore } from 'pinia'
 
 export const filterQueryStore = defineStore({
-  id: "filterQueryStore",
+  id: 'filterQueryStore',
   state: () => ({
     csrfToken: null,
     caseUuid: null,
@@ -35,168 +35,168 @@ export const filterQueryStore = defineStore({
   getters: {
     getRole() {
       if (this.case.pedigree) {
-        const index = this.case.index;
-        const pedigree = this.case.pedigree;
-        let roles = {};
-        let mother = "";
-        let father = "";
+        const index = this.case.index
+        const pedigree = this.case.pedigree
+        let roles = {}
+        let mother = ''
+        let father = ''
         // Prepare role assignment
         for (let i = 0; i < pedigree.length; ++i) {
           if (pedigree[i].name === index) {
-            father = pedigree[i].father;
-            mother = pedigree[i].mother;
+            father = pedigree[i].father
+            mother = pedigree[i].mother
           }
         }
         // Add roles
         for (const member of pedigree) {
-          const name = member.name;
+          const name = member.name
           if (name === index) {
-            roles[name] = "index";
+            roles[name] = 'index'
           } else if (name === father) {
-            roles[name] = "father";
+            roles[name] = 'father'
           } else if (name === mother) {
-            roles[name] = "mother";
+            roles[name] = 'mother'
           } else {
-            roles[name] = "N/A";
+            roles[name] = 'N/A'
           }
         }
         return (name) => {
-          return roles[name];
-        };
+          return roles[name]
+        }
       }
     },
     setQueryStatusInterval() {
       // Otherwise we have to wait for 5 seconds
-      this.fetchQueryStatus();
-      this.queryInterval = setInterval(this.fetchQueryStatus, 5000);
+      this.fetchQueryStatus()
+      this.queryInterval = setInterval(this.fetchQueryStatus, 5000)
     },
     unsetQueryStatusInterval() {
-      clearInterval(this.queryInterval);
-      this.queryInterval = null;
+      clearInterval(this.queryInterval)
+      this.queryInterval = null
     },
   },
   actions: {
     async fetchCase() {
-      const res = await fetch(`/variants/ajax/case/retrieve/${this.caseUuid}/`);
+      const res = await fetch(`/variants/ajax/case/retrieve/${this.caseUuid}/`)
       if (res.ok) {
-        this.case = await res.json();
+        this.case = await res.json()
       }
     },
     async fetchDefaultSettings() {
       const res = await fetch(
         `/variants/ajax/query-case/query-settings-shortcut/${this.caseUuid}/`
-      );
+      )
       if (res.ok) {
-        const resJson = await res.json();
-        this.querySettingsPresets = resJson.presets;
-        this.querySettings = resJson.query_settings;
+        const resJson = await res.json()
+        this.querySettingsPresets = resJson.presets
+        this.querySettings = resJson.query_settings
       }
     },
     async submitQuery() {
       const payload = {
-        form_id: "variants.small_variant_filter_form",
+        form_id: 'variants.small_variant_filter_form',
         form_version: 1,
         query_settings: this.querySettings,
-      };
+      }
       const res = await fetch(
         `/variants/ajax/query-case/create/${this.caseUuid}/`,
         {
-          method: "POST",
-          credentials: "same-origin",
+          method: 'POST',
+          credentials: 'same-origin',
           headers: {
             // Accept: "application/json",
-            "Content-Type": "application/json",
-            "X-CSRFToken": this.csrfToken,
+            'Content-Type': 'application/json',
+            'X-CSRFToken': this.csrfToken,
           },
           body: JSON.stringify(payload),
         }
-      );
+      )
       if (res.ok) {
-        const resJson = await res.json();
-        this.queryUuid = resJson.sodar_uuid;
+        const resJson = await res.json()
+        this.queryUuid = resJson.sodar_uuid
       }
     },
     async fetchQueryDetails() {
       const res = await fetch(
         `/variants/ajax/query-case/retrieve/${this.queryUuid}`
-      );
+      )
       if (res.ok) {
-        this.previousQueryDetails = await res.json();
+        this.previousQueryDetails = await res.json()
       }
     },
     async fetchQueryResults() {
-      this.queryState = QueryStates.Fetching.value;
+      this.queryState = QueryStates.Fetching.value
       const res = await fetch(
         `/variants/ajax/query-case/results-extended/${this.queryUuid}/`
-      );
+      )
       if (res.ok) {
-        this.queryResults = await res.json();
-        this.queryState = QueryStates.Fetched.value;
+        this.queryResults = await res.json()
+        this.queryState = QueryStates.Fetched.value
       } else {
         if (res.status !== 503) {
-          throw new Error(`An error has occurred: ${res.status}`);
+          throw new Error(`An error has occurred: ${res.status}`)
         }
       }
     },
     async fetchQueryStatus() {
       const res = await fetch(
         `/variants/ajax/query-case/status/${this.queryUuid}`
-      );
+      )
       if (res.ok) {
-        const resJson = await res.json();
-        this.queryLogs = resJson.logs;
-        if (resJson.status === "initial") {
-          this.queryState = QueryStates.Initial.value;
-        } else if (resJson.status === "running") {
-          this.queryState = QueryStates.Running.value;
-        } else if (resJson.status === "done") {
-          this.queryState = QueryStates.Finished.value;
+        const resJson = await res.json()
+        this.queryLogs = resJson.logs
+        if (resJson.status === 'initial') {
+          this.queryState = QueryStates.Initial.value
+        } else if (resJson.status === 'running') {
+          this.queryState = QueryStates.Running.value
+        } else if (resJson.status === 'done') {
+          this.queryState = QueryStates.Finished.value
         } else {
-          this.queryState = QueryStates.Error.value;
+          this.queryState = QueryStates.Error.value
         }
       }
     },
     async fetchPreviousQueryUuid() {
       const res = await fetch(
         `/variants/ajax/query-case/list/${this.caseUuid}/`
-      );
+      )
       if (res.ok) {
-        const resJson = await res.json();
+        const resJson = await res.json()
         if (resJson.length) {
-          this.queryUuid = resJson[0].sodar_uuid;
+          this.queryUuid = resJson[0].sodar_uuid
         }
       }
     },
     async fetchHpoTerms() {
       const res = await fetch(
         `/variants/ajax/query-case/hpo-terms/${this.queryUuid}/`
-      );
+      )
       if (res.ok) {
-        this.queryHpoTerms = await res.json()["hpoterms"];
+        this.queryHpoTerms = await res.json()['hpoterms']
       }
     },
     getAcmgBadge(acmgClass) {
       return acmgClass == null
-        ? "badge-light text-muted"
+        ? 'badge-light text-muted'
         : acmgClass > 3
-        ? "badge-danger text-white"
+        ? 'badge-danger text-white'
         : acmgClass === 3
-        ? "badge-warning text-black"
-        : "badge-success text-white";
+        ? 'badge-warning text-black'
+        : 'badge-success text-white'
     },
     getClinvarSignificanceBadge(patho) {
-      if (patho === "pathogenic") {
-        return "badge-danger";
-      } else if (patho === "likely_pathogenic") {
-        return "badge-warning";
-      } else if (patho === "uncertain_significance") {
-        return "badge-info";
-      } else if (patho === "likely_benign") {
-        return "badge-secondary";
-      } else if (patho === "benign") {
-        return "badge-secondary";
+      if (patho === 'pathogenic') {
+        return 'badge-danger'
+      } else if (patho === 'likely_pathogenic') {
+        return 'badge-warning'
+      } else if (patho === 'uncertain_significance') {
+        return 'badge-info'
+      } else if (patho === 'likely_benign') {
+        return 'badge-secondary'
+      } else if (patho === 'benign') {
+        return 'badge-secondary'
       }
-      return "badge-secondary";
+      return 'badge-secondary'
     },
   },
-});
+})

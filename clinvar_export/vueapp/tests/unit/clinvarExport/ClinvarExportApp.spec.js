@@ -1,3 +1,8 @@
+import ClinvarExportApp from '@clinvarexport/components/ClinvarExportApp.vue'
+import {
+  AppState,
+  useClinvarExportStore,
+} from '@clinvarexport/stores/clinvar-export.js'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import {
@@ -9,9 +14,6 @@ import {
   test,
   vi,
 } from 'vitest'
-
-import ClinvarExportApp from '@/components/ClinvarExportApp.vue'
-import { AppState, useClinvarExportStore } from '@/stores/clinvar-export.js'
 
 import { rawAppContext } from '../fixtures.js'
 
@@ -36,7 +38,7 @@ const makeWrapper = (clinvarExportState, extraArgs) => {
   })
 }
 // Mock out the clinvarExport API
-vi.mock('@/api/clinvarExport')
+vi.mock('@clinvarexport/api/clinvarExport')
 
 describe('ClinvarExportApp.vue', () => {
   let store

@@ -1,10 +1,9 @@
+import SubmissionSetWizardFooter from '@clinvarexport/components/SubmissionSetWizardFooter.vue'
+import { WizardState } from '@clinvarexport/stores/clinvar-export'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
-
-import SubmissionSetWizardFooter from '@/components/SubmissionSetWizardFooter.vue'
-import { WizardState } from '@/stores/clinvar-export'
 
 // Helper function for creating wrapper with `shallowMount()`.
 const makeWrapper = (clinvarExportState) => {

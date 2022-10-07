@@ -31,14 +31,14 @@
   <span v-else class="badge badge-light">- </span>
 </template>
 <script>
-import { filterQueryStore } from "@/stores/filterQuery";
+import { filterQueryStore } from '@variants/stores/filterQuery'
 
 export default {
   setup() {
-    const store = filterQueryStore();
+    const store = filterQueryStore()
     return {
       store,
-    };
+    }
   },
-};
+}
 </script>

@@ -80,12 +80,12 @@
     tabindex="-1"
     aria-labelledby="variantDetailsModalLabel"
     aria-hidden="true"
-    style="z-index: 10000;"
+    style="z-index: 10000"
   >
     <div
       class="modal-dialog modal-dialog-scrollable modal-xl"
       role="document"
-      style="max-width: 100%; margin: 10px;"
+      style="max-width: 100%; margin: 10px"
     >
       <div class="modal-content">
         <div class="modal-header">
@@ -130,24 +130,24 @@
 </template>
 
 <script>
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
-import { AgGridVue } from "ag-grid-vue3";
-import { filterQueryStore } from "@/stores/filterQuery";
-import { variantDetailsStore } from "@/stores/variantDetails";
-import { reactive, ref } from "vue";
-import { storeToRefs } from "pinia";
+import 'ag-grid-community/styles/ag-grid.css'
+import 'ag-grid-community/styles/ag-theme-alpine.css'
+import { AgGridVue } from 'ag-grid-vue3'
+import { filterQueryStore } from '@variants/stores/filterQuery'
+import { variantDetailsStore } from '@variants/stores/variantDetails'
+import { reactive, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import {
   DisplayDetails,
   DisplayFrequencies,
   DisplayConstraints,
   DisplayColumns,
-} from "@/enums";
-import { displayName } from "@/helpers";
-import SmallVariantFilterResultsTableVariantIcons from "./SmallVariantFilterResultsTableVariantIcons.vue";
-import SmallVariantFilterResultsTableGeneIcons from "./SmallVariantFilterResultsTableGeneIcons.vue";
-import SmallVariantFilterResultsTableClinvar from "./SmallVariantFilterResultsTableClinvar.vue";
-import SmallVariantDetails from "./SmallVariantDetails.vue";
+} from '@variants/enums'
+import { displayName } from '@variants/helpers'
+import SmallVariantFilterResultsTableVariantIcons from './SmallVariantFilterResultsTableVariantIcons.vue'
+import SmallVariantFilterResultsTableGeneIcons from './SmallVariantFilterResultsTableGeneIcons.vue'
+import SmallVariantFilterResultsTableClinvar from './SmallVariantFilterResultsTableClinvar.vue'
+import SmallVariantDetails from './SmallVariantDetails.vue'
 
 export default {
   components: {
@@ -159,8 +159,8 @@ export default {
   },
   setup() {
     // Get some variables from the store
-    const queryStore = filterQueryStore();
-    const detailsStore = variantDetailsStore();
+    const queryStore = filterQueryStore()
+    const detailsStore = variantDetailsStore()
     const {
       queryResults,
       displayFrequency,
@@ -168,450 +168,450 @@ export default {
       displayDetails,
       displayColumns,
       previousQueryDetails,
-    } = storeToRefs(queryStore);
+    } = storeToRefs(queryStore)
     // Define ag-grid-related variables
-    const rowData = reactive(queryResults);
-    const gridApi = ref(null);
-    const columnApi = ref(null);
+    const rowData = reactive(queryResults)
+    const gridApi = ref(null)
+    const columnApi = ref(null)
     const onGridReady = (params) => {
-      gridApi.value = params.api;
-      columnApi.value = params.columnApi;
-    };
+      gridApi.value = params.api
+      columnApi.value = params.columnApi
+    }
     const rowClassRules = {
-      "row-positive": "data.flag_summary === 'positive'",
-      "row-uncertain": "data.flag_summary === 'uncertain'",
-      "row-negative": "data.flag_summary === 'negative'",
-      "row-wip": (params) => {
+      'row-positive': "data.flag_summary === 'positive'",
+      'row-uncertain': "data.flag_summary === 'uncertain'",
+      'row-negative': "data.flag_summary === 'negative'",
+      'row-wip': (params) => {
         return (
-          params.data.flag_summary === "empty" &&
-          (params.data.flag_visual !== "empty" ||
-            params.data.flag_validation !== "empty" ||
-            params.data.flag_molecular !== "empty" ||
-            params.data.flag_phenotype_match !== "empty" ||
+          params.data.flag_summary === 'empty' &&
+          (params.data.flag_visual !== 'empty' ||
+            params.data.flag_validation !== 'empty' ||
+            params.data.flag_molecular !== 'empty' ||
+            params.data.flag_phenotype_match !== 'empty' ||
             params.data.flag_candidate === true ||
             params.data.flag_doesnt_segregate === true ||
             params.data.flag_final_causative === true ||
             params.data.flag_for_validation === true ||
             params.data.flag_no_disease_association === true ||
             params.data.flag_segregates === true)
-        );
+        )
       },
-    };
-    const defaultColDef = { resizable: true };
+    }
+    const defaultColDef = { resizable: true }
     // Define header lines for genotypes
-    let genotypes = [];
+    let genotypes = []
     for (const member of queryStore.case.pedigree) {
       genotypes.push({
-        field: "genotype_" + displayName(member.name),
+        field: 'genotype_' + displayName(member.name),
         headerName: displayName(member.name),
         valueGetter: (params) => {
-          return params.data.genotype[member.name].gt;
+          return params.data.genotype[member.name].gt
         },
         sortable: true,
-        filter: "agTextColumnFilter",
+        filter: 'agTextColumnFilter',
         filterParams: {
-          filterOptions: ["equals", "notEqual"],
+          filterOptions: ['equals', 'notEqual'],
         },
-      });
+      })
     }
     function getSymbol(params) {
-      return params.data.symbol ? params.data.symbol : params.data.gene_symbol;
+      return params.data.symbol ? params.data.symbol : params.data.gene_symbol
     }
     const columnDefs = reactive([
       {
-        field: "selector",
-        headerName: "",
+        field: 'selector',
+        headerName: '',
         cellRenderer: () => {
-          return '<input type="checkbox">';
+          return '<input type="checkbox">'
         },
         resizable: false,
         width: 50,
         suppressSizeToFit: true,
       },
       {
-        field: "index",
-        headerName: "",
-        valueGetter: "node.rowIndex + 1",
-        type: "rightAligned",
+        field: 'index',
+        headerName: '',
+        valueGetter: 'node.rowIndex + 1',
+        type: 'rightAligned',
         cellRenderer: (params) => {
-          return '<span class="text-muted">#' + params.value + "</span>";
+          return '<span class="text-muted">#' + params.value + '</span>'
         },
         resizable: false,
         width: 70,
         suppressSizeToFit: true,
       },
       {
-        field: "variant_icons",
-        headerName: "variant icons",
-        cellRenderer: "SmallVariantFilterResultsTableVariantIcons",
+        field: 'variant_icons',
+        headerName: 'variant icons',
+        cellRenderer: 'SmallVariantFilterResultsTableVariantIcons',
         resizable: false,
         width: 145,
         suppressSizeToFit: true,
       },
       {
-        field: "position",
-        headerName: "position",
+        field: 'position',
+        headerName: 'position',
         valueGetter: (params) => {
           return (
-            (params.data.chromosome.startsWith("chr") ? "" : "chr") +
+            (params.data.chromosome.startsWith('chr') ? '' : 'chr') +
             params.data.chromosome +
-            ":" +
+            ':' +
             params.data.start.toLocaleString()
-          );
+          )
         },
         hide: displayDetails.value !== DisplayDetails.Coordinates.value,
       },
       {
-        field: "reference",
-        headerName: "ref",
+        field: 'reference',
+        headerName: 'ref',
         hide: displayDetails.value !== DisplayDetails.Coordinates.value,
       },
       {
-        field: "alternative",
-        headerName: "alt",
+        field: 'alternative',
+        headerName: 'alt',
         hide: displayDetails.value !== DisplayDetails.Coordinates.value,
       },
       {
-        field: "clinvar",
-        headerName: "clinvar summary",
+        field: 'clinvar',
+        headerName: 'clinvar summary',
         hide: displayDetails.value !== DisplayDetails.Clinvar.value,
-        cellRenderer: "SmallVariantFilterResultsTableClinvar",
+        cellRenderer: 'SmallVariantFilterResultsTableClinvar',
       },
       {
-        field: "exac_frequency",
-        headerName: "frequency",
+        field: 'exac_frequency',
+        headerName: 'frequency',
         hide: displayFrequency.value !== DisplayFrequencies.Exac.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(5);
+          return parseFloat(params.value).toFixed(5)
         },
         sortable: true,
       },
       {
-        field: "exac_homozygous",
-        headerName: "#hom",
+        field: 'exac_homozygous',
+        headerName: '#hom',
         hide: displayFrequency.value !== DisplayFrequencies.Exac.value,
         sortable: true,
       },
       {
-        field: "thousand_genomes_frequency",
-        headerName: "frequency",
+        field: 'thousand_genomes_frequency',
+        headerName: 'frequency',
         hide:
           displayFrequency.value !== DisplayFrequencies.ThousandGenomes.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(5);
+          return parseFloat(params.value).toFixed(5)
         },
         sortable: true,
       },
       {
-        field: "thousand_genomes_homozygous",
-        headerName: "#hom",
+        field: 'thousand_genomes_homozygous',
+        headerName: '#hom',
         hide:
           displayFrequency.value !== DisplayFrequencies.ThousandGenomes.value,
         sortable: true,
       },
       {
-        field: "gnomad_exomes_frequency",
-        headerName: "frequency",
+        field: 'gnomad_exomes_frequency',
+        headerName: 'frequency',
         hide: displayFrequency.value !== DisplayFrequencies.GnomadExomes.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(5);
+          return parseFloat(params.value).toFixed(5)
         },
         sortable: true,
       },
       {
-        field: "gnomad_exomes_homozygous",
-        headerName: "#hom",
+        field: 'gnomad_exomes_homozygous',
+        headerName: '#hom',
         hide: displayFrequency.value !== DisplayFrequencies.GnomadExomes.value,
         sortable: true,
       },
       {
-        field: "gnomad_genomes_frequency",
-        headerName: "frequency",
+        field: 'gnomad_genomes_frequency',
+        headerName: 'frequency',
         hide: displayFrequency.value !== DisplayFrequencies.GnomadGenomes.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(5);
+          return parseFloat(params.value).toFixed(5)
         },
         sortable: true,
       },
       {
-        field: "gnomad_genomes_homozygous",
-        headerName: "#hom",
+        field: 'gnomad_genomes_homozygous',
+        headerName: '#hom',
         hide: displayFrequency.value !== DisplayFrequencies.GnomadGenomes.value,
         sortable: true,
       },
       {
-        field: "inhouse_carriers",
-        headerName: "#carriers",
+        field: 'inhouse_carriers',
+        headerName: '#carriers',
         hide: displayFrequency.value !== DisplayFrequencies.InhouseDb.value,
         sortable: true,
       },
       {
-        field: "inhouse_hom_alt",
-        headerName: "#hom",
+        field: 'inhouse_hom_alt',
+        headerName: '#hom',
         hide: displayFrequency.value !== DisplayFrequencies.InhouseDb.value,
         sortable: true,
       },
       {
-        field: "mtdb_frequency",
-        headerName: "frequency",
+        field: 'mtdb_frequency',
+        headerName: 'frequency',
         hide: displayFrequency.value !== DisplayFrequencies.MtDb.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(5);
+          return parseFloat(params.value).toFixed(5)
         },
         sortable: true,
       },
       {
-        field: "mtdb_count",
-        headerName: "#hom",
+        field: 'mtdb_count',
+        headerName: '#hom',
         hide: displayFrequency.value !== DisplayFrequencies.MtDb.value,
         sortable: true,
       },
       {
-        field: "helixmtdb_frequency",
-        headerName: "frequency",
+        field: 'helixmtdb_frequency',
+        headerName: 'frequency',
         hide: displayFrequency.value !== DisplayFrequencies.HelixMtDb.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(5);
+          return parseFloat(params.value).toFixed(5)
         },
         sortable: true,
       },
       {
-        field: "helixmtdb_hom_count",
-        headerName: "#hom",
+        field: 'helixmtdb_hom_count',
+        headerName: '#hom',
         hide: displayFrequency.value !== DisplayFrequencies.HelixMtDb.value,
         sortable: true,
       },
       {
-        field: "mitomap_frequency",
-        headerName: "frequency",
+        field: 'mitomap_frequency',
+        headerName: 'frequency',
         hide: displayFrequency.value !== DisplayFrequencies.Mitomap.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(5);
+          return parseFloat(params.value).toFixed(5)
         },
         sortable: true,
       },
       {
-        field: "mitomap_count",
-        headerName: "#hom",
+        field: 'mitomap_count',
+        headerName: '#hom',
         hide: displayFrequency.value !== DisplayFrequencies.Mitomap.value,
         sortable: true,
       },
       {
-        field: "exac_pLI",
-        headerName: "pLI",
+        field: 'exac_pLI',
+        headerName: 'pLI',
         hide: displayConstraint.value !== DisplayConstraints.ExacPli.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(3);
+          return parseFloat(params.value).toFixed(3)
         },
         sortable: true,
       },
       {
-        field: "exac_mis_z",
-        headerName: "Z mis",
+        field: 'exac_mis_z',
+        headerName: 'Z mis',
         hide: displayConstraint.value !== DisplayConstraints.ExacZMis.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(3);
+          return parseFloat(params.value).toFixed(3)
         },
         sortable: true,
       },
       {
-        field: "exac_syn_z",
-        headerName: "Z syn",
+        field: 'exac_syn_z',
+        headerName: 'Z syn',
         hide: displayConstraint.value !== DisplayConstraints.ExacZSyn.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(3);
+          return parseFloat(params.value).toFixed(3)
         },
         sortable: true,
       },
       {
-        field: "gnomad_loeuf",
-        headerName: "LOEUF",
+        field: 'gnomad_loeuf',
+        headerName: 'LOEUF',
         hide: displayConstraint.value !== DisplayConstraints.GnomadLoeuf.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(3);
+          return parseFloat(params.value).toFixed(3)
         },
         sortable: true,
       },
       {
-        field: "gnomad_pLI",
-        headerName: "pLI",
+        field: 'gnomad_pLI',
+        headerName: 'pLI',
         hide: displayConstraint.value !== DisplayConstraints.GnomadPli.value,
         valueFormatter: (params) => {
-          return parseFloat(params.value).toFixed(3);
+          return parseFloat(params.value).toFixed(3)
         },
         sortable: true,
       },
       {
-        field: "gnomad_mis_z",
-        headerName: "Z mis",
+        field: 'gnomad_mis_z',
+        headerName: 'Z mis',
         hide: displayConstraint.value !== DisplayConstraints.GnomadZMis.value,
         sortable: true,
       },
       {
-        field: "gnomad_syn_z",
-        headerName: "Z syn",
+        field: 'gnomad_syn_z',
+        headerName: 'Z syn',
         hide: displayConstraint.value !== DisplayConstraints.GnomadZSyn.value,
         sortable: true,
       },
       {
-        field: "gene",
-        headerName: "gene",
+        field: 'gene',
+        headerName: 'gene',
         valueGetter: getSymbol,
         sortable: true,
-        filter: "agTextColumnFilter",
+        filter: 'agTextColumnFilter',
         filterParams: {
-          filterOptions: ["contains"],
+          filterOptions: ['contains'],
           caseSensitive: false,
         },
       },
       {
-        field: "gene_icons",
-        headerName: "gene icons",
-        cellRenderer: "SmallVariantFilterResultsTableGeneIcons",
+        field: 'gene_icons',
+        headerName: 'gene icons',
+        cellRenderer: 'SmallVariantFilterResultsTableGeneIcons',
       },
       {
-        headerName: "effect",
-        field: "effect_summary",
+        headerName: 'effect',
+        field: 'effect_summary',
         valueGetter: (params) => {
-          return [null, "p.?", "p.="].includes(params.data.hgvs_p)
+          return [null, 'p.?', 'p.='].includes(params.data.hgvs_p)
             ? params.data.hgvs_c
-            : params.data.hgvs_p;
+            : params.data.hgvs_p
         },
         hide: !displayColumns.value.includes(DisplayColumns.Effect.value),
       },
       {
-        field: "effect",
+        field: 'effect',
         valueFormatter: (params) => {
-          return params.value.join(", ");
+          return params.value.join(', ')
         },
-        headerName: "effect text",
+        headerName: 'effect text',
         hide: !displayColumns.value.includes(DisplayColumns.EffectText.value),
       },
       {
-        field: "hgvs_p",
-        headerName: "hgvs_p",
+        field: 'hgvs_p',
+        headerName: 'hgvs_p',
         hide: !displayColumns.value.includes(
           DisplayColumns.EffectProtein.value
         ),
       },
       {
-        field: "hgvs_c",
-        headerName: "hgvs_c",
+        field: 'hgvs_c',
+        headerName: 'hgvs_c',
         hide: !displayColumns.value.includes(DisplayColumns.EffectCdna.value),
       },
       {
-        field: "exon_dist",
-        headerName: "exon dist",
+        field: 'exon_dist',
+        headerName: 'exon dist',
         hide: !displayColumns.value.includes(
           DisplayColumns.DistanceSplicesite.value
         ),
       },
       ...genotypes,
       {
-        field: "igv",
-        headerName: "",
+        field: 'igv',
+        headerName: '',
         cellRenderer: (params) => {
-          return '<a class="btn btn-sm badge-secondary" style="font-size: 80%" :href="`http://127.0.0.1:60151/goto?locus=chr${params.data.chromosome}:${params.data.start}-${params.data.end}`">IGV</a>';
+          return '<a class="btn btn-sm badge-secondary" style="font-size: 80%" :href="`http://127.0.0.1:60151/goto?locus=chr${params.data.chromosome}:${params.data.start}-${params.data.end}`">IGV</a>'
         },
       },
-    ]);
+    ])
     // Define functions for interactive column activation/selection
     const selectDetailColumn = () => {
       columnApi.value.setColumnsVisible(
-        ["position", "reference", "alternative"],
+        ['position', 'reference', 'alternative'],
         displayDetails.value === DisplayDetails.Coordinates.value
-      );
+      )
       columnApi.value.setColumnVisible(
-        "clinvar",
+        'clinvar',
         displayDetails.value === DisplayDetails.Clinvar.value
-      );
-    };
+      )
+    }
     const selectFrequencyColumn = () => {
       columnApi.value.setColumnsVisible(
-        ["exac_frequency", "exac_homozygous"],
+        ['exac_frequency', 'exac_homozygous'],
         displayFrequency.value === DisplayFrequencies.Exac.value
-      );
+      )
       columnApi.value.setColumnsVisible(
-        ["thousand_genomes_frequency", "thousand_genomes_homozygous"],
+        ['thousand_genomes_frequency', 'thousand_genomes_homozygous'],
         displayFrequency.value === DisplayFrequencies.ThousandGenomes.value
-      );
+      )
       columnApi.value.setColumnsVisible(
-        ["gnomad_exomes_frequency", "gnomad_exomes_homozygous"],
+        ['gnomad_exomes_frequency', 'gnomad_exomes_homozygous'],
         displayFrequency.value === DisplayFrequencies.GnomadExomes.value
-      );
+      )
       columnApi.value.setColumnsVisible(
-        ["gnomad_genomes_frequency", "gnomad_genomes_homozygous"],
+        ['gnomad_genomes_frequency', 'gnomad_genomes_homozygous'],
         displayFrequency.value === DisplayFrequencies.GnomadGenomes.value
-      );
+      )
       columnApi.value.setColumnsVisible(
-        ["inhouse_carriers", "inhouse_hom_alt"],
+        ['inhouse_carriers', 'inhouse_hom_alt'],
         displayFrequency.value === DisplayFrequencies.InhouseDb.value
-      );
+      )
       columnApi.value.setColumnsVisible(
-        ["mtdb_frequency", "mtdb_count"],
+        ['mtdb_frequency', 'mtdb_count'],
         displayFrequency.value === DisplayFrequencies.MtDb.value
-      );
+      )
       columnApi.value.setColumnsVisible(
-        ["helixmtdb_frequency", "helixmtdb_hom_count"],
+        ['helixmtdb_frequency', 'helixmtdb_hom_count'],
         displayFrequency.value === DisplayFrequencies.HelixMtDb.value
-      );
+      )
       columnApi.value.setColumnsVisible(
-        ["mitomap_frequency", "mitomap_count"],
+        ['mitomap_frequency', 'mitomap_count'],
         displayFrequency.value === DisplayFrequencies.Mitomap.value
-      );
-    };
+      )
+    }
     const selectConstraintColumn = () => {
       columnApi.value.setColumnVisible(
-        "exac_pLI",
+        'exac_pLI',
         displayConstraint.value === DisplayConstraints.ExacPli.value
-      );
+      )
       columnApi.value.setColumnVisible(
-        "exac_mis_z",
+        'exac_mis_z',
         displayConstraint.value === DisplayConstraints.ExacZMis.value
-      );
+      )
       columnApi.value.setColumnVisible(
-        "exac_syn_z",
+        'exac_syn_z',
         displayConstraint.value === DisplayConstraints.ExacZSyn.value
-      );
+      )
       columnApi.value.setColumnVisible(
-        "gnomad_loeuf",
+        'gnomad_loeuf',
         displayConstraint.value === DisplayConstraints.GnomadLoeuf.value
-      );
+      )
       columnApi.value.setColumnVisible(
-        "gnomad_pLI",
+        'gnomad_pLI',
         displayConstraint.value === DisplayConstraints.GnomadPli.value
-      );
+      )
       columnApi.value.setColumnVisible(
-        "gnomad_mis_z",
+        'gnomad_mis_z',
         displayConstraint.value === DisplayConstraints.GnomadZMis.value
-      );
+      )
       columnApi.value.setColumnVisible(
-        "gnomad_syn_z",
+        'gnomad_syn_z',
         displayConstraint.value === DisplayConstraints.GnomadZSyn.value
-      );
-    };
+      )
+    }
     const selectDisplayColumns = () => {
       columnApi.value.setColumnVisible(
-        "effect_summary",
+        'effect_summary',
         displayColumns.value.includes(DisplayColumns.Effect.value)
-      );
+      )
       columnApi.value.setColumnVisible(
-        "effect",
+        'effect',
         displayColumns.value.includes(DisplayColumns.EffectText.value)
-      );
+      )
       columnApi.value.setColumnVisible(
-        "hgvs_p",
+        'hgvs_p',
         displayColumns.value.includes(DisplayColumns.EffectProtein.value)
-      );
+      )
       columnApi.value.setColumnVisible(
-        "hgvs_c",
+        'hgvs_c',
         displayColumns.value.includes(DisplayColumns.EffectCdna.value)
-      );
+      )
       columnApi.value.setColumnVisible(
-        "exon_dist",
+        'exon_dist',
         displayColumns.value.includes(DisplayColumns.DistanceSplicesite.value)
-      );
-    };
+      )
+    }
 
     // Return variables and functions
     return {
@@ -634,35 +634,35 @@ export default {
       rowClassRules,
       onGridReady,
       onFirstDataRendered() {
-        gridApi.value.sizeColumnsToFit();
+        gridApi.value.sizeColumnsToFit()
       },
       sizeToFit() {
-        gridApi.value.sizeColumnsToFit();
+        gridApi.value.sizeColumnsToFit()
       },
       autoSizeAll() {
-        const allColumnIds = [];
+        const allColumnIds = []
         columnApi.value.getColumns().forEach((column) => {
-          allColumnIds.push(column.getId());
-        });
-        columnApi.value.autoSizeColumns(allColumnIds);
+          allColumnIds.push(column.getId())
+        })
+        columnApi.value.autoSizeColumns(allColumnIds)
       },
       onCellClicked(event) {
         if (
-          !["selector", "variant_icons", "igv"].includes(
+          !['selector', 'variant_icons', 'igv'].includes(
             event.column.getColId()
           )
         ) {
-          $("#variantDetailsModal").modal();
-          detailsStore.fetchVariantDetails(event, previousQueryDetails);
+          $('#variantDetailsModal').modal()
+          detailsStore.fetchVariantDetails(event, previousQueryDetails)
         }
       },
-    };
+    }
   },
   mounted() {
     // TODO ? Maybe there is a better way to active selectpicker
-    $("#result-columns-selector").selectpicker();
+    $('#result-columns-selector').selectpicker()
   },
-};
+}
 </script>
 
 <style>

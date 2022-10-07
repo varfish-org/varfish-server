@@ -137,7 +137,7 @@
                 <span class="badge-group omim-popover">
                   <span class="badge badge-dark">{{ omim_id }}</span>
                   <span class="badge badge-secondary">{{
-                    omim_names.join(", ")
+                    omim_names.join(', ')
                   }}</span>
                 </span>
               </a>
@@ -508,15 +508,15 @@
 </template>
 
 <script>
-import { variantDetailsStore } from "@/stores/variantDetails";
+import { variantDetailsStore } from '@variants/stores/variantDetails'
 
 export default {
   components: {},
   setup() {
-    const detailsStore = variantDetailsStore();
+    const detailsStore = variantDetailsStore()
     return {
       detailsStore,
-    };
+    }
   },
-};
+}
 </script>

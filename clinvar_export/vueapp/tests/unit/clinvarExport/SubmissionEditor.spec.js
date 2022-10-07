@@ -1,10 +1,9 @@
+import clinvarExportApi from '@clinvarexport/api/clinvarExport'
+import SubmissionEditor from '@clinvarexport/components/SubmissionEditor.vue'
+import { WizardState } from '@clinvarexport/stores/clinvar-export.js'
 import { createTestingPinia } from '@pinia/testing'
 import { shallowMount } from '@vue/test-utils'
 import { afterEach, beforeAll, describe, expect, test, vi } from 'vitest'
-
-import clinvarExportApi from '@/api/clinvarExport'
-import SubmissionEditor from '@/components/SubmissionEditor.vue'
-import { WizardState } from '@/stores/clinvar-export.js'
 
 import { copy } from '../../testUtils.js'
 import {
@@ -37,7 +36,7 @@ const makeWrapper = (clinvarExportState) => {
 }
 
 // Mock out the clinvarExport API
-vi.mock('@/api/clinvarExport')
+vi.mock('@clinvarexport/api/clinvarExport')
 
 describe('SubmissionEditor.vue', () => {
   beforeAll(() => {

@@ -1,152 +1,152 @@
 function enumToText(enu) {
-  let reversed = {};
+  let reversed = {}
   for (const [_, data] of Object.entries(enu)) {
-    reversed[data.value] = data.text;
+    reversed[data.value] = data.text
   }
-  return reversed;
+  return reversed
 }
 
 export const QueryStates = Object.freeze({
   Initial: {
     value: 0,
-    text: "Initial",
+    text: 'Initial',
   },
   Running: {
     value: 1,
-    text: "Running",
+    text: 'Running',
   },
   Finished: {
     value: 2,
-    text: "Finished",
+    text: 'Finished',
   },
   Fetching: {
     value: 3,
-    text: "Loading results",
+    text: 'Loading results',
   },
   Fetched: {
     value: 4,
-    text: "Results loaded",
+    text: 'Results loaded',
   },
   Cancelled: {
     value: 5,
-    text: "Cancelled job",
+    text: 'Cancelled job',
   },
   Error: {
     value: 6,
-    text: "Error",
+    text: 'Error',
   },
-});
+})
 
-export const QueryStateToText = enumToText(QueryStates);
+export const QueryStateToText = enumToText(QueryStates)
 
 export const DisplayDetails = Object.freeze({
   Coordinates: {
     value: 0,
-    text: "Coordinates",
+    text: 'Coordinates',
   },
   Clinvar: {
     value: 1,
-    text: "ClinVar Summary",
+    text: 'ClinVar Summary',
   },
-});
+})
 
 export const DisplayFrequencies = Object.freeze({
   Exac: {
     value: 0,
-    text: "ExAC",
+    text: 'ExAC',
   },
   ThousandGenomes: {
     value: 1,
-    text: "1000 genomes",
+    text: '1000 genomes',
   },
   GnomadExomes: {
     value: 2,
-    text: "gnomAD exomes",
+    text: 'gnomAD exomes',
   },
   GnomadGenomes: {
     value: 3,
-    text: "gnomAD genomes",
+    text: 'gnomAD genomes',
   },
   InhouseDb: {
     value: 4,
-    text: "in-house DB",
+    text: 'in-house DB',
   },
   MtDb: {
     value: 5,
-    text: "mtDB",
+    text: 'mtDB',
   },
   HelixMtDb: {
     value: 6,
-    text: "HelixMTdb",
+    text: 'HelixMTdb',
   },
   Mitomap: {
     value: 7,
-    text: "MITOMAP",
+    text: 'MITOMAP',
   },
-});
+})
 
 export const DisplayConstraints = Object.freeze({
   ExacPli: {
     value: 0,
-    text: "ExAC pLI",
+    text: 'ExAC pLI',
   },
   ExacZSyn: {
     value: 1,
-    text: "ExAC Z syn",
+    text: 'ExAC Z syn',
   },
   ExacZMis: {
     value: 2,
-    text: "ExAC Z mis",
+    text: 'ExAC Z mis',
   },
   GnomadLoeuf: {
     value: 3,
-    text: "gnomAD LOEUF",
+    text: 'gnomAD LOEUF',
   },
   GnomadPli: {
     value: 4,
-    text: "gnomAD pLI",
+    text: 'gnomAD pLI',
   },
   GnomadZSyn: {
     value: 5,
-    text: "gnomAD Z syn",
+    text: 'gnomAD Z syn',
   },
   GnomadZMis: {
     value: 6,
-    text: "gnomAD Z mis",
+    text: 'gnomAD Z mis',
   },
-});
+})
 
 export const DisplayColumns = Object.freeze({
   Effect: {
     value: 0,
-    text: "Effect",
+    text: 'Effect',
   },
   EffectText: {
     value: 1,
-    text: "Effect Text",
+    text: 'Effect Text',
   },
   EffectProtein: {
     value: 2,
-    text: "Effect Protein",
+    text: 'Effect Protein',
   },
   EffectCdna: {
     value: 3,
-    text: "Effect cDNA",
+    text: 'Effect cDNA',
   },
   DistanceSplicesite: {
     value: 4,
-    text: "Distance to SpliceSite",
+    text: 'Distance to SpliceSite',
   },
-});
+})
 
 export const VariantValidatorStates = Object.freeze({
   Initial: 0,
   Running: 1,
   Done: 2,
-});
+})
 
 export const EditCommentModes = Object.freeze({
   Off: 0,
   Edit: 1,
   Delete: 2,
-});
+})

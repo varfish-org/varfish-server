@@ -7,19 +7,19 @@ black:
 
 .PHONY: npm-install
 npm-install:
-	cd clinvar_export/vueapp && npm ci
+	cd varfish/vueapp && npm ci
 
 .PHONY: serve
 serve:
 	$(MANAGE) runserver
 
-.PHONY: serve_vue_clinvarexport
-serve_vue_clinvarexport:
-	npm run --prefix clinvar_export/vueapp serve
+.PHONY: vue_serve
+vue_serve:
+	npm run --prefix varfish/vueapp serve
 
-.PHONY: serve_vue_clinvarexport
-serve_vue_variants:
-	npm run --prefix variants/vueapp serve
+.PHONY: vue_build
+vue_build:
+	npm run --prefix varfish/vueapp build
 
 .PHONY: serve_public
 serve_public:
@@ -67,14 +67,18 @@ test: collectstatic
 test-noselenium:
 	VARFISH_KIOSK_MODE=0 SKIP_SELENIUM=1 coverage run manage.py test -v2 --settings=config.settings.test
 
+.PHONY: vue_test
+vue_test:
+	npm run --prefix varfish/vueapp test:unit $(arg)
 
-.PHONY: test_clinvar_export_vue
-test_clinvar_export_vue:
-	npm run --prefix clinvar_export/vueapp test:unit $(arg)
+.PHONY: vue_lint
+vue_lint:
+	npm run --prefix varfish/vueapp lint $(arg)
+	npm run --prefix varfish/vueapp prettier-check $(arg)
 
-.PHONY: lint_clinvar_export_vue
-lint_clinvar_export_vue:
-	npm run --prefix clinvar_export/vueapp lint $(arg)
+.PHONY: prettier
+prettier:
+	npm run --prefix varfish/vueapp prettier-write $(arg)
 
 .PHONY: lint
 lint: flake8

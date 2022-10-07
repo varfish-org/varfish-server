@@ -1,6 +1,5 @@
+import { extractVariantZygosity } from '@clinvarexport/stores/clinvar-export'
 import { beforeEach, describe, expect, test } from 'vitest'
-
-import { extractVariantZygosity } from '@/stores/clinvar-export'
 
 describe('helper functions', () => {
   const termsRecessive = Object.freeze([

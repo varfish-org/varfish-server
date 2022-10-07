@@ -10,6 +10,6 @@
   <div id="sodar-ss-app-context" app-context="{{ app_context }}"></div>
   <div id="app"></div>
 
-  {% vite_scripts 'variants' 'src/main.js' %}
+  {% vite_scripts 'src/variants/main.js' %}
+  {% vite_styles 'src/variants/main.js' %}
 {% endblock %}
-

@@ -66,7 +66,7 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt install nodejs
 
 # Install npm dependencies.
-RUN cd /usr/src/app/clinvar_export/vueapp && \
+RUN cd /usr/src/app/varfish/vueapp && \
     npm ci && \
     npm run build
 

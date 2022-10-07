@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import SmallVariantFilterApp from "./components/SmallVariantFilterApp.vue";
+import SmallVariantFilterApp from './components/SmallVariantFilterApp.vue'
 </script>
 
 <style></style>

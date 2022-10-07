@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 
-import { useClinvarExportStore } from '@/stores/clinvar-export'
+import { useClinvarExportStore } from '@clinvarexport/stores/clinvar-export'
 
 const store = useClinvarExportStore()
 

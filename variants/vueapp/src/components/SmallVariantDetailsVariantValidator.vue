@@ -246,20 +246,20 @@
 </template>
 
 <script>
-import { variantDetailsStore } from "@/stores/variantDetails";
-import { filterQueryStore } from "@/stores/filterQuery";
-import { VariantValidatorStates } from "@/enums";
+import { variantDetailsStore } from '@variants/stores/variantDetails'
+import { filterQueryStore } from '@variants/stores/filterQuery'
+import { VariantValidatorStates } from '@variants/enums'
 
 export default {
   components: {},
   setup() {
-    const detailsStore = variantDetailsStore();
-    const queryStore = filterQueryStore();
+    const detailsStore = variantDetailsStore()
+    const queryStore = filterQueryStore()
     return {
       detailsStore,
       queryStore,
       VariantValidatorStates,
-    };
+    }
   },
-};
+}
 </script>
