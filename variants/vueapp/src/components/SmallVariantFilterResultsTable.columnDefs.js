@@ -1,4 +1,5 @@
 import SmallVariantFilterResultsTableClinvar from '@variants/components/SmallVariantFilterResultsTableClinvar.vue'
+import SmallVariantFilterResultsTableFrequency from '@variants/components/SmallVariantFilterResultsTableFrequency.vue'
 import SmallVariantFilterResultsTableGeneIcons from '@variants/components/SmallVariantFilterResultsTableGeneIcons.vue'
 import SmallVariantFilterResultsTableVariantIcons from '@variants/components/SmallVariantFilterResultsTableVariantIcons.vue'
 import {
@@ -79,9 +80,7 @@ export function defineColumnDefs({
       field: 'exac_frequency',
       headerName: 'frequency',
       hide: displayFrequency !== DisplayFrequencies.Exac.value,
-      valueFormatter: (params) => {
-        return parseFloat(params.value).toFixed(5)
-      },
+      cellRenderer: SmallVariantFilterResultsTableFrequency,
       sortable: true,
     },
     {
@@ -94,9 +93,7 @@ export function defineColumnDefs({
       field: 'thousand_genomes_frequency',
       headerName: 'frequency',
       hide: displayFrequency !== DisplayFrequencies.ThousandGenomes.value,
-      valueFormatter: (params) => {
-        return parseFloat(params.value).toFixed(5)
-      },
+      cellRenderer: SmallVariantFilterResultsTableFrequency,
       sortable: true,
     },
     {
@@ -109,9 +106,7 @@ export function defineColumnDefs({
       field: 'gnomad_exomes_frequency',
       headerName: 'frequency',
       hide: displayFrequency !== DisplayFrequencies.GnomadExomes.value,
-      valueFormatter: (params) => {
-        return parseFloat(params.value).toFixed(5)
-      },
+      cellRenderer: SmallVariantFilterResultsTableFrequency,
       sortable: true,
     },
     {
@@ -124,9 +119,7 @@ export function defineColumnDefs({
       field: 'gnomad_genomes_frequency',
       headerName: 'frequency',
       hide: displayFrequency !== DisplayFrequencies.GnomadGenomes.value,
-      valueFormatter: (params) => {
-        return parseFloat(params.value).toFixed(5)
-      },
+      cellRenderer: SmallVariantFilterResultsTableFrequency,
       sortable: true,
     },
     {
@@ -139,6 +132,7 @@ export function defineColumnDefs({
       field: 'inhouse_carriers',
       headerName: '#carriers',
       hide: displayFrequency !== DisplayFrequencies.InhouseDb.value,
+      cellRenderer: SmallVariantFilterResultsTableFrequency,
       sortable: true,
     },
     {

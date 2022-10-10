@@ -66,6 +66,7 @@ End-User Summary
 - Changing ClinVar link-out to VCV entry instead of coordinates (#693).
 - Adding support to create custom gene panels (#723).
 - Allow operators to upload per-gene annotations to cases (#575) on import.
+- Display warning icon in filter results table if non-selected frequency is high (#708).
 
 Full Change List
 ================
@@ -140,6 +141,7 @@ Full Change List
 - Unifying Vue.js/Vite/Rollup builds (#730).
 - Switching to use unplugin-icons clinvarexport Vue.js icons (#736).
 - Adding support for Storybook.js (#736).
+- Display warning icon in filter results table if non-selected frequency is high (#708).
 
 ------
 v1.2.0
