@@ -33,27 +33,6 @@ app.config.globalProperties.$filters = {
     }
     return 'text-dark'
   },
-  displayAmbiguousFrequencyWarning(item) {
-    const tables = [
-      'exac',
-      'thousand_genomes',
-      'gnomad_exomes',
-      'gnomad_genomes',
-      'inhouse',
-    ]
-    let ambiguousTables = []
-    for (const table of tables) {
-      const hom_field =
-        table === 'inhouse' ? 'inhouse_hom_alt' : table + '_homozygous'
-      if (
-        item[hom_field] > 50 ||
-        (table !== 'inhouse' && item[table + '_frequency'] > 0.1)
-      ) {
-        ambiguousTables.push(table)
-      }
-    }
-    return ambiguousTables
-  },
   getPubmedLinkout(symbol, hpoterms) {
     let terms = []
     for (const [_, text] of Object.entries(hpoterms)) {
