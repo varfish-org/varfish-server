@@ -21,6 +21,10 @@ vue_serve:
 vue_build:
 	npm run --prefix varfish/vueapp build
 
+.PHONY: storybook
+storybook:
+	npm run --prefix varfish/vueapp storybook
+
 .PHONY: serve_public
 serve_public:
 	$(MANAGE) runserver 0.0.0.0:8000

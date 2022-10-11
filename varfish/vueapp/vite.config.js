@@ -33,6 +33,7 @@ export default defineConfig({
     alias: {
       '@clinvarexport': resolve(__dirname, './src/clinvarexport'),
       '@variants': resolve(__dirname, './src/variants'),
+      '@stories': resolve(__dirname, './src/stories'),
     },
     preserveSymlinks: true,
   },

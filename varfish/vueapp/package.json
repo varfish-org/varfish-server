@@ -8,7 +8,9 @@
     "lint": "eslint . --fix",
     "prettier-check": "npx prettier --check .",
     "prettier-write": "npx prettier --write .",
-    "serve": "vite --port 3000"
+    "serve": "vite --port 3000",
+    "storybook": "start-storybook -p 6006 --no-open",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "@vueform/multiselect": "^2.5.6",
@@ -28,6 +30,13 @@
     "@iconify-json/fa-solid": "^1.1.2",
     "@iconify-json/mdi": "^1.1.33",
     "@pinia/testing": "0.0.14",
+    "@storybook/addon-actions": "^6.5.12",
+    "@storybook/addon-essentials": "^6.5.12",
+    "@storybook/addon-interactions": "^6.5.12",
+    "@storybook/addon-links": "^6.5.12",
+    "@storybook/builder-vite": "^0.2.4",
+    "@storybook/testing-library": "0.0.13",
+    "@storybook/vue3": "^6.5.12",
     "@testing-library/vue": "^6.6.1",
     "@vitejs/plugin-vue": "^3.1.2",
     "@vitest/coverage-istanbul": "^0.23.4",
@@ -35,6 +44,7 @@
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/test-utils": "2.1.0",
     "babel-core": "^7.0.0-bridge.0",
+    "babel-loader": "^8.2.5",
     "babel-preset-vue": "^2.0.2",
     "c8": "^7.12.0",
     "eslint": "^8.23.1",
@@ -53,7 +63,8 @@
     "vite": "^3.1.7",
     "vite-plugin-dynamic-import": "^1.2.2",
     "vitest": "^0.24.1",
-    "vitest-fetch-mock": "^0.2.1"
+    "vitest-fetch-mock": "^0.2.1",
+    "vue-loader": "^16.8.3"
   },
   "browserslist": [
     "> 1%",
