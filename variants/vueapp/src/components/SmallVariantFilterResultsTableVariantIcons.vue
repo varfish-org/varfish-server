@@ -1,28 +1,50 @@
+<script setup>
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
+
+const queryStore = useFilterQueryStore()
+
+// eslint-disable-next-line no-unused-vars
+const props = defineProps({
+  params: Object,
+})
+
+const symbol = props.params.data.symbol || props.params.data.gene_symbol
+const acmgClass =
+  props.params.data.acmg_class_override || props.params.data.acmg_class_auto
+let acmgBadgeClasses = ['ml-1', 'badge', queryStore.getAcmgBadge(acmgClass)]
+if (!acmgClass) {
+  acmgBadgeClasses.push('icon-inactive')
+}
+const acmgBadge = acmgBadgeClasses.join(' ')
+</script>
+
 <template>
   <div>
-    <i
+    <i-fa-solid-bookmark
+      v-if="params.data.flag_count !== 0"
+      class="text-muted"
       title="flags & bookmarks"
-      class="iconify text-muted"
-      :class="params.data.flag_count ? '' : 'iconInactive'"
-      :data-icon="
-        params.data.flag_count ? 'fa-solid:bookmark' : 'fa-regular:bookmark'
-      "
-    ></i>
-    <i
-      title="comments"
-      class="iconify text-muted"
-      :class="params.data.comment_count ? '' : 'iconInactive'"
-      :data-icon="
-        params.data.comment_count ? 'fa-solid:comment' : 'fa-regular:comment'
-      "
-    ></i>
+    />
+    <i-fa-regular-bookmark
+      v-else
+      class="text-muted icon-inactive"
+      title="flags & bookmarks"
+    />
+
+    <i-fa-solid-comment
+      v-if="params.data.comment_count !== 0"
+      class="text-muted ml-1"
+    />
+    <i-fa-regular-comment v-else class="text-muted icon-inactive ml-1" />
+
     <span
       title="ACMG rating"
       class="ml-1 badge"
       :class="acmgBadge"
       style="width: 22px; display: inline-block"
-      >{{ acmgClass ? acmgClass : '-' }}</span
+      >{{ acmgClass || '-' }}</span
     >
+
     <a
       v-if="params.data.rsid"
       target="_blank"
@@ -31,35 +53,23 @@
         params.data.rsid.slice(2)
       "
     >
-      <i
-        title="dbSNP"
-        class="iconify text-muted ml-1"
-        data-icon="fa-solid:database"
-      ></i>
+      <i-fa-solid-database class="ml-1 text-muted" />
     </a>
-    <i
-      v-else
-      title="dbSNP"
-      class="iconify text-muted iconInactive ml-1"
-      data-icon="fa-solid:database"
-    ></i>
+    <i-fa-solid-database v-else class="ml-1 text-muted icon-inactive" />
+
     <a
       v-if="params.data.in_clinvar && params.data.summary_pathogenicity_label"
       target="_blank"
       :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' + params.data.vcv"
     >
-      <i
-        title="ClinVar"
-        class="iconify text-muted ml-1"
-        data-icon="fa-regular:hospital"
-      ></i>
+      <i-fa-regular-hospital class="ml-1 text-muted" />
     </a>
-    <i
+    <i-fa-regular-hospital
       v-else
-      title="ClinVar"
-      class="iconify text-muted iconInactive ml-1"
-      data-icon="fa-regular:hospital"
-    ></i>
+      title="Not in local ClinVar copy"
+      class="ml-1 text-muted icon-inactive"
+    />
+
     <a
       v-if="params.data.hgmd_public_overlap"
       target="_blank"
@@ -70,45 +80,22 @@
         params.data.hgmd_accession
       "
     >
-      <i
-        title="HGMD public"
-        class="iconify text-muted ml-1"
-        data-icon="fa-solid:globe"
-      ></i>
+      <i-fa-solid-globe class="ml-1 text-muted" />
     </a>
-    <i
-      v-else
-      title="HGMD public"
-      class="iconify text-muted iconInactive ml-1"
-      data-icon="fa-solid:globe"
-    ></i>
+    <i-fa-solid-globe v-else class="ml-1 text-muted icon-inactive" />
   </div>
 </template>
 
-<script>
-import { filterQueryStore } from '@variants/stores/filterQuery'
-
-export default {
-  setup(props) {
-    const queryStore = filterQueryStore()
-    const symbol = props.params.data.symbol
-      ? props.params.data.symbol
-      : props.params.data.gene_symbol
-    const acmgClass = props.params.data.acmg_class_override
-      ? props.params.data.acmg_class_override
-      : props.params.data.acmg_class_auto
-    const acmgBadge = queryStore.getAcmgBadge(acmgClass)
-    return {
-      acmgClass,
-      acmgBadge,
-      symbol,
-    }
-  },
-}
-</script>
-
 <style scoped>
-.iconInactive {
+.icon-inactive {
   opacity: 20%;
+}
+
+.badge-outline-secondary {
+  color: #6c757d;
+  background-color: transparent;
+  background-image: none;
+  border-color: #6c757d;
+  border: 1px solid;
 }
 </style>

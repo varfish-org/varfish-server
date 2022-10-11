@@ -1,34 +1,66 @@
+<script setup>
+import { VariantValidatorStates } from '@variants/enums'
+import { declareWrapper } from '../helpers'
+
+const props = defineProps({
+  smallVariant: Object,
+  variantValidatorState: Number,
+  variantValidatorResults: Object,
+})
+
+const emit = defineEmits([
+  'update:variantValidatorState',
+  'update:variantValidatorResults',
+])
+
+/** Wrapper around {@code variantValidatorStateWrapper} prop. */
+const variantValidatorStateWrapper = declareWrapper(
+  props,
+  'variantValidatorState',
+  emit
+)
+/** Wrapper around {@code variantValidatorResults} prop. */
+const variantValidatorResultsWrapper = declareWrapper(
+  props,
+  'variantValidatorResults',
+  emit
+)
+
+const queryVariantValidatorApi = async () => {
+  variantValidatorResultsWrapper.value = null
+  variantValidatorStateWrapper.value = VariantValidatorStates.Running
+  const res = await fetch(
+    `/proxy/variantvalidator/${props.smallVariant.release}/${props.smallVariant.chromosome}-${props.smallVariant.start}-${props.smallVariant.reference}-${props.smallVariant.alternative}/all?content-type=application%2Fjson`
+  )
+  if (res.ok) {
+    variantValidatorResultsWrapper.value = await res.json()
+    variantValidatorStateWrapper.value = VariantValidatorStates.Done
+  }
+}
+</script>
+
 <template>
-  <p v-if="detailsStore.variantValidatorState === VariantValidatorStates.Done">
-    <span
-      class="badge-group"
-      v-if="detailsStore.variantValidatorResults.metadata"
-    >
+  <p v-if="props.variantValidatorState === VariantValidatorStates.Done">
+    <span class="badge-group" v-if="props.variantValidatorResults.metadata">
       <span class="badge badge-dark">VariantValidator HGVS Version</span>
       <span class="badge badge-info">{{
-        detailsStore.variantValidatorResults.metadata
-          .variantvalidator_hgvs_version
+        props.variantValidatorResults.metadata.variantvalidator_hgvs_version
       }}</span>
     </span>
-    <span
-      class="badge-group"
-      v-if="detailsStore.variantValidatorResults.metadata"
-    >
+    <span class="badge-group" v-if="props.variantValidatorResults.metadata">
       <span class="badge badge-dark">VariantValidator Version</span>
       <span class="badge badge-info">{{
-        detailsStore.variantValidatorResults.metadata.variantvalidator_version
+        props.variantValidatorResults.metadata.variantvalidator_version
       }}</span>
     </span>
   </p>
   <div
     class="container-fluid"
-    v-if="detailsStore.variantValidatorState === VariantValidatorStates.Done"
+    v-if="props.variantValidatorState === VariantValidatorStates.Done"
   >
     <ul class="nav nav-pills pb-3" id="pills-tab" role="tablist">
       <template
-        v-for="(
-          data, identifier, index
-        ) in detailsStore.variantValidatorResults"
+        v-for="(data, identifier, index) in props.variantValidatorResults"
         :key="index"
       >
         <li
@@ -52,9 +84,7 @@
     </ul>
     <div class="tab-content">
       <template
-        v-for="(
-          data, identifier, index
-        ) in detailsStore.variantValidatorResults"
+        v-for="(data, identifier, index) in props.variantValidatorResults"
         :key="index"
       >
         <div
@@ -211,24 +241,23 @@
     </div>
   </div>
   <div
-    v-else-if="
-      detailsStore.variantValidatorState === VariantValidatorStates.Running
-    "
+    v-else-if="props.variantValidatorState === VariantValidatorStates.Running"
   >
     <div class="alert alert-info">
-      <i class="iconify spin" data-icon="fa-solid:circle-notch"></i>&nbsp;
+      <i-fa-solid-circle-notch class="spin" />
       <strong>Loading ...</strong>
     </div>
   </div>
   <div v-else>
     <div class="alert alert-secondary text-muted">
-      <i class="iconify" data-icon="fa-solid:info-circle"></i>
+      <i-fa-solid-info-circle />
       Click&nbsp;
-      <span class="badge badge-primary"
-        ><i class="iconify" data-icon="fa-solid:cloud-upload-alt"></i>
-        Submit</span
-      >&nbsp; to submit the variant to VariantValidator.org. Results will be
-      displayed here.
+      <span class="badge badge-primary">
+        <i-fa-solid-cloud-upload-alt />
+        Submit
+      </span>
+      to submit the variant to VariantValidator.org. Results will be displayed
+      here.
     </div>
   </div>
   <div class="row pb-3">
@@ -236,30 +265,28 @@
       <button
         class="btn btn-primary"
         type="button"
-        @click="detailsStore.queryVariantValidatorApi()"
+        @click="queryVariantValidatorApi()"
       >
-        <i class="iconify" data-icon="fa-solid:cloud-upload-alt"></i>
+        <i-fa-solid-cloud-upload-alt />
         Submit
       </button>
     </div>
   </div>
 </template>
 
-<script>
-import { variantDetailsStore } from '@variants/stores/variantDetails'
-import { filterQueryStore } from '@variants/stores/filterQuery'
-import { VariantValidatorStates } from '@variants/enums'
-
-export default {
-  components: {},
-  setup() {
-    const detailsStore = variantDetailsStore()
-    const queryStore = filterQueryStore()
-    return {
-      detailsStore,
-      queryStore,
-      VariantValidatorStates,
-    }
-  },
+<style scoped>
+.spin {
+  animation-name: spin;
+  animation-duration: 2000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
 }
-</script>
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>

@@ -8,7 +8,7 @@
   >
     <div class="col px-0">
       <div class="alert alert-warning p-2">
-        <i class="iconify mr-1" data-icon="bi:exclamation-circle"></i>
+        <i-bi-exclamation-circle />
         <strong>Caution</strong> Conflicting interpretation of variant!
       </div>
     </div>
@@ -882,9 +882,10 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
             <button
               type="submit"
               class="btn btn-primary"
-              @click="detailsStore.setAcmgCriteriaRatingMode = true"
+              @click="variantDetailsStore.setAcmgCriteriaRatingMode = true"
             >
-              <i class="iconify" data-icon="mdi:pencil"></i> Edit
+              <i-mdi-pencil />
+              Edit
             </button>
           </div>
         </div>
@@ -892,7 +893,7 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
       <div class="row pt-4" v-if="detailsStore.setAcmgCriteriaRatingMode">
         <div class="col px-0">
           <div class="alert alert-secondary text-small text-muted p-2">
-            <i class="iconify" data-icon="fa-solid:info-circle"></i>
+            <i-fa-solid-info-circle />
             Select all fulfilled criteria to get the classification following
             Richards <i>et al.</i> (2015). If necessary, you can also specify a
             manual override. Press
@@ -911,7 +912,7 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
       >
         <div class="col px-0">
           <div class="alert alert-warning p-2">
-            <i class="iconify mr-1" data-icon="bi:exclamation-circle"></i>
+            <i-bi-exclamation-circle class="mr-1" />
             <strong>Caution</strong> Conflicting interpretation of variant!
           </div>
         </div>
@@ -921,14 +922,14 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
 </template>
 
 <script>
-import { variantDetailsStore } from '@variants/stores/variantDetails'
-import { filterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
 
 export default {
   components: {},
   setup() {
-    const detailsStore = variantDetailsStore()
-    const queryStore = filterQueryStore()
+    const detailsStore = useVariantDetailsStore()
+    const queryStore = useFilterQueryStore()
     return {
       detailsStore,
       queryStore,

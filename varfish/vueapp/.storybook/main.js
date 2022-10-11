@@ -1,5 +1,4 @@
 const { mergeConfig } = require('vite')
-const Vue = require('@vitejs/plugin-vue')
 const Components = require('unplugin-vue-components/vite')
 const IconsResolver = require('unplugin-icons/resolver')
 const Icons = require('unplugin-icons/vite')
@@ -20,8 +19,9 @@ module.exports = {
       resolve: {
         alias: {
           '@clinvarexport': resolve(__dirname, '../src/clinvarexport'),
+          '@clinvarexportTest': resolve(__dirname, '../tests/clinvarexport'),
           '@variants': resolve(__dirname, '../src/variants'),
-          '@stories': resolve(__dirname, '../src/stories'),
+          '@variantsTest': resolve(__dirname, '../tests/variants'),
         },
         preserveSymlinks: true,
       },

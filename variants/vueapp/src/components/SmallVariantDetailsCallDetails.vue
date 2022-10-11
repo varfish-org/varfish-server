@@ -1,3 +1,22 @@
+<script setup>
+import { displayName } from '../helpers.js'
+
+const props = defineProps({
+  /** Case description object. */
+  caseDescription: Object,
+  /** Small variant to display for. */
+  smallVariant: Object,
+})
+
+const allelicBalance = (value) => {
+  if (!value.dp || !value.ad) {
+    return 0.0
+  } else {
+    return value.ad / value.dp
+  }
+}
+</script>
+
 <template>
   <div class="card">
     <div class="card-header">
@@ -9,10 +28,10 @@
           <th class="text-center">Sample</th>
           <th
             class="text-center"
-            v-for="(member, index) in queryStore.case.pedigree"
+            v-for="(member, index) in props.caseDescription.pedigree"
             :key="index"
           >
-            {{ $filters.displayName(member.name) }}
+            {{ displayName(member.name) }}
           </th>
         </tr>
       </thead>
@@ -21,56 +40,56 @@
           <th class="text-center">Genotype</th>
           <td
             class="text-center"
-            v-for="(member, index) in queryStore.case.pedigree"
+            v-for="(member, index) in props.caseDescription.pedigree"
             :key="index"
           >
-            {{ detailsStore.smallVariant.genotype[member.name].gt }}
+            {{ props.smallVariant.genotype[member.name].gt }}
           </td>
         </tr>
         <tr>
           <th class="text-center">Coverage (DP)</th>
           <template
-            v-for="(member, index) in queryStore.case.pedigree"
+            v-for="(member, index) in props.caseDescription.pedigree"
             :key="index"
           >
             <td
-              v-if="detailsStore.smallVariant.genotype[member.name].dp === -1"
+              v-if="props.smallVariant.genotype[member.name].dp === -1"
               class="text-center"
             >
               .
             </td>
             <td v-else class="text-center">
-              {{ detailsStore.smallVariant.genotype[member.name].dp }}
+              {{ props.smallVariant.genotype[member.name].dp }}
             </td>
           </template>
         </tr>
         <tr>
           <th class="text-center">Alt. Depth (AD)</th>
           <template
-            v-for="(member, index) in queryStore.case.pedigree"
+            v-for="(member, index) in props.caseDescription.pedigree"
             :key="index"
           >
             <td
-              v-if="detailsStore.smallVariant.genotype[member.name].ad === -1"
+              v-if="props.smallVariant.genotype[member.name].ad === -1"
               class="text-center"
             >
               .
             </td>
             <td v-else class="text-center">
-              {{ detailsStore.smallVariant.genotype[member.name].ad }}
+              {{ props.smallVariant.genotype[member.name].ad }}
             </td>
           </template>
         </tr>
         <tr>
           <th class="text-center">Allelic Balance</th>
           <template
-            v-for="(member, index) in queryStore.case.pedigree"
+            v-for="(member, index) in props.caseDescription.pedigree"
             :key="index"
           >
             <td class="text-center">
               {{
                 allelicBalance(
-                  detailsStore.smallVariant.genotype[member.name]
+                  props.smallVariant.genotype[member.name]
                 ).toFixed(2)
               }}
             </td>
@@ -80,29 +99,3 @@
     </table>
   </div>
 </template>
-
-<script>
-import { variantDetailsStore } from '@variants/stores/variantDetails'
-import { filterQueryStore } from '@variants/stores/filterQuery'
-
-export default {
-  components: {},
-  setup() {
-    const detailsStore = variantDetailsStore()
-    const queryStore = filterQueryStore()
-    return {
-      detailsStore,
-      queryStore,
-    }
-  },
-  methods: {
-    allelicBalance(value) {
-      if (!value.dp || !value.ad) {
-        return 0.0
-      } else {
-        return value.ad / value.dp
-      }
-    },
-  },
-}
-</script>

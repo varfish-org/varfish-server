@@ -72,6 +72,17 @@ Or, all together:
 
     $ make black isort flake8 vue_lint prettier
 
+---------
+Storybook
+---------
+
+We use `Storybook.js <https://storybook.js.org/docs/vue/get-started/introduction>`__ to develop Vue components in isolation.
+After running ``nmp i`` in ``varfish/vueapp``, you can launch the Storybook browser by calling:
+
+.. code-block:: bash
+
+    $ make storybook
+
 ----------------
 Working With Git
 ----------------

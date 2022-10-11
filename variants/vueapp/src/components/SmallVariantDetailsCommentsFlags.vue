@@ -1,3 +1,29 @@
+<script setup>
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { EditCommentModes } from '@variants/enums'
+import SmallVariantDetailsCommentsFlagsIndicator from './SmallVariantDetailsCommentsFlagsIndicator.vue'
+
+const detailsStore = useVariantDetailsStore()
+const queryStore = useFilterQueryStore()
+
+const displayMutedIfFalse = (condition) => {
+  if (!condition) {
+    return 'text-muted'
+  } else {
+    return 'text-dark'
+  }
+}
+
+const displayOpacityIfFalse = (condition) => {
+  if (!condition) {
+    return 'opacity: 20%'
+  } else {
+    return ''
+  }
+}
+</script>
+
 <template>
   <div
     v-if="detailsStore.flags && !detailsStore.setFlagsMode"
@@ -6,104 +32,70 @@
     <div class="col">
       <div class="row">
         <div class="col-1 pl-0">
-          <i
-            class="iconify"
-            :class="
-              $filters.displayMutedIfFalse(detailsStore.flags.flag_bookmarked)
-            "
-            :style="
-              $filters.displayOpacityIfFalse(detailsStore.flags.flag_bookmarked)
-            "
-            data-icon="fa-solid:star"
-          ></i>
+          <i-fa-solid-star
+            :class="displayMutedIfFalse(detailsStore.flags.flag_bookmarked)"
+            :style="displayOpacityIfFalse(detailsStore.flags.flag_bookmarked)"
+          />
         </div>
         <div class="col-1 pl-1">
-          <i
-            class="iconify ml-1"
-            :class="
-              $filters.displayMutedIfFalse(
-                detailsStore.flags.flag_for_validation
-              )
-            "
+          <i-fa-solid-flask
+            :class="displayMutedIfFalse(detailsStore.flags.flag_for_validation)"
             :style="
-              $filters.displayOpacityIfFalse(
-                detailsStore.flags.flag_for_validation
-              )
+              displayOpacityIfFalse(detailsStore.flags.flag_for_validation)
             "
-            data-icon="fa-solid:flask"
-          ></i>
+          />
         </div>
         <div class="col-1 pl-1">
-          <i
-            class="iconify ml-1"
-            :class="
-              $filters.displayMutedIfFalse(detailsStore.flags.flag_candidate)
-            "
-            :style="
-              $filters.displayOpacityIfFalse(detailsStore.flags.flag_candidate)
-            "
-            data-icon="fa-solid:heart"
-          ></i>
+          <i-fa-solid-heart
+            class="ml-1"
+            :class="displayMutedIfFalse(detailsStore.flags.flag_candidate)"
+            :style="displayOpacityIfFalse(detailsStore.flags.flag_candidate)"
+          />
         </div>
         <div class="col-1 pl-1">
-          <i
-            class="iconify ml-1"
+          <i-fa-solid-flag-checkered
+            class="ml-1"
             :class="
-              $filters.displayMutedIfFalse(
-                detailsStore.flags.flag_final_causative
-              )
+              displayMutedIfFalse(detailsStore.flags.flag_final_causative)
             "
             :style="
-              $filters.displayOpacityIfFalse(
-                detailsStore.flags.flag_final_causative
-              )
+              displayOpacityIfFalse(detailsStore.flags.flag_final_causative)
             "
             data-icon="fa-solid:flag-checkered"
-          ></i>
+          />
         </div>
         <div class="col-1 pl-1">
-          <i
-            class="iconify ml-1"
+          <i-cil-link-broken
+            class="ml-1"
             :class="
-              $filters.displayMutedIfFalse(
+              displayMutedIfFalse(
                 detailsStore.flags.flag_no_disease_association
               )
             "
             :style="
-              $filters.displayOpacityIfFalse(
+              displayOpacityIfFalse(
                 detailsStore.flags.flag_no_disease_association
               )
             "
-            data-icon="cil:link-broken"
-          ></i>
+          />
         </div>
         <div class="col-1 pl-1">
-          <i
-            class="iconify ml-1"
-            :class="
-              $filters.displayMutedIfFalse(detailsStore.flags.flag_segregates)
-            "
-            :style="
-              $filters.displayOpacityIfFalse(detailsStore.flags.flag_segregates)
-            "
-            data-icon="fa-solid:thumbs-up"
-          ></i>
+          <i-fa-solid-thumbs-up
+            class="ml-1"
+            :class="displayMutedIfFalse(detailsStore.flags.flag_segregates)"
+            :style="displayOpacityIfFalse(detailsStore.flags.flag_segregates)"
+          />
         </div>
         <div class="col-1 pl-1">
-          <i
-            class="iconify ml-1"
+          <i-fa-solid-thumbs-down
+            class="ml-1"
             :class="
-              $filters.displayMutedIfFalse(
-                detailsStore.flags.flag_doesnt_segregate
-              )
+              displayMutedIfFalse(detailsStore.flags.flag_doesnt_segregate)
             "
             :style="
-              $filters.displayOpacityIfFalse(
-                detailsStore.flags.flag_doesnt_segregate
-              )
+              displayOpacityIfFalse(detailsStore.flags.flag_doesnt_segregate)
             "
-            data-icon="fa-solid:thumbs-down"
-          ></i>
+          />
         </div>
       </div>
     </div>
@@ -111,64 +103,33 @@
       <div class="row text-center">
         <div class="col">
           Visual
-          <i
-            class="iconify ml-1"
-            style="font-size: 1.2em"
-            :class="$filters.displayFlagColor(detailsStore.flags.flag_visual)"
-            :data-icon="
-              $filters.displayFlagIcon(detailsStore.flags.flag_visual)
-            "
-          ></i>
+          <SmallVariantDetailsCommentsFlagsIndicator
+            :flag-state="detailsStore.flags.flag_visual"
+          />
         </div>
         <div class="col">
           Molecular
-          <i
-            class="iconify ml-1"
-            style="font-size: 1.2em"
-            :class="
-              $filters.displayFlagColor(detailsStore.flags.flag_molecular)
-            "
-            :data-icon="
-              $filters.displayFlagIcon(detailsStore.flags.flag_molecular)
-            "
-          ></i>
+          <SmallVariantDetailsCommentsFlagsIndicator
+            :flag-state="detailsStore.flags.flag_molecular"
+          />
         </div>
         <div class="col">
           Validation
-          <i
-            class="iconify ml-1"
-            style="font-size: 1.2em"
-            :class="
-              $filters.displayFlagColor(detailsStore.flags.flag_validation)
-            "
-            :data-icon="
-              $filters.displayFlagIcon(detailsStore.flags.flag_validation)
-            "
-          ></i>
+          <SmallVariantDetailsCommentsFlagsIndicator
+            :flag-state="detailsStore.flags.flag_validation"
+          />
         </div>
         <div class="col">
           Phenotype
-          <i
-            class="iconify ml-1"
-            style="font-size: 1.2em"
-            :class="
-              $filters.displayFlagColor(detailsStore.flags.flag_phenotype_match)
-            "
-            :data-icon="
-              $filters.displayFlagIcon(detailsStore.flags.flag_phenotype_match)
-            "
-          ></i>
+          <SmallVariantDetailsCommentsFlagsIndicator
+            :flag-state="detailsStore.flags.flag_phenotype_match"
+          />
         </div>
         <div class="col ml-1">
           <u>Summary</u>&nbsp;
-          <i
-            class="iconify"
-            style="font-size: 1.2em"
-            :class="$filters.displayFlagColor(detailsStore.flags.flag_summary)"
-            :data-icon="
-              $filters.displayFlagIcon(detailsStore.flags.flag_summary)
-            "
-          ></i>
+          <SmallVariantDetailsCommentsFlagsIndicator
+            :flag-state="detailsStore.flags.flag_summary"
+          />
         </div>
       </div>
     </div>
@@ -177,7 +138,7 @@
         class="btn btn-sm btn-primary pull-right"
         @click="detailsStore.setFlagsMode = true"
       >
-        <i class="iconify" data-icon="fa-solid:flag"></i>
+        <i-fa-solid-flag />
         Edit
       </button>
     </div>
@@ -191,7 +152,7 @@
         class="btn btn-sm btn-primary pull-right"
         @click="detailsStore.setFlagsMode = true"
       >
-        <i class="iconify" data-icon="fa-regular:flag"></i>
+        <i-fa-regular-flag />
         Add
       </button>
     </div>
@@ -201,41 +162,42 @@
       <div class="col">
         <div class="row">
           <div class="col-1 pl-0">
-            <label for="flagBookmarked" title="bookmarked"
-              ><i class="iconify" data-icon="fa-solid:star"></i
-            ></label>
+            <label for="flagBookmarked" title="bookmarked">
+              <i-fa-solid-star />
+            </label>
           </div>
           <div class="col-1 pl-1">
-            <label for="flagForValidation" title="selected for validation"
-              ><i class="iconify" data-icon="fa-solid:flask"></i
-            ></label>
+            <label for="flagForValidation" title="selected for validation">
+              <i-fa-solid-flask />
+            </label>
           </div>
           <div class="col-1 pl-1">
-            <label for="flagCandidate" title="candidate variant"
-              ><i class="iconify" data-icon="fa-solid:heart"></i
-            ></label>
+            <label for="flagCandidate" title="candidate variant">
+              <i-fa-solid-heart />
+            </label>
           </div>
           <div class="col-1 pl-1">
-            <label for="flagFinalCausative" title="final causative/reported"
-              ><i class="iconify" data-icon="fa-solid:flag-checkered"></i
-            ></label>
+            <label for="flagFinalCausative" title="final causative/reported">
+              <i-fa-solid-flag-checkered />
+            </label>
           </div>
           <div class="col-1 pl-1">
             <label
               for="flagNoDiseaseAssociation"
               title="gene affected by this variant has no known disease association"
-              ><i class="iconify" data-icon="cil:link-broken"></i
-            ></label>
+            >
+              <i-cil-link-broken />
+            </label>
           </div>
           <div class="col-1 pl-1">
-            <label for="flagDoesSegregate" title="variant does segregate"
-              ><i class="iconify" data-icon="fa-solid:thumbs-up"></i
-            ></label>
+            <label for="flagDoesSegregate" title="variant does segregate">
+              <i-fa-solid-thumbs-up />
+            </label>
           </div>
           <div class="col-1 pl-1">
-            <label for="flagDoesntSegregate" title="variant doesn't segregate"
-              ><i class="iconify" data-icon="fa-solid:thumbs-down"></i
-            ></label>
+            <label for="flagDoesntSegregate" title="variant doesn't segregate">
+              <i-fa-solid-thumbs-down />
+            </label>
           </div>
         </div>
         <div class="row">
@@ -406,7 +368,7 @@
             class="btn btn-sm btn-primary"
             @click="detailsStore.submitFlags(queryStore.csrfToken)"
           >
-            <i class="iconify" data-icon="fa-solid:flag"></i>
+            <i-fa-solid-flag />
             Submit
           </button>
         </div>
@@ -417,18 +379,19 @@
         <div
           class="alert alert-secondary small pull-left text-muted p-1 pl-2 pr-2"
         >
-          <i class="iconify" data-icon="fa-solid:info-circle"></i>
+          <i-fa-solid-info-circle />
           Value in <strong><u>Summary</u></strong> will determine the row
           coloring in the results table. If <code>empty</code>, any other flag
-          set except <i class="iconify" data-icon="fa-solid:star"></i> will
-          color the row in gray (<i>&ldquo;work in progress&rdquo;</i>).
+          set except <i-fa-solid-star /> will color the row in gray (<i
+            >&ldquo;work in progress&rdquo;</i
+          >).
         </div>
       </div>
       <div class="col-5">
         <div
           class="alert alert-secondary small pull-right text-muted p-1 pl-2 pr-2"
         >
-          <i class="iconify" data-icon="fa-solid:info-circle"></i> Press
+          <i-fa-solid-info-circle /> Press
           <span class="badge badge-danger">Clear</span> and
           <span class="badge badge-primary">Submit</span> to delete all flags.
         </div>
@@ -521,13 +484,13 @@
                 )
               "
             >
-              <i class="iconify" data-icon="mdi:pencil"></i>
+              <i-mdi-pencil />
             </button>
             <button
               class="btn btn-sm btn-outline-secondary"
               @click="detailsStore.setDeleteComment(comment.sodar_uuid, index)"
             >
-              <i class="iconify" data-icon="fa-solid:times-circle"></i>
+              <i-fa-solid-times-circle />
             </button>
           </div>
         </div>
@@ -538,7 +501,8 @@
     </ul>
     <div v-else class="card-body">
       <p class="text-muted font-italic text-center">
-        <i class="iconify" data-icon="fa-solid:info-circle"></i> No comments.
+        <i-fa-solid-info-circle />
+        No comments.
       </p>
     </div>
     <div
@@ -567,29 +531,11 @@
       </div>
     </div>
     <div class="card-footer" v-else>
-      <i class="text-muted"
-        ><i class="iconify" data-icon="fa-solid:info-circle"></i> The form for
-        placing comments will appear when you finished editing your comment.</i
-      >
+      <i class="text-muted">
+        <i-fa-solid-info-circle />
+        The form for placing comments will appear when you finished editing your
+        comment.
+      </i>
     </div>
   </div>
 </template>
-
-<script>
-import { variantDetailsStore } from '@variants/stores/variantDetails'
-import { filterQueryStore } from '@variants/stores/filterQuery'
-import { EditCommentModes } from '@variants/enums'
-
-export default {
-  components: {},
-  setup() {
-    const detailsStore = variantDetailsStore()
-    const queryStore = filterQueryStore()
-    return {
-      detailsStore,
-      queryStore,
-      EditCommentModes,
-    }
-  },
-}
-</script>
