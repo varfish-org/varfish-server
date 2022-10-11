@@ -139,6 +139,7 @@ Full Change List
 - Fixing issue with icon in vue3 variants app (#718).
 - Unifying Vue.js/Vite/Rollup builds (#730).
 - Switching to use unplugin-icons clinvarexport Vue.js icons (#736).
+- Adding support for Storybook.js (#736).
 
 ------
 v1.2.0
