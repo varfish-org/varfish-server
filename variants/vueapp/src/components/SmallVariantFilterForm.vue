@@ -324,7 +324,7 @@
 <script>
 import SmallVariantFilterFormGenotypeTab from './SmallVariantFilterFormGenotypeTab.vue'
 import SmallVariantFilterFormFrequencyTab from './SmallVariantFilterFormFrequencyTab.vue'
-import { filterQueryStore } from '@variants/stores/filterQuery'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
 import { QueryStates } from '@variants/enums'
 
 export default {
@@ -340,7 +340,7 @@ export default {
       )
     }
 
-    const store = filterQueryStore()
+    const store = useFilterQueryStore()
     return {
       spinButtonIcon,
       store,

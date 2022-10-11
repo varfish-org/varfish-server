@@ -1,10 +1,16 @@
+<script setup>
+const props = defineProps({
+  extraAnnos: Object,
+})
+</script>
+
 <template>
   <div class="card">
     <div class="card-header">
       <h4 class="card-title">Extra Annotations</h4>
     </div>
     <table
-      v-if="detailsStore.extraAnnos"
+      v-if="props.extraAnnos"
       class="card-body table table-striped table-sm"
     >
       <thead>
@@ -15,7 +21,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="(value, name, index) in detailsStore.extraAnnos.annotations"
+          v-for="(value, name, index) in props.extraAnnos.annotations"
           :key="index"
         >
           <th class="text-center">{{ name }}</th>
@@ -28,17 +34,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import { variantDetailsStore } from '@variants/stores/variantDetails'
-
-export default {
-  components: {},
-  setup() {
-    const detailsStore = variantDetailsStore()
-    return {
-      detailsStore,
-    }
-  },
-}
-</script>

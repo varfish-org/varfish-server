@@ -236,11 +236,11 @@
 </template>
 
 <script>
-import { filterQueryStore } from '@variants/stores/filterQuery'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
 
 export default {
   setup() {
-    const store = filterQueryStore()
+    const store = useFilterQueryStore()
     return { store }
   },
 }

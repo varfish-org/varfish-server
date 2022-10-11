@@ -33,23 +33,6 @@ app.config.globalProperties.$filters = {
     }
     return 'text-dark'
   },
-  checkIsVariantMtHomopolymer(smallVariant) {
-    const positionCheck = (pos) => {
-      return (
-        (pos >= 66 && pos <= 71) ||
-        (pos >= 300 && pos <= 316) ||
-        (pos >= 513 && pos <= 525) ||
-        (pos >= 3106 && pos <= 3107) ||
-        (pos >= 12418 && pos <= 12425) ||
-        (pos >= 16182 && pos <= 16194)
-      )
-    }
-    if (smallVariant.chromosome === 'MT') {
-      return (
-        positionCheck(smallVariant.start) || positionCheck(smallVariant.end)
-      )
-    }
-  },
   displayAmbiguousFrequencyWarning(item) {
     const tables = [
       'exac',
@@ -84,42 +67,6 @@ app.config.globalProperties.$filters = {
       terms.push(words.join(' AND '))
     }
     return symbol + ' AND (' + terms.join(' OR ') + ')'
-  },
-  displayFlagColor(value) {
-    if (value === 'positive') {
-      return 'text-danger'
-    } else if (value === 'uncertain') {
-      return 'text-warning'
-    } else if (value === 'negative') {
-      return 'text-success'
-    } else if (value === 'empty') {
-      return 'text-secondary'
-    } else {
-      return ''
-    }
-  },
-  displayFlagIcon(value) {
-    if (value === 'positive') {
-      return 'fa-solid:exclamation-circle'
-    } else if (value === 'uncertain') {
-      return 'fa-solid:question'
-    } else if (value === 'negative') {
-      return 'fa-solid:minus-circle'
-    } else if (value === 'empty') {
-      return 'fa-solid:times'
-    }
-  },
-  displayMutedIfFalse(condition) {
-    if (!condition) {
-      return 'text-muted'
-    }
-    return 'text-dark'
-  },
-  displayOpacityIfFalse(condition) {
-    if (!condition) {
-      return 'opacity: 20%'
-    }
-    return ''
   },
 }
 

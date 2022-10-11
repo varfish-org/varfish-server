@@ -1,12 +1,81 @@
+<script setup>
+import SmallVariantFilterForm from './SmallVariantFilterForm.vue'
+import SmallVariantFilterResultsTable from './SmallVariantFilterResultsTable.vue'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { QueryStates, QueryStateToText } from '@variants/enums'
+import SmallVariantDetailsModalWrapper from './SmallVariantDetailsModalWrapper.vue'
+import { watch, ref } from 'vue'
+
+const components = {
+  SmallVariantDetailsModalWrapper,
+  SmallVariantFilterForm,
+  SmallVariantFilterResultsTable,
+}
+
+const currentSmallVariant = ref(null)
+
+const smallVariantDetailsModalWrapperRef = ref(null)
+
+const variantDetailsStore = useVariantDetailsStore()
+
+const appContext = JSON.parse(
+  document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
+    '{}'
+)
+
+const filterQueryStore = useFilterQueryStore()
+filterQueryStore.caseUuid = appContext.case_uuid
+filterQueryStore.umdPredictorApiToken = appContext.umd_predictor_api_token
+filterQueryStore.hgmdProEnabled = appContext.hgmd_pro_enabled
+filterQueryStore.hgmdProPrefix = appContext.hgmd_pro_prefix
+filterQueryStore.ga4ghBeaconNetworkWidgetEnabled =
+  appContext.ga4gh_beacon_network_widget_enabled
+filterQueryStore.csrfToken = appContext.csrf_token
+filterQueryStore.fetchCase()
+filterQueryStore.fetchDefaultSettings()
+filterQueryStore.fetchPreviousQueryUuid()
+
+const showModal = ({ gridRow, gridApi, smallVariant }) => {
+  currentSmallVariant.value = smallVariant
+  smallVariantDetailsModalWrapperRef.value.showModal()
+  variantDetailsStore.fetchVariantDetails(
+    { gridRow, gridApi, smallVariant },
+    filterQueryStore.previousQueryDetails
+  )
+}
+
+watch(
+  () => filterQueryStore.queryState,
+  (newValue, _oldValue) => {
+    if (newValue === QueryStates.Finished.value) {
+      filterQueryStore.unsetQueryStatusInterval
+      filterQueryStore.fetchQueryResults()
+      filterQueryStore.fetchHpoTerms()
+      filterQueryStore.fetchQueryDetails()
+    }
+  }
+)
+
+watch(
+  () => filterQueryStore.queryUuid,
+  (newValue, _oldValue) => {
+    if (newValue !== null) {
+      filterQueryStore.setQueryStatusInterval
+    }
+  }
+)
+</script>
+
 <template>
-  <div v-if="store.case !== null">
+  <div v-if="filterQueryStore.case !== null">
     <div class="row sodar-pr-content-title pb-2">
       <!-- TODO buttons from sodar core -->
       <h2 class="sodar-pr-content-title">
         Filter Variants for Case
-        <small class="text-muted">{{ store.case.name }}</small>
+        <small class="text-muted">{{ filterQueryStore.case.name }}</small>
         <small class="badge badge-primary ml-2" style="font-size: 50%">
-          {{ store.case.release }}
+          {{ filterQueryStore.case.release }}
         </small>
       </h2>
 
@@ -14,7 +83,7 @@
         role="submit"
         class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
         id="sodar-pr-btn-copy-uuid"
-        data-clipboard-text="{{ store.caseUuid }}"
+        data-clipboard-text="{{ filterQueryStore.caseUuid }}"
         title="Copy UUID to clipboard"
         data-toggle="tooltip"
         data-placement="top"
@@ -49,26 +118,38 @@
       <SmallVariantFilterForm />
     </div>
     <!-- table to fill when query finished -->
-    <div v-if="store.queryState === QueryStates.Fetched.value">
-      <SmallVariantFilterResultsTable />
+    <div v-if="filterQueryStore.queryState === QueryStates.Fetched.value">
+      <SmallVariantFilterResultsTable
+        :case="filterQueryStore.case"
+        :query-results="filterQueryStore.queryResults"
+        v-model:display-details="filterQueryStore.displayDetails"
+        v-model:display-frequency="filterQueryStore.displayFrequency"
+        v-model:display-constraint="filterQueryStore.displayConstraint"
+        v-model:display-columns="filterQueryStore.displayColumns"
+        @variant-selected="showModal"
+      />
     </div>
     <div
       v-else-if="
-        store.queryState === QueryStates.Running.value ||
-        store.queryState === QueryStates.Fetching.value
+        filterQueryStore.queryState === QueryStates.Running.value ||
+        filterQueryStore.queryState === QueryStates.Fetching.value
       "
       class="alert alert-info"
     >
       <i class="iconify spin" data-icon="fa-solid:circle-notch"></i>
-      <strong class="pl-2">{{ QueryStateToText[store.queryState] }} ...</strong>
+      <strong class="pl-2"
+        >{{ QueryStateToText[filterQueryStore.queryState] }} ...</strong
+      >
       <button
         class="ml-3 btn btn-sm btn-info"
-        @click="store.queryLogsVisible = !store.queryLogsVisible"
+        @click="
+          filterQueryStore.queryLogsVisible = !filterQueryStore.queryLogsVisible
+        "
       >
-        {{ store.queryLogsVisible ? 'Hide' : 'Show' }} Logs
+        {{ filterQueryStore.queryLogsVisible ? 'Hide' : 'Show' }} Logs
       </button>
-      <pre v-show="store.queryLogsVisible">{{
-        store.queryLogs.join('\n')
+      <pre v-show="filterQueryStore.queryLogsVisible">{{
+        filterQueryStore.queryLogs.join('\n')
       }}</pre>
     </div>
     <div v-else class="alert alert-info">
@@ -88,62 +169,12 @@
     <i class="iconify spin" data-icon="fa-solid:circle-notch"></i>
     <strong class="pl-2">Loading site ...</strong>
   </div>
+
+  <SmallVariantDetailsModalWrapper
+    ref="smallVariantDetailsModalWrapperRef"
+    :small-variant="currentSmallVariant"
+    :fetched="variantDetailsStore.fetched"
+  />
 </template>
-
-<script>
-import SmallVariantFilterForm from './SmallVariantFilterForm.vue'
-import SmallVariantFilterResultsTable from './SmallVariantFilterResultsTable.vue'
-import { filterQueryStore } from '@variants/stores/filterQuery'
-import { QueryStates, QueryStateToText } from '@variants/enums'
-import { storeToRefs } from 'pinia'
-
-export default {
-  components: {
-    SmallVariantFilterForm,
-    SmallVariantFilterResultsTable,
-  },
-  setup() {
-    const store = filterQueryStore()
-    const appContext = JSON.parse(
-      document
-        .getElementById('sodar-ss-app-context')
-        .getAttribute('app-context') || '{}'
-    )
-    store.caseUuid = appContext.case_uuid
-    store.umdPredictorApiToken = appContext.umd_predictor_api_token
-    store.hgmdProEnabled = appContext.hgmd_pro_enabled
-    store.hgmdProPrefix = appContext.hgmd_pro_prefix
-    store.ga4ghBeaconNetworkWidgetEnabled =
-      appContext.ga4gh_beacon_network_widget_enabled
-    store.csrfToken = appContext.csrf_token
-    store.fetchCase()
-    store.fetchDefaultSettings()
-    store.fetchPreviousQueryUuid()
-    const { queryState, queryUuid } = storeToRefs(store)
-    return { store, queryState, queryUuid }
-  },
-  data() {
-    return {
-      QueryStates,
-      QueryStateToText,
-    }
-  },
-  watch: {
-    queryState(newValue, oldValue) {
-      if (newValue === QueryStates.Finished.value) {
-        this.store.unsetQueryStatusInterval
-        this.store.fetchQueryResults()
-        this.store.fetchHpoTerms()
-        this.store.fetchQueryDetails()
-      }
-    },
-    queryUuid(newValue, oldValue) {
-      if (newValue !== null) {
-        this.store.setQueryStatusInterval
-      }
-    },
-  },
-}
-</script>
 
 <style scoped></style>

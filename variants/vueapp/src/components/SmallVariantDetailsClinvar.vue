@@ -16,7 +16,7 @@
       </small>
     </div>
     <div class="text-muted small p-2">
-      <i class="iconify" data-icon="mdi:information"></i>
+      <i-mdi-information />
       Note that VarFish is using a local copy of Clinvar to display this
       information. The link-outs to NCBI ClinVar will display the most current
       data that may differ from our "frozen" copy.
@@ -102,12 +102,12 @@
 </template>
 
 <script>
-import { variantDetailsStore } from '@variants/stores/variantDetails'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 
 export default {
   components: {},
   setup() {
-    const detailsStore = variantDetailsStore()
+    const detailsStore = useVariantDetailsStore()
     return {
       detailsStore,
     }

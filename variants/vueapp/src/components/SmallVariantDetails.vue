@@ -97,20 +97,26 @@
             role="tabpanel"
             aria-labelledby="info-tab"
           >
-            <SmallVariantDetailsLinkOuts />
+            <SmallVariantDetailsLinkOuts
+              :gene="detailsStore.gene"
+              :small-variant="detailsStore.smallVariant"
+              :hgmd-pro-enabled="queryStore.hgmdProEnabled"
+              :hgmd-pro-prefix="queryStore.hgmdProPrefix"
+              :umd-predictor-api-token="queryStore.umdPredictorApiToken"
+            />
             <div class="row">
               <div class="col-12 col-xl-6 pl-0 pr-2">
                 <SmallVariantDetailsGene
-                  v-if="
-                    detailsStore.gene &&
-                    detailsStore.ncbiSummary &&
-                    detailsStore.smallVariant
-                  "
+                  :gene="detailsStore.gene"
+                  :ncbi-summary="detailsStore.ncbiSummary"
+                  :ncbi-gene-rifs="detailsStore.ncbiGeneRifs"
+                  :small-variant="detailsStore.smallVariant"
                 />
               </div>
               <div class="col-12 col-xl-6 pl-2 pr-0">
                 <SmallVariantDetailsGa4ghBeacons
                   v-if="queryStore.ga4ghBeaconNetworkWidgetEnabled"
+                  :small-variant="detailsStore.smallVariant"
                 />
                 <SmallVariantDetailsClinvar />
                 <SmallVariantDetailsFreqs
@@ -118,22 +124,35 @@
                     (detailsStore.populations && detailsStore.popFreqs) ||
                     detailsStore.mitochondrialFreqs
                   "
+                  :small-variant="detailsStore.smallVariant"
+                  :mitochondrial-freqs="detailsStore.mitochondrialFreqs"
+                  :populations="detailsStore.populations"
+                  :inhouse-freq="detailsStore.inhouseFreq"
+                  :pop-freqs="detailsStore.popFreqs"
                 />
-                <SmallVariantDetailsExtraAnnos />
+                <SmallVariantDetailsExtraAnnos
+                  :extra-annos="detailsStore.extraAnnos"
+                />
               </div>
             </div>
             <div class="row">
               <div class="col-12 col-xl-6 pl-0 pr-2">
-                <SmallVariantDetailsTranscripts />
+                <SmallVariantDetailsTranscripts
+                  :effect-details="detailsStore.effectDetails"
+                />
               </div>
               <div class="col-12 col-xl-6 pl-2 pr-0">
-                <SmallVariantDetailsCallDetails />
+                <SmallVariantDetailsCallDetails
+                  :case-description="queryStore.case"
+                  :small-variant="detailsStore.smallVariant"
+                />
               </div>
             </div>
             <div class="row">
               <div class="col-12 pl-0 pr-0">
                 <SmallVariantDetailsConservation
                   v-if="detailsStore.knownGeneAa"
+                  :known-gene-aa="detailsStore.knownGeneAa"
                 />
               </div>
             </div>
@@ -161,7 +180,7 @@
             aria-labelledby="second-hit-tab"
           >
             <div class="alert alert-secondary">
-              <i class="iconify" data-icon="mdi:clock"></i>
+              <i-mdi-clock />
               Work in progress ...
             </div>
           </div>
@@ -172,7 +191,7 @@
             aria-labelledby="other-carriers-tab"
           >
             <div class="alert alert-secondary">
-              <i class="iconify" data-icon="mdi:clock"></i>
+              <i-mdi-clock />
               Work in progress ...
             </div>
           </div>
@@ -182,7 +201,15 @@
             role="tabpanel"
             aria-labelledby="variant-validator-tab"
           >
-            <SmallVariantDetailsVariantValidator />
+            <SmallVariantDetailsVariantValidator
+              :small-variant="detailsStore.smallVariant"
+              v-model:variant-validator-state="
+                detailsStore.variantValidatorState
+              "
+              v-model:variant-validator-results="
+                detailsStore.variantValidatorResults
+              "
+            />
           </div>
         </div>
       </div>
@@ -203,8 +230,8 @@ import SmallVariantDetailsTranscripts from './SmallVariantDetailsTranscripts.vue
 import SmallVariantDetailsVariantValidator from './SmallVariantDetailsVariantValidator.vue'
 import SmallVariantDetailsAcmgRating from './SmallVariantDetailsAcmgRating.vue'
 import SmallVariantDetailsLinkOuts from './SmallVariantDetailsLinkOuts.vue'
-import { variantDetailsStore } from '@variants/stores/variantDetails'
-import { filterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
 
 export default {
   components: {
@@ -222,8 +249,8 @@ export default {
     SmallVariantDetailsLinkOuts,
   },
   setup() {
-    const detailsStore = variantDetailsStore()
-    const queryStore = filterQueryStore()
+    const detailsStore = useVariantDetailsStore()
+    const queryStore = useFilterQueryStore()
     return {
       detailsStore,
       queryStore,

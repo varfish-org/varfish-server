@@ -7,8 +7,8 @@ import {
 } from '@variants/enums'
 import { defineStore } from 'pinia'
 
-export const filterQueryStore = defineStore({
-  id: 'filterQueryStore',
+export const useFilterQueryStore = defineStore({
+  id: 'useFilterQueryStore',
   state: () => ({
     csrfToken: null,
     caseUuid: null,
@@ -177,7 +177,7 @@ export const filterQueryStore = defineStore({
     },
     getAcmgBadge(acmgClass) {
       return acmgClass == null
-        ? 'badge-light text-muted'
+        ? 'badge-outline-secondary text-muted'
         : acmgClass > 3
         ? 'badge-danger text-white'
         : acmgClass === 3

@@ -8,31 +8,31 @@ function enumToText(enu) {
 
 export const QueryStates = Object.freeze({
   Initial: {
-    value: 0,
+    value: 'initial',
     text: 'Initial',
   },
   Running: {
-    value: 1,
+    value: 'running',
     text: 'Running',
   },
   Finished: {
-    value: 2,
+    value: 'finished',
     text: 'Finished',
   },
   Fetching: {
-    value: 3,
+    value: 'loading-results',
     text: 'Loading results',
   },
   Fetched: {
-    value: 4,
+    value: 'results-loaded',
     text: 'Results loaded',
   },
   Cancelled: {
-    value: 5,
+    value: 'job-cancelled',
     text: 'Cancelled job',
   },
   Error: {
-    value: 6,
+    value: 'error',
     text: 'Error',
   },
 })
