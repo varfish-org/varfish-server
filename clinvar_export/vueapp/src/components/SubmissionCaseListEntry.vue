@@ -231,7 +231,7 @@ defineExpose({
               })
             "
           >
-            <i class="iconify" data-icon="mdi:arrow-up-circle"></i>
+            <i-mdi-arrow-up-circle />
             move up
           </button>
           <button
@@ -245,7 +245,7 @@ defineExpose({
               })
             "
           >
-            <i class="iconify" data-icon="mdi:arrow-down-circle"></i>
+            <i-mdi-arrow-down-circle />
             move down
           </button>
           <button
@@ -255,11 +255,7 @@ defineExpose({
               store.removeSubmissionIndividualFromCurrentSubmission(value)
             "
           >
-            <span
-              class="iconify"
-              data-icon="mdi:close"
-              data-inline="false"
-            ></span>
+            <i-mdi-close />
             remove from variant
           </button>
         </div>
