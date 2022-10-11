@@ -293,7 +293,7 @@ defineExpose({
           :disabled="isMoveCurrentSubmissionDisabled(true)"
           @click="store.moveCurrentSubmission(true)"
         >
-          <i class="iconify" data-icon="mdi:arrow-up-circle"></i>
+          <i-mdi-arrow-up-circle />
           move up
         </button>
         <button
@@ -303,7 +303,7 @@ defineExpose({
           :disabled="isMoveCurrentSubmissionDisabled(false)"
           @click="store.moveCurrentSubmission(false)"
         >
-          <i class="iconify" data-icon="mdi:arrow-down-circle"></i>
+          <i-mdi-arrow-down-circle />
           move down
         </button>
         <button
@@ -311,11 +311,7 @@ defineExpose({
           class="btn btn-sm btn-danger"
           @click="store.deleteCurrentSubmission()"
         >
-          <span
-            class="iconify"
-            data-icon="mdi:close"
-            data-inline="false"
-          ></span>
+          <i-mdi-close />
           remove from submission
         </button>
       </div>

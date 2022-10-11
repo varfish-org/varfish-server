@@ -95,7 +95,7 @@ defineExpose({
     <div class="card">
       <div class="card-header">
         <h4 class="mb-0">
-          <i class="iconify" data-icon="mdi:note-text"></i>
+          <i-mdi-note-text />
           Edit Submission Set
 
           <transition name="fade">
@@ -111,11 +111,7 @@ defineExpose({
             class="btn btn-sm btn-danger float-right"
             @click="onRemoveClicked"
           >
-            <span
-              class="iconify"
-              data-icon="mdi:close"
-              data-inline="false"
-            ></span>
+            <i-mdi-close />
             remove submission set
           </button>
         </h4>

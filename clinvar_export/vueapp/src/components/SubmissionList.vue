@@ -464,11 +464,7 @@ export default {
                 class="btn btn-primary btn-small float-right"
                 @click="onAddSubmissionClicked()"
               >
-                <span
-                  class="iconify"
-                  data-icon="mdi:plus-circle"
-                  data-inline="false"
-                ></span>
+                <i-mdi-plus-circle />
                 add
               </div>
             </h5>

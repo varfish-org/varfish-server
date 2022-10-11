@@ -138,6 +138,7 @@ Full Change List
 - Allow operators to upload per-gene annotations to cases (#575) on import.
 - Fixing issue with icon in vue3 variants app (#718).
 - Unifying Vue.js/Vite/Rollup builds (#730).
+- Switching to use unplugin-icons clinvarexport Vue.js icons (#736).
 
 ------
 v1.2.0

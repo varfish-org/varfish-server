@@ -86,11 +86,7 @@ defineExpose({})
         class="btn btn-sm btn-primary float-right"
         @click="showModalAddCase()"
       >
-        <span
-          class="iconify"
-          data-icon="mdi:plus-circle"
-          data-inline="false"
-        ></span>
+        <i-mdi-plus-circle />
         add individual to submission
       </button>
     </h3>

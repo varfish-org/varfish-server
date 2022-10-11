@@ -16,7 +16,7 @@ const wizardState = computed(() => store.wizardState)
       class="btn btn-secondary"
       @click="$emit('cancel-clicked')"
     >
-      <span class="iconify" data-icon="mdi:close" data-inline="false"></span>
+      <i-mdi-close />
       Cancel
     </button>
     <button
@@ -25,11 +25,7 @@ const wizardState = computed(() => store.wizardState)
       class="btn btn-success"
       @click="$emit('save-clicked')"
     >
-      <span
-        class="iconify"
-        data-icon="mdi:check-bold"
-        data-inline="false"
-      ></span>
+      <i-mdi-check-bold />
       Save
     </button>
 
@@ -40,7 +36,7 @@ const wizardState = computed(() => store.wizardState)
       class="btn btn-primary"
       @click="$emit('goto-submissions-clicked')"
     >
-      <i class="iconify" data-icon="mdi:arrow-right-circle"></i>
+      <i-mdi-arrow-right-circle />
       Variants
     </button>
     <button
@@ -50,7 +46,7 @@ const wizardState = computed(() => store.wizardState)
       class="btn btn-primary"
       @click="$emit('goto-submission-set-clicked')"
     >
-      <i class="iconify" data-icon="mdi:arrow-left-circle"></i>
+      <i-mdi-arrow-left-circle />
       Submission
     </button>
   </div>

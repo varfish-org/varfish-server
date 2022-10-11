@@ -112,7 +112,7 @@ export default {
                 class="btn btn-sm btn-primary submission-set-table-button-edit"
                 @click="editSubmissionSet(submissionSet.sodar_uuid)"
               >
-                <i class="iconify" data-icon="mdi:pencil"></i>
+                <i-mdi-pencil />
                 Edit
               </button>
               <button
@@ -120,7 +120,7 @@ export default {
                 class="btn btn-sm btn-secondary submission-set-table-button-edit"
                 @click="onXmlPreviewClicked(submissionSet.sodar_uuid)"
               >
-                <i class="iconify" data-icon="fa-solid:code"></i>
+                <i-fa-solid-code />
                 ClinVar XML
               </button>
             </div>
@@ -142,11 +142,7 @@ export default {
         size="sm"
         @click="createNewSubmissionSet()"
       >
-        <span
-          class="iconify"
-          data-icon="mdi:plus-circle"
-          data-inline="false"
-        ></span>
+        <i-mdi-plus-circle />
         Create Set
       </button>
     </div>
@@ -211,19 +207,11 @@ export default {
                   XSD check: running
                 </div>
                 <div v-if="xmlValidationState == 'valid'" class="text-success">
-                  <span
-                    class="iconify"
-                    data-icon="mdi:check-bold"
-                    data-inline="false"
-                  ></span>
+                  <i-mdi-check-bold />
                   XSD check: valid
                 </div>
                 <div v-if="xmlValidationState == 'invalid'" class="text-danger">
-                  <span
-                    class="iconify"
-                    data-icon="mdi:close"
-                    data-inline="false"
-                  ></span>
+                  <i-mdi-close />
                   XSD check: invalid
                 </div>
               </div>
@@ -245,11 +233,7 @@ export default {
                   class="btn btn-sm btn-secondary"
                   @click="onXmlHideClicked()"
                 >
-                  <span
-                    class="iconify"
-                    data-icon="mdi:close"
-                    data-inline="false"
-                  ></span>
+                  <i-mdi-close />
                   Close
                 </button>
               </div>

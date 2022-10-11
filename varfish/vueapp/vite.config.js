@@ -1,7 +1,9 @@
-import { fileURLToPath, URL } from 'url'
 const { resolve } = require('path')
-import vue from '@vitejs/plugin-vue'
+import Vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
+import Icons from 'unplugin-icons/vite'
+import IconsResolver from 'unplugin-icons/resolver'
+import Components from 'unplugin-vue-components/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,13 +19,20 @@ export default defineConfig({
       },
     },
   },
-  plugins: [vue()],
+  plugins: [
+    Vue(),
+    Components({
+      resolvers: [IconsResolver()],
+    }),
+    Icons({
+      autoInstall: true,
+      compiler: 'vue3',
+    }),
+  ],
   resolve: {
     alias: {
-      '@clinvarexport': fileURLToPath(
-        new URL('./src/clinvarexport', import.meta.url)
-      ),
-      '@variants': fileURLToPath(new URL('./src/variants', import.meta.url)),
+      '@clinvarexport': resolve(__dirname, './src/clinvarexport'),
+      '@variants': resolve(__dirname, './src/variants'),
     },
     preserveSymlinks: true,
   },
