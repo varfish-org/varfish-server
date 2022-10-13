@@ -127,7 +127,7 @@ class Inheritance(Enum):
                 "genotype": {
                     s.name: GenotypeChoice.VARIANT.value
                     if s.is_affected()
-                    else GenotypeChoice.REF.value
+                    else GenotypeChoice.ANY.value
                     for s in samples
                 },
             }
@@ -202,6 +202,8 @@ class Inheritance(Enum):
     def _to_settings_recessive(self, affected_samples, index, index_candidates, samples):
         # Get index, parents, and others (not index, not parents) individuals
         recessive_index = index_candidates[0]
+        if index is None:
+            index = index_candidates[0].name
         parents = [s for s in samples if s.name in (recessive_index.father, recessive_index.mother)]
         parent_names = {p.name for p in parents}
         others = {s for s in affected_samples if s.name != index and s.name not in parent_names}
@@ -861,6 +863,10 @@ class _FlagsEtcPresets:
         "flag_final_causative": True,
         "flag_for_validation": True,
         "flag_no_disease_association": True,
+        "flag_molecular_empty": True,
+        "flag_molecular_negative": True,
+        "flag_molecular_positive": True,
+        "flag_molecular_uncertain": True,
         "flag_phenotype_match_empty": True,
         "flag_phenotype_match_negative": True,
         "flag_phenotype_match_positive": True,
@@ -892,6 +898,10 @@ class _FlagsEtcPresets:
         "flag_final_causative": True,
         "flag_for_validation": True,
         "flag_no_disease_association": True,
+        "flag_molecular_empty": True,
+        "flag_molecular_negative": True,
+        "flag_molecular_positive": True,
+        "flag_molecular_uncertain": True,
         "flag_phenotype_match_empty": True,
         "flag_phenotype_match_negative": True,
         "flag_phenotype_match_positive": True,
@@ -928,6 +938,10 @@ class _FlagsEtcPresets:
         "flag_final_causative": True,
         "flag_for_validation": True,
         "flag_no_disease_association": True,
+        "flag_molecular_empty": False,
+        "flag_molecular_negative": True,
+        "flag_molecular_positive": True,
+        "flag_molecular_uncertain": True,
         "flag_phenotype_match_empty": False,
         "flag_phenotype_match_negative": True,
         "flag_phenotype_match_positive": True,

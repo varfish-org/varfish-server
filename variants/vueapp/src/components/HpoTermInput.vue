@@ -1,0 +1,190 @@
+<script setup>
+import Multiselect from '@vueform/multiselect'
+import { declareWrapper } from '../helpers.js'
+import { onMounted, ref, watch } from 'vue'
+
+const props = defineProps({
+  apiEndpoint: {
+    type: String,
+    default: '/variants/hpo-terms-api/',
+  },
+  csrfToken: String,
+  showFiltrationInlineHelp: Boolean,
+  modelValue: {
+    type: Array,
+    default: () => [],
+  },
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+/** The model value that we are handling. */
+const value = declareWrapper(props, 'modelValue', emit)
+
+/** The text value that we are presenting to the user. */
+const textValue = ref(null)
+
+/** Whether the Multiselect is loading from server. */
+const loading = ref(false)
+
+const fetchHpoTerms = async (query) => {
+  const queryArg = encodeURIComponent(query)
+  const response = await fetch(`${props.apiEndpoint}?query=${queryArg}`, {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    'X-CSRFToken': props.csrfToken,
+  })
+  const results = await response.json()
+  const data = results.map(({ id, name }) => {
+    return {
+      label: `${id} - ${name}`,
+      value: {
+        term_id: id,
+        name,
+      },
+    }
+  })
+
+  return data
+}
+
+const fetchHpoTermsForMultiselect = async (query) => {
+  loading.value = true
+  const result = await fetchHpoTerms(query)
+  loading.value = false
+  return result
+}
+
+const refreshTextValue = async (termsArray) => {
+  const withLabelUnfiltered = await Promise.all(
+    termsArray.map(async (hpoTerm) => {
+      const fetched = await fetchHpoTerms(hpoTerm)
+      if (fetched && fetched.length > 0) {
+        return fetched[0].label
+      } else {
+        return null
+      }
+    })
+  )
+  const withLabel = withLabelUnfiltered.filter((elem) => elem !== null)
+  textValue.value = withLabel.join('; ')
+}
+
+const refreshModelValue = () => {
+  const regex = /(HP:\d{7}|OMIM:\d{6}|DECIPHER:\d+|ORPHA:\d+)( - [^;]+)?(;|$)/g
+  const cleanTextValue = (textValue.value || '')
+    .replace(/^\s*;?\s*|\s*;?\s*$/g, '') // replace any cruft in beginning or end of the string
+    .replace(/\s{2,}/g, ' ') // replace double (or more) spaces with one space
+    .replace(/[;\s]{2,}/g, '; ') // replace any sequence of multiple ; and spaces with `; `
+    .replace(/;([^\s$])/g, '; $1') // add missing space after semicolon
+    .replace(/([^;])\s(HP|OMIM|DECIPHER|ORPHA):/g, '$1; $2:') // set missing semicolons in front of HPO id
+  const hpoSelected = []
+  let result
+  while ((result = regex.exec(cleanTextValue))) {
+    if (!hpoSelected.includes(result[1])) {
+      hpoSelected.push(result[1])
+    }
+  }
+  value.value = hpoSelected
+  refreshTextValue(hpoSelected)
+}
+
+const refreshing = ref(false)
+
+const manuallyRefreshModelValue = () => {
+  refreshing.value = true
+  refreshModelValue()
+  refreshing.value = false
+}
+
+const hpoTermSelected = (item) => {
+  if (!item) {
+    return
+  }
+
+  let newValue = ''
+  if (textValue.value && textValue.value.trim().length !== 0) {
+    newValue = textValue.value.trim() + '; '
+  }
+  newValue += `${item.value.term_id} - ${item.value.name}`
+
+  textValue.value = newValue
+
+  refreshModelValue()
+}
+
+const debugTerms = ref(false)
+
+onMounted(() => {
+  if (props.modelValue) {
+    refreshTextValue(props.modelValue)
+  }
+})
+</script>
+
+<template>
+  <div class="input-group">
+    <textarea v-model="textValue" class="form-control" rows="3"></textarea>
+    <div class="input-group-append">
+      <span
+        class="input-group-text refresh-button"
+        @click="manuallyRefreshModelValue()"
+        title="Verify and clean terms from text input"
+      >
+        <i-mdi-refresh :class="{ spin: refreshing }" />
+      </span>
+    </div>
+  </div>
+  <code v-if="debugTerms">{{ props.modelValue }}</code>
+  <div class="form-text text-muted small mb-1">
+    Type into the box below to search for HPO/OMIM/Decipher terms. Select terms
+    to add them to the text box above. You can also just type the terms into the
+    text box above. To remove terms, just remove them from the text box.
+  </div>
+  <Multiselect
+    mode="single"
+    placeholder="HPO Term Lookup"
+    no-options-text="Type to start searching"
+    :filter-results="false"
+    :allow-empty="true"
+    :close-on-select="true"
+    :searchable="true"
+    :object="true"
+    :resolve-on-load="false"
+    :loading="loading"
+    :delay="1"
+    :min-chars="3"
+    :options="fetchHpoTermsForMultiselect"
+    @change="hpoTermSelected"
+  />
+</template>
+
+<style scoped>
+.refresh-button {
+  cursor: pointer;
+}
+
+.refresh-button:hover {
+  color: #fff;
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.spin {
+  animation-name: spin-anim;
+  animation-duration: 2500ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes spin-anim {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>
+
+<style src="@vueform/multiselect/themes/default.css"></style>

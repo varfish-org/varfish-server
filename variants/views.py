@@ -4859,6 +4859,8 @@ class SmallVariantFilterForm(
                 "ga4gh_beacon_network_widget_enabled": setting_api.get_app_setting(
                     "variants", "ga4gh_beacon_network_widget_enabled", user=self.request.user
                 ),
+                "exomiser_enabled": settings.VARFISH_ENABLE_EXOMISER_PRIORITISER,
+                "cadd_enabled": settings.VARFISH_ENABLE_CADD,
             }
         )
         return context

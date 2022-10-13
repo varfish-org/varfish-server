@@ -11,6 +11,7 @@ from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import transaction
 from django.db.models import Q
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
+from rest_framework import views
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import (
     CreateAPIView,
@@ -45,6 +46,15 @@ from variants.models import (
     load_molecular_impact,
 )
 from variants.queries import CaseLoadPrefetchedQuery, KnownGeneAAQuery
+from variants.query_presets import (
+    CHROMOSOME_PRESETS,
+    FLAGS_ETC_PRESETS,
+    FREQUENCY_PRESETS,
+    IMPACT_PRESETS,
+    QUALITY_PRESETS,
+    QUICK_PRESETS,
+    Inheritance,
+)
 from variants.serializers import (
     AcmgCriteriaRatingSerializer,
     CaseSerializer,
@@ -486,6 +496,7 @@ class SmallVariantQuerySettingsShortcutApiView(
 
     - ``frequency`` - preset selection for frequencies, valid values are
 
+        - ``any`` - do not apply any thresholds
         - ``dominant_super_strict`` - apply thresholds considered "very strict" in a dominant disease context
         - ``dominant_strict`` - apply thresholds considered "strict" in a dominant disease context (default)
         - ``dominant_relaxed`` - apply thresholds considered "relaxed" in a dominant disease context
@@ -548,6 +559,13 @@ class SmallVariantQuerySettingsShortcutApiView(
     serializer_class = SettingsShortcutsSerializer
 
     def get_object(self, *args, **kwargs):
+        def value_to_enum(enum, value):
+            for enum_val in enum:
+                if enum_val.value == value:
+                    return enum_val
+            else:
+                return None
+
         quick_preset = self._get_quick_presets()
         fields_dict = attrs.fields_dict(query_presets.QuickPresets)
         changes_raw = {
@@ -559,7 +577,9 @@ class SmallVariantQuerySettingsShortcutApiView(
             changes = {"database": changes_raw.pop("database")}
         else:
             changes = {}
-        changes.update({key: fields_dict[key].type[value] for key, value in changes_raw.items()})
+        changes.update(
+            {key: value_to_enum(fields_dict[key].type, value) for key, value in changes_raw.items()}
+        )
         quick_preset = attrs.evolve(quick_preset, **changes)
         return SettingsShortcuts(
             presets={key: getattr(quick_preset, key).value for key in fields_dict},
@@ -581,6 +601,86 @@ class SmallVariantQuerySettingsShortcutApiView(
     def _get_pedigree_members(self) -> typing.Tuple[query_presets.PedigreeMember]:
         """Return pedigree members for the queried case."""
         case = self.get_queryset().get(sodar_uuid=self.kwargs["case"])
+        return tuple(
+            query_presets.PedigreeMember(
+                family=None,
+                name=entry["patient"],
+                father=entry["father"],
+                mother=entry["mother"],
+                sex=query_presets.Sex(entry["sex"]),
+                disease_state=query_presets.DiseaseState(entry["affected"]),
+            )
+            for entry in case.pedigree
+        )
+
+
+class SmallVariantQuickPresetsApiView(
+    views.APIView,
+):
+    """
+    Resolve quick preset name to category preset.
+
+    **URL:** ``/variants/api/query-case/quick-presets``
+
+    **Methods:** ``GET``
+
+    **Returns:** A dict mapping each of the category names to category preset values.
+    """
+
+    def get(self, *args, **kwargs):
+        return Response(cattr.unstructure(QUICK_PRESETS))
+
+
+class SmallVariantCategoryPresetsApiView(
+    views.APIView,
+):
+    """
+    List all presets for the given category.
+
+    **URL:** ``/variants/api/query-case/category-presets/{category}``
+
+    **Methods:** ``GET``
+
+    **Returns:** A dict mapping each of the category names to category preset values.
+    """
+
+    def get(self, *args, **kwargs):
+        presets = {
+            "frequency": FREQUENCY_PRESETS,
+            "impact": IMPACT_PRESETS,
+            "quality": QUALITY_PRESETS,
+            "chromosomes": CHROMOSOME_PRESETS,
+            "flags_etc": FLAGS_ETC_PRESETS,
+        }
+        return Response(cattr.unstructure(presets.get(self.kwargs.get("category"))))
+
+
+class SmallVariantInheritancePresetsApiView(
+    views.APIView,
+):
+    """
+    List all inheritance presets for the given case.
+
+    **URL:** ``/variants/api/query-case/inheritance-presets/{case.sodar_uuid}``
+
+    **Methods:** ``GET``
+
+    **Returns:** A dict mapping each of the category names to category preset values.
+    """
+
+    def get(self, *args, **kwargs):
+        pedigree_members = self._get_pedigree_members()
+        return Response(
+            {
+                inheritance.value: inheritance.to_settings(pedigree_members)
+                for inheritance in Inheritance
+                if inheritance.value != "custom"
+            }
+        )
+
+    def _get_pedigree_members(self) -> typing.Tuple[query_presets.PedigreeMember]:
+        """Return pedigree members for the queried case."""
+        case = Case.objects.get(sodar_uuid=self.kwargs["case"])
         return tuple(
             query_presets.PedigreeMember(
                 family=None,

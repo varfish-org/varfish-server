@@ -3,7 +3,7 @@ MANAGE = time python manage.py
 
 .PHONY: black
 black:
-	black -l 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src)/' $(arg) .
+	black -l 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' $(arg) .
 
 .PHONY: npm-install
 npm-install:
@@ -74,6 +74,10 @@ test-noselenium:
 .PHONY: vue_test
 vue_test:
 	npm run --prefix varfish/vueapp test:unit $(arg)
+
+.PHONY: vue_test-coverage
+vue_test-coverage:
+	npm run --prefix varfish/vueapp test:unit-coverage $(arg)
 
 .PHONY: vue_lint
 vue_lint:

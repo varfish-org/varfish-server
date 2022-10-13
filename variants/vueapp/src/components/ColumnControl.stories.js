@@ -3,6 +3,7 @@ import ColumnControl from './ColumnControl.vue'
 export default {
   title: 'Variants / Column Control',
   component: ColumnControl,
+  parameters: {},
 }
 
 const Template = (args) => ({

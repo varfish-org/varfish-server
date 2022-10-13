@@ -51,7 +51,7 @@ const emptyAcmgCriteriaRatingTemplate = {
 }
 
 export const useVariantDetailsStore = defineStore({
-  id: 'useVariantDetailsStore',
+  id: 'variantDetails',
   state: () => ({
     fetched: false,
     geneId: null,
