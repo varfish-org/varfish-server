@@ -1,0 +1,24 @@
+{
+  "sodar_uuid": "3b22fce8-9be8-4387-8e6e-3be73f4228fb",
+  "date_created": "2022-01-26T15:52:37.674189Z",
+  "date_modified": "2022-10-06T14:54:33.035374Z",
+  "release": "GRCh37",
+  "name": "NA12878",
+  "index": "NA12878-N1-DNA1-WES1",
+  "pedigree": [
+    {
+      "sex": 2,
+      "father": "0",
+      "mother": "0",
+      "name": "NA12878-N1-DNA1-WES1",
+      "affected": 2,
+      "has_gt_entries": true
+    }
+  ],
+  "num_small_vars": 1862774,
+  "num_svs": null,
+  "notes": "",
+  "status": "initial",
+  "tags": [],
+  "project": "d5b5f971-91ec-4f56-ad41-9e48b6e91e2b"
+}

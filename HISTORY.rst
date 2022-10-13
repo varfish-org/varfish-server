@@ -142,6 +142,8 @@ Full Change List
 - Switching to use unplugin-icons clinvarexport Vue.js icons (#736).
 - Adding support for Storybook.js (#736).
 - Display warning icon in filter results table if non-selected frequency is high (#708).
+- Adding switch to toggle inline filter help (#700).
+- Adding missing tabs for Vue.js variants (#700).
 
 ------
 v1.2.0

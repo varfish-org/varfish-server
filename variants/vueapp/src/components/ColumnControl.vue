@@ -176,10 +176,15 @@ const displayColumnsWrapper = computed({
 </script>
 
 <template>
-  <span>
+  <div class="pr-3 align-self-start">
+    <div>
+      <label class="font-weight-bold small mb-0 text-nowrap">
+        Coordinates / ClinVar
+      </label>
+    </div>
     <select
       v-model="displayDetailsWrapper"
-      class="custom-select pl-2"
+      class="custom-select custom-select-sm"
       style="width: 150px"
     >
       <option
@@ -190,8 +195,14 @@ const displayColumnsWrapper = computed({
         {{ option.text }}
       </option>
     </select>
+  </div>
+
+  <div class="pr-3 align-self-start">
+    <div>
+      <label class="font-weight-bold small mb-0 text-nowrap"> Frequency </label>
+    </div>
     <select
-      class="custom-select"
+      class="custom-select custom-select-sm"
       style="width: 150px"
       v-model="displayFrequencyWrapper"
     >
@@ -203,9 +214,17 @@ const displayColumnsWrapper = computed({
         {{ option.text }}
       </option>
     </select>
+  </div>
+
+  <div class="pr-3 align-self-start">
+    <div>
+      <label class="font-weight-bold small mb-0 text-nowrap">
+        Constraints
+      </label>
+    </div>
     <select
       v-model="displayConstraintWrapper"
-      class="custom-select"
+      class="custom-select custom-select-sm"
       style="width: 150px"
     >
       <option
@@ -216,18 +235,38 @@ const displayColumnsWrapper = computed({
         {{ option.text }}
       </option>
     </select>
-    <div style="width: 300px; display: inline-block">
-      <Multiselect
-        v-model="displayColumnsWrapper"
-        mode="multiple"
-        :hide-selected="false"
-        :allow-empty="true"
-        :close-on-select="true"
-        :searchable="true"
-        :options="columnOptions"
-      />
+  </div>
+
+  <div class="pr-3 align-self-start extra-columns">
+    <div style="width: 250px">
+      <label class="font-weight-bold small mb-0 text-nowrap">
+        Extra Columns
+      </label>
     </div>
-  </span>
+    <Multiselect
+      v-model="displayColumnsWrapper"
+      mode="multiple"
+      :hide-selected="false"
+      :allow-empty="true"
+      :close-on-select="true"
+      :searchable="true"
+      :options="columnOptions"
+    />
+  </div>
 </template>
 
 <style src="@vueform/multiselect/themes/default.css"></style>
+
+<style>
+.extra-columns {
+  --ms-font-size: 0.875rem;
+  --ms-line-height: 1.5;
+  --ms-py: 0.26rem;
+  --ms-caret-color: #343a40;
+  --ms-clear-color: #343a40;
+}
+
+.multiselect {
+  color: #343a40;
+}
+</style>

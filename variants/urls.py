@@ -402,7 +402,7 @@ ui_urlpatterns = [
         name="refresh-small-variant-summaries-job-detail",
     ),
     url(
-        regex=r"^vue3app/(?P<case>[0-9a-f-]+)/$",
+        regex=r"^vueapp/(?P<case>[0-9a-f-]+)/$",
         view=views.SmallVariantFilterForm.as_view(),
         name="entrypoint",
     ),
@@ -561,6 +561,21 @@ api_urlpatterns = [
         regex=r"^api/query-case/query-settings-shortcut/(?P<case>[0-9a-f-]+)/$",
         view=views_api.SmallVariantQuerySettingsShortcutApiView.as_view(),
         name="api-query-settings-shortcut",
+    ),
+    url(
+        regex=r"^api/query-case/quick-presets/$",
+        view=views_api.SmallVariantQuickPresetsApiView.as_view(),
+        name="api-quick-presets",
+    ),
+    url(
+        regex=r"^api/query-case/category-presets/(?P<category>[a-zA-Z0-9\._-]+)/$",
+        view=views_api.SmallVariantCategoryPresetsApiView.as_view(),
+        name="api-category-presets",
+    ),
+    url(
+        regex=r"^api/query-case/inheritance-presets/(?P<case>[0-9a-f-]+)/$",
+        view=views_api.SmallVariantInheritancePresetsApiView.as_view(),
+        name="api-inheritance-presets",
     ),
     url(
         regex=r"^api/query-case/hpo-terms/(?P<smallvariantquery>[0-9a-f-]+)/$",

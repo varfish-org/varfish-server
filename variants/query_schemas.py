@@ -335,6 +335,7 @@ class QueryJsonToFormConverter:
             "clinvar_include_likely_benign": query.clinvar_include_likely_benign,
             "clinvar_include_uncertain_significance": query.clinvar_include_uncertain_significance,
             "clinvar_include_likely_pathogenic": query.clinvar_include_likely_pathogenic,
+            "clinvar_include_pathogenic": query.clinvar_include_pathogenic,
             "flag_simple_empty": query.flag_simple_empty,
             "flag_bookmarked": query.flag_bookmarked,
             "flag_candidate": query.flag_candidate,

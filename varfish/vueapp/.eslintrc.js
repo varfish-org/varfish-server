@@ -9,6 +9,7 @@ module.exports = {
       { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
     ],
   },
+  ignorePatterns: ['static/**'],
   extends: ['eslint:recommended', 'plugin:vue/vue3-recommended', 'prettier'],
   root: true,
   env: {

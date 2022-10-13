@@ -1,14 +1,16 @@
-{% extends 'projectroles/project_base.html' %}
-
+{% extends 'projectroles/base.html' %}
+{% load projectroles_common_tags %}
 {% load vite_tags %}
 
 {% block title %}
   Filter Variants: {{ case.name }}
 {% endblock title %}
 
-{% block projectroles_extend %}
+{% block projectroles %}
+  {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
+
   <div id="sodar-ss-app-context" app-context="{{ app_context }}"></div>
-  <div id="app"></div>
+  <div id="app" class="h-100"></div>
 
   {% vite_scripts 'src/variants/main.js' %}
   {% vite_styles 'src/variants/main.js' %}

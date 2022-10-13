@@ -1,9 +1,9 @@
 <template>
-  <SmallVariantFilterApp />
+  <FilterApp />
 </template>
 
 <script setup>
-import SmallVariantFilterApp from './components/SmallVariantFilterApp.vue'
+import FilterApp from './components/FilterApp.vue'
 </script>
 
 <style></style>

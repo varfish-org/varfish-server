@@ -130,14 +130,9 @@ jobs:
       - name: Install javascript dependencies
         run: |
           npm ci --prefix varfish/vueapp
-          # We need to patch happy-dom until 6.0.5 or so is released
-          # see patch.sh for details.
-          cd varfish/vueapp
-          bash patch.sh
-          cd ..
       - name: Run Vue app tests
         run: |
-          make vue_test
+          make vue_test-coverage
       - name: Run Codecov for Javascript
         run: |
           /tmp/codecov -cF javascript

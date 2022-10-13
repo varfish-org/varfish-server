@@ -1021,3 +1021,20 @@ class SmallVariantDetailsSerializer(serializers.Serializer):
     comments = SmallVariantCommentSerializer(many=True)
     flags = SmallVariantFlagsSerializer()
     acmg_rating = AcmgCriteriaRatingSerializer()
+
+
+class QuickPresetSerializer(serializers.BaseSerializer):
+    inheritance = serializers.CharField()
+    frequency = serializers.CharField()
+    impact = serializers.CharField()
+    chromosomes = serializers.CharField()
+    flags_etc = serializers.CharField()
+
+    def to_representation(self, instance):
+        return {
+            "inheritance": instance.inheritance,
+            "frequency": instance.frequency,
+            "impact": instance.impact,
+            "chromosomes": instance.chromosomes,
+            "flags_etc": instance.flags_etc,
+        }
