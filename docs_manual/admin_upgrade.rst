@@ -81,6 +81,11 @@ This is not strictly necessary and it is recommended to re-annotate and re-impor
 v1.2.2 to v1.2.3
 ----------------
 
+**Downtime Notice**
+The upgrade will require you to rebuild your in-house database.
+Depending on the number of cases and the performance of your server, this may take a long time.
+Please plan your update accordingly.
+
 **ClinVar Updates**
 First, make sure that you have upgraded the data to ``20210728b`` following :ref:`admin_upgrade_data_release_20210728`.
 Then, upgrade by just updating your ``varfish-docker-compose`` repository clone and calling ``docker-compose down && docker-compose up -d``.
@@ -111,7 +116,7 @@ After startup, you can now do the following if you use GRCh37:
 
 ::
 
-    docker exec -it varfish-docker-compose_varfish-web_1 python manage.py \
+    docker exec -it varfish-docker-compose_varfish-web_1 python /usr/src/app/manage.py \
         import_tables --force --truncate --tables-path /data/varfish-server-background-db-20210728c-grch37 \
         --threads=0
 
@@ -119,12 +124,23 @@ If you use GRCh38, use
 
 ::
 
-    docker exec -it varfish-docker-compose_varfish-web_1 python manage.py \
+    docker exec -it varfish-docker-compose_varfish-web_1 python /usr/src/app/manage.py \
         import_tables --force --truncate --tables-path /data/varfish-server-background-db-20210728c-grch38 \
         --threads=0
 
 This will import the ClinVar version from the 20210728 release in the fixed format compatible with ``v1.2.2``.
-Note that this will also import a patch to the TAD data in
+Note that this will also import a patch to the TAD data in VarFish.
+
+After importing the data, the precomputed in-house database will have been cleared.
+This leads to querying being broken.
+To fix this, you have to run the following.
+
+::
+
+    docker exec -it varfish-docker-compose_varfish-web_1 python /usr/src/app/manage.py \
+        rebuild_variant_summary
+
+This command may run for a long time, depending on the number of samples in your database and your disk speed.
 
 In case of any issues, contact us in the `Github Discussion <https://github.com/bihealth/varfish-server/discussions>`__ or directly by email.
 
