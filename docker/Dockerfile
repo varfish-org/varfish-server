@@ -117,6 +117,7 @@ RUN cd /usr/src/app && \
 
 # Prepare static files
 RUN cd /usr/src/app && \
+    mkdir -p /usr/src/app/clinvar_export/vueapp/dist && \
     npm --prefix clinvar_export/vueapp run build && \
     DJANGO_SECRET_KEY=for-build-only \
       DJANGO_SETTINGS_MODULE=config.settings.production \
