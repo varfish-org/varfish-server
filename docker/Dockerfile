@@ -116,8 +116,9 @@ RUN cd /usr/src/app && \
     python manage.py geticons -c mdi bi cil fa-regular fa-solid fluent gridicons octicon icon-park-outline
 
 # Prepare static files
-RUN cd /usr/src/app && \
-    npm --prefix clinvar_export/vueapp run build && \
+RUN mkdir -p /usr/src/app/clinvar_export/vueapp/dist && \
+    cd /usr/src/app && \
+    npm --prefix varfish/vueapp run build && \
     DJANGO_SECRET_KEY=for-build-only \
       DJANGO_SETTINGS_MODULE=config.settings.production \
       DATABASE_URL=postgres://varfish:varfish@fake/varfish \
