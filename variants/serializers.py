@@ -20,15 +20,19 @@ from geneinfo.models import (
     NcbiGeneRif,
 )
 from genepanels.models import expand_panels_in_gene_list
+from svs.models import SvAnnotationReleaseInfo
 
 from .forms import FilterForm
 from .models import (
     AcmgCriteriaRating,
+    AnnotationReleaseInfo,
     Case,
+    CasePhenotypeTerms,
     SmallVariant,
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
+    SmallVariantSet,
 )
 from .query_schemas import (
     SCHEMA_QUERY_V1,
@@ -135,11 +139,54 @@ class CoreCaseSerializerMixin:
         return [{{"name": "patient"}.get(k, k): v for k, v in m.items()} for m in pedigree]
 
 
+class AnnotationReleaseInfoSerializer(SODARModelSerializer):
+    class Meta:
+        model = AnnotationReleaseInfo
+        fields = (
+            "genomebuild",
+            "table",
+            "timestamp",
+            "release",
+        )
+        read_only_fields = fields
+
+
+class SvAnnotationReleaseInfoSerializer(SODARModelSerializer):
+    class Meta:
+        model = SvAnnotationReleaseInfo
+        fields = (
+            "genomebuild",
+            "table",
+            "timestamp",
+            "release",
+        )
+        read_only_fields = fields
+
+
+class CasePhenotypeTermsSerializer(SODARModelSerializer):
+    terms = serializers.JSONField()
+
+    class Meta:
+        model = CasePhenotypeTerms
+        fields = (
+            "individual",
+            "terms",
+        )
+        read_only_fields = fields
+
+
 class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
     """Serializer for the ``Case`` model."""
 
     pedigree = serializers.models.JSONField()
-    project = serializers.ReadOnlyField(source="case.project.sodar_uuid")
+    project = serializers.ReadOnlyField(source="project.sodar_uuid")
+    annotationreleaseinfo_set = AnnotationReleaseInfoSerializer(many=True, read_only=True)
+    svannotationreleaseinfo_set = SvAnnotationReleaseInfoSerializer(many=True, read_only=True)
+    phenotype_terms = CasePhenotypeTermsSerializer(many=True, read_only=True)
+    casealignmentstats = serializers.SerializerMethodField("get_casealignmentstats")
+    casevariantstats = serializers.SerializerMethodField("get_casevariantstats")
+    relatedness = serializers.SerializerMethodField("get_relatedness")
+    sex_errors = serializers.SerializerMethodField("get_sex_errors")
 
     def create(self, validated_data):
         """Make project and release writeable on creation."""
@@ -147,10 +194,69 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
         validated_data["release"] = self.context["release"]
         return super().create(validated_data)
 
+    def get_casealignmentstats(self, obj):
+        variant_set = obj.latest_variant_set
+        if variant_set:
+            try:
+                return variant_set.casealignmentstats.bam_stats
+            except SmallVariantSet.casealignmentstats.RelatedObjectDoesNotExist:
+                return None
+        else:
+            return None
+
+    def get_casevariantstats(self, obj):
+        keys = [
+            "ontarget_transitions",
+            "ontarget_transversions",
+            "ontarget_snvs",
+            "ontarget_indels",
+            "ontarget_mnvs",
+            "ontarget_effect_counts",
+            "ontarget_indel_sizes",
+            "ontarget_dps",
+            "ontarget_dp_quantiles",
+            "het_ratio",
+            "chrx_het_hom",
+        ]
+        result = {}
+        variant_set = obj.latest_variant_set
+        if variant_set:
+            try:
+                for var_stats in variant_set.variant_stats.sample_variant_stats.all():
+                    result[var_stats.sample_name] = {key: getattr(var_stats, key) for key in keys}
+            except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
+                pass
+        return result
+
+    def get_relatedness(self, obj):
+        keys = [
+            "sample1",
+            "sample2",
+            "het_1_2",
+            "het_1",
+            "het_2",
+            "n_ibs0",
+            "n_ibs1",
+            "n_ibs2",
+        ]
+        result = []
+        variant_set = obj.latest_variant_set
+        if variant_set:
+            try:
+                for relatedness in variant_set.variant_stats.relatedness.all():
+                    result.append({key: getattr(relatedness, key) for key in keys})
+            except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
+                pass
+        return result
+
+    def get_sex_errors(self, obj):
+        return obj.sex_errors()
+
     class Meta:
         model = Case
         fields = (
             "sodar_uuid",
+            "project",
             "date_created",
             "date_modified",
             "release",
@@ -163,15 +269,30 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "notes",
             "status",
             "tags",
+            "annotationreleaseinfo_set",
+            "svannotationreleaseinfo_set",
+            "phenotype_terms",
+            "casealignmentstats",
+            "casevariantstats",
+            "relatedness",
+            "sex_errors",
         )
         read_only_fields = (
             "sodar_uuid",
+            "project",
             "date_created",
             "date_modified",
             "num_small_vars",
             "num_svs",
             "project",
             "release",
+            "annotationreleaseinfo_set",
+            "svannotationreleaseinfo_set",
+            "phenotype_terms",
+            "casealignmentstats",
+            "casevariantstats",
+            "relatedness",
+            "sex_errors",
         )
 
 

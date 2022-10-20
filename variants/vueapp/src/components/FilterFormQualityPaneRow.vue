@@ -1,5 +1,6 @@
 <script setup>
-import { declareWrapper, displayName } from '../helpers.js'
+import { declareWrapper } from '../helpers.js'
+import { displayName } from '@varfish/helpers.js'
 import { onMounted } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import {

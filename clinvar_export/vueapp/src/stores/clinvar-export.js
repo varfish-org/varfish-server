@@ -5,6 +5,7 @@ import {
   isDiseaseTerm,
   uuidv4,
 } from '@clinvarexport/helpers'
+import { sodarObjectListToObject } from '@varfish/api-utils.js'
 import { defineStore } from 'pinia'
 
 /**
@@ -167,16 +168,6 @@ export const VARIANT_TYPE = Object.freeze([
   'Deletion',
   'Duplication',
 ])
-
-/**
- * Convert Array of objects with `sodar_uuid` member to mapping from UUID to object.
- *
- * @param lst Array with such objects.
- * @return Object with the mapping.
- */
-function sodarObjectListToObject(lst) {
-  return Object.fromEntries(lst.map((o) => [o.sodar_uuid, o]))
-}
 
 /**
  * Extract variant zygosity information from this for the given smallVariant.

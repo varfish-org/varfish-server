@@ -6,8 +6,6 @@ from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 
 from ..models import FilterBgJob, SmallVariantQuery
 from ..query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
-from ..serializers import JobStatus
-from ..views_api import JobStatus
 from .factories import CaseWithVariantSetFactory, FilterBgJobFactory, SmallVariantQueryFactory
 from .helpers import VARFISH_INVALID_MIMETYPE, VARFISH_INVALID_VERSION, ApiViewTestBase
 
@@ -38,18 +36,25 @@ class TestCaseApiViews(ApiViewTestBase):
             "pedigree": transmogrify_pedigree(case.pedigree),
             "num_small_vars": case.num_small_vars,
             "num_svs": case.num_svs,
-            "project": str(case.project.sodar_uuid),
+            "project": case.project.sodar_uuid,
             "notes": case.notes,
             "status": case.status,
             "tags": case.tags,
             "release": case.release,
+            "relatedness": [],
+            "phenotype_terms": [],
+            "sex_errors": {},
+            "svannotationreleaseinfo_set": [],
+            "annotationreleaseinfo_set": [],
+            "casealignmentstats": None,
+            "casevariantstats": {},
         }
 
     def _test_list_with_invalid_x(self, media_type=None, version=None):
         with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
-                    "variants:api-case-list",
+                    "cases:api-case-list",
                     kwargs={"project": self.case.project.sodar_uuid},
                 ),
                 media_type=media_type,
@@ -67,7 +72,7 @@ class TestCaseApiViews(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
-                    "variants:api-case-list",
+                    "cases:api-case-list",
                     kwargs={"project": str(self.case.project.sodar_uuid)},
                 ),
             )

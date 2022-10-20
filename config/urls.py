@@ -83,6 +83,7 @@ urlpatterns += [
     url(r"^beaconsite/", include("beaconsite.urls")),
     url(r"^genepanels/", include("genepanels.urls")),
     url(r"^vueapp/", include("varfish.vueapp.urls")),
+    url(r"^cases/", include("cases.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

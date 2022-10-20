@@ -1,5 +1,5 @@
 <script setup>
-import { displayName } from '../helpers.js'
+import { displayName } from '@varfish/helpers.js'
 import FilterFormGenotypePaneSex from './FilterFormGenotypePaneSex.vue'
 import FilterFormGenotypePaneAffected from './FilterFormGenotypePaneAffected.vue'
 import { computed, reactive } from 'vue'

@@ -83,28 +83,6 @@ class VariantsApiBaseMixin(SODARAPIGenericProjectMixin):
     permission_classes = [SODARAPIProjectPermission]
 
 
-class CaseListApiView(VariantsApiBaseMixin, ListAPIView):
-    """
-    List all cases in the current project.
-
-    **URL:** ``/variants/api/case/{project.sodar_uid}/``
-
-    **Methods:** ``GET``
-
-    **Returns:** List of project details (see :py:class:`CaseRetrieveApiView`)
-    """
-
-    renderer_classes = [VarfishApiRenderer]
-    versioning_class = VarfishApiVersioning
-    serializer_class = CaseSerializer
-
-    def get_queryset(self):
-        return Case.objects.filter(project=self.get_project())
-
-    def get_permission_required(self):
-        return "variants.view_data"
-
-
 class CaseApiMixin(VariantsApiBaseMixin):
     lookup_field = "sodar_uuid"
     lookup_url_kwarg = "case"

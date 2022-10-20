@@ -6,6 +6,7 @@ import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 import { QueryStates, QueryStateToText } from '@variants/enums'
 import VariantDetailsModalWrapper from './VariantDetailsModalWrapper.vue'
 import { watch, ref, onMounted, nextTick } from 'vue'
+import { updateUserSetting } from '@varfish/user-settings.js'
 
 const components = {
   VariantDetailsModalWrapper,
@@ -69,27 +70,16 @@ watch(
   }
 )
 
-const updateUserSetting = async (settingName, newValue) => {
-  const url = `/vueapp/ajax/user-setting/${settingName}/`
-  const response = await fetch(url, {
-    method: 'POST',
-    credentials: 'same-origin',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      'X-CSRFToken': filterQueryStore.csrfToken,
-    },
-    body: JSON.stringify({ value: newValue }),
-  })
-  return response
-}
-
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
   () => filterQueryStore.showFiltrationInlineHelp,
   (newValue, oldValue) => {
     if (newValue !== oldValue) {
-      updateUserSetting('vueapp.filtration_inline_help', newValue)
+      updateUserSetting(
+        filterQueryStore.csrfToken,
+        'vueapp.filtration_inline_help',
+        newValue
+      )
     }
     $('#vueapp-filtration-inline-help').prop('checked', newValue)
   }
@@ -98,7 +88,11 @@ watch(
   () => filterQueryStore.filtrationComplexityMode,
   (newValue, oldValue) => {
     if (newValue !== oldValue) {
-      updateUserSetting('vueapp.filtration_complexity_mode', newValue)
+      updateUserSetting(
+        filterQueryStore.csrfToken,
+        'vueapp.filtration_complexity_mode',
+        newValue
+      )
     }
     $('#vueapp-filtration-complexity-mode').val(newValue).change()
   }
@@ -134,7 +128,7 @@ onMounted(() => {
 <template>
   <div v-if="filterQueryStore.case !== null" class="d-flex flex-column h-100">
     <!-- title etc. -->
-    <div class="row sodar-pr-content-title pb-2">
+    <div class="row sodar-pr-content-title pb-1">
       <!-- TODO buttons from sodar core -->
       <h2 class="sodar-pr-content-title">
         Filter Variants for Case
