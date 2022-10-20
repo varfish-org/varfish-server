@@ -1,7 +1,7 @@
 <script setup>
 import { useVuelidate } from '@vuelidate/core'
 import { computed, onMounted } from 'vue'
-import { displayName } from '../helpers.js'
+import { displayName } from '@varfish/helpers.js'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,

@@ -5,7 +5,7 @@ import App from './App.vue'
 
 const app = createApp(App)
 
-import { displayName } from '@variants/helpers'
+import { displayName } from '@varfish/helpers.js'
 // https://gist.github.com/sebleier/554280
 import { stopWords } from '@variants/stopWords.json'
 

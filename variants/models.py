@@ -249,8 +249,11 @@ class CaseAwareProject(Project):
         for case in self.case_set.all():
             variant_set = case.latest_variant_set
             if variant_set:
-                for sample in variant_set.variant_stats.sample_variant_stats.all():
-                    stats.append(sample)
+                try:
+                    for sample in variant_set.variant_stats.sample_variant_stats.all():
+                        stats.append(sample)
+                except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
+                    pass
         return stats
 
 

@@ -15,7 +15,8 @@
   {% endif %}
 
   {% get_user_setting user "vueapp" "filtration_inline_help" as filtration_inline_help %}
-  {% if "/variants/vue" in request.path %}
+  {% get_user_setting user "vueapp" "filtration_complexity_mode" as filtration_complexity_mode %}
+  {% if "/variants/vue" in request.path or "/cases/vue" in request.path %}
     <li class="nav-item pl-4 ml-3">
       <div class="nav-link custom-control custom-switch" title="Show inline help in variant filtration.">
         <input type="checkbox" class="custom-control-input" id="vueapp-filtration-inline-help" {% if filtration_inline_help %}checked=""{% endif %}>
@@ -24,10 +25,6 @@
         </label>
       </div>
     </li>
-  {% endif %}
-
-  {% get_user_setting user "vueapp" "filtration_complexity_mode" as filtration_complexity_mode %}
-  {% if "/variants/vue" in request.path %}
     <li class="nav-item mr-5">
       <div class="nav-link custom-control" title="Complexity in filtration forms.">
         <select class="navbar-custom-select navbar-custom-select-sm" id="vueapp-filtration-complexity-mode">

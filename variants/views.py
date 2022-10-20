@@ -671,6 +671,7 @@ class CaseListQcStatsApiView(
                     ).all()
                 )
             ),
+            "varStats": [model_to_dict(s) for s in project.sample_variant_stats()],
         }
 
         return JsonResponse(result)

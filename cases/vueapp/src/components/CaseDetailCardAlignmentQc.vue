@@ -1,0 +1,121 @@
+<script setup>
+import { useCaseDetailsStore } from '../stores/case-details'
+import { displayName, formatLargeInt } from '@varfish/helpers.js'
+import { computed } from 'vue'
+
+const caseDetailsStore = useCaseDetailsStore()
+
+const coverages = [0, 10, 20, 30, 40, 50]
+
+const caseAlignmentStats = computed(() => {
+  if (
+    !caseDetailsStore.caseObj ||
+    !caseDetailsStore.caseObj.casealignmentstats
+  ) {
+    return null
+  } else {
+    return caseDetailsStore.caseObj.casealignmentstats
+  }
+})
+
+const getMinCovTarget = (memberName, coverage) => {
+  if (
+    !caseAlignmentStats.value ||
+    !caseAlignmentStats.value[memberName] ||
+    !caseAlignmentStats.value[memberName].min_cov_target ||
+    !caseAlignmentStats.value[memberName].min_cov_target[coverage]
+  ) {
+    return '-'
+  } else {
+    const perc = caseAlignmentStats.value[memberName].min_cov_target[coverage]
+    return `${perc}%`
+  }
+}
+</script>
+
+<template>
+  <div class="card mb-3 varfish-case-list-card flex-grow-1">
+    <h5 class="card-header p-2 pl-2">
+      <i-mdi-chart-box-outline />
+      Alignment Quality Control
+    </h5>
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th style="border-bottom: 0" class="text-center" colspan="3"></th>
+          <th style="border-bottom: 0" class="text-center" colspan="1">
+            Mean Target
+          </th>
+
+          <th
+            style="border-bottom: 0"
+            class="text-center"
+            :colspan="coverages.length"
+          >
+            Exons covered at least
+          </th>
+        </tr>
+        <tr>
+          <th style="width: 15%" class="text-center">Sample</th>
+          <th style="width: 15%" class="text-center">Pairs</th>
+          <th style="width: 15%" class="text-center">Duplicates</th>
+          <th style="width: 15%" class="text-center">Coverage</th>
+          <th
+            v-for="coverage of coverages"
+            style="width: 0"
+            class="text-nowrap text-center"
+          >
+            ≥ {{ coverage }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <template v-if="caseAlignmentStats">
+          <tr v-for="member of caseDetailsStore.caseObj.pedigree">
+            <th>{{ displayName(member.name) }}</th>
+            <td class="text-right">
+              {{
+                formatLargeInt(
+                  caseAlignmentStats[member.name].bamstats.sequences / 2
+                )
+              }}
+            </td>
+            <td class="text-right">
+              {{
+                (
+                  (100.0 *
+                    caseAlignmentStats[member.name].bamstats[
+                      'reads duplicated'
+                    ]) /
+                  caseAlignmentStats[member.name].bamstats['sequences']
+                ).toFixed(1)
+              }}%
+            </td>
+            <td class="text-right">
+              <template
+                v-if="
+                  caseAlignmentStats[member.name].summary &&
+                  caseAlignmentStats[member.name].summary['mean coverage']
+                "
+              >
+                {{ caseAlignmentStats[member.name].summary['mean coverage'] }}x
+              </template>
+              <template v-else> - </template>
+            </td>
+            <td v-for="coverage in coverages">
+              {{ getMinCovTarget(member.name, coverage) }}
+            </td>
+          </tr>
+        </template>
+        <tr v-else>
+          <td
+            :colspan="coverages.length + 4"
+            class="text-center text-muted font-italic"
+          >
+            No coverage information provided.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</template>

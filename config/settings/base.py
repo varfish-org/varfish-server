@@ -120,6 +120,7 @@ LOCAL_APPS = [
     "regmaps.apps.RegmapsConfig",
     "beaconsite.apps.BeaconsiteConfig",
     "genepanels.apps.GenepanelsConfig",
+    "cases.apps.CasesConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

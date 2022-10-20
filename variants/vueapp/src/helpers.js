@@ -4,15 +4,6 @@ export function copy(value) {
   return JSON.parse(JSON.stringify(value))
 }
 
-export function displayName(name) {
-  if (name) {
-    const re = /-N\d+-(DNA|RNA)\d+-(WES|WGS)\d+$/
-    return name.replace(re, '')
-  } else {
-    return name
-  }
-}
-
 /**
  * Helper function to declare a wrapper around the props.
  *

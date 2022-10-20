@@ -68,6 +68,7 @@ End-User Summary
 - Allow operators to upload per-gene annotations to cases (#575) on import.
 - Display warning icon in filter results table if non-selected frequency is high (#708).
 - Fix query schema (#749).
+- Migrating case list and details to Vue.js (#743).
 
 Full Change List
 ================
@@ -147,6 +148,7 @@ Full Change List
 - Adding missing tabs for Vue.js variants (#700).
 - Fix query schema (#749).
 - Bumping sodar-core dependency (#750).
+- Migrating case list and details to Vue.js (#743).
 
 ------
 v1.2.0

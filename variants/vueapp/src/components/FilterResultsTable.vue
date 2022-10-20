@@ -1,7 +1,7 @@
 <script setup>
 import { AgGridVue } from 'ag-grid-vue3'
 import { computed, reactive, ref } from 'vue'
-import { displayName } from '@variants/helpers'
+import { displayName } from '@varfish/helpers.js'
 import ColumnControl from './ColumnControl.vue'
 import ColumnSizeFitter from './ColumnSizeFitter.vue'
 import { defineColumnDefs } from './FilterResultsTable.columnDefs.js'

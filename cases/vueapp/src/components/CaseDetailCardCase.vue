@@ -1,0 +1,143 @@
+<script setup>
+import { computed, reactive } from 'vue'
+import { CaseStates } from '@cases/stores/cases.js'
+import {
+  displayName,
+  formatTime,
+  formatTimeAgo,
+  formatLargeInt,
+} from '@varfish/helpers.js'
+import { useCaseDetailsStore } from '@cases/stores/case-details'
+
+const caseDetailsStore = useCaseDetailsStore()
+
+const caseObj = computed(() => {
+  if (caseDetailsStore.caseObj) {
+    return caseDetailsStore.caseObj
+  } else {
+    return reactive({ tags: [] })
+  }
+})
+
+const individuals = computed(() => {
+  if (!caseDetailsStore.caseObj) {
+    return []
+  } else {
+    return caseDetailsStore.caseObj.pedigree.map((p) => displayName(p.name))
+  }
+})
+
+const badgeStatusColor = computed(() => {
+  if (caseObj.value && caseObj.value.status) {
+    return 'badge-' + CaseStates[caseObj.value.status].color
+  } else {
+    return ''
+  }
+})
+</script>
+
+<template>
+  <div class="card mb-3 varfish-case-list-card flex-grow-1">
+    <h5 class="card-header p-2 pl-2">
+      <i-mdi-card-account-details-outline />
+      Case Details
+    </h5>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item pl-0">
+        <div class="row">
+          <span class="col-3 text-nowrap font-weight-bold"> Case Name </span>
+          <span class="col-3"> {{ caseObj.name }} </span>
+          <span class="col-2 text-nowrap font-weight-bold"> Individuals </span>
+          <span class="col-4">
+            {{ individuals ? individuals.join(', ') : '-' }}
+          </span>
+        </div>
+      </li>
+      <li class="list-group-item pl-0">
+        <div class="row">
+          <span class="col-3 text-nowrap font-weight-bold"> Created At </span>
+          <span class="col-3" :title="formatTimeAgo(caseObj.date_created)">
+            {{ formatTime(caseObj.date_created) }}
+          </span>
+          <span class="col-2 text-nowrap font-weight-bold">
+            Last Modified
+          </span>
+          <span class="col-4" :title="formatTimeAgo(caseObj.date_modified)">
+            {{ formatTime(caseObj.date_modified) }}</span
+          >
+        </div>
+      </li>
+      <li class="list-group-item pl-0">
+        <div class="row">
+          <span class="col-3 text-nowrap font-weight-bold">
+            Reference Genome
+          </span>
+          <span class="col-3"> {{ caseObj.release }} </span>
+        </div>
+      </li>
+      <li class="list-group-item pl-0">
+        <div class="row">
+          <span class="col-3 text-nowrap font-weight-bold">
+            Status, Notes, &amp; Tags
+          </span>
+          <span class="col-3">
+            <h4>
+              <span class="badge" :class="badgeStatusColor">
+                {{ caseObj.status }}
+              </span>
+            </h4>
+            <div v-if="caseObj && caseObj.tags.length">
+              <span v-for="tag in caseObj.tags" class="badge badge-secondary">
+                {{ tag }}
+              </span>
+            </div>
+            <div>
+              <em v-if="caseObj && caseObj.notes">{{ caseObj.notes }}</em>
+              <em v-if="!caseObj || !caseObj.notes" class="text-muted"
+                >No notes taken (yet).</em
+              >
+            </div>
+          </span>
+        </div>
+      </li>
+      <li class="list-group-item pl-0">
+        <div class="row">
+          <span class="col-3 text-nowrap font-weight-bold">
+            Called Variants
+          </span>
+          <span class="col-3">
+            {{ formatLargeInt(caseObj.num_small_vars) }}
+          </span>
+          <span class="col-3 text-nowrap font-weight-bold"> Called SVs </span>
+          <span class="col-3">
+            {{ formatLargeInt(caseObj.num_svs) }}
+          </span>
+        </div>
+      </li>
+      <li class="list-group-item pl-0">
+        <div class="row">
+          <span class="col-2 text-nowrap font-weight-bold">
+            Annotated Variants
+          </span>
+          <span class="col-4">
+            {{
+              caseDetailsStore.varAnnos !== null
+                ? caseDetailsStore.varAnnos.length
+                : '-'
+            }}
+          </span>
+          <span class="col-2 text-nowrap font-weight-bold">
+            Annotated SVs
+          </span>
+          <span class="col-4">
+            {{
+              caseDetailsStore.varAnnos !== null
+                ? caseDetailsStore.varAnnos.length
+                : '-'
+            }}
+          </span>
+        </div>
+      </li>
+    </ul>
+  </div>
+</template>

@@ -16,6 +16,7 @@ export default defineConfig({
       input: {
         clinvarexport: resolve(__dirname, './src/clinvarexport/main.js'),
         variants: resolve(__dirname, './src/variants/main.js'),
+        cases: resolve(__dirname, './src/cases/main.js'),
       },
     },
   },
@@ -31,9 +32,10 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      '@varfish': resolve(__dirname, './src/varfish'),
       '@clinvarexport': resolve(__dirname, './src/clinvarexport'),
       '@variants': resolve(__dirname, './src/variants'),
-      '@stories': resolve(__dirname, './src/stories'),
+      '@cases': resolve(__dirname, './src/cases'),
     },
     preserveSymlinks: true,
   },
@@ -47,6 +49,8 @@ export default defineConfig({
     include: [
       './tests/clinvarexport/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './tests/variants/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      './tests/cases/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
+    exclude: ['./static/**/*'],
   },
 })

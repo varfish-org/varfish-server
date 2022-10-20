@@ -272,8 +272,6 @@ defineExpose({
   </div>
 </template>
 
-<style src="@vueform/multiselect/themes/default.css"></style>
-
 <style>
 .is-invalid .multiselect__tags {
   border-color: #dc3545;
@@ -282,3 +280,5 @@ defineExpose({
   border-color: #28a745;
 }
 </style>
+
+<style src="@vueform/multiselect/themes/default.css"></style>
