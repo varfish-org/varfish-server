@@ -103,6 +103,7 @@ declare module '@vue/runtime-core' {
     IMdiTableColumnWidth: typeof import('~icons/mdi/table-column-width')['default']
     IMdiTableMergeCells: typeof import('~icons/mdi/table-merge-cells')['default']
     IMdiToggleSwitchOutline: typeof import('~icons/mdi/toggle-switch-outline')['default']
+    IMdiTools: typeof import('~icons/mdi/tools')['default']
     IMdiUndoVariant: typeof import('~icons/mdi/undo-variant')['default']
     IMdiViewListOutline: typeof import('~icons/mdi/view-list-outline')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

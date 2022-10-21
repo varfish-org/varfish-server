@@ -58,7 +58,6 @@ const devStoreState = () => {
               type="radio"
               value="refseq"
               id="id_database_selector_refseq"
-              required
             />
             RefSeq
           </label>
@@ -73,7 +72,6 @@ const devStoreState = () => {
               type="radio"
               value="ensembl"
               id="id_database_selector_ensembl"
-              required
             />
             EnsEMBL
           </label>

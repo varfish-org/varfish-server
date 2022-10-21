@@ -9,13 +9,9 @@ const components = {
 }
 
 const smallVariantLabel = () => {
-  if (props.smallVariant) {
-    const smallVariant = props.smallVariant
-    const start = smallVariant.start.toLocaleString()
-    return `${smallVariant.chromosome}:${start}${smallVariant.reference}>${smallVariant.alternative}`
-  } else {
-    return 'NO VARIANT'
-  }
+  const smallVariant = props.smallVariant
+  const start = smallVariant.start.toLocaleString()
+  return `${smallVariant.chromosome}:${start}${smallVariant.reference}>${smallVariant.alternative}`
 }
 
 const modalRef = ref(null)

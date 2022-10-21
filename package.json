@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/bihealth/varfish-server/issues"
   },
-  "homepage": "https://github.com/bihealth/varfish-server#readme"
+  "homepage": "https://github.com/bihealth/varfish-server#readme",
+  "devDependencies": {
+    "@pinia/testing": "^0.0.14"
+  }
 }

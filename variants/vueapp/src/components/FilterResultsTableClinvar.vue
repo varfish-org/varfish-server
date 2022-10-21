@@ -1,8 +1,4 @@
 <script setup>
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
-
-const store = useFilterQueryStore()
-
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
   params: Object,
@@ -11,11 +7,11 @@ const props = defineProps({
 const getClinvarSignificanceBadge = (patho) => {
   if (patho === 'pathogenic') {
     return 'badge-danger'
-  } else if (patho === 'likely_pathogenic') {
+  } else if (patho === 'likely pathogenic') {
     return 'badge-warning'
-  } else if (patho === 'uncertain_significance') {
+  } else if (patho === 'uncertain significance') {
     return 'badge-info'
-  } else if (patho === 'likely_benign') {
+  } else if (patho === 'likely benign') {
     return 'badge-secondary'
   } else if (patho === 'benign') {
     return 'badge-secondary'

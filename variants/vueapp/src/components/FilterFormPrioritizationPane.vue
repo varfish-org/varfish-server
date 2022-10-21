@@ -100,9 +100,7 @@ defineExpose({ v$ })
         >
           <option value="phenix">Phenix</option>
           <option value="phive">Phive</option>
-          <option value="hiphive-human" selected="">
-            HiPhive (human only)
-          </option>
+          <option value="hiphive-human">HiPhive (human only)</option>
           <option value="hiphive-mouse">HiPhive (human+mouse)</option>
           <option value="hiphive">HiPhive (human, mouse, fish, PPI)</option>
         </select>
@@ -141,11 +139,11 @@ defineExpose({ v$ })
         </div>
       </div>
       <div class="form-group">
-        <label for="patho-algorithm"> Pathogenicity Score </label>
+        <label for="patho-score"> Pathogenicity Score </label>
         <select
           v-model="pathoScoreWrapper"
           class="custom-select"
-          id="patho-algorithm"
+          id="patho-score"
         >
           <option value="mutationtaster">MutationTaster</option>
           <option v-if="props.caddEnabled" value="cadd">CADD</option>

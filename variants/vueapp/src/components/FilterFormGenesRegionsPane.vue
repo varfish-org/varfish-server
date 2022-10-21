@@ -191,8 +191,9 @@ defineExpose({
       </div>
 
       <div
-        :class="{ 'd-none': listType !== 'genomic_region' }"
+        v-show="listType === 'genomic_region'"
         class="form-group"
+        id="genomic-region-section"
       >
         <TokenizingTextarea
           ref="genomicRegionTextareaRef"
@@ -207,8 +208,9 @@ defineExpose({
       </div>
 
       <div
-        :class="{ 'd-none': listType !== 'gene_allowlist' }"
+        v-show="listType === 'gene_allowlist'"
         class="form-group"
+        id="gene-allowlist-section"
       >
         <TokenizingTextarea
           ref="geneAllowListRegionTextareaRef"
@@ -226,8 +228,9 @@ defineExpose({
       </div>
 
       <div
-        :class="{ 'd-none': listType !== 'gene_blocklist' }"
+        v-show="listType === 'gene_blocklist'"
         class="form-group"
+        id="gene-blocklist-section"
       >
         <TokenizingTextarea
           ref="geneBlockListRegionTextareaRef"
@@ -246,7 +249,7 @@ defineExpose({
       </div>
     </div>
   </div>
-  <div v-if="filtrationComplexityMode == 'dev'" class="card-footer">
+  <div v-if="filtrationComplexityMode === 'dev'" class="card-footer">
     <i-mdi-account-hard-hat />
     <strong class="pl-2">Developer Info:</strong>
     <code>

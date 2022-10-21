@@ -111,7 +111,7 @@ const validationResults = {}
 const updateIsValidationRunning = () => {
   let result = false
   for (const entry of Object.values(validationResults)) {
-    result = result || entry.state == 'resolving'
+    result = result || entry.state === 'resolving'
   }
   isValidationRunning.value = result
   nextTick()
@@ -121,7 +121,7 @@ const updateIsValidationRunning = () => {
 const highlightToken = (token) => {
   if (!(token in validationResults)) {
     const cbResult = props.validate(token)
-    if (cbResult === true || cbResult == false) {
+    if (cbResult === true || cbResult === false) {
       validationResults[token] = {
         state: 'resolved',
         result: {
@@ -164,9 +164,9 @@ const highlightToken = (token) => {
 
   let cssClass
   let label = null
-  if (validationResults[token].state == 'resolving') {
+  if (validationResults[token].state === 'resolving') {
     cssClass = 'waiting'
-  } else if (validationResults[token].state == 'rejected') {
+  } else if (validationResults[token].state === 'rejected') {
     cssClass = 'error'
   } else {
     cssClass = validationResults[token].result.valid ? 'good' : 'bad'
@@ -318,7 +318,11 @@ defineExpose({
           <i-fa-solid-circle-notch class="spin" />
           validating...
         </small>
-        <div ref="highlightsRef" class="textarea-highlights"></div>
+        <div
+          ref="highlightsRef"
+          id="textarea-highlights"
+          class="textarea-highlights"
+        ></div>
       </div>
       <textarea
         ref="textareaRef"

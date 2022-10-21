@@ -43,7 +43,10 @@ const mappers = {
 }
 
 const formModel = Object.fromEntries(
-  allKeys.map((key) => [key, declareWrapper(props, key, emit, mappers[key])])
+  allKeys.map((key) => [
+    key,
+    declareWrapper(props, key, emit, mappers[key], key !== 'qualFail'),
+  ])
 )
 
 const v$ = useVuelidate(rules, formModel)

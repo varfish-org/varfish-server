@@ -49,7 +49,10 @@ defineExpose({ v$ })
     as currently it is tracked how many carriers have sufficient coverage for
     each variant.
     <span v-if="props.case && props.case.release === 'GRCh37'"></span>
-    <span v-else-if="props.case && props.case.release === 'GRCh38'">
+    <span
+      v-else-if="props.case && props.case.release === 'GRCh38'"
+      id="warning-text-grch38"
+    >
       Thousand genomes and ExAC frequencies are only available GRCh37 cases.
     </span>
     <div v-else class="alert alert-danger">
@@ -471,7 +474,7 @@ defineExpose({ v$ })
       </tr>
     </tbody>
   </table>
-  <div v-if="filtrationComplexityMode == 'dev'" class="card-footer">
+  <div v-if="filtrationComplexityMode === 'dev'" class="card-footer">
     <span class="text-nowrap">
       <i-mdi-account-hard-hat />
       <strong class="pl-2">Developer Info:</strong>

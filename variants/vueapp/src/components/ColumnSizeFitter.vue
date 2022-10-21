@@ -17,11 +17,6 @@ const autoSizeAll = () => {
     .map((column) => column.getId())
   props.columnApi.autoSizeColumns(allColumnIds)
 }
-
-defineExpose({
-  sizeToFit,
-  autoSizeAll,
-})
 </script>
 
 <template>

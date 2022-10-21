@@ -1,0 +1,2 @@
+prettier:
+	(cd ../.. && make prettier)

@@ -245,7 +245,7 @@ const queryVariantValidatorApi = async () => {
   >
     <div class="alert alert-info">
       <i-fa-solid-circle-notch class="spin" />
-      <strong>Loading ...</strong>
+      <strong class="pl-2">Loading ...</strong>
     </div>
   </div>
   <div v-else>

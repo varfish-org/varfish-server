@@ -12,12 +12,14 @@ const Template = (args) => ({
     return { args }
   },
   template:
+    '<div class="d-flex flex-row">\n' +
     '<ColumnControl\n' +
     '    v-model:display-details="args.displayDetails"\n' +
     '    v-model:display-frequency="args.displayFrequency"\n' +
     '    v-model:display-constraint="args.displayConstraint"\n' +
     '    v-model:display-columns="args.displayColumns"\n' +
-    '/>',
+    '/>\n' +
+    '</div>',
 })
 
 export const Example = Template.bind({})
