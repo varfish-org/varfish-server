@@ -528,9 +528,9 @@
           "title": "Maximal relative frequencey of carriers in mtdb",
           "description": "When ``mtdb_enabled`` then only variants with a fraction (between 0 and 0.05) of at most ``mtdb_frequency``, use ``null`` for not applying threshold",
           "minimum": 0,
-          "maximum": 0.05,
+          "maximum": 1,
           "examples": [
-            0.05
+            0.05, 0.15
           ]
         }
       ]

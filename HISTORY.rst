@@ -67,6 +67,7 @@ End-User Summary
 - Adding support to create custom gene panels (#723).
 - Allow operators to upload per-gene annotations to cases (#575) on import.
 - Display warning icon in filter results table if non-selected frequency is high (#708).
+- Fix query schema (#749).
 
 Full Change List
 ================
@@ -144,6 +145,7 @@ Full Change List
 - Display warning icon in filter results table if non-selected frequency is high (#708).
 - Adding switch to toggle inline filter help (#700).
 - Adding missing tabs for Vue.js variants (#700).
+- Fix query schema (#749).
 
 ------
 v1.2.0

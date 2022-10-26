@@ -103,9 +103,15 @@ function previousQueryDetailsToQuerySettings(caseObj, previousQueryDetails) {
     if (key.startsWith('effect_')) {
       keysToDel.push(key)
     }
-    if (key.startsWith('flag_phenotype_')) {
+    if (
+      key.startsWith('flag_phenotype_') &&
+      !key.startsWith('flag_phenotype_match_')
+    ) {
       keysToDel.push(key)
       result[key.replace('_phenotype_', '_phenotype_match_')] = result[key]
+    }
+    if (key.endsWith('_export')) {
+      keysToDel.push(key)
     }
   }
 
