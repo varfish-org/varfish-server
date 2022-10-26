@@ -13,6 +13,9 @@ export default defineConfig({
     // overwrite default .html entry
     outDir: 'static/vueapp',
     rollupOptions: {
+      output: {
+        hoistTransitiveImports: false
+      },
       input: {
         clinvarexport: resolve(__dirname, './src/clinvarexport/main.js'),
         variants: resolve(__dirname, './src/variants/main.js'),
