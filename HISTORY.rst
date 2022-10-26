@@ -146,6 +146,7 @@ Full Change List
 - Adding switch to toggle inline filter help (#700).
 - Adding missing tabs for Vue.js variants (#700).
 - Fix query schema (#749).
+- Bumping sodar-core dependency (#750).
 
 ------
 v1.2.0
