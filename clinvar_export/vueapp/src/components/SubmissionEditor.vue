@@ -20,8 +20,6 @@ import {
 import SubmissionCaseList from './SubmissionCaseList.vue'
 import { ref, computed, onMounted } from 'vue'
 
-const components = { Multiselect, SubmissionCaseList }
-
 // Define Pinia store and shorcut for currentSubmissionSet
 const store = useClinvarExportStore()
 const currentSubmissionSet = ref(store.currentSubmissionSet)
@@ -771,7 +769,7 @@ defineExpose({
 
       <div id="input-group-diseases" class="form-group col-12 pl-0 pr-0">
         <label for="input-diseases">Disease(s)</label>
-        <multiselect
+        <Multiselect
           id="input-diseases"
           v-model="v$.diseases.$model"
           placeholder="Select OMIM disease(s) for this variant"
@@ -791,7 +789,7 @@ defineExpose({
             'is-invalid': v$.diseases.$error,
           }"
           :options="asyncFindOmimDiseases"
-        ></multiselect>
+        />
         <small class="form-text text-muted">
           Select zero, one, or more OMIM diseases for annotating the submission
           with.
@@ -804,3 +802,5 @@ defineExpose({
     </div>
   </div>
 </template>
+
+<style src="@vueform/multiselect/themes/default.css"></style>

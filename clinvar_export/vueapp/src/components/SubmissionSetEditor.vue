@@ -9,8 +9,6 @@ import {
   useClinvarExportStore,
 } from '@clinvarexport/stores/clinvar-export'
 
-const components = { Multiselect }
-
 // Define Pinia store and shortcut for currentSubmissionSet
 const store = useClinvarExportStore()
 const currentSubmissionSet = ref(store.currentSubmissionSet)
@@ -241,7 +239,7 @@ defineExpose({
 
       <div id="input-group-organisations" class="form-group">
         <label for="input-organisations">Submitting Organisation(s)</label>
-        <multiselect
+        <Multiselect
           id="input-organisations"
           v-model="v$.organisations.$model"
           placeholder="Select submitting organisations"
@@ -255,7 +253,7 @@ defineExpose({
             'is-invalid': v$.organisations.$error,
           }"
           aria-describedby="input-group-organisations-feedback"
-        ></multiselect>
+        />
         <div
           v-for="error of v$.organisations.$errors"
           :key="error.$uid"
