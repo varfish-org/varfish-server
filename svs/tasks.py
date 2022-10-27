@@ -63,5 +63,5 @@ def setup_periodic_tasks(sender, **_kwargs):
         schedule=crontab(minute=11), sig=clear_inactive_structural_variant_sets.s()
     )
     # Regularly create new bg sv set and clean up old ones
-    sender.add_periodic_task(schedule=crontab(day_of_week="sunday", sig=build_bg_sv_set_task.s()))
-    sender.add_periodic_task(schedule=crontab(day_of_week="sunday", sig=cleanup_bg_sv_set_task.s()))
+    sender.add_periodic_task(schedule=crontab(day_of_week="sunday"), sig=build_bg_sv_set_task.s())
+    sender.add_periodic_task(schedule=crontab(day_of_week="sunday"), sig=cleanup_bg_sv_set_task.s())

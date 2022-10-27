@@ -69,6 +69,7 @@ End-User Summary
 - Display warning icon in filter results table if non-selected frequency is high (#708).
 - Fix query schema (#749).
 - Migrating case list and details to Vue.js (#743).
+- Fix bug in SV background database building (#757).
 
 Full Change List
 ================
@@ -149,6 +150,7 @@ Full Change List
 - Fix query schema (#749).
 - Bumping sodar-core dependency (#750).
 - Migrating case list and details to Vue.js (#743).
+- Fix bug in SV background database building (#757).
 
 ------
 v1.2.0
