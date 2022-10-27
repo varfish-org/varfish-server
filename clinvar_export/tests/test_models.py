@@ -3,6 +3,7 @@
 from test_plus.test import TestCase
 
 from clinvar_export.models import (
+    REPORT_TYPES,
     AssertionMethod,
     Family,
     Individual,
@@ -15,6 +16,7 @@ from clinvar_export.models import (
 )
 from clinvar_export.tests.factories import (
     AssertionMethodFactory,
+    ClinVarReportFactory,
     FamilyFactory,
     IndividualFactory,
     OrganisationFactory,
@@ -185,3 +187,15 @@ class TestUpdateIndividualSexAffectedTask(TestCase):
         individual.refresh_from_db()
         self.assertEquals(individual.sex, "male")
         self.assertEquals(individual.affected, "yes")
+
+
+class TestClinVarReport(TestCase):
+    """Basic tests for ``ClinVarReport``"""
+
+    def testRun(self):
+        report = ClinVarReportFactory(report_type=REPORT_TYPES[0])
+        report.report_type = REPORT_TYPES[1]
+        report.save()
+        self.assertEquals(report.report_type, REPORT_TYPES[1])
+        report.refresh_from_db()
+        self.assertEquals(report.report_type, REPORT_TYPES[1])

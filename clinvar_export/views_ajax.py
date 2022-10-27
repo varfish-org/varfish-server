@@ -3,13 +3,17 @@
 The UI for this app is completely Vue-based so this is where the real logic is implemented.  Eventually, when we
 add an API and ``views_api``, we might move the common parts there and have the AJAX views re-use the logic.
 """
+import hashlib
+import logging
 import pathlib
 import re
 
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.db import transaction
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.views.generic import DetailView
+from knox.auth import TokenAuthentication
 from lxml import etree
 from projectroles.views import (
     LoggedInPermissionMixin,
@@ -18,17 +22,20 @@ from projectroles.views import (
     ProjectPermissionMixin,
 )
 from projectroles.views_ajax import SODARBaseAjaxView, SODARBaseProjectAjaxView
-from projectroles.views_api import APIProjectContextMixin
+from projectroles.views_api import APIProjectContextMixin, SODARAPIProjectPermission
+import requests
+from rest_framework import status
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.exceptions import ParseError
 from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 
-from geneinfo.models import Hpo, HpoName
-from variants.helpers import get_engine
-from variants.queries import SmallVariantUserAnnotationQuery
-
-from .clinvar_xml import XSD_URL_1_7, SubmissionXmlGenerator
-from .models import (
+from clinvar_export.clinvar_xml import XSD_URL_1_7, SubmissionXmlGenerator
+from clinvar_export.models import (
+    ERROR_REPORT,
+    SUBMITTER_REPORT,
     AssertionMethod,
+    ClinVarReport,
     Family,
     Individual,
     Organisation,
@@ -39,9 +46,10 @@ from .models import (
     SubmittingOrg,
     create_families_and_individuals,
 )
-from .serializers import (
+from clinvar_export.serializers import (
     AnnotatedSmallVariantsSerializer,
     AssertionMethodSerializer,
+    ClinVarReportSerializer,
     FamilySerializer,
     IndividualSerializer,
     OrganisationSerializer,
@@ -51,6 +59,21 @@ from .serializers import (
     SubmitterSerializer,
     SubmittingOrgSerializer,
 )
+from geneinfo.models import Hpo, HpoName
+from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
+from variants.helpers import get_engine
+from variants.queries import SmallVariantUserAnnotationQuery
+
+#: Prefix of allowed clinvar submission URLs for fetching reports.
+CLINVAR_SUBMISSION_URL_PREFIX = "https://submit.ncbi.nlm.nih.gov/api/"
+#: Whether or not to verify request to ClinVar API.
+CLINVAR_SUBMISSION_REPORT_FETCH_VERIFY = True
+#: Timeout for requests to ClinVar.
+CLINVAR_SUBMISSION_REPORT_FETCH_TIMEOUT = 10
+
+
+#: Logger to use in this module.
+LOGGER = logging.getLogger(__name__)
 
 
 def _read(filename):
@@ -438,3 +461,133 @@ class AnnotatedSmallVariantsApiView(
             SmallVariantUserAnnotationQuery(get_engine()).run(case=family.case)
         )
         return Response(serializer.data)
+
+
+def guess_clinvar_report_type(report_content):
+    """Guess report type.
+
+    We simply look for a #SCV header which should be "robust enough".
+    """
+    for line in report_content.splitlines():
+        if line.startswith("#SCV"):
+            return SUBMITTER_REPORT
+    else:
+        return ERROR_REPORT
+
+
+def parse_clinvar_tsv(report_content):
+    """Parse the TSV file, using the last header line for labels."""
+    result = []
+    header = None
+    previous = None
+    for line in report_content.splitlines():
+        if line.startswith("#"):
+            previous = line[1:].split("\t")
+        else:
+            if not header:
+                header = previous
+            arr = line.split("\t")
+            if len(header) != len(arr):
+                raise ParseError(
+                    detail=f"Inconsistent lines in report, header={header}, line={arr}"
+                )
+            result.append(dict(zip(header, arr)))
+    return result
+
+
+def fetch_clinvar_report(report_url):
+    response = requests.get(
+        report_url,
+        verify=CLINVAR_SUBMISSION_REPORT_FETCH_VERIFY,
+        timeout=CLINVAR_SUBMISSION_REPORT_FETCH_TIMEOUT,
+    )
+    response.raise_for_status()
+    return response.text
+
+
+def checked_report_url(report_url):
+    if not report_url.startswith(CLINVAR_SUBMISSION_URL_PREFIX):  # pragma: no cover
+        raise ParseError(
+            detail=f"Invalid URL, must start with {CLINVAR_SUBMISSION_URL_PREFIX} but was {report_url}"
+        )
+    return report_url
+
+
+class FetchClinVarReportApiView(
+    APIProjectContextMixin,
+    SODARBaseProjectAjaxView,
+):
+    """Fetch ClinVar report for the submission set."""
+
+    permission_required = "clinvar_export.update_data"
+    allowed_methods = ("POST",)
+    authentication_classes = [SessionAuthentication, TokenAuthentication]  # XXX
+
+    def post(self, *_args, **kwargs):
+        # Fetch SubmissionSet to fail early, query report from clinvar, and guess report type.
+        submission_set = SubmissionSet.objects.get(sodar_uuid=kwargs.get("submissionset"))
+        report_content = fetch_clinvar_report(
+            checked_report_url(self.request.data.get("report_url", ""))
+        )
+        report_type = guess_clinvar_report_type(report_content)
+
+        # We now have everything to store the report, parse it, and assign it to the submissions.
+        with transaction.atomic():
+            report = ClinVarReport(
+                submission_set=submission_set,
+                report_type=report_type,
+                source_url=self.request.data.get("report_url"),
+                payload_md5=hashlib.md5(report_content.encode("utf-8")).hexdigest(),
+                payload=report_content,
+            )
+            report.save()
+
+            records = parse_clinvar_tsv(report_content)
+            is_submitter = report_type == SUBMITTER_REPORT
+            local_record_col = "Your_record_id" if is_submitter else "RecordID"
+            for record in records:
+                submission_sodar_uuid = record[local_record_col]
+                try:
+                    submission = Submission.objects.get(sodar_uuid=submission_sodar_uuid)
+                except Submission.DoesNotExist:
+                    LOGGER.info(
+                        f"Could not find submission with ID {submission_sodar_uuid} from clinvar report"
+                    )
+                    continue
+                if is_submitter:
+                    submission.clinvar_submitter_report = record
+                else:
+                    submission.clinvar_error_report = record
+                submission.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ClinVarReportApiPermission(SODARAPIProjectPermission):
+    """Project-based permission for ``ClinVarReportListView``"""
+
+    def get_project(self, request=None, kwargs=None):
+        submission_set = SubmissionSet.objects.get(sodar_uuid=kwargs["submissionset"])
+        return submission_set.project
+
+
+class ClinVarReportListView(
+    _ReadOnlyPermMixin, APIProjectContextMixin, ListAPIView, SODARBaseProjectAjaxView
+):
+    """Allow to list ``ClinVarReport`` records for a submission set."""
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "submissionset"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    permission_classes = [ClinVarReportApiPermission]
+
+    serializer_class = ClinVarReportSerializer
+
+    def get_permission_required(self):
+        return "clinvar_export.view_data"
+
+    def get_queryset(self):
+        return ClinVarReport.objects.filter(submission_set__sodar_uuid=self.kwargs["submissionset"])
