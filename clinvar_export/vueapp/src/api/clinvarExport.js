@@ -306,4 +306,21 @@ export default {
   async queryHpo(appContext, termId) {
     return await genericTermQueryImpl(appContext, 'hpo', 'HPO', termId)
   },
+
+  async fetchClinVarReport(appContext, submissionSetUuid, reportUrl) {
+    const response = await fetch(
+      `/clinvar-export/ajax/fetch-clinvar-report/${submissionSetUuid}`,
+      {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'X-CSRFToken': appContext.csrfToken,
+        },
+        body: JSON.stringify({ report_url: reportUrl }),
+      }
+    )
+    return response
+  },
 }

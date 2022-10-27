@@ -390,6 +390,11 @@ class Submission(models.Model):
     #: Disease information.
     diseases = JSONField(blank=True, null=True, default=list)
 
+    #: Latest clinvar submitter report, if any.
+    clinvar_submitter_report = JSONField(blank=True, null=True, default=None)
+    #: Latest clinvar error report, if any.
+    clinvar_error_report = JSONField(blank=True, null=True, default=None)
+
     def get_project(self):
         return self.submission_set.project
 
@@ -413,3 +418,36 @@ def refresh_individual_sex_affected():
                     individual.sex = SEX_MAP.get(related_ped_entry["sex"], "unknown")
                     individual.affected = AFFECTED_MAP.get(related_ped_entry["affected"], "unknown")
                     individual.save()
+
+
+#: Error report.
+ERROR_REPORT = "error_report"
+#: Submitter report.
+SUBMITTER_REPORT = "submitter_report"
+#: The allowed report types for ClinVarReport.
+REPORT_TYPES = (ERROR_REPORT, SUBMITTER_REPORT)
+
+
+class ClinVarReport(models.Model):
+    """Store a report from ClinVar, related to a SubmissionSet."""
+
+    #: Submission UUID.
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="SODAR UUID")
+
+    #: The related SubmissionSet
+    submission_set = models.ForeignKey(SubmissionSet, on_delete=models.CASCADE)
+
+    #: The type of the report, can be error or submitter report.
+    report_type = models.CharField(max_length=32, choices=[(k, k) for k in REPORT_TYPES])
+
+    #: DateTime of creation.
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+    #: DateTime of last modification.
+    date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
+
+    #: URL where the report was downloaded from.
+    source_url = models.CharField(max_length=256)
+    #: MD5 sum of content
+    payload_md5 = models.CharField(max_length=32)
+    #: Contents of the report.
+    payload = models.TextField()

@@ -106,6 +106,16 @@ ajax_urlpatterns = [
         view=views_ajax.AnnotatedSmallVariantsApiView.as_view(),
         name="user-annotations",
     ),
+    url(
+        regex=r"^ajax/fetch-clinvar-report/(?P<submissionset>[0-9a-f-]+)/?",
+        view=views_ajax.FetchClinVarReportApiView.as_view(),
+        name="clinvar-report-fetch",
+    ),
+    url(
+        regex=r"^ajax/clinvar-report/(?P<submissionset>[0-9a-f-]+)/?",
+        view=views_ajax.ClinVarReportListView.as_view(),
+        name="clinvar-report-list",
+    ),
 ]
 
 urlpatterns = ui_urlpatterns + ajax_urlpatterns
