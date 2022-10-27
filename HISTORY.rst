@@ -70,6 +70,7 @@ End-User Summary
 - Fix query schema (#749).
 - Migrating case list and details to Vue.js (#743).
 - Fix bug in SV background database building (#757).
+- Allowing to read clinvar submission reports (#759).
 
 Full Change List
 ================
@@ -151,6 +152,7 @@ Full Change List
 - Bumping sodar-core dependency (#750).
 - Migrating case list and details to Vue.js (#743).
 - Fix bug in SV background database building (#757).
+- Allowing to read clinvar submission reports (#759).
 
 ------
 v1.2.0

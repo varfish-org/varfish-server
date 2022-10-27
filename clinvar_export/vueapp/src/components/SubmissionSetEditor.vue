@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import Multiselect from '@vueform/multiselect'
 import { useVuelidate } from '@vuelidate/core'
 import { minLength, required } from '@vuelidate/validators'
+import FetchClinVarReport from './FetchClinVarReport.vue'
 
 import {
   SUBMISSION_SET_STATE_CHOICES,
@@ -268,6 +269,13 @@ defineExpose({
           the primary submitter.
         </small>
       </div>
+
+      <h4>Fetch ClinVar Report</h4>
+
+      <FetchClinVarReport
+        :app-context="store.appContext"
+        :submission-set="currentSubmissionSet"
+      />
     </form>
   </div>
 </template>
