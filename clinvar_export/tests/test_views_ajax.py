@@ -1,44 +1,53 @@
 import json
 import re
 
+from django.forms import model_to_dict
 from django.urls import reverse
 import jsonmatch
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+import requests_mock
+from rest_framework.exceptions import ParseError
 
+from clinvar_export import views_ajax
+from clinvar_export.models import (
+    AssertionMethod,
+    ClinVarReport,
+    Family,
+    Individual,
+    Submission,
+    SubmissionIndividual,
+    SubmissionSet,
+    SubmittingOrg,
+    create_families_and_individuals,
+)
+from clinvar_export.tests.factories import (
+    CLINVAR_ERROR_REPORT_HEADER,
+    CLINVAR_SUBMITTER_REPORT_HEADER,
+    ClinVarReportFactory,
+    OrganisationFactory,
+    SubmissionFactory,
+    SubmissionIndividualFactory,
+    SubmissionSetFactory,
+    SubmitterFactory,
+    SubmittingOrgFactory,
+)
+from clinvar_export.views_ajax import CLINVAR_SUBMISSION_URL_PREFIX
 from geneinfo.tests.factories import HpoFactory, HpoNameFactory
 from variants.tests.factories import (
+    AcmgCriteriaRatingFactory,
     CaseFactory,
     SmallVariantCommentFactory,
     SmallVariantFactory,
     SmallVariantFlagsFactory,
-    AcmgCriteriaRatingFactory,
-)
-from .factories import (
-    SubmissionSetFactory,
-    SubmissionFactory,
-    SubmissionIndividualFactory,
-    OrganisationFactory,
-    SubmittingOrgFactory,
-    SubmitterFactory,
-)
-from ..models import (
-    Individual,
-    Family,
-    SubmissionSet,
-    AssertionMethod,
-    Submission,
-    create_families_and_individuals,
-    SubmissionIndividual,
-    SubmittingOrg,
 )
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
 RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\d\d\d\dZ$")
 
+TIMEF = "%Y-%m-%dT%H:%M:%S.%fZ"
+
 
 class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
-    """Permission tests for the AJAX views dealing with Organisation."""
-
     def setUp(self):
         super().setUp()
 
@@ -77,8 +86,6 @@ class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
 
 
 class TestSubmitterAjaxViews(TestProjectAPIPermissionBase):
-    """Permission tests for the AJAX views dealing with Submitter."""
-
     def test_list(self):
         url = reverse(
             "clinvar_export:ajax-submitter-list", kwargs={"project": self.project.sodar_uuid}
@@ -101,8 +108,6 @@ class TestSubmitterAjaxViews(TestProjectAPIPermissionBase):
 
 
 class TestAssertionMethodAjaxViews(TestProjectAPIPermissionBase):
-    """Permission tests for the AJAX views dealing with AssertinoMethod."""
-
     def test_list(self):
         url = reverse(
             "clinvar_export:ajax-assertionmethod-list", kwargs={"project": self.project.sodar_uuid}
@@ -397,6 +402,8 @@ class TestSubmissionListCreateView(TestProjectAPIPermissionBase):
                 "variant_stop": self.submission.variant_stop,
                 "variant_reference": re.compile(r"[ACGT]+$"),
                 "variant_alternative": re.compile(r"[ACGT]+$"),
+                "clinvar_error_report": None,
+                "clinvar_submitter_report": None,
             }
         )
         expected.assert_matches(res_json[0])
@@ -484,6 +491,8 @@ class TestSubmissionRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
                 "variant_reference": self.submission.variant_reference,
                 "variant_start": self.submission.variant_start,
                 "variant_stop": self.submission.variant_stop,
+                "clinvar_error_report": None,
+                "clinvar_submitter_report": None,
             }
         )
         expected.assert_matches(res_json)
@@ -524,7 +533,14 @@ class TestSubmissionRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
             response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 200)
         res_json = response.json()
-        expected = jsonmatch.compile({**data, "diseases": json.loads(data["diseases"])})
+        expected = jsonmatch.compile(
+            {
+                **data,
+                "diseases": json.loads(data["diseases"]),
+                "clinvar_error_report": None,
+                "clinvar_submitter_report": None,
+            }
+        )
         expected.assert_matches(res_json)
 
     def test_destroy(self):
@@ -820,8 +836,6 @@ class TestSubmittingOrgRetrieveUpdateDestroyView(TestProjectAPIPermissionBase):
 
 
 class TestQueryOmimAjaxViews(TestProjectAPIPermissionBase):
-    """Permission tests for OMIM term AJAX views"""
-
     def test_query(self):
         hpo_record = HpoFactory()
         url = (
@@ -848,8 +862,6 @@ class TestQueryOmimAjaxViews(TestProjectAPIPermissionBase):
 
 
 class TestQueryHpoAjaxViews(TestProjectAPIPermissionBase):
-    """Permission tests for HPO term AJAX views"""
-
     def test_query(self):
         hpo_name_record = HpoNameFactory()
         url = (
@@ -871,8 +883,6 @@ class TestQueryHpoAjaxViews(TestProjectAPIPermissionBase):
 
 
 class TestAnnotatedSmallVariantsAjaxViews(TestProjectAPIPermissionBase):
-    """Permission tests for the AJAX views for querying user-annotated small variants."""
-
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -1010,6 +1020,33 @@ class TestAnnotatedSmallVariantsAjaxViews(TestProjectAPIPermissionBase):
         expected.assert_matches(res_json)
 
 
+class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
+    def setUp(self):
+        super().setUp()
+        self.clinvar_report = ClinVarReportFactory(submission_set__project=self.project)
+
+    def test_list(self):
+        url = reverse(
+            "clinvar_export:clinvar-report-list",
+            kwargs={"submissionset": self.clinvar_report.submission_set.sodar_uuid},
+        )
+        with self.login(self.contributor_as.user):
+            response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        res_json = response.json()
+        self.assertEqual(len(res_json), 1)
+        expected0 = jsonmatch.compile(
+            {
+                **model_to_dict(self.clinvar_report, exclude=["id"]),
+                "sodar_uuid": str(self.clinvar_report.sodar_uuid),
+                "date_created": self.clinvar_report.date_created.strftime(TIMEF),
+                "date_modified": self.clinvar_report.date_modified.strftime(TIMEF),
+                "submission_set": str(self.clinvar_report.submission_set.sodar_uuid),
+            }
+        )
+        expected0.assert_matches(res_json[0])
+
+
 class SubmissionSetRenderClinvarXml(TestProjectAPIPermissionBase):
     """Test for rendering ClinVar XML."""
 
@@ -1054,3 +1091,168 @@ class SubmissionSetValidateClinvarXml(TestProjectAPIPermissionBase):
             response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.json(), {"valid": True})
+
+
+CLINVAR_SUBMITTER_REPORT_RECORD = {
+    "Your_variant_id": "",
+    "VariantID": "1064649",
+    "AlleleID": "1052897",
+    "Your_record_id": "f86d55c2-fe65-43e8-9920-3c9b22b1195b",
+    "SCV": "SCV001571589.1",
+    "RCV": "RCV001374665.1",
+    "Your_variant_description": (
+        '"<SequenceLocation Assembly="GRCh37" Chr="12" start="109536396" stop="109536397" '
+        'referenceAllele="TG" alternateAllele="T"/>'
+    ),
+    "Preferred_variant_name": "NM_080911.3(UNG):c.294del (p.Ser97_Trp98insTer)",
+    "Your_condition_name": "",
+    "Your_condition_identifier": "OMIM:608106",
+    "ClinVar_condition_name": "Hyper-IgM syndrome type 5",
+    "Assigned_Concept_ID": "C1720958",
+    "Clinical_significance": "Pathogenic",
+    "Date_last_evaluated": "Apr 07, 2021",
+    "Assertion_criteria": "ACMG Guidelines, 2015",
+    "Submission_date": "Apr 07, 2021",
+    "Submitted_gene": "UNG",
+    "Novelty": "new allele",
+    "Status": "current",
+    "Info": "",
+    "Invalid": "",
+}
+
+CLINVAR_ERROR_REPORT_RECORD = {
+    "Your VariantID": "No local_id submitted",
+    "RecordID": "af55859f-2008-4160-9a5d-387ce82c7940",
+    "Accession": "na",
+    "SubmissionStatus": "novel",
+    "Submitted HGVS": "not submitted",
+    "Submitted location": (
+        '<SequenceLocation Assembly="GRCh37" Chr="7" start="2985588" stop="2985588" '
+        'referenceAllele="G" alternateAllele="A"/>'
+    ),
+    "Condition identifiers": "OMIM:617638",
+    "Info": (
+        "- This record is submitted as novel but it should be submitted as an update, including "
+        "the SCV accession, because your organization previously submitted SCV002574813 for the "
+        "same variant and condition."
+    ),
+}
+
+
+class FetchClinVarReportApiViewHelpersTest(TestProjectAPIPermissionBase):
+    """Test the helpers for ``FetchClinVarReportApiView``."""
+
+    maxDiff = None
+
+    def test_guess_clinvar_report_type_submitter(self):
+        self.assertEqual(
+            views_ajax.guess_clinvar_report_type(CLINVAR_SUBMITTER_REPORT_HEADER),
+            views_ajax.SUBMITTER_REPORT,
+        )
+
+    def test_guess_clinvar_report_type_error(self):
+        self.assertEqual(
+            views_ajax.guess_clinvar_report_type(CLINVAR_ERROR_REPORT_HEADER),
+            views_ajax.ERROR_REPORT,
+        )
+
+    def test_parse_clinvar_tsv_submitter(self):
+        report_text = CLINVAR_SUBMITTER_REPORT_HEADER + "\t".join(
+            CLINVAR_SUBMITTER_REPORT_RECORD.values()
+        )
+        result = views_ajax.parse_clinvar_tsv(report_text)
+        self.assertEqual(len(result), 1)
+        self.assertDictEqual(result[0], CLINVAR_SUBMITTER_REPORT_RECORD)
+
+    def test_parse_clinvar_tsv_error(self):
+        report_text = CLINVAR_ERROR_REPORT_HEADER + "\t".join(CLINVAR_ERROR_REPORT_RECORD.values())
+        result = views_ajax.parse_clinvar_tsv(report_text)
+        self.assertEqual(len(result), 1)
+
+        self.assertDictEqual(result[0], CLINVAR_ERROR_REPORT_RECORD)
+
+    def test_checked_report_url(self):
+        report_url = "https://example.com/some/api"
+        with self.assertRaises(ParseError):
+            views_ajax.checked_report_url(report_url)
+
+    @requests_mock.Mocker()
+    def test_fetch_clinvar_report_good(self, r_mock):
+        report_url = CLINVAR_SUBMISSION_URL_PREFIX + "some/suffix"
+        report_content = CLINVAR_SUBMITTER_REPORT_HEADER + "\t".join(
+            CLINVAR_SUBMITTER_REPORT_RECORD.values()
+        )
+        r_mock.get(
+            report_url, status_code=200, text=report_content,
+        )
+        result = views_ajax.fetch_clinvar_report(report_url)
+        self.assertEqual(result, report_content)
+
+
+class FetchClinVarReportApiViewTest(TestProjectAPIPermissionBase):
+    """Test the ``FetchClinVarReportApiView`` itself."""
+
+    def setUp(self):
+        super().setUp()
+        self.submission = SubmissionFactory(submission_set__project=self.project)
+        self.submission_set = self.submission.submission_set
+
+    @requests_mock.Mocker()
+    def test_fetch_submitter_report_with_submitter_report(self, r_mock):
+        report_url = CLINVAR_SUBMISSION_URL_PREFIX + "some/suffix"
+        record = {
+            **CLINVAR_SUBMITTER_REPORT_RECORD,
+            "Your_record_id": str(self.submission.sodar_uuid),
+        }
+        report_content = CLINVAR_SUBMITTER_REPORT_HEADER + "\t".join(record.values())
+        r_mock.get(
+            report_url, status_code=200, text=report_content,
+        )
+        url = reverse(
+            "clinvar_export:clinvar-report-fetch",
+            kwargs={"submissionset": str(self.submission_set.sodar_uuid),},
+        )
+
+        self.assertEqual(ClinVarReport.objects.count(), 0)
+
+        with self.login(self.contributor_as.user):
+            response = self.client.post(url, {"report_url": report_url})
+        self.assertEqual(response.status_code, 204)
+
+        clinvar_report = ClinVarReport.objects.all()[0]
+        self.assertEqual(clinvar_report.source_url, report_url)
+        self.assertEqual(clinvar_report.payload, report_content)
+
+        self.submission.refresh_from_db()
+        self.assertEquals(self.submission.clinvar_submitter_report, record)
+        self.assertEquals(self.submission.clinvar_error_report, None)
+
+    @requests_mock.Mocker()
+    def test_fetch_submitter_report_with_error_report(self, r_mock):
+        report_url = CLINVAR_SUBMISSION_URL_PREFIX + "some/suffix"
+        record = {
+            **CLINVAR_ERROR_REPORT_RECORD,
+            "RecordID": str(self.submission.sodar_uuid),
+        }
+        report_content = CLINVAR_ERROR_REPORT_HEADER + "\t".join(record.values())
+        r_mock.get(
+            report_url, status_code=200, text=report_content,
+        )
+        url = reverse(
+            "clinvar_export:clinvar-report-fetch",
+            kwargs={"submissionset": str(self.submission_set.sodar_uuid),},
+        )
+
+        self.assertEqual(ClinVarReport.objects.count(), 0)
+
+        with self.login(self.contributor_as.user):
+            response = self.client.post(url, {"report_url": report_url})
+        self.assertEqual(response.status_code, 204)
+
+        clinvar_report = ClinVarReport.objects.all()[0]
+        self.assertEqual(clinvar_report.source_url, report_url)
+        self.assertEqual(clinvar_report.payload, report_content)
+
+        self.submission.refresh_from_db()
+        self.assertEquals(self.submission.clinvar_submitter_report, None)
+        self.assertEquals(self.submission.clinvar_error_report, record)

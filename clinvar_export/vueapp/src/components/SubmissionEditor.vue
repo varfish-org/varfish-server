@@ -805,6 +805,49 @@ defineExpose({
       <div>
         <submission-case-list></submission-case-list>
       </div>
+
+      <div class="border-top w-100">
+        <h4 class="border-bottom pt-3 pb-1 mb-3">ClinVar Submission Reports</h4>
+
+        <h5>Submitter Report</h5>
+
+        <template v-if="store.currentSubmission.clinvar_submitter_report">
+          <div
+            v-for="(entry, key) in store.currentSubmission
+              .clinvar_submitter_report"
+            class="row"
+          >
+            <div class="col-3">
+              {{ key }}
+            </div>
+            <div class="col-9">
+              {{ entry }}
+            </div>
+          </div>
+        </template>
+        <div v-else class="text-muted font-italic">
+          No ClinVar submitter report (yet).
+        </div>
+
+        <h5 class="mt-3">Error Report</h5>
+
+        <template v-if="store.currentSubmission.clinvar_error_report">
+          <div
+            v-for="(entry, key) in store.currentSubmission.clinvar_error_report"
+            class="row"
+          >
+            <div class="col-3">
+              {{ key }}
+            </div>
+            <div class="col-9">
+              {{ entry }}
+            </div>
+          </div>
+        </template>
+        <div v-else class="text-muted font-italic">
+          No ClinVar submitter report (yet).
+        </div>
+      </div>
     </div>
   </div>
 </template>

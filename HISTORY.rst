@@ -93,6 +93,7 @@ End-User Summary
 - Changing ClinVar link-out to VCV entry instead of coordinates (#693).
 - Adding support to create custom gene panels (#723).
 - Allow operators to upload per-gene annotations to cases (#575) on import.
+- Allowing to read clinvar submission reports (#759).
 
 Full Change List
 ================
@@ -153,6 +154,7 @@ Full Change List
 - Migrating store dependency from Vuex v3 to Pinia (#720).
 - Adding support to create custom gene panels (#723).
 - Allow operators to upload per-gene annotations to cases (#575) on import.
+- Allowing to read clinvar submission reports (#759).
 
 ------
 v1.2.0

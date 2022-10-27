@@ -1,24 +1,28 @@
 from unittest import skip
 
 from django.urls import reverse
-
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+import requests_mock
 
-from geneinfo.tests.factories import HpoNameFactory, HpoFactory
+from geneinfo.tests.factories import HpoFactory, HpoNameFactory
 from variants.tests.factories import CaseFactory, SmallVariantCommentFactory
+
+from ..models import Family
+from ..views_ajax import CLINVAR_SUBMISSION_URL_PREFIX
 from .factories import (
-    SubmissionSetFactory,
-    SubmissionFactory,
-    SubmissionWithIndividualFactory,
+    CLINVAR_SUBMITTER_REPORT_HEADER,
+    AssertionMethodFactory,
     FamilyFactory,
     IndividualFactory,
-    AssertionMethodFactory,
-    SubmissionSetWithOrgFactory,
     OrganisationFactory,
-    SubmittingOrgFactory,
+    SubmissionFactory,
+    SubmissionSetFactory,
+    SubmissionSetWithOrgFactory,
+    SubmissionWithIndividualFactory,
     SubmitterFactory,
+    SubmittingOrgFactory,
 )
-from ..models import Family
+from .test_views_ajax import CLINVAR_SUBMITTER_REPORT_RECORD
 
 
 class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
@@ -687,11 +691,54 @@ class TestAnnotatedSmallVariantsAjaxViews(TestProjectAPIPermissionBase):
         self.case = CaseFactory(project=self.project)
         self.family = Family.objects.get_or_create_in_project(project=self.project, case=self.case)
 
+
+class TestFetchClinVarReportApiView(TestProjectAPIPermissionBase):
+    """Permission tests for ``FetchClinVarReportApiView``."""
+
+    def setUp(self):
+        super().setUp()
+        self.submission_set = SubmissionSetFactory(project=self.project)
+
+    @requests_mock.Mocker()
+    def test_fetch_submitter_report_with_submitter_report(self, r_mock):
+        report_url = CLINVAR_SUBMISSION_URL_PREFIX + "some/suffix"
+        data = {"report_url": report_url}
+        record = CLINVAR_SUBMITTER_REPORT_RECORD
+        report_content = CLINVAR_SUBMITTER_REPORT_HEADER + "\t".join(record.values())
+        r_mock.get(
+            report_url, status_code=200, text=report_content,
+        )
+        url = reverse(
+            "clinvar_export:clinvar-report-fetch",
+            kwargs={"submissionset": self.submission_set.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+        ]
+        bad_users = [
+            self.anonymous,
+            self.user_no_roles,
+            self.guest_as.user,
+        ]
+        self.assert_response(url, good_users, 204, method="POST", data=data)
+        self.assert_response(url, bad_users, 403, method="POST", data=data)
+
+
+class TestClinVarReportListView(TestProjectAPIPermissionBase):
+    """Permission tests for ``ClinVarReportListView``."""
+
+    def setUp(self):
+        super().setUp()
+        self.submission_set = SubmissionSetFactory(project=self.project)
+
     def test(self):
         SmallVariantCommentFactory()
         url = reverse(
-            "clinvar_export:user-annotations",
-            kwargs={"project": self.project.sodar_uuid, "family": self.family.sodar_uuid},
+            "clinvar_export:clinvar-report-list",
+            kwargs={"submissionset": self.submission_set.sodar_uuid},
         )
         good_users = [
             self.superuser,
