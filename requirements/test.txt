@@ -29,3 +29,6 @@ isort ==5.10.1
 
 # Coveralls tooling
 coveralls
+
+# Manipulate time in tests
+freezegun >=1.2.2

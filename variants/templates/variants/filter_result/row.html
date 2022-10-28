@@ -397,6 +397,11 @@
       <td class="text-nowrap extra_annos-{{ forloop.counter }}">{{ '-' }}</td>
     {% endfor %}
   {% endif %}
+  {% for value in results_plugins_header %}
+    <td class="plugins-fields-{{ value.field_name }}">
+      {{ entry|keyvalue:value.field_name }}
+    </td>
+  {% endfor %}
   {% if query_type == "project" %}
     <td>{{ entry.affected_cases_per_gene|default:0 }}</td>
   {% endif %}

@@ -1,3 +1,4 @@
+import django_saml2_auth.views
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -5,14 +6,13 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.views.generic import TemplateView
 from django.views import defaults as default_views
-
-import django_saml2_auth.views
+from django.views.generic import TemplateView
 from djproxy.views import HttpProxy
 from projectroles.views import HomeView as ProjectRolesHomeView
-from variants.views import KioskHomeView
 from sentry_sdk import last_event_id
+
+from variants.views import KioskHomeView
 
 
 def handler500(request, *args, **argv):
@@ -82,6 +82,7 @@ urlpatterns += [
     url(r"^clinvar-export/", include("clinvar_export.urls")),
     url(r"^beaconsite/", include("beaconsite.urls")),
     url(r"^genepanels/", include("genepanels.urls")),
+    url(r"^varannos/", include("varannos.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

@@ -5,39 +5,35 @@ import operator
 import sys
 from itertools import chain
 
+import sqlparse
 from django.conf import settings
 from django.db.models import Q
-import sqlparse
-
-from sqlalchemy import column, VARCHAR, ARRAY, any_, text
-from sqlalchemy.sql import select, func, and_, or_, not_, true, cast, case, desc
+from sqlalchemy import ARRAY, VARCHAR, any_, column, text
+from sqlalchemy.sql import and_, case, cast, desc, func, not_, or_, select, true
 from sqlalchemy.sql.functions import coalesce
-from sqlalchemy.types import Integer, Float
+from sqlalchemy.types import Float, Integer
 
-from regmaps.models import RegMapCollection, RegElement, RegInteraction
-from .models import (
-    StructuralVariant,
-    StructuralVariantGeneAnnotation,
-    StructuralVariantComment,
-    StructuralVariantFlags,
-    StructuralVariantSet,
-)
+from geneinfo.models import Hgnc
 from genomicfeatures.models import (
     EnsemblRegulatoryFeature,
     GeneInterval,
-    TadSet,
-    TadInterval,
     TadBoundaryInterval,
+    TadInterval,
+    TadSet,
     VistaEnhancer,
 )
-from geneinfo.models import Hgnc
-from svdbs.models import ThousandGenomesSv, DbVarSv, ExacCnv, DgvSvs, DgvGoldStandardSvs, GnomAdSv
-from variants.queries import (
-    QueryParts,
-    QueryPartsBuilder,
-    ExtendQueryPartsBase,
-    ExtendQueryPartsGenotypeDefaultBase,
-    ExtendQueryPartsCaseJoinAndFilter as _ExtendQueryPartsCaseJoinAndFilter,
+from regmaps.models import RegElement, RegInteraction, RegMapCollection
+from svdbs.models import DbVarSv, DgvGoldStandardSvs, DgvSvs, ExacCnv, GnomAdSv, ThousandGenomesSv
+from variants.queries import ExtendQueryPartsBase, ExtendQueryPartsDiseaseGeneJoin
+from variants.queries import ExtendQueryPartsCaseJoinAndFilter as _ExtendQueryPartsCaseJoinAndFilter
+from variants.queries import ExtendQueryPartsGenotypeDefaultBase, QueryParts, QueryPartsBuilder
+
+from .models import (
+    StructuralVariant,
+    StructuralVariantComment,
+    StructuralVariantFlags,
+    StructuralVariantGeneAnnotation,
+    StructuralVariantSet,
 )
 
 
@@ -938,34 +934,32 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(Hgnc.sa, condition)
 
 
-#: The basic ``ExtendQueryPartsBase`` sub classes to apply for all structural variant queries.
-extender_classes_base = [
-    ExtendQueryPartsCaseJoinAndFilter,
-    ExtendQueryPartsGenotypeFilter,
-    ExtendQueryPartsGenomicRegionFilter,
-    ExtendQueryPartsSizeFilter,
-    ExtendQueryPartsSvTypeFilter,
-    ExtendQueryPartsPublicDatabaseFrequencyJoinAndFilter,
-    ExtendQueryPartsFlagsJoinAndFilter,
-    ExtendQueryPartsCommentsJoinAndFilter,
-    ExtendQueryPartsInHouseDatabaseFilter,
-    ExtendQueryPartsVariantEffectFilter,
-    ExtendQueryPartsGenesJoinAndFilter,
-    ExtendQueryPartsTadBoundaryDistanceJoin,
-    ExtendQueryPartsEnsemblRegulatoryJoinAndFilter,
-    ExtendQueryPartsVistaEnhancerJoinAndFilter,
-    ExtendQueryPartsRegMapJoinAndFilter,
-    ExtendQueryPartsHgncJoin,
-]
-
-
 class SvQueryPartsBuilder(QueryPartsBuilder):
     core_query = structural_variant_query
-    qp_extender_classes = extender_classes_base
+
+    def get_qp_extender_classes(self):
+        return [
+            ExtendQueryPartsCaseJoinAndFilter,
+            ExtendQueryPartsGenotypeFilter,
+            ExtendQueryPartsGenomicRegionFilter,
+            ExtendQueryPartsSizeFilter,
+            ExtendQueryPartsSvTypeFilter,
+            ExtendQueryPartsPublicDatabaseFrequencyJoinAndFilter,
+            ExtendQueryPartsFlagsJoinAndFilter,
+            ExtendQueryPartsCommentsJoinAndFilter,
+            ExtendQueryPartsInHouseDatabaseFilter,
+            ExtendQueryPartsVariantEffectFilter,
+            ExtendQueryPartsGenesJoinAndFilter,
+            ExtendQueryPartsTadBoundaryDistanceJoin,
+            ExtendQueryPartsEnsemblRegulatoryJoinAndFilter,
+            ExtendQueryPartsVistaEnhancerJoinAndFilter,
+            ExtendQueryPartsRegMapJoinAndFilter,
+            ExtendQueryPartsHgncJoin,
+        ]
 
 
 class CasePrefetchQuery:
-    builder = QueryPartsBuilder
+    builder = SvQueryPartsBuilder
 
     def __init__(self, case, engine, query_id=None):
         self.case_or_cases = case

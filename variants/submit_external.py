@@ -7,15 +7,14 @@ from projectroles.plugins import get_backend_api
 import requests
 
 
-from .file_export import CaseExporterVcf
-
-
 #: URL to MutationDistiller submission form
 DISTILLER_POST_URL = "https://www.mutationdistiller.org/QE/MT/MTQE_start.cgi"
 
 
 def submit_distiller(job):
     """Submit a case to MutationDistiller"""
+    from .file_export import CaseExporterVcf  # noqa
+
     job.mark_start()
     timeline = get_backend_api("timeline_backend")
     if timeline:
@@ -87,6 +86,8 @@ CADD_POST_URL = "https://cadd.gs.washington.edu/upload"
 
 def submit_cadd(job):
     """Submit a case to CADD"""
+    from .file_export import CaseExporterVcf  # noqa
+
     job.mark_start()
     timeline = get_backend_api("timeline_backend")
     if timeline:
@@ -225,6 +226,8 @@ def _submit_spanr_post(data, job, session, timeline, tl_event):
 
 
 def _submit_spanr_make_text(job):
+    from .file_export import CaseExporterVcf  # noqa
+
     with CaseExporterVcf(job, job.case) as exporter:
         job.add_log_entry("Creating temporary VCF file...")
         tmp_file = exporter.write_tmp_file()

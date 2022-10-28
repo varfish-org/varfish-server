@@ -1,0 +1,38 @@
+{# The result of the details plugins goes here. #}
+{% for details_plugin_output in details_plugins_outputs %}
+  <div class="card">
+    <div class="card-header">
+      <h4 class="card-title">{{ details_plugin_output.title }}</h4>
+    </div>
+    {% if details_plugin_output.help_text %}
+      <div class="alert alert-secondary m-2">
+        <i class="iconify" data-icon="mdi:information"></i>
+        {{ details_plugin_output.help_text }}
+      </div>
+    {% endif %}
+    <ul class="list-group list-group-flush">
+      {% for entry in details_plugin_output.content %}
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col-3 font-weight-bold">
+              {{ entry.label }}
+            </div>
+            <div class="col-9">
+              {{ entry.value }}
+            </div>
+          </div>
+        </li>
+      {% empty %}
+        <li class="list-group-item">
+          <div class="text-muted text-center font-italic">
+            {% if details_plugin_otuput.no_output %}
+              {{ details_plugin_otuput.no_output }}
+            {% else %}
+              No information from plugin to display.
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endfor %}
