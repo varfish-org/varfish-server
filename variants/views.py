@@ -69,10 +69,8 @@ from geneinfo.views import get_gene_infos
 from genepanels.models import GenePanelCategory
 from genomicfeatures.models import GeneInterval
 from varfish.users.models import User
-from variants.helpers import get_engine
-
-from .file_export import RowWithSampleProxy
-from .forms import (
+from variants.file_export import RowWithSampleProxy
+from variants.forms import (
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
     FILTER_FORM_TRANSLATE_EFFECTS,
     FILTER_FORM_TRANSLATE_SIGNIFICANCE,
@@ -94,7 +92,8 @@ from .forms import (
     SyncProjectJobForm,
     save_file,
 )
-from .models import (
+from variants.helpers import get_engine
+from variants.models import (
     CASE_STATUS_CHOICES,
     AcmgCriteriaRating,
     CaddSubmissionBgJob,
@@ -132,7 +131,9 @@ from .models import (
     only_source_name,
     update_variant_counts,
 )
-from .queries import (
+from variants.plugins import PLUGIN_TYPE_EXTEND_QUERY_INFO, PLUGIN_TYPE_VARIANT_DETAILS_INFO
+from variants.plugins import get_active_plugins as get_active_plugins_variants
+from variants.queries import (
     CaseLoadPrefetchedQuery,
     CaseSecondHitsQuery,
     DeleteSmallVariantsQuery,
@@ -141,14 +142,14 @@ from .queries import (
     ProjectLoadPrefetchedQuery,
     SmallVariantUserAnnotationQuery,
 )
-from .query_presets import QUICK_PRESETS, PedigreeMember
-from .query_schemas import (
+from variants.query_presets import QUICK_PRESETS, PedigreeMember
+from variants.query_schemas import (
     SCHEMA_QUERY_V1,
     DefaultValidatingDraft7Validator,
     convert_query_json_to_small_variant_filter_form_v1,
 )
-from .sync_upstream import fetch_remote_pedigree
-from .tasks import (
+from variants.sync_upstream import fetch_remote_pedigree
+from variants.tasks import (
     cadd_submission_task,
     compute_project_variants_stats,
     delete_case_bg_job,
@@ -161,7 +162,7 @@ from .tasks import (
     spanr_submission_task,
     sync_project_upstream,
 )
-from .templatetags.variants_tags import get_term_description, smallvar_description
+from variants.templatetags.variants_tags import get_term_description, smallvar_description
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -2524,6 +2525,17 @@ class CaseLoadPrefetchedFilterView(
         if rows:
             genomebuild = rows[0]["release"]
 
+        columns_from_plugins = list(
+            chain(
+                *[
+                    plugin.columns
+                    for plugin in get_active_plugins_variants(
+                        plugin_type=PLUGIN_TYPE_EXTEND_QUERY_INFO, custom_order=True
+                    )
+                ]
+            )
+        )
+
         result.update(
             {
                 "genomebuild": genomebuild,
@@ -2585,6 +2597,7 @@ class CaseLoadPrefetchedFilterView(
                     "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
                     for e in filter_job.bg_job.log_entries.all().order_by("date_created")
                 ],
+                "results_plugins_header": columns_from_plugins,
             },
         )
 
@@ -3330,6 +3343,12 @@ class SmallVariantDetails(
             alternative=self.kwargs["alternative"],
         ).first()
 
+    def _load_details_plugins(self):
+        plugins = get_active_plugins_variants(
+            plugin_type=PLUGIN_TYPE_VARIANT_DETAILS_INFO, custom_order=True
+        )
+        return [plugin.load_details(**self.kwargs) for plugin in plugins]
+
     def get_context_data(self, object):
         result = super().get_context_data(*self.args, **self.kwargs)
         result["database"] = self.kwargs["database"]
@@ -3350,6 +3369,7 @@ class SmallVariantDetails(
         entrez_id = result["small_var"].refseq_gene_id
         result["ncbi_summary"] = NcbiGeneInfo.objects.filter(entrez_id=entrez_id).first()
         result["ncbi_gene_rifs"] = NcbiGeneRif.objects.filter(entrez_id=entrez_id).order_by("pk")
+        result["details_plugins_outputs"] = self._load_details_plugins()
         result["comments"] = self._load_variant_comments()
         result["flags"] = self._load_variant_flags()
         result["training_mode"] = int(self.kwargs["training_mode"])

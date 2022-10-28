@@ -936,34 +936,32 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(Hgnc.sa, condition)
 
 
-#: The basic ``ExtendQueryPartsBase`` sub classes to apply for all structural variant queries.
-extender_classes_base = [
-    ExtendQueryPartsCaseJoinAndFilter,
-    ExtendQueryPartsGenotypeFilter,
-    ExtendQueryPartsGenomicRegionFilter,
-    ExtendQueryPartsSizeFilter,
-    ExtendQueryPartsSvTypeFilter,
-    ExtendQueryPartsPublicDatabaseFrequencyJoinAndFilter,
-    ExtendQueryPartsFlagsJoinAndFilter,
-    ExtendQueryPartsCommentsJoinAndFilter,
-    ExtendQueryPartsVariantEffectFilter,
-    ExtendQueryPartsGenesJoinAndFilter,
-    ExtendQueryPartsTadBoundaryDistanceJoin,
-    ExtendQueryPartsEnsemblRegulatoryJoinAndFilter,
-    ExtendQueryPartsVistaEnhancerJoinAndFilter,
-    ExtendQueryPartsRegMapJoinAndFilter,
-    ExtendQueryPartsHgncJoin,
-    ExtendQueryPartsDiseaseGeneJoin,
-]
-
-
 class SvQueryPartsBuilder(QueryPartsBuilder):
     core_query = structural_variant_query
-    qp_extender_classes = extender_classes_base
+
+    def get_qp_extender_classes(self):
+        return [
+            ExtendQueryPartsCaseJoinAndFilter,
+            ExtendQueryPartsGenotypeFilter,
+            ExtendQueryPartsGenomicRegionFilter,
+            ExtendQueryPartsSizeFilter,
+            ExtendQueryPartsSvTypeFilter,
+            ExtendQueryPartsPublicDatabaseFrequencyJoinAndFilter,
+            ExtendQueryPartsFlagsJoinAndFilter,
+            ExtendQueryPartsCommentsJoinAndFilter,
+            ExtendQueryPartsVariantEffectFilter,
+            ExtendQueryPartsGenesJoinAndFilter,
+            ExtendQueryPartsTadBoundaryDistanceJoin,
+            ExtendQueryPartsEnsemblRegulatoryJoinAndFilter,
+            ExtendQueryPartsVistaEnhancerJoinAndFilter,
+            ExtendQueryPartsRegMapJoinAndFilter,
+            ExtendQueryPartsHgncJoin,
+            ExtendQueryPartsDiseaseGeneJoin,
+        ]
 
 
 class CasePrefetchQuery:
-    builder = QueryPartsBuilder
+    builder = SvQueryPartsBuilder
 
     def __init__(self, case, engine, query_id=None):
         self.case_or_cases = case

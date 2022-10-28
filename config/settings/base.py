@@ -121,6 +121,7 @@ LOCAL_APPS = [
     "beaconsite.apps.BeaconsiteConfig",
     "genepanels.apps.GenepanelsConfig",
     "cases.apps.CasesConfig",
+    "varannos.apps.VarannosConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

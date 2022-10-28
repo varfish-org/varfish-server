@@ -1,0 +1,22 @@
+{% load humanize %}
+
+<tr>
+  <td>
+    {{ forloop.counter }}
+  </td>
+  <td>
+    {% if item.days_since_modification < 1 %}
+      {{ item.date_modified|naturaltime }}
+    {% else %}
+      {{ item.date_modified|naturalday }}
+    {% endif %}
+  </td>
+  <td>
+    <a href="{{ item.get_absolute_url }}">
+      {{ item.title }}
+    </a>
+  </td>
+  <td>
+    {{ item.release }}
+  </td>
+</tr>
