@@ -1,32 +1,42 @@
-from django.urls import reverse
+"""Definition of plugins and plugin points."""
 
+from bgjobs.plugins import BackgroundJobsPluginPoint
+from django.urls import reverse
+from django.utils.functional import lazy
+from djangoplugins.point import PluginPoint
 from projectroles.constants import get_sodar_constants
 from projectroles.plugins import ProjectAppPluginPoint
-from bgjobs.plugins import BackgroundJobsPluginPoint
 
-from .models import (
-    Case,
+from variants.models import (
     CASE_STATUS_CHOICES,
-    SmallVariantComment,
-    SmallVariantFlags,
-    ExportFileBgJob,
-    ExportProjectCasesFileBgJob,
     CaddSubmissionBgJob,
-    SpanrSubmissionBgJob,
-    DistillerSubmissionBgJob,
-    ComputeProjectVariantsStatsBgJob,
-    FilterBgJob,
-    ProjectCasesFilterBgJob,
-    SyncCaseListBgJob,
-    ImportVariantsBgJob,
+    Case,
     CaseComments,
     ClearExpiredExportedFilesBgJob,
     ClearInactiveVariantSetsBgJob,
     ClearOldKioskCasesBgJob,
+    ComputeProjectVariantsStatsBgJob,
+    DistillerSubmissionBgJob,
+    ExportFileBgJob,
+    ExportProjectCasesFileBgJob,
+    FilterBgJob,
+    ImportVariantsBgJob,
+    ProjectCasesFilterBgJob,
     RefreshSmallVariantSummaryBgJob,
+    SmallVariantComment,
+    SmallVariantFlags,
+    SpanrSubmissionBgJob,
+    SyncCaseListBgJob,
 )
-from .urls import urlpatterns
-from .templatetags.variants_tags import case_status_to_color
+from variants.templatetags.variants_tags import case_status_to_color
+
+
+def get_urlpatterns():
+    """Return urlpatterns for this URL, to be used with ``lazy()`` to get around circular import."""
+    from variants.urls import urlpatterns  # noqa
+
+    return urlpatterns
+
 
 # Global SODAR constants
 SODAR_CONSTANTS = get_sodar_constants()
@@ -37,7 +47,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     name = "variants"
     title = "Cases"
-    urls = urlpatterns
+    urls = lazy(get_urlpatterns, list)()
     # ...
 
     icon = "mdi:hospital-building"
@@ -316,3 +326,188 @@ class BackgroundJobsPlugin(BackgroundJobsPluginPoint):
             return extra_data["flag_values"]
         else:
             return "(unknown %s)" % name
+
+
+##
+## Plugin Point Definitions
+##
+
+
+class VariantsExtendQueryInfoColPluginPoint(PluginPoint):
+    """Variants plugin point for hooking into the query to extend the query with informative columns.
+
+    These columns can be displayed to the user in the results table but not be used for filtering.  This
+    is used in the ``varannos`` app, for example, to add the number of ``VarAnnoSetEntry`` records for a
+    variant to the result table.
+
+    CAUTION: Please note that the API is currently not stable yet.
+    """
+
+    #: Column definition
+    #:
+    #: Example ::
+    #:
+    #: columns = [
+    #:   {
+    #:     "field_name": "field_name_from_query_result",
+    #:     "label": "User-facing label",
+    #:   },
+    #:   {
+    #:     "field_name": "field_name_from_query_result_2",
+    #:     "label": "User-facing label #2",
+    #:   },
+    #: ]
+    columns = []
+
+    #: Definition of extra ``ExtendQueryPartsBase`` sub classes for augmenting the query.
+    #:
+    #: You can also pass a string with the path to the class to break circular dependencies.
+    #:
+    #: Examples ::
+    #:
+    #: def extend_query_part_classes(self):
+    #:     return [ExtendQueryPartsVarAnnosJoin]
+    #:
+    #: def extend_query_part_classes(self):
+    #:     return ['varannos.queries.ExtendQueryPartsVarAnnosJoin']
+    def get_extend_query_part_classes(self):
+        return []
+
+    #: Specify explicit ordering.
+    plugin_ordering = 100
+
+
+class VariantsDetailsPluginPoint(PluginPoint):
+    """Variants plugin point to add information to the variant details fold-out/modal.
+
+    The output can have certain structures (that are currently subject to change) that will be displayed
+    to the user as appropriate.
+
+    CAUTION: Please note that the API is currently not stable yet.
+    """
+
+    #: Specify explicit ordering.
+    plugin_ordering = 100
+
+    def load_details(
+        self,
+        *,
+        case,
+        release,
+        chromosome,
+        start,
+        end,
+        reference,
+        alternative,
+        database,
+        gene_id,
+        ensembl_transcript_id,
+        **kwargs
+    ):
+        """Load variant details and return a dict with the information.
+
+        :param case: SODAR UUID of the case.
+        :param release: Genome release.
+        :param chromosome: Chromosome name.
+        :param start: Integer start position.
+        :param end: Integer end position.
+        :param reference: Reference bases.
+        :param alternative: Alternative bases.
+        :param database: Database name, "refseq" or "ensembl".
+        :param gene_id: Gene identifier (Entrez or ENSEMBL gene ID).
+        :param ensembl_transcript_id: ENSEMBL transcript ID.
+        :param kwargs: The API might change so you should specify a ``kwargs``.
+        :return: Dict with "appropriate" structure.
+        """
+
+        _ = case
+        _ = release
+        _ = chromosome
+        _ = start
+        _ = end
+        _ = reference
+        _ = alternative
+        _ = database
+        _ = gene_id
+        _ = ensembl_transcript_id
+        _ = kwargs
+
+        return {
+            "title": "Card Title",
+            "plugin_type": "variant",  # currently unused
+            "help_text": "This help text is displayed if provided",
+            "content": [  # a list of items
+                {"label": "first label", "value": "first value"},
+                {"label": "second label", "value": "second value"},
+            ],
+        }
+
+
+##
+## API
+##
+
+
+# Local constants
+PLUGIN_TYPE_EXTEND_QUERY_INFO = "extend_query_info"
+PLUGIN_TYPE_VARIANT_DETAILS_INFO = "variant_details_info"
+PLUGIN_TYPES = {
+    "extend_query_info": "VariantsExtendQueryInfoColPluginPoint",
+    "variant_details_info": "VariantsDetailsPluginPoint",
+}
+
+# From djangoplugins
+ENABLED = 0
+DISABLED = 1
+REMOVED = 2
+
+
+def get_active_plugins(plugin_type, custom_order=False):
+    """
+    Return active plugins of a specific type.
+    :param plugin_type: "extend_query_info" or "variant_details_info" (string)
+    :param custom_order: Order by plugin_ordering for project apps (boolean)
+    :return: List or None
+    :raise: ValueError if plugin_type is not recognized
+    """
+    if plugin_type not in PLUGIN_TYPES.keys():
+        raise ValueError(
+            "Invalid value for plugin_type. Accepted values: {}".format(
+                ", ".join(PLUGIN_TYPES.keys())
+            )
+        )
+
+    plugins = eval(PLUGIN_TYPES[plugin_type]).get_plugins()
+
+    if plugins:
+        return sorted(
+            [p for p in plugins if p.is_active()],
+            key=lambda x: x.plugin_ordering if custom_order else x.name,
+        )
+
+    return None
+
+
+def change_plugin_status(name, status, plugin_type="app"):
+    """
+    Change the status of a selected plugin in the database.
+
+    :param name: Plugin name (string)
+    :param status: Status (int, see djangoplugins)
+    :param plugin_type: Type of plugin ("extend_query_info" or "variant_details_info")
+    :raise: ValueError if plugin_type is invalid or plugin with name not found
+    """
+    # NOTE: Used to forge plugin to a specific status for e.g. testing
+    if plugin_type == "extend_query_info":
+        plugin = VariantsExtendQueryInfoColPluginPoint.get_plugin(name)
+    elif plugin_type == "variant_details_info":
+        plugin = VariantsDetailsPluginPoint.get_plugin(name)
+    else:
+        raise ValueError('Invalid plugin_type: "{}"'.format(plugin_type))
+
+    if not plugin:
+        raise ValueError('Plugin of type "{}" not found with name "{}"'.format(plugin_type, name))
+
+    plugin = plugin.get_model()
+    plugin.status = status
+    plugin.save()

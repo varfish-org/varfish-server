@@ -10,11 +10,12 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 
 import logging
 import os
-import environ
 import re
 import sys
 
+import environ
 from dotenv import load_dotenv
+
 from varfish import __version__ as varfish_version
 
 logger = logging.getLogger(__name__)
@@ -119,6 +120,7 @@ LOCAL_APPS = [
     "regmaps.apps.RegmapsConfig",
     "beaconsite.apps.BeaconsiteConfig",
     "genepanels.apps.GenepanelsConfig",
+    "varannos.apps.VarannosConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -280,9 +282,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # ------------------------------------------------------------------------------
 if env.bool("ENABLE_SENTRY", default=False):
     import sentry_sdk
+    from sentry_sdk.integrations.celery import CeleryIntegration
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.redis import RedisIntegration
-    from sentry_sdk.integrations.celery import CeleryIntegration
     from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
     SENTRY_DSN = "%s?verify_ssl=0" % env.str("SENTRY_DSN")
@@ -731,6 +733,7 @@ ENABLE_LDAP_SECONDARY = env.bool("ENABLE_LDAP_SECONDARY", False)
 
 if ENABLE_LDAP:
     import itertools
+
     import ldap
     from django_auth_ldap.config import LDAPSearch
 

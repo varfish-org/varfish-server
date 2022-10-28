@@ -9,38 +9,51 @@ v1.2.3 (anthenea)
 End-User Summary
 ================
 
-- Create single result row even if multiple clinvar entries (#565).
-- Warning in the case of truncated displayed results (#641).
-- Improving Clinvar filter performance (#635).
-- Fixing clinvar filter (#296).
-  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
-- Warning in the case of truncated displayed results (#641).
+- Create single result row even for multiple clinvar entries (#565).
+- Adding warning in case of truncated display (#641).
+- Adding coordinate indices on HelixMtDb and Mitomap (#635).
+- Fixing clinvar pathogenic filter (#296).
 - Improving Clinvar record aggregation (#640).
+- Fixed wrong colored WIP result rows (#673).
 - Fixing ClinVar submission XML generation (#677).
-- Fixing ClinVar export editor timing issues (#667, #668).
+- Regular refresh ClinVar individual from Case (#158).
 - Fixing hemizygous count display in fold-outs (#646).
 - Fixing clinvar submission sex/gender update (#686).
 - Fixing issue with phenotype name in Clinvar (#689).
-- Allowing to exclude cases from background db (#579).
+- Changing ClinVar link-out to VCV entry instead of coordinates (#693)
+- Bugfix that allow clinvar export submission set deletion (#713).
+- Adding genepanels app for defining gene panels (#723).
+- Allow excluding cases from in-house database (#579).
+- Allow to upload per-case gene annotation (#575).
+- Adding varannos app (#747).
 
 Full Change List
 ================
 
-- Create single result row even if multiple clinvar entries (#565).
-- Warning in the case of truncated displayed results (#641).
-- Improving Clinvar filter performance (#635).
-  Database indices were missing, assumedly because of a Django ``makemigrations`` bug.
-- Fixing clinvar filter (#296).
-  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
+- Create single result row even for multiple clinvar entries (#565).
+- Adding warning in case of truncated display (#641).
+- Adding coordinate indices on HelixMtDb and Mitomap (#635).
+- Fixing Docker builds (#660)
+- Fixing clinvar pathogenic filter (#296).
 - Improving Clinvar record aggregation (#640).
-- Fixing Docker builds (#660).
+- Fixed wrong colored WIP result rows (#673).
 - Fixing ClinVar submission XML generation (#677).
-- Adding regular task to sync ClinVar submission ``Individual`` sex from the one from the ``Case``.
-- Fixing ClinVar export editor timing issues (#667, #668).
+- Regular refresh ClinVar individual from Case (#158).
 - Fixing hemizygous count display in fold-outs (#646).
 - Fixing clinvar submission sex/gender update (#686).
 - Fixing issue with phenotype name in Clinvar (#689).
-- Allowing to exclude cases from background db (#579).
+- Changing ClinVar link-out to VCV entry instead of coordinates (#693)
+- Adding unit tests for clinvar export Vue app (#692)
+- Move varfish export Vue app (#711)
+- Bugfix that allow clinvar export submission set deletion (#713).
+- Removing dependency on bootstrap-vue (#716)
+- Migrating clinvar export to Pinia/Vue3 (#720).
+- Adding genepanels app for defining gene panels (#723).
+- Allow excluding cases from in-house database (#579).
+- Allow to upload per-case gene annotation (#575).
+- Add missing directory in Dockerfile.
+- Adding varannos app (#747).
+
 
 -----------------
 v1.2.2 (anthenea)
@@ -71,7 +84,6 @@ End-User Summary
 
 - Starting with branch of stable version Athenea (VarFish v1).
 - Documenting problem with extra annotations in ``20210728` data release (#450).
-- Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
 - Removing problematic username modification behaviour on login page (#459).
 - Displaying login page text from settings again (#458).
@@ -90,15 +102,12 @@ End-User Summary
 - Fixed smallvariant flags filter query (#502).
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Adding feature to enable and configure link-out to HGMD (#576).
-- Changing ClinVar link-out to VCV entry instead of coordinates (#693).
-- Adding support to create custom gene panels (#723).
-- Allow operators to upload per-gene annotations to cases (#575) on import.
-- Allowing to read clinvar submission reports (#759).
 
 Full Change List
 ================
 
 - Starting with branch of stable version Athenea (VarFish v1).
+- Documenting problem with extra annotations in ``20210728` data release (#450).
   Includes instructions on how to apply patch to get ``20210728b``.
 - Removing problematic username modification behaviour on login page (#459).
 - Displaying login page text from settings again (#458).
@@ -118,43 +127,6 @@ Full Change List
 - Added flags `segregates`, `doesnt_segregate` and `no_disease_association` to file export (#502).
 - Converted not cooperative tooltip to standard title on Filter & Display button (#508).
 - Adding feature to enable and configure link-out to HGMD (#576).
-- Small variant filtration results now allow to easily look up second hits in the same gene (#573).
-- Structural filtration results now allow to easily look up second hits in the same gene (#574).
-- Bugfix broken SV filter (#587).
-- Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
-- Form template reports error if genomebuild variable is not set (#607).
-- Making ``keyvalue`` more robust to failure (#613).
-- Implement new in-house background database for structural variants (#32).
-- Allow to exclude cases from in-house database through project settings (#579).
-- Adding distinct de novo genotype setting (#562).
-- Adding section presets for SV filtration (#616).
-- Adjusting SV filtration presets (#616).
-- Fix bug with thousand genomes frequencies in SV filtration (#619).
-- Displaying disease gene icon also for SVs (#620).
-- Fix bug with gene constraint display for intergenic variants (#620).
-- Fix import bug in import_tables.py (#625).
-- De novo quick preset now uses strict quality (#624).
-- Create single result row even if multiple clinvar entries (#565).
-- Fixing clinvar filter (#296).
-  **This will require an import of the updated Clinvar ``20210728c`` data (#296).**
-- Improving Clinvar filter performance (#635).
-  Database indices were missing, assumedly because of a Django ``makemigrations`` bug.
-- Warning in the case of truncated displayed results (#641).
-- Improving Clinvar record aggregation (#640).
-- Fixing Docker builds (#660).
-- Fixing ClinVar submission XML generation (#677).
-- Adding regular task to sync ClinVar submission ``Individual`` sex from the one from the ``Case``.
-- Fixing ClinVar export editor timing issues (#667, #668).
-- Fixing hemizygous count display in fold-outs (#646).
-- Changing ClinVar link-out to VCV entry instead of coordinates (#693).
-- Adding unit test for clinvar Vue app (#692).
-- Moving clinvar Vue app (#711).
-- Bugfix that allow clinvar export submission set deletion (#713).
-- Removing dependency on bootstrap-vue package (#716).
-- Migrating store dependency from Vuex v3 to Pinia (#720).
-- Adding support to create custom gene panels (#723).
-- Allow operators to upload per-gene annotations to cases (#575) on import.
-- Allowing to read clinvar submission reports (#759).
 
 ------
 v1.2.0

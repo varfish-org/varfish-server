@@ -1,163 +1,166 @@
+import contextlib
+import decimal
 import os
 import re
 import tempfile
-from itertools import chain
-from collections import defaultdict
 import uuid
-import contextlib
-
-import decimal
+from base64 import b64encode
+from collections import defaultdict
+from itertools import chain
 
 import binning
 import numpy as np
 import requests
-from base64 import b64encode
-
-from variants.helpers import get_engine
+import simplejson as json
+import xlsxwriter
+from bgjobs.models import BackgroundJob
+from bgjobs.views import DEFAULT_PAGINATION as BGJOBS_DEFAULT_PAGINATION
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import transaction
 from django.db.models import Q
 from django.forms.models import model_to_dict
-from django.http import HttpResponse, Http404, JsonResponse
-from django.db import transaction
-from django.shortcuts import render, redirect, get_object_or_404, reverse
+from django.http import Http404, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils import timezone
 from django.views.generic import (
     DetailView,
     FormView,
     ListView,
-    View,
     RedirectView,
-    UpdateView,
     TemplateView,
+    UpdateView,
+    View,
 )
 from django.views.generic.detail import SingleObjectMixin, SingleObjectTemplateResponseMixin
-import xlsxwriter
-
-import simplejson as json
 from django.views.generic.edit import FormMixin
+from projectroles.app_settings import AppSettingAPI
 from projectroles.constants import SODAR_CONSTANTS
 from projectroles.models import RemoteSite
+from projectroles.plugins import get_active_plugins, get_backend_api
 from projectroles.templatetags.projectroles_common_tags import site_version
-
-from bgjobs.models import BackgroundJob
-from bgjobs.views import DEFAULT_PAGINATION as BGJOBS_DEFAULT_PAGINATION
-from clinvar.models import Clinvar
-from cohorts.models import Cohort
-from extra_annos.views import ExtraAnnosMixin, ExtraAnnoField
-from frequencies.models import MT_DB_INFO
-from geneinfo.views import get_gene_infos
-from geneinfo.models import (
-    NcbiGeneInfo,
-    NcbiGeneRif,
-    HpoName,
-    Hpo,
-    EnsemblToGeneSymbol,
-    Hgnc,
-    build_entrez_id_to_symbol,
-)
-from frequencies.views import FrequencyMixin
-from projectroles.app_settings import AppSettingAPI
 from projectroles.views import (
-    LoginRequiredMixin,
     LoggedInPermissionMixin,
+    LoginRequiredMixin,
+    PluginContextMixin,
     ProjectContextMixin,
     ProjectPermissionMixin,
-    PluginContextMixin,
 )
-from projectroles.plugins import get_backend_api, get_active_plugins
 
+from clinvar.models import Clinvar
+from cohorts.models import Cohort
+from extra_annos.views import ExtraAnnoField, ExtraAnnosMixin
+from frequencies.models import MT_DB_INFO
+from frequencies.views import FrequencyMixin
+from geneinfo.models import (
+    EnsemblToGeneSymbol,
+    Hgnc,
+    Hpo,
+    HpoName,
+    NcbiGeneInfo,
+    NcbiGeneRif,
+    build_entrez_id_to_symbol,
+)
 from geneinfo.views import get_gene_infos
 from genepanels.models import GenePanelCategory
 from genomicfeatures.models import GeneInterval
 from varfish.users.models import User
-from .queries import (
-    CaseLoadPrefetchedQuery,
-    ProjectLoadPrefetchedQuery,
-    KnownGeneAAQuery,
-    DeleteStructuralVariantsQuery,
-    DeleteSmallVariantsQuery,
-    SmallVariantUserAnnotationQuery,
-)
-from .models import (
-    only_source_name,
-    Case,
-    ExportFileBgJob,
-    ExportProjectCasesFileBgJob,
-    CaddSubmissionBgJob,
-    DistillerSubmissionBgJob,
-    SpanrSubmissionBgJob,
-    ComputeProjectVariantsStatsBgJob,
-    FilterBgJob,
-    Project,
-    CaseAwareProject,
-    SmallVariant,
-    SmallVariantFlags,
-    SmallVariantComment,
-    SmallVariantQuery,
-    ProjectCasesSmallVariantQuery,
-    ProjectCasesFilterBgJob,
-    annotate_with_phenotype_scores,
-    annotate_with_pathogenicity_scores,
-    annotate_with_joint_scores,
-    AcmgCriteriaRating,
-    SyncCaseListBgJob,
-    SmallVariantSet,
-    ImportVariantsBgJob,
-    CaseComments,
-    CASE_STATUS_CHOICES,
-    RowWithAffectedCasesPerGene,
-    SmallVariantSummary,
-    KioskAnnotateBgJob,
-    update_variant_counts,
-    DeleteCaseBgJob,
-    RefreshSmallVariantSummaryBgJob,
-    ClearOldKioskCasesBgJob,
-    ClearInactiveVariantSetsBgJob,
-    ClearExpiredExportedFilesBgJob,
-    load_molecular_impact,
-)
-from .forms import (
-    ExportFileResubmitForm,
-    ExportProjectCasesFileResubmitForm,
+from variants.file_export import RowWithSampleProxy
+from variants.forms import (
     FILTER_FORM_TRANSLATE_CLINVAR_STATUS,
     FILTER_FORM_TRANSLATE_EFFECTS,
     FILTER_FORM_TRANSLATE_SIGNIFICANCE,
-    FilterForm,
-    ProjectCasesFilterForm,
+    RE_FIND_TERMS,
+    AcmgCriteriaRatingForm,
+    CaseCommentsForm,
+    CaseForm,
+    CaseNotesStatusForm,
+    CaseTermsForm,
     EmptyForm,
+    ExportFileResubmitForm,
+    ExportProjectCasesFileResubmitForm,
+    FilterForm,
+    KioskUploadForm,
+    ProjectCasesFilterForm,
     ProjectStatsJobForm,
     SmallVariantCommentForm,
     SmallVariantFlagsForm,
-    AcmgCriteriaRatingForm,
-    CaseForm,
     SyncProjectJobForm,
-    CaseNotesStatusForm,
-    CaseCommentsForm,
-    KioskUploadForm,
     save_file,
-    CaseTermsForm,
-    RE_FIND_TERMS,
 )
-from .sync_upstream import fetch_remote_pedigree
-from .tasks import (
+from variants.helpers import get_engine
+from variants.models import (
+    CASE_STATUS_CHOICES,
+    AcmgCriteriaRating,
+    CaddSubmissionBgJob,
+    Case,
+    CaseAwareProject,
+    CaseComments,
+    ClearExpiredExportedFilesBgJob,
+    ClearInactiveVariantSetsBgJob,
+    ClearOldKioskCasesBgJob,
+    ComputeProjectVariantsStatsBgJob,
+    DeleteCaseBgJob,
+    DistillerSubmissionBgJob,
+    ExportFileBgJob,
+    ExportProjectCasesFileBgJob,
+    FilterBgJob,
+    ImportVariantsBgJob,
+    KioskAnnotateBgJob,
+    Project,
+    ProjectCasesFilterBgJob,
+    ProjectCasesSmallVariantQuery,
+    RefreshSmallVariantSummaryBgJob,
+    RowWithAffectedCasesPerGene,
+    SmallVariant,
+    SmallVariantComment,
+    SmallVariantFlags,
+    SmallVariantQuery,
+    SmallVariantSet,
+    SmallVariantSummary,
+    SpanrSubmissionBgJob,
+    SyncCaseListBgJob,
+    annotate_with_joint_scores,
+    annotate_with_pathogenicity_scores,
+    annotate_with_phenotype_scores,
+    load_molecular_impact,
+    only_source_name,
+    update_variant_counts,
+)
+from variants.plugins import PLUGIN_TYPE_EXTEND_QUERY_INFO, PLUGIN_TYPE_VARIANT_DETAILS_INFO
+from variants.plugins import get_active_plugins as get_active_plugins_variants
+from variants.queries import (
+    CaseLoadPrefetchedQuery,
+    DeleteSmallVariantsQuery,
+    DeleteStructuralVariantsQuery,
+    KnownGeneAAQuery,
+    ProjectLoadPrefetchedQuery,
+    SmallVariantUserAnnotationQuery,
+)
+from variants.query_presets import QUICK_PRESETS, PedigreeMember
+from variants.query_schemas import (
+    SCHEMA_QUERY_V1,
+    DefaultValidatingDraft7Validator,
+    convert_query_json_to_small_variant_filter_form_v1,
+)
+from variants.sync_upstream import fetch_remote_pedigree
+from variants.tasks import (
+    cadd_submission_task,
+    compute_project_variants_stats,
+    delete_case_bg_job,
+    distiller_submission_task,
     export_file_task,
     export_project_cases_file_task,
-    cadd_submission_task,
-    distiller_submission_task,
-    compute_project_variants_stats,
-    sync_project_upstream,
-    single_case_filter_task,
     project_cases_filter_task,
     run_kiosk_bg_job,
-    delete_case_bg_job,
+    single_case_filter_task,
     spanr_submission_task,
+    sync_project_upstream,
 )
-from .file_export import RowWithSampleProxy
-from .templatetags.variants_tags import get_term_description, smallvar_description
+from variants.templatetags.variants_tags import get_term_description, smallvar_description
 
 
 class UUIDEncoder(json.JSONEncoder):
@@ -2462,6 +2465,17 @@ class CaseLoadPrefetchedFilterView(
         if rows:
             genomebuild = rows[0]["release"]
 
+        columns_from_plugins = list(
+            chain(
+                *[
+                    plugin.columns
+                    for plugin in get_active_plugins_variants(
+                        plugin_type=PLUGIN_TYPE_EXTEND_QUERY_INFO, custom_order=True
+                    )
+                ]
+            )
+        )
+
         result.update(
             {
                 "genomebuild": genomebuild,
@@ -2523,6 +2537,7 @@ class CaseLoadPrefetchedFilterView(
                     "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
                     for e in filter_job.bg_job.log_entries.all().order_by("date_created")
                 ],
+                "results_plugins_header": columns_from_plugins,
             },
         )
 
@@ -3267,6 +3282,12 @@ class SmallVariantDetails(
             alternative=self.kwargs["alternative"],
         ).first()
 
+    def _load_details_plugins(self):
+        plugins = get_active_plugins_variants(
+            plugin_type=PLUGIN_TYPE_VARIANT_DETAILS_INFO, custom_order=True
+        )
+        return [plugin.load_details(**self.kwargs) for plugin in plugins]
+
     def get_context_data(self, object):
         result = super().get_context_data(*self.args, **self.kwargs)
         result["database"] = self.kwargs["database"]
@@ -3287,6 +3308,7 @@ class SmallVariantDetails(
         entrez_id = result["small_var"].refseq_gene_id
         result["ncbi_summary"] = NcbiGeneInfo.objects.filter(entrez_id=entrez_id).first()
         result["ncbi_gene_rifs"] = NcbiGeneRif.objects.filter(entrez_id=entrez_id).order_by("pk")
+        result["details_plugins_outputs"] = self._load_details_plugins()
         result["comments"] = self._load_variant_comments()
         result["flags"] = self._load_variant_flags()
         result["training_mode"] = int(self.kwargs["training_mode"])
