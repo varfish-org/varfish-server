@@ -72,6 +72,7 @@ End-User Summary
 - Fix bug in SV background database building (#757).
 - Allowing to read clinvar submission reports (#759).
 - Fix bug in filtration form with max. exon dist (#753).
+- Allow display of extra annos in Vue.js filtration (#755).
 
 Full Change List
 ================
@@ -155,6 +156,7 @@ Full Change List
 - Fix bug in SV background database building (#757).
 - Allowing to read clinvar submission reports (#759).
 - Fix bug in filtration form with max. exon dist (#753).
+- Allow display of extra annos in Vue.js filtration (#755).
 
 ------
 v1.2.0

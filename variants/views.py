@@ -4848,6 +4848,7 @@ class SmallVariantFilterForm(
     def get_context_data(self, *args, **kwargs):
         setting_api = AppSettingAPI()
         context = super().get_context_data(*args, **kwargs)
+        extra_anno_fields = self._get_extra_anno_fields()
         context["app_context"] = json.dumps(
             {
                 "case_uuid": str(self.object.sodar_uuid),
@@ -4862,6 +4863,13 @@ class SmallVariantFilterForm(
                 ),
                 "exomiser_enabled": settings.VARFISH_ENABLE_EXOMISER_PRIORITISER,
                 "cadd_enabled": settings.VARFISH_ENABLE_CADD,
+                "extra_anno_fields": extra_anno_fields,
             }
         )
         return context
+
+    def _get_extra_anno_fields(self):
+        def my_model_to_dict(field_obj):
+            return model_to_dict(field_obj, fields=("field", "label"))
+
+        return list(map(my_model_to_dict, ExtraAnnoField.objects.all()))

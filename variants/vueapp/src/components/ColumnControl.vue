@@ -21,6 +21,8 @@ const props = defineProps({
   displayColumns: Array,
   // props to control the ag-grid with
   columnApi: Object,
+  // the defined extra anno fields
+  extraAnnoFields: Array,
 })
 
 const emit = defineEmits([
@@ -30,12 +32,24 @@ const emit = defineEmits([
   'update:displayColumns',
 ])
 
-const columnOptions = Object.values(DisplayColumns).map((elem) => {
+// The static column options.
+const staticColumnOptions = Object.values(DisplayColumns).map((elem) => {
   return {
     value: elem.value,
     label: elem.text,
   }
 })
+
+// The columns for extra_annos.
+const extraColumnOptions = (props.extraAnnoFields ?? []).map(
+  ({ field, label }) => ({
+    value: `extra_anno-${field}`,
+    label: label,
+  })
+)
+
+// Concatenate to column options.
+const columnOptions = staticColumnOptions.concat(extraColumnOptions)
 
 const displayDetailsWrapper = computed({
   get() {
@@ -171,6 +185,9 @@ const displayColumnsWrapper = computed({
       'exon_dist',
       newValue.includes(DisplayColumns.DistanceSplicesite.value)
     )
+    for (const { value } of extraColumnOptions) {
+      props.columnApi.setColumnVisible(value, newValue.includes(value))
+    }
   },
 })
 </script>

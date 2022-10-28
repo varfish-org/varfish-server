@@ -144,7 +144,10 @@ function previousQueryDetailsToQuerySettings(caseObj, previousQueryDetails) {
 
   if (result['max_exon_dist'] === '') {
     result['max_exon_dist'] = null
-  } else {
+  } else if (
+    result['max_exon_dist'] !== null &&
+    result['max_exon_dist'] !== undefined
+  ) {
     result['max_exon_dist'] = Number(result['max_exon_dist'])
   }
 
@@ -191,6 +194,7 @@ export const useFilterQueryStore = defineStore({
       chromosomes: null,
       flags_etc: null,
     },
+    extraAnnoFields: [],
   }),
   getters: {
     setQueryStatusInterval() {
