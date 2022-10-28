@@ -9,13 +9,36 @@ import {
   DisplayFrequencies,
 } from '@variants/enums'
 
+const extraAnnoFieldsToColumnDef = (extraAnnoFields) => {
+  return extraAnnoFields.map(({ field, label }) => ({
+    field: `extra_anno-${field}`,
+    headerName: label,
+    hide: true,
+    sortable: true,
+    valueGetter: (params) => {
+      if (params.data.extra_annos) {
+        return params.data.extra_annos[0][field - 1]
+      } else {
+        return null
+      }
+    },
+    type: 'rightAligned',
+    cellRenderer: (params) => {
+      const num = parseFloat(params.value)
+      return Number.isNaN(num) ? null : num.toFixed(4)
+    },
+  }))
+}
+
 export function defineColumnDefs({
   displayFrequency,
   displayConstraint,
   displayDetails,
   displayColumns,
   genotypes,
+  extraAnnoFields,
 }) {
+  const extraAnnoColumnDefs = extraAnnoFieldsToColumnDef(extraAnnoFields)
   return [
     {
       field: 'selector',
@@ -304,6 +327,7 @@ export function defineColumnDefs({
         DisplayColumns.DistanceSplicesite.value
       ),
     },
+    ...extraAnnoColumnDefs,
     ...genotypes,
     {
       field: 'igv',

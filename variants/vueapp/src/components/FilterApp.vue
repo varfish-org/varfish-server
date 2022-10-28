@@ -39,6 +39,7 @@ filterQueryStore.fetchCase()
 filterQueryStore.fetchDefaultSettings()
 filterQueryStore.fetchPreviousQueryUuid()
 filterQueryStore.fetchPresets()
+filterQueryStore.extraAnnoFields = appContext.extra_anno_fields ?? []
 
 const showModal = ({ gridRow, gridApi, smallVariant }) => {
   currentSmallVariant.value = smallVariant
@@ -230,6 +231,7 @@ onMounted(() => {
       <FilterResultsTable
         :case="filterQueryStore.case"
         :query-results="filterQueryStore.queryResults"
+        :extra-anno-fields="filterQueryStore.extraAnnoFields"
         v-model:display-details="filterQueryStore.displayDetails"
         v-model:display-frequency="filterQueryStore.displayFrequency"
         v-model:display-constraint="filterQueryStore.displayConstraint"

@@ -23,6 +23,8 @@ const props = defineProps({
   displayConstraint: Number,
   /** The additional columns to display; Integers from {@code DisplayColumns}. */
   displayColumns: Array,
+  /** The extra fields information. */
+  extraAnnoFields: Array,
 })
 
 /**
@@ -122,6 +124,7 @@ const columnDefs = reactive(
     displayDetails: displayDetailsWrapper.value,
     displayColumns: displayColumnsWrapper.value,
     genotypes: genotypesWrapper.value,
+    extraAnnoFields: props.extraAnnoFields,
   })
 )
 
@@ -172,6 +175,7 @@ const onCellClicked = (event) => {
       <ColumnSizeFitter :column-api="columnApi" :grid-api="gridApi" />
       <ColumnControl
         :column-api="columnApi"
+        :extra-anno-fields="props.extraAnnoFields"
         v-model:display-details="displayDetailsWrapper"
         v-model:display-frequency="displayFrequencyWrapper"
         v-model:display-constraint="displayConstraintWrapper"
