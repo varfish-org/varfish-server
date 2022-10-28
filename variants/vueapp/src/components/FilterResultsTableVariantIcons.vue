@@ -21,7 +21,7 @@ const acmgBadge = acmgBadgeClasses.join(' ')
 <template>
   <div>
     <i-fa-solid-bookmark
-      v-if="params.data.flag_count !== 0"
+      v-if="params.data.flag_count"
       class="text-muted"
       title="flags & bookmarks"
     />
@@ -32,7 +32,7 @@ const acmgBadge = acmgBadgeClasses.join(' ')
     />
 
     <i-fa-solid-comment
-      v-if="params.data.comment_count !== 0"
+      v-if="params.data.comment_count"
       class="text-muted ml-1"
     />
     <i-fa-regular-comment v-else class="text-muted icon-inactive ml-1" />
@@ -86,16 +86,8 @@ const acmgBadge = acmgBadgeClasses.join(' ')
   </div>
 </template>
 
-<style scoped>
+<style>
 .icon-inactive {
   opacity: 20%;
-}
-
-.badge-outline-secondary {
-  color: #6c757d;
-  background-color: transparent;
-  background-image: none;
-  border-color: #6c757d;
-  border: 1px solid;
 }
 </style>
