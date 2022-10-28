@@ -74,6 +74,7 @@ End-User Summary
 - Fix bug in filtration form with max. exon dist (#753).
 - Allow display of extra annos in Vue.js filtration (#755).
 - Fix variant icon display (#745).
+- Improving installation instructions (#735).
 
 Full Change List
 ================
@@ -159,6 +160,7 @@ Full Change List
 - Fix bug in filtration form with max. exon dist (#753).
 - Allow display of extra annos in Vue.js filtration (#755).
 - Fix variant icon display (#745).
+- Improving installation instructions (#735).
 
 ------
 v1.2.0
