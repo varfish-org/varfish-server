@@ -48,6 +48,8 @@ from variants.models import (
     SmallVariantSet,
     SmallVariantSummary,
 )
+from variants.plugins import PLUGIN_TYPE_EXTEND_QUERY_INFO, get_active_plugins
+from variants.utils import class_from_string
 
 
 class _ArrayCatAgg(ReturnTypeFromArgs):
@@ -1516,6 +1518,7 @@ class ExtendQueryPartsExacConstraintsJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
+#: QueryPartsBuilderExtender classes list for cases.
 extender_classes_base = [
     ExtendQueryPartsCaseJoinAndFilter,
     ExtendQueryPartsDbsnpJoinAndFilter,
@@ -1537,16 +1540,23 @@ extender_classes_base = [
 ]
 
 
+def get_qp_extender_classes_from_plugins():
+    """Get QueryPartsBuilderExtender classes from plugins."""
+    return list(
+        chain(
+            *[
+                plugin.get_extend_query_part_classes()
+                for plugin in get_active_plugins(
+                    plugin_type=PLUGIN_TYPE_EXTEND_QUERY_INFO, custom_order=True
+                )
+            ]
+        )
+    )
+
+
 class QueryPartsBuilder:
 
     core_query = small_variant_query
-    qp_extender_classes = [
-        *extender_classes_base,
-        ExtendQueryPartsHgncJoin,
-        ExtendQueryPartsGeneSymbolJoin,
-        ExtendQueryPartsAcmgJoin,
-        ExtendQueryPartsMgiJoin,
-    ]
 
     def __init__(self, case, query_id):
         self.case = case
@@ -1555,7 +1565,9 @@ class QueryPartsBuilder:
     def run(self, kwargs, extender_genotype_class=None):
         query_parts = self.core_query(kwargs)
         extender_names = []
-        for extender_class in self.qp_extender_classes:
+        for extender_class in self.get_qp_extender_classes():
+            if isinstance(extender_class, str):
+                extender_class = class_from_string(extender_class)
             name = extender_class.__name__
             if "Genotype" in name and extender_genotype_class is not None:
                 continue
@@ -1571,40 +1583,51 @@ class QueryPartsBuilder:
 
         return query_parts
 
+    def get_qp_extender_classes(self):
+        return [
+            *extender_classes_base,
+            ExtendQueryPartsHgncJoin,
+            ExtendQueryPartsGeneSymbolJoin,
+            ExtendQueryPartsAcmgJoin,
+            ExtendQueryPartsMgiJoin,
+        ]
+
 
 class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
-    qp_extender_classes = [
-        ExtendQueryPartsCaseLoadPrefetched,
-        ExtendQueryPartsCaseJoinAndFilter,
-        ExtendQueryPartsMitochondrialFrequenciesJoin,
-        ExtendQueryPartsDbsnpJoin,
-        ExtendQueryPartsHgncJoin,
-        ExtendQueryPartsGeneSymbolJoin,
-        ExtendQueryPartsAcmgJoin,
-        ExtendQueryPartsMgiJoin,
-        ExtendQueryPartsFlagsJoinAndFilter,
-        ExtendQueryPartsCommentsJoin,
-        ExtendQueryPartsCommentsExtraAnnoJoin,
-        ExtendQueryPartsAcmgCriteriaJoin,
-        ExtendQueryPartsModesOfInheritanceJoin,
-        ExtendQueryPartsDiseaseGeneJoin,
-        ExtendQueryPartsGnomadConstraintsJoin,
-        ExtendQueryPartsExacConstraintsJoin,
-        ExtendQueryPartsInHouseJoinAndFilter,
-        ExtendQueryPartsClinvarJoin,
-    ]
+    def get_qp_extender_classes(self):
+        return [
+            ExtendQueryPartsCaseLoadPrefetched,
+            ExtendQueryPartsCaseJoinAndFilter,
+            ExtendQueryPartsMitochondrialFrequenciesJoin,
+            ExtendQueryPartsDbsnpJoin,
+            ExtendQueryPartsHgncJoin,
+            ExtendQueryPartsGeneSymbolJoin,
+            ExtendQueryPartsAcmgJoin,
+            ExtendQueryPartsMgiJoin,
+            ExtendQueryPartsFlagsJoinAndFilter,
+            ExtendQueryPartsCommentsJoin,
+            ExtendQueryPartsCommentsExtraAnnoJoin,
+            ExtendQueryPartsAcmgCriteriaJoin,
+            ExtendQueryPartsModesOfInheritanceJoin,
+            ExtendQueryPartsDiseaseGeneJoin,
+            ExtendQueryPartsGnomadConstraintsJoin,
+            ExtendQueryPartsExacConstraintsJoin,
+            ExtendQueryPartsInHouseJoinAndFilter,
+            ExtendQueryPartsClinvarJoin,
+        ] + get_qp_extender_classes_from_plugins()
 
 
 class CaseExportTableQueryPartsBuilder(QueryPartsBuilder):
     """Same as normal query, just with Conservation part added."""
 
-    qp_extender_classes = [
-        *extender_classes_base,
-        ExtendQueryPartsHgncAndConservationJoin,
-        ExtendQueryPartsAcmgJoin,
-        ExtendQueryPartsMgiJoin,
-        ExtendQueryPartsGnomadConstraintsJoin,
-    ]
+    def get_qp_extender_classes(self):
+        return [
+            *extender_classes_base,
+            ExtendQueryPartsHgncAndConservationJoin,
+            ExtendQueryPartsAcmgJoin,
+            ExtendQueryPartsMgiJoin,
+            ExtendQueryPartsGnomadConstraintsJoin,
+        ] + get_qp_extender_classes_from_plugins()
 
 
 class CaseExportVcfQueryPartsBuilder(QueryPartsBuilder):
@@ -1613,39 +1636,42 @@ class CaseExportVcfQueryPartsBuilder(QueryPartsBuilder):
     # TODO What about DbSNP and HGNC that are used for filtering???
     # TODO Should we just take the stored results and join the required data?
     # TODO But then, some extensions join AND query ... maybe split them (HGNC?, Clinvar?, dbSNP, HGMD)
-    qp_extender_classes = extender_classes_base
+    def get_qp_extender_classes(self):
+        return extender_classes_base
 
 
 class ProjectLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
-    qp_extender_classes = [
-        ExtendQueryPartsProjectLoadPrefetched,
-        ExtendQueryPartsCaseJoinAndFilter,
-        ExtendQueryPartsMitochondrialFrequenciesJoin,
-        ExtendQueryPartsDbsnpJoin,
-        ExtendQueryPartsHgncJoin,
-        ExtendQueryPartsGeneSymbolJoin,
-        ExtendQueryPartsMgiJoin,
-        ExtendQueryPartsAcmgJoin,
-        ExtendQueryPartsFlagsJoin,
-        ExtendQueryPartsCommentsJoin,
-        ExtendQueryPartsAcmgCriteriaJoin,
-        ExtendQueryPartsGnomadConstraintsJoin,
-        ExtendQueryPartsExacConstraintsJoin,
-        ExtendQueryPartsClinvarJoin,
-        ExtendQueryPartsModesOfInheritanceJoin,
-        ExtendQueryPartsDiseaseGeneJoin,
-    ]
+    def get_qp_extender_classes(self):
+        return [
+            ExtendQueryPartsProjectLoadPrefetched,
+            ExtendQueryPartsCaseJoinAndFilter,
+            ExtendQueryPartsMitochondrialFrequenciesJoin,
+            ExtendQueryPartsDbsnpJoin,
+            ExtendQueryPartsHgncJoin,
+            ExtendQueryPartsGeneSymbolJoin,
+            ExtendQueryPartsMgiJoin,
+            ExtendQueryPartsAcmgJoin,
+            ExtendQueryPartsFlagsJoin,
+            ExtendQueryPartsCommentsJoin,
+            ExtendQueryPartsAcmgCriteriaJoin,
+            ExtendQueryPartsGnomadConstraintsJoin,
+            ExtendQueryPartsExacConstraintsJoin,
+            ExtendQueryPartsClinvarJoin,
+            ExtendQueryPartsModesOfInheritanceJoin,
+            ExtendQueryPartsDiseaseGeneJoin,
+        ] + get_qp_extender_classes_from_plugins()
 
 
 class ProjectExportTableQueryPartsBuilder(QueryPartsBuilder):
-    qp_extender_classes = [
-        *extender_classes_base,
-        ExtendQueryPartsHgncAndConservationJoin,
-        ExtendQueryPartsGeneSymbolJoin,
-        ExtendQueryPartsAcmgJoin,
-        ExtendQueryPartsMgiJoin,
-        ExtendQueryPartsGnomadConstraintsJoin,
-    ]
+    def get_qp_extender_classes(self):
+        return [
+            *extender_classes_base,
+            ExtendQueryPartsHgncAndConservationJoin,
+            ExtendQueryPartsGeneSymbolJoin,
+            ExtendQueryPartsAcmgJoin,
+            ExtendQueryPartsMgiJoin,
+            ExtendQueryPartsGnomadConstraintsJoin,
+        ] + get_qp_extender_classes_from_plugins()
 
 
 class ProjectExportVcfQueryPartsBuilder(QueryPartsBuilder):
@@ -1654,7 +1680,8 @@ class ProjectExportVcfQueryPartsBuilder(QueryPartsBuilder):
     # TODO What about DbSNP and HGNC that are used for filtering???
     # TODO Should we just take the stored results and join the required data?
     # TODO But then, some extensions join AND query ... maybe split them (HGNC?, Clinvar?, dbSNP, HGMD)
-    qp_extender_classes = extender_classes_base
+    def get_qp_extender_classes(self):
+        return extender_classes_base
 
 
 class CompHetCombiner:

@@ -1135,7 +1135,7 @@ class TestVariantsCaseFilterViewExtraAnno(TestVariantsCaseFilterView):
                 bin=small_vars[0].bin,
                 reference=small_vars[0].reference,
                 alternative=small_vars[0].alternative,
-                anno_data=[9],
+                anno_data=[9, 19],
             ),
             ExtraAnnoFactory(
                 release=small_vars[2].release,
@@ -1145,10 +1145,14 @@ class TestVariantsCaseFilterViewExtraAnno(TestVariantsCaseFilterView):
                 bin=small_vars[2].bin,
                 reference=small_vars[2].reference,
                 alternative=small_vars[2].alternative,
-                anno_data=[10],
+                anno_data=[10, 19],
             ),
         ]
-        self.extra_anno_field = ExtraAnnoFieldFactory()
+        self.extra_anno_fields = [
+            ExtraAnnoFieldFactory(),
+            ExtraAnnoFieldFactory(),
+        ]
+        self.extra_anno_field = self.extra_anno_fields[0]
 
     def _find_table_column_names(self):
         table = self.selenium.find_element_by_id("table-config")
@@ -1172,7 +1176,7 @@ class TestVariantsCaseFilterViewExtraAnno(TestVariantsCaseFilterView):
             ec.visibility_of_element_located((By.CLASS_NAME, "variant-row"))
         )
 
-        # only Effect is on, everythign else (extra anno) off
+        # only Effect is on, everything else (extra anno) off
         bt = self.selenium.find_element_by_xpath(
             '//*[@id="resultsTable"]/div[2]/div/div[4]/div/button'
         )
@@ -1189,9 +1193,12 @@ class TestVariantsCaseFilterViewExtraAnno(TestVariantsCaseFilterView):
         self.assertTrue(self.extra_anno_field.label in columns_values)
 
         # click only extra anno
-        for extra_anno_columns_item in columns_items:
-            if extra_anno_columns_item.text == self.extra_anno_field.label:
-                extra_anno_columns_item.click()
+        extra_anno_columns_item = None
+        for column_item in columns_items:
+            if column_item.text == self.extra_anno_field.label:
+                extra_anno_columns_item = column_item
+        self.assertIsNotNone(extra_anno_columns_item)
+        extra_anno_columns_item.click()
 
         # find extra anno column header in the table
         table, row_header_items, row_header_values = self._find_table_column_names()

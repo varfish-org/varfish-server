@@ -1,0 +1,115 @@
+{% extends 'projectroles/project_base.html' %}
+{% load humanize %}
+{% load dict %}
+{% load varannos_tags %}
+
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item">
+    <a href="{% url "varannos:varannoset-list" project=project.sodar_uuid %}">
+      Variant Annotation Sets
+    </a>
+  </li>
+  <li class="breadcrumb-item active">{{ object.name }}</li>
+{% endblock %}
+
+{% block title %}
+  Variant Annotation Set: {{ object.name }}
+{% endblock title %}
+
+{% block projectroles %}
+  <div class="row sodar-pr-content-title pb-2">
+    {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
+    {% include 'projectroles/_project_menu_btn.html' %}
+
+    <h2 class="sodar-pr-content-title">
+      Variant Annotation Set
+      <small class="text-muted">{{ object.name }}</small>
+      <small class="badge badge-primary" style="font-size: 50%;">
+        {{ object.release }}
+      </small>
+    </h2>
+
+    <div class="ml-auto btn-group">
+      <a class="btn btn-secondary" href="{% url "varannos:varannoset-list" project=project.sodar_uuid %}">
+        <i class="iconify" data-icon="mdi:arrow-left-circle"></i>
+        Back to List
+      </a>
+    </div>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <div class="card" id="sodar-aa-alert-list">
+      <div class="card-body px-0">
+        <dl class="row pb-0">
+          <dt class="col-md-2">UUID</dt>
+          <dd class="col-md-10"><strong>{{ object.sodar_uuid }}</strong></dd>
+          <dt class="col-md-2">Title</dt>
+          <dd class="col-md-10"><strong>{{ object.title }}</strong></dd>
+          <dt class="col-md-2">Release</dt>
+          <dd class="col-md-10">{{ object.release }}</dd>
+          <dt class="col-md-2">Fields</dt>
+          <dd class="col-md-10">
+            <ul>
+              {% for field in object.fields %}
+                <li>{{ field }}</li>
+              {% endfor %}
+            </ul>
+          </dd>
+          <dt class="col-md-12">Description</dt>
+          <dd class="col-md-12">
+            {% if object.description %}
+              {{ object.description }}
+            {% else %}
+              <span class="font-italic text-muted">No description.</span>
+            {% endif %}
+          </dd>
+          <dt class="col-md-2">Created</dt>
+          <dd class="col-md-10">{{ object.date_created|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-2">Updated</dt>
+          <dd class="col-md-10">{{ object.date_modified|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-12 pb-2">Variant Annotations ({{ object.varannosetentry_set.count }})</dt>
+          <dd class="col-md-12">
+            <div class="col-md-12 pl-0 pr-0">
+              <table class="table table-sm table-striped table-hover">
+                <thead>
+                  <th style="width: 10px;">#</th>
+                  <th style="width: 50px;">Chrom.</th>
+                  <th style="width: 150px;">Pos.</th>
+                  <th style="width: 50px;">Ref.</th>
+                  <th style="width: 50px;">Alt.</th>
+                  {% for field in object.fields %}
+                    <th>{{ field }}</th>
+                  {% endfor %}
+                </thead>
+                <tbody>
+                  {% for varannosetentry in object.varannosetentry_set.all %}
+                    <tr>
+                      <td>{{ forloop.counter }}</td>
+                      <td>
+                        {{ varannosetentry.chromosome|add_chr_prefix }}
+                      </td>
+                      <td class="text-right">{{ varannosetentry.start|intcomma }}</td>
+                      <td>{{ varannosetentry.reference }}</td>
+                      <td>{{ varannosetentry.alternative }}</td>
+                      {% for field in object.fields %}
+                        <td>
+                          {{ varannosetentry.payload|keyvalue:field }}
+                        </td>
+                      {% endfor %}
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="{{ table_col_count }}" class="text-muted text-center">
+                        No annotations in set yet.
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+{% endblock %}

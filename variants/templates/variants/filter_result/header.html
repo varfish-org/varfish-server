@@ -34,6 +34,9 @@
   {% for value in result_extra_annos_header %}
     <th class="extra_annos-{{ forloop.counter }}"></th>
   {% endfor %}
+  {% for value in results_plugins_header %}
+    <th class="plugins-fields-{{ value.field_name }}"></th>
+  {% endfor %}
   {% if query_type == "project" %}
     <th></th> {# cases per gene #}
   {% endif %}
@@ -102,6 +105,9 @@
   <th class="distance-to-splicesite">dist. to splicesite</th>
   {% for value in result_extra_annos_header %}
     <th class="extra_annos-{{ forloop.counter }}"> {{ value }}</th>
+  {% endfor %}
+  {% for value in results_plugins_header %}
+    <th class="plugins-fields-{{ value.field_name }}">{{ value.label }}</th>
   {% endfor %}
   {% if query_type == "project" %}
     <th data-toggle="tooltip" data-placement="top" data-html="true" title="Number affected cases per gene.">

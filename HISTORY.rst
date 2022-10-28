@@ -75,6 +75,7 @@ End-User Summary
 - Allow display of extra annos in Vue.js filtration (#755).
 - Fix variant icon display (#745).
 - Improving installation instructions (#735).
+- Implementing case-independent variant annotations (#747).
 
 Full Change List
 ================
@@ -161,6 +162,7 @@ Full Change List
 - Allow display of extra annos in Vue.js filtration (#755).
 - Fix variant icon display (#745).
 - Improving installation instructions (#735).
+- Implementing case-independent variant annotations (#747).
 
 ------
 v1.2.0

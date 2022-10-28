@@ -105,7 +105,7 @@ numpy >=1.22.1, <1.23
 pandas >=1.4.0, <1.5
 
 # Simple object proxies.
-wrapt >=1.12.1, <1.13
+wrapt >=1.14.1, <2.0
 
 # Interval binning
 interval-binning >=1.0.0, <1.1
