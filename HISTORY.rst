@@ -73,6 +73,7 @@ End-User Summary
 - Allowing to read clinvar submission reports (#759).
 - Fix bug in filtration form with max. exon dist (#753).
 - Allow display of extra annos in Vue.js filtration (#755).
+- Fix variant icon display (#745).
 
 Full Change List
 ================
@@ -157,6 +158,7 @@ Full Change List
 - Allowing to read clinvar submission reports (#759).
 - Fix bug in filtration form with max. exon dist (#753).
 - Allow display of extra annos in Vue.js filtration (#755).
+- Fix variant icon display (#745).
 
 ------
 v1.2.0
