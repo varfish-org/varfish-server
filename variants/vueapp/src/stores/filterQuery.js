@@ -142,6 +142,12 @@ function previousQueryDetailsToQuerySettings(caseObj, previousQueryDetails) {
     delete result[key]
   }
 
+  if (result['max_exon_dist'] === '') {
+    result['max_exon_dist'] = null
+  } else {
+    result['max_exon_dist'] = Number(result['max_exon_dist'])
+  }
+
   result.genotype = genotype
   result.quality = quality
 
