@@ -76,3 +76,26 @@ class TestCaseGeneAnnotationListAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
+
+
+class TestProjectUserPermissionsAjaxView(TestProjectAPIPermissionBase):
+    """Permission tests for the API views returning permissions."""
+
+    def setUp(self):
+        super().setUp()
+
+    def test_list(self):
+        url = reverse(
+            "cases:ajax-userpermissions",
+            kwargs={"project": self.project.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+            self.guest_as.user,
+            self.anonymous,
+            self.user_no_roles,
+        ]
+        self.assert_response(url, good_users, 200, method="GET")

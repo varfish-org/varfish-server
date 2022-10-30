@@ -11,6 +11,9 @@ const props = defineProps({
 const router = useRouter()
 
 const casesStore = useCasesStore()
+
+const userHasPerms = (perm) =>
+  casesStore.userPerms && casesStore.userPerms.includes(perm)
 </script>
 
 <template>
@@ -53,18 +56,31 @@ const casesStore = useCasesStore()
           <i-mdi-filter-variant />
           Filter SVs
         </a>
-        <a class="btn btn-secondary">
-          <i-mdi-file-document-edit />
-          Edit Pedigree
+        <a
+          type="button"
+          class="btn btn-secondary dropdown-toggle"
+          data-toggle="dropdown"
+        >
+          <i-mdi-cog />
         </a>
-        <a class="btn btn-secondary">
-          <i-mdi-gender-male-female />
-          Fix Sex
-        </a>
-        <a class="btn btn-danger">
-          <i-mdi-delete-forever />
-          Delete Case
-        </a>
+        <div v-if="userHasPerms('cases.update_case')" class="dropdown-menu">
+          <a class="dropdown-item" href="#">
+            <i-mdi-file-document-edit />
+            Edit Pedigree
+          </a>
+          <a class="dropdown-item" href="#">
+            <i-mdi-gender-male-female />
+            Fix Sex
+          </a>
+          <a
+            v-if="userHasPerms('cases.delete_case')"
+            class="dropdown-item text-danger"
+            href="#"
+          >
+            <i-mdi-delete-forever />
+            Delete Case
+          </a>
+        </div>
       </div>
     </div>
 

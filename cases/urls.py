@@ -27,6 +27,11 @@ ajax_urlpatterns = [
         view=views_ajax.CaseGeneAnnotationListAjaxView.as_view(),
         name="ajax-casegeneannotation-list",
     ),
+    url(
+        regex=r"ajax/user-permissions/(?P<project>[0-9a-f-]+)/?$",
+        view=views_ajax.ProjectUserPermissionsAjaxView.as_view(),
+        name="ajax-userpermissions",
+    ),
 ]
 
 api_urlpatterns = [

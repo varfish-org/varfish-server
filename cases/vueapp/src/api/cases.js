@@ -52,4 +52,12 @@ export default {
     )
     return await response.json()
   },
+
+  async fetchPermissions(csrfToken, projectUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/ajax/user-permissions/${projectUuid}`
+    )
+    return await response.json()
+  },
 }

@@ -65,6 +65,7 @@ declare module '@vue/runtime-core' {
     IMdiClock: typeof import('~icons/mdi/clock')['default']
     IMdiClose: typeof import('~icons/mdi/close')['default']
     IMdiCloudDownload: typeof import('~icons/mdi/cloud-download')['default']
+    IMdiCog: typeof import('~icons/mdi/cog')['default']
     IMdiCommentMultiple: typeof import('~icons/mdi/comment-multiple')['default']
     IMdiDeleteForever: typeof import('~icons/mdi/delete-forever')['default']
     IMdiFamilyTree: typeof import('~icons/mdi/family-tree')['default']
