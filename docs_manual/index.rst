@@ -186,6 +186,7 @@ Currently, the main focus is on small/sequence variants called from high-througp
     release_cycle
     history
     glossary
+    smallprint
 
 Indices and tables
 ==================
