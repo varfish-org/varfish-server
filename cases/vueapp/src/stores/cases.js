@@ -54,6 +54,9 @@ export const useCasesStore = defineStore(
       }
     })
 
+    /** The permissions that the user has. */
+    const userPerms = ref(null)
+
     /** A promise storing the result of initialize. */
     const initializeRes = ref(null)
 
@@ -69,6 +72,14 @@ export const useCasesStore = defineStore(
           .listCase(appContext.value.csrfToken, project.value.sodar_uuid)
           .then((res) => {
             cases.value = sodarObjectListToObject(res)
+          }),
+        casesApi
+          .fetchPermissions(
+            appContext.value.csrfToken,
+            project.value.sodar_uuid
+          )
+          .then((res) => {
+            userPerms.value = res
           }),
       ]).then(() => {
         appState.value = AppState.active
@@ -87,6 +98,7 @@ export const useCasesStore = defineStore(
       complexityMode,
       cases,
       caseRowData,
+      userPerms,
       initializeRes,
       initialize,
     }

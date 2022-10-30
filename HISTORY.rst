@@ -163,6 +163,7 @@ Full Change List
 - Fix variant icon display (#745).
 - Improving installation instructions (#735).
 - Implementing case-independent variant annotations (#747).
+- Case permissions in Vue.js app (#743).
 
 ------
 v1.2.0

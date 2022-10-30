@@ -55,6 +55,13 @@ describe('cases store', () => {
 
   test('initialize', async () => {
     casesApi.listCase.mockResolvedValue(caseListResponse)
+    const allPerms = [
+      'cases.view_data',
+      'cases.add_case',
+      'cases.update_case',
+      'cases.sync_remote',
+    ]
+    casesApi.fetchPermissions.mockResolvedValue(allPerms)
 
     await casesStore.initialize(appContext)
 
@@ -74,5 +81,6 @@ describe('cases store', () => {
     expect(casesStore.showInlineHelp).toEqual(false)
     expect(casesStore.complexityMode).toEqual('basic')
     expect(casesStore.caseRowData).toEqual(Object.values(caseListResponse))
+    expect(casesStore.userPerms).toEqual(allPerms)
   })
 })

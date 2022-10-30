@@ -64,4 +64,26 @@ describe('api', () => {
     ])
     expect(res).toEqual(loadProjectQcValuesResponse)
   })
+
+  test('fetchPermissions', async () => {
+    fetch.mockResponseOnce(JSON.stringify(['views.view_data']))
+
+    const res = await casesApi.fetchPermissions(csrfToken, projectUuid)
+
+    expect(fetch.mock.calls.length).toEqual(1)
+    expect(fetch.mock.calls[0]).toEqual([
+      `/cases/ajax/user-permissions/${projectUuid}`,
+      {
+        body: null,
+        credentials: 'same-origin',
+        headers: {
+          Accept: 'application/vnd.bihealth.varfish+json',
+          'Content-Type': 'application/vnd.bihealth.varfish+json',
+          'X-CSRFToken': 'fake-token',
+        },
+        method: 'GET',
+      },
+    ])
+    expect(res).toEqual(['views.view_data'])
+  })
 })

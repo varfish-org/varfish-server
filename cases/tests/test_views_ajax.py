@@ -3,6 +3,7 @@ import re
 
 from django.urls import reverse
 import jsonmatch
+from parameterized import parameterized
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from variants.tests.factories import (
@@ -113,3 +114,86 @@ class TestCaseGeneAnnotationListAjaxView(TestProjectAPIPermissionBase):
             }
         )
         expected0.assert_matches(res_json[0])
+
+
+class TestProjectUserPermissionsAjaxView(TestProjectAPIPermissionBase):
+    def setUp(self):
+        super().setUp()
+
+    def test_get_with_superuser(self):
+        users = [
+            self.superuser,
+        ]
+        expected_perms = [
+            "cases.view_data",
+            "cases.add_case",
+            "cases.update_case",
+            "cases.sync_remote",
+            "cases.delete_case",
+        ]
+
+        url = reverse(
+            "cases:ajax-userpermissions",
+            kwargs={"project": self.project.sodar_uuid},
+        )
+        for user in users:
+            with self.login(user):
+                response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, expected_perms, f"user={user}")
+
+    def test_get_with_powerful_users(self):
+        users = [
+            self.owner_as_cat.user,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+        ]
+        expected_perms = [
+            "cases.view_data",
+            "cases.add_case",
+            "cases.update_case",
+            "cases.sync_remote",
+        ]
+
+        url = reverse(
+            "cases:ajax-userpermissions",
+            kwargs={"project": self.project.sodar_uuid},
+        )
+        for user in users:
+            with self.login(user):
+                response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, expected_perms, f"user={user}")
+
+    def test_get_with_guest_user(self):
+        users = [
+            self.guest_as.user,
+        ]
+        expected_perms = ["cases.view_data"]
+
+        url = reverse(
+            "cases:ajax-userpermissions",
+            kwargs={"project": self.project.sodar_uuid},
+        )
+        for user in users:
+            with self.login(user):
+                response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, expected_perms, f"user={user}")
+
+    def test_get_with_other_users(self):
+        users = [
+            self.user_no_roles,
+        ]
+        expected_perms = []
+
+        url = reverse(
+            "cases:ajax-userpermissions",
+            kwargs={"project": self.project.sodar_uuid},
+        )
+        for user in users:
+            with self.login(user):
+                response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data, expected_perms, f"user={user}")
