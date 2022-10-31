@@ -8,9 +8,9 @@ import nltk
 from projectroles.app_settings import AppSettingAPI
 
 from geneinfo.models import GeneIdToInheritance, Hpo, HpoName
-
-from ..models import Case, _variant_scores_mutationtaster_rank_model
-from ..models import only_source_name as _models_only_source_name
+from variants.models import Case
+from variants.models import only_source_name as _models_only_source_name
+from variants.models import variant_scores_mutationtaster_rank_model
 
 modes_of_inheritance = dict(GeneIdToInheritance.MODES_OF_INHERITANCE)
 register = template.Library()
@@ -114,7 +114,7 @@ CLINVAR_STARS = {
 
 @register.filter
 def mutationtaster_rank(data):
-    return _variant_scores_mutationtaster_rank_model(data)
+    return variant_scores_mutationtaster_rank_model(data)
 
 
 @register.filter
