@@ -162,6 +162,16 @@ class Case(CoreCase):
         help_text="Search tokens",
     )
 
+    #: The ``PresetSet`` to use for filtering this case.  When this is ``None``, the factory defaults are used.
+    presetset = models.ForeignKey(
+        "PresetSet",
+        on_delete=models.SET_NULL,
+        default=None,
+        blank=True,
+        null=True,
+        help_text="The preset set to use for filtration, if any.",
+    )
+
     latest_variant_set = models.ForeignKey(
         "SmallVariantSet",
         on_delete=models.CASCADE,

@@ -1,12 +1,23 @@
 <script setup>
-import FilterForm from './FilterForm.vue'
-import FilterResultsTable from './FilterResultsTable.vue'
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
-import { QueryStates, QueryStateToText } from '@variants/enums'
-import VariantDetailsModalWrapper from './VariantDetailsModalWrapper.vue'
+import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
+import { useCasesStore } from '@cases/stores/cases.js'
 import { watch, ref, onMounted, nextTick } from 'vue'
 import { updateUserSetting } from '@varfish/user-settings.js'
+import {
+  DisplayColumns,
+  DisplayConstraints,
+  DisplayDetails,
+  DisplayFrequencies,
+  QueryStates,
+  QueryStateToText,
+} from '@variants/enums'
+
+import VariantDetailsModalWrapper from './VariantDetailsModalWrapper.vue'
+import FilterAppHeader from './FilterAppHeader.vue'
+import FilterForm from './FilterForm.vue'
+import FilterResultsTable from './FilterResultsTable.vue'
+import { useCaseDetailsStore } from '@cases/stores/case-details.js'
 
 const components = {
   VariantDetailsModalWrapper,
@@ -25,21 +36,17 @@ const appContext = JSON.parse(
     '{}'
 )
 
+// Initialize filter query store.
 const filterQueryStore = useFilterQueryStore()
-filterQueryStore.caseUuid = appContext.case_uuid
-filterQueryStore.umdPredictorApiToken = appContext.umd_predictor_api_token
-filterQueryStore.hgmdProEnabled = appContext.hgmd_pro_enabled
-filterQueryStore.hgmdProPrefix = appContext.hgmd_pro_prefix
-filterQueryStore.ga4ghBeaconNetworkWidgetEnabled =
-  appContext.ga4gh_beacon_network_widget_enabled
-filterQueryStore.csrfToken = appContext.csrf_token
-filterQueryStore.exomiserEnabled = appContext.exomiser_enabled
-filterQueryStore.caddEnabled = appContext.cadd_enabled
-filterQueryStore.fetchCase()
-filterQueryStore.fetchDefaultSettings()
-filterQueryStore.fetchPreviousQueryUuid()
-filterQueryStore.fetchPresets()
-filterQueryStore.extraAnnoFields = appContext.extra_anno_fields ?? []
+filterQueryStore.initialize(appContext)
+// Initialize cases store.
+const casesStore = useCasesStore()
+casesStore.initialize(appContext)
+// Initialize case details store.
+const caseDetailsStore = useCaseDetailsStore()
+casesStore.initializeRes.then(() => {
+  caseDetailsStore.initialize(casesStore.cases[filterQueryStore.caseUuid])
+})
 
 const showModal = ({ gridRow, gridApi, smallVariant }) => {
   currentSmallVariant.value = smallVariant
@@ -49,27 +56,6 @@ const showModal = ({ gridRow, gridApi, smallVariant }) => {
     filterQueryStore.previousQueryDetails
   )
 }
-
-watch(
-  () => filterQueryStore.queryState,
-  (newValue, _oldValue) => {
-    if (newValue === QueryStates.Finished.value) {
-      filterQueryStore.unsetQueryStatusInterval
-      filterQueryStore.fetchQueryResults()
-      filterQueryStore.fetchHpoTerms()
-      filterQueryStore.fetchQueryDetails()
-    }
-  }
-)
-
-watch(
-  () => filterQueryStore.queryUuid,
-  (newValue, _oldValue) => {
-    if (newValue !== null) {
-      filterQueryStore.setQueryStatusInterval
-    }
-  }
-)
 
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
 watch(
@@ -99,8 +85,20 @@ watch(
   }
 )
 
-// Visibility of the form.
+/** Whether the form is visible. */
 const formVisible = ref(true)
+/** The details columns to show. */
+const displayDetails = ref(DisplayDetails.Coordinates.value)
+/** The frequency columns to show. */
+const displayFrequency = ref(DisplayFrequencies.GnomadExomes.value)
+/** The constraint columns to show. */
+const displayConstraint = ref(DisplayConstraints.GnomadPli.value)
+/** The additional columns to display. */
+const displayColumns = ref([DisplayColumns.Effect.value])
+/** The fields defined by extraAnnos. */
+const extraAnnoFields = ref([])
+/** Whether the query logs are visible. */
+const queryLogsVisible = ref(false)
 
 // Toggle visibility of the form.
 const toggleForm = () => {
@@ -127,66 +125,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="filterQueryStore.case !== null" class="d-flex flex-column h-100">
+  <div
+    v-if="filterQueryStore.caseObj !== null"
+    class="d-flex flex-column h-100"
+  >
     <!-- title etc. -->
-    <div class="row sodar-pr-content-title pb-1">
-      <!-- TODO buttons from sodar core -->
-      <h2 class="sodar-pr-content-title">
-        Filter Variants for Case
-        <small class="text-muted">{{ filterQueryStore.case.name }}</small>
-        <small class="badge badge-primary ml-2" style="font-size: 50%">
-          {{ filterQueryStore.case.release }}
-        </small>
-
-        <a
-          role="submit"
-          class="btn btn-link mr-2 sodar-pr-btn-title sodar-pr-btn-copy-uuid sodar-copy-btn"
-          id="sodar-pr-btn-copy-uuid"
-          data-clipboard-text="{{ filterQueryStore.caseUuid }}"
-          title="Copy UUID to clipboard"
-          data-toggle="tooltip"
-          data-placement="top"
-        >
-          <i-fa-solid-clipboard class="text-muted" />
-        </a>
-      </h2>
-
-      <a
-        href="#"
-        class="btn btn-sm btn-secondary"
-        @click.prevent="toggleForm()"
-      >
-        <i-mdi-button-cursor />
-        <span v-if="formVisible">hide form</span>
-        <span v-if="!formVisible">show form</span>
-      </a>
-
-      <div class="ml-auto btn-group">
-        <a
-          class="btn btn-secondary"
-          :href="`/variants/${filterQueryStore.case.project}/case/${filterQueryStore.case.sodar_uuid}`"
-        >
-          <i-mdi-arrow-left-circle />
-          Back to Case
-        </a>
-        <a
-          class="btn btn-primary"
-          :href="`/variants/${filterQueryStore.case.project}/case/filter/${filterQueryStore.case.sodar_uuid}`"
-        >
-          <i-mdi-filter />
-          Legacy Filter
-        </a>
-
-        <a
-          class="btn btn-primary"
-          :href="`/svs/${filterQueryStore.case.project}/case/filter/${filterQueryStore.case.sodar_uuid}`"
-        >
-          <i class="iconify" data-icon="mdi:filter-variant"></i>
-          Filter SVs
-        </a>
-      </div>
-      <!-- TODO case filter buttons as component -->
-    </div>
+    <FilterAppHeader :form-visible="formVisible" @toggle-form="toggleForm()" />
 
     <!-- query form -->
     <div v-if="formVisible" class="container-fluid sodar-page-container pt-0">
@@ -229,20 +173,24 @@ onMounted(() => {
       class="flex-grow-1 mb-2"
     >
       <FilterResultsTable
-        :case="filterQueryStore.case"
+        :case="filterQueryStore.caseObj"
         :query-results="filterQueryStore.queryResults"
-        :extra-anno-fields="filterQueryStore.extraAnnoFields"
-        v-model:display-details="filterQueryStore.displayDetails"
-        v-model:display-frequency="filterQueryStore.displayFrequency"
-        v-model:display-constraint="filterQueryStore.displayConstraint"
-        v-model:display-columns="filterQueryStore.displayColumns"
+        :extra-anno-fields="extraAnnoFields"
+        v-model:display-details="displayDetails"
+        v-model:display-frequency="displayFrequency"
+        v-model:display-constraint="displayConstraint"
+        v-model:display-columns="displayColumns"
         @variant-selected="showModal"
       />
     </div>
     <div
       v-else-if="
-        filterQueryStore.queryState === QueryStates.Running.value ||
-        filterQueryStore.queryState === QueryStates.Fetching.value
+        [
+          QueryStates.Running.value,
+          QueryStates.Resuming.value,
+          QueryStates.Finished.value,
+          QueryStates.Fetching.value,
+        ].includes(filterQueryStore.queryState)
       "
       class="alert alert-info"
     >
@@ -252,23 +200,39 @@ onMounted(() => {
       >
       <button
         class="ml-3 btn btn-sm btn-info"
-        @click="
-          filterQueryStore.queryLogsVisible = !filterQueryStore.queryLogsVisible
-        "
+        @click="queryLogsVisible = !queryLogsVisible"
       >
-        {{ filterQueryStore.queryLogsVisible ? 'Hide' : 'Show' }} Logs
+        {{ queryLogsVisible ? 'Hide' : 'Show' }} Logs
       </button>
-      <pre v-show="filterQueryStore.queryLogsVisible">{{
-        filterQueryStore.queryLogs.join('\n')
+      <pre v-show="queryLogsVisible">{{
+        filterQueryStore.queryLogs?.join('\n')
       }}</pre>
     </div>
     <div v-else class="alert alert-info">
-      <strong>No query has been started yet.</strong>
+      <strong>
+        <template
+          v-if="filterQueryStore.queryState === QueryStates.Initial.value"
+        >
+          No query has been started yet.
+        </template>
+        <template
+          v-else-if="
+            filterQueryStore.queryState === QueryStates.Cancelled.value
+          "
+        >
+          The query has been canceled.
+        </template>
+        <template
+          v-if="filterQueryStore.queryState === QueryStates.Error.value"
+        >
+          An error has occured in the query!
+        </template>
+      </strong>
       <div>
         Click
         <span class="badge badge-primary">
           <i-mdi-refresh />
-          ilter &amp; Display
+          Filter &amp; Display
         </span>
         to start filtering and create results to display here. You may want to
         adjust the filter settings to your needs first.

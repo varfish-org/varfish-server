@@ -13,7 +13,6 @@ import { computed, onMounted } from 'vue'
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,
   filtrationComplexityMode: String,
-  case: Object,
   querySettings: Object,
 })
 

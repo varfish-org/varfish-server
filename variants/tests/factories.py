@@ -1,5 +1,4 @@
 """Factory Boy factory classes for ``variants``."""
-from datetime import datetime
 import typing
 import uuid
 
@@ -21,6 +20,7 @@ from ..models import (
     CaseGeneAnnotationEntry,
     CasePhenotypeTerms,
     CaseVariantStats,
+    ChromosomePresets,
     DeleteCaseBgJob,
     DistillerSubmissionBgJob,
     ExportFileBgJob,
@@ -28,8 +28,14 @@ from ..models import (
     ExportProjectCasesFileBgJob,
     ExportProjectCasesFileBgJobResult,
     FilterBgJob,
+    FlagsEtcPresets,
+    FrequencyPresets,
+    ImpactPresets,
+    PresetSet,
     ProjectCasesFilterBgJob,
     ProjectCasesSmallVariantQuery,
+    QualityPresets,
+    QuickPresets,
     SampleVariantStatistics,
     SmallVariant,
     SmallVariantComment,
@@ -1091,4 +1097,83 @@ class CaseGeneAnnotationEntryFactory(factory.django.DjangoModelFactory):
             "level": "info",
             "message": f"This is a test message {n}",
         }
+    )
+
+
+class PresetSetFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = PresetSet
+
+    project = factory.SubFactory(ProjectFactory)
+    label = factory.Sequence(lambda n: f"Preset Set #{n}")
+    version_major = 1
+    version_minor = 1
+    state = "draft"
+    database = factory.Sequence(lambda n: ["refseq", "ensembl"][n % 2])
+
+
+class FrequencyPresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = FrequencyPresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Frequency Presets #{n}")
+
+
+class ImpactPresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ImpactPresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Impact Presets #{n}")
+    effects = ["synonymous_variant"]
+
+
+class QualityPresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = QualityPresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Quality Presets #{n}")
+    fail = "drop-variant"
+
+
+class ChromosomePresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ChromosomePresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Chromosome Presets #{n}")
+
+
+class FlagsEtcPresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = FlagsEtcPresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Flags etc. Presets #{n}")
+
+
+class QuickPresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = QuickPresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Quick Presets #{n}")
+
+    inheritance = factory.Sequence(lambda n: ["de_novo", "dominant", "recessive"][n % 3])
+    frequency = factory.SubFactory(
+        FrequencyPresetsFactory, presetset=factory.SelfAttribute("..presetset")
+    )
+    impact = factory.SubFactory(
+        ImpactPresetsFactory, presetset=factory.SelfAttribute("..presetset")
+    )
+    quality = factory.SubFactory(
+        QualityPresetsFactory, presetset=factory.SelfAttribute("..presetset")
+    )
+    chromosome = factory.SubFactory(
+        ChromosomePresetsFactory, presetset=factory.SelfAttribute("..presetset")
+    )
+    flagsetc = factory.SubFactory(
+        FlagsEtcPresetsFactory, presetset=factory.SelfAttribute("..presetset")
     )

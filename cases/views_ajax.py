@@ -3,7 +3,12 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from cases.views_api import CaseCommentListApiView, CaseGeneAnnotationListApiView, CaseListApiView
+from cases.views_api import (
+    CaseCommentListApiView,
+    CaseGeneAnnotationListApiView,
+    CaseListApiView,
+    CaseUpdateApiView,
+)
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 
 
@@ -11,6 +16,19 @@ class CaseListAjaxView(CaseListApiView):
     """Retrieve detail of the specified case.
 
     **URL:** ``/cases/ajax/case/list/{case.sodar_uuid}/``
+
+    **Methods:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class CaseUpdateAjaxView(CaseUpdateApiView):
+    """Update details of the specified case.
+
+    **URL:** ``/cases/ajax/case/update/{case.sodar_uuid}/``
 
     **Methods:** See base API class.
 

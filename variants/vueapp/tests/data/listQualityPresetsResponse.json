@@ -1,0 +1,16 @@
+[
+  {
+    "presetset": "54a32d14-a818-4412-96e4-90b9b4062472",
+    "date_created": "2022-10-31T15:01:13.870158Z",
+    "date_modified": "2022-10-31T15:01:13.870191Z",
+    "sodar_uuid": "c32c7066-4609-483d-9d06-1ecce2582e9a",
+    "label": "Quality Presets #0",
+    "dp_het": null,
+    "dp_hom": null,
+    "ab": null,
+    "gq": null,
+    "ad": null,
+    "ad_max": null,
+    "fail": ""
+  }
+]

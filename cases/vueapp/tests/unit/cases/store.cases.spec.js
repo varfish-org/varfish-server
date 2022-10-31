@@ -1,5 +1,5 @@
 import casesApi from '@cases/api/cases.js'
-import { AppState, useCasesStore } from '@cases/stores/cases.js'
+import { StoreState, useCasesStore } from '@cases/stores/cases.js'
 import flushPromises from 'flush-promises'
 import { createPinia, setActivePinia } from 'pinia'
 import {
@@ -43,7 +43,7 @@ describe('cases store', () => {
   })
 
   test('empty after construction', () => {
-    expect(casesStore.appState).toEqual(AppState.initializing)
+    expect(casesStore.storeState).toEqual(StoreState.initial)
     expect(casesStore.serverInteraction).toEqual(0)
     expect(casesStore.appContext).toEqual(null)
     expect(casesStore.project).toEqual(null)
@@ -74,7 +74,7 @@ describe('cases store', () => {
       appContext.project.sodar_uuid
     )
 
-    expect(casesStore.appState).toEqual(AppState.active)
+    expect(casesStore.storeState).toEqual(StoreState.active)
     expect(casesStore.serverInteraction).toEqual(0)
     expect(casesStore.appContext).toEqual(appContext)
     expect(casesStore.project).toEqual(appContext.project)

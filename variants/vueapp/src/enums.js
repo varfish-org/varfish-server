@@ -15,6 +15,10 @@ export const QueryStates = Object.freeze({
     value: 'running',
     text: 'Running',
   },
+  Resuming: {
+    value: 'resuming',
+    text: 'Resuming',
+  },
   Finished: {
     value: 'finished',
     text: 'Finished',
@@ -38,6 +42,18 @@ export const QueryStates = Object.freeze({
 })
 
 export const QueryStateToText = enumToText(QueryStates)
+
+export const apiQueryStateToQueryState = (apiQueryState) => {
+  if (apiQueryState === 'initial') {
+    return QueryStates.Initial.value
+  } else if (apiQueryState === 'running') {
+    return QueryStates.Running.value
+  } else if (apiQueryState === 'done') {
+    return QueryStates.Finished.value
+  } else {
+    return QueryStates.Error.value
+  }
+}
 
 export const DisplayDetails = Object.freeze({
   Coordinates: {

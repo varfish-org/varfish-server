@@ -3,7 +3,7 @@ from projectroles.views_api import (
     SODARAPIBaseProjectMixin,
     SODARAPIProjectPermission,
 )
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, UpdateAPIView
 
 from cases.serializers import CaseCommentSerializer, CaseGeneAnnotationSerializer
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
@@ -56,6 +56,26 @@ class CaseApiBaseMixin(SODARAPIBaseMixin):
 
     def get_permission_required(self):
         return "cases.view_data"
+
+
+class CaseUpdateApiView(CaseApiBaseMixin, UpdateAPIView):
+    """
+    Update a given case.
+
+    **URL:** ``/cases/api/case/update/{case.sodar_uid}/``
+
+    **Methods:** ``PATCH``, ``PUT``.
+
+    **Returns:** Updated case details.
+    """
+
+    serializer_class = CaseSerializer
+
+    def get_queryset(self):
+        return Case.objects.all()
+
+    def get_permission_required(self):
+        return "cases.update_case"
 
 
 class CaseCommentApiMixin(CaseApiBaseMixin):

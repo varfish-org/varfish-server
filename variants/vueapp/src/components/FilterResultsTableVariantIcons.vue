@@ -1,5 +1,6 @@
 <script setup>
 import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { getAcmgBadge } from '@variants/helpers.js'
 
 const queryStore = useFilterQueryStore()
 
@@ -11,7 +12,7 @@ const props = defineProps({
 const symbol = props.params.data.symbol || props.params.data.gene_symbol
 const acmgClass =
   props.params.data.acmg_class_override || props.params.data.acmg_class_auto
-let acmgBadgeClasses = ['ml-1', 'badge', queryStore.getAcmgBadge(acmgClass)]
+let acmgBadgeClasses = ['ml-1', 'badge', getAcmgBadge(acmgClass)]
 if (!acmgClass) {
   acmgBadgeClasses.push('icon-inactive')
 }

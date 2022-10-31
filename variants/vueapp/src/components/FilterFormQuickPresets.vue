@@ -1,19 +1,11 @@
 <script setup>
-import {
-  quickPresets,
-  presetsInheritance,
-  presetsFrequency,
-  presetsImpact,
-  presetsQuality,
-  presetsChromosomes,
-  presetsFlags,
-} from './FilterFormQuickPresets.values.js'
 import isEqual from 'lodash.isequal'
 import { onMounted, watch, computed, reactive, ref } from 'vue'
 import { copy } from '../helpers.js'
 import { useFilterQueryStore } from '../stores/filterQuery'
+import { randomString } from '@varfish/common.js'
 
-const store = useFilterQueryStore()
+const filterQueryStore = useFilterQueryStore()
 
 /** The props for this component. */
 const props = defineProps({
@@ -22,6 +14,10 @@ const props = defineProps({
   categoryPresets: Object,
   case: Object,
   querySettings: Object,
+  idSuffix: {
+    type: String,
+    default: randomString(),
+  },
 })
 
 /** Internal store of inheritance preset.  If set through here, then it is only applied in the control. */
@@ -109,18 +105,41 @@ const inheritanceWrapper = computed({
 /** Internal store of quality preset.  If set through here, then it is only applied in the control. */
 const qualityRef = ref(null)
 
+/** Common keys to strip from presets to get form values. */
+const _keysToStrip = [
+  'sodar_uuid',
+  'date_created',
+  'date_modified',
+  'label',
+  'presetset',
+]
+
+/** Return copy of obj without keys. */
+const _objectWithoutKeys = (obj, keys) => {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key, _value]) => !keys.includes(key))
+  )
+}
+
 /** Refresh qualityRef from actual form values.  Check each for compatibility and pick first matching. */
 const refreshQualityRef = () => {
   for (const [presetName, presetValues] of Object.entries(
     props.categoryPresets.quality
   )) {
+    const strippedPresetValues = _objectWithoutKeys(presetValues, _keysToStrip)
     let isCompatible = true
     for (const member of Object.values(props.case.pedigree)) {
-      if (!isEqual(props.querySettings.quality[member.name], presetValues)) {
+      if (
+        !isEqual(props.querySettings.quality[member.name], strippedPresetValues)
+      ) {
+        // console.log('incompatible', member.name, 'to', presetValues.label)
+        // console.log(props.querySettings.quality[member.name])
+        // console.log(strippedPresetValues)
         isCompatible = false
       }
     }
     if (isCompatible) {
+      // console.log("QUAL COMPATIBLE WITH", presetName)
       qualityRef.value = presetName
       return
     }
@@ -137,8 +156,9 @@ const qualityWrapper = computed({
   set(newValue) {
     if (newValue !== 'custom') {
       for (const member of Object.values(props.case.pedigree)) {
-        props.querySettings.quality[member.name] = copy(
-          props.categoryPresets.quality[newValue]
+        props.querySettings.quality[member.name] = _objectWithoutKeys(
+          props.categoryPresets.quality[newValue],
+          _keysToStrip
         )
       }
       refreshQualityRef()
@@ -151,7 +171,7 @@ const valueRefs = {
   frequency: ref(null),
   impact: ref(null),
   quality: ref(null),
-  flags_etc: ref(null),
+  flagsetc: ref(null),
   chromosomes: ref(null),
 }
 
@@ -164,7 +184,10 @@ const refreshValueRefs = () => {
     )) {
       isCompatible = true
       for (const [key, value] of Object.entries(presetValues)) {
-        if (!isEqual(store.querySettings[key], value)) {
+        if (
+          !_keysToStrip.includes(key) &&
+          !isEqual(filterQueryStore.querySettings[key], value)
+        ) {
           isCompatible = false
         }
       }
@@ -190,7 +213,9 @@ const makeWrapper = (name) =>
         for (const [key, value] of Object.entries(
           props.categoryPresets[name][newValue]
         )) {
-          props.querySettings[key] = value
+          if (!_keysToStrip.includes(key)) {
+            props.querySettings[key] = value
+          }
         }
       }
     },
@@ -201,7 +226,7 @@ const frequencyWrapper = makeWrapper('frequency')
 /** Computed property for impact presets.  If set through here, the default is applied (except for custom). */
 const impactWrapper = makeWrapper('impact')
 /** Computed property for flags presets.  If set through here, the default is applied (except for custom). */
-const flagsWrapper = makeWrapper('flags_etc')
+const flagsWrapper = makeWrapper('flagsetc')
 /** Computed property for chromosomes presets.  If set through here, the default is applied (except for custom). */
 const chromosomesWrapper = makeWrapper('chromosomes')
 
@@ -217,7 +242,7 @@ const refreshQuickPreset = () => {
       impactWrapper.value === theQuickPresets.impact &&
       qualityRef.value === theQuickPresets.quality &&
       chromosomesWrapper.value === theQuickPresets.chromosomes &&
-      flagsWrapper.value === theQuickPresets.flags_etc
+      flagsWrapper.value === theQuickPresets.flagsetc
     ) {
       quickPresetRef.value = name
       return
@@ -241,7 +266,7 @@ const quickPresetWrapper = computed({
       impactWrapper.value = newQuickPresets.impact
       qualityRef.value = newQuickPresets.quality
       chromosomesWrapper.value = newQuickPresets.chromosomes
-      flagsWrapper.value = newQuickPresets.flags_etc
+      flagsWrapper.value = newQuickPresets.flagsetc
     }
   },
 })
@@ -256,9 +281,11 @@ const refreshAllRefs = () => {
 
 /** React to store changes by adjusting the selection fields. */
 onMounted(() => {
-  refreshAllRefs()
-  store.$subscribe((_mutation, _state) => {
+  filterQueryStore.initializeRes.then(() => {
     refreshAllRefs()
+    filterQueryStore.$subscribe((_mutation, _state) => {
+      refreshAllRefs()
+    })
   })
 })
 </script>
@@ -266,94 +293,143 @@ onMounted(() => {
 <template>
   <div class="row">
     <div class="col-1 pl-0 pr-0">
-      <label class="font-weight-bold small text-nowrap">
+      <label
+        class="font-weight-bold small text-nowrap"
+        :for="'quickPresets-' + idSuffix"
+      >
         Quick Presets
         <i-mdi-arrow-right />
       </label>
       <select
         v-model="quickPresetWrapper"
         class="custom-select custom-select-sm"
+        :id="'quickPresets-' + idSuffix"
       >
-        <option v-for="(label, value) in quickPresets" :value="value">
-          {{ label }}
+        <option v-for="(value, name) in quickPresets" :value="name">
+          {{ value.label ?? name }}
         </option>
       </select>
     </div>
 
     <div class="col-2 pr-0">
-      <label class="font-weight-bold small text-nowrap">
+      <label
+        class="font-weight-bold small text-nowrap"
+        :for="'presetsInheritance-' + idSuffix"
+      >
         Inheritance
         <i-mdi-arrow-down />
       </label>
       <select
         v-model="inheritanceWrapper"
         class="custom-select custom-select-sm"
+        :id="'presetsInheritance-' + idSuffix"
       >
-        <option v-for="(label, value) in presetsInheritance" :value="value">
-          {{ label }}
+        <option
+          v-for="(value, name) in categoryPresets.inheritance"
+          :value="name"
+        >
+          {{ value.label ?? name }}
         </option>
       </select>
     </div>
 
     <div class="col-2 pr-0">
-      <label class="font-weight-bold small text-nowrap">
+      <label
+        class="font-weight-bold small text-nowrap"
+        :for="'presetsFrequency-' + idSuffix"
+      >
         Frequency
         <i-mdi-arrow-down />
       </label>
-      <select v-model="frequencyWrapper" class="custom-select custom-select-sm">
-        <option v-for="(label, value) in presetsFrequency" :value="value">
-          {{ label }}
+      <select
+        v-model="frequencyWrapper"
+        class="custom-select custom-select-sm"
+        :id="'presetsFrequency-' + idSuffix"
+      >
+        <option
+          v-for="(value, name) in categoryPresets.frequency"
+          :value="name"
+        >
+          {{ value.label ?? name }}
         </option>
       </select>
     </div>
 
     <div class="col-2 pr-0">
-      <label class="font-weight-bold small text-nowrap">
+      <label
+        class="font-weight-bold small text-nowrap"
+        :for="'presetsImpact-' + idSuffix"
+      >
         Impact
         <i-mdi-arrow-down />
       </label>
-      <select v-model="impactWrapper" class="custom-select custom-select-sm">
-        <option v-for="(label, value) in presetsImpact" :value="value">
-          {{ label }}
+      <select
+        v-model="impactWrapper"
+        class="custom-select custom-select-sm"
+        :id="'presetsImpact-' + idSuffix"
+      >
+        <option v-for="(value, name) in categoryPresets.impact" :value="name">
+          {{ value.label ?? name }}
         </option>
       </select>
     </div>
 
     <div class="col-2 pr-0">
-      <label class="font-weight-bold small text-nowrap">
+      <label
+        class="font-weight-bold small text-nowrap"
+        :for="'presetsQuality-' + idSuffix"
+      >
         Quality
         <i-mdi-arrow-down />
       </label>
-      <select v-model="qualityWrapper" class="custom-select custom-select-sm">
-        <option v-for="(label, value) in presetsQuality" :value="value">
-          {{ label }}
+      <select
+        v-model="qualityWrapper"
+        class="custom-select custom-select-sm"
+        :id="'presetsQuality-' + idSuffix"
+      >
+        <option v-for="(value, name) in categoryPresets.quality" :value="name">
+          {{ value.label ?? name }}
         </option>
       </select>
     </div>
 
     <div class="col-2 pr-0">
-      <label class="font-weight-bold small text-nowrap">
+      <label
+        class="font-weight-bold small text-nowrap"
+        :for="'presetsChromosomes-' + idSuffix"
+      >
         Chromosomes / Genes
         <i-mdi-arrow-down />
       </label>
       <select
         v-model="chromosomesWrapper"
         class="custom-select custom-select-sm"
+        :id="'presetsChromosomes-' + idSuffix"
       >
-        <option v-for="(label, value) in presetsChromosomes" :value="value">
-          {{ label }}
+        <option
+          v-for="(value, name) in categoryPresets.chromosomes"
+          :value="name"
+        >
+          {{ value.label ?? name }}
         </option>
       </select>
     </div>
 
     <div class="col-1 pr-0">
-      <label class="font-weight-bold small text-nowrap">
+      <label
+        class="font-weight-bold small text-nowrap"
+        :for="'flagsWrapper-' + idSuffix"
+      >
         Flags etc.
         <i-mdi-arrow-down />
       </label>
-      <select v-model="flagsWrapper" class="custom-select custom-select-sm">
-        <option v-for="(label, value) in presetsFlags" :value="value">
-          {{ label }}
+      <select
+        v-model="flagsWrapper"
+        class="custom-select custom-select-sm"
+        :id="'flagsWrapper-' + idSuffix"
+      >
+        <option v-for="(value, name) in categoryPresets.flagsetc" :value="name">
+          {{ value.label ?? name }}
         </option>
       </select>
     </div>

@@ -159,3 +159,6 @@ psutil >=5.9.0,<6.0
 
 # progress display
 tqdm
+
+# Model cloning
+django-clone >=4.0.1

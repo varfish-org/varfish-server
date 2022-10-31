@@ -1,390 +1,419 @@
-import {
-  DisplayColumns,
-  DisplayConstraints,
-  DisplayDetails,
-  DisplayFrequencies,
-  QueryStates,
-} from '@variants/enums'
+import queryPresetsApi from '@variants/api/queryPresets.js'
+import variantsApi from '@variants/api/variants.js'
+import { apiQueryStateToQueryState, QueryStates } from '@variants/enums.js'
+import { copy } from '@variants/helpers'
+import { previousQueryDetailsToQuerySettings } from '@variants/stores/filterQuery.funcs.js'
 import { defineStore } from 'pinia'
+import { nextTick, ref } from 'vue'
 
-import { copy } from '../helpers'
+/** Constants with the used store states. */
+export const StoreState = Object.freeze({
+  initial: 'initial',
+  initializing: 'initializing',
+  active: 'active',
+  error: 'error',
+})
 
-// Glue code to convert old query settings (read from API) to new ones (written to API).
-function previousQueryDetailsToQuerySettings(caseObj, previousQueryDetails) {
-  const freqKeys = [
-    'exac_enabled',
-    'exac_frequency',
-    'exac_hemizygous',
-    'exac_heterozygous',
-    'exac_homozygous',
-    'gnomad_exomes_enabled',
-    'gnomad_exomes_frequency',
-    'gnomad_exomes_hemizygous',
-    'gnomad_exomes_heterozygous',
-    'gnomad_exomes_homozygous',
-    'gnomad_genomes_enabled',
-    'gnomad_genomes_frequency',
-    'gnomad_genomes_hemizygous',
-    'gnomad_genomes_heterozygous',
-    'gnomad_genomes_homozygous',
-    'helixmtdb_enabled',
-    'helixmtdb_frequency',
-    'helixmtdb_het_count',
-    'helixmtdb_hom_count',
-    'inhouse_carriers',
-    'inhouse_enabled',
-    'inhouse_hemizygous',
-    'inhouse_heterozygous',
-    'inhouse_homozygous',
-    'mitomap_count',
-    'mitomap_enabled',
-    'mitomap_frequency',
-    'mtdb_count',
-    'mtdb_enabled',
-    'mtdb_frequency',
-    'thousand_genomes_enabled',
-    'thousand_genomes_frequency',
-    'thousand_genomes_hemizygous',
-    'thousand_genomes_heterozygous',
-    'thousand_genomes_homozygous',
-  ]
-
-  const result = copy(previousQueryDetails.query_settings)
-  const keysToDel = [
-    'export_flags',
-    'prio_hpo_terms_curated',
-    'result_rows_limit',
-    'database_select',
-    'submit',
-    'training_mode',
-    'file_type',
-    'export_comments',
-    'recessive_indices',
-    'compound_recessive_indices',
-  ]
-  const genotype = {}
-  const quality = {}
-
-  for (const { name } of caseObj.pedigree) {
-    quality[name] = {
-      ab: result[`${name}_ab`],
-      ad: result[`${name}_ad`],
-      ad_max: result[`${name}_ad_max`],
-      dp_het: result[`${name}_dp_het`],
-      dp_hom: result[`${name}_dp_hom`],
-      gq: result[`${name}_gq`],
-      fail: result[`${name}_fail`],
-    }
-    genotype[name] = result[`${name}_gt`]
-    keysToDel.push(
-      `${name}_ab`,
-      `${name}_ad`,
-      `${name}_ad_max`,
-      `${name}_dp_het`,
-      `${name}_dp_hom`,
-      `${name}_gq`,
-      `${name}_fail`,
-      `${name}_gt`
+/** Helper that fetches the presets and stores them in quickPresets.value and categoryPresets.value
+ */
+const fetchPresets = async (
+  csrfToken,
+  caseObj,
+  quickPresets,
+  categoryPresets
+) => {
+  // TODO: move fetch calls into queryPresetsApi
+  const fetchFactoryPresets = async () => {
+    await Promise.all(
+      [
+        variantsApi.fetchQuickPresets(csrfToken).then((presets) => {
+          quickPresets.value = presets
+        }),
+        variantsApi
+          .fetchInheritancePresets(csrfToken, caseObj.sodar_uuid)
+          .then((presets) => {
+            categoryPresets.value.inheritance = presets
+          }),
+      ] +
+        ['frequency', 'impact', 'quality', 'chromosomes', 'flagsetc'].map(
+          (category) =>
+            variantsApi.fetchCategoryPresets(csrfToken).then((presets) => {
+              categoryPresets.value[category] = presets
+            })
+        )
     )
   }
 
-  result.recessive_index = null
-  result.recessive_mode = null
-  if (caseObj.name in result.recessive_indices) {
-    result.recessive_index = result.recessive_indices[caseObj.name]
-    result.recessive_mode = 'recessive'
-  }
-  if (caseObj.name in result.compound_recessive_indices) {
-    result.recessive_index = result.compound_recessive_indices[caseObj.name]
-    result.recessive_mode = 'compound-recessive'
-  }
+  const fetchUserPresets = async (presetSetUuid) => {
+    await Promise.all([
+      queryPresetsApi
+        .retrievePresetSet(csrfToken.value, presetSetUuid)
+        .then((apiPresetSet) => {
+          quickPresets.value = Object.fromEntries(
+            apiPresetSet.quickpresets_set.map((qp) => [
+              qp.sodar_uuid,
+              {
+                label: qp.label,
+                inheritance: qp.inheritance,
+                frequency: qp.frequency,
+                impact: qp.impact,
+                quality: qp.quality,
+                chromosomes: qp.chromosome,
+                flagsetc: qp.flagsetc,
+                database: apiPresetSet.database,
+              },
+            ])
+          )
 
-  for (const key of Object.keys(result)) {
-    if (key.startsWith('effect_')) {
-      keysToDel.push(key)
-    }
-    if (
-      key.startsWith('flag_phenotype_') &&
-      !key.startsWith('flag_phenotype_match_')
-    ) {
-      keysToDel.push(key)
-      result[key.replace('_phenotype_', '_phenotype_match_')] = result[key]
-    }
-    if (key.endsWith('_export')) {
-      keysToDel.push(key)
-    }
-  }
-
-  result.database = result.database_select
-
-  const flagsKeys = [
-    'clinvar_include_pathogenic',
-    'clinvar_include_likely_pathogenic',
-    'clinvar_include_uncertain_significance',
-    'clinvar_include_likely_benign',
-    'clinvar_include_benign',
-    'clinvar_paranoid_mode',
-    'require_in_clinvar',
-  ]
-  for (const key of flagsKeys) {
-    if (!result[key]) {
-      result[key] = false
-    }
-  }
-
-  for (const key of freqKeys) {
-    if (!(key in result)) {
-      result[key] = null
-    }
+          const categories = [
+            'frequency',
+            'impact',
+            'quality',
+            'chromosomes',
+            'flagsetc',
+          ]
+          for (const category of categories) {
+            const category2 =
+              category === 'chromosomes' ? 'chromosome' : category
+            categoryPresets.value[category] = Object.fromEntries(
+              apiPresetSet[`${category2}presets_set`].map((ps) => [
+                ps.sodar_uuid,
+                ps,
+              ])
+            )
+          }
+        }),
+      variantsApi
+        .fetchInheritancePresets(csrfToken, caseObj.sodar_uuid)
+        .then((presets) => {
+          categoryPresets.value.inheritance = presets
+        }),
+    ])
   }
 
-  for (const key of keysToDel) {
-    delete result[key]
+  if (caseObj.presetset) {
+    await fetchUserPresets(caseObj.presetset)
+  } else {
+    await fetchFactoryPresets()
   }
-
-  if (result['max_exon_dist'] === '') {
-    result['max_exon_dist'] = null
-  } else if (
-    result['max_exon_dist'] !== null &&
-    result['max_exon_dist'] !== undefined
-  ) {
-    result['max_exon_dist'] = Number(result['max_exon_dist'])
-  }
-
-  result.genotype = genotype
-  result.quality = quality
-
-  return result
 }
 
-export const useFilterQueryStore = defineStore({
-  id: 'filterQuery',
-  state: () => ({
-    showFiltrationInlineHelp: false,
-    filtrationComplexityMode: null,
-    csrfToken: null,
-    caseUuid: null,
-    case: null,
-    querySettingsPresets: null,
-    querySettings: null,
-    umdPredictorApiToken: null,
-    hgmdProEnabled: null,
-    hgmdProPrefix: null,
-    ga4ghBeaconNetworkWidgetEnabled: null,
-    exomiserEnabled: null,
-    caddEnabled: null,
-    previousQueryDetails: null,
-    queryUuid: null,
-    queryResults: null,
-    queryInterval: null,
-    queryState: QueryStates.Initial.value,
-    queryLogs: null,
-    queryLogsVisible: false,
-    queryHpoTerms: null,
-    displayDetails: DisplayDetails.Coordinates.value,
-    displayFrequency: DisplayFrequencies.GnomadExomes.value,
-    displayConstraint: DisplayConstraints.GnomadPli.value,
-    displayColumns: [DisplayColumns.Effect.value],
-    quickPresets: null,
-    categoryPresets: {
-      inheritance: null,
-      frequency: null,
-      impact: null,
-      quality: null,
-      chromosomes: null,
-      flags_etc: null,
-    },
-    extraAnnoFields: [],
-  }),
-  getters: {
-    setQueryStatusInterval() {
-      // Otherwise we have to wait for 5 seconds
-      this.fetchQueryStatus()
-      this.queryInterval = setInterval(this.fetchQueryStatus, 5000)
-    },
-    unsetQueryStatusInterval() {
-      clearInterval(this.queryInterval)
-      this.queryInterval = null
-    },
-  },
-  actions: {
-    fetchPresets() {
-      Promise.all(
-        [
-          fetch('/variants/api/query-case/quick-presets/')
-            .then((response) => response.json())
-            .then((data) => {
-              this.quickPresets = data
-            }),
-          fetch(
-            `/variants/api/query-case/inheritance-presets/${this.caseUuid}/`
-          )
-            .then((response) => response.json())
-            .then((data) => {
-              this.categoryPresets.inheritance = data
-            }),
-        ] +
-          ['frequency', 'impact', 'quality', 'chromosomes', 'flags_etc'].map(
-            (category) =>
-              fetch(`/variants/api/query-case/category-presets/${category}/`)
-                .then((response) => response.json())
-                .then((data) => {
-                  this.categoryPresets[category] = data
-                })
-          )
+/** Helper that gets the default settings and stores them in querySettingsPresets.value,
+ * and querySettings.value.
+ */
+const fetchDefaultSettings = async (
+  csrfToken,
+  caseUuid,
+  querySettingsPresets,
+  querySettings
+) => {
+  const resJson = await variantsApi.fetchQueryShortcuts(csrfToken, caseUuid)
+  querySettingsPresets.value = resJson.presets
+  querySettings.value = resJson.query_settings
+  if (querySettings.value.prio_enabled === undefined) {
+    querySettings.value.prio_enabled = false
+  }
+  if (querySettings.value.prio_algorithm === undefined) {
+    querySettings.value.prio_algorithm = 'hiphive-human'
+  }
+  if (querySettings.value.prio_hpo_terms === undefined) {
+    querySettings.value.prio_hpo_terms = []
+  }
+  if (querySettings.value.patho_enabled === undefined) {
+    querySettings.value.patho_enabled = false
+  }
+  if (querySettings.value.patho_score === undefined) {
+    querySettings.value.patho_score = 'mutationtaster'
+  }
+  if (querySettings.value.prio_enabled === undefined) {
+    querySettings.value.prio_enabled = false
+  }
+}
+
+/** Helper that fetches the previous query UUID.
+ */
+const fetchPreviousQueryUuid = async (csrfToken, caseUuid) => {
+  const prevQueries = await variantsApi.fetchCaseQueries(csrfToken, caseUuid)
+  if (prevQueries.length) {
+    return prevQueries[0].sodar_uuid
+  } else {
+    return null
+  }
+}
+
+/** Legacy handling code that can be removed once legacy UI has been removed.
+ */
+const fixupQueryPayloadForLegacy = (payload) => {
+  // Handle recessive-index and recessive-parent values (must be removed).
+  // TODO: this code can go away once the old HTML based UI is removed
+  for (const [key, value] of Object.entries(payload.query_settings.genotype)) {
+    if (value.startsWith('recessive-') || value.startsWith('comphet-')) {
+      payload.query_settings.genotype[key] = null
+    }
+  }
+  return payload
+}
+
+export const useFilterQueryStore = defineStore('filterQuery', () => {
+  const FETCH_LOOP_DELAY = 1000 // 1 second
+  const FETCH_LOOP_ALLOW_FAILURES = 10 // up to 10 failures
+
+  // Store state and message for UI
+  /** State of the store. */
+  const storeState = ref(StoreState.initial)
+  /** Message to display for store state, e.g., in overlay. */
+  const storeStateMessage = ref('')
+  /** How many server interactions are running */
+  const serverInteractions = ref(0)
+
+  // UI settings
+  /** Whether to show the filtration inline help in UI. */
+  const showFiltrationInlineHelp = ref(false)
+  /** The filtration complexity mode to use for UI. */
+  const filtrationComplexityMode = ref(null)
+
+  // properties from application context
+  /** CSRF Token to use (from app context). */
+  const csrfToken = ref(null)
+  /** The case UUID (from app context). */
+  const caseUuid = ref(null)
+  /** UMD Predictor API token (from app context). */
+  const umdPredictorApiToken = ref(null)
+  /** Whether HGMD Pro is enabled (from app contet). */
+  const hgmdProEnabled = ref(null)
+  /** The URL prefix for HGMD Pro (from app context). */
+  const hgmdProPrefix = ref(null)
+  /** Whether the GA4GH beacon network widget is enabled (from app context). */
+  const ga4ghBeaconNetworkWidgetEnabled = ref(null)
+  /** Whether exomiser support is enabled (from app context). */
+  const exomiserEnabled = ref(null)
+  /** Whether CADD is enabled (from app context). */
+  const caddEnabled = ref(null)
+
+  // loaded via API
+  /** The case object. */
+  const caseObj = ref(null)
+  /** Query settings presets. */
+  const querySettingsPresets = ref(null)
+  /** Current query settings. */
+  const querySettings = ref(null)
+  /** Details from previous query. */
+  const previousQueryDetails = ref(null)
+  /** Results of query. */
+  const queryResults = ref(null)
+
+  // bookkeeping for query and results
+  /** Current query state. */
+  const queryState = ref(QueryStates.Initial.value)
+  /** Query logs as fetched from API. */
+  const queryLogs = ref(null)
+
+  /** Quick presets as loaded from API. */
+  const quickPresets = ref(null)
+  /** Per-category presets. */
+  const categoryPresets = ref({
+    inheritance: null,
+    frequency: null,
+    impact: null,
+    quality: null,
+    chromosomes: null,
+    flagsetc: null,
+  })
+
+  /**
+   * Start the loop for waiting for the results and fetching them.
+   */
+  const runFetchLoop = async (queryUuid, failuresSeen = 0) => {
+    // Ensure that we are still fetching and fetching results for the correct query.
+    if (
+      previousQueryDetails.value.sodar_uuid !== queryUuid ||
+      ![QueryStates.Running.value, QueryStates.Resuming.value].includes(
+        queryState.value
       )
-    },
-    async fetchCase() {
-      const res = await fetch(`/variants/ajax/case/retrieve/${this.caseUuid}/`)
-      if (res.ok) {
-        this.case = await res.json()
-      }
-    },
-    async fetchDefaultSettings() {
-      const res = await fetch(
-        `/variants/ajax/query-case/query-settings-shortcut/${this.caseUuid}/`
+    ) {
+      return // query was cancelled or other query was started
+    }
+
+    // Fetch query status, allowing up to FETCH_LOOP_ALLOW_FAILURES errors.
+    try {
+      const queryStatus = await variantsApi.getQueryStatus(
+        csrfToken.value,
+        queryUuid
       )
-      if (res.ok) {
-        const resJson = await res.json()
-        this.querySettingsPresets = resJson.presets
-        this.querySettings = resJson.query_settings
-        if (this.querySettings.prio_enabled === undefined) {
-          this.querySettings.prio_enabled = false
-        }
-        if (this.querySettings.prio_algorithm === undefined) {
-          this.querySettings.prio_algorithm = 'hiphive-human'
-        }
-        if (this.querySettings.prio_hpo_terms === undefined) {
-          this.querySettings.prio_hpo_terms = []
-        }
-        if (this.querySettings.patho_enabled === undefined) {
-          this.querySettings.patho_enabled = false
-        }
-        if (this.querySettings.patho_score === undefined) {
-          this.querySettings.patho_score = 'mutationtaster'
-        }
-        if (this.querySettings.prio_enabled === undefined) {
-          this.querySettings.prio_enabled = false
-        }
-      }
-    },
-    async submitQuery() {
-      const payload = {
-        form_id: 'variants.small_variant_filter_form',
-        form_version: 1,
-        query_settings: copy(this.querySettings),
-      }
-      // Handle recessive-index and recessive-parent values (must be removed).
-      for (const [key, value] of Object.entries(
-        payload.query_settings.genotype
-      )) {
-        if (value.startsWith('recessive-') || value.startsWith('comphet-')) {
-          payload.query_settings.genotype[key] = null
-        }
-      }
-      const res = await fetch(
-        `/variants/ajax/query-case/create/${this.caseUuid}/`,
-        {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: {
-            // Accept: "application/json",
-            'Content-Type': 'application/json',
-            'X-CSRFToken': this.csrfToken,
-          },
-          body: JSON.stringify(payload),
-        }
+      queryLogs.value = queryStatus.logs
+      queryState.value = apiQueryStateToQueryState(queryStatus.status)
+      nextTick()
+      failuresSeen = 0 // reset failure counter
+    } catch (err) {
+      failuresSeen += 1
+      console.warn(
+        `There was a problem retrieving the query status (${failuresSeen} / ${FETCH_LOOP_ALLOW_FAILURES}`,
+        err
       )
-      if (res.ok) {
-        const resJson = await res.json()
-        this.queryUuid = resJson.sodar_uuid
+      if (failuresSeen > FETCH_LOOP_ALLOW_FAILURES) {
+        queryState.value = QueryStates.Error.value
+        return // do not continue
       }
-    },
-    async fetchQueryDetails() {
-      const res = await fetch(
-        `/variants/ajax/query-case/retrieve/${this.queryUuid}`
+    }
+
+    // Once query is finished, load results, if still for the same query.
+    if (queryState.value === QueryStates.Finished.value) {
+      queryState.value = QueryStates.Fetching.value
+      nextTick()
+      const response = await variantsApi.fetchResults(
+        csrfToken.value,
+        queryUuid
       )
-      if (res.ok) {
-        this.previousQueryDetails = await res.json()
-        this.querySettings = previousQueryDetailsToQuerySettings(
-          this.case,
-          this.previousQueryDetails
-        )
+      if (
+        queryState.value === QueryStates.Fetching.value &&
+        previousQueryDetails.value.sodar_uuid === queryUuid
+      ) {
+        // Still fetching the same query; push to query results.
+        queryResults.value = response
+        queryState.value = QueryStates.Fetched.value
       }
-    },
-    async fetchQueryResults() {
-      this.queryState = QueryStates.Fetching.value
-      const res = await fetch(
-        `/variants/ajax/query-case/results-extended/${this.queryUuid}/`
-      )
-      if (res.ok) {
-        this.queryResults = await res.json()
-        this.queryState = QueryStates.Fetched.value
-      } else {
-        if (res.status !== 503) {
-          throw new Error(`An error has occurred: ${res.status}`)
-        }
-      }
-    },
-    async fetchQueryStatus() {
-      const res = await fetch(
-        `/variants/ajax/query-case/status/${this.queryUuid}`
-      )
-      if (res.ok) {
-        const resJson = await res.json()
-        this.queryLogs = resJson.logs
-        if (resJson.status === 'initial') {
-          this.queryState = QueryStates.Initial.value
-        } else if (resJson.status === 'running') {
-          this.queryState = QueryStates.Running.value
-        } else if (resJson.status === 'done') {
-          this.queryState = QueryStates.Finished.value
-        } else {
-          this.queryState = QueryStates.Error.value
-        }
-      }
-    },
-    async fetchPreviousQueryUuid() {
-      const res = await fetch(
-        `/variants/ajax/query-case/list/${this.caseUuid}/`
-      )
-      if (res.ok) {
-        const resJson = await res.json()
-        if (resJson.length) {
-          this.queryUuid = resJson[0].sodar_uuid
-        }
-      }
-    },
-    async fetchHpoTerms() {
-      const res = await fetch(
-        `/variants/ajax/query-case/hpo-terms/${this.queryUuid}/`
-      )
-      if (res.ok) {
-        this.queryHpoTerms = await res.json()['hpoterms']
-      }
-    },
-    getAcmgBadge(acmgClass) {
-      return acmgClass == null
-        ? 'badge-outline-secondary text-muted'
-        : acmgClass > 3
-        ? 'badge-danger text-white'
-        : acmgClass === 3
-        ? 'badge-warning text-black'
-        : 'badge-success text-white'
-    },
-    getClinvarSignificanceBadge(patho) {
-      if (patho === 'pathogenic') {
-        return 'badge-danger'
-      } else if (patho === 'likely_pathogenic') {
-        return 'badge-warning'
-      } else if (patho === 'uncertain_significance') {
-        return 'badge-info'
-      } else if (patho === 'likely_benign') {
-        return 'badge-secondary'
-      } else if (patho === 'benign') {
-        return 'badge-secondary'
-      }
-      return 'badge-secondary'
-    },
-  },
+    }
+
+    // Call function again via `setTimeout()`.  Loop will be broken on top of next runFetchLoop call.
+    setTimeout(runFetchLoop, FETCH_LOOP_DELAY, queryUuid, failuresSeen)
+  }
+
+  /**
+   * Submit query with current settings.
+   */
+  const submitQuery = async () => {
+    const payload = fixupQueryPayloadForLegacy({
+      form_id: 'variants.small_variant_filter_form',
+      form_version: 1,
+      query_settings: copy(querySettings.value),
+    })
+    previousQueryDetails.value = await variantsApi.submitQuery(
+      csrfToken.value,
+      caseUuid.value,
+      payload
+    )
+    queryState.value = QueryStates.Running.value
+    nextTick()
+    runFetchLoop(previousQueryDetails.value.sodar_uuid)
+  }
+
+  /**
+   * Cancel currently running query, if any.
+   */
+  const cancelQuery = async () => {
+    queryState.value = QueryStates.Cancelled.value
+  }
+
+  /** Promise for initialization of the store. */
+  const initializeRes = ref(null)
+
+  /** Initialize the store from the appContext. */
+  const initialize = async (appContext) => {
+    if (storeState.value !== 'initial') {
+      // only once
+      return initializeRes.value
+    }
+    storeState.value = StoreState.initializing
+    storeStateMessage.value = 'Initializing...'
+    serverInteractions.value += 1
+
+    // Initialize from appContext
+    caseUuid.value = appContext.case_uuid
+    umdPredictorApiToken.value = appContext.umd_predictor_api_token
+    hgmdProEnabled.value = appContext.hgmd_pro_enabled
+    hgmdProPrefix.value = appContext.hgmd_pro_prefix
+    ga4ghBeaconNetworkWidgetEnabled.value =
+      appContext.ga4gh_beacon_network_widget_enabled
+    csrfToken.value = appContext.csrf_token
+    exomiserEnabled.value = appContext.exomiser_enabled
+    caddEnabled.value = appContext.cadd_enabled
+
+    // Fetch caseObj first
+    caseObj.value = await variantsApi.retrieveCase(csrfToken, caseUuid.value)
+
+    // Initialize via API.  We fetch the bare minimum information and store the
+    // corresponding promise in initializeRes.  We will go on after this and
+    // trigger the loading of any previous results.
+    initializeRes.value = Promise.all([
+      // 1. fetch default settings
+      fetchDefaultSettings(
+        csrfToken.value,
+        caseUuid.value,
+        querySettingsPresets,
+        querySettings
+      ),
+      // 2. fetch previous query UUID
+      fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
+        .then((queryUuid) => {
+          if (queryUuid) {
+            // Retrieve query details and extract query settings.
+            return variantsApi.retrieveQueryDetails(csrfToken.value, queryUuid)
+          }
+        })
+        // 2.1 once we have previous query UUID, fetch query details
+        .then((result) => {
+          if (result) {
+            previousQueryDetails.value = result
+            querySettings.value = previousQueryDetailsToQuerySettings(
+              caseObj.value,
+              previousQueryDetails.value
+            )
+          }
+        })
+        // 2.2 once we have the query details, assume running state and launch the fetch loop
+        .then(() => {
+          queryState.value = QueryStates.Resuming.value
+          nextTick()
+          runFetchLoop(previousQueryDetails.value.sodar_uuid)
+        }),
+      // 3. fetch quick presets etc.
+      fetchPresets(
+        csrfToken.value,
+        caseObj.value,
+        quickPresets,
+        categoryPresets
+      ),
+    ])
+      .then(() => {
+        serverInteractions.value -= 1
+        storeState.value = StoreState.active
+      })
+      .catch((err) => {
+        serverInteractions.value -= 1
+        console.error('Problem initializing filterQuery store', err)
+        storeState.value = StoreState.error
+      })
+
+    return initializeRes.value
+  }
+
+  return {
+    // data / state
+    storeState,
+    storeStateMessage,
+    showFiltrationInlineHelp,
+    filtrationComplexityMode,
+    csrfToken,
+    caseUuid,
+    caseObj,
+    querySettingsPresets,
+    querySettings,
+    umdPredictorApiToken,
+    hgmdProEnabled,
+    hgmdProPrefix,
+    ga4ghBeaconNetworkWidgetEnabled,
+    exomiserEnabled,
+    caddEnabled,
+    previousQueryDetails,
+    queryResults,
+    queryState,
+    queryLogs,
+    quickPresets,
+    categoryPresets,
+    initializeRes,
+    // functions
+    initialize,
+    submitQuery,
+    cancelQuery,
+  }
 })

@@ -43,6 +43,7 @@ export default defineConfig({
   test: {
     coverage: {
       all: true,
+      // NB: (2022-22-08: c8 only gives 100% coverage for .vue)
       provider: 'istanbul',
       reporter: ['text', 'json', 'html'],
     },

@@ -34,7 +34,7 @@ describe('api', () => {
         credentials: 'same-origin',
         headers: {
           Accept: 'application/vnd.bihealth.varfish+json',
-          'Content-Type': 'application/vnd.bihealth.varfish+json',
+          'Content-Type': 'application/json',
           'X-CSRFToken': 'fake-token',
         },
         method: 'GET',
@@ -56,7 +56,7 @@ describe('api', () => {
         credentials: 'same-origin',
         headers: {
           Accept: 'application/vnd.bihealth.varfish+json',
-          'Content-Type': 'application/vnd.bihealth.varfish+json',
+          'Content-Type': 'application/json',
           'X-CSRFToken': 'fake-token',
         },
         method: 'GET',
@@ -78,7 +78,7 @@ describe('api', () => {
         credentials: 'same-origin',
         headers: {
           Accept: 'application/vnd.bihealth.varfish+json',
-          'Content-Type': 'application/vnd.bihealth.varfish+json',
+          'Content-Type': 'application/json',
           'X-CSRFToken': 'fake-token',
         },
         method: 'GET',

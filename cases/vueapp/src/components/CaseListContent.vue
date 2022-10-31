@@ -1,27 +1,41 @@
 <script setup>
-import { ref } from 'vue'
 import CaseListPaneCases from './CaseListPaneCases.vue'
 import CaseListPaneQc from './CaseListPaneQc.vue'
+import { useRouter } from 'vue-router'
+import QueryPresets from '@variants/components/QueryPresets.vue'
 
-/* We show/hide the tab panes with Vue. This gives us the advantage of being
- * able to control loading of data, and we can use v-if to hide the tab panes.
- * Also, Bootstrap's tab panes cannot be used with flex as d-flex implies
- * 'display: flex !important'.
+const props = defineProps({
+  currentTab: {
+    type: String,
+    default: 'case-list', // keep in sync with Tabs.caseList
+  },
+  presetSet: String,
+})
+
+/* We show/hide the tab panes with Vue via the router.
+ *
+ * This gives us the advantage of being able to control loading of data,
+ * and we can use v-if to hide the tab panes.  Also, Bootstrap's tab panes
+ * cannot be used with flex as d-flex implies 'display: flex !important'.
+ * Navigation is done using the router.
  */
 
 /** Tab selection options. */
 const Tabs = Object.freeze({
   caseList: 'case-list',
-  qc: 'qc',
-  annotations: 'annotations',
+  qc: 'case-list-qc',
+  // annotations: 'annotations',  // TODO
+  queryPresets: 'case-list-query-presets',
 })
 
-/** The currently selected tab. */
-const currentTab = ref('case-list')
+/** The router. */
+const router = useRouter()
 
 /** Update the current tab. */
 const updateCurrentTab = (newValue) => {
-  currentTab.value = newValue
+  router.push({
+    name: newValue,
+  })
 }
 </script>
 
@@ -30,11 +44,9 @@ const updateCurrentTab = (newValue) => {
     <ul class="nav nav-tabs" id="cases-tab" role="tablist">
       <li class="nav-item">
         <a
-          class="nav-link active"
-          id="case-list-tab"
-          data-toggle="tab"
-          href="#case-list"
-          role="tab"
+          class="nav-link"
+          :class="{ active: props.currentTab === Tabs.caseList }"
+          role="button"
           @click="updateCurrentTab(Tabs.caseList)"
         >
           <i-mdi-format-list-bulleted-square />
@@ -44,10 +56,8 @@ const updateCurrentTab = (newValue) => {
       <li class="nav-item">
         <a
           class="nav-link"
-          id="qc-tab"
-          data-toggle="tab"
-          href="#qc"
-          role="tab"
+          :class="{ active: props.currentTab === Tabs.qc }"
+          role="button"
           @click="updateCurrentTab(Tabs.qc)"
         >
           <i-mdi-chart-multiple />
@@ -69,10 +79,21 @@ const updateCurrentTab = (newValue) => {
       <!--        <span class="badge badge-pill badge-primary">TODO</span>-->
       <!--      </a>-->
       <!--    </li>-->
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          :class="{ active: props.currentTab === Tabs.queryPresets }"
+          role="button"
+          @click="updateCurrentTab(Tabs.queryPresets)"
+        >
+          <i-mdi-filter-settings />
+          Query Presets
+        </a>
+      </li>
     </ul>
     <div class="tab-content flex-grow-1 d-flex flex-column" id="cases-content">
       <div
-        v-if="currentTab === Tabs.caseList"
+        v-if="props.currentTab === Tabs.caseList"
         class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
         id="case-list"
         role="tabpanel"
@@ -81,9 +102,8 @@ const updateCurrentTab = (newValue) => {
       </div>
 
       <div
-        v-if="currentTab === Tabs.qc"
-        class="border border-top-0 tab-pane fade show"
-        id="qc"
+        v-if="props.currentTab === Tabs.qc"
+        class="border border-top-0 tab-pane fade show active"
         role="tabpanel"
       >
         <CaseListPaneQc />
@@ -99,6 +119,14 @@ const updateCurrentTab = (newValue) => {
       <!--        <div class="col" id="annotation-content">TODO</div>-->
       <!--      </div>-->
       <!--    </div>-->
+
+      <div
+        v-if="props.currentTab === Tabs.queryPresets"
+        class="border border-top-0 tab-pane fade show active"
+        role="tabpanel"
+      >
+        <QueryPresets :preset-set="presetSet" />
+      </div>
     </div>
   </div>
 </template>

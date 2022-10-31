@@ -1,6 +1,7 @@
 from rest_framework.authentication import SessionAuthentication
 
-from variants.views_api import (
+from variants.views.ajax.presets import *  # noqa: F401 F403
+from variants.views.api import (
     AcmgCriteriaRatingCreateApiView,
     AcmgCriteriaRatingDeleteApiView,
     AcmgCriteriaRatingUpdateApiView,

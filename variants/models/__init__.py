@@ -9,6 +9,7 @@ from variants.models.extsub import *  # noqa: F401 F403
 from variants.models.importer import *  # noqa: F401 F403
 from variants.models.kiosk import *  # noqa: F401 F403
 from variants.models.maintenance import *  # noqa: F401 F403
+from variants.models.presets import *  # noqa: F401 F403
 from variants.models.projectroles import *  # noqa: F401 F403
 from variants.models.queries import *  # noqa: F401 F403
 from variants.models.scores import *  # noqa: F401 F403

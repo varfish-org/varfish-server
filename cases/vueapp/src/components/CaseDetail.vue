@@ -1,8 +1,12 @@
 <script setup>
 import { useRoute } from 'vue-router'
 import { computed, ref, watch } from 'vue'
-import { useCasesStore } from '../stores/cases.js'
+import queryPresetsApi from '@variants/api/queryPresets.js'
+import { useCasesStore } from '@cases/stores/cases.js'
 import { useCaseDetailsStore } from '@cases/stores/case-details'
+
+import ModalSelect from '@varfish/components/ModalSelect.vue'
+import Toast from '@varfish/components/Toast.vue'
 
 import CaseDetailHeader from './CaseDetailHeader.vue'
 import CaseDetailContent from './CaseDetailContent.vue'
@@ -44,16 +48,61 @@ casesStore.initializeRes.then(() => {
       console.error('Problem while initializing case details store', err)
     })
 })
+
+/** Ref to the modal select input. */
+const modalSelectRef = ref(null)
+/** Ref to the toast. */
+const toastRef = ref(null)
+
+const handleEditQueryPresetsClicked = async () => {
+  const csrfToken = casesStore.appContext.csrf_token
+  const allPresets = await queryPresetsApi.listPresetSetAll(csrfToken)
+  const options = allPresets.map((p) => ({
+    value: p.sodar_uuid,
+    label: p.label,
+  }))
+
+  try {
+    const presetSetUuid = await modalSelectRef.value.show({
+      title: `Select Query Presets`,
+      label: `Query Presets`,
+      helpText:
+        'The selected presets will apply to future queries of this case by all users.',
+      defaultValue: caseDetailsStore.caseObj.presetset ?? null,
+      options,
+    })
+
+    await caseDetailsStore.updateCase({ presetset: presetSetUuid })
+
+    toastRef.value.show({
+      level: 'success',
+      title: 'Success!',
+      text: `The case was successfully updated.`,
+    })
+  } catch (err) {
+    console.error(err)
+    toastRef.value.show({
+      level: 'error',
+      title: 'Error!',
+      text: `There was a probelem updating the case.`,
+    })
+  }
+}
 </script>
 
 <template>
   <div class="d-flex flex-column h-100">
-    <CaseDetailHeader :case-obj="caseDetailsStore.caseObj" />
+    <CaseDetailHeader
+      :case-obj="caseDetailsStore.caseObj"
+      @edit-query-presets-click="handleEditQueryPresetsClicked()"
+    />
     <div
       class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"
     >
       <CaseDetailContent />
       <Overlay v-if="overlayShow" />
     </div>
+    <ModalSelect ref="modalSelectRef" />
+    <Toast ref="toastRef" :autohide="false" />
   </div>
 </template>

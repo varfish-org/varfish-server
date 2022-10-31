@@ -2,15 +2,17 @@
 import { computed } from 'vue'
 import { declareWrapper } from '../helpers.js'
 import { QueryStates } from '../enums.js'
+import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
 
 const props = defineProps({
+  filtrationComplexityMode: String,
   queryState: String,
   anyHasError: Boolean,
   database: String,
 })
 
 const emit = defineEmits([
-  'submitButtonClick',
+  'submitCancelButtonClick',
   'anyHasError',
   // emits for v-model updates
   'update:database',
@@ -19,25 +21,31 @@ const emit = defineEmits([
 const databaseWrapper = declareWrapper(props, 'database', emit)
 
 const spinButtonIcon = computed(() => {
-  return (
-    props.queryState === QueryStates.Fetching.value ||
-    props.queryState === QueryStates.Running.value
-  )
+  return [
+    QueryStates.Fetching.value,
+    QueryStates.Running.value,
+    QueryStates.Resuming.value,
+  ].includes(props.queryState)
 })
 
 const showError = computed(() => {
   return props.anyHasError
 })
 
-const disableFormButton = computed(() => {
-  return spinButtonIcon.value || showError.value
-})
+const filterQueryStore = useFilterQueryStore()
+
+const devStoreState = () => {
+  return {
+    storeState: filterQueryStore.storeState,
+    queryState: filterQueryStore.queryState,
+  }
+}
 </script>
 
 <template>
   <div class="card-footer">
     <div class="row">
-      <div class="col text-left p-0">
+      <div class="col-auto p-0">
         <div class="btn-group btn-group-toggle pr-5" data-toggle="buttons">
           <label
             class="btn btn-outline-secondary active"
@@ -71,7 +79,10 @@ const disableFormButton = computed(() => {
           </label>
         </div>
       </div>
-      <div class="col text-right p-0">
+      <div v-if="filtrationComplexityMode === 'dev'">
+        <code>{{ devStoreState() }}</code>
+      </div>
+      <div class="ml-auto col-auto p-0">
         <small v-if="anyHasError" class="text-danger">
           <br />You must fix the errors before you can filter.
         </small>
@@ -82,9 +93,8 @@ const disableFormButton = computed(() => {
             name="submit"
             class="btn"
             :class="{ 'btn-primary': !showError, 'btn-danger': showError }"
-            @click="emit('submitButtonClick')"
-            title='Filter variants again with current settings, limited to "Miscellaneous / Result row limit" results and display in table below'
-            :disabled="disableFormButton"
+            @click="emit('submitCancelButtonClick')"
+            title="Filter variants with current settings"
           >
             <i-mdi-refresh :class="{ spin: spinButtonIcon }" />
             Filter &amp; Display

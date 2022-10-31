@@ -1,3 +1,12 @@
+<script setup>
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { getAcmgBadge } from '@variants/helpers.js'
+
+const detailsStore = useVariantDetailsStore()
+const queryStore = useFilterQueryStore()
+</script>
+
 <template>
   <div
     class="row pt-2"
@@ -815,9 +824,7 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
             class="badge"
             style="font-size: 1.5em"
             :class="
-              queryStore.getAcmgBadge(
-                detailsStore.acmgCriteriaRatingToSubmit.class_auto
-              )
+              getAcmgBadge(detailsStore.acmgCriteriaRatingToSubmit.class_auto)
             "
           >
             {{
@@ -920,20 +927,3 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
     </div>
   </div>
 </template>
-
-<script>
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
-
-export default {
-  components: {},
-  setup() {
-    const detailsStore = useVariantDetailsStore()
-    const queryStore = useFilterQueryStore()
-    return {
-      detailsStore,
-      queryStore,
-    }
-  },
-}
-</script>

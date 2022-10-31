@@ -4872,6 +4872,10 @@ class SmallVariantFilterForm(
         context["app_context"] = json.dumps(
             {
                 "case_uuid": str(self.object.sodar_uuid),
+                "project": {
+                    "sodar_uuid": str(context["project"].sodar_uuid),
+                    "title": context["project"].title,
+                },
                 "csrf_token": get_token(self.request),
                 "umd_predictor_api_token": setting_api.get_app_setting(
                     "variants", "umd_predictor_api_token", user=self.request.user
