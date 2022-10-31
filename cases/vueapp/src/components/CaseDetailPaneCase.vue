@@ -9,6 +9,7 @@ import CaseDetailCardSvInfo from './CaseDetailCardSvInfo.vue'
 import CaseDetailCardTerms from './CaseDetailCardTerms.vue'
 import CaseDetailCardVariantQc from './CaseDetailCardVariantQc.vue'
 import CaseDetailCardVariantsInfo from './CaseDetailCardVariantInfo.vue'
+import CaseDetailCardQueries from './CaseDetailCardQueries.vue'
 </script>
 
 <template>
@@ -17,6 +18,7 @@ import CaseDetailCardVariantsInfo from './CaseDetailCardVariantInfo.vue'
       <div class="col-6">
         <CaseDetailCardCaseDetails />
         <CaseDetailCardPedigree />
+        <CaseDetailCardQueries />
         <CaseDetailCardVariantsInfo />
         <CaseDetailCardSvInfo />
       </div>

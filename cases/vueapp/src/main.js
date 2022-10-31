@@ -9,10 +9,41 @@ import { useCasesStore } from './stores/cases'
 
 const routes = [
   {
+    name: 'case-list',
     path: '/',
     component: CaseList,
+    props: {
+      currentTab: 'case-list',
+    },
   },
   {
+    name: 'case-list-qc',
+    path: '/qc',
+    component: CaseList,
+    props: {
+      currentTab: 'case-list-qc',
+    },
+  },
+  {
+    name: 'case-list-query-presets',
+    path: '/query-presets',
+    component: CaseList,
+    props: {
+      currentTab: 'case-list-query-presets',
+      presetSet: 'factory-defaults',
+    },
+  },
+  {
+    name: 'case-list-query-presets-non-factory',
+    path: '/query-presets/:presetSet',
+    component: CaseList,
+    props: (route) => ({
+      currentTab: 'case-list-query-presets',
+      presetSet: route.params.presetSet,
+    }),
+  },
+  {
+    name: 'case-detail',
     path: '/detail/:case',
     component: CaseDetail,
   },

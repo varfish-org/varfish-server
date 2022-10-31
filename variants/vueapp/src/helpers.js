@@ -27,3 +27,13 @@ export function declareWrapper(props, key, emit, mapper) {
     },
   })
 }
+
+export const getAcmgBadge = (acmgClass) => {
+  return acmgClass == null
+    ? 'badge-outline-secondary text-muted'
+    : acmgClass > 3
+    ? 'badge-danger text-white'
+    : acmgClass === 3
+    ? 'badge-warning text-black'
+    : 'badge-success text-white'
+}

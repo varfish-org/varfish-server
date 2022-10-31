@@ -84,3 +84,5 @@ export const quantiles = (arr, qs) => {
 // const q75 = arr => quantile(arr, .75);
 //
 // const median = arr => q50(arr);
+
+export const copy = (val) => JSON.parse(JSON.stringify(val))

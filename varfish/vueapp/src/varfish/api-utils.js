@@ -13,12 +13,17 @@ export async function apiFetch(csrfToken, url, method = 'GET', payload) {
     credentials: 'same-origin',
     headers: {
       Accept: 'application/vnd.bihealth.varfish+json',
-      'Content-Type': 'application/vnd.bihealth.varfish+json',
+      // 'Content-Type': 'application/vnd.bihealth.varfish+json',
+      'Content-Type': 'application/json',
       'X-CSRFToken': csrfToken,
     },
     body: payload ? JSON.stringify(payload) : null,
   })
-  return response
+  if (response.ok) {
+    return response
+  } else {
+    return Promise.reject(response)
+  }
 }
 
 /**

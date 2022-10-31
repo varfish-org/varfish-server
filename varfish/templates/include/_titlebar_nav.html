@@ -31,9 +31,9 @@
           <option value="simple"{% if filtration_complexity_mode == "simple" %} selected="selected"{% endif %}>simple</option>
           <option value="normal"{% if filtration_complexity_mode == "normal" %} selected="selected"{% endif %}>normal</option>
           <option value="advanced"{% if filtration_complexity_mode == "advanced" %} selected="selected"{% endif %}>advanced</option>
-          {% if filtration_complexity_mode == "dev" %}
-            <option value="dev"{% if filtration_complexity_mode == "dev" %} selected="selected"{% endif %}>developer</option>
-          {% endif %}
+{#          {% if filtration_complexity_mode == "dev" %}#}
+          <option value="dev"{% if filtration_complexity_mode == "dev" %} selected="selected"{% endif %}>developer</option>
+{#          {% endif %}#}
         </select>
         <label class="form-label mr-1 ml-1" for="vueapp-filtration-complexity-mode">
           <i class="iconify" data-icon="mdi:podium"></i>

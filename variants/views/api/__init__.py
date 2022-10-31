@@ -48,7 +48,7 @@ from variants.models import (
 from variants.queries import CaseLoadPrefetchedQuery, KnownGeneAAQuery
 from variants.query_presets import (
     CHROMOSOME_PRESETS,
-    FLAGS_ETC_PRESETS,
+    FLAGSETC_PRESETS,
     FREQUENCY_PRESETS,
     IMPACT_PRESETS,
     QUALITY_PRESETS,
@@ -509,7 +509,7 @@ class SmallVariantQuerySettingsShortcutApiView(
         - ``mt_chromosome`` - select variants on the mitochondrial chromosome only
         - ``custom`` - indicates custom settings such that none of the above chromosomes presets applies
 
-    - ``flags_etc`` - preset selection for "flags etc." section, valid values are
+    - ``flagsetc`` - preset selection for "flags etc." section, valid values are
 
         - ``defaults`` - the defaults also used in the user interface
         - ``clinvar_only`` - select variants present in Clinvar only
@@ -527,7 +527,7 @@ class SmallVariantQuerySettingsShortcutApiView(
         - ``impact`` - one of the ``impact`` preset values from above
         - ``quality`` - one of the ``quality`` preset values from above
         - ``chromosomes`` - one of the ``chromosomes`` preset values from above
-        - ``flags_etc`` - one of the ``flags_etc`` preset values from above
+        - ``flagsetc`` - one of the ``flagsetc`` preset values from above
 
     - ``query_settings`` - a ``dict`` with the query settings ready to be used for the given case; this will
       follow :ref:`api_json_schemas_case_query_v1`.
@@ -559,8 +559,14 @@ class SmallVariantQuerySettingsShortcutApiView(
             {key: value_to_enum(fields_dict[key].type, value) for key, value in changes_raw.items()}
         )
         quick_preset = attrs.evolve(quick_preset, **changes)
+        presets = {}
+        for key in fields_dict:
+            if key == "label":
+                presets[key] = getattr(quick_preset, key)
+            else:
+                presets[key] = getattr(quick_preset, key).value
         return SettingsShortcuts(
-            presets={key: getattr(quick_preset, key).value for key in fields_dict},
+            presets=presets,
             query_settings=cattr.unstructure(
                 quick_preset.to_settings(self._get_pedigree_members())
             ),
@@ -605,6 +611,9 @@ class SmallVariantQuickPresetsApiView(
     **Returns:** A dict mapping each of the category names to category preset values.
     """
 
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
     def get(self, *args, **kwargs):
         return Response(cattr.unstructure(QUICK_PRESETS))
 
@@ -622,13 +631,16 @@ class SmallVariantCategoryPresetsApiView(
     **Returns:** A dict mapping each of the category names to category preset values.
     """
 
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
     def get(self, *args, **kwargs):
         presets = {
             "frequency": FREQUENCY_PRESETS,
             "impact": IMPACT_PRESETS,
             "quality": QUALITY_PRESETS,
             "chromosomes": CHROMOSOME_PRESETS,
-            "flags_etc": FLAGS_ETC_PRESETS,
+            "flagsetc": FLAGSETC_PRESETS,
         }
         return Response(cattr.unstructure(presets.get(self.kwargs.get("category"))))
 
@@ -645,6 +657,9 @@ class SmallVariantInheritancePresetsApiView(
 
     **Returns:** A dict mapping each of the category names to category preset values.
     """
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
 
     def get(self, *args, **kwargs):
         pedigree_members = self._get_pedigree_members()
@@ -682,6 +697,9 @@ class SmallVariantQueryHpoTermsApiView(SmallVariantQueryApiMixin, RetrieveAPIVie
     **Returns:**
 
     """
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
 
     serializer_class = SmallVariantQueryHpoTermSerializer
 

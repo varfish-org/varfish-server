@@ -7,6 +7,7 @@ from varannos.tests.factories import VarAnnoSetEntryFactory
 class TestVariantsDetailsPlugin(TestCase):
     def setUp(self):
         super().setUp()
+        self.maxDiff = None
         self.plugin = VariantsDetailsPlugin()
 
     def test_properties(self):
@@ -65,7 +66,8 @@ class TestVariantsDetailsPlugin(TestCase):
             "plugin_type": "variant",
             "title": "VarAnnos",
         }
-
+        expected["content"].sort(key=lambda x: (x["label"], x["value"]))
+        result["content"].sort(key=lambda x: (x["label"], x["value"]))
         self.assertDictEqual(result, expected)
 
 

@@ -1,5 +1,5 @@
 {
-  "appState": "initializing",
+  "storeState": "initializing",
   "cases": {
     "3b22fce8-9be8-4387-8e6e-3be73f4228fb": {
       "sodar_uuid": "3b22fce8-9be8-4387-8e6e-3be73f4228fb",

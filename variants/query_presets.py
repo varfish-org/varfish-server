@@ -968,7 +968,7 @@ class _FlagsEtcPresets:
 
 
 #: Presets for the chromosome/region/gene related settings, by chromosome preset option
-FLAGS_ETC_PRESETS: _FlagsEtcPresets = _FlagsEtcPresets()
+FLAGSETC_PRESETS: _FlagsEtcPresets = _FlagsEtcPresets()
 
 
 @unique
@@ -982,7 +982,7 @@ class FlagsEtc(Enum):
 
     def to_settings(self) -> typing.Dict[str, typing.Any]:
         """Return settings for this flags etc. category"""
-        return getattr(FLAGS_ETC_PRESETS, self.value)
+        return getattr(FLAGSETC_PRESETS, self.value)
 
 
 class Database(Enum):
@@ -994,6 +994,8 @@ class Database(Enum):
 class QuickPresets:
     """Type for the global quick presets"""
 
+    #: a user-readable label
+    label: str
     #: presets in category inheritance
     inheritance: Inheritance
     #: presets in category frequency
@@ -1005,7 +1007,7 @@ class QuickPresets:
     #: presets in category chromosomes
     chromosomes: Chromosomes
     #: presets in category flags etc.
-    flags_etc: FlagsEtc
+    flagsetc: FlagsEtc
     #: database to use
     database: Database = Database.REFSEQ
 
@@ -1019,7 +1021,7 @@ class QuickPresets:
             **self.impact.to_settings(),
             **self.quality.to_settings(samples),
             **self.chromosomes.to_settings(),
-            **self.flags_etc.to_settings(),
+            **self.flagsetc.to_settings(),
         }
 
 
@@ -1029,93 +1031,103 @@ class _QuickPresetList:
 
     #: default presets
     defaults: QuickPresets = QuickPresets(
+        label="defaults",
         inheritance=Inheritance.ANY,
         frequency=Frequency.DOMINANT_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: *de novo* presets
     de_novo: QuickPresets = QuickPresets(
+        label="de novo",
         inheritance=Inheritance.DE_NOVO,
         frequency=Frequency.DOMINANT_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.SUPER_STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: dominant presets
     dominant: QuickPresets = QuickPresets(
+        label="dominant",
         inheritance=Inheritance.DOMINANT,
         frequency=Frequency.DOMINANT_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: homozygous recessive presets
     homozygous_recessive: QuickPresets = QuickPresets(
+        label="homozygous recessive",
         inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
         frequency=Frequency.RECESSIVE_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: compound recessive recessive presets
     compound_recessive: QuickPresets = QuickPresets(
+        label="compound recessive",
         inheritance=Inheritance.COMPOUND_HETEROZYGOUS,
         frequency=Frequency.RECESSIVE_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: recessive presets
     recessive: QuickPresets = QuickPresets(
+        label="recessive",
         inheritance=Inheritance.RECESSIVE,
         frequency=Frequency.RECESSIVE_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: X-recessive presets
     x_recessive: QuickPresets = QuickPresets(
+        label="X-recessive",
         inheritance=Inheritance.X_RECESSIVE,
         frequency=Frequency.RECESSIVE_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.X_CHROMOSOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: Clinvar pathogenic presets
     clinvar_pathogenic: QuickPresets = QuickPresets(
+        label="ClinVar pathogenic",
         inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.ANY,
         impact=Impact.ANY,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.CLINVAR_ONLY,
+        flagsetc=FlagsEtc.CLINVAR_ONLY,
     )
     #: mitochondrial recessive presets
     mitochondrial: QuickPresets = QuickPresets(
+        label="mitochondrial",
         inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.DOMINANT_STRICT,
         impact=Impact.ANY,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.MT_CHROMOSOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: whole exome recessive presets
     whole_exome: QuickPresets = QuickPresets(
+        label="whole exome",
         inheritance=Inheritance.ANY,
         frequency=Frequency.ANY,
         impact=Impact.ANY,
         quality=Quality.ANY,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
 
 

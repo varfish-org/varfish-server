@@ -1,11 +1,15 @@
 <script setup>
-import { computed } from 'vue'
 import { useCasesStore } from '../stores/cases.js'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
+/** Define props. */
 const props = defineProps({
   caseObj: Object,
 })
+
+/** Define emits. */
+const emit = defineEmits(['editQueryPresetsClick'])
 
 /** The currently used router. */
 const router = useRouter()
@@ -14,6 +18,29 @@ const casesStore = useCasesStore()
 
 const userHasPerms = (perm) =>
   casesStore.userPerms && casesStore.userPerms.includes(perm)
+
+const buildLink = (where) => {
+  if (!props.caseObj) {
+    return ''
+  }
+  const caseUuid = props.caseObj.sodar_uuid
+  const projectUuid = props.caseObj.project
+
+  switch (where) {
+    case 'filter':
+      return `/variants/${projectUuid}/case/filter/${caseUuid}`
+    case 'filter-beta':
+      return `/variants/vueapp/${caseUuid}`
+    case 'filter-svs':
+      return `/svs/${projectUuid}/case/filter/${caseUuid}/`
+    default:
+      console.warn(`Invalid link target ${where}`)
+  }
+}
+
+const linkFilter = computed(() => buildLink('filter'))
+const linkFilterBeta = computed(() => buildLink('filter-beta'))
+const linkFilterSvs = computed(() => buildLink('filter-svs'))
 </script>
 
 <template>
@@ -44,43 +71,57 @@ const userHasPerms = (perm) =>
           <i-mdi-arrow-left-circle />
           Back to Project
         </a>
-        <a class="btn btn-primary" href="#">
+        <a class="btn btn-primary" :href="linkFilter">
           <i-mdi-filter />
           Filter Variants
         </a>
-        <a class="btn btn-primary" href="#">
+        <a class="btn btn-primary" :href="linkFilterBeta">
           <i-mdi-beta />
           Filter Variants (beta)
         </a>
-        <a class="btn btn-primary" href="#">
+        <a class="btn btn-primary" :href="linkFilterSvs">
           <i-mdi-filter-variant />
           Filter SVs
         </a>
-        <a
-          type="button"
-          class="btn btn-secondary dropdown-toggle"
-          data-toggle="dropdown"
-        >
-          <i-mdi-cog />
-        </a>
-        <div v-if="userHasPerms('cases.update_case')" class="dropdown-menu">
-          <a class="dropdown-item" href="#">
-            <i-mdi-file-document-edit />
-            Edit Pedigree
-          </a>
-          <a class="dropdown-item" href="#">
-            <i-mdi-gender-male-female />
-            Fix Sex
-          </a>
+        <template v-if="userHasPerms('cases.update_case')">
           <a
-            v-if="userHasPerms('cases.delete_case')"
-            class="dropdown-item text-danger"
-            href="#"
+            type="button"
+            class="btn btn-secondary dropdown-toggle"
+            data-toggle="dropdown"
           >
-            <i-mdi-delete-forever />
-            Delete Case
+            <i-mdi-cog />
           </a>
-        </div>
+          <div class="dropdown-menu">
+            <a
+              class="dropdown-item"
+              href="#"
+              @click.prevent="emit('editQueryPresetsClick')"
+            >
+              <i-mdi-filter-settings />
+              Edit Query Presets
+            </a>
+            <a class="dropdown-item" href="#">
+              <i-mdi-file-document-edit />
+              Edit Pedigree
+            </a>
+            <a class="dropdown-item" href="#">
+              <i-mdi-file-document-edit />
+              Edit Pedigree
+            </a>
+            <a class="dropdown-item" href="#">
+              <i-mdi-gender-male-female />
+              Fix Sex
+            </a>
+            <a
+              v-if="userHasPerms('cases.delete_case')"
+              class="dropdown-item text-danger"
+              href="#"
+            >
+              <i-mdi-delete-forever />
+              Delete Case
+            </a>
+          </div>
+        </template>
       </div>
     </div>
 

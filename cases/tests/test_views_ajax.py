@@ -10,6 +10,7 @@ from variants.tests.factories import (
     CaseCommentsFactory,
     CaseFactory,
     CaseGeneAnnotationEntryFactory,
+    PresetSetFactory,
 )
 
 RE_UUID4 = re.compile(r"^[0-9a-f-]+$")
@@ -18,7 +19,7 @@ RE_DATETIME = re.compile(r"^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d\d\d\d\d\dZ$")
 TIMEF = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
-class TestCaseAjaxView(TestProjectAPIPermissionBase):
+class TestCaseListAjaxView(TestProjectAPIPermissionBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
@@ -61,7 +62,34 @@ class TestCaseAjaxView(TestProjectAPIPermissionBase):
         expected0.assert_matches(res_json[0])
 
 
-class TestCaseCommentAjaxView(TestProjectAPIPermissionBase):
+class TestCaseUpdateAjaxView(TestProjectAPIPermissionBase):
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+        self.presetset = PresetSetFactory(project=self.project)
+
+    def test_patch_set_presetset_null(self):
+        url = reverse("cases:ajax-case-update", kwargs={"case": self.case.sodar_uuid})
+        data = {"presetset": ""}
+        with self.login(self.contributor_as.user):
+            response = self.client.patch(url, data=data)
+        self.assertEqual(response.status_code, 200)
+        res_json = response.json()
+        self.assertIsNone(res_json.get("presetset"))
+        self.case.refresh_from_db()
+        self.assertIsNone(self.case.presetset_id)
+
+    def test_patch_set_presetset_not_null(self):
+        url = reverse("cases:ajax-case-update", kwargs={"case": self.case.sodar_uuid})
+        data = {"presetset": str(self.presetset.sodar_uuid)}
+        with self.login(self.contributor_as.user):
+            response = self.client.patch(url, data=data)
+        self.assertEqual(response.status_code, 200)
+        res_json = response.json()
+        self.assertEqual(res_json["presetset"], str(self.presetset.sodar_uuid))
+
+
+class TestCaseCommentListAjaxView(TestProjectAPIPermissionBase):
     def setUp(self):
         super().setUp()
         self.case_comment = CaseCommentsFactory(case__project=self.project)

@@ -1597,99 +1597,102 @@ class TestQuickPresets(PedigreesMixin, TestCase):
     def testValueDefaults(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.defaults),
-            "QuickPresets(inheritance=<Inheritance.ANY: 'any'>, "
+            "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, "
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueDeNovo(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.de_novo),
-            "QuickPresets(inheritance=<Inheritance.DE_NOVO: 'de_novo'>, "
+            "QuickPresets(label='de novo', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, "
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.SUPER_STRICT: 'super_strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueDominant(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.dominant),
-            "QuickPresets(inheritance=<Inheritance.DOMINANT: 'dominant'>, "
+            "QuickPresets(label='dominant', inheritance=<Inheritance.DOMINANT: 'dominant'>, "
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueHomozygousRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.homozygous_recessive),
-            "QuickPresets(inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, "
+            "QuickPresets(label='homozygous recessive', "
+            "inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, "
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueCompoundRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.compound_recessive),
-            "QuickPresets(inheritance=<Inheritance.COMPOUND_HETEROZYGOUS: 'compound_heterozygous'>, "
+            "QuickPresets(label='compound recessive', "
+            "inheritance=<Inheritance.COMPOUND_HETEROZYGOUS: 'compound_heterozygous'>, "
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.recessive),
-            "QuickPresets(inheritance=<Inheritance.RECESSIVE: 'recessive'>, "
+            "QuickPresets(label='recessive', inheritance=<Inheritance.RECESSIVE: 'recessive'>, "
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueXRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.x_recessive),
-            "QuickPresets(inheritance=<Inheritance.X_RECESSIVE: 'x_recessive'>, "
+            "QuickPresets(label='X-recessive', inheritance=<Inheritance.X_RECESSIVE: 'x_recessive'>, "
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.X_CHROMOSOME: 'x_chromosome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueClinvarPathogenic(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.clinvar_pathogenic),
-            "QuickPresets(inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, "
+            "QuickPresets(label='ClinVar pathogenic', "
+            "inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, "
             "frequency=<Frequency.ANY: 'any'>, impact=<Impact.ANY: 'any'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.CLINVAR_ONLY: 'clinvar_only'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.CLINVAR_ONLY: 'clinvar_only'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueMitochondrial(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.mitochondrial),
-            "QuickPresets(inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, "
+            "QuickPresets(label='mitochondrial', inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, "
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, impact=<Impact.ANY: 'any'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.MT_CHROMOSOME: 'mt_chromosome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueWholeExome(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.whole_exome),
-            "QuickPresets(inheritance=<Inheritance.ANY: 'any'>, "
+            "QuickPresets(label='whole exome', inheritance=<Inheritance.ANY: 'any'>, "
             "frequency=<Frequency.ANY: 'any'>, "
             "impact=<Impact.ANY: 'any'>, "
             "quality=<Quality.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testToSettingsDefaults(self):

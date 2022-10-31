@@ -60,7 +60,7 @@ describe('cases-qc store', () => {
     expect(casesApi.loadProjectQcValues).toHaveBeenCalled(1)
     expect(casesApi.loadProjectQcValues).toHaveBeenNthCalledWith(
       1,
-      appContext.csrfToken,
+      appContext.csrf_token,
       appContext.project.sodar_uuid
     )
 

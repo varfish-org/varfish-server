@@ -1,4 +1,5 @@
 <script setup>
+import Overlay from '@cases/components/Overlay.vue'
 import FilterFormGenotypePane from './FilterFormGenotypePane.vue'
 import FilterFormFrequencyPane from './FilterFormFrequencyPane.vue'
 import FilterFormFooter from './FilterFormFooter.vue'
@@ -10,18 +11,20 @@ import FilterFormFlagsPane from './FilterFormFlagsPane.vue'
 import FilterFormDownloadPane from './FilterFormDownloadPane.vue'
 import FilterFormQualityPane from './FilterFormQualityPane.vue'
 import FilterFormQuickPresets from './FilterFormQuickPresets.vue'
+import { QueryStates } from '@variants/enums'
 import { computed, reactive, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { useFilterQueryStore } from '../stores/filterQuery'
 
-const store = useFilterQueryStore()
+const filterQueryStore = useFilterQueryStore()
 
 // TODO: export settings not in query for now
 const exportSettings = reactive({
   file_type: 'tsv',
   export_flags: true,
   export_comments: true,
-  export_donors: store.case.pedigree.map((member) => member.name),
+  export_donors:
+    filterQueryStore.caseObj?.pedigree?.map((member) => member.name) || [],
 })
 
 const genotypePaneRef = ref(null)
@@ -66,22 +69,45 @@ const anyHasError = computed(() => {
 })
 
 const v$ = useVuelidate()
+
+const showOverlay = computed(() =>
+  ['initial', 'initializing'].includes(filterQueryStore.storeState)
+)
+
+const onSubmitCancelButtonClicked = () => {
+  const cancelableStates = [
+    QueryStates.Running.value,
+    QueryStates.Resuming.value,
+    QueryStates.Finished.value,
+    QueryStates.Fetching.value,
+  ]
+  if (cancelableStates.includes(filterQueryStore.queryState)) {
+    filterQueryStore.cancelQuery()
+  } else {
+    filterQueryStore.submitQuery()
+  }
+}
 </script>
 
 <template>
-  <form id="filterForm" method="post">
+  <form id="filterForm" method="post" class="position-relative">
     <div
       class="card"
       :class="{ 'border-danger': v$.$error || geneHasError }"
-      v-if="store.querySettings !== null && store.querySettingsPreset !== null"
+      v-if="
+        filterQueryStore.querySettings !== null &&
+        filterQueryStore.querySettingsPreset !== null
+      "
     >
       <div class="card-header">
         <FilterFormQuickPresets
-          :show-filtration-inline-help="store.showFiltrationInlineHelp"
-          :quick-presets="store.quickPresets"
-          :category-presets="store.categoryPresets"
-          :query-settings="store.querySettings"
-          :case="store.case"
+          :show-filtration-inline-help="
+            filterQueryStore.showFiltrationInlineHelp
+          "
+          :quick-presets="filterQueryStore.quickPresets"
+          :category-presets="filterQueryStore.categoryPresets"
+          :query-settings="filterQueryStore.querySettings"
+          :case="filterQueryStore.caseObj"
         />
       </div>
       <div class="card-header row border-bottom-1 pt-1 pr-1">
@@ -228,10 +254,14 @@ const v$ = useVuelidate()
             aria-labelledby="genotype-tab"
           >
             <FilterFormGenotypePane
-              :show-filtration-inline-help="store.showFiltrationInlineHelp"
-              :filtration-complexity-mode="store.filtrationComplexityMode"
-              :case="store.case"
-              v-model:query-settings="store.querySettings"
+              :show-filtration-inline-help="
+                filterQueryStore.showFiltrationInlineHelp
+              "
+              :filtration-complexity-mode="
+                filterQueryStore.filtrationComplexityMode
+              "
+              :case="filterQueryStore.caseObj"
+              v-model:query-settings="filterQueryStore.querySettings"
             />
           </div>
           <div
@@ -242,10 +272,14 @@ const v$ = useVuelidate()
             aria-labelledby="frequency-tab"
           >
             <FilterFormFrequencyPane
-              :show-filtration-inline-help="store.showFiltrationInlineHelp"
-              :filtration-complexity-mode="store.filtrationComplexityMode"
-              :case="store.case"
-              :query-settings="store.querySettings"
+              :show-filtration-inline-help="
+                filterQueryStore.showFiltrationInlineHelp
+              "
+              :filtration-complexity-mode="
+                filterQueryStore.filtrationComplexityMode
+              "
+              :case="filterQueryStore.caseObj"
+              :query-settings="filterQueryStore.querySettings"
             />
           </div>
           <div
@@ -256,15 +290,23 @@ const v$ = useVuelidate()
             aria-labelledby="prioritization-tab"
           >
             <FilterFormPriotizationPane
-              :csrf-token="store.csrfToken"
-              :show-filtration-inline-help="store.showFiltrationInlineHelp"
-              :exomiser-enabled="store.exomiserEnabled"
-              :cadd-enabled="store.caddEnabled"
-              v-model:prio-enabled="store.querySettings.prio_enabled"
-              v-model:prio-algorithm="store.querySettings.prio_algorithm"
-              v-model:prio-hpo-terms="store.querySettings.prio_hpo_terms"
-              v-model:patho-enabled="store.querySettings.patho_enabled"
-              v-model:patho-score="store.querySettings.patho_score"
+              :csrf-token="filterQueryStore.csrfToken"
+              :show-filtration-inline-help="
+                filterQueryStore.showFiltrationInlineHelp
+              "
+              :exomiser-enabled="filterQueryStore.exomiserEnabled"
+              :cadd-enabled="filterQueryStore.caddEnabled"
+              v-model:prio-enabled="filterQueryStore.querySettings.prio_enabled"
+              v-model:prio-algorithm="
+                filterQueryStore.querySettings.prio_algorithm
+              "
+              v-model:prio-hpo-terms="
+                filterQueryStore.querySettings.prio_hpo_terms
+              "
+              v-model:patho-enabled="
+                filterQueryStore.querySettings.patho_enabled
+              "
+              v-model:patho-score="filterQueryStore.querySettings.patho_score"
             />
           </div>
           <div
@@ -275,9 +317,13 @@ const v$ = useVuelidate()
           >
             <FilterFormEffectPane
               ref="effectPaneRef"
-              :show-filtration-inline-help="store.showFiltrationInlineHelp"
-              :filtration-complexity-mode="store.filtrationComplexityMode"
-              v-model:query-settings="store.querySettings"
+              :show-filtration-inline-help="
+                filterQueryStore.showFiltrationInlineHelp
+              "
+              :filtration-complexity-mode="
+                filterQueryStore.filtrationComplexityMode
+              "
+              v-model:query-settings="filterQueryStore.querySettings"
             />
           </div>
           <div
@@ -288,10 +334,14 @@ const v$ = useVuelidate()
           >
             <FilterFormQualityPane
               ref="qualityPaneRef"
-              :show-filtration-inline-help="store.showFiltrationInlineHelp"
-              :filtration-complexity-mode="store.filtrationComplexityMode"
-              :case-obj="store.case"
-              v-model:query-settings="store.querySettings"
+              :show-filtration-inline-help="
+                filterQueryStore.showFiltrationInlineHelp
+              "
+              :filtration-complexity-mode="
+                filterQueryStore.filtrationComplexityMode
+              "
+              :case-obj="filterQueryStore.caseObj"
+              v-model:query-settings="filterQueryStore.querySettings"
             />
           </div>
           <div
@@ -302,9 +352,13 @@ const v$ = useVuelidate()
           >
             <FilterFormGenesRegionsPane
               ref="genePaneRef"
-              :show-filtration-inline-help="store.showFiltrationInlineHelp"
-              :filtration-complexity-mode="store.filtrationComplexityMode"
-              v-model:query-settings="store.querySettings"
+              :show-filtration-inline-help="
+                filterQueryStore.showFiltrationInlineHelp
+              "
+              :filtration-complexity-mode="
+                filterQueryStore.filtrationComplexityMode
+              "
+              v-model:query-settings="filterQueryStore.querySettings"
             />
           </div>
           <div
@@ -314,9 +368,13 @@ const v$ = useVuelidate()
             aria-labelledby="flags-tab"
           >
             <FilterFormFlagsPane
-              :show-filtration-inline-help="store.showFiltrationInlineHelp"
-              :filtration-complexity-mode="store.filtrationComplexityMode"
-              v-model:query-settings="store.querySettings"
+              :show-filtration-inline-help="
+                filterQueryStore.showFiltrationInlineHelp
+              "
+              :filtration-complexity-mode="
+                filterQueryStore.filtrationComplexityMode
+              "
+              v-model:query-settings="filterQueryStore.querySettings"
             />
           </div>
           <div
@@ -326,9 +384,13 @@ const v$ = useVuelidate()
             aria-labelledby="clinvar-tab"
           >
             <FilterFormClinvarPane
-              :show-filtration-inline-help="store.showFiltrationInlineHelp"
-              :filtration-complexity-mode="store.filtrationComplexityMode"
-              v-model:query-settings="store.querySettings"
+              :show-filtration-inline-help="
+                filterQueryStore.showFiltrationInlineHelp
+              "
+              :filtration-complexity-mode="
+                filterQueryStore.filtrationComplexityMode
+              "
+              v-model:query-settings="filterQueryStore.querySettings"
             />
           </div>
           <div
@@ -338,18 +400,25 @@ const v$ = useVuelidate()
             arial-labelledby="export-tab"
           >
             <FilterFormDownloadPane
-              :show-filtration-inline-help="store.showFiltrationInlineHelp"
-              :filtration-complexity-mode="store.filtrationComplexityMode"
-              :case="store.case"
+              :show-filtration-inline-help="
+                filterQueryStore.showFiltrationInlineHelp
+              "
+              :filtration-complexity-mode="
+                filterQueryStore.filtrationComplexityMode
+              "
+              :case="filterQueryStore.caseObj"
               v-model:export-settings="exportSettings"
             />
           </div>
         </div>
         <FilterFormFooter
-          :query-state="store.queryState"
+          :query-state="filterQueryStore.queryState"
           :any-has-error="anyHasError"
-          v-model:database="store.querySettings.database"
-          @submit-button-click="store.submitQuery()"
+          :filtration-complexity-mode="
+            filterQueryStore.filtrationComplexityMode
+          "
+          v-model:database="filterQueryStore.querySettings.database"
+          @submit-cancel-button-click="onSubmitCancelButtonClicked()"
         />
       </div>
     </div>
@@ -360,6 +429,7 @@ const v$ = useVuelidate()
     <!--    {% include "variants/_distiller_resubmit_modal.html" %}-->
     <!--    {% include "variants/_cadd_resubmit_modal.html" %}-->
     <!--    {% include "variants/_spanr_resubmit_modal.html" %}-->
+    <Overlay v-if="showOverlay" :message="filterQueryStore.storeStateMessage" />
   </form>
 </template>
 

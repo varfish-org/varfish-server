@@ -68,7 +68,7 @@ export const useCaseDetailsStore = defineStore(
 
       const casesStore = useCasesStore()
       casesStore.serverInteraction += 1
-      const csrfToken = casesStore.appContext.csrfToken
+      const csrfToken = casesStore.appContext.csrf_token
       Promise.all([
         casesApi
           .fetchCaseComments(csrfToken, caseObj$.sodar_uuid)
@@ -93,6 +93,23 @@ export const useCaseDetailsStore = defineStore(
       })
     }
 
+    /** Update the case with the given data. */
+    const updateCase = async (payload) => {
+      const casesStore = useCasesStore()
+      const csrfToken = casesStore.appContext.csrf_token
+      casesStore.serverInteraction += 1
+      try {
+        const apiCase = await casesApi.updateCase(
+          csrfToken,
+          caseObj.value.sodar_uuid,
+          payload
+        )
+        caseObj.value = apiCase
+      } finally {
+        casesStore.serverInteraction -= 1
+      }
+    }
+
     return {
       caseObj,
       caseComments,
@@ -108,6 +125,7 @@ export const useCaseDetailsStore = defineStore(
       svComments,
       svCommentList,
       initialize,
+      updateCase,
     }
   }
 )

@@ -7,6 +7,21 @@ const store = useFilterQueryStore()
 const props = defineProps({
   params: Object,
 })
+
+const getClinvarSignificanceBadge = (patho) => {
+  if (patho === 'pathogenic') {
+    return 'badge-danger'
+  } else if (patho === 'likely_pathogenic') {
+    return 'badge-warning'
+  } else if (patho === 'uncertain_significance') {
+    return 'badge-info'
+  } else if (patho === 'likely_benign') {
+    return 'badge-secondary'
+  } else if (patho === 'benign') {
+    return 'badge-secondary'
+  }
+  return 'badge-secondary'
+}
 </script>
 
 <template>
@@ -14,9 +29,7 @@ const props = defineProps({
     <span
       class="badge"
       :class="
-        store.getClinvarSignificanceBadge(
-          params.data.summary_pathogenicity_label
-        )
+        getClinvarSignificanceBadge(params.data.summary_pathogenicity_label)
       "
     >
       {{ params.data.summary_pathogenicity_label }}

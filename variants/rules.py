@@ -32,3 +32,21 @@ rules.add_perm(
     | pr_rules.is_project_delegate
     | pr_rules.is_project_contributor,
 )
+
+can_view_presets = (
+    rules.is_superuser
+    | pr_rules.is_project_owner
+    | pr_rules.is_project_delegate
+    | pr_rules.is_project_contributor
+    | pr_rules.is_project_guest
+)
+can_update_presets = (
+    rules.is_superuser
+    | pr_rules.is_project_owner
+    | pr_rules.is_project_delegate
+    | pr_rules.is_project_contributor
+)
+rules.add_perm("variants.view_presets", can_view_presets)
+rules.add_perm("variants.add_presets", can_update_presets)
+rules.add_perm("variants.update_presets", can_update_presets)
+rules.add_perm("variants.delete_presets", can_update_presets)

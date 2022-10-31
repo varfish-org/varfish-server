@@ -9,6 +9,16 @@ export default {
     return await response.json()
   },
 
+  async updateCase(csrfToken, caseUuid, payload) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/ajax/case/update/${caseUuid}/`,
+      'PATCH',
+      payload
+    )
+    return await response.json()
+  },
+
   async loadProjectQcValues(csrfToken, projectUuid) {
     const response = await apiFetch(
       csrfToken,

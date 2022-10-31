@@ -1,13 +1,13 @@
 import { updateUserSetting } from '@varfish/user-settings.js'
 import { computed, nextTick, onMounted, watch } from 'vue'
 
-import { AppState, useCasesStore } from './stores/cases'
+import { StoreState, useCasesStore } from './stores/cases'
 
 export const overlayShow = computed(() => {
   const casesStore = useCasesStore()
   return (
-    !casesStore.appState ||
-    casesStore.appState.value === AppState.initializing ||
+    !casesStore.storeState ||
+    casesStore.storeState.value === StoreState.initializing ||
     casesStore.serverInteraction.value
   )
 })
@@ -15,8 +15,8 @@ export const overlayShow = computed(() => {
 export const overlayMessage = computed(() => {
   const casesStore = useCasesStore()
   if (
-    !casesStore.appState ||
-    casesStore.appState.value === AppState.initializing
+    !casesStore.storeState ||
+    casesStore.storeState.value === StoreState.initializing
   ) {
     return 'initializing...'
   } else {

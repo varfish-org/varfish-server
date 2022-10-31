@@ -634,12 +634,13 @@ class TestSmallVariantQuerySettingsShortcutApiView(
         actual = response.data
         expected = {
             "presets": {
+                "label": "defaults",
                 "inheritance": "any",
                 "frequency": "dominant_strict",
                 "impact": "aa_change_splicing",
                 "quality": "strict",
                 "chromosomes": "whole_genome",
-                "flags_etc": "defaults",
+                "flagsetc": "defaults",
                 "database": "refseq",
             },
             "query_settings": {
@@ -764,7 +765,8 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 "clinvar_paranoid_mode": False,
             },
         }
-        self.assertEqual(actual, expected)
+        self.maxDiff = None
+        self.assertDictEqual(actual, expected)
 
     def test_get_access_allowed(self):
         good_users = [

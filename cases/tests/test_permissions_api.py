@@ -7,6 +7,10 @@ from variants.tests.factories import CaseFactory
 class TestCaseApiView(TestProjectAPIPermissionBase):
     """Permission tests for the API views dealing with ``Case``."""
 
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+
     def test_list(self):
         url = reverse(
             "cases:api-case-list",
@@ -24,6 +28,25 @@ class TestCaseApiView(TestProjectAPIPermissionBase):
         self.assert_response(url, good_users, 200, method="GET")
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
+
+    def test_update(self):
+        url = reverse(
+            "cases:api-case-update",
+            kwargs={"case": self.case.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [self.guest_as.user, self.user_no_roles]
+        self.assert_response(url, good_users, 200, method="PATCH", data={})
+        self.assert_response(url, bad_users_401, 401, method="PATCH", data={})
+        self.assert_response(url, bad_users_403, 403, method="PATCH", data={})
 
 
 class TestCaseCommentApiView(TestProjectAPIPermissionBase):
