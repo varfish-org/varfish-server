@@ -17,7 +17,13 @@ from sqlalchemy import and_
 
 from varfish.utils import JSONField
 from variants.helpers import get_engine, get_meta
-from variants.models import VARIANT_RATING_CHOICES, Case, SiteBgJobBase, VariantImporterBase
+from variants.models import (
+    VARIANT_RATING_CHOICES,
+    Case,
+    HumanReadableMixin,
+    SiteBgJobBase,
+    VariantImporterBase,
+)
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
@@ -371,7 +377,7 @@ class StructuralVariantComment(_UserAnnotation):
         return self.case.get_absolute_url() + "#comment-%s" % self.sodar_uuid
 
 
-class StructuralVariantFlags(_UserAnnotation):
+class StructuralVariantFlags(HumanReadableMixin, _UserAnnotation):
     """Model for flagging structural variants.
 
     Structural variants are generally not as clear-cut as small variants because of ambiguities in their start
@@ -424,21 +430,6 @@ class StructuralVariantFlags(_UserAnnotation):
     flag_summary = models.CharField(
         max_length=32, choices=VARIANT_RATING_CHOICES, default="empty", null=False
     )
-
-    def human_readable(self):
-        """Return human-redable version of flags"""
-        if self.no_flags_set():
-            return "no flags set"
-        else:
-            flag_desc = []
-            for name in ("bookmarked", "for_validation", "candidate", "final causative"):
-                if getattr(self, "flag_%s" % name.replace(" ", "_")):
-                    flag_desc.append(name)
-            for name in ("visual", "validation", "molecular", "phenotype_match", "summary"):
-                field = getattr(self, "flag_%s" % name)
-                if field and field != "empty":
-                    flag_desc.append("%s rating is %s" % (name.split("_")[0], field))
-            return ", ".join(flag_desc)
 
     def get_absolute_url(self):
         return self.case.get_absolute_url() + "#flags-" + self.get_variant_description()
