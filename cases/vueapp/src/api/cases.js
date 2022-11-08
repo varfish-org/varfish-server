@@ -47,12 +47,96 @@ export default {
     return Promise.resolve([])
   },
 
-  async fetchCaseComments(csrfToken, caseUuid) {
+  async listCaseComment(csrfToken, caseUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/cases/ajax/case-comment/list/${caseUuid}/`
+      `/cases/ajax/case-comment/list-create/${caseUuid}/`,
+      'GET'
     )
     return await response.json()
+  },
+
+  async createCaseComment(csrfToken, caseUuid, payload) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/ajax/case-comment/list-create/${caseUuid}/`,
+      'POST',
+      payload
+    )
+    return await response.json()
+  },
+
+  async retrieveCaseComment(csrfToken, caseCommentUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/ajax/case-comment/retrieve-update-destroy/${caseCommentUuid}/`,
+      'GET'
+    )
+    return await response.json()
+  },
+
+  async updateCaseComment(csrfToken, caseCommentUuid, payload) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/ajax/case-comment/retrieve-update-destroy/${caseCommentUuid}/`,
+      'PATCH',
+      payload
+    )
+    return await response.json()
+  },
+
+  async destroyCaseComment(csrfToken, caseCommentUuid) {
+    await apiFetch(
+      csrfToken,
+      `/cases/ajax/case-comment/retrieve-update-destroy/${caseCommentUuid}/`,
+      'DELETE'
+    )
+  },
+
+  async listCasePhenotypeTerms(csrfToken, caseUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/ajax/case-phenotype-terms/list-create/${caseUuid}/`,
+      'GET'
+    )
+    return await response.json()
+  },
+
+  async createCasePhenotypeTerms(csrfToken, caseUuid, payload) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/ajax/case-phenotype-terms/list-create/${caseUuid}/`,
+      'POST',
+      payload
+    )
+    return await response.json()
+  },
+
+  async retrieveCasePhenotypeTerms(csrfToken, casePhenotypeTermsUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/ajax/case-phenotype-terms/retrieve-update-destroy/${casePhenotypeTermsUuid}/`,
+      'GET'
+    )
+    return await response.json()
+  },
+
+  async updateCasePhenotypeTerms(csrfToken, casePhenotypeTermsUuid, payload) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/ajax/case-phenotype-terms/retrieve-update-destroy/${casePhenotypeTermsUuid}/`,
+      'PATCH',
+      payload
+    )
+    return await response.json()
+  },
+
+  async destroyCasePhenotypeTerms(csrfToken, casePhenotypeTermsUuid) {
+    await apiFetch(
+      csrfToken,
+      `/cases/ajax/case-phenotype-terms/retrieve-update-destroy/${casePhenotypeTermsUuid}/`,
+      'DELETE'
+    )
   },
 
   async fetchCaseGeneAnnotation(csrfToken, caseUuid) {

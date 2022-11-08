@@ -66,7 +66,7 @@ describe('CaseDetail.vue', () => {
 
   test('smoke test with case detail store data', async () => {
     // mock out clinvarApi.listCases for casesStore.initialize
-    casesApi.fetchCaseComments.mockResolvedValue([])
+    casesApi.listCaseComment.mockResolvedValue([])
     casesApi.fetchVarAnnos.mockResolvedValue([])
     casesApi.fetchSvAnnos.mockResolvedValue([])
     casesApi.fetchCaseGeneAnnotation.mockResolvedValue([])

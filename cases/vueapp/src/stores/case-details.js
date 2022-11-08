@@ -70,11 +70,9 @@ export const useCaseDetailsStore = defineStore(
       casesStore.serverInteraction += 1
       const csrfToken = casesStore.appContext.csrf_token
       Promise.all([
-        casesApi
-          .fetchCaseComments(csrfToken, caseObj$.sodar_uuid)
-          .then((res) => {
-            caseComments.value = res
-          }),
+        casesApi.listCaseComment(csrfToken, caseObj$.sodar_uuid).then((res) => {
+          caseComments.value = res
+        }),
         casesApi.fetchVarAnnos(csrfToken, caseObj$.sodar_uuid).then((res) => {
           varAnnos.value = res
         }),
@@ -110,6 +108,127 @@ export const useCaseDetailsStore = defineStore(
       }
     }
 
+    /** Get case comment by UUID. */
+    const getCaseComment = (caseCommentUuid) => {
+      for (const obj of caseComments.value) {
+        if (obj.sodar_uuid === caseCommentUuid) {
+          return obj
+        }
+      }
+      return null
+    }
+
+    /** Create a new case comment for the current case. */
+    const createCaseComment = async (payload) => {
+      const casesStore = useCasesStore()
+      const csrfToken = casesStore.appContext.csrf_token
+      casesStore.serverInteraction += 1
+      try {
+        const apiCaseComment = await casesApi.createCaseComment(
+          csrfToken,
+          caseObj.value.sodar_uuid,
+          payload
+        )
+        caseComments.value.push(apiCaseComment)
+      } finally {
+        casesStore.serverInteraction -= 1
+      }
+    }
+
+    /** Update a case comment for the current case. */
+    const updateCaseComment = async (caseCommentUuid, payload) => {
+      const casesStore = useCasesStore()
+      const csrfToken = casesStore.appContext.csrf_token
+      casesStore.serverInteraction += 1
+      try {
+        const apiCaseComment = await casesApi.updateCaseComment(
+          csrfToken,
+          caseCommentUuid,
+          payload
+        )
+        for (let i = 0; i < caseComments.value.length; ++i) {
+          if (caseComments.value[i].sodar_uuid === apiCaseComment.sodar_uuid) {
+            caseComments.value[i] = apiCaseComment
+            break
+          }
+        }
+      } finally {
+        casesStore.serverInteraction -= 1
+      }
+    }
+
+    /** Destroy a case comment for the current case. */
+    const destroyCaseComment = async (caseCommentUuid) => {
+      const casesStore = useCasesStore()
+      const csrfToken = casesStore.appContext.csrf_token
+      casesStore.serverInteraction += 1
+      try {
+        await casesApi.destroyCaseComment(csrfToken, caseCommentUuid)
+        for (let i = 0; i < caseComments.value.length; ++i) {
+          if (caseComments.value[i].sodar_uuid === caseCommentUuid) {
+            caseComments.value.splice(i, 1)
+            break
+          }
+        }
+      } finally {
+        casesStore.serverInteraction -= 1
+      }
+    }
+
+    /** Get case phenotypes from store. */
+    const getCasePhenotypeTerms = (casePhenotypeTermsUuid) => {
+      for (const phenotypeTerms of caseObj.value.phenotype_terms) {
+        if (phenotypeTerms.sodar_uuid === casePhenotypeTermsUuid) {
+          return phenotypeTerms
+        }
+      }
+    }
+
+    /** Update case phenotype terms via API and in store. */
+    const updateCasePhenotypeTerms = async (
+      casePhenotypeTermsUuid,
+      payload
+    ) => {
+      const casesStore = useCasesStore()
+      const csrfToken = casesStore.appContext.csrf_token
+      casesStore.serverInteraction += 1
+      try {
+        const apiCasePhenotypeTerms = await casesApi.updateCasePhenotypeTerms(
+          csrfToken,
+          casePhenotypeTermsUuid,
+          payload
+        )
+        for (let i = 0; i < caseObj.value.phenotype_terms.length; ++i) {
+          if (
+            caseObj.value.phenotype_terms[i].sodar_uuid ===
+            casePhenotypeTermsUuid
+          ) {
+            caseObj.value.phenotype_terms[i] = apiCasePhenotypeTerms
+            break
+          }
+        }
+      } finally {
+        casesStore.serverInteraction -= 1
+      }
+    }
+
+    /** Create case phenotype terms via API and in store. */
+    const createCasePhenotypeTerms = async (caseUuid, payload) => {
+      const casesStore = useCasesStore()
+      const csrfToken = casesStore.appContext.csrf_token
+      casesStore.serverInteraction += 1
+      try {
+        const apiCasePhenotypeTerms = await casesApi.createCasePhenotypeTerms(
+          csrfToken,
+          caseUuid,
+          payload
+        )
+        caseObj.value.phenotype_terms.push(apiCasePhenotypeTerms)
+      } finally {
+        casesStore.serverInteraction -= 1
+      }
+    }
+
     return {
       caseObj,
       caseComments,
@@ -126,6 +245,13 @@ export const useCaseDetailsStore = defineStore(
       svCommentList,
       initialize,
       updateCase,
+      getCaseComment,
+      createCaseComment,
+      updateCaseComment,
+      destroyCaseComment,
+      getCasePhenotypeTerms,
+      updateCasePhenotypeTerms,
+      createCasePhenotypeTerms,
     }
   }
 )

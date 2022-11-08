@@ -1,6 +1,6 @@
 <script setup>
 /**
- * A simple component for showing a modal dialogue for entering a single value.
+ * A component for showing a modal dialogue for updating phenotype terms.
  *
  * You can configure it either by setting the props or handing the props to the show() method.
  *
@@ -11,8 +11,9 @@
 
 import { onMounted, computed, reactive, ref } from 'vue'
 
-import ModalBase from './ModalBase.vue'
-import { randomString } from '../common.js'
+import ModalBase from '@varfish/components/ModalBase.vue'
+import HpoTermInput from '@variants/components/HpoTermInput.vue'
+import { randomString } from '@varfish/common.js'
 import { useVuelidate } from '@vuelidate/core'
 import { copy } from '@varfish/helpers'
 
@@ -38,27 +39,13 @@ const props = defineProps({
     default: randomString(),
   },
   defaultValue: {
-    type: String,
-    default: '',
-  },
-  rules: {
     type: Array,
-    default: () => [],
+    default: [],
   },
-  placeholderValue: {
+  modalClass: {
     type: String,
-    default: null,
+    default: 'modal-xl',
   },
-  extraData: {
-    type: Object,
-    default: null,
-  },
-  widget: {
-    // can also be "textarea"
-    type: String,
-    default: 'input',
-  },
-  modalClass: String,
 })
 
 /** Define the emits. */
@@ -82,7 +69,7 @@ const resolveRef = ref(null)
 
 /** Value from the input. */
 const formState = reactive({
-  inputValue: '',
+  inputValue: [],
 })
 
 /** Computed value for the rules, so we can react to props/propsCopy changes. */
@@ -159,39 +146,17 @@ defineExpose({ show, hide })
     @close="onCancel"
   >
     <template #default>
-      <div class="row">
+      <div class="row" style="min-height: 400px">
         <div class="col">
           <div class="form-group">
-            <template v-if="propsCopy.widget === 'textarea'">
-              <label v-if="propsCopy.label" :for="'modal-textarea-' + idSuffix">
-                {{ propsCopy.label }}
-              </label>
-              <textarea
-                class="form-control"
-                v-model.lazy="v$.inputValue.$model"
-                :id="'modal-textarea-' + idSuffix"
-                :placeholder="placeholderValue"
-                rows="5"
-                required
-              ></textarea>
-            </template>
-            <template v-else>
-              <label v-if="propsCopy.label" :for="'modal-input-' + idSuffix">
-                {{ propsCopy.label }}
-              </label>
-              <input
-                type="text"
-                class="form-control"
-                v-model.trim.lazy="v$.inputValue.$model"
-                :class="{
-                  'form-control is-valid': !v$.inputValue.$error,
-                  'form-control is-invalid': v$.inputValue.$error,
-                }"
-                :id="'modal-input-' + idSuffix"
-                :placeholder="placeholderValue"
-                required
-              />
-            </template>
+            <label v-if="propsCopy.label" :for="'modal-input-' + idSuffix">
+              {{ propsCopy.label }}
+            </label>
+            <HpoTermInput
+              :id="'modal-input-' + idSuffix"
+              v-model="v$.inputValue.$model"
+              :show-hpo-shortcuts-button="true"
+            />
             <div
               v-for="error of v$.inputValue.$errors"
               :key="error.$uid"

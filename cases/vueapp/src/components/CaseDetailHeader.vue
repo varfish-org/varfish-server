@@ -1,7 +1,8 @@
 <script setup>
-import { useCasesStore } from '../stores/cases.js'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
+
+import { useCasesStore } from '@cases/stores/cases.js'
 
 /** Define props. */
 const props = defineProps({
@@ -9,7 +10,13 @@ const props = defineProps({
 })
 
 /** Define emits. */
-const emit = defineEmits(['editQueryPresetsClick'])
+const emit = defineEmits([
+  'addCaseCommentClick',
+  'editCaseStatusClick',
+  'editCaseNotesClick',
+  'editQueryPresetsClick',
+  'editPedigreeClick',
+])
 
 /** The currently used router. */
 const router = useRouter()
@@ -100,11 +107,35 @@ const linkFilterSvs = computed(() => buildLink('filter-svs'))
               <i-mdi-filter-settings />
               Edit Query Presets
             </a>
-            <a class="dropdown-item" href="#">
-              <i-mdi-file-document-edit />
-              Edit Pedigree
+            <a
+              class="dropdown-item"
+              href="#"
+              @click.prevent="emit('addCaseCommentClick')"
+            >
+              <i-mdi-comment-plus />
+              Add Comment
             </a>
-            <a class="dropdown-item" href="#">
+            <a
+              class="dropdown-item"
+              href="#"
+              @click.prevent="emit('editCaseStatusClick')"
+            >
+              <i-mdi-square-edit-outline />
+              Edit Status
+            </a>
+            <a
+              class="dropdown-item"
+              href="#"
+              @click.prevent="emit('editCaseNotesClick')"
+            >
+              <i-mdi-playlist-edit />
+              Edit Notes
+            </a>
+            <a
+              class="dropdown-item"
+              href="#"
+              @click.prevent="emit('editPedigreeClick')"
+            >
               <i-mdi-file-document-edit />
               Edit Pedigree
             </a>

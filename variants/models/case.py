@@ -460,6 +460,16 @@ class Case(CoreCase):
 class CasePhenotypeTerms(models.Model):
     """Phenotype annotation for an individual in a case."""
 
+    #: DateTime of creation
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+    #: DateTime of last modification
+    date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
+
+    #: UUID used for identification throughout SODAR.
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, help_text="Record UUID", null=False, unique=True
+    )
+
     #: The case that this belongs to.
     case = models.ForeignKey(
         Case,

@@ -12,11 +12,11 @@ class CaseCommentSerializer(SODARProjectModelSerializer):
     #: Serializer the user as its name.
     user = serializers.SlugRelatedField(read_only=True, slug_field="username")
 
-    # def create(self, validated_data):
-    #     """Make case and user writeable (only) on creation."""
-    #     validated_data["user"] = self.context["request"].user
-    #     validated_data["case"] = self.context["case"]
-    #     return super().create(validated_data)
+    def create(self, validated_data):
+        """Make case and user writeable (only) on creation."""
+        validated_data["user"] = self.context["request"].user
+        validated_data["case"] = self.context["case"]
+        return super().create(validated_data)
 
     class Meta:
         model = CaseComments
@@ -28,7 +28,13 @@ class CaseCommentSerializer(SODARProjectModelSerializer):
             "user",
             "comment",
         )
-        read_only_fields = fields
+        read_only_fields = (
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "case",
+            "user",
+        )
 
 
 class CaseGeneAnnotationSerializer(SODARProjectModelSerializer):

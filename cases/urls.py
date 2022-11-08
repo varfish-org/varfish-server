@@ -23,9 +23,24 @@ ajax_urlpatterns = [
         name="ajax-case-update",
     ),
     url(
-        regex=r"^ajax/case-comment/list/(?P<case>[0-9a-f-]+)/?$",
-        view=views_ajax.CaseCommentListAjaxView.as_view(),
-        name="ajax-casecomment-list",
+        regex=r"^ajax/case-comment/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_ajax.CaseCommentListCreateAjaxView.as_view(),
+        name="ajax-casecomment-listcreate",
+    ),
+    url(
+        regex=r"^ajax/case-comment/retrieve-update-destroy/(?P<casecomment>[0-9a-f-]+)/?$",
+        view=views_ajax.CaseCommentRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-casecomment-retrieveupdatedestroy",
+    ),
+    url(
+        regex=r"^ajax/case-phenotype-terms/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_ajax.CasePhenotypeTermsListCreateAjaxView.as_view(),
+        name="ajax-casephenotypeterms-listcreate",
+    ),
+    url(
+        regex=r"^ajax/case-phenotype-terms/retrieve-update-destroy/(?P<casephenotypeterms>[0-9a-f-]+)/?$",
+        view=views_ajax.CasePhenotypeTermsRetrieveUpdateDestroyAjaxView.as_view(),
+        name="ajax-casephenotypeterms-retrieveupdatedestroy",
     ),
     url(
         regex=r"^ajax/case-gene-annotation/list/(?P<case>[0-9a-f-]+)/?$",
@@ -51,9 +66,24 @@ api_urlpatterns = [
         name="api-case-update",
     ),
     url(
-        regex=r"^api/case-comment/list/(?P<case>[0-9a-f-]+)/?$",
-        view=views_api.CaseCommentListApiView.as_view(),
-        name="api-casecomment-list",
+        regex=r"^api/case-comment/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_api.CaseCommentListCreateApiView.as_view(),
+        name="api-casecomment-listcreate",
+    ),
+    url(
+        regex=r"^ajax/case-comment/retrieve-update-destroy/(?P<casecomment>[0-9a-f-]+)/?$",
+        view=views_api.CaseCommentRetrieveUpdateDestroyApiView.as_view(),
+        name="api-casecomment-retrieveupdatedestroy",
+    ),
+    url(
+        regex=r"^api/case-phenotype-terms/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_api.CasePhenotypeTermsListCreateApiView.as_view(),
+        name="api-casephenotypeterms-listcreate",
+    ),
+    url(
+        regex=r"^api/case-phenotype-terms/retrieve-update-destroy/(?P<casephenotypeterms>[0-9a-f-]+)/?$",
+        view=views_api.CasePhenotypeTermsRetrieveUpdateDestroyApiView.as_view(),
+        name="api-casephenotypeterms-retrieveupdatedestroy",
     ),
     url(
         regex=r"^api/case-gene-annotation/list/(?P<case>[0-9a-f-]+)/?$",

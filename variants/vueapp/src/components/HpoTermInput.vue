@@ -1,7 +1,9 @@
 <script setup>
 import Multiselect from '@vueform/multiselect'
-import { declareWrapper } from '../helpers.js'
 import { onMounted, ref, watch } from 'vue'
+
+import { hpoInheritance, hpoAgeOfOnset } from './HpoTermInput.values'
+import { declareWrapper } from '../helpers.js'
 
 const props = defineProps({
   apiEndpoint: {
@@ -14,6 +16,8 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  id: String,
+  showHpoShortcutsButton: Boolean,
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -55,6 +59,7 @@ const fetchHpoTermsForMultiselect = async (query) => {
   return result
 }
 
+/** Refresh text value from terms. */
 const refreshTextValue = async (termsArray) => {
   const withLabelUnfiltered = await Promise.all(
     termsArray.map(async (hpoTerm) => {
@@ -70,6 +75,7 @@ const refreshTextValue = async (termsArray) => {
   textValue.value = withLabel.join('; ')
 }
 
+/** Refresh model value from text value. */
 const refreshModelValue = () => {
   const regex = /(HP:\d{7}|OMIM:\d{6}|DECIPHER:\d+|ORPHA:\d+)( - [^;]+)?(;|$)/g
   const cleanTextValue = (textValue.value || '')
@@ -87,6 +93,12 @@ const refreshModelValue = () => {
   }
   value.value = hpoSelected
   refreshTextValue(hpoSelected)
+}
+
+/** Push term to field. */
+const appendHpoTerm = async (term) => {
+  value.value.push(term)
+  refreshTextValue(value.value)
 }
 
 const refreshing = ref(false)
@@ -115,6 +127,15 @@ const hpoTermSelected = (item) => {
 
 const debugTerms = ref(false)
 
+const showHpoShortcuts = ref(false)
+
+watch(
+  () => props.modelValue,
+  (newValue, _oldValue) => {
+    refreshTextValue(newValue)
+  }
+)
+
 onMounted(() => {
   if (props.modelValue) {
     refreshTextValue(props.modelValue)
@@ -124,7 +145,12 @@ onMounted(() => {
 
 <template>
   <div class="input-group">
-    <textarea v-model="textValue" class="form-control" rows="3"></textarea>
+    <textarea
+      :id="id"
+      v-model="textValue"
+      class="form-control"
+      rows="3"
+    ></textarea>
     <div class="input-group-append">
       <span
         class="input-group-text refresh-button"
@@ -141,22 +167,52 @@ onMounted(() => {
     to add them to the text box above. You can also just type the terms into the
     text box above. To remove terms, just remove them from the text box.
   </div>
-  <Multiselect
-    mode="single"
-    placeholder="HPO Term Lookup"
-    no-options-text="Type to start searching"
-    :filter-results="false"
-    :allow-empty="true"
-    :close-on-select="true"
-    :searchable="true"
-    :object="true"
-    :resolve-on-load="false"
-    :loading="loading"
-    :delay="1"
-    :min-chars="3"
-    :options="fetchHpoTermsForMultiselect"
-    @change="hpoTermSelected"
-  />
+  <div class="row ml-0 mr-0">
+    <Multiselect
+      class="col"
+      mode="single"
+      placeholder="HPO Term Lookup"
+      no-options-text="Type to start searching"
+      :filter-results="false"
+      :allow-empty="true"
+      :close-on-select="true"
+      :searchable="true"
+      :object="true"
+      :resolve-on-load="false"
+      :loading="loading"
+      :delay="1"
+      :min-chars="3"
+      :options="fetchHpoTermsForMultiselect"
+      @change="hpoTermSelected"
+    />
+    <button
+      v-if="showHpoShortcutsButton"
+      type="button"
+      class="btn btn-secondary col-auto ml-2 text-white"
+      title="HPO term shortcuts"
+      @click="showHpoShortcuts = !showHpoShortcuts"
+    >
+      <i-mdi-dots-horizontal />
+    </button>
+  </div>
+  <div v-if="showHpoShortcuts" class="row">
+    <div class="col pl-0 pr-0 small">
+      <h6 class="mt-2" style="font-size: 1.2em">Inheritance</h6>
+      <template v-for="(item, index) in hpoInheritance">
+        <span class="pl-1 pr-1" v-if="index > 0">&middot;</span>
+        <a href="#" @click.prevent="appendHpoTerm(item.term)">{{
+          item.label
+        }}</a>
+      </template>
+      <h6 class="mt-2" style="font-size: 1.2em">Age of Onset</h6>
+      <template v-for="(item, index) in hpoAgeOfOnset">
+        <span class="pl-1 pr-1" v-if="index > 0">&middot;</span>
+        <a href="#" @click.prevent="appendHpoTerm(item.term)">{{
+          item.label
+        }}</a>
+      </template>
+    </div>
+  </div>
 </template>
 
 <style scoped>

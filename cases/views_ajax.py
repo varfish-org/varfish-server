@@ -4,9 +4,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from cases.views_api import (
-    CaseCommentListApiView,
+    CaseCommentListCreateApiView,
+    CaseCommentRetrieveUpdateDestroyApiView,
     CaseGeneAnnotationListApiView,
     CaseListApiView,
+    CasePhenotypeTermsListCreateApiView,
+    CasePhenotypeTermsRetrieveUpdateDestroyApiView,
     CaseUpdateApiView,
 )
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
@@ -38,10 +41,51 @@ class CaseUpdateAjaxView(CaseUpdateApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class CaseCommentListAjaxView(CaseCommentListApiView):
+class CasePhenotypeTermsListCreateAjaxView(CasePhenotypeTermsListCreateApiView):
+    """Retrieve list of case phenotype terms for the given case.
+
+    **URL:** ``/cases/ajax/case-phenotype-terms/list-create/{case.sodar_uuid}/``
+
+    **Methods:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class CasePhenotypeTermsRetrieveUpdateDestroyAjaxView(
+    CasePhenotypeTermsRetrieveUpdateDestroyApiView
+):
+    """Retrieve list of case phenotype terms for the given case.
+
+    **URL:** ``/cases/ajax/case-phenotype-terms/retrieve-update-destroy/{case_phenotype_terms.sodar_uuid}/``
+
+    **Methods:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class CaseCommentListCreateAjaxView(CaseCommentListCreateApiView):
     """Retrieve list of case comments for the given case.
 
-    **URL:** ``/cases/ajax/case-comment/list/{case.sodar_uuid}/``
+    **URL:** ``/cases/ajax/case-comment/list-create/{case.sodar_uuid}/``
+
+    **Methods:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class CaseCommentRetrieveUpdateDestroyAjaxView(CaseCommentRetrieveUpdateDestroyApiView):
+    """Retrieve list of case comments for the given case.
+
+    **URL:** ``/cases/ajax/case-comment/retrieve-update-destroy/{case_comment.sodar_uuid}/``
 
     **Methods:** See base API class.
 

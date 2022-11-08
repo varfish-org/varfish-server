@@ -40,6 +40,11 @@ class EntrypointView(
                 },
                 "base_url": "/cases/ajax/",
                 "csrf_token": get_token(self.request),
+                "user": {
+                    "username": self.request.user.username,
+                    "sodar_uuid": str(self.request.user.sodar_uuid),
+                    "is_superuser": self.request.user.is_superuser,
+                },
             }
         )
         return context
