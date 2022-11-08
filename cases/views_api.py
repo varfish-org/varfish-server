@@ -3,12 +3,19 @@ from projectroles.views_api import (
     SODARAPIBaseProjectMixin,
     SODARAPIProjectPermission,
 )
-from rest_framework.generics import ListAPIView, UpdateAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateDestroyAPIView,
+    UpdateAPIView,
+    get_object_or_404,
+)
+from rest_framework.permissions import BasePermission
 
 from cases.serializers import CaseCommentSerializer, CaseGeneAnnotationSerializer
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
-from variants.models import Case, CaseComments, CaseGeneAnnotationEntry
-from variants.serializers import CaseSerializer
+from variants.models import Case, CaseComments, CaseGeneAnnotationEntry, CasePhenotypeTerms
+from variants.serializers import CasePhenotypeTermsSerializer, CaseSerializer
 
 
 class CaseListApiView(SODARAPIBaseProjectMixin, ListAPIView):
@@ -78,17 +85,10 @@ class CaseUpdateApiView(CaseApiBaseMixin, UpdateAPIView):
         return "cases.update_case"
 
 
-class CaseCommentApiMixin(CaseApiBaseMixin):
-    serializer_class = CaseCommentSerializer
+class CasePhenotypeTermsListCreateApiView(CaseApiBaseMixin, ListCreateAPIView):
+    """List/create case phenotype term annotations.
 
-    def get_queryset(self):
-        return CaseComments.objects.filter(case__sodar_uuid=self.kwargs["case"])
-
-
-class CaseCommentListApiView(CaseCommentApiMixin, ListAPIView):
-    """List case comments for the given case.
-
-    **URL:** ``/cases/api/case-comment/list/{case.sodar_uuid}``
+    **URL:** ``/cases/api/case-phenotype-terms/list-create/{case.sodar_uuid}``
 
     **Methods:** ``GET``
 
@@ -104,6 +104,156 @@ class CaseCommentListApiView(CaseCommentApiMixin, ListAPIView):
     - ``previous`` - URL to next page (``str`` or ``null``)
     - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
     """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "case"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    permission_classes = [CasesApiPermission]
+
+    serializer_class = CasePhenotypeTermsSerializer
+
+    def get_queryset(self):
+        return CasePhenotypeTerms.objects.filter(case__sodar_uuid=self.kwargs["case"])
+
+    def get_serializer_context(self):
+        result = super().get_serializer_context()
+        result["case"] = get_object_or_404(Case.objects.all(), sodar_uuid=self.kwargs["case"])
+        return result
+
+    def get_permission_required(self):
+        if self.request.method == "POST":
+            return "cases.update_case"
+        else:
+            return "cases.view_data"
+
+
+class CasePhenotypeTermsApiPermission(SODARAPIProjectPermission):
+    """Project-based permission for the ``cases`` app."""
+
+    def get_project(self, request=None, kwargs=None):
+        casephenotypeterms = CasePhenotypeTerms.objects.get(sodar_uuid=kwargs["casephenotypeterms"])
+        return casephenotypeterms.case.project
+
+
+class CasePhenotypeTermsRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView):
+    """Retrieve, update, destroy case comments for the given case.
+
+    **URL:** ``/cases/api/case-phenotype-terms/retrieve-update-destroy/{case_phenotype_terms.sodar_uuid}``
+
+    **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "casephenotypeterms"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    permission_classes = [CasePhenotypeTermsApiPermission]
+
+    queryset = CasePhenotypeTerms.objects.all()
+    serializer_class = CasePhenotypeTermsSerializer
+
+    def get_permission_required(self):
+        if self.request.method == "GET":
+            return "cases.view_data"
+        elif self.request.method == "DELETE":
+            return "cases.update_case"  # sic! (is case update only)
+        else:
+            return "cases.update_case"
+
+
+class CaseCommentListCreateApiView(CaseApiBaseMixin, ListCreateAPIView):
+    """List/create case comments for the given case.
+
+    **URL:** ``/cases/api/case-comment/list-create/{case.sodar_uuid}``
+
+    **Methods:** ``GET``
+
+    **Parameters:**
+
+    - ``page`` - specify page to return (default/first is ``1``)
+    - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
+
+    **Returns:**
+
+    - ``count`` - number of total elements (``int``)
+    - ``next`` - URL to next page (``str`` or ``null``)
+    - ``previous`` - URL to next page (``str`` or ``null``)
+    - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "case"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    permission_classes = [CasesApiPermission]
+
+    serializer_class = CaseCommentSerializer
+
+    def get_queryset(self):
+        return CaseComments.objects.filter(case__sodar_uuid=self.kwargs["case"])
+
+    def get_serializer_context(self):
+        result = super().get_serializer_context()
+        result["case"] = get_object_or_404(Case.objects.all(), sodar_uuid=self.kwargs["case"])
+        return result
+
+    def get_permission_required(self):
+        if self.request.method == "POST":
+            return "cases.casecomment_create"
+        else:
+            return "cases.view_data"
+
+
+class CaseCommentsApiPermission(BasePermission):
+    """Fine-granular permissions for ``CaseComments``."""
+
+    def has_permission(self, request, view):
+        if not request.user:
+            return False  # no user, forbidden
+        elif request.user.is_superuser:
+            return True  # is superuser, allowed
+        # Otherwise, check rules.
+        if hasattr(view, "permission_required"):
+            perm = view.permission_required
+        else:
+            perm = view.get_permission_required()
+        casecomment = view.get_object()
+        return request.user.has_perm(perm, casecomment)
+
+
+class CaseCommentRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView):
+    """Retrieve, update, destroy case comments for the given case.
+
+    **URL:** ``/cases/api/case-comment/retrieve-update-destroy/{case_comment.sodar_uuid}``
+
+    **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "casecomment"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    permission_classes = [CaseCommentsApiPermission]
+
+    queryset = CaseComments.objects.all()
+    serializer_class = CaseCommentSerializer
+
+    def get_permission_required(self):
+        if self.request.method == "GET":
+            return "cases.casecomment_view"
+        elif self.request.method == "DELETE":
+            return "cases.casecomment_delete"
+        else:
+            return "cases.casecomment_update"
 
 
 class CaseGeneAnnotationApiMixin(CaseApiBaseMixin):

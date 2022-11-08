@@ -14,7 +14,7 @@ describe('CaseDetailPaneCase.vue', () => {
   test('test with empty data', async () => {
     const wrapper = makeWrapper(CaseDetailPaneCase)
 
-    expect(wrapper.findAll('case-detail-card-case-details-stub').length).toBe(1)
+    expect(wrapper.findAll('case-detail-card-case-stub').length).toBe(1)
     expect(wrapper.findAll('case-detail-card-pedigree-stub').length).toBe(1)
     expect(wrapper.findAll('case-detail-card-variants-info-stub').length).toBe(
       1
@@ -40,7 +40,7 @@ describe('CaseDetailPaneCase.vue', () => {
     }
     const wrapper = makeWrapper(CaseDetailPaneCase, initialState)
 
-    expect(wrapper.findAll('case-detail-card-case-details-stub').length).toBe(1)
+    expect(wrapper.findAll('case-detail-card-case-stub').length).toBe(1)
     expect(wrapper.findAll('case-detail-card-pedigree-stub').length).toBe(1)
     expect(wrapper.findAll('case-detail-card-variants-info-stub').length).toBe(
       1

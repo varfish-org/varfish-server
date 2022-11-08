@@ -5,6 +5,18 @@ import CaseDetailPaneCase from './CaseDetailPaneCase.vue'
 import CaseDetailPaneQc from './CaseDetailPaneQc.vue'
 import { useCaseDetailsStore } from '@cases/stores/case-details'
 
+/** Define emits. */
+const emit = defineEmits([
+  'addCaseCommentClick',
+  'updateCaseCommentClick',
+  'deleteCaseCommentClick',
+  'editCaseStatusClick',
+  'editCaseNotesClick',
+  'editQueryPresetsClick',
+  'editPedigreeClick',
+  'updateCasePhenotypeTermsClick',
+])
+
 const Tabs = Object.freeze({
   overview: 'overview',
   qc: 'qc',
@@ -95,7 +107,18 @@ defineExpose({
         id="case-list"
         role="tabpanel"
       >
-        <CaseDetailPaneCase />
+        <CaseDetailPaneCase
+          @edit-case-status-click="emit('editCaseStatusClick')"
+          @edit-case-notes-click="emit('editCaseNotesClick')"
+          @edit-query-presets-click="emit('editQueryPresetsClick')"
+          @add-case-comment-click="emit('addCaseCommentClick')"
+          @update-case-comment-click="emit('updateCaseCommentClick', $event)"
+          @delete-case-comment-click="emit('deleteCaseCommentClick', $event)"
+          @edit-pedigree-click="emit('editPedigreeClick')"
+          @update-case-phenotype-terms-click="
+            emit('updateCasePhenotypeTermsClick', $event)
+          "
+        />
       </div>
       <div
         v-if="currentTab === Tabs.qc"

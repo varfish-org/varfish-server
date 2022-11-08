@@ -22,6 +22,7 @@ module.exports = {
           '@clinvarexportTest': resolve(__dirname, '../tests/clinvarexport'),
           '@variants': resolve(__dirname, '../src/variants'),
           '@variantsTest': resolve(__dirname, '../tests/variants'),
+          '@varfish': resolve(__dirname, '../src/varfish'),
         },
         preserveSymlinks: true,
       },

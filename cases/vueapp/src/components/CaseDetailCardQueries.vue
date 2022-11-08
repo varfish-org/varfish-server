@@ -6,6 +6,9 @@ import { useCaseDetailsStore } from '@cases/stores/case-details.js'
 
 import queryPresetsApi from '@variants/api/queryPresets.js'
 
+/** Define emits. */
+const emit = defineEmits(['editQueryPresetsClick'])
+
 const casesStore = useCasesStore()
 const caseDetailsStore = useCaseDetailsStore()
 
@@ -42,10 +45,22 @@ watch(
     class="card mb-3 flex-grow-1"
     style="overflow-y: auto !important; max-height: 300px"
   >
-    <h5 class="card-header p-2 pl-2">
-      <i-mdi-filter />
-      Query Related
-    </h5>
+    <div class="row card-header p-2 pl-2">
+      <h5 class="col-auto ml-0 mr-0 mb-0">
+        <i-mdi-filter />
+        Query Related
+      </h5>
+      <div class="btn-group ml-auto">
+        <a
+          class="btn btn-sm btn-primary"
+          href="#"
+          @click.prevent="emit('editQueryPresetsClick')"
+        >
+          <i-mdi-square-edit-outline />
+          Edit Query Presets
+        </a>
+      </div>
+    </div>
     <ul class="list-group list-group-flush" v-if="caseDetailsStore.caseObj">
       <li class="list-group-item pl-0">
         <div class="row">

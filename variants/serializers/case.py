@@ -123,15 +123,32 @@ class CoreCaseSerializerMixin:
 
 
 class CasePhenotypeTermsSerializer(SODARModelSerializer):
+    #: Serialize the case as its SODAR UUID.
+    case = serializers.ReadOnlyField(source="case.sodar_uuid")
+    #: The phenotype terms.
     terms = serializers.JSONField()
+
+    def create(self, validated_data):
+        """Make case writeable (only) on creation."""
+        validated_data["case"] = self.context["case"]
+        return super().create(validated_data)
 
     class Meta:
         model = CasePhenotypeTerms
         fields = (
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "case",
             "individual",
             "terms",
         )
-        read_only_fields = fields
+        read_only_fields = (
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "case",
+        )
 
 
 class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):

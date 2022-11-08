@@ -8,8 +8,17 @@ import {
   formatLargeInt,
 } from '@varfish/helpers.js'
 import { useCaseDetailsStore } from '@cases/stores/case-details'
+import { useCasesStore } from '@cases/stores/cases.js'
+
+/** Define emits. */
+const emit = defineEmits(['editCaseStatusClick', 'editCaseNotesClick'])
 
 const caseDetailsStore = useCaseDetailsStore()
+const casesStore = useCasesStore()
+
+/** Whether the user has the given permissions. */
+const userHasPerms = (perm) =>
+  casesStore.userPerms && casesStore.userPerms.includes(perm)
 
 const caseObj = computed(() => {
   if (caseDetailsStore.caseObj) {
@@ -38,10 +47,30 @@ const badgeStatusColor = computed(() => {
 
 <template>
   <div class="card mb-3 varfish-case-list-card flex-grow-1">
-    <h5 class="card-header p-2 pl-2">
-      <i-mdi-card-account-details-outline />
-      Case Details
-    </h5>
+    <div class="row card-header p-2 pl-2">
+      <h5 class="col-auto ml-0 mr-0 mb-0">
+        <i-mdi-card-account-details-outline />
+        Case Details
+      </h5>
+      <div class="btn-group ml-auto">
+        <a
+          class="btn btn-sm btn-primary"
+          href="#"
+          @click.prevent="emit('editCaseStatusClick')"
+        >
+          <i-mdi-square-edit-outline />
+          Edit Status
+        </a>
+        <a
+          class="btn btn-sm btn-primary"
+          href="#"
+          @click.prevent="emit('editCaseNotesClick')"
+        >
+          <i-mdi-playlist-edit />
+          Edit Notes
+        </a>
+      </div>
+    </div>
     <ul class="list-group list-group-flush">
       <li class="list-group-item pl-0">
         <div class="row">
@@ -80,7 +109,7 @@ const badgeStatusColor = computed(() => {
           <span class="col-3 text-nowrap font-weight-bold">
             Status, Notes, &amp; Tags
           </span>
-          <span class="col-3">
+          <span class="col-9">
             <h4>
               <span class="badge" :class="badgeStatusColor">
                 {{ caseObj.status }}

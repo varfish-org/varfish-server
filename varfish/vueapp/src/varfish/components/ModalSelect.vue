@@ -157,7 +157,6 @@ defineExpose({ show, hide })
               v-model="v$.inputValue.$model"
               :id="'modal-input-' + idSuffix"
             >
-              <option :value="null">Factory Presets</option>
               <option
                 v-for="item in propsCopy.options"
                 :key="item.value"

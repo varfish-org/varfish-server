@@ -1,6 +1,6 @@
 <script setup>
 /**
- * A simple component for showing a modal dialogue for entering a single value.
+ * A component for showing a modal to edit pedigrees.
  *
  * You can configure it either by setting the props or handing the props to the show() method.
  *
@@ -9,25 +9,19 @@
  * function will be passed the input and the "props.extraData" value.
  */
 
-import { onMounted, computed, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 
-import ModalBase from './ModalBase.vue'
-import { randomString } from '../common.js'
 import { useVuelidate } from '@vuelidate/core'
-import { copy } from '@varfish/helpers'
+
+import ModalBase from '@varfish/components/ModalBase.vue'
+import ModalPedigreeEditorRow from './ModalPedigreeEditorRow.vue'
+import { randomString } from '@varfish/common.js'
+import { copy } from '@varfish/helpers.js'
 
 const props = defineProps({
   title: {
     type: String,
     default: 'Please Enter',
-  },
-  label: {
-    type: String,
-    default: null,
-  },
-  helpText: {
-    type: String,
-    default: null,
   },
   noHeader: {
     type: Boolean,
@@ -37,28 +31,14 @@ const props = defineProps({
     type: String,
     default: randomString(),
   },
-  defaultValue: {
-    type: String,
-    default: '',
-  },
-  rules: {
+  modelValue: {
     type: Array,
-    default: () => [],
+    default: [],
   },
-  placeholderValue: {
+  modalClass: {
     type: String,
-    default: null,
+    default: 'modal-xl',
   },
-  extraData: {
-    type: Object,
-    default: null,
-  },
-  widget: {
-    // can also be "textarea"
-    type: String,
-    default: 'input',
-  },
-  modalClass: String,
 })
 
 /** Define the emits. */
@@ -80,21 +60,10 @@ const resolveRef = ref(null)
 // /** Ref to the reject function promise returned by show(). */
 // const rejectRef = ref(null)
 
-/** Value from the input. */
-const formState = reactive({
-  inputValue: '',
-})
-
-/** Computed value for the rules, so we can react to props/propsCopy changes. */
-const rules = computed(() => {
-  return propsCopy.value?.rules || []
-})
-
 /** Reset the inner state. */
 const reset = () => {
   promiseCompleted.value = false
   resolveRef.value = null
-  formState.inputValue = propsCopy.value?.defaultValue ?? props.defaultValue
   // rejectRef.value = null
 }
 
@@ -102,7 +71,7 @@ const reset = () => {
 const show = (args) => {
   propsCopy.value = reactive({
     ...props,
-    ...args,
+    ...copy(args),
   })
   reset()
   innerModalRef.value.show()
@@ -122,8 +91,8 @@ const onConfirm = () => {
   if (!promiseCompleted.value) {
     // don't handle twice
     promiseCompleted.value = true
-    resolveRef.value(formState.inputValue, propsCopy.value.extraData)
-    emit('confirm', formState.inputValue, propsCopy.value.extraData)
+    resolveRef.value(propsCopy.value.modelValue)
+    emit('confirm', propsCopy.value.modelValue)
     hide()
   }
 }
@@ -138,12 +107,11 @@ const onCancel = () => {
   }
 }
 
-/** Create vuelidate object. */
-const v$ = useVuelidate({ inputValue: rules }, formState)
+// /** Create vuelidate object. */
+const v$ = useVuelidate()
 
 /** Initialize form value and vuelidate. */
 onMounted(() => {
-  // formState.inputValue = propsCopy.value?.defaultValue ?? props.defaultValue
   v$.value.$touch()
 })
 
@@ -159,52 +127,29 @@ defineExpose({ show, hide })
     @close="onCancel"
   >
     <template #default>
-      <div class="row">
-        <div class="col">
-          <div class="form-group">
-            <template v-if="propsCopy.widget === 'textarea'">
-              <label v-if="propsCopy.label" :for="'modal-textarea-' + idSuffix">
-                {{ propsCopy.label }}
-              </label>
-              <textarea
-                class="form-control"
-                v-model.lazy="v$.inputValue.$model"
-                :id="'modal-textarea-' + idSuffix"
-                :placeholder="placeholderValue"
-                rows="5"
-                required
-              ></textarea>
-            </template>
-            <template v-else>
-              <label v-if="propsCopy.label" :for="'modal-input-' + idSuffix">
-                {{ propsCopy.label }}
-              </label>
-              <input
-                type="text"
-                class="form-control"
-                v-model.trim.lazy="v$.inputValue.$model"
-                :class="{
-                  'form-control is-valid': !v$.inputValue.$error,
-                  'form-control is-invalid': v$.inputValue.$error,
-                }"
-                :id="'modal-input-' + idSuffix"
-                :placeholder="placeholderValue"
-                required
-              />
-            </template>
-            <div
-              v-for="error of v$.inputValue.$errors"
-              :key="error.$uid"
-              class="invalid-feedback"
-            >
-              {{ error.$message }}
-            </div>
-            <small v-if="propsCopy.helpText" class="form-text text-muted">
-              {{ propsCopy.helpText }}
-            </small>
-          </div>
-        </div>
-      </div>
+      <table class="table table-striped table-condensed">
+        <thead>
+          <tr>
+            <th style="width: 20%">Name</th>
+            <th style="width: 25%">Father</th>
+            <th style="width: 25%">Mother</th>
+            <th style="width: 15%">Sex</th>
+            <th style="width: 15%">Affected</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="(_row, index) in propsCopy.modelValue">
+            <ModalPedigreeEditorRow
+              :name="propsCopy.modelValue[index].name"
+              :pedigree="propsCopy.modelValue"
+              v-model:father="propsCopy.modelValue[index].father"
+              v-model:mother="propsCopy.modelValue[index].mother"
+              v-model:sex="propsCopy.modelValue[index].sex"
+              v-model:affected="propsCopy.modelValue[index].affected"
+            />
+          </template>
+        </tbody>
+      </table>
     </template>
     <template #footer>
       <div class="ml-auto">

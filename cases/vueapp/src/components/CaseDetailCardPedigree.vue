@@ -5,15 +5,35 @@ import { displayName } from '@varfish/helpers.js'
 import { useCaseDetailsStore } from '@cases/stores/case-details'
 import { useCasesStore } from '../stores/cases'
 
+/** Define emits. */
+const emit = defineEmits(['editPedigreeClick'])
+
+const casesStore = useCasesStore()
+
+const userHasPerms = (perm) =>
+  casesStore.userPerms && casesStore.userPerms.includes(perm)
+
 const caseDetailsStore = useCaseDetailsStore()
 </script>
 
 <template>
   <div class="card mb-3 varfish-case-list-card flex-grow-1">
-    <h5 class="card-header p-2 pl-2">
-      <i-mdi-family-tree />
-      Pedigree
-    </h5>
+    <div class="row card-header p-2 pl-2">
+      <h5 class="col-auto ml-0 mr-0 mb-0">
+        <i-mdi-family-tree />
+        Pedigree
+      </h5>
+      <div v-if="userHasPerms('cases.update_case')" class="btn-group ml-auto">
+        <a
+          class="btn btn-sm btn-primary"
+          href="#"
+          @click.prevent="emit('editPedigreeClick')"
+        >
+          <i-mdi-file-document-edit />
+          Edit Pedigree
+        </a>
+      </div>
+    </div>
     <table class="table table-striped table-hover">
       <thead>
         <tr>
