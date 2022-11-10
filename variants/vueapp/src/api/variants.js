@@ -81,4 +81,12 @@ export default {
     )
     return await response.json()
   },
+  async listCaseVariantsUserAnnotated(csrfToken, caseUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/smallvariant/user-annotated-case/${caseUuid}/`,
+      'GET'
+    )
+    return await response.json()
+  },
 }

@@ -53,7 +53,7 @@ const showModal = ({ gridRow, gridApi, smallVariant }) => {
   smallVariantDetailsModalWrapperRef.value.showModal()
   variantDetailsStore.fetchVariantDetails(
     { gridRow, gridApi, smallVariant },
-    filterQueryStore.previousQueryDetails
+    filterQueryStore.previousQueryDetails.query_settings.database_select
   )
 }
 

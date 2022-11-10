@@ -379,8 +379,8 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
         storeState.value = StoreState.active
       })
       .catch((err) => {
-        serverInteractions.value -= 1
         console.error('Problem initializing filterQuery store', err)
+        serverInteractions.value -= 1
         storeState.value = StoreState.error
       })
 

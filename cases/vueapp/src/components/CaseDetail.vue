@@ -21,7 +21,7 @@ const casesStore = useCasesStore()
 const caseDetailsStore = useCaseDetailsStore()
 
 /** Whether to show the overlay. */
-const overlayShow = computed(() => casesStore.serverInteraction > 0)
+const overlayShow = computed(() => casesStore.serverInteractions > 0)
 
 /** The currently used route. */
 const route = useRoute()

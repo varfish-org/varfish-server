@@ -26,14 +26,14 @@ describe('QcTableVarStats.vue', () => {
   })
 
   test('test with data data', async () => {
-    const varStats = Object.entries(
-      caseDetailsStoreData.caseObj.casevariantstats
-    ).map(([name, stats]) => {
-      return {
-        sample_name: name,
-        ...stats,
+    const varStats = Object.entries(caseDetailsStoreData.caseVariantStats).map(
+      ([name, stats]) => {
+        return {
+          sample_name: name,
+          ...stats,
+        }
       }
-    })
+    )
     const wrapper = makeWrapper(varStats)
 
     expect(wrapper.findAll('table').length).toBe(1)

@@ -44,7 +44,7 @@ describe('CaseDetailContent.vue', () => {
 
     expect(wrapper.html()).not.matches(/<case-detail-pane-case-stub/)
     expect(wrapper.html()).matches(/<case-detail-pane-qc-stub/)
-    expect(wrapper.html()).not.matches(/CaseVariantAnnotation/)
+    expect(wrapper.html()).not.matches(/<case-detail-pane-annotations-stub/)
   })
 
   test('test click quality control, then overview', async () => {
@@ -62,7 +62,7 @@ describe('CaseDetailContent.vue', () => {
 
     expect(wrapper.html()).matches(/<case-detail-pane-case-stub/)
     expect(wrapper.html()).not.matches(/<case-detail-pane-qc-stub/)
-    expect(wrapper.html()).not.matches(/CaseVariantAnnotation/)
+    expect(wrapper.html()).not.matches(/<case-detail-pane-annotations-stub/)
   })
 
   test('test click variant annotation', async () => {
@@ -79,6 +79,6 @@ describe('CaseDetailContent.vue', () => {
 
     expect(wrapper.html()).not.matches(/<case-detail-pane-case-stub/)
     expect(wrapper.html()).not.matches(/<case-detail-pane-qc-stub/)
-    expect(wrapper.html()).matches(/CaseVariantAnnotation/)
+    expect(wrapper.html()).matches(/<case-detail-pane-annotations-stub/)
   })
 })

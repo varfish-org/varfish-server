@@ -1,10 +1,25 @@
 import { apiFetch } from '@varfish/api-utils.js'
 
 export default {
-  async listCase(csrfToken, projectUuid) {
+  async listCase(csrfToken, projectUuid, { pageNo, pageSize, queryString }) {
+    let queryArr = []
+    if (pageNo !== undefined) {
+      queryArr.push(`page=${pageNo + 1}`)
+    }
+    if (pageSize !== undefined) {
+      queryArr.push(`page_size=${pageSize}`)
+    }
+    if (
+      queryString !== undefined &&
+      queryString !== null &&
+      queryString.length > 0
+    ) {
+      queryArr.push(`q=${queryString}`)
+    }
+    const queryStr = queryArr.length ? '?' + queryArr.join('&') : ''
     const response = await apiFetch(
       csrfToken,
-      `/cases/ajax/case/list/${projectUuid}/`
+      `/cases/ajax/case/list/${projectUuid}/${queryStr}`
     )
     return await response.json()
   },
@@ -12,7 +27,7 @@ export default {
   async updateCase(csrfToken, caseUuid, payload) {
     const response = await apiFetch(
       csrfToken,
-      `/cases/ajax/case/update/${caseUuid}/`,
+      `/cases/ajax/case/retrieve-update/${caseUuid}/`,
       'PATCH',
       payload
     )
@@ -139,6 +154,22 @@ export default {
     )
   },
 
+  async fetchAnnotationReleaseInfos(csrfToken, caseUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/api/annotation-release-info/list/${caseUuid}/`
+    )
+    return await response.json()
+  },
+
+  async fetchSvAnnotationReleaseInfos(csrfToken, caseUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/api/sv-annotation-release-info/list/${caseUuid}/`
+    )
+    return await response.json()
+  },
+
   async fetchCaseGeneAnnotation(csrfToken, caseUuid) {
     const response = await apiFetch(
       csrfToken,
@@ -147,10 +178,34 @@ export default {
     return await response.json()
   },
 
+  async fetchCaseAlignmentStats(csrfToken, caseUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/api/case-alignment-stats/list/${caseUuid}/`
+    )
+    return await response.json()
+  },
+
+  async fetchCaseVariantStats(csrfToken, caseUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/api/case-variant-stats/list/${caseUuid}/`
+    )
+    return await response.json()
+  },
+
+  async fetchCaseRelatedness(csrfToken, caseUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/api/case-relatedness/list/${caseUuid}/`
+    )
+    return await response.json()
+  },
+
   async fetchPermissions(csrfToken, projectUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/cases/ajax/user-permissions/${projectUuid}`
+      `/cases/ajax/user-permissions/${projectUuid}/`
     )
     return await response.json()
   },

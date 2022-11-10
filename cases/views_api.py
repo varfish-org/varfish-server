@@ -6,16 +6,44 @@ from projectroles.views_api import (
 from rest_framework.generics import (
     ListAPIView,
     ListCreateAPIView,
+    RetrieveUpdateAPIView,
     RetrieveUpdateDestroyAPIView,
-    UpdateAPIView,
     get_object_or_404,
 )
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import BasePermission
 
-from cases.serializers import CaseCommentSerializer, CaseGeneAnnotationSerializer
+from cases.serializers import (
+    CaseAlignmentStatsSerializer,
+    CaseCommentSerializer,
+    CaseGeneAnnotationSerializer,
+    CaseSerializer,
+    PedigreeRelatednessSerializer,
+    SampleVariantStatisticsSerializer,
+)
+from svs.models import SvAnnotationReleaseInfo
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
-from variants.models import Case, CaseComments, CaseGeneAnnotationEntry, CasePhenotypeTerms
-from variants.serializers import CasePhenotypeTermsSerializer, CaseSerializer
+from variants.models import (
+    AnnotationReleaseInfo,
+    Case,
+    CaseAlignmentStats,
+    CaseComments,
+    CaseGeneAnnotationEntry,
+    CasePhenotypeTerms,
+    PedigreeRelatedness,
+    SampleVariantStatistics,
+)
+from variants.serializers import (
+    AnnotationReleaseInfoSerializer,
+    CasePhenotypeTermsSerializer,
+    SvAnnotationReleaseInfoSerializer,
+)
+
+
+class CasePagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 1000
 
 
 class CaseListApiView(SODARAPIBaseProjectMixin, ListAPIView):
@@ -35,8 +63,15 @@ class CaseListApiView(SODARAPIBaseProjectMixin, ListAPIView):
     versioning_class = VarfishApiVersioning
     serializer_class = CaseSerializer
 
+    pagination_class = CasePagination
+
     def get_queryset(self):
-        return Case.objects.filter(project__sodar_uuid=self.kwargs["project"])
+        # Use ``select_related()`` so we do not have to explicitely fetch projects and preset sets for serializing as
+        # projects.sodar_uuid and presetset.sodar_uuid.
+        qs = Case.objects.filter(project__sodar_uuid=self.kwargs["project"])
+        if self.request.GET.get("q"):
+            qs = qs.filter(name__icontains=self.request.GET.get("q"))
+        return qs.select_related("project", "presetset")
 
     def get_permission_required(self):
         return "cases.view_data"
@@ -65,7 +100,7 @@ class CaseApiBaseMixin(SODARAPIBaseMixin):
         return "cases.view_data"
 
 
-class CaseUpdateApiView(CaseApiBaseMixin, UpdateAPIView):
+class CaseRetrieveUpdateApiView(CaseApiBaseMixin, RetrieveUpdateAPIView):
     """
     Update a given case.
 
@@ -82,7 +117,60 @@ class CaseUpdateApiView(CaseApiBaseMixin, UpdateAPIView):
         return Case.objects.all()
 
     def get_permission_required(self):
-        return "cases.update_case"
+        if self.request.method == "GET":
+            return "cases.view_data"
+        else:
+            return "cases.update_case"
+
+
+class AnnotationReleaseInfoApiView(CaseApiBaseMixin, ListAPIView):
+    """List annotation release infos for a given case.
+
+    **URL:** ``/cases/api/annotation-release-info/list/{case.sodar_uuid}``
+
+    **Methods:** ``GET``
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "case"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    permission_classes = [CasesApiPermission]
+
+    serializer_class = AnnotationReleaseInfoSerializer
+
+    def get_queryset(self):
+        return AnnotationReleaseInfo.objects.filter(case__sodar_uuid=self.kwargs["case"])
+
+    def get_permission_required(self):
+        return "cases.view_data"
+
+
+class SvAnnotationReleaseInfoApiView(CaseApiBaseMixin, ListAPIView):
+    """List SVannotation release infos for a given case.
+
+    **URL:** ``/cases/api/sv-annotation-release-info/list/{case.sodar_uuid}``
+
+    **Methods:** ``GET``
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "case"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    permission_classes = [CasesApiPermission]
+
+    serializer_class = SvAnnotationReleaseInfoSerializer
+
+    def get_queryset(self):
+        return SvAnnotationReleaseInfo.objects.filter(case__sodar_uuid=self.kwargs["case"])
+
+    def get_permission_required(self):
+        return "cases.view_data"
 
 
 class CasePhenotypeTermsListCreateApiView(CaseApiBaseMixin, ListCreateAPIView):
@@ -281,4 +369,62 @@ class CaseGeneAnnotationListApiView(CaseGeneAnnotationApiMixin, ListAPIView):
     - ``next`` - URL to next page (``str`` or ``null``)
     - ``previous`` - URL to next page (``str`` or ``null``)
     - ``results`` - ``list`` of case small variant query details (see :py:class:`SmallVariantQuery`)
+    """
+
+
+class CaseAlignmentStatsApiMixin(CaseApiBaseMixin):
+    serializer_class = CaseAlignmentStatsSerializer
+
+    def get_queryset(self):
+        return CaseAlignmentStats.objects.filter(case__sodar_uuid=self.kwargs["case"])
+
+
+class CaseAlignmentStatsListApiView(CaseAlignmentStatsApiMixin, ListAPIView):
+    """Retrieve alignment statistics for the given case.
+
+    **URL:** ``/cases/api/case-alignment-stats/list/{case.sodar_uuid}/``
+
+    **Methods:** GET
+
+    **Returns:** List of alignment statistics information.
+    """
+
+
+class SampleVariantStatisticsApiMixin(CaseApiBaseMixin):
+    serializer_class = SampleVariantStatisticsSerializer
+
+    def get_queryset(self):
+        return SampleVariantStatistics.objects.filter(
+            stats__variant_set__case__sodar_uuid=self.kwargs["case"]
+        )
+
+
+class SampleVariantStatisticsListApiView(SampleVariantStatisticsApiMixin, ListAPIView):
+    """Retrieve case variant statistics for the given case.
+
+    **URL:** ``/cases/api/case-variant-stats/list/{case.sodar_uuid}/``
+
+    **Methods:** GET
+
+    **Returns:** List of variant statistics information.
+    """
+
+
+class PedigreeRelatednessApiMixin(CaseApiBaseMixin):
+    serializer_class = PedigreeRelatednessSerializer
+
+    def get_queryset(self):
+        return PedigreeRelatedness.objects.filter(
+            stats__variant_set__case__sodar_uuid=self.kwargs["case"]
+        )
+
+
+class PedigreeRelatednessListApiView(PedigreeRelatednessApiMixin, ListAPIView):
+    """Retrieve relatedness information from the given case.
+
+    **URL:** ``/cases/api/case-relatedness/list/{case.sodar_uuid}/``
+
+    **Methods:** GET
+
+    **Returns:** List of variant
     """

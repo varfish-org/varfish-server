@@ -31,7 +31,7 @@ describe('QcPlotVarType.vue', () => {
   })
 
   test('test with some data', async () => {
-    const caseVariantStats = caseDetailsStoreData.caseObj.casevariantstats
+    const caseVariantStats = caseDetailsStoreData.caseVariantStats
     const wrapper = makeWrapper({
       NA12878: caseVariantStats['NA12878-N1-DNA1-WES1'],
       NA12891: caseVariantStats['NA12891-N1-DNA1-WES1'],

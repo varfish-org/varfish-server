@@ -5,10 +5,11 @@
  *
  * The individual preset categories are editable via child components.
  */
-import { computed, onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import { minLength, required } from '@vuelidate/validators'
 
-import { useQueryPresetsStore } from '../stores/queryPresets.js'
+import { useCasesStore } from '@cases/stores/cases.js'
+import { useQueryPresetsStore } from '@variants/stores/queryPresets.js'
 
 import ModalConfirm from '@varfish/components/ModalConfirm.vue'
 import ModalInput from '@varfish/components/ModalInput.vue'
@@ -58,6 +59,8 @@ const props = defineProps({
   presetSetUuid: String,
 })
 
+/** Access store with cases. */
+const casesStore = useCasesStore()
 /** Access store with query presets. */
 const queryPresetsStore = useQueryPresetsStore()
 
@@ -396,8 +399,15 @@ const handleDeleteClicked = async (category, presetsUuid) => {
 
 /** When mounted, start out with frequency presets. Initialize store if necessary. */
 onBeforeMount(() => {
-  queryPresetsStore.initializeRes.then(() => {
-    handleCategoryClicked('presetset')
+  casesStore.initializeRes.then(() => {
+    queryPresetsStore
+      .initialize(
+        casesStore.appContext.csrf_token,
+        casesStore.appContext.project.sodar_uuid
+      )
+      .then(() => {
+        handleCategoryClicked('presetset')
+      })
   })
 })
 

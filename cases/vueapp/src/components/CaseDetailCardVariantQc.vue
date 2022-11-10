@@ -1,25 +1,18 @@
 <script setup>
-import { useCaseDetailsStore } from '../stores/case-details.js'
+import { useCaseDetailsStore, StoreState } from '../stores/case-details.js'
 import { displayName, formatLargeInt } from '@varfish/helpers.js'
 import { computed } from 'vue'
 
 const caseDetailsStore = useCaseDetailsStore()
 
-const caseVariantStats = computed(() => {
-  if (!caseDetailsStore.caseObj || !caseDetailsStore.caseObj.casevariantstats) {
-    return null
-  } else {
-    return caseDetailsStore.caseObj.casevariantstats
-  }
-})
-
 const tsTv = (member) => {
   // istanbul ignore else
   if (
-    member.name in caseVariantStats.value &&
-    caseVariantStats.value[member.name].ontarget_transversions
+    caseDetailsStore.caseVariantStats &&
+    member.name in caseDetailsStore.caseVariantStats &&
+    caseDetailsStore.caseVariantStats[member.name].ontarget_transversions
   ) {
-    const stats = caseVariantStats.value[member.name]
+    const stats = caseDetailsStore.caseVariantStats[member.name]
     return (stats.ontarget_transitions / stats.ontarget_transversions).toFixed(
       2
     )
@@ -46,23 +39,25 @@ const tsTv = (member) => {
         </tr>
       </thead>
       <tbody>
-        <template v-if="caseVariantStats">
+        <template v-if="caseDetailsStore.storeState === StoreState.active">
           <template v-for="member of caseDetailsStore.caseObj.pedigree">
-            <tr v-if="member.name in caseVariantStats">
+            <tr v-if="member.name in caseDetailsStore.caseVariantStats">
               <td class="font-weight-bold">
                 {{ displayName(member.name) }}
               </td>
               <td class="text-right">
                 {{
                   formatLargeInt(
-                    caseVariantStats[member.name].ontarget_transitions
+                    caseDetailsStore.caseVariantStats[member.name]
+                      .ontarget_transitions
                   )
                 }}
               </td>
               <td class="text-right">
                 {{
                   formatLargeInt(
-                    caseVariantStats[member.name].ontarget_transversions
+                    caseDetailsStore.caseVariantStats[member.name]
+                      .ontarget_transversions
                   )
                 }}
               </td>
@@ -83,7 +78,11 @@ const tsTv = (member) => {
                 {{ tsTv(member) }}
               </td>
               <td class="text-right">
-                {{ caseVariantStats[member.name].chrx_het_hom.toFixed(2) }}
+                {{
+                  caseDetailsStore.caseVariantStats[
+                    member.name
+                  ].chrx_het_hom.toFixed(2)
+                }}
               </td>
             </tr>
             <tr v-else>

@@ -18,11 +18,20 @@ const buildComputedObjToList = (baseValue) => {
   })
 }
 
+export const StoreState = Object.freeze({
+  initial: 'initial',
+  initializing: 'initializing',
+  active: 'active',
+  error: 'error',
+})
+
 export const useCaseDetailsStore = defineStore(
   {
     id: 'caseDetails',
   },
   () => {
+    /** The current application state. */
+    const storeState = ref(StoreState.initial)
     /** UUID of the case that this store holds annotations for. */
     const caseUuid = ref(null)
     /** The case object. */
@@ -58,18 +67,37 @@ export const useCaseDetailsStore = defineStore(
     /** List of all SV comments. */
     const svCommentList = buildComputedObjToList(svComments)
 
+    /** Case alignment stats. */
+    const caseAlignmentStats = ref(null)
+    /** Case variant stats. */
+    const caseVariantStats = ref(null)
+    /** Case relatedness. */
+    const caseRelatedness = ref(null)
+    /** Case phenotype terms. */
+    const casePhenotypeTerms = ref(null)
+    /** Case annotation release infos. */
+    const caseAnnotationReleaseInfos = ref(null)
+    /** Case SV annotation release infos. */
+    const caseSvAnnotationReleaseInfos = ref(null)
+
+    /** Promise for initialization of the store. */
+    const initializeRes = ref(null)
+
     /** Initialize the store for the given case. */
     const initialize = (caseObj$) => {
-      // clear out old values
-      caseObj.value = null
-      caseUuid.value = null
-      varAnnos.value = null
-      svAnnos.value = null
+      if (
+        storeState.value !== 'initial' &&
+        caseObj$.sodar_uuid === caseObj.value.sodar_uuid
+      ) {
+        // only once for each case
+        return initializeRes.value
+      }
 
+      storeState.value = StoreState.initializing
       const casesStore = useCasesStore()
-      casesStore.serverInteraction += 1
+      casesStore.serverInteractions += 1
       const csrfToken = casesStore.appContext.csrf_token
-      Promise.all([
+      initializeRes.value = Promise.all([
         casesApi.listCaseComment(csrfToken, caseObj$.sodar_uuid).then((res) => {
           caseComments.value = res
         }),
@@ -84,27 +112,71 @@ export const useCaseDetailsStore = defineStore(
           .then((res) => {
             geneAnnotations.value = res
           }),
-      ]).then((_res) => {
-        caseObj.value = caseObj$
-        caseUuid.value = caseUuid
-        casesStore.serverInteraction -= 1
-      })
+        casesApi
+          .fetchCaseVariantStats(csrfToken, caseObj$.sodar_uuid)
+          .then((res) => {
+            caseVariantStats.value = Object.fromEntries(
+              res.map((line) => [line.sample_name, line])
+            )
+          }),
+        casesApi
+          .fetchCaseRelatedness(csrfToken, caseObj$.sodar_uuid)
+          .then((res) => {
+            caseRelatedness.value = res
+          }),
+        casesApi
+          .listCasePhenotypeTerms(csrfToken, caseObj$.sodar_uuid)
+          .then((res) => {
+            casePhenotypeTerms.value = res
+          }),
+        casesApi
+          .fetchAnnotationReleaseInfos(csrfToken, caseObj$.sodar_uuid)
+          .then((res) => {
+            caseAnnotationReleaseInfos.value = res
+          }),
+        casesApi
+          .fetchSvAnnotationReleaseInfos(csrfToken, caseObj$.sodar_uuid)
+          .then((res) => {
+            caseSvAnnotationReleaseInfos.value = res
+          }),
+        casesApi
+          .fetchCaseAlignmentStats(csrfToken, caseObj$.sodar_uuid)
+          .then((res) => {
+            if (res.length > 0) {
+              caseAlignmentStats.value = res[0]
+            } else {
+              caseAlignmentStats.value = null
+            }
+          }),
+      ])
+        .then(() => {
+          caseObj.value = caseObj$
+          caseUuid.value = caseUuid
+          casesStore.serverInteractions -= 1
+          storeState.value = StoreState.active
+        })
+        .catch((err) => {
+          console.error('Problem initializing casesStore store', err)
+          casesStore.serverInteractions -= 1
+          storeState.value = StoreState.error
+        })
+
+      return initializeRes.value
     }
 
     /** Update the case with the given data. */
     const updateCase = async (payload) => {
       const casesStore = useCasesStore()
       const csrfToken = casesStore.appContext.csrf_token
-      casesStore.serverInteraction += 1
+      casesStore.serverInteractions += 1
       try {
-        const apiCase = await casesApi.updateCase(
+        caseObj.value = await casesApi.updateCase(
           csrfToken,
           caseObj.value.sodar_uuid,
           payload
         )
-        caseObj.value = apiCase
       } finally {
-        casesStore.serverInteraction -= 1
+        casesStore.serverInteractions -= 1
       }
     }
 
@@ -122,7 +194,7 @@ export const useCaseDetailsStore = defineStore(
     const createCaseComment = async (payload) => {
       const casesStore = useCasesStore()
       const csrfToken = casesStore.appContext.csrf_token
-      casesStore.serverInteraction += 1
+      casesStore.serverInteractions += 1
       try {
         const apiCaseComment = await casesApi.createCaseComment(
           csrfToken,
@@ -131,7 +203,7 @@ export const useCaseDetailsStore = defineStore(
         )
         caseComments.value.push(apiCaseComment)
       } finally {
-        casesStore.serverInteraction -= 1
+        casesStore.serverInteractions -= 1
       }
     }
 
@@ -139,7 +211,7 @@ export const useCaseDetailsStore = defineStore(
     const updateCaseComment = async (caseCommentUuid, payload) => {
       const casesStore = useCasesStore()
       const csrfToken = casesStore.appContext.csrf_token
-      casesStore.serverInteraction += 1
+      casesStore.serverInteractions += 1
       try {
         const apiCaseComment = await casesApi.updateCaseComment(
           csrfToken,
@@ -153,7 +225,7 @@ export const useCaseDetailsStore = defineStore(
           }
         }
       } finally {
-        casesStore.serverInteraction -= 1
+        casesStore.serverInteractions -= 1
       }
     }
 
@@ -161,7 +233,7 @@ export const useCaseDetailsStore = defineStore(
     const destroyCaseComment = async (caseCommentUuid) => {
       const casesStore = useCasesStore()
       const csrfToken = casesStore.appContext.csrf_token
-      casesStore.serverInteraction += 1
+      casesStore.serverInteractions += 1
       try {
         await casesApi.destroyCaseComment(csrfToken, caseCommentUuid)
         for (let i = 0; i < caseComments.value.length; ++i) {
@@ -171,7 +243,7 @@ export const useCaseDetailsStore = defineStore(
           }
         }
       } finally {
-        casesStore.serverInteraction -= 1
+        casesStore.serverInteractions -= 1
       }
     }
 
@@ -191,7 +263,7 @@ export const useCaseDetailsStore = defineStore(
     ) => {
       const casesStore = useCasesStore()
       const csrfToken = casesStore.appContext.csrf_token
-      casesStore.serverInteraction += 1
+      casesStore.serverInteractions += 1
       try {
         const apiCasePhenotypeTerms = await casesApi.updateCasePhenotypeTerms(
           csrfToken,
@@ -208,7 +280,7 @@ export const useCaseDetailsStore = defineStore(
           }
         }
       } finally {
-        casesStore.serverInteraction -= 1
+        casesStore.serverInteractions -= 1
       }
     }
 
@@ -216,7 +288,7 @@ export const useCaseDetailsStore = defineStore(
     const createCasePhenotypeTerms = async (caseUuid, payload) => {
       const casesStore = useCasesStore()
       const csrfToken = casesStore.appContext.csrf_token
-      casesStore.serverInteraction += 1
+      casesStore.serverInteractions += 1
       try {
         const apiCasePhenotypeTerms = await casesApi.createCasePhenotypeTerms(
           csrfToken,
@@ -225,11 +297,12 @@ export const useCaseDetailsStore = defineStore(
         )
         caseObj.value.phenotype_terms.push(apiCasePhenotypeTerms)
       } finally {
-        casesStore.serverInteraction -= 1
+        casesStore.serverInteractions -= 1
       }
     }
 
     return {
+      storeState,
       caseObj,
       caseComments,
       geneAnnotations,
@@ -243,6 +316,12 @@ export const useCaseDetailsStore = defineStore(
       svAnnoList,
       svComments,
       svCommentList,
+      caseAlignmentStats,
+      caseVariantStats,
+      caseRelatedness,
+      casePhenotypeTerms,
+      caseAnnotationReleaseInfos,
+      caseSvAnnotationReleaseInfos,
       initialize,
       updateCase,
       getCaseComment,

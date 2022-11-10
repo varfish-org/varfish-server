@@ -569,6 +569,8 @@ class CaseComments(models.Model):
 class CaseAlignmentStats(models.Model):
     """Store alignment information about alignment statistics for a case."""
 
+    # TODO: add sodar_uuid, date_modified, date_created?
+
     #: Reference to the case.
     case = models.ForeignKey(Case, on_delete=models.CASCADE, null=False)
     #: Reference to the small variant set.

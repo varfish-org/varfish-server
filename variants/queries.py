@@ -7,10 +7,10 @@ import typing
 import attr
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from sqlalchemy import Table, column, delete, literal_column, true, tuple_, union
+from sqlalchemy import Table, column, delete, literal_column, true, tuple_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.dialects.postgresql.array import OVERLAP
-from sqlalchemy.sql import and_, cast, func, not_, or_, select
+from sqlalchemy.sql import and_, cast, func, not_, or_, select, union
 from sqlalchemy.sql.functions import GenericFunction, ReturnTypeFromArgs
 from sqlalchemy.types import VARCHAR, Float, Integer
 import sqlparse
@@ -78,6 +78,7 @@ class QueryParts:
 
 
 def small_variant_query(_self, kwargs):
+    database = kwargs.get("database_select", "refseq")
     return QueryParts(
         fields=[
             SmallVariant.sa.id,
@@ -112,21 +113,15 @@ def small_variant_query(_self, kwargs):
             (SmallVariant.sa.ensembl_effect != SmallVariant.sa.refseq_effect).label(
                 "effect_ambiguity"
             ),
-            getattr(SmallVariant.sa, "%s_hgvs_p" % kwargs["database_select"], None).label("hgvs_p"),
-            getattr(SmallVariant.sa, "%s_hgvs_c" % kwargs["database_select"], None).label("hgvs_c"),
-            getattr(
-                SmallVariant.sa, "%s_transcript_coding" % kwargs["database_select"], None
-            ).label("transcript_coding"),
-            getattr(SmallVariant.sa, "%s_effect" % kwargs["database_select"], None).label("effect"),
-            getattr(SmallVariant.sa, "%s_gene_id" % kwargs["database_select"], None).label(
-                "gene_id"
+            getattr(SmallVariant.sa, "%s_hgvs_p" % database, None).label("hgvs_p"),
+            getattr(SmallVariant.sa, "%s_hgvs_c" % database, None).label("hgvs_c"),
+            getattr(SmallVariant.sa, "%s_transcript_coding" % database, None).label(
+                "transcript_coding"
             ),
-            getattr(SmallVariant.sa, "%s_transcript_id" % kwargs["database_select"], None).label(
-                "transcript_id"
-            ),
-            getattr(SmallVariant.sa, "%s_exon_dist" % kwargs["database_select"], None).label(
-                "exon_dist"
-            ),
+            getattr(SmallVariant.sa, "%s_effect" % database, None).label("effect"),
+            getattr(SmallVariant.sa, "%s_gene_id" % database, None).label("gene_id"),
+            getattr(SmallVariant.sa, "%s_transcript_id" % database, None).label("transcript_id"),
+            getattr(SmallVariant.sa, "%s_exon_dist" % database, None).label("exon_dist"),
             # Required to retrieve ExAC constraints in variant details that just operate on the ensembl transcript id.
             SmallVariant.sa.ensembl_transcript_id,
         ],
@@ -136,10 +131,13 @@ def small_variant_query(_self, kwargs):
 
 
 class ExtendQueryPartsBase:
+    DEFAULT_TRANSCRIPT_DB = "refseq"
+
     def __init__(self, kwargs, case, query_id=None):
         self.kwargs = kwargs
         self.query_id = query_id
         self.case = case
+        self.transcript_db = self.kwargs.get("database_select", self.DEFAULT_TRANSCRIPT_DB)
 
     def extend(self, query_parts):
         return QueryParts(
@@ -160,15 +158,19 @@ class ExtendQueryPartsBase:
         return ()
 
 
-def same_variant(lhs, rhs):
+def same_variant_nosa(lhs, rhs):
     return and_(
-        lhs.sa.release == rhs.sa.release,
-        lhs.sa.chromosome == rhs.sa.chromosome,
-        lhs.sa.start == rhs.sa.start,
-        lhs.sa.end == rhs.sa.end,
-        lhs.sa.reference == rhs.sa.reference,
-        lhs.sa.alternative == rhs.sa.alternative,
+        lhs.release == rhs.release,
+        lhs.chromosome == rhs.chromosome,
+        lhs.start == rhs.start,
+        lhs.end == rhs.end,
+        lhs.reference == rhs.reference,
+        lhs.alternative == rhs.alternative,
     )
+
+
+def same_variant(lhs, rhs):
+    return same_variant_nosa(lhs.sa, rhs.sa)
 
 
 class ExtendQueryPartsDbsnpJoin(ExtendQueryPartsBase):
@@ -207,7 +209,7 @@ class ExtendQueryPartsDbsnpJoinAndFilter(ExtendQueryPartsDbsnpJoin):
 class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.kwargs["database_select"] == "refseq":
+        if self.transcript_db == "refseq":
             self.subquery_refseqtohgnc = (
                 select([func.max(RefseqToHgnc.sa.hgnc_id).label("hgnc_id")])
                 .select_from(RefseqToHgnc.sa)
@@ -243,7 +245,7 @@ class ExtendQueryPartsHgncJoin(ExtendQueryPartsBase):
         )
 
     def extend_selectable(self, query_parts):
-        if self.kwargs["database_select"] == "refseq":
+        if self.transcript_db == "refseq":
             query_parts = query_parts.selectable.outerjoin(self.subquery_refseqtohgnc, true())
         return query_parts.selectable.outerjoin(self.subquery_hgnc, true())
 
@@ -297,11 +299,11 @@ class ExtendQueryPartsHgncAndConservationJoin(ExtendQueryPartsHgncJoin):
 class ExtendQueryPartsGeneSymbolJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.kwargs["database_select"] == "refseq":
+        if self.transcript_db == "refseq":
             table = RefseqToGeneSymbol
             group = table.sa.entrez_id
             link = group == SmallVariant.sa.refseq_gene_id
-        else:  # if self.kwargs["database_select"] == "ensembl"
+        else:  # if self.transcript_db == "ensembl"
             table = EnsemblToGeneSymbol
             group = table.sa.ensembl_gene_id
             link = group == SmallVariant.sa.ensembl_gene_id
@@ -341,7 +343,7 @@ class ExtendQueryPartsMgiJoin(ExtendQueryPartsBase):
 class ExtendQueryPartsAcmgJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.kwargs["database_select"] == "refseq":
+        if self.transcript_db == "refseq":
             group = Acmg.sa.entrez_id
             link = SmallVariant.sa.refseq_gene_id == group
         else:
@@ -499,12 +501,12 @@ class ExtendQueryPartsHgmdJoin(ExtendQueryPartsBase):
 
 class ExtendQueryPartsHgmdJoinAndFilter(ExtendQueryPartsHgmdJoin):
     def extend_conditions(self, _query_parts):
-        if self.kwargs["require_in_hgmd_public"]:
+        if self.kwargs.get("require_in_hgmd_public"):
             return [column("hgmd_public_overlap") > 0]
         return []
 
 
-class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsBase):
+class ExtendQueryPartsCaseJoin(ExtendQueryPartsBase):
     #: The model to retrieve the set ids from.
     model_set = SmallVariantSet
 
@@ -514,6 +516,11 @@ class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsBase):
     def extend_fields(self, _query_parts):
         return [Case.sa.sodar_uuid.label("case_uuid"), Case.sa.name.label("family_name")]
 
+    def extend_selectable(self, query_parts):
+        return query_parts.selectable.outerjoin(Case.sa, self.model.sa.case_id == Case.sa.id)
+
+
+class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsCaseJoin):
     def extend_conditions(self, _query_parts):
         condition = []
         set_ = (
@@ -527,9 +534,6 @@ class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsBase):
             and_(self.model.sa.case_id == self.case.id, self.model.sa.set_id == set_.id)
         )
         return [or_(*condition)]
-
-    def extend_selectable(self, query_parts):
-        return query_parts.selectable.outerjoin(Case.sa, self.model.sa.case_id == Case.sa.id)
 
 
 class ExtendQueryPartsGenotypeBase(ExtendQueryPartsBase):
@@ -988,7 +992,7 @@ class ExtendQueryPartsEffectsFilter(ExtendQueryPartsBase):
     def extend_conditions(self, _query_parts):
         return [
             OVERLAP(
-                getattr(SmallVariant.sa, "%s_effect" % self.kwargs["database_select"]),
+                getattr(SmallVariant.sa, "%s_effect" % self.transcript_db),
                 cast(self.kwargs["effects"], ARRAY(VARCHAR())),
             )
         ]
@@ -999,14 +1003,12 @@ class ExtendQueryPartsExonDistanceFilter(ExtendQueryPartsBase):
         exon_dist = self.kwargs.get("max_exon_dist")
         if exon_dist is None:
             return []
-        return [
-            getattr(SmallVariant.sa, "%s_exon_dist" % self.kwargs["database_select"]) <= exon_dist
-        ]
+        return [getattr(SmallVariant.sa, "%s_exon_dist" % self.transcript_db) <= exon_dist]
 
 
 class ExtendQueryPartsTranscriptCodingFilter(ExtendQueryPartsBase):
     def extend_conditions(self, _query_parts):
-        field = getattr(SmallVariant.sa, "%s_transcript_coding" % self.kwargs["database_select"])
+        field = getattr(SmallVariant.sa, "%s_transcript_coding" % self.transcript_db)
         terms = []
         if not self.kwargs["transcripts_coding"]:
             terms.append(field == False)  # noqa: E712
@@ -1064,7 +1066,7 @@ def normalize_chrom(chrom, release):
 class ExtendQueryPartsGenomicRegionFilter(ExtendQueryPartsBase):
     def extend_conditions(self, _query_parts):
         case = self._case_for_release()
-        if self.kwargs["genomic_region"]:
+        if self.kwargs.get("genomic_region"):
             return [
                 or_(
                     *[
@@ -1329,9 +1331,9 @@ class ExtendQueryPartsAcmgCriteriaJoin(ExtendQueryPartsBase):
 class ExtendQueryPartsModesOfInheritanceJoin(ExtendQueryPartsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.kwargs["database_select"] == "refseq":
+        if self.transcript_db == "refseq":
             gene_id = GeneIdToInheritance.sa.entrez_id
-        else:  # self.kwargs["database_select"] == "ensembl"
+        else:  # self.transcript_db == "ensembl"
             gene_id = GeneIdToInheritance.sa.ensembl_gene_id
         self.subquery = (
             select(
@@ -1342,9 +1344,7 @@ class ExtendQueryPartsModesOfInheritanceJoin(ExtendQueryPartsBase):
                 ]
             )
             .select_from(GeneIdToInheritance.sa)
-            .where(
-                getattr(SmallVariant.sa, "%s_gene_id" % self.kwargs["database_select"]) == gene_id
-            )
+            .where(getattr(SmallVariant.sa, "%s_gene_id" % self.transcript_db) == gene_id)
             .group_by(gene_id)
             .lateral("modes_of_inheritance_subquery")
         )
@@ -1363,18 +1363,15 @@ class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsBase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.kwargs["database_select"] == "refseq":
+        if self.transcript_db == "refseq":
             gene_id = GeneIdInHpo.sa.entrez_id
-        else:  # self.kwargs["database_select"] == "ensembl"
+        else:  # self.transcript_db == "ensembl"
             gene_id = GeneIdInHpo.sa.ensembl_gene_id
 
         self.subquery = (
             select([column("id")])
             .select_from(GeneIdInHpo.sa)
-            .where(
-                getattr(self.gene_id_model.sa, "%s_gene_id" % self.kwargs["database_select"])
-                == gene_id
-            )
+            .where(getattr(self.gene_id_model.sa, "%s_gene_id" % self.transcript_db) == gene_id)
             .lateral("disease_gene_subquery")
         )
 
@@ -1404,7 +1401,7 @@ class ExtendQueryPartsGnomadConstraintsJoin(ExtendQueryPartsBase):
 
     def _build_subquery(self):
         """Build sub query, depending on selected database (refseq/ensembl)."""
-        if self.kwargs["database_select"] == "ensembl":
+        if self.transcript_db == "ensembl":
             return (
                 select(
                     [
@@ -1448,7 +1445,7 @@ class ExtendQueryPartsGnomadConstraintsJoin(ExtendQueryPartsBase):
         return [getattr(self.subquery.c, field).label("gnomad_%s" % field) for field in self.fields]
 
     def extend_selectable(self, query_parts):
-        if self.kwargs["database_select"] == "refseq":
+        if self.transcript_db == "refseq":
             query_parts = query_parts.selectable.outerjoin(self.subquery_refseq_to_ensembl, true())
         return query_parts.selectable.outerjoin(self.subquery, true())
 
@@ -1462,7 +1459,7 @@ class ExtendQueryPartsExacConstraintsJoin(ExtendQueryPartsBase):
 
     def _build_subquery(self):
         """Build sub query, depending on selected database (refseq/ensembl)."""
-        if self.kwargs["database_select"] == "ensembl":
+        if self.transcript_db == "ensembl":
             return (
                 select(
                     [
@@ -1513,9 +1510,41 @@ class ExtendQueryPartsExacConstraintsJoin(ExtendQueryPartsBase):
         return [getattr(self.subquery.c, field).label("exac_%s" % field) for field in self.fields]
 
     def extend_selectable(self, query_parts):
-        if self.kwargs["database_select"] == "refseq":
+        if self.transcript_db == "refseq":
             query_parts = query_parts.selectable.outerjoin(self.subquery_refseq_to_ensembl, true())
         return query_parts.selectable.outerjoin(self.subquery, true())
+
+
+class ExtendQueryPartsUserAnnotatedFilter(ExtendQueryPartsBase):
+    """Extend query parts to only fetch variants that have a user annotation."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fields = ["release", "chromosome", "start", "end", "reference", "alternative"]
+        self.subquery = union(
+            self._union_term(SmallVariantFlags, fields),
+            self._union_term(AcmgCriteriaRating, fields),
+            self._union_term(SmallVariantComment, fields),
+        ).subquery("userannotated")
+
+    def _union_term(self, model, fields):
+        return (
+            select(self._fields_from(model.sa, fields))
+            .select_from(model.sa)
+            .where(and_(model.sa.case_id == self.case.id))
+        )
+
+    def _fields_from(self, sa, fields):
+        return [getattr(sa, field) for field in fields]
+
+    def extend_selectable(self, query_parts):
+        return query_parts.selectable.join(
+            self.subquery,
+            and_(
+                SmallVariant.sa.case_id == self.case.id,
+                same_variant_nosa(self.subquery.c, SmallVariant.sa),
+            ),
+        )
 
 
 #: QueryPartsBuilderExtender classes list for cases.
@@ -1614,6 +1643,32 @@ class CaseLoadPrefetchedQueryPartsBuilder(QueryPartsBuilder):
             ExtendQueryPartsExacConstraintsJoin,
             ExtendQueryPartsInHouseJoinAndFilter,
             ExtendQueryPartsClinvarJoin,
+        ] + get_qp_extender_classes_from_plugins()
+
+
+class CaseLoadUserAnnotatedQueryPartsBuilder(QueryPartsBuilder):
+    def get_qp_extender_classes(self):
+        return [
+            ExtendQueryPartsUserAnnotatedFilter,
+            ExtendQueryPartsAcmgCriteriaJoin,
+            ExtendQueryPartsAcmgJoin,
+            ExtendQueryPartsCaseJoin,
+            ExtendQueryPartsClinvarJoin,
+            ExtendQueryPartsCommentsExtraAnnoJoin,
+            ExtendQueryPartsCommentsJoin,
+            ExtendQueryPartsDbsnpJoin,
+            ExtendQueryPartsDiseaseGeneJoin,
+            ExtendQueryPartsExacConstraintsJoin,
+            ExtendQueryPartsFlagsJoin,
+            ExtendQueryPartsGeneSymbolJoin,
+            ExtendQueryPartsGenomicRegionFilter,
+            ExtendQueryPartsGnomadConstraintsJoin,
+            ExtendQueryPartsHgmdJoinAndFilter,
+            ExtendQueryPartsHgncJoin,
+            ExtendQueryPartsInHouseJoin,
+            ExtendQueryPartsMgiJoin,
+            ExtendQueryPartsMitochondrialFrequenciesJoin,
+            ExtendQueryPartsModesOfInheritanceJoin,
         ] + get_qp_extender_classes_from_plugins()
 
 
@@ -1876,6 +1931,10 @@ class CasePrefetchQuery:
 
 class CaseLoadPrefetchedQuery(CasePrefetchQuery):
     builder = CaseLoadPrefetchedQueryPartsBuilder
+
+
+class CaseLoadUserAnnotatedQuery(CasePrefetchQuery):
+    builder = CaseLoadUserAnnotatedQueryPartsBuilder
 
 
 class CaseExportTableQuery(CasePrefetchQuery):

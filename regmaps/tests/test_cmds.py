@@ -108,7 +108,7 @@ class CollectionImportImplTest(TestCase):
         expected = [
             {
                 "chromosome": "1",
-                "elem_type_id": 2,
+                "elem_type_id": vals[0]["elem_type_id"],
                 "end": 123456,
                 "release": "GRCh37",
                 "score": 1.0,
@@ -116,7 +116,7 @@ class CollectionImportImplTest(TestCase):
             },
             {
                 "chromosome": "1",
-                "elem_type_id": 1,
+                "elem_type_id": vals[1]["elem_type_id"],
                 "end": 223456,
                 "release": "GRCh37",
                 "score": 1.0,

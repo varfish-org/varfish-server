@@ -55,7 +55,7 @@ const relData = computed(() => {
     }
   }
 
-  return caseDetailsStore.caseObj.relatedness.map(
+  return caseDetailsStore.caseRelatedness.map(
     ({ n_ibs0, het_1_2, het_1, het_2, sample1, sample2 }) => {
       const sample0$ = displayName(sample1)
       const sample1$ = displayName(sample2)
@@ -75,7 +75,7 @@ const dpHetData = computed(() => {
   if (!caseDetailsStore.caseObj) {
     return []
   } else {
-    return Object.entries(caseDetailsStore.caseObj.casevariantstats).map(
+    return Object.entries(caseDetailsStore.caseVariantStats).map(
       ([sample, { het_ratio, ontarget_dp_quantiles }]) => {
         return {
           x: ontarget_dp_quantiles[2],
@@ -114,9 +114,9 @@ const chrXHetHomRatio = computed(() => {
   if (!caseDetailsStore.caseObj) {
     return null
   } else {
-    const resultEntries = Object.entries(
-      caseDetailsStore.caseObj.casevariantstats
-    ).map(([name, stats]) => [name, stats.chrx_het_hom])
+    const resultEntries = Object.entries(caseDetailsStore.caseVariantStats).map(
+      ([name, stats]) => [name, stats.chrx_het_hom]
+    )
     return reactive(Object.fromEntries(resultEntries))
   }
 })
@@ -125,7 +125,7 @@ const varStats = computed(() => {
   if (!caseDetailsStore.caseObj) {
     return []
   } else {
-    return Object.entries(caseDetailsStore.caseObj.casevariantstats).map(
+    return Object.entries(caseDetailsStore.caseVariantStats).map(
       ([name, stats]) => {
         return {
           sample_name: displayName(name),
@@ -165,15 +165,9 @@ const varStats = computed(() => {
           :sex-errors="caseObjEntry('sex_errors').value"
           :chr-x-het-hom-ratio="chrXHetHomRatio"
         />
-        <QcPlotVarType
-          :variant-stats="caseObjEntry('casevariantstats').value"
-        />
-        <QcPlotVarEffect
-          :variant-stats="caseObjEntry('casevariantstats').value"
-        />
-        <QcPlotIndelSize
-          :variant-stats="caseObjEntry('casevariantstats').value"
-        />
+        <QcPlotVarType :variant-stats="caseDetailsStore.caseVariantStats" />
+        <QcPlotVarEffect :variant-stats="caseDetailsStore.caseVariantStats" />
+        <QcPlotIndelSize :variant-stats="caseDetailsStore.caseVariantStats" />
 
         <h5 class="mt-3">Variant Quality Control</h5>
 

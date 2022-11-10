@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 
 import CaseDetailPaneCase from './CaseDetailPaneCase.vue'
 import CaseDetailPaneQc from './CaseDetailPaneQc.vue'
+import CaseDetailPaneAnnotations from './CaseDetailPaneAnnotations.vue'
 import { useCaseDetailsStore } from '@cases/stores/case-details'
 
 /** Define emits. */
@@ -51,7 +52,11 @@ defineExpose({
 </script>
 
 <template>
-  <div>
+  <div
+    :class="{
+      'flex-grow-1 d-flex flex-column': currentTab === Tabs.annotation,
+    }"
+  >
     <ul class="nav nav-tabs" id="case-tab" role="tablist">
       <li class="nav-item">
         <a
@@ -134,7 +139,7 @@ defineExpose({
         id="case-list"
         role="tabpanel"
       >
-        CaseVariantAnnotation
+        <CaseDetailPaneAnnotations />
       </div>
     </div>
   </div>
