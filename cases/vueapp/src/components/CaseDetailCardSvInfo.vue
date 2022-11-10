@@ -19,15 +19,8 @@ const caseDetailsStore = useCaseDetailsStore()
         </tr>
       </thead>
       <tbody>
-        <template
-          v-if="
-            caseDetailsStore.caseObj &&
-            caseDetailsStore.caseObj.svannotationreleaseinfo_set.length
-          "
-        >
-          <tr
-            v-for="info in caseDetailsStore.caseObj.svannotationreleaseinfo_set"
-          >
+        <template v-if="caseDetailsStore.caseSvAnnotationReleaseInfos">
+          <tr v-for="info in caseDetailsStore.caseSvAnnotationReleaseInfos">
             <td>{{ info.genomebuild }}</td>
             <td>{{ info.table }}</td>
             <td>{{ info.release }}</td>

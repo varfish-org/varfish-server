@@ -37,7 +37,9 @@ const stateBgColor = (state) => {
           role="progressbar"
           :style="`width: ${(100 * value) / caseCount}%`"
         >
-          {{ value }}/{{ caseCount }} ({{ (100 * value) / caseCount }}%) initial
+          {{ value }}/{{ caseCount }} ({{
+            ((100 * value) / caseCount).toFixed(2)
+          }}%) initial
         </div>
       </template>
     </template>

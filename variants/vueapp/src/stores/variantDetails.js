@@ -86,11 +86,8 @@ export const useVariantDetailsStore = defineStore({
     queryDetails: null,
   }),
   actions: {
-    async fetchVariantDetails(
-      { gridRow, gridApi, smallVariant },
-      previousQueryDetails
-    ) {
-      this.previousQueryDetails = previousQueryDetails
+    async fetchVariantDetails({ gridRow, gridApi, smallVariant }, database) {
+      this.data = database
       this.gridRow = gridRow
       this.gridApi = gridApi
       this.smallVariant = smallVariant
@@ -104,7 +101,7 @@ export const useVariantDetailsStore = defineStore({
       this.editCommentUuid = ''
       this.variantValidatorState = VariantValidatorStates.Initial
       const res = await fetch(
-        `/variants/ajax/small-variant-details/${this.smallVariant.case_uuid}/${this.smallVariant.release}-${this.smallVariant.chromosome}-${this.smallVariant.start}-${this.smallVariant.end}-${this.smallVariant.reference}-${this.smallVariant.alternative}/${this.previousQueryDetails.query_settings.database_select}/${this.smallVariant.gene_id}/`
+        `/variants/ajax/small-variant-details/${this.smallVariant.case_uuid}/${this.smallVariant.release}-${this.smallVariant.chromosome}-${this.smallVariant.start}-${this.smallVariant.end}-${this.smallVariant.reference}-${this.smallVariant.alternative}/${this.database}/${this.smallVariant.gene_id}/`
       )
       if (res.ok) {
         const resJson = await res.json()

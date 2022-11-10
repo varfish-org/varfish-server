@@ -22,8 +22,7 @@ const props = defineProps({
 
 const allTerms = computed(() => {
   let result = []
-  for (const phenotypeTerms of caseDetailsStore?.caseObj?.phenotype_terms ??
-    []) {
+  for (const phenotypeTerms of caseDetailsStore.casePhenotypeTerms ?? []) {
     if (phenotypeTerms?.terms) {
       result = result.concat(phenotypeTerms?.terms)
     }
@@ -87,7 +86,7 @@ const termsMap = computed(() => {
   for (const member of caseDetailsStore.caseObj.pedigree) {
     result[member.name] = []
   }
-  for (const phenotypeTerms of caseDetailsStore.caseObj.phenotype_terms) {
+  for (const phenotypeTerms of caseDetailsStore.casePhenotypeTerms ?? []) {
     const termList = phenotypeTerms?.terms || []
     result[phenotypeTerms.individual] = {
       sodar_uuid: phenotypeTerms.sodar_uuid,

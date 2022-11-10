@@ -32,9 +32,29 @@ class TestCaseAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(url, bad_users_401, 401, method="GET")
         self.assert_response(url, bad_users_403, 403, method="GET")
 
+    def test_retrieve(self):
+        url = reverse(
+            "cases:api-case-retrieveupdate",
+            kwargs={"case": self.case.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+            self.guest_as.user,
+        ]
+        bad_users_401 = [
+            self.anonymous,
+        ]
+        bad_users_403 = [self.user_no_roles]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
     def test_update(self):
         url = reverse(
-            "cases:api-case-update",
+            "cases:api-case-retrieveupdate",
             kwargs={"case": self.case.sodar_uuid},
         )
         good_users = [
@@ -105,6 +125,58 @@ class TestCasePhenotypeTermsCreateListAjaxView(TestProjectAPIPermissionBase):
         self.assert_response(
             url, bad_users_403, 403, method="POST", data=data, cleanup_method=cleanup
         )
+
+
+class TestAnnotationReleaseInfoListAjaxView(TestProjectAPIPermissionBase):
+    """Permission tests for the list AJAX views dealing with ``AnnotationReleaseInfo``."""
+
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+
+    def test_list(self):
+        url = reverse(
+            "cases:ajax-annotationreleaseinfo-list",
+            kwargs={"case": self.case.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+            self.guest_as.user,
+        ]
+        bad_users_401 = []
+        bad_users_403 = [self.anonymous, self.user_no_roles]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+
+class TestSvAnnotationReleaseInfoListAjaxView(TestProjectAPIPermissionBase):
+    """Permission tests for the list AJAX views dealing with ``SvAnnotationReleaseInfo``."""
+
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+
+    def test_list(self):
+        url = reverse(
+            "cases:ajax-svannotationreleaseinfo-list",
+            kwargs={"case": self.case.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+            self.guest_as.user,
+        ]
+        bad_users_401 = []
+        bad_users_403 = [self.anonymous, self.user_no_roles]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
 
 
 class TestCasePhenotypeTermsRetrieveUpdateDestroyAjaxView(TestProjectAPIPermissionBase):
@@ -366,3 +438,81 @@ class TestProjectUserPermissionsAjaxView(TestProjectAPIPermissionBase):
             self.user_no_roles,
         ]
         self.assert_response(url, good_users, 200, method="GET")
+
+
+class TestCaseAlignmentStatsListAjaxView(TestProjectAPIPermissionBase):
+    """Permission tests for the API views dealing with ``CaseAlignmentStats``."""
+
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+
+    def test_list(self):
+        url = reverse(
+            "cases:ajax-casealignmentstats-list",
+            kwargs={"case": self.case.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+            self.guest_as.user,
+        ]
+        bad_users_401 = []
+        bad_users_403 = [self.anonymous, self.user_no_roles]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+
+class TestSampleVariantStatisticsListAjaxView(TestProjectAPIPermissionBase):
+    """Permission tests for the API views dealing with ``SampleVariantStatistics``."""
+
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+
+    def test_list(self):
+        url = reverse(
+            "cases:ajax-casevariantstats-list",
+            kwargs={"case": self.case.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+            self.guest_as.user,
+        ]
+        bad_users_401 = []
+        bad_users_403 = [self.anonymous, self.user_no_roles]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")
+
+
+class TestPedigreeRelatednessListAjaxView(TestProjectAPIPermissionBase):
+    """Permission tests for the API views dealing with ``PedigreeRelatedness``."""
+
+    def setUp(self):
+        super().setUp()
+        self.case = CaseFactory(project=self.project)
+
+    def test_list(self):
+        url = reverse(
+            "cases:ajax-caserelatedness-list",
+            kwargs={"case": self.case.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+            self.guest_as.user,
+        ]
+        bad_users_401 = []
+        bad_users_403 = [self.anonymous, self.user_no_roles]
+        self.assert_response(url, good_users, 200, method="GET")
+        self.assert_response(url, bad_users_401, 401, method="GET")
+        self.assert_response(url, bad_users_403, 403, method="GET")

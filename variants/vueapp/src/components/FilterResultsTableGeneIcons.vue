@@ -5,7 +5,8 @@ const props = defineProps({
 })
 
 const isOnAcmgList = props.params.data.acmg_symbol !== null
-const isDiseaseGene = JSON.parse(props.params.data.disease_gene.toLowerCase())
+let isDiseaseGene =
+  new String(props.params.data.disease_gene).toLowerCase() === 'true'
 
 const sortedModesOfInheritance = () => {
   return Array.from(props.params.data.modes_of_inheritance).sort()

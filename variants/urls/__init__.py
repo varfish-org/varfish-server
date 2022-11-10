@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
 from variants import views
+from variants.urls.annos import annos_ajax_urlpatterns
 from variants.urls.presets import presets_ajax_urlpatterns
 from variants.views import ajax as views_ajax
 from variants.views import api as views_api
@@ -637,4 +638,10 @@ api_urlpatterns = [
 ]
 
 
-urlpatterns = ui_urlpatterns + ajax_urlpatterns + presets_ajax_urlpatterns + api_urlpatterns
+urlpatterns = (
+    ui_urlpatterns
+    + ajax_urlpatterns
+    + annos_ajax_urlpatterns
+    + presets_ajax_urlpatterns
+    + api_urlpatterns
+)

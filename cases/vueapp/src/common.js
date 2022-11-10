@@ -8,7 +8,7 @@ export const overlayShow = computed(() => {
   return (
     !casesStore.storeState ||
     casesStore.storeState.value === StoreState.initializing ||
-    casesStore.serverInteraction.value
+    casesStore.serverInteractions.value
   )
 })
 

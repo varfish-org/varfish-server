@@ -44,7 +44,7 @@ describe('cases store', () => {
 
   test('empty after construction', () => {
     expect(casesStore.storeState).toEqual(StoreState.initial)
-    expect(casesStore.serverInteraction).toEqual(0)
+    expect(casesStore.serverInteractions).toEqual(0)
     expect(casesStore.appContext).toEqual(null)
     expect(casesStore.project).toEqual(null)
     expect(casesStore.showInlineHelp).toEqual(false)
@@ -71,16 +71,21 @@ describe('cases store', () => {
     expect(casesApi.listCase).toHaveBeenNthCalledWith(
       1,
       appContext.csrfToken,
-      appContext.project.sodar_uuid
+      appContext.project.sodar_uuid,
+      {
+        pageNo: 0,
+        pageSize: 10,
+        queryString: '',
+      }
     )
 
     expect(casesStore.storeState).toEqual(StoreState.active)
-    expect(casesStore.serverInteraction).toEqual(0)
+    expect(casesStore.serverInteractions).toEqual(0)
     expect(casesStore.appContext).toEqual(appContext)
     expect(casesStore.project).toEqual(appContext.project)
     expect(casesStore.showInlineHelp).toEqual(false)
     expect(casesStore.complexityMode).toEqual('basic')
-    expect(casesStore.caseRowData).toEqual(Object.values(caseListResponse))
+    expect(casesStore.caseRowData).toEqual(caseListResponse.results)
     expect(casesStore.userPerms).toEqual(allPerms)
   })
 })

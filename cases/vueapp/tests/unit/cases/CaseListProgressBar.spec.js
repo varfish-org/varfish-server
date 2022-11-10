@@ -38,7 +38,7 @@ describe('CaseListProgressBar.vue', () => {
 
     expect(wrapper.findAll('.progress-bar').length).toBe(1)
     expect(wrapper.findAll('.progress-bar')[0].html()).toMatch(
-      /1\/1 \(100%\) initial/
+      /1\/1 \(100.00%\) initial/
     )
   })
 })

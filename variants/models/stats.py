@@ -19,6 +19,8 @@ class CaseVariantStats(models.Model):
     - Ts/Tv ratio
     """
 
+    # TODO: add sodar_uuid, date_created, date_modified?
+
     #: The related ``SmallVariantSet``.
     variant_set = models.OneToOneField(
         SmallVariantSet,
@@ -31,6 +33,8 @@ class CaseVariantStats(models.Model):
 
 class SampleVariantStatistics(models.Model):
     """Single-number variant statistics for donors in a ``Case`` via ``CaseVariantStats``."""
+
+    # TODO: add sodar_uuid, date_created, date_modified?
 
     #: The related ``CaseVariantStats``.
     stats = models.ForeignKey(

@@ -1,0 +1,38 @@
+[
+  {
+    "case": "3b22fce8-9be8-4387-8e6e-3be73f4228fb",
+    "sample1": "NA12891-N1-DNA1-WES1",
+    "sample2": "NA12878-N1-DNA1-WES1",
+    "het_1_2": 1413,
+    "het_1": 2802,
+    "het_2": 2691,
+    "n_ibs0": 2,
+    "n_ibs1": 2667,
+    "n_ibs2": 3058,
+    "relatedness": 1.0262426847746502
+  },
+  {
+    "case": "3b22fce8-9be8-4387-8e6e-3be73f4228fb",
+    "sample1": "NA12892-N1-DNA1-WES1",
+    "sample2": "NA12878-N1-DNA1-WES1",
+    "het_1_2": 1318,
+    "het_1": 2662,
+    "het_2": 2691,
+    "n_ibs0": 5,
+    "n_ibs1": 2717,
+    "n_ibs2": 3005,
+    "relatedness": 0.9774101961748356
+  },
+  {
+    "case": "3b22fce8-9be8-4387-8e6e-3be73f4228fb",
+    "sample1": "NA12892-N1-DNA1-WES1",
+    "sample2": "NA12891-N1-DNA1-WES1",
+    "het_1_2": 854,
+    "het_1": 2662,
+    "het_2": 2802,
+    "n_ibs0": 390,
+    "n_ibs1": 3756,
+    "n_ibs2": 1581,
+    "relatedness": 0.05419055817300081
+  }
+]

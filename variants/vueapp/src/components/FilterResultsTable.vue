@@ -152,7 +152,7 @@ const onCellClicked = (event) => {
   })
   // if (!['selector', 'variant_icons', 'igv'].includes(event.column.getColId())) {
   //   $('#variantDetailsModal').modal()
-  //   detailsStore.fetchVariantDetails(event, previousQueryDetails)
+  //   detailsStore.fetchVariantDetails(event, previousQueryDetails.query_settings.database_select)
   // }
 }
 </script>

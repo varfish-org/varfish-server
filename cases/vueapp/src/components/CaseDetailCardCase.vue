@@ -137,18 +137,18 @@ const badgeStatusColor = computed(() => {
           <span class="col-3">
             {{ formatLargeInt(caseObj.num_small_vars) }}
           </span>
-          <span class="col-3 text-nowrap font-weight-bold"> Called SVs </span>
-          <span class="col-3">
+          <span class="col-2 text-nowrap font-weight-bold"> Called SVs </span>
+          <span class="col-4">
             {{ formatLargeInt(caseObj.num_svs) }}
           </span>
         </div>
       </li>
       <li class="list-group-item pl-0">
         <div class="row">
-          <span class="col-2 text-nowrap font-weight-bold">
+          <span class="col-3 text-nowrap font-weight-bold">
             Annotated Variants
           </span>
-          <span class="col-4">
+          <span class="col-3">
             {{
               caseDetailsStore.varAnnos !== null
                 ? caseDetailsStore.varAnnos.length

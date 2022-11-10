@@ -1,5 +1,5 @@
 <script setup>
-import { useCaseDetailsStore } from '../stores/case-details'
+import { useCaseDetailsStore, StoreState } from '../stores/case-details'
 import { displayName, formatLargeInt } from '@varfish/helpers.js'
 import { computed } from 'vue'
 
@@ -7,27 +7,24 @@ const caseDetailsStore = useCaseDetailsStore()
 
 const coverages = [0, 10, 20, 30, 40, 50]
 
-const caseAlignmentStats = computed(() => {
-  if (
-    !caseDetailsStore.caseObj ||
-    !caseDetailsStore.caseObj.casealignmentstats
-  ) {
+const bamStats = computed(() => {
+  if (!caseDetailsStore.caseAlignmentStats?.bam_stats) {
     return null
   } else {
-    return caseDetailsStore.caseObj.casealignmentstats
+    return caseDetailsStore.caseAlignmentStats?.bam_stats
   }
 })
 
 const getMinCovTarget = (memberName, coverage) => {
   if (
-    !caseAlignmentStats.value ||
-    !caseAlignmentStats.value[memberName] ||
-    !caseAlignmentStats.value[memberName].min_cov_target ||
-    !caseAlignmentStats.value[memberName].min_cov_target[coverage]
+    !bamStats.value ||
+    !bamStats.value[memberName] ||
+    !bamStats.value[memberName].min_cov_target ||
+    !bamStats.value[memberName].min_cov_target[coverage]
   ) {
     return '-'
   } else {
-    const perc = caseAlignmentStats.value[memberName].min_cov_target[coverage]
+    const perc = bamStats.value[memberName].min_cov_target[coverage]
     return `${perc}%`
   }
 }
@@ -70,41 +67,41 @@ const getMinCovTarget = (memberName, coverage) => {
         </tr>
       </thead>
       <tbody>
-        <template v-if="caseAlignmentStats">
+        <template
+          v-if="caseDetailsStore.storeState == StoreState.active && bamStats"
+        >
           <tr v-for="member of caseDetailsStore.caseObj.pedigree">
-            <th>{{ displayName(member.name) }}</th>
-            <td class="text-right">
-              {{
-                formatLargeInt(
-                  caseAlignmentStats[member.name].bamstats.sequences / 2
-                )
-              }}
-            </td>
-            <td class="text-right">
-              {{
-                (
-                  (100.0 *
-                    caseAlignmentStats[member.name].bamstats[
-                      'reads duplicated'
-                    ]) /
-                  caseAlignmentStats[member.name].bamstats['sequences']
-                ).toFixed(1)
-              }}%
-            </td>
-            <td class="text-right">
-              <template
-                v-if="
-                  caseAlignmentStats[member.name].summary &&
-                  caseAlignmentStats[member.name].summary['mean coverage']
-                "
-              >
-                {{ caseAlignmentStats[member.name].summary['mean coverage'] }}x
-              </template>
-              <template v-else> - </template>
-            </td>
-            <td v-for="coverage in coverages">
-              {{ getMinCovTarget(member.name, coverage) }}
-            </td>
+            <template v-if="member.name in bamStats">
+              <th>{{ displayName(member.name) }}</th>
+              <td class="text-right">
+                {{
+                  formatLargeInt(bamStats[member.name].bamstats.sequences / 2)
+                }}
+              </td>
+              <td class="text-right">
+                {{
+                  (
+                    (100.0 *
+                      bamStats[member.name].bamstats['reads duplicated']) /
+                    bamStats[member.name].bamstats['sequences']
+                  ).toFixed(1)
+                }}%
+              </td>
+              <td class="text-right">
+                <template
+                  v-if="
+                    bamStats[member.name].summary &&
+                    bamStats[member.name].summary['mean coverage']
+                  "
+                >
+                  {{ bamStats[member.name].summary['mean coverage'] }}x
+                </template>
+                <template v-else> - </template>
+              </td>
+              <td v-for="coverage in coverages">
+                {{ getMinCovTarget(member.name, coverage) }}
+              </td>
+            </template>
           </tr>
         </template>
         <tr v-else>

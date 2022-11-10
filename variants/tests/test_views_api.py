@@ -27,9 +27,9 @@ class TestCaseApiViews(ApiViewTestBase):
         self.maxDiff = None
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
-    def _expected_case_data(self, case=None):
+    def _expected_case_data(self, case=None, legacy=False):
         case = case or self.case
-        return {
+        result = {
             "sodar_uuid": str(case.sodar_uuid),
             "name": case.name,
             "index": case.index,
@@ -41,14 +41,20 @@ class TestCaseApiViews(ApiViewTestBase):
             "status": case.status,
             "tags": case.tags,
             "release": case.release,
-            "relatedness": [],
-            "phenotype_terms": [],
             "sex_errors": {},
-            "svannotationreleaseinfo_set": [],
-            "annotationreleaseinfo_set": [],
-            "casealignmentstats": None,
-            "casevariantstats": {},
         }
+        if legacy:
+            result.update(
+                {
+                    "relatedness": [],
+                    "phenotype_terms": [],
+                    "svannotationreleaseinfo_set": [],
+                    "annotationreleaseinfo_set": [],
+                    "casealignmentstats": None,
+                    "casevariantstats": {},
+                }
+            )
+        return result
 
     def _test_list_with_invalid_x(self, media_type=None, version=None):
         with self.login(self.superuser):
@@ -80,7 +86,7 @@ class TestCaseApiViews(ApiViewTestBase):
             self.assertEqual(response.status_code, 200, response.content)
             expected = [self._expected_case_data()]
             response_content = []
-            for entry in response.data:  # remove some warts
+            for entry in response.data["results"]:  # remove some warts
                 entry = dict(entry)
                 entry.pop("date_created")  # complex; not worth testing
                 entry.pop("date_modified")  # the same
@@ -114,7 +120,7 @@ class TestCaseApiViews(ApiViewTestBase):
                 )
             )
 
-            expected = self._expected_case_data()
+            expected = self._expected_case_data(legacy=True)
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
             self.assertEqual(response.status_code, 200)

@@ -74,6 +74,7 @@ export const useQueryPresetsStore = defineStore('queryPresets', () => {
           presetSets.value = Object.fromEntries(
             result.map((presetSet) => [presetSet.sodar_uuid, presetSet])
           )
+          storeState.value = StoreState.active
           resolve()
         })
         .catch((err) => {
