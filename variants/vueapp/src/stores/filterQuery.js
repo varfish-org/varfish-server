@@ -362,9 +362,11 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
         })
         // 2.2 once we have the query details, assume running state and launch the fetch loop
         .then(() => {
-          queryState.value = QueryStates.Resuming.value
-          nextTick()
-          runFetchLoop(previousQueryDetails.value.sodar_uuid)
+          if (previousQueryDetails.value) {
+            queryState.value = QueryStates.Resuming.value
+            nextTick()
+            runFetchLoop(previousQueryDetails.value.sodar_uuid)
+          }
         }),
       // 3. fetch quick presets etc.
       fetchPresets(
