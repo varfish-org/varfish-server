@@ -76,6 +76,7 @@ End-User Summary
 - Fix variant icon display (#745).
 - Improving installation instructions (#735).
 - Implementing case-independent variant annotations (#747).
+- Fixing bug in mutationtaster integration (#790).
 
 Full Change List
 ================
@@ -165,6 +166,7 @@ Full Change List
 - Implementing case-independent variant annotations (#747).
 - Implementing editing of cases in Vue.js (#743).
 - Adding user-defined query presets (#776).
+- Fixing bug in mutationtaster integration (#790).
 
 ------
 v1.2.0

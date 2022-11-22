@@ -794,7 +794,8 @@ class VariantScoresMutationTaster(VariantScoresBase):
             line = line.split("\t")
             record = dict(zip(head, line))
             # Remove id column as it would collide with the postgres id column. It's not required anyway.
-            record.pop("id")
+            if "id" in record:
+                record.pop("id")
             # Convert chromosome identifiers
             record["chromosome"] = record.pop("chr")
             if record["chromosome"] == "23":
