@@ -17,6 +17,7 @@ export default defineConfig({
       input: {
         clinvarexport: resolve(__dirname, './src/clinvarexport/main.js'),
         variants: resolve(__dirname, './src/variants/main.js'),
+        svs: resolve(__dirname, './src/svs/main.js'),
         cases: resolve(__dirname, './src/cases/main.js'),
         cohorts: resolve(__dirname, './src/cohorts/main.js'),
       },
@@ -37,6 +38,7 @@ export default defineConfig({
       '@varfish': resolve(__dirname, './src/varfish'),
       '@clinvarexport': resolve(__dirname, './src/clinvarexport'),
       '@variants': resolve(__dirname, './src/variants'),
+      '@svs': resolve(__dirname, './src/svs'),
       '@cases': resolve(__dirname, './src/cases'),
       '@cohorts': resolve(__dirname, './src/cohorts'),
     },
@@ -53,6 +55,7 @@ export default defineConfig({
     include: [
       './tests/clinvarexport/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './tests/variants/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      './tests/svs/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './tests/cases/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
       './tests/cohorts/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],

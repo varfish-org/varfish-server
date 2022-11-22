@@ -92,10 +92,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "ordering": ("-date_created",),
-                "abstract": False,
-            },
+            options={"ordering": ("-date_created",), "abstract": False},
             bases=(bgjobs.models.JobModelMessageMixin, models.Model),
         ),
         migrations.CreateModel(
@@ -126,10 +123,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={
-                "ordering": ("-date_created",),
-                "abstract": False,
-            },
+            options={"ordering": ("-date_created",), "abstract": False},
             bases=(bgjobs.models.JobModelMessageMixin, models.Model),
         ),
         migrations.CreateModel(

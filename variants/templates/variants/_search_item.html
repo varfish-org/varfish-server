@@ -2,7 +2,6 @@
 {% load humanize %}
 {% load variants_tags %}
 {% load projectroles_common_tags %}
-{% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
 
 <tr class="sodar-ff-search-item" id="sodar-ff-search-item-{{ item.sodar_uuid }}">
   {# Name & link column #}
@@ -53,19 +52,8 @@
     {{ item.release }}
   </td>
   <td style="width: 0px;">
-    {% if svs_enabled %}
-      <div class="btn-group" role="group">
-        <a href="{% url "variants:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
-          <i class="iconify" data-icon="mdi:filter"></i>
-        </a>
-        <a href="{% url "svs:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn{% if not item.num_svs %} disabled{% endif %}" title="{% if item.num_svs %}filter SVs{% else %}Svs not available for this case{% endif %}">
-          <i class="iconify" data-icon="mdi:filter-variant"></i>
-        </a>
-      </div>
-    {% else %}
-      <a href="{% url "variants:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
-        <i class="iconify" data-icon="mdi:filter"></i>
-      </a>
-    {% endif %}
+    <a href="{% url "variants:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
+      <i class="iconify" data-icon="mdi:filter"></i>
+    </a>
   </td>
 </tr>

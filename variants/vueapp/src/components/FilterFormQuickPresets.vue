@@ -179,6 +179,9 @@ const valueRefs = {
 const refreshValueRefs = () => {
   for (const category of Object.keys(valueRefs)) {
     let isCompatible = true
+    if (!props.categoryPresets[category]) {
+      continue // not fully loaded yet
+    }
     for (const [presetName, presetValues] of Object.entries(
       props.categoryPresets[category]
     )) {
@@ -202,6 +205,9 @@ const refreshValueRefs = () => {
   }
 }
 
+/** Whether to block the refresh (because setting via shortcut). */
+const blockRefresh = ref(false)
+
 /** Helper function to create a computed wrapper for non-inheritance/quality. */
 const makeWrapper = (name) =>
   computed({
@@ -210,6 +216,8 @@ const makeWrapper = (name) =>
     },
     set(newValue) {
       if (newValue !== 'custom') {
+        const oldBlockRefresh = blockRefresh.value
+        blockRefresh.value = true
         for (const [key, value] of Object.entries(
           props.categoryPresets[name][newValue]
         )) {
@@ -217,6 +225,7 @@ const makeWrapper = (name) =>
             props.querySettings[key] = value
           }
         }
+        blockRefresh.value = oldBlockRefresh
       }
     },
   })
@@ -235,6 +244,7 @@ const quickPresetRef = ref(null)
 
 /** Refresh quick presets from actual form values.  Check each for compatibility and pick first matching. */
 const refreshQuickPreset = () => {
+  console.log('refreshQuickPrest')
   for (const [name, theQuickPresets] of Object.entries(props.quickPresets)) {
     if (
       inheritanceWrapper.value === theQuickPresets.inheritance &&
@@ -259,6 +269,8 @@ const quickPresetWrapper = computed({
   },
 
   set(newValue) {
+    const oldBlockRefresh = blockRefresh.value
+    blockRefresh.value = true
     if (newValue !== 'custom') {
       const newQuickPresets = props.quickPresets[newValue]
       inheritanceWrapper.value = newQuickPresets.inheritance
@@ -268,6 +280,7 @@ const quickPresetWrapper = computed({
       chromosomesWrapper.value = newQuickPresets.chromosomes
       flagsWrapper.value = newQuickPresets.flagsetc
     }
+    blockRefresh.value = oldBlockRefresh
   },
 })
 
@@ -284,7 +297,9 @@ onMounted(() => {
   filterQueryStore.initializeRes.then(() => {
     refreshAllRefs()
     filterQueryStore.$subscribe((_mutation, _state) => {
-      refreshAllRefs()
+      if (!blockRefresh.value) {
+        refreshAllRefs()
+      }
     })
   })
 })

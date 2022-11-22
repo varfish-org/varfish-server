@@ -5,14 +5,12 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("svs", "0015_set_logged_table"),
-    ]
+    dependencies = [("svs", "0015_set_logged_table")]
 
     operations = [
         migrations.AddField(
             model_name="structuralvariantset",
             name="release",
             field=models.CharField(default="GRCh37", max_length=32, null=True),
-        ),
+        )
     ]

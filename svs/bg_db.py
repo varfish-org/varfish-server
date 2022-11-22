@@ -1,16 +1,15 @@
 """Code that supports building the structural variant background database."""
+
 from contextlib import contextmanager
 import enum
 import gc
+import itertools
 import json
 import logging
-import math
 import os
 import pathlib
 import random
 import re
-import statistics
-import sys
 import tempfile
 import typing
 
@@ -59,9 +58,9 @@ class ClusterAlgoParams:
     cluster_max_size: int = 500
     #: Maximal size of a cluster after subsampling.
     cluster_size_sample_to: int = 100
-    #: Minimal jaccard overlap.
-    min_jaccard_overlap: float = 0.7
-    #: Slack to allow around breakend breakends (and INSertions).
+    #: Minimal reciprocal overlap.
+    min_reciprocal_overlap: float = 0.85
+    #: Slack to allow around breakend or insertion
     bnd_slack: int = 50
 
 
@@ -156,21 +155,24 @@ class SvRecord:
         else:  # linear SV
             return self.chrom == other.chrom and self.pos <= other.end and self.end >= other.pos
 
-    def jaccard_index(self, other: "SvRecord") -> typing.Optional[float]:
-        """Return jaccard index of overlap between ``self`` and ``other``.
+    def reciprocal_overlap(self, other: "SvRecord") -> typing.Optional[float]:
+        """Return reciprocal overlap of overlap between ``self`` and ``other``.
 
         Raises an ``ValueError` if ``release`` or ``sv_type`` are not the same.
         """
         if self.is_bnd() or other.is_bnd() or self.is_ins() or other.is_ins():
-            raise ValueError("Cannot compute Jaccard overlap for break-ends and INS!")
+            raise ValueError("Cannot compute reciprocal overlap for break-ends and INS!")
         if self.does_overlap(other):
-            len_union = max(self.end, other.end) + 1 - min(self.pos, other.pos)
+            len_self = self.end - self.pos + 1
+            len_other = other.end - other.pos + 1
             len_intersect = min(self.end, other.end) + 1 - max(self.pos, other.pos)
-            return len_intersect / len_union
+            ovl_self = len_intersect / len_self
+            ovl_other = len_intersect / len_other
+            return min(ovl_self, ovl_other)
         else:
             return 0.0
 
-    def is_compatible(self, other: "SvRecord", bnd_slack: int) -> bool:
+    def is_compatible(self, other: "SvRecord", *, bnd_slack: int) -> bool:
         """Determine whether the two records ``self`` and ``other`` are compatible to be merged in principle.
 
         That is, they must be of the same SV type and overlap.
@@ -215,57 +217,58 @@ class SvCluster:
     params: ClusterAlgoParams
     #: The random number generator to use
     rng: random.Random = attrs.field(repr=False)
-    #: The mean representing ``SvRecord``
-    mean: typing.Optional[SvRecord] = None
+    #: The representing ``SvRecord``
+    representant: typing.Optional[SvRecord] = None
     #: The list of records backing the cluster
     records: typing.List[SvRecord] = attrs.field(default=attrs.Factory(list))
     #: The overall genotype counts
     counts: GenotypeCounts = attrs.field(factory=GenotypeCounts)
 
-    def augment(self, record: SvRecord) -> None:
+    def augment(self, record: SvRecord) -> bool:
         """Augment the given cluster
 
-        Raises ``ValueError`` if record incompatible with mean (if exists) by release,
+        Return whether the representant changed.
+
+        Raises ``ValueError`` if record incompatible with representant (if exists) by release,
         sv_type, chrom, or chrom2.
         """
-        if self.mean:
+        orig_representant = self.representant
+        if self.representant:
             for key in ("release", "sv_type", "chrom", "chrom2"):
-                if getattr(record, key) != getattr(self.mean, key):  # pragma: nocover
-                    raise ValueError(f"Incompatible record ({record}) vs mean ({self.mean}")
-            if not self.mean.is_compatible(record, bnd_slack=self.params.bnd_slack):
-                raise ValueError(f"Incompatible record ({record}) vs mean ({self.mean}")
-        # Perform augmentation and sub-sample records when necessary.  Update mean in any case.
+                if getattr(record, key) != getattr(self.representant, key):  # pragma: nocover
+                    raise ValueError(
+                        f"Incompatible record ({record}) vs representant ({self.representant}"
+                    )
+            if not self.representant.is_compatible(record, bnd_slack=self.params.bnd_slack):
+                raise ValueError(
+                    f"Incompatible record ({record}) vs representant ({self.representant}"
+                )
+        else:
+            self.representant = record
         self._augment(record)
         if len(self.records) > self.params.cluster_max_size:
             self._sub_sample()
-        self.mean = self._compute_mean()
         self.counts = self.counts.plus(record.counts)
+        return self.representant != orig_representant
+
+    def is_compatible(self, record: SvRecord, *, bnd_slack: int) -> bool:
+        """Return whether record is compatible with all records in cluster"""
+        return all(entry.is_compatible(record, bnd_slack=bnd_slack) for entry in self.records)
 
     def _augment(self, record: SvRecord) -> None:
         """Augment cluster with the given ``record``"""
         self.records.append(record)
 
     def _sub_sample(self) -> None:
-        """Sub sample the records of this cluster and re-compute mean"""
+        """Sub sample the records of this cluster and assign new representant"""
         self.records = self.rng.choices(self.records, k=self.params.cluster_size_sample_to)
-        self.mean = self._compute_mean()
-
-    def _compute_mean(self) -> SvRecord:
-        """Compute the mean of this cluster's record"""
-        pos = math.floor(statistics.mean([r.pos for r in self.records]))
-        end = math.ceil(statistics.mean([r.end for r in self.records]))
-        end = max(end, pos + 1)
-        return attrs.evolve(
-            self.records[0],
-            pos=pos,
-            end=end,
-        )
+        self.representant = self.records[0]
 
     def sort_key(self):
-        if self.mean is None:
+        if self.representant is None:
             return ("", -1000)
         else:
-            return self.mean.sort_key()
+            return self.representant.sort_key()
 
     def normalized(self):
         """Normalized output (e.g., for tests)"""
@@ -315,7 +318,7 @@ class ClusterSvAlgorithm:
 
         On exiting the context manager, all temporary files will be closed.
         """
-        LOGGER.error("Starting collection of SV records for chromosome %s", chrom)
+        LOGGER.info("Starting collection of SV records for chromosome %s", chrom)
         if chrom in self.seen_chroms:  # pragma: nocover
             raise RuntimeError(f"Seen chromosome {chrom} already!")
         else:
@@ -323,17 +326,19 @@ class ClusterSvAlgorithm:
         self.current_chrom = chrom
         self.clusters = None
         with tempfile.TemporaryDirectory() as tmp_dir:
-            LOGGER.error("Opening temporary files for chrom %s", chrom)
-            self.tmp_dir = pathlib.Path(tmp_dir)
-            for sv_type in SV_TYPES:
-                self.tmp_files[sv_type] = (self.tmp_dir / _file_name_safe(sv_type)).open("wt+")
-            yield
-            LOGGER.error("Closing temporary files again for chrom %s", chrom)
-            for tmp_file in self.tmp_files.values():
-                tmp_file.close()
-            self.tmp_dir = None
-            self.tmp_files = {}
-        LOGGER.error("Done with collecting SV records for chromosome %s", chrom)
+            pass
+        os.makedirs(str(tmp_dir))
+        LOGGER.info("Opening temporary files for chrom %s - %s", chrom, tmp_dir)
+        self.tmp_dir = pathlib.Path(tmp_dir)
+        for sv_type in SV_TYPES:
+            self.tmp_files[sv_type] = (self.tmp_dir / _file_name_safe(sv_type)).open("wt+")
+        yield
+        LOGGER.info("Closing temporary files again for chrom %s", chrom)
+        for tmp_file in self.tmp_files.values():
+            tmp_file.close()
+        self.tmp_dir = None
+        self.tmp_files = {}
+        LOGGER.info("Done with collecting SV records for chromosome %s", chrom)
 
     def push(self, record: SvRecord) -> None:
         """Push the ``record`` on the current chromosome to the appropriate file in ``self.tmp_dir``."""
@@ -350,19 +355,17 @@ class ClusterSvAlgorithm:
         if not self.tmp_files:  # pragma: nocover
             raise RuntimeError("Invalid state, for cluster(), no temporary files open!")
         if self.clusters is None:
-            LOGGER.error("Starting clustering on chromosome %s", self.current_chrom)
+            LOGGER.info("Starting clustering on chromosome %s", self.current_chrom)
             self.clusters = []
             for sv_type, tmp_file in self.tmp_files.items():
                 process = psutil.Process(os.getpid())
                 rss_mb = process.memory_info().rss // 1024 // 1024
-                LOGGER.info(
-                    f"... clustering SV type {sv_type} with RSS {rss_mb} MB",
-                )
+                LOGGER.info(f"... clustering SV type {sv_type} with RSS {rss_mb} MB")
                 tmp_file.flush()
                 tmp_file.seek(0)
                 self.clusters += self._cluster_impl(sv_type, tmp_file)
             self.clusters.sort(key=SvCluster.sort_key)
-            LOGGER.error("Done with clustering on chromosome %s", self.current_chrom)
+            LOGGER.info("Done with clustering on chromosome %s", self.current_chrom)
         return self.clusters
 
     def _cluster_impl(self, sv_type: str, tmp_file: typing.IO[str]) -> typing.List[SvCluster]:
@@ -379,7 +382,7 @@ class ClusterSvAlgorithm:
             sv_records.append(sv_record)
         self.rng.shuffle(sv_records)
 
-        # Maintain an interval tree of clusters (interval is cluster mean).  Go over the SV records in random
+        # Maintain an interval tree of clusters (interval is cluster representant).  Go over the SV records in random
         # order (implied after shuffling above) and assign to best fitting compatible cluster.
         tree = IntervalTree()
         clusters: typing.List[SvCluster] = []
@@ -389,45 +392,47 @@ class ClusterSvAlgorithm:
             ovl_intervals: typing.Set[Interval] = tree.overlap(sv_interval.begin, sv_interval.end)
             ovl_indices: typing.List[int] = [interval.data for interval in ovl_intervals]
             best_index: typing.Optional[int] = None
-            best_jaccard: typing.Optional[float] = None
+            best_overlap: typing.Optional[float] = None
 
             # Identify the best overlapping cluster, if any
             for curr_index in ovl_indices:
-                curr_mean = clusters[curr_index].mean
-                if sv_record.is_bnd() or sv_record.is_ins():
-                    if sv_record.is_compatible(curr_mean, bnd_slack=self.params.bnd_slack):
+                curr_cluster = clusters[curr_index]
+                curr_representant = curr_cluster.representant
+                if curr_cluster.is_compatible(sv_record, bnd_slack=self.params.bnd_slack):
+                    if sv_record.is_bnd() or sv_record.is_ins():
                         best_index = curr_index
-                else:
-                    curr_jaccard = curr_mean.jaccard_index(sv_record)
-                    if best_index is None or curr_jaccard > best_jaccard:
-                        best_index = curr_index
-                        best_jaccard = curr_jaccard
+                        break  # pick first
+                    else:
+                        curr_overlap = curr_representant.reciprocal_overlap(sv_record)
+                        if best_index is None or curr_overlap > best_overlap:
+                            best_index = curr_index
+                            best_overlap = curr_overlap
 
             # Create new cluster or update existing one
-            if best_index is None:
+            if best_index is None or (
+                best_overlap and best_overlap < self.params.min_reciprocal_overlap
+            ):
                 LOGGER.debug("Found no cluster for SV record %s (create new one)", sv_record)
-                # print("Found no cluster for SV record %s (create new one)" % sv_record)
-                # Create new cluster and add it to the tree with initial mean.
+                # Create new cluster and add it to the tree with representant.
                 best_index = len(clusters)
                 sv_cluster = SvCluster(params=self.params, rng=self.rng)
                 sv_cluster.augment(sv_record)
                 clusters.append(sv_cluster)
-                tree.add(sv_cluster.mean.build_interval(data=best_index))
+                tree.add(sv_cluster.representant.build_interval(data=best_index))
             else:
                 LOGGER.debug(
-                    "Found cluster %s for SV record %s (will update)",
+                    "Found cluster %s for SV record %s with overlap %f (will update)",
                     clusters[best_index],
                     sv_record,
+                    best_overlap,
                 )
-                # print(
-                #     "Found cluster %s for SV record %s (will update)"
-                #     % (clusters[best_index], sv_record),
-                # )
-                # Remove cluster from tree temporarily, update cluster, add back to tree with new mean.
+                # Update cluster, remove from tree and add back if representant changed.
                 sv_cluster = clusters[best_index]
-                tree.remove(sv_cluster.mean.build_interval(data=best_index))
-                sv_cluster.augment(sv_record)
-                tree.add(sv_cluster.mean.build_interval(data=best_index))
+                old_itv = sv_cluster.representant.build_interval(data=best_index)
+                representant_changed = sv_cluster.augment(sv_record)
+                if representant_changed:
+                    tree.remove(old_itv)
+                    tree.add(sv_cluster.representant.build_interval(data=best_index))
 
         return clusters
 
@@ -495,16 +500,16 @@ def sv_model_to_attrs(model_record: StructuralVariant) -> SvRecord:
 def sv_cluster_to_model_args(sv_cluster: SvCluster) -> typing.Dict[str, typing.Any]:
     """Conversion from ``SvCluster`` to args for creation of ``BackgroundSv``."""
     chrom_nochr = (
-        sv_cluster.mean.chrom
-        if not sv_cluster.mean.chrom.startswith("chrm")
-        else sv_cluster.mean.chrom[3:]
+        sv_cluster.representant.chrom
+        if not sv_cluster.representant.chrom.startswith("chrm")
+        else sv_cluster.representant.chrom[3:]
     )
     chrom2_nochr = (
-        sv_cluster.mean.chrom2
-        if not sv_cluster.mean.chrom.startswith("chrm")
-        else sv_cluster.mean.chrom2[3:]
+        sv_cluster.representant.chrom2
+        if not sv_cluster.representant.chrom.startswith("chrm")
+        else sv_cluster.representant.chrom2[3:]
     )
-    mean = sv_cluster.mean
+    mean = sv_cluster.representant
     if mean.chrom == mean.chrom2:
         bin = binning.assign_bin(mean.pos, mean.end)
     else:
@@ -519,29 +524,20 @@ def sv_cluster_to_model_args(sv_cluster: SvCluster) -> typing.Dict[str, typing.A
         "end": mean.end,
         "pe_orientation": mean.orientation.value if mean.orientation else None,
         "bin": bin,
-        "sv_type": sv_cluster.mean.sv_type,
+        "sv_type": sv_cluster.representant.sv_type,
         **cattr.unstructure(sv_cluster.counts),
     }
 
 
 def _build_bg_sv_set_impl(
-    job: BuildBackgroundSvSetJob,
-    *,
-    log_to_stderr: bool = False,
-    chromosomes: typing.Optional[typing.List[str]] = None,
+    job: BuildBackgroundSvSetJob, *, chromosomes: typing.Optional[typing.List[str]] = None
 ) -> BackgroundSvSet:
     genomebuild = job.genomebuild
     chrom_pat = "%s" if genomebuild == "GRCh37" else "chr%s"
 
-    if log_to_stderr:
-
-        def log(msg: str):
-            job.add_log_entry(msg)
-            if log_to_stderr:
-                print(msg, file=sys.stderr)
-
-    else:
-        log = job.add_log_entry
+    def log(msg: str):
+        job.add_log_entry(msg)
+        LOGGER.info(msg)
 
     log("Creating new bg_db_set in state 'initial'")
     bg_sv_set = BackgroundSvSet.objects.create(
@@ -549,7 +545,7 @@ def _build_bg_sv_set_impl(
     )
 
     log("Obtain IDs of cases marked for exclusion")
-    excluded_case_ids = {}
+    excluded_case_ids = set([])
     for case in Case.objects.prefetch_related("project").iterator():
         if get_app_setting("variants", "exclude_from_inhouse_db", project=case.project):
             excluded_case_ids.add(case.id)
@@ -564,24 +560,34 @@ def _build_bg_sv_set_impl(
         log("Starting with chromosome %s for genome build %s" % (chrom, genomebuild))
         chunk_size = 10_000
         with algo.on_chrom(chrom):  # accept pushes in block
-            for num, db_record in enumerate(
+            log("Creating database cursor ...")
+            cursor = enumerate(
                 StructuralVariant.objects.filter(release=genomebuild, chromosome=chrom).iterator(
                     chunk_size=chunk_size
                 )
-            ):
+            )
+            first = list(itertools.islice(cursor, 1))  # everything is lazy, force cursor creation
+            log("Retrieving records ...")
+            for num, db_record in itertools.chain(first, cursor):
                 if db_record.case_id in excluded_case_ids:
                     continue  # skip excluded cases
                 sv_record = sv_model_to_attrs(db_record)
+                if sv_record.pos >= sv_record.end:  # fix 0-length INS/BND
+                    sv_record = attrs.evolve(sv_record, end=sv_record.pos + 1)
                 algo.push(sv_record)
                 record_count += 1
                 if num % 10_000 == 0:
-                    if log_to_stderr:
-                        process = psutil.Process(os.getpid())
-                        rss_mb = process.memory_info().rss // 1024 // 1024
-                        log(f"... at record {num} with RSS {rss_mb} MB")
+                    process = psutil.Process(os.getpid())
+                    rss_mb = process.memory_info().rss // 1024 // 1024
+                    LOGGER.info("... at record %d with RSS %d MB", num, rss_mb)
                     gc.collect()
+            log("Creating clusters ...")
             clusters = algo.cluster()
         log("Built %d clusters from %d records" % (len(clusters), record_count))
+
+        with open("/tmp/clusters.txt", "wt") as outputf:
+            for cluster in clusters:
+                print(str(cluster), file=outputf)
 
         log("Constructing background SV set records...")
         for cluster in clusters:
@@ -598,10 +604,7 @@ def _build_bg_sv_set_impl(
 
 
 def build_bg_sv_set(
-    job: BuildBackgroundSvSetJob,
-    *,
-    log_to_stderr: bool = False,
-    chromosomes: typing.Optional[typing.List[str]] = None,
+    job: BuildBackgroundSvSetJob, *, chromosomes: typing.Optional[typing.List[str]] = None
 ) -> BackgroundSvSet:
     """Construct a new ``BackgroundSvSet``"""
     job.mark_start()
@@ -617,7 +620,7 @@ def build_bg_sv_set(
         )
     try:
         job.add_log_entry("Starting creation of background SV set...")
-        result = _build_bg_sv_set_impl(job, log_to_stderr=log_to_stderr, chromosomes=chromosomes)
+        result = _build_bg_sv_set_impl(job, chromosomes=chromosomes)
         job.add_log_entry("... done creating background SV set.")
     except Exception as e:
         job.mark_error(e)

@@ -520,9 +520,7 @@ class RegulatoryFilterFormMixin:
         super().__init__(*args, **kwargs)
 
         self.fields["regulatory_general_padding"] = forms.IntegerField(
-            label="padding (bp)",
-            required=False,
-            initial=100,
+            label="padding (bp)", required=False, initial=100
         )
         self.fields["regulatory_ensembl"] = forms.MultipleChoiceField(
             label="ENSEMBL feature",
@@ -548,10 +546,7 @@ class RegulatoryFilterFormMixin:
                 choices=[("__any__", "any")]
                 + [(ret.slug, ret.short_title) for ret in coll.regmap_set.all()],
             )
-            interaction_field = forms.BooleanField(
-                label=coll.title,
-                required=False,
-            )
+            interaction_field = forms.BooleanField(label=coll.title, required=False)
             self.fields["regmap_%s_element" % coll.slug] = element_field
             self.fields["regmap_%s_map" % coll.slug] = map_field
             self.fields["regmap_%s_interaction" % coll.slug] = interaction_field

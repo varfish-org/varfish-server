@@ -203,60 +203,6 @@ if KIOSK_MODE:
     logger.info("Enabling VarFishKioskUserMiddleware")
     MIDDLEWARE += ["varfish.utils.VarFishKioskUserMiddleware"]
 
-# Logging
-# ------------------------------------------------------------------------------
-
-# Custom logging level
-LOGGING_LEVEL = env.str("LOGGING_LEVEL", "DEBUG" if DEBUG else "ERROR")
-
-# List of apps to include in logging
-LOGGING_APPS = env.list(
-    "LOGGING_APPS",
-    default=[
-        "projectroles",
-        "siteinfo",
-        "sodarcache",
-        "taskflowbackend",
-        "timeline",
-    ],
-)
-
-# Path for file logging. If not set, will log only to console
-LOGGING_FILE_PATH = env.str("LOGGING_FILE_PATH", None)
-
-
-def set_logging(level=None):
-    if not level:
-        level = "DEBUG" if DEBUG else "ERROR"
-    app_logger_config = {
-        "level": level,
-        "handlers": ["console", "file"] if LOGGING_FILE_PATH else ["console"],
-        "propagate": True,
-    }
-    log_handlers = {
-        "console": {
-            "level": level,
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
-        }
-    }
-    if LOGGING_FILE_PATH:
-        log_handlers["file"] = {
-            "level": level,
-            "class": "logging.FileHandler",
-            "filename": LOGGING_FILE_PATH,
-            "formatter": "simple",
-        }
-    return {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {"simple": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"}},
-        "handlers": log_handlers,
-        "loggers": {a: app_logger_config for a in LOGGING_APPS},
-    }
-
-
-LOGGING = set_logging(LOGGING_LEVEL)
 
 # FIXTURE CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -530,6 +476,12 @@ QUERY_MAX_UNION = env.int("VARFISH_QUERY_MAX_UNION", 20)
 # Timeout (in hours) for VarFish cleaning up background SV sets in "building" state.
 SV_CLEANUP_BUILDING_SV_SETS = env.int("VARFISH_SV_CLEANUP_BUILDING_SV_SETS", 48)
 
+# Path to database for the worker.
+WORKER_DB_PATH = env.str("VARFISH_WORKER_DB_PATH", "")
+
+# Path to executable for worker.
+WORKER_EXE_PATH = env.str("VARFISH_WORKER_EXE_PATH", "varfish-server-worker")
+
 # Varfish: Exomiser
 # ------------------------------------------------------------------------------
 
@@ -720,6 +672,8 @@ LOGGING_APPS = env.list(
         "samplesheets",
         "sodarcache",
         "taskflowbackend",
+        "svs",
+        "variants",
         #        'django',
         #        'django.requests',
     ],
@@ -728,22 +682,22 @@ LOGGING_APPS = env.list(
 LOGGING_FILE_PATH = env.str("LOGGING_FILE_PATH", None)
 
 
-def set_logging(debug):
+def set_logging(level):
     app_logger_config = {
-        "level": "DEBUG" if debug else "ERROR",
+        "level": level,
         "handlers": ["console", "file"] if LOGGING_FILE_PATH else ["console"],
         "propagate": True,
     }
     log_handlers = {
         "console": {
-            "level": "DEBUG",
+            "level": level,
             "class": "logging.StreamHandler",
             "formatter": "simple",
         }
     }
     if LOGGING_FILE_PATH:
         log_handlers["file"] = {
-            "level": "DEBUG",
+            "level": level,
             "class": "logging.FileHandler",
             "filename": LOGGING_FILE_PATH,
             "formatter": "simple",
@@ -758,7 +712,10 @@ def set_logging(debug):
 
 
 LOGGING_DEBUG = env.bool("LOGGING_DEBUG", False)
-LOGGING = set_logging(DEBUG or LOGGING_DEBUG)
+LOGGING = set_logging("DEBUG" if (DEBUG or LOGGING_DEBUG) else "INFO")
+
+# LDAP configuration
+# ------------------------------------------------------------------------------
 
 ENABLE_LDAP = env.bool("ENABLE_LDAP", False)
 ENABLE_LDAP_SECONDARY = env.bool("ENABLE_LDAP_SECONDARY", False)
@@ -819,6 +776,9 @@ if ENABLE_LDAP:
                 AUTHENTICATION_BACKENDS,
             )
         )
+
+# DJANGO SU configuration
+# ------------------------------------------------------------------------------
 
 # URL to redirect after the login.
 # Default: "/"

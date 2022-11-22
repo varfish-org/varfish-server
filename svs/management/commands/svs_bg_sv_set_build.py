@@ -14,7 +14,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         """Add the command's argument to the ``parser``."""
         parser.add_argument(
-            "--chromosome", help="Chromosome to dump for", required=False, default=None
+            "--chromosome", help="Chromosome to build for", required=False, default=None
         )
 
     def handle(self, *args, **options):
@@ -22,4 +22,4 @@ class Command(BaseCommand):
         extra_args = {}
         if options["chromosome"] is not None:
             extra_args["chromosomes"] = [options["chromosome"]]
-        tasks.build_bg_sv_set_task(log_to_stderr=True, **extra_args)
+        tasks.build_bg_sv_set_task(**extra_args)

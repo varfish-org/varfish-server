@@ -27,7 +27,7 @@ class TestClusterAlgoParams(TestCase):
         self.assertEqual(
             str(params),
             "ClusterAlgoParams(seed=42, cluster_max_size=500, cluster_size_sample_to=100, "
-            "min_jaccard_overlap=0.7, bnd_slack=50)",
+            "min_reciprocal_overlap=0.85, bnd_slack=50)",
         )
 
 
@@ -66,7 +66,7 @@ class TestSvRecord(TestCase):
             "counts=GenotypeCounts(src_count=1, carriers=1, carriers_het=1, carriers_hom=0, carriers_hemi=0))",
         )
 
-    def testJaccardIndex(self):
+    def testReciprocalOverlap(self):
         record = bg_db.SvRecord(
             release="GRCh37",
             sv_type="DEL",
@@ -77,15 +77,15 @@ class TestSvRecord(TestCase):
             orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
         )
         with self.assertRaises(ValueError):
-            record.jaccard_index(attrs.evolve(record, release="GRCh38"))
+            record.reciprocal_overlap(attrs.evolve(record, release="GRCh38"))
         with self.assertRaises(ValueError):
-            record.jaccard_index(attrs.evolve(record, sv_type="DUP"))
+            record.reciprocal_overlap(attrs.evolve(record, sv_type="DUP"))
         self.assertAlmostEqual(
-            record.jaccard_index(attrs.evolve(record, chrom="8", chrom2="8")), 0.0
+            record.reciprocal_overlap(attrs.evolve(record, chrom="8", chrom2="8")), 0.0
         )
-        self.assertAlmostEqual(record.jaccard_index(record), 1.0, delta=1e-7)
+        self.assertAlmostEqual(record.reciprocal_overlap(record), 1.0, delta=1e-7)
         self.assertAlmostEqual(
-            record.jaccard_index(attrs.evolve(record, pos=501, end=1500)), 0.333, delta=0.001
+            record.reciprocal_overlap(attrs.evolve(record, pos=501, end=1500)), 0.5, delta=0.001
         )
 
     def testIsCompatibleDel(self):
@@ -137,7 +137,7 @@ class TestSvClusterWithDel(TestCase):
         self.assertEqual(
             str(cluster),
             "SvCluster(params=ClusterAlgoParams(seed=42, cluster_max_size=5, cluster_size_sample_to=3, "
-            "min_jaccard_overlap=0.7, bnd_slack=50), mean=None, records=[], "
+            "min_reciprocal_overlap=0.85, bnd_slack=50), representant=None, records=[], "
             "counts=GenotypeCounts(src_count=0, carriers=0, carriers_het=0, carriers_hom=0, carriers_hemi=0))",
         )
 
@@ -155,7 +155,7 @@ class TestSvClusterWithDel(TestCase):
         )
         cluster.augment(record)
         self.assertEqual(
-            str(cluster.mean),
+            str(cluster.representant),
             "SvRecord(release='GRCh37', sv_type='DEL', chrom='7', pos=1001, "
             "chrom2='7', end=2000, orientation=<PairedEndOrientation.THREE_TO_FIVE: '3to5'>, "
             "counts=GenotypeCounts(src_count=1, carriers=1, carriers_het=1, carriers_hom=0, carriers_hemi=0))",
@@ -177,9 +177,9 @@ class TestSvClusterWithDel(TestCase):
         cluster.augment(record)
         cluster.augment(attrs.evolve(record, pos=1501, end=2500))
         self.assertEqual(
-            str(cluster.mean),
-            "SvRecord(release='GRCh37', sv_type='DEL', chrom='7', pos=1251, "
-            "chrom2='7', end=2250, orientation=<PairedEndOrientation.THREE_TO_FIVE: '3to5'>, "
+            str(cluster.representant),
+            "SvRecord(release='GRCh37', sv_type='DEL', chrom='7', pos=1001, "
+            "chrom2='7', end=2000, orientation=<PairedEndOrientation.THREE_TO_FIVE: '3to5'>, "
             "counts=GenotypeCounts(src_count=1, carriers=1, carriers_het=1, carriers_hom=0, carriers_hemi=0))",
         )
         self.assertEqual(
@@ -209,9 +209,9 @@ class TestSvClusterWithBnd(TestCase):
         cluster.augment(record)
         cluster.augment(attrs.evolve(record, pos=record.pos + 50, end=record.end + 50))
         self.assertEqual(
-            str(cluster.mean),
-            "SvRecord(release='GRCh37', sv_type='BND', chrom='7', pos=1026, "
-            "chrom2='9', end=2025, orientation=<PairedEndOrientation.THREE_TO_FIVE: '3to5'>, "
+            str(cluster.representant),
+            "SvRecord(release='GRCh37', sv_type='BND', chrom='7', pos=1001, "
+            "chrom2='9', end=2000, orientation=<PairedEndOrientation.THREE_TO_FIVE: '3to5'>, "
             "counts=GenotypeCounts(src_count=1, carriers=1, carriers_het=1, carriers_hom=0, carriers_hemi=0))",
         )
         self.assertEqual(len(cluster.records), 2)
@@ -271,17 +271,12 @@ class TestClusterSvAlgorithm(TestCase):
             end=2000,
             orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
         )
-        records = {
-            "chr1": [record_1],
-        }
+        records = {"chr1": [record_1]}
         algo, clusters = self._run_clustering(records)
         expected = {
             "chr1": [
                 bg_db.SvCluster(
-                    params=algo.params,
-                    rng=algo.rng,
-                    mean=record_1,
-                    records=[record_1],
+                    params=algo.params, rng=algo.rng, representant=record_1, records=[record_1]
                 )
             ]
         }
@@ -301,33 +296,22 @@ class TestClusterSvAlgorithm(TestCase):
             release="GRCh37",
             sv_type="DEL",
             chrom="chr1",
-            pos=1500,
+            pos=1100,
             chrom2="chr1",
-            end=2500,
+            end=2100,
             orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
         )
-        mean_1 = bg_db.SvRecord(
-            release="GRCh37",
-            sv_type="DEL",
-            chrom="chr1",
-            pos=1250,
-            chrom2="chr1",
-            end=2250,
-            orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
-        )
-        records = {
-            "chr1": [
-                record_1,
-                record_2,
-            ]
-        }
+        records = {"chr1": [record_1, record_2]}
         algo, clusters = self._run_clustering(records)
         expected = {
             "chr1": [
                 bg_db.SvCluster(
-                    params=algo.params, rng=algo.rng, mean=mean_1, records=[record_1, record_2]
+                    params=algo.params,
+                    rng=algo.rng,
+                    representant=record_2,
+                    records=[record_1, record_2],
                 )
-            ],
+            ]
         }
         self.assertEqual(clusters, expected)
 
@@ -350,21 +334,18 @@ class TestClusterSvAlgorithm(TestCase):
             end=2000,
             orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
         )
-        records = {
-            "chr1": [
-                record_1,
-            ],
-            "chr2": [
-                record_2,
-            ],
-        }
+        records = {"chr1": [record_1], "chr2": [record_2]}
         algo, clusters = self._run_clustering(records)
         expected = {
             "chr1": [
-                bg_db.SvCluster(params=algo.params, rng=algo.rng, mean=record_1, records=[record_1])
+                bg_db.SvCluster(
+                    params=algo.params, rng=algo.rng, representant=record_1, records=[record_1]
+                )
             ],
             "chr2": [
-                bg_db.SvCluster(params=algo.params, rng=algo.rng, mean=record_2, records=[record_2])
+                bg_db.SvCluster(
+                    params=algo.params, rng=algo.rng, representant=record_2, records=[record_2]
+                )
             ],
         }
         self.assertEqual(clusters, expected)
@@ -383,9 +364,9 @@ class TestClusterSvAlgorithm(TestCase):
             release="GRCh37",
             sv_type="DEL",
             chrom="chr1",
-            pos=1500,
+            pos=1050,
             chrom2="chr1",
-            end=2500,
+            end=2050,
             orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
         )
         record_3 = bg_db.SvRecord(
@@ -401,49 +382,28 @@ class TestClusterSvAlgorithm(TestCase):
             release="GRCh37",
             sv_type="DEL",
             chrom="chr2",
-            pos=1500,
+            pos=1050,
             chrom2="chr2",
-            end=2500,
+            end=2050,
             orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
         )
-        mean_1 = bg_db.SvRecord(
-            release="GRCh37",
-            sv_type="DEL",
-            chrom="chr1",
-            pos=1250,
-            chrom2="chr1",
-            end=2250,
-            orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
-        )
-        mean_2 = bg_db.SvRecord(
-            release="GRCh37",
-            sv_type="DEL",
-            chrom="chr2",
-            pos=1250,
-            chrom2="chr2",
-            end=2250,
-            orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
-        )
-        records = {
-            "chr1": [
-                record_1,
-                record_2,
-            ],
-            "chr2": [
-                record_3,
-                record_4,
-            ],
-        }
+        records = {"chr1": [record_1, record_2], "chr2": [record_3, record_4]}
         algo, clusters = self._run_clustering(records)
         expected = {
             "chr1": [
                 bg_db.SvCluster(
-                    params=algo.params, rng=algo.rng, mean=mean_1, records=[record_1, record_2]
+                    params=algo.params,
+                    rng=algo.rng,
+                    representant=record_2,
+                    records=[record_1, record_2],
                 )
             ],
             "chr2": [
                 bg_db.SvCluster(
-                    params=algo.params, rng=algo.rng, mean=mean_2, records=[record_3, record_4]
+                    params=algo.params,
+                    rng=algo.rng,
+                    representant=record_4,
+                    records=[record_3, record_4],
                 )
             ],
         }
@@ -460,34 +420,32 @@ class TestClusterSvAlgorithm(TestCase):
             orientation=bg_db.PairedEndOrientation.THREE_TO_FIVE,
         )
         record_2 = attrs.evolve(
-            record_1,
-            pos=1001,
-            orientation=bg_db.PairedEndOrientation.THREE_TO_THREE,
+            record_1, pos=1001, orientation=bg_db.PairedEndOrientation.THREE_TO_THREE
         )
-        record_3 = attrs.evolve(record_1, end=record_1.end + 1)
-        mean_1 = attrs.evolve(record_1, end=record_1.end + 1)
+        record_3 = attrs.evolve(record_1, end=record_1.end)
+        mean_1 = attrs.evolve(record_1, end=record_1.end)
         mean_2 = record_2
         records = {"chr1": [record_1, record_2, record_3]}
         algo, clusters = self._run_clustering(records)
         expected = {
             "chr1": [
                 bg_db.SvCluster(
-                    params=algo.params, rng=algo.rng, mean=mean_1, records=[record_1, record_3]
+                    params=algo.params,
+                    rng=algo.rng,
+                    representant=mean_1,
+                    records=[record_1, record_3],
                 ),
-                bg_db.SvCluster(params=algo.params, rng=algo.rng, mean=mean_2, records=[record_2]),
-            ],
+                bg_db.SvCluster(
+                    params=algo.params, rng=algo.rng, representant=mean_2, records=[record_2]
+                ),
+            ]
         }
         self.assertEqual(clusters, expected)
 
 
 class TestModelToAttrs(TestCase):
     def testWithDel(self):
-        sv_model = StructuralVariantFactory(
-            chromosome="3",
-            chromosome_no=3,
-            start=1000,
-            end=2000,
-        )
+        sv_model = StructuralVariantFactory(chromosome="3", chromosome_no=3, start=1000, end=2000)
         sv_record = bg_db.sv_model_to_attrs(sv_model)
         self.maxDiff = None
         expected = bg_db.SvRecord(
@@ -553,9 +511,7 @@ class TestBuildBgSvSet(TestCase):
             job_type="variants.export_file_bg_job",
             user=self.root_user,
         )
-        self.build_sv_set_bg_job = BuildBackgroundSvSetJob.objects.create(
-            bg_job=self.bg_job,
-        )
+        self.build_sv_set_bg_job = BuildBackgroundSvSetJob.objects.create(bg_job=self.bg_job)
 
     def testWithNoRecords(self):
         self.assertEqual(BackgroundSvSet.objects.count(), 0)

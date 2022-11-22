@@ -1,11 +1,17 @@
 """Factory Boy factory classes for ``svs``."""
 
+import datetime
 import typing
 import uuid
 
 import attr
+import attrs
+from bgjobs.models import BackgroundJob
+from bgjobs.tests.factories import BackgroundJobFactory
 import binning
+from django.utils import timezone
 import factory
+from factory.fuzzy import FuzzyDateTime
 
 from svs.forms import (
     FILTER_FORM_TRANSLATE_EFFECTS,
@@ -13,16 +19,20 @@ from svs.forms import (
     FILTER_FORM_TRANSLATE_SV_TYPES,
 )
 from variants.models import Case
-from variants.tests.factories import CaseFactory
+from variants.tests.factories import CaseFactory, ProjectFactory
 
 from ..models import (
     BackgroundSv,
     BackgroundSvSet,
+    FilterSvBgJob,
     StructuralVariant,
     StructuralVariantComment,
     StructuralVariantFlags,
     StructuralVariantGeneAnnotation,
     StructuralVariantSet,
+    SvQuery,
+    SvQueryResultRow,
+    SvQueryResultSet,
 )
 
 
@@ -80,12 +90,45 @@ class StructuralVariantFactory(factory.django.DjangoModelFactory):
     sv_type = "DEL"
     sv_sub_type = "DEL"
 
-    genotype = factory.LazyAttribute(
-        lambda obj: {
-            line["patient"]: {"gt": gt, "gq": 10, "src": 10, "srv": 5, "pec": 10, "pev": 5}
-            for line, gt in zip(obj.case.pedigree, obj.genotypes())
+    @factory.lazy_attribute
+    def genotype(self):
+        # Properties of GT field for deletions.
+        gt_properties = {
+            "0/0": {
+                "gq": 50,  # genotype quality
+                "pec": 20,  # paired-end coverage
+                "pev": 00,  # paired-end variant count
+                "src": 20,  # split read coverage
+                "srv": 00,  # split read variant count
+                "cn": 2,  # copy number
+                "anc": 1.0,  # average normalized coverage
+                "amq": 50,  # average mapping quality
+            },
+            "0/1": {
+                "gq": 50,  # genotype quality
+                "pec": 20,  # paired-end coverage
+                "pev": 10,  # paired-end variant count
+                "src": 20,  # split read coverage
+                "srv": 10,  # split read variant count
+                "cn": 1,  # copy number
+                "anc": 0.5,  # average normalized coverage
+                "amq": 50,  # average mapping quality
+            },
+            "1/1": {
+                "gq": 50,  # genotype quality
+                "pec": 20,  # paired-end coverage
+                "pev": 20,  # paired-end variant count
+                "src": 20,  # split read coverage
+                "srv": 20,  # split read variant count
+                "cn": 0,  # copy number
+                "anc": 0.0,  # average normalized coverage
+                "amq": 50,  # average mapping quality
+            },
         }
-    )
+        result = {}
+        for line, gt in zip(self.case.pedigree, self.genotypes()):
+            result[line["patient"]] = {"gt": gt, **gt_properties[gt]}
+        return result
 
     @factory.lazy_attribute
     def num_hom_alt(self):
@@ -175,7 +218,9 @@ class _UserAnnotationFactory(factory.django.DjangoModelFactory):
     class Meta:
         abstract = True
 
-    bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
+    @factory.lazy_attribute
+    def bin(self):
+        return binning.assign_bin(self.end, self.end + 1)
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
@@ -229,32 +274,25 @@ class FormDataFactory:
 
     dgv_enabled: bool = False
     dgv_min_overlap: float = 0.75
-    dgv_max_carriers: int = None
+    dgv_max_count: int = None
     dgv_gs_enabled: bool = False
     dgv_gs_min_overlap: float = 0.75
-    dgv_gs_max_carriers: int = None
+    dgv_gs_max_count: int = None
     exac_enabled: bool = False
     exac_min_overlap: float = 0.75
-    exac_max_carriers: int = None
+    exac_max_count: int = None
     gnomad_enabled: bool = False
     gnomad_min_overlap: float = 0.75
-    gnomad_max_carriers: int = None
+    gnomad_max_count: int = None
     dbvar_enabled: bool = False
     dbvar_min_overlap: float = 0.75
-    dbvar_max_carriers: int = None
+    dbvar_max_count: int = None
     g1k_enabled: bool = False
     g1k_min_overlap: float = 0.75
-    g1k_max_carriers: int = None
-
-    # collective frequency
-
-    collective_enabled: bool = False
-    cohort_background_carriers_min: int = None
-    cohort_background_carriers_max: int = 0
-    cohort_affected_carriers_min: int = 1
-    cohort_affected_carriers_max: int = None
-    cohort_unaffected_carriers_min: int = None
-    cohort_unaffected_carriers_max: int = None
+    g1k_max_count: int = None
+    inhouse_enabled: bool = False
+    inhouse_min_overlap: float = 0.75
+    inhouse_max_count: int = None
 
     # variant effect
 
@@ -273,13 +311,12 @@ class FormDataFactory:
 
     # gene lists / regions
 
-    gene_blocklist: typing.List[str] = attr.Factory(list)
-    genomic_region: typing.List[str] = attr.Factory(list)
-    gene_allowlist: typing.List[str] = attr.Factory(list)
+    genomic_region: typing.Optional[typing.List[str]] = None
+    gene_allowlist: typing.Optional[typing.List[str]] = None
 
     # tads
 
-    tad_set_uuid: str = attr.Factory(uuid.uuid4)
+    tad_set_uuid: str = attrs.Factory(uuid.uuid4)
 
     # regulatory features
 
@@ -306,9 +343,7 @@ class BackgroundSvFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = BackgroundSv
 
-    bg_sv_set = factory.SubFactory(
-        BackgroundSvSetFactory,
-    )
+    bg_sv_set = factory.SubFactory(BackgroundSvSetFactory)
 
     release = "GRCh37"
     chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
@@ -326,3 +361,114 @@ class BackgroundSvFactory(factory.django.DjangoModelFactory):
     carriers_het = 1
     carriers_hom = 0
     carriers_hemi = 0
+
+
+@attrs.define(auto_attribs=True)
+class SvQuerySettingsFactory:
+    """Factory for generating SV query settings JSON-compatible dicts based on python-attrs."""
+
+    names: typing.List[str] = attrs.field(factory=list, repr=False)
+
+
+def as_dict_no_names(attrs_obj_with_names):
+    """Helper function that returns an ``attrs`` object as a dict without the ``names`` attribute."""
+    return attrs.asdict(attrs_obj_with_names, filter=lambda a, _v: a.name not in ["names"])
+
+
+class SvQueryFactory(factory.django.DjangoModelFactory):
+    """Factory for ``SvQuery`` model."""
+
+    class Meta:
+        model = SvQuery
+
+    case = factory.SubFactory(CaseFactory)
+    query_settings = factory.LazyAttribute(
+        lambda o: as_dict_no_names(SvQuerySettingsFactory(names=o.case.get_members()))
+    )
+
+
+@attrs.define
+class SvQueryResultsPayloadFactory:
+    """Factory for generating SV query results JSON-compatible dicts based on python-attrs."""
+
+    names: typing.List[str] = attrs.field(factory=list, repr=False)
+
+    rows: typing.List[typing.Any] = attrs.field(factory=list)
+
+
+class SvQueryResultSetFactory(factory.django.DjangoModelFactory):
+    """Factory for ``SvQueryResult`` model."""
+
+    class Meta:
+        model = SvQueryResultSet
+
+    svquery = factory.SubFactory(SvQueryFactory)
+
+    start_time = FuzzyDateTime(timezone.now())
+    end_time = factory.LazyAttribute(lambda o: o.start_time + datetime.timedelta(hours=1))
+    elapsed_seconds = factory.LazyAttribute(lambda o: (o.end_time - o.start_time).total_seconds())
+    result_row_count = 0
+
+
+class SvQueryResultRowFactory(factory.django.DjangoModelFactory):
+    """Factory for ``SvQueryResultRow`` model."""
+
+    class Meta:
+        model = SvQueryResultRow
+
+    svqueryresultset = factory.SubFactory(SvQueryResultSetFactory)
+
+    release = "GRCh37"
+    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    chromosome_no = factory.Iterator(list(range(1, 25)))
+    chromosome2 = factory.LazyAttribute(lambda obj: obj.chromosome)
+    chromosome_no2 = factory.LazyAttribute(lambda obj: obj.chromosome_no)
+
+    @factory.lazy_attribute
+    def bin(self):
+        if self.chromosome == self.chromosome2:
+            return binning.assign_bin(self.start, self.end)
+        else:
+            return binning.assign_bin(self.start, self.start + 1)
+
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
+    pe_orientation = "3to5"
+
+    sv_type = "DEL"
+    sv_sub_type = "DEL"
+
+    payload = {}
+
+
+class FilterSvBgJobFactory(factory.django.DjangoModelFactory):
+    """Factory for ``FilterSvBgJob`` model."""
+
+    class Meta:
+        model = FilterSvBgJob
+        exclude = ["user"]
+
+    # Dummy argument ``user`` to pass to subfactory BackgroundJobFactory
+    user = None
+    case = factory.SubFactory(CaseFactory)
+    project = factory.LazyAttribute(lambda o: o.case.project)
+    bg_job = factory.SubFactory(
+        BackgroundJobFactory,
+        project=factory.SelfAttribute("factory_parent.project"),
+        user=factory.SelfAttribute("factory_parent.user"),
+    )
+    svquery = factory.SubFactory(
+        SvQueryFactory,
+        case=factory.SelfAttribute("factory_parent.case"),
+        user=factory.SelfAttribute("factory_parent.user"),
+    )
+
+
+class BackgroundJobFactory(factory.django.DjangoModelFactory):
+    """Factory for creating ``bgjobs.BackgroundJob`` objects."""
+
+    class Meta:
+        model = BackgroundJob
+
+    user = None
+    project = factory.SubFactory(ProjectFactory)
