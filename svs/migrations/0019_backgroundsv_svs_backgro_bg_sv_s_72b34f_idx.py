@@ -5,9 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("svs", "0018_extend_structuralvariant"),
-    ]
+    dependencies = [("svs", "0018_extend_structuralvariant")]
 
     operations = [
         migrations.AddIndex(
@@ -16,5 +14,5 @@ class Migration(migrations.Migration):
                 fields=["bg_sv_set_id", "release", "chromosome", "bin"],
                 name="svs_backgro_bg_sv_s_72b34f_idx",
             ),
-        ),
+        )
     ]

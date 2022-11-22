@@ -1,0 +1,17 @@
+{% extends 'projectroles/base.html' %}
+{% load projectroles_common_tags %}
+{% load vite_tags %}
+
+{% block title %}
+  Filter SVs: {{ case.name }}
+{% endblock title %}
+
+{% block projectroles %}
+  {% get_app_setting 'userprofile' 'enable_project_uuid_copy' user=request.user as enable_uuid_copy %}
+
+  <div id="sodar-ss-app-context" app-context="{{ app_context }}"></div>
+  <div id="app" class="h-100"></div>
+
+  {% vite_scripts 'src/svs/main.js' %}
+  {% vite_styles 'src/svs/main.js' %}
+{% endblock %}

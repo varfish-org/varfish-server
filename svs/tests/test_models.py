@@ -1,28 +1,34 @@
 """Tests for the models in ``svs``."""
 from datetime import timedelta
 
-from django.test import TestCase
 from django.utils import timezone
+from test_plus import TestCase
 
 from svs.models import (
     BackgroundSv,
     BackgroundSvSet,
+    FilterSvBgJob,
     StructuralVariant,
     StructuralVariantComment,
     StructuralVariantFlags,
     StructuralVariantGeneAnnotation,
     StructuralVariantSet,
+    SvQuery,
+    SvQueryResultRow,
+    SvQueryResultSet,
     cleanup_variant_sets,
 )
-
-from .factories import (
+from svs.tests.factories import (
     BackgroundSvFactory,
     BackgroundSvSetFactory,
+    FilterSvBgJobFactory,
     StructuralVariantCommentFactory,
     StructuralVariantFactory,
     StructuralVariantFlagsFactory,
     StructuralVariantGeneAnnotationFactory,
     StructuralVariantSetFactory,
+    SvQueryResultRowFactory,
+    SvQueryResultSetFactory,
 )
 
 
@@ -85,3 +91,28 @@ class TestBackgroundSvSet(TestCase):
         _variant_set = BackgroundSvSetFactory()
         self.assertEqual(BackgroundSv.objects.count(), 0)
         self.assertEqual(BackgroundSvSet.objects.count(), 1)
+
+
+class TestFilterSvBgJob(TestCase):
+    def testConstruction(self):
+        user = self.make_user("superuser")
+        _filtersvbgjob = FilterSvBgJobFactory(user=user)
+        self.assertEqual(FilterSvBgJob.objects.count(), 1)
+        self.assertEqual(SvQuery.objects.count(), 1)
+
+
+class TestSvQueryResultSet(TestCase):
+    def testConstruction(self):
+        user = self.make_user("superuser")
+        filtersvbgjob = FilterSvBgJobFactory(user=user)
+        _svqueryresultset = SvQueryResultSetFactory(svquery=filtersvbgjob.svquery)
+        self.assertEqual(SvQueryResultSet.objects.count(), 1)
+
+
+class TestSvQueryResultRow(TestCase):
+    def testConstruction(self):
+        user = self.make_user("superuser")
+        filtersvbgjob = FilterSvBgJobFactory(user=user)
+        svqueryresultset = SvQueryResultSetFactory(svquery=filtersvbgjob.svquery)
+        _svqueryresultrow = SvQueryResultRowFactory(svqueryresultset=svqueryresultset)
+        self.assertEqual(SvQueryResultRow.objects.count(), 1)

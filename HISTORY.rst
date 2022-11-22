@@ -87,6 +87,7 @@ End-User Summary
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 - Added cohort vue app, removed original implementation (#798).
+- Implementation of SV filtration with Vue.js (#755).
 
 Full Change List
 ================
@@ -187,6 +188,7 @@ Full Change List
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
 - Added cohort vue app, removed original implementation (#798).
+- Implementation of SV filtration with Vue.js (#755).
 
 ------
 v1.2.0

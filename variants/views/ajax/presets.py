@@ -696,10 +696,6 @@ class QuickPresetsListCreateAjaxView(
 
     serializer_class = QuickPresetsSerializer
 
-    # def post(self, *args, **kwargs):
-    #     import pdb; pdb.set_trace()
-    #     return super().post(*args, **kwargs)
-
     def get_queryset(self):
         return QuickPresets.objects.filter(presetset=self.get_presetset())
 

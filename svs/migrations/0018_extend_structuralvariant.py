@@ -104,7 +104,7 @@ else:
                 DROP COLUMN num_hemi_alt,
                 DROP COLUMN num_hemi_ref;
             """,
-        ),
+        )
     ]
 
 

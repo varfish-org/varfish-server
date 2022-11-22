@@ -7,9 +7,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ("svs", "0011_rename_partitions"),
-    ]
+    dependencies = [("svs", "0011_rename_partitions")]
 
     operations = [
         migrations.AddField(
@@ -25,5 +23,5 @@ class Migration(migrations.Migration):
                 default="empty",
                 max_length=32,
             ),
-        ),
+        )
     ]
