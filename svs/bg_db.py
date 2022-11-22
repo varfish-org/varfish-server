@@ -356,11 +356,8 @@ class ClusterSvAlgorithm:
                 process = psutil.Process(os.getpid())
                 rss_mb = process.memory_info().rss // 1024 // 1024
                 LOGGER.info(
-                    f"... clustering SV type {sv_type} with RSS {rss_mb} MB", file=sys.stderr
+                    f"... clustering SV type {sv_type} with RSS {rss_mb} MB",
                 )
-                print(
-                    f"... clustering SV type {sv_type} with RSS {rss_mb} MB", file=sys.stderr
-                )  # XXX
                 tmp_file.flush()
                 tmp_file.seek(0)
                 self.clusters += self._cluster_impl(sv_type, tmp_file)
@@ -581,7 +578,7 @@ def _build_bg_sv_set_impl(
                     if log_to_stderr:
                         process = psutil.Process(os.getpid())
                         rss_mb = process.memory_info().rss // 1024 // 1024
-                        print(f"... at record {num} with RSS {rss_mb} MB", file=sys.stderr)
+                        log(f"... at record {num} with RSS {rss_mb} MB")
                     gc.collect()
             clusters = algo.cluster()
         log("Built %d clusters from %d records" % (len(clusters), record_count))

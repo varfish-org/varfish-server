@@ -78,6 +78,7 @@ End-User Summary
 - Implementing case-independent variant annotations (#747).
 - Fixing bug in mutationtaster integration (#790).
 - Fixing bug in Vue.js filtration without prior query (#794).
+- Fixing bug in SV background database generation (#792).
 
 Full Change List
 ================
@@ -169,6 +170,7 @@ Full Change List
 - Adding user-defined query presets (#776).
 - Fixing bug in mutationtaster integration (#790).
 - Fixing bug in Vue.js filtration without prior query (#794).
+- Fixing bug in SV background database generation (#792).
 
 ------
 v1.2.0
