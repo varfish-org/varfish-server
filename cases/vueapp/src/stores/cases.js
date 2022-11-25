@@ -37,7 +37,7 @@ export const useCasesStore = defineStore('cases', () => {
   /** Whether to show inline help. */
   const showInlineHelp = ref(false)
   /** The complexity mode to use for presentation. */
-  const complexityMode = ref('basic')
+  const complexityMode = ref('simple')
 
   /** The number of cases in the project. */
   const caseCount = ref(null)

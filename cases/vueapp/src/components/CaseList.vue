@@ -6,7 +6,7 @@ import {
 } from '../common.js'
 import CaseListHeader from './CaseListHeader.vue'
 import CaseListContent from './CaseListContent.vue'
-import Overlay from './Overlay.vue'
+import Overlay from '@varfish/components/Overlay.vue'
 
 const props = defineProps({
   currentTab: String,

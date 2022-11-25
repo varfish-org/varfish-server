@@ -14,7 +14,7 @@ import CaseDetailHeader from './CaseDetailHeader.vue'
 import CaseDetailContent from './CaseDetailContent.vue'
 import ModalPedigreeEditor from './ModalPedigreeEditor.vue'
 import ModalTermsEditor from './ModalTermsEditor.vue'
-import Overlay from './Overlay.vue'
+import Overlay from '@varfish/components/Overlay.vue'
 import { connectTopRowControls } from '../common'
 
 const casesStore = useCasesStore()

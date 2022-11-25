@@ -13,12 +13,12 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     icon = "mdi:basket"
 
-    entry_point_url_id = "cohorts:list"
+    entry_point_url_id = "cohorts:entrypoint"
 
     description = "Cohorts"
 
     #: Required permission for accessing the app
-    app_permission = "variants.view_data"
+    app_permission = "cohorts.view_data"
 
     #: Enable or disable general search from project title bar
     search_enable = False

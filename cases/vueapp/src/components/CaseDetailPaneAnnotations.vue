@@ -14,7 +14,7 @@ import {
 } from '@variants/enums.js'
 import FilterResultsTable from '@variants/components/FilterResultsTable.vue'
 import VariantDetailsModalWrapper from '@variants/components/VariantDetailsModalWrapper.vue'
-import Overlay from '@cases/components/Overlay.vue'
+import Overlay from '@varfish/components/Overlay.vue'
 
 /** The details columns to show. */
 const displayDetails = ref(DisplayDetails.Coordinates.value)

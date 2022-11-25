@@ -1,5 +1,5 @@
 <script setup>
-import Overlay from '@cases/components/Overlay.vue'
+import Overlay from '@varfish/components/Overlay.vue'
 import FilterFormGenotypePane from './FilterFormGenotypePane.vue'
 import FilterFormFrequencyPane from './FilterFormFrequencyPane.vue'
 import FilterFormFooter from './FilterFormFooter.vue'

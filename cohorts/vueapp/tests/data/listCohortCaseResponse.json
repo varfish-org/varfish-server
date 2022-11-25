@@ -1,0 +1,12 @@
+[
+  {
+    "case": "case1-fake-uuid",
+    "cohort": "cohort-fake-uuid",
+    "sodar_uuid": "cohortcase1-fake-uuid"
+  },
+  {
+    "case": "case2-fake-uuid",
+    "cohort": "cohort-fake-uuid",
+    "sodar_uuid": "cohortcase2-fake-uuid"
+  }
+]
