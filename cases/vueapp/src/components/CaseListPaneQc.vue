@@ -7,7 +7,7 @@ import QcPlotRelatedness from './QcPlotRelatedness.vue'
 import QcPlotDepthHet from './QcPlotDepthHet.vue'
 import QcPlotChrXRatio from './QcPlotChrXRatio.vue'
 import QcTableVarStats from './QcTableVarStats.vue'
-import Overlay from './Overlay.vue'
+import Overlay from '@varfish/components/Overlay.vue'
 import { downloadPerSampleMetrics, downloadRelatedness } from '../common.js'
 
 const casesStore = useCasesStore()

@@ -45,7 +45,7 @@ class Cohort(models.Model):
     )
 
     #: Cases selected by the user for this query
-    cases = models.ManyToManyField("variants.Case", default=None)
+    cases = models.ManyToManyField("variants.Case", through="CohortCase")
 
     class Meta:
         ordering = ["-date_modified"]
@@ -106,3 +106,19 @@ class Cohort(models.Model):
     def get_members(self, user):
         """Return concatenated list of members in ``pedigree``."""
         return sorted([x["patient"] for x in self.get_filtered_pedigree_with_samples(user)])
+
+
+class CohortCase(models.Model):
+    """Model for ManyToMany relation between cohorts and cases."""
+
+    #: Cohort UUID.
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="CohortCase SODAR UUID"
+    )
+    #: The submitting organisation.
+    cohort = models.ForeignKey(Cohort, on_delete=models.CASCADE)
+    #: The submission set that this organisation belongs to.
+    case = models.ForeignKey("variants.Case", on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (("cohort", "case"),)

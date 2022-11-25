@@ -4,9 +4,14 @@ from projectroles.models import Role
 from projectroles.tests.test_models import RoleAssignmentMixin
 from test_plus import TestCase
 
-from cohorts.models import Cohort
+from cohorts.models import Cohort, CohortCase
 from variants.models import Case
-from variants.tests.factories import CaseWithVariantSetFactory, ProjectFactory, SmallVariantFactory
+from variants.tests.factories import (
+    CaseFactory,
+    CaseWithVariantSetFactory,
+    ProjectFactory,
+    SmallVariantFactory,
+)
 
 
 class CohortFactory(factory.django.DjangoModelFactory):
@@ -37,7 +42,6 @@ class TestCohortBase(RoleAssignmentMixin, TestCase):
         self.maxDiff = None  # show full diff
 
         # setup users
-
         # setup super user
         self.superuser = self.make_user("superuser")
         self.superuser.is_staff = True
@@ -46,12 +50,9 @@ class TestCohortBase(RoleAssignmentMixin, TestCase):
 
         # setup contributor user
         self.contributor = self.make_user("contributor")
-
         # setup owner for projects, not used in tests
         owner = self.make_user("owner")
-
         # setup cases & projects & roles
-
         # project 1 case 1
         self.project1 = ProjectFactory()
         self.project1_case1, variant_set_1, _ = CaseWithVariantSetFactory.get(
@@ -92,6 +93,7 @@ class TestCohortBase(RoleAssignmentMixin, TestCase):
         # owner owns project1 and project2 (all projects)
         self._make_assignment(self.project1, owner, role_owner)
         self._make_assignment(self.project2, owner, role_owner)
+
         # contributor gets access to project2
         self._make_assignment(self.project2, self.contributor, role_contributor)
 
@@ -101,3 +103,13 @@ class TestCohortBase(RoleAssignmentMixin, TestCase):
         else:
             cases = Case.objects.filter(project__roles__user=user)
         return CohortFactory.create(user=user, project=project, cases=cases)
+
+
+class CohortCaseFactory(factory.django.DjangoModelFactory):
+    """Factory for creating ``cohorts`` ``CohortCase`` objects."""
+
+    class Meta:
+        model = CohortCase
+
+    cohort = factory.SubFactory(CohortFactory)
+    case = factory.SubFactory(CaseFactory)

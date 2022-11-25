@@ -1,0 +1,106 @@
+{
+  "sodar_uuid": "cohort-fake-uuid",
+  "project": "project-fake-uuid",
+  "user": {
+    "username": "admin",
+    "name": "",
+    "email": "",
+    "sodar_uuid": "user-fake-uuid"
+  },
+  "cases": [
+    {
+      "sodar_uuid": "case1-fake-uuid",
+      "project": "project-fake-uuid",
+      "sex_errors": {},
+      "release": "GRCh37",
+      "name": "HG00126",
+      "index": "HG00126-N1-DNA1-WES1",
+      "pedigree": [
+        {
+          "sex": 1,
+          "father": "0",
+          "mother": "0",
+          "name": "HG00126-N1-DNA1-WES1",
+          "affected": 2,
+          "has_gt_entries": true
+        }
+      ],
+      "notes": "",
+      "status": "initial",
+      "tags": [],
+      "date_created": "2022-12-19T17:00:51.882011Z",
+      "date_modified": "2022-12-19T17:00:56.993619Z",
+      "num_small_vars": 159954,
+      "num_svs": null
+    },
+    {
+      "sodar_uuid": "case3-fake-uuid",
+      "project": "project2-fake-uuid",
+      "sex_errors": {},
+      "release": "GRCh37",
+      "name": "HG00107",
+      "index": "HG00107-N1-DNA1-WES1",
+      "pedigree": [
+        {
+          "sex": 1,
+          "father": "0",
+          "mother": "0",
+          "name": "HG00107-N1-DNA1-WES1",
+          "affected": 2,
+          "has_gt_entries": true
+        }
+      ],
+      "notes": "",
+      "status": "initial",
+      "tags": [],
+      "date_created": "2022-12-19T16:57:02.318895Z",
+      "date_modified": "2022-12-19T16:57:08.553975Z",
+      "num_small_vars": 188234,
+      "num_svs": null
+    },
+    {
+      "sodar_uuid": "case5-fake-uuid",
+      "project": "project-fake-uuid",
+      "sex_errors": {},
+      "release": "GRCh37",
+      "name": "NA12878",
+      "index": "NA12878-N1-DNA1-WES1",
+      "pedigree": [
+        {
+          "sex": 2,
+          "father": "NA12891-N1-DNA1-WES1",
+          "mother": "NA12892-N1-DNA1-WES1",
+          "name": "NA12878-N1-DNA1-WES1",
+          "affected": 2,
+          "has_gt_entries": true
+        },
+        {
+          "sex": 1,
+          "father": "0",
+          "mother": "0",
+          "name": "NA12891-N1-DNA1-WES1",
+          "affected": 1,
+          "has_gt_entries": true
+        },
+        {
+          "sex": 2,
+          "father": "0",
+          "mother": "0",
+          "name": "NA12892-N1-DNA1-WES1",
+          "affected": 1,
+          "has_gt_entries": true
+        }
+      ],
+      "notes": "",
+      "status": "initial",
+      "tags": [],
+      "date_created": "2022-11-17T13:04:49.601814Z",
+      "date_modified": "2022-11-17T14:00:04.163019Z",
+      "num_small_vars": 1862774,
+      "num_svs": 261
+    }
+  ],
+  "date_created": "2022-12-19T10:28:22.567757Z",
+  "date_modified": "2022-12-20T09:42:02.340069Z",
+  "name": "Cohort Updated"
+}

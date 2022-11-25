@@ -23,7 +23,7 @@ from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 class CaseListAjaxView(CaseListApiView):
     """Retrieve detail of the specified case.
 
-    **URL:** ``/cases/ajax/case/list/{case.sodar_uuid}/``
+    **URL:** ``/cases/ajax/case/list/{project.sodar_uuid}/``
 
     **Methods:** See base API class.
 
