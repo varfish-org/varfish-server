@@ -12,7 +12,7 @@ import { StoreState, useQueryPresetsStore } from '../stores/queryPresets.js'
 import { useCasesStore } from '@cases/stores/cases.js'
 
 import QueryPresetsSetEditor from './QueryPresetsSetEditor.vue'
-import Overlay from '@cases/components/Overlay.vue'
+import Overlay from '@varfish/components/Overlay.vue'
 import ModalInput from '@varfish/components/ModalInput.vue'
 import ModalConfirm from '@varfish/components/ModalConfirm.vue'
 import Toast from '@varfish/components/Toast.vue'

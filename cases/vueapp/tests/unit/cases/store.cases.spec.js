@@ -48,7 +48,7 @@ describe('cases store', () => {
     expect(casesStore.appContext).toEqual(null)
     expect(casesStore.project).toEqual(null)
     expect(casesStore.showInlineHelp).toEqual(false)
-    expect(casesStore.complexityMode).toEqual('basic')
+    expect(casesStore.complexityMode).toEqual('simple')
   })
 
   test('initialize', async () => {
@@ -82,7 +82,7 @@ describe('cases store', () => {
     expect(casesStore.appContext).toEqual(appContext)
     expect(casesStore.project).toEqual(appContext.project)
     expect(casesStore.showInlineHelp).toEqual(false)
-    expect(casesStore.complexityMode).toEqual('basic')
+    expect(casesStore.complexityMode).toEqual('simple')
     expect(casesStore.caseCount).toEqual(caseListResponse.count)
     expect(casesStore.userPerms).toEqual(allPerms)
   })

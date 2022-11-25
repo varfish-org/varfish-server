@@ -86,6 +86,7 @@ End-User Summary
 - Fixing bug in effect UTR section in vue filter app (#822).
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
+- Added cohort vue app, removed original implementation (#798).
 
 Full Change List
 ================
@@ -185,6 +186,7 @@ Full Change List
 - Fixing bug in effect UTR section in vue filter app (#822).
 - Removing template settings in quality form tab (#825).
 - Removing gene blocklist from vue filter app (#823).
+- Added cohort vue app, removed original implementation (#798).
 
 ------
 v1.2.0
