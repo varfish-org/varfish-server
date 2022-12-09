@@ -37,9 +37,11 @@ const fetchPresets = async (
       ] +
         ['frequency', 'impact', 'quality', 'chromosomes', 'flagsetc'].map(
           (category) =>
-            variantsApi.fetchCategoryPresets(csrfToken).then((presets) => {
-              categoryPresets.value[category] = presets
-            })
+            variantsApi
+              .fetchCategoryPresets(csrfToken, category)
+              .then((presets) => {
+                categoryPresets.value[category] = presets
+              })
         )
     )
   }
