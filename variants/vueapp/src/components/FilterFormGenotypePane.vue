@@ -2,7 +2,7 @@
 import { displayName } from '@varfish/helpers.js'
 import FilterFormGenotypePaneSex from './FilterFormGenotypePaneSex.vue'
 import FilterFormGenotypePaneAffected from './FilterFormGenotypePaneAffected.vue'
-import { computed, reactive } from 'vue'
+import { computed, nextTick, reactive, getCurrentInstance } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 
 /** Define component's props. */
@@ -11,6 +11,11 @@ const props = defineProps({
   filtrationComplexityMode: String,
   case: Object,
   querySettings: Object,
+  // Allow to disable optgroup in tests.
+  useOptGroup: {
+    type: Boolean,
+    default: true,
+  },
 })
 
 /** Pre-computed mapping of member name to role in trio analysis.  Used for informative purpose only. */
@@ -77,7 +82,7 @@ const makeWrapper = (name) =>
         return
       }
 
-      if (newValue.endsWith('-index')) {
+      if ((newValue ?? '').endsWith('-index')) {
         // Handle new recessive index. Reset previous comp. het. settings, if any.
         for (const [key, value] of Object.entries(props.querySettings)) {
           if (
@@ -230,7 +235,7 @@ defineExpose({ v$ })
         </tr>
       </tbody>
     </table>
-    <div v-if="filtrationComplexityMode == 'dev'" class="card-footer">
+    <div v-if="filtrationComplexityMode === 'dev'" class="card-footer">
       <i-mdi-account-hard-hat />
       <strong class="pl-2">Developer Info:</strong>
       <code>

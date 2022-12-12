@@ -167,7 +167,7 @@ const onCellClicked = (event) => {
           </label>
         </div>
         <div class="text-center">
-          <span class="btn btn-sm btn-outline-secondary">
+          <span class="btn btn-sm btn-outline-secondary" id="results-button">
             {{ rowData.length }}
           </span>
         </div>

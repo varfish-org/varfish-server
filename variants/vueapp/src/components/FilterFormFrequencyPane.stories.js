@@ -34,3 +34,10 @@ WithHelp.args = {
   case: singletonCaseData,
   querySettings: querySettingsSingleton,
 }
+
+export const Grch38 = Template.bind({})
+Grch38.args = {
+  showFiltrationInlineHelp: true,
+  case: { ...singletonCaseData, release: 'GRCh38' },
+  querySettings: querySettingsSingleton,
+}

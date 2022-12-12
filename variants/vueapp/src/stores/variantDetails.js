@@ -56,7 +56,7 @@ export const useVariantDetailsStore = defineStore({
     fetched: false,
     geneId: null,
     smallVariant: null,
-    comments: null,
+    comments: [],
     flags: null,
     clinvar: null,
     knowngeneaa: null,

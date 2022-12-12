@@ -259,6 +259,7 @@ defineExpose({
             type="text"
             class="form-control"
             placeholder="max. distance to next exon"
+            id="max-exon-dist"
             v-model.trim.lazy="v$.maxExonDist.$model"
             :class="{
               // 'is-valid': !v$.maxExonDist.$error,

@@ -27,9 +27,15 @@ Example.args = {
     },
     {
       transcriptId: 'XM_005265109.1',
-      variantEffects: ['missense_variant'],
+      variantEffects: ['stop_lost'],
       hgvsNucleotides: 'c.6955C>T',
       hgvsProtein: 'p.(R2319W)',
+    },
+    {
+      transcriptId: 'XM_005265110.1',
+      variantEffects: ['synonymous_variant'],
+      hgvsNucleotides: 'c.6956C>T',
+      hgvsProtein: 'p.(R2310W)',
     },
   ],
 }

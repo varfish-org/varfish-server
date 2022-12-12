@@ -1,3 +1,23 @@
+<script setup>
+import VariantDetailsCallDetails from './VariantDetailsCallDetails.vue'
+import VariantDetailsClinvar from './VariantDetailsClinvar.vue'
+import VariantDetailsCommentsFlags from './VariantDetailsCommentsFlags.vue'
+import VariantDetailsConservation from './VariantDetailsConservation.vue'
+import VariantDetailsExtraAnnos from './VariantDetailsExtraAnnos.vue'
+import VariantDetailsFreqs from './VariantDetailsFreqs.vue'
+import VariantDetailsGa4ghBeacons from './VariantDetailsGa4ghBeacons.vue'
+import VariantDetailsGene from './VariantDetailsGene.vue'
+import VariantDetailsTranscripts from './VariantDetailsTranscripts.vue'
+import VariantDetailsVariantValidator from './VariantDetailsVariantValidator.vue'
+import VariantDetailsAcmgRating from './VariantDetailsAcmgRating.vue'
+import VariantDetailsLinkOuts from './VariantDetailsLinkOuts.vue'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
+
+const detailsStore = useVariantDetailsStore()
+const queryStore = useFilterQueryStore()
+</script>
+
 <template>
   <div style="font-size: 0.9em">
     <div class="card">
@@ -216,45 +236,3 @@
     </div>
   </div>
 </template>
-
-<script>
-import VariantDetailsCallDetails from './VariantDetailsCallDetails.vue'
-import VariantDetailsClinvar from './VariantDetailsClinvar.vue'
-import VariantDetailsCommentsFlags from './VariantDetailsCommentsFlags.vue'
-import VariantDetailsConservation from './VariantDetailsConservation.vue'
-import VariantDetailsExtraAnnos from './VariantDetailsExtraAnnos.vue'
-import VariantDetailsFreqs from './VariantDetailsFreqs.vue'
-import VariantDetailsGa4ghBeacons from './VariantDetailsGa4ghBeacons.vue'
-import VariantDetailsGene from './VariantDetailsGene.vue'
-import VariantDetailsTranscripts from './VariantDetailsTranscripts.vue'
-import VariantDetailsVariantValidator from './VariantDetailsVariantValidator.vue'
-import VariantDetailsAcmgRating from './VariantDetailsAcmgRating.vue'
-import VariantDetailsLinkOuts from './VariantDetailsLinkOuts.vue'
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
-
-export default {
-  components: {
-    VariantDetailsCallDetails,
-    VariantDetailsClinvar,
-    VariantDetailsCommentsFlags,
-    VariantDetailsConservation,
-    VariantDetailsExtraAnnos,
-    VariantDetailsFreqs,
-    VariantDetailsGa4ghBeacons,
-    VariantDetailsGene,
-    VariantDetailsTranscripts,
-    VariantDetailsVariantValidator,
-    VariantDetailsAcmgRating,
-    VariantDetailsLinkOuts,
-  },
-  setup() {
-    const detailsStore = useVariantDetailsStore()
-    const queryStore = useFilterQueryStore()
-    return {
-      detailsStore,
-      queryStore,
-    }
-  },
-}
-</script>

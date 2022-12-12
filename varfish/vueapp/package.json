@@ -23,6 +23,7 @@
     "javascript-time-ago": "^2.5.7",
     "lodash.debounce": "^4.0.8",
     "lodash.isequal": "^4.5.0",
+    "npx": "^10.2.2",
     "pinia": "^2.0.22",
     "vega": "^5.22.1",
     "vega-embed": "^6.21.0",

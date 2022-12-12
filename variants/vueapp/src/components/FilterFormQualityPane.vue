@@ -19,12 +19,12 @@ const props = defineProps({
 })
 
 const tplValues = reactive({
-  qualMinDpHet: 10,
-  qualMinDpHom: 5,
-  qualMinAb: 0.2,
-  qualMinGq: 10,
-  qualMinAd: 3,
-  qualMaxAd: null,
+  qualMinDpHet: '10',
+  qualMinDpHom: '5',
+  qualMinAb: '0.2',
+  qualMinGq: '10',
+  qualMinAd: '3',
+  qualMaxAd: '',
   qualFail: 'drop-variant',
 })
 const keyMap = {
@@ -33,7 +33,7 @@ const keyMap = {
   qualMinAb: 'ab',
   qualMinGq: 'gq',
   qualMinAd: 'ad',
-  qualMaxAd: 'max_ad',
+  qualMaxAd: 'ad_max',
   qualFail: 'fail',
 }
 
@@ -45,9 +45,9 @@ const applySettings = () => {
   for (const member of props.caseObj.pedigree) {
     if (
       member.has_gt_entries &&
-      (applyToWhich.value == 'all' ||
-        (applyToWhich.value == 'affected' && member.affected == 2) ||
-        (applyToWhich.value == 'unaffected' && member.affected != 2))
+      (applyToWhich.value === 'all' ||
+        (applyToWhich.value === 'affected' && member.affected === 2) ||
+        (applyToWhich.value === 'unaffected' && member.affected !== 2))
     ) {
       for (const theKey of allKeys) {
         let tplValue = v$.value[theKey].$model
@@ -186,7 +186,7 @@ defineExpose({ v$ })
         v-model:qual-min-ab="querySettings.quality[member.name].ab"
         v-model:qual-min-gq="querySettings.quality[member.name].gq"
         v-model:qual-min-ad="querySettings.quality[member.name].ad"
-        v-model:qual-max-ad="querySettings.quality[member.name].max_ad"
+        v-model:qual-max-ad="querySettings.quality[member.name].ad_max"
         v-model:qual-fail="querySettings.quality[member.name].fail"
       />
     </tbody>

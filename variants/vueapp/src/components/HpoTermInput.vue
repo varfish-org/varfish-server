@@ -144,73 +144,80 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="input-group">
-    <textarea
-      :id="id"
-      v-model="textValue"
-      class="form-control"
-      rows="3"
-    ></textarea>
-    <div class="input-group-append">
-      <span
-        class="input-group-text refresh-button"
-        @click="manuallyRefreshModelValue()"
-        title="Verify and clean terms from text input"
-      >
-        <i-mdi-refresh :class="{ spin: refreshing }" />
-      </span>
+  <div>
+    <div class="input-group mb-3">
+      <textarea
+        :id="id"
+        v-model="textValue"
+        class="form-control"
+        rows="3"
+      ></textarea>
+      <div class="input-group-append">
+        <span
+          class="input-group-text refresh-button"
+          @click="manuallyRefreshModelValue()"
+          title="Verify and clean terms from text input"
+        >
+          <i-mdi-refresh :class="{ spin: refreshing }" />
+        </span>
+      </div>
     </div>
-  </div>
-  <code v-if="debugTerms">{{ props.modelValue }}</code>
-  <div class="form-text text-muted small mb-1">
-    Type into the box below to search for HPO/OMIM/Decipher terms. Select terms
-    to add them to the text box above. You can also just type the terms into the
-    text box above. To remove terms, just remove them from the text box.
-  </div>
-  <div class="row ml-0 mr-0">
-    <Multiselect
-      class="col"
-      mode="single"
-      placeholder="HPO Term Lookup"
-      no-options-text="Type to start searching"
-      :filter-results="false"
-      :allow-empty="true"
-      :close-on-select="true"
-      :searchable="true"
-      :object="true"
-      :resolve-on-load="false"
-      :loading="loading"
-      :delay="1"
-      :min-chars="3"
-      :options="fetchHpoTermsForMultiselect"
-      @change="hpoTermSelected"
-    />
-    <button
-      v-if="showHpoShortcutsButton"
-      type="button"
-      class="btn btn-secondary col-auto ml-2 text-white"
-      title="HPO term shortcuts"
-      @click="showHpoShortcuts = !showHpoShortcuts"
+    <code v-if="debugTerms">{{ props.modelValue }}</code>
+    <div
+      v-if="props.showFiltrationInlineHelp"
+      class="alert alert-secondary small p-2"
     >
-      <i-mdi-dots-horizontal />
-    </button>
-  </div>
-  <div v-if="showHpoShortcuts" class="row">
-    <div class="col pl-0 pr-0 small">
-      <h6 class="mt-2" style="font-size: 1.2em">Inheritance</h6>
-      <template v-for="(item, index) in hpoInheritance">
-        <span class="pl-1 pr-1" v-if="index > 0">&middot;</span>
-        <a href="#" @click.prevent="appendHpoTerm(item.term)">{{
-          item.label
-        }}</a>
-      </template>
-      <h6 class="mt-2" style="font-size: 1.2em">Age of Onset</h6>
-      <template v-for="(item, index) in hpoAgeOfOnset">
-        <span class="pl-1 pr-1" v-if="index > 0">&middot;</span>
-        <a href="#" @click.prevent="appendHpoTerm(item.term)">{{
-          item.label
-        }}</a>
-      </template>
+      <i-mdi-information />
+      Type into the box below to search for HPO/OMIM/Decipher terms. Select
+      terms to add them to the text box above. You can also just type the terms
+      into the text box above. To remove terms, just remove them from the text
+      box.
+    </div>
+    <div class="row ml-0 mr-0">
+      <Multiselect
+        class="col"
+        mode="single"
+        placeholder="HPO Term Lookup"
+        no-options-text="Type to start searching"
+        :filter-results="false"
+        :allow-empty="true"
+        :close-on-select="true"
+        :searchable="true"
+        :object="true"
+        :resolve-on-load="false"
+        :loading="loading"
+        :delay="1"
+        :min-chars="3"
+        :options="fetchHpoTermsForMultiselect"
+        @change="hpoTermSelected"
+      />
+      <button
+        v-if="showHpoShortcutsButton"
+        type="button"
+        class="btn btn-secondary col-auto ml-2 text-white"
+        title="HPO term shortcuts"
+        @click="showHpoShortcuts = !showHpoShortcuts"
+      >
+        <i-mdi-dots-horizontal />
+      </button>
+    </div>
+    <div v-if="showHpoShortcuts" class="row">
+      <div class="col pl-0 pr-0 small">
+        <h6 class="mt-2" style="font-size: 1.2em">Inheritance</h6>
+        <template v-for="(item, index) in hpoInheritance">
+          <span class="pl-1 pr-1" v-if="index > 0">&middot;</span>
+          <a href="#" @click.prevent="appendHpoTerm(item.term)">{{
+            item.label
+          }}</a>
+        </template>
+        <h6 class="mt-2" style="font-size: 1.2em">Age of Onset</h6>
+        <template v-for="(item, index) in hpoAgeOfOnset">
+          <span class="pl-1 pr-1" v-if="index > 0">&middot;</span>
+          <a href="#" @click.prevent="appendHpoTerm(item.term)">{{
+            item.label
+          }}</a>
+        </template>
+      </div>
     </div>
   </div>
 </template>

@@ -33,7 +33,7 @@ const interpretations = [
         <input
           type="checkbox"
           class="custom-control-input"
-          v-model="props.querySettings['require_in_clinvar']"
+          v-model="props.querySettings.require_in_clinvar"
           id="clinvar-require-in-clinvar"
         />
         <label class="custom-control-label" for="clinvar-require-in-clinvar">
@@ -49,7 +49,7 @@ const interpretations = [
         <input
           type="checkbox"
           class="custom-control-input"
-          v-model="props.querySettings['clinvar_paranoid_mode']"
+          v-model="props.querySettings.clinvar_paranoid_mode"
           id="clinvar-paranoid-mode"
           :disabled="!props.querySettings.require_in_clinvar"
         />
