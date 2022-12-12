@@ -84,10 +84,10 @@ export const useCaseDetailsStore = defineStore(
     const initializeRes = ref(null)
 
     /** Initialize the store for the given case. */
-    const initialize = (caseObj$) => {
+    const initialize = (caseUuid$) => {
       if (
         storeState.value !== 'initial' &&
-        caseObj$.sodar_uuid === caseObj.value.sodar_uuid
+        caseObj.value.sodar_uuid === caseUuid$
       ) {
         // only once for each case
         return initializeRes.value
@@ -98,60 +98,52 @@ export const useCaseDetailsStore = defineStore(
       casesStore.serverInteractions += 1
       const csrfToken = casesStore.appContext.csrf_token
       initializeRes.value = Promise.all([
-        casesApi.listCaseComment(csrfToken, caseObj$.sodar_uuid).then((res) => {
+        casesApi.retrieveCase(csrfToken, caseUuid$).then((res) => {
+          caseObj.value = res
+        }),
+        casesApi.listCaseComment(csrfToken, caseUuid$).then((res) => {
           caseComments.value = res
         }),
-        casesApi.fetchVarAnnos(csrfToken, caseObj$.sodar_uuid).then((res) => {
+        casesApi.fetchVarAnnos(csrfToken, caseUuid$).then((res) => {
           varAnnos.value = res
         }),
-        casesApi.fetchSvAnnos(csrfToken, caseObj$.sodar_uuid).then((res) => {
+        casesApi.fetchSvAnnos(csrfToken, caseUuid$).then((res) => {
           svAnnos.value = res
         }),
+        casesApi.fetchCaseGeneAnnotation(csrfToken, caseUuid$).then((res) => {
+          geneAnnotations.value = res
+        }),
+        casesApi.fetchCaseVariantStats(csrfToken, caseUuid$).then((res) => {
+          caseVariantStats.value = Object.fromEntries(
+            res.map((line) => [line.sample_name, line])
+          )
+        }),
+        casesApi.fetchCaseRelatedness(csrfToken, caseUuid$).then((res) => {
+          caseRelatedness.value = res
+        }),
+        casesApi.listCasePhenotypeTerms(csrfToken, caseUuid$).then((res) => {
+          casePhenotypeTerms.value = res
+        }),
         casesApi
-          .fetchCaseGeneAnnotation(csrfToken, caseObj$.sodar_uuid)
-          .then((res) => {
-            geneAnnotations.value = res
-          }),
-        casesApi
-          .fetchCaseVariantStats(csrfToken, caseObj$.sodar_uuid)
-          .then((res) => {
-            caseVariantStats.value = Object.fromEntries(
-              res.map((line) => [line.sample_name, line])
-            )
-          }),
-        casesApi
-          .fetchCaseRelatedness(csrfToken, caseObj$.sodar_uuid)
-          .then((res) => {
-            caseRelatedness.value = res
-          }),
-        casesApi
-          .listCasePhenotypeTerms(csrfToken, caseObj$.sodar_uuid)
-          .then((res) => {
-            casePhenotypeTerms.value = res
-          }),
-        casesApi
-          .fetchAnnotationReleaseInfos(csrfToken, caseObj$.sodar_uuid)
+          .fetchAnnotationReleaseInfos(csrfToken, caseUuid$)
           .then((res) => {
             caseAnnotationReleaseInfos.value = res
           }),
         casesApi
-          .fetchSvAnnotationReleaseInfos(csrfToken, caseObj$.sodar_uuid)
+          .fetchSvAnnotationReleaseInfos(csrfToken, caseUuid$)
           .then((res) => {
             caseSvAnnotationReleaseInfos.value = res
           }),
-        casesApi
-          .fetchCaseAlignmentStats(csrfToken, caseObj$.sodar_uuid)
-          .then((res) => {
-            if (res.length > 0) {
-              caseAlignmentStats.value = res[0]
-            } else {
-              caseAlignmentStats.value = null
-            }
-          }),
+        casesApi.fetchCaseAlignmentStats(csrfToken, caseUuid$).then((res) => {
+          if (res.length > 0) {
+            caseAlignmentStats.value = res[0]
+          } else {
+            caseAlignmentStats.value = null
+          }
+        }),
       ])
         .then(() => {
-          caseObj.value = caseObj$
-          caseUuid.value = caseUuid
+          caseUuid.value = caseUuid$
           casesStore.serverInteractions -= 1
           storeState.value = StoreState.active
         })

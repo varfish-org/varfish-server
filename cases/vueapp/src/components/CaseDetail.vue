@@ -34,16 +34,14 @@ connectTopRowControls()
 // We can only finish initialization once the caseDetailsStore has completed loading as we need to initialize
 // some stores needed for the details view(s).  We finish by watching the route to update the case.
 casesStore.initializeRes.then(() => {
-  Promise.all([
-    caseDetailsStore.initialize(casesStore.cases[caseUuidRef.value]),
-  ])
+  Promise.all([caseDetailsStore.initialize(caseUuidRef.value)])
     .then(() => {
       watch(
         () => route.params,
         (newParams, oldParams) => {
           // reload variant annotation store if necessary
           if (newParams.case && newParams.case !== oldParams.case) {
-            caseDetailsStore.initialize(casesStore.cases[caseUuidRef.value])
+            caseDetailsStore.initialize(caseUuidRef.value)
           }
         }
       )

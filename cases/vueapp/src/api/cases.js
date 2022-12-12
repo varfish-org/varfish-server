@@ -24,6 +24,16 @@ export default {
     return await response.json()
   },
 
+  async retrieveCase(csrfToken, caseUuid, payload) {
+    const response = await apiFetch(
+      csrfToken,
+      `/cases/ajax/case/retrieve-update/${caseUuid}/`,
+      'GET',
+      payload
+    )
+    return await response.json()
+  },
+
   async updateCase(csrfToken, caseUuid, payload) {
     const response = await apiFetch(
       csrfToken,
