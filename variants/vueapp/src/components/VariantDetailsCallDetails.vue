@@ -22,7 +22,10 @@ const allelicBalance = (value) => {
     <div class="card-header">
       <h4 class="card-title">Genotype and Call Infos</h4>
     </div>
-    <table class="card-body table table-striped table-sm">
+    <table
+      class="card-body table table-striped table-sm"
+      v-if="props.caseDescription"
+    >
       <thead>
         <tr>
           <th class="text-center">Sample</th>

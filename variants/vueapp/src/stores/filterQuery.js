@@ -1,7 +1,7 @@
 import queryPresetsApi from '@variants/api/queryPresets.js'
 import variantsApi from '@variants/api/variants.js'
 import { apiQueryStateToQueryState, QueryStates } from '@variants/enums.js'
-import { copy } from '@variants/helpers'
+import { copy } from '@variants/helpers.js'
 import { previousQueryDetailsToQuerySettings } from '@variants/stores/filterQuery.funcs.js'
 import { defineStore } from 'pinia'
 import { nextTick, ref } from 'vue'
@@ -36,12 +36,13 @@ const fetchPresets = async (
           }),
       ] +
         ['frequency', 'impact', 'quality', 'chromosomes', 'flagsetc'].map(
-          (category) =>
+          (category) => {
             variantsApi
               .fetchCategoryPresets(csrfToken, category)
               .then((presets) => {
                 categoryPresets.value[category] = presets
               })
+          }
         )
     )
   }
@@ -244,7 +245,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       )
       queryLogs.value = queryStatus.logs
       queryState.value = apiQueryStateToQueryState(queryStatus.status)
-      nextTick()
+      await nextTick()
       failuresSeen = 0 // reset failure counter
     } catch (err) {
       failuresSeen += 1
@@ -261,7 +262,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     // Once query is finished, load results, if still for the same query.
     if (queryState.value === QueryStates.Finished.value) {
       queryState.value = QueryStates.Fetching.value
-      nextTick()
+      await nextTick()
       const response = await variantsApi.fetchResults(
         csrfToken.value,
         queryUuid
@@ -295,7 +296,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       payload
     )
     queryState.value = QueryStates.Running.value
-    nextTick()
+    await nextTick()
     runFetchLoop(previousQueryDetails.value.sodar_uuid)
   }
 
@@ -331,7 +332,10 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     caddEnabled.value = appContext.cadd_enabled
 
     // Fetch caseObj first
-    caseObj.value = await variantsApi.retrieveCase(csrfToken, caseUuid.value)
+    caseObj.value = await variantsApi.retrieveCase(
+      csrfToken.value,
+      caseUuid.value
+    )
 
     // Initialize via API.  We fetch the bare minimum information and store the
     // corresponding promise in initializeRes.  We will go on after this and

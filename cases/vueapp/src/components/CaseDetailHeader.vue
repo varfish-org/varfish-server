@@ -39,7 +39,7 @@ const buildLink = (where) => {
     case 'filter-beta':
       return `/variants/vueapp/${caseUuid}`
     case 'filter-svs':
-      return `/svs/${projectUuid}/case/filter/${caseUuid}/`
+      return `/svs/vueapp/${caseUuid}/`
     default:
       console.warn(`Invalid link target ${where}`)
   }

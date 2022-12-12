@@ -95,9 +95,9 @@ watch(
 
       <a
         class="btn btn-primary"
-        :href="`/svs/${filterQueryStore.caseObj.project}/case/filter/${filterQueryStore.caseObj.sodar_uuid}`"
+        :href="`/svs/vueapp/${filterQueryStore.caseObj.sodar_uuid}/`"
       >
-        <i class="iconify" data-icon="mdi:filter-variant"></i>
+        <i-mdi-filter-variant />
         Filter SVs
       </a>
       <a

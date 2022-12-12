@@ -2,6 +2,7 @@
 import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
 import { useCasesStore } from '@cases/stores/cases.js'
+import { useCaseDetailsStore } from '@cases/stores/case-details.js'
 import { watch, ref, onMounted, nextTick } from 'vue'
 import { updateUserSetting } from '@varfish/user-settings.js'
 import {
@@ -17,7 +18,6 @@ import VariantDetailsModalWrapper from './VariantDetailsModalWrapper.vue'
 import FilterAppHeader from './FilterAppHeader.vue'
 import FilterForm from './FilterForm.vue'
 import FilterResultsTable from './FilterResultsTable.vue'
-import { useCaseDetailsStore } from '@cases/stores/case-details.js'
 
 const components = {
   VariantDetailsModalWrapper,
@@ -44,9 +44,7 @@ const casesStore = useCasesStore()
 casesStore.initialize(appContext)
 // Initialize case details store.
 const caseDetailsStore = useCaseDetailsStore()
-casesStore.initializeRes.then(() => {
-  caseDetailsStore.initialize(casesStore.cases[filterQueryStore.caseUuid])
-})
+caseDetailsStore.initialize(appContext.case_uuid)
 
 const showModal = ({ gridRow, gridApi, smallVariant }) => {
   currentSmallVariant.value = smallVariant
@@ -55,6 +53,26 @@ const showModal = ({ gridRow, gridApi, smallVariant }) => {
     { gridRow, gridApi, smallVariant },
     filterQueryStore.previousQueryDetails.query_settings.database_select
   )
+}
+
+/** Whether the form is visible. */
+const formVisible = ref(true)
+/** The details columns to show. */
+const displayDetails = ref(DisplayDetails.Coordinates.value)
+/** The frequency columns to show. */
+const displayFrequency = ref(DisplayFrequencies.GnomadExomes.value)
+/** The constraint columns to show. */
+const displayConstraint = ref(DisplayConstraints.GnomadPli.value)
+/** The additional columns to display. */
+const displayColumns = ref([DisplayColumns.Effect.value])
+/** The fields defined by extraAnnos. */
+const extraAnnoFields = ref([])
+/** Whether the query logs are visible. */
+const queryLogsVisible = ref(false)
+
+// Toggle visibility of the form.
+const toggleForm = () => {
+  formVisible.value = !formVisible.value
 }
 
 // Reflect "show inline help" and "filter complexity" setting in navbar checkbox.
@@ -84,26 +102,6 @@ watch(
     $('#vueapp-filtration-complexity-mode').val(newValue).change()
   }
 )
-
-/** Whether the form is visible. */
-const formVisible = ref(true)
-/** The details columns to show. */
-const displayDetails = ref(DisplayDetails.Coordinates.value)
-/** The frequency columns to show. */
-const displayFrequency = ref(DisplayFrequencies.GnomadExomes.value)
-/** The constraint columns to show. */
-const displayConstraint = ref(DisplayConstraints.GnomadPli.value)
-/** The additional columns to display. */
-const displayColumns = ref([DisplayColumns.Effect.value])
-/** The fields defined by extraAnnos. */
-const extraAnnoFields = ref([])
-/** Whether the query logs are visible. */
-const queryLogsVisible = ref(false)
-
-// Toggle visibility of the form.
-const toggleForm = () => {
-  formVisible.value = !formVisible.value
-}
 
 // Vice versa.
 onMounted(() => {

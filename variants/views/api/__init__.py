@@ -573,7 +573,7 @@ class SmallVariantQuerySettingsShortcutApiView(
         )
 
     def _get_quick_presets(self) -> query_presets.QuickPresets:
-        """ "Return quick preset if given in request.query_params"""
+        """Return quick preset if given in request.query_params"""
         if "quick_preset" in self.request.query_params:
             qp_name = self.request.query_params["quick_preset"]
             if qp_name not in attrs.fields_dict(query_presets._QuickPresetList):

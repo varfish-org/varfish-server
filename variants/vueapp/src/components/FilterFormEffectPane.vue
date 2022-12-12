@@ -34,7 +34,7 @@ const buildEffectWrapper = (key) => {
           props.querySettings.effects.push(key)
         } else if (!newValue && isSet) {
           props.querySettings.effects = props.querySettings.effects.filter(
-            (val) => val != key
+            (val) => val !== key
           )
         }
       }
@@ -288,27 +288,18 @@ defineExpose({
           v-if="props.showFiltrationInlineHelp"
           class="alert alert-secondary small mt-2 p-2 mb-2"
         >
-          <p class="mb-1">
-            <i-mdi-information />
-            Use these effect group to select variants with certain effects. In
-            "expert" mode, you can see the effect fields to display below.
-            Explanation: <strong>all</strong> - select all effects;
-            <strong>nonsynonymous</strong> - variants affecting the protein
-            sequence, e.g., missense variants; <strong>splicing</strong> -
-            splice donor/acceptor and splice region variants;
-            <strong>coding</strong> - coding variants, e.g., missense, splice
-            site; <strong>UTR / intronic</strong> - variants in UTR or introns;
-            <strong>non-coding</strong> - intronic, intergenic, on non-coding
-            transcripts; <strong>nonsense</strong> - loss of function variants:
-            frameshifts, start loss, stop mutations, splice site mutations.
-          </p>
-          <p class="mb-0">
-            <strong>
-              You will usually start out keeping this field empty. It comes in
-              handy if you want to limit how deep you want to consider the
-              introns.
-            </strong>
-          </p>
+          <i-mdi-information />
+          Use these effect group to select variants with certain effects. In
+          "expert" mode, you can see the effect fields to display below.
+          Explanation: <strong>all</strong> - select all effects;
+          <strong>nonsynonymous</strong> - variants affecting the protein
+          sequence, e.g., missense variants; <strong>splicing</strong> - splice
+          donor/acceptor and splice region variants; <strong>coding</strong> -
+          coding variants, e.g., missense, splice site;
+          <strong>UTR / intronic</strong> - variants in UTR or introns;
+          <strong>non-coding</strong> - intronic, intergenic, on non-coding
+          transcripts; <strong>nonsense</strong> - loss of function variants:
+          frameshifts, start loss, stop mutations, splice site mutations.
         </div>
         <div
           v-for="field in effectGroupsFields"

@@ -12,13 +12,13 @@ const props = defineProps({
     <div class="card-header">
       <h4 class="card-title">Gene</h4>
     </div>
-    <table v-if="props.gene" class="card-body table table-striped table-sm">
+    <table v-if="gene" class="card-body table table-striped table-sm">
       <tbody>
         <tr>
           <th class="text-right text-nowrap">Symbol / Name</th>
           <td>
-            <div v-if="props.gene.symbol || props.gene.name">
-              {{ props.gene.symbol }} / {{ props.gene.name }}
+            <div v-if="gene.symbol || gene.name">
+              {{ gene.symbol }} / {{ gene.name }}
             </div>
             <div v-else class="text-center text-muted">
               <i>No gene symbol or name available.</i>
@@ -28,8 +28,8 @@ const props = defineProps({
         <tr>
           <th class="text-right text-nowrap">Gene Family</th>
           <td>
-            <div v-if="props.gene.gene_family">
-              {{ props.gene.gene_family }}
+            <div v-if="gene.gene_family">
+              {{ gene.gene_family }}
             </div>
             <div v-else class="text-muted text-center">
               <i>No gene family information available.</i>
@@ -40,10 +40,10 @@ const props = defineProps({
           <th class="text-right text-nowrap">NCBI Summary</th>
           <td>
             <div
-              v-if="props.ncbiSummary && props.ncbiSummary.summary"
+              v-if="ncbiSummary && ncbiSummary.summary"
               style="max-height: 150px; overflow-y: auto !important"
             >
-              {{ props.ncbiSummary.summary }}
+              {{ ncbiSummary.summary }}
             </div>
             <div v-else class="text-muted text-center">
               <i>No NCBI information available.</i>
@@ -53,33 +53,29 @@ const props = defineProps({
         <tr>
           <th class="text-right text-nowrap">ClinVar for Gene</th>
           <td>
-            <div v-if="props.gene.clinvar_pathogenicity">
+            <div v-if="gene.clinvar_pathogenicity">
               <a
-                :href="
-                  'https://www.ncbi.nlm.nih.gov/gene/' + props.gene.entrez_id
-                "
+                :href="'https://www.ncbi.nlm.nih.gov/gene/' + gene.entrez_id"
                 target="_blank"
               >
                 <span
-                  v-if="props.gene.clinvar_pathogenicity.pathogenic_count"
+                  v-if="gene.clinvar_pathogenicity.pathogenic_count"
                   class="badge-group"
                 >
                   <span class="badge badge-light"># PATHOGENIC VARIANTS</span>
                   <span class="badge badge-danger">{{
-                    props.gene.clinvar_pathogenicity.pathogenic_count
+                    gene.clinvar_pathogenicity.pathogenic_count
                   }}</span>
                 </span>
                 <span
-                  v-if="
-                    props.gene.clinvar_pathogenicity.likely_pathogenic_count
-                  "
+                  v-if="gene.clinvar_pathogenicity.likely_pathogenic_count"
                   class="badge-group"
                 >
                   <span class="badge badge-light"
                     ># LIKELY PATHOGENIC VARIANTS</span
                   >
                   <span class="badge badge-warning">{{
-                    props.gene.clinvar_pathogenicity.likely_pathogenic_count
+                    gene.clinvar_pathogenicity.likely_pathogenic_count
                   }}</span>
                 </span>
               </a>
@@ -94,17 +90,17 @@ const props = defineProps({
           <td>
             <div
               v-if="
-                props.gene.hpo_terms.length === 0 &&
-                props.gene.hpo_inheritance.length === 0
+                gene?.hpo_terms?.length === 0 &&
+                gene?.hpo_inheritance?.length === 0
               "
               class="text-muted text-center"
             >
               <i>No HPO information available.</i>
             </div>
             <div v-else>
-              <div v-if="props.gene.hpo_inheritance" class="float-right">
+              <div v-if="gene?.hpo_inheritance" class="float-right">
                 <span
-                  v-for="[hpo_id, mode] in props.gene.hpo_inheritance"
+                  v-for="[hpo_id, mode] in gene.hpo_inheritance"
                   :key="hpo_id"
                   class="badge badge-info ml-1"
                   :title="hpo_id"
@@ -112,9 +108,9 @@ const props = defineProps({
                   {{ mode }}
                 </span>
               </div>
-              <div v-if="props.gene.hpo_terms">
+              <div v-if="gene?.hpo_terms">
                 <a
-                  v-for="[hpo_id, hpo_name] in props.gene.hpo_terms"
+                  v-for="[hpo_id, hpo_name] in gene.hpo_terms"
                   :key="hpo_id"
                   :href="'https://hpo.jax.org/app/browse/term/' + hpo_id"
                   target="_blank"
@@ -131,9 +127,9 @@ const props = defineProps({
         <tr>
           <th class="text-right text-nowrap">OMIM Phenotypes</th>
           <td>
-            <div v-if="Object.keys(props.gene.omim).length > 0">
+            <div v-if="gene.omim && Object.keys(gene.omim).length > 0">
               <a
-                v-for="(omim_names, omim_id) in props.gene.omim"
+                v-for="(omim_names, omim_id) in gene.omim"
                 :key="omim_id"
                 :href="'https://www.omim.org/entry/' + omim_id"
                 target="_blank"
@@ -154,12 +150,12 @@ const props = defineProps({
         <tr>
           <th class="text-right text-nowrap">Gene RIFs</th>
           <td>
-            <div v-if="props.ncbiGeneRifs">
+            <div v-if="ncbiGeneRifs">
               <ul
                 class="pl-3"
                 style="max-height: 150px; overflow-y: auto !important"
               >
-                <li v-for="(geneRif, index) in props.ncbiGeneRifs" :key="index">
+                <li v-for="(geneRif, index) in ncbiGeneRifs" :key="index">
                   {{ geneRif.rif_text }}
                   <a
                     :href="
@@ -183,9 +179,7 @@ const props = defineProps({
           <th class="text-right text-nowrap">Constraints</th>
           <td>
             <table
-              v-if="
-                props.gene.exac_constraints || props.gene.gnomad_constraints
-              "
+              v-if="gene.exac_constraints || gene.gnomad_constraints"
               class="table"
             >
               <tr class="text-center">
@@ -201,46 +195,46 @@ const props = defineProps({
                   />
                 </th>
               </tr>
-              <tr v-if="props.gene.exac_constraints">
+              <tr v-if="gene.exac_constraints">
                 <th rowspan="3">ExAC</th>
                 <th>Synonymous</th>
                 <td class="text-right">
-                  {{ parseFloat(props.gene.exac_constraints.exp_syn) }}
+                  {{ parseFloat(gene.exac_constraints.exp_syn) }}
                 </td>
                 <td class="text-right">
-                  {{ props.gene.exac_constraints.n_syn }}
+                  {{ gene.exac_constraints.n_syn }}
                 </td>
                 <td class="text-right">
                   z =
-                  {{ parseFloat(props.gene.exac_constraints.syn_z).toFixed(3) }}
+                  {{ parseFloat(gene.exac_constraints.syn_z).toFixed(3) }}
                 </td>
                 <td class="text-right">-</td>
               </tr>
-              <tr v-if="props.gene.exac_constraints">
+              <tr v-if="gene.exac_constraints">
                 <th>Missense</th>
                 <td class="text-right">
-                  {{ parseFloat(props.gene.exac_constraints.exp_mis) }}
+                  {{ parseFloat(gene.exac_constraints.exp_mis) }}
                 </td>
                 <td class="text-right">
-                  {{ props.gene.exac_constraints.n_mis }}
+                  {{ gene.exac_constraints.n_mis }}
                 </td>
                 <td class="text-right">
                   z =
-                  {{ parseFloat(props.gene.exac_constraints.mis_z).toFixed(3) }}
+                  {{ parseFloat(gene.exac_constraints.mis_z).toFixed(3) }}
                 </td>
                 <td class="text-right">-</td>
               </tr>
-              <tr v-if="props.gene.exac_constraints">
+              <tr v-if="gene.exac_constraints">
                 <th>LoF</th>
                 <td class="text-right">
-                  {{ parseFloat(props.gene.exac_constraints.exp_lof) }}
+                  {{ parseFloat(gene.exac_constraints.exp_lof) }}
                 </td>
                 <td class="text-right">
-                  {{ props.gene.exac_constraints.n_lof }}
+                  {{ gene.exac_constraints.n_lof }}
                 </td>
                 <td class="text-right">
                   pLI =
-                  {{ parseFloat(props.gene.exac_constraints.pLI).toFixed(3) }}
+                  {{ parseFloat(gene.exac_constraints.pLI).toFixed(3) }}
                 </td>
                 <td class="text-right">-</td>
               </tr>
@@ -250,96 +244,84 @@ const props = defineProps({
                   <i>No ExAC constraint information.</i>
                 </td>
               </tr>
-              <tr v-if="props.gene.gnomad_constraints">
+              <tr v-if="gene.gnomad_constraints">
                 <th rowspan="3">gnomAD</th>
                 <th>Synonymous</th>
                 <td class="text-right">
-                  {{ parseFloat(props.gene.gnomad_constraints.exp_syn) }}
+                  {{ parseFloat(gene.gnomad_constraints.exp_syn) }}
                 </td>
                 <td class="text-right">
-                  {{ props.gene.gnomad_constraints.obs_syn }}
+                  {{ gene.gnomad_constraints.obs_syn }}
                 </td>
                 <td class="text-right">
                   z =
-                  {{
-                    parseFloat(props.gene.gnomad_constraints.syn_z).toFixed(3)
-                  }}
+                  {{ parseFloat(gene.gnomad_constraints.syn_z).toFixed(3) }}
                 </td>
                 <td class="text-right">
-                  {{
-                    parseFloat(props.gene.gnomad_constraints.oe_syn).toFixed(3)
-                  }}
+                  {{ parseFloat(gene.gnomad_constraints.oe_syn).toFixed(3) }}
                   <span class="small text-muted">
                     ({{
-                      parseFloat(
-                        props.gene.gnomad_constraints.oe_syn_lower
-                      ).toFixed(3)
+                      parseFloat(gene.gnomad_constraints.oe_syn_lower).toFixed(
+                        3
+                      )
                     }}-{{
-                      parseFloat(
-                        props.gene.gnomad_constraints.oe_syn_upper
-                      ).toFixed(3)
+                      parseFloat(gene.gnomad_constraints.oe_syn_upper).toFixed(
+                        3
+                      )
                     }})
                   </span>
                 </td>
               </tr>
-              <tr v-if="props.gene.gnomad_constraints">
+              <tr v-if="gene.gnomad_constraints">
                 <th>Missense</th>
                 <td class="text-right">
-                  {{
-                    parseFloat(props.gene.gnomad_constraints.exp_mis).toFixed(3)
-                  }}
+                  {{ parseFloat(gene.gnomad_constraints.exp_mis).toFixed(3) }}
                 </td>
                 <td class="text-right">
-                  {{ props.gene.gnomad_constraints.obs_mis }}
+                  {{ gene.gnomad_constraints.obs_mis }}
                 </td>
                 <td class="text-right">
                   z =
-                  {{
-                    parseFloat(props.gene.gnomad_constraints.mis_z).toFixed(3)
-                  }}
+                  {{ parseFloat(gene.gnomad_constraints.mis_z).toFixed(3) }}
                 </td>
                 <td class="text-right">
-                  {{
-                    parseFloat(props.gene.gnomad_constraints.oe_mis).toFixed(3)
-                  }}
+                  {{ parseFloat(gene.gnomad_constraints.oe_mis).toFixed(3) }}
                   <span class="small text-muted">
                     ({{
-                      parseFloat(
-                        props.gene.gnomad_constraints.oe_mis_lower
-                      ).toFixed(3)
+                      parseFloat(gene.gnomad_constraints.oe_mis_lower).toFixed(
+                        3
+                      )
                     }}-{{
-                      parseFloat(
-                        props.gene.gnomad_constraints.oe_mis_upper
-                      ).toFixed(3)
+                      parseFloat(gene.gnomad_constraints.oe_mis_upper).toFixed(
+                        3
+                      )
                     }})
                   </span>
                 </td>
               </tr>
-              <tr v-if="props.gene.gnomad_constraints">
+              <tr v-if="gene.gnomad_constraints">
                 <th>LoF</th>
                 <td class="text-right">
-                  {{ parseFloat(props.gene.gnomad_constraints.exp_lof) }}
+                  {{ parseFloat(gene.gnomad_constraints.exp_lof) }}
                 </td>
                 <td class="text-right">
-                  {{ props.gene.gnomad_constraints.obs_lof }}
+                  {{ gene.gnomad_constraints.obs_lof }}
                 </td>
                 <td class="text-right">
                   pLI =
-                  {{ parseFloat(props.gene.gnomad_constraints.pLI).toFixed(3) }}
+                  {{ parseFloat(gene.gnomad_constraints.pLI).toFixed(3) }}
                 </td>
                 <td class="text-right">
-                  {{
-                    parseFloat(props.gene.gnomad_constraints.oe_lof).toFixed(3)
-                  }}
+                  {{ parseFloat(gene.gnomad_constraints.oe_lof).toFixed(3) }}
                   <span class="small text-muted">
                     ({{
-                      parseFloat(
-                        props.gene.gnomad_constraints.oe_lof_lower
-                      ).toFixed(3)
+                      parseFloat(gene.gnomad_constraints.oe_lof_lower).toFixed(
+                        3
+                      )
                     }}-{{
-                      parseFloat(
-                        props.gene.gnomad_constraints.oe_lof_upper
-                      ).toFixed(3)
+                      parseFloat(gene.gnomad_constraints.oe_lof_upper).toFixed(
+                        3
+                      )
                     }})
                   </span>
                 </td>
@@ -360,29 +342,27 @@ const props = defineProps({
           <th class="text-right text-nowrap">Entrez ID</th>
           <td>
             <div
-              v-if="!props.smallVariant.refseq_gene_id && !props.gene.entrez_id"
+              v-if="!smallVariant.refseq_gene_id && !gene.entrez_id"
               class="text-center text-muted"
             >
               <i>No RefSeq gene id.</i>
             </div>
             <a
-              v-else-if="props.gene.entrez_id"
-              :href="
-                'https://www.ncbi.nlm.nih.gov/gene/' + props.gene.entrez_id
-              "
+              v-else-if="gene.entrez_id"
+              :href="'https://www.ncbi.nlm.nih.gov/gene/' + gene.entrez_id"
               target="_blank"
             >
-              {{ props.gene.entrez_id }}
+              {{ gene.entrez_id }}
             </a>
             <a
               v-else
               :href="
                 'https://www.ncbi.nlm.nih.gov/gene/' +
-                props.smallVariant.refseq_gene_id
+                smallVariant.refseq_gene_id
               "
               target="_blank"
             >
-              {{ props.smallVariant.refseq_gene_id }}
+              {{ smallVariant.refseq_gene_id }}
             </a>
           </td>
         </tr>
@@ -390,45 +370,42 @@ const props = defineProps({
           <th class="text-right text-nowrap">EnsEMBL ID</th>
           <td>
             <div
-              v-if="
-                !props.smallVariant.ensembl_gene_id &&
-                !props.gene.ensembl_gene_id
-              "
+              v-if="!smallVariant.ensembl_gene_id && !gene.ensembl_gene_id"
               class="text-center text-muted"
             >
               <i>No EnsEMBL gene id.</i>
             </div>
             <a
-              v-else-if="props.gene.ensembl_gene_id"
+              v-else-if="gene.ensembl_gene_id"
               :href="
                 'https://' +
-                (props.smallVariant.release === 'GRCh37' ? 'grch37' : 'www') +
+                (smallVariant.release === 'GRCh37' ? 'grch37' : 'www') +
                 '.ensembl.org/Homo_sapiens/Gene/Summary?g=' +
-                props.gene.ensembl_gene_id
+                gene.ensembl_gene_id
               "
               target="_blank"
             >
-              {{ props.gene.ensembl_gene_id }}
+              {{ gene.ensembl_gene_id }}
             </a>
             <a
               v-else
               :href="
                 'https://' +
-                (props.smallVariant.release === 'GRCh37' ? 'grch37' : 'www') +
+                (smallVariant.release === 'GRCh37' ? 'grch37' : 'www') +
                 '.ensembl.org/Homo_sapiens/Gene/Summary?g=' +
-                props.smallVariant.ensembl_gene_id
+                smallVariant.ensembl_gene_id
               "
               target="_blank"
             >
-              {{ props.smallVariant.ensembl_gene_id }}
+              {{ smallVariant.ensembl_gene_id }}
             </a>
           </td>
         </tr>
         <tr>
           <th class="text-right text-nowrap">Alias Symbol</th>
           <td>
-            <div v-if="props.gene.alias_symbol">
-              {{ props.gene.alias_symbol }}
+            <div v-if="gene.alias_symbol">
+              {{ gene.alias_symbol }}
             </div>
             <div v-else class="text-muted text-center">
               <i>No alias symbol available.</i>
@@ -438,8 +415,8 @@ const props = defineProps({
         <tr>
           <th class="text-right text-nowrap">Alias Names</th>
           <td>
-            <div v-if="props.gene.alias_name">
-              {{ props.gene.alias_name }}
+            <div v-if="gene.alias_name">
+              {{ gene.alias_name }}
             </div>
             <div v-else class="text-muted text-center">
               <i>No alias name available.</i>
@@ -449,9 +426,9 @@ const props = defineProps({
         <tr>
           <th class="text-right text-nowrap">OMIM Gene</th>
           <td>
-            <div v-if="props.gene.omim_genes.length > 0">
+            <div v-if="gene.omim_genes && gene.omim_genes.length > 0">
               <a
-                v-for="omim_id in props.gene.omim_genes"
+                v-for="omim_id in gene.omim_genes"
                 :key="omim_id"
                 :href="'https://www.omim.org/entry/' + omim_id"
                 target="_blank"

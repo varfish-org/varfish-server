@@ -87,7 +87,7 @@ export const useVariantDetailsStore = defineStore({
   }),
   actions: {
     async fetchVariantDetails({ gridRow, gridApi, smallVariant }, database) {
-      this.data = database
+      this.database = database
       this.gridRow = gridRow
       this.gridApi = gridApi
       this.smallVariant = smallVariant
