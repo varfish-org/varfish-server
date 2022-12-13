@@ -397,10 +397,11 @@ def annotate_with_pathogenicity_scores(rows, variant_scores):
     rows = [RowWithPathogenicityScore(row) for row in rows]
     for row in rows:
         key = row.variant_key()
-        score = variant_scores.get(key)
-        if score:
-            row._self_pathogenicity_score = score[0]
-            row._self_pathogenicity_score_info = score[1]
+        if variant_scores:
+            score = variant_scores.get(key)
+            if score:
+                row._self_pathogenicity_score = score[0]
+                row._self_pathogenicity_score_info = score[1]
     # Get highest score for each gene.
     gene_scores = {}
     for row in rows:
@@ -544,16 +545,28 @@ def unroll_extra_annos_result(rows, fields):
     return rows_
 
 
-def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
+def prioritize_genes(job, entrez_ids, hpo_terms, prio_algorithm):
     """Perform gene prioritization query.
 
     Yield quadruples (gene id, gene symbol, score, priority type) for the given gene list and query settings.
     """
     # TODO: properly test
+
+    if prio_algorithm == "CADA":
+        job.add_log_entry("Prioritize genes with CADA ...")
+        yield from prio_cada(hpo_terms)
+
+    else:
+        job.add_log_entry("Prioritize genes with Exomiser ...")
+        yield from prio_exomiser(entrez_ids, hpo_terms, prio_algorithm)
+
+
+def prio_exomiser(entrez_ids, hpo_terms, prio_algorithm):
     if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER or not entrez_ids or not hpo_terms:
         return
 
     try:
+
         algo_params = {
             "hiphive": ("hiphive", ["human", "mouse", "fish", "ppi"]),
             "hiphive-human": ("hiphive", ["human"]),
@@ -569,6 +582,7 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
                 "prioritiser-params": ",".join(prio_params),
             },
         )
+
         if not res.status_code == 200:
             raise ConnectionError(
                 "ERROR: Server responded with status {} and message {}".format(
@@ -582,6 +596,30 @@ def prioritize_genes(entrez_ids, hpo_terms, prio_algorithm):
 
     for entry in res.json().get("results", ()):
         yield entry["geneId"], entry["geneSymbol"], entry["score"], entry["priorityType"]
+
+
+def prio_cada(hpo_terms):
+    if not settings.VARFISH_ENABLE_CADA or not hpo_terms:
+        return
+    try:
+        res = requests.post(
+            settings.VARFISH_CADA_REST_API_URL,
+            json=sorted(set(hpo_terms)),
+        )
+
+        if not res.status_code == 200:
+            raise ConnectionError(
+                "ERROR: Server responded with status {} and message {}".format(
+                    res.status_code, strip_tags(re.sub("<head>.*</head>", "", res.text))
+                )
+            )
+    except requests.ConnectionError:
+        raise ConnectionError(
+            "ERROR: Server {} not responding.".format(settings.VARFISH_CADA_API_URL)
+        )
+    print("res=" + str(res))
+    for entry in res.json():
+        yield entry["geneId"].split(':')[1], entry["geneSymbol"], entry["score"], 'CADA'
 
 
 class VariantScoresFactory:
@@ -620,6 +658,11 @@ class VariantScoresBase:
         cached = []
         uncached = []
         for variant in self.variants:
+            varList = list(variant)
+            splitArr = varList[0].split('chr')
+            if (len(splitArr) == 2):
+                varList[0] = splitArr[1]
+            variant = tuple(varList)
             res = self.get_cache_model().objects.filter(
                 chromosome=variant[0],
                 start=variant[1],
@@ -963,6 +1006,8 @@ class VariantScoresCadd(VariantScoresBase):
         result = []
         for var, scores in res.json().get("scores", {}).items():
             chrom, pos, ref, alt = var.split("-")
+            if "chr" in self.variants[0][0]:
+                chrom = "chr" + chrom
             start = int(pos)
             end = start + len(ref) - 1
             record = {

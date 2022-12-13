@@ -553,6 +553,7 @@ VARFISH_CADD_MAX_VARS = env.int("VARFISH_CADD_MAX_VARS", 5000)
 # Enable CADA prioritization.
 VARFISH_ENABLE_CADA = env.bool("VARFISH_ENABLE_CADA", default=True)
 # Configure URL to CADA REST API
+# REST API documentation for CADA can be found here: https://app.swaggerhub.com/apis-docs/schmida/CADA/1.0.0
 VARFISH_CADA_REST_API_URL = env.str("VARFISH_CADA_REST_API_URL", "https://cada.gene-talk.de/api/process")
 
 # Enable submission of variants to CADD server.
