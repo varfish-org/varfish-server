@@ -1,11 +1,94 @@
 <script setup>
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
-import { EditCommentModes } from '@variants/enums'
-import VariantDetailsCommentsFlagsIndicator from './VariantDetailsCommentsFlagsIndicator.vue'
+import { ref } from 'vue'
+import isEqual from 'lodash.isequal'
 
-const detailsStore = useVariantDetailsStore()
-const queryStore = useFilterQueryStore()
+import { copy } from '@varfish/helpers.js'
+
+import VariantDetailsFlagsIndicator from './VariantDetailsFlagsIndicator.vue'
+
+const emptyFlagsTemplate = Object.freeze({
+  flag_bookmarked: false,
+  flag_for_validation: false,
+  flag_candidate: false,
+  flag_final_causative: false,
+  flag_no_disease_association: false,
+  flag_segregates: false,
+  flag_doesnt_segregate: false,
+  flag_visual: 'empty',
+  flag_molecular: 'empty',
+  flag_validation: 'empty',
+  flag_phenotype_match: 'empty',
+  flag_summary: 'empty',
+})
+
+const initialFlagsTemplate = Object.freeze({
+  ...emptyFlagsTemplate,
+  flag_bookmarked: true,
+})
+
+const props = defineProps({
+  detailsStore: Object,
+  flagsStore: Object,
+  variant: Object,
+})
+
+const setFlagsMode = ref(false)
+const flagsToSubmit = ref(copy({ ...initialFlagsTemplate }))
+
+const unsetFlags = () => {
+  flagsToSubmit.value = copy(emptyFlagsTemplate)
+}
+
+const resetFlags = () => {
+  if (props.flagsStore.flags) {
+    flagsToSubmit.value.flag_bookmarked = props.flagsStore.flags.flag_bookmarked
+    flagsToSubmit.value.flag_for_validation =
+      props.flagsStore.flags.flag_for_validation
+    flagsToSubmit.value.flag_candidate = props.flagsStore.flags.flag_candidate
+    flagsToSubmit.value.flag_final_causative =
+      props.flagsStore.flags.flag_final_causative
+    flagsToSubmit.value.flag_no_disease_association =
+      props.flagsStore.flags.flag_no_disease_association
+    flagsToSubmit.value.flag_segregates = props.flagsStore.flags.flag_segregates
+    flagsToSubmit.value.flag_doesnt_segregate =
+      props.flagsStore.flags.flag_doesnt_segregate
+    flagsToSubmit.value.flag_visual = props.flagsStore.flags.flag_visual
+    flagsToSubmit.value.flag_molecular = props.flagsStore.flags.flag_molecular
+    flagsToSubmit.value.flag_validation = props.flagsStore.flags.flag_validation
+    flagsToSubmit.value.flag_phenotype_match =
+      props.flagsStore.flags.flag_phenotype_match
+    flagsToSubmit.value.flag_summary = props.flagsStore.flags.flag_summary
+  } else {
+    flagsToSubmit.value = { ...initialFlagsTemplate }
+  }
+}
+
+props.flagsStore.retrieveFlags(props.variant).then(() => {
+  resetFlags()
+})
+
+const onSubmitFlags = async () => {
+  const flagsToSubmitEmpty = isEqual(flagsToSubmit.value, emptyFlagsTemplate)
+  if (props.flagsStore.flags && flagsToSubmitEmpty) {
+    // IS not empty but SHOULD be empty, so delete the flags
+    await props.flagsStore.deleteFlags()
+  } else if (!props.flagsStore.flags && flagsToSubmitEmpty) {
+    // IS empty and SHOULD be empty, so no update needed
+    flagsToSubmit.value = copy(initialFlagsTemplate)
+  } else if (props.flagsStore.flags && !flagsToSubmitEmpty) {
+    // IS not empty and SHOULD not be empty, so update the flags
+    await props.flagsStore.updateFlags(flagsToSubmit.value)
+  } else if (!props.flagsStore.flags && !flagsToSubmitEmpty) {
+    // IS empty but SHOULD not be empty, so create the flags
+    await props.flagsStore.createFlags(props.variant, flagsToSubmit.value)
+  }
+  setFlagsMode.value = false
+}
+
+const cancelFlags = () => {
+  resetFlags()
+  setFlagsMode.value = false
+}
 
 const displayMutedIfFalse = (condition) => {
   if (!condition) {
@@ -26,40 +109,36 @@ const displayOpacityIfFalse = (condition) => {
 
 <template>
   <div
-    v-if="detailsStore.flags && !detailsStore.setFlagsMode"
+    v-if="flagsStore.flags && !setFlagsMode"
     class="row font-weight-bold p-2"
   >
     <div class="col">
       <div class="row">
         <div class="col-1 pl-0">
           <i-fa-solid-star
-            :class="displayMutedIfFalse(detailsStore.flags.flag_bookmarked)"
-            :style="displayOpacityIfFalse(detailsStore.flags.flag_bookmarked)"
+            :class="displayMutedIfFalse(flagsStore.flags.flag_bookmarked)"
+            :style="displayOpacityIfFalse(flagsStore.flags.flag_bookmarked)"
           />
         </div>
         <div class="col-1 pl-1">
           <i-fa-solid-flask
-            :class="displayMutedIfFalse(detailsStore.flags.flag_for_validation)"
-            :style="
-              displayOpacityIfFalse(detailsStore.flags.flag_for_validation)
-            "
+            :class="displayMutedIfFalse(flagsStore.flags.flag_for_validation)"
+            :style="displayOpacityIfFalse(flagsStore.flags.flag_for_validation)"
           />
         </div>
         <div class="col-1 pl-1">
           <i-fa-solid-heart
             class="ml-1"
-            :class="displayMutedIfFalse(detailsStore.flags.flag_candidate)"
-            :style="displayOpacityIfFalse(detailsStore.flags.flag_candidate)"
+            :class="displayMutedIfFalse(flagsStore.flags.flag_candidate)"
+            :style="displayOpacityIfFalse(flagsStore.flags.flag_candidate)"
           />
         </div>
         <div class="col-1 pl-1">
           <i-fa-solid-flag-checkered
             class="ml-1"
-            :class="
-              displayMutedIfFalse(detailsStore.flags.flag_final_causative)
-            "
+            :class="displayMutedIfFalse(flagsStore.flags.flag_final_causative)"
             :style="
-              displayOpacityIfFalse(detailsStore.flags.flag_final_causative)
+              displayOpacityIfFalse(flagsStore.flags.flag_final_causative)
             "
             data-icon="fa-solid:flag-checkered"
           />
@@ -68,13 +147,11 @@ const displayOpacityIfFalse = (condition) => {
           <i-cil-link-broken
             class="ml-1"
             :class="
-              displayMutedIfFalse(
-                detailsStore.flags.flag_no_disease_association
-              )
+              displayMutedIfFalse(flagsStore.flags.flag_no_disease_association)
             "
             :style="
               displayOpacityIfFalse(
-                detailsStore.flags.flag_no_disease_association
+                flagsStore.flags.flag_no_disease_association
               )
             "
           />
@@ -82,18 +159,16 @@ const displayOpacityIfFalse = (condition) => {
         <div class="col-1 pl-1">
           <i-fa-solid-thumbs-up
             class="ml-1"
-            :class="displayMutedIfFalse(detailsStore.flags.flag_segregates)"
-            :style="displayOpacityIfFalse(detailsStore.flags.flag_segregates)"
+            :class="displayMutedIfFalse(flagsStore.flags.flag_segregates)"
+            :style="displayOpacityIfFalse(flagsStore.flags.flag_segregates)"
           />
         </div>
         <div class="col-1 pl-1">
           <i-fa-solid-thumbs-down
             class="ml-1"
-            :class="
-              displayMutedIfFalse(detailsStore.flags.flag_doesnt_segregate)
-            "
+            :class="displayMutedIfFalse(flagsStore.flags.flag_doesnt_segregate)"
             :style="
-              displayOpacityIfFalse(detailsStore.flags.flag_doesnt_segregate)
+              displayOpacityIfFalse(flagsStore.flags.flag_doesnt_segregate)
             "
           />
         </div>
@@ -103,32 +178,32 @@ const displayOpacityIfFalse = (condition) => {
       <div class="row text-center">
         <div class="col">
           Visual
-          <VariantDetailsCommentsFlagsIndicator
-            :flag-state="detailsStore.flags.flag_visual"
+          <VariantDetailsFlagsIndicator
+            :flag-state="flagsStore.flags.flag_visual"
           />
         </div>
         <div class="col">
           Molecular
-          <VariantDetailsCommentsFlagsIndicator
-            :flag-state="detailsStore.flags.flag_molecular"
+          <VariantDetailsFlagsIndicator
+            :flag-state="flagsStore.flags.flag_molecular"
           />
         </div>
         <div class="col">
           Validation
-          <VariantDetailsCommentsFlagsIndicator
-            :flag-state="detailsStore.flags.flag_validation"
+          <VariantDetailsFlagsIndicator
+            :flag-state="flagsStore.flags.flag_validation"
           />
         </div>
         <div class="col">
           Phenotype
-          <VariantDetailsCommentsFlagsIndicator
-            :flag-state="detailsStore.flags.flag_phenotype_match"
+          <VariantDetailsFlagsIndicator
+            :flag-state="flagsStore.flags.flag_phenotype_match"
           />
         </div>
         <div class="col ml-1">
           <u>Summary</u>&nbsp;
-          <VariantDetailsCommentsFlagsIndicator
-            :flag-state="detailsStore.flags.flag_summary"
+          <VariantDetailsFlagsIndicator
+            :flag-state="flagsStore.flags.flag_summary"
           />
         </div>
       </div>
@@ -136,7 +211,7 @@ const displayOpacityIfFalse = (condition) => {
     <div class="col">
       <button
         class="btn btn-sm btn-primary pull-right"
-        @click="detailsStore.setFlagsMode = true"
+        @click="setFlagsMode = true"
       >
         <i-fa-solid-flag />
         Edit
@@ -144,13 +219,13 @@ const displayOpacityIfFalse = (condition) => {
     </div>
   </div>
   <div
-    v-else-if="!detailsStore.flags && !detailsStore.setFlagsMode"
+    v-else-if="!flagsStore.flags && !setFlagsMode"
     class="row text-muted text-center p-2 pb-3"
   >
     <div class="col">
       <button
         class="btn btn-sm btn-primary pull-right"
-        @click="detailsStore.setFlagsMode = true"
+        @click="setFlagsMode = true"
       >
         <i-fa-regular-flag />
         Add
@@ -206,7 +281,7 @@ const displayOpacityIfFalse = (condition) => {
               type="checkbox"
               id="flagBookmarked"
               name="flag_bookmarked"
-              v-model="detailsStore.flagsToSubmit.flag_bookmarked"
+              v-model="flagsToSubmit.flag_bookmarked"
             />
           </div>
           <div class="col-1 pl-1">
@@ -214,7 +289,7 @@ const displayOpacityIfFalse = (condition) => {
               type="checkbox"
               id="flagForValidation"
               name="flag_for_validation"
-              v-model="detailsStore.flagsToSubmit.flag_for_validation"
+              v-model="flagsToSubmit.flag_for_validation"
             />
           </div>
           <div class="col-1 pl-1">
@@ -222,7 +297,7 @@ const displayOpacityIfFalse = (condition) => {
               type="checkbox"
               id="flagCandidate"
               name="flag_candidate"
-              v-model="detailsStore.flagsToSubmit.flag_candidate"
+              v-model="flagsToSubmit.flag_candidate"
             />
           </div>
           <div class="col-1 pl-1">
@@ -230,7 +305,7 @@ const displayOpacityIfFalse = (condition) => {
               type="checkbox"
               id="flagFinalCausative"
               name="flag_final_causative"
-              v-model="detailsStore.flagsToSubmit.flag_final_causative"
+              v-model="flagsToSubmit.flag_final_causative"
             />
           </div>
           <div class="col-1 pl-1">
@@ -238,7 +313,7 @@ const displayOpacityIfFalse = (condition) => {
               type="checkbox"
               id="flagNoDiseaseAssociation"
               name="flag_no_disease_association"
-              v-model="detailsStore.flagsToSubmit.flag_no_disease_association"
+              v-model="flagsToSubmit.flag_no_disease_association"
             />
           </div>
           <div class="col-1 pl-1">
@@ -246,7 +321,7 @@ const displayOpacityIfFalse = (condition) => {
               type="checkbox"
               id="flagDoesSegregate"
               name="flag_segregates"
-              v-model="detailsStore.flagsToSubmit.flag_segregates"
+              v-model="flagsToSubmit.flag_segregates"
             />
           </div>
           <div class="col-1 pl-1">
@@ -254,7 +329,7 @@ const displayOpacityIfFalse = (condition) => {
               type="checkbox"
               id="flagDoesntSegregate"
               name="flag_doesnt_segregate"
-              v-model="detailsStore.flagsToSubmit.flag_doesnt_segregate"
+              v-model="flagsToSubmit.flag_doesnt_segregate"
             />
           </div>
         </div>
@@ -292,7 +367,7 @@ const displayOpacityIfFalse = (condition) => {
             <select
               id="flagSelectorVisual"
               class="form-control form-control-sm"
-              v-model="detailsStore.flagsToSubmit.flag_visual"
+              v-model="flagsToSubmit.flag_visual"
             >
               <option value="positive">positive</option>
               <option value="uncertain">uncertain</option>
@@ -304,7 +379,7 @@ const displayOpacityIfFalse = (condition) => {
             <select
               id="flagSelectorMolecular"
               class="form-control form-control-sm ml-2"
-              v-model="detailsStore.flagsToSubmit.flag_molecular"
+              v-model="flagsToSubmit.flag_molecular"
             >
               <option value="positive">positive</option>
               <option value="uncertain">uncertain</option>
@@ -316,7 +391,7 @@ const displayOpacityIfFalse = (condition) => {
             <select
               id="flagSelectorValidation"
               class="form-control form-control-sm ml-2"
-              v-model="detailsStore.flagsToSubmit.flag_validation"
+              v-model="flagsToSubmit.flag_validation"
             >
               <option value="positive">positive</option>
               <option value="uncertain">uncertain</option>
@@ -328,7 +403,7 @@ const displayOpacityIfFalse = (condition) => {
             <select
               id="flagSelectorPhenotype"
               class="form-control form-control-sm ml-2"
-              v-model="detailsStore.flagsToSubmit.flag_phenotype_match"
+              v-model="flagsToSubmit.flag_phenotype_match"
             >
               <option value="positive">positive</option>
               <option value="uncertain">uncertain</option>
@@ -340,7 +415,7 @@ const displayOpacityIfFalse = (condition) => {
             <select
               id="flagSelectorSummary"
               class="form-control form-control-sm ml-2"
-              v-model="detailsStore.flagsToSubmit.flag_summary"
+              v-model="flagsToSubmit.flag_summary"
             >
               <option value="positive">positive</option>
               <option value="uncertain">uncertain</option>
@@ -352,22 +427,13 @@ const displayOpacityIfFalse = (condition) => {
       </div>
       <div class="col">
         <div class="btn-group pull-right">
-          <button
-            class="btn btn-sm btn-secondary"
-            @click="detailsStore.cancelFlags()"
-          >
+          <button class="btn btn-sm btn-secondary" @click="cancelFlags()">
             Cancel
           </button>
-          <button
-            class="btn btn-sm btn-danger"
-            @click="detailsStore.unsetFlags()"
-          >
+          <button class="btn btn-sm btn-danger" @click="unsetFlags()">
             Clear
           </button>
-          <button
-            class="btn btn-sm btn-primary"
-            @click="detailsStore.submitFlags(queryStore.csrfToken)"
-          >
+          <button class="btn btn-sm btn-primary" @click="onSubmitFlags()">
             <i-fa-solid-flag />
             Submit
           </button>
@@ -396,146 +462,6 @@ const displayOpacityIfFalse = (condition) => {
           <span class="badge badge-primary">Submit</span> to delete all flags.
         </div>
       </div>
-    </div>
-  </div>
-  <div class="card">
-    <ul
-      v-if="detailsStore.comments.length > 0"
-      class="list-group list-group-flush list"
-    >
-      <li
-        v-for="(comment, index) in detailsStore.comments"
-        :key="index"
-        class="list-group-item list-item p-4"
-      >
-        <div
-          v-if="
-            detailsStore.editCommentMode === EditCommentModes.Edit &&
-            detailsStore.editCommentIndex === index
-          "
-          class="input-group form-inline"
-        >
-          <textarea
-            rows="1"
-            cols="40"
-            class="form-control"
-            v-model="detailsStore.commentToSubmit"
-          ></textarea>
-          <span class="btn-group pull-right">
-            <button
-              type="button"
-              class="btn btn-sm btn-secondary"
-              @click="detailsStore.unsetEditComment()"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-primary"
-              @click="detailsStore.submitComment(queryStore.csrfToken)"
-              :disabled="!detailsStore.commentToSubmit"
-            >
-              Submit
-            </button>
-          </span>
-        </div>
-        <div
-          v-else-if="
-            detailsStore.editCommentMode === EditCommentModes.Delete &&
-            detailsStore.editCommentIndex === index
-          "
-        >
-          <span class="small text-muted">
-            <strong>{{ comment.user }}</strong>
-            {{ comment.date_created }}:
-          </span>
-          <em>{{ comment.text }}</em>
-          <span class="btn-group pull-right">
-            <button
-              type="button"
-              class="btn btn-sm btn-secondary"
-              @click="detailsStore.unsetEditComment()"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-danger"
-              @click="detailsStore.deleteComment(queryStore.csrfToken)"
-            >
-              Delete
-            </button>
-          </span>
-        </div>
-        <div v-else-if="comment">
-          <span class="small text-muted">
-            <strong>{{ comment.user }}</strong>
-            {{ comment.date_created }}:
-          </span>
-          <em>{{ comment.text }}</em>
-          <div class="btn-group pull-right" v-if="comment.user_can_edit">
-            <button
-              class="btn btn-sm btn-outline-secondary"
-              @click="
-                detailsStore.setEditComment(
-                  comment.sodar_uuid,
-                  comment.text,
-                  index
-                )
-              "
-            >
-              <i-mdi-pencil />
-            </button>
-            <button
-              class="btn btn-sm btn-outline-secondary"
-              @click="detailsStore.setDeleteComment(comment.sodar_uuid, index)"
-            >
-              <i-fa-solid-times-circle />
-            </button>
-          </div>
-        </div>
-        <div v-else>
-          <i class="text-muted">Comment has been deleted.</i>
-        </div>
-      </li>
-    </ul>
-    <div v-else class="card-body">
-      <p class="text-muted font-italic text-center">
-        <i-fa-solid-info-circle />
-        No comments.
-      </p>
-    </div>
-    <div
-      class="card-footer"
-      v-if="detailsStore.editCommentMode === EditCommentModes.Off"
-    >
-      <textarea
-        v-model="detailsStore.commentToSubmit"
-        class="form-control"
-        placeholder="Comment variant here ..."
-      ></textarea>
-      <div class="btn-group">
-        <button
-          class="btn btn-secondary"
-          @click="detailsStore.commentToSubmit = ''"
-        >
-          Clear
-        </button>
-        <button
-          class="btn btn-primary"
-          @click="detailsStore.submitComment(queryStore.csrfToken)"
-          :disabled="!detailsStore.commentToSubmit"
-        >
-          Submit
-        </button>
-      </div>
-    </div>
-    <div class="card-footer" v-else>
-      <i class="text-muted">
-        <i-fa-solid-info-circle />
-        The form for placing comments will appear when you finished editing your
-        comment.
-      </i>
     </div>
   </div>
 </template>

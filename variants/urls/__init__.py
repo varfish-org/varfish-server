@@ -474,9 +474,9 @@ ajax_urlpatterns = [
         name="ajax-small-variant-details",
     ),
     url(
-        r"^ajax/small-variant-comment/create/(?P<case>[0-9a-f-]+)/?$",
-        view=views_ajax.SmallVariantCommentCreateAjaxView.as_view(),
-        name="ajax-small-variant-comment-create",
+        r"^ajax/small-variant-comment/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_ajax.SmallVariantCommentListCreateAjaxView.as_view(),
+        name="ajax-small-variant-comment-list-create",
     ),
     url(
         r"^ajax/small-variant-comment/update/(?P<smallvariantcomment>[0-9a-f-]+)/?$",
@@ -489,9 +489,9 @@ ajax_urlpatterns = [
         name="ajax-small-variant-comment-delete",
     ),
     url(
-        r"^ajax/small-variant-flags/create/(?P<case>[0-9a-f-]+)/?$",
-        view=views_ajax.SmallVariantFlagsCreateAjaxView.as_view(),
-        name="ajax-small-variant-flags-create",
+        r"^ajax/small-variant-flags/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_ajax.SmallVariantFlagsListCreateAjaxView.as_view(),
+        name="ajax-small-variant-flags-list-create",
     ),
     url(
         r"^ajax/small-variant-flags/update/(?P<smallvariantflags>[0-9a-f-]+)/?$",
@@ -591,8 +591,8 @@ api_urlpatterns = [
         name="api-small-variant-details",
     ),
     url(
-        r"^api/small-variant-comment/create/(?P<case>[0-9a-f-]+)/?$",
-        view=views_api.SmallVariantCommentCreateApiView.as_view(),
+        r"^api/small-variant-comment/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantCommentListCreateApiView.as_view(),
         name="api-small-variant-comment-create",
     ),
     url(
@@ -606,9 +606,9 @@ api_urlpatterns = [
         name="api-small-variant-comment-delete",
     ),
     url(
-        r"^api/small-variant-flags/create/(?P<case>[0-9a-f-]+)/?$",
-        view=views_api.SmallVariantFlagsCreateApiView.as_view(),
-        name="api-small-variant-flags-create",
+        r"^api/small-variant-flags/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantFlagsListCreateApiView.as_view(),
+        name="api-small-variant-flags-list-create",
     ),
     url(
         r"^api/small-variant-flags/update/(?P<smallvariantflags>[0-9a-f-]+)/?$",

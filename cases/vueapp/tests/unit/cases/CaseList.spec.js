@@ -1,10 +1,15 @@
+import casesApi from '@cases/api/cases.js'
 import CaseList from '@cases/components/CaseList.vue'
 import { createTestingPinia } from '@pinia/testing'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeAll, beforeEach, describe, test, vi } from 'vitest'
 
+import caseListResponse from '../../data/caseListResponse.json'
 import casesState from '../../data/casesStoreData.json'
 import { quoteattr } from '../../helpers.js'
+
+// Mock out the cases API
+vi.mock('@cases/api/cases.js')
 
 const makeWrapper = (appContext) => {
   appContext = appContext || {
@@ -59,6 +64,7 @@ describe('CaseList.vue', () => {
   })
 
   test('smoke test', async () => {
+    casesApi.listCase.mockResolvedValue(caseListResponse)
     const _wrapper = makeWrapper()
   })
 })

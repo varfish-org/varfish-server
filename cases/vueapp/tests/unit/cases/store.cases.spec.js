@@ -49,8 +49,6 @@ describe('cases store', () => {
     expect(casesStore.project).toEqual(null)
     expect(casesStore.showInlineHelp).toEqual(false)
     expect(casesStore.complexityMode).toEqual('basic')
-    expect(casesStore.cases).toEqual({})
-    expect(casesStore.caseRowData).toEqual([])
   })
 
   test('initialize', async () => {
@@ -73,9 +71,9 @@ describe('cases store', () => {
       appContext.csrfToken,
       appContext.project.sodar_uuid,
       {
-        pageNo: 0,
-        pageSize: 10,
-        queryString: '',
+        pageNo: 1,
+        pageSize: 1,
+        queryString: null,
       }
     )
 
@@ -85,7 +83,7 @@ describe('cases store', () => {
     expect(casesStore.project).toEqual(appContext.project)
     expect(casesStore.showInlineHelp).toEqual(false)
     expect(casesStore.complexityMode).toEqual('basic')
-    expect(casesStore.caseRowData).toEqual(caseListResponse.results)
+    expect(casesStore.caseCount).toEqual(caseListResponse.count)
     expect(casesStore.userPerms).toEqual(allPerms)
   })
 })

@@ -506,12 +506,13 @@ class ExtendQueryPartsHgmdJoinAndFilter(ExtendQueryPartsHgmdJoin):
         return []
 
 
-class ExtendQueryPartsCaseJoin(ExtendQueryPartsBase):
-    #: The model to retrieve the set ids from.
-    model_set = SmallVariantSet
+class ExtendQueryPartsCaseJoinGeneric(ExtendQueryPartsBase):
+    """Generic query parts that joins the case"""
 
     #: The model to join with.
-    model = SmallVariant
+    model = None
+    #: The model to retrieve the variant set ids from.
+    model_set = None
 
     def extend_fields(self, _query_parts):
         return [Case.sa.sodar_uuid.label("case_uuid"), Case.sa.name.label("family_name")]
@@ -520,7 +521,16 @@ class ExtendQueryPartsCaseJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(Case.sa, self.model.sa.case_id == Case.sa.id)
 
 
-class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsCaseJoin):
+class ExtendQueryPartsCaseJoin(ExtendQueryPartsCaseJoinGeneric):
+    """Specialize ``ExtendQueryPartsCaseJoinGeneric`` for small variants"""
+
+    model = SmallVariant
+    model_set = SmallVariantSet
+
+
+class ExtendQueryPartsCaseJoinAndFilterGeneric(ExtendQueryPartsCaseJoinGeneric):
+    """Generic query parts that joins the case and filters for it"""
+
     def extend_conditions(self, _query_parts):
         condition = []
         set_ = (
@@ -534,6 +544,13 @@ class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsCaseJoin):
             and_(self.model.sa.case_id == self.case.id, self.model.sa.set_id == set_.id)
         )
         return [or_(*condition)]
+
+
+class ExtendQueryPartsCaseJoinAndFilter(ExtendQueryPartsCaseJoinAndFilterGeneric):
+    """Specialize ``ExtendQueryPartsCaseJoinAndFilter`` for small variants"""
+
+    model_set = SmallVariantSet
+    model = SmallVariant
 
 
 class ExtendQueryPartsGenotypeBase(ExtendQueryPartsBase):
@@ -1356,10 +1373,10 @@ class ExtendQueryPartsModesOfInheritanceJoin(ExtendQueryPartsBase):
         return query_parts.selectable.outerjoin(self.subquery, true())
 
 
-class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsBase):
+class ExtendQueryPartsDiseaseGeneJoinBase(ExtendQueryPartsBase):
 
     # Model with the gene ID
-    gene_id_model = SmallVariant
+    gene_id_model = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1371,7 +1388,7 @@ class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsBase):
         self.subquery = (
             select([column("id")])
             .select_from(GeneIdInHpo.sa)
-            .where(getattr(self.gene_id_model.sa, "%s_gene_id" % self.transcript_db) == gene_id)
+            .where(getattr(self.gene_id_model.sa, f"{self.transcript_db}_gene_id") == gene_id)
             .lateral("disease_gene_subquery")
         )
 
@@ -1380,6 +1397,11 @@ class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsBase):
 
     def extend_selectable(self, query_parts):
         return query_parts.selectable.outerjoin(self.subquery, true())
+
+
+class ExtendQueryPartsDiseaseGeneJoin(ExtendQueryPartsDiseaseGeneJoinBase):
+
+    gene_id_model = SmallVariant
 
 
 class ExtendQueryPartsGnomadConstraintsJoin(ExtendQueryPartsBase):
@@ -1584,6 +1606,7 @@ def get_qp_extender_classes_from_plugins():
 
 
 class QueryPartsBuilder:
+    """Base class for constructing query types."""
 
     core_query = small_variant_query
 

@@ -1,13 +1,23 @@
 import { apiFetch } from '@varfish/api-utils.js'
 
 export default {
-  async listCase(csrfToken, projectUuid, { pageNo, pageSize, queryString }) {
+  async listCase(
+    csrfToken,
+    projectUuid,
+    { pageNo, pageSize, orderBy, orderDir, queryString }
+  ) {
     let queryArr = []
     if (pageNo !== undefined) {
       queryArr.push(`page=${pageNo + 1}`)
     }
     if (pageSize !== undefined) {
       queryArr.push(`page_size=${pageSize}`)
+    }
+    if (orderBy !== undefined && orderBy !== null) {
+      queryArr.push(`order_by=${orderBy}`)
+    }
+    if (orderDir !== undefined && orderDir !== null) {
+      queryArr.push(`order_dir=${orderDir}`)
     }
     if (
       queryString !== undefined &&

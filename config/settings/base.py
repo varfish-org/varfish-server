@@ -158,6 +158,11 @@ MIGRATION_MODULES = {"sites": "varfish.contrib.sites.migrations"}
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = env.bool("DJANGO_DEBUG", False)
 
+# GENERAL VARFISH SETTINGS
+# ------------------------------------------------------------------------------
+# Query timeout in seconds, "0" to disable.
+QUERY_TIMEOUT = env.int("VARFISH_QUERY_TIMEOUT", 600) or None
+
 # KIOSK-MODE RELATED
 # ------------------------------------------------------------------------------
 # Enable/disable kiosk mode.

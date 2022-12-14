@@ -11,6 +11,8 @@ from geneinfo.models import (
     Hpo,
     HpoName,
     Mim2geneMedgen,
+    NcbiGeneInfo,
+    NcbiGeneRif,
     RefseqToEnsembl,
     RefseqToGeneSymbol,
     RefseqToHgnc,
@@ -30,7 +32,55 @@ HPO_INHERITANCE_MAPPING = {
 }
 
 
-def get_gene_infos(database, gene_id, ensembl_transcript_id):
+def _handle_hpo_omim(entrez_id):
+    if entrez_id is None:
+        return [], [], {}, []
+    # Obtain type (``phenotype`` or ``gene``) and omim ID via entrez ID.
+    # Multiple entries for one entrez ID are possible (also mutiple genes for one entrez ID!).
+    mim2gene = Mim2geneMedgen.objects.filter(entrez_id=entrez_id)
+    omim = dict()
+    hpoterms = set()
+    hpoinheritance = set()
+    omim_genes = set()
+    for mim in mim2gene:
+        # Collect omim genes
+        if mim.omim_type == "gene":
+            omim_genes.add(mim.omim_id)
+        # Handle omim phenotypes
+        else:
+            # Get HPO info for the current omim ID
+            for hpo_id, hpo_name, omim_name in _get_hpo_mapping(mim):
+                if hpo_id in HPO_INHERITANCE_MAPPING:
+                    hpoinheritance.add((hpo_id, HPO_INHERITANCE_MAPPING[hpo_id]))
+                else:
+                    hpoterms.add((hpo_id, hpo_name))
+                # Replace omim name if we encountered a longer name for the same ID.
+                # The longer name likely contains the shorter name.
+                if mim.omim_id in omim:
+                    if len(omim[mim.omim_id]) < len(omim_name):
+                        omim[mim.omim_id] = omim_name
+                else:
+                    omim[mim.omim_id] = omim_name
+    omim = {key: (value[0], value[1:]) for key, value in omim.items() if value}
+    hpoterms = sorted(hpoterms, key=lambda tup: tup[1])
+    return hpoterms, hpoinheritance, omim, omim_genes
+
+
+def _get_hpo_mapping(mim):
+    """Given one omim ID, obtain HPO entries with the associated HPO name and parsed OMIM name."""
+    for h in Hpo.objects.filter(database_id="OMIM:{}".format(mim.omim_id)):
+        hponame = HpoName.objects.filter(hpo_id=h.hpo_id).first()
+        yield h.hpo_id, hponame.name if hponame else "unknown", list(_parse_omim_name(h.name))
+
+
+def _parse_omim_name(name):
+    if name:
+        for s in name.split(";;"):
+            m = re.search(RE_OMIM_PARSER, s.split(";")[0])
+            yield m.group(1)
+
+
+def get_gene_infos(database, gene_id, ensembl_transcript_id=None):
     if database == "refseq":
         # Get HGNC entry via intermediate table as HGNC is badly equipped with refseq IDs.
         hgnc = RefseqToHgnc.objects.filter(entrez_id=gene_id).first()
@@ -82,52 +132,9 @@ def get_gene_infos(database, gene_id, ensembl_transcript_id):
             gene["exac_constraints"] = ExacConstraints.objects.filter(
                 ensembl_transcript_id=ensembl_transcript_id.split(".")[0]
             ).first()
+        if gene["entrez_id"]:
+            gene["ncbi_summary"] = NcbiGeneInfo.objects.filter(entrez_id=gene["entrez_id"]).first()
+            gene["ncbi_gene_rifs"] = NcbiGeneRif.objects.filter(
+                entrez_id=gene["entrez_id"]
+            ).order_by("pk")
         return gene
-
-
-def _handle_hpo_omim(entrez_id):
-    if entrez_id is None:
-        return [], [], {}, []
-    # Obtain type (``phenotype`` or ``gene``) and omim ID via entrez ID.
-    # Multiple entries for one entrez ID are possible (also mutiple genes for one entrez ID!).
-    mim2gene = Mim2geneMedgen.objects.filter(entrez_id=entrez_id)
-    omim = dict()
-    hpoterms = set()
-    hpoinheritance = set()
-    omim_genes = set()
-    for mim in mim2gene:
-        # Collect omim genes
-        if mim.omim_type == "gene":
-            omim_genes.add(mim.omim_id)
-        # Handle omim phenotypes
-        else:
-            # Get HPO info for the current omim ID
-            for hpo_id, hpo_name, omim_name in _get_hpo_mapping(mim):
-                if hpo_id in HPO_INHERITANCE_MAPPING:
-                    hpoinheritance.add((hpo_id, HPO_INHERITANCE_MAPPING[hpo_id]))
-                else:
-                    hpoterms.add((hpo_id, hpo_name))
-                # Replace omim name if we encountered a longer name for the same ID.
-                # The longer name likely contains the shorter name.
-                if mim.omim_id in omim:
-                    if len(omim[mim.omim_id]) < len(omim_name):
-                        omim[mim.omim_id] = omim_name
-                else:
-                    omim[mim.omim_id] = omim_name
-    omim = {key: (value[0], value[1:]) for key, value in omim.items() if value}
-    hpoterms = sorted(hpoterms, key=lambda tup: tup[1])
-    return hpoterms, hpoinheritance, omim, omim_genes
-
-
-def _get_hpo_mapping(mim):
-    """Given one omim ID, obtain HPO entries with the associated HPO name and parsed OMIM name."""
-    for h in Hpo.objects.filter(database_id="OMIM:{}".format(mim.omim_id)):
-        hponame = HpoName.objects.filter(hpo_id=h.hpo_id).first()
-        yield h.hpo_id, hponame.name if hponame else "unknown", list(_parse_omim_name(h.name))
-
-
-def _parse_omim_name(name):
-    if name:
-        for s in name.split(";;"):
-            m = re.search(RE_OMIM_PARSER, s.split(";")[0])
-            yield m.group(1)
