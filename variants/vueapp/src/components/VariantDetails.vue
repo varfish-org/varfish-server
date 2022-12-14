@@ -1,7 +1,14 @@
 <script setup>
+import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
+import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
+import { useVariantCommentsStore } from '@variants/stores/variantComments.js'
+import { useVariantFlagsStore } from '@variants/stores/variantFlags.js'
+
+import VariantDetailsComments from '@varfish/components/VariantDetailsComments.vue'
+import VariantDetailsFlags from '@varfish/components/VariantDetailsFlags.vue'
+
 import VariantDetailsCallDetails from './VariantDetailsCallDetails.vue'
 import VariantDetailsClinvar from './VariantDetailsClinvar.vue'
-import VariantDetailsCommentsFlags from './VariantDetailsCommentsFlags.vue'
 import VariantDetailsConservation from './VariantDetailsConservation.vue'
 import VariantDetailsExtraAnnos from './VariantDetailsExtraAnnos.vue'
 import VariantDetailsFreqs from './VariantDetailsFreqs.vue'
@@ -11,11 +18,16 @@ import VariantDetailsTranscripts from './VariantDetailsTranscripts.vue'
 import VariantDetailsVariantValidator from './VariantDetailsVariantValidator.vue'
 import VariantDetailsAcmgRating from './VariantDetailsAcmgRating.vue'
 import VariantDetailsLinkOuts from './VariantDetailsLinkOuts.vue'
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
 
 const detailsStore = useVariantDetailsStore()
 const queryStore = useFilterQueryStore()
+const flagsStore = useVariantFlagsStore()
+flagsStore.initialize({ csrf_token: queryStore.csrfToken }, queryStore.caseUuid)
+const commentsStore = useVariantCommentsStore()
+commentsStore.initialize(
+  { csrf_token: queryStore.csrfToken },
+  queryStore.caseUuid
+)
 </script>
 
 <template>
@@ -126,12 +138,19 @@ const queryStore = useFilterQueryStore()
             />
             <div class="row">
               <div class="col-12 col-xl-6 pl-0 pr-2">
-                <VariantDetailsGene
-                  :gene="detailsStore.gene"
-                  :ncbi-summary="detailsStore.ncbiSummary"
-                  :ncbi-gene-rifs="detailsStore.ncbiGeneRifs"
-                  :small-variant="detailsStore.smallVariant"
-                />
+                <div class="card">
+                  <div class="card-header">
+                    <h4 class="card-title">Gene</h4>
+                  </div>
+                  <VariantDetailsGene
+                    :gene="detailsStore.gene"
+                    :release="detailsStore.smallVariant?.release"
+                    :refseq-gene-id="detailsStore.smallVariant?.refseq_gene_id"
+                    :ensembl-gene-id="
+                      detailsStore.smallVariant?.ensembl_gene_id
+                    "
+                  />
+                </div>
               </div>
               <div class="col-12 col-xl-6 pl-2 pr-0">
                 <VariantDetailsGa4ghBeacons
@@ -183,7 +202,16 @@ const queryStore = useFilterQueryStore()
             role="tabpanel"
             aria-labelledby="comments-flags-tab"
           >
-            <VariantDetailsCommentsFlags />
+            <VariantDetailsFlags
+              :details-store="detailsStore"
+              :flags-store="flagsStore"
+              :variant="detailsStore.smallVariant"
+            />
+            <VariantDetailsComments
+              :details-store="detailsStore"
+              :comments-store="commentsStore"
+              :variant="detailsStore.smallVariant"
+            />
           </div>
           <div
             class="tab-pane fade"

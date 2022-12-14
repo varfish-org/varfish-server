@@ -616,6 +616,8 @@ class ProjectCasesSmallVariantQueryFactory(factory.django.DjangoModelFactory):
 
 
 class CaseWithVariantSetFactory:
+    """Factory for a ``Case`` with a variant set for both small and structural variants"""
+
     @staticmethod
     def get(variant_set_type=None, **kwargs):
         from svs.tests.factories import StructuralVariantSetFactory

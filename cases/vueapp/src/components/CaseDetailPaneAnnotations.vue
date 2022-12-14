@@ -42,7 +42,9 @@ const showModal = ({ gridRow, gridApi, smallVariant }) => {
   currentSmallVariant.value = smallVariant
   smallVariantDetailsModalWrapperRef.value.showModal()
   variantDetailsStore.fetchVariantDetails(
-    { gridRow, gridApi, smallVariant },
+    gridRow,
+    gridApi,
+    smallVariant,
     'refseq'
   )
 }

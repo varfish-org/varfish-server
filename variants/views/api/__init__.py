@@ -17,6 +17,7 @@ from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
     ListAPIView,
+    ListCreateAPIView,
     RetrieveAPIView,
     UpdateAPIView,
     get_object_or_404,
@@ -27,7 +28,8 @@ from clinvar.models import Clinvar
 from extra_annos.views import ExtraAnnosMixin
 from frequencies.models import MT_DB_INFO
 from frequencies.views import FrequencyMixin
-from geneinfo.models import Hpo, HpoName, NcbiGeneInfo, NcbiGeneRif
+from geneinfo.models import Hpo, HpoName
+from geneinfo.serializers import Gene
 from geneinfo.views import get_gene_infos
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 
@@ -58,7 +60,6 @@ from variants.query_presets import (
 from variants.serializers import (
     AcmgCriteriaRatingSerializer,
     CaseSerializer,
-    Gene,
     HpoTerms,
     JobStatus,
     SettingsShortcuts,
@@ -951,28 +952,6 @@ class SmallVariantDetailsApiView(CaseApiMixin, FrequencyMixin, ExtraAnnosMixin, 
             )
         return result
 
-    def _load_variant_comments(self):
-        return SmallVariantComment.objects.select_related("user").filter(
-            case=super().get_object(),
-            release=self.kwargs["release"],
-            chromosome=self.kwargs["chromosome"],
-            start=int(self.kwargs["start"]),
-            end=int(self.kwargs["end"]),
-            reference=self.kwargs["reference"],
-            alternative=self.kwargs["alternative"],
-        )
-
-    def _load_variant_flags(self):
-        return SmallVariantFlags.objects.filter(
-            case=super().get_object(),
-            release=self.kwargs["release"],
-            chromosome=self.kwargs["chromosome"],
-            start=int(self.kwargs["start"]),
-            end=int(self.kwargs["end"]),
-            reference=self.kwargs["reference"],
-            alternative=self.kwargs["alternative"],
-        ).first()
-
     def _load_acmg_rating(self):
         return AcmgCriteriaRating.objects.filter(
             case=super().get_object(),
@@ -1010,25 +989,47 @@ class SmallVariantDetailsApiView(CaseApiMixin, FrequencyMixin, ExtraAnnosMixin, 
                     self.kwargs["database"], self.kwargs["gene_id"], small_var.ensembl_transcript_id
                 )
             ),
-            ncbi_summary=NcbiGeneInfo.objects.filter(entrez_id=small_var.refseq_gene_id).first(),
-            ncbi_gene_rifs=NcbiGeneRif.objects.filter(entrez_id=small_var.refseq_gene_id).order_by(
-                "pk"
-            ),
-            comments=self._load_variant_comments(),
-            flags=self._load_variant_flags(),
             acmg_rating=self._load_acmg_rating(),
         )
 
 
-class SmallVariantCommentCreateApiView(
-    CaseApiMixin,
-    CreateAPIView,
+class SmallVariantCommentApiMixin(VariantsApiBaseMixin):
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "case"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    serializer_class = SmallVariantCommentSerializer
+
+    def get_queryset(self):
+        keys = ("release", "chromosome", "start", "end", "reference", "alternative")
+        return SmallVariantComment.objects.select_related("user").filter(
+            **{key: self.request.GET[key] for key in keys}
+        )
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+
+class SmallVariantCommentListCreateApiView(
+    SmallVariantCommentApiMixin,
+    ListCreateAPIView,
 ):
-    """A view that allows to create a new comment.
+    """A view that allows to list existing comments and new ones.
 
-    **URL:** ``/variants/api/small-variant-comment/create/{case.sodar_uuid}/``
+    **URL:** ``/variants/api/small-variant-comment/list-create/{case.sodar_uuid}/``
 
-    **Methods:** ``POST``
+    **Query Arguments:**
+
+    - release
+    - chromosome
+    - start
+    - end
+    - reference
+    - alternative
+
+    **Methods:** ``GET``, ``POST``
 
     **Returns:**
 
@@ -1039,28 +1040,60 @@ class SmallVariantCommentCreateApiView(
     def get_serializer_context(self):
         result = super().get_serializer_context()
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        keys = ("release", "chromosome", "start", "end", "reference", "alternative")
+        for key in keys:
+            result[key] = self.request.query_params[key]
         return result
 
 
-class SmallVariantFlagsCreateApiView(
-    CaseApiMixin,
-    CreateAPIView,
+class SmallVariantFlagsApiMixin(VariantsApiBaseMixin):
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "case"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    serializer_class = SmallVariantFlagsSerializer
+
+    def get_queryset(self):
+        keys = ("release", "chromosome", "start", "end", "reference", "alternative")
+        return SmallVariantFlags.objects.select_related("case").filter(
+            **{key: self.request.GET[key] for key in keys}
+        )
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+
+class SmallVariantFlagsListCreateApiView(
+    SmallVariantFlagsApiMixin,
+    ListCreateAPIView,
 ):
-    """A view that allows to create new flags.
+    """A view that allows to list existing flags and create new ones.
 
-    **URL:** ``/variants/api/small-variant-flags/create/{case.sodar_uuid}/``
+    **URL:** ``/variants/api/small-variant-flags/list-create/{case.sodar_uuid}/``
 
-    **Methods:** ``GET``
+    **Query Arguments:**
+
+    - release
+    - chromosome
+    - start
+    - end
+    - reference
+    - alternative
+
+    **Methods:** ``GET``, ``POST``
 
     **Returns:**
 
     """
 
-    serializer_class = SmallVariantFlagsSerializer
-
     def get_serializer_context(self):
         result = super().get_serializer_context()
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        keys = ("release", "chromosome", "start", "end", "reference", "alternative")
+        for key in keys:
+            result[key] = self.request.query_params[key]
         return result
 
 
@@ -1140,6 +1173,9 @@ class SmallVariantCommentUpdateApiView(
     serializer_class = SmallVariantCommentSerializer
 
     queryset = SmallVariantComment.objects.all()
+
+    def patch(self, *args, **kwargs):
+        return super().patch(*args, **kwargs)
 
     def get_permission_required(self):
         return "variants.view_data"

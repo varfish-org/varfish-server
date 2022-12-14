@@ -1,17 +1,17 @@
-import VariantDetailsCommentsFlagsIndicator from './VariantDetailsCommentsFlagsIndicator.vue'
+import VariantDetailsFlagsIndicator from './VariantDetailsFlagsIndicator.vue'
 
 export default {
   title: 'Variants / Small Variant Details Comments Flags',
-  component: VariantDetailsCommentsFlagsIndicator,
+  component: VariantDetailsFlagsIndicator,
 }
 
 const Template = (args) => ({
-  components: { VariantDetailsCommentsFlagsIndicator },
+  components: { VariantDetailsFlagsIndicator },
   setup() {
     return { args }
   },
   template:
-    '<VariantDetailsCommentsFlagsIndicator\n' +
+    '<VariantDetailsFlagsIndicator\n' +
     '    :flag-state="args.flagState"\n' +
     '/>',
 })

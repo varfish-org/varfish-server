@@ -1,109 +1,123 @@
 <script setup>
 import debounce from 'lodash.debounce'
-import { computed, ref, watch } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-import { AgGridVue } from 'ag-grid-vue3'
+import EasyDataTable from 'vue3-easy-data-table'
+import 'vue3-easy-data-table/dist/style.css'
 
-import CaseListProgressBar from './CaseListProgressBar.vue'
-import { useCasesStore } from '../stores/cases.js'
-import { columnDefs } from './CaseListPaneCases.values.js'
-import Overlay from './Overlay.vue'
+import casesApi from '@cases/api/cases.js'
+import { useCasesStore } from '@cases/stores/cases.js'
+import { displayName, formatLargeInt, formatTimeAgo } from '@varfish/helpers.js'
 
 const casesStore = useCasesStore()
 
-/** A {@code ref} around the ag-grid's {@code api}, set when the ag-grid emits {@code gridReady}. */
-const gridApi = ref(null)
-/** A {@code ref} around the ag-grid's {@code columnApi}, set when the ag-grid emits {@code gridReady}. */
-const columnApi = ref(null)
+const tableHeaders = [
+  { text: 'Case Name', value: 'name', sortable: true },
+  { text: 'Status', value: 'status', sortable: true },
+  { text: 'Individuals', value: 'individuals' },
+  { text: 'Small Vars', value: 'num_small_vars', sortable: true, width: 100 },
+  { text: 'SVs', value: 'num_svs', sortable: true, width: 100 },
+  { text: 'Creation', value: 'date_created', width: 150 },
+  { text: 'Last Update', value: 'date_modified', width: 150 },
+  { text: 'Shortcuts', value: 'buttons', width: 50 },
+]
 
-/** The current page. */
-const pageNo = ref(0)
-/** The number of items per page. */
-const pageSize = ref(10)
+/** Rows to display in the table. */
+const tableRows = ref([])
+/** Whether the Vue3EasyDataTable is loading. */
+const tableLoading = ref(false)
+/** The table server options, updated by Vue3EasyDataTable. */
+const tableServerOptions = ref(
+  reactive({
+    page: 1,
+    rowsPerPage: 20,
+    sortBy: null,
+    sortType: 'asc',
+  })
+)
 /** The current search term. */
 const searchTerm = ref('')
 
-/** Ref to the AgGridVue. */
-const agGridRef = ref(null)
-
-/**
- * Event handler for ag-grid's {@code gridReady} event.
- *
- * @param event The event as raised by the ag-grid
- */
-const onGridReady = (event) => {
-  gridApi.value = event.api
-  columnApi.value = event.columnApi
-}
-
-/** Event handler for ag-grid's {@code firstDataRendered} event. */
-const onFirstDataRendered = () => {
-  gridApi.value.sizeColumnsToFit()
-}
-
-/** Default column definition for the ag-grid. */
-const defaultColDef = { resizable: true, sortable: true }
-
-/** Navigate to first page. */
-const goFirstPage = () => {
-  if (pageNo.value > 0) {
-    pageNo.value = 0
+/** Load data from table as configured by tableServerOptions. */
+const loadFromServer = async () => {
+  const transmogrify = (row) => {
+    row['indexName'] = row['index']
+    delete row['index']
+    return row
   }
+
+  tableLoading.value = true
+  const response = await casesApi.listCase(
+    casesStore.csrfToken,
+    casesStore.project.sodar_uuid,
+    {
+      pageNo: tableServerOptions.value.page - 1,
+      pageSize: tableServerOptions.value.rowsPerPage,
+      orderBy: tableServerOptions.value.sortBy,
+      orderDir: tableServerOptions.value.sortType,
+      queryString: searchTerm.value,
+    }
+  )
+  tableRows.value = response.results.map((row) => transmogrify(row))
+  tableLoading.value = false
 }
 
-/** Navigate to previous page. */
-const goPreviousPage = () => {
-  if (pageNo.value > 0) {
-    pageNo.value -= 1
-  }
+/** Update display when pagination or sorting changed. */
+watch(
+  [
+    () => tableServerOptions.value.page,
+    () => tableServerOptions.value.rowsPerPage,
+    () => tableServerOptions.value.sortBy,
+    () => tableServerOptions.value.sortType,
+  ],
+  (
+    [_newPageNo, _newRowsPerPage, _newSortBy, _newSortType],
+    [_oldPageNo, _oldRowsPerPage, _oldSortBy, _oldSortType]
+  ) => loadFromServer()
+)
+
+const getIndividuals = (pedigree) => {
+  return pedigree
+    .map((row) => {
+      return displayName(row.name)
+    })
+    .join(', ')
 }
 
-/** Navigate to next page. */
-const goNextPage = () => {
-  if (pageNo.value + 1 < casesStore.pageCount) {
-    pageNo.value += 1
-  }
+/** The global router object. */
+const router = useRouter()
+
+/** Navigate to the case detail. */
+const navigate = (caseUuid) => {
+  router.push(`/detail/${caseUuid}`)
 }
 
-/** Navigate to last page. */
-const goLastPage = () => {
-  if (pageNo.value + 1 < casesStore.pageCount) {
-    pageNo.value = casesStore.pageCount - 1
-  }
-}
-
-/** Debounced version for updating store's query parameters. */
-const _storeUpdateQueryParams = debounce(casesStore.updateQueryParams, 1000, {
+/** Debounced version for reloading the table from server */
+const debouncedLoadFromServer = debounce(loadFromServer, 1000, {
   leading: true,
   maxWait: 2,
   trailing: true,
 })
 
+/** Update display when search term changed. */
 watch(
-  [() => pageNo.value, () => pageSize.value, () => searchTerm.value],
-  (
-    [newPageNo, newPageSize, newSearchTerm],
-    [_oldPageNo, _oldPageSize, _oldSearchTerm]
-  ) => {
-    _storeUpdateQueryParams(newPageNo, newPageSize, newSearchTerm)
-  }
+  () => searchTerm.value,
+  (_newSearchTerm, _oldSearchTerm) => debouncedLoadFromServer()
 )
 
-/** Whether to show the overlay. */
-const overlayShow = computed(() => casesStore.serverInteractions > 0)
-
-defineExpose({
-  // for test
-  agGridRef,
+/** Load from server when mounted. */
+onMounted(async () => {
+  await loadFromServer()
 })
 </script>
 
 <template>
   <div class="row pt-3">
     <div class="col">
-      <div class="mb-3 mt-0 pl-0 pr-0">
-        <CaseListProgressBar />
-      </div>
+      <!--      <div class="mb-3 mt-0 pl-0 pr-0">-->
+      <!--        <CaseListProgressBar />-->
+      <!--      </div>-->
 
       <div class="card mb-3 varfish-case-list-card">
         <div class="card-header d-flex">
@@ -130,65 +144,85 @@ defineExpose({
         </div>
 
         <div class="card-body p-0 position-relative">
-          <AgGridVue
-            ref="agGridRef"
-            class="ag-theme-alpine"
-            domLayout="autoHeight"
-            :columnDefs="columnDefs"
-            :rowData="casesStore.caseRowData"
-            :defaultColDef="defaultColDef"
-            :onFirstDataRendered="onFirstDataRendered"
-            @grid-ready="onGridReady"
-          />
-          <Overlay v-if="overlayShow" />
-        </div>
+          <EasyDataTable
+            v-model:server-options="tableServerOptions"
+            table-class-name="customize-table"
+            :loading="tableLoading"
+            :server-items-length="casesStore.caseCount"
+            :headers="tableHeaders"
+            :items="tableRows"
+            :rows-items="[20, 50, 200, 1000]"
+            alternating
+            buttons-pagination
+            show-index
+          >
+            <template #item-name="{ sodar_uuid, name }">
+              <a href="#" @click.prevent="navigate(sodar_uuid)">{{ name }}</a>
+            </template>
+            <template #item-individuals="{ pedigree }">
+              {{ getIndividuals(pedigree) }}
+            </template>
+            <template #item-num_small_vars="{ num_small_vars }">
+              <div class="text-right">
+                {{ formatLargeInt(num_small_vars) }}
+              </div>
+            </template>
 
-        <div class="card-footer d-flex pl-3 pr-3">
-          <template v-if="casesStore.caseCount">
-            <div>
-              <select
-                class="custom-select custom-select-sm"
-                v-model="pageSize"
-                :disabled="!casesStore.caseCount"
-              >
-                <option :value="10">10 items per page</option>
-                <option :value="50">50 items per page</option>
-                <option :value="100">100 items per page</option>
-                <option :value="1000">1000 items per page</option>
-              </select>
-            </div>
-            <div class="ml-auto">
-              <i-mdi-skip-backward
-                :class="{ 'text-muted': pageNo <= 0 }"
-                @click="goFirstPage()"
-              />
-              <i-mdi-play
-                style="transform: rotate(180deg)"
-                :class="{ 'text-muted': pageNo <= 0 }"
-                @click="goPreviousPage()"
-              />
-              page {{ pageNo + 1 }} of {{ casesStore.pageCount }}
-              <i-mdi-play
-                :class="{ 'text-muted': pageNo + 1 >= casesStore.pageCount }"
-                @click="goNextPage()"
-              />
-              <i-mdi-skip-forward
-                @click="goLastPage()"
-                :class="{ 'text-muted': pageNo + 1 >= casesStore.pageCount }"
-              />
-            </div>
-          </template>
-          <div v-else class="text-muted">no data</div>
+            <template #item-num_svs="{ num_svs }">
+              <div class="text-right">
+                {{ formatLargeInt(num_svs) }}
+              </div>
+            </template>
+
+            <template #item-date_created="{ date_created }">
+              {{ formatTimeAgo(date_created) }}
+            </template>
+
+            <template #item-date_modified="{ date_modified }">
+              {{ formatTimeAgo(date_modified) }}
+            </template>
+
+            <template #item-buttons="{ num_small_vars, num_svs }">
+              <div class="btn-group">
+                <button
+                  title="Legacy filter small variants"
+                  type="button"
+                  class="btn btn-sm btn-primary"
+                  style="font-size: 80%"
+                  :disabled="!num_small_vars"
+                >
+                  <i-mdi-filter />
+                </button>
+                <button
+                  title="Next-gen small variants (beta)"
+                  type="button"
+                  class="btn btn-sm btn-primary"
+                  style="font-size: 80%"
+                  :disabled="!num_small_vars"
+                >
+                  <i-mdi-beta />
+                </button>
+                <button
+                  title="Filter SVs"
+                  type="button"
+                  class="btn btn-sm btn-primary pl-2"
+                  style="font-size: 80%"
+                  :disabled="!num_svs"
+                >
+                  <i-mdi-filter-variant />
+                </button>
+              </div>
+            </template>
+          </EasyDataTable>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style src="ag-grid-community/styles/ag-grid.css"></style>
-<style src="ag-grid-community/styles/ag-theme-alpine.css"></style>
 <style>
-.ag-theme-alpine {
-  --ag-borders: none;
+.customize-table {
+  --easy-table-border: none;
+  /*--easy-table-header-background-color: #2d3a4f;*/
 }
 </style>

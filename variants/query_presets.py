@@ -72,11 +72,55 @@ class GenotypeChoice(Enum):
     NON_VARIANT = "non-variant"
     NON_REFERENCE = "non-reference"
 
+    def to_vcf_gt_values(self):
+        """Convert to values that would appear as ``GT`` in a VCF file"""
+        return {
+            GenotypeChoice.ANY: [
+                "0",
+                "1",
+                "0/0",
+                "0|0",
+                "0/1",
+                "0/1",
+                "1/0",
+                "1|0",
+                "1/1",
+                "1|1",
+                ".",
+                "./.",
+            ],
+            GenotypeChoice.REF: ["0", "0/0", "0|0"],
+            GenotypeChoice.HET: ["0/1", "0/1", "1/0", "1|0"],
+            GenotypeChoice.HOM: ["0", "1", "0/0", "0|0", "1/1", "1|1"],
+            GenotypeChoice.NON_HOM: ["0/1", "0/1", "1/0", "1|0", ".", "./."],
+            GenotypeChoice.VARIANT: ["1", "0/1", "0/1", "1/0", "1|0", "1/1", "1|1"],
+            GenotypeChoice.NON_VARIANT: ["0", "0/0", "0|0", ".", "./."],
+            GenotypeChoice.NON_REFERENCE: [
+                "1",
+                "0/1",
+                "0/1",
+                "1/0",
+                "1|0",
+                "1/1",
+                "1|1",
+                ".",
+                "./.",
+            ],
+        }[self]
+
+
+def genotype_choice_value_to_genotype(value):
+    for c in GenotypeChoice:
+        if c.value == value:
+            return c
+    raise ValueError(f"Not a valid genotype value: {value}")
+
 
 @unique
 class Inheritance(Enum):
     """Preset options for category inheritance"""
 
+    ANY = "any"
     DE_NOVO = "de_novo"
     DOMINANT = "dominant"
     HOMOZYGOUS_RECESSIVE = "homozygous_recessive"
@@ -85,7 +129,6 @@ class Inheritance(Enum):
     X_RECESSIVE = "x_recessive"
     AFFECTED_CARRIERS = "affected_carriers"
     CUSTOM = "custom"
-    ANY = "any"
 
     def _is_recessive(self):
         return self in (
@@ -105,7 +148,7 @@ class Inheritance(Enum):
 
         samples_by_name = {s.name: s for s in samples}
 
-        # Select first affected invididual that has both parents set, fall back to first first affected otherwise
+        # Select first affected invididual that has both parents set, fall back to first affected otherwise
         affected_samples = [s for s in samples if s.is_affected()]
         index_candidates = list(
             itertools.chain(
@@ -217,7 +260,7 @@ class Inheritance(Enum):
         elif self == Inheritance.RECESSIVE:
             genotype = {recessive_index.name: None}
             mode = {"recessive_mode": "recessive"}
-        else:
+        else:  # pragma: no cover
             raise RuntimeError(f"Unexpected recessive mode of inheritance: {self}")
         # Fill ``genotype`` for parents and others
         if self == Inheritance.HOMOZYGOUS_RECESSIVE:
@@ -762,11 +805,11 @@ QUALITY_PRESETS: _QualityPresets = _QualityPresets()
 class Quality(Enum):
     """Preset options for category quality"""
 
+    ANY = "any"
     SUPER_STRICT = "super_strict"
     STRICT = "strict"
     RELAXED = "relaxed"
     CUSTOM = "custom"
-    ANY = "any"
 
     def to_settings(self, samples: typing.Iterable[PedigreeMember]) -> typing.Dict[str, typing.Any]:
         """Return settings for the quality category
@@ -1012,16 +1055,16 @@ class QuickPresets:
     database: Database = Database.REFSEQ
 
     def to_settings(self, samples: typing.Iterable[PedigreeMember]) -> typing.Dict[str, typing.Any]:
-        """Return the overall settings given the case names"""
+        """Return the overall settings given the sample names"""
         assert len(set(s.family for s in samples)) == 1
         return {
-            "database": self.database.value,
             **self.inheritance.to_settings(samples),
             **self.frequency.to_settings(),
             **self.impact.to_settings(),
             **self.quality.to_settings(samples),
             **self.chromosomes.to_settings(),
             **self.flagsetc.to_settings(),
+            "database": self.database.value,
         }
 
 

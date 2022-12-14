@@ -15,7 +15,9 @@ const Template = (args) => ({
     '    :gene="args.gene"\n' +
     '    :ncbiSummary="args.ncbiSummary"\n' +
     '    :ncbiGeneRifs="args.ncbiGeneRifs"\n' +
-    '    :smallVariant="args.smallVariant"\n' +
+    '    :release="args.smallVariant.release"\n' +
+    '    :refseqGeneId="args.smallVariant.refseq_gene_id"\n' +
+    '    :ensemblGeneId="args.smallVariant.ensembl_gene_id"\n' +
     '/>',
 })
 

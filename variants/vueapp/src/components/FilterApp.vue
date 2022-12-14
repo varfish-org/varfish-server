@@ -29,12 +29,13 @@ const currentSmallVariant = ref(null)
 
 const smallVariantDetailsModalWrapperRef = ref(null)
 
-const variantDetailsStore = useVariantDetailsStore()
-
 const appContext = JSON.parse(
   document.getElementById('sodar-ss-app-context').getAttribute('app-context') ||
     '{}'
 )
+
+const variantDetailsStore = useVariantDetailsStore()
+variantDetailsStore.initialize(appContext)
 
 // Initialize filter query store.
 const filterQueryStore = useFilterQueryStore()
@@ -50,7 +51,9 @@ const showModal = ({ gridRow, gridApi, smallVariant }) => {
   currentSmallVariant.value = smallVariant
   smallVariantDetailsModalWrapperRef.value.showModal()
   variantDetailsStore.fetchVariantDetails(
-    { gridRow, gridApi, smallVariant },
+    gridRow,
+    gridApi,
+    smallVariant,
     filterQueryStore.previousQueryDetails.query_settings.database_select
   )
 }

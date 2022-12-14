@@ -56,15 +56,7 @@ from cohorts.models import Cohort
 from extra_annos.views import ExtraAnnoField, ExtraAnnosMixin
 from frequencies.models import MT_DB_INFO
 from frequencies.views import FrequencyMixin
-from geneinfo.models import (
-    EnsemblToGeneSymbol,
-    Hgnc,
-    Hpo,
-    HpoName,
-    NcbiGeneInfo,
-    NcbiGeneRif,
-    build_entrez_id_to_symbol,
-)
+from geneinfo.models import EnsemblToGeneSymbol, Hgnc, Hpo, HpoName, build_entrez_id_to_symbol
 from geneinfo.views import get_gene_infos
 from genepanels.models import GenePanelCategory
 from genomicfeatures.models import GeneInterval
@@ -3366,9 +3358,6 @@ class SmallVariantDetails(
         result["gene"] = get_gene_infos(
             self.kwargs["database"], self.kwargs["gene_id"], self.kwargs["ensembl_transcript_id"]
         )
-        entrez_id = result["small_var"].refseq_gene_id
-        result["ncbi_summary"] = NcbiGeneInfo.objects.filter(entrez_id=entrez_id).first()
-        result["ncbi_gene_rifs"] = NcbiGeneRif.objects.filter(entrez_id=entrez_id).order_by("pk")
         result["details_plugins_outputs"] = self._load_details_plugins()
         result["comments"] = self._load_variant_comments()
         result["flags"] = self._load_variant_flags()
