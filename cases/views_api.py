@@ -71,7 +71,16 @@ class CaseListApiView(SODARAPIBaseProjectMixin, ListAPIView):
         qs = Case.objects.filter(project__sodar_uuid=self.kwargs["project"])
         if self.request.GET.get("q"):
             qs = qs.filter(name__icontains=self.request.GET.get("q"))
-        return qs.select_related("project", "presetset")
+        order_by_str = self.request.query_params.get("order_by", "")
+        if order_by_str:
+            order_dir = self.request.query_params.get("order_dir", "asc")
+            order_by = order_by_str.split(",")
+            if order_dir == "desc":
+                qs = qs.order_by(*[f"-{value}" for value in order_by])
+            else:
+                qs = qs.order_by(*order_by)
+        qs = qs.select_related("project", "presetset")
+        return qs
 
     def get_permission_required(self):
         return "cases.view_data"

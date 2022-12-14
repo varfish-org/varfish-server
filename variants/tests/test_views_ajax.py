@@ -1,7 +1,6 @@
 from bgjobs.models import JOB_STATE_DONE
 from rest_framework.reverse import reverse
 
-from variants.serializers import JobStatus
 from variants.tests.factories import FilterBgJobFactory, SmallVariantQueryFactory
 from variants.tests.test_views_api import TestSmallVariantQueryBase
 

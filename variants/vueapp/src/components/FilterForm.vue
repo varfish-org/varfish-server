@@ -426,9 +426,6 @@ const onSubmitCancelButtonClicked = () => {
       <i-fa-solid-circle-notch class="spin" />
       <strong class="pl-2">Loading filter form ...</strong>
     </div>
-    <!--    {% include "variants/_distiller_resubmit_modal.html" %}-->
-    <!--    {% include "variants/_cadd_resubmit_modal.html" %}-->
-    <!--    {% include "variants/_spanr_resubmit_modal.html" %}-->
     <Overlay v-if="showOverlay" :message="filterQueryStore.storeStateMessage" />
   </form>
 </template>

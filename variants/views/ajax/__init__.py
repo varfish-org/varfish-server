@@ -6,11 +6,11 @@ from variants.views.api import (
     AcmgCriteriaRatingDeleteApiView,
     AcmgCriteriaRatingUpdateApiView,
     CaseRetrieveApiView,
-    SmallVariantCommentCreateApiView,
+    SmallVariantCommentListCreateApiView,
     SmallVariantCommentDeleteApiView,
     SmallVariantCommentUpdateApiView,
     SmallVariantDetailsApiView,
-    SmallVariantFlagsCreateApiView,
+    SmallVariantFlagsListCreateApiView,
     SmallVariantFlagsDeleteApiView,
     SmallVariantFlagsUpdateApiView,
     SmallVariantQueryCreateApiView,
@@ -192,10 +192,10 @@ class SmallVariantDetailsAjaxView(SmallVariantDetailsApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class SmallVariantCommentCreateAjaxView(SmallVariantCommentCreateApiView):
+class SmallVariantCommentListCreateAjaxView(SmallVariantCommentListCreateApiView):
     """Create small variant comment
 
-    **URL:** ``/variants/ajax/small-variant-comment/create/{case.sodar_uuid}``
+    **URL:** ``/variants/ajax/small-variant-comment/list-create/{case.sodar_uuid}``
 
     **Methods:** See base API class.
 
@@ -207,10 +207,10 @@ class SmallVariantCommentCreateAjaxView(SmallVariantCommentCreateApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class SmallVariantFlagsCreateAjaxView(SmallVariantFlagsCreateApiView):
+class SmallVariantFlagsListCreateAjaxView(SmallVariantFlagsListCreateApiView):
     """Create small variant flags
 
-    **URL:** ``/variants/ajax/small-variant-flags/create/{case.sodar_uuid}``
+    **URL:** ``/variants/ajax/small-variant-flags/list-create/{case.sodar_uuid}``
 
     **Methods:** See base API class.
 

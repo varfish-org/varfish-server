@@ -1,7 +1,8 @@
 <script setup>
 import VariantDetailsCallDetails from './VariantDetailsCallDetails.vue'
 import VariantDetailsClinvar from './VariantDetailsClinvar.vue'
-import VariantDetailsCommentsFlags from './VariantDetailsCommentsFlags.vue'
+import VariantDetailsComments from './VariantDetailsComments.vue'
+import VariantDetailsFlags from './VariantDetailsFlags.vue'
 import VariantDetailsConservation from './VariantDetailsConservation.vue'
 import VariantDetailsExtraAnnos from './VariantDetailsExtraAnnos.vue'
 import VariantDetailsFreqs from './VariantDetailsFreqs.vue'
@@ -126,12 +127,19 @@ const queryStore = useFilterQueryStore()
             />
             <div class="row">
               <div class="col-12 col-xl-6 pl-0 pr-2">
-                <VariantDetailsGene
-                  :gene="detailsStore.gene"
-                  :ncbi-summary="detailsStore.ncbiSummary"
-                  :ncbi-gene-rifs="detailsStore.ncbiGeneRifs"
-                  :small-variant="detailsStore.smallVariant"
-                />
+                <div class="card">
+                  <div class="card-header">
+                    <h4 class="card-title">Gene</h4>
+                  </div>
+                  <VariantDetailsGene
+                    :gene="detailsStore.gene"
+                    :release="detailsStore.smallVariant?.release"
+                    :refseq-gene-id="detailsStore.smallVariant?.refseq_gene_id"
+                    :ensembl-gene-id="
+                      detailsStore.smallVariant?.ensembl_gene_id
+                    "
+                  />
+                </div>
               </div>
               <div class="col-12 col-xl-6 pl-2 pr-0">
                 <VariantDetailsGa4ghBeacons
@@ -183,7 +191,8 @@ const queryStore = useFilterQueryStore()
             role="tabpanel"
             aria-labelledby="comments-flags-tab"
           >
-            <VariantDetailsCommentsFlags />
+            <VariantDetailsFlags />
+            <VariantDetailsComments />
           </div>
           <div
             class="tab-pane fade"

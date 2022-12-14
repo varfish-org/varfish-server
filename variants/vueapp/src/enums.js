@@ -7,6 +7,10 @@ function enumToText(enu) {
 }
 
 export const QueryStates = Object.freeze({
+  None: {
+    value: 'none',
+    text: 'None',
+  },
   Initial: {
     value: 'initial',
     text: 'Initial',
@@ -14,6 +18,10 @@ export const QueryStates = Object.freeze({
   Running: {
     value: 'running',
     text: 'Running',
+  },
+  Timeout: {
+    value: 'timeout',
+    text: 'Timeout',
   },
   Resuming: {
     value: 'resuming',
@@ -48,7 +56,12 @@ export const apiQueryStateToQueryState = (apiQueryState) => {
     return QueryStates.Initial.value
   } else if (apiQueryState === 'running') {
     return QueryStates.Running.value
-  } else if (apiQueryState === 'done') {
+  } else if (apiQueryState === 'timeout') {
+    return QueryStates.Timeout.value
+  } else if (
+    apiQueryState === 'done' ||
+    apiQueryState === 'complete' /*XXXREMOVEXXX*/
+  ) {
     return QueryStates.Finished.value
   } else {
     return QueryStates.Error.value
@@ -159,10 +172,4 @@ export const VariantValidatorStates = Object.freeze({
   Initial: 0,
   Running: 1,
   Done: 2,
-})
-
-export const EditCommentModes = Object.freeze({
-  Off: 0,
-  Edit: 1,
-  Delete: 2,
 })

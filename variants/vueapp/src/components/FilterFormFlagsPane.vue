@@ -1,5 +1,5 @@
 <script setup>
-import VariantDetailsCommentsFlagsIndicator from './VariantDetailsCommentsFlagsIndicator.vue'
+import VariantDetailsFlagsIndicator from './VariantDetailsFlagsIndicator.vue'
 import {
   simpleFlags,
   flagNames,
@@ -82,7 +82,7 @@ const props = defineProps({
             class="custom-control-label"
             :for="`effect-flags-${flagName.id}-${flagValue.id}`"
           >
-            <VariantDetailsCommentsFlagsIndicator :flag-state="flagValue.id" />
+            <VariantDetailsFlagsIndicator :flag-state="flagValue.id" />
             {{ flagValue.label }}
           </label>
         </div>

@@ -1,22 +1,7 @@
-import { EditCommentModes, VariantValidatorStates } from '@variants/enums'
+import variantsApi from '@variants/api/variants.js'
+import { VariantValidatorStates } from '@variants/enums'
 import { defineStore } from 'pinia'
-
-const emptyFlagsTemplate = {
-  flag_bookmarked: false,
-  flag_for_validation: false,
-  flag_candidate: false,
-  flag_final_causative: false,
-  flag_no_disease_association: false,
-  flag_segregates: false,
-  flag_doesnt_segregate: false,
-  flag_visual: 'empty',
-  flag_molecular: 'empty',
-  flag_validation: 'empty',
-  flag_phenotype_match: 'empty',
-  flag_summary: 'empty',
-}
-
-const initialFlagsTemplate = { ...emptyFlagsTemplate, flag_bookmarked: true }
+import { ref } from 'vue'
 
 const emptyAcmgCriteriaRatingTemplate = {
   pvs1: 0,
@@ -50,478 +35,306 @@ const emptyAcmgCriteriaRatingTemplate = {
   class_override: null,
 }
 
-export const useVariantDetailsStore = defineStore({
-  id: 'variantDetails',
-  state: () => ({
-    fetched: false,
-    geneId: null,
-    smallVariant: null,
-    comments: [],
-    flags: null,
-    clinvar: null,
-    knowngeneaa: null,
-    effectDetails: null,
-    extraAnnos: null,
-    populations: null,
-    popFreqs: null,
-    inhouseFreq: null,
-    mitochondrialFreqs: null,
-    gene: null,
-    ncbiSummary: null,
-    ncbiGeneRifs: null,
-    variantValidatorResults: null,
-    beaconAddress: null,
-    commentToSubmit: '',
-    setFlagsMode: false,
-    editCommentMode: EditCommentModes.Off,
-    editCommentUuid: '',
-    editCommentIndex: null,
-    flagsToSubmit: { ...initialFlagsTemplate },
-    acmgCriteriaRatingToSubmit: { ...emptyAcmgCriteriaRatingTemplate },
-    setAcmgCriteriaRatingMode: false,
-    acmgCriteriaRatingConflicting: false,
-    variantValidatorState: VariantValidatorStates.Initial,
-    gridRow: null,
-    gridApi: null,
-    queryDetails: null,
-  }),
-  actions: {
-    async fetchVariantDetails({ gridRow, gridApi, smallVariant }, database) {
-      this.database = database
-      this.gridRow = gridRow
-      this.gridApi = gridApi
-      this.smallVariant = smallVariant
-      this.variantValidatorResults = null
-      this.beaconAddress = null
-      this.fetched = false
-      this.commentToSubmit = ''
-      this.setFlagsMode = false
-      this.setAcmgCriteriaRatingMode = false
-      this.editCommentMode = EditCommentModes.Off
-      this.editCommentUuid = ''
-      this.variantValidatorState = VariantValidatorStates.Initial
-      const res = await fetch(
-        `/variants/ajax/small-variant-details/${this.smallVariant.case_uuid}/${this.smallVariant.release}-${this.smallVariant.chromosome}-${this.smallVariant.start}-${this.smallVariant.end}-${this.smallVariant.reference}-${this.smallVariant.alternative}/${this.database}/${this.smallVariant.gene_id}/`
-      )
-      if (res.ok) {
-        const resJson = await res.json()
-        this.fetched = true
-        this.flags = resJson.flags
-        this.comments = resJson.comments
-        this.gene = resJson.gene
-        this.ncbiGeneRifs = resJson.ncbi_gene_rifs
-        this.ncbiSummary = resJson.ncbi_summary
-        this.clinvar = resJson.clinvar
-        this.populations = resJson.populations
-        this.popFreqs = resJson.pop_freqs
-        this.inhouseFreq = resJson.inhouse_freq
-        this.mitochondrialFreqs = resJson.mitochondrial_freqs
-        this.knownGeneAa = resJson.knowngeneaa
-        this.extraAnnos = resJson.extra_annos
-        this.effectDetails = resJson.effect_details
-        this.acmgCriteriaRating = resJson.acmg_rating
-        this.resetFlags()
-        this.resetAcmgCriteriaRating()
+export const useVariantDetailsStore = defineStore('variantDetails', () => {
+  const csrfToken = ref(null)
+  const fetched = ref(false)
+  const geneId = ref(null)
+  const smallVariant = ref(null)
+  const clinvar = ref(null)
+  const knownGeneAa = ref(null)
+  const effectDetails = ref(null)
+  const extraAnnos = ref(null)
+  const populations = ref(null)
+  const popFreqs = ref(null)
+  const inhouseFreq = ref(null)
+  const mitochondrialFreqs = ref(null)
+  const gene = ref(null)
+  const ncbiSummary = ref(null)
+  const ncbiGeneRifs = ref(null)
+  const variantValidatorResults = ref(null)
+  const beaconAddress = ref(null)
+  const acmgCriteriaRatingToSubmit = ref({ ...emptyAcmgCriteriaRatingTemplate })
+  const setAcmgCriteriaRatingMode = ref(false)
+  const acmgCriteriaRatingConflicting = ref(false)
+  const variantValidatorState = ref(VariantValidatorStates.Initial)
+  const database = ref(null)
+  const gridRow = ref(null)
+  const gridApi = ref(null)
+  const queryDetails = ref(null)
+  const acmgCriteriaRating = ref(null)
+
+  const initialize = async (appContext) => {
+    csrfToken.value = appContext.csrf_token
+  }
+
+  const submitAcmgCriteriaRating = async (csrfToken) => {
+    let url, payload, httpMethod
+    const acmgCriteriaRatingToSubmitNoAuto = {
+      ...acmgCriteriaRatingToSubmit.value,
+    }
+    delete acmgCriteriaRatingToSubmitNoAuto['class_auto']
+    const acmgCriteriaRatingEmpty =
+      JSON.stringify(acmgCriteriaRatingToSubmitNoAuto) ===
+      JSON.stringify(emptyAcmgCriteriaRatingTemplate)
+    if (!acmgCriteriaRating.value && acmgCriteriaRatingEmpty) {
+      setAcmgCriteriaRatingMode.value = false
+      acmgCriteriaRatingToSubmit.value = {
+        ...emptyAcmgCriteriaRatingTemplate,
       }
-    },
-    async submitComment(csrfToken) {
-      let url, payload, httpMethod
-      if (
-        this.editCommentMode === EditCommentModes.Edit &&
-        this.editCommentUuid
-      ) {
-        url = `/variants/ajax/small-variant-comment/update/${this.editCommentUuid}/`
-        payload = { text: this.commentToSubmit }
-        httpMethod = 'PATCH'
-      } else {
-        url = `/variants/ajax/small-variant-comment/create/${this.smallVariant.case_uuid}/`
-        payload = {
-          release: this.smallVariant.release,
-          chromosome: this.smallVariant.chromosome,
-          start: this.smallVariant.start,
-          end: this.smallVariant.end,
-          bin: this.smallVariant.bin,
-          reference: this.smallVariant.reference,
-          alternative: this.smallVariant.alternative,
-          text: this.commentToSubmit,
-        }
-        httpMethod = 'POST'
+      return
+    }
+    if (acmgCriteriaRating.value && acmgCriteriaRatingEmpty) {
+      url = `/variants/ajax/acmg-criteria-rating/delete/${acmgCriteriaRating.value.sodar_uuid}/`
+      httpMethod = 'DELETE'
+    } else if (acmgCriteriaRating.value && !acmgCriteriaRatingEmpty) {
+      url = `/variants/ajax/acmg-criteria-rating/update/${acmgCriteriaRating.value.sodar_uuid}/`
+      payload = {
+        body: JSON.stringify({
+          ...acmgCriteriaRatingToSubmit.value,
+        }),
       }
-      const res = await fetch(url, {
-        method: httpMethod,
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken,
-        },
-        body: JSON.stringify(payload),
-      })
-      if (res.ok) {
-        const resJson = await res.json()
-        if (this.editCommentMode === EditCommentModes.Edit) {
-          this.comments[this.editCommentIndex] = resJson
-          this.unsetEditComment()
-        } else {
-          this.comments.push(resJson)
-          this.smallVariant.comment_count = this.comments.length
-          this.commentToSubmit = ''
-        }
-        // TODO remove after solving issue with reactive aggrid
-        // setTimeout(function() { this.gridApi.redrawRows({ rows: [this.gridRow] }); }, 0)
-        try {
-          this.gridApi.redrawRows({ rows: [this.gridRow] })
-        } catch (error) {
-          // noop
-        }
+      httpMethod = 'PATCH'
+    } else {
+      url = `/variants/ajax/acmg-criteria-rating/create/${smallVariant.value.case_uuid}/`
+      payload = {
+        body: JSON.stringify({
+          release: smallVariant.value.release,
+          chromosome: smallVariant.value.chromosome,
+          start: smallVariant.value.start,
+          end: smallVariant.value.end,
+          bin: smallVariant.value.bin,
+          reference: smallVariant.value.reference,
+          alternative: smallVariant.value.alternative,
+          ...acmgCriteriaRatingToSubmit.value,
+        }),
       }
-    },
-    async deleteComment(csrfToken) {
-      if (this.editCommentMode === EditCommentModes.Delete) {
-        const res = await fetch(
-          `/variants/ajax/small-variant-comment/delete/${this.editCommentUuid}/`,
-          {
-            method: 'DELETE',
-            credentials: 'same-origin',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': csrfToken,
-            },
-          }
-        )
-        if (res.ok) {
-          this.comments.splice(this.editCommentIndex, 1)
-          this.smallVariant.comment_count = this.comments.length
-          this.unsetEditComment()
-          // TODO remove after solving issue with reactive aggrid
-          // setTimeout(function() { this.gridApi.redrawRows({ rows: [this.gridRow] }); }, 0)
-          try {
-            this.gridApi.redrawRows({ rows: [this.gridRow] })
-          } catch (error) {
-            // noop
-          }
-        }
-      }
-    },
-    async submitFlags(csrfToken) {
-      let url, payload, httpMethod
-      const flagsEmpty =
-        JSON.stringify(this.flagsToSubmit) ===
-        JSON.stringify(emptyFlagsTemplate)
-      if (!this.flags && flagsEmpty) {
-        this.setFlagsMode = false
-        this.flagsToSubmit = { ...initialFlagsTemplate }
-        return
-      }
-      if (this.flags && flagsEmpty) {
-        url = `/variants/ajax/small-variant-flags/delete/${this.flags.sodar_uuid}/`
-        httpMethod = 'DELETE'
-      } else if (this.flags && !flagsEmpty) {
-        url = `/variants/ajax/small-variant-flags/update/${this.flags.sodar_uuid}/`
-        payload = {
-          body: JSON.stringify({
-            ...this.flagsToSubmit,
-          }),
-        }
-        httpMethod = 'PATCH'
-      } else {
-        url = `/variants/ajax/small-variant-flags/create/${this.smallVariant.case_uuid}/`
-        payload = {
-          body: JSON.stringify({
-            release: this.smallVariant.release,
-            chromosome: this.smallVariant.chromosome,
-            start: this.smallVariant.start,
-            end: this.smallVariant.end,
-            bin: this.smallVariant.bin,
-            reference: this.smallVariant.reference,
-            alternative: this.smallVariant.alternative,
-            ...this.flagsToSubmit,
-          }),
-        }
-        httpMethod = 'POST'
-      }
-      const res = await fetch(url, {
-        method: httpMethod,
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken,
-        },
-        ...payload,
-      })
-      if (res.ok) {
-        if (httpMethod === 'DELETE') {
-          this.smallVariant.flag_count = 0
-          this.flags = null
-          this.flagsToSubmit = { ...initialFlagsTemplate }
-        } else {
-          if (httpMethod === 'POST') {
-            this.smallVariant.flag_count = 1
-          }
-          this.flags = await res.json()
-          this.smallVariant.flag_bookmarked = this.flags.flag_bookmarked
-          this.smallVariant.flag_for_validation = this.flags.flag_for_validation
-          this.smallVariant.flag_candidate = this.flags.flag_candidate
-          this.smallVariant.flag_final_causative =
-            this.flags.flag_final_causative
-          this.smallVariant.flag_no_disease_association =
-            this.flags.flag_no_disease_association
-          this.smallVariant.flag_segregates = this.flags.flag_segregates
-          this.smallVariant.flag_doesnt_segregate =
-            this.flags.flag_doesnt_segregate
-          this.smallVariant.flag_visual = this.flags.flag_visual
-          this.smallVariant.flag_molecular = this.flags.flag_molecular
-          this.smallVariant.flag_validation = this.flags.flag_validation
-          this.smallVariant.flag_phenotype_match =
-            this.flags.flag_phenotype_match
-          this.smallVariant.flag_summary = this.flags.flag_summary
-        }
-        // Todo: Redrawing shouldn't be required as the data is updated.
-        // Todo: However, only the first change is reacted to, not the subsequent changes.
-        // setTimeout(function() { this.gridApi.redrawRows({ rows: [this.gridRow] }); }, 0)
-        try {
-          this.gridApi.redrawRows({ rows: [this.gridRow] })
-        } catch (error) {
-          // noop
-        }
-      }
-      this.setFlagsMode = false
-    },
-    async submitAcmgCriteriaRating(csrfToken) {
-      let url, payload, httpMethod
-      const acmgCriteriaRatingToSubmitNoAuto = {
-        ...this.acmgCriteriaRatingToSubmit,
-      }
-      delete acmgCriteriaRatingToSubmitNoAuto['class_auto']
-      const acmgCriteriaRatingEmpty =
-        JSON.stringify(acmgCriteriaRatingToSubmitNoAuto) ===
-        JSON.stringify(emptyAcmgCriteriaRatingTemplate)
-      if (!this.acmgCriteriaRating && acmgCriteriaRatingEmpty) {
-        this.setAcmgCriteriaRatingMode = false
-        this.acmgCriteriaRatingToSubmit = {
+      httpMethod = 'POST'
+    }
+    const res = await fetch(url, {
+      method: httpMethod,
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+      },
+      ...payload,
+    })
+    if (res.ok) {
+      if (httpMethod === 'DELETE') {
+        smallVariant.value.acmg_class_auto = null
+        smallVariant.value.acmg_class_override = null
+        acmgCriteriaRating.value = null
+        acmgCriteriaRatingToSubmit.value = {
           ...emptyAcmgCriteriaRatingTemplate,
         }
-        return
-      }
-      if (this.acmgCriteriaRating && acmgCriteriaRatingEmpty) {
-        url = `/variants/ajax/acmg-criteria-rating/delete/${this.acmgCriteriaRating.sodar_uuid}/`
-        httpMethod = 'DELETE'
-      } else if (this.acmgCriteriaRating && !acmgCriteriaRatingEmpty) {
-        url = `/variants/ajax/acmg-criteria-rating/update/${this.acmgCriteriaRating.sodar_uuid}/`
-        payload = {
-          body: JSON.stringify({
-            ...this.acmgCriteriaRatingToSubmit,
-          }),
-        }
-        httpMethod = 'PATCH'
       } else {
-        url = `/variants/ajax/acmg-criteria-rating/create/${this.smallVariant.case_uuid}/`
-        payload = {
-          body: JSON.stringify({
-            release: this.smallVariant.release,
-            chromosome: this.smallVariant.chromosome,
-            start: this.smallVariant.start,
-            end: this.smallVariant.end,
-            bin: this.smallVariant.bin,
-            reference: this.smallVariant.reference,
-            alternative: this.smallVariant.alternative,
-            ...this.acmgCriteriaRatingToSubmit,
-          }),
-        }
-        httpMethod = 'POST'
+        acmgCriteriaRating.value = await res.json()
+        smallVariant.value.acmg_class_auto = acmgCriteriaRating.value.class_auto
+        smallVariant.value.acmg_class_override =
+          acmgCriteriaRating.value.class_override
       }
-      const res = await fetch(url, {
-        method: httpMethod,
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken,
-        },
-        ...payload,
-      })
-      if (res.ok) {
-        if (httpMethod === 'DELETE') {
-          this.smallVariant.acmg_class_auto = null
-          this.smallVariant.acmg_class_override = null
-          this.acmgCriteriaRating = null
-          this.acmgCriteriaRatingToSubmit = {
-            ...emptyAcmgCriteriaRatingTemplate,
-          }
-        } else {
-          this.acmgCriteriaRating = await res.json()
-          this.smallVariant.acmg_class_auto = this.acmgCriteriaRating.class_auto
-          this.smallVariant.acmg_class_override =
-            this.acmgCriteriaRating.class_override
-        }
-        // Todo: Redrawing shouldn't be required as the data is updated.
-        // Todo: However, only the first change is reacted to, not the subsequent changes.
-        // setTimeout(function() { this.gridApi.redrawRows({ rows: [this.gridRow] }); }, 0)
-        try {
-          this.gridApi.redrawRows({ rows: [this.gridRow] })
-        } catch (error) {
-          // noop
-        }
+      // Todo: Redrawing shouldn't be required as the data is updated.
+      // Todo: However, only the first change is reacted to, not the subsequent changes.
+      // setTimeout(function() { gridApi.value.redrawRows({ rows: [gridRow.value] }); }, 0)
+      try {
+        gridApi.value.redrawRows({ rows: [gridRow.value] })
+      } catch (error) {
+        // noop
       }
-      this.setAcmgCriteriaRatingMode = false
-    },
-    setDeleteComment(commentUuid, index) {
-      this.editCommentMode = EditCommentModes.Delete
-      this.editCommentUuid = commentUuid
-      this.editCommentIndex = index
-    },
-    setEditComment(commentUuid, text, index) {
-      this.editCommentMode = EditCommentModes.Edit
-      this.editCommentUuid = commentUuid
-      this.commentToSubmit = text
-      this.editCommentIndex = index
-    },
-    unsetEditComment() {
-      this.editCommentMode = EditCommentModes.Off
-      this.editCommentUuid = ''
-      this.commentToSubmit = ''
-      this.editCommentIndex = null
-    },
-    unsetFlags() {
-      this.flagsToSubmit = { ...emptyFlagsTemplate }
-    },
-    resetFlags() {
-      if (this.flags) {
-        this.flagsToSubmit.flag_bookmarked = this.flags.flag_bookmarked
-        this.flagsToSubmit.flag_for_validation = this.flags.flag_for_validation
-        this.flagsToSubmit.flag_candidate = this.flags.flag_candidate
-        this.flagsToSubmit.flag_final_causative =
-          this.flags.flag_final_causative
-        this.flagsToSubmit.flag_no_disease_association =
-          this.flags.flag_no_disease_association
-        this.flagsToSubmit.flag_segregates = this.flags.flag_segregates
-        this.flagsToSubmit.flag_doesnt_segregate =
-          this.flags.flag_doesnt_segregate
-        this.flagsToSubmit.flag_visual = this.flags.flag_visual
-        this.flagsToSubmit.flag_molecular = this.flags.flag_molecular
-        this.flagsToSubmit.flag_validation = this.flags.flag_validation
-        this.flagsToSubmit.flag_phenotype_match =
-          this.flags.flag_phenotype_match
-        this.flagsToSubmit.flag_summary = this.flags.flag_summary
-      } else {
-        this.flagsToSubmit = { ...initialFlagsTemplate }
-      }
-    },
-    cancelFlags() {
-      this.resetFlags()
-      this.setFlagsMode = false
-    },
-    unsetAcmgCriteriaRating() {
-      this.acmgCriteriaRatingToSubmit = { ...emptyAcmgCriteriaRatingTemplate }
-      this.calculateAcmgCriteriaRating()
-    },
-    resetAcmgCriteriaRating() {
-      if (this.acmgCriteriaRating) {
-        this.acmgCriteriaRatingToSubmit.pvs1 = this.acmgCriteriaRating.pvs1
-        this.acmgCriteriaRatingToSubmit.ps1 = this.acmgCriteriaRating.ps1
-        this.acmgCriteriaRatingToSubmit.ps2 = this.acmgCriteriaRating.ps2
-        this.acmgCriteriaRatingToSubmit.ps3 = this.acmgCriteriaRating.ps3
-        this.acmgCriteriaRatingToSubmit.ps4 = this.acmgCriteriaRating.ps4
-        this.acmgCriteriaRatingToSubmit.pm1 = this.acmgCriteriaRating.pm1
-        this.acmgCriteriaRatingToSubmit.pm2 = this.acmgCriteriaRating.pm2
-        this.acmgCriteriaRatingToSubmit.pm3 = this.acmgCriteriaRating.pm3
-        this.acmgCriteriaRatingToSubmit.pm4 = this.acmgCriteriaRating.pm4
-        this.acmgCriteriaRatingToSubmit.pm5 = this.acmgCriteriaRating.pm5
-        this.acmgCriteriaRatingToSubmit.pm6 = this.acmgCriteriaRating.pm6
-        this.acmgCriteriaRatingToSubmit.pp1 = this.acmgCriteriaRating.pp1
-        this.acmgCriteriaRatingToSubmit.pp2 = this.acmgCriteriaRating.pp2
-        this.acmgCriteriaRatingToSubmit.pp3 = this.acmgCriteriaRating.pp3
-        this.acmgCriteriaRatingToSubmit.pp4 = this.acmgCriteriaRating.pp4
-        this.acmgCriteriaRatingToSubmit.pp5 = this.acmgCriteriaRating.pp5
-        this.acmgCriteriaRatingToSubmit.ba1 = this.acmgCriteriaRating.ba1
-        this.acmgCriteriaRatingToSubmit.bs1 = this.acmgCriteriaRating.bs1
-        this.acmgCriteriaRatingToSubmit.bs2 = this.acmgCriteriaRating.bs2
-        this.acmgCriteriaRatingToSubmit.bs3 = this.acmgCriteriaRating.bs3
-        this.acmgCriteriaRatingToSubmit.bs4 = this.acmgCriteriaRating.bs4
-        this.acmgCriteriaRatingToSubmit.bp1 = this.acmgCriteriaRating.bp1
-        this.acmgCriteriaRatingToSubmit.bp2 = this.acmgCriteriaRating.bp2
-        this.acmgCriteriaRatingToSubmit.bp3 = this.acmgCriteriaRating.bp3
-        this.acmgCriteriaRatingToSubmit.bp4 = this.acmgCriteriaRating.bp4
-        this.acmgCriteriaRatingToSubmit.bp5 = this.acmgCriteriaRating.bp5
-        this.acmgCriteriaRatingToSubmit.bp6 = this.acmgCriteriaRating.bp6
-        this.acmgCriteriaRatingToSubmit.bp7 = this.acmgCriteriaRating.bp7
-        this.acmgCriteriaRatingToSubmit.class_auto =
-          this.acmgCriteriaRating.class_auto
-        this.acmgCriteriaRatingToSubmit.class_override =
-          this.acmgCriteriaRating.class_override
-        this.calculateAcmgCriteriaRating()
-      } else {
-        this.unsetAcmgCriteriaRating()
-      }
-    },
-    cancelAcmgCriteriaRating() {
-      this.resetAcmgCriteriaRating()
-      this.setAcmgCriteriaRatingMode = false
-    },
-    calculateAcmgCriteriaRating() {
-      const pvs = this.acmgCriteriaRatingToSubmit.pvs1
-      const ps =
-        this.acmgCriteriaRatingToSubmit.ps1 +
-        this.acmgCriteriaRatingToSubmit.ps2 +
-        this.acmgCriteriaRatingToSubmit.ps3 +
-        this.acmgCriteriaRatingToSubmit.ps4
-      const pm =
-        this.acmgCriteriaRatingToSubmit.pm1 +
-        this.acmgCriteriaRatingToSubmit.pm2 +
-        this.acmgCriteriaRatingToSubmit.pm3 +
-        this.acmgCriteriaRatingToSubmit.pm4 +
-        this.acmgCriteriaRatingToSubmit.pm5 +
-        this.acmgCriteriaRatingToSubmit.pm6
-      const pp =
-        this.acmgCriteriaRatingToSubmit.pp1 +
-        this.acmgCriteriaRatingToSubmit.pp2 +
-        this.acmgCriteriaRatingToSubmit.pp3 +
-        this.acmgCriteriaRatingToSubmit.pp4 +
-        this.acmgCriteriaRatingToSubmit.pp5
-      const ba = this.acmgCriteriaRatingToSubmit.ba1
-      const bs =
-        this.acmgCriteriaRatingToSubmit.bs1 +
-        this.acmgCriteriaRatingToSubmit.bs2 +
-        this.acmgCriteriaRatingToSubmit.bs3 +
-        this.acmgCriteriaRatingToSubmit.bs4
-      const bp =
-        this.acmgCriteriaRatingToSubmit.bp1 +
-        this.acmgCriteriaRatingToSubmit.bp2 +
-        this.acmgCriteriaRatingToSubmit.bp3 +
-        this.acmgCriteriaRatingToSubmit.bp4 +
-        this.acmgCriteriaRatingToSubmit.bp5 +
-        this.acmgCriteriaRatingToSubmit.bp6 +
-        this.acmgCriteriaRatingToSubmit.bp7
-      const isPathogenic =
-        (pvs === 1 &&
-          (ps >= 1 || pm >= 2 || (pm === 1 && pp === 1) || pp >= 2)) ||
-        ps >= 2 ||
-        (ps === 1 && (pm >= 3 || (pm >= 2 && pp >= 2) || (pm === 1 && pp >= 4)))
-      const isLikelyPathogenic =
-        (pvs === 1 && pm === 1) ||
-        (ps === 1 && pm >= 1 && pm <= 2) ||
-        (ps === 1 && pp >= 2) ||
-        pm >= 3 ||
-        (pm === 2 && pp >= 2) ||
-        (pm === 1 && pp >= 4)
-      const isLikelyBenign = (bs >= 1 && bp >= 1) || bp >= 2
-      const isBenign = ba > 0 || bs >= 2
-      const isConflicting =
-        (isPathogenic || isLikelyPathogenic) && (isBenign || isLikelyBenign)
-      this.acmgCriteriaRatingToSubmit.class_auto = 3
-      if (isPathogenic) {
-        this.acmgCriteriaRatingToSubmit.class_auto = 5
-      } else if (isLikelyPathogenic) {
-        this.acmgCriteriaRatingToSubmit.class_auto = 4
-      } else if (isBenign) {
-        this.acmgCriteriaRatingToSubmit.class_auto = 1
-      } else if (isLikelyBenign) {
-        this.acmgCriteriaRatingToSubmit.class_auto = 2
-      }
-      if (isConflicting) {
-        this.acmgCriteriaRatingToSubmit.class_auto = 3
-        this.acmgCriteriaRatingConflicting = true
-      } else {
-        this.acmgCriteriaRatingConflicting = false
-      }
-    },
-  },
+    }
+    setAcmgCriteriaRatingMode.value = false
+  }
+
+  const fetchVariantDetails = async (
+    gridRow$,
+    gridApi$,
+    smallVariant$,
+    database$
+  ) => {
+    database.value = database$
+    gridRow.value = gridRow$
+    gridApi.value = gridApi$
+    smallVariant.value = smallVariant$
+    variantValidatorResults.value = null
+    beaconAddress.value = null
+    fetched.value = false
+    // setFlagsMode.value = false
+    setAcmgCriteriaRatingMode.value = false
+    variantValidatorState.value = VariantValidatorStates.Initial
+    const res = await variantsApi.retrieveVariantDetails(
+      csrfToken.value,
+      database.value,
+      smallVariant.value
+    )
+    fetched.value = true
+    gene.value = res.gene
+    clinvar.value = res.clinvar
+    populations.value = res.populations
+    popFreqs.value = res.pop_freqs
+    inhouseFreq.value = res.inhouse_freq
+    mitochondrialFreqs.value = res.mitochondrial_freqs
+    knownGeneAa.value = res.knownGeneAa
+    extraAnnos.value = res.extra_annos
+    effectDetails.value = res.effect_details
+    acmgCriteriaRating.value = res.acmg_rating
+
+    // resetFlags()
+    resetAcmgCriteriaRating()
+  }
+
+  const unsetAcmgCriteriaRating = () => {
+    acmgCriteriaRatingToSubmit.value = { ...emptyAcmgCriteriaRatingTemplate }
+    calculateAcmgCriteriaRating()
+  }
+
+  const resetAcmgCriteriaRating = () => {
+    if (acmgCriteriaRating.value) {
+      acmgCriteriaRatingToSubmit.value.pvs1 = acmgCriteriaRating.value.pvs1
+      acmgCriteriaRatingToSubmit.value.ps1 = acmgCriteriaRating.value.ps1
+      acmgCriteriaRatingToSubmit.value.ps2 = acmgCriteriaRating.value.ps2
+      acmgCriteriaRatingToSubmit.value.ps3 = acmgCriteriaRating.value.ps3
+      acmgCriteriaRatingToSubmit.value.ps4 = acmgCriteriaRating.value.ps4
+      acmgCriteriaRatingToSubmit.value.pm1 = acmgCriteriaRating.value.pm1
+      acmgCriteriaRatingToSubmit.value.pm2 = acmgCriteriaRating.value.pm2
+      acmgCriteriaRatingToSubmit.value.pm3 = acmgCriteriaRating.value.pm3
+      acmgCriteriaRatingToSubmit.value.pm4 = acmgCriteriaRating.value.pm4
+      acmgCriteriaRatingToSubmit.value.pm5 = acmgCriteriaRating.value.pm5
+      acmgCriteriaRatingToSubmit.value.pm6 = acmgCriteriaRating.value.pm6
+      acmgCriteriaRatingToSubmit.value.pp1 = acmgCriteriaRating.value.pp1
+      acmgCriteriaRatingToSubmit.value.pp2 = acmgCriteriaRating.value.pp2
+      acmgCriteriaRatingToSubmit.value.pp3 = acmgCriteriaRating.value.pp3
+      acmgCriteriaRatingToSubmit.value.pp4 = acmgCriteriaRating.value.pp4
+      acmgCriteriaRatingToSubmit.value.pp5 = acmgCriteriaRating.value.pp5
+      acmgCriteriaRatingToSubmit.value.ba1 = acmgCriteriaRating.value.ba1
+      acmgCriteriaRatingToSubmit.value.bs1 = acmgCriteriaRating.value.bs1
+      acmgCriteriaRatingToSubmit.value.bs2 = acmgCriteriaRating.value.bs2
+      acmgCriteriaRatingToSubmit.value.bs3 = acmgCriteriaRating.value.bs3
+      acmgCriteriaRatingToSubmit.value.bs4 = acmgCriteriaRating.value.bs4
+      acmgCriteriaRatingToSubmit.value.bp1 = acmgCriteriaRating.value.bp1
+      acmgCriteriaRatingToSubmit.value.bp2 = acmgCriteriaRating.value.bp2
+      acmgCriteriaRatingToSubmit.value.bp3 = acmgCriteriaRating.value.bp3
+      acmgCriteriaRatingToSubmit.value.bp4 = acmgCriteriaRating.value.bp4
+      acmgCriteriaRatingToSubmit.value.bp5 = acmgCriteriaRating.value.bp5
+      acmgCriteriaRatingToSubmit.value.bp6 = acmgCriteriaRating.value.bp6
+      acmgCriteriaRatingToSubmit.value.bp7 = acmgCriteriaRating.value.bp7
+      acmgCriteriaRatingToSubmit.value.class_auto =
+        acmgCriteriaRating.value.class_auto
+      acmgCriteriaRatingToSubmit.value.class_override =
+        acmgCriteriaRating.value.class_override
+      calculateAcmgCriteriaRating()
+    } else {
+      unsetAcmgCriteriaRating()
+    }
+  }
+
+  const cancelAcmgCriteriaRating = () => {
+    resetAcmgCriteriaRating()
+    setAcmgCriteriaRatingMode.value = false
+  }
+
+  const calculateAcmgCriteriaRating = () => {
+    const pvs = acmgCriteriaRatingToSubmit.value.pvs1
+    const ps =
+      acmgCriteriaRatingToSubmit.value.ps1 +
+      acmgCriteriaRatingToSubmit.value.ps2 +
+      acmgCriteriaRatingToSubmit.value.ps3 +
+      acmgCriteriaRatingToSubmit.value.ps4
+    const pm =
+      acmgCriteriaRatingToSubmit.value.pm1 +
+      acmgCriteriaRatingToSubmit.value.pm2 +
+      acmgCriteriaRatingToSubmit.value.pm3 +
+      acmgCriteriaRatingToSubmit.value.pm4 +
+      acmgCriteriaRatingToSubmit.value.pm5 +
+      acmgCriteriaRatingToSubmit.value.pm6
+    const pp =
+      acmgCriteriaRatingToSubmit.value.pp1 +
+      acmgCriteriaRatingToSubmit.value.pp2 +
+      acmgCriteriaRatingToSubmit.value.pp3 +
+      acmgCriteriaRatingToSubmit.value.pp4 +
+      acmgCriteriaRatingToSubmit.value.pp5
+    const ba = acmgCriteriaRatingToSubmit.value.ba1
+    const bs =
+      acmgCriteriaRatingToSubmit.value.bs1 +
+      acmgCriteriaRatingToSubmit.value.bs2 +
+      acmgCriteriaRatingToSubmit.value.bs3 +
+      acmgCriteriaRatingToSubmit.value.bs4
+    const bp =
+      acmgCriteriaRatingToSubmit.value.bp1 +
+      acmgCriteriaRatingToSubmit.value.bp2 +
+      acmgCriteriaRatingToSubmit.value.bp3 +
+      acmgCriteriaRatingToSubmit.value.bp4 +
+      acmgCriteriaRatingToSubmit.value.bp5 +
+      acmgCriteriaRatingToSubmit.value.bp6 +
+      acmgCriteriaRatingToSubmit.value.bp7
+    const isPathogenic =
+      (pvs === 1 &&
+        (ps >= 1 || pm >= 2 || (pm === 1 && pp === 1) || pp >= 2)) ||
+      ps >= 2 ||
+      (ps === 1 && (pm >= 3 || (pm >= 2 && pp >= 2) || (pm === 1 && pp >= 4)))
+    const isLikelyPathogenic =
+      (pvs === 1 && pm === 1) ||
+      (ps === 1 && pm >= 1 && pm <= 2) ||
+      (ps === 1 && pp >= 2) ||
+      pm >= 3 ||
+      (pm === 2 && pp >= 2) ||
+      (pm === 1 && pp >= 4)
+    const isLikelyBenign = (bs >= 1 && bp >= 1) || bp >= 2
+    const isBenign = ba > 0 || bs >= 2
+    const isConflicting =
+      (isPathogenic || isLikelyPathogenic) && (isBenign || isLikelyBenign)
+    acmgCriteriaRatingToSubmit.value.class_auto = 3
+    if (isPathogenic) {
+      acmgCriteriaRatingToSubmit.value.class_auto = 5
+    } else if (isLikelyPathogenic) {
+      acmgCriteriaRatingToSubmit.value.class_auto = 4
+    } else if (isBenign) {
+      acmgCriteriaRatingToSubmit.value.class_auto = 1
+    } else if (isLikelyBenign) {
+      acmgCriteriaRatingToSubmit.value.class_auto = 2
+    }
+    if (isConflicting) {
+      acmgCriteriaRatingToSubmit.value.class_auto = 3
+      acmgCriteriaRating.value.valueConflicting = true
+    } else {
+      acmgCriteriaRating.value.valueConflicting = false
+    }
+  }
+
+  return {
+    // data / state
+    csrfToken,
+    fetched,
+    geneId,
+    smallVariant,
+    // flags,
+    clinvar,
+    knownGeneAa,
+    effectDetails,
+    extraAnnos,
+    populations,
+    popFreqs,
+    inhouseFreq,
+    mitochondrialFreqs,
+    gene,
+    ncbiSummary,
+    ncbiGeneRifs,
+    variantValidatorResults,
+    beaconAddress,
+    acmgCriteriaRatingToSubmit,
+    setAcmgCriteriaRatingMode,
+    acmgCriteriaRatingConflicting,
+    variantValidatorState,
+    gridRow,
+    gridApi,
+    queryDetails,
+    acmgCriteriaRating,
+    // functions
+    initialize,
+    submitAcmgCriteriaRating,
+    unsetAcmgCriteriaRating,
+    resetAcmgCriteriaRating,
+    cancelAcmgCriteriaRating,
+    calculateAcmgCriteriaRating,
+    fetchVariantDetails,
+  }
 })

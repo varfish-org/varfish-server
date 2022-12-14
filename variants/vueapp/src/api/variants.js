@@ -89,4 +89,124 @@ export default {
     )
     return await response.json()
   },
+  async retrieveVariantDetails(
+    csrfToken,
+    database,
+    {
+      case_uuid,
+      release,
+      chromosome,
+      start,
+      end,
+      reference,
+      alternative,
+      gene_id,
+    }
+  ) {
+    const varDesc = `${release}-${chromosome}-${start}-${end}-${reference}-${alternative}`
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/small-variant-details/${case_uuid}/${varDesc}/${database}/${gene_id}/`,
+      'GET'
+    )
+    return await response.json()
+  },
+  async listComment(
+    csrfToken,
+    caseUuid,
+    { release, chromosome, start, end, reference, alternative }
+  ) {
+    const query =
+      `release=${release}&chromosome=${chromosome}&start=${start}` +
+      `&end=${end}&reference=${reference}&alternative=${alternative}`
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/small-variant-comment/list-create/${caseUuid}/?${query}`,
+      'GET'
+    )
+    return await response.json()
+  },
+  async createComment(
+    csrfToken,
+    caseUuid,
+    { release, chromosome, start, end, reference, alternative },
+    payload
+  ) {
+    const query =
+      `release=${release}&chromosome=${chromosome}&start=${start}` +
+      `&end=${end}&reference=${reference}&alternative=${alternative}`
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/small-variant-comment/list-create/${caseUuid}/?${query}`,
+      'POST',
+      payload
+    )
+    return await response.json()
+  },
+  async updateComment(csrfToken, commentUuid, payload) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/small-variant-comment/update/${commentUuid}/`,
+      'PATCH',
+      payload
+    )
+    return await response.json()
+  },
+  async deleteComment(csrfToken, commentUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/small-variant-comment/delete/${commentUuid}/`,
+      'DELETE'
+    )
+    await response
+  },
+  async listFlags(
+    csrfToken,
+    caseUuid,
+    { release, chromosome, start, end, reference, alternative }
+  ) {
+    const query =
+      `release=${release}&chromosome=${chromosome}&start=${start}` +
+      `&end=${end}&reference=${reference}&alternative=${alternative}`
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/small-variant-flags/list-create/${caseUuid}/?${query}`,
+      'GET'
+    )
+    return await response.json()
+  },
+  async createFlags(
+    csrfToken,
+    caseUuid,
+    { release, chromosome, start, end, reference, alternative },
+    payload
+  ) {
+    const query =
+      `release=${release}&chromosome=${chromosome}&start=${start}` +
+      `&end=${end}&reference=${reference}&alternative=${alternative}`
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/small-variant-flags/list-create/${caseUuid}/?${query}`,
+      'POST',
+      payload
+    )
+    return await response.json()
+  },
+  async updateFlags(csrfToken, flagsUuid, payload) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/small-variant-flags/update/${flagsUuid}/`,
+      'PATCH',
+      payload
+    )
+    return await response.json()
+  },
+  async deleteFlags(csrfToken, flagsUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/small-variant-flags/delete/${flagsUuid}/`,
+      'DELETE'
+    )
+    await response
+  },
 }

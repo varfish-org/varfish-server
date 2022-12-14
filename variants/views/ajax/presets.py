@@ -1,4 +1,5 @@
 """Views related to the presets."""
+
 from projectroles.models import Project
 from projectroles.views import LoginRequiredMixin
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
