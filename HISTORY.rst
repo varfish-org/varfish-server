@@ -79,6 +79,7 @@ End-User Summary
 - Fixing bug in mutationtaster integration (#790).
 - Fixing bug in Vue.js filtration without prior query (#794).
 - Fixing bug in SV background database generation (#792).
+- Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 
 Full Change List
 ================
@@ -171,6 +172,7 @@ Full Change List
 - Fixing bug in mutationtaster integration (#790).
 - Fixing bug in Vue.js filtration without prior query (#794).
 - Fixing bug in SV background database generation (#792).
+- Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 
 ------
 v1.2.0

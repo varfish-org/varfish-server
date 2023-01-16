@@ -63,7 +63,8 @@ class FilterBase:
 
     def _prioritize_gene_phenotype(self, results):
         """Prioritize genes in ``results`` and store in ``SmallVariantQueryGeneScores``."""
-        if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER:
+
+        if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER and not settings.VARFISH_ENABLE_CADA:
             return
 
         prio_enabled = self.variant_query.query_settings.get("prio_enabled")
@@ -79,11 +80,10 @@ class FilterBase:
         if not all((prio_enabled, prio_algorithm, hpo_terms, entrez_ids)):
             return  # nothing to do
 
-        self.job.add_log_entry("Prioritize genes with Exomiser ...")
         entrez_ids = [row["entrez_id"] for row in results if row["entrez_id"]]
         try:
             for gene_id, gene_symbol, score, priority_type in prioritize_genes(
-                entrez_ids, hpo_terms, prio_algorithm
+                entrez_ids, hpo_terms, prio_algorithm, logging=self.job.add_log_entry
             ):
                 self.variant_query.smallvariantquerygenescores_set.create(
                     gene_id=gene_id,
