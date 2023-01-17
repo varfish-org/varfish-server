@@ -581,7 +581,7 @@ class ExtendQueryPartsGenotypeBase(ExtendQueryPartsBase):
         ad_max = self.kwargs["%s_ad_max" % name]
         rhs = and_(
             # Genotype quality is simple.
-            self.model.sa.genotype[name]["gq"].astext.cast(Integer) >= self.kwargs["%s_gq" % name],
+            self.model.sa.genotype[name]["gq"].astext.cast(Float) >= self.kwargs["%s_gq" % name],
             # The depth setting depends on whether the variant is in homozygous or heterozygous state.
             or_(  # heterozygous or hemizygous state
                 not_(
