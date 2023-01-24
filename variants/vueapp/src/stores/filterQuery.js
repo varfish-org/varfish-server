@@ -24,27 +24,25 @@ const fetchPresets = async (
 ) => {
   // TODO: move fetch calls into queryPresetsApi
   const fetchFactoryPresets = async () => {
-    await Promise.all(
-      [
-        variantsApi.fetchQuickPresets(csrfToken).then((presets) => {
-          quickPresets.value = presets
+    await Promise.all([
+      variantsApi.fetchQuickPresets(csrfToken).then((presets) => {
+        quickPresets.value = presets
+      }),
+      variantsApi
+        .fetchInheritancePresets(csrfToken, caseObj.sodar_uuid)
+        .then((presets) => {
+          categoryPresets.value.inheritance = presets
         }),
-        variantsApi
-          .fetchInheritancePresets(csrfToken, caseObj.sodar_uuid)
-          .then((presets) => {
-            categoryPresets.value.inheritance = presets
-          }),
-      ] +
-        ['frequency', 'impact', 'quality', 'chromosomes', 'flagsetc'].map(
-          (category) => {
-            variantsApi
-              .fetchCategoryPresets(csrfToken, category)
-              .then((presets) => {
-                categoryPresets.value[category] = presets
-              })
-          }
-        )
-    )
+      ...['frequency', 'impact', 'quality', 'chromosomes', 'flagsetc'].map(
+        (category) => {
+          return variantsApi
+            .fetchCategoryPresets(csrfToken, category)
+            .then((presets) => {
+              categoryPresets.value[category] = presets
+            })
+        }
+      ),
+    ])
   }
 
   const fetchUserPresets = async (presetSetUuid) => {
