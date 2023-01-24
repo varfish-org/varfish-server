@@ -552,6 +552,10 @@ LINKOUT_URLS = {
     ("umd", "GRCh37"): "http://umd-predictor.eu/webservice.php?",
     ("varsome", "GRCh37"): "https://varsome.com/variant/hg19/chr",
     ("varsome", "GRCh38"): "https://varsome.com/variant/hg38/",
+    ("franklin", "GRCh37"): "https://franklin.genoox.com/clinical-db/variant/snp/chr",
+    ("franklin", "GRCh38"): "https://franklin.genoox.com/clinical-db/variant/snp/",
+    ("franklin_sv", "GRCh37"): "https://franklin.genoox.com/clinical-db/variant/sv/chr",
+    ("franklin_sv", "GRCh38"): "https://franklin.genoox.com/clinical-db/variant/sv/",
     ("variant_validator", "GRCh37"): True,  # no URL, via javascript
     ("variant_validator", "GRCh38"): True,  # no URL, via javascript
 }

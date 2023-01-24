@@ -81,6 +81,7 @@ End-User Summary
 - Fixing bug in SV background database generation (#792).
 - Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 - Fixing bug in filtering of GQ values that are floats (#816).
+- Added locus link-out for genoox Franklin (#748).
 
 Full Change List
 ================
@@ -175,6 +176,7 @@ Full Change List
 - Fixing bug in SV background database generation (#792).
 - Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 - Fixing bug in filtering of GQ values that are floats (#816).
+- Added locus link-out for genoox Franklin (#748).
 
 ------
 v1.2.0

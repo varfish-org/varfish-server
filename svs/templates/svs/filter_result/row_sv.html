@@ -195,6 +195,15 @@
         <a class="dropdown-item" href="http://gnomad.broadinstitute.org/region/{{ first_entry.chromosome }}-{{ first_entry.start }}-{{ first_entry.end }}" target="_blank">
           Locus @gnomAD
         </a>
+        {% if first_entry.sv_type == "DEL" or first_entry.sv_type == "DUP" %}
+          <a class="dropdown-item" href="{% linkout_base_url "franklin_sv" first_entry.release %}{{ first_entry.chromosome }}-{{ first_entry.start }}-{{ first_entry.end }}-{{ first_entry.sv_type }}" target="_blank">
+            Locus @Franklin
+          </a>
+        {% else %}
+          <a class="dropdown-item disabled">
+            Locus @Franklin
+          </a>
+        {% endif %}
       </div>
     </div>
   </td>

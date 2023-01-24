@@ -591,6 +591,17 @@
             </span>
           {% endif %}
 
+          {% linkout_available_for "franklin" entry.release as franklin_available %}
+          {% if franklin_available %}
+            <a class="dropdown-item" href="{% linkout_base_url "franklin" entry.release %}{{ entry.chromosome }}-{{ entry.start }}-{{ entry.reference }}-{{ entry.alternative }}" target="_blank">
+            Locus @Franklin
+            </a>
+          {% else %}
+            <span class="dropdown-item disabled">
+              Locus @Franklin
+            </span>
+          {% endif %}
+
           {% if hgmd_pro_enabled %}
             <a class="dropdown-item" href="{{ hgmd_pro_prefix }}/gene.php?gene={{ symbol }}" target="_blank">
               Gene @HGMD Professional
