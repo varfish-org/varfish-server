@@ -26,6 +26,7 @@ End-User Summary
 - Allow excluding cases from in-house database (#579).
 - Allow to upload per-case gene annotation (#575).
 - Adding varannos app (#747).
+- Adding ACMG v3.0 + v3.1 incidental findings to gene allowlist preset (#829).
 
 Full Change List
 ================
@@ -53,6 +54,7 @@ Full Change List
 - Allow to upload per-case gene annotation (#575).
 - Add missing directory in Dockerfile.
 - Adding varannos app (#747).
+- Adding ACMG v3.0 + v3.1 incidental findings to gene allowlist preset (#829).
 
 
 -----------------
