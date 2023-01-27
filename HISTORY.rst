@@ -27,6 +27,7 @@ End-User Summary
 - Allow to upload per-case gene annotation (#575).
 - Adding varannos app (#747).
 - Adding ACMG v3.0 + v3.1 incidental findings to gene allowlist preset (#829).
+- Adding locus link-out to genoox Franklin (#748).
 
 Full Change List
 ================
@@ -55,6 +56,7 @@ Full Change List
 - Add missing directory in Dockerfile.
 - Adding varannos app (#747).
 - Adding ACMG v3.0 + v3.1 incidental findings to gene allowlist preset (#829).
+- Adding locus link-out to genoox Franklin (#748).
 
 
 -----------------
@@ -68,6 +70,7 @@ End-User Summary
 - Extra annotations in export completed and tested (#495).
 - Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
 - Form template reports error if genomebuild variable is not set (#607).
+- Added locus link-out for genoox Franklin (#748).
 
 Full Change List
 ================
@@ -76,6 +79,7 @@ Full Change List
 - Fixing issue with sync-from-remote when no remote is defined (#570).
 - Fixed bug where Exac and thousand genomes settings were not shown in frequency tab for GRCh37 (#597).
 - Form template reports error if genomebuild variable is not set (#607).
+- Added locus link-out for genoox Franklin (#748).
 
 -----------------
 v1.2.1 (anthenea)
