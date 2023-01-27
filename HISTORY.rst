@@ -82,6 +82,7 @@ End-User Summary
 - Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 - Fixing bug in filtering of GQ values that are floats (#816).
 - Fixing bug in quick preset loading in vue filter app (#820).
+- Adding affected/unaffected preset to genotype form (#821).
 
 Full Change List
 ================
@@ -177,6 +178,7 @@ Full Change List
 - Gene prioritization using CADA (Case Annotations and Disorder Annotations) scores (#596)
 - Fixing bug in filtering of GQ values that are floats (#816).
 - Fixing bug in quick preset loading in vue filter app (#820).
+- Adding affected/unaffected preset to genotype form (#821).
 
 ------
 v1.2.0

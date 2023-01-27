@@ -2,6 +2,7 @@
 import { displayName } from '@varfish/helpers.js'
 import FilterFormGenotypePaneSex from './FilterFormGenotypePaneSex.vue'
 import FilterFormGenotypePaneAffected from './FilterFormGenotypePaneAffected.vue'
+import FilterFormGenotypePaneModal from './FilterFormGenotypePaneModal.vue'
 import { computed, nextTick, reactive, getCurrentInstance } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 
@@ -184,7 +185,10 @@ defineExpose({ v$ })
           <th class="text-center" style="width: 100px">Affected</th>
           <th class="text-center" style="width: 250px">
             Genotype
-            <!--            <FilterFormGenotypePaneButton />-->
+            <FilterFormGenotypePaneModal
+              :querySettings="props.querySettings"
+              :pedigree="props.case.pedigree"
+            />
           </th>
         </tr>
       </thead>
