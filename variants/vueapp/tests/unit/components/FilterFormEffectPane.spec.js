@@ -193,16 +193,16 @@ describe('FilterFormEffectPane.vue', () => {
       '#detailed-effect-exon_loss_variant'
     )
     const detailedEffect3PrimeUTRExonVariant = wrapper.get(
-      '#detailed-effect-3_prime_UTR_exon_variant'
+      '#detailed-effect-three_prime_UTR_exon_variant'
     )
     const detailedEffect3PrimeUTRIntronVariant = wrapper.get(
-      '#detailed-effect-3_prime_UTR_intron_variant'
+      '#detailed-effect-three_prime_UTR_intron_variant'
     )
     const detailedEffect5PrimeUTRExonVariant = wrapper.get(
-      '#detailed-effect-5_prime_UTR_exon_variant'
+      '#detailed-effect-five_prime_UTR_exon_variant'
     )
     const detailedEffect5PrimeUTRIntronVariant = wrapper.get(
-      '#detailed-effect-5_prime_UTR_intron_variant'
+      '#detailed-effect-five_prime_UTR_intron_variant'
     )
     const detailedEffectNonCodingTranscriptExonVariant = wrapper.get(
       '#detailed-effect-non_coding_transcript_exon_variant'
