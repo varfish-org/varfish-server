@@ -110,8 +110,8 @@ export const detailedEffectGroups = Object.freeze([
       },
       {
         id: 'stop_gained',
-        label: 'stop_gained',
-        so: '[SO:0001587]',
+        label: 'stop gained',
+        so: 'SO:0001587',
         explanation:
           'A sequence variant whereby at least one base of a codon is changed, resulting in a premature stop codon, leading to a shortened transcript.',
       },
@@ -124,7 +124,7 @@ export const detailedEffectGroups = Object.freeze([
       },
       {
         id: 'stop_lost',
-        label: 'stop stop lost',
+        label: 'stop lost',
         so: 'SO:0001578',
         explanation:
           'A sequence variant where at least one base of the terminator codon (stop) is changed, resulting in an elongated transcript.',
@@ -187,25 +187,25 @@ export const detailedEffectGroups = Object.freeze([
     title: 'Non-Coding',
     fields: [
       {
-        id: '3_prime_UTR_exon_variant',
+        id: 'three_prime_UTR_exon_variant',
         label: "3' UTR exonic",
         so: 'SO:0002089',
         explanation: "An exon UTR variant of the 3' UTR.",
       },
       {
-        id: '3_prime_UTR_intron_variant',
+        id: 'three_prime_UTR_intron_variant',
         label: "3' UTR intronic",
         so: 'SO:0002090',
         explanation: "An intron UTR variant between 3' UTRs.",
       },
       {
-        id: '5_prime_UTR_exon_variant',
+        id: 'five_prime_UTR_exon_variant',
         label: "5' UTR exonic",
         so: 'SO:0002092',
         explanation: "An exon UTR variant of the 5' UTR.",
       },
       {
-        id: '5_prime_UTR_intron_variant',
+        id: 'five_prime_UTR_intron_variant',
         label: "5' UTR intronic",
         so: 'SO:0002091',
         explanation: "An intron UTR variant between 5' UTRs.",
@@ -220,9 +220,9 @@ export const detailedEffectGroups = Object.freeze([
       {
         id: 'non_coding_transcript_intron_variant',
         label: 'n.c. intronic',
-        so: 'SO:0001970x',
+        so: 'SO:0001970',
         explanation:
-          '[SO:0001970] A transcript variant occurring within an intron of a non coding transcript.',
+          'A transcript variant occurring within an intron of a non coding transcript.',
       },
     ],
   },

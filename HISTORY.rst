@@ -83,6 +83,7 @@ End-User Summary
 - Fixing bug in filtering of GQ values that are floats (#816).
 - Fixing bug in quick preset loading in vue filter app (#820).
 - Adding affected/unaffected preset to genotype form (#821).
+- Fixing bug in effect UTR section in vue filter app (#822).
 
 Full Change List
 ================
@@ -179,6 +180,7 @@ Full Change List
 - Fixing bug in filtering of GQ values that are floats (#816).
 - Fixing bug in quick preset loading in vue filter app (#820).
 - Adding affected/unaffected preset to genotype form (#821).
+- Fixing bug in effect UTR section in vue filter app (#822).
 
 ------
 v1.2.0
