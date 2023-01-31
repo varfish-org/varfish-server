@@ -85,6 +85,7 @@ End-User Summary
 - Adding affected/unaffected preset to genotype form (#821).
 - Fixing bug in effect UTR section in vue filter app (#822).
 - Removing template settings in quality form tab (#825).
+- Removing gene blocklist from vue filter app (#823).
 
 Full Change List
 ================
@@ -183,6 +184,7 @@ Full Change List
 - Adding affected/unaffected preset to genotype form (#821).
 - Fixing bug in effect UTR section in vue filter app (#822).
 - Removing template settings in quality form tab (#825).
+- Removing gene blocklist from vue filter app (#823).
 
 ------
 v1.2.0

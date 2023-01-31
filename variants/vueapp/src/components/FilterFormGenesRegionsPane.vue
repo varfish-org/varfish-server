@@ -84,7 +84,6 @@ const validateGene = async (token) => {
 const indicateFailure = (key) => {
   const theRef = {
     genomic_region: genomicRegionTextareaRef,
-    gene_blocklist: geneBlockListRegionTextareaRef,
     gene_allowlist: geneAllowListRegionTextareaRef,
   }[key]
   if (theRef.value && !theRef.value.isValidating() && !theRef.value.isValid()) {
@@ -96,8 +95,6 @@ const indicateFailure = (key) => {
 
 /** Reference to gene allow list TokenizingTextarea */
 const geneAllowListRegionTextareaRef = ref(null)
-/** Reference to gene block list TokenizingTextarea */
-const geneBlockListRegionTextareaRef = ref(null)
 /** Reference to genomic regions TokenizingTextarea */
 const genomicRegionTextareaRef = ref(null)
 
@@ -109,12 +106,6 @@ const invalidTextareas = () => {
     !geneAllowListRegionTextareaRef.value.isValid()
   ) {
     result.push('gene allow list')
-  }
-  if (
-    geneBlockListRegionTextareaRef.value &&
-    !geneBlockListRegionTextareaRef.value.isValid()
-  ) {
-    result.push('gene block list')
   }
   if (
     genomicRegionTextareaRef.value &&
@@ -135,8 +126,6 @@ const isValidating = () => {
   return (
     (genomicRegionTextareaRef.value &&
       genomicRegionTextareaRef.value.isValidating()) ||
-    (geneBlockListRegionTextareaRef.value &&
-      geneBlockListRegionTextareaRef.value.isValidating()) ||
     (geneAllowListRegionTextareaRef.value &&
       geneAllowListRegionTextareaRef.value.isValidating())
   )
@@ -163,8 +152,8 @@ defineExpose({
         class="alert alert-secondary small p-2 mt-3"
       >
         <i-mdi-information />
-        You can use this tab to either a gene allow or block list or to define a
-        list of genomic regions.
+        You can use this tab to define a gene allow list or a list of genomic
+        regions.
       </div>
 
       <div class="form-inline pl-0 pr-0 pb-3 mt-3">
@@ -177,9 +166,6 @@ defineExpose({
         >
           <option value="gene_allowlist">
             Gene Allow List{{ indicateFailure('gene_allowlist') }}
-          </option>
-          <option value="gene_blocklist">
-            Gene Block List{{ indicateFailure('gene_blocklist') }}
           </option>
           <option value="genomic_region">
             Genomic Regions{{ indicateFailure('genomic_region') }}
@@ -226,27 +212,6 @@ defineExpose({
           <code>23483</code>.
         </small>
       </div>
-
-      <div
-        v-show="listType === 'gene_blocklist'"
-        class="form-group"
-        id="gene-blocklist-section"
-      >
-        <TokenizingTextarea
-          ref="geneBlockListRegionTextareaRef"
-          v-model="props.querySettings.gene_blocklist"
-          :validate="validateGene"
-        />
-        <small class="form-text">
-          Enter a list of genes to
-          <strong class="text-dark"> exclude from your query results </strong>,
-          separated with spaces. You can use gene symbols, HGNC ids, ENSEMBL
-          gene IDs, or Entrez Gene IDs. For example, all of the following code
-          for TGDS (TDP-glucose 4,6-dehydratase): <code>TGDS</code>,
-          <code>HGNC:20324</code>, <code>ENSG00000088451</code>,
-          <code>23483</code>.
-        </small>
-      </div>
     </div>
   </div>
   <div v-if="filtrationComplexityMode === 'dev'" class="card-footer">
@@ -254,8 +219,7 @@ defineExpose({
     <strong class="pl-2">Developer Info:</strong>
     <code>
       genomic_region = {{ JSON.stringify(querySettings.genomic_region) }},
-      gene_allowlist = {{ JSON.stringify(querySettings.gene_allowlist) }},
-      gene_blocklist = {{ JSON.stringify(querySettings.gene_blocklist) }}
+      gene_allowlist = {{ JSON.stringify(querySettings.gene_allowlist) }}
     </code>
   </div>
 </template>
