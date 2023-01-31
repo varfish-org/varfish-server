@@ -28,7 +28,6 @@ describe('FilterFormGenesRegionsPane.vue', () => {
         showFiltrationInlineHelp: false,
         filtrationComplexityMode: 'dev',
         querySettings: reactive({
-          gene_blocklist: [],
           gene_allowlist: [],
           genomic_region: ['chr1', 'chrX:1,000,000-2,000,000'],
         }),
@@ -45,9 +44,6 @@ describe('FilterFormGenesRegionsPane.vue', () => {
     expect(wrapper.get('#gene-allowlist-section').attributes('style')).toBe(
       'display: none;'
     )
-    expect(wrapper.get('#gene-blocklist-section').attributes('style')).toBe(
-      'display: none;'
-    )
   })
 
   test('genes region with invalid regions', async () => {
@@ -56,7 +52,6 @@ describe('FilterFormGenesRegionsPane.vue', () => {
         showFiltrationInlineHelp: false,
         filtrationComplexityMode: 'dev',
         querySettings: reactive({
-          gene_blocklist: ['TGDS'],
           gene_allowlist: ['TGDS'],
           genomic_region: ['chr1', 'chrX:1,000,000-2,000,000', 'invalid'],
         }),
@@ -83,7 +78,6 @@ describe('FilterFormGenesRegionsPane.vue', () => {
         showFiltrationInlineHelp: true,
         filtrationComplexityMode: 'dev',
         querySettings: reactive({
-          gene_blocklist: [],
           gene_allowlist: ['TGDS', 'TTN'],
           genomic_region: [],
         }),
@@ -100,9 +94,6 @@ describe('FilterFormGenesRegionsPane.vue', () => {
     expect(
       wrapper.get('#gene-allowlist-section').attributes('style')
     ).toBeUndefined()
-    expect(wrapper.get('#gene-blocklist-section').attributes('style')).toBe(
-      'display: none;'
-    )
 
     expect(fetch.mock.calls.length).toEqual(2)
     expect(fetch.mock.calls[0]).toEqual([
@@ -134,7 +125,6 @@ describe('FilterFormGenesRegionsPane.vue', () => {
         showFiltrationInlineHelp: true,
         filtrationComplexityMode: 'dev',
         querySettings: reactive({
-          gene_blocklist: [],
           gene_allowlist: ['NONEXISTENT'],
           genomic_region: [],
         }),
@@ -154,63 +144,5 @@ describe('FilterFormGenesRegionsPane.vue', () => {
         'X-CSRFToken': undefined,
       },
     ])
-  })
-
-  test('genes region block list and help', async () => {
-    const wrapper = mount(FilterFormGenesRegionsPane, {
-      props: {
-        showFiltrationInlineHelp: true,
-        filtrationComplexityMode: 'dev',
-        querySettings: reactive({
-          gene_blocklist: ['TGDS', 'TTN'],
-          gene_allowlist: [],
-          genomic_region: [],
-        }),
-      },
-    })
-
-    const selector = wrapper.get('#gene-regions-list-type')
-
-    await selector.setValue('gene_blocklist')
-
-    expect(wrapper.get('#genomic-region-section').attributes('style')).toBe(
-      'display: none;'
-    )
-    expect(wrapper.get('#gene-allowlist-section').attributes('style')).toBe(
-      'display: none;'
-    )
-    expect(
-      wrapper.get('#gene-blocklist-section').attributes('style')
-    ).toBeUndefined()
-    expect(wrapper.get('code').exists()).toBe(true)
-  })
-
-  test('genes  list and help', async () => {
-    const wrapper = mount(FilterFormGenesRegionsPane, {
-      props: {
-        showFiltrationInlineHelp: true,
-        filtrationComplexityMode: 'dev',
-        querySettings: reactive({
-          gene_blocklist: ['TGDS', 'TTN'],
-          gene_allowlist: [],
-          genomic_region: [],
-        }),
-      },
-    })
-
-    const selector = wrapper.get('#gene-regions-list-type')
-
-    await selector.setValue('gene_blocklist')
-
-    expect(wrapper.get('#genomic-region-section').attributes('style')).toBe(
-      'display: none;'
-    )
-    expect(wrapper.get('#gene-allowlist-section').attributes('style')).toBe(
-      'display: none;'
-    )
-    expect(
-      wrapper.get('#gene-blocklist-section').attributes('style')
-    ).toBeUndefined()
-    expect(wrapper.get('code').exists()).toBe(true)
   })
 })

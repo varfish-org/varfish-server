@@ -206,11 +206,11 @@ const onSubmitCancelButtonClicked = () => {
               <a
                 class="dropdown-item"
                 :class="{ 'text-danger': geneHasError }"
-                id="blocklist-tab"
+                id="allowlist-tab"
                 data-toggle="tab"
-                href="#panel-blocklist"
+                href="#panel-allowlist"
                 role="tab"
-                title="Allow-list and block-list genes and genomic regions"
+                title="Allow-list genes and genomic regions"
               >
                 Gene Lists &amp; Regions
                 <i-mdi-alert-circle-outline v-if="geneHasError" />
@@ -346,9 +346,9 @@ const onSubmitCancelButtonClicked = () => {
           </div>
           <div
             class="tab-pane fade"
-            id="panel-blocklist"
+            id="panel-allowlist"
             role="tabpanel"
-            aria-labelledby="blocklist-tab"
+            aria-labelledby="allowlist-tab"
           >
             <FilterFormGenesRegionsPane
               ref="genePaneRef"
