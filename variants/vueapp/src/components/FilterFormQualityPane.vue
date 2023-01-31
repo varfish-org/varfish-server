@@ -2,14 +2,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import FilterFormQualityPaneRow from './FilterFormQualityPaneRow.vue'
-import {
-  numericKeys,
-  failValues,
-  rules,
-  allKeys,
-  floatKeys,
-  intKeys,
-} from './FilterFormQualityPane.values.js'
+import { rules } from './FilterFormQualityPane.values.js'
 
 const props = defineProps({
   showFiltrationInlineHelp: Boolean,
@@ -37,32 +30,7 @@ const keyMap = {
   qualFail: 'fail',
 }
 
-const applyToWhich = ref('all')
-
 const v$ = useVuelidate(rules, tplValues)
-
-const applySettings = () => {
-  for (const member of props.caseObj.pedigree) {
-    if (
-      member.has_gt_entries &&
-      (applyToWhich.value === 'all' ||
-        (applyToWhich.value === 'affected' && member.affected === 2) ||
-        (applyToWhich.value === 'unaffected' && member.affected !== 2))
-    ) {
-      for (const theKey of allKeys) {
-        let tplValue = v$.value[theKey].$model
-        if (tplValue !== null) {
-          if (intKeys.includes(tplValue)) {
-            tplValue = parseInt(tplValue)
-          } else if (floatKeys.includes(tplValue)) {
-            tplValue = parseFloat(tplValue)
-          }
-          props.querySettings.quality[member.name][keyMap[theKey]] = tplValue
-        }
-      }
-    }
-  }
-}
 
 const membersWithGtEntries = props.caseObj.pedigree.filter(
   (member) => member.has_gt_entries
@@ -120,61 +88,6 @@ defineExpose({ v$ })
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td class="text-muted text-center" colspan="5">
-          <div class="form-inline">
-            <span class="ml-auto"> Template Settings </span>
-            <a
-              href="#"
-              class="btn btn-sm btn-secondary ml-auto"
-              @click.prevent="applySettings()"
-            >
-              Apply
-              <i-mdi-arrow-down-circle />
-            </a>
-            <select
-              v-model="applyToWhich"
-              class="custom-select custom-select-sm ml-3"
-            >
-              <option value="all">to all</option>
-              <option value="unaffected">to affected</option>
-              <option value="affected">to unaffected</option>
-            </select>
-          </div>
-        </td>
-        <td v-for="key in numericKeys">
-          <input
-            type="text"
-            v-model="v$[key].$model"
-            class="form-control form-control-sm"
-            :class="{
-              // 'is-valid': !v$[key].$error,
-              'is-invalid': v$[key].$error,
-            }"
-          />
-          <div
-            v-for="error of v$[key].$errors"
-            :key="error.$uid"
-            class="invalid-feedback"
-          >
-            {{ error.$message }}
-          </div>
-        </td>
-        <td>
-          <select
-            v-model="v$.qualFail.$model"
-            :class="{
-              // 'is-valid': !v$.qualFail.$error,
-              'is-invalid': v$.qualFail.$error,
-            }"
-            class="custom-select custom-select-sm"
-          >
-            <option v-for="(label, value) in failValues" :value="value">
-              {{ label }}
-            </option>
-          </select>
-        </td>
-      </tr>
       <FilterFormQualityPaneRow
         v-for="(member, index) in membersWithGtEntries"
         :case-name="caseObj.name"
