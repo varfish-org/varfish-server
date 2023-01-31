@@ -19,12 +19,7 @@ describe('FilterFormQualityPane.vue', () => {
       },
     })
     expect(wrapper.findAll('.alert-secondary').length).toBe(1)
-
-    const inputs = wrapper.findAll('input')
-    const selects = wrapper.findAll('select')
-
-    expect(inputs.length).toBe(6)
-    expect(selects.length).toBe(2)
+    expect(wrapper.findAll('filter-form-quality-pane-row-stub').length).toBe(1)
   })
 
   test('quality trio', () => {
@@ -38,11 +33,6 @@ describe('FilterFormQualityPane.vue', () => {
     })
 
     expect(wrapper.findAll('.alert-secondary').length).toBe(0)
-
-    const inputs = wrapper.findAll('input')
-    const selects = wrapper.findAll('select')
-
-    expect(inputs.length).toBe(6)
-    expect(selects.length).toBe(2)
+    expect(wrapper.findAll('filter-form-quality-pane-row-stub').length).toBe(3)
   })
 })

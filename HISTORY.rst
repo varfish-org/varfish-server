@@ -84,6 +84,7 @@ End-User Summary
 - Fixing bug in quick preset loading in vue filter app (#820).
 - Adding affected/unaffected preset to genotype form (#821).
 - Fixing bug in effect UTR section in vue filter app (#822).
+- Removing template settings in quality form tab (#825).
 
 Full Change List
 ================
@@ -181,6 +182,7 @@ Full Change List
 - Fixing bug in quick preset loading in vue filter app (#820).
 - Adding affected/unaffected preset to genotype form (#821).
 - Fixing bug in effect UTR section in vue filter app (#822).
+- Removing template settings in quality form tab (#825).
 
 ------
 v1.2.0
