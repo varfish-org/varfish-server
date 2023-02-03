@@ -15,7 +15,7 @@
   {% endif %}
 
   {% if query_type == "case" %}
-    <a class="btn btn-primary{% if not object.has_variants_and_variant_set %} disabled{% endif %}" href="{% url "variants:entrypoint" case=object.sodar_uuid %}">
+    <a class="btn btn-primary{% if not object.has_variants_and_variant_set %} disabled{% endif %}" href="{% url "cases:entrypoint" project=project.sodar_uuid %}">
       <i class="iconify" data-icon="mdi:beta"></i>
       Filter Variants (beta)
     </a>

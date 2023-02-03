@@ -1,9 +1,11 @@
 <script setup>
+import { watch, ref, onMounted, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
+
 import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
 import { useCasesStore } from '@cases/stores/cases.js'
 import { useCaseDetailsStore } from '@cases/stores/case-details.js'
-import { watch, ref, onMounted, nextTick } from 'vue'
 import { updateUserSetting } from '@varfish/user-settings.js'
 import {
   DisplayColumns,
@@ -34,18 +36,24 @@ const appContext = JSON.parse(
     '{}'
 )
 
+/** The currently used route. */
+const route = useRoute()
+
+/** The currently displayed case's UUID, updated from route. */
+const caseUuidRef = ref(route.params.case)
+
 const variantDetailsStore = useVariantDetailsStore()
 variantDetailsStore.initialize(appContext)
 
 // Initialize filter query store.
 const filterQueryStore = useFilterQueryStore()
-filterQueryStore.initialize(appContext)
+filterQueryStore.initialize(appContext, caseUuidRef.value)
 // Initialize cases store.
 const casesStore = useCasesStore()
 casesStore.initialize(appContext)
 // Initialize case details store.
 const caseDetailsStore = useCaseDetailsStore()
-caseDetailsStore.initialize(appContext.case_uuid)
+caseDetailsStore.initialize(caseUuidRef.value)
 
 const showModal = ({ gridRow, gridApi, smallVariant }) => {
   currentSmallVariant.value = smallVariant

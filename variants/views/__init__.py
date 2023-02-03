@@ -20,7 +20,6 @@ from django.db import transaction
 from django.db.models import Q
 from django.forms.models import model_to_dict
 from django.http import Http404, HttpResponse, JsonResponse
-from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils import timezone
 from django.views.generic import (
@@ -4837,52 +4836,3 @@ class RefreshSmallVariantSummaryJobDetailView(
     slug_url_kwarg = "job"
     slug_field = "sodar_uuid"
     paginate_by = getattr(settings, "BGJOBS_PAGINATION", BGJOBS_DEFAULT_PAGINATION)
-
-
-class SmallVariantFilterForm(
-    LoginRequiredMixin,
-    LoggedInPermissionMixin,
-    ProjectPermissionMixin,
-    ProjectContextMixin,
-    DetailView,
-):
-    """Display list of cohorts."""
-
-    permission_required = "variants.view_data"
-    template_name = "variants/entrypoint.html"
-    slug_url_kwarg = "case"
-    slug_field = "sodar_uuid"
-    model = Case
-
-    def get_context_data(self, *args, **kwargs):
-        setting_api = AppSettingAPI()
-        context = super().get_context_data(*args, **kwargs)
-        extra_anno_fields = self._get_extra_anno_fields()
-        context["app_context"] = json.dumps(
-            {
-                "case_uuid": str(self.object.sodar_uuid),
-                "project": {
-                    "sodar_uuid": str(context["project"].sodar_uuid),
-                    "title": context["project"].title,
-                },
-                "csrf_token": get_token(self.request),
-                "umd_predictor_api_token": setting_api.get_app_setting(
-                    "variants", "umd_predictor_api_token", user=self.request.user
-                ),
-                "hgmd_pro_enabled": settings.VARFISH_ENABLE_HGMD_PRO_LINKOUT,
-                "hgmd_pro_prefix": settings.VARFISH_HGMD_PRO_LINKOUT_URL_PREFIX,
-                "ga4gh_beacon_network_widget_enabled": setting_api.get_app_setting(
-                    "variants", "ga4gh_beacon_network_widget_enabled", user=self.request.user
-                ),
-                "exomiser_enabled": settings.VARFISH_ENABLE_EXOMISER_PRIORITISER,
-                "cadd_enabled": settings.VARFISH_ENABLE_CADD,
-                "extra_anno_fields": extra_anno_fields,
-            }
-        )
-        return context
-
-    def _get_extra_anno_fields(self):
-        def my_model_to_dict(field_obj):
-            return model_to_dict(field_obj, fields=("field", "label"))
-
-        return list(map(my_model_to_dict, ExtraAnnoField.objects.all()))

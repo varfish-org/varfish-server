@@ -39,13 +39,13 @@ const projectUuid = computed(() =>
         <i-mdi-arrow-left-circle />
         Back to Project
       </a>
-      <a
-        class="btn btn-primary"
-        :href="'/variants/' + projectUuid + '/project-cases/filter/'"
-      >
-        <i-mdi-filter />
-        Joint Filtration
-      </a>
+      <!--      <a-->
+      <!--        class="btn btn-primary"-->
+      <!--        :href="'/variants/' + projectUuid + '/project-cases/filter/'"-->
+      <!--      >-->
+      <!--        <i-mdi-filter />-->
+      <!--        Joint Filtration-->
+      <!--      </a>-->
     </div>
   </div>
 

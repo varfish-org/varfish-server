@@ -5,12 +5,6 @@ from svs import views
 app_name = "svs"
 
 urlpatterns_ui = [
-    # Vue app entrypoint
-    url(
-        regex=r"^vueapp/(?P<case>[0-9a-f-]+)/?$",
-        view=views.SvFilterEntrypoint.as_view(),
-        name="entrypoint",
-    ),
     # Views related to background SV jobs.
     url(
         regex=r"^(?P<project>[0-9a-f-]+)/import/(?P<job>[0-9a-f-]+)/$",

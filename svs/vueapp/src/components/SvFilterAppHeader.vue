@@ -1,11 +1,14 @@
 <script setup>
 import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { useSvFilterStore } from '@svs/stores/filterSvs.js'
 import { useCasesStore } from '@cases/stores/cases.js'
 import { useCaseDetailsStore } from '@cases/stores/case-details.js'
 // TODO: change to sv presets
 import queryPresetsApi from '@variants/api/queryPresets.js'
+
+const router = useRouter()
 
 const casesStore = useCasesStore()
 const caseDetailsStore = useCaseDetailsStore()
@@ -81,25 +84,28 @@ watch(
     <div class="ml-auto btn-group">
       <a
         class="btn btn-secondary"
-        :href="`/cases/vueapp/${svFilterStore.caseObj.project}#/detail/${svFilterStore.caseObj.sodar_uuid}`"
+        @click.prevent="
+          router.push({
+            name: 'case-detail',
+            params: { case: caseDetailsStore.caseObj.sodar_uuid },
+          })
+        "
       >
         <i-mdi-arrow-left-circle />
         Back to Case
       </a>
-      <a
-        class="btn btn-primary"
-        :href="`/variants/${svFilterStore.caseObj.project}/case/filter/${svFilterStore.caseObj.sodar_uuid}`"
-      >
-        <i-mdi-filter />
-        Legacy Filter
-      </a>
 
       <a
         class="btn btn-primary"
-        :href="`/variants/vueapp/${svFilterStore.caseObj.sodar_uuid}/`"
+        @click.prevent="
+          router.push({
+            name: 'variants-filter',
+            params: { case: caseDetailsStore.caseObj.sodar_uuid },
+          })
+        "
       >
-        <i-mdi-beta />
-        Filter Variants (beta)
+        <i-mdi-filter />
+        Filter Variants
       </a>
       <a
         type="button"

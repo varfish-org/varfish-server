@@ -5,6 +5,8 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import App from './App.vue'
 const CaseList = () => import('./components/CaseList.vue')
 const CaseDetail = () => import('./components/CaseDetail.vue')
+const FilterApp = () => import('@variants/components/FilterApp.vue')
+const SvFilterApp = () => import('@svs/components/SvFilterApp.vue')
 import { useCasesStore } from './stores/cases'
 
 const routes = [
@@ -46,6 +48,16 @@ const routes = [
     name: 'case-detail',
     path: '/detail/:case',
     component: CaseDetail,
+  },
+  {
+    name: 'variants-filter',
+    path: '/variants/filter/:case',
+    component: FilterApp,
+  },
+  {
+    name: 'svs-filter',
+    path: '/svs/filter/:case',
+    component: SvFilterApp,
   },
 ]
 

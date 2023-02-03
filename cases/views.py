@@ -5,8 +5,11 @@ The UI for this app is completely Vue-based so we only render the entry point.
 
 import json
 
+from django.conf import settings
+from django.forms.models import model_to_dict
 from django.middleware.csrf import get_token
 from django.views.generic import ListView
+from projectroles.app_settings import AppSettingAPI
 from projectroles.views import (
     LoggedInPermissionMixin,
     LoginRequiredMixin,
@@ -14,6 +17,7 @@ from projectroles.views import (
     ProjectPermissionMixin,
 )
 
+from extra_annos.models import ExtraAnnoField
 from variants.models import Case
 
 
@@ -31,7 +35,9 @@ class EntrypointView(
     model = Case
 
     def get_context_data(self, *args, **kwargs):
+        setting_api = AppSettingAPI()
         context = super().get_context_data(*args, **kwargs)
+        extra_anno_fields = self._get_extra_anno_fields()
         context["app_context"] = json.dumps(
             {
                 "project": {
@@ -45,6 +51,23 @@ class EntrypointView(
                     "sodar_uuid": str(self.request.user.sodar_uuid),
                     "is_superuser": self.request.user.is_superuser,
                 },
+                "umd_predictor_api_token": setting_api.get_app_setting(
+                    "variants", "umd_predictor_api_token", user=self.request.user
+                ),
+                "hgmd_pro_enabled": settings.VARFISH_ENABLE_HGMD_PRO_LINKOUT,
+                "hgmd_pro_prefix": settings.VARFISH_HGMD_PRO_LINKOUT_URL_PREFIX,
+                "ga4gh_beacon_network_widget_enabled": setting_api.get_app_setting(
+                    "variants", "ga4gh_beacon_network_widget_enabled", user=self.request.user
+                ),
+                "exomiser_enabled": settings.VARFISH_ENABLE_EXOMISER_PRIORITISER,
+                "cadd_enabled": settings.VARFISH_ENABLE_CADD,
+                "extra_anno_fields": extra_anno_fields,
             }
         )
         return context
+
+    def _get_extra_anno_fields(self):
+        def my_model_to_dict(field_obj):
+            return model_to_dict(field_obj, fields=("field", "label"))
+
+        return list(map(my_model_to_dict, ExtraAnnoField.objects.all()))

@@ -278,7 +278,7 @@ export const useSvFilterStore = defineStore('filterSvs', () => {
   const initializeRes = ref(null)
 
   /** Initialize the store from the appContext. */
-  const initialize = async (appContext) => {
+  const initialize = async (appContext, theCaseUuid) => {
     if (storeState.value !== 'initial') {
       // only once
       return initializeRes.value
@@ -288,7 +288,7 @@ export const useSvFilterStore = defineStore('filterSvs', () => {
     serverInteractions.value += 1
 
     // Initialize from appContext
-    caseUuid.value = appContext.case_uuid
+    caseUuid.value = theCaseUuid
     csrfToken.value = appContext.csrf_token
 
     // Fetch caseObj first

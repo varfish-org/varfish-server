@@ -1,5 +1,6 @@
 <script setup>
 import { watch, ref, onMounted, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 
 import { useSvFilterStore } from '@svs/stores/filterSvs.js'
 import { useSvDetailsStore } from '@svs/stores/detailsSv.js'
@@ -18,9 +19,15 @@ const appContext = JSON.parse(
     '{}'
 )
 
+/** The currently used route. */
+const route = useRoute()
+
+/** The currently displayed case's UUID, updated from route. */
+const caseUuidRef = ref(route.params.case)
+
 // Initialize filter query store.
 const svFilterStore = useSvFilterStore()
-svFilterStore.initialize(appContext)
+svFilterStore.initialize(appContext, caseUuidRef.value)
 // Initialize SV details store.
 const svDetailsStore = useSvDetailsStore()
 svDetailsStore.initialize(appContext)
@@ -29,7 +36,7 @@ const casesStore = useCasesStore()
 casesStore.initialize(appContext)
 // Initialize case details store.
 const caseDetailsStore = useCaseDetailsStore()
-caseDetailsStore.initialize(appContext.case_uuid)
+caseDetailsStore.initialize(caseUuidRef.value)
 
 /** Whether the form is visible. */
 const formVisible = ref(true)
