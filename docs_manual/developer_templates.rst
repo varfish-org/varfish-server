@@ -85,28 +85,32 @@ When the root cause is determined, a solution needs to be proposed, following th
 Commits
 =======
 
+All commits should adhere to `semantic pull requests <https://www.conventionalcommits.org/en/v1.0.0/>`__.
+That is, the commit messages look like this:
+
+::
+
+    prefix: message here
+
+Valid prefixes types are defined in `here <https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#type>`__.
+
+Common examples are:
+
+::
+
+    fix: fixing bug (#number)
+    feat: implementing feature (#number)
+    chore: will not go to changelog (#number)
+
 Almost all commits should refer to a ticket in trailing parenthesis, e.g.
 
 ::
 
-    Resolve some issue (#NUMBER)
+    fix: resolve some issue (#NUMBER)
 
-Required trailing lines are required for each commit.
-You must either specify ``Related-Issue`` or ``No-Related-Issue``.
-Examples:
-
-::
-
-    Related-Issue: #123
-    No-Related-Issue: Short text reason
-
-Further, each commit should be marked whether it is expected to change filtration results with ``Projected-Results-Impact``.
-Allowed values are ``none`` or ``require-revalidation``.
-
-::
-
-    Projected-Results-Impact: none
-    Projected-Results-Impact: require-revalidation
+Note that we enforce squash commits for pull requests.
+All of your commits will be squashed when merged.
+The pull request should be broken into semantic parts and checking this is part of the code review process.
 
 Fix & Pull Request
 ==================
