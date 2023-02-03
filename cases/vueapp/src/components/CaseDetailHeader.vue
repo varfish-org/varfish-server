@@ -78,11 +78,27 @@ const linkFilterSvs = computed(() => buildLink('filter-svs'))
           <i-mdi-arrow-left-circle />
           Back to Project
         </a>
-        <a class="btn btn-primary" @click.prevent="router.push({name: 'variants-filter', params: {case: caseObj.sodar_uuid }})">
+        <a
+          class="btn btn-primary"
+          @click.prevent="
+            router.push({
+              name: 'variants-filter',
+              params: { case: caseObj.sodar_uuid },
+            })
+          "
+        >
           <i-mdi-filter />
           Filter Variants
         </a>
-        <a class="btn btn-primary" @click.prevent="router.push({name: 'svs-filter', params: {case: caseObj.sodar_uuid }})">
+        <a
+          class="btn btn-primary"
+          @click.prevent="
+            router.push({
+              name: 'svs-filter',
+              params: { case: caseObj.sodar_uuid },
+            })
+          "
+        >
           <i-mdi-filter-variant />
           Filter SVs
         </a>

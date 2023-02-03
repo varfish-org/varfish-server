@@ -83,14 +83,24 @@ watch(
     <div class="ml-auto btn-group">
       <a
         class="btn btn-secondary"
-        @click.prevent="router.push({name: 'case-detail', params: {case: caseDetailsStore.caseObj.sodar_uuid }})"
+        @click.prevent="
+          router.push({
+            name: 'case-detail',
+            params: { case: caseDetailsStore.caseObj.sodar_uuid },
+          })
+        "
       >
         <i-mdi-arrow-left-circle />
         Back to Case
       </a>
       <a
         class="btn btn-primary"
-        @click.prevent="router.push({name: 'svs-filter', params: {case: caseDetailsStore.caseObj.sodar_uuid }})"
+        @click.prevent="
+          router.push({
+            name: 'svs-filter',
+            params: { case: caseDetailsStore.caseObj.sodar_uuid },
+          })
+        "
       >
         <i-mdi-filter-variant />
         Filter SVs

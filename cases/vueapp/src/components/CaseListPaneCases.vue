@@ -190,7 +190,12 @@ onMounted(async () => {
                   class="btn btn-sm btn-primary"
                   style="font-size: 80%"
                   :disabled="!num_small_vars"
-                  @click="router.push({name: 'variants-filter', params: {case: sodar_uuid} })"
+                  @click="
+                    router.push({
+                      name: 'variants-filter',
+                      params: { case: sodar_uuid },
+                    })
+                  "
                 >
                   <i-mdi-filter />
                 </button>
@@ -200,7 +205,12 @@ onMounted(async () => {
                   class="btn btn-sm btn-primary pl-2"
                   style="font-size: 80%"
                   :disabled="!num_svs"
-                  @click="router.push({name: 'svs-filter', params: {case: sodar_uuid} })"
+                  @click="
+                    router.push({
+                      name: 'svs-filter',
+                      params: { case: sodar_uuid },
+                    })
+                  "
                 >
                   <i-mdi-filter-variant />
                 </button>
