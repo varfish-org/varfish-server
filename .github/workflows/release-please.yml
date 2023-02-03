@@ -20,23 +20,24 @@ jobs:
   build-publish:
     runs-on: ubuntu-latest
     needs: release
-    if: steps.release.outputs.release_created == 'true'
     steps:
 
       - name: Checkout repository
         uses: actions/checkout@v2
+        if: ${{ steps.release.outputs.release_created }}
         with:
           fetch-depth: 0  # needed for versioneer
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
+        if: ${{ steps.release.outputs.release_created }}
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker prerelease image
-        if: "github.event.release.prerelease"
+        if: ${{ github.event.release.prerelease }}
         uses: docker/build-push-action@v3
         with:
           context: docker
@@ -45,7 +46,7 @@ jobs:
           tags: "ghcr.io/bihealth/varfish-server:${{ needs.release.outputs.tag_name_no_v }}"
 
       - name: Build and push Docker release image
-        if: "!github.event.release.prerelease"
+        if: ${{ !github.event.release.prerelease }}
         uses: docker/build-push-action@v3
         with:
           context: docker
