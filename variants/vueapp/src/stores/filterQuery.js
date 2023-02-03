@@ -309,7 +309,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
   const initializeRes = ref(null)
 
   /** Initialize the store from the appContext. */
-  const initialize = async (appContext) => {
+  const initialize = async (appContext, theCaseUuid) => {
     if (storeState.value !== 'initial') {
       // only once
       return initializeRes.value
@@ -319,7 +319,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     serverInteractions.value += 1
 
     // Initialize from appContext
-    caseUuid.value = appContext.case_uuid
+    caseUuid.value = theCaseUuid
     umdPredictorApiToken.value = appContext.umd_predictor_api_token
     hgmdProEnabled.value = appContext.hgmd_pro_enabled
     hgmdProPrefix.value = appContext.hgmd_pro_prefix

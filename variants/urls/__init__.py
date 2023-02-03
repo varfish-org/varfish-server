@@ -405,11 +405,6 @@ ui_urlpatterns = [
         view=views.RefreshSmallVariantSummaryJobDetailView.as_view(),
         name="refresh-small-variant-summaries-job-detail",
     ),
-    url(
-        regex=r"^vueapp/(?P<case>[0-9a-f-]+)/?$",
-        view=views.SmallVariantFilterForm.as_view(),
-        name="entrypoint",
-    ),
 ]
 
 # Ajax API views

@@ -182,25 +182,17 @@ onMounted(async () => {
               {{ formatTimeAgo(date_modified) }}
             </template>
 
-            <template #item-buttons="{ num_small_vars, num_svs }">
+            <template #item-buttons="{ sodar_uuid, num_small_vars, num_svs }">
               <div class="btn-group">
                 <button
-                  title="Legacy filter small variants"
+                  title="Filter small variants"
                   type="button"
                   class="btn btn-sm btn-primary"
                   style="font-size: 80%"
                   :disabled="!num_small_vars"
+                  @click="router.push({name: 'variants-filter', params: {case: sodar_uuid} })"
                 >
                   <i-mdi-filter />
-                </button>
-                <button
-                  title="Next-gen small variants (beta)"
-                  type="button"
-                  class="btn btn-sm btn-primary"
-                  style="font-size: 80%"
-                  :disabled="!num_small_vars"
-                >
-                  <i-mdi-beta />
                 </button>
                 <button
                   title="Filter SVs"
@@ -208,6 +200,7 @@ onMounted(async () => {
                   class="btn btn-sm btn-primary pl-2"
                   style="font-size: 80%"
                   :disabled="!num_svs"
+                  @click="router.push({name: 'svs-filter', params: {case: sodar_uuid} })"
                 >
                   <i-mdi-filter-variant />
                 </button>
