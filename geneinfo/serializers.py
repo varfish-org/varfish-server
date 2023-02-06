@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from clinvar.models import ClinvarPathogenicGenes
 from geneinfo.models import ExacConstraints, GnomadConstraints, NcbiGeneInfo, NcbiGeneRif
+from genepanels.models import GenePanel, GenePanelCategory
 
 
 class GeneInfoSerializer(serializers.Serializer):
@@ -14,6 +15,52 @@ class GeneInfoSerializer(serializers.Serializer):
     symbol = serializers.CharField(max_length=16)
     ensembl_gene_id = serializers.CharField(max_length=32)
     entrez_id = serializers.CharField(max_length=16)
+
+
+class GenePanelSerializer(serializers.ModelSerializer):
+    """Serializer that serializes ``GenePanel``."""
+
+    class Meta:
+        model = GenePanel
+        fields = (
+            "identifier",
+            "state",
+            "version_major",
+            "version_minor",
+            "title",
+            "description",
+        )
+        read_only_fields = (
+            "identifier",
+            "state",
+            "version_major",
+            "version_minor",
+            "title",
+            "description",
+        )
+
+
+class GenePanelCategorySerializer(serializers.ModelSerializer):
+    """Serializer that serializes ``GenePanelCategory``."""
+
+    genepanel_set = serializers.SerializerMethodField()
+
+    class Meta:
+        model = GenePanelCategory
+        fields = (
+            "title",
+            "description",
+            "genepanel_set",
+        )
+        read_only_fields = (
+            "title",
+            "description",
+            "genepanel_set",
+        )
+
+    def get_genepanel_set(self, obj):
+        """Corresponds to the ``genepanel_set`` field defined above."""
+        return GenePanelSerializer(obj.genepanel_set.filter(state="active"), many=True).data
 
 
 @attrs.define

@@ -1,0 +1,16 @@
+[
+  {
+    "title": "My panel",
+    "description": "",
+    "genepanel_set": [
+      {
+        "identifier": "ACMG.v3",
+        "state": "active",
+        "version_major": 1,
+        "version_minor": 1,
+        "title": "ACMG v3",
+        "description": ""
+      }
+    ]
+  }
+]

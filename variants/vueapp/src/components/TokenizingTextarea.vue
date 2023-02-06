@@ -367,7 +367,7 @@ defineExpose({
   letter-spacing: normal;
   word-spacing: 0px;
   overflow-wrap: break-word;
-  height: 100px;
+  height: 200px;
 }
 
 .textarea-highlights {

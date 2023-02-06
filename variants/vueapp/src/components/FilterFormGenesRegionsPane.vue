@@ -3,7 +3,8 @@
  * Definition of the filter form tab for genes and regions.
  */
 
-import { nextTick, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import Multiselect from '@vueform/multiselect'
 
 import TokenizingTextarea from './TokenizingTextarea.vue'
 
@@ -19,6 +20,10 @@ const props = defineProps({
     type: String,
     default: '/geneinfo/api/lookup-gene/',
   },
+  lookupGenePanelApiEndpoint: {
+    type: String,
+    default: '/geneinfo/api/lookup-genepanel/',
+  },
 })
 
 const emit = defineEmits(['update:querySettings'])
@@ -29,6 +34,12 @@ const listType = ref('genomic_region')
 const genomicRegionArrRef = ref([])
 // this is where the text area writes to
 const genomicRegionStrRef = ref('')
+// local gene panel categories
+const genePanelCategories = ref([])
+// genomics england panel
+const genomicsEnglandPanels = ref([])
+// genomics england confidence
+const genomicsEnglandConfidence = ref(3)
 
 /** Regular expression for validating a genomic region. */
 const regexRegion = new RegExp(
@@ -39,6 +50,54 @@ const regexRegion = new RegExp(
     '(:(?<start>(\\d+(,\\d+)*))-(?<stop>(\\d+(,\\d+)*)))?' + // optional range
     '$' // end
 )
+
+/** Load Genome England PanelApp presets. */
+const loadPanelPage = async (page) => {
+  await fetch('/proxy/panelapp/v1/panels/?page=' + page).then(
+    async (response) => {
+      console.log('in loadPanelPage response')
+      const responseJson = await response.json()
+      console.log(responseJson)
+      genomicsEnglandPanels.value = genomicsEnglandPanels.value.concat(
+        responseJson.results.map((panel) => {
+          return {
+            label: `${panel.name} (v${panel.version})`,
+            value: panel,
+          }
+        })
+      )
+      if (responseJson.next) {
+        await loadPanelPage(page + 1)
+      }
+    }
+  )
+}
+
+/** Insert genomics england panel. */
+const insertGenomicsEnglandPanel = async (panel) => {
+  await fetch(
+    `/proxy/panelapp/v1/panels/${panel.id}/?version=${panel.version}`
+  ).then(async (response) => {
+    const responseJson = await response.json()
+    let symbols = []
+
+    for (const gene of responseJson.genes) {
+      const confidence = parseInt(gene.confidence_level)
+      if (confidence >= genomicsEnglandConfidence.value) {
+        symbols.push(gene.gene_data.hgnc_id)
+      }
+    }
+
+    props.querySettings.gene_allowlist =
+      props.querySettings.gene_allowlist.concat(symbols)
+  })
+}
+
+/** Insert local panel. */
+const insertLocalPanel = (panel) => {
+  props.querySettings.gene_allowlist =
+    props.querySettings.gene_allowlist.concat(panel)
+}
 
 /** Validation function for genomic region. */
 const validateRegion = (token) => {
@@ -63,20 +122,24 @@ const validateRegion = (token) => {
 
 /** Validation function for genes. */
 const validateGene = async (token) => {
-  const response = await fetch(
-    `${props.lookupGeneApiEndpoint}?query=${token}`,
-    {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-      'X-CSRFToken': props.csrfToken,
-    }
-  )
+  let url = `${props.lookupGeneApiEndpoint}?query=${token}`
+  if (token.startsWith('GENEPANEL:')) {
+    url = `${props.lookupGenePanelApiEndpoint}?query=${token}`
+  }
+  const response = await fetch(url, {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+    'X-CSRFToken': props.csrfToken,
+  })
   if (response.status === 404) {
     return false // not found
   } else {
     // Conversion to JSON will fail with an exception on error.
-    const geneInfo = await response.json()
-    return !!geneInfo.hgnc_id
+    const responseJson = await response.json()
+    if (token.startsWith('GENEPANEL:')) {
+      return !!responseJson.identifier
+    }
+    return !!responseJson.hgnc_id
   }
 }
 
@@ -131,10 +194,25 @@ const isValidating = () => {
   )
 }
 
+const loadGenePanelCategories = async () => {
+  console.log('call')
+  await fetch('/geneinfo/api/genepanel-category/list/').then(
+    async (response) => {
+      console.log('in async')
+      const responseJson = await response.json()
+      console.log('xxx')
+      console.log(responseJson)
+      genePanelCategories.value = responseJson
+    }
+  )
+}
+
 /** Take values from outside on mounted. */
-onMounted(() => {
+onMounted(async () => {
   genomicRegionArrRef.value = props.querySettings.genomic_region
   genomicRegionStrRef.value = genomicRegionArrRef.value.join(' ')
+  await loadPanelPage(1)
+  await loadGenePanelCategories()
 })
 
 /** Define the exposed functions. */
@@ -161,7 +239,7 @@ defineExpose({
         <select
           v-model="listType"
           :class="{ 'is-invalid': !isValid() }"
-          class="custom-select"
+          class="custom-select mr-2"
           id="gene-regions-list-type"
         >
           <option value="gene_allowlist">
@@ -171,11 +249,62 @@ defineExpose({
             Genomic Regions{{ indicateFailure('genomic_region') }}
           </option>
         </select>
-        <div class="invalid-feedback">
+        <div class="invalid-feedback mr-2">
           There is a problem with: {{ invalidTextareas().join(', ') }}.
         </div>
-      </div>
 
+        <div v-if="listType === 'gene_allowlist'" class="form-inline">
+          &mdash;
+
+          <Multiselect
+            :options="genomicsEnglandPanels"
+            placeholder="Add from GE PanelApp"
+            :searchable="true"
+            @select="insertGenomicsEnglandPanel"
+          />
+
+          <div class="px-2">
+            Confidence
+            <select class="form-control" v-model="genomicsEnglandConfidence">
+              <option value="3">green</option>
+              <option value="2">amber</option>
+              <option value="1">red</option>
+            </select>
+            and above
+          </div>
+
+          <div class="px-2">
+            &mdash;
+            <button
+              class="btn btn-sm btn-outline-secondary dropdown-toggle"
+              type="button"
+              id="presets-menu-button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <span class="d-none d-sm-inline"> Add Local Panel </span>
+              <div
+                v-for="category in genePanelCategories"
+                class="dropdown-menu"
+                aria-labelledby="presets-menu-button"
+              >
+                <h6 class="dropdown-header">{{ category.title }}</h6>
+                <a
+                  v-for="genepanel in category.genepanel_set"
+                  class="dropdown-item"
+                  href="#"
+                  @click="insertLocalPanel(`GENEPANEL:${genepanel.identifier}`)"
+                >
+                  {{ genepanel.title }} (v{{ genepanel.version_major }}.{{
+                    genepanel.version_minor
+                  }})
+                </a>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
       <div
         v-show="listType === 'genomic_region'"
         class="form-group"
