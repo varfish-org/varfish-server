@@ -15,18 +15,17 @@ export function copy(value) {
  * @returns {WritableComputedRef<*>|*} Returns a {@code computed} value that will notify the parent about prop
  *          update via {@code emit}.
  */
-export function declareWrapper(props, key, emit, mapper, textOnly = false) {
+export function declareWrapper(props, key, emit) {
   return computed({
     get() {
-      if (!textOnly || props[key] === undefined || props[key] === null) {
-        return props[key]
-      } else {
-        return new String(props[key])
+      if (key === 'qualMaxAd' && props[key] === 0) {
+        return null
       }
+      return props[key]
     },
     set(newValue) {
-      if (mapper !== undefined) {
-        newValue = mapper(newValue)
+      if (key === 'qualMaxAd' && newValue === '') {
+        newValue = 0
       }
       emit(`update:${key}`, newValue)
     },

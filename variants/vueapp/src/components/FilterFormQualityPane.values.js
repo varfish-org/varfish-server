@@ -15,16 +15,6 @@ export const numericKeys = Object.freeze([
   'qualMaxAd',
 ])
 
-export const floatKeys = Object.freeze(['qualMinAb'])
-
-export const intKeys = Object.freeze([
-  'qualMinDpHet',
-  'qualMinDpHom',
-  'qualMinGq',
-  'qualMinAd',
-  'qualMaxAd',
-])
-
 export const allKeys = Object.freeze(numericKeys.concat(['qualFail']))
 
 export const failValues = Object.freeze({
@@ -39,26 +29,31 @@ const mustBeFailValue = (value) =>
 export const rules = {
   qualMinDpHet: {
     integer,
+    required,
     minValue: minValue(0),
     $autoDirty: true,
   },
   qualMinDpHom: {
     integer,
+    required,
     minValue: minValue(0),
     $autoDirty: true,
   },
   qualMinAb: {
     decimal,
+    required,
     between: between(0.0, 1.0),
     $autoDirty: true,
   },
   qualMinGq: {
     integer,
+    required,
     minValue: minValue(0),
     $autoDirty: true,
   },
   qualMinAd: {
     integer,
+    required,
     minValue: minValue(0),
     $autoDirty: true,
   },

@@ -344,6 +344,7 @@ onMounted(() => {
         >
           {{ value.label ?? name }}
         </option>
+        <option disabled>custom</option>
       </select>
     </div>
 
@@ -366,6 +367,7 @@ onMounted(() => {
         >
           {{ value.label ?? name }}
         </option>
+        <option disabled>custom</option>
       </select>
     </div>
 
@@ -385,6 +387,7 @@ onMounted(() => {
         <option v-for="(value, name) in categoryPresets.impact" :value="name">
           {{ value.label ?? name }}
         </option>
+        <option disabled>custom</option>
       </select>
     </div>
 
@@ -404,6 +407,7 @@ onMounted(() => {
         <option v-for="(value, name) in categoryPresets.quality" :value="name">
           {{ value.label ?? name }}
         </option>
+        <option disabled>custom</option>
       </select>
     </div>
 
@@ -426,6 +430,7 @@ onMounted(() => {
         >
           {{ value.label ?? name }}
         </option>
+        <option disabled>custom</option>
       </select>
     </div>
 
@@ -445,6 +450,7 @@ onMounted(() => {
         <option v-for="(value, name) in categoryPresets.flagsetc" :value="name">
           {{ value.label ?? name }}
         </option>
+        <option disabled>custom</option>
       </select>
     </div>
   </div>
