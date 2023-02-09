@@ -54,9 +54,9 @@ RUN ["/bin/bash","-c", "cd /tmp && \
         bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/miniconda3 && \
         source /opt/miniconda3/bin/activate && \
         conda install -c conda-forge -y mamba && \
-        mamba create -c bioconda -y -n varfish-annotator \
+        mamba create -c conda-forge -c bioconda -y -n varfish-annotator \
             varfish-annotator-cli=0.10=0 \
-            varfish-server-worker=0.3 \
+            varfish-server-worker=0.4 \
             htslib=1.9 \
             openjdk=8 \
             bcftools=1.9 && \
