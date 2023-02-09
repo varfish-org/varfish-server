@@ -18,7 +18,6 @@ const props = defineProps({
 })
 
 // Get the stores.
-const detailsStore = useSvDetailsStore()
 const caseDetailsStore = useCaseDetailsStore()
 
 // The <div> to show the browser in.
