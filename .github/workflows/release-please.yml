@@ -37,7 +37,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push Docker prerelease image
-        if: ${{ github.event.release.prerelease }}
+        if: ${{ steps.release.outputs.release_created && github.event.release.prerelease }}
         uses: docker/build-push-action@v3
         with:
           context: docker
@@ -46,7 +46,7 @@ jobs:
           tags: "ghcr.io/bihealth/varfish-server:${{ needs.release.outputs.tag_name_no_v }}"
 
       - name: Build and push Docker release image
-        if: ${{ !github.event.release.prerelease }}
+        if: ${{ steps.release.outputs.release_created && !github.event.release.prerelease }}
         uses: docker/build-push-action@v3
         with:
           context: docker
