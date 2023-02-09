@@ -5,6 +5,7 @@ import { formatLargeInt } from '@varfish/helpers.js'
 import VariantDetailsComments from '@varfish/components/VariantDetailsComments.vue'
 import VariantDetailsFlags from '@varfish/components/VariantDetailsFlags.vue'
 
+import { useCaseDetailsStore } from '@cases/stores/case-details'
 import { useSvFilterStore } from '@svs/stores/filterSvs'
 import { useSvDetailsStore } from '@svs/stores/detailsSv.js'
 import { useSvFlagsStore } from '@svs/stores/svFlags.js'
@@ -15,6 +16,7 @@ import SvDetailsGenotypeCall from './SvDetailsGenotypeCall.vue'
 import GenomeBrowser from './GenomeBrowser.vue'
 
 // Get reference to store detailsSv
+const caseDetailsStore = useCaseDetailsStore()
 const svFilterStore = useSvFilterStore()
 const detailsStore = useSvDetailsStore()
 const flagsStore = useSvFlagsStore()
@@ -30,12 +32,12 @@ commentsStore.initialize(
 
 // Safely return case release.
 const genomeRelease = computed(() => {
-  const release = detailsStore.caseObj?.release ?? 'GRCh37'
+  const release = caseDetailsStore.caseObj?.release ?? 'GRCh37'
   return release === 'GRCh37' ? 'hg19' : 'b38'
 })
 
 // Safely return case UUD
-const caseUuid = computed(() => detailsStore.caseObj?.sodar_uuid)
+const caseUuid = computed(() => caseDetailsStore.caseObj?.sodar_uuid)
 
 // Pretty display of coordinates.
 const svLocus = (record) => {
