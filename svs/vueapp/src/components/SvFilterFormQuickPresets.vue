@@ -175,11 +175,18 @@ const makeWrapper = (name) =>
         }
         const oldBlockRefresh = blockRefresh.value
         blockRefresh.value = true
-        for (const [key, value] of Object.entries(
-          props.categoryPresets[name][newValue]
-        )) {
-          if (!_keysToStrip.includes(key)) {
-            props.querySettings[key] = value
+        if (name === 'genotypeCriteria') {
+          props.querySettings.genotype_criteria = copy(
+            props.categoryPresets.genotypeCriteria[newValue]
+          )
+        } else {
+          for (const [key, value] of Object.entries(
+            props.categoryPresets[name][newValue]
+          )) {
+            if (!_keysToStrip.includes(key)) {
+              console.log(`.. key=${key}; value=${value}`)
+              props.querySettings[key] = value
+            }
           }
         }
         blockRefresh.value = oldBlockRefresh
@@ -242,7 +249,7 @@ const quickPresetWrapper = computed({
       impactWrapper.value = newQuickPresets.impact
       chromosomesWrapper.value = newQuickPresets.chromosomes
       regulatoryWrapper.value = newQuickPresets.regulatory
-      genotypeCriteria.value = newQuickPresets.genotypeCriteria
+      genotypeCriteriaWrapper.value = newQuickPresets.genotypeCriteria
       tadWrapper.value = newQuickPresets.tad
       knownPathoWrapper.value = newQuickPresets.knownPatho
     }
@@ -300,7 +307,7 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
-        v-model="knownPathoWrapper"
+        v-model="genotypeCriteriaWrapper"
         class="custom-select custom-select-sm"
         :id="'presetsGenotypeCriteria-' + idSuffix"
       >
