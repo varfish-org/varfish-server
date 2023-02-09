@@ -1,3 +1,6 @@
+// Work around issue with igv.js accessing document.head.children when included.
+document.head.appendChild(document.createElement('title'))
+
 import casesApi from '@cases/api/cases.js'
 import CaseDetail from '@cases/components/CaseDetail.vue'
 import { flushPromises } from '@vue/test-utils'

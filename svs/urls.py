@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.conf.urls import url
+from djproxy.views import HttpProxy
 
 from svs import views
 
@@ -24,6 +26,11 @@ urlpatterns_ui = [
 ]
 
 urlpatterns_ajax = [
+    url(
+        regex=r"^ajax/fetch-variants/(?P<case>[0-9a-f-]+)/?$",
+        view=views.SvFetchVariantsAjaxView.as_view(),
+        name="ajax-variants-fetch",
+    ),
     url(
         regex=r"^ajax/query-case/quick-presets/?$",
         view=views.SvQuickPresetsAjaxView.as_view(),
@@ -96,6 +103,14 @@ urlpatterns_ajax = [
         regex=r"^ajax/structural-variant-comment/retrieve-update-destroy/(?P<structuralvariantcomment>[0-9a-f-]+)/$",
         view=views.StructuralVariantCommentRetrieveUpdateDestroyAjaxView.as_view(),
         name="ajax-structuralvariantcomment-retrieveupdatedestroy",
+    ),
+    # Augment url patterns with proxy to worker.
+    url(
+        r"^worker/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url=f"{settings.WORKER_REST_BASE_URL}/public/svs/",
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
     ),
 ]
 

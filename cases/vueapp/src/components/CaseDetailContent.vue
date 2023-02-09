@@ -4,7 +4,8 @@ import { computed, ref } from 'vue'
 import CaseDetailPaneCase from './CaseDetailPaneCase.vue'
 import CaseDetailPaneQc from './CaseDetailPaneQc.vue'
 import CaseDetailPaneAnnotations from './CaseDetailPaneAnnotations.vue'
-import { useCaseDetailsStore } from '@cases/stores/case-details'
+import { useCaseDetailsStore } from '@cases/stores/case-details.js'
+import GenomeBrowser from '@svs/components/GenomeBrowser.vue'
 
 /** Define emits. */
 const emit = defineEmits([
@@ -22,6 +23,7 @@ const Tabs = Object.freeze({
   overview: 'overview',
   qc: 'qc',
   annotation: 'annotation',
+  browser: 'browser',
 })
 
 const currentTab = ref('overview')
@@ -104,6 +106,20 @@ defineExpose({
           </span>
         </a>
       </li>
+      <li class="nav-item">
+        <a
+          class="nav-link"
+          id="browser-tab"
+          data-toggle="tab"
+          href="#browser"
+          role="tab"
+          @click="updateCurrentTab(Tabs.browser)"
+        >
+          <i-mdi-safety-goggles />
+
+          Browser
+        </a>
+      </li>
     </ul>
     <div class="tab-content flex-grow-1 d-flex flex-column" id="cases-content">
       <div
@@ -140,6 +156,17 @@ defineExpose({
         role="tabpanel"
       >
         <CaseDetailPaneAnnotations />
+      </div>
+      <div
+        v-if="currentTab === Tabs.browser"
+        class="border border-top-0 tab-pane fade show active flex-grow-1 d-flex flex-column"
+        id="case-list"
+        role="tabpanel"
+      >
+        <GenomeBrowser
+          :case-uuid="caseDetailsStore.caseObj?.sodar_uuid"
+          :genome="caseDetailsStore.caseObj?.release"
+        />
       </div>
     </div>
   </div>
