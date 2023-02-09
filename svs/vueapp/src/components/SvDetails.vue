@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { formatLargeInt } from '@varfish/helpers.js'
 import VariantDetailsComments from '@varfish/components/VariantDetailsComments.vue'
@@ -12,6 +12,7 @@ import { useSvCommentsStore } from '@svs/stores/svComments.js'
 
 import SvDetailsGenes from './SvDetailsGenes.vue'
 import SvDetailsGenotypeCall from './SvDetailsGenotypeCall.vue'
+import GenomeBrowser from './GenomeBrowser.vue'
 
 // Get reference to store detailsSv
 const svFilterStore = useSvFilterStore()
@@ -27,11 +28,34 @@ commentsStore.initialize(
   svFilterStore.caseUuid
 )
 
+// Safely return case release.
+const genomeRelease = computed(() => {
+  const release = detailsStore.caseObj?.release ?? 'GRCh37'
+  return release === 'GRCh37' ? 'hg19' : 'b38'
+})
+
+// Safely return case UUD
+const caseUuid = computed(() => detailsStore.caseObj?.sodar_uuid)
+
 // Pretty display of coordinates.
-const svCoordinates = (record) => {
+const svLocus = (record) => {
   if (!record) {
-    return 'NO SV'
+    return null
   }
+
+  const genome = record.release === 'GRCh37' ? 'hg19' : 'b38'
+  let locus
+  if (record.sv_type === 'BND' || record.sv_type === 'INS') {
+    locus = `${record.chromosome}:${record.start - 1000}-${record.start + 1000}`
+  } else {
+    locus = `${record.chromosome}:${record.start - 1000}-${record.end + 1000}`
+  }
+  if (!locus.startsWith('chr') && record.release === 'GRCh38') {
+    locus = `chr${locus}`
+  } else if (locus.startsWith('chr') && record.release === 'GRCh37') {
+    locus = locus.substring(3)
+  }
+
   const chromosome = record.chromosome.startsWith('chr')
     ? record.chromosome
     : `chr${record.chromosome}`
@@ -45,6 +69,7 @@ const Screen = Object.freeze({
   info: 'info',
   commentsFlags: 'commentsFlags',
   flags: 'flags',
+  genomeBrowser: 'genomeBrowser',
 })
 
 // The currently active details screen.
@@ -74,13 +99,23 @@ const activeScreen = ref('info')
           Comments &amp; Flags
         </a>
       </li>
+      <li class="nav-item" role="presentation">
+        <a
+          class="nav-link"
+          type="button"
+          @click="activeScreen = Screen.genomeBrowser"
+          :class="{ active: activeScreen === Screen.genomeBrowser }"
+        >
+          Browser
+        </a>
+      </li>
     </ul>
 
     <div v-if="activeScreen === 'info'">
       <div class="card">
         <div class="card-body pb-2 pt-2">
           Precise coordinates:
-          <code> {{ svCoordinates(detailsStore.currentSvRecord) }} </code>
+          <code> {{ svLocus(detailsStore.currentSvRecord) }} </code>
         </div>
       </div>
 
@@ -108,6 +143,13 @@ const activeScreen = ref('info')
         :details-store="detailsStore"
         :comments-store="commentsStore"
         :variant="detailsStore.currentSvRecord"
+      />
+    </div>
+    <div v-else-if="activeScreen === Screen.genomeBrowser">
+      <GenomeBrowser
+        :case-uuid="caseUuid"
+        :genome="genomeRelease"
+        :locus="svLocus(detailsStore.currentSvRecord)"
       />
     </div>
   </div>

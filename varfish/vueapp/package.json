@@ -22,6 +22,7 @@
     "camelcase": "^7.0.1",
     "core-js": "^3.25.2",
     "html2canvas": "^1.4.1",
+    "igv": "^2.13.11",
     "javascript-time-ago": "^2.5.7",
     "jspdf": "^2.5.1",
     "lodash.debounce": "^4.0.8",

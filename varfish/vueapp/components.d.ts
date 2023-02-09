@@ -99,6 +99,7 @@ declare module '@vue/runtime-core' {
     IMdiPlusCircle: typeof import('~icons/mdi/plus-circle')['default']
     IMdiPodium: typeof import('~icons/mdi/podium')['default']
     IMdiRefresh: typeof import('~icons/mdi/refresh')['default']
+    IMdiSafetyGoggles: typeof import('~icons/mdi/safety-goggles')['default']
     IMdiSquareEditOutline: typeof import('~icons/mdi/square-edit-outline')['default']
     IMdiTableColumnWidth: typeof import('~icons/mdi/table-column-width')['default']
     IMdiTableMergeCells: typeof import('~icons/mdi/table-merge-cells')['default']

@@ -482,6 +482,9 @@ WORKER_DB_PATH = env.str("VARFISH_WORKER_DB_PATH", "")
 # Path to executable for worker.
 WORKER_EXE_PATH = env.str("VARFISH_WORKER_EXE_PATH", "varfish-server-worker")
 
+# URL prefix to look at for worker.
+WORKER_REST_BASE_URL = env.str("VARFISH_WORKER_REST_BASE_URL", "http://127.0.0.1:8081")
+
 # Varfish: Exomiser
 # ------------------------------------------------------------------------------
 
