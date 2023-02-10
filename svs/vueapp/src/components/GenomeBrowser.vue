@@ -2,7 +2,6 @@
 import { ref, onMounted, watch } from 'vue'
 import igv from 'igv'
 
-import { useSvDetailsStore } from '@svs/stores/detailsSv.js'
 import { useCaseDetailsStore } from '@cases/stores/case-details'
 
 import { genCaseTrack, publicTracks } from './GenomeBrowser.tracks.js'

@@ -35,6 +35,7 @@ const curatedMmsTrack = {
   format: 'annotation',
   color: 'red',
 }
+
 const clinvarTrack = {
   name: 'ClinVar SVs',
   sourceType: 'custom',
@@ -61,6 +62,27 @@ const clinvarTrack = {
     benign: 'light gray',
   },
 }
+
+const duplicationTrack = {
+  name: 'UCSC Segmental Duplications',
+  sourceType: 'annotation',
+  format: 'bed',
+  visibilityWindow,
+  url: '/svs/tracks/grch37/ucsc_genomicSuperDups.bed.gz',
+  indexURL: '/svs/tracks/grch37/ucsc_genomicSuperDups.bed.gz.tbi',
+  color: 'black',
+}
+
+const repeatsTrack = {
+  name: 'UCSC Repeat Masker',
+  sourceType: 'annotation',
+  format: 'bed',
+  visibilityWindow,
+  url: '/svs/tracks/grch37/ucsc_rmsk.bed.gz',
+  indexURL: '/svs/tracks/grch37/ucsc_rmsk.bed.gz.tbi',
+  color: 'black',
+}
+
 const bgDbTracks = [
   {
     title: 'In-House SVs',
@@ -103,6 +125,8 @@ const bgDbTracks = [
   }
 })
 export const publicTracks = [
+  duplicationTrack,
+  repeatsTrack,
   hescTadTrack,
   curatedMmsTrack,
   clinvarTrack,
