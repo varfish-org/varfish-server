@@ -109,6 +109,12 @@ onMounted(() => initSelectedCriteriaDef())
   </div>
   <div class="row pb-2">
     <div class="col pl-2">
+      max_brk_seqdup {{ selectedCriteriaDef.max_brk_seqdup ?? '-' }}
+      <br />
+      max_brk_repeat {{ selectedCriteriaDef.max_brk_repeat ?? '-' }}
+      <br />
+      max_brk_seqduprepeat {{ selectedCriteriaDef.max_brk_seqduprepeat ?? '-' }}
+      <br />
       gt_one_of {{ selectedCriteriaDef.gt_one_of ?? '-' }}
       <br />
       min_gq {{ selectedCriteriaDef.min_gq ?? '-' }}
