@@ -83,6 +83,26 @@ const repeatsTrack = {
   color: 'black',
 }
 
+const altTrack = {
+  name: 'UCSC Alt Loci Track',
+  sourceType: 'annotation',
+  format: 'bed',
+  visibilityWindow,
+  url: '/svs/tracks/grch37/ucsc_altSeqLiftOverPsl.bed.gz',
+  indexURL: '/svs/tracks/grch37/ucsc_altSeqLiftOverPsl.bed.gz.tbi',
+  color: 'black',
+}
+
+const fixTrack = {
+  name: 'UCSC Fix Track',
+  sourceType: 'annotation',
+  format: 'bed',
+  visibilityWindow,
+  url: '/svs/tracks/grch37/ucsc_fixSeqLiftOverPsl.bed.gz',
+  indexURL: '/svs/tracks/grch37/ucsc_fixSeqLiftOverPsl.bed.gz.tbi',
+  color: 'black',
+}
+
 const bgDbTracks = [
   {
     title: 'In-House SVs',
@@ -127,6 +147,8 @@ const bgDbTracks = [
 export const publicTracks = [
   duplicationTrack,
   repeatsTrack,
+  altTrack,
+  fixTrack,
   hescTadTrack,
   curatedMmsTrack,
   clinvarTrack,
