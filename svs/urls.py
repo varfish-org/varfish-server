@@ -112,6 +112,13 @@ urlpatterns_ajax = [
             ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
         ),
     ),
+    url(
+        r"^tracks/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url=f"{settings.WORKER_REST_BASE_URL}/public/tracks/",
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
 ]
 
 urlpatterns_api = []

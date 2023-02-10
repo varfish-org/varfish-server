@@ -45,7 +45,6 @@ const svLocus = (record) => {
     return null
   }
 
-  const genome = record.release === 'GRCh37' ? 'hg19' : 'b38'
   let locus
   if (record.sv_type === 'BND' || record.sv_type === 'INS') {
     locus = `${record.chromosome}:${record.start - 1000}-${record.start + 1000}`
@@ -57,13 +56,7 @@ const svLocus = (record) => {
   } else if (locus.startsWith('chr') && record.release === 'GRCh37') {
     locus = locus.substring(3)
   }
-
-  const chromosome = record.chromosome.startsWith('chr')
-    ? record.chromosome
-    : `chr${record.chromosome}`
-  const start = formatLargeInt(record.start)
-  const end = formatLargeInt(record.end)
-  return `${chromosome}:${start}:${end}`
+  return locus
 }
 
 // Enumeration for the screens.
