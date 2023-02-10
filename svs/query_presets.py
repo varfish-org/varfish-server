@@ -22,6 +22,12 @@ Sex = _Sex
 #: All SVs
 SVTYPES_ALL = [e.value for e in SvType]
 
+#: Almost all SV types (no BND, no INS)
+SVTYPES_ALMOST_ALL = [SvType.DEL.value, SvType.DUP.value, SvType.CNV.value, SvType.INV.value]
+
+#: CNVs
+SVTYPES_CNV = [SvType.DEL.value, SvType.DUP.value, SvType.CNV.value]
+
 #: SV sub types for deletions.
 SVSUBTYPES_DEL = [
     SvSubType.DEL.value,
@@ -47,6 +53,9 @@ SVSUBTYPES_NEUTRAL = [
     SvSubType.INS_ME_ALU.value,
     SvSubType.BND.value,
 ]
+
+#: "Almost all" SV sub types"
+SVSUBTYPES_ALMOST_ALL = SVSUBTYPES_CNV + [SvSubType.INV.value]
 
 #: All SV sub types.
 SVSUBTYPES_ALL = SVSUBTYPES_CNV + SVSUBTYPES_NEUTRAL
@@ -183,15 +192,15 @@ class _ImpactPresets:
     almost_all: typing.Dict[str, typing.Any] = {
         "sv_size_min": None,
         "sv_size_max": None,
-        "sv_types": SVTYPES_ALL,
-        "sv_sub_types": SVSUBTYPES_ALL,
+        "sv_types": SVTYPES_ALMOST_ALL,
+        "sv_sub_types": SVSUBTYPES_ALMOST_ALL,
     }
     #: Presets for "only CNVs" impact.
     cnv_only: typing.Dict[str, typing.Any] = {
         "sv_size_min": None,
         "sv_size_max": None,
-        "sv_types": SVTYPES_ALL,
-        "sv_sub_types": SVSUBTYPES_ALL,
+        "sv_types": SVTYPES_CNV,
+        "sv_sub_types": SVSUBTYPES_CNV,
     }
 
 

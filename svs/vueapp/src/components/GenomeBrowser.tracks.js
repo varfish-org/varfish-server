@@ -40,7 +40,7 @@ const clinvarTrack = {
   name: 'ClinVar SVs',
   sourceType: 'custom',
   visibilityWindow,
-  height: 300,
+  height: 100,
   displayMode: 'SQUISHED',
   source: {
     url: `/svs/worker/clinvar/grch37/?min_pathogenicity=likely-pathogenic&chromosome=$CHR&begin=$START&end=$END`,
@@ -156,6 +156,7 @@ export const publicTracks = [
 
 export const genCaseTrack = (caseUuid) => ({
   order: -1,
+  height: '200',
   name: 'Case SVs',
   sourceType: 'custom',
   visibilityWindow,

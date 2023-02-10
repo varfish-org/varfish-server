@@ -6,7 +6,7 @@ import { integer, minValue } from '@vuelidate/validators'
 import {
   svSubTypeGroups,
   svTypeGroups,
-  svSubTypeFields,
+  svTypeFields,
 } from './SvFilterFormImpactPane.fields.js'
 
 // Define the component's props.
@@ -73,7 +73,7 @@ const buildSvSubTypeWrapper = (key) => {
       }
     },
     set(newValue) {
-      if (props.querySettings.effects) {
+      if (props.querySettings.sv_sub_types) {
         const isSet = props.querySettings.sv_sub_types.includes(key)
         if (newValue && !isSet) {
           props.querySettings.sv_sub_types.push(key)
@@ -82,6 +82,7 @@ const buildSvSubTypeWrapper = (key) => {
             props.querySettings.sv_sub_types.filter((val) => val !== key)
         }
       }
+      refreshSvTypeArr()
     },
   })
 }
@@ -113,6 +114,7 @@ const buildSvTypeGroupWrapper = (key) => {
         }
       }
       props.querySettings.sv_sub_types = Array.from(newSvSubTypes).sort()
+      refreshSvTypeArr()
     },
   })
 }
@@ -121,16 +123,26 @@ for (const name of Object.keys(svTypeGroups)) {
   svTypeGroupWrappers[name] = buildSvTypeGroupWrapper(name)
 }
 
+const refreshSvTypeArr = () => {
+  props.querySettings.sv_types = Object.keys(svTypeGroups)
+    .filter((key) => !key.startsWith('_'))
+    .filter((key) => isSvTypeSet(key))
+    .sort()
+}
+
+const isSvTypeSet = (key) => {
+  const currentSvSubTypes = new Set(props.querySettings.sv_sub_types)
+  return svTypeGroups[key].every((value) => currentSvSubTypes.has(value))
+}
+
+const isSvTypeUnset = (key) => {
+  const currentSvSubTypes = new Set(props.querySettings.sv_sub_types)
+  return svTypeGroups[key].every((value) => !currentSvSubTypes.has(value))
+}
+
 const buildSvTypeGroupIndeterminate = (key) => {
   return computed(() => {
-    const currentSvSubTypes = new Set(props.querySettings.sv_sub_types)
-    const allSet = svTypeGroups[key].every((value) =>
-      currentSvSubTypes.has(value)
-    )
-    const noneSet = svTypeGroups[key].every(
-      (value) => !currentSvSubTypes.has(value)
-    )
-    return !allSet && !noneSet
+    return !isSvTypeSet(key) && !isSvTypeUnset(key)
   })
 }
 
@@ -250,7 +262,7 @@ defineExpose({
           Limit the resulting SVs to certain types.
         </div>
         <div
-          v-for="field in svSubTypeFields"
+          v-for="field in svTypeFields"
           class="custom-control custom-checkbox custom-control-inline"
         >
           <input
