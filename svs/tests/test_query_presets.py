@@ -166,14 +166,8 @@ class TestEnumImpact(TestCase):
                     "DUP:TANDEM",
                     "CNV",
                     "INV",
-                    "INS",
-                    "INS:ME",
-                    "INS:ME:SVA",
-                    "INS:ME:L1",
-                    "INS:ME:ALU",
-                    "BND",
                 ],
-                "sv_types": ["DEL", "DUP", "INV", "INS", "BND", "CNV"],
+                "sv_types": ["DEL", "DUP", "CNV", "INV"],
             },
         )
 
@@ -192,15 +186,8 @@ class TestEnumImpact(TestCase):
                     "DUP",
                     "DUP:TANDEM",
                     "CNV",
-                    "INV",
-                    "INS",
-                    "INS:ME",
-                    "INS:ME:SVA",
-                    "INS:ME:L1",
-                    "INS:ME:ALU",
-                    "BND",
                 ],
-                "sv_types": ["DEL", "DUP", "INV", "INS", "BND", "CNV"],
+                "sv_types": ["DEL", "DUP", "CNV"],
             },
         )
 
