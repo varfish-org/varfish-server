@@ -119,28 +119,27 @@ export const svSubTypeGroups = Object.freeze([
 ])
 
 const _svTypeGroups = {
-  all: [],
-  deletions: ['DEL', 'DEL:ME', 'DEL:ME:SVA', 'DEL:ME:L1', 'DEL:ME:ALU'],
-  duplications: ['DUP', 'DUP:TANDEM'],
-  inversions: ['INV'],
-  insertions: ['INS', 'INS:ME', 'INS:ME:SVA', 'INS:ME:L1', 'INS:ME:ALU'],
-  breakends: ['BND'],
-  cnvs: ['CNV'],
+  _all: [],
+  DEL: ['DEL', 'DEL:ME', 'DEL:ME:SVA', 'DEL:ME:L1', 'DEL:ME:ALU'],
+  DUP: ['DUP', 'DUP:TANDEM'],
+  INV: ['INV'],
+  INS: ['INS', 'INS:ME', 'INS:ME:SVA', 'INS:ME:L1', 'INS:ME:ALU'],
+  BND: ['BND'],
+  CNV: ['CNV'],
 }
-_svTypeGroups.all = _svTypeGroups.deletions
-  .concat(_svTypeGroups.duplications)
-  .concat(_svTypeGroups.inversions)
-  .concat(_svTypeGroups.insertions)
-  .concat(_svTypeGroups.breakends)
-  .concat(_svTypeGroups.cnvs)
+_svTypeGroups._all = _svTypeGroups.DEL.concat(_svTypeGroups.DUP)
+  .concat(_svTypeGroups.INV)
+  .concat(_svTypeGroups.INS)
+  .concat(_svTypeGroups.BND)
+  .concat(_svTypeGroups.CNV)
 export const svTypeGroups = Object.freeze(_svTypeGroups)
 
-export const svSubTypeFields = Object.freeze([
-  { id: 'all', label: 'all' },
-  { id: 'deletions', label: 'Deletions' },
-  { id: 'duplications', label: 'Duplications' },
-  { id: 'inversions', label: 'Inversions' },
-  { id: 'insertions', label: 'Insertions' },
-  { id: 'breakends', label: 'Break-Ends' },
-  { id: 'cnvs', label: 'CNVs' },
+export const svTypeFields = Object.freeze([
+  { id: '_all', label: '_all' },
+  { id: 'DEL', label: 'Deletions' },
+  { id: 'DUP', label: 'Duplications' },
+  { id: 'INV', label: 'Inversions' },
+  { id: 'INS', label: 'Insertions' },
+  { id: 'BND', label: 'Break-Ends' },
+  { id: 'CNV', label: 'CNVs' },
 ])

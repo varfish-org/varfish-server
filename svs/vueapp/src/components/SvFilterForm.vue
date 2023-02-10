@@ -43,16 +43,13 @@ const geneHasError = computed(() => {
 })
 
 const moreHasError = computed(() => {
-  return (
-    effectHasError.value ||
-    regulatoryHasError.value ||
-    geneHasError.value ||
-    tadsHasError.value
-  )
+  return regulatoryHasError.value || tadsHasError.value
 })
 
 const anyHasError = computed(() => {
   return (
+    effectHasError.value ||
+    geneHasError.value ||
     criteriaDefsHasError.value ||
     frequencyHasError.value ||
     tadsHasError.value ||
@@ -126,14 +123,14 @@ const onSubmitCancelButtonClicked = () => {
               role="tab"
               title="Filter criteria definitions"
             >
-              Criterias
+              Genotype Criterias
               <i-mdi-alert-circle-outline v-if="criteriaDefsHasError" />
             </a>
           </li>
           <li class="nav-item">
             <a
               class="nav-link"
-              :class="{ 'texborder-danger -danger': frequencyHasError }"
+              :class="{ 'border-danger text-danger': frequencyHasError }"
               id="frequency-tab"
               data-toggle="tab"
               href="#panel-frequency"
@@ -142,6 +139,34 @@ const onSubmitCancelButtonClicked = () => {
             >
               Frequency
               <i-mdi-alert-circle-outline v-if="frequencyHasError" />
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="{ 'border-danger text-danger': geneHasError }"
+              id="blocklist-tab"
+              data-toggle="tab"
+              href="#panel-blocklist"
+              role="tab"
+              title="Allow-list and block-list genes and genomic regions"
+            >
+              Gene Lists &amp; Regions
+              <i-mdi-alert-circle-outline v-if="geneHasError" />
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="{ 'text-danger': effectHasError }"
+              id="effect-tab"
+              data-toggle="tab"
+              href="#panel-effect"
+              role="tab"
+              title="Variant types/effects, coding/non-coding transcripts"
+            >
+              Variants &amp; Effects
+              <i-mdi-alert-circle-outline v-if="effectHasError" />
             </a>
           </li>
           <li class="nav-item dropdown">
@@ -159,30 +184,6 @@ const onSubmitCancelButtonClicked = () => {
               <i-mdi-alert-circle-outline v-if="moreHasError" />
             </a>
             <div class="dropdown-menu" style="z-index: 1030">
-              <a
-                class="dropdown-item"
-                :class="{ 'text-danger': effectHasError }"
-                id="effect-tab"
-                data-toggle="tab"
-                href="#panel-effect"
-                role="tab"
-                title="Variant types/effects, coding/non-coding transcripts"
-              >
-                Variants &amp; Effects
-                <i-mdi-alert-circle-outline v-if="effectHasError" />
-              </a>
-              <a
-                class="dropdown-item"
-                :class="{ 'text-danger': geneHasError }"
-                id="blocklist-tab"
-                data-toggle="tab"
-                href="#panel-blocklist"
-                role="tab"
-                title="Allow-list and block-list genes and genomic regions"
-              >
-                Gene Lists &amp; Regions
-                <i-mdi-alert-circle-outline v-if="geneHasError" />
-              </a>
               <a
                 class="dropdown-item"
                 id="regulatory-tab"

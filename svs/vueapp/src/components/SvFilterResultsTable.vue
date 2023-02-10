@@ -114,7 +114,7 @@ const callInfosSlots = computed(() => {
 })
 
 /** Whether to display TAD genes. */
-const showTadGenesEnabled = ref(true)
+const showTadGenesEnabled = ref(false)
 /** Rows to display in the table. */
 const tableRows = ref([])
 /** Selected table rows. */

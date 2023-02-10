@@ -1,6 +1,6 @@
 <script setup>
 import isEqual from 'lodash.isequal'
-import { onMounted, watch, computed, reactive, ref } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { copy } from '@varfish/helpers.js'
 import { useSvFilterStore } from '@svs/stores/filterSvs.js'
 import { randomString } from '@varfish/common.js'
@@ -129,6 +129,14 @@ const valueRefs = {
   genotypeCriteria: ref(null),
 }
 
+const helperIsEqual = (lhs, rhs) => {
+  if (Array.isArray(lhs) && Array.isArray(rhs)) {
+    return isEqual(lhs.sort(), rhs.sort())
+  } else {
+    return isEqual(lhs, rhs)
+  }
+}
+
 /** Refresh valueRefs from actual form values.  Check each for compatibility and pick first matching. */
 const refreshValueRefs = () => {
   for (const category of Object.keys(valueRefs)) {
@@ -139,13 +147,20 @@ const refreshValueRefs = () => {
     for (const [presetName, presetValues] of Object.entries(
       props.categoryPresets[category]
     )) {
-      isCompatible = true
-      for (const [key, value] of Object.entries(presetValues)) {
-        if (
-          !_keysToStrip.includes(key) &&
-          !isEqual(svFilterStore.querySettings[key], value)
-        ) {
-          isCompatible = false
+      if (category === 'genotypeCriteria') {
+        isCompatible = isEqual(
+          svFilterStore.querySettings.genotype_criteria,
+          presetValues
+        )
+      } else {
+        isCompatible = true
+        for (const [key, value] of Object.entries(presetValues)) {
+          if (
+            !_keysToStrip.includes(key) &&
+            !helperIsEqual(svFilterStore.querySettings[key], value)
+          ) {
+            isCompatible = false
+          }
         }
       }
       if (isCompatible) {
@@ -184,12 +199,14 @@ const makeWrapper = (name) =>
             props.categoryPresets[name][newValue]
           )) {
             if (!_keysToStrip.includes(key)) {
-              console.log(`.. key=${key}; value=${value}`)
               props.querySettings[key] = value
             }
           }
         }
         blockRefresh.value = oldBlockRefresh
+        if (!oldBlockRefresh) {
+          refreshAllRefs()
+        }
       }
     },
   })
@@ -216,14 +233,17 @@ const quickPresetRef = ref(null)
 const refreshQuickPreset = () => {
   for (const [name, theQuickPresets] of Object.entries(props.quickPresets)) {
     if (
-      inheritanceWrapper.value === theQuickPresets.inheritance &&
-      frequencyWrapper.value === theQuickPresets.frequency &&
-      impactWrapper.value === theQuickPresets.impact &&
-      chromosomesWrapper.value === theQuickPresets.chromosomes &&
-      regulatoryWrapper.value === theQuickPresets.regulatory &&
-      genotypeCriteriaWrapper.value === theQuickPresets.genotype_criteria &&
-      tadWrapper.value === theQuickPresets.tad &&
-      knownPathoWrapper.value === theQuickPresets.known_patho
+      isEqual(inheritanceWrapper.value, theQuickPresets.inheritance) &&
+      isEqual(frequencyWrapper.value, theQuickPresets.frequency) &&
+      isEqual(impactWrapper.value, theQuickPresets.impact) &&
+      isEqual(chromosomesWrapper.value, theQuickPresets.chromosomes) &&
+      isEqual(regulatoryWrapper.value, theQuickPresets.regulatory) &&
+      isEqual(
+        genotypeCriteriaWrapper.value,
+        theQuickPresets.genotype_criteria
+      ) &&
+      isEqual(tadWrapper.value, theQuickPresets.tad) &&
+      isEqual(knownPathoWrapper.value, theQuickPresets.known_patho)
     ) {
       quickPresetRef.value = name
       return
@@ -249,7 +269,7 @@ const quickPresetWrapper = computed({
       impactWrapper.value = newQuickPresets.impact
       chromosomesWrapper.value = newQuickPresets.chromosomes
       regulatoryWrapper.value = newQuickPresets.regulatory
-      genotypeCriteriaWrapper.value = newQuickPresets.genotypeCriteria
+      genotypeCriteriaWrapper.value = newQuickPresets.genotype_criteria
       tadWrapper.value = newQuickPresets.tad
       knownPathoWrapper.value = newQuickPresets.knownPatho
     }
@@ -295,6 +315,7 @@ onMounted(() => {
         <option v-for="(value, name) in quickPresets" :value="name">
           {{ value.label ?? name }}
         </option>
+        <option value="custom">custom</option>
       </select>
     </div>
 
@@ -317,6 +338,7 @@ onMounted(() => {
         >
           {{ value.label ?? name }}
         </option>
+        <option value="custom">custom</option>
       </select>
     </div>
 
@@ -339,6 +361,7 @@ onMounted(() => {
         >
           {{ value.label ?? name }}
         </option>
+        <option value="custom">custom</option>
       </select>
     </div>
 
@@ -361,6 +384,7 @@ onMounted(() => {
         >
           {{ value.label ?? name }}
         </option>
+        <option value="custom">custom</option>
       </select>
     </div>
 
@@ -380,6 +404,7 @@ onMounted(() => {
         <option v-for="(value, name) in categoryPresets.impact" :value="name">
           {{ value.label ?? name }}
         </option>
+        <option value="custom">custom</option>
       </select>
     </div>
 
@@ -402,6 +427,7 @@ onMounted(() => {
         >
           {{ value.label ?? name }}
         </option>
+        <option value="custom">custom</option>
       </select>
     </div>
 
@@ -424,6 +450,7 @@ onMounted(() => {
         >
           {{ value.label ?? name }}
         </option>
+        <option value="custom">custom</option>
       </select>
     </div>
 
@@ -443,6 +470,7 @@ onMounted(() => {
         <option v-for="(value, name) in categoryPresets.tad" :value="name">
           {{ value.label ?? name }}
         </option>
+        <option value="custom">custom</option>
       </select>
     </div>
 
@@ -465,6 +493,7 @@ onMounted(() => {
         >
           {{ value.label ?? name }}
         </option>
+        <option value="custom">custom</option>
       </select>
     </div>
   </div>
