@@ -8,16 +8,23 @@ const props = defineProps({
 })
 
 const GT_FIELDS = Object.freeze({
-  quality: 'genotype quality',
-  genotype: 'genotype call',
-  paired_end_cov: 'total read pairs',
-  paired_end_var: 'variant read pairs',
-  split_read_cov: 'total split-reads',
-  split_read_var: 'variant split reads',
-  point_count: 'number of bins/targets',
-  average_normalized_cov: 'average normalized coverage',
-  average_mapping_quality: 'average mapping quality',
+  quality: { label: 'genotype quality' },
+  genotype: { label: 'genotype call' },
+  paired_end_cov: { label: 'total read pairs' },
+  paired_end_var: { label: 'variant read pairs' },
+  split_read_cov: { label: 'total split-reads' },
+  split_read_var: { label: 'variant split reads' },
+  point_count: { label: 'number of bins/targets' },
+  average_normalized_cov: { label: 'average normalized coverage' },
+  average_mapping_quality: { label: 'average mapping quality' },
+  matched_gt_criteria: {
+    label: 'matched genotype criteria',
+    fmt: (arr) => arr.join(', '),
+  },
+  effective_genotype: { label: 'effective genotype' },
 })
+
+const identity = (x) => x
 
 const allKeys = computed(() => {
   if (!props.currentSvRecord?.payload?.call_info) {
@@ -59,9 +66,9 @@ const allKeys = computed(() => {
       </thead>
       <tbody>
         <tr v-for="key in allKeys">
-          <th>{{ GT_FIELDS[key] ?? key }}</th>
+          <th>{{ GT_FIELDS[key]?.label ?? key }}</th>
           <td v-for="genotype in currentSvRecord.payload.call_info">
-            {{ genotype[key] }}
+            {{ (GT_FIELDS[key]?.fmt ?? identity)(genotype[key]) }}
           </td>
         </tr>
       </tbody>

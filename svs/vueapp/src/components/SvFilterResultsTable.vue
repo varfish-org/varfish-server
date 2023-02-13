@@ -94,7 +94,7 @@ const tableHeaders = computed(() => {
   for (const [index, row] of (props.caseObj?.pedigree || []).entries()) {
     result.push({
       text: displayName(row.name),
-      value: `callInfos.${index}`,
+      value: `callInfo.${index}`,
     })
   }
   result.push({
@@ -108,7 +108,7 @@ const tableHeaders = computed(() => {
 const callInfosSlots = computed(() => {
   const result = {}
   for (let i = 0; i < (props.caseObj?.pedigree?.length ?? 0); i++) {
-    result[`item-call-info.${i}`] = props.caseObj.pedigree[i].name
+    result[`item-callInfo.${i}`] = props.caseObj.pedigree[i].name
   }
   return result
 })
@@ -216,12 +216,29 @@ const gnomadUrl = (release, chromosome, start, end) => {
 
 const alertOnRefGt = (callInfo) => {
   if (
-    (callInfo.gt == '0/0' || callInfo.gt == '0|0' || callInfo.gt == '0') &&
+    (callInfo.effective_genotype === 'ref' ||
+      callInfo.effective_genotype === 'non-variant') &&
     (!!callInfo.paired_end_var || !!callInfo.split_read_var)
   ) {
     return true
   } else {
     return false
+  }
+}
+
+// Return label for effective genotype.
+const effectiveGenotype = (callInfo) => {
+  switch (callInfo.effective_genotype) {
+    case 'hom':
+      return 'hom.'
+    case 'het':
+      return 'het.'
+    case 'variant':
+      return 'var.'
+    case 'ref':
+      return 'ref.'
+    case 'non-variant':
+      return 'non-var.'
   }
 }
 
@@ -590,17 +607,14 @@ watch(
       </template>
 
       <template
+        v-for="(name, callInfoSlot) in callInfosSlots"
         #[callInfoSlot]="{ payload: { call_info } }"
-        v-for="(name, callInfoSlot) of callInfosSlots"
       >
         <div
           class="text-center text-nowrap"
           :class="{ 'text-danger': alertOnRefGt(call_info[name]) }"
         >
-          <span :title="JSON.stringify(call_info[name])">
-            {{ call_info[name].genotype }}
-          </span>
-
+          {{ effectiveGenotype(call_info[name]) }}
           <span
             v-if="alertOnRefGt(call_info[name])"
             title="REF genotype but variant evidence!"
