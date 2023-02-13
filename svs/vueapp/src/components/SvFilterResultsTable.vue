@@ -329,12 +329,29 @@ watch(
           />
           <i-fa-regular-comment v-else class="text-muted icon-inactive ml-1" />
           <!-- tool -->
-          <i-fa-solid-car :title="payload.caller" class="text-muted ml-1" />
+          <span :title="payload.caller">
+            <i-fa-solid-car class="text-muted ml-1" />
+          </span>
         </div>
       </template>
 
-      <template #item-chrom-pos="{ chromosome, start }">
+      <template
+        #item-chrom-pos="{
+          chromosome,
+          start,
+          payload: {
+            masked_breakpoints: { repeat, segdup },
+          },
+        }"
+      >
         {{ chromosome }}:{{ formatLargeInt(start) }}
+        <span
+          v-if="repeat > 0 || segdup > 0"
+          class="text-danger"
+          :title="`Breakpoints overlap with repetitive sequence (repeats: ${repeat}, segmental duplications: ${segdup}). Such calls are not reliable for short-read data.`"
+        >
+          <i-mdi-alert-box />
+        </span>
       </template>
 
       <template
