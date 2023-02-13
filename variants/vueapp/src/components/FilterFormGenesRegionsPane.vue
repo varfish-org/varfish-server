@@ -55,9 +55,7 @@ const regexRegion = new RegExp(
 const loadPanelPage = async (page) => {
   await fetch('/proxy/panelapp/v1/panels/?page=' + page).then(
     async (response) => {
-      console.log('in loadPanelPage response')
       const responseJson = await response.json()
-      console.log(responseJson)
       genomicsEnglandPanels.value = genomicsEnglandPanels.value.concat(
         responseJson.results.map((panel) => {
           return {
@@ -195,14 +193,9 @@ const isValidating = () => {
 }
 
 const loadGenePanelCategories = async () => {
-  console.log('call')
   await fetch('/geneinfo/api/genepanel-category/list/').then(
     async (response) => {
-      console.log('in async')
-      const responseJson = await response.json()
-      console.log('xxx')
-      console.log(responseJson)
-      genePanelCategories.value = responseJson
+      genePanelCategories.value = await response.json()
     }
   )
 }
@@ -253,17 +246,20 @@ defineExpose({
           There is a problem with: {{ invalidTextareas().join(', ') }}.
         </div>
 
-        <div v-if="listType === 'gene_allowlist'" class="form-inline">
-          &mdash;
-
-          <Multiselect
-            :options="genomicsEnglandPanels"
-            placeholder="Add from GE PanelApp"
-            :searchable="true"
-            @select="insertGenomicsEnglandPanel"
-          />
-
-          <div class="px-2">
+        <div
+          v-if="listType === 'gene_allowlist'"
+          class="row form-inline"
+          style="width: 80%"
+        >
+          <div class="col-5">
+            <Multiselect
+              :options="genomicsEnglandPanels"
+              placeholder="Add from GE PanelApp"
+              :searchable="true"
+              @select="insertGenomicsEnglandPanel"
+            />
+          </div>
+          <div class="col-4">
             Confidence
             <select class="form-control" v-model="genomicsEnglandConfidence">
               <option value="3">green</option>
@@ -272,9 +268,7 @@ defineExpose({
             </select>
             and above
           </div>
-
-          <div class="px-2">
-            &mdash;
+          <div class="col-3">
             <button
               class="btn btn-sm btn-outline-secondary dropdown-toggle"
               type="button"

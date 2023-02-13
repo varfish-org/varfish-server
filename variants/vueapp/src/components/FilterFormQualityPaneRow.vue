@@ -43,10 +43,7 @@ const mappers = {
 }
 
 const formModel = Object.fromEntries(
-  allKeys.map((key) => [
-    key,
-    declareWrapper(props, key, emit, mappers[key], key !== 'qualFail'),
-  ])
+  allKeys.map((key) => [key, declareWrapper(props, key, emit)])
 )
 
 const v$ = useVuelidate(rules, formModel)
@@ -74,7 +71,7 @@ defineExpose({ isValid })
     <td>{{ displayName(member.mother) }}</td>
     <td v-for="key in numericKeys">
       <input
-        type="text"
+        type="number"
         v-model="v$[key].$model"
         class="form-control form-control-sm"
         :class="{
@@ -94,7 +91,6 @@ defineExpose({ isValid })
       <select
         v-model="v$.qualFail.$model"
         :class="{
-          // 'is-valid': !v$.qualFail.$error,
           'is-invalid': v$.qualFail.$error,
         }"
         class="custom-select custom-select-sm"

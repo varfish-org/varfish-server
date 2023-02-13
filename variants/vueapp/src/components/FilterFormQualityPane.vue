@@ -12,12 +12,12 @@ const props = defineProps({
 })
 
 const tplValues = reactive({
-  qualMinDpHet: '10',
-  qualMinDpHom: '5',
-  qualMinAb: '0.2',
-  qualMinGq: '10',
-  qualMinAd: '3',
-  qualMaxAd: '',
+  qualMinDpHet: 10,
+  qualMinDpHom: 5,
+  qualMinAb: 0.2,
+  qualMinGq: 10,
+  qualMinAd: 3,
+  qualMaxAd: null,
   qualFail: 'drop-variant',
 })
 const keyMap = {
