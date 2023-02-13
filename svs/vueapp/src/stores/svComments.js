@@ -40,6 +40,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
    */
   const retrieveComments = async (sv$) => {
     sv.value = null
+    comments.value = null
     serverInteractions.value += 1
 
     try {
@@ -52,7 +53,7 @@ export const useSvCommentsStore = defineStore('svComments', () => {
       storeState.value = StoreState.error
       throw err // re-throw
     } finally {
-      serverInteractions.value += 1
+      serverInteractions.value -= 1
     }
 
     sv.value = sv$

@@ -60,6 +60,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
    */
   const retrieveFlags = async (sv$) => {
     sv.value = null
+    flags.value = null
     serverInteractions.value += 1
 
     try {

@@ -72,6 +72,17 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
                 result[key] = self.request.query_params[key]
         return result
 
+    def get_queryset(self):
+        serializer_context = self.get_serializer_context()
+        qs = super().get_queryset()
+        keys = ("release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
+        for key in keys:
+            query_args = {}
+            if key in serializer_context:
+                query_args[key] = serializer_context[key]
+            qs = qs.filter(**query_args)
+        return qs
+
 
 class StructuralVariantFlagsRetrieveUpdateDestroyAjaxView(
     StructuralVariantFlagsAjaxMixin, RetrieveUpdateDestroyAPIView
@@ -106,6 +117,17 @@ class StructuralVariantCommentListCreateAjaxView(
         for key in keys:
             result[key] = self.request.query_params[key]
         return result
+
+    def get_queryset(self):
+        serializer_context = self.get_serializer_context()
+        qs = super().get_queryset()
+        keys = ("release", "chromosome", "start", "end", "sv_type", "sv_sub_type")
+        for key in keys:
+            query_args = {}
+            if key in serializer_context:
+                query_args[key] = serializer_context[key]
+            qs = qs.filter(**query_args)
+        return qs
 
 
 class StructuralVariantCommentRetrieveUpdateDestroyAjaxView(
