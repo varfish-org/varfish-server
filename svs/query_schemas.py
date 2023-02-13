@@ -189,6 +189,13 @@ class GenotypeCriteria:
     #: The FORMAT/GT field should be one of, unless ``None``.
     gt_one_of: typing.Optional[typing.List[str]] = None
 
+    #: Maximal number of ends/breakpoints within segmental duplications.
+    max_brk_segdup: typing.Optional[int] = None
+    #: Maximal number of ends/breakpoints within repeat-masked sequence.
+    max_brk_repeat: typing.Optional[int] = None
+    #: Maximal number of ends/breakpoints within segmental duplications or repeat-masked sequence.
+    max_brk_segduprepeat: typing.Optional[int] = None
+
     #: Minimal genotype quality as returned by caller.
     min_gq: typing.Optional[float] = None
     #: Minimal number of total paired-end reads covering the SV.

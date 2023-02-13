@@ -319,6 +319,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         select_sv_sub_type=SVSUBTYPES_CNV,
         select_sv_min_size=100_000,
         max_rd_dev=0.2,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="Opposite of ClinSV Criteria High-CNV-2",
@@ -328,12 +329,14 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         select_sv_max_size=99_999,
         max_rd_dev=0.2,
         max_amq=55,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="Opposite of ClinSV Criteria High-Neutral",
         genotype=GenotypeChoice.REF,
         select_sv_sub_type=SVSUBTYPES_NEUTRAL,
         max_srpr_var=9,
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.HET -------------------------------------------------
     GenotypeCriteria(
@@ -342,6 +345,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         select_sv_min_size=100_000,
         min_rd_dev=0.2,
         max_rd_dev=0.75,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         genotype=GenotypeChoice.HET,
@@ -351,6 +355,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         min_rd_dev=0.2,
         max_rd_dev=0.75,
         min_amq=55,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         genotype=GenotypeChoice.HET,
@@ -359,6 +364,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         min_sr_var=1,
         min_pr_var=1,
         min_srpr_var=10,
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.HOM -------------------------------------------------
     GenotypeCriteria(
@@ -367,6 +373,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         select_sv_min_size=100_000,
         min_rd_dev=0.2,
         max_rd_dev=0.75,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         genotype=GenotypeChoice.HOM,
@@ -376,6 +383,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         min_rd_dev=0.2,
         max_rd_dev=0.75,
         min_amq=55,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         genotype=GenotypeChoice.HOM,
@@ -384,6 +392,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         min_sr_var=1,
         min_pr_var=1,
         min_srpr_var=10,
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.VARIANT ---------------------------------------------
     GenotypeCriteria(
@@ -392,6 +401,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         select_sv_sub_type=SVSUBTYPES_CNV,
         select_sv_min_size=100_000,
         min_rd_dev=0.2,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="ClinSV Criteria High-CNV-2",
@@ -401,6 +411,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         select_sv_max_size=99_999,
         min_rd_dev=0.2,
         min_amq=55,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="ClinSV Criteria High-Neutral",
@@ -409,6 +420,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         min_sr_var=1,
         min_pr_var=1,
         min_srpr_var=10,
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.NON_VARIANT -----------------------------------------
     GenotypeCriteria(
@@ -417,6 +429,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         select_sv_sub_type=SVSUBTYPES_CNV,
         select_sv_min_size=100_000,
         max_rd_dev=0.2,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="Opposite of ClinSV Criteria High-CNV-2",
@@ -426,12 +439,14 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
         select_sv_max_size=99_999,
         max_rd_dev=0.2,
         max_amq=55,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="Opposite of ClinSV Criteria High-Neutral",
         genotype=GenotypeChoice.NON_VARIANT,
         select_sv_sub_type=SVSUBTYPES_NEUTRAL,
         max_srpr_var=9,
+        max_brk_segduprepeat=0,
     ),
 ]
 
@@ -454,6 +469,7 @@ GT_CRITERIA_PASS: typing.List[GenotypeCriteria] = [
         select_sv_sub_type=SVSUBTYPES_CNV,
         select_sv_min_size=10_000,
         max_rd_dev=0.2,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="Opposite of ClinSV Criteria Pass-CNV-2",
@@ -461,12 +477,14 @@ GT_CRITERIA_PASS: typing.List[GenotypeCriteria] = [
         select_sv_sub_type=SVSUBTYPES_CNV,
         max_rd_dev=0.2,
         max_srpr_var=9,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="Opposite of ClinSV Criteria Pass-Neutral",
         genotype=GenotypeChoice.REF,
         select_sv_sub_type=SVSUBTYPES_NEUTRAL,
         max_srpr_var=5,
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.HET -------------------------------------------------
     GenotypeCriteria(
@@ -475,6 +493,7 @@ GT_CRITERIA_PASS: typing.List[GenotypeCriteria] = [
         select_sv_min_size=10_000,
         min_rd_dev=0.2,
         max_rd_dev=0.75,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         genotype=GenotypeChoice.HET,
@@ -482,12 +501,14 @@ GT_CRITERIA_PASS: typing.List[GenotypeCriteria] = [
         min_rd_dev=0.2,
         max_rd_dev=0.75,
         min_srpr_var=10,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         genotype=GenotypeChoice.HET,
         select_sv_sub_type=SVSUBTYPES_NEUTRAL,
         gt_one_of=["0/1", "0|1", "1/0", "0|1"],
         min_srpr_var=6,
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.HOM -------------------------------------------------
     GenotypeCriteria(
@@ -496,6 +517,7 @@ GT_CRITERIA_PASS: typing.List[GenotypeCriteria] = [
         select_sv_min_size=10_000,
         min_rd_dev=0.2,
         max_rd_dev=0.75,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         genotype=GenotypeChoice.HOM,
@@ -503,12 +525,14 @@ GT_CRITERIA_PASS: typing.List[GenotypeCriteria] = [
         min_rd_dev=0.2,
         max_rd_dev=0.75,
         min_srpr_var=10,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         genotype=GenotypeChoice.HOM,
         select_sv_sub_type=SVSUBTYPES_NEUTRAL,
         gt_one_of=["1/1", "1|1"],
         min_srpr_var=6,
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.VARIANT ---------------------------------------------
     GenotypeCriteria(
@@ -517,6 +541,7 @@ GT_CRITERIA_PASS: typing.List[GenotypeCriteria] = [
         select_sv_sub_type=SVSUBTYPES_CNV,
         select_sv_min_size=10_000,
         min_rd_dev=0.2,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="ClinSV Criteria Pass-CNV-2",
@@ -524,12 +549,14 @@ GT_CRITERIA_PASS: typing.List[GenotypeCriteria] = [
         select_sv_sub_type=SVSUBTYPES_CNV,
         min_rd_dev=0.2,
         min_srpr_var=10,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="ClinSV Criteria Pass-Neutral",
         genotype=GenotypeChoice.VARIANT,
         select_sv_sub_type=SVSUBTYPES_NEUTRAL,
         min_srpr_var=6,
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.NON_VARIANT -----------------------------------------
     GenotypeCriteria(
@@ -538,6 +565,7 @@ GT_CRITERIA_PASS: typing.List[GenotypeCriteria] = [
         select_sv_sub_type=SVSUBTYPES_CNV,
         select_sv_min_size=10_000,
         max_rd_dev=0.2,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="Opposite of ClinSV Criteria Pass-CNV-2",
@@ -545,12 +573,14 @@ GT_CRITERIA_PASS: typing.List[GenotypeCriteria] = [
         select_sv_sub_type=SVSUBTYPES_CNV,
         max_rd_dev=0.2,
         max_srpr_var=9,
+        max_brk_segduprepeat=0,
     ),
     GenotypeCriteria(
         comment="Opposite of ClinSV Criteria Pass-Neutral",
         genotype=GenotypeChoice.NON_VARIANT,
         select_sv_sub_type=SVSUBTYPES_NEUTRAL,
         max_srpr_var=5,
+        max_brk_segduprepeat=0,
     ),
 ]
 
@@ -571,6 +601,7 @@ GT_CRITERIA_DEFAULT: typing.List[GenotypeCriteria] = [
         genotype=GenotypeChoice.REF,
         select_sv_sub_type=SVSUBTYPES_ALL,
         gt_one_of=["0/0", "0|0", "0", "./0", "0/.", "0|.", ".|0"],
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.HET -------------------------------------------------
     GenotypeCriteria(
@@ -578,6 +609,7 @@ GT_CRITERIA_DEFAULT: typing.List[GenotypeCriteria] = [
         genotype=GenotypeChoice.HET,
         select_sv_sub_type=SVSUBTYPES_ALL,
         gt_one_of=["0/1", "1/0", "0|1", "1|0", "./1", "1/.", ".|1", "1|."],
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.HOM -------------------------------------------------
     GenotypeCriteria(
@@ -585,6 +617,7 @@ GT_CRITERIA_DEFAULT: typing.List[GenotypeCriteria] = [
         genotype=GenotypeChoice.HOM,
         select_sv_sub_type=SVSUBTYPES_ALL,
         gt_one_of=["1/1", "1|1", "1"],
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.VARIANT ---------------------------------------------
     GenotypeCriteria(
@@ -592,6 +625,7 @@ GT_CRITERIA_DEFAULT: typing.List[GenotypeCriteria] = [
         genotype=GenotypeChoice.VARIANT,
         select_sv_sub_type=SVSUBTYPES_ALL,
         gt_one_of=["0/1", "1/0", "0|1", "1|0", "./1", "1/.", ".|1", "1|.", "1/1", "1|1", "1"],
+        max_brk_segduprepeat=0,
     ),
     # -- GenotypeChoice.NON_VARIANT -----------------------------------------
     GenotypeCriteria(
@@ -599,6 +633,7 @@ GT_CRITERIA_DEFAULT: typing.List[GenotypeCriteria] = [
         genotype=GenotypeChoice.NON_VARIANT,
         select_sv_sub_type=SVSUBTYPES_ALL,
         gt_one_of=["0/0", "0|0", "0", "./0", "0/.", "./."],
+        max_brk_segduprepeat=0,
     ),
 ]
 

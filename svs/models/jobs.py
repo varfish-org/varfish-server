@@ -96,6 +96,7 @@ SV_RECORDS_HEADER = (
     "chromosome_no",
     "bin",
     "start",
+    "caller",
     "sv_type",
     "sv_sub_type",
     "chromosome2",
@@ -165,6 +166,7 @@ def run_sv_query_bg_job(pk):
                     str(record.chromosome_no),
                     str(record.bin),
                     str(record.start),
+                    record.caller,
                     record.sv_type,
                     record.sv_sub_type or record.sv_type,
                     record.chromosome2 or record.chromosome,
@@ -180,21 +182,20 @@ def run_sv_query_bg_job(pk):
         #: Actually run the worker
         filter_job.add_log_entry("Run the worker on the SVs ...")
         start_time = timezone.now()
-        subprocess.check_call(
-            [
-                settings.WORKER_EXE_PATH,
-                "sv",
-                "query",
-                "--path-db",
-                settings.WORKER_DB_PATH,
-                "--path-query-json",
-                os.path.join(tmpdir, "query.json"),
-                "--path-input-svs",
-                os.path.join(tmpdir, "input.tsv"),
-                "--path-output-svs",
-                os.path.join(tmpdir, "output.tsv"),
-            ]
-        )
+        cmd = [
+            settings.WORKER_EXE_PATH,
+            "sv",
+            "query",
+            "--path-db",
+            settings.WORKER_DB_PATH,
+            "--path-query-json",
+            os.path.join(tmpdir, "query.json"),
+            "--path-input-svs",
+            os.path.join(tmpdir, "input.tsv"),
+            "--path-output-svs",
+            os.path.join(tmpdir, "output.tsv"),
+        ]
+        subprocess.check_call(cmd)
         worker_results = os.path.join(tmpdir, "output.tsv")
         with open(worker_results, "rt") as inputf:
             result_row_count = sum(1 for _line in inputf) - 1
