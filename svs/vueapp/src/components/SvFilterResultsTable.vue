@@ -6,6 +6,8 @@ import 'vue3-easy-data-table/dist/style.css'
 
 import svsApi from '@svs/api/svs.js'
 import { useSvFilterStore } from '@svs/stores/filterSvs.js'
+import { useSvFlagsStore } from '@svs/stores/svFlags.js'
+import { useSvCommentsStore } from '@svs/stores/svComments.js'
 import { formatLargeInt, displayName } from '@varfish/helpers.js'
 
 const sortedList = (lst, unique = true) => {
@@ -30,8 +32,10 @@ const onShowDetailsClicked = (item) => {
   emit('variantSelected', item)
 }
 
-// Initialize filter query store.
+// Initialize stores
 const svFilterStore = useSvFilterStore()
+const svFlagsStore = useSvFlagsStore()
+const svCommentsStore = useSvCommentsStore()
 
 // Headers for the table.
 const _popWidth = 75
@@ -242,6 +246,43 @@ const effectiveGenotype = (callInfo) => {
   }
 }
 
+/** Return class name for table row. */
+const tableRowClassName = (item, _rowNumber) => {
+  const classNoToClass = [null, 'negative-row', 'uncertain-row', 'positive-row']
+  const valueToClassNo = {
+    empty: 0,
+    positive: 3,
+    uncertain: 2,
+    negative: 1,
+  }
+
+  const flag = svFlagsStore.getFlag(item)
+  if (flag?.flag_summary && flag?.flag_summary !== 'empty') {
+    return classNoToClass[valueToClassNo[flag.flag_summary]]
+  } else {
+    const values = [
+      flag?.flag_molecular ?? 'empty',
+      flag?.flag_phenotype_match ?? 'empty',
+      flag?.flag_summary ?? 'empty',
+      flag?.flag_validation ?? 'empty',
+      flag?.flag_visual ?? 'empty',
+    ]
+    const classNos = values
+      .filter((value) => value !== 'empty')
+      .map((value) => valueToClassNo[value] ?? 0)
+    const classNo = Math.min(...classNos)
+    if (isFinite(classNo) && classNo > 0) {
+      return classNoToClass[classNo]
+    }
+  }
+
+  if (flag) {
+    return 'bookmarked-row'
+  }
+
+  return ''
+}
+
 /** Load data when mounted. */
 onMounted(() => {
   loadFromServer()
@@ -319,6 +360,7 @@ watch(
       table-class-name="customize-table"
       :loading="tableLoading"
       :server-items-length="svFilterStore.queryResultSet.result_row_count"
+      :body-row-class-name="tableRowClassName"
       :headers="tableHeaders"
       :items="tableRows"
       :rows-items="[20, 50, 200, 1000]"
@@ -326,11 +368,11 @@ watch(
       buttons-pagination
       show-index
     >
-      <template #item-icons="{ payload }">
+      <template #item-icons="{ chromosome, start, end, sv_type, payload }">
         <div class="text-nowrap">
           <!-- flags -->
           <i-fa-solid-bookmark
-            v-if="payload.flag_count"
+            v-if="svFlagsStore.getFlag({ chromosome, start, end, sv_type })"
             class="text-muted"
             title="flags & bookmarks"
           />
@@ -341,7 +383,9 @@ watch(
           />
           <!-- comments -->
           <i-fa-solid-comment
-            v-if="payload.comment_count"
+            v-if="
+              svCommentsStore.hasComment({ chromosome, start, end, sv_type })
+            "
             class="text-muted ml-1"
           />
           <i-fa-regular-comment v-else class="text-muted icon-inactive ml-1" />
@@ -641,8 +685,19 @@ watch(
 </template>
 
 <style>
-.customize-table {
-  --easy-table-border: none;
-  /*--easy-table-header-background-color: #2d3a4f;*/
+.positive-row {
+  --easy-table-body-row-background-color: #f5c6cb;
+}
+
+.uncertain-row {
+  --easy-table-body-row-background-color: #ffeeba;
+}
+
+.negative-row {
+  --easy-table-body-row-background-color: #c3e6cb;
+}
+
+.bookmarked-row {
+  --easy-table-body-row-background-color: #cccccc;
 }
 </style>

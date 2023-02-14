@@ -4,6 +4,22 @@ import en from 'javascript-time-ago/locale/en'
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US')
 
+export function reciprocalOverlap(lhs, rhs) {
+  if (lhs.chromosome !== rhs.chromosome) {
+    return 0.0
+  }
+
+  const begin = Math.max(lhs.start - 1, rhs.start - 1)
+  const end = Math.min(lhs.end, rhs.end)
+  if (begin >= end) {
+    return 0.0
+  } else {
+    return Math.min(
+      (end - begin) / (rhs.end - rhs.start + 1),
+      (end - begin) / (lhs.end - lhs.start + 1)
+    )
+  }
+}
 export function displayName(name) {
   if (name) {
     const re = /-N\d+-(DNA|RNA)\d+-(WES|WGS|Panel_seq)\d+$/

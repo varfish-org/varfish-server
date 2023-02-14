@@ -12,7 +12,11 @@ const props = defineProps(['svRecord', 'fetched', 'previousQueryDetails'])
 const modalRef = ref(null)
 const modalContentRef = ref(null)
 
+// The currently active details screen.
+const activeDetailsScreen = ref('info')
+
 const showModal = () => {
+  activeDetailsScreen.value = 'info'
   $(modalRef.value).modal('show')
 }
 
@@ -106,7 +110,7 @@ defineExpose({
           </span>
         </div>
         <div class="modal-body">
-          <SvDetails />
+          <SvDetails v-model:active-screen="activeDetailsScreen" />
         </div>
       </div>
     </div>

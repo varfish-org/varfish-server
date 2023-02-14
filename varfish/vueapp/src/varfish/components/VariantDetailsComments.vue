@@ -1,11 +1,18 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+
+import Overlay from '@varfish/components/Overlay.vue'
 
 const props = defineProps({
   detailsStore: Object,
   commentsStore: Object,
   variant: Object,
 })
+
+/** Whether to show the overlay. */
+const overlayShow = computed(
+  () => (props.commentsStore?.serverInteractions ?? 0) > 0
+)
 
 props.commentsStore.retrieveComments(props.variant)
 
@@ -75,132 +82,137 @@ watch(
 </script>
 
 <template>
-  <div class="card">
-    <ul
-      v-if="commentsStore.comments?.length"
-      class="list-group list-group-flush list"
-    >
-      <li
-        v-for="(comment, index) in commentsStore.comments"
-        :key="index"
-        class="list-group-item list-item p-4"
+  <div
+    class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"
+  >
+    <div class="card">
+      <ul
+        v-if="commentsStore.comments?.length"
+        class="list-group list-group-flush list"
       >
-        <div
-          v-if="
-            editCommentMode === EditCommentModes.Edit &&
-            editCommentIndex === index
-          "
-          class="input-group form-inline"
+        <li
+          v-for="(comment, index) in commentsStore.comments"
+          :key="index"
+          class="list-group-item list-item p-4"
         >
-          <textarea
-            rows="1"
-            cols="40"
-            class="form-control"
-            v-model="commentToSubmit"
-          ></textarea>
-          <span class="btn-group pull-right">
-            <button
-              type="button"
-              class="btn btn-sm btn-secondary"
-              @click="unsetEditComment()"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-primary"
-              @click="onClickSubmitComment()"
-              :disabled="!commentToSubmit"
-            >
-              Submit
-            </button>
-          </span>
-        </div>
-        <div
-          v-else-if="
-            editCommentMode === EditCommentModes.Delete &&
-            editCommentIndex === index
-          "
-        >
-          <span class="small text-muted">
-            <strong>{{ comment.user }}</strong>
-            {{ comment.date_created }}:
-          </span>
-          <em>{{ comment.text }}</em>
-          <span class="btn-group pull-right">
-            <button
-              type="button"
-              class="btn btn-sm btn-secondary"
-              @click="unsetEditComment()"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-sm btn-danger"
-              @click="onClickDeleteComment()"
-            >
-              Delete
-            </button>
-          </span>
-        </div>
-        <div v-else-if="comment">
-          <span class="small text-muted">
-            <strong>{{ comment.user }}</strong>
-            {{ comment.date_created }}:
-          </span>
-          <em>{{ comment.text }}</em>
-          <div class="btn-group pull-right" v-if="comment.user_can_edit">
-            <button
-              class="btn btn-sm btn-outline-secondary"
-              @click="setEditComment(comment.sodar_uuid, comment.text, index)"
-            >
-              <i-mdi-pencil />
-            </button>
-            <button
-              class="btn btn-sm btn-outline-secondary"
-              @click="setDeleteComment(comment.sodar_uuid, index)"
-            >
-              <i-fa-solid-times-circle />
-            </button>
+          <div
+            v-if="
+              editCommentMode === EditCommentModes.Edit &&
+              editCommentIndex === index
+            "
+            class="input-group form-inline"
+          >
+            <textarea
+              rows="1"
+              cols="40"
+              class="form-control"
+              v-model="commentToSubmit"
+            ></textarea>
+            <span class="btn-group pull-right">
+              <button
+                type="button"
+                class="btn btn-sm btn-secondary"
+                @click="unsetEditComment()"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                @click="onClickSubmitComment()"
+                :disabled="!commentToSubmit"
+              >
+                Submit
+              </button>
+            </span>
           </div>
+          <div
+            v-else-if="
+              editCommentMode === EditCommentModes.Delete &&
+              editCommentIndex === index
+            "
+          >
+            <span class="small text-muted">
+              <strong>{{ comment.user }}</strong>
+              {{ comment.date_created }}:
+            </span>
+            <em>{{ comment.text }}</em>
+            <span class="btn-group pull-right">
+              <button
+                type="button"
+                class="btn btn-sm btn-secondary"
+                @click="unsetEditComment()"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-danger"
+                @click="onClickDeleteComment()"
+              >
+                Delete
+              </button>
+            </span>
+          </div>
+          <div v-else-if="comment">
+            <span class="small text-muted">
+              <strong>{{ comment.user }}</strong>
+              {{ comment.date_created }}:
+            </span>
+            <em>{{ comment.text }}</em>
+            <div class="btn-group pull-right" v-if="comment.user_can_edit">
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                @click="setEditComment(comment.sodar_uuid, comment.text, index)"
+              >
+                <i-mdi-pencil />
+              </button>
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                @click="setDeleteComment(comment.sodar_uuid, index)"
+              >
+                <i-fa-solid-times-circle />
+              </button>
+            </div>
+          </div>
+          <div v-else>
+            <i class="text-muted">Comment has been deleted.</i>
+          </div>
+        </li>
+      </ul>
+      <div v-else class="card-body">
+        <p class="text-muted font-italic text-center">
+          <i-fa-solid-info-circle />
+          No comments.
+        </p>
+      </div>
+      <div class="card-footer" v-if="editCommentMode === EditCommentModes.Off">
+        <textarea
+          v-model="commentToSubmit"
+          class="form-control"
+          placeholder="Comment variant here ..."
+        ></textarea>
+        <div class="btn-group">
+          <button class="btn btn-secondary" @click="commentToSubmit = ''">
+            Clear
+          </button>
+          <button
+            class="btn btn-primary"
+            @click="onClickSubmitComment()"
+            :disabled="!commentToSubmit"
+          >
+            Submit
+          </button>
         </div>
-        <div v-else>
-          <i class="text-muted">Comment has been deleted.</i>
-        </div>
-      </li>
-    </ul>
-    <div v-else class="card-body">
-      <p class="text-muted font-italic text-center">
-        <i-fa-solid-info-circle />
-        No comments.
-      </p>
-    </div>
-    <div class="card-footer" v-if="editCommentMode === EditCommentModes.Off">
-      <textarea
-        v-model="commentToSubmit"
-        class="form-control"
-        placeholder="Comment variant here ..."
-      ></textarea>
-      <div class="btn-group">
-        <button class="btn btn-secondary" @click="commentToSubmit = ''">
-          Clear
-        </button>
-        <button
-          class="btn btn-primary"
-          @click="onClickSubmitComment()"
-          :disabled="!commentToSubmit"
-        >
-          Submit
-        </button>
+      </div>
+      <div class="card-footer" v-else>
+        <i class="text-muted">
+          <i-fa-solid-info-circle />
+          The form for placing comments will appear when you finished editing
+          your comment.
+        </i>
       </div>
     </div>
-    <div class="card-footer" v-else>
-      <i class="text-muted">
-        <i-fa-solid-info-circle />
-        The form for placing comments will appear when you finished editing your
-        comment.
-      </i>
-    </div>
+    <Overlay v-if="overlayShow" />
   </div>
 </template>

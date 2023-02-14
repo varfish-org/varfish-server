@@ -44,7 +44,7 @@ const selectedGene = ref(0)
     <template v-else>
       <div class="text-muted font-italic">
         <i-fa-solid-circle-notch class="spin" />
-        Loadin gene information.
+        Loading gene information.
       </div>
     </template>
   </div>

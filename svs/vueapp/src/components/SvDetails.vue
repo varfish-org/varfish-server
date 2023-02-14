@@ -1,7 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 
-import { formatLargeInt } from '@varfish/helpers.js'
 import VariantDetailsComments from '@varfish/components/VariantDetailsComments.vue'
 import VariantDetailsFlags from '@varfish/components/VariantDetailsFlags.vue'
 
@@ -14,6 +13,12 @@ import { useSvCommentsStore } from '@svs/stores/svComments.js'
 import SvDetailsGenes from './SvDetailsGenes.vue'
 import SvDetailsGenotypeCall from './SvDetailsGenotypeCall.vue'
 import GenomeBrowser from './GenomeBrowser.vue'
+
+const props = defineProps({
+  activeScreen: String,
+})
+
+const emit = defineEmits(['update:activeScreen'])
 
 // Get reference to store detailsSv
 const caseDetailsStore = useCaseDetailsStore()
@@ -66,9 +71,6 @@ const Screen = Object.freeze({
   flags: 'flags',
   genomeBrowser: 'genomeBrowser',
 })
-
-// The currently active details screen.
-const activeScreen = ref('info')
 </script>
 
 <template>
@@ -78,7 +80,7 @@ const activeScreen = ref('info')
         <a
           class="nav-link"
           type="button"
-          @click="activeScreen = Screen.info"
+          @click="emit('update:activeScreen', Screen.info)"
           :class="{ active: activeScreen === Screen.info }"
         >
           Info
@@ -88,7 +90,7 @@ const activeScreen = ref('info')
         <a
           class="nav-link"
           type="button"
-          @click="activeScreen = Screen.commentsFlags"
+          @click="emit('update:activeScreen', Screen.commentsFlags)"
           :class="{ active: activeScreen === Screen.commentsFlags }"
         >
           Comments &amp; Flags
@@ -98,7 +100,7 @@ const activeScreen = ref('info')
         <a
           class="nav-link"
           type="button"
-          @click="activeScreen = Screen.genomeBrowser"
+          @click="emit('update:activeScreen', Screen.genomeBrowser)"
           :class="{ active: activeScreen === Screen.genomeBrowser }"
         >
           Browser
