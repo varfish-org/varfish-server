@@ -189,7 +189,7 @@ const loadFromServer = async () => {
   tableLoading.value = false
 }
 
-const goToLocus = async (release, chromosome, start, end) => {
+const goToLocus = async ({ chromosome, start, end }) => {
   const chrPrefixed = chromosome.startsWith('chr')
     ? chromosome
     : `chr${chromosome}`
@@ -558,14 +558,7 @@ watch(
             Details
           </button>
           <button
-            @click.prevent="
-              goToLocus(
-                svRecord.payload.release,
-                svRecord.payload.chromosome,
-                svRecord.payload.start,
-                svRecord.payload.end
-              )
-            "
+            @click.prevent="goToLocus(svRecord)"
             type="button"
             title="Go to locus in IGV"
             class="btn sodar-list-btn btn-primary"
