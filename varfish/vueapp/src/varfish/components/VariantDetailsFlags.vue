@@ -468,9 +468,7 @@ const displayOpacityIfFalse = (condition) => {
             <i-fa-solid-info-circle />
             Value in <strong><u>Summary</u></strong> will determine the row
             coloring in the results table. If <code>empty</code>, any other flag
-            set except <i-fa-solid-star /> will color the row in gray (<i
-              >&ldquo;work in progress&rdquo;</i
-            >).
+            set except <i-fa-solid-star /> will color the row in gray.
           </div>
         </div>
         <div class="col-5">

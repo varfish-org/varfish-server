@@ -19,6 +19,9 @@ django-model-utils >=4.2, <4.3
 # Password storage
 argon2-cffi >=21.3.0, <21.4
 
+# In-memory querysets
+iterable_orm >=0.4, <0.5
+
 # Python-PostgreSQL Database Adapter
 psycopg2 ==2.9.1
 

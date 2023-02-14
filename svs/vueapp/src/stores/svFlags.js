@@ -4,6 +4,7 @@
 
 import { StoreState } from '@cases/stores/cases.js'
 import svsApi from '@svs/api/svs.js'
+import { reciprocalOverlap } from '@varfish/helpers.js'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -37,10 +38,14 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
   const csrfToken = ref(null)
   /** The UUID of the case. */
   const caseUuid = ref(null)
-  /** The small variant that flags are handled for. */
+
+  /** The structural that flags are handled for in detail view. */
   const sv = ref(null)
-  /** The small variants as fetched from API. */
+  /** The flags for the structural variant `sv` as fetched from API for the detail view. */
   const flags = ref(null)
+
+  /** The flags for all structural variants of the case with the given `caseUuid`. */
+  const caseFlags = ref(null)
 
   /**
    * Initialize the store.
@@ -50,9 +55,30 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
       // initialize only once
       return
     }
-    storeState.value = StoreState.active
     caseUuid.value = caseUuuidArg
     csrfToken.value = applicationContext.csrf_token
+
+    await _fetchCaseFlags()
+
+    storeState.value = StoreState.active
+  }
+
+  /**
+   * Fetch all flags for the current case
+   */
+  const _fetchCaseFlags = async () => {
+    serverInteractions.value += 1
+    try {
+      const res = await svsApi.listFlags(csrfToken.value, caseUuid.value)
+      caseFlags.value = Object.fromEntries(
+        res.map((flags) => [flags.sodar_uuid, flags])
+      )
+    } catch (err) {
+      storeState.value = StoreState.error
+      throw err
+    } finally {
+      serverInteractions.value -= 1
+    }
   }
 
   /**
@@ -95,6 +121,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
       serverInteractions.value -= 1
     }
 
+    caseFlags.value[result.sodar_uuid] = result
     flags.value = result
 
     return result
@@ -123,6 +150,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
       serverInteractions.value -= 1
     }
 
+    caseFlags.value[result.sodar_uuid] = result
     flags.value = result
 
     return result
@@ -143,7 +171,24 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
       serverInteractions.value -= 1
     }
 
+    delete caseFlags.value[flags.value.sodar_uuid]
     flags.value = null
+  }
+
+  /**
+   * Return first matching flag for the given `sv`.
+   */
+  const getFlag = (sv) => {
+    const minReciprocalOverlap = 0.8
+    for (const flag of Object.values(caseFlags.value)) {
+      if (
+        flag.sv_type == sv.sv_type &&
+        reciprocalOverlap(flag, sv) >= minReciprocalOverlap
+      ) {
+        return flag
+      }
+    }
+    return null
   }
 
   return {
@@ -154,11 +199,13 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     caseUuid,
     sv,
     flags,
+    caseFlags,
     // functions
     initialize,
     retrieveFlags,
     createFlags,
     updateFlags,
     deleteFlags,
+    getFlag,
   }
 })

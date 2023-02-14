@@ -91,17 +91,19 @@ export default {
     )
     return await response.json()
   },
-  async listComment(
-    csrfToken,
-    caseUuid,
-    { release, chromosome, start, end, sv_type, sv_sub_type }
-  ) {
-    const query =
-      `release=${release}&chromosome=${chromosome}&start=${start}` +
-      `&end=${end}&sv_type=${sv_type}&sv_sub_type=${sv_sub_type}`
+  /** List comments for the given case, optionally for the given `sv`. */
+  async listComment(csrfToken, caseUuid, sv = null) {
+    let query = ''
+    if (sv) {
+      const { release, chromosome, start, end, sv_type, sv_sub_type } = sv
+      query =
+        `?release=${release}&chromosome=${chromosome}&start=${start}` +
+        `&end=${end}&sv_type=${sv_type}&sv_sub_type=${sv_sub_type}`
+    }
+
     const response = await apiFetch(
       csrfToken,
-      `/svs/ajax/structural-variant-comment/list-create/${caseUuid}/?${query}`,
+      `/svs/ajax/structural-variant-comment/list-create/${caseUuid}/${query}`,
       'GET'
     )
     return await response.json()
@@ -140,17 +142,19 @@ export default {
     )
     await response
   },
-  async listFlags(
-    csrfToken,
-    caseUuid,
-    { release, chromosome, start, end, sv_type, sv_sub_type }
-  ) {
-    const query =
-      `release=${release}&chromosome=${chromosome}&start=${start}` +
-      `&end=${end}&sv_type=${sv_type}&sv_sub_type=${sv_sub_type}`
+  /** List flags for the given case, optionally for the given `sv`. */
+  async listFlags(csrfToken, caseUuid, sv = null) {
+    let query = ''
+    if (sv) {
+      const { release, chromosome, start, end, sv_type, sv_sub_type } = sv
+      query =
+        `?release=${release}&chromosome=${chromosome}&start=${start}` +
+        `&end=${end}&sv_type=${sv_type}&sv_sub_type=${sv_sub_type}`
+    }
+
     const response = await apiFetch(
       csrfToken,
-      `/svs/ajax/structural-variant-flags/list-create/${caseUuid}/?${query}`,
+      `/svs/ajax/structural-variant-flags/list-create/${caseUuid}/${query}`,
       'GET'
     )
     return await response.json()
