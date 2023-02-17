@@ -125,6 +125,8 @@ RUN mkdir -p /usr/src/app/clinvar_export/vueapp/dist && \
       DATABASE_URL=postgres://varfish:varfish@fake/varfish \
       python manage.py collectstatic --no-input
 
+COPY varfish-server-worker /opt/miniconda3/envs/varfish-annotator/bin/varfish-server-worker
+
 # Define the entry point.
 COPY docker-entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
