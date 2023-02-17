@@ -106,6 +106,7 @@ declare module '@vue/runtime-core' {
     IMdiToggleSwitchOutline: typeof import('~icons/mdi/toggle-switch-outline')['default']
     IMdiTools: typeof import('~icons/mdi/tools')['default']
     IMdiUndoVariant: typeof import('~icons/mdi/undo-variant')['default']
+    IMdiUpload: typeof import('~icons/mdi/upload')['default']
     IMdiViewListOutline: typeof import('~icons/mdi/view-list-outline')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

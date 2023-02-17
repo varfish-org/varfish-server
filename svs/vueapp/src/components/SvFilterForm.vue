@@ -9,6 +9,7 @@ import SvFilterFormRegulatoryPane from './SvFilterFormRegulatoryPane.vue'
 import SvFilterFormQuickPresets from './SvFilterFormQuickPresets.vue'
 import SvFilterFormTadsPane from './SvFilterFormTadsPane.vue'
 import SvFilterFormPatho from './SvFilterFormPatho.vue'
+import SvFilterFormDev from './SvFilterFormDev.vue'
 import SvFilterFormFooter from './SvFilterFormFooter.vue'
 import { QueryStates } from '@variants/enums.js'
 import { computed, reactive, ref } from 'vue'
@@ -25,6 +26,7 @@ const regulatoryPaneRef = ref(null)
 const tadsPaneRef = ref(null)
 const genePaneRef = ref(null)
 const pathoPaneRef = ref(null)
+const devPaneRef = ref(null)
 
 const makePaneHasError = (pane) =>
   computed(() => {
@@ -222,6 +224,19 @@ const onSubmitCancelButtonClicked = () => {
                 ClinVar &amp; Known Patho. SVs
                 <i-mdi-alert-circle-outline v-if="pathoHasError" />
               </a>
+              <a
+                v-if="svFilterStore.filtrationComplexityMode === 'dev'"
+                ref="devPaneRef"
+                class="dropdown-item"
+                id="tads-tab"
+                data-toggle="tab"
+                href="#panel-dev"
+                role="tab"
+                title="Perform changes in JSON (wear a hard hat!)"
+                data-placement="left"
+              >
+                Developer Settings
+              </a>
             </div>
           </li>
         </ul>
@@ -362,6 +377,16 @@ const onSubmitCancelButtonClicked = () => {
               :filtration-complexity-mode="
                 svFilterStore.filtrationComplexityMode
               "
+              v-model:query-settings="svFilterStore.querySettings"
+            />
+          </div>
+          <div
+            class="tab-pane fade"
+            id="panel-dev"
+            role="tabpanel"
+            aria-labelledby="dev-tab"
+          >
+            <SvFilterFormDev
               v-model:query-settings="svFilterStore.querySettings"
             />
           </div>
