@@ -8,6 +8,7 @@ from variants.models import (
     AnnotationReleaseInfo,
     Case,
     CasePhenotypeTerms,
+    ExportFileBgJob,
     PresetSet,
     SmallVariantSet,
 )
@@ -287,3 +288,14 @@ class CaseSerializer(CoreCaseSerializerMixin, SODARProjectModelSerializer):
             "sex_errors",
             "presetset",  # made writable in to_internal_value
         )
+
+
+class ExportFileBgJobSerializer(SODARModelSerializer):
+    """Sparse serialization of the ``ExportFileBgJob`` model."""
+
+    # Fetch the status of the underlying ``BackgroundJob`` model.
+    status = serializers.ReadOnlyField(source="bg_job.status")
+
+    class Meta:
+        model = ExportFileBgJob
+        fields = ("sodar_uuid", "file_type", "status")

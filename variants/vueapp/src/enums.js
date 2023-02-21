@@ -1,6 +1,6 @@
 function enumToText(enu) {
   let reversed = {}
-  for (const [_, data] of Object.entries(enu)) {
+  for (const data of Object.values(enu)) {
     reversed[data.value] = data.text
   }
   return reversed

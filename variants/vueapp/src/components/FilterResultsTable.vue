@@ -4,6 +4,7 @@ import { computed, reactive, ref } from 'vue'
 import { displayName } from '@varfish/helpers.js'
 import ColumnControl from './ColumnControl.vue'
 import ColumnSizeFitter from './ColumnSizeFitter.vue'
+import ExportResults from './ExportResults.vue'
 import { defineColumnDefs } from './FilterResultsTable.columnDefs.js'
 import { declareWrapper } from '../helpers'
 
@@ -181,6 +182,7 @@ const onCellClicked = (event) => {
         v-model:display-constraint="displayConstraintWrapper"
         v-model:display-columns="displayColumnsWrapper"
       />
+      <ExportResults />
     </div>
     <div class="card-body p-0 b-0">
       <!-- ag-grid itself -->

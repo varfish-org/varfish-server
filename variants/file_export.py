@@ -331,13 +331,10 @@ class CaseExporterBase:
 
     def _get_members_sorted(self):
         """Get list of selected members."""
-        members = []
         if self.project_or_cohort:
-            members.append("sample")
+            members = ["sample"]
         else:
-            for m in self.job.case.get_filtered_pedigree_with_samples():
-                if self.query_args.get("%s_export" % m["patient"], False):
-                    members.append(m["patient"])
+            members = [m["patient"] for m in self.job.case.get_filtered_pedigree_with_samples()]
         return sorted(members)
 
     def get_extra_annos_headers(self):
@@ -360,10 +357,8 @@ class CaseExporterBase:
             header += HEADERS_TRANSCRIPTS
         if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
             header += HEADERS_JOINT_SCORES
-        if self.query_args["export_flags"]:
-            header += HEADER_FLAGS
-        if self.query_args["export_comments"]:
-            header += HEADER_COMMENTS
+        header += HEADER_FLAGS
+        header += HEADER_COMMENTS
         header += self.get_extra_annos_headers()
         for lst in header:
             yield dict(zip(("name", "title", "type", "fixed"), list(lst) + [True]))
@@ -600,8 +595,7 @@ class CaseExporterXlsx(CaseExporterBase):
         self.header_format = self.workbook.add_format({"bold": True})
         # setup sheets
         self.variant_sheet = self.workbook.add_worksheet("Variants")
-        if self.query_args["export_comments"]:
-            self.comment_sheet = self.workbook.add_worksheet("Comments")
+        self.comment_sheet = self.workbook.add_worksheet("Comments")
         self.meta_data_sheet = self.workbook.add_worksheet("Metadata")
         # setup styles
         self.styles = {}
@@ -625,8 +619,7 @@ class CaseExporterXlsx(CaseExporterBase):
             return x
 
     def _write_leading(self):
-        if self.query_args["export_comments"]:
-            self._write_comment_sheet()
+        self._write_comment_sheet()
         self._write_metadata_sheet()
 
     def _write_comment_sheet(self):
@@ -722,9 +715,7 @@ class CaseExporterXlsx(CaseExporterBase):
                         row.append(small_var["genotype"].get(member, {}).get(field, "."))
                 if isinstance(row[-1], list):
                     row[-1] = to_str(row[-1])
-            fmt = (
-                self.styles.get(flag_class(small_var)) if self.query_args["export_flags"] else None
-            )
+            fmt = self.styles.get(flag_class(small_var))
             self.variant_sheet.write_row(1 + num_rows, 0, list(map(str, row)), fmt)
         # Freeze first row and first four columns and setup auto-filter.
         self.variant_sheet.freeze_panes(1, 4)
@@ -855,8 +846,7 @@ class CaseExporterVcf(CaseExporterBase):
                 members.append(m["patient"])
         else:
             for m in self.job.case.get_filtered_pedigree_with_samples():
-                if self.query_args.get("%s_export" % m["patient"], False):
-                    members.append(m["patient"])
+                members.append(m["patient"])
         return sorted(members)
 
 

@@ -84,50 +84,17 @@ const devStoreState = () => {
         <small v-if="anyHasError" class="text-danger">
           <br />You must fix the errors before you can filter.
         </small>
-        <div class="btn-group">
-          <button
-            type="button"
-            id="submitFilter"
-            name="submit"
-            class="btn"
-            :class="{ 'btn-primary': !showError, 'btn-danger': showError }"
-            @click="emit('submitCancelButtonClick')"
-            title="Filter variants with current settings"
-          >
-            <i-mdi-refresh :class="{ spin: spinButtonIcon }" />
-            Filter &amp; Display
-          </button>
-          <!--              <button-->
-          <!--                class="btn btn-secondary dropdown-toggle"-->
-          <!--                type="button"-->
-          <!--                id="filterdisplayoptions"-->
-          <!--                data-toggle="dropdown"-->
-          <!--                aria-haspopup="true"-->
-          <!--                aria-expanded="false"-->
-          <!--              >-->
-          <!--                <i-fa-solid-ellipsis-h />-->
-          <!--              </button>-->
-          <!--              <div-->
-          <!--                class="dropdown-menu"-->
-          <!--                aria-labelledby="filterdisplayoptions"-->
-          <!--                style="z-index: 3000"-->
-          <!--              >-->
-          <!--                <button-->
-          <!--                  type="submit"-->
-          <!--                  name="submit"-->
-          <!--                  value="download"-->
-          <!--                  class="dropdown-item"-->
-          <!--                  data-toggle="tooltip"-->
-          <!--                  aria-haspopup="true"-->
-          <!--                  aria-expanded="false"-->
-          <!--                  data-html="true"-->
-          <!--                  title="Create downloadable file in the background of <i><b>all</b></i> variants with current settings (ignoring result count limit)."-->
-          <!--                >-->
-          <!--                  <i-fa-solid-cloud-download-alt /-->
-          <!--                  Download as File-->
-          <!--                </button>-->
-          <!--              </div>-->
-        </div>
+        <button
+          type="button"
+          id="submitFilter"
+          class="btn"
+          :class="{ 'btn-primary': !showError, 'btn-danger': showError }"
+          @click="emit('submitCancelButtonClick')"
+          title="Filter variants with current settings"
+        >
+          <i-mdi-refresh :class="{ spin: spinButtonIcon }" />
+          Filter &amp; Display
+        </button>
       </div>
     </div>
   </div>

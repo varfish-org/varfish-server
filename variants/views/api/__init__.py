@@ -8,8 +8,12 @@ from bgjobs.models import BackgroundJob
 import cattr
 from django.conf import settings
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import Q
+from django.http import Http404, HttpResponse, JsonResponse
+from django.urls import reverse
+from django.utils import timezone
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
 from rest_framework import views
 from rest_framework.exceptions import NotFound
@@ -23,6 +27,7 @@ from rest_framework.generics import (
     get_object_or_404,
 )
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from clinvar.models import Clinvar
 from extra_annos.views import ExtraAnnosMixin
@@ -39,6 +44,7 @@ from variants.helpers import get_engine
 from variants.models import (
     AcmgCriteriaRating,
     Case,
+    ExportFileBgJob,
     FilterBgJob,
     SmallVariant,
     SmallVariantComment,
@@ -60,6 +66,7 @@ from variants.query_presets import (
 from variants.serializers import (
     AcmgCriteriaRatingSerializer,
     CaseSerializer,
+    ExportFileBgJobSerializer,
     HpoTerms,
     JobStatus,
     SettingsShortcuts,
@@ -75,7 +82,7 @@ from variants.serializers import (
     SmallVariantQueryStatusSerializer,
     SmallVariantQueryUpdateSerializer,
 )
-from variants.tasks import single_case_filter_task
+from variants.tasks import export_file_task, single_case_filter_task
 
 
 class VariantsApiBaseMixin(SODARAPIGenericProjectMixin):
@@ -735,6 +742,123 @@ class SmallVariantQueryHpoTermsApiView(SmallVariantQueryApiMixin, RetrieveAPIVie
                     hpoterms[hpo] = "unknown term"
 
         return HpoTerms(hpoterms=hpoterms)
+
+
+class SmallVariantQueryDownloadGenerateApiView(VariantsApiBaseMixin, APIView):
+    """Start generating results for download of a small variant query.
+
+    **URL:** ``/variants/api/query-case/download/generate/tsv/{query.sodar_uuid}``
+
+    **URL:** ``/variants/api/query-case/download/generate/xlsx/{query.sodar_uuid}``
+
+    **URL:** ``/variants/api/query-case/download/generate/vcf/{query.sodar_uuid}``
+
+    **Methods:** ``GET``
+
+    **Returns:**
+
+    """
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+    def get(self, request, *args, **kwargs):
+        project = self.get_project()
+        query = SmallVariantQuery.objects.get(sodar_uuid=self.kwargs["smallvariantquery"])
+
+        if self.request.get_full_path() == reverse(
+            "variants:ajax-query-case-download-generate-tsv",
+            kwargs={"smallvariantquery": query.sodar_uuid},
+        ):
+            file_type = "tsv"
+        elif self.request.get_full_path() == reverse(
+            "variants:ajax-query-case-download-generate-vcf",
+            kwargs={"smallvariantquery": query.sodar_uuid},
+        ):
+            file_type = "vcf"
+        else:
+            file_type = "xlsx"
+
+        with transaction.atomic():
+            # Construct background job objects
+            bg_job = BackgroundJob.objects.create(
+                name="Create {} file for case {}".format(file_type, query.case.name),
+                project=project,
+                job_type=ExportFileBgJob.spec_name,
+                user=self.request.user,
+            )
+            export_job = ExportFileBgJob.objects.create(
+                project=project,
+                bg_job=bg_job,
+                case=query.case,
+                query_args=query.query_settings,
+                file_type=file_type,
+            )
+
+        export_file_task.delay(export_job_pk=export_job.pk)
+        return JsonResponse({"export_job__sodar_uuid": export_job.sodar_uuid}, status=200)
+
+
+class SmallVariantQueryDownloadStatusApiView(VariantsApiBaseMixin, RetrieveAPIView):
+    """Get status of generating results for download of a small variant query.
+
+    **URL:** ``/variants/api/query-case/download/status/{job.sodar_uuid}``
+
+    **Methods:** ``GET``
+
+    **Returns:**
+
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "exportfilebgjob"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    serializer_class = ExportFileBgJobSerializer
+
+    queryset = ExportFileBgJob.objects.all()
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+
+class SmallVariantQueryDownloadServeApiView(VariantsApiBaseMixin, APIView):
+    """Serve download results of a small variant query.
+
+    **URL:** ``/variants/api/query-case/download/serve/{exportfilebgjob.sodar_uuid}``
+
+    **Methods:** ``GET``
+
+    **Returns:**
+
+    """
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+    def get(self, request, *args, **kwargs):
+        try:
+            content_types = {
+                "tsv": "text/tab-separated-values",
+                "vcf": "text/plain+gzip",
+                "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            }
+            extensions = {"tsv": ".tsv", "vcf": ".vcf.gz", "xlsx": ".xlsx"}
+            job = ExportFileBgJob.objects.get(sodar_uuid=self.kwargs["exportfilebgjob"])
+            response = HttpResponse(
+                job.export_result.payload, content_type=content_types[job.file_type]
+            )
+            response["Content-Disposition"] = 'attachment; filename="%(name)s%(ext)s"' % {
+                "name": "varfish_%s_%s"
+                % (timezone.now().strftime("%Y-%m-%d_%H:%M:%S.%f"), job.case.sodar_uuid),
+                "ext": extensions[job.file_type],
+            }
+            return response
+
+        except ObjectDoesNotExist as e:
+            raise Http404("File has not been generated (yet)!") from e
 
 
 class SmallVariantDetailsApiView(CaseApiMixin, FrequencyMixin, ExtraAnnosMixin, RetrieveAPIView):
