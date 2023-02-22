@@ -234,7 +234,7 @@ onMounted(() => {
         <template
           v-if="filterQueryStore.queryState === QueryStates.Error.value"
         >
-          An error has occured in the query!
+          An error has occurred in the query!
         </template>
       </strong>
       <div>

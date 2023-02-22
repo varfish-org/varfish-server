@@ -209,4 +209,20 @@ export default {
     )
     await response
   },
+  async generateDownloadResults(csrfToken, fileType, queryUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/query-case/download/generate/${fileType}/${queryUuid}`, // no trailing slash!!!
+      'GET'
+    )
+    return await response.json()
+  },
+  async statusDownloadResults(csrfToken, jobUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/query-case/download/status/${jobUuid}/`,
+      'GET'
+    )
+    return await response.json()
+  },
 }

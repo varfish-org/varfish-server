@@ -8,24 +8,14 @@ import FilterFormEffectPane from './FilterFormEffectPane.vue'
 import FilterFormClinvarPane from './FilterFormClinvarPane.vue'
 import FilterFormGenesRegionsPane from './FilterFormGenesRegionsPane.vue'
 import FilterFormFlagsPane from './FilterFormFlagsPane.vue'
-import FilterFormDownloadPane from './FilterFormDownloadPane.vue'
 import FilterFormQualityPane from './FilterFormQualityPane.vue'
 import FilterFormQuickPresets from './FilterFormQuickPresets.vue'
 import { QueryStates } from '@variants/enums'
-import { computed, reactive, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { useFilterQueryStore } from '../stores/filterQuery'
 
 const filterQueryStore = useFilterQueryStore()
-
-// TODO: export settings not in query for now
-const exportSettings = reactive({
-  file_type: 'tsv',
-  export_flags: true,
-  export_comments: true,
-  export_donors:
-    filterQueryStore.caseObj?.pedigree?.map((member) => member.name) || [],
-})
 
 const genotypePaneRef = ref(null)
 const frequencyPaneRef = ref(null)
@@ -225,20 +215,6 @@ const onSubmitCancelButtonClicked = () => {
               >
                 Flags &amp; Comments
               </a>
-              <a
-                ref="exportPaneRef"
-                :class="{ 'text-danger': exportHasError }"
-                class="dropdown-item"
-                id="export-tab"
-                data-toggle="tab"
-                href="#panel-export"
-                role="tab"
-                title="Configure downloadable file creation"
-                data-placement="left"
-              >
-                Configure Downloads
-                <i-mdi-alert-circle-outline v-if="exportHasError" />
-              </a>
             </div>
           </li>
         </ul>
@@ -391,23 +367,6 @@ const onSubmitCancelButtonClicked = () => {
                 filterQueryStore.filtrationComplexityMode
               "
               v-model:query-settings="filterQueryStore.querySettings"
-            />
-          </div>
-          <div
-            class="tab-pane fade"
-            id="panel-export"
-            role="tabpanel"
-            arial-labelledby="export-tab"
-          >
-            <FilterFormDownloadPane
-              :show-filtration-inline-help="
-                filterQueryStore.showFiltrationInlineHelp
-              "
-              :filtration-complexity-mode="
-                filterQueryStore.filtrationComplexityMode
-              "
-              :case="filterQueryStore.caseObj"
-              v-model:export-settings="exportSettings"
             />
           </div>
         </div>

@@ -14,6 +14,9 @@ from variants.views.api import (
     SmallVariantFlagsListCreateApiView,
     SmallVariantFlagsUpdateApiView,
     SmallVariantQueryCreateApiView,
+    SmallVariantQueryDownloadGenerateApiView,
+    SmallVariantQueryDownloadServeApiView,
+    SmallVariantQueryDownloadStatusApiView,
     SmallVariantQueryFetchExtendedResultsApiView,
     SmallVariantQueryFetchResultsApiView,
     SmallVariantQueryHpoTermsApiView,
@@ -166,6 +169,55 @@ class SmallVariantQueryHpoTermsAjaxView(SmallVariantQueryHpoTermsApiView):
     """Fetch HPO terms of a small variant query.
 
     **URL:** ``/variants/ajax/query-case/hpo-terms/{query.sodar_uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class SmallVariantQueryDownloadGenerateAjaxView(SmallVariantQueryDownloadGenerateApiView):
+    """Start generating results for download of a small variant query.
+
+    **URL:** ``/variants/ajax/query-case/download/generate/tsv/{query.sodar_uuid}``
+
+    **URL:** ``/variants/ajax/query-case/download/generate/vcf/{query.sodar_uuid}``
+
+    **URL:** ``/variants/ajax/query-case/download/generate/xlsx/{query.sodar_uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class SmallVariantQueryDownloadServeAjaxView(SmallVariantQueryDownloadServeApiView):
+    """Serve download results of a small variant query.
+
+    **URL:** ``/variants/ajax/query-case/download/serve/{exportfilebgjob.sodar_uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class SmallVariantQueryDownloadStatusAjaxView(SmallVariantQueryDownloadStatusApiView):
+    """Get status of generating results for download of a small variant query.
+
+    **URL:** ``/variants/ajax/query-case/download/status/{exportfilebgjob.sodar_uuid}``
 
     **Methods:** See base API class.
 

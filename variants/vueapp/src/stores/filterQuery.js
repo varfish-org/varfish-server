@@ -4,7 +4,7 @@ import { apiQueryStateToQueryState, QueryStates } from '@variants/enums.js'
 import { copy } from '@variants/helpers.js'
 import { previousQueryDetailsToQuerySettings } from '@variants/stores/filterQuery.funcs.js'
 import { defineStore } from 'pinia'
-import { nextTick, ref } from 'vue'
+import { nextTick, reactive, ref } from 'vue'
 
 /** Constants with the used store states. */
 export const StoreState = Object.freeze({
@@ -202,6 +202,20 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
   const previousQueryDetails = ref(null)
   /** Results of query. */
   const queryResults = ref(null)
+  /** Uuid of query. */
+  const queryUuid = ref(null)
+  /** Download status TSV. */
+  const downloadStatusTsv = ref(null)
+  /** Download status VCF. */
+  const downloadStatusVcf = ref(null)
+  /** Download status XLSX. */
+  const downloadStatusXlsx = ref(null)
+  /** UUID of export job for TSV file. */
+  const exportJobUuidTsv = ref(null)
+  /** UUID of export job for VCF file. */
+  const exportJobUuidVcf = ref(null)
+  /** UUID of export job for XLSX file. */
+  const exportJobUuidXlsx = ref(null)
 
   // bookkeeping for query and results
   /** Current query state. */
@@ -305,6 +319,116 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     queryState.value = QueryStates.Cancelled.value
   }
 
+  /**
+   * Generate the files for download.
+   */
+  const generateDownloadResults = async (fileType) => {
+    await variantsApi
+      .generateDownloadResults(csrfToken.value, fileType, queryUuid.value)
+      .then((response) => {
+        if (fileType === 'tsv') {
+          exportJobUuidTsv.value = response.export_job__sodar_uuid
+        } else if (fileType === 'vcf') {
+          exportJobUuidVcf.value = response.export_job__sodar_uuid
+        } else if (fileType === 'xlsx') {
+          exportJobUuidXlsx.value = response.export_job__sodar_uuid
+        } else {
+          return
+        }
+        runFetchDownloadLoop(response.export_job__sodar_uuid, fileType)
+      })
+  }
+
+  /**
+   * Get link to download the results file.
+   */
+  const serveDownloadResults = (fileType) => {
+    const exportJobUuid = reactive({
+      tsv: exportJobUuidTsv,
+      vcf: exportJobUuidVcf,
+      xlsx: exportJobUuidXlsx,
+    })
+    return `/variants/ajax/query-case/download/serve/${
+      ref(exportJobUuid[fileType]).value
+    }/`
+  }
+
+  /**
+   * Get the status of the file generation job.
+   */
+  const getDownloadStatus = (fileType) => {
+    const downloadStatus = reactive({
+      tsv: downloadStatusTsv,
+      vcf: downloadStatusVcf,
+      xlsx: downloadStatusXlsx,
+    })
+    return downloadStatus[fileType]
+  }
+
+  /**
+   * Start the loop for waiting for the results download.
+   */
+  const runFetchDownloadLoop = async (
+    exportJobUuid,
+    fileType,
+    failuresSeen = 0
+  ) => {
+    // Fetch query status, allowing up to FETCH_LOOP_ALLOW_FAILURES errors.
+    try {
+      const response = await variantsApi.statusDownloadResults(
+        csrfToken.value,
+        exportJobUuid
+      )
+      if (fileType === 'tsv') {
+        downloadStatusTsv.value = response.status
+      } else if (fileType === 'vcf') {
+        downloadStatusVcf.value = response.status
+      } else if (fileType === 'xlsx') {
+        downloadStatusXlsx.value = response.status
+      }
+
+      if (response.status === 'failed') {
+        return
+      }
+
+      await nextTick()
+      failuresSeen = 0 // reset failure counter
+    } catch (err) {
+      failuresSeen += 1
+      console.warn(
+        `There was a problem retrieving the download status (${failuresSeen} / ${FETCH_LOOP_ALLOW_FAILURES}`,
+        err
+      )
+      if (failuresSeen > FETCH_LOOP_ALLOW_FAILURES) {
+        if (fileType === 'tsv') {
+          downloadStatusTsv.value = 'failed'
+        } else if (fileType === 'vcf') {
+          downloadStatusVcf.value = 'failed'
+        } else if (fileType === 'xlsx') {
+          downloadStatusXlsx.value = 'failed'
+        }
+        return // do not continue
+      }
+    }
+
+    if (fileType === 'tsv' && downloadStatusTsv.value === 'done') {
+      return
+    } else if (fileType === 'vcf' && downloadStatusVcf.value === 'done') {
+      return
+    } else if (fileType === 'xlsx' && downloadStatusXlsx.value === 'done') {
+      return
+    }
+
+    // Call function again via `setTimeout()`.  Loop will be broken on top of next runFetchLoop call.
+    setTimeout(
+      runFetchDownloadLoop,
+      FETCH_LOOP_DELAY,
+      exportJobUuid,
+      fileType,
+      failuresSeen
+    )
+  }
+
   /** Promise for initialization of the store. */
   const initializeRes = ref(null)
 
@@ -348,10 +472,14 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       ),
       // 2. fetch previous query UUID
       fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
-        .then((queryUuid) => {
-          if (queryUuid) {
+        .then((response) => {
+          if (response) {
             // Retrieve query details and extract query settings.
-            return variantsApi.retrieveQueryDetails(csrfToken.value, queryUuid)
+            queryUuid.value = response
+            return variantsApi.retrieveQueryDetails(
+              csrfToken.value,
+              queryUuid.value
+            )
           }
         })
         // 2.1 once we have previous query UUID, fetch query details
@@ -421,5 +549,8 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     initialize,
     submitQuery,
     cancelQuery,
+    generateDownloadResults,
+    serveDownloadResults,
+    getDownloadStatus,
   }
 })

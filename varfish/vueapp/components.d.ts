@@ -27,6 +27,7 @@ declare module '@vue/runtime-core' {
     IFaSolidCode: typeof import('~icons/fa-solid/code')['default']
     IFaSolidComment: typeof import('~icons/fa-solid/comment')['default']
     IFaSolidDatabase: typeof import('~icons/fa-solid/database')['default']
+    IFaSolidEllipsisH: typeof import('~icons/fa-solid/ellipsis-h')['default']
     IFaSolidExclamationCircle: typeof import('~icons/fa-solid/exclamation-circle')['default']
     IFaSolidFlag: typeof import('~icons/fa-solid/flag')['default']
     IFaSolidFlagCheckered: typeof import('~icons/fa-solid/flag-checkered')['default']
