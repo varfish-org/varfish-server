@@ -10,9 +10,9 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     title = "Cases"
     urls = urlpatterns
 
-    plugin_ordering = 100
+    plugin_ordering = 10
 
-    icon = "mdi:beta"
+    icon = "mdi:hospital-building"
 
     entry_point_url_id = "cases:entrypoint"
 

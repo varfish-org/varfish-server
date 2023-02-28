@@ -28,6 +28,11 @@ commentsStore.initialize(
   { csrf_token: queryStore.csrfToken },
   queryStore.caseUuid
 )
+
+$(function () {
+  $('#' + detailsStore.modalTab).tab('show')
+  detailsStore.modalTab = 'info-tab'
+})
 </script>
 
 <template>

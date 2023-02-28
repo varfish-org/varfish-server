@@ -80,7 +80,7 @@ describe('api', () => {
 
     expect(fetch.mock.calls.length).toEqual(1)
     expect(fetch.mock.calls[0]).toEqual([
-      '/variants/fake-project-uuid/api-qc/',
+      '/variants/ajax/project/qc/fake-project-uuid/',
       {
         body: null,
         credentials: 'same-origin',

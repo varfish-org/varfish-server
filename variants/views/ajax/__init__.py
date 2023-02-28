@@ -4,6 +4,7 @@ from variants.views.api import (
     AcmgCriteriaRatingCreateApiView,
     AcmgCriteriaRatingDeleteApiView,
     AcmgCriteriaRatingUpdateApiView,
+    CaseListQcStatsApiView,
     CaseRetrieveApiView,
     ExtraAnnoFieldsApiView,
     HpoTermsApiView,
@@ -456,13 +457,28 @@ class ExtraAnnoFieldsAjaxView(ExtraAnnoFieldsApiView):
 
 
 class HpoTermsAjaxView(HpoTermsApiView):
-    """A view that queries HPO terms for a given string.
+    """A view that lists HPO terms based on a query string.
+    Also includes OMIM, ORPHAN and DECIPHER terms.
 
-    **URL:** ``/variants/ajax/hpo-terms/``
+    **URL:** ``/variants/ajax/hpo-terms/?query={string}/``
 
     **Methods:** See base API class.
 
     **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class CaseListQcStatsAjaxView(CaseListQcStatsApiView):
+    """A view that lists HPO terms based on a query string.
+    Also includes OMIM, ORPHAN and DECIPHER terms.
+
+    **URL:** ``/variants/ajax/hpo-terms/?query={string}/``
+
+    **Methods:** ``GET``
+
+    **Returns:** List of HPO terms that were found for that term, HPO id and name.
     """
 
     authentication_classes = [SessionAuthentication]

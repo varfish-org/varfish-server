@@ -51,7 +51,7 @@ const routes = [
   },
   {
     name: 'variants-filter',
-    path: '/variants/filter/:case',
+    path: '/variants/filter/:case/:query?',
     component: FilterApp,
   },
   {

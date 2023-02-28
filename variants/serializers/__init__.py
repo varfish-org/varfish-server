@@ -5,6 +5,8 @@ import copy
 import typing
 
 import attrs
+
+# TODO pycharm marks the following as unused, but they are actually required.
 from django.db.models import Q
 from projectroles.serializers import SODARModelSerializer
 from rest_framework import serializers
@@ -14,7 +16,6 @@ from extra_annos.models import ExtraAnno, ExtraAnnoField
 from geneinfo.models import Hgnc, Hpo, HpoName
 from geneinfo.serializers import GeneSerializer
 from genepanels.models import expand_panels_in_gene_list
-from variants.forms import FilterForm
 from variants.models import (
     AcmgCriteriaRating,
     SmallVariant,
@@ -104,8 +105,8 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
         """Make case and user writeable on creation."""
         validated_data["user"] = self.context["request"].user
         validated_data["case"] = self.context["case"]
-        validated_data["form_version"] = FilterForm.form_version
-        validated_data["form_id"] = FilterForm.form_id
+        validated_data["form_version"] = 1
+        validated_data["form_id"] = "variants.small_variant_filter_form"
         return super().create(validated_data)
 
     def validate(self, attrs):
@@ -691,6 +692,8 @@ class SmallVariantFlagsSerializer(SODARModelSerializer):
 
 
 class SmallVariantDetailsSerializer(serializers.Serializer):
+    """Serializer for the small variant details. Not based on a model"""
+
     clinvar = ClinvarSerializer(many=True)
     knowngeneaa = serializers.JSONField()
     effect_details = serializers.JSONField()
@@ -732,3 +735,17 @@ class HpoTermSerializer(serializers.Serializer):
 
     id = serializers.CharField()
     name = serializers.CharField()
+
+
+class CaseListQcStatsSerializer(serializers.Serializer):
+    """"""
+
+    pedigree = serializers.JSONField()
+    relData = serializers.JSONField()
+    varStats = serializers.JSONField()
+    sexErrors = serializers.JSONField()
+    chrXHetHomRatio = serializers.JSONField()
+    dps = serializers.JSONField()
+    dpQuantiles = serializers.JSONField()
+    hetRatioQuantiles = serializers.JSONField()
+    dpHetData = serializers.JSONField()

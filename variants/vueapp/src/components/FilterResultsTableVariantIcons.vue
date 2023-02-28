@@ -1,13 +1,18 @@
 <script setup>
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 import { getAcmgBadge } from '@variants/helpers.js'
 
-const queryStore = useFilterQueryStore()
+const detailsStore = useVariantDetailsStore()
 
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
   params: Object,
 })
+
+const selectCommentFlags = () => {
+  detailsStore.modalTab = 'comments-flags-tab'
+  params.context.emit()
+}
 
 const symbol = props.params.data.symbol || props.params.data.gene_symbol
 const acmgClass =
@@ -25,6 +30,7 @@ const acmgBadge = acmgBadgeClasses.join(' ')
       v-if="params.data.flag_count"
       class="text-muted"
       title="flags & bookmarks"
+      @click="selectCommentFlags"
     />
     <i-fa-regular-bookmark
       v-else

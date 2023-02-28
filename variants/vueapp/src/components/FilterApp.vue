@@ -49,7 +49,7 @@ variantDetailsStore.initialize(appContext)
 
 // Initialize filter query store.
 const filterQueryStore = useFilterQueryStore()
-filterQueryStore.initialize(appContext, caseUuidRef.value)
+filterQueryStore.initialize(appContext, caseUuidRef.value, route.params.query)
 // Initialize cases store.
 const casesStore = useCasesStore()
 casesStore.initialize(appContext)

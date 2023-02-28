@@ -1,5 +1,6 @@
 """API views for ``variants`` app."""
 import contextlib
+from itertools import chain
 import re
 import typing
 
@@ -11,9 +12,11 @@ from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import Q
+from django.forms import model_to_dict
 from django.http import Http404, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils import timezone
+import numpy as np
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
 from rest_framework import views
 from rest_framework.exceptions import NotFound
@@ -45,14 +48,17 @@ from variants.helpers import get_engine
 from variants.models import (
     AcmgCriteriaRating,
     Case,
+    CaseAwareProject,
     ExportFileBgJob,
     FilterBgJob,
     SmallVariant,
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
+    SmallVariantSet,
     SmallVariantSummary,
     load_molecular_impact,
+    only_source_name,
 )
 from variants.queries import CaseLoadPrefetchedQuery, KnownGeneAAQuery
 from variants.query_presets import (
@@ -66,6 +72,7 @@ from variants.query_presets import (
 )
 from variants.serializers import (
     AcmgCriteriaRatingSerializer,
+    CaseListQcStatsSerializer,
     CaseSerializer,
     ExportFileBgJobSerializer,
     ExtraAnnoFieldSerializer,
@@ -1514,13 +1521,14 @@ class ExtraAnnoFieldsApiView(
 
 
 class HpoTermsApiView(ListAPIView):
-    """A view that queries HPO terms for a given string.
+    """A view that lists HPO terms based on a query string.
+    Also includes OMIM, ORPHAN and DECIPHER terms.
 
-    **URL:** ``/variants/api/hpo-terms/``
+    **URL:** ``/variants/api/hpo-terms/?query={string}/``
 
     **Methods:** ``GET``
 
-    **Returns:** List of HPO terms and associated names matching the query.
+    **Returns:** List of HPO terms that were found for that term, HPO id and name.
     """
 
     renderer_classes = [VarfishApiRenderer]
@@ -1562,7 +1570,150 @@ class HpoTermsApiView(ListAPIView):
                 else:
                     if name not in names:
                         names.append(name)
-
             result.append({"id": o["database_id"], "name": ";;".join(names)})
+
+        return result
+
+
+def build_rel_data(pedigree, relatedness):
+    """Return statistics"""
+    rel_parent_child = set()
+
+    for line in pedigree:
+        if line["mother"] != "0":
+            rel_parent_child.add((line["patient"], line["mother"]))
+            rel_parent_child.add((line["mother"], line["patient"]))
+
+        if line["father"] != "0":
+            rel_parent_child.add((line["patient"], line["father"]))
+            rel_parent_child.add((line["father"], line["patient"]))
+
+    rel_siblings = set()
+
+    for line1 in pedigree:
+        for line2 in pedigree:
+            if (
+                line1["patient"] != line2["patient"]
+                and line1["mother"] != "0"
+                and line2["mother"] != "0"
+                and line1["father"] != "0"
+                and line2["father"] != "0"
+                and line1["father"] == line2["father"]
+                and line1["mother"] == line2["mother"]
+            ):
+                rel_siblings.add((line1["patient"], line2["patient"]))
+
+    for rel in relatedness:
+        yield {
+            "sample0": only_source_name(rel.sample1),
+            "sample1": only_source_name(rel.sample2),
+            "parentChild": (rel.sample1, rel.sample2) in rel_parent_child,
+            "sibSib": (rel.sample1, rel.sample2) in rel_siblings,
+            "ibs0": rel.n_ibs0,
+            "rel": rel.relatedness(),
+        }
+
+
+def build_sex_data(case_or_project):
+    return {
+        "sexErrors": {only_source_name(k): v for k, v in case_or_project.sex_errors().items()},
+        "chrXHetHomRatio": {
+            only_source_name(line["patient"]): case_or_project.chrx_het_hom_ratio(line["patient"])
+            for line in case_or_project.get_filtered_pedigree_with_samples()
+        },
+    }
+
+
+def build_cov_data(cases):
+    dp_medians = []
+    het_ratios = []
+    dps = {}
+    dp_het_data = []
+
+    for case in cases:
+        try:
+            variant_set = case.latest_variant_set
+
+            if variant_set:
+                for stats in variant_set.variant_stats.sample_variant_stats.all():
+                    dp_medians.append(stats.ontarget_dp_quantiles[2])
+                    het_ratios.append(stats.het_ratio)
+                    dps[stats.sample_name] = {
+                        int(key): value for key, value in stats.ontarget_dps.items()
+                    }
+                    dp_het_data.append(
+                        {
+                            "x": stats.ontarget_dp_quantiles[2],
+                            "y": stats.het_ratio or 0.0,
+                            "sample": only_source_name(stats.sample_name),
+                        }
+                    )
+
+        except SmallVariantSet.variant_stats.RelatedObjectDoesNotExist:
+            pass  # swallow
+
+    # Catch against empty lists, numpy will complain otherwise.
+    if not dp_medians:
+        dp_medians = [0]
+
+    if not het_ratios:
+        het_ratios = [0]
+
+    result = {
+        "dps": dps,
+        "dpQuantiles": list(np.percentile(np.asarray(dp_medians), [0, 25, 50, 100])),
+        "hetRatioQuantiles": list(np.percentile(np.asarray(het_ratios), [0, 25, 50, 100])),
+        "dpHetData": dp_het_data,
+    }
+
+    return result
+
+
+class CaseListQcStatsApiView(RetrieveAPIView):
+    """Render JSON with project-wide case statistics"""
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    serializer_class = CaseListQcStatsSerializer
+
+    def get_object(self):
+        cases = Case.objects.filter(project__sodar_uuid=self.kwargs["project"]).prefetch_related(
+            "smallvariantset_set__variant_stats",
+            "smallvariantset_set__variant_stats__sample_variant_stats",
+            "project",
+        )
+        project = CaseAwareProject.objects.prefetch_related("variant_stats").get(
+            sodar_uuid=self.kwargs["project"]
+        )
+
+        try:
+            rel_data = list(
+                build_rel_data(
+                    list(chain(*[case.pedigree for case in cases])),
+                    project.variant_stats.relatedness.all(),
+                )
+            )
+
+        except project.variant_stats.RelatedObjectDoesNotExist:
+            rel_data = []
+
+        result = {
+            "pedigree": [
+                {**line, "patient": only_source_name(line["patient"])}
+                for case in cases
+                for line in case.pedigree
+            ],
+            "relData": rel_data,
+            **build_sex_data(project),
+            **build_cov_data(
+                list(
+                    project.case_set.prefetch_related(
+                        "smallvariantset_set__variant_stats__sample_variant_stats"
+                    ).all()
+                )
+            ),
+            "varStats": [model_to_dict(s) for s in project.sample_variant_stats()],
+        }
 
         return result

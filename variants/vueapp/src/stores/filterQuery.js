@@ -498,7 +498,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
   const initializeRes = ref(null)
 
   /** Initialize the store from the appContext. */
-  const initialize = async (appContext, theCaseUuid) => {
+  const initialize = async (appContext, theCaseUuid, theQueryUuid) => {
     if (storeState.value !== 'initial') {
       // only once
       return initializeRes.value
@@ -509,6 +509,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
 
     // Initialize from appContext
     caseUuid.value = theCaseUuid
+    queryUuid.value = theQueryUuid
     umdPredictorApiToken.value = appContext.umd_predictor_api_token
     hgmdProEnabled.value = appContext.hgmd_pro_enabled
     hgmdProPrefix.value = appContext.hgmd_pro_prefix
@@ -538,9 +539,11 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       // 2. fetch previous query UUID
       fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
         .then((response) => {
-          if (response) {
+          if (response && !queryUuid.value) {
             // Retrieve query details and extract query settings.
             queryUuid.value = response
+          }
+          if (queryUuid.value) {
             return variantsApi.retrieveQueryDetails(
               csrfToken.value,
               queryUuid.value

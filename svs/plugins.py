@@ -22,7 +22,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     icon = "mdi:hospital-building"
 
-    entry_point_url_id = "variants:case-list"
+    entry_point_url_id = "cases:entrypoint"
 
     description = "Structural Variants"
 

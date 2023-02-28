@@ -612,7 +612,8 @@ PROJECTROLES_EMAIL_SENDER_REPLY = env.bool("PROJECTROLES_EMAIL_SENDER_REPLY", Fa
 # Allow showing and synchronizing local non-admin users
 PROJECTROLES_ALLOW_LOCAL_USERS = env.bool("PROJECTROLES_ALLOW_LOCAL_USERS", False)
 
-PROJECTROLES_HIDE_APP_LINKS = ["svs"]
+# Hide selected apps
+PROJECTROLES_HIDE_APP_LINKS = ["svs", "variants"]
 
 # Whether or not to sync from remote (disable only locally).
 VARFISH_PROJECTROLES_SYNC_REMOTE = env.bool("VARFISH_PROJECTROLES_SYNC_REMOTE", True)

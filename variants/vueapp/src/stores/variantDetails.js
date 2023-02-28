@@ -62,6 +62,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
   const gridApi = ref(null)
   const queryDetails = ref(null)
   const acmgCriteriaRating = ref(null)
+  const modalTab = ref('info-tab')
 
   const initialize = async (appContext) => {
     csrfToken.value = appContext.csrf_token
@@ -328,6 +329,7 @@ export const useVariantDetailsStore = defineStore('variantDetails', () => {
     gridApi,
     queryDetails,
     acmgCriteriaRating,
+    modalTab,
     // functions
     initialize,
     submitAcmgCriteriaRating,
