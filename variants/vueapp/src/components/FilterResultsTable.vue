@@ -8,6 +8,15 @@ import ExportResults from './ExportResults.vue'
 import { defineColumnDefs } from './FilterResultsTable.columnDefs.js'
 import { declareWrapper } from '../helpers'
 
+const goToLocus = async ({ chromosome, start, end }) => {
+  const chrPrefixed = chromosome.startsWith('chr')
+    ? chromosome
+    : `chr${chromosome}`
+  await fetch(
+    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${start}-${end}`
+  )
+}
+
 /**
  * The component's props.
  */
@@ -146,15 +155,13 @@ const onFirstDataRendered = () => {
 
 /** Event handler for ag-grid's {@code cellClicked} event. */
 const onCellClicked = (event) => {
-  emit('variantSelected', {
-    gridRow: event.node,
-    gridApi: event.api,
-    smallVariant: event.data,
-  })
-  // if (!['selector', 'variant_icons', 'igv'].includes(event.column.getColId())) {
-  //   $('#variantDetailsModal').modal()
-  //   detailsStore.fetchVariantDetails(event, previousQueryDetails.query_settings.database_select)
-  // }
+  if (!['selector', 'variant_icons', 'igv'].includes(event.column.getColId())) {
+    emit('variantSelected', {
+      gridRow: event.node,
+      gridApi: event.api,
+      smallVariant: event.data,
+    })
+  }
 }
 </script>
 

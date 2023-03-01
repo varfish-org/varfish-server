@@ -332,8 +332,19 @@ export function defineColumnDefs({
     {
       field: 'igv',
       headerName: '',
-      cellRenderer: (_params) => {
-        return '<a class="btn btn-sm badge-secondary" style="font-size: 80%" :href="`http://127.0.0.1:60151/goto?locus=chr${params.data.chromosome}:${params.data.start}-${params.data.end}`">IGV</a>'
+      cellRenderer: (params) => {
+        return `
+          <a
+            class="btn btn-sm badge-secondary"
+            style="font-size: 80%"
+            href="http://127.0.0.1:60151/goto?locus=${
+              params.data.chromosome.startsWith('chr')
+                ? params.data.chromosome
+                : 'chr' + params.data.chromosome
+            }:${params.data.start}-${params.data.end}"
+          >
+            IGV
+          </a>`
       },
     },
   ]
