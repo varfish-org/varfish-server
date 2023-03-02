@@ -3,7 +3,7 @@
  * Definition of the filter form tab for genes and regions.
  */
 
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import Multiselect from '@vueform/multiselect'
 
 import TokenizingTextarea from './TokenizingTextarea.vue'
@@ -28,7 +28,22 @@ const props = defineProps({
 
 const emit = defineEmits(['update:querySettings'])
 
-const listType = ref('genomic_region')
+// Store field choice.
+const listTypeRef = ref('gene_allowlist')
+// Return field choice, empty other field when set.
+const listType = computed({
+  get() {
+    return listTypeRef.value
+  },
+  set(value) {
+    if (value === 'gene_allowlist') {
+      props.querySettings.genomic_region = ''
+    } else if (value === 'genomic_region') {
+      props.querySettings.gene_allowlist = ''
+    }
+    listTypeRef.value = value
+  },
+})
 
 // tokens copied here once it validates
 const genomicRegionArrRef = ref([])
@@ -245,60 +260,8 @@ defineExpose({
         <div class="invalid-feedback mr-2">
           There is a problem with: {{ invalidTextareas().join(', ') }}.
         </div>
-
-        <div
-          v-if="listType === 'gene_allowlist'"
-          class="row form-inline"
-          style="width: 80%"
-        >
-          <div class="col-5">
-            <Multiselect
-              :options="genomicsEnglandPanels"
-              placeholder="Add from GE PanelApp"
-              :searchable="true"
-              @select="insertGenomicsEnglandPanel"
-            />
-          </div>
-          <div class="col-4">
-            Confidence
-            <select class="form-control" v-model="genomicsEnglandConfidence">
-              <option value="3">green</option>
-              <option value="2">amber</option>
-              <option value="1">red</option>
-            </select>
-            and above
-          </div>
-          <div class="col-3">
-            <button
-              class="btn btn-sm btn-outline-secondary dropdown-toggle"
-              type="button"
-              id="presets-menu-button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              <span class="d-none d-sm-inline"> Add Local Panel </span>
-              <div
-                v-for="category in genePanelCategories"
-                class="dropdown-menu"
-                aria-labelledby="presets-menu-button"
-              >
-                <h6 class="dropdown-header">{{ category.title }}</h6>
-                <a
-                  v-for="genepanel in category.genepanel_set"
-                  class="dropdown-item"
-                  href="#"
-                  @click="insertLocalPanel(`GENEPANEL:${genepanel.identifier}`)"
-                >
-                  {{ genepanel.title }} (v{{ genepanel.version_major }}.{{
-                    genepanel.version_minor
-                  }})
-                </a>
-              </div>
-            </button>
-          </div>
-        </div>
       </div>
+
       <div
         v-show="listType === 'genomic_region'"
         class="form-group"
@@ -321,6 +284,52 @@ defineExpose({
         class="form-group"
         id="gene-allowlist-section"
       >
+        <div class="form-inline">
+          <label class="form-group">
+            <Multiselect
+              :options="genomicsEnglandPanels"
+              placeholder="Add from GE PanelApp"
+              :searchable="true"
+              @select="insertGenomicsEnglandPanel"
+            />
+            Confidence
+            <select class="form-control" v-model="genomicsEnglandConfidence">
+              <option value="3">green</option>
+              <option value="2">amber</option>
+              <option value="1">red</option>
+            </select>
+            and above
+          </label>
+
+          <button
+            class="btn btn-sm btn-outline-secondary dropdown-toggle"
+            type="button"
+            id="presets-menu-button"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <span class="d-none d-sm-inline"> Add Local Panel </span>
+            <div
+              v-for="category in genePanelCategories"
+              class="dropdown-menu"
+              aria-labelledby="presets-menu-button"
+            >
+              <h6 class="dropdown-header">{{ category.title }}</h6>
+              <a
+                v-for="genepanel in category.genepanel_set"
+                class="dropdown-item"
+                href="#"
+                @click="insertLocalPanel(`GENEPANEL:${genepanel.identifier}`)"
+              >
+                {{ genepanel.title }} (v{{ genepanel.version_major }}.{{
+                  genepanel.version_minor
+                }})
+              </a>
+            </div>
+          </button>
+        </div>
+
         <TokenizingTextarea
           ref="geneAllowListRegionTextareaRef"
           v-model="props.querySettings.gene_allowlist"
@@ -347,4 +356,4 @@ defineExpose({
   </div>
 </template>
 
-<style></style>
+<style src="@vueform/multiselect/themes/default.css"></style>
