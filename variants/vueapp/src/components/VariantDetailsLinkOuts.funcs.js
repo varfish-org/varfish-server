@@ -190,3 +190,23 @@ export const getLinkoutVarseak = (smallVariant, gene) => {
     }&transcript=${smallVariant.refseq_transcript_id}`
   }
 }
+
+export const getLinkoutMt85 = (smallVariant) => {
+  if (!smallVariant) {
+    return '#'
+  } else if (smallVariant.release === 'GRCh37') {
+    return `https://www.genecascade.org/MT85/ChrPos85.cgi?chromosome=${smallVariant.chromosome}&position=${smallVariant.start}&ref=${smallVariant.reference}&alt=${smallVariant.alternative}`
+  } else {
+    return '#'
+  }
+}
+
+export const getLinkoutMt2021 = (smallVariant) => {
+  if (!smallVariant) {
+    return '#'
+  } else if (smallVariant.release === 'GRCh37') {
+    return `https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome=${smallVariant.chromosome}&position=${smallVariant.start}&ref=${smallVariant.reference}&alt=${smallVariant.alternative}`
+  } else {
+    return '#'
+  }
+}

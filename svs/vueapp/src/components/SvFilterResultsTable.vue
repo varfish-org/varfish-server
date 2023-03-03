@@ -168,6 +168,9 @@ const loadFromServer = async () => {
     row.callInfos = (props.caseObj?.pedigree || []).map((member) => {
       return row.payload.call_info[member.name].genotype
     })
+    if (!('masked_breakpoints' in row.payload)) {
+      row.payload.masked_breakpoints = { repeat: 'n/a', segdup: 'n/a' }
+    }
     return row
   }
 
@@ -186,6 +189,7 @@ const loadFromServer = async () => {
     }
   )
   tableRows.value = response.results.map((row) => transmogrify(row))
+  console.log(tableRows.value)
   tableLoading.value = false
 }
 
