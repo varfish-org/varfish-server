@@ -274,10 +274,7 @@ defineExpose({
           <code>chrX:1,000,000-2,000,000.</code>.
         </small>
       </div>
-      <div
-        v-show="listType === 'gene_allowlist'"
-        class="form-group"
-      >
+      <div v-show="listType === 'gene_allowlist'" class="form-group">
         <div class="form-inline">
           <label class="form-group">
             <Multiselect

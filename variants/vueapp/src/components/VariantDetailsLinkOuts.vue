@@ -17,6 +17,8 @@ import {
   getLinkoutVariantValidator,
   getLinkoutVarseak,
   getLinkoutVarsome,
+  getLinkoutMt85,
+  getLinkoutMt2021,
 } from '@variants/components/VariantDetailsLinkOuts.funcs.js'
 import { useFilterQueryStore } from '@variants/stores/filterQuery'
 
@@ -210,6 +212,20 @@ const props = defineProps({
           :class="getLinkoutGnomad(smallVariant) === '#' ? 'disabled' : ''"
           target="_blank"
           >gnomAD</a
+        >
+        <a
+          :href="getLinkoutMt85(smallVariant)"
+          class="btn btn-outline-secondary"
+          :class="getLinkoutMt85(smallVariant) === '#' ? 'disabled' : ''"
+          target="_blank"
+          >MT 85</a
+        >
+        <a
+          :href="getLinkoutMt2021(smallVariant)"
+          class="btn btn-outline-secondary"
+          :class="getLinkoutMt2021(smallVariant) === '#' ? 'disabled' : ''"
+          target="_blank"
+          >MT 2021</a
         >
       </div>
       <strong class="text-muted pl-3">Query @</strong>
