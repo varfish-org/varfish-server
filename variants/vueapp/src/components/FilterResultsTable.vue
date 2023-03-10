@@ -8,15 +8,6 @@ import ExportResults from './ExportResults.vue'
 import { defineColumnDefs } from './FilterResultsTable.columnDefs.js'
 import { declareWrapper } from '../helpers'
 
-const goToLocus = async ({ chromosome, start, end }) => {
-  const chrPrefixed = chromosome.startsWith('chr')
-    ? chromosome
-    : `chr${chromosome}`
-  await fetch(
-    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${start}-${end}`
-  )
-}
-
 /**
  * The component's props.
  */
