@@ -1,3 +1,4 @@
+import FilterResultsTableCellRendererIgv from '@variants/components/FilterResultsTableCellRendererIgv.vue'
 import FilterResultsTableClinvar from '@variants/components/FilterResultsTableClinvar.vue'
 import FilterResultsTableFrequency from '@variants/components/FilterResultsTableFrequency.vue'
 import FilterResultsTableGeneIcons from '@variants/components/FilterResultsTableGeneIcons.vue'
@@ -332,37 +333,7 @@ export function defineColumnDefs({
     {
       field: 'igv',
       headerName: '',
-      cellRenderer: (params) => {
-        const mtLink =
-          params.data.release === 'GRCh37'
-            ? `https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome=${params.data.chromosome}&position=${params.data.start}&ref=${params.data.reference}&alt=${params.data.alternative}`
-            : '#'
-        return `
-          <div class="btn-group btn-group-sm">
-            <a
-              href=${mtLink}
-              target="_blank"
-              style="font-size: 80%"
-              class="btn btn-sm btn-outline-secondary ${
-                mtLink === '#' ? 'disabled' : ''
-              }"
-            >
-              MT
-            </a>
-            <a
-              class="btn btn-sm btn-secondary"
-              target="_blank"
-              style="font-size: 80%"
-              href="http://127.0.0.1:60151/goto?locus=${
-                params.data.chromosome.startsWith('chr')
-                  ? params.data.chromosome
-                  : 'chr' + params.data.chromosome
-              }:${params.data.start}-${params.data.end}"
-            >
-              IGV
-            </a>
-          </div>`
-      },
+      cellRenderer: FilterResultsTableCellRendererIgv,
     },
   ]
 }
