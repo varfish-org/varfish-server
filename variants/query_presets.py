@@ -835,13 +835,11 @@ class _ChromosomePresets:
     whole_genome: typing.Dict[str, typing.Any] = {
         "genomic_region": [],
         "gene_allowlist": [],
-        "gene_blocklist": [],
     }
     #: Presets for the "autosomes" chromosome/region/gene settings
     autosomes: typing.Dict[str, typing.Any] = {
         "genomic_region": list(f"{num}" for num in range(1, 23)),
         "gene_allowlist": [],
-        "gene_blocklist": [],
     }
     #: Presets for the "X-chromosome" chromosome/region/gene settings
     x_chromosome: typing.Dict[str, typing.Any] = {
@@ -849,7 +847,6 @@ class _ChromosomePresets:
             "X",
         ],
         "gene_allowlist": [],
-        "gene_blocklist": [],
     }
     #: Presets for the "Y-chromosomes" chromosome/region/gene settings
     y_chromosome: typing.Dict[str, typing.Any] = {
@@ -857,7 +854,6 @@ class _ChromosomePresets:
             "Y",
         ],
         "gene_allowlist": [],
-        "gene_blocklist": [],
     }
     #: Presets for the "mitochondrial" chromosome/region/gene settings
     mt_chromosome: typing.Dict[str, typing.Any] = {
@@ -865,7 +861,6 @@ class _ChromosomePresets:
             "MT",
         ],
         "gene_allowlist": [],
-        "gene_blocklist": [],
     }
 
 

@@ -2686,54 +2686,6 @@ class TestCaseOneAllowlistBlocklistRegionFilterQuery(SupportQueryTestBase):
                 variant_set=variant_set,
             )
 
-    def test_blocklist_empty(self):
-        self.run_query(CasePrefetchQuery, {"gene_blocklist": []}, 6)
-
-    def test_blocklist_empty_export(self):
-        self.run_query(CaseExportTableQuery, {"gene_blocklist": []}, 6)
-
-    def test_blocklist_empty_vcf(self):
-        self.run_query(CaseExportVcfQuery, {"gene_blocklist": []}, 6)
-
-    def test_blocklist_one_filter(self):
-        self.run_query(CasePrefetchQuery, {"gene_blocklist": [self.hgncs[0].symbol]}, 5)
-
-    def test_blocklist_one_export(self):
-        self.run_query(CaseExportTableQuery, {"gene_blocklist": [self.hgncs[0].symbol]}, 5)
-
-    def test_blocklist_one_vcf(self):
-        self.run_query(CaseExportVcfQuery, {"gene_blocklist": [self.hgncs[0].symbol]}, 5)
-
-    def test_blocklist_two_filter(self):
-        self.run_query(
-            CasePrefetchQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
-        )
-
-    def test_blocklist_two_export(self):
-        self.run_query(
-            CaseExportTableQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
-        )
-
-    def test_blocklist_two_vcf(self):
-        self.run_query(
-            CaseExportVcfQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs[:2]]}, 3
-        )
-
-    def test_blocklist_all_filter(self):
-        self.run_query(
-            CasePrefetchQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
-        )
-
-    def test_blocklist_all_export(self):
-        self.run_query(
-            CaseExportTableQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
-        )
-
-    def test_blocklist_all_vcf(self):
-        self.run_query(
-            CaseExportVcfQuery, {"gene_blocklist": [hgnc.symbol for hgnc in self.hgncs]}, 0
-        )
-
     def test_allowlist_empty(self):
         self.run_query(CasePrefetchQuery, {"gene_allowlist": []}, 6)
 

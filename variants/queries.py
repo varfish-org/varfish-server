@@ -1037,8 +1037,6 @@ class ExtendQueryPartsTranscriptCodingFilter(ExtendQueryPartsBase):
 class ExtendQueryPartsGeneListsFilter(ExtendQueryPartsBase):
     def extend_conditions(self, _query_parts):
         result = []
-        if self.kwargs["gene_blocklist"]:
-            result.append(not_(self._build_list(self.kwargs["gene_blocklist"])))
         if self.kwargs["gene_allowlist"]:
             result.append(self._build_list(self.kwargs["gene_allowlist"]))
         return result

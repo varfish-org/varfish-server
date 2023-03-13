@@ -132,14 +132,10 @@ const refreshQualityRef = () => {
       if (
         !isEqual(props.querySettings.quality[member.name], strippedPresetValues)
       ) {
-        // console.log('incompatible', member.name, 'to', presetValues.label)
-        // console.log(props.querySettings.quality[member.name])
-        // console.log(strippedPresetValues)
         isCompatible = false
       }
     }
     if (isCompatible) {
-      // console.log("QUAL COMPATIBLE WITH", presetName)
       qualityRef.value = presetName
       return
     }
@@ -249,7 +245,7 @@ const refreshQuickPreset = () => {
       inheritanceWrapper.value === theQuickPresets.inheritance &&
       frequencyWrapper.value === theQuickPresets.frequency &&
       impactWrapper.value === theQuickPresets.impact &&
-      qualityRef.value === theQuickPresets.quality &&
+      qualityWrapper.value === theQuickPresets.quality &&
       chromosomesWrapper.value === theQuickPresets.chromosomes &&
       flagsWrapper.value === theQuickPresets.flagsetc
     ) {
@@ -275,7 +271,7 @@ const quickPresetWrapper = computed({
       inheritanceWrapper.value = newQuickPresets.inheritance
       frequencyWrapper.value = newQuickPresets.frequency
       impactWrapper.value = newQuickPresets.impact
-      qualityRef.value = newQuickPresets.quality
+      qualityWrapper.value = newQuickPresets.quality
       chromosomesWrapper.value = newQuickPresets.chromosomes
       flagsWrapper.value = newQuickPresets.flagsetc
     }
@@ -322,6 +318,7 @@ onMounted(() => {
         <option v-for="(value, name) in quickPresets" :value="name">
           {{ value.label ?? name }}
         </option>
+        <option disabled>custom</option>
       </select>
     </div>
 

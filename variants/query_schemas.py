@@ -229,7 +229,6 @@ class CaseQueryV1:
     flag_visual_uncertain: bool = True
 
     gene_allowlist: typing.Optional[typing.List[str]] = None
-    gene_blocklist: typing.Optional[typing.List[str]] = None
     genomic_region: typing.Optional[typing.List[GenomicRegionV1]] = None
 
     remove_if_in_dbsnp: bool = False
@@ -364,7 +363,6 @@ class QueryJsonToFormConverter:
             "flag_visual_negative": query.flag_visual_negative,
             "flag_visual_positive": query.flag_visual_positive,
             "flag_visual_uncertain": query.flag_visual_uncertain,
-            "gene_blocklist": query.gene_blocklist,
             "gene_allowlist": query.gene_allowlist,
             "genomic_region": list(map(convert_genomic_region_v1, query.genomic_region)),
             "prio_enabled": query.prio_enabled,
