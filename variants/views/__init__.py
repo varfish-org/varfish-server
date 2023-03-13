@@ -2550,9 +2550,6 @@ class CaseLoadPrefetchedFilterView(
                 "gene_allowlist": filter_job.smallvariantquery.query_settings.get(
                     "gene_allowlist", []
                 ),
-                "gene_blocklist": filter_job.smallvariantquery.query_settings.get(
-                    "gene_blocklist", []
-                ),
                 "genomic_region": filter_job.smallvariantquery.query_settings.get(
                     "genomic_region", []
                 ),

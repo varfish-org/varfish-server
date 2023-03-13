@@ -58,7 +58,6 @@
   "flag_visual_positive": true,
   "flag_visual_uncertain": true,
   "gene_allowlist": [],
-  "gene_blocklist": [],
   "remove_if_in_dbsnp": false,
   "require_in_clinvar": false,
   "clinvar_include_benign": true,

@@ -3,7 +3,6 @@
     "presetset": "54a32d14-a818-4412-96e4-90b9b4062472",
     "genomic_region": [],
     "gene_allowlist": [],
-    "gene_blocklist": [],
     "date_created": "2022-10-31T15:01:13.872648Z",
     "date_modified": "2022-10-31T15:01:13.872669Z",
     "sodar_uuid": "856ee395-fea4-4d45-8a9a-2879252e12b6",
