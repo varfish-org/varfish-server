@@ -1048,6 +1048,25 @@
         "pattern": "^([a-zA-Z0-9_-]+)$"
       }
     },
+    "gene_blocklist": {
+      "$id": "#/properties/gene_blocklist",
+      "type": "array",
+      "title": "List of genes to exclude from the result",
+      "description": "List of gene symbols, entrez gene identifiers, or ENSEMBL gene identifiers to exclude variants for (for a variant affecting multiple genes, the combinations of the variants and genes will be reported independently), leave empty to apply no such filter",
+      "default": [],
+      "examples": [
+        [
+          "TTN"
+        ],
+        []
+      ],
+      "additionalItems": true,
+      "items": {
+        "$id": "#/properties/gene_blocklist/items",
+        "type": "string",
+        "pattern": "^([a-zA-Z0-9_-]+)$"
+      }
+    },
     "remove_if_in_dbsnp": {
       "$id": "#/properties/remove_if_in_dbsnp",
       "type": "boolean",

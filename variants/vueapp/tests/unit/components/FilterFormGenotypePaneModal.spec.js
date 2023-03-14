@@ -106,6 +106,7 @@ const querySettings = reactive({
   },
   genomic_region: [],
   gene_allowlist: [],
+  gene_blocklist: [],
   clinvar_include_benign: false,
   clinvar_include_likely_benign: false,
   clinvar_include_likely_pathogenic: true,
