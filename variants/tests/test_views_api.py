@@ -731,6 +731,7 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 },
                 "genomic_region": [],
                 "gene_allowlist": [],
+                "gene_blocklist": [],
                 "clinvar_include_benign": False,
                 "clinvar_include_likely_benign": False,
                 "clinvar_include_likely_pathogenic": True,

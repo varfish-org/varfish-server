@@ -65,6 +65,7 @@
   "flag_visual_positive": true,
   "flag_visual_uncertain": true,
   "gene_allowlist": [],
+  "gene_blocklist": [],
   "genomic_region": [
     "chrX",
     "chrY"

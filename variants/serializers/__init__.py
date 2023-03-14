@@ -72,6 +72,7 @@ def query_settings_validator(value):
     DefaultValidatingDraft7Validator(SCHEMA_QUERY_V1).validate(query_settings)
     # Validate gene lists.
     _check_gene_list_found(query_settings["gene_allowlist"], "gene_allowlist")
+    _check_gene_list_found(query_settings["gene_blocklist"], "gene_blocklist")
     # Validate HPO term list.
     if "prio_hpo_terms" in query_settings:
         found = HpoName.objects.filter(hpo_id__in=query_settings["prio_hpo_terms"] or [])

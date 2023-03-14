@@ -76,6 +76,7 @@ WithRegion.args = {
   showFiltrationInlineHelp: false,
   filtrationComplexityMode: 'dev',
   querySettings: reactive({
+    gene_blocklist: [],
     gene_allowlist: [],
     genomic_region: ['chr1', 'chrX:1,000,000-2,000,000'],
   }),
@@ -86,6 +87,7 @@ WithInvalidRegion.args = {
   showFiltrationInlineHelp: false,
   filtrationComplexityMode: 'dev',
   querySettings: reactive({
+    gene_blocklist: ['TGDS'],
     gene_allowlist: ['TGDS'],
     genomic_region: ['chr1', 'chrX:1,000,000-2,000,000', 'invalid'],
   }),
@@ -96,8 +98,19 @@ WithAllowListAndHelp.args = {
   showFiltrationInlineHelp: true,
   filtrationComplexityMode: 'dev',
   querySettings: reactive({
+    gene_blocklist: [],
     gene_allowlist: ['TGDS', 'TTN'],
     genomic_region: [],
   }),
 }
 
+export const WithBlockListAndHelp = Template.bind({})
+WithBlockListAndHelp.args = {
+  showFiltrationInlineHelp: true,
+  filtrationComplexityMode: 'dev',
+  querySettings: reactive({
+    gene_blocklist: ['TGDS', 'TTN'],
+    gene_allowlist: [],
+    genomic_region: [],
+  }),
+}

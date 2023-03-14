@@ -1408,6 +1408,7 @@ class TestEnumChromosomes(TestCase):
             {
                 "genomic_region": [],
                 "gene_allowlist": [],
+                "gene_blocklist": [],
             },
         )
 
@@ -1417,6 +1418,7 @@ class TestEnumChromosomes(TestCase):
             {
                 "genomic_region": [f"{num}" for num in range(1, 23)],
                 "gene_allowlist": [],
+                "gene_blocklist": [],
             },
         )
 
@@ -1428,6 +1430,7 @@ class TestEnumChromosomes(TestCase):
                     "X",
                 ],
                 "gene_allowlist": [],
+                "gene_blocklist": [],
             },
         )
 
@@ -1439,6 +1442,7 @@ class TestEnumChromosomes(TestCase):
                     "Y",
                 ],
                 "gene_allowlist": [],
+                "gene_blocklist": [],
             },
         )
 
@@ -1450,6 +1454,7 @@ class TestEnumChromosomes(TestCase):
                     "MT",
                 ],
                 "gene_allowlist": [],
+                "gene_blocklist": [],
             },
         )
 
@@ -1760,6 +1765,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "flag_visual_positive": True,
                 "flag_visual_uncertain": True,
                 "gene_allowlist": [],
+                "gene_blocklist": [],
                 "genomic_region": [],
                 "genotype": {
                     "father": query_presets.GenotypeChoice.ANY.value,
