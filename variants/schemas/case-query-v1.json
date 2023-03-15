@@ -1256,7 +1256,7 @@
           "items": {
             "$id": "#/properties/prio_hpo_terms/items",
             "type": "string",
-            "pattern": "HP:\\d+"
+            "pattern": "(HP|OMIM):\\d+"
           }
         }
       ]
