@@ -52,7 +52,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
       storeState.value = StoreState.error
       throw err // re-throw
     } finally {
-      serverInteractions.value += 1
+      serverInteractions.value -= 1
     }
 
     smallVariant.value = smallVariant$
