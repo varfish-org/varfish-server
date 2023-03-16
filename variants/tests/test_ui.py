@@ -397,7 +397,9 @@ class TestVariantsCaseFilterView(TestUIBase):
             self.selenium.find_element_by_id(group).click()
         # check for ticked checkboxes
         for field, value in patched_effect_fields.items():
-            self.wait.until(lambda: self.selenium.find_element_by_id(field).is_selected() == value)
+            WebDriverWait(self.selenium, self.wait_time).until(
+                lambda: self.selenium.find_element_by_id(field).is_selected() == value
+            )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_variant_filter_case_effects_form_select_none(self):
@@ -499,7 +501,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # check if database_select switch is set as expected to refseq
         self.assertEqual(settings["database_select"], "refseq")
         # check if initial setting is as expected
-        self.wait.until(
+        WebDriverWait(self.selenium, self.wait_time).until(
             self.selenium.find_element_by_xpath(
                 '//input[@name="database_select" and @value="refseq"]'
             ).is_selected
@@ -542,7 +544,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         textarea.send_keys(json.dumps(settings_json))
         self.selenium.find_element_by_id("settingsSet").click()
         # check if setting was applied
-        self.wait.until(
+        WebDriverWait(self.selenium, self.wait_time).until(
             self.selenium.find_element_by_xpath(
                 '//input[@name="database_select" and @value="ensembl"]'
             ).is_selected
@@ -673,7 +675,7 @@ class TestVariantsCaseFilterView(TestUIBase):
 
         # select the first variant
         selectors[0].click()
-        self.wait.until(selectors[0].is_selected)
+        WebDriverWait(self.selenium, self.wait_time).until(selectors[0].is_selected)
 
         # buttons should still be disabled
         self.assertIn("btn-outline-secondary", multivar_btn.get_attribute("class"))
@@ -681,8 +683,8 @@ class TestVariantsCaseFilterView(TestUIBase):
 
         # select the second variant
         selectors[1].click()
-        self.wait.until(selectors[1].is_selected)
-        self.wait.until(lambda: not selectors[2].is_selected())
+        WebDriverWait(self.selenium, self.wait_time).until(selectors[1].is_selected)
+        WebDriverWait(self.selenium, self.wait_time).until(lambda: not selectors[2].is_selected())
 
         # buttons should be active
         self.assertIn("btn-secondary", multivar_btn.get_attribute("class"))
@@ -749,12 +751,12 @@ class TestVariantsCaseFilterView(TestUIBase):
 
         # un-select variant 1
         selectors[0].click()
-        self.wait.until(lambda: not selectors[0].is_selected())
-        self.wait.until(selectors[1].is_selected)
+        WebDriverWait(self.selenium, self.wait_time).until(lambda: not selectors[0].is_selected())
+        WebDriverWait(self.selenium, self.wait_time).until(selectors[1].is_selected)
 
         # select variant 3
         selectors[2].click()
-        self.wait.until(selectors[2].is_selected)
+        WebDriverWait(self.selenium, self.wait_time).until(selectors[2].is_selected)
 
         # open form again
         multivar_btn.click()
@@ -779,7 +781,7 @@ class TestVariantsCaseFilterView(TestUIBase):
 
         # select variant 1 (all three are now selected)
         selectors[0].click()
-        self.wait.until(selectors[0].is_selected)
+        WebDriverWait(self.selenium, self.wait_time).until(selectors[0].is_selected)
 
         # open form again
         multivar_btn.click()
@@ -963,7 +965,9 @@ class TestVariantsCaseFilterView(TestUIBase):
         self.selenium.find_element_by_id("quick-presets-button").click()
         self.selenium.find_element_by_xpath("//a[@data-preset-name='whole-exome']").click()
         # verify correctness
-        self.wait.until(self.selenium.find_element_by_id("id_effect_group_all").is_selected)
+        WebDriverWait(self.selenium, self.wait_time).until(
+            self.selenium.find_element_by_id("id_effect_group_all").is_selected
+        )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
     def test_invalid_form_input_error_rendering(self):
