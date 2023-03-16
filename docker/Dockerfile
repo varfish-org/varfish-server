@@ -56,7 +56,7 @@ RUN ["/bin/bash","-c", "cd /tmp && \
         conda install -c conda-forge -y mamba && \
         mamba create -c conda-forge -c bioconda -y -n varfish-annotator \
             varfish-annotator-cli=0.10=0 \
-            varfish-server-worker=0.5.0 \
+            varfish-server-worker=0.5.1 \
             htslib=1.9 \
             openjdk=8 \
             bcftools=1.9 && \
