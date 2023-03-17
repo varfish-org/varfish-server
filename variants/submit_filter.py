@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import transaction
 from projectroles.plugins import get_backend_api
 
+from geneinfo.models import Hpo
 from variants.forms import PATHO_SCORES_MAPPING
 from variants.helpers import get_engine
 from variants.models import VariantScoresFactory, prioritize_genes
@@ -69,9 +70,15 @@ class FilterBase:
 
         prio_enabled = self.variant_query.query_settings.get("prio_enabled")
         prio_algorithm = self.variant_query.query_settings.get("prio_algorithm")
-        hpo_terms = tuple(
-            sorted(self.variant_query.query_settings.get("prio_hpo_terms_curated", []) or [])
-        )
+        hpo_terms = []
+        for term in self.variant_query.query_settings.get("prio_hpo_terms", []) or []:
+            if term.startswith("HP"):
+                hpo_terms.append(term)
+            else:
+                for t in Hpo.objects.filter(database_id=term):
+                    hpo_terms.append(t.hpo_id)
+
+        hpo_terms = tuple(sorted(hpo_terms))
         entrez_ids = tuple(
             sorted(set(map(str, [row["entrez_id"] for row in results if row["entrez_id"]])))[
                 : settings.VARFISH_EXOMISER_PRIORITISER_MAX_GENES

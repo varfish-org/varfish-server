@@ -11,7 +11,7 @@ from rest_framework import serializers
 
 from clinvar.models import Clinvar
 from extra_annos.models import ExtraAnno
-from geneinfo.models import Hgnc, HpoName
+from geneinfo.models import Hgnc, Hpo, HpoName
 from geneinfo.serializers import GeneSerializer
 from genepanels.models import expand_panels_in_gene_list
 from variants.forms import FilterForm
@@ -75,12 +75,16 @@ def query_settings_validator(value):
     _check_gene_list_found(query_settings["gene_blocklist"], "gene_blocklist")
     # Validate HPO term list.
     if "prio_hpo_terms" in query_settings:
-        found = HpoName.objects.filter(hpo_id__in=query_settings["prio_hpo_terms"] or [])
-        given_set = set(query_settings["prio_hpo_terms"] or [])
-        found_set = {x.hpo_id for x in found}
-        if given_set != found_set:
-            not_found = given_set - found_set
-            raise serializers.ValidationError(f"Used invalid ids: {not_found}")
+        missing = []
+        for term in query_settings["prio_hpo_terms"]:
+            if term.startswith("HP"):
+                if not HpoName.objects.filter(hpo_id=term).exists():
+                    missing.append(term)
+            else:
+                if not Hpo.objects.filter(database_id=term).exists():
+                    missing.append(term)
+        if missing:
+            raise serializers.ValidationError(f"Used invalid ids: {','.join(missing)}")
 
 
 class SmallVariantQuerySerializer(SODARModelSerializer):
