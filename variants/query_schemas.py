@@ -370,7 +370,6 @@ class QueryJsonToFormConverter:
             "prio_enabled": query.prio_enabled,
             "prio_algorithm": query.prio_algorithm,
             "prio_hpo_terms": query.prio_hpo_terms,
-            "prio_hpo_terms_curated": query.prio_hpo_terms,
             "patho_enabled": query.patho_enabled,
             "patho_score": query.patho_score,
             "effects": [e.value for e in query.effects],
