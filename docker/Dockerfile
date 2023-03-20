@@ -15,8 +15,8 @@ RUN apt-get update && \
         build-essential \
         cmake
 
-RUN git clone https://github.com/google/flatbuffers.git /tmp/flatbuffers &&
-    cd /tmp/flatbuffers &&
+RUN git clone https://github.com/google/flatbuffers.git /tmp/flatbuffers && \
+    cd /tmp/flatbuffers && \
     git checkout v22.12.06 && \
     cmake -G "Unix Makefiles" && \
     make -j install &&
