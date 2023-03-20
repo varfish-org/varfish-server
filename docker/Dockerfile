@@ -15,6 +15,13 @@ RUN apt-get update && \
         build-essential \
         cmake
 
+RUN git clone https://github.com/google/flatbuffers.git /tmp/flatbuffers &&
+    cd /tmp/flatbuffers &&
+    git checkout v22.12.06 && \
+    cmake -G "Unix Makefiles" && \
+    make -j install &&
+    flatc --version
+
 RUN git clone --depth 1 --branch $worker_git_treeish $worker_git_url /tmp/varfish-server-worker
 RUN cd /tmp/varfish-server-worker && \
     cargo install --path .
