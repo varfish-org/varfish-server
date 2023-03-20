@@ -1,11 +1,43 @@
-FROM python:3.8-buster
+# syntax=docker/dockerfile:1.3
+
+# ---------------------------------------------------------------------------
+# Build varfish-server-worker
+# ---------------------------------------------------------------------------
+FROM rust:1-buster AS build-worker
+ARG worker_git_url=https://github.com/bihealth/varfish-server-worker.git
+ARG worker_git_treeish=v0.5.1
+
+ENV DEBIAN_FRONTEND noninteractive
+ENV CUSTOM_STATIC_DIR /usr/src/app/local-static
+
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        cmake
+
+RUN git clone https://github.com/google/flatbuffers.git /tmp/flatbuffers && \
+    cd /tmp/flatbuffers && \
+    git checkout v23.3.3 && \
+    cmake -G "Unix Makefiles" && \
+    make -j install && \
+    flatc --version
+
+RUN git clone --depth 1 --branch $worker_git_treeish $worker_git_url /tmp/varfish-server-worker
+RUN cd /tmp/varfish-server-worker && \
+    cargo install --path .
+
+
+# ---------------------------------------------------------------------------
+# Build varfish-server (without worker)
+# ---------------------------------------------------------------------------
+FROM python:3.8-buster AS build-server
 
 MAINTAINER Manuel Holtgrewe <manuel.holtgrewe@bih-charite.de>
 LABEL org.opencontainers.image.source https://github.com/bihealth/varfish-server
 
-ARG app_git_url=https://github.com/bihealth/varfish-server.git
-ARG app_git_tag
-ARG app_git_depth=1
+ARG server_git_url=https://github.com/bihealth/varfish-server.git
+ARG server_git_treeish
+ARG server_git_depth=1
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV CUSTOM_STATIC_DIR /usr/src/app/local-static
@@ -16,7 +48,7 @@ RUN chmod +x /usr/local/bin/wait
 
 # Copy source code into Docker image.
 RUN mkdir -p /usr/src
-RUN git clone --depth $app_git_depth --branch $app_git_tag $app_git_url /usr/src/app
+RUN git clone --depth $server_git_depth --branch $server_git_treeish $server_git_url /usr/src/app
 
 # Add postgres 12 repository
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
@@ -56,7 +88,6 @@ RUN ["/bin/bash","-c", "cd /tmp && \
         conda install -c conda-forge -y mamba && \
         mamba create -c conda-forge -c bioconda -y -n varfish-annotator \
             varfish-annotator-cli=0.10=0 \
-            varfish-server-worker=0.5.1 \
             htslib=1.9 \
             openjdk=8 \
             bcftools=1.9 && \
@@ -132,3 +163,11 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["wsgi"]
 EXPOSE 8080/tcp
+
+
+# ---------------------------------------------------------------------------
+# Combine varfish-server and -worker
+# ---------------------------------------------------------------------------
+FROM build-server AS final-target
+COPY --from=build-worker /usr/local/cargo/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
+RUN /usr/local/bin/varfish-server-worker --help
