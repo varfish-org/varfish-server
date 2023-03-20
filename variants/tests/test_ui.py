@@ -398,7 +398,7 @@ class TestVariantsCaseFilterView(TestUIBase):
         # check for ticked checkboxes
         for field, value in patched_effect_fields.items():
             WebDriverWait(self.selenium, self.wait_time).until(
-                lambda: self.selenium.find_element_by_id(field).is_selected() == value
+                lambda _driver: self.selenium.find_element_by_id(field).is_selected() == value
             )
 
     @skipIf(SKIP_SELENIUM, SKIP_SELENIUM_MESSAGE)
@@ -683,8 +683,12 @@ class TestVariantsCaseFilterView(TestUIBase):
 
         # select the second variant
         selectors[1].click()
-        WebDriverWait(self.selenium, self.wait_time).until(selectors[1].is_selected)
-        WebDriverWait(self.selenium, self.wait_time).until(lambda: not selectors[2].is_selected())
+        WebDriverWait(self.selenium, self.wait_time).until(
+            lambda _driver: selectors[1].is_selected()
+        )
+        WebDriverWait(self.selenium, self.wait_time).until_not(
+            lambda _driver: selectors[2].is_selected()
+        )
 
         # buttons should be active
         self.assertIn("btn-secondary", multivar_btn.get_attribute("class"))
