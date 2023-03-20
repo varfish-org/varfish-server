@@ -3,7 +3,7 @@ on:
     tags:
       - 'v**'
     branches:
-      - 912-automatically-build-docker-images-for-main-branch
+      - main
 
 name: Docker
 
