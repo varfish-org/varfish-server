@@ -168,6 +168,6 @@ EXPOSE 8080/tcp
 # ---------------------------------------------------------------------------
 # Combine varfish-server and -worker
 # ---------------------------------------------------------------------------
-FROM build-server AS combined
-COPY --from=build-worker /root/.cargo/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
+FROM build-server AS final-target
+COPY --from=build-worker /usr/local/cargo/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
 RUN /usr/local/bin/varfish-server-worker --help
