@@ -4,7 +4,7 @@
 # Build varfish-server-worker
 # ---------------------------------------------------------------------------
 FROM rust:1-buster AS build-worker
-ARG worker_git_url=https://github.com/bihealth/varfish-worker.git
+ARG worker_git_url=https://github.com/bihealth/varfish-server-worker.git
 ARG worker_git_treeish=v0.5.1
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -18,7 +18,7 @@ RUN cd /tmp/varfish-server-worker && \
 # ---------------------------------------------------------------------------
 # Build varfish-server (without worker)
 # ---------------------------------------------------------------------------
-FROM python:3.10-buster AS build-server
+FROM python:3.8-buster AS build-server
 
 MAINTAINER Manuel Holtgrewe <manuel.holtgrewe@bih-charite.de>
 LABEL org.opencontainers.image.source https://github.com/bihealth/varfish-server
