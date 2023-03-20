@@ -10,6 +10,11 @@ ARG worker_git_treeish=v0.5.1
 ENV DEBIAN_FRONTEND noninteractive
 ENV CUSTOM_STATIC_DIR /usr/src/app/local-static
 
+RUN apt-get update && \
+    apt-get install -y \
+        build-essentials \
+        cmake
+
 RUN git clone --depth 1 --branch $worker_git_treeish $worker_git_url /tmp/varfish-server-worker
 RUN cd /tmp/varfish-server-worker && \
     cargo install --path .
