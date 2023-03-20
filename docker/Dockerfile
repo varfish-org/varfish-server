@@ -17,7 +17,7 @@ RUN apt-get update && \
 
 RUN git clone https://github.com/google/flatbuffers.git /tmp/flatbuffers && \
     cd /tmp/flatbuffers && \
-    git checkout v22.12.06 && \
+    git checkout v23.3.3 && \
     cmake -G "Unix Makefiles" && \
     make -j install && \
     flatc --version
