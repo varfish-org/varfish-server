@@ -5,7 +5,7 @@ on:
     branches:
       - 912-automatically-build-docker-images-for-main-branch
 
-name: docker-build
+name: Docker
 
 env:
   REGISTRY: ghcr.io
@@ -48,4 +48,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            app_git_tag=${{ steps.extract_branch.outputs.branch }}
+            server_git_treeish=${{ steps.extract_branch.outputs.branch }}
