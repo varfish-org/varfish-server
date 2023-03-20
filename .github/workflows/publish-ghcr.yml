@@ -5,7 +5,7 @@ on:
     branches:
       - 912-automatically-build-docker-images-for-main-branch
 
-name: publish-ghcr.yml
+name: docker-build
 
 env:
   REGISTRY: ghcr.io
@@ -36,9 +36,11 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        uses: docker/build-push-action@v4
         with:
           context: docker/
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            app_git_tag=912-automatically-build-docker-images-for-main-branch
