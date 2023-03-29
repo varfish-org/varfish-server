@@ -48,22 +48,23 @@ The downloaded archive has a size of ~10 GB while the extracted data has a size 
 .. code-block:: bash
 
     $ GENOME=grch37      # alternatively use grch38
-    $ RELEASE=20210728b
+    $ H2_RELEASE=20210728b
+    $ JV_RELEASE=20210728
     $ mkdir varfish-annotator-$RELEASE-$GENOME
     $ cd varfish-annotator-$RELEASE-$GENOME
     $ wget --no-check-certificate \
-        https://file-public.cubi.bihealth.org/transient/varfish/anthenea/varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz{,.sha256} \
-        https://file-public.cubi.bihealth.org/transient/varfish/anthenea/jannovar-db-$RELEASE-$GENOME.tar.gz{,.sha256}
-    $ sha256sum --check varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz.sha256
-    varfish-annotator-db-$RELEASE-grch37.h2.db.gz: OK
-    $ sha256sum --check jannovar-db-$RELEASE-$GENOME.tar.gz.sha256
-    jannovar-db-$RELEASE-grch37.tar.gz: OK
-    $ gzip -d varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz
-    $ tar xf jannovar-db-$RELEASE-$GENOME.tar.gz
-    $ rm jannovar-db-$RELEASE-$RELEASE.tar.gz{,.sha256} \
+        https://file-public.cubi.bihealth.org/transient/varfish/anthenea/varfish-annotator-db-$H2_RELEASE-$GENOME.h2.db.gz{,.sha256} \
+        https://file-public.cubi.bihealth.org/transient/varfish/anthenea/jannovar-db-$JV_RELEASE-$GENOME.tar.gz{,.sha256}
+    $ sha256sum --check varfish-annotator-db-$H2_RELEASE-$GENOME.h2.db.gz.sha256
+    varfish-annotator-db-$H2_RELEASE-grch37.h2.db.gz: OK
+    $ sha256sum --check jannovar-db-$JV_RELEASE-$GENOME.tar.gz.sha256
+    jannovar-db-$JV_RELEASE-grch37.tar.gz: OK
+    $ gzip -d varfish-annotator-db-$H2_RELEASE-$GENOME.h2.db.gz
+    $ tar xf jannovar-db-$JV_RELEASE-$GENOME.tar.gz
+    $ rm jannovar-db-$JV_RELEASE-$RELEASE.tar.gz{,.sha256} \
         varfish-annotator-db-$RELEASE-$GENOME.h2.db.gz.sha256
-    $ mv jannovar-db-$RELEASE-$GENOME/* .
-    $ rmdir jannovar-db-$RELEASE-$GENOME
+    $ mv jannovar-db-$JV_RELEASE-$GENOME/* .
+    $ rmdir jannovar-db-$JV_RELEASE-$GENOME
 
 
 Annotating VCF Files
