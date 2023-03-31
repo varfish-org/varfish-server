@@ -91,6 +91,10 @@ Annotating Small Variant VCFs
 Next, you can use the ``varfish-annotator`` command.
 You must provide an bgzip-compressed VCF file ``INPUT.vcf.gz``
 
+.. note::
+
+    Note that you also have to provide a `.fai` file next to the reference `.fa` file.
+
 .. code-block:: bash
     :linenos:
 
@@ -101,7 +105,9 @@ You must provide an bgzip-compressed VCF file ``INPUT.vcf.gz``
         -XX:MaxHeapSize=10g \
         -XX:+UseConcMarkSweepGC \
         annotate \
-        --db-path varfish-annotator-$RELEASE-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
+        --
+        
+        ./varfish-annotator-$RELEASE-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
         --ensembl-ser-path varfish-annotator-$RELEASE-$GENOME/ensembl*.ser \
         --refseq-ser-path varfish-annotator-$RELEASE-$GENOME/refseq_curated*.ser \
         --ref-path $REFERENCE \
@@ -133,7 +139,7 @@ While only release GRCh37/hg19 is supported, using a file with UCSC-style chromo
     :lineno-start: 4
     :dedent: 0
 
-        --db-path varfish-annotator-$RELEASE-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
+        --db-path ./varfish-annotator-$RELEASE-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
         --ensembl-ser-path varfish-annotator-$RELEASE-$GENOME/ensembl*.ser \
         --refseq-ser-path varfish-annotator-$RELEASE-$GENOME/refseq_curated*.ser \
         --ref-path $REFERENCE \
@@ -222,7 +228,7 @@ Structural variants can be annotated as follows.
         --default-sv-method=YOURCALLERvVERSION"
         --release $GENOME \
         \
-        --db-path varfish-annotator-$RELEASE-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
+        --db-path ./varfish-annotator-$RELEASE-$GENOME/varfish-annotator-db-$RELEASE-$GENOME.h2.db \
         --ensembl-ser-path varfish-annotator-$RELEASE-$GENOME/ensembl*.ser \
         --refseq-ser-path varfish-annotator-$RELEASE-$GENOME/refseq_curated*.ser \
         \
