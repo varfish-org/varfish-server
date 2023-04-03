@@ -2,6 +2,7 @@
 """
 
 from django.conf.urls import url
+
 from . import views, views_api
 
 app_name = "importer"
@@ -45,6 +46,19 @@ api_urlpatterns = [
         regex=r"^api/bam-qc-file/(?P<caseimportinfo>[0-9a-f-]+)/(?P<bamqcfile>[0-9a-f-]+)/$",
         view=views_api.BamQcFileRetrieveDestroyView.as_view(),
         name="api-bam-qc-file-retrieve-destroy",
+    ),
+    url(
+        regex=r"^api/case-gene-annotation-file/(?P<caseimportinfo>[0-9a-f-]+)/$",
+        view=views_api.CaseGeneAnnotationFileListCreateView.as_view(),
+        name="api-case-gene-annotation-file-list-create",
+    ),
+    url(
+        regex=(
+            r"^api/case-gene-annotation-file/(?P<caseimportinfo>[0-9a-f-]+)/"
+            r"(?P<casegeneannotationfile>[0-9a-f-]+)/$"
+        ),
+        view=views_api.CaseGeneAnnotationFileRetrieveDestroyView.as_view(),
+        name="api-case-gene-annotation-file-retrieve-destroy",
     ),
     url(
         regex=r"^api/genotype-file/(?P<variantsetimportinfo>[0-9a-f-]+)/$",

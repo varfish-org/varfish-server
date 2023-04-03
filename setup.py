@@ -4,8 +4,11 @@ from setuptools import find_packages, setup
 
 import versioneer
 
-with open(os.path.join(os.path.dirname(__file__), "README.rst")) as readme:
-    README = readme.read()
+with open("README.md") as readme_file:
+    readme = readme_file.read()
+
+with open("CHANGELOG.md") as history_file:
+    history = history_file.read()
 
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
@@ -18,7 +21,8 @@ setup(
     include_package_data=True,
     license="MIT License",
     description="BIH VarFish",
-    long_description=README,
+    long_description=readme + "\n\n" + history,
+    long_description_content_type="text/markdown",
     url="https://bihealth.org",
     author="Oliver Stolpe, Manuel Holtgrewe",
     author_email="oliver.stolpe@bihealth.de, manuel.holtgrewe@bihealth.de",

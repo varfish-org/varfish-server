@@ -1,44 +1,50 @@
 """Factory Boy factory classes for ``variants``."""
+import typing
 import uuid
-from datetime import datetime
 
+import attr
+from bgjobs.tests.factories import BackgroundJobFactory
 import binning
-import factory
 from django.utils import timezone
-
+import factory
 from projectroles.models import SODAR_CONSTANTS, RemoteSite
 
-from bgjobs.tests.factories import BackgroundJobFactory
-
 from config.settings.base import VARFISH_CADD_SUBMISSION_VERSION
+
 from ..models import (
+    AcmgCriteriaRating,
+    CaddSubmissionBgJob,
     Case,
-    SmallVariant,
-    SmallVariantQuery,
-    ProjectCasesSmallVariantQuery,
-    SmallVariantSummary,
-    FilterBgJob,
-    ProjectCasesFilterBgJob,
     CaseAwareProject,
+    CaseComments,
+    CaseGeneAnnotationEntry,
+    CasePhenotypeTerms,
+    CaseVariantStats,
+    ChromosomePresets,
+    DeleteCaseBgJob,
     DistillerSubmissionBgJob,
     ExportFileBgJob,
     ExportFileJobResult,
     ExportProjectCasesFileBgJob,
     ExportProjectCasesFileBgJobResult,
-    SmallVariantFlags,
-    SmallVariantComment,
-    SmallVariantSet,
-    CaseVariantStats,
+    FilterBgJob,
+    FlagsEtcPresets,
+    FrequencyPresets,
+    ImpactPresets,
+    PresetSet,
+    ProjectCasesFilterBgJob,
+    ProjectCasesSmallVariantQuery,
+    QualityPresets,
+    QuickPresets,
     SampleVariantStatistics,
-    CaseComments,
-    DeleteCaseBgJob,
-    CaddSubmissionBgJob,
-    CasePhenotypeTerms,
+    SmallVariant,
+    SmallVariantComment,
+    SmallVariantFlags,
+    SmallVariantQuery,
+    SmallVariantSet,
+    SmallVariantSummary,
     SyncCaseListBgJob,
-    AcmgCriteriaRating,
 )
-import typing
-import attr
 
 
 @attr.s(auto_attribs=True)
@@ -569,7 +575,7 @@ class CasePhenotypeTermsFactory(factory.django.DjangoModelFactory):
 
     case = factory.SubFactory(CaseFactory)
     individual = factory.LazyAttribute(lambda o: o.case.get_members()[0])
-    phenotype_terms = factory.Sequence(lambda n: ["HP:%07d" % n, "MIM:%7d" % n, "ORPHA:%7d" % n])
+    terms = factory.Sequence(lambda n: ["HP:%07d" % n, "MIM:%7d" % n, "ORPHA:%7d" % n])
 
 
 class CaseCommentsFactory(factory.django.DjangoModelFactory):
@@ -610,6 +616,8 @@ class ProjectCasesSmallVariantQueryFactory(factory.django.DjangoModelFactory):
 
 
 class CaseWithVariantSetFactory:
+    """Factory for a ``Case`` with a variant set for both small and structural variants"""
+
     @staticmethod
     def get(variant_set_type=None, **kwargs):
         from svs.tests.factories import StructuralVariantSetFactory
@@ -1029,18 +1037,18 @@ class SampleVariantStatisticsFactory(factory.django.DjangoModelFactory):
         CaseVariantStatsFactory, variant_set=factory.SelfAttribute("factory_parent.variant_set")
     )
     sample_name = factory.Sequence(lambda n: "Donor%d" % n)
-    ontarget_transitions = factory.Sequence(lambda n: n + 1)
-    ontarget_transversions = factory.Sequence(lambda n: n + 1)
-    ontarget_snvs = factory.Sequence(lambda n: n + 1)
-    ontarget_indels = factory.Sequence(lambda n: n + 1)
-    ontarget_mnvs = factory.Sequence(lambda n: n + 1)
+    ontarget_transitions = 1
+    ontarget_transversions = 1
+    ontarget_snvs = 1
+    ontarget_indels = 1
+    ontarget_mnvs = 1
     ontarget_effect_counts = {}
     ontarget_indel_sizes = {}
     ontarget_dps = {}
     ontarget_dp_quantiles = [0.1, 0.2, 0.3, 0.4, 0.5]
     het_ratio = 1.0
     chrx_het_hom = 1.0
-    # Dummy argument to pass to CaseCariantStatsFactory
+    # Dummy argument to pass to CaseVariantStatsFactory
     variant_set = None
 
 
@@ -1074,4 +1082,100 @@ class SyncCaseListBgJobFactory(factory.django.DjangoModelFactory):
         BackgroundJobFactory,
         project=factory.SelfAttribute("factory_parent.project"),
         user=factory.SelfAttribute("factory_parent.user"),
+    )
+
+
+class CaseGeneAnnotationEntryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = CaseGeneAnnotationEntry
+
+    case = factory.SubFactory(CaseFactory)
+    gene_symbol = factory.Sequence(lambda n: "GENE%d" % n)
+    entrez_id = factory.Sequence(lambda n: "%d" % n)
+    ensembl_gene_id = factory.Sequence(lambda n: "ENSG%d" % n)
+    annotation = factory.Sequence(
+        lambda n: {
+            "percentage_at_20x": 90 + n % 10,
+            "level": "info",
+            "message": f"This is a test message {n}",
+        }
+    )
+
+
+class PresetSetFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = PresetSet
+
+    project = factory.SubFactory(ProjectFactory)
+    label = factory.Sequence(lambda n: f"Preset Set #{n}")
+    version_major = 1
+    version_minor = 1
+    state = "draft"
+    database = factory.Sequence(lambda n: ["refseq", "ensembl"][n % 2])
+
+
+class FrequencyPresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = FrequencyPresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Frequency Presets #{n}")
+
+
+class ImpactPresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ImpactPresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Impact Presets #{n}")
+    effects = ["synonymous_variant"]
+
+
+class QualityPresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = QualityPresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Quality Presets #{n}")
+    fail = "drop-variant"
+
+
+class ChromosomePresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ChromosomePresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Chromosome Presets #{n}")
+
+
+class FlagsEtcPresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = FlagsEtcPresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Flags etc. Presets #{n}")
+
+
+class QuickPresetsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = QuickPresets
+
+    presetset = factory.SubFactory(PresetSetFactory)
+    label = factory.Sequence(lambda n: f"Quick Presets #{n}")
+
+    inheritance = factory.Sequence(lambda n: ["de_novo", "dominant", "recessive"][n % 3])
+    frequency = factory.SubFactory(
+        FrequencyPresetsFactory, presetset=factory.SelfAttribute("..presetset")
+    )
+    impact = factory.SubFactory(
+        ImpactPresetsFactory, presetset=factory.SelfAttribute("..presetset")
+    )
+    quality = factory.SubFactory(
+        QualityPresetsFactory, presetset=factory.SelfAttribute("..presetset")
+    )
+    chromosome = factory.SubFactory(
+        ChromosomePresetsFactory, presetset=factory.SelfAttribute("..presetset")
+    )
+    flagsetc = factory.SubFactory(
+        FlagsEtcPresetsFactory, presetset=factory.SelfAttribute("..presetset")
     )

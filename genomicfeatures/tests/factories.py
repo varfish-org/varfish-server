@@ -4,13 +4,13 @@ import binning
 import factory
 
 from ..models import (
-    TadSet,
-    TadInterval,
-    TadBoundaryInterval,
-    EnsemblRegulatoryFeature,
-    VistaEnhancer,
-    GeneInterval,
     VISTA_POSITIVE,
+    EnsemblRegulatoryFeature,
+    GeneInterval,
+    TadBoundaryInterval,
+    TadInterval,
+    TadSet,
+    VistaEnhancer,
 )
 
 
@@ -33,12 +33,9 @@ class _IntervalFactory(factory.django.DjangoModelFactory):
     start = factory.Sequence(lambda n: (n + 1) * 1000)
     end = factory.Sequence(lambda n: (n + 1) * 1000 + 100)
 
-    bin = 0
-
-    @factory.post_generation
-    def fix_bins(obj, *args, **kwargs):
-        obj.bin = binning.assign_bin(obj.start - 1, obj.end)
-        obj.save()
+    @factory.lazy_attribute
+    def bin(self):
+        return binning.assign_bin(self.start - 1, self.end)
 
 
 class TadIntervalFactory(_IntervalFactory):

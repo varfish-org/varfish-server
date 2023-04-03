@@ -7,7 +7,8 @@ from django.db import migrations
 def add_submitters(apps, _schema_editor):
     Submitter = apps.get_model("clinvar_export", "Submitter")
     Submitter.objects.create(
-        clinvar_id=9131, name="Manuel Holtgrewe",
+        clinvar_id=9131,
+        name="Manuel Holtgrewe",
     )
 
 
@@ -21,14 +22,17 @@ def add_organisations(apps, _schema_editor):
         ),
     )
     Organisation.objects.create(
-        clinvar_id=507461, name="CUBI - Core Unit Bioinformatics (Berlin Institute of Health)",
+        clinvar_id=507461,
+        name="CUBI - Core Unit Bioinformatics (Berlin Institute of Health)",
     )
 
 
 def add_assertion_methods(apps, _schema_editor):
     AssertionMethod = apps.get_model("clinvar_export", "AssertionMethod")
     AssertionMethod.objects.create(
-        is_builtin=True, title="ACMG Guidelines, 2015", reference="PMID:25741868",
+        is_builtin=True,
+        title="ACMG Guidelines, 2015",
+        reference="PMID:25741868",
     )
 
 

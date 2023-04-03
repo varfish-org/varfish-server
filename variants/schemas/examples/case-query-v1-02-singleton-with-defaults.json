@@ -31,6 +31,7 @@
   "clinvar_include_likely_pathogenic": true,
   "clinvar_include_pathogenic": true,
   "clinvar_include_uncertain_significance": true,
+  "clinvar_paranoid_mode": false,
   "exac_enabled": true,
   "exac_frequency": 0.001,
   "exac_hemizygous": 5,

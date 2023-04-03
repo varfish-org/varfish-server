@@ -96,6 +96,7 @@ Currently, the main focus is on small/sequence variants called from high-througp
     :titlesonly:
 
     admin_install
+    admin_update_db
     admin_extras
     admin_config
     admin_ingest
@@ -185,6 +186,7 @@ Currently, the main focus is on small/sequence variants called from high-througp
     release_cycle
     history
     glossary
+    smallprint
 
 Indices and tables
 ==================

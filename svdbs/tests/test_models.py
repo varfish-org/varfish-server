@@ -3,11 +3,11 @@
 from django.test import TestCase
 
 from .factories import (
-    DgvSvsFactory,
-    DgvGoldStandardSvsFactory,
     DbVarSvFactory,
-    GnomAdSvFactory,
+    DgvGoldStandardSvsFactory,
+    DgvSvsFactory,
     ExacCnvFactory,
+    GnomAdSvFactory,
 )
 
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import DgvGoldStandardSvs, DgvSvs, DbVarSv, ThousandGenomesSv, ExacCnv
+from .models import DbVarSv, DgvGoldStandardSvs, DgvSvs, ExacCnv, ThousandGenomesSv
 
 # Register your models here.
 admin.site.register(DgvGoldStandardSvs)

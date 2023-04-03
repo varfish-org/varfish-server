@@ -1,0 +1,45 @@
+{% extends 'projectroles/project_base.html' %}
+
+{% block navi_sub_project_extend %}
+  <li class="breadcrumb-item active">Variant Annotation Sets</li>
+{% endblock %}
+
+{% block projectroles %}
+  <div class="row sodar-pr-content-title pb-2">
+    {# Project menu dropdown, only visible if browser width < X and sidebar is hidden #}
+    {% include 'projectroles/_project_menu_btn.html' %}
+
+    <h2 class="sodar-pr-content-title">
+      <span class="iconify" data-icon="mdi:notebook-heart"></span>
+      Variant Annotation Sets
+    </h2>
+    <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
+      <a class="btn btn-secondary" href="{% url 'projectroles:detail' project=project.sodar_uuid %}">
+        <i class="iconify" data-icon="mdi:arrow-left-circle"></i>
+        Back to Project
+      </a>
+    </div>
+  </div>
+
+  <div class="container-fluid sodar-page-container pt-3">
+    <table class="table table-striped sodar-card-table sodar-bj-detail-table table-hover">
+      <thead>
+        <tr>
+          <th style="width: 10px">#</th>
+          <th style="width: 200px">Updated</th>
+          <th>Title</th>
+          <th style="width: 150px" class="text-nowrap">Genome Build</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for varannoset in object_list %}
+          {% include 'varannos/varannoset/item.html' with item=varannoset details_card_mode=True %}
+        {% empty %}
+          <tr>
+            <td class="bg-faded font-italic text-center" colspan="4">No variant annotation sets (yet)</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

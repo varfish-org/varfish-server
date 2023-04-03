@@ -9,8 +9,7 @@ from variants.tasks import clear_expired_exported_files as task_clear_expired_ex
 
 
 class Command(BaseCommand):
-    """Implementation of clearing expired exported files.
-    """
+    """Implementation of clearing expired exported files."""
 
     #: Help message displayed on the command line.
     help = "Clear expired exported files."

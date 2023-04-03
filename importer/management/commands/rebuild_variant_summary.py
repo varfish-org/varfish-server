@@ -3,13 +3,13 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from ...tasks import refresh_variants_smallvariantsummary
 import variants.models as models
+
+from ...tasks import refresh_variants_smallvariantsummary
 
 
 class Command(BaseCommand):
-    """Implementation of rebuilding variant summary.
-    """
+    """Implementation of rebuilding variant summary."""
 
     #: Help message displayed on the command line.
     help = "Rebuild the variants summary."

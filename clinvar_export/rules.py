@@ -1,6 +1,5 @@
-import rules
 from projectroles import rules as pr_rules
-
+import rules
 
 rules.add_perm(
     "clinvar_export.view_data",

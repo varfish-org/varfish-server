@@ -3,7 +3,7 @@
 import binning
 import factory
 
-from ..models import RegMapCollection, RegMap, RegElementType, RegElement, RegInteraction
+from ..models import RegElement, RegElementType, RegInteraction, RegMap, RegMapCollection
 
 
 class RegMapCollectionFactory(factory.django.DjangoModelFactory):

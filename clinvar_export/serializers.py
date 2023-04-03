@@ -1,28 +1,29 @@
-from django.contrib.postgres.aggregates import ArrayAgg
 from django.shortcuts import get_object_or_404
-from projectroles.serializers import SODARProjectModelSerializer, SODARModelSerializer
+from projectroles.serializers import SODARModelSerializer, SODARProjectModelSerializer
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
-from rest_framework.serializers import BaseSerializer, Serializer
+from rest_framework.serializers import Serializer
 
-from geneinfo.models import HpoName, Hpo, Hgnc
+from geneinfo.models import Hgnc, Hpo, HpoName
 from variants.models import (
-    CasePhenotypeTerms,
-    SmallVariant,
-    SmallVariantFlags,
-    SmallVariantComment,
     AcmgCriteriaRating,
     Case,
+    CasePhenotypeTerms,
+    SmallVariant,
+    SmallVariantComment,
+    SmallVariantFlags,
 )
+
 from .models import (
-    SubmissionSet,
-    Organisation,
+    AssertionMethod,
+    ClinVarReport,
     Family,
     Individual,
-    AssertionMethod,
-    Submitter,
+    Organisation,
     Submission,
     SubmissionIndividual,
+    SubmissionSet,
+    Submitter,
     SubmittingOrg,
 )
 
@@ -265,8 +266,16 @@ class SubmissionSerializer(SODARProjectModelSerializer):
             "variant_hgvs",
             "submission_individuals",
             "diseases",
+            "clinvar_submitter_report",
+            "clinvar_error_report",
         )
-        read_only_fields = ("sodar_uuid", "date_created", "date_modified")
+        read_only_fields = (
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "clinvar_submitter_report",
+            "clinvar_error_report",
+        )
 
 
 class SubmissionSetSerializer(SODARProjectModelSerializer):
@@ -472,3 +481,24 @@ class AnnotatedSmallVariantsSerializer(Serializer):
     small_variant_flags = SmallVariantFlagsSerializer(read_only=True, many=True)
     small_variant_comments = SmallVariantCommentsSerializer(read_only=True, many=True)
     acmg_criteria_rating = AcmgCriteriaRatingSerializer(read_only=True, many=True)
+
+
+class ClinVarReportSerializer(SODARModelSerializer):
+    """Serializer for ``ClinVarReport``."""
+
+    #: Serialize the SubmissionSet as its SODAR UUID.
+    submission_set = serializers.ReadOnlyField(source="submission_set.sodar_uuid")
+
+    class Meta:
+        model = ClinVarReport
+        fields = (
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "submission_set",
+            "report_type",
+            "source_url",
+            "payload_md5",
+            "payload",
+        )
+        read_only_fields = fields

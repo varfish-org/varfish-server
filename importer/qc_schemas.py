@@ -1,7 +1,7 @@
 """Utility code for QC schemas."""
 
-import os.path
 import json
+import os.path
 
 
 def load_json(path):

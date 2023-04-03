@@ -354,8 +354,11 @@ mailhog
 
 varfish/media/
 
-src/
+/src/
 
 celerybeat-schedule
 
+varfish/vueapp/components.d.ts
 staticfiles.bak/
+
+varfish-server-worker-db/

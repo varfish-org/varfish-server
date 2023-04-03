@@ -3,7 +3,7 @@ import logging
 from celery.schedules import crontab
 from django.conf import settings
 from django.core.management import call_command
-from projectroles.models import RemoteSite, SODAR_CONSTANTS
+from projectroles.models import SODAR_CONSTANTS, RemoteSite
 
 from config.celery import app
 

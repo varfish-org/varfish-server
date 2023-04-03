@@ -11,12 +11,18 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name="hgnc", name="agr", field=models.CharField(max_length=32, null=True),
+            model_name="hgnc",
+            name="agr",
+            field=models.CharField(max_length=32, null=True),
         ),
         migrations.AddField(
-            model_name="hgnc", name="lncipedia", field=models.CharField(max_length=32, null=True),
+            model_name="hgnc",
+            name="lncipedia",
+            field=models.CharField(max_length=32, null=True),
         ),
         migrations.AddField(
-            model_name="hgnc", name="mane_select", field=models.CharField(max_length=64, null=True),
+            model_name="hgnc",
+            name="mane_select",
+            field=models.CharField(max_length=64, null=True),
         ),
     ]

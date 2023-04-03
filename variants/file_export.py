@@ -1,43 +1,44 @@
 """This module contains the code for file export"""
 
-import datetime
-import math
 from collections import OrderedDict
-from datetime import timedelta
-from tempfile import NamedTemporaryFile
 import contextlib
+import datetime
+from datetime import timedelta
+import math
+from tempfile import NamedTemporaryFile
 
-from extra_annos.models import ExtraAnnoField
-from variants.helpers import get_engine
-from django.utils import timezone
 from django.conf import settings
+from django.utils import timezone
+from projectroles.plugins import get_backend_api
 import vcfpy
 import wrapt
 import xlsxwriter
 
 from cohorts.models import Cohort
+from extra_annos.models import ExtraAnnoField
+from variants.helpers import get_engine
+
 from .models import (
     Case,
     CaseAwareProject,
     ExportFileJobResult,
     ExportProjectCasesFileBgJobResult,
     SmallVariantComment,
-    annotate_with_phenotype_scores,
-    annotate_with_pathogenicity_scores,
-    annotate_with_joint_scores,
-    annotate_with_transcripts,
-    unroll_extra_annos_result,
-    prioritize_genes,
     VariantScoresFactory,
+    annotate_with_joint_scores,
+    annotate_with_pathogenicity_scores,
+    annotate_with_phenotype_scores,
+    annotate_with_transcripts,
+    prioritize_genes,
+    unroll_extra_annos_result,
 )
-from .templatetags.variants_tags import flag_class
-from projectroles.plugins import get_backend_api
 from .queries import (
     CaseExportTableQuery,
     CaseExportVcfQuery,
     ProjectExportTableQuery,
     ProjectExportVcfQuery,
 )
+from .templatetags.variants_tags import flag_class
 
 #: Color to use for variants flagged as positive.
 BG_COLOR_POSITIVE = "#dc3848"
@@ -110,7 +111,8 @@ HEADER_FIXED = (
     ("gnomad_oe_lof", "Gnomad constrains lof observed/expected", float),
     ("gnomad_oe_lof_upper", "Gnomad constrains lof observed/expected upper", float),
     ("gnomad_oe_lof_lower", "Gnomad constrains lof observed/expected lower", float),
-    ("pathogenicity_summary", "ClinVar pathogenicity summary", str),
+    ("summary_pathogenicity_label", "ClinVar pathogenicity summary", str),
+    ("summary_review_status_label", "ClinVar review status summary", str),
 )
 if settings.KIOSK_MODE:
     HEADER_FIXED = tuple(filter(lambda x: not x[0].startswith("inhouse_"), HEADER_FIXED))
@@ -123,8 +125,8 @@ HEADERS_PHENO_SCORES = (
 
 #: Names of the pathogenicity scoring header columns.
 HEADERS_PATHO_SCORES = (
-    ("pathogenicity_score", "Pathogenicity Score", float),
-    ("pathogenicity_rank", "Pathogenicity Rank", int),
+    ("pathogenicity_score_arr", "Pathogenicity Score", float),
+    ("pathogenicity_rank_arr", "Pathogenicity Rank", int),
 )
 
 HEADERS_TRANSCRIPTS = (("transcripts", "Transcript ids", str),)
@@ -245,8 +247,7 @@ def _is_jannovar_enabled():
 
 
 class CaseExporterBase:
-    """Base class for export of (filtered) case data from single case or all cases of a project.
-    """
+    """Base class for export of (filtered) case data from single case or all cases of a project."""
 
     #: The query class to use for building single-case queries.
     query_class_single_case = None
@@ -312,7 +313,9 @@ class CaseExporterBase:
 
     def _is_prioritization_enabled(self):
         """Return whether prioritization is enabled in this query."""
-        return settings.VARFISH_ENABLE_EXOMISER_PRIORITISER and all(
+        return (
+            settings.VARFISH_ENABLE_EXOMISER_PRIORITISER or settings.VARFISH_ENABLE_CADA
+        ) and all(
             (
                 self.query_args.get("prio_enabled"),
                 self.query_args.get("prio_algorithm"),
@@ -328,13 +331,10 @@ class CaseExporterBase:
 
     def _get_members_sorted(self):
         """Get list of selected members."""
-        members = []
         if self.project_or_cohort:
-            members.append("sample")
+            members = ["sample"]
         else:
-            for m in self.job.case.get_filtered_pedigree_with_samples():
-                if self.query_args.get("%s_export" % m["patient"], False):
-                    members.append(m["patient"])
+            members = [m["patient"] for m in self.job.case.get_filtered_pedigree_with_samples()]
         return sorted(members)
 
     def get_extra_annos_headers(self):
@@ -357,10 +357,8 @@ class CaseExporterBase:
             header += HEADERS_TRANSCRIPTS
         if self._is_prioritization_enabled() and self._is_pathogenicity_enabled():
             header += HEADERS_JOINT_SCORES
-        if self.query_args["export_flags"]:
-            header += HEADER_FLAGS
-        if self.query_args["export_comments"]:
-            header += HEADER_COMMENTS
+        header += HEADER_FLAGS
+        header += HEADER_COMMENTS
         header += self.get_extra_annos_headers()
         for lst in header:
             yield dict(zip(("name", "title", "type", "fixed"), list(lst) + [True]))
@@ -434,7 +432,7 @@ class CaseExporterBase:
                 return {
                     str(gene_id): score
                     for gene_id, _, score, _ in prioritize_genes(
-                        entrez_ids, hpo_terms, prio_algorithm
+                        entrez_ids, hpo_terms, prio_algorithm, logging=self.job.add_log_entry
                     )
                 }
             except ConnectionError as e:
@@ -509,8 +507,7 @@ class CaseExporterBase:
         """
 
     def _write_variants(self):
-        """Write out the actual data, override called functions rather than this one.
-        """
+        """Write out the actual data, override called functions rather than this one."""
         self._begin_write_variants()
         self._write_variants_header()
         self._write_variants_data()
@@ -554,10 +551,11 @@ class CaseExporterTsv(CaseExporterBase):
                 if column["name"] == "chromosome":
                     row.append("chr" + getattr(small_var, "chromosome"))
                 elif column["fixed"]:
-                    if column["name"] == "transcripts":
-                        row.append(getattr(small_var, column["name"]).replace("\n", "|"))
+                    name = column["name"]
+                    if name == "transcripts":
+                        row.append(getattr(small_var, name).replace("\n", "|"))
                     else:
-                        row.append(getattr(small_var, column["name"]))
+                        row.append(getattr(small_var, name))
                 else:
                     member, field = column["name"].rsplit(".", 1)
                     if field == "aaf":
@@ -597,8 +595,7 @@ class CaseExporterXlsx(CaseExporterBase):
         self.header_format = self.workbook.add_format({"bold": True})
         # setup sheets
         self.variant_sheet = self.workbook.add_worksheet("Variants")
-        if self.query_args["export_comments"]:
-            self.comment_sheet = self.workbook.add_worksheet("Comments")
+        self.comment_sheet = self.workbook.add_worksheet("Comments")
         self.meta_data_sheet = self.workbook.add_worksheet("Metadata")
         # setup styles
         self.styles = {}
@@ -622,8 +619,7 @@ class CaseExporterXlsx(CaseExporterBase):
             return x
 
     def _write_leading(self):
-        if self.query_args["export_comments"]:
-            self._write_comment_sheet()
+        self._write_comment_sheet()
         self._write_metadata_sheet()
 
     def _write_comment_sheet(self):
@@ -719,9 +715,7 @@ class CaseExporterXlsx(CaseExporterBase):
                         row.append(small_var["genotype"].get(member, {}).get(field, "."))
                 if isinstance(row[-1], list):
                     row[-1] = to_str(row[-1])
-            fmt = (
-                self.styles.get(flag_class(small_var)) if self.query_args["export_flags"] else None
-            )
+            fmt = self.styles.get(flag_class(small_var))
             self.variant_sheet.write_row(1 + num_rows, 0, list(map(str, row)), fmt)
         # Freeze first row and first four columns and setup auto-filter.
         self.variant_sheet.freeze_panes(1, 4)
@@ -852,8 +846,7 @@ class CaseExporterVcf(CaseExporterBase):
                 members.append(m["patient"])
         else:
             for m in self.job.case.get_filtered_pedigree_with_samples():
-                if self.query_args.get("%s_export" % m["patient"], False):
-                    members.append(m["patient"])
+                members.append(m["patient"])
         return sorted(members)
 
 

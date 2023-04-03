@@ -3,28 +3,27 @@
 import json
 from unittest.mock import patch
 
+from django.conf import settings
 from requests_mock import Mocker
-
 from test_plus.test import TestCase
 
+from variants.models import SmallVariantQueryGeneScores, SmallVariantQueryVariantScores
 from variants.tests.factories import (
-    SmallVariantFactory,
-    FilterBgJobFactory,
-    ProjectCasesFilterBgJobFactory,
-    FormDataFactory,
     CaseWithVariantSetFactory,
+    FilterBgJobFactory,
+    FormDataFactory,
+    ProjectCasesFilterBgJobFactory,
+    SmallVariantFactory,
 )
+
 from ..models import (
-    SmallVariantQuery,
-    ProjectCasesSmallVariantQuery,
     CaddPathogenicityScoreCache,
     MutationTasterPathogenicityScoreCache,
+    ProjectCasesSmallVariantQuery,
+    SmallVariantQuery,
     UmdPathogenicityScoreCache,
 )
 from ..submit_filter import CaseFilter, ProjectCasesFilter
-from variants.models import SmallVariantQueryGeneScores
-from variants.models import SmallVariantQueryVariantScores
-from django.conf import settings
 
 
 class CaseFilterTest(TestCase):
@@ -47,6 +46,53 @@ class CaseFilterTest(TestCase):
             ),
         ]
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.superuser)
+
+    @patch("django.conf.settings.VARFISH_ENABLE_CADA", True)
+    @patch("django.conf.settings.VARFISH_CADA_REST_API_URL", "https://cada.com")
+    @Mocker()
+    def test_submit_case_filter_cada(self, mock):
+        mock.post(
+            settings.VARFISH_CADA_REST_API_URL,
+            status_code=200,
+            text=json.dumps(
+                [
+                    {
+                        "geneId": "EntrezId:" + self.small_vars[0].refseq_gene_id,
+                        "geneSymbol": "ASPSCR1",
+                        "score": "0.1",
+                    },
+                    {
+                        "geneId": "EntrezId:" + self.small_vars[1].refseq_gene_id,
+                        "geneSymbol": "NFKBIL1",
+                        "score": "0.2",
+                    },
+                ]
+            ),
+        )
+
+        # Enable CADA scoring
+        self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [self.hpo_id]
+        self.bgjob.smallvariantquery.query_settings["prio_hpo_terms_curated"] = [self.hpo_id]
+        self.bgjob.smallvariantquery.query_settings["prio_enabled"] = True
+        self.bgjob.smallvariantquery.query_settings["prio_algorithm"] = "CADA"
+        self.bgjob.smallvariantquery.save()
+
+        # Run query
+        CaseFilter(self.bgjob, self.bgjob.smallvariantquery).run()
+
+        self.assertEqual(SmallVariantQueryGeneScores.objects.count(), 2)
+        gene_scores = SmallVariantQueryGeneScores.objects.all()
+        self.assertEqual(gene_scores[0].gene_id, self.small_vars[0].refseq_gene_id)
+        self.assertEqual(gene_scores[0].gene_symbol, "ASPSCR1")
+        self.assertEqual(gene_scores[0].priority_type, "CADA")
+        self.assertEqual(gene_scores[0].score, 0.1)
+        self.assertEqual(gene_scores[1].gene_id, self.small_vars[1].refseq_gene_id)
+        self.assertEqual(gene_scores[1].gene_symbol, "NFKBIL1")
+        self.assertEqual(gene_scores[1].priority_type, "CADA")
+        self.assertEqual(gene_scores[1].score, 0.2)
+
+        self.assertEqual(SmallVariantQuery.objects.count(), 1)
+        self.assertEqual(SmallVariantQuery.objects.first().query_results.count(), 3)
 
     @patch("django.conf.settings.VARFISH_ENABLE_EXOMISER_PRIORITISER", True)
     @patch("django.conf.settings.VARFISH_EXOMISER_PRIORITISER_API_URL", "https://exomiser.com")

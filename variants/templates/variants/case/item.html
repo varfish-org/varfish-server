@@ -1,7 +1,6 @@
 {% load humanize %}
 {% load variants_tags %}
 {% load projectroles_common_tags %}
-{% get_django_setting 'VARFISH_ENABLE_SVS' as svs_enabled %}
 
 <tr id="varfish-bg-table-row-{{ item.sodar_uuid }}">
   <td class="text-right text-muted">{{ forloop.counter }}</td>
@@ -59,35 +58,22 @@
       {% endif %}
     {% endif %}
   </td>
-  {% if svs_enabled %}
-    <td data-order="{{ item.num_svs }}" class="text-right">
-      {% if item.num_svs is None %}
-        -
-      {% else %}
-        {{ item.num_svs|intcomma }}
-        {% if not item.latest_structural_variant_set %}
-          <i class="iconify text-danger" data-icon="bi:exclamation-circle" data-toggle="tooltip" title="SVs reported but no structural variant set available. Inconsistent state, please report to the aministrators."></i>
-        {% endif %}
+  <td data-order="{{ item.num_svs }}" class="text-right">
+    {% if item.num_svs is None %}
+      -
+    {% else %}
+      {{ item.num_svs|intcomma }}
+      {% if not item.latest_structural_variant_set %}
+        <i class="iconify text-danger" data-icon="bi:exclamation-circle" data-toggle="tooltip" title="SVs reported but no structural variant set available. Inconsistent state, please report to the aministrators."></i>
       {% endif %}
-    </td>
-  {% endif %}
+    {% endif %}
+  </td>
   <td style="width: 0px;">
     {{ item.release }}
   </td>
   <td style="width: 0px;">
-    {% if svs_enabled %}
-      <div class="btn-group" role="group">
-        <a href="{% url "variants:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn {% if not item.has_variants_and_variant_set %} disabled{% endif %}" title="{% if item.has_variants_and_variant_set %}filter small variants{% endif %}" data-toggle="tooltip">
-          <i class="iconify" data-icon="mdi:filter"></i>
-        </a>
-        <a href="{% url "svs:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn{% if not item.has_svs_and_structural_variant_set %} disabled{% endif %}"  title="{% if item.has_svs_and_structural_variant_set %}filter SVs{% endif %}" data-toggle="tooltip">
-          <i class="iconify" data-icon="mdi:filter-variant"></i>
-        </a>
-      </div>
-    {% else %}
-      <a href="{% url "variants:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
-        <i class="iconify" data-icon="mdi:filter"></i>
-      </a>
-    {% endif %}
+    <a href="{% url "variants:case-filter" project=item.project.sodar_uuid case=item.sodar_uuid %}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
+      <i class="iconify" data-icon="mdi:filter"></i>
+    </a>
   </td>
 </tr>

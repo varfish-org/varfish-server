@@ -2,19 +2,18 @@ import contextlib
 
 from django.conf import settings
 from django.db import transaction
-
 from projectroles.plugins import get_backend_api
 
-from cohorts.models import Cohort
-from variants.helpers import get_engine
+from geneinfo.models import Hpo
 from variants.forms import PATHO_SCORES_MAPPING
-from variants.models import prioritize_genes, VariantScoresFactory
+from variants.helpers import get_engine
+from variants.models import VariantScoresFactory, prioritize_genes
+
 from .queries import CasePrefetchQuery, ProjectPrefetchQuery
 
 
 class FilterBase:
-    """Base class for filtering and storing case query results.
-    """
+    """Base class for filtering and storing case query results."""
 
     def __init__(self, job, variant_query):
         """Constructor"""
@@ -65,14 +64,21 @@ class FilterBase:
 
     def _prioritize_gene_phenotype(self, results):
         """Prioritize genes in ``results`` and store in ``SmallVariantQueryGeneScores``."""
-        if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER:
+
+        if not settings.VARFISH_ENABLE_EXOMISER_PRIORITISER and not settings.VARFISH_ENABLE_CADA:
             return
 
         prio_enabled = self.variant_query.query_settings.get("prio_enabled")
         prio_algorithm = self.variant_query.query_settings.get("prio_algorithm")
-        hpo_terms = tuple(
-            sorted(self.variant_query.query_settings.get("prio_hpo_terms_curated", []) or [])
-        )
+        hpo_terms = []
+        for term in self.variant_query.query_settings.get("prio_hpo_terms", []) or []:
+            if term.startswith("HP"):
+                hpo_terms.append(term)
+            else:
+                for t in Hpo.objects.filter(database_id=term):
+                    hpo_terms.append(t.hpo_id)
+
+        hpo_terms = tuple(sorted(hpo_terms))
         entrez_ids = tuple(
             sorted(set(map(str, [row["entrez_id"] for row in results if row["entrez_id"]])))[
                 : settings.VARFISH_EXOMISER_PRIORITISER_MAX_GENES
@@ -81,11 +87,10 @@ class FilterBase:
         if not all((prio_enabled, prio_algorithm, hpo_terms, entrez_ids)):
             return  # nothing to do
 
-        self.job.add_log_entry("Prioritize genes with Exomiser ...")
         entrez_ids = [row["entrez_id"] for row in results if row["entrez_id"]]
         try:
             for gene_id, gene_symbol, score, priority_type in prioritize_genes(
-                entrez_ids, hpo_terms, prio_algorithm
+                entrez_ids, hpo_terms, prio_algorithm, logging=self.job.add_log_entry
             ):
                 self.variant_query.smallvariantquerygenescores_set.create(
                     gene_id=gene_id,
@@ -128,8 +133,7 @@ class FilterBase:
 
 
 class CaseFilter(FilterBase):
-    """Class for storing query results for a single case.
-    """
+    """Class for storing query results for a single case."""
 
     def _get_genomebuild(self):
         return self.variant_query.case.release
@@ -140,8 +144,7 @@ class CaseFilter(FilterBase):
 
 
 class ProjectCasesFilter(FilterBase):
-    """Class for storing query results for cases of a project.
-    """
+    """Class for storing query results for cases of a project."""
 
     def _get_genomebuild(self):
         if self.job.cohort:

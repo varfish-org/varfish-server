@@ -11,6 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name="hgnc", name="gtrnadb", field=models.CharField(max_length=32, null=True),
+            model_name="hgnc",
+            name="gtrnadb",
+            field=models.CharField(max_length=32, null=True),
         ),
     ]

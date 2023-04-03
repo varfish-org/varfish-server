@@ -13,9 +13,98 @@
       </a>
     </li>
   {% endif %}
+
+  {% get_user_setting user "vueapp" "filtration_inline_help" as filtration_inline_help %}
+  {% get_user_setting user "vueapp" "filtration_complexity_mode" as filtration_complexity_mode %}
+  {% if "/cases/vue" in request.path or "/cohorts/vue" in request.path %}
+    <li class="nav-item pl-4 ml-3">
+      <div class="nav-link custom-control custom-switch" title="Show inline help in variant filtration.">
+        <input type="checkbox" class="custom-control-input" id="vueapp-filtration-inline-help" {% if filtration_inline_help %}checked=""{% endif %}>
+        <label class="custom-control-label" for="vueapp-filtration-inline-help">
+          <i class="iconify" data-icon="fa-solid:info"></i>
+        </label>
+      </div>
+    </li>
+    <li class="nav-item mr-5">
+      <div class="nav-link custom-control" title="Complexity in filtration forms.">
+        <select class="navbar-custom-select navbar-custom-select-sm" id="vueapp-filtration-complexity-mode">
+          <option value="simple"{% if filtration_complexity_mode == "simple" %} selected="selected"{% endif %}>simple</option>
+          <option value="normal"{% if filtration_complexity_mode == "normal" %} selected="selected"{% endif %}>normal</option>
+          <option value="advanced"{% if filtration_complexity_mode == "advanced" %} selected="selected"{% endif %}>advanced</option>
+{#          {% if filtration_complexity_mode == "dev" %}#}
+          <option value="dev"{% if filtration_complexity_mode == "dev" %} selected="selected"{% endif %}>developer</option>
+{#          {% endif %}#}
+        </select>
+        <label class="form-label mr-1 ml-1" for="vueapp-filtration-complexity-mode">
+          <i class="iconify" data-icon="mdi:podium"></i>
+        </label>
+      </div>
+    </li>
+  {% endif %}
 {% endif %}
 
 {# Manual link #}
 <li class="nav-item">
   <a href="/manual/" class="nav-link" id="site-manual-link" target="_blank"><i class="iconify" data-icon="fa-regular:map"></i> Manual</a>
 </li>
+
+<style>
+
+.navbar-custom-select {
+  display: inline-block;
+  width: 100%;
+  height: calc(1.5em + 0.75rem + 2px);
+  /*padding: 0.375rem 1.75rem 0.375rem 0.75rem;*/
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #495057;
+  vertical-align: middle;
+  background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") right 0.75rem center/8px 10px no-repeat;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.navbar-custom-select:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.navbar-custom-select:focus::-ms-value {
+  color: #495057;
+  background-color: #fff;
+}
+
+.navbar-custom-select[multiple], .custom-select[size]:not([size="1"]) {
+  height: auto;
+  padding-right: 0.75rem;
+  background-image: none;
+}
+
+.navbar-custom-select:disabled {
+  color: #6c757d;
+  background-color: #e9ecef;
+}
+
+.navbar-custom-select::-ms-expand {
+  display: none;
+}
+
+.navbar-custom-select:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 #495057;
+}
+
+.navbar-custom-select-sm {
+  height: calc(1.5em + 2px);
+  /*height: calc(1.5em + 0.5rem + 2px);*/
+  /*padding-top: 0.25rem;*/
+  /*padding-bottom: 0.25rem;*/
+  padding-left: 0.5rem;
+  font-size: 0.875rem;
+}
+</style>

@@ -1,0 +1,31 @@
+{
+  "sodar_uuid": "66666666-6666-6666-6666-666666666666",
+  "date_created": "2020-11-09 13:37",
+  "date_modified": "2020-11-09 13:37",
+  "submission_set": "11111111-1111-1111-1111-111111111111",
+  "age_of_onset": "Antenatal",
+  "variant_type": "Variation",
+  "inheritance": "Other",
+  "sort_order": 1,
+  "significance_status": "criteria provided, single submitter",
+  "significance_description": "Pathogenic",
+  "significance_last_evaluation": "2020-11-09",
+  "assertion_method": "55555555-5555-5555-5555-555555555555",
+  "record_status": "novel",
+  "release_status": "public",
+  "submission_individuals": ["99999999-9999-9999-9999-999999999999"],
+  "variant_assembly": "GRCh37",
+  "variant_chromosome": "17",
+  "variant_start": "41201211",
+  "variant_stop": "41201211",
+  "variant_reference": "T",
+  "variant_alternative": "G",
+  "variant_gene": ["BRCA1"],
+  "variant_hgvs": ["NM_007294.4:p.Asp1778Gly"],
+  "diseases": [
+    {
+      "term_id": "617638",
+      "term_name": "IMMUNODEFICIENCY 11B WITH ATOPIC DERMATITIS"
+    }
+  ]
+}

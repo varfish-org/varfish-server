@@ -9,8 +9,7 @@ from variants.tasks import clear_inactive_variant_sets as task_clear_inactive_va
 
 
 class Command(BaseCommand):
-    """Implementation of clearing inactive variant sets.
-    """
+    """Implementation of clearing inactive variant sets."""
 
     #: Help message displayed on the command line.
     help = "Clear inactive variant sets."

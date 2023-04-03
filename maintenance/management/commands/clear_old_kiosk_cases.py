@@ -9,8 +9,7 @@ from variants.tasks import clear_old_kiosk_cases as task_clear_old_kiosk_cases
 
 
 class Command(BaseCommand):
-    """Implementation of clearing old kiosk cases.
-    """
+    """Implementation of clearing old kiosk cases."""
 
     #: Help message displayed on the command line.
     help = "Clear old kiosk cases."

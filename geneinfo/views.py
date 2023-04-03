@@ -4,20 +4,21 @@ from django.forms import model_to_dict
 
 from clinvar.models import ClinvarPathogenicGenes
 from geneinfo.models import (
-    RefseqToHgnc,
-    Hgnc,
-    GnomadConstraints,
+    EnsemblToGeneSymbol,
     ExacConstraints,
-    Mim2geneMedgen,
+    GnomadConstraints,
+    Hgnc,
     Hpo,
     HpoName,
+    Mim2geneMedgen,
+    NcbiGeneInfo,
+    NcbiGeneRif,
     RefseqToEnsembl,
     RefseqToGeneSymbol,
-    EnsemblToGeneSymbol,
+    RefseqToHgnc,
 )
 
-
-RE_OMIM_PARSER = re.compile("^(?:#\d+ )?(.+)$")
+RE_OMIM_PARSER = re.compile(r"^(?:#\d+ )?(.+)$")
 
 
 # Modes of inheritance in HPO: https://hpo.jax.org/app/browse/term/HP:0000005
@@ -29,61 +30,6 @@ HPO_INHERITANCE_MAPPING = {
     "HP:0001419": "XR",
     "HP:0001423": "XD",
 }
-
-
-def get_gene_infos(database, gene_id, ensembl_transcript_id):
-    if database == "refseq":
-        # Get HGNC entry via intermediate table as HGNC is badly equipped with refseq IDs.
-        hgnc = RefseqToHgnc.objects.filter(entrez_id=gene_id).first()
-        gene = None
-        gene_symbol = None
-        if hgnc:
-            gene = Hgnc.objects.filter(hgnc_id=hgnc.hgnc_id).first()
-        gene_symbol_mapping = RefseqToGeneSymbol.objects.filter(entrez_id=gene_id).first()
-        if gene_symbol_mapping:
-            gene_symbol = gene_symbol_mapping.gene_symbol
-    else:
-        # We could also go via EnsemblToRefseq -> RefseqToHgnc -> Hgnc ???
-        gene = Hgnc.objects.filter(ensembl_gene_id=gene_id).first()
-        gene_symbol_mapping = EnsemblToGeneSymbol.objects.filter(ensembl_gene_id=gene_id).first()
-        gene_symbol = None
-        if gene_symbol_mapping:
-            gene_symbol = gene_symbol_mapping.gene_symbol
-    if not gene:
-        return {
-            "entrez_id" if database == "refseq" else "ensembl_gene_id": gene_id,
-            "symbol": gene_symbol,
-        }
-    else:
-        gene = model_to_dict(gene)
-        if database == "refseq":
-            refseq_to_ensembl = RefseqToEnsembl.objects.filter(entrez_id=gene_id).first()
-            ensembl_gene_id = getattr(refseq_to_ensembl, "ensembl_gene_id", None)
-            gene["entrez_id"] = gene_id
-        else:
-            ensembl_gene_id = gene_id
-            hgnc = RefseqToHgnc.objects.filter(hgnc_id=gene["hgnc_id"]).first()
-            gene["entrez_id"] = getattr(hgnc, "entrez_id", None)
-        hpoterms, hpoinheritance, omim, omim_genes = _handle_hpo_omim(gene["entrez_id"])
-        gene["omim"] = omim
-        # Overwrite symbol from HGNC with the one derived directly from ncbi/ensembl.
-        if not gene["symbol"]:
-            gene["symbol"] = gene_symbol
-        gene["omim_genes"] = omim_genes
-        gene["hpo_inheritance"] = list(hpoinheritance)
-        gene["hpo_terms"] = list(hpoterms)
-        gene["clinvar_pathogenicity"] = ClinvarPathogenicGenes.objects.filter(
-            entrez_id=gene["entrez_id"]
-        ).first()
-        if ensembl_gene_id:
-            gene["gnomad_constraints"] = GnomadConstraints.objects.filter(
-                ensembl_gene_id=ensembl_gene_id
-            ).first()
-        if ensembl_transcript_id:
-            gene["exac_constraints"] = ExacConstraints.objects.filter(
-                ensembl_transcript_id=ensembl_transcript_id.split(".")[0]
-            ).first()
-        return gene
 
 
 def _handle_hpo_omim(entrez_id):
@@ -132,3 +78,63 @@ def _parse_omim_name(name):
         for s in name.split(";;"):
             m = re.search(RE_OMIM_PARSER, s.split(";")[0])
             yield m.group(1)
+
+
+def get_gene_infos(database, gene_id, ensembl_transcript_id=None):
+    if database == "refseq":
+        # Get HGNC entry via intermediate table as HGNC is badly equipped with refseq IDs.
+        hgnc = RefseqToHgnc.objects.filter(entrez_id=gene_id).first()
+        gene = None
+        gene_symbol = None
+        if hgnc:
+            gene = Hgnc.objects.filter(hgnc_id=hgnc.hgnc_id).first()
+        gene_symbol_mapping = RefseqToGeneSymbol.objects.filter(entrez_id=gene_id).first()
+        if gene_symbol_mapping:
+            gene_symbol = gene_symbol_mapping.gene_symbol
+    else:
+        # We could also go via EnsemblToRefseq -> RefseqToHgnc -> Hgnc ???
+        gene = Hgnc.objects.filter(ensembl_gene_id=gene_id).first()
+        gene_symbol_mapping = EnsemblToGeneSymbol.objects.filter(ensembl_gene_id=gene_id).first()
+        gene_symbol = None
+        if gene_symbol_mapping:
+            gene_symbol = gene_symbol_mapping.gene_symbol
+    if not gene:
+        return {
+            "entrez_id" if database == "refseq" else "ensembl_gene_id": gene_id,
+            "symbol": gene_symbol,
+        }
+    else:
+        gene = model_to_dict(gene, exclude=["id"])
+        if database == "refseq":
+            refseq_to_ensembl = RefseqToEnsembl.objects.filter(entrez_id=gene_id).first()
+            ensembl_gene_id = getattr(refseq_to_ensembl, "ensembl_gene_id", None)
+            gene["entrez_id"] = gene_id
+        else:
+            ensembl_gene_id = gene_id
+            hgnc = RefseqToHgnc.objects.filter(hgnc_id=gene["hgnc_id"]).first()
+            gene["entrez_id"] = getattr(hgnc, "entrez_id", None)
+        hpoterms, hpoinheritance, omim, omim_genes = _handle_hpo_omim(gene["entrez_id"])
+        gene["omim"] = omim
+        # Overwrite symbol from HGNC with the one derived directly from ncbi/ensembl.
+        if not gene["symbol"]:
+            gene["symbol"] = gene_symbol
+        gene["omim_genes"] = omim_genes
+        gene["hpo_inheritance"] = list(hpoinheritance)
+        gene["hpo_terms"] = list(hpoterms)
+        gene["clinvar_pathogenicity"] = ClinvarPathogenicGenes.objects.filter(
+            entrez_id=gene["entrez_id"]
+        ).first()
+        if ensembl_gene_id:
+            gene["gnomad_constraints"] = GnomadConstraints.objects.filter(
+                ensembl_gene_id=ensembl_gene_id
+            ).first()
+        if ensembl_transcript_id:
+            gene["exac_constraints"] = ExacConstraints.objects.filter(
+                ensembl_transcript_id=ensembl_transcript_id.split(".")[0]
+            ).first()
+        if gene["entrez_id"]:
+            gene["ncbi_summary"] = NcbiGeneInfo.objects.filter(entrez_id=gene["entrez_id"]).first()
+            gene["ncbi_gene_rifs"] = NcbiGeneRif.objects.filter(
+                entrez_id=gene["entrez_id"]
+            ).order_by("pk")
+        return gene

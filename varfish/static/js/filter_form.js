@@ -112,9 +112,22 @@ function updateCheckboxes(event) {
 }
 updateCheckboxes.blocked = false;
 
+function initLocalPanels(genelist_id, pattern) {
+  const panelArea = $(genelist_id);
+  $(pattern).click(function() {
+    const symbols = $(this).data("genes").split(/,/)
+    if (panelArea.val()) {
+      panelArea.val(panelArea.val() + " " + symbols.join(" "));
+    } else {
+      panelArea.val(symbols.join(" "));
+    }
+  });
+}
+
 $(document).ready(function() {
   updateCheckboxes(null);
   $(".checkboxinput").change(updateCheckboxes);
+  initLocalPanels("#id_gene_allowlist", ".load-local-panel");
 });
 
 function polyPhen2(gene, hgvsP) {
@@ -501,8 +514,11 @@ const presets = {
   },
   "inheritance-dominant": {
       "ids": {},
-      // dom-denovo doesn't exist in the select. this triggers a function
-      "classes": {"genotype-field-gt": "dom-denovo"},
+      "classes": {"genotype-field-gt": "dominant"},
+  },
+  "inheritance-de-novo": {
+      "ids": {},
+      "classes": {"genotype-field-gt": "de-novo"},
   },
   "inheritance-hom-recessive": {
       "ids": {},
@@ -1030,6 +1046,7 @@ const presets = {
       "effect_upstream_gene_variant": true,
 
       "require_in_clinvar": true,
+      "clinvar_paranoid_mode": false,
     }),
     "classes": {},
   },
@@ -1469,7 +1486,21 @@ function enableHomRecessiveMode(target) {
 }
 
 
-function enableDomDenovoMode() {
+function enableDeNovoMode() {
+    // Index will be set to variant, all others to ref
+    $("[id^=id_][id$=_gt]").each(
+        function () {
+            console.log($(this), $(this).data("default-index"))
+            if ($(this).data("default-index") === 1) {
+                $(this).val("variant")
+            } else {
+                $(this).val("ref")
+            }
+        }
+    )
+}
+
+function enableDominantMode() {
     // All affected will be set to het
     $("[id^=id_][id$=_gt].affected").val("het");
     // All unaffected will be set to ref
@@ -1637,17 +1668,12 @@ function applyPresetsToSettings(presets, name) {
             (
                 val == "index"
                 || val == "recessive-index"
-                || val == "dom-denovo"
                 || val == "hom-recessive"
                 || val == "mitochondrial"
                 || val == "x-recessive"
             ) && tag.data("default-index") != "1"
         ) {
             continue;
-        }
-        // Dominant denovo is not an option in the genotype select, so let a function do the change.
-        if (val == "dom-denovo") {
-            enableDomDenovoMode();
         }
         // Homozygous recessive is not an option in the genotype select, so let a function do the change.
         else if (val == "hom-recessive") {
@@ -1660,6 +1686,14 @@ function applyPresetsToSettings(presets, name) {
         // X recessive is not an option in the genotype select, so let a function do the change.
         else if (val == "x-recessive") {
             enableXRecessiveMode(tag);
+        }
+        // X recessive is not an option in the genotype select, so let a function do the change.
+        else if (val == "de-novo") {
+            enableDeNovoMode();
+        }
+        // X recessive is not an option in the genotype select, so let a function do the change.
+        else if (val == "dominant") {
+            enableDominantMode();
         }
         // Default change behaviour for all others
         else {
@@ -1698,7 +1732,7 @@ function updateQuickPresets(settings) {
   }
   const quickPresetCategories = ["inheritance", "frequency", "impact", "quality", "region", "flags"];
   const quickPresetCandidates = {
-    "inheritance": ["any", "dominant", "hom-recessive", "comp-het", "recessive", "mitochondrial", "x-recessive"],
+    "inheritance": ["any", "dominant", "de-novo", "hom-recessive", "comp-het", "recessive", "mitochondrial", "x-recessive"],
     "frequency": ["super-strict", "strict", "relaxed", "recessive-strict", "recessive-relaxed", "all"],
     "impact": ["null-variant", "aa-change", "all-coding-deep-intronic", "whole-transcript", "any"],
     "quality": ["super-strict", "strict", "relaxed", "ignore"],
@@ -1749,6 +1783,16 @@ function updateQuickPresets(settings) {
                     presetsKey == "inheritance-dominant" &&
                     (
                         (element.hasClass("affected") && eqAsStr(value,"het")) ||
+                        (element.hasClass("unaffected") && eqAsStr(value,"ref"))
+                    )
+                ) {
+                    continue;
+                }
+                // Similarly, for de novo (note that the same as "mitochondrial" for singletons)
+                else if (
+                    presetsKey == "inheritance-de-novo" &&
+                    (
+                        (element.hasClass("affected") && eqAsStr(value,"variant")) ||
                         (element.hasClass("unaffected") && eqAsStr(value,"ref"))
                     )
                 ) {
@@ -1852,10 +1896,10 @@ function loadPresets(element) {
     $("#input-presets-region").val("region-whole-genome")
     $("#input-presets-flags").val("flags-default")
   } else if (presetsName == "de-novo") {
-    $("#input-presets-inheritance").val("inheritance-dominant")
+    $("#input-presets-inheritance").val("inheritance-de-novo")
     $("#input-presets-frequency").val("frequency-strict")
     $("#input-presets-impact").val("impact-aa-change")
-    $("#input-presets-quality").val("quality-relaxed")
+    $("#input-presets-quality").val("quality-super-strict")
     $("#input-presets-region").val("region-whole-genome")
     $("#input-presets-flags").val("flags-default")
   } else if (presetsName == "hom-recessive" || presetsName == "comp-het" || presetsName == "recessive") {
@@ -2156,3 +2200,309 @@ $(document).keypress(
       event.preventDefault();
     }
 });
+
+const svFreqVals = {
+    in_house_only: {
+        dgv_min_overlap: 0.75,
+        dgv_max_carriers: null,
+        dgv_gs_min_overlap: 0.75,
+        dgv_gs_max_carriers: null,
+        exac_min_overlap: 0.75,
+        exac_max_carriers: null,
+        gnomad_min_overlap: 0.75,
+        gnomad_max_carriers: null,
+        dbvar_min_overlap: 0.75,
+        dbvar_max_carriers: null,
+        g1k_min_overlap: 0.75,
+        g1k_max_alleles: null,
+        inhouse_min_overlap: 0.75,
+        inhouse_max_carriers: 10,
+    },
+    relaxed: {
+        dgv_min_overlap: 0.75,
+        dgv_max_carriers: 20,
+        dgv_gs_min_overlap: 0.75,
+        dgv_gs_max_carriers: 10,
+        exac_min_overlap: 0.75,
+        exac_max_carriers: 20,
+        gnomad_min_overlap: 0.75,
+        gnomad_max_carriers: 20,
+        dbvar_min_overlap: 0.75,
+        dbvar_max_carriers: 40,
+        g1k_min_overlap: 0.75,
+        g1k_max_alleles: 10,
+        inhouse_min_overlap: 0.75,
+        inhouse_max_carriers: 10,
+    },
+    strict: {
+        dgv_min_overlap: 0.75,
+        dgv_max_carriers: 10,
+        dgv_gs_min_overlap: 0.75,
+        dgv_gs_max_carriers: 5,
+        exac_min_overlap: 0.75,
+        exac_max_carriers: 10,
+        gnomad_min_overlap: 0.75,
+        gnomad_max_carriers: 10,
+        dbvar_min_overlap: 0.75,
+        dbvar_max_carriers: 20,
+        g1k_min_overlap: 0.75,
+        g1k_max_alleles: 5,
+        inhouse_min_overlap: 0.75,
+        inhouse_max_carriers: 5,
+    },
+}
+
+const svVarsVals = {
+    all: {
+        effect_coding_sequence_variant: true,
+        effect_coding_transcript_intron_variant: true,
+        effect_coding_transcript_variant: true,
+        effect_copy_number_change: true,
+        effect_direct_tandem_duplication: true,
+        effect_downstream_gene_variant: true,
+        effect_exon_loss_variant: true,
+        effect_feature_truncation: true,
+        effect_five_prime_UTR_exon_variant: true,
+        effect_five_prime_UTR_intron_variant: true,
+        effect_five_prime_UTR_truncation: true,
+        effect_frameshift_truncation: true,
+        effect_insertion: true,
+        effect_intron_variant: true,
+        effect_inversion: true,
+        effect_mobile_element_deletion: true,
+        effect_mobile_element_insertion: true,
+        effect_non_coding_transcript_exon_variant: true,
+        effect_non_coding_transcript_intron_variant: true,
+        effect_non_coding_transcript_variant: true,
+        effect_sequence_variant: true,
+        effect_start_lost: true,
+        effect_stop_lost: true,
+        effect_structural_variant: true,
+        effect_three_prime_UTR_exon_variant: true,
+        effect_three_prime_UTR_intron_variant: true,
+        effect_three_prime_UTR_truncation: true,
+        effect_transcript_ablation: true,
+        effect_transcript_amplification: true,
+        effect_translocation: true,
+        effect_upstream_gene_variant: true,
+        require_transcript_overlap: false,
+        sv_size_max: null,
+        sv_size_min: null,
+        sv_sub_type_bnd: true,
+        sv_sub_type_cnv: true,
+        sv_sub_type_del: true,
+        sv_sub_type_del_me_alu: true,
+        sv_sub_type_del_me: true,
+        sv_sub_type_del_me_l1: true,
+        sv_sub_type_del_me_sva: true,
+        sv_sub_type_dup: true,
+        sv_sub_type_dup_tandem: true,
+        sv_sub_type_ins: true,
+        sv_sub_type_ins_me_alu: true,
+        sv_sub_type_ins_me: true,
+        sv_sub_type_ins_me_l1: true,
+        sv_sub_type_ins_me_sva: true,
+        sv_sub_type_inv: true,
+        sv_type_bnd: true,
+        sv_type_cnv: true,
+        sv_type_del: true,
+        sv_type_dup: true,
+        sv_type_ins: true,
+        sv_type_inv: true,
+        transcripts_coding: true,
+        transcripts_noncoding: true,
+    },
+    almost_all: {
+        effect_coding_sequence_variant: true,
+        effect_coding_transcript_intron_variant: true,
+        effect_coding_transcript_variant: true,
+        effect_copy_number_change: true,
+        effect_direct_tandem_duplication: true,
+        effect_downstream_gene_variant: true,
+        effect_exon_loss_variant: true,
+        effect_feature_truncation: true,
+        effect_five_prime_UTR_exon_variant: true,
+        effect_five_prime_UTR_intron_variant: true,
+        effect_five_prime_UTR_truncation: true,
+        effect_frameshift_truncation: true,
+        effect_insertion: true,
+        effect_intron_variant: true,
+        effect_inversion: true,
+        effect_mobile_element_deletion: true,
+        effect_mobile_element_insertion: true,
+        effect_non_coding_transcript_exon_variant: true,
+        effect_non_coding_transcript_intron_variant: true,
+        effect_non_coding_transcript_variant: true,
+        effect_sequence_variant: true,
+        effect_start_lost: true,
+        effect_stop_lost: true,
+        effect_structural_variant: true,
+        effect_three_prime_UTR_exon_variant: true,
+        effect_three_prime_UTR_intron_variant: true,
+        effect_three_prime_UTR_truncation: true,
+        effect_transcript_ablation: true,
+        effect_transcript_amplification: true,
+        effect_translocation: true,
+        effect_upstream_gene_variant: true,
+        require_transcript_overlap: false,
+        sv_size_max: null,
+        sv_size_min: 500,
+        sv_sub_type_bnd: true,
+        sv_sub_type_cnv: true,
+        sv_sub_type_del: true,
+        sv_sub_type_del_me_alu: true,
+        sv_sub_type_del_me: true,
+        sv_sub_type_del_me_l1: true,
+        sv_sub_type_del_me_sva: true,
+        sv_sub_type_dup: true,
+        sv_sub_type_dup_tandem: true,
+        sv_sub_type_ins: true,
+        sv_sub_type_ins_me_alu: true,
+        sv_sub_type_ins_me: true,
+        sv_sub_type_ins_me_l1: true,
+        sv_sub_type_ins_me_sva: true,
+        sv_sub_type_inv: true,
+        sv_type_bnd: true,
+        sv_type_cnv: true,
+        sv_type_del: true,
+        sv_type_dup: true,
+        sv_type_ins: true,
+        sv_type_inv: true,
+        transcripts_coding: true,
+        transcripts_noncoding: true,
+    },
+    cnv_only: {
+        effect_coding_sequence_variant: true,
+        effect_coding_transcript_intron_variant: true,
+        effect_coding_transcript_variant: true,
+        effect_copy_number_change: true,
+        effect_direct_tandem_duplication: true,
+        effect_downstream_gene_variant: true,
+        effect_exon_loss_variant: true,
+        effect_feature_truncation: true,
+        effect_five_prime_UTR_exon_variant: true,
+        effect_five_prime_UTR_intron_variant: true,
+        effect_five_prime_UTR_truncation: true,
+        effect_frameshift_truncation: true,
+        effect_insertion: true,
+        effect_intron_variant: true,
+        effect_inversion: true,
+        effect_mobile_element_deletion: true,
+        effect_mobile_element_insertion: true,
+        effect_non_coding_transcript_exon_variant: true,
+        effect_non_coding_transcript_intron_variant: true,
+        effect_non_coding_transcript_variant: true,
+        effect_sequence_variant: true,
+        effect_start_lost: true,
+        effect_stop_lost: true,
+        effect_structural_variant: true,
+        effect_three_prime_UTR_exon_variant: true,
+        effect_three_prime_UTR_intron_variant: true,
+        effect_three_prime_UTR_truncation: true,
+        effect_transcript_ablation: true,
+        effect_transcript_amplification: true,
+        effect_translocation: true,
+        effect_upstream_gene_variant: true,
+        require_transcript_overlap: false,
+        sv_size_max: null,
+        sv_size_min: 500,
+        sv_sub_type_bnd: false,
+        sv_sub_type_cnv: true,
+        sv_sub_type_del: true,
+        sv_sub_type_del_me_alu: true,
+        sv_sub_type_del_me: true,
+        sv_sub_type_del_me_l1: true,
+        sv_sub_type_del_me_sva: true,
+        sv_sub_type_dup: true,
+        sv_sub_type_dup_tandem: true,
+        sv_sub_type_ins: false,
+        sv_sub_type_ins_me_alu: false,
+        sv_sub_type_ins_me: false,
+        sv_sub_type_ins_me_l1: false,
+        sv_sub_type_ins_me_sva: false,
+        sv_sub_type_inv: false,
+        sv_type_bnd: false,
+        sv_type_cnv: true,
+        sv_type_del: true,
+        sv_type_dup: true,
+        sv_type_ins: false,
+        sv_type_inv: false,
+        transcripts_coding: true,
+        transcripts_noncoding: true,
+    }
+}
+
+const svQualsVals = {
+    all: {
+        gq_min: null,
+        src_min: null,
+        srv_min: null,
+        srv_max: null,
+        pec_min: null,
+        pev_min: null,
+        pev_max: null,
+        cov_min: null,
+        var_min: null,
+        var_max: null,
+        fail: "ignore",
+    },
+    relaxed: {
+        gq_min: null,
+        src_min: null,
+        srv_min: 1,
+        srv_max: null,
+        pec_min: null,
+        pev_min: 1,
+        pev_max: null,
+        cov_min: 4,
+        var_min: 4,
+        var_max: null,
+        fail: "drop-variant",
+    },
+    strict: {
+        gq_min: null,
+        src_min: null,
+        srv_min: 1,
+        srv_max: null,
+        pec_min: null,
+        pev_min: 1,
+        pev_max: null,
+        cov_min: 10,
+        var_min: 10,
+        var_max: null,
+        fail: "drop-variant",
+    },
+}
+
+// Apply quick presets for the SV form
+function svQuickPresetClicked(e) {
+    const preset = $(e.target).data("preset");
+    console.log(preset)
+    if (preset.startsWith("freq-")) {
+        const key = preset.substring("freq-".length)
+        const settings = svFreqVals[key]
+        for (const i in settings) {
+            $(`#id_${i}`).val(settings[i])
+        }
+        $("#frequency-tab").click()
+    } else if (preset.startsWith("vars-")) {
+        const key = preset.substring("vars-".length)
+        const settings = svVarsVals[key]
+        for (const i in settings) {
+            const val = settings[i]
+            if (typeof(val) === "boolean") {
+                $(`#id_${i}`).prop("checked", val)
+            } else {
+                $(`#id_${i}`).val(val)
+            }
+        }
+        $("#effect-tab").click()
+    } else if (preset.startsWith("quals-")) {
+        const key = preset.substring("quals-".length)
+        const settings = svQualsVals[key]
+        for (const i in settings) {
+            $(`.quality-field-${i}`).val(settings[i])
+        }
+        $("#quality-tab").click()
+    }
+}

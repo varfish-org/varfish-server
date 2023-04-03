@@ -1,9 +1,9 @@
 """Utility code for query schemas."""
 
-from enum import unique, Enum
 import copy
-import os.path
+from enum import Enum, unique
 import json
+import os.path
 import re
 import typing
 
@@ -12,8 +12,8 @@ import attrs
 import cattr
 from jsonschema import Draft7Validator, validators
 
-from variants.models import Case
 from variants.forms import FILTER_FORM_TRANSLATE_EFFECTS
+from variants.models import Case
 
 
 def extend_with_default(validator_class):
@@ -25,10 +25,18 @@ def extend_with_default(validator_class):
             if "default" in sub_schema:
                 instance.setdefault(key, sub_schema["default"])
 
-        for error in validate_properties(validator, properties, instance, schema,):
+        for error in validate_properties(
+            validator,
+            properties,
+            instance,
+            schema,
+        ):
             yield error
 
-    return validators.extend(validator_class, {"properties": set_defaults},)
+    return validators.extend(
+        validator_class,
+        {"properties": set_defaults},
+    )
 
 
 def load_json(path):
@@ -243,7 +251,6 @@ class CaseQueryV1:
 
     recessive_mode: typing.Optional[RecessiveModeV1] = None
     recessive_index: typing.Optional[str] = None
-    denovo_index: typing.Optional[str] = None
 
     exac_frequency: typing.Optional[float] = None
     exac_heterozygous: typing.Optional[int] = None
@@ -328,6 +335,7 @@ class QueryJsonToFormConverter:
             "clinvar_include_likely_benign": query.clinvar_include_likely_benign,
             "clinvar_include_uncertain_significance": query.clinvar_include_uncertain_significance,
             "clinvar_include_likely_pathogenic": query.clinvar_include_likely_pathogenic,
+            "clinvar_include_pathogenic": query.clinvar_include_pathogenic,
             "flag_simple_empty": query.flag_simple_empty,
             "flag_bookmarked": query.flag_bookmarked,
             "flag_candidate": query.flag_candidate,
@@ -362,7 +370,6 @@ class QueryJsonToFormConverter:
             "prio_enabled": query.prio_enabled,
             "prio_algorithm": query.prio_algorithm,
             "prio_hpo_terms": query.prio_hpo_terms,
-            "prio_hpo_terms_curated": query.prio_hpo_terms,
             "patho_enabled": query.patho_enabled,
             "patho_score": query.patho_score,
             "effects": [e.value for e in query.effects],
@@ -406,8 +413,6 @@ class QueryJsonToFormConverter:
                 result["%s_gt" % sample] = "recessive-index"
             elif sample in result["compound_recessive_indices"].values():
                 result["%s_gt" % sample] = "index"
-            elif sample == query.denovo_index:
-                result["%s_gt" % sample] = "dom-denovo-index"
             else:
                 gt = query.genotype.get(sample, GenotypeChoiceV1.ANY)
                 if gt:

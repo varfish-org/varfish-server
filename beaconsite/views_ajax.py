@@ -2,7 +2,7 @@ import cattr
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
-from projectroles.views import LoginRequiredMixin, LoggedInPermissionMixin
+from projectroles.views import LoggedInPermissionMixin, LoginRequiredMixin
 import requests
 from requests_http_signature import HTTPSignatureAuth
 

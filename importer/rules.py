@@ -1,8 +1,7 @@
 """Rule definitions for the ``bgjobs`` app."""
 
-import rules
 from projectroles import rules as pr_rules
-
+import rules
 
 # Predicates -------------------------------------------------------------------
 
@@ -20,7 +19,8 @@ is_allowed_to_modify = (
 )
 
 rules.add_perm(
-    "importer.view_import", is_allowed_to_modify,
+    "importer.view_import",
+    is_allowed_to_modify,
 )
 
 rules.add_perm("importer.add_import", is_allowed_to_modify)

@@ -6,9 +6,7 @@ from bs4 import BeautifulSoup
 from projectroles.plugins import get_backend_api
 import requests
 
-
 from .file_export import CaseExporterVcf
-
 
 #: URL to MutationDistiller submission form
 DISTILLER_POST_URL = "https://www.mutationdistiller.org/QE/MT/MTQE_start.cgi"

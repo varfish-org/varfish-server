@@ -3,12 +3,12 @@
 from django.test import TestCase
 
 from .factories import (
-    TadSetFactory,
-    TadIntervalFactory,
-    TadBoundaryIntervalFactory,
     EnsemblRegulatoryFeatureFactory,
-    VistaEnhancerFactory,
     GeneIntervalFactory,
+    TadBoundaryIntervalFactory,
+    TadIntervalFactory,
+    TadSetFactory,
+    VistaEnhancerFactory,
 )
 
 

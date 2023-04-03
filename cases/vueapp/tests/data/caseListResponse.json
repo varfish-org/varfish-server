@@ -1,0 +1,49 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "sodar_uuid": "3b22fce8-9be8-4387-8e6e-3be73f4228fb",
+      "project": "d5b5f971-91ec-4f56-ad41-9e48b6e91e2b",
+      "presetset": "acca95a3-697e-4c49-989e-020858f38737",
+      "sex_errors": {},
+      "release": "GRCh37",
+      "name": "NA12878",
+      "index": "NA12878-N1-DNA1-WES1",
+      "pedigree": [
+        {
+          "sex": 2,
+          "father": "NA12891-N1-DNA1-WES1",
+          "mother": "NA12892-N1-DNA1-WES1",
+          "name": "NA12878-N1-DNA1-WES1",
+          "affected": 2,
+          "has_gt_entries": true
+        },
+        {
+          "sex": 1,
+          "father": "0",
+          "mother": "0",
+          "name": "NA12891-N1-DNA1-WES1",
+          "affected": 1,
+          "has_gt_entries": true
+        },
+        {
+          "sex": 2,
+          "father": "0",
+          "mother": "0",
+          "name": "NA12892-N1-DNA1-WES1",
+          "affected": 1,
+          "has_gt_entries": true
+        }
+      ],
+      "notes": "",
+      "status": "closed-uncertain",
+      "tags": [],
+      "date_created": "2022-01-26T15:52:37.674189Z",
+      "date_modified": "2022-11-09T14:19:59.475361Z",
+      "num_small_vars": 1862774,
+      "num_svs": null
+    }
+  ]
+}

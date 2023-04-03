@@ -11,11 +11,7 @@ Production settings for VarFish project.
 
 """
 
-
-import logging
-
-
-from .base import *  # noqa
+from .base import *
 
 # SECRET CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -87,7 +83,7 @@ INSTALLED_APPS += ["gunicorn"]
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Add Samplesheets vue.js app assets
-STATICFILES_DIRS.append(str(ROOT_DIR("varfish/vueapp/dist")))
+STATICFILES_DIRS.append(str(ROOT_DIR("clinvar_export/vueapp/dist")))
 
 # Add optonal custom directory for static includes at deployment stage
 STATICFILES_DIRS += env.list("CUSTOM_STATIC_DIR", default=[])
@@ -151,4 +147,4 @@ CACHES = {
 
 # WEBPACK / VUE.JS CONFIGURATION
 # ------------------------------------------------------------------------------
-STATICFILES_DIRS.append(str(ROOT_DIR("varfish/vueapp/dist")))
+STATICFILES_DIRS.append(str(ROOT_DIR("clinvar_export/vueapp/dist")))

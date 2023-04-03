@@ -1,0 +1,15 @@
+[
+  {
+    "presetset": "54a32d14-a818-4412-96e4-90b9b4062472",
+    "date_created": "2022-10-31T15:01:13.867358Z",
+    "date_modified": "2022-10-31T15:01:13.867386Z",
+    "sodar_uuid": "c38b3a8e-c368-402a-b4b1-fe1447828f94",
+    "label": "Impact Presets #0",
+    "var_type_snv": true,
+    "var_type_mnv": true,
+    "var_type_indel": true,
+    "transcripts_coding": true,
+    "transcripts_noncoding": true,
+    "effects": []
+  }
+]

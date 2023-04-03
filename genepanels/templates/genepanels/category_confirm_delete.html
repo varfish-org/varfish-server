@@ -1,0 +1,38 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+{% load crispy_forms_filters %}
+{% load projectroles_common_tags %}
+
+{% block title %}Confirm Removal of Gene Panel Category{% endblock %}
+
+{% block projectroles %}
+
+<div class="row sodar-subtitle-container">
+  <h2 class="sodar-pr-content-title">
+    <span class="iconify" data-icon="mdi:format-list-bulleted-type" data-inline="false"></span>
+    Confirm Removal of Gene Panel Category
+  </h2>
+</div>
+
+<div class="container-fluid sodar-page-container">
+  <div class="alert alert-warning" role="alert">
+    Do you really want to remove the gene panel category "<strong>{{ object.title }}</strong>"?
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="btn-group pull-right">
+      <a role="button" class="btn btn-secondary"
+         href="{% url 'genepanels:category-detail' category=object.sodar_uuid %}">
+        <i class="iconify" data-icon="mdi:arrow-left-circle"></i> Cancel
+      </a>
+      <button type="submit" class="btn btn-danger">
+        <i class="iconify" data-icon="mdi:eraser" data-inline="false"></i>
+        Remove
+      </button>
+    </div>
+  </form>
+</div>
+
+{% endblock projectroles %}

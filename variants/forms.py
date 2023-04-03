@@ -1,25 +1,24 @@
-import shutil
 from functools import lru_cache
-from itertools import chain
 import io
+from itertools import chain
 import os
+import re
+import shutil
 import tempfile
 
-import vcfpy
-from django.conf import settings
 from django import forms
+from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.utils.text import get_valid_filename
-
-from cohorts.models import Cohort
-from .models import SmallVariantComment, SmallVariantFlags, AcmgCriteriaRating, Case, CaseComments
-from .templatetags.variants_tags import only_source_name, get_term_description
-from geneinfo.models import Hgnc, HpoName, Hpo
 from django.db.models import Q
+from django.utils.text import get_valid_filename
 from projectroles.app_settings import AppSettingAPI
+import vcfpy
 
-import re
+from geneinfo.models import Hgnc, Hpo, HpoName
+from genepanels.models import GenePanel, GenePanelState
 
+from .models import AcmgCriteriaRating, Case, CaseComments, SmallVariantComment, SmallVariantFlags
+from .templatetags.variants_tags import get_term_description, only_source_name
 
 app_settings = AppSettingAPI()
 
@@ -107,7 +106,6 @@ class CaseForm(forms.ModelForm):
                 if idx == -1:
                     self.instance.pedigree[i][key] = "0"
                 else:
-                    x = self.instance.pedigree
                     parent_name = self.instance.pedigree[idx]["patient"]
                     self.instance.pedigree[i][key] = parent_name
 
@@ -234,16 +232,10 @@ PRIO_HIPHIVE_LABEL = "HiPhive (human, mouse, fish, PPI)"
 PRIO_HIPHIVE_HUMAN_LABEL = "HiPhive (human only)"
 #: HiPhive prioritization label (human and mouse).
 PRIO_HIPHIVE_MOUSE_LABEL = "HiPhive (human+mouse)"
-
-#: Choices for prioritization algorithms.
-PRIO_ALGORITHM_CHOICES = (
-    (PRIO_PHENIX, PRIO_PHENIX_LABEL),
-    (PRIO_PHIVE, PRIO_PHIVE_LABEL),
-    (PRIO_HIPHIVE_HUMAN, PRIO_HIPHIVE_HUMAN_LABEL),
-    (PRIO_HIPHIVE_MOUSE, PRIO_HIPHIVE_MOUSE_LABEL),
-    (PRIO_HIPHIVE, PRIO_HIPHIVE_LABEL),
-)
-
+#: CADA prioritization label.
+PRIO_CADA_LABEL = "CADA (Case Annotation & Disorder Annotation)"
+#: CADA prioritization value.
+PRIO_CADA = "CADA"
 
 #: CADD score value.
 PATHO_CADD = "cadd"
@@ -442,10 +434,7 @@ class SmallVariantGenotypeFilterFormMixin:
                     result["compound_recessive_indices"][family] = name
                 elif result[self.get_genotype_field_names()[name]["gt"]] == "recessive-index":
                     result["recessive_indices"][family] = name
-                elif result[self.get_genotype_field_names()[name]["gt"]] in (
-                    "hom-recessive-index",
-                    "dom-denovo-index",
-                ):
+                elif result[self.get_genotype_field_names()[name]["gt"]] == "hom-recessive-index":
                     self.add_error(
                         self.get_genotype_field_names()[name]["gt"],
                         "This option value shouldn't be passed. Selecting it should trigger JS code which changes the value.",
@@ -556,7 +545,11 @@ class ExportFileResubmitForm(forms.Form):
 class ExportProjectCasesFileResubmitForm(forms.Form):
     file_type = forms.ChoiceField(
         initial="xlsx",
-        choices=(("xlsx", "Excel (.xlsx)"), ("tsv", "TSV (.tsv)"), ("vcf", "VCF (.vcf.gz)"),),
+        choices=(
+            ("xlsx", "Excel (.xlsx)"),
+            ("tsv", "TSV (.tsv)"),
+            ("vcf", "VCF (.vcf.gz)"),
+        ),
         widget=forms.Select(attrs={"class": "form-control"}),
     )
 
@@ -816,7 +809,10 @@ class SmallVariantFrequencyFilterFormMixin:
             min_value=0,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal frequency in mtDB", "class": "numberDecimal",}
+                attrs={
+                    "placeholder": "Maximal frequency in mtDB",
+                    "class": "numberDecimal",
+                }
             ),
         )
         self.fields["mtdb_count"] = forms.IntegerField(
@@ -824,7 +820,10 @@ class SmallVariantFrequencyFilterFormMixin:
             initial=10,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal count in mtDB", "class": "numberInteger",}
+                attrs={
+                    "placeholder": "Maximal count in mtDB",
+                    "class": "numberInteger",
+                }
             ),
         )
         self.fields["helixmtdb_enabled"] = forms.BooleanField(
@@ -837,7 +836,10 @@ class SmallVariantFrequencyFilterFormMixin:
             min_value=0,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal frequency in HelixMTdb", "class": "numberDecimal",}
+                attrs={
+                    "placeholder": "Maximal frequency in HelixMTdb",
+                    "class": "numberDecimal",
+                }
             ),
         )
         self.fields["helixmtdb_hom_count"] = forms.IntegerField(
@@ -845,7 +847,10 @@ class SmallVariantFrequencyFilterFormMixin:
             initial=10,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal hom. count in HelixMTdb", "class": "numberInteger",}
+                attrs={
+                    "placeholder": "Maximal hom. count in HelixMTdb",
+                    "class": "numberInteger",
+                }
             ),
         )
         self.fields["helixmtdb_het_count"] = forms.IntegerField(
@@ -853,7 +858,10 @@ class SmallVariantFrequencyFilterFormMixin:
             initial=10,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal het. count in HelixMTdb", "class": "numberInteger",}
+                attrs={
+                    "placeholder": "Maximal het. count in HelixMTdb",
+                    "class": "numberInteger",
+                }
             ),
         )
         self.fields["mitomap_enabled"] = forms.BooleanField(label="", required=False, initial=True)
@@ -864,7 +872,10 @@ class SmallVariantFrequencyFilterFormMixin:
             min_value=0,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal frequency in MITOMAP", "class": "numberDecimal",}
+                attrs={
+                    "placeholder": "Maximal frequency in MITOMAP",
+                    "class": "numberDecimal",
+                }
             ),
         )
         self.fields["mitomap_count"] = forms.IntegerField(
@@ -872,7 +883,10 @@ class SmallVariantFrequencyFilterFormMixin:
             initial=10,
             required=False,
             widget=forms.TextInput(
-                attrs={"placeholder": "Maximal count in MITOMAP", "class": "numberInteger",}
+                attrs={
+                    "placeholder": "Maximal count in MITOMAP",
+                    "class": "numberInteger",
+                }
             ),
         )
 
@@ -1070,8 +1084,19 @@ class SmallVariantClinvarHgmdFilterFormMixin:
             required=False,
             initial=False,
             help_text=(
-                "Remove variant from results list if it has an associated dbSNP ID.",
-                "This option is ignored when ClinVar membership is required!",
+                "Remove variant from results list if it has an associated dbSNP ID. "
+                "This option is ignored when ClinVar membership is required!"
+            ),
+        )
+
+        self.fields["clinvar_paranoid_mode"] = forms.BooleanField(
+            label="enable 'paranoid' mode",
+            required=False,
+            initial=False,
+            help_text=(
+                "When set, then variant assessments with and without assertion "
+                "are interpreted as equally important.  By default, they are not "
+                "those with assessment override the others."
             ),
         )
 
@@ -1158,11 +1183,14 @@ class VariantGeneListFilterFormMixin:
                 if not Hgnc.objects.filter(
                     Q(hgnc_id=gene) | Q(entrez_id=gene) | Q(ensembl_gene_id=gene) | Q(symbol=gene)
                 )
+                and not GenePanel.objects.filter(
+                    identifier=gene.replace("GENEPANEL:", ""), state=GenePanelState.ACTIVE.value
+                )
             ]
             if mismatches:
                 self.add_error(
                     list_name,
-                    "Can't find HGNC ID/symbol, Entrez ID or ENSEMBL gene ID: {}".format(
+                    "Can't find HGNC ID/symbol, Entrez ID or ENSEMBL gene ID or local gene panel: {}".format(
                         "; ".join(mismatches)
                     ),
                 )
@@ -1227,7 +1255,19 @@ class SmallVariantPrioritizerFormMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.initial["prio_algorithm"] = PRIO_HIPHIVE_HUMAN
+        #: Choices for prioritization algorithms.
+        PRIO_ALGORITHM_CHOICES = []
+        if settings.VARFISH_ENABLE_EXOMISER_PRIORITISER:
+            PRIO_ALGORITHM_CHOICES.append((PRIO_PHENIX, PRIO_PHENIX_LABEL))
+            PRIO_ALGORITHM_CHOICES.append((PRIO_PHIVE, PRIO_PHIVE_LABEL))
+            PRIO_ALGORITHM_CHOICES.append((PRIO_HIPHIVE_HUMAN, PRIO_HIPHIVE_HUMAN_LABEL))
+            PRIO_ALGORITHM_CHOICES.append((PRIO_HIPHIVE_MOUSE, PRIO_HIPHIVE_MOUSE_LABEL))
+            PRIO_ALGORITHM_CHOICES.append((PRIO_HIPHIVE, PRIO_HIPHIVE_LABEL))
+            self.initial["prio_algorithm"] = PRIO_HIPHIVE_HUMAN
+
+        if settings.VARFISH_ENABLE_CADA:
+            PRIO_ALGORITHM_CHOICES.append((PRIO_CADA, PRIO_CADA_LABEL))
+            self.initial["prio_algorithm"] = PRIO_CADA
 
         self.fields["prio_enabled"] = forms.BooleanField(
             label="Enable phenotype-based prioritization",

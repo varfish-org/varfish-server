@@ -2,25 +2,28 @@
 
 from test_plus.test import TestCase
 
-from ..models import (
+from clinvar_export.models import (
+    REPORT_TYPES,
+    AssertionMethod,
     Family,
     Individual,
-    AssertionMethod,
-    Submitter,
     Organisation,
-    SubmissionSet,
-    SubmittingOrg,
     Submission,
+    SubmissionSet,
+    Submitter,
+    SubmittingOrg,
+    refresh_individual_sex_affected,
 )
-from .factories import (
+from clinvar_export.tests.factories import (
+    AssertionMethodFactory,
+    ClinVarReportFactory,
     FamilyFactory,
     IndividualFactory,
-    AssertionMethodFactory,
-    SubmitterFactory,
     OrganisationFactory,
-    SubmissionSetFactory,
-    SubmittingOrgFactory,
     SubmissionFactory,
+    SubmissionSetFactory,
+    SubmitterFactory,
+    SubmittingOrgFactory,
 )
 from variants.models import Case
 from variants.tests.factories import CaseFactory
@@ -168,3 +171,31 @@ class TestSubmission(TestCase):
         self.assertEquals(Submission.objects.count(), 0)
         SubmissionFactory()
         self.assertEquals(Submission.objects.count(), 1)
+
+
+class TestUpdateIndividualSexAffectedTask(TestCase):
+    """Test the task that updates the sex/affected of ``Individual`` records from upstream case."""
+
+    def testRun(self):
+        individual = IndividualFactory(sex="male", affected="yes")
+        individual.sex = "unknown"
+        individual.affected = "unknown"
+        individual.save()
+        self.assertEquals(individual.sex, "unknown")
+        self.assertEquals(individual.sex, "unknown")
+        refresh_individual_sex_affected()
+        individual.refresh_from_db()
+        self.assertEquals(individual.sex, "male")
+        self.assertEquals(individual.affected, "yes")
+
+
+class TestClinVarReport(TestCase):
+    """Basic tests for ``ClinVarReport``"""
+
+    def testRun(self):
+        report = ClinVarReportFactory(report_type=REPORT_TYPES[0])
+        report.report_type = REPORT_TYPES[1]
+        report.save()
+        self.assertEquals(report.report_type, REPORT_TYPES[1])
+        report.refresh_from_db()
+        self.assertEquals(report.report_type, REPORT_TYPES[1])

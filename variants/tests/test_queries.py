@@ -5,51 +5,51 @@ Remarks:
 - VCF export is only tested for case one at the moment, as it shares a major part of the implementation with
   the render and tabular file export query.
 """
-from variants.helpers import get_engine
-
 from clinvar.tests.factories import ClinvarFactory
 from cohorts.tests.factories import TestCohortBase
 from conservation.tests.factories import KnownGeneAAFactory
+from dbsnp.tests.factories import DbsnpFactory
 from extra_annos.tests.factories import ExtraAnnoFactory
-from frequencies.tests.factories import MitomapFactory, HelixMtDbFactory, MtDbFactory
+from frequencies.tests.factories import HelixMtDbFactory, MitomapFactory, MtDbFactory
+from geneinfo.tests.factories import (
+    AcmgFactory,
+    EnsemblToGeneSymbolFactory,
+    ExacConstraintsFactory,
+    GeneIdInHpoFactory,
+    GeneIdToInheritanceFactory,
+    GnomadConstraintsFactory,
+    HgncFactory,
+    MgiMappingFactory,
+    RefseqToEnsemblFactory,
+    RefseqToGeneSymbolFactory,
+)
 from hgmd.tests.factories import HgmdPublicLocusFactory
-from variants.models import Case, SmallVariantSet, SmallVariantFlags
+from variants.helpers import get_engine
+from variants.models import Case, SmallVariantFlags, SmallVariantSet
 from variants.queries import (
-    CasePrefetchQuery,
     CaseExportTableQuery,
     CaseExportVcfQuery,
     CaseLoadPrefetchedQuery,
-    ProjectPrefetchQuery,
-    ProjectLoadPrefetchedQuery,
+    CasePrefetchQuery,
     KnownGeneAAQuery,
+    ProjectLoadPrefetchedQuery,
+    ProjectPrefetchQuery,
     SmallVariantUserAnnotationQuery,
     normalize_chrom,
 )
-from geneinfo.tests.factories import (
-    HgncFactory,
-    AcmgFactory,
-    GeneIdToInheritanceFactory,
-    GeneIdInHpoFactory,
-    GnomadConstraintsFactory,
-    ExacConstraintsFactory,
-    MgiMappingFactory,
-    RefseqToGeneSymbolFactory,
-    EnsemblToGeneSymbolFactory,
-)
-from dbsnp.tests.factories import DbsnpFactory
-from .factories import (
-    SmallVariantFactory,
-    SmallVariantSummaryFactory,
-    ProjectFactory,
-    ProjectCasesSmallVariantQueryFactory,
-    SmallVariantQueryFactory,
-    CaseWithVariantSetFactory,
-    SmallVariantFlagsFactory,
-    SmallVariantCommentFactory,
-    AcmgCriteriaRatingFactory,
-)
-from .helpers import TestBase, SupportQueryTestBase
 
+from .factories import (
+    AcmgCriteriaRatingFactory,
+    CaseWithVariantSetFactory,
+    ProjectCasesSmallVariantQueryFactory,
+    ProjectFactory,
+    SmallVariantCommentFactory,
+    SmallVariantFactory,
+    SmallVariantFlagsFactory,
+    SmallVariantQueryFactory,
+    SmallVariantSummaryFactory,
+)
+from .helpers import SupportQueryTestBase, TestBase
 
 # TODO: select correct cases from multiple ones
 # TODO: prefetch from multiple cases
@@ -93,7 +93,8 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         ]
         # Prepare disease gene
         GeneIdInHpoFactory(
-            ensembl_gene_id=small_vars[0].ensembl_gene_id, entrez_id=small_vars[0].refseq_gene_id,
+            ensembl_gene_id=small_vars[0].ensembl_gene_id,
+            entrez_id=small_vars[0].refseq_gene_id,
         ),
         # Prepare constraints
         self.gnomad_constraints = GnomadConstraintsFactory(
@@ -112,6 +113,11 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
             project=case.project
         )
         self.projectcasessmallvariantquery.query_results.add(small_vars[0].id, small_vars[2].id)
+        RefseqToEnsemblFactory(
+            entrez_id=small_vars[0].refseq_gene_id,
+            ensembl_gene_id=small_vars[0].ensembl_gene_id,
+            ensembl_transcript_id=small_vars[0].ensembl_transcript_id,
+        )
 
     def test_load_prefetched_case_results(self):
         results = self.run_query(
@@ -148,6 +154,96 @@ class TestCaseOneLoadSingletonResults(SupportQueryTestBase):
         self.assertTrue(results[0].effect_ambiguity)
         self.assertFalse(results[1].effect_ambiguity)
         self.assertIsNone(results[1].mgi_id)
+
+
+class TestCaseRefSeqIntergenicPLI(SupportQueryTestBase):
+    """Test the case that the entrez ID does not correspond to the ensembl ID
+
+    cf. bug in https://github.com/bihealth/varfish-server/issues/622
+    """
+
+    def setUp(self):
+        super().setUp()
+        case, variant_set, _ = CaseWithVariantSetFactory.get("small")
+        self.acmg_0 = AcmgFactory(entrez_id="1000", ensembl_gene_id="ENSG1001")
+        self.acmg_1 = AcmgFactory(entrez_id="1000", ensembl_gene_id="ENSG1000")
+        small_vars = [
+            SmallVariantFactory(
+                chromosome=normalize_chrom("1", case.release),
+                ensembl_effect=["missense_variant"],
+                refseq_effect=["intergenic_variant"],
+                refseq_gene_id=self.acmg_1.entrez_id,
+                ensembl_gene_id=self.acmg_0.ensembl_gene_id,
+                variant_set=variant_set,
+            ),
+            SmallVariantFactory(
+                chromosome=normalize_chrom("1", case.release),
+                ensembl_effect=["missense_variant"],
+                refseq_effect=["missense_variant_variant"],
+                refseq_gene_id=self.acmg_1.entrez_id,
+                ensembl_gene_id=self.acmg_1.ensembl_gene_id,
+                variant_set=variant_set,
+            ),
+        ]
+        # Prepare constraints
+        self.gnomad_constraints = [
+            GnomadConstraintsFactory(
+                ensembl_gene_id=small_vars[0].ensembl_gene_id,
+                pLI=0.8,
+            ),
+            GnomadConstraintsFactory(
+                ensembl_gene_id=small_vars[1].ensembl_gene_id,
+                pLI=0.4,
+            ),
+        ]
+        self.exac_constraints = [
+            ExacConstraintsFactory(
+                ensembl_transcript_id=small_vars[0].ensembl_transcript_id,
+                pLI=1.0,
+            ),
+            ExacConstraintsFactory(
+                ensembl_transcript_id=small_vars[1].ensembl_transcript_id,
+                pLI=0.5,
+            ),
+        ]
+        # Prepare smallvariant query results
+        self.smallvariantquery = SmallVariantQueryFactory(case=case)
+        self.smallvariantquery.query_results.add(small_vars[0].id, small_vars[1].id)
+        # Prepare projectcases smallvariant query results
+        self.projectcasessmallvariantquery = ProjectCasesSmallVariantQueryFactory(
+            project=case.project
+        )
+        self.projectcasessmallvariantquery.query_results.add(small_vars[0].id, small_vars[1].id)
+        # Create appropriate refseq to ensembl mappings
+        RefseqToEnsemblFactory(
+            entrez_id="1000",
+            ensembl_gene_id="ENSG1000",
+            ensembl_transcript_id=small_vars[1].ensembl_transcript_id,
+        )
+
+    def test_run_query_refseq(self):
+        results = self.run_query(
+            ProjectLoadPrefetchedQuery,
+            {"filter_job_id": self.projectcasessmallvariantquery.id, "database_select": "refseq"},
+            2,
+            query_type="project",
+        )
+        self.assertEqual(results[0].exac_pLI, 0.5)
+        self.assertEqual(results[1].exac_pLI, 0.5)
+        self.assertEqual(results[0].gnomad_pLI, 0.4)
+        self.assertEqual(results[1].gnomad_pLI, 0.4)
+
+    def test_run_query_ensembl(self):
+        results = self.run_query(
+            ProjectLoadPrefetchedQuery,
+            {"filter_job_id": self.projectcasessmallvariantquery.id, "database_select": "ensembl"},
+            2,
+            query_type="project",
+        )
+        self.assertEqual(results[0].exac_pLI, 1.0)
+        self.assertEqual(results[1].exac_pLI, 0.5)
+        self.assertEqual(results[0].gnomad_pLI, 0.8)
+        self.assertEqual(results[1].gnomad_pLI, 0.4)
 
 
 class TestCaseLoadPrefetchedSorting(SupportQueryTestBase):
@@ -512,7 +608,7 @@ class TestCaseOneQueryFrequency(SupportQueryTestBase):
 
     def _setup_additional_variant_with_missing_inhouse_record(self):
         # Setup an additional variant and make sure it passes the default filter settings.
-        freq = 1 / 10 ** 3  # 0.001
+        freq = 1 / 10**3  # 0.001
         count = 1
         SmallVariantFactory(
             release=self.case.release,
@@ -1550,21 +1646,33 @@ class TestCaseOneQueryMitochondrialFrequency(SupportQueryTestBase):
     def test_frequency_mtdb_limits_filter(self):
         self.run_query(
             CasePrefetchQuery,
-            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None,},
+            {
+                "mtdb_enabled": True,
+                "mtdb_frequency": 0.01,
+                "mtdb_count": None,
+            },
             3,
         )
 
     def test_frequency_mtdb_limits_export(self):
         self.run_query(
             CaseExportTableQuery,
-            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None,},
+            {
+                "mtdb_enabled": True,
+                "mtdb_frequency": 0.01,
+                "mtdb_count": None,
+            },
             3,
         )
 
     def test_frequency_mtdb_limits_vcf(self):
         self.run_query(
             CaseExportVcfQuery,
-            {"mtdb_enabled": True, "mtdb_frequency": 0.01, "mtdb_count": None,},
+            {
+                "mtdb_enabled": True,
+                "mtdb_frequency": 0.01,
+                "mtdb_count": None,
+            },
             3,
         )
 
@@ -1607,39 +1715,67 @@ class TestCaseOneQueryMitochondrialFrequency(SupportQueryTestBase):
     def test_frequency_mitomap_limits_filter(self):
         self.run_query(
             CasePrefetchQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None,},
+            {
+                "mitomap_enabled": True,
+                "mitomap_frequency": 0.01,
+                "mitomap_count": None,
+            },
             3,
         )
 
     def test_frequency_mitomap_limits_export(self):
         self.run_query(
             CaseExportTableQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None,},
+            {
+                "mitomap_enabled": True,
+                "mitomap_frequency": 0.01,
+                "mitomap_count": None,
+            },
             3,
         )
 
     def test_frequency_mitomap_limits_vcf(self):
         self.run_query(
             CaseExportVcfQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": 0.01, "mitomap_count": None,},
+            {
+                "mitomap_enabled": True,
+                "mitomap_frequency": 0.01,
+                "mitomap_count": None,
+            },
             3,
         )
 
     def test_count_mtdb_limits_filter(self):
         self.run_query(
-            CasePrefetchQuery, {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2,}, 3,
+            CasePrefetchQuery,
+            {
+                "mtdb_enabled": True,
+                "mtdb_frequency": None,
+                "mtdb_count": 2,
+            },
+            3,
         )
 
     def test_count_mtdb_limits_export(self):
         self.run_query(
             CaseExportTableQuery,
-            {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2,},
+            {
+                "mtdb_enabled": True,
+                "mtdb_frequency": None,
+                "mtdb_count": 2,
+            },
             3,
         )
 
     def test_count_mtdb_limits_vcf(self):
         self.run_query(
-            CaseExportVcfQuery, {"mtdb_enabled": True, "mtdb_frequency": None, "mtdb_count": 2,}, 3,
+            CaseExportVcfQuery,
+            {
+                "mtdb_enabled": True,
+                "mtdb_frequency": None,
+                "mtdb_count": 2,
+            },
+            3,
         )
 
     def test_count_helixmtdb_het_limits_filter(self):
@@ -1717,21 +1853,33 @@ class TestCaseOneQueryMitochondrialFrequency(SupportQueryTestBase):
     def test_count_mitomap_limits_filter(self):
         self.run_query(
             CasePrefetchQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2,},
+            {
+                "mitomap_enabled": True,
+                "mitomap_frequency": None,
+                "mitomap_count": 2,
+            },
             3,
         )
 
     def test_count_mitomap_limits_export(self):
         self.run_query(
             CaseExportTableQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2,},
+            {
+                "mitomap_enabled": True,
+                "mitomap_frequency": None,
+                "mitomap_count": 2,
+            },
             3,
         )
 
     def test_count_mitomap_limits_vcf(self):
         self.run_query(
             CaseExportVcfQuery,
-            {"mitomap_enabled": True, "mitomap_frequency": None, "mitomap_count": 2,},
+            {
+                "mitomap_enabled": True,
+                "mitomap_frequency": None,
+                "mitomap_count": 2,
+            },
             3,
         )
 
@@ -2664,7 +2812,7 @@ class TestCaseOneAllowlistBlocklistRegionFilterQuery(SupportQueryTestBase):
         self.run_query(CaseExportVcfQuery, {"genomic_region": [("1", 1, 199), ("1", 300, 399)]}, 4)
 
     def test_genomic_region_only_chromosome(self):
-        self.run_query(CasePrefetchQuery, {"genomic_region": [("1", 0, 2 ** 31 - 1)]}, 6)
+        self.run_query(CasePrefetchQuery, {"genomic_region": [("1", 0, 2**31 - 1)]}, 6)
 
 
 # ---------------------------------------------------------------------------
@@ -4374,7 +4522,9 @@ class CaseThreeClinvarFilterTestMixin:
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            pathogenicity="pathogenic",
+            summary_clinvar_review_status_label="criteria provided, single committer",
+            summary_clinvar_pathogenicity_label="pathogenic",
+            summary_clinvar_pathogenicity=["pathogenic"],
         )
         pathogenicities = (
             "pathogenic",
@@ -4401,7 +4551,7 @@ class CaseThreeClinvarFilterTestMixin:
                 bin=self.small_vars[-1].bin,
                 reference=self.small_vars[-1].reference,
                 alternative=self.small_vars[-1].alternative,
-                pathogenicity=pathogenicity,
+                summary_clinvar_pathogenicity=[pathogenicity],
             )
         DbsnpFactory(
             release=self.small_vars[0].release,
@@ -4476,6 +4626,33 @@ class CaseThreeClinvarFilterTestMixin:
         )
         self.assertEqual(res[0].start, self.small_vars[6].start)
 
+    def test_render_query_single_output_line_even_with_multiple_clinvar_annos(self):
+        # Add second ClinVar annotation
+        ClinvarFactory(
+            release=self.small_vars[1].release,
+            chromosome=self.small_vars[1].chromosome,
+            start=self.small_vars[1].start,
+            end=self.small_vars[1].end,
+            bin=self.small_vars[1].bin,
+            reference=self.small_vars[1].reference,
+            alternative=self.small_vars[1].alternative,
+            summary_clinvar_pathogenicity=["pathogenic"],
+        )
+        res = self.run_query(
+            self.query_class,
+            {
+                "genomic_region": [
+                    (
+                        self.small_vars[1].chromosome,
+                        self.small_vars[1].start - 1,
+                        self.small_vars[1].end + 1,
+                    )
+                ]
+            },
+            1,
+        )
+        self.assertEqual(res[0].start, self.small_vars[1].start)
+
 
 class RenderQueryTestCaseThreeClinvarFilter(CaseThreeClinvarFilterTestMixin, SupportQueryTestBase):
     """Test clinvar membership using RenderFilterQuery."""
@@ -4531,11 +4708,19 @@ class TestHgmdMembershipQuery(SupportQueryTestBase):
         )
 
     def test_display_hgmd_membership_query(self):
-        res = self.run_query(CasePrefetchQuery, {"require_in_hgmd_public": False}, 2,)
+        res = self.run_query(
+            CasePrefetchQuery,
+            {"require_in_hgmd_public": False},
+            2,
+        )
         self.assertEqual(res[1].hgmd_accession, self.hgmd.variation_name)
 
     def test_require_in_hgmd_and_display_membership_query(self):
-        res = self.run_query(CasePrefetchQuery, {"require_in_hgmd_public": True}, 1,)
+        res = self.run_query(
+            CasePrefetchQuery,
+            {"require_in_hgmd_public": True},
+            1,
+        )
         self.assertEqual(res[0].hgmd_accession, self.hgmd.variation_name)
 
 

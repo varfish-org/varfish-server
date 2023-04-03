@@ -4,6 +4,7 @@
 {% load dict %}
 {% load variants_tags %}
 {% load projectroles_common_tags %}
+{% load clinvar_tags %}
 
 {% get_app_setting "variants" "umd_predictor_api_token" user=user as umd_predictor_api_token %}
 {% get_django_setting "PROJECTROLES_KIOSK_MODE" as kiosk_mode %}
@@ -87,15 +88,15 @@
       {{ entry.alternative }}
     </div>
   </td>
-  <td style="width: 50px;" class="pl-2 detail-info-clinvar" data-order="{% if entry.max_significance %}{{ entry.max_significance|significance_importance }}-{{ entry.max_clinvar_status|status_importance }}{% else %}9-9{% endif %}">
-    {% if entry.pathogenicity %}
+  <td style="width: 50px;" class="pl-2 detail-info-clinvar" data-order="{{ entry|clinvar_patho_rank }}-{{ entry|clinvar_gold_stars }}">
+    {% if entry.summary_pathogenicity_label %}
         <span class="badge-group">
-          <span class="badge badge-{{ entry.pathogenicity|significance_color }}">
-            {{ entry.pathogenicity }}
+          <span class="badge badge-{{ entry.summary_pathogenicity_label|significance_color }}">
+            {{ entry.summary_pathogenicity_label }}
           </span>
-          <span class="badge badge-dark" data-toggle="tooltip" data-placement="top" title="{{ entry.max_clinvar_status }}">
+          <span class="badge badge-dark" data-toggle="tooltip" data-placement="top" title="{{ entry.summary_review_status_label }}">
             {% for i in "1234" %}
-              {% if forloop.counter <= entry.point_rating %}
+              {% if forloop.counter <= entry.summary_gold_stars %}
                 <i class="iconify" data-icon="fa-solid:star"></i>
               {% else %}
                 <i class="iconify" data-icon="fa-regular:star"></i>
@@ -357,9 +358,9 @@
       </div>
     {% endif %}
     {% if entry.acmg_symbol %}
-      <i class="iconify pl-2 text-danger" data-icon="fa-solid:user-md" data-toggle="tooltip" data-placement="top" title="Gene in ACMG incidental findings gene list."></i>
+      <i class="iconify pl-2 text-danger" data-icon="fa-solid:user-md" style="font-size: 200%" data-toggle="tooltip" data-placement="top" title="Gene in ACMG incidental findings gene list."></i>
     {% else %}
-      <i class="iconify pl-2 text-muted" data-icon="fa-solid:user-md" style="opacity: 0.2"></i>
+      <i class="iconify pl-2 text-muted" data-icon="fa-solid:user-md" style="opacity: 0.2; font-size: 200%"></i>
     {% endif %}
     &nbsp;
     {% if entry.modes_of_inheritance %}
@@ -396,6 +397,11 @@
       <td class="text-nowrap extra_annos-{{ forloop.counter }}">{{ '-' }}</td>
     {% endfor %}
   {% endif %}
+  {% for value in results_plugins_header %}
+    <td class="plugins-fields-{{ value.field_name }}">
+      {{ entry|keyvalue:value.field_name }}
+    </td>
+  {% endfor %}
   {% if query_type == "project" %}
     <td>{{ entry.affected_cases_per_gene|default:0 }}</td>
   {% endif %}

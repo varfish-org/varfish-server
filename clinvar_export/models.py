@@ -4,18 +4,35 @@ The design is such that the individuals and families (aka cases) in ``clinvar_ex
 records in ``variants``.
 """
 
+import logging
 import uuid as uuid_object
 
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
-from django.conf import settings
 from projectroles.models import Project
 
 from varfish.utils import JSONField
-from variants.models import CaseAwareProject, Case
+from variants.models import Case, CaseAwareProject
+
+logger = logging.getLogger(__name__)
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
+
+#: Map pedigree value for "sex" to value for models.
+SEX_MAP = {
+    0: "unknown",
+    1: "male",
+    2: "female",
+}
+
+#: Map pedigree value for "affected" to value for models.
+AFFECTED_MAP = {
+    0: "unknown",
+    1: "no",
+    2: "yes",
+}
 
 
 class FamilyManager(models.Manager):
@@ -123,16 +140,6 @@ class Individual(models.Model):
 
 def create_families_and_individuals(project: Project) -> None:
     """Create missing families and individuals for the given ``project``."""
-    sex_map = {
-        0: "unknown",
-        1: "male",
-        2: "female",
-    }
-    affected_map = {
-        0: "unknown",
-        1: "no",
-        2: "yes",
-    }
     with transaction.atomic():
         for case in Case.objects.filter(project=project):
             family = Family.objects.get_or_create_in_project(project, case=case)
@@ -141,8 +148,8 @@ def create_families_and_individuals(project: Project) -> None:
                     project,
                     entry["patient"],
                     family=family,
-                    sex=sex_map.get(entry.get("sex", 0), "unknown"),
-                    affected=affected_map.get(entry.get("affected", 0), "unknown"),
+                    sex=SEX_MAP.get(entry.get("sex", 0), "unknown"),
+                    affected=AFFECTED_MAP.get(entry.get("affected", 0), "unknown"),
                 )
 
 
@@ -352,7 +359,10 @@ class Submission(models.Model):
     significance_last_evaluation = models.DateField()
 
     #: The used assertion method.
-    assertion_method = models.ForeignKey(AssertionMethod, on_delete=models.CASCADE,)
+    assertion_method = models.ForeignKey(
+        AssertionMethod,
+        on_delete=models.CASCADE,
+    )
     #: Mode of Inheritance
     inheritance = models.TextField(max_length=100, blank=True, null=True)
     #: Age of onset
@@ -383,8 +393,64 @@ class Submission(models.Model):
     #: Disease information.
     diseases = JSONField(blank=True, null=True, default=list)
 
+    #: Latest clinvar submitter report, if any.
+    clinvar_submitter_report = JSONField(blank=True, null=True, default=None)
+    #: Latest clinvar error report, if any.
+    clinvar_error_report = JSONField(blank=True, null=True, default=None)
+
     def get_project(self):
         return self.submission_set.project
 
     class Meta:
         ordering = ("sort_order",)
+
+
+def refresh_individual_sex_affected():
+    """Update the ``Individual.sex`` field from the upstream case.
+
+    This is done regularly in a related task.
+    """
+    for family in Family.objects.select_related("case").prefetch_related("individual_set").all():
+        if family.case:
+            ped_entries = {entry["patient"]: entry for entry in family.case.pedigree}
+            for individual in family.individual_set.all():
+                if individual.name not in ped_entries:
+                    logger.info(f"{individual.name} not in pedigree for case {family.case}")
+                else:
+                    related_ped_entry = ped_entries[individual.name]
+                    individual.sex = SEX_MAP.get(related_ped_entry["sex"], "unknown")
+                    individual.affected = AFFECTED_MAP.get(related_ped_entry["affected"], "unknown")
+                    individual.save()
+
+
+#: Error report.
+ERROR_REPORT = "error_report"
+#: Submitter report.
+SUBMITTER_REPORT = "submitter_report"
+#: The allowed report types for ClinVarReport.
+REPORT_TYPES = (ERROR_REPORT, SUBMITTER_REPORT)
+
+
+class ClinVarReport(models.Model):
+    """Store a report from ClinVar, related to a SubmissionSet."""
+
+    #: Submission UUID.
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="SODAR UUID")
+
+    #: The related SubmissionSet
+    submission_set = models.ForeignKey(SubmissionSet, on_delete=models.CASCADE)
+
+    #: The type of the report, can be error or submitter report.
+    report_type = models.CharField(max_length=32, choices=[(k, k) for k in REPORT_TYPES])
+
+    #: DateTime of creation.
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+    #: DateTime of last modification.
+    date_modified = models.DateTimeField(auto_now=True, help_text="DateTime of last modification")
+
+    #: URL where the report was downloaded from.
+    source_url = models.CharField(max_length=256)
+    #: MD5 sum of content
+    payload_md5 = models.CharField(max_length=32)
+    #: Contents of the report.
+    payload = models.TextField()

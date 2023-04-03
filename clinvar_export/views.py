@@ -9,10 +9,10 @@ from django.middleware.csrf import get_token
 from django.urls import reverse
 from django.views.generic import ListView
 from projectroles.views import (
+    LoggedInPermissionMixin,
     LoginRequiredMixin,
     ProjectContextMixin,
     ProjectPermissionMixin,
-    LoggedInPermissionMixin,
 )
 
 from .models import SubmissionSet
@@ -25,8 +25,7 @@ class SubmissionSetView(
     ProjectContextMixin,
     ListView,
 ):
-    """Display list of cohorts.
-    """
+    """Display list of cohorts."""
 
     permission_required = "variants.view_data"
     template_name = "submission_set/entrypoint.html"

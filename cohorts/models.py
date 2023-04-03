@@ -1,21 +1,18 @@
 from collections import defaultdict
+import uuid as uuid_object
 
+from django.conf import settings
 from django.db import models
 
 # Create your models here.
 from django.urls import reverse
-
-from django.conf import settings
-import uuid as uuid_object
-
 
 #: Django user model.
 AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
 
 class Cohort(models.Model):
-    """Class for ``Cohort`` model.
-    """
+    """Class for ``Cohort`` model."""
 
     #: DateTime of creation.
     date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
@@ -48,7 +45,7 @@ class Cohort(models.Model):
     )
 
     #: Cases selected by the user for this query
-    cases = models.ManyToManyField("variants.Case", default=None)
+    cases = models.ManyToManyField("variants.Case", through="CohortCase")
 
     class Meta:
         ordering = ["-date_modified"]
@@ -109,3 +106,19 @@ class Cohort(models.Model):
     def get_members(self, user):
         """Return concatenated list of members in ``pedigree``."""
         return sorted([x["patient"] for x in self.get_filtered_pedigree_with_samples(user)])
+
+
+class CohortCase(models.Model):
+    """Model for ManyToMany relation between cohorts and cases."""
+
+    #: Cohort UUID.
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4, unique=True, help_text="CohortCase SODAR UUID"
+    )
+    #: The submitting organisation.
+    cohort = models.ForeignKey(Cohort, on_delete=models.CASCADE)
+    #: The submission set that this organisation belongs to.
+    case = models.ForeignKey("variants.Case", on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (("cohort", "case"),)

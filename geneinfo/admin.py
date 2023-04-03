@@ -1,11 +1,11 @@
 from django.contrib import admin
 
 from .models import (
-    Hgnc,
-    Mim2geneMedgen,
-    Hpo,
     Acmg,
+    Hgnc,
+    Hpo,
     HpoName,
+    Mim2geneMedgen,
     NcbiGeneInfo,
     NcbiGeneRif,
     RefseqToHgnc,

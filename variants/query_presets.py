@@ -8,7 +8,7 @@ The presets are organized on three levels
   ``CATEGORY_PRESETS`` constant that defines the presets
 """
 
-from enum import unique, Enum
+from enum import Enum, unique
 import itertools
 import typing
 
@@ -72,11 +72,56 @@ class GenotypeChoice(Enum):
     NON_VARIANT = "non-variant"
     NON_REFERENCE = "non-reference"
 
+    def to_vcf_gt_values(self):
+        """Convert to values that would appear as ``GT`` in a VCF file"""
+        return {
+            GenotypeChoice.ANY: [
+                "0",
+                "1",
+                "0/0",
+                "0|0",
+                "0/1",
+                "0/1",
+                "1/0",
+                "1|0",
+                "1/1",
+                "1|1",
+                ".",
+                "./.",
+            ],
+            GenotypeChoice.REF: ["0", "0/0", "0|0"],
+            GenotypeChoice.HET: ["0/1", "0/1", "1/0", "1|0"],
+            GenotypeChoice.HOM: ["0", "1", "0/0", "0|0", "1/1", "1|1"],
+            GenotypeChoice.NON_HOM: ["0/1", "0/1", "1/0", "1|0", ".", "./."],
+            GenotypeChoice.VARIANT: ["1", "0/1", "0/1", "1/0", "1|0", "1/1", "1|1"],
+            GenotypeChoice.NON_VARIANT: ["0", "0/0", "0|0", ".", "./."],
+            GenotypeChoice.NON_REFERENCE: [
+                "1",
+                "0/1",
+                "0/1",
+                "1/0",
+                "1|0",
+                "1/1",
+                "1|1",
+                ".",
+                "./.",
+            ],
+        }[self]
+
+
+def genotype_choice_value_to_genotype(value):
+    for c in GenotypeChoice:
+        if c.value == value:
+            return c
+    raise ValueError(f"Not a valid genotype value: {value}")
+
 
 @unique
 class Inheritance(Enum):
     """Preset options for category inheritance"""
 
+    ANY = "any"
+    DE_NOVO = "de_novo"
     DOMINANT = "dominant"
     HOMOZYGOUS_RECESSIVE = "homozygous_recessive"
     COMPOUND_HETEROZYGOUS = "compound_heterozygous"
@@ -84,7 +129,6 @@ class Inheritance(Enum):
     X_RECESSIVE = "x_recessive"
     AFFECTED_CARRIERS = "affected_carriers"
     CUSTOM = "custom"
-    ANY = "any"
 
     def _is_recessive(self):
         return self in (
@@ -104,7 +148,7 @@ class Inheritance(Enum):
 
         samples_by_name = {s.name: s for s in samples}
 
-        # Select first affected invididual that has both parents set, fall back to first first affected otherwise
+        # Select first affected invididual that has both parents set, fall back to first affected otherwise
         affected_samples = [s for s in samples if s.is_affected()]
         index_candidates = list(
             itertools.chain(
@@ -116,83 +160,9 @@ class Inheritance(Enum):
         )
 
         if self._is_recessive():
-            # Get index, parents, and others (not index, not parents) individuals
-            recessive_index = index_candidates[0]
-            parents = [
-                s for s in samples if s.name in (recessive_index.father, recessive_index.mother)
-            ]
-            parent_names = {p.name for p in parents}
-            others = {s for s in affected_samples if s.name != index and s.name not in parent_names}
-            # Fill ``genotype`` for the index
-            if self == Inheritance.HOMOZYGOUS_RECESSIVE:
-                genotype = {recessive_index.name: GenotypeChoice.HOM.value}
-                mode = {"recessive_mode": None}
-            elif self == Inheritance.COMPOUND_HETEROZYGOUS:
-                genotype = {recessive_index.name: None}
-                mode = {"recessive_mode": "compound-recessive"}
-            elif self == Inheritance.RECESSIVE:
-                genotype = {recessive_index.name: None}
-                mode = {"recessive_mode": "recessive"}
-            else:
-                raise RuntimeError(f"Unexpected recessive mode of inheritance: {self}")
-            # Fill ``genotype`` for parents and others
-            if self == Inheritance.HOMOZYGOUS_RECESSIVE:
-                affected_parents = len([p for p in parents if p.is_affected()])
-                for parent in parents:
-                    if parent.is_affected():
-                        genotype[parent.name] = GenotypeChoice.HOM.value
-                    else:
-                        if affected_parents > 0:
-                            genotype[parent.name] = GenotypeChoice.REF.value
-                        else:
-                            genotype[parent.name] = GenotypeChoice.HET.value
-            else:
-                for parent in parents:
-                    genotype[parent.name] = None
-            for other in others:
-                genotype[other.name] = GenotypeChoice.ANY.value
-            # Compose the dict with recessive index, recessive mode, and genotype
-            return {
-                "recessive_index": recessive_index.name,
-                "genotype": {k: e for k, e in genotype.items()},
-                **mode,
-            }
+            return self._to_settings_recessive(affected_samples, index, index_candidates, samples)
         elif self == Inheritance.X_RECESSIVE:
-            male_index_candidates = list(
-                itertools.chain(
-                    [s for s in index_candidates if s.sex == Sex.MALE],
-                    [s for s in index_candidates if s.sex == Sex.UNKNOWN],
-                    index_candidates,
-                    samples,
-                )
-            )
-            recessive_index = male_index_candidates[0]
-            index_father = samples_by_name.get(recessive_index.father, None)
-            index_mother = samples_by_name.get(recessive_index.mother, None)
-            others = [
-                s
-                for s in samples
-                if s.name
-                not in (recessive_index.name, recessive_index.father, recessive_index.mother)
-            ]
-            genotype = {recessive_index.name: GenotypeChoice.HOM}
-            if index_father and index_father.is_affected():
-                genotype[recessive_index.father] = GenotypeChoice.HOM
-                if index_mother:
-                    genotype[recessive_index.mother] = GenotypeChoice.REF
-            elif index_father and not index_father.is_affected():
-                genotype[recessive_index.father] = GenotypeChoice.REF
-                if index_mother:
-                    genotype[recessive_index.mother] = GenotypeChoice.HET
-            elif index_mother:  # and not index_father
-                genotype[recessive_index.mother] = GenotypeChoice.ANY
-            for other in others:
-                genotype[other.name] = GenotypeChoice.ANY
-            return {
-                "recessive_index": recessive_index.name,
-                "recessive_mode": None,
-                "genotype": {k: e.value for k, e in genotype.items()},
-            }
+            return self._to_settings_x_recessive(index_candidates, samples, samples_by_name)
         elif self == Inheritance.AFFECTED_CARRIERS:
             return {
                 "recessive_index": None,
@@ -200,6 +170,17 @@ class Inheritance(Enum):
                 "genotype": {
                     s.name: GenotypeChoice.VARIANT.value
                     if s.is_affected()
+                    else GenotypeChoice.ANY.value
+                    for s in samples
+                },
+            }
+        elif self == Inheritance.DE_NOVO:
+            return {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    s.name: GenotypeChoice.VARIANT.value
+                    if s.name == index_candidates[0].name
                     else GenotypeChoice.REF.value
                     for s in samples
                 },
@@ -223,6 +204,87 @@ class Inheritance(Enum):
             }
         else:
             raise ValueError(f"Cannot generate settings for inheritance {self}")
+
+    def _to_settings_x_recessive(self, index_candidates, samples, samples_by_name):
+        male_index_candidates = list(
+            itertools.chain(
+                [s for s in index_candidates if s.sex == Sex.MALE],
+                [s for s in index_candidates if s.sex == Sex.UNKNOWN],
+                index_candidates,
+                samples,
+            )
+        )
+        recessive_index = male_index_candidates[0]
+        index_father = samples_by_name.get(recessive_index.father, None)
+        index_mother = samples_by_name.get(recessive_index.mother, None)
+        others = [
+            s
+            for s in samples
+            if s.name not in (recessive_index.name, recessive_index.father, recessive_index.mother)
+        ]
+        genotype = {recessive_index.name: GenotypeChoice.HOM}
+        if index_father and index_father.is_affected():
+            genotype[recessive_index.father] = GenotypeChoice.HOM
+            if index_mother:
+                genotype[recessive_index.mother] = GenotypeChoice.REF
+        elif index_father and not index_father.is_affected():
+            genotype[recessive_index.father] = GenotypeChoice.REF
+            if index_mother:
+                genotype[recessive_index.mother] = GenotypeChoice.HET
+        elif index_mother:  # and not index_father
+            genotype[recessive_index.mother] = GenotypeChoice.ANY
+        for other in others:
+            genotype[other.name] = GenotypeChoice.ANY
+        result = {
+            "recessive_index": recessive_index.name,
+            "recessive_mode": None,
+            "genotype": {k: e.value for k, e in genotype.items()},
+        }
+        return result
+
+    def _to_settings_recessive(self, affected_samples, index, index_candidates, samples):
+        # Get index, parents, and others (not index, not parents) individuals
+        recessive_index = index_candidates[0]
+        if index is None:
+            index = index_candidates[0].name
+        parents = [s for s in samples if s.name in (recessive_index.father, recessive_index.mother)]
+        parent_names = {p.name for p in parents}
+        others = {s for s in affected_samples if s.name != index and s.name not in parent_names}
+        # Fill ``genotype`` for the index
+        if self == Inheritance.HOMOZYGOUS_RECESSIVE:
+            genotype = {recessive_index.name: GenotypeChoice.HOM.value}
+            mode = {"recessive_mode": None}
+        elif self == Inheritance.COMPOUND_HETEROZYGOUS:
+            genotype = {recessive_index.name: None}
+            mode = {"recessive_mode": "compound-recessive"}
+        elif self == Inheritance.RECESSIVE:
+            genotype = {recessive_index.name: None}
+            mode = {"recessive_mode": "recessive"}
+        else:  # pragma: no cover
+            raise RuntimeError(f"Unexpected recessive mode of inheritance: {self}")
+        # Fill ``genotype`` for parents and others
+        if self == Inheritance.HOMOZYGOUS_RECESSIVE:
+            affected_parents = len([p for p in parents if p.is_affected()])
+            for parent in parents:
+                if parent.is_affected():
+                    genotype[parent.name] = GenotypeChoice.HOM.value
+                else:
+                    if affected_parents > 0:
+                        genotype[parent.name] = GenotypeChoice.REF.value
+                    else:
+                        genotype[parent.name] = GenotypeChoice.HET.value
+        else:
+            for parent in parents:
+                genotype[parent.name] = None
+        for other in others:
+            genotype[other.name] = GenotypeChoice.ANY.value
+        # Compose the dict with recessive index, recessive mode, and genotype
+        result = {
+            "recessive_index": recessive_index.name,
+            "genotype": {k: e for k, e in genotype.items()},
+            **mode,
+        }
+        return result
 
 
 @attrs.frozen
@@ -743,11 +805,11 @@ QUALITY_PRESETS: _QualityPresets = _QualityPresets()
 class Quality(Enum):
     """Preset options for category quality"""
 
+    ANY = "any"
     SUPER_STRICT = "super_strict"
     STRICT = "strict"
     RELAXED = "relaxed"
     CUSTOM = "custom"
-    ANY = "any"
 
     def to_settings(self, samples: typing.Iterable[PedigreeMember]) -> typing.Dict[str, typing.Any]:
         """Return settings for the quality category
@@ -783,19 +845,25 @@ class _ChromosomePresets:
     }
     #: Presets for the "X-chromosome" chromosome/region/gene settings
     x_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ["X",],
+        "genomic_region": [
+            "X",
+        ],
         "gene_allowlist": [],
         "gene_blocklist": [],
     }
     #: Presets for the "Y-chromosomes" chromosome/region/gene settings
     y_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ["Y",],
+        "genomic_region": [
+            "Y",
+        ],
         "gene_allowlist": [],
         "gene_blocklist": [],
     }
     #: Presets for the "mitochondrial" chromosome/region/gene settings
     mt_chromosome: typing.Dict[str, typing.Any] = {
-        "genomic_region": ["MT",],
+        "genomic_region": [
+            "MT",
+        ],
         "gene_allowlist": [],
         "gene_blocklist": [],
     }
@@ -838,6 +906,10 @@ class _FlagsEtcPresets:
         "flag_final_causative": True,
         "flag_for_validation": True,
         "flag_no_disease_association": True,
+        "flag_molecular_empty": True,
+        "flag_molecular_negative": True,
+        "flag_molecular_positive": True,
+        "flag_molecular_uncertain": True,
         "flag_phenotype_match_empty": True,
         "flag_phenotype_match_negative": True,
         "flag_phenotype_match_positive": True,
@@ -858,6 +930,7 @@ class _FlagsEtcPresets:
         "flag_visual_uncertain": True,
         "remove_if_in_dbsnp": False,
         "require_in_clinvar": False,
+        "clinvar_paranoid_mode": False,
         "require_in_hgmd_public": False,
     }
     #: Presets for the "Clinvar only" flags etc. settings
@@ -868,6 +941,10 @@ class _FlagsEtcPresets:
         "flag_final_causative": True,
         "flag_for_validation": True,
         "flag_no_disease_association": True,
+        "flag_molecular_empty": True,
+        "flag_molecular_negative": True,
+        "flag_molecular_positive": True,
+        "flag_molecular_uncertain": True,
         "flag_phenotype_match_empty": True,
         "flag_phenotype_match_negative": True,
         "flag_phenotype_match_positive": True,
@@ -888,6 +965,7 @@ class _FlagsEtcPresets:
         "flag_visual_uncertain": True,
         "remove_if_in_dbsnp": False,
         "require_in_clinvar": True,
+        "clinvar_paranoid_mode": False,
         "require_in_hgmd_public": False,
     }
     #: Presets for the "user flagged" flags etc. settings
@@ -903,6 +981,10 @@ class _FlagsEtcPresets:
         "flag_final_causative": True,
         "flag_for_validation": True,
         "flag_no_disease_association": True,
+        "flag_molecular_empty": False,
+        "flag_molecular_negative": True,
+        "flag_molecular_positive": True,
+        "flag_molecular_uncertain": True,
         "flag_phenotype_match_empty": False,
         "flag_phenotype_match_negative": True,
         "flag_phenotype_match_positive": True,
@@ -923,12 +1005,13 @@ class _FlagsEtcPresets:
         "flag_visual_uncertain": True,
         "remove_if_in_dbsnp": False,
         "require_in_clinvar": False,
+        "clinvar_paranoid_mode": False,
         "require_in_hgmd_public": False,
     }
 
 
 #: Presets for the chromosome/region/gene related settings, by chromosome preset option
-FLAGS_ETC_PRESETS: _FlagsEtcPresets = _FlagsEtcPresets()
+FLAGSETC_PRESETS: _FlagsEtcPresets = _FlagsEtcPresets()
 
 
 @unique
@@ -942,7 +1025,7 @@ class FlagsEtc(Enum):
 
     def to_settings(self) -> typing.Dict[str, typing.Any]:
         """Return settings for this flags etc. category"""
-        return getattr(FLAGS_ETC_PRESETS, self.value)
+        return getattr(FLAGSETC_PRESETS, self.value)
 
 
 class Database(Enum):
@@ -954,6 +1037,8 @@ class Database(Enum):
 class QuickPresets:
     """Type for the global quick presets"""
 
+    #: a user-readable label
+    label: str
     #: presets in category inheritance
     inheritance: Inheritance
     #: presets in category frequency
@@ -965,21 +1050,21 @@ class QuickPresets:
     #: presets in category chromosomes
     chromosomes: Chromosomes
     #: presets in category flags etc.
-    flags_etc: FlagsEtc
+    flagsetc: FlagsEtc
     #: database to use
     database: Database = Database.REFSEQ
 
     def to_settings(self, samples: typing.Iterable[PedigreeMember]) -> typing.Dict[str, typing.Any]:
-        """Return the overall settings given the case names"""
+        """Return the overall settings given the sample names"""
         assert len(set(s.family for s in samples)) == 1
         return {
-            "database": self.database.value,
             **self.inheritance.to_settings(samples),
             **self.frequency.to_settings(),
             **self.impact.to_settings(),
             **self.quality.to_settings(samples),
             **self.chromosomes.to_settings(),
-            **self.flags_etc.to_settings(),
+            **self.flagsetc.to_settings(),
+            "database": self.database.value,
         }
 
 
@@ -989,93 +1074,103 @@ class _QuickPresetList:
 
     #: default presets
     defaults: QuickPresets = QuickPresets(
+        label="defaults",
         inheritance=Inheritance.ANY,
         frequency=Frequency.DOMINANT_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: *de novo* presets
     de_novo: QuickPresets = QuickPresets(
-        inheritance=Inheritance.DOMINANT,
+        label="de novo",
+        inheritance=Inheritance.DE_NOVO,
         frequency=Frequency.DOMINANT_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
-        quality=Quality.RELAXED,
+        quality=Quality.SUPER_STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: dominant presets
     dominant: QuickPresets = QuickPresets(
+        label="dominant",
         inheritance=Inheritance.DOMINANT,
         frequency=Frequency.DOMINANT_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: homozygous recessive presets
     homozygous_recessive: QuickPresets = QuickPresets(
+        label="homozygous recessive",
         inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
         frequency=Frequency.RECESSIVE_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: compound recessive recessive presets
     compound_recessive: QuickPresets = QuickPresets(
+        label="compound recessive",
         inheritance=Inheritance.COMPOUND_HETEROZYGOUS,
         frequency=Frequency.RECESSIVE_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: recessive presets
     recessive: QuickPresets = QuickPresets(
+        label="recessive",
         inheritance=Inheritance.RECESSIVE,
         frequency=Frequency.RECESSIVE_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: X-recessive presets
     x_recessive: QuickPresets = QuickPresets(
+        label="X-recessive",
         inheritance=Inheritance.X_RECESSIVE,
         frequency=Frequency.RECESSIVE_STRICT,
         impact=Impact.AA_CHANGE_SPLICING,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.X_CHROMOSOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: Clinvar pathogenic presets
     clinvar_pathogenic: QuickPresets = QuickPresets(
+        label="ClinVar pathogenic",
         inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.ANY,
         impact=Impact.ANY,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.CLINVAR_ONLY,
+        flagsetc=FlagsEtc.CLINVAR_ONLY,
     )
     #: mitochondrial recessive presets
     mitochondrial: QuickPresets = QuickPresets(
+        label="mitochondrial",
         inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.DOMINANT_STRICT,
         impact=Impact.ANY,
         quality=Quality.STRICT,
         chromosomes=Chromosomes.MT_CHROMOSOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
     #: whole exome recessive presets
     whole_exome: QuickPresets = QuickPresets(
+        label="whole exome",
         inheritance=Inheritance.ANY,
         frequency=Frequency.ANY,
         impact=Impact.ANY,
         quality=Quality.ANY,
         chromosomes=Chromosomes.WHOLE_GENOME,
-        flags_etc=FlagsEtc.DEFAULTS,
+        flagsetc=FlagsEtc.DEFAULTS,
     )
 
 

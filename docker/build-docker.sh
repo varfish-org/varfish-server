@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export DOCKER_BUILDKIT=1
+
 BUILD_NO=0
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -12,9 +14,10 @@ GIT_DEPTH=$(($(git rev-list HEAD ^$(git describe --abbrev=0 --tags) --count) + 1
 GIT_URL=https://github.com/bihealth/varfish-server.git
 
 docker build . \
-    --build-arg app_git_tag=$GIT_TAG \
-    --build-arg app_git_depth=$GIT_DEPTH \
-    --build-arg app_git_url=$GIT_URL \
+    --build-arg server_git_treeish=$GIT_TAG \
+    --build-arg server_git_depth=$GIT_DEPTH \
+    --build-arg server_git_url=$GIT_URL \
     --no-cache \
+    --target=final-target \
     --pull \
     -t ghcr.io/bihealth/varfish-server:$DOCKER_VERSION

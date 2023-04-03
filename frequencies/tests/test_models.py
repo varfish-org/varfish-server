@@ -2,12 +2,12 @@
 
 from variants.tests.helpers import QueryTestBase
 
-from ..models import Exac, ThousandGenomes, GnomadExomes, GnomadGenomes
+from ..models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes
 from .factories import (
     ExacFactory,
-    ThousandGenomesFactory,
     GnomadExomesFactory,
     GnomadGenomesFactory,
+    ThousandGenomesFactory,
 )
 
 #: Symbol of gene to query the variants for.

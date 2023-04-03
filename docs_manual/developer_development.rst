@@ -45,6 +45,43 @@ To specify them, follow the path to the test file, add the class name and the te
 
 This would run the UI tests in the variants app for the case filter view.
 
+To speedup your tests, you can use the ``--keepdb`` parameter.
+This will only run the migrations on the first test run.
+
+---------------
+Style & Linting
+---------------
+
+We use `black <https://github.com/psf/black>`__ for formatting Python code, `flake8 <https://flake8.pycqa.org/en/latest/>`__ for linting, and `isort <https://pycqa.github.io/isort/>`__ for sorting includes.
+To ensure that your Python code follows all restrictions and passes CI, use
+
+.. code-block:: bash
+
+    $ make black isort flake8
+
+We use `prettier <https://prettier.io/>`__ for Javascript formatting and `eslint <https://eslint.org/>`__ for linting the code.
+Similarly, you can use the following for the Javascript/Vue code:
+
+.. code-block:: bash
+
+    $ make vue_lint prettier
+
+Or, all together:
+
+.. code-block:: bash
+
+    $ make black isort flake8 vue_lint prettier
+
+---------
+Storybook
+---------
+
+We use `Storybook.js <https://storybook.js.org/docs/vue/get-started/introduction>`__ to develop Vue components in isolation.
+After running ``nmp i`` in ``varfish/vueapp``, you can launch the Storybook browser by calling:
+
+.. code-block:: bash
+
+    $ make storybook
 
 ----------------
 Working With Git

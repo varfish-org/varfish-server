@@ -1,0 +1,15 @@
+[
+  {
+    "hgnc_id": "HGNC:20324",
+    "symbol": "TGDS",
+    "ensembl_gene_id": "ENSG00000088451",
+    "entrez_id": "23483"
+  },
+  {
+    "hgnc_id": "HGNC:12403",
+    "symbol": "TTN",
+    "ensembl_gene_id": "ENSG00000155657",
+    "entrez_id": "7273"
+  },
+  { "detail": "Not found." }
+]

@@ -1,24 +1,26 @@
-from unittest import skip
-
 from django.urls import reverse
-
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
+import requests_mock
 
-from geneinfo.tests.factories import HpoNameFactory, HpoFactory
+from geneinfo.tests.factories import HpoFactory, HpoNameFactory
 from variants.tests.factories import CaseFactory, SmallVariantCommentFactory
+
+from ..models import Family
+from ..views_ajax import CLINVAR_SUBMISSION_URL_PREFIX
 from .factories import (
-    SubmissionSetFactory,
-    SubmissionFactory,
-    SubmissionWithIndividualFactory,
+    CLINVAR_SUBMITTER_REPORT_HEADER,
+    AssertionMethodFactory,
     FamilyFactory,
     IndividualFactory,
-    AssertionMethodFactory,
-    SubmissionSetWithOrgFactory,
     OrganisationFactory,
-    SubmittingOrgFactory,
+    SubmissionFactory,
+    SubmissionSetFactory,
+    SubmissionSetWithOrgFactory,
+    SubmissionWithIndividualFactory,
     SubmitterFactory,
+    SubmittingOrgFactory,
 )
-from ..models import Family
+from .test_views_ajax import CLINVAR_SUBMITTER_REPORT_RECORD
 
 
 class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
@@ -26,7 +28,8 @@ class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
 
     def test_list(self):
         url = reverse(
-            "clinvar_export:ajax-organisation-list", kwargs={"project": self.project.sodar_uuid},
+            "clinvar_export:ajax-organisation-list",
+            kwargs={"project": self.project.sodar_uuid},
         )
         good_users = [
             self.superuser,
@@ -45,7 +48,8 @@ class TestSubmitterAjaxViews(TestProjectAPIPermissionBase):
 
     def test_list(self):
         url = reverse(
-            "clinvar_export:ajax-submitter-list", kwargs={"project": self.project.sodar_uuid},
+            "clinvar_export:ajax-submitter-list",
+            kwargs={"project": self.project.sodar_uuid},
         )
         good_users = [
             self.superuser,
@@ -64,7 +68,8 @@ class TestAssertionMethodAjaxViews(TestProjectAPIPermissionBase):
 
     def test_list(self):
         url = reverse(
-            "clinvar_export:ajax-assertionmethod-list", kwargs={"project": self.project.sodar_uuid},
+            "clinvar_export:ajax-assertionmethod-list",
+            kwargs={"project": self.project.sodar_uuid},
         )
         good_users = [
             self.superuser,
@@ -83,7 +88,8 @@ class TestIndividualAjaxViews(TestProjectAPIPermissionBase):
 
     def test_list(self):
         url = reverse(
-            "clinvar_export:ajax-individual-list", kwargs={"project": self.project.sodar_uuid},
+            "clinvar_export:ajax-individual-list",
+            kwargs={"project": self.project.sodar_uuid},
         )
         good_users = [
             self.superuser,
@@ -102,7 +108,8 @@ class TestFamilyAjaxViews(TestProjectAPIPermissionBase):
 
     def test_list(self):
         url = reverse(
-            "clinvar_export:ajax-family-list", kwargs={"project": self.project.sodar_uuid},
+            "clinvar_export:ajax-family-list",
+            kwargs={"project": self.project.sodar_uuid},
         )
         good_users = [
             self.superuser,
@@ -223,7 +230,10 @@ class TestSubmissionSetAjaxViews(TestProjectAPIPermissionBase):
         submissionset = SubmissionSetFactory(project=self.project)
         url = reverse(
             "clinvar_export:ajax-submissionset-retrieve-update-destroy",
-            kwargs={"project": self.project.sodar_uuid, "submissionset": submissionset.sodar_uuid,},
+            kwargs={
+                "project": self.project.sodar_uuid,
+                "submissionset": submissionset.sodar_uuid,
+            },
         )
         for user in bad_users:
             self.assert_response(url, [user], 403, method="DELETE")
@@ -284,20 +294,29 @@ class TestSubmissionAjaxViews(TestProjectAPIPermissionBase):
             good_users,
             201,
             method="POST",
-            data={"submission_set": self.submission.submission_set.sodar_uuid, **data,},
+            data={
+                "submission_set": self.submission.submission_set.sodar_uuid,
+                **data,
+            },
         )
         self.assert_response(
             url,
             bad_users,
             403,
             method="POST",
-            data={"submission_set": self.submission.submission_set.sodar_uuid, **data,},
+            data={
+                "submission_set": self.submission.submission_set.sodar_uuid,
+                **data,
+            },
         )
 
     def test_retrieve(self):
         url = reverse(
             "clinvar_export:ajax-submission-retrieve-update-destroy",
-            kwargs={"project": self.project.sodar_uuid, "submission": self.submission.sodar_uuid,},
+            kwargs={
+                "project": self.project.sodar_uuid,
+                "submission": self.submission.sodar_uuid,
+            },
         )
         good_users = [
             self.superuser,
@@ -313,7 +332,10 @@ class TestSubmissionAjaxViews(TestProjectAPIPermissionBase):
     def test_update(self):
         url = reverse(
             "clinvar_export:ajax-submission-retrieve-update-destroy",
-            kwargs={"project": self.project.sodar_uuid, "submission": self.submission.sodar_uuid,},
+            kwargs={
+                "project": self.project.sodar_uuid,
+                "submission": self.submission.sodar_uuid,
+            },
         )
         good_users = [
             self.superuser,
@@ -341,14 +363,20 @@ class TestSubmissionAjaxViews(TestProjectAPIPermissionBase):
             submission = SubmissionFactory(submission_set__project=self.project)
             url = reverse(
                 "clinvar_export:ajax-submission-retrieve-update-destroy",
-                kwargs={"project": self.project.sodar_uuid, "submission": submission.sodar_uuid,},
+                kwargs={
+                    "project": self.project.sodar_uuid,
+                    "submission": submission.sodar_uuid,
+                },
             )
             self.assert_response(url, [user], 204, method="DELETE")
 
         submission = SubmissionFactory(submission_set__project=self.project)
         url = reverse(
             "clinvar_export:ajax-submission-retrieve-update-destroy",
-            kwargs={"project": self.project.sodar_uuid, "submission": submission.sodar_uuid,},
+            kwargs={
+                "project": self.project.sodar_uuid,
+                "submission": submission.sodar_uuid,
+            },
         )
         for user in bad_users:
             self.assert_response(url, [user], 403, method="DELETE")
@@ -639,7 +667,12 @@ class TestQueryOmimAjaxViews(TestProjectAPIPermissionBase):
     def test(self):
         hpo_record = HpoFactory()
         url = (
-            reverse("clinvar_export:query-omim-term", kwargs={"project": self.project.sodar_uuid,},)
+            reverse(
+                "clinvar_export:query-omim-term",
+                kwargs={
+                    "project": self.project.sodar_uuid,
+                },
+            )
             + "?query="
             + hpo_record.database_id
         )
@@ -662,7 +695,12 @@ class TestQueryHpoAjaxViews(TestProjectAPIPermissionBase):
     def test(self):
         hpo_record = HpoNameFactory()
         url = (
-            reverse("clinvar_export:query-hpo-term", kwargs={"project": self.project.sodar_uuid,},)
+            reverse(
+                "clinvar_export:query-hpo-term",
+                kwargs={
+                    "project": self.project.sodar_uuid,
+                },
+            )
             + "?query="
             + hpo_record.hpo_id
         )
@@ -687,11 +725,56 @@ class TestAnnotatedSmallVariantsAjaxViews(TestProjectAPIPermissionBase):
         self.case = CaseFactory(project=self.project)
         self.family = Family.objects.get_or_create_in_project(project=self.project, case=self.case)
 
+
+class TestFetchClinVarReportApiView(TestProjectAPIPermissionBase):
+    """Permission tests for ``FetchClinVarReportApiView``."""
+
+    def setUp(self):
+        super().setUp()
+        self.submission_set = SubmissionSetFactory(project=self.project)
+
+    @requests_mock.Mocker()
+    def test_fetch_submitter_report_with_submitter_report(self, r_mock):
+        report_url = CLINVAR_SUBMISSION_URL_PREFIX + "some/suffix"
+        data = {"report_url": report_url}
+        record = CLINVAR_SUBMITTER_REPORT_RECORD
+        report_content = CLINVAR_SUBMITTER_REPORT_HEADER + "\t".join(record.values())
+        r_mock.get(
+            report_url,
+            status_code=200,
+            text=report_content,
+        )
+        url = reverse(
+            "clinvar_export:clinvar-report-fetch",
+            kwargs={"submissionset": self.submission_set.sodar_uuid},
+        )
+        good_users = [
+            self.superuser,
+            self.owner_as.user,
+            self.delegate_as.user,
+            self.contributor_as.user,
+        ]
+        bad_users = [
+            self.anonymous,
+            self.user_no_roles,
+            self.guest_as.user,
+        ]
+        self.assert_response(url, good_users, 204, method="POST", data=data)
+        self.assert_response(url, bad_users, 403, method="POST", data=data)
+
+
+class TestClinVarReportListView(TestProjectAPIPermissionBase):
+    """Permission tests for ``ClinVarReportListView``."""
+
+    def setUp(self):
+        super().setUp()
+        self.submission_set = SubmissionSetFactory(project=self.project)
+
     def test(self):
         SmallVariantCommentFactory()
         url = reverse(
-            "clinvar_export:user-annotations",
-            kwargs={"project": self.project.sodar_uuid, "family": self.family.sodar_uuid},
+            "clinvar_export:clinvar-report-list",
+            kwargs={"submissionset": self.submission_set.sodar_uuid},
         )
         good_users = [
             self.superuser,

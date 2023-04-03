@@ -1,0 +1,10 @@
+{
+  "file_type": "tsv",
+  "export_flags": true,
+  "export_comments": true,
+  "export_donors": [
+    "NA12878-N1-DNA1-WES1",
+    "NA12891-N1-DNA1-WES1",
+    "NA12892-N1-DNA1-WES1"
+  ]
+}

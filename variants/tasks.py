@@ -1,12 +1,8 @@
-from config.celery import app
 from celery.schedules import crontab
 
-from . import file_export
-from . import models
-from . import submit_external
-from . import variant_stats
-from . import submit_filter
-from . import sync_upstream
+from config.celery import app
+
+from . import file_export, models, submit_external, submit_filter, sync_upstream, variant_stats
 from .helpers import get_engine
 
 

@@ -1,0 +1,21 @@
+{
+  "appContext": null,
+  "appState": "initializing",
+  "serverInteraction": false,
+  "wizardState": "submissionSet",
+  "notification": {},
+  "currentSubmissionSet": null,
+  "currentSubmission": null,
+  "organisations": {},
+  "families": {},
+  "individuals": {},
+  "assertionMethods": {},
+  "submitters": {},
+  "submissionSets": {},
+  "submissions": {},
+  "submissionIndividuals": {},
+  "submittingOrgs": {},
+  "oldModel": null,
+  "submissionSetList": [],
+  "userAnnotations": {}
+}

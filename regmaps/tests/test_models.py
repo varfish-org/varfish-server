@@ -2,13 +2,13 @@
 
 from django.test import TestCase
 
-from ..models import RegMapCollection, RegMap, RegElementType, RegElement, RegInteraction
+from ..models import RegElement, RegElementType, RegInteraction, RegMap, RegMapCollection
 from .factories import (
+    RegElementFactory,
+    RegElementTypeFactory,
+    RegInteractionFactory,
     RegMapCollectionFactory,
     RegMapFactory,
-    RegElementTypeFactory,
-    RegElementFactory,
-    RegInteractionFactory,
 )
 
 

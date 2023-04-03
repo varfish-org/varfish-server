@@ -21,14 +21,20 @@ class ClinvarFactory(factory.django.DjangoModelFactory):
     bin = 0
     reference = factory.Iterator("ACGT")
     alternative = factory.Iterator("CGTA")
+    clinvar_version = "99991122.1"
     variation_type = "snv"
+    set_type = "variant"
     symbols = factory.Sequence(lambda n: ["SYMBOL%d" % n])
     hgnc_ids = factory.Sequence(lambda n: ["HGNC:%d" % n])
     vcv = factory.Sequence(lambda n: "VCV%d" % (12345 + n))
-    point_rating = factory.Iterator([0, 1, 2, 3])
-    pathogenicity = ""
-    review_status = "practice guideline"
-    pathogenicity_summary = "uncertain significance"
+    summary_clinvar_review_status_label = "criteria provided, single committer"
+    summary_clinvar_pathogenicity_label = "likely pathogenic"
+    summary_clinvar_pathogenicity = ["likely pathogenic"]
+    summary_clinvar_gold_stars = 1
+    summary_paranoid_review_status_label = "criteria provided, single committer"
+    summary_paranoid_pathogenicity_label = "likely pathogenic"
+    summary_paranoid_pathogenicity = ["likely pathogenic"]
+    summary_paranoid_gold_stars = 1
     details = []
 
     @factory.post_generation

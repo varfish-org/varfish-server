@@ -1,24 +1,16 @@
 import copy
 
+from bgjobs.models import JOB_STATE_DONE
 from django.urls import reverse
 from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 
-from .factories import (
-    CaseWithVariantSetFactory,
-    SmallVariantQueryFactory,
-    FilterBgJobFactory,
-)
-from .helpers import (
-    ApiViewTestBase,
-    VARFISH_INVALID_VERSION,
-    VARFISH_INVALID_MIMETYPE,
-)
+from ..models import FilterBgJob, SmallVariantQuery
+from ..query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
+from .factories import CaseWithVariantSetFactory, FilterBgJobFactory, SmallVariantQueryFactory
+from .helpers import VARFISH_INVALID_MIMETYPE, VARFISH_INVALID_VERSION, ApiViewTestBase
 
 # TODO: add tests that include permission testing
 from .test_views import GenerateSmallVariantResultMixin
-from ..models import SmallVariantQuery, FilterBgJob
-from ..query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
-from ..views_api import JobStatus
 
 
 def transmogrify_pedigree(pedigree):
@@ -35,27 +27,41 @@ class TestCaseApiViews(ApiViewTestBase):
         self.maxDiff = None
         self.case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
 
-    def _expected_case_data(self, case=None):
+    def _expected_case_data(self, case=None, legacy=False):
         case = case or self.case
-        return {
+        result = {
             "sodar_uuid": str(case.sodar_uuid),
             "name": case.name,
             "index": case.index,
             "pedigree": transmogrify_pedigree(case.pedigree),
             "num_small_vars": case.num_small_vars,
             "num_svs": case.num_svs,
-            "project": str(case.project.sodar_uuid),
+            "project": case.project.sodar_uuid,
             "notes": case.notes,
             "status": case.status,
             "tags": case.tags,
             "release": case.release,
+            "sex_errors": {},
         }
+        if legacy:
+            result.update(
+                {
+                    "relatedness": [],
+                    "phenotype_terms": [],
+                    "svannotationreleaseinfo_set": [],
+                    "annotationreleaseinfo_set": [],
+                    "casealignmentstats": None,
+                    "casevariantstats": {},
+                }
+            )
+        return result
 
     def _test_list_with_invalid_x(self, media_type=None, version=None):
         with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
-                    "variants:api-case-list", kwargs={"project": self.case.project.sodar_uuid},
+                    "cases:api-case-list",
+                    kwargs={"project": self.case.project.sodar_uuid},
                 ),
                 media_type=media_type,
                 version=version,
@@ -72,14 +78,15 @@ class TestCaseApiViews(ApiViewTestBase):
         with self.login(self.superuser):
             response = self.request_knox(
                 reverse(
-                    "variants:api-case-list", kwargs={"project": str(self.case.project.sodar_uuid)},
+                    "cases:api-case-list",
+                    kwargs={"project": str(self.case.project.sodar_uuid)},
                 ),
             )
 
             self.assertEqual(response.status_code, 200, response.content)
             expected = [self._expected_case_data()]
             response_content = []
-            for entry in response.data:  # remove some warts
+            for entry in response.data["results"]:  # remove some warts
                 entry = dict(entry)
                 entry.pop("date_created")  # complex; not worth testing
                 entry.pop("date_modified")  # the same
@@ -89,7 +96,10 @@ class TestCaseApiViews(ApiViewTestBase):
     def _test_retrieve_with_invalid_x(self, media_type=None, version=None):
         with self.login(self.superuser):
             response = self.request_knox(
-                reverse("variants:api-case-retrieve", kwargs={"case": str(self.case.sodar_uuid)},),
+                reverse(
+                    "variants:api-case-retrieve",
+                    kwargs={"case": str(self.case.sodar_uuid)},
+                ),
                 media_type=media_type,
                 version=version,
             )
@@ -104,10 +114,13 @@ class TestCaseApiViews(ApiViewTestBase):
     def test_retrieve(self):
         with self.login(self.superuser):
             response = self.client.get(
-                reverse("variants:api-case-retrieve", kwargs={"case": self.case.sodar_uuid},)
+                reverse(
+                    "variants:api-case-retrieve",
+                    kwargs={"case": self.case.sodar_uuid},
+                )
             )
 
-            expected = self._expected_case_data()
+            expected = self._expected_case_data(legacy=True)
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
             self.assertEqual(response.status_code, 200)
@@ -390,7 +403,7 @@ class TestSmallVariantQueryRetrieveApiView(TestSmallVariantQueryBase):
 class TestSmallVariantQueryStatusApiView(TestSmallVariantQueryBase):
     def test_get(self):
         filter_job = FilterBgJobFactory(
-            case=self.case, user=self.guest_as.user, bg_job__status=JobStatus.DONE
+            case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
         )
         query = filter_job.smallvariantquery
 
@@ -401,13 +414,13 @@ class TestSmallVariantQueryStatusApiView(TestSmallVariantQueryBase):
         response = self.request_knox(url)
 
         self.assertEqual(response.status_code, 200)
-        expected = {"status": JobStatus.DONE}
+        expected = {"status": JOB_STATE_DONE, "logs": []}
         actual = dict(response.data)
         self.assertEqual(actual, expected)
 
     def test_get_access_allowed(self):
         filter_job = FilterBgJobFactory(
-            case=self.case, user=self.guest_as.user, bg_job__status=JobStatus.DONE
+            case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
         )
         query = filter_job.smallvariantquery
 
@@ -426,7 +439,7 @@ class TestSmallVariantQueryStatusApiView(TestSmallVariantQueryBase):
 
     def test_get_access_forbidden(self):
         filter_job = FilterBgJobFactory(
-            case=self.case, user=self.guest_as.user, bg_job__status=JobStatus.DONE
+            case=self.case, user=self.guest_as.user, bg_job__status=JOB_STATE_DONE
         )
         query = filter_job.smallvariantquery
 
@@ -618,7 +631,8 @@ class TestSmallVariantQuerySettingsShortcutApiView(
 
     def test_get_success(self):
         url = reverse(
-            "variants:api-query-settings-shortcut", kwargs={"case": self.case.sodar_uuid},
+            "variants:api-query-settings-shortcut",
+            kwargs={"case": self.case.sodar_uuid},
         )
         response = self.request_knox(url)
 
@@ -626,12 +640,13 @@ class TestSmallVariantQuerySettingsShortcutApiView(
         actual = response.data
         expected = {
             "presets": {
+                "label": "defaults",
                 "inheritance": "any",
                 "frequency": "dominant_strict",
                 "impact": "aa_change_splicing",
                 "quality": "strict",
                 "chromosomes": "whole_genome",
-                "flags_etc": "defaults",
+                "flagsetc": "defaults",
                 "database": "refseq",
             },
             "query_settings": {
@@ -728,6 +743,10 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 "flag_final_causative": True,
                 "flag_for_validation": True,
                 "flag_no_disease_association": True,
+                "flag_molecular_empty": True,
+                "flag_molecular_negative": True,
+                "flag_molecular_positive": True,
+                "flag_molecular_uncertain": True,
                 "flag_phenotype_match_empty": True,
                 "flag_phenotype_match_negative": True,
                 "flag_phenotype_match_positive": True,
@@ -749,9 +768,11 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 "remove_if_in_dbsnp": False,
                 "require_in_clinvar": False,
                 "require_in_hgmd_public": False,
+                "clinvar_paranoid_mode": False,
             },
         }
-        self.assertEqual(actual, expected)
+        self.maxDiff = None
+        self.assertDictEqual(actual, expected)
 
     def test_get_access_allowed(self):
         good_users = [
@@ -759,7 +780,8 @@ class TestSmallVariantQuerySettingsShortcutApiView(
         ]
 
         url = reverse(
-            "variants:api-query-settings-shortcut", kwargs={"case": self.case.sodar_uuid},
+            "variants:api-query-settings-shortcut",
+            kwargs={"case": self.case.sodar_uuid},
         )
 
         for user in good_users:
@@ -777,7 +799,8 @@ class TestSmallVariantQuerySettingsShortcutApiView(
         ]
 
         url = reverse(
-            "variants:api-query-settings-shortcut", kwargs={"case": self.case.sodar_uuid},
+            "variants:api-query-settings-shortcut",
+            kwargs={"case": self.case.sodar_uuid},
         )
 
         for user in bad_users:

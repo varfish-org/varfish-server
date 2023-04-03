@@ -47,6 +47,10 @@
     font-size:0.8em;
 }
 
+.img-light {
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
+}
+
 .img-light-gray {
   filter: invert(100%) sepia(0%) saturate(966%) hue-rotate(245deg) brightness(85%) contrast(83%);
 }

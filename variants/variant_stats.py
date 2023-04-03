@@ -2,13 +2,12 @@
 
 from django.db import transaction
 import numpy as np
-
 from projectroles.plugins import get_backend_api
+
 from var_stats_qc.qc import compute_het_hom_chrx, compute_relatedness, compute_relatedness_many
 
 from .forms import FILTER_FORM_TRANSLATE_EFFECTS
-from .models import SmallVariant, CaseVariantStats, ProjectVariantStats
-
+from .models import CaseVariantStats, ProjectVariantStats, SmallVariant
 
 #: Effects to ignore when computing stats.
 IGNORE_EFFECTS = (
@@ -43,7 +42,7 @@ def _get_dp_bin(dp):
         return 200
 
 
-def gather_variant_stats(variant_set):
+def gather_variant_stats(variant_set):  # noqa: C901
     """Iterate over ``SmallVariant`` objects of ``variant_set`` and collect various statistics."""
     # TODO: could be refactored into class with multiple smaller, easier-to-read functions
     samples = variant_set.case.get_members_with_samples()

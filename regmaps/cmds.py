@@ -5,12 +5,13 @@ import pathlib
 import sys
 
 import binning
-from django.db import transaction
 from django.core.management.base import CommandError
+from django.db import transaction
 import yaml
 
 from importer.models import ImportInfo
-from .models import RegMapCollection, RegElementType, RegMap, RegElement, RegInteraction
+
+from .models import RegElement, RegElementType, RegInteraction, RegMap, RegMapCollection
 
 
 class CollectionListImpl:

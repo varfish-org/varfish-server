@@ -10,11 +10,12 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 
 import logging
 import os
-import environ
 import re
 import sys
 
 from dotenv import load_dotenv
+import environ
+
 from varfish import __version__ as varfish_version
 
 logger = logging.getLogger(__name__)
@@ -86,7 +87,6 @@ THIRD_PARTY_APPS = [
     "dal_select2",
     "cryptographic_fields",
     "rest_framework_httpsignature",
-    "webpack_loader",
     "django_saml2_auth",
     "dj_iconify.apps.DjIconifyConfig",
 ]
@@ -95,6 +95,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     # custom users app
     "varfish.users.apps.UsersConfig",
+    "varfish.vueapp.apps.VueappConfig",
     # Your stuff: custom apps go here
     "clinvar.apps.ClinvarConfig",
     "clinvar_export.apps.ClinvarExportConfig",
@@ -118,6 +119,9 @@ LOCAL_APPS = [
     "maintenance.apps.MaintenanceConfig",
     "regmaps.apps.RegmapsConfig",
     "beaconsite.apps.BeaconsiteConfig",
+    "genepanels.apps.GenepanelsConfig",
+    "cases.apps.CasesConfig",
+    "varannos.apps.VarannosConfig",
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -153,6 +157,11 @@ MIGRATION_MODULES = {"sites": "varfish.contrib.sites.migrations"}
 # ------------------------------------------------------------------------------
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#debug
 DEBUG = env.bool("DJANGO_DEBUG", False)
+
+# GENERAL VARFISH SETTINGS
+# ------------------------------------------------------------------------------
+# Query timeout in seconds, "0" to disable.
+QUERY_TIMEOUT = env.int("VARFISH_QUERY_TIMEOUT", 600) or None
 
 # KIOSK-MODE RELATED
 # ------------------------------------------------------------------------------
@@ -194,50 +203,6 @@ if KIOSK_MODE:
     logger.info("Enabling VarFishKioskUserMiddleware")
     MIDDLEWARE += ["varfish.utils.VarFishKioskUserMiddleware"]
 
-# Logging
-# ------------------------------------------------------------------------------
-
-# Custom logging level
-LOGGING_LEVEL = env.str("LOGGING_LEVEL", "DEBUG" if DEBUG else "ERROR")
-
-# List of apps to include in logging
-LOGGING_APPS = env.list(
-    "LOGGING_APPS",
-    default=["projectroles", "siteinfo", "sodarcache", "taskflowbackend", "timeline",],
-)
-
-# Path for file logging. If not set, will log only to console
-LOGGING_FILE_PATH = env.str("LOGGING_FILE_PATH", None)
-
-
-def set_logging(level=None):
-    if not level:
-        level = "DEBUG" if DEBUG else "ERROR"
-    app_logger_config = {
-        "level": level,
-        "handlers": ["console", "file"] if LOGGING_FILE_PATH else ["console"],
-        "propagate": True,
-    }
-    log_handlers = {
-        "console": {"level": level, "class": "logging.StreamHandler", "formatter": "simple",}
-    }
-    if LOGGING_FILE_PATH:
-        log_handlers["file"] = {
-            "level": level,
-            "class": "logging.FileHandler",
-            "filename": LOGGING_FILE_PATH,
-            "formatter": "simple",
-        }
-    return {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {"simple": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"}},
-        "handlers": log_handlers,
-        "loggers": {a: app_logger_config for a in LOGGING_APPS},
-    }
-
-
-LOGGING = set_logging(LOGGING_LEVEL)
 
 # FIXTURE CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -279,9 +244,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 # ------------------------------------------------------------------------------
 if env.bool("ENABLE_SENTRY", default=False):
     import sentry_sdk
+    from sentry_sdk.integrations.celery import CeleryIntegration
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.redis import RedisIntegration
-    from sentry_sdk.integrations.celery import CeleryIntegration
     from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
     SENTRY_DSN = "%s?verify_ssl=0" % env.str("SENTRY_DSN")
@@ -508,6 +473,18 @@ FIELD_ENCRYPTION_KEY = env.str(
 # Number of cases to perform in one query for joint queries.
 QUERY_MAX_UNION = env.int("VARFISH_QUERY_MAX_UNION", 20)
 
+# Timeout (in hours) for VarFish cleaning up background SV sets in "building" state.
+SV_CLEANUP_BUILDING_SV_SETS = env.int("VARFISH_SV_CLEANUP_BUILDING_SV_SETS", 48)
+
+# Path to database for the worker.
+WORKER_DB_PATH = env.str("VARFISH_WORKER_DB_PATH", "")
+
+# Path to executable for worker.
+WORKER_EXE_PATH = env.str("VARFISH_WORKER_EXE_PATH", "varfish-server-worker")
+
+# URL prefix to look at for worker.
+WORKER_REST_BASE_URL = env.str("VARFISH_WORKER_REST_BASE_URL", "http://127.0.0.1:8081")
+
 # Varfish: Exomiser
 # ------------------------------------------------------------------------------
 
@@ -533,6 +510,14 @@ VARFISH_CADD_REST_API_CADD_VERSION = env.str("VARFISH_CADD_REST_API_CADD_VERSION
 # Configure maximal number of genes to send to Exomiser API
 VARFISH_CADD_MAX_VARS = env.int("VARFISH_CADD_MAX_VARS", 5000)
 
+# Enable CADA prioritization.
+VARFISH_ENABLE_CADA = env.bool("VARFISH_ENABLE_CADA", default=False)
+# Configure URL to CADA REST API
+# REST API documentation for CADA can be found here: https://app.swaggerhub.com/apis-docs/schmida/CADA/1.0.0
+VARFISH_CADA_REST_API_URL = env.str(
+    "VARFISH_CADA_REST_API_URL", "https://cada.gene-talk.de/api/process"
+)
+
 # Enable submission of variants to CADD server.
 VARFISH_ENABLE_CADD_SUBMISSION = env.bool("VARFISH_ENABLE_CADD_SUBMISSION", default=False)
 # CADD version to use for for submission
@@ -540,7 +525,8 @@ VARFISH_CADD_SUBMISSION_VERSION = env.str("VARFISH_CADD_SUBMISSION_VERSION", def
 
 # Varfish: MutationTaster URL
 VARFISH_MUTATIONTASTER_REST_API_URL = env.str(
-    "VARFISH_MUTATIONTASTER_REST_API_URL", "https://www.genecascade.org/MTc85/MT_API.cgi",
+    "VARFISH_MUTATIONTASTER_REST_API_URL",
+    "https://www.genecascade.org/MTc85/MT_API.cgi",
 )
 VARFISH_MUTATIONTASTER_BATCH_VARS = env.int("VARFISH_MUTATIONTASTER_BATCH_VARS", 50)
 VARFISH_MUTATIONTASTER_MAX_VARS = env.int("VARFISH_MUTATIONTASTER_MAX_VARS", 500)
@@ -592,7 +578,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
         "knox.auth.TokenAuthentication",
-    )
+    ),
 }
 
 if KIOSK_MODE:
@@ -689,6 +675,8 @@ LOGGING_APPS = env.list(
         "samplesheets",
         "sodarcache",
         "taskflowbackend",
+        "svs",
+        "variants",
         #        'django',
         #        'django.requests',
     ],
@@ -697,18 +685,22 @@ LOGGING_APPS = env.list(
 LOGGING_FILE_PATH = env.str("LOGGING_FILE_PATH", None)
 
 
-def set_logging(debug):
+def set_logging(level):
     app_logger_config = {
-        "level": "DEBUG" if debug else "ERROR",
+        "level": level,
         "handlers": ["console", "file"] if LOGGING_FILE_PATH else ["console"],
         "propagate": True,
     }
     log_handlers = {
-        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple",}
+        "console": {
+            "level": level,
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        }
     }
     if LOGGING_FILE_PATH:
         log_handlers["file"] = {
-            "level": "DEBUG",
+            "level": level,
             "class": "logging.FileHandler",
             "filename": LOGGING_FILE_PATH,
             "formatter": "simple",
@@ -723,15 +715,19 @@ def set_logging(debug):
 
 
 LOGGING_DEBUG = env.bool("LOGGING_DEBUG", False)
-LOGGING = set_logging(DEBUG or LOGGING_DEBUG)
+LOGGING = set_logging("DEBUG" if (DEBUG or LOGGING_DEBUG) else "INFO")
+
+# LDAP configuration
+# ------------------------------------------------------------------------------
 
 ENABLE_LDAP = env.bool("ENABLE_LDAP", False)
 ENABLE_LDAP_SECONDARY = env.bool("ENABLE_LDAP_SECONDARY", False)
 
 if ENABLE_LDAP:
     import itertools
-    import ldap
+
     from django_auth_ldap.config import LDAPSearch
+    import ldap
 
     # Default values
     LDAP_DEFAULT_CONN_OPTIONS = {ldap.OPT_REFERRALS: 0}
@@ -749,7 +745,9 @@ if ENABLE_LDAP:
     AUTH_LDAP_CONNECTION_OPTIONS = LDAP_DEFAULT_CONN_OPTIONS
 
     AUTH_LDAP_USER_SEARCH = LDAPSearch(
-        env.str("AUTH_LDAP_USER_SEARCH_BASE", None), ldap.SCOPE_SUBTREE, LDAP_DEFAULT_FILTERSTR,
+        env.str("AUTH_LDAP_USER_SEARCH_BASE", None),
+        ldap.SCOPE_SUBTREE,
+        LDAP_DEFAULT_FILTERSTR,
     )
     AUTH_LDAP_USER_ATTR_MAP = LDAP_DEFAULT_ATTR_MAP
     AUTH_LDAP_USERNAME_DOMAIN = env.str("AUTH_LDAP_USERNAME_DOMAIN", None)
@@ -777,9 +775,13 @@ if ENABLE_LDAP:
 
         AUTHENTICATION_BACKENDS = tuple(
             itertools.chain(
-                ("projectroles.auth_backends.SecondaryLDAPBackend",), AUTHENTICATION_BACKENDS,
+                ("projectroles.auth_backends.SecondaryLDAPBackend",),
+                AUTHENTICATION_BACKENDS,
             )
         )
+
+# DJANGO SU configuration
+# ------------------------------------------------------------------------------
 
 # URL to redirect after the login.
 # Default: "/"
@@ -823,7 +825,10 @@ SAML2_AUTH = {
         },
         "service": {
             "sp": {
-                "idp": env.str("SAML_CLIENT_IDP", "https://sso.hpc.bihealth.org/auth/realms/cubi",),
+                "idp": env.str(
+                    "SAML_CLIENT_IDP",
+                    "https://sso.hpc.bihealth.org/auth/realms/cubi",
+                ),
                 # Keycloak expects client signature
                 "authn_requests_signed": "true",
                 # Enforce POST binding which is required by keycloak
@@ -911,10 +916,8 @@ if ENABLE_S3:
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 
-# WEBPACK / VUE.JS CONFIGURATION
-# ------------------------------------------------------------------------------
-WEBPACK_LOADER = {"VARFISH_VUE": {"STATS_FILE": ROOT_DIR("varfish/vueapp/webpack-stats.json"),}}
-
 # ICONIFY CONFIGURATION
 # ------------------------------------------------------------------------------
 ICONIFY_JSON_ROOT = os.path.join(STATIC_ROOT, "iconify")
+
+VARFISH_ENABLE_VARIANTS_VUEAPP = env.bool("VARFISH_ENABLE_VARIANTS_VUEAPP", default=False)

@@ -12,7 +12,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="casealignmentstats", name="bam_stats", field=models.JSONField(default=dict),
+            model_name="casealignmentstats",
+            name="bam_stats",
+            field=models.JSONField(default=dict),
         ),
         migrations.AlterField(
             model_name="importvariantsbgjob",

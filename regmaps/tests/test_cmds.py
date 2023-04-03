@@ -1,15 +1,15 @@
 """Tests for the admin command implementations in ``cmds``."""
 
-import pathlib
 import io
+import pathlib
 import sys
 import types
 import uuid
 
 from django.test import TestCase
 
-from ..cmds import CollectionListImpl, CollectionDeleteImpl, CollectionImportImpl
-from ..models import RegMapCollection, RegMap, RegElementType, RegElement, RegInteraction
+from ..cmds import CollectionDeleteImpl, CollectionImportImpl, CollectionListImpl
+from ..models import RegElement, RegElementType, RegInteraction, RegMap, RegMapCollection
 from .factories import RegMapCollectionFactory
 
 
@@ -108,7 +108,7 @@ class CollectionImportImplTest(TestCase):
         expected = [
             {
                 "chromosome": "1",
-                "elem_type_id": 2,
+                "elem_type_id": vals[0]["elem_type_id"],
                 "end": 123456,
                 "release": "GRCh37",
                 "score": 1.0,
@@ -116,7 +116,7 @@ class CollectionImportImplTest(TestCase):
             },
             {
                 "chromosome": "1",
-                "elem_type_id": 1,
+                "elem_type_id": vals[1]["elem_type_id"],
                 "end": 223456,
                 "release": "GRCh37",
                 "score": 1.0,

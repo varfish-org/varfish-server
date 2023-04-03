@@ -11,6 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="mtdb", name="synonymous", field=models.BooleanField(null=True),
+            model_name="mtdb",
+            name="synonymous",
+            field=models.BooleanField(null=True),
         ),
     ]

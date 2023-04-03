@@ -187,7 +187,10 @@ class TestSiteUpdateView(TestViewsBase):
     def test_render(self):
         with self.login(self.superuser):
             response = self.client.get(
-                reverse("beaconsite:site-update", kwargs={"site": self.site.sodar_uuid},)
+                reverse(
+                    "beaconsite:site-update",
+                    kwargs={"site": self.site.sodar_uuid},
+                )
             )
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(response.context["object"])
@@ -211,7 +214,10 @@ class TestSiteUpdateView(TestViewsBase):
 
         with self.login(self.superuser):
             response = self.client.post(
-                reverse("beaconsite:site-update", kwargs={"site": self.site.sodar_uuid},),
+                reverse(
+                    "beaconsite:site-update",
+                    kwargs={"site": self.site.sodar_uuid},
+                ),
                 post_data,
             )
 
@@ -243,7 +249,10 @@ class TestSiteDeleteView(TestViewsBase):
     def test_render(self):
         with self.login(self.superuser):
             response = self.client.get(
-                reverse("beaconsite:site-delete", kwargs={"site": self.site.sodar_uuid},)
+                reverse(
+                    "beaconsite:site-delete",
+                    kwargs={"site": self.site.sodar_uuid},
+                )
             )
             self.assertEqual(response.status_code, 200)
 
@@ -253,7 +262,10 @@ class TestSiteDeleteView(TestViewsBase):
 
         with self.login(self.superuser):
             response = self.client.post(
-                reverse("beaconsite:site-delete", kwargs={"site": self.site.sodar_uuid},)
+                reverse(
+                    "beaconsite:site-delete",
+                    kwargs={"site": self.site.sodar_uuid},
+                )
             )
             self.assertEqual(response.status_code, 302)
             self.assertEqual(response.url, reverse("beaconsite:site-list"))

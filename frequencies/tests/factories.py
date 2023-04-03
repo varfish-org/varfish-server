@@ -2,7 +2,7 @@
 import binning
 import factory
 
-from ..models import Exac, GnomadExomes, GnomadGenomes, ThousandGenomes, Mitomap, HelixMtDb, MtDb
+from ..models import Exac, GnomadExomes, GnomadGenomes, HelixMtDb, Mitomap, MtDb, ThousandGenomes
 
 
 class MacArthurFrequenciesFactoryBase(factory.django.DjangoModelFactory):

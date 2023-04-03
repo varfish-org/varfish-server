@@ -7,9 +7,9 @@ import tempfile
 from bgjobs.models import BackgroundJob
 from test_plus.test import TestCase
 
-from variants.models import ImportVariantsBgJob, Case, SmallVariantSet, SmallVariant
+from variants.models import Case, ImportVariantsBgJob, SmallVariant, SmallVariantSet
 from variants.tasks import run_import_variants_bg_job
-from variants.tests.factories import SmallVariantFactory, CaseFactory
+from variants.tests.factories import CaseFactory, SmallVariantFactory
 
 
 def write_test_files(directory, name, members):

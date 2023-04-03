@@ -4,8 +4,7 @@ import re
 import tempfile
 import uuid as uuid_object
 
-import aldjemy
-from bgjobs.models import BackgroundJob, LOG_LEVEL_ERROR, JobModelMessageMixin
+from bgjobs.models import LOG_LEVEL_ERROR, BackgroundJob, JobModelMessageMixin
 from django.contrib import auth
 from django.db import models, transaction
 from django.db.models.signals import post_delete
@@ -17,17 +16,17 @@ from sqlalchemy import and_
 from importer.management.helpers import open_file, tsv_reader
 from svs.models import StructuralVariant, StructuralVariantGeneAnnotation, SvAnnotationReleaseInfo
 from varfish.utils import receiver_subclasses
+from variants.helpers import get_engine, get_meta
 from variants.models import (
-    Case,
-    CoreCase,
-    update_variant_counts,
-    SmallVariant,
     AnnotationReleaseInfo,
+    Case,
     CaseAlignmentStats,
+    CaseGeneAnnotationEntry,
+    CoreCase,
+    SmallVariant,
     SmallVariantSet,
+    update_variant_counts,
 )
-from variants.helpers import get_engine
-from variants.helpers import get_meta
 
 User = auth.get_user_model()
 
@@ -147,7 +146,9 @@ class VariantSetImportInfo(models.Model):
     )
 
     case_import_info = models.ForeignKey(
-        CaseImportInfo, on_delete=models.CASCADE, help_text="The import info for the case.",
+        CaseImportInfo,
+        on_delete=models.CASCADE,
+        help_text="The import info for the case.",
     )
 
     variant_type = models.CharField(
@@ -213,6 +214,22 @@ class SetMemberFileUrl(models.Model):
 
 class BamQcFile(SetMemberFileUrl):
     """Base class for the urls that can be attached to ``VariantSetImportInfo``."""
+
+    case_import_info = models.ForeignKey(
+        CaseImportInfo,
+        on_delete=models.CASCADE,
+        help_text="The case import info that this is for.",
+    )
+
+    def get_project(self):
+        return self.case_import_info.get_project()
+
+    class Meta:
+        unique_together = (("case_import_info", "md5"),)
+
+
+class CaseGeneAnnotationFile(SetMemberFileUrl):
+    """Per-case gene annotations for display on the case overview page."""
 
     case_import_info = models.ForeignKey(
         CaseImportInfo,
@@ -378,6 +395,7 @@ class CaseImporter:
                         raise RuntimeError(
                             "Inconsistent genome builds for import and existing case"
                         )
+                self._import_case_gene_annotation(self.import_info)
         for variant_set_info in self.import_info.variantsetimportinfo_set.filter(
             state=VariantSetImportState.UPLOADED.value
         ):
@@ -574,7 +592,11 @@ class CaseImporter:
         else:
             assert variant_set_info.variant_type == CaseVariantType.STRUCTURAL.name
             self._import_table(
-                variant_set_info, variant_set, "SVs", "genotypefile_set", StructuralVariant,
+                variant_set_info,
+                variant_set,
+                "SVs",
+                "genotypefile_set",
+                StructuralVariant,
             )
             self._import_annotation_release_info(
                 variant_set_info, variant_set, SvAnnotationReleaseInfo
@@ -635,6 +657,36 @@ class CaseImporter:
         self.import_job.add_log_entry(
             "Finished importing annotation release (total: %d, updates: %d) info in %.2f s"
             % (total, updates, elapsed.total_seconds())
+        )
+
+    def _import_case_gene_annotation(self, import_info: CaseImportInfo):
+        before = timezone.now()
+        self.import_job.add_log_entry("Importing case gene annotations...")
+        removed, _ = CaseGeneAnnotationEntry.objects.filter(case=self.case).delete()
+        added = 0
+        expected_keys = {"gene_symbol", "entrez_id", "ensembl_gene_id", "annotation"}
+        for annotation_file in import_info.casegeneannotationfile_set.all():
+            self.import_job.add_log_entry("... importing from %s" % annotation_file.name)
+            first = True
+            for entry in tsv_reader(annotation_file.file):
+                keys = list(entry.keys())
+                if first and set(keys) != expected_keys:
+                    msg = f"Refusing to import invalid record with keys {keys}"
+                    self.import_job.add_log_entry(msg, LOG_LEVEL_ERROR)
+                    raise ValueError(msg)
+                first = False
+                CaseGeneAnnotationEntry.objects.create(
+                    case=self.case,
+                    gene_symbol=entry["gene_symbol"],
+                    entrez_id=entry["entrez_id"],
+                    ensembl_gene_id=entry["ensembl_gene_id"],
+                    annotation=json.loads(entry["annotation"]),
+                )
+                added += 1
+        elapsed = timezone.now() - before
+        self.import_job.add_log_entry(
+            "Finished importing case gene annotation (removed: %d, added: %d) in %.2f s"
+            % (removed, added, elapsed.total_seconds())
         )
 
     def _import_alignment_stats(self, import_info: CaseImportInfo, variant_set: SmallVariantSet):

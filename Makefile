@@ -3,7 +3,7 @@ MANAGE = time python manage.py
 
 .PHONY: black
 black:
-	black -l 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src)/' $(arg) .
+	black -l 100 --exclude '/(\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.?v?env|_build|buck-out|build|dist|src|node_modules)/' $(arg) .
 
 .PHONY: npm-install
 npm-install:
@@ -13,9 +13,17 @@ npm-install:
 serve:
 	$(MANAGE) runserver
 
-.PHONY: serve_vue
-serve_vue:
+.PHONY: vue_serve
+vue_serve:
 	npm run --prefix varfish/vueapp serve
+
+.PHONY: vue_build
+vue_build:
+	npm run --prefix varfish/vueapp build
+
+.PHONY: storybook
+storybook:
+	npm run --prefix varfish/vueapp storybook
 
 .PHONY: serve_public
 serve_public:
@@ -31,7 +39,7 @@ _migrate:
 	$(MANAGE) migrate
 
 .PHONY: migrate
-migrate: _migrate black
+migrate: _migrate black isort
 
 .PHONY: shell
 shell:
@@ -47,7 +55,7 @@ celery:
 
 .PHONY: geticons
 geticons:
-	python manage.py geticons -c cil gridicons octicon
+	python manage.py geticons -c cil gridicons octicon icon-park-outline
 
 .PHONY: collectstatic
 collectstatic: geticons
@@ -62,3 +70,35 @@ test: collectstatic
 .PHONY: test-noselenium
 test-noselenium:
 	VARFISH_KIOSK_MODE=0 SKIP_SELENIUM=1 coverage run manage.py test -v2 --settings=config.settings.test
+
+.PHONY: vue_test
+vue_test:
+	npm run --prefix varfish/vueapp test:unit $(arg)
+
+.PHONY: vue_test-coverage
+vue_test-coverage:
+	npm run --prefix varfish/vueapp test:unit-coverage $(arg)
+
+.PHONY: vue_lint
+vue_lint:
+	npm run --prefix varfish/vueapp lint $(arg)
+	npm run --prefix varfish/vueapp prettier-check $(arg)
+
+.PHONY: prettier
+prettier:
+	npm run --prefix varfish/vueapp prettier-write $(arg)
+
+.PHONY: lint
+lint: flake8
+
+.PHONY: isort
+isort:
+	isort --force-sort-within-sections --profile=black .
+
+.PHONY: flake8
+flake8:
+	flake8
+
+coverage:
+	coverage report
+	coverage html

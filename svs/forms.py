@@ -1,16 +1,11 @@
 from functools import lru_cache
 
 from django import forms
+
 from genomicfeatures.models import TadSet
 from regmaps.models import RegMapCollection
-from svs.models import StructuralVariantFlags, StructuralVariantComment
-
-from variants.forms import (
-    VariantGeneListFilterFormMixin,
-    FAIL,
-    only_source_name,
-    GenomicRegionFilterFormMixin,
-)
+from svs.models import StructuralVariantComment, StructuralVariantFlags
+from variants.forms import FAIL, GenomicRegionFilterFormMixin, VariantGeneListFilterFormMixin
 
 FILTER_FORM_TRANSLATE_EFFECTS = {
     "effect_coding_sequence_variant": "coding_sequence_variant",
@@ -100,62 +95,17 @@ FILTER_FORM_VISTA_CHOICES = {
     "negative": "negative",
 }
 
-SV_DATABASES = ("DGV", "DGV GS", "ExAC", "gnomAD", "dbVar", "G1K")
+SV_DATABASES = ("DGV", "DGV GS", "ExAC", "gnomAD", "dbVar", "G1K", "inhouse")
 
-
-class SvAnalysisCollectiveFrequencyMixin:
-    """Mixin for the frequency fields of the structural variant filtration form."""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["collective_enabled"] = forms.BooleanField(
-            label="", required=False, initial=True
-        )
-        self.fields["cohort_background_carriers_min"] = forms.IntegerField(
-            label="",
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(
-                attrs={"placeholder": "Minimal background carriers in analysis collective"}
-            ),
-        )
-        self.fields["cohort_background_carriers_max"] = forms.IntegerField(
-            label="",
-            initial=5,
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(
-                attrs={"placeholder": "Maximal background carriers in analysis collective"}
-            ),
-        )
-        self.fields["cohort_affected_carriers_min"] = forms.IntegerField(
-            label="",
-            initial=1,
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(attrs={"placeholder": "Minimal affected carriers in pedigree"}),
-        )
-        self.fields["cohort_affected_carriers_max"] = forms.IntegerField(
-            label="",
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(attrs={"placeholder": "Maximal affected carriers in pedigree"}),
-        )
-        self.fields["cohort_unaffected_carriers_min"] = forms.IntegerField(
-            label="",
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(
-                attrs={"placeholder": "Minimal unaffected carriers in pedigree"}
-            ),
-        )
-        self.fields["cohort_unaffected_carriers_max"] = forms.IntegerField(
-            label="",
-            initial=None,
-            min_value=0,
-            required=False,
-            widget=forms.TextInput(attrs={"placeholder": "Maximal affected carriers in pedigree"}),
-        )
+_DEFAULT_FREQS = {
+    "dgv": 20,
+    "dgv_gs": 10,
+    "gnomad": 20,
+    "exac": 20,
+    "dbvar": 40,
+    "g1k": 10,
+    "inhouse": 10,
+}
 
 
 class SvDatabaseFrequencyMixin:
@@ -180,7 +130,7 @@ class SvDatabaseFrequencyMixin:
             )
             self.fields["%s_max_%s" % (key, entity)] = forms.IntegerField(
                 label="",
-                initial=None,
+                initial=_DEFAULT_FREQS.get(key),
                 min_value=0,
                 required=False,
                 widget=forms.TextInput(attrs={"placeholder": "Maximal %s in %s" % (entity, name)}),
@@ -360,7 +310,9 @@ class SvVariantEffectFilterFormMixin:
         self.fields["sv_type_bnd"] = forms.BooleanField(label="BND", required=False, initial=True)
         self.fields["sv_type_cnv"] = forms.BooleanField(label="CNV", required=False, initial=True)
 
-        self.fields["sv_size_min"] = forms.IntegerField(label="min SV size", required=False)
+        self.fields["sv_size_min"] = forms.IntegerField(
+            label="min SV size", required=False, initial=500
+        )
         self.fields["sv_size_max"] = forms.IntegerField(label="max SV size", required=False)
 
         self.fields["sv_sub_type_del"] = forms.BooleanField(
@@ -469,70 +421,70 @@ class SvQualityFilterFormMixin:
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-gq-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-gq_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["src_min"]] = forms.IntegerField(
                 label="",
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-src-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-src_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["srv_min"]] = forms.IntegerField(
                 label="",
                 required=False,
-                initial=None,
+                initial=1,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-srv-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-srv_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["srv_max"]] = forms.IntegerField(
                 label="",
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-srv-max"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-srv_max"}),
             )
             self.fields[self.get_quality_field_names()[name]["pec_min"]] = forms.IntegerField(
                 label="",
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-pec-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-pec_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["pev_min"]] = forms.IntegerField(
                 label="",
                 required=False,
-                initial=None,
+                initial=1,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-pev-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-pev_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["pev_max"]] = forms.IntegerField(
                 label="",
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-pev-max"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-pev_max"}),
             )
             self.fields[self.get_quality_field_names()[name]["cov_min"]] = forms.IntegerField(
                 label="",
                 required=False,
-                initial=2,
+                initial=4,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-cov-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-cov_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["var_min"]] = forms.IntegerField(
                 label="",
                 required=False,
-                initial=2,
+                initial=4,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-var-min"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-var_min"}),
             )
             self.fields[self.get_quality_field_names()[name]["var_max"]] = forms.IntegerField(
                 label="",
                 required=False,
                 initial=None,
                 min_value=0,
-                widget=forms.NumberInput(attrs={"class": "quality-field-var-max"}),
+                widget=forms.NumberInput(attrs={"class": "quality-field-var_max"}),
             )
             self.fields[self.get_quality_field_names()[name]["fail"]] = forms.CharField(
                 label="",
@@ -568,7 +520,7 @@ class RegulatoryFilterFormMixin:
         super().__init__(*args, **kwargs)
 
         self.fields["regulatory_general_padding"] = forms.IntegerField(
-            label="padding (bp)", required=False, initial=100,
+            label="padding (bp)", required=False, initial=100
         )
         self.fields["regulatory_ensembl"] = forms.MultipleChoiceField(
             label="ENSEMBL feature",
@@ -594,7 +546,7 @@ class RegulatoryFilterFormMixin:
                 choices=[("__any__", "any")]
                 + [(ret.slug, ret.short_title) for ret in coll.regmap_set.all()],
             )
-            interaction_field = forms.BooleanField(label=coll.title, required=False,)
+            interaction_field = forms.BooleanField(label=coll.title, required=False)
             self.fields["regmap_%s_element" % coll.slug] = element_field
             self.fields["regmap_%s_map" % coll.slug] = map_field
             self.fields["regmap_%s_interaction" % coll.slug] = interaction_field
@@ -606,9 +558,23 @@ class RegulatoryFilterFormMixin:
             )
 
 
+class MiscFilterFormMixin:
+    """Form mixin for misc fields (such as maximal number of output records)"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["result_rows_limit"] = forms.IntegerField(
+            label="Result row limit",
+            required=True,
+            initial=200,
+            help_text=("Maximal number of rows displayed."),
+            widget=forms.TextInput(attrs={"class": "numberInteger"}),
+        )
+
+
 class FilterForm(
     SvDatabaseFrequencyMixin,
-    SvAnalysisCollectiveFrequencyMixin,
     SvVariantEffectFilterFormMixin,
     SvGenotypeFilterFormMixin,
     SvQualityFilterFormMixin,
@@ -616,6 +582,7 @@ class FilterForm(
     GenomicRegionFilterFormMixin,
     SvIntervalsFilterFormMixin,
     RegulatoryFilterFormMixin,
+    MiscFilterFormMixin,
     forms.Form,
 ):
     """This form is used for filtering structural variants of a single case."""

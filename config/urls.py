@@ -5,14 +5,14 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.views.generic import TemplateView
 from django.views import defaults as default_views
-
+from django.views.generic import TemplateView
 import django_saml2_auth.views
 from djproxy.views import HttpProxy
 from projectroles.views import HomeView as ProjectRolesHomeView
-from variants.views import KioskHomeView
 from sentry_sdk import last_event_id
+
+from variants.views import KioskHomeView
 
 
 def handler500(request, *args, **argv):
@@ -81,18 +81,30 @@ urlpatterns += [
     url(r"^cohorts/", include("cohorts.urls")),
     url(r"^clinvar-export/", include("clinvar_export.urls")),
     url(r"^beaconsite/", include("beaconsite.urls")),
+    url(r"^genepanels/", include("genepanels.urls")),
+    url(r"^vueapp/", include("varfish.vueapp.urls")),
+    url(r"^cases/", include("cases.urls")),
+    url(r"^varannos/", include("varannos.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
-# Augment url patterns with proxy for genomics england panelapp.
 urlpatterns += [
+    # Augment url patterns with proxy for genomics england panelapp.
     url(
         r"^proxy/panelapp/(?P<url>.*)$",
         HttpProxy.as_view(
             base_url="https://panelapp.genomicsengland.co.uk/api/",
             ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
         ),
-    )
+    ),
+    # Augment url patterns with proxy for variantvalidator.org.
+    url(
+        r"^proxy/variantvalidator/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url="https://rest.variantvalidator.org/VariantValidator/variantvalidator/",
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
 ]
 
 if settings.DEBUG:

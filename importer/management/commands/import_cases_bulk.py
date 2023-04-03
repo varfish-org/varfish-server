@@ -1,12 +1,11 @@
 """Django command for importing a case after annotation with ``varfish-annotator``."""
-import json
 import gzip
+import json
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 
 from importer.management.commands.import_case import CaseImportBase
-
 
 #: The User model to use.
 User = get_user_model()

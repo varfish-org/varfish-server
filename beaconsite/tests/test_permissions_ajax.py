@@ -2,13 +2,12 @@ from unittest import skip
 
 import cattr
 from django.urls import reverse
-
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 import requests_mock
 
-from .factories import SiteFactory
 from ..models import Site
 from ..models_api import BeaconAlleleRequest
+from .factories import SiteFactory
 
 
 class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
@@ -16,7 +15,10 @@ class TestOrganisationAjaxViews(TestProjectAPIPermissionBase):
     def test_get(self, r_mock):
         _local_site = SiteFactory(role=Site.LOCAL)
         remote_site = SiteFactory()
-        url = reverse("beaconsite:ajax-beacon-info", kwargs={"site": remote_site.sodar_uuid},)
+        url = reverse(
+            "beaconsite:ajax-beacon-info",
+            kwargs={"site": remote_site.sodar_uuid},
+        )
         good_users = [
             self.superuser,
         ]
@@ -71,7 +73,10 @@ class TestBeaconQueryAjaxView(TestProjectAPIPermissionBase):
         url_params = "&".join(
             "%s=%s" % (k, v) for k, v in cattr.unstructure(beacon_allele_request).items()
         )
-        url = reverse("beaconsite:ajax-beacon-query", kwargs={"site": remote_site.sodar_uuid},)
+        url = reverse(
+            "beaconsite:ajax-beacon-query",
+            kwargs={"site": remote_site.sodar_uuid},
+        )
         good_users = [
             self.superuser,
         ]

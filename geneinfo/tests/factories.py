@@ -3,21 +3,21 @@
 import factory
 
 from ..models import (
+    Acmg,
+    EnsemblToGeneSymbol,
+    EnsemblToRefseq,
+    ExacConstraints,
+    GeneIdInHpo,
+    GeneIdToInheritance,
+    GnomadConstraints,
     Hgnc,
     Hpo,
-    Mim2geneMedgen,
-    Acmg,
-    RefseqToHgnc,
     HpoName,
-    ExacConstraints,
-    GnomadConstraints,
-    EnsemblToRefseq,
-    RefseqToEnsembl,
-    GeneIdToInheritance,
     MgiMapping,
+    Mim2geneMedgen,
+    RefseqToEnsembl,
     RefseqToGeneSymbol,
-    EnsemblToGeneSymbol,
-    GeneIdInHpo,
+    RefseqToHgnc,
 )
 
 

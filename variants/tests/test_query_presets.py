@@ -230,6 +230,7 @@ class PedigreesMixin:
 
 class TestEnumInheritance(PedigreesMixin, TestCase):
     def testValues(self):
+        self.assertEqual(query_presets.Inheritance.DE_NOVO.value, "de_novo")
         self.assertEqual(query_presets.Inheritance.DOMINANT.value, "dominant")
         self.assertEqual(
             query_presets.Inheritance.HOMOZYGOUS_RECESSIVE.value, "homozygous_recessive"
@@ -242,6 +243,78 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
         self.assertEqual(query_presets.Inheritance.AFFECTED_CARRIERS.value, "affected_carriers")
         self.assertEqual(query_presets.Inheritance.CUSTOM.value, "custom")
         self.assertEqual(query_presets.Inheritance.ANY.value, "any")
+
+    def testToSettingsDeNovo(self):
+        # singleton
+        actual = query_presets.Inheritance.DE_NOVO.to_settings(self.singleton, self.singleton[0])
+        self.assertEqual(
+            actual,
+            {
+                "genotype": {"index": query_presets.GenotypeChoice.VARIANT.value},
+                "recessive_index": None,
+                "recessive_mode": None,
+            },
+        )
+        # child with father
+        actual = query_presets.Inheritance.DE_NOVO.to_settings(
+            self.child_father, self.child_father[0].name
+        )
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.REF.value,
+                },
+            },
+        )
+        # child with mother
+        actual = query_presets.Inheritance.DE_NOVO.to_settings(
+            self.child_mother, self.child_mother[0].name
+        )
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
+                },
+            },
+        )
+        # trio denovo
+        actual = query_presets.Inheritance.DE_NOVO.to_settings(self.trio_denovo, self.singleton[0])
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.REF.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
+                },
+            },
+        )
+        # trio dominant inherited
+        actual = query_presets.Inheritance.DE_NOVO.to_settings(
+            self.trio_dominant, self.trio_dominant[0].name
+        )
+        self.assertEqual(
+            actual,
+            {
+                "recessive_index": None,
+                "recessive_mode": None,
+                "genotype": {
+                    "index": query_presets.GenotypeChoice.VARIANT.value,
+                    "father": query_presets.GenotypeChoice.REF.value,
+                    "mother": query_presets.GenotypeChoice.REF.value,
+                },
+            },
+        )
 
     def testToSettingsDominant(self):
         # singleton
@@ -413,7 +486,10 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "compound-recessive",
-                "genotype": {"index": None, "father": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                },
             },
         )
         # child with mother
@@ -425,7 +501,10 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "compound-recessive",
-                "genotype": {"index": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "mother": None,
+                },
             },
         )
         # trio denovo
@@ -437,7 +516,11 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "compound-recessive",
-                "genotype": {"index": None, "father": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                    "mother": None,
+                },
             },
         )
         # trio dominant inherited
@@ -449,7 +532,11 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "compound-recessive",
-                "genotype": {"index": None, "father": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                    "mother": None,
+                },
             },
         )
 
@@ -475,7 +562,10 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "recessive",
-                "genotype": {"index": None, "father": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                },
             },
         )
         # child with mother
@@ -487,7 +577,10 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "recessive",
-                "genotype": {"index": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "mother": None,
+                },
             },
         )
         # trio denovo
@@ -499,7 +592,11 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "recessive",
-                "genotype": {"index": None, "father": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                    "mother": None,
+                },
             },
         )
         # trio dominant inherited
@@ -511,7 +608,11 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
             {
                 "recessive_index": "index",
                 "recessive_mode": "recessive",
-                "genotype": {"index": None, "father": None, "mother": None,},
+                "genotype": {
+                    "index": None,
+                    "father": None,
+                    "mother": None,
+                },
             },
         )
 
@@ -645,8 +746,8 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "recessive_mode": None,
                 "genotype": {
                     "index": query_presets.GenotypeChoice.VARIANT.value,
-                    "father": query_presets.GenotypeChoice.REF.value,
-                    "mother": query_presets.GenotypeChoice.REF.value,
+                    "father": query_presets.GenotypeChoice.ANY.value,
+                    "mother": query_presets.GenotypeChoice.ANY.value,
                 },
             },
         )
@@ -662,7 +763,7 @@ class TestEnumInheritance(PedigreesMixin, TestCase):
                 "genotype": {
                     "index": query_presets.GenotypeChoice.VARIANT.value,
                     "father": query_presets.GenotypeChoice.VARIANT.value,
-                    "mother": query_presets.GenotypeChoice.REF.value,
+                    "mother": query_presets.GenotypeChoice.ANY.value,
                 },
             },
         )
@@ -1304,7 +1405,11 @@ class TestEnumChromosomes(TestCase):
     def testToSettingsWholeGenome(self):
         self.assertEqual(
             query_presets.Chromosomes.WHOLE_GENOME.to_settings(),
-            {"genomic_region": [], "gene_allowlist": [], "gene_blocklist": [],},
+            {
+                "genomic_region": [],
+                "gene_allowlist": [],
+                "gene_blocklist": [],
+            },
         )
 
     def testToSettingsAutosomes(self):
@@ -1320,19 +1425,37 @@ class TestEnumChromosomes(TestCase):
     def testToSettingsXChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.X_CHROMOSOME.to_settings(),
-            {"genomic_region": ["X",], "gene_allowlist": [], "gene_blocklist": [],},
+            {
+                "genomic_region": [
+                    "X",
+                ],
+                "gene_allowlist": [],
+                "gene_blocklist": [],
+            },
         )
 
     def testToSettingsYChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.Y_CHROMOSOME.to_settings(),
-            {"genomic_region": ["Y",], "gene_allowlist": [], "gene_blocklist": [],},
+            {
+                "genomic_region": [
+                    "Y",
+                ],
+                "gene_allowlist": [],
+                "gene_blocklist": [],
+            },
         )
 
     def testToSettingsMTChromosome(self):
         self.assertEqual(
             query_presets.Chromosomes.MT_CHROMOSOME.to_settings(),
-            {"genomic_region": ["MT",], "gene_allowlist": [], "gene_blocklist": [],},
+            {
+                "genomic_region": [
+                    "MT",
+                ],
+                "gene_allowlist": [],
+                "gene_blocklist": [],
+            },
         )
 
 
@@ -1351,12 +1474,17 @@ class TestEnumFlagsEtc(TestCase):
                 "clinvar_include_likely_pathogenic": True,
                 "clinvar_include_pathogenic": True,
                 "clinvar_include_uncertain_significance": False,
+                "clinvar_paranoid_mode": False,
                 "flag_bookmarked": True,
                 "flag_candidate": True,
                 "flag_doesnt_segregate": True,
                 "flag_final_causative": True,
                 "flag_for_validation": True,
                 "flag_no_disease_association": True,
+                "flag_molecular_empty": True,
+                "flag_molecular_negative": True,
+                "flag_molecular_positive": True,
+                "flag_molecular_uncertain": True,
                 "flag_phenotype_match_empty": True,
                 "flag_phenotype_match_negative": True,
                 "flag_phenotype_match_positive": True,
@@ -1391,6 +1519,10 @@ class TestEnumFlagsEtc(TestCase):
                 "flag_final_causative": True,
                 "flag_for_validation": True,
                 "flag_no_disease_association": True,
+                "flag_molecular_empty": True,
+                "flag_molecular_negative": True,
+                "flag_molecular_positive": True,
+                "flag_molecular_uncertain": True,
                 "flag_phenotype_match_empty": True,
                 "flag_phenotype_match_negative": True,
                 "flag_phenotype_match_positive": True,
@@ -1412,6 +1544,7 @@ class TestEnumFlagsEtc(TestCase):
                 "remove_if_in_dbsnp": False,
                 "require_in_clinvar": True,
                 "require_in_hgmd_public": False,
+                "clinvar_paranoid_mode": False,
             },
         )
 
@@ -1430,6 +1563,10 @@ class TestEnumFlagsEtc(TestCase):
                 "flag_final_causative": True,
                 "flag_for_validation": True,
                 "flag_no_disease_association": True,
+                "flag_molecular_empty": False,
+                "flag_molecular_negative": True,
+                "flag_molecular_positive": True,
+                "flag_molecular_uncertain": True,
                 "flag_phenotype_match_empty": False,
                 "flag_phenotype_match_negative": True,
                 "flag_phenotype_match_positive": True,
@@ -1451,6 +1588,7 @@ class TestEnumFlagsEtc(TestCase):
                 "remove_if_in_dbsnp": False,
                 "require_in_clinvar": False,
                 "require_in_hgmd_public": False,
+                "clinvar_paranoid_mode": False,
             },
         )
 
@@ -1459,99 +1597,102 @@ class TestQuickPresets(PedigreesMixin, TestCase):
     def testValueDefaults(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.defaults),
-            "QuickPresets(inheritance=<Inheritance.ANY: 'any'>, "
+            "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, "
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueDeNovo(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.de_novo),
-            "QuickPresets(inheritance=<Inheritance.DOMINANT: 'dominant'>, "
+            "QuickPresets(label='de novo', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, "
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
-            "quality=<Quality.RELAXED: 'relaxed'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "quality=<Quality.SUPER_STRICT: 'super_strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueDominant(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.dominant),
-            "QuickPresets(inheritance=<Inheritance.DOMINANT: 'dominant'>, "
+            "QuickPresets(label='dominant', inheritance=<Inheritance.DOMINANT: 'dominant'>, "
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueHomozygousRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.homozygous_recessive),
-            "QuickPresets(inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, "
+            "QuickPresets(label='homozygous recessive', "
+            "inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, "
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueCompoundRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.compound_recessive),
-            "QuickPresets(inheritance=<Inheritance.COMPOUND_HETEROZYGOUS: 'compound_heterozygous'>, "
+            "QuickPresets(label='compound recessive', "
+            "inheritance=<Inheritance.COMPOUND_HETEROZYGOUS: 'compound_heterozygous'>, "
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.recessive),
-            "QuickPresets(inheritance=<Inheritance.RECESSIVE: 'recessive'>, "
+            "QuickPresets(label='recessive', inheritance=<Inheritance.RECESSIVE: 'recessive'>, "
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueXRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.x_recessive),
-            "QuickPresets(inheritance=<Inheritance.X_RECESSIVE: 'x_recessive'>, "
+            "QuickPresets(label='X-recessive', inheritance=<Inheritance.X_RECESSIVE: 'x_recessive'>, "
             "frequency=<Frequency.RECESSIVE_STRICT: 'recessive_strict'>, "
             "impact=<Impact.AA_CHANGE_SPLICING: 'aa_change_splicing'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.X_CHROMOSOME: 'x_chromosome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueClinvarPathogenic(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.clinvar_pathogenic),
-            "QuickPresets(inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, "
+            "QuickPresets(label='ClinVar pathogenic', "
+            "inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, "
             "frequency=<Frequency.ANY: 'any'>, impact=<Impact.ANY: 'any'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.CLINVAR_ONLY: 'clinvar_only'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.CLINVAR_ONLY: 'clinvar_only'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueMitochondrial(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.mitochondrial),
-            "QuickPresets(inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, "
+            "QuickPresets(label='mitochondrial', inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, "
             "frequency=<Frequency.DOMINANT_STRICT: 'dominant_strict'>, impact=<Impact.ANY: 'any'>, "
             "quality=<Quality.STRICT: 'strict'>, chromosomes=<Chromosomes.MT_CHROMOSOME: 'mt_chromosome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueWholeExome(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.whole_exome),
-            "QuickPresets(inheritance=<Inheritance.ANY: 'any'>, "
+            "QuickPresets(label='whole exome', inheritance=<Inheritance.ANY: 'any'>, "
             "frequency=<Frequency.ANY: 'any'>, "
             "impact=<Impact.ANY: 'any'>, "
             "quality=<Quality.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, "
-            "flags_etc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
+            "flagsetc=<FlagsEtc.DEFAULTS: 'defaults'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testToSettingsDefaults(self):
@@ -1564,6 +1705,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "clinvar_include_likely_pathogenic": True,
                 "clinvar_include_pathogenic": True,
                 "clinvar_include_uncertain_significance": False,
+                "clinvar_paranoid_mode": False,
                 "database": query_presets.Database.REFSEQ.value,
                 "effects": [
                     "complex_substitution",
@@ -1599,6 +1741,10 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "flag_doesnt_segregate": True,
                 "flag_final_causative": True,
                 "flag_for_validation": True,
+                "flag_molecular_empty": True,
+                "flag_molecular_negative": True,
+                "flag_molecular_positive": True,
+                "flag_molecular_uncertain": True,
                 "flag_no_disease_association": True,
                 "flag_phenotype_match_empty": True,
                 "flag_phenotype_match_negative": True,

@@ -1,6 +1,7 @@
 """URL configuration for the ``clinvar_export`` app."""
 
 from django.conf.urls import url
+
 from . import views, views_ajax
 
 app_name = "clinvar_export"
@@ -105,6 +106,16 @@ ajax_urlpatterns = [
         regex=r"^ajax/(?P<project>[0-9a-f-]+)/user-annotations/(?P<family>[0-9a-f-]+)/?$",
         view=views_ajax.AnnotatedSmallVariantsApiView.as_view(),
         name="user-annotations",
+    ),
+    url(
+        regex=r"^ajax/fetch-clinvar-report/(?P<submissionset>[0-9a-f-]+)/?",
+        view=views_ajax.FetchClinVarReportApiView.as_view(),
+        name="clinvar-report-fetch",
+    ),
+    url(
+        regex=r"^ajax/clinvar-report/(?P<submissionset>[0-9a-f-]+)/?",
+        view=views_ajax.ClinVarReportListView.as_view(),
+        name="clinvar-report-list",
     ),
 ]
 

@@ -1,0 +1,31 @@
+{% load projectroles_common_tags %}
+{% load varannos_tags %}
+
+<table class="table table-striped sodar-card-table sodar-bj-detail-table table-hover">
+  <thead>
+    <tr>
+      <th style="width:10px">#</th>
+      <th style="width: 200px">Updated</th>
+      <th>Title</th>
+      <th style="width: 100px">Genome Build</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% get_details_varannosets project as varannosets %}
+    {% for varannoset in varannosets %}
+      {% include 'varannos/varannoset/item.html' with item=varannoset details_card_mode=True %}
+    {% empty %}
+      <tr>
+        <td class="bg-faded font-italic text-center" colspan="3">No variant annotation sets (yet)</td>
+      </tr>
+    {% endfor %}
+    <tr>
+      <td class="bg-faded" colspan="4">
+        <a href="{% url 'varannos:varannoset-list' project=project.sodar_uuid %}" class="btn btn-secondary btn-small">
+          <span class="iconify" data-icon="mdi:format-list-bulleted-square" data-inline="false"></span>
+          See list of all variant annotation sets
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>

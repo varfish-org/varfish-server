@@ -1,4 +1,4 @@
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 from .models import FREQUENCY_DB_INFO
 

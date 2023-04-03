@@ -4,13 +4,13 @@ import binning
 import factory
 
 from ..models import (
+    EXAC_POP_CHOICES,
+    DbVarSv,
     DgvGoldStandardSvs,
     DgvSvs,
     ExacCnv,
-    ThousandGenomesSv,
-    DbVarSv,
     GnomAdSv,
-    EXAC_POP_CHOICES,
+    ThousandGenomesSv,
 )
 
 
@@ -25,7 +25,9 @@ class DgvGoldStandardSvsFactory(factory.django.DjangoModelFactory):
     end_inner = factory.Sequence(lambda n: (n + 1) * 100 + 90)
     end_outer = factory.Sequence(lambda n: (n + 1) * 100 + 110)
 
-    bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100 - 11, (n + 1) * 100 + 110))
+    @factory.lazy_attribute
+    def bin(self):
+        return binning.assign_bin(self.start_outer - 1, self.end_outer)
 
     accession = factory.Sequence(lambda n: "DGV-GS-%d" % n)
     sv_type = "DEL"
@@ -61,7 +63,9 @@ class DgvSvsFactory(factory.django.DjangoModelFactory):
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
-    bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
+    @factory.lazy_attribute
+    def bin(self):
+        return binning.assign_bin(self.start - 1, self.end)
 
     accession = factory.Sequence(lambda n: "DGV-%d" % n)
     sv_type = "DEL"
@@ -84,7 +88,9 @@ class ExacCnvFactory(factory.django.DjangoModelFactory):
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
-    bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
+    @factory.lazy_attribute
+    def bin(self):
+        return binning.assign_bin(self.start - 1, self.end)
 
     sv_type = "DEL"
     population = factory.Iterator([x[0] for x in EXAC_POP_CHOICES])
@@ -100,7 +106,9 @@ class ThousandGenomesSvFactory(factory.django.DjangoModelFactory):
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
-    bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
+    @factory.lazy_attribute
+    def bin(self):
+        return binning.assign_bin(self.start - 1, self.end)
 
     start_ci_left = -100
     start_ci_right = 100
@@ -137,7 +145,9 @@ class DbVarSvFactory(factory.django.DjangoModelFactory):
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
-    bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
+    @factory.lazy_attribute
+    def bin(self):
+        return binning.assign_bin(self.start - 1, self.end)
 
     num_carriers = 1
     sv_type = "DEL"
@@ -161,7 +171,9 @@ class GnomAdSvFactory(factory.django.DjangoModelFactory):
     start = factory.Sequence(lambda n: (n + 1) * 100)
     end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
 
-    bin = factory.Sequence(lambda n: binning.assign_bin((n + 1) * 100, (n + 1) * 100 + 100))
+    @factory.lazy_attribute
+    def bin(self):
+        return binning.assign_bin(self.start - 1, self.end)
 
     ref = "N"
     alt = ["<DUP>"]

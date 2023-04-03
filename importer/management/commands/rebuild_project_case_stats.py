@@ -1,16 +1,15 @@
 """Django command for rebuilding cohort statistics after import."""
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from django.conf import settings
-
 from projectroles.plugins import get_backend_api
 
+from variants.helpers import get_engine
 from variants.models import CaseAwareProject
 from variants.variant_stats import rebuild_case_variant_stats
-from variants.helpers import get_engine
 
 timeline = get_backend_api("timeline_backend")
 

@@ -2,99 +2,98 @@
 import contextlib
 import itertools
 import json
+from unittest.mock import patch
 
-import requests_mock
+from django.conf import settings
 from django.urls import reverse
+from projectroles.app_settings import AppSettingAPI
 from projectroles.constants import SODAR_CONSTANTS
+from projectroles.models import Project, Role
 from projectroles.templatetags.projectroles_common_tags import site_version
 from projectroles.tests.test_models import PROJECT_ROLE_OWNER
-
+import requests_mock
 from requests_mock import Mocker
-from unittest.mock import patch
-from django.conf import settings
 
-from variants.helpers import get_engine
-from projectroles.models import Project, Role
-from projectroles.app_settings import AppSettingAPI
 from clinvar.tests.factories import ClinvarFactory
-from cohorts.tests.factories import TestCohortBase, CohortFactory
+from cohorts.tests.factories import CohortFactory, TestCohortBase
 from conservation.tests.factories import KnownGeneAAFactory
 from frequencies.tests.factories import (
-    ThousandGenomesFactory,
+    ExacFactory,
     GnomadExomesFactory,
     GnomadGenomesFactory,
-    ExacFactory,
-    MitomapFactory,
     HelixMtDbFactory,
+    MitomapFactory,
     MtDbFactory,
+    ThousandGenomesFactory,
 )
+from geneinfo.models import Hgnc, HpoName, RefseqToHgnc
 from geneinfo.tests.factories import (
-    HpoFactory,
-    HgncFactory,
-    Mim2geneMedgenFactory,
-    HpoNameFactory,
-    GnomadConstraintsFactory,
-    ExacConstraintsFactory,
-    EnsemblToRefseqFactory,
-    RefseqToEnsemblFactory,
     EnsemblToGeneSymbolFactory,
+    EnsemblToRefseqFactory,
+    ExacConstraintsFactory,
+    GnomadConstraintsFactory,
+    HgncFactory,
+    HpoFactory,
+    HpoNameFactory,
+    Mim2geneMedgenFactory,
+    RefseqToEnsemblFactory,
     RefseqToGeneSymbolFactory,
 )
 from svs.models import StructuralVariant
 from svs.tests.factories import StructuralVariantFactory
+from variants.helpers import get_engine
 from variants.models import (
-    Case,
-    ExportFileBgJob,
-    FilterBgJob,
-    ProjectCasesFilterBgJob,
-    ExportProjectCasesFileBgJob,
-    DistillerSubmissionBgJob,
-    ComputeProjectVariantsStatsBgJob,
-    SmallVariantFlags,
     AcmgCriteriaRating,
-    SmallVariantSet,
-    SmallVariant,
-    update_variant_counts,
-    MutationTasterPathogenicityScoreCache,
-    UmdPathogenicityScoreCache,
     CaddPathogenicityScoreCache,
     CaddSubmissionBgJob,
-    SpanrSubmissionBgJob,
+    Case,
+    ComputeProjectVariantsStatsBgJob,
+    DistillerSubmissionBgJob,
+    ExportFileBgJob,
+    ExportProjectCasesFileBgJob,
+    FilterBgJob,
+    MutationTasterPathogenicityScoreCache,
+    ProjectCasesFilterBgJob,
+    SmallVariant,
     SmallVariantComment,
+    SmallVariantFlags,
+    SmallVariantSet,
+    SpanrSubmissionBgJob,
+    UmdPathogenicityScoreCache,
+    update_variant_counts,
 )
 from variants.queries import DeleteSmallVariantsQuery, DeleteStructuralVariantsQuery
 from variants.templatetags.variants_tags import smallvar_description
 from variants.tests.factories import (
+    AcmgCriteriaRatingFormDataFactory,
+    CaseCommentsFactory,
+    CaseCommentsFormFactory,
     CaseFactory,
-    SmallVariantFactory,
-    FormDataFactory,
-    FilterBgJobFactory,
-    ProjectCasesFilterBgJobFactory,
-    ProjectFactory,
+    CaseNotesStatusFormFactory,
+    CaseWithVariantSetFactory,
+    DeleteCaseBgJobFactory,
     DistillerSubmissionBgJobFactory,
     ExportFileBgJobFactory,
     ExportFileJobResultFactory,
     ExportProjectCasesFileBgJobFactory,
-    SmallVariantFlagsFormDataFactory,
-    SmallVariantCommentFormDataFactory,
     ExportProjectCasesFileBgJobResultFactory,
-    AcmgCriteriaRatingFormDataFactory,
-    SmallVariantFlagsFactory,
-    SmallVariantCommentFactory,
-    CaseNotesStatusFormFactory,
-    CaseCommentsFormFactory,
-    CaseCommentsFactory,
-    SampleVariantStatisticsFactory,
-    DeleteCaseBgJobFactory,
-    CaseWithVariantSetFactory,
-    SmallVariantQueryFactory,
-    RemoteSiteFactory,
+    FilterBgJobFactory,
+    FormDataFactory,
     MultiSmallVariantFlagsAndCommentFormDataFactory,
+    ProjectCasesFilterBgJobFactory,
+    ProjectFactory,
+    RemoteSiteFactory,
+    SampleVariantStatisticsFactory,
+    SmallVariantCommentFactory,
+    SmallVariantCommentFormDataFactory,
+    SmallVariantFactory,
+    SmallVariantFlagsFactory,
+    SmallVariantFlagsFormDataFactory,
+    SmallVariantQueryFactory,
 )
 from variants.tests.helpers import ViewTestBase
 from variants.tests.test_sync_upstream import load_isa_tab
 from variants.variant_stats import rebuild_case_variant_stats, rebuild_project_variant_stats
-from geneinfo.models import HpoName, Hgnc, RefseqToHgnc
 
 
 # TODO: This base class is still used by geneinfo view tests.
@@ -274,7 +273,9 @@ class ProjectDownloadAnnotationsView(ViewTestBase):
             response = self.client.get(
                 reverse(
                     "variants:project-download-annotations",
-                    kwargs={"project": self.case.project.sodar_uuid,},
+                    kwargs={
+                        "project": self.case.project.sodar_uuid,
+                    },
                 )
             )
         self.assertEqual(response.status_code, 200)
@@ -485,8 +486,7 @@ class TestCaseDeleteView(ViewTestBase):
 
 
 class TestCaseDeleteJobDetailView(ViewTestBase):
-    """Test ProjectStatsJobDetailView.
-    """
+    """Test ProjectStatsJobDetailView."""
 
     def setUp(self):
         super().setUp()
@@ -932,8 +932,7 @@ class TestCaseFilterView(ViewTestBase):
 
 
 class TestCasePrefetchFilterView(ViewTestBase):
-    """Tests for CasePrefetchFilterView.
-    """
+    """Tests for CasePrefetchFilterView."""
 
     def setUp(self):
         super().setUp()
@@ -987,8 +986,7 @@ class TestCasePrefetchFilterView(ViewTestBase):
 
 
 class TestCaseFilterJobView(ViewTestBase):
-    """Tests for CaseFilterJobView.
-    """
+    """Tests for CaseFilterJobView."""
 
     def setUp(self):
         super().setUp()
@@ -1034,7 +1032,9 @@ class GenerateSmallVariantResultMixin:
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            pathogenicity="pathogenic",
+            summary_clinvar_review_status_label="criteria provided, single committer",
+            summary_clinvar_pathogenicity_label="pathogenic",
+            summary_clinvar_pathogenicity=["pathogenic"],
         )
         self.bgjob = FilterBgJobFactory(case=self.case, user=self.superuser, bg_job__status="done")
         self.hpo_term = HpoNameFactory(hpo_id="HP:0000001")
@@ -1051,9 +1051,15 @@ class GenerateSmallVariantResultMixin:
             ),
         ]
         self.decipher_term = HpoFactory(
-            database_id="DECIPHER:1", hpo_id="HP:0000004", name="Disease 2",
+            database_id="DECIPHER:1",
+            hpo_id="HP:0000004",
+            name="Disease 2",
         )
-        self.orpha_term = HpoFactory(database_id="ORPHA:1", hpo_id="HP:0000005", name="Disease 3",)
+        self.orpha_term = HpoFactory(
+            database_id="ORPHA:1",
+            hpo_id="HP:0000005",
+            name="Disease 3",
+        )
         self.bgjob.smallvariantquery.query_results.add(self.small_vars[0], self.small_vars[2])
         self.bgjob.smallvariantquery.query_settings["prio_hpo_terms"] = [
             self.hpo_term.hpo_id,
@@ -1098,7 +1104,9 @@ class TestCaseLoadPrefetchedFilterView(GenerateSmallVariantResultMixin, ViewTest
                 ),
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
-            self.assertEqual(response.context["result_rows"][1].pathogenicity, "pathogenic")
+            self.assertEqual(
+                response.context["result_rows"][1].summary_pathogenicity, ["pathogenic"]
+            )
 
     def test_training_mode(self):
         with self.login(self.superuser):
@@ -1467,8 +1475,7 @@ class TestCaseLoadPrefetchedFilterView(GenerateSmallVariantResultMixin, ViewTest
 
 
 class TestFilterJobDetailView(ViewTestBase):
-    """Tests for FilterJobDetailView.
-    """
+    """Tests for FilterJobDetailView."""
 
     def setUp(self):
         super().setUp()
@@ -1496,8 +1503,7 @@ class TestFilterJobDetailView(ViewTestBase):
 
 
 class TestFilterJobResubmitView(ViewTestBase):
-    """Tests for FilterJobResubmitView.
-    """
+    """Tests for FilterJobResubmitView."""
 
     def setUp(self):
         super().setUp()
@@ -1526,8 +1532,7 @@ class TestFilterJobResubmitView(ViewTestBase):
 
 
 class TestFilterJobGetStatus(ViewTestBase):
-    """Tests for FilterJobGetStatusView.
-    """
+    """Tests for FilterJobGetStatusView."""
 
     def setUp(self):
         super().setUp()
@@ -1568,8 +1573,7 @@ class TestFilterJobGetStatus(ViewTestBase):
 
 
 class TestFilterJobGetPrevious(ViewTestBase):
-    """Tests for FilterJobGetPreviousView.
-    """
+    """Tests for FilterJobGetPreviousView."""
 
     def setUp(self):
         super().setUp()
@@ -1605,8 +1609,7 @@ class TestFilterJobGetPrevious(ViewTestBase):
 
 
 class TestProjectCasesFilterJobGetStatus(ViewTestBase):
-    """Tests for ProjectCasesFilterJobGetStatusView.
-    """
+    """Tests for ProjectCasesFilterJobGetStatusView."""
 
     def setUp(self):
         super().setUp()
@@ -1650,8 +1653,7 @@ class TestProjectCasesFilterJobGetStatus(ViewTestBase):
 
 
 class TestProjectCasesFilterJobGetPrevious(ViewTestBase):
-    """Tests for ProjectCasesFilterJobGetPreviousView.
-    """
+    """Tests for ProjectCasesFilterJobGetPreviousView."""
 
     def setUp(self):
         super().setUp()
@@ -1689,8 +1691,7 @@ class TestProjectCasesFilterJobGetPrevious(ViewTestBase):
 
 
 class TestProjectCasesFilterView(ViewTestBase):
-    """Tests for FilterProjectCasesFilterView.
-    """
+    """Tests for FilterProjectCasesFilterView."""
 
     def setUp(self):
         super().setUp()
@@ -1877,7 +1878,10 @@ class TestCohortFilterView(TestCohortBase):
                 response,
                 reverse(
                     "variants:project-cases-export-job-detail",
-                    kwargs={"project": project.sodar_uuid, "job": created_job.sodar_uuid,},
+                    kwargs={
+                        "project": project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
                 ),
             )
 
@@ -1905,7 +1909,10 @@ class TestCohortFilterView(TestCohortBase):
                 response,
                 reverse(
                     "variants:project-cases-export-job-detail",
-                    kwargs={"project": project.sodar_uuid, "job": created_job.sodar_uuid,},
+                    kwargs={
+                        "project": project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
                 ),
             )
 
@@ -1933,7 +1940,10 @@ class TestCohortFilterView(TestCohortBase):
                 response,
                 reverse(
                     "variants:project-cases-export-job-detail",
-                    kwargs={"project": project.sodar_uuid, "job": created_job.sodar_uuid,},
+                    kwargs={
+                        "project": project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
                 ),
             )
 
@@ -1961,7 +1971,10 @@ class TestCohortFilterView(TestCohortBase):
                 response,
                 reverse(
                     "variants:project-cases-export-job-detail",
-                    kwargs={"project": project.sodar_uuid, "job": created_job.sodar_uuid,},
+                    kwargs={
+                        "project": project.sodar_uuid,
+                        "job": created_job.sodar_uuid,
+                    },
                 ),
             )
 
@@ -2075,8 +2088,7 @@ class TestCohortFilterJobGetPrevious(TestCohortBase):
 
 
 class TestProjectCasesPrefetchFilterView(ViewTestBase):
-    """Tests for FilterProjectCasesPrefetchFilterView.
-    """
+    """Tests for FilterProjectCasesPrefetchFilterView."""
 
     def setUp(self):
         super().setUp()
@@ -2132,8 +2144,7 @@ class TestProjectCasesPrefetchFilterView(ViewTestBase):
 
 
 class TestProjectCasesFilterJobDetailView(ViewTestBase):
-    """Tests for ProjectCasesFilterJobDetailView.
-    """
+    """Tests for ProjectCasesFilterJobDetailView."""
 
     def setUp(self):
         super().setUp()
@@ -2161,8 +2172,7 @@ class TestProjectCasesFilterJobDetailView(ViewTestBase):
 
 
 class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
-    """Tests for ProjectCasesLoadPrefetchedFilterView.
-    """
+    """Tests for ProjectCasesLoadPrefetchedFilterView."""
 
     def setUp(self):
         super().setUp()
@@ -2211,7 +2221,9 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
             bin=self.small_vars[-1].bin,
             reference=self.small_vars[-1].reference,
             alternative=self.small_vars[-1].alternative,
-            pathogenicity="pathogenic",
+            summary_clinvar_review_status_label="single submitter, criteria provided",
+            summary_clinvar_pathogenicity_label="pathogenic",
+            summary_clinvar_pathogenicity=["pathogenic"],
         )
 
     def test_count_results(self):
@@ -2264,7 +2276,9 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
                 {"filter_job_uuid": self.bgjob.sodar_uuid},
             )
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.context["result_rows"][4].pathogenicity, "pathogenic")
+            self.assertEqual(
+                response.context["result_rows"][4].summary_pathogenicity, ["pathogenic"]
+            )
 
     @patch("django.conf.settings.VARFISH_ENABLE_CADD", True)
     @patch("django.conf.settings.VARFISH_CADD_REST_API_URL", "https://cadd.com")
@@ -2590,8 +2604,7 @@ class TestProjectCasesLoadPrefetchedFilterView(ViewTestBase):
 
 
 class TestProjectCasesFilterJobResubmitView(ViewTestBase):
-    """Tests for ProjectCasesFilterJobResubmitView.
-    """
+    """Tests for ProjectCasesFilterJobResubmitView."""
 
     def setUp(self):
         super().setUp()
@@ -2622,8 +2635,7 @@ class TestProjectCasesFilterJobResubmitView(ViewTestBase):
 
 
 class TestDistillerSubmissionJobDetailView(ViewTestBase):
-    """Tests for DistillerSubmissionJobDetailView.
-    """
+    """Tests for DistillerSubmissionJobDetailView."""
 
     def setUp(self):
         super().setUp()
@@ -2651,8 +2663,7 @@ class TestDistillerSubmissionJobDetailView(ViewTestBase):
 
 
 class TestDistillerSubmissionJobResubmitView(ViewTestBase):
-    """Tests for DistillerSubmissionJobResubmitView.
-    """
+    """Tests for DistillerSubmissionJobResubmitView."""
 
     def setUp(self):
         super().setUp()
@@ -2921,8 +2932,8 @@ class TestSmallVariantDetailsView(ViewTestBase):
                 response.context["pop_freqs"]["1000GP"]["Total"]["af"], self.thousand_genomes.af
             )
             self.assertEqual(
-                response.context["clinvar"].pathogenicity_summary,
-                self.clinvar.pathogenicity_summary,
+                response.context["clinvar"][0].summary_clinvar_pathogenicity,
+                self.clinvar.summary_clinvar_pathogenicity,
             )
             self.assertEqual(
                 response.context["knowngeneaa"][0]["alignment"], self.knowngeneaa.alignment
@@ -3373,8 +3384,7 @@ class TestExportFileJobDownloadViewResult(ViewTestBase):
 
 
 class TestExportProjectCasesFileJobResubmitView(ViewTestBase):
-    """Test ExportProjectCasesFileJobResubmitView.
-    """
+    """Test ExportProjectCasesFileJobResubmitView."""
 
     def setUp(self):
         super().setUp()
@@ -3420,8 +3430,7 @@ class TestExportProjectCasesFileJobResubmitView(ViewTestBase):
 
 
 class TestExportProjectCasesFileJobDownloadView(ViewTestBase):
-    """Test ExportProjectCasesFileJobDownloadView.
-    """
+    """Test ExportProjectCasesFileJobDownloadView."""
 
     def setUp(self):
         super().setUp()
@@ -3466,8 +3475,7 @@ class TestExportProjectCasesFileJobDownloadViewResult(ViewTestBase):
 
 
 class TestProjectStatsJobCreateView(ViewTestBase):
-    """Test ProjectStatsJobCreateView.
-    """
+    """Test ProjectStatsJobCreateView."""
 
     def setUp(self):
         super().setUp()
@@ -3496,8 +3504,7 @@ class TestProjectStatsJobCreateView(ViewTestBase):
 
 
 class TestProjectStatsJobDetailView(ViewTestBase):
-    """Test ProjectStatsJobDetailView.
-    """
+    """Test ProjectStatsJobDetailView."""
 
     def setUp(self):
         super().setUp()
@@ -3527,8 +3534,7 @@ class TestProjectStatsJobDetailView(ViewTestBase):
 
 
 class TestSmallVariantFlagsApiView(ViewTestBase):
-    """Test SmallVariantFlagsApiView.
-    """
+    """Test SmallVariantFlagsApiView."""
 
     def setUp(self):
         super().setUp()
@@ -3727,8 +3733,7 @@ class TestSmallVariantFlagsApiView(ViewTestBase):
 
 
 class TestSmallVariantCommentSubmitApiView(ViewTestBase):
-    """Test SmallVariantCommentApiView.
-    """
+    """Test SmallVariantCommentApiView."""
 
     def setUp(self):
         super().setUp()
@@ -3736,7 +3741,9 @@ class TestSmallVariantCommentSubmitApiView(ViewTestBase):
         self.randomuser.save()
         case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self._make_assignment(
-            case.project, self.randomuser, Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+            case.project,
+            self.randomuser,
+            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
         )
         self.small_var = SmallVariantFactory(variant_set=self.variant_set)
 
@@ -3850,8 +3857,7 @@ class TestSmallVariantCommentSubmitApiView(ViewTestBase):
 
 
 class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
-    """Test MultiSmallVariantFlagsAndCommentApiView.
-    """
+    """Test MultiSmallVariantFlagsAndCommentApiView."""
 
     def setUp(self):
         super().setUp()
@@ -3879,7 +3885,11 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                     "variants:multi-small-variant-flags-comment-api",
                     kwargs={"project": self.case.project.sodar_uuid},
                 ),
-                {"variant_list": [json.dumps([self.small_vars_post[0], self.small_vars_post[1]])],},
+                {
+                    "variant_list": [
+                        json.dumps([self.small_vars_post[0], self.small_vars_post[1]])
+                    ],
+                },
             )
             self.assertEqual(SmallVariantFlags.objects.count(), 0)
             self.assertEqual(response.status_code, 200)
@@ -3901,7 +3911,10 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                         "flag_summary": None,
                     },
                     "flags_interfering": [],
-                    "variant_list": [self.small_vars_post[0], self.small_vars_post[1],],
+                    "variant_list": [
+                        self.small_vars_post[0],
+                        self.small_vars_post[1],
+                    ],
                 },
             )
 
@@ -3916,7 +3929,11 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data,
-                    "variant_list": json.dumps([self.small_vars_post[0],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -3926,7 +3943,11 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                     "variants:multi-small-variant-flags-comment-api",
                     kwargs={"project": self.case.project.sodar_uuid},
                 ),
-                {"variant_list": [json.dumps([self.small_vars_post[0], self.small_vars_post[1]])],},
+                {
+                    "variant_list": [
+                        json.dumps([self.small_vars_post[0], self.small_vars_post[1]])
+                    ],
+                },
             )
             data.pop("text")
             self.assertEqual(response.status_code, 200)
@@ -3935,7 +3956,10 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 {
                     "flags": data,
                     "flags_interfering": [],
-                    "variant_list": [self.small_vars_post[0], self.small_vars_post[1],],
+                    "variant_list": [
+                        self.small_vars_post[0],
+                        self.small_vars_post[1],
+                    ],
                 },
             )
 
@@ -3950,7 +3974,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data,
-                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                            self.small_vars_post[1],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -3960,7 +3989,11 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                     "variants:multi-small-variant-flags-comment-api",
                     kwargs={"project": self.case.project.sodar_uuid},
                 ),
-                {"variant_list": [json.dumps([self.small_vars_post[0], self.small_vars_post[1]])],},
+                {
+                    "variant_list": [
+                        json.dumps([self.small_vars_post[0], self.small_vars_post[1]])
+                    ],
+                },
             )
             data.pop("text")
             self.assertEqual(response.status_code, 200)
@@ -3969,7 +4002,10 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 {
                     "flags": data,
                     "flags_interfering": [],
-                    "variant_list": [self.small_vars_post[0], self.small_vars_post[1],],
+                    "variant_list": [
+                        self.small_vars_post[0],
+                        self.small_vars_post[1],
+                    ],
                 },
             )
 
@@ -3979,7 +4015,9 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
             data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
             data2 = vars(
                 MultiSmallVariantFlagsAndCommentFormDataFactory(
-                    flag_candidate=True, flag_visual="positive", text="",
+                    flag_candidate=True,
+                    flag_visual="positive",
+                    text="",
                 )
             )
             self.client.post(
@@ -3989,7 +4027,11 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data1,
-                    "variant_list": json.dumps([self.small_vars_post[0],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4000,7 +4042,11 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data2,
-                    "variant_list": json.dumps([self.small_vars_post[1],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[1],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4010,7 +4056,11 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                     "variants:multi-small-variant-flags-comment-api",
                     kwargs={"project": self.case.project.sodar_uuid},
                 ),
-                {"variant_list": [json.dumps([self.small_vars_post[0], self.small_vars_post[1]])],},
+                {
+                    "variant_list": [
+                        json.dumps([self.small_vars_post[0], self.small_vars_post[1]])
+                    ],
+                },
             )
             data1.pop("text")
             self.assertEqual(response.status_code, 200)
@@ -4019,7 +4069,10 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 {
                     "flags": data1,
                     "flags_interfering": sorted(["flag_visual", "flag_candidate"]),
-                    "variant_list": [self.small_vars_post[0], self.small_vars_post[1],],
+                    "variant_list": [
+                        self.small_vars_post[0],
+                        self.small_vars_post[1],
+                    ],
                 },
             )
 
@@ -4035,7 +4088,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data,
-                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                            self.small_vars_post[1],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4072,7 +4130,11 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data1,
-                    "variant_list": json.dumps([self.small_vars_post[0],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4085,7 +4147,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data2,
-                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                            self.small_vars_post[1],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4121,7 +4188,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data1,
-                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                            self.small_vars_post[1],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4133,7 +4205,11 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data2,
-                    "variant_list": json.dumps([self.small_vars_post[0],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4158,12 +4234,16 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
             data1 = vars(MultiSmallVariantFlagsAndCommentFormDataFactory(text=""))
             data2 = vars(
                 MultiSmallVariantFlagsAndCommentFormDataFactory(
-                    flag_candidate=True, flag_visual="positive", text="",
+                    flag_candidate=True,
+                    flag_visual="positive",
+                    text="",
                 )
             )
             data3 = vars(
                 MultiSmallVariantFlagsAndCommentFormDataFactory(
-                    flag_molecular="negative", flag_final_causative=True, text="",
+                    flag_molecular="negative",
+                    flag_final_causative=True,
+                    text="",
                 )
             )
             self.client.post(
@@ -4173,7 +4253,11 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data1,
-                    "variant_list": json.dumps([self.small_vars_post[0],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4184,7 +4268,11 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data2,
-                    "variant_list": json.dumps([self.small_vars_post[1],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[1],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4227,7 +4315,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data,
-                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                            self.small_vars_post[1],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4278,7 +4371,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data1,
-                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                            self.small_vars_post[1],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4291,7 +4389,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **data2,
-                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                            self.small_vars_post[1],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4320,7 +4423,12 @@ class TestMultiSmallVariantFlagsAndCommentApiView(ViewTestBase):
                 ),
                 {
                     **vars(MultiSmallVariantFlagsAndCommentFormDataFactory(flag_bookmarker=100)),
-                    "variant_list": json.dumps([self.small_vars_post[0], self.small_vars_post[1],]),
+                    "variant_list": json.dumps(
+                        [
+                            self.small_vars_post[0],
+                            self.small_vars_post[1],
+                        ]
+                    ),
                     "csrfmiddlewaretoken": "xxx",
                 },
             )
@@ -4335,7 +4443,9 @@ class TestSmallVariantCommentDeleteApiView(ViewTestBase):
         self.randomuser.save()
         case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self._make_assignment(
-            case.project, self.randomuser, Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+            case.project,
+            self.randomuser,
+            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
         )
 
     def test_admin_can_delete_user_comment(self):
@@ -4391,8 +4501,7 @@ class TestSmallVariantCommentDeleteApiView(ViewTestBase):
 
 
 class TestBackgroundJobListView(ViewTestBase):
-    """Test BackgroundJobListView.
-    """
+    """Test BackgroundJobListView."""
 
     def setUp(self):
         super().setUp()
@@ -4736,7 +4845,9 @@ class TestCaseCommentsSubmitApiView(ViewTestBase):
         self.randomuser.save()
         case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self._make_assignment(
-            case.project, self.randomuser, Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+            case.project,
+            self.randomuser,
+            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
         )
 
     def test_user_submit_case_comment(self):
@@ -4806,7 +4917,9 @@ class TestCaseCommentsDeleteApiView(ViewTestBase):
         self.randomuser.save()
         case, self.variant_set, _ = CaseWithVariantSetFactory.get("small")
         self._make_assignment(
-            case.project, self.randomuser, Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
+            case.project,
+            self.randomuser,
+            Role.objects.get_or_create(name=PROJECT_ROLE_OWNER)[0],
         )
 
     def test_admin_can_delete_user_case_comment(self):
@@ -4954,7 +5067,11 @@ class TestCaseFetchUpstreamTermsView(ViewTestBase):
         """Test display of case list page."""
         r_mock.get(
             "%s/samplesheets/api/remote/get/%s/%s?isa=1"
-            % (self.remote_site.url, self.project.sodar_uuid, self.remote_site.secret,),
+            % (
+                self.remote_site.url,
+                self.project.sodar_uuid,
+                self.remote_site.secret,
+            ),
             status_code=200,
             text=self.isa_tab_json,
         )

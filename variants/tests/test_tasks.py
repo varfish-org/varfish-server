@@ -4,16 +4,16 @@ We do glass-box-tests here and mock out the called functions only.  The function
 separately but that's fine.
 """
 from unittest import mock
-from unittest.mock import Mock, call
-from unittest.mock import patch
+from unittest.mock import Mock, call, patch
 
+from bgjobs.models import BackgroundJob
+from projectroles.models import Project
 from test_plus.test import TestCase
 
 from variants.tests.factories import CaseWithVariantSetFactory
+
 from .. import tasks
 from ..models import ExportFileBgJob
-from bgjobs.models import BackgroundJob
-from projectroles.models import Project
 
 
 class ExportFileTaskTest(TestCase):
@@ -73,5 +73,8 @@ class SetupPeriodicTasksTest(TestCase):
         sender = Mock()
         tasks.setup_periodic_tasks(sender)
         sender.add_periodic_task.assert_has_calls(
-            [call(schedule=mock.ANY, sig=mock.ANY), call(schedule=mock.ANY, sig=mock.ANY),]
+            [
+                call(schedule=mock.ANY, sig=mock.ANY),
+                call(schedule=mock.ANY, sig=mock.ANY),
+            ]
         )

@@ -1,12 +1,12 @@
 """Tests for the filter view"""
 
 from django.urls import reverse
-
-from pathways.models import EnsemblToKegg, RefseqToKegg, KeggInfo
-from variants.tests.test_views import TestViewBase
 from projectroles.models import Project
-from ..models import Hgnc, Mim2geneMedgen, Hpo
 
+from pathways.models import EnsemblToKegg, KeggInfo, RefseqToKegg
+from variants.tests.test_views import TestViewBase
+
+from ..models import Hgnc, Hpo, Mim2geneMedgen
 
 PROJECT_DICT = {
     "title": "project",
