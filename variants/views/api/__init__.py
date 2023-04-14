@@ -75,6 +75,7 @@ from variants.serializers import (
     SmallVariantDetails,
     SmallVariantDetailsSerializer,
     SmallVariantFlagsSerializer,
+    SmallVariantForExtendedResultsCaddPriorizationSerializer,
     SmallVariantForExtendedResultSerializer,
     SmallVariantForResultSerializer,
     SmallVariantQueryHpoTermSerializer,
@@ -429,6 +430,31 @@ class SmallVariantQueryFetchExtendedResultsApiView(SmallVariantQueryApiMixin, Li
             # num_results = results.rowcount
             # Get first N rows. This will pop the first N rows! results list will be decreased by N.
             return list(results.fetchmany(query.query_settings.get("result_rows_limit", 200)))
+
+
+class SmallVariantQueryFetchExtendedResultsCaddPrioritizationApiView(
+    SmallVariantQueryFetchExtendedResultsApiView
+):
+    """Fetch extended results for small variant query.
+
+    Will return an HTTP 503 if the results are not ready yet.
+
+    **URL:** ``/variants/api/query-case/results-extended/{query.sodar_uuid}``
+
+    **Methods:** ``GET``
+
+    - ``page`` - specify page to return (default/first is ``1``)
+    - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
+
+    **Returns:**
+
+    - ``count`` - number of total elements (``int``)
+    - ``next`` - URL to next page (``str`` or ``null``)
+    - ``previous`` - URL to next page (``str`` or ``null``)
+    - ``results`` - ``list`` of results (``dict``)
+    """
+
+    serializer_class = SmallVariantForExtendedResultsCaddPriorizationSerializer
 
 
 class SmallVariantQuerySettingsShortcutApiView(

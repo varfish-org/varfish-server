@@ -450,6 +450,11 @@ ajax_urlpatterns = [
         name="ajax-query-case-fetch-extended-results",
     ),
     url(
+        regex=r"^ajax/query-case/results-extended-cadd/(?P<smallvariantquery>[0-9a-f-]+)/?$",
+        view=views_ajax.SmallVariantQueryFetchExtendedResultsCaddPrioritizationAjaxView.as_view(),
+        name="ajax-query-case-fetch-extended-results-cadd-prioritization",
+    ),
+    url(
         r"^ajax/query-case/query-settings-shortcut/(?P<case>[0-9a-f-]+)/?$",
         view=views_ajax.SmallVariantQuerySettingsShortcutAjaxView.as_view(),
         name="ajax-query-settings-shortcut",
@@ -575,6 +580,16 @@ api_urlpatterns = [
         regex=r"^api/query-case/results/(?P<smallvariantquery>[0-9a-f-]+)/?$",
         view=views_api.SmallVariantQueryFetchResultsApiView.as_view(),
         name="api-query-case-fetch-results",
+    ),
+    url(
+        regex=r"^api/query-case/results-extended/(?P<smallvariantquery>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantQueryFetchExtendedResultsApiView.as_view(),
+        name="api-query-case-fetch-extended-results",
+    ),
+    url(
+        regex=r"^api/query-case/results-extended-cadd/(?P<smallvariantquery>[0-9a-f-]+)/?$",
+        view=views_api.SmallVariantQueryFetchExtendedResultsCaddPrioritizationApiView.as_view(),
+        name="api-query-case-fetch-extended-results-cadd-prioritization",
     ),
     url(
         regex=r"^api/query-case/query-settings-shortcut/(?P<case>[0-9a-f-]+)/?$",

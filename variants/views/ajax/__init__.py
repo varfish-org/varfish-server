@@ -18,6 +18,7 @@ from variants.views.api import (
     SmallVariantQueryDownloadServeApiView,
     SmallVariantQueryDownloadStatusApiView,
     SmallVariantQueryFetchExtendedResultsApiView,
+    SmallVariantQueryFetchExtendedResultsCaddPrioritizationApiView,
     SmallVariantQueryFetchResultsApiView,
     SmallVariantQueryHpoTermsApiView,
     SmallVariantQueryListApiView,
@@ -139,6 +140,25 @@ class SmallVariantQueryFetchExtendedResultsAjaxView(SmallVariantQueryFetchExtend
     Will return an HTTP 503 if the results are not ready yet.
 
     **URL:** ``/variants/ajax/query-case/results-extended/{query.sodar_uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class SmallVariantQueryFetchExtendedResultsCaddPrioritizationAjaxView(
+    SmallVariantQueryFetchExtendedResultsCaddPrioritizationApiView
+):
+    """Fetch extended results with CADD scoring for small variant query.
+
+    Will return an HTTP 503 if the results are not ready yet.
+
+    **URL:** ``/variants/ajax/query-case/results-extended-cadd/{query.sodar_uuid}``
 
     **Methods:** See base API class.
 

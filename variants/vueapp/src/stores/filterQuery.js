@@ -275,10 +275,18 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     if (queryState.value === QueryStates.Finished.value) {
       queryState.value = QueryStates.Fetching.value
       await nextTick()
-      const response = await variantsApi.fetchResults(
-        csrfToken.value,
-        queryUuid
-      )
+      let response
+      if (
+        previousQueryDetails.value.query_settings.patho_enabled &&
+        previousQueryDetails.value.query_settings.patho_score === 'cadd'
+      ) {
+        response = await variantsApi.fetchResultsCadd(
+          csrfToken.value,
+          queryUuid
+        )
+      } else {
+        response = await variantsApi.fetchResults(csrfToken.value, queryUuid)
+      }
       if (
         queryState.value === QueryStates.Fetching.value &&
         previousQueryDetails.value.sodar_uuid === queryUuid
