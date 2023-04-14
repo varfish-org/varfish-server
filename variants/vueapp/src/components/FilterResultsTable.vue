@@ -26,6 +26,8 @@ const props = defineProps({
   displayColumns: Array,
   /** The extra fields information. */
   extraAnnoFields: Array,
+  /** The prioritization information. */
+  pathoEnabled: Boolean,
 })
 
 /**
@@ -113,6 +115,20 @@ const genotypesWrapper = computed(() => {
   }
 })
 
+const pathogenicityScoreWrapper = computed(() => {
+  if (!props.pathoEnabled) {
+    return []
+  } else {
+    return [
+      {
+        field: 'pathogenicity_score',
+        headerName: 'score',
+        sortable: true,
+      },
+    ]
+  }
+})
+
 /**
  * Define the column definitions for the ag-grid as a reactive value.
  *
@@ -126,6 +142,7 @@ const columnDefs = reactive(
     displayColumns: displayColumnsWrapper.value,
     genotypes: genotypesWrapper.value,
     extraAnnoFields: props.extraAnnoFields,
+    pathogenicityScore: pathogenicityScoreWrapper.value,
   })
 )
 

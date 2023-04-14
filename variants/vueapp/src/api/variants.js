@@ -81,6 +81,14 @@ export default {
     )
     return await response.json()
   },
+  async fetchResultsCadd(csrfToken, queryUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/query-case/results-extended-cadd/${queryUuid}/`,
+      'GET'
+    )
+    return await response.json()
+  },
   async listCaseVariantsUserAnnotated(csrfToken, caseUuid) {
     const response = await apiFetch(
       csrfToken,

@@ -190,6 +190,9 @@ onMounted(() => {
         v-model:display-constraint="displayConstraint"
         v-model:display-columns="displayColumns"
         @variant-selected="showModal"
+        :patho-enabled="
+          filterQueryStore.previousQueryDetails.query_settings.patho_enabled
+        "
       />
     </div>
     <div

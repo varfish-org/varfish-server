@@ -21,6 +21,7 @@ from variants.models import (
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
+    SmallVariantQueryVariantScores,
 )
 from variants.query_schemas import (
     SCHEMA_QUERY_V1,
@@ -342,6 +343,36 @@ class SmallVariantForExtendedResultSerializer(serializers.Serializer):
     summary_pathogenicity = serializers.ListField()
     summary_gold_stars = serializers.IntegerField()
     details = serializers.ListField()
+
+
+class SmallVariantForExtendedResultsCaddPriorizationSerializer(
+    SmallVariantForExtendedResultSerializer
+):
+    """Serializer for fetching extended query results."""
+
+    #: Serialize the cases that reference the project
+    pathogenicity_score = serializers.SerializerMethodField()
+
+    def get_pathogenicity_score(self, obj):
+        """Corresponds to the ``prioritization`` field defined above.
+
+        The purpose is to add the prioritization score (if available) as they are not part of the query.
+        TODO This solution is very inefficient. It should be moved to the query itself.
+        """
+        try:
+            return SmallVariantQueryVariantScores.objects.get(
+                query__sodar_uuid=self.context["request"].parser_context["kwargs"][
+                    "smallvariantquery"
+                ],
+                release=obj.release,
+                chromosome=obj.chromosome,
+                start=obj.start,
+                reference=obj.reference,
+                alternative=obj.alternative,
+                score_type="cadd",
+            ).score
+        except SmallVariantQueryVariantScores.DoesNotExist:
+            return None
 
 
 @attrs.define
