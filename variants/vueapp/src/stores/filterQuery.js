@@ -126,9 +126,6 @@ const fetchDefaultSettings = async (
   if (querySettings.value.patho_score === undefined) {
     querySettings.value.patho_score = 'mutationtaster'
   }
-  if (querySettings.value.prio_enabled === undefined) {
-    querySettings.value.prio_enabled = false
-  }
 }
 
 /** Helper that fetches the previous query UUID.
@@ -277,10 +274,27 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       await nextTick()
       let response
       if (
+        !previousQueryDetails.value.query_settings.prio_enabled &&
         previousQueryDetails.value.query_settings.patho_enabled &&
         previousQueryDetails.value.query_settings.patho_score === 'cadd'
       ) {
         response = await variantsApi.fetchResultsCadd(
+          csrfToken.value,
+          queryUuid
+        )
+      } else if (
+        previousQueryDetails.value.query_settings.prio_enabled &&
+        !previousQueryDetails.value.query_settings.patho_enabled
+      ) {
+        response = await variantsApi.fetchResultsPheno(
+          csrfToken.value,
+          queryUuid
+        )
+      } else if (
+        previousQueryDetails.value.query_settings.prio_enabled &&
+        previousQueryDetails.value.query_settings.patho_enabled
+      ) {
+        response = await variantsApi.fetchResultsCaddPheno(
           csrfToken.value,
           queryUuid
         )

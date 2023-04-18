@@ -38,7 +38,7 @@ export function defineColumnDefs({
   displayColumns,
   genotypes,
   extraAnnoFields,
-  pathogenicityScore,
+  score,
 }) {
   const extraAnnoColumnDefs = extraAnnoFieldsToColumnDef(extraAnnoFields)
   return [
@@ -331,7 +331,7 @@ export function defineColumnDefs({
     },
     ...extraAnnoColumnDefs,
     ...genotypes,
-    ...pathogenicityScore,
+    ...score,
     {
       field: 'igv',
       headerName: '',

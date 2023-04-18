@@ -89,6 +89,22 @@ export default {
     )
     return await response.json()
   },
+  async fetchResultsPheno(csrfToken, queryUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/query-case/results-extended-pheno/${queryUuid}/`,
+      'GET'
+    )
+    return await response.json()
+  },
+  async fetchResultsCaddPheno(csrfToken, queryUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/query-case/results-extended-cadd-pheno/${queryUuid}/`,
+      'GET'
+    )
+    return await response.json()
+  },
   async listCaseVariantsUserAnnotated(csrfToken, caseUuid) {
     const response = await apiFetch(
       csrfToken,

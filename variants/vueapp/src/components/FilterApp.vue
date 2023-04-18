@@ -193,6 +193,9 @@ onMounted(() => {
         :patho-enabled="
           filterQueryStore.previousQueryDetails.query_settings.patho_enabled
         "
+        :prio-enabled="
+          filterQueryStore.previousQueryDetails.query_settings.prio_enabled
+        "
       />
     </div>
     <div

@@ -18,7 +18,9 @@ from variants.views.api import (
     SmallVariantQueryDownloadServeApiView,
     SmallVariantQueryDownloadStatusApiView,
     SmallVariantQueryFetchExtendedResultsApiView,
+    SmallVariantQueryFetchExtendedResultsCaddPhenoPrioritizationApiView,
     SmallVariantQueryFetchExtendedResultsCaddPrioritizationApiView,
+    SmallVariantQueryFetchExtendedResultsPhenoPrioritizationApiView,
     SmallVariantQueryFetchResultsApiView,
     SmallVariantQueryHpoTermsApiView,
     SmallVariantQueryListApiView,
@@ -159,6 +161,44 @@ class SmallVariantQueryFetchExtendedResultsCaddPrioritizationAjaxView(
     Will return an HTTP 503 if the results are not ready yet.
 
     **URL:** ``/variants/ajax/query-case/results-extended-cadd/{query.sodar_uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class SmallVariantQueryFetchExtendedResultsPhenoPrioritizationAjaxView(
+    SmallVariantQueryFetchExtendedResultsPhenoPrioritizationApiView
+):
+    """Fetch extended results with phenotype scoring for small variant query.
+
+    Will return an HTTP 503 if the results are not ready yet.
+
+    **URL:** ``/variants/ajax/query-case/results-extended-pheno/{query.sodar_uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class SmallVariantQueryFetchExtendedResultsCaddPhenoPrioritizationAjaxView(
+    SmallVariantQueryFetchExtendedResultsCaddPhenoPrioritizationApiView
+):
+    """Fetch extended results with CADD and phenotype scoring for small variant query.
+
+    Will return an HTTP 503 if the results are not ready yet.
+
+    **URL:** ``/variants/ajax/query-case/results-extended-cadd-pheno/{query.sodar_uuid}``
 
     **Methods:** See base API class.
 

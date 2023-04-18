@@ -111,7 +111,7 @@ defineExpose({ v$ })
       </div>
     </div>
 
-    <div class="col-6 pt-3">
+    <div class="col-6 pt-3" v-if="props.caddEnabled">
       <h5 class="card-title mb-0">Pathogenicity Prioritization</h5>
       <div
         v-if="props.showFiltrationInlineHelp"
@@ -145,9 +145,14 @@ defineExpose({ v$ })
           class="custom-select"
           id="patho-score"
         >
-          <option value="mutationtaster">MutationTaster</option>
           <option v-if="props.caddEnabled" value="cadd">CADD</option>
         </select>
+      </div>
+    </div>
+    <div class="col-6 pt-3" v-else>
+      <h5 class="card-title mb-0">Pathogenicity Prioritization</h5>
+      <div class="mt-2 font-italic text-muted">
+        No scoring method activated.
       </div>
     </div>
   </div>

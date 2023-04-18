@@ -75,8 +75,10 @@ from variants.serializers import (
     SmallVariantDetails,
     SmallVariantDetailsSerializer,
     SmallVariantFlagsSerializer,
+    SmallVariantForExtendedResultsCaddPhenoPriorizationSerializer,
     SmallVariantForExtendedResultsCaddPriorizationSerializer,
     SmallVariantForExtendedResultSerializer,
+    SmallVariantForExtendedResultsPhenoPriorizationSerializer,
     SmallVariantForResultSerializer,
     SmallVariantQueryHpoTermSerializer,
     SmallVariantQuerySerializer,
@@ -439,7 +441,7 @@ class SmallVariantQueryFetchExtendedResultsCaddPrioritizationApiView(
 
     Will return an HTTP 503 if the results are not ready yet.
 
-    **URL:** ``/variants/api/query-case/results-extended/{query.sodar_uuid}``
+    **URL:** ``/variants/api/query-case/results-extended-cadd/{query.sodar_uuid}``
 
     **Methods:** ``GET``
 
@@ -455,6 +457,56 @@ class SmallVariantQueryFetchExtendedResultsCaddPrioritizationApiView(
     """
 
     serializer_class = SmallVariantForExtendedResultsCaddPriorizationSerializer
+
+
+class SmallVariantQueryFetchExtendedResultsPhenoPrioritizationApiView(
+    SmallVariantQueryFetchExtendedResultsApiView
+):
+    """Fetch extended results for small variant query.
+
+    Will return an HTTP 503 if the results are not ready yet.
+
+    **URL:** ``/variants/api/query-case/results-extended-pheno/{query.sodar_uuid}``
+
+    **Methods:** ``GET``
+
+    - ``page`` - specify page to return (default/first is ``1``)
+    - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
+
+    **Returns:**
+
+    - ``count`` - number of total elements (``int``)
+    - ``next`` - URL to next page (``str`` or ``null``)
+    - ``previous`` - URL to next page (``str`` or ``null``)
+    - ``results`` - ``list`` of results (``dict``)
+    """
+
+    serializer_class = SmallVariantForExtendedResultsPhenoPriorizationSerializer
+
+
+class SmallVariantQueryFetchExtendedResultsCaddPhenoPrioritizationApiView(
+    SmallVariantQueryFetchExtendedResultsApiView
+):
+    """Fetch extended results for small variant query.
+
+    Will return an HTTP 503 if the results are not ready yet.
+
+    **URL:** ``/variants/api/query-case/results-extended-cadd-pheno/{query.sodar_uuid}``
+
+    **Methods:** ``GET``
+
+    - ``page`` - specify page to return (default/first is ``1``)
+    - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
+
+    **Returns:**
+
+    - ``count`` - number of total elements (``int``)
+    - ``next`` - URL to next page (``str`` or ``null``)
+    - ``previous`` - URL to next page (``str`` or ``null``)
+    - ``results`` - ``list`` of results (``dict``)
+    """
+
+    serializer_class = SmallVariantForExtendedResultsCaddPhenoPriorizationSerializer
 
 
 class SmallVariantQuerySettingsShortcutApiView(

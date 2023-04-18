@@ -47,17 +47,14 @@ describe('FilterFormPrioritizationPane.vue', () => {
     })
 
     const pathoEnabled = wrapper.get('#patho-enabled')
-    const pathoScore = wrapper.get('#patho-score')
     const prioEnabled = wrapper.get('#prio-enabled')
     const prioAlgorithm = wrapper.get('#prio-algorithm')
 
     await pathoEnabled.setValue(false)
-    await pathoScore.setValue('mutationtaster')
     await prioEnabled.setValue(false)
     await prioAlgorithm.setValue('phenix')
 
     expect(pathoEnabled.element.checked).toBe(false)
-    expect(pathoScore.element.value).toBe('mutationtaster')
     expect(prioEnabled.element.checked).toBe(false)
     expect(prioAlgorithm.element.value).toBe('phenix')
   })
@@ -109,7 +106,6 @@ describe('FilterFormPrioritizationPane.vue', () => {
         prioAlgorith: 'hiphive-human',
         prioHpoTerms: [],
         pathoEnabled: false,
-        pathoScore: 'mutationtaster',
       },
     })
 
