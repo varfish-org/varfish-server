@@ -363,7 +363,6 @@ class CaddPrioritizationMixin:
         """Corresponds to the ``pathogenicity_score`` field defined above.
 
         The purpose is to add the pathogenicity score (if available) as they are not part of the query.
-        TODO This solution is very inefficient. It should be moved to the query itself.
         """
         return self._pathogenicity_scores[
             (obj.chromosome, obj.start, obj.reference, obj.alternative)
@@ -381,15 +380,17 @@ class PhenoPrioritizationMixin:
                     "smallvariantquery"
                 ],
             )
+            if row.gene_id
         }
 
     def get_phenotype_score(self, obj):
         """Corresponds to the ``phenotype_score`` field defined above.
 
         The purpose is to add the phenotype score (if available) as they are not part of the query.
-        TODO This solution is very inefficient. It should be moved to the query itself.
         """
-        return self._phenotype_scores[obj.entrez_id]
+        if obj.entrez_id:
+            return self._phenotype_scores[obj.entrez_id]
+        return None
 
 
 class SmallVariantForExtendedResultsCaddPriorizationSerializer(
@@ -413,7 +414,8 @@ class SmallVariantForExtendedResultsCaddPhenoPriorizationSerializer(
     patho_pheno_score = serializers.SerializerMethodField()
 
     def get_patho_pheno_score(self, obj):
-        return self.get_phenotype_score(obj) * self.get_pathogenicity_score(obj)
+        pheno_score = self.get_phenotype_score(obj) or 0
+        return pheno_score * self.get_pathogenicity_score(obj)
 
 
 @attrs.define
