@@ -26,8 +26,10 @@ const props = defineProps({
   displayColumns: Array,
   /** The extra fields information. */
   extraAnnoFields: Array,
-  /** The prioritization information. */
+  /** The pathogenicity score enabled. */
   pathoEnabled: Boolean,
+  /** The phenotype score enabled. */
+  prioEnabled: Boolean,
 })
 
 /**
@@ -115,18 +117,39 @@ const genotypesWrapper = computed(() => {
   }
 })
 
-const pathogenicityScoreWrapper = computed(() => {
-  if (!props.pathoEnabled) {
-    return []
-  } else {
-    return [
+const scoreWrapper = computed(() => {
+  let data = []
+  if (props.pathoEnabled) {
+    data = [
+      ...data,
       {
         field: 'pathogenicity_score',
-        headerName: 'score',
+        headerName: 'patho score',
         sortable: true,
       },
     ]
   }
+  if (props.prioEnabled) {
+    data = [
+      ...data,
+      {
+        field: 'phenotype_score',
+        headerName: 'pheno score',
+        sortable: true,
+      },
+    ]
+  }
+  if (props.pathoEnabled && props.prioEnabled) {
+    data = [
+      ...data,
+      {
+        field: 'patho_pheno_score',
+        headerName: 'patho+pheno score',
+        sortable: true,
+      },
+    ]
+  }
+  return data
 })
 
 /**
@@ -142,7 +165,7 @@ const columnDefs = reactive(
     displayColumns: displayColumnsWrapper.value,
     genotypes: genotypesWrapper.value,
     extraAnnoFields: props.extraAnnoFields,
-    pathogenicityScore: pathogenicityScoreWrapper.value,
+    score: scoreWrapper.value,
   })
 )
 

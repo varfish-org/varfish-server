@@ -21,6 +21,7 @@ from variants.models import (
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
+    SmallVariantQueryGeneScores,
     SmallVariantQueryVariantScores,
 )
 from variants.query_schemas import (
@@ -345,34 +346,74 @@ class SmallVariantForExtendedResultSerializer(serializers.Serializer):
     details = serializers.ListField()
 
 
+class CaddPrioritizationMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["pathogenicity_score"] = serializers.SerializerMethodField()
+        self._pathogenicity_scores = {
+            (row.chromosome, row.start, row.reference, row.alternative): row.score
+            for row in SmallVariantQueryVariantScores.objects.filter(
+                query__sodar_uuid=self.context["request"].parser_context["kwargs"][
+                    "smallvariantquery"
+                ],
+            )
+        }
+
+    def get_pathogenicity_score(self, obj):
+        """Corresponds to the ``pathogenicity_score`` field defined above.
+
+        The purpose is to add the pathogenicity score (if available) as they are not part of the query.
+        TODO This solution is very inefficient. It should be moved to the query itself.
+        """
+        return self._pathogenicity_scores[
+            (obj.chromosome, obj.start, obj.reference, obj.alternative)
+        ]
+
+
+class PhenoPrioritizationMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["phenotype_score"] = serializers.SerializerMethodField()
+        self._phenotype_scores = {
+            row.gene_id: row.score
+            for row in SmallVariantQueryGeneScores.objects.filter(
+                query__sodar_uuid=self.context["request"].parser_context["kwargs"][
+                    "smallvariantquery"
+                ],
+            )
+        }
+
+    def get_phenotype_score(self, obj):
+        """Corresponds to the ``phenotype_score`` field defined above.
+
+        The purpose is to add the phenotype score (if available) as they are not part of the query.
+        TODO This solution is very inefficient. It should be moved to the query itself.
+        """
+        return self._phenotype_scores[obj.entrez_id]
+
+
 class SmallVariantForExtendedResultsCaddPriorizationSerializer(
-    SmallVariantForExtendedResultSerializer
+    CaddPrioritizationMixin, SmallVariantForExtendedResultSerializer
+):
+    """Serializer for fetching extended query results."""
+
+
+class SmallVariantForExtendedResultsPhenoPriorizationSerializer(
+    PhenoPrioritizationMixin, SmallVariantForExtendedResultSerializer
+):
+    """Serializer for fetching extended query results."""
+
+
+class SmallVariantForExtendedResultsCaddPhenoPriorizationSerializer(
+    CaddPrioritizationMixin, PhenoPrioritizationMixin, SmallVariantForExtendedResultSerializer
 ):
     """Serializer for fetching extended query results."""
 
     #: Serialize the cases that reference the project
-    pathogenicity_score = serializers.SerializerMethodField()
+    patho_pheno_score = serializers.SerializerMethodField()
 
-    def get_pathogenicity_score(self, obj):
-        """Corresponds to the ``prioritization`` field defined above.
-
-        The purpose is to add the prioritization score (if available) as they are not part of the query.
-        TODO This solution is very inefficient. It should be moved to the query itself.
-        """
-        try:
-            return SmallVariantQueryVariantScores.objects.get(
-                query__sodar_uuid=self.context["request"].parser_context["kwargs"][
-                    "smallvariantquery"
-                ],
-                release=obj.release,
-                chromosome=obj.chromosome,
-                start=obj.start,
-                reference=obj.reference,
-                alternative=obj.alternative,
-                score_type="cadd",
-            ).score
-        except SmallVariantQueryVariantScores.DoesNotExist:
-            return None
+    def get_patho_pheno_score(self, obj):
+        return self.get_phenotype_score(obj) * self.get_pathogenicity_score(obj)
 
 
 @attrs.define
