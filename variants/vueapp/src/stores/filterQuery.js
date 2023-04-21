@@ -330,6 +330,12 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       payload
     )
     queryState.value = QueryStates.Running.value
+    downloadStatusTsv.value = null
+    downloadStatusVcf.value = null
+    downloadStatusXlsx.value = null
+    exportJobUuidTsv.value = null
+    exportJobUuidVcf.value = null
+    exportJobUuidXlsx.value = null
     await nextTick()
     runFetchLoop(previousQueryDetails.value.sodar_uuid)
   }

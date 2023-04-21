@@ -125,8 +125,8 @@ HEADERS_PHENO_SCORES = (
 
 #: Names of the pathogenicity scoring header columns.
 HEADERS_PATHO_SCORES = (
-    ("pathogenicity_score_arr", "Pathogenicity Score", float),
-    ("pathogenicity_rank_arr", "Pathogenicity Rank", int),
+    ("pathogenicity_score", "Pathogenicity Score", float),
+    ("pathogenicity_rank", "Pathogenicity Rank", int),
 )
 
 HEADERS_TRANSCRIPTS = (("transcripts", "Transcript ids", str),)

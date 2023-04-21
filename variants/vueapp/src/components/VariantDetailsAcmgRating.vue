@@ -889,7 +889,7 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
             <button
               type="submit"
               class="btn btn-primary"
-              @click="variantDetailsStore.setAcmgCriteriaRatingMode = true"
+              @click="detailsStore.setAcmgCriteriaRatingMode = true"
             >
               <i-mdi-pencil />
               Edit
