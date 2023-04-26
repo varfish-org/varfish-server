@@ -368,6 +368,7 @@ def chrx_het_hom_ratio(case, sample):
     return case.chrx_het_hom_ratio(sample)
 
 
+# TODO REMOVE
 @register.filter
 def from_bamstats(stats, value):
     """Return percentage that a part represents of a total."""

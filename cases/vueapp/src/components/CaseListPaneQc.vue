@@ -7,6 +7,7 @@ import QcPlotRelatedness from './QcPlotRelatedness.vue'
 import QcPlotDepthHet from './QcPlotDepthHet.vue'
 import QcPlotChrXRatio from './QcPlotChrXRatio.vue'
 import QcTableVarStats from './QcTableVarStats.vue'
+import QcTableAlignmentStats from './QcTableAlignmentStats.vue'
 import Overlay from '@varfish/components/Overlay.vue'
 import { downloadPerSampleMetrics, downloadRelatedness } from '../common.js'
 
