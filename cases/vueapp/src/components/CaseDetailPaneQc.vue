@@ -10,6 +10,7 @@ import QcPlotVarType from './QcPlotVarType.vue'
 import QcPlotVarEffect from './QcPlotVarEffect.vue'
 import QcPlotIndelSize from './QcPlotIndelSize.vue'
 import QcTableVarStats from './QcTableVarStats.vue'
+import QcTableAlignmentStats from './QcTableAlignmentStats.vue'
 import { displayName, quantiles } from '@varfish/helpers.js'
 import { downloadPerSampleMetrics, downloadRelatedness } from '../common.js'
 
@@ -176,7 +177,8 @@ const varStats = computed(() => {
           class="alert alert-secondary small p-2"
         >
           <i-mdi-information />
-          The following table shows some overall statistics on your samples.
+          The following table shows some overall variant statistics on your
+          samples.
           <strong> Ts </strong> - number of transitions; <strong> Tv </strong> -
           number of transversions; <strong> Ts/Tv </strong> - Ratio of
           transitions to transversions, should be between 2.0 and 2.9;
@@ -191,6 +193,19 @@ const varStats = computed(() => {
         </div>
 
         <QcTableVarStats :var-stats="varStats" />
+
+        <h5 class="mt-3">Alignment Quality Control</h5>
+
+        <div
+          v-if="casesStore.showInlineHelp"
+          class="alert alert-secondary small p-2"
+        >
+          <i-mdi-information />
+          The following table shows some overall alignment statistics on your
+          samples and the minimal exon coverage.
+        </div>
+
+        <QcTableAlignmentStats />
 
         <h5 class="mt-4">Download Variant Control Metrics</h5>
 

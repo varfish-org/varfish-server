@@ -12,13 +12,13 @@ const props = defineProps({
     <thead>
       <tr>
         <th>Sample</th>
-        <th class="text-center">Ts</th>
-        <th class="text-center">Tv</th>
-        <th class="text-center">Ts/Tv</th>
-        <th class="text-center">SNVs</th>
-        <th class="text-center">InDels</th>
-        <th class="text-center">MNVs</th>
-        <th class="text-center">X hom./het.</th>
+        <th class="text-right">Ts</th>
+        <th class="text-right">Tv</th>
+        <th class="text-right">Ts/Tv</th>
+        <th class="text-right">SNVs</th>
+        <th class="text-right">InDels</th>
+        <th class="text-right">MNVs</th>
+        <th class="text-right">X hom./het.</th>
       </tr>
     </thead>
     <tbody>
@@ -59,7 +59,7 @@ const props = defineProps({
           </td>
         </tr>
       </template>
-      <tr>
+      <tr v-else>
         <td colspan="8" class="text-muted text-center font-italic">
           No variant statistics to display.
         </td>
