@@ -553,6 +553,11 @@ ajax_urlpatterns = [
         view=views_ajax.AcmgCriteriaRatingDeleteAjaxView.as_view(),
         name="ajax-acmg-criteria-rating-delete",
     ),
+    url(
+        r"^ajax/extra-anno-fields/?$",
+        view=views_ajax.ExtraAnnoFieldsApiView.as_view(),
+        name="ajax-extra-anno-fields",
+    ),
 ]
 
 api_urlpatterns = [
@@ -714,6 +719,11 @@ api_urlpatterns = [
         r"^api/acmg-criteria-rating/delete/(?P<acmgcriteriarating>[0-9a-f-]+)/?$",
         view=views_api.AcmgCriteriaRatingDeleteApiView.as_view(),
         name="api-acmg-criteria-rating-delete",
+    ),
+    url(
+        r"^api/extra-anno-fields/?$",
+        view=views_api.ExtraAnnoFieldsApiView.as_view(),
+        name="api-extra-anno-fields",
     ),
 ]
 

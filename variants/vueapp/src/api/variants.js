@@ -249,4 +249,12 @@ export default {
     )
     return await response.json()
   },
+  async fetchExtraAnnoFields(csrfToken) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/extra-anno-fields/`,
+      'GET'
+    )
+    return await response.json()
+  },
 }

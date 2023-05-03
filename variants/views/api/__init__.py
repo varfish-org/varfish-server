@@ -30,6 +30,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from clinvar.models import Clinvar
+from extra_annos.models import ExtraAnnoField
 from extra_annos.views import ExtraAnnosMixin
 from frequencies.models import MT_DB_INFO
 from frequencies.views import FrequencyMixin
@@ -67,6 +68,7 @@ from variants.serializers import (
     AcmgCriteriaRatingSerializer,
     CaseSerializer,
     ExportFileBgJobSerializer,
+    ExtraAnnoFieldsSerializer,
     HpoTerms,
     JobStatus,
     SettingsShortcuts,
@@ -1481,6 +1483,30 @@ class AcmgCriteriaRatingDeleteApiView(
     serializer_class = AcmgCriteriaRatingSerializer
 
     queryset = AcmgCriteriaRating.objects.all()
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+
+class ExtraAnnoFieldsApiView(
+    ListAPIView,
+):
+    """A vuew that returns all extra annotation field names.
+
+    **URL:** ``/variants/api/extra-anno-fields/``
+
+    **Methods:** ``GET``
+
+    **Returns:**
+
+    """
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    serializer_class = ExtraAnnoFieldsSerializer
+
+    queryset = ExtraAnnoField.objects.all()
 
     def get_permission_required(self):
         return "variants.view_data"
