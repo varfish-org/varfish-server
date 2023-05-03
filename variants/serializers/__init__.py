@@ -57,12 +57,13 @@ def query_settings_validator(value):
         proc_gene_list = expand_panels_in_gene_list(gene_list)
         records = Hgnc.objects.filter(
             Q(ensembl_gene_id__in=proc_gene_list)
+            | Q(hgnc_id__in=proc_gene_list)
             | Q(entrez_id__in=proc_gene_list)
             | Q(symbol__in=proc_gene_list)
         )
         result = []
         for record in records:
-            result += [record.ensembl_gene_id, record.entrez_id, record.symbol]
+            result += [record.ensembl_gene_id, record.hgnc_id, record.entrez_id, record.symbol]
         given_set = set(proc_gene_list)
         found_set = set(result)
         not_found = given_set - found_set
