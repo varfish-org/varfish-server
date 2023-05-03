@@ -1045,7 +1045,7 @@
       "items": {
         "$id": "#/properties/gene_allowlist/items",
         "type": "string",
-        "pattern": "^([a-zA-Z0-9_-]+)$"
+        "pattern": "^([a-zA-Z0-9.:_-]+)$"
       }
     },
     "gene_blocklist": {
