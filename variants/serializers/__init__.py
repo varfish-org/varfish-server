@@ -705,3 +705,10 @@ class QuickPresetSerializer(serializers.BaseSerializer):
             "chromosomes": instance.chromosomes,
             "flagsetc": instance.flagsetc,
         }
+
+
+class ExtraAnnoFieldsSerializer(serializers.Serializer):
+    """Serializer for the ``ExtraAnnoFields`` model."""
+
+    field = serializers.IntegerField()
+    label = serializers.CharField()

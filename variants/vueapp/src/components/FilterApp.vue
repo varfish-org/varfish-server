@@ -2,6 +2,8 @@
 import { watch, ref, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 
+import variantsApi from '@variants/api/variants.js'
+
 import { useFilterQueryStore } from '@variants/stores/filterQuery.js'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails.js'
 import { useCasesStore } from '@cases/stores/cases.js'
@@ -76,8 +78,6 @@ const displayFrequency = ref(DisplayFrequencies.GnomadExomes.value)
 const displayConstraint = ref(DisplayConstraints.GnomadPli.value)
 /** The additional columns to display. */
 const displayColumns = ref([DisplayColumns.Effect.value])
-/** The fields defined by extraAnnos. */
-const extraAnnoFields = ref([])
 /** Whether the query logs are visible. */
 const queryLogsVisible = ref(false)
 
@@ -184,7 +184,7 @@ onMounted(() => {
       <FilterResultsTable
         :case="filterQueryStore.caseObj"
         :query-results="filterQueryStore.queryResults"
-        :extra-anno-fields="extraAnnoFields"
+        :extra-anno-fields="filterQueryStore.extraAnnoFields"
         v-model:display-details="displayDetails"
         v-model:display-frequency="displayFrequency"
         v-model:display-constraint="displayConstraint"

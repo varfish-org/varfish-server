@@ -6,6 +6,7 @@ from variants.views.api import (
     AcmgCriteriaRatingDeleteApiView,
     AcmgCriteriaRatingUpdateApiView,
     CaseRetrieveApiView,
+    ExtraAnnoFieldsApiView,
     SmallVariantCommentDeleteApiView,
     SmallVariantCommentListCreateApiView,
     SmallVariantCommentUpdateApiView,
@@ -425,6 +426,21 @@ class AcmgCriteriaRatingUpdateAjaxView(AcmgCriteriaRatingUpdateApiView):
 
 
 class AcmgCriteriaRatingDeleteAjaxView(AcmgCriteriaRatingDeleteApiView):
+    """Delete ACMG criteria rating
+
+    **URL:** ``/variants/ajax/acmg-criteria-rating/delete/{acmgcriteriarating.sodar_uuid}``
+
+    **Methods:** See base API class.
+
+    **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class ExtraAnnoFieldsAjaxView(ExtraAnnoFieldsApiView):
     """Delete ACMG criteria rating
 
     **URL:** ``/variants/ajax/acmg-criteria-rating/delete/{acmgcriteriarating.sodar_uuid}``

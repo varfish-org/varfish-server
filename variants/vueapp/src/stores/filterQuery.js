@@ -139,6 +139,12 @@ const fetchPreviousQueryUuid = async (csrfToken, caseUuid) => {
   }
 }
 
+/** Helpder that fetches extra anno fields.
+ */
+const fetchExtraAnnoFields = async (csrfToken) => {
+  return await variantsApi.fetchExtraAnnoFields(csrfToken)
+}
+
 /** Legacy handling code that can be removed once legacy UI has been removed.
  */
 const fixupQueryPayloadForLegacy = (payload) => {
@@ -213,6 +219,8 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
   const exportJobUuidVcf = ref(null)
   /** UUID of export job for XLSX file. */
   const exportJobUuidXlsx = ref(null)
+  /** Extra annotation field names. */
+  const extraAnnoFields = ref(null)
 
   // bookkeeping for query and results
   /** Current query state. */
@@ -535,6 +543,10 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
         quickPresets,
         categoryPresets
       ),
+      // 4. fetch extra anno fields
+      fetchExtraAnnoFields(csrfToken.value).then((result) => {
+        extraAnnoFields.value = result
+      }),
     ])
       .then(() => {
         serverInteractions.value -= 1
@@ -572,6 +584,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     queryLogs,
     quickPresets,
     categoryPresets,
+    extraAnnoFields,
     initializeRes,
     // functions
     initialize,
