@@ -708,8 +708,15 @@ class QuickPresetSerializer(serializers.BaseSerializer):
         }
 
 
-class ExtraAnnoFieldsSerializer(serializers.Serializer):
+class ExtraAnnoFieldSerializer(serializers.Serializer):
     """Serializer for the ``ExtraAnnoFields`` model."""
 
     field = serializers.IntegerField()
     label = serializers.CharField()
+
+
+class HpoTermSerializer(serializers.Serializer):
+    """Serializer for HPO terms."""
+
+    id = serializers.CharField()
+    name = serializers.CharField()

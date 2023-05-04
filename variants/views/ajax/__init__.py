@@ -7,6 +7,7 @@ from variants.views.api import (
     AcmgCriteriaRatingUpdateApiView,
     CaseRetrieveApiView,
     ExtraAnnoFieldsApiView,
+    HpoTermsApiView,
     SmallVariantCommentDeleteApiView,
     SmallVariantCommentListCreateApiView,
     SmallVariantCommentUpdateApiView,
@@ -448,6 +449,19 @@ class ExtraAnnoFieldsAjaxView(ExtraAnnoFieldsApiView):
     **Methods:** See base API class.
 
     **Parameters:** See base API class.
+
+    **Returns:** See base API class.
+    """
+
+    authentication_classes = [SessionAuthentication]
+
+
+class HpoTermsAjaxView(HpoTermsApiView):
+    """A view that queries HPO terms for a given string.
+
+    **URL:** ``/variants/ajax/hpo-terms/``
+
+    **Methods:** See base API class.
 
     **Returns:** See base API class.
     """

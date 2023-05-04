@@ -139,10 +139,31 @@ const fetchPreviousQueryUuid = async (csrfToken, caseUuid) => {
   }
 }
 
-/** Helpder that fetches extra anno fields.
+/** Helper that fetches extra anno fields.
  */
 const fetchExtraAnnoFields = async (csrfToken) => {
   return await variantsApi.fetchExtraAnnoFields(csrfToken)
+}
+
+/** Helper that fetches the HPO terms.
+ */
+const fetchHpoTerms = async (csrfToken, hpoTerms, hpoNames) => {
+  for (const hpoTerm of hpoTerms) {
+    await variantsApi.fetchHpoTerms(csrfToken, hpoTerm).then((res) => {
+      if (res.length === 0) {
+        console.warn("No term for HPO ID '" + hpoTerm + "' found")
+      } else {
+        if (res.length > 1) {
+          console.warn(
+            "Multiple terms for HPO ID '" +
+              hpoTerm +
+              "' found. Taking first one."
+          )
+        }
+        hpoNames.push(res[0].name)
+      }
+    })
+  }
 }
 
 /** Legacy handling code that can be removed once legacy UI has been removed.
@@ -221,6 +242,8 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
   const exportJobUuidXlsx = ref(null)
   /** Extra annotation field names. */
   const extraAnnoFields = ref(null)
+  /** HPO names for HPO terms from the query settings. */
+  const hpoNames = ref([])
 
   // bookkeeping for query and results
   /** Current query state. */
@@ -535,6 +558,16 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
             nextTick()
             runFetchLoop(previousQueryDetails.value.sodar_uuid)
           }
+        })
+        // 2.3 fetch the HPO names from the query settings for the HPO terms, if any
+        .then(() => {
+          if (querySettings.value.prio_hpo_terms.length > 0) {
+            fetchHpoTerms(
+              csrfToken.value,
+              querySettings.value.prio_hpo_terms,
+              hpoNames.value
+            )
+          }
         }),
       // 3. fetch quick presets etc.
       fetchPresets(
@@ -585,6 +618,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     quickPresets,
     categoryPresets,
     extraAnnoFields,
+    hpoNames,
     initializeRes,
     // functions
     initialize,

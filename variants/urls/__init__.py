@@ -355,6 +355,7 @@ ui_urlpatterns = [
         view=views.SmallVariantDetails.as_view(),
         name="small-variant-details-cohort",
     ),
+    # TODO: remove with clean up
     url(regex=r"^hpo-terms-api/?$", view=views.HpoTermsApiView.as_view(), name="hpo-terms-api"),
     # Set last seen changelog version for user and redirect to changelog.
     # TODO: move to sodar-core?
@@ -558,6 +559,11 @@ ajax_urlpatterns = [
         view=views_ajax.ExtraAnnoFieldsApiView.as_view(),
         name="ajax-extra-anno-fields",
     ),
+    url(
+        regex=r"^ajax/hpo-terms/?$",
+        view=views_ajax.HpoTermsAjaxView.as_view(),
+        name="ajax-hpo-terms",
+    ),
 ]
 
 api_urlpatterns = [
@@ -725,6 +731,7 @@ api_urlpatterns = [
         view=views_api.ExtraAnnoFieldsApiView.as_view(),
         name="api-extra-anno-fields",
     ),
+    url(regex=r"^api/hpo-terms/?$", view=views_api.HpoTermsApiView.as_view(), name="api-hpo-terms"),
 ]
 
 
