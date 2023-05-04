@@ -167,13 +167,12 @@ const props = defineProps({
           >Missense3D</a
         >
         <a
-          :href="getLinkoutPubMedPheno(smallVariant, queryStore.queryHpoTerms)"
+          :href="getLinkoutPubMedPheno(smallVariant, queryStore.hpoNames)"
           class="btn btn-outline-secondary"
           :class="
-            getLinkoutPubMedPheno(smallVariant, queryStore.queryHpoTerms) ===
-            '#'
+            getLinkoutPubMedPheno(smallVariant, queryStore.hpoNames) === '#'
               ? 'disabled'
-              : ''
+              : 'text-alert'
           "
           target="_blank"
           >PubMed+Pheno</a

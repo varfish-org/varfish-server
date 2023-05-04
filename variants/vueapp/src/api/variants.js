@@ -257,4 +257,12 @@ export default {
     )
     return await response.json()
   },
+  async fetchHpoTerms(csrfToken, query) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/hpo-terms/?query=${query}`,
+      'GET'
+    )
+    return await response.json()
+  },
 }

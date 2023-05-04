@@ -15,7 +15,7 @@ const termLabels = reactive({})
 const props = defineProps({
   apiEndpoint: {
     type: String,
-    default: '/variants/hpo-terms-api/',
+    default: '/variants/ajax/hpo-terms/',
   },
   csrfToken: String,
 })

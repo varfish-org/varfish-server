@@ -88,8 +88,8 @@ export const getLinkoutMissense3D = (smallVariant) => {
   }
 }
 
-export const getLinkoutPubMedPheno = (gene, hpoTerms) => {
-  const symbol = getGeneSymbol(gene)
+export const getLinkoutPubMedPheno = (smallVariant, hpoTerms) => {
+  const symbol = getGeneSymbol(smallVariant)
   if (symbol && hpoTerms) {
     let terms = []
     for (const [_, text] of Object.entries(hpoTerms)) {

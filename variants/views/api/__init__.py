@@ -68,8 +68,9 @@ from variants.serializers import (
     AcmgCriteriaRatingSerializer,
     CaseSerializer,
     ExportFileBgJobSerializer,
-    ExtraAnnoFieldsSerializer,
+    ExtraAnnoFieldSerializer,
     HpoTerms,
+    HpoTermSerializer,
     JobStatus,
     SettingsShortcuts,
     SettingsShortcutsSerializer,
@@ -1491,22 +1492,77 @@ class AcmgCriteriaRatingDeleteApiView(
 class ExtraAnnoFieldsApiView(
     ListAPIView,
 ):
-    """A vuew that returns all extra annotation field names.
+    """A view that returns all extra annotation field names.
 
     **URL:** ``/variants/api/extra-anno-fields/``
 
     **Methods:** ``GET``
 
-    **Returns:**
+    **Returns:** List of extra annotation field names.
 
     """
 
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
 
-    serializer_class = ExtraAnnoFieldsSerializer
+    serializer_class = ExtraAnnoFieldSerializer
 
     queryset = ExtraAnnoField.objects.all()
 
     def get_permission_required(self):
         return "variants.view_data"
+
+
+class HpoTermsApiView(ListAPIView):
+    """A view that queries HPO terms for a given string.
+
+    **URL:** ``/variants/api/hpo-terms/``
+
+    **Methods:** ``GET``
+
+    **Returns:** List of HPO terms and associated names matching the query.
+    """
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    serializer_class = HpoTermSerializer
+
+    def get_queryset(self):
+        query = self.request.GET.get("query")
+
+        if not query:
+            return []
+
+        hpo = HpoName.objects.filter(Q(hpo_id__icontains=query) | Q(name__icontains=query))[:10]
+        omim_decipher_orpha = (
+            Hpo.objects.filter(Q(database_id__icontains=query) | Q(name__icontains=query))
+            .values("database_id")
+            .distinct()[:10]
+        )
+        result = []
+
+        for h in hpo:
+            result.append({"id": h.hpo_id, "name": h.name})
+
+        for o in omim_decipher_orpha:
+            names = []
+
+            # Query database again to get all possible names for an OMIM/DECIPHER/ORPHA id
+            for name in (
+                Hpo.objects.filter(database_id=o["database_id"])
+                .values("database_id")
+                .annotate(names=ArrayAgg("name"))[0]["names"]
+            ):
+                if o["database_id"].startswith("OMIM"):
+                    for n in re.sub(r"^[#%]?\d{6} ", "", name).split(";;"):
+                        if n not in names:
+                            names.append(n)
+
+                else:
+                    if name not in names:
+                        names.append(name)
+
+            result.append({"id": o["database_id"], "name": ";;".join(names)})
+
+        return result

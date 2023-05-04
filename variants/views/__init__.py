@@ -4425,6 +4425,7 @@ class NewFeaturesView(LoginRequiredMixin, RedirectView):
         return super().get(*args, **kwargs)
 
 
+# TODO remove with cleanup
 class HpoTermsApiView(LoginRequiredMixin, View):
     def get(self, *_args, **_kwargs):
         query = self.request.GET.get("query")
