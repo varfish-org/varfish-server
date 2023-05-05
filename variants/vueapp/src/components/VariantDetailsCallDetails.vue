@@ -100,5 +100,8 @@ const allelicBalance = (value) => {
         </tr>
       </tbody>
     </table>
+    <div v-else class="card-body text-center font-italic pb-2 text-muted">
+      No genotype information available.
+    </div>
   </div>
 </template>

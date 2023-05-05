@@ -25,7 +25,7 @@ const props = defineProps({
           :key="index"
         >
           <th class="text-center">{{ name }}</th>
-          <td>{{ value }}</td>
+          <td class="text-center">{{ value }}</td>
         </tr>
       </tbody>
     </table>

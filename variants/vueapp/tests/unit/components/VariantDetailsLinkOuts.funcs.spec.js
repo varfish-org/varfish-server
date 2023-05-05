@@ -50,10 +50,7 @@ const geneNoEntrez = {
   entrez_id: null,
 }
 
-const hpoTerms = {
-  'HP:0000118': 'Phenotypic abnormality',
-  'HP:0200102': 'Sparse or absent eyelashes',
-}
+const hpoNames = ['Phenotypic abnormality', 'Sparse or absent eyelashes']
 
 const httpLinkRegex = /^https?:\/\/.*/
 const emptyLinkRegex = /^#$/
@@ -238,12 +235,16 @@ describe('VariantDetailsLinkOuts.funcs.js', () => {
   })
 
   test('getLinkoutPubMedPheno', () => {
-    expect(getLinkoutPubMedPheno(geneSymbol, hpoTerms)).toBe(
+    expect(getLinkoutPubMedPheno(geneSymbol, hpoNames)).toBe(
       'https://www.ncbi.nlm.nih.gov/pubmed/?term=CHEK2 AND ((phenotypic AND abnormality) OR (sparse AND absent AND eyelashes))'
     )
   })
 
   test('getLinkoutPubMedPheno gene missing', () => {
-    expect(getLinkoutPubMedPheno(null, hpoTerms)).toMatch(/^#$/)
+    expect(getLinkoutPubMedPheno(null, hpoNames)).toMatch(/^#$/)
+  })
+
+  test('getLinkoutPubMedPheno terms missing', () => {
+    expect(getLinkoutPubMedPheno(geneSymbol, [])).toMatch(/^#$/)
   })
 })

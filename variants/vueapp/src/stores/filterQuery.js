@@ -147,7 +147,8 @@ const fetchExtraAnnoFields = async (csrfToken) => {
 
 /** Helper that fetches the HPO terms.
  */
-const fetchHpoTerms = async (csrfToken, hpoTerms, hpoNames) => {
+const fetchHpoTerms = async (csrfToken, hpoTerms) => {
+  let _hpoNames = []
   for (const hpoTerm of hpoTerms) {
     await variantsApi.fetchHpoTerms(csrfToken, hpoTerm).then((res) => {
       if (res.length === 0) {
@@ -160,10 +161,11 @@ const fetchHpoTerms = async (csrfToken, hpoTerms, hpoNames) => {
               "' found. Taking first one."
           )
         }
-        hpoNames.push(res[0].name)
+        _hpoNames.push(res[0].name)
       }
     })
   }
+  return _hpoNames
 }
 
 /** Legacy handling code that can be removed once legacy UI has been removed.
@@ -367,8 +369,12 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     exportJobUuidTsv.value = null
     exportJobUuidVcf.value = null
     exportJobUuidXlsx.value = null
+    hpoNames.value = await fetchHpoTerms(
+      csrfToken.value,
+      querySettings.value.prio_hpo_terms
+    )
     await nextTick()
-    runFetchLoop(previousQueryDetails.value.sodar_uuid)
+    await runFetchLoop(previousQueryDetails.value.sodar_uuid)
   }
 
   /**
@@ -562,10 +568,9 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
         // 2.3 fetch the HPO names from the query settings for the HPO terms, if any
         .then(() => {
           if (querySettings.value.prio_hpo_terms.length > 0) {
-            fetchHpoTerms(
+            hpoNames.value = fetchHpoTerms(
               csrfToken.value,
-              querySettings.value.prio_hpo_terms,
-              hpoNames.value
+              querySettings.value.prio_hpo_terms
             )
           }
         }),
