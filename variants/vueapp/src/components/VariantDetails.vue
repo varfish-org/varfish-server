@@ -182,7 +182,7 @@ commentsStore.initialize(
               </div>
               <div class="col-12 col-xl-6 pl-2 pr-0">
                 <VariantDetailsCallDetails
-                  :case-description="queryStore.case"
+                  :case-description="queryStore.caseObj"
                   :small-variant="detailsStore.smallVariant"
                 />
               </div>

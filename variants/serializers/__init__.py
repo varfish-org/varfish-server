@@ -10,7 +10,7 @@ from projectroles.serializers import SODARModelSerializer
 from rest_framework import serializers
 
 from clinvar.models import Clinvar
-from extra_annos.models import ExtraAnno
+from extra_annos.models import ExtraAnno, ExtraAnnoField
 from geneinfo.models import Hgnc, Hpo, HpoName
 from geneinfo.serializers import GeneSerializer
 from genepanels.models import expand_panels_in_gene_list
@@ -487,6 +487,8 @@ class ClinvarSerializer(serializers.ModelSerializer):
 
 
 class ExtraAnnoSerializer(serializers.ModelSerializer):
+    """Serializer for the ``ExtraAnno`` model."""
+
     class Meta:
         model = ExtraAnno
         fields = (
@@ -497,8 +499,18 @@ class ExtraAnnoSerializer(serializers.ModelSerializer):
             "bin",
             "reference",
             "alternative",
-            "anno_data",
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.extra_anno_fields = ExtraAnnoField.objects.all()
+        self.fields["annotations"] = serializers.SerializerMethodField()
+
+    def get_annotations(self, obj):
+        """Given a variant, return the corresponding variant frequencies."""
+        return {
+            field.label: value for field, value in zip(list(self.extra_anno_fields), obj.anno_data)
+        }
 
 
 class AcmgCriteriaRatingSerializer(serializers.ModelSerializer):

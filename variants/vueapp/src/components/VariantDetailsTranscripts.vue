@@ -53,7 +53,7 @@ const colorVariantEffect = (effect) => {
 <template>
   <div class="card">
     <div class="card-header">
-      <h4 class="card-title pb-2">Transcript information</h4>
+      <h4 class="card-title pb-2">Transcript Information</h4>
     </div>
     <table
       v-if="props.effectDetails"

@@ -90,7 +90,7 @@ export const getLinkoutMissense3D = (smallVariant) => {
 
 export const getLinkoutPubMedPheno = (smallVariant, hpoTerms) => {
   const symbol = getGeneSymbol(smallVariant)
-  if (symbol && hpoTerms) {
+  if (symbol && hpoTerms.length > 0) {
     let terms = []
     for (const [_, text] of Object.entries(hpoTerms)) {
       const tokens = text.toLowerCase().split(/\W+/)
