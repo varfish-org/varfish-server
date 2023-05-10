@@ -48,15 +48,11 @@ export default defineConfig({
       // NB: (2022-22-08: c8 only gives 100% coverage for .vue)
       provider: 'istanbul',
       reporter: ['text', 'json', 'html'],
+      include: ['src/**'],
     },
     environment: 'happy-dom',
     include: [
-      './tests/clinvarexport/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      './tests/variants/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      './tests/svs/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      './tests/cases/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
-      './tests/cohorts/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      'tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
-    exclude: ['./static/**/*'],
   },
 })
