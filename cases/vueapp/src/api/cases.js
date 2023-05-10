@@ -57,7 +57,7 @@ export default {
   async loadProjectQcValues(csrfToken, projectUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/variants/${projectUuid}/api-qc/`
+      `/variants/ajax/project/qc/${projectUuid}/`
     )
     return await response.json()
   },

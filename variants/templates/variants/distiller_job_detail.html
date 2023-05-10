@@ -12,9 +12,9 @@
 {% endblock title %}
 
 {% block navi_sub_project_extend %}
-  <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
-  <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.case.sodar_uuid %}">{{ object.case.name }}</a></li>
-  <li class="breadcrumb-item"><a href="{% url "variants:job-list" project=project.sodar_uuid case=object.case.sodar_uuid %}">Jobs</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'cases:entrypoint' project=project.sodar_uuid %}">Cases</a></li>
+  <li class="breadcrumb-item"><a href='{% url "cases:entrypoint" project=project.sodar_uuid %}/detail/{{ object.case.sodar_uuid }}'>{{ object.case.name }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'variants:job-list' project=project.sodar_uuid case=object.case.sodar_uuid %}">Jobs</a></li>
   <li class="breadcrumb-item active">{{ object.bg_job.name }}</li>
 {% endblock %}
 
@@ -53,24 +53,6 @@
                 No MutationDistiller project ID assigned yet, please refresh page:
                 <button onClick="window.location.reload()" class="btn btn-success"><i class="iconify" data-icon="mdi:refresh"></i> Refresh page</button>
               {% endif %}
-            </div>
-          </li>
-          <li class="list-group-item row d-flex">
-            <div class="col-2 p-1"><strong>Re-Submit</strong></div>
-            <div class="col-10 pt-1 pb-1 pr-1 pl-0">
-              <form class="form-inline" action="{% url "variants:distiller-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}" method="post">
-               {% csrf_token %}
-                <div class="form-group ml-0 mr-2">
-                  <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#confirm-submit-mutationdistiller">
-                    <i class="iconify" data-icon="bi:send-fill"></i>
-                    Re-Submit
-                  </button>
-                </div>
-                <small class="form-text text-muted">
-                  Re-submit to MutationDistiller.org with the same settings, e.g., if MutationDistiller.org was offline.
-                </small>
-                {% include "variants/_distiller_resubmit_modal.html" %}
-              </form>
             </div>
           </li>
         </ul>

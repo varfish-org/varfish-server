@@ -14,8 +14,8 @@
 
 {% block navi_sub_project_extend %}
   {% if query_type == "case" %}
-    <li class="breadcrumb-item"><a href="{% url "variants:case-list" project=project.sodar_uuid %}">Cases</a></li>
-    <li class="breadcrumb-item"><a href="{% url "variants:case-detail" project=project.sodar_uuid case=object.case.sodar_uuid %}">{{ object.case.name }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url "cases:entrypoint" project=project.sodar_uuid %}">Cases</a></li>
+    <li class="breadcrumb-item"><a href="{% url "cases:entrypoint" project=project.sodar_uuid %}/detail/{{ object.sodar_uuid }}">{{ object.name }}</a></li>
     <li class="breadcrumb-item"><a href="{% url "variants:job-list" project=project.sodar_uuid case=object.case.sodar_uuid %}">Jobs</a></li>
     <li class="breadcrumb-item active">{{ object.bg_job.name }}</li>
   {% else %}
@@ -42,7 +42,7 @@
          id="card sodar-va-export-job-base-details">
       <div class="card-header">
         <h4>
-          Results &amp; Resubmit
+          Results
         </h4>
       </div>
       <div class="card-body p-0">
@@ -51,39 +51,11 @@
             <div class="col-2 p-1"><strong>Results</strong></div>
             <div class="col-10 p-1">
               <a
-                {% if query_type == "case" %}
-                  href="{% url "variants:case-filter-job" project=object.project.sodar_uuid case=object.case.sodar_uuid job=object.sodar_uuid %}"
-                {% else %} {# query_type == "project" #}
-                  href="{% url "variants:project-cases-filter-job" project=object.project.sodar_uuid job=object.sodar_uuid %}"
-                {% endif %}
+                href="{% url "cases:entrypoint" project=object.project.sodar_uuid %}#/variants/filter/{{ object.case.sodar_uuid }}/{{ object.smallvariantquery.sodar_uuid }}"
                 class="btn btn-primary">
                 <i class="iconify" data-icon="fa-regular:eye"></i>
                   View Results
               </a>
-            </div>
-          </li>
-          <li class="list-group-item row d-flex">
-            <div class="col-2 p-1"><strong>Re-Submit</strong></div>
-            <div class="col-10 p-1">
-              <form class="form-inline"
-                    {% if query_type == "case" %}
-                      action="{% url "variants:filter-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}"
-                    {% else %} {# query_type == "project" #}
-                      action="{% url "variants:project-cases-filter-job-resubmit" project=project.sodar_uuid job=object.sodar_uuid %}"
-                    {% endif %}
-                    method="post">
-               {% csrf_token %}
-                <button type="submit" class="btn btn-primary">
-                  <i class="iconify" data-icon="mdi:refresh"></i>
-                  Re-run filter
-                </button>
-                <div class="col-12 p-0">
-                  <small class="form-text text-muted">
-                    Use this form to create a new job that uses the same filter settings. This is for the case the job failed.
-                    To view results, click <span class="badge badge-primary"><i class="iconify" data-icon="fa-regular:eye"></i>View Results</span>, this is much faster.
-                  </small>
-                </div>
-              </form>
             </div>
           </li>
         </ul>
@@ -140,18 +112,14 @@
           <li class="list-group-item row d-flex">
             <div class="col-2 p-1"><strong>Case</strong></div>
             <div class="col-10 p-1">
-                <a href="{% url "variants:case-filter-job" project=object.project.sodar_uuid case=object.case.sodar_uuid job=object.sodar_uuid %}">
                   {{ object.case.name }}
-                </a>
             </div>
           </li>
           {% else %}
           <li class="list-group-item row d-flex">
             <div class="col-2 p-1"><strong>Project</strong></div>
             <div class="col-10 p-1">
-              <a href="{% url "variants:project-cases-filter-job" project=object.project.sodar_uuid job=object.sodar_uuid %}">
                 {{ object.project.title }}
-              </a>
             </div>
           </li>
           {% endif %}

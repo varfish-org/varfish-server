@@ -1,6 +1,6 @@
 <script setup>
 import { AgGridVue } from 'ag-grid-vue3'
-import { computed, reactive, ref } from 'vue'
+import { computed, onBeforeMount, reactive, ref } from 'vue'
 import { displayName } from '@varfish/helpers.js'
 import ColumnControl from './ColumnControl.vue'
 import ColumnSizeFitter from './ColumnSizeFitter.vue'
@@ -67,6 +67,14 @@ const rowData = reactive(props.queryResults)
 const gridApi = ref(null)
 /** A {@code ref} around the ag-grid's {@code columnApi}, set when the ag-grid emits {@code gridReady}. */
 const columnApi = ref(null)
+
+const context = ref(null)
+
+onBeforeMount(() => {
+  context.value = {
+    componentParent: this,
+  }
+})
 
 /**
  * Configuration for the ag-grid row to color them based on flags.
@@ -233,7 +241,9 @@ const onCellClicked = (event) => {
         :onFirstDataRendered="onFirstDataRendered"
         :onCellClicked="onCellClicked"
         :rowClassRules="rowClassRules"
+        :context="context"
         @grid-ready="onGridReady"
+        @variant-selected="emit('variantSelected')"
       />
     </div>
   </div>

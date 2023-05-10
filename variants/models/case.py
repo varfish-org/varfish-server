@@ -239,16 +239,21 @@ class Case(CoreCase):
 
     def get_absolute_url(self):
         """Return absolute URL for the detail view of this case."""
-        return reverse(
-            "variants:case-detail",
-            kwargs={"project": self.project.sodar_uuid, "case": self.sodar_uuid},
+        return (
+            reverse("cases:entrypoint", kwargs={"project": self.project.sodar_uuid})
+            + "#/detail/"
+            + str(self.sodar_uuid)
         )
 
     def get_filter_url(self):
         """Return absolute URL for the filtration view of this case."""
-        return reverse(
-            "variants:case-filter",
-            kwargs={"project": self.project.sodar_uuid, "case": self.sodar_uuid},
+        return (
+            reverse(
+                "cases:entrypoint",
+                kwargs={"project": self.project.sodar_uuid},
+            )
+            + "#/variants/filter/"
+            + str(self.sodar_uuid)
         )
 
     def get_background_jobs(self):

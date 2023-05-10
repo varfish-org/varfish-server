@@ -46,33 +46,33 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
     """Plugin for registering app with Projectroles"""
 
     name = "variants"
-    title = "Cases"
+    title = "Variants"
     urls = lazy(get_urlpatterns, list)()
     # ...
 
     icon = "mdi:hospital-building"
 
-    entry_point_url_id = "variants:case-list"
+    entry_point_url_id = "cases:entrypoint"
 
-    description = "Cases"
+    description = "Variants"
 
     #: Required permission for accessing the app
     app_permission = "variants.view_data"
 
     #: Enable or disable general search from project title bar
-    search_enable = True
+    search_enable = False
 
     #: List of search object types for the app
-    search_types = ["case"]
+    search_types = []
 
     #: Search results template
-    search_template = "variants/_search_results.html"
+    search_template = None
 
     #: App card template for the project details page
-    details_template = "variants/_details_card.html"
+    details_template = None
 
     #: App card title for the project details page
-    details_title = "Cases Overview (top 5 most recently updated)"
+    details_title = "Variants"
 
     #: Position in plugin ordering
     plugin_ordering = 10

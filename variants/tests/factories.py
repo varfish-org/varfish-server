@@ -262,63 +262,8 @@ class FlagsFormDataFactoryBase:
 
 
 @attr.s(auto_attribs=True)
-class SmallVariantFlagsFormDataFactory(
-    FlagsFormDataFactoryBase, ChromosomalPositionFormDataFactoryBase
-):
-    pass
-
-
-@attr.s(auto_attribs=True)
-class SmallVariantCommentFormDataFactory(ChromosomalPositionFormDataFactoryBase):
-    text: str = "Comment X"
-
-
-@attr.s(auto_attribs=True)
 class MultiSmallVariantFlagsAndCommentFormDataFactory(FlagsFormDataFactoryBase):
     text: str = "Comment X"
-
-
-@attr.s(auto_attribs=True)
-class AcmgCriteriaRatingFormDataFactory(ChromosomalPositionFormDataFactoryBase):
-    pvs1: int = 0
-    ps1: int = 0
-    ps2: int = 0
-    ps3: int = 0
-    ps4: int = 0
-    pm1: int = 0
-    pm2: int = 0
-    pm3: int = 0
-    pm4: int = 0
-    pm5: int = 0
-    pm6: int = 0
-    pp1: int = 0
-    pp2: int = 0
-    pp3: int = 0
-    pp4: int = 0
-    pp5: int = 0
-    ba1: int = 0
-    bs1: int = 0
-    bs2: int = 0
-    bs3: int = 0
-    bs4: int = 0
-    bp1: int = 0
-    bp2: int = 0
-    bp3: int = 0
-    bp4: int = 0
-    bp5: int = 0
-    bp6: int = 0
-    bp7: int = 0
-
-
-@attr.s(auto_attribs=True)
-class CaseNotesStatusFormFactory:
-    notes: str = "This is some text"
-    status: str = "initial"
-
-
-@attr.s(auto_attribs=True)
-class CaseCommentsFormFactory:
-    comment: str = "This is some comment"
 
 
 class RemoteSiteFactory(factory.django.DjangoModelFactory):
