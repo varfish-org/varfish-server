@@ -142,7 +142,10 @@ const userHasPerms = (perm) =>
           </template>
           <br />
           <template v-if="termsMap[member.name]?.terms?.length">
-            <div v-for="term in termsMap[member.name].terms">
+            <div
+              v-for="term in termsMap[member.name].terms"
+              @change="fetchTermLabels()"
+            >
               {{ term.label || term.term }}
             </div>
           </template>

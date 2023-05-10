@@ -241,7 +241,7 @@ export const useCaseDetailsStore = defineStore(
 
     /** Get case phenotypes from store. */
     const getCasePhenotypeTerms = (casePhenotypeTermsUuid) => {
-      for (const phenotypeTerms of caseObj.value.phenotype_terms) {
+      for (const phenotypeTerms of casePhenotypeTerms.value) {
         if (phenotypeTerms.sodar_uuid === casePhenotypeTermsUuid) {
           return phenotypeTerms
         }
@@ -262,12 +262,11 @@ export const useCaseDetailsStore = defineStore(
           casePhenotypeTermsUuid,
           payload
         )
-        for (let i = 0; i < caseObj.value.phenotype_terms.length; ++i) {
+        for (let i = 0; i < casePhenotypeTerms.value.length; ++i) {
           if (
-            caseObj.value.phenotype_terms[i].sodar_uuid ===
-            casePhenotypeTermsUuid
+            casePhenotypeTerms.value[i].sodar_uuid === casePhenotypeTermsUuid
           ) {
-            caseObj.value.phenotype_terms[i] = apiCasePhenotypeTerms
+            casePhenotypeTerms.value[i] = apiCasePhenotypeTerms
             break
           }
         }
@@ -287,7 +286,7 @@ export const useCaseDetailsStore = defineStore(
           caseUuid,
           payload
         )
-        caseObj.value.phenotype_terms.push(apiCasePhenotypeTerms)
+        casePhenotypeTerms.value.push(apiCasePhenotypeTerms)
       } finally {
         casesStore.serverInteractions -= 1
       }
