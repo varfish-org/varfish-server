@@ -99,7 +99,7 @@ aldjemy >=2.2, <2.3
 sqlparse >=0.4.1, <0.5
 
 # Kenneth Reitz's wonderful HTTP library.
-requests ==2.25.1
+requests ==2.31.0
 # Parsing of HTML
 beautifulsoup4 >=4.9.3, <4.10
 
