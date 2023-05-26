@@ -13,7 +13,6 @@ import {
   getLinkoutPubMedPheno,
   getLinkoutUcsc,
   getLinkoutUmd,
-  getLinkoutVariantValidator,
   getLinkoutVarseak,
   getLinkoutVarsome,
 } from '@variants/components/VariantDetailsLinkOuts.funcs.js'
@@ -28,7 +27,6 @@ const smallvariantBasedFunctions = [
   getLinkoutGnomad,
   getLinkoutGnomadGene,
   getLinkoutUcsc,
-  getLinkoutVariantValidator,
   getLinkoutVarsome,
 ]
 

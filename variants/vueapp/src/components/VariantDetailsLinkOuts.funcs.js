@@ -169,18 +169,6 @@ export const getLinkoutVarsome = (smallVariant) => {
   }
 }
 
-export const getLinkoutVariantValidator = (smallVariant) => {
-  if (!smallVariant) {
-    return '#'
-  } else if (smallVariant.release === 'GRCh37') {
-    return 'https://notimplemented'
-  } else if (smallVariant.release === 'GRCh38') {
-    return 'https://notimplemented'
-  } else {
-    return '#'
-  }
-}
-
 export const getLinkoutVarseak = (smallVariant, gene) => {
   if (!smallVariant || !gene) {
     return '#'
