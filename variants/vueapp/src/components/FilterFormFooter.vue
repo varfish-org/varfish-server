@@ -28,8 +28,29 @@ const spinButtonIcon = computed(() => {
   ].includes(props.queryState)
 })
 
-const showError = computed(() => {
-  return props.anyHasError
+const filterButtonText = computed(() => {
+  return props.queryState === QueryStates.Running.value ||
+    props.queryState === QueryStates.Fetching.value ||
+    props.queryState === QueryStates.Resuming.value
+    ? 'Cancel'
+    : 'Filter & Display'
+})
+
+const filterButtonColor = computed(() => {
+  let color
+  if (
+    props.queryState === QueryStates.Running.value ||
+    props.queryState === QueryStates.Fetching.value ||
+    props.queryState === QueryStates.Resuming.value
+  ) {
+    color = 'btn-warning'
+  } else {
+    color = 'btn-primary'
+  }
+  if (props.anyHasError) {
+    color = 'btn-danger'
+  }
+  return color
 })
 
 const filterQueryStore = useFilterQueryStore()
@@ -88,12 +109,12 @@ const devStoreState = () => {
           type="button"
           id="submitFilter"
           class="btn"
-          :class="{ 'btn-primary': !showError, 'btn-danger': showError }"
+          :class="filterButtonColor"
           @click="emit('submitCancelButtonClick')"
           title="Filter variants with current settings"
         >
           <i-mdi-refresh :class="{ spin: spinButtonIcon }" />
-          Filter &amp; Display
+          {{ filterButtonText }}
         </button>
       </div>
     </div>
