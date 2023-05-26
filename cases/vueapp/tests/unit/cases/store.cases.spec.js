@@ -19,7 +19,7 @@ vi.mock('@cases/api/cases.js')
 
 describe('cases store', () => {
   const appContext = {
-    csrfToken: 'fake-token',
+    csrf_token: 'fake-token',
     project: {
       sodar_uuid: 'fake-uuid',
       title: 'fake-title',

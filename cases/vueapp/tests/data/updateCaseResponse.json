@@ -1,0 +1,41 @@
+{
+  "sodar_uuid": "45847808-31a1-4f98-945f-675195708160",
+  "project": "a6a71b4c-112b-4bc9-9d0c-590523820e09",
+  "sex_errors": {},
+  "release": "GRCh37",
+  "name": "Case_1_index",
+  "index": "Case_1_index-N1-DNA1-WGS1",
+  "pedigree": [
+    {
+      "sex": 2,
+      "father": "Case_1_father-N1-DNA1-WGS1",
+      "mother": "Case_1_mother-N1-DNA1-WGS1",
+      "name": "Case_1_index-N1-DNA1-WGS1",
+      "affected": 2,
+      "has_gt_entries": true
+    },
+    {
+      "sex": 1,
+      "father": "0",
+      "mother": "0",
+      "name": "Case_1_father-N1-DNA1-WGS1",
+      "affected": 2,
+      "has_gt_entries": true
+    },
+    {
+      "sex": 2,
+      "father": "0",
+      "mother": "0",
+      "name": "Case_1_mother-N1-DNA1-WGS1",
+      "affected": 1,
+      "has_gt_entries": true
+    }
+  ],
+  "notes": "",
+  "status": "initial",
+  "tags": [],
+  "date_created": "2023-03-10T11:35:53.895472Z",
+  "date_modified": "2023-05-11T15:11:52.218355Z",
+  "num_small_vars": 4175830,
+  "num_svs": 24163
+}

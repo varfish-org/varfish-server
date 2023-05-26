@@ -1,0 +1,26 @@
+[
+  {
+    "sodar_uuid": "a9884765-648a-409b-8372-2d437acb1cc9",
+    "date_created": "2023-05-09T13:55:14.088750Z",
+    "date_modified": "2023-05-10T11:55:50.017110Z",
+    "case": "45847808-31a1-4f98-945f-675195708160",
+    "individual": "Case_1_father-N1-DNA1-WGS1",
+    "terms": []
+  },
+  {
+    "sodar_uuid": "0fd90d0c-93ff-46a3-8187-37e00fcec42a",
+    "date_created": "2023-05-09T13:54:58.018007Z",
+    "date_modified": "2023-05-10T11:57:07.743668Z",
+    "case": "45847808-31a1-4f98-945f-675195708160",
+    "individual": "Case_1_index-N1-DNA1-WGS1",
+    "terms": ["HP:0001362"]
+  },
+  {
+    "sodar_uuid": "73809074-02aa-4a9a-9f5d-878f7089bee8",
+    "date_created": "2023-05-10T11:18:09.901786Z",
+    "date_modified": "2023-05-10T11:51:39.315253Z",
+    "case": "45847808-31a1-4f98-945f-675195708160",
+    "individual": "Case_1_mother-N1-DNA1-WGS1",
+    "terms": ["HP:0000886", "HP:0001631"]
+  }
+]
