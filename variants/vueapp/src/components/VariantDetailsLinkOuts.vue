@@ -14,7 +14,6 @@ import {
   getLinkoutPubMedPheno,
   getLinkoutUcsc,
   getLinkoutUmd,
-  getLinkoutVariantValidator,
   getLinkoutVarseak,
   getLinkoutVarsome,
   getLinkoutMt85,
@@ -165,6 +164,13 @@ const props = defineProps({
           :class="getLinkoutMissense3D(smallVariant) === '#' ? 'disabled' : ''"
           target="_blank"
           >Missense3D</a
+        >
+        <a
+          :href="getLinkoutVarsome(smallVariant)"
+          class="btn btn-outline-secondary"
+          :class="getLinkoutVarsome(smallVariant) === '#' ? 'disabled' : ''"
+          target="_blank"
+          >VarSome</a
         >
         <a
           :href="getLinkoutPubMedPheno(smallVariant, queryStore.hpoNames)"
