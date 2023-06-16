@@ -22,6 +22,9 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
   /** The small variants as fetched from API. */
   const comments = ref(null)
 
+  /** The comments for all variants of the case with the given `caseUuid`. */
+  const caseComments = ref(null)
+
   /**
    * Initialize the store.
    */
@@ -30,9 +33,31 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
       // initialize only once
       return
     }
-    storeState.value = StoreState.active
+
     caseUuid.value = caseUuuidArg
     csrfToken.value = applicationContext.csrf_token
+
+    await _fetchCaseComments()
+
+    storeState.value = StoreState.active
+  }
+
+  /**
+   * Fetch all comments for the current case
+   */
+  const _fetchCaseComments = async () => {
+    serverInteractions.value += 1
+    try {
+      const res = await variantsApi.listComment(csrfToken.value, caseUuid.value)
+      caseComments.value = Object.fromEntries(
+        res.map((comments) => [comments.sodar_uuid, comments])
+      )
+    } catch (err) {
+      storeState.value = StoreState.error
+      throw err
+    } finally {
+      serverInteractions.value -= 1
+    }
   }
 
   /**
@@ -75,6 +100,7 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
       serverInteractions.value -= 1
     }
 
+    caseComments.value[result.sodar_uuid] = result
     comments.value.push(result)
 
     return result
@@ -94,6 +120,8 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     } finally {
       serverInteractions.value -= 1
     }
+
+    caseComments.value[result.sodar_uuid] = result
 
     for (let i = 0; i < comments.value.length; i++) {
       if (comments.value[i].sodar_uuid === commentUuid) {
@@ -116,9 +144,33 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
       serverInteractions.value -= 1
     }
 
+    delete caseComments.value[commentUuid]
     comments.value = comments.value.filter(
       (comment) => comment.sodar_uuid !== commentUuid
     )
+  }
+
+  /**
+   * Does a variant have comments?
+   */
+  const hasComments = (variant) => {
+    if (!caseComments.value) {
+      return false
+    }
+    for (const comment of Object.values(caseComments.value)) {
+      if (
+        comment.release === variant.release &&
+        comment.chromosome === variant.chromosome &&
+        comment.start === variant.start &&
+        comment.end === variant.end &&
+        comment.reference === variant.reference &&
+        comment.alternative === variant.alternative
+      ) {
+        return true
+      }
+    }
+
+    return false
   }
 
   return {
@@ -135,5 +187,6 @@ export const useVariantCommentsStore = defineStore('variantComments', () => {
     createComment,
     updateComment,
     deleteComment,
+    hasComments,
   }
 })

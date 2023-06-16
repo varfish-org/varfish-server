@@ -1,12 +1,29 @@
 <script setup>
-import { AgGridVue } from 'ag-grid-vue3'
-import { computed, onBeforeMount, reactive, ref } from 'vue'
-import { displayName } from '@varfish/helpers.js'
+import EasyDataTable from 'vue3-easy-data-table'
+import 'vue3-easy-data-table/dist/style.css'
+import { computed, onBeforeMount, ref } from 'vue'
+import {
+  displayName,
+  formatLargeInt,
+  formatFloat,
+  truncateText,
+} from '@varfish/helpers.js'
+import { getAcmgBadge } from '@variants/helpers.js'
 import ColumnControl from './ColumnControl.vue'
-import ColumnSizeFitter from './ColumnSizeFitter.vue'
 import ExportResults from './ExportResults.vue'
-import { defineColumnDefs } from './FilterResultsTable.columnDefs.js'
-import { declareWrapper } from '../helpers'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { useVariantFlagsStore } from '@variants/stores/variantFlags'
+import { useVariantCommentsStore } from '@variants/stores/variantComments'
+import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
+import { copy, declareWrapper } from '../helpers'
+import {
+  DisplayConstraints,
+  DisplayConstraintsToText,
+  DisplayFrequencies,
+  DisplayColumnsToText,
+  DisplayDetails,
+} from '@variants/enums'
 
 /**
  * The component's props.
@@ -14,8 +31,6 @@ import { declareWrapper } from '../helpers'
 const props = defineProps({
   /** The case with the property to display for. */
   case: Object,
-  /** The results from the query to display in the table. */
-  queryResults: Object,
   /** Which details to display, integer value from {@code DisplayDetails}. */
   displayDetails: Number,
   /** Which frequency information to display, integer value from {@code DisplayFrequency}. */
@@ -60,79 +75,99 @@ const displayConstraintWrapper = declareWrapper(
 )
 /** Wrapper around {@code displayColumns} prop. */
 const displayColumnsWrapper = declareWrapper(props, 'displayColumns', emit)
-/** Reactive wrapper around the {@code queryResults} prop so the ag-grid can react to data being loaded. */
-const rowData = reactive(props.queryResults)
-
-/** A {@code ref} around the ag-grid's {@code api}, set when the ag-grid emits {@code gridReady}. */
-const gridApi = ref(null)
-/** A {@code ref} around the ag-grid's {@code columnApi}, set when the ag-grid emits {@code gridReady}. */
-const columnApi = ref(null)
 
 const context = ref(null)
 
-onBeforeMount(() => {
-  context.value = {
-    componentParent: this,
+/**
+ * Setup stores before mounting the component.
+ */
+const detailsStore = useVariantDetailsStore()
+const queryStore = useFilterQueryStore()
+const flagsStore = useVariantFlagsStore()
+const commentsStore = useVariantCommentsStore()
+const acmgRatingStore = useVariantAcmgRatingStore()
+
+/** Update display when pagination or sorting changed. */
+/**
+watch(
+  [
+    () => queryStore.tableServerOptions.page,
+    () => queryStore.tableServerOptions.rowsPerPage,
+    () => queryStore.tableServerOptions.sortBy,
+    () => queryStore.tableServerOptions.sortType,
+  ],
+  async (
+    [_newPageNo, _newRowsPerPage, _newSortBy, _newSortType],
+    [_oldPageNo, _oldRowsPerPage, _oldSortBy, _oldSortType]
+  ) => {
+    queryStore.queryState = QueryStates.Resuming.value
+    await queryStore.runFetchLoop(queryStore.previousQueryDetails.sodar_uuid)
   }
+)
+*/
+
+onBeforeMount(() => {
+  tableLoading.value = true
+  const appContext = { csrf_token: queryStore.csrfToken }
+  Promise.all([
+    flagsStore.initialize(appContext, queryStore.caseUuid),
+    commentsStore.initialize(appContext, queryStore.caseUuid),
+    acmgRatingStore.initialize(appContext, queryStore.caseUuid),
+  ]).then(() => {
+    tableLoading.value = false
+  })
+})
+
+const displayConstraintText = computed(() => {
+  /** TODO Somehow it displays the string with quotes ... :/ */
+  return DisplayConstraintsToText[displayConstraintWrapper.value]
 })
 
 /**
- * Configuration for the ag-grid row to color them based on flags.
+ * Setup for easy-data-table.
  */
-const rowClassRules = {
-  'row-positive': "data.flag_summary === 'positive'",
-  'row-uncertain': "data.flag_summary === 'uncertain'",
-  'row-negative': "data.flag_summary === 'negative'",
-  'row-wip': (params) => {
-    return (
-      params.data.flag_summary === 'empty' &&
-      (params.data.flag_visual !== 'empty' ||
-        params.data.flag_validation !== 'empty' ||
-        params.data.flag_molecular !== 'empty' ||
-        params.data.flag_phenotype_match !== 'empty' ||
-        params.data.flag_candidate === true ||
-        params.data.flag_doesnt_segregate === true ||
-        params.data.flag_final_causative === true ||
-        params.data.flag_for_validation === true ||
-        params.data.flag_no_disease_association === true ||
-        params.data.flag_segregates === true)
-    )
-  },
+
+const coordinatesClinvarColumns = () => {
+  if (props.displayDetails === DisplayDetails.Clinvar.value) {
+    return [{ text: 'clinvar summary', value: 'clinvar', sortable: true }]
+  }
+  return [
+    { text: 'position', value: 'position', sortable: true },
+    { text: 'ref', value: 'reference', sortable: true },
+    { text: 'alt', value: 'alternative', sortable: true },
+  ]
 }
 
-/** Default column definition for the ag-grid. */
-const defaultColDef = { resizable: true }
-
-/** Computed property that defines the column definitions for the genotype columns. */
-const genotypesWrapper = computed(() => {
-  if (!props.case || !props.case.pedigree) {
-    return []
-  } else {
-    return props.case.pedigree.map((member) => {
-      return {
-        field: 'genotype_' + displayName(member.name),
-        headerName: displayName(member.name),
-        valueGetter: (params) => {
-          return params.data.genotype[member.name].gt
-        },
-        sortable: true,
-        filter: 'agTextColumnFilter',
-        filterParams: {
-          filterOptions: ['equals', 'notEqual'],
-        },
-      }
-    })
+const optionalColumns = () => {
+  const optionalColumnTexts = copy(DisplayColumnsToText)
+  for (const { field, label } of props.extraAnnoFields) {
+    optionalColumnTexts[`extra_anno${field}`] = label
   }
-})
+  return props.displayColumns.map((field) => ({
+    text: optionalColumnTexts[field],
+    value: field,
+    sortable: true,
+  }))
+}
 
-const scoreWrapper = computed(() => {
+const genotypeColumns = () => {
+  if (!props.case) {
+    return []
+  }
+  return props.case.pedigree.map(({ name }) => ({
+    text: displayName(name),
+    value: `genotype_${displayName(name)}`,
+    sortable: true,
+  }))
+}
+
+const scoreColumns = () => {
   let data = []
   if (props.pathoEnabled) {
     data = [
-      ...data,
       {
-        field: 'pathogenicity_score',
-        headerName: 'patho score',
+        text: 'patho score',
+        value: 'pathogenicity_score',
         sortable: true,
       },
     ]
@@ -141,8 +176,8 @@ const scoreWrapper = computed(() => {
     data = [
       ...data,
       {
-        field: 'phenotype_score',
-        headerName: 'pheno score',
+        text: 'pheno score',
+        value: 'phenotype_score',
         sortable: true,
       },
     ]
@@ -151,56 +186,235 @@ const scoreWrapper = computed(() => {
     data = [
       ...data,
       {
-        field: 'patho_pheno_score',
-        headerName: 'patho+pheno score',
+        text: 'patho+pheno score',
+        value: 'patho_pheno_score',
         sortable: true,
       },
     ]
   }
   return data
+}
+
+const extraAnnoFieldFormat = (value, pos) => {
+  if (!value) return '-'
+  let ret = parseFloat(value[0][pos - 1])
+  return Number.isInteger(ret) ? ret : formatFloat(ret, 4)
+}
+
+const tableHeaders = computed(() => {
+  return [
+    { text: 'variant icons', value: 'variant_icons', hidden: true },
+    ...coordinatesClinvarColumns(),
+    { text: 'frequency', value: 'frequency', sortable: true },
+    { text: '#hom', value: 'homozygous', sortable: true },
+    { text: displayConstraintText, value: 'constraints', sortable: true },
+    { text: 'constraint', value: 'constraints', sortable: true },
+    { text: 'gene', value: 'gene', sortable: true },
+    { text: 'gene icons', value: 'gene_icons', sortable: true },
+    ...optionalColumns(),
+    ...genotypeColumns(),
+    ...scoreColumns(),
+    { text: '', value: 'igv', sortable: true },
+  ]
 })
 
-/**
- * Define the column definitions for the ag-grid as a reactive value.
- *
- * We have moved the long array literal for defining this into its own file to keep this component file easier to read.
- */
-const columnDefs = reactive(
-  defineColumnDefs({
-    displayFrequency: displayFrequencyWrapper.value,
-    displayConstraint: displayConstraintWrapper.value,
-    displayDetails: displayDetailsWrapper.value,
-    displayColumns: displayColumnsWrapper.value,
-    genotypes: genotypesWrapper.value,
-    extraAnnoFields: props.extraAnnoFields,
-    score: scoreWrapper.value,
-  })
-)
+/** Rows to display in the table. */
+const tableRows = ref([])
+/** Whether the Vue3EasyDataTable is loading. */
+const tableLoading = ref(false)
 
 /**
- * Event handler for ag-grid's {@code gridReady} event.
- *
- * @param event The event as raised by the ag-grid
+ * Configuration for the ag-grid row to color them based on flags.
  */
-const onGridReady = (event) => {
-  gridApi.value = event.api
-  columnApi.value = event.columnApi
-}
-
-/** Event handler for ag-grid's {@code firstDataRendered} event. */
-const onFirstDataRendered = () => {
-  gridApi.value.sizeColumnsToFit()
-}
-
-/** Event handler for ag-grid's {@code cellClicked} event. */
-const onCellClicked = (event) => {
-  if (!['selector', 'variant_icons', 'igv'].includes(event.column.getColId())) {
-    emit('variantSelected', {
-      gridRow: event.node,
-      gridApi: event.api,
-      smallVariant: event.data,
-    })
+const tableRowClassName = (item, _rowNumber) => {
+  if (!flagsStore.caseFlags) {
+    return ''
   }
+  const flagColors = ['positive', 'uncertain', 'negative']
+  const flags = flagsStore.getFlags(item)
+  if (!flags) {
+    return ''
+  }
+  if (flagColors.includes(flags.flag_summary)) {
+    return `${flags.flag_summary}-row`
+  }
+  return flagColors.includes(flags.flag_visual) ||
+    flagColors.includes(flags.flag_validation) ||
+    flagColors.includes(flags.flag_molecular) ||
+    flagColors.includes(flags.flag_phenotype_match) ||
+    flags.flag_candidate ||
+    flags.flag_doesnt_segregate ||
+    flags.flag_final_causative ||
+    flags.flag_for_validation ||
+    flags.flag_no_disease_association ||
+    flags.flag_segregates
+    ? 'bookmarked-row'
+    : ''
+}
+
+const formatFreq = (value) => {
+  return formatFloat(value, 5)
+}
+
+const formatConstraint = (value) => {
+  return formatFloat(value, 3)
+}
+
+const getSymbol = (item) => item.symbol || item.gene_symbol
+const getAcmgBadgeClasses = (acmgClass) => {
+  let acmgBadgeClasses = ['ml-1', 'badge', getAcmgBadge(acmgClass)]
+  if (!acmgClass) {
+    acmgBadgeClasses.push('badge-outline')
+  }
+  return acmgBadgeClasses.join(' ')
+}
+
+const displayFrequencyContent = (item) => {
+  return displayFrequencyWrapper.value === DisplayFrequencies.Exac.value
+    ? formatFreq(item.exac_frequency)
+    : displayFrequencyWrapper.value === DisplayFrequencies.ThousandGenomes.value
+    ? formatFreq(item.thousand_genomes_frequency)
+    : displayFrequencyWrapper.value === DisplayFrequencies.GnomadExomes.value
+    ? formatFreq(item.gnomad_exomes_frequency)
+    : displayFrequencyWrapper.value === DisplayFrequencies.GnomadGenomes.value
+    ? formatFreq(item.gnomad_genomes_frequency)
+    : displayFrequencyWrapper.value === DisplayFrequencies.InhouseDb.value
+    ? item.inhouse_carriers
+    : displayFrequencyWrapper.value === DisplayFrequencies.MtDb.value
+    ? formatFreq(item.mtdb_frequency)
+    : displayFrequencyWrapper.value === DisplayFrequencies.HelixMtDb.value
+    ? formatFreq(item.helixmtdb_frequency)
+    : displayFrequencyWrapper.value === DisplayFrequencies.Mitomap.value
+    ? formatFreq(item.mitomap_frequency)
+    : '-'
+}
+
+const displayHomozygousContent = (item) => {
+  return displayFrequencyWrapper.value === DisplayFrequencies.Exac.value
+    ? item.exac_homozygous
+    : displayFrequencyWrapper.value === DisplayFrequencies.ThousandGenomes.value
+    ? item.thousand_genomes_homozygous
+    : displayFrequencyWrapper.value === DisplayFrequencies.GnomadExomes.value
+    ? item.gnomad_exomes_homozygous
+    : displayFrequencyWrapper.value === DisplayFrequencies.GnomadGenomes.value
+    ? item.gnomad_genomes_homozygous
+    : displayFrequencyWrapper.value === DisplayFrequencies.InhouseDb.value
+    ? item.inhouse_hom_alt
+    : displayFrequencyWrapper.value === DisplayFrequencies.MtDb.value
+    ? item.mtdb_count
+    : displayFrequencyWrapper.value === DisplayFrequencies.HelixMtDb.value
+    ? item.helixmtdb_hom_count
+    : displayFrequencyWrapper.value === DisplayFrequencies.Mitomap.value
+    ? item.mitomap_count
+    : '-'
+}
+
+const displayConstraintsContent = (item) => {
+  return displayConstraintWrapper.value === DisplayConstraints.ExacPli.value
+    ? formatConstraint(item.exac_pLI)
+    : displayConstraintWrapper.value === DisplayConstraints.ExacZMis.value
+    ? formatConstraint(item.exac_mis_z)
+    : displayConstraintWrapper.value === DisplayConstraints.ExacZSyn.value
+    ? formatConstraint(item.exac_syn_z)
+    : displayConstraintWrapper.value === DisplayConstraints.GnomadLoeuf.value
+    ? formatConstraint(item.gnomad_loeuf)
+    : displayConstraintWrapper.value === DisplayConstraints.GnomadPli.value
+    ? formatConstraint(item.gnomad_pLI)
+    : displayConstraintWrapper.value === DisplayConstraints.GnomadZMis.value
+    ? formatConstraint(item.gnomad_mis_z)
+    : displayConstraintWrapper.value === DisplayConstraints.GnomadZSyn.value
+    ? formatConstraint(item.gnomad_syn_z)
+    : displayConstraintWrapper.value === DisplayConstraints.ExacZMis.value
+    ? formatConstraint(item.exac_mis_z)
+    : '-'
+}
+
+const isOnAcmgList = (item) => item.acmg_symbol !== null
+const isDiseaseGene = (item) =>
+  new String(item.disease_gene).toLowerCase() === 'true'
+const sortedModesOfInheritance = (item) => {
+  return Array.from(item.modes_of_inheritance).sort()
+}
+const effectSummary = (item) => {
+  return [null, 'p.?', 'p.='].includes(item.hgvs_p) ? item.hgvs_c : item.hgvs_p
+}
+const goToLocus = async (item) => {
+  const chrPrefixed = item.chromosome.startsWith('chr')
+    ? item.chromosome
+    : `chr${item.chromosome}`
+  await fetch(
+    `http://127.0.0.1:60151/goto?locus=${chrPrefixed}:${item.start}-${item.end}`
+  ).catch((e) => {
+    const msg =
+      "Couldn't connect to IGV. Please make sure IGV is running and try again."
+    alert(msg)
+    console.error(msg)
+  })
+}
+const mtLink = (item) =>
+  item.release === 'GRCh37'
+    ? `https://www.genecascade.org/MTc2021/ChrPos102.cgi?chromosome=${item.chromosome}&position=${item.start}&ref=${item.reference}&alt=${item.alternative}`
+    : '#'
+
+const getClinvarSignificanceBadge = (patho) => {
+  if (patho === 'pathogenic') {
+    return 'badge-danger'
+  } else if (patho === 'likely pathogenic') {
+    return 'badge-warning'
+  } else if (patho === 'uncertain significance') {
+    return 'badge-info'
+  } else if (patho === 'likely benign') {
+    return 'badge-secondary'
+  } else if (patho === 'benign') {
+    return 'badge-secondary'
+  }
+  return 'badge-secondary'
+}
+
+const showVariantDetails = (item) => {
+  emit('variantSelected', item)
+}
+
+const showCommentsFlags = (item) => {
+  detailsStore.modalTab = 'comments-flags-tab'
+  showVariantDetails(item)
+}
+
+const showAcmgRating = (item) => {
+  detailsStore.modalTab = 'acmg-rating-tab'
+  showVariantDetails(item)
+}
+
+const updateSort = (sortOptions) => {
+  console.log(JSON.stringify(sortOptions))
+}
+
+const displayAmbiguousFrequencyWarning = (item) => {
+  const tables = [
+    'exac',
+    'thousand_genomes',
+    'gnomad_exomes',
+    'gnomad_genomes',
+    'inhouse',
+  ]
+  let ambiguousTables = []
+  for (const table of tables) {
+    const hom_field =
+      table === 'inhouse' ? 'inhouse_hom_alt' : table + '_homozygous'
+    if (
+      item[hom_field] > 50 ||
+      (table !== 'inhouse' && item[table + '_frequency'] > 0.1)
+    ) {
+      ambiguousTables.push(table)
+    }
+  }
+  return ambiguousTables
+}
+
+const displayAmbiguousFrequencyWarningMsg = (item) => {
+  const tables = displayAmbiguousFrequencyWarning(item)
+  const tablesStr = tables.join(' ')
+  return `Table(s) {tablesStr} contain(s) freq > 0.1 or #hom > 50`
 }
 </script>
 
@@ -215,13 +429,11 @@ const onCellClicked = (event) => {
         </div>
         <div class="text-center">
           <span class="btn btn-sm btn-outline-secondary" id="results-button">
-            {{ rowData.length }}
+            {{ queryStore.queryResultsCount }}
           </span>
         </div>
       </div>
-      <ColumnSizeFitter :column-api="columnApi" :grid-api="gridApi" />
       <ColumnControl
-        :column-api="columnApi"
         :extra-anno-fields="props.extraAnnoFields"
         v-model:display-details="displayDetailsWrapper"
         v-model:display-frequency="displayFrequencyWrapper"
@@ -231,20 +443,232 @@ const onCellClicked = (event) => {
       <ExportResults />
     </div>
     <div class="card-body p-0 b-0">
-      <!-- ag-grid itself -->
-      <AgGridVue
-        style="height: 100%"
-        class="ag-theme-alpine"
-        :columnDefs="columnDefs"
-        :rowData="rowData"
-        :defaultColDef="defaultColDef"
-        :onFirstDataRendered="onFirstDataRendered"
-        :onCellClicked="onCellClicked"
-        :rowClassRules="rowClassRules"
-        :context="context"
-        @grid-ready="onGridReady"
-        @variant-selected="emit('variantSelected')"
-      />
+      <EasyDataTable
+        v-model:server-options="queryStore.tableServerOptions"
+        table-class-name="customize-table"
+        :loading="tableLoading"
+        @update-sort="updateSort"
+        :body-row-class-name="tableRowClassName"
+        :headers="tableHeaders"
+        :items="queryStore.queryResults"
+        :rows-items="[200]"
+        theme-color="#6c757d"
+        header-text-direction="left"
+        body-text-direction="left"
+        alternating
+        show-index
+      >
+        <template #item-variant_icons="item">
+          <i-fa-search class="text-muted" @click="showVariantDetails(item)" />
+          <i-fa-solid-bookmark
+            v-if="flagsStore.hasFlags(item)"
+            class="text-muted ml-1"
+            title="flags & bookmarks"
+            @click="showCommentsFlags(item)"
+          />
+          <i-fa-regular-bookmark
+            v-else
+            class="text-muted ml-1"
+            title="flags & bookmarks"
+            @click="showCommentsFlags(item)"
+          />
+
+          <i-fa-solid-comment
+            v-if="commentsStore.hasComments(item)"
+            class="text-muted ml-1"
+            @click="showCommentsFlags(item)"
+          />
+          <i-fa-regular-comment
+            v-else
+            class="text-muted ml-1"
+            @click="showCommentsFlags(item)"
+          />
+
+          <span
+            title="ACMG rating"
+            :class="getAcmgBadgeClasses(acmgRatingStore.getAcmgRating(item))"
+            @click="showAcmgRating(item)"
+            >{{ acmgRatingStore.getAcmgRating(item) || '-' }}</span
+          >
+
+          <a
+            v-if="item.rsid"
+            target="_blank"
+            :href="
+              'https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=' +
+              item.rsid.slice(2)
+            "
+          >
+            <i-fa-solid-database class="ml-1 text-muted" />
+          </a>
+          <i-fa-solid-database v-else class="ml-1 text-muted icon-inactive" />
+
+          <a
+            v-if="item.in_clinvar && item.summary_pathogenicity_label"
+            target="_blank"
+            :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' + item.vcv"
+          >
+            <i-fa-regular-hospital class="ml-1 text-muted" />
+          </a>
+          <i-fa-regular-hospital
+            v-else
+            title="Not in local ClinVar copy"
+            class="ml-1 text-muted icon-inactive"
+          />
+
+          <a
+            v-if="item.hgmd_public_overlap"
+            target="_blank"
+            :href="
+              'http://www.hgmd.cf.ac.uk/ac/gene.php?gene=' +
+              getSymbol(item) +
+              '&accession=' +
+              item.hgmd_accession
+            "
+          >
+            <i-fa-solid-globe class="ml-1 text-muted" />
+          </a>
+          <i-fa-solid-globe v-else class="ml-1 text-muted icon-inactive" />
+        </template>
+        <template #item-position="{ chromosome, start }">
+          {{ (chromosome.startsWith('chr') ? '' : 'chr') + chromosome }}:{{
+            formatLargeInt(start)
+          }}
+        </template>
+        <template #item-reference="{ reference }">
+          <span :title="reference">{{ truncateText(reference, 5) }}</span>
+        </template>
+        <template #item-alternative="{ alternative }">
+          <span :title="alternative">{{ truncateText(alternative, 5) }}</span>
+        </template>
+        <template #item-clinvar="item">
+          <span class="badge-group" v-if="item.summary_pathogenicity_label">
+            <span
+              class="badge"
+              :class="
+                getClinvarSignificanceBadge(item.summary_pathogenicity_label)
+              "
+            >
+              {{ item.summary_pathogenicity_label }}
+            </span>
+            <span
+              class="badge badge-dark"
+              :title="item.summary_review_status_label"
+            >
+              <i-fa-solid-star v-for="i in item.summary_gold_stars" :key="i" />
+              <i-fa-regular-star
+                v-for="j in 4 - item.summary_gold_stars"
+                :key="j"
+              />
+            </span>
+          </span>
+          <span v-else class="badge badge-light">-</span>
+        </template>
+        <template #item-frequency="item">
+          {{ displayFrequencyContent(item) }}
+          <i-bi-exclamation-circle
+            class="text-muted"
+            v-if="displayAmbiguousFrequencyWarning(item).length > 0"
+            :title="displayAmbiguousFrequencyWarningMsg(item)"
+          />
+        </template>
+        <template #item-homozygous="item">
+          {{ displayHomozygousContent(item) }}
+        </template>
+        <template #item-constraints="item">
+          {{ displayConstraintsContent(item) }}
+        </template>
+        <template #item-gene="item">
+          {{ getSymbol(item) }}
+        </template>
+        <template #item-gene_icons="item">
+          <i-fa-solid-user-md
+            :class="{
+              'text-danger': isOnAcmgList(item),
+              'text-muted icon-inactive': !isOnAcmgList(item),
+            }"
+            title="Gene in ACMG incidental finding list"
+          />
+          <i-fa-solid-lightbulb
+            v-if="isDiseaseGene(item)"
+            class="text-danger align-baseline"
+            title="Known disease gene"
+          />
+          <i-fa-regular-lightbulb
+            v-if="!isDiseaseGene(item)"
+            class="text-muted icon-inactive align-baseline"
+            title="Not a known disease gene"
+          />
+          <span v-if="item.modes_of_inheritance">
+            <span
+              v-for="(mode, index) in sortedModesOfInheritance(item)"
+              :key="index"
+              class="badge badge-info ml-1"
+              >{{ mode }}</span
+            >
+          </span>
+        </template>
+        <template #item-effect_summary="item">
+          <span :title="`${effectSummary(item)} [${item.effect.join(', ')}]`">
+            {{ truncateText(effectSummary(item), 12) }}
+          </span>
+        </template>
+        <template #item-effect="{ effect }">
+          {{ effect.join(', ') }}
+        </template>
+        <template #item-hgvs_p="{ hgvs_p }">
+          <span :title="hgvs_p">{{ truncateText(hgvs_p, 12) }}</span>
+        </template>
+        <template #item-hgvs_c="{ hgvs_c }">
+          <span :title="hgvs_c">{{ truncateText(hgvs_c, 12) }}</span>
+        </template>
+        <template #item-exon_dist="{ exon_dist }">
+          {{ exon_dist }}
+        </template>
+        <template
+          v-for="{ field } in extraAnnoFields"
+          v-slot:[`item-extra_anno${field}`]="{ extra_annos }"
+        >
+          {{ extraAnnoFieldFormat(extra_annos, field) }}
+        </template>
+        <template
+          v-for="{ name } in props.case?.pedigree"
+          v-slot:[`item-genotype_${displayName(name)}`]="{ genotype }"
+        >
+          {{ genotype[name].gt }}
+        </template>
+        <template #item-pathogenicity_score="{ pathogenicity_score }">
+          {{ formatFloat(pathogenicity_score, 3) }}
+        </template>
+        <template #item-phenotype_score="{ phenotype_score }">
+          {{ formatFloat(phenotype_score, 3) }}
+        </template>
+        <template #item-patho_pheno_score="{ patho_pheno_score }">
+          {{ formatFloat(patho_pheno_score, 3) }}
+        </template>
+        <template #item-igv="item">
+          <div class="btn-group btn-group-sm">
+            <a
+              :href="mtLink(item)"
+              target="_blank"
+              style="font-size: 80%"
+              class="btn btn-sm btn-outline-secondary"
+              :class="mtLink(item) === '#' ? 'disabled' : ''"
+            >
+              MT
+            </a>
+            <button
+              @click="goToLocus(item)"
+              type="button"
+              title="Go to locus in IGV"
+              style="font-size: 80%"
+              class="btn btn-sm btn-secondary"
+            >
+              IGV
+            </button>
+          </div>
+        </template>
+      </EasyDataTable>
     </div>
   </div>
 </template>
@@ -279,5 +703,57 @@ const onCellClicked = (event) => {
 }
 .ag-theme-alpine {
   --ag-borders: none;
+}
+</style>
+
+<style>
+.customize-table {
+  --easy-table-border: none;
+  --easy-table-row-border: none;
+}
+.positive-row {
+  --easy-table-body-row-background-color: #f5c6cb;
+}
+
+.uncertain-row {
+  --easy-table-body-row-background-color: #ffeeba;
+}
+
+.negative-row {
+  --easy-table-body-row-background-color: #c3e6cb;
+}
+
+.bookmarked-row {
+  --easy-table-body-row-background-color: #cccccc;
+}
+</style>
+<style scoped>
+.icon-inactive {
+  opacity: 30%;
+}
+.badge-outline {
+  border: 1px solid #cccccc;
+}
+.badge-group {
+  padding: 2px;
+  display: inline-flex;
+}
+
+.badge-group > .badge:not(:first-child):not(:last-child) {
+  border-radius: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.badge-group > .badge:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  margin-right: 0;
+}
+
+.badge-group > .badge:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: 0;
 }
 </style>

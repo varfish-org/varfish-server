@@ -228,6 +228,8 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
   const previousQueryDetails = ref(null)
   /** Results of query. */
   const queryResults = ref(null)
+  /** Count query results. */
+  const queryResultsCount = ref(null)
   /** Uuid of query. */
   const queryUuid = ref(null)
   /** Download status TSV. */
@@ -246,6 +248,14 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
   const extraAnnoFields = ref(null)
   /** HPO names for HPO terms from the query settings. */
   const hpoNames = ref([])
+
+  /** vue-easy-table server options. */
+  const tableServerOptions = ref({
+    page: 1,
+    rowsPerPage: 200,
+    sortBy: null,
+    sortType: 'asc',
+  })
 
   // bookkeeping for query and results
   /** Current query state. */
@@ -313,7 +323,13 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       ) {
         response = await variantsApi.fetchResultsCadd(
           csrfToken.value,
-          queryUuid
+          queryUuid,
+          {
+            pageNo: tableServerOptions.value.page,
+            pageSize: tableServerOptions.value.rowsPerPage,
+            orderBy: tableServerOptions.value.sortBy,
+            orderDir: tableServerOptions.value.sortType,
+          }
         )
       } else if (
         previousQueryDetails.value.query_settings.prio_enabled &&
@@ -321,7 +337,13 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       ) {
         response = await variantsApi.fetchResultsPheno(
           csrfToken.value,
-          queryUuid
+          queryUuid,
+          {
+            pageNo: tableServerOptions.value.page,
+            pageSize: tableServerOptions.value.rowsPerPage,
+            orderBy: tableServerOptions.value.sortBy,
+            orderDir: tableServerOptions.value.sortType,
+          }
         )
       } else if (
         previousQueryDetails.value.query_settings.prio_enabled &&
@@ -329,10 +351,21 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       ) {
         response = await variantsApi.fetchResultsCaddPheno(
           csrfToken.value,
-          queryUuid
+          queryUuid,
+          {
+            pageNo: tableServerOptions.value.page,
+            pageSize: tableServerOptions.value.rowsPerPage,
+            orderBy: tableServerOptions.value.sortBy,
+            orderDir: tableServerOptions.value.sortType,
+          }
         )
       } else {
-        response = await variantsApi.fetchResults(csrfToken.value, queryUuid)
+        response = await variantsApi.fetchResults(csrfToken.value, queryUuid, {
+          pageNo: tableServerOptions.value.page,
+          pageSize: tableServerOptions.value.rowsPerPage,
+          orderBy: tableServerOptions.value.sortBy,
+          orderDir: tableServerOptions.value.sortType,
+        })
       }
       if (
         queryState.value === QueryStates.Fetching.value &&
@@ -340,6 +373,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       ) {
         // Still fetching the same query; push to query results.
         queryResults.value = response
+        queryResultsCount.value = response.length
         queryState.value = QueryStates.Fetched.value
       }
     }
@@ -621,12 +655,14 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     caddEnabled,
     previousQueryDetails,
     queryResults,
+    queryResultsCount,
     queryState,
     queryLogs,
     quickPresets,
     categoryPresets,
     extraAnnoFields,
     hpoNames,
+    tableServerOptions,
     initializeRes,
     // functions
     initialize,
@@ -635,5 +671,6 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     generateDownloadResults,
     serveDownloadResults,
     getDownloadStatus,
+    runFetchLoop,
   }
 })

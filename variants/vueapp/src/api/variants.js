@@ -135,17 +135,18 @@ export default {
     )
     return await response.json()
   },
-  async listComment(
-    csrfToken,
-    caseUuid,
-    { release, chromosome, start, end, reference, alternative }
-  ) {
-    const query =
-      `release=${release}&chromosome=${chromosome}&start=${start}` +
-      `&end=${end}&reference=${reference}&alternative=${alternative}`
+  async listComment(csrfToken, caseUuid, variant = null) {
+    let query = ''
+    if (variant) {
+      const { release, chromosome, start, end, reference, alternative } =
+        variant
+      query =
+        `?release=${release}&chromosome=${chromosome}&start=${start}` +
+        `&end=${end}&reference=${reference}&alternative=${alternative}`
+    }
     const response = await apiFetch(
       csrfToken,
-      `/variants/ajax/small-variant-comment/list-create/${caseUuid}/?${query}`,
+      `/variants/ajax/small-variant-comment/list-create/${caseUuid}/${query}`,
       'GET'
     )
     return await response.json()
@@ -184,17 +185,19 @@ export default {
     )
     await response
   },
-  async listFlags(
-    csrfToken,
-    caseUuid,
-    { release, chromosome, start, end, reference, alternative }
-  ) {
-    const query =
-      `release=${release}&chromosome=${chromosome}&start=${start}` +
-      `&end=${end}&reference=${reference}&alternative=${alternative}`
+  async listFlags(csrfToken, caseUuid, variant = null) {
+    let query = ''
+    if (variant) {
+      const { release, chromosome, start, end, reference, alternative } =
+        variant
+      query =
+        `?release=${release}&chromosome=${chromosome}&start=${start}` +
+        `&end=${end}&reference=${reference}&alternative=${alternative}`
+    }
+
     const response = await apiFetch(
       csrfToken,
-      `/variants/ajax/small-variant-flags/list-create/${caseUuid}/?${query}`,
+      `/variants/ajax/small-variant-flags/list-create/${caseUuid}/${query}`,
       'GET'
     )
     return await response.json()
@@ -229,6 +232,57 @@ export default {
     const response = await apiFetch(
       csrfToken,
       `/variants/ajax/small-variant-flags/delete/${flagsUuid}/`,
+      'DELETE'
+    )
+    await response
+  },
+  async listAcmgRating(csrfToken, caseUuid, variant = null) {
+    let query = ''
+    if (variant) {
+      const { release, chromosome, start, end, reference, alternative } =
+        variant
+      query =
+        `?release=${release}&chromosome=${chromosome}&start=${start}` +
+        `&end=${end}&reference=${reference}&alternative=${alternative}`
+    }
+
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/${query}`,
+      'GET'
+    )
+    return await response.json()
+  },
+  async createAcmgRating(
+    csrfToken,
+    caseUuid,
+    { release, chromosome, start, end, reference, alternative },
+    payload
+  ) {
+    const query =
+      `release=${release}&chromosome=${chromosome}&start=${start}` +
+      `&end=${end}&reference=${reference}&alternative=${alternative}`
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/acmg-criteria-rating/list-create/${caseUuid}/?${query}`,
+      'POST',
+      payload
+    )
+    return await response.json()
+  },
+  async updateAcmgRating(csrfToken, acmgRatingUuid, payload) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/acmg-criteria-rating/update/${acmgRatingUuid}/`,
+      'PATCH',
+      payload
+    )
+    return await response.json()
+  },
+  async deleteAcmgRating(csrfToken, acmgRatingUuid) {
+    const response = await apiFetch(
+      csrfToken,
+      `/variants/ajax/acmg-criteria-rating/delete/${acmgRatingUuid}/`,
       'DELETE'
     )
     await response

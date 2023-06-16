@@ -145,28 +145,32 @@ export const DisplayConstraints = Object.freeze({
   },
 })
 
+export const DisplayConstraintsToText = enumToText(DisplayConstraints)
+
 export const DisplayColumns = Object.freeze({
   Effect: {
-    value: 0,
+    value: 'effect_summary',
     text: 'Effect',
   },
   EffectText: {
-    value: 1,
+    value: 'effect',
     text: 'Effect Text',
   },
   EffectProtein: {
-    value: 2,
+    value: 'hgvs_p',
     text: 'Effect Protein',
   },
   EffectCdna: {
-    value: 3,
+    value: 'hgvs_c',
     text: 'Effect cDNA',
   },
   DistanceSplicesite: {
-    value: 4,
+    value: 'exon_dist',
     text: 'Distance to SpliceSite',
   },
 })
+
+export const DisplayColumnsToText = enumToText(DisplayColumns)
 
 export const VariantValidatorStates = Object.freeze({
   Initial: 0,

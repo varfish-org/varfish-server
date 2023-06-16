@@ -1,27 +1,237 @@
 <script setup>
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
-import { useFilterQueryStore } from '@variants/stores/filterQuery'
+import isEqual from 'lodash.isequal'
 import { getAcmgBadge } from '@variants/helpers.js'
+import { useVariantAcmgRatingStore } from '@variants/stores/variantAcmgRating'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+import { computed, onMounted, ref, watch } from 'vue'
+import { copy } from '../helpers'
 
+const acmgRatingStore = useVariantAcmgRatingStore()
 const detailsStore = useVariantDetailsStore()
-const queryStore = useFilterQueryStore()
+
+const emptyAcmgRatingTemplate = {
+  pvs1: 0,
+  ps1: 0,
+  ps2: 0,
+  ps3: 0,
+  ps4: 0,
+  pm1: 0,
+  pm2: 0,
+  pm3: 0,
+  pm4: 0,
+  pm5: 0,
+  pm6: 0,
+  pp1: 0,
+  pp2: 0,
+  pp3: 0,
+  pp4: 0,
+  pp5: 0,
+  ba1: 0,
+  bs1: 0,
+  bs2: 0,
+  bs3: 0,
+  bs4: 0,
+  bp1: 0,
+  bp2: 0,
+  bp3: 0,
+  bp4: 0,
+  bp5: 0,
+  bp6: 0,
+  bp7: 0,
+  class_override: null,
+}
+
+const acmgRatingToSubmit = ref({ ...emptyAcmgRatingTemplate })
+const acmgRatingConflicting = ref(false)
+
+const unsetAcmgRating = () => {
+  acmgRatingToSubmit.value = { ...emptyAcmgRatingTemplate }
+}
+
+const resetAcmgRating = () => {
+  if (acmgRatingStore.acmgRating) {
+    acmgRatingToSubmit.value.pvs1 = acmgRatingStore.acmgRating.pvs1
+    acmgRatingToSubmit.value.ps1 = acmgRatingStore.acmgRating.ps1
+    acmgRatingToSubmit.value.ps2 = acmgRatingStore.acmgRating.ps2
+    acmgRatingToSubmit.value.ps3 = acmgRatingStore.acmgRating.ps3
+    acmgRatingToSubmit.value.ps4 = acmgRatingStore.acmgRating.ps4
+    acmgRatingToSubmit.value.pm1 = acmgRatingStore.acmgRating.pm1
+    acmgRatingToSubmit.value.pm2 = acmgRatingStore.acmgRating.pm2
+    acmgRatingToSubmit.value.pm3 = acmgRatingStore.acmgRating.pm3
+    acmgRatingToSubmit.value.pm4 = acmgRatingStore.acmgRating.pm4
+    acmgRatingToSubmit.value.pm5 = acmgRatingStore.acmgRating.pm5
+    acmgRatingToSubmit.value.pm6 = acmgRatingStore.acmgRating.pm6
+    acmgRatingToSubmit.value.pp1 = acmgRatingStore.acmgRating.pp1
+    acmgRatingToSubmit.value.pp2 = acmgRatingStore.acmgRating.pp2
+    acmgRatingToSubmit.value.pp3 = acmgRatingStore.acmgRating.pp3
+    acmgRatingToSubmit.value.pp4 = acmgRatingStore.acmgRating.pp4
+    acmgRatingToSubmit.value.pp5 = acmgRatingStore.acmgRating.pp5
+    acmgRatingToSubmit.value.ba1 = acmgRatingStore.acmgRating.ba1
+    acmgRatingToSubmit.value.bs1 = acmgRatingStore.acmgRating.bs1
+    acmgRatingToSubmit.value.bs2 = acmgRatingStore.acmgRating.bs2
+    acmgRatingToSubmit.value.bs3 = acmgRatingStore.acmgRating.bs3
+    acmgRatingToSubmit.value.bs4 = acmgRatingStore.acmgRating.bs4
+    acmgRatingToSubmit.value.bp1 = acmgRatingStore.acmgRating.bp1
+    acmgRatingToSubmit.value.bp2 = acmgRatingStore.acmgRating.bp2
+    acmgRatingToSubmit.value.bp3 = acmgRatingStore.acmgRating.bp3
+    acmgRatingToSubmit.value.bp4 = acmgRatingStore.acmgRating.bp4
+    acmgRatingToSubmit.value.bp5 = acmgRatingStore.acmgRating.bp5
+    acmgRatingToSubmit.value.bp6 = acmgRatingStore.acmgRating.bp6
+    acmgRatingToSubmit.value.bp7 = acmgRatingStore.acmgRating.bp7
+    acmgRatingToSubmit.value.class_auto = acmgRatingStore.acmgRating.class_auto
+    acmgRatingToSubmit.value.class_override =
+      acmgRatingStore.acmgRating.class_override
+  } else {
+    unsetAcmgRating()
+  }
+}
+
+const acmgRatingSubmitted = computed(() => {
+  if (!acmgRatingStore.acmgRating) {
+    return false
+  }
+  return (
+    parseInt(acmgRatingToSubmit.value.pvs1) ===
+      acmgRatingStore.acmgRating.pvs1 &&
+    parseInt(acmgRatingToSubmit.value.ps1) === acmgRatingStore.acmgRating.ps1 &&
+    parseInt(acmgRatingToSubmit.value.ps2) === acmgRatingStore.acmgRating.ps2 &&
+    parseInt(acmgRatingToSubmit.value.ps3) === acmgRatingStore.acmgRating.ps3 &&
+    parseInt(acmgRatingToSubmit.value.ps4) === acmgRatingStore.acmgRating.ps4 &&
+    parseInt(acmgRatingToSubmit.value.pm1) === acmgRatingStore.acmgRating.pm1 &&
+    parseInt(acmgRatingToSubmit.value.pm2) === acmgRatingStore.acmgRating.pm2 &&
+    parseInt(acmgRatingToSubmit.value.pm3) === acmgRatingStore.acmgRating.pm3 &&
+    parseInt(acmgRatingToSubmit.value.pm4) === acmgRatingStore.acmgRating.pm4 &&
+    parseInt(acmgRatingToSubmit.value.pm5) === acmgRatingStore.acmgRating.pm5 &&
+    parseInt(acmgRatingToSubmit.value.pm6) === acmgRatingStore.acmgRating.pm6 &&
+    parseInt(acmgRatingToSubmit.value.pp1) === acmgRatingStore.acmgRating.pp1 &&
+    parseInt(acmgRatingToSubmit.value.pp2) === acmgRatingStore.acmgRating.pp2 &&
+    parseInt(acmgRatingToSubmit.value.pp3) === acmgRatingStore.acmgRating.pp3 &&
+    parseInt(acmgRatingToSubmit.value.pp4) === acmgRatingStore.acmgRating.pp4 &&
+    parseInt(acmgRatingToSubmit.value.pp5) === acmgRatingStore.acmgRating.pp5 &&
+    parseInt(acmgRatingToSubmit.value.ba1) === acmgRatingStore.acmgRating.ba1 &&
+    parseInt(acmgRatingToSubmit.value.bs1) === acmgRatingStore.acmgRating.bs1 &&
+    parseInt(acmgRatingToSubmit.value.bs2) === acmgRatingStore.acmgRating.bs2 &&
+    parseInt(acmgRatingToSubmit.value.bs3) === acmgRatingStore.acmgRating.bs3 &&
+    parseInt(acmgRatingToSubmit.value.bs4) === acmgRatingStore.acmgRating.bs4 &&
+    parseInt(acmgRatingToSubmit.value.bp1) === acmgRatingStore.acmgRating.bp1 &&
+    parseInt(acmgRatingToSubmit.value.bp2) === acmgRatingStore.acmgRating.bp2 &&
+    parseInt(acmgRatingToSubmit.value.bp3) === acmgRatingStore.acmgRating.bp3 &&
+    parseInt(acmgRatingToSubmit.value.bp4) === acmgRatingStore.acmgRating.bp4 &&
+    parseInt(acmgRatingToSubmit.value.bp5) === acmgRatingStore.acmgRating.bp5 &&
+    parseInt(acmgRatingToSubmit.value.bp6) === acmgRatingStore.acmgRating.bp6 &&
+    parseInt(acmgRatingToSubmit.value.bp7) === acmgRatingStore.acmgRating.bp7 &&
+    acmgRatingToSubmit.value.class_override ===
+      acmgRatingStore.acmgRating.class_override
+  )
+})
+
+const calculateAcmgRating = computed(() => {
+  const pvs = acmgRatingToSubmit.value.pvs1
+  const ps =
+    acmgRatingToSubmit.value.ps1 +
+    acmgRatingToSubmit.value.ps2 +
+    acmgRatingToSubmit.value.ps3 +
+    acmgRatingToSubmit.value.ps4
+  const pm =
+    acmgRatingToSubmit.value.pm1 +
+    acmgRatingToSubmit.value.pm2 +
+    acmgRatingToSubmit.value.pm3 +
+    acmgRatingToSubmit.value.pm4 +
+    acmgRatingToSubmit.value.pm5 +
+    acmgRatingToSubmit.value.pm6
+  const pp =
+    acmgRatingToSubmit.value.pp1 +
+    acmgRatingToSubmit.value.pp2 +
+    acmgRatingToSubmit.value.pp3 +
+    acmgRatingToSubmit.value.pp4 +
+    acmgRatingToSubmit.value.pp5
+  const ba = acmgRatingToSubmit.value.ba1
+  const bs =
+    acmgRatingToSubmit.value.bs1 +
+    acmgRatingToSubmit.value.bs2 +
+    acmgRatingToSubmit.value.bs3 +
+    acmgRatingToSubmit.value.bs4
+  const bp =
+    acmgRatingToSubmit.value.bp1 +
+    acmgRatingToSubmit.value.bp2 +
+    acmgRatingToSubmit.value.bp3 +
+    acmgRatingToSubmit.value.bp4 +
+    acmgRatingToSubmit.value.bp5 +
+    acmgRatingToSubmit.value.bp6 +
+    acmgRatingToSubmit.value.bp7
+  const isPathogenic =
+    (pvs === 1 && (ps >= 1 || pm >= 2 || (pm === 1 && pp === 1) || pp >= 2)) ||
+    ps >= 2 ||
+    (ps === 1 && (pm >= 3 || (pm >= 2 && pp >= 2) || (pm === 1 && pp >= 4)))
+  const isLikelyPathogenic =
+    (pvs === 1 && pm === 1) ||
+    (ps === 1 && pm >= 1 && pm <= 2) ||
+    (ps === 1 && pp >= 2) ||
+    pm >= 3 ||
+    (pm === 2 && pp >= 2) ||
+    (pm === 1 && pp >= 4)
+  const isLikelyBenign = (bs >= 1 && bp >= 1) || bp >= 2
+  const isBenign = ba > 0 || bs >= 2
+  const isConflicting =
+    (isPathogenic || isLikelyPathogenic) && (isBenign || isLikelyBenign)
+  acmgRatingToSubmit.value.class_auto = 3
+  if (isPathogenic) {
+    acmgRatingToSubmit.value.class_auto = 5
+  } else if (isLikelyPathogenic) {
+    acmgRatingToSubmit.value.class_auto = 4
+  } else if (isBenign) {
+    acmgRatingToSubmit.value.class_auto = 1
+  } else if (isLikelyBenign) {
+    acmgRatingToSubmit.value.class_auto = 2
+  }
+  if (isConflicting) {
+    acmgRatingToSubmit.value.class_auto = 3
+    acmgRatingConflicting.value = true
+  } else {
+    acmgRatingConflicting.value = false
+  }
+  return acmgRatingToSubmit.value.class_auto
+})
+
+const convertEmptyToNull = () => {
+  if (acmgRatingToSubmit.value.class_override === '') {
+    acmgRatingToSubmit.value.class_override = null
+  }
+}
+
+const onSubmitAcmgRating = async () => {
+  const acmgRatingToSubmitNoAuto = copy(acmgRatingToSubmit.value)
+  delete acmgRatingToSubmitNoAuto['class_auto']
+  const acmgRatingToSubmitEmpty = isEqual(
+    acmgRatingToSubmitNoAuto,
+    emptyAcmgRatingTemplate
+  )
+  if (acmgRatingStore.acmgRating && acmgRatingToSubmitEmpty) {
+    // IS not empty but SHOULD be empty, so delete the ACMG rating
+    await acmgRatingStore.deleteAcmgRating()
+  } else if (!acmgRatingStore.acmgRating && acmgRatingToSubmitEmpty) {
+    // IS empty and SHOULD be empty, so no update needed
+    acmgRatingToSubmit.value = copy(emptyAcmgRatingTemplate)
+  } else if (acmgRatingStore.acmgRating && !acmgRatingToSubmitEmpty) {
+    // IS not empty and SHOULD not be empty, so update the ACMG rating
+    await acmgRatingStore.updateAcmgRating(acmgRatingToSubmit.value)
+  } else if (!acmgRatingStore.acmgRating && !acmgRatingToSubmitEmpty) {
+    // IS empty but SHOULD not be empty, so create the ACMG rating
+    await acmgRatingStore.createAcmgRating(
+      detailsStore.smallVariant,
+      acmgRatingToSubmit.value
+    )
+  }
+}
+
+onMounted(() => {
+  acmgRatingStore.retrieveAcmgRating(detailsStore.smallVariant).then(() => {
+    resetAcmgRating()
+  })
+})
 </script>
 
 <template>
-  <div
-    class="row pt-2"
-    v-if="
-      !detailsStore.setAcmgCriteriaRatingMode &&
-      detailsStore.acmgCriteriaRatingConflicting
-    "
-  >
-    <div class="col px-0">
-      <div class="alert alert-warning p-2">
-        <i-bi-exclamation-circle />
-        <strong>Caution</strong> Conflicting interpretation of variant!
-      </div>
-    </div>
-  </div>
   <div class="row">
     <div class="col px-0">
       <div class="row">
@@ -52,9 +262,7 @@ const queryStore = useFilterQueryStore()
               name="pvs1"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pvs1"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pvs1"
             />
             <label for="acmg-pvs1" class="m-0">
               <strong class="pr-2">PVS1</strong>
@@ -86,9 +294,7 @@ const queryStore = useFilterQueryStore()
               name="ps1"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.ps1"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.ps1"
             />
             <label for="acmg-ps1" class="m-0">
               <strong class="pr-2">PS1</strong>
@@ -110,9 +316,7 @@ const queryStore = useFilterQueryStore()
               name="ps2"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.ps2"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.ps2"
             />
             <label for="acmg-ps2" class="m-0">
               <strong class="pr-2">PS2</strong>
@@ -134,9 +338,7 @@ const queryStore = useFilterQueryStore()
               name="ps3"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.ps3"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.ps3"
             />
             <label for="acmg-ps3" class="m-0">
               <strong class="pr-2">PS3</strong>
@@ -158,9 +360,7 @@ const queryStore = useFilterQueryStore()
               name="ps4"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.ps4"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.ps4"
             />
             <label for="acmg-ps4" class="m-0">
               <strong class="pr-2">PS4</strong>
@@ -194,9 +394,7 @@ const queryStore = useFilterQueryStore()
               name="pm1"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pm1"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pm1"
             />
             <label for="acmg-pm1" class="m-0">
               <strong class="pr-2">PM1</strong>
@@ -218,9 +416,7 @@ const queryStore = useFilterQueryStore()
               name="pm2"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pm2"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pm2"
             />
             <label for="acmg-pm2" class="m-0">
               <strong class="pr-2">PM2</strong>
@@ -242,9 +438,7 @@ const queryStore = useFilterQueryStore()
               name="pm3"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pm3"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pm3"
             />
             <label for="acmg-pm3" class="m-0">
               <strong class="pr-2">PM3</strong>
@@ -268,9 +462,7 @@ const queryStore = useFilterQueryStore()
               name="pm4"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pm4"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pm4"
             />
             <label for="acmg-pm4" class="m-0">
               <strong class="pr-2">PM4</strong>
@@ -292,9 +484,7 @@ const queryStore = useFilterQueryStore()
               name="pm5"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pm5"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pm5"
             />
             <label for="acmg-pm5" class="m-0">
               <strong class="pr-2">PM5</strong>
@@ -316,9 +506,7 @@ const queryStore = useFilterQueryStore()
               name="pm6"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pm6"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pm6"
             />
             <label for="acmg-pm6" class="m-0">
               <strong class="pr-2">PM6</strong>
@@ -350,9 +538,7 @@ const queryStore = useFilterQueryStore()
               name="pp1"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pp1"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pp1"
             />
             <label for="acmg-pp1" class="m-0">
               <strong class="pr-2">PP1</strong>
@@ -374,9 +560,7 @@ const queryStore = useFilterQueryStore()
               name="pp2"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pp2"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pp2"
             />
             <label for="acmg-pp2" class="m-0">
               <strong class="pr-2">PP2</strong>
@@ -398,9 +582,7 @@ const queryStore = useFilterQueryStore()
               name="pp3"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pp3"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pp3"
             />
             <label for="acmg-pp3" class="m-0">
               <strong class="pr-2">PP3</strong>
@@ -422,9 +604,7 @@ const queryStore = useFilterQueryStore()
               name="pp4"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pp4"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pp4"
             />
             <label for="acmg-pp4" class="m-0">
               <strong class="pr-2">PP4</strong>
@@ -447,9 +627,7 @@ to perform an independent evaluation"
               name="pp5"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.pp5"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.pp5"
             />
             <label for="acmg-pp5" class="m-0">
               <strong class="pr-2">PP5</strong>
@@ -486,9 +664,7 @@ to perform an independent evaluation"
               name="ba1"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.ba1"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.ba1"
             />
             <label for="acmg-ba1" class="m-0">
               <strong class="pr-2">BA1</strong>
@@ -520,9 +696,7 @@ to perform an independent evaluation"
               name="bs1"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.bs1"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.bs1"
             />
             <label for="acmg-bs1" class="m-0">
               <strong class="pr-2">BS1</strong>
@@ -544,9 +718,7 @@ to perform an independent evaluation"
               name="bs2"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.bs2"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.bs2"
             />
             <label for="acmg-bs2" class="m-0">
               <strong class="pr-2">BS2</strong>
@@ -568,9 +740,7 @@ to perform an independent evaluation"
               name="bs3"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.bs3"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.bs3"
             />
             <label for="acmg-bs3" class="m-0">
               <strong class="pr-2">BS3</strong>
@@ -592,9 +762,7 @@ to perform an independent evaluation"
               name="bs4"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.bs4"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.bs4"
             />
             <label for="acmg-bs4" class="m-0">
               <strong class="pr-2">BS4</strong>
@@ -626,9 +794,7 @@ to perform an independent evaluation"
               name="bp1"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.bp1"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.bp1"
             />
             <label for="acmg-bp1" class="m-0">
               <strong class="pr-2">BP1</strong>
@@ -650,9 +816,7 @@ to perform an independent evaluation"
               name="bp2"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.bp2"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.bp2"
             />
             <label for="acmg-bp2" class="m-0">
               <strong class="pr-2">BP2</strong>
@@ -674,9 +838,7 @@ to perform an independent evaluation"
               name="bp3"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.bp3"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.bp3"
             />
             <label for="acmg-bp3" class="m-0">
               <strong class="pr-2">BP3</strong>
@@ -699,9 +861,7 @@ splicing impact, etc.)"
               name="bp4"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.bp4"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.bp4"
             />
             <label for="acmg-bp4" class="m-0">
               <strong class="pr-2">BP4</strong>
@@ -723,9 +883,7 @@ splicing impact, etc.)"
               name="bp5"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.bp5"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.bp5"
             />
             <label for="acmg-bp5" class="m-0">
               <strong class="pr-2">BP5</strong>
@@ -748,9 +906,7 @@ independent evaluation"
               name="bp6"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.bp6"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.bp6"
             />
             <label for="acmg-bp6" class="m-0">
               <strong class="pr-2">BP6</strong>
@@ -773,9 +929,7 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
               name="bp7"
               true-value="1"
               false-value="0"
-              @change="detailsStore.calculateAcmgCriteriaRating()"
-              v-model="detailsStore.acmgCriteriaRatingToSubmit.bp7"
-              :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+              v-model="acmgRatingToSubmit.bp7"
             />
             <label for="acmg-bp7" class="m-0">
               <strong class="pr-2">BP7</strong>
@@ -823,15 +977,9 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
             title="ACMG rating"
             class="badge"
             style="font-size: 1.5em"
-            :class="
-              getAcmgBadge(detailsStore.acmgCriteriaRatingToSubmit.class_auto)
-            "
+            :class="getAcmgBadge(acmgRatingToSubmit.class_auto)"
           >
-            {{
-              detailsStore.acmgCriteriaRatingToSubmit.class_auto
-                ? detailsStore.acmgCriteriaRatingToSubmit.class_auto
-                : '-'
-            }}
+            {{ calculateAcmgRating }}
           </div>
         </div>
       </div>
@@ -850,77 +998,75 @@ sequence nor the creation of a new splice site AND the nucleotide is not highly 
             id="acmg-class-override"
             type="text"
             style="width: 2em"
-            v-model="detailsStore.acmgCriteriaRatingToSubmit.class_override"
-            :disabled="!detailsStore.setAcmgCriteriaRatingMode"
+            @change="convertEmptyToNull(acmgRatingToSubmit.class_override)"
+            v-model.number="acmgRatingToSubmit.class_override"
           />
         </div>
       </div>
       <div class="row pt-2">
         <div class="col px-0">
-          <div
-            class="btn-group ml-auto"
-            v-if="detailsStore.setAcmgCriteriaRatingMode"
-          >
+          <div class="btn-group ml-auto">
             <button
               type="button"
-              class="btn btn-secondary"
-              @click="detailsStore.cancelAcmgCriteriaRating()"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              @click="detailsStore.unsetAcmgCriteriaRating()"
+              class="btn btn-sm btn-secondary"
+              @click="unsetAcmgRating()"
             >
               Clear
             </button>
             <button
-              type="submit"
-              class="btn btn-primary"
-              @click="
-                detailsStore.submitAcmgCriteriaRating(queryStore.csrfToken)
-              "
+              type="button"
+              class="btn btn-sm btn-secondary"
+              @click="resetAcmgRating()"
             >
-              Submit
+              Reset
             </button>
-          </div>
-          <div class="btn-group ml-auto" v-else>
             <button
               type="submit"
-              class="btn btn-primary"
-              @click="detailsStore.setAcmgCriteriaRatingMode = true"
+              class="btn btn-sm"
+              :class="
+                acmgRatingConflicting
+                  ? 'btn-warning'
+                  : acmgRatingSubmitted
+                  ? 'btn-success'
+                  : 'btn-primary'
+              "
+              @click="onSubmitAcmgRating()"
             >
-              <i-mdi-pencil />
-              Edit
+              <i-fa-info-circle v-if="acmgRatingConflicting" />
+              <i-fa-solid-star v-else-if="acmgRatingSubmitted" />
+              <i-fa-regular-star v-else />
+              Submit
             </button>
           </div>
         </div>
       </div>
-      <div class="row pt-4" v-if="detailsStore.setAcmgCriteriaRatingMode">
+      <div class="row pt-4 pb-0" v-if="acmgRatingConflicting">
+        <div class="col px-0">
+          <div class="alert alert-warning p-2">
+            <i-fa-solid-info-circle class="mr-1" />
+            <strong>Caution!</strong> Conflicting interpretation of variant.
+          </div>
+        </div>
+      </div>
+      <div class="row pt-2">
         <div class="col px-0">
           <div class="alert alert-secondary text-small text-muted p-2">
             <i-fa-solid-info-circle />
             Select all fulfilled criteria to get the classification following
             Richards <i>et al.</i> (2015). If necessary, you can also specify a
-            manual override. Press
-            <span class="badge badge-danger">Clear</span> and
+            manual override.
+            <span class="badge badge-primary">Submit</span> indicates that there
+            are changes not yet submitted, while
+            <span class="badge badge-success">Submit</span> indicates that
+            changes have been submitted or not made at all.
+            <span class="badge badge-warning">Submit</span> indicates that there
+            are conflicting variant interpretations. In that case, submission is
+            possible, but not recommended. Press
+            <span class="badge badge-secondary">Reset</span> to reset the form
+            to the last submitted state. Press
+            <span class="badge badge-secondary">Clear</span> and
             <span class="badge badge-primary">Submit</span> to delete ACMG
             rating.
-          </div>
-        </div>
-      </div>
-      <div
-        class="row"
-        v-if="
-          detailsStore.setAcmgCriteriaRatingMode &&
-          detailsStore.acmgCriteriaRatingConflicting
-        "
-      >
-        <div class="col px-0">
-          <div class="alert alert-warning p-2">
-            <i-bi-exclamation-circle class="mr-1" />
-            <strong>Caution</strong> Conflicting interpretation of variant!
           </div>
         </div>
       </div>

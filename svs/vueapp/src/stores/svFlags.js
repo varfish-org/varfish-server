@@ -182,7 +182,7 @@ export const useSvFlagsStore = defineStore('svFlags', () => {
     const minReciprocalOverlap = 0.8
     for (const flag of Object.values(caseFlags.value)) {
       if (
-        flag.sv_type == sv.sv_type &&
+        flag.sv_type === sv.sv_type &&
         reciprocalOverlap(flag, sv) >= minReciprocalOverlap
       ) {
         return flag

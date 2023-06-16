@@ -1,11 +1,15 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import isEqual from 'lodash.isequal'
 
 import { copy } from '@varfish/helpers.js'
 import Overlay from '@varfish/components/Overlay.vue'
 
-import VariantDetailsFlagsIndicator from './VariantDetailsFlagsIndicator.vue'
+import { useVariantFlagsStore } from '@variants/stores/variantFlags'
+import { useVariantDetailsStore } from '@variants/stores/variantDetails'
+
+const flagsStore = useVariantFlagsStore()
+const detailsStore = useVariantDetailsStore()
 
 const emptyFlagsTemplate = Object.freeze({
   flag_bookmarked: false,
@@ -27,458 +31,528 @@ const initialFlagsTemplate = Object.freeze({
   flag_bookmarked: true,
 })
 
-const props = defineProps({
-  detailsStore: Object,
-  flagsStore: Object,
-  variant: Object,
-})
-
 /** Whether to show the overlay. */
-const overlayShow = computed(
-  () => (props.flagsStore?.serverInteractions ?? 0) > 0
-)
+const overlayShow = computed(() => (flagsStore?.serverInteractions ?? 0) > 0)
 
-const setFlagsMode = ref(false)
 const flagsToSubmit = ref(copy({ ...initialFlagsTemplate }))
 
 const unsetFlags = () => {
   flagsToSubmit.value = copy(emptyFlagsTemplate)
 }
 
+const flagsSubmitted = computed(() => {
+  if (!flagsStore.flags) {
+    return false
+  }
+  return (
+    flagsToSubmit.value.flag_bookmarked === flagsStore.flags.flag_bookmarked &&
+    flagsToSubmit.value.flag_for_validation ===
+      flagsStore.flags.flag_for_validation &&
+    flagsToSubmit.value.flag_candidate === flagsStore.flags.flag_candidate &&
+    flagsToSubmit.value.flag_final_causative ===
+      flagsStore.flags.flag_final_causative &&
+    flagsToSubmit.value.flag_no_disease_association ===
+      flagsStore.flags.flag_no_disease_association &&
+    flagsToSubmit.value.flag_segregates === flagsStore.flags.flag_segregates &&
+    flagsToSubmit.value.flag_doesnt_segregate ===
+      flagsStore.flags.flag_doesnt_segregate &&
+    flagsToSubmit.value.flag_visual === flagsStore.flags.flag_visual &&
+    flagsToSubmit.value.flag_molecular === flagsStore.flags.flag_molecular &&
+    flagsToSubmit.value.flag_validation === flagsStore.flags.flag_validation &&
+    flagsToSubmit.value.flag_phenotype_match ===
+      flagsStore.flags.flag_phenotype_match &&
+    flagsToSubmit.value.flag_summary === flagsStore.flags.flag_summary
+  )
+})
+
 const resetFlags = () => {
-  if (props.flagsStore.flags) {
-    flagsToSubmit.value.flag_bookmarked = props.flagsStore.flags.flag_bookmarked
+  if (flagsStore.flags) {
+    flagsToSubmit.value.flag_bookmarked = flagsStore.flags.flag_bookmarked
     flagsToSubmit.value.flag_for_validation =
-      props.flagsStore.flags.flag_for_validation
-    flagsToSubmit.value.flag_candidate = props.flagsStore.flags.flag_candidate
+      flagsStore.flags.flag_for_validation
+    flagsToSubmit.value.flag_candidate = flagsStore.flags.flag_candidate
     flagsToSubmit.value.flag_final_causative =
-      props.flagsStore.flags.flag_final_causative
+      flagsStore.flags.flag_final_causative
     flagsToSubmit.value.flag_no_disease_association =
-      props.flagsStore.flags.flag_no_disease_association
-    flagsToSubmit.value.flag_segregates = props.flagsStore.flags.flag_segregates
+      flagsStore.flags.flag_no_disease_association
+    flagsToSubmit.value.flag_segregates = flagsStore.flags.flag_segregates
     flagsToSubmit.value.flag_doesnt_segregate =
-      props.flagsStore.flags.flag_doesnt_segregate
-    flagsToSubmit.value.flag_visual = props.flagsStore.flags.flag_visual
-    flagsToSubmit.value.flag_molecular = props.flagsStore.flags.flag_molecular
-    flagsToSubmit.value.flag_validation = props.flagsStore.flags.flag_validation
+      flagsStore.flags.flag_doesnt_segregate
+    flagsToSubmit.value.flag_visual = flagsStore.flags.flag_visual
+    flagsToSubmit.value.flag_molecular = flagsStore.flags.flag_molecular
+    flagsToSubmit.value.flag_validation = flagsStore.flags.flag_validation
     flagsToSubmit.value.flag_phenotype_match =
-      props.flagsStore.flags.flag_phenotype_match
-    flagsToSubmit.value.flag_summary = props.flagsStore.flags.flag_summary
+      flagsStore.flags.flag_phenotype_match
+    flagsToSubmit.value.flag_summary = flagsStore.flags.flag_summary
   } else {
     flagsToSubmit.value = { ...initialFlagsTemplate }
   }
 }
 
-props.flagsStore.retrieveFlags(props.variant).then(() => {
-  resetFlags()
-})
-
 const onSubmitFlags = async () => {
   const flagsToSubmitEmpty = isEqual(flagsToSubmit.value, emptyFlagsTemplate)
-  if (props.flagsStore.flags && flagsToSubmitEmpty) {
+  if (flagsStore.flags && flagsToSubmitEmpty) {
     // IS not empty but SHOULD be empty, so delete the flags
-    await props.flagsStore.deleteFlags()
-  } else if (!props.flagsStore.flags && flagsToSubmitEmpty) {
+    await flagsStore.deleteFlags()
+  } else if (!flagsStore.flags && flagsToSubmitEmpty) {
     // IS empty and SHOULD be empty, so no update needed
     flagsToSubmit.value = copy(initialFlagsTemplate)
-  } else if (props.flagsStore.flags && !flagsToSubmitEmpty) {
+  } else if (flagsStore.flags && !flagsToSubmitEmpty) {
     // IS not empty and SHOULD not be empty, so update the flags
-    await props.flagsStore.updateFlags(flagsToSubmit.value)
-  } else if (!props.flagsStore.flags && !flagsToSubmitEmpty) {
+    await flagsStore.updateFlags(flagsToSubmit.value)
+  } else if (!flagsStore.flags && !flagsToSubmitEmpty) {
     // IS empty but SHOULD not be empty, so create the flags
-    await props.flagsStore.createFlags(props.variant, flagsToSubmit.value)
-  }
-  setFlagsMode.value = false
-}
-
-const cancelFlags = () => {
-  resetFlags()
-  setFlagsMode.value = false
-}
-
-const displayMutedIfFalse = (condition) => {
-  if (!condition) {
-    return 'text-muted'
-  } else {
-    return 'text-dark'
+    await flagsStore.createFlags(detailsStore.smallVariant, flagsToSubmit.value)
   }
 }
 
-const displayOpacityIfFalse = (condition) => {
-  if (!condition) {
-    return 'opacity: 20%'
-  } else {
-    return ''
-  }
-}
+onMounted(() => {
+  flagsStore.retrieveFlags(detailsStore.smallVariant).then(() => {
+    resetFlags()
+  })
+})
 </script>
 
 <template>
   <div
     class="varfish-overlay-wrap position-relative flex-grow-1 d-flex flex-column"
   >
-    <div
-      v-if="flagsStore.flags && !setFlagsMode"
-      class="row font-weight-bold p-2"
-    >
-      <div class="col">
-        <div class="row">
-          <div class="col-1 pl-0">
-            <i-fa-solid-star
-              :class="displayMutedIfFalse(flagsStore.flags.flag_bookmarked)"
-              :style="displayOpacityIfFalse(flagsStore.flags.flag_bookmarked)"
-            />
-          </div>
-          <div class="col-1 pl-1">
-            <i-fa-solid-flask
-              :class="displayMutedIfFalse(flagsStore.flags.flag_for_validation)"
-              :style="
-                displayOpacityIfFalse(flagsStore.flags.flag_for_validation)
-              "
-            />
-          </div>
-          <div class="col-1 pl-1">
-            <i-fa-solid-heart
-              class="ml-1"
-              :class="displayMutedIfFalse(flagsStore.flags.flag_candidate)"
-              :style="displayOpacityIfFalse(flagsStore.flags.flag_candidate)"
-            />
-          </div>
-          <div class="col-1 pl-1">
-            <i-fa-solid-flag-checkered
-              class="ml-1"
-              :class="
-                displayMutedIfFalse(flagsStore.flags.flag_final_causative)
-              "
-              :style="
-                displayOpacityIfFalse(flagsStore.flags.flag_final_causative)
-              "
-              data-icon="fa-solid:flag-checkered"
-            />
-          </div>
-          <div class="col-1 pl-1">
-            <i-cil-link-broken
-              class="ml-1"
-              :class="
-                displayMutedIfFalse(
-                  flagsStore.flags.flag_no_disease_association
-                )
-              "
-              :style="
-                displayOpacityIfFalse(
-                  flagsStore.flags.flag_no_disease_association
-                )
-              "
-            />
-          </div>
-          <div class="col-1 pl-1">
-            <i-fa-solid-thumbs-up
-              class="ml-1"
-              :class="displayMutedIfFalse(flagsStore.flags.flag_segregates)"
-              :style="displayOpacityIfFalse(flagsStore.flags.flag_segregates)"
-            />
-          </div>
-          <div class="col-1 pl-1">
-            <i-fa-solid-thumbs-down
-              class="ml-1"
-              :class="
-                displayMutedIfFalse(flagsStore.flags.flag_doesnt_segregate)
-              "
-              :style="
-                displayOpacityIfFalse(flagsStore.flags.flag_doesnt_segregate)
-              "
-            />
-          </div>
-        </div>
-      </div>
-      <div class="col-8">
-        <div class="row text-center">
-          <div class="col">
-            Visual
-            <VariantDetailsFlagsIndicator
-              :flag-state="flagsStore.flags.flag_visual"
-            />
-          </div>
-          <div class="col">
-            Molecular
-            <VariantDetailsFlagsIndicator
-              :flag-state="flagsStore.flags.flag_molecular"
-            />
-          </div>
-          <div class="col">
-            Validation
-            <VariantDetailsFlagsIndicator
-              :flag-state="flagsStore.flags.flag_validation"
-            />
-          </div>
-          <div class="col">
-            Phenotype
-            <VariantDetailsFlagsIndicator
-              :flag-state="flagsStore.flags.flag_phenotype_match"
-            />
-          </div>
-          <div class="col ml-1">
-            <u>Summary</u>&nbsp;
-            <VariantDetailsFlagsIndicator
-              :flag-state="flagsStore.flags.flag_summary"
-            />
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <button
-          class="btn btn-sm btn-primary pull-right"
-          @click="setFlagsMode = true"
-        >
-          <i-fa-solid-flag />
-          Edit
-        </button>
-      </div>
-    </div>
-    <div
-      v-else-if="!flagsStore.flags && !setFlagsMode"
-      class="row text-muted text-center p-2 pb-3"
-    >
-      <div class="col">
-        <button
-          class="btn btn-sm btn-primary pull-right"
-          @click="setFlagsMode = true"
-        >
-          <i-fa-regular-flag />
-          Add
-        </button>
-      </div>
-    </div>
-    <div v-else class="p-2">
+    <div class="p-2">
       <div class="row">
-        <div class="col">
-          <div class="row">
-            <div class="col-1 pl-0">
-              <label for="flagBookmarked" title="bookmarked">
-                <i-fa-solid-star />
-              </label>
-            </div>
-            <div class="col-1 pl-1">
-              <label for="flagForValidation" title="selected for validation">
-                <i-fa-solid-flask />
-              </label>
-            </div>
-            <div class="col-1 pl-1">
-              <label for="flagCandidate" title="candidate variant">
-                <i-fa-solid-heart />
-              </label>
-            </div>
-            <div class="col-1 pl-1">
-              <label for="flagFinalCausative" title="final causative/reported">
-                <i-fa-solid-flag-checkered />
-              </label>
-            </div>
-            <div class="col-1 pl-1">
-              <label
-                for="flagNoDiseaseAssociation"
-                title="gene affected by this variant has no known disease association"
-              >
-                <i-cil-link-broken />
-              </label>
-            </div>
-            <div class="col-1 pl-1">
-              <label for="flagDoesSegregate" title="variant does segregate">
-                <i-fa-solid-thumbs-up />
-              </label>
-            </div>
-            <div class="col-1 pl-1">
-              <label
-                for="flagDoesntSegregate"
-                title="variant doesn't segregate"
-              >
-                <i-fa-solid-thumbs-down />
-              </label>
-            </div>
+        <div class="col-4">
+          <div class="form-check form-check-inline">
+            <input
+              type="checkbox"
+              id="flagBookmarked"
+              name="flag_bookmarked"
+              class="form-check-input"
+              v-model="flagsToSubmit.flag_bookmarked"
+            />
+            <label
+              for="flagBookmarked"
+              title="bookmarked"
+              class="form-check-label"
+            >
+              <i-fa-solid-star />
+            </label>
           </div>
-          <div class="row">
-            <div class="col-1 pl-0">
-              <input
-                type="checkbox"
-                id="flagBookmarked"
-                name="flag_bookmarked"
-                v-model="flagsToSubmit.flag_bookmarked"
-              />
-            </div>
-            <div class="col-1 pl-1">
-              <input
-                type="checkbox"
-                id="flagForValidation"
-                name="flag_for_validation"
-                v-model="flagsToSubmit.flag_for_validation"
-              />
-            </div>
-            <div class="col-1 pl-1">
-              <input
-                type="checkbox"
-                id="flagCandidate"
-                name="flag_candidate"
-                v-model="flagsToSubmit.flag_candidate"
-              />
-            </div>
-            <div class="col-1 pl-1">
-              <input
-                type="checkbox"
-                id="flagFinalCausative"
-                name="flag_final_causative"
-                v-model="flagsToSubmit.flag_final_causative"
-              />
-            </div>
-            <div class="col-1 pl-1">
-              <input
-                type="checkbox"
-                id="flagNoDiseaseAssociation"
-                name="flag_no_disease_association"
-                v-model="flagsToSubmit.flag_no_disease_association"
-              />
-            </div>
-            <div class="col-1 pl-1">
-              <input
-                type="checkbox"
-                id="flagDoesSegregate"
-                name="flag_segregates"
-                v-model="flagsToSubmit.flag_segregates"
-              />
-            </div>
-            <div class="col-1 pl-1">
-              <input
-                type="checkbox"
-                id="flagDoesntSegregate"
-                name="flag_doesnt_segregate"
-                v-model="flagsToSubmit.flag_doesnt_segregate"
-              />
-            </div>
+          <div class="form-check form-check-inline">
+            <input
+              type="checkbox"
+              id="flagForValidation"
+              name="flag_for_validation"
+              class="form-check-input"
+              v-model="flagsToSubmit.flag_for_validation"
+            />
+            <label
+              for="flagForValidation"
+              title="selected for validation"
+              class="form-check-label"
+            >
+              <i-fa-solid-flask />
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              type="checkbox"
+              id="flagCandidate"
+              name="flag_candidate"
+              class="form-check-input"
+              v-model="flagsToSubmit.flag_candidate"
+            />
+            <label
+              for="flagCandidate"
+              title="candidate variant"
+              class="form-check-label"
+            >
+              <i-fa-solid-heart />
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              type="checkbox"
+              id="flagFinalCausative"
+              name="flag_final_causative"
+              class="form-check-input"
+              v-model="flagsToSubmit.flag_final_causative"
+            />
+            <label
+              for="flagFinalCausative"
+              title="final causative/reported"
+              class="form-check-label"
+            >
+              <i-fa-solid-flag-checkered />
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              type="checkbox"
+              id="flagNoDiseaseAssociation"
+              name="flag_no_disease_association"
+              class="form-check-input"
+              v-model="flagsToSubmit.flag_no_disease_association"
+            />
+            <label
+              for="flagNoDiseaseAssociation"
+              title="gene affected by this variant has no known disease association"
+              class="form-check-label"
+            >
+              <i-cil-link-broken />
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              type="checkbox"
+              id="flagDoesSegregate"
+              name="flag_segregates"
+              class="form-check-input"
+              v-model="flagsToSubmit.flag_segregates"
+            />
+            <label
+              for="flagDoesSegregate"
+              title="variant does segregate"
+              class="form-check-label"
+            >
+              <i-fa-solid-thumbs-up />
+            </label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input
+              type="checkbox"
+              id="flagDoesntSegregate"
+              name="flag_doesnt_segregate"
+              class="form-check-input"
+              v-model="flagsToSubmit.flag_doesnt_segregate"
+            />
+            <label
+              for="flagDoesntSegregate"
+              title="variant doesn't segregate"
+              class="form-check-label"
+            >
+              <i-fa-solid-thumbs-down />
+            </label>
           </div>
         </div>
-        <div class="col-8">
-          <div class="row text-center">
-            <div class="col">
-              <label for="flagSelectorVisual">
-                <strong>Visual</strong>
-              </label>
-            </div>
-            <div class="col">
-              <label for="flagSelectorMolecular">
-                <strong>Molecular</strong>
-              </label>
-            </div>
-            <div class="col">
-              <label for="flagSelectorValidation">
-                <strong>Validation</strong>
-              </label>
-            </div>
-            <div class="col">
-              <label for="flagSelectorPhenotype">
-                <strong>Phenotype</strong>
-              </label>
-            </div>
-            <div class="col">
-              <label for="flagSelectorSummary">
-                <strong><u>Summary</u></strong>
-              </label>
-            </div>
+        <div class="col-1">
+          <strong> Visual </strong>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorVisual-positive"
+              value="positive"
+              v-model="flagsToSubmit.flag_visual"
+            />
+            <label for="flagSelectorVisual-positive" class="form-check-label">
+              <i-fa-solid-exclamation-circle class="text-danger" />
+            </label>
           </div>
-          <div class="row">
-            <div class="col">
-              <select
-                id="flagSelectorVisual"
-                class="form-control form-control-sm"
-                v-model="flagsToSubmit.flag_visual"
-              >
-                <option value="positive">positive</option>
-                <option value="uncertain">uncertain</option>
-                <option value="negative">negative</option>
-                <option value="empty">empty</option>
-              </select>
-            </div>
-            <div class="col">
-              <select
-                id="flagSelectorMolecular"
-                class="form-control form-control-sm ml-2"
-                v-model="flagsToSubmit.flag_molecular"
-              >
-                <option value="positive">positive</option>
-                <option value="uncertain">uncertain</option>
-                <option value="negative">negative</option>
-                <option value="empty">empty</option>
-              </select>
-            </div>
-            <div class="col">
-              <select
-                id="flagSelectorValidation"
-                class="form-control form-control-sm ml-2"
-                v-model="flagsToSubmit.flag_validation"
-              >
-                <option value="positive">positive</option>
-                <option value="uncertain">uncertain</option>
-                <option value="negative">negative</option>
-                <option value="empty">empty</option>
-              </select>
-            </div>
-            <div class="col">
-              <select
-                id="flagSelectorPhenotype"
-                class="form-control form-control-sm ml-2"
-                v-model="flagsToSubmit.flag_phenotype_match"
-              >
-                <option value="positive">positive</option>
-                <option value="uncertain">uncertain</option>
-                <option value="negative">negative</option>
-                <option value="empty">empty</option>
-              </select>
-            </div>
-            <div class="col">
-              <select
-                id="flagSelectorSummary"
-                class="form-control form-control-sm ml-2"
-                v-model="flagsToSubmit.flag_summary"
-              >
-                <option value="positive">positive</option>
-                <option value="uncertain">uncertain</option>
-                <option value="negative">negative</option>
-                <option value="empty">empty</option>
-              </select>
-            </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorVisual-uncertain"
+              value="uncertain"
+              v-model="flagsToSubmit.flag_visual"
+            />
+            <label for="flagSelectorVisual-uncertain" class="form-check-label">
+              <i-fa-solid-question class="text-warning" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorVisual-negative"
+              value="negative"
+              v-model="flagsToSubmit.flag_visual"
+            />
+            <label for="flagSelectorVisual-negative" class="form-check-label">
+              <i-fa-solid-minus-circle class="text-success" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorVisual-empty"
+              value="empty"
+              v-model="flagsToSubmit.flag_visual"
+            />
+            <label for="flagSelectorVisual-empty" class="form-check-label">
+              <i-fa-solid-times class="text-secondary" />
+            </label>
+          </div>
+        </div>
+        <div class="col-1">
+          <strong> Molecular </strong>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorMolecular-positive"
+              value="positive"
+              v-model="flagsToSubmit.flag_molecular"
+            />
+            <label
+              for="flagSelectorMolecular-positive"
+              class="form-check-label"
+            >
+              <i-fa-solid-exclamation-circle class="text-danger" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorMolecular-uncertain"
+              value="uncertain"
+              v-model="flagsToSubmit.flag_molecular"
+            />
+            <label
+              for="flagSelectorMolecular-uncertain"
+              class="form-check-label"
+            >
+              <i-fa-solid-question class="text-warning" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorMolecular-negative"
+              value="negative"
+              v-model="flagsToSubmit.flag_molecular"
+            />
+            <label
+              for="flagSelectorMolecular-negative"
+              class="form-check-label"
+            >
+              <i-fa-solid-minus-circle class="text-success" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorMolecular-empty"
+              value="empty"
+              v-model="flagsToSubmit.flag_molecular"
+            />
+            <label for="flagSelectorMolecular-empty" class="form-check-label">
+              <i-fa-solid-times class="text-secondary" />
+            </label>
+          </div>
+        </div>
+        <div class="col-1">
+          <strong> Validation </strong>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorValidation-positive"
+              value="positive"
+              v-model="flagsToSubmit.flag_validation"
+            />
+            <label
+              for="flagSelectorValidation-positive"
+              class="form-check-label"
+            >
+              <i-fa-solid-exclamation-circle class="text-danger" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorValidation-uncertain"
+              value="uncertain"
+              v-model="flagsToSubmit.flag_validation"
+            />
+            <label
+              for="flagSelectorValidation-uncertain"
+              class="form-check-label"
+            >
+              <i-fa-solid-question class="text-warning" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorValidation-negative"
+              value="negative"
+              v-model="flagsToSubmit.flag_validation"
+            />
+            <label
+              for="flagSelectorValidation-negative"
+              class="form-check-label"
+            >
+              <i-fa-solid-minus-circle class="text-success" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorValidation-empty"
+              value="empty"
+              v-model="flagsToSubmit.flag_validation"
+            />
+            <label for="flagSelectorValidation-empty" class="form-check-label">
+              <i-fa-solid-times class="text-secondary" />
+            </label>
+          </div>
+        </div>
+        <div class="col-1">
+          <strong> Phenotype </strong>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorPhenotype-positive"
+              value="positive"
+              v-model="flagsToSubmit.flag_phenotype_match"
+            />
+            <label
+              for="flagSelectorPhenotype-positive"
+              class="form-check-label"
+            >
+              <i-fa-solid-exclamation-circle class="text-danger" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorPhenotype-uncertain"
+              value="uncertain"
+              v-model="flagsToSubmit.flag_phenotype_match"
+            />
+            <label
+              for="flagSelectorPhenotype-uncertain"
+              class="form-check-label"
+            >
+              <i-fa-solid-question class="text-warning" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorPhenotype-negative"
+              value="negative"
+              v-model="flagsToSubmit.flag_phenotype_match"
+            />
+            <label
+              for="flagSelectorPhenotype-negative"
+              class="form-check-label"
+            >
+              <i-fa-solid-minus-circle class="text-success" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorPhenotype-empty"
+              value="empty"
+              v-model="flagsToSubmit.flag_phenotype_match"
+            />
+            <label for="flagSelectorPhenotype-empty" class="form-check-label">
+              <i-fa-solid-times class="text-secondary" />
+            </label>
+          </div>
+        </div>
+        <div class="col-1">
+          <strong>
+            <u>Summary</u>
+          </strong>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorSummary-positive"
+              value="positive"
+              v-model="flagsToSubmit.flag_summary"
+            />
+            <label for="flagSelectorSummary-positive" class="form-check-label">
+              <i-fa-solid-exclamation-circle class="text-danger" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorSummary-uncertain"
+              value="uncertain"
+              v-model="flagsToSubmit.flag_summary"
+            />
+            <label for="flagSelectorSummary-uncertain" class="form-check-label">
+              <i-fa-solid-question class="text-warning" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorSummary-negative"
+              value="negative"
+              v-model="flagsToSubmit.flag_summary"
+            />
+            <label for="flagSelectorSummary-negative" class="form-check-label">
+              <i-fa-solid-minus-circle class="text-success" />
+            </label>
+          </div>
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              id="flagSelectorSummary-empty"
+              value="empty"
+              v-model="flagsToSubmit.flag_summary"
+            />
+            <label for="flagSelectorSummary-empty" class="form-check-label">
+              <i-fa-solid-times class="text-secondary" />
+            </label>
           </div>
         </div>
         <div class="col">
           <div class="btn-group pull-right">
-            <button class="btn btn-sm btn-secondary" @click="cancelFlags()">
-              Cancel
-            </button>
-            <button class="btn btn-sm btn-danger" @click="unsetFlags()">
+            <button class="btn btn-sm btn-secondary" @click="unsetFlags()">
               Clear
             </button>
-            <button class="btn btn-sm btn-primary" @click="onSubmitFlags()">
-              <i-fa-solid-flag />
+            <button class="btn btn-sm btn-secondary" @click="resetFlags()">
+              Reset
+            </button>
+            <button
+              class="btn btn-sm"
+              :class="flagsSubmitted ? 'btn-success' : 'btn-primary'"
+              @click="onSubmitFlags()"
+            >
+              <i-fa-solid-flag v-if="flagsSubmitted" />
+              <i-fa-regular-flag v-else />
               Submit
             </button>
           </div>
         </div>
       </div>
       <div class="row pt-2">
-        <div class="col-7">
-          <div
-            class="alert alert-secondary small pull-left text-muted p-1 pl-2 pr-2"
-          >
-            <i-fa-solid-info-circle />
-            Value in <strong><u>Summary</u></strong> will determine the row
-            coloring in the results table. If <code>empty</code>, any other flag
-            set except <i-fa-solid-star /> will color the row in gray.
-          </div>
-        </div>
-        <div class="col-5">
-          <div
-            class="alert alert-secondary small pull-right text-muted p-1 pl-2 pr-2"
-          >
-            <i-fa-solid-info-circle /> Press
-            <span class="badge badge-danger">Clear</span> and
-            <span class="badge badge-primary">Submit</span> to delete all flags.
-          </div>
+        <div
+          class="col-12 alert alert-secondary small text-muted p-1 pl-2 pr-2"
+        >
+          <i-fa-solid-info-circle />
+          Value in <strong><u>Summary</u></strong> will determine the row
+          coloring in the results table. If <code>empty</code>, any other flag
+          set except <i-fa-solid-star /> will color the row in gray.
+          <span class="badge badge-primary">Submit</span> indicates that there
+          are changes not yet submitted, while
+          <span class="badge badge-success">Submit</span> indicates that changes
+          have been submitted or not made at all. Press
+          <span class="badge badge-secondary">Reset</span> to reset the flags to
+          the last submitted state. Press
+          <span class="badge badge-secondary">Clear</span> and
+          <span class="badge badge-primary">Submit</span> to delete all flags.
         </div>
       </div>
     </div>

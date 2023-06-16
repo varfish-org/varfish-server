@@ -57,12 +57,10 @@ casesStore.initialize(appContext)
 const caseDetailsStore = useCaseDetailsStore()
 caseDetailsStore.initialize(caseUuidRef.value)
 
-const showModal = ({ gridRow, gridApi, smallVariant }) => {
+const showModal = (smallVariant) => {
   currentSmallVariant.value = smallVariant
   smallVariantDetailsModalWrapperRef.value.showModal()
   variantDetailsStore.fetchVariantDetails(
-    gridRow,
-    gridApi,
     smallVariant,
     filterQueryStore.previousQueryDetails.query_settings.database_select
   )
@@ -183,7 +181,6 @@ onMounted(() => {
     >
       <FilterResultsTable
         :case="filterQueryStore.caseObj"
-        :query-results="filterQueryStore.queryResults"
         :extra-anno-fields="filterQueryStore.extraAnnoFields"
         v-model:display-details="displayDetails"
         v-model:display-frequency="displayFrequency"

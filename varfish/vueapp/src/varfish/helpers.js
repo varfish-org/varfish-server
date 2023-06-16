@@ -48,10 +48,20 @@ export function formatTimeAgo(time) {
   }
 }
 
+/** Format freq floats for display. */
+export function formatFloat(value, n) {
+  return parseFloat(value).toFixed(n)
+}
+
 /** Parse and for display. */
 export function formatTime(time) {
   const t = new Date(time)
   return t.toLocaleString('en-US')
+}
+
+/** Truncate text and append ellipsis. */
+export function truncateText(text, length) {
+  return text.length > length ? text.slice(0, length) + '...' : text
 }
 
 // sort array ascending

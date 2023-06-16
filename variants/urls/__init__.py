@@ -288,9 +288,9 @@ ajax_urlpatterns = [
         name="ajax-small-variant-flags-delete",
     ),
     url(
-        r"^ajax/acmg-criteria-rating/create/(?P<case>[0-9a-f-]+)/?$",
-        view=views_ajax.AcmgCriteriaRatingCreateAjaxView.as_view(),
-        name="ajax-acmg-criteria-rating-create",
+        r"^ajax/acmg-criteria-rating/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_ajax.AcmgCriteriaRatingListCreateAjaxView.as_view(),
+        name="ajax-acmg-criteria-rating-list-create",
     ),
     url(
         r"^ajax/acmg-criteria-rating/update/(?P<acmgcriteriarating>[0-9a-f-]+)/?$",
@@ -465,9 +465,9 @@ api_urlpatterns = [
         name="api-small-variant-flags-delete",
     ),
     url(
-        r"^api/acmg-criteria-rating/create/(?P<case>[0-9a-f-]+)/?$",
-        view=views_api.AcmgCriteriaRatingCreateApiView.as_view(),
-        name="api-acmg-criteria-rating-create",
+        r"^api/acmg-criteria-rating/list-create/(?P<case>[0-9a-f-]+)/?$",
+        view=views_api.AcmgCriteriaRatingListCreateApiView.as_view(),
+        name="api-acmg-criteria-rating-list-create",
     ),
     url(
         r"^api/acmg-criteria-rating/update/(?P<acmgcriteriarating>[0-9a-f-]+)/?$",

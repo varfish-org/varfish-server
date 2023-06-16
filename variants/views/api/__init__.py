@@ -29,6 +29,7 @@ from rest_framework.generics import (
     UpdateAPIView,
     get_object_or_404,
 )
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -385,6 +386,12 @@ class SmallVariantQueryFetchResultsApiView(SmallVariantQueryApiMixin, ListAPIVie
         return "variants.view_data"
 
 
+class SmallVariantPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class SmallVariantQueryFetchExtendedResultsApiView(SmallVariantQueryApiMixin, ListAPIView):
     """Fetch extended results for small variant query.
 
@@ -406,6 +413,7 @@ class SmallVariantQueryFetchExtendedResultsApiView(SmallVariantQueryApiMixin, Li
     """
 
     serializer_class = SmallVariantForExtendedResultSerializer
+    # pagination_class = SmallVariantPagination
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1216,9 +1224,14 @@ class SmallVariantCommentApiMixin(VariantsApiBaseMixin):
 
     def get_queryset(self):
         keys = ("release", "chromosome", "start", "end", "reference", "alternative")
-        return SmallVariantComment.objects.select_related("user").filter(
-            **{key: self.request.GET[key] for key in keys}
-        )
+        query_set = SmallVariantComment.objects.select_related("case", "user")
+
+        for key in keys:
+            if key not in self.request.GET:
+                break
+        else:
+            query_set = query_set.filter(**{key: self.request.GET[key] for key in keys})
+        return query_set
 
     def get_permission_required(self):
         return "variants.view_data"
@@ -1254,7 +1267,8 @@ class SmallVariantCommentListCreateApiView(
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
         keys = ("release", "chromosome", "start", "end", "reference", "alternative")
         for key in keys:
-            result[key] = self.request.query_params[key]
+            if key in self.request.query_params:
+                result[key] = self.request.query_params[key]
         return result
 
 
@@ -1269,9 +1283,13 @@ class SmallVariantFlagsApiMixin(VariantsApiBaseMixin):
 
     def get_queryset(self):
         keys = ("release", "chromosome", "start", "end", "reference", "alternative")
-        return SmallVariantFlags.objects.select_related("case").filter(
-            **{key: self.request.GET[key] for key in keys}
-        )
+        query_set = SmallVariantFlags.objects.select_related("case")
+        for key in keys:
+            if key not in self.request.GET:
+                break
+        else:
+            query_set = query_set.filter(**{key: self.request.GET[key] for key in keys})
+        return query_set
 
     def get_permission_required(self):
         return "variants.view_data"
@@ -1305,7 +1323,8 @@ class SmallVariantFlagsListCreateApiView(
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
         keys = ("release", "chromosome", "start", "end", "reference", "alternative")
         for key in keys:
-            result[key] = self.request.query_params[key]
+            if key in self.request.query_params:
+                result[key] = self.request.query_params[key]
         return result
 
 
@@ -1420,13 +1439,46 @@ class SmallVariantCommentDeleteApiView(
         return "variants.view_data"
 
 
-class AcmgCriteriaRatingCreateApiView(
-    CaseApiMixin,
-    CreateAPIView,
+class AcmgCriteriaRatingApiMixin(VariantsApiBaseMixin):
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "case"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    serializer_class = AcmgCriteriaRatingSerializer
+
+    def get_queryset(self):
+        keys = ("release", "chromosome", "start", "end", "reference", "alternative")
+        query_set = AcmgCriteriaRating.objects.select_related("case")
+
+        for key in keys:
+            if key not in self.request.GET:
+                break
+        else:
+            query_set = query_set.filter(**{key: self.request.GET[key] for key in keys})
+        return query_set
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+
+class AcmgCriteriaRatingListCreateApiView(
+    AcmgCriteriaRatingApiMixin,
+    ListCreateAPIView,
 ):
     """A view that allows to create new ACMG ratings.
 
-    **URL:** ``/variants/api/acmg-criteria-rating/create/{case.sodar_uuid}/``
+    **URL:** ``/variants/api/acmg-criteria-rating/list-create/{case.sodar_uuid}/``
+
+    **Query Arguments:**
+
+    - release
+    - chromosome
+    - start
+    - end
+    - reference
+    - alternative
 
     **Methods:** ``POST``
 
@@ -1439,6 +1491,10 @@ class AcmgCriteriaRatingCreateApiView(
     def get_serializer_context(self):
         result = super().get_serializer_context()
         result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        keys = ("release", "chromosome", "start", "end", "reference", "alternative")
+        for key in keys:
+            if key in self.request.query_params:
+                result[key] = self.request.query_params[key]
         return result
 
 
