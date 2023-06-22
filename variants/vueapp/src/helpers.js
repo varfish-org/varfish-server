@@ -34,7 +34,7 @@ export function declareWrapper(props, key, emit) {
 
 export const getAcmgBadge = (acmgClass) => {
   return acmgClass == null
-    ? 'badge-outline-secondary text-muted'
+    ? 'badge-light text-muted'
     : acmgClass > 3
     ? 'badge-danger text-white'
     : acmgClass === 3

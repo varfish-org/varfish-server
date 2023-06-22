@@ -22,7 +22,6 @@ import VariantDetailsLinkOuts from './VariantDetailsLinkOuts.vue'
 const detailsStore = useVariantDetailsStore()
 const queryStore = useFilterQueryStore()
 const flagsStore = useVariantFlagsStore()
-flagsStore.initialize({ csrf_token: queryStore.csrfToken }, queryStore.caseUuid)
 const commentsStore = useVariantCommentsStore()
 commentsStore.initialize(
   { csrf_token: queryStore.csrfToken },
@@ -207,11 +206,7 @@ $(function () {
             role="tabpanel"
             aria-labelledby="comments-flags-tab"
           >
-            <VariantDetailsFlags
-              :details-store="detailsStore"
-              :flags-store="flagsStore"
-              :variant="detailsStore.smallVariant"
-            />
+            <VariantDetailsFlags />
             <VariantDetailsComments
               :details-store="detailsStore"
               :comments-store="commentsStore"

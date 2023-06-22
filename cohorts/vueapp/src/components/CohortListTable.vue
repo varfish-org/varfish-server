@@ -259,8 +259,8 @@ onMounted(async () => {
 .custom-table {
   --easy-table-border: 0px solid #000000;
   --easy-table-row-border: 0px solid #000000;
-  --easy-table-body-row-font-size: 14px;
-  --easy-table-header-font-size: 14px;
-  --easy-table-footer-font-size: 12px;
+  /*--easy-table-body-row-font-size: 14px;*/
+  /*--easy-table-header-font-size: 14px;*/
+  /*--easy-table-footer-font-size: 12px;*/
 }
 </style>

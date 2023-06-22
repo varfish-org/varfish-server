@@ -22,17 +22,42 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   /** The small variants as fetched from API. */
   const flags = ref(null)
 
+  /** The flags for all variants of the case with the given `caseUuid`. */
+  const caseFlags = ref(null)
+
   /**
    * Initialize the store.
    */
-  const initialize = async (applicationContext, caseUuuidArg) => {
+  const initialize = async (applicationContext, caseUuidArg) => {
     if (storeState.value !== StoreState.initial) {
       // initialize only once
       return
     }
-    storeState.value = StoreState.active
-    caseUuid.value = caseUuuidArg
+
+    caseUuid.value = caseUuidArg
     csrfToken.value = applicationContext.csrf_token
+
+    await _fetchCaseFlags()
+
+    storeState.value = StoreState.active
+  }
+
+  /**
+   * Fetch all flags for the current case
+   */
+  const _fetchCaseFlags = async () => {
+    serverInteractions.value += 1
+    try {
+      const res = await variantsApi.listFlags(csrfToken.value, caseUuid.value)
+      caseFlags.value = Object.fromEntries(
+        res.map((flags) => [flags.sodar_uuid, flags])
+      )
+    } catch (err) {
+      storeState.value = StoreState.error
+      throw err
+    } finally {
+      serverInteractions.value -= 1
+    }
   }
 
   /**
@@ -80,6 +105,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       serverInteractions.value -= 1
     }
 
+    caseFlags.value[result.sodar_uuid] = result
     flags.value = result
 
     return result
@@ -108,6 +134,7 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       serverInteractions.value -= 1
     }
 
+    caseFlags.value[result.sodar_uuid] = result
     flags.value = result
 
     return result
@@ -128,7 +155,61 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
       serverInteractions.value -= 1
     }
 
+    delete caseFlags.value[flags.value.sodar_uuid]
     flags.value = null
+  }
+
+  /**
+   * Does a variant has flags?
+   */
+  const hasFlags = (variant) => {
+    if (!caseFlags.value) {
+      return false
+    }
+    for (const flag of Object.values(caseFlags.value)) {
+      if (
+        flag.release === variant.release &&
+        flag.chromosome === variant.chromosome &&
+        flag.start === variant.start &&
+        flag.end === variant.end &&
+        flag.reference === variant.reference &&
+        flag.alternative === variant.alternative
+      ) {
+        return (
+          flag.flag_bookmarked ||
+          flag.flag_candidate ||
+          flag.flag_doesnt_segregate ||
+          flag.flag_final_causative ||
+          flag.flag_for_validation ||
+          flag.flag_molecular ||
+          flag.flag_no_disease_association ||
+          flag.flag_segregates
+        )
+      }
+    }
+    return false
+  }
+
+  /**
+   * Return flags for a given variant from the store.
+   */
+  const getFlags = (variant) => {
+    if (!caseFlags.value) {
+      return null
+    }
+    for (const flag of Object.values(caseFlags.value)) {
+      if (
+        flag.release === variant.release &&
+        flag.chromosome === variant.chromosome &&
+        flag.start === variant.start &&
+        flag.end === variant.end &&
+        flag.reference === variant.reference &&
+        flag.alternative === variant.alternative
+      ) {
+        return flag
+      }
+    }
+    return null
   }
 
   return {
@@ -139,11 +220,14 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     caseUuid,
     smallVariant,
     flags,
+    caseFlags,
     // functions
     initialize,
     retrieveFlags,
     createFlags,
     updateFlags,
     deleteFlags,
+    hasFlags,
+    getFlags,
   }
 })

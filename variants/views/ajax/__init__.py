@@ -1,8 +1,8 @@
 from rest_framework.authentication import SessionAuthentication
 
 from variants.views.api import (
-    AcmgCriteriaRatingCreateApiView,
     AcmgCriteriaRatingDeleteApiView,
+    AcmgCriteriaRatingListCreateApiView,
     AcmgCriteriaRatingUpdateApiView,
     CaseListQcStatsApiView,
     CaseRetrieveApiView,
@@ -396,10 +396,10 @@ class SmallVariantCommentDeleteAjaxView(SmallVariantCommentDeleteApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class AcmgCriteriaRatingCreateAjaxView(AcmgCriteriaRatingCreateApiView):
+class AcmgCriteriaRatingListCreateAjaxView(AcmgCriteriaRatingListCreateApiView):
     """Create ACMG criteria rating
 
-    **URL:** ``/variants/ajax/acmg-criteria-rating/create/{case.sodar_uuid}/``
+    **URL:** ``/variants/ajax/acmg-criteria-rating/list-create/{case.sodar_uuid}/``
 
     **Methods:** See base API class.
 
