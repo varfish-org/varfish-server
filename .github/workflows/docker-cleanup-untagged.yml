@@ -1,0 +1,18 @@
+name: Cleanup Untagged Images
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * SUN"
+
+jobs:
+  delete-untagged-images:
+    name: Delete untagged images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bots-house/ghcr-delete-image-action@v1.1.0
+        with:
+          owner: bihealth
+          name: reev
+          token: ${{ secrets.GITHUB_TOKEN }}
+          untagged-keep-latest: 3

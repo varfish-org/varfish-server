@@ -1,0 +1,19 @@
+name: Cleanup PR Images
+
+on:
+  pull_request:
+    types:
+        - closed
+
+jobs:
+  purge-image:
+    name: Delete PR images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bots-house/ghcr-delete-image-action@v1.1.0
+        with:
+          owner: bihealth
+          name: reev
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: pr-${{github.event.pull_request.number}}
+        continue-on-error: true
