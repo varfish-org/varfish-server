@@ -6,7 +6,7 @@ import 'vue3-easy-data-table/dist/style.css'
 
 import svsApi from '@svs/api/svs.js'
 import { useSvFilterStore } from '@svs/stores/filterSvs.js'
-import { useSvFlagsStore } from '@svs/stores/svFlags.js'
+import { useSvFlagsStore, emptyFlagsTemplate } from '@svs/stores/svFlags.js'
 import { useSvCommentsStore } from '@svs/stores/svComments.js'
 import { formatLargeInt, displayName } from '@varfish/helpers.js'
 
@@ -233,6 +233,33 @@ const alertOnRefGt = (callInfo) => {
   }
 }
 
+// Flag the given SV record as visual artifact.
+const flagAsArtifact = async (svRecord) => {
+  console.log(svRecord)
+  await svFlagsStore.retrieveFlags(svRecord)
+  console.log(svFlagsStore.flags)
+  if (svFlagsStore.flags) {
+    // update existing flags
+    const flags = {
+      ...svFlagsStore.flags,
+      flag_summary: 'negative',
+      flag_visual: 'negative',
+    }
+    console.log(flags)
+    await svFlagsStore.updateFlags(flags)
+  } else {
+    // create new flags
+    const flags = {
+      ...emptyFlagsTemplate,
+      flag_summary: 'negative',
+      flag_visual: 'negative',
+    }
+    console.log(flags)
+    await svFlagsStore.createFlags(svRecord, flags)
+  }
+  console.log(svFlagsStore.flags)
+}
+
 // Return label for effective genotype.
 const effectiveGenotype = (callInfo) => {
   switch (callInfo.effective_genotype) {
@@ -367,7 +394,6 @@ watch(
       :headers="tableHeaders"
       :items="tableRows"
       :rows-items="[20, 50, 200, 1000]"
-      alternating
       buttons-pagination
       show-index
     >
@@ -580,10 +606,10 @@ watch(
               class="dropdown-item"
               :href="
                 ucscUrl(
-                  svRecord.payload.release,
-                  svRecord.payload.chromosome,
-                  svRecord.payload.start,
-                  svRecord.payload.end
+                  svRecord.release,
+                  svRecord.chromosome,
+                  svRecord.start,
+                  svRecord.end
                 )
               "
               target="_blank"
@@ -594,10 +620,10 @@ watch(
               class="dropdown-item"
               :href="
                 ensemblUrl(
-                  svRecord.payload.release,
-                  svRecord.payload.chromosome,
-                  svRecord.payload.start,
-                  svRecord.payload.end
+                  svRecord.release,
+                  svRecord.chromosome,
+                  svRecord.start,
+                  svRecord.end
                 )
               "
               target="_blank"
@@ -608,18 +634,18 @@ watch(
               class="dropdown-item"
               :href="
                 dgvUrl(
-                  svRecord.payload.release,
-                  svRecord.payload.chromosome,
-                  svRecord.payload.start,
-                  svRecord.payload.end
+                  svRecord.release,
+                  svRecord.chromosome,
+                  svRecord.start,
+                  svRecord.end
                 )
               "
               target="_blank"
-              v-if="svRecord.payload.release === 'GRCh37'"
+              v-if="svRecord.release === 'GRCh37'"
             >
               Locus @DGV
             </a>
-            <a class="disabled" href="#" v-else>
+            <a class="dropdown-item disabled" href="#" v-else>
               <!-- not for GRCh38 yet -->
               Locus @DGV
             </a>
@@ -627,20 +653,29 @@ watch(
               class="dropdown-item"
               :href="
                 gnomadUrl(
-                  svRecord.payload.release,
-                  svRecord.payload.chromosome,
-                  svRecord.payload.start,
-                  svRecord.payload.end
+                  svRecord.release,
+                  svRecord.chromosome,
+                  svRecord.start,
+                  svRecord.end
                 )
               "
               target="_blank"
-              v-if="svRecord.payload.release === 'GRCh37'"
+              v-if="svRecord.release === 'GRCh37'"
             >
               Locus @gnomAD
             </a>
-            <a class="disabled" href="#" v-else>
+            <a class="dropdown-item disabled" href="#" v-else>
               <!-- not for GRCh38 yet -->
               Locus @gnomAD
+            </a>
+            <div class="dropdown-divider"></div>
+            <a
+              class="dropdown-item"
+              @click.prevent="flagAsArtifact(svRecord)"
+              href="#"
+            >
+              <i-mdi-eye-minus />
+              Flag as Artifact
             </a>
           </div>
         </div>

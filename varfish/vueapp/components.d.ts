@@ -82,6 +82,7 @@ declare module '@vue/runtime-core' {
     IMdiDownload: typeof import('~icons/mdi/download')['default']
     IMdiEdit: typeof import('~icons/mdi/edit')['default']
     IMdiEye: typeof import('~icons/mdi/eye')['default']
+    IMdiEyeMinus: typeof import('~icons/mdi/eye-minus')['default']
     IMdiFamilyTree: typeof import('~icons/mdi/family-tree')['default']
     IMdiFileDocumentEdit: typeof import('~icons/mdi/file-document-edit')['default']
     IMdiFileTree: typeof import('~icons/mdi/file-tree')['default']
