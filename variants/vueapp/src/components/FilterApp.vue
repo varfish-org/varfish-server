@@ -1,5 +1,5 @@
 <script setup>
-import { watch, ref, onMounted, nextTick } from 'vue'
+import { watch, ref, onMounted, nextTick, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
 
 import variantsApi from '@variants/api/variants.js'
@@ -133,7 +133,10 @@ onMounted(() => {
 
 <template>
   <div
-    v-if="filterQueryStore.caseObj !== null"
+    v-if="
+      filterQueryStore.caseObj !== null &&
+      filterQueryStore.storeState === 'active'
+    "
     class="d-flex flex-column h-100"
   >
     <!-- title etc. -->

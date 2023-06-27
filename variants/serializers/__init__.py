@@ -23,6 +23,8 @@ from variants.models import (
     SmallVariantFlags,
     SmallVariantQuery,
     SmallVariantQueryGeneScores,
+    SmallVariantQueryResultRow,
+    SmallVariantQueryResultSet,
     SmallVariantQueryVariantScores,
 )
 from variants.query_schemas import (
@@ -105,8 +107,6 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
         """Make case and user writeable on creation."""
         validated_data["user"] = self.context["request"].user
         validated_data["case"] = self.context["case"]
-        validated_data["form_version"] = 1
-        validated_data["form_id"] = "variants.small_variant_filter_form"
         return super().create(validated_data)
 
     def validate(self, attrs):
@@ -124,8 +124,6 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
             "date_created",
             "case",
             "user",
-            "form_id",
-            "form_version",
             "query_settings",
             "name",
             "public",
@@ -135,8 +133,6 @@ class SmallVariantQuerySerializer(SODARModelSerializer):
             "date_created",
             "case",
             "user",
-            "form_id",
-            "form_version",
         )
 
 
@@ -346,6 +342,94 @@ class SmallVariantForExtendedResultSerializer(serializers.Serializer):
     summary_pathogenicity = serializers.ListField()
     summary_gold_stars = serializers.IntegerField()
     details = serializers.ListField()
+
+
+class SmallVariantQueryWithLogsSerializer(SmallVariantQuerySerializer):
+
+    #: Log messages
+    logs = serializers.SerializerMethodField()
+
+    def get_logs(self, obj):
+        jobs = obj.filterbgjob_set.all()
+        if not jobs:
+            return []
+        else:
+            the_bg_job = jobs[0].bg_job
+            return [
+                f"{log_entry.date_created} | {log_entry.level} | {log_entry.message}"
+                for log_entry in the_bg_job.log_entries.all()
+            ]
+
+    class Meta:
+        model = SmallVariantQuery
+        fields = (
+            "sodar_uuid",
+            "date_created",
+            "user",
+            "case",
+            "query_state",
+            "query_state_msg",
+            "query_settings",
+            "logs",
+        )
+        read_only_fields = fields
+
+
+class SmallVariantQueryResultSetSerializer(SODARModelSerializer):
+    """Serializer for the ``SmallVariantQueryResultSet`` model.
+
+    This serializer is only used in a read-only context.
+
+    Note that the using views should ``preselect_related()`` aggressively to keep down the required database
+    queries.
+    """
+
+    #: UUID of the related query
+    smallvariantquery = serializers.ReadOnlyField(source="smallvariantquery.sodar_uuid")
+
+    class Meta:
+        model = SmallVariantQueryResultSet
+        fields = (
+            "sodar_uuid",
+            "date_created",
+            "date_modified",
+            "smallvariantquery",
+            "start_time",
+            "end_time",
+            "elapsed_seconds",
+            "result_row_count",
+        )
+        read_only_fields = fields
+
+
+class SmallVariantQueryResultRowSerializer(SODARModelSerializer):
+    """Serializer for the ``SmallVariantQueryResultRow`` model **with** the paylaod.
+
+    This serializer is only used in a read-only context.
+
+    Note that the using views should ``preselect_related()`` aggressively to keep down the required database
+    queries.
+    """
+
+    #: UUID of the related query result set
+    smallvariantqueryresultset = serializers.ReadOnlyField(
+        source="smallvariantqueryresultset.sodar_uuid"
+    )
+
+    class Meta:
+        model = SmallVariantQueryResultRow
+        fields = (
+            "sodar_uuid",
+            "smallvariantqueryresultset",
+            "release",
+            "chromosome",
+            "chromosome_no",
+            "bin",
+            "start",
+            "end",
+            "payload",
+        )
+        read_only_fields = fields
 
 
 class CaddPrioritizationMixin:

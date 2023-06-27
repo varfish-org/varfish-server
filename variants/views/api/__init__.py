@@ -21,11 +21,11 @@ from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectP
 from rest_framework import views
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import (
-    CreateAPIView,
     DestroyAPIView,
     ListAPIView,
     ListCreateAPIView,
     RetrieveAPIView,
+    RetrieveUpdateDestroyAPIView,
     UpdateAPIView,
     get_object_or_404,
 )
@@ -56,12 +56,14 @@ from variants.models import (
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
+    SmallVariantQueryResultRow,
+    SmallVariantQueryResultSet,
     SmallVariantSet,
     SmallVariantSummary,
     load_molecular_impact,
     only_source_name,
 )
-from variants.queries import CaseLoadPrefetchedQuery, KnownGeneAAQuery
+from variants.queries import KnownGeneAAQuery
 from variants.query_presets import (
     CHROMOSOME_PRESETS,
     FLAGSETC_PRESETS,
@@ -79,22 +81,17 @@ from variants.serializers import (
     ExtraAnnoFieldSerializer,
     HpoTerms,
     HpoTermSerializer,
-    JobStatus,
     SettingsShortcuts,
     SettingsShortcutsSerializer,
     SmallVariantCommentSerializer,
     SmallVariantDetails,
     SmallVariantDetailsSerializer,
     SmallVariantFlagsSerializer,
-    SmallVariantForExtendedResultsCaddPhenoPriorizationSerializer,
-    SmallVariantForExtendedResultsCaddPriorizationSerializer,
-    SmallVariantForExtendedResultSerializer,
-    SmallVariantForExtendedResultsPhenoPriorizationSerializer,
-    SmallVariantForResultSerializer,
     SmallVariantQueryHpoTermSerializer,
+    SmallVariantQueryResultRowSerializer,
+    SmallVariantQueryResultSetSerializer,
     SmallVariantQuerySerializer,
-    SmallVariantQueryStatusSerializer,
-    SmallVariantQueryUpdateSerializer,
+    SmallVariantQueryWithLogsSerializer,
 )
 from variants.tasks import export_file_task, single_case_filter_task
 
@@ -208,323 +205,195 @@ class SmallVariantQueryListApiView(SmallVariantQueryApiMixin, ListAPIView):
         return qs.filter(case=case)
 
 
-class SmallVariantQueryCreateApiView(SmallVariantQueryApiMixin, CreateAPIView):
-    """Create new small variant query for the given case.
-
-    **URL:** ``/variants/api/query-case/create/{case.sodar_uuid}``
-
-    **Methods:** ``POST``
-
-    **Parameters:**
-
-    - ``form_id``: query settings form (``str``, use ``"variants.small_variant_filter_form"``)
-    - ``form_version``: query settings version (``int``, only valid: ``1``)
-    - ``query_settings``: the query settings (``dict``, cf. :ref:`api_json_schemas_case_query_v1`)
-    - ``name``: optional string (``str``, defaults to ``None``)
-    - ``public``: whether or not this query (settings) are public (``bool``, defaults to ``False``)
-
-    **Returns:**
-
-    JSON serialization of case small variant query details (see :py:class:`SmallVariantQuery`)
-    """
-
-    def get_serializer_context(self):
-        result = super().get_serializer_context()
-        result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
-        return result
-
-    def perform_create(self, serializer):
-        """Create the necessary background job and return it after creating a SmallVariantQuery
-
-        This is called in a transaction so passing to Celery must be done outside this transaction.
-        """
-        small_variant_query = serializer.save()
-
-        with transaction.atomic():
-            project = small_variant_query.case.project
-            # Construct background job objects
-            bg_job = BackgroundJob.objects.create(
-                name="Running filter query for case {}".format(small_variant_query.case.name),
-                project=project,
-                job_type=FilterBgJob.spec_name,
-                user=self.request.user,
-            )
-            filter_job = FilterBgJob.objects.create(
-                project=project,
-                bg_job=bg_job,
-                case=small_variant_query.case,
-                smallvariantquery=small_variant_query,
-            )
-
-        single_case_filter_task.delay(filter_job_pk=filter_job.pk)  # MUST be after transaction
-
-
-class SmallVariantQueryRetrieveApiView(SmallVariantQueryApiMixin, RetrieveAPIView):
-    """Retrieve small variant query details for the qiven query.
-
-    **URL:** ``/variants/api/query-case/retrieve/{query.sodar_uuid}``
-
-    **Methods:** ``GET``
-
-    **Parameters:**
-
-    None
-
-    **Returns:**
-
-    JSON serialization of case small variant query details (see :py:class:`SmallVariantQuery`)
-    """
-
-
-class SmallVariantQueryStatusApiView(SmallVariantQueryApiMixin, RetrieveAPIView):
-    """Returns the status of the small variant query.
-
-    **URL:** ``/variants/api/query-case/status/{query.sodar_uuid}``
-
-    **Methods:** ``GET``
-
-    **Parameters:**
-
-    None
-
-    **Returns:**
-
-    ``dict`` with one key ``status`` (``str``)
-    """
-
-    serializer_class = SmallVariantQueryStatusSerializer
-
-    def get_object(self):
-        query = super().get_object()
-        filter_job = FilterBgJob.objects.select_related("bg_job").get(smallvariantquery=query)
-        log_entries = [
-            "[{}] {}".format(e.date_created.strftime("%Y-%m-%d %H:%M:%S"), e.message)
-            for e in reversed(filter_job.bg_job.log_entries.all().order_by("-date_created"))
-        ]
-        return JobStatus(status=filter_job.bg_job.status, logs=log_entries)
-
-
-class SmallVariantQueryUpdateApiView(SmallVariantQueryApiMixin, UpdateAPIView):
-    """Update small variant query for the qiven query.
-
-    **URL:** ``/variants/api/query-case/update/{query.sodar_uuid}``
-
-    **Methods:** ``PUT``, ``PATCH``
-
-    **Parameters:**
-
-    - ``name``: new name attribute of the query
-    - ``public``: whether or not to make this query public
-
-    **Returns:**
-
-    JSON serialization of updated case small variant query details (see :py:class:`SmallVariantQuery`)
-    """
-
-    serializer_class = SmallVariantQueryUpdateSerializer
-
-    def get_serializer_context(self):
-        result = super().get_serializer_context()
-        result["case"] = self.get_object().case
-        return result
-
-
-class SmallVariantQueryFetchResultsApiView(SmallVariantQueryApiMixin, ListAPIView):
-    """Fetch results for small variant query.
-
-    Will return an HTTP 503 if the results are not ready yet.
-
-    **URL:** ``/variants/api/query-case/results/{query.sodar_uuid}``
-
-    **Methods:** ``GET``
-
-    - ``page`` - specify page to return (default/first is ``1``)
-    - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
-
-    **Returns:**
-
-    - ``count`` - number of total elements (``int``)
-    - ``next`` - URL to next page (``str`` or ``null``)
-    - ``previous`` - URL to next page (``str`` or ``null``)
-    - ``results`` - ``list`` of results (``dict``)
-    """
-
-    serializer_class = SmallVariantForResultSerializer
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._query = None
-
-    def get(self, *args, **kwargs):
-        query = self._get_query()
-        job = FilterBgJob.objects.get(smallvariantquery=query)
-        if job.bg_job.status == "done":
-            return super().get(*args, **kwargs)
-        else:
-            if job.bg_job.status == "failed":
-                reason = "query failed"
-            else:
-                reason = "query result not available yet"
-            return Response(data={"reason": reason}, status=503)
-
-    def _get_query(self):
-        if not self._query:
-            if self.request.user.is_superuser:
-                qs = SmallVariantQuery.objects.all()
-            elif self.request.user.is_anonymous:
-                qs = SmallVariantQuery.objects.none()
-            else:
-                qs = SmallVariantQuery.objects.filter(Q(user=self.request.user) | Q(public=True))
-            self._query = get_object_or_404(qs, sodar_uuid=self.kwargs["smallvariantquery"])
-        return self._query
-
-    def get_queryset(self):
-        query = self._get_query()
-        return SmallVariant.objects.filter(smallvariantquery=query, case_id=query.case_id)
-
-    def get_permission_required(self):
-        return "variants.view_data"
-
-
 class SmallVariantPagination(PageNumberPagination):
     page_size = 100
     page_size_query_param = "page_size"
     max_page_size = 100
 
 
-class SmallVariantQueryFetchExtendedResultsApiView(SmallVariantQueryApiMixin, ListAPIView):
-    """Fetch extended results for small variant query.
+class SmallVariantQueryListCreateApiView(ListCreateAPIView):
+    """API endpoint for listing and creating SmallVariant queries for a given case.
 
-    Will return an HTTP 503 if the results are not ready yet.
+    After creation, a background job will be started to execute the query.
 
-    **URL:** ``/variants/api/query-case/results-extended/{query.sodar_uuid}``
+    **URL:** ``/variants/api/query/list-create/{case.sodar_uuid}/``
 
-    **Methods:** ``GET``
-
-    - ``page`` - specify page to return (default/first is ``1``)
-    - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
-
-    **Returns:**
-
-    - ``count`` - number of total elements (``int``)
-    - ``next`` - URL to next page (``str`` or ``null``)
-    - ``previous`` - URL to next page (``str`` or ``null``)
-    - ``results`` - ``list`` of results (``dict``)
+    **Methods:** ``GET``, ``POST``
     """
 
-    serializer_class = SmallVariantForExtendedResultSerializer
-    # pagination_class = SmallVariantPagination
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "case"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._query = None
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
 
-    def get(self, *args, **kwargs):
-        query = self._get_query()
-        job = FilterBgJob.objects.get(smallvariantquery=query)
-        if job.bg_job.status == "done":
-            return super().get(*args, **kwargs)
-        else:
-            if job.bg_job.status == "failed":
-                reason = "query failed"
-            else:
-                reason = "query result not available yet"
-            return Response(data={"reason": reason}, status=503)
+    serializer_class = SmallVariantQuerySerializer
 
-    def _get_query(self):
-        if not self._query:
-            if self.request.user.is_superuser:
-                qs = SmallVariantQuery.objects.all()
-            elif self.request.user.is_anonymous:
-                qs = SmallVariantQuery.objects.none()
-            else:
-                qs = SmallVariantQuery.objects.filter(Q(user=self.request.user) | Q(public=True))
-            self._query = get_object_or_404(qs, sodar_uuid=self.kwargs["smallvariantquery"])
-        return self._query
+    def perform_create(self, serializer):
+        """Override to execute the new query in the background."""
+        super().perform_create(serializer)
+        query = serializer.instance
+
+        with transaction.atomic():
+            # Construct background job objects
+            filter_job = FilterBgJob.objects.create(
+                bg_job=BackgroundJob.objects.create(
+                    name="Running filter query for case {}".format(query.case.name),
+                    project=query.case.project,
+                    job_type=FilterBgJob.spec_name,
+                    user=self.request.user,
+                ),
+                project=query.case.project,
+                case=query.case,
+                smallvariantquery=query,
+            )
+
+        single_case_filter_task.delay(filter_job_pk=filter_job.pk)  # MUST be after transaction
+
+    def get_serializer_context(self):
+        result = super().get_serializer_context()
+        result["case"] = Case.objects.get(sodar_uuid=self.kwargs["case"])
+        return result
 
     def get_queryset(self):
-        query = self._get_query()
-        query_obj = CaseLoadPrefetchedQuery(query.case, get_engine(), query.id)
+        if self.request.user.is_superuser:
+            return SmallVariantQuery.objects.all()
+        elif self.request.user.is_anonymous:
+            return SmallVariantQuery.objects.none()
+        else:
+            return SmallVariantQuery.objects.filter(
+                Q(user=self.request.user) | Q(public=True), case__sodar_uuid=self.kwargs.get("case")
+            ).select_related("user", "case")
 
-        with contextlib.closing(query_obj.run(query.query_settings)) as results:
-            # num_results = results.rowcount
-            # Get first N rows. This will pop the first N rows! results list will be decreased by N.
-            return list(results.fetchmany(query.query_settings.get("result_rows_limit", 200)))
+    def get_permission_required(self):
+        return "variants.view_data"
 
 
-class SmallVariantQueryFetchExtendedResultsCaddPrioritizationApiView(
-    SmallVariantQueryFetchExtendedResultsApiView
-):
-    """Fetch extended results for small variant query.
+class SmallVariantQueryRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView):
+    """API endpoint for retrieving, updating, and deleting SmallVariant queries for a given case.
 
-    Will return an HTTP 503 if the results are not ready yet.
+    **URL:** ``/variants/api/query/retrieve-update-destroy/{smallvariantquery.sodar_uuid}/``
 
-    **URL:** ``/variants/api/query-case/results-extended-cadd/{query.sodar_uuid}``
-
-    **Methods:** ``GET``
-
-    - ``page`` - specify page to return (default/first is ``1``)
-    - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
-
-    **Returns:**
-
-    - ``count`` - number of total elements (``int``)
-    - ``next`` - URL to next page (``str`` or ``null``)
-    - ``previous`` - URL to next page (``str`` or ``null``)
-    - ``results`` - ``list`` of results (``dict``)
+    **Methods:** ``GET``, ``PATCH``, ``PUT``, ``DELETE``
     """
 
-    serializer_class = SmallVariantForExtendedResultsCaddPriorizationSerializer
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "smallvariantquery"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+
+    serializer_class = SmallVariantQueryWithLogsSerializer
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return SmallVariantQuery.objects.all()
+        elif self.request.user.is_anonymous:
+            return SmallVariantQuery.objects.none()
+        else:
+            return SmallVariantQuery.objects.filter(
+                Q(user=self.request.user) | Q(public=True), case__sodar_uuid=self.kwargs.get("case")
+            ).select_related("user", "case")
+
+    def get_permission_required(self):
+        # TODO: only allow update/deletion of own query
+        if self.request.method == "GET":
+            return "variants.view_data"
+        elif self.request.method == "DELETE":
+            return "variants.delete_data"
+        else:
+            return "variants.update_data"
 
 
-class SmallVariantQueryFetchExtendedResultsPhenoPrioritizationApiView(
-    SmallVariantQueryFetchExtendedResultsApiView
-):
-    """Fetch extended results for small variant query.
+class SmallVariantQueryResultSetListApiView(ListAPIView):
+    """API endpoint for listing query result sets for a query.
 
-    Will return an HTTP 503 if the results are not ready yet.
-
-    **URL:** ``/variants/api/query-case/results-extended-pheno/{query.sodar_uuid}``
-
-    **Methods:** ``GET``
-
-    - ``page`` - specify page to return (default/first is ``1``)
-    - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
-
-    **Returns:**
-
-    - ``count`` - number of total elements (``int``)
-    - ``next`` - URL to next page (``str`` or ``null``)
-    - ``previous`` - URL to next page (``str`` or ``null``)
-    - ``results`` - ``list`` of results (``dict``)
-    """
-
-    serializer_class = SmallVariantForExtendedResultsPhenoPriorizationSerializer
-
-
-class SmallVariantQueryFetchExtendedResultsCaddPhenoPrioritizationApiView(
-    SmallVariantQueryFetchExtendedResultsApiView
-):
-    """Fetch extended results for small variant query.
-
-    Will return an HTTP 503 if the results are not ready yet.
-
-    **URL:** ``/variants/api/query-case/results-extended-cadd-pheno/{query.sodar_uuid}``
+    **URL:** ``/variants/api/query-result-set/list/{smallvariantquery.sodar_uuid}/``
 
     **Methods:** ``GET``
-
-    - ``page`` - specify page to return (default/first is ``1``)
-    - ``page_size`` -- number of elements per page (default is ``10``, maximum is ``100``)
-
-    **Returns:**
-
-    - ``count`` - number of total elements (``int``)
-    - ``next`` - URL to next page (``str`` or ``null``)
-    - ``previous`` - URL to next page (``str`` or ``null``)
-    - ``results`` - ``list`` of results (``dict``)
     """
 
-    serializer_class = SmallVariantForExtendedResultsCaddPhenoPriorizationSerializer
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "smallvariantquery"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+    pagination_class = PageNumberPagination
+
+    serializer_class = SmallVariantQueryResultSetSerializer
+
+    def get_queryset(self):
+        return SmallVariantQueryResultSet.objects.filter(
+            smallvariantquery__sodar_uuid=self.kwargs.get("smallvariantquery")
+        ).select_related("smallvariantquery")
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+
+class SmallVariantQueryResultSetRetrieveApiView(RetrieveAPIView):
+    """API endpoint for retrieving query result sets.
+
+    **URL:** ``/variants/api/query-result-set/retrieve/{smallvariantquery.sodar_uuid}/``
+
+    **Methods:** ``GET``
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "smallvariantqueryresultset"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+    permission_classes = [SODARAPIProjectPermission]
+
+    serializer_class = SmallVariantQueryResultSetSerializer
+
+    def get_queryset(self):
+        return SmallVariantQueryResultSet.objects.all().select_related("smallvariantquery")
+
+    def get_permission_required(self):
+        return "variants.view_data"
+
+
+class SmallVariantQueryResultRowPagination(PageNumberPagination):
+    page_size = 50
+    max_page_size = 1000
+    page_size_query_param = "page_size"
+
+
+class SmallVariantQueryResultRowListApiView(ListAPIView):
+    """API endpoint for listing query result rows.
+
+    **URL:** ``/variants/api/query-result-row/list/{smallvariantqueryresultset.sodar_uuid}/``
+
+    **Methods:** ``GET``
+    """
+
+    lookup_field = "sodar_uuid"
+    lookup_url_kwarg = "smallvariantqueryresultset"
+
+    renderer_classes = [VarfishApiRenderer]
+    versioning_class = VarfishApiVersioning
+    pagination_class = SmallVariantQueryResultRowPagination
+
+    serializer_class = SmallVariantQueryResultRowSerializer
+
+    def get_queryset(self):
+        order_by_str = self.request.query_params.get("order_by", "chromosome_no,start")
+        order_dir = self.request.query_params.get("order_dir", "asc")
+        order_by = order_by_str.split(",")
+        if order_dir == "desc":
+            order_by = [f"-{value}" for value in order_by]
+
+        qs = SmallVariantQueryResultRow.objects.filter(
+            smallvariantqueryresultset__sodar_uuid=self.kwargs.get("smallvariantqueryresultset")
+        ).select_related("smallvariantqueryresultset")
+        if order_by:
+            qs = qs.order_by(*order_by)
+        return qs
+
+    def get_permission_required(self):
+        return "variants.view_data"
 
 
 class SmallVariantQuerySettingsShortcutApiView(

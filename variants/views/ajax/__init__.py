@@ -15,21 +15,17 @@ from variants.views.api import (
     SmallVariantFlagsDeleteApiView,
     SmallVariantFlagsListCreateApiView,
     SmallVariantFlagsUpdateApiView,
-    SmallVariantQueryCreateApiView,
     SmallVariantQueryDownloadGenerateApiView,
     SmallVariantQueryDownloadServeApiView,
     SmallVariantQueryDownloadStatusApiView,
-    SmallVariantQueryFetchExtendedResultsApiView,
-    SmallVariantQueryFetchExtendedResultsCaddPhenoPrioritizationApiView,
-    SmallVariantQueryFetchExtendedResultsCaddPrioritizationApiView,
-    SmallVariantQueryFetchExtendedResultsPhenoPrioritizationApiView,
-    SmallVariantQueryFetchResultsApiView,
     SmallVariantQueryHpoTermsApiView,
     SmallVariantQueryListApiView,
-    SmallVariantQueryRetrieveApiView,
+    SmallVariantQueryListCreateApiView,
+    SmallVariantQueryResultRowListApiView,
+    SmallVariantQueryResultSetListApiView,
+    SmallVariantQueryResultSetRetrieveApiView,
+    SmallVariantQueryRetrieveUpdateDestroyApiView,
     SmallVariantQuerySettingsShortcutApiView,
-    SmallVariantQueryStatusApiView,
-    SmallVariantQueryUpdateApiView,
 )
 
 
@@ -61,25 +57,10 @@ class SmallVariantQueryListAjaxView(SmallVariantQueryListApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class SmallVariantQueryCreateAjaxView(SmallVariantQueryCreateApiView):
-    """Create new small variant query for the given case.
+class SmallVariantQueryListCreateAjaxView(SmallVariantQueryListCreateApiView):
+    """Create or list small variant query.
 
-    **URL:** ``/variants/ajax/query-case/create/{case.sodar_uuid}``
-
-    **Methods:** See base API class.
-
-    **Parameters:** See base API class.
-
-    **Returns:** See base API class.
-    """
-
-    authentication_classes = [SessionAuthentication]
-
-
-class SmallVariantQueryRetrieveAjaxView(SmallVariantQueryRetrieveApiView):
-    """Retrieve small variant query details for the qiven query.
-
-    **URL:** ``/variants/ajax/query-case/retrieve/{query.sodar_uuid}``
+    **URL:** ``/variants/ajax/query/list-create/{case.uuid}``
 
     **Methods:** See base API class.
 
@@ -91,25 +72,10 @@ class SmallVariantQueryRetrieveAjaxView(SmallVariantQueryRetrieveApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class SmallVariantQueryStatusAjaxView(SmallVariantQueryStatusApiView):
-    """Returns the status of the small variant query.
+class SmallVariantQueryRetrieveUpdateDestroyAjaxView(SmallVariantQueryRetrieveUpdateDestroyApiView):
+    """Retrieve, update or destroy small variant query.
 
-    **URL:** ``/variants/ajax/query-case/status/{query.sodar_uuid}``
-
-    **Methods:** See base API class.
-
-    **Parameters:** See base API class.
-
-    **Returns:** See base API class.
-    """
-
-    authentication_classes = [SessionAuthentication]
-
-
-class SmallVariantQueryUpdateAjaxView(SmallVariantQueryUpdateApiView):
-    """Update small variant query for the qiven query.
-
-    **URL:** ``/variants/ajax/query-case/update/{query.sodar_uuid}``
+    **URL:** ``/variants/ajax/query/retrieve-update-destroy/{smallvariantquery.uuid}``
 
     **Methods:** See base API class.
 
@@ -121,12 +87,10 @@ class SmallVariantQueryUpdateAjaxView(SmallVariantQueryUpdateApiView):
     authentication_classes = [SessionAuthentication]
 
 
-class SmallVariantQueryFetchResultsAjaxView(SmallVariantQueryFetchResultsApiView):
-    """Fetch results for small variant query.
+class SmallVariantQueryResultSetListAjaxView(SmallVariantQueryResultSetListApiView):
+    """Create or list small variant query
 
-    Will return an HTTP 503 if the results are not ready yet.
-
-    **URL:** ``/variants/ajax/query-case/results/{query.sodar_uuid}``
+    **URL:** ``/variants/ajax/query-result-set/list/{smallvariantqueryresultset.uuid}``
 
     **Methods:** See base API class.
 
@@ -138,12 +102,10 @@ class SmallVariantQueryFetchResultsAjaxView(SmallVariantQueryFetchResultsApiView
     authentication_classes = [SessionAuthentication]
 
 
-class SmallVariantQueryFetchExtendedResultsAjaxView(SmallVariantQueryFetchExtendedResultsApiView):
-    """Fetch extended results for small variant query.
+class SmallVariantQueryResultSetRetrieveAjaxView(SmallVariantQueryResultSetRetrieveApiView):
+    """Create or list small variant query
 
-    Will return an HTTP 503 if the results are not ready yet.
-
-    **URL:** ``/variants/ajax/query-case/results-extended/{query.sodar_uuid}``
+    **URL:** ``/variants/ajax/query-result-set/retrieve/{smallvariantqueryresultset.uuid}``
 
     **Methods:** See base API class.
 
@@ -155,52 +117,10 @@ class SmallVariantQueryFetchExtendedResultsAjaxView(SmallVariantQueryFetchExtend
     authentication_classes = [SessionAuthentication]
 
 
-class SmallVariantQueryFetchExtendedResultsCaddPrioritizationAjaxView(
-    SmallVariantQueryFetchExtendedResultsCaddPrioritizationApiView
-):
-    """Fetch extended results with CADD scoring for small variant query.
+class SmallVariantQueryResultRowListAjaxView(SmallVariantQueryResultRowListApiView):
+    """Create or list small variant query
 
-    Will return an HTTP 503 if the results are not ready yet.
-
-    **URL:** ``/variants/ajax/query-case/results-extended-cadd/{query.sodar_uuid}``
-
-    **Methods:** See base API class.
-
-    **Parameters:** See base API class.
-
-    **Returns:** See base API class.
-    """
-
-    authentication_classes = [SessionAuthentication]
-
-
-class SmallVariantQueryFetchExtendedResultsPhenoPrioritizationAjaxView(
-    SmallVariantQueryFetchExtendedResultsPhenoPrioritizationApiView
-):
-    """Fetch extended results with phenotype scoring for small variant query.
-
-    Will return an HTTP 503 if the results are not ready yet.
-
-    **URL:** ``/variants/ajax/query-case/results-extended-pheno/{query.sodar_uuid}``
-
-    **Methods:** See base API class.
-
-    **Parameters:** See base API class.
-
-    **Returns:** See base API class.
-    """
-
-    authentication_classes = [SessionAuthentication]
-
-
-class SmallVariantQueryFetchExtendedResultsCaddPhenoPrioritizationAjaxView(
-    SmallVariantQueryFetchExtendedResultsCaddPhenoPrioritizationApiView
-):
-    """Fetch extended results with CADD and phenotype scoring for small variant query.
-
-    Will return an HTTP 503 if the results are not ready yet.
-
-    **URL:** ``/variants/ajax/query-case/results-extended-cadd-pheno/{query.sodar_uuid}``
+    **URL:** ``/variants/ajax/query-result-set/retrieve/{smallvariantqueryresultset.uuid}``
 
     **Methods:** See base API class.
 

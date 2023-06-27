@@ -4,6 +4,7 @@ from config.celery import app
 
 from . import file_export, models, submit_external, submit_filter, sync_upstream, variant_stats
 from .helpers import get_engine
+from .models import jobs
 
 
 @app.task(bind=True)
@@ -70,7 +71,8 @@ def sync_project_upstream(_self, sync_job_pk):
 @app.task(bind=True)
 def single_case_filter_task(_self, filter_job_pk):
     """Task to submit filter and storing job for single case."""
-    return submit_filter.case_filter(models.FilterBgJob.objects.get(pk=filter_job_pk))
+    return jobs.run_query_bg_job(filter_job_pk)
+    # return submit_filter.case_filter(models.FilterBgJob.objects.get(pk=filter_job_pk))
 
 
 @app.task(bind=True)

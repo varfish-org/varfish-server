@@ -25,6 +25,26 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   /** The flags for all variants of the case with the given `caseUuid`. */
   const caseFlags = ref(null)
 
+  const emptyFlagsTemplate = Object.freeze({
+    flag_bookmarked: false,
+    flag_for_validation: false,
+    flag_candidate: false,
+    flag_final_causative: false,
+    flag_no_disease_association: false,
+    flag_segregates: false,
+    flag_doesnt_segregate: false,
+    flag_visual: 'empty',
+    flag_molecular: 'empty',
+    flag_validation: 'empty',
+    flag_phenotype_match: 'empty',
+    flag_summary: 'empty',
+  })
+
+  const initialFlagsTemplate = Object.freeze({
+    ...emptyFlagsTemplate,
+    flag_bookmarked: true,
+  })
+
   /**
    * Initialize the store.
    */
@@ -212,6 +232,25 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     return null
   }
 
+  const flagAsArtifact = async (variant) => {
+    await retrieveFlags(variant)
+    if (flags.value) {
+      // update existing flags
+      await updateFlags({
+        ...flags.value,
+        flag_summary: 'negative',
+        flag_visual: 'negative',
+      })
+    } else {
+      // create new flags
+      await createFlags(variant, {
+        ...emptyFlagsTemplate,
+        flag_summary: 'negative',
+        flag_visual: 'negative',
+      })
+    }
+  }
+
   return {
     // data / state
     storeState,
@@ -221,6 +260,8 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     smallVariant,
     flags,
     caseFlags,
+    emptyFlagsTemplate,
+    initialFlagsTemplate,
     // functions
     initialize,
     retrieveFlags,
@@ -229,5 +270,6 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     deleteFlags,
     hasFlags,
     getFlags,
+    flagAsArtifact,
   }
 })

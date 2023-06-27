@@ -49,58 +49,52 @@ export default {
     )
     return await response.json()
   },
-  async retrieveQueryDetails(csrfToken, queryUuid) {
+  async createQuery(csrfToken, caseUuid, payload) {
     const response = await apiFetch(
       csrfToken,
-      `/variants/ajax/query-case/retrieve/${queryUuid}`,
-      'GET'
-    )
-    return await response.json()
-  },
-  async getQueryStatus(csrfToken, queryUuid) {
-    const response = await apiFetch(
-      csrfToken,
-      `/variants/ajax/query-case/status/${queryUuid}`
-    )
-    return await response.json()
-  },
-  async submitQuery(csrfToken, caseUuid, payload) {
-    const response = await apiFetch(
-      csrfToken,
-      `/variants/ajax/query-case/create/${caseUuid}/`,
+      `/variants/ajax/query/list-create/${caseUuid}/`,
       'POST',
       payload
     )
     return await response.json()
   },
-  async fetchResults(csrfToken, queryUuid) {
+  async retrieveQuery(csrfToken, queryUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/variants/ajax/query-case/results-extended/${queryUuid}/`,
+      `/variants/ajax/query/retrieve-update-destroy/${queryUuid}/`,
       'GET'
     )
     return await response.json()
   },
-  async fetchResultsCadd(csrfToken, queryUuid) {
+  async listQueryResultSet(csrfToken, queryUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/variants/ajax/query-case/results-extended-cadd/${queryUuid}/`,
+      `/variants/ajax/query-result-set/list/${queryUuid}/`,
       'GET'
     )
     return await response.json()
   },
-  async fetchResultsPheno(csrfToken, queryUuid) {
+  async retrieveQueryResultSet(csrfToken, queryResultUuid) {
     const response = await apiFetch(
       csrfToken,
-      `/variants/ajax/query-case/results-extended-pheno/${queryUuid}/`,
+      `/variants/ajax/query-result-set/retrieve/${queryResultUuid}/`,
       'GET'
     )
     return await response.json()
   },
-  async fetchResultsCaddPheno(csrfToken, queryUuid) {
+  async listQueryResultRow(csrfToken, queryResultSetUuid, options = {}) {
+    const pageNo = options.pageNo ?? 1
+    const pageSize = options.pageSize ?? 50
+    const orderByRaw = options.orderBy ?? 'chromosome_no,start'
+    const orderBy = ['start', 'end'].includes(orderByRaw)
+      ? `chromosome_no,${orderByRaw}`
+      : orderByRaw
+    const orderDir = options.orderDir ?? 'asc'
+
+    const urlQuery = `?page=${pageNo}&page_size=${pageSize}&order_by=${orderBy}&order_dir=${orderDir}`
     const response = await apiFetch(
       csrfToken,
-      `/variants/ajax/query-case/results-extended-cadd-pheno/${queryUuid}/`,
+      `/variants/ajax/query-result-row/list/${queryResultSetUuid}/${urlQuery}`,
       'GET'
     )
     return await response.json()

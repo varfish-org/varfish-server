@@ -537,8 +537,6 @@ class SmallVariantQueryFactory(factory.django.DjangoModelFactory):
         model = SmallVariantQuery
 
     case = factory.SubFactory(CaseFactory)
-    form_id = factory.Sequence(lambda n: str(n))
-    form_version = factory.Sequence(lambda n: n)
     query_settings = factory.LazyAttribute(
         lambda o: vars(ResubmitFormDataFactory(names=o.case.get_members()))
     )
@@ -551,8 +549,6 @@ class ProjectCasesSmallVariantQueryFactory(factory.django.DjangoModelFactory):
         model = ProjectCasesSmallVariantQuery
 
     project = factory.SubFactory(ProjectFactory)
-    form_id = factory.Sequence(lambda n: str(n))
-    form_version = factory.Sequence(lambda n: n)
     query_settings = factory.LazyAttribute(
         lambda o: vars(ResubmitFormDataFactory(names=o.project.get_members()))
     )

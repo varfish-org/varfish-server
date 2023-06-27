@@ -227,9 +227,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
   /** Details from previous query. */
   const previousQueryDetails = ref(null)
   /** Results of query. */
-  const queryResults = ref(null)
-  /** Count query results. */
-  const queryResultsCount = ref(null)
+  const queryResultSet = ref(null)
   /** Uuid of query. */
   const queryUuid = ref(null)
   /** Download status TSV. */
@@ -249,17 +247,11 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
   /** HPO names for HPO terms from the query settings. */
   const hpoNames = ref([])
 
-  /** vue-easy-table server options. */
-  const tableServerOptions = ref({
-    page: 1,
-    rowsPerPage: 200,
-    sortBy: null,
-    sortType: 'asc',
-  })
-
   // bookkeeping for query and results
   /** Current query state. */
   const queryState = ref(QueryStates.Initial.value)
+  /** Current query state message. */
+  const queryStateMsg = ref(null)
   /** Query logs as fetched from API. */
   const queryLogs = ref(null)
 
@@ -282,21 +274,26 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     // Ensure that we are still fetching and fetching results for the correct query.
     if (
       previousQueryDetails.value.sodar_uuid !== queryUuid ||
-      ![QueryStates.Running.value, QueryStates.Resuming.value].includes(
-        queryState.value
-      )
+      ![
+        QueryStates.Initial.value,
+        QueryStates.Running.value,
+        QueryStates.Resuming.value,
+      ].includes(queryState.value)
     ) {
       return // query was cancelled or other query was started
     }
 
     // Fetch query status, allowing up to FETCH_LOOP_ALLOW_FAILURES errors.
     try {
-      const queryStatus = await variantsApi.getQueryStatus(
+      const queryStatus = await variantsApi.retrieveQuery(
         csrfToken.value,
         queryUuid
       )
       queryLogs.value = queryStatus.logs
-      queryState.value = apiQueryStateToQueryState(queryStatus.status)
+      queryState.value = apiQueryStateToQueryState(queryStatus.query_state)
+      if (queryState.value.query_state_msg) {
+        queryStateMsg.value = queryState.value.query_state_msg
+      }
       await nextTick()
       failuresSeen = 0 // reset failure counter
     } catch (err) {
@@ -315,67 +312,22 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     if (queryState.value === QueryStates.Finished.value) {
       queryState.value = QueryStates.Fetching.value
       await nextTick()
-      let response
-      if (
-        !previousQueryDetails.value.query_settings.prio_enabled &&
-        previousQueryDetails.value.query_settings.patho_enabled &&
-        previousQueryDetails.value.query_settings.patho_score === 'cadd'
-      ) {
-        response = await variantsApi.fetchResultsCadd(
-          csrfToken.value,
-          queryUuid,
-          {
-            pageNo: tableServerOptions.value.page,
-            pageSize: tableServerOptions.value.rowsPerPage,
-            orderBy: tableServerOptions.value.sortBy,
-            orderDir: tableServerOptions.value.sortType,
-          }
-        )
+      // List the results
+      const responseResultSetList = await variantsApi.listQueryResultSet(
+        csrfToken.value,
+        queryUuid
+      )
+      if (!responseResultSetList.length) {
+        console.log('ERROR: no results in response')
       } else if (
-        previousQueryDetails.value.query_settings.prio_enabled &&
-        !previousQueryDetails.value.query_settings.patho_enabled
-      ) {
-        response = await variantsApi.fetchResultsPheno(
-          csrfToken.value,
-          queryUuid,
-          {
-            pageNo: tableServerOptions.value.page,
-            pageSize: tableServerOptions.value.rowsPerPage,
-            orderBy: tableServerOptions.value.sortBy,
-            orderDir: tableServerOptions.value.sortType,
-          }
-        )
-      } else if (
-        previousQueryDetails.value.query_settings.prio_enabled &&
-        previousQueryDetails.value.query_settings.patho_enabled
-      ) {
-        response = await variantsApi.fetchResultsCaddPheno(
-          csrfToken.value,
-          queryUuid,
-          {
-            pageNo: tableServerOptions.value.page,
-            pageSize: tableServerOptions.value.rowsPerPage,
-            orderBy: tableServerOptions.value.sortBy,
-            orderDir: tableServerOptions.value.sortType,
-          }
-        )
-      } else {
-        response = await variantsApi.fetchResults(csrfToken.value, queryUuid, {
-          pageNo: tableServerOptions.value.page,
-          pageSize: tableServerOptions.value.rowsPerPage,
-          orderBy: tableServerOptions.value.sortBy,
-          orderDir: tableServerOptions.value.sortType,
-        })
-      }
-      if (
         queryState.value === QueryStates.Fetching.value &&
         previousQueryDetails.value.sodar_uuid === queryUuid
       ) {
-        // Still fetching the same query; push to query results.
-        queryResults.value = response
-        queryResultsCount.value = response.length
+        // Still fetching the same query; push to query result set.
+        queryResultSet.value = responseResultSetList[0]
         queryState.value = QueryStates.Fetched.value
       }
+      return // break out of loop
     }
 
     // Call function again via `setTimeout()`.  Loop will be broken on top of next runFetchLoop call.
@@ -387,11 +339,9 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
    */
   const submitQuery = async () => {
     const payload = fixupQueryPayloadForLegacy({
-      form_id: 'variants.small_variant_filter_form',
-      form_version: 1,
       query_settings: copy(querySettings.value),
     })
-    previousQueryDetails.value = await variantsApi.submitQuery(
+    previousQueryDetails.value = await variantsApi.createQuery(
       csrfToken.value,
       caseUuid.value,
       payload
@@ -578,10 +528,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
             queryUuid.value = response
           }
           if (queryUuid.value) {
-            return variantsApi.retrieveQueryDetails(
-              csrfToken.value,
-              queryUuid.value
-            )
+            return variantsApi.retrieveQuery(csrfToken.value, queryUuid.value)
           }
         })
         // 2.1 once we have previous query UUID, fetch query details
@@ -654,15 +601,14 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     exomiserEnabled,
     caddEnabled,
     previousQueryDetails,
-    queryResults,
-    queryResultsCount,
+    queryResultSet,
     queryState,
+    queryStateMsg,
     queryLogs,
     quickPresets,
     categoryPresets,
     extraAnnoFields,
     hpoNames,
-    tableServerOptions,
     initializeRes,
     // functions
     initialize,
