@@ -151,7 +151,13 @@ def run_sv_query_bg_job(pk):
         #: Dump the SVs to a TSV file for processing by the worker
         filter_job.add_log_entry("Dumping SVs and query to temporary files ...")
         with open(os.path.join(tmpdir, "query.json"), "wt") as outputf:
-            print(json.dumps(query_model.query_settings), file=outputf)
+            # Replace empty value strings by None, works around issue with "" rather
+            # than numbers.
+            query_settings = {
+                key: None if value == "" else value
+                for key, value in query_model.query_settings.items()
+            }
+            print(json.dumps(query_settings), file=outputf)
         with open(os.path.join(tmpdir, "input.tsv"), "wt") as outputf:
             print(
                 "\t".join(SV_RECORDS_HEADER),
