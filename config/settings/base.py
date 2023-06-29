@@ -112,6 +112,7 @@ LOCAL_APPS = [
     "bgjobs.apps.BgjobsConfig",
     "var_stats_qc.apps.VarStatsQcConfig",
     "templatetags.apps.TemplatetagsConfig",
+    "seqmeta.apps.SeqmetaConfig",
     "svdbs.apps.SvDbsConfig",
     "svs.apps.SvsConfig",
     "extra_annos.apps.ExtraAnnosConfig",
