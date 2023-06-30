@@ -1,7 +1,17 @@
-from ._version import get_versions
+# Define the package version.  We will first try to determine the version via
+# ``git describe --tags``.  If this fails, we assume that we are in a Docker
+# image and a file ``VERSION`` exists.
 
-__version__ = get_versions()["version"]
-del get_versions
-__version_info__ = tuple(
-    [int(num) if num.isdigit() else num for num in __version__.replace("-", ".", 1).split(".")]
-)
+import os
+import subprocess
+
+def get_version():
+    try:
+        return subprocess.check_output(
+            ["git", "describe", "--tags", "--always"], encoding="utf-8"
+        ).strip()
+    except subprocess.CalledProcessError:
+        with open(os.path.dirname(__file__) + "/../VERSION") as inputf:
+            return inputf.read().strip()
+
+__version__ = _get_version()

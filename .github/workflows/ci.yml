@@ -4,16 +4,13 @@ on:
   - push
   - pull_request
 
+env:
+  PYTHON_VERSION: "3.10"
+  POSTGRES_VERSION: "14"
+
 jobs:
-  python-build:
-    name: python-build
+  Python-Build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version:
-          - '3.10'
-        postgres-version:
-          - '14'
     services:
       redis:
         image: redis:latest
@@ -21,7 +18,7 @@ jobs:
           - 6379:6379
 
       postgres:
-        image: postgres:${{ matrix.postgres-version }}
+        image: postgres:{{ env.POSTGRES_VERSION }}
         env:
           POSTGRES_DB: varfish_web
           POSTGRES_USER: varfish_web
@@ -40,92 +37,114 @@ jobs:
       DATABASE_URL: 'postgres://varfish_web:varfish_web@0.0.0.0/varfish_web'
       POSTGRES_HOST: 0.0.0.0
       POSTGRES_PORT: 5432
+
     steps:
-      - name: install server dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -qq build-essential zlib1g-dev libtiff5-dev libjpeg8-dev libfreetype6-dev
-          sudo apt-get install -qq liblcms2-dev libwebp-dev libpq-dev graphviz-dev
-      - name: install Python
-        uses: actions/setup-python@v2
+          sudo apt-get install -qq build-essential zlib1g-dev libtiff5-dev libjpeg8-dev \
+              libfreetype6-dev liblcms2-dev libwebp-dev libpq-dev graphviz-dev
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Python
+        uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: checkout repository
-        uses: actions/checkout@v2
-      - name: install project Python dependencies
+          python-version: "{{ env.PYTHON_VERSION }}"
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
+
+      - name: Install project dependencies with Poetry
         run: |
-          pip install wheel==0.37.1
-          pip install -r requirements/local.txt
-          pip install -r requirements/test.txt
-          pip freeze
+          poetry install --dev
+
       - name: Build and run Vue app
         run: |
           npm ci --prefix varfish/vueapp
           npm run build --prefix varfish/vueapp
           nohup npm run --prefix varfish/vueapp serve &
-      - name: download icons
-        run: python manage.py geticons
-      - name: run collectstatic
-        run: python manage.py collectstatic --noinput
-      - name: run tests
-        run: |
-          coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
-          coverage xml
-          coverage report
-      - name: check formatting
-        run: make black arg=--check
-      - name: Download codecov binary
-        run: |
-          curl -s https://uploader.codecov.io/latest/linux/codecov > /tmp/codecov
-          chmod +x /tmp/codecov
-        if: ${{ matrix.python-version == '3.8' }}
-      - name: Run Codecov for Python
-        run: |
-          /tmp/codecov -cF python
-        if: ${{ matrix.python-version == '3.8' }}
 
-  python-lint:
-    name: python-lint
+      - name: Download icons
+        run: python manage.py geticons
+
+      - name: Run collectstatic
+        run: python manage.py collectstatic --noinput
+
+      - name: Run tests
+        run: |
+          poetry run coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
+          poetry run coverage xml
+          poetry run coverage report
+
+      - name: Upload Python coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: python
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  Python-Lint:
     runs-on: ubuntu-20.04
     steps:
-      - name: install Python
-        uses: actions/setup-python@v2
+      - name: Install Python
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
-      - name: checkout repository
-        uses: actions/checkout@v2
-      - name: install project Python dependencies
+          python-version: "{{ env.PYTHON_VERSION }}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install project dependencies with Poetry
         run: |
-          pip install wheel==0.37.1
-          pip install -r requirements/local.txt
-          pip install -r requirements/test.txt
-          pip freeze
+          poetry install --dev
+
       - name: Check import order with isort
         run: |
           rm -rf src
-          isort --force-sort-within-sections --profile=black --check .
-      - name: Check style with black
-        run: black --check --line-length 100 .
-      - name: Run linting
-        run: flake8
+          poetry run isort --force-sort-within-sections --profile=black --check .
 
-  nodejs:
+      - name: Check style with black
+        run: |
+          poetry run black --check --line-length 100 .
+
+      - name: Run linting
+        run: |
+          poetry run flake8
+
+  NodeJS-Lint:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout repository
-        uses: actions/checkout@v2
-      - name: Download codecov binary
-        run: |
-          curl -s https://uploader.codecov.io/latest/linux/codecov > /tmp/codecov
-          chmod +x /tmp/codecov
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Install javascript dependencies
         run: |
           npm ci --prefix varfish/vueapp
+
+      - name: Run linting
+        run: |
+          make vue_lint
+
+
+  NodeJS-Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install javascript dependencies
+        run: |
+          npm ci --prefix varfish/vueapp
+
       - name: Run Vue app tests
         run: |
           make vue_test-coverage
-      - name: Run Codecov for Javascript
-        run: |
-          /tmp/codecov -cF javascript
-      - name: Lint Vue app
-        run: make vue_lint
+
+      - name: Upload nodejs coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: nodejs
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
