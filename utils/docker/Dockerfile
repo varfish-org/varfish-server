@@ -9,7 +9,7 @@ FROM node:16-slim AS node-base
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
-WORKDIR /usr/src/app/varfish/vueapp
+WORKDIR /usr/src/app
 
 # ---------------------------------------------------------------------------
 # NodeJS Dependencies
@@ -17,7 +17,8 @@ WORKDIR /usr/src/app/varfish/vueapp
 
 FROM node-base AS node-deps
 
-COPY varfish/vueapp/package.json varfish/vueapp/package-lock.json .
+COPY varfish/vueapp/package.json varfish/vueapp/package-lock.json \
+     varfish/vueapp/
 
 RUN npm ci --prefix varfish/vueapp
 
@@ -40,7 +41,7 @@ RUN npm ci --prefix varfish/vueapp
 # Python Base Image
 # ---------------------------------------------------------------------------
 
-FROM python:3.10-buster AS python-base
+FROM python:3.10-bullseye AS python-base
 
 MAINTAINER Manuel Holtgrewe <manuel.holtgrewe@bih-charite.de>
 LABEL org.opencontainers.image.source https://github.com/bihealth/varfish-server
@@ -82,7 +83,7 @@ RUN ["/bin/bash","-c", "cd /tmp && \
 # Add postgres 12 repository
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
     | apt-key add - && \
-    echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+    echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" \
     > /etc/apt/sources.list.d/pgdg.list
 
 # Install system dependencies.
@@ -96,18 +97,21 @@ RUN apt-get update && \
         xmlsec1 \
         gnupg2
 
+# Install pip and pipenv
+RUN python -m pip install -U pip pipenv
+
 # Copy Pipfile and lock into the Docker image.
 COPY Pipfile Pipfile.lock .
 
 # Install Python dependencies via pipenv.
-RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --categories=ldap-packges --deploy && \
+RUN PIPENV_VENV_IN_PROJECT=1 pipenv install --python=/usr/local/bin/python --categories=ldap-packges --deploy && \
     python -m nltk.downloader stopwords
 
 # ---------------------------------------------------------------------------
 # Python Docs
 # ---------------------------------------------------------------------------
 
-FROM python-deps as python-docs
+FROM python-deps AS python-docs
 
 # Build sphinx manual.
 RUN make -C docs_manual clean html
@@ -115,6 +119,8 @@ RUN make -C docs_manual clean html
 # ---------------------------------------------------------------------------
 # Python Runtime
 # ---------------------------------------------------------------------------
+
+FROM python-deps as python-runtime
 
 # Temporarily setup environment variables for ``manage.py` commands below.
 # We will clear them again later.
@@ -166,7 +172,7 @@ COPY --from=python-docs /usr/src/app/docs_manual/_build/html ./docs_manual/_buil
 # Copy in the built NodeJS files
 COPY --from=node-build /usr/src/app/varfish/vueapp/static ./varfish/vueapp/static
 
-# Copy in the source code.
+# Copy in the source code, includes VERSION file.
 COPY . .
 
 # Get icons
@@ -182,7 +188,7 @@ RUN unset DJANGO_SECRET_KEY=for-build-only; \
     unset postgres://sodar:sodar@fake/sodar
 
 # Define the entry point
-COPY --chmod=a+x docker-entrypoint.sh /usr/local/bin
+COPY --chmod=a+x utils/docker/docker-entrypoint.sh /usr/local/bin
 ENTRYPOINT ["/usr/local/bindocker-entrypoint.sh"]
 CMD ["wsgi"]
 EXPOSE 8080/tcp

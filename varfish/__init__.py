@@ -11,7 +11,8 @@ def get_version():
             ["git", "describe", "--tags", "--always"], encoding="utf-8"
         ).strip()
     except subprocess.CalledProcessError:
-        with open(os.path.dirname(__file__) + "/../VERSION") as inputf:
+        dirname = os.path.dirname(__file__)
+        with open(f"{dirname}/../utils/docker/VERSION", "rt") as inputf:
             return inputf.read().strip()
 
 __version__ = _get_version()
