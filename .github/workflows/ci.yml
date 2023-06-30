@@ -18,7 +18,7 @@ jobs:
           - 6379:6379
 
       postgres:
-        image: postgres:{{ env.POSTGRES_VERSION }}
+        image: postgres:${{ env.POSTGRES_VERSION }}
         env:
           POSTGRES_DB: varfish_web
           POSTGRES_USER: varfish_web
@@ -51,7 +51,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: "{{ env.PYTHON_VERSION }}"
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
@@ -91,7 +91,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: "{{ env.PYTHON_VERSION }}"
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Checkout repository
         uses: actions/checkout@v3
