@@ -7,22 +7,13 @@ on:
 jobs:
   python-build:
     name: python-build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version:
-          - '3.8'
-          - '3.9'
           - '3.10'
         postgres-version:
-          - '12'
-        include:
-          - python-version: '3.8'
-            postgres-version: '11'
-          - python-version: '3.8'
-            postgres-version: '13'
-          - python-version: '3.8'
-            postgres-version: '14'
+          - '14'
     services:
       redis:
         image: redis:latest
