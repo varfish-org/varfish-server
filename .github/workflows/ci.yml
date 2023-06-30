@@ -4,10 +4,6 @@ on:
   - push
   - pull_request
 
-env:
-  PYTHON_VERSION: "3.10"
-  POSTGRES_VERSION: "14"
-
 jobs:
   Python-Build:
     runs-on: ubuntu-latest
@@ -18,7 +14,7 @@ jobs:
           - 6379:6379
 
       postgres:
-        image: postgres:${{ env.POSTGRES_VERSION }}
+        image: postgres:14
         env:
           POSTGRES_DB: varfish_web
           POSTGRES_USER: varfish_web
@@ -51,7 +47,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: "3.10"
 
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
@@ -91,7 +87,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: "3.10"
 
       - name: Checkout repository
         uses: actions/checkout@v3
