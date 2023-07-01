@@ -93,7 +93,7 @@ tblib = "<1.8,>=1.7.0"
 # packages for local development
 ipdb = "<0.14,>=0.13.9"
 jedi = "==0.17.2"
-werkzeug = "<2.1,>=2.0.1"
+werkzeug = ">=2.0.1,<2.3"
 
 # Dependencies for enabling LDAP support.  You will need the system library
 # named `libldap` (or similar).
