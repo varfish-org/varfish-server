@@ -10,6 +10,11 @@ on:
       - 'v**'
     branches:
       - main
+      - berlin
+  pull_request:
+    branches:
+      - main
+      - berlin
 
 env:
   REGISTRY: ghcr.io
@@ -25,11 +30,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Extract branch name
-        shell: bash
-        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >>$GITHUB_OUTPUT
-        id: extract_branch
+        with:
+          fetch-depth: 0
+          lfs: true
 
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
@@ -37,6 +40,10 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Write VERSION file for Python package
+        run: |
+          git describe --tags | tee VERSION
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -47,9 +54,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: docker/
+          context: .
+          file: utils/docker/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            server_git_treeish=${{ steps.extract_branch.outputs.branch }}

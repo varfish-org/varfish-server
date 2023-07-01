@@ -1,0 +1,167 @@
+name: CI
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  Python-Test:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
+
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_DB: varfish_web
+          POSTGRES_USER: varfish_web
+          POSTGRES_PASSWORD: varfish_web
+          DATABASE_URL: postgres://varfish_web:varfish_web@postgres/varfish_web
+          CELERY_BROKER_URL: redis://redis:6379/0
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+        ports:
+          - 5432:5432
+    env:
+      CELERY_BROKER_URL: redis://0.0.0.0:6379/0
+      DATABASE_URL: 'postgres://varfish_web:varfish_web@0.0.0.0/varfish_web'
+      POSTGRES_HOST: 0.0.0.0
+      POSTGRES_PORT: 5432
+
+    steps:
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential zlib1g-dev libtiff5-dev libjpeg8-dev \
+              libfreetype6-dev liblcms2-dev libwebp-dev libpq-dev graphviz-dev \
+              libldap2-dev libsasl2-dev
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Setup formatting environment
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yaml
+          init-shell: bash
+          cache-environment: true
+          post-cleanup: 'all'
+
+      - name: Build Vue app as that can be tested via selenium.
+        run: |
+          npm ci --prefix varfish/vueapp
+          npm run build --prefix varfish/vueapp
+          nohup npm run serve --prefix varfish/vueapp &
+
+      - name: Install pip and Pipenv
+        run: |
+            pip install pip pipenv
+
+      - name: Install project dependencies with pipenv
+        run: |
+          pipenv install --categories=packages,dev-packages,ldap-packages
+
+      - name: Download icons
+        run: pipenv run python manage.py geticons
+
+      - name: Run collectstatic
+        run: pipenv run python manage.py collectstatic --noinput
+
+      - name: Run tests
+        run: |
+          pipenv run coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
+          pipenv run coverage xml
+          pipenv run coverage report
+        # Important: use shell that was initialized by micromamba.
+        shell: bash -el {0}
+
+      - name: Upload Python coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: python
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  Python-Lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install pip and Pipenv
+        run: |
+            pip install pip pipenv
+
+      - name: Install project dependencies with pipenv
+        run: |
+          pipenv install --categories=packges,dev-packages
+
+      - name: Check import order with isort
+        run: |
+          rm -rf src
+          pipenv run isort --force-sort-within-sections --profile=black --check .
+
+      - name: Check style with black
+        run: |
+          pipenv run black --check --line-length 100 .
+
+      - name: Run linting
+        run: |
+          pipenv run flake8
+
+  Node-Lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install javascript dependencies
+        run: |
+          npm ci --prefix varfish/vueapp
+
+      - name: Run linting
+        run: |
+          make vue_lint
+
+
+  Node-Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install javascript dependencies
+        run: |
+          npm ci --prefix varfish/vueapp
+
+      - name: Run Vue app tests
+        run: |
+          make vue_test-coverage
+
+      - name: Upload nodejs coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          flags: nodejs
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

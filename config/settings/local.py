@@ -41,33 +41,33 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"
 
 # django-debug-toolbar
 # ------------------------------------------------------------------------------
-MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
-INSTALLED_APPS += ["debug_toolbar"]
+if DEBUG:
+    MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
+    INSTALLED_APPS += ["debug_toolbar"]
 
-INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]
+    INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]
 
+    DEBUG_TOOLBAR_CONFIG = {
+        "DISABLE_PANELS": ["debug_toolbar.panels.redirects.RedirectsPanel"],
+        "SHOW_TEMPLATE_CONTEXT": True,
+        "ALCHEMY_DB_ALIASES": "config.settings.local.alchemy_dbs",
+    }
 
-DEBUG_TOOLBAR_CONFIG = {
-    "DISABLE_PANELS": ["debug_toolbar.panels.redirects.RedirectsPanel"],
-    "SHOW_TEMPLATE_CONTEXT": True,
-    "ALCHEMY_DB_ALIASES": "config.settings.local.alchemy_dbs",
-}
-
-DEBUG_TOOLBAR_PANELS = [
-    # Basic values
-    "debug_toolbar.panels.versions.VersionsPanel",
-    "debug_toolbar.panels.timer.TimerPanel",
-    "debug_toolbar.panels.settings.SettingsPanel",
-    "debug_toolbar.panels.headers.HeadersPanel",
-    "debug_toolbar.panels.request.RequestPanel",
-    "debug_toolbar.panels.sql.SQLPanel",
-    "debug_toolbar.panels.staticfiles.StaticFilesPanel",
-    "debug_toolbar.panels.templates.TemplatesPanel",
-    "debug_toolbar.panels.cache.CachePanel",
-    "debug_toolbar.panels.signals.SignalsPanel",
-    "debug_toolbar.panels.logging.LoggingPanel",
-    "debug_toolbar.panels.redirects.RedirectsPanel",
-]
+    DEBUG_TOOLBAR_PANELS = [
+        # Basic values
+        "debug_toolbar.panels.versions.VersionsPanel",
+        "debug_toolbar.panels.timer.TimerPanel",
+        "debug_toolbar.panels.settings.SettingsPanel",
+        "debug_toolbar.panels.headers.HeadersPanel",
+        "debug_toolbar.panels.request.RequestPanel",
+        "debug_toolbar.panels.sql.SQLPanel",
+        "debug_toolbar.panels.staticfiles.StaticFilesPanel",
+        "debug_toolbar.panels.templates.TemplatesPanel",
+        "debug_toolbar.panels.cache.CachePanel",
+        "debug_toolbar.panels.signals.SignalsPanel",
+        "debug_toolbar.panels.logging.LoggingPanel",
+        "debug_toolbar.panels.redirects.RedirectsPanel",
+    ]
 
 
 # Celery
