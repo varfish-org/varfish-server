@@ -50,6 +50,20 @@ jobs:
         with:
           python-version: "3.10"
 
+      - name: Setup formatting environment
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yml
+          init-shell: bash
+          cache-environment: true
+          post-cleanup: 'all'
+
+      - name: Build Vue app as that can be tested via selenium.
+        run: |
+          npm ci --prefix varfish/vueapp
+          npm run build --prefix varfish/vueapp
+          nohup npm run serve --prefix varfish/vueapp &
+
       - name: Install pip and Pipenv
         run: |
             pip install pip pipenv
@@ -57,7 +71,6 @@ jobs:
       - name: Install project dependencies with pipenv
         run: |
           pipenv install --categories=packages,dev-packages,ldap-packages
-          pipenv run pip freeze
 
       - name: Download icons
         run: pipenv run python manage.py geticons
@@ -70,6 +83,8 @@ jobs:
           pipenv run coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
           pipenv run coverage xml
           pipenv run coverage report
+        # Important: use shell that was initialized by micromamba.
+        shell: bash -el {0}
 
       - name: Upload Python coverage reports to Codecov
         uses: codecov/codecov-action@v3
