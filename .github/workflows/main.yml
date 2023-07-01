@@ -57,7 +57,7 @@ jobs:
       - name: Install project dependencies with pipenv
         run: |
           pipenv install --categories=packges,dev-packages,ldap-packages
-          pip freeze
+          pipenv run pip freeze
 
 #      - name: Build and run Vue app
 #        run: |
