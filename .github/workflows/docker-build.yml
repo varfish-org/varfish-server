@@ -43,7 +43,7 @@ jobs:
 
       - name: Write VERSION file for Python package
         run: |
-          git describe --tags >VERSION
+          git describe --tags | tee VERSION
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -54,7 +54,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: utils/docker/
+          context: .
+          file: utils/docker/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
