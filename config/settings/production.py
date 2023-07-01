@@ -147,4 +147,4 @@ CACHES = {
 
 # WEBPACK / VUE.JS CONFIGURATION
 # ------------------------------------------------------------------------------
-STATICFILES_DIRS.append(str(ROOT_DIR("clinvar_export/vueapp/dist")))
+#STATICFILES_DIRS.append(str(ROOT_DIR("clinvar_export/vueapp/dist")))
