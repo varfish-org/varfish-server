@@ -65,10 +65,10 @@ jobs:
           nohup npm run --prefix varfish/vueapp serve &
 
       - name: Download icons
-        run: python manage.py geticons
+        run: pipenv run python manage.py geticons
 
       - name: Run collectstatic
-        run: python manage.py collectstatic --noinput
+        run: pipenv run python manage.py collectstatic --noinput
 
       - name: Run tests
         run: |
