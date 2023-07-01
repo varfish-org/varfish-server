@@ -5,14 +5,20 @@
 import os
 import subprocess
 
-def get_version():
+
+def _get_version():
     try:
-        return subprocess.check_output(
+        x = subprocess.check_output(
             ["git", "describe", "--tags", "--always"], encoding="utf-8"
         ).strip()
+        import sys
+
+        print(x, file=sys.stderr)
+        return x
     except subprocess.CalledProcessError:
         dirname = os.path.dirname(__file__)
         with open(f"{dirname}/../utils/docker/VERSION", "rt") as inputf:
             return inputf.read().strip()
+
 
 __version__ = _get_version()

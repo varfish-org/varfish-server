@@ -597,7 +597,7 @@ PROJECTROLES_ENABLE_SEARCH = not KIOSK_MODE
 PROJECTROLES_SEARCH_PAGINATION = 5
 
 SODAR_API_MEDIA_TYPE = "application/vnd.bihealth.varfish+json"
-SODAR_API_DEFAULT_VERSION = re.match(r"^([0-9.]+)(?:[+|\-][\S]+)?$", varfish_version)[1]
+SODAR_API_DEFAULT_VERSION = varfish_version.split("-")[0]
 SODAR_API_ALLOWED_VERSIONS = [
     "0.23.9",
 ]

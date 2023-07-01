@@ -49,12 +49,13 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-
-      - name: Install project dependencies with Poetry
+      - name: Install pip and Pipenv
         run: |
-          poetry install --dev
+            pip install --update pip pipenv
+
+      - name: Install project dependencies with pipenv
+        run: |
+          pipenv install --categories=packges,dev-packages,ldap-packages
 
       - name: Build and run Vue app
         run: |
@@ -70,9 +71,9 @@ jobs:
 
       - name: Run tests
         run: |
-          poetry run coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
-          poetry run coverage xml
-          poetry run coverage report
+          pipenv run coverage run --rcfile=.coveragerc manage.py test -v 2 --settings=config.settings.test
+          pipenv run coverage xml
+          pipenv run coverage report
 
       - name: Upload Python coverage reports to Codecov
         uses: codecov/codecov-action@v3
@@ -92,22 +93,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install project dependencies with Poetry
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install pip and Pipenv
         run: |
-          poetry install --dev
+            pip install --update pip pipenv
+
+      - name: Install project dependencies with pipenv
+        run: |
+          pipenv install --categories=packges,dev-packages,ldap-packages
 
       - name: Check import order with isort
         run: |
           rm -rf src
-          poetry run isort --force-sort-within-sections --profile=black --check .
+          pipenv run isort --force-sort-within-sections --profile=black --check .
 
       - name: Check style with black
         run: |
-          poetry run black --check --line-length 100 .
+          pipenv run black --check --line-length 100 .
 
       - name: Run linting
         run: |
-          poetry run flake8
+          pipenv run flake8
 
   NodeJS-Lint:
     runs-on: ubuntu-latest

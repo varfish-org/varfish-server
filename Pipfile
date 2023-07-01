@@ -17,13 +17,15 @@ django = "<3.3,>=3.2.12"
 django-autocomplete-light = "<3.10,>=3.9.4"
 django-clone = ">=4.0.1"
 django-crispy-forms = "<1.15,>=1.14"
-django-cryptographic-fields = {git = "https://github.com/bihealth/django-cryptographic-fields.git", develop = true, rev = "django3"}
+django-cryptographic-fields = {git = "https://github.com/bihealth/django-cryptographic-fields.git", develop = true, ref = "django3"}
 django-docs = ">=0.3.1,<0.4"
+django-debug-toolbar = "<3.3,>=3.2.1"
+django-extensions = "<3.2,>=3.1.3"
 django-environ = "<0.10,>=0.9.0"
 django-markupfield = "<2.1,>=2.0.1"
 django-model-utils = "<4.3,>=4.2"
 django-pagedown = ">=2.2.1,<2.3"
-django-plugins = {git = "https://github.com/mikkonie/django-plugins.git", develop = true, rev = "42e86e7904e5c09f1da32173862b26843eda5dd8"}
+django-plugins = {git = "https://github.com/mikkonie/django-plugins.git", develop = true, ref = "42e86e7904e5c09f1da32173862b26843eda5dd8"}
 django-postgres-copy = "==2.3.5"
 django-rest-knox = "<4.3,>=4.2.0"
 django-saml2-auth-ai = ">=2.1.6,<2.2"
@@ -32,7 +34,7 @@ django-su = ">=0.9.0,<0.9.1"
 djangorestframework = ">=3.13.1,<3.14"
 djangorestframework-httpsignature = ">=1.0.0,<1.1"
 djproxy = ">=2.3,<2.4"
-drf-keyed-list = {git = "https://github.com/mikkonie/drf-keyed-list.git", develop = true, rev = "b03607b866c5706b0e1ea46a7eeaab6527030734"}
+drf-keyed-list = {git = "https://github.com/mikkonie/drf-keyed-list.git", develop = true, ref = "b03607b866c5706b0e1ea46a7eeaab6527030734"}
 httpsig = "<1.4,>=1.3.0"
 interval-binning = ">=1.0.0,<1.1"
 intervaltree = "<4.0.0,>=3.1.0"
@@ -89,8 +91,6 @@ requests-mock = ">=1.9.3,<1.10"
 selenium = "<3.142,>=3.141.0"
 tblib = "<1.8,>=1.7.0"
 # packages for local development
-django-debug-toolbar = "<3.3,>=3.2.1"
-django-extensions = "<3.2,>=3.1.3"
 ipdb = "<0.14,>=0.13.9"
 jedi = "==0.17.2"
 werkzeug = "<2.1,>=2.0.1"
@@ -99,7 +99,16 @@ werkzeug = "<2.1,>=2.0.1"
 # named `libldap` (or similar).
 [ldap-packages]
 django-auth-ldap = ">=2.4.0,<2.5"
-python-ldap = ">=3.3.1, <3.4"
+python-ldap = ">=3.3.1,<3.4"
+
+# Packages needed in production.
+[prod-packages]
+whitenoise = "*"
+gevent = "*"
+gunicorn = "*"
+boto3 = "*"
+django-storages = "*"
+django_redis = "*"
 
 [requires]
 python_version = "3.10"
