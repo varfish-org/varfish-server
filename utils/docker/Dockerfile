@@ -209,7 +209,7 @@ RUN unset DJANGO_SECRET_KEY; \
     unset DATABASE_URL
 
 # Define the entry point
-COPY --chmod=a+x utils/docker/docker-entrypoint.sh /usr/local/bin
+COPY --chmod=a+x ./utils/docker/docker-entrypoint.sh /usr/local/bin
 ENTRYPOINT ["/usr/local/bindocker-entrypoint.sh"]
 CMD ["wsgi"]
 EXPOSE 8080/tcp
