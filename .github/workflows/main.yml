@@ -5,7 +5,7 @@ on:
   - pull_request
 
 jobs:
-  Python-Build:
+  Python-Test:
     runs-on: ubuntu-latest
     services:
       redis:
@@ -38,8 +38,9 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -qq build-essential zlib1g-dev libtiff5-dev libjpeg8-dev \
-              libfreetype6-dev liblcms2-dev libwebp-dev libpq-dev graphviz-dev libldap-dev
+          sudo apt-get install -y build-essential zlib1g-dev libtiff5-dev libjpeg8-dev \
+              libfreetype6-dev liblcms2-dev libwebp-dev libpq-dev graphviz-dev \
+              libldap2-dev libsasl2
 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -119,7 +120,7 @@ jobs:
         run: |
           pipenv run flake8
 
-  NodeJS-Lint:
+  Node-Lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -134,7 +135,7 @@ jobs:
           make vue_lint
 
 
-  NodeJS-Build:
+  Node-Test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
