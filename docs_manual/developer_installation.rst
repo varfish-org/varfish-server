@@ -43,22 +43,37 @@ For Ubuntu, this would be::
 
     $ sudo apt install redis-server
 
------------------
-Install miniconda
------------------
+.. _dev_install_python_pipenv:
 
-miniconda helps to set up encapsulated Python environments.
-This step is optional. You can also use pipenv, but to our experience,
-resolving the dependencies in pipenv is terribly slow.
+---------------------
+Install Python Pipenv
+---------------------
+
+We use `pipenv <https://pipenv.pypa.io/en/latest/>`__ for managing dependencies.
+The advantage over ``pip`` is that also the versions of "dependencies of dependencies" will be tracked in a ``Pipfile.lock`` file.
+This allows for better reprocubility.
+Earlier developer's instructions used ``conda`` but these instructions were updated.
+
+Also, note that VarFish is developed using Python 3.10 only.
+To install Python 3.10, you can use `pyenv <https://github.com/pyenv/pyenv>`__.
+If you already have Python 3.10 (check with ``python --version`` then you can skip this step).
 
 .. code-block:: bash
 
-    $ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-    $ bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/miniconda3
-    $ source ~/miniconda3/bin/activate
-    $ conda init
-    $ conda create -n varfish python=3.8 pip
-    $ conda activate varfish
+    $ git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+    $ echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+    $ echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+    $ echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bashrc
+    $ exec $SHELL
+    $ pyenv install 3.10
+    $ pyenv global 3.10
+
+Now, install the latest version of pip and pipenv:
+
+.. code-block:: bash
+
+    $ pip install --upgrade pip pipenv
+
 
 --------------------
 Clone git repository
@@ -81,34 +96,50 @@ Therefore, run
 
 .. code-block:: bash
 
-    $ sudo bash utility/install_os_dependencies.sh
+    $ sudo bash utils/install_os_dependencies.sh
 
-Now, with the conda/Python environment activated, install all the requirements.
+Now, you can install the Python dependencies as follows:
 
 .. code-block:: bash
 
-    $ for i in requirements/*; do pip install -r $i; done
+    $ pipenv install --dev
+
+Afterwards, you can activate the virtual environment:
+
+.. code-block:: bash
+
+    $ pipenv shell
+    # e.g.,
+    $ make black
+
+Alternatively, you can also run commands directly in the virtual environment:
+
+.. code-block:: bash
+
+    $ pipenv run make black
+
+For greater verbosity, we will use ``pyenv run COMMAND`` below, but you can skip the ``pyenv run`` if you are in the ``pyenv shell``.
 
 --------------
 Setup Database
 --------------
 
-Use the tool provided in ``utility/`` to set up the database. The name for the
+Use the tool provided in ``utils/`` to set up the database. The name for the
 database should be ``varfish`` (create new user: yes, name: varfish, password: varfish).
 
 .. code-block:: bash
 
-    $ bash utility/setup_database.sh
+    $ bash utils/setup_database.sh
 
 ------------
 Setup vue.js
 ------------
 
-Use the tool provided in ``utility/`` to set up vue.js.
+Use the tool provided in ``utils/`` to set up vue.js.
 
 .. code-block:: bash
 
-    $ sudo bash utility/install_vue_dev.sh
+    $ sudo bash utils/install_vue_dev.sh
 
 Open an additional terminal and switch into the vue directory.
 Then install the Varfish vue app.
@@ -148,28 +179,28 @@ This step can take a few minutes.
 
 .. code-block:: bash
 
-    $ python manage.py migrate
+    $ pipenv run python manage.py migrate
 
 Once done, create a superuser for your VarFish instance. By default, the VarFish root user is named ``root`` (the
 setting can be changed in the ``.env`` file with the ``PROJECTROLES_ADMIN_OWNER`` variable).
 
 .. code-block:: bash
 
-    $ python manage.py createsuperuser
+    $ pipenv run python manage.py createsuperuser
 
 Last, download the icon sets for VarFish and make scripts, stylesheets and icons available.
 
 .. code-block:: bash
 
-    $ python manage.py geticons -c bi cil fa-regular fa-solid gridicons octicon
-    $ python manage.py collectstatic
+    $ pipenv run python manage.py geticons -c bi cil fa-regular fa-solid gridicons octicon
+    $ pipenv run python manage.py collectstatic
 
 When done, open two terminals and start the VarFish server and the celery server.
 
 .. code-block:: bash
 
-    terminal1$ make serve
-    terminal2$ make celery
+    terminal1$ pipenv run make serve
+    terminal2$ pipenv run make celery
 
 
 ======================
@@ -213,41 +244,8 @@ Create a postgres user `varfish` with password `varfish` and a database.
     $ [enter varfish as password]
     $ sudo -u postgres createdb --owner=varfish varfish
 
-Create a miniconda3 installation with an environment.
+From here on, you can follow the instructions for the Linux installation, starting at `ref:dev_install_python_pipenv`.
 
-.. code-block::
-
-    $ mkdir -p Development Downloads
-    $ cd Downloads
-    $ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-    $ bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/miniconda3
-    $ source ~/miniconda3/bin/activate
-    $ conda install -y mamba
-    $ mamba create -y -n varfish-server python==3.9 nodejs=12
-    $ conda activate varfish-server
-
-Finally, checkout `varfish-server` and create a development `.env` file:
-
-.. code-block::
-
-    $ cd ~/Development
-    $ git clone git@github.com:bihealth/varfish-server.git
-    $ cat <<"EOF" >.env
-    export VARFISH_ENABLE_SPANR_SUBMISSION=1
-    export VARFISH_ENABLE_CADD_SUBMISSION=1
-    export VARFISH_ENABLE_SPANR_SUBMISSION=1
-
-    export VARFISH_ENABLE_SVS=1
-    export DJANGO_SETTINGS_MODULE=config.settings.local
-    export DJANGO_SECURE_SSL_REDIRECT=0
-
-    export DJANGO_SECRET_KEY="0Vabi8RKYcSgVTGhr23AlIFA5D1aXh25ZBvxXi9Tgu9UrrFdiolaQchS9k7CfqIMev7KoLV2RH84XxQDcDCmIoeyVmMmNUh7jE8N"
-    export DATABASE_URL="postgres://varfish:varfish@127.0.0.1/varfish"
-
-    export VARFISH_ENABLE_BEACON_SITE=1
-    export FIELD_ENCRYPTION_KEY=_XRAzgLd6NHj8G4q9FNV0p3Um9g4hy8BPBN-AL0JWO0=
-    EOF
-    $ make test-noselenium
 
 -------------------------
 Open WSL image in PyCharm
