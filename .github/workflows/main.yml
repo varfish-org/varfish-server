@@ -56,14 +56,8 @@ jobs:
 
       - name: Install project dependencies with pipenv
         run: |
-          pipenv install --categories=packges,dev-packages,ldap-packages
+          pipenv install --categories=packages,dev-packages,ldap-packages
           pipenv run pip freeze
-
-#      - name: Build and run Vue app
-#        run: |
-#          npm ci --prefix varfish/vueapp
-#          npm run build --prefix varfish/vueapp
-#          nohup npm run --prefix varfish/vueapp serve &
 
       - name: Download icons
         run: pipenv run python manage.py geticons
