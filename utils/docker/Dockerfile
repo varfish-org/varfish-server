@@ -20,8 +20,7 @@ FROM node-base AS node-deps
 COPY varfish/vueapp/package.json varfish/vueapp/package-lock.json \
      varfish/vueapp/
 
-RUN npm ci --prefix varfish/vueapp && \
-    npm run build --prefix varfish/vueapp
+RUN npm ci --prefix varfish/vueapp
 
 # ---------------------------------------------------------------------------
 # NodeJS Build
@@ -36,7 +35,7 @@ COPY svs/vueapp ./svs/vueapp
 COPY varfish/vueapp ./varfish/vueapp
 COPY variants/vueapp ./variants/vueapp
 
-RUN npm ci --prefix varfish/vueapp
+RUN npm run build --prefix varfish/vueapp
 
 # ---------------------------------------------------------------------------
 # Python Base Image
