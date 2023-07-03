@@ -166,6 +166,10 @@ FROM python-base as python-runtime
 # Install runtime dependencies
 RUN apt-get install -y libsqlite3-dev
 
+# Add the wait script to the image
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.7.3/wait /usr/local/bin/wait
+RUN chmod +x /usr/local/bin/wait
+
 # Install conda environment with varfish-server-worker if configured to do so.
 RUN ["/bin/bash","-c", "cd /tmp && \
         wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh && \
@@ -247,7 +251,8 @@ RUN unset DJANGO_SECRET_KEY; \
     unset DATABASE_URL
 
 # Define the entry point
-COPY --chmod=u+x utils/docker/docker-entrypoint.sh /usr/local/bin
-ENTRYPOINT ["/usr/local/bindocker-entrypoint.sh"]
+COPY utils/docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["wsgi"]
 EXPOSE 8080/tcp
