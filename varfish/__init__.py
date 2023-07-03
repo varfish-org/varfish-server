@@ -14,7 +14,7 @@ def _get_version():
         return x
     except subprocess.CalledProcessError:
         dirname = os.path.dirname(__file__)
-        with open(f"{dirname}/../utils/docker/VERSION", "rt") as inputf:
+        with open(f"{dirname}/../VERSION", "rt") as inputf:
             return inputf.read().strip()
 
 
