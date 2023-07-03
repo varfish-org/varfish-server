@@ -234,6 +234,18 @@ class GenotypeCriteria:
     min_srpr_var: typing.Optional[int] = None
     #: Maximal sum of variant paired-end/split read coverage.
     max_srpr_var: typing.Optional[int] = None
+    #: Minimal split read allelic balance.
+    min_sr_ab: typing.Optional[float] = None
+    #: Maximal split read allelic balance.
+    max_sr_ab: typing.Optional[float] = None
+    #: Minimal paired read allelic balance.
+    min_pr_ab: typing.Optional[float] = None
+    #: Maximal paired read allelic balance.
+    max_pr_ab: typing.Optional[float] = None
+    #: Minimal split read or paired read allelic balance.
+    min_srpr_ab: typing.Optional[float] = None
+    #: Maximal split read or paired read allelic balance.
+    max_srpr_ab: typing.Optional[float] = None
     #: Minimal coverage deviation.
     min_rd_dev: typing.Optional[float] = None
     #: Maximal coverage deviation.

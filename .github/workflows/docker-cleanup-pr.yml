@@ -13,7 +13,7 @@ jobs:
       - uses: bots-house/ghcr-delete-image-action@v1.1.0
         with:
           owner: bihealth
-          name: reev
+          name: varfish-server
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: pr-${{github.event.pull_request.number}}
         continue-on-error: true
