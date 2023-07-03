@@ -21,6 +21,14 @@ class SmallVariantQueryBase(models.Model):
     "schemas" automatically and then storing the user settings.
     """
 
+    class QueryState(models.TextChoices):
+        INITIAL = "initial", "initial"
+        RUNNING = "running", "running"
+        DONE = "done", "done"
+        CANCELLED = "cancelled", "cancelled"
+        FAILED = "failed", "failed"
+        TIMEOUT = "timeout", "timeout"
+
     #: DateTime of query.
     date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
 
@@ -39,17 +47,24 @@ class SmallVariantQueryBase(models.Model):
         help_text="User who created the query",
     )
 
-    #: The identifier of the form
-    form_id = models.CharField(max_length=100, null=False, help_text="Identifier of the form")
-
-    #: The version of the form when saving.
-    form_version = models.IntegerField(null=False, help_text="Version of form when saving")
-
     #: The query settings as JSON.
     query_settings = JSONField(null=False, help_text="The query settings")
 
     #: Many-to-Many relationship with SmallVariant to store query results for faster future retrieval
     query_results = models.ManyToManyField("SmallVariant")
+
+    #: The current query state.
+    query_state = models.CharField(
+        max_length=64,
+        choices=QueryState.choices,
+        default=QueryState.INITIAL,
+        help_text="The current query state",
+    )
+
+    #: A message related to the query state.
+    query_state_msg = models.TextField(
+        null=True, blank=True, help_text="Message related to the query state"
+    )
 
     #: Optional, user-assign query name.
     name = models.CharField(
@@ -98,6 +113,85 @@ class SmallVariantQuery(SmallVariantQueryBase):
 
     def get_project(self):
         return self.case.project
+
+
+class SmallVariantQueryResultSet(models.Model):
+    """Store SmallVariant query results set"""
+
+    #: Query UUID.
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Record UUID")
+    #: DateTime of record creation.
+    date_created = models.DateTimeField(auto_now_add=True, help_text="DateTime of creation")
+    #: DateTime of record modification.
+    date_modified = models.DateTimeField(auto_now_add=True, help_text="DateTime of modification")
+
+    #: The query that this result is for.
+    smallvariantquery = models.ForeignKey(
+        SmallVariantQuery,
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False,
+        help_text="The query that this result is for",
+    )
+
+    #: The number of rows in the result.
+    result_row_count = models.IntegerField(
+        null=False, blank=False, help_text="Number of rows in the result"
+    )
+
+    #: The start time.
+    start_time = models.DateTimeField(help_text="Date time of query start")
+
+    #: The end time.
+    end_time = models.DateTimeField(help_text="Date time of query end")
+
+    #: The elapsed seconds.
+    elapsed_seconds = models.FloatField(help_text="Elapsed seconds")
+
+    def get_project(self):
+        return self.smallvariantquery.case.project
+
+    class Meta:
+        ordering = ("-date_created",)
+
+
+class SmallVariantQueryResultRow(models.Model):
+    """A row in ``SmallVariantQueryResultSet``.
+
+    Some basic information is stored directly as record properties, e.g., for sorting.  A full JSON dump of the
+    resulting record with all annotation information is stored in the JSON field ``payload``.
+    """
+
+    #: Row UUID
+    sodar_uuid = models.UUIDField(default=uuid_object.uuid4, unique=True, help_text="Record UUID")
+
+    #: Foreign key to the owning SvQueryResultSet
+    smallvariantqueryresultset = models.ForeignKey(
+        SmallVariantQueryResultSet,
+        null=False,
+        blank=False,
+        on_delete=models.CASCADE,
+        help_text="The owning SmallVariantQueryResultSet",
+    )
+
+    #: Genome build
+    release = models.CharField(max_length=32)
+    #: Variant coordinates - chromosome
+    chromosome = models.CharField(max_length=32)
+    #: Chromosome as number
+    chromosome_no = models.IntegerField()
+    #: The bin for indexing in case of linear SVs, in case of non-linear SVs the bin of pos.
+    bin = models.IntegerField()
+    #: Variant coordinates - start position
+    start = models.IntegerField()
+    #: Variant coordinates - end position
+    end = models.IntegerField()
+
+    #: The query result rows.
+    payload = JSONField(null=False, help_text="The query result rows")
+
+    class Meta:
+        ordering = ("chromosome_no", "start", "end")
 
 
 class ProjectCasesSmallVariantQuery(SmallVariantQueryBase):

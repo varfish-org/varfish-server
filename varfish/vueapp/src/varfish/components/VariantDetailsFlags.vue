@@ -11,33 +11,13 @@ import { useVariantDetailsStore } from '@variants/stores/variantDetails'
 const flagsStore = useVariantFlagsStore()
 const detailsStore = useVariantDetailsStore()
 
-const emptyFlagsTemplate = Object.freeze({
-  flag_bookmarked: false,
-  flag_for_validation: false,
-  flag_candidate: false,
-  flag_final_causative: false,
-  flag_no_disease_association: false,
-  flag_segregates: false,
-  flag_doesnt_segregate: false,
-  flag_visual: 'empty',
-  flag_molecular: 'empty',
-  flag_validation: 'empty',
-  flag_phenotype_match: 'empty',
-  flag_summary: 'empty',
-})
-
-const initialFlagsTemplate = Object.freeze({
-  ...emptyFlagsTemplate,
-  flag_bookmarked: true,
-})
-
 /** Whether to show the overlay. */
 const overlayShow = computed(() => (flagsStore?.serverInteractions ?? 0) > 0)
 
-const flagsToSubmit = ref(copy({ ...initialFlagsTemplate }))
+const flagsToSubmit = ref(copy({ ...flagsStore.initialFlagsTemplate }))
 
 const unsetFlags = () => {
-  flagsToSubmit.value = copy(emptyFlagsTemplate)
+  flagsToSubmit.value = copy(flagsStore.emptyFlagsTemplate)
 }
 
 const flagsSubmitted = computed(() => {
@@ -85,18 +65,21 @@ const resetFlags = () => {
       flagsStore.flags.flag_phenotype_match
     flagsToSubmit.value.flag_summary = flagsStore.flags.flag_summary
   } else {
-    flagsToSubmit.value = { ...initialFlagsTemplate }
+    flagsToSubmit.value = { ...flagsStore.initialFlagsTemplate }
   }
 }
 
 const onSubmitFlags = async () => {
-  const flagsToSubmitEmpty = isEqual(flagsToSubmit.value, emptyFlagsTemplate)
+  const flagsToSubmitEmpty = isEqual(
+    flagsToSubmit.value,
+    flagsStore.emptyFlagsTemplate
+  )
   if (flagsStore.flags && flagsToSubmitEmpty) {
     // IS not empty but SHOULD be empty, so delete the flags
     await flagsStore.deleteFlags()
   } else if (!flagsStore.flags && flagsToSubmitEmpty) {
     // IS empty and SHOULD be empty, so no update needed
-    flagsToSubmit.value = copy(initialFlagsTemplate)
+    flagsToSubmit.value = copy(flagsStore.initialFlagsTemplate)
   } else if (flagsStore.flags && !flagsToSubmitEmpty) {
     // IS not empty and SHOULD not be empty, so update the flags
     await flagsStore.updateFlags(flagsToSubmit.value)

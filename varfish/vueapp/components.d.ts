@@ -41,6 +41,7 @@ declare module '@vue/runtime-core' {
     IFaSolidMars: typeof import('~icons/fa-solid/mars')['default']
     IFaSolidMinusCircle: typeof import('~icons/fa-solid/minus-circle')['default']
     IFaSolidQuestion: typeof import('~icons/fa-solid/question')['default']
+    IFaSolidSearch: typeof import('~icons/fa-solid/search')['default']
     IFaSolidStar: typeof import('~icons/fa-solid/star')['default']
     IFaSolidThumbsDown: typeof import('~icons/fa-solid/thumbs-down')['default']
     IFaSolidThumbsUp: typeof import('~icons/fa-solid/thumbs-up')['default']

@@ -1,7 +1,7 @@
 <script setup>
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
 import {
   displayName,
   formatLargeInt,
@@ -9,6 +9,7 @@ import {
   truncateText,
 } from '@varfish/helpers.js'
 import { getAcmgBadge } from '@variants/helpers.js'
+import variantsApi from '@variants/api/variants.js'
 import ColumnControl from './ColumnControl.vue'
 import ExportResults from './ExportResults.vue'
 import { useVariantDetailsStore } from '@variants/stores/variantDetails'
@@ -75,6 +76,13 @@ const displayConstraintWrapper = declareWrapper(
 )
 /** Wrapper around {@code displayColumns} prop. */
 const displayColumnsWrapper = declareWrapper(props, 'displayColumns', emit)
+/** The table server options, updated by Vue3EasyDataTable. */
+const tableServerOptions = ref({
+  page: 1,
+  rowsPerPage: 50,
+  sortBy: 'chrom-pos',
+  sortType: 'asc',
+})
 
 const context = ref(null)
 
@@ -207,14 +215,13 @@ const tableHeaders = computed(() => {
     ...coordinatesClinvarColumns(),
     { text: 'frequency', value: 'frequency', sortable: true },
     { text: '#hom', value: 'homozygous', sortable: true },
-    { text: displayConstraintText, value: 'constraints', sortable: true },
     { text: 'constraint', value: 'constraints', sortable: true },
     { text: 'gene', value: 'gene', sortable: true },
     { text: 'gene icons', value: 'gene_icons', sortable: true },
     ...optionalColumns(),
     ...genotypeColumns(),
     ...scoreColumns(),
-    { text: '', value: 'igv', sortable: true },
+    { text: '', value: 'igv' },
   ]
 })
 
@@ -231,7 +238,7 @@ const tableRowClassName = (item, _rowNumber) => {
     return ''
   }
   const flagColors = ['positive', 'uncertain', 'negative']
-  const flags = flagsStore.getFlags(item)
+  const flags = flagsStore.getFlags(item.payload)
   if (!flags) {
     return ''
   }
@@ -416,6 +423,50 @@ const displayAmbiguousFrequencyWarningMsg = (item) => {
   const tablesStr = tables.join(' ')
   return `Table(s) {tablesStr} contain(s) freq > 0.1 or #hom > 50`
 }
+
+/** Load data from table as configured by tableServerOptions. */
+const loadFromServer = async () => {
+  const transmogrify = (row) => {
+    row.position =
+      (row.chromosome.startsWith('chr')
+        ? row.chromosome
+        : `chr${row.chromosome}`) +
+      ':' +
+      formatLargeInt(row.start)
+    return row
+  }
+
+  tableLoading.value = true
+  const response = await variantsApi.listQueryResultRow(
+    queryStore.csrfToken,
+    queryStore.queryResultSet.sodar_uuid,
+    {
+      pageNo: tableServerOptions.value.page,
+      pageSize: tableServerOptions.value.rowsPerPage,
+      orderBy:
+        tableServerOptions.value.sortBy === 'chrom-pos'
+          ? 'chromosome_no,start'
+          : tableServerOptions.value.sortBy,
+      orderDir: tableServerOptions.value.sortType,
+    }
+  )
+  tableRows.value = response.results.map((row) => transmogrify(row))
+  tableLoading.value = false
+}
+
+/** Load data when mounted. */
+onMounted(() => {
+  loadFromServer()
+})
+
+/** Watch changes in tableServerOptions and reload if necessary. */
+watch(
+  tableServerOptions,
+  (_newValue, _oldValue) => {
+    loadFromServer()
+  },
+  { deep: true }
+)
 </script>
 
 <template>
@@ -429,7 +480,7 @@ const displayAmbiguousFrequencyWarningMsg = (item) => {
         </div>
         <div class="text-center">
           <span class="btn btn-sm btn-outline-secondary" id="results-button">
-            {{ queryStore.queryResultsCount }}
+            {{ queryStore.queryResultSet.result_row_count }}
           </span>
         </div>
       </div>
@@ -444,59 +495,63 @@ const displayAmbiguousFrequencyWarningMsg = (item) => {
     </div>
     <div class="card-body p-0 b-0">
       <EasyDataTable
-        v-model:server-options="queryStore.tableServerOptions"
+        v-model:server-options="tableServerOptions"
         table-class-name="customize-table"
         :loading="tableLoading"
         @update-sort="updateSort"
         :body-row-class-name="tableRowClassName"
+        :server-items-length="queryStore.queryResultSet.result_row_count"
         :headers="tableHeaders"
-        :items="queryStore.queryResults"
-        :rows-items="[200]"
+        :items="tableRows"
+        :rows-items="[20, 50, 200, 1000]"
         theme-color="#6c757d"
         header-text-direction="left"
         body-text-direction="left"
-        alternating
         show-index
+        buttons-pagination
       >
-        <template #item-variant_icons="item">
-          <i-fa-search class="text-muted" @click="showVariantDetails(item)" />
+        <template #item-variant_icons="{ payload }">
+          <i-fa-solid-search
+            class="text-muted"
+            @click="showVariantDetails(payload)"
+          />
           <i-fa-solid-bookmark
-            v-if="flagsStore.hasFlags(item)"
+            v-if="flagsStore.hasFlags(payload)"
             class="text-muted ml-1"
             title="flags & bookmarks"
-            @click="showCommentsFlags(item)"
+            @click="showCommentsFlags(payload)"
           />
           <i-fa-regular-bookmark
             v-else
             class="text-muted ml-1"
             title="flags & bookmarks"
-            @click="showCommentsFlags(item)"
+            @click="showCommentsFlags(payload)"
           />
 
           <i-fa-solid-comment
-            v-if="commentsStore.hasComments(item)"
+            v-if="commentsStore.hasComments(payload)"
             class="text-muted ml-1"
-            @click="showCommentsFlags(item)"
+            @click="showCommentsFlags(payload)"
           />
           <i-fa-regular-comment
             v-else
             class="text-muted ml-1"
-            @click="showCommentsFlags(item)"
+            @click="showCommentsFlags(payload)"
           />
 
           <span
             title="ACMG rating"
-            :class="getAcmgBadgeClasses(acmgRatingStore.getAcmgRating(item))"
-            @click="showAcmgRating(item)"
-            >{{ acmgRatingStore.getAcmgRating(item) || '-' }}</span
+            :class="getAcmgBadgeClasses(acmgRatingStore.getAcmgRating(payload))"
+            @click="showAcmgRating(payload)"
+            >{{ acmgRatingStore.getAcmgRating(payload) || '-' }}</span
           >
 
           <a
-            v-if="item.rsid"
+            v-if="payload.rsid"
             target="_blank"
             :href="
               'https://www.ncbi.nlm.nih.gov/projects/SNP/snp_ref.cgi?rs=' +
-              item.rsid.slice(2)
+              payload.rsid.slice(2)
             "
           >
             <i-fa-solid-database class="ml-1 text-muted" />
@@ -504,9 +559,9 @@ const displayAmbiguousFrequencyWarningMsg = (item) => {
           <i-fa-solid-database v-else class="ml-1 text-muted icon-inactive" />
 
           <a
-            v-if="item.in_clinvar && item.summary_pathogenicity_label"
+            v-if="payload.in_clinvar && payload.summary_pathogenicity_label"
             target="_blank"
-            :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' + item.vcv"
+            :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' + payload.vcv"
           >
             <i-fa-regular-hospital class="ml-1 text-muted" />
           </a>
@@ -517,148 +572,166 @@ const displayAmbiguousFrequencyWarningMsg = (item) => {
           />
 
           <a
-            v-if="item.hgmd_public_overlap"
+            v-if="payload.hgmd_public_overlap"
             target="_blank"
             :href="
               'http://www.hgmd.cf.ac.uk/ac/gene.php?gene=' +
-              getSymbol(item) +
+              getSymbol(payload) +
               '&accession=' +
-              item.hgmd_accession
+              payload.hgmd_accession
             "
           >
             <i-fa-solid-globe class="ml-1 text-muted" />
           </a>
           <i-fa-solid-globe v-else class="ml-1 text-muted icon-inactive" />
         </template>
-        <template #item-position="{ chromosome, start }">
-          {{ (chromosome.startsWith('chr') ? '' : 'chr') + chromosome }}:{{
-            formatLargeInt(start)
-          }}
+        <template #item-position="{ position }">
+          {{ position }}
         </template>
-        <template #item-reference="{ reference }">
-          <span :title="reference">{{ truncateText(reference, 5) }}</span>
+        <template #item-reference="{ payload }">
+          <span :title="payload.reference">{{
+            truncateText(payload.reference, 5)
+          }}</span>
         </template>
-        <template #item-alternative="{ alternative }">
-          <span :title="alternative">{{ truncateText(alternative, 5) }}</span>
+        <template #item-alternative="{ payload }">
+          <span :title="payload.alternative">{{
+            truncateText(payload.alternative, 5)
+          }}</span>
         </template>
-        <template #item-clinvar="item">
-          <span class="badge-group" v-if="item.summary_pathogenicity_label">
+        <template #item-clinvar="{ payload }">
+          <span class="badge-group" v-if="payload.summary_pathogenicity_label">
             <span
               class="badge"
               :class="
-                getClinvarSignificanceBadge(item.summary_pathogenicity_label)
+                getClinvarSignificanceBadge(payload.summary_pathogenicity_label)
               "
             >
-              {{ item.summary_pathogenicity_label }}
+              {{ payload.summary_pathogenicity_label }}
             </span>
             <span
               class="badge badge-dark"
-              :title="item.summary_review_status_label"
+              :title="payload.summary_review_status_label"
             >
-              <i-fa-solid-star v-for="i in item.summary_gold_stars" :key="i" />
+              <i-fa-solid-star
+                v-for="i in payload.summary_gold_stars"
+                :key="i"
+              />
               <i-fa-regular-star
-                v-for="j in 4 - item.summary_gold_stars"
+                v-for="j in 4 - payload.summary_gold_stars"
                 :key="j"
               />
             </span>
           </span>
           <span v-else class="badge badge-light">-</span>
         </template>
-        <template #item-frequency="item">
-          {{ displayFrequencyContent(item) }}
+        <template #item-frequency="{ payload }">
+          {{ displayFrequencyContent(payload) }}
           <i-bi-exclamation-circle
             class="text-muted"
-            v-if="displayAmbiguousFrequencyWarning(item).length > 0"
-            :title="displayAmbiguousFrequencyWarningMsg(item)"
+            v-if="displayAmbiguousFrequencyWarning(payload).length > 0"
+            :title="displayAmbiguousFrequencyWarningMsg(payload)"
           />
         </template>
-        <template #item-homozygous="item">
-          {{ displayHomozygousContent(item) }}
+        <template #item-homozygous="{ payload }">
+          {{ displayHomozygousContent(payload) }}
         </template>
-        <template #item-constraints="item">
-          {{ displayConstraintsContent(item) }}
+        <template #item-constraints="{ payload }">
+          {{ displayConstraintsContent(payload) }}
         </template>
-        <template #item-gene="item">
-          {{ getSymbol(item) }}
+        <template #item-gene="{ payload }">
+          {{ getSymbol(payload) }}
         </template>
-        <template #item-gene_icons="item">
+        <template #item-gene_icons="{ payload }">
           <i-fa-solid-user-md
             :class="{
-              'text-danger': isOnAcmgList(item),
-              'text-muted icon-inactive': !isOnAcmgList(item),
+              'text-danger': isOnAcmgList(payload),
+              'text-muted icon-inactive': !isOnAcmgList(payload),
             }"
             title="Gene in ACMG incidental finding list"
           />
           <i-fa-solid-lightbulb
-            v-if="isDiseaseGene(item)"
+            v-if="isDiseaseGene(payload)"
             class="text-danger align-baseline"
             title="Known disease gene"
           />
           <i-fa-regular-lightbulb
-            v-if="!isDiseaseGene(item)"
+            v-if="!isDiseaseGene(payload)"
             class="text-muted icon-inactive align-baseline"
             title="Not a known disease gene"
           />
-          <span v-if="item.modes_of_inheritance">
+          <span v-if="payload.modes_of_inheritance">
             <span
-              v-for="(mode, index) in sortedModesOfInheritance(item)"
+              v-for="(mode, index) in sortedModesOfInheritance(payload)"
               :key="index"
               class="badge badge-info ml-1"
               >{{ mode }}</span
             >
           </span>
         </template>
-        <template #item-effect_summary="item">
-          <span :title="`${effectSummary(item)} [${item.effect.join(', ')}]`">
-            {{ truncateText(effectSummary(item), 12) }}
+        <template #item-effect_summary="{ payload }">
+          <span
+            :title="`${effectSummary(payload)} [${payload.effect.join(', ')}]`"
+          >
+            {{ truncateText(effectSummary(payload), 12) }}
           </span>
         </template>
-        <template #item-effect="{ effect }">
-          {{ effect.join(', ') }}
+        <template #item-effect="{ payload }">
+          {{ payload.effect.join(', ') }}
         </template>
-        <template #item-hgvs_p="{ hgvs_p }">
-          <span :title="hgvs_p">{{ truncateText(hgvs_p, 12) }}</span>
+        <template #item-hgvs_p="{ payload }">
+          <span :title="payload.hgvs_p">{{
+            truncateText(payload.hgvs_p, 12)
+          }}</span>
         </template>
-        <template #item-hgvs_c="{ hgvs_c }">
-          <span :title="hgvs_c">{{ truncateText(hgvs_c, 12) }}</span>
+        <template #item-hgvs_c="{ payload }">
+          <span :title="payload.hgvs_c">{{
+            truncateText(payload.hgvs_c, 12)
+          }}</span>
         </template>
-        <template #item-exon_dist="{ exon_dist }">
-          {{ exon_dist }}
+        <template #item-exon_dist="{ payload }">
+          {{ payload.exon_dist }}
         </template>
         <template
           v-for="{ field } in extraAnnoFields"
-          v-slot:[`item-extra_anno${field}`]="{ extra_annos }"
+          v-slot:[`item-extra_anno${field}`]="{ payload }"
         >
-          {{ extraAnnoFieldFormat(extra_annos, field) }}
+          {{ extraAnnoFieldFormat(payload.extra_annos, field) }}
         </template>
         <template
           v-for="{ name } in props.case?.pedigree"
-          v-slot:[`item-genotype_${displayName(name)}`]="{ genotype }"
+          v-slot:[`item-genotype_${displayName(name)}`]="{ payload }"
         >
-          {{ genotype[name].gt }}
+          {{ payload.genotype[name].gt }}
         </template>
-        <template #item-pathogenicity_score="{ pathogenicity_score }">
-          {{ formatFloat(pathogenicity_score, 3) }}
+        <template #item-pathogenicity_score="{ payload }">
+          {{ formatFloat(payload.pathogenicity_score, 3) }}
         </template>
-        <template #item-phenotype_score="{ phenotype_score }">
-          {{ formatFloat(phenotype_score, 3) }}
+        <template #item-phenotype_score="{ payload }">
+          {{ formatFloat(payload.phenotype_score, 3) }}
         </template>
-        <template #item-patho_pheno_score="{ patho_pheno_score }">
-          {{ formatFloat(patho_pheno_score, 3) }}
+        <template #item-patho_pheno_score="{ payload }">
+          {{ formatFloat(payload.patho_pheno_score, 3) }}
         </template>
-        <template #item-igv="item">
+        <template #item-igv="{ payload }">
           <div class="btn-group btn-group-sm">
+            <div
+              class="btn btn-sm btn-outline-secondary"
+              style="font-size: 80%"
+              @click="flagsStore.flagAsArtifact(payload)"
+            >
+              <i-fa-solid-thumbs-down class="text-muted" />
+            </div>
             <a
-              :href="mtLink(item)"
+              :href="mtLink(payload)"
               target="_blank"
               style="font-size: 80%"
               class="btn btn-sm btn-outline-secondary"
-              :class="mtLink(item) === '#' ? 'disabled' : ''"
+              :class="mtLink(payload) === '#' ? 'disabled' : ''"
             >
               MT
             </a>
             <button
-              @click="goToLocus(item)"
+              @click="goToLocus(payload)"
               type="button"
               title="Go to locus in IGV"
               style="font-size: 80%"

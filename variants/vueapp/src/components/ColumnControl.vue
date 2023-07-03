@@ -4,6 +4,7 @@ import {
   DisplayFrequencies,
   DisplayConstraints,
   DisplayColumns,
+  DisplayDetails,
 } from '@variants/enums'
 import { computed } from 'vue'
 
@@ -18,8 +19,6 @@ const props = defineProps({
   displayFrequency: Number,
   displayConstraint: Number,
   displayColumns: Array,
-  // props to control the ag-grid with
-  columnApi: Object,
   // the defined extra anno fields
   extraAnnoFields: Array,
 })
