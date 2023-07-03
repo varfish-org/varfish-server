@@ -11,14 +11,18 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 git describe --tags >$DIR/VERSION
 
 # Obtain version for the Docker image.
-DOCKER_VERSION=$(git describe --tags | cut -d - -f 1 | sed -e 's/^v//')
+IMAGE_TAG=${IMAGE_TAG:-adhoc}
 
 # Explicitely set organization and repository name for Docker image.
 ORG=bihealth
 REPO=varfish-server
 
+# Set value for WORKER_GIT_TREEISH.
+WORKER_GIT_TREEISH=${WORKER_GIT_TREEISH:-main}
+
 # Actually start the Docker build.
 docker build . \
+    --build-arg WORKER_GIT_TREEISH=${WORKER_GIT_TREEISH} \
     --file $DIR/Dockerfile \
-    -t ghcr.io/$ORG/$REPO:$DOCKER_VERSION \
+    -t ghcr.io/$ORG/$REPO:$IMAGE_TAG \
     "$@"

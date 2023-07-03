@@ -1,6 +1,38 @@
 # syntax=docker/dockerfile:1.3
 
 # ---------------------------------------------------------------------------
+# Rust Dependencies
+# ---------------------------------------------------------------------------
+
+FROM rust:latest AS rust-deps
+
+# The worker repository to use
+ARG WORKER_GIT_URL=https://github.com/bihealth/varfish-server-worker.git
+# The worker branch/commit/tag to checkout, defaults to main.
+ARG WORKER_GIT_TREEISH=main
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update && \
+    apt-get install -y build-essential cmake
+
+RUN git clone --recursive https://github.com/protocolbuffers/protobuf.git /tmp/protobuf && \
+    cd /tmp/protobuf && \
+    cmake . -DCMAKE_INSTALL_PREFIX=/usr/local && \
+    make -j 8 install
+
+# ---------------------------------------------------------------------------
+# Rust Build
+# ---------------------------------------------------------------------------
+
+FROM rust-deps AS rust-build
+
+RUN git clone --depth 1 --branch $WORKER_GIT_TREEISH $WORKER_GIT_URL \
+        /tmp/varfish-server-worker && \
+    cd /tmp/varfish-server-worker && \
+    cargo install --path .
+
+# ---------------------------------------------------------------------------
 # NodeJS Base Image
 # ---------------------------------------------------------------------------
 
@@ -43,7 +75,7 @@ RUN npm run build --prefix varfish/vueapp
 
 FROM python:3.10-bullseye AS python-base
 
-MAINTAINER Manuel Holtgrewe <manuel.holtgrewe@bih-charite.de>
+LABEL org.opencontainers.image.authors="Manuel.Holtgrewe@bih-charite.de"
 LABEL org.opencontainers.image.source https://github.com/bihealth/varfish-server
 
 ENV LANG C.UTF-8
@@ -69,17 +101,6 @@ RUN apt-get clean autoclean && \
 
 FROM python-base AS python-deps
 
-# Install conda environment with varfish-server-worker.
-RUN ["/bin/bash","-c", "cd /tmp && \
-        wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh && \
-        bash Mambaforge-Linux-x86_64.sh -b -p /opt/miniconda3 && \
-        source /opt/miniconda3/bin/activate && \
-        conda install -c conda-forge -y mamba && \
-        mamba create -c conda-forge -c bioconda -y \
-            -n varfish-server \
-            varfish-server-worker==0.8.0 && \
-        rm -f Mambaforge-Linux-x86_64.sh"]
-
 # Add postgres 12 repository
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
     | apt-key add - && \
@@ -101,7 +122,7 @@ RUN apt-get update && \
 RUN python -m pip install -U pip pipenv
 
 # Copy Pipfile and lock into the Docker image.
-COPY Pipfile Pipfile.lock .
+COPY Pipfile Pipfile.lock ./
 
 # Install Python dependencies via pipenv.
 RUN PIPENV_VENV_IN_PROJECT=1 pipenv install \
@@ -141,6 +162,23 @@ RUN pipenv run make -C docs_manual clean html
 # ---------------------------------------------------------------------------
 
 FROM python-base as python-runtime
+
+# Install runtime dependencies
+RUN apt-get install -y libsqlite3-dev
+
+# Install conda environment with varfish-server-worker if configured to do so.
+RUN ["/bin/bash","-c", "cd /tmp && \
+        wget https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-Linux-x86_64.sh && \
+        bash Mambaforge-Linux-x86_64.sh -b -p /opt/miniconda3 && \
+        source /opt/miniconda3/bin/activate && \
+        conda install -c conda-forge -y mamba && \
+        mamba create -c conda-forge -c bioconda -y \
+            -n varfish-server \
+            varfish-server-worker==0.8.0 && \
+        rm -f Mambaforge-Linux-x86_64.sh"]
+
+# Copy the worker from the dedicated worker build.
+COPY --from=rust-build /usr/local/cargo/bin/varfish-server-worker /usr/local/bin/varfish-server-worker
 
 # Copy virtual env from python-deps stage
 COPY --from=python-deps /usr/src/app/.venv /usr/src/app/.venv
