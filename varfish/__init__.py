@@ -10,7 +10,7 @@ def _get_version():
     try:
         x = subprocess.check_output(
             ["git", "describe", "--tags", "--always"], encoding="utf-8"
-        ).strip()
+        ).strip()[1:]
         return x
     except subprocess.CalledProcessError:
         dirname = os.path.dirname(__file__)
