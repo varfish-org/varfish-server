@@ -16,6 +16,7 @@ jobs:
         with:
           release-type: python
           package-name: varfish-server
+          token: ${{ secrets.BOT_TOKEN }}
 
   build-publish:
     runs-on: ubuntu-latest
