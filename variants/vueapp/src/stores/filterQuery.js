@@ -483,7 +483,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
 
   /** Initialize the store from the appContext. */
   const initialize = async (appContext, theCaseUuid, theQueryUuid) => {
-    if (storeState.value !== 'initial') {
+    if (storeState.value !== 'initial' && caseUuid.value === theCaseUuid) {
       // only once
       return initializeRes.value
     }
