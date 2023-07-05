@@ -267,7 +267,7 @@ const formatConstraint = (value) => {
   return formatFloat(value, 3)
 }
 
-const getSymbol = (item) => item.symbol || item.gene_symbol
+const getSymbol = (item) => item.symbol || item.gene_symbol || '-'
 const getAcmgBadgeClasses = (acmgClass) => {
   let acmgBadgeClasses = ['ml-1', 'badge', getAcmgBadge(acmgClass)]
   if (!acmgClass) {

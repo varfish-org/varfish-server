@@ -61,6 +61,9 @@ export function formatTime(time) {
 
 /** Truncate text and append ellipsis. */
 export function truncateText(text, length) {
+  if (!text) {
+    return '-'
+  }
   return text.length > length ? text.slice(0, length) + '...' : text
 }
 
