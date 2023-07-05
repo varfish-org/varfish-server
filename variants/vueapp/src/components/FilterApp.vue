@@ -45,17 +45,9 @@ const route = useRoute()
 const caseUuidRef = ref(route.params.case)
 
 const variantDetailsStore = useVariantDetailsStore()
-variantDetailsStore.initialize(appContext)
-
-// Initialize filter query store.
 const filterQueryStore = useFilterQueryStore()
-filterQueryStore.initialize(appContext, caseUuidRef.value, route.params.query)
-// Initialize cases store.
 const casesStore = useCasesStore()
-casesStore.initialize(appContext)
-// Initialize case details store.
 const caseDetailsStore = useCaseDetailsStore()
-caseDetailsStore.initialize(caseUuidRef.value)
 
 const showModal = (smallVariant) => {
   currentSmallVariant.value = smallVariant
@@ -128,6 +120,23 @@ onMounted(() => {
     $('#vueapp-filtration-inline-help').change(handleUpdate)
     $('#vueapp-filtration-complexity-mode').change(handleUpdate)
   })
+})
+
+onBeforeMount(() => {
+  Promise.all([
+    // Initialize variant details store.
+    variantDetailsStore.initialize(appContext),
+    // Initialize filter query store.
+    filterQueryStore.initialize(
+      appContext,
+      caseUuidRef.value,
+      route.params.query
+    ),
+    // Initialize cases store.
+    casesStore.initialize(appContext),
+    // Initialize case details store.
+    caseDetailsStore.initialize(caseUuidRef.value),
+  ])
 })
 </script>
 
