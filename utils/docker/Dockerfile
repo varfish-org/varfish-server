@@ -14,7 +14,7 @@ ARG WORKER_GIT_TREEISH=main
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && \
-    apt-get install -y build-essential cmake
+    apt-get install -y build-essential cmake libclang-dev
 
 RUN git clone --recursive https://github.com/protocolbuffers/protobuf.git /tmp/protobuf && \
     cd /tmp/protobuf && \
