@@ -7,6 +7,7 @@ export function previousQueryDetailsToQuerySettings(
   caseObj,
   previousQueryDetails
 ) {
+  console.log(previousQueryDetails)
   const freqKeys = [
     'exac_enabled',
     'exac_frequency',
@@ -138,17 +139,26 @@ export function previousQueryDetailsToQuerySettings(
     delete result[key]
   }
 
-  if (result['max_exon_dist'] === '') {
-    result['max_exon_dist'] = null
+  if (result.max_exon_dist === '') {
+    result.max_exon_dist = null
   } else if (
-    result['max_exon_dist'] !== null &&
-    result['max_exon_dist'] !== undefined
+    result.max_exon_dist !== null &&
+    result.max_exon_dist !== undefined
   ) {
-    result['max_exon_dist'] = Number(result['max_exon_dist'])
+    result.max_exon_dist = Number(result.max_exon_dist)
   }
 
   result.genotype = genotype
   result.quality = quality
+
+  result.genomic_region = result.genomic_region.map((region) => {
+    let range = ''
+    if (region[1] !== null && region[2] !== null) {
+      range =
+        ':' + region[1].toLocaleString() + '-' + region[2].toLocaleString()
+    }
+    return 'chr' + region[0] + range
+  })
 
   return result
 }
