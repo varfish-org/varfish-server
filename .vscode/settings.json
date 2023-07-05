@@ -1,0 +1,9 @@
+{
+    "files.exclude": {
+        "varfish/vueapp/src/cases": true,
+        "varfish/vueapp/src/clinvarexport": true,
+        "varfish/vueapp/src/cohorts": true,
+        "varfish/vueapp/src/svs": true,
+        "varfish/vueapp/src/variants": true
+    }
+}

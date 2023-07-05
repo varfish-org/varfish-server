@@ -122,6 +122,7 @@ const _objectWithoutKeys = (obj, keys) => {
 const valueRefs = {
   frequency: ref(null),
   impact: ref(null),
+  svType: ref(null),
   chromosomes: ref(null),
   regulatory: ref(null),
   tad: ref(null),
@@ -215,6 +216,8 @@ const makeWrapper = (name) =>
 const frequencyWrapper = makeWrapper('frequency')
 /** Computed property for impact presets.  If set through here, the default is applied (except for custom). */
 const impactWrapper = makeWrapper('impact')
+/** Computed property for the SV types. */
+const svTypeWrapper = makeWrapper('svType')
 /** Computed property for chromosomes presets.  If set through here, the default is applied (except for custom). */
 const chromosomesWrapper = makeWrapper('chromosomes')
 /** Computed property for regulatory regions presets.  If set through here, the default is applied (except for custom). */
@@ -236,6 +239,7 @@ const refreshQuickPreset = () => {
       isEqual(inheritanceWrapper.value, theQuickPresets.inheritance) &&
       isEqual(frequencyWrapper.value, theQuickPresets.frequency) &&
       isEqual(impactWrapper.value, theQuickPresets.impact) &&
+      isEqual(svTypeWrapper.value, theQuickPresets.sv_type) &&
       isEqual(chromosomesWrapper.value, theQuickPresets.chromosomes) &&
       isEqual(regulatoryWrapper.value, theQuickPresets.regulatory) &&
       isEqual(
@@ -267,6 +271,7 @@ const quickPresetWrapper = computed({
       inheritanceWrapper.value = newQuickPresets.inheritance
       frequencyWrapper.value = newQuickPresets.frequency
       impactWrapper.value = newQuickPresets.impact
+      svTypeWrapper.value = newQuickPresets.svType
       chromosomesWrapper.value = newQuickPresets.chromosomes
       regulatoryWrapper.value = newQuickPresets.regulatory
       genotypeCriteriaWrapper.value = newQuickPresets.genotype_criteria
@@ -411,6 +416,26 @@ onMounted(() => {
     <div class="col-1 pr-0">
       <label
         class="font-weight-bold small text-nowrap"
+        :for="'presetsSvType-' + idSuffix"
+      >
+        SV Type
+        <i-mdi-arrow-down />
+      </label>
+      <select
+        v-model="knownPathoWrapper"
+        class="custom-select custom-select-sm"
+        :id="'presetsSvType-' + idSuffix"
+      >
+        <option v-for="(value, name) in categoryPresets.svType" :value="name">
+          {{ value.label ?? name }}
+        </option>
+        <option value="custom">custom</option>
+      </select>
+    </div>
+
+    <div class="col-1 pr-0">
+      <label
+        class="font-weight-bold small text-nowrap"
         :for="'presetsRegulatory-' + idSuffix"
       >
         Regulatory
@@ -474,7 +499,7 @@ onMounted(() => {
       </select>
     </div>
 
-    <div class="col-2 pr-0">
+    <div class="col-1 pr-0">
       <label
         class="font-weight-bold small text-nowrap"
         :for="'presetsKnownPatho-' + idSuffix"
@@ -497,6 +522,7 @@ onMounted(() => {
       </select>
     </div>
   </div>
+
   <div>
     <div
       v-if="props.showFiltrationInlineHelp"

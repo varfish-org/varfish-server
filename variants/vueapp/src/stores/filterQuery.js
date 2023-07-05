@@ -58,6 +58,7 @@ const fetchPresets = async (
                 inheritance: qp.inheritance,
                 frequency: qp.frequency,
                 impact: qp.impact,
+                sv_type: qp.sv_type,
                 quality: qp.quality,
                 chromosomes: qp.chromosome,
                 flagsetc: qp.flagsetc,
@@ -69,6 +70,7 @@ const fetchPresets = async (
           const categories = [
             'frequency',
             'impact',
+            'sv_type',
             'quality',
             'chromosomes',
             'flagsetc',
