@@ -5,7 +5,14 @@ import typing
 
 import attrs
 
-from svs.query_schemas import Database, GenotypeCriteria, Pathogenicity, SvSubType, SvType
+from svs.query_schemas import (
+    Database,
+    GenotypeCriteria,
+    Pathogenicity,
+    SvSubType,
+    SvType,
+    TranscriptEffect,
+)
 from variants.query_presets import DiseaseState as _DiseaseState
 from variants.query_presets import GenotypeChoice
 from variants.query_presets import Inheritance as _Inheritance
@@ -18,6 +25,25 @@ Inheritance = _Inheritance
 
 Sex = _Sex
 
+#: All transcript effects
+TRANSCRIPT_EFFECTS_ALL = [e.value for e in TranscriptEffect]
+
+#: Transcript effects close to genes
+TRANSCRIPT_EFFECTS_NEAR_GENE = [
+    TranscriptEffect.TRANSCRIPT_VARIANT.value,
+    TranscriptEffect.EXON_VARIANT.value,
+    TranscriptEffect.SPLICE_REGION_VARIANT.value,
+    TranscriptEffect.INTRON_VARIANT.value,
+    TranscriptEffect.UPSTREAM_VARIANT.value,
+    TranscriptEffect.DOWNSTREAM_VARIANT.value,
+]
+
+#: Transcript effects that are exonic
+TRANSCRIPT_EFFECTS_EXONIC = [
+    TranscriptEffect.TRANSCRIPT_VARIANT.value,
+    TranscriptEffect.EXON_VARIANT.value,
+    TranscriptEffect.SPLICE_REGION_VARIANT.value,
+]
 
 #: All SVs
 SVTYPES_ALL = [e.value for e in SvType]
@@ -178,29 +204,65 @@ class Frequency(Enum):
 
 
 @attrs.define(frozen=True)
-class _ImpactPresets:
-    """Type for providing immutable impact presets"""
+class _SvTypePresets:
+    """Type for providing immutable SV type presets"""
 
-    #: Presets for "any" impact.
+    #: Presets for "any" SV type.
     any: typing.Dict[str, typing.Any] = {
         "sv_size_min": None,
         "sv_size_max": None,
         "sv_types": SVTYPES_ALL,
         "sv_sub_types": SVSUBTYPES_ALL,
     }
-    #: Presets for "almost all" impact.
-    almost_all: typing.Dict[str, typing.Any] = {
-        "sv_size_min": None,
-        "sv_size_max": None,
-        "sv_types": SVTYPES_ALMOST_ALL,
-        "sv_sub_types": SVSUBTYPES_ALMOST_ALL,
-    }
-    #: Presets for "only CNVs" impact.
-    cnv_only: typing.Dict[str, typing.Any] = {
-        "sv_size_min": None,
+    #: Presets for "L CNVs only".
+    cnvs_large: typing.Dict[str, typing.Any] = {
+        "sv_size_min": 500,
         "sv_size_max": None,
         "sv_types": SVTYPES_CNV,
         "sv_sub_types": SVSUBTYPES_CNV,
+    }
+    #: Presets for "XL CNVs only".
+    cnvs_extra_large: typing.Dict[str, typing.Any] = {
+        "sv_size_min": 10_000,
+        "sv_size_max": None,
+        "sv_types": SVTYPES_CNV,
+        "sv_sub_types": SVSUBTYPES_CNV,
+    }
+
+
+#: Presets for the SV type related settings by SV type preset option
+SVTYPE_PRESETS: _SvTypePresets = _SvTypePresets()
+
+
+@unique
+class SvType(Enum):
+    """Preset options for the category sv type"""
+
+    ANY = "any"
+    CNVS_LARGE = "cnvs_large"
+    CNVS_EXTRA_LARGE = "cnvs_extra_large"
+    CUSTOM = "custom"
+
+    def to_settings(self) -> typing.Dict[str, typing.Any]:
+        """Return settings for the impact category"""
+        return getattr(SVTYPE_PRESETS, self.value)
+
+
+@attrs.define(frozen=True)
+class _ImpactPresets:
+    """Type for providing immutable impact presets"""
+
+    #: Presets for "any" impact.
+    any: typing.Dict[str, typing.Any] = {
+        "tx_effects": TRANSCRIPT_EFFECTS_ALL,
+    }
+    #: Presets for "near gene" impact.
+    near_gene: typing.Dict[str, typing.Any] = {
+        "tx_effects": TRANSCRIPT_EFFECTS_NEAR_GENE,
+    }
+    #: Presets for "exonic" impact.
+    exonic: typing.Dict[str, typing.Any] = {
+        "tx_effects": TRANSCRIPT_EFFECTS_EXONIC,
     }
 
 
@@ -213,8 +275,8 @@ class Impact(Enum):
     """Preset options for category impact"""
 
     ANY = "any"
-    ALMOST_ALL = "almost_all"
-    CNV_ONLY = "cnv_only"
+    NEAR_GENE = "near_gene"
+    EXONIC = "exonic"
     CUSTOM = "custom"
 
     def to_settings(self) -> typing.Dict[str, typing.Any]:
@@ -510,6 +572,8 @@ class QuickPresets:
     frequency: Frequency
     #: presets in category impact
     impact: Impact
+    #: presets in category sv_type
+    sv_type: SvType
     #: presets in category chromosomes
     chromosomes: Chromosomes
     #: regulatory configuration
@@ -528,6 +592,7 @@ class QuickPresets:
         assert len(set(s.family for s in samples)) == 1
         return {
             **self.frequency.to_settings(),
+            **self.sv_type.to_settings(),
             **self.impact.to_settings(),
             **self.chromosomes.to_settings(),
             **self.tad.to_settings(),
@@ -548,7 +613,8 @@ class _QuickPresetList:
         label="defaults",
         inheritance=Inheritance.ANY,
         frequency=Frequency.STRICT,
-        impact=Impact.ANY,
+        impact=Impact.EXONIC,
+        sv_type=SvType.CNVS_EXTRA_LARGE,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -561,7 +627,8 @@ class _QuickPresetList:
         label="de novo",
         inheritance=Inheritance.DE_NOVO,
         frequency=Frequency.STRICT,
-        impact=Impact.ANY,
+        impact=Impact.NEAR_GENE,
+        sv_type=SvType.CNVS_LARGE,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -574,7 +641,8 @@ class _QuickPresetList:
         label="dominant",
         inheritance=Inheritance.DOMINANT,
         frequency=Frequency.STRICT,
-        impact=Impact.ANY,
+        impact=Impact.EXONIC,
+        sv_type=SvType.CNVS_EXTRA_LARGE,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -587,7 +655,8 @@ class _QuickPresetList:
         label="homozygous recessive",
         inheritance=Inheritance.HOMOZYGOUS_RECESSIVE,
         frequency=Frequency.RELAXED,
-        impact=Impact.ANY,
+        impact=Impact.EXONIC,
+        sv_type=SvType.CNVS_EXTRA_LARGE,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -600,7 +669,8 @@ class _QuickPresetList:
         label="compound heterozygous",
         inheritance=Inheritance.COMPOUND_HETEROZYGOUS,
         frequency=Frequency.RELAXED,
-        impact=Impact.ANY,
+        impact=Impact.EXONIC,
+        sv_type=SvType.CNVS_EXTRA_LARGE,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -613,7 +683,8 @@ class _QuickPresetList:
         label="X-recessive",
         inheritance=Inheritance.X_RECESSIVE,
         frequency=Frequency.RELAXED,
-        impact=Impact.ANY,
+        impact=Impact.EXONIC,
+        sv_type=SvType.CNVS_EXTRA_LARGE,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -626,7 +697,8 @@ class _QuickPresetList:
         label="ClinVar pathogenic",
         inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.ANY,
-        impact=Impact.ANY,
+        impact=Impact.EXONIC,
+        sv_type=SvType.CNVS_EXTRA_LARGE,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -639,7 +711,8 @@ class _QuickPresetList:
         label="mitochondrial",
         inheritance=Inheritance.AFFECTED_CARRIERS,
         frequency=Frequency.ANY,
-        impact=Impact.ANY,
+        impact=Impact.EXONIC,
+        sv_type=SvType.CNVS_EXTRA_LARGE,
         chromosomes=Chromosomes.MT_CHROMOSOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
@@ -652,7 +725,8 @@ class _QuickPresetList:
         label="whole genome",
         inheritance=Inheritance.ANY,
         frequency=Frequency.ANY,
-        impact=Impact.ANY,
+        impact=Impact.EXONIC,
+        sv_type=SvType.CNVS_EXTRA_LARGE,
         chromosomes=Chromosomes.WHOLE_GENOME,
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
