@@ -178,7 +178,7 @@ RUN ["/bin/bash","-c", "cd /tmp && \
         conda install -c conda-forge -y mamba && \
         mamba create -c conda-forge -c bioconda -y \
             -n varfish-server \
-            varfish-server-worker==0.8.0 && \
+            varfish-server-worker==0.9.0 && \
         rm -f Mambaforge-Linux-x86_64.sh"]
 
 # Copy the worker from the dedicated worker build.
