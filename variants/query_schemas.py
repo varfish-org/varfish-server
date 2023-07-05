@@ -454,7 +454,9 @@ def _structure_genomic_region(s, _):
         return GenomicRegionV1(chromosome=s)
     chrom, range_str = s.split(":")
     start, end = range_str.split("-")
-    return GenomicRegionV1(chromosome=chrom, range=RangeV1(int(start), int(end)))
+    return GenomicRegionV1(
+        chromosome=chrom, range=RangeV1(int(start.replace(",", "")), int(end.replace(",", "")))
+    )
 
 
 cattr.register_structure_hook(GenomicRegionV1, _structure_genomic_region)

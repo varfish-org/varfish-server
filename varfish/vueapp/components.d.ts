@@ -104,6 +104,8 @@ declare module '@vue/runtime-core' {
     IMdiRefresh: typeof import('~icons/mdi/refresh')['default']
     IMdiSafetyGoggles: typeof import('~icons/mdi/safety-goggles')['default']
     IMdiSquareEditOutline: typeof import('~icons/mdi/square-edit-outline')['default']
+    IMdiTableColumnWidth: typeof import('~icons/mdi/table-column-width')['default']
+    IMdiTableMergeCells: typeof import('~icons/mdi/table-merge-cells')['default']
     IMdiToggleSwitchOutline: typeof import('~icons/mdi/toggle-switch-outline')['default']
     IMdiTools: typeof import('~icons/mdi/tools')['default']
     IMdiUndoVariant: typeof import('~icons/mdi/undo-variant')['default']

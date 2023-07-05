@@ -71,7 +71,7 @@ describe('cases store', () => {
       appContext.csrfToken,
       appContext.project.sodar_uuid,
       {
-        pageNo: 1,
+        pageNo: 0,
         pageSize: 1,
         queryString: null,
       }

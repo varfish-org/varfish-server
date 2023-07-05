@@ -66,7 +66,7 @@ export const useCasesStore = defineStore('cases', () => {
     initializeRes.value = Promise.all([
       casesApi
         .listCase(appContext.value.csrfToken, project.value.sodar_uuid, {
-          pageNo: 1,
+          pageNo: 0,
           pageSize: 1,
           queryString: null,
         })
