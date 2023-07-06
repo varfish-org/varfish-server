@@ -83,8 +83,14 @@ ENV CUSTOM_STATIC_DIR /usr/src/app/local-static
 
 WORKDIR /usr/src/app
 
+# Add postgres 12 repository
+RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+    | apt-key add - && \
+    echo "deb http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" \
+    > /etc/apt/sources.list.d/pgdg.list
 RUN apt-get update && \
-        apt-get install -y curl ldap-utils libldap2-dev libsasl2-dev
+    apt-get install -y curl ldap-utils libldap2-dev libsasl2-dev \
+        postgresql-client-12
 RUN apt-get clean autoclean && \
     apt-get autoremove --yes && \
     rm -rf /var/lib/{apt,dpkg,cache,log}/
@@ -96,19 +102,12 @@ RUN apt-get clean autoclean && \
 
 FROM python-base AS python-deps
 
-# Add postgres 12 repository
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
-    | apt-key add - && \
-    echo "deb http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" \
-    > /etc/apt/sources.list.d/pgdg.list
-
 # Install system dependencies.
 RUN apt-get update && \
     apt-get install -y \
         apt-utils \
         gcc \
         make \
-        postgresql-client-12 \
         wget \
         xmlsec1 \
         gnupg2
