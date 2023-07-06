@@ -4,7 +4,7 @@
 # Rust Dependencies
 # ---------------------------------------------------------------------------
 
-FROM rust:latest AS rust-deps
+FROM rust:1-bookworm AS rust-deps
 
 # The worker repository to use
 ARG WORKER_GIT_URL=https://github.com/bihealth/varfish-server-worker.git
@@ -14,12 +14,7 @@ ARG WORKER_GIT_TREEISH=main
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && \
-    apt-get install -y build-essential cmake libclang-dev
-
-RUN git clone --recursive https://github.com/protocolbuffers/protobuf.git /tmp/protobuf && \
-    cd /tmp/protobuf && \
-    cmake . -DCMAKE_INSTALL_PREFIX=/usr/local && \
-    make -j 8 install
+    apt-get install -y build-essential cmake libclang-dev protobuf-compiler
 
 # ---------------------------------------------------------------------------
 # Rust Build
@@ -73,7 +68,7 @@ RUN npm run build --prefix varfish/vueapp
 # Python Base Image
 # ---------------------------------------------------------------------------
 
-FROM python:3.10-bullseye AS python-base
+FROM python:3.10-bookworm AS python-base
 
 LABEL org.opencontainers.image.authors="Manuel.Holtgrewe@bih-charite.de"
 LABEL org.opencontainers.image.source https://github.com/bihealth/varfish-server
@@ -104,7 +99,7 @@ FROM python-base AS python-deps
 # Add postgres 12 repository
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
     | apt-key add - && \
-    echo "deb http://apt.postgresql.org/pub/repos/apt bullseye-pgdg main" \
+    echo "deb http://apt.postgresql.org/pub/repos/apt bookworm-pgdg main" \
     > /etc/apt/sources.list.d/pgdg.list
 
 # Install system dependencies.
