@@ -26,7 +26,7 @@ const doFetch = () => {
       isFetching.value = false
     })
     .catch((error) => {
-      console.log('Problem fetching ClinVar report', error)
+      console.error('Problem fetching ClinVar report', error)
       isFetching.value = false
     })
 }

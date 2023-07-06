@@ -489,6 +489,8 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       // only once
       return initializeRes.value
     }
+    // first reset the store to avoid artifacts
+    $reset()
     storeState.value = StoreState.initializing
     storeStateMessage.value = 'Initializing...'
     serverInteractions.value += 1
@@ -496,6 +498,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     // Initialize from appContext
     caseUuid.value = theCaseUuid
     queryUuid.value = theQueryUuid
+
     umdPredictorApiToken.value = appContext.umd_predictor_api_token
     hgmdProEnabled.value = appContext.hgmd_pro_enabled
     hgmdProPrefix.value = appContext.hgmd_pro_prefix
@@ -525,7 +528,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
       // 2. fetch previous query UUID
       fetchPreviousQueryUuid(csrfToken.value, caseUuid.value)
         .then((response) => {
-          if (response && !queryUuid.value) {
+          if (response) {
             // Retrieve query details and extract query settings.
             queryUuid.value = response
           }
@@ -585,6 +588,49 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     return initializeRes.value
   }
 
+  const $reset = () => {
+    storeState.value = StoreState.initial
+    storeStateMessage.value = ''
+    serverInteractions.value = 0
+    showFiltrationInlineHelp.value = false
+    filtrationComplexityMode.value = null
+    csrfToken.value = null
+    caseUuid.value = null
+    umdPredictorApiToken.value = null
+    hgmdProEnabled.value = null
+    hgmdProPrefix.value = null
+    ga4ghBeaconNetworkWidgetEnabled.value = null
+    exomiserEnabled.value = null
+    caddEnabled.value = null
+    caseObj.value = null
+    querySettingsPresets.value = null
+    querySettings.value = null
+    previousQueryDetails.value = null
+    queryResultSet.value = null
+    queryUuid.value = null
+    downloadStatusTsv.value = null
+    downloadStatusVcf.value = null
+    downloadStatusXlsx.value = null
+    exportJobUuidTsv.value = null
+    exportJobUuidVcf.value = null
+    exportJobUuidXlsx.value = null
+    extraAnnoFields.value = null
+    hpoNames.value = []
+    queryState.value = QueryStates.Initial.value
+    queryStateMsg.value = null
+    queryLogs.value = null
+    quickPresets.value = null
+    categoryPresets.value = {
+      inheritance: null,
+      frequency: null,
+      impact: null,
+      quality: null,
+      chromosomes: null,
+      flagsetc: null,
+    }
+    initializeRes.value = null
+  }
+
   return {
     // data / state
     storeState,
@@ -620,5 +666,6 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
     serveDownloadResults,
     getDownloadStatus,
     runFetchLoop,
+    $reset,
   }
 })
