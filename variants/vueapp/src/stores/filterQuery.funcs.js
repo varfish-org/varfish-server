@@ -7,7 +7,6 @@ export function previousQueryDetailsToQuerySettings(
   caseObj,
   previousQueryDetails
 ) {
-  console.log(previousQueryDetails)
   const freqKeys = [
     'exac_enabled',
     'exac_frequency',

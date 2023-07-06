@@ -320,7 +320,7 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
         queryUuid
       )
       if (!responseResultSetList.length) {
-        console.log('ERROR: no results in response')
+        console.error('ERROR: no results in response')
       } else if (
         queryState.value === QueryStates.Fetching.value &&
         previousQueryDetails.value.sodar_uuid === queryUuid
