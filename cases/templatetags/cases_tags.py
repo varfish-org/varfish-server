@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 
 from geneinfo.models import GeneIdToInheritance
 from variants.models import only_source_name as _models_only_source_name
@@ -6,6 +7,11 @@ from variants.models.case import Case
 
 modes_of_inheritance = dict(GeneIdToInheritance.MODES_OF_INHERITANCE)
 register = template.Library()
+
+
+@register.simple_tag
+def get_login_page_text():
+    return settings.VARFISH_LOGIN_PAGE_TEXT
 
 
 @register.simple_tag

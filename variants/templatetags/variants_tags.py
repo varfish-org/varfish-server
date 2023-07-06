@@ -15,11 +15,6 @@ stop_words = set(nltk.corpus.stopwords.words("english"))
 
 
 @register.simple_tag
-def get_login_page_text():
-    return settings.VARFISH_LOGIN_PAGE_TEXT
-
-
-@register.simple_tag
 def get_details_cases(project):
     """Return 5 most recent updated cases for the project details page."""
     return Case.objects.filter(project=project).order_by("-date_modified")[:5]
