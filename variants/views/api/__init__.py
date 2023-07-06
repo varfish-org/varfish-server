@@ -226,6 +226,7 @@ class SmallVariantQueryListCreateApiView(ListCreateAPIView):
 
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
+    permission_classes = [SODARAPIProjectPermission]
 
     serializer_class = SmallVariantQuerySerializer
 
@@ -282,6 +283,7 @@ class SmallVariantQueryRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView
 
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
+    permission_classes = [SODARAPIProjectPermission]
 
     serializer_class = SmallVariantQueryWithLogsSerializer
 
@@ -292,7 +294,7 @@ class SmallVariantQueryRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView
             return SmallVariantQuery.objects.none()
         else:
             return SmallVariantQuery.objects.filter(
-                Q(user=self.request.user) | Q(public=True), case__sodar_uuid=self.kwargs.get("case")
+                Q(user=self.request.user) | Q(public=True)
             ).select_related("user", "case")
 
     def get_permission_required(self):
@@ -319,6 +321,7 @@ class SmallVariantQueryResultSetListApiView(ListAPIView):
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
     pagination_class = PageNumberPagination
+    permission_classes = [SODARAPIProjectPermission]
 
     serializer_class = SmallVariantQueryResultSetSerializer
 
@@ -375,6 +378,7 @@ class SmallVariantQueryResultRowListApiView(ListAPIView):
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
     pagination_class = SmallVariantQueryResultRowPagination
+    permission_classes = [SODARAPIProjectPermission]
 
     serializer_class = SmallVariantQueryResultRowSerializer
 
