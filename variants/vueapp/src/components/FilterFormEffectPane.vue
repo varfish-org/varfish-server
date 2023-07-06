@@ -256,11 +256,11 @@ defineExpose({
         </div>
         <div class="input-group input-group-sm">
           <input
-            type="text"
+            type="number"
             class="form-control"
             placeholder="max. distance to next exon"
             id="max-exon-dist"
-            v-model.trim.lazy="v$.maxExonDist.$model"
+            v-model.number.lazy="v$.maxExonDist.$model"
             :class="{
               // 'is-valid': !v$.maxExonDist.$error,
               'is-invalid': v$.maxExonDist.$error,

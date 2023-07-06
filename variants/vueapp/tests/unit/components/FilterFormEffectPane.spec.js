@@ -122,7 +122,7 @@ describe('FilterFormEffectPane.vue', () => {
 
     await input.setValue('123')
 
-    expect(input.element.value).toBe('123')
+    expect(input.element.value).toBe(123)
   })
 
   test('effects detailed', async () => {
