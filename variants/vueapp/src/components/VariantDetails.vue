@@ -206,7 +206,11 @@ $(function () {
             role="tabpanel"
             aria-labelledby="comments-flags-tab"
           >
-            <VariantDetailsFlags />
+            <VariantDetailsFlags
+              :details-store="detailsStore"
+              :flags-store="flagsStore"
+              :variant="detailsStore.smallVariant"
+            />
             <VariantDetailsComments
               :details-store="detailsStore"
               :comments-store="commentsStore"
