@@ -1,0 +1,57 @@
+{# Projectroles dependency #}
+{% load humanize %}
+{% load cases_tags %}
+{% load projectroles_common_tags %}
+
+<tr class="sodar-ff-search-item" id="sodar-ff-search-item-{{ item.sodar_uuid }}">
+  {# Name & link column #}
+  <td>
+    <div class="sodar-overflow-container">
+      {% highlight_search_term item.name search_terms as item_display_name %}
+      <a href="{{ item.get_absolute_url }}">
+        {% autoescape off %}{{ item_display_name }}{% endautoescape %}
+      </a>
+    </div>
+  </td>
+  {# Project column #}
+  <td>
+    <div class="sodar-overflow-container">
+      <a href="{% url 'projectroles:detail' project=item.project.sodar_uuid %}">
+        {% autoescape off %}
+          {# NOTE: No highlight here as project is not searched for here #}
+          {{ item.project.title }}
+        {% endautoescape %}
+      </a>
+    </div>
+  </td>
+  {# Individuals #}
+  <td class="sodar-overflow-container">
+    {% autoescape off %}
+      {% for entry in item.pedigree %}
+        {% highlight_search_term entry.patient|only_source_name search_terms %}{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    {% endautoescape %}
+  </td>
+  <td data-order="{{ item.num_small_vars }}" class="text-right">
+    {% if item.num_small_vars is None %}
+      -
+    {% else %}
+      {{ item.num_small_vars|intcomma }}
+    {% endif %}
+  </td>
+  <td data-order="{{ item.num_svs }}" class="text-right">
+    {% if item.num_svs is None %}
+      -
+    {% else %}
+      {{ item.num_svs|intcomma }}
+    {% endif %}
+  </td>
+  <td style="width: 0px;">
+    {{ item.release }}
+  </td>
+  <td style="width: 0px;">
+    <a href="{% url "cases:entrypoint" project=item.project.sodar_uuid %}#/variants/filter/{{ item.sodar_uuid }}" title="filter case" class="btn btn-primary sodar-list-btn sodar-ss-irods-btn">
+      <i class="iconify" data-icon="mdi:filter"></i>
+    </a>
+  </td>
+</tr>
