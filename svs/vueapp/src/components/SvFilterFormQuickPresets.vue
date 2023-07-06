@@ -271,12 +271,12 @@ const quickPresetWrapper = computed({
       inheritanceWrapper.value = newQuickPresets.inheritance
       frequencyWrapper.value = newQuickPresets.frequency
       impactWrapper.value = newQuickPresets.impact
-      svTypeWrapper.value = newQuickPresets.svType
+      svTypeWrapper.value = newQuickPresets.sv_type
       chromosomesWrapper.value = newQuickPresets.chromosomes
       regulatoryWrapper.value = newQuickPresets.regulatory
       genotypeCriteriaWrapper.value = newQuickPresets.genotype_criteria
       tadWrapper.value = newQuickPresets.tad
-      knownPathoWrapper.value = newQuickPresets.knownPatho
+      knownPathoWrapper.value = newQuickPresets.known_patho
     }
     blockRefresh.value = oldBlockRefresh
   },
@@ -422,7 +422,7 @@ onMounted(() => {
         <i-mdi-arrow-down />
       </label>
       <select
-        v-model="knownPathoWrapper"
+        v-model="svTypeWrapper"
         class="custom-select custom-select-sm"
         :id="'presetsSvType-' + idSuffix"
       >

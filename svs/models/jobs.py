@@ -205,6 +205,7 @@ def run_sv_query_bg_job(pk):
         worker_results = os.path.join(tmpdir, "output.tsv")
         with open(worker_results, "rt") as inputf:
             result_row_count = sum(1 for _line in inputf) - 1
+            result_row_count = max(0, result_row_count)
         end_time = timezone.now()
         filter_job.add_log_entry("... done running the worker")
 
