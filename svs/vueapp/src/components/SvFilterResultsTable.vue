@@ -235,9 +235,7 @@ const alertOnRefGt = (callInfo) => {
 
 // Flag the given SV record as visual artifact.
 const flagAsArtifact = async (svRecord) => {
-  console.log(svRecord)
   await svFlagsStore.retrieveFlags(svRecord)
-  console.log(svFlagsStore.flags)
   if (svFlagsStore.flags) {
     // update existing flags
     const flags = {
@@ -245,7 +243,6 @@ const flagAsArtifact = async (svRecord) => {
       flag_summary: 'negative',
       flag_visual: 'negative',
     }
-    console.log(flags)
     await svFlagsStore.updateFlags(flags)
   } else {
     // create new flags
@@ -254,10 +251,8 @@ const flagAsArtifact = async (svRecord) => {
       flag_summary: 'negative',
       flag_visual: 'negative',
     }
-    console.log(flags)
     await svFlagsStore.createFlags(svRecord, flags)
   }
-  console.log(svFlagsStore.flags)
 }
 
 // Return label for effective genotype.

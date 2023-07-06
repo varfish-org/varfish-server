@@ -25,6 +25,9 @@ const inheritanceRef = ref(null)
 
 /** Refresh qualityRef from actual form values.  Check each for compatibility and pick first matching. */
 const refreshInheritanceRef = () => {
+  if (!props.categoryPresets.inheritance) {
+    return // not fully loaded yet
+  }
   for (const [presetName, presetValues] of Object.entries(
     props.categoryPresets.inheritance
   )) {
@@ -149,15 +152,18 @@ const refreshValueRefs = () => {
       props.categoryPresets[category]
     )) {
       if (category === 'genotypeCriteria') {
-        isCompatible = isEqual(
-          svFilterStore.querySettings.genotype_criteria,
-          presetValues
-        )
+        if (svFilterStore.querySettings !== null) {
+          isCompatible = isEqual(
+            svFilterStore.querySettings.genotype_criteria,
+            presetValues
+          )
+        }
       } else {
         isCompatible = true
         for (const [key, value] of Object.entries(presetValues)) {
           if (
             !_keysToStrip.includes(key) &&
+            svFilterStore.querySettings !== null &&
             !helperIsEqual(svFilterStore.querySettings[key], value)
           ) {
             isCompatible = false

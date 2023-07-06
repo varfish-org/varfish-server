@@ -392,10 +392,6 @@ const showAcmgRating = (item) => {
   showVariantDetails(item)
 }
 
-const updateSort = (sortOptions) => {
-  console.log(JSON.stringify(sortOptions))
-}
-
 const displayAmbiguousFrequencyWarning = (item) => {
   const tables = [
     'exac',
@@ -498,7 +494,6 @@ watch(
         v-model:server-options="tableServerOptions"
         table-class-name="customize-table"
         :loading="tableLoading"
-        @update-sort="updateSort"
         :body-row-class-name="tableRowClassName"
         :server-items-length="queryStore.queryResultSet.result_row_count"
         :headers="tableHeaders"

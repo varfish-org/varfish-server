@@ -93,7 +93,7 @@ watch(
 watch(
   () => filterQueryStore.filtrationComplexityMode,
   (newValue, oldValue) => {
-    if (newValue !== oldValue) {
+    if (newValue !== null && newValue !== oldValue) {
       updateUserSetting(
         filterQueryStore.csrfToken,
         'vueapp.filtration_complexity_mode',

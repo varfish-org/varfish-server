@@ -77,7 +77,7 @@ watch(
 watch(
   () => svFilterStore.filtrationComplexityMode,
   (newValue, oldValue) => {
-    if (newValue !== oldValue) {
+    if (newValue !== null && newValue !== oldValue) {
       updateUserSetting(
         svFilterStore.csrfToken,
         'vueapp.filtration_complexity_mode',
@@ -199,7 +199,7 @@ onMounted(() => {
           The query has been canceled.
         </template>
         <template v-if="svFilterStore.queryState === QueryStates.Error.value">
-          An error has occured in the query!
+          An error has occurred in the query!
           {{ svFilterStore.queryStateMsg }}
         </template>
         <template v-if="svFilterStore.queryState === QueryStates.Timeout.value">

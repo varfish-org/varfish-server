@@ -185,6 +185,7 @@ const refreshValueRefs = () => {
       for (const [key, value] of Object.entries(presetValues)) {
         if (
           !_keysToStrip.includes(key) &&
+          filterQueryStore.querySettings !== null &&
           !isEqual(filterQueryStore.querySettings[key], value)
         ) {
           isCompatible = false

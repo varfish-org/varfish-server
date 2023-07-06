@@ -281,10 +281,12 @@ export const useSvFilterStore = defineStore('filterSvs', () => {
 
   /** Initialize the store from the appContext. */
   const initialize = async (appContext, theCaseUuid) => {
-    if (storeState.value !== 'initial') {
+    if (storeState.value !== 'initial' && caseUuid.value === theCaseUuid) {
       // only once
       return initializeRes.value
     }
+    // first reset the store to avoid artifacts
+    $reset()
     storeState.value = StoreState.initializing
     storeStateMessage.value = 'Initializing...'
     serverInteractions.value += 1
@@ -352,6 +354,37 @@ export const useSvFilterStore = defineStore('filterSvs', () => {
       })
 
     return initializeRes.value
+  }
+
+  const $reset = () => {
+    storeState.value = StoreState.initial
+    storeStateMessage.value = ''
+    serverInteractions.value = 0
+    showFiltrationInlineHelp.value = false
+    filtrationComplexityMode.value = null
+    csrfToken.value = null
+    caseUuid.value = null
+    caseObj.value = null
+    querySettingsPresets.value = null
+    querySettings.value = null
+    previousQueryDetails.value = null
+    queryResultSet.value = null
+    queryState.value = QueryStates.None.value
+    queryStateMsg.value = null
+    queryLogs.value = null
+    quickPresets.value = null
+    categoryPresets.value = {
+      inheritance: null,
+      genotypeCriteria: null,
+      frequency: null,
+      impact: null,
+      svType: null,
+      chromosomes: null,
+      regulatory: null,
+      tad: null,
+      knownPatho: null,
+    }
+    initializeRes.value = null
   }
 
   return {
