@@ -8,7 +8,7 @@ set -euo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # Write /VERSION file for server to know its version.
-git describe --tags >$DIR/VERSION
+git describe --tags >$DIR/../../VERSION
 
 # Obtain version for the Docker image.
 IMAGE_TAG=${IMAGE_TAG:-adhoc}
