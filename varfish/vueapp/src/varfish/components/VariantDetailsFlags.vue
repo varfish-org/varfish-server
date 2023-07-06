@@ -5,92 +5,100 @@ import isEqual from 'lodash.isequal'
 import { copy } from '@varfish/helpers.js'
 import Overlay from '@varfish/components/Overlay.vue'
 
-import { useVariantFlagsStore } from '@variants/stores/variantFlags'
-import { useVariantDetailsStore } from '@variants/stores/variantDetails'
-
-const flagsStore = useVariantFlagsStore()
-const detailsStore = useVariantDetailsStore()
+/** The stores and small/large variant are handed in via props. */
+const props = defineProps({
+  detailsStore: Object,
+  flagsStore: Object,
+  variant: Object,
+})
 
 /** Whether to show the overlay. */
-const overlayShow = computed(() => (flagsStore?.serverInteractions ?? 0) > 0)
+const overlayShow = computed(
+  () => (props.flagsStore?.serverInteractions ?? 0) > 0
+)
 
-const flagsToSubmit = ref(copy({ ...flagsStore.initialFlagsTemplate }))
+const flagsToSubmit = ref(copy({ ...props.flagsStore.initialFlagsTemplate }))
 
 const unsetFlags = () => {
-  flagsToSubmit.value = copy(flagsStore.emptyFlagsTemplate)
+  flagsToSubmit.value = copy(props.flagsStore.emptyFlagsTemplate)
 }
 
 const flagsSubmitted = computed(() => {
-  if (!flagsStore.flags) {
+  if (!props.flagsStore.flags) {
     return false
   }
   return (
-    flagsToSubmit.value.flag_bookmarked === flagsStore.flags.flag_bookmarked &&
+    flagsToSubmit.value.flag_bookmarked ===
+      props.flagsStore.flags.flag_bookmarked &&
     flagsToSubmit.value.flag_for_validation ===
-      flagsStore.flags.flag_for_validation &&
-    flagsToSubmit.value.flag_candidate === flagsStore.flags.flag_candidate &&
+      props.flagsStore.flags.flag_for_validation &&
+    flagsToSubmit.value.flag_candidate ===
+      props.flagsStore.flags.flag_candidate &&
     flagsToSubmit.value.flag_final_causative ===
-      flagsStore.flags.flag_final_causative &&
+      props.flagsStore.flags.flag_final_causative &&
     flagsToSubmit.value.flag_no_disease_association ===
-      flagsStore.flags.flag_no_disease_association &&
-    flagsToSubmit.value.flag_segregates === flagsStore.flags.flag_segregates &&
+      props.flagsStore.flags.flag_no_disease_association &&
+    flagsToSubmit.value.flag_segregates ===
+      props.flagsStore.flags.flag_segregates &&
     flagsToSubmit.value.flag_doesnt_segregate ===
-      flagsStore.flags.flag_doesnt_segregate &&
-    flagsToSubmit.value.flag_visual === flagsStore.flags.flag_visual &&
-    flagsToSubmit.value.flag_molecular === flagsStore.flags.flag_molecular &&
-    flagsToSubmit.value.flag_validation === flagsStore.flags.flag_validation &&
+      props.flagsStore.flags.flag_doesnt_segregate &&
+    flagsToSubmit.value.flag_visual === props.flagsStore.flags.flag_visual &&
+    flagsToSubmit.value.flag_molecular ===
+      props.flagsStore.flags.flag_molecular &&
+    flagsToSubmit.value.flag_validation ===
+      props.flagsStore.flags.flag_validation &&
     flagsToSubmit.value.flag_phenotype_match ===
-      flagsStore.flags.flag_phenotype_match &&
-    flagsToSubmit.value.flag_summary === flagsStore.flags.flag_summary
+      props.flagsStore.flags.flag_phenotype_match &&
+    flagsToSubmit.value.flag_summary === props.flagsStore.flags.flag_summary
   )
 })
 
 const resetFlags = () => {
-  if (flagsStore.flags) {
-    flagsToSubmit.value.flag_bookmarked = flagsStore.flags.flag_bookmarked
+  if (props.flagsStore.flags) {
+    flagsToSubmit.value.flag_bookmarked = props.flagsStore.flags.flag_bookmarked
     flagsToSubmit.value.flag_for_validation =
-      flagsStore.flags.flag_for_validation
-    flagsToSubmit.value.flag_candidate = flagsStore.flags.flag_candidate
+      props.flagsStore.flags.flag_for_validation
+    flagsToSubmit.value.flag_candidate = props.flagsStore.flags.flag_candidate
     flagsToSubmit.value.flag_final_causative =
-      flagsStore.flags.flag_final_causative
+      props.flagsStore.flags.flag_final_causative
     flagsToSubmit.value.flag_no_disease_association =
-      flagsStore.flags.flag_no_disease_association
-    flagsToSubmit.value.flag_segregates = flagsStore.flags.flag_segregates
+      props.flagsStore.flags.flag_no_disease_association
+    flagsToSubmit.value.flag_segregates = props.flagsStore.flags.flag_segregates
     flagsToSubmit.value.flag_doesnt_segregate =
-      flagsStore.flags.flag_doesnt_segregate
-    flagsToSubmit.value.flag_visual = flagsStore.flags.flag_visual
-    flagsToSubmit.value.flag_molecular = flagsStore.flags.flag_molecular
-    flagsToSubmit.value.flag_validation = flagsStore.flags.flag_validation
+      props.flagsStore.flags.flag_doesnt_segregate
+    flagsToSubmit.value.flag_visual = props.flagsStore.flags.flag_visual
+    flagsToSubmit.value.flag_molecular = props.flagsStore.flags.flag_molecular
+    flagsToSubmit.value.flag_validation = props.flagsStore.flags.flag_validation
     flagsToSubmit.value.flag_phenotype_match =
-      flagsStore.flags.flag_phenotype_match
-    flagsToSubmit.value.flag_summary = flagsStore.flags.flag_summary
+      props.flagsStore.flags.flag_phenotype_match
+    flagsToSubmit.value.flag_summary = props.flagsStore.flags.flag_summary
   } else {
-    flagsToSubmit.value = { ...flagsStore.initialFlagsTemplate }
+    flagsToSubmit.value = { ...props.flagsStore.initialFlagsTemplate }
   }
 }
 
 const onSubmitFlags = async () => {
   const flagsToSubmitEmpty = isEqual(
     flagsToSubmit.value,
-    flagsStore.emptyFlagsTemplate
+    props.flagsStore.emptyFlagsTemplate
   )
-  if (flagsStore.flags && flagsToSubmitEmpty) {
+  if (props.flagsStore.flags && flagsToSubmitEmpty) {
     // IS not empty but SHOULD be empty, so delete the flags
-    await flagsStore.deleteFlags()
-  } else if (!flagsStore.flags && flagsToSubmitEmpty) {
+    await props.flagsStore.deleteFlags()
+  } else if (!props.flagsStore.flags && flagsToSubmitEmpty) {
     // IS empty and SHOULD be empty, so no update needed
-    flagsToSubmit.value = copy(flagsStore.initialFlagsTemplate)
-  } else if (flagsStore.flags && !flagsToSubmitEmpty) {
+    flagsToSubmit.value = copy(props.flagsStore.initialFlagsTemplate)
+  } else if (props.flagsStore.flags && !flagsToSubmitEmpty) {
     // IS not empty and SHOULD not be empty, so update the flags
-    await flagsStore.updateFlags(flagsToSubmit.value)
-  } else if (!flagsStore.flags && !flagsToSubmitEmpty) {
+    await props.flagsStore.updateFlags(flagsToSubmit.value)
+  } else if (!props.flagsStore.flags && !flagsToSubmitEmpty) {
     // IS empty but SHOULD not be empty, so create the flags
-    await flagsStore.createFlags(detailsStore.smallVariant, flagsToSubmit.value)
+    await props.flagsStore.createFlags(props.variant, flagsToSubmit.value)
   }
 }
 
 onMounted(() => {
-  flagsStore.retrieveFlags(detailsStore.smallVariant).then(() => {
+  props.flagsStore.retrieveFlags(props.variant).then(() => {
     resetFlags()
   })
 })
