@@ -17,6 +17,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 import numpy as np
+from projectroles.models import Project
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
 from rest_framework import views
 from rest_framework.exceptions import NotFound
@@ -1619,8 +1620,7 @@ class CaseListQcStatsApiView(RetrieveAPIView):
                     project.variant_stats.relatedness.all(),
                 )
             )
-
-        except project.variant_stats.RelatedObjectDoesNotExist:
+        except Project.variant_stats.RelatedObjectDoesNotExist:
             rel_data = []
 
         result = {
