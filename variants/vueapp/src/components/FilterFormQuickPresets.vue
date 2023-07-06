@@ -241,6 +241,10 @@ const quickPresetRef = ref(null)
 
 /** Refresh quick presets from actual form values.  Check each for compatibility and pick first matching. */
 const refreshQuickPreset = () => {
+  if (props.quickPresets !== null) {
+    // skip if none are there yet
+    return
+  }
   for (const [name, theQuickPresets] of Object.entries(props.quickPresets)) {
     if (
       inheritanceWrapper.value === theQuickPresets.inheritance &&
