@@ -45,7 +45,9 @@ from ..models import (
     SmallVariantQuery,
     SmallVariantSet,
     SmallVariantSummary,
-    SyncCaseListBgJob, SmallVariantQueryResultSet, SmallVariantQueryResultRow,
+    SyncCaseListBgJob,
+    SmallVariantQueryResultSet,
+    SmallVariantQueryResultRow,
 )
 
 

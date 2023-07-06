@@ -75,10 +75,7 @@ class SvQueryListCreateAjaxView(ListCreateAPIView):
 
 
 class SvQueryRetrieveUpdateDestroyAjaxViewPermission(SODARAPIProjectPermission):
-    """Project-based permission for ``SvQueryListCreateAjaxView``.
-
-    Also used for ``SvQueryRetrieveUpdateDestroyAjaxViewPermission``.
-    """
+    """Project-based permission for ``SvQueryRetrieveUpdateDestroyAjaxView``."""
 
     def get_project(self, request=None, kwargs=None):
         if "svquery" in kwargs:

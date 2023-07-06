@@ -271,6 +271,22 @@ class SmallVariantQueryListCreateApiView(ListCreateAPIView):
         return "variants.view_data"
 
 
+class SmallVariantQueryRetrieveUpdateDestroyApiViewPermission(SODARAPIProjectPermission):
+    """Project-based permission for ``SmallVariantQueryRetrieveUpdateDestroyApiView``."""
+
+    def get_project(self, request=None, kwargs=None):
+        if "smallvariantquery" in kwargs:
+            smallvariantquery = SmallVariantQuery.objects.get(sodar_uuid=kwargs["smallvariantquery"])
+            return smallvariantquery.case.project
+        elif "smallvariantqueryresultset" in kwargs:
+            smallvariantqueryresultset = SmallVariantQueryResultSet.objects.get(
+                sodar_uuid=kwargs["smallvariantqueryresultset"]
+            )
+            return smallvariantqueryresultset.smallvariantquery.case.project
+        else:
+            raise RuntimeError("Must never happen")
+
+
 class SmallVariantQueryRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView):
     """API endpoint for retrieving, updating, and deleting SmallVariant queries for a given case.
 
@@ -289,14 +305,7 @@ class SmallVariantQueryRetrieveUpdateDestroyApiView(RetrieveUpdateDestroyAPIView
     serializer_class = SmallVariantQueryWithLogsSerializer
 
     def get_queryset(self):
-        if self.request.user.is_superuser:
-            return SmallVariantQuery.objects.all()
-        elif self.request.user.is_anonymous:
-            return SmallVariantQuery.objects.none()
-        else:
-            return SmallVariantQuery.objects.filter(
-                Q(user=self.request.user) | Q(public=True)
-            ).select_related("user", "case")
+        return SmallVariantQuery.objects.all().select_related("user", "case")
 
     def get_permission_required(self):
         # TODO: only allow update/deletion of own query

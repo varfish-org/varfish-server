@@ -5,7 +5,11 @@ from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from variants.models import SmallVariantQuery
-from variants.tests.factories import CaseFactory, SmallVariantQueryFactory, SmallVariantQueryResultSetFactory
+from variants.tests.factories import (
+    CaseFactory,
+    SmallVariantQueryFactory,
+    SmallVariantQueryResultSetFactory,
+)
 
 
 class TestSmallVariantQueryListCreateApiView(TestProjectAPIPermissionBase):
@@ -30,7 +34,11 @@ class TestSmallVariantQueryListCreateApiView(TestProjectAPIPermissionBase):
 
     def test_post(self):
         url = reverse("variants:api-query-list-create", kwargs={"case": self.case.sodar_uuid})
-        data = {"query_settings": json.dumps({"effects": [], "quality": {self.case.pedigree[0]['patient']: {}}, "genotype": {}})}
+        data = {
+            "query_settings": json.dumps(
+                {"effects": [], "quality": {self.case.pedigree[0]["patient"]: {}}, "genotype": {}}
+            )
+        }
         good_users = [
             self.superuser,
             self.owner_as.user,
@@ -53,7 +61,8 @@ class TestSmallVariantQueryRetrieveUpdateDestroyApiView(TestProjectAPIPermission
 
     def test_get(self):
         url = reverse(
-            "variants:api-query-retrieve-update-destroy", kwargs={"smallvariantquery": self.query.sodar_uuid}
+            "variants:api-query-retrieve-update-destroy",
+            kwargs={"smallvariantquery": self.query.sodar_uuid},
         )
         good_users = [
             self.superuser,
@@ -70,7 +79,8 @@ class TestSmallVariantQueryRetrieveUpdateDestroyApiView(TestProjectAPIPermission
 
     def test_patch(self):
         url = reverse(
-            "variants:api-query-retrieve-update-destroy", kwargs={"smallvariantquery": self.query.sodar_uuid}
+            "variants:api-query-retrieve-update-destroy",
+            kwargs={"smallvariantquery": self.query.sodar_uuid},
         )
         data = {}
         good_users = [
@@ -112,11 +122,16 @@ class TestSmallVariantQueryResultSetListApiView(TestProjectAPIPermissionBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
-        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(smallvariantquery__case=self.case)
+        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(
+            smallvariantquery__case=self.case
+        )
         self.query = self.smallvariantqueryresultset.smallvariantquery
 
     def test_get(self):
-        url = reverse("variants:api-query-result-set-list", kwargs={"smallvariantquery": self.query.sodar_uuid})
+        url = reverse(
+            "variants:api-query-result-set-list",
+            kwargs={"smallvariantquery": self.query.sodar_uuid},
+        )
         good_users = [
             self.superuser,
             self.contributor_as.user,
@@ -135,7 +150,9 @@ class TestSmallVariantQueryResultSetRetrieveApiView(TestProjectAPIPermissionBase
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
-        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(smallvariantquery__case=self.case)
+        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(
+            smallvariantquery__case=self.case
+        )
         self.query = self.smallvariantqueryresultset.smallvariantquery
 
     def test_get(self):
@@ -161,7 +178,9 @@ class TestSmallVariantQueryResultRowListApiView(TestProjectAPIPermissionBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
-        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(smallvariantquery__case=self.case)
+        self.smallvariantqueryresultset = SmallVariantQueryResultSetFactory(
+            smallvariantquery__case=self.case
+        )
         self.query = self.smallvariantqueryresultset.smallvariantquery
 
     def test_get(self):
