@@ -4,6 +4,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { integer, minValue } from '@vuelidate/validators'
 
 import {
+  txEffectFields,
   svSubTypeGroups,
   svTypeGroups,
   svTypeFields,
@@ -21,7 +22,13 @@ const dumpSvTypes = () => {
   const result = {}
   for (const [key, value] of Object.entries(props.querySettings)) {
     if (
-      ['sv_size_min', 'sv_size_max', 'sv_types', 'sv_sub_types'].includes(key)
+      [
+        'sv_size_min',
+        'sv_size_max',
+        'sv_types',
+        'sv_sub_types',
+        'tx_effect',
+      ].includes(key)
     ) {
       result[key] = value
     }
@@ -151,6 +158,32 @@ for (const name of Object.keys(svTypeGroups)) {
   svTypeGroupIndeterminates[name] = buildSvTypeGroupIndeterminate(name)
 }
 
+// Helper that builds a wrapper for transcript effects.
+const buildTxEffectsWrapper = (key) => {
+  return computed({
+    get() {
+      return props.querySettings.tx_effects.includes(key)
+    },
+    set(value) {
+      if (value) {
+        if (!props.querySettings.tx_effects.includes(key)) {
+          props.querySettings.tx_effects.push(key)
+        }
+      } else {
+        props.querySettings.tx_effects = props.querySettings.tx_effects.filter(
+          (val) => val !== key
+        )
+      }
+    },
+  })
+}
+
+// Build wrappers for transcript effects.
+const txEffectWrappers = {}
+for (const field of txEffectFields) {
+  txEffectWrappers[field.id] = buildTxEffectsWrapper(field.id)
+}
+
 // Define the form state.
 const formState = {
   ..._vuelidateWrappers(['sv_size_min', 'sv_size_max']),
@@ -264,6 +297,7 @@ defineExpose({
         <div
           v-for="field in svTypeFields"
           class="custom-control custom-checkbox custom-control-inline"
+          :title="field.explanation"
         >
           <input
             :id="`sv-type-${field.id}`"
@@ -290,7 +324,7 @@ defineExpose({
             <div
               v-for="field in group.fields"
               class="custom-control custom-checkbox custom-control-inline"
-              title="${field.explanation}"
+              :title="field.explanation"
             >
               <input
                 :id="`sv-sub-type-${field.id}`"
@@ -306,6 +340,38 @@ defineExpose({
               </label>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 4: Transcript Effects -->
+    <div
+      class="row border-top mt-2"
+      v-if="['advanced', 'developer'].includes(props.filtrationComplexityMode)"
+    >
+      <div class="col mt-2 mb-2">
+        <h5>Transcript Effects</h5>
+        <div
+          v-if="props.showFiltrationInlineHelp"
+          class="alert alert-secondary small mt-2 p-2 mb-2"
+        >
+          <i-mdi-information />
+          Restrict result SVs by effect on transcript.
+        </div>
+        <div
+          v-for="field in txEffectFields"
+          class="custom-control custom-checkbox custom-control-inline"
+          :title="field.explanation"
+        >
+          <input
+            :id="`tx-effect-${field.id}`"
+            type="checkbox"
+            class="custom-control-input"
+            v-model="txEffectWrappers[field.id].value"
+          />
+          <label class="custom-control-label" :for="`tx-effect-${field.id}`">
+            {{ field.label }}
+          </label>
         </div>
       </div>
     </div>

@@ -9,7 +9,7 @@ from svs.query_presets import (
     GT_CRITERIA_PASS,
     GenotypeCriteriaDefinitions,
 )
-from svs.query_schemas import GenotypeCriteria
+from svs.query_schemas import GenotypeCriteria, TranscriptEffect
 from variants.query_presets import GenotypeChoice
 from variants.tests.test_query_presets import PedigreesMixin
 
@@ -112,20 +112,19 @@ class TestEnumFrequency(TestCase):
             query_presets.Frequency.CUSTOM.to_settings()
 
 
-class TestEnumImpact(TestCase):
+class TestEnumSvtype(TestCase):
     def setUp(self) -> None:
         super().setUp()
         self.maxDiff = None
 
     def testValues(self):
-        self.assertEqual(query_presets.Impact.ANY.value, "any")
-        self.assertEqual(query_presets.Impact.ALMOST_ALL.value, "almost_all")
-        self.assertEqual(query_presets.Impact.CNV_ONLY.value, "cnv_only")
-        self.assertEqual(query_presets.Impact.CUSTOM.value, "custom")
+        self.assertEqual(query_presets.SvType.ANY.value, "any")
+        self.assertEqual(query_presets.SvType.CNVS_LARGE.value, "cnvs_large")
+        self.assertEqual(query_presets.SvType.CNVS_EXTRA_LARGE.value, "cnvs_extra_large")
 
     def testToSettingsAny(self):
         self.assertEqual(
-            query_presets.Impact.ANY.to_settings(),
+            query_presets.SvType.ANY.to_settings(),
             {
                 "sv_size_max": None,
                 "sv_size_min": None,
@@ -150,33 +149,12 @@ class TestEnumImpact(TestCase):
             },
         )
 
-    def testToSettingsAlmostAll(self):
+    def testToSettingsCnvsLarge(self):
         self.assertEqual(
-            query_presets.Impact.ALMOST_ALL.to_settings(),
+            query_presets.SvType.CNVS_LARGE.to_settings(),
             {
                 "sv_size_max": None,
-                "sv_size_min": None,
-                "sv_sub_types": [
-                    "DEL",
-                    "DEL:ME",
-                    "DEL:ME:SVA",
-                    "DEL:ME:L1",
-                    "DEL:ME:ALU",
-                    "DUP",
-                    "DUP:TANDEM",
-                    "CNV",
-                    "INV",
-                ],
-                "sv_types": ["DEL", "DUP", "CNV", "INV"],
-            },
-        )
-
-    def testToSettingsCnvOnly(self):
-        self.assertEqual(
-            query_presets.Impact.CNV_ONLY.to_settings(),
-            {
-                "sv_size_max": None,
-                "sv_size_min": None,
+                "sv_size_min": 500,
                 "sv_sub_types": [
                     "DEL",
                     "DEL:ME",
@@ -188,6 +166,84 @@ class TestEnumImpact(TestCase):
                     "CNV",
                 ],
                 "sv_types": ["DEL", "DUP", "CNV"],
+            },
+        )
+
+    def testToSettingsCnvsExtraLarge(self):
+        self.assertEqual(
+            query_presets.SvType.CNVS_EXTRA_LARGE.to_settings(),
+            {
+                "sv_size_max": None,
+                "sv_size_min": 10000,
+                "sv_sub_types": [
+                    "DEL",
+                    "DEL:ME",
+                    "DEL:ME:SVA",
+                    "DEL:ME:L1",
+                    "DEL:ME:ALU",
+                    "DUP",
+                    "DUP:TANDEM",
+                    "CNV",
+                ],
+                "sv_types": ["DEL", "DUP", "CNV"],
+            },
+        )
+
+    def testToSettingsCustom(self):
+        with self.assertRaises(AttributeError):
+            query_presets.SvType.CUSTOM.to_settings()
+
+
+class TestEnumImpact(TestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.maxDiff = None
+
+    def testValues(self):
+        self.assertEqual(query_presets.Impact.ANY.value, "any")
+        self.assertEqual(query_presets.Impact.NEAR_GENE.value, "near_gene")
+        self.assertEqual(query_presets.Impact.EXONIC.value, "exonic")
+
+    def testToSettingsAny(self):
+        self.assertEqual(
+            query_presets.Impact.ANY.to_settings(),
+            {
+                "tx_effects": [
+                    "transcript_variant",
+                    "exon_variant",
+                    "splice_region_variant",
+                    "intron_variant",
+                    "upstream_variant",
+                    "downstream_variant",
+                    "intergenic_variant",
+                ]
+            },
+        )
+
+    def testToSettingsNearGene(self):
+        self.assertEqual(
+            query_presets.Impact.NEAR_GENE.to_settings(),
+            {
+                "tx_effects": [
+                    "transcript_variant",
+                    "exon_variant",
+                    "splice_region_variant",
+                    "intron_variant",
+                    "upstream_variant",
+                    "downstream_variant",
+                ]
+            },
+        )
+
+    def testToSettingsExonic(self):
+        self.assertEqual(
+            query_presets.Impact.EXONIC.to_settings(),
+            {
+                "tx_effects": [
+                    "transcript_variant",
+                    "exon_variant",
+                    "splice_region_variant",
+                ]
             },
         )
 
@@ -325,55 +381,55 @@ class TestQuickPresets(PedigreesMixin, TestCase):
     def testValueDefaults(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.defaults),
-            "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueDeNovo(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.de_novo),
-            "QuickPresets(label='de novo', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='de novo', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.NEAR_GENE: 'near_gene'>, sv_type=<SvType.CNVS_LARGE: 'cnvs_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueDominant(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.dominant),
-            "QuickPresets(label='dominant', inheritance=<Inheritance.DOMINANT: 'dominant'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='dominant', inheritance=<Inheritance.DOMINANT: 'dominant'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueHomozygousRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.homozygous_recessive),
-            "QuickPresets(label='homozygous recessive', inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='homozygous recessive', inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueHeterozygousRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.compound_heterozygous),
-            "QuickPresets(label='compound heterozygous', inheritance=<Inheritance.COMPOUND_HETEROZYGOUS: 'compound_heterozygous'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='compound heterozygous', inheritance=<Inheritance.COMPOUND_HETEROZYGOUS: 'compound_heterozygous'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueXRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.x_recessive),
-            "QuickPresets(label='X-recessive', inheritance=<Inheritance.X_RECESSIVE: 'x_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='X-recessive', inheritance=<Inheritance.X_RECESSIVE: 'x_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueClinvarPathogenic(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.defaults),
-            "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueMitochondrial(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.mitochondrial),
-            "QuickPresets(label='mitochondrial', inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, frequency=<Frequency.ANY: 'any'>, impact=<Impact.ANY: 'any'>, chromosomes=<Chromosomes.MT_CHROMOSOME: 'mt_chromosome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='mitochondrial', inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, frequency=<Frequency.ANY: 'any'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.MT_CHROMOSOME: 'mt_chromosome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueWholeGenome(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.whole_genome),
-            "QuickPresets(label='whole genome', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.ANY: 'any'>, impact=<Impact.ANY: 'any'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='whole genome', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.ANY: 'any'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testToSettingsDefaults(self):
@@ -724,7 +780,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "regulatory_overlap": 100,
                 "regulatory_vista_validation": None,
                 "sv_size_max": None,
-                "sv_size_min": None,
+                "sv_size_min": 10000,
                 "sv_sub_types": [
                     "DEL",
                     "DEL:ME",
@@ -734,15 +790,8 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                     "DUP",
                     "DUP:TANDEM",
                     "CNV",
-                    "INV",
-                    "INS",
-                    "INS:ME",
-                    "INS:ME:SVA",
-                    "INS:ME:L1",
-                    "INS:ME:ALU",
-                    "BND",
                 ],
-                "sv_types": ["DEL", "DUP", "INV", "INS", "BND", "CNV"],
+                "sv_types": ["DEL", "DUP", "CNV"],
                 "svdb_dbvar_enabled": True,
                 "svdb_dbvar_max_count": None,
                 "svdb_dbvar_min_overlap": 0.75,
@@ -765,6 +814,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                 "svdb_inhouse_max_count": 5,
                 "svdb_inhouse_min_overlap": 0.75,
                 "tad_set": "hesc",
+                "tx_effects": ["transcript_variant", "exon_variant", "splice_region_variant"],
             },
         )
 

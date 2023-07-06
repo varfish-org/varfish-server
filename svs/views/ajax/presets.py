@@ -18,6 +18,7 @@ from svs.query_presets import (
     KNOWN_PATHO_PRESETS,
     QUICK_PRESETS,
     REGULATORY_PRESETS,
+    SVTYPE_PRESETS,
     TAD_PRESETS,
     Inheritance,
 )
@@ -49,6 +50,7 @@ class SvCategoryPresetsApiView(
             "known_patho": KNOWN_PATHO_PRESETS,
             "frequency": FREQUENCY_PRESETS,
             "impact": IMPACT_PRESETS,
+            "sv_type": SVTYPE_PRESETS,
             "chromosomes": CHROMOSOME_PRESETS,
             "regulatory": REGULATORY_PRESETS,
             "tad": TAD_PRESETS,

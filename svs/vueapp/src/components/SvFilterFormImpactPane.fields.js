@@ -143,3 +143,42 @@ export const svTypeFields = Object.freeze([
   { id: 'BND', label: 'Break-Ends' },
   { id: 'CNV', label: 'CNVs' },
 ])
+
+export const txEffectFields = Object.freeze([
+  {
+    id: 'transcript_variant',
+    label: 'whole transcript',
+    explanation: 'the whole transcript is affected',
+  },
+  {
+    id: 'exon_variant',
+    label: 'exonic',
+    explanation: 'at least one exon is affected',
+  },
+  {
+    id: 'splice_region_variant',
+    label: 'splic region',
+    explanation:
+      'the first/last 3bp of an exon or first/last 8bp of an intron are affected',
+  },
+  {
+    id: 'intron_variant',
+    label: 'intronic',
+    explanation: 'an intron is affected',
+  },
+  {
+    id: 'upstream_variant',
+    label: 'upstream (5kbp)',
+    explanation: 'upstream region of 5kbp is affected',
+  },
+  {
+    id: 'downstream_variant',
+    label: 'downstream (5kbp)',
+    explanation: 'downstream region of 5kbp is affected',
+  },
+  {
+    id: 'intergenic_variant',
+    label: 'include intergenic',
+    explanation: 'also include intergenic variants (none of the other impacts)',
+  },
+])
