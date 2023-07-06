@@ -1,0 +1,28 @@
+{
+  "pedigree": [
+    {
+      "sex": 2,
+      "father": "Case_1_father-N1-DNA1-WGS1",
+      "mother": "Case_1_mother-N1-DNA1-WGS1",
+      "name": "Case_1_index-N1-DNA1-WGS1",
+      "affected": 2,
+      "has_gt_entries": true
+    },
+    {
+      "sex": 1,
+      "father": "0",
+      "mother": "0",
+      "name": "Case_1_father-N1-DNA1-WGS1",
+      "affected": 2,
+      "has_gt_entries": true
+    },
+    {
+      "sex": 2,
+      "father": "0",
+      "mother": "0",
+      "name": "Case_1_mother-N1-DNA1-WGS1",
+      "affected": 1,
+      "has_gt_entries": true
+    }
+  ]
+}

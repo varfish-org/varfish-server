@@ -1,0 +1,50 @@
+[
+  {
+    "genomebuild": "GRCh37",
+    "table": "clinvar",
+    "timestamp": "2023-03-10T11:35:53.930173Z",
+    "release": "20210728"
+  },
+  {
+    "genomebuild": "GRCh37",
+    "table": "exac",
+    "timestamp": "2023-03-10T11:35:53.933422Z",
+    "release": "r1.0"
+  },
+  {
+    "genomebuild": "GRCh37",
+    "table": "gnomad_exomes",
+    "timestamp": "2023-03-10T11:35:53.936224Z",
+    "release": "r2.1.1"
+  },
+  {
+    "genomebuild": "GRCh37",
+    "table": "gnomad_genomes",
+    "timestamp": "2023-03-10T11:35:53.939080Z",
+    "release": "r2.1.1"
+  },
+  {
+    "genomebuild": "GRCh37",
+    "table": "hgmd_public",
+    "timestamp": "2023-03-10T11:35:53.941863Z",
+    "release": "ensembl_r104"
+  },
+  {
+    "genomebuild": "GRCh37",
+    "table": "thousand_genomes",
+    "timestamp": "2023-03-10T11:35:53.945427Z",
+    "release": "v3.20101123"
+  },
+  {
+    "genomebuild": "GRCh37",
+    "table": "varfish-annotator",
+    "timestamp": "2023-03-10T11:35:53.948175Z",
+    "release": "0.25"
+  },
+  {
+    "genomebuild": "GRCh37",
+    "table": "varfish-annotator-db",
+    "timestamp": "2023-03-10T11:35:53.950817Z",
+    "release": "r20210728b"
+  }
+]
