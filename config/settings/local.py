@@ -81,31 +81,6 @@ CELERY_TASK_EAGER_PROPAGATES = False
 # ------------------------------------------------------------------------------
 INSTALLED_APPS += ["django_extensions"]
 
-# VarFish Microservices
-#
-# Setup of the "microservices" such as viguno, mehari, annonars, and nginx.
-# ------------------------------------------------------------------------------
-VARFISH_BACKEND_URL_ANNONARS = env.str(
-    "VARFISH_BACKEND_URL_ANNONARS", default="http://localhost:3001"
-)
-VARFISH_BACKEND_URL_MEHARI = env.str("VARFISH_BACKEND_URL_MEHARI", default="http://localhost:3002")
-VARFISH_BACKEND_URL_VIGUNO = env.str("VARFISH_BACKEND_URL_VIGUNO", default="http://localhost:3003")
-VARFISH_BACKEND_URL_NGINX = env.str("VARFISH_BACKEND_URL_NGINX", default="http://localhost:3004")
-
-# URL prefix through the front reverse proxy (traefik for production).
-VARFISH_BACKEND_URL_PREFIX_ANNONARS = env.str(
-    "VARFISH_BACKEND_URL_PREFIX_ANNONARS", default="/proxy/varfish/annonars"
-)
-VARFISH_BACKEND_URL_PREFIX_MEHARI = env.str(
-    "VARFISH_BACKEND_URL_PREFIX_MEHARI", default="/proxy/varfish/mehari"
-)
-VARFISH_BACKEND_URL_PREFIX_VIGUNO = env.str(
-    "VARFISH_BACKEND_URL_PREFIX_VIGUNO", default="/proxy/varfish/viguno"
-)
-VARFISH_BACKEND_URL_PREFIX_NGINX = env.str(
-    "VARFISH_BACKEND_URL_PREFIX_NGINX", default="/proxy/varfish/nginx"
-)
-
 # TESTING
 # ------------------------------------------------------------------------------
 TEST_RUNNER = "django.test.runner.DiscoverRunner"

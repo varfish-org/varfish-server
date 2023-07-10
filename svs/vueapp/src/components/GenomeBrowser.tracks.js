@@ -115,7 +115,6 @@ const bgDbTracks = [
     displayMode: 'SQUISHED',
     url: `/proxy/varfish/nginx/grch37/${token}.bed.gz`,
     indexURL: `/proxy/varfish/nginx/grch37/${token}.bed.gz.tbi`,
-    format: 'annotation',
     color: 'black',
   }
 })
