@@ -947,4 +947,3 @@ VARFISH_BACKEND_URL_PREFIX_VIGUNO = env.str(
 VARFISH_BACKEND_URL_PREFIX_NGINX = env.str(
     "VARFISH_BACKEND_URL_PREFIX_NGINX", default="/proxy/varfish/nginx"
 )
-
