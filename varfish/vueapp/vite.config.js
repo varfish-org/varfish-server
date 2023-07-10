@@ -20,6 +20,12 @@ export default defineConfig({
         cohorts: resolve(__dirname, './src/cohorts/main.js'),
       },
     },
+    target: 'es2020',
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'es2020',
+    },
   },
   plugins: [
     Vue(),

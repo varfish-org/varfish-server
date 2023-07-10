@@ -2,74 +2,56 @@ const visibilityWindow = 10000000
 
 const hescTadTrack = {
   name: 'hESC TADs',
-  sourceType: 'custom',
+  sourceType: 'annotation',
+  format: 'bed',
   visibilityWindow,
-  source: {
-    url: `/svs/worker/tads/grch37/hesc/?padding=1&chromosome=$CHR&begin=$START&end=$END`,
-    method: 'GET',
-    contentType: 'application/json',
-    mappings: {
-      chr: 'chromosome',
-      start: 'begin',
-    },
-    queryable: true,
-  },
-  format: 'annotation',
+  url: '/proxy/varfish/nginx/grch37/hesc.bed',
   color: 'gray',
 }
 
 const curatedMmsTrack = {
   name: 'Curated MMS',
-  sourceType: 'custom',
+  sourceType: 'annotation',
+  format: 'bed',
   visibilityWindow,
-  source: {
-    url: `/svs/worker/pathogenic/grch37/?chromosome=$CHR&begin=$START&end=$END`,
-    method: 'GET',
-    contentType: 'application/json',
-    mappings: {
-      chr: 'chromosome',
-      start: 'begin',
-    },
-    queryable: true,
-  },
-  format: 'annotation',
+  url: '/proxy/varfish/nginx/grch37/patho-mms.bed',
   color: 'red',
 }
 
-const clinvarTrack = {
-  name: 'ClinVar SVs',
-  sourceType: 'custom',
-  visibilityWindow,
-  height: 100,
-  displayMode: 'SQUISHED',
-  source: {
-    url: `/svs/worker/clinvar/grch37/?min_pathogenicity=likely-pathogenic&chromosome=$CHR&begin=$START&end=$END`,
-    method: 'GET',
-    contentType: 'application/json',
-    mappings: {
-      chr: 'chromosome',
-      start: 'begin',
-    },
-    queryable: true,
-  },
-  format: 'annotation',
-  colorBy: 'pathogenicity',
-  colorTable: {
-    pathogenic: 'red',
-    'likely-pathogenic': 'orange',
-    uncertain: 'blue',
-    'likely-benign': 'gray',
-    benign: 'light gray',
-  },
-}
+// const clinvarTrack = {
+//   name: 'ClinVar SVs',
+//   sourceType: 'custom',
+//   visibilityWindow,
+//   height: 100,
+//   displayMode: 'SQUISHED',
+//   source: {
+//     url: `/svs/worker/clinvar/grch37/?min_pathogenicity=likely-pathogenic&chromosome=$CHR&begin=$START&end=$END`,
+//     method: 'GET',
+//     contentType: 'application/json',
+//     mappings: {
+//       chr: 'chromosome',
+//       start: 'begin',
+//     },
+//     queryable: true,
+//   },
+//   format: 'annotation',
+//   colorBy: 'pathogenicity',
+//   colorTable: {
+//     pathogenic: 'red',
+//     'likely-pathogenic': 'orange',
+//     uncertain: 'blue',
+//     'likely-benign': 'gray',
+//     benign: 'light gray',
+//   },
+// }
 
 const duplicationTrack = {
   name: 'UCSC Segmental Duplications',
   sourceType: 'annotation',
   format: 'bed',
   visibilityWindow,
-  url: '/svs/tracks/grch37/ucsc_genomicSuperDups.bed.gz',
-  indexURL: '/svs/tracks/grch37/ucsc_genomicSuperDups.bed.gz.tbi',
+  url: '/proxy/varfish/nginx/grch37/genomicSuperDups.bed.gz',
+  indexURL: '/proxy/varfish/nginx/grch37/genomicSuperDups.bed.gz.tbi',
   color: 'black',
 }
 
@@ -78,8 +60,8 @@ const repeatsTrack = {
   sourceType: 'annotation',
   format: 'bed',
   visibilityWindow,
-  url: '/svs/tracks/grch37/ucsc_rmsk.bed.gz',
-  indexURL: '/svs/tracks/grch37/ucsc_rmsk.bed.gz.tbi',
+  url: '/proxy/varfish/nginx/grch37/rmsk.bed.gz',
+  indexURL: '/proxy/varfish/nginx/grch37/rmsk.bed.gz.tbi',
   color: 'black',
 }
 
@@ -88,8 +70,8 @@ const altTrack = {
   sourceType: 'annotation',
   format: 'bed',
   visibilityWindow,
-  url: '/svs/tracks/grch37/ucsc_altSeqLiftOverPsl.bed.gz',
-  indexURL: '/svs/tracks/grch37/ucsc_altSeqLiftOverPsl.bed.gz.tbi',
+  url: '/proxy/varfish/nginx/grch37/altSeqLiftOverPsl.bed.gz',
+  indexURL: '/proxy/varfish/nginx/grch37/altSeqLiftOverPsl.bed.gz.tbi',
   color: 'black',
 }
 
@@ -98,19 +80,19 @@ const fixTrack = {
   sourceType: 'annotation',
   format: 'bed',
   visibilityWindow,
-  url: '/svs/tracks/grch37/ucsc_fixSeqLiftOverPsl.bed.gz',
-  indexURL: '/svs/tracks/grch37/ucsc_fixSeqLiftOverPsl.bed.gz.tbi',
+  url: '/proxy/varfish/nginx/grch37/fixSeqLiftOverPsl.bed.gz',
+  indexURL: '/proxy/varfish/nginx/grch37/fixSeqLiftOverPsl.bed.gz.tbi',
   color: 'black',
 }
 
 const bgDbTracks = [
-  {
-    title: 'In-House SVs',
-    token: 'inhouse',
-  },
+  // {
+  //   title: 'In-House SVs',
+  //   token: 'inhouse',
+  // },
   {
     title: 'gnomad-SV',
-    token: 'gnomad-sv',
+    token: 'gnomad',
   },
   {
     title: 'DGV SVs',
@@ -127,19 +109,12 @@ const bgDbTracks = [
 ].map(({ title, token }) => {
   return {
     name: title,
-    sourceType: 'custom',
+    sourceType: 'annotation',
+    format: 'bed',
     visibilityWindow,
     displayMode: 'SQUISHED',
-    source: {
-      url: `/svs/worker/bgdb/grch37/${token}/?chromosome=$CHR&begin=$START&end=$END`,
-      method: 'GET',
-      contentType: 'application/json',
-      mappings: {
-        chr: 'chromosome',
-        start: 'begin',
-      },
-      queryable: true,
-    },
+    url: `/proxy/varfish/nginx/grch37/${token}.bed.gz`,
+    indexURL: `/proxy/varfish/nginx/grch37/${token}.bed.gz.tbi`,
     format: 'annotation',
     color: 'black',
   }
@@ -151,7 +126,7 @@ export const publicTracks = [
   fixTrack,
   hescTadTrack,
   curatedMmsTrack,
-  clinvarTrack,
+  // clinvarTrack,
 ].concat(bgDbTracks)
 
 export const genCaseTrack = (caseUuid) => ({

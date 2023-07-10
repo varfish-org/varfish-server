@@ -145,6 +145,32 @@ CACHES = {
 # Your production stuff: Below this line define 3rd party library settings
 # ------------------------------------------------------------------------------
 
+# VarFish Microservices
+#
+# Setup of the "microservices" such as viguno, mehari, annonars, and nginx.
+# ------------------------------------------------------------------------------
+
+# URLs to the internal microservices.
+VARFISH_BACKEND_URL_ANNONARS = env.str("VARFISH_BACKEND_URL_ANNONARS", default="http://annonars")
+VARFISH_BACKEND_URL_MEHARI = env.str("VARFISH_BACKEND_URL_MEHARI", default="http://mehari")
+VARFISH_BACKEND_URL_VIGUNO = env.str("VARFISH_BACKEND_URL_VIGUNO", default="http://viguno")
+VARFISH_BACKEND_URL_NGINX = env.str("VARFISH_BACKEND_URL_NGINX", default="http://nginx")
+
+# URL prefix through the front reverse proxy (traefik for production).
+VARFISH_BACKEND_URL_PREFIX_ANNONARS = env.str(
+    "VARFISH_BACKEND_URL_PREFIX_ANNONARS", default="/proxy/varfish/annonars"
+)
+VARFISH_BACKEND_URL_PREFIX_MEHARI = env.str(
+    "VARFISH_BACKEND_URL_PREFIX_MEHARI", default="/proxy/varfish/mehari"
+)
+VARFISH_BACKEND_URL_PREFIX_VIGUNO = env.str(
+    "VARFISH_BACKEND_URL_PREFIX_VIGUNO", default="/proxy/varfish/viguno"
+)
+VARFISH_BACKEND_URL_PREFIX_NGINX = env.str(
+    "VARFISH_BACKEND_URL_PREFIX_NGINX", default="/proxy/varfish/nginx"
+)
+
+
 # WEBPACK / VUE.JS CONFIGURATION
 # ------------------------------------------------------------------------------
 # STATICFILES_DIRS.append(str(ROOT_DIR("clinvar_export/vueapp/dist")))

@@ -95,6 +95,35 @@ urlpatterns += [
             ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
         ),
     ),
+    # Augment URL patterns with proxy for local services.
+    url(
+        r"^proxy/varfish/annonars/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url=settings.VARFISH_BACKEND_URL_NGINX,
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
+    url(
+        r"^proxy/varfish/mehari/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url=settings.VARFISH_BACKEND_URL_MEHARI,
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
+    url(
+        r"^proxy/varfish/nginx/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url=settings.VARFISH_BACKEND_URL_NGINX,
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
+    url(
+        r"^proxy/varfish/viguno/(?P<url>.*)$",
+        HttpProxy.as_view(
+            base_url=settings.VARFISH_BACKEND_URL_VIGUNO,
+            ignored_request_headers=HttpProxy.ignored_upstream_headers + ["cookie"],
+        ),
+    ),
 ]
 
 if settings.DEBUG:

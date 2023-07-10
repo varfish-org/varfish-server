@@ -62,6 +62,12 @@ class EntrypointView(
                 "exomiser_enabled": settings.VARFISH_ENABLE_EXOMISER_PRIORITISER,
                 "cadd_enabled": settings.VARFISH_ENABLE_CADD,
                 "extra_anno_fields": extra_anno_fields,
+                "url_prefixes": {
+                    "annonars": settings.VARFISH_BACKEND_URL_PREFIX_ANNONARS,
+                    "mehari": settings.VARFISH_BACKEND_URL_PREFIX_MEHARI,
+                    "viguno": settings.VARFISH_BACKEND_URL_PREFIX_VIGUNO,
+                    "nginx": settings.VARFISH_BACKEND_URL_PREFIX_NGINX,
+                },
             }
         )
         return context
