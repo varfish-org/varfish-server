@@ -1,4 +1,5 @@
 """Factory Boy factory classes for ``variants``."""
+import datetime
 import typing
 import uuid
 
@@ -7,6 +8,7 @@ from bgjobs.tests.factories import BackgroundJobFactory
 import binning
 from django.utils import timezone
 import factory
+from factory.fuzzy import FuzzyDateTime
 from projectroles.models import SODAR_CONSTANTS, RemoteSite
 
 from config.settings.base import VARFISH_CADD_SUBMISSION_VERSION
@@ -41,6 +43,8 @@ from ..models import (
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
+    SmallVariantQueryResultRow,
+    SmallVariantQueryResultSet,
     SmallVariantSet,
     SmallVariantSummary,
     SyncCaseListBgJob,
@@ -715,6 +719,45 @@ class SmallVariantSummaryFactory(factory.django.DjangoModelFactory):
     def fix_bins(obj, *args, **kwargs):
         obj.bin = binning.assign_bin(obj.start - 1, obj.end)
         obj.save()
+
+
+class SmallVariantQueryResultSetFactory(factory.django.DjangoModelFactory):
+    """Factory for ``SmallVariantQueryResult`` model."""
+
+    class Meta:
+        model = SmallVariantQueryResultSet
+
+    smallvariantquery = factory.SubFactory(SmallVariantQueryFactory)
+
+    start_time = FuzzyDateTime(timezone.now())
+    end_time = factory.LazyAttribute(lambda o: o.start_time + datetime.timedelta(hours=1))
+    elapsed_seconds = factory.LazyAttribute(lambda o: (o.end_time - o.start_time).total_seconds())
+    result_row_count = 0
+
+
+class SmallVariantQueryResultRowFactory(factory.django.DjangoModelFactory):
+    """Factory for ``SmallVariantQueryResultRow`` model."""
+
+    class Meta:
+        model = SmallVariantQueryResultRow
+
+    smallvariantqueryresultset = factory.SubFactory(SmallVariantQueryResultSetFactory)
+
+    release = "GRCh37"
+    chromosome = factory.Iterator(list(map(str, range(1, 23))) + ["X", "Y"])
+    chromosome_no = factory.Iterator(list(range(1, 25)))
+
+    @factory.lazy_attribute
+    def bin(self):
+        if self.chromosome == self.chromosome2:
+            return binning.assign_bin(self.start, self.end)
+        else:
+            return binning.assign_bin(self.start, self.start + 1)
+
+    start = factory.Sequence(lambda n: (n + 1) * 100)
+    end = factory.Sequence(lambda n: (n + 1) * 100 + 100)
+
+    payload = {}
 
 
 class FilterBgJobFactory(factory.django.DjangoModelFactory):
