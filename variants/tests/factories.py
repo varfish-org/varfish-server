@@ -43,11 +43,11 @@ from ..models import (
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
+    SmallVariantQueryResultRow,
+    SmallVariantQueryResultSet,
     SmallVariantSet,
     SmallVariantSummary,
     SyncCaseListBgJob,
-    SmallVariantQueryResultSet,
-    SmallVariantQueryResultRow,
 )
 
 

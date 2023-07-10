@@ -276,7 +276,9 @@ class SmallVariantQueryRetrieveUpdateDestroyApiViewPermission(SODARAPIProjectPer
 
     def get_project(self, request=None, kwargs=None):
         if "smallvariantquery" in kwargs:
-            smallvariantquery = SmallVariantQuery.objects.get(sodar_uuid=kwargs["smallvariantquery"])
+            smallvariantquery = SmallVariantQuery.objects.get(
+                sodar_uuid=kwargs["smallvariantquery"]
+            )
             return smallvariantquery.case.project
         elif "smallvariantqueryresultset" in kwargs:
             smallvariantqueryresultset = SmallVariantQueryResultSet.objects.get(

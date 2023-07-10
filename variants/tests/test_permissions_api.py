@@ -9,6 +9,7 @@ from variants.tests.factories import (
     CaseFactory,
     SmallVariantQueryFactory,
     SmallVariantQueryResultSetFactory,
+    SmallVariantSetFactory,
 )
 
 
@@ -16,6 +17,7 @@ class TestSmallVariantQueryListCreateApiView(TestProjectAPIPermissionBase):
     def setUp(self):
         super().setUp()
         self.case = CaseFactory(project=self.project)
+        SmallVariantSetFactory(case=self.case)
 
     def test_get(self):
         url = reverse("variants:api-query-list-create", kwargs={"case": self.case.sodar_uuid})
