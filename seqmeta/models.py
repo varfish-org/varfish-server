@@ -58,9 +58,9 @@ class TargetBedFile(models.Model):
     """An file belonging to an enrichment kit."""
 
     #: Constant for GRCh37
-    GRCH37 = "GRCh37"
+    GRCH37 = "grch37"
     #: Constant for GRCh38
-    GRCH38 = "GRCh38"
+    GRCH38 = "grch38"
     #: Options for field genome_release
     GENOME_RELEASE_CHOICES = [
         (GRCH37, "GRCh37"),

@@ -1,20 +1,20 @@
 from projectroles.views_api import SODARAPIGenericProjectMixin
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
-from varannos.models import VarAnnoSet, VarAnnoSetEntry
-from varannos.serializers import VarAnnoSetEntrySerializer, VarAnnoSetSerializer
+from seqmeta.models import EnrichmentKit, TargetBedFile
+from seqmeta.serializers import EnrichmentKitSerializer, TargetBedFileSerializer
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 
 
-class VarAnnoSetListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAPIView):
-    """DRF list-create API view the ``VarAnnoSet`` model."""
+class EnrichmentKitListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAPIView):
+    """DRF list-create API view the ``EnrichmentKit`` model."""
 
-    serializer_class = VarAnnoSetSerializer
+    serializer_class = EnrichmentKitSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
 
     def get_queryset(self):
-        return VarAnnoSet.objects.filter(project=self.get_project())
+        return EnrichmentKit.objects.filter(project=self.get_project())
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
@@ -23,76 +23,76 @@ class VarAnnoSetListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAPIView
 
     def get_permission_required(self):
         if self.request.method == "POST":
-            return "varannos.create_data"
+            return "seqmeta.create_data"
         else:
-            return "varannose.view_data"
+            return "seqmeta.view_data"
 
 
-class VarAnnoSetRetrieveUpdateDestroyApiView(
+class EnrichmentKitRetrieveUpdateDestroyApiView(
     SODARAPIGenericProjectMixin, RetrieveUpdateDestroyAPIView
 ):
-    """DRF retrieve-update-destroy API view for the ``VarAnnoSet`` model."""
+    """DRF retrieve-update-destroy API view for the ``EnrichmentKit`` model."""
 
     lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "varannoset"
+    lookup_url_kwarg = "enrichmentkit"
 
-    serializer_class = VarAnnoSetSerializer
+    serializer_class = EnrichmentKitSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
 
     def get_permission_required(self):
         if self.request.method == "GET":
-            return "varannos.view_data"
+            return "seqmeta.view_data"
         elif self.request.method == "DELETE":
-            return "varannos.delete_data"
+            return "seqmeta.delete_data"
         else:
-            return "varannos.update_data"
+            return "seqmeta.update_data"
 
 
-class VarAnnoSetEntryListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAPIView):
-    """DRF list-create API view the ``VarAnnoSetEntry`` model."""
+class TargetBedFileListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAPIView):
+    """DRF list-create API view the ``TargetBedFile`` model."""
 
-    serializer_class = VarAnnoSetEntrySerializer
+    serializer_class = TargetBedFileSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
 
     def get_queryset(self):
-        return VarAnnoSetEntry.objects.filter(varannoset=self.get_varannoset())
+        return TargetBedFile.objects.filter(enrichmentkit=self.get_enrichmentkit())
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
-        result["varannoset"] = self.get_varannoset()
+        result["enrichmentkit"] = self.get_enrichmentkit()
         return result
 
-    def get_varannoset(self):
-        return VarAnnoSet.objects.get(sodar_uuid=self.kwargs["varannoset"])
+    def get_enrichmentkit(self):
+        return EnrichmentKit.objects.get(sodar_uuid=self.kwargs["enrichmentkit"])
 
     def get_permission_required(self):
         if self.request.method == "POST":
-            return "varannos.create_data"
+            return "seqmeta.create_data"
         else:
-            return "varannose.view_data"
+            return "seqmeta.view_data"
 
 
-class VarAnnoSetEntryRetrieveUpdateDestroyApiView(
+class TargetBedFileRetrieveUpdateDestroyApiView(
     SODARAPIGenericProjectMixin, RetrieveUpdateDestroyAPIView
 ):
-    """DRF retrieve-update-destroy API view for the ``VarAnnoSetEntry`` model."""
+    """DRF retrieve-update-destroy API view for the ``TargetBedFile`` model."""
 
     lookup_field = "sodar_uuid"
-    lookup_url_kwarg = "varannosetentry"
+    lookup_url_kwarg = "targetbedfile"
 
-    serializer_class = VarAnnoSetEntrySerializer
+    serializer_class = TargetBedFileSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
 
     def get_queryset(self):
-        return VarAnnoSetEntry.objects.all()
+        return TargetBedFile.objects.all()
 
     def get_permission_required(self):
         if self.request.method == "GET":
-            return "varannos.view_data"
+            return "seqmeta.view_data"
         elif self.request.method == "DELETE":
-            return "varannos.delete_data"
+            return "seqmeta.delete_data"
         else:
-            return "varannos.update_data"
+            return "seqmeta.update_data"

@@ -32,7 +32,7 @@ api_urlpatterns = [
     ),
     url(
         regex=r"^api/targetbedfile/list-create/(?P<enrichmenkit>[0-9a-f-]+)/?$",
-        view=views_api.TargetBedFileCreateApiView.as_view(),
+        view=views_api.TargetBedFileListCreateApiView.as_view(),
         name="api-targetbedfile-listcreate",
     ),
     url(
