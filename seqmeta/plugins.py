@@ -22,7 +22,7 @@ class SiteAppPlugin(SiteAppPluginPoint):
     description = "Sequencing Metadata"
 
     #: Entry point URL ID
-    entry_point_url_id = "seqmeta:enrichmentkit-list"
+    entry_point_url_id = "seqmeta:index"
 
     #: Required permission for displaying the app
     app_permission = "seqmeta.view_data"

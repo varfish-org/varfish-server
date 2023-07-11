@@ -6,12 +6,17 @@ app_name = "seqmeta"
 
 ui_urlpatterns = [
     url(
-        regex=r"^enrichmentkit/list/?$",
+        regex=r"^$",
+        view=views.IndexView.as_view(),
+        name="index",
+    ),
+    url(
+        regex=r"^enrichmentkit/?$",
         view=views.EnrichmentKitListView.as_view(),
         name="enrichmentkit-list",
     ),
     url(
-        regex=r"^enrichmentkit/(?P<enrichmentkit>[0-9a-f-]+)$",
+        regex=r"^enrichmentkit/(?P<enrichmentkit>[0-9a-f-]+)/?$",
         view=views.EnrichmentKitDetailView.as_view(),
         name="enrichmentkit-detail",
     ),

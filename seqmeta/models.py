@@ -6,7 +6,7 @@ from django.urls import reverse
 
 
 class EnrichmentKit(models.Model):
-    """A category of gene panels"""
+    """An enrichment kit for target enrichment sequencing."""
 
     #: Record UUID.
     sodar_uuid = models.UUIDField(
@@ -32,18 +32,18 @@ class EnrichmentKit(models.Model):
     )
     #: Title of the enrichment kit.
     title = models.CharField(
-        max_length=128, null=False, blank=False, help_text="Title of the category"
+        max_length=128, null=False, blank=False, help_text="Title of the enrichment kit"
     )
     #: Description of the enrichment kit.
     description = models.TextField(
-        null=True, blank=True, help_text="Optional description of the category"
+        null=True, blank=True, help_text="Optional description of the enrichment kit"
     )
 
     def __str__(self):
         return f"EnrichmentKit '{self.title}'"
 
     def get_absolute_url(self):
-        return reverse("seqmeta:enrichmentkit-detail", kwargs={"category": self.sodar_uuid})
+        return reverse("seqmeta:enrichmentkit-detail", kwargs={"enrichmentkit": self.sodar_uuid})
 
     class Meta:
         # Order by identifier.
