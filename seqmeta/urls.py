@@ -36,7 +36,7 @@ api_urlpatterns = [
         name="api-enrichmentkit-retrieveupdatedestroy",
     ),
     url(
-        regex=r"^api/targetbedfile/list-create/(?P<enrichmenkit>[0-9a-f-]+)/?$",
+        regex=r"^api/targetbedfile/list-create/(?P<enrichmentkit>[0-9a-f-]+)/?$",
         view=views_api.TargetBedFileListCreateApiView.as_view(),
         name="api-targetbedfile-listcreate",
     ),

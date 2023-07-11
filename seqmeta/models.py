@@ -29,6 +29,7 @@ class EnrichmentKit(models.Model):
                 message="Identifier may only contain alphanumeric characters, hyphens, and underscores.",
             ),
         ],
+        unique=True,
     )
     #: Title of the enrichment kit.
     title = models.CharField(
@@ -81,7 +82,7 @@ class TargetBedFile(models.Model):
         help_text="The enrichment kit that this file belongs to.",
     )
     #: The file's URI.
-    file_uri = models.URLField(
+    file_uri = models.CharField(
         null=False,
         blank=False,
         max_length=512,
@@ -100,3 +101,5 @@ class TargetBedFile(models.Model):
     class Meta:
         # Order by genome release.
         ordering = ("genome_release", "file_uri")
+        # Only one file per genome release.
+        unique_together = ("enrichmentkit", "genome_release")

@@ -1,19 +1,11 @@
-from projectroles.serializers import SODARModelSerializer, SODARProjectModelSerializer
+from projectroles.serializers import SODARModelSerializer
 from rest_framework import serializers
 
 from seqmeta.models import EnrichmentKit, TargetBedFile
 
 
-class EnrichmentKitSerializer(SODARProjectModelSerializer):
+class EnrichmentKitSerializer(SODARModelSerializer):
     """Serializer for ``EnrichmentKit``."""
-
-    #: Serialize the case as its SODAR UUID.
-    project = serializers.ReadOnlyField(source="project.sodar_uuid")
-
-    def create(self, validated_data):
-        """Ensure project is properly set on creation."""
-        validated_data["project"] = self.context["project"]
-        return super().create(validated_data)
 
     class Meta:
         model = EnrichmentKit

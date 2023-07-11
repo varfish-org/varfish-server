@@ -1,4 +1,4 @@
-from projectroles.views_api import SODARAPIGenericProjectMixin
+from projectroles.views_api import SODARAPIBaseMixin
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from seqmeta.models import EnrichmentKit, TargetBedFile
@@ -6,20 +6,13 @@ from seqmeta.serializers import EnrichmentKitSerializer, TargetBedFileSerializer
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 
 
-class EnrichmentKitListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAPIView):
+class EnrichmentKitListCreateApiView(SODARAPIBaseMixin, ListCreateAPIView):
     """DRF list-create API view the ``EnrichmentKit`` model."""
 
     serializer_class = EnrichmentKitSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
-
-    def get_queryset(self):
-        return EnrichmentKit.objects.filter(project=self.get_project())
-
-    def get_serializer_context(self):
-        result = super().get_serializer_context()
-        result["project"] = self.get_project()
-        return result
+    queryset = EnrichmentKit.objects.all()
 
     def get_permission_required(self):
         if self.request.method == "POST":
@@ -28,9 +21,7 @@ class EnrichmentKitListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAPIV
             return "seqmeta.view_data"
 
 
-class EnrichmentKitRetrieveUpdateDestroyApiView(
-    SODARAPIGenericProjectMixin, RetrieveUpdateDestroyAPIView
-):
+class EnrichmentKitRetrieveUpdateDestroyApiView(SODARAPIBaseMixin, RetrieveUpdateDestroyAPIView):
     """DRF retrieve-update-destroy API view for the ``EnrichmentKit`` model."""
 
     lookup_field = "sodar_uuid"
@@ -39,6 +30,7 @@ class EnrichmentKitRetrieveUpdateDestroyApiView(
     serializer_class = EnrichmentKitSerializer
     renderer_classes = [VarfishApiRenderer]
     versioning_class = VarfishApiVersioning
+    queryset = EnrichmentKit.objects.all()
 
     def get_permission_required(self):
         if self.request.method == "GET":
@@ -49,7 +41,7 @@ class EnrichmentKitRetrieveUpdateDestroyApiView(
             return "seqmeta.update_data"
 
 
-class TargetBedFileListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAPIView):
+class TargetBedFileListCreateApiView(SODARAPIBaseMixin, ListCreateAPIView):
     """DRF list-create API view the ``TargetBedFile`` model."""
 
     serializer_class = TargetBedFileSerializer
@@ -74,9 +66,7 @@ class TargetBedFileListCreateApiView(SODARAPIGenericProjectMixin, ListCreateAPIV
             return "seqmeta.view_data"
 
 
-class TargetBedFileRetrieveUpdateDestroyApiView(
-    SODARAPIGenericProjectMixin, RetrieveUpdateDestroyAPIView
-):
+class TargetBedFileRetrieveUpdateDestroyApiView(SODARAPIBaseMixin, RetrieveUpdateDestroyAPIView):
     """DRF retrieve-update-destroy API view for the ``TargetBedFile`` model."""
 
     lookup_field = "sodar_uuid"
