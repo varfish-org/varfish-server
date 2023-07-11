@@ -13,6 +13,7 @@ from projectroles.plugins import get_backend_api
 from sqlalchemy import and_
 
 from variants.helpers import get_engine, get_meta
+from variants.models import SmallVariantQueryGeneScores, SmallVariantQueryVariantScores
 from variants.models.queries import (
     FilterBgJob,
     SmallVariantQuery,
@@ -95,11 +96,27 @@ def run_query_bg_job(pk):
         )
         tl_event.add_object(obj=filter_job.case, label="case_name", name=filter_job.case.name)
 
-    def _read_records(inputf, smallvariantqueryresultset):
+    def _read_records(
+        inputf, smallvariantqueryresultset, pathogenicity_scores=None, phenotype_scores=None
+    ):
         """Read and yield ``SmallVariantQueryResultRow`` objects by reading ``inputf`` for the given ``SmallVariantQueryResultSet``."""
         for line in inputf:
             payload = dict(line)
             del payload["id"]
+
+            if pathogenicity_scores:
+                payload["pathogenicity_score"] = pathogenicity_scores[
+                    (line.chromosome, line.start, line.reference, line.alternative)
+                ]
+
+            if phenotype_scores and line.entrez_id:
+                payload["phenotype_score"] = phenotype_scores[line.entrez_id]
+
+            if pathogenicity_scores and phenotype_scores and line.entrez_id:
+                payload["patho_pheno_score"] = (
+                    payload["pathogenicity_score"] * payload["phenotype_score"]
+                )
+
             yield SmallVariantQueryResultRow(
                 smallvariantqueryresultset=smallvariantqueryresultset,
                 release=line.release,
@@ -116,13 +133,31 @@ def run_query_bg_job(pk):
         filter_job.add_log_entry("Starting SmallVariant database query")
         start_time = timezone.now()
 
-        CaseFilter(filter_job, filter_job.smallvariantquery).run()
+        CaseFilter(filter_job, query_model).run()
 
         end_time = timezone.now()
         filter_job.add_log_entry("... done running the worker")
 
         #: Create the new query result set, insert the data from the files that the worker wrote into the set.
         filter_job.add_log_entry("Create result set and import worker results ...")
+
+        pathogenicity_scores = None
+        if query_model.query_settings.get("patho_enabled"):
+            pathogenicity_scores = {
+                (row.chromosome, row.start, row.reference, row.alternative): row.score
+                for row in SmallVariantQueryVariantScores.objects.filter(
+                    query__sodar_uuid=query_model.sodar_uuid
+                )
+            }
+        phenotype_scores = None
+        if query_model.query_settings.get("prio_enabled"):
+            phenotype_scores = {
+                row.gene_id: row.score
+                for row in SmallVariantQueryGeneScores.objects.filter(
+                    query__sodar_uuid=query_model.sodar_uuid
+                )
+                if row.gene_id
+            }
 
         with transaction.atomic():
             smallvariantqueryresultset = SmallVariantQueryResultSet.objects.create(
@@ -139,6 +174,8 @@ def run_query_bg_job(pk):
                         query_model.query_settings
                     ),
                     smallvariantqueryresultset,
+                    pathogenicity_scores=pathogenicity_scores,
+                    phenotype_scores=phenotype_scores,
                 ),
                 n=1000,
             ):
