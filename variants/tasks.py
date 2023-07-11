@@ -72,7 +72,6 @@ def sync_project_upstream(_self, sync_job_pk):
 def single_case_filter_task(_self, filter_job_pk):
     """Task to submit filter and storing job for single case."""
     return jobs.run_query_bg_job(filter_job_pk)
-    # return submit_filter.case_filter(models.FilterBgJob.objects.get(pk=filter_job_pk))
 
 
 @app.task(bind=True)
