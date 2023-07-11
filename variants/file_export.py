@@ -1,6 +1,5 @@
 """This module contains the code for file export"""
 
-from collections import OrderedDict
 import contextlib
 import datetime
 from datetime import timedelta
@@ -785,7 +784,7 @@ class CaseExporterVcf(CaseExporterBase):
         if self.case:
             yield from super()._yield_smallvars()
         else:
-            joined_variants = OrderedDict()
+            joined_variants = {}
             for i in super()._yield_smallvars():
                 key = (i.release, i.chromosome, i.start, i.end, i.reference, i.alternative)
                 if key in joined_variants:

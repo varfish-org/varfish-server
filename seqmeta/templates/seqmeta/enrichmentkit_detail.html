@@ -1,0 +1,60 @@
+{% extends 'projectroles/base.html' %}
+
+{% load rules %}
+
+{% block title %}Enrichment Kit{% endblock %}
+
+{% block projectroles %}
+  <div class="row sodar-subtitle-container">
+    <h2 class="sodar-pr-content-title">
+      <span class="iconify" data-icon="mdi:factory" data-inline="false"></span>
+      Enrichment Kit
+    </h2>
+    <div class="btn-group ml-auto" id="sodar-ff-buttons-list">
+      <a class="btn btn-secondary" href="{% url 'seqmeta:enrichmentkit-list' %}">
+        <i class="iconify" data-icon="mdi:arrow-left-circle"></i> Back
+      </a>
+    </div>
+  </div>
+
+  <div class="container-fluid sodar-page-container">
+    <div class="card" id="sodar-aa-alert-list">
+      <div class="card-body px-0">
+        <dl class="row pb-0">
+          <dt class="col-md-2">UUID</dt>
+          <dd class="col-md-10"><strong>{{ object.sodar_uuid }}</strong></dd>
+          <dt class="col-md-2">Identifier</dt>
+          <dd class="col-md-10"><strong>{{ object.identifier }}</strong></dd>
+          <dt class="col-md-2">Title</dt>
+          <dd class="col-md-10"><strong>{{ object.title }}</strong></dd>
+          <dt class="col-md-12">Description</dt>
+          <dd class="col-md-12">
+            {% if object.description %}
+              {{ object.description }}
+            {% else %}
+              <span class="font-italic text-muted">No description.</span>
+            {% endif %}
+          </dd>
+          <dt class="col-md-2">Created</dt>
+          <dd class="col-md-10">{{ object.date_created|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-2">Updated</dt>
+          <dd class="col-md-10">{{ object.date_modified|date:'Y-m-d H:i' }}</dd>
+          <dt class="col-md-2">Target BED Files ({{ object.targetbedfile_set.count }})</dt>
+          <dd class="col-md-10">
+            <ul class="list-unstyled">
+              {% for targetbedfile in object.targetbedfile_set.all %}
+                <li>
+                    for {{ targetbedfile.genome_release }}
+                  </a>
+                </li>
+              {% empty %}
+                <li class="text-muted font-italic">No target BED files defined yet</li>
+              {% endfor %}
+            </ul>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+{% endblock projectroles %}

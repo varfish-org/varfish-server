@@ -75,6 +75,7 @@ urlpatterns += [
     url(r"^vueapp/", include("varfish.vueapp.urls")),
     url(r"^cases/", include("cases.urls")),
     url(r"^varannos/", include("varannos.urls")),
+    url(r"^seqmeta/", include("seqmeta.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
