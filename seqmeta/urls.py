@@ -6,12 +6,12 @@ app_name = "seqmeta"
 
 ui_urlpatterns = [
     url(
-        regex=r"^enrichmentkit/list/(?P<project>[0-9a-f-]+)/?$",
+        regex=r"^enrichmentkit/list/?$",
         view=views.EnrichmentKitListView.as_view(),
         name="enrichmentkit-list",
     ),
     url(
-        regex=r"^enrichmentkit/(?P<panel>[0-9a-f-]+)$",
+        regex=r"^enrichmentkit/(?P<enrichmentkit>[0-9a-f-]+)$",
         view=views.EnrichmentKitDetailView.as_view(),
         name="enrichmentkit-detail",
     ),
@@ -36,7 +36,7 @@ api_urlpatterns = [
         name="api-targetbedfile-listcreate",
     ),
     url(
-        regex=r"^api/varannoset/retrieve-update-destroy/(?P<targetbedfile>[0-9a-f-]+)/?$",
+        regex=r"^api/targetbedfile/retrieve-update-destroy/(?P<targetbedfile>[0-9a-f-]+)/?$",
         view=views_api.TargetBedFileRetrieveUpdateDestroyApiView.as_view(),
         name="api-targetbedfile-retrieveupdatedestroy",
     ),

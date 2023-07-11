@@ -1,12 +1,8 @@
 import uuid as uuid_object
 
-from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import models
 from django.urls import reverse
-
-#: Django user model.
-AUTH_USER_MODEL = getattr(settings, "AUTH_USER_MODEL", "auth.User")
 
 
 class EnrichmentKit(models.Model):
