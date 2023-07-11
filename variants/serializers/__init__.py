@@ -22,10 +22,8 @@ from variants.models import (
     SmallVariantComment,
     SmallVariantFlags,
     SmallVariantQuery,
-    SmallVariantQueryGeneScores,
     SmallVariantQueryResultRow,
     SmallVariantQueryResultSet,
-    SmallVariantQueryVariantScores,
 )
 from variants.query_schemas import (
     SCHEMA_QUERY_V1,
