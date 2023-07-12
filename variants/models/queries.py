@@ -180,12 +180,16 @@ class SmallVariantQueryResultRow(models.Model):
     chromosome = models.CharField(max_length=32)
     #: Chromosome as number
     chromosome_no = models.IntegerField()
-    #: The bin for indexing in case of linear SVs, in case of non-linear SVs the bin of pos.
+    #: The bin for indexing
     bin = models.IntegerField()
     #: Variant coordinates - start position
     start = models.IntegerField()
     #: Variant coordinates - end position
     end = models.IntegerField()
+    #: Variant coordinates - reference
+    reference = models.CharField(max_length=512)
+    #: Variant coordinates - alternative
+    alternative = models.CharField(max_length=512)
 
     #: The query result rows.
     payload = JSONField(null=False, help_text="The query result rows")

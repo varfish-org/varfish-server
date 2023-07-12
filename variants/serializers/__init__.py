@@ -425,6 +425,8 @@ class SmallVariantQueryResultRowSerializer(SODARModelSerializer):
             "bin",
             "start",
             "end",
+            "reference",
+            "alternative",
             "payload",
         )
         read_only_fields = fields

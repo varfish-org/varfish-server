@@ -1,7 +1,7 @@
 <script setup>
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
-import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
 import {
   displayName,
   formatLargeInt,
@@ -80,7 +80,7 @@ const displayColumnsWrapper = declareWrapper(props, 'displayColumns', emit)
 const tableServerOptions = ref({
   page: 1,
   rowsPerPage: 50,
-  sortBy: 'chrom-pos',
+  sortBy: 'position',
   sortType: 'asc',
 })
 
@@ -126,10 +126,10 @@ onBeforeMount(() => {
   })
 })
 
-const displayConstraintText = computed(() => {
-  /** TODO Somehow it displays the string with quotes ... :/ */
-  return DisplayConstraintsToText[displayConstraintWrapper.value]
-})
+// const displayConstraintText = computed(() => {
+//   /** TODO Somehow it displays the string with quotes ... :/ */
+//   return DisplayConstraintsToText[displayConstraintWrapper.value]
+// })
 
 /**
  * Setup for easy-data-table.
@@ -137,7 +137,7 @@ const displayConstraintText = computed(() => {
 
 const coordinatesClinvarColumns = () => {
   if (props.displayDetails === DisplayDetails.Clinvar.value) {
-    return [{ text: 'clinvar summary', value: 'clinvar', sortable: true }]
+    return [{ text: 'clinvar summary', value: 'clinvar' }]
   }
   return [
     { text: 'position', value: 'position', sortable: true },
@@ -154,19 +154,22 @@ const optionalColumns = () => {
   return props.displayColumns.map((field) => ({
     text: optionalColumnTexts[field],
     value: field,
-    sortable: true,
   }))
 }
 
+const genotypeMapping = {}
 const genotypeColumns = () => {
   if (!props.case) {
     return []
   }
-  return props.case.pedigree.map(({ name }) => ({
-    text: displayName(name),
-    value: `genotype_${displayName(name)}`,
-    sortable: true,
-  }))
+  return props.case.pedigree.map(({ name }) => {
+    genotypeMapping[`genotype_${displayName(name)}`] = name
+    return {
+      text: displayName(name),
+      value: `genotype_${displayName(name)}`,
+      sortable: true,
+    }
+  })
 }
 
 const scoreColumns = () => {
@@ -276,64 +279,65 @@ const getAcmgBadgeClasses = (acmgClass) => {
   return acmgBadgeClasses.join(' ')
 }
 
-const displayFrequencyContent = (item) => {
+const freqHomFieldName = computed(() => {
   return displayFrequencyWrapper.value === DisplayFrequencies.Exac.value
-    ? formatFreq(item.exac_frequency)
+    ? { frequency: 'exac_frequency', homozygous: 'exac_homozygous' }
     : displayFrequencyWrapper.value === DisplayFrequencies.ThousandGenomes.value
-    ? formatFreq(item.thousand_genomes_frequency)
+    ? {
+        frequency: 'thousand_genomes_frequency',
+        homozygous: 'thousand_genomes_homozygous',
+      }
     : displayFrequencyWrapper.value === DisplayFrequencies.GnomadExomes.value
-    ? formatFreq(item.gnomad_exomes_frequency)
+    ? {
+        frequency: 'gnomad_exomes_frequency',
+        homozygous: 'gnomad_exomes_homozygous',
+      }
     : displayFrequencyWrapper.value === DisplayFrequencies.GnomadGenomes.value
-    ? formatFreq(item.gnomad_genomes_frequency)
+    ? {
+        frequency: 'gnomad_genomes_frequency',
+        homozygous: 'gnomad_genomes_homozygous',
+      }
     : displayFrequencyWrapper.value === DisplayFrequencies.InhouseDb.value
-    ? item.inhouse_carriers
+    ? { frequency: 'inhouse_carriers', homozygous: 'inhouse_hom_alt' }
     : displayFrequencyWrapper.value === DisplayFrequencies.MtDb.value
-    ? formatFreq(item.mtdb_frequency)
+    ? { frequency: 'mtdb_frequency', homozygous: 'mtdb_count' }
     : displayFrequencyWrapper.value === DisplayFrequencies.HelixMtDb.value
-    ? formatFreq(item.helixmtdb_frequency)
+    ? { frequency: 'helixmtdb_frequency', homozygous: 'helixmtdb_hom_count' }
     : displayFrequencyWrapper.value === DisplayFrequencies.Mitomap.value
-    ? formatFreq(item.mitomap_frequency)
-    : '-'
+    ? { frequency: 'mitomap_frequency', homozygous: 'mitomap_count' }
+    : { frequency: null, homozygous: null }
+})
+
+const displayFrequencyContent = (item) => {
+  return displayFrequencyWrapper.value === DisplayFrequencies.InhouseDb.value
+    ? item[freqHomFieldName.value.frequency]
+    : formatFreq(item[freqHomFieldName.value.frequency])
 }
 
 const displayHomozygousContent = (item) => {
-  return displayFrequencyWrapper.value === DisplayFrequencies.Exac.value
-    ? item.exac_homozygous
-    : displayFrequencyWrapper.value === DisplayFrequencies.ThousandGenomes.value
-    ? item.thousand_genomes_homozygous
-    : displayFrequencyWrapper.value === DisplayFrequencies.GnomadExomes.value
-    ? item.gnomad_exomes_homozygous
-    : displayFrequencyWrapper.value === DisplayFrequencies.GnomadGenomes.value
-    ? item.gnomad_genomes_homozygous
-    : displayFrequencyWrapper.value === DisplayFrequencies.InhouseDb.value
-    ? item.inhouse_hom_alt
-    : displayFrequencyWrapper.value === DisplayFrequencies.MtDb.value
-    ? item.mtdb_count
-    : displayFrequencyWrapper.value === DisplayFrequencies.HelixMtDb.value
-    ? item.helixmtdb_hom_count
-    : displayFrequencyWrapper.value === DisplayFrequencies.Mitomap.value
-    ? item.mitomap_count
-    : '-'
+  return item[freqHomFieldName.value.homozygous]
 }
 
-const displayConstraintsContent = (item) => {
+const constraintFieldName = computed(() => {
   return displayConstraintWrapper.value === DisplayConstraints.ExacPli.value
-    ? formatConstraint(item.exac_pLI)
+    ? 'exac_pLI'
     : displayConstraintWrapper.value === DisplayConstraints.ExacZMis.value
-    ? formatConstraint(item.exac_mis_z)
+    ? 'exac_mis_z'
     : displayConstraintWrapper.value === DisplayConstraints.ExacZSyn.value
-    ? formatConstraint(item.exac_syn_z)
+    ? 'exac_syn_z'
     : displayConstraintWrapper.value === DisplayConstraints.GnomadLoeuf.value
-    ? formatConstraint(item.gnomad_loeuf)
+    ? 'gnomad_loeuf'
     : displayConstraintWrapper.value === DisplayConstraints.GnomadPli.value
-    ? formatConstraint(item.gnomad_pLI)
+    ? 'gnomad_pLI'
     : displayConstraintWrapper.value === DisplayConstraints.GnomadZMis.value
-    ? formatConstraint(item.gnomad_mis_z)
+    ? 'gnomad_mis_z'
     : displayConstraintWrapper.value === DisplayConstraints.GnomadZSyn.value
-    ? formatConstraint(item.gnomad_syn_z)
-    : displayConstraintWrapper.value === DisplayConstraints.ExacZMis.value
-    ? formatConstraint(item.exac_mis_z)
-    : '-'
+    ? 'gnomad_syn_z'
+    : null
+})
+
+const displayConstraintsContent = (item) => {
+  return formatConstraint(item[constraintFieldName.value])
 }
 
 const isOnAcmgList = (item) => item.acmg_symbol !== null
@@ -440,8 +444,20 @@ const loadFromServer = async () => {
       pageNo: tableServerOptions.value.page,
       pageSize: tableServerOptions.value.rowsPerPage,
       orderBy:
-        tableServerOptions.value.sortBy === 'chrom-pos'
+        tableServerOptions.value.sortBy === 'position'
           ? 'chromosome_no,start'
+          : tableServerOptions.value.sortBy === 'gene'
+          ? 'symbol'
+          : tableServerOptions.value.sortBy === 'gene_icons'
+          ? 'acmg_symbol,disease_gene'
+          : tableServerOptions.value.sortBy === 'frequency'
+          ? freqHomFieldName.value.frequency
+          : tableServerOptions.value.sortBy === 'homozygous'
+          ? freqHomFieldName.value.homozygous
+          : tableServerOptions.value.sortBy === 'constraints'
+          ? constraintFieldName.value
+          : tableServerOptions.value.sortBy.startsWith('genotype_')
+          ? 'genotype_' + genotypeMapping[tableServerOptions.value.sortBy]
           : tableServerOptions.value.sortBy,
       orderDir: tableServerOptions.value.sortType,
     }
@@ -458,6 +474,22 @@ onMounted(() => {
 /** Watch changes in tableServerOptions and reload if necessary. */
 watch(
   tableServerOptions,
+  (_newValue, _oldValue) => {
+    loadFromServer()
+  },
+  { deep: true }
+)
+
+watch(
+  displayFrequencyWrapper,
+  (_newValue, _oldValue) => {
+    loadFromServer()
+  },
+  { deep: true }
+)
+
+watch(
+  displayConstraintWrapper,
   (_newValue, _oldValue) => {
     loadFromServer()
   },
@@ -583,15 +615,11 @@ watch(
         <template #item-position="{ position }">
           {{ position }}
         </template>
-        <template #item-reference="{ payload }">
-          <span :title="payload.reference">{{
-            truncateText(payload.reference, 5)
-          }}</span>
+        <template #item-reference="{ reference }">
+          <span :title="reference">{{ truncateText(reference, 5) }}</span>
         </template>
-        <template #item-alternative="{ payload }">
-          <span :title="payload.alternative">{{
-            truncateText(payload.alternative, 5)
-          }}</span>
+        <template #item-alternative="{ alternative }">
+          <span :title="alternative">{{ truncateText(alternative, 5) }}</span>
         </template>
         <template #item-clinvar="{ payload }">
           <span class="badge-group" v-if="payload.summary_pathogenicity_label">

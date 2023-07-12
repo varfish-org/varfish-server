@@ -12,6 +12,7 @@ from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.expressions import RawSQL
 from django.forms import model_to_dict
 from django.http import Http404, HttpResponse, JsonResponse
 from django.urls import reverse
@@ -397,9 +398,47 @@ class SmallVariantQueryResultRowListApiView(ListAPIView):
     def get_queryset(self):
         order_by_str = self.request.query_params.get("order_by", "chromosome_no,start")
         order_dir = self.request.query_params.get("order_dir", "asc")
-        order_by = order_by_str.split(",")
-        if order_dir == "desc":
-            order_by = [f"-{value}" for value in order_by]
+
+        if order_by_str.endswith(
+            ("_score", "_frequency", "_carriers", "_hom_alt", "_pLI", "_mis_z", "_syn_z", "_loeuf")
+        ):
+            order_by_raw = RawSQL("COALESCE((payload->>%s)::float, 0)", (order_by_str,))
+            if order_dir == "desc":
+                order_by_raw = order_by_raw.desc()
+            order_by = [order_by_raw]
+        elif order_by_str.endswith(
+            (
+                "_homozygous",
+                "_count",
+            )
+        ):
+            order_by_raw = RawSQL("COALESCE((payload->>%s)::integer, 0)", (order_by_str,))
+            if order_dir == "desc":
+                order_by_raw = order_by_raw.desc()
+            order_by = [order_by_raw]
+        elif order_by_str == "symbol":
+            order_by_raw = RawSQL("COALESCE((payload->>%s)::text, NULL)", (order_by_str,))
+            if order_dir == "desc":
+                order_by_raw = order_by_raw.desc()
+            order_by = [order_by_raw]
+        elif order_by_str == "acmg_symbol,disease_gene":
+            order_by_split = order_by_str.split(",")
+            order_by = [
+                RawSQL("COALESCE((payload->>%s)::text, NULL) IS NOT NULL", (order_by_split[0],)),
+                RawSQL("COALESCE((payload->>%s)::boolean, FALSE)", (order_by_split[1],)),
+            ]
+            if order_dir == "desc":
+                order_by = [value.desc() for value in order_by]
+        elif order_by_str.startswith("genotype_"):
+            name = order_by_str[len("genotype_") :]
+            order_by_raw = RawSQL("COALESCE((payload->'genotype'->%s->>'gt')::text, NULL)", (name,))
+            if order_dir == "desc":
+                order_by_raw = order_by_raw.desc()
+            order_by = [order_by_raw]
+        else:
+            order_by = order_by_str.split(",")
+            if order_dir == "desc":
+                order_by = [f"-{value}" for value in order_by]
 
         qs = SmallVariantQueryResultRow.objects.filter(
             smallvariantqueryresultset__sodar_uuid=self.kwargs.get("smallvariantqueryresultset")

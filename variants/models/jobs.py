@@ -125,6 +125,8 @@ def run_query_bg_job(pk):
                 bin=line.bin,
                 start=line.start,
                 end=line.end,
+                reference=line.reference,
+                alternative=line.alternative,
                 payload=json.loads(json.dumps(payload, cls=RowEncoder)),
             )
 
