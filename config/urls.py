@@ -76,6 +76,7 @@ urlpatterns += [
     url(r"^cases/", include("cases.urls")),
     url(r"^varannos/", include("varannos.urls")),
     url(r"^seqmeta/", include("seqmeta.urls")),
+    url(r"^cases-import/", include("cases_import.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
