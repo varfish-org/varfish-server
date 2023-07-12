@@ -1,10 +1,14 @@
-# from django.conf.urls import url
+from django.urls import path
+
+from cases_import import views
 
 # from cases_import import views_api
 
 app_name = "cases_import"
 
-ui_urlpatterns = []
+ui_urlpatterns = [
+    path(route="index/", view=views.IndexView.as_view(), name="ui-index"),
+]
 
 ajax_urlpatterns = []
 
