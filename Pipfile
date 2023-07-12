@@ -51,8 +51,10 @@ sqlparse = "~=0.4.4"
 tqdm = "~=4.65"
 vcfpy = "~=0.13.6"
 versioneer = ">=0.21"
-wrapt = "~=1.14"
-xlsxwriter = "~=1.4"
+wrapt = ">=1.14.1,<2.0"
+xlsxwriter = ">=1.4.3,<1.5"
+phenopackets = "*"
+protobuf = "*"
 
 [dev-packages]
 # packages for testing
@@ -74,15 +76,17 @@ requests-mock = "~=1.9"
 selenium = "~=3.141"
 tblib = "~=1.7"
 # packages for local development
-ipdb = "*"
-
+ipdb = "<0.14,>=0.13.9"
+jedi = "==0.17.2"
+werkzeug = ">=2.0.1,<2.3"
 # Dependencies for enabling LDAP support.  You will need the system library
 # named `libldap` (or similar).
-[ldap-packages]
-django-auth-ldap = "~=2.4"
-python-ldap = "~=3.3"
 
+[ldap-packages]
+django-auth-ldap = ">=2.4.0,<2.5"
+python-ldap = ">=3.3.1,<3.4"
 # Packages needed in production.
+
 [prod-packages]
 whitenoise = "*"
 gevent = "*"

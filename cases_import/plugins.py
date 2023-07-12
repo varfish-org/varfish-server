@@ -18,11 +18,11 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     icon = "mdi:cloud-update"
 
-    entry_point_url_id = "cases:entrypoint"
+    entry_point_url_id = "cases_import:index"
 
     description = "Case Import Info"
 
-    app_permission = "cases.view_data"
+    app_permission = "cases_import.view_data"
 
     app_settings = {
         "import_data_protocol": {
