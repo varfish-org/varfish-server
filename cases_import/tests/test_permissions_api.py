@@ -1,7 +1,10 @@
-import json
+"""Test permission for the API views in ``cases_import`` app.
+
+This module contains tests that exercise the basic permissions of the API views.  That is,
+the result of the actions is not tested here.  Instead, such tests are in ``test_views_api.py``.
+"""
 
 from django.urls import reverse
-import factory
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from cases_import.models import CaseImportAction
