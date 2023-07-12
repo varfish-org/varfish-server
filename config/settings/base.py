@@ -113,6 +113,7 @@ LOCAL_APPS = [
     "var_stats_qc.apps.VarStatsQcConfig",
     "templatetags.apps.TemplatetagsConfig",
     "seqmeta.apps.SeqmetaConfig",
+    "cases_import.apps.CasesImportConfig",
     "svdbs.apps.SvDbsConfig",
     "svs.apps.SvsConfig",
     "extra_annos.apps.ExtraAnnosConfig",
