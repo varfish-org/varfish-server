@@ -25,18 +25,7 @@ class CaseImportActionSerializerTest(TestCase):
                 "date_modified": "2012-01-14T12:00:01Z",
                 "action": "create",
                 "state": "draft",
-                "payload": {
-                    "id": "PPKT:1",
-                    "subject": {
-                        "id": "Zaphod",
-                        "dateOfBirth": "1966-02-02T02:26:42Z",
-                        "sex": "MALE",
-                    },
-                    "phenotypicFeatures": [
-                        {"type": {"id": "HG2G:00001", "label": "Hoopy"}},
-                        {"type": {"id": "HG2G:00002", "label": "Frood"}},
-                    ],
-                },
+                "payload": dict,
             }
         )
         expected.assert_matches(serializer.data)

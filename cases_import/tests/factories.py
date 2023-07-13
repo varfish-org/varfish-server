@@ -2,6 +2,7 @@ import datetime
 import json
 
 import factory
+import yaml
 
 from cases_import.models import CaseImportAction
 from seqmeta.tests.test_views_api import isoformat
@@ -19,8 +20,8 @@ class CaseImportActionFactory(factory.django.DjangoModelFactory):
 
     @factory.lazy_attribute
     def payload(self):
-        with open("cases_import/tests/data/zaphod.phenopacket.json") as inputf:
-            return json.load(inputf)
+        with open("cases_import/tests/data/family.yaml") as inputf:
+            return yaml.safe_load(inputf)
 
     project = factory.SubFactory(ProjectFactory)
 
