@@ -5,7 +5,12 @@ from cases_import import views, views_api
 app_name = "cases_import"
 
 ui_urlpatterns = [
-    path(route="index/", view=views.IndexView.as_view(), name="ui-index"),
+    path(route="index/<project>/", view=views.IndexView.as_view(), name="index"),
+    path(
+        route="import-case-bg-job/<importcasebackgroundsjob>/",
+        view=views.ImportCaseBackgroundsJobDetailView.as_view(),
+        name="ui-importcasebackgroundsjob-detail",
+    ),
 ]
 
 ajax_urlpatterns = []

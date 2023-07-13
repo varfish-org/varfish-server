@@ -1,6 +1,8 @@
 import uuid as uuid_object
 
+from bgjobs.models import LOG_LEVEL_ERROR, BackgroundJob, JobModelMessageMixin
 from django.db import models
+from django.urls import reverse
 from projectroles.models import Project
 
 from varfish.utils import JSONField
@@ -56,3 +58,44 @@ class CaseImportAction(models.Model):
     class Meta:
         #: Order by date of last modification (most recent first).
         ordering = ("-date_modified",)
+
+
+class CaseImportBackgroundJob(JobModelMessageMixin, models.Model):
+    """Background job for importing cases with the ``cases_import`` app."""
+
+    #: Task description for logging.
+    task_desc = "Case Import"
+
+    #: String identifying model in BackgroundJob.
+    spec_name = "cases_import.import_case_bg_job"
+
+    #: The SODAR UUID.
+    sodar_uuid = models.UUIDField(
+        default=uuid_object.uuid4,
+        unique=True,
+    )
+    #: The project that this background job belong to.
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+    )
+
+    #: The background job for state management etc.
+    bg_job = models.ForeignKey(
+        BackgroundJob,
+        null=False,
+        related_name="caseimportbackgroundjob",
+        help_text="Background job for state etc.",
+        on_delete=models.CASCADE,
+    )
+    #: The case import action to perform.
+    caseimportaction = models.ForeignKey(CaseImportAction, on_delete=models.CASCADE, null=False)
+
+    def get_human_readable_type(self):
+        return "Import a case into VarFish"
+
+    def get_absolute_url(self):
+        return reverse(
+            "cases_import:ui-importcasebackgroundsjob-detail",
+            kwargs={"importcasebackgroundsjob": self.sodar_uuid},
+        )
