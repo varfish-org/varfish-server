@@ -91,6 +91,7 @@ class MetaDataValidator:
         self.metadata = metadata
 
     def validate(self) -> typing.List[ValidationWarning]:
+        """Perform validation and return warnings as list."""
         result = []
         if not self.metadata.created or self.metadata.created.seconds == 0:
             result.append(MetaDataValidationWarning("Missing /metadata/created"))
@@ -149,6 +150,7 @@ class PhenopacketValidator:
         self.sample_names = sample_names or [phenopacket.id]
 
     def validate(self) -> typing.List[ValidationWarning]:
+        """Perform validation and return warnings as list."""
         result = []
 
         if self.pp.id != self.pp.subject.id:
@@ -196,7 +198,7 @@ class PhenopacketValidator:
                     )
 
         for file_ in self.pp.files:
-            result += FileValidator(self.sample_names, file_).validate()
+            result += FileValidator(file_, self.sample_names).validate()
 
         return result
 
@@ -214,6 +216,7 @@ class ProbandValidator(PhenopacketValidator):
         self.sample_names = sample_names or [proband.id]
 
     def validate(self) -> typing.List[ValidationWarning]:
+        """Perform validation and return warnings as list."""
         result = super().validate()
         return result
 
@@ -231,6 +234,7 @@ class RelativeValidator(PhenopacketValidator):
         self.sample_names = sample_names or [self.relative.id]
 
     def validate(self) -> typing.List[ValidationWarning]:
+        """Perform validation and return warnings as list."""
         result = super().validate()
         return result
 
@@ -238,13 +242,14 @@ class RelativeValidator(PhenopacketValidator):
 class PedigreeValidator:
     """Helper class that allows to validate phenopackets pedigree."""
 
-    def __init__(self, sample_names: typing.Set[str], pedigree: Pedigree):
-        #: The names of the samples from ``proband`` and ``relatives``.
-        self.sample_names = sample_names
+    def __init__(self, pedigree: Pedigree, sample_names: typing.Set[str]):
         #: The pedigree to validate
         self.pedigree = pedigree
+        #: The names of the samples from ``proband`` and ``relatives``.
+        self.sample_names = sample_names
 
     def validate(self) -> typing.List[ValidationWarning]:
+        """Perform validation and return warnings as list."""
         result = []
         result += self._validate_family_name()
         result += self._validate_sample_names()
@@ -317,32 +322,38 @@ class PedigreeValidator:
 class FileValidator:
     """Helper class that allows to validate phenopackets files."""
 
-    def __init__(self, sample_names: typing.List[str], file_: File):
+    def __init__(self, file_: File, sample_names: typing.List[str]):
         #: The sample names
         self.sample_names = set(sample_names)
         #: The file to validate
         self.file = file_
 
     def validate(self) -> typing.List[ValidationWarning]:
+        """Perform validation and return warnings as list."""
         result = []
 
+        if not self.file.uri:
+            result.append(FileValidationWarning(f"File {self.file.uri} has no URI."))
+
         if "checksum" not in self.file.file_attributes:
-            result.append(ValidationWarning(f"File {self.file.uri} has no checksum."))
+            result.append(FileValidationWarning(f"File {self.file.uri} has no checksum."))
         else:
             checksum = self.file.file_attributes["checksum"]
             prefixes = ("md5", "sha256")
             if not any(checksum.startswith(f"{prefix}:") for prefix in prefixes):
                 result.append(
-                    ValidationWarning(f"File {self.file.uri} does not have proper checksum prefix.")
+                    FileValidationWarning(
+                        f"File {self.file.uri} does not have proper checksum prefix."
+                    )
                 )
 
         if "designation" not in self.file.file_attributes:
-            result.append(ValidationWarning(f"File {self.file.uri} has no designation."))
+            result.append(FileValidationWarning(f"File {self.file.uri} has no designation."))
         else:
             designation = self.file.file_attributes["designation"]
             if not FileDesignation.is_value(designation):
                 result.append(
-                    ValidationWarning(
+                    FileValidationWarning(
                         f"File {self.file.uri} has invalid designation {designation}."
                     )
                 )
@@ -351,7 +362,7 @@ class FileValidator:
         if not individuals.issubset(self.sample_names):
             unknown = individuals - self.sample_names
             result.append(
-                ValidationWarning(
+                FileValidationWarning(
                     f"Unknown individuals in file {self.file.uri}: {unknown} "
                     f"(known: {self.sample_names})."
                 )
@@ -417,12 +428,12 @@ class FamilyValidator:
         if not str(self.family.pedigree):
             return [ValidationWarning("Missing /pedigree")]
         else:
-            return PedigreeValidator(self.sample_names, self.family.pedigree).validate()
+            return PedigreeValidator(self.family.pedigree, self.sample_names).validate()
 
     def _validate_files(self) -> typing.List[ValidationWarning]:
         result = []
         for file_ in self.family.files:
-            result += FileValidator(self.sample_names, file_).validate()
+            result += FileValidator(file_, self.sample_names).validate()
         return result
 
     def _validate_sex_consistency(self):

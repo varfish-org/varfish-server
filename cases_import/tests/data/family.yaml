@@ -5,7 +5,7 @@ family:
     subject:
       id: index
       sex: MALE
-      karyotypic_sex: XY
+      karyotypicSex: XY
     phenotypicFeatures:
       - type:
           id: "HP:0012469"
@@ -44,12 +44,23 @@ family:
           id: OMIM:164400
           label: "SPINOCEREBELLAR ATAXIA 1; SCA1"
         excluded: false
+    metaData: &metadata-prototype
+      created: "2019-07-21T00:25:54.662Z"
+      createdBy: Peter R.
+      resources:
+        - id: hp
+          name: human phenotype ontology
+          url: http://purl.obolibrary.org/obo/hp.owl
+          version: "2018-03-08"
+          namespacePrefix: HP
+          iriPrefix: hp
+      phenopacketSchemaVersion: "2.0"
   relatives:
     - id: mother
       subject:
         id: mother
         sex: FEMALE
-        karyotypic_sex: XX
+        karyotypicSex: XX
       phenotypicFeatures:
         - type:
             id: "HP:0012469"
@@ -85,11 +96,12 @@ family:
             id: OMIM:164400
             label: "SPINOCEREBELLAR ATAXIA 1; SCA1"
           excluded: true
+      metaData: *metadata-prototype
     - id: father
       subject:
         id: father
         sex: MALE
-        karyotypic_sex: XY
+        karyotypicSex: XY
       phenotypicFeatures:
         - type:
             id: "HP:0012469"
@@ -125,6 +137,7 @@ family:
             id: OMIM:164400
             label: "SPINOCEREBELLAR ATAXIA 1; SCA1"
           excluded: true
+      metaData: *metadata-prototype
   pedigree:
     persons:
       - familyId: Case
@@ -170,14 +183,4 @@ family:
         caller: gCNV
         genome_assembly: GRCh38
         file_format: application/x-vcf+x-bgzip
-  metaData:
-    created: "2019-07-21T00:25:54.662Z"
-    createdBy: Peter R.
-    resources:
-      - id: hp
-        name: human phenotype ontology
-        url: http://purl.obolibrary.org/obo/hp.owl
-        version: "2018-03-08"
-        namespacePrefix: HP
-        iriPrefix: hp
-    phenopacketSchemaVersion: "2.0"
+  metaData: *metadata-prototype
