@@ -1148,7 +1148,9 @@ class SmallVariantCommentApiMixin(VariantsApiBaseMixin):
 
     def get_queryset(self):
         keys = ("release", "chromosome", "start", "end", "reference", "alternative")
-        query_set = SmallVariantComment.objects.select_related("case", "user")
+        query_set = SmallVariantComment.objects.select_related("user", "case").filter(
+            case__sodar_uuid=self.kwargs["case"]
+        )
 
         for key in keys:
             if key not in self.request.GET:
@@ -1207,7 +1209,9 @@ class SmallVariantFlagsApiMixin(VariantsApiBaseMixin):
 
     def get_queryset(self):
         keys = ("release", "chromosome", "start", "end", "reference", "alternative")
-        query_set = SmallVariantFlags.objects.select_related("case")
+        query_set = SmallVariantFlags.objects.select_related("case").filter(
+            case__sodar_uuid=self.kwargs["case"]
+        )
         for key in keys:
             if key not in self.request.GET:
                 break
@@ -1374,7 +1378,9 @@ class AcmgCriteriaRatingApiMixin(VariantsApiBaseMixin):
 
     def get_queryset(self):
         keys = ("release", "chromosome", "start", "end", "reference", "alternative")
-        query_set = AcmgCriteriaRating.objects.select_related("case")
+        query_set = AcmgCriteriaRating.objects.select_related("case").filter(
+            case__sodar_uuid=self.kwargs["case"]
+        )
 
         for key in keys:
             if key not in self.request.GET:
