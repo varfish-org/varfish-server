@@ -1,0 +1,13 @@
+# family with only metadata field
+family:
+  metaData:
+    created: "2019-07-21T00:25:54.662Z"
+    createdBy: Peter R.
+    resources:
+      - id: hp
+        name: human phenotype ontology
+        url: http://purl.obolibrary.org/obo/hp.owl
+        version: "2018-03-08"
+        namespacePrefix: HP
+        iriPrefix: hp
+    phenopacketSchemaVersion: "2.0"
