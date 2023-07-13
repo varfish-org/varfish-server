@@ -619,7 +619,7 @@ class _QuickPresetList:
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
     #: de novo variant (similar to dominant, more strict on unaffected)
@@ -633,7 +633,7 @@ class _QuickPresetList:
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
     #: dominant (present in affected, not present in unaffected)
@@ -647,7 +647,7 @@ class _QuickPresetList:
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
     #: homozygous recessive (hom. in affected, het. in parents)
@@ -661,7 +661,7 @@ class _QuickPresetList:
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
     #: Compound heterozygous recessive (het in affected, het. in ONE parent)
@@ -675,7 +675,7 @@ class _QuickPresetList:
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
     #: X-recessive
@@ -689,7 +689,7 @@ class _QuickPresetList:
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
     #: clinVar pathogenic
@@ -703,7 +703,7 @@ class _QuickPresetList:
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
     #: mitochondrial
@@ -717,7 +717,7 @@ class _QuickPresetList:
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
     #: all variants
@@ -731,7 +731,7 @@ class _QuickPresetList:
         regulatory=Regulatory.DEFAULT,
         tad=Tad.DEFAULT,
         known_patho=KnownPatho.DEFAULT,
-        genotype_criteria=GenotypeCriteriaDefinitions.DEFAULT,
+        genotype_criteria=GenotypeCriteriaDefinitions.SVISH_HIGH,
         database=Database.REFSEQ,
     )
 
