@@ -4,9 +4,27 @@ This module uses the "lowermost" role that allows to make the changes and focuse
 functionality.
 """
 
+import functools
+
+from bgjobs.models import BackgroundJob
+from django.urls import reverse
+from freezegun import freeze_time
+import jsonmatch
+from parameterized import parameterized
+import yaml
+
+from cases_import.models import CaseImportAction, CaseImportBackgroundJob
+from cases_import.tests.factories import CaseImportActionFactory
 from variants.tests.helpers import ApiViewTestBase
 
 
+@functools.cache
+def load_family_payload():
+    with open("cases_import/tests/data/family.yaml", "rt") as inputf:
+        return yaml.safe_load(inputf)["family"]
+
+
+@freeze_time("2012-01-14 12:00:01")
 class CaseImportActionListTest(ApiViewTestBase):
     """Test listing ``CaseImportAction`` objects."""
 
@@ -16,11 +34,55 @@ class CaseImportActionListTest(ApiViewTestBase):
 
     def test_list_empty(self):
         """GET on empty list"""
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                **extra
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json(), {"count": 0, "next": None, "previous": None, "results": []}
+        )
 
     def test_list_non_empty(self):
         """GET on non-empty list"""
+        self.caseimportaction = CaseImportActionFactory(project=self.project)
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                **extra
+            )
+        self.assertEqual(response.status_code, 200)
+        expected_json = jsonmatch.compile(
+            {
+                "count": 1,
+                "next": None,
+                "previous": None,
+                "results": [
+                    {
+                        "action": "create",
+                        "date_created": "2012-01-14T12:00:01Z",
+                        "date_modified": "2012-01-14T12:00:01Z",
+                        "payload": dict,
+                        "project": str(self.project.sodar_uuid),
+                        "sodar_uuid": str(self.caseimportaction.sodar_uuid),
+                        "state": "draft",
+                    }
+                ],
+            }
+        )
+        expected_json.assert_matches(response.json())
 
 
+@freeze_time("2012-01-14 12:00:01")
 class CaseImportActionCreateTest(ApiViewTestBase):
     """Tests for the **creation** of the ``CaseImportAction`` objects.
 
@@ -31,14 +93,92 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         super().setUp()
         self.maxDiff = None
 
+    def _test_create_action_create_with_statesucceeds(self, state: str):
+        self.assertEqual(CaseImportAction.objects.count(), 0)
+
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                data={
+                    "action": CaseImportAction.ACTION_CREATE,
+                    "state": state,
+                    "payload": load_family_payload(),
+                },
+                format="json",
+                **extra
+            )
+        self.assertEqual(response.status_code, 201, response.content)
+
+        self.assertEqual(CaseImportAction.objects.count(), 1)
+        caseimportaction = CaseImportAction.objects.all()[0]
+
+        expected_json = jsonmatch.compile(
+            {
+                "action": CaseImportAction.ACTION_CREATE,
+                "state": state,
+                "date_created": "2012-01-14T12:00:01Z",
+                "date_modified": "2012-01-14T12:00:01Z",
+                "payload": dict,
+                "project": str(self.project.sodar_uuid),
+                "sodar_uuid": str(caseimportaction.sodar_uuid),
+            }
+        )
+
+        expected_json.assert_matches(response.json())
+
     def test_create_action_create_as_state_draft_succeeds(self):
         """POST action=create state=draft => succeeds"""
+        self._test_create_action_create_with_statesucceeds(CaseImportAction.STATE_DRAFT)
 
     def test_create_action_create_as_state_submitted_succeeds(self):
         """POST action=create state=submitted => succeeds, triggers job"""
+        self.assertEquals(BackgroundJob.objects.count(), 0)
+        self.assertEquals(CaseImportBackgroundJob.objects.count(), 0)
 
-    def test_create_action_create_as_state_other_fails(self):
+        self._test_create_action_create_with_statesucceeds(CaseImportAction.STATE_SUBMITTED)
+
+        self.assertEquals(BackgroundJob.objects.count(), 1)
+        self.assertEquals(CaseImportBackgroundJob.objects.count(), 1)
+
+        caseimportaction = CaseImportAction.objects.all()[0]
+        backgroundjob = BackgroundJob.objects.all()[0]
+        caseimportbackgroundjob = CaseImportBackgroundJob.objects.all()[0]
+        self.assertEquals(caseimportbackgroundjob.bg_job.pk, backgroundjob.pk)
+        self.assertEquals(caseimportbackgroundjob.caseimportaction.pk, caseimportaction.pk)
+
+    @parameterized.expand(
+        [
+            [CaseImportAction.STATE_RUNNING],
+            [CaseImportAction.STATE_FAILED],
+            [CaseImportAction.STATE_SUCCESS],
+        ]
+    )
+    def test_create_action_create_as_state_other_fails(self, state):
         """POST action=create state=<other> => fails"""
+        self.assertEqual(CaseImportAction.objects.count(), 0)
+
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                data={
+                    "action": CaseImportAction.ACTION_CREATE,
+                    "state": state,
+                    "payload": load_family_payload(),
+                },
+                format="json",
+                **extra
+            )
+        self.assertEqual(response.status_code, 400, response.content)
+
+        self.assertEqual(CaseImportAction.objects.count(), 0)
 
     def test_create_action_create_as_state_submitted_fails_same_name(self):
         """POST action=create state=draft name=<collision> => fails"""

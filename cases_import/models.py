@@ -55,13 +55,37 @@ class CaseImportAction(models.Model):
     #: The JSON serialization of the phenopacket that is to be used in the action.
     payload = JSONField()
 
+    def get_case_name(self):
+        """Return case name from ``self.payload`` as family ID."""
+        return self.payload["pedigree"]["persons"][0]["familyId"]
+
     class Meta:
         #: Order by date of last modification (most recent first).
         ordering = ("-date_modified",)
 
 
+class CaseImportBackgroundJobManager(models.Manager):
+    """Custom manager class that allows to create a ``CaseImportBackgroundJob``
+    together with the backing ``BackgroundJob``.
+    """
+
+    def create_full(self, *, caseimportaction, project, user):
+        case_name = caseimportaction.get_case_name()
+        bg_job = BackgroundJob.objects.create(
+            name=f"Import of case '{case_name}'",
+            project=project,
+            job_type=CaseImportBackgroundJob.spec_name,
+            user=user,
+        )
+        instance = super().create(project=project, bg_job=bg_job, caseimportaction=caseimportaction)
+        return instance
+
+
 class CaseImportBackgroundJob(JobModelMessageMixin, models.Model):
     """Background job for importing cases with the ``cases_import`` app."""
+
+    # We use a custom manager that provides creation together with the ``BackgroundJob``.
+    objects = CaseImportBackgroundJobManager()
 
     #: Task description for logging.
     task_desc = "Case Import"

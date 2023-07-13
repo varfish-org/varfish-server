@@ -1,10 +1,10 @@
+from django.db import transaction
 from django.shortcuts import get_object_or_404
-from projectroles.models import Project
 from projectroles.views_api import SODARAPIGenericProjectMixin, SODARAPIProjectPermission
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.pagination import PageNumberPagination
 
-from cases_import.models import CaseImportAction
+from cases_import.models import CaseImportAction, CaseImportBackgroundJob
 from cases_import.serializers import CaseImportActionSerializer
 from varfish.api_utils import VarfishApiRenderer, VarfishApiVersioning
 
@@ -25,9 +25,7 @@ class CaseImportActionListCreateApiView(SODARAPIGenericProjectMixin, ListCreateA
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
-        result["project"] = get_object_or_404(
-            Project.objects.all(), sodar_uuid=self.kwargs["project"]
-        )
+        result["project"] = self.get_project(request=self.request)
         return result
 
     def get_queryset(self):
@@ -38,6 +36,19 @@ class CaseImportActionListCreateApiView(SODARAPIGenericProjectMixin, ListCreateA
             return "cases_import.create_data"
         else:
             return "cases_import.view_data"
+
+    def perform_create(self, serializer):
+        """Override the ``perform_create()`` method as to create the appropriate background
+        import job.
+        """
+        with transaction.atomic():
+            super().perform_create(serializer)
+            # at this point ``serializer.instance`` has been set and can be used
+            CaseImportBackgroundJob.objects.create_full(
+                caseimportaction=serializer.instance,
+                project=self.get_project(),
+                user=self.request.user,
+            )
 
 
 class CaseImportActionRetrieveUpdateDestroyApiView(
