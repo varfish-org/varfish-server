@@ -72,7 +72,9 @@ class StructuralVariantFlagsAjaxMixin(SvApiBaseMixin):
     serializer_class = StructuralVariantFlagsSerializer
 
     def get_queryset(self):
-        return StructuralVariantFlags.objects.select_related("case").all()
+        return StructuralVariantFlags.objects.select_related("case").filter(
+            case__sodar_uuid=self.kwargs["case"]
+        )
 
     def get_permission_required(self):
         return "variants.view_data"
@@ -99,13 +101,6 @@ class StructuralVariantFlagsListCreateAjaxView(StructuralVariantFlagsAjaxMixin, 
             start = int(serializer_context["start"])
             end = int(serializer_context["end"])
             all_objs = list(queryset)
-            for obj in all_objs:
-                print(vars(obj))
-                print(
-                    reciprocal_overlap(
-                        sv_type=obj.sv_type, qry_start=start, qry_end=end, record=obj
-                    )
-                )
             return QuerySet(
                 [
                     obj
@@ -144,7 +139,7 @@ class StructuralVariantCommentAjaxMixin(SvApiBaseMixin):
     serializer_class = StructuralVariantCommentSerializer
 
     def get_queryset(self):
-        return StructuralVariantComment.objects.all()
+        return StructuralVariantComment.objects.filter(case__sodar_uuid=self.kwargs["case"])
 
     def get_permission_required(self):
         return "variants.view_data"

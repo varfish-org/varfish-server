@@ -1,12 +1,22 @@
 import copy
 
 from bgjobs.models import JOB_STATE_DONE
+from django.forms import model_to_dict
 from django.urls import reverse
 from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 
 from ..models import FilterBgJob, SmallVariantQuery
 from ..query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
-from .factories import CaseWithVariantSetFactory, FilterBgJobFactory, SmallVariantQueryFactory
+from .factories import (
+    AcmgCriteriaRatingFactory,
+    CaseFactory,
+    CaseWithVariantSetFactory,
+    FilterBgJobFactory,
+    SmallVariantCommentFactory,
+    SmallVariantFactory,
+    SmallVariantFlagsFactory,
+    SmallVariantQueryFactory,
+)
 from .helpers import VARFISH_INVALID_MIMETYPE, VARFISH_INVALID_VERSION, ApiViewTestBase
 
 # TODO: add tests that include permission testing
@@ -727,3 +737,188 @@ class TestSmallVariantQuerySettingsShortcutApiView(
                 expected = 401
             response = self.request_knox(url, token=token)
             self.assertEqual(response.status_code, expected, f"user = {user}")
+
+
+class TestSmallVariantCommentListCreateApiView(TestSmallVariantQueryBase):
+    """Tests for case query preset generation"""
+
+    def test_get_empty(self):
+        url = reverse(
+            "variants:api-small-variant-comment-list-create", kwargs={"case": self.case.sodar_uuid}
+        )
+        response = self.request_knox(url)
+
+        expected = []
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected)
+
+    def _test_get_comments_as_user(self, user):
+        with self.login(user):
+            SmallVariantCommentFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+                user=self.user_contributor,
+            )
+            comments = SmallVariantCommentFactory.create_batch(
+                2,
+                case=self.case,
+                user=self.user_contributor,
+            )
+            url = reverse(
+                "variants:api-small-variant-comment-list-create",
+                kwargs={"case": self.case.sodar_uuid},
+            )
+            response = self.request_knox(url)
+
+            expected = []
+            for comment in comments:
+                expected.append(model_to_dict(comment, exclude=["id"]))
+                expected[-1]["user"] = comment.user.username
+                expected[-1]["sodar_uuid"] = str(comment.sodar_uuid)
+                expected[-1]["case"] = str(comment.case.sodar_uuid)
+
+            response_json = response.json()
+            for comment in response_json:
+                del comment["date_created"]
+                del comment["date_modified"]
+                del comment["user_can_edit"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_comments_superuser(self):
+        self._test_get_comments_as_user(self.superuser)
+
+    def test_get_comments_owner(self):
+        self._test_get_comments_as_user(self.user_owner)
+
+    def test_get_comments_delegate(self):
+        self._test_get_comments_as_user(self.user_delegate)
+
+    def test_get_comments_contributor(self):
+        self._test_get_comments_as_user(self.user_contributor)
+
+    def test_get_comments_guest(self):
+        self._test_get_comments_as_user(self.user_guest)
+
+
+class TestSmallVariantFlagsListCreateApiView(TestSmallVariantQueryBase):
+    """Tests for case query preset generation"""
+
+    def test_get_empty(self):
+        url = reverse(
+            "variants:api-small-variant-flags-list-create", kwargs={"case": self.case.sodar_uuid}
+        )
+        response = self.request_knox(url)
+
+        expected = []
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected)
+
+    def _test_get_flags_as_user(self, user):
+        with self.login(user):
+            SmallVariantFlagsFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+            )
+            flags = SmallVariantFlagsFactory.create_batch(
+                2,
+                case=self.case,
+            )
+            url = reverse(
+                "variants:api-small-variant-flags-list-create",
+                kwargs={"case": self.case.sodar_uuid},
+            )
+            response = self.request_knox(url)
+
+            expected = []
+            for flag in flags:
+                expected.append(model_to_dict(flag, exclude=["id"]))
+                expected[-1]["sodar_uuid"] = str(flag.sodar_uuid)
+                expected[-1]["case"] = str(flag.case.sodar_uuid)
+
+            response_json = response.json()
+            for comment in response_json:
+                del comment["date_created"]
+                del comment["date_modified"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_flags_superuser(self):
+        self._test_get_flags_as_user(self.superuser)
+
+    def test_get_flags_owner(self):
+        self._test_get_flags_as_user(self.user_owner)
+
+    def test_get_flags_delegate(self):
+        self._test_get_flags_as_user(self.user_delegate)
+
+    def test_get_flags_contributor(self):
+        self._test_get_flags_as_user(self.user_contributor)
+
+    def test_get_flags_guest(self):
+        self._test_get_flags_as_user(self.user_guest)
+
+
+class TestAcmgCriteriaRatingListCreateApiView(TestSmallVariantQueryBase):
+    """Tests for case query preset generation"""
+
+    def test_get_empty(self):
+        url = reverse(
+            "variants:api-acmg-criteria-rating-list-create", kwargs={"case": self.case.sodar_uuid}
+        )
+        response = self.request_knox(url)
+
+        expected = []
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, expected)
+
+    def _test_get_acmg_criteria_rating_as_user(self, user):
+        with self.login(user):
+            AcmgCriteriaRatingFactory.create_batch(
+                2,
+                case=CaseFactory(project=self.project),
+                user=self.user_contributor,
+            )
+            ratings = AcmgCriteriaRatingFactory.create_batch(
+                2,
+                case=self.case,
+                user=self.user_contributor,
+            )
+            url = reverse(
+                "variants:api-acmg-criteria-rating-list-create",
+                kwargs={"case": self.case.sodar_uuid},
+            )
+            response = self.request_knox(url)
+
+            expected = []
+            for rating in ratings:
+                expected.append(model_to_dict(rating, exclude=["id"]))
+                expected[-1]["user"] = rating.user.username
+                expected[-1]["sodar_uuid"] = str(rating.sodar_uuid)
+                expected[-1]["case"] = str(rating.case.sodar_uuid)
+
+            response_json = response.json()
+            for rating in response_json:
+                del rating["date_created"]
+                del rating["date_modified"]
+                del rating["acmg_class"]
+
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response_json, expected)
+
+    def test_get_acmg_criteria_rating_superuser(self):
+        self._test_get_acmg_criteria_rating_as_user(self.superuser)
+
+    def test_get_acmg_criteria_rating_owner(self):
+        self._test_get_acmg_criteria_rating_as_user(self.user_owner)
+
+    def test_get_acmg_criteria_rating_delegate(self):
+        self._test_get_acmg_criteria_rating_as_user(self.user_delegate)
+
+    def test_get_acmg_criteria_rating_contributor(self):
+        self._test_get_acmg_criteria_rating_as_user(self.user_contributor)
+
+    def test_get_acmg_criteria_rating_guest(self):
+        self._test_get_acmg_criteria_rating_as_user(self.user_guest)

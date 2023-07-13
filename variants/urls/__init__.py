@@ -397,7 +397,7 @@ api_urlpatterns = [
     url(
         r"^api/small-variant-comment/list-create/(?P<case>[0-9a-f-]+)/?$",
         view=views_api.SmallVariantCommentListCreateApiView.as_view(),
-        name="api-small-variant-comment-create",
+        name="api-small-variant-comment-list-create",
     ),
     url(
         r"^api/small-variant-comment/update/(?P<smallvariantcomment>[0-9a-f-]+)/?$",
