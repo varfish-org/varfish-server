@@ -2,7 +2,7 @@
 
 import typing
 
-from phenopackets import MetaData, Family, Resource, Phenopacket
+from phenopackets import Family, File, MetaData, Pedigree, Phenopacket, Resource, Sex
 
 
 class ValidationWarning(UserWarning):
@@ -100,6 +100,110 @@ class ProbandValidator(PhenopacketValidator):
         return result
 
 
+class RelativeValidator(PhenopacketValidator):
+    """Helper class that allows to validate ``Phenopacket``s as relatives."""
+
+    def __init__(self, relative: Phenopacket):
+        super().__init__(relative)
+        #: The family to validate
+        self.relatives = relative
+
+    def validate(self) -> typing.List[ValidationWarning]:
+        result = super().validate()
+        return result
+
+
+class PedigreeValidator:
+    """Helper class that allows to validate phenopackets pedigree."""
+
+    def __init__(self, sample_names: typing.Set[str], pedigree: Pedigree):
+        #: The names of the samples from ``proband`` and ``relatives``.
+        self.sample_names = sample_names
+        #: The pedigree to validate
+        self.pedigree = pedigree
+
+    def validate(self) -> typing.List[ValidationWarning]:
+        result = []
+        result += self._validate_family_name()
+        result += self._validate_sample_names()
+        result += self._validate_parent_sexes()
+        return result
+
+    def _validate_family_name(self) -> typing.List[ValidationWarning]:
+        seen_family_ids = {
+            person.family_id for person in self.pedigree.persons if str(person.family_id)
+        }
+        if len(seen_family_ids) != 1:
+            return [ValidationWarning(f"Expected exactly one family, but got {seen_family_ids}.")]
+        else:
+            return []
+
+    def _validate_sample_names(self) -> typing.List[ValidationWarning]:
+        result = []
+
+        ped_names = {person.individual_id for person in self.pedigree.persons}
+        if ped_names != self.sample_names:
+            result.append(
+                ValidationWarning(
+                    f"Pedigree sample names {ped_names} do not match proband and "
+                    f"relatives {self.sample_names}."
+                )
+            )
+
+        for person in self.pedigree.persons:
+            if person.paternal_id != "0" and person.paternal_id not in ped_names:
+                result.append(
+                    ValidationWarning(
+                        f"Pedigree sample {person.individual_id} has unknown paternal id "
+                        f"{person.paternal_id}."
+                    )
+                )
+            if person.maternal_id != "0" and person.maternal_id not in ped_names:
+                result.append(
+                    ValidationWarning(
+                        f"Pedigree sample {person.individual_id} has unknown maternal id "
+                        f"{person.maternal_id}."
+                    )
+                )
+
+        return result
+
+    def _validate_parent_sexes(self) -> typing.List[ValidationWarning]:
+        paternal_ids = {
+            person.paternal_id for person in self.pedigree.persons if person.paternal_id != "0"
+        }
+        maternal_ids = {
+            person.maternal_id for person in self.pedigree.persons if person.paternal_id != "0"
+        }
+        result = []
+        for person in self.pedigree.persons:
+            if person.sex == Sex.MALE and person.individual_id in maternal_ids:
+                result.append(
+                    ValidationWarning(
+                        f"Pedigree sample {person.individual_id} is male but seen as maternal."
+                    )
+                )
+            if person.sex == Sex.FEMALE and person.individual_id in paternal_ids:
+                result.append(
+                    ValidationWarning(
+                        f"Pedigree sample {person.individual_id} is female but seen as paternal."
+                    )
+                )
+        return result
+
+
+class FileValidator:
+    """Helper class that allows to validate phenopackets files."""
+
+    def __init__(self, file_: File):
+        #: The file to validate
+        self.file = file_
+
+    def validate(self) -> typing.List[ValidationWarning]:
+        result = []
+        return result
+
+
 class FamilyValidator:
     """Helper class that allows to validate phenopackets family.
 
@@ -110,13 +214,14 @@ class FamilyValidator:
     def __init__(self, family: Family):
         #: The family to validate
         self.family = family
+        # The names of the samples from ``proband`` and ``relatives``.  The proband
+        # is the first.
+        self.sample_names: typing.Set[str] = self._get_sample_names(family)
 
     def validate(self) -> typing.List[ValidationWarning]:
         """Validate the family and return a potentially empty list of warnings."""
+        # Perform the validations per entry.
         result = []
-        # Note that the order of the validation methods is important as they use
-        # side effects on collecting information.  This design is not ideal but
-        # simplifies the code itself and this is limited to this class.
         result += self._validate_meta_data()
         result += self._validate_proband()
         result += self._validate_relatives()
@@ -124,23 +229,41 @@ class FamilyValidator:
         result += self._validate_files()
         return result
 
-    def _validate_meta_data(self):
-        if not self.family.meta_data:
+    def _get_sample_names(self, family: Family) -> typing.Set[str]:
+        """Obtain the sample names from proband and relatives."""
+        result = set()
+        if str(family.proband):
+            result.add(family.proband.id)
+        for relative in family.relatives:
+            result.add(relative.id)
+        return result
+
+    def _validate_meta_data(self) -> typing.List[ValidationWarning]:
+        if not str(self.family.meta_data):
             return [MetaDataValidationWarning("Missing /metadata")]
         else:
             return MetaDataValidator(self.family.meta_data).validate()
 
-    def _validate_proband(self):
-        if not self.family.proband:
+    def _validate_proband(self) -> typing.List[ValidationWarning]:
+        if not str(self.family.proband):
             return [ProbandValidationWarning("Missing /proband")]
         else:
             return ProbandValidator(self.family.proband).validate()
 
-    def _validate_relatives(self):
-        return []
+    def _validate_relatives(self) -> typing.List[ValidationWarning]:
+        result = []
+        for relative in self.family.relatives:
+            result += RelativeValidator(relative).validate()
+        return result
 
-    def _validate_pedigree(self):
-        return []
+    def _validate_pedigree(self) -> typing.List[ValidationWarning]:
+        if not str(self.family.pedigree):
+            return [ValidationWarning("Missing /pedigree")]
+        else:
+            return PedigreeValidator(self.sample_names, self.family.pedigree).validate()
 
-    def _validate_files(self):
-        return []
+    def _validate_files(self) -> typing.List[ValidationWarning]:
+        result = []
+        for file_ in self.family.files:
+            result += FileValidator(file_).validate()
+        return result

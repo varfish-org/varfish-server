@@ -2,11 +2,11 @@
 
 import copy
 
-from parameterized import parameterized
-import yaml
-from test_plus import TestCase
 from google.protobuf.json_format import ParseDict
+from parameterized import parameterized
 from phenopackets import Family
+from test_plus import TestCase
+import yaml
 
 from cases_import.proto import FamilyValidator, MetaDataValidator, ProbandValidator
 
@@ -26,22 +26,17 @@ class FamilyValidatorTest(TestCase):
 
     @parameterized.expand(
         [
-            ["proband"],
-            # ["relatives"],
-            # ['pedigree'],
-            # ["files"],
-            ["meta_data"],
+            ["proband", 2],
+            ["pedigree", 1],
+            ["metaData", 1],
         ]
     )
-    def test_validate_fails(self, key):
+    def test_validate_fails(self, key, expected_res_len):
         js_dict = copy.deepcopy(self.fam_dict["family"])
         js_dict.pop(key)
         family: Family = ParseDict(js_dict=js_dict, message=Family())
         res = FamilyValidator(family).validate()
-        self.assertEqual(
-            len(res),
-            1,
-        )
+        self.assertEqual(len(res), expected_res_len, res)
 
 
 class MetaDataValidatorTest(TestCase):
