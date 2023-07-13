@@ -18,7 +18,7 @@ class ProjectAppPlugin(ProjectAppPluginPoint):
 
     plugin_ordering = 1000
 
-    icon = "mdi:cloud-update"
+    icon = "mdi:cloud-upload"
 
     entry_point_url_id = "cases_import:index"
 

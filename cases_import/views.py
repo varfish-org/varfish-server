@@ -12,6 +12,8 @@ from cases_import.models import CaseImportBackgroundJob
 class IndexView(
     LoginRequiredMixin,
     LoggedInPermissionMixin,
+    ProjectPermissionMixin,
+    ProjectContextMixin,
     TemplateView,
 ):
     permission_required = "cases_import.view_data"
@@ -30,5 +32,5 @@ class ImportCaseBackgroundsJobDetailView(
     permission_required = "cases_import.view_data"
     template_name = "cases_import/importcasebackgroudjobdetail.html"
     model = CaseImportBackgroundJob
-    slug_url_kwarg = "job"
+    slug_url_kwarg = "caseimportbackgroundjob"
     slug_field = "sodar_uuid"

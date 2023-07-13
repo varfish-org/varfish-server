@@ -67,7 +67,7 @@ class CaseImportBackgroundJob(JobModelMessageMixin, models.Model):
     task_desc = "Case Import"
 
     #: String identifying model in BackgroundJob.
-    spec_name = "cases_import.import_case_bg_job"
+    spec_name = "cases_import.importcasebgjob"
 
     #: The SODAR UUID.
     sodar_uuid = models.UUIDField(
@@ -96,6 +96,6 @@ class CaseImportBackgroundJob(JobModelMessageMixin, models.Model):
 
     def get_absolute_url(self):
         return reverse(
-            "cases_import:ui-importcasebackgroundsjob-detail",
-            kwargs={"importcasebackgroundsjob": self.sodar_uuid},
+            "cases_import:ui-caseimportbackgroundjob-detail",
+            kwargs={"caseimportbackgroundjob": self.sodar_uuid},
         )

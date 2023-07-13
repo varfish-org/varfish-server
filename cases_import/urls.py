@@ -7,9 +7,9 @@ app_name = "cases_import"
 ui_urlpatterns = [
     path(route="index/<project>/", view=views.IndexView.as_view(), name="index"),
     path(
-        route="import-case-bg-job/<importcasebackgroundsjob>/",
+        route="import-case-bg-job/<caseimportbackgroundjob>/",
         view=views.ImportCaseBackgroundsJobDetailView.as_view(),
-        name="ui-importcasebackgroundsjob-detail",
+        name="ui-caseimportbackgroundjob-detail",
     ),
 ]
 
