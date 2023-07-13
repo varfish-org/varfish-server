@@ -381,55 +381,55 @@ class TestQuickPresets(PedigreesMixin, TestCase):
     def testValueDefaults(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.defaults),
-            "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueDeNovo(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.de_novo),
-            "QuickPresets(label='de novo', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.NEAR_GENE: 'near_gene'>, sv_type=<SvType.CNVS_LARGE: 'cnvs_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='de novo', inheritance=<Inheritance.DE_NOVO: 'de_novo'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.NEAR_GENE: 'near_gene'>, sv_type=<SvType.CNVS_LARGE: 'cnvs_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueDominant(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.dominant),
-            "QuickPresets(label='dominant', inheritance=<Inheritance.DOMINANT: 'dominant'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='dominant', inheritance=<Inheritance.DOMINANT: 'dominant'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueHomozygousRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.homozygous_recessive),
-            "QuickPresets(label='homozygous recessive', inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='homozygous recessive', inheritance=<Inheritance.HOMOZYGOUS_RECESSIVE: 'homozygous_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueHeterozygousRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.compound_heterozygous),
-            "QuickPresets(label='compound heterozygous', inheritance=<Inheritance.COMPOUND_HETEROZYGOUS: 'compound_heterozygous'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='compound heterozygous', inheritance=<Inheritance.COMPOUND_HETEROZYGOUS: 'compound_heterozygous'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueXRecessive(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.x_recessive),
-            "QuickPresets(label='X-recessive', inheritance=<Inheritance.X_RECESSIVE: 'x_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='X-recessive', inheritance=<Inheritance.X_RECESSIVE: 'x_recessive'>, frequency=<Frequency.RELAXED: 'relaxed'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueClinvarPathogenic(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.defaults),
-            "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='defaults', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.STRICT: 'strict'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueMitochondrial(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.mitochondrial),
-            "QuickPresets(label='mitochondrial', inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, frequency=<Frequency.ANY: 'any'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.MT_CHROMOSOME: 'mt_chromosome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='mitochondrial', inheritance=<Inheritance.AFFECTED_CARRIERS: 'affected_carriers'>, frequency=<Frequency.ANY: 'any'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.MT_CHROMOSOME: 'mt_chromosome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testValueWholeGenome(self):
         self.assertEqual(
             str(query_presets.QUICK_PRESETS.whole_genome),
-            "QuickPresets(label='whole genome', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.ANY: 'any'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.DEFAULT: 'default'>, database=<Database.REFSEQ: 'refseq'>)",
+            "QuickPresets(label='whole genome', inheritance=<Inheritance.ANY: 'any'>, frequency=<Frequency.ANY: 'any'>, impact=<Impact.EXONIC: 'exonic'>, sv_type=<SvType.CNVS_EXTRA_LARGE: 'cnvs_extra_large'>, chromosomes=<Chromosomes.WHOLE_GENOME: 'whole_genome'>, regulatory=<Regulatory.DEFAULT: 'default'>, tad=<Tad.DEFAULT: 'default'>, known_patho=<KnownPatho.DEFAULT: 'default'>, genotype_criteria=<GenotypeCriteriaDefinitions.SVISH_HIGH: 'svish_high'>, database=<Database.REFSEQ: 'refseq'>)",
         )
 
     def testToSettingsDefaults(self):
@@ -488,7 +488,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         min_srpr_ref=None,
                         max_srpr_ref=None,
                         min_srpr_var=None,
-                        max_srpr_var=None,
+                        max_srpr_var=1,
                         min_sr_ab=None,
                         max_sr_ab=None,
                         min_pr_ab=None,
@@ -496,7 +496,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         min_srpr_ab=None,
                         max_srpr_ab=None,
                         min_rd_dev=None,
-                        max_rd_dev=None,
+                        max_rd_dev=0.2,
                         min_amq=None,
                         max_amq=None,
                         missing_gt_ok=True,
@@ -506,7 +506,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         missing_srpr_ok=True,
                         missing_rd_dev_ok=True,
                         missing_amq_ok=True,
-                        comment="Trust the genotype to show the wild-type/reference",
+                        comment="Wild-type genotype with high-confidence filter",
                     ),
                     GenotypeCriteria(
                         genotype=GenotypeChoice.HET,
@@ -533,7 +533,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         max_brk_segdup=None,
                         max_brk_repeat=None,
                         max_brk_segduprepeat=None,
-                        min_gq=None,
+                        min_gq=50,
                         min_pr_cov=None,
                         max_pr_cov=None,
                         min_pr_ref=None,
@@ -556,9 +556,9 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         max_sr_ab=None,
                         min_pr_ab=None,
                         max_pr_ab=None,
-                        min_srpr_ab=None,
+                        min_srpr_ab=0.1,
                         max_srpr_ab=None,
-                        min_rd_dev=None,
+                        min_rd_dev=0.2,
                         max_rd_dev=None,
                         min_amq=None,
                         max_amq=None,
@@ -569,7 +569,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         missing_srpr_ok=True,
                         missing_rd_dev_ok=True,
                         missing_amq_ok=True,
-                        comment="Trust the genotype to show the wild-type/reference",
+                        comment="Heterozygous genotype with high-confidence filter",
                     ),
                     GenotypeCriteria(
                         genotype=GenotypeChoice.HOM,
@@ -596,7 +596,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         max_brk_segdup=None,
                         max_brk_repeat=None,
                         max_brk_segduprepeat=None,
-                        min_gq=None,
+                        min_gq=50,
                         min_pr_cov=None,
                         max_pr_cov=None,
                         min_pr_ref=None,
@@ -619,9 +619,9 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         max_sr_ab=None,
                         min_pr_ab=None,
                         max_pr_ab=None,
-                        min_srpr_ab=None,
+                        min_srpr_ab=0.8,
                         max_srpr_ab=None,
-                        min_rd_dev=None,
+                        min_rd_dev=0.5,
                         max_rd_dev=None,
                         min_amq=None,
                         max_amq=None,
@@ -632,7 +632,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         missing_srpr_ok=True,
                         missing_rd_dev_ok=True,
                         missing_amq_ok=True,
-                        comment="Trust the genotype to show homozygous alternative genotype",
+                        comment="Homozygous genotype with high-confidence filter",
                     ),
                     GenotypeCriteria(
                         genotype=GenotypeChoice.NON_VARIANT,
@@ -677,7 +677,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         min_srpr_ref=None,
                         max_srpr_ref=None,
                         min_srpr_var=None,
-                        max_srpr_var=None,
+                        max_srpr_var=1,
                         min_sr_ab=None,
                         max_sr_ab=None,
                         min_pr_ab=None,
@@ -685,7 +685,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         min_srpr_ab=None,
                         max_srpr_ab=None,
                         min_rd_dev=None,
-                        max_rd_dev=None,
+                        max_rd_dev=0.2,
                         min_amq=None,
                         max_amq=None,
                         missing_gt_ok=True,
@@ -695,7 +695,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         missing_srpr_ok=True,
                         missing_rd_dev_ok=True,
                         missing_amq_ok=True,
-                        comment="Trust the genotype to show non-variant genotype",
+                        comment="Non-variant genotype with high-confidence filter",
                     ),
                     GenotypeCriteria(
                         genotype=GenotypeChoice.VARIANT,
@@ -734,7 +734,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         max_brk_segdup=None,
                         max_brk_repeat=None,
                         max_brk_segduprepeat=None,
-                        min_gq=None,
+                        min_gq=50,
                         min_pr_cov=None,
                         max_pr_cov=None,
                         min_pr_ref=None,
@@ -757,9 +757,9 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         max_sr_ab=None,
                         min_pr_ab=None,
                         max_pr_ab=None,
-                        min_srpr_ab=None,
+                        min_srpr_ab=0.1,
                         max_srpr_ab=None,
-                        min_rd_dev=None,
+                        min_rd_dev=0.2,
                         max_rd_dev=None,
                         min_amq=None,
                         max_amq=None,
@@ -770,7 +770,7 @@ class TestQuickPresets(PedigreesMixin, TestCase):
                         missing_srpr_ok=True,
                         missing_rd_dev_ok=True,
                         missing_amq_ok=True,
-                        comment="Trust the genotype to show variant genotype",
+                        comment="Variant genotype with high-confidence filter",
                     ),
                 ],
                 "recessive_index": None,

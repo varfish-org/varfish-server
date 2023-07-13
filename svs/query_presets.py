@@ -376,7 +376,7 @@ GT_CRITERIA_HIGH: typing.List[GenotypeCriteria] = [
     #
     # -- GenotypeChoice.REF -------------------------------------------------
     GenotypeCriteria(
-        comment="Wild-type genotype with high confidence filter",
+        comment="Wild-type genotype with high-confidence filter",
         genotype=GenotypeChoice.REF,
         select_sv_sub_type=SVSUBTYPES_ALL,
         gt_one_of=["0/0", "0|0", "0", "./0", "0/.", "0|.", ".|0"],
@@ -537,7 +537,7 @@ GT_CRITERIA_DEFAULT: typing.List[GenotypeCriteria] = [
 
 @attrs.define(frozen=True)
 class _GenotypeCriteria:
-    #: Clin-SV inspired high confidence filter criteria settings.
+    #: Clin-SV inspired high-confidence filter criteria settings.
     svish_high: typing.List[GenotypeCriteria] = GT_CRITERIA_HIGH
     #: Clin-SV inspired pass filter criteria settings.
     svish_pass: typing.List[GenotypeCriteria] = GT_CRITERIA_PASS
