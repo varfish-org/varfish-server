@@ -26,8 +26,8 @@ class FamilyValidatorTest(TestCase):
 
     @parameterized.expand(
         [
-            ["proband", 2],
-            ["pedigree", 1],
+            ["proband", 5],
+            ["pedigree", 4],
             ["metaData", 1],
         ]
     )
@@ -97,6 +97,13 @@ class MetaDataValidatorTest(TestCase):
         )
 
 
+class PhenopacketValidatorTest(TestCase):
+    def setUp(self):
+        with open("cases_import/tests/data/family.yaml", "rt") as inputf:
+            self.fam_dict = yaml.safe_load(inputf)
+
+
+
 class ProbandValidatorTest(TestCase):
     def setUp(self):
         with open("cases_import/tests/data/family.yaml", "rt") as inputf:
@@ -106,6 +113,31 @@ class ProbandValidatorTest(TestCase):
         """Test validation succeeds."""
         family: Family = ParseDict(js_dict=self.fam_dict["family"], message=Family())
         self.assertEqual(
-            ProbandValidator(family.proband).validate(),
+            ProbandValidator(family.proband, sample_names={"index", "mother", "father"}).validate(),
             [],
         )
+
+
+class ProbandValidatorTest(TestCase):
+    def setUp(self):
+        with open("cases_import/tests/data/family.yaml", "rt") as inputf:
+            self.fam_dict = yaml.safe_load(inputf)
+
+
+class RelativeValidatorTest(TestCase):
+    def setUp(self):
+        with open("cases_import/tests/data/family.yaml", "rt") as inputf:
+            self.fam_dict = yaml.safe_load(inputf)
+
+
+
+class PedigreeValidatorTest(TestCase):
+    def setUp(self):
+        with open("cases_import/tests/data/family.yaml", "rt") as inputf:
+            self.fam_dict = yaml.safe_load(inputf)
+
+
+class FileValidatorTest(TestCase):
+    def setUp(self):
+        with open("cases_import/tests/data/family.yaml", "rt") as inputf:
+            self.fam_dict = yaml.safe_load(inputf)

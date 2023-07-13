@@ -1,5 +1,6 @@
 """Support for the protocolbuffers in ``cases_import``."""
 
+import enum
 import typing
 
 from phenopackets import Family, File, MetaData, Pedigree, Phenopacket, Resource, Sex
@@ -19,6 +20,14 @@ class PhenopacketValidationWarning(ValidationWarning):
 
 class ProbandValidationWarning(PhenopacketValidationWarning):
     """Warning class used during validation of ``Phenopacket`` as proband."""
+
+
+class FileValidationWarning(ValidationWarning):
+    """Warning class used during validation of ``File``."""
+
+
+class FamilyValidationWarning(ValidationWarning):
+    """Warning class used during validation of ``Family``."""
 
 
 class MetaDataValidator:
@@ -75,25 +84,134 @@ class MetaDataValidator:
         return result
 
 
+#: Labels for the known assays.
+ASSAY_LABELS: typing.Dict[str, str] = {
+    "NCIT:C158253": "Targeted Genome Sequencing",
+    "NCIT:C101295": "Whole Exome Sequencing",
+    "NCIT:C101294": "Whole Genome Sequencing",
+}
+
+
+@enum.unique
+class Assay(enum.Enum):
+    """Known (sequencing) assays."""
+
+    #: Panel sequencing
+    PANEL_SEQ = "NCIT:C158253"
+    #: Whole exome sequencing
+    WES = "NCIT:C101295"
+    #: Whole genome sequencing
+    WGS = "NCIT:C101294"
+
+    @classmethod
+    def is_value(cls, value) -> bool:
+        return value in ASSAY_LABELS
+
+    @classmethod
+    def all_values(cls) -> typing.List[str]:
+        return list(ASSAY_LABELS.keys())
+
+    def get_label(self) -> str:
+        return ASSAY_LABELS[self.value]
+
+
+@enum.unique
+class FileDesignation(enum.Enum):
+    """Known file designations."""
+
+    #: Sequencing enrichment targets.
+    SEQUENCINGE_TARGETS = "sequencing_targets"
+    #: Read alignment file.
+    READ_ALIGNMENTS = "read_alignments"
+    #: Variant calling file.
+    VARIANT_CALLS = "variant_calls"
+    #: Other file.
+    OTHER = "other"
+
+    @classmethod
+    def is_value(cls, value) -> bool:
+        return value in cls.all_values()
+
+    @classmethod
+    def all_values(cls) -> typing.List[str]:
+        return [v.value for v in cls]
+
+
 class PhenopacketValidator:
     """Helper class that allows to validate ``Phenopacket``s"""
 
-    def __init__(self, phenopacket: Phenopacket):
+    def __init__(
+        self, phenopacket: Phenopacket, sample_names: typing.Optional[typing.List[str]] = None
+    ):
         #: The phenopacket to validate
-        self.phenopacket = phenopacket
+        self.pp = phenopacket
+        #: The sample names
+        self.sample_names = sample_names or [phenopacket.id]
 
     def validate(self) -> typing.List[ValidationWarning]:
         result = []
+
+        if self.pp.id != self.pp.subject.id:
+            result.append(
+                ValidationWarning(
+                    f"Inconsistency between pheopacket id {self.pp.id} and subject "
+                    f"id {self.pp.subject.id}"
+                )
+            )
+
+        if len(self.pp.measurements) > 1:
+            result.append(
+                ValidationWarning(
+                    f"At most one measurement supported for phenopacket (id={self.pp.id})"
+                )
+            )
+        elif len(self.pp.measurements) == 1:
+            measurement = self.pp.measurements[0]
+            if not Assay.is_value(measurement.assay.id):
+                allowed = Assay.all_values()
+                result.append(
+                    ValidationWarning(
+                        f"Invalid measurement assay id {measurement.assay.id} found for "
+                        f"phenopacket {self.pp.id}, allowed: {allowed}"
+                    )
+                )
+            if len(self.pp.files) == 0:
+                result.append(
+                    ValidationWarning(
+                        f"Must at least have per-sample targets BED file if sequencing "
+                        f"assay was performed."
+                    )
+                )
+            else:
+                first = self.pp.files[0]
+                if (
+                    first.file_attributes.get("designation")
+                    != FileDesignation.SEQUENCINGE_TARGETS.value
+                ):
+                    result.append(
+                        ValidationWarning(
+                            f"First file in phenopacket {self.pp.id} must be per-sample "
+                            f"targets BED file."
+                        )
+                    )
+
+        for file_ in self.pp.files:
+            result += FileValidator(self.sample_names, file_).validate()
+
         return result
 
 
 class ProbandValidator(PhenopacketValidator):
     """Helper class that allows to validate ``Phenopacket``s as probands."""
 
-    def __init__(self, proband: Phenopacket):
-        super().__init__(proband)
+    def __init__(
+        self, proband: Phenopacket, sample_names: typing.Optional[typing.List[str]] = None
+    ):
+        super().__init__(proband, sample_names)
         #: The family to validate
         self.proband = proband
+        #: The sample names
+        self.sample_names = sample_names or [proband.id]
 
     def validate(self) -> typing.List[ValidationWarning]:
         result = super().validate()
@@ -103,10 +221,14 @@ class ProbandValidator(PhenopacketValidator):
 class RelativeValidator(PhenopacketValidator):
     """Helper class that allows to validate ``Phenopacket``s as relatives."""
 
-    def __init__(self, relative: Phenopacket):
-        super().__init__(relative)
-        #: The family to validate
-        self.relatives = relative
+    def __init__(
+        self, relative: Phenopacket, sample_names: typing.Optional[typing.List[str]] = None
+    ):
+        super().__init__(relative, sample_names)
+        #: The relative from the family to validate
+        self.relative = relative
+        #: The sample names
+        self.sample_names = sample_names or [self.relative.id]
 
     def validate(self) -> typing.List[ValidationWarning]:
         result = super().validate()
@@ -195,12 +317,46 @@ class PedigreeValidator:
 class FileValidator:
     """Helper class that allows to validate phenopackets files."""
 
-    def __init__(self, file_: File):
+    def __init__(self, sample_names: typing.List[str], file_: File):
+        #: The sample names
+        self.sample_names = set(sample_names)
         #: The file to validate
         self.file = file_
 
     def validate(self) -> typing.List[ValidationWarning]:
         result = []
+
+        if "checksum" not in self.file.file_attributes:
+            result.append(ValidationWarning(f"File {self.file.uri} has no checksum."))
+        else:
+            checksum = self.file.file_attributes["checksum"]
+            prefixes = ("md5", "sha256")
+            if not any(checksum.startswith(f"{prefix}:") for prefix in prefixes):
+                result.append(
+                    ValidationWarning(f"File {self.file.uri} does not have proper checksum prefix.")
+                )
+
+        if "designation" not in self.file.file_attributes:
+            result.append(ValidationWarning(f"File {self.file.uri} has no designation."))
+        else:
+            designation = self.file.file_attributes["designation"]
+            if not FileDesignation.is_value(designation):
+                result.append(
+                    ValidationWarning(
+                        f"File {self.file.uri} has invalid designation {designation}."
+                    )
+                )
+
+        individuals = {name for name in self.file.individual_to_file_identifiers.keys()}
+        if not individuals.issubset(self.sample_names):
+            unknown = individuals - self.sample_names
+            result.append(
+                ValidationWarning(
+                    f"Unknown individuals in file {self.file.uri}: {unknown} "
+                    f"(known: {self.sample_names})."
+                )
+            )
+
         return result
 
 
@@ -227,6 +383,7 @@ class FamilyValidator:
         result += self._validate_relatives()
         result += self._validate_pedigree()
         result += self._validate_files()
+        result += self._validate_sex_consistency()
         return result
 
     def _get_sample_names(self, family: Family) -> typing.Set[str]:
@@ -248,12 +405,12 @@ class FamilyValidator:
         if not str(self.family.proband):
             return [ProbandValidationWarning("Missing /proband")]
         else:
-            return ProbandValidator(self.family.proband).validate()
+            return ProbandValidator(self.family.proband, self.sample_names).validate()
 
     def _validate_relatives(self) -> typing.List[ValidationWarning]:
         result = []
         for relative in self.family.relatives:
-            result += RelativeValidator(relative).validate()
+            result += RelativeValidator(relative, self.sample_names).validate()
         return result
 
     def _validate_pedigree(self) -> typing.List[ValidationWarning]:
@@ -265,5 +422,30 @@ class FamilyValidator:
     def _validate_files(self) -> typing.List[ValidationWarning]:
         result = []
         for file_ in self.family.files:
-            result += FileValidator(file_).validate()
+            result += FileValidator(self.sample_names, file_).validate()
+        return result
+
+    def _validate_sex_consistency(self):
+        sex_by_pedigree = {
+            person.individual_id: person.sex for person in self.family.pedigree.persons
+        }
+        result = []
+        if (
+            not sex_by_pedigree.get(self.family.proband.id)
+            or sex_by_pedigree.get(self.family.proband.id) != self.family.proband.subject.sex
+        ):
+            result.append(
+                ValidationWarning(f"Inconsistent sex for proband phenopacket and pedigree entry")
+            )
+        for relative in self.family.relatives:
+            if (
+                not sex_by_pedigree.get(relative.id)
+                or sex_by_pedigree.get(relative.id) != relative.subject.sex
+            ):
+                result.append(
+                    ValidationWarning(
+                        f"Inconsistent sex for relative phenopacket {relative.id} and "
+                        "pedigree entry"
+                    )
+                )
         return result
