@@ -8,7 +8,64 @@ from phenopackets import Family
 from test_plus import TestCase
 import yaml
 
-from cases_import.proto import FamilyValidator, MetaDataValidator, ProbandValidator
+from cases_import.proto import (
+    Assay,
+    FamilyValidator,
+    FileDesignation,
+    MetaDataValidator,
+    ProbandValidator,
+)
+
+
+class AssayTest(TestCase):
+    def test_is_value(self):
+        self.assertTrue(Assay.is_value("NCIT:C158253"))
+        self.assertTrue(Assay.is_value("NCIT:C101295"))
+        self.assertTrue(Assay.is_value("NCIT:C101294"))
+        self.assertFalse(Assay.is_value("xyz"))
+
+    def test_all_values(self):
+        self.assertEqual(
+            Assay.all_values(),
+            [
+                "NCIT:C158253",
+                "NCIT:C101295",
+                "NCIT:C101294",
+            ],
+        )
+
+    def test_get_label(self):
+        self.assertEqual(
+            Assay.PANEL_SEQ.get_label(),
+            "Targeted Genome Sequencing",
+        )
+        self.assertEqual(
+            Assay.WES.get_label(),
+            "Whole Exome Sequencing",
+        )
+        self.assertEqual(
+            Assay.WGS.get_label(),
+            "Whole Genome Sequencing",
+        )
+
+
+class FileDesignationTest(TestCase):
+    def test_is_value(self):
+        self.assertTrue(FileDesignation.is_value("sequencing_targets"))
+        self.assertTrue(FileDesignation.is_value("read_alignments"))
+        self.assertTrue(FileDesignation.is_value("variant_calls"))
+        self.assertTrue(FileDesignation.is_value("other"))
+
+    def test_all_values(self):
+        self.assertEqual(
+            FileDesignation.all_values(),
+            [
+                "sequencing_targets",
+                "read_alignments",
+                "variant_calls",
+                "other",
+            ],
+        )
 
 
 class FamilyValidatorTest(TestCase):
@@ -103,7 +160,6 @@ class PhenopacketValidatorTest(TestCase):
             self.fam_dict = yaml.safe_load(inputf)
 
 
-
 class ProbandValidatorTest(TestCase):
     def setUp(self):
         with open("cases_import/tests/data/family.yaml", "rt") as inputf:
@@ -128,7 +184,6 @@ class RelativeValidatorTest(TestCase):
     def setUp(self):
         with open("cases_import/tests/data/family.yaml", "rt") as inputf:
             self.fam_dict = yaml.safe_load(inputf)
-
 
 
 class PedigreeValidatorTest(TestCase):

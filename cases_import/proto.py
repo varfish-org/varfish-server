@@ -30,6 +30,59 @@ class FamilyValidationWarning(ValidationWarning):
     """Warning class used during validation of ``Family``."""
 
 
+#: Labels for the known assays.
+ASSAY_LABELS: typing.Dict[str, str] = {
+    "NCIT:C158253": "Targeted Genome Sequencing",
+    "NCIT:C101295": "Whole Exome Sequencing",
+    "NCIT:C101294": "Whole Genome Sequencing",
+}
+
+
+@enum.unique
+class Assay(enum.Enum):
+    """Known (sequencing) assays."""
+
+    #: Panel sequencing
+    PANEL_SEQ = "NCIT:C158253"
+    #: Whole exome sequencing
+    WES = "NCIT:C101295"
+    #: Whole genome sequencing
+    WGS = "NCIT:C101294"
+
+    @classmethod
+    def is_value(cls, value) -> bool:
+        return value in ASSAY_LABELS
+
+    @classmethod
+    def all_values(cls) -> typing.List[str]:
+        return list(ASSAY_LABELS.keys())
+
+    def get_label(self) -> str:
+        return ASSAY_LABELS[self.value]
+
+
+@enum.unique
+class FileDesignation(enum.Enum):
+    """Known file designations."""
+
+    #: Sequencing enrichment targets.
+    SEQUENCINGE_TARGETS = "sequencing_targets"
+    #: Read alignment file.
+    READ_ALIGNMENTS = "read_alignments"
+    #: Variant calling file.
+    VARIANT_CALLS = "variant_calls"
+    #: Other file.
+    OTHER = "other"
+
+    @classmethod
+    def is_value(cls, value) -> bool:
+        return value in cls.all_values()
+
+    @classmethod
+    def all_values(cls) -> typing.List[str]:
+        return [v.value for v in cls]
+
+
 class MetaDataValidator:
     """Helper class that allows to validate phenopackets ``MetaData``."""
 
@@ -82,59 +135,6 @@ class MetaDataValidator:
         if not resource.iri_prefix:
             result.append(MetaDataValidationWarning(f"Missing /metadata/resources/{no}/iri_prefix"))
         return result
-
-
-#: Labels for the known assays.
-ASSAY_LABELS: typing.Dict[str, str] = {
-    "NCIT:C158253": "Targeted Genome Sequencing",
-    "NCIT:C101295": "Whole Exome Sequencing",
-    "NCIT:C101294": "Whole Genome Sequencing",
-}
-
-
-@enum.unique
-class Assay(enum.Enum):
-    """Known (sequencing) assays."""
-
-    #: Panel sequencing
-    PANEL_SEQ = "NCIT:C158253"
-    #: Whole exome sequencing
-    WES = "NCIT:C101295"
-    #: Whole genome sequencing
-    WGS = "NCIT:C101294"
-
-    @classmethod
-    def is_value(cls, value) -> bool:
-        return value in ASSAY_LABELS
-
-    @classmethod
-    def all_values(cls) -> typing.List[str]:
-        return list(ASSAY_LABELS.keys())
-
-    def get_label(self) -> str:
-        return ASSAY_LABELS[self.value]
-
-
-@enum.unique
-class FileDesignation(enum.Enum):
-    """Known file designations."""
-
-    #: Sequencing enrichment targets.
-    SEQUENCINGE_TARGETS = "sequencing_targets"
-    #: Read alignment file.
-    READ_ALIGNMENTS = "read_alignments"
-    #: Variant calling file.
-    VARIANT_CALLS = "variant_calls"
-    #: Other file.
-    OTHER = "other"
-
-    @classmethod
-    def is_value(cls, value) -> bool:
-        return value in cls.all_values()
-
-    @classmethod
-    def all_values(cls) -> typing.List[str]:
-        return [v.value for v in cls]
 
 
 class PhenopacketValidator:
