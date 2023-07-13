@@ -24,7 +24,7 @@ class CaseImportActionFactory(factory.django.DjangoModelFactory):
     @factory.lazy_attribute
     def payload(self):
         with open("cases_import/tests/data/family.yaml") as inputf:
-            return yaml.safe_load(inputf)
+            return yaml.safe_load(inputf)["family"]
 
     project = factory.SubFactory(ProjectFactory)
 
