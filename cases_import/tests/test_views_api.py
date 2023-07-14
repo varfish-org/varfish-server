@@ -5,6 +5,7 @@ functionality.
 """
 
 import functools
+from unittest.mock import patch
 
 from bgjobs.models import BackgroundJob
 from django.urls import reverse
@@ -134,7 +135,8 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         """POST action=create state=draft => succeeds"""
         self._test_create_action_create_with_statesucceeds(CaseImportAction.STATE_DRAFT)
 
-    def test_create_action_create_as_state_submitted_succeeds(self):
+    @patch("cases_import.models.run_caseimportactionbackgroundjob")
+    def test_create_action_create_as_state_submitted_succeeds(self, mock_run):
         """POST action=create state=submitted => succeeds, triggers job"""
         self.assertEquals(BackgroundJob.objects.count(), 0)
         self.assertEquals(CaseImportBackgroundJob.objects.count(), 0)
@@ -149,6 +151,8 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         caseimportbackgroundjob = CaseImportBackgroundJob.objects.all()[0]
         self.assertEquals(caseimportbackgroundjob.bg_job.pk, backgroundjob.pk)
         self.assertEquals(caseimportbackgroundjob.caseimportaction.pk, caseimportaction.pk)
+
+        mock_run.assert_called_once_with(pk=caseimportbackgroundjob.pk)
 
     @parameterized.expand(
         [

@@ -1,10 +1,11 @@
 import uuid as uuid_object
 
-from bgjobs.models import LOG_LEVEL_ERROR, BackgroundJob, JobModelMessageMixin
+from bgjobs.models import BackgroundJob, JobModelMessageMixin
 from django.db import models
 from django.urls import reverse
 from projectroles.models import Project
 
+from cases_import.proto import get_case_name_from_family_payload
 from varfish.utils import JSONField
 
 
@@ -57,7 +58,7 @@ class CaseImportAction(models.Model):
 
     def get_case_name(self):
         """Return case name from ``self.payload`` as family ID."""
-        return self.payload["pedigree"]["persons"][0]["familyId"]
+        return get_case_name_from_family_payload(self.payload)
 
     class Meta:
         #: Order by date of last modification (most recent first).
@@ -123,3 +124,7 @@ class CaseImportBackgroundJob(JobModelMessageMixin, models.Model):
             "cases_import:ui-caseimportbackgroundjob-detail",
             kwargs={"caseimportbackgroundjob": self.sodar_uuid},
         )
+
+
+def run_caseimportactionbackgroundjob(*, pk: int):
+    """Execute the work for a ``CaseImportBackgroundJob``."""

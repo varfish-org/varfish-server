@@ -4,7 +4,8 @@ from projectroles.serializers import SODARProjectModelSerializer
 from rest_framework import serializers
 
 from cases_import.models import CaseImportAction
-from cases_import.proto import FamilyValidator
+from cases_import.proto import FamilyValidator, get_case_name_from_family_payload
+from variants.models.case import Case
 
 
 class CaseImportActionSerializer(SODARProjectModelSerializer):
@@ -34,6 +35,27 @@ class CaseImportActionSerializer(SODARProjectModelSerializer):
             raise serializers.ValidationError(details=list(map(str, warnings)))
         else:
             return value
+
+    def validate(self, data):
+        """Perform validation that needs more than one field."""
+        case_name = get_case_name_from_family_payload(data.get("payload", {}))
+        # An action=create case import with a case name collision fails.
+        if data["action"] == CaseImportAction.ACTION_CREATE and Case.objects.filter(
+            project=self.context["project"], name=case_name
+        ):
+            raise serializers.ValidationError(
+                f"Cannot re-create case of name {case_name}. "
+                "Try to create an import with action=update."
+            )
+        # An action=update case import fails if there is no case with this name.
+        if data["action"] == CaseImportAction.ACTION_UPDATE and not Case.objects.filter(
+            project=self.context["project"], name=case_name
+        ):
+            raise serializers.ValidationError(
+                f"Cannot update case with non-existing name {case_name}. "
+                "Try to create an import with action=create."
+            )
+        return data
 
     class Meta:
         model = CaseImportAction

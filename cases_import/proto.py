@@ -6,6 +6,22 @@ import typing
 from phenopackets import Family, File, MetaData, Pedigree, Phenopacket, Resource, Sex
 
 
+def get_case_name_from_family_payload(
+    json_dict: typing.Dict[str, typing.Any]
+) -> typing.Optional[str]:
+    """Return case name from ``json_dict`` (``phenopackets.Family``) or by the ``familyId``
+    in the pedigree.  Return ``None`` if there is none.
+
+    Note that this relies on the JSON being a valid ``phenopackets.Family`` and validating
+    by ``FamilyValidator`` to return a none-``None`` and correct value.
+    """
+    persons = json_dict.get("pedigree", {}).get("persons", {})
+    if persons:
+        return persons[0].get("familyId")
+    else:
+        return None
+
+
 class ValidationWarning(UserWarning):
     """Warning class for warnings during validation of a ``Family``."""
 
@@ -180,8 +196,8 @@ class PhenopacketValidator:
             if len(self.pp.files) == 0:
                 result.append(
                     ValidationWarning(
-                        f"Must at least have per-sample targets BED file if sequencing "
-                        f"assay was performed."
+                        "Must at least have per-sample targets BED file if sequencing "
+                        "assay was performed."
                     )
                 )
             else:
@@ -193,7 +209,7 @@ class PhenopacketValidator:
                     result.append(
                         ValidationWarning(
                             f"First file in phenopacket {self.pp.id} must be per-sample "
-                            f"targets BED file."
+                            "targets BED file."
                         )
                     )
 
@@ -446,7 +462,7 @@ class FamilyValidator:
             or sex_by_pedigree.get(self.family.proband.id) != self.family.proband.subject.sex
         ):
             result.append(
-                ValidationWarning(f"Inconsistent sex for proband phenopacket and pedigree entry")
+                ValidationWarning("Inconsistent sex for proband phenopacket and pedigree entry")
             )
         for relative in self.family.relatives:
             if (
