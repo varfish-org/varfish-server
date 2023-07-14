@@ -180,37 +180,6 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
   }
 
   /**
-   * Does a variant has flags?
-   */
-  const hasFlags = (variant) => {
-    if (!caseFlags.value) {
-      return false
-    }
-    for (const flag of Object.values(caseFlags.value)) {
-      if (
-        flag.release === variant.release &&
-        flag.chromosome === variant.chromosome &&
-        flag.start === variant.start &&
-        flag.end === variant.end &&
-        flag.reference === variant.reference &&
-        flag.alternative === variant.alternative
-      ) {
-        return (
-          flag.flag_bookmarked ||
-          flag.flag_candidate ||
-          flag.flag_doesnt_segregate ||
-          flag.flag_final_causative ||
-          flag.flag_for_validation ||
-          flag.flag_molecular ||
-          flag.flag_no_disease_association ||
-          flag.flag_segregates
-        )
-      }
-    }
-    return false
-  }
-
-  /**
    * Return flags for a given variant from the store.
    */
   const getFlags = (variant) => {
@@ -268,7 +237,6 @@ export const useVariantFlagsStore = defineStore('variantFlags', () => {
     createFlags,
     updateFlags,
     deleteFlags,
-    hasFlags,
     getFlags,
     flagAsArtifact,
   }

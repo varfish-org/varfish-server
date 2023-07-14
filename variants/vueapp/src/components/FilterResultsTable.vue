@@ -1,7 +1,7 @@
 <script setup>
 import EasyDataTable from 'vue3-easy-data-table'
 import 'vue3-easy-data-table/dist/style.css'
-import { computed, onBeforeMount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
 import {
   displayName,
   formatLargeInt,
@@ -456,7 +456,7 @@ const loadFromServer = async () => {
           ? freqHomFieldName.value.homozygous
           : tableServerOptions.value.sortBy === 'constraints'
           ? constraintFieldName.value
-          : tableServerOptions.value.sortBy.startsWith('genotype_')
+          : tableServerOptions.value.sortBy?.startsWith('genotype_')
           ? 'genotype_' + genotypeMapping[tableServerOptions.value.sortBy]
           : tableServerOptions.value.sortBy,
       orderDir: tableServerOptions.value.sortType,
@@ -543,7 +543,7 @@ watch(
             @click="showVariantDetails(payload)"
           />
           <i-fa-solid-bookmark
-            v-if="flagsStore.hasFlags(payload)"
+            v-if="flagsStore.getFlags(payload)"
             class="text-muted ml-1"
             title="flags & bookmarks"
             @click="showCommentsFlags(payload)"
