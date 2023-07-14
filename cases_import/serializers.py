@@ -39,6 +39,12 @@ class CaseImportActionSerializer(SODARProjectModelSerializer):
     def validate(self, data):
         """Perform validation that needs more than one field."""
         case_name = get_case_name_from_family_payload(data.get("payload", {}))
+
+        # Updating a CaseImportAction is not allowed if it is not in draft state.
+        if self.instance and self.instance.state != CaseImportAction.STATE_DRAFT:
+            raise serializers.ValidationError(
+                f"Cannot update CaseImportAction in state {self.instance.state}."
+            )
         # An action=create case import with a case name collision fails.
         if data["action"] == CaseImportAction.ACTION_CREATE and Case.objects.filter(
             project=self.context["project"], name=case_name
