@@ -36,11 +36,6 @@ from variants.tests.factories import (
 from variants.tests.helpers import ViewTestBase
 
 
-# TODO: This base class is still used by geneinfo view tests.
-class TestViewBase:
-    pass
-
-
 class TestCaseDeleteJobDetailView(ViewTestBase):
     """Test ProjectStatsJobDetailView."""
 

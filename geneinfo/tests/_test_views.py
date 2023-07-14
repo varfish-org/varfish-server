@@ -4,7 +4,6 @@ from django.urls import reverse
 from projectroles.models import Project
 
 from pathways.models import EnsemblToKegg, KeggInfo, RefseqToKegg
-from variants.tests.test_views import TestViewBase
 
 from ..models import Hgnc, Hpo, Mim2geneMedgen
 
@@ -73,7 +72,7 @@ def fixture_setup_geneinfo(user):
     Hpo.objects.create(database_id="OMIM:3", hpo_id="HP:003")
 
 
-class TestGeneView(TestViewBase):
+class TestGeneView:
     """Test gene view"""
 
     setup_case_in_db = fixture_setup_geneinfo
@@ -123,7 +122,7 @@ class TestGeneView(TestViewBase):
             self.assertIsNone(response.context["hgncomim"])
 
 
-class TestGeneViewIncomplete(TestViewBase):
+class TestGeneViewIncomplete:
     """Test gene view"""
 
     setup_case_in_db = fixture_setup_geneinfo_incomplete
