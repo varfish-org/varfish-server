@@ -80,6 +80,7 @@ class CaseImportActionListTest(ApiViewTestBase):
                         "project": str(self.project.sodar_uuid),
                         "sodar_uuid": str(self.caseimportaction.sodar_uuid),
                         "state": "draft",
+                        "overwrite_terms": False,
                     }
                 ],
             }
@@ -130,6 +131,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
                 "payload": dict,
                 "project": str(self.project.sodar_uuid),
                 "sodar_uuid": str(caseimportaction.sodar_uuid),
+                "overwrite_terms": False,
             }
         )
 

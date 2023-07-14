@@ -52,6 +52,7 @@ class TestCaseApiViews(ApiViewTestBase):
             "tags": case.tags,
             "release": case.release,
             "sex_errors": {},
+            "case_version": 1,
         }
         if legacy:
             result.update(
@@ -134,7 +135,7 @@ class TestCaseApiViews(ApiViewTestBase):
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, expected)
+            self.assertDictEqual(response.data, expected)
 
 
 def small_variant_query_to_dict(query):

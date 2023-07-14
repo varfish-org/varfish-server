@@ -76,6 +76,7 @@ class TestCaseSerializer(TestCase):
                 "date_modified",
                 "num_small_vars",
                 "num_svs",
+                "case_version",
             ),
         )
         expected["pedigree"] = transmogrify_pedigree(expected["pedigree"])

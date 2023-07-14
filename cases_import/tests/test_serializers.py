@@ -26,6 +26,7 @@ class CaseImportActionSerializerTest(TestCase):
                 "action": "create",
                 "state": "draft",
                 "payload": dict,
+                "overwrite_terms": False,
             }
         )
         expected.assert_matches(serializer.data)

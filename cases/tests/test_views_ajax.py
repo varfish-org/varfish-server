@@ -67,6 +67,7 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
                         "sodar_uuid": RE_UUID4,
                         "status": "initial",
                         "tags": [],
+                        "case_version": 1,
                     }
                 ],
             }
