@@ -162,8 +162,8 @@ class PhenopacketValidatorTest(TestCase):
                         "fileAttributes": {
                             "checksum": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                             "designation": "read_alignments",
-                            "genome_assembly": "GRCh38",
-                            "file_format": "text/x-bed+x-bgzip",
+                            "genomebuild": "GRCh38",
+                            "mimetype": "text/x-bed+x-bgzip",
                         },
                     }
                 ],
