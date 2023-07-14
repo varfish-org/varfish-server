@@ -462,9 +462,41 @@ class CaseImportActionRetrieveTest(ApiViewTestBase):
 
     def test_retrieve_action(self):
         """Test retrieval of an existing action."""
+        caseimportaction = CaseImportActionFactory(project=self.project)
+
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
+                    kwargs={"caseimportaction": caseimportaction.sodar_uuid},
+                ),
+                format="json",
+                **extra,
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json().get("sodar_uuid"), str(caseimportaction.sodar_uuid), response.json()
+        )
 
     def test_retrieve_action_nonexistent(self):
         """Test retrieval of an non-existing action fails."""
+        caseimportaction = CaseImportActionFactory(project=self.project)
+        caseimportaction.delete()
+
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.get(
+                reverse(
+                    "cases_import:api-caseimportaction-retrieveupdatedestroy",
+                    kwargs={"caseimportaction": caseimportaction.sodar_uuid},
+                ),
+                format="json",
+                **extra,
+            )
+
+        self.assertEqual(response.status_code, 404)
 
 
 class CaseImportActionUpdateTest(ApiViewTestBase):
