@@ -4,6 +4,7 @@ This module uses the "lowermost" role that allows to make the changes and focuse
 functionality.
 """
 
+import copy
 import functools
 from unittest.mock import patch
 
@@ -15,7 +16,9 @@ from parameterized import parameterized
 import yaml
 
 from cases_import.models import CaseImportAction, CaseImportBackgroundJob
+from cases_import.proto import family_payload_with_updated_case_name
 from cases_import.tests.factories import CaseImportActionFactory
+from variants.tests.factories import CaseFactory
 from variants.tests.helpers import ApiViewTestBase
 
 
@@ -42,7 +45,7 @@ class CaseImportActionListTest(ApiViewTestBase):
                     "cases_import:api-caseimportaction-listcreate",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
-                **extra
+                **extra,
             )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -59,7 +62,7 @@ class CaseImportActionListTest(ApiViewTestBase):
                     "cases_import:api-caseimportaction-listcreate",
                     kwargs={"project": self.project.sodar_uuid},
                 ),
-                **extra
+                **extra,
             )
         self.assertEqual(response.status_code, 200)
         expected_json = jsonmatch.compile(
@@ -94,7 +97,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         super().setUp()
         self.maxDiff = None
 
-    def _test_create_action_create_with_statesucceeds(self, state: str):
+    def _test_create_action_create_with_state_succeeds(self, state: str):
         self.assertEqual(CaseImportAction.objects.count(), 0)
 
         extra = self.get_accept_header(None, None)
@@ -110,7 +113,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
                     "payload": load_family_payload(),
                 },
                 format="json",
-                **extra
+                **extra,
             )
         self.assertEqual(response.status_code, 201, response.content)
 
@@ -133,7 +136,13 @@ class CaseImportActionCreateTest(ApiViewTestBase):
 
     def test_create_action_create_as_state_draft_succeeds(self):
         """POST action=create state=draft => succeeds"""
-        self._test_create_action_create_with_statesucceeds(CaseImportAction.STATE_DRAFT)
+        self.assertEquals(BackgroundJob.objects.count(), 0)
+        self.assertEquals(CaseImportBackgroundJob.objects.count(), 0)
+
+        self._test_create_action_create_with_state_succeeds(CaseImportAction.STATE_DRAFT)
+
+        self.assertEquals(BackgroundJob.objects.count(), 0)
+        self.assertEquals(CaseImportBackgroundJob.objects.count(), 0)
 
     @patch("cases_import.models.run_caseimportactionbackgroundjob")
     def test_create_action_create_as_state_submitted_succeeds(self, mock_run):
@@ -141,7 +150,7 @@ class CaseImportActionCreateTest(ApiViewTestBase):
         self.assertEquals(BackgroundJob.objects.count(), 0)
         self.assertEquals(CaseImportBackgroundJob.objects.count(), 0)
 
-        self._test_create_action_create_with_statesucceeds(CaseImportAction.STATE_SUBMITTED)
+        self._test_create_action_create_with_state_succeeds(CaseImportAction.STATE_SUBMITTED)
 
         self.assertEquals(BackgroundJob.objects.count(), 1)
         self.assertEquals(CaseImportBackgroundJob.objects.count(), 1)
@@ -178,41 +187,270 @@ class CaseImportActionCreateTest(ApiViewTestBase):
                     "payload": load_family_payload(),
                 },
                 format="json",
-                **extra
+                **extra,
             )
         self.assertEqual(response.status_code, 400, response.content)
 
         self.assertEqual(CaseImportAction.objects.count(), 0)
 
-    def test_create_action_create_as_state_submitted_fails_same_name(self):
+    def test_create_action_create_as_state_draft_fails_same_name(self):
         """POST action=create state=draft name=<collision> => fails"""
+        case = CaseFactory(project=self.project)
+        self.assertEqual(CaseImportAction.objects.count(), 0)
 
-    def test_create_action_create_as_state_submitted_fails_invalid_payload(self):
+        payload = family_payload_with_updated_case_name(load_family_payload(), case.name)
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                data={
+                    "action": CaseImportAction.ACTION_CREATE,
+                    "state": CaseImportAction.STATE_DRAFT,
+                    "payload": payload,
+                },
+                format="json",
+                **extra,
+            )
+        self.assertEqual(response.status_code, 400, response.content)
+
+        self.assertEqual(CaseImportAction.objects.count(), 0)
+
+    def test_create_action_create_as_state_draft_fails_invalid_payload(self):
         """POST action=create state=draft payload=<invalid> => fails"""
+        payload = copy.deepcopy(load_family_payload())
+        payload["pedigree"]["persons"][0]["familyId"] = "InCoNsiStEnT"
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                data={
+                    "action": CaseImportAction.ACTION_CREATE,
+                    "state": CaseImportAction.STATE_DRAFT,
+                    "payload": payload,
+                },
+                format="json",
+                **extra,
+            )
+        self.assertEqual(response.status_code, 400, response.content)
+
+        self.assertEqual(CaseImportAction.objects.count(), 0)
+
+    def _test_create_action_update_with_state_succeeds(self, state: str):
+        case = CaseFactory(project=self.project)
+        self.assertEqual(CaseImportAction.objects.count(), 0)
+
+        payload = family_payload_with_updated_case_name(load_family_payload(), case.name)
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                data={
+                    "action": CaseImportAction.ACTION_UPDATE,
+                    "state": state,
+                    "payload": payload,
+                },
+                format="json",
+                **extra,
+            )
+        self.assertEqual(response.status_code, 201, response.content)
+
+        self.assertEqual(CaseImportAction.objects.count(), 1)
 
     def test_create_action_update_as_state_draft_succeeds(self):
         """POST action=update state=draft => succeeds"""
+        self.assertEquals(BackgroundJob.objects.count(), 0)
+        self.assertEquals(CaseImportBackgroundJob.objects.count(), 0)
 
-    def test_create_action_update_as_state_submitted_succeeds(self):
+        self._test_create_action_update_with_state_succeeds(CaseImportAction.STATE_DRAFT)
+
+        self.assertEquals(BackgroundJob.objects.count(), 0)
+        self.assertEquals(CaseImportBackgroundJob.objects.count(), 0)
+
+    @patch("cases_import.models.run_caseimportactionbackgroundjob")
+    def test_create_action_update_as_state_submitted_succeeds(self, mock_run):
         """POST action=update state=submitted => succeeds, triggers job"""
+        self.assertEquals(BackgroundJob.objects.count(), 0)
+        self.assertEquals(CaseImportBackgroundJob.objects.count(), 0)
 
-    def test_create_action_update_as_state_other_fails(self):
+        self._test_create_action_update_with_state_succeeds(CaseImportAction.STATE_SUBMITTED)
+
+        self.assertEquals(BackgroundJob.objects.count(), 1)
+        self.assertEquals(CaseImportBackgroundJob.objects.count(), 1)
+
+        caseimportaction = CaseImportAction.objects.all()[0]
+        backgroundjob = BackgroundJob.objects.all()[0]
+        caseimportbackgroundjob = CaseImportBackgroundJob.objects.all()[0]
+        self.assertEquals(caseimportbackgroundjob.bg_job.pk, backgroundjob.pk)
+        self.assertEquals(caseimportbackgroundjob.caseimportaction.pk, caseimportaction.pk)
+
+        mock_run.assert_called_once_with(pk=caseimportbackgroundjob.pk)
+
+    @parameterized.expand(
+        [
+            [CaseImportAction.STATE_RUNNING],
+            [CaseImportAction.STATE_FAILED],
+            [CaseImportAction.STATE_SUCCESS],
+        ]
+    )
+    def test_create_action_update_as_state_other_fails(self, state):
         """POST action=update state=<other> => fail"""
+        case = CaseFactory(project=self.project)
+        self.assertEqual(CaseImportAction.objects.count(), 0)
+
+        payload = family_payload_with_updated_case_name(load_family_payload(), case.name)
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                data={
+                    "action": CaseImportAction.ACTION_UPDATE,
+                    "state": state,
+                    "payload": payload,
+                },
+                format="json",
+                **extra,
+            )
+        self.assertEqual(response.status_code, 400, response.content)
+
+        self.assertEqual(CaseImportAction.objects.count(), 0)
 
     def test_create_action_create_as_state_submitted_fails_non_existing(self):
         """POST action=create state=draft name=<non-existing> => fails"""
+        case = CaseFactory(project=self.project)
+        self.assertEqual(CaseImportAction.objects.count(), 0)
+
+        payload = family_payload_with_updated_case_name(load_family_payload(), f"xX{case.name}Xx")
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                data={
+                    "action": CaseImportAction.ACTION_UPDATE,
+                    "state": CaseImportAction.STATE_DRAFT,
+                    "payload": payload,
+                },
+                format="json",
+                **extra,
+            )
+        self.assertEqual(response.status_code, 400, response.content)
+
+        self.assertEqual(CaseImportAction.objects.count(), 0)
 
     def test_create_action_create_as_state_submitted_fails_invalid_payload(self):
         """POST action=create state=draft payload=<invalid> => fails"""
+        case = CaseFactory(project=self.project)
+        self.assertEqual(CaseImportAction.objects.count(), 0)
+
+        payload = copy.deepcopy(load_family_payload())
+        payload["pedigree"]["persons"][0]["familyId"] = "InCoNsiStEnT"
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                data={
+                    "action": CaseImportAction.ACTION_UPDATE,
+                    "state": CaseImportAction.STATE_DRAFT,
+                    "payload": payload,
+                },
+                format="json",
+                **extra,
+            )
+        self.assertEqual(response.status_code, 400, response.content)
+
+        self.assertEqual(CaseImportAction.objects.count(), 0)
+
+    def _test_create_action_delete_with_state_succeeds(self, state: str):
+        case = CaseFactory(project=self.project)
+        self.assertEqual(CaseImportAction.objects.count(), 0)
+
+        payload = family_payload_with_updated_case_name(load_family_payload(), case.name)
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                data={
+                    "action": CaseImportAction.ACTION_DELETE,
+                    "state": state,
+                    "payload": payload,
+                },
+                format="json",
+                **extra,
+            )
+        self.assertEqual(response.status_code, 201, response.content)
+
+        self.assertEqual(CaseImportAction.objects.count(), 1)
 
     def test_create_action_delete_as_state_draft_succeeds(self):
         """POST action=delete state=draft => succeeds"""
+        self.assertEquals(BackgroundJob.objects.count(), 0)
+        self.assertEquals(CaseImportBackgroundJob.objects.count(), 0)
 
-    def test_create_action_delete_as_state_submitted_succeeds(self):
+        self._test_create_action_delete_with_state_succeeds(CaseImportAction.STATE_DRAFT)
+
+        self.assertEquals(BackgroundJob.objects.count(), 0)
+        self.assertEquals(CaseImportBackgroundJob.objects.count(), 0)
+
+    @patch("cases_import.models.run_caseimportactionbackgroundjob")
+    def test_create_action_delete_as_state_submitted_succeeds(self, mock_run):
         """POST action=delete state=draft => succeeds, triggers job"""
+        self.assertEquals(BackgroundJob.objects.count(), 0)
+        self.assertEquals(CaseImportBackgroundJob.objects.count(), 0)
 
-    def test_create_action_create_as_state_submitted_fails_non_existing(self):
+        self._test_create_action_delete_with_state_succeeds(CaseImportAction.STATE_SUBMITTED)
+
+        caseimportaction = CaseImportAction.objects.all()[0]
+        backgroundjob = BackgroundJob.objects.all()[0]
+        caseimportbackgroundjob = CaseImportBackgroundJob.objects.all()[0]
+        self.assertEquals(caseimportbackgroundjob.bg_job.pk, backgroundjob.pk)
+        self.assertEquals(caseimportbackgroundjob.caseimportaction.pk, caseimportaction.pk)
+
+        mock_run.assert_called_once_with(pk=caseimportbackgroundjob.pk)
+
+    def test_create_action_delete_as_state_draft_fails_non_existing(self):
         """POST action=create state=draft name=<non-existing> => fails"""
+        case = CaseFactory(project=self.project)
+        self.assertEqual(CaseImportAction.objects.count(), 0)
+
+        payload = family_payload_with_updated_case_name(load_family_payload(), f"xX{case.name}Xx")
+        extra = self.get_accept_header(None, None)
+        with self.login(self.superuser):
+            response = self.client.post(
+                reverse(
+                    "cases_import:api-caseimportaction-listcreate",
+                    kwargs={"project": self.project.sodar_uuid},
+                ),
+                data={
+                    "action": CaseImportAction.ACTION_DELETE,
+                    "state": CaseImportAction.STATE_DRAFT,
+                    "payload": payload,
+                },
+                format="json",
+                **extra,
+            )
+        self.assertEqual(response.status_code, 400, response.content)
+
+        self.assertEqual(CaseImportAction.objects.count(), 0)
 
 
 class CaseImportActionRetrieveTest(ApiViewTestBase):

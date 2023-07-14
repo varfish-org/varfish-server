@@ -32,7 +32,7 @@ class CaseImportActionSerializer(SODARProjectModelSerializer):
             ) from e
         warnings = FamilyValidator(family).validate()
         if warnings:
-            raise serializers.ValidationError(details=list(map(str, warnings)))
+            raise serializers.ValidationError(detail=list(map(str, warnings)))
         else:
             return value
 
@@ -48,9 +48,10 @@ class CaseImportActionSerializer(SODARProjectModelSerializer):
                 "Try to create an import with action=update."
             )
         # An action=update case import fails if there is no case with this name.
-        if data["action"] == CaseImportAction.ACTION_UPDATE and not Case.objects.filter(
-            project=self.context["project"], name=case_name
-        ):
+        if data["action"] in (
+            CaseImportAction.ACTION_UPDATE,
+            CaseImportAction.ACTION_DELETE,
+        ) and not Case.objects.filter(project=self.context["project"], name=case_name):
             raise serializers.ValidationError(
                 f"Cannot update case with non-existing name {case_name}. "
                 "Try to create an import with action=create."

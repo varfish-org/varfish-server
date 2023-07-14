@@ -49,7 +49,8 @@ class CaseImportActionListCreateApiView(SODARAPIGenericProjectMixin, ListCreateA
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             caseimportbackgroundjob = self.perform_create(serializer)
-        tasks.run_caseimportactionbackgroundjob.delay(caseimportbackgroundjob.pk)
+        if caseimportbackgroundjob:
+            tasks.run_caseimportactionbackgroundjob.delay(caseimportbackgroundjob.pk)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -61,11 +62,14 @@ class CaseImportActionListCreateApiView(SODARAPIGenericProjectMixin, ListCreateA
         """
         super().perform_create(serializer)
         # at this point ``serializer.instance`` has been set and can be used
-        return CaseImportBackgroundJob.objects.create_full(
-            caseimportaction=serializer.instance,
-            project=self.get_project(),
-            user=self.request.user,
-        )
+        if serializer.instance.state == CaseImportAction.STATE_SUBMITTED:
+            return CaseImportBackgroundJob.objects.create_full(
+                caseimportaction=serializer.instance,
+                project=self.get_project(),
+                user=self.request.user,
+            )
+        else:
+            return None
 
 
 class CaseImportActionRetrieveUpdateDestroyApiView(

@@ -8,7 +8,9 @@ from django.urls import reverse
 from projectroles.tests.test_permissions_api import TestProjectAPIPermissionBase
 
 from cases_import.models import CaseImportAction
+from cases_import.proto import family_payload_with_updated_case_name
 from cases_import.tests.factories import CaseImportActionFactory, case_import_action_json
+from variants.tests.factories import CaseFactory
 
 
 class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
@@ -103,7 +105,13 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
             self.caseimportaction.action = CaseImportAction.ACTION_UPDATE
             self.caseimportaction.save()
 
-        data = {"action": CaseImportAction.ACTION_UPDATE}
+        case = CaseFactory(project=self.project)
+
+        data = case_import_action_json(
+            project=self.project,
+            action=CaseImportAction.ACTION_UPDATE,
+        )
+        data["payload"] = family_payload_with_updated_case_name(data["payload"], case.name)
 
         url = reverse(
             "cases_import:api-caseimportaction-retrieveupdatedestroy",
@@ -118,10 +126,30 @@ class CaseImportActionApiPermissionTest(TestProjectAPIPermissionBase):
         bad_users_401 = [self.anonymous]
         bad_users_403 = [self.guest_as.user, self.user_no_roles]
         self.assert_response(
-            url, good_users, 200, method="PATCH", cleanup_method=cleanup, data=data
+            url,
+            good_users,
+            200,
+            method="PATCH",
+            cleanup_method=cleanup,
+            data=data,
+            req_kwargs={"format": "json"},
         )
-        self.assert_response(url, bad_users_401, 401, method="PATCH", data=data)
-        self.assert_response(url, bad_users_403, 403, method="PATCH", data=data)
+        self.assert_response(
+            url,
+            bad_users_401,
+            401,
+            method="PATCH",
+            data=data,
+            req_kwargs={"format": "json"},
+        )
+        self.assert_response(
+            url,
+            bad_users_403,
+            403,
+            method="PATCH",
+            data=data,
+            req_kwargs={"format": "json"},
+        )
 
     def test_delete(self):
         good_users = [

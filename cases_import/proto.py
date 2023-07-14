@@ -1,5 +1,6 @@
 """Support for the protocolbuffers in ``cases_import``."""
 
+import copy
 import enum
 import typing
 
@@ -20,6 +21,20 @@ def get_case_name_from_family_payload(
         return persons[0].get("familyId")
     else:
         return None
+
+
+def family_payload_with_updated_case_name(
+    json_dict: typing.Dict[str, typing.Any],
+    case_name: str,
+) -> typing.Dict[str, typing.Any]:
+    """Update the case name in a JSON dictionary encoding a ``phenopackets.Family`.
+
+    The function will make a copy of ``json_dict`` before modifying it.
+    """
+    json_dict = copy.deepcopy(json_dict)
+    for person in json_dict["pedigree"]["persons"]:
+        person["familyId"] = case_name
+    return json_dict
 
 
 class ValidationWarning(UserWarning):
