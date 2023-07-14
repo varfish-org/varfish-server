@@ -56,6 +56,12 @@ class CaseImportAction(models.Model):
     #: The JSON serialization of the phenopacket that is to be used in the action.
     payload = JSONField()
 
+    #: Whether or not to overwrite changes in the disease and phenotype terms.
+    #:
+    #: These are commonly curated by users so we do not want to override them with potentially
+    #: empty or wrong lists.
+    overwrite_terms = models.BooleanField(default=False)
+
     def get_case_name(self):
         """Return case name from ``self.payload`` as family ID."""
         return get_case_name_from_family_payload(self.payload)

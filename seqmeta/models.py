@@ -103,3 +103,5 @@ class TargetBedFile(models.Model):
         ordering = ("genome_release", "file_uri")
         # Only one file per genome release.
         unique_together = ("enrichmentkit", "genome_release")
+        # Additional index on the file URI.
+        indexes = [models.Index(fields=["file_uri"])]

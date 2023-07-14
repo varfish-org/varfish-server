@@ -130,6 +130,10 @@ class Case(CoreCase):
         default=uuid_object.uuid4, unique=True, help_text="Case SODAR UUID"
     )
 
+    #: The "version" of the case definition.  For version=1 we use variants from the
+    #: database while for version=2 we use variants from the internal S3 storage.
+    case_version = models.IntegerField(default=1, blank=False, null=False)
+
     #: The number of small variants, ``None`` if no small variants have been imported.
     num_small_vars = models.IntegerField(
         default=None,
