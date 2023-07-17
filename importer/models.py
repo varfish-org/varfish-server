@@ -508,10 +508,12 @@ class CaseImporter:
         before = timezone.now()
         self.import_job.add_log_entry("Creating temporary %s file..." % token)
         case_genomebuild = self.case.release
+        any_written = False
         with tempfile.NamedTemporaryFile("w+t") as tempf:
             for i, import_variant_set_url in enumerate(getattr(variant_set_info, path_attr).all()):
                 self.import_job.add_log_entry("Importing from %s" % import_variant_set_url.name)
                 with open_file(import_variant_set_url.file, "rt") as inputf:
+                    any_written = True
                     header = inputf.readline().strip()
                     header_arr = header.split("\t")
                     try:
@@ -552,20 +554,23 @@ class CaseImporter:
             elapsed = timezone.now() - before
             self.import_job.add_log_entry("Wrote file in %.2f s" % elapsed.total_seconds())
 
-            before = timezone.now()
-            self.import_job.add_log_entry("Importing %s file..." % token)
-            model_class.objects.from_csv(
-                tempf.name,
-                delimiter="\t",
-                null=".",
-                ignore_conflicts=False,
-                drop_constraints=False,
-                drop_indexes=False,
-            )
-            elapsed = timezone.now() - before
-            self.import_job.add_log_entry(
-                "Finished importing %s in %.2f s" % (token, elapsed.total_seconds())
-            )
+            if not any_written:
+                self.import_job.add_log_entry("File is empty, skipping import")
+            else:
+                before = timezone.now()
+                self.import_job.add_log_entry("Importing %s file..." % token)
+                model_class.objects.from_csv(
+                    tempf.name,
+                    delimiter="\t",
+                    null=".",
+                    ignore_conflicts=False,
+                    drop_constraints=False,
+                    drop_indexes=False,
+                )
+                elapsed = timezone.now() - before
+                self.import_job.add_log_entry(
+                    "Finished importing %s in %.2f s" % (token, elapsed.total_seconds())
+                )
 
     def _perform_import(self, variant_set, variant_set_info):
         if variant_set_info.genomebuild != self.case.release:
