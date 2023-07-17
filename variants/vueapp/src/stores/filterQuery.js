@@ -340,13 +340,10 @@ export const useFilterQueryStore = defineStore('filterQuery', () => {
    * Submit query with current settings.
    */
   const submitQuery = async () => {
-    const payload = fixupQueryPayloadForLegacy({
-      query_settings: copy(querySettings.value),
-    })
     previousQueryDetails.value = await variantsApi.createQuery(
       csrfToken.value,
       caseUuid.value,
-      payload
+      { query_settings: copy(querySettings.value) }
     )
     queryState.value = QueryStates.Running.value
     downloadStatusTsv.value = null

@@ -34,7 +34,7 @@ const buildEffectWrapper = (key) => {
           props.querySettings.effects.push(key)
         } else if (!newValue && isSet) {
           props.querySettings.effects = props.querySettings.effects.filter(
-            (val) => val !== key
+            val => val !== key
           )
         }
       }
