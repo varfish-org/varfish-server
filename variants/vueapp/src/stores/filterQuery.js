@@ -170,19 +170,6 @@ const fetchHpoTerms = async (csrfToken, hpoTerms) => {
   return _hpoNames
 }
 
-/** Legacy handling code that can be removed once legacy UI has been removed.
- */
-const fixupQueryPayloadForLegacy = (payload) => {
-  // Handle recessive-index and recessive-parent values (must be removed).
-  // TODO: this code can go away once the old HTML based UI is removed
-  for (const [key, value] of Object.entries(payload.query_settings.genotype)) {
-    if (value.startsWith('recessive-') || value.startsWith('comphet-')) {
-      payload.query_settings.genotype[key] = null
-    }
-  }
-  return payload
-}
-
 export const useFilterQueryStore = defineStore('filterQuery', () => {
   const FETCH_LOOP_DELAY = 1000 // 1 second
   const FETCH_LOOP_ALLOW_FAILURES = 10 // up to 10 failures
