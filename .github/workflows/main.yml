@@ -52,7 +52,7 @@ jobs:
 
       - name: Install pip and Pipenv
         run: |
-            pip install pip pipenv
+          pip install -U pip pipenv
 
       - name: Install project dependencies with pipenv
         run: |
