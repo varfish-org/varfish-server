@@ -49,15 +49,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
-
-      - name: Setup formatting environment
-        uses: mamba-org/setup-micromamba@v1
-        with:
-          environment-file: environment.yaml
-          init-shell: bash
-          cache-environment: true
-          post-cleanup: 'all'
-
       - name: Build Vue app as that can be tested via selenium.
         run: |
           npm ci --prefix varfish/vueapp
@@ -70,13 +61,21 @@ jobs:
 
       - name: Install project dependencies with pipenv
         run: |
-          pipenv install --categories=packages,dev-packages,ldap-packages
+          pipenv install --verbose --categories=packages,dev-packages,ldap-packages
 
       - name: Download icons
         run: pipenv run python manage.py geticons
 
       - name: Run collectstatic
         run: pipenv run python manage.py collectstatic --noinput
+
+      - name: Setup environment with worker
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: environment.yaml
+          init-shell: bash
+          cache-environment: true
+          post-cleanup: 'all'
 
       - name: Run tests
         run: |
