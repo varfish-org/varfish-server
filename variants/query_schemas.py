@@ -317,6 +317,7 @@ class QueryJsonToFormConverter:
             "inhouse_carriers": query.inhouse_carriers,
             "inhouse_heterozygous": query.inhouse_heterozygous,
             "inhouse_homozygous": query.inhouse_homozygous,
+            "max_exon_dist": query.max_exon_dist,
             "mtdb_enabled": query.mtdb_enabled,
             "mtdb_count": query.mtdb_count,
             "mtdb_frequency": query.mtdb_frequency,

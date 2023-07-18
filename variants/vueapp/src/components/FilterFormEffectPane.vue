@@ -99,6 +99,9 @@ const formState = {
       return props.querySettings.max_exon_dist
     },
     set(newValue) {
+      if (newValue === '') {
+        newValue = null
+      }
       props.querySettings.max_exon_dist = newValue
     },
   }),

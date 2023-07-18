@@ -12,7 +12,9 @@ from variants.query_schemas import (
     convert_query_json_to_small_variant_filter_form_v1,
     load_json,
 )
-from variants.tests.factories import CaseWithVariantSetFactory
+
+from .data.query_settings import QUERY_SETTINGS, QUERY_SETTINGS_CONVERTED
+from .factories import CaseFactory
 
 
 class TestQuerySchema(TestCase):
@@ -70,3 +72,9 @@ class TestQuerySchema(TestCase):
         obj["max_exon_dist"] = "25"
         with self.assertRaises(ValidationError):
             DefaultValidatingDraft7Validator(SCHEMA_QUERY_V1).validate(obj)
+
+    def test_conversion_json_to_filter_form(self):
+        """Test conversion from query settings to small variant filter form"""
+        case = CaseFactory(name="Case_1", index="Case_1_index-N1-DNA1-WGS1")
+        result = convert_query_json_to_small_variant_filter_form_v1(case, QUERY_SETTINGS)
+        self.assertEqual(result, QUERY_SETTINGS_CONVERTED)

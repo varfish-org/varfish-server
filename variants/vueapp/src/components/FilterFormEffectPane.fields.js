@@ -187,25 +187,25 @@ export const detailedEffectGroups = Object.freeze([
     title: 'Non-Coding',
     fields: [
       {
-        id: 'three_prime_UTR_exon_variant',
+        id: '3_prime_UTR_exon_variant',
         label: "3' UTR exonic",
         so: 'SO:0002089',
         explanation: "An exon UTR variant of the 3' UTR.",
       },
       {
-        id: 'three_prime_UTR_intron_variant',
+        id: '3_prime_UTR_intron_variant',
         label: "3' UTR intronic",
         so: 'SO:0002090',
         explanation: "An intron UTR variant between 3' UTRs.",
       },
       {
-        id: 'five_prime_UTR_exon_variant',
+        id: '5_prime_UTR_exon_variant',
         label: "5' UTR exonic",
         so: 'SO:0002092',
         explanation: "An exon UTR variant of the 5' UTR.",
       },
       {
-        id: 'five_prime_UTR_intron_variant',
+        id: '5_prime_UTR_intron_variant',
         label: "5' UTR intronic",
         so: 'SO:0002091',
         explanation: "An intron UTR variant between 5' UTRs.",
@@ -316,10 +316,10 @@ const _effectGroups = {
   coding: ['stop_retained_variant', 'synonymous_variant'],
   utr_intronic: [
     'coding_transcript_intron_variant',
-    'five_prime_UTR_exon_variant',
-    'five_prime_UTR_intron_variant',
-    'three_prime_UTR_exon_variant',
-    'three_prime_UTR_intron_variant',
+    '5_prime_UTR_exon_variant',
+    '5_prime_UTR_intron_variant',
+    '3_prime_UTR_exon_variant',
+    '3_prime_UTR_intron_variant',
   ],
   noncoding: [
     'downstream_gene_variant',
