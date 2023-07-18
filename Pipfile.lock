@@ -430,9 +430,11 @@
         },
         "django-dirtyfields": {
             "hashes": [
-                "sha256:6f2e988121323cd8a15cef3035f5ea5942d3e41f76c3b2e1de0b81761a000c94"
+                "sha256:93b272eab993f813faabf3ea842ebfad63a03712e7213291aebdbddc5a012a5d",
+                "sha256:eb2dbed51c2a9bc23e84d19797f4cd074f59c935f8f39bb716d185dc6b86401a"
             ],
-            "version": "==1.2.1"
+            "markers": "python_version >= '3.7'",
+            "version": "==1.9.2"
         },
         "django-docs": {
             "hashes": [
@@ -520,10 +522,10 @@
         },
         "django-sodar-core": {
             "hashes": [
-                "sha256:a5f02accaf39eb2794f1bc6b79d7cd1ba859bf06b4097908a5c5d02d6078bc62"
+                "sha256:76be1c17b241433e4d2d636eb8beb9caf33d78fb45a1d2df5d1e0de3090206e4"
             ],
             "index": "pypi",
-            "version": "==0.11.1"
+            "version": "==0.11.2"
         },
         "django-su": {
             "hashes": [
