@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class FragmentLengthDistribution(models.Model):
     pass
 

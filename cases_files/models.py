@@ -42,7 +42,6 @@ class AbstractFile(models.Model):
         abstract = True
 
 
-
 class ExternalFile(AbstractFile):
     """Reference to file on external storage.
 
