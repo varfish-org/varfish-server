@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("variants", "0094_case_case_version"),
+        ("variants", "0093_auto_20230711_1501"),
         ("seqmeta", "0003_targetbedfile_seqmeta_tar_file_ur_9f92c4_idx"),
     ]
 

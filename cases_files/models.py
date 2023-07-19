@@ -3,6 +3,7 @@ import uuid as uuid_object
 
 from django.db import models
 
+from cases.models import Pedigree, Individual
 from cases_import.proto import FileDesignation
 from variants.models import Case
 
@@ -66,6 +67,9 @@ class ExternalFile(AbstractFile):
     #: Date of the last check.
     last_checked = models.DateTimeField(null=True)
 
+    class Meta:
+        abstract = True
+
 
 class InternalFile(AbstractFile):
     """Reference to a file on internal storage.
@@ -75,3 +79,50 @@ class InternalFile(AbstractFile):
 
     #: The checksum of the file.
     checksum = models.CharField(max_length=128, null=True)
+
+    class Meta:
+        abstract = True
+
+
+class IndividualExternalFile(ExternalFile):
+    """Reference to a file on external storage for an individual."""
+
+    #: The individual that the file belongs to.
+    individual = models.ForeignKey(
+        Individual,
+        null=False,
+        on_delete=models.CASCADE,
+    )
+
+
+class IndividualInternalFile(InternalFile):
+    """Reference to a file on internal storage for an individual."""
+
+    #: The individual that the file belongs to.
+    individual = models.ForeignKey(
+        Individual,
+        null=False,
+        on_delete=models.CASCADE,
+    )
+
+
+class PedigreeExternalFile(ExternalFile):
+    """Reference to a file on external storage for a pedigree."""
+
+    #: The pedigree that the file belongs to.
+    pedigree = models.ForeignKey(
+        Pedigree,
+        null=False,
+        on_delete=models.CASCADE,
+    )
+
+
+class PedigreeInternalFile(InternalFile):
+    """Reference to a file on internal storage for a pedigree."""
+
+    #: The pedigree that the file belongs to.
+    pedigree = models.ForeignKey(
+        Pedigree,
+        null=False,
+        on_delete=models.CASCADE,
+    )
