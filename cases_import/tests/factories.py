@@ -1,5 +1,4 @@
 import datetime
-import json
 
 from bgjobs.tests.factories import BackgroundJobFactory
 import factory

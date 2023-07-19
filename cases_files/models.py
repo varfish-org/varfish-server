@@ -1,8 +1,15 @@
+import enum
 import uuid as uuid_object
 
 from django.db import models
 
 from cases_import.proto import FileDesignation
+from variants.models import Case
+
+
+@enum.unique
+class MimeTypes(enum.Enum):
+    BAM = "application/x-bam"
 
 
 class AbstractFile(models.Model):
@@ -25,18 +32,23 @@ class AbstractFile(models.Model):
     #: DateTime of last modification.
     date_modified = models.DateTimeField(auto_now=True)
 
+    #: The case that the file belongs to.
+    case = models.ForeignKey(
+        Case,
+        null=False,
+        on_delete=models.CASCADE,
+    )
+
     #: The file's path relative to the internal or project's external storage base URI.  That is,
     #: the path will not start with a slash.
     path = models.CharField(max_length=1024, null=False, blank=False, unique=True)
 
-    #: The checksum of the file.
-    checksum = models.CharField(max_length=128)
     #: The designation of the file.
     designation = models.CharField(max_length=128, null=False, choices=FILE_DESIGNATION_CHOICES)
     #: The genome assembly, if any.
     genomebuild = models.CharField(max_length=128, null=True, choices=GENOMEBUILD_CHOICES)
     #: The file format as MIME type.
-    mimetype = models.CharField(max_length=128)
+    mimetype = models.CharField(max_length=256)
 
     class Meta:
         abstract = True
@@ -49,9 +61,17 @@ class ExternalFile(AbstractFile):
     before being used in queries etc., or they are used for redisplay only.
     """
 
+    #: Whether or not the file was available on the last check.
+    available = models.BooleanField(default=False)
+    #: Date of the last check.
+    last_checked = models.DateTimeField(null=True)
+
 
 class InternalFile(AbstractFile):
     """Reference to a file on internal storage.
 
     Such files are used for queries etc.
     """
+
+    #: The checksum of the file.
+    checksum = models.CharField(max_length=128, null=True)

@@ -134,3 +134,9 @@ class CaseImportBackgroundJob(JobModelMessageMixin, models.Model):
 
 def run_caseimportactionbackgroundjob(*, pk: int):
     """Execute the work for a ``CaseImportBackgroundJob``."""
+    # 1. create a new case if necessary
+    # 2. update the case if necessary
+    # 3. update the internal files for the enrichment targets
+    # 4. update the external files for read alignment files
+    # 5. run seqvars annotation with mehari, store internally, and store internal file record
+    # 6. run strucvars annotation with mehari, store internally, and store internal file record
