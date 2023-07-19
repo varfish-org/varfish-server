@@ -151,13 +151,13 @@ class CaseImportBackgroundJob(JobModelMessageMixin, models.Model):
 
 def build_legacy_pedigree(family: Family) -> typing.List:
     """Build a legacy pedigree from the phenopackets.Family."""
-    assert False, "Implement me!"
+    assert False, "Implement me!"  # 2
     return []
 
 
 def release_from_family(family: Family) -> str:
     """Obtain the genome release from the given family (index)'s target file."""
-    assert False, "Implement me!"
+    assert False, "Implement me!"  # 3
     return "GRCh37"
 
 
@@ -282,7 +282,7 @@ class CaseImportBackgroundJobExecutor:
             obj.delete()
 
     def _create_external_files(self, case: Case):
-        assert False, "Implement me!"
+        assert False, "Implement me!"  # 1
 
     def _run_seqvars_annotation(self, case: Case):
         assert False, "Implement me!"
@@ -297,9 +297,5 @@ class CaseImportBackgroundJobExecutor:
 
 def run_caseimportactionbackgroundjob(*, pk: int):
     """Execute the work for a ``CaseImportBackgroundJob``."""
-    # 1. create a new case if necessary
-    # 2. update the case if necessary
-    # 3. update the internal files for the enrichment targets
-    # 4. update the external files for read alignment files
-    # 5. run seqvars annotation with mehari, store internally, and store internal file record
-    # 6. run strucvars annotation with mehari, store internally, and store internal file record
+    executor = CaseImportBackgroundJobExecutor(pk)
+    executor.run()
