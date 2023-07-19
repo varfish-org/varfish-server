@@ -30,6 +30,8 @@ lxml = "~=4.6"
 nltk = "~=3.6"
 numpy = "~=1.22"
 pandas = "~=1.4"
+phenopackets = "~=2.0"
+protobuf = "~=3.20"
 prettytable = "~=3.3"
 psutil = "~=5.9.0"
 psycopg2 = "==2.9.1"
@@ -53,8 +55,6 @@ vcfpy = "~=0.13.6"
 versioneer = ">=0.21"
 wrapt = ">=1.14.1,<2.0"
 xlsxwriter = ">=1.4.3,<1.5"
-phenopackets = "*"
-protobuf = "*"
 
 [dev-packages]
 # packages for testing
