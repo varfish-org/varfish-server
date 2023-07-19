@@ -282,13 +282,13 @@ class CaseImportBackgroundJobExecutor:
             obj.delete()
 
     def _create_external_files(self, case: Case):
-        pass
+        assert False, "Implement me!"
 
     def _run_seqvars_annotation(self, case: Case):
-        pass
+        assert False, "Implement me!"
 
     def _run_strucvars_annotation(self, case: Case):
-        pass
+        assert False, "Implement me!"
 
     def _update_case_state(self, case):
         case.state = Case.STATE_DONE
