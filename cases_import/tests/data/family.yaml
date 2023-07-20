@@ -29,7 +29,7 @@ family:
         fileAttributes:
           checksum: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
           designation: sequencing_targets
-          genomebuild: GRCh38
+          genomebuild: grch38
           mimetype: text/x-bed+x-bgzip
       - uri: s3://data-for-import/example/index.bam
         individualToFileIdentifiers:
@@ -37,7 +37,7 @@ family:
         fileAttributes:
           checksum: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
           designation: read_alignments
-          genomebuild: GRCh38
+          genomebuild: grch38
           mimetype: text/x-bam+x-bgzip
     diseases:
       - term:
@@ -81,7 +81,7 @@ family:
           fileAttributes:
             checksum: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
             designation: sequencing_targets
-            genomebuild: GRCh38
+            genomebuild: grch38
             mimetype: text/x-bed+x-bgzip
         - uri: s3://data-for-import/example/mother.bam
           individualToFileIdentifiers:
@@ -89,7 +89,7 @@ family:
           fileAttributes:
             checksum: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
             designation: read_alignments
-            genomebuild: GRCh38
+            genomebuild: grch38
             mimetype: text/x-bam+x-bgzip
       diseases:
         - term:
@@ -122,7 +122,7 @@ family:
           fileAttributes:
             checksum: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
             designation: sequencing_targets
-            genomebuild: GRCh38
+            genomebuild: grch38
             mimetype: text/x-bed+x-bgzip
         - uri: s3://data-for-import/example/father.bam
           individualToFileIdentifiers:
@@ -130,7 +130,7 @@ family:
           fileAttributes:
             checksum: sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
             designation: read_alignments
-            genomebuild: GRCh38
+            genomebuild: grch38
             mimetype: text/x-bam+x-bgzip
       diseases:
         - term:
@@ -169,7 +169,7 @@ family:
         designation: variant_calls
         variant_type: seqvars
         caller: GATK-HC
-        genomebuild: GRCh38
+        genomebuild: grch38
         mimetype: application/x-vcf+x-bgzip
     - uri: s3://data-for-import/example/family.gcnv.vcf.gz
       individualToFileIdentifiers:
@@ -181,6 +181,6 @@ family:
         designation: variant_calls
         variant_type: strucvars
         caller: gCNV
-        genomebuild: GRCh38
+        genomebuild: grch38
         mimetype: application/x-vcf+x-bgzip
   metaData: *metadata-prototype

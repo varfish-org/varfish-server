@@ -23,7 +23,7 @@ from cases_files.models import (
     PedigreeExternalFile,
     PedigreeInternalFile,
 )
-from cases_import.proto import Assay, get_case_name_from_family_payload
+from cases_import.proto import Assay, FileDesignation, get_case_name_from_family_payload
 from seqmeta.models import TargetBedFile
 from varfish.utils import JSONField
 from variants.models import Case
@@ -214,9 +214,9 @@ def release_from_family(family: Family) -> typing.Optional[str]:
 
 #: Mapping of assay ID from phenopackets to representation in Individual.
 ASSAY_MAP = {
-    Assay.PANEL_SEQ: Individual.ASSAY_PANEL,
-    Assay.WES: Individual.ASSAY_WES,
-    Assay.WGS: Individual.ASSAY_WGS,
+    Assay.PANEL_SEQ.value: Individual.ASSAY_PANEL,
+    Assay.WES.value: Individual.ASSAY_WES,
+    Assay.WGS.value: Individual.ASSAY_WGS,
 }
 
 #: Mapping of karyotypic sex from phenopackets to representation in Individual.
@@ -257,7 +257,7 @@ class CaseImportBackgroundJobExecutor:
             self._run()
 
     def _run(self):
-        if self.caseimportbackgroundjob.action == CaseImportAction.ACTION_DELETE:
+        if self.caseimportbackgroundjob.caseimportaction.action == CaseImportAction.ACTION_DELETE:
             self._run_delete()
         else:
             self._run_create_or_update()
@@ -266,7 +266,7 @@ class CaseImportBackgroundJobExecutor:
         """Return the case belonging to the job."""
         project = self.caseimportbackgroundjob.project
         case_name = self.caseimportbackgroundjob.caseimportaction.get_case_name()
-        return Case.objects.first(project=project, name=case_name)
+        return Case.objects.filter(project=project, name=case_name).first()
 
     def _run_delete(self) -> Case:
         case = self._get_case()
@@ -355,35 +355,37 @@ class CaseImportBackgroundJobExecutor:
             assay[relative.id] = ASSAY_MAP[relative.measurements[0].assay.id]
             karyotypic_sex[relative.id] = KARYOTYPIC_SEX_MAP[relative.subject.karyotypic_sex]
             targetbedfile_uris[relative.id] = relative.files[0].uri
-            diseases[relative.id] = relative.proband.diseases
+            diseases[relative.id] = relative.diseases
             features[relative.id] = relative.phenotypic_features
-        return assay, karyotypic_sex, targetbedfile_uris
+        return assay, karyotypic_sex, targetbedfile_uris, diseases, features
 
     def _create_pedigree(self, case: Case, family: Family) -> Pedigree:
         assay, karyotypic_sex, targetbedfile_uris, diseases, features = self._family_helper(family)
-        pedigree = Pedigree.object.create(case=case)
+        pedigree = Pedigree.objects.create(case=case)
         for person in family.pedigree.persons:
-            targetbedfile = TargetBedFile.objects.find(file_uri=targetbedfile_uris[person.id])
+            targetbedfile = TargetBedFile.objects.get(
+                file_uri=targetbedfile_uris[person.individual_id]
+            )
             individual = Individual.objects.create(
                 pedigree=pedigree,
-                name=person.individualId,
+                name=person.individual_id,
                 sex=SEX_MAP[person.sex],
-                karyotypic_sex=KARYOTYPIC_SEX_MAP[karyotypic_sex[person.id]],
-                assay=ASSAY_MAP[assay[person.id]],
+                karyotypic_sex=karyotypic_sex[person.individual_id],
+                assay=assay[person.individual_id],
                 enrichmentkit=targetbedfile.enrichmentkit,
             )
-            for disease in diseases:
+            for disease in diseases[individual.name]:
                 Disease.objects.create(
                     individual=individual,
                     term_id=disease.term.id,
                     term_label=disease.term.label,
                     excluded=bool(disease.excluded),
                 )
-            for feature in features:
+            for feature in features[individual.name]:
                 PhenotypicFeature.objects.create(
                     individual=individual,
-                    term_id=feature.term.id,
-                    term_label=feature.term.label,
+                    term_id=feature.type.id,
+                    term_label=feature.type.label,
                     excluded=bool(feature.excluded),
                 )
         return pedigree
@@ -414,8 +416,8 @@ class CaseImportBackgroundJobExecutor:
 
         pedigree = Pedigree.objects.get(case=case)
         individuals = {
-            individual.name: individuals
-            for individual in Individual.objects.find(pedigree=pedigree)
+            individual.name: individual
+            for individual in Individual.objects.filter(pedigree=pedigree)
         }
         pedigree_names = set(individuals.keys())
 
@@ -430,59 +432,63 @@ class CaseImportBackgroundJobExecutor:
 
         # Add missing individuals.
         for person in family.pedigree.persons:
-            if person.id not in missing:
+            if person.individual_id not in missing:
                 continue
-            targetbedfile = TargetBedFile.objects.find(file_uri=targetbedfile_uris[person.id])
+            targetbedfile = TargetBedFile.objects.get(
+                file_uri=targetbedfile_uris[person.individual_id]
+            )
             individual = Individual.objects.create(
                 pedigree=pedigree,
-                name=person.individualId,
+                name=person.individual_id,
                 sex=SEX_MAP[person.sex],
-                karyotypic_sex=KARYOTYPIC_SEX_MAP[karyotypic_sex[person.id]],
-                assay=ASSAY_MAP[assay[person.id]],
+                karyotypic_sex=karyotypic_sex[person.individual_id],
+                assay=assay[person.individual_id],
                 enrichmentkit=targetbedfile.enrichmentkit,
             )
-            for disease in diseases:
+            for disease in diseases[individual.name]:
                 Disease.objects.create(
                     individual=individual,
                     term_id=disease.term.id,
                     term_label=disease.term.label,
                     excluded=bool(disease.excluded),
                 )
-            for feature in features:
+            for feature in features[individual.name]:
                 PhenotypicFeature.objects.create(
                     individual=individual,
-                    term_id=feature.term.id,
-                    term_label=feature.term.label,
+                    term_id=feature.type.id,
+                    term_label=feature.type.label,
                     excluded=bool(feature.excluded),
                 )
 
         # Update existing individuals.
         for person in family.pedigree.persons:
-            if person.id not in keep:
+            if person.individual_id not in keep:
                 continue
-            targetbedfile = TargetBedFile.objects.find(file_uri=targetbedfile_uris[person.id])
-            individual = individuals[name]
+            targetbedfile = TargetBedFile.objects.get(
+                file_uri=targetbedfile_uris[person.individual_id]
+            )
+            individual = individuals[person.individual_id]
             individual.sex = SEX_MAP[person.sex]
-            individual.karyotypic_sex = KARYOTYPIC_SEX_MAP[karyotypic_sex[person.id]]
-            individual.assay = ASSAY_MAP[assay[person.id]]
+            individual.karyotypic_sex = karyotypic_sex[person.individual_id]
+            individual.assay = assay[person.individual_id]
             individual.enrichmentkit = targetbedfile.enrichmentkit
             individual.save()
 
             if self.caseimportbackgroundjob.caseimportaction.overwrite_terms:
-                Disease.objects.find(individual=individual).delete()
-                PhenotypicFeature.objects.find(individual=individual).delete()
-                for disease in diseases:
+                Disease.objects.filter(individual=individual).delete()
+                PhenotypicFeature.objects.filter(individual=individual).delete()
+                for disease in diseases[individual.name]:
                     Disease.objects.create(
                         individual=individual,
                         term_id=disease.term.id,
                         term_label=disease.term.label,
                         excluded=bool(disease.excluded),
                     )
-                for feature in features:
+                for feature in features[individual.name]:
                     PhenotypicFeature.objects.create(
                         individual=individual,
-                        term_id=feature.term.id,
-                        term_label=feature.term.label,
+                        term_id=feature.type.id,
+                        term_label=feature.type.label,
                         excluded=bool(feature.excluded),
                     )
 
@@ -503,7 +509,63 @@ class CaseImportBackgroundJobExecutor:
             obj.delete()
 
     def _create_external_files(self, case: Case, family: Family):
-        assert False, "Implement me!"  # 1
+        self._create_external_files_pedigree(case, case.pedigree_obj, family)
+        for individual in case.pedigree_obj.individual_set.all():
+            self._create_external_files_individual(case, individual, family)
+
+    def _create_external_files_pedigree(self, case: Case, pedigree: Pedigree, family: Family):
+        for file_ in family.files:
+            PedigreeExternalFile.objects.create(
+                case=case,
+                pedigree=pedigree,
+                path=file_.uri,
+                designation=file_.file_attributes.get("designation", FileDesignation.OTHER.value),
+                genomebuild=file_.file_attributes.get(
+                    "genomebuild", AbstractFile.GENOMEBUILD_OTHER
+                ),
+                mimetype=file_.file_attributes.get("mimetype", "application/octet-stream"),
+                file_attributes={
+                    str(key): str(value) for key, value in file_.file_attributes.items()
+                },
+                identifier_map={
+                    str(key): str(value)
+                    for key, value in file_.individual_to_file_identifiers.items()
+                },
+            )
+
+    def _create_external_files_individual(self, case: Case, individual: Individual, family: Family):
+        # Fetch appropriate phenopacket from ``family`` for ``individual``.
+        if family.proband.id == individual.name:
+            pp = family.proband
+        else:
+            for relative in family.relatives:
+                if relative.id == individual.name:
+                    pp = relative
+                    break
+            else:
+                raise ValueError(f"Found no phenopacket individual for {individual.name}")
+
+        # Create the external files.
+        #
+        # NB: the first file for each invidual is skipped as this specifies the kit
+        for file_ in list(pp.files)[1:]:
+            IndividualExternalFile.objects.create(
+                case=case,
+                individual=individual,
+                path=file_.uri,
+                designation=file_.file_attributes.get("designation", FileDesignation.OTHER.value),
+                genomebuild=file_.file_attributes.get(
+                    "genomebuild", AbstractFile.GENOMEBUILD_OTHER
+                ),
+                mimetype=file_.file_attributes.get("mimetype", "application/octet-stream"),
+                file_attributes={
+                    str(key): str(value) for key, value in file_.file_attributes.items()
+                },
+                identifier_map={
+                    str(key): str(value)
+                    for key, value in file_.individual_to_file_identifiers.items()
+                },
+            )
 
     def _run_seqvars_annotation(self, case: Case):
         self.caseimportbackgroundjob.add_log_entry("seqvars annotation not implemented yet")
@@ -512,7 +574,7 @@ class CaseImportBackgroundJobExecutor:
         self.caseimportbackgroundjob.add_log_entry("strucvars annotation not implemented yet")
 
     def _update_case_state(self, case):
-        case.state = Case.STATE_DONE
+        case.state = Case.STATE_ACTIVE
         case.save()
 
 

@@ -63,7 +63,7 @@ class BuildLegacyModelTest(TestCaseSnapshot, TestCase):
         self.assertMatchSnapshot(result, "legacy pedigree for family.yaml")
 
 
-class BuildReleaseFromFamily(TestCaseSnapshot, TestCase):
+class BuildReleaseFromFamilyTest(TestCaseSnapshot, TestCase):
     def setUp(self):
         with open("cases_import/tests/data/family.yaml", "rt") as inputf:
             self.fam_dict = yaml.safe_load(inputf)

@@ -96,7 +96,7 @@ class Individual(models.Model):
     #: The assay used or None for no assay.
     assay = models.CharField(max_length=128, choices=ASSAY_CHOICES, null=True, blank=True)
     #: When sequenced, the used enrichment kit to specify targets.
-    enrichmentkit = models.OneToOneField(
+    enrichmentkit = models.ForeignKey(
         EnrichmentKit, on_delete=models.PROTECT, null=True, blank=True
     )
 

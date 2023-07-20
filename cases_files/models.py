@@ -16,10 +16,12 @@ class MimeTypes(enum.Enum):
 class AbstractFile(models.Model):
     """Abstract model for file reference."""
 
+    GENOMEBUILD_OTHER = "other"
     GENOMEBUILD_GRCH37 = "grch37"
     GENOMEBUILD_GRCH38 = "grch38"
 
     GENOMEBUILD_CHOICES = (
+        (GENOMEBUILD_OTHER, GENOMEBUILD_OTHER),
         (GENOMEBUILD_GRCH37, GENOMEBUILD_GRCH37),
         (GENOMEBUILD_GRCH38, GENOMEBUILD_GRCH38),
     )
@@ -63,9 +65,13 @@ class ExternalFile(AbstractFile):
     """
 
     #: Whether or not the file was available on the last check.
-    available = models.BooleanField(default=False)
+    available = models.BooleanField(null=True, default=None)
     #: Date of the last check.
-    last_checked = models.DateTimeField(null=True)
+    last_checked = models.DateTimeField(null=True, default=None)
+    #: All file attributes from phenopackets.
+    file_attributes = models.JSONField(null=False)
+    #: The mapping from individual to file identifiers.
+    identifier_map = models.JSONField(null=False)
 
     class Meta:
         abstract = True
