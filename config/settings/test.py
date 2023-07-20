@@ -37,7 +37,7 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"
 
 # TESTING
 # ------------------------------------------------------------------------------
-TEST_RUNNER = "django.test.runner.DiscoverRunner"
+TEST_RUNNER = "snapshottest.django.TestRunner"
 
 # http://docs.celeryproject.org/en/latest/userguide/configuration.html#task-always-eager
 CELERY_TASK_ALWAYS_EAGER = True

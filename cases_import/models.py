@@ -11,6 +11,7 @@ from bgjobs.models import (
 from django.db import models, transaction
 from django.urls import reverse
 from google.protobuf.json_format import ParseDict, ParseError
+import phenopackets
 from phenopackets import Family
 from projectroles.models import Project
 
@@ -149,9 +150,44 @@ class CaseImportBackgroundJob(JobModelMessageMixin, models.Model):
 
 
 def build_legacy_pedigree(family: Family) -> typing.List:
-    """Build a legacy pedigree from the phenopackets.Family."""
-    assert False, "Implement me!"  # 2
-    return []
+    """Build a legacy pedigree from the ``phenopackets.Family``.
+
+    This code will go away once we got rid of the legacy ``pedigree`` member.  We are using
+    direct dict access below so we are not robust in phenopackets protobuf updates but that
+    should be fair as we will get rid of the legacy ``pedigree`` anyway.
+    """
+    has_measurements = {
+        family.proband.id: bool(len(family.proband.measurements)),
+    }
+    for relative in family.relatives:
+        has_measurements[relative.id] = bool(len(relative.measurements))
+
+    sex_map = {
+        phenopackets.Sex.MALE: 1,
+        phenopackets.Sex.FEMALE: 2,
+        phenopackets.Sex.OTHER_SEX: 0,
+        phenopackets.Sex.UNKNOWN_SEX: 0,
+    }
+
+    affected_map = {
+        2: 2,
+        1: 1,
+        0: 0,
+    }
+
+    result = []
+    for person in family.pedigree.persons:
+        result.append(
+            {
+                "sex": sex_map[person.sex],
+                "patient": person.individual_id,
+                "father": person.paternal_id,
+                "mother": person.maternal_id,
+                "affected": affected_map[person.affected_status],
+                "has_gt_entries": has_measurements[person.individual_id],
+            }
+        )
+    return result
 
 
 def release_from_family(family: Family) -> str:

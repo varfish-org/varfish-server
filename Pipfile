@@ -74,15 +74,16 @@ openpyxl = "~=3.0"
 parameterized = "~=0.8.1"
 requests-mock = "~=1.9"
 selenium = "~=3.141"
+snapshottest = "*"
 tblib = "~=1.7"
 # packages for local development
 ipdb = "<0.14,>=0.13.9"
 jedi = "==0.17.2"
 werkzeug = ">=2.0.1,<2.3"
-# Dependencies for enabling LDAP support.  You will need the system library
-# named `libldap` (or similar).
 
 [ldap-packages]
+# Dependencies for enabling LDAP support.  You will need the system library
+# named `libldap` (or similar).
 django-auth-ldap = ">=2.4.0,<2.5"
 python-ldap = ">=3.3.1,<3.4"
 # Packages needed in production.

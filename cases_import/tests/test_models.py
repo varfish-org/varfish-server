@@ -1,7 +1,11 @@
 from freezegun import freeze_time
+from google.protobuf.json_format import ParseDict
+from phenopackets import Family
+from snapshottest.unittest import TestCase as TestCaseSnapshot
 from test_plus import TestCase
+import yaml
 
-from cases_import.models import CaseImportAction, CaseImportBackgroundJob
+from cases_import.models import CaseImportAction, CaseImportBackgroundJob, build_legacy_pedigree
 from cases_import.tests.factories import CaseImportActionFactory, CaseImportBackgroundJobFactory
 
 
@@ -40,3 +44,14 @@ class CaseImportBackgroundJobTest(TestCase):
         self.assertEqual(
             job.get_absolute_url(), f"/cases-import/import-case-bg-job/{job.sodar_uuid}/"
         )
+
+
+class BuildLegacyModelTest(TestCaseSnapshot, TestCase):
+    def setUp(self):
+        with open("cases_import/tests/data/family.yaml", "rt") as inputf:
+            self.fam_dict = yaml.safe_load(inputf)
+        self.family: Family = ParseDict(js_dict=self.fam_dict["family"], message=Family())
+
+    def test_asevalidate_ok(self):
+        result = build_legacy_pedigree(self.family)
+        self.assertMatchSnapshot(result, "legacy pedigree for family.yaml")
