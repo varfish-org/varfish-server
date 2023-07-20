@@ -16,6 +16,7 @@ from phenopackets import Family
 from projectroles.models import Project
 
 from cases_files.models import (
+    AbstractFile,
     IndividualExternalFile,
     IndividualInternalFile,
     PedigreeExternalFile,
@@ -190,10 +191,23 @@ def build_legacy_pedigree(family: Family) -> typing.List:
     return result
 
 
-def release_from_family(family: Family) -> str:
-    """Obtain the genome release from the given family (index)'s target file."""
-    assert False, "Implement me!"  # 3
-    return "GRCh37"
+def release_from_family(family: Family) -> typing.Optional[str]:
+    """Obtain the genome release from the given family (index)'s target file.
+
+    Return ``None`` if the release cannot be determined.
+    """
+    if (
+        family
+        and family.proband
+        and len(family.proband.files)
+        and "genomebuild" in family.proband.files[0].file_attributes
+    ):
+        val = family.proband.files[0].file_attributes["genomebuild"]
+        if val == "GRCh37":
+            return AbstractFile.GENOMEBUILD_GRCH37
+        elif val == "GRCh38":
+            return AbstractFile.GENOMEBUILD_GRCH38
+    return None
 
 
 class CaseImportBackgroundJobExecutor:
