@@ -70,6 +70,7 @@ class TestCaseSerializer(TestCase):
                 "index",
                 "pedigree",
                 "notes",
+                "state",
                 "status",
                 "tags",
                 "date_created",

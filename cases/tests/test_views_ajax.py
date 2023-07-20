@@ -65,6 +65,7 @@ class TestCaseListAjaxView(TestProjectAPIPermissionBase):
                         "release": self.case.release,
                         "sex_errors": {},
                         "sodar_uuid": RE_UUID4,
+                        "state": None,
                         "status": "initial",
                         "tags": [],
                         "case_version": 1,

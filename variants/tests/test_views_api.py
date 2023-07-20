@@ -1,19 +1,15 @@
 import copy
 
-from bgjobs.models import JOB_STATE_DONE
 from django.forms import model_to_dict
 from django.urls import reverse
 from projectroles.tests.test_views_api import EMPTY_KNOX_TOKEN
 
-from ..models import FilterBgJob, SmallVariantQuery
 from ..query_schemas import SCHEMA_QUERY_V1, DefaultValidatingDraft7Validator
 from .factories import (
     AcmgCriteriaRatingFactory,
     CaseFactory,
     CaseWithVariantSetFactory,
-    FilterBgJobFactory,
     SmallVariantCommentFactory,
-    SmallVariantFactory,
     SmallVariantFlagsFactory,
     SmallVariantQueryFactory,
 )
@@ -48,6 +44,7 @@ class TestCaseApiViews(ApiViewTestBase):
             "num_svs": case.num_svs,
             "project": case.project.sodar_uuid,
             "notes": case.notes,
+            "state": None,
             "status": case.status,
             "tags": case.tags,
             "release": case.release,
@@ -132,10 +129,11 @@ class TestCaseApiViews(ApiViewTestBase):
             )
 
             expected = self._expected_case_data(legacy=True)
+            expected.pop("state")
             response.data.pop("date_created")  # complex; not worth testing
             response.data.pop("date_modified")  # the same
             self.assertEqual(response.status_code, 200)
-            self.assertDictEqual(response.data, expected)
+            self.assertDictEqual(expected, dict(response.data))
 
 
 def small_variant_query_to_dict(query):

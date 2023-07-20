@@ -36,6 +36,8 @@ class ExternalFileFactory(AbstractFileFactory):
 
     available = True
     last_checked = factory.LazyFunction(timezone.now)
+    identifier_map = factory.LazyFunction(dict)
+    file_attributes = factory.LazyFunction(dict)
 
 
 class IndividualExternalFileFactory(ExternalFileFactory):
